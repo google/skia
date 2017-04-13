@@ -8,8 +8,10 @@
 
 #if defined(__MACH__)
     #define HIDDEN .private_extern
+    #define FUNCTION(name)
 #else
     #define HIDDEN .hidden
+    #define FUNCTION(name) .type name,%function
     .section .note.GNU-stack,"",%progbits
 #endif
 .text
@@ -18,6 +20,7 @@
 
 HIDDEN _sk_start_pipeline_aarch64
 .globl _sk_start_pipeline_aarch64
+FUNCTION(_sk_start_pipeline_aarch64)
 _sk_start_pipeline_aarch64:
   .long  0xa9bd5bf7                          // stp           x23, x22, [sp, #-48]!
   .long  0xa90153f5                          // stp           x21, x20, [sp, #16]
@@ -56,11 +59,13 @@ _sk_start_pipeline_aarch64:
 
 HIDDEN _sk_just_return_aarch64
 .globl _sk_just_return_aarch64
+FUNCTION(_sk_just_return_aarch64)
 _sk_just_return_aarch64:
   .long  0xd65f03c0                          // ret
 
 HIDDEN _sk_seed_shader_aarch64
 .globl _sk_seed_shader_aarch64
+FUNCTION(_sk_seed_shader_aarch64)
 _sk_seed_shader_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x3dc00046                          // ldr           q6, [x2]
@@ -82,6 +87,7 @@ _sk_seed_shader_aarch64:
 
 HIDDEN _sk_constant_color_aarch64
 .globl _sk_constant_color_aarch64
+FUNCTION(_sk_constant_color_aarch64)
 _sk_constant_color_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xaa0803ea                          // mov           x10, x8
@@ -95,6 +101,7 @@ _sk_constant_color_aarch64:
 
 HIDDEN _sk_clear_aarch64
 .globl _sk_clear_aarch64
+FUNCTION(_sk_clear_aarch64)
 _sk_clear_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x6f00e400                          // movi          v0.2d, #0x0
@@ -105,6 +112,7 @@ _sk_clear_aarch64:
 
 HIDDEN _sk_srcatop_aarch64
 .globl _sk_srcatop_aarch64
+FUNCTION(_sk_srcatop_aarch64)
 _sk_srcatop_aarch64:
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
   .long  0x6e27dc00                          // fmul          v0.4s, v0.4s, v7.4s
@@ -122,6 +130,7 @@ _sk_srcatop_aarch64:
 
 HIDDEN _sk_dstatop_aarch64
 .globl _sk_dstatop_aarch64
+FUNCTION(_sk_dstatop_aarch64)
 _sk_dstatop_aarch64:
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
   .long  0x4ea7d610                          // fsub          v16.4s, v16.4s, v7.4s
@@ -139,6 +148,7 @@ _sk_dstatop_aarch64:
 
 HIDDEN _sk_srcin_aarch64
 .globl _sk_srcin_aarch64
+FUNCTION(_sk_srcin_aarch64)
 _sk_srcin_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x6e27dc00                          // fmul          v0.4s, v0.4s, v7.4s
@@ -149,6 +159,7 @@ _sk_srcin_aarch64:
 
 HIDDEN _sk_dstin_aarch64
 .globl _sk_dstin_aarch64
+FUNCTION(_sk_dstin_aarch64)
 _sk_dstin_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x6e24dc60                          // fmul          v0.4s, v3.4s, v4.4s
@@ -159,6 +170,7 @@ _sk_dstin_aarch64:
 
 HIDDEN _sk_srcout_aarch64
 .globl _sk_srcout_aarch64
+FUNCTION(_sk_srcout_aarch64)
 _sk_srcout_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
@@ -171,6 +183,7 @@ _sk_srcout_aarch64:
 
 HIDDEN _sk_dstout_aarch64
 .globl _sk_dstout_aarch64
+FUNCTION(_sk_dstout_aarch64)
 _sk_dstout_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x4f03f600                          // fmov          v0.4s, #1.000000000000000000e+00
@@ -183,6 +196,7 @@ _sk_dstout_aarch64:
 
 HIDDEN _sk_srcover_aarch64
 .globl _sk_srcover_aarch64
+FUNCTION(_sk_srcover_aarch64)
 _sk_srcover_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
@@ -195,6 +209,7 @@ _sk_srcover_aarch64:
 
 HIDDEN _sk_dstover_aarch64
 .globl _sk_dstover_aarch64
+FUNCTION(_sk_dstover_aarch64)
 _sk_dstover_aarch64:
   .long  0x4f03f611                          // fmov          v17.4s, #1.000000000000000000e+00
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -215,6 +230,7 @@ _sk_dstover_aarch64:
 
 HIDDEN _sk_modulate_aarch64
 .globl _sk_modulate_aarch64
+FUNCTION(_sk_modulate_aarch64)
 _sk_modulate_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x6e24dc00                          // fmul          v0.4s, v0.4s, v4.4s
@@ -225,6 +241,7 @@ _sk_modulate_aarch64:
 
 HIDDEN _sk_multiply_aarch64
 .globl _sk_multiply_aarch64
+FUNCTION(_sk_multiply_aarch64)
 _sk_multiply_aarch64:
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
   .long  0x4ea7d613                          // fsub          v19.4s, v16.4s, v7.4s
@@ -250,6 +267,7 @@ _sk_multiply_aarch64:
 
 HIDDEN _sk_plus__aarch64
 .globl _sk_plus__aarch64
+FUNCTION(_sk_plus__aarch64)
 _sk_plus__aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x4e24d400                          // fadd          v0.4s, v0.4s, v4.4s
@@ -260,6 +278,7 @@ _sk_plus__aarch64:
 
 HIDDEN _sk_screen_aarch64
 .globl _sk_screen_aarch64
+FUNCTION(_sk_screen_aarch64)
 _sk_screen_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x4e24d410                          // fadd          v16.4s, v0.4s, v4.4s
@@ -278,6 +297,7 @@ _sk_screen_aarch64:
 
 HIDDEN _sk_xor__aarch64
 .globl _sk_xor__aarch64
+FUNCTION(_sk_xor__aarch64)
 _sk_xor__aarch64:
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -295,6 +315,7 @@ _sk_xor__aarch64:
 
 HIDDEN _sk_darken_aarch64
 .globl _sk_darken_aarch64
+FUNCTION(_sk_darken_aarch64)
 _sk_darken_aarch64:
   .long  0x6e27dc10                          // fmul          v16.4s, v0.4s, v7.4s
   .long  0x6e24dc71                          // fmul          v17.4s, v3.4s, v4.4s
@@ -319,6 +340,7 @@ _sk_darken_aarch64:
 
 HIDDEN _sk_lighten_aarch64
 .globl _sk_lighten_aarch64
+FUNCTION(_sk_lighten_aarch64)
 _sk_lighten_aarch64:
   .long  0x6e27dc10                          // fmul          v16.4s, v0.4s, v7.4s
   .long  0x6e24dc71                          // fmul          v17.4s, v3.4s, v4.4s
@@ -343,6 +365,7 @@ _sk_lighten_aarch64:
 
 HIDDEN _sk_difference_aarch64
 .globl _sk_difference_aarch64
+FUNCTION(_sk_difference_aarch64)
 _sk_difference_aarch64:
   .long  0x6e27dc10                          // fmul          v16.4s, v0.4s, v7.4s
   .long  0x6e24dc71                          // fmul          v17.4s, v3.4s, v4.4s
@@ -370,6 +393,7 @@ _sk_difference_aarch64:
 
 HIDDEN _sk_exclusion_aarch64
 .globl _sk_exclusion_aarch64
+FUNCTION(_sk_exclusion_aarch64)
 _sk_exclusion_aarch64:
   .long  0x4e24d410                          // fadd          v16.4s, v0.4s, v4.4s
   .long  0x6e24dc00                          // fmul          v0.4s, v0.4s, v4.4s
@@ -391,6 +415,7 @@ _sk_exclusion_aarch64:
 
 HIDDEN _sk_colorburn_aarch64
 .globl _sk_colorburn_aarch64
+FUNCTION(_sk_colorburn_aarch64)
 _sk_colorburn_aarch64:
   .long  0x4ea4d4f3                          // fsub          v19.4s, v7.4s, v4.4s
   .long  0x6e23de73                          // fmul          v19.4s, v19.4s, v3.4s
@@ -441,6 +466,7 @@ _sk_colorburn_aarch64:
 
 HIDDEN _sk_colordodge_aarch64
 .globl _sk_colordodge_aarch64
+FUNCTION(_sk_colordodge_aarch64)
 _sk_colordodge_aarch64:
   .long  0x4f03f612                          // fmov          v18.4s, #1.000000000000000000e+00
   .long  0x6e24dc71                          // fmul          v17.4s, v3.4s, v4.4s
@@ -489,6 +515,7 @@ _sk_colordodge_aarch64:
 
 HIDDEN _sk_hardlight_aarch64
 .globl _sk_hardlight_aarch64
+FUNCTION(_sk_hardlight_aarch64)
 _sk_hardlight_aarch64:
   .long  0x4ea4d4f4                          // fsub          v20.4s, v7.4s, v4.4s
   .long  0x4ea0d475                          // fsub          v21.4s, v3.4s, v0.4s
@@ -539,6 +566,7 @@ _sk_hardlight_aarch64:
 
 HIDDEN _sk_overlay_aarch64
 .globl _sk_overlay_aarch64
+FUNCTION(_sk_overlay_aarch64)
 _sk_overlay_aarch64:
   .long  0x4ea4d4f4                          // fsub          v20.4s, v7.4s, v4.4s
   .long  0x4ea0d475                          // fsub          v21.4s, v3.4s, v0.4s
@@ -589,6 +617,7 @@ _sk_overlay_aarch64:
 
 HIDDEN _sk_softlight_aarch64
 .globl _sk_softlight_aarch64
+FUNCTION(_sk_softlight_aarch64)
 _sk_softlight_aarch64:
   .long  0x4ea0c8f5                          // fcmgt         v21.4s, v7.4s, #0.0
   .long  0x6e27fc96                          // fdiv          v22.4s, v4.4s, v7.4s
@@ -704,6 +733,7 @@ _sk_softlight_aarch64:
 
 HIDDEN _sk_clamp_0_aarch64
 .globl _sk_clamp_0_aarch64
+FUNCTION(_sk_clamp_0_aarch64)
 _sk_clamp_0_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x6f00e410                          // movi          v16.2d, #0x0
@@ -715,6 +745,7 @@ _sk_clamp_0_aarch64:
 
 HIDDEN _sk_clamp_1_aarch64
 .globl _sk_clamp_1_aarch64
+FUNCTION(_sk_clamp_1_aarch64)
 _sk_clamp_1_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
@@ -726,6 +757,7 @@ _sk_clamp_1_aarch64:
 
 HIDDEN _sk_clamp_a_aarch64
 .globl _sk_clamp_a_aarch64
+FUNCTION(_sk_clamp_a_aarch64)
 _sk_clamp_a_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
@@ -737,6 +769,7 @@ _sk_clamp_a_aarch64:
 
 HIDDEN _sk_set_rgb_aarch64
 .globl _sk_set_rgb_aarch64
+FUNCTION(_sk_set_rgb_aarch64)
 _sk_set_rgb_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xaa0803e9                          // mov           x9, x8
@@ -748,6 +781,7 @@ _sk_set_rgb_aarch64:
 
 HIDDEN _sk_swap_rb_aarch64
 .globl _sk_swap_rb_aarch64
+FUNCTION(_sk_swap_rb_aarch64)
 _sk_swap_rb_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x4ea01c10                          // mov           v16.16b, v0.16b
@@ -757,6 +791,7 @@ _sk_swap_rb_aarch64:
 
 HIDDEN _sk_swap_aarch64
 .globl _sk_swap_aarch64
+FUNCTION(_sk_swap_aarch64)
 _sk_swap_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x4ea31c70                          // mov           v16.16b, v3.16b
@@ -775,6 +810,7 @@ _sk_swap_aarch64:
 
 HIDDEN _sk_move_src_dst_aarch64
 .globl _sk_move_src_dst_aarch64
+FUNCTION(_sk_move_src_dst_aarch64)
 _sk_move_src_dst_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x4ea01c04                          // mov           v4.16b, v0.16b
@@ -785,6 +821,7 @@ _sk_move_src_dst_aarch64:
 
 HIDDEN _sk_move_dst_src_aarch64
 .globl _sk_move_dst_src_aarch64
+FUNCTION(_sk_move_dst_src_aarch64)
 _sk_move_dst_src_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x4ea41c80                          // mov           v0.16b, v4.16b
@@ -795,6 +832,7 @@ _sk_move_dst_src_aarch64:
 
 HIDDEN _sk_premul_aarch64
 .globl _sk_premul_aarch64
+FUNCTION(_sk_premul_aarch64)
 _sk_premul_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
   .long  0x6e23dc00                          // fmul          v0.4s, v0.4s, v3.4s
@@ -804,6 +842,7 @@ _sk_premul_aarch64:
 
 HIDDEN _sk_unpremul_aarch64
 .globl _sk_unpremul_aarch64
+FUNCTION(_sk_unpremul_aarch64)
 _sk_unpremul_aarch64:
   .long  0x4f03f611                          // fmov          v17.4s, #1.000000000000000000e+00
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -817,6 +856,7 @@ _sk_unpremul_aarch64:
 
 HIDDEN _sk_from_srgb_aarch64
 .globl _sk_from_srgb_aarch64
+FUNCTION(_sk_from_srgb_aarch64)
 _sk_from_srgb_aarch64:
   .long  0x52a7d328                          // mov           w8, #0x3e990000
   .long  0x72933348                          // movk          w8, #0x999a
@@ -860,6 +900,7 @@ _sk_from_srgb_aarch64:
 
 HIDDEN _sk_to_srgb_aarch64
 .globl _sk_to_srgb_aarch64
+FUNCTION(_sk_to_srgb_aarch64)
 _sk_to_srgb_aarch64:
   .long  0x52a828e8                          // mov           w8, #0x41470000
   .long  0x728b8528                          // movk          w8, #0x5c29
@@ -935,6 +976,7 @@ _sk_to_srgb_aarch64:
 
 HIDDEN _sk_from_2dot2_aarch64
 .globl _sk_from_2dot2_aarch64
+FUNCTION(_sk_from_2dot2_aarch64)
 _sk_from_2dot2_aarch64:
   .long  0x6ea1d810                          // frsqrte       v16.4s, v0.4s
   .long  0x6ea1d832                          // frsqrte       v18.4s, v1.4s
@@ -1032,6 +1074,7 @@ _sk_from_2dot2_aarch64:
 
 HIDDEN _sk_to_2dot2_aarch64
 .globl _sk_to_2dot2_aarch64
+FUNCTION(_sk_to_2dot2_aarch64)
 _sk_to_2dot2_aarch64:
   .long  0x6ea1d810                          // frsqrte       v16.4s, v0.4s
   .long  0x6e30de13                          // fmul          v19.4s, v16.4s, v16.4s
@@ -1138,6 +1181,7 @@ _sk_to_2dot2_aarch64:
 
 HIDDEN _sk_rgb_to_hsl_aarch64
 .globl _sk_rgb_to_hsl_aarch64
+FUNCTION(_sk_rgb_to_hsl_aarch64)
 _sk_rgb_to_hsl_aarch64:
   .long  0x4e21f410                          // fmax          v16.4s, v0.4s, v1.4s
   .long  0x4ea1f411                          // fmin          v17.4s, v0.4s, v1.4s
@@ -1181,6 +1225,7 @@ _sk_rgb_to_hsl_aarch64:
 
 HIDDEN _sk_hsl_to_rgb_aarch64
 .globl _sk_hsl_to_rgb_aarch64
+FUNCTION(_sk_hsl_to_rgb_aarch64)
 _sk_hsl_to_rgb_aarch64:
   .long  0x52a7d548                          // mov           w8, #0x3eaa0000
   .long  0x72955568                          // movk          w8, #0xaaab
@@ -1273,6 +1318,7 @@ _sk_hsl_to_rgb_aarch64:
 
 HIDDEN _sk_scale_1_float_aarch64
 .globl _sk_scale_1_float_aarch64
+FUNCTION(_sk_scale_1_float_aarch64)
 _sk_scale_1_float_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xbd400110                          // ldr           s16, [x8]
@@ -1284,6 +1330,7 @@ _sk_scale_1_float_aarch64:
 
 HIDDEN _sk_scale_u8_aarch64
 .globl _sk_scale_u8_aarch64
+FUNCTION(_sk_scale_u8_aarch64)
 _sk_scale_u8_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x52a77009                          // mov           w9, #0x3b800000
@@ -1310,6 +1357,7 @@ _sk_scale_u8_aarch64:
 
 HIDDEN _sk_lerp_1_float_aarch64
 .globl _sk_lerp_1_float_aarch64
+FUNCTION(_sk_lerp_1_float_aarch64)
 _sk_lerp_1_float_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x4ea4d411                          // fsub          v17.4s, v0.4s, v4.4s
@@ -1329,6 +1377,7 @@ _sk_lerp_1_float_aarch64:
 
 HIDDEN _sk_lerp_u8_aarch64
 .globl _sk_lerp_u8_aarch64
+FUNCTION(_sk_lerp_u8_aarch64)
 _sk_lerp_u8_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x52a77009                          // mov           w9, #0x3b800000
@@ -1363,6 +1412,7 @@ _sk_lerp_u8_aarch64:
 
 HIDDEN _sk_lerp_565_aarch64
 .globl _sk_lerp_565_aarch64
+FUNCTION(_sk_lerp_565_aarch64)
 _sk_lerp_565_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xd37ff809                          // lsl           x9, x0, #1
@@ -1405,6 +1455,7 @@ _sk_lerp_565_aarch64:
 
 HIDDEN _sk_load_tables_aarch64
 .globl _sk_load_tables_aarch64
+FUNCTION(_sk_load_tables_aarch64)
 _sk_load_tables_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xd37ef409                          // lsl           x9, x0, #2
@@ -1463,6 +1514,7 @@ _sk_load_tables_aarch64:
 
 HIDDEN _sk_byte_tables_aarch64
 .globl _sk_byte_tables_aarch64
+FUNCTION(_sk_byte_tables_aarch64)
 _sk_byte_tables_aarch64:
   .long  0xd10083ff                          // sub           sp, sp, #0x20
   .long  0xaa0103e8                          // mov           x8, x1
@@ -1556,6 +1608,7 @@ _sk_byte_tables_aarch64:
 
 HIDDEN _sk_byte_tables_rgb_aarch64
 .globl _sk_byte_tables_rgb_aarch64
+FUNCTION(_sk_byte_tables_rgb_aarch64)
 _sk_byte_tables_rgb_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x52a77009                          // mov           w9, #0x3b800000
@@ -1625,6 +1678,7 @@ _sk_byte_tables_rgb_aarch64:
 
 HIDDEN _sk_load_a8_aarch64
 .globl _sk_load_a8_aarch64
+FUNCTION(_sk_load_a8_aarch64)
 _sk_load_a8_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x52a77009                          // mov           w9, #0x3b800000
@@ -1650,6 +1704,7 @@ _sk_load_a8_aarch64:
 
 HIDDEN _sk_gather_a8_aarch64
 .globl _sk_gather_a8_aarch64
+FUNCTION(_sk_gather_a8_aarch64)
 _sk_gather_a8_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x4ea1b821                          // fcvtzs        v1.4s, v1.4s
@@ -1684,6 +1739,7 @@ _sk_gather_a8_aarch64:
 
 HIDDEN _sk_store_a8_aarch64
 .globl _sk_store_a8_aarch64
+FUNCTION(_sk_store_a8_aarch64)
 _sk_store_a8_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x52a86fe9                          // mov           w9, #0x437f0000
@@ -1707,6 +1763,7 @@ _sk_store_a8_aarch64:
 
 HIDDEN _sk_load_g8_aarch64
 .globl _sk_load_g8_aarch64
+FUNCTION(_sk_load_g8_aarch64)
 _sk_load_g8_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x52a77009                          // mov           w9, #0x3b800000
@@ -1732,6 +1789,7 @@ _sk_load_g8_aarch64:
 
 HIDDEN _sk_gather_g8_aarch64
 .globl _sk_gather_g8_aarch64
+FUNCTION(_sk_gather_g8_aarch64)
 _sk_gather_g8_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x4ea1b821                          // fcvtzs        v1.4s, v1.4s
@@ -1766,6 +1824,7 @@ _sk_gather_g8_aarch64:
 
 HIDDEN _sk_gather_i8_aarch64
 .globl _sk_gather_i8_aarch64
+FUNCTION(_sk_gather_i8_aarch64)
 _sk_gather_i8_aarch64:
   .long  0xaa0103e8                          // mov           x8, x1
   .long  0xf8408429                          // ldr           x9, [x1], #8
@@ -1829,6 +1888,7 @@ _sk_gather_i8_aarch64:
 
 HIDDEN _sk_load_565_aarch64
 .globl _sk_load_565_aarch64
+FUNCTION(_sk_load_565_aarch64)
 _sk_load_565_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xd37ff809                          // lsl           x9, x0, #1
@@ -1862,6 +1922,7 @@ _sk_load_565_aarch64:
 
 HIDDEN _sk_gather_565_aarch64
 .globl _sk_gather_565_aarch64
+FUNCTION(_sk_gather_565_aarch64)
 _sk_gather_565_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x4ea1b821                          // fcvtzs        v1.4s, v1.4s
@@ -1910,6 +1971,7 @@ _sk_gather_565_aarch64:
 
 HIDDEN _sk_store_565_aarch64
 .globl _sk_store_565_aarch64
+FUNCTION(_sk_store_565_aarch64)
 _sk_store_565_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x52a84f8a                          // mov           w10, #0x427c0000
@@ -1935,6 +1997,7 @@ _sk_store_565_aarch64:
 
 HIDDEN _sk_load_4444_aarch64
 .globl _sk_load_4444_aarch64
+FUNCTION(_sk_load_4444_aarch64)
 _sk_load_4444_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xd37ff809                          // lsl           x9, x0, #1
@@ -1973,6 +2036,7 @@ _sk_load_4444_aarch64:
 
 HIDDEN _sk_gather_4444_aarch64
 .globl _sk_gather_4444_aarch64
+FUNCTION(_sk_gather_4444_aarch64)
 _sk_gather_4444_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x4ea1b821                          // fcvtzs        v1.4s, v1.4s
@@ -2026,6 +2090,7 @@ _sk_gather_4444_aarch64:
 
 HIDDEN _sk_store_4444_aarch64
 .globl _sk_store_4444_aarch64
+FUNCTION(_sk_store_4444_aarch64)
 _sk_store_4444_aarch64:
   .long  0x4f01f5d0                          // fmov          v16.4s, #1.500000000000000000e+01
   .long  0x6e30dc11                          // fmul          v17.4s, v0.4s, v16.4s
@@ -2053,6 +2118,7 @@ _sk_store_4444_aarch64:
 
 HIDDEN _sk_load_8888_aarch64
 .globl _sk_load_8888_aarch64
+FUNCTION(_sk_load_8888_aarch64)
 _sk_load_8888_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xd37ef409                          // lsl           x9, x0, #2
@@ -2080,6 +2146,7 @@ _sk_load_8888_aarch64:
 
 HIDDEN _sk_gather_8888_aarch64
 .globl _sk_gather_8888_aarch64
+FUNCTION(_sk_gather_8888_aarch64)
 _sk_gather_8888_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x4ea1b821                          // fcvtzs        v1.4s, v1.4s
@@ -2122,6 +2189,7 @@ _sk_gather_8888_aarch64:
 
 HIDDEN _sk_store_8888_aarch64
 .globl _sk_store_8888_aarch64
+FUNCTION(_sk_store_8888_aarch64)
 _sk_store_8888_aarch64:
   .long  0x52a86fea                          // mov           w10, #0x437f0000
   .long  0x4e040d50                          // dup           v16.4s, w10
@@ -2149,6 +2217,7 @@ _sk_store_8888_aarch64:
 
 HIDDEN _sk_load_f16_aarch64
 .globl _sk_load_f16_aarch64
+FUNCTION(_sk_load_f16_aarch64)
 _sk_load_f16_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xf9400108                          // ldr           x8, [x8]
@@ -2162,6 +2231,7 @@ _sk_load_f16_aarch64:
 
 HIDDEN _sk_gather_f16_aarch64
 .globl _sk_gather_f16_aarch64
+FUNCTION(_sk_gather_f16_aarch64)
 _sk_gather_f16_aarch64:
   .long  0xa9bf7bfd                          // stp           x29, x30, [sp, #-16]!
   .long  0xd100c3e9                          // sub           x9, sp, #0x30
@@ -2202,6 +2272,7 @@ _sk_gather_f16_aarch64:
 
 HIDDEN _sk_store_f16_aarch64
 .globl _sk_store_f16_aarch64
+FUNCTION(_sk_store_f16_aarch64)
 _sk_store_f16_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x0e216810                          // fcvtn         v16.4h, v0.4s
@@ -2217,6 +2288,7 @@ _sk_store_f16_aarch64:
 
 HIDDEN _sk_load_u16_be_aarch64
 .globl _sk_load_u16_be_aarch64
+FUNCTION(_sk_load_u16_be_aarch64)
 _sk_load_u16_be_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xf9400108                          // ldr           x8, [x8]
@@ -2253,6 +2325,7 @@ _sk_load_u16_be_aarch64:
 
 HIDDEN _sk_store_u16_be_aarch64
 .globl _sk_store_u16_be_aarch64
+FUNCTION(_sk_store_u16_be_aarch64)
 _sk_store_u16_be_aarch64:
   .long  0x52a8efe9                          // mov           w9, #0x477f0000
   .long  0x729fe009                          // movk          w9, #0xff00
@@ -2291,6 +2364,7 @@ _sk_store_u16_be_aarch64:
 
 HIDDEN _sk_load_f32_aarch64
 .globl _sk_load_f32_aarch64
+FUNCTION(_sk_load_f32_aarch64)
 _sk_load_f32_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xf9400108                          // ldr           x8, [x8]
@@ -2300,6 +2374,7 @@ _sk_load_f32_aarch64:
 
 HIDDEN _sk_store_f32_aarch64
 .globl _sk_store_f32_aarch64
+FUNCTION(_sk_store_f32_aarch64)
 _sk_store_f32_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xf9400108                          // ldr           x8, [x8]
@@ -2311,6 +2386,7 @@ _sk_store_f32_aarch64:
 
 HIDDEN _sk_clamp_x_aarch64
 .globl _sk_clamp_x_aarch64
+FUNCTION(_sk_clamp_x_aarch64)
 _sk_clamp_x_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x6f00e411                          // movi          v17.2d, #0x0
@@ -2323,6 +2399,7 @@ _sk_clamp_x_aarch64:
 
 HIDDEN _sk_clamp_y_aarch64
 .globl _sk_clamp_y_aarch64
+FUNCTION(_sk_clamp_y_aarch64)
 _sk_clamp_y_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x6f00e411                          // movi          v17.2d, #0x0
@@ -2335,6 +2412,7 @@ _sk_clamp_y_aarch64:
 
 HIDDEN _sk_repeat_x_aarch64
 .globl _sk_repeat_x_aarch64
+FUNCTION(_sk_repeat_x_aarch64)
 _sk_repeat_x_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x6f07e7f1                          // movi          v17.2d, #0xffffffffffffffff
@@ -2349,6 +2427,7 @@ _sk_repeat_x_aarch64:
 
 HIDDEN _sk_repeat_y_aarch64
 .globl _sk_repeat_y_aarch64
+FUNCTION(_sk_repeat_y_aarch64)
 _sk_repeat_y_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x6f07e7f1                          // movi          v17.2d, #0xffffffffffffffff
@@ -2363,6 +2442,7 @@ _sk_repeat_y_aarch64:
 
 HIDDEN _sk_mirror_x_aarch64
 .globl _sk_mirror_x_aarch64
+FUNCTION(_sk_mirror_x_aarch64)
 _sk_mirror_x_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xbd400110                          // ldr           s16, [x8]
@@ -2382,6 +2462,7 @@ _sk_mirror_x_aarch64:
 
 HIDDEN _sk_mirror_y_aarch64
 .globl _sk_mirror_y_aarch64
+FUNCTION(_sk_mirror_y_aarch64)
 _sk_mirror_y_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xbd400110                          // ldr           s16, [x8]
@@ -2401,6 +2482,7 @@ _sk_mirror_y_aarch64:
 
 HIDDEN _sk_luminance_to_alpha_aarch64
 .globl _sk_luminance_to_alpha_aarch64
+FUNCTION(_sk_luminance_to_alpha_aarch64)
 _sk_luminance_to_alpha_aarch64:
   .long  0x52a7cb28                          // mov           w8, #0x3e590000
   .long  0x72967a08                          // movk          w8, #0xb3d0
@@ -2423,6 +2505,7 @@ _sk_luminance_to_alpha_aarch64:
 
 HIDDEN _sk_matrix_2x3_aarch64
 .globl _sk_matrix_2x3_aarch64
+FUNCTION(_sk_matrix_2x3_aarch64)
 _sk_matrix_2x3_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xaa0803e9                          // mov           x9, x8
@@ -2443,6 +2526,7 @@ _sk_matrix_2x3_aarch64:
 
 HIDDEN _sk_matrix_3x4_aarch64
 .globl _sk_matrix_3x4_aarch64
+FUNCTION(_sk_matrix_3x4_aarch64)
 _sk_matrix_3x4_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xaa0803e9                          // mov           x9, x8
@@ -2474,6 +2558,7 @@ _sk_matrix_3x4_aarch64:
 
 HIDDEN _sk_matrix_4x5_aarch64
 .globl _sk_matrix_4x5_aarch64
+FUNCTION(_sk_matrix_4x5_aarch64)
 _sk_matrix_4x5_aarch64:
   .long  0xf9400029                          // ldr           x9, [x1]
   .long  0xaa0903e8                          // mov           x8, x9
@@ -2520,6 +2605,7 @@ _sk_matrix_4x5_aarch64:
 
 HIDDEN _sk_matrix_perspective_aarch64
 .globl _sk_matrix_perspective_aarch64
+FUNCTION(_sk_matrix_perspective_aarch64)
 _sk_matrix_perspective_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xaa0803e9                          // mov           x9, x8
@@ -2548,6 +2634,7 @@ _sk_matrix_perspective_aarch64:
 
 HIDDEN _sk_linear_gradient_aarch64
 .globl _sk_linear_gradient_aarch64
+FUNCTION(_sk_linear_gradient_aarch64)
 _sk_linear_gradient_aarch64:
   .long  0xf9400029                          // ldr           x9, [x1]
   .long  0x91004128                          // add           x8, x9, #0x10
@@ -2628,6 +2715,7 @@ _sk_linear_gradient_aarch64:
 
 HIDDEN _sk_linear_gradient_2stops_aarch64
 .globl _sk_linear_gradient_2stops_aarch64
+FUNCTION(_sk_linear_gradient_2stops_aarch64)
 _sk_linear_gradient_2stops_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xaa0803e9                          // mov           x9, x8
@@ -2651,6 +2739,7 @@ _sk_linear_gradient_2stops_aarch64:
 
 HIDDEN _sk_save_xy_aarch64
 .globl _sk_save_xy_aarch64
+FUNCTION(_sk_save_xy_aarch64)
 _sk_save_xy_aarch64:
   .long  0x4f0167f0                          // movi          v16.4s, #0x3f, lsl #24
   .long  0xf9400028                          // ldr           x8, [x1]
@@ -2670,6 +2759,7 @@ _sk_save_xy_aarch64:
 
 HIDDEN _sk_accumulate_aarch64
 .globl _sk_accumulate_aarch64
+FUNCTION(_sk_accumulate_aarch64)
 _sk_accumulate_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0x3dc02110                          // ldr           q16, [x8, #128]
@@ -2683,6 +2773,7 @@ _sk_accumulate_aarch64:
 
 HIDDEN _sk_bilinear_nx_aarch64
 .globl _sk_bilinear_nx_aarch64
+FUNCTION(_sk_bilinear_nx_aarch64)
 _sk_bilinear_nx_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x4f03f611                          // fmov          v17.4s, #1.000000000000000000e+00
@@ -2698,6 +2789,7 @@ _sk_bilinear_nx_aarch64:
 
 HIDDEN _sk_bilinear_px_aarch64
 .globl _sk_bilinear_px_aarch64
+FUNCTION(_sk_bilinear_px_aarch64)
 _sk_bilinear_px_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x3dc01100                          // ldr           q0, [x8, #64]
@@ -2711,6 +2803,7 @@ _sk_bilinear_px_aarch64:
 
 HIDDEN _sk_bilinear_ny_aarch64
 .globl _sk_bilinear_ny_aarch64
+FUNCTION(_sk_bilinear_ny_aarch64)
 _sk_bilinear_ny_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x4f03f611                          // fmov          v17.4s, #1.000000000000000000e+00
@@ -2726,6 +2819,7 @@ _sk_bilinear_ny_aarch64:
 
 HIDDEN _sk_bilinear_py_aarch64
 .globl _sk_bilinear_py_aarch64
+FUNCTION(_sk_bilinear_py_aarch64)
 _sk_bilinear_py_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x3dc01901                          // ldr           q1, [x8, #96]
@@ -2739,6 +2833,7 @@ _sk_bilinear_py_aarch64:
 
 HIDDEN _sk_bicubic_n3x_aarch64
 .globl _sk_bicubic_n3x_aarch64
+FUNCTION(_sk_bicubic_n3x_aarch64)
 _sk_bicubic_n3x_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x52a7d8e9                          // mov           w9, #0x3ec70000
@@ -2763,6 +2858,7 @@ _sk_bicubic_n3x_aarch64:
 
 HIDDEN _sk_bicubic_n1x_aarch64
 .globl _sk_bicubic_n1x_aarch64
+FUNCTION(_sk_bicubic_n1x_aarch64)
 _sk_bicubic_n1x_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x52b7f2a9                          // mov           w9, #0xbf950000
@@ -2789,6 +2885,7 @@ _sk_bicubic_n1x_aarch64:
 
 HIDDEN _sk_bicubic_p1x_aarch64
 .globl _sk_bicubic_p1x_aarch64
+FUNCTION(_sk_bicubic_p1x_aarch64)
 _sk_bicubic_p1x_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x52b7f2a9                          // mov           w9, #0xbf950000
@@ -2812,6 +2909,7 @@ _sk_bicubic_p1x_aarch64:
 
 HIDDEN _sk_bicubic_p3x_aarch64
 .globl _sk_bicubic_p3x_aarch64
+FUNCTION(_sk_bicubic_p3x_aarch64)
 _sk_bicubic_p3x_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x52a7d8e9                          // mov           w9, #0x3ec70000
@@ -2834,6 +2932,7 @@ _sk_bicubic_p3x_aarch64:
 
 HIDDEN _sk_bicubic_n3y_aarch64
 .globl _sk_bicubic_n3y_aarch64
+FUNCTION(_sk_bicubic_n3y_aarch64)
 _sk_bicubic_n3y_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x52a7d8e9                          // mov           w9, #0x3ec70000
@@ -2858,6 +2957,7 @@ _sk_bicubic_n3y_aarch64:
 
 HIDDEN _sk_bicubic_n1y_aarch64
 .globl _sk_bicubic_n1y_aarch64
+FUNCTION(_sk_bicubic_n1y_aarch64)
 _sk_bicubic_n1y_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x52b7f2a9                          // mov           w9, #0xbf950000
@@ -2884,6 +2984,7 @@ _sk_bicubic_n1y_aarch64:
 
 HIDDEN _sk_bicubic_p1y_aarch64
 .globl _sk_bicubic_p1y_aarch64
+FUNCTION(_sk_bicubic_p1y_aarch64)
 _sk_bicubic_p1y_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x52b7f2a9                          // mov           w9, #0xbf950000
@@ -2907,6 +3008,7 @@ _sk_bicubic_p1y_aarch64:
 
 HIDDEN _sk_bicubic_p3y_aarch64
 .globl _sk_bicubic_p3y_aarch64
+FUNCTION(_sk_bicubic_p3y_aarch64)
 _sk_bicubic_p3y_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x52a7d8e9                          // mov           w9, #0x3ec70000
@@ -2931,7 +3033,7 @@ _sk_bicubic_p3y_aarch64:
 
 HIDDEN _sk_start_pipeline_vfp4
 .globl _sk_start_pipeline_vfp4
-.type _sk_start_pipeline_vfp4,%function
+FUNCTION(_sk_start_pipeline_vfp4)
 _sk_start_pipeline_vfp4:
   .long  0xe92d41f0                          // push          {r4, r5, r6, r7, r8, lr}
   .long  0xe1a04000                          // mov           r4, r0
@@ -2963,13 +3065,13 @@ _sk_start_pipeline_vfp4:
 
 HIDDEN _sk_just_return_vfp4
 .globl _sk_just_return_vfp4
-.type _sk_just_return_vfp4,%function
+FUNCTION(_sk_just_return_vfp4)
 _sk_just_return_vfp4:
   .long  0xe12fff1e                          // bx            lr
 
 HIDDEN _sk_seed_shader_vfp4
 .globl _sk_seed_shader_vfp4
-.type _sk_seed_shader_vfp4,%function
+FUNCTION(_sk_seed_shader_vfp4)
 _sk_seed_shader_vfp4:
   .long  0xee800b90                          // vdup.32       d16, r0
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -2992,7 +3094,7 @@ _sk_seed_shader_vfp4:
 
 HIDDEN _sk_constant_color_vfp4
 .globl _sk_constant_color_vfp4
-.type _sk_constant_color_vfp4,%function
+FUNCTION(_sk_constant_color_vfp4)
 _sk_constant_color_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -3009,7 +3111,7 @@ _sk_constant_color_vfp4:
 
 HIDDEN _sk_clear_vfp4
 .globl _sk_clear_vfp4
-.type _sk_clear_vfp4,%function
+FUNCTION(_sk_clear_vfp4)
 _sk_clear_vfp4:
   .long  0xe4913004                          // ldr           r3, [r1], #4
   .long  0xf2800010                          // vmov.i32      d0, #0
@@ -3020,7 +3122,7 @@ _sk_clear_vfp4:
 
 HIDDEN _sk_srcatop_vfp4
 .globl _sk_srcatop_vfp4
-.type _sk_srcatop_vfp4,%function
+FUNCTION(_sk_srcatop_vfp4)
 _sk_srcatop_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3040,7 +3142,7 @@ _sk_srcatop_vfp4:
 
 HIDDEN _sk_dstatop_vfp4
 .globl _sk_dstatop_vfp4
-.type _sk_dstatop_vfp4,%function
+FUNCTION(_sk_dstatop_vfp4)
 _sk_dstatop_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3061,7 +3163,7 @@ _sk_dstatop_vfp4:
 
 HIDDEN _sk_srcin_vfp4
 .globl _sk_srcin_vfp4
-.type _sk_srcin_vfp4,%function
+FUNCTION(_sk_srcin_vfp4)
 _sk_srcin_vfp4:
   .long  0xf3000d17                          // vmul.f32      d0, d0, d7
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3072,7 +3174,7 @@ _sk_srcin_vfp4:
 
 HIDDEN _sk_dstin_vfp4
 .globl _sk_dstin_vfp4
-.type _sk_dstin_vfp4,%function
+FUNCTION(_sk_dstin_vfp4)
 _sk_dstin_vfp4:
   .long  0xf3030d14                          // vmul.f32      d0, d3, d4
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3083,7 +3185,7 @@ _sk_dstin_vfp4:
 
 HIDDEN _sk_srcout_vfp4
 .globl _sk_srcout_vfp4
-.type _sk_srcout_vfp4,%function
+FUNCTION(_sk_srcout_vfp4)
 _sk_srcout_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3096,7 +3198,7 @@ _sk_srcout_vfp4:
 
 HIDDEN _sk_dstout_vfp4
 .globl _sk_dstout_vfp4
-.type _sk_dstout_vfp4,%function
+FUNCTION(_sk_dstout_vfp4)
 _sk_dstout_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3109,7 +3211,7 @@ _sk_dstout_vfp4:
 
 HIDDEN _sk_srcover_vfp4
 .globl _sk_srcover_vfp4
-.type _sk_srcover_vfp4,%function
+FUNCTION(_sk_srcover_vfp4)
 _sk_srcover_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3122,7 +3224,7 @@ _sk_srcover_vfp4:
 
 HIDDEN _sk_dstover_vfp4
 .globl _sk_dstover_vfp4
-.type _sk_dstover_vfp4,%function
+FUNCTION(_sk_dstover_vfp4)
 _sk_dstover_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3143,7 +3245,7 @@ _sk_dstover_vfp4:
 
 HIDDEN _sk_modulate_vfp4
 .globl _sk_modulate_vfp4
-.type _sk_modulate_vfp4,%function
+FUNCTION(_sk_modulate_vfp4)
 _sk_modulate_vfp4:
   .long  0xf3000d14                          // vmul.f32      d0, d0, d4
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3154,7 +3256,7 @@ _sk_modulate_vfp4:
 
 HIDDEN _sk_multiply_vfp4
 .globl _sk_multiply_vfp4
-.type _sk_multiply_vfp4,%function
+FUNCTION(_sk_multiply_vfp4)
 _sk_multiply_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3184,7 +3286,7 @@ _sk_multiply_vfp4:
 
 HIDDEN _sk_plus__vfp4
 .globl _sk_plus__vfp4
-.type _sk_plus__vfp4,%function
+FUNCTION(_sk_plus__vfp4)
 _sk_plus__vfp4:
   .long  0xf2000d04                          // vadd.f32      d0, d0, d4
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3195,7 +3297,7 @@ _sk_plus__vfp4:
 
 HIDDEN _sk_screen_vfp4
 .globl _sk_screen_vfp4
-.type _sk_screen_vfp4,%function
+FUNCTION(_sk_screen_vfp4)
 _sk_screen_vfp4:
   .long  0xf2400d04                          // vadd.f32      d16, d0, d4
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3214,7 +3316,7 @@ _sk_screen_vfp4:
 
 HIDDEN _sk_xor__vfp4
 .globl _sk_xor__vfp4
-.type _sk_xor__vfp4,%function
+FUNCTION(_sk_xor__vfp4)
 _sk_xor__vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3236,7 +3338,7 @@ _sk_xor__vfp4:
 
 HIDDEN _sk_darken_vfp4
 .globl _sk_darken_vfp4
-.type _sk_darken_vfp4,%function
+FUNCTION(_sk_darken_vfp4)
 _sk_darken_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3261,7 +3363,7 @@ _sk_darken_vfp4:
 
 HIDDEN _sk_lighten_vfp4
 .globl _sk_lighten_vfp4
-.type _sk_lighten_vfp4,%function
+FUNCTION(_sk_lighten_vfp4)
 _sk_lighten_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3286,7 +3388,7 @@ _sk_lighten_vfp4:
 
 HIDDEN _sk_difference_vfp4
 .globl _sk_difference_vfp4
-.type _sk_difference_vfp4,%function
+FUNCTION(_sk_difference_vfp4)
 _sk_difference_vfp4:
   .long  0xf3430d14                          // vmul.f32      d16, d3, d4
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3314,7 +3416,7 @@ _sk_difference_vfp4:
 
 HIDDEN _sk_exclusion_vfp4
 .globl _sk_exclusion_vfp4
-.type _sk_exclusion_vfp4,%function
+FUNCTION(_sk_exclusion_vfp4)
 _sk_exclusion_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3336,7 +3438,7 @@ _sk_exclusion_vfp4:
 
 HIDDEN _sk_colorburn_vfp4
 .globl _sk_colorburn_vfp4
-.type _sk_colorburn_vfp4,%function
+FUNCTION(_sk_colorburn_vfp4)
 _sk_colorburn_vfp4:
   .long  0xed2d8b08                          // vpush         {d8-d11}
   .long  0xf2670d04                          // vsub.f32      d16, d7, d4
@@ -3403,7 +3505,7 @@ _sk_colorburn_vfp4:
 
 HIDDEN _sk_colordodge_vfp4
 .globl _sk_colordodge_vfp4
-.type _sk_colordodge_vfp4,%function
+FUNCTION(_sk_colordodge_vfp4)
 _sk_colordodge_vfp4:
   .long  0xed2d8b0e                          // vpush         {d8-d14}
   .long  0xf2238d02                          // vsub.f32      d8, d3, d2
@@ -3464,7 +3566,7 @@ _sk_colordodge_vfp4:
 
 HIDDEN _sk_hardlight_vfp4
 .globl _sk_hardlight_vfp4
-.type _sk_hardlight_vfp4,%function
+FUNCTION(_sk_hardlight_vfp4)
 _sk_hardlight_vfp4:
   .long  0xf2c71f10                          // vmov.f32      d17, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3518,7 +3620,7 @@ _sk_hardlight_vfp4:
 
 HIDDEN _sk_overlay_vfp4
 .globl _sk_overlay_vfp4
-.type _sk_overlay_vfp4,%function
+FUNCTION(_sk_overlay_vfp4)
 _sk_overlay_vfp4:
   .long  0xf2c71f10                          // vmov.f32      d17, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3572,7 +3674,7 @@ _sk_overlay_vfp4:
 
 HIDDEN _sk_softlight_vfp4
 .globl _sk_softlight_vfp4
-.type _sk_softlight_vfp4,%function
+FUNCTION(_sk_softlight_vfp4)
 _sk_softlight_vfp4:
   .long  0xed2d8b06                          // vpush         {d8-d10}
   .long  0xeec58aa7                          // vdiv.f32      s17, s11, s15
@@ -3708,7 +3810,7 @@ _sk_softlight_vfp4:
 
 HIDDEN _sk_clamp_0_vfp4
 .globl _sk_clamp_0_vfp4
-.type _sk_clamp_0_vfp4,%function
+FUNCTION(_sk_clamp_0_vfp4)
 _sk_clamp_0_vfp4:
   .long  0xf2c00010                          // vmov.i32      d16, #0
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3720,7 +3822,7 @@ _sk_clamp_0_vfp4:
 
 HIDDEN _sk_clamp_1_vfp4
 .globl _sk_clamp_1_vfp4
-.type _sk_clamp_1_vfp4,%function
+FUNCTION(_sk_clamp_1_vfp4)
 _sk_clamp_1_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3732,7 +3834,7 @@ _sk_clamp_1_vfp4:
 
 HIDDEN _sk_clamp_a_vfp4
 .globl _sk_clamp_a_vfp4
-.type _sk_clamp_a_vfp4,%function
+FUNCTION(_sk_clamp_a_vfp4)
 _sk_clamp_a_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3744,7 +3846,7 @@ _sk_clamp_a_vfp4:
 
 HIDDEN _sk_set_rgb_vfp4
 .globl _sk_set_rgb_vfp4
-.type _sk_set_rgb_vfp4,%function
+FUNCTION(_sk_set_rgb_vfp4)
 _sk_set_rgb_vfp4:
   .long  0xe92d4800                          // push          {fp, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -3758,7 +3860,7 @@ _sk_set_rgb_vfp4:
 
 HIDDEN _sk_swap_rb_vfp4
 .globl _sk_swap_rb_vfp4
-.type _sk_swap_rb_vfp4,%function
+FUNCTION(_sk_swap_rb_vfp4)
 _sk_swap_rb_vfp4:
   .long  0xeef00b40                          // vmov.f64      d16, d0
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3768,7 +3870,7 @@ _sk_swap_rb_vfp4:
 
 HIDDEN _sk_swap_vfp4
 .globl _sk_swap_vfp4
-.type _sk_swap_vfp4,%function
+FUNCTION(_sk_swap_vfp4)
 _sk_swap_vfp4:
   .long  0xeef00b43                          // vmov.f64      d16, d3
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3787,7 +3889,7 @@ _sk_swap_vfp4:
 
 HIDDEN _sk_move_src_dst_vfp4
 .globl _sk_move_src_dst_vfp4
-.type _sk_move_src_dst_vfp4,%function
+FUNCTION(_sk_move_src_dst_vfp4)
 _sk_move_src_dst_vfp4:
   .long  0xeeb04b40                          // vmov.f64      d4, d0
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3798,7 +3900,7 @@ _sk_move_src_dst_vfp4:
 
 HIDDEN _sk_move_dst_src_vfp4
 .globl _sk_move_dst_src_vfp4
-.type _sk_move_dst_src_vfp4,%function
+FUNCTION(_sk_move_dst_src_vfp4)
 _sk_move_dst_src_vfp4:
   .long  0xeeb00b44                          // vmov.f64      d0, d4
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3809,7 +3911,7 @@ _sk_move_dst_src_vfp4:
 
 HIDDEN _sk_premul_vfp4
 .globl _sk_premul_vfp4
-.type _sk_premul_vfp4,%function
+FUNCTION(_sk_premul_vfp4)
 _sk_premul_vfp4:
   .long  0xf3000d13                          // vmul.f32      d0, d0, d3
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3819,7 +3921,7 @@ _sk_premul_vfp4:
 
 HIDDEN _sk_unpremul_vfp4
 .globl _sk_unpremul_vfp4
-.type _sk_unpremul_vfp4,%function
+FUNCTION(_sk_unpremul_vfp4)
 _sk_unpremul_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
   .long  0xeeb78a00                          // vmov.f32      s16, #112
@@ -3838,7 +3940,7 @@ _sk_unpremul_vfp4:
 
 HIDDEN _sk_from_srgb_vfp4
 .globl _sk_from_srgb_vfp4
-.type _sk_from_srgb_vfp4,%function
+FUNCTION(_sk_from_srgb_vfp4)
 _sk_from_srgb_vfp4:
   .long  0xeddf3b20                          // vldr          d19, [pc, #128]
   .long  0xf3408d10                          // vmul.f32      d24, d0, d0
@@ -3885,7 +3987,7 @@ _sk_from_srgb_vfp4:
 
 HIDDEN _sk_to_srgb_vfp4
 .globl _sk_to_srgb_vfp4
-.type _sk_to_srgb_vfp4,%function
+FUNCTION(_sk_to_srgb_vfp4)
 _sk_to_srgb_vfp4:
   .long  0xf3fb0582                          // vrsqrte.f32   d16, d2
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3964,7 +4066,7 @@ _sk_to_srgb_vfp4:
 
 HIDDEN _sk_from_2dot2_vfp4
 .globl _sk_from_2dot2_vfp4
-.type _sk_from_2dot2_vfp4,%function
+FUNCTION(_sk_from_2dot2_vfp4)
 _sk_from_2dot2_vfp4:
   .long  0xf3fb0580                          // vrsqrte.f32   d16, d0
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -4062,7 +4164,7 @@ _sk_from_2dot2_vfp4:
 
 HIDDEN _sk_to_2dot2_vfp4
 .globl _sk_to_2dot2_vfp4
-.type _sk_to_2dot2_vfp4,%function
+FUNCTION(_sk_to_2dot2_vfp4)
 _sk_to_2dot2_vfp4:
   .long  0xf3fb0580                          // vrsqrte.f32   d16, d0
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -4170,7 +4272,7 @@ _sk_to_2dot2_vfp4:
 
 HIDDEN _sk_rgb_to_hsl_vfp4
 .globl _sk_rgb_to_hsl_vfp4
-.type _sk_rgb_to_hsl_vfp4,%function
+FUNCTION(_sk_rgb_to_hsl_vfp4)
 _sk_rgb_to_hsl_vfp4:
   .long  0xed2d8b08                          // vpush         {d8-d11}
   .long  0xf2401f01                          // vmax.f32      d17, d0, d1
@@ -4227,7 +4329,7 @@ _sk_rgb_to_hsl_vfp4:
 
 HIDDEN _sk_hsl_to_rgb_vfp4
 .globl _sk_hsl_to_rgb_vfp4
-.type _sk_hsl_to_rgb_vfp4,%function
+FUNCTION(_sk_hsl_to_rgb_vfp4)
 _sk_hsl_to_rgb_vfp4:
   .long  0xf2c72f10                          // vmov.f32      d18, #1
   .long  0xeddf0b4f                          // vldr          d16, [pc, #316]
@@ -4322,7 +4424,7 @@ _sk_hsl_to_rgb_vfp4:
 
 HIDDEN _sk_scale_1_float_vfp4
 .globl _sk_scale_1_float_vfp4
-.type _sk_scale_1_float_vfp4,%function
+FUNCTION(_sk_scale_1_float_vfp4)
 _sk_scale_1_float_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xe2811008                          // add           r1, r1, #8
@@ -4335,7 +4437,7 @@ _sk_scale_1_float_vfp4:
 
 HIDDEN _sk_scale_u8_vfp4
 .globl _sk_scale_u8_vfp4
-.type _sk_scale_u8_vfp4,%function
+FUNCTION(_sk_scale_u8_vfp4)
 _sk_scale_u8_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4362,7 +4464,7 @@ _sk_scale_u8_vfp4:
 
 HIDDEN _sk_lerp_1_float_vfp4
 .globl _sk_lerp_1_float_vfp4
-.type _sk_lerp_1_float_vfp4,%function
+FUNCTION(_sk_lerp_1_float_vfp4)
 _sk_lerp_1_float_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xf2600d04                          // vsub.f32      d16, d0, d4
@@ -4383,7 +4485,7 @@ _sk_lerp_1_float_vfp4:
 
 HIDDEN _sk_lerp_u8_vfp4
 .globl _sk_lerp_u8_vfp4
-.type _sk_lerp_u8_vfp4,%function
+FUNCTION(_sk_lerp_u8_vfp4)
 _sk_lerp_u8_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4418,7 +4520,7 @@ _sk_lerp_u8_vfp4:
 
 HIDDEN _sk_lerp_565_vfp4
 .globl _sk_lerp_565_vfp4
-.type _sk_lerp_565_vfp4,%function
+FUNCTION(_sk_lerp_565_vfp4)
 _sk_lerp_565_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4467,7 +4569,7 @@ _sk_lerp_565_vfp4:
 
 HIDDEN _sk_load_tables_vfp4
 .globl _sk_load_tables_vfp4
-.type _sk_load_tables_vfp4,%function
+FUNCTION(_sk_load_tables_vfp4)
 _sk_load_tables_vfp4:
   .long  0xe92d48f0                          // push          {r4, r5, r6, r7, fp, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4512,7 +4614,7 @@ _sk_load_tables_vfp4:
 
 HIDDEN _sk_byte_tables_vfp4
 .globl _sk_byte_tables_vfp4
-.type _sk_byte_tables_vfp4,%function
+FUNCTION(_sk_byte_tables_vfp4)
 _sk_byte_tables_vfp4:
   .long  0xe92d4bf0                          // push          {r4, r5, r6, r7, r8, r9, fp, lr}
   .long  0xeddf0b37                          // vldr          d16, [pc, #220]
@@ -4579,7 +4681,7 @@ _sk_byte_tables_vfp4:
 
 HIDDEN _sk_byte_tables_rgb_vfp4
 .globl _sk_byte_tables_rgb_vfp4
-.type _sk_byte_tables_rgb_vfp4,%function
+FUNCTION(_sk_byte_tables_rgb_vfp4)
 _sk_byte_tables_rgb_vfp4:
   .long  0xe92d41f0                          // push          {r4, r5, r6, r7, r8, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4636,7 +4738,7 @@ _sk_byte_tables_rgb_vfp4:
 
 HIDDEN _sk_load_a8_vfp4
 .globl _sk_load_a8_vfp4
-.type _sk_load_a8_vfp4,%function
+FUNCTION(_sk_load_a8_vfp4)
 _sk_load_a8_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4663,7 +4765,7 @@ _sk_load_a8_vfp4:
 
 HIDDEN _sk_gather_a8_vfp4
 .globl _sk_gather_a8_vfp4
-.type _sk_gather_a8_vfp4,%function
+FUNCTION(_sk_gather_a8_vfp4)
 _sk_gather_a8_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4694,7 +4796,7 @@ _sk_gather_a8_vfp4:
 
 HIDDEN _sk_store_a8_vfp4
 .globl _sk_store_a8_vfp4
-.type _sk_store_a8_vfp4,%function
+FUNCTION(_sk_store_a8_vfp4)
 _sk_store_a8_vfp4:
   .long  0xe92d4800                          // push          {fp, lr}
   .long  0xeddf0b0d                          // vldr          d16, [pc, #52]
@@ -4717,7 +4819,7 @@ _sk_store_a8_vfp4:
 
 HIDDEN _sk_load_g8_vfp4
 .globl _sk_load_g8_vfp4
-.type _sk_load_g8_vfp4,%function
+FUNCTION(_sk_load_g8_vfp4)
 _sk_load_g8_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4744,7 +4846,7 @@ _sk_load_g8_vfp4:
 
 HIDDEN _sk_gather_g8_vfp4
 .globl _sk_gather_g8_vfp4
-.type _sk_gather_g8_vfp4,%function
+FUNCTION(_sk_gather_g8_vfp4)
 _sk_gather_g8_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4775,7 +4877,7 @@ _sk_gather_g8_vfp4:
 
 HIDDEN _sk_gather_i8_vfp4
 .globl _sk_gather_i8_vfp4
-.type _sk_gather_i8_vfp4,%function
+FUNCTION(_sk_gather_i8_vfp4)
 _sk_gather_i8_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe1a0e001                          // mov           lr, r1
@@ -4828,7 +4930,7 @@ _sk_gather_i8_vfp4:
 
 HIDDEN _sk_load_565_vfp4
 .globl _sk_load_565_vfp4
-.type _sk_load_565_vfp4,%function
+FUNCTION(_sk_load_565_vfp4)
 _sk_load_565_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4867,7 +4969,7 @@ _sk_load_565_vfp4:
 
 HIDDEN _sk_gather_565_vfp4
 .globl _sk_gather_565_vfp4
-.type _sk_gather_565_vfp4,%function
+FUNCTION(_sk_gather_565_vfp4)
 _sk_gather_565_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4914,7 +5016,7 @@ _sk_gather_565_vfp4:
 
 HIDDEN _sk_store_565_vfp4
 .globl _sk_store_565_vfp4
-.type _sk_store_565_vfp4,%function
+FUNCTION(_sk_store_565_vfp4)
 _sk_store_565_vfp4:
   .long  0xf2c30f1f                          // vmov.f32      d16, #31
   .long  0xeddf1b15                          // vldr          d17, [pc, #84]
@@ -4945,7 +5047,7 @@ _sk_store_565_vfp4:
 
 HIDDEN _sk_load_4444_vfp4
 .globl _sk_load_4444_vfp4
-.type _sk_load_4444_vfp4,%function
+FUNCTION(_sk_load_4444_vfp4)
 _sk_load_4444_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4990,7 +5092,7 @@ _sk_load_4444_vfp4:
 
 HIDDEN _sk_gather_4444_vfp4
 .globl _sk_gather_4444_vfp4
-.type _sk_gather_4444_vfp4,%function
+FUNCTION(_sk_gather_4444_vfp4)
 _sk_gather_4444_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5041,7 +5143,7 @@ _sk_gather_4444_vfp4:
 
 HIDDEN _sk_store_4444_vfp4
 .globl _sk_store_4444_vfp4
-.type _sk_store_4444_vfp4,%function
+FUNCTION(_sk_store_4444_vfp4)
 _sk_store_4444_vfp4:
   .long  0xf2c20f1e                          // vmov.f32      d16, #15
   .long  0xe5913000                          // ldr           r3, [r1]
@@ -5074,7 +5176,7 @@ _sk_store_4444_vfp4:
 
 HIDDEN _sk_load_8888_vfp4
 .globl _sk_load_8888_vfp4
-.type _sk_load_8888_vfp4,%function
+FUNCTION(_sk_load_8888_vfp4)
 _sk_load_8888_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xf3c7001f                          // vmov.i32      d16, #255
@@ -5103,7 +5205,7 @@ _sk_load_8888_vfp4:
 
 HIDDEN _sk_gather_8888_vfp4
 .globl _sk_gather_8888_vfp4
-.type _sk_gather_8888_vfp4,%function
+FUNCTION(_sk_gather_8888_vfp4)
 _sk_gather_8888_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5142,7 +5244,7 @@ _sk_gather_8888_vfp4:
 
 HIDDEN _sk_store_8888_vfp4
 .globl _sk_store_8888_vfp4
-.type _sk_store_8888_vfp4,%function
+FUNCTION(_sk_store_8888_vfp4)
 _sk_store_8888_vfp4:
   .long  0xeddf0b1a                          // vldr          d16, [pc, #104]
   .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
@@ -5177,7 +5279,7 @@ _sk_store_8888_vfp4:
 
 HIDDEN _sk_load_f16_vfp4
 .globl _sk_load_f16_vfp4
-.type _sk_load_f16_vfp4,%function
+FUNCTION(_sk_load_f16_vfp4)
 _sk_load_f16_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xe2811008                          // add           r1, r1, #8
@@ -5195,7 +5297,7 @@ _sk_load_f16_vfp4:
 
 HIDDEN _sk_gather_f16_vfp4
 .globl _sk_gather_f16_vfp4
-.type _sk_gather_f16_vfp4,%function
+FUNCTION(_sk_gather_f16_vfp4)
 _sk_gather_f16_vfp4:
   .long  0xe92d4c10                          // push          {r4, sl, fp, lr}
   .long  0xe28db008                          // add           fp, sp, #8
@@ -5232,7 +5334,7 @@ _sk_gather_f16_vfp4:
 
 HIDDEN _sk_store_f16_vfp4
 .globl _sk_store_f16_vfp4
-.type _sk_store_f16_vfp4,%function
+FUNCTION(_sk_store_f16_vfp4)
 _sk_store_f16_vfp4:
   .long  0xf2630113                          // vorr          d16, d3, d3
   .long  0xe5913000                          // ldr           r3, [r1]
@@ -5254,7 +5356,7 @@ _sk_store_f16_vfp4:
 
 HIDDEN _sk_load_u16_be_vfp4
 .globl _sk_load_u16_be_vfp4
-.type _sk_load_u16_be_vfp4,%function
+FUNCTION(_sk_load_u16_be_vfp4)
 _sk_load_u16_be_vfp4:
   .long  0xe92d48f0                          // push          {r4, r5, r6, r7, fp, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5317,7 +5419,7 @@ _sk_load_u16_be_vfp4:
 
 HIDDEN _sk_store_u16_be_vfp4
 .globl _sk_store_u16_be_vfp4
-.type _sk_store_u16_be_vfp4,%function
+FUNCTION(_sk_store_u16_be_vfp4)
 _sk_store_u16_be_vfp4:
   .long  0xeddf0b2a                          // vldr          d16, [pc, #168]
   .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
@@ -5368,7 +5470,7 @@ _sk_store_u16_be_vfp4:
 
 HIDDEN _sk_load_f32_vfp4
 .globl _sk_load_f32_vfp4
-.type _sk_load_f32_vfp4,%function
+FUNCTION(_sk_load_f32_vfp4)
 _sk_load_f32_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xe2811008                          // add           r1, r1, #8
@@ -5379,7 +5481,7 @@ _sk_load_f32_vfp4:
 
 HIDDEN _sk_store_f32_vfp4
 .globl _sk_store_f32_vfp4
-.type _sk_store_f32_vfp4,%function
+FUNCTION(_sk_store_f32_vfp4)
 _sk_store_f32_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xe5933000                          // ldr           r3, [r3]
@@ -5392,7 +5494,7 @@ _sk_store_f32_vfp4:
 
 HIDDEN _sk_clamp_x_vfp4
 .globl _sk_clamp_x_vfp4
-.type _sk_clamp_x_vfp4,%function
+FUNCTION(_sk_clamp_x_vfp4)
 _sk_clamp_x_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xf2c00010                          // vmov.i32      d16, #0
@@ -5406,7 +5508,7 @@ _sk_clamp_x_vfp4:
 
 HIDDEN _sk_clamp_y_vfp4
 .globl _sk_clamp_y_vfp4
-.type _sk_clamp_y_vfp4,%function
+FUNCTION(_sk_clamp_y_vfp4)
 _sk_clamp_y_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xf2c00010                          // vmov.i32      d16, #0
@@ -5420,7 +5522,7 @@ _sk_clamp_y_vfp4:
 
 HIDDEN _sk_repeat_x_vfp4
 .globl _sk_repeat_x_vfp4
-.type _sk_repeat_x_vfp4,%function
+FUNCTION(_sk_repeat_x_vfp4)
 _sk_repeat_x_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5449,7 +5551,7 @@ _sk_repeat_x_vfp4:
 
 HIDDEN _sk_repeat_y_vfp4
 .globl _sk_repeat_y_vfp4
-.type _sk_repeat_y_vfp4,%function
+FUNCTION(_sk_repeat_y_vfp4)
 _sk_repeat_y_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5478,7 +5580,7 @@ _sk_repeat_y_vfp4:
 
 HIDDEN _sk_mirror_x_vfp4
 .globl _sk_mirror_x_vfp4
-.type _sk_mirror_x_vfp4,%function
+FUNCTION(_sk_mirror_x_vfp4)
 _sk_mirror_x_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5511,7 +5613,7 @@ _sk_mirror_x_vfp4:
 
 HIDDEN _sk_mirror_y_vfp4
 .globl _sk_mirror_y_vfp4
-.type _sk_mirror_y_vfp4,%function
+FUNCTION(_sk_mirror_y_vfp4)
 _sk_mirror_y_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5544,7 +5646,7 @@ _sk_mirror_y_vfp4:
 
 HIDDEN _sk_luminance_to_alpha_vfp4
 .globl _sk_luminance_to_alpha_vfp4
-.type _sk_luminance_to_alpha_vfp4,%function
+FUNCTION(_sk_luminance_to_alpha_vfp4)
 _sk_luminance_to_alpha_vfp4:
   .long  0xeddf0b0a                          // vldr          d16, [pc, #40]
   .long  0xeddf1b0b                          // vldr          d17, [pc, #44]
@@ -5567,7 +5669,7 @@ _sk_luminance_to_alpha_vfp4:
 
 HIDDEN _sk_matrix_2x3_vfp4
 .globl _sk_matrix_2x3_vfp4
-.type _sk_matrix_2x3_vfp4,%function
+FUNCTION(_sk_matrix_2x3_vfp4)
 _sk_matrix_2x3_vfp4:
   .long  0xe92d4800                          // push          {fp, lr}
   .long  0xe591e000                          // ldr           lr, [r1]
@@ -5594,7 +5696,7 @@ _sk_matrix_2x3_vfp4:
 
 HIDDEN _sk_matrix_3x4_vfp4
 .globl _sk_matrix_3x4_vfp4
-.type _sk_matrix_3x4_vfp4,%function
+FUNCTION(_sk_matrix_3x4_vfp4)
 _sk_matrix_3x4_vfp4:
   .long  0xe92d4800                          // push          {fp, lr}
   .long  0xe591e000                          // ldr           lr, [r1]
@@ -5639,7 +5741,7 @@ _sk_matrix_3x4_vfp4:
 
 HIDDEN _sk_matrix_4x5_vfp4
 .globl _sk_matrix_4x5_vfp4
-.type _sk_matrix_4x5_vfp4,%function
+FUNCTION(_sk_matrix_4x5_vfp4)
 _sk_matrix_4x5_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5708,7 +5810,7 @@ _sk_matrix_4x5_vfp4:
 
 HIDDEN _sk_matrix_perspective_vfp4
 .globl _sk_matrix_perspective_vfp4
-.type _sk_matrix_perspective_vfp4,%function
+FUNCTION(_sk_matrix_perspective_vfp4)
 _sk_matrix_perspective_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe591e000                          // ldr           lr, [r1]
@@ -5747,7 +5849,7 @@ _sk_matrix_perspective_vfp4:
 
 HIDDEN _sk_linear_gradient_vfp4
 .globl _sk_linear_gradient_vfp4
-.type _sk_linear_gradient_vfp4,%function
+FUNCTION(_sk_linear_gradient_vfp4)
 _sk_linear_gradient_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe591e000                          // ldr           lr, [r1]
@@ -5833,7 +5935,7 @@ _sk_linear_gradient_vfp4:
 
 HIDDEN _sk_linear_gradient_2stops_vfp4
 .globl _sk_linear_gradient_2stops_vfp4
-.type _sk_linear_gradient_2stops_vfp4,%function
+FUNCTION(_sk_linear_gradient_2stops_vfp4)
 _sk_linear_gradient_2stops_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5863,7 +5965,7 @@ _sk_linear_gradient_2stops_vfp4:
 
 HIDDEN _sk_save_xy_vfp4
 .globl _sk_save_xy_vfp4
-.type _sk_save_xy_vfp4,%function
+FUNCTION(_sk_save_xy_vfp4)
 _sk_save_xy_vfp4:
   .long  0xf2c3061f                          // vmov.i32      d16, #1056964608
   .long  0xeddf7b17                          // vldr          d23, [pc, #92]
@@ -5896,7 +5998,7 @@ _sk_save_xy_vfp4:
 
 HIDDEN _sk_accumulate_vfp4
 .globl _sk_accumulate_vfp4
-.type _sk_accumulate_vfp4,%function
+FUNCTION(_sk_accumulate_vfp4)
 _sk_accumulate_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xe2811008                          // add           r1, r1, #8
@@ -5911,7 +6013,7 @@ _sk_accumulate_vfp4:
 
 HIDDEN _sk_bilinear_nx_vfp4
 .globl _sk_bilinear_nx_vfp4
-.type _sk_bilinear_nx_vfp4,%function
+FUNCTION(_sk_bilinear_nx_vfp4)
 _sk_bilinear_nx_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -5928,7 +6030,7 @@ _sk_bilinear_nx_vfp4:
 
 HIDDEN _sk_bilinear_px_vfp4
 .globl _sk_bilinear_px_vfp4
-.type _sk_bilinear_px_vfp4,%function
+FUNCTION(_sk_bilinear_px_vfp4)
 _sk_bilinear_px_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c3061f                          // vmov.i32      d16, #1056964608
@@ -5943,7 +6045,7 @@ _sk_bilinear_px_vfp4:
 
 HIDDEN _sk_bilinear_ny_vfp4
 .globl _sk_bilinear_ny_vfp4
-.type _sk_bilinear_ny_vfp4,%function
+FUNCTION(_sk_bilinear_ny_vfp4)
 _sk_bilinear_ny_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -5960,7 +6062,7 @@ _sk_bilinear_ny_vfp4:
 
 HIDDEN _sk_bilinear_py_vfp4
 .globl _sk_bilinear_py_vfp4
-.type _sk_bilinear_py_vfp4,%function
+FUNCTION(_sk_bilinear_py_vfp4)
 _sk_bilinear_py_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c3061f                          // vmov.i32      d16, #1056964608
@@ -5975,7 +6077,7 @@ _sk_bilinear_py_vfp4:
 
 HIDDEN _sk_bicubic_n3x_vfp4
 .globl _sk_bicubic_n3x_vfp4
-.type _sk_bicubic_n3x_vfp4,%function
+FUNCTION(_sk_bicubic_n3x_vfp4)
 _sk_bicubic_n3x_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -6002,7 +6104,7 @@ _sk_bicubic_n3x_vfp4:
 
 HIDDEN _sk_bicubic_n1x_vfp4
 .globl _sk_bicubic_n1x_vfp4
-.type _sk_bicubic_n1x_vfp4,%function
+FUNCTION(_sk_bicubic_n1x_vfp4)
 _sk_bicubic_n1x_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -6031,7 +6133,7 @@ _sk_bicubic_n1x_vfp4:
 
 HIDDEN _sk_bicubic_p1x_vfp4
 .globl _sk_bicubic_p1x_vfp4
-.type _sk_bicubic_p1x_vfp4,%function
+FUNCTION(_sk_bicubic_p1x_vfp4)
 _sk_bicubic_p1x_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c71f18                          // vmov.f32      d17, #1.5
@@ -6056,7 +6158,7 @@ _sk_bicubic_p1x_vfp4:
 
 HIDDEN _sk_bicubic_p3x_vfp4
 .globl _sk_bicubic_p3x_vfp4
-.type _sk_bicubic_p3x_vfp4,%function
+FUNCTION(_sk_bicubic_p3x_vfp4)
 _sk_bicubic_p3x_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xeddf0b0d                          // vldr          d16, [pc, #52]
@@ -6081,7 +6183,7 @@ _sk_bicubic_p3x_vfp4:
 
 HIDDEN _sk_bicubic_n3y_vfp4
 .globl _sk_bicubic_n3y_vfp4
-.type _sk_bicubic_n3y_vfp4,%function
+FUNCTION(_sk_bicubic_n3y_vfp4)
 _sk_bicubic_n3y_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -6108,7 +6210,7 @@ _sk_bicubic_n3y_vfp4:
 
 HIDDEN _sk_bicubic_n1y_vfp4
 .globl _sk_bicubic_n1y_vfp4
-.type _sk_bicubic_n1y_vfp4,%function
+FUNCTION(_sk_bicubic_n1y_vfp4)
 _sk_bicubic_n1y_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -6137,7 +6239,7 @@ _sk_bicubic_n1y_vfp4:
 
 HIDDEN _sk_bicubic_p1y_vfp4
 .globl _sk_bicubic_p1y_vfp4
-.type _sk_bicubic_p1y_vfp4,%function
+FUNCTION(_sk_bicubic_p1y_vfp4)
 _sk_bicubic_p1y_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c71f18                          // vmov.f32      d17, #1.5
@@ -6162,7 +6264,7 @@ _sk_bicubic_p1y_vfp4:
 
 HIDDEN _sk_bicubic_p3y_vfp4
 .globl _sk_bicubic_p3y_vfp4
-.type _sk_bicubic_p3y_vfp4,%function
+FUNCTION(_sk_bicubic_p3y_vfp4)
 _sk_bicubic_p3y_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xeddf0b0d                          // vldr          d16, [pc, #52]
@@ -6188,6 +6290,7 @@ _sk_bicubic_p3y_vfp4:
 
 HIDDEN _sk_start_pipeline_hsw
 .globl _sk_start_pipeline_hsw
+FUNCTION(_sk_start_pipeline_hsw)
 _sk_start_pipeline_hsw:
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -6248,11 +6351,13 @@ _sk_start_pipeline_hsw:
 
 HIDDEN _sk_just_return_hsw
 .globl _sk_just_return_hsw
+FUNCTION(_sk_just_return_hsw)
 _sk_just_return_hsw:
   .byte  195                                 // retq
 
 HIDDEN _sk_seed_shader_hsw
 .globl _sk_seed_shader_hsw
+FUNCTION(_sk_seed_shader_hsw)
 _sk_seed_shader_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,249,110,199                     // vmovd         %edi,%xmm0
@@ -6279,6 +6384,7 @@ _sk_seed_shader_hsw:
 
 HIDDEN _sk_constant_color_hsw
 .globl _sk_constant_color_hsw
+FUNCTION(_sk_constant_color_hsw)
 _sk_constant_color_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,226,125,24,0                    // vbroadcastss  (%rax),%ymm0
@@ -6290,6 +6396,7 @@ _sk_constant_color_hsw:
 
 HIDDEN _sk_clear_hsw
 .globl _sk_clear_hsw
+FUNCTION(_sk_clear_hsw)
 _sk_clear_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,252,87,192                      // vxorps        %ymm0,%ymm0,%ymm0
@@ -6300,6 +6407,7 @@ _sk_clear_hsw:
 
 HIDDEN _sk_srcatop_hsw
 .globl _sk_srcatop_hsw
+FUNCTION(_sk_srcatop_hsw)
 _sk_srcatop_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -6318,6 +6426,7 @@ _sk_srcatop_hsw:
 
 HIDDEN _sk_dstatop_hsw
 .globl _sk_dstatop_hsw
+FUNCTION(_sk_dstatop_hsw)
 _sk_dstatop_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -6336,6 +6445,7 @@ _sk_dstatop_hsw:
 
 HIDDEN _sk_srcin_hsw
 .globl _sk_srcin_hsw
+FUNCTION(_sk_srcin_hsw)
 _sk_srcin_hsw:
   .byte  197,252,89,199                      // vmulps        %ymm7,%ymm0,%ymm0
   .byte  197,244,89,207                      // vmulps        %ymm7,%ymm1,%ymm1
@@ -6346,6 +6456,7 @@ _sk_srcin_hsw:
 
 HIDDEN _sk_dstin_hsw
 .globl _sk_dstin_hsw
+FUNCTION(_sk_dstin_hsw)
 _sk_dstin_hsw:
   .byte  197,228,89,196                      // vmulps        %ymm4,%ymm3,%ymm0
   .byte  197,228,89,205                      // vmulps        %ymm5,%ymm3,%ymm1
@@ -6356,6 +6467,7 @@ _sk_dstin_hsw:
 
 HIDDEN _sk_srcout_hsw
 .globl _sk_srcout_hsw
+FUNCTION(_sk_srcout_hsw)
 _sk_srcout_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -6370,6 +6482,7 @@ _sk_srcout_hsw:
 
 HIDDEN _sk_dstout_hsw
 .globl _sk_dstout_hsw
+FUNCTION(_sk_dstout_hsw)
 _sk_dstout_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,249,110,192                     // vmovd         %eax,%xmm0
@@ -6384,6 +6497,7 @@ _sk_dstout_hsw:
 
 HIDDEN _sk_srcover_hsw
 .globl _sk_srcover_hsw
+FUNCTION(_sk_srcover_hsw)
 _sk_srcover_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -6398,6 +6512,7 @@ _sk_srcover_hsw:
 
 HIDDEN _sk_dstover_hsw
 .globl _sk_dstover_hsw
+FUNCTION(_sk_dstover_hsw)
 _sk_dstover_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -6412,6 +6527,7 @@ _sk_dstover_hsw:
 
 HIDDEN _sk_modulate_hsw
 .globl _sk_modulate_hsw
+FUNCTION(_sk_modulate_hsw)
 _sk_modulate_hsw:
   .byte  197,252,89,196                      // vmulps        %ymm4,%ymm0,%ymm0
   .byte  197,244,89,205                      // vmulps        %ymm5,%ymm1,%ymm1
@@ -6422,6 +6538,7 @@ _sk_modulate_hsw:
 
 HIDDEN _sk_multiply_hsw
 .globl _sk_multiply_hsw
+FUNCTION(_sk_multiply_hsw)
 _sk_multiply_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -6445,6 +6562,7 @@ _sk_multiply_hsw:
 
 HIDDEN _sk_plus__hsw
 .globl _sk_plus__hsw
+FUNCTION(_sk_plus__hsw)
 _sk_plus__hsw:
   .byte  197,252,88,196                      // vaddps        %ymm4,%ymm0,%ymm0
   .byte  197,244,88,205                      // vaddps        %ymm5,%ymm1,%ymm1
@@ -6455,6 +6573,7 @@ _sk_plus__hsw:
 
 HIDDEN _sk_screen_hsw
 .globl _sk_screen_hsw
+FUNCTION(_sk_screen_hsw)
 _sk_screen_hsw:
   .byte  197,124,88,196                      // vaddps        %ymm4,%ymm0,%ymm8
   .byte  196,194,93,172,192                  // vfnmadd213ps  %ymm8,%ymm4,%ymm0
@@ -6469,6 +6588,7 @@ _sk_screen_hsw:
 
 HIDDEN _sk_xor__hsw
 .globl _sk_xor__hsw
+FUNCTION(_sk_xor__hsw)
 _sk_xor__hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -6489,6 +6609,7 @@ _sk_xor__hsw:
 
 HIDDEN _sk_darken_hsw
 .globl _sk_darken_hsw
+FUNCTION(_sk_darken_hsw)
 _sk_darken_hsw:
   .byte  197,124,88,196                      // vaddps        %ymm4,%ymm0,%ymm8
   .byte  197,252,89,199                      // vmulps        %ymm7,%ymm0,%ymm0
@@ -6515,6 +6636,7 @@ _sk_darken_hsw:
 
 HIDDEN _sk_lighten_hsw
 .globl _sk_lighten_hsw
+FUNCTION(_sk_lighten_hsw)
 _sk_lighten_hsw:
   .byte  197,124,88,196                      // vaddps        %ymm4,%ymm0,%ymm8
   .byte  197,252,89,199                      // vmulps        %ymm7,%ymm0,%ymm0
@@ -6541,6 +6663,7 @@ _sk_lighten_hsw:
 
 HIDDEN _sk_difference_hsw
 .globl _sk_difference_hsw
+FUNCTION(_sk_difference_hsw)
 _sk_difference_hsw:
   .byte  197,124,88,196                      // vaddps        %ymm4,%ymm0,%ymm8
   .byte  197,252,89,199                      // vmulps        %ymm7,%ymm0,%ymm0
@@ -6570,6 +6693,7 @@ _sk_difference_hsw:
 
 HIDDEN _sk_exclusion_hsw
 .globl _sk_exclusion_hsw
+FUNCTION(_sk_exclusion_hsw)
 _sk_exclusion_hsw:
   .byte  197,124,88,196                      // vaddps        %ymm4,%ymm0,%ymm8
   .byte  197,252,89,196                      // vmulps        %ymm4,%ymm0,%ymm0
@@ -6593,6 +6717,7 @@ _sk_exclusion_hsw:
 
 HIDDEN _sk_colorburn_hsw
 .globl _sk_colorburn_hsw
+FUNCTION(_sk_colorburn_hsw)
 _sk_colorburn_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -6651,6 +6776,7 @@ _sk_colorburn_hsw:
 
 HIDDEN _sk_colordodge_hsw
 .globl _sk_colordodge_hsw
+FUNCTION(_sk_colordodge_hsw)
 _sk_colordodge_hsw:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -6706,6 +6832,7 @@ _sk_colordodge_hsw:
 
 HIDDEN _sk_hardlight_hsw
 .globl _sk_hardlight_hsw
+FUNCTION(_sk_hardlight_hsw)
 _sk_hardlight_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -6758,6 +6885,7 @@ _sk_hardlight_hsw:
 
 HIDDEN _sk_overlay_hsw
 .globl _sk_overlay_hsw
+FUNCTION(_sk_overlay_hsw)
 _sk_overlay_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -6810,6 +6938,7 @@ _sk_overlay_hsw:
 
 HIDDEN _sk_softlight_hsw
 .globl _sk_softlight_hsw
+FUNCTION(_sk_softlight_hsw)
 _sk_softlight_hsw:
   .byte  197,252,17,84,36,200                // vmovups       %ymm2,-0x38(%rsp)
   .byte  196,65,44,87,210                    // vxorps        %ymm10,%ymm10,%ymm10
@@ -6913,6 +7042,7 @@ _sk_softlight_hsw:
 
 HIDDEN _sk_clamp_0_hsw
 .globl _sk_clamp_0_hsw
+FUNCTION(_sk_clamp_0_hsw)
 _sk_clamp_0_hsw:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,193,124,95,192                  // vmaxps        %ymm8,%ymm0,%ymm0
@@ -6924,6 +7054,7 @@ _sk_clamp_0_hsw:
 
 HIDDEN _sk_clamp_1_hsw
 .globl _sk_clamp_1_hsw
+FUNCTION(_sk_clamp_1_hsw)
 _sk_clamp_1_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -6937,6 +7068,7 @@ _sk_clamp_1_hsw:
 
 HIDDEN _sk_clamp_a_hsw
 .globl _sk_clamp_a_hsw
+FUNCTION(_sk_clamp_a_hsw)
 _sk_clamp_a_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -6950,6 +7082,7 @@ _sk_clamp_a_hsw:
 
 HIDDEN _sk_set_rgb_hsw
 .globl _sk_set_rgb_hsw
+FUNCTION(_sk_set_rgb_hsw)
 _sk_set_rgb_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,226,125,24,0                    // vbroadcastss  (%rax),%ymm0
@@ -6960,6 +7093,7 @@ _sk_set_rgb_hsw:
 
 HIDDEN _sk_swap_rb_hsw
 .globl _sk_swap_rb_hsw
+FUNCTION(_sk_swap_rb_hsw)
 _sk_swap_rb_hsw:
   .byte  197,124,40,192                      // vmovaps       %ymm0,%ymm8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6969,6 +7103,7 @@ _sk_swap_rb_hsw:
 
 HIDDEN _sk_swap_hsw
 .globl _sk_swap_hsw
+FUNCTION(_sk_swap_hsw)
 _sk_swap_hsw:
   .byte  197,124,40,195                      // vmovaps       %ymm3,%ymm8
   .byte  197,124,40,202                      // vmovaps       %ymm2,%ymm9
@@ -6987,6 +7122,7 @@ _sk_swap_hsw:
 
 HIDDEN _sk_move_src_dst_hsw
 .globl _sk_move_src_dst_hsw
+FUNCTION(_sk_move_src_dst_hsw)
 _sk_move_src_dst_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,252,40,224                      // vmovaps       %ymm0,%ymm4
@@ -6997,6 +7133,7 @@ _sk_move_src_dst_hsw:
 
 HIDDEN _sk_move_dst_src_hsw
 .globl _sk_move_dst_src_hsw
+FUNCTION(_sk_move_dst_src_hsw)
 _sk_move_dst_src_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,252,40,196                      // vmovaps       %ymm4,%ymm0
@@ -7007,6 +7144,7 @@ _sk_move_dst_src_hsw:
 
 HIDDEN _sk_premul_hsw
 .globl _sk_premul_hsw
+FUNCTION(_sk_premul_hsw)
 _sk_premul_hsw:
   .byte  197,252,89,195                      // vmulps        %ymm3,%ymm0,%ymm0
   .byte  197,244,89,203                      // vmulps        %ymm3,%ymm1,%ymm1
@@ -7016,6 +7154,7 @@ _sk_premul_hsw:
 
 HIDDEN _sk_unpremul_hsw
 .globl _sk_unpremul_hsw
+FUNCTION(_sk_unpremul_hsw)
 _sk_unpremul_hsw:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,65,100,194,200,0                // vcmpeqps      %ymm8,%ymm3,%ymm9
@@ -7032,6 +7171,7 @@ _sk_unpremul_hsw:
 
 HIDDEN _sk_from_srgb_hsw
 .globl _sk_from_srgb_hsw
+FUNCTION(_sk_from_srgb_hsw)
 _sk_from_srgb_hsw:
   .byte  184,145,131,158,61                  // mov           $0x3d9e8391,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -7073,6 +7213,7 @@ _sk_from_srgb_hsw:
 
 HIDDEN _sk_to_srgb_hsw
 .globl _sk_to_srgb_hsw
+FUNCTION(_sk_to_srgb_hsw)
 _sk_to_srgb_hsw:
   .byte  197,124,82,192                      // vrsqrtps      %ymm0,%ymm8
   .byte  196,65,124,83,216                   // vrcpps        %ymm8,%ymm11
@@ -7125,6 +7266,7 @@ _sk_to_srgb_hsw:
 
 HIDDEN _sk_from_2dot2_hsw
 .globl _sk_from_2dot2_hsw
+FUNCTION(_sk_from_2dot2_hsw)
 _sk_from_2dot2_hsw:
   .byte  197,124,82,192                      // vrsqrtps      %ymm0,%ymm8
   .byte  196,65,124,82,192                   // vrsqrtps      %ymm8,%ymm8
@@ -7168,6 +7310,7 @@ _sk_from_2dot2_hsw:
 
 HIDDEN _sk_to_2dot2_hsw
 .globl _sk_to_2dot2_hsw
+FUNCTION(_sk_to_2dot2_hsw)
 _sk_to_2dot2_hsw:
   .byte  197,252,82,192                      // vrsqrtps      %ymm0,%ymm0
   .byte  197,124,82,192                      // vrsqrtps      %ymm0,%ymm8
@@ -7208,6 +7351,7 @@ _sk_to_2dot2_hsw:
 
 HIDDEN _sk_rgb_to_hsl_hsw
 .globl _sk_rgb_to_hsl_hsw
+FUNCTION(_sk_rgb_to_hsl_hsw)
 _sk_rgb_to_hsl_hsw:
   .byte  197,252,17,124,36,200               // vmovups       %ymm7,-0x38(%rsp)
   .byte  197,252,40,254                      // vmovaps       %ymm6,%ymm7
@@ -7273,6 +7417,7 @@ _sk_rgb_to_hsl_hsw:
 
 HIDDEN _sk_hsl_to_rgb_hsw
 .globl _sk_hsl_to_rgb_hsw
+FUNCTION(_sk_hsl_to_rgb_hsw)
 _sk_hsl_to_rgb_hsw:
   .byte  72,131,236,56                       // sub           $0x38,%rsp
   .byte  197,252,17,60,36                    // vmovups       %ymm7,(%rsp)
@@ -7377,6 +7522,7 @@ _sk_hsl_to_rgb_hsw:
 
 HIDDEN _sk_scale_1_float_hsw
 .globl _sk_scale_1_float_hsw
+FUNCTION(_sk_scale_1_float_hsw)
 _sk_scale_1_float_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
@@ -7389,6 +7535,7 @@ _sk_scale_1_float_hsw:
 
 HIDDEN _sk_scale_u8_hsw
 .globl _sk_scale_u8_hsw
+FUNCTION(_sk_scale_u8_hsw)
 _sk_scale_u8_hsw:
   .byte  73,137,200                          // mov           %rcx,%r8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7425,6 +7572,7 @@ _sk_scale_u8_hsw:
 
 HIDDEN _sk_lerp_1_float_hsw
 .globl _sk_lerp_1_float_hsw
+FUNCTION(_sk_lerp_1_float_hsw)
 _sk_lerp_1_float_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
@@ -7441,6 +7589,7 @@ _sk_lerp_1_float_hsw:
 
 HIDDEN _sk_lerp_u8_hsw
 .globl _sk_lerp_u8_hsw
+FUNCTION(_sk_lerp_u8_hsw)
 _sk_lerp_u8_hsw:
   .byte  73,137,200                          // mov           %rcx,%r8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7481,6 +7630,7 @@ _sk_lerp_u8_hsw:
 
 HIDDEN _sk_lerp_565_hsw
 .globl _sk_lerp_565_hsw
+FUNCTION(_sk_lerp_565_hsw)
 _sk_lerp_565_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
@@ -7573,6 +7723,7 @@ _sk_lerp_565_hsw:
 
 HIDDEN _sk_load_tables_hsw
 .globl _sk_load_tables_hsw
+FUNCTION(_sk_load_tables_hsw)
 _sk_load_tables_hsw:
   .byte  73,137,200                          // mov           %rcx,%r8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7619,6 +7770,7 @@ _sk_load_tables_hsw:
 
 HIDDEN _sk_byte_tables_hsw
 .globl _sk_byte_tables_hsw
+FUNCTION(_sk_byte_tables_hsw)
 _sk_byte_tables_hsw:
   .byte  85                                  // push          %rbp
   .byte  65,87                               // push          %r15
@@ -7779,6 +7931,7 @@ _sk_byte_tables_hsw:
 
 HIDDEN _sk_byte_tables_rgb_hsw
 .globl _sk_byte_tables_rgb_hsw
+FUNCTION(_sk_byte_tables_rgb_hsw)
 _sk_byte_tables_rgb_hsw:
   .byte  85                                  // push          %rbp
   .byte  65,87                               // push          %r15
@@ -7908,6 +8061,7 @@ _sk_byte_tables_rgb_hsw:
 
 HIDDEN _sk_load_a8_hsw
 .globl _sk_load_a8_hsw
+FUNCTION(_sk_load_a8_hsw)
 _sk_load_a8_hsw:
   .byte  73,137,200                          // mov           %rcx,%r8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7943,6 +8097,7 @@ _sk_load_a8_hsw:
 
 HIDDEN _sk_gather_a8_hsw
 .globl _sk_gather_a8_hsw
+FUNCTION(_sk_gather_a8_hsw)
 _sk_gather_a8_hsw:
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -8000,6 +8155,7 @@ _sk_gather_a8_hsw:
 
 HIDDEN _sk_store_a8_hsw
 .globl _sk_store_a8_hsw
+FUNCTION(_sk_store_a8_hsw)
 _sk_store_a8_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -8062,6 +8218,7 @@ _sk_store_a8_hsw:
 
 HIDDEN _sk_load_g8_hsw
 .globl _sk_load_g8_hsw
+FUNCTION(_sk_load_g8_hsw)
 _sk_load_g8_hsw:
   .byte  73,137,200                          // mov           %rcx,%r8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -8099,6 +8256,7 @@ _sk_load_g8_hsw:
 
 HIDDEN _sk_gather_g8_hsw
 .globl _sk_gather_g8_hsw
+FUNCTION(_sk_gather_g8_hsw)
 _sk_gather_g8_hsw:
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -8158,6 +8316,7 @@ _sk_gather_g8_hsw:
 
 HIDDEN _sk_gather_i8_hsw
 .globl _sk_gather_i8_hsw
+FUNCTION(_sk_gather_i8_hsw)
 _sk_gather_i8_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  73,137,192                          // mov           %rax,%r8
@@ -8232,6 +8391,7 @@ _sk_gather_i8_hsw:
 
 HIDDEN _sk_load_565_hsw
 .globl _sk_load_565_hsw
+FUNCTION(_sk_load_565_hsw)
 _sk_load_565_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
@@ -8317,6 +8477,7 @@ _sk_load_565_hsw:
 
 HIDDEN _sk_gather_565_hsw
 .globl _sk_gather_565_hsw
+FUNCTION(_sk_gather_565_hsw)
 _sk_gather_565_hsw:
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -8398,6 +8559,7 @@ _sk_gather_565_hsw:
 
 HIDDEN _sk_store_565_hsw
 .globl _sk_store_565_hsw
+FUNCTION(_sk_store_565_hsw)
 _sk_store_565_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -8467,6 +8629,7 @@ _sk_store_565_hsw:
 
 HIDDEN _sk_load_4444_hsw
 .globl _sk_load_4444_hsw
+FUNCTION(_sk_load_4444_hsw)
 _sk_load_4444_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
@@ -8557,6 +8720,7 @@ _sk_load_4444_hsw:
 
 HIDDEN _sk_gather_4444_hsw
 .globl _sk_gather_4444_hsw
+FUNCTION(_sk_gather_4444_hsw)
 _sk_gather_4444_hsw:
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -8644,6 +8808,7 @@ _sk_gather_4444_hsw:
 
 HIDDEN _sk_store_4444_hsw
 .globl _sk_store_4444_hsw
+FUNCTION(_sk_store_4444_hsw)
 _sk_store_4444_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -8714,6 +8879,7 @@ _sk_store_4444_hsw:
 
 HIDDEN _sk_load_8888_hsw
 .globl _sk_load_8888_hsw
+FUNCTION(_sk_load_8888_hsw)
 _sk_load_8888_hsw:
   .byte  73,137,200                          // mov           %rcx,%r8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -8757,6 +8923,7 @@ _sk_load_8888_hsw:
 
 HIDDEN _sk_gather_8888_hsw
 .globl _sk_gather_8888_hsw
+FUNCTION(_sk_gather_8888_hsw)
 _sk_gather_8888_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,0                            // mov           (%rax),%r8
@@ -8792,6 +8959,7 @@ _sk_gather_8888_hsw:
 
 HIDDEN _sk_store_8888_hsw
 .globl _sk_store_8888_hsw
+FUNCTION(_sk_store_8888_hsw)
 _sk_store_8888_hsw:
   .byte  73,137,200                          // mov           %rcx,%r8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -8832,6 +9000,7 @@ _sk_store_8888_hsw:
 
 HIDDEN _sk_load_f16_hsw
 .globl _sk_load_f16_hsw
+FUNCTION(_sk_load_f16_hsw)
 _sk_load_f16_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -8888,6 +9057,7 @@ _sk_load_f16_hsw:
 
 HIDDEN _sk_gather_f16_hsw
 .globl _sk_gather_f16_hsw
+FUNCTION(_sk_gather_f16_hsw)
 _sk_gather_f16_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,0                            // mov           (%rax),%r8
@@ -8924,6 +9094,7 @@ _sk_gather_f16_hsw:
 
 HIDDEN _sk_store_f16_hsw
 .globl _sk_store_f16_hsw
+FUNCTION(_sk_store_f16_hsw)
 _sk_store_f16_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -8968,6 +9139,7 @@ _sk_store_f16_hsw:
 
 HIDDEN _sk_load_u16_be_hsw
 .globl _sk_load_u16_be_hsw
+FUNCTION(_sk_load_u16_be_hsw)
 _sk_load_u16_be_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -9047,6 +9219,7 @@ _sk_load_u16_be_hsw:
 
 HIDDEN _sk_store_u16_be_hsw
 .globl _sk_store_u16_be_hsw
+FUNCTION(_sk_store_u16_be_hsw)
 _sk_store_u16_be_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,0                            // mov           (%rax),%r8
@@ -9118,6 +9291,7 @@ _sk_store_u16_be_hsw:
 
 HIDDEN _sk_load_f32_hsw
 .globl _sk_load_f32_hsw
+FUNCTION(_sk_load_f32_hsw)
 _sk_load_f32_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
@@ -9168,6 +9342,7 @@ _sk_load_f32_hsw:
 
 HIDDEN _sk_store_f32_hsw
 .globl _sk_store_f32_hsw
+FUNCTION(_sk_store_f32_hsw)
 _sk_store_f32_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,0                            // mov           (%rax),%r8
@@ -9213,6 +9388,7 @@ _sk_store_f32_hsw:
 
 HIDDEN _sk_clamp_x_hsw
 .globl _sk_clamp_x_hsw
+FUNCTION(_sk_clamp_x_hsw)
 _sk_clamp_x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
@@ -9226,6 +9402,7 @@ _sk_clamp_x_hsw:
 
 HIDDEN _sk_clamp_y_hsw
 .globl _sk_clamp_y_hsw
+FUNCTION(_sk_clamp_y_hsw)
 _sk_clamp_y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
@@ -9239,6 +9416,7 @@ _sk_clamp_y_hsw:
 
 HIDDEN _sk_repeat_x_hsw
 .globl _sk_repeat_x_hsw
+FUNCTION(_sk_repeat_x_hsw)
 _sk_repeat_x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
@@ -9253,6 +9431,7 @@ _sk_repeat_x_hsw:
 
 HIDDEN _sk_repeat_y_hsw
 .globl _sk_repeat_y_hsw
+FUNCTION(_sk_repeat_y_hsw)
 _sk_repeat_y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
@@ -9267,6 +9446,7 @@ _sk_repeat_y_hsw:
 
 HIDDEN _sk_mirror_x_hsw
 .globl _sk_mirror_x_hsw
+FUNCTION(_sk_mirror_x_hsw)
 _sk_mirror_x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,122,16,0                        // vmovss        (%rax),%xmm8
@@ -9289,6 +9469,7 @@ _sk_mirror_x_hsw:
 
 HIDDEN _sk_mirror_y_hsw
 .globl _sk_mirror_y_hsw
+FUNCTION(_sk_mirror_y_hsw)
 _sk_mirror_y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,122,16,0                        // vmovss        (%rax),%xmm8
@@ -9311,6 +9492,7 @@ _sk_mirror_y_hsw:
 
 HIDDEN _sk_luminance_to_alpha_hsw
 .globl _sk_luminance_to_alpha_hsw
+FUNCTION(_sk_luminance_to_alpha_hsw)
 _sk_luminance_to_alpha_hsw:
   .byte  184,208,179,89,62                   // mov           $0x3e59b3d0,%eax
   .byte  197,249,110,216                     // vmovd         %eax,%xmm3
@@ -9332,6 +9514,7 @@ _sk_luminance_to_alpha_hsw:
 
 HIDDEN _sk_matrix_2x3_hsw
 .globl _sk_matrix_2x3_hsw
+FUNCTION(_sk_matrix_2x3_hsw)
 _sk_matrix_2x3_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,8                     // vbroadcastss  (%rax),%ymm9
@@ -9351,6 +9534,7 @@ _sk_matrix_2x3_hsw:
 
 HIDDEN _sk_matrix_3x4_hsw
 .globl _sk_matrix_3x4_hsw
+FUNCTION(_sk_matrix_3x4_hsw)
 _sk_matrix_3x4_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,8                     // vbroadcastss  (%rax),%ymm9
@@ -9382,6 +9566,7 @@ _sk_matrix_3x4_hsw:
 
 HIDDEN _sk_matrix_4x5_hsw
 .globl _sk_matrix_4x5_hsw
+FUNCTION(_sk_matrix_4x5_hsw)
 _sk_matrix_4x5_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,8                     // vbroadcastss  (%rax),%ymm9
@@ -9429,6 +9614,7 @@ _sk_matrix_4x5_hsw:
 
 HIDDEN _sk_matrix_perspective_hsw
 .globl _sk_matrix_perspective_hsw
+FUNCTION(_sk_matrix_perspective_hsw)
 _sk_matrix_perspective_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
@@ -9454,6 +9640,7 @@ _sk_matrix_perspective_hsw:
 
 HIDDEN _sk_linear_gradient_hsw
 .globl _sk_linear_gradient_hsw
+FUNCTION(_sk_linear_gradient_hsw)
 _sk_linear_gradient_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,64,16                 // vbroadcastss  0x10(%rax),%ymm8
@@ -9505,6 +9692,7 @@ _sk_linear_gradient_hsw:
 
 HIDDEN _sk_linear_gradient_2stops_hsw
 .globl _sk_linear_gradient_2stops_hsw
+FUNCTION(_sk_linear_gradient_2stops_hsw)
 _sk_linear_gradient_2stops_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,226,125,24,8                    // vbroadcastss  (%rax),%ymm1
@@ -9525,6 +9713,7 @@ _sk_linear_gradient_2stops_hsw:
 
 HIDDEN _sk_save_xy_hsw
 .globl _sk_save_xy_hsw
+FUNCTION(_sk_save_xy_hsw)
 _sk_save_xy_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,63                     // mov           $0x3f000000,%r8d
@@ -9545,6 +9734,7 @@ _sk_save_xy_hsw:
 
 HIDDEN _sk_accumulate_hsw
 .globl _sk_accumulate_hsw
+FUNCTION(_sk_accumulate_hsw)
 _sk_accumulate_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,124,16,128,128,0,0,0            // vmovups       0x80(%rax),%ymm8
@@ -9559,6 +9749,7 @@ _sk_accumulate_hsw:
 
 HIDDEN _sk_bilinear_nx_hsw
 .globl _sk_bilinear_nx_hsw
+FUNCTION(_sk_bilinear_nx_hsw)
 _sk_bilinear_nx_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,191                    // mov           $0xbf000000,%r8d
@@ -9575,6 +9766,7 @@ _sk_bilinear_nx_hsw:
 
 HIDDEN _sk_bilinear_px_hsw
 .globl _sk_bilinear_px_hsw
+FUNCTION(_sk_bilinear_px_hsw)
 _sk_bilinear_px_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,63                     // mov           $0x3f000000,%r8d
@@ -9588,6 +9780,7 @@ _sk_bilinear_px_hsw:
 
 HIDDEN _sk_bilinear_ny_hsw
 .globl _sk_bilinear_ny_hsw
+FUNCTION(_sk_bilinear_ny_hsw)
 _sk_bilinear_ny_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,191                    // mov           $0xbf000000,%r8d
@@ -9604,6 +9797,7 @@ _sk_bilinear_ny_hsw:
 
 HIDDEN _sk_bilinear_py_hsw
 .globl _sk_bilinear_py_hsw
+FUNCTION(_sk_bilinear_py_hsw)
 _sk_bilinear_py_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,63                     // mov           $0x3f000000,%r8d
@@ -9617,6 +9811,7 @@ _sk_bilinear_py_hsw:
 
 HIDDEN _sk_bicubic_n3x_hsw
 .globl _sk_bicubic_n3x_hsw
+FUNCTION(_sk_bicubic_n3x_hsw)
 _sk_bicubic_n3x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,192,191                  // mov           $0xbfc00000,%r8d
@@ -9642,6 +9837,7 @@ _sk_bicubic_n3x_hsw:
 
 HIDDEN _sk_bicubic_n1x_hsw
 .globl _sk_bicubic_n1x_hsw
+FUNCTION(_sk_bicubic_n1x_hsw)
 _sk_bicubic_n1x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,191                    // mov           $0xbf000000,%r8d
@@ -9673,6 +9869,7 @@ _sk_bicubic_n1x_hsw:
 
 HIDDEN _sk_bicubic_p1x_hsw
 .globl _sk_bicubic_p1x_hsw
+FUNCTION(_sk_bicubic_p1x_hsw)
 _sk_bicubic_p1x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,63                     // mov           $0x3f000000,%r8d
@@ -9698,6 +9895,7 @@ _sk_bicubic_p1x_hsw:
 
 HIDDEN _sk_bicubic_p3x_hsw
 .globl _sk_bicubic_p3x_hsw
+FUNCTION(_sk_bicubic_p3x_hsw)
 _sk_bicubic_p3x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,192,63                   // mov           $0x3fc00000,%r8d
@@ -9720,6 +9918,7 @@ _sk_bicubic_p3x_hsw:
 
 HIDDEN _sk_bicubic_n3y_hsw
 .globl _sk_bicubic_n3y_hsw
+FUNCTION(_sk_bicubic_n3y_hsw)
 _sk_bicubic_n3y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,192,191                  // mov           $0xbfc00000,%r8d
@@ -9745,6 +9944,7 @@ _sk_bicubic_n3y_hsw:
 
 HIDDEN _sk_bicubic_n1y_hsw
 .globl _sk_bicubic_n1y_hsw
+FUNCTION(_sk_bicubic_n1y_hsw)
 _sk_bicubic_n1y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,191                    // mov           $0xbf000000,%r8d
@@ -9776,6 +9976,7 @@ _sk_bicubic_n1y_hsw:
 
 HIDDEN _sk_bicubic_p1y_hsw
 .globl _sk_bicubic_p1y_hsw
+FUNCTION(_sk_bicubic_p1y_hsw)
 _sk_bicubic_p1y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,63                     // mov           $0x3f000000,%r8d
@@ -9801,6 +10002,7 @@ _sk_bicubic_p1y_hsw:
 
 HIDDEN _sk_bicubic_p3y_hsw
 .globl _sk_bicubic_p3y_hsw
+FUNCTION(_sk_bicubic_p3y_hsw)
 _sk_bicubic_p3y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,192,63                   // mov           $0x3fc00000,%r8d
@@ -9823,6 +10025,7 @@ _sk_bicubic_p3y_hsw:
 
 HIDDEN _sk_start_pipeline_avx
 .globl _sk_start_pipeline_avx
+FUNCTION(_sk_start_pipeline_avx)
 _sk_start_pipeline_avx:
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -9883,11 +10086,13 @@ _sk_start_pipeline_avx:
 
 HIDDEN _sk_just_return_avx
 .globl _sk_just_return_avx
+FUNCTION(_sk_just_return_avx)
 _sk_just_return_avx:
   .byte  195                                 // retq
 
 HIDDEN _sk_seed_shader_avx
 .globl _sk_seed_shader_avx
+FUNCTION(_sk_seed_shader_avx)
 _sk_seed_shader_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,249,110,199                     // vmovd         %edi,%xmm0
@@ -9917,6 +10122,7 @@ _sk_seed_shader_avx:
 
 HIDDEN _sk_constant_color_avx
 .globl _sk_constant_color_avx
+FUNCTION(_sk_constant_color_avx)
 _sk_constant_color_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,226,125,24,0                    // vbroadcastss  (%rax),%ymm0
@@ -9928,6 +10134,7 @@ _sk_constant_color_avx:
 
 HIDDEN _sk_clear_avx
 .globl _sk_clear_avx
+FUNCTION(_sk_clear_avx)
 _sk_clear_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,252,87,192                      // vxorps        %ymm0,%ymm0,%ymm0
@@ -9938,6 +10145,7 @@ _sk_clear_avx:
 
 HIDDEN _sk_srcatop_avx
 .globl _sk_srcatop_avx
+FUNCTION(_sk_srcatop_avx)
 _sk_srcatop_avx:
   .byte  197,124,89,199                      // vmulps        %ymm7,%ymm0,%ymm8
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -9961,6 +10169,7 @@ _sk_srcatop_avx:
 
 HIDDEN _sk_dstatop_avx
 .globl _sk_dstatop_avx
+FUNCTION(_sk_dstatop_avx)
 _sk_dstatop_avx:
   .byte  197,100,89,196                      // vmulps        %ymm4,%ymm3,%ymm8
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -9984,6 +10193,7 @@ _sk_dstatop_avx:
 
 HIDDEN _sk_srcin_avx
 .globl _sk_srcin_avx
+FUNCTION(_sk_srcin_avx)
 _sk_srcin_avx:
   .byte  197,252,89,199                      // vmulps        %ymm7,%ymm0,%ymm0
   .byte  197,244,89,207                      // vmulps        %ymm7,%ymm1,%ymm1
@@ -9994,6 +10204,7 @@ _sk_srcin_avx:
 
 HIDDEN _sk_dstin_avx
 .globl _sk_dstin_avx
+FUNCTION(_sk_dstin_avx)
 _sk_dstin_avx:
   .byte  197,228,89,196                      // vmulps        %ymm4,%ymm3,%ymm0
   .byte  197,228,89,205                      // vmulps        %ymm5,%ymm3,%ymm1
@@ -10004,6 +10215,7 @@ _sk_dstin_avx:
 
 HIDDEN _sk_srcout_avx
 .globl _sk_srcout_avx
+FUNCTION(_sk_srcout_avx)
 _sk_srcout_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -10019,6 +10231,7 @@ _sk_srcout_avx:
 
 HIDDEN _sk_dstout_avx
 .globl _sk_dstout_avx
+FUNCTION(_sk_dstout_avx)
 _sk_dstout_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,249,110,192                     // vmovd         %eax,%xmm0
@@ -10034,6 +10247,7 @@ _sk_dstout_avx:
 
 HIDDEN _sk_srcover_avx
 .globl _sk_srcover_avx
+FUNCTION(_sk_srcover_avx)
 _sk_srcover_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -10053,6 +10267,7 @@ _sk_srcover_avx:
 
 HIDDEN _sk_dstover_avx
 .globl _sk_dstover_avx
+FUNCTION(_sk_dstover_avx)
 _sk_dstover_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -10072,6 +10287,7 @@ _sk_dstover_avx:
 
 HIDDEN _sk_modulate_avx
 .globl _sk_modulate_avx
+FUNCTION(_sk_modulate_avx)
 _sk_modulate_avx:
   .byte  197,252,89,196                      // vmulps        %ymm4,%ymm0,%ymm0
   .byte  197,244,89,205                      // vmulps        %ymm5,%ymm1,%ymm1
@@ -10082,6 +10298,7 @@ _sk_modulate_avx:
 
 HIDDEN _sk_multiply_avx
 .globl _sk_multiply_avx
+FUNCTION(_sk_multiply_avx)
 _sk_multiply_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -10114,6 +10331,7 @@ _sk_multiply_avx:
 
 HIDDEN _sk_plus__avx
 .globl _sk_plus__avx
+FUNCTION(_sk_plus__avx)
 _sk_plus__avx:
   .byte  197,252,88,196                      // vaddps        %ymm4,%ymm0,%ymm0
   .byte  197,244,88,205                      // vaddps        %ymm5,%ymm1,%ymm1
@@ -10124,6 +10342,7 @@ _sk_plus__avx:
 
 HIDDEN _sk_screen_avx
 .globl _sk_screen_avx
+FUNCTION(_sk_screen_avx)
 _sk_screen_avx:
   .byte  197,124,88,196                      // vaddps        %ymm4,%ymm0,%ymm8
   .byte  197,252,89,196                      // vmulps        %ymm4,%ymm0,%ymm0
@@ -10142,6 +10361,7 @@ _sk_screen_avx:
 
 HIDDEN _sk_xor__avx
 .globl _sk_xor__avx
+FUNCTION(_sk_xor__avx)
 _sk_xor__avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -10166,6 +10386,7 @@ _sk_xor__avx:
 
 HIDDEN _sk_darken_avx
 .globl _sk_darken_avx
+FUNCTION(_sk_darken_avx)
 _sk_darken_avx:
   .byte  197,124,88,196                      // vaddps        %ymm4,%ymm0,%ymm8
   .byte  197,252,89,199                      // vmulps        %ymm7,%ymm0,%ymm0
@@ -10194,6 +10415,7 @@ _sk_darken_avx:
 
 HIDDEN _sk_lighten_avx
 .globl _sk_lighten_avx
+FUNCTION(_sk_lighten_avx)
 _sk_lighten_avx:
   .byte  197,124,88,196                      // vaddps        %ymm4,%ymm0,%ymm8
   .byte  197,252,89,199                      // vmulps        %ymm7,%ymm0,%ymm0
@@ -10222,6 +10444,7 @@ _sk_lighten_avx:
 
 HIDDEN _sk_difference_avx
 .globl _sk_difference_avx
+FUNCTION(_sk_difference_avx)
 _sk_difference_avx:
   .byte  197,124,88,196                      // vaddps        %ymm4,%ymm0,%ymm8
   .byte  197,252,89,199                      // vmulps        %ymm7,%ymm0,%ymm0
@@ -10253,6 +10476,7 @@ _sk_difference_avx:
 
 HIDDEN _sk_exclusion_avx
 .globl _sk_exclusion_avx
+FUNCTION(_sk_exclusion_avx)
 _sk_exclusion_avx:
   .byte  197,124,88,196                      // vaddps        %ymm4,%ymm0,%ymm8
   .byte  197,252,89,196                      // vmulps        %ymm4,%ymm0,%ymm0
@@ -10278,6 +10502,7 @@ _sk_exclusion_avx:
 
 HIDDEN _sk_colorburn_avx
 .globl _sk_colorburn_avx
+FUNCTION(_sk_colorburn_avx)
 _sk_colorburn_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -10341,6 +10566,7 @@ _sk_colorburn_avx:
 
 HIDDEN _sk_colordodge_avx
 .globl _sk_colordodge_avx
+FUNCTION(_sk_colordodge_avx)
 _sk_colordodge_avx:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -10401,6 +10627,7 @@ _sk_colordodge_avx:
 
 HIDDEN _sk_hardlight_avx
 .globl _sk_hardlight_avx
+FUNCTION(_sk_hardlight_avx)
 _sk_hardlight_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -10458,6 +10685,7 @@ _sk_hardlight_avx:
 
 HIDDEN _sk_overlay_avx
 .globl _sk_overlay_avx
+FUNCTION(_sk_overlay_avx)
 _sk_overlay_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -10515,6 +10743,7 @@ _sk_overlay_avx:
 
 HIDDEN _sk_softlight_avx
 .globl _sk_softlight_avx
+FUNCTION(_sk_softlight_avx)
 _sk_softlight_avx:
   .byte  197,252,17,84,36,200                // vmovups       %ymm2,-0x38(%rsp)
   .byte  197,252,40,209                      // vmovaps       %ymm1,%ymm2
@@ -10637,6 +10866,7 @@ _sk_softlight_avx:
 
 HIDDEN _sk_clamp_0_avx
 .globl _sk_clamp_0_avx
+FUNCTION(_sk_clamp_0_avx)
 _sk_clamp_0_avx:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,193,124,95,192                  // vmaxps        %ymm8,%ymm0,%ymm0
@@ -10648,6 +10878,7 @@ _sk_clamp_0_avx:
 
 HIDDEN _sk_clamp_1_avx
 .globl _sk_clamp_1_avx
+FUNCTION(_sk_clamp_1_avx)
 _sk_clamp_1_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -10662,6 +10893,7 @@ _sk_clamp_1_avx:
 
 HIDDEN _sk_clamp_a_avx
 .globl _sk_clamp_a_avx
+FUNCTION(_sk_clamp_a_avx)
 _sk_clamp_a_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -10676,6 +10908,7 @@ _sk_clamp_a_avx:
 
 HIDDEN _sk_set_rgb_avx
 .globl _sk_set_rgb_avx
+FUNCTION(_sk_set_rgb_avx)
 _sk_set_rgb_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,226,125,24,0                    // vbroadcastss  (%rax),%ymm0
@@ -10686,6 +10919,7 @@ _sk_set_rgb_avx:
 
 HIDDEN _sk_swap_rb_avx
 .globl _sk_swap_rb_avx
+FUNCTION(_sk_swap_rb_avx)
 _sk_swap_rb_avx:
   .byte  197,124,40,192                      // vmovaps       %ymm0,%ymm8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -10695,6 +10929,7 @@ _sk_swap_rb_avx:
 
 HIDDEN _sk_swap_avx
 .globl _sk_swap_avx
+FUNCTION(_sk_swap_avx)
 _sk_swap_avx:
   .byte  197,124,40,195                      // vmovaps       %ymm3,%ymm8
   .byte  197,124,40,202                      // vmovaps       %ymm2,%ymm9
@@ -10713,6 +10948,7 @@ _sk_swap_avx:
 
 HIDDEN _sk_move_src_dst_avx
 .globl _sk_move_src_dst_avx
+FUNCTION(_sk_move_src_dst_avx)
 _sk_move_src_dst_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,252,40,224                      // vmovaps       %ymm0,%ymm4
@@ -10723,6 +10959,7 @@ _sk_move_src_dst_avx:
 
 HIDDEN _sk_move_dst_src_avx
 .globl _sk_move_dst_src_avx
+FUNCTION(_sk_move_dst_src_avx)
 _sk_move_dst_src_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,252,40,196                      // vmovaps       %ymm4,%ymm0
@@ -10733,6 +10970,7 @@ _sk_move_dst_src_avx:
 
 HIDDEN _sk_premul_avx
 .globl _sk_premul_avx
+FUNCTION(_sk_premul_avx)
 _sk_premul_avx:
   .byte  197,252,89,195                      // vmulps        %ymm3,%ymm0,%ymm0
   .byte  197,244,89,203                      // vmulps        %ymm3,%ymm1,%ymm1
@@ -10742,6 +10980,7 @@ _sk_premul_avx:
 
 HIDDEN _sk_unpremul_avx
 .globl _sk_unpremul_avx
+FUNCTION(_sk_unpremul_avx)
 _sk_unpremul_avx:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,65,100,194,200,0                // vcmpeqps      %ymm8,%ymm3,%ymm9
@@ -10759,6 +10998,7 @@ _sk_unpremul_avx:
 
 HIDDEN _sk_from_srgb_avx
 .globl _sk_from_srgb_avx
+FUNCTION(_sk_from_srgb_avx)
 _sk_from_srgb_avx:
   .byte  184,145,131,158,61                  // mov           $0x3d9e8391,%eax
   .byte  197,121,110,192                     // vmovd         %eax,%xmm8
@@ -10809,6 +11049,7 @@ _sk_from_srgb_avx:
 
 HIDDEN _sk_to_srgb_avx
 .globl _sk_to_srgb_avx
+FUNCTION(_sk_to_srgb_avx)
 _sk_to_srgb_avx:
   .byte  197,124,82,192                      // vrsqrtps      %ymm0,%ymm8
   .byte  196,65,124,83,232                   // vrcpps        %ymm8,%ymm13
@@ -10873,6 +11114,7 @@ _sk_to_srgb_avx:
 
 HIDDEN _sk_from_2dot2_avx
 .globl _sk_from_2dot2_avx
+FUNCTION(_sk_from_2dot2_avx)
 _sk_from_2dot2_avx:
   .byte  197,124,82,192                      // vrsqrtps      %ymm0,%ymm8
   .byte  196,65,124,82,192                   // vrsqrtps      %ymm8,%ymm8
@@ -10916,6 +11158,7 @@ _sk_from_2dot2_avx:
 
 HIDDEN _sk_to_2dot2_avx
 .globl _sk_to_2dot2_avx
+FUNCTION(_sk_to_2dot2_avx)
 _sk_to_2dot2_avx:
   .byte  197,252,82,192                      // vrsqrtps      %ymm0,%ymm0
   .byte  197,124,82,192                      // vrsqrtps      %ymm0,%ymm8
@@ -10956,6 +11199,7 @@ _sk_to_2dot2_avx:
 
 HIDDEN _sk_rgb_to_hsl_avx
 .globl _sk_rgb_to_hsl_avx
+FUNCTION(_sk_rgb_to_hsl_avx)
 _sk_rgb_to_hsl_avx:
   .byte  197,124,95,193                      // vmaxps        %ymm1,%ymm0,%ymm8
   .byte  197,60,95,194                       // vmaxps        %ymm2,%ymm8,%ymm8
@@ -11019,6 +11263,7 @@ _sk_rgb_to_hsl_avx:
 
 HIDDEN _sk_hsl_to_rgb_avx
 .globl _sk_hsl_to_rgb_avx
+FUNCTION(_sk_hsl_to_rgb_avx)
 _sk_hsl_to_rgb_avx:
   .byte  72,131,236,56                       // sub           $0x38,%rsp
   .byte  197,252,17,60,36                    // vmovups       %ymm7,(%rsp)
@@ -11141,6 +11386,7 @@ _sk_hsl_to_rgb_avx:
 
 HIDDEN _sk_scale_1_float_avx
 .globl _sk_scale_1_float_avx
+FUNCTION(_sk_scale_1_float_avx)
 _sk_scale_1_float_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
@@ -11153,6 +11399,7 @@ _sk_scale_1_float_avx:
 
 HIDDEN _sk_scale_u8_avx
 .globl _sk_scale_u8_avx
+FUNCTION(_sk_scale_u8_avx)
 _sk_scale_u8_avx:
   .byte  73,137,200                          // mov           %rcx,%r8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -11193,6 +11440,7 @@ _sk_scale_u8_avx:
 
 HIDDEN _sk_lerp_1_float_avx
 .globl _sk_lerp_1_float_avx
+FUNCTION(_sk_lerp_1_float_avx)
 _sk_lerp_1_float_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
@@ -11213,6 +11461,7 @@ _sk_lerp_1_float_avx:
 
 HIDDEN _sk_lerp_u8_avx
 .globl _sk_lerp_u8_avx
+FUNCTION(_sk_lerp_u8_avx)
 _sk_lerp_u8_avx:
   .byte  73,137,200                          // mov           %rcx,%r8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -11261,6 +11510,7 @@ _sk_lerp_u8_avx:
 
 HIDDEN _sk_lerp_565_avx
 .globl _sk_lerp_565_avx
+FUNCTION(_sk_lerp_565_avx)
 _sk_lerp_565_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
@@ -11365,6 +11615,7 @@ _sk_lerp_565_avx:
 
 HIDDEN _sk_load_tables_avx
 .globl _sk_load_tables_avx
+FUNCTION(_sk_load_tables_avx)
 _sk_load_tables_avx:
   .byte  85                                  // push          %rbp
   .byte  65,87                               // push          %r15
@@ -11541,6 +11792,7 @@ _sk_load_tables_avx:
 
 HIDDEN _sk_byte_tables_avx
 .globl _sk_byte_tables_avx
+FUNCTION(_sk_byte_tables_avx)
 _sk_byte_tables_avx:
   .byte  85                                  // push          %rbp
   .byte  65,87                               // push          %r15
@@ -11703,6 +11955,7 @@ _sk_byte_tables_avx:
 
 HIDDEN _sk_byte_tables_rgb_avx
 .globl _sk_byte_tables_rgb_avx
+FUNCTION(_sk_byte_tables_rgb_avx)
 _sk_byte_tables_rgb_avx:
   .byte  85                                  // push          %rbp
   .byte  65,87                               // push          %r15
@@ -11834,6 +12087,7 @@ _sk_byte_tables_rgb_avx:
 
 HIDDEN _sk_load_a8_avx
 .globl _sk_load_a8_avx
+FUNCTION(_sk_load_a8_avx)
 _sk_load_a8_avx:
   .byte  73,137,200                          // mov           %rcx,%r8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -11873,6 +12127,7 @@ _sk_load_a8_avx:
 
 HIDDEN _sk_gather_a8_avx
 .globl _sk_gather_a8_avx
+FUNCTION(_sk_gather_a8_avx)
 _sk_gather_a8_avx:
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -11935,6 +12190,7 @@ _sk_gather_a8_avx:
 
 HIDDEN _sk_store_a8_avx
 .globl _sk_store_a8_avx
+FUNCTION(_sk_store_a8_avx)
 _sk_store_a8_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -11997,6 +12253,7 @@ _sk_store_a8_avx:
 
 HIDDEN _sk_load_g8_avx
 .globl _sk_load_g8_avx
+FUNCTION(_sk_load_g8_avx)
 _sk_load_g8_avx:
   .byte  73,137,200                          // mov           %rcx,%r8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -12039,6 +12296,7 @@ _sk_load_g8_avx:
 
 HIDDEN _sk_gather_g8_avx
 .globl _sk_gather_g8_avx
+FUNCTION(_sk_gather_g8_avx)
 _sk_gather_g8_avx:
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -12104,6 +12362,7 @@ _sk_gather_g8_avx:
 
 HIDDEN _sk_gather_i8_avx
 .globl _sk_gather_i8_avx
+FUNCTION(_sk_gather_i8_avx)
 _sk_gather_i8_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  73,137,192                          // mov           %rax,%r8
@@ -12210,6 +12469,7 @@ _sk_gather_i8_avx:
 
 HIDDEN _sk_load_565_avx
 .globl _sk_load_565_avx
+FUNCTION(_sk_load_565_avx)
 _sk_load_565_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
@@ -12306,6 +12566,7 @@ _sk_load_565_avx:
 
 HIDDEN _sk_gather_565_avx
 .globl _sk_gather_565_avx
+FUNCTION(_sk_gather_565_avx)
 _sk_gather_565_avx:
   .byte  85                                  // push          %rbp
   .byte  65,87                               // push          %r15
@@ -12403,6 +12664,7 @@ _sk_gather_565_avx:
 
 HIDDEN _sk_store_565_avx
 .globl _sk_store_565_avx
+FUNCTION(_sk_store_565_avx)
 _sk_store_565_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -12480,6 +12742,7 @@ _sk_store_565_avx:
 
 HIDDEN _sk_load_4444_avx
 .globl _sk_load_4444_avx
+FUNCTION(_sk_load_4444_avx)
 _sk_load_4444_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
@@ -12582,6 +12845,7 @@ _sk_load_4444_avx:
 
 HIDDEN _sk_gather_4444_avx
 .globl _sk_gather_4444_avx
+FUNCTION(_sk_gather_4444_avx)
 _sk_gather_4444_avx:
   .byte  85                                  // push          %rbp
   .byte  65,87                               // push          %r15
@@ -12686,6 +12950,7 @@ _sk_gather_4444_avx:
 
 HIDDEN _sk_store_4444_avx
 .globl _sk_store_4444_avx
+FUNCTION(_sk_store_4444_avx)
 _sk_store_4444_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -12768,6 +13033,7 @@ _sk_store_4444_avx:
 
 HIDDEN _sk_load_8888_avx
 .globl _sk_load_8888_avx
+FUNCTION(_sk_load_8888_avx)
 _sk_load_8888_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
@@ -12857,6 +13123,7 @@ _sk_load_8888_avx:
 
 HIDDEN _sk_gather_8888_avx
 .globl _sk_gather_8888_avx
+FUNCTION(_sk_gather_8888_avx)
 _sk_gather_8888_avx:
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -12932,6 +13199,7 @@ _sk_gather_8888_avx:
 
 HIDDEN _sk_store_8888_avx
 .globl _sk_store_8888_avx
+FUNCTION(_sk_store_8888_avx)
 _sk_store_8888_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -13014,6 +13282,7 @@ _sk_store_8888_avx:
 
 HIDDEN _sk_load_f16_avx
 .globl _sk_load_f16_avx
+FUNCTION(_sk_load_f16_avx)
 _sk_load_f16_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -13106,6 +13375,7 @@ _sk_load_f16_avx:
 
 HIDDEN _sk_gather_f16_avx
 .globl _sk_gather_f16_avx
+FUNCTION(_sk_gather_f16_avx)
 _sk_gather_f16_avx:
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -13208,6 +13478,7 @@ _sk_gather_f16_avx:
 
 HIDDEN _sk_store_f16_avx
 .globl _sk_store_f16_avx
+FUNCTION(_sk_store_f16_avx)
 _sk_store_f16_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,0                            // mov           (%rax),%r8
@@ -13272,6 +13543,7 @@ _sk_store_f16_avx:
 
 HIDDEN _sk_load_u16_be_avx
 .globl _sk_load_u16_be_avx
+FUNCTION(_sk_load_u16_be_avx)
 _sk_load_u16_be_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -13361,6 +13633,7 @@ _sk_load_u16_be_avx:
 
 HIDDEN _sk_store_u16_be_avx
 .globl _sk_store_u16_be_avx
+FUNCTION(_sk_store_u16_be_avx)
 _sk_store_u16_be_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,0                            // mov           (%rax),%r8
@@ -13433,6 +13706,7 @@ _sk_store_u16_be_avx:
 
 HIDDEN _sk_load_f32_avx
 .globl _sk_load_f32_avx
+FUNCTION(_sk_load_f32_avx)
 _sk_load_f32_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
@@ -13484,6 +13758,7 @@ _sk_load_f32_avx:
 
 HIDDEN _sk_store_f32_avx
 .globl _sk_store_f32_avx
+FUNCTION(_sk_store_f32_avx)
 _sk_store_f32_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,0                            // mov           (%rax),%r8
@@ -13529,6 +13804,7 @@ _sk_store_f32_avx:
 
 HIDDEN _sk_clamp_x_avx
 .globl _sk_clamp_x_avx
+FUNCTION(_sk_clamp_x_avx)
 _sk_clamp_x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
@@ -13545,6 +13821,7 @@ _sk_clamp_x_avx:
 
 HIDDEN _sk_clamp_y_avx
 .globl _sk_clamp_y_avx
+FUNCTION(_sk_clamp_y_avx)
 _sk_clamp_y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
@@ -13561,6 +13838,7 @@ _sk_clamp_y_avx:
 
 HIDDEN _sk_repeat_x_avx
 .globl _sk_repeat_x_avx
+FUNCTION(_sk_repeat_x_avx)
 _sk_repeat_x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
@@ -13579,6 +13857,7 @@ _sk_repeat_x_avx:
 
 HIDDEN _sk_repeat_y_avx
 .globl _sk_repeat_y_avx
+FUNCTION(_sk_repeat_y_avx)
 _sk_repeat_y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
@@ -13597,6 +13876,7 @@ _sk_repeat_y_avx:
 
 HIDDEN _sk_mirror_x_avx
 .globl _sk_mirror_x_avx
+FUNCTION(_sk_mirror_x_avx)
 _sk_mirror_x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,121,110,0                       // vmovd         (%rax),%xmm8
@@ -13625,6 +13905,7 @@ _sk_mirror_x_avx:
 
 HIDDEN _sk_mirror_y_avx
 .globl _sk_mirror_y_avx
+FUNCTION(_sk_mirror_y_avx)
 _sk_mirror_y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,121,110,0                       // vmovd         (%rax),%xmm8
@@ -13653,6 +13934,7 @@ _sk_mirror_y_avx:
 
 HIDDEN _sk_luminance_to_alpha_avx
 .globl _sk_luminance_to_alpha_avx
+FUNCTION(_sk_luminance_to_alpha_avx)
 _sk_luminance_to_alpha_avx:
   .byte  184,208,179,89,62                   // mov           $0x3e59b3d0,%eax
   .byte  197,249,110,216                     // vmovd         %eax,%xmm3
@@ -13679,6 +13961,7 @@ _sk_luminance_to_alpha_avx:
 
 HIDDEN _sk_matrix_2x3_avx
 .globl _sk_matrix_2x3_avx
+FUNCTION(_sk_matrix_2x3_avx)
 _sk_matrix_2x3_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
@@ -13701,6 +13984,7 @@ _sk_matrix_2x3_avx:
 
 HIDDEN _sk_matrix_3x4_avx
 .globl _sk_matrix_3x4_avx
+FUNCTION(_sk_matrix_3x4_avx)
 _sk_matrix_3x4_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
@@ -13740,6 +14024,7 @@ _sk_matrix_3x4_avx:
 
 HIDDEN _sk_matrix_4x5_avx
 .globl _sk_matrix_4x5_avx
+FUNCTION(_sk_matrix_4x5_avx)
 _sk_matrix_4x5_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
@@ -13802,6 +14087,7 @@ _sk_matrix_4x5_avx:
 
 HIDDEN _sk_matrix_perspective_avx
 .globl _sk_matrix_perspective_avx
+FUNCTION(_sk_matrix_perspective_avx)
 _sk_matrix_perspective_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
@@ -13833,6 +14119,7 @@ _sk_matrix_perspective_avx:
 
 HIDDEN _sk_linear_gradient_avx
 .globl _sk_linear_gradient_avx
+FUNCTION(_sk_linear_gradient_avx)
 _sk_linear_gradient_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,64,16                 // vbroadcastss  0x10(%rax),%ymm8
@@ -13888,6 +14175,7 @@ _sk_linear_gradient_avx:
 
 HIDDEN _sk_linear_gradient_2stops_avx
 .globl _sk_linear_gradient_2stops_avx
+FUNCTION(_sk_linear_gradient_2stops_avx)
 _sk_linear_gradient_2stops_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,226,125,24,8                    // vbroadcastss  (%rax),%ymm1
@@ -13912,6 +14200,7 @@ _sk_linear_gradient_2stops_avx:
 
 HIDDEN _sk_save_xy_avx
 .globl _sk_save_xy_avx
+FUNCTION(_sk_save_xy_avx)
 _sk_save_xy_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,63                     // mov           $0x3f000000,%r8d
@@ -13933,6 +14222,7 @@ _sk_save_xy_avx:
 
 HIDDEN _sk_accumulate_avx
 .globl _sk_accumulate_avx
+FUNCTION(_sk_accumulate_avx)
 _sk_accumulate_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,124,16,128,128,0,0,0            // vmovups       0x80(%rax),%ymm8
@@ -13950,6 +14240,7 @@ _sk_accumulate_avx:
 
 HIDDEN _sk_bilinear_nx_avx
 .globl _sk_bilinear_nx_avx
+FUNCTION(_sk_bilinear_nx_avx)
 _sk_bilinear_nx_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,191                    // mov           $0xbf000000,%r8d
@@ -13968,6 +14259,7 @@ _sk_bilinear_nx_avx:
 
 HIDDEN _sk_bilinear_px_avx
 .globl _sk_bilinear_px_avx
+FUNCTION(_sk_bilinear_px_avx)
 _sk_bilinear_px_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,63                     // mov           $0x3f000000,%r8d
@@ -13982,6 +14274,7 @@ _sk_bilinear_px_avx:
 
 HIDDEN _sk_bilinear_ny_avx
 .globl _sk_bilinear_ny_avx
+FUNCTION(_sk_bilinear_ny_avx)
 _sk_bilinear_ny_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,191                    // mov           $0xbf000000,%r8d
@@ -14000,6 +14293,7 @@ _sk_bilinear_ny_avx:
 
 HIDDEN _sk_bilinear_py_avx
 .globl _sk_bilinear_py_avx
+FUNCTION(_sk_bilinear_py_avx)
 _sk_bilinear_py_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,63                     // mov           $0x3f000000,%r8d
@@ -14014,6 +14308,7 @@ _sk_bilinear_py_avx:
 
 HIDDEN _sk_bicubic_n3x_avx
 .globl _sk_bicubic_n3x_avx
+FUNCTION(_sk_bicubic_n3x_avx)
 _sk_bicubic_n3x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,192,191                  // mov           $0xbfc00000,%r8d
@@ -14044,6 +14339,7 @@ _sk_bicubic_n3x_avx:
 
 HIDDEN _sk_bicubic_n1x_avx
 .globl _sk_bicubic_n1x_avx
+FUNCTION(_sk_bicubic_n1x_avx)
 _sk_bicubic_n1x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,191                    // mov           $0xbf000000,%r8d
@@ -14084,6 +14380,7 @@ _sk_bicubic_n1x_avx:
 
 HIDDEN _sk_bicubic_p1x_avx
 .globl _sk_bicubic_p1x_avx
+FUNCTION(_sk_bicubic_p1x_avx)
 _sk_bicubic_p1x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,63                     // mov           $0x3f000000,%r8d
@@ -14116,6 +14413,7 @@ _sk_bicubic_p1x_avx:
 
 HIDDEN _sk_bicubic_p3x_avx
 .globl _sk_bicubic_p3x_avx
+FUNCTION(_sk_bicubic_p3x_avx)
 _sk_bicubic_p3x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,192,63                   // mov           $0x3fc00000,%r8d
@@ -14142,6 +14440,7 @@ _sk_bicubic_p3x_avx:
 
 HIDDEN _sk_bicubic_n3y_avx
 .globl _sk_bicubic_n3y_avx
+FUNCTION(_sk_bicubic_n3y_avx)
 _sk_bicubic_n3y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,192,191                  // mov           $0xbfc00000,%r8d
@@ -14172,6 +14471,7 @@ _sk_bicubic_n3y_avx:
 
 HIDDEN _sk_bicubic_n1y_avx
 .globl _sk_bicubic_n1y_avx
+FUNCTION(_sk_bicubic_n1y_avx)
 _sk_bicubic_n1y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,191                    // mov           $0xbf000000,%r8d
@@ -14212,6 +14512,7 @@ _sk_bicubic_n1y_avx:
 
 HIDDEN _sk_bicubic_p1y_avx
 .globl _sk_bicubic_p1y_avx
+FUNCTION(_sk_bicubic_p1y_avx)
 _sk_bicubic_p1y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,0,63                     // mov           $0x3f000000,%r8d
@@ -14244,6 +14545,7 @@ _sk_bicubic_p1y_avx:
 
 HIDDEN _sk_bicubic_p3y_avx
 .globl _sk_bicubic_p3y_avx
+FUNCTION(_sk_bicubic_p3y_avx)
 _sk_bicubic_p3y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,184,0,0,192,63                   // mov           $0x3fc00000,%r8d
@@ -14270,6 +14572,7 @@ _sk_bicubic_p3y_avx:
 
 HIDDEN _sk_start_pipeline_sse41
 .globl _sk_start_pipeline_sse41
+FUNCTION(_sk_start_pipeline_sse41)
 _sk_start_pipeline_sse41:
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -14313,11 +14616,13 @@ _sk_start_pipeline_sse41:
 
 HIDDEN _sk_just_return_sse41
 .globl _sk_just_return_sse41
+FUNCTION(_sk_just_return_sse41)
 _sk_just_return_sse41:
   .byte  195                                 // retq
 
 HIDDEN _sk_seed_shader_sse41
 .globl _sk_seed_shader_sse41
+FUNCTION(_sk_seed_shader_sse41)
 _sk_seed_shader_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  102,15,110,199                      // movd          %edi,%xmm0
@@ -14346,6 +14651,7 @@ _sk_seed_shader_sse41:
 
 HIDDEN _sk_constant_color_sse41
 .globl _sk_constant_color_sse41
+FUNCTION(_sk_constant_color_sse41)
 _sk_constant_color_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,15,16,0                         // movss         (%rax),%xmm0
@@ -14361,6 +14667,7 @@ _sk_constant_color_sse41:
 
 HIDDEN _sk_clear_sse41
 .globl _sk_clear_sse41
+FUNCTION(_sk_clear_sse41)
 _sk_clear_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
@@ -14371,6 +14678,7 @@ _sk_clear_sse41:
 
 HIDDEN _sk_srcatop_sse41
 .globl _sk_srcatop_sse41
+FUNCTION(_sk_srcatop_sse41)
 _sk_srcatop_sse41:
   .byte  15,89,199                           // mulps         %xmm7,%xmm0
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -14396,6 +14704,7 @@ _sk_srcatop_sse41:
 
 HIDDEN _sk_dstatop_sse41
 .globl _sk_dstatop_sse41
+FUNCTION(_sk_dstatop_sse41)
 _sk_dstatop_sse41:
   .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
   .byte  68,15,89,196                        // mulps         %xmm4,%xmm8
@@ -14421,6 +14730,7 @@ _sk_dstatop_sse41:
 
 HIDDEN _sk_srcin_sse41
 .globl _sk_srcin_sse41
+FUNCTION(_sk_srcin_sse41)
 _sk_srcin_sse41:
   .byte  15,89,199                           // mulps         %xmm7,%xmm0
   .byte  15,89,207                           // mulps         %xmm7,%xmm1
@@ -14431,6 +14741,7 @@ _sk_srcin_sse41:
 
 HIDDEN _sk_dstin_sse41
 .globl _sk_dstin_sse41
+FUNCTION(_sk_dstin_sse41)
 _sk_dstin_sse41:
   .byte  15,40,195                           // movaps        %xmm3,%xmm0
   .byte  15,89,196                           // mulps         %xmm4,%xmm0
@@ -14444,6 +14755,7 @@ _sk_dstin_sse41:
 
 HIDDEN _sk_srcout_sse41
 .globl _sk_srcout_sse41
+FUNCTION(_sk_srcout_sse41)
 _sk_srcout_sse41:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -14458,6 +14770,7 @@ _sk_srcout_sse41:
 
 HIDDEN _sk_dstout_sse41
 .globl _sk_dstout_sse41
+FUNCTION(_sk_dstout_sse41)
 _sk_dstout_sse41:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -14476,6 +14789,7 @@ _sk_dstout_sse41:
 
 HIDDEN _sk_srcover_sse41
 .globl _sk_srcover_sse41
+FUNCTION(_sk_srcover_sse41)
 _sk_srcover_sse41:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -14497,6 +14811,7 @@ _sk_srcover_sse41:
 
 HIDDEN _sk_dstover_sse41
 .globl _sk_dstover_sse41
+FUNCTION(_sk_dstover_sse41)
 _sk_dstover_sse41:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -14515,6 +14830,7 @@ _sk_dstover_sse41:
 
 HIDDEN _sk_modulate_sse41
 .globl _sk_modulate_sse41
+FUNCTION(_sk_modulate_sse41)
 _sk_modulate_sse41:
   .byte  15,89,196                           // mulps         %xmm4,%xmm0
   .byte  15,89,205                           // mulps         %xmm5,%xmm1
@@ -14525,6 +14841,7 @@ _sk_modulate_sse41:
 
 HIDDEN _sk_multiply_sse41
 .globl _sk_multiply_sse41
+FUNCTION(_sk_multiply_sse41)
 _sk_multiply_sse41:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -14563,6 +14880,7 @@ _sk_multiply_sse41:
 
 HIDDEN _sk_plus__sse41
 .globl _sk_plus__sse41
+FUNCTION(_sk_plus__sse41)
 _sk_plus__sse41:
   .byte  15,88,196                           // addps         %xmm4,%xmm0
   .byte  15,88,205                           // addps         %xmm5,%xmm1
@@ -14573,6 +14891,7 @@ _sk_plus__sse41:
 
 HIDDEN _sk_screen_sse41
 .globl _sk_screen_sse41
+FUNCTION(_sk_screen_sse41)
 _sk_screen_sse41:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  68,15,88,196                        // addps         %xmm4,%xmm8
@@ -14599,6 +14918,7 @@ _sk_screen_sse41:
 
 HIDDEN _sk_xor__sse41
 .globl _sk_xor__sse41
+FUNCTION(_sk_xor__sse41)
 _sk_xor__sse41:
   .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -14627,6 +14947,7 @@ _sk_xor__sse41:
 
 HIDDEN _sk_darken_sse41
 .globl _sk_darken_sse41
+FUNCTION(_sk_darken_sse41)
 _sk_darken_sse41:
   .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
@@ -14662,6 +14983,7 @@ _sk_darken_sse41:
 
 HIDDEN _sk_lighten_sse41
 .globl _sk_lighten_sse41
+FUNCTION(_sk_lighten_sse41)
 _sk_lighten_sse41:
   .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
@@ -14697,6 +15019,7 @@ _sk_lighten_sse41:
 
 HIDDEN _sk_difference_sse41
 .globl _sk_difference_sse41
+FUNCTION(_sk_difference_sse41)
 _sk_difference_sse41:
   .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
@@ -14735,6 +15058,7 @@ _sk_difference_sse41:
 
 HIDDEN _sk_exclusion_sse41
 .globl _sk_exclusion_sse41
+FUNCTION(_sk_exclusion_sse41)
 _sk_exclusion_sse41:
   .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
   .byte  15,40,200                           // movaps        %xmm0,%xmm1
@@ -14764,6 +15088,7 @@ _sk_exclusion_sse41:
 
 HIDDEN _sk_colorburn_sse41
 .globl _sk_colorburn_sse41
+FUNCTION(_sk_colorburn_sse41)
 _sk_colorburn_sse41:
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -14846,6 +15171,7 @@ _sk_colorburn_sse41:
 
 HIDDEN _sk_colordodge_sse41
 .globl _sk_colordodge_sse41
+FUNCTION(_sk_colordodge_sse41)
 _sk_colordodge_sse41:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -14925,6 +15251,7 @@ _sk_colordodge_sse41:
 
 HIDDEN _sk_hardlight_sse41
 .globl _sk_hardlight_sse41
+FUNCTION(_sk_hardlight_sse41)
 _sk_hardlight_sse41:
   .byte  15,41,116,36,232                    // movaps        %xmm6,-0x18(%rsp)
   .byte  68,15,40,229                        // movaps        %xmm5,%xmm12
@@ -15013,6 +15340,7 @@ _sk_hardlight_sse41:
 
 HIDDEN _sk_overlay_sse41
 .globl _sk_overlay_sse41
+FUNCTION(_sk_overlay_sse41)
 _sk_overlay_sse41:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
   .byte  68,15,40,240                        // movaps        %xmm0,%xmm14
@@ -15091,6 +15419,7 @@ _sk_overlay_sse41:
 
 HIDDEN _sk_softlight_sse41
 .globl _sk_softlight_sse41
+FUNCTION(_sk_softlight_sse41)
 _sk_softlight_sse41:
   .byte  15,41,116,36,216                    // movaps        %xmm6,-0x28(%rsp)
   .byte  15,40,244                           // movaps        %xmm4,%xmm6
@@ -15254,6 +15583,7 @@ _sk_softlight_sse41:
 
 HIDDEN _sk_clamp_0_sse41
 .globl _sk_clamp_0_sse41
+FUNCTION(_sk_clamp_0_sse41)
 _sk_clamp_0_sse41:
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
   .byte  65,15,95,192                        // maxps         %xmm8,%xmm0
@@ -15265,6 +15595,7 @@ _sk_clamp_0_sse41:
 
 HIDDEN _sk_clamp_1_sse41
 .globl _sk_clamp_1_sse41
+FUNCTION(_sk_clamp_1_sse41)
 _sk_clamp_1_sse41:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -15278,6 +15609,7 @@ _sk_clamp_1_sse41:
 
 HIDDEN _sk_clamp_a_sse41
 .globl _sk_clamp_a_sse41
+FUNCTION(_sk_clamp_a_sse41)
 _sk_clamp_a_sse41:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -15291,6 +15623,7 @@ _sk_clamp_a_sse41:
 
 HIDDEN _sk_set_rgb_sse41
 .globl _sk_set_rgb_sse41
+FUNCTION(_sk_set_rgb_sse41)
 _sk_set_rgb_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,15,16,0                         // movss         (%rax),%xmm0
@@ -15304,6 +15637,7 @@ _sk_set_rgb_sse41:
 
 HIDDEN _sk_swap_rb_sse41
 .globl _sk_swap_rb_sse41
+FUNCTION(_sk_swap_rb_sse41)
 _sk_swap_rb_sse41:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -15313,6 +15647,7 @@ _sk_swap_rb_sse41:
 
 HIDDEN _sk_swap_sse41
 .globl _sk_swap_sse41
+FUNCTION(_sk_swap_sse41)
 _sk_swap_sse41:
   .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
   .byte  68,15,40,202                        // movaps        %xmm2,%xmm9
@@ -15331,6 +15666,7 @@ _sk_swap_sse41:
 
 HIDDEN _sk_move_src_dst_sse41
 .globl _sk_move_src_dst_sse41
+FUNCTION(_sk_move_src_dst_sse41)
 _sk_move_src_dst_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,40,224                           // movaps        %xmm0,%xmm4
@@ -15341,6 +15677,7 @@ _sk_move_src_dst_sse41:
 
 HIDDEN _sk_move_dst_src_sse41
 .globl _sk_move_dst_src_sse41
+FUNCTION(_sk_move_dst_src_sse41)
 _sk_move_dst_src_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,40,196                           // movaps        %xmm4,%xmm0
@@ -15351,6 +15688,7 @@ _sk_move_dst_src_sse41:
 
 HIDDEN _sk_premul_sse41
 .globl _sk_premul_sse41
+FUNCTION(_sk_premul_sse41)
 _sk_premul_sse41:
   .byte  15,89,195                           // mulps         %xmm3,%xmm0
   .byte  15,89,203                           // mulps         %xmm3,%xmm1
@@ -15360,6 +15698,7 @@ _sk_premul_sse41:
 
 HIDDEN _sk_unpremul_sse41
 .globl _sk_unpremul_sse41
+FUNCTION(_sk_unpremul_sse41)
 _sk_unpremul_sse41:
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -15376,6 +15715,7 @@ _sk_unpremul_sse41:
 
 HIDDEN _sk_from_srgb_sse41
 .globl _sk_from_srgb_sse41
+FUNCTION(_sk_from_srgb_sse41)
 _sk_from_srgb_sse41:
   .byte  184,145,131,158,61                  // mov           $0x3d9e8391,%eax
   .byte  102,68,15,110,216                   // movd          %eax,%xmm11
@@ -15433,6 +15773,7 @@ _sk_from_srgb_sse41:
 
 HIDDEN _sk_to_srgb_sse41
 .globl _sk_to_srgb_sse41
+FUNCTION(_sk_to_srgb_sse41)
 _sk_to_srgb_sse41:
   .byte  15,41,124,36,232                    // movaps        %xmm7,-0x18(%rsp)
   .byte  15,40,254                           // movaps        %xmm6,%xmm7
@@ -15511,6 +15852,7 @@ _sk_to_srgb_sse41:
 
 HIDDEN _sk_from_2dot2_sse41
 .globl _sk_from_2dot2_sse41
+FUNCTION(_sk_from_2dot2_sse41)
 _sk_from_2dot2_sse41:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  65,15,82,192                        // rsqrtps       %xmm8,%xmm0
@@ -15560,6 +15902,7 @@ _sk_from_2dot2_sse41:
 
 HIDDEN _sk_to_2dot2_sse41
 .globl _sk_to_2dot2_sse41
+FUNCTION(_sk_to_2dot2_sse41)
 _sk_to_2dot2_sse41:
   .byte  68,15,82,192                        // rsqrtps       %xmm0,%xmm8
   .byte  65,15,82,192                        // rsqrtps       %xmm8,%xmm0
@@ -15600,6 +15943,7 @@ _sk_to_2dot2_sse41:
 
 HIDDEN _sk_rgb_to_hsl_sse41
 .globl _sk_rgb_to_hsl_sse41
+FUNCTION(_sk_rgb_to_hsl_sse41)
 _sk_rgb_to_hsl_sse41:
   .byte  15,41,124,36,232                    // movaps        %xmm7,-0x18(%rsp)
   .byte  15,40,254                           // movaps        %xmm6,%xmm7
@@ -15682,6 +16026,7 @@ _sk_rgb_to_hsl_sse41:
 
 HIDDEN _sk_hsl_to_rgb_sse41
 .globl _sk_hsl_to_rgb_sse41
+FUNCTION(_sk_hsl_to_rgb_sse41)
 _sk_hsl_to_rgb_sse41:
   .byte  72,131,236,24                       // sub           $0x18,%rsp
   .byte  15,41,60,36                         // movaps        %xmm7,(%rsp)
@@ -15845,6 +16190,7 @@ _sk_hsl_to_rgb_sse41:
 
 HIDDEN _sk_scale_1_float_sse41
 .globl _sk_scale_1_float_sse41
+FUNCTION(_sk_scale_1_float_sse41)
 _sk_scale_1_float_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
@@ -15858,6 +16204,7 @@ _sk_scale_1_float_sse41:
 
 HIDDEN _sk_scale_u8_sse41
 .globl _sk_scale_u8_sse41
+FUNCTION(_sk_scale_u8_sse41)
 _sk_scale_u8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -15876,6 +16223,7 @@ _sk_scale_u8_sse41:
 
 HIDDEN _sk_lerp_1_float_sse41
 .globl _sk_lerp_1_float_sse41
+FUNCTION(_sk_lerp_1_float_sse41)
 _sk_lerp_1_float_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
@@ -15897,6 +16245,7 @@ _sk_lerp_1_float_sse41:
 
 HIDDEN _sk_lerp_u8_sse41
 .globl _sk_lerp_u8_sse41
+FUNCTION(_sk_lerp_u8_sse41)
 _sk_lerp_u8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -15923,6 +16272,7 @@ _sk_lerp_u8_sse41:
 
 HIDDEN _sk_lerp_565_sse41
 .globl _sk_lerp_565_sse41
+FUNCTION(_sk_lerp_565_sse41)
 _sk_lerp_565_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -15971,6 +16321,7 @@ _sk_lerp_565_sse41:
 
 HIDDEN _sk_load_tables_sse41
 .globl _sk_load_tables_sse41
+FUNCTION(_sk_load_tables_sse41)
 _sk_load_tables_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,8                            // mov           (%rax),%rcx
@@ -16035,6 +16386,7 @@ _sk_load_tables_sse41:
 
 HIDDEN _sk_byte_tables_sse41
 .globl _sk_byte_tables_sse41
+FUNCTION(_sk_byte_tables_sse41)
 _sk_byte_tables_sse41:
   .byte  65,86                               // push          %r14
   .byte  83                                  // push          %rbx
@@ -16125,6 +16477,7 @@ _sk_byte_tables_sse41:
 
 HIDDEN _sk_byte_tables_rgb_sse41
 .globl _sk_byte_tables_rgb_sse41
+FUNCTION(_sk_byte_tables_rgb_sse41)
 _sk_byte_tables_rgb_sse41:
   .byte  65,86                               // push          %r14
   .byte  83                                  // push          %rbx
@@ -16199,6 +16552,7 @@ _sk_byte_tables_rgb_sse41:
 
 HIDDEN _sk_load_a8_sse41
 .globl _sk_load_a8_sse41
+FUNCTION(_sk_load_a8_sse41)
 _sk_load_a8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -16216,6 +16570,7 @@ _sk_load_a8_sse41:
 
 HIDDEN _sk_gather_a8_sse41
 .globl _sk_gather_a8_sse41
+FUNCTION(_sk_gather_a8_sse41)
 _sk_gather_a8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -16251,6 +16606,7 @@ _sk_gather_a8_sse41:
 
 HIDDEN _sk_store_a8_sse41
 .globl _sk_store_a8_sse41
+FUNCTION(_sk_store_a8_sse41)
 _sk_store_a8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -16267,6 +16623,7 @@ _sk_store_a8_sse41:
 
 HIDDEN _sk_load_g8_sse41
 .globl _sk_load_g8_sse41
+FUNCTION(_sk_load_g8_sse41)
 _sk_load_g8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -16286,6 +16643,7 @@ _sk_load_g8_sse41:
 
 HIDDEN _sk_gather_g8_sse41
 .globl _sk_gather_g8_sse41
+FUNCTION(_sk_gather_g8_sse41)
 _sk_gather_g8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -16323,6 +16681,7 @@ _sk_gather_g8_sse41:
 
 HIDDEN _sk_gather_i8_sse41
 .globl _sk_gather_i8_sse41
+FUNCTION(_sk_gather_i8_sse41)
 _sk_gather_i8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  73,137,192                          // mov           %rax,%r8
@@ -16387,6 +16746,7 @@ _sk_gather_i8_sse41:
 
 HIDDEN _sk_load_565_sse41
 .globl _sk_load_565_sse41
+FUNCTION(_sk_load_565_sse41)
 _sk_load_565_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -16426,6 +16786,7 @@ _sk_load_565_sse41:
 
 HIDDEN _sk_gather_565_sse41
 .globl _sk_gather_565_sse41
+FUNCTION(_sk_gather_565_sse41)
 _sk_gather_565_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -16483,6 +16844,7 @@ _sk_gather_565_sse41:
 
 HIDDEN _sk_store_565_sse41
 .globl _sk_store_565_sse41
+FUNCTION(_sk_store_565_sse41)
 _sk_store_565_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -16510,6 +16872,7 @@ _sk_store_565_sse41:
 
 HIDDEN _sk_load_4444_sse41
 .globl _sk_load_4444_sse41
+FUNCTION(_sk_load_4444_sse41)
 _sk_load_4444_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -16555,6 +16918,7 @@ _sk_load_4444_sse41:
 
 HIDDEN _sk_gather_4444_sse41
 .globl _sk_gather_4444_sse41
+FUNCTION(_sk_gather_4444_sse41)
 _sk_gather_4444_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -16618,6 +16982,7 @@ _sk_gather_4444_sse41:
 
 HIDDEN _sk_store_4444_sse41
 .globl _sk_store_4444_sse41
+FUNCTION(_sk_store_4444_sse41)
 _sk_store_4444_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -16648,6 +17013,7 @@ _sk_store_4444_sse41:
 
 HIDDEN _sk_load_8888_sse41
 .globl _sk_load_8888_sse41
+FUNCTION(_sk_load_8888_sse41)
 _sk_load_8888_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -16679,6 +17045,7 @@ _sk_load_8888_sse41:
 
 HIDDEN _sk_gather_8888_sse41
 .globl _sk_gather_8888_sse41
+FUNCTION(_sk_gather_8888_sse41)
 _sk_gather_8888_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -16725,6 +17092,7 @@ _sk_gather_8888_sse41:
 
 HIDDEN _sk_store_8888_sse41
 .globl _sk_store_8888_sse41
+FUNCTION(_sk_store_8888_sse41)
 _sk_store_8888_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -16754,6 +17122,7 @@ _sk_store_8888_sse41:
 
 HIDDEN _sk_load_f16_sse41
 .globl _sk_load_f16_sse41
+FUNCTION(_sk_load_f16_sse41)
 _sk_load_f16_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -16801,6 +17170,7 @@ _sk_load_f16_sse41:
 
 HIDDEN _sk_gather_f16_sse41
 .globl _sk_gather_f16_sse41
+FUNCTION(_sk_gather_f16_sse41)
 _sk_gather_f16_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -16864,6 +17234,7 @@ _sk_gather_f16_sse41:
 
 HIDDEN _sk_store_f16_sse41
 .globl _sk_store_f16_sse41
+FUNCTION(_sk_store_f16_sse41)
 _sk_store_f16_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -16897,6 +17268,7 @@ _sk_store_f16_sse41:
 
 HIDDEN _sk_load_u16_be_sse41
 .globl _sk_load_u16_be_sse41
+FUNCTION(_sk_load_u16_be_sse41)
 _sk_load_u16_be_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -16946,6 +17318,7 @@ _sk_load_u16_be_sse41:
 
 HIDDEN _sk_store_u16_be_sse41
 .globl _sk_store_u16_be_sse41
+FUNCTION(_sk_store_u16_be_sse41)
 _sk_store_u16_be_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -16995,6 +17368,7 @@ _sk_store_u16_be_sse41:
 
 HIDDEN _sk_load_f32_sse41
 .globl _sk_load_f32_sse41
+FUNCTION(_sk_load_f32_sse41)
 _sk_load_f32_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -17021,6 +17395,7 @@ _sk_load_f32_sse41:
 
 HIDDEN _sk_store_f32_sse41
 .globl _sk_store_f32_sse41
+FUNCTION(_sk_store_f32_sse41)
 _sk_store_f32_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -17049,6 +17424,7 @@ _sk_store_f32_sse41:
 
 HIDDEN _sk_clamp_x_sse41
 .globl _sk_clamp_x_sse41
+FUNCTION(_sk_clamp_x_sse41)
 _sk_clamp_x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
@@ -17064,6 +17440,7 @@ _sk_clamp_x_sse41:
 
 HIDDEN _sk_clamp_y_sse41
 .globl _sk_clamp_y_sse41
+FUNCTION(_sk_clamp_y_sse41)
 _sk_clamp_y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
@@ -17079,6 +17456,7 @@ _sk_clamp_y_sse41:
 
 HIDDEN _sk_repeat_x_sse41
 .globl _sk_repeat_x_sse41
+FUNCTION(_sk_repeat_x_sse41)
 _sk_repeat_x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
@@ -17096,6 +17474,7 @@ _sk_repeat_x_sse41:
 
 HIDDEN _sk_repeat_y_sse41
 .globl _sk_repeat_y_sse41
+FUNCTION(_sk_repeat_y_sse41)
 _sk_repeat_y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
@@ -17113,6 +17492,7 @@ _sk_repeat_y_sse41:
 
 HIDDEN _sk_mirror_x_sse41
 .globl _sk_mirror_x_sse41
+FUNCTION(_sk_mirror_x_sse41)
 _sk_mirror_x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
@@ -17138,6 +17518,7 @@ _sk_mirror_x_sse41:
 
 HIDDEN _sk_mirror_y_sse41
 .globl _sk_mirror_y_sse41
+FUNCTION(_sk_mirror_y_sse41)
 _sk_mirror_y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
@@ -17163,6 +17544,7 @@ _sk_mirror_y_sse41:
 
 HIDDEN _sk_luminance_to_alpha_sse41
 .globl _sk_luminance_to_alpha_sse41
+FUNCTION(_sk_luminance_to_alpha_sse41)
 _sk_luminance_to_alpha_sse41:
   .byte  184,208,179,89,62                   // mov           $0x3e59b3d0,%eax
   .byte  102,15,110,216                      // movd          %eax,%xmm3
@@ -17186,6 +17568,7 @@ _sk_luminance_to_alpha_sse41:
 
 HIDDEN _sk_matrix_2x3_sse41
 .globl _sk_matrix_2x3_sse41
+FUNCTION(_sk_matrix_2x3_sse41)
 _sk_matrix_2x3_sse41:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
@@ -17215,6 +17598,7 @@ _sk_matrix_2x3_sse41:
 
 HIDDEN _sk_matrix_3x4_sse41
 .globl _sk_matrix_3x4_sse41
+FUNCTION(_sk_matrix_3x4_sse41)
 _sk_matrix_3x4_sse41:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
@@ -17267,6 +17651,7 @@ _sk_matrix_3x4_sse41:
 
 HIDDEN _sk_matrix_4x5_sse41
 .globl _sk_matrix_4x5_sse41
+FUNCTION(_sk_matrix_4x5_sse41)
 _sk_matrix_4x5_sse41:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
@@ -17350,6 +17735,7 @@ _sk_matrix_4x5_sse41:
 
 HIDDEN _sk_matrix_perspective_sse41
 .globl _sk_matrix_perspective_sse41
+FUNCTION(_sk_matrix_perspective_sse41)
 _sk_matrix_perspective_sse41:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -17392,6 +17778,7 @@ _sk_matrix_perspective_sse41:
 
 HIDDEN _sk_linear_gradient_sse41
 .globl _sk_linear_gradient_sse41
+FUNCTION(_sk_linear_gradient_sse41)
 _sk_linear_gradient_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,80,16                  // movss         0x10(%rax),%xmm10
@@ -17478,6 +17865,7 @@ _sk_linear_gradient_sse41:
 
 HIDDEN _sk_linear_gradient_2stops_sse41
 .globl _sk_linear_gradient_2stops_sse41
+FUNCTION(_sk_linear_gradient_2stops_sse41)
 _sk_linear_gradient_2stops_sse41:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -17510,6 +17898,7 @@ _sk_linear_gradient_2stops_sse41:
 
 HIDDEN _sk_save_xy_sse41
 .globl _sk_save_xy_sse41
+FUNCTION(_sk_save_xy_sse41)
 _sk_save_xy_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,63                        // mov           $0x3f000000,%ecx
@@ -17531,6 +17920,7 @@ _sk_save_xy_sse41:
 
 HIDDEN _sk_accumulate_sse41
 .globl _sk_accumulate_sse41
+FUNCTION(_sk_accumulate_sse41)
 _sk_accumulate_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  68,15,16,128,128,0,0,0              // movups        0x80(%rax),%xmm8
@@ -17552,6 +17942,7 @@ _sk_accumulate_sse41:
 
 HIDDEN _sk_bilinear_nx_sse41
 .globl _sk_bilinear_nx_sse41
+FUNCTION(_sk_bilinear_nx_sse41)
 _sk_bilinear_nx_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,191                       // mov           $0xbf000000,%ecx
@@ -17570,6 +17961,7 @@ _sk_bilinear_nx_sse41:
 
 HIDDEN _sk_bilinear_px_sse41
 .globl _sk_bilinear_px_sse41
+FUNCTION(_sk_bilinear_px_sse41)
 _sk_bilinear_px_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,63                        // mov           $0x3f000000,%ecx
@@ -17584,6 +17976,7 @@ _sk_bilinear_px_sse41:
 
 HIDDEN _sk_bilinear_ny_sse41
 .globl _sk_bilinear_ny_sse41
+FUNCTION(_sk_bilinear_ny_sse41)
 _sk_bilinear_ny_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,191                       // mov           $0xbf000000,%ecx
@@ -17602,6 +17995,7 @@ _sk_bilinear_ny_sse41:
 
 HIDDEN _sk_bilinear_py_sse41
 .globl _sk_bilinear_py_sse41
+FUNCTION(_sk_bilinear_py_sse41)
 _sk_bilinear_py_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,63                        // mov           $0x3f000000,%ecx
@@ -17616,6 +18010,7 @@ _sk_bilinear_py_sse41:
 
 HIDDEN _sk_bicubic_n3x_sse41
 .globl _sk_bicubic_n3x_sse41
+FUNCTION(_sk_bicubic_n3x_sse41)
 _sk_bicubic_n3x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,192,191                     // mov           $0xbfc00000,%ecx
@@ -17644,6 +18039,7 @@ _sk_bicubic_n3x_sse41:
 
 HIDDEN _sk_bicubic_n1x_sse41
 .globl _sk_bicubic_n1x_sse41
+FUNCTION(_sk_bicubic_n1x_sse41)
 _sk_bicubic_n1x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,191                       // mov           $0xbf000000,%ecx
@@ -17680,6 +18076,7 @@ _sk_bicubic_n1x_sse41:
 
 HIDDEN _sk_bicubic_p1x_sse41
 .globl _sk_bicubic_p1x_sse41
+FUNCTION(_sk_bicubic_p1x_sse41)
 _sk_bicubic_p1x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,63                        // mov           $0x3f000000,%ecx
@@ -17709,6 +18106,7 @@ _sk_bicubic_p1x_sse41:
 
 HIDDEN _sk_bicubic_p3x_sse41
 .globl _sk_bicubic_p3x_sse41
+FUNCTION(_sk_bicubic_p3x_sse41)
 _sk_bicubic_p3x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,192,63                      // mov           $0x3fc00000,%ecx
@@ -17733,6 +18131,7 @@ _sk_bicubic_p3x_sse41:
 
 HIDDEN _sk_bicubic_n3y_sse41
 .globl _sk_bicubic_n3y_sse41
+FUNCTION(_sk_bicubic_n3y_sse41)
 _sk_bicubic_n3y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,192,191                     // mov           $0xbfc00000,%ecx
@@ -17761,6 +18160,7 @@ _sk_bicubic_n3y_sse41:
 
 HIDDEN _sk_bicubic_n1y_sse41
 .globl _sk_bicubic_n1y_sse41
+FUNCTION(_sk_bicubic_n1y_sse41)
 _sk_bicubic_n1y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,191                       // mov           $0xbf000000,%ecx
@@ -17797,6 +18197,7 @@ _sk_bicubic_n1y_sse41:
 
 HIDDEN _sk_bicubic_p1y_sse41
 .globl _sk_bicubic_p1y_sse41
+FUNCTION(_sk_bicubic_p1y_sse41)
 _sk_bicubic_p1y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,63                        // mov           $0x3f000000,%ecx
@@ -17826,6 +18227,7 @@ _sk_bicubic_p1y_sse41:
 
 HIDDEN _sk_bicubic_p3y_sse41
 .globl _sk_bicubic_p3y_sse41
+FUNCTION(_sk_bicubic_p3y_sse41)
 _sk_bicubic_p3y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,192,63                      // mov           $0x3fc00000,%ecx
@@ -17850,6 +18252,7 @@ _sk_bicubic_p3y_sse41:
 
 HIDDEN _sk_start_pipeline_sse2
 .globl _sk_start_pipeline_sse2
+FUNCTION(_sk_start_pipeline_sse2)
 _sk_start_pipeline_sse2:
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -17893,11 +18296,13 @@ _sk_start_pipeline_sse2:
 
 HIDDEN _sk_just_return_sse2
 .globl _sk_just_return_sse2
+FUNCTION(_sk_just_return_sse2)
 _sk_just_return_sse2:
   .byte  195                                 // retq
 
 HIDDEN _sk_seed_shader_sse2
 .globl _sk_seed_shader_sse2
+FUNCTION(_sk_seed_shader_sse2)
 _sk_seed_shader_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  102,15,110,199                      // movd          %edi,%xmm0
@@ -17926,6 +18331,7 @@ _sk_seed_shader_sse2:
 
 HIDDEN _sk_constant_color_sse2
 .globl _sk_constant_color_sse2
+FUNCTION(_sk_constant_color_sse2)
 _sk_constant_color_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,15,16,0                         // movss         (%rax),%xmm0
@@ -17941,6 +18347,7 @@ _sk_constant_color_sse2:
 
 HIDDEN _sk_clear_sse2
 .globl _sk_clear_sse2
+FUNCTION(_sk_clear_sse2)
 _sk_clear_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
@@ -17951,6 +18358,7 @@ _sk_clear_sse2:
 
 HIDDEN _sk_srcatop_sse2
 .globl _sk_srcatop_sse2
+FUNCTION(_sk_srcatop_sse2)
 _sk_srcatop_sse2:
   .byte  15,89,199                           // mulps         %xmm7,%xmm0
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -17976,6 +18384,7 @@ _sk_srcatop_sse2:
 
 HIDDEN _sk_dstatop_sse2
 .globl _sk_dstatop_sse2
+FUNCTION(_sk_dstatop_sse2)
 _sk_dstatop_sse2:
   .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
   .byte  68,15,89,196                        // mulps         %xmm4,%xmm8
@@ -18001,6 +18410,7 @@ _sk_dstatop_sse2:
 
 HIDDEN _sk_srcin_sse2
 .globl _sk_srcin_sse2
+FUNCTION(_sk_srcin_sse2)
 _sk_srcin_sse2:
   .byte  15,89,199                           // mulps         %xmm7,%xmm0
   .byte  15,89,207                           // mulps         %xmm7,%xmm1
@@ -18011,6 +18421,7 @@ _sk_srcin_sse2:
 
 HIDDEN _sk_dstin_sse2
 .globl _sk_dstin_sse2
+FUNCTION(_sk_dstin_sse2)
 _sk_dstin_sse2:
   .byte  15,40,195                           // movaps        %xmm3,%xmm0
   .byte  15,89,196                           // mulps         %xmm4,%xmm0
@@ -18024,6 +18435,7 @@ _sk_dstin_sse2:
 
 HIDDEN _sk_srcout_sse2
 .globl _sk_srcout_sse2
+FUNCTION(_sk_srcout_sse2)
 _sk_srcout_sse2:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -18038,6 +18450,7 @@ _sk_srcout_sse2:
 
 HIDDEN _sk_dstout_sse2
 .globl _sk_dstout_sse2
+FUNCTION(_sk_dstout_sse2)
 _sk_dstout_sse2:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -18056,6 +18469,7 @@ _sk_dstout_sse2:
 
 HIDDEN _sk_srcover_sse2
 .globl _sk_srcover_sse2
+FUNCTION(_sk_srcover_sse2)
 _sk_srcover_sse2:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -18077,6 +18491,7 @@ _sk_srcover_sse2:
 
 HIDDEN _sk_dstover_sse2
 .globl _sk_dstover_sse2
+FUNCTION(_sk_dstover_sse2)
 _sk_dstover_sse2:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -18095,6 +18510,7 @@ _sk_dstover_sse2:
 
 HIDDEN _sk_modulate_sse2
 .globl _sk_modulate_sse2
+FUNCTION(_sk_modulate_sse2)
 _sk_modulate_sse2:
   .byte  15,89,196                           // mulps         %xmm4,%xmm0
   .byte  15,89,205                           // mulps         %xmm5,%xmm1
@@ -18105,6 +18521,7 @@ _sk_modulate_sse2:
 
 HIDDEN _sk_multiply_sse2
 .globl _sk_multiply_sse2
+FUNCTION(_sk_multiply_sse2)
 _sk_multiply_sse2:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -18143,6 +18560,7 @@ _sk_multiply_sse2:
 
 HIDDEN _sk_plus__sse2
 .globl _sk_plus__sse2
+FUNCTION(_sk_plus__sse2)
 _sk_plus__sse2:
   .byte  15,88,196                           // addps         %xmm4,%xmm0
   .byte  15,88,205                           // addps         %xmm5,%xmm1
@@ -18153,6 +18571,7 @@ _sk_plus__sse2:
 
 HIDDEN _sk_screen_sse2
 .globl _sk_screen_sse2
+FUNCTION(_sk_screen_sse2)
 _sk_screen_sse2:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  68,15,88,196                        // addps         %xmm4,%xmm8
@@ -18179,6 +18598,7 @@ _sk_screen_sse2:
 
 HIDDEN _sk_xor__sse2
 .globl _sk_xor__sse2
+FUNCTION(_sk_xor__sse2)
 _sk_xor__sse2:
   .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -18207,6 +18627,7 @@ _sk_xor__sse2:
 
 HIDDEN _sk_darken_sse2
 .globl _sk_darken_sse2
+FUNCTION(_sk_darken_sse2)
 _sk_darken_sse2:
   .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
@@ -18242,6 +18663,7 @@ _sk_darken_sse2:
 
 HIDDEN _sk_lighten_sse2
 .globl _sk_lighten_sse2
+FUNCTION(_sk_lighten_sse2)
 _sk_lighten_sse2:
   .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
@@ -18277,6 +18699,7 @@ _sk_lighten_sse2:
 
 HIDDEN _sk_difference_sse2
 .globl _sk_difference_sse2
+FUNCTION(_sk_difference_sse2)
 _sk_difference_sse2:
   .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
@@ -18315,6 +18738,7 @@ _sk_difference_sse2:
 
 HIDDEN _sk_exclusion_sse2
 .globl _sk_exclusion_sse2
+FUNCTION(_sk_exclusion_sse2)
 _sk_exclusion_sse2:
   .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
   .byte  15,40,200                           // movaps        %xmm0,%xmm1
@@ -18344,6 +18768,7 @@ _sk_exclusion_sse2:
 
 HIDDEN _sk_colorburn_sse2
 .globl _sk_colorburn_sse2
+FUNCTION(_sk_colorburn_sse2)
 _sk_colorburn_sse2:
   .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
   .byte  68,15,40,224                        // movaps        %xmm0,%xmm12
@@ -18439,6 +18864,7 @@ _sk_colorburn_sse2:
 
 HIDDEN _sk_colordodge_sse2
 .globl _sk_colordodge_sse2
+FUNCTION(_sk_colordodge_sse2)
 _sk_colordodge_sse2:
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -18530,6 +18956,7 @@ _sk_colordodge_sse2:
 
 HIDDEN _sk_hardlight_sse2
 .globl _sk_hardlight_sse2
+FUNCTION(_sk_hardlight_sse2)
 _sk_hardlight_sse2:
   .byte  15,41,116,36,232                    // movaps        %xmm6,-0x18(%rsp)
   .byte  15,40,245                           // movaps        %xmm5,%xmm6
@@ -18620,6 +19047,7 @@ _sk_hardlight_sse2:
 
 HIDDEN _sk_overlay_sse2
 .globl _sk_overlay_sse2
+FUNCTION(_sk_overlay_sse2)
 _sk_overlay_sse2:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -18700,6 +19128,7 @@ _sk_overlay_sse2:
 
 HIDDEN _sk_softlight_sse2
 .globl _sk_softlight_sse2
+FUNCTION(_sk_softlight_sse2)
 _sk_softlight_sse2:
   .byte  15,41,84,36,232                     // movaps        %xmm2,-0x18(%rsp)
   .byte  15,40,209                           // movaps        %xmm1,%xmm2
@@ -18870,6 +19299,7 @@ _sk_softlight_sse2:
 
 HIDDEN _sk_clamp_0_sse2
 .globl _sk_clamp_0_sse2
+FUNCTION(_sk_clamp_0_sse2)
 _sk_clamp_0_sse2:
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
   .byte  65,15,95,192                        // maxps         %xmm8,%xmm0
@@ -18881,6 +19311,7 @@ _sk_clamp_0_sse2:
 
 HIDDEN _sk_clamp_1_sse2
 .globl _sk_clamp_1_sse2
+FUNCTION(_sk_clamp_1_sse2)
 _sk_clamp_1_sse2:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -18894,6 +19325,7 @@ _sk_clamp_1_sse2:
 
 HIDDEN _sk_clamp_a_sse2
 .globl _sk_clamp_a_sse2
+FUNCTION(_sk_clamp_a_sse2)
 _sk_clamp_a_sse2:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -18907,6 +19339,7 @@ _sk_clamp_a_sse2:
 
 HIDDEN _sk_set_rgb_sse2
 .globl _sk_set_rgb_sse2
+FUNCTION(_sk_set_rgb_sse2)
 _sk_set_rgb_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,15,16,0                         // movss         (%rax),%xmm0
@@ -18920,6 +19353,7 @@ _sk_set_rgb_sse2:
 
 HIDDEN _sk_swap_rb_sse2
 .globl _sk_swap_rb_sse2
+FUNCTION(_sk_swap_rb_sse2)
 _sk_swap_rb_sse2:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -18929,6 +19363,7 @@ _sk_swap_rb_sse2:
 
 HIDDEN _sk_swap_sse2
 .globl _sk_swap_sse2
+FUNCTION(_sk_swap_sse2)
 _sk_swap_sse2:
   .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
   .byte  68,15,40,202                        // movaps        %xmm2,%xmm9
@@ -18947,6 +19382,7 @@ _sk_swap_sse2:
 
 HIDDEN _sk_move_src_dst_sse2
 .globl _sk_move_src_dst_sse2
+FUNCTION(_sk_move_src_dst_sse2)
 _sk_move_src_dst_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,40,224                           // movaps        %xmm0,%xmm4
@@ -18957,6 +19393,7 @@ _sk_move_src_dst_sse2:
 
 HIDDEN _sk_move_dst_src_sse2
 .globl _sk_move_dst_src_sse2
+FUNCTION(_sk_move_dst_src_sse2)
 _sk_move_dst_src_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,40,196                           // movaps        %xmm4,%xmm0
@@ -18967,6 +19404,7 @@ _sk_move_dst_src_sse2:
 
 HIDDEN _sk_premul_sse2
 .globl _sk_premul_sse2
+FUNCTION(_sk_premul_sse2)
 _sk_premul_sse2:
   .byte  15,89,195                           // mulps         %xmm3,%xmm0
   .byte  15,89,203                           // mulps         %xmm3,%xmm1
@@ -18976,6 +19414,7 @@ _sk_premul_sse2:
 
 HIDDEN _sk_unpremul_sse2
 .globl _sk_unpremul_sse2
+FUNCTION(_sk_unpremul_sse2)
 _sk_unpremul_sse2:
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -18992,6 +19431,7 @@ _sk_unpremul_sse2:
 
 HIDDEN _sk_from_srgb_sse2
 .globl _sk_from_srgb_sse2
+FUNCTION(_sk_from_srgb_sse2)
 _sk_from_srgb_sse2:
   .byte  184,145,131,158,61                  // mov           $0x3d9e8391,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
@@ -19050,6 +19490,7 @@ _sk_from_srgb_sse2:
 
 HIDDEN _sk_to_srgb_sse2
 .globl _sk_to_srgb_sse2
+FUNCTION(_sk_to_srgb_sse2)
 _sk_to_srgb_sse2:
   .byte  68,15,82,192                        // rsqrtps       %xmm0,%xmm8
   .byte  69,15,83,248                        // rcpps         %xmm8,%xmm15
@@ -19118,6 +19559,7 @@ _sk_to_srgb_sse2:
 
 HIDDEN _sk_from_2dot2_sse2
 .globl _sk_from_2dot2_sse2
+FUNCTION(_sk_from_2dot2_sse2)
 _sk_from_2dot2_sse2:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  65,15,82,192                        // rsqrtps       %xmm8,%xmm0
@@ -19167,6 +19609,7 @@ _sk_from_2dot2_sse2:
 
 HIDDEN _sk_to_2dot2_sse2
 .globl _sk_to_2dot2_sse2
+FUNCTION(_sk_to_2dot2_sse2)
 _sk_to_2dot2_sse2:
   .byte  68,15,82,192                        // rsqrtps       %xmm0,%xmm8
   .byte  65,15,82,192                        // rsqrtps       %xmm8,%xmm0
@@ -19207,6 +19650,7 @@ _sk_to_2dot2_sse2:
 
 HIDDEN _sk_rgb_to_hsl_sse2
 .globl _sk_rgb_to_hsl_sse2
+FUNCTION(_sk_rgb_to_hsl_sse2)
 _sk_rgb_to_hsl_sse2:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
@@ -19280,6 +19724,7 @@ _sk_rgb_to_hsl_sse2:
 
 HIDDEN _sk_hsl_to_rgb_sse2
 .globl _sk_hsl_to_rgb_sse2
+FUNCTION(_sk_hsl_to_rgb_sse2)
 _sk_hsl_to_rgb_sse2:
   .byte  15,41,124,36,232                    // movaps        %xmm7,-0x18(%rsp)
   .byte  15,41,116,36,216                    // movaps        %xmm6,-0x28(%rsp)
@@ -19459,6 +19904,7 @@ _sk_hsl_to_rgb_sse2:
 
 HIDDEN _sk_scale_1_float_sse2
 .globl _sk_scale_1_float_sse2
+FUNCTION(_sk_scale_1_float_sse2)
 _sk_scale_1_float_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
@@ -19472,6 +19918,7 @@ _sk_scale_1_float_sse2:
 
 HIDDEN _sk_scale_u8_sse2
 .globl _sk_scale_u8_sse2
+FUNCTION(_sk_scale_u8_sse2)
 _sk_scale_u8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -19493,6 +19940,7 @@ _sk_scale_u8_sse2:
 
 HIDDEN _sk_lerp_1_float_sse2
 .globl _sk_lerp_1_float_sse2
+FUNCTION(_sk_lerp_1_float_sse2)
 _sk_lerp_1_float_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
@@ -19514,6 +19962,7 @@ _sk_lerp_1_float_sse2:
 
 HIDDEN _sk_lerp_u8_sse2
 .globl _sk_lerp_u8_sse2
+FUNCTION(_sk_lerp_u8_sse2)
 _sk_lerp_u8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -19543,6 +19992,7 @@ _sk_lerp_u8_sse2:
 
 HIDDEN _sk_lerp_565_sse2
 .globl _sk_lerp_565_sse2
+FUNCTION(_sk_lerp_565_sse2)
 _sk_lerp_565_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -19593,6 +20043,7 @@ _sk_lerp_565_sse2:
 
 HIDDEN _sk_load_tables_sse2
 .globl _sk_load_tables_sse2
+FUNCTION(_sk_load_tables_sse2)
 _sk_load_tables_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,8                            // mov           (%rax),%rcx
@@ -19665,6 +20116,7 @@ _sk_load_tables_sse2:
 
 HIDDEN _sk_byte_tables_sse2
 .globl _sk_byte_tables_sse2
+FUNCTION(_sk_byte_tables_sse2)
 _sk_byte_tables_sse2:
   .byte  65,86                               // push          %r14
   .byte  83                                  // push          %rbx
@@ -19780,6 +20232,7 @@ _sk_byte_tables_sse2:
 
 HIDDEN _sk_byte_tables_rgb_sse2
 .globl _sk_byte_tables_rgb_sse2
+FUNCTION(_sk_byte_tables_rgb_sse2)
 _sk_byte_tables_rgb_sse2:
   .byte  65,86                               // push          %r14
   .byte  83                                  // push          %rbx
@@ -19873,6 +20326,7 @@ _sk_byte_tables_rgb_sse2:
 
 HIDDEN _sk_load_a8_sse2
 .globl _sk_load_a8_sse2
+FUNCTION(_sk_load_a8_sse2)
 _sk_load_a8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -19893,6 +20347,7 @@ _sk_load_a8_sse2:
 
 HIDDEN _sk_gather_a8_sse2
 .globl _sk_gather_a8_sse2
+FUNCTION(_sk_gather_a8_sse2)
 _sk_gather_a8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -19940,6 +20395,7 @@ _sk_gather_a8_sse2:
 
 HIDDEN _sk_store_a8_sse2
 .globl _sk_store_a8_sse2
+FUNCTION(_sk_store_a8_sse2)
 _sk_store_a8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -19958,6 +20414,7 @@ _sk_store_a8_sse2:
 
 HIDDEN _sk_load_g8_sse2
 .globl _sk_load_g8_sse2
+FUNCTION(_sk_load_g8_sse2)
 _sk_load_g8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -19980,6 +20437,7 @@ _sk_load_g8_sse2:
 
 HIDDEN _sk_gather_g8_sse2
 .globl _sk_gather_g8_sse2
+FUNCTION(_sk_gather_g8_sse2)
 _sk_gather_g8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -20029,6 +20487,7 @@ _sk_gather_g8_sse2:
 
 HIDDEN _sk_gather_i8_sse2
 .globl _sk_gather_i8_sse2
+FUNCTION(_sk_gather_i8_sse2)
 _sk_gather_i8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  73,137,192                          // mov           %rax,%r8
@@ -20111,6 +20570,7 @@ _sk_gather_i8_sse2:
 
 HIDDEN _sk_load_565_sse2
 .globl _sk_load_565_sse2
+FUNCTION(_sk_load_565_sse2)
 _sk_load_565_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -20152,6 +20612,7 @@ _sk_load_565_sse2:
 
 HIDDEN _sk_gather_565_sse2
 .globl _sk_gather_565_sse2
+FUNCTION(_sk_gather_565_sse2)
 _sk_gather_565_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -20216,6 +20677,7 @@ _sk_gather_565_sse2:
 
 HIDDEN _sk_store_565_sse2
 .globl _sk_store_565_sse2
+FUNCTION(_sk_store_565_sse2)
 _sk_store_565_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -20245,6 +20707,7 @@ _sk_store_565_sse2:
 
 HIDDEN _sk_load_4444_sse2
 .globl _sk_load_4444_sse2
+FUNCTION(_sk_load_4444_sse2)
 _sk_load_4444_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -20292,6 +20755,7 @@ _sk_load_4444_sse2:
 
 HIDDEN _sk_gather_4444_sse2
 .globl _sk_gather_4444_sse2
+FUNCTION(_sk_gather_4444_sse2)
 _sk_gather_4444_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -20362,6 +20826,7 @@ _sk_gather_4444_sse2:
 
 HIDDEN _sk_store_4444_sse2
 .globl _sk_store_4444_sse2
+FUNCTION(_sk_store_4444_sse2)
 _sk_store_4444_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -20394,6 +20859,7 @@ _sk_store_4444_sse2:
 
 HIDDEN _sk_load_8888_sse2
 .globl _sk_load_8888_sse2
+FUNCTION(_sk_load_8888_sse2)
 _sk_load_8888_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -20425,6 +20891,7 @@ _sk_load_8888_sse2:
 
 HIDDEN _sk_gather_8888_sse2
 .globl _sk_gather_8888_sse2
+FUNCTION(_sk_gather_8888_sse2)
 _sk_gather_8888_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -20480,6 +20947,7 @@ _sk_gather_8888_sse2:
 
 HIDDEN _sk_store_8888_sse2
 .globl _sk_store_8888_sse2
+FUNCTION(_sk_store_8888_sse2)
 _sk_store_8888_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -20509,6 +20977,7 @@ _sk_store_8888_sse2:
 
 HIDDEN _sk_load_f16_sse2
 .globl _sk_load_f16_sse2
+FUNCTION(_sk_load_f16_sse2)
 _sk_load_f16_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -20557,6 +21026,7 @@ _sk_load_f16_sse2:
 
 HIDDEN _sk_gather_f16_sse2
 .globl _sk_gather_f16_sse2
+FUNCTION(_sk_gather_f16_sse2)
 _sk_gather_f16_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,8                            // mov           (%rax),%r9
@@ -20627,6 +21097,7 @@ _sk_gather_f16_sse2:
 
 HIDDEN _sk_store_f16_sse2
 .globl _sk_store_f16_sse2
+FUNCTION(_sk_store_f16_sse2)
 _sk_store_f16_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -20668,6 +21139,7 @@ _sk_store_f16_sse2:
 
 HIDDEN _sk_load_u16_be_sse2
 .globl _sk_load_u16_be_sse2
+FUNCTION(_sk_load_u16_be_sse2)
 _sk_load_u16_be_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -20718,6 +21190,7 @@ _sk_load_u16_be_sse2:
 
 HIDDEN _sk_store_u16_be_sse2
 .globl _sk_store_u16_be_sse2
+FUNCTION(_sk_store_u16_be_sse2)
 _sk_store_u16_be_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -20775,6 +21248,7 @@ _sk_store_u16_be_sse2:
 
 HIDDEN _sk_load_f32_sse2
 .globl _sk_load_f32_sse2
+FUNCTION(_sk_load_f32_sse2)
 _sk_load_f32_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -20801,6 +21275,7 @@ _sk_load_f32_sse2:
 
 HIDDEN _sk_store_f32_sse2
 .globl _sk_store_f32_sse2
+FUNCTION(_sk_store_f32_sse2)
 _sk_store_f32_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
@@ -20829,6 +21304,7 @@ _sk_store_f32_sse2:
 
 HIDDEN _sk_clamp_x_sse2
 .globl _sk_clamp_x_sse2
+FUNCTION(_sk_clamp_x_sse2)
 _sk_clamp_x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
@@ -20844,6 +21320,7 @@ _sk_clamp_x_sse2:
 
 HIDDEN _sk_clamp_y_sse2
 .globl _sk_clamp_y_sse2
+FUNCTION(_sk_clamp_y_sse2)
 _sk_clamp_y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
@@ -20859,6 +21336,7 @@ _sk_clamp_y_sse2:
 
 HIDDEN _sk_repeat_x_sse2
 .globl _sk_repeat_x_sse2
+FUNCTION(_sk_repeat_x_sse2)
 _sk_repeat_x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
@@ -20883,6 +21361,7 @@ _sk_repeat_x_sse2:
 
 HIDDEN _sk_repeat_y_sse2
 .globl _sk_repeat_y_sse2
+FUNCTION(_sk_repeat_y_sse2)
 _sk_repeat_y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
@@ -20907,6 +21386,7 @@ _sk_repeat_y_sse2:
 
 HIDDEN _sk_mirror_x_sse2
 .globl _sk_mirror_x_sse2
+FUNCTION(_sk_mirror_x_sse2)
 _sk_mirror_x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,8                      // movss         (%rax),%xmm9
@@ -20939,6 +21419,7 @@ _sk_mirror_x_sse2:
 
 HIDDEN _sk_mirror_y_sse2
 .globl _sk_mirror_y_sse2
+FUNCTION(_sk_mirror_y_sse2)
 _sk_mirror_y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,8                      // movss         (%rax),%xmm9
@@ -20971,6 +21452,7 @@ _sk_mirror_y_sse2:
 
 HIDDEN _sk_luminance_to_alpha_sse2
 .globl _sk_luminance_to_alpha_sse2
+FUNCTION(_sk_luminance_to_alpha_sse2)
 _sk_luminance_to_alpha_sse2:
   .byte  184,208,179,89,62                   // mov           $0x3e59b3d0,%eax
   .byte  102,15,110,216                      // movd          %eax,%xmm3
@@ -20994,6 +21476,7 @@ _sk_luminance_to_alpha_sse2:
 
 HIDDEN _sk_matrix_2x3_sse2
 .globl _sk_matrix_2x3_sse2
+FUNCTION(_sk_matrix_2x3_sse2)
 _sk_matrix_2x3_sse2:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
@@ -21023,6 +21506,7 @@ _sk_matrix_2x3_sse2:
 
 HIDDEN _sk_matrix_3x4_sse2
 .globl _sk_matrix_3x4_sse2
+FUNCTION(_sk_matrix_3x4_sse2)
 _sk_matrix_3x4_sse2:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
@@ -21075,6 +21559,7 @@ _sk_matrix_3x4_sse2:
 
 HIDDEN _sk_matrix_4x5_sse2
 .globl _sk_matrix_4x5_sse2
+FUNCTION(_sk_matrix_4x5_sse2)
 _sk_matrix_4x5_sse2:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
@@ -21158,6 +21643,7 @@ _sk_matrix_4x5_sse2:
 
 HIDDEN _sk_matrix_perspective_sse2
 .globl _sk_matrix_perspective_sse2
+FUNCTION(_sk_matrix_perspective_sse2)
 _sk_matrix_perspective_sse2:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -21200,6 +21686,7 @@ _sk_matrix_perspective_sse2:
 
 HIDDEN _sk_linear_gradient_sse2
 .globl _sk_linear_gradient_sse2
+FUNCTION(_sk_linear_gradient_sse2)
 _sk_linear_gradient_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,72,16                  // movss         0x10(%rax),%xmm9
@@ -21293,6 +21780,7 @@ _sk_linear_gradient_sse2:
 
 HIDDEN _sk_linear_gradient_2stops_sse2
 .globl _sk_linear_gradient_2stops_sse2
+FUNCTION(_sk_linear_gradient_2stops_sse2)
 _sk_linear_gradient_2stops_sse2:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -21325,6 +21813,7 @@ _sk_linear_gradient_2stops_sse2:
 
 HIDDEN _sk_save_xy_sse2
 .globl _sk_save_xy_sse2
+FUNCTION(_sk_save_xy_sse2)
 _sk_save_xy_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,63                        // mov           $0x3f000000,%ecx
@@ -21359,6 +21848,7 @@ _sk_save_xy_sse2:
 
 HIDDEN _sk_accumulate_sse2
 .globl _sk_accumulate_sse2
+FUNCTION(_sk_accumulate_sse2)
 _sk_accumulate_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  68,15,16,128,128,0,0,0              // movups        0x80(%rax),%xmm8
@@ -21380,6 +21870,7 @@ _sk_accumulate_sse2:
 
 HIDDEN _sk_bilinear_nx_sse2
 .globl _sk_bilinear_nx_sse2
+FUNCTION(_sk_bilinear_nx_sse2)
 _sk_bilinear_nx_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,191                       // mov           $0xbf000000,%ecx
@@ -21398,6 +21889,7 @@ _sk_bilinear_nx_sse2:
 
 HIDDEN _sk_bilinear_px_sse2
 .globl _sk_bilinear_px_sse2
+FUNCTION(_sk_bilinear_px_sse2)
 _sk_bilinear_px_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,63                        // mov           $0x3f000000,%ecx
@@ -21412,6 +21904,7 @@ _sk_bilinear_px_sse2:
 
 HIDDEN _sk_bilinear_ny_sse2
 .globl _sk_bilinear_ny_sse2
+FUNCTION(_sk_bilinear_ny_sse2)
 _sk_bilinear_ny_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,191                       // mov           $0xbf000000,%ecx
@@ -21430,6 +21923,7 @@ _sk_bilinear_ny_sse2:
 
 HIDDEN _sk_bilinear_py_sse2
 .globl _sk_bilinear_py_sse2
+FUNCTION(_sk_bilinear_py_sse2)
 _sk_bilinear_py_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,63                        // mov           $0x3f000000,%ecx
@@ -21444,6 +21938,7 @@ _sk_bilinear_py_sse2:
 
 HIDDEN _sk_bicubic_n3x_sse2
 .globl _sk_bicubic_n3x_sse2
+FUNCTION(_sk_bicubic_n3x_sse2)
 _sk_bicubic_n3x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,192,191                     // mov           $0xbfc00000,%ecx
@@ -21472,6 +21967,7 @@ _sk_bicubic_n3x_sse2:
 
 HIDDEN _sk_bicubic_n1x_sse2
 .globl _sk_bicubic_n1x_sse2
+FUNCTION(_sk_bicubic_n1x_sse2)
 _sk_bicubic_n1x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,191                       // mov           $0xbf000000,%ecx
@@ -21508,6 +22004,7 @@ _sk_bicubic_n1x_sse2:
 
 HIDDEN _sk_bicubic_p1x_sse2
 .globl _sk_bicubic_p1x_sse2
+FUNCTION(_sk_bicubic_p1x_sse2)
 _sk_bicubic_p1x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,63                        // mov           $0x3f000000,%ecx
@@ -21537,6 +22034,7 @@ _sk_bicubic_p1x_sse2:
 
 HIDDEN _sk_bicubic_p3x_sse2
 .globl _sk_bicubic_p3x_sse2
+FUNCTION(_sk_bicubic_p3x_sse2)
 _sk_bicubic_p3x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,192,63                      // mov           $0x3fc00000,%ecx
@@ -21561,6 +22059,7 @@ _sk_bicubic_p3x_sse2:
 
 HIDDEN _sk_bicubic_n3y_sse2
 .globl _sk_bicubic_n3y_sse2
+FUNCTION(_sk_bicubic_n3y_sse2)
 _sk_bicubic_n3y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,192,191                     // mov           $0xbfc00000,%ecx
@@ -21589,6 +22088,7 @@ _sk_bicubic_n3y_sse2:
 
 HIDDEN _sk_bicubic_n1y_sse2
 .globl _sk_bicubic_n1y_sse2
+FUNCTION(_sk_bicubic_n1y_sse2)
 _sk_bicubic_n1y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,191                       // mov           $0xbf000000,%ecx
@@ -21625,6 +22125,7 @@ _sk_bicubic_n1y_sse2:
 
 HIDDEN _sk_bicubic_p1y_sse2
 .globl _sk_bicubic_p1y_sse2
+FUNCTION(_sk_bicubic_p1y_sse2)
 _sk_bicubic_p1y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,0,63                        // mov           $0x3f000000,%ecx
@@ -21654,6 +22155,7 @@ _sk_bicubic_p1y_sse2:
 
 HIDDEN _sk_bicubic_p3y_sse2
 .globl _sk_bicubic_p3y_sse2
+FUNCTION(_sk_bicubic_p3y_sse2)
 _sk_bicubic_p3y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  185,0,0,192,63                      // mov           $0x3fc00000,%ecx
