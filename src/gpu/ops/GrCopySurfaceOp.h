@@ -15,6 +15,8 @@ class GrCopySurfaceOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    bool isFoo() const override { return true; }
+
     // MDB TODO: remove the resourceProvider parameter
     static std::unique_ptr<GrOp> Make(GrResourceProvider*,
                                       GrSurfaceProxy* dst, GrSurfaceProxy* src,
@@ -25,13 +27,13 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.printf("src: (proxyID: %d, rtID: %d), dst: (proxyID: %d, rtID: %d), "
-                      "srcRect: [L: %d, T: %d, R: %d, B: %d], dstPt: [X: %d, Y: %d]",
+        string.append(INHERITED::dumpInfo());
+        string.printf("src: (proxyID: %d, rtID: %d), dst: (proxyID: %d, rtID: %d),\n"
+                      "srcRect: [L: %d, T: %d, R: %d, B: %d], dstPt: [X: %d, Y: %d]\n",
                       fSrcProxyID.asUInt(), fSrc.get()->uniqueID().asUInt(),
                       fDstProxyID.asUInt(), fDst.get()->uniqueID().asUInt(),
                       fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight, fSrcRect.fBottom,
                       fDstPoint.fX, fDstPoint.fY);
-        string.append(INHERITED::dumpInfo());
         return string;
     }
 

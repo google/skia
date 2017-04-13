@@ -23,7 +23,7 @@ struct SkIRect;
 
 class GrTextureOpList final : public GrOpList {
 public:
-    GrTextureOpList(GrTextureProxy*, GrGpu*, GrAuditTrail*);
+    GrTextureOpList(sk_sp<GrTextureProxy>, GrGpu*, GrAuditTrail*);
 
     ~GrTextureOpList() override;
 
@@ -40,7 +40,7 @@ public:
      * of executeOps() indicates whether any commands were actually issued to the GPU.
      */
     void prepareOps(GrOpFlushState* flushState) override;
-    bool executeOps(GrOpFlushState* flushState) override;
+    bool executeOps1(GrOpFlushState* flushState) override;
 
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
@@ -61,6 +61,8 @@ public:
     GrTextureOpList* asTextureOpList() override { return this; }
 
     SkDEBUGCODE(void dump() const override;)
+
+    SkDEBUGCODE(virtual void validateTargetsSingleRenderTarget() const override;)
 
 private:
     // MDB TODO: The unique IDs are only needed for the audit trail. There should only be one

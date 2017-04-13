@@ -277,7 +277,7 @@ public:
     SkBudgeted isBudgeted() const { return fBudgeted; }
 
     void setLastOpList(GrOpList* opList);
-    GrOpList* getLastOpList() { return fLastOpList; }
+    GrOpList* getLastOpList() { return fLastOpList1; }
 
     GrRenderTargetOpList* getLastRenderTargetOpList();
     GrTextureOpList* getLastTextureOpList();
@@ -330,7 +330,7 @@ protected:
         // fMipColorMode is only valid for texturable proxies
         , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
         , fGpuMemorySize(kInvalidGpuMemorySize)
-        , fLastOpList(nullptr) {
+        , fLastOpList1(nullptr) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
@@ -379,7 +379,9 @@ private:
     // This back-pointer is required so that we can add a dependancy between
     // the opList used to create the current contents of this surface
     // and the opList of a destination surface to which this one is being drawn or copied.
-    GrOpList* fLastOpList;
+
+    // This pointer is unreffed. OpLists own a ref on their surfaceproxies.
+    GrOpList* fLastOpList1;
 
 
     typedef GrIORefProxy INHERITED;

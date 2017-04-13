@@ -236,6 +236,10 @@ public:
                 color, path, viewMatrix, devBounds, maxLineVertices, maxQuadVertices, isIndexed));
     }
 
+    void onExecute(GrOpFlushState* state) override {
+        return;
+    }
+
     const char* name() const override { return "MSAAPathOp"; }
 
     SkString dumpInfo() const override {

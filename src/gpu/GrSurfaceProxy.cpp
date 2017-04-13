@@ -28,14 +28,15 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
     , fFlags(0)
     , fUniqueID(fTarget->uniqueID()) // Note: converting from unique resource ID to a proxy ID!
     , fGpuMemorySize(kInvalidGpuMemorySize)
-    , fLastOpList(nullptr) {
+    , fLastOpList1(nullptr) {
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
-    if (fLastOpList) {
-        fLastOpList->clearTarget();
-    }
-    SkSafeUnref(fLastOpList);
+//    if (fLastOpList) {
+//        fLastOpList->clearTarget();
+//    }
+    SkASSERT(!fLastOpList1);
+//    SkSafeUnref(fLastOpList);
 }
 
 GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
@@ -97,23 +98,24 @@ int GrSurfaceProxy::worstCaseHeight(const GrCaps& caps) const {
 }
 
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
-    if (fLastOpList) {
+    if (fLastOpList1) {
         // The non-MDB world never closes so we can't check this condition
-#ifdef ENABLE_MDB
-        SkASSERT(fLastOpList->isClosed());
+#if 1
+        SkASSERT(fLastOpList1->isClosed1());
 #endif
-        fLastOpList->clearTarget();
+//        fLastOpList->clearTarget();
     }
 
-    SkRefCnt_SafeAssign(fLastOpList, opList);
+    fLastOpList1 = opList;
+//    SkRefCnt_SafeAssign(fLastOpList, opList);
 }
 
 GrRenderTargetOpList* GrSurfaceProxy::getLastRenderTargetOpList() {
-    return fLastOpList ? fLastOpList->asRenderTargetOpList() : nullptr;
+    return fLastOpList1 ? fLastOpList1->asRenderTargetOpList() : nullptr;
 }
 
 GrTextureOpList* GrSurfaceProxy::getLastTextureOpList() {
-    return fLastOpList ? fLastOpList->asTextureOpList() : nullptr;
+    return fLastOpList1 ? fLastOpList1->asTextureOpList() : nullptr;
 }
 
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrSurface> surf) {

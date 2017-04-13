@@ -39,17 +39,23 @@ public:
         int fMaxOpCombineLookahead = -1;
     };
 
-    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrResourceProvider*,
+    GrRenderTargetOpList(sk_sp<GrRenderTargetProxy>, GrGpu*, GrResourceProvider*,
                          GrAuditTrail*, const Options&);
 
     ~GrRenderTargetOpList() override;
 
     void makeClosed() override {
-        INHERITED::makeClosed();
+        if (this->isClosed1()) {
+            return;
+        }
 
         fLastFullClearOp = nullptr;
         this->forwardCombine();
+
+        INHERITED::makeClosed();
     }
+
+    bool isEmpty() const { return fRecordedOps.empty(); }
 
     /**
      * Empties the draw buffer of any queued up draws.
@@ -64,7 +70,7 @@ public:
      * of executeOps() indicates whether any commands were actually issued to the GPU.
      */
     void prepareOps(GrOpFlushState* flushState) override;
-    bool executeOps(GrOpFlushState* flushState) override;
+    bool executeOps1(GrOpFlushState* flushState) override;
 
     /**
      * Gets the capabilities of the draw target.
@@ -110,7 +116,7 @@ public:
 
     SkDEBUGCODE(void dump() const override;)
 
-    SkDEBUGCODE(void validateTargetsSingleRenderTarget() const;)
+    SkDEBUGCODE(void validateTargetsSingleRenderTarget() const override;)
 
 private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive

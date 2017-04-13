@@ -63,7 +63,7 @@ void GrRenderTarget::onAbandon() {
 
     // The contents of this renderTarget are gone/invalid. It isn't useful to point back
     // the creating opList.
-    this->setLastOpList(nullptr);
+    //this->setLastOpList(nullptr);
 
     INHERITED::onAbandon();
 }
