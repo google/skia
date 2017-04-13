@@ -168,17 +168,6 @@ SkMallocPixelRef::~SkMallocPixelRef() {
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
-bool SkMallocPixelRef::onNewLockPixels(LockRec* rec) {
-    sk_throw(); // should never get here
-    return true;
-}
-
-void SkMallocPixelRef::onUnlockPixels() {
-    // nothing to do
-}
-#endif
-
 size_t SkMallocPixelRef::getAllocatedSizeInBytes() const {
     return this->info().getSafeSize(this->rowBytes());
 }
