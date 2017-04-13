@@ -155,6 +155,7 @@ extern "C" {
     #undef M
 
 #elif defined(__arm__)
+    __attribute__((target("arm")))   // I.e. not Thumb, make sure we blx to it.
     size_t ASM(start_pipeline,vfp4)(size_t, void**, K*, size_t);
     StageFn ASM(just_return,vfp4);
     #define M(st) StageFn ASM(st,vfp4);
