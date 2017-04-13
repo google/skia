@@ -46,7 +46,7 @@ static bool isLCD(const SkScalerContext::Rec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat;
 }
 
-static bool is_hinted_without_gasp(DWriteFontTypeface* typeface) {
+static bool is_hinted(DWriteFontTypeface* typeface) {
     SkAutoExclusive l(DWriteFactoryMutex);
     AutoTDWriteTable<SkOTTableMaximumProfile> maxp(typeface->fDWriteFontFace.get());
     if (!maxp.fExists) {
@@ -58,14 +58,7 @@ static bool is_hinted_without_gasp(DWriteFontTypeface* typeface) {
     if (maxp->version.version != SkOTTableMaximumProfile::Version::TT::VERSION) {
         return false;
     }
-
-    if (0 == maxp->version.tt.maxSizeOfInstructions) {
-        // No hints.
-        return false;
-    }
-
-    AutoTDWriteTable<SkOTTableGridAndScanProcedure> gasp(typeface->fDWriteFontFace.get());
-    return !gasp.fExists;
+    return (0 != maxp->version.tt.maxSizeOfInstructions);
 }
 
 /** A GaspRange is inclusive, [min, max]. */
@@ -119,14 +112,6 @@ bool get_gasp_range(DWriteFontTypeface* typeface, int size, GaspRange* range) {
  */
 static bool is_gridfit_only(GaspRange::Behavior flags) {
     return flags.raw.value == GaspRange::Behavior::Raw::GridfitMask;
-}
-
-/** If the rendering mode for the specified 'size' sets SymmetricSmoothing, return true. */
-static bool gasp_allows_cleartype_symmetric(GaspRange::Behavior flags) {
-#ifdef SK_IGNORE_DIRECTWRITE_GASP_FIX
-    return true;
-#endif
-    return flags.field.SymmetricSmoothing;
 }
 
 static bool has_bitmap_strike(DWriteFontTypeface* typeface, GaspRange range) {
@@ -280,6 +265,8 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         axisAlignedBitmap = is_axis_aligned(fRec);
     }
 
+    GaspRange range(0, 0xFFFF, GaspRange::Behavior());
+
     // If the user requested aliased, do so with aliased compatible metrics.
     if (SkMask::kBW_Format == fRec.fMaskFormat) {
         fTextSizeRender = gdiTextSize;
@@ -306,25 +293,37 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         fTextSizeMeasure = gdiTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_GDI_CLASSIC;
 
-    // Fonts that have hints but no gasp table get non-symmetric rendering.
-    // Usually such fonts have low quality hints which were never tested
-    // with anything but GDI ClearType classic. Such fonts often rely on
-    // drop out control in the y direction in order to be legible.
-    } else if (is_hinted_without_gasp(typeface)) {
-        fTextSizeRender = gdiTextSize;
-        fRenderingMode = DWRITE_RENDERING_MODE_NATURAL;
+    // If the font has a gasp table, use it to determine symmetric rendering.
+    } else if (get_gasp_range(typeface, SkScalarRoundToInt(gdiTextSize), &range)) {
+        fTextSizeRender = realTextSize;
+        fRenderingMode = range.fFlags.field.SymmetricSmoothing
+                       ? DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC
+                       : DWRITE_RENDERING_MODE_NATURAL;
         fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
 
-    // The normal case is to use natural symmetric rendering (if permitted) and linear metrics.
-    } else {
+    // If the requested size is above 20px or there are no bytecode hints, use symmetric rendering.
+    } else if (realTextSize > SkIntToScalar(20) || !is_hinted(typeface)) {
         fTextSizeRender = realTextSize;
-        GaspRange range(0, 0xFFFF, GaspRange::Behavior());
-        get_gasp_range(typeface, SkScalarRoundToInt(gdiTextSize), &range);
-        fRenderingMode = gasp_allows_cleartype_symmetric(range.fFlags)
-                       ? DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC
-                       : DWRITE_RENDERING_MODE_NATURAL;
+        fRenderingMode = DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC;
+        fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
+        fTextSizeMeasure = realTextSize;
+        fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
+
+    // Fonts that have hints, no gasp table, and below 20px get non-symmetric rendering.
+    // Often such fonts have low quality hints which were never tested
+    // with anything but GDI ClearType classic. Such fonts often rely on
+    // drop out control in the y direction in order to be legible.
+    // Tenor Sans
+    //    https://fonts.google.com/specimen/Tenor+Sans
+    // Gill Sans W04
+    //    https://cdn.leagueoflegends.com/lolkit/1.1.9/resources/fonts/gill-sans-w04-book.woff
+    //    https://na.leagueoflegends.com/en/news/game-updates/patch/patch-410-notes
+    // See https://crbug.com/385897
+    } else {
+        fTextSizeRender = gdiTextSize;
+        fRenderingMode = DWRITE_RENDERING_MODE_NATURAL;
         fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
