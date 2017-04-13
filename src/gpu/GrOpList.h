@@ -22,17 +22,17 @@ class GrTextureOpList;
 
 class GrOpList : public SkRefCnt {
 public:
-    GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail);
+    GrOpList(sk_sp<GrSurfaceProxy> surfaceProxy, GrAuditTrail* auditTrail);
     ~GrOpList() override;
 
     // These two methods are invoked as flush time
     virtual void prepareOps(GrOpFlushState* flushState) = 0;
-    virtual bool executeOps(GrOpFlushState* flushState) = 0;
+    virtual bool executeOps1(GrOpFlushState* flushState) = 0;
 
     virtual void makeClosed() {
         // We only close GrOpLists when MDB is enabled. When MDB is disabled there is only
         // ever one GrOpLists and all calls will be funnelled into it.
-#ifdef ENABLE_MDB
+#if 1
         this->setFlag(kClosed_Flag);
 #endif    
     }
@@ -45,16 +45,28 @@ public:
     virtual void abandonGpuResources() = 0;
     virtual void freeGpuResources() = 0;
 
+#if 0
     // TODO: this entry point is only needed in the non-MDB world. Remove when
     // we make the switch to MDB
-    void clearTarget() { fTarget = nullptr; }
+    void clearTarget() {
+        fTarget1 = nullptr;
+    }
+#endif
 
-    bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
+    bool isClosed1() const {
+        bool isClosed = this->isSetFlag(kClosed_Flag);
+        return isClosed;
+    }
 
     /*
      * Notify this GrOpList that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrSurface* dependedOn);
+    void addDependency(GrSurfaceProxy* dependedOn);
+
+    /*
+     * Sigh
+     */
+    void addDependency(GrOpList* dependedOn);
 
     /*
      * Does this opList depend on 'dependedOn'?
@@ -79,6 +91,11 @@ public:
      * Dump out the GrOpList dependency DAG
      */
     SkDEBUGCODE(virtual void dump() const;)
+
+    SkDEBUGCODE(virtual void validateTargetsSingleRenderTarget() const = 0;)
+
+protected:
+    sk_sp<GrSurfaceProxy> fTarget1;
 
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
@@ -128,17 +145,14 @@ private:
         }
     };
 
-    void addDependency(GrOpList* dependedOn);
-
-    uint32_t             fUniqueID;
-    uint32_t             fFlags;
-    GrSurfaceProxy*      fTarget;
+    uint32_t              fUniqueID;
+    uint32_t              fFlags;
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
-    SkTDArray<GrOpList*> fDependencies;
+    SkTDArray<GrOpList*>  fDependencies;
 
 protected:
-    GrAuditTrail*        fAuditTrail;
+    GrAuditTrail*         fAuditTrail;
 
     typedef SkRefCnt INHERITED;
 };

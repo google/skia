@@ -78,9 +78,6 @@ public:
         fReleaseCtx = ctx;
     }
 
-    void setLastOpList(GrOpList* opList);
-    GrOpList* getLastOpList() { return fLastOpList; }
-
     static size_t WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2 = false);
     static size_t ComputeSize(const GrSurfaceDesc& desc, int colorSamplesPerPixel,
                               bool hasMIPMaps, bool useNextPow2 = false);
@@ -99,7 +96,7 @@ protected:
         , fDesc(desc)
         , fReleaseProc(NULL)
         , fReleaseCtx(NULL)
-        , fLastOpList(nullptr) {
+        , fLastOpList1(nullptr) {
     }
     ~GrSurface() override;
 
@@ -125,7 +122,7 @@ private:
     // This back-pointer is required so that we can add a dependancy between
     // the opList used to create the current contents of this surface
     // and the opList of a destination surface to which this one is being drawn or copied.
-    GrOpList* fLastOpList;
+    GrOpList* fLastOpList1;
 
     typedef GrGpuResource INHERITED;
 };

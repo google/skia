@@ -82,7 +82,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
                                              GrSingleOwner* singleOwner)
     : GrSurfaceContext(context, drawingMgr, std::move(colorSpace), auditTrail, singleOwner)
     , fRenderTargetProxy(std::move(rtp))
-    , fOpList(SkSafeRef(fRenderTargetProxy->getLastRenderTargetOpList()))
+    , fOpList1(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
     , fInstancedPipelineInfo(fRenderTargetProxy.get())
     , fColorXformFromSRGB(nullptr)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps)) {
@@ -99,15 +99,14 @@ void GrRenderTargetContext::validate() const {
     SkASSERT(fRenderTargetProxy);
     fRenderTargetProxy->validate(fContext);
 
-    if (fOpList && !fOpList->isClosed()) {
-        SkASSERT(fRenderTargetProxy->getLastOpList() == fOpList);
+    if (fOpList1 && !fOpList1->isClosed1()) {
+        SkASSERT(fRenderTargetProxy->getLastOpList() == fOpList1.get());
     }
 }
 #endif
 
 GrRenderTargetContext::~GrRenderTargetContext() {
     ASSERT_SINGLE_OWNER
-    SkSafeUnref(fOpList);
 }
 
 GrTextureProxy* GrRenderTargetContext::asTextureProxy() {
@@ -122,11 +121,11 @@ GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
-    if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newOpList(fRenderTargetProxy.get());
+    if (!fOpList1 || fOpList1->isClosed1()) {
+        fOpList1 = this->drawingManager()->newRTOpList(fRenderTargetProxy);
     }
 
-    return fOpList;
+    return fOpList1.get();
 }
 
 // TODO: move this (and GrTextContext::copy) to GrSurfaceContext?
@@ -1676,6 +1675,9 @@ uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipeline
         }
     }
     op->initPipeline(args, analysis, overrideColor);
+
+    op->foo(fRenderTargetProxy.get());
+
     // TODO: We need to add pipeline dependencies on textures, etc before recording this op.
     op->setClippedBounds(bounds);
     return this->getOpList()->addOp(std::move(op), this);
