@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2a47e34_91ab4adf",
+        "filename": "src/effects/gradients/SkSweepGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-13T18:09:34Z",
+      "side": 1,
+      "message": "Should I make a fast version of t?\n\nMake t take an SkPoint?",
+      "range": {
+        "startLine": 25,
+        "startChar": 9,
+        "endLine": 25,
+        "endChar": 10
+      },
+      "revId": "e45ab7872222f0ee92abc417a960f5fb787058d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1105f4e9_d64401d5",
+        "filename": "src/effects/gradients/SkSweepGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-13T18:09:34Z",
+      "side": 1,
+      "message": "Can you replace this if with:\n\nSkVector d \u003d matrix.mapVector({1, 1});?\n\nThen use d.fX and d.fY",
+      "range": {
+        "startLine": 56,
+        "startChar": 11,
+        "endLine": 65,
+        "endChar": 0
+      },
+      "revId": "e45ab7872222f0ee92abc417a960f5fb787058d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e34e6141_f70bee48",
+        "filename": "src/effects/gradients/SkSweepGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-13T18:09:34Z",
+      "side": 1,
+      "message": "If you make t take an SkPoint you could do something like this:\n*ts++ \u003d t(srcPt)\nsrcPt +\u003d d;",
+      "range": {
+        "startLine": 67,
+        "startChar": 23,
+        "endLine": 67,
+        "endChar": 24
+      },
+      "revId": "e45ab7872222f0ee92abc417a960f5fb787058d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "827fa43c_1f902d49",
+        "filename": "src/effects/gradients/SkSweepGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-13T18:09:34Z",
+      "side": 1,
+      "message": "Is this better?\n\n!SkScalarIsFinite(srcPt.x * srcPt.y)",
+      "range": {
+        "startLine": 77,
+        "startChar": 24,
+        "endLine": 77,
+        "endChar": 76
+      },
+      "revId": "e45ab7872222f0ee92abc417a960f5fb787058d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
