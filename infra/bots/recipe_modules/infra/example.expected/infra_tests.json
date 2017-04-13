@@ -1,7 +1,7 @@
 [
   {
     "cmd": [
-      "go",
+      "[START_DIR]/go/go/bin/go",
       "get",
       "-u",
       "-t",
@@ -11,7 +11,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "GOPATH": "[CUSTOM_/_B_WORK]/gopath",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "[START_DIR]/go/go/bin:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "update go pkgs"
