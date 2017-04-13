@@ -139,7 +139,6 @@
       "os",
       "Ubuntu",
       "--nogpu",
-      "--randomProcessorTest",
       "--config",
       "8888",
       "srgb",

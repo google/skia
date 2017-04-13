@@ -253,7 +253,6 @@
       "--writePath",
       "[CUSTOM_[SWARM_OUT_DIR]]/dm",
       "--nogpu",
-      "--randomProcessorTest",
       "--threads",
       "0",
       "--config",
