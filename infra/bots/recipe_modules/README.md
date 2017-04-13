@@ -21,6 +21,14 @@ test:
 
 	$ python infra/bots/recipes.py simulation_test train
 
+Or:
+
+	$ make -C infra/bots recipes_train
+
+Or, to re-train everything:
+
+	$ make -C infra/bots train
+
 Each recipe module contains a few files:
 
   * api.py - This is the meat of the module.
