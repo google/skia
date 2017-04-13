@@ -94,7 +94,10 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
       '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4'),
       '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4',
                                 'arm-linux-gnueabihf'),
-       '-DMESA_EGL_NO_X11_HEADERS',
+      '-DMESA_EGL_NO_X11_HEADERS',
+      # A temporary bandaid until I figure out why Thumb<->ARM interchange
+      # isn't working right.  skia:6471
+      '-mno-thumb',
     ]
 
     extra_ldflags = [
