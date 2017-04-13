@@ -5,5 +5,5 @@
  * found in the LICENSE file.
  */
 #ifndef SK_MILESTONE
-#define SK_MILESTONE 59
+#define SK_MILESTONE "release/O"
 #endif
