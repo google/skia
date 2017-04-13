@@ -157,6 +157,8 @@ public:
                             size_t rowBytes,
                             uint32_t pixelOpsFlags = 0);
 
+    GrBackend getBackend() const { return fContext->fBackend; }
+
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
     GrContextPriv(const GrContextPriv&); // unimpl
