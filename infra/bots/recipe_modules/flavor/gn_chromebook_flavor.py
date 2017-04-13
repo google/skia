@@ -81,9 +81,6 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     extra_asmflags = [
       '--target=armv7a-linux-gnueabihf',
       '--sysroot=%s' % sysroot_dir,
-      '-march=armv7-a',
-      '-mfpu=neon',
-      '-mthumb',
     ]
 
     extra_cflags = [
@@ -95,9 +92,6 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
       '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4',
                                 'arm-linux-gnueabihf'),
       '-DMESA_EGL_NO_X11_HEADERS',
-      # A temporary bandaid until I figure out why Thumb<->ARM interchange
-      # isn't working right.  skia:6471
-      '-mno-thumb',
     ]
 
     extra_ldflags = [
