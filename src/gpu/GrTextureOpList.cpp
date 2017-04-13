@@ -15,8 +15,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTextureOpList::GrTextureOpList(GrTextureProxy* tex, GrGpu* gpu, GrAuditTrail* auditTrail)
-    : INHERITED(tex, auditTrail)
+GrTextureOpList::GrTextureOpList(sk_sp<GrTextureProxy> proxy, GrGpu* gpu, GrAuditTrail* auditTrail)
+    : INHERITED(std::move(proxy), auditTrail)
     , fGpu(SkRef(gpu)) {
 }
 

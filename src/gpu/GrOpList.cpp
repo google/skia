@@ -21,12 +21,13 @@ uint32_t GrOpList::CreateUniqueID() {
     return id;
 }
 
-GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
-    : fUniqueID(CreateUniqueID())
-    , fFlags(0)
-    , fTarget(surfaceProxy)
-    , fAuditTrail(auditTrail) {
-
+GrOpList::GrOpList(sk_sp<GrSurfaceProxy> surfaceProxy, GrAuditTrail* auditTrail)
+    // MDB TODO: in the future opLists will own the GrSurfaceProxy they target.
+    // For now, preserve the status quo.
+    : fTarget(surfaceProxy.get())
+    , fAuditTrail(auditTrail)
+    , fUniqueID(CreateUniqueID())
+    , fFlags(0) {
     surfaceProxy->setLastOpList(this);
 }
 
