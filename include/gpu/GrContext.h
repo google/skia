@@ -334,6 +334,8 @@ private:
 
     GrAuditTrail                            fAuditTrail;
 
+    GrBackend                               fBackend;
+
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
 
