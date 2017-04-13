@@ -78,23 +78,34 @@ static unsigned SkATan2_255(float y, float x) {
     return ir;
 }
 #else
-static unsigned SkATan2_255(float y, float x) {
-    if (y == 0 && x == 0) return 0;
-    float yabs = sk_float_abs(y),
-        xabs = sk_float_abs(x);
-    float little, big;
-    std::tie(little, big) = std::minmax(yabs, xabs);
-    float a = little/big;
-    float s = a * a;
-    float r = a*(40.57589784014689f
-                 + s*(-13.222755844396332f + s*(6.314046289038564f - s*1.7989502668982151f)));
-    r = xabs < yabs ? 255/4.0f - r : r;
-    r = x < 0.0f    ? 255/2.0f - r : r;
-    r = y < 0.0f    ? 255      - r : r;
+static inline float atan2_poly(float v1, float v2) {
+    static constexpr float k1 =  40.57589784014689f,
+                           k2 = -13.222755844396332f,
+                           k3 =   6.314046289038564f,
+                           k4 =   1.7989502668982151f;
+    const float a = v1 / v2,
+                s = a * a;
+    return a * (k1 + s * (k2 + s * (k3 - s * k4)));
+}
 
-    int ir = (int)r;
-    SkASSERT(ir >= 0 && ir <= 255);
-    return ir;
+static unsigned SkATan2_255(float y, float x) {
+    float yabs = sk_float_abs(y),
+          xabs = sk_float_abs(x);
+    float r = xabs >= yabs ? atan2_poly(yabs, xabs)
+                           : 255/4.0f - atan2_poly(xabs, yabs);
+
+    static constexpr struct { float k1, k2; } sign_table[] = {
+        {  1,        0 }, // pos x, pos y
+        { -1, 255/2.0f }, // neg x, pos y
+        { -1,      255 }, // pos x, neg y
+        {  1, 255/2.0f }, // neg x, neg y
+    };
+    const auto& sign_adjust = sign_table[std::signbit(x) | (std::signbit(y) << 1)];
+    r = r * sign_adjust.k1 + sign_adjust.k2;
+
+    // We can have a NaN at this point (for 0,0); let it fall through int conversion.
+    SkASSERT(sk_float_isnan(r) || (r >= 0 && r <= 255));
+    return (int)r & 0xff;
 }
 #endif
 
