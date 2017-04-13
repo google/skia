@@ -265,8 +265,23 @@ bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t
     return true;
 }
 
-static bool valid_unpremul_config(GrPixelConfig config) {
+static bool valid_premul_config(GrPixelConfig config) {
     return GrPixelConfigIs8888Unorm(config) || kRGBA_half_GrPixelConfig == config;
+}
+
+static bool valid_pixel_conversion(GrPixelConfig srcConfig, GrPixelConfig dstConfig,
+                                   bool premulConversion) {
+    // We don't allow conversion between integer configs and float/fixed configs.
+    if (GrPixelConfigIsSint(srcConfig) != GrPixelConfigIsSint(dstConfig)) {
+        return false;
+    }
+
+    // We only allow premul <-> unpremul conversions for some formats
+    if (premulConversion && (!valid_premul_config(srcConfig) || !valid_premul_config(dstConfig))) {
+        return false;
+    }
+
+    return true;
 }
 
 bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* dstColorSpace,
@@ -287,6 +302,12 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* d
         return false;
     }
 
+    // The src is unpremul but the dst is premul -> premul the src before or as part of the write
+    bool premul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
+    if (!valid_pixel_conversion(srcConfig, surface->config(), premul)) {
+        return false;
+    }
+
     fContext->testPMConversionsIfNecessary(pixelOpsFlags);
 
     // Trim the params here so that if we wind up making a temporary surface it can be as small as
@@ -297,19 +318,10 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* d
         return false;
     }
 
-    bool applyPremulToSrc = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
-    if (applyPremulToSrc && !valid_unpremul_config(srcConfig)) {
-        return false;
-    }
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(surface->config()) != GrPixelConfigIsSint(srcConfig)) {
-        return false;
-    }
-
     GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
     // Don't prefer to draw for the conversion (and thereby access a texture from the cache) when
     // we've already determined that there isn't a roundtrip preserving conversion processor pair.
-    if (applyPremulToSrc && fContext->validPMUPMConversionExists(srcConfig)) {
+    if (premul && fContext->validPMUPMConversionExists(srcConfig)) {
         drawPreference = GrGpu::kCallerPrefersDraw_DrawPreference;
     }
 
@@ -340,11 +352,11 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* d
         sk_sp<GrFragmentProcessor> texFP = GrSimpleTextureEffect::Make(
                 fContext->resourceProvider(), tempProxy, nullptr, SkMatrix::I());
         sk_sp<GrFragmentProcessor> fp;
-        if (applyPremulToSrc) {
+        if (premul) {
             fp = fContext->createUPMToPMEffect(texFP, tempProxy->config());
             if (fp) {
                 // We no longer need to do this on CPU before the upload.
-                applyPremulToSrc = false;
+                premul = false;
             } else if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
                 // We only wanted to do the draw to perform the premul so don't bother.
                 tempProxy.reset(nullptr);
@@ -364,7 +376,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* d
             if (!texture) {
                 return false;
             }
-            if (applyPremulToSrc) {
+            if (premul) {
                 size_t tmpRowBytes = 4 * width;
                 tmpPixels.reset(width * height);
                 if (!sw_convert_to_premul(srcConfig, width, height, rowBytes, buffer, tmpRowBytes,
@@ -373,7 +385,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* d
                 }
                 rowBytes = tmpRowBytes;
                 buffer = tmpPixels.get();
-                applyPremulToSrc = false;
+                premul = false;
             }
             if (!fContext->fGpu->writePixels(texture, 0, 0, width, height,
                                              tempDrawInfo.fWriteConfig, buffer,
@@ -406,7 +418,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* d
         }
     }
     if (!tempProxy) {
-        if (applyPremulToSrc) {
+        if (premul) {
             size_t tmpRowBytes = 4 * width;
             tmpPixels.reset(width * height);
             if (!sw_convert_to_premul(srcConfig, width, height, rowBytes, buffer, tmpRowBytes,
@@ -415,7 +427,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* d
             }
             rowBytes = tmpRowBytes;
             buffer = tmpPixels.get();
-            applyPremulToSrc = false;
+            premul = false;
         }
         return fContext->fGpu->writePixels(surface, left, top, width, height, srcConfig,
                                            buffer, rowBytes);
@@ -441,6 +453,12 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
         return false;
     }
 
+    // The src is premul but the dst is unpremul -> unpremul the src after or as part of the read
+    bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
+    if (!valid_pixel_conversion(src->config(), dstConfig, unpremul)) {
+        return false;
+    }
+
     fContext->testPMConversionsIfNecessary(flags);
 
     // Adjust the params so that if we wind up using an intermediate surface we've already done
@@ -448,20 +466,6 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
     if (!GrSurfacePriv::AdjustReadPixelParams(src->width(), src->height(),
                                               GrBytesPerPixel(dstConfig), &left,
                                               &top, &width, &height, &buffer, &rowBytes)) {
-        return false;
-    }
-
-    if (!(kDontFlush_PixelOpsFlag & flags) && src->surfacePriv().hasPendingWrite()) {
-        this->flush(nullptr); // MDB TODO: tighten this
-    }
-
-    bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
-    if (unpremul && !valid_unpremul_config(dstConfig)) {
-        // The unpremul flag is only allowed for 8888 and F16 configs.
-        return false;
-    }
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(src->config()) != GrPixelConfigIsSint(dstConfig)) {
         return false;
     }
 
@@ -476,6 +480,10 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
     if (!fContext->fGpu->getReadPixelsInfo(src, width, height, rowBytes, dstConfig,
                                            &drawPreference, &tempDrawInfo)) {
         return false;
+    }
+
+    if (!(kDontFlush_PixelOpsFlag & flags) && src->surfacePriv().hasPendingWrite()) {
+        this->flush(nullptr); // MDB TODO: tighten this
     }
 
     sk_sp<GrSurfaceProxy> proxyToRead = sk_ref_sp(srcProxy);
