@@ -399,7 +399,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 // generated chain of tasks, which the Job should add as a dependency.
 func infra(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages: []*specs.CipdPackage{},
+		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
 		Dimensions:   linuxGceDimensions(),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "infra",

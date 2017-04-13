@@ -193,7 +193,37 @@
   },
   {
     "cmd": [
+      "[START_DIR]/go/go/bin/go",
+      "version"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "go version"
+  },
+  {
+    "cmd": [
       "go",
+      "version"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "env go version"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/go/go/bin/go",
       "get",
       "-u",
       "-t",
@@ -202,8 +232,9 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[CUSTOM_/_B_WORK]/gopath",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "update go pkgs"
@@ -246,8 +277,9 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[CUSTOM_/_B_WORK]/gopath",
-      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s"
     },
     "name": "Upload SKPs"
   },

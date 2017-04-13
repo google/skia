@@ -4001,6 +4001,13 @@
       "priority": 0.95
     },
     "Housekeeper-PerCommit-InfraTests": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/go",
+          "path": "go",
+          "version": "version:1"
+        }
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
