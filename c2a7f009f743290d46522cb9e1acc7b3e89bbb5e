@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e33d8d69_14c4fe55",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-04-13T16:36:57Z",
+      "side": 1,
+      "message": "realTextSize\n\nNeed a sanitizer to catch dumb stuff like this.",
+      "range": {
+        "startLine": 316,
+        "startChar": 15,
+        "endLine": 316,
+        "endChar": 30
+      },
+      "revId": "c2a7f009f743290d46522cb9e1acc7b3e89bbb5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
