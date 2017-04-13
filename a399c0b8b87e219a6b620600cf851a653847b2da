@@ -70,6 +70,30 @@
       "revId": "a399c0b8b87e219a6b620600cf851a653847b2da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "beac8d05_4f96f96c",
+        "filename": "src/core/SkDistanceFieldGen.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-13T14:39:51Z",
+      "side": 1,
+      "message": "Regardless of what I said there, pack_distance_field_val in SkDistanceFieldGen.cpp seems to clamp to the range (-magnitude, magnitude].",
+      "parentUuid": "814a1537_a454a47f",
+      "range": {
+        "startLine": 13,
+        "startChar": 46,
+        "endLine": 13,
+        "endChar": 71
+      },
+      "revId": "a399c0b8b87e219a6b620600cf851a653847b2da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
