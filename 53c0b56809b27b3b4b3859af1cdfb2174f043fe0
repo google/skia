@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce8eb347_d26f0af9",
+        "filename": "src/effects/SkLightingImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-13T13:58:09Z",
+      "side": 1,
+      "message": "These are r,g,b floats in [0.0f, 255.0f] ?",
+      "range": {
+        "startLine": 801,
+        "startChar": 43,
+        "endLine": 801,
+        "endChar": 48
+      },
+      "revId": "53c0b56809b27b3b4b3859af1cdfb2174f043fe0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
