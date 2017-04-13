@@ -76,6 +76,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     if extra_config == 'GDI':
       args['skia_use_gdi'] = 'true'
     if extra_config == 'MSAN':
+      args['skia_enable_gpu']     = 'false'
       args['skia_use_fontconfig'] = 'false'
     if extra_config == 'ASAN':
       args['skia_enable_spirv_validation'] = 'false'
