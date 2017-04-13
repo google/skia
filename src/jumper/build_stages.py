@@ -100,6 +100,8 @@ def parse_object_file(dot_o, directive, target=None):
       if hidden:
         print hidden + ' _' + m.group(1)
       print globl + ' _' + m.group(1)
+      if 'vfp4' in dot_o:
+        print '.type _' + m.group(1) + ',%function'
       print '_' + m.group(1) + label
       continue
 
