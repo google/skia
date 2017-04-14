@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57f11fd0_0d384d0f",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-14T13:31:48Z",
+      "side": 1,
+      "message": "why the different formats between Texture and RenderTarget oplists? RT just returns the pointer which you ref at the end and Texture retures the sk_sp directly",
+      "range": {
+        "startLine": 233,
+        "startChar": 5,
+        "endLine": 233,
+        "endChar": 26
+      },
+      "revId": "f5b748df4ef96be191a5d7b133838b80531fd9ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
