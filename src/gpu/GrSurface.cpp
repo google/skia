@@ -15,10 +15,12 @@
 #include "SkMathPriv.h"
 
 GrSurface::~GrSurface() {
+#if 0
     if (fLastOpList) {
         fLastOpList->clearTarget();
     }
     SkSafeUnref(fLastOpList);
+#endif
 
     // check that invokeReleaseProc has been called (if needed)
     SkASSERT(NULL == fReleaseProc);
@@ -185,14 +187,3 @@ void GrSurface::onAbandon() {
     this->INHERITED::onAbandon();
 }
 
-void GrSurface::setLastOpList(GrOpList* opList) {
-    if (fLastOpList) {
-        // The non-MDB world never closes so we can't check this condition
-#ifdef ENABLE_MDB
-        SkASSERT(fLastOpList->isClosed());
-#endif
-        fLastOpList->clearTarget();
-    }
-
-    SkRefCnt_SafeAssign(fLastOpList, opList);
-}

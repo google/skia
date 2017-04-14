@@ -21,10 +21,10 @@ uint32_t GrOpList::CreateUniqueID() {
     return id;
 }
 
-GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
-    : fUniqueID(CreateUniqueID())
+GrOpList::GrOpList(sk_sp<GrSurfaceProxy> surfaceProxy, GrAuditTrail* auditTrail)
+    : fTarget(surfaceProxy)
+    , fUniqueID(CreateUniqueID())
     , fFlags(0)
-    , fTarget(surfaceProxy)
     , fAuditTrail(auditTrail) {
 
     surfaceProxy->setLastOpList(this);
@@ -48,10 +48,10 @@ void GrOpList::addDependency(GrOpList* dependedOn) {
 }
 
 // Convert from a GrSurface-based dependency to a GrOpList one
-void GrOpList::addDependency(GrSurface* dependedOn) {
+void GrOpList::addDependency(GrSurfaceProxy* dependedOn) {
     if (dependedOn->getLastOpList()) {
         // If it is still receiving dependencies, this GrOpList shouldn't be closed
-        SkASSERT(!this->isClosed());
+        SkASSERT(!this->isClosed1());
 
         GrOpList* opList = dependedOn->getLastOpList();
         if (opList == this) {

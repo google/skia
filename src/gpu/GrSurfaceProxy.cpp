@@ -32,10 +32,11 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
-    if (fLastOpList) {
-        fLastOpList->clearTarget();
-    }
-    SkSafeUnref(fLastOpList);
+//    if (fLastOpList) {
+//        fLastOpList->clearTarget();
+//    }
+    SkASSERT(!fLastOpList);
+//    SkSafeUnref(fLastOpList);
 }
 
 GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
@@ -99,13 +100,14 @@ int GrSurfaceProxy::worstCaseHeight(const GrCaps& caps) const {
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
     if (fLastOpList) {
         // The non-MDB world never closes so we can't check this condition
-#ifdef ENABLE_MDB
-        SkASSERT(fLastOpList->isClosed());
+#if 0
+        SkASSERT(fLastOpList->isClosed1());
 #endif
-        fLastOpList->clearTarget();
+//        fLastOpList->clearTarget();
     }
 
-    SkRefCnt_SafeAssign(fLastOpList, opList);
+    fLastOpList = opList;
+//    SkRefCnt_SafeAssign(fLastOpList, opList);
 }
 
 GrRenderTargetOpList* GrSurfaceProxy::getLastRenderTargetOpList() {

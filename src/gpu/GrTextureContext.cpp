@@ -26,7 +26,7 @@ GrTextureContext::GrTextureContext(GrContext* context,
                                    GrSingleOwner* singleOwner)
     : GrSurfaceContext(context, drawingMgr, std::move(colorSpace), auditTrail, singleOwner)
     , fTextureProxy(std::move(textureProxy))
-    , fOpList(SkSafeRef(fTextureProxy->getLastTextureOpList())) {
+    , fOpList1(sk_ref_sp(fTextureProxy->getLastTextureOpList())) {
     SkDEBUGCODE(this->validate();)
 }
 
@@ -35,15 +35,14 @@ void GrTextureContext::validate() const {
     SkASSERT(fTextureProxy);
     fTextureProxy->validate(fContext);
 
-    if (fOpList && !fOpList->isClosed()) {
-        SkASSERT(fTextureProxy->getLastOpList() == fOpList);
+    if (fOpList1 && !fOpList1->isClosed1()) {
+        SkASSERT(fTextureProxy->getLastOpList() == fOpList1.get());
     }
 }
 #endif
 
 GrTextureContext::~GrTextureContext() {
     ASSERT_SINGLE_OWNER
-    SkSafeUnref(fOpList);
 }
 
 GrRenderTargetProxy* GrTextureContext::asRenderTargetProxy() {
@@ -62,11 +61,11 @@ GrTextureOpList* GrTextureContext::getOpList() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
-    if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newOpList(fTextureProxy.get());
+    if (!fOpList1 || fOpList1->isClosed1()) {
+        fOpList1 = this->drawingManager()->newTextureOpList(fTextureProxy);
     }
 
-    return fOpList;
+    return fOpList1.get();
 }
 
 // TODO: move this (and GrRenderTargetContext::copy) to GrSurfaceContext?
@@ -78,7 +77,7 @@ bool GrTextureContext::onCopy(GrSurfaceProxy* srcProxy,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrTextureContext::copy");
 
-#ifndef ENABLE_MDB
+#if 0
     // We can't yet fully defer copies to textures, so GrTextureContext::copySurface will
     // execute the copy immediately. Ensure the data is ready.
     fContext->contextPriv().flushSurfaceWrites(srcProxy);
@@ -88,7 +87,7 @@ bool GrTextureContext::onCopy(GrSurfaceProxy* srcProxy,
     bool result = opList->copySurface(fContext->resourceProvider(),
                                       fTextureProxy.get(), srcProxy, srcRect, dstPoint);
 
-#ifndef ENABLE_MDB
+#if 0
     GrOpFlushState flushState(fContext->getGpu(), nullptr);
     opList->prepareOps(&flushState);
     opList->executeOps(&flushState);
