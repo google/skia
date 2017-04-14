@@ -4,7 +4,7 @@ Android RoboCop Documentation
 ### Contents ###
 
 *   [What does a Android RoboCop do?](#what_is_a_robocop)
-*   [Android Autoroller](#autoroller_doc)
+*   [Android Autorollers](#autoroller_doc)
 *   [View current and upcoming RoboCops](#view_current_upcoming_robocops)
 *   [How to swap RoboCop shifts](#how_to_swap)
 
@@ -23,10 +23,10 @@ The RoboCop's job is NOT to address issues in Perf and Gold. You'll get your cha
 
 
 <a name="autoroller_doc"></a>
-Android Autoroller
-------------------
+Android Autorollers
+-------------------
 
-The Android autoroller runs on [https://android-master-roll.skia.org](android-master-roll.skia.org) and is accessible only to Googlers.<br/>
+The Android autoroller into the master branch runs on [https://android-master-roll.skia.org](android-master-roll.skia.org) and is accessible only to Googlers.<br/>
 The autoroller's status is displayed on Skia's [status page](https://status.skia.org/).
 
 You can send the autoroller into dry run mode via the UI. The uploaded change will not autosubmit when it is in dry run mode.
@@ -34,6 +34,12 @@ You can send the autoroller into dry run mode via the UI. The uploaded change wi
 You can also stop the autoroller via the UI. This is useful in cases where a failure needs to be investigated and you do not want to waste TH resources by running unnecessary tests.
 
 If you need any more information about the autoroller please look at [skia:5538](https://bugs.chromium.org/p/skia/issues/detail?id=5538) or ask rmistry@ / skiabot@.
+
+We also have autorollers into release branches (also restricted only to Googlers):
+
+* [https://android-o-roll.skia.org](https://android-o-roll.skia.org).
+
+Changes created by these rollers include all change authors. These changes need to be manually approved after adding details of the fixed bugs in the description.
 
 
 <a name="view_current_upcoming_robocops"></a>
