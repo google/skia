@@ -134,6 +134,12 @@ public:
                            size_t rowBytes = 0,
                            uint32_t pixelOpsFlags = 0);
 
+    bool readSurfacePixelsWithSoftwareUnpremul(GrSurfaceProxy* src,
+                                               int left, int top, int width, int height,
+                                               GrPixelConfig config,
+                                               void* buffer, size_t rowBytes,
+                                               uint32_t pixelOpsFlags);
+
     /**
      * Writes a rectangle of pixels to a surface.
      * @param dst           the surface to write to.
@@ -156,6 +162,12 @@ public:
                             GrPixelConfig config, SkColorSpace* srcColorSpace, const void* buffer,
                             size_t rowBytes,
                             uint32_t pixelOpsFlags = 0);
+
+    bool writeSurfacePixelsWithSoftwarePremul(GrSurfaceProxy* dst,
+                                              int left, int top, int width, int height,
+                                              GrPixelConfig config,
+                                              const void* buffer, size_t rowBytes,
+                                              uint32_t pixelOpsFlags);
 
     GrBackend getBackend() const { return fContext->fBackend; }
 
