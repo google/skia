@@ -14,6 +14,7 @@
 #include "SkRect.h"
 
 class GrCaps;
+class GrOpList;
 class GrRenderTargetOpList;
 class GrRenderTargetProxy;
 class GrResourceProvider;
@@ -283,7 +284,7 @@ public:
     GrTextureOpList* getLastTextureOpList();
 
     /**
-     * Retrieves the amount of GPU memory that will be or currently is used by this resource 
+     * Retrieves the amount of GPU memory that will be or currently is used by this resource
      * in bytes. It is approximate since we aren't aware of additional padding or copies made
      * by the driver.
      *
@@ -379,8 +380,9 @@ private:
     // This back-pointer is required so that we can add a dependancy between
     // the opList used to create the current contents of this surface
     // and the opList of a destination surface to which this one is being drawn or copied.
-    GrOpList* fLastOpList;
 
+    // This pointer is unreffed. OpLists own a ref on their surfaceproxies.
+    GrOpList* fLastOpList;
 
     typedef GrIORefProxy INHERITED;
 };

@@ -45,11 +45,17 @@ public:
     ~GrRenderTargetOpList() override;
 
     void makeClosed() override {
-        INHERITED::makeClosed();
+        if (this->isClosed()) {
+            return;
+        }
 
         fLastFullClearOp = nullptr;
         this->forwardCombine();
+
+        INHERITED::makeClosed();
     }
+
+    bool isEmpty() const { return fRecordedOps.empty(); }
 
     /**
      * Empties the draw buffer of any queued up draws.
@@ -110,7 +116,7 @@ public:
 
     SkDEBUGCODE(void dump() const override;)
 
-    SkDEBUGCODE(void validateTargetsSingleRenderTarget() const;)
+    SkDEBUGCODE(void validateTargetsSingleRenderTarget() const override;)
 
 private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive

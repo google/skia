@@ -83,22 +83,33 @@ void GrPipeline::init(const InitArgs& args) {
     }
 }
 
-static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRenderTarget* rt) {
+#if 0
+static void add_dependencies_for_processor(const GrFragmentProcessor* proc,
+                                           GrRenderTargetProxy* rtp) {
     GrFragmentProcessor::TextureAccessIter iter(proc);
     while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
-        SkASSERT(rt->getLastOpList());
-        rt->getLastOpList()->addDependency(sampler->texture());
+//        if (!sampler->opList()) {
+//            continue;
+//        }
+        SkASSERT(rtp->getLastOpList());
+//        rtp->getLastOpList()->addDependency(sampler->opList());
+//        SkDebugf("--------------opList %d relies on opList %d\n",
+//                 rtp->getLastOpList()->uniqueID(),
+//                 sampler->opList()->uniqueID());
     }
 }
+#endif
 
-void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
+void GrPipeline::addDependenciesTo(GrRenderTargetProxy* rtp) const {
+#if 0
     for (int i = 0; i < fFragmentProcessors.count(); ++i) {
-        add_dependencies_for_processor(fFragmentProcessors[i].get(), rt);
+        add_dependencies_for_processor(fFragmentProcessors[i].get(), rtp);
     }
+#endif
 
     if (fDstTexture) {
-        SkASSERT(rt->getLastOpList());
-        rt->getLastOpList()->addDependency(fDstTexture.get());
+        SkASSERT(rtp->getLastOpList());
+        //rtp->getLastOpList()->addDependency(fDstTexture.get());
     }
 }
 
