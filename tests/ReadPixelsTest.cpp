@@ -123,21 +123,6 @@ static void fill_src_canvas(SkCanvas* canvas) {
     canvas->restore();
 }
 
-#if SK_SUPPORT_GPU
-static void fill_src_texture(GrContext* context, GrTextureProxy* proxy) {
-    SkBitmap bmp = make_src_bitmap();
-    bmp.lockPixels();
-
-    SkDEBUGCODE(bool result =) context->contextPriv().writeSurfacePixels(
-                                                            proxy, nullptr,
-                                                            0, 0, DEV_W, DEV_H,
-                                                            kSkia8888_GrPixelConfig, nullptr,
-                                                            bmp.getPixels(), bmp.rowBytes());
-    SkASSERT(result);
-    bmp.unlockPixels();
-}
-#endif
-
 static void fill_dst_bmp_with_init_data(SkBitmap* bitmap) {
     SkAutoLockPixels alp(*bitmap);
     int w = bitmap->width();
@@ -443,8 +428,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
 
 #if SK_SUPPORT_GPU
 static void test_readpixels_texture(skiatest::Reporter* reporter,
-                                    GrContext* context, sk_sp<GrTextureProxy> proxy) {
-    fill_src_texture(context, proxy.get());
+                                    sk_sp<GrSurfaceContext> sContext) {
     for (size_t rect = 0; rect < SK_ARRAY_COUNT(gReadPixelsTestRects); ++rect) {
         const SkIRect& srcRect = gReadPixelsTestRects[rect];
         for (BitmapInit bmi = kFirstBitmapInit; bmi <= kLast_BitmapInit; bmi = nextBMI(bmi)) {
@@ -459,18 +443,14 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
                 // Try doing the read directly from a non-renderable texture
                 if (startsWithPixels) {
                     fill_dst_bmp_with_init_data(&bmp);
-                    GrPixelConfig dstConfig = SkImageInfo2GrPixelConfig(bmp.info(),
-                                                                        *context->caps());
                     uint32_t flags = 0;
                     if (gReadPixelsConfigs[c].fAlphaType == kUnpremul_SkAlphaType) {
                         flags = GrContextPriv::kUnpremul_PixelOpsFlag;
                     }
                     bmp.lockPixels();
-                    bool success = context->contextPriv().readSurfacePixels(
-                                                       proxy.get(), nullptr,
-                                                       srcRect.fLeft, srcRect.fTop, bmp.width(),
-                                                       bmp.height(), dstConfig, nullptr,
-                                                       bmp.getPixels(), bmp.rowBytes(), flags);
+                    bool success = sContext->readPixels(bmp.info(), bmp.getPixels(),
+                                                        bmp.rowBytes(),
+                                                        srcRect.fLeft, srcRect.fTop, flags);
                     bmp.unlockPixels();
                     check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop,
                                success, true,
@@ -480,7 +460,13 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
         }
     }
 }
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    SkBitmap bmp = make_src_bitmap();
+    bmp.lockPixels();
+
     // On the GPU we will also try reading back from a non-renderable texture.
     for (auto origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
         for (auto flags : {kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag}) {
@@ -490,12 +476,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
             desc.fHeight = DEV_H;
             desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fOrigin = origin;
-            sk_sp<GrTexture> texture =
-                    ctxInfo.grContext()->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
-            test_readpixels_texture(reporter, ctxInfo.grContext(),
-                                    GrSurfaceProxy::MakeWrapped(std::move(texture)));
+
+            sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                                       desc, SkBudgeted::kNo,
+                                                                       bmp.getPixels(),
+                                                                       bmp.rowBytes());
+
+            sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
+                                                                        std::move(proxy), nullptr);
+
+            test_readpixels_texture(reporter, std::move(sContext));
         }
     }
+
+    bmp.unlockPixels();
 }
 #endif
 
