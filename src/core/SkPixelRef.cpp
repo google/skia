@@ -6,6 +6,7 @@
  */
 
 #include "SkBitmapCache.h"
+#include "SkColorTable.h"
 #include "SkMutex.h"
 #include "SkPixelRef.h"
 #include "SkTraceEvent.h"
