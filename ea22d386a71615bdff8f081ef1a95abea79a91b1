@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01650500_ea4815c7",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-14T14:32:07Z",
+      "side": 1,
+      "message": "Feature Idea: If I type \"b/\u003cbuganizer bug #\u003e\" in the Skia CL, it automatically adds \"Bug: \u003cbuganizer bug #\u003e to the roller CL.\n\nFeature Idea: If any of the Skia CLs have a \"Test: \" line in them, it is copied to the roller CL description.",
+      "range": {
+        "startLine": 42,
+        "startChar": 110,
+        "endLine": 42,
+        "endChar": 142
+      },
+      "revId": "ea22d386a71615bdff8f081ef1a95abea79a91b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
