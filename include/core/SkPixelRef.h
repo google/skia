@@ -11,7 +11,7 @@
 #include "../private/SkAtomics.h"
 #include "../private/SkMutex.h"
 #include "../private/SkTDArray.h"
-#include "SkBitmap.h"
+#include "SkColorTable.h"
 #include "SkFilterQuality.h"
 #include "SkImageInfo.h"
 #include "SkPixmap.h"
@@ -19,7 +19,6 @@
 #include "SkSize.h"
 #include "SkString.h"
 
-class SkColorTable;
 struct SkIRect;
 
 class GrTexture;

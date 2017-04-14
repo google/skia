@@ -33,21 +33,14 @@ static bool reset_return_false(SkBitmap* bm) {
 }
 
 SkBitmap::SkBitmap()
-    : fPixelLockCount(0)
-    , fPixels        (nullptr)
-    , fColorTable    (nullptr)
-    , fPixelRefOrigin{0, 0}
+    : fPixelRefOrigin{0, 0}
     , fRowBytes      (0)
     , fFlags         (0) {}
 
-// copy pixelref, but don't copy lock.
 SkBitmap::SkBitmap(const SkBitmap& src)
     : fPixelRef      (src.fPixelRef)
-    , fPixelLockCount(0)
-    , fPixels        (nullptr)
-    , fColorTable    (nullptr)
-    , fPixelRefOrigin(src.fPixelRefOrigin)
     , fInfo          (src.fInfo)
+    , fPixelRefOrigin(src.fPixelRefOrigin)
     , fRowBytes      (src.fRowBytes)
     , fFlags         (src.fFlags)
 {
@@ -58,18 +51,12 @@ SkBitmap::SkBitmap(const SkBitmap& src)
 // take lock and lockcount from other.
 SkBitmap::SkBitmap(SkBitmap&& other)
     : fPixelRef      (std::move(other.fPixelRef))
-    , fPixelLockCount          (other.fPixelLockCount)
-    , fPixels                  (other.fPixels)
-    , fColorTable              (other.fColorTable)
-    , fPixelRefOrigin          (other.fPixelRefOrigin)
     , fInfo          (std::move(other.fInfo))
+    , fPixelRefOrigin          (other.fPixelRefOrigin)
     , fRowBytes                (other.fRowBytes)
     , fFlags                   (other.fFlags) {
     SkASSERT(!other.fPixelRef);
     other.fInfo.reset();
-    other.fPixelLockCount = 0;
-    other.fPixels         = nullptr;
-    other.fColorTable     = nullptr;
     other.fPixelRefOrigin = SkIPoint{0, 0};
     other.fRowBytes       = 0;
     other.fFlags          = 0;
@@ -83,9 +70,6 @@ SkBitmap::~SkBitmap() {
 SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
     if (this != &src) {
         this->freePixels();
-        SkASSERT(!fPixels);
-        SkASSERT(!fColorTable);
-        SkASSERT(!fPixelLockCount);
         fPixelRef       = src.fPixelRef;
         fPixelRefOrigin = src.fPixelRefOrigin;
         fInfo           = src.fInfo;
@@ -99,22 +83,13 @@ SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
 SkBitmap& SkBitmap::operator=(SkBitmap&& other) {
     if (this != &other) {
         this->freePixels();
-        SkASSERT(!fPixels);
-        SkASSERT(!fColorTable);
-        SkASSERT(!fPixelLockCount);
         fPixelRef       = std::move(other.fPixelRef);
         fInfo           = std::move(other.fInfo);
-        fPixelLockCount = other.fPixelLockCount;
-        fPixels         = other.fPixels;
-        fColorTable     = other.fColorTable;
         fPixelRefOrigin = other.fPixelRefOrigin;
         fRowBytes       = other.fRowBytes;
         fFlags          = other.fFlags;
         SkASSERT(!other.fPixelRef);
         other.fInfo.reset();
-        other.fPixelLockCount = 0;
-        other.fPixels         = nullptr;
-        other.fColorTable     = nullptr;
         other.fPixelRefOrigin = SkIPoint{0, 0};
         other.fRowBytes       = 0;
         other.fFlags          = 0;
@@ -194,25 +169,6 @@ bool SkBitmap::setAlphaType(SkAlphaType newAlphaType) {
     return true;
 }
 
-void SkBitmap::updatePixelsFromRef() const {
-    if (fPixelRef) {
-        if (fPixelLockCount > 0) {
-            void* p = fPixelRef->pixels();
-            if (p) {
-                p = (char*)p
-                    + fPixelRefOrigin.fY * fRowBytes
-                    + fPixelRefOrigin.fX * fInfo.bytesPerPixel();
-            }
-            fPixels = p;
-            fColorTable = fPixelRef->colorTable();
-        } else {
-            SkASSERT(0 == fPixelLockCount);
-            fPixels = nullptr;
-            fColorTable = nullptr;
-        }
-    }
-}
-
 void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
 #ifdef SK_DEBUG
     if (pr) {
@@ -252,27 +208,9 @@ void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
         SkASSERT(!fPixelRef);
 
         fPixelRef = std::move(pr);
-        this->updatePixelsFromRef();
+        SkASSERT(fPixelRef->rowBytes() == this->rowBytes());
     }
 
-    SkDEBUGCODE(this->validate();)
-}
-
-void SkBitmap::lockPixels() const {
-    if (fPixelRef && 0 == sk_atomic_inc(&fPixelLockCount)) {
-        fPixelRef->lockPixels();
-        this->updatePixelsFromRef();
-    }
-    SkDEBUGCODE(this->validate();)
-}
-
-void SkBitmap::unlockPixels() const {
-    SkASSERT(!fPixelRef || fPixelLockCount > 0);
-
-    if (fPixelRef && 1 == sk_atomic_dec(&fPixelLockCount)) {
-        fPixelRef->unlockPixels();
-        this->updatePixelsFromRef();
-    }
     SkDEBUGCODE(this->validate();)
 }
 
@@ -417,16 +355,8 @@ bool SkBitmap::installMaskPixels(const SkMask& mask) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkBitmap::freePixels() {
-    if (fPixelRef) {
-        if (fPixelLockCount > 0) {
-            fPixelRef->unlockPixels();
-        }
-        fPixelRef = nullptr;
-        fPixelRefOrigin.setZero();
-    }
-    fPixelLockCount = 0;
-    fPixels = nullptr;
-    fColorTable = nullptr;
+    fPixelRef = nullptr;
+    fPixelRefOrigin.setZero();
 }
 
 uint32_t SkBitmap::getGenerationID() const {
@@ -1011,19 +941,14 @@ void SkBitmap::validate() const {
     allFlags |= kHasHardwareMipMap_Flag;
 #endif
     SkASSERT((~allFlags & fFlags) == 0);
-    SkASSERT(fPixelLockCount >= 0);
 
-    if (fPixels) {
-        SkASSERT(fPixelRef);
-        SkASSERT(fPixelLockCount > 0);
+    if (fPixelRef) {
         SkASSERT(fPixelRef->rowBytes() == fRowBytes);
         SkASSERT(fPixelRefOrigin.fX >= 0);
         SkASSERT(fPixelRefOrigin.fY >= 0);
         SkASSERT(fPixelRef->info().width() >= (int)this->width() + fPixelRefOrigin.fX);
         SkASSERT(fPixelRef->info().height() >= (int)this->height() + fPixelRefOrigin.fY);
         SkASSERT(fPixelRef->rowBytes() >= fInfo.minRowBytes());
-    } else {
-        SkASSERT(nullptr == fColorTable);
     }
 }
 #endif
@@ -1089,9 +1014,10 @@ bool SkBitmap::requestLock(SkAutoPixmapUnlock* result) const {
 }
 
 bool SkBitmap::peekPixels(SkPixmap* pmap) const {
-    if (fPixels) {
+    if (fPixelRef) {
+        SkASSERT(fPixelRef->pixels());
         if (pmap) {
-            pmap->reset(fInfo, fPixels, fRowBytes, fColorTable);
+            pmap->reset(this->info(), this->getPixels(), this->rowBytes(), this->getColorTable());
         }
         return true;
     }
