@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9709ce8_ebc562e4",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-14T16:22:52Z",
+      "side": 1,
+      "message": "Will need to add an option regarding how to treat images with alpha - we currently ignore the alpha channel.  Chrome blends onto black.",
+      "range": {
+        "startLine": 22,
+        "startChar": 11,
+        "endLine": 22,
+        "endChar": 15
+      },
+      "revId": "1366a780df6e28cdcd0183753d47906ad9b1742a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19a59d5f_bb7fc944",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-14T16:22:52Z",
+      "side": 1,
+      "message": "Will need to add options to encode faster vs. smaller.",
+      "range": {
+        "startLine": 32,
+        "startChar": 11,
+        "endLine": 32,
+        "endChar": 14
+      },
+      "revId": "1366a780df6e28cdcd0183753d47906ad9b1742a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0fb5c8a_9392b1e0",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-14T16:22:52Z",
+      "side": 1,
+      "message": "I think this is a downside of using a union - the values are mostly nonsense.",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 44
+      },
+      "revId": "1366a780df6e28cdcd0183753d47906ad9b1742a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
