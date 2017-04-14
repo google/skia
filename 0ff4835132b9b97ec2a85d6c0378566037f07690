@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2d7b9a77_410012ca",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-14T16:45:24Z",
+      "side": 1,
+      "message": "Yes, agree.",
+      "parentUuid": "802ad138_51d69c92",
+      "revId": "0ff4835132b9b97ec2a85d6c0378566037f07690",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f4979ee3_edf7e3a4",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-14T16:29:23Z",
       "side": 1,
       "message": "Hmm. Is this assert going to fail?",
+      "revId": "0ff4835132b9b97ec2a85d6c0378566037f07690",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f2ad2e3_abc242f4",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-14T16:45:24Z",
+      "side": 1,
+      "message": "Good point, let\u0027s try to keep them in sync.",
+      "parentUuid": "f4979ee3_edf7e3a4",
       "revId": "0ff4835132b9b97ec2a85d6c0378566037f07690",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
