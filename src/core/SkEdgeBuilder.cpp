@@ -14,7 +14,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkEdgeBuilder::SkEdgeBuilder() : fAlloc(16*1024) {
+SkEdgeBuilder::SkEdgeBuilder() {
     fEdgeList = nullptr;
 }
 
