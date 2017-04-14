@@ -96,7 +96,7 @@ public:
         }
 
         // This must be last to make objects with nested use of this allocator work.
-        return new(objStart) T(std::forward<Args>(args)...);
+        return new(objStart) T{std::forward<Args>(args)...};
     }
 
     template <typename T, typename... Args>

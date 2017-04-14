@@ -69,7 +69,8 @@ void SkRecorder::forgetRecord() {
     if (fMiniRecorder) {           \
         this->flushMiniRecorder(); \
     }                              \
-    new (fRecord->append<SkRecords::T>()) SkRecords::T{__VA_ARGS__}
+    fRecord->append<SkRecords::T>(__VA_ARGS__);
+    //new (fRecord->append<SkRecords::T>()) SkRecords::T{__VA_ARGS__}
 
 #define TRY_MINIRECORDER(method, ...)                       \
     if (fMiniRecorder && fMiniRecorder->method(__VA_ARGS__)) { return; }
@@ -94,7 +95,7 @@ T* SkRecorder::copy(const T src[], size_t count) {
     if (nullptr == src) {
         return nullptr;
     }
-    T* dst = fRecord->alloc<T>(count);
+    T* dst = fRecord->allocArray<T>(count);
     for (size_t i = 0; i < count; i++) {
         new (dst + i) T(src[i]);
     }
@@ -109,7 +110,7 @@ char* SkRecorder::copy(const char src[], size_t count) {
     if (nullptr == src) {
         return nullptr;
     }
-    char* dst = fRecord->alloc<char>(count);
+    char* dst = fRecord->allocArray<char>(count);
     memcpy(dst, src, count);
     return dst;
 }

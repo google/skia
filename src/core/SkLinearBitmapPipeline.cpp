@@ -149,7 +149,7 @@ private:
 class RGBA8888UnitRepeatSrc final : public SkLinearBitmapPipeline::SampleProcessorInterface,
                                     public SkLinearBitmapPipeline::DestinationInterface {
 public:
-    RGBA8888UnitRepeatSrc(const uint32_t* src, int32_t width)
+    RGBA8888UnitRepeatSrc(const uint32_t* src, size_t width)
         : fSrc{src}, fWidth{width} { }
 
     void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
@@ -208,7 +208,7 @@ private:
         return &fSrc[fWidth * y + x];
     }
     const uint32_t* const fSrc;
-    const int32_t         fWidth;
+    const size_t          fWidth;
     uint32_t*             fDest;
     uint32_t*             fEnd;
 };
@@ -219,7 +219,7 @@ private:
 class RGBA8888UnitRepeatSrcOver final : public SkLinearBitmapPipeline::SampleProcessorInterface,
                                         public SkLinearBitmapPipeline::DestinationInterface {
 public:
-    RGBA8888UnitRepeatSrcOver(const uint32_t* src, int32_t width)
+    RGBA8888UnitRepeatSrcOver(const uint32_t* src, size_t width)
         : fSrc{src}, fWidth{width} { }
 
     void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
@@ -283,7 +283,7 @@ private:
     }
 
     const uint32_t* const fSrc;
-    const int32_t         fWidth;
+    const size_t          fWidth;
     uint32_t*             fDest;
     uint32_t*             fEnd;
 };
