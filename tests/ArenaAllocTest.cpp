@@ -68,7 +68,7 @@ DEF_TEST(ArenaAlloc, r) {
         created = 0;
         destroyed = 0;
 
-        SkArenaAlloc arena{nullptr, 0};
+        SkArenaAlloc arena{0};
         REPORTER_ASSERT(r, *arena.make<int>(3) == 3);
         Foo* foo = arena.make<Foo>(3, 4.0f);
         REPORTER_ASSERT(r, foo->x == 3);
@@ -121,7 +121,7 @@ DEF_TEST(ArenaAlloc, r) {
         created = 0;
         destroyed = 0;
         std::unique_ptr<char[]> block{new char[1024]};
-        SkArenaAlloc arena{block.get(), 1024};
+        SkArenaAlloc arena{block.get(), 1024, 0};
 
         REPORTER_ASSERT(r, *arena.make<int>(3) == 3);
         Foo* foo = arena.make<Foo>(3, 4.0f);
