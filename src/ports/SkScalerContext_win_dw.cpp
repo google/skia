@@ -243,9 +243,7 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
     // horizontal glyphs and the subpixel flag should not affect glyph shapes.
 
     SkVector scale;
-    SkMatrix GsA;
-    fRec.computeMatrices(SkScalerContextRec::kVertical_PreMatrixScale,
-                         &scale, &fSkXform, &GsA, &fG_inv);
+    fRec.computeMatrices(SkScalerContextRec::kVertical_PreMatrixScale, &scale, &fSkXform);
 
     fXform.m11 = SkScalarToFloat(fSkXform.getScaleX());
     fXform.m12 = SkScalarToFloat(fSkXform.getSkewY());
@@ -253,13 +251,6 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
     fXform.m22 = SkScalarToFloat(fSkXform.getScaleY());
     fXform.dx = 0;
     fXform.dy = 0;
-
-    fGsA.m11 = SkScalarToFloat(GsA.get(SkMatrix::kMScaleX));
-    fGsA.m12 = SkScalarToFloat(GsA.get(SkMatrix::kMSkewY)); // This should be ~0.
-    fGsA.m21 = SkScalarToFloat(GsA.get(SkMatrix::kMSkewX));
-    fGsA.m22 = SkScalarToFloat(GsA.get(SkMatrix::kMScaleY));
-    fGsA.dx = 0;
-    fGsA.dy = 0;
 
     // realTextSize is the actual device size we want (as opposed to the size the user requested).
     // gdiTextSize is the size we request when GDI compatible.
@@ -402,7 +393,9 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
         HRVM(this->getDWriteTypeface()->fDWriteFontFace->GetGdiCompatibleGlyphMetrics(
                  fTextSizeMeasure,
                  1.0f, // pixelsPerDip
-                 &fGsA,
+                 // This parameter does not act like the lpmat2 parameter to GetGlyphOutlineW.
+                 // If it did then GsA here and G_inv below to mapVectors.
+                 nullptr,
                  DWRITE_MEASURING_MODE_GDI_NATURAL == fMeasuringMode,
                  &glyphId, 1,
                  &gm),
@@ -420,20 +413,18 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
     }
     SkScalar advanceX = fTextSizeMeasure * gm.advanceWidth / dwfm.designUnitsPerEm;
 
-    SkVector vecs[1] = { { advanceX, 0 } };
+    SkVector advance = { advanceX, 0 };
     if (DWRITE_MEASURING_MODE_GDI_CLASSIC == fMeasuringMode ||
         DWRITE_MEASURING_MODE_GDI_NATURAL == fMeasuringMode)
     {
         // DirectWrite produced 'compatible' metrics, but while close,
         // the end result is not always an integer as it would be with GDI.
-        vecs[0].fX = SkScalarRoundToScalar(advanceX);
-        fG_inv.mapVectors(vecs, SK_ARRAY_COUNT(vecs));
-    } else {
-        fSkXform.mapVectors(vecs, SK_ARRAY_COUNT(vecs));
+        advance.fX = SkScalarRoundToScalar(advance.fX);
     }
+    fSkXform.mapVectors(&advance, 1);
 
-    glyph->fAdvanceX = SkScalarToFloat(vecs[0].fX);
-    glyph->fAdvanceY = SkScalarToFloat(vecs[0].fY);
+    glyph->fAdvanceX = SkScalarToFloat(advance.fX);
+    glyph->fAdvanceY = SkScalarToFloat(advance.fY);
 }
 
 HRESULT SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,
