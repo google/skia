@@ -60,14 +60,6 @@ private:
     SkMatrix fSkXform;
     /** The total matrix without the text height scale. */
     DWRITE_MATRIX fXform;
-    /** The non-rotational part of total matrix without the text height scale.
-     *  This is used to find the magnitude of gdi compatible advances.
-     */
-    DWRITE_MATRIX fGsA;
-    /** The inverse of the rotational part of the total matrix.
-     *  This is used to find the direction of gdi compatible advances.
-     */
-    SkMatrix fG_inv;
     /** The text size to render with. */
     SkScalar fTextSizeRender;
     /** The text size to measure with. */
