@@ -620,7 +620,7 @@ Poly* new_poly(Poly** head, Vertex* v, int winding, SkArenaAlloc& alloc) {
 }
 
 void append_point_to_contour(const SkPoint& p, VertexList* contour, SkArenaAlloc& alloc) {
-    Vertex* v = alloc.make<Vertex>(p, 255);
+    Vertex* v = alloc.make<Vertex>(p, (uint8_t)255);
 #if LOGGING_ENABLED
     static float gID = 0.0f;
     v->fID = gID++;
@@ -1578,8 +1578,8 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
         SkPoint innerPoint, outerPoint;
         if (prevInner.intersect(inner, &innerPoint) &&
             prevOuter.intersect(outer, &outerPoint)) {
-            Vertex* innerVertex = alloc.make<Vertex>(innerPoint, 255);
-            Vertex* outerVertex = alloc.make<Vertex>(outerPoint, 0);
+            Vertex* innerVertex = alloc.make<Vertex>(innerPoint, (uint8_t)255);
+            Vertex* outerVertex = alloc.make<Vertex>(outerPoint, (uint8_t)0);
             Edge* bisector = new_edge(outerVertex, innerVertex, Edge::Type::kConnector, c, alloc);
             fix_inversions(innerVertices.fTail, innerVertex, prevBisector, bisector, prevEdge, c);
             fix_inversions(outerVertices.fTail, outerVertex, prevBisector, bisector, prevEdge, c);
