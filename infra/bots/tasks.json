@@ -680,6 +680,18 @@
         "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench"
       ]
     },
+    "Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug"
+      ]
+    },
+    "Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release"
+      ]
+    },
     "Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -1446,6 +1458,18 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan"
+      ]
+    },
+    "Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug"
+      ]
+    },
+    "Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release"
       ]
     },
     "Test-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Debug": {
@@ -5769,6 +5793,98 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "skpbench_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:45"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:MaliT604",
+        "os:ChromeOS",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:45"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:MaliT604",
+        "os:ChromeOS",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11739,6 +11855,98 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:45"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:MaliT604",
+        "os:ChromeOS",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:45"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:MaliT604",
+        "os:ChromeOS",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Debug": {
       "cipd_packages": [
         {
@@ -16511,6 +16719,32 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
+    "Upload-Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release": {
+      "dependencies": [
+        "Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release": {
       "dependencies": [
         "Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release"
@@ -18555,6 +18789,58 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug": {
+      "dependencies": [
+        "Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release": {
+      "dependencies": [
+        "Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
