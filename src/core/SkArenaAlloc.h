@@ -59,7 +59,7 @@
 // there are 71 allocations.
 class SkArenaAlloc {
 public:
-    SkArenaAlloc(char* block, size_t size, size_t extraSize = 0);
+    SkArenaAlloc(char* block, size_t size, size_t extraSize);
 
     template <size_t kSize>
     SkArenaAlloc(char (&block)[kSize], size_t extraSize = kSize)
