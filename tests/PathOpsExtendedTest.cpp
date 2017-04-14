@@ -16,10 +16,22 @@
 #include "SkStream.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef SK_BUILD_FOR_MAC
 #include <sys/sysctl.h>
 #endif
+
+// std::to_string isn't implemented on android
+#include <sstream>
+
+template <typename T>
+std::string std_to_string(T value)
+{
+    std::ostringstream os ;
+    os << value ;
+    return os.str() ;
+}
 
 bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
              SkDEBUGPARAMS(bool skipAssert)
@@ -179,7 +191,7 @@ void ShowTestName(PathOpsThreadState* state, int a, int b, int c, int d) {
     state->fSerialNo[8] = '\0';
     SkDebugf("%s\n", state->fSerialNo);
     if (strcmp(state->fSerialNo, state->fKey) == 0) {
-        SkDebugf("%s\n", state->fPathStr);
+        SkDebugf("%s\n", state->fPathStr.c_str());
     }
 #endif
 }
@@ -371,8 +383,9 @@ static int comparePaths(skiatest::Reporter* reporter, const char* testName, cons
 static int testNumber = 55;
 static const char* testName = "pathOpTest";
 
-static void appendTestName(const char* nameSuffix, SkString& out) {
-    out.appendf("%s%d", testName, testNumber);
+static void appendTestName(const char* nameSuffix, std::string& out) {
+    out += testName;
+    out += std_to_string(testNumber);
     ++testNumber;
     if (nameSuffix) {
         out.append(nameSuffix);
@@ -380,7 +393,7 @@ static void appendTestName(const char* nameSuffix, SkString& out) {
 }
 
 static void appendTest(const char* pathStr, const char* pathPrefix, const char* nameSuffix,
-                       const char* testFunction, bool twoPaths, SkString& out) {
+                       const char* testFunction, bool twoPaths, std::string& out) {
 #if 0
     out.append("\n<div id=\"");
     appendTestName(nameSuffix, out);
@@ -406,7 +419,9 @@ static void appendTest(const char* pathStr, const char* pathPrefix, const char* 
     if (pathPrefix) {
         out.append(pathPrefix);
     }
-    out.appendf("%s    %s\n}\n\n", pathStr, testFunction);
+    out += pathStr;
+    out += "    ";
+    out += testFunction;
 #if 0
     out.append("static void (*firstTest)() = ");
     appendTestName(nameSuffix, out);
@@ -440,7 +455,7 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& st
     int result = comparePaths(state.fReporter, nullptr, path, out, *state.fBitmap);
     if (result) {
         SkAutoMutexAcquire autoM(simplifyDebugOut);
-        SkString str;
+        std::string str;
         const char* pathPrefix = nullptr;
         const char* nameSuffix = nullptr;
         if (fillType == SkPath::kEvenOdd_FillType) {
