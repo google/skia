@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "802ad138_51d69c92",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-14T16:29:23Z",
+      "side": 1,
+      "message": "Seems like now we could add SkASSERT(dstColorSpace) here?",
+      "revId": "0ff4835132b9b97ec2a85d6c0378566037f07690",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4979ee3_edf7e3a4",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-14T16:29:23Z",
+      "side": 1,
+      "message": "Hmm. Is this assert going to fail?",
+      "revId": "0ff4835132b9b97ec2a85d6c0378566037f07690",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
