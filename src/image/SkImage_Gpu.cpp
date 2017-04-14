@@ -621,6 +621,10 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     if (!isScaled && this->peekPixels(&pixmap) && !pixmap.ctable()) {
         info = pixmap.info();
         pixelSize = SkAlign8(pixmap.getSafeSize());
+        if (!dstColorSpace) {
+            pixmap.setColorSpace(nullptr);
+            info = info.makeColorSpace(nullptr);
+        }
     } else {
         // Here we're just using presence of data to know whether there is a codec behind the image.
         // In the future we will access the cacherator and get the exact data that we want to (e.g.
@@ -637,6 +641,9 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
                                                               scaledSize.height());
         } else {
             info = as_IB(this)->onImageInfo().makeWH(scaledSize.width(), scaledSize.height());
+            if (!dstColorSpace) {
+                info = info.makeColorSpace(nullptr);
+            }
         }
         if (kIndex_8_SkColorType == info.colorType()) {
             // Force Index8 to be N32 instead. Index8 is unsupported in Ganesh.
@@ -692,6 +699,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     size_t colorSpaceSize = 0;
     SkColorSpaceTransferFn fn;
     if (info.colorSpace()) {
+        SkASSERT(dstColorSpace);
         colorSpaceOffset = size;
         colorSpaceSize = info.colorSpace()->writeToMemory(nullptr);
         size += colorSpaceSize;
