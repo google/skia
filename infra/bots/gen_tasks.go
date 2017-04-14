@@ -173,6 +173,14 @@ func swarmDimensions(parts map[string]string) []string {
 			d["device"] = map[string]string{
 				"iPadMini4": "iPad5,1",
 			}[parts["model"]]
+
+			// TODO(stephana): Remove once we are fully switched to RaspberryPi.
+
+			// Use the RPi host.
+			if parts["extra_config"] == "RaspberryPi" {
+				d["os"] = "iOS-10.3.1"
+				d["machine_type"] = "RaspberryPi"
+			}
 		} else if parts["cpu_or_gpu"] == "CPU" {
 			d["gpu"] = "none"
 			d["cpu"] = map[string]string{
