@@ -88,6 +88,12 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
             if (tex) {
                 sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(tex);
 
+                sk_sp<GrSurfaceContext> sContext = fGpu->getContext->makeSurfaceContext(std::move(proxy), nullptr);
+                
+                if (sContext->writePixels(??, texels[0].fPixels, texels[0].fRowBytes, 0, 0)) {
+                    return sContext->asTextureProxyRef();
+                }
+
                 if (fGpu->getContext()->contextPriv().writeSurfacePixels(
                                 proxy.get(), nullptr, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                 nullptr, texels[0].fPixels, texels[0].fRowBytes)) {
