@@ -32,6 +32,15 @@ public:
 
     SkEncodedImageFormat getEncodedFormat() override { return fCodec->getEncodedFormat(); }
 
+    SkColorType computeOutputColorType(SkColorType requestedColorType) override {
+        return fCodec->computeOutputColorType(requestedColorType);
+    }
+
+    sk_sp<SkColorSpace> computeOutputColorSpace(SkColorType outputColorType,
+            sk_sp<SkColorSpace> prefColorSpace = nullptr) override {
+        return fCodec->computeOutputColorSpace(outputColorType, prefColorSpace);
+    }
+
 private:
 
     std::unique_ptr<SkAndroidCodec> fCodec;
