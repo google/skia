@@ -22,6 +22,30 @@
       "revId": "ea22d386a71615bdff8f081ef1a95abea79a91b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cb9970f_8a6013cd",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-04-14T14:37:22Z",
+      "side": 1,
+      "message": "All doable. Do you mind filing a skbug to me?",
+      "parentUuid": "01650500_ea4815c7",
+      "range": {
+        "startLine": 42,
+        "startChar": 110,
+        "endLine": 42,
+        "endChar": 142
+      },
+      "revId": "ea22d386a71615bdff8f081ef1a95abea79a91b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
