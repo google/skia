@@ -119,7 +119,7 @@ public:
         }
 
         struct Tables { const uint8_t *r, *g, *b, *a; };
-        p->append(SkRasterPipeline::byte_tables, alloc->make<Tables>(Tables{r,g,b,a}));
+        p->append(SkRasterPipeline::byte_tables, alloc->make<Tables>(Tables{{r,g,b,a}}));
 
         bool definitelyOpaque = shaderIsOpaque && a[0xff] == 0xff;
         if (!definitelyOpaque) {

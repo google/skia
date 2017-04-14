@@ -331,14 +331,14 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkPixmap& source, const SkPain
             if (255 == alpha) {
                 blitter = allocator->make<Sprite_D16_S4444_Opaque>(source);
             } else {
-                blitter = allocator->make<Sprite_D16_S4444_Blend>(source, alpha >> 4);
+                blitter = allocator->make<Sprite_D16_S4444_Blend>(source, (uint8_t)(alpha >> 4));
             }
             break;
         case kRGB_565_SkColorType:
             if (255 == alpha) {
                 blitter = allocator->make<Sprite_D16_S16_Opaque>(source);
             } else {
-                blitter = allocator->make<Sprite_D16_S16_Blend>(source, alpha);
+                blitter = allocator->make<Sprite_D16_S16_Blend>(source, (uint8_t)alpha);
             }
             break;
         case kIndex_8_SkColorType:
@@ -353,13 +353,13 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkPixmap& source, const SkPain
                 if (255 == alpha) {
                     blitter = allocator->make<Sprite_D16_SIndex8_Opaque>(source);
                 } else {
-                    blitter = allocator->make<Sprite_D16_SIndex8_Blend>(source, alpha);
+                    blitter = allocator->make<Sprite_D16_SIndex8_Blend>(source, (uint8_t)alpha);
                 }
             } else {
                 if (255 == alpha) {
                     blitter = allocator->make<Sprite_D16_SIndex8A_Opaque>(source);
                 } else {
-                    blitter = allocator->make<Sprite_D16_SIndex8A_Blend>(source, alpha);
+                    blitter = allocator->make<Sprite_D16_SIndex8A_Blend>(source, (uint8_t)alpha);
                 }
             }
             break;
