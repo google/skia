@@ -419,17 +419,8 @@ public:
      */
     void setPixelRef(sk_sp<SkPixelRef>, int dx, int dy);
 
-    /** Call this to ensure that the bitmap points to the current pixel address
-        in the pixelref. Balance it with a call to unlockPixels(). These calls
-        are harmless if there is no pixelref.
-    */
-    void lockPixels() const;
-    /** When you are finished access the pixel memory, call this to balance a
-        previous call to lockPixels(). This allows pixelrefs that implement
-        cached/deferred image decoding to know when there are active clients of
-        a given image.
-    */
-    void unlockPixels() const;
+    void lockPixels() const {}
+    void unlockPixels() const {}
 
     bool requestLock(SkAutoPixmapUnlock* result) const;
 
@@ -439,7 +430,7 @@ public:
     */
     bool readyToDraw() const {
         return this->getPixels() != NULL &&
-               (this->colorType() != kIndex_8_SkColorType || fColorTable);
+               (this->colorType() != kIndex_8_SkColorType || this->getColorTable());
     }
 
     /** Return the bitmap's colortable, if it uses one (i.e. colorType is
@@ -447,7 +438,7 @@ public:
         Otherwise returns NULL. Does not affect the colortable's
         reference count.
     */
-    SkColorTable* getColorTable() const { return fColorTable; }
+    SkColorTable* getColorTable() const;
 
     /** Returns a non-zero, unique value corresponding to the pixels in our
         pixelref. Each time the pixels are changed (and notifyPixelsChanged
@@ -731,14 +722,6 @@ public:
     SK_TO_STRING_NONVIRT()
 
 private:
-    mutable sk_sp<SkPixelRef> fPixelRef;
-    mutable int               fPixelLockCount;
-    // These are just caches from the locked pixelref
-    mutable void*             fPixels;
-    mutable SkColorTable*     fColorTable;    // only meaningful for kIndex8
-
-    SkIPoint                  fPixelRefOrigin;
-
     enum Flags {
         kImageIsVolatile_Flag   = 0x02,
 #ifdef SK_BUILD_FOR_ANDROID
@@ -750,26 +733,26 @@ private:
 #endif
     };
 
-    SkImageInfo               fInfo;
-    uint32_t                  fRowBytes;
-    uint8_t                   fFlags;
+    sk_sp<SkPixelRef>   fPixelRef;
+    void*               fPixels;
+    SkIPoint            fPixelRefOrigin;
+    SkImageInfo         fInfo;
+    uint32_t            fRowBytes;
+    uint8_t             fFlags;
 
     bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior behavior);
-
     bool internalCopyTo(SkBitmap* dst, SkColorType ct, Allocator*) const;
 
     /*  Unreference any pixelrefs or colortables
     */
     void freePixels();
-    void updatePixelsFromRef() const;
+    void updatePixelsFromRef();
 
     static void WriteRawPixels(SkWriteBuffer*, const SkBitmap&);
     static bool ReadRawPixels(SkReadBuffer*, SkBitmap*);
 
-    friend class SkImage_Raster;
     friend class SkReadBuffer;        // unflatten, rawpixels
     friend class SkBinaryWriteBuffer; // rawpixels
-    friend struct SkBitmapProcState;
 };
 
 class SkAutoLockPixels : SkNoncopyable {
@@ -820,8 +803,8 @@ inline SkPMColor SkBitmap::getIndex8Color(int x, int y) const {
     SkASSERT(fPixels);
     SkASSERT(kIndex_8_SkColorType == this->colorType());
     SkASSERT((unsigned)x < (unsigned)this->width() && (unsigned)y < (unsigned)this->height());
-    SkASSERT(fColorTable);
-    return (*fColorTable)[*((const uint8_t*)fPixels + y * fRowBytes + x)];
+    SkASSERT(this->getColorTable());
+    return (*this->getColorTable())[*((const uint8_t*)fPixels + y * fRowBytes + x)];
 }
 
 #endif
