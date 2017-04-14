@@ -16,6 +16,24 @@
       "revId": "95e826fb19e9771c5d7aeae6581dc9c8cc784b5b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d997afc0_350cfe81",
+        "filename": "site/user/sample/color.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-14T15:04:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb0915e8_50159f0d",
+      "revId": "95e826fb19e9771c5d7aeae6581dc9c8cc784b5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
