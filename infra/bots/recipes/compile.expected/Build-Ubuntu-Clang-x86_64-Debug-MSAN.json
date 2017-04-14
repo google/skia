@@ -99,7 +99,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-MSAN/Debug",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-O1\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-L[START_DIR]/clang_linux/msan\"] sanitize=\"MSAN\" skia_enable_gpu=false skia_use_fontconfig=false target_cpu=\"x86_64\""
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-O1\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/clang_linux/msan\"] sanitize=\"MSAN\" skia_enable_gpu=false skia_use_fontconfig=false target_cpu=\"x86_64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
