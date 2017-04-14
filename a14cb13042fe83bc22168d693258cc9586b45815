@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "456f6363_1553ee4a",
+        "filename": "tests/PackedConfigsTextureTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-14T16:39:31Z",
+      "side": 1,
+      "message": "Remove the commented out code here?",
+      "revId": "a14cb13042fe83bc22168d693258cc9586b45815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8af454db_1723e058",
+        "filename": "tests/PackedConfigsTextureTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-14T16:39:31Z",
+      "side": 1,
+      "message": "SkAssertResult(sContext-\u003ereadPixels(...)); ?",
+      "revId": "a14cb13042fe83bc22168d693258cc9586b45815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
