@@ -22,6 +22,30 @@
       "revId": "f5b748df4ef96be191a5d7b133838b80531fd9ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c68748b_5aad7fec",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-14T15:54:22Z",
+      "side": 1,
+      "message": "Right now the status of the \u0027fOpLists\u0027 array is a bit weird. Ideally, we would have it be an SkTArray\u003csk_sp\u003cGrOpList\u003e\u003e. I think after the opList split has landed that change will be easier to make. \n\nThe different handling between the two methods is (pre-MDB) the textureOpLists are placed in the \u0027fOpLists\u0027 array while the rtOpLists are.",
+      "parentUuid": "57f11fd0_0d384d0f",
+      "range": {
+        "startLine": 233,
+        "startChar": 5,
+        "endLine": 233,
+        "endChar": 26
+      },
+      "revId": "f5b748df4ef96be191a5d7b133838b80531fd9ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
