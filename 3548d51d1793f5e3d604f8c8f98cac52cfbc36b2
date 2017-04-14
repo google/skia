@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ec9f8470_be12a161",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-14T21:16:49Z",
+      "side": 1,
+      "message": "good catch",
+      "parentUuid": "84b9f8a0_e87722f3",
+      "range": {
+        "startLine": 737,
+        "startChar": 4,
+        "endLine": 737,
+        "endChar": 11
+      },
+      "revId": "3548d51d1793f5e3d604f8c8f98cac52cfbc36b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "97b0bb03_49d0ebd9",
         "filename": "include/core/SkBitmap.h",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "3548d51d1793f5e3d604f8c8f98cac52cfbc36b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8d9c006_c376c8ed",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 738,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-14T21:16:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97b0bb03_49d0ebd9",
+      "range": {
+        "startLine": 738,
+        "startChar": 24,
+        "endLine": 738,
+        "endChar": 39
+      },
+      "revId": "3548d51d1793f5e3d604f8c8f98cac52cfbc36b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
