@@ -142,17 +142,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         }
     }
 
-    const SkImageInfo dstInfo = SkImageInfo::Make(X_SIZE, Y_SIZE,
-                                                  kAlpha_8_SkColorType,
-                                                  kPremul_SkAlphaType);
-
     // Attempt to read back just alpha from a RGBA/BGRA texture. Once with a texture-only src and
     // once with a render target.
-    for (auto config : kRGBAConfigs) {
+    for (auto cfg : kRGBAConfigs) {
         for (int rt = 0; rt < 2; ++rt) {
             GrSurfaceDesc desc;
             desc.fFlags     = rt ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-            desc.fConfig    = config;
+            desc.fConfig    = cfg;
             desc.fWidth     = X_SIZE;
             desc.fHeight    = Y_SIZE;
 
@@ -174,9 +170,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 continue;
             }
 
-            sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
-                                                                       std::move(proxy), nullptr);
-
             for (auto rowBytes : kRowBytes) {
                 size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;
 
@@ -185,7 +178,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
 
                 // read the texture back
-                bool result = sContext->readPixels(dstInfo, readback.get(), rowBytes, 0, 0);
+                bool result = context->contextPriv().readSurfacePixels(
+                                                  proxy.get(), nullptr,
+                                                  0, 0, desc.fWidth, desc.fHeight,
+                                                  kAlpha_8_GrPixelConfig, nullptr,
+                                                  readback.get(), rowBytes);
                 REPORTER_ASSERT_MESSAGE(reporter, result, "8888 readPixels failed");
 
                 // make sure the original & read back versions match
