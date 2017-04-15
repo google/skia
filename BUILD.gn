@@ -37,7 +37,7 @@ declare_args() {
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
-  skia_link_with_vulkan = true
+  skia_link_with_vulkan = !is_fuchsia
 }
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
@@ -140,7 +140,7 @@ config("skia_private") {
   libs = []
   lib_dirs = []
   if (skia_use_vulkan) {
-    if (skia_vulkan_sdk != "" && !is_android) {
+    if (skia_vulkan_sdk != "" && !is_android && !is_fuchsia) {
       if (is_win) {
         lib_dirs += [
           "$skia_vulkan_sdk/Bin",
