@@ -62,6 +62,7 @@ public:
         }
     };
 
+#ifdef SK_SUPPORT_OBSOLETE_LOCKPIXELS
     bool lockPixels() { return true; }
     void unlockPixels() {}
 
@@ -71,6 +72,7 @@ public:
      *  Balance this with a call to unlockPixels().
      */
     bool lockPixels(LockRec* rec);
+#endif
 
 
     /** Returns a non-zero, unique value corresponding to the pixels in this

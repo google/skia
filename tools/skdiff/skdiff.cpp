@@ -163,8 +163,6 @@ void compute_diff(DiffRecord* dr, DiffMetricProc diffFunction, const int colorTh
         return;
     }
 
-    SkAutoLockPixels alpDiff(dr->fDifference.fBitmap);
-    SkAutoLockPixels alpWhite(dr->fWhite.fBitmap);
     int mismatchedPixels = 0;
     int totalMismatchA = 0;
     int totalMismatchR = 0;
