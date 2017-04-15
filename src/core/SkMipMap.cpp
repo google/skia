@@ -779,14 +779,9 @@ bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
 //
 SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDestinationSurfaceColorMode colorMode,
                           SkDiscardableFactoryProc fact) {
-    SkAutoPixmapUnlock srcUnlocker;
-    if (!src.requestLock(&srcUnlocker)) {
+    SkPixmap srcPixmap;
+    if (!src.peekPixels(&srcPixmap)) {
         return nullptr;
-    }
-    const SkPixmap& srcPixmap = srcUnlocker.pixmap();
-    // Try to catch where we might have returned nullptr for src crbug.com/492818
-    if (nullptr == srcPixmap.addr()) {
-        sk_throw();
     }
     return Build(srcPixmap, colorMode, fact);
 }

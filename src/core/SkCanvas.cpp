@@ -840,9 +840,8 @@ bool SkCanvas::readPixels(SkBitmap* bitmap, int x, int y) {
         weAllocated = true;
     }
 
-    SkAutoPixmapUnlock unlocker;
-    if (bitmap->requestLock(&unlocker)) {
-        const SkPixmap& pm = unlocker.pixmap();
+    SkPixmap pm;
+    if (bitmap->peekPixels(&pm)) {
         if (this->readPixels(pm.info(), pm.writable_addr(), pm.rowBytes(), x, y)) {
             return true;
         }
@@ -883,9 +882,8 @@ bool SkCanvas::readPixels(const SkImageInfo& dstInfo, void* dstP, size_t rowByte
 }
 
 bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
-    SkAutoPixmapUnlock unlocker;
-    if (bitmap.requestLock(&unlocker)) {
-        const SkPixmap& pm = unlocker.pixmap();
+    SkPixmap pm;
+    if (bitmap.peekPixels(&pm)) {
         return this->writePixels(pm.info(), pm.addr(), pm.rowBytes(), x, y);
     }
     return false;

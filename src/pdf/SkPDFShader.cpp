@@ -962,7 +962,6 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
                                             SkBitmap image) {
     SkASSERT(state.fBitmapKey ==
              (SkBitmapKey{image.getSubset(), image.getGenerationID()}));
-    SkAutoLockPixels SkAutoLockPixels(image);
 
     // The image shader pattern cell will be drawn into a separate device
     // in pattern cell space (no scaling on the bitmap, though there may be

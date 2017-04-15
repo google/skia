@@ -104,12 +104,10 @@ static SkPaint calculate_text_paint(const SkPaint& paint) {
 static SkImageSubset make_image_subset(const SkBitmap& bitmap) {
     SkASSERT(!bitmap.drawsNothing());
     SkIRect subset = bitmap.getSubset();
-    SkAutoLockPixels autoLockPixels(bitmap);
     SkASSERT(bitmap.pixelRef());
     SkBitmap tmp;
     tmp.setInfo(bitmap.pixelRef()->info(), bitmap.rowBytes());
     tmp.setPixelRef(sk_ref_sp(bitmap.pixelRef()), 0, 0);
-    tmp.lockPixels();
     auto img = SkImage::MakeFromBitmap(tmp);
     if (img) {
         SkASSERT(!bitmap.isImmutable() || img->uniqueID() == bitmap.getGenerationID());
