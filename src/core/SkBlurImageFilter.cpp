@@ -214,8 +214,6 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         return nullptr;
     }
 
-    SkAutoLockPixels inputLock(inputBM), tmpLock(tmp), dstLock(dst);
-
     offset->fX = dstBounds.fLeft;
     offset->fY = dstBounds.fTop;
     SkPMColor* t = tmp.getAddr32(0, 0);

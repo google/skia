@@ -25,14 +25,12 @@ static SkBitmap make_bitmap() {
                                      kPremul_SkAlphaType),
                    SkColorTable::Make(c, N));
 
-    bm.lockPixels();
     for (int y = 0; y < bm.height(); y++) {
         uint8_t* p = bm.getAddr8(0, y);
         for (int x = 0; x < bm.width(); x++) {
             p[x] = 0;
         }
     }
-    bm.unlockPixels();
     return bm;
 }
 
@@ -54,7 +52,6 @@ protected:
     }
 
     static void setBitmapOpaque(SkBitmap* bm, bool isOpaque) {
-        SkAutoLockPixels alp(*bm);  // needed for ctable
         bm->setAlphaType(isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
     }
 
