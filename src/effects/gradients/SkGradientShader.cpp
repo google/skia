@@ -607,7 +607,6 @@ void SkGradientShaderBase::GradientShaderCache::initCache32(GradientShaderCache*
 void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap) const {
     const bool interpInPremul = SkToBool(fGradFlags &
                                          SkGradientShader::kInterpolateColorsInPremul_Flag);
-    bitmap->lockPixels();
     SkHalf* pixelsF16 = reinterpret_cast<SkHalf*>(bitmap->getPixels());
     uint32_t* pixelsS32 = reinterpret_cast<uint32_t*>(bitmap->getPixels());
 
@@ -657,7 +656,6 @@ void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap) const {
         prevIndex = nextIndex;
     }
     SkASSERT(prevIndex == kCache32Count - 1);
-    bitmap->unlockPixels();
 }
 
 /*

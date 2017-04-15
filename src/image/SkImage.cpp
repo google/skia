@@ -67,7 +67,6 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
     //
     SkBitmap bm;
     if (as_IB(this)->getROPixels(&bm, dst.info().colorSpace(), chint)) {
-        bm.lockPixels();
         SkPixmap pmap;
         // Note: By calling the pixmap scaler, we never cache the final result, so the chint
         //       is (currently) only being applied to the getROPixels. If we get a request to

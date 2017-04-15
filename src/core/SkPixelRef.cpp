@@ -116,10 +116,12 @@ void SkPixelRef::cloneGenID(const SkPixelRef& that) {
     SkASSERT(!that. genIDIsUnique());
 }
 
+#ifdef SK_SUPPORT_OBSOLETE_LOCKPIXELS
 bool SkPixelRef::lockPixels(LockRec* rec) {
     *rec = fRec;
     return true;
 }
+#endif
 
 bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
     SkASSERT(result);

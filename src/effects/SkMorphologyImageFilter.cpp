@@ -621,8 +621,6 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
         return nullptr;
     }
 
-    SkAutoLockPixels inputLock(inputBM), dstLock(dst);
-
     SkMorphologyImageFilter::Proc procX, procY;
 
     if (kDilate_Op == this->op()) {
@@ -638,8 +636,6 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
         if (!tmp.tryAllocPixels(info)) {
             return nullptr;
         }
-
-        SkAutoLockPixels tmpLock(tmp);
 
         call_proc_X(procX, inputBM, &tmp, width, srcBounds);
         SkIRect tmpBounds = SkIRect::MakeWH(srcBounds.width(), srcBounds.height());
