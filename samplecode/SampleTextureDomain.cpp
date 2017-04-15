@@ -21,7 +21,6 @@ static SkBitmap make_bitmap() {
             p[x] = ((x + y) & 1) ? SK_ColorWHITE : SK_ColorBLACK;
         }
     }
-    bm.unlockPixels();
     return bm;
 }
 

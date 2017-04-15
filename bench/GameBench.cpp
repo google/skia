@@ -250,7 +250,6 @@ private:
         static int kCheckSize = 16;
 
         fCheckerboard.allocN32Pixels(kCheckerboardWidth, kCheckerboardHeight);
-        SkAutoLockPixels lock(fCheckerboard);
         for (int y = 0; y < kCheckerboardHeight; ++y) {
             int even = (y / kCheckSize) % 2;
 
@@ -283,7 +282,6 @@ private:
         }
 
         fAtlas.allocN32Pixels(kTotAtlasWidth, kTotAtlasHeight);
-        SkAutoLockPixels lock(fAtlas);
 
         for (int y = 0; y < kTotAtlasHeight; ++y) {
             int colorY = y / (kAtlasCellHeight + kAtlasSpacer);

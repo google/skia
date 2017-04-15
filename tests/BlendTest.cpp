@@ -187,7 +187,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
         SkBitmap bitmap;
         REPORTER_ASSERT(reporter, bitmap.tryAllocPixels(SkImageInfo::Make(
                                           kWidth, kHeight, kColorType, kPremul_SkAlphaType)));
-        bitmap.lockPixels();
         REPORTER_ASSERT(
                 reporter,
                 surface->readPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(), 0, 0));
@@ -199,7 +198,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
                                           SkColorSetRGB(0x80, 0xFF, 0x80));
 
         // Clean up - surface depends on backingSurface and must be released first.
-        bitmap.unlockPixels();
         surface.reset();
         backingSurface.reset();
     }

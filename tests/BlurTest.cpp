@@ -76,9 +76,6 @@ static bool compare(const SkBitmap& ref, const SkIRect& iref,
     const int xOff = itest.fLeft - iref.fLeft;
     const int yOff = itest.fTop - iref.fTop;
 
-    SkAutoLockPixels alpRef(ref);
-    SkAutoLockPixels alpTest(test);
-
     for (int y = 0; y < test.height(); ++y) {
         for (int x = 0; x < test.width(); ++x) {
             SkColor testColor = test.getColor(x, y);
@@ -247,7 +244,6 @@ static void readback(SkCanvas* canvas, int* result, int resultCount) {
 
     canvas->readPixels(readBackRect, &readback);
 
-    readback.lockPixels();
     SkPMColor* pixels = (SkPMColor*) readback.getAddr32(0, 15);
 
     for (int i = 0; i < resultCount; ++i) {

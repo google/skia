@@ -889,9 +889,7 @@ static sk_sp<SkImage> load_image(const Json::Value& jsonImage, UrlDataManager& u
 
 bool SkDrawCommand::flatten(const SkBitmap& bitmap, Json::Value* target,
                             UrlDataManager& urlDataManager) {
-    bitmap.lockPixels();
     sk_sp<SkImage> image(SkImage::MakeFromBitmap(bitmap));
-    bitmap.unlockPixels();
     (*target)[SKDEBUGCANVAS_ATTRIBUTE_COLOR] = Json::Value(color_type_name(bitmap.colorType()));
     (*target)[SKDEBUGCANVAS_ATTRIBUTE_ALPHA] = Json::Value(alpha_type_name(bitmap.alphaType()));
     bool success = flatten(*image, target, urlDataManager);
