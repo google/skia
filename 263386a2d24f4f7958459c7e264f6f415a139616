@@ -22,6 +22,30 @@
       "revId": "263386a2d24f4f7958459c7e264f6f415a139616",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d616050_ebdcca94",
+        "filename": "src/effects/SkPictureImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-04-15T11:42:18Z",
+      "side": 1,
+      "message": "Sorry I took so long to review this.  Got myself hung up on understanding what this was all about before I ever looked at the rest of the code... which was dumb, because this CL is totally super obviously the right thing to do.  :)",
+      "parentUuid": "3fc04445_104792b0",
+      "range": {
+        "startLine": 32,
+        "startChar": 43,
+        "endLine": 32,
+        "endChar": 60
+      },
+      "revId": "263386a2d24f4f7958459c7e264f6f415a139616",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
