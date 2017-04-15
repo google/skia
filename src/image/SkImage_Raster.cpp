@@ -109,11 +109,6 @@ public:
                                       : (uint32_t)kNeedNewImageUniqueID)
         , fBitmap(bm)
     {
-        if (bm.pixelRef()->isPreLocked()) {
-            // we only preemptively lock if there is no chance of triggering something expensive
-            // like a lazy decode or imagegenerator. PreLocked means it is flat pixels already.
-            fBitmap.lockPixels();
-        }
         SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
     }
 
@@ -152,7 +147,6 @@ SkImage_Raster::SkImage_Raster(const Info& info, sk_sp<SkData> data, size_t rowB
 
     fBitmap.installPixels(info, addr, rowBytes, ctable, release_data, data.release());
     fBitmap.setImmutable();
-    fBitmap.lockPixels();
 }
 
 SkImage_Raster::~SkImage_Raster() {
@@ -307,7 +301,6 @@ sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc p
 sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm) {
     bool hasColorTable = false;
     if (kIndex_8_SkColorType == bm.colorType()) {
-        SkAutoLockPixels autoLockPixels(bm);
         hasColorTable = bm.getColorTable() != nullptr;
     }
 
@@ -316,10 +309,8 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode 
     }
 
     if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kNever_SkCopyPixelsMode != cpm)) {
-        SkBitmap tmp(bm);
-        tmp.lockPixels();
         SkPixmap pmap;
-        if (tmp.getPixels() && tmp.peekPixels(&pmap)) {
+        if (bm.getPixels() && bm.peekPixels(&pmap)) {
             return SkImage::MakeRasterCopy(pmap);
         }
     } else {
@@ -405,7 +396,6 @@ sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target) cons
     SkTLazy<SkBitmap> tmp;
     if (!fBitmap.peekPixels(&src)) {
         tmp.init(fBitmap);
-        tmp.get()->lockPixels();
         SkAssertResult(tmp.get()->peekPixels(&src));
     }
 

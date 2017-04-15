@@ -419,8 +419,10 @@ public:
      */
     void setPixelRef(sk_sp<SkPixelRef>, int dx, int dy);
 
+#ifdef SK_SUPPORT_OBSOLETE_LOCKPIXELS
     void lockPixels() const {}
     void unlockPixels() const {}
+#endif
 
     bool requestLock(SkAutoPixmapUnlock* result) const;
 
@@ -755,26 +757,12 @@ private:
     friend class SkBinaryWriteBuffer; // rawpixels
 };
 
+#ifdef SK_SUPPORT_OBSOLETE_LOCKPIXELS
 class SkAutoLockPixels : SkNoncopyable {
 public:
-    SkAutoLockPixels(const SkBitmap& bm, bool doLock = true) : fBitmap(bm) {
-        fDidLock = doLock;
-        if (doLock) {
-            bm.lockPixels();
-        }
-    }
-    ~SkAutoLockPixels() {
-        if (fDidLock) {
-            fBitmap.unlockPixels();
-        }
-    }
-
-private:
-    const SkBitmap& fBitmap;
-    bool            fDidLock;
+    SkAutoLockPixels(const SkBitmap&, bool = true) {}
 };
-//TODO(mtklein): uncomment when 71713004 lands and Chromium's fixed.
-//#define SkAutoLockPixels(...) SK_REQUIRE_LOCAL_VAR(SkAutoLockPixels)
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

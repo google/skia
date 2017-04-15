@@ -116,7 +116,6 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
     if (fCanShadeHQ) {
         fQuality = kHigh_SkFilterQuality;
         SkAssertResult(provider.asBitmap(&fResultBitmap));
-        fResultBitmap.lockPixels();
         return true;
     }
 
@@ -241,8 +240,6 @@ SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(const SkBitmapPro
         SkASSERT(fResultBitmap.getPixels());
     } else {
         (void)provider.asBitmap(&fResultBitmap);
-        fResultBitmap.lockPixels();
-        // lock may fail to give us pixels
     }
     SkASSERT(fCanShadeHQ || fQuality <= kLow_SkFilterQuality);
 

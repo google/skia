@@ -226,8 +226,6 @@ static void test_nan_antihair() {
 }
 
 static bool check_for_all_zeros(const SkBitmap& bm) {
-    SkAutoLockPixels alp(bm);
-
     size_t count = bm.width() * bm.bytesPerPixel();
     for (int y = 0; y < bm.height(); y++) {
         const uint8_t* ptr = reinterpret_cast<const uint8_t*>(bm.getAddr(0, y));

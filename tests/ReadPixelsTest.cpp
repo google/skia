@@ -126,7 +126,6 @@ static void fill_src_canvas(SkCanvas* canvas) {
 #if SK_SUPPORT_GPU
 static void fill_src_texture(GrContext* context, GrTextureProxy* proxy) {
     SkBitmap bmp = make_src_bitmap();
-    bmp.lockPixels();
 
     SkDEBUGCODE(bool result =) context->contextPriv().writeSurfacePixels(
                                                             proxy, nullptr,
@@ -134,12 +133,10 @@ static void fill_src_texture(GrContext* context, GrTextureProxy* proxy) {
                                                             kSkia8888_GrPixelConfig, nullptr,
                                                             bmp.getPixels(), bmp.rowBytes());
     SkASSERT(result);
-    bmp.unlockPixels();
 }
 #endif
 
 static void fill_dst_bmp_with_init_data(SkBitmap* bitmap) {
-    SkAutoLockPixels alp(*bitmap);
     int w = bitmap->width();
     int h = bitmap->height();
     intptr_t pixels = reinterpret_cast<intptr_t>(bitmap->getPixels());
@@ -199,7 +196,6 @@ static bool check_read(skiatest::Reporter* reporter,
     if (!clippedSrcRect.intersect(srcRect)) {
         clippedSrcRect.setEmpty();
     }
-    SkAutoLockPixels alp(bitmap);
     if (kAlpha_8_SkColorType == ct) {
         for (int by = 0; by < bh; ++by) {
             for (int bx = 0; bx < bw; ++bx) {
@@ -465,13 +461,11 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
                     if (gReadPixelsConfigs[c].fAlphaType == kUnpremul_SkAlphaType) {
                         flags = GrContextPriv::kUnpremul_PixelOpsFlag;
                     }
-                    bmp.lockPixels();
                     bool success = context->contextPriv().readSurfacePixels(
                                                        proxy.get(), nullptr,
                                                        srcRect.fLeft, srcRect.fTop, bmp.width(),
                                                        bmp.height(), dstConfig, nullptr,
                                                        bmp.getPixels(), bmp.rowBytes(), flags);
-                    bmp.unlockPixels();
                     check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop,
                                success, true,
                                gReadPixelsConfigs[c].fColorType, gReadPixelsConfigs[c].fAlphaType);
