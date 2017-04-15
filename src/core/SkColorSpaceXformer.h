@@ -29,7 +29,9 @@ private:
 
     SkColorSpaceXformer() {}
 
+public:
     sk_sp<SkColorSpace>                fDst;
+private:
     std::unique_ptr<SkColorSpaceXform> fFromSRGB;
     SkPaint                            fDstPaint;
 };
