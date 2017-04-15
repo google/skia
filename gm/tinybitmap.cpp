@@ -21,9 +21,7 @@ static SkBitmap make_bitmap() {
                                      kPremul_SkAlphaType),
                    SkColorTable::Make(c, SK_ARRAY_COUNT(c)));
 
-    bm.lockPixels();
     *bm.getAddr8(0, 0) = 0;
-    bm.unlockPixels();
     return bm;
 }
 

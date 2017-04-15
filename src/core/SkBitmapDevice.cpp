@@ -74,7 +74,6 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
     , fRCStack(bitmap.width(), bitmap.height())
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
-    fBitmap.lockPixels();
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
@@ -89,7 +88,6 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& sur
     , fRCStack(bitmap.width(), bitmap.height())
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
-    fBitmap.lockPixels();
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
@@ -134,7 +132,6 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
     SkASSERT(bm.width() == fBitmap.width());
     SkASSERT(bm.height() == fBitmap.height());
     fBitmap = bm;   // intent is to use bm's pixelRef (and rowbytes/config)
-    fBitmap.lockPixels();
     this->privateResize(fBitmap.info().width(), fBitmap.info().height());
 }
 

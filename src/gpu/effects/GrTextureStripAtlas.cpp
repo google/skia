@@ -153,8 +153,6 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& bitmap) {
         fKeyTable.insert(index, 1, &row);
         rowNumber = static_cast<int>(row - fRows);
 
-        SkAutoLockPixels lock(bitmap);
-
         SkASSERT(bitmap.width() == fDesc.fWidth);
         SkASSERT(bitmap.height() == fDesc.fRowHeight);
 
