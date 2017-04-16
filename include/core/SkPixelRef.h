@@ -185,14 +185,7 @@ protected:
     void android_only_reset(const SkImageInfo&, size_t rowBytes, sk_sp<SkColorTable>);
 #endif
 
-    /** Return the mutex associated with this pixelref. This value is assigned
-        in the constructor, and cannot change during the lifetime of the object.
-    */
-    SkBaseMutex* mutex() const { return &fMutex; }
-
 private:
-    mutable SkMutex fMutex;
-
     // mostly const. fInfo.fAlpahType can be changed at runtime.
     const SkImageInfo fInfo;
     sk_sp<SkColorTable> fCTable;    // duplicated in LockRec, will unify later
