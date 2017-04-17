@@ -86,6 +86,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
             flags |= kExact_Flag | kNoCreate_Flag;
             sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
             if (tex) {
+#if 0
                 sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(tex);
 
                 if (fGpu->getContext()->contextPriv().writeSurfacePixels(
@@ -97,6 +98,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
                     tex->texturePriv().setMipColorMode(mipColorMode);
                     return proxy;
                 }
+#endif
             }
         }
     }
