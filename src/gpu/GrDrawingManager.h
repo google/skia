@@ -111,7 +111,7 @@ private:
     GrSingleOwner*                    fSingleOwner;
 
     bool                              fAbandoned;
-    SkTDArray<GrOpList*>              fOpLists;
+    SkTArray<sk_sp<GrOpList>>         fOpLists;
 
     std::unique_ptr<GrAtlasTextContext> fAtlasTextContext;
 
