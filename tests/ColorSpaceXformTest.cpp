@@ -67,8 +67,8 @@ public:
     }
 };
 
-static bool almost_equal(int x, int y) {
-    return SkTAbs(x - y) <= 1;
+static bool almost_equal(int x, int y, int tol=1) {
+    return SkTAbs(x-y) <= tol;
 }
 
 static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& gammas,
@@ -108,7 +108,7 @@ static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& ga
 }
 
 static void test_identity_xform_A2B(skiatest::Reporter* r, SkGammaNamed gammaNamed,
-                                    const sk_sp<SkGammas>& gammas) {
+                                    const sk_sp<SkGammas>& gammas, int tol=1) {
     // Arbitrary set of 10 pixels
     constexpr int width = 10;
     constexpr uint32_t srcPixels[width] = {
@@ -124,16 +124,16 @@ static void test_identity_xform_A2B(skiatest::Reporter* r, SkGammaNamed gammaNam
     REPORTER_ASSERT(r, result);
 
     // Since the src->dst matrix is the identity, and the gamma curves match,
-    // the pixels should be unchanged.
+    // the pixels should be ~unchanged.
     for (int i = 0; i < width; i++) {
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >>  0) & 0xFF),
-                                        SkGetPackedB32(dstPixels[i])));
+                                        SkGetPackedB32(dstPixels[i]), tol));
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >>  8) & 0xFF),
-                                        SkGetPackedG32(dstPixels[i])));
+                                        SkGetPackedG32(dstPixels[i]), tol));
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >> 16) & 0xFF),
-                                        SkGetPackedR32(dstPixels[i])));
+                                        SkGetPackedR32(dstPixels[i]), tol));
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >> 24) & 0xFF),
-                                        SkGetPackedA32(dstPixels[i])));
+                                        SkGetPackedA32(dstPixels[i]), tol));
     }
 }
 
@@ -149,7 +149,6 @@ DEF_TEST(ColorSpaceXform_TableGamma, r) {
     }
 
     float* table = SkTAddOffset<float>(memory, sizeof(SkGammas));
-
     table[0] = 0.00f;
     table[1] = 0.05f;
     table[2] = 0.10f;
@@ -160,8 +159,13 @@ DEF_TEST(ColorSpaceXform_TableGamma, r) {
     table[7] = 0.60f;
     table[8] = 0.75f;
     table[9] = 1.00f;
+    // This table's pretty small compared to real ones in the wild (think 256),
+    // so we give test_identity_xform_A2B a wide tolerance.
+    // This lets us implement table transfer functions with a single lookup.
+    const int tolerance = 13;
+
     test_identity_xform(r, gammas, true);
-    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas);
+    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas, tolerance);
 }
 
 DEF_TEST(ColorSpaceXform_ParametricGamma, r) {

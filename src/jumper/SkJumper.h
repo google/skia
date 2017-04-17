@@ -91,4 +91,9 @@ struct SkJumper_LoadTablesCtx {
     const float *r, *g, *b;
 };
 
+struct SkJumper_TableCtx {
+    const float* table;
+    int          size;
+};
+
 #endif//SkJumper_DEFINED

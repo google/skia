@@ -663,6 +663,14 @@ STAGE(byte_tables_rgb) {
     b = from_byte(gather(tables->b, round(b, scale)));
 }
 
+SI F table(F v, const SkJumper_TableCtx* ctx) {
+    return gather(ctx->table, round(v, ctx->size - 1));
+}
+STAGE(table_r) { r = table(r, ctx); }
+STAGE(table_g) { g = table(g, ctx); }
+STAGE(table_b) { b = table(b, ctx); }
+STAGE(table_a) { a = table(a, ctx); }
+
 STAGE(load_a8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
