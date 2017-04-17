@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "15726660_4b9c79c1",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 6065
+      },
+      "writtenOn": "2017-04-17T21:46:51Z",
+      "side": 1,
+      "message": "I\u0027m inclined to agree with you. I avoided this because there are no conditionals in this block, and moving the skia_vulkan_sdk declaration to the other block felt like a more invasive change. Id be happy to change it if there is a consensus that thats the way to go.",
+      "parentUuid": "76a54895_1b41fbb5",
+      "revId": "c0baaa0d81c92797ac06da980a4a6a1991adec11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "388e2296_ff49e55b",
         "filename": "BUILD.gn",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2017-04-17T21:34:56Z",
       "side": 1,
       "message": "is there anything special about the vulkan.h here? We are moving skia to store a vulkan.h in its tree and use that for include instead of what the sdk has. The reason for this is if we start wanting to use new extensions but someone has an old sdk (or if vulkan versions bumps), then we\u0027ll have issues.\n\nSo basically everything in skia has to be able to compile with the vulkan.h that we are storing in our codebase.",
+      "range": {
+        "startLine": 60,
+        "startChar": 31,
+        "endLine": 60,
+        "endChar": 60
+      },
+      "revId": "c0baaa0d81c92797ac06da980a4a6a1991adec11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8932e048_35f65ca2",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 6065
+      },
+      "writtenOn": "2017-04-17T21:46:51Z",
+      "side": 1,
+      "message": "I think thats fine, we have some extensions in our vulkan.h, but I\u0027m fairly certain we only use them from flutter and mozart, and not from within skia, and that should continue to be the case moving forward.\n\nDoes this comment means I should do something different here or is it just informational?",
+      "parentUuid": "388e2296_ff49e55b",
       "range": {
         "startLine": 60,
         "startChar": 31,
