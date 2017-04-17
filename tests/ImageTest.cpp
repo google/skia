@@ -691,7 +691,6 @@ static void check_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* ima
         REPORTER_ASSERT(reporter, bitmap.isImmutable());
     }
 
-    SkAutoLockPixels alp(bitmap);
     REPORTER_ASSERT(reporter, bitmap.getPixels());
 
     const SkImageInfo info = SkImageInfo::MakeN32(1, 1, bitmap.alphaType());
@@ -1065,7 +1064,6 @@ DEF_TEST(Image_makeColorSpace, r) {
     SkBitmap p3Bitmap;
     bool success = p3Image->asLegacyBitmap(&p3Bitmap, SkImage::kRO_LegacyBitmapMode);
     REPORTER_ASSERT(r, success);
-    p3Bitmap.lockPixels();
     REPORTER_ASSERT(r, almost_equal(0x28, SkGetPackedR32(*p3Bitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x40, SkGetPackedG32(*p3Bitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x5E, SkGetPackedB32(*p3Bitmap.getAddr32(0, 0))));
@@ -1075,7 +1073,6 @@ DEF_TEST(Image_makeColorSpace, r) {
     SkBitmap adobeBitmap;
     success = adobeImage->asLegacyBitmap(&adobeBitmap, SkImage::kRO_LegacyBitmapMode);
     REPORTER_ASSERT(r, success);
-    adobeBitmap.lockPixels();
     REPORTER_ASSERT(r, almost_equal(0x21, SkGetPackedR32(*adobeBitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x31, SkGetPackedG32(*adobeBitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x4C, SkGetPackedB32(*adobeBitmap.getAddr32(0, 0))));
@@ -1084,7 +1081,6 @@ DEF_TEST(Image_makeColorSpace, r) {
     p3Image = srgbImage->makeColorSpace(p3, SkTransferFunctionBehavior::kIgnore);
     success = p3Image->asLegacyBitmap(&p3Bitmap, SkImage::kRO_LegacyBitmapMode);
     REPORTER_ASSERT(r, success);
-    p3Bitmap.lockPixels();
     REPORTER_ASSERT(r, almost_equal(0x8B, SkGetPackedR32(*p3Bitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x82, SkGetPackedG32(*p3Bitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x77, SkGetPackedB32(*p3Bitmap.getAddr32(0, 0))));

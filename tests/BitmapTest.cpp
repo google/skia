@@ -141,8 +141,6 @@ DEF_TEST(Bitmap_getColor_Swizzle, r) {
             ERRORF(r, "SkBitmap::copy failed %d", (int)ct);
             continue;
         }
-        SkAutoLockPixels autoLockPixels1(copy);
-        SkAutoLockPixels autoLockPixels2(source);
         REPORTER_ASSERT(r, source.getColor(0, 0) == copy.getColor(0, 0));
     }
 }

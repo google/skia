@@ -25,7 +25,6 @@ static SkBitmap make_bitmap() {
                                      kPremul_SkAlphaType),
                    SkColorTable::Make(c, 256));
 
-    bm.lockPixels();
     const float cx = bm.width() * 0.5f;
     const float cy = bm.height() * 0.5f;
     for (int y = 0; y < bm.height(); y++) {
@@ -43,7 +42,6 @@ static SkBitmap make_bitmap() {
             p[x] = id;
         }
     }
-    bm.unlockPixels();
     return bm;
 }
 

@@ -32,22 +32,18 @@ class SkDiscardableMemory;
 */
 class SK_API SkPixelRef : public SkRefCnt {
 public:
-    explicit SkPixelRef(const SkImageInfo&, void* addr, size_t rowBytes,
-                        sk_sp<SkColorTable> = nullptr);
-    virtual ~SkPixelRef();
+    SkPixelRef(const SkImageInfo&, void* addr, size_t rowBytes, sk_sp<SkColorTable> = nullptr);
+    ~SkPixelRef() override;
 
     const SkImageInfo& info() const {
         return fInfo;
     }
 
-    void* pixels() const { return fRec.fPixels; }
-    SkColorTable* colorTable() const { return fRec.fColorTable; }
-    size_t rowBytes() const { return fRec.fRowBytes; }
+    void* pixels() const { return fPixels; }
+    SkColorTable* colorTable() const { return fCTable.get(); }
+    size_t rowBytes() const { return fRowBytes; }
 
-    /**
-     *  To access the actual pixels of a pixelref, it must be "locked".
-     *  Calling lockPixels returns a LockRec struct (on success).
-     */
+#ifdef SK_SUPPORT_OBSOLETE_LOCKPIXELS
     struct LockRec {
         LockRec() : fPixels(NULL), fColorTable(NULL) {}
 
@@ -71,6 +67,33 @@ public:
      *  Balance this with a call to unlockPixels().
      */
     bool lockPixels(LockRec* rec);
+
+    struct LockRequest {
+        SkISize         fSize;
+        SkFilterQuality fQuality;
+    };
+
+    struct LockResult {
+        LockResult() : fPixels(NULL), fCTable(NULL) {}
+
+        void        (*fUnlockProc)(void* ctx);
+        void*       fUnlockContext;
+
+        const void* fPixels;
+        SkColorTable* fCTable;  // should be NULL unless colortype is kIndex8
+        size_t      fRowBytes;
+        SkISize     fSize;
+
+        void unlock() {
+            if (fUnlockProc) {
+                fUnlockProc(fUnlockContext);
+                fUnlockProc = NULL; // can't unlock twice!
+            }
+        }
+    };
+
+    bool requestLock(const LockRequest&, LockResult*);
+#endif
 
 
     /** Returns a non-zero, unique value corresponding to the pixels in this
@@ -115,32 +138,6 @@ public:
         be set on a pixelref, but it cannot be cleared once it is set.
     */
     void setImmutable();
-
-    struct LockRequest {
-        SkISize         fSize;
-        SkFilterQuality fQuality;
-    };
-
-    struct LockResult {
-        LockResult() : fPixels(NULL), fCTable(NULL) {}
-
-        void        (*fUnlockProc)(void* ctx);
-        void*       fUnlockContext;
-
-        const void* fPixels;
-        SkColorTable* fCTable;  // should be NULL unless colortype is kIndex8
-        size_t      fRowBytes;
-        SkISize     fSize;
-
-        void unlock() {
-            if (fUnlockProc) {
-                fUnlockProc(fUnlockContext);
-                fUnlockProc = NULL; // can't unlock twice!
-            }
-        }
-    };
-
-    bool requestLock(const LockRequest&, LockResult*);
 
     // Register a listener that may be called the next time our generation ID changes.
     //
@@ -188,10 +185,9 @@ protected:
 private:
     // mostly const. fInfo.fAlpahType can be changed at runtime.
     const SkImageInfo fInfo;
-    sk_sp<SkColorTable> fCTable;    // duplicated in LockRec, will unify later
-
-    // LockRec is only valid if we're in a locked state (isLocked())
-    LockRec         fRec;
+    sk_sp<SkColorTable> fCTable;
+    void*             fPixels;
+    size_t            fRowBytes;
 
     // Bottom bit indicates the Gen ID is unique.
     bool genIDIsUnique() const { return SkToBool(fTaggedGenID.load() & 1); }
@@ -212,9 +208,6 @@ private:
         kImmutable,             // Once set to this state, it never leaves.
     } fMutability : 8;          // easily fits inside a byte
 
-    // only ever set in constructor, const after that
-    bool fPreLocked;
-
     void needsNewGenID();
     void callGenIDChangeListeners();
 
@@ -222,7 +215,6 @@ private:
     void restoreMutability();
     friend class SkSurface_Raster;   // For the two methods above.
 
-    bool isPreLocked() const { return fPreLocked; }
     friend class SkImage_Raster;
     friend class SkSpecialImage_Raster;
 

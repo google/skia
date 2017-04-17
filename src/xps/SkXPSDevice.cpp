@@ -749,8 +749,6 @@ HRESULT SkXPSDevice::createXpsImageBrush(
         if (SkShader::kClamp_TileMode == xy[0] &&
             SkShader::kClamp_TileMode == xy[1]) {
 
-            SkAutoLockPixels alp(bitmap);
-
             const SkColor tlColor = bitmap.getColor(0,0);
             const SkRect tlArea = SkRect::MakeLTRB(-BIG, -BIG, 0, 0);
             HR(this->cornerOfClamp(tlArea, tlColor, brushVisuals.get()));

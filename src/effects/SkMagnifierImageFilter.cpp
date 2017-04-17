@@ -389,7 +389,6 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
         return nullptr;
     }
 
-    SkAutoLockPixels alp(inputBM);
     SkASSERT(inputBM.getPixels());
     if (!inputBM.getPixels() || inputBM.width() <= 0 || inputBM.height() <= 0) {
         return nullptr;
@@ -401,8 +400,6 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
     if (!dst.tryAllocPixels(info)) {
         return nullptr;
     }
-
-    SkAutoLockPixels dstLock(dst);
 
     SkColor* dptr = dst.getAddr32(0, 0);
     int dstWidth = dst.width(), dstHeight = dst.height();

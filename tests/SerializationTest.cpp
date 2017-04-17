@@ -318,8 +318,6 @@ static void compare_bitmaps(skiatest::Reporter* reporter,
                             const SkBitmap& b1, const SkBitmap& b2) {
     REPORTER_ASSERT(reporter, b1.width() == b2.width());
     REPORTER_ASSERT(reporter, b1.height() == b2.height());
-    SkAutoLockPixels autoLockPixels1(b1);
-    SkAutoLockPixels autoLockPixels2(b2);
 
     if ((b1.width() != b2.width()) ||
         (b1.height() != b2.height())) {

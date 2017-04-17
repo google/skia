@@ -1567,7 +1567,6 @@ Error ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
     canvas.drawBitmap(*bitmap, 0, 0, &paint);
 
     *bitmap = uprighted;
-    bitmap->lockPixels();
     return "";
 }
 

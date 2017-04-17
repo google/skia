@@ -207,7 +207,6 @@ void SkOSWindow::doPaint(void* ctx) {
         //       seems to be to copy the bitmap to a temporary (contiguous)
         //       buffer before passing to SetDIBitsToDevice().
         SkASSERT(bitmap.width() * bitmap.bytesPerPixel() == bitmap.rowBytes());
-        bitmap.lockPixels();
         int ret = SetDIBitsToDevice(hdc,
             0, 0,
             bitmap.width(), bitmap.height(),
@@ -217,7 +216,6 @@ void SkOSWindow::doPaint(void* ctx) {
             &bmi,
             DIB_RGB_COLORS);
         (void)ret; // we're ignoring potential failures for now.
-        bitmap.unlockPixels();
     }
 }
 

@@ -118,9 +118,9 @@ static std::unique_ptr<SkImageGenerator> make_pic_generator(GrContext*, sk_sp<Sk
 
 class RasterGenerator : public SkImageGenerator {
 public:
-    RasterGenerator(const SkBitmap& bm) : SkImageGenerator(bm.info()), fBM(bm) {
-        fBM.lockPixels();
-    }
+    RasterGenerator(const SkBitmap& bm) : SkImageGenerator(bm.info()), fBM(bm)
+    {}
+
 protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                      SkPMColor* ctable, int* ctableCount) override {

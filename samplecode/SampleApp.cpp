@@ -1282,7 +1282,6 @@ void SampleWindow::showZoomer(SkCanvas* canvas) {
     else if (fMouseY < 0) fMouseY = 0;
 
     SkBitmap bitmap = capture_bitmap(canvas);
-    bitmap.lockPixels();
 
     // Find the size of the zoomed in view, forced to be odd, so the examined pixel is in the middle.
     int zoomedWidth = (width >> 1) | 1;

@@ -38,7 +38,6 @@
 #endif
 
 static void md5(const SkBitmap& bm, SkMD5::Digest* digest) {
-    SkAutoLockPixels autoLockPixels(bm);
     SkASSERT(bm.getPixels());
     SkMD5 md5;
     size_t rowLen = bm.info().bytesPerPixel() * bm.width();
@@ -72,7 +71,6 @@ static void test_info(skiatest::Reporter* r, Codec* codec, const SkImageInfo& in
                       SkCodec::Result expectedResult, const SkMD5::Digest* goodDigest) {
     SkBitmap bm;
     bm.allocPixels(info);
-    SkAutoLockPixels autoLockPixels(bm);
 
     SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, result == expectedResult);
@@ -98,7 +96,6 @@ static void test_incremental_decode(skiatest::Reporter* r, SkCodec* codec, const
         const SkMD5::Digest& goodDigest) {
     SkBitmap bm;
     bm.allocPixels(info);
-    SkAutoLockPixels autoLockPixels(bm);
 
     REPORTER_ASSERT(r, SkCodec::kSuccess == codec->startIncrementalDecode(info, bm.getPixels(),
                                                                           bm.rowBytes()));
@@ -157,7 +154,6 @@ static void test_codec(skiatest::Reporter* r, Codec* codec, SkBitmap& bm, const 
 
     REPORTER_ASSERT(r, info.dimensions() == size);
     bm.allocPixels(info);
-    SkAutoLockPixels autoLockPixels(bm);
 
     SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, result == expectedResult);
@@ -174,7 +170,6 @@ static void test_codec(skiatest::Reporter* r, Codec* codec, SkBitmap& bm, const 
             // Decoding to 565 should succeed.
             SkBitmap bm565;
             bm565.allocPixels(info565);
-            SkAutoLockPixels alp(bm565);
 
             // This will allow comparison even if the image is incomplete.
             bm565.eraseColor(SK_ColorBLACK);
@@ -199,7 +194,6 @@ static void test_codec(skiatest::Reporter* r, Codec* codec, SkBitmap& bm, const 
         SkImageInfo grayInfo = codec->getInfo();
         SkBitmap grayBm;
         grayBm.allocPixels(grayInfo);
-        SkAutoLockPixels alp(grayBm);
 
         grayBm.eraseColor(SK_ColorBLACK);
 
@@ -442,7 +436,6 @@ static void check(skiatest::Reporter* r,
                 SkCodecImageGenerator::MakeFromEncodedCodec(fullData));
         SkBitmap bm;
         bm.allocPixels(info);
-        SkAutoLockPixels autoLockPixels(bm);
         REPORTER_ASSERT(r, gen->getPixels(info, bm.getPixels(), bm.rowBytes()));
         compare_to_good_digest(r, codecDigest, bm);
 

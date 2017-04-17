@@ -1170,11 +1170,10 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) cons
         int ix = SkScalarRoundToInt(fMatrix->getTranslateX());
         int iy = SkScalarRoundToInt(fMatrix->getTranslateY());
 
-        SkAutoPixmapUnlock result;
-        if (!bitmap.requestLock(&result)) {
+        SkPixmap pmap;
+        if (!bitmap.peekPixels(&pmap)) {
             return;
         }
-        const SkPixmap& pmap = result.pixmap();
         SkMask  mask;
         mask.fBounds.set(ix, iy, ix + pmap.width(), iy + pmap.height());
         mask.fFormat = SkMask::kA8_Format;
@@ -1290,11 +1289,10 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         // It is safe to call lock pixels now, since we know the matrix is
         // (more or less) identity.
         //
-        SkAutoPixmapUnlock unlocker;
-        if (!bitmap.requestLock(&unlocker)) {
+        SkPixmap pmap;
+        if (!bitmap.peekPixels(&pmap)) {
             return;
         }
-        const SkPixmap& pmap = unlocker.pixmap();
         int ix = SkScalarRoundToInt(matrix.getTranslateX());
         int iy = SkScalarRoundToInt(matrix.getTranslateY());
         if (clipHandlesSprite(*fRC, ix, iy, pmap)) {
@@ -1348,11 +1346,10 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
     SkPaint paint(origPaint);
     paint.setStyle(SkPaint::kFill_Style);
 
-    SkAutoPixmapUnlock unlocker;
-    if (!bitmap.requestLock(&unlocker)) {
+    SkPixmap pmap;
+    if (!bitmap.peekPixels(&pmap)) {
         return;
     }
-    const SkPixmap& pmap = unlocker.pixmap();
 
     if (nullptr == paint.getColorFilter() && clipHandlesSprite(*fRC, x, y, pmap)) {
         // blitter will be owned by the allocator.

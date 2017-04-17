@@ -957,12 +957,6 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
     SK_HISTOGRAM_BOOLEAN("DrawTiled", true);
     LogDrawScaleFactor(viewMatrix, origPaint.getFilterQuality());
 
-    // The following pixel lock is technically redundant, but it is desirable
-    // to lock outside of the tile loop to prevent redecoding the whole image
-    // at each tile in cases where 'bitmap' holds an SkDiscardablePixelRef that
-    // is larger than the limit of the discardable memory pool.
-    SkAutoLockPixels alp(bitmap);
-
     const SkPaint* paint = &origPaint;
     SkPaint tempPaint;
     if (origPaint.isAntiAlias() && !fRenderTargetContext->isUnifiedMultisampled()) {

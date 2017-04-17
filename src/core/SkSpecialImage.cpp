@@ -218,11 +218,6 @@ public:
         , fBitmap(bm)
     {
         SkASSERT(bm.pixelRef());
-
-        // We have to lock now, while bm is still in scope, since it may have come from our
-        // cache, which means we need to keep it locked until we (the special) are done, since
-        // we cannot re-generate the cache entry (if bm came from a generator).
-        fBitmap.lockPixels();
         SkASSERT(fBitmap.getPixels());
     }
 

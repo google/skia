@@ -71,7 +71,6 @@ bool get_bitmap(sk_sp<SkData> fileBits, DiffResource& resource, bool sizeOnly) {
 
 /** Thanks to PNG, we need to force all pixels 100% opaque. */
 static void force_all_opaque(const SkBitmap& bitmap) {
-   SkAutoLockPixels lock(bitmap);
    for (int y = 0; y < bitmap.height(); y++) {
        for (int x = 0; x < bitmap.width(); x++) {
            *bitmap.getAddr32(x, y) |= (SK_A32_MASK << SK_A32_SHIFT);

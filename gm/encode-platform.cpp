@@ -23,7 +23,6 @@ static void make_premul_256(SkBitmap* bitmap) {
     SkBitmap tmp;
     GetResourceAsBitmap("yellow_rose.png", &tmp);
     tmp.extractSubset(bitmap, SkIRect::MakeWH(256, 256));
-    bitmap->lockPixels();
 }
 
 static void make_unpremul_256(SkBitmap* bitmap) {
@@ -57,7 +56,6 @@ static SkEncodedImageFormat kTypes[] {
 #endif
 
 static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitmap) {
-    SkAutoLockPixels autoLockPixels(bitmap);
     SkPixmap src;
     if (!bitmap.peekPixels(&src)) {
         return nullptr;

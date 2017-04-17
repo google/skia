@@ -73,8 +73,6 @@ static void make_bm(SkBitmap* bm) {
 }
 
 static void pre_dither(const SkBitmap& bm) {
-    SkAutoLockPixels alp(bm);
-
     for (int y = 0; y < bm.height(); y++) {
         DITHER_4444_SCAN(y);
 

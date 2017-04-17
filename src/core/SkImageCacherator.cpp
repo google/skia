@@ -241,7 +241,6 @@ bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client,
         }
     } else {
         *bitmap = tmpBitmap;
-        bitmap->lockPixels();
         bitmap->pixelRef()->setImmutableWithID(uniqueID);
     }
     return true;

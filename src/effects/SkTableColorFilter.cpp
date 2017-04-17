@@ -321,7 +321,6 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::makeComposed(sk_sp<SkColorFilter> inne
         return nullptr;
     }
 
-    innerBM.lockPixels();
     if (nullptr == innerBM.getPixels()) {
         return nullptr;
     }

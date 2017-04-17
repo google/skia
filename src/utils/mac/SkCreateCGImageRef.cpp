@@ -134,9 +134,6 @@ CGImageRef SkCreateCGImageRefWithColorspace(const SkBitmap& bm,
     const size_t s = bitmap->getSize();
 
     // our provider "owns" the bitmap*, and will take care of deleting it
-    // we initially lock it, so we can access the pixels. The bitmap will be deleted in the release
-    // proc, which will in turn unlock the pixels
-    bitmap->lockPixels();
     CGDataProviderRef dataRef = CGDataProviderCreateWithData(bitmap, bitmap->getPixels(), s,
                                                              SkBitmap_ReleaseInfo);
 

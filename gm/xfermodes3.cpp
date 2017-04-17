@@ -182,7 +182,6 @@ private:
         };
         SkBitmap bg;
         bg.allocN32Pixels(2, 2, true);
-        SkAutoLockPixels bgAlp(bg);
         memcpy(bg.getPixels(), kCheckData, sizeof(kCheckData));
 
         SkMatrix lm;

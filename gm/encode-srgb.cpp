@@ -109,7 +109,6 @@ static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
 }
 
 static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat format) {
-    SkAutoLockPixels autoLockPixels(bitmap);
     SkPixmap src;
     if (!bitmap.peekPixels(&src)) {
         return nullptr;

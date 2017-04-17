@@ -196,7 +196,6 @@ static bool check_write(skiatest::Reporter* reporter, SkCanvas* canvas, const Sk
         return false;
     }
 
-    SkAutoLockPixels alp(secretDevBitmap);
     canvasRowBytes = secretDevBitmap.rowBytes();
     canvasPixels = static_cast<const uint32_t*>(secretDevBitmap.getPixels());
 
@@ -279,7 +278,6 @@ static bool setup_bitmap(SkBitmap* bm, SkColorType ct, SkAlphaType at, int w, in
     if (!alloc_row_bytes(bm, info, rowBytes)) {
         return false;
     }
-    SkAutoLockPixels alp(*bm);
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             *bm->getAddr32(x, y) = get_bitmap_color(x, y, w, ct, at);

@@ -93,7 +93,6 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
 //////////////////////////////////////////////////////////////////////////////
 sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider* resourceProvider,
                                                    const SkBitmap& bitmap) {
-    SkAutoLockPixels alp(bitmap);
     if (!bitmap.readyToDraw()) {
         return nullptr;
     }
@@ -212,14 +211,9 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
 
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
 
-    SkAutoPixmapUnlock srcUnlocker;
-    if (!bitmap.requestLock(&srcUnlocker)) {
+    SkPixmap pixmap;
+    if (!bitmap.peekPixels(&pixmap)) {
         return nullptr;
-    }
-    const SkPixmap& pixmap = srcUnlocker.pixmap();
-    // Try to catch where we might have returned nullptr for src crbug.com/492818
-    if (nullptr == pixmap.addr()) {
-        sk_throw();
     }
 
     std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));

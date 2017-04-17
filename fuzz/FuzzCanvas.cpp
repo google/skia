@@ -982,7 +982,6 @@ static SkBitmap make_fuzz_bitmap(Fuzz* fuzz) {
     fuzz->nextRange(&w, 1, 1024);
     fuzz->nextRange(&h, 1, 1024);
     bitmap.allocN32Pixels(w, h);
-    SkAutoLockPixels autoLockPixels(bitmap);
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             SkColor c;

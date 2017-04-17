@@ -116,7 +116,6 @@ protected:
         canvas->translate(height * 2, height * 2);
         if (!fPremul) {
             // A premultiplied bitmap cannot currently be drawn.
-            SkAutoLockPixels alp(fBitmap);
             // Copy it to a bitmap which can be drawn, converting
             // to premultiplied:
             SkBitmap bm;

@@ -17,9 +17,6 @@
 #endif
 
 static void test_bitmap_equality(skiatest::Reporter* reporter, SkBitmap& bm1, SkBitmap& bm2) {
-    SkAutoLockPixels lockBm1(bm1);
-    SkAutoLockPixels lockBm2(bm2);
-
     REPORTER_ASSERT(reporter, bm1.getSize() == bm2.getSize());
     REPORTER_ASSERT(reporter, 0 == memcmp(bm1.getPixels(), bm2.getPixels(), bm1.getSize()));
 }
@@ -90,7 +87,6 @@ static void run_shader_test(skiatest::Reporter* reporter, SkSurface* sourceSurfa
 
     //  Test correctness
     {
-        SkAutoLockPixels lockBm(bmt);
         for (int y = 0; y < info.height(); y++) {
             REPORTER_ASSERT(reporter, 0xFFFF0000 == bmt.getColor(0, y));
 

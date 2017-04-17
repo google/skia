@@ -66,9 +66,6 @@ static void convert_to_index666(const SkBitmap& src, SkBitmap* dst) {
                                        kIndex_8_SkColorType, kOpaque_SkAlphaType),
                      SkColorTable::Make(storage, 216));
 
-    SkAutoLockPixels alps(src);
-    SkAutoLockPixels alpd(*dst);
-
     for (int y = 0; y < src.height(); y++) {
         const SkPMColor* srcP = src.getAddr32(0, y);
         uint8_t* dstP = dst->getAddr8(0, y);

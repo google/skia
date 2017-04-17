@@ -14,7 +14,6 @@ DEF_TEST(ImageFrom565Bitmap, r) {
     SkBitmap bm;
     bm.allocPixels(SkImageInfo::Make(
         5, 7, kRGB_565_SkColorType, kOpaque_SkAlphaType));
-    SkAutoLockPixels autoLockPixels(bm);
     bm.eraseColor(SK_ColorBLACK);
     REPORTER_ASSERT(r, SkImage::MakeFromBitmap(bm) != nullptr);
 }

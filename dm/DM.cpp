@@ -1110,9 +1110,6 @@ struct Task {
             gDefinitelyThreadSafeWork.add([task,name,bitmap,data]{
                 std::unique_ptr<SkStreamAsset> ownedData(data);
 
-                // Why doesn't the copy constructor do this when we have pre-locked pixels?
-                bitmap.lockPixels();
-
                 SkString md5;
                 if (!FLAGS_writePath.isEmpty() || !FLAGS_readPath.isEmpty()) {
                     SkMD5 hash;

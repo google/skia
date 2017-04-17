@@ -11,7 +11,6 @@
 #include "Test.h"
 
 static void init_src(const SkBitmap& bitmap) {
-    SkAutoLockPixels lock(bitmap);
     if (bitmap.getPixels()) {
         if (bitmap.getColorTable()) {
             sk_bzero(bitmap.getPixels(), bitmap.getSize());
@@ -130,8 +129,6 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
                 REPORTER_ASSERT(reporter, copy.height() == 2);
 
                 if (gPairs[i].fColorType == gPairs[j].fColorType) {
-                    SkAutoLockPixels alp0(subset);
-                    SkAutoLockPixels alp1(copy);
                     // they should both have, or both not-have, a colortable
                     bool hasCT = subset.getColorTable() != nullptr;
                     REPORTER_ASSERT(reporter, (copy.getColorTable() != nullptr) == hasCT);

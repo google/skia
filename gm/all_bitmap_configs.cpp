@@ -37,7 +37,6 @@ static SkBitmap make_bitmap(SkColorType ct) {
             SkASSERT(false);
             return bm;
     }
-    SkAutoLockPixels autoLockPixels(bm);
     uint8_t spectrum[256];
     for (int y = 0; y < 256; ++y) {
         spectrum[y] = y;
@@ -127,8 +126,6 @@ static SkBitmap indexed_bitmap() {
     SkImageInfo info = SkImageInfo::Make(SCALE, SCALE, kIndex_8_SkColorType,
                                          kPremul_SkAlphaType);
     bm.allocPixels(info, SkColorTable::Make(pmColors, SK_ARRAY_COUNT(pmColors)));
-    SkAutoLockPixels autoLockPixels1(n32bitmap);
-    SkAutoLockPixels autoLockPixels2(bm);
     for (int y = 0; y < SCALE; ++y) {
         for (int x = 0; x < SCALE; ++x) {
             SkPMColor c = *n32bitmap.getAddr32(x, y);

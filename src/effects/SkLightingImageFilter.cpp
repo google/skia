@@ -1278,7 +1278,6 @@ sk_sp<SkSpecialImage> SkDiffuseLightingImageFilter::onFilterImage(SkSpecialImage
         return nullptr;
     }
 
-    SkAutoLockPixels alp(inputBM);
     if (!inputBM.getPixels()) {
         return nullptr;
     }
@@ -1289,8 +1288,6 @@ sk_sp<SkSpecialImage> SkDiffuseLightingImageFilter::onFilterImage(SkSpecialImage
     if (!dst.tryAllocPixels(info)) {
         return nullptr;
     }
-
-    SkAutoLockPixels dstLock(dst);
 
     SkMatrix matrix(ctx.ctm());
     matrix.postTranslate(SkIntToScalar(-inputOffset.x()), SkIntToScalar(-inputOffset.y()));
@@ -1445,7 +1442,6 @@ sk_sp<SkSpecialImage> SkSpecularLightingImageFilter::onFilterImage(SkSpecialImag
         return nullptr;
     }
 
-    SkAutoLockPixels alp(inputBM);
     if (!inputBM.getPixels()) {
         return nullptr;
     }
@@ -1456,8 +1452,6 @@ sk_sp<SkSpecialImage> SkSpecularLightingImageFilter::onFilterImage(SkSpecialImag
     if (!dst.tryAllocPixels(info)) {
         return nullptr;
     }
-
-    SkAutoLockPixels dstLock(dst);
 
     SpecularLightingType lightingType(fKS, fShininess);
 

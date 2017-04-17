@@ -93,7 +93,6 @@ public:
 
     static void apply_gamma(const SkBitmap& bm) {
         return; // below is our experiment for sRGB correction
-        bm.lockPixels();
         for (int y = 0; y < bm.height(); ++y) {
             for (int x = 0; x < bm.width(); ++x) {
                 SkPMColor c = *bm.getAddr32(x, y);
@@ -136,7 +135,6 @@ protected:
         SkScalar y = 4;
 
         SkPixmap prevPM;
-        baseBM.lockPixels();
         baseBM.peekPixels(&prevPM);
 
         SkDestinationSurfaceColorMode colorMode = SkDestinationSurfaceColorMode::kLegacy;
@@ -181,7 +179,6 @@ protected:
         };
 
         SkPixmap basePM;
-        orig.lockPixels();
         orig.peekPixels(&basePM);
         for (auto method : methods) {
             canvas->translate(orig.width()/2 + 8.0f, 0);
