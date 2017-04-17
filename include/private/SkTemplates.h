@@ -294,8 +294,10 @@ public:
     }
 
     SkAutoTMalloc& operator=(SkAutoTMalloc<T>&& that) {
-        sk_free(fPtr);
-        fPtr = that.release();
+        if (this != &that) {
+            sk_free(fPtr);
+            fPtr = that.release();
+        }
         return *this;
     }
 
