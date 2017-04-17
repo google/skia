@@ -76,10 +76,10 @@ static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkSurface*
         readBmp1.eraseColor(0);
         readBmp2.eraseColor(0);
 
-        canvas->readPixels(&readBmp1, 0, 0);
+        canvas->readPixels(readBmp1, 0, 0);
         sk_tool_utils::write_pixels(canvas, readBmp1, 0, 0, gUnpremul[upmaIdx].fColorType,
                                     kUnpremul_SkAlphaType);
-        canvas->readPixels(&readBmp2, 0, 0);
+        canvas->readPixels(readBmp2, 0, 0);
 
         bool success = true;
         for (int y = 0; y < 256 && success; ++y) {
