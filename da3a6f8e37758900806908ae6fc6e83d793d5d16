@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1627819d_5eb1ce8f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-17T21:27:55Z",
+      "side": 1,
+      "message": "I\u0027d like to just delete the Android behavior and always fill with zeros?  What do you both think?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 24
+      },
+      "revId": "da3a6f8e37758900806908ae6fc6e83d793d5d16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
