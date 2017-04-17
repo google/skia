@@ -275,7 +275,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         // No rendering to integer textures.
         GrSurfaceDesc intRTDesc = desc;
         intRTDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-        sk_sp<GrTexture> temp(context->resourceProvider()->createTexture(intRTDesc,
+        sk_sp<GrTexture> temp(context->resourceProvider()->createTexture1(intRTDesc,
                                                                          SkBudgeted::kYes));
         REPORTER_ASSERT(reporter, !temp);
     }
