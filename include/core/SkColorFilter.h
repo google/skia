@@ -172,6 +172,16 @@ private:
      *  e.g. compose(filter, compose(compose(filter, filter), filter)) --> 4
      */
     virtual int privateComposedFilterCount() const { return 1; }
+
+    /*
+     *  Returns true and sets |outer| and |inner| if this is a compose color filter.
+     *  Returns false otherwise.
+     */
+    virtual bool asACompose(SkColorFilter** /*outer*/, SkColorFilter** /*inner*/) const {
+        return false;
+    }
+
+    friend class SkColorSpaceXformer;
     friend class SkComposeColorFilter;
 
     typedef SkFlattenable INHERITED;

@@ -44,12 +44,20 @@ sk_sp<SkImage> SkColorSpaceXformer::apply(const SkBitmap& src) {
     return xformed;
 }
 
-// As far as I know, SkModeColorFilter is the only color filter that holds a color.
+// Currently, SkModeColorFilter is the only color filter that holds a color.  And
+// SkComposeColorFilter is the only color filter that holds another color filter.  If this
+// changes, this function will need updating.
 sk_sp<SkColorFilter> SkColorSpaceXformer::apply(const SkColorFilter* colorFilter) {
     SkColor color;
     SkBlendMode mode;
     if (colorFilter->asColorMode(&color, &mode)) {
         return SkColorFilter::MakeModeFilter(this->apply(color), mode);
+    }
+
+    SkColorFilter* outer;
+    SkColorFilter* inner;
+    if (colorFilter->asACompose(&outer, &inner)) {
+        return SkColorFilter::MakeComposeFilter(this->apply(outer), this->apply(inner));
     }
 
     return sk_ref_sp(const_cast<SkColorFilter*>(colorFilter));
