@@ -42,12 +42,13 @@ protected:
 
         SkBitmap bitmap;
 
-        bitmap.setInfo(SkImageInfo::MakeN32Premul(kWindowSize, kWindowSize));
+        bitmap.allocPixels(SkImageInfo::MakeN32Premul(kWindowSize, kWindowSize));
 
         for (int i = 0; i < loops; i++) {
             for (int x = 0; x < kNumStepsX; ++x) {
                 for (int y = 0; y < kNumStepsY; ++y) {
-                    canvas->readPixels(&bitmap, x * offX, y * offY);
+                    canvas->readPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(),
+                                       x * offX, y * offY);
                 }
             }
         }
