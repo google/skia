@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "559234e9_2c8d1ecd",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-04-17T17:16:59Z",
+      "side": 1,
+      "message": "Yep.  This usually has the effect of favoring the tail \u003d\u003d 0 case on the hot path, and shoving the other case to the end of the function, as if it were written\n\n  if (tail !\u003d 0) {\n    goto slow;\n  }\n  do_fast_load();\ncommon:\n  unpack();\n  return;\nslow:\n  do_slow_load();\n  goto common;",
+      "parentUuid": "3e61db9b_913b6f1f",
+      "range": {
+        "startLine": 293,
+        "startChar": 12,
+        "endLine": 293,
+        "endChar": 36
+      },
+      "revId": "fcf0f19659e0db8281542e9fbe5c5ba032df0654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fbabe201_55f5a8e1",
         "filename": "src/jumper/SkJumper_vectors.h",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2017-04-17T17:05:58Z",
       "side": 1,
       "message": "Why don\u0027t we worry about tail here?",
+      "range": {
+        "startLine": 524,
+        "startChar": 12,
+        "endLine": 524,
+        "endChar": 17
+      },
+      "revId": "fcf0f19659e0db8281542e9fbe5c5ba032df0654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "decbca0b_684decda",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-04-17T17:16:59Z",
+      "side": 1,
+      "message": "We only ever do tail pipelines with AVX+ today in SkJumper.  With SSE2,SSE4.1, or on ARM, if there are any jagged pixels (\u003c3 usually, just 1 on ARMv7) we do them serially.",
+      "parentUuid": "fbabe201_55f5a8e1",
       "range": {
         "startLine": 524,
         "startChar": 12,
