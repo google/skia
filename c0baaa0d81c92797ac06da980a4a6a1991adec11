@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "ddf56853_f898c05a",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5725
+      },
+      "writtenOn": "2017-04-17T21:52:22Z",
+      "side": 1,
+      "message": "I\u0027ll defer to Greg on this.",
+      "parentUuid": "15726660_4b9c79c1",
+      "revId": "c0baaa0d81c92797ac06da980a4a6a1991adec11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "388e2296_ff49e55b",
         "filename": "BUILD.gn",
         "patchSetId": 1
@@ -72,6 +90,30 @@
       "side": 1,
       "message": "I think thats fine, we have some extensions in our vulkan.h, but I\u0027m fairly certain we only use them from flutter and mozart, and not from within skia, and that should continue to be the case moving forward.\n\nDoes this comment means I should do something different here or is it just informational?",
       "parentUuid": "388e2296_ff49e55b",
+      "range": {
+        "startLine": 60,
+        "startChar": 31,
+        "endLine": 60,
+        "endChar": 60
+      },
+      "revId": "c0baaa0d81c92797ac06da980a4a6a1991adec11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "141c1fe9_863d90bc",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5725
+      },
+      "writtenOn": "2017-04-17T21:52:22Z",
+      "side": 1,
+      "message": "+1 to what forrest said",
+      "parentUuid": "8932e048_35f65ca2",
       "range": {
         "startLine": 60,
         "startChar": 31,
