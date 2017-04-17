@@ -96,34 +96,40 @@ static void check_565(skiatest::Reporter* reporter,
     }
 }
 
-template <typename T>
-void runTest(skiatest::Reporter* reporter, GrContext* context,
-             T val1, T val2, int arraySize, GrPixelConfig config) {
-    SkTDArray<T> controlPixelData;
+static void run_test(skiatest::Reporter* reporter, GrContext* context,
+                     int arraySize, GrPixelConfig config) {
+    SkTDArray<uint16_t> controlPixelData;
     // We will read back into an 8888 buffer since 565/4444 read backs aren't supported
     SkTDArray<GrColor> readBuffer;
     controlPixelData.setCount(arraySize);
     readBuffer.setCount(arraySize);
 
     for (int i = 0; i < arraySize; i += 2) {
-        controlPixelData[i] = val1;
-        controlPixelData[i + 1] = val2;
+        controlPixelData[i] = 0xFF00;
+        controlPixelData[i + 1] = 0xFA62;
     }
 
-    for (int origin = 0; origin < 2; ++origin) {
+    const SkImageInfo dstInfo = SkImageInfo::Make(DEV_W, DEV_H,
+                                                  kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
+
+    for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         GrSurfaceDesc desc;
         desc.fFlags = kNone_GrSurfaceFlags;
         desc.fWidth = DEV_W;
         desc.fHeight = DEV_H;
         desc.fConfig = config;
-        desc.fOrigin = 0 == origin ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
-        sk_sp<GrTextureProxy> fpProxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                     desc, SkBudgeted::kNo,
-                                                                     controlPixelData.begin(), 0);
-        SkASSERT(fpProxy);
-        context->contextPriv().readSurfacePixels(fpProxy.get(), nullptr, 0, 0, DEV_W, DEV_H,
-                                                 kRGBA_8888_GrPixelConfig, nullptr,
-                                                 readBuffer.begin(), 0);
+        desc.fOrigin = origin;
+
+        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                                   desc, SkBudgeted::kNo,
+                                                                   controlPixelData.begin(), 0);
+        SkASSERT(proxy);
+
+        sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
+                                                                        std::move(proxy), nullptr);
+
+        SkAssertResult(sContext->readPixels(dstInfo, readBuffer.begin(), 0, 0, 0));
+
         if (kRGBA_4444_GrPixelConfig == config) {
             check_4444(reporter, controlPixelData, readBuffer);
         } else {
@@ -136,13 +142,11 @@ void runTest(skiatest::Reporter* reporter, GrContext* context,
 static const int CONTROL_ARRAY_SIZE = DEV_W * DEV_H;
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RGBA4444TextureTest, reporter, ctxInfo) {
-    runTest<uint16_t>(reporter, ctxInfo.grContext(), 0xFF00, 0xFA62,
-                      CONTROL_ARRAY_SIZE, kRGBA_4444_GrPixelConfig);
+    run_test(reporter, ctxInfo.grContext(), CONTROL_ARRAY_SIZE, kRGBA_4444_GrPixelConfig);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RGB565TextureTest, reporter, ctxInfo) {
-    runTest<uint16_t>(reporter, ctxInfo.grContext(), 0xFF00, 0xFA62,
-                      CONTROL_ARRAY_SIZE, kRGB_565_GrPixelConfig);
+    run_test(reporter, ctxInfo.grContext(), CONTROL_ARRAY_SIZE, kRGB_565_GrPixelConfig);
 }
 
 #endif
