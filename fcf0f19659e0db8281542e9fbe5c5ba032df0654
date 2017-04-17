@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e61db9b_913b6f1f",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-17T17:05:58Z",
+      "side": 1,
+      "message": "This is like saying \"if (tail)\" but telling the compiler that we expect tail to be 0?",
+      "range": {
+        "startLine": 293,
+        "startChar": 12,
+        "endLine": 293,
+        "endChar": 36
+      },
+      "revId": "fcf0f19659e0db8281542e9fbe5c5ba032df0654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbabe201_55f5a8e1",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-17T17:05:58Z",
+      "side": 1,
+      "message": "Why don\u0027t we worry about tail here?",
+      "range": {
+        "startLine": 524,
+        "startChar": 12,
+        "endLine": 524,
+        "endChar": 17
+      },
+      "revId": "fcf0f19659e0db8281542e9fbe5c5ba032df0654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
