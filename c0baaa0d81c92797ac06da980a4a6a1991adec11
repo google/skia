@@ -16,6 +16,29 @@
       "revId": "c0baaa0d81c92797ac06da980a4a6a1991adec11",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "388e2296_ff49e55b",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-17T21:34:56Z",
+      "side": 1,
+      "message": "is there anything special about the vulkan.h here? We are moving skia to store a vulkan.h in its tree and use that for include instead of what the sdk has. The reason for this is if we start wanting to use new extensions but someone has an old sdk (or if vulkan versions bumps), then we\u0027ll have issues.\n\nSo basically everything in skia has to be able to compile with the vulkan.h that we are storing in our codebase.",
+      "range": {
+        "startLine": 60,
+        "startChar": 31,
+        "endLine": 60,
+        "endChar": 60
+      },
+      "revId": "c0baaa0d81c92797ac06da980a4a6a1991adec11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
