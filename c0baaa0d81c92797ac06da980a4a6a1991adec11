@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76a54895_1b41fbb5",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5725
+      },
+      "writtenOn": "2017-04-17T21:04:18Z",
+      "side": 1,
+      "message": "I would be more inclined to change the default value of skia_vulkan_sdk, i.e.\n\nif (is_fuchsia \u0026\u0026 defined(fuchsia_vulkan_sdk)) {\n    skia_vulkan_sdk \u003d fuchsia_vulkan_sdk\n  } else {\n    skia_vulkan_sdk \u003d getenv(\"VULKAN_SDK\")\n  }\n\notherwise, the changes below have the side-effect of completely ignoring any overrides to skia_vulkan_sdk. we probably wouldn\u0027t be doing that on fuchsia, but it would still be an unexpected behavior.",
+      "revId": "c0baaa0d81c92797ac06da980a4a6a1991adec11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
