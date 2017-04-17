@@ -346,18 +346,20 @@ private:
     void initCommon(const GrContextOptions&);
 
     /**
-     * These functions create premul <-> unpremul effects if it is possible to generate a pair
-     * of effects that make a readToUPM->writeToPM->readToUPM cycle invariant. Otherwise, they
-     * return NULL. They also can perform a swizzle as part of the draw.
+     * These functions create premul <-> unpremul effects. If the second argument is 'true', they
+     * use the specialized round-trip effects from GrConfigConversionEffect, otherwise they
+     * create effects that do naive multiply or divide.
      */
-    sk_sp<GrFragmentProcessor> createPMToUPMEffect(sk_sp<GrFragmentProcessor>, GrPixelConfig);
-    sk_sp<GrFragmentProcessor> createUPMToPMEffect(sk_sp<GrFragmentProcessor>, GrPixelConfig);
-    /** Called before either of the above two functions to determine the appropriate fragment
-        processors for conversions. */
-    void testPMConversionsIfNecessary(uint32_t flags);
-    /** Returns true if we've determined that createPMtoUPMEffect and createUPMToPMEffect will
-        succeed for the passed in config. Otherwise we fall back to SW conversion. */
-    bool validPMUPMConversionExists(GrPixelConfig) const;
+    sk_sp<GrFragmentProcessor> createPMToUPMEffect(sk_sp<GrFragmentProcessor>,
+                                                   bool useConfigConversionEffect);
+    sk_sp<GrFragmentProcessor> createUPMToPMEffect(sk_sp<GrFragmentProcessor>,
+                                                   bool useConfigConversionEffect);
+
+    /**
+     * Returns true if createPMtoUPMEffect and createUPMToPMEffect will succeed for non-sRGB 8888
+     * configs. In other words, did we find a pair of round-trip preserving conversion effects?
+     */
+    bool validPMUPMConversionExists();
 
     /**
      * A callback similar to the above for use by the TextBlobCache
