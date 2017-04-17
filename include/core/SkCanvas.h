@@ -230,14 +230,16 @@ public:
      */
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY);
+    bool readPixels(const SkPixmap&, int srcX, int srcY);
+    bool readPixels(const SkBitmap&, int srcX, int srcY);
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_READPIXELS
     /**
      *  Helper for calling readPixels(info, ...). This call will check if bitmap has been allocated.
      *  If not, it will attempt to call allocPixels(). If this fails, it will return false. If not,
      *  it calls through to readPixels(info, ...) and returns its result.
      */
     bool readPixels(SkBitmap* bitmap, int srcX, int srcY);
-
     /**
      *  Helper for allocating pixels and then calling readPixels(info, ...). The bitmap is resized
      *  to the intersection of srcRect and the base-layer bounds. On success, pixels will be
@@ -245,6 +247,7 @@ public:
      *  set to empty.
      */
     bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
+#endif
 
     /**
      *  This method affects the pixels in the base-layer, and operates in pixel coordinates,

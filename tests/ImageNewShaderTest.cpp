@@ -57,14 +57,14 @@ static void run_shader_test(skiatest::Reporter* reporter, SkSurface* sourceSurfa
     destinationCanvas->clear(SK_ColorTRANSPARENT);
     destinationCanvas->drawPaint(paint);
 
-    SkIRect rect = info.bounds();
-
     SkBitmap bmOrig;
-    sourceSurface->getCanvas()->readPixels(rect, &bmOrig);
+    bmOrig.allocN32Pixels(info.width(), info.height());
+    sourceSurface->getCanvas()->readPixels(bmOrig, 0, 0);
 
 
     SkBitmap bm;
-    destinationCanvas->readPixels(rect, &bm);
+    bm.allocN32Pixels(info.width(), info.height());
+    destinationCanvas->readPixels(bm, 0, 0);
 
     test_bitmap_equality(reporter, bmOrig, bm);
 
@@ -85,7 +85,8 @@ static void run_shader_test(skiatest::Reporter* reporter, SkSurface* sourceSurfa
     destinationCanvas->drawPaint(paintTranslated);
 
     SkBitmap bmt;
-    destinationCanvas->readPixels(rect, &bmt);
+    bmt.allocN32Pixels(info.width(), info.height());
+    destinationCanvas->readPixels(bmt, 0, 0);
 
     //  Test correctness
     {

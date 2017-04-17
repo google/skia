@@ -1306,7 +1306,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
         canvas->getGrContext()->dumpGpuStats(log);
     }
     dst->allocPixels(info);
-    canvas->readPixels(dst, 0, 0);
+    canvas->readPixels(*dst, 0, 0);
     if (FLAGS_abandonGpuContext) {
         factory.abandonContexts();
     } else if (FLAGS_releaseAndAbandonGpuContext) {
@@ -1869,7 +1869,7 @@ Error ViaCSXform::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
         if (fColorSpin) {
             SkBitmap pixels;
             pixels.allocPixels(canvas->imageInfo());
-            canvas->readPixels(&pixels, 0, 0);
+            canvas->readPixels(pixels, 0, 0);
             for (int y = 0; y < pixels.height(); y++) {
                 for (int x = 0; x < pixels.width(); x++) {
                     uint32_t pixel = *pixels.getAddr32(x, y);

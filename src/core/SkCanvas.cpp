@@ -831,6 +831,7 @@ SkBaseDevice* SkCanvas::getTopDevice() const {
     return fMCRec->fTopLayer->fDevice;
 }
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_READPIXELS
 bool SkCanvas::readPixels(SkBitmap* bitmap, int x, int y) {
     bool weAllocated = false;
     if (nullptr == bitmap->pixelRef()) {
@@ -872,6 +873,7 @@ bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
     }
     return true;
 }
+#endif
 
 bool SkCanvas::readPixels(const SkImageInfo& dstInfo, void* dstP, size_t rowBytes, int x, int y) {
     SkBaseDevice* device = this->getDevice();
@@ -880,6 +882,15 @@ bool SkCanvas::readPixels(const SkImageInfo& dstInfo, void* dstP, size_t rowByte
     }
 
     return device->readPixels(dstInfo, dstP, rowBytes, x, y);
+}
+
+bool SkCanvas::readPixels(const SkPixmap& pm, int x, int y) {
+    return pm.addr() && this->readPixels(pm.info(), pm.writable_addr(), pm.rowBytes(), x, y);
+}
+
+bool SkCanvas::readPixels(const SkBitmap& bm, int x, int y) {
+    SkPixmap pm;
+    return bm.peekPixels(&pm) && this->readPixels(pm, x, y);
 }
 
 bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {

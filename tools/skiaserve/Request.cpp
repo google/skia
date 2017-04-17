@@ -46,9 +46,9 @@ Request::~Request() {
 
 SkBitmap* Request::getBitmapFromCanvas(SkCanvas* canvas) {
     SkBitmap* bmp = new SkBitmap();
-    bmp->setInfo(canvas->imageInfo());
-    if (!canvas->readPixels(bmp, 0, 0)) {
+    if (!bmp->tryAllocPixels(canvas->imageInfo()) || !canvas->readPixels(*bmp, 0, 0)) {
         fprintf(stderr, "Can't read pixels\n");
+        delete bmp;
         return nullptr;
     }
     return bmp;

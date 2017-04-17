@@ -242,10 +242,7 @@ static void blur_path(SkCanvas* canvas, const SkPath& path,
 static void readback(SkCanvas* canvas, int* result, int resultCount) {
     SkBitmap readback;
     readback.allocN32Pixels(resultCount, 30);
-
-    SkIRect readBackRect = { 0, 0, resultCount, 30 };
-
-    canvas->readPixels(readBackRect, &readback);
+    canvas->readPixels(readback, 0, 0);
 
     readback.lockPixels();
     SkPMColor* pixels = (SkPMColor*) readback.getAddr32(0, 15);

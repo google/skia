@@ -1064,7 +1064,7 @@ void SampleWindow::listTitles() {
 static SkBitmap capture_bitmap(SkCanvas* canvas) {
     SkBitmap bm;
     if (bm.tryAllocPixels(canvas->imageInfo())) {
-        canvas->readPixels(&bm, 0, 0);
+        canvas->readPixels(bm, 0, 0);
     }
     return bm;
 }

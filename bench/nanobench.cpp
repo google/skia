@@ -154,8 +154,8 @@ bool Target::capturePixels(SkBitmap* bmp) {
     if (!canvas) {
         return false;
     }
-    bmp->setInfo(canvas->imageInfo());
-    if (!canvas->readPixels(bmp, 0, 0)) {
+    bmp->allocPixels(canvas->imageInfo());
+    if (!canvas->readPixels(*bmp, 0, 0)) {
         SkDebugf("Can't read canvas pixels.\n");
         return false;
     }

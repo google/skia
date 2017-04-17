@@ -247,8 +247,7 @@ static bool check_read(skiatest::Reporter* reporter,
 enum BitmapInit {
     kFirstBitmapInit = 0,
 
-    kNoPixels_BitmapInit = kFirstBitmapInit,
-    kTight_BitmapInit,
+    kTight_BitmapInit = kFirstBitmapInit,
     kRowBytes_BitmapInit,
     kRowBytesOdd_BitmapInit,
 
@@ -270,10 +269,7 @@ static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init, 
                         SkAlphaType at) {
     SkImageInfo info = SkImageInfo::Make(rect.width(), rect.height(), ct, at);
     size_t rowBytes = 0;
-    bool alloc = true;
     switch (init) {
-        case kNoPixels_BitmapInit:
-            alloc = false;
         case kTight_BitmapInit:
             break;
         case kRowBytes_BitmapInit:
@@ -286,12 +282,7 @@ static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init, 
             SkASSERT(0);
             break;
     }
-
-    if (alloc) {
-        bitmap->allocPixels(info, rowBytes);
-    } else {
-        bitmap->setInfo(info, rowBytes);
-    }
+    bitmap->allocPixels(info, rowBytes);
 }
 
 static const struct {
@@ -370,7 +361,7 @@ static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>
                     fill_dst_bmp_with_init_data(&bmp);
                 }
                 uint32_t idBefore = surface->generationID();
-                bool success = canvas->readPixels(&bmp, srcRect.fLeft, srcRect.fTop);
+                bool success = canvas->readPixels(bmp, srcRect.fLeft, srcRect.fTop);
                 uint32_t idAfter = surface->generationID();
 
                 // we expect to succeed when the read isn't fully clipped
@@ -391,6 +382,7 @@ static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>
                     REPORTER_ASSERT(reporter, bmp.isNull());
                 }
             }
+#ifdef SK_SUPPORT_LEGACY_CANVAS_READPIXELS
             // check the old webkit version of readPixels that clips the
             // bitmap size
             SkBitmap wkbmp;
@@ -406,6 +398,7 @@ static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>
             } else {
                 REPORTER_ASSERT(reporter, !success);
             }
+#endif
         }
     }
 }
