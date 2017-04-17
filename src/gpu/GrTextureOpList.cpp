@@ -9,6 +9,7 @@
 
 #include "GrAuditTrail.h"
 #include "GrGpu.h"
+#include "GrSurfaceProxy.h"
 #include "GrTextureProxy.h"
 #include "SkStringUtils.h"
 #include "ops/GrCopySurfaceOp.h"

@@ -36,7 +36,7 @@ private:
     std::unique_ptr<Op> makeOp(GrPaint&& paint) override;
 
     void onBeginFlush(GrResourceProvider*) override;
-    void onDraw(const GrPipeline&, const InstanceProcessor&, const Op*) override;
+    void onDraw(const GrPipeline&, GrRenderTarget*, const InstanceProcessor&, const Op*) override;
     void onEndFlush() override;
     void onResetGpuResources(ResetType) override;
 

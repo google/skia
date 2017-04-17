@@ -31,7 +31,7 @@ public:
         // MDB TODO: remove this. In this hybrid state we need to be sure the RT is instantiable
         // so it can carry the IO refs. In the future we will just get the proxy and
         // it carry the IO refs.
-        if (!rtc->accessRenderTarget()) {
+        if (!rtc->accessRenderTarget2()) {
             return nullptr;
         }
 
@@ -45,7 +45,7 @@ public:
         SkASSERT(fullScreen || !rect.isEmpty());
 
         // MDB TODO: remove this. See above comment.
-        if (!rtc->accessRenderTarget()) {
+        if (!rtc->accessRenderTarget2()) {
             return nullptr;
         }
 
@@ -57,7 +57,7 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("rtID: %d proxyID: %d Scissor [",
-                       fRenderTarget.get()->uniqueID().asUInt(),
+                       fRenderTargetProxy.get()->uniqueID().asUInt(),
                        fProxyUniqueID.asUInt());
         if (fClip.scissorEnabled()) {
             const SkIRect& r = fClip.scissorRect();
@@ -94,7 +94,7 @@ private:
         }
         this->setBounds(SkRect::Make(fClip.scissorEnabled() ? fClip.scissorRect() : rtRect),
                         HasAABloat::kNo, IsZeroArea::kNo);
-        fRenderTarget.reset(rtc->accessRenderTarget());
+        fRenderTargetProxy.reset(rtc->asRenderTargetProxy());
     }
 
     GrClearOp(const SkIRect& rect, GrColor color, GrRenderTargetContext* rtc, bool fullScreen)
@@ -107,7 +107,7 @@ private:
             fClip.disableScissor();
         }
         this->setBounds(SkRect::Make(rect), HasAABloat::kNo, IsZeroArea::kNo);
-        fRenderTarget.reset(rtc->accessRenderTarget());
+        fRenderTargetProxy.reset(rtc->asRenderTargetProxy());
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -115,7 +115,7 @@ private:
         // contains the old clear, or when the new clear is a subset of the old clear and is the
         // same color.
         GrClearOp* cb = t->cast<GrClearOp>();
-        SkASSERT(cb->fRenderTarget == fRenderTarget);
+        //SkASSERT(cb->fRenderTarget == fRenderTarget);
         SkASSERT(cb->fProxyUniqueID == fProxyUniqueID);
         if (fClip.windowRectsState() != cb->fClip.windowRectsState()) {
             return false;
@@ -142,15 +142,20 @@ private:
 
     void onExecute(GrOpFlushState* state) override {
         // MDB TODO: instantiate the renderTarget from the proxy in here
-        state->commandBuffer()->clear(fRenderTarget.get(), fClip, fColor);
+        GrRenderTarget* rt = fRenderTargetProxy.get()->instantiate(nullptr);
+        if (!rt) {
+            return;
+        }
+
+        state->commandBuffer()->clear(rt, fClip, fColor);
     }
 
     GrFixedClip                                             fClip;
     GrColor                                                 fColor;
 
     // MDB TODO: remove this. When the renderTargetProxy carries the refs this will be redundant.
-    GrSurfaceProxy::UniqueID                                fProxyUniqueID;
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
+    GrSurfaceProxy::UniqueID                                  fProxyUniqueID;
+    GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
 
     typedef GrOp INHERITED;
 };

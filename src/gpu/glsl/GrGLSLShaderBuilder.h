@@ -15,6 +15,7 @@
 
 #include <stdarg.h>
 
+class GrRenderTarget;
 class GrGLSLColorSpaceXformHelper;
 
 /**
@@ -139,7 +140,7 @@ public:
     /*
      * Combines the various parts of the shader to create a single finalized shader string.
      */
-    void finalize(uint32_t visibility);
+    void finalize(GrRenderTarget*, uint32_t visibility);
 
     /*
      * Get parent builder for adding uniforms
@@ -226,7 +227,7 @@ protected:
     SkString& main() { return fShaderStrings[kMain]; }
     SkString& code() { return fShaderStrings[fCodeIndex]; }
 
-    virtual void onFinalize() = 0;
+    virtual void onFinalize(GrRenderTarget*) = 0;
 
     enum {
         kVersionDecl,

@@ -200,12 +200,13 @@ void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
     fInstanceBuffer->unmap();
 }
 
-void GLInstancedRendering::onDraw(const GrPipeline& pipeline, const InstanceProcessor& instProc,
+void GLInstancedRendering::onDraw(const GrPipeline& pipeline, GrRenderTarget* rt,
+                                  const InstanceProcessor& instProc,
                                   const Op* baseOp) {
     if (!fDrawIndirectBuffer && !fGLDrawCmdsInfo) {
         return; // beginFlush was not successful.
     }
-    if (!this->glGpu()->flushGLState(pipeline, instProc, false)) {
+    if (!this->glGpu()->flushGLState(pipeline, rt, instProc, false)) {
         return;
     }
 

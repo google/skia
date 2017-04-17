@@ -101,7 +101,7 @@ public:
     // The refcount is incremented and a pointer returned.
     GrVkSampler* findOrCreateCompatibleSampler(const GrSamplerParams&, uint32_t mipLevels);
 
-    sk_sp<GrVkPipelineState> findOrCreateCompatiblePipelineState(const GrPipeline&,
+    sk_sp<GrVkPipelineState> findOrCreateCompatiblePipelineState(const GrPipeline&, GrRenderTarget*,
                                                                  const GrPrimitiveProcessor&,
                                                                  GrPrimitiveType,
                                                                  const GrVkRenderPass& renderPass);
@@ -169,7 +169,7 @@ private:
 
         void abandon();
         void release();
-        sk_sp<GrVkPipelineState> refPipelineState(const GrPipeline&,
+        sk_sp<GrVkPipelineState> refPipelineState(const GrPipeline&, GrRenderTarget*,
                                                   const GrPrimitiveProcessor&,
                                                   GrPrimitiveType,
                                                   const GrVkRenderPass& renderPass);

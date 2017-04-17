@@ -19,19 +19,9 @@ class GrClearStencilClipOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    // MDB TODO: replace the renderTargetContext with just the renderTargetProxy.
-    // For now, we need the renderTargetContext for its accessRenderTarget powers.
     static std::unique_ptr<GrOp> Make(const GrFixedClip& clip, bool insideStencilMask,
-                                      GrRenderTargetContext* rtc) {
-
-        // MDB TODO: remove this. In this hybrid state we need to be sure the RT is instantiable
-        // so it can carry the IO refs. In the future we will just get the proxy and
-        // it carry the IO refs.
-        if (!rtc->accessRenderTarget()) {
-            return nullptr;
-        }
-
-        return std::unique_ptr<GrOp>(new GrClearStencilClipOp(clip, insideStencilMask, rtc));
+                                      GrRenderTargetProxy* rtProxy) {
+        return std::unique_ptr<GrOp>(new GrClearStencilClipOp(clip, insideStencilMask, rtProxy));
     }
 
     const char* name() const override { return "ClearStencilClip"; }
@@ -42,27 +32,25 @@ public:
             const SkIRect& r = fClip.scissorRect();
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
         }
-        string.appendf("], IC: %d, rtID: %d proxyID: %d",
+        string.appendf("], IC: %d, proxyID: %d",
                        fInsideStencilMask,
-                       fRenderTarget.get()->uniqueID().asUInt(),
-                       fProxyUniqueID.asUInt());
+                       fRenderTargetProxy.get()->uniqueID().asUInt());
         string.append(INHERITED::dumpInfo());
         return string;
     }
 
 private:
     GrClearStencilClipOp(const GrFixedClip& clip, bool insideStencilMask,
-                         GrRenderTargetContext* rtc)
+                         GrRenderTargetProxy* rtProxy)
             : INHERITED(ClassID())
             , fClip(clip)
-            , fInsideStencilMask(insideStencilMask)
-            , fProxyUniqueID(rtc->asSurfaceProxy()->uniqueID()) {
+            , fInsideStencilMask(insideStencilMask) {
         const SkRect& bounds = fClip.scissorEnabled()
                                             ? SkRect::Make(fClip.scissorRect())
-                                            : SkRect::MakeIWH(rtc->width(), rtc->height());
+                                            : SkRect::MakeIWH(rtProxy->width(), rtProxy->height());
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 
-        fRenderTarget.reset(rtc->accessRenderTarget());
+        fRenderTargetProxy.reset(rtProxy);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
@@ -71,14 +59,17 @@ private:
 
     void onExecute(GrOpFlushState* state) override {
         // MDB TODO: instantiate the renderTarget from the proxy in here
-        state->commandBuffer()->clearStencilClip(fRenderTarget.get(), fClip, fInsideStencilMask);
+        GrRenderTarget* rt = fRenderTargetProxy.get()->instantiate(nullptr);
+        if (!rt) {
+            return;
+        }
+
+        state->commandBuffer()->clearStencilClip(rt, fClip, fInsideStencilMask);
     }
 
     const GrFixedClip                                    fClip;
     const bool                                           fInsideStencilMask;
-    // MDB TODO: remove this. When the renderTargetProxy carries the refs this will be redundant.
-    GrSurfaceProxy::UniqueID                             fProxyUniqueID;
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+    GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
 
     typedef GrOp INHERITED;
 };

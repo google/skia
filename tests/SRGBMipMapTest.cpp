@@ -56,7 +56,7 @@ void read_and_check_pixels(skiatest::Reporter* reporter, GrSurfaceContext* conte
 
     if (!context->readPixels(dstInfo, readData.get(), 0, 0, 0)) {
         ERRORF(reporter, "Could not read pixels for %s.", subtestName);
-        return;
+        return;    
     }
 
     for (int j = 0; j < h; ++j) {

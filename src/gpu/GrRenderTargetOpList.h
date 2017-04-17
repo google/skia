@@ -117,11 +117,11 @@ private:
 
     struct RecordedOp {
         RecordedOp(std::unique_ptr<GrOp> op,
-                   GrRenderTarget* rt,
+                   GrRenderTargetProxy* rtp,
                    const GrAppliedClip* appliedClip,
                    const DstTexture* dstTexture)
                 : fOp(std::move(op))
-                , fRenderTarget(rt)
+                , fRenderTargetProxy(rtp)
                 , fAppliedClip(appliedClip) {
             if (dstTexture) {
                 fDstTexture = *dstTexture;
@@ -129,7 +129,7 @@ private:
         }
         std::unique_ptr<GrOp> fOp;
         // TODO: These ops will all to target the same render target and this won't be needed.
-        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+        GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
         DstTexture fDstTexture;
         const GrAppliedClip* fAppliedClip;
     };
@@ -146,7 +146,6 @@ private:
                            const DstTexture* bDstTexture);
 
     GrClearOp* fLastFullClearOp = nullptr;
-    GrGpuResource::UniqueID fLastFullClearResourceID = GrGpuResource::UniqueID::InvalidID();
     GrSurfaceProxy::UniqueID fLastFullClearProxyID = GrSurfaceProxy::UniqueID::InvalidID();
 
     GrGpu* fGpu;

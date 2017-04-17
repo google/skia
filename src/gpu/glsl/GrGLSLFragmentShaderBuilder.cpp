@@ -282,13 +282,13 @@ GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
     GR_STATIC_ASSERT(2 == kBottomLeft_GrSurfaceOrigin);
 }
 
-void GrGLSLFragmentShaderBuilder::onFinalize() {
+void GrGLSLFragmentShaderBuilder::onFinalize(GrRenderTarget* rt) {
     fProgramBuilder->varyingHandler()->getFragDecls(&this->inputs(), &this->outputs());
     GrGLSLAppendDefaultFloatPrecisionDeclaration(fDefaultPrecision,
                                                  *fProgramBuilder->shaderCaps(),
                                                  &this->precisionQualifier());
     if (fUsedSampleOffsetArrays & (1 << kSkiaDevice_Coordinates)) {
-        this->defineSampleOffsetArray(sample_offset_array_name(kSkiaDevice_Coordinates),
+        this->defineSampleOffsetArray(rt, sample_offset_array_name(kSkiaDevice_Coordinates),
                                       SkMatrix::MakeTrans(-0.5f, -0.5f));
     }
     if (fUsedSampleOffsetArrays & (1 << kGLSLWindow_Coordinates)) {
@@ -297,14 +297,15 @@ void GrGLSLFragmentShaderBuilder::onFinalize() {
         SkMatrix m;
         m.setScale(1, -1);
         m.preTranslate(-0.5f, -0.5f);
-        this->defineSampleOffsetArray(sample_offset_array_name(kGLSLWindow_Coordinates), m);
+        this->defineSampleOffsetArray(rt, sample_offset_array_name(kGLSLWindow_Coordinates), m);
     }
 }
 
-void GrGLSLFragmentShaderBuilder::defineSampleOffsetArray(const char* name, const SkMatrix& m) {
+void GrGLSLFragmentShaderBuilder::defineSampleOffsetArray(GrRenderTarget* rt, const char* name,
+                                                          const SkMatrix& m) {
     SkASSERT(fProgramBuilder->caps()->sampleLocationsSupport());
     const GrPipeline& pipeline = fProgramBuilder->pipeline();
-    const GrRenderTargetPriv& rtp = pipeline.getRenderTarget()->renderTargetPriv();
+    const GrRenderTargetPriv& rtp = rt->renderTargetPriv();
     const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline);
     SkSTArray<16, SkPoint, true> offsets;
     offsets.push_back_n(specs.fEffectiveSampleCnt);

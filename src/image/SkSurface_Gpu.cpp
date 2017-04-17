@@ -45,7 +45,7 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
     // Grab the render target *after* firing notifications, as it may get switched if CoW kicks in.
     surface->getDevice()->flush();
     GrRenderTargetContext* rtc = surface->getDevice()->accessRenderTargetContext();
-    return rtc->accessRenderTarget();
+    return rtc->accessRenderTarget2();
 }
 
 GrBackendObject SkSurface_Gpu::onGetTextureHandle(BackendHandleAccess access) {
@@ -140,7 +140,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
 // render target into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.
 void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
-    GrRenderTarget* rt = fDevice->accessRenderTargetContext()->accessRenderTarget();
+    GrRenderTarget* rt = nullptr; //fDevice->accessRenderTargetContext()->accessRenderTarget();
     if (!rt) {
         return;
     }

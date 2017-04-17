@@ -224,7 +224,7 @@ void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(interfaceQualifierNames) == kLastInterfaceQualifier + 1);
 }
 
-void GrGLSLShaderBuilder::finalize(uint32_t visibility) {
+void GrGLSLShaderBuilder::finalize(GrRenderTarget* rt, uint32_t visibility) {
     SkASSERT(!fFinalized);
     this->versionDecl() = fProgramBuilder->shaderCaps()->versionDeclString();
     this->compileAndAppendLayoutQualifiers();
@@ -232,7 +232,7 @@ void GrGLSLShaderBuilder::finalize(uint32_t visibility) {
     fProgramBuilder->appendUniformDecls((GrShaderFlags) visibility, &this->uniforms());
     this->appendDecls(fInputs, &this->inputs());
     this->appendDecls(fOutputs, &this->outputs());
-    this->onFinalize();
+    this->onFinalize(rt);
     // append the 'footer' to code
     this->code().append("}");
 

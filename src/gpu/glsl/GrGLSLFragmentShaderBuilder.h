@@ -208,8 +208,8 @@ private:
 
     GrSurfaceOrigin getSurfaceOrigin() const;
 
-    void onFinalize() override;
-    void defineSampleOffsetArray(const char* name, const SkMatrix&);
+    void onFinalize(GrRenderTarget*) override;
+    void defineSampleOffsetArray(GrRenderTarget*, const char* name, const SkMatrix&);
 
     static const char* kDstColorName;
 

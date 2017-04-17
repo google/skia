@@ -29,7 +29,7 @@
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
 
-GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
+GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline, GrRenderTarget* rt,
                                                const GrPrimitiveProcessor& primProc,
                                                GrProgramDesc* desc,
                                                GrGLGpu* gpu) {
@@ -50,7 +50,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
         return nullptr;
     }
 
-    return builder.finalize();
+    return builder.finalize(rt);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -94,14 +94,14 @@ bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader,
     if (outInputs->fFlipY) {
         GrProgramDesc* d = this->desc();
         d->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
-                                                     this->pipeline().getRenderTarget()->origin()));
+                                                     this->pipeline().getRenderTargetProxy()->origin()));
         d->finalize();
     }
 
     return true;
 }
 
-GrGLProgram* GrGLProgramBuilder::finalize() {
+GrGLProgram* GrGLProgramBuilder::finalize(GrRenderTarget* rt) {
     // verify we can get a program id
     GrGLuint programID;
     GL_CALL_RET(programID, CreateProgram());
@@ -110,12 +110,12 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         return nullptr;
     }
 
-    this->finalizeShaders();
+    this->finalizeShaders(rt);
 
     // compile shaders and bind attributes / uniforms
     SkSL::Program::Settings settings;
     settings.fCaps = this->gpu()->glCaps().shaderCaps();
-    settings.fFlipY = this->pipeline().getRenderTarget()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFlipY = rt->origin() != kTopLeft_GrSurfaceOrigin;
     SkSL::Program::Inputs inputs;
     SkTDArray<GrGLuint> shadersToDelete;
     if (!this->compileAndAttachShaders(fVS, programID, GR_GL_VERTEX_SHADER, &shadersToDelete,

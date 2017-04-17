@@ -1912,9 +1912,10 @@ void GrGLGpu::flushMinSampleShading(float minSampleShading) {
     }
 }
 
-bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc,
+bool GrGLGpu::flushGLState(const GrPipeline& pipeline, GrRenderTarget* rt,
+                           const GrPrimitiveProcessor& primProc,
                            bool willDrawPoints) {
-    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, pipeline, primProc, willDrawPoints));
+    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, pipeline, rt, primProc, willDrawPoints));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -1937,14 +1938,13 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
 
     if (blendInfo.fWriteColor) {
         // Swizzle the blend to match what the shader will output.
-        const GrSwizzle& swizzle = this->caps()->shaderCaps()->configOutputSwizzle(
-            pipeline.getRenderTarget()->config());
+        const GrSwizzle& swizzle = this->caps()->shaderCaps()->configOutputSwizzle(rt->config());
         this->flushBlend(blendInfo, swizzle);
     }
 
-    program->setData(primProc, pipeline);
+    program->setData(primProc, pipeline, rt);
 
-    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(rt);
     GrStencilSettings stencil;
     if (pipeline.isStencilEnabled()) {
         // TODO: attach stencil and create settings during render target flush.
@@ -2620,6 +2620,7 @@ GrGLenum gPrimitiveType2GLMode[] = {
 #endif
 
 void GrGLGpu::draw(const GrPipeline& pipeline,
+                   GrRenderTarget* rt,
                    const GrPrimitiveProcessor& primProc,
                    const GrMesh meshes[],
                    int meshCount) {
@@ -2632,13 +2633,13 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
             break;
         }
     }
-    if (!this->flushGLState(pipeline, primProc, hasPoints)) {
+    if (!this->flushGLState(pipeline, rt, primProc, hasPoints)) {
         return;
     }
 
     for (int i = 0; i < meshCount; ++i) {
         if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*this->caps())) {
-            this->xferBarrier(pipeline.getRenderTarget(), barrierType);
+            this->xferBarrier(rt, barrierType);
         }
 
         const GrMesh& mesh = meshes[i];
