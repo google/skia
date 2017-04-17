@@ -86,4 +86,9 @@ struct SkJumper_CallbackCtx {
     void* arg;
 };
 
+struct SkJumper_LoadTablesCtx {
+    const void* src;
+    const float *r, *g, *b;
+};
+
 #endif//SkJumper_DEFINED

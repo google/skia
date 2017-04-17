@@ -608,17 +608,39 @@ STAGE(lerp_565) {
 }
 
 STAGE(load_tables) {
-    struct Ctx {
-        const uint32_t* src;
-        const float *r, *g, *b;
-    };
-    auto c = (const Ctx*)ctx;
+    auto c = (const SkJumper_LoadTablesCtx*)ctx;
 
-    auto px = load<U32>(c->src + x, tail);
+    auto px = load<U32>((const uint32_t*)c->src + x, tail);
     r = gather(c->r, (px      ) & 0xff_i);
     g = gather(c->g, (px >>  8) & 0xff_i);
     b = gather(c->b, (px >> 16) & 0xff_i);
     a = cast(        (px >> 24)) * C(1/255.0f);
+}
+STAGE(load_tables_u16_be) {
+    auto c = (const SkJumper_LoadTablesCtx*)ctx;
+    auto ptr = (const uint16_t*)c->src + 4*x;
+
+    U16 R,G,B,A;
+    load4(ptr, tail, &R,&G,&B,&A);
+
+    // c->src is big-endian, so & 0xff_i grabs the 8 most signficant bits.
+    r = gather(c->r, expand(R) & 0xff_i);
+    g = gather(c->g, expand(G) & 0xff_i);
+    b = gather(c->b, expand(B) & 0xff_i);
+    a = C(1/65535.0f) * cast(expand(bswap(A)));
+}
+STAGE(load_tables_rgb_u16_be) {
+    auto c = (const SkJumper_LoadTablesCtx*)ctx;
+    auto ptr = (const uint16_t*)c->src + 3*x;
+
+    U16 R,G,B;
+    load3(ptr, tail, &R,&G,&B);
+
+    // c->src is big-endian, so & 0xff_i grabs the 8 most signficant bits.
+    r = gather(c->r, expand(R) & 0xff_i);
+    g = gather(c->g, expand(G) & 0xff_i);
+    b = gather(c->b, expand(B) & 0xff_i);
+    a = 1.0_f;
 }
 
 STAGE(byte_tables) {
