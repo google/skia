@@ -16,6 +16,7 @@ DEPS = [
   'recipe_engine/step',
   'core',
   'infra',
+  'run',
   'vars',
 ]
 
@@ -95,10 +96,10 @@ def RunSteps(api):
     gn_env = {'CPPFLAGS': '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1',
               'GYP_GENERATORS': 'ninja'}
     with api.step.context({'env': gn_env}):
-      api.step('GN', [gn, 'gen', out_dir])
+      api.run(api.step, 'GN', cmd=[gn, 'gen', out_dir])
 
     # Build Chrome.
-    api.step('Build Chrome', ['ninja', '-C', out_dir, 'chrome'])
+    api.run(api.step, 'Build Chrome', cmd=['ninja', '-C', out_dir, 'chrome'])
 
   # Clean up the output dir.
   output_dir = api.path['start_dir'].join('skp_output')
@@ -107,12 +108,6 @@ def RunSteps(api):
   api.file.makedirs('skp_output', output_dir)
 
   # Capture the SKPs.
-  path_var= api.path.pathsep.join([
-      str(api.gclient._module.PACKAGE_REPO_ROOT), '%(PATH)s'])
-  env = {
-      'CHROME_HEADLESS': '1',
-      'PATH': path_var,
-  }
   asset_dir = api.vars.infrabots_dir.join('assets', 'skp')
   cmd = ['python', asset_dir.join('create.py'),
          '--chrome_src_path', src_dir,
@@ -120,8 +115,8 @@ def RunSteps(api):
          '--target_dir', output_dir]
   if 'Canary' not in api.properties['buildername']:
     cmd.append('--upload_to_partner_bucket')
-  with api.step.context({'cwd': api.vars.skia_dir, 'env': env}):
-    api.step('Recreate SKPs', cmd=cmd)
+  with api.step.context({'cwd': api.vars.skia_dir}):
+    api.run(api.step, 'Recreate SKPs', cmd=cmd)
 
   # Upload the SKPs.
   if 'Canary' not in api.properties['buildername']:
@@ -132,10 +127,10 @@ def RunSteps(api):
            api.vars.skia_dir.join('infra', 'bots', 'upload_skps.py'),
            '--target_dir', output_dir,
            '--gitcookies', str(update_skps_gitcookies)]
-    env.update(api.infra.go_env)
     with gitcookies_auth(api, UPDATE_SKPS_KEY):
-      with api.step.context({'cwd': api.vars.skia_dir, 'env': env}):
-        api.step('Upload SKPs', cmd=cmd)
+      with api.step.context({'cwd': api.vars.skia_dir,
+                             'env': api.infra.go_env}):
+        api.run(api.step, 'Upload SKPs', cmd=cmd)
 
 
 def GenTests(api):

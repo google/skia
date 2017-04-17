@@ -124,8 +124,12 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/src",
     "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
       "CPPFLAGS": "-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1",
-      "GYP_GENERATORS": "ninja"
+      "GYP_GENERATORS": "ninja",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "GN"
   },
@@ -137,6 +141,12 @@
       "chrome"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/src",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
     "name": "Build Chrome"
   },
   {
@@ -186,8 +196,10 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
+      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "Recreate SKPs"
   },
@@ -276,10 +288,12 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
+      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "Upload SKPs"
   },
