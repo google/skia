@@ -49,7 +49,6 @@ public:
      */
     sk_sp<GrTextureProxy> createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                  const GrMipLevel* texels, int mipLevelCount,
-                                                 uint32_t flags = 0,
                                                  SkDestinationSurfaceColorMode mipColorMode =
                                                         SkDestinationSurfaceColorMode::kLegacy);
 
@@ -71,8 +70,9 @@ public:
 
     /** Create an exact fit texture with no initial data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                   uint32_t flags = 0);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, uint32_t flags = 0);
+
+    sk_sp<GrTextureProxy> createTextureProxy(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel&);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces
@@ -244,6 +244,12 @@ private:
     }
 
     GrTexture* refScratchTexture(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
+
+    /*
+     * Try to find an existing scratch texture that exactly matches 'desc'. If successful
+     * update the budgeting accordingly.
+     */
+    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, SkBudgeted, uint32_t flags);
 
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }
