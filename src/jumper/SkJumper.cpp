@@ -93,6 +93,7 @@ static K kConstants = {
     M(load_tables_rgb_u16_be) \
     M(byte_tables)        \
     M(byte_tables_rgb)    \
+    M(table_r) M(table_g) M(table_b) M(table_a) \
     M(load_a8)            \
     M(gather_a8)          \
     M(store_a8)           \
