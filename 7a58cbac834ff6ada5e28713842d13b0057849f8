@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12b96b8b_b0ab88a8",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-17T19:50:05Z",
+      "side": 1,
+      "message": "This comment doesn\u0027t really make sense anymore. (Hopefully my next CL will clarify this all, but for now, we\u0027re no longer creating a new RTC w/nullptr, so maybe just delete this?)",
+      "range": {
+        "startLine": 396,
+        "startChar": 0,
+        "endLine": 396,
+        "endChar": 94
+      },
+      "revId": "7a58cbac834ff6ada5e28713842d13b0057849f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
