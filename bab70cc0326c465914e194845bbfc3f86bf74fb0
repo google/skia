@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07be62fa_34eeba4e",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-17T15:47:02Z",
+      "side": 1,
+      "message": "This won\u0027t do any harm, but it can be omitted. The temporary surface context that\u0027s used to do the write will be constructed with no color space, so any color space on the source data is ignored.",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 27
+      },
+      "revId": "bab70cc0326c465914e194845bbfc3f86bf74fb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
