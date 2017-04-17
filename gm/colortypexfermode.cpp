@@ -126,11 +126,10 @@ protected:
             canvas->drawRect(r, p);
 
             textP.setBlendMode(gModes[i]);
-            canvas->drawText("H", 1, x+ w/10.f, y + 7.f*h/8.f, textP);
+            canvas->drawString("H", x+ w/10.f, y + 7.f*h/8.f, textP);
 #if 1
             const char* label = SkBlendMode_Name(gModes[i]);
-            canvas->drawText(label, strlen(label),
-                             x + w/2, y - labelP.getTextSize()/2, labelP);
+            canvas->drawString(label, x + w/2, y - labelP.getTextSize()/2, labelP);
 #endif
             x += w + SkIntToScalar(10);
             if ((i % W) == W - 1) {

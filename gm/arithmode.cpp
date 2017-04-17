@@ -60,7 +60,7 @@ static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar
         SkString str;
         str.appendScalar(k[i]);
         SkScalar width = paint.measureText(str.c_str(), str.size());
-        canvas->drawText(str.c_str(), str.size(), x, y + paint.getTextSize(), paint);
+        canvas->drawString(str, x, y + paint.getTextSize(), paint);
         x += width + SkIntToScalar(10);
     }
 }
@@ -152,7 +152,7 @@ protected:
                 paint.setAntiAlias(true);
                 sk_tool_utils::set_portable_typeface(&paint);
                 SkString str(enforcePMColor ? "enforcePM" : "no enforcePM");
-                canvas->drawText(str.c_str(), str.size(), 0, paint.getTextSize(), paint);
+                canvas->drawString(str, 0, paint.getTextSize(), paint);
             }
             canvas->translate(0, HH + 12);
         }

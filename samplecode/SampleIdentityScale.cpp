@@ -71,7 +71,7 @@ protected:
         }
         canvas->drawBitmap( fBM, 100, 100, &paint );
         canvas->restore();
-        canvas->drawText( text, strlen(text), 100, 400, paint );
+        canvas->drawString(text, 100, 400, paint );
         this->inval(nullptr);
     }
 

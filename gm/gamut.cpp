@@ -179,8 +179,7 @@ static void draw_gamut_grid(SkCanvas* canvas, SkTArray<std::unique_ptr<CellRende
         wideGamutCanvas->clear(SK_ColorBLACK);
         renderer->draw(wideGamutCanvas);
 
-        canvas->drawText(renderer->label(), strlen(renderer->label()), x, y + textHeight,
-                         textPaint);
+        canvas->drawString(renderer->label(), x, y + textHeight, textPaint);
 
         // Re-interpret the off-screen images, so we can see the raw data (eg, Wide gamut squares
         // will look desaturated, relative to sRGB).

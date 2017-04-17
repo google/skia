@@ -294,10 +294,10 @@ protected:
         const char title[] = "Random Paths Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, "
                              "with Stroke width 6";
-        canvas->drawText(title, strlen(title),
-                            20 * SK_Scalar1,
-                            20 * SK_Scalar1,
-                            titlePaint);
+        canvas->drawString(title,
+                           20 * SK_Scalar1,
+                           20 * SK_Scalar1,
+                           titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(220*SK_Scalar1, 50*SK_Scalar1);
@@ -351,38 +351,30 @@ protected:
                 labelPaint.setAntiAlias(true);
                 sk_tool_utils::set_portable_typeface(&labelPaint);
                 labelPaint.setTextSize(10 * SK_Scalar1);
-                canvas->drawText(style.fName,
-                                 strlen(style.fName),
-                                 0, rect.height() + 12 * SK_Scalar1,
-                                 labelPaint);
-                canvas->drawText(fill.fName,
-                                 strlen(fill.fName),
-                                 0, rect.height() + 24 * SK_Scalar1,
-                                 labelPaint);
-                canvas->drawText(cap.fName,
-                                 strlen(cap.fName),
-                                 0, rect.height() + 36 * SK_Scalar1,
-                                 labelPaint);
-                canvas->drawText(gSegmentNames[s1],
-                                 strlen(gSegmentNames[s1]),
-                                 0, rect.height() + 48 * SK_Scalar1,
-                                 labelPaint);
-                canvas->drawText(gSegmentNames[s2],
-                                 strlen(gSegmentNames[s2]),
-                                 0, rect.height() + 60 * SK_Scalar1,
-                                 labelPaint);
-                canvas->drawText(gSegmentNames[s3],
-                                 strlen(gSegmentNames[s3]),
-                                 0, rect.height() + 72 * SK_Scalar1,
-                                 labelPaint);
-                canvas->drawText(gSegmentNames[s4],
-                                 strlen(gSegmentNames[s4]),
-                                 0, rect.height() + 84 * SK_Scalar1,
-                                 labelPaint);
-                canvas->drawText(gSegmentNames[s5],
-                                 strlen(gSegmentNames[s5]),
-                                 0, rect.height() + 96 * SK_Scalar1,
-                                 labelPaint);
+                canvas->drawString(style.fName,
+                                   0, rect.height() + 12 * SK_Scalar1,
+                                   labelPaint);
+                canvas->drawString(fill.fName,
+                                   0, rect.height() + 24 * SK_Scalar1,
+                                   labelPaint);
+                canvas->drawString(cap.fName,
+                                   0, rect.height() + 36 * SK_Scalar1,
+                                   labelPaint);
+                canvas->drawString(gSegmentNames[s1],
+                                   0, rect.height() + 48 * SK_Scalar1,
+                                   labelPaint);
+                canvas->drawString(gSegmentNames[s2],
+                                   0, rect.height() + 60 * SK_Scalar1,
+                                   labelPaint);
+                canvas->drawString(gSegmentNames[s3],
+                                   0, rect.height() + 72 * SK_Scalar1,
+                                   labelPaint);
+                canvas->drawString(gSegmentNames[s4],
+                                   0, rect.height() + 84 * SK_Scalar1,
+                                   labelPaint);
+                canvas->drawString(gSegmentNames[s5],
+                                   0, rect.height() + 96 * SK_Scalar1,
+                                   labelPaint);
             }
             canvas->restore();
         }

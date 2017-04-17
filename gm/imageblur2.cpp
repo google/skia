@@ -70,11 +70,10 @@ protected:
                 textPaint.setTextSize(textSize);
 
                 for (int i = 0; i < testStringCount; i++) {
-                    canvas->drawText(kTestStrings[i],
-                                     strlen(kTestStrings[i]),
-                                     SkIntToScalar(x * dx),
-                                     SkIntToScalar(y * dy + textSize * i + textSize),
-                                     textPaint);
+                    canvas->drawString(kTestStrings[i],
+                                       SkIntToScalar(x * dx),
+                                       SkIntToScalar(y * dy + textSize * i + textSize),
+                                       textPaint);
                 }
                 canvas->restore();
             }

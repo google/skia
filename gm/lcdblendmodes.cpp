@@ -133,7 +133,7 @@ protected:
                 paint.setShader(make_shader(r));
             }
             SkString string(SkBlendMode_Name(gModes[m]));
-            canvas->drawText(string.c_str(), string.size(), 0, y, paint);
+            canvas->drawString(string, 0, y, paint);
             y+=fTextHeight;
         }
     }

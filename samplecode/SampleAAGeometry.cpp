@@ -606,8 +606,8 @@ struct UniControl {
         canvas->drawLine(fBounds.fLeft - 5, fYLo, fBounds.fRight + 5, fYLo, paints.fIndicator);
         SkString label;
         label.printf("%0.3g", fValLo);
-        canvas->drawText(label.c_str(), label.size(), fBounds.fLeft + 5, fYLo - 5, paints.fValue);
-        canvas->drawText(fName.c_str(), fName.size(), fBounds.fLeft, fBounds.bottom() + 11,
+        canvas->drawString(label, fBounds.fLeft + 5, fYLo - 5, paints.fValue);
+        canvas->drawString(fName, fBounds.fLeft, fBounds.bottom() + 11,
                 paints.fLabel);
     }
 };
@@ -634,7 +634,7 @@ struct BiControl : public UniControl {
         if (yPos < fYLo + 10) {
             yPos = fYLo + 10;
         }
-        canvas->drawText(label.c_str(), label.size(), fBounds.fLeft + 5, yPos - 5, paints.fValue);
+        canvas->drawString(label, fBounds.fLeft + 5, yPos - 5, paints.fValue);
         SkRect fill = { fBounds.fLeft, fYLo, fBounds.fRight, yPos };
         canvas->drawRect(fill, paints.fFill);
     }
@@ -1819,11 +1819,11 @@ void AAGeometryView::draw_legend(SkCanvas* canvas) {
     SkScalar bottomOffset = this->height() - 10;
     for (int index = kKeyCommandCount - 1; index >= 0; --index) {
         bottomOffset -= 15;
-        canvas->drawText(kKeyCommandList[index].fDescriptionL,
-                strlen(kKeyCommandList[index].fDescriptionL), this->width() - 160, bottomOffset,
+        canvas->drawString(kKeyCommandList[index].fDescriptionL,
+                this->width() - 160, bottomOffset,
                 fLegendLeftPaint);
-        canvas->drawText(kKeyCommandList[index].fDescriptionR,
-                strlen(kKeyCommandList[index].fDescriptionR), this->width() - 20, bottomOffset,
+        canvas->drawString(kKeyCommandList[index].fDescriptionR,
+                this->width() - 20, bottomOffset,
                 fLegendRightPaint);
     }
 }

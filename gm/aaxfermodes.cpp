@@ -107,10 +107,10 @@ protected:
 
             if (kShape_Pass == drawingPass) {
                 fLabelPaint.setTextAlign(SkPaint::kCenter_Align);
-                canvas->drawText("Src Unknown", sizeof("Src Unknown") - 1,
+                canvas->drawString("Src Unknown",
                         kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2,
                         kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, fLabelPaint);
-                canvas->drawText("Src Opaque", sizeof("Src Opaque") - 1,
+                canvas->drawString("Src Opaque",
                         kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2 +
                         kPaintSpacing, kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3,
                         fLabelPaint);
@@ -180,10 +180,10 @@ protected:
         titlePaint.setTextSize(9 * titlePaint.getTextSize() / 8);
         titlePaint.setFakeBoldText(true);
         titlePaint.setTextAlign(SkPaint::kCenter_Align);
-        canvas->drawText("Porter Duff", sizeof("Porter Duff") - 1,
+        canvas->drawString("Porter Duff",
                          kLabelSpacing + 4 * kShapeTypeSpacing,
                          kTitleSpacing / 2 + titlePaint.getTextSize() / 3, titlePaint);
-        canvas->drawText("Advanced", sizeof("Advanced") - 1,
+        canvas->drawString("Advanced",
                          kXfermodeTypeSpacing + kLabelSpacing + 4 * kShapeTypeSpacing,
                          kTitleSpacing / 2 + titlePaint.getTextSize() / 3, titlePaint);
 
@@ -194,7 +194,7 @@ protected:
     void drawModeName(SkCanvas* canvas, SkBlendMode mode) {
         const char* modeName = SkBlendMode_Name(mode);
         fLabelPaint.setTextAlign(SkPaint::kRight_Align);
-        canvas->drawText(modeName, strlen(modeName), kLabelSpacing - kShapeSize / 4,
+        canvas->drawString(modeName, kLabelSpacing - kShapeSize / 4,
                          fLabelPaint.getTextSize() / 4, fLabelPaint);
     }
 
