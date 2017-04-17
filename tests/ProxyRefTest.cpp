@@ -76,7 +76,8 @@ static sk_sp<GrTextureProxy> make_deferred(GrContext* context) {
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     return GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc,
-                                        SkBackingFit::kApprox, SkBudgeted::kYes);
+                                        SkBackingFit::kApprox, SkBudgeted::kYes,
+                                        GrResourceProvider::kNoPendingIO_Flag);
 }
 
 static sk_sp<GrTextureProxy> make_wrapped(GrContext* context) {
