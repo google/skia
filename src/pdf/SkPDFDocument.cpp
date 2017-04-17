@@ -180,7 +180,7 @@ SkPDFDocument::SkPDFDocument(SkWStream* stream,
     , fRasterDpi(rasterDpi)
     , fMetadata(metadata)
     , fPDFA(pdfa) {
-    fCanon.setPixelSerializer(std::move(jpegEncoder));
+    fCanon.fPixelSerializer = std::move(jpegEncoder);
 }
 
 SkPDFDocument::~SkPDFDocument() {
@@ -251,7 +251,7 @@ void SkPDFDocument::onAbort() {
 void SkPDFDocument::reset() {
     fCanvas.reset(nullptr);
     fPages.reset();
-    fCanon.reset();
+    renew(&fCanon);
     renew(&fObjectSerializer);
     fFonts.reset();
 }

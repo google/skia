@@ -38,9 +38,6 @@ class SkPDFCanon : SkNoncopyable {
 public:
     ~SkPDFCanon();
 
-    // reset to original setting, unrefs all objects.
-    void reset();
-
     sk_sp<SkPDFObject> findFunctionShader(const SkPDFShader::State&) const;
     void addFunctionShader(sk_sp<SkPDFObject>, SkPDFShader::State);
 
@@ -53,28 +50,21 @@ public:
     const SkPDFGraphicState* findGraphicState(const SkPDFGraphicState&) const;
     void addGraphicState(const SkPDFGraphicState*);
 
-    sk_sp<SkPDFObject> findPDFBitmap(SkBitmapKey key) const;
-    void addPDFBitmap(SkBitmapKey key, sk_sp<SkPDFObject>);
+    SkTHashMap<SkBitmapKey, sk_sp<SkPDFObject>> fPDFBitmapMap;
 
-    SkTHashMap<uint32_t, SkAdvancedTypefaceMetrics*> fTypefaceMetrics;
-    SkTHashMap<uint32_t, SkPDFDict*> fFontDescriptors;
-    SkTHashMap<uint64_t, SkPDFFont*> fFontMap;
+    SkTHashMap<uint32_t, sk_sp<SkAdvancedTypefaceMetrics>> fTypefaceMetrics;
+    SkTHashMap<uint32_t, sk_sp<SkPDFDict>> fFontDescriptors;
+    SkTHashMap<uint64_t, sk_sp<SkPDFFont>> fFontMap;
 
-    SkPixelSerializer* getPixelSerializer() const { return fPixelSerializer.get(); }
-    void setPixelSerializer(sk_sp<SkPixelSerializer> ps) {
-        fPixelSerializer = std::move(ps);
-    }
-
-    sk_sp<SkPDFStream> makeInvertFunction();
-    sk_sp<SkPDFDict> makeNoSmaskGraphicState();
-    sk_sp<SkPDFArray> makeRangeObject();
+    sk_sp<SkPixelSerializer> fPixelSerializer;
+    sk_sp<SkPDFStream> fInvertFunction;
+    sk_sp<SkPDFDict> fNoSmaskGraphicState;
+    sk_sp<SkPDFArray> fRangeObject;
 
 private:
     struct ShaderRec {
         SkPDFShader::State fShaderState;
         sk_sp<SkPDFObject> fShaderObject;
-        ShaderRec(SkPDFShader::State s, sk_sp<SkPDFObject> o)
-            : fShaderState(std::move(s)), fShaderObject(std::move(o)) {}
     };
     SkTArray<ShaderRec> fFunctionShaderRecords;
     SkTArray<ShaderRec> fAlphaShaderRecords;
@@ -96,13 +86,5 @@ private:
         };
     };
     SkTHashSet<WrapGS, WrapGS::Hash> fGraphicStateRecords;
-
-    // TODO(halcanary): make SkTHashMap<K, sk_sp<V>> work correctly.
-    SkTHashMap<SkBitmapKey, SkPDFObject*> fPDFBitmapMap;
-
-    sk_sp<SkPixelSerializer> fPixelSerializer;
-    sk_sp<SkPDFStream> fInvertFunction;
-    sk_sp<SkPDFDict> fNoSmaskGraphicState;
-    sk_sp<SkPDFArray> fRangeObject;
 };
 #endif  // SkPDFCanon_DEFINED

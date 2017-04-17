@@ -104,9 +104,8 @@ SkPDFGraphicState::SkPDFGraphicState(const SkPaint& p)
     , fStrokeJoin(SkToU8(p.getStrokeJoin()))
     , fMode(SkToU8((unsigned)mode_for_pdf(p.getBlendMode()))) {}
 
-// static
-SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
-        SkPDFCanon* canon, const SkPaint& paint) {
+sk_sp<SkPDFGraphicState> SkPDFGraphicState::GetGraphicStateForPaint(SkPDFCanon* canon,
+                                                                    const SkPaint& paint) {
     SkASSERT(canon);
     SkPDFGraphicState key(paint);
     if (const SkPDFGraphicState* canonGS = canon->findGraphicState(key)) {
@@ -114,14 +113,14 @@ SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
         // since the emitObject() interface is non-const.  But We
         // promise that there is no way to mutate this object from
         // here on out.
-        return SkRef(const_cast<SkPDFGraphicState*>(canonGS));
+        return sk_sp<SkPDFGraphicState>(SkRef(const_cast<SkPDFGraphicState*>(canonGS)));
     }
-    SkPDFGraphicState* pdfGraphicState = new SkPDFGraphicState(paint);
-    canon->addGraphicState(pdfGraphicState);
+    sk_sp<SkPDFGraphicState> pdfGraphicState(new SkPDFGraphicState(paint));
+    canon->addGraphicState(pdfGraphicState.get());
     return pdfGraphicState;
 }
 
-sk_sp<SkPDFStream> SkPDFGraphicState::MakeInvertFunction() {
+static sk_sp<SkPDFStream> make_invert_function() {
     // Acrobat crashes if we use a type 0 function, kpdf crashes if we use
     // a type 2 function, so we use a type 4 function.
     auto domainAndRange = sk_make_sp<SkPDFArray>();
@@ -156,7 +155,8 @@ sk_sp<SkPDFDict> SkPDFGraphicState::GetSMaskGraphicState(
     if (invert) {
         // Instead of calling SkPDFGraphicState::MakeInvertFunction,
         // let the canon deduplicate this object.
-        sMaskDict->insertObjRef("TR", canon->makeInvertFunction());
+        sMaskDict->insertObjRef(
+                "TR", SkPDFUtils::GetCachedT(&canon->fInvertFunction, &make_invert_function));
     }
 
     auto result = sk_make_sp<SkPDFDict>("ExtGState");

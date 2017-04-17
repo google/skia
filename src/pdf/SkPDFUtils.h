@@ -102,6 +102,15 @@ inline void WriteUTF16beHex(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
         SkPDFUtils::WriteUInt16BE(wStream, utf16[1]);
     }
 }
+
+template <class T>
+static sk_sp<T> GetCachedT(sk_sp<T>* cachedT, sk_sp<T> (*makeNewT)()) {
+    if (*cachedT) {
+        return *cachedT;
+    }
+    *cachedT = (*makeNewT)();
+    return *cachedT;
+}
 }  // namespace SkPDFUtils
 
 #endif
