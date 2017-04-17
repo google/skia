@@ -96,4 +96,9 @@ struct SkJumper_TableCtx {
     int          size;
 };
 
+// This should line up with the memory layout of SkColorSpaceTransferFn.
+struct SkJumper_ParametricTransferFunction {
+    float G, A,B,C,D,E,F;
+};
+
 #endif//SkJumper_DEFINED
