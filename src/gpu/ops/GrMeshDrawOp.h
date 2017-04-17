@@ -119,10 +119,6 @@ public:
         this->applyPipelineOptimizations(PipelineOptimizations(analysis, overrideColor));
     }
 
-    void addDependenciesTo(GrRenderTargetProxy* rtp) {
-        fPipeline.addDependenciesTo(rtp);
-    }
-
     /**
      * Mesh draw ops use a legacy system in GrRenderTargetContext where the pipeline is created when
      * the op is recorded. These methods are unnecessary as this information is in the pipeline.
