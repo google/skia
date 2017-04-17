@@ -20,6 +20,8 @@
 #include "ir/SkSLUnresolvedFunction.h"
 #include "ir/SkSLVarDeclarations.h"
 
+#include "GrAutoLocaleSetter.h"
+
 #ifdef SK_ENABLE_SPIRV_VALIDATION
 #include "spirv-tools/libspirv.hpp"
 #endif
@@ -490,6 +492,7 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
 }
 
 bool Compiler::toSPIRV(const Program& program, OutputStream& out) {
+    GrAutoLocaleSetter als("C");
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
     SPIRVCodeGenerator cg(&fContext, &program, this, &buffer);
@@ -515,6 +518,7 @@ bool Compiler::toSPIRV(const Program& program, OutputStream& out) {
 }
 
 bool Compiler::toSPIRV(const Program& program, String* out) {
+    GrAutoLocaleSetter als("C");
     StringStream buffer;
     bool result = this->toSPIRV(program, buffer);
     if (result) {
@@ -524,6 +528,7 @@ bool Compiler::toSPIRV(const Program& program, String* out) {
 }
 
 bool Compiler::toGLSL(const Program& program, OutputStream& out) {
+    GrAutoLocaleSetter als("C");
     GLSLCodeGenerator cg(&fContext, &program, this, &out);
     bool result = cg.generateCode();
     this->writeErrorCount();
@@ -531,6 +536,7 @@ bool Compiler::toGLSL(const Program& program, OutputStream& out) {
 }
 
 bool Compiler::toGLSL(const Program& program, String* out) {
+    GrAutoLocaleSetter als("C");
     StringStream buffer;
     bool result = this->toGLSL(program, buffer);
     if (result) {
