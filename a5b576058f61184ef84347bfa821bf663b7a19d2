@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "260616df_e12e1a70",
+        "filename": "src/core/SkRecord.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-17T23:07:07Z",
+      "side": 1,
+      "message": "Probably can fold these two lines together?",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 19
+      },
+      "revId": "a5b576058f61184ef84347bfa821bf663b7a19d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc8657dc_dd5f39b9",
+        "filename": "src/core/SkRecord.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-17T23:07:07Z",
+      "side": 1,
+      "message": "even, \u003d default;",
+      "revId": "a5b576058f61184ef84347bfa821bf663b7a19d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fe19c97_44c53b81",
+        "filename": "src/core/SkRecord.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-17T23:07:07Z",
+      "side": 1,
+      "message": "Probably superfluous?",
+      "range": {
+        "startLine": 59,
+        "startChar": 23,
+        "endLine": 59,
+        "endChar": 31
+      },
+      "revId": "a5b576058f61184ef84347bfa821bf663b7a19d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c98d7b4d_8a54b8a2",
+        "filename": "src/core/SkRecord.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-17T23:07:07Z",
+      "side": 1,
+      "message": "alignof(T), right?\n\nThe idea for this bytes-allocated is to track how many bytes we cost, not so much how many we\u0027ve used.",
+      "range": {
+        "startLine": 61,
+        "startChar": 41,
+        "endLine": 61,
+        "endChar": 49
+      },
+      "revId": "a5b576058f61184ef84347bfa821bf663b7a19d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
