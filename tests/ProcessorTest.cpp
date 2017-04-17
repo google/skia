@@ -147,11 +147,11 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                                                                       SkBackingFit::kExact,
                                                                       SkBudgeted::kYes));
             sk_sp<GrTexture> texture2 =
-                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes);
+                    context->resourceProvider()->createTexture1(desc, SkBudgeted::kYes);
             sk_sp<GrTexture> texture3 =
-                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes);
+                    context->resourceProvider()->createTexture1(desc, SkBudgeted::kYes);
             sk_sp<GrTexture> texture4 =
-                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes);
+                    context->resourceProvider()->createTexture1(desc, SkBudgeted::kYes);
             sk_sp<GrBuffer> buffer(texelBufferSupport
                                            ? context->resourceProvider()->createBuffer(
                                                      1024, GrBufferType::kTexel_GrBufferType,
