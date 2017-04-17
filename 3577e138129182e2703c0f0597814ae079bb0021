@@ -48,6 +48,23 @@
     },
     {
       "key": {
+        "uuid": "538c75d9_8b526f43",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-04-17T15:16:56Z",
+      "side": 1,
+      "message": "do inline functions need SK_API?",
+      "revId": "3577e138129182e2703c0f0597814ae079bb0021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3567fdd7_b8703ab5",
         "filename": "src/images/SkImageEncoder.cpp",
         "patchSetId": 2
