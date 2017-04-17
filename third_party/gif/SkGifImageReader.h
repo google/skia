@@ -148,7 +148,7 @@ struct SkGIFLZWBlock {
 
 class SkGIFColorMap final {
 public:
-    static constexpr size_t kNotFound = static_cast<size_t>(-1);
+    static constexpr int kNotFound = -1;
 
     SkGIFColorMap()
         : m_isDefined(false)
@@ -159,7 +159,7 @@ public:
     {
     }
 
-    void setNumColors(size_t colors) {
+    void setNumColors(int colors) {
         SkASSERT(!m_colors);
         SkASSERT(!m_position);
 
@@ -173,20 +173,20 @@ public:
         m_isDefined = true;
     }
 
-    size_t numColors() const { return m_colors; }
+    int numColors() const { return m_colors; }
 
     bool isDefined() const { return m_isDefined; }
 
     // Build RGBA table using the data stream.
     sk_sp<SkColorTable> buildTable(SkStreamBuffer*, SkColorType dstColorType,
-                                   size_t transparentPixel) const;
+                                   int transparentPixel) const;
 
 private:
     bool m_isDefined;
     size_t m_position;
-    size_t m_colors;
+    int m_colors;
     // Cached values. If these match on a new request, we can reuse m_table.
-    mutable size_t m_transPixel;
+    mutable int m_transPixel;
     mutable PackColorProc m_packColorProc;
     mutable sk_sp<SkColorTable> m_table;
 };
@@ -239,18 +239,18 @@ public:
     unsigned yOffset() const { return m_yOffset; }
     unsigned width() const { return m_width; }
     unsigned height() const { return m_height; }
-    size_t transparentPixel() const { return m_transparentPixel; }
-    void setTransparentPixel(size_t pixel) { m_transparentPixel = pixel; }
+    int transparentPixel() const { return m_transparentPixel; }
+    void setTransparentPixel(int pixel) { m_transparentPixel = pixel; }
     bool hasAlpha() const { return m_hasAlpha; }
     void setHasAlpha(bool alpha) { m_hasAlpha = alpha; }
     SkCodecAnimation::DisposalMethod getDisposalMethod() const { return m_disposalMethod; }
     void setDisposalMethod(SkCodecAnimation::DisposalMethod disposalMethod) { m_disposalMethod = disposalMethod; }
 
-    size_t getRequiredFrame() const {
+    int getRequiredFrame() const {
         SkASSERT(this->reachedStartOfData());
         return m_requiredFrame;
     }
-    void setRequiredFrame(size_t req) { m_requiredFrame = req; }
+    void setRequiredFrame(int req) { m_requiredFrame = req; }
 
     unsigned delayTime() const { return m_delayTime; }
     void setDelayTime(unsigned delay) { m_delayTime = delay; }
@@ -277,21 +277,21 @@ public:
     bool reachedStartOfData() const { return m_requiredFrame != kUninitialized; }
 
 private:
-    static constexpr size_t kUninitialized = static_cast<size_t>(-2);
+    static constexpr int kUninitialized = -2;
 
     int m_frameId;
     unsigned m_xOffset;
     unsigned m_yOffset; // With respect to "screen" origin.
     unsigned m_width;
     unsigned m_height;
-    size_t m_transparentPixel; // Index of transparent pixel. Value is kNotFound if there is no transparent pixel.
+    int m_transparentPixel; // Index of transparent pixel. Value is kNotFound if there is no transparent pixel.
     // Cached value, taking into account:
     // - m_transparentPixel
     // - frameRect
     // - previous required frame
     bool m_hasAlpha;
     SkCodecAnimation::DisposalMethod m_disposalMethod; // Restore to background, leave in place, etc.
-    size_t m_requiredFrame;
+    int m_requiredFrame;
     int m_dataSize;
 
     bool m_progressiveDisplay; // If true, do Haeberli interlace hack.
@@ -305,7 +305,7 @@ private:
 
     SkGIFColorMap m_localColorMap;
 
-    size_t m_currentLzwBlock;
+    int m_currentLzwBlock;
     bool m_isComplete;
     bool m_isHeaderDefined;
     bool m_isDataSizeDefined;
@@ -359,15 +359,15 @@ public:
     // Decode the frame indicated by frameIndex.
     // frameComplete will be set to true if the frame is completely decoded.
     // The method returns false if there is an error.
-    bool decode(size_t frameIndex, bool* frameComplete);
+    bool decode(int frameIndex, bool* frameComplete);
 
-    size_t imagesCount() const
+    int imagesCount() const
     {
         // Report the first frame immediately, so the parser can stop when it
         // sees the size on a SizeQuery.
         const size_t frames = m_frames.size();
         if (frames <= 1) {
-            return frames;
+            return static_cast<int>(frames);
         }
 
         // This avoids counting an empty frame when the file is truncated (or
@@ -375,7 +375,7 @@ public:
         // possibly SkGIFImageHeader) but before reading the color table. This
         // ensures that we do not count a frame before we know its required
         // frame.
-        return m_frames.back()->reachedStartOfData() ? frames : frames - 1;
+        return static_cast<int>(m_frames.back()->reachedStartOfData() ? frames : frames - 1);
     }
     int loopCount() const {
         if (cLoopCountNotSeen == m_loopCount) {
@@ -389,9 +389,10 @@ public:
         return m_globalColorMap;
     }
 
-    const SkGIFFrameContext* frameContext(size_t index) const
+    const SkGIFFrameContext* frameContext(int index) const
     {
-        return index < m_frames.size() ? m_frames[index].get() : 0;
+        return index >= 0 && index < static_cast<int>(m_frames.size())
+                ? m_frames[index].get() : 0;
     }
 
     void clearDecodeState() {
@@ -401,7 +402,7 @@ public:
     }
 
     // Return the color table for frame index (which may be the global color table).
-    sk_sp<SkColorTable> getColorTable(SkColorType dstColorType, size_t index);
+    sk_sp<SkColorTable> getColorTable(SkColorType dstColorType, int index);
 
     bool firstFrameHasAlpha() const { return m_firstFrameHasAlpha; }
 
@@ -418,7 +419,7 @@ private:
     void setAlphaAndRequiredFrame(SkGIFFrameContext*);
     // This method is sometimes called before creating a SkGIFFrameContext, so it cannot rely
     // on SkGIFFrameContext::localColorMap().
-    bool hasTransparentPixel(size_t frameIndex, bool hasLocalColorMap, size_t localMapColors);
+    bool hasTransparentPixel(int frameIndex, bool hasLocalColorMap, int localMapColors);
     bool currentFrameIsFirstFrame() const
     {
         return m_frames.empty() || (m_frames.size() == 1u && !m_frames[0]->isComplete());
