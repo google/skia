@@ -406,9 +406,7 @@ protected:
     sk_sp<SkImageFilter> makeColorSpace(SkColorSpaceXformer* xformer) const {
         return this->onMakeColorSpace(xformer);
     }
-    virtual sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const {
-        return sk_ref_sp(const_cast<SkImageFilter*>(this));
-    }
+    virtual sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const = 0;
 
 private:
     // For makeColorSpace().
@@ -418,14 +416,18 @@ private:
     friend class SkColorFilterImageFilter;
     friend class SkColorSpaceXformer;
     friend class SkComposeImageFilter;
+    friend class SkDiffuseLightingImageFilter;
     friend class SkDisplacementMapEffect;
     friend class SkDropShadowImageFilter;
     friend class SkImageSource;
     friend class SkMagnifierImageFilter;
     friend class SkMatrixConvolutionImageFilter;
+    friend class SkMatrixImageFilter;
+    friend class SkLocalMatrixImageFilter;
     friend class SkMergeImageFilter;
     friend class SkMorphologyImageFilter;
     friend class SkOffsetImageFilter;
+    friend class SkSpecularLightingImageFilter;
     friend class SkTileImageFilter;
     friend class SkXfermodeImageFilter_Base;
 

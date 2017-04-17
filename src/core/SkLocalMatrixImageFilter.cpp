@@ -55,6 +55,14 @@ SkIRect SkLocalMatrixImageFilter::onFilterBounds(const SkIRect& src, const SkMat
     return this->getInput(0)->filterBounds(src, SkMatrix::Concat(matrix, fLocalM), direction);
 }
 
+sk_sp<SkImageFilter> SkLocalMatrixImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer)
+const {
+    SkASSERT(1 == this->countInputs() && this->getInput(0));
+
+    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
+    return SkLocalMatrixImageFilter::Make(fLocalM, std::move(input));
+}
+
 #ifndef SK_IGNORE_TO_STRING
 void SkLocalMatrixImageFilter::toString(SkString* str) const {
     str->append("SkLocalMatrixImageFilter: (");
