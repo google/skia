@@ -68,6 +68,30 @@
       "revId": "1366a780df6e28cdcd0183753d47906ad9b1742a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ca03b96_629930fd",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-17T14:58:10Z",
+      "side": 1,
+      "message": "I like it better than values that are ignored, but as I commented on the latest patch set, it would be nice to have defaults. (Or at least specify that we do not, and specify what values are meaningful.)",
+      "parentUuid": "b0fb5c8a_9392b1e0",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 44
+      },
+      "revId": "1366a780df6e28cdcd0183753d47906ad9b1742a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
