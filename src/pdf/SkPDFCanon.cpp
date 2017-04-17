@@ -12,25 +12,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace {
-template <typename K, typename V> struct UnrefValue {
-    void operator()(K, V** v) { SkSafeUnref(*v); }
-};
-}
-
 SkPDFCanon::~SkPDFCanon() {
-    // TODO(halcanary): make SkTHashSet work nicely with sk_sp<>,
-    // or use std::unordered_set<>
     fGraphicStateRecords.foreach ([](WrapGS w) { w.fPtr->unref(); });
-    fPDFBitmapMap.foreach(UnrefValue<SkBitmapKey, SkPDFObject>());
-    fTypefaceMetrics.foreach(UnrefValue<uint32_t, SkAdvancedTypefaceMetrics>());
-    fFontDescriptors.foreach(UnrefValue<uint32_t, SkPDFDict>());
-    fFontMap.foreach(UnrefValue<uint64_t, SkPDFFont>());
-}
-
-void SkPDFCanon::reset() {
-    this->~SkPDFCanon();
-    new (this)SkPDFCanon;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +35,7 @@ sk_sp<SkPDFObject> SkPDFCanon::findFunctionShader(
 }
 void SkPDFCanon::addFunctionShader(sk_sp<SkPDFObject> pdfShader,
                                    SkPDFShader::State state) {
-    fFunctionShaderRecords.emplace_back(std::move(state), std::move(pdfShader));
+    fFunctionShaderRecords.emplace_back(ShaderRec{std::move(state), std::move(pdfShader)});
 }
 
 sk_sp<SkPDFObject> SkPDFCanon::findAlphaShader(
@@ -61,7 +44,7 @@ sk_sp<SkPDFObject> SkPDFCanon::findAlphaShader(
 }
 void SkPDFCanon::addAlphaShader(sk_sp<SkPDFObject> pdfShader,
                                 SkPDFShader::State state) {
-    fAlphaShaderRecords.emplace_back(std::move(state), std::move(pdfShader));
+    fAlphaShaderRecords.emplace_back(ShaderRec{std::move(state), std::move(pdfShader)});
 }
 
 sk_sp<SkPDFObject> SkPDFCanon::findImageShader(
@@ -71,7 +54,7 @@ sk_sp<SkPDFObject> SkPDFCanon::findImageShader(
 
 void SkPDFCanon::addImageShader(sk_sp<SkPDFObject> pdfShader,
                                 SkPDFShader::State state) {
-    fImageShaderRecords.emplace_back(std::move(state), std::move(pdfShader));
+    fImageShaderRecords.emplace_back(ShaderRec{std::move(state), std::move(pdfShader)});
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,37 +72,3 @@ void SkPDFCanon::addGraphicState(const SkPDFGraphicState* state) {
     fGraphicStateRecords.add(w);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkPDFObject> SkPDFCanon::findPDFBitmap(SkBitmapKey key) const {
-    SkPDFObject** ptr = fPDFBitmapMap.find(key);
-    return ptr ? sk_ref_sp(*ptr) : sk_sp<SkPDFObject>();
-}
-
-void SkPDFCanon::addPDFBitmap(SkBitmapKey key, sk_sp<SkPDFObject> pdfBitmap) {
-    fPDFBitmapMap.set(key, pdfBitmap.release());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkPDFStream> SkPDFCanon::makeInvertFunction() {
-    if (fInvertFunction) {
-        return fInvertFunction;
-    }
-    fInvertFunction = SkPDFGraphicState::MakeInvertFunction();
-    return fInvertFunction;
-}
-sk_sp<SkPDFDict> SkPDFCanon::makeNoSmaskGraphicState() {
-    if (fNoSmaskGraphicState) {
-        return fNoSmaskGraphicState;
-    }
-    fNoSmaskGraphicState = SkPDFGraphicState::MakeNoSmaskGraphicState();
-    return fNoSmaskGraphicState;
-}
-sk_sp<SkPDFArray> SkPDFCanon::makeRangeObject() {
-    if (fRangeObject) {
-        return fRangeObject;
-    }
-    fRangeObject = SkPDFShader::MakeRangeObject();
-    return fRangeObject;
-}

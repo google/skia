@@ -83,9 +83,9 @@ public:
      *  @param typeface  The typeface to find, not nullptr.
      *  @param glyphID   Specify which section of a large font is of interest.
      */
-    static SkPDFFont* GetFontResource(SkPDFCanon* canon,
-                                      SkTypeface* typeface,
-                                      SkGlyphID glyphID);
+    static sk_sp<SkPDFFont> GetFontResource(SkPDFCanon* canon,
+                                            SkTypeface* typeface,
+                                            SkGlyphID glyphID);
 
     /** Uses (kGlyphNames_PerGlyphInfo | kToUnicode_PerGlyphInfo) to get 
      *  SkAdvancedTypefaceMetrics, and caches the result.
