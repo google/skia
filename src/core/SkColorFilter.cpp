@@ -155,6 +155,12 @@ private:
         return fComposedFilterCount;
     }
 
+    bool asACompose(sk_sp<SkColorFilter>* outer, sk_sp<SkColorFilter>* inner) const override {
+        *outer = fOuter;
+        *inner = fInner;
+        return true;
+    }
+
     sk_sp<SkColorFilter> fOuter;
     sk_sp<SkColorFilter> fInner;
     const int            fComposedFilterCount;
