@@ -671,6 +671,29 @@ STAGE(table_g) { g = table(g, ctx); }
 STAGE(table_b) { b = table(b, ctx); }
 STAGE(table_a) { a = table(a, ctx); }
 
+SI F approx_log2(F x) {
+    return cast(unaligned_load<U32>(&x)) * C(1.0f / (1<<23)) - 127.0_f;
+}
+
+SI F approx_pow2(F x) {
+    U32 v = round(x + 127.0_f, C(1.0f * (1<<23)));
+    return unaligned_load<F>(&v);
+}
+
+SI F approx_powf(F x, float g) {
+    return approx_pow2(approx_log2(x) * g);
+}
+
+SI F parametric(F v, const SkJumper_ParametricTransferFunction* ctx) {
+    F r = if_then_else(v <= ctx->D, mad(ctx->C, v, ctx->F)
+                                  , approx_powf(mad(ctx->A, v, ctx->B), ctx->G) + ctx->E);
+    return min(max(r, 0), 1.0_f);  // Clamp to [0,1], with argument order mattering to handle NaN.
+}
+STAGE(parametric_r) { r = parametric(r, ctx); }
+STAGE(parametric_g) { g = parametric(g, ctx); }
+STAGE(parametric_b) { b = parametric(b, ctx); }
+STAGE(parametric_a) { a = parametric(a, ctx); }
+
 STAGE(load_a8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
