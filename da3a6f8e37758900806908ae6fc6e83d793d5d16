@@ -46,6 +46,30 @@
       "revId": "da3a6f8e37758900806908ae6fc6e83d793d5d16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca7e9374_d136cfd2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-17T21:59:03Z",
+      "side": 1,
+      "message": "The Android behavior exists because we needed to do *something* with uninitialized memory.\n\nWe made an effort to choose to fill with the \"right\" value and also to fill consistently (ex: Index8 and N32 look the same), but it\u0027s not clear to me that anybody cares.  I\u0027d rather just drop the complexity.\n\nIf an app happened to be \"depending\" on the old behavior, they should just use a complete image.\n\nIs Chrome still zeroing the memory before decoding?  In that case it might be interesting to have a flag for \"memory needs to be initialized vs. memory already initialized\"?  If they\u0027re not, I\u0027d be even happier to just have one behavior.",
+      "parentUuid": "b7e6bed3_ac0c2eb4",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 24
+      },
+      "revId": "da3a6f8e37758900806908ae6fc6e83d793d5d16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
