@@ -128,3 +128,12 @@ DEF_TEST(ParsePathOptionalCommand, r) {
         REPORTER_ASSERT(r, path.countPoints() == gTests[i].fPoints);
     }
 }
+
+DEF_TEST(ParsePathConvex, r) {
+    const char* str = "M50,0L92,0 A8,8,0,0 1 100,8 L100,92 A8,8,0,0 1 92,100 L8,100 A8,8,0,0 1 0,92 L 0,8 A8,8,0,0 1 8,0z";
+
+    SkPath path;
+    REPORTER_ASSERT(r, SkParsePath::FromSVGString(str, &path));
+    path.dump();
+    REPORTER_ASSERT(r, path.isConvex());
+}
