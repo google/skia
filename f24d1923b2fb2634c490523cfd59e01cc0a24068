@@ -22,6 +22,30 @@
       "revId": "f24d1923b2fb2634c490523cfd59e01cc0a24068",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db8f0cd5_0ed01f00",
+        "filename": "src/gpu/ops/GrClearOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T16:47:38Z",
+      "side": 1,
+      "message": "I\u0027ve added the usage. If was for a debug printout that notifies when full screen clearOps get fused.",
+      "parentUuid": "3bebc4b6_447d1488",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 44
+      },
+      "revId": "f24d1923b2fb2634c490523cfd59e01cc0a24068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
