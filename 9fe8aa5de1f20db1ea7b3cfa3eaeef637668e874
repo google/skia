@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "5df0fe16_2805c819",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-17T15:28:37Z",
+      "side": 1,
+      "message": "Awesome!",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 38
+      },
+      "revId": "9fe8aa5de1f20db1ea7b3cfa3eaeef637668e874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4f9d2185_8a6a3985",
         "filename": "src/core/SkColorSpaceXform_A2B.cpp",
         "patchSetId": 3
