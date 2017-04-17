@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "057950b0_debd0503",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "// life time of vkInfo \u0026 glInfo ?",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59b64d1a_caa17559",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "// same here ?",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f95b457b_e39b4caf",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "kForceRT ?",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d5722d41_10c160d2",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 1
@@ -19,6 +70,23 @@
     },
     {
       "key": {
+        "uuid": "760826e2_1c7eb15d",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "SkASSERT(!(kRenderTarget_GrBackendTextureFlag \u0026 desc.fFlags)); ?",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6d997ee0_236ceccd",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 1
@@ -30,6 +98,176 @@
       "writtenOn": "2017-04-17T18:57:59Z",
       "side": 1,
       "message": "ditto",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edd7b6d1_f86a0d7a",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "here too ?",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cfb2076_9f8bebc3",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "std::move(colorSpace) ?",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4d1832a_0536107a",
+        "filename": "tests/EGLImageTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "avoid kDefault_GrSurfaceOrigin ?",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9acbb757_7ebedb3e",
+        "filename": "tests/GrPorterDuffTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1049,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "avoid kDefault origin ?",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "194d8454_fc518457",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "kDefault ?",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ddcfc9a_f333e76e",
+        "filename": "tests/RectangleTextureTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {\n?\nfor (auto useBLOrigin : { true, false }) {\n?",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73ea4126_87cd7534",
+        "filename": "tests/RectangleTextureTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "length",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "906c27e1_48105d45",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "kDefault here \u0026 below ?",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f58e82a6_015bd3a2",
+        "filename": "tests/VkWrapTests.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "kDefault ?\nand below",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d758f624_df5e6bf3",
+        "filename": "tests/VkWrapTests.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T19:02:06Z",
+      "side": 1,
+      "message": "kDefault ?",
       "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
