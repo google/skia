@@ -671,6 +671,40 @@ STAGE(table_g) { g = table(g, ctx); }
 STAGE(table_b) { b = table(b, ctx); }
 STAGE(table_a) { a = table(a, ctx); }
 
+// See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html.
+SI F approx_log2(F x) {
+    // e is a fair approximation of log2(x) in its own right...
+    F e = cast(bit_cast<U32>(x)) * C(1.0f / (1<<23)) - 127.0_f;
+
+    // ... but using the mantissa to refine its error is _much_ better.
+    F m = bit_cast<F>((bit_cast<U32>(x) & 0x007fffff_i) | 0x3f000000_i);
+    return e
+         + 2.774485010_f
+         - 1.498030302_f * m
+         - 1.725879990_f / (0.3520887068_f + m);
+}
+SI F approx_pow2(F x) {
+    F f = fract(x);
+    return bit_cast<F>(round(C(1.0f * (1<<23)),
+                x + 121.2740575_f
+                - 1.490129070_f * f
+                + 27.72802330_f / (4.84252568_f - f)));
+}
+
+SI F approx_powf(F x, float g) {
+    return approx_pow2(approx_log2(x) * g);
+}
+
+SI F parametric(F v, const SkJumper_ParametricTransferFunction* ctx) {
+    F r = if_then_else(v <= ctx->D, mad(ctx->C, v, ctx->F)
+                                  , approx_powf(mad(ctx->A, v, ctx->B), ctx->G) + ctx->E);
+    return min(max(r, 0), 1.0_f);  // Clamp to [0,1], with argument order mattering to handle NaN.
+}
+STAGE(parametric_r) { r = parametric(r, ctx); }
+STAGE(parametric_g) { g = parametric(g, ctx); }
+STAGE(parametric_b) { b = parametric(b, ctx); }
+STAGE(parametric_a) { a = parametric(a, ctx); }
+
 STAGE(load_a8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
@@ -954,7 +988,6 @@ STAGE(save_xy) {
     // Whether bilinear or bicubic, all sample points are at the same fractional offset (fx,fy).
     // They're either the 4 corners of a logical 1x1 pixel or the 16 corners of a 3x3 grid
     // surrounding (x,y) at (0.5,0.5) off-center.
-    auto fract = [](F v) { return v - floor_(v); };
     F fx = fract(r + 0.5_f),
       fy = fract(g + 0.5_f);
 

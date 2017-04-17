@@ -626,4 +626,6 @@ SI U16 bswap(U16 x) {
 #endif
 }
 
+SI F fract(F v) { return v - floor_(v); }
+
 #endif//SkJumper_vectors_DEFINED

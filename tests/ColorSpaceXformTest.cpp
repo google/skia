@@ -252,6 +252,9 @@ DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
     gammas->fType[0] = SkGammas::Type::kValue_Type;
     gammas->fData[0].fValue = 1.2f;
 
+    // See ColorSpaceXform_TableGamma... we've decided to allow some tolerance
+    // for SkJumper's implementation of tables.
+    const int tolerance = 12;
     gammas->fType[1] = SkGammas::Type::kTable_Type;
     gammas->fData[1].fTable.fSize = tableSize;
     gammas->fData[1].fTable.fOffset = 0;
@@ -260,7 +263,7 @@ DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
     gammas->fData[2].fParamOffset = sizeof(float) * tableSize;
 
     test_identity_xform(r, gammas, true);
-    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas);
+    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas, tolerance);
 }
 
 DEF_TEST(ColorSpaceXform_A2BCLUT, r) {
