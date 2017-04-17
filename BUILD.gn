@@ -6,6 +6,10 @@
 import("gn/android_framework_defines.gni")
 import("gn/shared_sources.gni")
 
+if (is_fuchsia) {
+  import("//build/vulkan/config.gni")
+}
+
 if (!defined(is_skia_standalone)) {
   is_skia_standalone = false
 }
@@ -45,11 +49,15 @@ declare_args() {
 
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
+  } else if (is_fuchsia) {
+    skia_use_vulkan = fuchsia_use_vulkan
   } else {
     skia_use_vulkan = skia_vulkan_sdk != ""
   }
   if (is_win) {
     skia_vulkan_headers_path = "$skia_vulkan_sdk/Include"
+  } else if (is_fuchsia) {
+    skia_vulkan_headers_path = "$fuchsia_vulkan_sdk/include"
   } else {
     skia_vulkan_headers_path = "$skia_vulkan_sdk/include"
   }
