@@ -82,10 +82,9 @@ void SkPixelRef::android_only_reset(const SkImageInfo& info, size_t rowBytes,
     validate_pixels_ctable(info, ctable.get());
 
     *const_cast<SkImageInfo*>(&fInfo) = info;
+    fRowBytes = rowBytes;
     fCTable = std::move(ctable);
-    // note: we do not change fRec.fPixels
-    fRec.fRowBytes = rowBytes;
-    fRec.fColorTable = fCTable.get();
+    // note: we do not change fPixels
 
     // conservative, since its possible the "new" settings are the same as the old.
     this->notifyPixelsChanged();
