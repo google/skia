@@ -28,7 +28,6 @@ static SkBitmap make_chessbm(int w, int h) {
             p[x] = ((x + y) & 1) ? SK_ColorWHITE : SK_ColorBLACK;
         }
     }
-    bm.unlockPixels();
     return bm;
 }
 

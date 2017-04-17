@@ -20,6 +20,7 @@
 #include "SkSurface.h"
 #include "SkUtils.h"
 
+#ifdef SK_SUPPORT_OBSOLETE_LOCKPIXELS
 void SkAutoPixmapUnlock::reset(const SkPixmap& pm, void (*unlock)(void*), void* ctx) {
     SkASSERT(pm.addr() != nullptr);
 
@@ -29,6 +30,7 @@ void SkAutoPixmapUnlock::reset(const SkPixmap& pm, void (*unlock)(void*), void* 
     fUnlockContext = ctx;
     fIsLocked = true;
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 

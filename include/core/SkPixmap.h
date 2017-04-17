@@ -221,8 +221,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef SK_SUPPORT_OBSOLETE_LOCKPIXELS
 class SK_API SkAutoPixmapUnlock : ::SkNoncopyable {
 public:
     SkAutoPixmapUnlock() : fUnlockProc(NULL), fIsLocked(false) {}
@@ -268,5 +267,6 @@ private:
 
     friend class SkBitmap;
 };
+#endif
 
 #endif
