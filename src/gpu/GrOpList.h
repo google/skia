@@ -16,7 +16,6 @@
 class GrAuditTrail;
 class GrOpFlushState;
 class GrRenderTargetOpList;
-class GrSurface;
 class GrSurfaceProxy;
 class GrTextureOpList;
 
@@ -54,7 +53,7 @@ public:
     /*
      * Notify this GrOpList that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrSurface* dependedOn);
+    void addDependency(GrSurfaceProxy* dependedOn);
 
     /*
      * Does this opList depend on 'dependedOn'?
@@ -79,6 +78,8 @@ public:
      * Dump out the GrOpList dependency DAG
      */
     SkDEBUGCODE(virtual void dump() const;)
+
+    SkDEBUGCODE(virtual void validateTargetsSingleRenderTarget() const = 0;)
 
 protected:
     GrSurfaceProxy*      fTarget;
