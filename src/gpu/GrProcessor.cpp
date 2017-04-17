@@ -204,18 +204,6 @@ bool GrResourceIOProcessor::hasSameSamplersAndAccesses(const GrResourceIOProcess
 
 GrResourceIOProcessor::TextureSampler::TextureSampler() {}
 
-GrResourceIOProcessor::TextureSampler::TextureSampler(GrTexture* texture,
-                                                      const GrSamplerParams& params) {
-    this->reset(texture, params);
-}
-
-GrResourceIOProcessor::TextureSampler::TextureSampler(GrTexture* texture,
-                                                      GrSamplerParams::FilterMode filterMode,
-                                                      SkShader::TileMode tileXAndY,
-                                                      GrShaderFlags visibility) {
-    this->reset(texture, filterMode, tileXAndY, visibility);
-}
-
 GrResourceIOProcessor::TextureSampler::TextureSampler(GrResourceProvider* resourceProvider,
                                                       sk_sp<GrTextureProxy> proxy,
                                                       const GrSamplerParams& params) {
@@ -230,16 +218,7 @@ GrResourceIOProcessor::TextureSampler::TextureSampler(GrResourceProvider* resour
     this->reset(resourceProvider, std::move(proxy), filterMode, tileXAndY, visibility);
 }
 
-void GrResourceIOProcessor::TextureSampler::reset(GrTexture* texture,
-                                                  const GrSamplerParams& params,
-                                                  GrShaderFlags visibility) {
-    SkASSERT(texture);
-    fTexture.set(SkRef(texture), kRead_GrIOType);
-    fParams = params;
-    fParams.setFilterMode(SkTMin(params.filterMode(), texture->texturePriv().highestFilterMode()));
-    fVisibility = visibility;
-}
-
+// MDB TODO: remove this!
 void GrResourceIOProcessor::TextureSampler::reset(GrTexture* texture,
                                                   GrSamplerParams::FilterMode filterMode,
                                                   SkShader::TileMode tileXAndY,

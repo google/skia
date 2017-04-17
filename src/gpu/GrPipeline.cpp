@@ -104,7 +104,7 @@ void GrPipeline::addDependenciesTo(GrRenderTargetProxy* rtp) const {
 #endif
 
     if (fDstTexture) {
-        SkASSERT(rtp->getLastOpList());
+        //SkASSERT(rtp->getLastOpList());
         // MDB TODO: re-enable when TextureSamplers store texture proxies
         //rtp->getLastOpList()->addDependency(fDstTexture.get());
     }
