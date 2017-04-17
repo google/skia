@@ -147,6 +147,30 @@
       "revId": "c0baaa0d81c92797ac06da980a4a6a1991adec11",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b9082d2_04cdccc2",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 6065
+      },
+      "writtenOn": "2017-04-17T22:15:19Z",
+      "side": 1,
+      "message": "Ok so since https://skia-review.googlesource.com/c/13651/ looks like it might be a while out, can we merge this patch, and you can just remove this entire if-else block as part of your change? This is currently blocking our ability to enable hardware accelerated UI by default on our platform",
+      "parentUuid": "2538dd4a_dfdb4103",
+      "range": {
+        "startLine": 60,
+        "startChar": 31,
+        "endLine": 60,
+        "endChar": 60
+      },
+      "revId": "c0baaa0d81c92797ac06da980a4a6a1991adec11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
