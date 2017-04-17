@@ -68,10 +68,10 @@ protected:
         titlePaint.setTextSize(15 * SK_Scalar1);
         const char title[] = "Empty Paths Drawn Into Rectangle Clips With "
                              "Indicated Style and Fill";
-        canvas->drawText(title, strlen(title),
-                            20 * SK_Scalar1,
-                            20 * SK_Scalar1,
-                            titlePaint);
+        canvas->drawString(title,
+                           20 * SK_Scalar1,
+                           20 * SK_Scalar1,
+                           titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);

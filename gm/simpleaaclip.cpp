@@ -162,7 +162,7 @@ protected:
         int xOff = 0;
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
-            canvas->drawText(gOps[op].fName, strlen(gOps[op].fName),
+            canvas->drawString(gOps[op].fName,
                              SkIntToScalar(75), SkIntToScalar(50),
                              textPaint);
 

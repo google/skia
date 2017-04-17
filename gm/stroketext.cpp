@@ -31,7 +31,7 @@ static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint, SkScalar s
 
     if (strokeWidth > 0) {
         p.setStyle(SkPaint::kFill_Style);
-        canvas->drawText("P", 1, loc.fX, loc.fY - 225, p);
+        canvas->drawString("P", loc.fX, loc.fY - 225, p);
         canvas->drawPosText("P", 1, &loc, p);
     }
 
@@ -39,7 +39,7 @@ static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint, SkScalar s
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(strokeWidth);
 
-    canvas->drawText("P", 1, loc.fX, loc.fY - 225, p);
+    canvas->drawString("P", loc.fX, loc.fY - 225, p);
     canvas->drawPosText("P", 1, &loc, p);
 }
 

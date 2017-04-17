@@ -294,10 +294,10 @@ protected:
         const char title[] = "Random Paths Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, "
                              "with Stroke width 6";
-        canvas->drawText(title, strlen(title),
-                            20 * SK_Scalar1,
-                            20 * SK_Scalar1,
-                            titlePaint);
+        canvas->drawString(title,
+                           20 * SK_Scalar1,
+                           20 * SK_Scalar1,
+                           titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(220*SK_Scalar1, 50*SK_Scalar1);

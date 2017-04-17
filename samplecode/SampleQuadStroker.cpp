@@ -511,7 +511,7 @@ protected:
         paint.setStyle(SkPaint::kFill_Style);
         canvas->drawText(label.c_str(), label.size(), bounds.fLeft + 5, yPos - 5, paint);
         paint.setTextSize(13.0f);
-        canvas->drawText(name, strlen(name), bounds.fLeft, bounds.bottom() + 11, paint);
+        canvas->drawString(name, bounds.fLeft, bounds.bottom() + 11, paint);
     }
 
     void setForGeometry() {
