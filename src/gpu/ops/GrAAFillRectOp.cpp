@@ -180,6 +180,7 @@ public:
 
     SkString dumpInfo() const override {
         SkString str;
+        str.append(INHERITED::dumpInfo());
         str.appendf("# combined: %d\n", fRectCnt);
         const RectInfo* info = this->first();
         for (int i = 0; i < fRectCnt; ++i) {
@@ -189,7 +190,6 @@ public:
             info = this->next(info);
         }
         str.append(DumpPipelineInfo(*this->pipeline()));
-        str.append(INHERITED::dumpInfo());
         return str;
     }
 

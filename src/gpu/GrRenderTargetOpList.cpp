@@ -233,6 +233,10 @@ void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext,
         // As currently implemented, fLastFullClearOp should be the last op because we would
         // have cleared it when another op was recorded.
         SkASSERT(fRecordedOps.back().fOp.get() == fLastFullClearOp);
+        GrOP_INFO("opList: %d Fusing clears (opID: %d Color: 0x%08x -> 0x%08x)\n",
+                  this->uniqueID(),
+                  fLastFullClearOp->uniqueID(),
+                  fLastFullClearOp->color(), color);
         fLastFullClearOp->setColor(color);
         return;
     }
@@ -316,15 +320,14 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     // 3) find a 'blocker'
     GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), renderTarget->uniqueID(),
                           renderTargetContext->asRenderTargetProxy()->uniqueID());
-    GrOP_INFO("Recording (%s, opID: %u)\n"
-              "\tBounds: [L: %f T: %f R: %f B: %f]\n",
+    GrOP_INFO("opList: %d Recording (%s, opID: %u)\n"
+              "\tBounds [L: %.2f, T: %.2f R: %.2f B: %.2f]\n",
+               this->uniqueID(),
                op->name(),
                op->uniqueID(),
                op->bounds().fLeft, op->bounds().fTop,
                op->bounds().fRight, op->bounds().fBottom);
     GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
-    GrOP_INFO("\tClipped Bounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", op->bounds().fLeft,
-              op->bounds().fTop, op->bounds().fRight, op->bounds().fBottom);
     GrOP_INFO("\tOutcome:\n");
     int maxCandidates = SkTMin(fMaxOpLookback, fRecordedOps.count());
     // If we don't have a valid destination render target then we cannot reorder.
@@ -334,33 +337,33 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
             const RecordedOp& candidate = fRecordedOps.fromBack(i);
             // We cannot continue to search backwards if the render target changes
             if (candidate.fRenderTarget.get() != renderTarget) {
-                GrOP_INFO("\t\tBreaking because of (%s, opID: %u) Rendertarget mismatch\n",
+                GrOP_INFO("\t\tBackward: Breaking because of (%s, opID: %u) Rendertarget mismatch\n",
                           candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;
             }
             if (this->combineIfPossible(candidate, op.get(), clip, dstTexture)) {
-                GrOP_INFO("\t\tCombining with (%s, opID: %u)\n", candidate.fOp->name(),
+                GrOP_INFO("\t\tBackward: Combining with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
-                GrOP_INFO("\t\t\tCombined op info:\n");
+                GrOP_INFO("\t\t\tBackward: Combined op info:\n");
                 GrOP_INFO(SkTabString(candidate.fOp->dumpInfo(), 4).c_str());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, candidate.fOp.get(), op.get());
                 return candidate.fOp.get();
             }
             // Stop going backwards if we would cause a painter's order violation.
             if (!can_reorder(fRecordedOps.fromBack(i).fOp->bounds(), op->bounds())) {
-                GrOP_INFO("\t\tIntersects with (%s, opID: %u)\n", candidate.fOp->name(),
+                GrOP_INFO("\t\tBackward: Intersects with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;
             }
             ++i;
             if (i == maxCandidates) {
-                GrOP_INFO("\t\tReached max lookback or beginning of op array %d\n", i);
+                GrOP_INFO("\t\tBackward: Reached max lookback or beginning of op array %d\n", i);
                 break;
             }
         }
     } else {
-        GrOP_INFO("\t\tFirstOp\n");
+        GrOP_INFO("\t\tBackward: FirstOp\n");
     }
     GR_AUDIT_TRAIL_OP_RESULT_NEW(fAuditTrail, op);
     if (clip) {
@@ -375,12 +378,15 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
 }
 
 void GrRenderTargetOpList::forwardCombine() {
+    SkASSERT(!this->isClosed());
+
     if (fMaxOpLookahead <= 0) {
         return;
     }
     for (int i = 0; i < fRecordedOps.count() - 1; ++i) {
         GrOp* op = fRecordedOps[i].fOp.get();
         GrRenderTarget* renderTarget = fRecordedOps[i].fRenderTarget.get();
+        SkASSERT(renderTarget);
         // If we don't have a valid destination render target ID then we cannot reorder.
         if (!renderTarget) {
             continue;
@@ -391,13 +397,14 @@ void GrRenderTargetOpList::forwardCombine() {
             const RecordedOp& candidate = fRecordedOps[j];
             // We cannot continue to search if the render target changes
             if (candidate.fRenderTarget.get() != renderTarget) {
-                GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n", candidate.fOp->name(),
+                GrOP_INFO("\t\tForward: Breaking because of (%s, opID: %u) Rendertarget\n",
+                          candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;
             }
             if (this->combineIfPossible(fRecordedOps[i], candidate.fOp.get(),
                                         candidate.fAppliedClip, &candidate.fDstTexture)) {
-                GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
+                GrOP_INFO("\t\tForward: Combining with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, op, candidate.fOp.get());
                 fRecordedOps[j].fOp = std::move(fRecordedOps[i].fOp);
@@ -405,13 +412,13 @@ void GrRenderTargetOpList::forwardCombine() {
             }
             // Stop going traversing if we would cause a painter's order violation.
             if (!can_reorder(fRecordedOps[j].fOp->bounds(), op->bounds())) {
-                GrOP_INFO("\t\tIntersects with (%s, B%u)\n", candidate.fOp->name(),
+                GrOP_INFO("\t\tForward: Intersects with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;
             }
             ++j;
             if (j > maxCandidateIdx) {
-                GrOP_INFO("\t\tReached max lookahead or end of op array %d\n", i);
+                GrOP_INFO("\t\tForward: Reached max lookahead or end of op array %d\n", i);
                 break;
             }
         }

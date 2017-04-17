@@ -220,6 +220,7 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
     GrResourceIOProcessor::TextureSampler dstTextureSampler;
     if (dstTexture) {
+        // MDB TODO: this is the last usage of a GrTexture-based TextureSampler reset method
         dstTextureSampler.reset(dstTexture);
         textureBindings.push_back(&dstTextureSampler);
     }
