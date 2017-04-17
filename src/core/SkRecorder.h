@@ -160,12 +160,11 @@ private:
     template <typename T>
     T* copy(const T[], size_t count);
 
-    DrawPictureMode fDrawPictureMode;
-    size_t fApproxBytesUsedBySubPictures;
-    SkRecord* fRecord;
+    DrawPictureMode                 fDrawPictureMode;
+    size_t                          fApproxBytesUsedBySubPictures;
+    SkRecord*                       fRecord;
     std::unique_ptr<SkDrawableList> fDrawableList;
-
-    SkMiniRecorder* fMiniRecorder;
+    SkMiniRecorder*                 fMiniRecorder;
 };
 
 #endif//SkRecorder_DEFINED
