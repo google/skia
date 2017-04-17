@@ -22,6 +22,30 @@
       "revId": "bab70cc0326c465914e194845bbfc3f86bf74fb0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3669ad01_56ea8c95",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-17T16:58:50Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "07be62fa_34eeba4e",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 27
+      },
+      "revId": "bab70cc0326c465914e194845bbfc3f86bf74fb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
