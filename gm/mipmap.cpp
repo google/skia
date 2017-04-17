@@ -38,7 +38,7 @@ DEF_SIMPLE_GM(mipmap, canvas, 400, 200) {
     paint.setTextSize(30);
     SkString str;
     str.printf("scale %g %g", dst.width() / img->width(), dst.height() / img->height());
-//    canvas->drawText(str.c_str(), str.size(), 300, 100, paint);
+//    canvas->drawString(str, 300, 100, paint);
 
     canvas->translate(20, 20);
     for (int i = 0; i < 4; ++i) {

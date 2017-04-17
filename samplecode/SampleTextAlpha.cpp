@@ -59,7 +59,7 @@ protected:
             paint.setColor(rand.nextU() | (0xFF << 24));
             paint.setTextSize(SkIntToScalar(ps));
             paint.setTextSize(SkIntToScalar(24));
-            canvas->drawText(str, strlen(str), x, y, paint);
+            canvas->drawString(str, x, y, paint);
             y += paint.getFontMetrics(nullptr);
         }
     }

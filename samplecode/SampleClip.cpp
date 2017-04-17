@@ -27,7 +27,7 @@ static void show_text(SkCanvas* canvas, bool doAA) {
 
     for (int i = 0; i < 200; ++i) {
         paint.setColor((SK_A32_MASK << SK_A32_SHIFT) | rand.nextU());
-        canvas->drawText("Hamburgefons", 12,
+        canvas->drawString("Hamburgefons",
                          rand.nextSScalar1() * W, rand.nextSScalar1() * H + 20,
                          paint);
     }

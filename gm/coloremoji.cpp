@@ -88,7 +88,7 @@ protected:
             paint.setTextSize(textSize);
             paint.getFontMetrics(&metrics);
             y += -metrics.fAscent;
-            canvas->drawText(text, strlen(text), 10, y, paint);
+            canvas->drawString(text, 10, y, paint);
             y += metrics.fDescent + metrics.fLeading;
         }
 
@@ -124,7 +124,7 @@ protected:
                             shaderPaint.setTextSize(30);
                             shaderPaint.getFontMetrics(&metrics);
                             y += -metrics.fAscent;
-                            canvas->drawText(text, strlen(text), 380, y, shaderPaint);
+                            canvas->drawString(text, 380, y, shaderPaint);
                             y += metrics.fDescent + metrics.fLeading;
                         }
                     }
@@ -162,10 +162,10 @@ protected:
             canvas->save();
             canvas->drawRect(clipRect, clipHairline);
             paint.setAlpha(0x20);
-            canvas->drawText(text, strlen(text), 0, 0, paint);
+            canvas->drawString(text, 0, 0, paint);
             canvas->clipRect(clipRect);
             paint.setAlpha(0xFF);
-            canvas->drawText(text, strlen(text), 0, 0, paint);
+            canvas->drawString(text, 0, 0, paint);
             canvas->restore();
             canvas->translate(0, SkIntToScalar(25));
         }

@@ -52,7 +52,7 @@ protected:
         for (SkScalar size = 10; size <= 100; size += 10) {
             paint.setTextSize(size);
             canvas->translate(0, paint.getFontMetrics(nullptr));
-            canvas->drawText("Hamburgefons", 12, 10, 10, paint);
+            canvas->drawString("Hamburgefons", 10, 10, paint);
         }
     }
 

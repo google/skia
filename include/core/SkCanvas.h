@@ -15,6 +15,7 @@
 #include "SkRasterHandleAllocator.h"
 #include "SkSurfaceProps.h"
 #include "SkLights.h"
+#include "SkString.h"
 #include "../private/SkShadowParams.h"
 
 class GrContext;
@@ -965,6 +966,28 @@ public:
     */
     void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                   const SkPaint& paint);
+
+    /** Draw null-terminated UTF-8 string, with origin at (x,y), using the specified paint.
+        The origin is interpreted based on the Align setting in the paint.
+        @param string   The null-terminated string to be drawn
+        @param x        The x-coordinate of the origin of the string being drawn
+        @param y        The y-coordinate of the origin of the string being drawn
+        @param paint    The paint used for the string (e.g. color, size, style)
+    */
+    void drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint) {
+        drawText(string, strlen(string), x, y, paint);
+    }
+
+    /** Draw string, with origin at (x,y), using the specified paint.
+        The origin is interpreted based on the Align setting in the paint.
+        @param string   The string to be drawn
+        @param x        The x-coordinate of the origin of the string being drawn
+        @param y        The y-coordinate of the origin of the string being drawn
+        @param paint    The paint used for the string (e.g. color, size, style)
+    */
+    void drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint) {
+        drawText(string.c_str(), string.size(), x, y, paint);
+    }
 
     /** Draw the text, with each character/glyph origin specified by the pos[]
         array. The origin is interpreted by the Align setting in the paint.

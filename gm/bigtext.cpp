@@ -43,7 +43,7 @@ protected:
         };
 
         paint.setColor(SK_ColorRED);
-        canvas->drawText("/", 1, pos.fX, pos.fY, paint);
+        canvas->drawString("/", pos.fX, pos.fY, paint);
 
         paint.setColor(SK_ColorBLUE);
         canvas->drawPosText("\\", 1, &pos, paint);
