@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5722d41_10c160d2",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-17T18:57:59Z",
+      "side": 1,
+      "message": "SkASSERT(!(kRenderTarget_GrBackendTextureFlag \u0026 desc.fFlags)) ?",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d997ee0_236ceccd",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-17T18:57:59Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "4285e45b860ab10f424d14ce32c39acd3f2b9fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
