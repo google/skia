@@ -83,10 +83,10 @@ static void draw(SkCanvas* canvas, bool doClose) {
         const char titleClose[] = "Line Closed Drawn Into Rectangle Clips With "
             "Indicated Style, Fill and Linecaps, with stroke width 10";
         const char* title = doClose ? titleClose : titleNoClose;
-        canvas->drawText(title, strlen(title),
-                            20 * SK_Scalar1,
-                            20 * SK_Scalar1,
-                            titlePaint);
+        canvas->drawString(title,
+                           20 * SK_Scalar1,
+                           20 * SK_Scalar1,
+                           titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);

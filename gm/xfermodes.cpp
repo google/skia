@@ -259,7 +259,7 @@ protected:
 
 #if 1
                 const char* label = SkBlendMode_Name(gModes[i].fMode);
-                canvas->drawText(label, strlen(label),
+                canvas->drawString(label,
                                  x + w/2, y - labelP.getTextSize()/2, labelP);
 #endif
                 x += w + SkIntToScalar(10);

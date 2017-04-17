@@ -151,15 +151,14 @@ protected:
                 SkScalar txtX = SkIntToScalar(45);
                 paint.setColor(gClipAColor);
                 const char* aTxt = doInvA ? "InvA " : "A ";
-                canvas->drawText(aTxt, strlen(aTxt), txtX, SkIntToScalar(220), paint);
+                canvas->drawString(aTxt, txtX, SkIntToScalar(220), paint);
                 txtX += paint.measureText(aTxt, strlen(aTxt));
                 paint.setColor(SK_ColorBLACK);
-                canvas->drawText(gOps[op].fName, strlen(gOps[op].fName),
-                                    txtX, SkIntToScalar(220), paint);
+                canvas->drawString(gOps[op].fName, txtX, SkIntToScalar(220), paint);
                 txtX += paint.measureText(gOps[op].fName, strlen(gOps[op].fName));
                 paint.setColor(gClipBColor);
                 const char* bTxt = doInvB ? "InvB " : "B ";
-                canvas->drawText(bTxt, strlen(bTxt), txtX, SkIntToScalar(220), paint);
+                canvas->drawString(bTxt, txtX, SkIntToScalar(220), paint);
 
                 canvas->translate(SkIntToScalar(250),0);
             }

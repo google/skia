@@ -66,7 +66,7 @@ static void test_text(SkCanvas* canvas, SkScalar size,
     sk_tool_utils::set_portable_typeface(&type);
     type.setColor(color);
     const char text[] = "HELLO WORLD";
-    canvas->drawText(text, strlen(text), 32, size / 2 + Y, type);
+    canvas->drawString(text, 32, size / 2 + Y, type);
     SkScalar lineSpacing = type.getFontSpacing();
     exercise_draw_pos_text(canvas, text, 32, size / 2 + Y + lineSpacing, type);
     exercise_draw_pos_text_h(canvas, text, 32,
