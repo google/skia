@@ -110,7 +110,7 @@ public:
 
     SkDEBUGCODE(void dump() const override;)
 
-    SkDEBUGCODE(void validateTargetsSingleRenderTarget() const;)
+    SkDEBUGCODE(void validateTargetsSingleRenderTarget() const override;)
 
 private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive

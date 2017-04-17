@@ -6,10 +6,9 @@
  */
 
 #include "GrOpList.h"
-
-#include "GrRenderTargetOpList.h"
-#include "GrSurface.h"
 #include "GrSurfaceProxy.h"
+
+#include "SkAtomics.h"
 
 uint32_t GrOpList::CreateUniqueID() {
     static int32_t gUniqueID = SK_InvalidUniqueID;
@@ -49,7 +48,7 @@ void GrOpList::addDependency(GrOpList* dependedOn) {
 }
 
 // Convert from a GrSurface-based dependency to a GrOpList one
-void GrOpList::addDependency(GrSurface* dependedOn) {
+void GrOpList::addDependency(GrSurfaceProxy* dependedOn) {
     if (dependedOn->getLastOpList()) {
         // If it is still receiving dependencies, this GrOpList shouldn't be closed
         SkASSERT(!this->isClosed());

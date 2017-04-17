@@ -14,6 +14,7 @@
 #include "SkRect.h"
 
 class GrCaps;
+class GrOpList;
 class GrRenderTargetOpList;
 class GrRenderTargetProxy;
 class GrResourceProvider;

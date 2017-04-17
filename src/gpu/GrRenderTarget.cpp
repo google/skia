@@ -61,10 +61,6 @@ void GrRenderTarget::onRelease() {
 void GrRenderTarget::onAbandon() {
     SkSafeSetNull(fStencilAttachment);
 
-    // The contents of this renderTarget are gone/invalid. It isn't useful to point back
-    // the creating opList.
-    this->setLastOpList(nullptr);
-
     INHERITED::onAbandon();
 }
 

@@ -122,7 +122,7 @@ public:
 
     // Make the renderTarget's GrOpList (if it exists) be dependent on any
     // GrOpLists in this pipeline
-    void addDependenciesTo(GrRenderTarget* rt) const;
+    void addDependenciesTo(GrRenderTargetProxy*) const;
 
     int numColorFragmentProcessors() const { return fNumColorProcessors; }
     int numCoverageFragmentProcessors() const {
