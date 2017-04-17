@@ -8,13 +8,10 @@
 #ifndef SkColorSpaceXform_A2B_DEFINED
 #define SkColorSpaceXform_A2B_DEFINED
 
-#include "SkColorSpace_Base.h"
+#include "SkArenaAlloc.h"
 #include "SkColorSpaceXform_Base.h"
+#include "SkColorSpace_Base.h"
 #include "SkRasterPipeline.h"
-
-#include <forward_list>
-#include <functional>
-#include <vector>
 
 class SkColorSpace_A2B;
 class SkColorSpace_XYZ;
@@ -40,18 +37,12 @@ private:
 
     void addMatrix(const SkMatrix44& matrix);
 
-    SkRasterPipeline                             fElementsPipeline;
-    bool                                         fLinearDstGamma;
+    SkRasterPipeline fElementsPipeline;
+    bool             fLinearDstGamma;
+    SkArenaAlloc     fAlloc{128};  // TODO: tune?
 
-    // storage used by the pipeline
-    std::forward_list<SkColorSpaceTransferFn>    fTransferFns;
-    std::forward_list<SkTableTransferFn>         fTableTransferFns;
-    std::forward_list<std::vector<float>>        fMatrices;
-    std::vector<sk_sp<const SkColorLookUpTable>> fCLUTs;
-
-    // these are here to maintain ownership of tables used in the pipeline
-    std::forward_list<std::vector<float>>        fTableStorage;
-    std::vector<sk_sp<const SkGammas>>           fGammaRefs;
+    template <typename T>
+    T* copy(const T& val) { return fAlloc.make<T>(val); }
 
     friend class SkColorSpaceXform_Base;
 };
