@@ -68,6 +68,10 @@ public:
 };
 
 static bool almost_equal(int x, int y, int tol=1) {
+    if (SkTAbs(x-y) <= tol) {
+        return true;
+    }
+    SkDebugf("%d vs %d\n", x,y);
     return SkTAbs(x-y) <= tol;
 }
 
