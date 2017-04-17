@@ -85,9 +85,16 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
     return false;
 #endif
 
-    if (kN32_SkColorType != provider.info().colorType() || !cache_size_okay(provider, fInvMatrix) ||
-        fInvMatrix.hasPerspective())
-    {
+    bool supported = false;
+    switch (provider.info().colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            supported = true;
+            break;
+        default:
+            break;
+    }
+    if (!supported || !cache_size_okay(provider, fInvMatrix) || fInvMatrix.hasPerspective()) {
         return false; // can't handle the reqeust
     }
 
@@ -135,8 +142,8 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
 
         SkPixmap dst;
         SkBitmapCache::RecPtr rec;
-        const SkImageInfo info = SkImageInfo::MakeN32(desc.fScaledWidth, desc.fScaledHeight,
-                                                      src.alphaType());
+        const SkImageInfo info = SkImageInfo::Make(desc.fScaledWidth, desc.fScaledHeight,
+                                                   src.colorType(), src.alphaType());
         if (provider.isVolatile()) {
             if (!fResultBitmap.tryAllocPixels(info)) {
                 return false;
