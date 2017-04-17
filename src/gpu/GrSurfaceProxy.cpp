@@ -147,8 +147,6 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex) {
     }
 }
 
-#include "GrResourceProvider.h"
-
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceProvider,
                                                    const GrSurfaceDesc& desc,
                                                    SkBackingFit fit,
@@ -232,16 +230,9 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
                                                    const void* srcData,
                                                    size_t rowBytes) {
     if (srcData) {
-        GrMipLevel tempTexels;
-        GrMipLevel* texels = nullptr;
-        int levelCount = 0;
-        if (srcData) {
-            tempTexels.fPixels = srcData;
-            tempTexels.fRowBytes = rowBytes;
-            texels = &tempTexels;
-            levelCount = 1;
-        }
-        return resourceProvider->createMipMappedTexture(desc, budgeted, texels, levelCount);
+        GrMipLevel mipLevel = { srcData, rowBytes };
+
+        return resourceProvider->createTextureProxy(desc, budgeted, mipLevel);
     }
 
     return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, SkBackingFit::kExact, budgeted);
