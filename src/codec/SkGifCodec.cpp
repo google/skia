@@ -71,7 +71,7 @@ static SkCodec::Result gif_error(const char* msg, SkCodec::Result result = SkCod
  * Creates a gif decoder
  * Reads enough of the stream to determine the image format
  */
-SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
+SkCodec* SkGifCodec::NewFromStream(SkStream* stream, SkCodec::FillColorBehavior fillColorBehavior) {
     std::unique_ptr<SkGifImageReader> reader(new SkGifImageReader(stream));
     if (!reader->parse(SkGifImageReader::SkGIFSizeQuery)) {
         // Fatal error occurred.
@@ -107,7 +107,7 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
     const auto imageInfo = SkImageInfo::Make(reader->screenWidth(), reader->screenHeight(),
                                              colorType, alphaType,
                                              SkColorSpace::MakeSRGB());
-    return new SkGifCodec(encodedInfo, imageInfo, reader.release());
+    return new SkGifCodec(encodedInfo, imageInfo, reader.release(), fillColorBehavior);
 }
 
 bool SkGifCodec::onRewind() {
@@ -116,19 +116,18 @@ bool SkGifCodec::onRewind() {
 }
 
 SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
-                       SkGifImageReader* reader)
-    : INHERITED(encodedInfo, imageInfo, nullptr)
-    , fReader(reader)
-    , fTmpBuffer(nullptr)
-    , fSwizzler(nullptr)
-    , fCurrColorTable(nullptr)
-    , fCurrColorTableIsReal(false)
-    , fFilledBackground(false)
-    , fFirstCallToIncrementalDecode(false)
-    , fDst(nullptr)
-    , fDstRowBytes(0)
-    , fRowsDecoded(0)
-{
+                       SkGifImageReader* reader, SkCodec::FillColorBehavior fillColorBehavior)
+        : INHERITED(encodedInfo, imageInfo, nullptr, fillColorBehavior)
+        , fReader(reader)
+        , fTmpBuffer(nullptr)
+        , fSwizzler(nullptr)
+        , fCurrColorTable(nullptr)
+        , fCurrColorTableIsReal(false)
+        , fFilledBackground(false)
+        , fFirstCallToIncrementalDecode(false)
+        , fDst(nullptr)
+        , fDstRowBytes(0)
+        , fRowsDecoded(0) {
     reader->setClient(this);
 }
 
@@ -494,10 +493,16 @@ uint64_t SkGifCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
     // Note: Using fCurrColorTable relies on having called initializeColorTable already.
     // This is (currently) safe because this method is only called when filling, after
     // initializeColorTable has been called.
-    // FIXME: Is there a way to make this less fragile?
-    if (dstInfo.colorType() == kIndex_8_SkColorType && fCurrColorTableIsReal) {
-        // We only support index 8 for the first frame, for backwards
-        // compatibity on Android, so we are using the color table for the first frame.
+    bool preferTransparentFill = false;
+    if (fillColorBehavior() == kTransparentIfIndex8_FillColorBehavior &&
+        dstInfo.colorType() == kIndex_8_SkColorType) {
+        preferTransparentFill = true;
+    }
+    if (fillColorBehavior() == kTransparent_FillColorBehavior) {
+        preferTransparentFill = true;
+    }
+
+    if (preferTransparentFill && fCurrColorTableIsReal) {
         SkASSERT(this->options().fFrameIndex == 0);
         // Use the transparent index for the first frame.
         const size_t transPixel = fReader->frameContext(0)->transparentPixel();

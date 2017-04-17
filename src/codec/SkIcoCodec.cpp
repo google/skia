@@ -31,7 +31,7 @@ bool SkIcoCodec::IsIco(const void* buffer, size_t bytesRead) {
  * Creates an Ico decoder
  * Reads enough of the stream to determine the image format
  */
-SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
+SkCodec* SkIcoCodec::NewFromStream(SkStream* stream, SkCodec::FillColorBehavior fillColorBehavior) {
     // Ensure that we do not leak the input stream
     std::unique_ptr<SkStream> inputStream(stream);
 
@@ -184,17 +184,16 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
  */
 SkIcoCodec::SkIcoCodec(int width, int height, const SkEncodedInfo& info,
                        SkTArray<std::unique_ptr<SkCodec>, true>* codecs,
-                       sk_sp<SkColorSpace> colorSpace)
-    : INHERITED(width, height, info, nullptr, std::move(colorSpace))
-    , fEmbeddedCodecs(codecs)
-    , fCurrScanlineCodec(nullptr)
-    , fCurrIncrementalCodec(nullptr)
-{}
+                       sk_sp<SkColorSpace> colorSpace, SkCodec::FillColorBehavior fillColorBehavior)
+        : INHERITED(width, height, info, nullptr, std::move(colorSpace), fillColorBehavior)
+        , fEmbeddedCodecs(codecs)
+        , fCurrScanlineCodec(nullptr)
+        , fCurrIncrementalCodec(nullptr) {}
 
 /*
  * Chooses the best dimensions given the desired scale
  */
-SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const { 
+SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const {
     // We set the dimensions to the largest candidate image by default.
     // Regardless of the scale request, this is the largest image that we
     // will decode.

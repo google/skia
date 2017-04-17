@@ -25,7 +25,7 @@
 
 struct DecoderProc {
     bool (*IsFormat)(const void*, size_t);
-    SkCodec* (*NewFromStream)(SkStream*);
+    SkCodec* (*NewFromStream)(SkStream*, SkCodec::FillColorBehavior);
 };
 
 static const DecoderProc gDecoderProcs[] = {
@@ -48,7 +48,8 @@ size_t SkCodec::MinBufferedBytesNeeded() {
 }
 
 SkCodec* SkCodec::NewFromStream(SkStream* stream,
-                                SkPngChunkReader* chunkReader) {
+                                SkPngChunkReader* chunkReader,
+                                FillColorBehavior fillColorBehavior) {
     if (!stream) {
         return nullptr;
     }
@@ -88,55 +89,57 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
     // But this code follows the same pattern as the loop.
 #ifdef SK_HAS_PNG_LIBRARY
     if (SkPngCodec::IsPng(buffer, bytesRead)) {
-        return SkPngCodec::NewFromStream(streamDeleter.release(), chunkReader);
+        return SkPngCodec::NewFromStream(streamDeleter.release(), fillColorBehavior, chunkReader);
     } else
 #endif
     {
         for (DecoderProc proc : gDecoderProcs) {
             if (proc.IsFormat(buffer, bytesRead)) {
-                return proc.NewFromStream(streamDeleter.release());
+                return proc.NewFromStream(streamDeleter.release(), fillColorBehavior);
             }
         }
 
 #ifdef SK_CODEC_DECODES_RAW
         // Try to treat the input as RAW if all the other checks failed.
-        return SkRawCodec::NewFromStream(streamDeleter.release());
+        return SkRawCodec::NewFromStream(streamDeleter.release(), fillColorBehaior);
 #endif
     }
 
     return nullptr;
 }
 
-SkCodec* SkCodec::NewFromData(sk_sp<SkData> data, SkPngChunkReader* reader) {
+SkCodec* SkCodec::NewFromData(sk_sp<SkData> data,
+                              SkPngChunkReader* reader,
+                              FillColorBehavior fillColorBehavior) {
     if (!data) {
         return nullptr;
     }
-    return NewFromStream(new SkMemoryStream(data), reader);
+    return NewFromStream(new SkMemoryStream(data), reader, fillColorBehavior);
 }
 
 SkCodec::SkCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-        sk_sp<SkColorSpace> colorSpace, Origin origin)
-    : fEncodedInfo(info)
-    , fSrcInfo(info.makeImageInfo(width, height, std::move(colorSpace)))
-    , fStream(stream)
-    , fNeedsRewind(false)
-    , fOrigin(origin)
-    , fDstInfo()
-    , fOptions()
-    , fCurrScanline(-1)
-{}
+                 sk_sp<SkColorSpace> colorSpace, FillColorBehavior fillColorBehavior, Origin origin)
+        : fEncodedInfo(info)
+        , fSrcInfo(info.makeImageInfo(width, height, std::move(colorSpace)))
+        , fStream(stream)
+        , fNeedsRewind(false)
+        , fOrigin(origin)
+        , fDstInfo()
+        , fOptions()
+        , fFillColorBehavior(fillColorBehavior)
+        , fCurrScanline(-1) {}
 
 SkCodec::SkCodec(const SkEncodedInfo& info, const SkImageInfo& imageInfo, SkStream* stream,
-        Origin origin)
-    : fEncodedInfo(info)
-    , fSrcInfo(imageInfo)
-    , fStream(stream)
-    , fNeedsRewind(false)
-    , fOrigin(origin)
-    , fDstInfo()
-    , fOptions()
-    , fCurrScanline(-1)
-{}
+                 FillColorBehavior fillColorBehavior, Origin origin)
+        : fEncodedInfo(info)
+        , fSrcInfo(imageInfo)
+        , fStream(stream)
+        , fNeedsRewind(false)
+        , fOrigin(origin)
+        , fDstInfo()
+        , fOptions()
+        , fFillColorBehavior(fillColorBehavior)
+        , fCurrScanline(-1) {}
 
 SkCodec::~SkCodec() {}
 

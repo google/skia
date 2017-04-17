@@ -30,7 +30,7 @@ public:
      * Creates a gif decoder
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromStream(SkStream*);
+    static SkCodec* NewFromStream(SkStream*, SkCodec::FillColorBehavior);
 
     // Callback for SkGifImageReader when a row is available.
     bool haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin,
@@ -127,7 +127,8 @@ private:
      * Called only by NewFromStream
      * Takes ownership of the SkGifImageReader
      */
-    SkGifCodec(const SkEncodedInfo&, const SkImageInfo&, SkGifImageReader*);
+    SkGifCodec(const SkEncodedInfo&, const SkImageInfo&, SkGifImageReader*,
+               SkCodec::FillColorBehavior);
 
     std::unique_ptr<SkGifImageReader>   fReader;
     std::unique_ptr<uint8_t[]>          fTmpBuffer;

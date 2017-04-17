@@ -25,7 +25,7 @@ public:
      * Creates an Ico decoder
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromStream(SkStream*);
+    static SkCodec* NewFromStream(SkStream*, SkCodec::FillColorBehavior);
 
 protected:
 
@@ -80,7 +80,8 @@ private:
      * @param embeddedCodecs codecs for the embedded images, takes ownership
      */
     SkIcoCodec(int width, int height, const SkEncodedInfo& info,
-            SkTArray<std::unique_ptr<SkCodec>, true>* embeddedCodecs, sk_sp<SkColorSpace> colorSpace);
+               SkTArray<std::unique_ptr<SkCodec>, true>* embeddedCodecs,
+               sk_sp<SkColorSpace> colorSpace, SkCodec::FillColorBehavior);
 
     std::unique_ptr<SkTArray<std::unique_ptr<SkCodec>, true>> fEmbeddedCodecs;
 

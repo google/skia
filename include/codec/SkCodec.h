@@ -50,6 +50,23 @@ public:
      */
     static size_t MinBufferedBytesNeeded();
 
+    /*
+     * Image decoders fill unused area. But different clients need it to be
+     * filled in different ways.
+     *
+     * Android has legacy behavior where it will fill an image with transparency
+     * unless the destination is index 8 (in which case, it fills with
+     * background color).
+     *
+     * Chrome always fills with transparency.
+     */
+    enum FillColorBehavior {
+        kTransparent_FillColorBehavior,
+        kBackground_FillColorBehavior,
+        kTransparentIfIndex8_FillColorBehavior,
+        kLast_FillColorBehavior = kTransparentIfIndex8_FillColorBehavior,
+    };
+
     /**
      *  If this stream represents an encoded image that we know how to decode,
      *  return an SkCodec that can decode it. Otherwise return NULL.
@@ -62,6 +79,12 @@ public:
      *  so falling back to reading would not provide more data. If peek()
      *  returns zero bytes, this call will instead attempt to read(). This
      *  will require that the stream can be rewind()ed.
+     *
+     *  FillColorPolicy is used to determine behavior when filling background
+     *  area in an image. For example, a gif that specified a 13 pixels tall
+     *  canvas with only 10 rows of image data. Browsers always fill the bottom
+     *  3 rows with transparency. Android fills with the gif's background color
+     *  unless the destination format is index 8.
      *
      *  If SkPngChunkReader is not NULL, take a ref and pass it to libpng if
      *  the image is a png.
@@ -81,7 +104,9 @@ public:
      *  If NULL is returned, the stream is deleted immediately. Otherwise, the
      *  SkCodec takes ownership of it, and will delete it when done with it.
      */
-    static SkCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
+    static SkCodec* NewFromStream(SkStream*,
+                                  SkPngChunkReader* = NULL,
+                                  FillColorBehavior = kTransparentIfIndex8_FillColorBehavior);
 
     /**
      *  If this data represents an encoded image that we know how to decode,
@@ -99,8 +124,12 @@ public:
      *      If the PNG does not contain unknown chunks, the SkPngChunkReader
      *      will not be used or modified.
      */
-    static SkCodec* NewFromData(sk_sp<SkData>, SkPngChunkReader* = NULL);
-    static SkCodec* NewFromData(SkData* data, SkPngChunkReader* reader) {
+    static SkCodec* NewFromData(sk_sp<SkData>,
+                                SkPngChunkReader* = NULL,
+                                FillColorBehavior = kTransparentIfIndex8_FillColorBehavior);
+    static SkCodec* NewFromData(SkData* data,
+                                SkPngChunkReader* reader,
+                                FillColorBehavior = kTransparentIfIndex8_FillColorBehavior) {
         return NewFromData(sk_ref_sp(data), reader);
     }
 
@@ -683,6 +712,7 @@ protected:
             const SkEncodedInfo&,
             SkStream*,
             sk_sp<SkColorSpace>,
+            FillColorBehavior,
             Origin = kTopLeft_Origin);
 
     /**
@@ -692,6 +722,7 @@ protected:
     SkCodec(const SkEncodedInfo&,
             const SkImageInfo&,
             SkStream*,
+            FillColorBehavior,
             Origin = kTopLeft_Origin);
 
     virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {
@@ -804,6 +835,8 @@ protected:
 
     const SkCodec::Options& options() const { return fOptions; }
 
+    const SkCodec::FillColorBehavior& fillColorBehavior() const { return fFillColorBehavior; }
+
     /**
      *  Returns the number of scanlines that have been decoded so far.
      *  This is unaffected by the SkScanlineOrder.
@@ -842,6 +875,8 @@ private:
     SkImageInfo                        fDstInfo;
     SkCodec::Options                   fOptions;
     std::unique_ptr<SkColorSpaceXform> fColorXform;
+
+    SkCodec::FillColorBehavior fFillColorBehavior;
 
     // Only meaningful during scanline decodes.
     int                                fCurrScanline;

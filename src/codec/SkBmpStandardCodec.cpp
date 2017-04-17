@@ -17,20 +17,19 @@
 SkBmpStandardCodec::SkBmpStandardCodec(int width, int height, const SkEncodedInfo& info,
                                        SkStream* stream, uint16_t bitsPerPixel, uint32_t numColors,
                                        uint32_t bytesPerColor, uint32_t offset,
-                                       SkCodec::SkScanlineOrder rowOrder,
-                                       bool isOpaque, bool inIco)
-    : INHERITED(width, height, info, stream, bitsPerPixel, rowOrder)
-    , fColorTable(nullptr)
-    , fNumColors(numColors)
-    , fBytesPerColor(bytesPerColor)
-    , fOffset(offset)
-    , fSwizzler(nullptr)
-    , fSrcBuffer(new uint8_t[this->srcRowBytes()])
-    , fIsOpaque(isOpaque)
-    , fInIco(inIco)
-    , fAndMaskRowBytes(fInIco ? SkAlign4(compute_row_bytes(this->getInfo().width(), 1)) : 0)
-    , fXformOnDecode(false)
-{}
+                                       SkCodec::SkScanlineOrder rowOrder, bool isOpaque, bool inIco,
+                                       SkCodec::FillColorBehavior fillColorBehavior)
+        : INHERITED(width, height, info, stream, bitsPerPixel, rowOrder, fillColorBehavior)
+        , fColorTable(nullptr)
+        , fNumColors(numColors)
+        , fBytesPerColor(bytesPerColor)
+        , fOffset(offset)
+        , fSwizzler(nullptr)
+        , fSrcBuffer(new uint8_t[this->srcRowBytes()])
+        , fIsOpaque(isOpaque)
+        , fInIco(inIco)
+        , fAndMaskRowBytes(fInIco ? SkAlign4(compute_row_bytes(this->getInfo().width(), 1)) : 0)
+        , fXformOnDecode(false) {}
 
 /*
  * Initiates the bitmap decode

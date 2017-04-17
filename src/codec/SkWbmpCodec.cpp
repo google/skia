@@ -106,12 +106,12 @@ bool SkWbmpCodec::readRow(uint8_t* row) {
     return this->stream()->read(row, fSrcRowBytes) == fSrcRowBytes;
 }
 
-SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream)
-    : INHERITED(width, height, info, stream, SkColorSpace::MakeSRGB())
-    , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
-    , fSwizzler(nullptr)
-    , fColorTable(nullptr)
-{}
+SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+                         SkCodec::FillColorBehavior fillColorBehavior)
+        : INHERITED(width, height, info, stream, SkColorSpace::MakeSRGB(), fillColorBehavior)
+        , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
+        , fSwizzler(nullptr)
+        , fColorTable(nullptr) {}
 
 SkEncodedImageFormat SkWbmpCodec::onGetEncodedFormat() const {
     return SkEncodedImageFormat::kWBMP;
@@ -160,7 +160,8 @@ bool SkWbmpCodec::IsWbmp(const void* buffer, size_t bytesRead) {
     return read_header(&stream, nullptr);
 }
 
-SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {
+SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream,
+                                    SkCodec::FillColorBehavior fillColorBehavior) {
     std::unique_ptr<SkStream> streamDeleter(stream);
     SkISize size;
     if (!read_header(stream, &size)) {
@@ -168,7 +169,8 @@ SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {
     }
     SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kGray_Color,
             SkEncodedInfo::kOpaque_Alpha, 1);
-    return new SkWbmpCodec(size.width(), size.height(), info, streamDeleter.release());
+    return new SkWbmpCodec(size.width(), size.height(), info, streamDeleter.release(),
+                           fillColorBehavior);
 }
 
 int SkWbmpCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {

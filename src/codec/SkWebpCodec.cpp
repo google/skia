@@ -36,7 +36,8 @@ bool SkWebpCodec::IsWebp(const void* buf, size_t bytesRead) {
 // NOTE: This calls peek instead of read, since onGetPixels will need these
 // bytes again.
 // Returns an SkWebpCodec on success;
-SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
+SkCodec* SkWebpCodec::NewFromStream(SkStream* stream,
+                                    SkCodec::FillColorBehavior fillColorBehavior) {
     std::unique_ptr<SkStream> streamDeleter(stream);
 
     // Webp demux needs a contiguous data buffer.
@@ -138,9 +139,9 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     }
 
     SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-    SkWebpCodec* codecOut = new SkWebpCodec(width, height, info, std::move(colorSpace),
-                                            streamDeleter.release(), demux.release(),
-                                            std::move(data));
+    SkWebpCodec* codecOut =
+            new SkWebpCodec(width, height, info, std::move(colorSpace), streamDeleter.release(),
+                            demux.release(), std::move(data), fillColorBehavior);
     codecOut->setUnsupportedICC(unsupportedICC);
     return codecOut;
 }
@@ -361,8 +362,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 
 SkWebpCodec::SkWebpCodec(int width, int height, const SkEncodedInfo& info,
                          sk_sp<SkColorSpace> colorSpace, SkStream* stream, WebPDemuxer* demux,
-                         sk_sp<SkData> data)
-    : INHERITED(width, height, info, stream, std::move(colorSpace))
-    , fDemux(demux)
-    , fData(std::move(data))
-{}
+                         sk_sp<SkData> data, SkCodec::FillColorBehavior fillColorBehavior)
+        : INHERITED(width, height, info, stream, std::move(colorSpace), fillColorBehavior)
+        , fDemux(demux)
+        , fData(std::move(data)) {}

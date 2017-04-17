@@ -67,16 +67,16 @@ bool SkBmpCodec::IsBmp(const void* buffer, size_t bytesRead) {
  * Creates a bmp decoder
  * Reads enough of the stream to determine the image format
  */
-SkCodec* SkBmpCodec::NewFromStream(SkStream* stream) {
-    return SkBmpCodec::NewFromStream(stream, false);
+SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, SkCodec::FillColorBehavior fillColorBehavior) {
+    return SkBmpCodec::NewFromStream(stream, false, fillColorBehavior);
 }
 
 /*
  * Creates a bmp decoder for a bmp embedded in ico
  * Reads enough of the stream to determine the image format
  */
-SkCodec* SkBmpCodec::NewFromIco(SkStream* stream) {
-    return SkBmpCodec::NewFromStream(stream, true);
+SkCodec* SkBmpCodec::NewFromIco(SkStream* stream, SkCodec::FillColorBehavior fillColorBehavior) {
+    return SkBmpCodec::NewFromStream(stream, true, fillColorBehavior);
 }
 
 // Header size constants
@@ -138,7 +138,8 @@ static BmpHeaderType get_header_type(size_t infoBytes) {
  * not nullptr, it will be set to a new SkBmpCodec.
  * Does *not* take ownership of the passed in SkStream.
  */
-bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
+bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut,
+                            SkCodec::FillColorBehavior fillColorBehavior) {
     // The total bytes in the bmp file
     // We only need to use this value for RLE decoding, so we will only
     // check that it is valid in the RLE case.
@@ -483,7 +484,8 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 // Set the image info and create a codec.
                 const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, bitsPerComponent);
                 *codecOut = new SkBmpStandardCodec(width, height, info, stream, bitsPerPixel,
-                        numColors, bytesPerColor, offset - bytesRead, rowOrder, isOpaque, inIco);
+                                                   numColors, bytesPerColor, offset - bytesRead,
+                                                   rowOrder, isOpaque, inIco, fillColorBehavior);
             }
             return true;
         }
@@ -536,7 +538,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 }
                 const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
                 *codecOut = new SkBmpMaskCodec(width, height, info, stream, bitsPerPixel,
-                        masks.release(), rowOrder);
+                                               masks.release(), rowOrder, fillColorBehavior);
             }
             return true;
         }
@@ -565,7 +567,8 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 const SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kBGRA_Color,
                         SkEncodedInfo::kBinary_Alpha, 8);
                 *codecOut = new SkBmpRLECodec(width, height, info, stream, bitsPerPixel, numColors,
-                        bytesPerColor, offset - bytesRead, rowOrder);
+                                              bytesPerColor, offset - bytesRead, rowOrder,
+                                              fillColorBehavior);
             }
             return true;
         }
@@ -579,10 +582,11 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
  * Creates a bmp decoder
  * Reads enough of the stream to determine the image format
  */
-SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
+SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco,
+                                   SkCodec::FillColorBehavior fillColorBehavior) {
     std::unique_ptr<SkStream> streamDeleter(stream);
     SkCodec* codec = nullptr;
-    if (ReadHeader(stream, inIco, &codec)) {
+    if (ReadHeader(stream, inIco, &codec, fillColorBehavior)) {
         // codec has taken ownership of stream, so we do not need to
         // delete it.
         SkASSERT(codec);
@@ -593,16 +597,16 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
 }
 
 SkBmpCodec::SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-        uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(width, height, info, stream, SkColorSpace::MakeSRGB())
-    , fBitsPerPixel(bitsPerPixel)
-    , fRowOrder(rowOrder)
-    , fSrcRowBytes(SkAlign4(compute_row_bytes(width, fBitsPerPixel)))
-    , fXformBuffer(nullptr)
-{}
+                       uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder,
+                       SkCodec::FillColorBehavior fillColorBehavior)
+        : INHERITED(width, height, info, stream, SkColorSpace::MakeSRGB(), fillColorBehavior)
+        , fBitsPerPixel(bitsPerPixel)
+        , fRowOrder(rowOrder)
+        , fSrcRowBytes(SkAlign4(compute_row_bytes(width, fBitsPerPixel)))
+        , fXformBuffer(nullptr) {}
 
 bool SkBmpCodec::onRewind() {
-    return SkBmpCodec::ReadHeader(this->stream(), this->inIco(), nullptr);
+    return SkBmpCodec::ReadHeader(this->stream(), this->inIco(), nullptr, fillColorBehavior());
 }
 
 int32_t SkBmpCodec::getDstRow(int32_t y, int32_t height) const {

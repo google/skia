@@ -40,9 +40,9 @@ public:
      * @param inIco    indicates if the bmp is embedded in an ico file
      */
     SkBmpStandardCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-            uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
-            uint32_t offset, SkCodec::SkScanlineOrder rowOrder, bool isOpaque,
-            bool inIco);
+                       uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
+                       uint32_t offset, SkCodec::SkScanlineOrder rowOrder, bool isOpaque,
+                       bool inIco, SkCodec::FillColorBehavior);
 
 protected:
 

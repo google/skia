@@ -25,7 +25,7 @@ static const size_t WEBP_VP8_HEADER_SIZE = 30;
 class SkWebpCodec final : public SkCodec {
 public:
     // Assumes IsWebp was called and returned true.
-    static SkCodec* NewFromStream(SkStream*);
+    static SkCodec* NewFromStream(SkStream*, SkCodec::FillColorBehavior);
     static bool IsWebp(const void*, size_t);
 protected:
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
@@ -39,7 +39,7 @@ protected:
     bool onGetValidSubset(SkIRect* /* desiredSubset */) const override;
 private:
     SkWebpCodec(int width, int height, const SkEncodedInfo&, sk_sp<SkColorSpace>, SkStream*,
-                WebPDemuxer*, sk_sp<SkData>);
+                WebPDemuxer*, sk_sp<SkData>, SkCodec::FillColorBehavior);
 
     SkAutoTCallVProc<WebPDemuxer, WebPDemuxDelete> fDemux;
 

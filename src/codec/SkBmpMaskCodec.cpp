@@ -14,12 +14,12 @@
  */
 SkBmpMaskCodec::SkBmpMaskCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
                                uint16_t bitsPerPixel, SkMasks* masks,
-                               SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(width, height, info, stream, bitsPerPixel, rowOrder)
-    , fMasks(masks)
-    , fMaskSwizzler(nullptr)
-    , fSrcBuffer(new uint8_t [this->srcRowBytes()])
-{}
+                               SkCodec::SkScanlineOrder rowOrder,
+                               SkCodec::FillColorBehavior fillColorBehavior)
+        : INHERITED(width, height, info, stream, bitsPerPixel, rowOrder, fillColorBehavior)
+        , fMasks(masks)
+        , fMaskSwizzler(nullptr)
+        , fSrcBuffer(new uint8_t[this->srcRowBytes()]) {}
 
 /*
  * Initiates the bitmap decode

@@ -21,7 +21,7 @@ public:
      * Creates a wbmp codec
      * Takes ownership of the stream
      */
-    static SkCodec* NewFromStream(SkStream*);
+    static SkCodec* NewFromStream(SkStream*, SkCodec::FillColorBehavior);
 
 protected:
     SkEncodedImageFormat onGetEncodedFormat() const override;
@@ -44,7 +44,7 @@ private:
      */
     bool readRow(uint8_t* row);
 
-    SkWbmpCodec(int width, int height, const SkEncodedInfo&, SkStream*);
+    SkWbmpCodec(int width, int height, const SkEncodedInfo&, SkStream*, SkCodec::FillColorBehavior);
 
     const size_t                fSrcRowBytes;
 

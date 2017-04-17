@@ -28,18 +28,18 @@ public:
      * Creates a bmp decoder
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromStream(SkStream*);
+    static SkCodec* NewFromStream(SkStream*, SkCodec::FillColorBehavior);
 
     /*
      * Creates a bmp decoder for a bmp embedded in ico
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromIco(SkStream*);
+    static SkCodec* NewFromIco(SkStream*, SkCodec::FillColorBehavior);
 
 protected:
-
     SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-            uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder);
+               uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder,
+               SkCodec::FillColorBehavior);
 
     SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kBMP; }
 
@@ -49,7 +49,7 @@ protected:
      * not nullptr, it will be set to a new SkBmpCodec.
      * Does *not* take ownership of the passed in SkStream.
      */
-    static bool ReadHeader(SkStream*, bool inIco, SkCodec** codecOut);
+    static bool ReadHeader(SkStream*, bool inIco, SkCodec** codecOut, SkCodec::FillColorBehavior);
 
     bool onRewind() override;
 
@@ -122,7 +122,7 @@ private:
      * Creates a bmp decoder
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromStream(SkStream*, bool inIco);
+    static SkCodec* NewFromStream(SkStream*, bool inIco, SkCodec::FillColorBehavior);
 
     /*
      * Decodes the next dstInfo.height() lines.

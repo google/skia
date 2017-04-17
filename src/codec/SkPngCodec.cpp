@@ -77,15 +77,14 @@ public:
      *  the png_ptr and info_ptr.
      */
     AutoCleanPng(png_structp png_ptr, SkStream* stream, SkPngChunkReader* reader,
-            SkCodec** codecPtr)
-        : fPng_ptr(png_ptr)
-        , fInfo_ptr(nullptr)
-        , fDecodedBounds(false)
-        , fReadHeader(false)
-        , fStream(stream)
-        , fChunkReader(reader)
-        , fOutCodec(codecPtr)
-    {}
+                 SkCodec** codecPtr, SkCodec::FillColorBehavior fillColorBehavior)
+            : fPng_ptr(png_ptr)
+            , fInfo_ptr(nullptr)
+            , fDecodedBounds(false)
+            , fReadHeader(false)
+            , fStream(stream)
+            , fChunkReader(reader)
+            , fOutCodec(codecPtr) {}
 
     ~AutoCleanPng() {
         // fInfo_ptr will never be non-nullptr unless fPng_ptr is.
@@ -115,13 +114,14 @@ public:
     bool decodeBounds();
 
 private:
-    png_structp         fPng_ptr;
-    png_infop           fInfo_ptr;
-    bool                fDecodedBounds;
-    bool                fReadHeader;
-    SkStream*           fStream;
-    SkPngChunkReader*   fChunkReader;
-    SkCodec**           fOutCodec;
+    png_structp fPng_ptr;
+    png_infop fInfo_ptr;
+    bool fDecodedBounds;
+    bool fReadHeader;
+    SkStream* fStream;
+    SkPngChunkReader* fChunkReader;
+    SkCodec** fOutCodec;
+    SkCodec::FillColorBehavior fFillColorBehavior;
 
     /**
      *  Supplied to libpng to call when it has read enough data to determine
@@ -468,14 +468,15 @@ void SkPngCodec::applyXformRow(void* dst, const void* src) {
 class SkPngNormalDecoder : public SkPngCodec {
 public:
     SkPngNormalDecoder(const SkEncodedInfo& info, const SkImageInfo& imageInfo, SkStream* stream,
-            SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr, int bitDepth)
-        : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth)
-        , fRowsWrittenToOutput(0)
-        , fDst(nullptr)
-        , fRowBytes(0)
-        , fFirstRow(0)
-        , fLastRow(0)
-    {}
+                       SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr,
+                       int bitDepth, SkCodec::FillColorBehavior fillColorBehavior)
+            : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth,
+                        fillColorBehavior)
+            , fRowsWrittenToOutput(0)
+            , fDst(nullptr)
+            , fRowBytes(0)
+            , fFirstRow(0)
+            , fLastRow(0) {}
 
     static void AllRowsCallback(png_structp png_ptr, png_bytep row, png_uint_32 rowNum, int /*pass*/) {
         GetDecoder(png_ptr)->allRowsCallback(row, rowNum);
@@ -599,16 +600,17 @@ private:
 class SkPngInterlacedDecoder : public SkPngCodec {
 public:
     SkPngInterlacedDecoder(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
-            SkStream* stream, SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr,
-            int bitDepth, int numberPasses)
-        : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth)
-        , fNumberPasses(numberPasses)
-        , fFirstRow(0)
-        , fLastRow(0)
-        , fLinesDecoded(0)
-        , fInterlacedComplete(false)
-        , fPng_rowbytes(0)
-    {}
+                           SkStream* stream, SkPngChunkReader* reader, png_structp png_ptr,
+                           png_infop info_ptr, int bitDepth, int numberPasses,
+                           SkCodec::FillColorBehavior fillColorBehavior)
+            : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth,
+                        fillColorBehavior)
+            , fNumberPasses(numberPasses)
+            , fFirstRow(0)
+            , fLastRow(0)
+            , fLinesDecoded(0)
+            , fInterlacedComplete(false)
+            , fPng_rowbytes(0) {}
 
     static void InterlacedRowCallback(png_structp png_ptr, png_bytep row, png_uint_32 rowNum, int pass) {
         auto decoder = static_cast<SkPngInterlacedDecoder*>(png_get_progressive_ptr(png_ptr));
@@ -832,7 +834,8 @@ bool SkPngCodec::rereadHeaderIfNecessary() {
 //      png_destroy_read_struct(png_ptrp, info_ptrp).
 //      If it returns false, the passed in fields (except stream) are unchanged.
 static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec** outCodec,
-                        png_structp* png_ptrp, png_infop* info_ptrp) {
+                        png_structp* png_ptrp, png_infop* info_ptrp,
+                        SkCodec::FillColorBehavior fillColorBehavior) {
     // The image is known to be a PNG. Decode enough to know the SkImageInfo.
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
                                                  sk_error_fn, sk_warning_fn);
@@ -840,7 +843,7 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec
         return false;
     }
 
-    AutoCleanPng autoClean(png_ptr, stream, chunkReader, outCodec);
+    AutoCleanPng autoClean(png_ptr, stream, chunkReader, outCodec, fillColorBehavior);
 
     png_infop info_ptr = png_create_info_struct(png_ptr);
     if (info_ptr == nullptr) {
@@ -1034,11 +1037,12 @@ void AutoCleanPng::infoCallback() {
         }
 
         if (1 == numberPasses) {
-            *fOutCodec = new SkPngNormalDecoder(encodedInfo, imageInfo, fStream,
-                    fChunkReader, fPng_ptr, fInfo_ptr, bitDepth);
+            *fOutCodec = new SkPngNormalDecoder(encodedInfo, imageInfo, fStream, fChunkReader,
+                                                fPng_ptr, fInfo_ptr, bitDepth, fFillColorBehavior);
         } else {
-            *fOutCodec = new SkPngInterlacedDecoder(encodedInfo, imageInfo, fStream,
-                    fChunkReader, fPng_ptr, fInfo_ptr, bitDepth, numberPasses);
+            *fOutCodec = new SkPngInterlacedDecoder(encodedInfo, imageInfo, fStream, fChunkReader,
+                                                    fPng_ptr, fInfo_ptr, bitDepth, numberPasses,
+                                                    fFillColorBehavior);
         }
         (*fOutCodec)->setUnsupportedICC(unsupportedICC);
     }
@@ -1051,15 +1055,15 @@ void AutoCleanPng::infoCallback() {
 
 SkPngCodec::SkPngCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
                        SkStream* stream, SkPngChunkReader* chunkReader, void* png_ptr,
-                       void* info_ptr, int bitDepth)
-    : INHERITED(encodedInfo, imageInfo, stream)
-    , fPngChunkReader(SkSafeRef(chunkReader))
-    , fPng_ptr(png_ptr)
-    , fInfo_ptr(info_ptr)
-    , fColorXformSrcRow(nullptr)
-    , fBitDepth(bitDepth)
+                       void* info_ptr, int bitDepth, SkCodec::FillColorBehavior fillColorBehavior)
+        : INHERITED(encodedInfo, imageInfo, stream, fillColorBehavior)
+        , fPngChunkReader(SkSafeRef(chunkReader))
+        , fPng_ptr(png_ptr)
+        , fInfo_ptr(info_ptr)
+        , fColorXformSrcRow(nullptr)
+        , fBitDepth(bitDepth)
 #ifdef SK_GOOGLE3_PNG_HACK
-    , fNeedsToRereadHeader(true)
+        , fNeedsToRereadHeader(true)
 #endif
 {}
 
@@ -1283,11 +1287,13 @@ uint64_t SkPngCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
     return INHERITED::onGetFillValue(dstInfo);
 }
 
-SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
+SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader,
+                                   SkCodec::FillColorBehavior fillColorBehavior) {
     std::unique_ptr<SkStream> streamDeleter(stream);
 
     SkCodec* outCodec = nullptr;
-    if (read_header(streamDeleter.get(), chunkReader, &outCodec, nullptr, nullptr)) {
+    if (read_header(streamDeleter.get(), chunkReader, &outCodec, nullptr, nullptr,
+                    fillColorBehavior)) {
         // Codec has taken ownership of the stream.
         SkASSERT(outCodec);
         streamDeleter.release();

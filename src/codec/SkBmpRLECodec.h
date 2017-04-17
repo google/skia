@@ -36,8 +36,8 @@ public:
      * @param rowOrder indicates whether rows are ordered top-down or bottom-up
      */
     SkBmpRLECodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-            uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
-            uint32_t offset, SkCodec::SkScanlineOrder rowOrder);
+                  uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
+                  uint32_t offset, SkCodec::SkScanlineOrder rowOrder, SkCodec::FillColorBehavior);
 
     int setSampleX(int);
 
