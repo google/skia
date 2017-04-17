@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fc38b5cd_362b59b1",
+        "filename": "src/core/SkRecord.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-17T21:01:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fd76c073_1f41d029",
+      "range": {
+        "startLine": 189,
+        "startChar": 3,
+        "endLine": 189,
+        "endChar": 23
+      },
+      "revId": "75527dfec75075598134f28b7c92758f69e0987e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a09811d_713f94cd",
         "filename": "src/core/SkRecord.h",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-04-17T20:11:25Z",
       "side": 1,
       "message": "Does this ever change?",
+      "range": {
+        "startLine": 191,
+        "startChar": 11,
+        "endLine": 191,
+        "endChar": 32
+      },
+      "revId": "75527dfec75075598134f28b7c92758f69e0987e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7888f2f8_1ce469ba",
+        "filename": "src/core/SkRecord.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-17T21:01:27Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "5a09811d_713f94cd",
       "range": {
         "startLine": 191,
         "startChar": 11,
