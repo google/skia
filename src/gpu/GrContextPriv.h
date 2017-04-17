@@ -38,11 +38,16 @@ public:
 
     // TODO: Maybe add a 'surfaceProps' param (that is ignored for non-RTs) and remove
     // makeBackendTextureRenderTargetContext & makeBackendTextureAsRenderTargetRenderTargetContext
-    sk_sp<GrSurfaceContext> makeBackendSurfaceContext(const GrBackendTextureDesc& desc,
+    sk_sp<GrSurfaceContext> makeBackendSurfaceContext(const GrBackendTexture& tex,
+                                                      GrSurfaceOrigin origin,
+                                                      GrBackendTextureFlags flags,
+                                                      int sampleCnt,
                                                       sk_sp<SkColorSpace> colorSpace);
 
     sk_sp<GrRenderTargetContext> makeBackendTextureRenderTargetContext(
-                                                         const GrBackendTextureDesc& desc,
+                                                         const GrBackendTexture& tex,
+                                                         GrSurfaceOrigin origin,
+                                                         int sampleCnt,
                                                          sk_sp<SkColorSpace> colorSpace,
                                                          const SkSurfaceProps* = nullptr);
 
@@ -52,7 +57,9 @@ public:
                                                               const SkSurfaceProps* = nullptr);
 
     sk_sp<GrRenderTargetContext> makeBackendTextureAsRenderTargetRenderTargetContext(
-                                                                 const GrBackendTextureDesc& desc,
+                                                                 const GrBackendTexture& tex,
+                                                                 GrSurfaceOrigin origin,
+                                                                 int sampleCnt,
                                                                  sk_sp<SkColorSpace> colorSpace,
                                                                  const SkSurfaceProps* = nullptr);
 
