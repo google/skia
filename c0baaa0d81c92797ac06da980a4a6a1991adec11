@@ -123,6 +123,30 @@
       "revId": "c0baaa0d81c92797ac06da980a4a6a1991adec11",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2538dd4a_dfdb4103",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-17T21:57:11Z",
+      "side": 1,
+      "message": "So I have this CL out, https://skia-review.googlesource.com/c/13651/ so basically all it means is whoever ends up landing second would have to rebase. So nothing immediate needs to be done.",
+      "parentUuid": "141c1fe9_863d90bc",
+      "range": {
+        "startLine": 60,
+        "startChar": 31,
+        "endLine": 60,
+        "endChar": 60
+      },
+      "revId": "c0baaa0d81c92797ac06da980a4a6a1991adec11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
