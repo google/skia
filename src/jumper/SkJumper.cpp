@@ -109,6 +109,7 @@ static K kConstants = {
     M(gather_f16)         \
     M(store_f16)          \
     M(load_u16_be)        \
+    M(load_rgb_u16_be)    \
     M(store_u16_be)       \
     M(load_f32)           \
     M(store_f32)          \

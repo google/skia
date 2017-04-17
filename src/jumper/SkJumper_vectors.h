@@ -43,6 +43,11 @@
     template <typename T>
     SI T gather(const T* p, U32 ix) { return p[ix]; }
 
+    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
+        *r = ptr[0];
+        *g = ptr[1];
+        *b = ptr[2];
+    }
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         *r = ptr[0];
         *g = ptr[1];
@@ -110,6 +115,12 @@
         return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
     }
 
+    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
+        uint16x4x3_t rgb = vld3_u16(ptr);
+        *r = rgb.val[0];
+        *g = rgb.val[1];
+        *b = rgb.val[2];
+    }
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         uint16x4x4_t rgba = vld4_u16(ptr);
         *r = rgba.val[0];
@@ -172,6 +183,15 @@
         return {p[ix[0]], p[ix[1]]};
     }
 
+    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
+        uint16x4x3_t rgb;
+        rgb = vld3_lane_u16(ptr + 0, rgb, 0);
+        rgb = vld3_lane_u16(ptr + 3, rgb, 1);
+        rgb = vld3_lane_u16(ptr + 6, rgb, 2);
+        *r = unaligned_load<U16>(rgb.val+0);
+        *g = unaligned_load<U16>(rgb.val+1);
+        *b = unaligned_load<U16>(rgb.val+2);
+    }
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         uint16x4x4_t rgba;
         rgba = vld4_lane_u16(ptr + 0, rgba, 0);
@@ -269,6 +289,37 @@
         }
     #endif
 
+    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
+        __m128i _01, _23, _45, _67;
+        if (__builtin_expect(tail,0)) {
+            // TODO
+        } else {
+            // Load 0+1, 2+3, 4+5 normally, and 6+7 4 bytes back so we don't run over.
+            _01 = _mm_loadu_si128((__m128i*)(ptr +  0));
+            _23 = _mm_loadu_si128((__m128i*)(ptr +  6));
+            _45 = _mm_loadu_si128((__m128i*)(ptr + 12));
+            _67 = _mm_srli_si128(_mm_loadu_si128((__m128i*)(ptr + 16)), 4);
+        }
+
+        auto _0 = _01, _1 = _mm_srli_si128(_01, 6),
+             _2 = _23, _3 = _mm_srli_si128(_23, 6),
+             _4 = _45, _5 = _mm_srli_si128(_45, 6),
+             _6 = _67, _7 = _mm_srli_si128(_67, 6);
+
+        auto _02 = _mm_unpacklo_epi16(_0, _2),  // r0 r2 g0 g2 b0 b2 xx xx
+             _13 = _mm_unpacklo_epi16(_1, _3),
+             _46 = _mm_unpacklo_epi16(_4, _6),
+             _57 = _mm_unpacklo_epi16(_5, _7);
+
+        auto rg0123 = _mm_unpacklo_epi16(_02, _13),  // r0 r1 r2 r3 g0 g1 g2 g3
+             bx0123 = _mm_unpackhi_epi16(_02, _13),  // b0 b1 b2 b3 xx xx xx xx
+             rg4567 = _mm_unpacklo_epi16(_45, _67),
+             bx4567 = _mm_unpackhi_epi16(_45, _67);
+
+        *r = _mm_unpacklo_epi16(rg0123, rg4567);
+        *g = _mm_unpackhi_epi16(rg0123, rg4567);
+        *b = _mm_unpacklo_epi16(bx0123, bx4567);
+    }
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         __m128i _01, _23, _45, _67;
         if (__builtin_expect(tail,0)) {
@@ -462,6 +513,26 @@
         return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
     }
 
+    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
+        // Load pixels 0 and 1, ignoring the 4 bytes from pixel 2 at the top.
+        auto _0 = _mm_loadu_si128((__m128i*)(ptr + 0)),
+             _1 = _mm_srli_si128(_0, 6);
+        // Load 4 bytes from pixel 1, then pixels 2 and 3, shifting off the pixel 1 part.
+        auto _2 = _mm_srli_si128(_mm_loadu_si128((__m128i*)(ptr + 4)), 4),
+             _3 = _mm_srli_si128(_2, 6);
+
+        // De-interlace to R,G,B.
+        auto _02 = _mm_unpacklo_epi16(_0, _2),  // r0 r2 g0 g2 b0 b2 xx xx
+             _13 = _mm_unpacklo_epi16(_2, _3);  // r1 r3 g1 g3 b1 b3 xx xx
+
+        auto R = _mm_unpacklo_epi16(_02, _13),  // r0 r1 r2 r3 g0 g1 g2 g3
+             G = _mm_srli_si128(R, 8),
+             B = _mm_unpackhi_epi16(_02, _13);  // b0 b1 b2 b3 xx xx xx xx
+
+        *r = unaligned_load<U16>(&R);
+        *g = unaligned_load<U16>(&G);
+        *b = unaligned_load<U16>(&B);
+    }
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         auto _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
              _23 = _mm_loadu_si128(((__m128i*)ptr) + 1);
