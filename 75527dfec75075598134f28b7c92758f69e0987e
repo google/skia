@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd76c073_1f41d029",
+        "filename": "src/core/SkRecord.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-17T20:11:25Z",
+      "side": 1,
+      "message": "We seem to be getting away without anything today...",
+      "range": {
+        "startLine": 189,
+        "startChar": 3,
+        "endLine": 189,
+        "endChar": 23
+      },
+      "revId": "75527dfec75075598134f28b7c92758f69e0987e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a09811d_713f94cd",
+        "filename": "src/core/SkRecord.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-17T20:11:25Z",
+      "side": 1,
+      "message": "Does this ever change?",
+      "range": {
+        "startLine": 191,
+        "startChar": 11,
+        "endLine": 191,
+        "endChar": 32
+      },
+      "revId": "75527dfec75075598134f28b7c92758f69e0987e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
