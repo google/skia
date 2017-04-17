@@ -22,6 +22,30 @@
       "revId": "da3a6f8e37758900806908ae6fc6e83d793d5d16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7e6bed3_ac0c2eb4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2017-04-17T21:51:23Z",
+      "side": 1,
+      "message": "I would be more than happy to do that. It would certainly make this CR much more simple.\n\nBut I assume that Android-specific behavior was in there for a reason. Are we sure we can just remove it?",
+      "parentUuid": "1627819d_5eb1ce8f",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 24
+      },
+      "revId": "da3a6f8e37758900806908ae6fc6e83d793d5d16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
