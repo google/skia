@@ -46,8 +46,7 @@ bool GrSurfaceContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
         flags |= GrContextPriv::kUnpremul_PixelOpsFlag;
     }
 
-    return fContext->contextPriv().readSurfacePixels(this->asSurfaceProxy(),
-                                                     this->getColorSpace(), x, y,
+    return fContext->contextPriv().readSurfacePixels(this, x, y,
                                                      dstInfo.width(), dstInfo.height(), config,
                                                      dstInfo.colorSpace(),
                                                      dstBuffer, dstRowBytes, flags);
@@ -64,8 +63,7 @@ bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBu
         flags |= GrContextPriv::kUnpremul_PixelOpsFlag;
     }
 
-    return fContext->contextPriv().writeSurfacePixels(this->asSurfaceProxy(),
-                                                      this->getColorSpace(), x, y,
+    return fContext->contextPriv().writeSurfacePixels(this, x, y,
                                                       srcInfo.width(), srcInfo.height(),
                                                       config, srcInfo.colorSpace(),
                                                       srcBuffer, srcRowBytes, flags);
