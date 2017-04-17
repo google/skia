@@ -46,6 +46,30 @@
       "revId": "263386a2d24f4f7958459c7e264f6f415a139616",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e9a982c_2e2f9cb2",
+        "filename": "src/effects/SkPictureImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-17T13:32:56Z",
+      "side": 1,
+      "message": "Np, I\u0027m glad you took a close look.  I think it would have been cool if there was a way to implement this without adding state to the class...",
+      "parentUuid": "0d616050_ebdcca94",
+      "range": {
+        "startLine": 32,
+        "startChar": 43,
+        "endLine": 32,
+        "endChar": 60
+      },
+      "revId": "263386a2d24f4f7958459c7e264f6f415a139616",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
