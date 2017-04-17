@@ -216,6 +216,7 @@ public:
      */
     TextureSampler();
 
+#if 0
     TextureSampler(GrTexture*, const GrSamplerParams&);
     explicit TextureSampler(GrTexture*,
                             GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
@@ -227,6 +228,7 @@ public:
                GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
                SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
+#endif
 
     // MDB TODO: ultimately we shouldn't need the resource provider parameter
     TextureSampler(GrResourceProvider*, sk_sp<GrTextureProxy>, const GrSamplerParams&);
@@ -242,27 +244,26 @@ public:
                GrShaderFlags visibility = kFragment_GrShaderFlag);
 
     bool operator==(const TextureSampler& that) const {
-        return this->texture() == that.texture() &&
+        return //this->texture() == that.texture() &&
                fParams == that.fParams &&
                fVisibility == that.fVisibility;
     }
 
     bool operator!=(const TextureSampler& other) const { return !(*this == other); }
 
-    GrTexture* texture() const { return fTexture.get(); }
+    GrTexture* texture2() const { return nullptr; }
+    GrTextureProxy* proxy() const { return fProxyRef.getProxy(); }
     GrShaderFlags visibility() const { return fVisibility; }
     const GrSamplerParams& params() const { return fParams; }
 
     /**
      * For internal use by GrProcessor.
      */
-    const GrGpuResourceRef* programTexture() const { return &fTexture; }
+    const GrGpuTextureProxyRef* programProxy() const { return &fProxyRef; }
 
 private:
 
-    typedef GrTGpuResourceRef<GrTexture> ProgramTexture;
-
-    ProgramTexture                  fTexture;
+    GrGpuTextureProxyRef            fProxyRef;
     GrSamplerParams                 fParams;
     GrShaderFlags                   fVisibility;
 
@@ -323,18 +324,26 @@ private:
  */
 class GrResourceIOProcessor::ImageStorageAccess : public SkNoncopyable {
 public:
+#if 0
     ImageStorageAccess(sk_sp<GrTexture> texture, GrIOType ioType, GrSLMemoryModel, GrSLRestrict,
+                       GrShaderFlags visibility = kFragment_GrShaderFlag);
+#endif
+    ImageStorageAccess(sk_sp<GrTextureProxy>,
+                       GrIOType ioType, GrSLMemoryModel, GrSLRestrict,
                        GrShaderFlags visibility = kFragment_GrShaderFlag);
 
     bool operator==(const ImageStorageAccess& that) const {
-        return this->texture() == that.texture() && fVisibility == that.fVisibility;
+        return //this->texture() == that.texture() &&
+               fVisibility == that.fVisibility;
     }
 
     bool operator!=(const ImageStorageAccess& that) const { return !(*this == that); }
 
-    GrTexture* texture() const { return fTexture.get(); }
+//    GrTexture* texture() const { return fTexture.get(); }
+    GrTexture* texture2() const { return nullptr; }
+    GrTextureProxy* proxy() const { return fProxyRef.getProxy(); }
     GrShaderFlags visibility() const { return fVisibility; }
-    GrIOType ioType() const { return fTexture.ioType(); }
+    GrIOType ioType() const { return fProxyRef.ioType(); }
     GrImageStorageFormat format() const { return fFormat; }
     GrSLMemoryModel memoryModel() const { return fMemoryModel; }
     GrSLRestrict restrict() const { return fRestrict; }
@@ -342,14 +351,14 @@ public:
     /**
      * For internal use by GrProcessor.
      */
-    const GrGpuResourceRef* programTexture() const { return &fTexture; }
+    const GrGpuTextureProxyRef* programProxy() const { return &fProxyRef; }
 
 private:
-    GrTGpuResourceRef<GrTexture> fTexture;
-    GrShaderFlags fVisibility;
-    GrImageStorageFormat fFormat;
-    GrSLMemoryModel fMemoryModel;
-    GrSLRestrict fRestrict;
+    GrGpuTextureProxyRef            fProxyRef;
+    GrShaderFlags                   fVisibility;
+    GrImageStorageFormat            fFormat;
+    GrSLMemoryModel                 fMemoryModel;
+    GrSLRestrict                    fRestrict;
     typedef SkNoncopyable INHERITED;
 };
 

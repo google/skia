@@ -52,9 +52,9 @@ void GrPipeline::init(const InitArgs& args) {
 
     fXferProcessor = args.fProcessors->refXferProcessor();
 
-    if (args.fDstTexture.texture()) {
-        fDstTexture.reset(args.fDstTexture.texture());
-        fDstTextureOffset = args.fDstTexture.offset();
+    if (args.fDstProxy.proxy()) {
+        fDstTextureProxy.reset(args.fDstProxy.proxy());
+        fDstTextureOffset = args.fDstProxy.offset();
     }
 
     // Copy GrFragmentProcessors from GrPipelineBuilder to Pipeline, possibly removing some of the
@@ -90,7 +90,7 @@ static void add_dependencies_for_processor(const GrFragmentProcessor* proc,
     GrFragmentProcessor::TextureAccessIter iter(proc);
     while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
         SkASSERT(rtp->getLastOpList());
-        rtp->getLastOpList()->addDependency(sampler->texture());
+        rtp->getLastOpList()->addDependency(sampler->proxy());
     }
 }
 #endif
@@ -103,7 +103,7 @@ void GrPipeline::addDependenciesTo(GrRenderTargetProxy* rtp) const {
     }
 #endif
 
-    if (fDstTexture) {
+    if (fDstTextureProxy) {
         SkASSERT(rtp->getLastOpList());
         // MDB TODO: re-enable when TextureSamplers store texture proxies
         //rtp->getLastOpList()->addDependency(fDstTexture.get());

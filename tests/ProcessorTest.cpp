@@ -8,6 +8,7 @@
 #include "SkTypes.h"
 #include "Test.h"
 
+#if 0
 #if SK_SUPPORT_GPU
 #include "GrClip.h"
 #include "GrContext.h"
@@ -435,6 +436,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
         }
     }
 }
+#endif
+
 #endif  // GR_TEST_UTILS
 #endif  // SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 #endif  // SK_SUPPORT_GPU
