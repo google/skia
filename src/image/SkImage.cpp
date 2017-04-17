@@ -375,12 +375,12 @@ std::unique_ptr<SkCrossContextImageData> SkCrossContextImageData::MakeFromEncode
         return nullptr;
     }
     // TODO: Force decode to raster here?
-    return std::unique_ptr<SkCrossContextImageData>(new SkCrossContextImageData(std::move(image)));
+    return std::unique_ptr<SkCrossContextImageData>(new SkCCIDImage(std::move(image)));
 }
 
 sk_sp<SkImage> SkImage::MakeFromCrossContextImageData(
         GrContext*, std::unique_ptr<SkCrossContextImageData> ccid) {
-    return ccid->fImage;
+    return ccid->makeImage(nullptr);
 }
 
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {
