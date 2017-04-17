@@ -192,6 +192,11 @@ public:
 
     static sk_sp<GrSurfaceProxy> MakeWrappedBackend(GrContext*, GrBackendTextureDesc&);
 
+    static sk_sp<GrTextureProxy> MakeTexture2(GrResourceProvider* resourceProvider,
+                                              const GrSurfaceDesc& desc,
+                                              SkBudgeted budgeted,
+                                              const GrMipLevel& mipLevel);
+
     const GrSurfaceDesc& desc() const { return fDesc; }
 
     GrSurfaceOrigin origin() const {

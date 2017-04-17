@@ -49,7 +49,6 @@ public:
      */
     sk_sp<GrTextureProxy> createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                  const GrMipLevel* texels, int mipLevelCount,
-                                                 uint32_t flags = 0,
                                                  SkDestinationSurfaceColorMode mipColorMode =
                                                         SkDestinationSurfaceColorMode::kLegacy);
 
@@ -71,9 +70,13 @@ public:
 
     /** Create an exact fit texture with no initial data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                   uint32_t flags = 0);
+    sk_sp<GrTexture> createTexture1(const GrSurfaceDesc&, SkBudgeted, uint32_t flags = 0);
 
+    sk_sp<GrTextureProxy> createTexture2(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel&);
+
+    static sk_sp<GrTexture> Bar(GrResourceProvider* resourceProvider,
+                                const GrSurfaceDesc& desc, 
+                                SkBudgeted budgeted, uint32_t flags);
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces
 

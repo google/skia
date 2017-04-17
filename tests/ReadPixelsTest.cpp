@@ -491,7 +491,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
             desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fOrigin = origin;
             sk_sp<GrTexture> texture =
-                    ctxInfo.grContext()->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
+                    ctxInfo.grContext()->resourceProvider()->createTexture1(desc, SkBudgeted::kNo);
             test_readpixels_texture(reporter, ctxInfo.grContext(),
                                     GrSurfaceProxy::MakeWrapped(std::move(texture)));
         }

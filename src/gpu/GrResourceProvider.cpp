@@ -54,7 +54,6 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
                                                       SkBudgeted budgeted,
                                                       const GrMipLevel* texels,
                                                       int mipLevelCount,
-                                                      uint32_t flags,
                                                       SkDestinationSurfaceColorMode mipColorMode) {
     ASSERT_SINGLE_OWNER
 
@@ -63,17 +62,17 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
             return nullptr;
         }
         return GrSurfaceProxy::MakeDeferred(this, desc, budgeted, nullptr, 0);
+    } else if (1 == mipLevelCount) {
+        if (!texels) {
+            return nullptr;
+        }
+        return this->createTexture2(desc, budgeted, texels[0]);
     }
 
     if (this->isAbandoned()) {
         return nullptr;
     }
 
-    for (int i = 0; i < mipLevelCount; ++i) {
-        if (!texels[i].fPixels) {
-            return nullptr;
-        }
-    }
     if (mipLevelCount > 1 && GrPixelConfigIsSint(desc.fConfig)) {
         return nullptr;
     }
@@ -81,6 +80,37 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
         !fGpu->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
     }
+
+    SkTArray<GrMipLevel> texelsShallowCopy(mipLevelCount);
+    for (int i = 0; i < mipLevelCount; ++i) {
+        if (!texels[i].fPixels) {
+            return nullptr;
+        }
+
+        texelsShallowCopy.push_back(texels[i]);
+    }
+    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texelsShallowCopy));
+    if (tex) {
+        tex->texturePriv().setMipColorMode(mipColorMode);
+    }
+
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+}
+
+sk_sp<GrTexture> GrResourceProvider::Bar(GrResourceProvider* resourceProvider,
+                                         const GrSurfaceDesc& desc, 
+                                         SkBudgeted budgeted, uint32_t flags) {
+
+    flags |= kExact_Flag | kNoCreate_Flag;
+    sk_sp<GrTexture> tex(resourceProvider->refScratchTexture(desc, flags));
+    if (tex && SkBudgeted::kNo == budgeted) {
+        tex->resourcePriv().makeUnbudgeted();
+    }
+
+    return tex;
+}
+
+#if 0
     if (!GrPixelConfigIsCompressed(desc.fConfig)) {
         if (mipLevelCount < 2) {
             flags |= kExact_Flag | kNoCreate_Flag;
@@ -94,26 +124,15 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
                     if (SkBudgeted::kNo == budgeted) {
                         tex->resourcePriv().makeUnbudgeted();
                     }
-                    tex->texturePriv().setMipColorMode(mipColorMode);
                     return proxy;
                 }
             }
         }
     }
+#endif
 
-    SkTArray<GrMipLevel> texelsShallowCopy(mipLevelCount);
-    for (int i = 0; i < mipLevelCount; ++i) {
-        texelsShallowCopy.push_back(texels[i]);
-    }
-    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texelsShallowCopy));
-    if (tex) {
-        tex->texturePriv().setMipColorMode(mipColorMode);
-    }
 
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
-}
-
-sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+sk_sp<GrTexture> GrResourceProvider::createTexture1(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                    uint32_t flags) {
     ASSERT_SINGLE_OWNER
 
@@ -127,12 +146,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
     }
 
     if (!GrPixelConfigIsCompressed(desc.fConfig)) {
-        flags |= kExact_Flag | kNoCreate_Flag;
-        sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
+        sk_sp<GrTexture> tex = Bar(this, desc, budgeted, flags);
         if (tex) {
-            if (SkBudgeted::kNo == budgeted) {
-                tex->resourcePriv().makeUnbudgeted();
-            }
             return tex;
         }
     }

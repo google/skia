@@ -251,7 +251,7 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
                                                            SkBudgeted::kYes,
                                                            texels.get(),
                                                            mipLevelCount,
-                                                           0, colorMode);
+                                                           colorMode);
 }
 
 sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext* ctx, const SkImageInfo& info,
@@ -265,7 +265,7 @@ sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext* ctx, const SkImage
     const GrCaps* caps = ctx->caps();
     return ctx->resourceProvider()->createMipMappedTexture(GrImageInfoToSurfaceDesc(info, *caps),
                                                            SkBudgeted::kYes, texels,
-                                                           mipLevelCount, 0, colorMode);
+                                                           mipLevelCount, colorMode);
 }
 
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext* ctx,

@@ -842,7 +842,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeRenderTargetContext(SkBackingFit fit
 
     sk_sp<GrTexture> tex;
     if (SkBackingFit::kExact == fit) {
-        tex = this->resourceProvider()->createTexture(desc, budgeted);
+        tex = this->resourceProvider()->createTexture1(desc, budgeted);
     } else {
         tex.reset(this->resourceProvider()->createApproxTexture(desc, 0));
     }

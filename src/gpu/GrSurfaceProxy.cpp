@@ -46,7 +46,7 @@ GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (SkBackingFit::kApprox == fFit) {
         fTarget = resourceProvider->createApproxTexture(fDesc, fFlags);
     } else {
-        fTarget = resourceProvider->createTexture(fDesc, fBudgeted, fFlags).release();
+        fTarget = resourceProvider->createTexture1(fDesc, fBudgeted, fFlags).release();
     }
     if (!fTarget) {
         return nullptr;
@@ -147,8 +147,6 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex) {
     }
 }
 
-#include "GrResourceProvider.h"
-
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceProvider,
                                                    const GrSurfaceDesc& desc,
                                                    SkBackingFit fit,
@@ -226,22 +224,44 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
 #endif
 }
 
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeTexture2(GrResourceProvider* resourceProvider,
+                                                   const GrSurfaceDesc& desc,
+                                                   SkBudgeted budgeted,
+                                                   const GrMipLevel& mipLevel) {
+    if (!mipLevel.fPixels) {
+        return nullptr;
+    }
+
+    GrContext* context = fGpu->getContext();
+
+    if (!GrPixelConfigIsCompressed(desc.fConfig)) {
+        sk_sp<GrTexture> tex = GrResourceProvider::Bar(resourceProvider, desc, budgeted, 0);
+        sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(std::move(tex));
+        if (sContext) {
+            if (sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, 0, 0)) {
+                return sContext->asTextureProxyRef();
+            }
+        }
+    }
+
+    SkTArray<GrMipLevel> texels(1);
+    texels.push_back(mipLevel);
+
+    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texels));
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+}
+
+
+
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceProvider,
                                                    const GrSurfaceDesc& desc,
                                                    SkBudgeted budgeted,
                                                    const void* srcData,
                                                    size_t rowBytes) {
     if (srcData) {
-        GrMipLevel tempTexels;
-        GrMipLevel* texels = nullptr;
-        int levelCount = 0;
-        if (srcData) {
-            tempTexels.fPixels = srcData;
-            tempTexels.fRowBytes = rowBytes;
-            texels = &tempTexels;
-            levelCount = 1;
-        }
-        return resourceProvider->createMipMappedTexture(desc, budgeted, texels, levelCount);
+        GrMipLevel mipLevel = { srcData, rowBytes };
+
+        return MakeTexture2(resourceProvider, desc, budgeted, mipLevel);
     }
 
     return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, SkBackingFit::kExact, budgeted);
