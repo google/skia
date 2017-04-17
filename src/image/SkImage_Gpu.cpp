@@ -445,14 +445,14 @@ std::unique_ptr<SkCrossContextImageData> SkCrossContextImageData::MakeFromEncode
     // Some backends or drivers don't support (safely) moving resources between contexts
     if (!context->caps()->crossContextTextureSupport()) {
         return std::unique_ptr<SkCrossContextImageData>(
-            new SkCrossContextImageData(std::move(codecImage)));
+            new SkCCIDImage(std::move(codecImage)));
     }
 
     sk_sp<SkImage> textureImage = codecImage->makeTextureImage(context, dstColorSpace);
     if (!textureImage) {
         // TODO: Force decode to raster here? Do mip-mapping, like getDeferredTextureImageData?
         return std::unique_ptr<SkCrossContextImageData>(
-            new SkCrossContextImageData(std::move(codecImage)));
+            new SkCCIDImage(std::move(codecImage)));
     }
 
     // Crack open the gpu image, extract the backend data, stick it in the SkCCID
@@ -472,27 +472,25 @@ std::unique_ptr<SkCrossContextImageData> SkCrossContextImageData::MakeFromEncode
     SkASSERT(textureData);
 
     SkImageInfo info = as_IB(textureImage)->onImageInfo();
-    return std::unique_ptr<SkCrossContextImageData>(new SkCrossContextImageData(
+    return std::unique_ptr<SkCrossContextImageData>(new SkCCIDBackendTexture(
         desc, std::move(textureData), info.alphaType(), info.refColorSpace()));
 }
 
-sk_sp<SkImage> SkImage::MakeFromCrossContextImageData(
-        GrContext* context, std::unique_ptr<SkCrossContextImageData> ccid) {
-    if (ccid->fImage) {
-        // No pre-existing GPU resource. We could upload it now (with makeTextureImage),
-        // but we'd need a dstColorSpace.
-        return ccid->fImage;
-    }
-
-    if (ccid->fTextureData) {
-        ccid->fTextureData->attachToContext(context);
+sk_sp<SkImage> SkCCIDBackendTexture::makeImage(GrContext* context) {
+    if (fTextureData) {
+        fTextureData->attachToContext(context);
     }
 
     // This texture was created by Ganesh on another thread (see MakeFromEncoded, above).
     // Thus, we can import it back into our cache and treat it as our own (again).
     GrWrapOwnership ownership = kAdoptAndCache_GrWrapOwnership;
-    return new_wrapped_texture_common(context, ccid->fDesc, ccid->fAlphaType,
-                                      std::move(ccid->fColorSpace), ownership, nullptr, nullptr);
+    return new_wrapped_texture_common(context, fDesc, fAlphaType,
+                                      std::move(fColorSpace), ownership, nullptr, nullptr);
+}
+
+sk_sp<SkImage> SkImage::MakeFromCrossContextImageData(
+        GrContext* context, std::unique_ptr<SkCrossContextImageData> ccid) {
+    return ccid->makeImage(context);
 }
 
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {
