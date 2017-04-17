@@ -33,8 +33,8 @@ public:
     static SkCodec* NewFromStream(SkStream*);
 
     // Callback for SkGifImageReader when a row is available.
-    bool haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin,
-                        size_t rowNumber, unsigned repeatCount, bool writeTransparentPixels);
+    bool haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
+                        int rowNumber, int repeatCount, bool writeTransparentPixels);
 protected:
     /*
      * Performs the full gif decode
@@ -50,8 +50,8 @@ protected:
 
     uint64_t onGetFillValue(const SkImageInfo&) const override;
 
-    size_t onGetFrameCount() override;
-    bool onGetFrameInfo(size_t, FrameInfo*) const override;
+    int onGetFrameCount() override;
+    bool onGetFrameInfo(int, FrameInfo*) const override;
     int onGetRepetitionCount() override;
 
     Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
@@ -67,7 +67,7 @@ private:
      * @param dstInfo         Contains the requested dst color type.
      * @param frameIndex      Frame whose color table to use.
      */
-    void initializeColorTable(const SkImageInfo& dstInfo, size_t frameIndex);
+    void initializeColorTable(const SkImageInfo& dstInfo, int frameIndex);
 
    /*
     * Does necessary setup, including setting up the color table and swizzler,
@@ -85,7 +85,7 @@ private:
      * @param frameIndex Which frame we are decoding. This determines the frameRect
      *                   to use.
      */
-    void initializeSwizzler(const SkImageInfo& dstInfo, size_t frameIndex);
+    void initializeSwizzler(const SkImageInfo& dstInfo, int frameIndex);
 
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fSwizzler);

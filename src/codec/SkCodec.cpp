@@ -491,22 +491,20 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo,
 }
 
 std::vector<SkCodec::FrameInfo> SkCodec::getFrameInfo() {
-    const size_t frameCount = this->getFrameCount();
-    switch (frameCount) {
-        case 0:
-            return std::vector<FrameInfo>{};
-        case 1:
-            if (!this->onGetFrameInfo(0, nullptr)) {
-                // Not animated.
-                return std::vector<FrameInfo>{};
-            }
-            // fall through
-        default: {
-            std::vector<FrameInfo> result(frameCount);
-            for (size_t i = 0; i < frameCount; ++i) {
-                SkAssertResult(this->onGetFrameInfo(i, &result[i]));
-            }
-            return result;
-        }
+    const int frameCount = this->getFrameCount();
+    SkASSERT(frameCount >= 0);
+    if (frameCount <= 0) {
+        return std::vector<FrameInfo>{};
     }
+
+    if (frameCount == 1 && !this->onGetFrameInfo(0, nullptr)) {
+        // Not animated.
+        return std::vector<FrameInfo>{};
+    }
+
+    std::vector<FrameInfo> result(frameCount);
+    for (int i = 0; i < frameCount; ++i) {
+        SkAssertResult(this->onGetFrameInfo(i, &result[i]));
+    }
+    return result;
 }

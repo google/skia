@@ -34,9 +34,9 @@ namespace {
 class AnimatedGifGM : public skiagm::GM {
 private:
     std::unique_ptr<SkCodec>        fCodec;
-    size_t                          fFrame;
+    int                             fFrame;
     double                          fNextUpdate;
-    size_t                          fTotalFrames;
+    int                             fTotalFrames;
     std::vector<SkCodec::FrameInfo> fFrameInfos;
     std::vector<SkBitmap>           fFrames;
 
@@ -53,9 +53,10 @@ private:
             SkCodec::Options opts;
             opts.fFrameIndex = frameIndex;
             opts.fHasPriorFrame = false;
-            const size_t requiredFrame = fFrameInfos[frameIndex].fRequiredFrame;
+            const int requiredFrame = fFrameInfos[frameIndex].fRequiredFrame;
             if (requiredFrame != SkCodec::kNone) {
-                SkASSERT(requiredFrame < fFrames.size());
+                SkASSERT(requiredFrame >= 0
+                         && static_cast<size_t>(requiredFrame) < fFrames.size());
                 SkBitmap& requiredBitmap = fFrames[requiredFrame];
                 // For simplicity, do not try to cache old frames
                 if (requiredBitmap.getPixels() && requiredBitmap.copyTo(&bm)) {
@@ -101,7 +102,7 @@ private:
         canvas->clear(SK_ColorWHITE);
         if (this->initCodec()) {
             SkAutoCanvasRestore acr(canvas, true);
-            for (size_t frameIndex = 0; frameIndex < fTotalFrames; frameIndex++) {
+            for (int frameIndex = 0; frameIndex < fTotalFrames; frameIndex++) {
                 this->drawFrame(canvas, frameIndex);
                 canvas->translate(SkIntToScalar(fCodec->getInfo().width()), 0);
             }

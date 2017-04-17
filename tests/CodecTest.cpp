@@ -1508,7 +1508,7 @@ DEF_TEST(Codec_InvalidAnimated, r) {
 
     auto frameInfos = codec->getFrameInfo();
     SkCodec::Options opts;
-    for (size_t i = 0; i < frameInfos.size(); i++) {
+    for (int i = 0; static_cast<size_t>(i) < frameInfos.size(); i++) {
         opts.fFrameIndex = i;
         opts.fHasPriorFrame = frameInfos[i].fRequiredFrame == i - 1;
         auto result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes(), &opts);
