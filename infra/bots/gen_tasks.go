@@ -328,7 +328,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 // dependency.
 func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages:     []*specs.CipdPackage{},
+		CipdPackages:     []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
 		Dimensions:       linuxGceDimensions(),
 		ExecutionTimeout: 4 * time.Hour,
 		ExtraArgs: []string{
