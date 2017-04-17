@@ -277,7 +277,7 @@ public:
          *
          *  Only meaningful for multi-frame images.
          */
-        size_t                     fFrameIndex;
+        int                        fFrameIndex;
 
         /**
          *  If true, the dst already contains the prior frame.
@@ -598,13 +598,13 @@ public:
      *
      *  May require reading through the stream.
      */
-    size_t getFrameCount() {
+    int getFrameCount() {
         return this->onGetFrameCount();
     }
 
     // The required frame for an independent frame is marked as
     // kNone.
-    static constexpr size_t kNone = static_cast<size_t>(-1);
+    static constexpr int kNone = -1;
 
     /**
      *  Information about individual frames in a multi-framed image.
@@ -614,12 +614,12 @@ public:
          *  The frame that this frame needs to be blended with, or
          *  kNone.
          */
-        size_t fRequiredFrame;
+        int fRequiredFrame;
 
         /**
          *  Number of milliseconds to show this frame.
          */
-        size_t fDuration;
+        int fDuration;
 
         /**
          *  Whether the end marker for this frame is contained in the stream.
@@ -643,7 +643,7 @@ public:
      *  so it should be called after getFrameCount() to parse any frames that
      *  have not already been parsed.
      */
-    bool getFrameInfo(size_t index, FrameInfo* info) const {
+    bool getFrameInfo(int index, FrameInfo* info) const {
         return this->onGetFrameInfo(index, info);
     }
 
@@ -818,11 +818,11 @@ protected:
                               SkTransferFunctionBehavior premulBehavior);
     SkColorSpaceXform* colorXform() const { return fColorXform.get(); }
 
-    virtual size_t onGetFrameCount() {
+    virtual int onGetFrameCount() {
         return 1;
     }
 
-    virtual bool onGetFrameInfo(size_t, FrameInfo*) const {
+    virtual bool onGetFrameInfo(int, FrameInfo*) const {
         return false;
     }
 

@@ -132,12 +132,12 @@ SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imag
     reader->setClient(this);
 }
 
-size_t SkGifCodec::onGetFrameCount() {
+int SkGifCodec::onGetFrameCount() {
     fReader->parse(SkGifImageReader::SkGIFFrameCountQuery);
     return fReader->imagesCount();
 }
 
-bool SkGifCodec::onGetFrameInfo(size_t i, SkCodec::FrameInfo* frameInfo) const {
+bool SkGifCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
     if (i >= fReader->imagesCount()) {
         return false;
     }
@@ -164,7 +164,7 @@ int SkGifCodec::onGetRepetitionCount() {
 
 static const SkColorType kXformSrcColorType = kRGBA_8888_SkColorType;
 
-void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, size_t frameIndex) {
+void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, int frameIndex) {
     SkColorType colorTableColorType = dstInfo.colorType();
     if (this->colorXform()) {
         colorTableColorType = kXformSrcColorType;
@@ -215,7 +215,7 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
         return gif_error("Subsets not supported.\n", kUnimplemented);
     }
 
-    const size_t frameIndex = opts.fFrameIndex;
+    const int frameIndex = opts.fFrameIndex;
     if (frameIndex > 0) {
         switch (dstInfo.colorType()) {
             case kIndex_8_SkColorType:
@@ -276,7 +276,7 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
     return kSuccess;
 }
 
-void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, size_t frameIndex) {
+void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, int frameIndex) {
     const SkGIFFrameContext* frame = fReader->frameContext(frameIndex);
     // This is only called by prepareToDecode, which ensures frameIndex is in range.
     SkASSERT(frame);
@@ -365,7 +365,7 @@ SkCodec::Result SkGifCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
 SkCodec::Result SkGifCodec::onIncrementalDecode(int* rowsDecoded) {
     // It is possible the client has appended more data. Parse, if needed.
     const auto& options = this->options();
-    const size_t frameIndex = options.fFrameIndex;
+    const int frameIndex = options.fFrameIndex;
     fReader->parse((SkGifImageReader::SkGIFParseQuery) frameIndex);
 
     const bool firstCallToIncrementalDecode = fFirstCallToIncrementalDecode;
@@ -375,7 +375,7 @@ SkCodec::Result SkGifCodec::onIncrementalDecode(int* rowsDecoded) {
 
 SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, int* rowsDecoded) {
     const SkImageInfo& dstInfo = this->dstInfo();
-    const size_t frameIndex = opts.fFrameIndex;
+    const int frameIndex = opts.fFrameIndex;
     SkASSERT(frameIndex < fReader->imagesCount());
     const SkGIFFrameContext* frameContext = fReader->frameContext(frameIndex);
     if (firstAttempt) {
@@ -500,8 +500,8 @@ uint64_t SkGifCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
         // compatibity on Android, so we are using the color table for the first frame.
         SkASSERT(this->options().fFrameIndex == 0);
         // Use the transparent index for the first frame.
-        const size_t transPixel = fReader->frameContext(0)->transparentPixel();
-        if (transPixel < (size_t) fCurrColorTable->count()) {
+        const int transPixel = fReader->frameContext(0)->transparentPixel();
+        if (transPixel >= 0 && transPixel < fCurrColorTable->count()) {
             return transPixel;
         }
         // Fall through to return SK_ColorTRANSPARENT (i.e. 0). This choice is arbitrary,
@@ -532,8 +532,8 @@ void SkGifCodec::applyXformRow(const SkImageInfo& dstInfo, void* dst, const uint
     }
 }
 
-bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin,
-                                size_t rowNumber, unsigned repeatCount, bool writeTransparentPixels)
+bool SkGifCodec::haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
+                                int rowNumber, int repeatCount, bool writeTransparentPixels)
 {
     const SkGIFFrameContext* frameContext = fReader->frameContext(frameIndex);
     // The pixel data and coordinates supplied to us are relative to the frame's
@@ -542,13 +542,11 @@ bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin
     // that width == (size().width() - frameContext->xOffset), so
     // we must ensure we don't run off the end of either the source data or the
     // row's X-coordinates.
-    const size_t width = frameContext->width();
+    const int width = frameContext->width();
     const int xBegin = frameContext->xOffset();
     const int yBegin = frameContext->yOffset() + rowNumber;
-    const int xEnd = std::min(static_cast<int>(frameContext->xOffset() + width),
-                              this->getInfo().width());
-    const int yEnd = std::min(static_cast<int>(frameContext->yOffset() + rowNumber + repeatCount),
-                              this->getInfo().height());
+    const int xEnd = std::min(xBegin + width, this->getInfo().width());
+    const int yEnd = std::min(yBegin + rowNumber + repeatCount, this->getInfo().height());
     // FIXME: No need to make the checks on width/xBegin/xEnd for every row. We could instead do
     // this once in prepareToDecode.
     if (!width || (xBegin < 0) || (yBegin < 0) || (xEnd <= xBegin) || (yEnd <= yBegin))
@@ -563,7 +561,7 @@ bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin
         // Check to see whether this row or one that falls in the repeatCount is needed in the
         // output.
         bool foundNecessaryRow = false;
-        for (unsigned i = 0; i < repeatCount; i++) {
+        for (int i = 0; i < repeatCount; i++) {
             const int potentialRow = yBegin + i;
             if (fSwizzler->rowNeeded(potentialRow)) {
                 dstRow = potentialRow / sampleY;
@@ -578,7 +576,7 @@ bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin
                 repeatCount = (repeatCount - 1) / sampleY + 1;
 
                 // Make sure the repeatCount does not take us beyond the end of the dst
-                if (dstRow + (int) repeatCount > scaledHeight) {
+                if (dstRow + repeatCount > scaledHeight) {
                     repeatCount = scaledHeight - dstRow;
                     SkASSERT(repeatCount >= 1);
                 }
@@ -592,7 +590,7 @@ bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin
     } else {
         // Make sure the repeatCount does not take us beyond the end of the dst
         SkASSERT(this->dstInfo().height() >= yBegin);
-        repeatCount = SkTMin(repeatCount, (unsigned) (this->dstInfo().height() - yBegin));
+        repeatCount = SkTMin(repeatCount, this->dstInfo().height() - yBegin);
     }
 
     if (!fFilledBackground) {
@@ -665,7 +663,7 @@ bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin
         const size_t bytesToCopy = fSwizzler->swizzleWidth() * bytesPerPixel;
         void* copiedLine = SkTAddOffset<void>(dstLine, fSwizzler->swizzleOffsetBytes());
         void* dst = copiedLine;
-        for (unsigned i = 1; i < repeatCount; i++) {
+        for (int i = 1; i < repeatCount; i++) {
             dst = SkTAddOffset<void>(dst, fDstRowBytes);
             memcpy(dst, copiedLine, bytesToCopy);
         }
