@@ -45,17 +45,11 @@ public:
     ~GrRenderTargetOpList() override;
 
     void makeClosed() override {
-        if (this->isClosed()) {
-            return;
-        }
+        INHERITED::makeClosed();
 
         fLastFullClearOp = nullptr;
         this->forwardCombine();
-
-        INHERITED::makeClosed();
     }
-
-    bool isEmpty() const { return fRecordedOps.empty(); }
 
     /**
      * Empties the draw buffer of any queued up draws.

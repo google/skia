@@ -31,6 +31,7 @@ void GrDrawingManager::cleanup() {
         // We shouldn't need to do this, but it turns out some clients still hold onto opLists
         // after a cleanup
         fOpLists[i]->reset();
+        fOpLists[i]->unref();
     }
 
     fOpLists.reset();
@@ -85,11 +86,9 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
         fOpLists[i]->makeClosed();
     }
 
-#ifdef ENABLE_MDB
     SkDEBUGCODE(bool result =)
                         SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
     SkASSERT(result);
-#endif
 
     GrPreFlushResourceProvider preFlushProvider(this);
 
@@ -149,6 +148,9 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
 
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->reset();
+#ifdef ENABLE_MDB
+        fOpLists[i]->unref();
+#endif
     }
 
 #ifndef ENABLE_MDB
@@ -204,24 +206,25 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetPr
         SkASSERT(fOpLists.count() == 1);
         // In the non-MDB-world the same GrOpList gets reused for multiple render targets.
         // Update this pointer so all the asserts are happy
-        rtp->setLastOpList(fOpLists[0].get());
+        rtp->setLastOpList(fOpLists[0]);
         // DrawingManager gets the creation ref - this ref is for the caller
 
         // TODO: although this is true right now it isn't cool
-        return sk_ref_sp((GrRenderTargetOpList*) fOpLists[0].get());
+        return sk_ref_sp((GrRenderTargetOpList*) fOpLists[0]);
     }
 #endif
 
-    sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(rtp,
-                                                                fContext->getGpu(),
-                                                                fContext->resourceProvider(),
-                                                                fContext->getAuditTrail(),
-                                                                fOptionsForOpLists));
-    SkASSERT(rtp->getLastOpList() == opList.get());
+    GrRenderTargetOpList* opList = new GrRenderTargetOpList(rtp,
+                                                            fContext->getGpu(),
+                                                            fContext->resourceProvider(),
+                                                            fContext->getAuditTrail(),
+                                                            fOptionsForOpLists);
+    SkASSERT(rtp->getLastOpList() == opList);
 
-    fOpLists.push_back() = opList;
+    *fOpLists.append() = opList;
 
-    return opList;
+    // DrawingManager gets the creation ref - this ref is for the caller
+    return sk_ref_sp(opList);
 }
 
 sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(sk_sp<GrTextureProxy> textureProxy) {

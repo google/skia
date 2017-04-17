@@ -1675,10 +1675,7 @@ uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipeline
         }
     }
     op->initPipeline(args, analysis, overrideColor);
-
-    // Add the pipeline dependencies on textures, etc before recording this op.
-    op->addDependenciesTo(fRenderTargetProxy.get());
-
+    // TODO: We need to add pipeline dependencies on textures, etc before recording this op.
     op->setClippedBounds(bounds);
     return this->getOpList()->addOp(std::move(op), this);
 }

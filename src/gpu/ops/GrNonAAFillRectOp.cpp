@@ -95,7 +95,6 @@ public:
 
     SkString dumpInfo() const override {
         SkString str;
-        str.append(INHERITED::dumpInfo());
         str.appendf("# combined: %d\n", fRects.count());
         for (int i = 0; i < fRects.count(); ++i) {
             const RectInfo& info = fRects[i];
@@ -104,6 +103,7 @@ public:
                         info.fRect.fBottom);
         }
         str.append(DumpPipelineInfo(*this->pipeline()));
+        str.append(INHERITED::dumpInfo());
         return str;
     }
 

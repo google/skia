@@ -56,7 +56,6 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.append(INHERITED::dumpInfo());
         string.appendf("rtID: %d proxyID: %d Scissor [",
                        fRenderTarget.get()->uniqueID().asUInt(),
                        fProxyUniqueID.asUInt());
@@ -66,11 +65,11 @@ public:
         } else {
             string.append("disabled");
         }
-        string.appendf("], Color: 0x%08x\n", fColor);
+        string.appendf("], Color: 0x%08x ", fColor);
+        string.append(INHERITED::dumpInfo());
         return string;
     }
 
-    GrColor color() const { return fColor; }
     void setColor(GrColor color) { fColor = color; }
 
 private:
