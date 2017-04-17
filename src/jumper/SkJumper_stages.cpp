@@ -770,25 +770,36 @@ STAGE(store_f16) {
 }
 
 STAGE(load_u16_be) {
-    auto ptr = *(const uint64_t**)ctx + x;
+    auto ptr = *(const uint16_t**)ctx + 4*x;
 
     U16 R,G,B,A;
-    load4((const uint16_t*)ptr,tail, &R,&G,&B,&A);
+    load4(ptr,tail, &R,&G,&B,&A);
 
     r = C(1/65535.0f) * cast(expand(bswap(R)));
     g = C(1/65535.0f) * cast(expand(bswap(G)));
     b = C(1/65535.0f) * cast(expand(bswap(B)));
     a = C(1/65535.0f) * cast(expand(bswap(A)));
 }
+STAGE(load_rgb_u16_be) {
+    auto ptr = *(const uint16_t**)ctx + 3*x;
+
+    U16 R,G,B;
+    load3(ptr,tail, &R,&G,&B);
+
+    r = C(1/65535.0f) * cast(expand(bswap(R)));
+    g = C(1/65535.0f) * cast(expand(bswap(G)));
+    b = C(1/65535.0f) * cast(expand(bswap(B)));
+    a = 1.0_f;
+}
 STAGE(store_u16_be) {
-    auto ptr = *(uint64_t**)ctx + x;
+    auto ptr = *(uint16_t**)ctx + 4*x;
 
     U16 R = bswap(pack(round(r, 65535.0_f))),
         G = bswap(pack(round(g, 65535.0_f))),
         B = bswap(pack(round(b, 65535.0_f))),
         A = bswap(pack(round(a, 65535.0_f)));
 
-    store4((uint16_t*)ptr,tail, R,G,B,A);
+    store4(ptr,tail, R,G,B,A);
 }
 
 STAGE(load_f32) {
