@@ -41,6 +41,7 @@ static K kConstants = {
 };
 
 #define STAGES(M)         \
+    M(callback)           \
     M(seed_shader)        \
     M(constant_color)     \
     M(clear)              \
