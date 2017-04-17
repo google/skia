@@ -26,9 +26,6 @@ uint32_t SkNextID::ImageID() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// just need a > 0 value, so pick a funny one to aid in debugging
-#define SKPIXELREF_PRELOCKED_LOCKCOUNT     123456789
-
 static SkImageInfo validate_info(const SkImageInfo& info) {
     SkAlphaType newAlphaType = info.alphaType();
     SkAssertResult(SkColorTypeValidateAlphaType(info.colorType(), info.alphaType(), &newAlphaType));
@@ -54,6 +51,8 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info, void* pixels, size_t rowBytes,
                        sk_sp<SkColorTable> ctable)
     : fInfo(validate_info(info))
     , fCTable(std::move(ctable))
+    , fPixels(pixels)
+    , fRowBytes(rowBytes)
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     , fStableID(SkNextID::ImageID())
 #endif
@@ -63,13 +62,9 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info, void* pixels, size_t rowBytes,
 #ifdef SK_TRACE_PIXELREF_LIFETIME
     SkDebugf(" pixelref %d\n", sk_atomic_inc(&gInstCounter));
 #endif
-    fRec.fPixels = pixels;
-    fRec.fRowBytes = rowBytes;
-    fRec.fColorTable = fCTable.get();
 
     this->needsNewGenID();
     fMutability = kMutable;
-    fPreLocked = true;
     fAddedToCache.store(false);
 }
 
@@ -116,9 +111,15 @@ void SkPixelRef::cloneGenID(const SkPixelRef& that) {
     SkASSERT(!that. genIDIsUnique());
 }
 
+#ifdef SK_SUPPORT_OBSOLETE_LOCKPIXELS
 bool SkPixelRef::lockPixels(LockRec* rec) {
-    *rec = fRec;
-    return true;
+    if (fPixels) {
+        rec->fPixels = fPixels;
+        rec->fRowBytes = fRowBytes;
+        rec->fColorTable = fCTable.get();
+        return true;
+    }
+    return false;
 }
 
 bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
@@ -133,12 +134,13 @@ bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
 
     result->fUnlockProc = nullptr;
     result->fUnlockContext = nullptr;
-    result->fCTable = fRec.fColorTable;
-    result->fPixels = fRec.fPixels;
-    result->fRowBytes = fRec.fRowBytes;
+    result->fCTable = fCTable.get();
+    result->fPixels = fPixels;
+    result->fRowBytes = fRowBytes;
     result->fSize.set(fInfo.width(), fInfo.height());
     return true;
 }
+#endif
 
 uint32_t SkPixelRef::getGenerationID() const {
     uint32_t id = fTaggedGenID.load();

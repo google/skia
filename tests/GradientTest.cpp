@@ -149,7 +149,6 @@ static void TestConstantGradient(skiatest::Reporter*) {
     outBitmap.allocN32Pixels(10, 1);
     SkCanvas canvas(outBitmap);
     canvas.drawPaint(paint);
-    SkAutoLockPixels alp(outBitmap);
     for (int i = 0; i < 10; i++) {
         // The following is commented out because it currently fails
         // Related bug: https://code.google.com/p/skia/issues/detail?id=1098
