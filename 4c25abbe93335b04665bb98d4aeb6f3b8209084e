@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f38b447a_c623cdf5",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-17T20:02:38Z",
+      "side": 1,
+      "message": "Does this even need to be configurable now?",
+      "revId": "4c25abbe93335b04665bb98d4aeb6f3b8209084e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
