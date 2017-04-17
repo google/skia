@@ -33,15 +33,11 @@ public:
     void emitObject(SkWStream* stream,
                     const SkPDFObjNumMap& objNumMap) const override;
 
-    /** Get the graphic state for the passed SkPaint. The reference count of
-     *  the object is incremented and it is the caller's responsibility to
-     *  unreference it when done. This is needed to accommodate the weak
-     *  reference pattern used when the returned object is new and has no
-     *  other references.
+    /** Get the graphic state for the passed SkPaint.
      *  @param paint  The SkPaint to emulate.
      */
-    static SkPDFGraphicState* GetGraphicStateForPaint(SkPDFCanon* canon,
-                                                      const SkPaint& paint);
+    static sk_sp<SkPDFGraphicState> GetGraphicStateForPaint(SkPDFCanon* canon,
+                                                            const SkPaint& paint);
 
     /** Make a graphic state that only sets the passed soft mask.
      *  @param sMask     The form xobject to use as a soft mask.

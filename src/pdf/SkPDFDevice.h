@@ -181,19 +181,11 @@ private:
     struct RectWithData {
         SkRect rect;
         sk_sp<SkData> data;
-        RectWithData(const SkRect& rect, SkData* data)
-            : rect(rect), data(SkRef(data)) {}
-        RectWithData(RectWithData&&) = default;
-        RectWithData& operator=(RectWithData&& other) = default;
     };
 
     struct NamedDestination {
         sk_sp<SkData> nameData;
         SkPoint point;
-        NamedDestination(SkData* nameData, const SkPoint& point)
-            : nameData(SkRef(nameData)), point(point) {}
-        NamedDestination(NamedDestination&&) = default;
-        NamedDestination& operator=(NamedDestination&&) = default;
     };
 
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in
