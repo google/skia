@@ -1242,6 +1242,7 @@ struct Task {
 static SkTDArray<skiatest::Test> gParallelTests, gSerialTests;
 
 static void gather_tests() {
+    FLAGS_match.set(0, "PathOpsSimplify$");
     if (!FLAGS_src.contains("tests")) {
         return;
     }
