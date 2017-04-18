@@ -14,6 +14,7 @@
 
 class SkCanvas;
 class SkPaint;
+class GrBackendSemaphore;
 class GrContext;
 class GrRenderTarget;
 
@@ -299,8 +300,30 @@ public:
 
     /**
      * Issue any pending surface IO to the current backend 3D API and resolve any surface MSAA.
+     *
+     * This flush calls below are the new preferred way to flush calls to a surface, and this call
+     * will eventually be removed.
      */
     void prepareForExternalIO();
+
+    /**
+     * Issue any pending surface IO to the current backend 3D API
+     */
+    void flush();
+
+    /**
+     * Issue any pending surface IO to the current backend 3D API. After issuing all commands, we
+     * will submit the passed in semaphores which the backing GPU will signal after all commands
+     * have completed. Skia will not assume ownership of the underlying semaphores.
+     */
+    void flush(int numSemaphores, const GrBackendSemaphore& signalSemaphores);
+
+    /**
+     * Inserts a list of GPU semaphores that the current backend 3D API must wait on before
+     * executing any more commands on the GPU. Skia will take ownership of the underlying semaphores
+     * and delete them once they have been signaled and waited on.
+     */
+    void wait(int numSemaphores, const GrBackendSemaphore& signalSemaphores);
 
 protected:
     SkSurface(int width, int height, const SkSurfaceProps*);
