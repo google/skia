@@ -948,7 +948,7 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) {
     }
 
     // setup memory barrier
-    SkASSERT(GrVkFormatToPixelConfig(tex->imageFormat(), nullptr));
+    SkASSERT(kUnknown_GrPixelConfig != GrVkFormatToPixelConfig(tex->imageFormat()));
     VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType

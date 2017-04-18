@@ -289,6 +289,23 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx, const GrBackendTe
                                       nullptr, nullptr);
 }
 
+sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
+                                        const GrBackendTexture& tex, GrSurfaceOrigin origin,
+                                        SkAlphaType at, sk_sp<SkColorSpace> cs,
+                                        TextureReleaseProc releaseP, ReleaseContext releaseC) {
+    // This function is not implemented yet
+    sk_throw();
+    return nullptr;
+}
+
+sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
+                                               const GrBackendTexture& tex, GrSurfaceOrigin origin,
+                                               SkAlphaType at, sk_sp<SkColorSpace> cs) {
+    // This function is not implemented yet
+    sk_throw();
+    return nullptr;
+}
+
 static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpace colorSpace,
                                                   bool nv12,
                                                   const GrBackendObject yuvTextureHandles[],

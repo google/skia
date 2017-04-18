@@ -20,7 +20,7 @@ VkImageAspectFlags vk_format_to_aspect_flags(VkFormat format) {
         case VK_FORMAT_D32_SFLOAT_S8_UINT:
             return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
         default:
-            SkASSERT(GrVkFormatToPixelConfig(format, nullptr));
+            SkASSERT(kUnknown_GrPixelConfig != GrVkFormatToPixelConfig(format));
             return VK_IMAGE_ASPECT_COLOR_BIT;
     }
 }
