@@ -17,31 +17,38 @@
 
 DEF_TEST(Codec_frames, r) {
     static const struct {
-        const char*         fName;
-        size_t              fFrameCount;
+        const char*                                   fName;
+        size_t                                        fFrameCount;
         // One less than fFramecount, since the first frame is always
         // independent.
-        std::vector<size_t> fRequiredFrames;
+        std::vector<size_t>                           fRequiredFrames;
         // The size of this one should match fFrameCount for animated, empty
         // otherwise.
-        std::vector<size_t> fDurations;
-        int                 fRepetitionCount;
+        std::vector<size_t>                           fDurations;
+        int                                           fRepetitionCount;
+        std::vector<SkCodecAnimation::DisposalMethod> fDisposalMethods;
     } gRecs[] = {
-        { "box.gif", 1, {}, {}, 0 },
-        { "color_wheel.gif", 1, {}, {}, 0 },
+        { "box.gif", 1, {}, {}, 0, { SkCodecAnimation::Keep_DisposalMethod } },
+        { "color_wheel.gif", 1, {}, {}, 0, { SkCodecAnimation::Keep_DisposalMethod } },
         { "test640x479.gif", 4, { 0, 1, 2 }, { 200, 200, 200, 200 },
-                SkCodec::kRepetitionCountInfinite },
-        { "colorTables.gif", 2, { 0 }, { 1000, 1000 }, 5 },
+                SkCodec::kRepetitionCountInfinite,
+                { SkCodecAnimation::Keep_DisposalMethod,
+                  SkCodecAnimation::Keep_DisposalMethod,
+                  SkCodecAnimation::Keep_DisposalMethod,
+                  SkCodecAnimation::Keep_DisposalMethod, }, },
+        { "colorTables.gif", 2, { 0 }, { 1000, 1000 }, 5,
+                { SkCodecAnimation::Keep_DisposalMethod,
+                  SkCodecAnimation::Keep_DisposalMethod, }, },
 
-        { "arrow.png",  1, {}, {}, 0 },
-        { "google_chrome.ico", 1, {}, {}, 0 },
-        { "brickwork-texture.jpg", 1, {}, {}, 0 },
+        { "arrow.png",  1, {}, {}, 0, {} },
+        { "google_chrome.ico", 1, {}, {}, 0, {} },
+        { "brickwork-texture.jpg", 1, {}, {}, 0, {} },
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
-        { "dng_with_preview.dng", 1, {}, {}, 0 },
+        { "dng_with_preview.dng", 1, {}, {}, 0, {} },
 #endif
-        { "mandrill.wbmp", 1, {}, {}, 0 },
-        { "randPixels.bmp", 1, {}, {}, 0 },
-        { "yellow_rose.webp", 1, {}, {}, 0 },
+        { "mandrill.wbmp", 1, {}, {}, 0, {} },
+        { "randPixels.bmp", 1, {}, {}, 0, {} },
+        { "yellow_rose.webp", 1, {}, {}, 0, {} },
     };
 
     for (auto rec : gRecs) {
