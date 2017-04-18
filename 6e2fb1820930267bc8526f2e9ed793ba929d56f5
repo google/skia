@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f13397d_417d0503",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-18T18:17:52Z",
+      "side": 1,
+      "message": "Can this be folded into the -1.725....?",
+      "range": {
+        "startLine": 682,
+        "startChar": 11,
+        "endLine": 682,
+        "endChar": 24
+      },
+      "revId": "6e2fb1820930267bc8526f2e9ed793ba929d56f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e240bdf6_ecb2c493",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-18T18:17:52Z",
+      "side": 1,
+      "message": "Cant this be folded into 27.728....",
+      "range": {
+        "startLine": 689,
+        "startChar": 35,
+        "endLine": 689,
+        "endChar": 48
+      },
+      "revId": "6e2fb1820930267bc8526f2e9ed793ba929d56f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
