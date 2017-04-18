@@ -32,9 +32,10 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
-    // For this to be deleted the opList that held a ref on it (if there was one) must have been
-    // deleted. Which would have cleared out this back pointer.
-    SkASSERT(!fLastOpList);
+    if (fLastOpList) {
+        fLastOpList->clearTarget();
+    }
+    SkSafeUnref(fLastOpList);
 }
 
 GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
@@ -96,14 +97,15 @@ int GrSurfaceProxy::worstCaseHeight(const GrCaps& caps) const {
 }
 
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
-#ifdef SK_DEBUG
     if (fLastOpList) {
+        // The non-MDB world never closes so we can't check this condition
+#ifdef ENABLE_MDB
         SkASSERT(fLastOpList->isClosed());
-    }
 #endif
+        fLastOpList->clearTarget();
+    }
 
-    // Un-reffed
-    fLastOpList = opList;
+    SkRefCnt_SafeAssign(fLastOpList, opList);
 }
 
 GrRenderTargetOpList* GrSurfaceProxy::getLastRenderTargetOpList() {

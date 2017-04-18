@@ -128,7 +128,7 @@ GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     return fOpList.get();
 }
 
-// MDB TODO: move this (and GrTextContext::copy) to GrSurfaceContext?
+// TODO: move this (and GrTextContext::copy) to GrSurfaceContext?
 bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
                                    const SkIRect& srcRect,
                                    const SkIPoint& dstPoint) {
