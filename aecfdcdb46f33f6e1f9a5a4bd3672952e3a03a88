@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "381d12cd_69f8d381",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-18T14:48:24Z",
+      "side": 1,
+      "message": "don\u0027t you need to check if it is renderable in here?",
+      "range": {
+        "startLine": 298,
+        "startChar": 6,
+        "endLine": 305,
+        "endChar": 9
+      },
+      "revId": "aecfdcdb46f33f6e1f9a5a4bd3672952e3a03a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
