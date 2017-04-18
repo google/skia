@@ -6,6 +6,7 @@
  */
 
 #include "Sk4fLinearGradient.h"
+#include "SkColorSpaceXformer.h"
 #include "SkLinearGradient.h"
 #include "SkRefCnt.h"
 
@@ -255,6 +256,14 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
     }
 
     return true;
+}
+
+sk_sp<SkShader> SkLinearGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkPoint pts[2] = { fStart, fEnd };
+    SkSTArray<8, SkColor> xformedColors(fColorCount);
+    xformer->apply(xformedColors.begin(), fOrigColors, fColorCount);
+    return SkGradientShader::MakeLinear(pts, xformedColors.begin(), fOrigPos, fColorCount,
+                                        fTileMode, fGradFlags, &this->getLocalMatrix());
 }
 
 // This swizzles SkColor into the same component order as SkPMColor, but does not actually

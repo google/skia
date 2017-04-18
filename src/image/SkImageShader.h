@@ -8,9 +8,10 @@
 #ifndef SkImageShader_DEFINED
 #define SkImageShader_DEFINED
 
+#include "SkBitmapProcShader.h"
+#include "SkColorSpaceXformer.h"
 #include "SkImage.h"
 #include "SkShader.h"
-#include "SkBitmapProcShader.h"
 
 class SkImageShader : public SkShader {
 public:
@@ -38,6 +39,11 @@ protected:
 
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         const SkMatrix& ctm, const SkPaint&, const SkMatrix*) const override;
+
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
+        return xformer->apply(fImage.get())->makeShader(fTileModeX, fTileModeY,
+                                                        &this->getLocalMatrix());
+    }
 
     sk_sp<SkImage>  fImage;
     const TileMode  fTileModeX;
