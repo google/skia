@@ -38,6 +38,5 @@
       "configuration"
     ]
   },
-  "builder_name_sep": "-",
-  "trybot_name_suffix": "Trybot"
+  "builder_name_sep": "-"
 }
