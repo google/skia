@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0f3e3b2_308394a4",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1563,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-18T17:08:37Z",
+      "side": 1,
+      "message": "Change this comment? Maybe: \"The dst must not be a multisampled render target\"",
+      "revId": "6ca25745e1e620795fa50ab01a377d0696575e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
