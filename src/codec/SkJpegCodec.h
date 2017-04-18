@@ -88,8 +88,8 @@ private:
      * If the jpeg does not have an embedded color space, the image data should
      * be tagged with this color space.
      */
-    static bool ReadHeader(SkStream* stream, SkCodec** codecOut,
-            JpegDecoderMgr** decoderMgrOut, sk_sp<SkColorSpace> defaultColorSpace);
+    static bool ReadHeader(SkStream* stream, SkCodec** codecOut, JpegDecoderMgr** decoderMgrOut,
+            sk_sp<SkColorSpace> defaultColorSpace);
 
     /*
      * Creates an instance of the decoder

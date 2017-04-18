@@ -138,9 +138,10 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     }
 
     SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-    SkWebpCodec* codecOut = new SkWebpCodec(width, height, info, std::move(colorSpace),
-                                            streamDeleter.release(), demux.release(),
-                                            std::move(data));
+    SkWebpCodec* codecOut =
+            new SkWebpCodec(width, height, info, std::move(colorSpace),
+                            streamDeleter.release(), demux.release(),
+                            std::move(data));
     codecOut->setUnsupportedICC(unsupportedICC);
     return codecOut;
 }

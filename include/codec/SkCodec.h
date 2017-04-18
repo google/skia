@@ -82,7 +82,6 @@ public:
      *  SkCodec takes ownership of it, and will delete it when done with it.
      */
     static SkCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
-
     /**
      *  If this data represents an encoded image that we know how to decode,
      *  return an SkCodec that can decode it. Otherwise return NULL.

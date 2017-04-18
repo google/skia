@@ -29,8 +29,7 @@ SkBmpStandardCodec::SkBmpStandardCodec(int width, int height, const SkEncodedInf
     , fIsOpaque(isOpaque)
     , fInIco(inIco)
     , fAndMaskRowBytes(fInIco ? SkAlign4(compute_row_bytes(this->getInfo().width(), 1)) : 0)
-    , fXformOnDecode(false)
-{}
+    , fXformOnDecode(false) {}
 
 /*
  * Initiates the bitmap decode

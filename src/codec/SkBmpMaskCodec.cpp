@@ -18,8 +18,7 @@ SkBmpMaskCodec::SkBmpMaskCodec(int width, int height, const SkEncodedInfo& info,
     : INHERITED(width, height, info, stream, bitsPerPixel, rowOrder)
     , fMasks(masks)
     , fMaskSwizzler(nullptr)
-    , fSrcBuffer(new uint8_t [this->srcRowBytes()])
-{}
+    , fSrcBuffer(new uint8_t [this->srcRowBytes()]){}
 
 /*
  * Initiates the bitmap decode

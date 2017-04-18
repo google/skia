@@ -598,8 +598,7 @@ SkBmpCodec::SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStrea
     , fBitsPerPixel(bitsPerPixel)
     , fRowOrder(rowOrder)
     , fSrcRowBytes(SkAlign4(compute_row_bytes(width, fBitsPerPixel)))
-    , fXformBuffer(nullptr)
-{}
+    , fXformBuffer(nullptr) {}
 
 bool SkBmpCodec::onRewind() {
     return SkBmpCodec::ReadHeader(this->stream(), this->inIco(), nullptr);

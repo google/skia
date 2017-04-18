@@ -85,7 +85,7 @@ public:
         , fStream(stream)
         , fChunkReader(reader)
         , fOutCodec(codecPtr)
-    {}
+{}
 
     ~AutoCleanPng() {
         // fInfo_ptr will never be non-nullptr unless fPng_ptr is.
@@ -475,7 +475,7 @@ public:
         , fRowBytes(0)
         , fFirstRow(0)
         , fLastRow(0)
-    {}
+  {}
 
     static void AllRowsCallback(png_structp png_ptr, png_bytep row, png_uint_32 rowNum, int /*pass*/) {
         GetDecoder(png_ptr)->allRowsCallback(row, rowNum);
