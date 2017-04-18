@@ -5409,6 +5409,24 @@ path.close();
     testPathOp(reporter, path, path, kUnion_SkPathOp, filename);
 }
 
+static void android1(skiatest::Reporter* reporter, const char* filename) {
+ SkPath path, pathB;
+path.moveTo(SkBits2Float(0xc0a00000), SkBits2Float(0x00000000));  // -5, 0
+path.lineTo(SkBits2Float(0x44866000), SkBits2Float(0x00000000));  // 1075, 0
+path.lineTo(SkBits2Float(0x44866000), SkBits2Float(0x43720000));  // 1075, 242
+path.lineTo(SkBits2Float(0xc0a00000), SkBits2Float(0x43720000));  // -5, 242
+path.lineTo(SkBits2Float(0xc0a00000), SkBits2Float(0x00000000));  // -5, 0
+path.close();
+pathB.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
+pathB.lineTo(SkBits2Float(0x44870000), SkBits2Float(0x00000000));  // 1080, 0
+pathB.lineTo(SkBits2Float(0x44870000), SkBits2Float(0x43720000));  // 1080, 242
+pathB.lineTo(SkBits2Float(0x00000000), SkBits2Float(0x43720000));  // 0, 242
+pathB.lineTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
+pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
+}
+
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
@@ -5416,6 +5434,7 @@ static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 #define TEST(name) { name, #name }
 
 static struct TestDesc tests[] = {
+    TEST(android1),
     TEST(bug5240),
     TEST(circlesOp4),
     TEST(loop17),
