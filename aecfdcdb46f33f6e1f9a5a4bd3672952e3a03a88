@@ -22,6 +22,30 @@
       "revId": "aecfdcdb46f33f6e1f9a5a4bd3672952e3a03a88",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c73502a6_0f4a83ca",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-18T16:12:38Z",
+      "side": 1,
+      "message": "Per discussion, not really - the base class validates renderability and texturability assumptions after the backend function returns. Leveraged that (similarly to GL backend) to further simplify vulkan version in PS 3.",
+      "parentUuid": "381d12cd_69f8d381",
+      "range": {
+        "startLine": 298,
+        "startChar": 6,
+        "endLine": 305,
+        "endChar": 9
+      },
+      "revId": "aecfdcdb46f33f6e1f9a5a4bd3672952e3a03a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
