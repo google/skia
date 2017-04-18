@@ -46,6 +46,6 @@ class CTApi(recipe_api.RecipeApi):
     gsutil_args.append(str(slave_dest_dir))
     try:
       self.m.gsutil(gsutil_args, use_retry_wrapper=False)
-    except self.m.step.StepFailure:  # pragma: nocover
+    except self.m.step.StepFailure:
       # Some subdirectories might have no SKPs in them.
       pass

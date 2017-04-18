@@ -24,6 +24,92 @@
   },
   {
     "cmd": [
+      "git",
+      "remote",
+      "set-url",
+      "origin",
+      "https://skia.googlesource.com/skia.git"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git remote set-url"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "reset",
+      "--hard",
+      "abc123"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git reset"
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-d",
+      "-f"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "set-url",
+      "origin",
+      "https://chromium.googlesource.com/chromium/src.git"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/src",
+    "infra_step": true,
+    "name": "git remote set-url (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/src",
+    "infra_step": true,
+    "name": "git fetch (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "reset",
+      "--hard",
+      "origin/lkgr"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/src",
+    "infra_step": true,
+    "name": "git reset (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-d",
+      "-f"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/src",
+    "infra_step": true,
+    "name": "git clean (2)"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",

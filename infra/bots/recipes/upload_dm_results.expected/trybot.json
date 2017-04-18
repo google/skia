@@ -101,7 +101,7 @@
       "-z",
       "json,log",
       "[START_DIR]/tmp_upload/*",
-      "gs://skia-infra-gm/trybot/dm-json-v1/2012/05/14/12/abc123/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot/1337000001/456789/12"
+      "gs://skia-infra-gm/trybot/dm-json-v1/2012/05/14/12/abc123/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug/1337000001/456789/12"
     ],
     "name": "upload JSON and logs"
   },

@@ -17,16 +17,6 @@ DEPS = [
 ]
 
 
-TEST_BUILDERS = {
-  'client.skia.fyi': {
-    'skiabot-linux-housekeeper-000': [
-      'Housekeeper-PerCommit',
-      'Housekeeper-PerCommit-Trybot',
-    ],
-  },
-}
-
-
 def RunSteps(api):
   # Checkout, compile, etc.
   api.core.setup()
