@@ -948,6 +948,10 @@ STAGE(linear_gradient_2stops) {
     a = mad(t, c->f[3], c->b[3]);
 }
 
+STAGE(sweep_to_linear_gradient) {
+
+}
+
 STAGE(save_xy) {
     auto c = (SkJumper_SamplerCtx*)ctx;
 
