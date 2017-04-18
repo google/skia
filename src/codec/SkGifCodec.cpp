@@ -141,6 +141,7 @@ std::vector<SkCodec::FrameInfo> SkGifCodec::onGetFrameInfo() {
         result[i].fDuration = frameContext->delayTime();
         result[i].fRequiredFrame = frameContext->getRequiredFrame();
         result[i].fFullyReceived = frameContext->isComplete();
+        result[i].fDisposalMethod = frameContext->getDisposalMethod();
     }
     return result;
 }

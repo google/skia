@@ -10,6 +10,7 @@
 
 #include "../private/SkTemplates.h"
 #include "SkColor.h"
+#include "SkCodecAnimation.h"
 #include "SkEncodedImageFormat.h"
 #include "SkEncodedInfo.h"
 #include "SkImageInfo.h"
@@ -610,6 +611,8 @@ public:
          *  There could be an error in the stream.
          */
         bool fFullyReceived;
+
+        SkCodecAnimation::DisposalMethod fDisposalMethod;
     };
 
     /**
