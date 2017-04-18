@@ -81,8 +81,8 @@ public:
      *  If NULL is returned, the stream is deleted immediately. Otherwise, the
      *  SkCodec takes ownership of it, and will delete it when done with it.
      */
-    static SkCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
-
+    static SkCodec* NewFromStream(SkStream*,
+                                  SkPngChunkReader* = NULL);
     /**
      *  If this data represents an encoded image that we know how to decode,
      *  return an SkCodec that can decode it. Otherwise return NULL.
@@ -99,8 +99,10 @@ public:
      *      If the PNG does not contain unknown chunks, the SkPngChunkReader
      *      will not be used or modified.
      */
-    static SkCodec* NewFromData(sk_sp<SkData>, SkPngChunkReader* = NULL);
-    static SkCodec* NewFromData(SkData* data, SkPngChunkReader* reader) {
+    static SkCodec* NewFromData(sk_sp<SkData>,
+                                SkPngChunkReader* = NULL);
+    static SkCodec* NewFromData(SkData* data,
+                                SkPngChunkReader* reader) {
         return NewFromData(sk_ref_sp(data), reader);
     }
 

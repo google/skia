@@ -186,8 +186,7 @@ static sk_sp<SkData> get_icc_profile(jpeg_decompress_struct* dinfo) {
 }
 
 bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, JpegDecoderMgr** decoderMgrOut,
-        sk_sp<SkColorSpace> defaultColorSpace) {
-
+                             sk_sp<SkColorSpace> defaultColorSpace) {
     // Create a JpegDecoderMgr to own all of the decompress information
     std::unique_ptr<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
 
@@ -270,7 +269,7 @@ SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
 SkCodec* SkJpegCodec::NewFromStream(SkStream* stream, sk_sp<SkColorSpace> defaultColorSpace) {
     std::unique_ptr<SkStream> streamDeleter(stream);
     SkCodec* codec = nullptr;
-    if (ReadHeader(stream,  &codec, nullptr, std::move(defaultColorSpace))) {
+    if (ReadHeader(stream, &codec, nullptr, std::move(defaultColorSpace))) {
         // Codec has taken ownership of the stream, we do not need to delete it
         SkASSERT(codec);
         streamDeleter.release();
@@ -280,14 +279,14 @@ SkCodec* SkJpegCodec::NewFromStream(SkStream* stream, sk_sp<SkColorSpace> defaul
 }
 
 SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-        JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin)
-    : INHERITED(width, height, info, stream, std::move(colorSpace), origin)
-    , fDecoderMgr(decoderMgr)
-    , fReadyState(decoderMgr->dinfo()->global_state)
-    , fSwizzleSrcRow(nullptr)
-    , fColorXformSrcRow(nullptr)
-    , fSwizzlerSubset(SkIRect::MakeEmpty())
-{}
+                         JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin,
+                         SkCodec::FillColorBehavior fillColorBehavior)
+        : INHERITED(width, height, info, stream, std::move(colorSpace), origin, fillColorBehavior)
+        , fDecoderMgr(decoderMgr)
+        , fReadyState(decoderMgr->dinfo()->global_state)
+        , fSwizzleSrcRow(nullptr)
+        , fColorXformSrcRow(nullptr)
+        , fSwizzlerSubset(SkIRect::MakeEmpty()) {}
 
 /*
  * Return the row bytes of a particular image type and width

@@ -115,28 +115,26 @@ SkCodec* SkCodec::NewFromData(sk_sp<SkData> data, SkPngChunkReader* reader) {
 }
 
 SkCodec::SkCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-        sk_sp<SkColorSpace> colorSpace, Origin origin)
-    : fEncodedInfo(info)
-    , fSrcInfo(info.makeImageInfo(width, height, std::move(colorSpace)))
-    , fStream(stream)
-    , fNeedsRewind(false)
-    , fOrigin(origin)
-    , fDstInfo()
-    , fOptions()
-    , fCurrScanline(-1)
-{}
+                 sk_sp<SkColorSpace> colorSpace, Origin origin)
+        : fEncodedInfo(info)
+        , fSrcInfo(info.makeImageInfo(width, height, std::move(colorSpace)))
+        , fStream(stream)
+        , fNeedsRewind(false)
+        , fOrigin(origin)
+        , fDstInfo()
+        , fOptions()
+        , fCurrScanline(-1) {}
 
 SkCodec::SkCodec(const SkEncodedInfo& info, const SkImageInfo& imageInfo, SkStream* stream,
-        Origin origin)
-    : fEncodedInfo(info)
-    , fSrcInfo(imageInfo)
-    , fStream(stream)
-    , fNeedsRewind(false)
-    , fOrigin(origin)
-    , fDstInfo()
-    , fOptions()
-    , fCurrScanline(-1)
-{}
+                 Origin origin)
+        : fEncodedInfo(info)
+        , fSrcInfo(imageInfo)
+        , fStream(stream)
+        , fNeedsRewind(false)
+        , fOrigin(origin)
+        , fDstInfo()
+        , fOptions()
+        , fCurrScanline(-1) {}
 
 SkCodec::~SkCodec() {}
 

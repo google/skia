@@ -483,7 +483,8 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 // Set the image info and create a codec.
                 const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, bitsPerComponent);
                 *codecOut = new SkBmpStandardCodec(width, height, info, stream, bitsPerPixel,
-                        numColors, bytesPerColor, offset - bytesRead, rowOrder, isOpaque, inIco);
+                                                   numColors, bytesPerColor, offset - bytesRead,
+                                                   rowOrder, isOpaque, inIco);
             }
             return true;
         }
@@ -536,7 +537,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 }
                 const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
                 *codecOut = new SkBmpMaskCodec(width, height, info, stream, bitsPerPixel,
-                        masks.release(), rowOrder);
+                                               masks.release(), rowOrder);
             }
             return true;
         }
@@ -565,7 +566,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 const SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kBGRA_Color,
                         SkEncodedInfo::kBinary_Alpha, 8);
                 *codecOut = new SkBmpRLECodec(width, height, info, stream, bitsPerPixel, numColors,
-                        bytesPerColor, offset - bytesRead, rowOrder);
+                                              bytesPerColor, offset - bytesRead, rowOrder);
             }
             return true;
         }
@@ -593,13 +594,12 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
 }
 
 SkBmpCodec::SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-        uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(width, height, info, stream, SkColorSpace::MakeSRGB())
-    , fBitsPerPixel(bitsPerPixel)
-    , fRowOrder(rowOrder)
-    , fSrcRowBytes(SkAlign4(compute_row_bytes(width, fBitsPerPixel)))
-    , fXformBuffer(nullptr)
-{}
+                       uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder)
+        : INHERITED(width, height, info, stream, SkColorSpace::MakeSRGB())
+        , fBitsPerPixel(bitsPerPixel)
+        , fRowOrder(rowOrder)
+        , fSrcRowBytes(SkAlign4(compute_row_bytes(width, fBitsPerPixel)))
+        , fXformBuffer(nullptr) {}
 
 bool SkBmpCodec::onRewind() {
     return SkBmpCodec::ReadHeader(this->stream(), this->inIco(), nullptr);

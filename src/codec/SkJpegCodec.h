@@ -88,8 +88,8 @@ private:
      * If the jpeg does not have an embedded color space, the image data should
      * be tagged with this color space.
      */
-    static bool ReadHeader(SkStream* stream, SkCodec** codecOut,
-            JpegDecoderMgr** decoderMgrOut, sk_sp<SkColorSpace> defaultColorSpace);
+    static bool ReadHeader(SkStream* stream, SkCodec** codecOut, JpegDecoderMgr** decoderMgrOut,
+                           sk_sp<SkColorSpace> defaultColorSpace);
 
     /*
      * Creates an instance of the decoder
@@ -101,7 +101,7 @@ private:
      *                   takes ownership
      */
     SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-            JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin);
+                JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin);
 
     /*
      * Checks if the conversion between the input image and the requested output

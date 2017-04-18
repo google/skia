@@ -15,18 +15,16 @@
  * Called only by NewFromStream
  */
 SkBmpRLECodec::SkBmpRLECodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-                             uint16_t bitsPerPixel, uint32_t numColors,
-                             uint32_t bytesPerColor, uint32_t offset,
-                             SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(width, height, info, stream, bitsPerPixel, rowOrder)
-    , fColorTable(nullptr)
-    , fNumColors(numColors)
-    , fBytesPerColor(bytesPerColor)
-    , fOffset(offset)
-    , fBytesBuffered(0)
-    , fCurrRLEByte(0)
-    , fSampleX(1)
-{}
+                             uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
+                             uint32_t offset, SkCodec::SkScanlineOrder rowOrder)
+        : INHERITED(width, height, info, stream, bitsPerPixel, rowOrder)
+        , fColorTable(nullptr)
+        , fNumColors(numColors)
+        , fBytesPerColor(bytesPerColor)
+        , fOffset(offset)
+        , fBytesBuffered(0)
+        , fCurrRLEByte(0)
+        , fSampleX(1) {}
 
 /*
  * Initiates the bitmap decode

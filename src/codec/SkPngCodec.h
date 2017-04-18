@@ -49,7 +49,7 @@ protected:
     };
 
     SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, SkStream*, SkPngChunkReader*,
-            void* png_ptr, void* info_ptr, int bitDepth);
+               void* png_ptr, void* info_ptr, int bitDepth);
 
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
             override;

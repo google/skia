@@ -80,7 +80,8 @@ private:
      * @param embeddedCodecs codecs for the embedded images, takes ownership
      */
     SkIcoCodec(int width, int height, const SkEncodedInfo& info,
-            SkTArray<std::unique_ptr<SkCodec>, true>* embeddedCodecs, sk_sp<SkColorSpace> colorSpace);
+               SkTArray<std::unique_ptr<SkCodec>, true>* embeddedCodecs,
+               sk_sp<SkColorSpace> colorSpace);
 
     std::unique_ptr<SkTArray<std::unique_ptr<SkCodec>, true>> fEmbeddedCodecs;
 

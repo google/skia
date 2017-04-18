@@ -37,9 +37,8 @@ public:
     static SkCodec* NewFromIco(SkStream*);
 
 protected:
-
     SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-            uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder);
+               uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder);
 
     SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kBMP; }
 

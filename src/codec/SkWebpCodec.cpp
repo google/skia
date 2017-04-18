@@ -138,9 +138,9 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     }
 
     SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-    SkWebpCodec* codecOut = new SkWebpCodec(width, height, info, std::move(colorSpace),
-                                            streamDeleter.release(), demux.release(),
-                                            std::move(data));
+    SkWebpCodec* codecOut =
+            new SkWebpCodec(width, height, info, std::move(colorSpace), streamDeleter.release(),
+                            demux.release(), std::move(data));
     codecOut->setUnsupportedICC(unsupportedICC);
     return codecOut;
 }
@@ -362,7 +362,6 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 SkWebpCodec::SkWebpCodec(int width, int height, const SkEncodedInfo& info,
                          sk_sp<SkColorSpace> colorSpace, SkStream* stream, WebPDemuxer* demux,
                          sk_sp<SkData> data)
-    : INHERITED(width, height, info, stream, std::move(colorSpace))
-    , fDemux(demux)
-    , fData(std::move(data))
-{}
+        : INHERITED(width, height, info, stream, std::move(colorSpace))
+        , fDemux(demux)
+        , fData(std::move(data)) {}

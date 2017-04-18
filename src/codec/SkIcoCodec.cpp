@@ -185,16 +185,15 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
 SkIcoCodec::SkIcoCodec(int width, int height, const SkEncodedInfo& info,
                        SkTArray<std::unique_ptr<SkCodec>, true>* codecs,
                        sk_sp<SkColorSpace> colorSpace)
-    : INHERITED(width, height, info, nullptr, std::move(colorSpace))
-    , fEmbeddedCodecs(codecs)
-    , fCurrScanlineCodec(nullptr)
-    , fCurrIncrementalCodec(nullptr)
-{}
+        : INHERITED(width, height, info, nullptr, std::move(colorSpace))
+        , fEmbeddedCodecs(codecs)
+        , fCurrScanlineCodec(nullptr)
+        , fCurrIncrementalCodec(nullptr) {}
 
 /*
  * Chooses the best dimensions given the desired scale
  */
-SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const { 
+SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const {
     // We set the dimensions to the largest candidate image by default.
     // Regardless of the scale request, this is the largest image that we
     // will decode.
