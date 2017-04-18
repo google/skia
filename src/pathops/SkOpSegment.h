@@ -93,6 +93,7 @@ public:
     }
 
     SkOpPtT* addT(double t);
+    SkOpPtT* addT(double t, const SkPoint& pt);
 
     template<typename T> T* allocateArray(int count) {
         return SkOpTAllocator<T>::AllocateArray(this->globalState()->allocator(), count);
