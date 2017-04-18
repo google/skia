@@ -244,9 +244,8 @@ bool SkOpSegment::addExpanded(double newT, const SkOpSpanBase* test, bool* start
 }
 
 // Please keep this in sync with debugAddT()
-SkOpPtT* SkOpSegment::addT(double t) {
+SkOpPtT* SkOpSegment::addT(double t, const SkPoint& pt) {
     debugValidate();
-    SkPoint pt = this->ptAtT(t);
     SkOpSpanBase* spanBase = &fHead;
     do {
         SkOpPtT* result = spanBase->ptT();
@@ -272,6 +271,10 @@ SkOpPtT* SkOpSegment::addT(double t) {
     } while ((spanBase = spanBase->upCast()->next()));
     SkASSERT(0);
     return nullptr;  // we never get here, but need this to satisfy compiler
+}
+
+SkOpPtT* SkOpSegment::addT(double t) {
+    return addT(t, this->ptAtT(t));
 }
 
 void SkOpSegment::calcAngles() {

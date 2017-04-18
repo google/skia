@@ -1089,7 +1089,11 @@ void SkOpSegment::debugMoveNearby(SkPathOpsDebug::GlitchLog* glitches) const {
     spanBase = &fHead;
     do {  // iterate through all spans associated with start
         const SkOpSpanBase* test = spanBase->upCast()->next();
-        if (this->spansNearby(spanBase, test)) {
+        bool found;
+        if (!this->spansNearby(spanBase, test, &found)) {
+            glitches->record(SkPathOpsDebug::kMoveNearbyMergeFinal_Glitch, test);
+        }
+        if (found) {
             if (test->final()) {
                 if (spanBase->prev()) {
                     glitches->record(SkPathOpsDebug::kMoveNearbyMergeFinal_Glitch, test);
