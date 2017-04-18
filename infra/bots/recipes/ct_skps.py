@@ -421,7 +421,7 @@ def GenTests(api):
     )
   )
 
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot'
+  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs'
   yield(
     api.test('CT_DM_10k_SKPs_Trybot') +
     api.properties(
@@ -440,7 +440,7 @@ def GenTests(api):
   )
 
   builder = ('Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_'
-             '10k_SKPs_Trybot')
+             '10k_SKPs')
   yield(
     api.test('CT_IMG_DECODE_10k_SKPs_Trybot') +
     api.properties(

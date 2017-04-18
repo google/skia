@@ -62,7 +62,7 @@ def GenTests(api):
                    path_config='kitchen')
   )
 
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot'
+  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug'
   yield (
     api.test('trybot') +
     api.properties(buildername=builder,

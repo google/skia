@@ -60,7 +60,7 @@ class SkiaStepApi(recipe_api.RecipeApi):
 
   def readfile(self, filename, *args, **kwargs):
     """Convenience function for reading files."""
-    name = kwargs.pop('name') or 'read %s' % self.m.path.basename(filename)
+    name = kwargs.pop('name', 'read %s' % self.m.path.basename(filename))
     return self.m.file.read(name, filename, infra_step=True, *args, **kwargs)
 
   def writefile(self, filename, contents):

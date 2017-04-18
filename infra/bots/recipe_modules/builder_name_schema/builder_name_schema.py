@@ -33,9 +33,6 @@ BUILDER_ROLES = (BUILDER_ROLE_CANARY,
                  BUILDER_ROLE_PERF,
                  BUILDER_ROLE_TEST)
 
-# Suffix which distinguishes trybots from normal bots.
-TRYBOT_NAME_SUFFIX = None
-
 
 def _LoadSchema():
   """ Load the builder naming schema from the JSON file. """
@@ -65,10 +62,6 @@ def _LoadSchema():
   BUILDER_NAME_SEP = _UnicodeToStr(
       builder_name_schema_json['builder_name_sep'])
 
-  global TRYBOT_NAME_SUFFIX
-  TRYBOT_NAME_SUFFIX = _UnicodeToStr(
-      builder_name_schema_json['trybot_name_suffix'])
-
   # Since the builder roles are dictionary keys, just assert that the global
   # variables above account for all of them.
   assert len(BUILDER_ROLES) == len(BUILDER_NAME_SCHEMA)
@@ -79,8 +72,7 @@ def _LoadSchema():
 _LoadSchema()
 
 
-def MakeBuilderName(role, extra_config=None, is_trybot=False,
-                    **kwargs):  # pragma: no cover
+def MakeBuilderName(role, extra_config=None, **kwargs):  # pragma: no cover
   schema = BUILDER_NAME_SCHEMA.get(role)
   if not schema:  # pragma: no cover
     raise ValueError('%s is not a recognized role.' % role)
@@ -96,44 +88,7 @@ def MakeBuilderName(role, extra_config=None, is_trybot=False,
   name_parts.extend([kwargs[attribute] for attribute in schema])
   if extra_config:
     name_parts.append(extra_config)
-  if is_trybot:
-    name_parts.append(TRYBOT_NAME_SUFFIX)
   return BUILDER_NAME_SEP.join(name_parts)
-
-
-def IsTrybot(builder_name):  # pragma: no cover
-  """ Returns true if builder_name refers to a trybot (as opposed to a
-  waterfall bot). """
-  return builder_name.endswith(TRYBOT_NAME_SUFFIX)
-
-
-def GetWaterfallBot(builder_name):  # pragma: no cover
-  """Returns the name of the waterfall bot for this builder. If it is not a
-  trybot, builder_name is returned unchanged. If it is a trybot the name is
-  returned without the trybot suffix."""
-  if not IsTrybot(builder_name):
-    return builder_name
-  return _WithoutSuffix(builder_name, BUILDER_NAME_SEP + TRYBOT_NAME_SUFFIX)
-
-
-def TrybotName(builder_name):  # pragma: no cover
-  """Returns the name of the trybot clone of this builder.
-
-  If the given builder is a trybot, the name is returned unchanged. If not, the
-  TRYBOT_NAME_SUFFIX is appended.
-  """
-  if builder_name.endswith(TRYBOT_NAME_SUFFIX):
-    return builder_name
-  return builder_name + BUILDER_NAME_SEP + TRYBOT_NAME_SUFFIX
-
-
-def _WithoutSuffix(string, suffix):  # pragma: no cover
-  """ Returns a copy of string 'string', but with suffix 'suffix' removed.
-  Raises ValueError if string does not end with suffix. """
-  if not string.endswith(suffix):
-    raise ValueError('_WithoutSuffix: string %s does not end with suffix %s' % (
-        string, suffix))
-  return string[:-len(suffix)]
 
 
 def DictForBuilderName(builder_name):
@@ -146,12 +101,7 @@ def DictForBuilderName(builder_name):
     except:  # pragma: no cover
       raise ValueError('Invalid builder name: %s' % builder_name)
 
-  result = {'is_trybot': False}
-
-  if split_name[-1] == TRYBOT_NAME_SUFFIX:
-    result['is_trybot'] = True
-    split_name.pop()
-
+  result = {}
   if split_name[0] in BUILDER_NAME_SCHEMA.keys():
     key_list = BUILDER_NAME_SCHEMA[split_name[0]]
     result['role'] = pop_front()

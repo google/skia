@@ -11,7 +11,3 @@ DEPS = [
   'recipe_engine/step',
   'vars',
 ]
-
-
-# TODO(borenet): Add coverage
-DISABLE_STRICT_COVERAGE = True

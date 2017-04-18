@@ -24,6 +24,49 @@
   },
   {
     "cmd": [
+      "git.bat",
+      "remote",
+      "set-url",
+      "origin",
+      "https://skia.googlesource.com/skia.git"
+    ],
+    "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git remote set-url"
+  },
+  {
+    "cmd": [
+      "git.bat",
+      "fetch"
+    ],
+    "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git.bat",
+      "reset",
+      "--hard",
+      "abc123"
+    ],
+    "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git reset"
+  },
+  {
+    "cmd": [
+      "git.bat",
+      "clean",
+      "-d",
+      "-f"
+    ],
+    "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",

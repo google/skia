@@ -128,7 +128,7 @@ def GenTests(api):
     api.step_data('upload images (attempt 5)', retcode=1)
   )
 
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot'
+  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug'
   yield (
       api.test('trybot') +
       api.properties(

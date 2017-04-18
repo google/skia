@@ -27,13 +27,8 @@ class BuilderNameSchemaApi(recipe_api.RecipeApi):
     self.BUILDER_ROLE_TEST = builder_name_schema.BUILDER_ROLE_TEST
     self.BUILDER_ROLES = builder_name_schema.BUILDER_ROLES
 
-    self.TRYBOT_NAME_SUFFIX = builder_name_schema.TRYBOT_NAME_SUFFIX
-
-  def MakeBuilderName(self, *args, **kwargs):  # pragma: no cover
+  def MakeBuilderName(self, *args, **kwargs):
     return builder_name_schema.MakeBuilderName(*args, **kwargs)
-
-  def IsTrybot(self, *args, **kwargs):  # pragma: no cover
-    return builder_name_schema.IsTrybot(*args, **kwargs)
 
   def DictForBuilderName(self, *args, **kwargs):
     return builder_name_schema.DictForBuilderName(*args, **kwargs)
