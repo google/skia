@@ -13,13 +13,14 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
+#include "GrTest.h"
 #include "gl/GLTestContext.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
 
 // skbug.com/5932
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* context,
-                                   sk_sp<GrSurfaceProxy> rectProxy, uint32_t expectedPixelValues[]) {
+                                   sk_sp<GrTextureProxy> rectProxy, uint32_t expectedPixelValues[]) {
     sk_sp<GrRenderTargetContext> rtContext(
             context->makeRenderTargetContext(SkBackingFit::kExact, rectProxy->width(),
                                              rectProxy->height(), rectProxy->config(),
@@ -30,7 +31,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* cont
         rtContext->clear(nullptr, 0xDDCCBBAA, true);
         sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(
                                                         context->resourceProvider(),
-                                                        sk_ref_sp(rectProxy->asTextureProxy()),
+                                                        rectProxy,
                                                         nullptr,
                                                         SkMatrix::I(), filter));
         GrPaint paint;
@@ -99,7 +100,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         }
     }
 
-    for (int origin = 0; origin < 2; ++origin) {
+    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
+        bool useBLOrigin = kBottomLeft_GrSurfaceOrigin == origin;
+
         GrGLuint rectTexID = glContext->createTextureRectangle(kWidth, kHeight, GR_GL_RGBA,
                                                                GR_GL_RGBA, GR_GL_UNSIGNED_BYTE,
                                                                pixels);
@@ -116,25 +119,19 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         rectangleInfo.fID = rectTexID;
         rectangleInfo.fTarget = GR_GL_TEXTURE_RECTANGLE;
 
-        GrBackendTextureDesc rectangleDesc;
-        rectangleDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
-        rectangleDesc.fConfig = kRGBA_8888_GrPixelConfig;
-        rectangleDesc.fWidth = kWidth;
-        rectangleDesc.fHeight = kHeight;
-        rectangleDesc.fOrigin = origin ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
-        rectangleDesc.fTextureHandle = reinterpret_cast<GrBackendObject>(&rectangleInfo);
+        GrBackendTexture rectangleTex(kWidth, kHeight, kRGBA_8888_GrPixelConfig, &rectangleInfo);
 
         GrColor refPixels[kWidth * kHeight];
-        bool flipRef = rectangleDesc.fOrigin == kBottomLeft_GrSurfaceOrigin;
         for (int y = 0; y < kHeight; ++y) {
             for (int x = 0; x < kWidth; ++x) {
-                int y0 = flipRef ? kHeight - y - 1 : y;
+                int y0 = useBLOrigin ? kHeight - y - 1 : y;
                 refPixels[y * kWidth + x] = pixels[y0 * kWidth + x];
             }
         }
 
-        sk_sp<GrSurfaceProxy> rectProxy = GrSurfaceProxy::MakeWrappedBackend(context,
-                                                                             rectangleDesc);
+        sk_sp<GrTextureProxy> rectProxy = GrSurfaceProxy::MakeWrappedBackend(context,
+                                                                             rectangleTex,
+                                                                             origin);
         if (!rectProxy) {
             ERRORF(reporter, "Error creating proxy for rectangle texture.");
             GR_GL_CALL(glContext->gl(), DeleteTextures(1, &rectTexID));

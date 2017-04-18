@@ -11,6 +11,7 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrTest.h"
@@ -107,13 +108,11 @@ protected:
         GrGLTextureInfo info;
         info.fID = id;
         info.fTarget = TARGET;
-        GrBackendTextureDesc desc;
-        desc.fConfig = kRGBA_8888_GrPixelConfig;
-        desc.fWidth = width;
-        desc.fHeight = height;
-        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-        desc.fTextureHandle = reinterpret_cast<GrBackendObject>(&info);
-        if (sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(context, desc)) {
+
+        GrBackendTexture rectangleTex(width, height, kRGBA_8888_GrPixelConfig, &info);
+
+        if (sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(context, rectangleTex,
+                                                                   kTopLeft_GrSurfaceOrigin)) {
             return image;
         }
         GR_GL_CALL(gl, DeleteTextures(1, &id));
