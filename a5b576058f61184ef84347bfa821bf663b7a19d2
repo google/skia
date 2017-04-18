@@ -151,6 +151,30 @@
       "revId": "a5b576058f61184ef84347bfa821bf663b7a19d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f232064c_024fea8e",
+        "filename": "src/core/SkRecord.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-04-18T15:52:14Z",
+      "side": 1,
+      "message": "I\u0027m saying the reason we have the bytesUsed() method is to track what you\u0027re calling (bytes used + overhead + waste).  It\u0027s all the bytes we use, whether or not productively.\n\nIf you allocate an array of N Ts where sizeof(T) \u003c alignof(T), you need to allocate N*alignof(T) bytes.  N*sizeof(T) bytes + alignof(T) doesn\u0027t allow you to align the internal Ts.",
+      "parentUuid": "27a4f40b_2ed5a96b",
+      "range": {
+        "startLine": 61,
+        "startChar": 41,
+        "endLine": 61,
+        "endChar": 49
+      },
+      "revId": "a5b576058f61184ef84347bfa821bf663b7a19d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
