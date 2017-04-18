@@ -20,6 +20,7 @@
 class SkArenaAlloc;
 class SkColorFilter;
 class SkColorSpace;
+class SkColorSpaceXformer;
 class SkImage;
 class SkPath;
 class SkPicture;
@@ -497,6 +498,16 @@ protected:
                                 const SkMatrix&, const SkPaint&,
                                 const SkMatrix* /*local matrix*/) const;
 
+    /**
+     *  Returns a shader transformed into a new color space via the |xformer|.
+     */
+    sk_sp<SkShader> makeColorSpace(SkColorSpaceXformer* xformer) const {
+        return this->onMakeColorSpace(xformer);
+    }
+    virtual sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer*) const {
+        return sk_ref_sp(const_cast<SkShader*>(this));
+    }
+
 private:
     // This is essentially const, but not officially so it can be modified in
     // constructors.
@@ -505,6 +516,8 @@ private:
     // So the SkLocalMatrixShader can whack fLocalMatrix in its SkReadBuffer constructor.
     friend class SkLocalMatrixShader;
     friend class SkBitmapProcLegacyShader;    // for computeTotalInverse()
+    friend class SkComposeShader;
+    friend class SkColorSpaceXformer;
 
     typedef SkFlattenable INHERITED;
 };

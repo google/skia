@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorSpaceXformer.h"
 #include "SkRadialGradient.h"
 #include "SkNx.h"
 
@@ -366,6 +367,14 @@ sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(const AsFPArgs&
 }
 
 #endif
+
+sk_sp<SkShader> SkRadialGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkSTArray<8, SkColor> xformedColors(fColorCount);
+    xformer->apply(xformedColors.begin(), fOrigColors, fColorCount);
+    return SkGradientShader::MakeRadial(fCenter, fRadius, xformedColors.begin(), fOrigPos,
+                                        fColorCount, fTileMode, fGradFlags,
+                                        &this->getLocalMatrix());
+}
 
 #ifndef SK_IGNORE_TO_STRING
 void SkRadialGradient::toString(SkString* str) const {

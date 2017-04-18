@@ -367,6 +367,33 @@ sk_sp<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
 
 #endif
 
+sk_sp<SkShader> SkTwoPointConicalGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkSTArray<8, SkColor> origColorsStorage(fColorCount);
+    SkSTArray<8, SkScalar> origPosStorage(fColorCount);
+    SkSTArray<8, SkColor> xformedColorsStorage(fColorCount);
+    SkColor* origColors = origColorsStorage.begin();
+    SkScalar* origPos = fOrigPos ? origPosStorage.begin() : nullptr;
+    SkColor* xformedColors = xformedColorsStorage.begin();
+
+    // Flip if necessary
+    SkPoint center1 = fFlippedGrad ? fCenter2 : fCenter1;
+    SkPoint center2 = fFlippedGrad ? fCenter1 : fCenter2;
+    SkScalar radius1 = fFlippedGrad ? fRadius2 : fRadius1;
+    SkScalar radius2 = fFlippedGrad ? fRadius1 : fRadius2;
+    for (int i = 0; i < fColorCount; i++) {
+        origColors[i] = fFlippedGrad ? fOrigColors[fColorCount - i - 1] : fOrigColors[i];
+        if (origPos) {
+            origPos[i] = fFlippedGrad ? 1.0f - fOrigPos[fColorCount - i - 1] : fOrigPos[i];
+        }
+    }
+
+    xformer->apply(xformedColors, origColors, fColorCount);
+    return SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2, xformedColors,
+                                                 origPos, fColorCount, fTileMode, fGradFlags,
+                                                 &this->getLocalMatrix());
+}
+
+
 #ifndef SK_IGNORE_TO_STRING
 void SkTwoPointConicalGradient::toString(SkString* str) const {
     str->append("SkTwoPointConicalGradient: (");

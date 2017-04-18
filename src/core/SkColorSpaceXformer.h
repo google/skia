@@ -18,7 +18,7 @@ public:
 
     sk_sp<SkImage> apply(const SkImage* src);
     sk_sp<SkImage> apply(const SkBitmap& bitmap);
-    sk_sp<SkColorFilter> apply(const SkColorFilter* shader);
+    sk_sp<SkColorFilter> apply(const SkColorFilter* filter);
     const SkPaint* apply(const SkPaint* src);
     const SkPaint& apply(const SkPaint& src);
     void apply(SkColor dst[], const SkColor src[], int n);
@@ -27,8 +27,6 @@ public:
     sk_sp<SkColorSpace> dst() const { return fDst; }
 
 private:
-    sk_sp<SkShader> apply(const SkShader* shader);
-
     SkColorSpaceXformer() {}
 
     sk_sp<SkColorSpace>                fDst;

@@ -8,6 +8,7 @@
 #ifndef SkTwoPointConicalGradient_DEFINED
 #define SkTwoPointConicalGradient_DEFINED
 
+#include "SkColorSpaceXformer.h"
 #include "SkGradientShaderPriv.h"
 
 // TODO(dominikg): Worth making it truly immutable (i.e. set values in constructor)?
@@ -76,6 +77,7 @@ protected:
     SkTwoPointConicalGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
 private:
     SkPoint fCenter1;

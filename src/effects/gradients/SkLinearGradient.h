@@ -71,6 +71,8 @@ protected:
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
 
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
+
 private:
     class LinearGradient4fContext;
 

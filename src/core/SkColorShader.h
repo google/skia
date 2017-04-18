@@ -8,6 +8,7 @@
 #ifndef SkColorShader_DEFINED
 #define SkColorShader_DEFINED
 
+#include "SkColorSpaceXformer.h"
 #include "SkShader.h"
 #include "SkPM4f.h"
 
@@ -69,6 +70,10 @@ protected:
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         const SkMatrix& ctm, const SkPaint&, const SkMatrix*) const override;
 
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
+        return SkShader::MakeColorShader(xformer->apply(fColor));
+    }
+
 private:
     SkColor fColor;
 
@@ -123,6 +128,8 @@ protected:
     }
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         const SkMatrix& ctm, const SkPaint&, const SkMatrix*) const override;
+
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
 private:
     sk_sp<SkColorSpace> fColorSpace;
