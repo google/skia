@@ -39,7 +39,12 @@ We also have autorollers into release branches (also restricted only to Googlers
 
 * [https://android-o-roll.skia.org](https://android-o-roll.skia.org).
 
-Changes created by these rollers include all change authors. These changes need to be manually approved after adding details of the fixed bugs in the description.
+Changes created by these rollers need to be manually approved.<br/>
+The changes created by the release rollers:
+
+* Include all authors of merged changes so that they can watch the roll.
+* Extracts all buganizer bugs of the form 'BUG=b/123' or 'Bug: b/456' and creates a single line in the merge change 'Bug: 123, 456'.
+* Collects all 'Test: ' lines and carries them over to the merge change.
 
 
 <a name="view_current_upcoming_robocops"></a>
