@@ -412,7 +412,6 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect&
     GrRenderTarget* dstRT = dst->asRenderTarget();
     if (dstRT) {
         GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(dstRT);
-        SkASSERT(vkRT->numColorSamples() <= 1);
         dstImage = vkRT;
     } else {
         SkASSERT(dst->asTexture());
@@ -1584,7 +1583,7 @@ inline bool can_copy_as_resolve(const GrSurface* dst,
     }
 
     // The dst must not be a multisampled render target
-    if (dst->asRenderTarget() && dst->asRenderTarget()->numColorSamples() > 1) {
+    if (dst->asRenderTarget() && dst->asRenderTarget()->numColorSamples() > 1 && dst != src) {
         return false;
     }
 
