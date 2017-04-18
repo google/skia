@@ -243,7 +243,7 @@ private:
                               GrPixelConfig dataConfig,
                               const SkTArray<GrMipLevel>&);
 
-    void resolveImage(GrVkRenderTarget* dst,
+    void resolveImage(GrSurface* dst,
                       GrVkRenderTarget* src,
                       const SkIRect& srcRect,
                       const SkIPoint& dstPoint);
