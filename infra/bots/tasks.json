@@ -5456,7 +5456,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:N2G10B",
+        "device_os:OPP1.170223.012",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -5503,7 +5503,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:N2G10B",
+        "device_os:OPP1.170223.012",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -5550,7 +5550,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:N2G10B",
+        "device_os:OPP1.170223.012",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -11824,7 +11824,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:N2G10B",
+        "device_os:OPP1.170223.012",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -11871,7 +11871,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:N2G10B",
+        "device_os:OPP1.170223.012",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -11918,7 +11918,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:N2G10B",
+        "device_os:OPP1.170223.012",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -11965,7 +11965,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:N2G10B",
+        "device_os:OPP1.170223.012",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -12012,7 +12012,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:N2G10B",
+        "device_os:OPP1.170223.012",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -12059,7 +12059,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:N2G10B",
+        "device_os:OPP1.170223.012",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
