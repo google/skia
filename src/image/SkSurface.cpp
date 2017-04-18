@@ -201,6 +201,12 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext*, const GrBackendTe
     return nullptr;
 }
 
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext*, const GrBackendTexture&,
+                                                   GrSurfaceOrigin origin, int sampleCnt,
+                                                   sk_sp<SkColorSpace>, const SkSurfaceProps*) {
+    return nullptr;
+}
+
 sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
                                                         const GrBackendRenderTargetDesc&,
                                                         sk_sp<SkColorSpace>,
@@ -208,8 +214,27 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
     return nullptr;
 }
 
-sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext*, const GrBackendTextureDesc&,
-                                                      sk_sp<SkColorSpace>, const SkSurfaceProps*) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
+                                                        const GrBackendRenderTarget&,
+                                                        GrSurfaceOrigin origin,
+                                                        sk_sp<SkColorSpace>,
+                                                        const SkSurfaceProps*) {
+    return nullptr;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext*,
+                                                                 const GrBackendTextureDesc&,
+                                                                 sk_sp<SkColorSpace>,
+                                                                 const SkSurfaceProps*) {
+    return nullptr;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext*,
+                                                                 const GrBackendTexture&,
+                                                                 GrSurfaceOrigin origin,
+                                                                 int sampleCnt,
+                                                                 sk_sp<SkColorSpace>,
+                                                                 const SkSurfaceProps*) {
     return nullptr;
 }
 
