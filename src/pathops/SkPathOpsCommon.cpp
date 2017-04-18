@@ -200,7 +200,7 @@ bool SortContourList(SkOpContourHead** contourList, bool evenOdd, bool oppEvenOd
 }
 
 static void calc_angles(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
-    DEBUG_STATIC_SET_PHASE(contourList);
+    DEBUG_STATIC_SET_PHASE(calc_angles, contourList);
     SkOpContour* contour = contourList;
     do {
         contour->calcAngles();
@@ -208,7 +208,7 @@ static void calc_angles(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS(
 }
 
 static bool missing_coincidence(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
-    DEBUG_STATIC_SET_PHASE(contourList);
+    DEBUG_STATIC_SET_PHASE(missing_coincidence, contourList);
     SkOpContour* contour = contourList;
     bool result = false;
     do {
@@ -218,7 +218,7 @@ static bool missing_coincidence(SkOpContourHead* contourList  DEBUG_COIN_DECLARE
 }
 
 static bool move_multiples(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
-    DEBUG_STATIC_SET_PHASE(contourList);
+    DEBUG_STATIC_SET_PHASE(move_multiples, contourList);
     SkOpContour* contour = contourList;
     do {
         if (!contour->moveMultiples()) {
@@ -229,7 +229,7 @@ static bool move_multiples(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARA
 }
 
 static bool move_nearby(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
-    DEBUG_STATIC_SET_PHASE(contourList);
+    DEBUG_STATIC_SET_PHASE(move_nearby, contourList);
     SkOpContour* contour = contourList;
     do {
         if (!contour->moveNearby()) {

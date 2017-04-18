@@ -19,7 +19,7 @@ class SkOpContourHead;
 #ifdef SK_RELEASE
 #define FORCE_RELEASE 1
 #else
-#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 #endif
 
 #define DEBUG_UNDER_DEVELOPMENT 0
@@ -58,7 +58,7 @@ class SkOpContourHead;
 #define DEBUG_CUBIC_BINARY_SEARCH 0
 #define DEBUG_CUBIC_SPLIT 0
 #define DEBUG_DUMP_SEGMENTS 0
-#define DEBUG_DUMP_VERIFY 0
+#define DEBUG_DUMP_VERIFY 01
 #define DEBUG_FLOW 0
 #define DEBUG_LIMIT_WIND_SUM 0
 #define DEBUG_MARK_DONE 0
@@ -157,10 +157,10 @@ class SkOpContourHead;
             __LINE__, SkOpPhase::phase, 0
     #define DEBUG_PHASE_PARAMS(phase) \
             , DEBUG_PHASE_ONLY_PARAMS(phase)
-    #define DEBUG_SET_PHASE() \
-            this->globalState()->debugSetPhase(__func__, lineNo, phase, iteration)
-    #define DEBUG_STATIC_SET_PHASE(obj) \
-            obj->globalState()->debugSetPhase(__func__, lineNo, phase, iteration)
+    #define DEBUG_SET_PHASE(func) \
+            this->globalState()->debugSetPhase(#func, lineNo, phase, iteration)
+    #define DEBUG_STATIC_SET_PHASE(func, obj) \
+            obj->globalState()->debugSetPhase(#func, lineNo, phase, iteration)
 #elif DEBUG_VALIDATE
     #define DEBUG_COIN_DECLARE_ONLY_PARAMS() \
             SkOpPhase phase
@@ -178,9 +178,9 @@ class SkOpContourHead;
             SkOpPhase::phase
     #define DEBUG_PHASE_PARAMS(phase) \
             , DEBUG_PHASE_ONLY_PARAMS(phase)
-    #define DEBUG_SET_PHASE() \
+    #define DEBUG_SET_PHASE(func) \
             this->globalState()->debugSetPhase(phase)
-    #define DEBUG_STATIC_SET_PHASE(obj) \
+    #define DEBUG_STATIC_SET_PHASE(func, obj) \
             obj->globalState()->debugSetPhase(phase)
 #else
     #define DEBUG_COIN_DECLARE_ONLY_PARAMS()
@@ -191,8 +191,8 @@ class SkOpContourHead;
     #define DEBUG_ITER_PARAMS(iteration)
     #define DEBUG_PHASE_ONLY_PARAMS(phase)
     #define DEBUG_PHASE_PARAMS(phase)
-    #define DEBUG_SET_PHASE()
-    #define DEBUG_STATIC_SET_PHASE(obj)
+    #define DEBUG_SET_PHASE(func)
+    #define DEBUG_STATIC_SET_PHASE(func, obj)
 #endif
 
 #define CUBIC_DEBUG_STR  "{{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}}"
