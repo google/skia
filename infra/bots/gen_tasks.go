@@ -149,6 +149,7 @@ func swarmDimensions(parts map[string]string) []string {
 			"Win":        "Windows-2008ServerR2-SP1",
 			"Win10":      "Windows-10-14393",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
+			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
 			"iOS":        "iOS-9.3.1",
 		}[os]
@@ -185,7 +186,9 @@ func swarmDimensions(parts map[string]string) []string {
 				// dimensions to ensure that we correctly target machines which we know
 				// have AVX2 support.
 				d["cpu"] = "x86-64"
-				d["os"] = "Windows-2008ServerR2-SP1"
+				if parts["model"] != "GCE" {
+					glog.Fatalf("Please double-check that %q supports AVX2 and update this assertion.", parts["model"])
+				}
 			}
 		} else {
 			gpu, ok := GPU_MAPPING[parts["cpu_or_gpu_value"]]
