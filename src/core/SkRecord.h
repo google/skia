@@ -94,10 +94,6 @@ public:
         return fRecords[i].set(this->allocCommand<T>());
     }
 
-    // Does not return the bytes in any pointers embedded in the Records; callers
-    // need to iterate with a visitor to measure those they care for.
-    size_t bytesUsed() const;
-
     // Rearrange and resize this record to eliminate any NoOps.
     // May change count() and the indices of ops, but preserves their order.
     void defrag();
