@@ -75,91 +75,6 @@ SkColor SkColorSpaceXformer::apply(SkColor srgb) {
     return xformed;
 }
 
-// TODO: Is this introspection going to be enough, or do we need a new SkShader method?
-sk_sp<SkShader> SkColorSpaceXformer::apply(const SkShader* shader) {
-    SkColor color;
-    if (shader->isConstant() && shader->asLuminanceColor(&color)) {
-        return SkShader::MakeColorShader(this->apply(color))
-                ->makeWithLocalMatrix(shader->getLocalMatrix());
-    }
-
-    SkShader::TileMode xy[2];
-    SkMatrix local;
-    if (auto img = shader->isAImage(&local, xy)) {
-        return this->apply(img)->makeShader(xy[0], xy[1], &local);
-    }
-
-    SkShader::ComposeRec compose;
-    if (shader->asACompose(&compose)) {
-        auto A = this->apply(compose.fShaderA),
-             B = this->apply(compose.fShaderB);
-        if (A && B) {
-            return SkShader::MakeComposeShader(std::move(A), std::move(B), compose.fBlendMode)
-                    ->makeWithLocalMatrix(shader->getLocalMatrix());
-        }
-    }
-
-    SkShader::GradientInfo gradient;
-    sk_bzero(&gradient, sizeof(gradient));
-    if (auto type = shader->asAGradient(&gradient)) {
-        SkSTArray<8, SkColor>  colors(gradient.fColorCount);
-        SkSTArray<8, SkScalar>    pos(gradient.fColorCount);
-
-        gradient.fColors       = colors.begin();
-        gradient.fColorOffsets =    pos.begin();
-        shader->asAGradient(&gradient);
-
-        SkSTArray<8, SkColor> xformed(gradient.fColorCount);
-        this->apply(xformed.begin(), gradient.fColors, gradient.fColorCount);
-
-        switch (type) {
-            case SkShader::kNone_GradientType:
-            case SkShader::kColor_GradientType:
-                SkASSERT(false);  // Should be unreachable.
-                break;
-
-            case SkShader::kLinear_GradientType:
-                return SkGradientShader::MakeLinear(gradient.fPoint,
-                                                    xformed.begin(),
-                                                    gradient.fColorOffsets,
-                                                    gradient.fColorCount,
-                                                    gradient.fTileMode,
-                                                    gradient.fGradientFlags,
-                                                    &shader->getLocalMatrix());
-            case SkShader::kRadial_GradientType:
-                return SkGradientShader::MakeRadial(gradient.fPoint[0],
-                                                    gradient.fRadius[0],
-                                                    xformed.begin(),
-                                                    gradient.fColorOffsets,
-                                                    gradient.fColorCount,
-                                                    gradient.fTileMode,
-                                                    gradient.fGradientFlags,
-                                                    &shader->getLocalMatrix());
-            case SkShader::kSweep_GradientType:
-                return SkGradientShader::MakeSweep(gradient.fPoint[0].fX,
-                                                   gradient.fPoint[0].fY,
-                                                   xformed.begin(),
-                                                   gradient.fColorOffsets,
-                                                   gradient.fColorCount,
-                                                   gradient.fGradientFlags,
-                                                   &shader->getLocalMatrix());
-            case SkShader::kConical_GradientType:
-                return SkGradientShader::MakeTwoPointConical(gradient.fPoint[0],
-                                                             gradient.fRadius[0],
-                                                             gradient.fPoint[1],
-                                                             gradient.fRadius[1],
-                                                             xformed.begin(),
-                                                             gradient.fColorOffsets,
-                                                             gradient.fColorCount,
-                                                             gradient.fTileMode,
-                                                             gradient.fGradientFlags,
-                                                             &shader->getLocalMatrix());
-        }
-    }
-
-    return sk_ref_sp(const_cast<SkShader*>(shader));
-}
-
 const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
     const SkPaint* result = &src;
     auto get_dst = [&] {
@@ -176,7 +91,8 @@ const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
     }
 
     if (auto shader = src.getShader()) {
-        if (auto replacement = this->apply(shader)) {
+        auto replacement = shader->makeColorSpace(this);
+        if (replacement.get() != shader) {
             get_dst()->setShader(std::move(replacement));
         }
     }
@@ -189,11 +105,17 @@ const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
     }
 
     if (auto looper = src.getDrawLooper()) {
-        get_dst()->setDrawLooper(looper->makeColorSpace(this));
+        auto replacement = looper->makeColorSpace(this);
+        if (replacement.get() != looper) {
+            get_dst()->setDrawLooper(std::move(replacement));
+        }
     }
 
     if (auto imageFilter = src.getImageFilter()) {
-        get_dst()->setImageFilter(imageFilter->makeColorSpace(this));
+        auto replacement = imageFilter->makeColorSpace(this);
+        if (replacement.get() != imageFilter) {
+            get_dst()->setImageFilter(std::move(replacement));
+        }
     }
 
     return *result;
