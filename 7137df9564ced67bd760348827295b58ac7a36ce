@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "adbffa91_330aaa4f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-18T16:22:57Z",
+      "side": 1,
+      "message": "Please add: \"Bug: b/35369941\"",
+      "revId": "7137df9564ced67bd760348827295b58ac7a36ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
