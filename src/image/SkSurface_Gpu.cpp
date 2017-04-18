@@ -243,6 +243,14 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext*, const GrBackendTexture&,
+                                                   GrSurfaceOrigin origin, int sampleCnt,
+                                                   sk_sp<SkColorSpace>, const SkSurfaceProps*) {
+    // This function is not implemented yet
+    sk_throw();
+    return nullptr;
+}
+
 sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
                                                         const GrBackendRenderTargetDesc& desc,
                                                         sk_sp<SkColorSpace> colorSpace,
@@ -271,6 +279,16 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
+                                                        const GrBackendRenderTarget&,
+                                                        GrSurfaceOrigin origin,
+                                                        sk_sp<SkColorSpace>,
+                                                        const SkSurfaceProps*) {
+    // This function is not implemented yet
+    sk_throw();
+    return nullptr;
+}
+
 sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
                                                                  const GrBackendTextureDesc& desc,
                                                                  sk_sp<SkColorSpace> colorSpace,
@@ -297,6 +315,17 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
         return nullptr;
     }
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext*,
+                                                                 const GrBackendTexture&,
+                                                                 GrSurfaceOrigin origin,
+                                                                 int sampleCnt,
+                                                                 sk_sp<SkColorSpace>,
+                                                                 const SkSurfaceProps*) {
+    // This function is not implemented yet
+    sk_throw();
+    return nullptr;
 }
 
 #endif
