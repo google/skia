@@ -24,6 +24,49 @@
   },
   {
     "cmd": [
+      "git",
+      "remote",
+      "set-url",
+      "origin",
+      "https://skia.googlesource.com/skia.git"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git remote set-url"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "reset",
+      "--hard",
+      "abc123"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git reset"
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-d",
+      "-f"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
@@ -384,7 +427,7 @@
       "-u",
       "RECIPE_MODULE[build::file]/resources/fileutil.py",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave1"
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave1"
     ],
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
@@ -397,7 +440,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave1",
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave1",
       "511"
     ],
     "name": "makedirs slave1",
@@ -432,7 +475,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/8/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/9/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/10/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave1"
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave1"
     ],
     "infra_step": true,
     "name": "gsutil cp"
@@ -464,7 +507,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-1.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"1\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-1.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"1\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-get_images_from_skps-1.isolated.gen.json"
     ],
     "name": "Write ct-get_images_from_skps-1.isolated.gen.json"
@@ -475,7 +518,7 @@
       "-u",
       "RECIPE_MODULE[build::file]/resources/fileutil.py",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave2"
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave2"
     ],
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
@@ -488,7 +531,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave2",
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave2",
       "511"
     ],
     "name": "makedirs slave2",
@@ -523,7 +566,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/18/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/19/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/20/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave2"
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave2"
     ],
     "infra_step": true,
     "name": "gsutil cp (2)"
@@ -555,7 +598,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-2.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"2\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-2.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"2\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-get_images_from_skps-2.isolated.gen.json"
     ],
     "name": "Write ct-get_images_from_skps-2.isolated.gen.json"
@@ -566,7 +609,7 @@
       "-u",
       "RECIPE_MODULE[build::file]/resources/fileutil.py",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave3"
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave3"
     ],
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
@@ -579,7 +622,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave3",
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave3",
       "511"
     ],
     "name": "makedirs slave3",
@@ -614,7 +657,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/28/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/29/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/30/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave3"
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave3"
     ],
     "infra_step": true,
     "name": "gsutil cp (3)"
@@ -646,7 +689,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-3.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"3\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-3.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"3\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-get_images_from_skps-3.isolated.gen.json"
     ],
     "name": "Write ct-get_images_from_skps-3.isolated.gen.json"
@@ -657,7 +700,7 @@
       "-u",
       "RECIPE_MODULE[build::file]/resources/fileutil.py",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave4"
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave4"
     ],
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
@@ -670,7 +713,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave4",
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave4",
       "511"
     ],
     "name": "makedirs slave4",
@@ -705,7 +748,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/38/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/39/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/40/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave4"
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave4"
     ],
     "infra_step": true,
     "name": "gsutil cp (4)"
@@ -737,7 +780,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-4.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"4\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-4.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"4\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-get_images_from_skps-4.isolated.gen.json"
     ],
     "name": "Write ct-get_images_from_skps-4.isolated.gen.json"
@@ -748,7 +791,7 @@
       "-u",
       "RECIPE_MODULE[build::file]/resources/fileutil.py",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave5"
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave5"
     ],
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
@@ -761,7 +804,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave5",
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave5",
       "511"
     ],
     "name": "makedirs slave5",
@@ -796,7 +839,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/48/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/49/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/50/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/slave5"
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave5"
     ],
     "infra_step": true,
     "name": "gsutil cp (5)"
@@ -828,7 +871,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-5.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"5\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-5.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"5\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-get_images_from_skps-5.isolated.gen.json"
     ],
     "name": "Write ct-get_images_from_skps-5.isolated.gen.json"
@@ -839,10 +882,10 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "{\"chromium_build\": \"fad657e-276e633\", \"num_slaves\": 5, \"page_type\": \"10k\"}",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/skps_version"
+      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/skps_version"
     ],
     "infra_step": true,
-    "name": "Create [CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/skps_version"
+    "name": "Create [CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/skps_version"
   },
   {
     "cmd": [
@@ -890,7 +933,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-get_images_from_skps-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571",
+      "ct-get_images_from_skps-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -911,7 +954,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot",
+      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs",
       "--tag",
       "buildnumber:571",
       "--tag",
@@ -935,9 +978,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-get_images_from_skps-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-get_images_from_skps-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-get_images_from_skps-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-get_images_from_skps-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -963,7 +1006,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-get_images_from_skps-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571",
+      "ct-get_images_from_skps-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -984,7 +1027,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot",
+      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs",
       "--tag",
       "buildnumber:571",
       "--tag",
@@ -1008,9 +1051,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-get_images_from_skps-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-get_images_from_skps-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-get_images_from_skps-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-get_images_from_skps-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -1036,7 +1079,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-get_images_from_skps-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571",
+      "ct-get_images_from_skps-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -1057,7 +1100,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot",
+      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs",
       "--tag",
       "buildnumber:571",
       "--tag",
@@ -1081,9 +1124,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-get_images_from_skps-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-get_images_from_skps-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-get_images_from_skps-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-get_images_from_skps-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -1109,7 +1152,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-get_images_from_skps-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571",
+      "ct-get_images_from_skps-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -1130,7 +1173,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot",
+      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs",
       "--tag",
       "buildnumber:571",
       "--tag",
@@ -1154,9 +1197,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-get_images_from_skps-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-get_images_from_skps-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-get_images_from_skps-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-get_images_from_skps-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -1182,7 +1225,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-get_images_from_skps-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571",
+      "ct-get_images_from_skps-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -1203,7 +1246,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot",
+      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs",
       "--tag",
       "buildnumber:571",
       "--tag",
@@ -1227,9 +1270,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-get_images_from_skps-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-get_images_from_skps-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-get_images_from_skps-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-get_images_from_skps-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -1252,7 +1295,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-get_images_from_skps-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\", \"tasks\": {\"ct-get_images_from_skps-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-get_images_from_skps-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\", \"tasks\": {\"ct-get_images_from_skps-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json",
       "--task-output-dir",
@@ -1317,7 +1360,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-get_images_from_skps-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\", \"tasks\": {\"ct-get_images_from_skps-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-get_images_from_skps-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\", \"tasks\": {\"ct-get_images_from_skps-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json",
       "--task-output-dir",
@@ -1382,7 +1425,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-get_images_from_skps-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\", \"tasks\": {\"ct-get_images_from_skps-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-get_images_from_skps-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\", \"tasks\": {\"ct-get_images_from_skps-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json",
       "--task-output-dir",
@@ -1447,7 +1490,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-get_images_from_skps-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\", \"tasks\": {\"ct-get_images_from_skps-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-get_images_from_skps-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\", \"tasks\": {\"ct-get_images_from_skps-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json",
       "--task-output-dir",
@@ -1512,7 +1555,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-get_images_from_skps-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\", \"tasks\": {\"ct-get_images_from_skps-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs_Trybot/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-get_images_from_skps-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\", \"tasks\": {\"ct-get_images_from_skps-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json",
       "--task-output-dir",

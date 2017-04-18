@@ -36,8 +36,8 @@ class SkiaApi(recipe_api.RecipeApi):
   def update_repo(self, parent_dir, repo):
     """Update an existing repo. This is safe to call without gen_steps."""
     repo_path = parent_dir.join(repo.name)
-    if self.m.path.exists(repo_path):  # pragma: nocover
-      if self.m.platform.is_win:
+    if self.m.path.exists(repo_path) or self._test_data.enabled:
+      if 'Win' in self.m.properties.get('buildername', ''):
         git = 'git.bat'
       else:
         git = 'git'
