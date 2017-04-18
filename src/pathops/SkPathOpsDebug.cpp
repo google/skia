@@ -11,10 +11,11 @@
 #include "SkOSFile.h"
 #include "SkPath.h"
 #include "SkPathOpsDebug.h"
+#include "SkRegion.h"
 #include "SkString.h"
 
 #if DEBUG_DUMP_VERIFY
-bool SkPathOpsDebug::gDumpOp;  // set to true to write op to file before a crash
+bool SkPathOpsDebug::gDumpOp = true;  // set to true to write op to file before a crash
 bool SkPathOpsDebug::gVerifyOp;  // set to true to compare result against regions
 #endif
 
