@@ -380,7 +380,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
     return success;
 }
 
-void GrVkGpu::resolveImage(GrVkRenderTarget* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
+void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
                            const SkIPoint& dstPoint) {
     SkASSERT(dst);
     SkASSERT(src && src->numColorSamples() > 1 && src->msaaImage());
@@ -407,11 +407,21 @@ void GrVkGpu::resolveImage(GrVkRenderTarget* dst, GrVkRenderTarget* src, const S
     resolveInfo.dstOffset = { dstPoint.fX, dstY, 0 };
     resolveInfo.extent = { (uint32_t)srcVkRect.width(), (uint32_t)srcVkRect.height(), 1 };
 
-    dst->setImageLayout(this,
-                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                        VK_ACCESS_TRANSFER_WRITE_BIT,
-                        VK_PIPELINE_STAGE_TRANSFER_BIT,
-                        false);
+    GrVkImage* dstImage;
+    GrRenderTarget* dstRT = dst->asRenderTarget();
+    if (dstRT) {
+        GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(dstRT);
+        SkASSERT(vkRT->numColorSamples() <= 1);
+        dstImage = vkRT;
+    } else {
+        SkASSERT(dst->asTexture());
+        dstImage = static_cast<GrVkTexture*>(dst->asTexture());
+    }
+    dstImage->setImageLayout(this,
+                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                             VK_ACCESS_TRANSFER_WRITE_BIT,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             false);
 
     src->msaaImage()->setImageLayout(this,
                                      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -419,7 +429,7 @@ void GrVkGpu::resolveImage(GrVkRenderTarget* dst, GrVkRenderTarget* src, const S
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      false);
 
-    fCurrentCmdBuffer->resolveImage(this, *src->msaaImage(), *dst, 1, &resolveInfo);
+    fCurrentCmdBuffer->resolveImage(this, *src->msaaImage(), *dstImage, 1, &resolveInfo);
 }
 
 void GrVkGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit) {
@@ -430,7 +440,7 @@ void GrVkGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresS
 
         const SkIRect& srcRect = rt->getResolveRect();
 
-        this->resolveImage(rt, rt, srcRect, SkIPoint::Make(srcRect.fLeft, srcRect.fTop));
+        this->resolveImage(target, rt, srcRect, SkIPoint::Make(srcRect.fLeft, srcRect.fTop));
 
         rt->flagAsResolved();
 
@@ -1550,8 +1560,8 @@ inline bool can_copy_as_resolve(const GrSurface* dst,
         return false;
     }
 
-    // The dst must be a render target but not multisampled
-    if (!dst->asRenderTarget() || dst->asRenderTarget()->numColorSamples() > 1) {
+    // The dst must not be a multisampled render target
+    if (dst->asRenderTarget() && dst->asRenderTarget()->numColorSamples() > 1) {
         return false;
     }
 
@@ -1567,10 +1577,8 @@ void GrVkGpu::copySurfaceAsResolve(GrSurface* dst,
                                    GrSurface* src,
                                    const SkIRect& srcRect,
                                    const SkIPoint& dstPoint) {
-    GrVkRenderTarget* dstRT = static_cast<GrVkRenderTarget*>(dst->asRenderTarget());
     GrVkRenderTarget* srcRT = static_cast<GrVkRenderTarget*>(src->asRenderTarget());
-    SkASSERT(dstRT && dstRT->numColorSamples() <= 1);
-    this->resolveImage(dstRT, srcRT, srcRect, dstPoint);
+    this->resolveImage(dst, srcRT, srcRect, dstPoint);
 }
 
 bool GrVkGpu::onCopySurface(GrSurface* dst,
