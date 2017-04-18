@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1d0d80c_e273908f",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 6065
+      },
+      "writtenOn": "2017-04-18T18:37:10Z",
+      "side": 1,
+      "message": "shouldnt this be a pointer or an array or a vector or something since there can be multiple of them?",
+      "range": {
+        "startLine": 319,
+        "startChar": 40,
+        "endLine": 319,
+        "endChar": 60
+      },
+      "revId": "c33612b3df19bc497c673e66c4196fee348e8d61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30d86013_3ba0a22d",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 6065
+      },
+      "writtenOn": "2017-04-18T18:37:10Z",
+      "side": 1,
+      "message": "probably want waitSemaphores here right?",
+      "range": {
+        "startLine": 326,
+        "startChar": 59,
+        "endLine": 326,
+        "endChar": 75
+      },
+      "revId": "c33612b3df19bc497c673e66c4196fee348e8d61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
