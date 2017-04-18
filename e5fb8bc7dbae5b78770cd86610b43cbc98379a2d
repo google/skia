@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "655461fe_33906908",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2017-04-18T19:27:30Z",
+      "side": 1,
+      "message": "You\u0027re right. Done.",
+      "parentUuid": "d322728e_8eac9307",
+      "range": {
+        "startLine": 498,
+        "startChar": 8,
+        "endLine": 498,
+        "endChar": 51
+      },
+      "revId": "e5fb8bc7dbae5b78770cd86610b43cbc98379a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e5863359_5d7b1fef",
         "filename": "src/codec/SkIcoCodec.cpp",
         "patchSetId": 4
@@ -59,6 +83,30 @@
       "writtenOn": "2017-04-18T15:21:03Z",
       "side": 1,
       "message": "nit: It looks like you removed whitespace, which is fine, but IMO it should be left out of this change (which otherwise does not modify this file).",
+      "range": {
+        "startLine": 197,
+        "startChar": 68,
+        "endLine": 197,
+        "endChar": 69
+      },
+      "revId": "e5fb8bc7dbae5b78770cd86610b43cbc98379a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41a69a29_7e9dd2e3",
+        "filename": "src/codec/SkIcoCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2017-04-18T19:27:30Z",
+      "side": 1,
+      "message": "Okay. I\u0027ll move these to a separate CR.",
+      "parentUuid": "e5863359_5d7b1fef",
       "range": {
         "startLine": 197,
         "startChar": 68,
