@@ -1185,7 +1185,11 @@ static inline int icf_channels(SkColorSpace_Base::ICCTypeFlag iccType) {
 static bool load_a2b0(std::vector<SkColorSpace_A2B::Element>* elements, const uint8_t* src,
                       size_t len, SkColorSpace_A2B::PCS pcs,
                       SkColorSpace_Base::ICCTypeFlag iccType) {
+    if (len < 4) {
+        return false;
+    }
     const uint32_t type = read_big_endian_u32(src);
+
     switch (type) {
         case kTAG_AtoBType:
             if (len < 32) {
