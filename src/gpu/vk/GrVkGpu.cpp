@@ -295,6 +295,15 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
 
     if (dstSurface->config() == srcConfig) {
+        // We only support writing pixels to textures. Forcing a draw lets us write to pure RTs.
+        if (!dstSurface->asTexture()) {
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        }
+        // We must do a draw when writing to an MSAA surface (so we write to the MSAA buffer, not
+        // the resolve target).
+        if (renderTarget && renderTarget->numColorSamples() > 1) {
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        }
         return true;
     }
 
@@ -1645,7 +1654,7 @@ bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
 
     // Depends on why we need/want a temp draw. Start off assuming no change, the surface we read
     // from will be srcConfig and we will read readConfig pixels from it.
-    // Not that if we require a draw and return a non-renderable format for the temp surface the
+    // Note that if we require a draw and return a non-renderable format for the temp surface the
     // base class will fail for us.
     tempDrawInfo->fTempSurfaceDesc.fConfig = srcSurface->config();
     tempDrawInfo->fReadConfig = readConfig;
@@ -1654,7 +1663,7 @@ bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         return true;
     }
 
-    if (this->vkCaps().isConfigRenderable(readConfig, srcSurface->desc().fSampleCnt > 1)) {
+    if (this->vkCaps().isConfigRenderable(readConfig, false)) {
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
         tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
         tempDrawInfo->fReadConfig = readConfig;
