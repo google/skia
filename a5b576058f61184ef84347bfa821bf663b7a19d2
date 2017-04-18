@@ -175,6 +175,30 @@
       "revId": "a5b576058f61184ef84347bfa821bf663b7a19d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f7e215a_f013ff55",
+        "filename": "src/core/SkRecord.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-18T15:54:52Z",
+      "side": 1,
+      "message": "What the hell am I thinking?  sizeof() is correct...",
+      "parentUuid": "f232064c_024fea8e",
+      "range": {
+        "startLine": 61,
+        "startChar": 41,
+        "endLine": 61,
+        "endChar": 49
+      },
+      "revId": "a5b576058f61184ef84347bfa821bf663b7a19d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
