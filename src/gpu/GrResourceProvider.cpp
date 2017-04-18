@@ -234,13 +234,16 @@ GrTexture* GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
     return nullptr;
 }
 
-sk_sp<GrTexture> GrResourceProvider::wrapBackendTexture(const GrBackendTextureDesc& desc,
+sk_sp<GrTexture> GrResourceProvider::wrapBackendTexture(const GrBackendTexture& tex,
+                                                        GrSurfaceOrigin origin,
+                                                        GrBackendTextureFlags flags,
+                                                        int sampleCnt,
                                                         GrWrapOwnership ownership) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
         return nullptr;
     }
-    return fGpu->wrapBackendTexture(desc, ownership);
+    return fGpu->wrapBackendTexture(tex, origin, flags, sampleCnt, ownership);
 }
 
 sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendRenderTarget(
@@ -460,12 +463,12 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
 }
 
 sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
-        const GrBackendTextureDesc& desc)
+        const GrBackendTexture& tex, GrSurfaceOrigin origin, int sampleCnt)
 {
     if (this->isAbandoned()) {
         return nullptr;
     }
-    return this->gpu()->wrapBackendTextureAsRenderTarget(desc);
+    return this->gpu()->wrapBackendTextureAsRenderTarget(tex, origin, sampleCnt);
 }
 
 sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore() {
