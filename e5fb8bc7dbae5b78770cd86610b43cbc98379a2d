@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e089a97_45f9ce35",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-18T15:21:03Z",
+      "side": 1,
+      "message": "So the intent here is that we\u0027ll take this block (i.e. use the transparent index) even if dstInfo is not index8?\n\nIf that fixes your case, I think the bug is a little deeper:\n\nMy thinking is that this color was going to be used as a color (i.e. SkPMColor) if the dstInfo is kN32, and an index if the dstInfo is Index8. If we want a color, we want SK_ColorTRANSPARENT, and if we want an index, we want the index of the transparent pixel (or default to SK_ColorTRANSPARENT if there is not one). Skipping this block means we\u0027ll use the color.\n\nThe fact that this fixes the problem tells me that I was wrong, and we want the index if we\u0027re using a color table (which is always for GIF). Looking at the code for SkSampler::Fill (which is also called by SkSwizzler::fill) though, it looks to me like we\u0027re treating the fill value as a color for a N32 dst (as intended - meaning that SK_ColorTRANSPARENT is what we want), so I must be missing something?",
+      "range": {
+        "startLine": 497,
+        "startChar": 8,
+        "endLine": 497,
+        "endChar": 29
+      },
+      "revId": "e5fb8bc7dbae5b78770cd86610b43cbc98379a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d322728e_8eac9307",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-18T15:21:03Z",
+      "side": 1,
+      "message": "You removed the comment, but the assert is more important. If we can reach here when the dst is not index8, this might be any frame.",
+      "range": {
+        "startLine": 498,
+        "startChar": 8,
+        "endLine": 498,
+        "endChar": 51
+      },
+      "revId": "e5fb8bc7dbae5b78770cd86610b43cbc98379a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5863359_5d7b1fef",
+        "filename": "src/codec/SkIcoCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-18T15:21:03Z",
+      "side": 1,
+      "message": "nit: It looks like you removed whitespace, which is fine, but IMO it should be left out of this change (which otherwise does not modify this file).",
+      "range": {
+        "startLine": 197,
+        "startChar": 68,
+        "endLine": 197,
+        "endChar": 69
+      },
+      "revId": "e5fb8bc7dbae5b78770cd86610b43cbc98379a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be444243_667500c0",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-18T15:21:03Z",
+      "side": 1,
+      "message": "Same nit here (I don\u0027t think this belongs in this CL).",
+      "range": {
+        "startLine": 273,
+        "startChar": 27,
+        "endLine": 273,
+        "endChar": 28
+      },
+      "revId": "e5fb8bc7dbae5b78770cd86610b43cbc98379a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

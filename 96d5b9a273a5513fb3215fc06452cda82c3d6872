@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21c21277_e440637b",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-18T15:21:03Z",
+      "side": 0,
+      "message": "The fragility is because of the above code - this relies on initializeColorTable having already been called when this is. You did not change that, so this comment should stay.",
+      "range": {
+        "startLine": 497,
+        "startChar": 7,
+        "endLine": 497,
+        "endChar": 55
+      },
+      "revId": "96d5b9a273a5513fb3215fc06452cda82c3d6872",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
