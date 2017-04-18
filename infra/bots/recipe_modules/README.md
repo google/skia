@@ -19,7 +19,7 @@ infra/bots/recipes). They are all Skia-specific and some are interrelated:
 When you change a recipe module, you generally need to re-train the simulation
 test:
 
-	$ python infra/bots/recipes.py simulation_test train
+	$ python infra/bots/recipes.py test run --train
 
 Or:
 
@@ -32,4 +32,4 @@ Each recipe module contains a few files:
       recipe modules on which this module depends.
   * example.py - Optional, this file contains examples which demonstrate how to
       use the module and should contain enough tests to achieve 100% coverage
-      for the module. The tests are run using the simulation_test command above.
+      for the module. The tests are run using the recipes test command above.

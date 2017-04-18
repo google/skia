@@ -33,11 +33,11 @@ def python_unit_tests(train):
       INFRA_BOTS_DIR)
 
 
-def recipe_simulation_test(train):
+def recipe_test(train):
   cmd = [
-      'python', os.path.join(INFRA_BOTS_DIR, 'recipes.py'), 'simulation_test']
+      'python', os.path.join(INFRA_BOTS_DIR, 'recipes.py'), 'test', 'run']
   if train:
-    cmd.append('train')
+    cmd.append('--train')
   return test(cmd, SKIA_DIR)
 
 
@@ -63,7 +63,7 @@ def main():
 
   tests = (
       python_unit_tests,
-      recipe_simulation_test,
+      recipe_test,
       gen_tasks_test,
   )
   errs = []
