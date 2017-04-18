@@ -89,8 +89,6 @@ static K kConstants = {
     M(lerp_u8)            \
     M(lerp_565)           \
     M(load_tables)        \
-    M(load_tables_u16_be) \
-    M(load_tables_rgb_u16_be) \
     M(byte_tables)        \
     M(byte_tables_rgb)    \
     M(table_r) M(table_g) M(table_b) M(table_a) \
@@ -135,6 +133,11 @@ static K kConstants = {
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)  \
     M(linear_gradient)    \
     M(linear_gradient_2stops)
+
+#if 0 //  b/37433905
+    M(load_tables_u16_be)
+    M(load_tables_rgb_u16_be)
+#endif
 
 // We can't express the real types of most stage functions portably, so we use a stand-in.
 // We'll only ever call start_pipeline(), which then chains into the rest for us.
