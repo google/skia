@@ -11,10 +11,11 @@
 #include "SkOSFile.h"
 #include "SkPath.h"
 #include "SkPathOpsDebug.h"
+#include "SkRegion.h"
 #include "SkString.h"
 
 #if DEBUG_DUMP_VERIFY
-bool SkPathOpsDebug::gDumpOp;  // set to true to write op to file before a crash
+bool SkPathOpsDebug::gDumpOp = true;  // set to true to write op to file before a crash
 bool SkPathOpsDebug::gVerifyOp;  // set to true to compare result against regions
 #endif
 
@@ -2964,7 +2965,7 @@ void SkPathOpsDebug::DumpOp(FILE* file, const SkPath& one, const SkPath& two, Sk
 }
 
 void SkPathOpsDebug::DumpSimplify(const SkPath& path, const char* testName) {
-    FILE* file = sk_fopen("simplify_dump.txt", kWrite_SkFILE_Flag);
+    FILE* file = false ? sk_fopen("simplify_dump.txt", kWrite_SkFILE_Flag) : stdout;
     DumpSimplify(file, path, testName);
 }
 

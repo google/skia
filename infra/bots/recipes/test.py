@@ -495,7 +495,7 @@ def dm_flags(bot):
   if 'Ci20' in bot:
     match.append('~Codec_Dimensions') # skia:6477
     match.append('~FontMgrAndroidParser') # skia:6478
-    match.append('~PathOpsSimplify') # skia:6479
+    match = ['PathOpsSimplify$'] # skia:6479
     blacklist(['_', 'gm', '_', 'fast_slow_blurimagefilter']) # skia:6480
 
 
