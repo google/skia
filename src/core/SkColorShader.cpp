@@ -8,6 +8,7 @@
 #include "SkArenaAlloc.h"
 #include "SkColorShader.h"
 #include "SkColorSpace.h"
+#include "SkColorSpaceXform.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
@@ -236,10 +237,15 @@ void SkColor4Shader::toString(SkString* str) const {
 }
 #endif
 
+sk_sp<SkShader> SkColor4Shader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    return SkShader::MakeColorShader(xformer->apply(fCachedByteColor));
+}
+
 sk_sp<SkShader> SkShader::MakeColorShader(const SkColor4f& color, sk_sp<SkColorSpace> space) {
     if (!SkScalarsAreFinite(color.vec(), 4)) {
         return nullptr;
     }
+
     return sk_make_sp<SkColor4Shader>(color, std::move(space));
 }
 
