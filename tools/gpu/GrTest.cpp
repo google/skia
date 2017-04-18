@@ -7,6 +7,7 @@
 
 #include "GrTest.h"
 
+#include "GrBackendSurface.h"
 #include "GrContextOptions.h"
 #include "GrDrawOpAtlas.h"
 #include "GrDrawingManager.h"
@@ -53,6 +54,18 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
     configs[kARGB_GrMaskFormat].fPlotHeight = dim;
 
     context->setTextContextAtlasSizes_ForTesting(configs);
+}
+
+GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
+                                      GrPixelConfig config, GrBackendObject handle) {
+    if (kOpenGL_GrBackend == backend) {
+        GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
+        return GrBackendTexture(width, height, config, glInfo);
+    } else {
+        SkASSERT(kVulkan_GrBackend == backend);
+        GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
+        return GrBackendTexture(width, height, vkInfo);
+    }
 }
 };
 
@@ -338,7 +351,11 @@ private:
         return nullptr;
     }
 
-    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override {
+    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
+                                          GrSurfaceOrigin,
+                                          GrBackendTextureFlags,
+                                          int sampleCnt,
+                                          GrWrapOwnership) override {
         return nullptr;
     }
 
@@ -346,7 +363,9 @@ private:
         return nullptr;
     }
 
-    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override {
+    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
+                                                             GrSurfaceOrigin,
+                                                             int sampleCnt) override {
         return nullptr;
     }
 

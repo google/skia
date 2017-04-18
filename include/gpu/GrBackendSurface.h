@@ -15,14 +15,18 @@ struct GrGLTextureInfo;
 
 class GrBackendTexture {
 public:
+    // The passed in GrVkImageInfo must live until the GrBackendTexture is no longer used in
+    // creation of SkImages or SkSurfaces.
     GrBackendTexture(int width,
                      int height,
-                     GrVkImageInfo* vkInfo);
+                     const GrVkImageInfo* vkInfo);
 
+    // The passed in GrGLTextureInfo must live until the GrBackendTexture is no longer used in
+    // creation of SkImages or SkSurfaces.
     GrBackendTexture(int width,
                      int height,
                      GrPixelConfig config,
-                     GrGLTextureInfo* glInfo);
+                     const GrGLTextureInfo* glInfo);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
@@ -31,11 +35,11 @@ public:
 
     // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
     // it returns nullptr.
-    GrVkImageInfo* getVkImageInfo();
+    const GrVkImageInfo* getVkImageInfo() const;
 
     // If the backend API is GL, this returns a pointer to the GrGLTextureInfo struct. Otherwise
     // it returns nullptr.
-    GrGLTextureInfo* getGLTextureInfo();
+    const GrGLTextureInfo* getGLTextureInfo() const;
 
 private:
     // Temporary constructor which can be used to convert from a GrBackendTextureDesc.
@@ -51,26 +55,30 @@ private:
     GrBackend fBackend;
 
     union {
-        GrVkImageInfo*   fVkInfo;
-        GrGLTextureInfo* fGLInfo;
+        const GrVkImageInfo*   fVkInfo;
+        const GrGLTextureInfo* fGLInfo;
         GrBackendObject  fHandle;
     };
 };
 
 class GrBackendRenderTarget {
 public:
+    // The passed in GrVkImageInfo must live until the GrBackendTexture is no longer used in
+    // creation of SkImages or SkSurfaces.
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
                           int stencilBits,
-                          GrVkImageInfo* vkInfo);
+                          const GrVkImageInfo* vkInfo);
 
+    // The passed in GrGLTextureInfo must live until the GrBackendTexture is no longer used in
+    // creation of SkImages or SkSurfaces.
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
                           int stencilBits,
                           GrPixelConfig config,
-                          GrGLTextureInfo* glInfo);
+                          const GrGLTextureInfo* glInfo);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
@@ -81,11 +89,11 @@ public:
 
     // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
     // it returns nullptr.
-    GrVkImageInfo* getVkImageInfo();
+    const GrVkImageInfo* getVkImageInfo() const;
 
     // If the backend API is GL, this returns a pointer to the GrGLTextureInfo struct. Otherwise
     // it returns nullptr.
-    GrGLTextureInfo* getGLTextureInfo();
+    const GrGLTextureInfo* getGLTextureInfo() const;
 
 private:
     // Temporary constructor which can be used to convert from a GrBackendRenderTargetDesc.
@@ -104,8 +112,8 @@ private:
     GrBackend fBackend;
 
     union {
-        GrVkImageInfo*   fVkInfo;
-        GrGLTextureInfo* fGLInfo;
+        const GrVkImageInfo*   fVkInfo;
+        const GrGLTextureInfo* fGLInfo;
         GrBackendObject  fHandle;
     };
 };
