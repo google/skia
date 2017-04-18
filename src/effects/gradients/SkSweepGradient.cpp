@@ -9,6 +9,7 @@
 #include "SkSweepGradient.h"
 
 #include <algorithm>
+#include <cmath>
 
 static SkMatrix translate(SkScalar dx, SkScalar dy) {
     SkMatrix matrix;
@@ -80,12 +81,16 @@ static unsigned SkATan2_255(float y, float x) {
 }
 #else
 static unsigned SkATan2_255(float y, float x) {
-    if (y == 0 && x == 0) return 0;
     float yabs = sk_float_abs(y),
-        xabs = sk_float_abs(x);
+          xabs = sk_float_abs(x);
     float little, big;
     std::tie(little, big) = std::minmax(yabs, xabs);
     float a = little/big;
+    if (!std::isfinite(a)) {
+        return 0;
+    }
+    SkASSERT(a >=0 && a <= 1);
+
     float s = a * a;
     float r = a*(40.57589784014689f
                  + s*(-13.222755844396332f + s*(6.314046289038564f - s*1.7989502668982151f)));
