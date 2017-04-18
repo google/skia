@@ -36,8 +36,7 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
 static const int MAX_POINTS_PER_CURVE = 1 << 10;
 static const SkScalar gMinCurveTol = 0.0001f;
 
-uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[],
-                                          SkScalar tol) {
+uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[], SkScalar tol) {
     if (tol < gMinCurveTol) {
         tol = gMinCurveTol;
     }
@@ -158,8 +157,7 @@ uint32_t GrPathUtils::generateCubicPoints(const SkPoint& p0,
     return a + b;
 }
 
-int GrPathUtils::worstCasePointCount(const SkPath& path, int* subpaths,
-                                     SkScalar tol) {
+int GrPathUtils::worstCasePointCount(const SkPath& path, int* subpaths, SkScalar tol) {
     if (tol < gMinCurveTol) {
         tol = gMinCurveTol;
     }
@@ -183,7 +181,7 @@ int GrPathUtils::worstCasePointCount(const SkPath& path, int* subpaths,
             case SkPath::kConic_Verb: {
                 SkScalar weight = iter.conicWeight();
                 SkAutoConicToQuads converter;
-                const SkPoint* quadPts = converter.computeQuads(pts, weight, 0.25f);
+                const SkPoint* quadPts = converter.computeQuads(pts, weight, tol);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     pointCount += quadraticPointCount(quadPts + 2*i, tol);
                 }
