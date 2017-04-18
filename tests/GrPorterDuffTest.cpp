@@ -11,8 +11,10 @@
 
 #include "GrContextFactory.h"
 #include "GrContextOptions.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
+#include "GrTest.h"
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "gl/GrGLCaps.h"
@@ -1034,15 +1036,19 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
         return;
     }
 
-    GrBackendObject backendTex =
+    GrBackendObject backendTexHandle =
         ctx->getGpu()->createTestingOnlyBackendTexture(nullptr, 100, 100, kRGBA_8888_GrPixelConfig);
-    GrBackendTextureDesc fakeDesc;
-    fakeDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    fakeDesc.fWidth = fakeDesc.fHeight = 100;
-    fakeDesc.fTextureHandle = backendTex;
+    GrBackendTexture backendTex = GrTest::CreateBackendTexture(ctx->contextPriv().getBackend(),
+                                                               100,
+                                                               100,
+                                                               kRGBA_8888_GrPixelConfig,
+                                                               backendTexHandle);
+
     GrXferProcessor::DstTexture fakeDstTexture;
     fakeDstTexture.setTexture(
-        ctx->resourceProvider()->wrapBackendTexture(fakeDesc, kBorrow_GrWrapOwnership));
+        ctx->resourceProvider()->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
+                                                    kNone_GrBackendTextureFlag, 0,
+                                                    kBorrow_GrWrapOwnership));
 
     static const GrProcessorAnalysisColor colorInputs[] = {
             GrProcessorAnalysisColor::Opaque::kNo, GrProcessorAnalysisColor::Opaque::kYes,
@@ -1065,7 +1071,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
             }
         }
     }
-    ctx->getGpu()->deleteTestingOnlyBackendTexture(backendTex);
+    ctx->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
 }
 
 #endif
