@@ -22,6 +22,30 @@
       "revId": "7a58cbac834ff6ada5e28713842d13b0057849f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "725978ba_528a10b7",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-18T11:54:41Z",
+      "side": 1,
+      "message": "Done. Yeah, it seems way better to reuse the colorSpace of the receiving SurfaceContext.",
+      "parentUuid": "12b96b8b_b0ab88a8",
+      "range": {
+        "startLine": 396,
+        "startChar": 0,
+        "endLine": 396,
+        "endChar": 94
+      },
+      "revId": "7a58cbac834ff6ada5e28713842d13b0057849f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
