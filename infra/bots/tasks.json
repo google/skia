@@ -2024,6 +2024,24 @@
       "tasks": [
         "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
       ]
+    },
+    "Test-iOS-Clang-iPadPro-GPU-GX6450-arm64-Release-RaspberryPi": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-iOS-Clang-iPadPro-GPU-GX6450-arm64-Release-RaspberryPi"
+      ]
+    },
+    "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi"
+      ]
+    },
+    "Test-iOS-Clang-iPhone7-GPU-GX6450-arm64-Release-RaspberryPi": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-iOS-Clang-iPhone7-GPU-GX6450-arm64-Release-RaspberryPi"
+      ]
     }
   },
   "tasks": {
@@ -16239,6 +16257,147 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-iOS-Clang-iPadPro-GPU-GX6450-arm64-Release-RaspberryPi": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:48"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Release-iOS",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "device:iPad6,3",
+        "machine_type:RaspberryPi",
+        "os:iOS-10.3.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPadPro-GPU-GX6450-arm64-Release-RaspberryPi",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:48"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Release-iOS",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "device:iPhone7,2",
+        "machine_type:RaspberryPi",
+        "os:iOS-10.3.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-iOS-Clang-iPhone7-GPU-GX6450-arm64-Release-RaspberryPi": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:48"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Release-iOS",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "device:iPhone9,1",
+        "machine_type:RaspberryPi",
+        "os:iOS-10.3.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPhone7-GPU-GX6450-arm64-Release-RaspberryPi",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Upload-Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
       "dependencies": [
         "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android"
@@ -20909,6 +21068,84 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-iOS-Clang-iPadPro-GPU-GX6450-arm64-Release-RaspberryPi": {
+      "dependencies": [
+        "Test-iOS-Clang-iPadPro-GPU-GX6450-arm64-Release-RaspberryPi"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPadPro-GPU-GX6450-arm64-Release-RaspberryPi",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi": {
+      "dependencies": [
+        "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-iOS-Clang-iPhone7-GPU-GX6450-arm64-Release-RaspberryPi": {
+      "dependencies": [
+        "Test-iOS-Clang-iPhone7-GPU-GX6450-arm64-Release-RaspberryPi"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPhone7-GPU-GX6450-arm64-Release-RaspberryPi",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",

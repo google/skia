@@ -335,5 +335,8 @@
   "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
   "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI",
   "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
-  "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
+  "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
+  "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi",
+  "Test-iOS-Clang-iPhone7-GPU-GX6450-arm64-Release-RaspberryPi",
+  "Test-iOS-Clang-iPadPro-GPU-GX6450-arm64-Release-RaspberryPi"
 ]
