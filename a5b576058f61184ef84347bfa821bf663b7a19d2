@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "9f89313e_88d01dbd",
+        "filename": "src/core/SkRecord.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-18T15:40:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc8657dc_dd5f39b9",
+      "revId": "a5b576058f61184ef84347bfa821bf663b7a19d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7fe19c97_44c53b81",
         "filename": "src/core/SkRecord.h",
         "patchSetId": 4
@@ -65,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "bf9812c1_1b3a3bb1",
+        "filename": "src/core/SkRecord.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-18T15:40:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7fe19c97_44c53b81",
+      "range": {
+        "startLine": 59,
+        "startChar": 23,
+        "endLine": 59,
+        "endChar": 31
+      },
+      "revId": "a5b576058f61184ef84347bfa821bf663b7a19d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c98d7b4d_8a54b8a2",
         "filename": "src/core/SkRecord.h",
         "patchSetId": 4
@@ -76,6 +118,30 @@
       "writtenOn": "2017-04-17T23:07:07Z",
       "side": 1,
       "message": "alignof(T), right?\n\nThe idea for this bytes-allocated is to track how many bytes we cost, not so much how many we\u0027ve used.",
+      "range": {
+        "startLine": 61,
+        "startChar": 41,
+        "endLine": 61,
+        "endChar": 49
+      },
+      "revId": "a5b576058f61184ef84347bfa821bf663b7a19d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27a4f40b_2ed5a96b",
+        "filename": "src/core/SkRecord.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-18T15:40:44Z",
+      "side": 1,
+      "message": "SkVarAlloc returns the number of bytes of all the large blocks, so bytes used + overhead + waste. I don\u0027t track any of that because it seems like a waste of time. Are you saying that I can approximate this by using count * alignof(T)? I could see something like count * sizeof(T) + alignof(T).",
+      "parentUuid": "c98d7b4d_8a54b8a2",
       "range": {
         "startLine": 61,
         "startChar": 41,
