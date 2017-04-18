@@ -58,7 +58,7 @@ public:
         struct RawBytes {
             alignas(T) char data[sizeof(T)];
         };
-        fApproxBytesAllocated += count * sizeof(T) + alignof(T);
+
         return (T*)fAlloc.makeArrayDefault<RawBytes>(count);
     }
 
@@ -97,10 +97,6 @@ public:
 
         return fRecords[i].set(this->allocCommand<T>());
     }
-
-    // Does not return the bytes in any pointers embedded in the Records; callers
-    // need to iterate with a visitor to measure those they care for.
-    size_t bytesUsed() const;
 
     // Rearrange and resize this record to eliminate any NoOps.
     // May change count() and the indices of ops, but preserves their order.
@@ -188,7 +184,6 @@ private:
     // fAlloc needs to be a data structure which can append variable length data in contiguous
     // chunks, returning a stable handle to that data for later retrieval.
     SkArenaAlloc fAlloc{256};
-    size_t       fApproxBytesAllocated{0};
 };
 
 #endif//SkRecord_DEFINED

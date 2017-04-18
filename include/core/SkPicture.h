@@ -138,9 +138,6 @@ public:
      */
     virtual int approximateOpCount() const = 0;
 
-    /** Returns the approximate byte size of this picture, not including large ref'd objects. */
-    virtual size_t approximateBytesUsed() const = 0;
-
     /** Return true if the SkStream/Buffer represents a serialized picture, and
         fills out SkPictInfo. After this function returns, the data source is not
         rewound so it will have to be manually reset before passing to

@@ -36,16 +36,13 @@ public:
     SkBigPicture(const SkRect& cull,
                  SkRecord*,            // We take ownership of the caller's ref.
                  SnapshotArray*,       // We take exclusive ownership.
-                 SkBBoxHierarchy*,     // We take ownership of the caller's ref.
-                 size_t approxBytesUsedBySubPictures);
-
+                 SkBBoxHierarchy*);    // We take ownership of the caller's ref.);
 
 // SkPicture overrides
     void playback(SkCanvas*, AbortCallback*) const override;
     SkRect cullRect() const override;
     bool willPlayBackBitmaps() const override;
     int approximateOpCount() const override;
-    size_t approximateBytesUsed() const override;
     const SkBigPicture* asSkBigPicture() const override { return this; }
 
 // Used by GrLayerHoister
@@ -73,7 +70,6 @@ private:
     SkPicture const* const* drawablePicts() const;
 
     const SkRect                         fCullRect;
-    const size_t                         fApproxBytesUsedBySubPictures;
     mutable SkOnce                       fAnalysisOnce;
     mutable Analysis                     fAnalysis;
     sk_sp<const SkRecord>                fRecord;

@@ -21,11 +21,6 @@ void SkRecord::grow() {
     fRecords.realloc(fReserved);
 }
 
-size_t SkRecord::bytesUsed() const {
-    size_t bytes = fApproxBytesAllocated + sizeof(SkRecord);
-    return bytes;
-}
-
 void SkRecord::defrag() {
     // Remove all the NoOps, preserving the order of other ops, e.g.
     //      Save, ClipRect, NoOp, DrawRect, NoOp, NoOp, Restore

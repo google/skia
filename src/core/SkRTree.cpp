@@ -179,11 +179,3 @@ void SkRTree::search(Node* node, const SkRect& query, SkTDArray<int>* results) c
         }
     }
 }
-
-size_t SkRTree::bytesUsed() const {
-    size_t byteCount = sizeof(SkRTree);
-
-    byteCount += fNodes.reserved() * sizeof(Node);
-
-    return byteCount;
-}

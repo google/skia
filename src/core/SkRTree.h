@@ -42,7 +42,6 @@ public:
 
     void insert(const SkRect[], int N) override;
     void search(const SkRect& query, SkTDArray<int>* results) const override;
-    size_t bytesUsed() const override;
 
     // Methods and constants below here are only public for tests.
 
