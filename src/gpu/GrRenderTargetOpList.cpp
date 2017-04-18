@@ -140,33 +140,30 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
     if (0 == fRecordedOps.count()) {
         return false;
     }
+
+    GrSurface* target = fTarget->instantiate(flushState->resourceProvider());
+    if (!target) {
+        return false;
+    }
     // Draw all the generated geometry.
-    const GrRenderTarget* currentRenderTarget = fRecordedOps[0].fRenderTarget.get();
+    const GrRenderTarget* currentRenderTarget = target->asRenderTarget();
     SkASSERT(currentRenderTarget);
-    std::unique_ptr<GrGpuCommandBuffer> commandBuffer;
+    std::unique_ptr<GrGpuCommandBuffer> commandBuffer = create_command_buffer(fGpu);
+    flushState->setCommandBuffer(commandBuffer.get());
 
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (!fRecordedOps[i].fOp) {
             continue;
         }
 
-        SkASSERT(fRecordedOps[i].fRenderTarget.get());
+        SkASSERT(fRecordedOps[i].fRenderTarget.get() == currentRenderTarget);
 
         if (fRecordedOps[i].fOp->needsCommandBufferIsolation()) {
             // This op is a special snowflake and must occur between command buffers
             // TODO: make this go through the command buffer
             finish_command_buffer(commandBuffer.get());
-            currentRenderTarget = fRecordedOps[i].fRenderTarget.get();
 
             commandBuffer.reset();
-            flushState->setCommandBuffer(commandBuffer.get());
-        } else if (fRecordedOps[i].fRenderTarget.get() != currentRenderTarget) {
-            // Changing renderTarget
-            // MDB TODO: this code path goes away
-            finish_command_buffer(commandBuffer.get());
-            currentRenderTarget = fRecordedOps[i].fRenderTarget.get();
-
-            commandBuffer = create_command_buffer(fGpu);
             flushState->setCommandBuffer(commandBuffer.get());
         } else if (!commandBuffer) {
             commandBuffer = create_command_buffer(fGpu);
@@ -255,6 +252,7 @@ void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext,
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// MDB TODO: fuse with GrTextureOpList::copySurface
 bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
                                        GrRenderTargetContext* dst,
                                        GrSurfaceProxy* src,
@@ -309,6 +307,11 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     if (!renderTarget) {
         SkASSERT(false);
         return nullptr;
+    }
+
+    if (!fRecordedOps.empty()) {
+        GrRenderTargetOpList::RecordedOp& back = fRecordedOps.back();
+        SkASSERT(back.fRenderTarget == renderTarget);
     }
 
     // A closed GrOpList should never receive new/more ops
@@ -410,7 +413,7 @@ void GrRenderTargetOpList::forwardCombine() {
                 fRecordedOps[j].fOp = std::move(fRecordedOps[i].fOp);
                 break;
             }
-            // Stop going traversing if we would cause a painter's order violation.
+            // Stop traversing if we would cause a painter's order violation.
             if (!can_reorder(fRecordedOps[j].fOp->bounds(), op->bounds())) {
                 GrOP_INFO("\t\tForward: Intersects with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
