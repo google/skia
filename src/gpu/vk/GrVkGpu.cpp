@@ -412,7 +412,6 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect&
     GrRenderTarget* dstRT = dst->asRenderTarget();
     if (dstRT) {
         GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(dstRT);
-        SkASSERT(vkRT->numColorSamples() <= 1);
         dstImage = vkRT;
     } else {
         SkASSERT(dst->asTexture());
@@ -1583,8 +1582,10 @@ inline bool can_copy_as_resolve(const GrSurface* dst,
         return false;
     }
 
-    // The dst must not be a multisampled render target
-    if (dst->asRenderTarget() && dst->asRenderTarget()->numColorSamples() > 1) {
+    // The dst must not be a multisampled render target, expect in the case where the dst is the
+    // resolve texture connected to the msaa src. We check for this in case we are copying a part of
+    // a surface to a different region in the same surface.
+    if (dst->asRenderTarget() && dst->asRenderTarget()->numColorSamples() > 1 && dst != src) {
         return false;
     }
 
