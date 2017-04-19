@@ -541,45 +541,6 @@ static void NestedSaveRestoreWithFlushTestStep(SkCanvas* canvas, const TestData&
 }
 TEST_STEP(NestedSaveRestoreWithFlush, NestedSaveRestoreWithFlushTestStep);
 
-static void DescribeTopLayerTestStep(SkCanvas* canvas,
-                                     const TestData& d,
-                                     skiatest::Reporter* reporter,
-                                     CanvasTestStep* testStep) {
-    SkMatrix m;
-    SkIRect r;
-    // NOTE: adjustToTopLayer() does *not* reduce the clip size, even if the canvas
-    // is smaller than 10x10!
-
-    canvas->temporary_internal_describeTopLayer(&m, &r);
-    REPORTER_ASSERT_MESSAGE(reporter, m.isIdentity(), testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, r == SkIRect::MakeXYWH(0, 0, 2, 2),
-                            testStep->assertMessage());
-
-    // Putting a full-canvas layer on it should make no change to the results.
-    SkRect layerBounds = SkRect::MakeXYWH(0.f, 0.f, 10.f, 10.f);
-    canvas->saveLayer(layerBounds, nullptr);
-    canvas->temporary_internal_describeTopLayer(&m, &r);
-    REPORTER_ASSERT_MESSAGE(reporter, m.isIdentity(), testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, r == SkIRect::MakeXYWH(0, 0, 2, 2),
-                            testStep->assertMessage());
-    canvas->restore();
-
-    // Adding a translated layer translates the results.
-    // Default canvas is only 2x2, so can't offset our layer by very much at all;
-    // saveLayer() aborts if the bounds don't intersect.
-    layerBounds = SkRect::MakeXYWH(1.f, 1.f, 6.f, 6.f);
-    canvas->saveLayer(layerBounds, nullptr);
-    canvas->temporary_internal_describeTopLayer(&m, &r);
-    REPORTER_ASSERT_MESSAGE(reporter, m == SkMatrix::MakeTrans(-1.f, -1.f),
-                            testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, r == SkIRect::MakeXYWH(0, 0, 1, 1),
-                            testStep->assertMessage());
-    canvas->restore();
-
-}
-TEST_STEP(DescribeTopLayer, DescribeTopLayerTestStep);
-
-
 static void TestPdfDevice(skiatest::Reporter* reporter, const TestData& d, CanvasTestStep* step) {
     SkDynamicMemoryWStream outStream;
     sk_sp<SkDocument> doc(SkDocument::MakePDF(&outStream));

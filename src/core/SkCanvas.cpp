@@ -1930,18 +1930,6 @@ void SkCanvas::legacy_drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, 
     }
 }
 
-void SkCanvas::temporary_internal_describeTopLayer(SkMatrix* matrix, SkIRect* clip_bounds) {
-    SkIRect layer_bounds = this->getTopLayerBounds();
-    if (matrix) {
-        *matrix = this->getTotalMatrix();
-        matrix->preTranslate(-layer_bounds.left(), -layer_bounds.top());
-    }
-    if (clip_bounds) {
-        *clip_bounds = this->getDeviceClipBounds();
-        clip_bounds->offset(-layer_bounds.left(), -layer_bounds.top());
-    }
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //  These are the virtual drawing methods
 //////////////////////////////////////////////////////////////////////////////
