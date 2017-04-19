@@ -183,6 +183,9 @@ private:
     GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
                              const void* data) override;
 
+    gr_instanced::InstancedRenderingAllocator* onCreateInstancedRenderingAllocator() override {
+        return nullptr;
+    }
     gr_instanced::InstancedRendering* onCreateInstancedRendering() override { return nullptr; }
 
     bool onReadPixels(GrSurface* surface,

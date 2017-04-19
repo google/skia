@@ -26,7 +26,7 @@ struct ShapeVertex {
  * Per-instance data. These values get fed into instanced vertex attribs.
  */
 struct Instance {
-    uint32_t   fInfo;               //!< Packed info about the instance. See InfoBits.
+    uint32_t   fInfo1;               //!< Packed info about the instance. See InfoBits.
     float      fShapeMatrix2x3[6];  //!< Maps canonical shape coords -> device space coords.
     uint32_t   fColor;              //!< Color to be written out by the primitive processor.
     float      fLocalRect[4];       //!< Local coords rect that spans [-1, +1] in shape coords.

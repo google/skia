@@ -278,7 +278,7 @@ static inline bool can_reorder(const SkRect& a, const SkRect& b) {
            b.fRight <= a.fLeft || b.fBottom <= a.fTop;
 }
 
-bool GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,
+bool GrRenderTargetOpList::combineIfPossible1(const RecordedOp& a, GrOp* b,
                                              const GrAppliedClip* bClip,
                                              const DstTexture* bDstTexture) {
     if (a.fAppliedClip) {
@@ -342,7 +342,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                           candidate.fOp->uniqueID());
                 break;
             }
-            if (this->combineIfPossible(candidate, op.get(), clip, dstTexture)) {
+            if (this->combineIfPossible1(candidate, op.get(), clip, dstTexture)) {
                 GrOP_INFO("\t\tBackward: Combining with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 GrOP_INFO("\t\t\tBackward: Combined op info:\n");
@@ -370,7 +370,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
     }
     fRecordedOps.emplace_back(std::move(op), renderTarget, clip, dstTexture);
-    fRecordedOps.back().fOp->wasRecorded();
+    fRecordedOps.back().fOp->wasRecorded(this);
     fLastFullClearOp = nullptr;
     fLastFullClearResourceID.makeInvalid();
     fLastFullClearProxyID.makeInvalid();
@@ -402,7 +402,7 @@ void GrRenderTargetOpList::forwardCombine() {
                           candidate.fOp->uniqueID());
                 break;
             }
-            if (this->combineIfPossible(fRecordedOps[i], candidate.fOp.get(),
+            if (this->combineIfPossible1(fRecordedOps[i], candidate.fOp.get(),
                                         candidate.fAppliedClip, &candidate.fDstTexture)) {
                 GrOP_INFO("\t\tForward: Combining with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());

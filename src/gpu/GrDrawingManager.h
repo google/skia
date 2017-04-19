@@ -25,6 +25,8 @@ class GrSoftwarePathRenderer;
 class GrTextureContext;
 class GrTextureOpList;
 
+namespace gr_instanced { class InstancedRenderingAllocator; }
+
 // The GrDrawingManager allocates a new GrRenderTargetContext for each GrRenderTarget
 // but all of them still land in the same GrOpList!
 //
@@ -36,6 +38,8 @@ public:
 
     bool wasAbandoned() const { return fAbandoned; }
     void freeGpuResources();
+
+    gr_instanced::InstancedRenderingAllocator* instAlloc();
 
     sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
                                                          sk_sp<SkColorSpace>,
@@ -85,7 +89,8 @@ private:
         , fSoftwarePathRenderer(nullptr)
         , fFlushState(context->getGpu(), context->resourceProvider())
         , fFlushing(false)
-        , fIsImmediateMode(isImmediateMode) {
+        , fIsImmediateMode(isImmediateMode)
+        , fInstAlloc(nullptr) {
     }
 
     void abandon();
@@ -124,6 +129,8 @@ private:
     bool                              fIsImmediateMode;
 
     SkTArray<sk_sp<GrPreFlushCallbackObject>> fPreFlushCBObjects;
+
+    gr_instanced::InstancedRenderingAllocator* fInstAlloc;
 };
 
 #endif

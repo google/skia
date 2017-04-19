@@ -20,23 +20,89 @@ class GrResourceProvider;
 namespace gr_instanced {
 
 class InstanceProcessor;
+class InstancedRenderingAllocator;
 
-/**
- * This class serves as a centralized clearinghouse for instanced rendering. It accumulates data for
- * instanced draws into one location, and creates special ops that pull from this data. The
- * nature of instanced rendering allows these ops to combine well and render efficiently.
- *
- * During a flush, this class assembles the accumulated draw data into a single vertex and texel
- * buffer, and its subclass draws the ops using backend-specific instanced rendering APIs.
- *
- * This class is responsible for the CPU side of instanced rendering. Shaders are implemented by
- * InstanceProcessor.
- */
-class InstancedRendering : public SkNoncopyable {
+class Op : public GrDrawOp {
 public:
-    virtual ~InstancedRendering() { SkASSERT(State::kRecordingDraws == fState); }
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(Op);
 
-    GrGpu* gpu() const { return fGpu.get(); }
+    int fID;
+
+    ~Op() override;
+    const char* name() const override { return "InstancedRendering::Op"; }
+
+    SkString dumpInfo() const override {
+        SkString string;
+        string.printf(
+                "AA: %d, ShapeTypes: 0x%02x, IShapeTypes: 0x%02x, Persp %d, "
+                "NonSquare: %d, PLoad: %0.2f, Tracked: %d, NumDraws: %d, "
+                "GeomChanges: %d\n",
+                (unsigned)fInfo.fAAType,
+                fInfo.fShapeTypes,
+                fInfo.fInnerShapeTypes,
+                fInfo.fHasPerspective,
+                fInfo.fNonSquare,
+                fPixelLoad,
+                fIsTracked,
+                fNumDraws,
+                fNumChangesInGeometry);
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
+    struct Draw {
+        Instance     fInstance;
+        IndexRange   fGeometry;
+        Draw*        fNext;
+    };
+
+    Draw& getSingleDraw1() const { SkASSERT(fHeadDraw1 && !fHeadDraw1->fNext); return *fHeadDraw1; }
+    Instance& getSingleInstance1() const { return this->getSingleDraw1().fInstance; }
+
+    void appendRRectParams(const SkRRect&);
+    void appendParamsTexel(const SkScalar* vals, int count);
+    void appendParamsTexel(SkScalar x, SkScalar y, SkScalar z, SkScalar w);
+    void appendParamsTexel(SkScalar x, SkScalar y, SkScalar z);
+    FixedFunctionFlags fixedFunctionFlags() const override {
+        return GrAATypeIsHW(fInfo.aaType()) ? FixedFunctionFlags::kUsesHWAA
+                                            : FixedFunctionFlags::kNone;
+    }
+    bool xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*) override;
+
+    // Registers the op with the InstancedRendering list of tracked ops.
+    void wasRecorded(GrRenderTargetOpList*) override;
+
+protected:
+    Op(uint32_t classID, GrPaint&&, InstancedRenderingAllocator*);
+
+    InstancedRenderingAllocator* fAllocator;
+    InstancedRendering* fInstancedRendering1;
+    OpInfo fInfo;
+    SkScalar fPixelLoad;
+    GrProcessorSet fProcessors;
+    SkSTArray<5, ParamsTexel, true> fParams;
+    bool fIsTracked : 1;
+    bool fRequiresBarrierOnOverlap : 1;
+    int fNumDraws;
+    int fNumChangesInGeometry;
+    Draw* fHeadDraw1;
+    Draw* fTailDraw1;
+
+private:
+    void glom();
+    bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
+    void onPrepare(GrOpFlushState*) override {}
+    void onExecute(GrOpFlushState*) override;
+
+    typedef GrDrawOp INHERITED;
+
+    friend class InstancedRendering;
+    friend class InstancedRenderingAllocator;
+};
+
+class InstancedRenderingAllocator : public SkNoncopyable {
+public:
+    virtual ~InstancedRenderingAllocator();
 
     /**
      * These methods make a new record internally for an instanced draw, and return an op that is
@@ -71,6 +137,41 @@ public:
                                                                  const SkRRect& inner,
                                                                  const SkMatrix&, GrPaint&&, GrAA,
                                                                  const GrInstancedPipelineInfo&);
+protected:
+    InstancedRenderingAllocator(const GrCaps*);
+
+private:
+    friend class Op;
+
+    bool selectAntialiasMode(const SkMatrix& viewMatrix, GrAA aa, const GrInstancedPipelineInfo&,
+                             GrAAType*);
+    virtual std::unique_ptr<Op> makeOp(GrPaint&&) = 0;
+
+    std::unique_ptr<Op> SK_WARN_UNUSED_RESULT recordShape(ShapeType, const SkRect& bounds,
+                                                          const SkMatrix& viewMatrix, GrPaint&&,
+                                                          const SkRect& localRect, GrAA aa,
+                                                          const GrInstancedPipelineInfo&);
+
+    GrObjectMemoryPool<Op::Draw> fDrawPool;
+    const GrCaps*                fCaps;
+};
+
+/**
+ * This class serves as a centralized clearinghouse for instanced rendering. It accumulates data for
+ * instanced draws into one location, and creates special ops that pull from this data. The
+ * nature of instanced rendering allows these ops to combine well and render efficiently.
+ *
+ * During a flush, this class assembles the accumulated draw data into a single vertex and texel
+ * buffer, and its subclass draws the ops using backend-specific instanced rendering APIs.
+ *
+ * This class is responsible for the CPU side of instanced rendering. Shaders are implemented by
+ * InstanceProcessor.
+ */
+class InstancedRendering : public SkNoncopyable {
+public:
+    virtual ~InstancedRendering() { SkASSERT(State::kRecordingDraws == fState1); }
+
+    GrGpu* gpu() const { return fGpu.get(); }
 
     /**
      * Compiles all recorded draws into GPU buffers and allows the client to begin flushing the
@@ -96,79 +197,6 @@ public:
     void resetGpuResources(ResetType);
 
 protected:
-    class Op : public GrDrawOp {
-    public:
-        SK_DECLARE_INTERNAL_LLIST_INTERFACE(Op);
-
-        ~Op() override;
-        const char* name() const override { return "InstancedRendering::Op"; }
-
-        SkString dumpInfo() const override {
-            SkString string;
-            string.printf(
-                    "AA: %d, ShapeTypes: 0x%02x, IShapeTypes: 0x%02x, Persp %d, "
-                    "NonSquare: %d, PLoad: %0.2f, Tracked: %d, NumDraws: %d, "
-                    "GeomChanges: %d\n",
-                    (unsigned)fInfo.fAAType,
-                    fInfo.fShapeTypes,
-                    fInfo.fInnerShapeTypes,
-                    fInfo.fHasPerspective,
-                    fInfo.fNonSquare,
-                    fPixelLoad,
-                    fIsTracked,
-                    fNumDraws,
-                    fNumChangesInGeometry);
-            string.append(INHERITED::dumpInfo());
-            return string;
-        }
-
-        struct Draw {
-            Instance     fInstance;
-            IndexRange   fGeometry;
-            Draw*        fNext;
-        };
-
-        Draw& getSingleDraw() const { SkASSERT(fHeadDraw && !fHeadDraw->fNext); return *fHeadDraw; }
-        Instance& getSingleInstance() const { return this->getSingleDraw().fInstance; }
-
-        void appendRRectParams(const SkRRect&);
-        void appendParamsTexel(const SkScalar* vals, int count);
-        void appendParamsTexel(SkScalar x, SkScalar y, SkScalar z, SkScalar w);
-        void appendParamsTexel(SkScalar x, SkScalar y, SkScalar z);
-        FixedFunctionFlags fixedFunctionFlags() const override {
-            return GrAATypeIsHW(fInfo.aaType()) ? FixedFunctionFlags::kUsesHWAA
-                                                : FixedFunctionFlags::kNone;
-        }
-        bool xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*) override;
-
-        // Registers the op with the InstancedRendering list of tracked ops.
-        void wasRecorded() override;
-
-    protected:
-        Op(uint32_t classID, GrPaint&&, InstancedRendering*);
-
-        InstancedRendering* const fInstancedRendering;
-        OpInfo fInfo;
-        SkScalar fPixelLoad;
-        GrProcessorSet fProcessors;
-        SkSTArray<5, ParamsTexel, true> fParams;
-        bool fIsTracked : 1;
-        bool fRequiresBarrierOnOverlap : 1;
-        int fNumDraws;
-        int fNumChangesInGeometry;
-        Draw* fHeadDraw;
-        Draw* fTailDraw;
-
-    private:
-        bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
-        void onPrepare(GrOpFlushState*) override {}
-        void onExecute(GrOpFlushState*) override;
-
-        typedef GrDrawOp INHERITED;
-
-        friend class InstancedRendering;
-    };
-
     typedef SkTInternalLList<Op> OpList;
 
     InstancedRendering(GrGpu* gpu);
@@ -188,24 +216,15 @@ private:
         kFlushing
     };
 
-    std::unique_ptr<Op> SK_WARN_UNUSED_RESULT recordShape(ShapeType, const SkRect& bounds,
-                                                          const SkMatrix& viewMatrix, GrPaint&&,
-                                                          const SkRect& localRect, GrAA aa,
-                                                          const GrInstancedPipelineInfo&);
-
-    bool selectAntialiasMode(const SkMatrix& viewMatrix, GrAA aa, const GrInstancedPipelineInfo&,
-                             GrAAType*);
-
-    virtual std::unique_ptr<Op> makeOp(GrPaint&&) = 0;
-
     const sk_sp<GrGpu> fGpu;
-    State fState;
-    GrObjectMemoryPool<Op::Draw> fDrawPool;
+    State fState1;
     SkSTArray<1024, ParamsTexel, true> fParams;
     OpList fTrackedOps;
     sk_sp<const GrBuffer> fVertexBuffer;
     sk_sp<const GrBuffer> fIndexBuffer;
     sk_sp<GrBuffer> fParamsBuffer;
+
+    friend class Op;
 };
 
 }

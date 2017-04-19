@@ -15,12 +15,12 @@
 
 namespace gr_instanced {
 
-class GLInstancedRendering::GLOp final : public InstancedRendering::Op {
+class GLOp final : public Op {
 public:
     DEFINE_OP_CLASS_ID
 
-    GLOp(GLInstancedRendering* instRendering, GrPaint&& paint)
-            : INHERITED(ClassID(), std::move(paint), instRendering) {}
+    GLOp(GLInstancedRenderingAllocator* alloc, GrPaint&& paint)
+            : INHERITED(ClassID(), std::move(paint), alloc) {}
     int numGLCommands() const { return 1 + fNumChangesInGeometry; }
 
 private:
@@ -28,6 +28,7 @@ private:
     int fGLDrawCmdsIdx;
 
     friend class GLInstancedRendering;
+    friend class GLInstancedRenderingAllocator;
 
     typedef Op INHERITED;
 };
@@ -43,10 +44,10 @@ GrCaps::InstancedSupport GLInstancedRendering::CheckSupport(const GrGLCaps& glCa
 }
 
 GLInstancedRendering::GLInstancedRendering(GrGLGpu* gpu)
-    : INHERITED(gpu),
-      fVertexArrayID(0),
-      fGLDrawCmdsInfo(0),
-      fInstanceAttribsBufferUniqueId(SK_InvalidUniqueID) {
+    : INHERITED(gpu)
+    , fVertexArrayID(0)
+    , fGLDrawCmdsInfo(0)
+    , fInstanceAttribsBufferUniqueId(SK_InvalidUniqueID) {
     SkASSERT(GrCaps::InstancedSupport::kNone != this->gpu()->caps()->instancedSupport());
 }
 
@@ -61,7 +62,7 @@ inline GrGLGpu* GLInstancedRendering::glGpu() const {
     return static_cast<GrGLGpu*>(this->gpu());
 }
 
-std::unique_ptr<InstancedRendering::Op> GLInstancedRendering::makeOp(GrPaint&& paint) {
+std::unique_ptr<Op> GLInstancedRenderingAllocator::makeOp(GrPaint&& paint) {
     return std::unique_ptr<Op>(new GLOp(this, std::move(paint)));
 }
 
@@ -72,7 +73,7 @@ void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
     int numGLInstances = 0;
     int numGLDrawCmds = 0;
     while (Op* o = iter.get()) {
-        GLOp* op = static_cast<GLOp*>(o);
+        GLOp* op = (GLOp*) o;
         iter.next();
 
         numGLInstances += op->fNumDraws;
@@ -159,7 +160,7 @@ void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
         op->fEmulatedBaseInstance = baseInstanceSupport ? 0 : glInstancesIdx;
         op->fGLDrawCmdsIdx = glDrawCmdsIdx;
 
-        const Op::Draw* draw = op->fHeadDraw;
+        const Op::Draw* draw = op->fHeadDraw1;
         SkASSERT(draw);
         do {
             int instanceCount = 0;
@@ -275,7 +276,7 @@ void GLInstancedRendering::flushInstanceAttribs(int baseInstance) {
         // Info attrib.
         GL_CALL(EnableVertexAttribArray((int)Attrib::kInstanceInfo));
         GL_CALL(VertexAttribIPointer((int)Attrib::kInstanceInfo, 1, GR_GL_UNSIGNED_INT,
-                                     sizeof(Instance), &offsetInBuffer->fInfo));
+                                     sizeof(Instance), &offsetInBuffer->fInfo1));
         GL_CALL(VertexAttribDivisor((int)Attrib::kInstanceInfo, 1));
 
         // Shape matrix attrib.
