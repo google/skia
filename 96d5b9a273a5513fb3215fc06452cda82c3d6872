@@ -93,6 +93,30 @@
       "revId": "96d5b9a273a5513fb3215fc06452cda82c3d6872",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68b455ae_08ae3d18",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2017-04-19T20:50:29Z",
+      "side": 0,
+      "message": "Okay, I follow now.\nSounds good.\n\nFor posterity, the first frame of a gif has a palette that can only be up to 256 colors and thus fits into index 8.\nHowever, the second frame can use its own palette of 256 colors PLUS the colors left over from the first frame when transparency is used. So the second frame could have more colors than fit into index 8. Thus all frames but the first must have a destination that is kN32.",
+      "parentUuid": "b0b1c393_3284b319",
+      "range": {
+        "startLine": 502,
+        "startChar": 51,
+        "endLine": 502,
+        "endChar": 56
+      },
+      "revId": "96d5b9a273a5513fb3215fc06452cda82c3d6872",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
