@@ -1112,6 +1112,29 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
                                                              std::move(ifFalse)));
 }
 
+void IRGenerator::fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments) {
+    ASSERT(arguments.size() == 2);
+    ASSERT(arguments[0]->fType == *fContext.fSampler2DRect_Type);
+    ASSERT(arguments[0]->fKind == Expression::kVariableReference_Kind);
+    ASSERT(arguments[1]->fType == *fContext.fVec2_Type);
+    const Variable& sampler = ((VariableReference&) *arguments[0]).fVariable;
+    const Symbol* textureSizeSymbol = (*fSymbolTable)["textureSize"];
+    ASSERT(textureSizeSymbol->fKind == Symbol::kFunctionDeclaration_Kind);
+    const FunctionDeclaration& textureSize = (FunctionDeclaration&) *textureSizeSymbol;
+    std::vector<std::unique_ptr<Expression>> sizeArguments;
+    sizeArguments.emplace_back(new VariableReference(Position(), sampler));
+    std::vector<std::unique_ptr<Expression>> vec2Arguments;
+    vec2Arguments.emplace_back(call(Position(), textureSize, std::move(sizeArguments)));
+    std::unique_ptr<Expression> vec2Size = std::unique_ptr<Expression>(
+                       new Constructor(Position(), *fContext.fVec2_Type, std::move(vec2Arguments)));
+    const Type& type = arguments[1]->fType;
+    arguments[1] = std::unique_ptr<Expression>(new BinaryExpression(Position(),
+                                                                    std::move(vec2Size),
+                                                                    Token::STAR,
+                                                                    std::move(arguments[1]),
+                                                                    type));
+}
+
 std::unique_ptr<Expression> IRGenerator::call(Position position,
                                               const FunctionDeclaration& function,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
@@ -1148,6 +1171,10 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
         if (arguments[i] && (function.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag)) {
             this->markWrittenTo(*arguments[i], true);
         }
+    }
+    if (function.fBuiltin && function.fName == "texture" &&
+        arguments[0]->fType == *fContext.fSampler2DRect_Type) {
+        this->fixRectSampling(arguments);
     }
     return std::unique_ptr<FunctionCall>(new FunctionCall(position, *returnType, function,
                                                           std::move(arguments)));
