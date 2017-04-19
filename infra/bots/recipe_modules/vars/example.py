@@ -74,7 +74,7 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') 
+                     swarm_out_dir='[SWARM_OUT_DIR]')
   )
 
   builder = 'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN'

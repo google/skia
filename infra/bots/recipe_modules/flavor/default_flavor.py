@@ -127,11 +127,11 @@ class DefaultFlavorUtils(object):
     """Like shutil.copyfile, but for copying to a connected device."""
     # For "normal" builders who don't have an attached device, we expect
     # host_dir and device_dir to be the same.
-    if str(host_path) != str(device_path):  # pragma: no cover
+    if str(host_path) != str(device_path):
       raise ValueError('For builders who do not have attached devices, copying '
                        'from host to device is undefined and only allowed if '
                        'host_path and device_path are the same (%s vs %s).' % (
-                       str(host_path), str(device_path)))
+                       str(host_path), str(device_path)))  # pragma: no cover
 
   def create_clean_device_dir(self, path):
     """Like shutil.rmtree() + os.makedirs(), but on a connected device."""
