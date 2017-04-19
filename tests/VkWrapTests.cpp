@@ -31,56 +31,37 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 
     GrBackendObject backendObj = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kPixelConfig,
                                                                       false);
-    const GrVkImageInfo* imageInfo = reinterpret_cast<const GrVkImageInfo*>(backendObj);
+    const GrVkImageInfo* backendTex = reinterpret_cast<const GrVkImageInfo*>(backendObj);
 
-    GrBackendTexture backendTex = GrBackendTexture(kW, kH, imageInfo);
-    sk_sp<GrTexture> tex = gpu->wrapBackendTexture(backendTex,
-                                                   kTopLeft_GrSurfaceOrigin,
-                                                   kNone_GrBackendTextureFlag,
-                                                   0,
-                                                   kBorrow_GrWrapOwnership);
+    // check basic borrowed creation
+    GrBackendTextureDesc desc;
+    desc.fConfig = kPixelConfig;
+    desc.fWidth = kW;
+    desc.fHeight = kH;
+    desc.fTextureHandle = backendObj;
+    sk_sp<GrTexture> tex = gpu->wrapBackendTexture(desc, kBorrow_GrWrapOwnership);
     REPORTER_ASSERT(reporter, tex);
 
     // image is null
-    GrVkImageInfo backendCopy = *imageInfo;
+    GrVkImageInfo backendCopy = *backendTex;
     backendCopy.fImage = VK_NULL_HANDLE;
-    backendTex = GrBackendTexture(kW, kH, &backendCopy);
-    tex = gpu->wrapBackendTexture(backendTex,
-                                  kTopLeft_GrSurfaceOrigin,
-                                  kNone_GrBackendTextureFlag,
-                                  0,
-                                  kBorrow_GrWrapOwnership);
+    desc.fTextureHandle = (GrBackendObject) &backendCopy;
+    tex = gpu->wrapBackendTexture(desc, kBorrow_GrWrapOwnership);
     REPORTER_ASSERT(reporter, !tex);
-    tex = gpu->wrapBackendTexture(backendTex,
-                                  kTopLeft_GrSurfaceOrigin,
-                                  kNone_GrBackendTextureFlag,
-                                  0,
-                                  kAdopt_GrWrapOwnership);
+    tex = gpu->wrapBackendTexture(desc, kAdopt_GrWrapOwnership);
     REPORTER_ASSERT(reporter, !tex);
 
     // alloc is null
-    backendCopy.fImage = imageInfo->fImage;
+    backendCopy.fImage = backendTex->fImage;
     backendCopy.fAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
-    tex = gpu->wrapBackendTexture(backendTex,
-                                  kTopLeft_GrSurfaceOrigin,
-                                  kNone_GrBackendTextureFlag,
-                                  0,
-                                  kBorrow_GrWrapOwnership);
+    tex = gpu->wrapBackendTexture(desc, kBorrow_GrWrapOwnership);
     REPORTER_ASSERT(reporter, !tex);
-    tex = gpu->wrapBackendTexture(backendTex,
-                                  kTopLeft_GrSurfaceOrigin,
-                                  kNone_GrBackendTextureFlag,
-                                  0,
-                                  kAdopt_GrWrapOwnership);
+    tex = gpu->wrapBackendTexture(desc, kAdopt_GrWrapOwnership);
     REPORTER_ASSERT(reporter, !tex);
-    // check adopt creation
-    backendCopy.fAlloc = imageInfo->fAlloc;
-    tex = gpu->wrapBackendTexture(backendTex,
-                                  kTopLeft_GrSurfaceOrigin,
-                                  kNone_GrBackendTextureFlag,
-                                  0,
-                                  kAdopt_GrWrapOwnership);
 
+    // check adopt creation
+    backendCopy.fAlloc = backendTex->fAlloc;
+    tex = gpu->wrapBackendTexture(desc, kAdopt_GrWrapOwnership);
     REPORTER_ASSERT(reporter, tex);
 
     gpu->deleteTestingOnlyBackendTexture(backendObj, true);
@@ -129,56 +110,38 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
 
     GrBackendObject backendObj = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kPixelConfig,
                                                                       true);
-    const GrVkImageInfo* imageInfo = reinterpret_cast<const GrVkImageInfo*>(backendObj);
+    const GrVkImageInfo* backendTex = reinterpret_cast<const GrVkImageInfo*>(backendObj);
 
-    GrBackendTexture backendTex = GrBackendTexture(kW, kH, imageInfo);
-    sk_sp<GrTexture> tex = gpu->wrapBackendTexture(backendTex,
-                                                   kTopLeft_GrSurfaceOrigin,
-                                                   kRenderTarget_GrBackendTextureFlag,
-                                                   0,
-                                                   kBorrow_GrWrapOwnership);
+    // check basic borrowed creation
+    GrBackendTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrBackendTextureFlag;
+    desc.fConfig = kPixelConfig;
+    desc.fWidth = kW;
+    desc.fHeight = kH;
+    desc.fTextureHandle = backendObj;
+    sk_sp<GrTexture> tex = gpu->wrapBackendTexture(desc, kBorrow_GrWrapOwnership);
     REPORTER_ASSERT(reporter, tex);
 
     // image is null
-    GrVkImageInfo backendCopy = *imageInfo;
+    GrVkImageInfo backendCopy = *backendTex;
     backendCopy.fImage = VK_NULL_HANDLE;
-    backendTex = GrBackendTexture(kW, kH, &backendCopy);
-    tex = gpu->wrapBackendTexture(backendTex,
-                                  kTopLeft_GrSurfaceOrigin,
-                                  kRenderTarget_GrBackendTextureFlag,
-                                  0,
-                                  kBorrow_GrWrapOwnership);
+    desc.fTextureHandle = (GrBackendObject)&backendCopy;
+    tex = gpu->wrapBackendTexture(desc, kBorrow_GrWrapOwnership);
     REPORTER_ASSERT(reporter, !tex);
-    tex = gpu->wrapBackendTexture(backendTex,
-                                  kTopLeft_GrSurfaceOrigin,
-                                  kRenderTarget_GrBackendTextureFlag,
-                                  0,
-                                  kAdopt_GrWrapOwnership);
+    tex = gpu->wrapBackendTexture(desc, kAdopt_GrWrapOwnership);
     REPORTER_ASSERT(reporter, !tex);
 
     // alloc is null
-    backendCopy.fImage = imageInfo->fImage;
+    backendCopy.fImage = backendTex->fImage;
     backendCopy.fAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
-    tex = gpu->wrapBackendTexture(backendTex,
-                                  kTopLeft_GrSurfaceOrigin,
-                                  kRenderTarget_GrBackendTextureFlag,
-                                  0,
-                                  kBorrow_GrWrapOwnership);
+    tex = gpu->wrapBackendTexture(desc, kBorrow_GrWrapOwnership);
     REPORTER_ASSERT(reporter, !tex);
-    tex = gpu->wrapBackendTexture(backendTex,
-                                  kTopLeft_GrSurfaceOrigin,
-                                  kRenderTarget_GrBackendTextureFlag,
-                                  0,
-                                  kAdopt_GrWrapOwnership);
+    tex = gpu->wrapBackendTexture(desc, kAdopt_GrWrapOwnership);
     REPORTER_ASSERT(reporter, !tex);
 
     // check adopt creation
-    backendCopy.fAlloc = imageInfo->fAlloc;
-    tex = gpu->wrapBackendTexture(backendTex,
-                                  kTopLeft_GrSurfaceOrigin,
-                                  kRenderTarget_GrBackendTextureFlag,
-                                  0,
-                                  kAdopt_GrWrapOwnership);
+    backendCopy.fAlloc = backendTex->fAlloc;
+    tex = gpu->wrapBackendTexture(desc, kAdopt_GrWrapOwnership);
     REPORTER_ASSERT(reporter, tex);
 
     gpu->deleteTestingOnlyBackendTexture(backendObj, true);

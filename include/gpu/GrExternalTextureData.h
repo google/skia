@@ -21,7 +21,6 @@ protected:
     virtual GrBackendObject getBackendObject() const = 0;
     virtual void attachToContext(GrContext*) = 0;
 
-    friend class SkCrossContextImageData;
     friend class SkCCIDBackendTexture;
     friend class SkImage;
 };

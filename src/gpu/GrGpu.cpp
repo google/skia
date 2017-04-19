@@ -8,7 +8,6 @@
 
 #include "GrGpu.h"
 
-#include "GrBackendSurface.h"
 #include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -193,25 +192,21 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
     return tex;
 }
 
-sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
-                                           GrSurfaceOrigin origin,
-                                           GrBackendTextureFlags flags,
-                                           int sampleCnt,
+sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc,
                                            GrWrapOwnership ownership) {
     this->handleDirtyContext();
-    if (!this->caps()->isConfigTexturable(backendTex.config())) {
+    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
         return nullptr;
     }
-    if ((flags & kRenderTarget_GrBackendTextureFlag) &&
-        !this->caps()->isConfigRenderable(backendTex.config(), sampleCnt > 0)) {
+    if ((desc.fFlags & kRenderTarget_GrBackendTextureFlag) &&
+        !this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
     }
     int maxSize = this->caps()->maxTextureSize();
-    if (backendTex.width() > maxSize || backendTex.height() > maxSize) {
+    if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
         return nullptr;
     }
-    sk_sp<GrTexture> tex = this->onWrapBackendTexture(backendTex, origin, flags, sampleCnt,
-                                                      ownership);
+    sk_sp<GrTexture> tex = this->onWrapBackendTexture(desc, ownership);
     if (!tex) {
         return nullptr;
     }
@@ -231,18 +226,19 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget
     return this->onWrapBackendRenderTarget(desc);
 }
 
-sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                              GrSurfaceOrigin origin,
-                                                              int sampleCnt) {
+sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc) {
     this->handleDirtyContext();
-    if (!this->caps()->isConfigRenderable(tex.config(), sampleCnt > 0)) {
+    if (!(desc.fFlags & kRenderTarget_GrBackendTextureFlag)) {
+      return nullptr;
+    }
+    if (!this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
     }
     int maxSize = this->caps()->maxTextureSize();
-    if (tex.width() > maxSize || tex.height() > maxSize) {
+    if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
         return nullptr;
     }
-    return this->onWrapBackendTextureAsRenderTarget(tex, origin, sampleCnt);
+    return this->onWrapBackendTextureAsRenderTarget(desc);
 }
 
 GrBuffer* GrGpu::createBuffer(size_t size, GrBufferType intendedType,

@@ -13,7 +13,6 @@
 
 #include "SkRect.h"
 
-class GrBackendTexture;
 class GrCaps;
 class GrOpList;
 class GrRenderTargetOpList;
@@ -190,7 +189,7 @@ public:
                                               const GrSurfaceDesc&, SkBudgeted,
                                               const void* srcData, size_t rowBytes);
 
-    static sk_sp<GrTextureProxy> MakeWrappedBackend(GrContext*, GrBackendTexture&, GrSurfaceOrigin);
+    static sk_sp<GrSurfaceProxy> MakeWrappedBackend(GrContext*, GrBackendTextureDesc&);
 
     const GrSurfaceDesc& desc() const { return fDesc; }
 
