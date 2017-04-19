@@ -496,10 +496,6 @@ uint64_t SkGifCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
     // initializeColorTable has been called.
     // FIXME: Is there a way to make this less fragile?
     if (dstInfo.colorType() == kIndex_8_SkColorType && fCurrColorTableIsReal) {
-        // We only support index 8 for the first frame, for backwards
-        // compatibity on Android, so we are using the color table for the first frame.
-        SkASSERT(this->options().fFrameIndex == 0);
-        // Use the transparent index for the first frame.
         const size_t transPixel = fReader->frameContext(0)->transparentPixel();
         if (transPixel < (size_t) fCurrColorTable->count()) {
             return transPixel;
