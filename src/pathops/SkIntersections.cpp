@@ -31,6 +31,8 @@ void SkIntersections::flip() {
     }
 }
 
+extern SkPath globalDebugPath;
+
 int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
     if (fIsCoincident[0] == 3 && between(fT[0][0], one, fT[0][1])) {
         // For now, don't allow a mix of coincident and non-coincident intersections
@@ -67,6 +69,14 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
         }
     }
     if (fUsed >= fMax) {
+        globalDebugPath.dump();
+        SkDebugf("fUsed=%d fMax=%d", fUsed, fMax);
+        SkDebugf("one=%g two=%g pt=%g,%g\n", one, two, pt.fX, pt.fY);
+        for (int i = 0; i < fUsed; ++i) {
+            double oldOne = fT[0][i];
+            double oldTwo = fT[1][i];
+            SkDebugf("%d: oldOne=%g oldTwo=%g oldPt=%g,%g\n", oldOne, oldTwo, fPt[i].fX, fPt[i].fY);
+        }
         SkOPASSERT(0);  // FIXME : this error, if it is to be handled at runtime in release, must
                       // be propagated all the way back down to the caller, and return failure.
         fUsed = 0;
