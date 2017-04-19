@@ -16,7 +16,7 @@
 // only used for storage
 typedef uint16_t SkHalf;
 
-static constexpr uint16_t SK_HalfMin     = 0x0400; // 2^-24  (minimum positive normal value)
+static constexpr uint16_t SK_HalfMin     = 0x0400; // 2^-14  (minimum positive normal value)
 static constexpr uint16_t SK_HalfMax     = 0x7bff; // 65504
 static constexpr uint16_t SK_HalfEpsilon = 0x1400; // 2^-10
 static constexpr uint16_t SK_Half1       = 0x3C00; // 1
