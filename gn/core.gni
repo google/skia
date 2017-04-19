@@ -483,6 +483,7 @@ skia_core_sources = [
   # Path ops
   "$_include/pathops/SkPathOps.h",
 
+  "$_src/pathops/PathOpsDebug.cpp",
   "$_src/pathops/SkAddIntersections.cpp",
   "$_src/pathops/SkDConicLineIntersection.cpp",
   "$_src/pathops/SkDCubicLineIntersection.cpp",
