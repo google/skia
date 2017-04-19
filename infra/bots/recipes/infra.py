@@ -24,7 +24,7 @@ def RunSteps(api):
 
   # Run the infra tests.
   with api.step.context({'cwd': api.vars.skia_dir, 'env': api.infra.go_env}):
-    api.step('infra_tests', cmd=['make', '-v', '-C', 'infra/bots', 'test'])
+    api.step('infra_tests', cmd=['make', '-C', 'infra/bots', 'test'])
 
 
 def GenTests(api):
