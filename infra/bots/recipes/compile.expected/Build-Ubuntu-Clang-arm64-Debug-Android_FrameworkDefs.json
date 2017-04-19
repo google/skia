@@ -99,7 +99,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Debug-Android_FrameworkDefs/Debug",
-      "--args=extra_cflags=[\"-O1\"] ndk=\"[START_DIR]/android_ndk_linux\" skia_enable_android_framework_defines=true target_cpu=\"arm64\""
+      "--args=extra_cflags=[\"-O1\", \"-Wno-comma\", \"-fno-omit-frame-pointer\"] ndk=\"[START_DIR]/android_ndk_linux\" skia_enable_android_framework_defines=true target_cpu=\"arm64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
