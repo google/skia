@@ -141,6 +141,7 @@ tests_sources = [
   "$_tests/PaintBreakTextTest.cpp",
   "$_tests/PaintImageFilterTest.cpp",
   "$_tests/PaintTest.cpp",
+  "$_tests/ParametricStageTest.cpp",
   "$_tests/ParsePathTest.cpp",
   "$_tests/PathCoverageTest.cpp",
   "$_tests/PathMeasureTest.cpp",
