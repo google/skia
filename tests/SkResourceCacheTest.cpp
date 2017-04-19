@@ -127,7 +127,7 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
         testBitmapCache_discarded_bitmap(reporter, &cache, nullptr);
     }
     {
-        sk_sp<SkDiscardableMemoryPool> pool(SkDiscardableMemoryPool::Create(byteLimit, nullptr));
+        sk_sp<SkDiscardableMemoryPool> pool(SkDiscardableMemoryPool::Make(byteLimit, nullptr));
         gPool = pool.get();
         SkResourceCache::DiscardableFactory factory = pool_factory;
         SkResourceCache cache(factory);
