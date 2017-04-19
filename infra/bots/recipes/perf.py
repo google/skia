@@ -228,6 +228,8 @@ def perf_steps(api):
     # Due to limited disk space, run a watered down perf run on Chromecast.
     args = [
       target,
+      '--config',
+      'gles',
        '-i', api.flavor.device_dirs.resource_dir,
        '--images', api.flavor.device_path_join(
             api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
