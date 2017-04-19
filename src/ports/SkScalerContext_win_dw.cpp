@@ -293,20 +293,20 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         fTextSizeMeasure = gdiTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_GDI_CLASSIC;
 
+    // If the requested size is above 20px or there are no bytecode hints, use symmetric rendering.
+    } else if (realTextSize > SkIntToScalar(20) || !is_hinted(typeface)) {
+        fTextSizeRender = realTextSize;
+        fRenderingMode = DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC;
+        fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
+        fTextSizeMeasure = realTextSize;
+        fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
+
     // If the font has a gasp table, use it to determine symmetric rendering.
     } else if (get_gasp_range(typeface, SkScalarRoundToInt(gdiTextSize), &range)) {
         fTextSizeRender = realTextSize;
         fRenderingMode = range.fFlags.field.SymmetricSmoothing
                        ? DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC
                        : DWRITE_RENDERING_MODE_NATURAL;
-        fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
-        fTextSizeMeasure = realTextSize;
-        fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
-
-    // If the requested size is above 20px or there are no bytecode hints, use symmetric rendering.
-    } else if (realTextSize > SkIntToScalar(20) || !is_hinted(typeface)) {
-        fTextSizeRender = realTextSize;
-        fRenderingMode = DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC;
         fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
