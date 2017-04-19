@@ -105,6 +105,24 @@
       "revId": "0209240286e53cc47f70303b3ae36ada72e190ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6eff9a5c_38507774",
+        "filename": "tools/fiddle/fiddle_main.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2017-04-19T18:05:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ee6bc62_c5c1299f",
+      "revId": "0209240286e53cc47f70303b3ae36ada72e190ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
