@@ -72,7 +72,7 @@ static SkCachedData* test_locking(skiatest::Reporter* reporter,
  *  and when the cache is.
  */
 DEF_TEST(CachedData, reporter) {
-    sk_sp<SkDiscardableMemoryPool> pool(SkDiscardableMemoryPool::Create(1000));
+    sk_sp<SkDiscardableMemoryPool> pool(SkDiscardableMemoryPool::Make(1000));
 
     for (int useDiscardable = 0; useDiscardable <= 1; ++useDiscardable) {
         const size_t size = 100;
