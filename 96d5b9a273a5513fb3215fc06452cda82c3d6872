@@ -46,6 +46,29 @@
       "revId": "96d5b9a273a5513fb3215fc06452cda82c3d6872",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "798a79de_33802aa8",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2017-04-19T20:33:38Z",
+      "side": 0,
+      "message": "Chromium will not be entering this branch since the destination will not be kIndex_8_SkColorType.\nSo perhaps removing this is incorrect. Please advise.\n\nBut the gif spec says any given frame can not fill the entire canvas.\nIf the first frame has a disposal method other than keep, does that mean later frames could also require the fill color?",
+      "range": {
+        "startLine": 502,
+        "startChar": 51,
+        "endLine": 502,
+        "endChar": 56
+      },
+      "revId": "96d5b9a273a5513fb3215fc06452cda82c3d6872",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
