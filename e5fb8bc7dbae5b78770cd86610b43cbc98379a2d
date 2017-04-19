@@ -119,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "4b3f36e7_23ccde94",
+        "filename": "src/codec/SkIcoCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2017-04-19T19:42:53Z",
+      "side": 1,
+      "message": "New CR for this is https://skia-review.googlesource.com/13619",
+      "parentUuid": "41a69a29_7e9dd2e3",
+      "range": {
+        "startLine": 197,
+        "startChar": 68,
+        "endLine": 197,
+        "endChar": 69
+      },
+      "revId": "e5fb8bc7dbae5b78770cd86610b43cbc98379a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "be444243_667500c0",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 4
