@@ -656,8 +656,6 @@ DEFINES_ALL = [
     # Staging flags for API changes
     # Temporarily Disable analytic AA for Google3
     "SK_NO_ANALYTIC_AA",
-    "SK_SUPPORT_LEGACY_CANVAS_READPIXELS",
-    "SK_SUPPORT_OBSOLETE_LOCKPIXELS",
 ]
 
 ################################################################################
