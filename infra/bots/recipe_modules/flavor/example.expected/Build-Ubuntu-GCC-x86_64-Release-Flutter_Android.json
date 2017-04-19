@@ -1,0 +1,67 @@
+[
+  {
+    "cmd": [
+      "gclient",
+      "runhooks"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-Flutter_Android"
+    },
+    "name": "runhook"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "rmtree",
+      "[CUSTOM_/_B_WORK]/flutter/src/out/android_release"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "env": {
+      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
+    },
+    "infra_step": true,
+    "name": "rmtree android_release"
+  },
+  {
+    "cmd": [
+      "flutter/tools/gn",
+      "--runtime-mode=release",
+      "--android"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-Flutter_Android"
+    },
+    "name": "gn_gen"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-C",
+      "out/android_release",
+      "-j100"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-Flutter_Android"
+    },
+    "name": "build_flutter"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
