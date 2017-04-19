@@ -464,6 +464,7 @@
       "gm",
       "_",
       "multipicturedraw_rrectclip_simple",
+      "--threads 0 ",
       "--match",
       "~GLPrograms",
       "~IntTexture"

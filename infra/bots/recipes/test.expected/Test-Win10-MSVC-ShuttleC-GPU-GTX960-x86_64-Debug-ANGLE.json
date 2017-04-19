@@ -401,6 +401,7 @@
       "image",
       "_",
       ".SRW",
+      "--threads 0 ",
       "--match",
       "~GLPrograms"
     ],

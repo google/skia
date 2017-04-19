@@ -281,7 +281,6 @@ pathops_tests_sources = [
   "$_tests/PathOpsCubicQuadIntersectionTest.cpp",
   "$_tests/PathOpsCubicReduceOrderTest.cpp",
   "$_tests/PathOpsDCubicTest.cpp",
-  "$_tests/PathOpsDebug.cpp",
   "$_tests/PathOpsDLineTest.cpp",
   "$_tests/PathOpsDPointTest.cpp",
   "$_tests/PathOpsDRectTest.cpp",

@@ -590,6 +590,7 @@
       "gm",
       "_",
       "xfermodeimagefilter",
+      "--threads 0 ",
       "--match",
       "~ApplyGamma",
       "~ComposedImageFilterBounds_Gpu",
