@@ -8,7 +8,6 @@
 #ifndef GrTest_DEFINED
 #define GrTest_DEFINED
 
-#include "GrBackendSurface.h"
 #include "GrContext.h"
 
 namespace GrTest {
@@ -17,9 +16,6 @@ namespace GrTest {
      * constantly be evicting entries
      */
     void SetupAlwaysEvictAtlas(GrContext*);
-
-    GrBackendTexture CreateBackendTexture(GrBackend, int width, int height,
-                                          GrPixelConfig, GrBackendObject);
 };
 
 #endif

@@ -11,7 +11,6 @@
 #if SK_SUPPORT_GPU
 #include <thread>
 #include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrContextFactory.h"
 #include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
@@ -219,32 +218,22 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
 
     context->resetContext();
 
-    GrBackendTexture backendTex1 = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
-                                                                kW,
-                                                                kH,
-                                                                kRGBA_8888_GrPixelConfig,
-                                                                texHandles[0]);
+    GrBackendTextureDesc desc;
+    desc.fConfig = kBGRA_8888_GrPixelConfig;
+    desc.fWidth = kW;
+    desc.fHeight = kH;
+
+    desc.fTextureHandle = texHandles[0];
     sk_sp<GrTexture> borrowed(context->resourceProvider()->wrapBackendTexture(
-                              backendTex1, kTopLeft_GrSurfaceOrigin, kNone_GrBackendTextureFlag, 0,
-                              kBorrow_GrWrapOwnership));
+                              desc, kBorrow_GrWrapOwnership));
 
-    GrBackendTexture backendTex2 = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
-                                                                kW,
-                                                                kH,
-                                                                kRGBA_8888_GrPixelConfig,
-                                                                texHandles[1]);
+    desc.fTextureHandle = texHandles[1];
     sk_sp<GrTexture> adopted(context->resourceProvider()->wrapBackendTexture(
-                             backendTex2, kTopLeft_GrSurfaceOrigin, kNone_GrBackendTextureFlag, 0,
-                             kAdopt_GrWrapOwnership));
+                             desc, kAdopt_GrWrapOwnership));
 
-    GrBackendTexture backendTex3 = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
-                                                                kW,
-                                                                kH,
-                                                                kRGBA_8888_GrPixelConfig,
-                                                                texHandles[2]);
+    desc.fTextureHandle = texHandles[2];
     sk_sp<GrTexture> adoptedAndCached(context->resourceProvider()->wrapBackendTexture(
-                             backendTex3, kTopLeft_GrSurfaceOrigin, kNone_GrBackendTextureFlag, 0,
-                             kAdoptAndCache_GrWrapOwnership));
+                                      desc, kAdoptAndCache_GrWrapOwnership));
 
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr &&
                               adoptedAndCached != nullptr);

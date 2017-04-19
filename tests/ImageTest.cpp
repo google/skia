@@ -32,9 +32,7 @@
 #include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContextPriv.h"
 #include "GrGpu.h"
-#include "GrTest.h"
 #endif
 
 using namespace sk_gpu_test;
@@ -810,48 +808,44 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     const int kWidth = 10;
     const int kHeight = 10;
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
-
-    GrContext* ctx = ctxInfo.grContext();
-
-    GrBackendObject backendTexHandle =
-            ctxInfo.grContext()->getGpu()->createTestingOnlyBackendTexture(
-                    pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true);
-
-    GrBackendTexture backendTex = GrTest::CreateBackendTexture(ctx->contextPriv().getBackend(),
-                                                               kWidth,
-                                                               kHeight,
-                                                               kRGBA_8888_GrPixelConfig,
-                                                               backendTexHandle);
+    GrBackendTextureDesc backendDesc;
+    backendDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
+    backendDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
+    backendDesc.fWidth = kWidth;
+    backendDesc.fHeight = kHeight;
+    backendDesc.fSampleCnt = 0;
+    backendDesc.fTextureHandle = ctxInfo.grContext()->getGpu()->createTestingOnlyBackendTexture(
+        pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true);
 
     TextureReleaseChecker releaseChecker;
-    GrSurfaceOrigin texOrigin = kBottomLeft_GrSurfaceOrigin;
     sk_sp<SkImage> refImg(
-        SkImage::MakeFromTexture(ctx, backendTex, texOrigin, kPremul_SkAlphaType, nullptr,
+        SkImage::MakeFromTexture(ctxInfo.grContext(), backendDesc, kPremul_SkAlphaType,
                                  TextureReleaseChecker::Release, &releaseChecker));
 
     GrSurfaceOrigin readBackOrigin;
     GrBackendObject readBackHandle = refImg->getTextureHandle(false, &readBackOrigin);
     // TODO: Make it so we can check this (see skbug.com/5019)
 #if 0
-    if (*readBackHandle != *(backendTexHandle)) {
+    if (*readBackHandle != *(backendDesc.fTextureHandle)) {
         ERRORF(reporter, "backend mismatch %d %d\n",
-                       (int)readBackHandle, (int)backendTexHandle);
+                       (int)readBackHandle, (int)backendDesc.fTextureHandle);
     }
-    REPORTER_ASSERT(reporter, readBackHandle == backendTexHandle);
+    REPORTER_ASSERT(reporter, readBackHandle == backendDesc.fTextureHandle);
 #else
     REPORTER_ASSERT(reporter, SkToBool(readBackHandle));
 #endif
-    if (readBackOrigin != texOrigin) {
-        ERRORF(reporter, "origin mismatch %d %d\n", readBackOrigin, texOrigin);
+    if (readBackOrigin != backendDesc.fOrigin) {
+        ERRORF(reporter, "origin mismatch %d %d\n", readBackOrigin, backendDesc.fOrigin);
     }
-    REPORTER_ASSERT(reporter, readBackOrigin == texOrigin);
+    REPORTER_ASSERT(reporter, readBackOrigin == backendDesc.fOrigin);
 
     // Now exercise the release proc
     REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
     refImg.reset(nullptr); // force a release of the image
     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
 
-    ctxInfo.grContext()->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
+    ctxInfo.grContext()->getGpu()->deleteTestingOnlyBackendTexture(backendDesc.fTextureHandle);
 }
 
 static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, const SkImage* b) {

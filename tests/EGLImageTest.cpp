@@ -13,7 +13,6 @@
 #include "GrContextFactory.h"
 #include "GrShaderCaps.h"
 #include "GrSurfaceContext.h"
-#include "GrTest.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
 #include "gl/GLTestContext.h"
@@ -130,12 +129,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     externalTexture.fID = glCtx0->eglImageToExternalTexture(image);
 
     // Wrap this texture ID in a GrTexture
-    GrBackendTexture backendTex(kSize, kSize, kRGBA_8888_GrPixelConfig, &externalTexture);
+    GrBackendTextureDesc externalDesc;
+    externalDesc.fConfig = kRGBA_8888_GrPixelConfig;
+    externalDesc.fWidth = kSize;
+    externalDesc.fHeight = kSize;
+    externalDesc.fTextureHandle = reinterpret_cast<GrBackendObject>(&externalTexture);
 
-    // TODO: If I make this TopLeft origin to match resolve_origin calls for kDefault, this test
-    // fails on the Nexus5. Why?
     sk_sp<GrSurfaceContext> surfaceContext = context0->contextPriv().makeBackendSurfaceContext(
-            backendTex, kBottomLeft_GrSurfaceOrigin, kNone_GrBackendTextureFlag, 0, nullptr);
+                                                                           externalDesc, nullptr);
 
     if (!surfaceContext) {
         ERRORF(reporter, "Error wrapping external texture in GrSurfaceContext.");
@@ -145,21 +146,25 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     // Should not be able to wrap as a RT
     {
+        externalDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
+
         sk_sp<GrSurfaceContext> temp = context0->contextPriv().makeBackendSurfaceContext(
-            backendTex, kBottomLeft_GrSurfaceOrigin, kRenderTarget_GrBackendTextureFlag, 0,
-            nullptr);
+                                                                           externalDesc, nullptr);
         if (temp) {
             ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture as a RT.");
         }
+        externalDesc.fFlags = kNone_GrBackendTextureFlag;
     }
 
     // Should not be able to wrap with a sample count
     {
+        externalDesc.fSampleCnt = 4;
         sk_sp<GrSurfaceContext> temp = context0->contextPriv().makeBackendSurfaceContext(
-            backendTex, kBottomLeft_GrSurfaceOrigin, kNone_GrBackendTextureFlag, 4, nullptr);
+                                                                           externalDesc, nullptr);
         if (temp) {
             ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture with MSAA.");
         }
+        externalDesc.fSampleCnt = 0;
     }
 
     test_read_pixels(reporter, surfaceContext.get(), pixels.get(), "EGLImageTest-read");

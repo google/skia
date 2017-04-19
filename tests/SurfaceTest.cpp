@@ -25,7 +25,6 @@
 #include "GrRenderTargetContext.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
-#include "GrTest.h"
 #include <vector>
 #endif
 
@@ -588,24 +587,20 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     const int kHeight = 10;
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
     sk_memset32(pixels.get(), color, kWidth * kHeight);
-
-    GrBackendObject backendHandle = context->getGpu()->createTestingOnlyBackendTexture(
+    GrBackendTextureDesc desc;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    desc.fWidth = kWidth;
+    desc.fHeight = kHeight;
+    desc.fFlags = kRenderTarget_GrBackendTextureFlag;
+    desc.fTextureHandle = context->getGpu()->createTestingOnlyBackendTexture(
         pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true);
-
-    GrBackendTexture backendTex = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
-                                                               kWidth,
-                                                               kHeight,
-                                                               kRGBA_8888_GrPixelConfig,
-                                                               backendHandle);
-
-    sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(context, backendTex,
-                                                                 kDefault_GrSurfaceOrigin, sampleCnt,
-                                                                 nullptr, nullptr);
+    desc.fSampleCnt = sampleCnt;
+    sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(context, desc, nullptr);
     if (!surface) {
-        context->getGpu()->deleteTestingOnlyBackendTexture(backendHandle);
+        context->getGpu()->deleteTestingOnlyBackendTexture(desc.fTextureHandle);
         return nullptr;
     }
-    *outTexture = backendHandle;
+    *outTexture = desc.fTextureHandle;
     return surface;
 }
 
@@ -615,23 +610,21 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     const int kHeight = 10;
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
     sk_memset32(pixels.get(), color, kWidth * kHeight);
-
-    GrBackendObject backendHandle = context->getGpu()->createTestingOnlyBackendTexture(
+    GrBackendTextureDesc desc;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    desc.fWidth = kWidth;
+    desc.fHeight = kHeight;
+    desc.fFlags = kRenderTarget_GrBackendTextureFlag;
+    desc.fTextureHandle = context->getGpu()->createTestingOnlyBackendTexture(
         pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true);
-
-    GrBackendTexture backendTex = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
-                                                               kWidth,
-                                                               kHeight,
-                                                               kRGBA_8888_GrPixelConfig,
-                                                               backendHandle);
-    sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTextureAsRenderTarget(
-            context, backendTex, kDefault_GrSurfaceOrigin, sampleCnt, nullptr, nullptr);
-
+    desc.fSampleCnt = sampleCnt;
+    sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTextureAsRenderTarget(context, desc,
+                                                                               nullptr);
     if (!surface) {
-        context->getGpu()->deleteTestingOnlyBackendTexture(backendHandle);
+        context->getGpu()->deleteTestingOnlyBackendTexture(desc.fTextureHandle);
         return nullptr;
     }
-    *outTexture = backendHandle;
+    *outTexture = desc.fTextureHandle;
     return surface;
 }
 
@@ -886,26 +879,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
 
     std::vector<GrBackendObject> textureHandles;
     auto wrappedSurfaceMaker = [context,&textureHandles](const SkImageInfo& info) {
-        static const int kSize = 10;
-        GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *context->caps());
+        GrBackendTextureDesc desc;
+        desc.fConfig = SkImageInfo2GrPixelConfig(info, *context->caps());
+        desc.fWidth = 10;
+        desc.fHeight = 10;
+        desc.fFlags = kRenderTarget_GrBackendTextureFlag;
+        desc.fTextureHandle = context->getGpu()->createTestingOnlyBackendTexture(
+            nullptr, desc.fWidth, desc.fHeight, desc.fConfig, true);
 
-        GrBackendObject backendHandle = context->getGpu()->createTestingOnlyBackendTexture(
-                nullptr, kSize, kSize, config, true);
-
-        if (!backendHandle) {
+        if (!desc.fTextureHandle) {
             return sk_sp<SkSurface>(nullptr);
         }
-        textureHandles.push_back(backendHandle);
+        textureHandles.push_back(desc.fTextureHandle);
 
-        GrBackendTexture backendTex = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
-                                                                   kSize,
-                                                                   kSize,
-                                                                   config,
-                                                                   backendHandle);
-
-        return SkSurface::MakeFromBackendTexture(context, backendTex,
-                                                 kDefault_GrSurfaceOrigin, 0,
-                                                 sk_ref_sp(info.colorSpace()), nullptr);
+        return SkSurface::MakeFromBackendTexture(context, desc, sk_ref_sp(info.colorSpace()),
+                                                 nullptr);
     };
 
     test_surface_creation_and_snapshot_with_color_space(reporter, "wrapped", f16Support,
