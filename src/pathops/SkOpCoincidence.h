@@ -7,8 +7,8 @@
 #ifndef SkOpCoincidence_DEFINED
 #define SkOpCoincidence_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkTDArray.h"
-#include "SkOpTAllocator.h"
 #include "SkOpSpan.h"
 #include "SkPathOpsTypes.h"
 
@@ -60,7 +60,7 @@ public:
     SkDEBUGCODE(SkOpGlobalState* globalState() { return fGlobalState; })
 
     void init(SkDEBUGCODE(SkOpGlobalState* globalState)) {
-        sk_bzero(this, sizeof(*this)); 
+        sk_bzero(this, sizeof(*this));
         SkDEBUGCODE(fGlobalState = globalState);
     }
 

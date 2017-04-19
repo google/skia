@@ -266,8 +266,7 @@ void SkOpCoincidence::add(SkOpPtT* coinPtTStart, SkOpPtT* coinPtTEnd, SkOpPtT* o
     SkOPASSERT(!oppPtTEnd->deleted());
     DebugCheckAdd(fHead, coinPtTStart, coinPtTEnd, oppPtTStart, oppPtTEnd);
     DebugCheckAdd(fTop, coinPtTStart, coinPtTEnd, oppPtTStart, oppPtTEnd);
-    SkCoincidentSpans* coinRec = SkOpTAllocator<SkCoincidentSpans>::Allocate(
-            this->globalState()->allocator());
+    SkCoincidentSpans* coinRec = this->globalState()->allocator()->make<SkCoincidentSpans>();
     coinRec->init(SkDEBUGCODE(fGlobalState));
     coinRec->set(this->fHead, coinPtTStart, coinPtTEnd, oppPtTStart, oppPtTEnd);
     fHead = coinRec;
@@ -611,7 +610,7 @@ bool SkOpCoincidence::checkOverlap(SkCoincidentSpans* check,
 /* Please keep this in sync with debugAddIfMissing() */
 // note that over1s, over1e, over2s, over2e are ordered
 bool SkOpCoincidence::addIfMissing(const SkOpPtT* over1s, const SkOpPtT* over2s,
-        double tStart, double tEnd, SkOpSegment* coinSeg, SkOpSegment* oppSeg, bool* added  
+        double tStart, double tEnd, SkOpSegment* coinSeg, SkOpSegment* oppSeg, bool* added
         SkDEBUGPARAMS(const SkOpPtT* over1e) SkDEBUGPARAMS(const SkOpPtT* over2e)) {
     SkASSERT(tStart < tEnd);
     SkASSERT(over1s->fT < over1e->fT);
