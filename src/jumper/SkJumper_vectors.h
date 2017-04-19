@@ -628,4 +628,28 @@ SI U16 bswap(U16 x) {
 
 SI F fract(F v) { return v - floor_(v); }
 
+// See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html.
+SI F approx_log2(F x) {
+    // e - 127 is a fair approximation of log2(x) in its own right...
+    F e = cast(bit_cast<U32>(x)) * C(1.0f / (1<<23));
+
+    // ... but using the mantissa to refine its error is _much_ better.
+    F m = bit_cast<F>((bit_cast<U32>(x) & 0x007fffff_i) | 0x3f000000_i);
+    return e
+         - 124.225514990_f
+         -   1.498030302_f * m
+         -   1.725879990_f / (0.3520887068_f + m);
+}
+SI F approx_pow2(F x) {
+    F f = fract(x);
+    return bit_cast<F>(round(C(1.0f * (1<<23)),
+                             x + 121.274057500_f
+                               -   1.490129070_f * f
+                               +  27.728023300_f / (4.84252568_f - f)));
+}
+
+SI F approx_powf(F x, F y) {
+    return approx_pow2(approx_log2(x) * y);
+}
+
 #endif//SkJumper_vectors_DEFINED
