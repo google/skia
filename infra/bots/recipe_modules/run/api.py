@@ -98,7 +98,7 @@ class SkiaStepApi(recipe_api.RecipeApi):
       if abort_on_failure or fail_build_on_failure:
         self._failed.append(e)
       if abort_on_failure:
-        raise  # pragma: no cover
+        raise
 
   def copy_build_products(self, src, dst):
     """Copy whitelisted build products from src to dst."""

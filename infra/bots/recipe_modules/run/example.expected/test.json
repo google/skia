@@ -17,6 +17,22 @@
   },
   {
     "cmd": [
+      "false"
+    ],
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
+    },
+    "name": "fail again",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
       "echo",
       "do the thing"
     ],
@@ -253,7 +269,7 @@
   },
   {
     "name": "$result",
-    "reason": "Failed build steps: fail, retry fail, retry fail (attempt 2), retry fail (attempt 3), retry fail (attempt 4), retry fail (attempt 5), retry success, retry success (attempt 2)",
+    "reason": "Failed build steps: fail, fail again, retry fail, retry fail (attempt 2), retry fail (attempt 3), retry fail (attempt 4), retry fail (attempt 5), retry success, retry success (attempt 2)",
     "recipe_result": null,
     "status_code": 1
   }

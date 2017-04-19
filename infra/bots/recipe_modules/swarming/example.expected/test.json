@@ -198,7 +198,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"isolate_path\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-task.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"myvar\", \n        \"myval\"\n    ], \n    \"dir\": \"isolate_dir\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"isolate_path\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-task.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--blacklist\", \n        \"*.pyc\", \n        \"--extra-variable\", \n        \"myvar\", \n        \"myval\"\n    ], \n    \"dir\": \"isolate_dir\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/task.isolated.gen.json"
     ],
     "name": "Write task.isolated.gen.json"
@@ -273,7 +273,9 @@
       "revision:abc123",
       "--tag",
       "stepname:task-4",
-      "[dummy hash for task-4]"
+      "[dummy hash for task-4]",
+      "--",
+      "--extra"
     ],
     "infra_step": true,
     "name": "[trigger] task-4",
@@ -332,7 +334,9 @@
       "revision:abc123",
       "--tag",
       "stepname:task-2",
-      "[dummy hash for task-2]"
+      "[dummy hash for task-2]",
+      "--",
+      "--extra"
     ],
     "infra_step": true,
     "name": "[trigger] task-2",
@@ -391,7 +395,9 @@
       "revision:abc123",
       "--tag",
       "stepname:task-3",
-      "[dummy hash for task-3]"
+      "[dummy hash for task-3]",
+      "--",
+      "--extra"
     ],
     "infra_step": true,
     "name": "[trigger] task-3",
@@ -450,7 +456,9 @@
       "revision:abc123",
       "--tag",
       "stepname:task-0",
-      "[dummy hash for task-0]"
+      "[dummy hash for task-0]",
+      "--",
+      "--extra"
     ],
     "infra_step": true,
     "name": "[trigger] task-0",
@@ -509,7 +517,9 @@
       "revision:abc123",
       "--tag",
       "stepname:task-1",
-      "[dummy hash for task-1]"
+      "[dummy hash for task-1]",
+      "--",
+      "--extra"
     ],
     "infra_step": true,
     "name": "[trigger] task-1",

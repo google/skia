@@ -89,7 +89,7 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
       '--isolated', isolated_path,
       '--config-variable', 'OS', os_type,
     ]
-    if blacklist:  # pragma: no cover
+    if blacklist:
       for b in blacklist:
         isolate_args.extend(['--blacklist', b])
     for k, v in extra_variables.iteritems():
@@ -163,7 +163,7 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
           hard_timeout if hard_timeout else DEFAULT_TASK_TIMEOUT)
       swarming_task.io_timeout = (
           io_timeout if io_timeout else DEFAULT_IO_TIMEOUT)
-      if extra_args:  # pragma: no cover
+      if extra_args:
         swarming_task.extra_args = extra_args
       revision = self.m.properties.get('revision')
       if revision:

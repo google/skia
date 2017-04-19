@@ -18,9 +18,13 @@ def myfunc(api, i):
 
 def RunSteps(api):
   api.vars.setup()
-  api.run(api.step, 'fail', cmd=['false'], abort_on_failure=False)
+  try:
+    api.run(api.step, 'fail', cmd=['false'])
+  except api.step.StepFailure:
+    pass
+  api.run(api.step, 'fail again', cmd=['false'], abort_on_failure=False)
   api.run(api.step, 'do a thing', cmd=['echo', 'do the thing'])
-  assert len(api.run.failed_steps) == 1
+  assert len(api.run.failed_steps) == 2
 
   # Run once.
   for i in range(10):
@@ -59,6 +63,7 @@ def GenTests(api):
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
       api.step_data('fail', retcode=1) +
+      api.step_data('fail again', retcode=1) +
       api.step_data('retry fail', retcode=1) +
       api.step_data('retry fail (attempt 2)', retcode=1) +
       api.step_data('retry fail (attempt 3)', retcode=1) +
