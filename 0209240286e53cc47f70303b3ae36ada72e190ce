@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d5460add_90c079f7",
+        "filename": "tools/fiddle/animate.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2017-04-19T16:56:21Z",
+      "side": 1,
+      "message": "Yeah, just like parse-fiddle-output, animate.sh is just a hacky shell script to demonstrate the generation of animations. This will all be done via Go code in fiddle.",
+      "parentUuid": "bff3230b_83f798f4",
+      "revId": "0209240286e53cc47f70303b3ae36ada72e190ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9ce92e2b_4751f134",
         "filename": "tools/fiddle/fiddle_main.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-19T16:46:53Z",
       "side": 1,
       "message": "where do we need duration?",
+      "revId": "0209240286e53cc47f70303b3ae36ada72e190ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f68b3ab3_ec96b39c",
+        "filename": "tools/fiddle/fiddle_main.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2017-04-19T16:56:21Z",
+      "side": 1,
+      "message": "If you wanted to generate an animation that was based on time, i.e. rotate a square at 1 rad/s, you will need to know the full duration in order to convert from \u0027frame\u0027 into an actual time value.",
+      "parentUuid": "9ce92e2b_4751f134",
       "revId": "0209240286e53cc47f70303b3ae36ada72e190ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
