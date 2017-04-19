@@ -22,6 +22,8 @@
 
 extern SkBitmap source;
 extern sk_sp<SkImage> image;
+extern double duration; // The total duration of the animation in seconds.
+extern double frame;    // A value in [0, 1] of where we are in the animation.
 
 struct DrawOptions {
     DrawOptions(int w, int h, bool r, bool g, bool p, bool k, bool srgb, bool f16, bool textOnly, const char* s)

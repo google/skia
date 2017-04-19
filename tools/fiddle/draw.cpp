@@ -19,7 +19,7 @@ void draw(SkCanvas* canvas) {
     canvas->clear(SK_ColorWHITE);
     SkMatrix matrix;
     matrix.setScale(0.75f, 0.75f);
-    matrix.preRotate(30.0f);
+    matrix.preRotate(frame * 30.0f * duration); // If an animation, rotate at 30 deg/s.
     SkPaint paint;
     paint.setShader(image->makeShader(SkShader::kRepeat_TileMode,
                                       SkShader::kRepeat_TileMode,

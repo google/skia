@@ -778,7 +778,9 @@ if (skia_enable_tools) {
         "tools/fiddle/draw.cpp",
         "tools/fiddle/fiddle_main.cpp",
       ]
+      testonly = true
       deps = [
+        ":flags",
         ":skia",
         ":skia.h",
       ]
