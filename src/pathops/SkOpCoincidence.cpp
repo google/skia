@@ -378,7 +378,7 @@ bool SkOpCoincidence::addEndMovedSpans(const SkOpPtT* ptT) {
     and the adjacent ptT loop.
 */
 bool SkOpCoincidence::addEndMovedSpans(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
-    DEBUG_SET_PHASE();
+    DEBUG_SET_PHASE(addEndMovedSpans);
     SkCoincidentSpans* span = fHead;
     if (!span) {
         return true;
@@ -426,7 +426,7 @@ bool SkOpCoincidence::addEndMovedSpans(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
 // for each coincident pair, match the spans
 // if the spans don't match, add the missing pt to the segment and loop it in the opposite span
 bool SkOpCoincidence::addExpanded(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
-    DEBUG_SET_PHASE();
+    DEBUG_SET_PHASE(addExpanded);
     SkCoincidentSpans* coin = this->fHead;
     if (!coin) {
         return true;
@@ -982,7 +982,7 @@ bool SkOpCoincidence::contains(const SkOpPtT* coinPtTStart, const SkOpPtT* coinP
 }
 
 void SkOpCoincidence::correctEnds(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
-    DEBUG_SET_PHASE();
+    DEBUG_SET_PHASE(correctEnds);
     SkCoincidentSpans* coin = fHead;
     if (!coin) {
         return;
@@ -994,7 +994,7 @@ void SkOpCoincidence::correctEnds(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
 
 // walk span sets in parallel, moving winding from one to the other
 bool SkOpCoincidence::apply(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
-    DEBUG_SET_PHASE();
+    DEBUG_SET_PHASE(apply);
     SkCoincidentSpans* coin = fHead;
     if (!coin) {
         return true;
@@ -1199,7 +1199,7 @@ void SkOpCoincidence::restoreHead() {
 // Please keep this in sync with debugExpand()
 // expand the range by checking adjacent spans for coincidence
 bool SkOpCoincidence::expand(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
-    DEBUG_SET_PHASE();
+    DEBUG_SET_PHASE(expand);
     SkCoincidentSpans* coin = fHead;
     if (!coin) {
         return false;
@@ -1226,7 +1226,7 @@ bool SkOpCoincidence::expand(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
 }
 
 bool SkOpCoincidence::findOverlaps(SkOpCoincidence* overlaps  DEBUG_COIN_DECLARE_PARAMS()) const {
-    DEBUG_SET_PHASE();
+    DEBUG_SET_PHASE(findOverlaps);
     overlaps->fHead = overlaps->fTop = nullptr;
     SkCoincidentSpans* outer = fHead;
     while (outer) {
@@ -1308,7 +1308,7 @@ void SkOpCoincidence::fixUp(SkCoincidentSpans* coin, SkOpPtT* deleted, const SkO
 // Please keep this in sync with debugMark()
 /* this sets up the coincidence links in the segments when the coincidence crosses multiple spans */
 bool SkOpCoincidence::mark(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
-    DEBUG_SET_PHASE();
+    DEBUG_SET_PHASE(mark);
     SkCoincidentSpans* coin = fHead;
     if (!coin) {
         return true;
