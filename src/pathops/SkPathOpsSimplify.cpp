@@ -7,6 +7,7 @@
 #include "SkAddIntersections.h"
 #include "SkOpCoincidence.h"
 #include "SkOpEdgeBuilder.h"
+#include "SkMutex.h"
 #include "SkPathOpsCommon.h"
 #include "SkPathWriter.h"
 
@@ -132,9 +133,16 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple) {
     return true;
 }
 
+SkBaseMutex gDebugPathMutex;
+SkPath globalDebugPath;
+
 // FIXME : add this as a member of SkPath
 bool SimplifyDebug(const SkPath& path, SkPath* result
         SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)) {
+    {
+        SkAutoMutexAcquire ac(gDebugPathMutex);
+        globalDebugPath = path;
+    }
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
     SkPath::FillType fillType = path.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
             : SkPath::kEvenOdd_FillType;
