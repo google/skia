@@ -46,6 +46,9 @@ static void check_rendertarget(skiatest::Reporter* reporter,
                                bool wasWrapped) {
     REPORTER_ASSERT(reporter, rtProxy->maxWindowRectangles(caps) == expectedMaxWindowRects);
     REPORTER_ASSERT(reporter, rtProxy->numStencilSamples() == numSamples);
+    if (rtProxy->numStencilSamples() != numSamples) {
+        SkDebugf("here\n");
+    }
 
     GrSurfaceProxy::UniqueID idBefore = rtProxy->uniqueID();
     GrRenderTarget* rt = rtProxy->instantiate(provider);
@@ -213,6 +216,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
         for (auto config : { kAlpha_8_GrPixelConfig, kRGBA_8888_GrPixelConfig }) {
             for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                 for (auto numSamples: { 0, 4}) {
+                    if (caps.maxSampleCount() < numSamples) continue;
                     bool renderable = caps.isConfigRenderable(config, numSamples > 0);
 
                     GrSurfaceDesc desc;
