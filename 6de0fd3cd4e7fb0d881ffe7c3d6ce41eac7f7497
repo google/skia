@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a34f7f4_979513e0",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4014,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-19T17:35:23Z",
+      "side": 1,
+      "message": "Update comment (remove \"unless we\u0027re using a RECTANGLE texture\")?",
+      "revId": "6de0fd3cd4e7fb0d881ffe7c3d6ce41eac7f7497",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

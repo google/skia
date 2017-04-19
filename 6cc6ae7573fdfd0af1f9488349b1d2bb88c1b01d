@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92fdf5c1_a8cdbcda",
+        "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-19T17:35:23Z",
+      "side": 0,
+      "message": "It\u0027s\u0027 not clear to me:\n1) What this particular code (sampling a rectangle texture with a vec3 coord) was handling before\n2) That the replacement code still handles this case",
+      "revId": "6cc6ae7573fdfd0af1f9488349b1d2bb88c1b01d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
