@@ -671,30 +671,6 @@ STAGE(table_g) { g = table(g, ctx); }
 STAGE(table_b) { b = table(b, ctx); }
 STAGE(table_a) { a = table(a, ctx); }
 
-// See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html.
-SI F approx_log2(F x) {
-    // e is a fair approximation of log2(x) in its own right...
-    F e = cast(bit_cast<U32>(x)) * C(1.0f / (1<<23)) - 127.0_f;
-
-    // ... but using the mantissa to refine its error is _much_ better.
-    F m = bit_cast<F>((bit_cast<U32>(x) & 0x007fffff_i) | 0x3f000000_i);
-    return e
-         + 2.774485010_f
-         - 1.498030302_f * m
-         - 1.725879990_f / (0.3520887068_f + m);
-}
-SI F approx_pow2(F x) {
-    F f = fract(x);
-    return bit_cast<F>(round(C(1.0f * (1<<23)),
-                x + 121.2740575_f
-                - 1.490129070_f * f
-                + 27.72802330_f / (4.84252568_f - f)));
-}
-
-SI F approx_powf(F x, float g) {
-    return approx_pow2(approx_log2(x) * g);
-}
-
 SI F parametric(F v, const SkJumper_ParametricTransferFunction* ctx) {
     F r = if_then_else(v <= ctx->D, mad(ctx->C, v, ctx->F)
                                   , approx_powf(mad(ctx->A, v, ctx->B), ctx->G) + ctx->E);
