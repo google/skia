@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7bdb725_ce34ff27",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-19T21:02:20Z",
+      "side": 1,
+      "message": "This isn\u0027t exactly the bug we\u0027re seeing in Android, but I think explaining that bug is too complicated for here.  This is a related case that broke when we changed SkPngCodec to decode incrementally, and it is fixed by the same change.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 69
+      },
+      "revId": "a258e808a3f8569edb8e32f8dd9a4995558da024",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8b6a6d7_27aa5cfa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-19T21:02:20Z",
+      "side": 1,
+      "message": "That I\u0027m aware of (i.e. Chromium and Android).\n\nIt probably won\u0027t be terribly hard to get it working again, but given we need to get this into O, I\u0027d rather leave that out for now.",
+      "range": {
+        "startLine": 33,
+        "startChar": 50,
+        "endLine": 33,
+        "endChar": 60
+      },
+      "revId": "a258e808a3f8569edb8e32f8dd9a4995558da024",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ade9b367_dbcd287e",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-19T21:02:20Z",
+      "side": 1,
+      "message": "Will add a variable name here...",
+      "range": {
+        "startLine": 117,
+        "startChar": 22,
+        "endLine": 117,
+        "endChar": 28
+      },
+      "revId": "a258e808a3f8569edb8e32f8dd9a4995558da024",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "031f6d57_b922c52f",
+        "filename": "src/codec/SkPngCodec.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-19T21:02:20Z",
+      "side": 1,
+      "message": "I could have taken the same approach we do for other fields (e.g. bitDepth, numberPasses) and set this in the constructor (and then it could be const, too), but I don\u0027t think it will be necessary in my change to re-enable incremental decoding, and this is simpler in the meantime.",
+      "range": {
+        "startLine": 28,
+        "startChar": 24,
+        "endLine": 28,
+        "endChar": 58
+      },
+      "revId": "a258e808a3f8569edb8e32f8dd9a4995558da024",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
