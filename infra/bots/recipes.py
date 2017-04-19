@@ -102,7 +102,7 @@ def find_engine_override(argv):
   any, or None if the user didn't override it."""
   PREFIX = 'recipe_engine='
 
-  p = argparse.ArgumentParser()
+  p = argparse.ArgumentParser(add_help=False)
   p.add_argument('-O', '--project-override', action='append')
   args, _ = p.parse_known_args(argv)
   for override in args.project_override or ():
