@@ -52,8 +52,7 @@ public:
      *  the pool works.
      *  Without mutex, will be not be thread safe.
      */
-    static SkDiscardableMemoryPool* Create(
-            size_t size, SkBaseMutex* mutex = nullptr);
+    static sk_sp<SkDiscardableMemoryPool> Make(size_t size, SkBaseMutex* mutex = nullptr);
 };
 
 /**
