@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0e94aa3_587bd088",
+        "filename": "src/codec/SkPngCodec.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-19T22:32:42Z",
+      "side": 0,
+      "message": "Yay!",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 79,
+        "endChar": 26
+      },
+      "revId": "249b8e3a2b6450be2e2315f8f9496eec03cfd1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
