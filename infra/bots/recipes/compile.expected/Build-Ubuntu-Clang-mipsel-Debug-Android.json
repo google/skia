@@ -99,7 +99,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-mipsel-Debug-Android/Debug",
-      "--args=extra_cflags=[\"-O1\"] ndk=\"[START_DIR]/android_ndk_linux\" target_cpu=\"mipsel\""
+      "--args=extra_cflags=[\"-O1\", \"-Wno-comma\", \"-fno-omit-frame-pointer\"] ndk=\"[START_DIR]/android_ndk_linux\" target_cpu=\"mipsel\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
