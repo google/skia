@@ -86,7 +86,9 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     extra_cflags = []
     if configuration == 'Debug':
-      extra_cflags.append('-O1')
+      extra_cflags.append('-O1' )
+      extra_cflags.append('-Wno-comma' )
+      extra_cflags.append('-fno-omit-frame-pointer' )
 
     ndk_asset = 'android_ndk_linux'
     if 'Mac' in os:
