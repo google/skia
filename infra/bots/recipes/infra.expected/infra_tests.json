@@ -170,7 +170,6 @@
   {
     "cmd": [
       "make",
-      "-v",
       "-C",
       "infra/bots",
       "test"
