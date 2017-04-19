@@ -864,4 +864,43 @@ DEF_TEST(SkSLSwitch, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLRectangleTexture, r) {
+    test(r,
+         "uniform sampler2D test;"
+         "void main() {"
+         "    sk_FragColor = texture(test, vec2(1));"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "uniform sampler2D test;\n"
+         "void main() {\n"
+         "    sk_FragColor = texture(test, vec2(1.0));\n"
+         "}\n");
+    test(r,
+         "uniform sampler2DRect test;"
+         "void main() {"
+         "    sk_FragColor = texture(test, vec2(1));"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "uniform sampler2DRect test;\n"
+         "void main() {\n"
+         "    sk_FragColor = texture(test, textureSize(test) * vec2(1.0));\n"
+         "}\n");
+    test(r,
+         "uniform sampler2DRect test;"
+         "void main() {"
+         "    sk_FragColor = texture(test, vec3(1));"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "uniform sampler2DRect test;\n"
+         "void main() {\n"
+         "    sk_FragColor = texture(test, vec3(textureSize(test), 1.0) * vec3(1.0));\n"
+         "}\n");
+}
+
 #endif

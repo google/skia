@@ -4005,20 +4005,17 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     GrGLfloat sx1 = (GrGLfloat)(srcRect.fLeft + w);
     GrGLfloat sy0 = (GrGLfloat)srcRect.fTop;
     GrGLfloat sy1 = (GrGLfloat)(srcRect.fTop + h);
+    int sw = src->width();
     int sh = src->height();
     if (kBottomLeft_GrSurfaceOrigin == src->origin()) {
         sy0 = sh - sy0;
         sy1 = sh - sy1;
     }
-    // src rect edges in normalized texture space (0 to 1) unless we're using a RECTANGLE texture.
-    GrGLenum srcTarget = srcTex->target();
-    if (GR_GL_TEXTURE_RECTANGLE != srcTarget) {
-        int sw = src->width();
-        sx0 /= sw;
-        sx1 /= sw;
-        sy0 /= sh;
-        sy1 /= sh;
-    }
+    // src rect edges in normalized texture space (0 to 1)
+    sx0 /= sw;
+    sx1 /= sw;
+    sy0 /= sh;
+    sy1 /= sh;
 
     GL_CALL(Uniform4f(fCopyPrograms[progIdx].fPosXformUniform, dx1 - dx0, dy1 - dy0, dx0, dy0));
     GL_CALL(Uniform4f(fCopyPrograms[progIdx].fTexCoordXformUniform,
