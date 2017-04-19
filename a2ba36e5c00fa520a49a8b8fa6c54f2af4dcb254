@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ac36a08_ceef27aa",
+        "filename": "src/effects/gradients/SkTwoPointConicalGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-19T15:11:48Z",
+      "side": 1,
+      "message": "This seems complicated huh?",
+      "revId": "a2ba36e5c00fa520a49a8b8fa6c54f2af4dcb254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
