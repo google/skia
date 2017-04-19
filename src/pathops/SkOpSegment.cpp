@@ -286,8 +286,7 @@ void SkOpSegment::calcAngles() {
     SkOpSpanBase* spanBase = fHead.next();
     while (spanBase != &fTail) {
         if (activePrior) {
-            SkOpAngle* priorAngle = SkOpTAllocator<SkOpAngle>::Allocate(
-                    this->globalState()->allocator());
+            SkOpAngle* priorAngle = this->globalState()->allocator()->make<SkOpAngle>();
             priorAngle->set(spanBase, prior);
             spanBase->setFromAngle(priorAngle);
         }
@@ -295,8 +294,7 @@ void SkOpSegment::calcAngles() {
         bool active = !span->isCanceled();
         SkOpSpanBase* next = span->next();
         if (active) {
-            SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(
-                    this->globalState()->allocator());
+            SkOpAngle* angle = this->globalState()->allocator()->make<SkOpAngle>();
             angle->set(span, next);
             span->setToAngle(angle);
         }

@@ -7,9 +7,9 @@
 #ifndef SkOpSegment_DEFINE
 #define SkOpSegment_DEFINE
 
+#include "SkArenaAlloc.h"
 #include "SkOpAngle.h"
 #include "SkOpSpan.h"
-#include "SkOpTAllocator.h"
 #include "SkPathOpsBounds.h"
 #include "SkPathOpsCubic.h"
 #include "SkPathOpsCurve.h"
@@ -60,7 +60,7 @@ public:
     bool addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end, SkPathWriter* path) const;
 
     SkOpAngle* addEndSpan() {
-        SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(this->globalState()->allocator());
+        SkOpAngle* angle = this->globalState()->allocator()->make<SkOpAngle>();
         angle->set(&fTail, fTail.prev());
         fTail.setFromAngle(angle);
         return angle;
@@ -78,7 +78,7 @@ public:
     SkOpPtT* addMissing(double t, SkOpSegment* opp, bool* allExist);
 
     SkOpAngle* addStartSpan() {
-        SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(this->globalState()->allocator());
+        SkOpAngle* angle = this->globalState()->allocator()->make<SkOpAngle>();
         angle->set(&fHead, fHead.next());
         fHead.setToAngle(angle);
         return angle;
@@ -94,10 +94,6 @@ public:
 
     SkOpPtT* addT(double t);
     SkOpPtT* addT(double t, const SkPoint& pt);
-
-    template<typename T> T* allocateArray(int count) {
-        return SkOpTAllocator<T>::AllocateArray(this->globalState()->allocator(), count);
-    }
 
     const SkPathOpsBounds& bounds() const {
         return fBounds;
@@ -237,7 +233,7 @@ public:
     SkOpSpan* insert(SkOpSpan* prev) {
         SkOpGlobalState* globalState = this->globalState();
         globalState->setAllocatedOpSpan();
-        SkOpSpan* result = SkOpTAllocator<SkOpSpan>::Allocate(globalState->allocator());
+        SkOpSpan* result = globalState->allocator()->make<SkOpSpan>();
         SkOpSpanBase* next = prev->next();
         result->setPrev(prev);
         prev->setNext(result);

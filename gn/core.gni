@@ -525,7 +525,6 @@ skia_core_sources = [
   "$_src/pathops/SkOpEdgeBuilder.h",
   "$_src/pathops/SkOpSegment.h",
   "$_src/pathops/SkOpSpan.h",
-  "$_src/pathops/SkOpTAllocator.h",
   "$_src/pathops/SkPathOpsBounds.h",
   "$_src/pathops/SkPathOpsCommon.h",
   "$_src/pathops/SkPathOpsConic.h",

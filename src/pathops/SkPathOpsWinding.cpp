@@ -174,7 +174,7 @@ void SkOpSegment::rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** 
         } else if (!span->windValue() && !span->oppValue()) {
             continue;
         }
-        SkOpRayHit* newHit = SkOpTAllocator<SkOpRayHit>::Allocate(allocator);
+        SkOpRayHit* newHit = allocator->make<SkOpRayHit>();
         newHit->fNext = *hits;
         newHit->fPt = pt;
         newHit->fSlope = slope;
