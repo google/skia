@@ -281,6 +281,7 @@ float texture(sampler2DArrayShadow sampler, vec4 P);
 */
 
 $gvec4 texture($gsampler2DRect sampler, vec2 P);
+$gvec4 texture($gsampler2DRect sampler, vec3 P);
 
 /*
 float texture(sampler2DRectShadow sampler, vec3 P);
@@ -312,7 +313,6 @@ float textureProj(sampler1DShadow sampler, vec4 P);
 float textureProj(sampler1DShadow sampler, vec4 P, float bias);
 float textureProj(sampler2DShadow sampler, vec4 P);
 float textureProj(sampler2DShadow sampler, vec4 P, float bias);
-$gvec4 textureProj($gsampler2DRect sampler, vec3 P);
 $gvec4 textureProj($gsampler2DRect sampler, vec4 P);
 float textureProj(sampler2DRectShadow sampler, vec4 P);
 $gvec4 textureLod($gsampler1D sampler, float P, float lod);
