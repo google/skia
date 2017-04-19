@@ -14,11 +14,12 @@ DEPS = [
 def RunSteps(api):
   api.swarming.setup('mydir', swarming_rev='abc123')
   api.swarming.create_isolated_gen_json(
-      'isolate_path', 'isolate_dir', 'linux', 'task', {'myvar': 'myval'})
+      'isolate_path', 'isolate_dir', 'linux', 'task', {'myvar': 'myval'},
+      blacklist=['*.pyc'])
   tasks_to_hashes = api.swarming.batcharchive(targets=[
       'task-%s' % num for num in range(5)])
   tasks = api.swarming.trigger_swarming_tasks(
-      tasks_to_hashes, dimensions={'os': 'Linux'})
+      tasks_to_hashes, dimensions={'os': 'Linux'}, extra_args=['--extra'])
   for t in tasks:
     api.swarming.collect_swarming_task(t)
 

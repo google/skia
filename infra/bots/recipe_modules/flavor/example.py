@@ -12,9 +12,27 @@ DEPS = [
 ]
 
 
+def test_exceptions(api):
+  try:
+    api.flavor.copy_directory_contents_to_device('src', 'dst')
+  except ValueError:
+    pass
+  try:
+    api.flavor.copy_directory_contents_to_host('src', 'dst')
+  except ValueError:
+    pass
+  try:
+    api.flavor.copy_file_to_device('src', 'dst')
+  except ValueError:
+    pass
+
+
 def RunSteps(api):
   api.vars.setup()
   api.flavor.setup()
+
+  if api.properties.get('is_testing_exceptions') == 'True':
+    return test_exceptions(api)
 
   api.flavor.compile('dm')
   api.flavor.copy_extra_build_products(api.vars.swarming_out_dir)
@@ -81,6 +99,17 @@ def GenTests(api):
           'read chromeos ip',
           stdout=api.raw_io.output('{"user_ip":"foo@127.0.0.1"}'))
     yield test
+
+  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release'
+  yield (
+      api.test('exceptions') +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     is_testing_exceptions='True')
+  )
 
   builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android'
   yield (
