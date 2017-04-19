@@ -67,6 +67,23 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
+      "[CUSTOM_/_B_WORK]/.gclient_entries"
+    ],
+    "infra_step": true,
+    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@os.remove(sys.argv[1])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "git",
       "remote",
       "set-url",

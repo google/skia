@@ -128,10 +128,10 @@ class SkiaApi(recipe_api.RecipeApi):
     # TODO(rmistry): Remove the below block after there is a solution for
     #                crbug.com/616443
     entries_file = self.m.vars.checkout_root.join('.gclient_entries')
-    if self.m.path.exists(entries_file):
+    if self.m.path.exists(entries_file) or self._test_data.enabled:
       self.m.file.remove('remove %s' % entries_file,
                          entries_file,
-                         infra_step=True)  # pragma: no cover
+                         infra_step=True)
 
     if self.m.vars.need_chromium_checkout:
       chromium = gclient_cfg.solutions.add()

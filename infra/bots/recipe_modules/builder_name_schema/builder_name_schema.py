@@ -47,8 +47,6 @@ def _LoadSchema():
       return list(map(_UnicodeToStr, obj))
     elif isinstance(obj, tuple):
       return tuple(map(_UnicodeToStr, obj))
-    else:
-      return obj  # pragma: no cover
 
   builder_name_json_filename = os.path.join(
       os.path.dirname(__file__), 'builder_name_schema.json')
@@ -72,16 +70,16 @@ def _LoadSchema():
 _LoadSchema()
 
 
-def MakeBuilderName(role, extra_config=None, **kwargs):  # pragma: no cover
+def MakeBuilderName(role, extra_config=None, **kwargs):
   schema = BUILDER_NAME_SCHEMA.get(role)
-  if not schema:  # pragma: no cover
+  if not schema:
     raise ValueError('%s is not a recognized role.' % role)
   for k, v in kwargs.iteritems():
-    if BUILDER_NAME_SEP in v:  # pragma: no cover
+    if BUILDER_NAME_SEP in v:
       raise ValueError('%s not allowed in %s.' % (BUILDER_NAME_SEP, v))
-    if not k in schema:  # pragma: no cover
+    if not k in schema:
       raise ValueError('Schema does not contain "%s": %s' %(k, schema))
-  if extra_config and BUILDER_NAME_SEP in extra_config:  # pragma: no cover
+  if extra_config and BUILDER_NAME_SEP in extra_config:
     raise ValueError('%s not allowed in %s.' % (BUILDER_NAME_SEP,
                                                 extra_config))
   name_parts = [role]
@@ -98,7 +96,7 @@ def DictForBuilderName(builder_name):
   def pop_front():
     try:
       return split_name.pop(0)
-    except:  # pragma: no cover
+    except:
       raise ValueError('Invalid builder name: %s' % builder_name)
 
   result = {}
@@ -109,9 +107,9 @@ def DictForBuilderName(builder_name):
       result[key] = pop_front()
     if split_name:
       result['extra_config'] = pop_front()
-    if split_name:  # pragma: no cover
+    if split_name:
       raise ValueError('Invalid builder name: %s' % builder_name)
-  else:  # pragma: no cover
+  else:
     raise ValueError('Invalid builder name: %s' % builder_name)
   return result
 
