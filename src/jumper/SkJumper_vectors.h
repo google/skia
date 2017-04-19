@@ -74,16 +74,6 @@
         ptr[3] = a;
     }
 
-    SI F from_half(U16 h) {
-        if ((int16_t)h < 0x0400) { h = 0; }   // Flush denorm and negative to zero.
-        return bit_cast<F>(h << 13)           // Line up the mantissa,
-             * bit_cast<F>(U32(0x77800000));  // then fix up the exponent.
-    }
-    SI U16 to_half(F f) {
-        return bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
-            >> 13;                                                // then line up the mantissa.
-    }
-
 #elif defined(__aarch64__)
     #include <arm_neon.h>
 
@@ -142,9 +132,6 @@
     SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
         vst4q_f32(ptr, (float32x4x4_t{{r,g,b,a}}));
     }
-
-    SI F from_half(U16 h) { return vcvt_f32_f16(h); }
-    SI U16 to_half(F   f) { return vcvt_f16_f32(f); }
 
 #elif defined(__arm__)
     #if defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
@@ -222,15 +209,6 @@
         vst4_f32(ptr, (float32x2x4_t{{r,g,b,a}}));
     }
 
-    SI F from_half(U16 h) {
-        auto v = widen_cast<uint16x4_t>(h);
-        return vget_low_f32(vcvt_f32_f16(v));
-    }
-    SI U16 to_half(F f) {
-        auto v = widen_cast<float32x4_t>(f);
-        uint16x4_t h = vcvt_f16_f32(v);
-        return unaligned_load<U16>(&h);
-    }
 
 #elif defined(__AVX__)
     #include <immintrin.h>
@@ -445,29 +423,6 @@
         }
     }
 
-    SI F from_half(U16 h) {
-    #if defined(__AVX2__)
-        return _mm256_cvtph_ps(h);
-    #else
-        // This technique would slow down ~10x for denorm inputs, so we flush them to zero.
-        // With a signed comparison this conveniently also flushes negative half floats to zero.
-        h = _mm_andnot_si128(_mm_cmplt_epi16(h, _mm_set1_epi32(0x04000400_i)), h);
-
-        U32 w = _mm256_setr_m128i(_mm_unpacklo_epi16(h, _mm_setzero_si128()),
-                                  _mm_unpackhi_epi16(h, _mm_setzero_si128()));
-        return bit_cast<F>(w << 13)             // Line up the mantissa,
-             * bit_cast<F>(U32(0x77800000_i));  // then fix up the exponent.
-    #endif
-    }
-    SI U16 to_half(F f) {
-    #if defined(__AVX2__)
-        return _mm256_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
-    #else
-        return pack(bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
-                    >> 13);                                            // then line up the mantissa.
-    #endif
-    }
-
 #elif defined(__SSE2__)
     #include <immintrin.h>
 
@@ -582,21 +537,6 @@
         _mm_storeu_ps(ptr+ 8, b);
         _mm_storeu_ps(ptr+12, a);
     }
-
-    SI F from_half(U16 h) {
-        auto v = widen_cast<__m128i>(h);
-
-        // Same deal as AVX: flush denorms and negatives to zero.
-        v = _mm_andnot_si128(_mm_cmplt_epi16(v, _mm_set1_epi32(0x04000400_i)), v);
-
-        U32 w = _mm_unpacklo_epi16(v, _mm_setzero_si128());
-        return bit_cast<F>(w << 13)             // Line up the mantissa,
-             * bit_cast<F>(U32(0x77800000_i));  // then fix up the exponent.
-    }
-    SI U16 to_half(F f) {
-        return pack(bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
-                    >> 13);                                            // then line up the mantissa.
-    }
 #endif
 
 // We need to be a careful with casts.
@@ -613,6 +553,11 @@
     SI U32 expand(U16 v) { return (U32)v; }
     SI U32 expand(U8  v) { return (U32)v; }
 #endif
+
+template <typename V>
+SI V if_then_else(I32 c, V t, V e) {
+    return bit_cast<V>(if_then_else(c, bit_cast<F>(t), bit_cast<F>(e)));
+}
 
 SI U16 bswap(U16 x) {
 #if defined(JUMPER) && defined(__SSE2__) && !defined(__AVX__)
@@ -651,5 +596,56 @@ SI F approx_pow2(F x) {
 SI F approx_powf(F x, F y) {
     return approx_pow2(approx_log2(x) * y);
 }
+
+SI F from_half(U16 h) {
+#if defined(JUMPER) && defined(__aarch64__)
+    return vcvt_f32_f16(h);
+
+#elif defined(JUMPER) && defined(__arm__)
+    auto v = widen_cast<uint16x4_t>(h);
+    return vget_low_f32(vcvt_f32_f16(v));
+
+#elif defined(JUMPER) && defined(__AVX2__)
+    return _mm256_cvtph_ps(h);
+
+#else
+    // Remember, a half is 1-5-10 (sign-exponent-mantissa) with 15 exponent bias.
+    U32 sem = expand(h),
+        s   = sem & 0x8000_i,
+         e  = sem & 0x7c00_i,
+         em = sem ^ s;
+
+    // Convert to 1-8-23 float with 127 bias, flushing denorm halfs (including zero) to zero.
+    return if_then_else(e == 0, 0
+                              , bit_cast<F>( (s<<16) + (em<<13) + C((127-15)<<23) ));
+#endif
+}
+
+SI U16 to_half(F f) {
+#if defined(JUMPER) && defined(__aarch64__)
+    return vcvt_f16_f32(f);
+
+#elif defined(JUMPER) && defined(__arm__)
+    auto v = widen_cast<float32x4_t>(f);
+    uint16x4_t h = vcvt_f16_f32(v);
+    return unaligned_load<U16>(&h);
+
+#elif defined(JUMPER) && defined(__AVX2__)
+    return _mm256_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
+
+#else
+    // Remember, a float is 1-8-23 (sign-exponent-mantissa) with 127 exponent bias.
+    U32 sem = bit_cast<U32>(f),
+        s   = sem & 0x80000000_i,
+         em = sem ^ s;
+
+    // Convert to 1-5-10 half with 15 bias, flushing denorm halfs (including zero) to zero.
+    auto denorm = bit_cast<F>(em) < C(1.0f / (1<<14));
+    return pack(if_then_else(denorm, U32(0)
+                                   , (s>>16) + (em>>13) - C((127-15)<<10)));
+#endif
+}
+
+
 
 #endif//SkJumper_vectors_DEFINED
