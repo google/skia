@@ -34,6 +34,24 @@
       "revId": "6cc6ae7573fdfd0af1f9488349b1d2bb88c1b01d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e287b1cb_0dbc24e5",
+        "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-19T17:53:48Z",
+      "side": 0,
+      "message": "So I do know that a lot of these external and rectangle textures were added explictly for things in chrome and/or android. So you might want to try searching through there and our code to see how we would end up in this code path.",
+      "parentUuid": "87f1b406_2138a9d1",
+      "revId": "6cc6ae7573fdfd0af1f9488349b1d2bb88c1b01d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
