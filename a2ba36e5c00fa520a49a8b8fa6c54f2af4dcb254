@@ -16,6 +16,24 @@
       "revId": "a2ba36e5c00fa520a49a8b8fa6c54f2af4dcb254",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6939c8d_b33aad56",
+        "filename": "src/effects/gradients/SkTwoPointConicalGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-19T15:29:51Z",
+      "side": 1,
+      "message": "Agreed, not for lack of trying to make it simpler.\n\nA few things I thought about:\n(1) Calling the constructor directly to avoid all of the flipping that Make does.  Problem is that uses float colors and a color space which is weird - didn\u0027t want to depend on that.\n(2) Sharing code with asAGradient().  That implementation is a little complex - I think it\u0027s actually simpler to handle this on its own.\n\nThis CL has made me realize 4f Color and Gradients shaders need a bit of clarifying work on their expectations/behavior.  That may eventually make (1) simpler.",
+      "parentUuid": "9ac36a08_ceef27aa",
+      "revId": "a2ba36e5c00fa520a49a8b8fa6c54f2af4dcb254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
