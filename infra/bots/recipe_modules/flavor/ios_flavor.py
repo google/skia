@@ -58,14 +58,14 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
   def copy_directory_contents_to_host(self, device, host):
     self._run_ios_script('pull_if_needed', device, host)
 
-  def remove_file_on_device(self, path):  # pragma: nocover
+  def remove_file_on_device(self, path):
     self._run_ios_script('rm', path)
 
   def create_clean_device_dir(self, path):
     self._run_ios_script('rm',    path)
     self._run_ios_script('mkdir', path)
 
-  def read_file_on_device(self, path):  # pragma: nocover
+  def read_file_on_device(self, path):
     full = self.m.vars.skia_dir.join('platform_tools/ios/bin/ios_cat_file')
     rc = self.m.run(self.m.step,
                     name = 'cat_file %s' % path,

@@ -1,0 +1,71 @@
+[
+  {
+    "cmd": [
+      "gclient",
+      "runhook",
+      "gn_linux64"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/pdfium",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium"
+    },
+    "name": "runhook"
+  },
+  {
+    "cmd": [
+      "python",
+      "build/linux/sysroot_scripts/install-sysroot.py",
+      "--arch=amd64"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/pdfium",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium"
+    },
+    "name": "sysroot"
+  },
+  {
+    "cmd": [
+      "gn",
+      "gen",
+      "out/skia",
+      "--args=pdf_is_standalone=true clang_use_chrome_plugins=false is_component_build=false is_debug=false pdf_use_skia=true"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/pdfium",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium"
+    },
+    "name": "gn_gen"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-C",
+      "out/skia",
+      "-j100"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/pdfium",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium"
+    },
+    "name": "build_pdfium"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
