@@ -16,6 +16,24 @@
       "revId": "6cc6ae7573fdfd0af1f9488349b1d2bb88c1b01d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87f1b406_2138a9d1",
+        "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-04-19T17:48:47Z",
+      "side": 0,
+      "message": "I don\u0027t know what it\u0027s doing. I replaced that branch with an abort and it never got hit, so at least dm doesn\u0027t exercise it at all. That\u0027s why I have an assert that the parameter type is vec2 in my code, so at least if this case *does* crop up somewhere we will immediately know. I could of course implement the equivalent transformation on my end, but I\u0027d be concerned about it being untested. Which would be better?",
+      "parentUuid": "92fdf5c1_a8cdbcda",
+      "revId": "6cc6ae7573fdfd0af1f9488349b1d2bb88c1b01d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
