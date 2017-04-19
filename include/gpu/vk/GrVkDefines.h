@@ -33,6 +33,6 @@
 #   pragma error "Macros unexpectedly defined."
 #endif
 
-#include <vulkan.h>
+#include <vulkan/vulkan.h>
 
 #endif

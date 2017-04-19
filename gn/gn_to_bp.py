@@ -127,7 +127,6 @@ cc_library {
         "libicuuc",
         "libjpeg",
         "liblog",
-        "libnativewindow",
         "libpiex",
         "libpng",
         "libvulkan",
