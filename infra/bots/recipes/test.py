@@ -476,6 +476,7 @@ def dm_flags(bot):
     match.append('~SpecialImage_DeferredGpu')
     match.append('~SpecialImage_Gpu')
     match.append('~WritePixels_Gpu')
+    match.append('~WritePixelsNonTexture_Gpu')
     match.append('~XfermodeImageFilterCroppedInput_Gpu')
 
   if 'IntelIris540' in bot and 'ANGLE' in bot:

@@ -605,6 +605,7 @@
       "~SpecialImage_DeferredGpu",
       "~SpecialImage_Gpu",
       "~WritePixels_Gpu",
+      "~WritePixelsNonTexture_Gpu",
       "~XfermodeImageFilterCroppedInput_Gpu"
     ],
     "env": {
