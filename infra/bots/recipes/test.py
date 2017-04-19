@@ -140,6 +140,10 @@ def dm_flags(bot):
     # This bot is really slow, cut it down to just 8888.
     configs = ['8888']
 
+  if 'iOS' in bot:
+    # REMOVE: Just to make testing quicker.
+    configs = ['8888']
+
   args.append('--config')
   args.extend(configs)
 
