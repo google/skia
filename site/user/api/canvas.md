@@ -35,13 +35,13 @@ the memory into which the canvas commands are drawn.
     #include "SkStream.h"
     #include "SkSurface.h"
     void raster(int width, int height,
-                void(*draw)(SkCanvas*),
+                void (*draw)(SkCanvas*),
                 const char* path) {
-        sk_sp<SkSurface> rasterSurface(
-                SkSurface::MakeRasterN32Premul(width, height));
+        sk_sp<SkSurface> rasterSurface =
+                SkSurface::MakeRasterN32Premul(width, height);
         SkCanvas* rasterCanvas = rasterSurface->getCanvas();
         draw(rasterCanvas);
-        sk_sp<SkImage> img(s->newImageSnapshot());
+        sk_sp<SkImage> img(rasterSurface->makeImageSnapshot());
         if (!img) { return; }
         sk_sp<SkData> png(img->encode());
         if (!png) { return; }
@@ -54,18 +54,20 @@ explicitly, instead of asking Skia to manage it.
 
 <!--?prettify lang=cc?-->
 
+    #include <vector>
+    #include "SkSurface.h"
     std::vector<char> raster_direct(int width, int height,
-                                    void(*draw)(SkCanvas*)) {
-        SkImageInfo info = SkImageInfo::MakeN32(width, height);
+                                    void (*draw)(SkCanvas*)) {
+        SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
         size_t rowBytes = info.minRowBytes();
         size_t size = info.getSafeSize(rowBytes);
         std::vector<char> pixelMemory(size);  // allocate memory
-        sk_sp<SkSurface> surface(
+        sk_sp<SkSurface> surface =
                 SkSurface::MakeRasterDirect(
-                        info, &pixelMemory[0], rowBytes));
-        SkCanvas* canvas = surface.getCanvas();
+                        info, &pixelMemory[0], rowBytes);
+        SkCanvas* canvas = surface->getCanvas();
         draw(canvas);
-        return std::move(pixelMemory);
+        return pixelMemory;
     }
 
 <span id="gpu"></span>
@@ -81,6 +83,7 @@ device for you. In OpenGL mode it also assumes that the correct OpenGL context
 has been made current to the current thread when Skia calls are made.
 
 <!--?prettify lang=cc?-->
+
     #include "GrContext.h"
     #include "gl/GrGLInterface.h"
     #include "SkData.h"
@@ -88,7 +91,7 @@ has been made current to the current thread when Skia calls are made.
     #include "SkStream.h"
     #include "SkSurface.h"
 
-    void gl_example(int width, int height, void(*draw)(SkCanvas*), const char* path) {
+    void gl_example(int width, int height, void (*draw)(SkCanvas*), const char* path) {
         // You've already created your OpenGL context and bound it.
         const GrGLInterface* interface = nullptr;
         // Leaving interface as null makes Skia extract pointers to OpenGL functions for the current
@@ -125,10 +128,10 @@ a document must include multiple pages.
     #include "SkDocument.h"
     #include "SkStream.h"
     void skpdf(int width, int height,
-               void(*draw)(SkCanvas*),
+               void (*draw)(SkCanvas*),
                const char* path) {
         SkFILEWStream pdfStream(path);
-        sk_sp<SkDocument> pdfDoc(SkDocument::MakePDF(&pdfStream));
+        sk_sp<SkDocument> pdfDoc = SkDocument::MakePDF(&pdfStream);
         SkCanvas* pdfCanvas = pdfDoc->beginPage(SkIntToScalar(width),
                                                 SkIntToScalar(height));
         draw(pdfCanvas);
@@ -143,17 +146,17 @@ The SkPicture backend uses SkPictureRecorder instead of SkSurface.
 
 <!--?prettify lang=cc?-->
 
-    #include "SkPictureRecorder"
-    #include "SkPicture"
+    #include "SkPictureRecorder.h"
+    #include "SkPicture.h"
     #include "SkStream.h"
     void picture(int width, int height,
-                 void(*draw)(SkCanvas*),
+                 void (*draw)(SkCanvas*),
                  const char* path) {
         SkPictureRecorder recorder;
         SkCanvas* recordingCanvas = recorder.beginRecording(SkIntToScalar(width),
                                                             SkIntToScalar(height));
         draw(recordingCanvas);
-        sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
+        sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
         SkFILEWStream skpStream(path);
         // Open SKP files with `SampleApp --picture SKP_FILE`
         picture->serialize(&skpStream);
@@ -169,9 +172,9 @@ nothing.
 <!--?prettify lang=cc?-->
 
     #include "SkNullCanvas.h"
-    void picture(int, int, void(*draw)(SkCanvas*), const char*) {
-        sk_sp<SkCanvas> nullCanvas(SkCreateNullCanvas());
-        draw(nullCanvas);  // NoOp
+    void null_canvas_example(int, int, void (*draw)(SkCanvas*), const char*) {
+        std::unique_ptr<SkCanvas> nullCanvas = SkMakeNullCanvas();
+        draw(nullCanvas.get());  // NoOp
     }
 
 <span id="skxps"></span>
@@ -184,16 +187,19 @@ The (*still experimental*) SkXPS canvas writes into an XPS document.
 
     #include "SkDocument.h"
     #include "SkStream.h"
-    void skxps(int width, int height,
-               void(*draw)(SkCanvas*),
+    #ifdef SK_BUILD_FOR_WIN
+    void skxps(IXpsOMObjectFactory* factory;
+               int width, int height,
+               void (*draw)(SkCanvas*),
                const char* path) {
         SkFILEWStream xpsStream(path);
-        sk_sp<SkDocument> xpsDoc(SkDocument::MakeXPS(&pdfStream));
+        sk_sp<SkDocument> xpsDoc = SkDocument::MakeXPS(&pdfStream, factory);
         SkCanvas* xpsCanvas = xpsDoc->beginPage(SkIntToScalar(width),
                                                 SkIntToScalar(height));
         draw(xpsCanvas);
         xpsDoc->close();
     }
+    #endif
 
 <span id="sksvg"></span>
 SkSVG
@@ -207,16 +213,15 @@ The (*still experimental*) SkSVG canvas writes into an SVG document.
     #include "SkSVGCanvas.h"
     #include "SkXMLWriter.h"
     void sksvg(int width, int height,
-               void(*draw)(SkCanvas*),
+               void (*draw)(SkCanvas*),
                const char* path) {
         SkFILEWStream svgStream(path);
         std::unique_ptr<SkXMLWriter> xmlWriter(
                 new SkXMLStreamWriter(&svgStream));
-        sk_sp<SkCanvas> svgCanvas(SkSVGCanvas::Create(
-                SkRect::MakeWH(SkIntToScalar(src.size().width()),
-                               SkIntToScalar(src.size().height())),
-                xmlWriter));
-        draw(svgCanvas);
+        SkRect bounds = SkRect::MakeIWH(width, height);
+        std::unique_ptr<SkCanvas> svgCanvas =
+            SkSVGCanvas::Make(bounds, xmlWriter.get());
+        draw(svgCanvas.get());
     }
 
 <span id="example"></span>
@@ -252,8 +257,8 @@ here](/dev/testing/tests) and wrap these funtions together:
         canvas->drawPath(path, p);
     }
     DEF_TEST(FourBackends, r) {
-        raster( 256, 256, example, "out_raster.png" );
-        ganesh( 256, 256, example, "out_ganesh.png" );
-        skpdf(  256, 256, example, "out_skpdf.pdf"  );
-        picture(256, 256, example, "out_picture.skp");
+        raster(     256, 256, example, "out_raster.png" );
+        gl_example( 256, 256, example, "out_gpu.png"    );
+        skpdf(      256, 256, example, "out_skpdf.pdf"  );
+        picture(    256, 256, example, "out_picture.skp");
     }
