@@ -52,6 +52,24 @@
       "revId": "6cc6ae7573fdfd0af1f9488349b1d2bb88c1b01d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "986965c5_55b36e6a",
+        "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-04-19T19:42:33Z",
+      "side": 0,
+      "message": "I just got done implementing this transformation, went to add a test for it... and found that texture(sampler2DRect, vec3) doesn\u0027t even work in the first place in sksl (\"no match for texture(sampler2DRect, vec3)\"). So I think that\u0027s adequate proof that nobody is actually exercising this code path; texture(sampler2DRect, vec3) hasn\u0027t been supported for probably six months at this point.\n\nHowever, it was trivial to add in support for it, so to err on the side of caution this transformation does work now.",
+      "parentUuid": "e287b1cb_0dbc24e5",
+      "revId": "6cc6ae7573fdfd0af1f9488349b1d2bb88c1b01d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
