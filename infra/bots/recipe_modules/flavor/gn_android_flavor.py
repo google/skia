@@ -132,23 +132,24 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   def cleanup_steps(self):
     if self._ever_ran_adb:
       self.m.run(self.m.python.inline, 'dump log', program="""
-      import os
-      import subprocess
-      import sys
-      out = sys.argv[1]
-      log = subprocess.check_output(['adb', 'logcat', '-d'])
-      for line in log.split('\\n'):
-        tokens = line.split()
-        if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':
-          addr, path = tokens[-2:]
-          local = os.path.join(out, os.path.basename(path))
-          if os.path.exists(local):
-            sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])
-            line = line.replace(addr, addr + ' ' + sym.strip())
-        print line
-      """,
-      args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
-      infra_step=True)
+          import os
+          import subprocess
+          import sys
+          out = sys.argv[1]
+          log = subprocess.check_output(['adb', 'logcat', '-d'])
+          for line in log.split('\\n'):
+            tokens = line.split()
+            if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':
+              addr, path = tokens[-2:]
+              local = os.path.join(out, os.path.basename(path))
+              if os.path.exists(local):
+                sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])
+                line = line.replace(addr, addr + ' ' + sym.strip())
+            print line
+          """,
+          args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
+          infra_step=True,
+          abort_on_failure=False)
 
     # Only shutdown the device and quarantine the bot if the first failed step
     # is an infra step. If, instead, we did this for any infra failures, we

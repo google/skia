@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+
 from recipe_engine import recipe_api
 
 import default_flavor
@@ -31,28 +32,28 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
 
     self._bin_dir = self.m.vars.chromeos_homedir + 'bin'
 
-  def _get_remote_ip(self):
-    ssh_info = self.m.run(self.m.python.inline, 'read chromeos ip',
-                          program="""
-    import os
-    SSH_MACHINE_FILE = os.path.expanduser('~/ssh_machine.json')
-    with open(SSH_MACHINE_FILE, 'r') as f:
-      print f.read()
-    """,
-    stdout=self.m.raw_io.output(),
-    infra_step=True).stdout
+  @property
+  def user_ip(self):
+    if not self._user_ip:
+      ssh_info = self.m.run(self.m.python.inline, 'read chromeos ip',
+                            program="""
+      import os
+      SSH_MACHINE_FILE = os.path.expanduser('~/ssh_machine.json')
+      with open(SSH_MACHINE_FILE, 'r') as f:
+        print f.read()
+      """,
+      stdout=self.m.raw_io.output(),
+      infra_step=True).stdout
 
-    self._user_ip = json.loads(ssh_info).get(u'user_ip', 'ERROR')
+      self._user_ip = json.loads(ssh_info).get(u'user_ip', 'ERROR')
+    return self._user_ip
 
   def _ssh(self, title, *cmd, **kwargs):
-    if not self._user_ip:
-      self._get_remote_ip()
-
     if 'infra_step' not in kwargs:
       kwargs['infra_step'] = True
 
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
-               '-t', '-t', self._user_ip] + list(cmd)
+               '-t', '-t', self.user_ip] + list(cmd)
 
     return self._run(title, ssh_cmd, **kwargs)
 
@@ -161,9 +162,7 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     self._ssh('rm %s' % path, 'rm', '-f', path)
 
   def _prefix_device_path(self, device_path):
-    if not self._user_ip:
-      self._get_remote_ip() #pragma:nocover
-    return '%s:%s' % (self._user_ip, device_path)
+    return '%s:%s' % (self.user_ip, device_path)
 
   def copy_file_to_device(self, host_path, device_path):
     device_path = self._prefix_device_path(device_path)

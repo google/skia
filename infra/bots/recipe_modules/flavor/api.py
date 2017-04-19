@@ -147,8 +147,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     if str(actual_version_file) != str(device_version_file):
       try:
         device_version = self.read_file_on_device(device_version_file)
-      except self.m.step.StepFailure:   # pragma: nocover
-        device_version = VERSION_NONE   # pragma: nocover
+      except self.m.step.StepFailure:
+        device_version = VERSION_NONE
       if device_version != host_version:
         self.remove_file_on_device(device_version_file)
         self.create_clean_device_dir(device_path)
