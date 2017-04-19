@@ -145,6 +145,9 @@ void GrVkCaps::initSampleCount(const VkPhysicalDeviceProperties& properties) {
     VkSampleCountFlags stencilSamples = properties.limits.framebufferStencilSampleCounts;
 
     fMaxColorSampleCount = get_max_sample_count(colorSamples);
+    if (kImagination_VkVendor == properties.vendorID) {
+        fMaxColorSampleCount = 0;
+    }
     fMaxStencilSampleCount = get_max_sample_count(stencilSamples);
 }
 
