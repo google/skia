@@ -517,7 +517,9 @@ private:
     friend class SkLocalMatrixShader;
     friend class SkBitmapProcLegacyShader;    // for computeTotalInverse()
     friend class SkComposeShader;
+    friend class SkColorFilterShader;
     friend class SkColorSpaceXformer;
+    friend class SkLightingShaderImpl;
 
     typedef SkFlattenable INHERITED;
 };
