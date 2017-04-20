@@ -163,9 +163,8 @@ bool SkAmbientShadowMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     }
 
     // if circle
-    // TODO: switch to SkScalarNearlyEqual when either oval renderer is updated or we
-    // have our own GeometryProc.
-    if (path.isOval(nullptr) && path.getBounds().width() == path.getBounds().height()) {
+    if (path.isOval(nullptr) && SkScalarNearlyEqual(path.getBounds().width(),
+                                                    path.getBounds().height())) {
         SkRRect rrect = SkRRect::MakeOval(path.getBounds());
         return this->directFilterRRectMaskGPU(context, rtContext, std::move(paint), clip,
                                               SkMatrix::I(), strokeRec, rrect, rrect);

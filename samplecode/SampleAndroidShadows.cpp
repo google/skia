@@ -473,6 +473,7 @@ protected:
         paint.setAntiAlias(true);
 
         SkPoint3 lightPos = fLightPos;
+        lightPos.fX = canvas->getBaseLayerSize().fWidth * 0.5f;
 
         paint.setColor(SK_ColorWHITE);
         canvas->translate(200, 90);
@@ -496,7 +497,7 @@ protected:
         canvas->translate(-250, 110);
         lightPos.fX -= 250;
         lightPos.fY += 110;
-        zValue = SkTMax(1.0f, 8 + fZDelta);
+        zValue = SkTMax(1.0f, 12 + fZDelta);
         zFunc = [zValue](SkScalar, SkScalar) { return zValue; };
         this->drawShadowedPath(canvas, fCirclePath, zFunc, paint, kAmbientAlpha,
                                lightPos, kLightWidth, 0.5f);
