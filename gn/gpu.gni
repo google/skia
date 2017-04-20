@@ -36,10 +36,6 @@ skia_gpu_sources = [
   "$_include/gpu/GrTypes.h",
   "$_include/gpu/GrTypesPriv.h",
 
-  "$_include/gpu/effects/GrBlurredEdgeFragmentProcessor.h",
-  "$_include/gpu/effects/GrConstColorProcessor.h",
-  "$_include/gpu/effects/GrXfermodeFragmentProcessor.h",
-
   "$_include/gpu/gl/GrGLAssembleInterface.h",
   "$_include/gpu/gl/GrGLConfig.h",
   "$_include/gpu/gl/GrGLExtensions.h",
@@ -296,9 +292,11 @@ skia_gpu_sources = [
 
   "$_src/gpu/effects/Gr1DKernelEffect.h",
   "$_src/gpu/effects/GrBlurredEdgeFragmentProcessor.cpp",
+  "$_src/gpu/effects/GrBlurredEdgeFragmentProcessor.h",
   "$_src/gpu/effects/GrConfigConversionEffect.cpp",
   "$_src/gpu/effects/GrConfigConversionEffect.h",
   "$_src/gpu/effects/GrConstColorProcessor.cpp",
+  "$_src/gpu/effects/GrConstColorProcessor.h",
   "$_src/gpu/effects/GrCoverageSetOpXP.cpp",
   "$_src/gpu/effects/GrCoverageSetOpXP.h",
   "$_src/gpu/effects/GrCustomXfermode.cpp",
@@ -342,6 +340,7 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrTextureDomain.h",
   "$_src/gpu/effects/GrTextureStripAtlas.cpp",
   "$_src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
+  "$_src/gpu/effects/GrXfermodeFragmentProcessor.h",
   "$_src/gpu/effects/GrYUVEffect.cpp",
   "$_src/gpu/effects/GrYUVEffect.h",
 
