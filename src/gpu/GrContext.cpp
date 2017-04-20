@@ -911,8 +911,6 @@ sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(sk_sp<GrFragmentProces
 sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(sk_sp<GrFragmentProcessor> fp,
                                                           bool useConfigConversionEffect) {
     ASSERT_SINGLE_OWNER
-    // We should have already called this->testPMConversionsIfNecessary().
-    SkASSERT(fDidTestPMConversions);
     // We have specialized effects that guarantee round-trip conversion for these formats
     if (useConfigConversionEffect) {
         // We should have already called this->validPMUPMConversionExists() in this case
