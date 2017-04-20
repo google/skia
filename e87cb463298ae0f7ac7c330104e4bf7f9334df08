@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a3cfdd39_1782f5ba",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-20T19:52:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39b78201_8cca28e0",
+      "revId": "e87cb463298ae0f7ac7c330104e4bf7f9334df08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "137e37b3_0a7b68d8",
         "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "e87cb463298ae0f7ac7c330104e4bf7f9334df08",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c815618e_9347c1c8",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-20T19:52:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "137e37b3_0a7b68d8",
+      "revId": "e87cb463298ae0f7ac7c330104e4bf7f9334df08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "88d52e2a_db5daa9f",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-20T19:52:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "824e26dc_cc87f51b",
+      "revId": "e87cb463298ae0f7ac7c330104e4bf7f9334df08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7d990f1_c7f983ee",
         "filename": "src/utils/SkShadowUtils.cpp",
         "patchSetId": 4
@@ -67,6 +121,24 @@
       "revId": "e87cb463298ae0f7ac7c330104e4bf7f9334df08",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a8edd9d_d6757c5b",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-20T19:52:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7d990f1_c7f983ee",
+      "revId": "e87cb463298ae0f7ac7c330104e4bf7f9334df08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
