@@ -167,6 +167,24 @@
     },
     {
       "key": {
+        "uuid": "5b26606b_f9d9e005",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-20T22:19:09Z",
+      "side": 1,
+      "message": "Thanks for the input.  Making APIs SK_API, other functions \"static inline\".",
+      "parentUuid": "f63b8e57_46dce4e8",
+      "revId": "3577e138129182e2703c0f0597814ae079bb0021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3567fdd7_b8703ab5",
         "filename": "src/images/SkImageEncoder.cpp",
         "patchSetId": 2
