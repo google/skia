@@ -26,15 +26,19 @@ struct BinaryExpression : public Expression {
     , fOperator(op)
     , fRight(std::move(right)) {}
 
-    virtual std::unique_ptr<Expression> constantPropagate(
-                                                        const IRGenerator& irGenerator,
-                                                        const DefinitionMap& definitions) override {
+    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
+                                                  const DefinitionMap& definitions) override {
         return irGenerator.constantFold(*fLeft,
                                         fOperator,
                                         *fRight);
     }
 
-    virtual String description() const override {
+    bool hasSideEffects() const override {
+        return Token::IsAssignment(fOperator) || fLeft->hasSideEffects() ||
+               fRight->hasSideEffects();
+    }
+
+    String description() const override {
         return "(" + fLeft->description() + " " + Token::OperatorName(fOperator) + " " +
                fRight->description() + ")";
     }
