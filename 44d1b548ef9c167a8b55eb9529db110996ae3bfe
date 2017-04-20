@@ -92,6 +92,30 @@
       "revId": "44d1b548ef9c167a8b55eb9529db110996ae3bfe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73fe9e7d_f00ee0d1",
+        "filename": "infra/bots/recipe_modules/git/api.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-20T16:26:53Z",
+      "side": 1,
+      "message": "I\u0027m not even sure.  The win trybot failed for this CL, so it didn\u0027t have it in C:\\Users\\chrome-bot\\_netrc.  I also vaguely remember having it in C:\\depot_tools (not sure if needed or not).",
+      "parentUuid": "a049734d_810c62f9",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 5
+      },
+      "revId": "44d1b548ef9c167a8b55eb9529db110996ae3bfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
