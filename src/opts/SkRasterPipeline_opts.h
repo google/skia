@@ -9,7 +9,6 @@
 #define SkRasterPipeline_opts_DEFINED
 
 #include "SkColorPriv.h"
-#include "SkColorLookUpTable.h"
 #include "SkColorSpaceXform_A2B.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
@@ -796,29 +795,6 @@ STAGE_CTX(table_g, const SkTableTransferFn*) { g = table(g, *ctx); }
 STAGE_CTX(table_b, const SkTableTransferFn*) { b = table(b, *ctx); }
 STAGE_CTX(table_a, const SkTableTransferFn*) { a = table(a, *ctx); }
 
-STAGE_CTX(color_lookup_table, const SkColorLookUpTable*) {
-    const SkColorLookUpTable* colorLUT = ctx;
-    SkASSERT(3 == colorLUT->inputChannels() || 4 == colorLUT->inputChannels());
-    SkASSERT(3 == colorLUT->outputChannels());
-    float result[3][N];
-    for (int i = 0; i < N; ++i) {
-        const float in[4] = { r[i], g[i], b[i], a[i] };
-        float out[3];
-        colorLUT->interp(out, in);
-        for (int j = 0; j < colorLUT->outputChannels(); ++j) {
-            result[j][i] = out[j];
-        }
-    }
-    r = SkNf::Load(result[0]);
-    g = SkNf::Load(result[1]);
-    b = SkNf::Load(result[2]);
-    if (4 == colorLUT->inputChannels()) {
-        // we must set the pixel to opaque, as the alpha channel was used
-        // as input before this.
-        a = 1.f;
-    }
-}
-
 STAGE(lab_to_xyz) {
     const auto lab_l = r * 100.0f;
     const auto lab_a = g * 255.0f - 128.0f;
@@ -1099,8 +1075,10 @@ STAGE_CTX(shader_adapter, SkShader::Context*) {
 }
 
 STAGE_CTX(callback, const void*) {
-    auto c = (const SkJumper_CallbackCtx*)ctx;
-    c->fn(c->arg, tail ? tail : N);
+    auto c = (SkJumper_CallbackCtx*)ctx;
+    SkNf::Store4(c->rgba, r,g,b,a);
+    c->fn(c, tail ? tail : N);
+    SkNf::Load4(c->read_from, &r,&g,&b,&a);
 }
 
 SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
