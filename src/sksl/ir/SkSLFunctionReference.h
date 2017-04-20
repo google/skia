@@ -24,7 +24,11 @@ struct FunctionReference : public Expression {
     : INHERITED(position, kFunctionReference_Kind, *context.fInvalid_Type)
     , fFunctions(function) {}
 
-    virtual String description() const override {
+    bool hasSideEffects() const override {
+        return false;
+    }
+
+    String description() const override {
         ASSERT(false);
         return String("<function>");
     }

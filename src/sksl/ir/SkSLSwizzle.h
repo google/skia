@@ -69,6 +69,34 @@ struct Swizzle : public Expression {
         ASSERT(fComponents.size() >= 1 && fComponents.size() <= 4);
     }
 
+    virtual std::unique_ptr<Expression> constantPropagate(
+                                                        const IRGenerator& irGenerator,
+                                                        const DefinitionMap& definitions) override {
+
+        if (fBase->fKind == Expression::kConstructor_Kind && fBase->isConstant()) {
+            // we're swizzling a constant vector, e.g. vec4(1).x. Simplify it.
+            ASSERT(fBase->fKind == Expression::kConstructor_Kind);
+            if (fType == *irGenerator.fContext.fInt_Type) {
+                ASSERT(fComponents.size() == 1);
+                int64_t value = ((Constructor&) *fBase).getIVecComponent(fComponents[0]);
+                return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
+                                                                    Position(),
+                                                                    value));
+            } else if (fType == *irGenerator.fContext.fFloat_Type) {
+                ASSERT(fComponents.size() == 1);
+                double value = ((Constructor&) *fBase).getFVecComponent(fComponents[0]);
+                return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
+                                                                    Position(),
+                                                                    value));
+            }
+        }
+        return nullptr;
+    }
+
+    bool hasSideEffects() const override {
+        return fBase->hasSideEffects();
+    }
+
     String description() const override {
         String result = fBase->description() + ".";
         for (int x : fComponents) {

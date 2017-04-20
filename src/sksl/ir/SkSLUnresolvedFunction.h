@@ -26,7 +26,7 @@ struct UnresolvedFunction : public Symbol {
 #endif
     }
 
-    virtual String description() const override {
+    String description() const override {
         return fName;
     }
 

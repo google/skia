@@ -9,6 +9,7 @@
 #define SKSL_COMPILER
 
 #include <set>
+#include <unordered_set>
 #include <vector>
 #include "ir/SkSLProgram.h"
 #include "ir/SkSLSymbolTable.h"
@@ -71,7 +72,31 @@ private:
 
     void scanCFG(CFG* cfg, BlockId block, std::set<BlockId>* workList);
 
-    void scanCFG(const FunctionDefinition& f);
+    void computeDataFlow(CFG* cfg);
+
+    /**
+     * Simplifies the expression pointed to by iter (in both the IR and CFG structures), if
+     * possible.
+     */
+    void simplifyExpression(DefinitionMap& definitions,
+                            BasicBlock& b,
+                            std::vector<BasicBlock::Node>::iterator* iter,
+                            std::unordered_set<const Variable*>* undefinedVariables,
+                            bool* outUpdated,
+                            bool* outNeedsRescan);
+
+    /**
+     * Simplifies the statement pointed to by iter (in both the IR and CFG structures), if
+     * possible.
+     */
+    void simplifyStatement(DefinitionMap& definitions,
+                           BasicBlock& b,
+                           std::vector<BasicBlock::Node>::iterator* iter,
+                           std::unordered_set<const Variable*>* undefinedVariables,
+                           bool* outUpdated,
+                           bool* outNeedsRescan);
+
+    void scanCFG(FunctionDefinition& f);
 
     void internalConvertProgram(String text,
                                 Modifiers::Flag* defaultPrecision,

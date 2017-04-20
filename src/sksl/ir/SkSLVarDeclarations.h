@@ -52,8 +52,8 @@ struct VarDeclaration {
  * A variable declaration statement, which may consist of one or more individual variables.
  */
 struct VarDeclarations : public ProgramElement {
-    VarDeclarations(Position position, const Type* baseType,
-                    std::vector<VarDeclaration> vars)
+    VarDeclarations(Position position, const Type* baseType, 
+                    std::vector<std::unique_ptr<VarDeclaration>> vars)
     : INHERITED(position, kVar_Kind)
     , fBaseType(*baseType)
     , fVars(std::move(vars)) {}
@@ -62,18 +62,18 @@ struct VarDeclarations : public ProgramElement {
         if (!fVars.size()) {
             return String();
         }
-        String result = fVars[0].fVar->fModifiers.description() + fBaseType.description() + " ";
+        String result = fVars[0]->fVar->fModifiers.description() + fBaseType.description() + " ";
         String separator;
         for (const auto& var : fVars) {
             result += separator;
             separator = ", ";
-            result += var.description();
+            result += var->description();
         }
         return result;
     }
 
     const Type& fBaseType;
-    std::vector<VarDeclaration> fVars;
+    std::vector<std::unique_ptr<VarDeclaration>> fVars;
 
     typedef ProgramElement INHERITED;
 };
