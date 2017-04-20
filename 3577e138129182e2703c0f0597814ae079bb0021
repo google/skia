@@ -149,6 +149,24 @@
     },
     {
       "key": {
+        "uuid": "f63b8e57_46dce4e8",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-04-20T21:55:23Z",
+      "side": 1,
+      "message": "(Generally, defining functions in a header and having them be anything but static and inline is very dangerous and you should never do it in Skia.  The Google style guide disagrees with this, but they\u0027re wrong.  Inline but not static opens you to difficult to track down ODR violations.)",
+      "parentUuid": "9109063b_bc62e153",
+      "revId": "3577e138129182e2703c0f0597814ae079bb0021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3567fdd7_b8703ab5",
         "filename": "src/images/SkImageEncoder.cpp",
         "patchSetId": 2
