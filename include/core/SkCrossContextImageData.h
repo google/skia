@@ -12,6 +12,7 @@
 #include "SkImage.h"
 
 #if SK_SUPPORT_GPU
+#include "GrBackendSurface.h"
 #include "GrExternalTextureData.h"
 #endif
 
@@ -68,16 +69,15 @@ public:
     ~SkCCIDBackendTexture() override {}
 
 private:
-    SkCCIDBackendTexture(const GrBackendTextureDesc& desc,
+    SkCCIDBackendTexture(const GrBackendTexture& backendTex,
+                         GrSurfaceOrigin origin,
                          std::unique_ptr<GrExternalTextureData> textureData,
                          SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace)
             : fAlphaType(alphaType)
             , fColorSpace(std::move(colorSpace))
-            , fDesc(desc)
-            , fTextureData(std::move(textureData)) {
-        // Point our texture desc at our copy of the backend information
-        fDesc.fTextureHandle = fTextureData->getBackendObject();
-    }
+            , fBackendTex(backendTex)
+            , fOrigin(origin)
+            , fTextureData(std::move(textureData)) {}
 
     sk_sp<SkImage> makeImage(GrContext*) override;
 
@@ -85,7 +85,8 @@ private:
     // and some backend-specific info (to reconstruct the texture).
     SkAlphaType fAlphaType;
     sk_sp<SkColorSpace> fColorSpace;
-    GrBackendTextureDesc fDesc;
+    GrBackendTexture fBackendTex;
+    GrSurfaceOrigin fOrigin;
     std::unique_ptr<GrExternalTextureData> fTextureData;
 
     friend class SkCrossContextImageData;
