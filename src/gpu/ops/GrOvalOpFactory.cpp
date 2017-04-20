@@ -1172,8 +1172,8 @@ public:
         SkScalar ellipseXRadius = SkScalarHalf(ellipse.width());
         SkScalar ellipseYRadius = SkScalarHalf(ellipse.height());
         SkScalar xRadius = SkScalarAbs(viewMatrix[SkMatrix::kMScaleX] * ellipseXRadius +
-                                       viewMatrix[SkMatrix::kMSkewY] * ellipseYRadius);
-        SkScalar yRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewX] * ellipseXRadius +
+                                       viewMatrix[SkMatrix::kMSkewX] * ellipseYRadius);
+        SkScalar yRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewY] * ellipseXRadius +
                                        viewMatrix[SkMatrix::kMScaleY] * ellipseYRadius);
 
         // do (potentially) anisotropic mapping of stroke
@@ -2385,7 +2385,8 @@ std::unique_ptr<GrLegacyMeshDrawOp> GrOvalOpFactory::MakeOvalOp(GrColor color,
                                                                 const GrShaderCaps* shaderCaps) {
     // we can draw circles
     SkScalar width = oval.width();
-    if (SkScalarNearlyEqual(width, oval.height()) && circle_stays_circle(viewMatrix)) {
+    if (width > SK_ScalarNearlyZero && SkScalarNearlyEqual(width, oval.height()) &&
+        circle_stays_circle(viewMatrix)) {
         SkPoint center = {oval.centerX(), oval.centerY()};
         return CircleOp::Make(color, viewMatrix, center, width / 2.f, GrStyle(stroke, nullptr));
     }
