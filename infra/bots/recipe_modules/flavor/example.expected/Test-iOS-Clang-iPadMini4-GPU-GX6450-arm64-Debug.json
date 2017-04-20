@@ -157,6 +157,46 @@
   },
   {
     "cmd": [
+      "ios.py"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "setup device"
+  },
+  {
+    "cmd": [
+      "ideviceinstaller",
+      "-i",
+      "[START_DIR]/out/Debug/dm.app"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "install dm"
+  },
+  {
+    "cmd": [
+      "ideviceinstaller",
+      "-i",
+      "[START_DIR]/out/Debug/nanobench.app"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "install nanobench"
+  },
+  {
+    "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
       "[START_DIR]/skia/resources",
       "resources"
@@ -480,10 +520,9 @@
   },
   {
     "cmd": [
-      "ios-deploy",
-      "-b",
-      "[START_DIR]/out/Debug/dm.app",
-      "-I",
+      "idevice-app-runner",
+      "-s",
+      "com.google.dm",
       "--args",
       "--some-flag"
     ],
@@ -498,7 +537,7 @@
   {
     "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_pull_if_needed",
-      "dm",
+      "dm/*",
       "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "env": {
@@ -507,12 +546,12 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
-    "name": "pull_if_needed dm"
+    "name": "pull_if_needed dm/*"
   },
   {
     "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_pull_if_needed",
-      "perf",
+      "perf/*",
       "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug/data"
     ],
     "env": {
@@ -521,7 +560,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
-    "name": "pull_if_needed perf"
+    "name": "pull_if_needed perf/*"
   },
   {
     "name": "$result",

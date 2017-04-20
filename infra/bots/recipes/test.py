@@ -499,6 +499,8 @@ def dm_flags(bot):
     match.append('~PathOpsSimplify') # skia:6479
     blacklist(['_', 'gm', '_', 'fast_slow_blurimagefilter']) # skia:6480
 
+  if 'iOS' in bot:
+    match.append('bleed')
 
   if blacklisted:
     args.append('--blacklist')
@@ -691,6 +693,8 @@ def RunSteps(api):
   env = api.step.get_from_context('env', {})
   if 'iOS' in api.vars.builder_name:
     env['IOS_BUNDLE_ID'] = 'com.google.dm'
+    env['IOS_MOUNT_POINT'] = api.vars.slave_dir.join('mnt_iosdevice')
+
   with api.step.context({'env': env}):
     try:
       api.flavor.install_everything()

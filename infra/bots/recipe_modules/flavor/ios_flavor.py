@@ -9,12 +9,21 @@ import default_flavor
 import gn_flavor
 import os
 
-# Infra step failures interact really annoyingly with swarming retries.
+# Infra step failures interact really annoyingly with  swarming retries.
 kInfraStep = False
 
 class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
 
   def install(self):
+    # Set up the device
+    self._run('setup device', ['ios.py'])
+
+    # Install the app.
+    for app_name in ['dm', 'nanobench']:
+      app_package = self.m.vars.skia_out.join(self.m.vars.configuration,
+                                              '%s.app' % app_name)
+      self._run('install ' + app_name, ['ideviceinstaller','-i', app_package])
+
     self.device_dirs = default_flavor.DeviceDirs(
         dm_dir='dm',
         perf_data_dir='perf',
@@ -23,6 +32,7 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
         skp_dir='skps',
         svg_dir='svgs',
         tmp_dir='tmp')
+
 
   def compile(self, unused_target, **kwargs):
     """ Build Skia with GN and sign the iOS apps"""
@@ -36,11 +46,18 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
               args=[self.out_dir.join(app)])
 
   def step(self, name, cmd, env=None, **kwargs):
-    app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
+    app_name = cmd[0]
+    # app_package = self.m.vars.skia_out.join(self.m.vars.configuration,
+    #                                         '%s.app' % app_name)
 
-    self._run(name,
-              ['ios-deploy', '-b', '%s.app' % app,
-               '-I', '--args', ' '.join(map(str, cmd[1:]))])
+    # Run the app.
+    # self._run(name,
+    #           ['idevicedebug', '-d', 'run', 'com.google.%s' % app_name] +
+    #           map(str, cmd[1:]))
+
+    bundle_id = 'com.google.%s' % app_name
+    self._run(name, ['idevice-app-runner', '-s', bundle_id, '--args'] +
+              map(str, cmd[1:]))
 
   def _run_ios_script(self, script, first, *rest):
     full = self.m.vars.skia_dir.join('platform_tools/ios/bin/ios_' + script)
@@ -56,6 +73,7 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
     self._run_ios_script('push_if_needed', host, device)
 
   def copy_directory_contents_to_host(self, device, host):
+    device = device.rstrip("/") +  '/*'
     self._run_ios_script('pull_if_needed', device, host)
 
   def remove_file_on_device(self, path):
