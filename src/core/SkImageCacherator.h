@@ -162,7 +162,7 @@ private:
 
     friend class GrImageTextureMaker;
     friend class SkImage;
-    friend class SkImage_Generator;
+    friend class SkImage_Lazy;
 };
 
 #endif

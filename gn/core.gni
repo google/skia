@@ -374,9 +374,9 @@ skia_core_sources = [
   "$_src/core/SkShadowShader.h",
 
   "$_src/image/SkImage.cpp",
-  "$_src/image/SkImage_Generator.cpp",
 
   #        "$_src/image/SkImage_Gpu.cpp",
+  "$_src/image/SkImage_Lazy.cpp",
   "$_src/image/SkImage_Raster.cpp",
   "$_src/image/SkImageShader.cpp",
   "$_src/image/SkImageShader.h",
