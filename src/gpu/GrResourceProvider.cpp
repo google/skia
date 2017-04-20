@@ -123,6 +123,12 @@ static bool make_info(int w, int h, GrPixelConfig config, SkImageInfo* ii) {
 sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc& desc,
                                                              SkBudgeted budgeted,
                                                              const GrMipLevel& mipLevel) {
+    ASSERT_SINGLE_OWNER
+
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
     if (!mipLevel.fPixels) {
         return nullptr;
     }
