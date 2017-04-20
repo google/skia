@@ -565,6 +565,26 @@ void SkShadowUtils::DrawUncachedShadow(SkCanvas* canvas, const SkPath& path,
                                        uint32_t flags) {
     SkAutoCanvasRestore acr(canvas, true);
     SkMatrix viewMatrix = canvas->getTotalMatrix();
+
+    // try circular fast path
+    SkRect rect;
+    if (viewMatrix.isSimilarity() &&
+        path.isOval(&rect) && rect.width() == rect.height()) {
+        SkPaint newPaint;
+        newPaint.setColor(color);
+        if (ambientAlpha > 0) {
+            newPaint.setMaskFilter(SkAmbientShadowMaskFilter::Make(heightFunc(0,0), ambientAlpha,
+                                                                   flags));
+            canvas->drawPath(path, newPaint);
+        }
+        if (spotAlpha > 0) {
+            newPaint.setMaskFilter(SkSpotShadowMaskFilter::Make(heightFunc(0,0), lightPos,
+                                                                lightRadius, spotAlpha, flags));
+            canvas->drawPath(path, newPaint);
+        }
+        return;
+    }
+
     canvas->resetMatrix();
 
     bool transparent = SkToBool(flags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
