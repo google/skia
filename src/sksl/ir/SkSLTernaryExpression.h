@@ -26,6 +26,10 @@ struct TernaryExpression : public Expression {
         ASSERT(fIfTrue->fType == fIfFalse->fType);
     }
 
+    bool hasSideEffects() const override {
+        return fTest->hasSideEffects() || fIfTrue->hasSideEffects() || fIfFalse->hasSideEffects();
+    }
+
     String description() const override {
         return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " +
                fIfFalse->description() + ")";

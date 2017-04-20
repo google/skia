@@ -283,6 +283,10 @@ private:
         virtual String description() const override {
             return String("<defined>");
         }
+        
+        bool hasSideEffects() const override {
+            return false;
+        }
 
         typedef Expression INHERITED;
     };
