@@ -56,6 +56,9 @@
 using gr_instanced::InstancedRendering;
 using gr_instanced::GLInstancedRendering;
 
+using gr_instanced::InstancedRenderingAllocator;
+using gr_instanced::GLInstancedRenderingAllocator;
+
 static const GrGLenum gXfermodeEquation2Blend[] = {
     // Basic OpenGL blend equations.
     GR_GL_FUNC_ADD,
@@ -1828,6 +1831,11 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
 GrBuffer* GrGLGpu::onCreateBuffer(size_t size, GrBufferType intendedType,
                                   GrAccessPattern accessPattern, const void* data) {
     return GrGLBuffer::Create(this, size, intendedType, accessPattern, data);
+}
+
+
+std::unique_ptr<InstancedRenderingAllocator> GrGLGpu::onCreateInstancedRenderingAllocator() {
+    return std::unique_ptr<InstancedRenderingAllocator>(new GLInstancedRenderingAllocator(this->caps()));
 }
 
 InstancedRendering* GrGLGpu::onCreateInstancedRendering() {

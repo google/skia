@@ -148,7 +148,7 @@ private:
     void forwardCombine();
 
     // If this returns true then b has been merged into a's op.
-    bool combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
+    bool combineIfPossible1(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
                            const DstTexture* bDstTexture);
 
     GrClearOp* fLastFullClearOp = nullptr;

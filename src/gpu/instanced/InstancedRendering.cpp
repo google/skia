@@ -10,25 +10,36 @@
 #include "GrCaps.h"
 #include "GrOpFlushState.h"
 #include "GrPipeline.h"
+#include "GrRenderTargetOpList.h"
 #include "GrResourceProvider.h"
 #include "instanced/InstanceProcessor.h"
 
 namespace gr_instanced {
 
-InstancedRendering::InstancedRendering(GrGpu* gpu)
-    : fGpu(SkRef(gpu)),
-      fState(State::kRecordingDraws),
-      fDrawPool(1024, 1024) {
+InstancedRenderingAllocator::InstancedRenderingAllocator(const GrCaps* caps)
+    : fDrawPool(1024, 1024)
+    , fCaps(SkRef(caps)) {
 }
 
-std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
-                                                         const SkMatrix& viewMatrix,
-                                                         GrPaint&& paint, GrAA aa,
-                                                         const GrInstancedPipelineInfo& info) {
+InstancedRenderingAllocator::~InstancedRenderingAllocator() {
+    SkSafeUnref(fCaps);
+}
+
+InstancedRendering::InstancedRendering(GrGpu* gpu)
+    : fGpu(SkRef(gpu))
+    , fState1(State::kRecordingDraws) {
+}
+
+std::unique_ptr<GrDrawOp> InstancedRenderingAllocator::recordRect(
+                                                        const SkRect& rect,
+                                                        const SkMatrix& viewMatrix,
+                                                        GrPaint&& paint, GrAA aa,
+                                                        const GrInstancedPipelineInfo& info) {
     return this->recordShape(ShapeType::kRect, rect, viewMatrix, std::move(paint), rect, aa, info);
 }
 
-std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
+std::unique_ptr<GrDrawOp> InstancedRenderingAllocator::recordRect(
+                                                         const SkRect& rect,
                                                          const SkMatrix& viewMatrix,
                                                          GrPaint&& paint, const SkRect& localRect,
                                                          GrAA aa,
@@ -37,7 +48,8 @@ std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
                              info);
 }
 
-std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
+std::unique_ptr<GrDrawOp> InstancedRenderingAllocator::recordRect(
+                                                         const SkRect& rect,
                                                          const SkMatrix& viewMatrix,
                                                          GrPaint&& paint,
                                                          const SkMatrix& localMatrix, GrAA aa,
@@ -45,9 +57,9 @@ std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
     if (localMatrix.hasPerspective()) {
         return nullptr; // Perspective is not yet supported in the local matrix.
     }
-    if (std::unique_ptr<Op> op = this->recordShape(ShapeType::kRect, rect, viewMatrix,
-                                                   std::move(paint), rect, aa, info)) {
-        op->getSingleInstance().fInfo |= kLocalMatrix_InfoFlag;
+    if (std::unique_ptr<InstancedOp> op = this->recordShape(ShapeType::kRect, rect, viewMatrix,
+                                                            std::move(paint), rect, aa, info)) {
+        op->getSingleInstance1().fInfo1 |= kLocalMatrix_InfoFlag;
         op->appendParamsTexel(localMatrix.getScaleX(), localMatrix.getSkewX(),
                               localMatrix.getTranslateX());
         op->appendParamsTexel(localMatrix.getSkewY(), localMatrix.getScaleY(),
@@ -58,18 +70,20 @@ std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
     return nullptr;
 }
 
-std::unique_ptr<GrDrawOp> InstancedRendering::recordOval(const SkRect& oval,
+std::unique_ptr<GrDrawOp> InstancedRenderingAllocator::recordOval(
+                                                         const SkRect& oval,
                                                          const SkMatrix& viewMatrix,
                                                          GrPaint&& paint, GrAA aa,
                                                          const GrInstancedPipelineInfo& info) {
     return this->recordShape(ShapeType::kOval, oval, viewMatrix, std::move(paint), oval, aa, info);
 }
 
-std::unique_ptr<GrDrawOp> InstancedRendering::recordRRect(const SkRRect& rrect,
+std::unique_ptr<GrDrawOp> InstancedRenderingAllocator::recordRRect(
+                                                          const SkRRect& rrect,
                                                           const SkMatrix& viewMatrix,
                                                           GrPaint&& paint, GrAA aa,
                                                           const GrInstancedPipelineInfo& info) {
-    if (std::unique_ptr<Op> op =
+    if (std::unique_ptr<InstancedOp> op =
                 this->recordShape(GetRRectShapeType(rrect), rrect.rect(), viewMatrix,
                                   std::move(paint), rrect.rect(), aa, info)) {
         op->appendRRectParams(rrect);
@@ -78,7 +92,8 @@ std::unique_ptr<GrDrawOp> InstancedRendering::recordRRect(const SkRRect& rrect,
     return nullptr;
 }
 
-std::unique_ptr<GrDrawOp> InstancedRendering::recordDRRect(const SkRRect& outer,
+std::unique_ptr<GrDrawOp> InstancedRenderingAllocator::recordDRRect(
+                                                           const SkRRect& outer,
                                                            const SkRRect& inner,
                                                            const SkMatrix& viewMatrix,
                                                            GrPaint&& paint, GrAA aa,
@@ -89,13 +104,13 @@ std::unique_ptr<GrDrawOp> InstancedRendering::recordDRRect(const SkRRect& outer,
     if (SkRRect::kEmpty_Type == inner.getType()) {
         return this->recordRRect(outer, viewMatrix, std::move(paint), aa, info);
     }
-    if (std::unique_ptr<Op> op =
+    if (std::unique_ptr<InstancedOp> op =
                 this->recordShape(GetRRectShapeType(outer), outer.rect(), viewMatrix,
                                   std::move(paint), outer.rect(), aa, info)) {
         op->appendRRectParams(outer);
         ShapeType innerShapeType = GetRRectShapeType(inner);
         op->fInfo.fInnerShapeTypes |= GetShapeFlag(innerShapeType);
-        op->getSingleInstance().fInfo |= ((int)innerShapeType << kInnerShapeType_InfoBit);
+        op->getSingleInstance1().fInfo1 |= ((int)innerShapeType << kInnerShapeType_InfoBit);
         op->appendParamsTexel(inner.rect().asScalars(), 4);
         op->appendRRectParams(inner);
         return std::move(op);
@@ -103,12 +118,12 @@ std::unique_ptr<GrDrawOp> InstancedRendering::recordDRRect(const SkRRect& outer,
     return nullptr;
 }
 
-std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
+std::unique_ptr<InstancedOp> InstancedRenderingAllocator::recordShape(
         ShapeType type, const SkRect& bounds, const SkMatrix& viewMatrix, GrPaint&& paint,
         const SkRect& localRect, GrAA aa, const GrInstancedPipelineInfo& info) {
-    SkASSERT(State::kRecordingDraws == fState);
+    //SkASSERT(State::kRecordingDraws == fState1);
 
-    if (info.fIsRenderingToFloat && fGpu->caps()->avoidInstancedDrawsToFPTargets()) {
+    if (info.fIsRenderingToFloat && fCaps->avoidInstancedDrawsToFPTargets()) {
         return nullptr;
     }
 
@@ -118,16 +133,18 @@ std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
     }
 
     GrColor color = paint.getColor();
-    std::unique_ptr<Op> op = this->makeOp(std::move(paint));
+    std::unique_ptr<InstancedOp> op = this->makeOp(std::move(paint));
     op->fInfo.setAAType(aaType);
     op->fInfo.fShapeTypes = GetShapeFlag(type);
     op->fInfo.fCannotDiscard = true;
-    Instance& instance = op->getSingleInstance();
-    instance.fInfo = (int)type << kShapeType_InfoBit;
+    Instance& instance = op->getSingleInstance1();
+    instance.fInfo1 = (int)type << kShapeType_InfoBit;
 
-    Op::HasAABloat aaBloat =
-            (aaType == GrAAType::kCoverage) ? Op::HasAABloat::kYes : Op::HasAABloat::kNo;
-    Op::IsZeroArea zeroArea = (bounds.isEmpty()) ? Op::IsZeroArea::kYes : Op::IsZeroArea::kNo;
+    InstancedOp::HasAABloat aaBloat =
+            (aaType == GrAAType::kCoverage) ? InstancedOp::HasAABloat::kYes
+                                            : InstancedOp::HasAABloat::kNo;
+    InstancedOp::IsZeroArea zeroArea = bounds.isEmpty() ? InstancedOp::IsZeroArea::kYes
+                                                        : InstancedOp::IsZeroArea::kNo;
 
     // The instanced shape renderer draws rectangles of [-1, -1, +1, +1], so we find the matrix that
     // will map this rectangle to the same device coordinates as "viewMatrix * bounds".
@@ -168,7 +185,7 @@ std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
         SkMatrix shapeMatrix(viewMatrix);
         shapeMatrix.preTranslate(tx, ty);
         shapeMatrix.preScale(sx, sy);
-        instance.fInfo |= kPerspective_InfoFlag;
+        instance.fInfo1 |= kPerspective_InfoFlag;
 
         float* m = instance.fShapeMatrix2x3;
         m[0] = SkScalarToFloat(shapeMatrix.getScaleX());
@@ -196,13 +213,14 @@ std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
     return op;
 }
 
-inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, GrAA aa,
+inline bool InstancedRenderingAllocator::selectAntialiasMode(
+                                                    const SkMatrix& viewMatrix, GrAA aa,
                                                     const GrInstancedPipelineInfo& info,
                                                     GrAAType* aaType) {
     SkASSERT(!info.fIsMixedSampled || info.fIsMultisampled);
-    SkASSERT(GrCaps::InstancedSupport::kNone != fGpu->caps()->instancedSupport());
+    SkASSERT(GrCaps::InstancedSupport::kNone != fCaps->instancedSupport());
 
-    if (!info.fIsMultisampled || fGpu->caps()->multisampleDisableSupport()) {
+    if (!info.fIsMultisampled || fCaps->multisampleDisableSupport()) {
         if (GrAA::kNo == aa) {
             *aaType = GrAAType::kNone;
             return true;
@@ -215,12 +233,12 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, 
     }
 
     if (info.fIsMultisampled &&
-        fGpu->caps()->instancedSupport() >= GrCaps::InstancedSupport::kMultisampled) {
+        fCaps->instancedSupport() >= GrCaps::InstancedSupport::kMultisampled) {
         if (!info.fIsMixedSampled) {
             *aaType = GrAAType::kMSAA;
             return true;
         }
-        if (fGpu->caps()->instancedSupport() >= GrCaps::InstancedSupport::kMixedSampled) {
+        if (fCaps->instancedSupport() >= GrCaps::InstancedSupport::kMixedSampled) {
             *aaType = GrAAType::kMixedSamples;
             return true;
         }
@@ -229,35 +247,43 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, 
     return false;
 }
 
-InstancedRendering::Op::Op(uint32_t classID, GrPaint&& paint, InstancedRendering* ir)
+InstancedOp::InstancedOp(uint32_t classID, GrPaint&& paint, InstancedRenderingAllocator* alloc)
         : INHERITED(classID)
-        , fInstancedRendering(ir)
+        , fAllocator(alloc)
+        , fInstancedRendering1(nullptr)
         , fProcessors(std::move(paint))
         , fIsTracked(false)
         , fRequiresBarrierOnOverlap(false)
         , fNumDraws(1)
-        , fNumChangesInGeometry(0) {
-    fHeadDraw = fTailDraw = fInstancedRendering->fDrawPool.allocate();
+        , fNumChangesInGeometry(0)
+        , fHeadDraw1(nullptr)
+        , fTailDraw1(nullptr) {
+    fHeadDraw1 = fTailDraw1 = alloc->fDrawPool.allocate();
 #ifdef SK_DEBUG
-    fHeadDraw->fGeometry = {-1, 0};
+    fHeadDraw1->fGeometry = {-1, 0};
 #endif
-    fHeadDraw->fNext = nullptr;
+    fHeadDraw1->fNext = nullptr;
+
+    static int sID = 0;
+
+    fID = sID++;
 }
 
-InstancedRendering::Op::~Op() {
+InstancedOp::~InstancedOp() {
     if (fIsTracked) {
-        fInstancedRendering->fTrackedOps.remove(this);
+        //SkDebugf("removing %d\n", this->fID);
+        fInstancedRendering1->removeOp(this);
     }
 
-    Draw* draw = fHeadDraw;
+    Draw* draw = fHeadDraw1;
     while (draw) {
         Draw* next = draw->fNext;
-        fInstancedRendering->fDrawPool.release(draw);
+        fAllocator->fDrawPool.release(draw);
         draw = next;
     }
 }
 
-void InstancedRendering::Op::appendRRectParams(const SkRRect& rrect) {
+void InstancedOp::appendRRectParams(const SkRRect& rrect) {
     SkASSERT(!fIsTracked);
     switch (rrect.getType()) {
         case SkRRect::kSimple_Type: {
@@ -304,7 +330,7 @@ void InstancedRendering::Op::appendRRectParams(const SkRRect& rrect) {
     }
 }
 
-void InstancedRendering::Op::appendParamsTexel(const SkScalar* vals, int count) {
+void InstancedOp::appendParamsTexel(const SkScalar* vals, int count) {
     SkASSERT(!fIsTracked);
     SkASSERT(count <= 4 && count >= 0);
     const float* valsAsFloats = vals; // Ensure SkScalar == float.
@@ -312,7 +338,7 @@ void InstancedRendering::Op::appendParamsTexel(const SkScalar* vals, int count) 
     fInfo.fHasParams = true;
 }
 
-void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar z, SkScalar w) {
+void InstancedOp::appendParamsTexel(SkScalar x, SkScalar y, SkScalar z, SkScalar w) {
     SkASSERT(!fIsTracked);
     ParamsTexel& texel = fParams.push_back();
     texel.fX = SkScalarToFloat(x);
@@ -322,7 +348,7 @@ void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar 
     fInfo.fHasParams = true;
 }
 
-void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar z) {
+void InstancedOp::appendParamsTexel(SkScalar x, SkScalar y, SkScalar z) {
     SkASSERT(!fIsTracked);
     ParamsTexel& texel = fParams.push_back();
     texel.fX = SkScalarToFloat(x);
@@ -331,8 +357,14 @@ void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar 
     fInfo.fHasParams = true;
 }
 
-bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) {
-    SkASSERT(State::kRecordingDraws == fInstancedRendering->fState);
+void InstancedOp::glom() {
+    SkASSERT(fInstancedRendering1);
+
+    this->getSingleInstance1().fInfo1 |= fInstancedRendering1->addOpParams(this);
+}
+
+bool InstancedOp::xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) {
+//    SkASSERT(InstancedRendering::State::kRecordingDraws == fInstancedRendering->fState1);
     GrProcessorAnalysisCoverage coverageInput;
     bool isMixedSamples = false;
     if (GrAAType::kCoverage == fInfo.aaType() ||
@@ -343,10 +375,10 @@ bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAp
         isMixedSamples = GrAAType::kMixedSamples == fInfo.aaType();
     }
     GrProcessorSet::Analysis analysis =
-            fProcessors.finalize(this->getSingleInstance().fColor, coverageInput, clip,
-                                 isMixedSamples, caps, &this->getSingleDraw().fInstance.fColor);
+            fProcessors.finalize(this->getSingleInstance1().fColor, coverageInput, clip,
+                                 isMixedSamples, caps, &this->getSingleDraw1().fInstance.fColor);
 
-    Draw& draw = this->getSingleDraw(); // This will assert if we have > 1 command.
+    Draw& draw = this->getSingleDraw1(); // This will assert if we have > 1 command.
     SkASSERT(draw.fGeometry.isEmpty());
     SkASSERT(SkIsPow2(fInfo.fShapeTypes));
     SkASSERT(!fIsTracked);
@@ -359,12 +391,6 @@ bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAp
         draw.fGeometry = InstanceProcessor::GetIndexRangeForRRect(fInfo.aaType());
     }
 
-    if (!fParams.empty()) {
-        SkASSERT(fInstancedRendering->fParams.count() < (int)kParamsIdx_InfoMask); // TODO: cleaner.
-        this->getSingleInstance().fInfo |= fInstancedRendering->fParams.count();
-        fInstancedRendering->fParams.push_back_n(fParams.count(), fParams.begin());
-    }
-
     fInfo.fCannotTweakAlphaForCoverage = !analysis.isCompatibleWithCoverageAsAlpha();
 
     fInfo.fUsesLocalCoords = analysis.usesLocalCoords();
@@ -372,17 +398,24 @@ bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAp
     return analysis.requiresDstTexture();
 }
 
-void InstancedRendering::Op::wasRecorded() {
+void InstancedOp::wasRecorded(GrRenderTargetOpList* opList) {
+    SkASSERT(!fInstancedRendering1);
     SkASSERT(!fIsTracked);
-    fInstancedRendering->fTrackedOps.addToTail(this);
+
+    fInstancedRendering1 = opList->instancedRendering();
+
+    this->glom();
+    //SkDebugf("adding %d\n", this->fID);
+    fInstancedRendering1->addOp(this);
     fIsTracked = true;
 }
 
-bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps) {
-    Op* that = static_cast<Op*>(other);
-    SkASSERT(fInstancedRendering == that->fInstancedRendering);
-    SkASSERT(fTailDraw);
-    SkASSERT(that->fTailDraw);
+// called after/in recordOp
+bool InstancedOp::onCombineIfPossible(GrOp* other, const GrCaps& caps) {
+    InstancedOp* that = static_cast<InstancedOp*>(other);
+    SkASSERT(!that->fInstancedRendering1 || (fInstancedRendering1 == that->fInstancedRendering1));
+    SkASSERT(fTailDraw1);
+    SkASSERT(that->fTailDraw1);
 
     if (!OpInfo::CanCombine(fInfo, that->fInfo) || fProcessors != that->fProcessors) {
         return false;
@@ -406,26 +439,31 @@ bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps
         }
     }
 
+    if (!that->fInstancedRendering1) {
+        that->fInstancedRendering1 = fInstancedRendering1;
+        that->glom();
+    }
+
     this->joinBounds(*that);
     fInfo = combinedInfo;
     fPixelLoad += that->fPixelLoad;
     // Adopt the other op's draws.
     fNumDraws += that->fNumDraws;
     fNumChangesInGeometry += that->fNumChangesInGeometry;
-    if (fTailDraw->fGeometry != that->fHeadDraw->fGeometry) {
+    if (fTailDraw1->fGeometry != that->fHeadDraw1->fGeometry) {
         ++fNumChangesInGeometry;
     }
-    fTailDraw->fNext = that->fHeadDraw;
-    fTailDraw = that->fTailDraw;
+    fTailDraw1->fNext = that->fHeadDraw1;
+    fTailDraw1 = that->fTailDraw1;
 
-    that->fHeadDraw = that->fTailDraw = nullptr;
+    that->fHeadDraw1 = that->fTailDraw1 = nullptr;
 
     return true;
 }
 
 void InstancedRendering::beginFlush(GrResourceProvider* rp) {
-    SkASSERT(State::kRecordingDraws == fState);
-    fState = State::kFlushing;
+    SkASSERT(State::kRecordingDraws == fState1);
+    fState1 = State::kFlushing;
 
     if (fTrackedOps.isEmpty()) {
         return;
@@ -459,9 +497,17 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
     this->onBeginFlush(rp);
 }
 
-void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
-    SkASSERT(State::kFlushing == fInstancedRendering->fState);
-    SkASSERT(state->gpu() == fInstancedRendering->gpu());
+void InstancedRendering::draw2(const GrPipeline& pipeline,
+                              OpInfo info,
+                              const InstancedOp* baseOp) {
+    InstanceProcessor instProc(info, fParamsBuffer.get());
+
+    this->onDraw1(pipeline, instProc, baseOp);
+}
+
+void InstancedOp::onExecute(GrOpFlushState* state) {
+    SkASSERT(fInstancedRendering1->isFlushing());
+    SkASSERT(state->gpu() == fInstancedRendering1->gpu());
 
     state->gpu()->handleDirtyContext();
 
@@ -478,8 +524,7 @@ void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
     if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*state->gpu()->caps())) {
         state->gpu()->xferBarrier(pipeline.getRenderTarget(), barrierType);
     }
-    InstanceProcessor instProc(fInfo, fInstancedRendering->fParamsBuffer.get());
-    fInstancedRendering->onDraw(pipeline, instProc, this);
+    fInstancedRendering1->draw2(pipeline, fInfo, this);
 }
 
 void InstancedRendering::endFlush() {
@@ -489,7 +534,7 @@ void InstancedRendering::endFlush() {
     fParams.reset();
     fParamsBuffer.reset();
     this->onEndFlush();
-    fState = State::kRecordingDraws;
+    fState1 = State::kRecordingDraws;
     // Hold on to the shape coords and index buffers.
 }
 
