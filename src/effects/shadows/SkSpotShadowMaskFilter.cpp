@@ -236,7 +236,9 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
     if (fSpotAlpha > 0.0f) {
         float zRatio = SkTPin(fOccluderHeight / (fLightPos.fZ - fOccluderHeight), 0.0f, 0.95f);
 
-        SkScalar srcSpaceSpotRadius = 2.0f * fLightRadius * zRatio;
+        SkScalar devSpaceSpotRadius = 2.0f * fLightRadius * zRatio;
+        // handle scale of radius and pad due to CTM
+        const SkScalar srcSpaceSpotRadius = devSpaceSpotRadius / scaleFactor;
 
         SkRRect spotRRect;
         if (isRect) {
@@ -250,18 +252,18 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         const SkScalar scale = fLightPos.fZ / (fLightPos.fZ - fOccluderHeight);
         spotRRect.transform(SkMatrix::MakeScale(scale, scale), &spotShadowRRect);
 
-        SkPoint center = SkPoint::Make(spotShadowRRect.rect().centerX(),
-                                       spotShadowRRect.rect().centerY());
-        SkMatrix ctmInverse;
-        if (!viewMatrix.invert(&ctmInverse)) {
-            SkDebugf("Matrix is degenerate. Will not render spot shadow!\n");
-            //**** TODO: this is not good
-            return true;
-        }
-        SkPoint lightPos2D = SkPoint::Make(fLightPos.fX, fLightPos.fY);
-        ctmInverse.mapPoints(&lightPos2D, 1);
-        const SkPoint spotOffset = SkPoint::Make(zRatio*(center.fX - lightPos2D.fX),
-                                                 zRatio*(center.fY - lightPos2D.fY));
+        SkPoint spotOffset = SkPoint::Make(zRatio*(-fLightPos.fX), zRatio*(-fLightPos.fY));
+        // This offset is in dev space, need to transform it into source space.
+        spotOffset.fX += scale*viewMatrix[SkMatrix::kMTransX];
+        spotOffset.fY += scale*viewMatrix[SkMatrix::kMTransY];
+        // We can just multiply by the transpose of the upper 2x2 rather than inverting
+        // and mapping the point since we have uniform scale.
+        spotOffset = SkPoint::Make(spotOffset.fX*viewMatrix[SkMatrix::kMScaleX] +
+                                   spotOffset.fY*viewMatrix[SkMatrix::kMSkewY] -
+                                   viewMatrix[SkMatrix::kMTransX],
+                                   spotOffset.fX*viewMatrix[SkMatrix::kMSkewX] +
+                                   spotOffset.fY*viewMatrix[SkMatrix::kMScaleY] -
+                                   viewMatrix[SkMatrix::kMTransY]);
 
         // We want to extend the stroked area in so that it meets up with the caster
         // geometry. The stroked geometry will, by definition already be inset half the
@@ -292,16 +294,17 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         } else {
             // Since we can't have unequal strokes, inset the shadow rect so the inner
             // and outer edges of the stroke will land where we want.
-            SkRect insetRect = spotShadowRRect.rect().makeInset(insetAmount / 2.0f,
-                                                                insetAmount / 2.0f);
-            SkScalar insetRad = SkTMax(spotShadowRRect.getSimpleRadii().fX - insetAmount / 2.0f,
-                                       minRadius);
-            spotShadowRRect = SkRRect::MakeRectXY(insetRect, insetRad, insetRad);
+            insetAmount *= 0.5f;
+            SkRect insetRect = spotShadowRRect.rect().makeInset(insetAmount, insetAmount);
+            if (spotShadowRRect.isOval()) {
+                spotShadowRRect = SkRRect::MakeOval(insetRect);
+            } else {
+                SkScalar insetRad = SkTMax(spotShadowRRect.getSimpleRadii().fX - insetAmount,
+                                           minRadius);
+                spotShadowRRect = SkRRect::MakeRectXY(insetRect, insetRad, insetRad);
+            }
             spotStrokeRec.setStrokeStyle(strokeWidth, false);
         }
-
-        // handle scale of radius and pad due to CTM
-        const SkScalar devSpaceSpotRadius = srcSpaceSpotRadius * scaleFactor;
 
         spotShadowRRect.offset(spotOffset.fX, spotOffset.fY);
 
