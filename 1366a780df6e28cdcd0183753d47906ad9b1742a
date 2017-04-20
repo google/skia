@@ -92,6 +92,30 @@
       "revId": "1366a780df6e28cdcd0183753d47906ad9b1742a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d790bf4f_901030e5",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-20T21:50:49Z",
+      "side": 1,
+      "message": "sgtm.  I\u0027ve forced the options constructor to take a format, so we can initialize to meaningful values.",
+      "parentUuid": "1ca03b96_629930fd",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 44
+      },
+      "revId": "1366a780df6e28cdcd0183753d47906ad9b1742a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "97a75e6b_f3bf647c",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-20T21:50:49Z",
+      "side": 1,
+      "message": "Will comment.  And adding a format to the constructor so that the defaults are meaningful.",
+      "parentUuid": "b4c08c69_304623ab",
+      "range": {
+        "startLine": 22,
+        "startChar": 22,
+        "endLine": 22,
+        "endChar": 30
+      },
+      "revId": "3577e138129182e2703c0f0597814ae079bb0021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3e6caaed_68f888f4",
         "filename": "include/core/SkImageEncoder.h",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-04-17T14:58:10Z",
       "side": 1,
       "message": "\u003e specific encode\n\nShould this be \"format-specific\" or \"encoder-specific\"?",
+      "range": {
+        "startLine": 65,
+        "startChar": 38,
+        "endLine": 65,
+        "endChar": 53
+      },
+      "revId": "3577e138129182e2703c0f0597814ae079bb0021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4912b4f7_3e152d40",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-20T21:50:49Z",
+      "side": 1,
+      "message": "encoder-specific sgtm",
+      "parentUuid": "3e6caaed_68f888f4",
       "range": {
         "startLine": 65,
         "startChar": 38,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "1b6cdd5a_67fece17",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-20T21:50:49Z",
+      "side": 1,
+      "message": "I don\u0027t know, I\u0027ll remove and see what happens.",
+      "parentUuid": "538c75d9_8b526f43",
+      "revId": "3577e138129182e2703c0f0597814ae079bb0021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3567fdd7_b8703ab5",
         "filename": "src/images/SkImageEncoder.cpp",
         "patchSetId": 2
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "697d0fc6_983f5a2f",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-20T21:50:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3567fdd7_b8703ab5",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 34
+      },
+      "revId": "3577e138129182e2703c0f0597814ae079bb0021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa7904d2_698dd05b",
         "filename": "src/images/SkImageEncoder.cpp",
         "patchSetId": 2
@@ -99,6 +189,30 @@
       "writtenOn": "2017-04-17T14:58:10Z",
       "side": 1,
       "message": "Why not use the quality (if any) in Format?",
+      "range": {
+        "startLine": 23,
+        "startChar": 54,
+        "endLine": 23,
+        "endChar": 57
+      },
+      "revId": "3577e138129182e2703c0f0597814ae079bb0021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed02542e_5290cc2d",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-20T21:50:49Z",
+      "side": 1,
+      "message": "sgtm.  I wonder if we could get away with deleting our WIC encoder...",
+      "parentUuid": "fa7904d2_698dd05b",
       "range": {
         "startLine": 23,
         "startChar": 54,
