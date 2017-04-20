@@ -63,7 +63,7 @@ const MakerT makers[] = {
         return make_mask(surface ? surface : SkSurface::MakeRaster(info));
     },
 
-    // SkImage_Generator
+    // SkImage_Lazy
     [](SkCanvas*, const SkImageInfo& info) -> sk_sp<SkImage> {
         return SkImage::MakeFromGenerator(skstd::make_unique<MaskGenerator>(info));
     },
