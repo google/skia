@@ -69,6 +69,29 @@
       "revId": "44d1b548ef9c167a8b55eb9529db110996ae3bfe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a049734d_810c62f9",
+        "filename": "infra/bots/recipe_modules/git/api.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-04-20T16:25:11Z",
+      "side": 1,
+      "message": "Some of our windows bots in the skolo have this in C:\\_netrc  Which is the canonical one?",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 5
+      },
+      "revId": "44d1b548ef9c167a8b55eb9529db110996ae3bfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
