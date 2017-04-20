@@ -56,7 +56,7 @@ private:
      */
     static GrCaps::InstancedSupport CheckSupport(const GrShaderCaps&, const GrCaps&);
 
-    OpInfo fOpInfo;
+    const OpInfo fOpInfo;
     BufferAccess fParamsAccess;
 
     friend class GLInstancedRendering; // For CheckSupport.

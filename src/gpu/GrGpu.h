@@ -15,6 +15,7 @@
 #include "GrTextureProducer.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
+#include "instanced/InstancedRendering.h"
 #include "SkPath.h"
 #include "SkTArray.h"
 #include <map>
@@ -39,7 +40,11 @@ class GrStencilSettings;
 class GrSurface;
 class GrTexture;
 
-namespace gr_instanced { class InstancedRendering; }
+namespace gr_instanced {
+    class InstancedOp;
+    class InstancedRendering;
+    class InstancedRenderingAllocator;
+}
 
 class GrGpu : public SkRefCnt {
 public:
@@ -152,6 +157,7 @@ public:
     /**
      * Creates an instanced rendering object if it is supported on this platform.
      */
+    std::unique_ptr<gr_instanced::InstancedRenderingAllocator> createInstancedRenderingAllocator();
     gr_instanced::InstancedRendering* createInstancedRendering();
 
     /**
@@ -549,6 +555,8 @@ private:
                                      const void* data) = 0;
 
     virtual gr_instanced::InstancedRendering* onCreateInstancedRendering() = 0;
+    virtual std::unique_ptr<gr_instanced::InstancedRenderingAllocator>
+                                                        onCreateInstancedRenderingAllocator() = 0;
 
     virtual bool onIsACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerParams&,
                                                  GrTextureProducer::CopyParams*,
@@ -616,7 +624,7 @@ private:
     GrContext*                             fContext;
 
     friend class GrPathRendering;
-    friend class gr_instanced::InstancedRendering;
+    friend class gr_instanced::InstancedOp; // for xferBarrier
     typedef SkRefCnt INHERITED;
 };
 
