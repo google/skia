@@ -17,7 +17,7 @@
     implemented privately in GrSurface with a inline public method here). */
 class GrSurfacePriv {
 public:
-    /** Helpers used in read/write pixels implementations. The paramters are adjusted so that the
+    /** Helpers used in read/write pixels implementations. The parameters are adjusted so that the
         read/write respects the bounds of a surface. If the input *rowBytes is 0 it will be
         the tight row bytes (based on width and bpp) on output. */
     static bool AdjustReadPixelParams(int surfaceWidth,

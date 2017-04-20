@@ -24,7 +24,7 @@ class GrSingleTextureEffect : public GrFragmentProcessor {
 public:
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("Texture: %d", fTextureSampler.texture()->uniqueID().asUInt());
+        str.appendf("Texture: %d", fTextureSampler.proxy()->uniqueID().asUInt());
         return str;
     }
 

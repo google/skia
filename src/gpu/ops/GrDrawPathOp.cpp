@@ -46,7 +46,7 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
     args.fAppliedClip = state.drawOpArgs().fAppliedClip;
     args.fRenderTarget = state.drawOpArgs().fRenderTarget;
     args.fCaps = &state.caps();
-    args.fDstTexture = state.drawOpArgs().fDstTexture;
+    args.fDstProxy = state.drawOpArgs().fDstProxy;
 
     return pipeline->init(args);
 }
