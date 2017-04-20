@@ -681,6 +681,25 @@ STAGE(parametric_g) { g = parametric(g, ctx); }
 STAGE(parametric_b) { b = parametric(b, ctx); }
 STAGE(parametric_a) { a = parametric(a, ctx); }
 
+STAGE(lab_to_xyz) {
+    F L = r * 100.0_f,
+      A = g * 255.0_f - 128.0_f,
+      B = b * 255.0_f - 128.0_f;
+
+    F Y = (L + 16.0_f) * C(1/116.0f),
+      X = Y + A*C(1/500.0f),
+      Z = Y - B*C(1/200.0f);
+
+    X = if_then_else(X*X*X > 0.008856_f, X*X*X, (X - C(16/116.0f)) * C(1/7.787f));
+    Y = if_then_else(Y*Y*Y > 0.008856_f, Y*Y*Y, (Y - C(16/116.0f)) * C(1/7.787f));
+    Z = if_then_else(Z*Z*Z > 0.008856_f, Z*Z*Z, (Z - C(16/116.0f)) * C(1/7.787f));
+
+    // Adjust to D50 illuminant.
+    r = X * 0.96422_f;
+    g = Y            ;
+    b = Z * 0.82521_f;
+}
+
 STAGE(load_a8) {
     auto ptr = *(const uint8_t**)ctx + x;
 

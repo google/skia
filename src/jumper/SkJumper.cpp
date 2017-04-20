@@ -95,6 +95,7 @@ static K kConstants = {
     M(byte_tables_rgb)    \
     M(table_r) M(table_g) M(table_b) M(table_a) \
     M(parametric_r) M(parametric_g) M(parametric_b) M(parametric_a) \
+    M(lab_to_xyz)         \
     M(load_a8)            \
     M(gather_a8)          \
     M(store_a8)           \
