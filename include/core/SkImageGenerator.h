@@ -156,6 +156,10 @@ public:
                                                              SkImage::BitDepth,
                                                              sk_sp<SkColorSpace>);
 
+    static std::unique_ptr<SkImageGenerator> MakeFromRasterWithColorSpaceXform(
+            const SkPixmap& srcPixmap, sk_sp<SkColorSpace> dstColorSpace,
+            uint32_t uniqueId = kNeedNewImageUniqueID);
+
 protected:
     enum {
         kNeedNewImageUniqueID = 0
