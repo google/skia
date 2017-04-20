@@ -251,11 +251,11 @@ bool SkRRect::checkCornerContainment(SkScalar x, SkScalar y) const {
     return dist <= SkScalarSquare(fRadii[index].fX * fRadii[index].fY);
 }
 
-bool SkRRect::allCornersCircular() const {
-    return fRadii[0].fX == fRadii[0].fY &&
-        fRadii[1].fX == fRadii[1].fY &&
-        fRadii[2].fX == fRadii[2].fY &&
-        fRadii[3].fX == fRadii[3].fY;
+bool SkRRect::allCornersCircular(SkScalar tolerance) const {
+    return SkScalarNearlyEqual(fRadii[0].fX, fRadii[0].fY, tolerance) &&
+           SkScalarNearlyEqual(fRadii[1].fX, fRadii[1].fY, tolerance) &&
+           SkScalarNearlyEqual(fRadii[2].fX, fRadii[2].fY, tolerance) &&
+           SkScalarNearlyEqual(fRadii[3].fX, fRadii[3].fY, tolerance);
 }
 
 bool SkRRect::contains(const SkRect& rect) const {
