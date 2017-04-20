@@ -114,27 +114,9 @@ static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat fo
     if (!bitmap.peekPixels(&src)) {
         return nullptr;
     }
-    SkDynamicMemoryWStream buf;
 
-    SkEncodeOptions options;
-    if (bitmap.colorSpace()) {
-        options.fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
-    }
-
-    switch (format) {
-        case SkEncodedImageFormat::kPNG:
-            SkAssertResult(SkEncodeImageAsPNG(&buf, src, options));
-            break;
-        case SkEncodedImageFormat::kWEBP:
-            SkAssertResult(SkEncodeImageAsWEBP(&buf, src, options));
-            break;
-        case SkEncodedImageFormat::kJPEG:
-            SkAssertResult(SkEncodeImageAsJPEG(&buf, src, options));
-            break;
-        default:
-            break;
-    }
-    return buf.detachAsData();
+    SkEncodeOptions options(format);
+    return SkEncodeImage(src, format, options);
 }
 
 class EncodeSRGBGM : public GM {
