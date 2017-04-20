@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 
+#include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "GrRenderTarget.h"
 #include "SkAutoMalloc.h"
@@ -264,7 +265,6 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
     for (uint32_t i = 0; i < fImageCount; ++i) {
         fImageLayouts[i] = VK_IMAGE_LAYOUT_UNDEFINED;
 
-        GrBackendRenderTargetDesc desc;
         GrVkImageInfo info;
         info.fImage = fImages[i];
         info.fAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
@@ -272,17 +272,14 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
         info.fFormat = format;
         info.fLevelCount = 1;
-        desc.fWidth = fWidth;
-        desc.fHeight = fHeight;
-        desc.fConfig = fPixelConfig;
-        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-        desc.fSampleCnt = fSampleCount;
-        desc.fStencilBits = fStencilBits;
-        desc.fRenderTargetHandle = (GrBackendObject) &info;
 
-        fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(fContext, desc,
-                                                              fDisplayParams.fColorSpace,
-                                                              &fSurfaceProps);
+        GrBackendTexture backendTex(fWidth, fHeight, &info);
+
+        fSurfaces[i] = SkSurface::MakeFromBackendTextureAsRenderTarget(fContext, backendTex,
+                                                                       kTopLeft_GrSurfaceOrigin,
+                                                                       fSampleCount,
+                                                                       fDisplayParams.fColorSpace,
+                                                                       &fSurfaceProps);
     }
 
     // create the command pool for the command buffers

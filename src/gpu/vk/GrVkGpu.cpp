@@ -822,6 +822,13 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
 }
 
 sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc){
+    // Currently the Vulkan backend does not support wrapping of msaa render targets directly. In
+    // general this is not an issue since swapchain images in vulkan are never multisampled. Thus if
+    // you want a multisampled RT it is best to wrap the swapchain images and then let Skia handle
+    // creating and owning the MSAA images.
+    if (wrapDesc.fSampleCnt) {
+        return nullptr;
+    }
 
     const GrVkImageInfo* info =
         reinterpret_cast<const GrVkImageInfo*>(wrapDesc.fRenderTargetHandle);
@@ -834,7 +841,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     desc.fFlags = kCheckAllocation_GrSurfaceFlag | kRenderTarget_GrSurfaceFlag;
     desc.fWidth = wrapDesc.fWidth;
     desc.fHeight = wrapDesc.fHeight;
-    desc.fSampleCnt = SkTMin(wrapDesc.fSampleCnt, this->caps()->maxSampleCount());
+    desc.fSampleCnt = 0;
 
     desc.fOrigin = resolve_origin(wrapDesc.fOrigin);
 
