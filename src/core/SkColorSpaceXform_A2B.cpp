@@ -16,6 +16,7 @@
 #include "SkNx.h"
 #include "SkSRGB.h"
 #include "SkTypes.h"
+#include "../jumper/SkJumper.h"
 
 bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat,
                                     const void* src, int count, SkAlphaType alphaType) const {
@@ -183,8 +184,27 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
             case SkColorSpace_A2B::Element::Type::kCLUT: {
                 SkCSXformPrintf("CLUT (%d -> %d) stage added\n", e.colorLUT().inputChannels(),
                                                                  e.colorLUT().outputChannels());
-                auto clut = this->copy(sk_ref_sp(&e.colorLUT()));
-                fElementsPipeline.append(SkRasterPipeline::color_lookup_table, clut->get());
+                struct CallbackCtx : SkJumper_CallbackCtx {
+                    sk_sp<const SkColorLookUpTable> clut;
+                    // clut->interp() can't always safely alias its arguments,
+                    // so we allocate a second buffer to hold our results.
+                    float results[4*SkJumper_kMaxStride];
+                };
+                auto cb = fAlloc.make<CallbackCtx>();
+                cb->clut      = sk_ref_sp(&e.colorLUT());
+                cb->read_from = cb->results;
+                cb->fn        = [](SkJumper_CallbackCtx* ctx, int active_pixels) {
+                    auto c = (CallbackCtx*)ctx;
+                    for (int i = 0; i < active_pixels; i++) {
+                        // Look up red, green, and blue for this pixel using 3-4 values from rgba.
+                        c->clut->interp(c->results+4*i, c->rgba+4*i);
+
+                        // If we used 3 inputs (rgb) preserve the fourth as alpha.
+                        // If we used 4 inputs (cmyk) force alpha to 1.
+                        c->results[4*i+3] = (3 == c->clut->inputChannels()) ? c->rgba[4*i+3] : 1.0f;
+                    }
+                };
+                fElementsPipeline.append(SkRasterPipeline::callback, cb);
                 break;
             }
             case SkColorSpace_A2B::Element::Type::kMatrix:

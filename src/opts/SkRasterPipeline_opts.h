@@ -1099,8 +1099,10 @@ STAGE_CTX(shader_adapter, SkShader::Context*) {
 }
 
 STAGE_CTX(callback, const void*) {
-    auto c = (const SkJumper_CallbackCtx*)ctx;
-    c->fn(c->arg, tail ? tail : N);
+    auto c = (SkJumper_CallbackCtx*)ctx;
+    SkNf::Store4(c->rgba, r,g,b,a);
+    c->fn(c, tail ? tail : N);
+    SkNf::Load4(c->read_from, &r,&g,&b,&a);
 }
 
 SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {

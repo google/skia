@@ -1070,6 +1070,8 @@ STAGE(bicubic_p1y) { bicubic_y<+1>(ctx, &g); }
 STAGE(bicubic_p3y) { bicubic_y<+3>(ctx, &g); }
 
 STAGE(callback) {
-    auto c = (const SkJumper_CallbackCtx*)ctx;
-    c->fn(c->arg, tail ? tail : kStride);
+    auto c = (SkJumper_CallbackCtx*)ctx;
+    store4(c->rgba,0, r,g,b,a);
+    c->fn(c, tail ? tail : kStride);
+    load4(c->read_from,0, &r,&g,&b,&a);
 }

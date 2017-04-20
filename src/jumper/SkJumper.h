@@ -82,8 +82,12 @@ struct SkJumper_SamplerCtx {
 };
 
 struct SkJumper_CallbackCtx {
-    MAYBE_MSABI void (*fn)(void* arg, int active_pixels/*<= SkJumper_kMaxStride*/);
-    void* arg;
+    MAYBE_MSABI void (*fn)(SkJumper_CallbackCtx* self, int active_pixels/*<= SkJumper_kMaxStride*/);
+
+    // When called, fn() will have our active pixels available in rgba.
+    // When fn() returns, the pipeline will read back those active pixels from read_from.
+    float rgba[4*SkJumper_kMaxStride];
+    float* read_from = rgba;
 };
 
 struct SkJumper_LoadTablesCtx {
