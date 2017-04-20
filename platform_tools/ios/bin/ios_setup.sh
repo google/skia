@@ -9,7 +9,9 @@
 # ios_setup.sh: Sets environment variables used by other iOS scripts.
 
 # File system location where we mount the ios devices.
-IOS_MOUNT_POINT="/tmp/mnt_iosdevice"
+if [[ -z "${IOS_MOUNT_POINT}" ]]; then
+  IOS_MOUNT_POINT="/tmp/mnt_iosdevice"
+fi
 
 # Location on the ios device where all data are stored. This is
 # relative to the mount point.
@@ -114,7 +116,7 @@ ios_mount() {
 
 # ios_umount: unmounts the ios device.
 ios_umount() {
-  umount $IOS_MOUNT_POINT
+  sudo umount $IOS_MOUNT_POINT
   sleep 1
 }
 
@@ -149,7 +151,7 @@ ios_push() {
   ios_mount
   rm -rf $IOS_DST
   mkdir -p "$(dirname $IOS_DST)"
-  cp -r "$HOST_SRC" "$IOS_DST"
+  cp -r -L "$HOST_SRC" "$IOS_DST"
   ios_umount
 }
 
