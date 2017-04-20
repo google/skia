@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "effects/GrXfermodeFragmentProcessor.h"
+#include "GrXfermodeFragmentProcessor.h"
 
+#include "GrConstColorProcessor.h"
 #include "GrFragmentProcessor.h"
-#include "effects/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLBlend.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
