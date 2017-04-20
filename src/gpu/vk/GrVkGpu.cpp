@@ -7,6 +7,7 @@
 
 #include "GrVkGpu.h"
 
+#include "GrBackendSurface.h"
 #include "GrContextOptions.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpuResourceCacheAccess.h"
@@ -780,41 +781,39 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin) {
     }
 }
 
-sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
+sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
+                                               GrSurfaceOrigin origin,
+                                               GrBackendTextureFlags flags,
+                                               int sampleCnt,
                                                GrWrapOwnership ownership) {
-    if (0 == desc.fTextureHandle) {
+    const GrVkImageInfo* info = backendTex.getVkImageInfo();
+    if (!info) {
         return nullptr;
     }
 
     int maxSize = this->caps()->maxTextureSize();
-    if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
+    if (backendTex.width() > maxSize || backendTex.height() > maxSize) {
         return nullptr;
     }
 
-    const GrVkImageInfo* info = reinterpret_cast<const GrVkImageInfo*>(desc.fTextureHandle);
     if (VK_NULL_HANDLE == info->fImage || VK_NULL_HANDLE == info->fAlloc.fMemory) {
         return nullptr;
     }
-#ifdef SK_DEBUG
-    VkFormat format;
-    if (!GrPixelConfigToVkFormat(desc.fConfig, &format)) {
-        return nullptr;
-    }
-    SkASSERT(format == info->fFormat);
-#endif
+
+    SkASSERT(backendTex.config() == GrVkFormatToPixelConfig(info->fFormat));
 
     GrSurfaceDesc surfDesc;
-    // next line relies on GrBackendTextureDesc's flags matching GrTexture's
-    surfDesc.fFlags = (GrSurfaceFlags)desc.fFlags;
-    surfDesc.fWidth = desc.fWidth;
-    surfDesc.fHeight = desc.fHeight;
-    surfDesc.fConfig = desc.fConfig;
-    surfDesc.fSampleCnt = SkTMin(desc.fSampleCnt, this->caps()->maxSampleCount());
-    bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag);
+    // next line relies on GrBackendTextureFlags matching GrTexture's
+    surfDesc.fFlags = (GrSurfaceFlags)flags;
+    surfDesc.fWidth = backendTex.width();
+    surfDesc.fHeight = backendTex.height();
+    surfDesc.fConfig = backendTex.config();
+    surfDesc.fSampleCnt = SkTMin(sampleCnt, this->caps()->maxSampleCount());
+    bool renderTarget = SkToBool(flags & kRenderTarget_GrBackendTextureFlag);
     SkASSERT(!renderTarget || kAdoptAndCache_GrWrapOwnership != ownership);  // Not supported
     // In GL, Chrome assumes all textures are BottomLeft
     // In VK, we don't have this restriction
-    surfDesc.fOrigin = resolve_origin(desc.fOrigin);
+    surfDesc.fOrigin = resolve_origin(origin);
 
     if (!renderTarget) {
         return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, info);
@@ -848,23 +847,23 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     return tgt;
 }
 
-sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(
-        const GrBackendTextureDesc& wrapDesc){
+sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
+                                                                  GrSurfaceOrigin origin,
+                                                                  int sampleCnt) {
 
-    const GrVkImageInfo* info =
-        reinterpret_cast<const GrVkImageInfo*>(wrapDesc.fTextureHandle);
+    const GrVkImageInfo* info = tex.getVkImageInfo();
     if (VK_NULL_HANDLE == info->fImage) {
         return nullptr;
     }
 
     GrSurfaceDesc desc;
-    desc.fFlags = (GrSurfaceFlags) wrapDesc.fFlags;
-    desc.fConfig = wrapDesc.fConfig;
-    desc.fWidth = wrapDesc.fWidth;
-    desc.fHeight = wrapDesc.fHeight;
-    desc.fSampleCnt = SkTMin(wrapDesc.fSampleCnt, this->caps()->maxSampleCount());
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fConfig = tex.config();
+    desc.fWidth = tex.width();
+    desc.fHeight = tex.height();
+    desc.fSampleCnt = SkTMin(sampleCnt, this->caps()->maxSampleCount());
 
-    desc.fOrigin = resolve_origin(wrapDesc.fOrigin);
+    desc.fOrigin = resolve_origin(origin);
 
     sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, info);
     return tgt;

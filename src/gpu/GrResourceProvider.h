@@ -85,7 +85,10 @@ public:
      *
      * @return GrTexture object or NULL on failure.
      */
-    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTextureDesc& desc,
+    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture& tex,
+                                        GrSurfaceOrigin origin,
+                                        GrBackendTextureFlags flags,
+                                        int sampleCnt,
                                         GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     /**
@@ -199,7 +202,9 @@ public:
       *
       * @return GrRenderTarget object or NULL on failure.
       */
-     sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc);
+     sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTexture&,
+                                                            GrSurfaceOrigin origin,
+                                                            int sampleCnt);
 
     /**
      * Assigns a unique key to a resource. If the key is associated with another resource that

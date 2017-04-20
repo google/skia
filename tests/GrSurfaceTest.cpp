@@ -10,9 +10,11 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
+#include "GrTest.h"
 #include "GrTexture.h"
 #include "GrSurfacePriv.h"
 #include "Test.h"
@@ -44,18 +46,18 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
 
-    GrBackendObject backendTex = context->getGpu()->createTestingOnlyBackendTexture(
+    GrBackendObject backendTexHandle = context->getGpu()->createTestingOnlyBackendTexture(
         nullptr, 256, 256, kRGBA_8888_GrPixelConfig);
+    GrBackendTexture backendTex = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
+                                                               256,
+                                                               256,
+                                                               kRGBA_8888_GrPixelConfig,
+                                                               backendTexHandle);
 
-    GrBackendTextureDesc backendDesc;
-    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    backendDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
-    backendDesc.fWidth = 256;
-    backendDesc.fHeight = 256;
-    backendDesc.fSampleCnt = 0;
-    backendDesc.fTextureHandle = backendTex;
     sk_sp<GrSurface> texRT2 = context->resourceProvider()->wrapBackendTexture(
-        backendDesc, kBorrow_GrWrapOwnership);
+        backendTex, kTopLeft_GrSurfaceOrigin, kRenderTarget_GrBackendTextureFlag, 0,
+        kBorrow_GrWrapOwnership);
+
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT2->asRenderTarget()) ==
@@ -65,7 +67,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT2->asRenderTarget()) ==
                     static_cast<GrSurface*>(texRT2->asTexture()));
 
-    context->getGpu()->deleteTestingOnlyBackendTexture(backendTex);
+    context->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
 }
 
 #endif

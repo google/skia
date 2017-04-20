@@ -179,7 +179,9 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrResourceProvider.h"
+#include "GrTest.h"
 
 static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider) {
     SkBitmap srcBM = create_bm();
@@ -209,17 +211,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
         return;
     }
 
-    GrBackendTextureDesc backendDesc;
-    backendDesc.fFlags = kNone_GrBackendTextureFlag;
-    backendDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    backendDesc.fWidth = kFullSize;
-    backendDesc.fHeight = kFullSize;
-    backendDesc.fSampleCnt = 0;
-    backendDesc.fTextureHandle = tex->getTextureHandle();
+    GrBackendTexture backendTex = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
+                                                               kFullSize,
+                                                               kFullSize,
+                                                               kRGBA_8888_GrPixelConfig,
+                                                               tex->getTextureHandle());
+    GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
     sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,
-                                                     backendDesc,
-                                                     kPremul_SkAlphaType));
+                                                     backendTex,
+                                                     texOrigin,
+                                                     kPremul_SkAlphaType, nullptr));
     if (!srcImage) {
         return;
     }
@@ -228,18 +229,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
     GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);
     // TODO: Make it so we can check this (see skbug.com/5019)
 #if 0
-    if (readBackHandle != backendDesc.fTextureHandle) {
+    if (readBackHandle != tex->getTextureHandle()) {
         ERRORF(reporter, "backend mismatch %d %d\n",
-                       (int)readBackHandle, (int)backendDesc.fTextureHandle);
+                       (int)readBackHandle, (int)tex->getTextureHandle());
     }
-    REPORTER_ASSERT(reporter, readBackHandle == backendDesc.fTextureHandle);
+    REPORTER_ASSERT(reporter, readBackHandle == tex->getTextureHandle());
 #else
     REPORTER_ASSERT(reporter, SkToBool(readBackHandle));
 #endif
-    if (readBackOrigin != backendDesc.fOrigin) {
-        ERRORF(reporter, "origin mismatch %d %d\n", readBackOrigin, backendDesc.fOrigin);
+    if (readBackOrigin != texOrigin) {
+        ERRORF(reporter, "origin mismatch %d %d\n", readBackOrigin, texOrigin);
     }
-    REPORTER_ASSERT(reporter, readBackOrigin == backendDesc.fOrigin);
+    REPORTER_ASSERT(reporter, readBackOrigin == texOrigin);
 
     test_image_backed(reporter, srcImage);
 }
