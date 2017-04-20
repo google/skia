@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39b78201_8cca28e0",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-20T16:26:54Z",
+      "side": 1,
+      "message": "??",
+      "revId": "e87cb463298ae0f7ac7c330104e4bf7f9334df08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "137e37b3_0a7b68d8",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-20T16:26:54Z",
+      "side": 1,
+      "message": "// if the shadow RRect was an oval its inset will also be one. Treat it explicitly to avoid errors.\n\n??",
+      "revId": "e87cb463298ae0f7ac7c330104e4bf7f9334df08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "824e26dc_cc87f51b",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-20T16:26:54Z",
+      "side": 1,
+      "message": "drawOval ?",
+      "revId": "e87cb463298ae0f7ac7c330104e4bf7f9334df08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7d990f1_c7f983ee",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-20T16:26:54Z",
+      "side": 1,
+      "message": "here too ?",
+      "revId": "e87cb463298ae0f7ac7c330104e4bf7f9334df08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
