@@ -994,37 +994,6 @@ void SkBitmap::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_OBSOLETE_LOCKPIXELS
-bool SkBitmap::requestLock(SkAutoPixmapUnlock* result) const {
-    SkASSERT(result);
-
-    SkPixelRef* pr = fPixelRef.get();
-    if (nullptr == pr) {
-        return false;
-    }
-
-    // We have to lock the whole thing (using the pixelref's dimensions) until the api supports
-    // a partial lock (with offset/origin). Hence we can't use our fInfo.
-    SkPixelRef::LockRequest req = { pr->info().dimensions(), kNone_SkFilterQuality };
-    SkPixelRef::LockResult res;
-    if (pr->requestLock(req, &res)) {
-        SkASSERT(res.fPixels);
-        // The bitmap may be a subset of the pixelref's dimensions
-        SkASSERT(fPixelRefOrigin.x() + fInfo.width()  <= res.fSize.width());
-        SkASSERT(fPixelRefOrigin.y() + fInfo.height() <= res.fSize.height());
-        const void* addr = (const char*)res.fPixels + SkColorTypeComputeOffset(fInfo.colorType(),
-                                                                               fPixelRefOrigin.x(),
-                                                                               fPixelRefOrigin.y(),
-                                                                               res.fRowBytes);
-
-        result->reset(SkPixmap(this->info(), addr, res.fRowBytes, res.fCTable),
-                      res.fUnlockProc, res.fUnlockContext);
-        return true;
-    }
-    return false;
-}
-#endif
-
 bool SkBitmap::peekPixels(SkPixmap* pmap) const {
     if (fPixels) {
         if (pmap) {

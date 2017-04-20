@@ -43,59 +43,6 @@ public:
     SkColorTable* colorTable() const { return fCTable.get(); }
     size_t rowBytes() const { return fRowBytes; }
 
-#ifdef SK_SUPPORT_OBSOLETE_LOCKPIXELS
-    struct LockRec {
-        LockRec() : fPixels(NULL), fColorTable(NULL) {}
-
-        void*           fPixels;
-        SkColorTable*   fColorTable;
-        size_t          fRowBytes;
-
-        void zero() { sk_bzero(this, sizeof(*this)); }
-
-        bool isZero() const {
-            return NULL == fPixels && NULL == fColorTable && 0 == fRowBytes;
-        }
-    };
-
-    bool lockPixels() { return true; }
-    void unlockPixels() {}
-
-    /**
-     *  Call to access the pixel memory. On success, return true and fill out
-     *  the specified rec. On failure, return false and ignore the rec parameter.
-     *  Balance this with a call to unlockPixels().
-     */
-    bool lockPixels(LockRec* rec);
-
-    struct LockRequest {
-        SkISize         fSize;
-        SkFilterQuality fQuality;
-    };
-
-    struct LockResult {
-        LockResult() : fPixels(NULL), fCTable(NULL) {}
-
-        void        (*fUnlockProc)(void* ctx);
-        void*       fUnlockContext;
-
-        const void* fPixels;
-        SkColorTable* fCTable;  // should be NULL unless colortype is kIndex8
-        size_t      fRowBytes;
-        SkISize     fSize;
-
-        void unlock() {
-            if (fUnlockProc) {
-                fUnlockProc(fUnlockContext);
-                fUnlockProc = NULL; // can't unlock twice!
-            }
-        }
-    };
-
-    bool requestLock(const LockRequest&, LockResult*);
-#endif
-
-
     /** Returns a non-zero, unique value corresponding to the pixels in this
         pixelref. Each time the pixels are changed (and notifyPixelsChanged is
         called), a different generation ID will be returned.
