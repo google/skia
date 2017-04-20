@@ -110,37 +110,6 @@ void SkPixelRef::cloneGenID(const SkPixelRef& that) {
     SkASSERT(!that. genIDIsUnique());
 }
 
-#ifdef SK_SUPPORT_OBSOLETE_LOCKPIXELS
-bool SkPixelRef::lockPixels(LockRec* rec) {
-    if (fPixels) {
-        rec->fPixels = fPixels;
-        rec->fRowBytes = fRowBytes;
-        rec->fColorTable = fCTable.get();
-        return true;
-    }
-    return false;
-}
-
-bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
-    SkASSERT(result);
-    if (request.fSize.isEmpty()) {
-        return false;
-    }
-    // until we support subsets, we have to check this...
-    if (request.fSize.width() != fInfo.width() || request.fSize.height() != fInfo.height()) {
-        return false;
-    }
-
-    result->fUnlockProc = nullptr;
-    result->fUnlockContext = nullptr;
-    result->fCTable = fCTable.get();
-    result->fPixels = fPixels;
-    result->fRowBytes = fRowBytes;
-    result->fSize.set(fInfo.width(), fInfo.height());
-    return true;
-}
-#endif
-
 uint32_t SkPixelRef::getGenerationID() const {
     uint32_t id = fTaggedGenID.load();
     if (0 == id) {

@@ -419,12 +419,6 @@ public:
      */
     void setPixelRef(sk_sp<SkPixelRef>, int dx, int dy);
 
-#ifdef SK_SUPPORT_OBSOLETE_LOCKPIXELS
-    void lockPixels() const {}
-    void unlockPixels() const {}
-    bool requestLock(SkAutoPixmapUnlock* result) const;
-#endif
-
     /** Call this to be sure that the bitmap is valid enough to be drawn (i.e.
         it has non-null pixels, and if required by its colortype, it has a
         non-null colortable. Returns true if all of the above are met.
@@ -755,13 +749,6 @@ private:
     friend class SkReadBuffer;        // unflatten, rawpixels
     friend class SkBinaryWriteBuffer; // rawpixels
 };
-
-#ifdef SK_SUPPORT_OBSOLETE_LOCKPIXELS
-class SkAutoLockPixels : SkNoncopyable {
-public:
-    SkAutoLockPixels(const SkBitmap&, bool = true) {}
-};
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
