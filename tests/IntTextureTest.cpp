@@ -244,7 +244,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
                                               kRGBA_8888_sint_GrPixelConfig, nullptr,
                                               testData.get(), 0);
 
-    sk_sp<GrRenderTargetContext> rtContext = context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> rtContext = context->makeDeferredRenderTargetContext(
             SkBackingFit::kExact, kS, kS, kRGBA_8888_GrPixelConfig, nullptr);
 
     struct {

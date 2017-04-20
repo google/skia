@@ -419,7 +419,8 @@ private:
 static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject* object, int start,
                                                  sk_sp<GrTextureProxy> fakeAtlas) {
 
-    sk_sp<GrRenderTargetContext> rtc(context->makeRenderTargetContext(SkBackingFit::kApprox,
+    sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContext(
+                                                                      SkBackingFit::kApprox,
                                                                       3*kDrawnTileSize,
                                                                       kDrawnTileSize,
                                                                       kRGBA_8888_GrPixelConfig,
@@ -554,7 +555,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(PreFlushCallbackTest, reporter, ctxInfo) {
     static const int kFinalWidth = 6*kDrawnTileSize;
     static const int kFinalHeight = kDrawnTileSize;
 
-    sk_sp<GrRenderTargetContext> rtc(context->makeRenderTargetContext(SkBackingFit::kApprox,
+    sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContext(
+                                                                      SkBackingFit::kApprox,
                                                                       kFinalWidth,
                                                                       kFinalHeight,
                                                                       kRGBA_8888_GrPixelConfig,

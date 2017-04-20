@@ -484,7 +484,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         // TODO: Need to decide the semantics of this function for color spaces. Do we support
         // conversion to a passed-in color space? For now, specifying nullptr means that this
         // path will do no conversion, so it will match the behavior of the non-draw path.
-        sk_sp<GrRenderTargetContext> tempRTC = fContext->makeRenderTargetContext(
+        sk_sp<GrRenderTargetContext> tempRTC = fContext->makeDeferredRenderTargetContext(
                                                            tempDrawInfo.fTempSurfaceFit,
                                                            tempDrawInfo.fTempSurfaceDesc.fWidth,
                                                            tempDrawInfo.fTempSurfaceDesc.fHeight,
@@ -771,23 +771,6 @@ static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
     }
 }
 
-sk_sp<GrRenderTargetContext> GrContext::makeRenderTargetContextWithFallback(
-                                                                 SkBackingFit fit,
-                                                                 int width, int height,
-                                                                 GrPixelConfig config,
-                                                                 sk_sp<SkColorSpace> colorSpace,
-                                                                 int sampleCnt,
-                                                                 GrSurfaceOrigin origin,
-                                                                 const SkSurfaceProps* surfaceProps,
-                                                                 SkBudgeted budgeted) {
-    if (!this->caps()->isConfigRenderable(config, sampleCnt > 0)) {
-        config = GrPixelConfigFallback(config);
-    }
-
-    return this->makeRenderTargetContext(fit, width, height, config, std::move(colorSpace),
-                                         sampleCnt, origin, surfaceProps, budgeted);
-}
-
 sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContextWithFallback(
                                                                  SkBackingFit fit,
                                                                  int width, int height,
@@ -805,48 +788,6 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContextWithFallb
                                                  sampleCnt, origin, surfaceProps, budgeted);
 }
 
-sk_sp<GrRenderTargetContext> GrContext::makeRenderTargetContext(SkBackingFit fit,
-                                                                int width, int height,
-                                                                GrPixelConfig config,
-                                                                sk_sp<SkColorSpace> colorSpace,
-                                                                int sampleCnt,
-                                                                GrSurfaceOrigin origin,
-                                                                const SkSurfaceProps* surfaceProps,
-                                                                SkBudgeted budgeted) {
-    if (!this->caps()->isConfigRenderable(config, sampleCnt > 0)) {
-        return nullptr;
-    }
-
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = origin;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fConfig = config;
-    desc.fSampleCnt = sampleCnt;
-
-    sk_sp<GrTexture> tex;
-    if (SkBackingFit::kExact == fit) {
-        tex = this->resourceProvider()->createTexture(desc, budgeted);
-    } else {
-        tex.reset(this->resourceProvider()->createApproxTexture(desc, 0));
-    }
-    if (!tex) {
-        return nullptr;
-    }
-
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-        this->contextPriv().makeWrappedRenderTargetContext(sk_ref_sp(tex->asRenderTarget()),
-                                                           std::move(colorSpace), surfaceProps));
-    if (!renderTargetContext) {
-        return nullptr;
-    }
-
-    renderTargetContext->discard();
-
-    return renderTargetContext;
-}
-
 sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
                                                         SkBackingFit fit,
                                                         int width, int height,
@@ -856,6 +797,8 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
                                                         GrSurfaceOrigin origin,
                                                         const SkSurfaceProps* surfaceProps,
                                                         SkBudgeted budgeted) {
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
+
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fOrigin = origin;
