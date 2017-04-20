@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "30836018_36bfa807",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-04-20T16:33:58Z",
+      "side": 1,
+      "message": "Kevin ^^^",
+      "parentUuid": "5fbafbaf_5d6ef3b4",
+      "revId": "44d1b548ef9c167a8b55eb9529db110996ae3bfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a049734d_810c62f9",
         "filename": "infra/bots/recipe_modules/git/api.py",
         "patchSetId": 2
