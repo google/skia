@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e74d4231_a5f73a67",
+        "filename": "infra/branch-config/cq.cfg",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-20T19:03:20Z",
+      "side": 1,
+      "message": "nit: Please keep alphabetized.",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 89
+      },
+      "revId": "9c9649e8f97418f5c71c2c0e9f6a489bae70bbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
