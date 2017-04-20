@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c41447e_40eb1728",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-04-20T12:52:44Z",
+      "side": 1,
+      "message": "Where is it checking for credentials first? or is that what the git module does?",
+      "revId": "44d1b548ef9c167a8b55eb9529db110996ae3bfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2692641b_342a1cd5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-04-20T12:52:44Z",
+      "side": 1,
+      "message": "I vaguely remember our swarming config quarantining bots that don\u0027t have a .gitconfig and .netrc. Is that correct?",
+      "revId": "44d1b548ef9c167a8b55eb9529db110996ae3bfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
