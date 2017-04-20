@@ -22,6 +22,10 @@ struct TypeReference : public Expression {
     : INHERITED(position, kTypeReference_Kind, *context.fInvalid_Type)
     , fValue(type) {}
 
+    bool hasSideEffects() const override {
+        return false;
+    }
+
     String description() const override {
         return fValue.name();
     }

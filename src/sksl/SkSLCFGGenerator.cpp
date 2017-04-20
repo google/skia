@@ -56,7 +56,7 @@ void CFG::dump() {
         const char* separator = "";
         for (auto iter = fBlocks[i].fBefore.begin(); iter != fBlocks[i].fBefore.end(); iter++) {
             printf("%s%s = %s", separator, iter->first->description().c_str(),
-                   *iter->second ? (*iter->second)->description().c_str() : "<undefined>");
+                   iter->second ? (*iter->second)->description().c_str() : "<undefined>");
             separator = ", ";
         }
         printf("\nEntrances: ");
@@ -68,9 +68,9 @@ void CFG::dump() {
         printf("\n");
         for (size_t j = 0; j < fBlocks[i].fNodes.size(); j++) {
             BasicBlock::Node& n = fBlocks[i].fNodes[j];
-            printf("Node %d: %s\n", (int) j, n.fKind == BasicBlock::Node::kExpression_Kind
-                                                           ? (*n.fExpression)->description().c_str()
-                                                           : n.fStatement->description().c_str());
+            printf("Node %d (%p): %s\n", (int) j, &n, n.fKind == BasicBlock::Node::kExpression_Kind
+                                                         ? (*n.expression())->description().c_str()
+                                                         : (*n.statement())->description().c_str());
         }
         printf("Exits: ");
         separator = "";
@@ -79,6 +79,207 @@ void CFG::dump() {
             separator = ", ";
         }
         printf("\n\n");
+    }
+}
+
+bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterator* iter,
+                                           Expression* e) {
+    if (e->fKind == Expression::kTernary_Kind) {
+        return false;
+    }
+    bool result;
+    if ((*iter)->fKind == BasicBlock::Node::kExpression_Kind) {
+        ASSERT((*iter)->expression()->get() != e);
+        Expression* old = (*iter)->expression()->get();
+        do {
+            if ((*iter) == fNodes.begin()) {
+                ABORT("couldn't find %s before %s\n", e->description().c_str(),
+                                                      old->description().c_str());
+            }
+            --(*iter);
+        } while ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
+                 (*iter)->expression()->get() != e);
+        result = this->tryRemoveExpression(iter);
+        while ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
+               (*iter)->expression()->get() != old) {
+            ASSERT(*iter != fNodes.end());
+            ++(*iter);
+        }
+    } else {
+        Statement* old = (*iter)->statement()->get();
+        do {
+            if ((*iter) == fNodes.begin()) {
+                ABORT("couldn't find %s before %s\n", e->description().c_str(),
+                                                      old->description().c_str());
+            }
+            --(*iter);
+        } while ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
+                 (*iter)->expression()->get() != e);
+        result = this->tryRemoveExpression(iter);
+        while ((*iter)->fKind != BasicBlock::Node::kStatement_Kind ||
+               (*iter)->statement()->get() != old) {
+            ASSERT(*iter != fNodes.end());
+            ++(*iter);
+        }
+    }
+    return result;
+}
+
+bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* iter,
+                                       Expression* lvalue) {
+    switch (lvalue->fKind) {
+        case Expression::kVariableReference_Kind:
+            return true;
+        case Expression::kSwizzle_Kind:
+            return this->tryRemoveLValueBefore(iter, ((Swizzle*) lvalue)->fBase.get());
+        case Expression::kFieldAccess_Kind:
+            return this->tryRemoveLValueBefore(iter, ((FieldAccess*) lvalue)->fBase.get());
+        case Expression::kIndex_Kind:
+            if (!this->tryRemoveLValueBefore(iter, ((IndexExpression*) lvalue)->fBase.get())) {
+                return false;
+            }
+            return this->tryRemoveExpressionBefore(iter, ((IndexExpression*) lvalue)->fIndex.get());
+        default:
+            ABORT("invalid lvalue: %s\n", lvalue->description().c_str());
+    }
+}
+
+bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* iter) {
+    Expression* expr = (*iter)->expression()->get();
+    switch (expr->fKind) {
+        case Expression::kBinary_Kind: {
+            BinaryExpression* b = (BinaryExpression*) expr;
+            if (b->fOperator == Token::EQ) {
+                if (!this->tryRemoveLValueBefore(iter, b->fLeft.get())) {
+                    return false;
+                }
+            } else if (!this->tryRemoveExpressionBefore(iter, b->fLeft.get())) {
+                return false;
+            }
+            if (!this->tryRemoveExpressionBefore(iter, b->fRight.get())) {
+                return false;
+            }
+            ASSERT((*iter)->expression()->get() == expr);
+            *iter = fNodes.erase(*iter);
+            return true;
+        }
+        case Expression::kTernary_Kind: {
+            // ternaries cross basic block boundaries, must regenerate the CFG to remove it
+            return false;
+        }
+        case Expression::kFieldAccess_Kind: {
+            FieldAccess* f = (FieldAccess*) expr;
+            if (!this->tryRemoveExpressionBefore(iter, f->fBase.get())) {
+                return false;
+            }
+            *iter = fNodes.erase(*iter);
+            return true;
+        }
+        case Expression::kSwizzle_Kind: {
+            Swizzle* s = (Swizzle*) expr;
+            if (!this->tryRemoveExpressionBefore(iter, s->fBase.get())) {
+                return false;
+            }
+            *iter = fNodes.erase(*iter);
+            return true;
+        }
+        case Expression::kIndex_Kind: {
+            IndexExpression* idx = (IndexExpression*) expr;
+            if (!this->tryRemoveExpressionBefore(iter, idx->fBase.get())) {
+                return false;
+            }
+            if (!this->tryRemoveExpressionBefore(iter, idx->fIndex.get())) {
+                return false;
+            }
+            *iter = fNodes.erase(*iter);
+            return true;
+        }
+        case Expression::kConstructor_Kind: {
+            Constructor* c = (Constructor*) expr;
+            for (auto& arg : c->fArguments) {
+                if (!this->tryRemoveExpressionBefore(iter, arg.get())) {
+                    return false;
+                }
+                ASSERT((*iter)->expression()->get() == expr);
+            }
+            *iter = fNodes.erase(*iter);
+            return true;
+        }
+        case Expression::kFunctionCall_Kind: {
+            FunctionCall* f = (FunctionCall*) expr;
+            for (auto& arg : f->fArguments) {
+                if (!this->tryRemoveExpressionBefore(iter, arg.get())) {
+                    return false;
+                }
+                ASSERT((*iter)->expression()->get() == expr);
+            }
+            *iter = fNodes.erase(*iter);
+            return true;
+        }
+        case Expression::kPrefix_Kind:
+            if (!this->tryRemoveExpressionBefore(iter,
+                                                 ((PrefixExpression*) expr)->fOperand.get())) {
+                return false;
+            }
+            *iter = fNodes.erase(*iter);
+            return true;
+        case Expression::kPostfix_Kind:
+            if (!this->tryRemoveExpressionBefore(iter,
+                                                 ((PrefixExpression*) expr)->fOperand.get())) {
+                return false;
+            }
+            *iter = fNodes.erase(*iter);
+            return true;
+        case Expression::kBoolLiteral_Kind:  // fall through
+        case Expression::kFloatLiteral_Kind: // fall through
+        case Expression::kIntLiteral_Kind:   // fall through
+        case Expression::kVariableReference_Kind:
+            *iter = fNodes.erase(*iter);
+            return true;
+        default:
+            ABORT("unhandled expression: %s\n", expr->description().c_str());
+    }
+}
+
+bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* iter,
+                                     std::unique_ptr<Expression>* expr) {
+    switch ((*expr)->fKind) {
+        case Expression::kBinary_Kind: {
+            BinaryExpression* b = (BinaryExpression*) expr->get();
+            if (!this->tryInsertExpression(iter, &b->fRight)) {
+                return false;
+            }
+            ++(*iter);
+            if (!this->tryInsertExpression(iter, &b->fLeft)) {
+                return false;
+            }
+            ++(*iter);
+            BasicBlock::Node node = { BasicBlock::Node::kExpression_Kind, true, expr, nullptr };
+            *iter = fNodes.insert(*iter, node);
+            return true;
+        }
+        case Expression::kBoolLiteral_Kind:  // fall through
+        case Expression::kFloatLiteral_Kind: // fall through
+        case Expression::kIntLiteral_Kind:   // fall through
+        case Expression::kVariableReference_Kind: {
+            BasicBlock::Node node = { BasicBlock::Node::kExpression_Kind, true, expr, nullptr };
+            *iter = fNodes.insert(*iter, node);
+            return true;
+        }
+        case Expression::kConstructor_Kind: {
+            Constructor* c = (Constructor*) expr->get();
+            for (auto& arg : c->fArguments) {
+                if (!this->tryInsertExpression(iter, &arg)) {
+                    return false;
+                }
+                ++(*iter);
+            }
+            BasicBlock::Node node = { BasicBlock::Node::kExpression_Kind, true, expr, nullptr };
+            *iter = fNodes.insert(*iter, node);
+            return true;
+        }
+        default:
+            return false;
     }
 }
 
@@ -182,6 +383,8 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         case Expression::kTernary_Kind: {
             TernaryExpression* t = (TernaryExpression*) e->get();
             this->addExpression(cfg, &t->fTest, constantPropagate);
+            cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kExpression_Kind,
+                                                         constantPropagate, e, nullptr });
             BlockId start = cfg.fCurrent;
             cfg.newBlock();
             this->addExpression(cfg, &t->fIfTrue, constantPropagate);
@@ -223,24 +426,26 @@ void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
     }
 }
 
-void CFGGenerator::addStatement(CFG& cfg, const Statement* s) {
-    switch (s->fKind) {
+void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
+    switch ((*s)->fKind) {
         case Statement::kBlock_Kind:
-            for (const auto& child : ((const Block*) s)->fStatements) {
-                addStatement(cfg, child.get());
+            for (auto& child : ((Block&) **s).fStatements) {
+                addStatement(cfg, &child);
             }
             break;
         case Statement::kIf_Kind: {
-            IfStatement* ifs = (IfStatement*) s;
-            this->addExpression(cfg, &ifs->fTest, true);
+            IfStatement& ifs = (IfStatement&) **s;
+            this->addExpression(cfg, &ifs.fTest, true);
+            cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind, false,
+                                                         nullptr, s });
             BlockId start = cfg.fCurrent;
             cfg.newBlock();
-            this->addStatement(cfg, ifs->fIfTrue.get());
+            this->addStatement(cfg, &ifs.fIfTrue);
             BlockId next = cfg.newBlock();
-            if (ifs->fIfFalse) {
+            if (ifs.fIfFalse) {
                 cfg.fCurrent = start;
                 cfg.newBlock();
-                this->addStatement(cfg, ifs->fIfFalse.get());
+                this->addStatement(cfg, &ifs.fIfFalse);
                 cfg.addExit(cfg.fCurrent, next);
                 cfg.fCurrent = next;
             } else {
@@ -249,14 +454,16 @@ void CFGGenerator::addStatement(CFG& cfg, const Statement* s) {
             break;
         }
         case Statement::kExpression_Kind: {
-            this->addExpression(cfg, &((ExpressionStatement&) *s).fExpression, true);
+            this->addExpression(cfg, &((ExpressionStatement&) **s).fExpression, true);
+            cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind, false,
+                                                         nullptr, s });
             break;
         }
         case Statement::kVarDeclarations_Kind: {
-            VarDeclarationsStatement& decls = ((VarDeclarationsStatement&) *s);
+            VarDeclarationsStatement& decls = ((VarDeclarationsStatement&) **s);
             for (auto& vd : decls.fDeclaration->fVars) {
-                if (vd.fValue) {
-                    this->addExpression(cfg, &vd.fValue, true);
+                if (vd->fValue) {
+                    this->addExpression(cfg, &vd->fValue, true);
                 }
             }
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind, false,
@@ -269,7 +476,7 @@ void CFGGenerator::addStatement(CFG& cfg, const Statement* s) {
             cfg.fCurrent = cfg.newIsolatedBlock();
             break;
         case Statement::kReturn_Kind: {
-            ReturnStatement& r = ((ReturnStatement&) *s);
+            ReturnStatement& r = ((ReturnStatement&) **s);
             if (r.fExpression) {
                 this->addExpression(cfg, &r.fExpression, true);
             }
@@ -291,16 +498,16 @@ void CFGGenerator::addStatement(CFG& cfg, const Statement* s) {
             cfg.fCurrent = cfg.newIsolatedBlock();
             break;
         case Statement::kWhile_Kind: {
-            WhileStatement* w = (WhileStatement*) s;
+            WhileStatement& w = (WhileStatement&) **s;
             BlockId loopStart = cfg.newBlock();
             fLoopContinues.push(loopStart);
             BlockId loopExit = cfg.newIsolatedBlock();
             fLoopExits.push(loopExit);
-            this->addExpression(cfg, &w->fTest, true);
+            this->addExpression(cfg, &w.fTest, true);
             BlockId test = cfg.fCurrent;
             cfg.addExit(test, loopExit);
             cfg.newBlock();
-            this->addStatement(cfg, w->fStatement.get());
+            this->addStatement(cfg, &w.fStatement);
             cfg.addExit(cfg.fCurrent, loopStart);
             fLoopContinues.pop();
             fLoopExits.pop();
@@ -308,13 +515,13 @@ void CFGGenerator::addStatement(CFG& cfg, const Statement* s) {
             break;
         }
         case Statement::kDo_Kind: {
-            DoStatement* d = (DoStatement*) s;
+            DoStatement& d = (DoStatement&) **s;
             BlockId loopStart = cfg.newBlock();
             fLoopContinues.push(loopStart);
             BlockId loopExit = cfg.newIsolatedBlock();
             fLoopExits.push(loopExit);
-            this->addStatement(cfg, d->fStatement.get());
-            this->addExpression(cfg, &d->fTest, true);
+            this->addStatement(cfg, &d.fStatement);
+            this->addExpression(cfg, &d.fTest, true);
             cfg.addExit(cfg.fCurrent, loopExit);
             cfg.addExit(cfg.fCurrent, loopStart);
             fLoopContinues.pop();
@@ -323,26 +530,26 @@ void CFGGenerator::addStatement(CFG& cfg, const Statement* s) {
             break;
         }
         case Statement::kFor_Kind: {
-            ForStatement* f = (ForStatement*) s;
-            if (f->fInitializer) {
-                this->addStatement(cfg, f->fInitializer.get());
+            ForStatement& f = (ForStatement&) **s;
+            if (f.fInitializer) {
+                this->addStatement(cfg, &f.fInitializer);
             }
             BlockId loopStart = cfg.newBlock();
             BlockId next = cfg.newIsolatedBlock();
             fLoopContinues.push(next);
             BlockId loopExit = cfg.newIsolatedBlock();
             fLoopExits.push(loopExit);
-            if (f->fTest) {
-                this->addExpression(cfg, &f->fTest, true);
+            if (f.fTest) {
+                this->addExpression(cfg, &f.fTest, true);
                 BlockId test = cfg.fCurrent;
                 cfg.addExit(test, loopExit);
             }
             cfg.newBlock();
-            this->addStatement(cfg, f->fStatement.get());
+            this->addStatement(cfg, &f.fStatement);
             cfg.addExit(cfg.fCurrent, next);
             cfg.fCurrent = next;
-            if (f->fNext) {
-                this->addExpression(cfg, &f->fNext, true);
+            if (f.fNext) {
+                this->addExpression(cfg, &f.fNext, true);
             }
             cfg.addExit(cfg.fCurrent, loopStart);
             fLoopContinues.pop();
@@ -351,12 +558,12 @@ void CFGGenerator::addStatement(CFG& cfg, const Statement* s) {
             break;
         }
         case Statement::kSwitch_Kind: {
-            SwitchStatement* ss = (SwitchStatement*) s;
-            this->addExpression(cfg, &ss->fValue, true);
+            SwitchStatement& ss = (SwitchStatement&) **s;
+            this->addExpression(cfg, &ss.fValue, true);
             BlockId start = cfg.fCurrent;
             BlockId switchExit = cfg.newIsolatedBlock();
             fLoopExits.push(switchExit);
-            for (const auto& c : ss->fCases) {
+            for (const auto& c : ss.fCases) {
                 cfg.newBlock();
                 cfg.addExit(start, cfg.fCurrent);
                 if (c->fValue) {
@@ -364,13 +571,13 @@ void CFGGenerator::addStatement(CFG& cfg, const Statement* s) {
                     // because it must be constant. Not worth running two loops for.
                     this->addExpression(cfg, &c->fValue, true);
                 }
-                for (const auto& caseStatement : c->fStatements) {
-                    this->addStatement(cfg, caseStatement.get());
+                for (auto& caseStatement : c->fStatements) {
+                    this->addStatement(cfg, &caseStatement);
                 }
             }
             cfg.addExit(cfg.fCurrent, switchExit);
             // note that unlike GLSL, our grammar requires the default case to be last
-            if (0 == ss->fCases.size() || ss->fCases[ss->fCases.size() - 1]->fValue) {
+            if (0 == ss.fCases.size() || ss.fCases[ss.fCases.size() - 1]->fValue) {
                 // switch does not have a default clause, mark that it can skip straight to the end
                 cfg.addExit(start, switchExit);
             }
@@ -378,17 +585,19 @@ void CFGGenerator::addStatement(CFG& cfg, const Statement* s) {
             cfg.fCurrent = switchExit;
             break;
         }
+        case Statement::kNop_Kind:
+            break;
         default:
-            printf("statement: %s\n", s->description().c_str());
+            printf("statement: %s\n", (*s)->description().c_str());
             ABORT("unsupported statement kind");
     }
 }
 
-CFG CFGGenerator::getCFG(const FunctionDefinition& f) {
+CFG CFGGenerator::getCFG(FunctionDefinition& f) {
     CFG result;
     result.fStart = result.newBlock();
     result.fCurrent = result.fStart;
-    this->addStatement(result, f.fBody.get());
+    this->addStatement(result, &f.fBody);
     result.newBlock();
     result.fExit = result.fCurrent;
     return result;

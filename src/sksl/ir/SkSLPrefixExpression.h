@@ -22,7 +22,29 @@ struct PrefixExpression : public Expression {
     , fOperand(std::move(operand))
     , fOperator(op) {}
 
-    virtual String description() const override {
+    bool isConstant() const override {
+        return fOperator == Token::MINUS && fOperand->isConstant();
+    }
+
+    bool hasSideEffects() const override {
+        return fOperator == Token::PLUSPLUS || fOperator == Token::MINUSMINUS ||
+               fOperand->hasSideEffects();
+    }
+
+    virtual std::unique_ptr<Expression> constantPropagate(
+                                                        const IRGenerator& irGenerator,
+                                                        const DefinitionMap& definitions) override {
+        if (fOperand->fKind == Expression::kFloatLiteral_Kind) {
+            return std::unique_ptr<Expression>(new FloatLiteral(
+                                                              irGenerator.fContext,
+                                                              Position(),
+                                                              -((FloatLiteral&) *fOperand).fValue));
+
+        }
+        return nullptr;
+    }
+
+    String description() const override {
         return Token::OperatorName(fOperator) + fOperand->description();
     }
 

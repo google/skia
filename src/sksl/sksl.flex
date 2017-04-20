@@ -97,6 +97,8 @@ volatile { return SkSL::Token::VOLATILE; }
 
 restrict { return SkSL::Token::RESTRICT; }
 
+sk_has_side_effects { return SkSL::Token::HASSIDEEFFECTS; }
+
 struct { return SkSL::Token::STRUCT; }
 
 layout { return SkSL::Token::LAYOUT; }
