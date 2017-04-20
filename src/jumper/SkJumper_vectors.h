@@ -612,11 +612,11 @@ SI F from_half(U16 h) {
     // Remember, a half is 1-5-10 (sign-exponent-mantissa) with 15 exponent bias.
     U32 sem = expand(h),
         s   = sem & 0x8000_i,
-         e  = sem & 0x7c00_i,
          em = sem ^ s;
 
     // Convert to 1-8-23 float with 127 bias, flushing denorm halfs (including zero) to zero.
-    return if_then_else(e == 0, 0
+    auto denorm = (I32)em < 0x0400_i;      // I32 comparison is often quicker, and always safe here.
+    return if_then_else(denorm, F(0)
                               , bit_cast<F>( (s<<16) + (em<<13) + C((127-15)<<23) ));
 #endif
 }
@@ -640,7 +640,7 @@ SI U16 to_half(F f) {
          em = sem ^ s;
 
     // Convert to 1-5-10 half with 15 bias, flushing denorm halfs (including zero) to zero.
-    auto denorm = bit_cast<F>(em) < C(1.0f / (1<<14));
+    auto denorm = (I32)em < 0x38800000_i;  // I32 comparison is often quicker, and always safe here.
     return pack(if_then_else(denorm, U32(0)
                                    , (s>>16) + (em>>13) - C((127-15)<<10)));
 #endif
