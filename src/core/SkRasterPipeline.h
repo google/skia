@@ -87,7 +87,7 @@
     M(parametric_r) M(parametric_g) M(parametric_b)              \
     M(parametric_a)                                              \
     M(table_r) M(table_g) M(table_b) M(table_a)                  \
-    M(color_lookup_table) M(lab_to_xyz)                          \
+    M(lab_to_xyz)                                                \
     M(clamp_x) M(mirror_x) M(repeat_x)                           \
     M(clamp_y) M(mirror_y) M(repeat_y)                           \
     M(gather_a8) M(gather_g8) M(gather_i8)                       \
