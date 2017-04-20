@@ -20,14 +20,8 @@ public:
      * The PM->UPM or UPM->PM conversions to apply.
      */
     enum PMConversion {
-        kMulByAlpha_RoundUp_PMConversion = 0,
-        kMulByAlpha_RoundDown_PMConversion,
-        kMulByAlpha_RoundNearest_PMConversion,
-
-        kDivByAlpha_RoundUp_PMConversion,
-        kDivByAlpha_RoundDown_PMConversion,
-        kDivByAlpha_RoundNearest_PMConversion,
-
+        kToPremul_PMConversion = 0,
+        kToUnpremul_PMConversion,
         kPMConversionCnt
     };
 
@@ -46,9 +40,8 @@ public:
     // if pixels are read back to a UPM buffer, written back to PM to the GPU, and read back again
     // both reads will produce the same result. This test is quite expensive and should not be run
     // multiple times for a given context.
-    static void TestForPreservingPMConversions(GrContext* context,
-                                               PMConversion* PMToUPMRule,
-                                               PMConversion* UPMToPMRule);
+    static bool TestForPreservingPMConversions(GrContext* context);
+
 private:
     GrConfigConversionEffect(PMConversion);
 

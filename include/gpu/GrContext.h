@@ -313,8 +313,8 @@ private:
 
     bool                                    fDisableGpuYUVConversion;
     bool                                    fDidTestPMConversions;
-    int                                     fPMToUPMConversion;
-    int                                     fUPMToPMConversion;
+    // true if the PM/UPM conversion succeeded; false otherwise
+    bool                                    fPMUPMConversionsRoundTrip;
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the GrDrawingManager and, from there to all the
