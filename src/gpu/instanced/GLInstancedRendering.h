@@ -19,6 +19,16 @@ class GrGLGpu;
 
 namespace gr_instanced {
 
+class GLInstancedRenderingAllocator final : public InstancedRenderingAllocator {
+public:
+    GLInstancedRenderingAllocator(const GrCaps* caps) : INHERITED(caps) {}
+
+private:
+    std::unique_ptr<InstancedOp> makeOp(GrPaint&& paint) override;
+
+    typedef InstancedRenderingAllocator INHERITED;
+};
+
 class GLInstancedRendering final : public InstancedRendering {
 public:
     GLInstancedRendering(GrGLGpu*);
@@ -33,10 +43,8 @@ private:
 
     GrGLGpu* glGpu() const;
 
-    std::unique_ptr<Op> makeOp(GrPaint&& paint) override;
-
     void onBeginFlush(GrResourceProvider*) override;
-    void onDraw(const GrPipeline&, const InstanceProcessor&, const Op*) override;
+    void onDraw1(const GrPipeline&, const InstanceProcessor&, const InstancedOp*) override;
     void onEndFlush() override;
     void onResetGpuResources(ResetType) override;
 
@@ -54,7 +62,7 @@ private:
     GrGpuResource::UniqueID               fInstanceAttribsBufferUniqueId;
     int                                   fInstanceAttribsBaseInstance;
 
-    class GLOp;
+//    friend class GLOp;
 
     friend class ::GrGLCaps; // For CheckSupport.
 

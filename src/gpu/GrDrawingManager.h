@@ -15,6 +15,7 @@
 #include "GrRenderTargetOpList.h"
 #include "GrResourceCache.h"
 #include "SkTArray.h"
+#include "instanced/InstancedRendering.h"
 #include "text/GrAtlasTextContext.h"
 
 class GrContext;
@@ -24,6 +25,8 @@ class GrSingleOWner;
 class GrSoftwarePathRenderer;
 class GrTextureContext;
 class GrTextureOpList;
+
+//namespace gr_instanced { class InstancedRenderingAllocator; }
 
 // The GrDrawingManager allocates a new GrRenderTargetContext for each GrRenderTarget
 // but all of them still land in the same GrOpList!
@@ -36,6 +39,8 @@ public:
 
     bool wasAbandoned() const { return fAbandoned; }
     void freeGpuResources();
+
+    gr_instanced::InstancedRenderingAllocator* instancingAllocator();
 
     sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
                                                          sk_sp<SkColorSpace>,
@@ -124,6 +129,8 @@ private:
     bool                              fIsImmediateMode;
 
     SkTArray<sk_sp<GrPreFlushCallbackObject>> fPreFlushCBObjects;
+
+    std::unique_ptr<gr_instanced::InstancedRenderingAllocator> fInstancingAllocator; // Lazily allocated
 };
 
 #endif
