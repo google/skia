@@ -1425,7 +1425,10 @@ int main(int argc, char** argv) {
 
     print_status();
     SkGraphics::PurgeAllCaches();
-    info("Finished!\n");
+    for(int i=0; i < 30; i++) {
+      info("Finished!\n");
+      sleep(1);
+    }
     return 0;
 }
 

@@ -499,6 +499,8 @@ def dm_flags(bot):
     match.append('~PathOpsSimplify') # skia:6479
     blacklist(['_', 'gm', '_', 'fast_slow_blurimagefilter']) # skia:6480
 
+  if 'iOS' in bot:
+    match.append('bleed')
 
   if blacklisted:
     args.append('--blacklist')
