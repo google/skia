@@ -83,6 +83,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
 private:
     sk_sp<SkShader> fDiffuseShader;
@@ -453,6 +454,13 @@ SkShader::Context* SkLightingShaderImpl::onMakeContext(
     }
 
     return alloc->make<LightingShaderContext>(*this, rec, diffuseContext, normalProvider, nullptr);
+}
+
+sk_sp<SkShader> SkLightingShaderImpl::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    sk_sp<SkShader> xformedDiffuseShader =
+            fDiffuseShader ? fDiffuseShader->makeColorSpace(xformer) : nullptr;
+    return SkLightingShader::Make(std::move(xformedDiffuseShader), fNormalSource,
+                                  fLights->makeColorSpace(xformer));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

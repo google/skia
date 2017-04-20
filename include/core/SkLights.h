@@ -113,6 +113,8 @@ public:
         bool operator!= (const Light& b) { return !(this->operator==(b)); }
 
     private:
+        friend class SkLights;
+
         LightType   fType;
         SkColor3f   fColor;           // linear (unpremul) color. Range is 0..1 in each channel.
 
@@ -191,6 +193,10 @@ private:
     SkLights() {
         fAmbientLightColor.set(0.0f, 0.0f, 0.0f);
     }
+
+    friend class SkLightingShaderImpl;
+    sk_sp<SkLights> makeColorSpace(SkColorSpaceXformer* xformer) const;
+
     SkTArray<Light> fLights;
     SkColor3f fAmbientLightColor;
     typedef SkRefCnt INHERITED;

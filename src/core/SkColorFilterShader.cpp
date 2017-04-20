@@ -7,6 +7,7 @@
 
 #include "SkArenaAlloc.h"
 #include "SkColorFilterShader.h"
+#include "SkColorSpaceXformer.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkShader.h"
@@ -62,6 +63,9 @@ SkShader::Context* SkColorFilterShader::onMakeContext(const ContextRec& rec,
     return alloc->make<FilterShaderContext>(*this, shaderContext, rec);
 }
 
+sk_sp<SkShader> SkColorFilterShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    return fShader->makeColorSpace(xformer)->makeWithColorFilter(xformer->apply(fFilter.get()));
+}
 
 SkColorFilterShader::FilterShaderContext::FilterShaderContext(
                                                          const SkColorFilterShader& filterShader,
