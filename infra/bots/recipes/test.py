@@ -689,8 +689,6 @@ def test_steps(api):
 def RunSteps(api):
   api.core.setup()
   env = api.step.get_from_context('env', {})
-  if 'iOS' in api.vars.builder_name:
-    env['IOS_BUNDLE_ID'] = 'com.google.dm'
   with api.step.context({'env': env}):
     try:
       api.flavor.install_everything()
