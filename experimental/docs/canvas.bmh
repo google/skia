@@ -1,0 +1,420 @@
+##Class #SkCanvas
+
+SkCanvas() references one of several devices, which define how the output of drawing is represented.
+As examples, a raster canvas is backed by pixels; an accelerated canvas is backed by a GPU;
+a document canvas is backed by a PDF file. The type of device is specified when the canvas is
+constructed. Once a canvas has been constructed, the device type can't be changed.
+
+##Table #SkCanvas_construction
+# #SkCanvas # no device, no dimensions ##
+# #SkCanvas_2 # no device, set dimensions ##
+# #MakeRasterDirect # raster bitmap specified by SkImageInfo ##
+# #MakeRasterDirectN32 # helper for MakeRasterDirect() with inline image specification ##
+##ToDo incomplete ##
+##Table ##
+
+The SkCanvas may be backed by a raster bitmap provided by the caller, using #MakeRasterDirect, or
+by using its helper, #MakeRasterDirectN32.
+
+##ToDo incomplete ##
+
+--------------------------------------------------------------------------------
+
+##Method SkCanvas() #empty_constructor
+
+##Doxygen
+The default canvas has no backing device or dimensions. A canvas without a device may be used
+as a placeholder for functions that expect a canvas.
+##Doxygen ##
+
+##Example
+
+// returns true if either the canvas rotates the text by 90 degrees, or the paint does
+static bool check_for_up_and_down_text(const SkCanvas* canvas, const SkPaint& paint) {
+    bool paintHasVertical = paint.isVerticalText();
+    const SkMatrix& matrix = canvas->getTotalMatrix();
+    bool matrixIsVertical = matrix.preservesRightAngles() && !matrix.isScaleTranslate();
+    return paintHasVertical != matrixIsVertical;
+}
+
+static bool check_for_up_and_down_text(const SkPaint& paint) {
+    SkCanvas canvas;  // placeholder only, does not have an associated device
+    return check_for_up_and_down_text(&canvas, paint);
+}
+
+static void up_and_down_text_test() {
+    SkPaint paint;
+    SkASSERT(!check_for_up_and_down_text(paint));  // paint draws text left to right
+    paint.setVerticalText(true);
+    SkASSERT(check_for_up_and_down_text(paint));  // paint draws text top to bottom
+}
+
+##Example ##
+
+##ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkCanvas(int width, int height, const SkSurfaceProps* = NULL) #constructor_2
+
+#Doxygen -L 95,99 include/core/SkCanvas.h 2014-01-31 19:42:58 +0000
+#ToDo incomplete  may be partially, fully deprecated? ##
+
+##Example
+    SkCanvas canvas(10, 20);  // 10 units wide, 20 units high
+    canvas.clipRect(SkRect::MakeXYWH(30, 40, 5, 10));  // clip is outside canvas' device
+    SkIRect deviceBounds;
+    SkASSERT(canvas.getDeviceClipBounds().isEmpty());
+##Example ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method static std::unique_ptr<SkCanvas> MakeRasterDirectN32(int width, int height, SkPMColor* pixels, size_t rowBytes) constructor_3
+
+Example #Example allocates a three by three bitmap, clears it to white, and draws a black pixel
+in the center.
+
+##Example #MakeRasterDirectN32
+    const int width = 3;
+    const int height = 3;
+    SkPMColor pixels[height][width];  // allocate a 3x3 premultiplied bitmap on the stack
+    // create a SkCanvas backed by a raster device, and delete it when the
+    // function goes out of scope.
+    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirectN32(
+            width,
+            height,
+            pixels[0],  // top left of the bitmap
+            sizeof(pixels[0]));  // byte width of the each row
+    // write a pre-multiplied value for white into all pixels in the bitmap
+    canvas->clear(SK_ColorWHITE);  // white is unpremultiplied, in ARGB order
+    canvas->flush();  // ensure that pixels is ready to be read
+    SkPMColor pmWhite = pixels[0][0];  // the premultiplied format may vary
+    SkPaint paint;  // by default, draws black
+    canvas->drawPoint(1, 1, paint);  // draw in the center
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            SkDebugf("%c", pixels[y][x] == pmWhite ? '-' : 'x');
+        }
+        SkDebugf("\n");
+    }
+##Example ##
+
+When executed, #Example produces this output:
+
+##StdOut #OneOf3x3
+---
+-x-
+---
+##StdOut ##
+
+##ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo&, void*, size_t) #MakeRasterDirect
+
+Example #Example# allocates a three by three bitmap, clears it to white, and draws a black pixel
+in the center.
+
+##Example
+    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);  // device aligned, 32 bpp, premultipled
+    const size_t minRowBytes = info.minRowBytes();  // bytes used by one bitmap row
+    const size_t size = info.getSafeSize(minRowBytes);  // bytes used by all rows
+    SkAutoTMalloc<SkPMColor> storage(size);  // allocate storage for pixels
+    const SkPMColor* pixels = storage.get();  // get pointer to allocated storage
+    // create a SkCanvas backed by a raster device, and delete it when the
+    // function goes out of scope.
+    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, pixels, minRowBytes);
+    canvas->clear(SK_ColorWHITE);  // white is unpremultiplied, in ARGB order
+    canvas->flush();  // ensure that pixels are cleared
+    SkPMColor pmWhite = pixels[0];  // the premultiplied format may vary
+    SkPaint paint;  // by default, draws black
+    canvas->drawPoint(1, 1, paint);  // draw in the center
+    canvas->flush();  // ensure that point was drawn
+    for (int y = 0; y < info.height(); ++y) {
+        for (int x = 0; x < info.width(); ++x) {
+            SkDebugf("%c", *pixels++ == pmWhite ? '-' : 'x');
+        }
+        SkDebugf("\n");
+    }
+##Example ##
+
+When executed, #Example produces this output:
+
+#StdOut #OneOf3x3
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method  explicit SkCanvas(SkBaseDevice* device) #constructor_4
+
+##Doxygen
+The SkCanvas constructor #Method is used to create a specialized backend canvas.
+It is rarely used except by an SkCanvas specialization.
+##Doxygen ##
+
+##Example
+SkPDFCanvas::SkPDFCanvas(const sk_sp<SkPDFDevice>& dev)
+    : SkCanvas(dev.get()) {}
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method  explicit SkCanvas(const SkBitmap& bitmap) #constructor_5
+
+##Comment
+Sets SkSurfaceProps::kLegacyFontHost_InitType. Should be deprecated?
+##Comment ##
+
+##Example
+    SkBitmap bitmap;
+    // create a bitmap 5 wide and 11 high
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(5, 11));
+    SkCanvas canvas(bitmap);
+    canvas.clear(SK_ColorWHITE);  // white is unpremultiplied, in ARGB order
+    SkPixmap pixmap;  // provides guaranteed access to the drawn pixels
+	SkAssertResult(canvas.peekPixels(&pixmap));
+    const SkPMColor* pixels = pixmap.addr32();  // points to top left of bitmap
+    SkPMColor pmWhite = pixels[0];  // the premultiplied format may vary
+    SkPaint paint;  // by default, draws black, 12 point text
+    canvas.drawText("!", 1, 1, 10, paint);  // 1 char at baseline (1, 10)
+    for (int y = 0; y < bitmap.height(); ++y) {
+        for (int x = 0; x < bitmap.width(); ++x) {
+            SkDebugf("%c", *pixels++ == pmWhite ? '-' : 'x');
+        }
+        SkDebugf("\n");
+    }
+##Example ##
+
+The actual output of #Example depends on the installed fonts, but it may look
+like:
+##StdOut #exclamation
+-----
+--x--
+--x--
+--x--
+--x--
+--x--
+--x--
+-----
+--x--
+--x--
+-----
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method  SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props) #constructor_6
+
+##Comment
+Assuming #constructor_5 will be deprecated, reuse its example
+##Comment ##
+
+##Example
+    SkBitmap bitmap;
+    // create a bitmap 5 wide and 11 high
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(5, 11));
+    SkCanvas canvas(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
+    canvas.clear(SK_ColorWHITE);  // white is unpremultiplied, in ARGB order
+    SkPixmap pixmap;  // provides guaranteed access to the drawn pixels
+	SkAssertResult(canvas.peekPixels(&pixmap));
+    const SkPMColor* pixels = pixmap.addr32();  // points to top left of bitmap
+    SkPMColor pmWhite = pixels[0];  // the premultiplied format may vary
+    SkPaint paint;  // by default, draws black, 12 point text
+    canvas.drawText("!", 1, 1, 10, paint);  // 1 char at baseline (1, 10)
+    for (int y = 0; y < bitmap.height(); ++y) {
+        for (int x = 0; x < bitmap.width(); ++x) {
+            SkDebugf("%c", *pixels++ == pmWhite ? '-' : 'x');
+        }
+        SkDebugf("\n");
+    }
+##Example ##
+
+The actual output of #Example depends on the installed fonts, but it may look
+like:
+#StdOut #exclamation
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method  virtual ~SkCanvas() #destructor
+
+##Doxygen
+Free any memory held by the canvas, and if the canvas has a layer, draw the
+layer's offscreen.
+##Doxygen ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkMetaData& getMetaData() #getMetaData
+
+##Doxygen
+Associate additional data with the canvas.
+#Method returns storage that can be read from and written to.
+The storage is freed when the SkCanvas object is deleted.
+##Doxygen ##
+
+##Example
+    const char* kHelloMetaData = "HelloMetaData";
+    SkCanvas canvas;
+    SkMetaData& metaData = canvas.getMetaData();
+    SkDebugf("before: %s\n", metaData.findString(kHelloMetaData));
+    metaData.setString(kHelloMetaData, "Hello!");
+    SkDebugf("during: %s\n", metaData.findString(kHelloMetaData));
+    metaData.removeString(kHelloMetaData);
+    SkDebugf("after: %s\n", metaData.findString(kHelloMetaData));
+##Example ##
+
+##StdOut
+before: (null)
+during: Hello!
+after: (null)
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkImageInfo imageInfo() const #imageInfo
+
+##Doxygen
+Return ImageInfo for this canvas. If the canvas is not backed by a device
+then return the result of #ImageInfo empty constructor#.
+##Doxygen ##
+
+##Example
+    SkCanvas canvas;
+    SkImageInfo canvasInfo = canvas.imageInfo();
+    SkImageInfo emptyInfo;
+    SkASSERT(emptyInfo == canvasInfo);
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool getProps(SkSurfaceProps*) const #getProps
+
+##Doxygen
+If the canvas has a backing device, copy into the surface properties supplied by
+the caller, and return true. Otherwise, return false and leave the caller's
+surface properties unchanged.
+##Doxygen ##
+
+#ToDo This seems old style. Deprecate? ##
+
+##Example
+    SkBitmap bitmap;
+    SkCanvas canvas(bitmap, SkSurfaceProps(0, kRGB_V_SkPixelGeometry));
+    SkSurfaceProps surfaceProps;
+    SkDebugf("isRGB:%d\n", SkPixelGeometryIsRGB(surfaceProps.pixelGeometry())),
+    SkAssertResult(canvas.getProps(&surfaceProps));
+    SkDebugf("isRGB:%d\n", SkPixelGeometryIsRGB(surfaceProps.pixelGeometry())),
+##Example ##
+
+##StdOut
+isRGB:0
+isRGB:1
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void flush() #flush
+
+##Doxygen
+Trigger the immediate execution of all pending draw operations. If the backend
+device is the GPU, resolve all rendering to the SkSurface associated with this
+canvas.
+##Doxygen ##
+
+#Example #MakeRasterDirect
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method virtual SkISize getBaseLayerSize() const #getBaseLayerSize
+
+#Doxygen  -L 147,151 include/core/SkCanvas.h 2014-02-26 20:22:32 +0000
+
+##Example
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(20, 30));
+    SkCanvas canvas(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
+    canvas.clipRect(SkRect::MakeWH(10, 40));
+    SkIRect clipDeviceBounds = canvas.getDeviceClipBounds();
+    SkAssertResult(!clipDeviceBounds.isEmpty());
+    SkDebugf("clip=%d,%d\n", clipDeviceBounds.width(), clipDeviceBounds.height());
+    SkISize baseLayerSize = canvas.getBaseLayerSize();
+    SkDebugf("size=%d,%d\n", baseLayerSize.width(), baseLayerSize.height());
+##Example ##
+
+##StdOut
+clip=10,30
+size=20,30
+##StdOut ##
+
+#ToDo incomplete
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps* = nullptr) #makeSurface
+
+#Doxygen -L 159,167 include/core/SkCanvas.h 2014-09-22 07:29:03 -0700
+
+##Example
+	sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(5, 6);
+    SkCanvas* canvas = surface->getCanvas();
+    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(3, 4);
+    sk_sp<SkSurface> compatible = canvas->makeSurface(imageInfo);
+    SkDebugf("size=%d,%d\n", compatible->width(), compatible->height());
+##Example ##
+
+##StdOut
+size=3,4
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+
+##Class #SkCanvas ##
