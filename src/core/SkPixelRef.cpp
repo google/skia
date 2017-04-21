@@ -26,6 +26,12 @@ uint32_t SkNextID::ImageID() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_TRACE_PIXELREF_LIFETIME
+    static int32_t gInstCounter;
+#endif
+
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_API
+
 static SkImageInfo validate_info(const SkImageInfo& info) {
     SkAlphaType newAlphaType = info.alphaType();
     SkAssertResult(SkColorTypeValidateAlphaType(info.colorType(), info.alphaType(), &newAlphaType));
@@ -42,10 +48,6 @@ static void validate_pixels_ctable(const SkImageInfo& info, const SkColorTable* 
         SkASSERT(nullptr == ctable);
     }
 }
-
-#ifdef SK_TRACE_PIXELREF_LIFETIME
-    static int32_t gInstCounter;
-#endif
 
 SkPixelRef::SkPixelRef(const SkImageInfo& info, void* pixels, size_t rowBytes,
                        sk_sp<SkColorTable> ctable)
@@ -68,6 +70,27 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info, void* pixels, size_t rowBytes,
     fAddedToCache.store(false);
 }
 
+#endif
+
+SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes,
+                       sk_sp<SkColorTable> ctable)
+    : fInfo(SkImageInfo::MakeUnknown(width, height))
+    , fCTable(std::move(ctable))
+    , fPixels(pixels)
+    , fRowBytes(rowBytes)
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    , fStableID(SkNextID::ImageID())
+#endif
+{
+#ifdef SK_TRACE_PIXELREF_LIFETIME
+    SkDebugf(" pixelref %d\n", sk_atomic_inc(&gInstCounter));
+#endif
+
+    this->needsNewGenID();
+    fMutability = kMutable;
+    fAddedToCache.store(false);
+}
+
 SkPixelRef::~SkPixelRef() {
 #ifdef SK_TRACE_PIXELREF_LIFETIME
     SkDebugf("~pixelref %d\n", sk_atomic_dec(&gInstCounter) - 1);
@@ -76,11 +99,11 @@ SkPixelRef::~SkPixelRef() {
 }
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_API
 // This is undefined if there are clients in-flight trying to use us
 void SkPixelRef::android_only_reset(const SkImageInfo& info, size_t rowBytes,
                                     sk_sp<SkColorTable> ctable) {
-    validate_pixels_ctable(info, ctable.get());
-
     *const_cast<SkImageInfo*>(&fInfo) = info;
     fRowBytes = rowBytes;
     fCTable = std::move(ctable);
@@ -89,6 +112,20 @@ void SkPixelRef::android_only_reset(const SkImageInfo& info, size_t rowBytes,
     // conservative, since its possible the "new" settings are the same as the old.
     this->notifyPixelsChanged();
 }
+#endif
+
+// This is undefined if there are clients in-flight trying to use us
+void SkPixelRef::android_only_reset(int width, int height, size_t rowBytes,
+                                    sk_sp<SkColorTable> ctable) {
+    *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeWH(width, height);
+    fRowBytes = rowBytes;
+    fCTable = std::move(ctable);
+    // note: we do not change fPixels
+
+    // conservative, since its possible the "new" settings are the same as the old.
+    this->notifyPixelsChanged();
+}
+
 #endif
 
 void SkPixelRef::needsNewGenID() {
@@ -163,9 +200,11 @@ void SkPixelRef::notifyPixelsChanged() {
     this->onNotifyPixelsChanged();
 }
 
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_API
 void SkPixelRef::changeAlphaType(SkAlphaType at) {
     *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeAlphaType(at);
 }
+#endif
 
 void SkPixelRef::setImmutable() {
     fMutability = kImmutable;
@@ -193,7 +232,3 @@ void SkPixelRef::restoreMutability() {
 }
 
 void SkPixelRef::onNotifyPixelsChanged() { }
-
-size_t SkPixelRef::getAllocatedSizeInBytes() const {
-    return 0;
-}
