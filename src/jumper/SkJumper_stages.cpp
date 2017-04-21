@@ -288,9 +288,9 @@ STAGE(seed_shader) {
     // It's important for speed to explicitly cast(x) and cast(y),
     // which has the effect of splatting them to vectors before converting to floats.
     // On Intel this breaks a data dependency on previous loop iterations' registers.
-    r = cast(x) + 0.5_f + unaligned_load<F>(k->iota);
-    g = cast(y) + 0.5_f;
-    b = 1.0_f;
+    r = cast(x) + 0.5f + unaligned_load<F>(k->iota);
+    g = cast(y) + 0.5f;
+    b = 1.0f;
     a = 0;
     dr = dg = db = da = 0;
 }
