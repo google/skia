@@ -43,6 +43,8 @@ GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
         return fTarget;
     }
 
+    SkDebugf("Instantiating %d %d\n", fDesc.fWidth, fDesc.fHeight);
+
     if (SkBackingFit::kApprox == fFit) {
         fTarget = resourceProvider->createApproxTexture(fDesc, fFlags);
     } else {
@@ -60,6 +62,8 @@ GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
         SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());
     }
 #endif
+
+    SkDebugf("VRAM size: %d\n", fTarget->gpuMemorySize());
 
     return fTarget;
 }
