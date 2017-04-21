@@ -70,23 +70,26 @@ def parse_object_file(dot_o, directive, target=None):
   if 'win' in dot_o:
     globl, hidden, label, comment = 'PUBLIC', '', ' LABEL PROC', '; '
 
-  dehex = lambda h: '0x'+h
-  if directive != '.long':
-    dehex = lambda h: str(int(h,16))
-
   cmd = [objdump]
   if target:
     cmd += ['--target', target]
 
-  # Look for sections we know we can't handle.
-  section_headers = subprocess.check_output(cmd + ['-h', dot_o])
-  for snippet in ['.literal', '.const', '.rodata']:
-    if snippet in section_headers:
-      print >>sys.stderr, 'Found %s in section.' % snippet
-      assert snippet not in section_headers
+  if directive == '.long':
+    # Look for sections we know we can't handle on ARMv7 or ARMv8.
+    section_headers = subprocess.check_output(cmd + ['-h', dot_o])
+    for snippet in ['.literal', '.const', '.rodata']:
+      if snippet in section_headers:
+        print >>sys.stderr, 'Found %s in section.' % snippet
+        assert snippet not in section_headers
+    disassemble = ['-d', '--insn-width=10', dot_o]  # TODO: remove --insn-width
+    dehex = lambda h: '0x'+h
+  else:
+    # x86-64... as long as we're using %rip-relative addressing,
+    # data sections should be fine to just dump in with .text.
+    disassemble = ['-D', '--insn-width=10', dot_o]
+    dehex = lambda h: str(int(h,16))
 
   # Ok.  Let's disassemble.
-  disassemble = ['-d', '--insn-width=10', dot_o]
   for line in subprocess.check_output(cmd + disassemble).split('\n'):
     line = line.strip()
 
@@ -97,12 +100,16 @@ def parse_object_file(dot_o, directive, target=None):
     m = re.match('''[0-9a-f]+ <_?(.*)>:''', line)
     if m:
       print
-      if hidden:
-        print hidden + ' _' + m.group(1)
-      print globl + ' _' + m.group(1)
-      if 'win' not in dot_o:
-        print 'FUNCTION(_' + m.group(1) + ')'
-      print '_' + m.group(1) + label
+      sym = m.group(1)
+      if sym.startswith('.'):
+        print comment, 'Constants used by %rip relative addressing:'
+      else:  # a stage function
+        if hidden:
+          print hidden + ' _' + sym
+        print globl + ' _' + sym
+        if 'win' not in dot_o:
+          print 'FUNCTION(_' + sym + ')'
+        print '_' + sym + label
       continue
 
     columns = line.split('\t')
