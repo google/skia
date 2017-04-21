@@ -30,13 +30,15 @@ static unsigned gBitmapSkaderKeyNamespaceLabel;
 
 struct BitmapShaderKey : public SkResourceCache::Key {
 public:
-    BitmapShaderKey(uint32_t pictureID,
+    BitmapShaderKey(sk_sp<SkColorSpace> colorSpace,
+                    uint32_t pictureID,
                     const SkRect& tile,
                     SkShader::TileMode tmx,
                     SkShader::TileMode tmy,
                     const SkSize& scale,
                     const SkMatrix& localMatrix)
-        : fPictureID(pictureID)
+        : fColorSpace(std::move(colorSpace))
+        , fPictureID(pictureID)
         , fTile(tile)
         , fTmx(tmx)
         , fTmy(tmy)
@@ -46,22 +48,24 @@ public:
             fLocalMatrixStorage[i] = localMatrix[i];
         }
 
-        static const size_t keySize = sizeof(fPictureID) +
+        static const size_t keySize = sizeof(fColorSpace) +
+                                      sizeof(fPictureID) +
                                       sizeof(fTile) +
                                       sizeof(fTmx) + sizeof(fTmy) +
                                       sizeof(fScale) +
                                       sizeof(fLocalMatrixStorage);
         // This better be packed.
-        SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - &fPictureID) == keySize);
+        SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - (uint32_t*)&fColorSpace) == keySize);
         this->init(&gBitmapSkaderKeyNamespaceLabel, 0, keySize);
     }
 
 private:
-    uint32_t           fPictureID;
-    SkRect             fTile;
-    SkShader::TileMode fTmx, fTmy;
-    SkSize             fScale;
-    SkScalar           fLocalMatrixStorage[9];
+    sk_sp<SkColorSpace> fColorSpace;
+    uint32_t            fPictureID;
+    SkRect              fTile;
+    SkShader::TileMode  fTmx, fTmy;
+    SkSize              fScale;
+    SkScalar            fLocalMatrixStorage[9];
 
     SkDEBUGCODE(uint32_t fEndOfStruct;)
 };
@@ -216,7 +220,8 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
                                           SkIntToScalar(tileSize.height()) / fTile.height());
 
     sk_sp<SkShader> tileShader;
-    BitmapShaderKey key(fPicture->uniqueID(),
+    BitmapShaderKey key(sk_ref_sp(dstColorSpace),
+                        fPicture->uniqueID(),
                         fTile,
                         fTmx,
                         fTmy,

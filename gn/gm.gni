@@ -224,6 +224,7 @@ gm_sources = [
   "$_gm/pictureimagefilter.cpp",
   "$_gm/pictureimagegenerator.cpp",
   "$_gm/pictureshader.cpp",
+  "$_gm/pictureshadercache.cpp",
   "$_gm/pictureshadertile.cpp",
   "$_gm/pixelsnap.cpp",
   "$_gm/plus.cpp",
