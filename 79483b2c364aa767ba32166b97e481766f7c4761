@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1ee0f70f_d0d861b1",
+        "filename": "infra/bots/recipe_modules/flavor/ios_flavor.py",
+        "patchSetId": 31
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-04-21T19:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "493390f3_f814cbae",
+      "range": {
+        "startLine": 19,
+        "startChar": 9,
+        "endLine": 19,
+        "endChar": 13
+      },
+      "revId": "79483b2c364aa767ba32166b97e481766f7c4761",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "546d65c1_2cdc72e7",
         "filename": "infra/bots/recipe_modules/flavor/ios_flavor.py",
         "patchSetId": 31
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "08058078_d559b6aa",
+        "filename": "infra/bots/recipe_modules/flavor/ios_flavor.py",
+        "patchSetId": 31
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-04-21T19:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "546d65c1_2cdc72e7",
+      "range": {
+        "startLine": 25,
+        "startChar": 58,
+        "endLine": 25,
+        "endChar": 59
+      },
+      "revId": "79483b2c364aa767ba32166b97e481766f7c4761",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e63edc47_f6aba81a",
         "filename": "infra/bots/recipes/test.py",
         "patchSetId": 31
@@ -59,6 +107,30 @@
       "writtenOn": "2017-04-21T11:04:52Z",
       "side": 1,
       "message": "Can we move this into the flavor module?  I\u0027d like to keep this recipe high level and platform-independent.",
+      "range": {
+        "startLine": 692,
+        "startChar": 0,
+        "endLine": 694,
+        "endChar": 69
+      },
+      "revId": "79483b2c364aa767ba32166b97e481766f7c4761",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "290a9d8d_12b91fea",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 31
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-04-21T19:33:32Z",
+      "side": 1,
+      "message": "I had problems getting this to work. I added a TODO and will do it in a subsequent CL once this works end-to-end.",
+      "parentUuid": "e63edc47_f6aba81a",
       "range": {
         "startLine": 692,
         "startChar": 0,
