@@ -70,14 +70,6 @@ public:
     inline GrSurfacePriv surfacePriv();
     inline const GrSurfacePriv surfacePriv() const;
 
-    typedef void* ReleaseCtx;
-    typedef void (*ReleaseProc)(ReleaseCtx);
-
-    void setRelease(ReleaseProc proc, ReleaseCtx ctx) {
-        fReleaseProc = proc;
-        fReleaseCtx = ctx;
-    }
-
     static size_t WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2 = false);
     static size_t ComputeSize(const GrSurfaceDesc& desc, int colorSamplesPerPixel,
                               bool hasMIPMaps, bool useNextPow2 = false);
@@ -93,11 +85,9 @@ protected:
 
     GrSurface(GrGpu* gpu, const GrSurfaceDesc& desc)
         : INHERITED(gpu)
-        , fDesc(desc)
-        , fReleaseProc(nullptr)
-        , fReleaseCtx(nullptr) {
+        , fDesc(desc) {
     }
-    ~GrSurface() override;
+    ~GrSurface() override {}
 
     GrSurfaceDesc fDesc;
 
@@ -105,16 +95,6 @@ protected:
     void onAbandon() override;
 
 private:
-    void invokeReleaseProc() {
-        if (fReleaseProc) {
-            fReleaseProc(fReleaseCtx);
-            fReleaseProc = nullptr;
-        }
-    }
-
-    ReleaseProc fReleaseProc;
-    ReleaseCtx  fReleaseCtx;
-
     typedef GrGpuResource INHERITED;
 };
 

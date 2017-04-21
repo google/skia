@@ -173,7 +173,7 @@ private:
 
     void freeGPUData(const GrVkGpu* gpu) const override;
     virtual void onFreeGPUData(const GrVkGpu* gpu) const = 0;
-    void abandonSubResources() const override;
+    void abandonGPUData() const override;
 
     virtual void onReset(GrVkGpu* gpu) {}
 

@@ -34,6 +34,13 @@ public:
 
     bool reallocForMipmap(GrVkGpu* gpu, uint32_t mipLevels);
 
+    // In Vulkan we call the release proc after we are finished with the underlying
+    // GrVkImage::Resource object (which occurs after the GPU has finsihed all work on it).
+    void setRelease(GrTexture::ReleaseProc proc, GrTexture::ReleaseCtx ctx) override {
+        // Forward the release proc on to GrVkImage
+        this->setResourceRelease(proc, ctx);
+    }
+
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, const GrVkImageView*,
                 GrVkImage::Wrapped wrapped);
