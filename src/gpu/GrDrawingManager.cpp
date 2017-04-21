@@ -69,6 +69,15 @@ void GrDrawingManager::reset() {
     fFlushState.reset();
 }
 
+gr_instanced::OpAllocator* GrDrawingManager::instancingAllocator() {
+    if (fInstancingAllocator) {
+        return fInstancingAllocator.get();
+    }
+
+    fInstancingAllocator = fContext->getGpu()->createInstancedRenderingAllocator();
+    return fInstancingAllocator.get();
+}
+
 // MDB TODO: make use of the 'proxy' parameter.
 void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType type) {
     if (fFlushing || this->wasAbandoned()) {
