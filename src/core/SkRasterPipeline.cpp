@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkOpts.h"
 #include "SkRasterPipeline.h"
 
 SkRasterPipeline::SkRasterPipeline() {}
@@ -18,15 +17,6 @@ void SkRasterPipeline::append(StockStage stage, void* ctx) {
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {
     fStages.insert(fStages.end(),
                    src.fStages.begin(), src.fStages.end());
-}
-
-void SkRasterPipeline::run(size_t x, size_t n) const {
-    if (!fStages.empty()) {
-        if (this->run_with_jumper(x, n)) {
-            return;
-        }
-        SkOpts::run_pipeline(x,n, fStages.data(), SkToInt(fStages.size()));
-    }
 }
 
 void SkRasterPipeline::dump() const {

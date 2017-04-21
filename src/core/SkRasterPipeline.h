@@ -134,8 +134,6 @@ public:
     bool empty() const { return fStages.empty(); }
 
 private:
-    bool run_with_jumper(size_t x, size_t n) const;
-
     std::vector<Stage> fStages;
 };
 
