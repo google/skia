@@ -38,9 +38,11 @@ protected:
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
 private:
-    SkPictureShader(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*, const SkRect*);
+    SkPictureShader(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*, const SkRect*,
+                    sk_sp<SkColorSpace>);
 
     sk_sp<SkShader> refBitmapShader(const SkMatrix&, const SkMatrix* localMatrix,
                                     SkColorSpace* dstColorSpace,
@@ -66,6 +68,10 @@ private:
 
         typedef SkShader::Context INHERITED;
     };
+
+    // Should never be set by a public constructor.  This is only used when onMakeColorSpace()
+    // forces a deferred color space xform.
+    sk_sp<SkColorSpace>   fColorSpace;
 
     typedef SkShader INHERITED;
 };
