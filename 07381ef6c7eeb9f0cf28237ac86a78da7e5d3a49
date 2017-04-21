@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "33e94997_c3041445",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-21T17:29:26Z",
+      "side": 1,
+      "message": "It might feel cozier if we reorder the arguments to match the order in the key (moving colorSpace up)?",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 19
+      },
+      "revId": "07381ef6c7eeb9f0cf28237ac86a78da7e5d3a49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccc874bf_e212389c",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-21T17:29:26Z",
+      "side": 1,
+      "message": "funky space",
+      "range": {
+        "startLine": 54,
+        "startChar": 44,
+        "endLine": 54,
+        "endChar": 45
+      },
+      "revId": "07381ef6c7eeb9f0cf28237ac86a78da7e5d3a49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e405c94_ca89ce0a",
         "filename": "src/core/SkPictureShader.cpp",
         "patchSetId": 6
