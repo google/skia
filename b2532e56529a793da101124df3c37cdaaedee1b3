@@ -22,6 +22,30 @@
       "revId": "b2532e56529a793da101124df3c37cdaaedee1b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76f0d674_1d5095d5",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-21T21:37:43Z",
+      "side": 1,
+      "message": "Yes, done.",
+      "parentUuid": "790610e0_c448290d",
+      "range": {
+        "startLine": 28,
+        "startChar": 16,
+        "endLine": 28,
+        "endChar": 23
+      },
+      "revId": "b2532e56529a793da101124df3c37cdaaedee1b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
