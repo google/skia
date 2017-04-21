@@ -178,6 +178,7 @@ def GenTests(api):
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
           patch_issue=500,
+          patch_repo='https://skia.googlesource.com/skia.git',
           patch_set=1,
           patch_storage='gerrit') +
       api.properties.tryserver(
@@ -200,6 +201,7 @@ def GenTests(api):
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
           patch_issue=500,
+          patch_repo='https://skia.googlesource.com/skia.git',
           patch_set=1,
           patch_storage='gerrit') +
       api.properties.tryserver(
