@@ -11,7 +11,6 @@
 #include "SkBlurImageFilter_opts.h"
 #include "SkBlitRow_opts.h"
 #include "SkBlend_opts.h"
-#include "SkRasterPipeline_opts.h"
 
 namespace SkOpts {
     void Init_sse41() {
@@ -20,6 +19,5 @@ namespace SkOpts {
         box_blur_yx          = sse41::box_blur_yx;
         srcover_srgb_srgb    = sse41::srcover_srgb_srgb;
         blit_row_s32a_opaque = sse41::blit_row_s32a_opaque;
-        run_pipeline         = sse41::run_pipeline;
     }
 }
