@@ -118,7 +118,7 @@ static SkString map_flags_to_string(uint32_t flags) {
     return str;
 }
 
-SkString GrCaps::dump() const {
+SkString GrCaps::dump1() const {
     SkString r;
     static const char* gNY[] = {"NO", "YES"};
     r.appendf("MIP Map Support                    : %s\n", gNY[fMipMapSupport]);

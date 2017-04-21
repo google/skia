@@ -194,7 +194,7 @@ GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
     return nullptr;
 }
 
-static bool gPrintStartupSpew;
+static bool gPrintStartupSpew = true;
 
 GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     : GrGpu(context)
@@ -259,7 +259,7 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
         SkDebugf("------ EXTENSIONS\n");
         this->glContext().extensions().print();
         SkDebugf("\n");
-        SkDebugf("%s", this->glCaps().dump().c_str());
+        SkDebugf("%s", this->glCaps().dump1().c_str());
     }
 }
 

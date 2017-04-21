@@ -351,7 +351,7 @@ public:
     /**
      * Returns a string containing the caps info.
      */
-    SkString dump() const override;
+    SkString dump1() const override;
 
     bool rgba8888PixelsOpsAreSlow() const { return fRGBA8888PixelsOpsAreSlow; }
     bool partialFBOReadIsSlow() const { return fPartialFBOReadIsSlow; }
