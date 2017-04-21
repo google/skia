@@ -24,6 +24,10 @@ class SkMatrix;
 class SkPaint;
 class SkPicture;
 
+#if SK_SUPPORT_GPU
+#include "GrBackendSurface.h"
+#endif
+
 class SK_API SkImageGenerator : public SkNoncopyable {
 public:
     /**
@@ -193,8 +197,26 @@ protected:
     }
 
 #if SK_SUPPORT_GPU
+    /**
+     * Public clients that are implementing their own SkImageGenerators should not implement this.
+     * In the future, GrTextureProxy will be private. If you wish to directly emit GPU textures in
+     * your own SkImageGenerator, consider implementing onGenerateBackendTexture (declared below).
+     */
     virtual sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&,
                                                     const SkIPoint&);
+
+    // These match the definitions in SkImage, whence they came
+    typedef void* ReleaseCtx;
+    typedef void (*ReleaseProc)(ReleaseCtx);
+
+    /**
+     * Clients may implement this function to have their generator directly emit GPU textures for
+     * some or all backends. The GrWrapOwnership, ReleaseProc, ReleaseCtx, and GrSurfaceOrigin
+     * parameters are all outputs.
+     */
+    virtual GrBackendTexture onGenerateBackendTexture(GrContext*, const SkImageInfo&,
+                                                      const SkIPoint&, GrWrapOwnership*,
+                                                      ReleaseProc*, ReleaseCtx*, GrSurfaceOrigin*);
 #endif
 
 private:
