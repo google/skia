@@ -1067,13 +1067,6 @@ STAGE_CTX(byte_tables_rgb, const void*) {
     b = SkNf_from_byte(gather(tail, tables->b, SkNf_round(scale, b)));
 }
 
-STAGE_CTX(shader_adapter, SkShader::Context*) {
-    SkPM4f buf[N];
-    static_assert(sizeof(buf) == sizeof(r) + sizeof(g) + sizeof(b) + sizeof(a), "");
-    ctx->shadeSpan4f(x, (int)g[0], buf, N);
-    SkNf::Load4(buf, &r, &g, &b, &a);
-}
-
 STAGE_CTX(callback, const void*) {
     auto c = (SkJumper_CallbackCtx*)ctx;
     SkNf::Store4(c->rgba, r,g,b,a);
