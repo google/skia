@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73d83dd1_902189aa",
+        "filename": "gm/pictureshadercache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-21T19:04:49Z",
+      "side": 1,
+      "message": "nit: maybe easier to follow\n\n  sk_sp\u003cSkSurface\u003e surface(SkSurface::MakeRaster(info));\n  surface-\u003egetCanvas()-\u003edrawRect(...);",
+      "range": {
+        "startLine": 68,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 76
+      },
+      "revId": "b5587fadb9cdbcee647a212b79dc4711a8c01b98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
