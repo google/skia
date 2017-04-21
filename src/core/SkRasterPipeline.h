@@ -99,7 +99,6 @@
     M(linear_gradient)                                           \
     M(linear_gradient_2stops)                                    \
     M(byte_tables) M(byte_tables_rgb)                            \
-    M(shader_adapter)                                            \
     M(rgb_to_hsl)                                                \
     M(hsl_to_rgb)
 
