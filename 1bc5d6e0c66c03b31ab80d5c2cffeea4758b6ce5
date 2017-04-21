@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d387892_4e7393d3",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-04-21T20:15:14Z",
+      "side": 1,
+      "message": "nit: this might be nice to declare only in the scope it\u0027s used since we are not inside the gr_instanced namespace. (or just omit and go with:\n\n  gr_instanced::OpAllocator* oa \u003d this-\u003edrawingManager()-\u003einstancingAllocator()",
+      "range": {
+        "startLine": 55,
+        "startChar": 6,
+        "endLine": 55,
+        "endChar": 18
+      },
+      "revId": "1bc5d6e0c66c03b31ab80d5c2cffeea4758b6ce5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
