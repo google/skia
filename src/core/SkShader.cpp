@@ -21,6 +21,7 @@
 #include "SkShader.h"
 #include "SkTLazy.h"
 #include "SkWriteBuffer.h"
+#include "../jumper/SkJumper.h"
 
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
@@ -274,8 +275,20 @@ bool SkShader::onAppendStages(SkRasterPipeline* p,
     }
 
     ContextRec rec(*opaquePaint, ctm, localM, ContextRec::kPM4f_DstType, cs);
-    if (auto* ctx = this->makeContext(rec, alloc)) {
-        p->append(SkRasterPipeline::shader_adapter, ctx);
+    if (Context* ctx = this->makeContext(rec, alloc)) {
+        struct StageCtx : SkJumper_CallbackCtx {
+            Context* ctx;
+        };
+
+        auto cb = alloc->make<StageCtx>();
+        cb->ctx = ctx;
+        cb->fn  = [](SkJumper_CallbackCtx* arg, int active_pixels) {
+            auto c = (StageCtx*)arg;
+            int x = (int)c->rgba[0],
+                y = (int)c->rgba[1];
+            c->ctx->shadeSpan4f(x,y, (SkPM4f*)c->rgba, active_pixels);
+        };
+        p->append(SkRasterPipeline::callback, cb);
 
         // Legacy shaders aren't aware of color spaces. We can pretty
         // safely assume they're in sRGB gamut.
