@@ -59,13 +59,17 @@ private:
 };
 } // namespace
 
-// Test that SkPngCodec does not attempt to read its input beyond the logical
-// end of its data. Some other SkCodecs do, but some Android apps rely on not
-// doing so for PNGs.
+// Test that some SkCodecs do not attempt to read input beyond the logical
+// end of the data. Some other SkCodecs do, but some Android apps rely on not
+// doing so for PNGs. Test on other formats that work.
 DEF_TEST(Codec_end, r) {
     for (const char* path : { "plane.png",
                               "yellow_rose.png",
-                              "plane_interlaced.png" }) {
+                              "plane_interlaced.png",
+                              "google_chrome.ico",
+                              "color_wheel.ico",
+                              "mandrill.wbmp",
+                              "box.gif" }) {
         std::unique_ptr<MyStream> stream(MyStream::Make(path, r));
         if (!stream) {
             continue;
@@ -87,8 +91,21 @@ DEF_TEST(Codec_end, r) {
             continue;
         }
 
-        // Rewind and do an incremental decode.
+        // Rewind and do an incremental/scanline decode.
         result = codec->startIncrementalDecode(bm.info(), bm.getPixels(), bm.rowBytes());
+        if (SkCodec::kUnimplemented == result) {
+            result = codec->startScanlineDecode(bm.info());
+            if (result != SkCodec::kSuccess) {
+                ERRORF(r, "Failed to startScanlineDecode from %s. error %i", path, result);
+                continue;
+            }
+            const int scanlines = codec->getScanlines(bm.getPixels(), bm.height(), bm.rowBytes());
+            if (scanlines != bm.height()) {
+                ERRORF(r, "Scanline decode incomplete; decoded %i lines", scanlines);
+            }
+            continue;
+        }
+
         if (result != SkCodec::kSuccess) {
             ERRORF(r, "Failed to startIncrementalDecode from %s. error %i", path, result);
             continue;
