@@ -126,8 +126,10 @@ static void draw_rect_tests(SkCanvas* canvas) {
 
 class AAClipGM : public skiagm::GM {
 public:
-    AAClipGM() {
+    float fAngle = 0;
 
+    AAClipGM() {
+        this->addFloat("angle", &fAngle, 0, 90);
     }
 
 protected:
@@ -140,6 +142,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        canvas->rotate(fAngle);
+
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 

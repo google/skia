@@ -29,6 +29,9 @@ protected:
     void onDrawBackground(SkCanvas*) override;
     bool onAnimate(const SkAnimTimer&) override;
 
+    Click* onFindClickHandler(float x, float y, unsigned) override;
+    bool onClick(Click*) override;
+
 private:
     GM* fGM;
     typedef SampleView INHERITED;

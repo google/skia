@@ -52,6 +52,16 @@ static sk_sp<SkPicture> round_trip_serialize(SkPicture* src) {
 }
 
 #include "SkPictureRecorder.h"
+
+#define VAR_WIDTH   400
+#define VAR_HEIGHT  60
+
+static SkRect find_variable_bounds(int index, float right) {
+    SkRect r = { right - VAR_WIDTH, 0, right, VAR_HEIGHT };
+    r.offset(0, index * VAR_HEIGHT);
+    return r;
+}
+
 void GMSampleView::onDrawContent(SkCanvas* canvas) {
     SkPictureRecorder recorder;
     SkCanvas* origCanvas = canvas;
@@ -62,7 +72,7 @@ void GMSampleView::onDrawContent(SkCanvas* canvas) {
     }
 
     {
-        SkAutoCanvasRestore acr(canvas, fShowSize);
+        SkAutoCanvasRestore acr(canvas, true);
         fGM->drawContent(canvas);
     }
 
@@ -83,6 +93,44 @@ void GMSampleView::onDrawContent(SkCanvas* canvas) {
         paint.setColor(0x40FF8833);
         canvas->drawRect(r, paint);
     }
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextSize(30);
+    paint.setStyle(SkPaint::kStroke_Style);
+    for (int i = 0; i < fGM->fVars.count(); ++i) {
+//        skiagm::Variable* var = fGM->fVars[i];
+//        canvas->drawText(var->fName.c_str(), var->fName.size(), x, y, paint);
+        SkRect r = find_variable_bounds(i, this->width());
+        canvas->drawRect(r, paint);
+    }
+}
+
+class MyClick : public SkView::Click {
+public:
+    MyClick(SkView* view, int index) : Click(view), fIndex(index) {}
+
+    int fIndex;
+};
+
+SkView::Click* GMSampleView::onFindClickHandler(float x, float y, unsigned) {
+    for (int i = 0; i < fGM->fVars.count(); ++i) {
+        SkRect r = find_variable_bounds(i, this->width());
+        if (r.contains(SkRect::MakeXYWH(x, y, 1, 1))) {
+            return new MyClick(this, i);
+        }
+    }
+    return nullptr;
+}
+
+bool GMSampleView::onClick(Click* click) {
+    int i = ((MyClick*)click)->fIndex;
+    skiagm::Variable* var = fGM->fVars[i];
+
+    SkRect r = find_variable_bounds(i, this->width());
+    *var->fValue = var->fMin + (click->fCurr.fX - r.fLeft) * (var->fMax - var->fMin) / r.width();
+    this->inval(nullptr);
+    return true;
 }
 
 void GMSampleView::onDrawBackground(SkCanvas* canvas) {

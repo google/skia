@@ -13,6 +13,7 @@
 #include "SkPaint.h"
 #include "SkSize.h"
 #include "SkString.h"
+#include "SkTDArray.h"
 #include "../tools/Registry.h"
 #include "SkClipOpPriv.h"
 
@@ -41,6 +42,12 @@ struct GrContextOptions;
     void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS)
 
 namespace skiagm {
+
+    class Variable {
+    public:
+        SkString    fName;
+        float*      fValue, fMin, fMax;
+    };
 
     class GM {
     public:
@@ -109,6 +116,8 @@ namespace skiagm {
         /** draws a standard message that the GM is only intended to be used with the GPU.*/
         static void DrawGpuOnlyMessage(SkCanvas*);
 
+        SkTDArray<Variable*> fVars;
+
     protected:
         virtual void onOnceBeforeDraw() {}
         virtual void onDraw(SkCanvas*) = 0;
@@ -119,6 +128,8 @@ namespace skiagm {
         virtual bool onAnimate(const SkAnimTimer&) { return false; }
         virtual bool onHandleKey(SkUnichar uni) { return false; }
         virtual SkMatrix onGetInitialTransform() const { return SkMatrix::I(); }
+
+        void addFloat(const char[], float* value, float min, float max);
 
     private:
         Mode     fMode;

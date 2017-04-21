@@ -56,6 +56,15 @@ bool GM::animate(const SkAnimTimer& timer) {
     return this->onAnimate(timer);
 }
 
+void GM::addFloat(const char name[], float* value, float min, float max) {
+    Variable* var = new Variable;
+    var->fName.set(name);
+    var->fValue = value;
+    var->fMin = min;
+    var->fMax = max;
+    *fVars.append() = var;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void GM::onDrawBackground(SkCanvas* canvas) {
