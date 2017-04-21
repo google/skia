@@ -50,6 +50,7 @@ SK_C_API bool sk_stream_seek(sk_stream_t* cstream, size_t position);
 SK_C_API bool sk_stream_move(sk_stream_t* cstream, long offset);
 SK_C_API bool sk_stream_has_length(sk_stream_t* cstream);
 SK_C_API size_t sk_stream_get_length(sk_stream_t* cstream);
+SK_C_API const void* sk_stream_get_memory_base(sk_stream_t* cstream);
 
 ////////////////////////////////////////////////////////////////////////////////
 

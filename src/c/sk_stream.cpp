@@ -130,6 +130,11 @@ size_t sk_stream_get_length (sk_stream_t* cstream)
     return AsStream(cstream)->getLength();
 }
 
+const void* sk_stream_get_memory_base(sk_stream_t* cstream)
+{
+    return AsStream(cstream)->getMemoryBase();
+}
+
 void sk_filewstream_destroy(sk_wstream_filestream_t* cstream)
 {
     delete AsFileWStream(cstream);

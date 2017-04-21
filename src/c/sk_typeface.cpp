@@ -48,6 +48,16 @@ int sk_typeface_chars_to_glyphs (sk_typeface_t* typeface, const char *chars, sk_
     return (AsTypeface(typeface))->charsToGlyphs(chars, (SkTypeface::Encoding)encoding, glyphs, glyphCount);
 }
 
+sk_stream_asset_t* sk_typeface_open_stream(sk_typeface_t* typeface, int* ttcIndex)
+{
+    return ToStreamAsset(AsTypeface(typeface)->openStream(ttcIndex));
+}
+
+int sk_typeface_get_units_per_em(sk_typeface_t* typeface)
+{
+    return AsTypeface(typeface)->getUnitsPerEm();
+}
+
 int sk_typeface_glyph_count (sk_typeface_t* typeface)
 {
     return AsTypeface(typeface)->countGlyphs();
