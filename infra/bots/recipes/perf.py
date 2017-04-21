@@ -149,6 +149,11 @@ def nanobench_flags(bot):
     match.append('~hardstop') # skia:6037
   if 'ANGLE' in bot and any('msaa' in x for x in configs):
     match.append('~native_image_to_raster_surface')  # skia:6457
+  if 'ANGLE' in bot and 'Radeon' in bot:
+    # skia:6534
+    match.append('~shapes_mixed_10000_32x33')
+    match.append('~shapes_rrect_10000_32x32')
+    match.append('~shapes_oval_10000_32x33')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -325,6 +330,7 @@ TEST_BUILDERS = [
   '_AbandonGpuContext'),
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release',
+  'Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE',
   'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE',
   'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan',
   'Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE',
