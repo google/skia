@@ -147,10 +147,12 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     const SkImageInfo ii = SkImageInfo::Make(kSize, kSize,
                                              kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    sk_sp<GrRenderTargetContext> readRTC(context->makeRenderTargetContext(SkBackingFit::kExact,
+    sk_sp<GrRenderTargetContext> readRTC(context->makeDeferredRenderTargetContext(
+                                                                          SkBackingFit::kExact,
                                                                           kSize, kSize,
                                                                           kConfig, nullptr));
-    sk_sp<GrRenderTargetContext> tempRTC(context->makeRenderTargetContext(SkBackingFit::kExact,
+    sk_sp<GrRenderTargetContext> tempRTC(context->makeDeferredRenderTargetContext(
+                                                                          SkBackingFit::kExact,
                                                                           kSize, kSize,
                                                                           kConfig, nullptr));
     if (!readRTC || !tempRTC) {
