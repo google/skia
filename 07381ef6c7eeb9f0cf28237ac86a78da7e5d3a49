@@ -68,6 +68,30 @@
       "revId": "07381ef6c7eeb9f0cf28237ac86a78da7e5d3a49",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d43b450_0eded6b6",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-21T18:11:30Z",
+      "side": 1,
+      "message": "\u003e Double checking my understanding here:\n\u003e We are caching the |tileShader| because it holds the |tileImage|, which will cache the actual image pixels after it generates them once.\n\nCorrect.  We could have cached the SkImage instead, but this way we avoid re-allocating the shader on each draw.\n\n\u003e The |dstColorSpace| should previously have been on the cache key, since it will affect how we generate the pixels.  I am now adding an SkColorSpace to the cache key - which might be the |dstColorSpace| or |fColorSpace|.\n\u003e The blend behavior flag is useful to describe the differences in what the color space on the cache key \"means\".\n\nSGTM.",
+      "parentUuid": "0e405c94_ca89ce0a",
+      "range": {
+        "startLine": 268,
+        "startChar": 8,
+        "endLine": 268,
+        "endChar": 73
+      },
+      "revId": "07381ef6c7eeb9f0cf28237ac86a78da7e5d3a49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
