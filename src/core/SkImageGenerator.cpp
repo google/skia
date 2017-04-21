@@ -87,6 +87,9 @@ bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes
 }
 
 #if SK_SUPPORT_GPU
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrResourceProvider.h"
 #include "GrTextureProxy.h"
 
 sk_sp<GrTextureProxy> SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& info,
@@ -98,9 +101,36 @@ sk_sp<GrTextureProxy> SkImageGenerator::generateTexture(GrContext* ctx, const Sk
     return this->onGenerateTexture(ctx, info, origin);
 }
 
-sk_sp<GrTextureProxy> SkImageGenerator::onGenerateTexture(GrContext*, const SkImageInfo&,
-                                                          const SkIPoint&) {
+sk_sp<GrTextureProxy> SkImageGenerator::onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
+                                                          const SkIPoint& origin) {
+    GrWrapOwnership ownership = kBorrow_GrWrapOwnership;
+    ReleaseProc releaseProc = nullptr;
+    ReleaseCtx releaseCtx = nullptr;
+    GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin;
+    GrBackendTexture backendTexture = this->onGenerateBackendTexture(ctx, info, origin, &ownership,
+                                                                     &releaseProc, &releaseCtx,
+                                                                     &surfaceOrigin);
+    GrBackend backend = ctx->contextPriv().getBackend();
+    if ((kOpenGL_GrBackend == backend && backendTexture.getGLTextureInfo()) ||
+        (kVulkan_GrBackend == backend && backendTexture.getVkImageInfo())) {
+        // We got a valid backend texture!
+        sk_sp<GrTexture> tex = ctx->resourceProvider()->wrapBackendTexture(
+            backendTexture, surfaceOrigin, kNone_GrBackendTextureFlag, 0, ownership);
+        SkASSERT(!releaseProc || kBorrow_GrWrapOwnership == ownership);
+        if (releaseProc && kBorrow_GrWrapOwnership == ownership) {
+            tex->setRelease(releaseProc, releaseCtx);
+        }
+        return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    }
     return nullptr;
+}
+
+GrBackendTexture SkImageGenerator::onGenerateBackendTexture(GrContext*, const SkImageInfo&,
+                                                            const SkIPoint&, GrWrapOwnership*,
+                                                            ReleaseProc*, ReleaseCtx*,
+                                                            GrSurfaceOrigin*) {
+    // Construct an invalid backend texture by default, so that onGenerateTexture returns nullptr
+    return GrBackendTexture(0, 0, kUnknown_GrPixelConfig, nullptr);
 }
 #endif
 
