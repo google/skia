@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "78039115_2022c259",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-21T15:29:37Z",
+      "side": 1,
+      "message": "Done. Went with OpAllocator.",
+      "parentUuid": "1063425a_764154b1",
+      "range": {
+        "startLine": 178,
+        "startChar": 52,
+        "endLine": 178,
+        "endChar": 87
+      },
+      "revId": "5b7ff46ed8bc3a6af2cf3da4128487b285754672",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1415eb1f_3db74f3b",
         "filename": "src/gpu/instanced/InstancedRendering.h",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2017-04-20T18:14:09Z",
       "side": 1,
       "message": "I think this comment was good to have at the top of the file. Do you think we could possibly finagle it so that the allocator and op are declared after this class or in a separate file?\n\nAlso it might be good to reword the comment to indicate that this is per-renderTargetContext rather than global (and it doesn\u0027t create Ops anymore):\n\n\"This class tracks a list of instanced ops that will all be drawn during the same flush. There is currently one per render target context. The nature of instanced rendering allows these ops to combine well and render efficiently.\n\n\"At flush time, this class assembles all the ops\u0027 draw data into a single shared vertex and texel buffer, and ...\"",
+      "range": {
+        "startLine": 170,
+        "startChar": 3,
+        "endLine": 170,
+        "endChar": 0
+      },
+      "revId": "5b7ff46ed8bc3a6af2cf3da4128487b285754672",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c341f501_b618db4f",
+        "filename": "src/gpu/instanced/InstancedRendering.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-21T15:29:37Z",
+      "side": 1,
+      "message": "Done.\nI moved InstancedOp \u0026 OpAllocator to a new header.\nI took a whack at a revised comment.",
+      "parentUuid": "1415eb1f_3db74f3b",
       "range": {
         "startLine": 170,
         "startChar": 3,
