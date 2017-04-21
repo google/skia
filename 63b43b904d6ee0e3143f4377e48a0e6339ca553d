@@ -94,6 +94,30 @@
     },
     {
       "key": {
+        "uuid": "a23fad57_1c3805c3",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-21T12:22:32Z",
+      "side": 1,
+      "message": "It seems this is still a bug.",
+      "parentUuid": "39cb531d_dc70f8e9",
+      "range": {
+        "startLine": 491,
+        "startChar": 24,
+        "endLine": 491,
+        "endChar": 74
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e90f674a_09a79ff0",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 5
