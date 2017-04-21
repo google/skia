@@ -7,6 +7,7 @@
 
 #include "SkImage_Base.h"
 #include "SkCanvas.h"
+#include "SkColorSpaceXformCanvas.h"
 #include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
@@ -66,6 +67,25 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
     }
     canvas->clear(0);
     canvas->drawPicture(fPicture, &fMatrix, fPaint.getMaybeNull());
+    return true;
+}
+
+bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                                          const Options& opts) {
+    // No need to use the xform canvas if we want fully color correct behavior or if we do not
+    // have a destination color space.
+    if (SkTransferFunctionBehavior::kRespect == opts.fBehavior || !info.colorSpace()) {
+        return this->onGetPixels(info, pixels, rowBytes, opts.fColorTable, opts.fColorTableCount);
+    }
+
+    auto canvas = SkCanvas::MakeRasterDirect(info.makeColorSpace(nullptr), pixels, rowBytes);
+    if (!canvas) {
+        return false;
+    }
+    canvas->clear(0);
+
+    auto xformCanvas = SkCreateColorSpaceXformCanvas(canvas.get(), info.refColorSpace());
+    xformCanvas->drawPicture(fPicture, &fMatrix, fPaint.getMaybeNull());
     return true;
 }
 
