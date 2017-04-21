@@ -102,12 +102,14 @@ void GrGLTexture::onRelease() {
         }
         fInfo.fID = 0;
     }
+    this->invokeReleaseProc();
     INHERITED::onRelease();
 }
 
 void GrGLTexture::onAbandon() {
     fInfo.fTarget = 0;
     fInfo.fID = 0;
+    this->invokeReleaseProc();
     INHERITED::onAbandon();
 }
 
