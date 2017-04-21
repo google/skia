@@ -147,6 +147,7 @@ def nanobench_flags(bot):
     match.append('~text_16_LCD_WT')
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~hardstop') # skia:6037
+    match.append('~desk_pokemonwiki.skp')
   if 'ANGLE' in bot and any('msaa' in x for x in configs):
     match.append('~native_image_to_raster_surface')  # skia:6457
 
