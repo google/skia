@@ -66,18 +66,7 @@ static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitm
     #elif defined(SK_BUILD_FOR_WIN)
         return SkEncodeImageWithWIC(&buf, src, type, 100) ? buf.detachAsData() : nullptr;
     #else
-        switch (type) {
-            case SkEncodedImageFormat::kPNG:
-                return SkEncodeImageAsPNG(&buf, src, SkEncodeOptions()) ? buf.detachAsData()
-                                                                        : nullptr;
-            case SkEncodedImageFormat::kJPEG:
-                return SkEncodeImageAsJPEG(&buf, src, 100) ? buf.detachAsData() : nullptr;
-            case SkEncodedImageFormat::kWEBP:
-                return SkEncodeImageAsWEBP(&buf, src, 100) ? buf.detachAsData() : nullptr;
-            default:
-                SkASSERT(false);
-                return nullptr;
-        }
+        return SkEncodeImage(&buf, src, type, 100) ? buf.detachAsData() : nullptr;
     #endif
 }
 
