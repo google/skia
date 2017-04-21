@@ -131,6 +131,9 @@ struct SkAnalyticCubicEdge : public SkAnalyticEdge {
 };
 
 bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
+#if defined(__arm__)
+    asm volatile("dsb");  // crbug.com/710131
+#endif
     fRiteE = nullptr;
 
     // We must set X/Y using the same way (e.g., times 4, to FDot6, then to Fixed) as Quads/Cubics.
