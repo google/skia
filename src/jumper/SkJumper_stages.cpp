@@ -480,32 +480,14 @@ STAGE(to_srgb) {
 }
 
 STAGE(from_2dot2) {
-    auto fn = [](F x) {
-        // x^(141/64) = x^(2.20312) is a great approximation of the true value, x^(2.2).
-        // (note: x^(35/16) = x^(2.1875) is an okay one as well and would be quicker)
-        F x16 = rsqrt(rsqrt(rsqrt(rsqrt(x)))),    // x^(1/16) = x^(4/64);
-          x64 = rsqrt(rsqrt(x16));                // x^(1/64)
-
-        // 141/64 = 128/64 + 12/64 + 1/64
-        return max((x*x) * (x16*x16*x16) * x64, 0);
-    };
-    r = fn(r);
-    g = fn(g);
-    b = fn(b);
+    r = approx_powf(r, C(2.2f));
+    g = approx_powf(g, C(2.2f));
+    b = approx_powf(b, C(2.2f));
 }
 STAGE(to_2dot2) {
-    auto fn = [](F x) {
-        // x^(29/64) is a very good approximation of the true value, x^(1/2.2).
-        F x2  = rsqrt(x),                         // x^(-1/2)
-          x32 = rsqrt(rsqrt(rsqrt(rsqrt(x2)))),   // x^(-1/32)
-          x64 = rsqrt(x32);                       // x^(+1/64)
-
-        // 29/64 = 32/64 - 2/64 - 1/64
-        return max(rcp(x2) * x32 * rcp(x64), 0);
-    };
-    r = fn(r);
-    g = fn(g);
-    b = fn(b);
+    r = approx_powf(r, C(1/2.2f));
+    g = approx_powf(g, C(1/2.2f));
+    b = approx_powf(b, C(1/2.2f));
 }
 
 STAGE(rgb_to_hsl) {
