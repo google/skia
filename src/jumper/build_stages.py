@@ -78,7 +78,7 @@ def parse_object_file(dot_o, directive, target=None):
 
   # Look for sections we know we can't handle.
   section_headers = subprocess.check_output(cmd + ['-h', dot_o])
-  for snippet in ['.const', '.rodata']:
+  for snippet in ['.rodata']:
     if snippet in section_headers:
       print >>sys.stderr, 'Found %s in section.' % snippet
       assert snippet not in section_headers
@@ -90,10 +90,12 @@ def parse_object_file(dot_o, directive, target=None):
     # x86-64... as long as we're using %rip-relative addressing,
     # literal sections should be fine to just dump in with .text.
     disassemble = ['-d',               # DO NOT USE -D.
+                   '-z',
                    '--insn-width=10',
                    '-j', '.text',
                    '-j', '.literal4',
                    '-j', '.literal16',
+                   '-j', '.const',
                    dot_o]
     dehex = lambda h: str(int(h,16))
 
@@ -109,8 +111,10 @@ def parse_object_file(dot_o, directive, target=None):
     if m:
       print
       sym = m.group(1)
-      if sym.startswith('.literal'):  # .literal4, .literal16, etc
+      if sym.startswith('.literal'):  # .literal4, .literal16
         print sym.replace('.literal', align)
+      if sym.startswith('.const'):  # .literal4, .literal16
+        print align + '32'
       else:  # a stage function
         if hidden:
           print hidden + ' _' + sym
@@ -121,6 +125,7 @@ def parse_object_file(dot_o, directive, target=None):
       continue
 
     columns = line.split('\t')
+   #print >>sys.stderr, columns
     code = columns[1]
     if len(columns) >= 4:
       inst = columns[2]
@@ -150,12 +155,14 @@ print '    #define HIDDEN .private_extern'
 print '    #define FUNCTION(name)'
 print '    #define BALIGN4  .align 2'
 print '    #define BALIGN16 .align 4'
+print '    #define BALIGN32 .align 5'
 print '#else'
 print '    .section .note.GNU-stack,"",%progbits'
 print '    #define HIDDEN .hidden'
 print '    #define FUNCTION(name) .type name,%function'
 print '    #define BALIGN4  .balign 4'
 print '    #define BALIGN16 .balign 16'
+print '    #define BALIGN16 .balign 32'
 print '#endif'
 
 print '.text'
@@ -168,13 +175,13 @@ print 'BALIGN4'
 parse_object_file('vfp4.o', '.long', target='elf32-littlearm')
 
 print '#elif defined(__x86_64__)'
-print 'BALIGN16'
+print 'BALIGN32'
 parse_object_file('hsw.o',   '.byte')
-print 'BALIGN16'
+print 'BALIGN32'
 parse_object_file('avx.o',   '.byte')
-print 'BALIGN16'
+print 'BALIGN32'
 parse_object_file('sse41.o', '.byte')
-print 'BALIGN16'
+print 'BALIGN32'
 parse_object_file('sse2.o',  '.byte')
 
 print '#endif'
@@ -191,13 +198,13 @@ print '''; Copyright 2017 Google Inc.
 
 print 'IFDEF RAX'
 print '_text SEGMENT'
-print 'ALIGN 16'
+print 'ALIGN 32'
 parse_object_file('win_hsw.o',   'DB')
-print 'ALIGN 16'
+print 'ALIGN 32'
 parse_object_file('win_avx.o',   'DB')
-print 'ALIGN 16'
+print 'ALIGN 32'
 parse_object_file('win_sse41.o', 'DB')
-print 'ALIGN 16'
+print 'ALIGN 32'
 parse_object_file('win_sse2.o',  'DB')
 print 'ENDIF'
 print 'END'
