@@ -41,6 +41,11 @@ public:
     }
 #endif
 
+    typedef void* ReleaseCtx;
+    typedef void (*ReleaseProc)(ReleaseCtx);
+
+    virtual void setRelease(ReleaseProc proc, ReleaseCtx ctx) = 0;
+
     /** Access methods that are only to be used within Skia code. */
     inline GrTexturePriv texturePriv();
     inline const GrTexturePriv texturePriv() const;

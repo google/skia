@@ -33,7 +33,7 @@ public:
 
 private:
     void freeGPUData(const GrVkGpu* gpu) const override;
-    void abandonSubResources() const override;
+    void abandonGPUData() const override;
     void onRecycle(GrVkGpu* gpu) const override;
 
     VkDescriptorSet                          fDescSet;

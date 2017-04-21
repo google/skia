@@ -93,6 +93,8 @@ void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
     fInfo = idDesc.fInfo;
     fTextureIDOwnership = idDesc.fOwnership;
+    fReleaseProc = nullptr;
+    fReleaseCtx = nullptr;
 }
 
 void GrGLTexture::onRelease() {
@@ -102,12 +104,14 @@ void GrGLTexture::onRelease() {
         }
         fInfo.fID = 0;
     }
+    this->invokeReleaseProc();
     INHERITED::onRelease();
 }
 
 void GrGLTexture::onAbandon() {
     fInfo.fTarget = 0;
     fInfo.fID = 0;
+    this->invokeReleaseProc();
     INHERITED::onAbandon();
 }
 

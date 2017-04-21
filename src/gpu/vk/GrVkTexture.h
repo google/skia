@@ -34,6 +34,10 @@ public:
 
     bool reallocForMipmap(GrVkGpu* gpu, uint32_t mipLevels);
 
+    void setRelease(GrTexture::ReleaseProc proc, GrTexture::ReleaseCtx ctx) override {
+        this->setResourceRelease(proc, ctx);
+    }
+
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, const GrVkImageView*,
                 GrVkImage::Wrapped wrapped);
