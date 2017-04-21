@@ -118,6 +118,9 @@ static void test_partial(skiatest::Reporter* r, const char* name, size_t minByte
 }
 
 DEF_TEST(Codec_partial, r) {
+#if 0
+    // FIXME (scroggo): SkPngCodec needs to use SkStreamBuffer in order to
+    // support incremental decoding.
     test_partial(r, "plane.png");
     test_partial(r, "plane_interlaced.png");
     test_partial(r, "yellow_rose.png");
@@ -128,7 +131,7 @@ DEF_TEST(Codec_partial, r) {
     test_partial(r, "arrow.png");
     test_partial(r, "randPixels.png");
     test_partial(r, "baby_tux.png");
-
+#endif
     test_partial(r, "box.gif");
     test_partial(r, "randPixels.gif", 215);
     test_partial(r, "color_wheel.gif");
