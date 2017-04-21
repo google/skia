@@ -140,6 +140,30 @@
       "revId": "79483b2c364aa767ba32166b97e481766f7c4761",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f57b402_99ef23e4",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 31
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-21T19:46:09Z",
+      "side": 1,
+      "message": "I don\u0027t see the TODO.  FTR I think the perf task will fail because you didn\u0027t make the same change in the perf.py recipe.  Moving these into the flavor module would fix the issue no matter which recipe runs for iOS.  What specifically was failing?",
+      "parentUuid": "290a9d8d_12b91fea",
+      "range": {
+        "startLine": 692,
+        "startChar": 0,
+        "endLine": 694,
+        "endChar": 69
+      },
+      "revId": "79483b2c364aa767ba32166b97e481766f7c4761",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
