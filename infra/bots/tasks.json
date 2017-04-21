@@ -2161,6 +2161,7 @@
         "buildername=Build-Mac-Clang-arm-Debug-iOS",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2182,6 +2183,7 @@
         "buildername=Build-Mac-Clang-arm-Release-iOS",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2210,6 +2212,7 @@
         "buildername=Build-Mac-Clang-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2231,6 +2234,7 @@
         "buildername=Build-Mac-Clang-arm64-Debug-iOS",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2252,6 +2256,7 @@
         "buildername=Build-Mac-Clang-arm64-Release-iOS",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2273,6 +2278,7 @@
         "buildername=Build-Mac-Clang-x64-Release-iOS",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2294,6 +2300,7 @@
         "buildername=Build-Mac-Clang-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2315,6 +2322,7 @@
         "buildername=Build-Mac-Clang-x86_64-Debug-CommandBuffer",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2336,6 +2344,7 @@
         "buildername=Build-Mac-Clang-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2357,6 +2366,7 @@
         "buildername=Build-Mac-Clang-x86_64-Release-CommandBuffer",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2386,6 +2396,7 @@
         "buildername=Build-Ubuntu-Clang-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2425,6 +2436,7 @@
         "buildername=Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2454,6 +2466,7 @@
         "buildername=Build-Ubuntu-Clang-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2493,6 +2506,7 @@
         "buildername=Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2522,6 +2536,7 @@
         "buildername=Build-Ubuntu-Clang-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2551,6 +2566,7 @@
         "buildername=Build-Ubuntu-Clang-arm64-Debug-Android_FrameworkDefs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2580,6 +2596,7 @@
         "buildername=Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2609,6 +2626,7 @@
         "buildername=Build-Ubuntu-Clang-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2638,6 +2656,7 @@
         "buildername=Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2667,6 +2686,7 @@
         "buildername=Build-Ubuntu-Clang-mips64el-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2696,6 +2716,7 @@
         "buildername=Build-Ubuntu-Clang-mips64el-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2725,6 +2746,7 @@
         "buildername=Build-Ubuntu-Clang-mipsel-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2754,6 +2776,7 @@
         "buildername=Build-Ubuntu-Clang-mipsel-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2783,6 +2806,7 @@
         "buildername=Build-Ubuntu-Clang-x64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2812,6 +2836,7 @@
         "buildername=Build-Ubuntu-Clang-x64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2841,6 +2866,7 @@
         "buildername=Build-Ubuntu-Clang-x86-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2870,6 +2896,7 @@
         "buildername=Build-Ubuntu-Clang-x86-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2899,6 +2926,7 @@
         "buildername=Build-Ubuntu-Clang-x86-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2928,6 +2956,7 @@
         "buildername=Build-Ubuntu-Clang-x86-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2957,6 +2986,7 @@
         "buildername=Build-Ubuntu-Clang-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -2986,6 +3016,7 @@
         "buildername=Build-Ubuntu-Clang-x86_64-Debug-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3015,6 +3046,7 @@
         "buildername=Build-Ubuntu-Clang-x86_64-Debug-MSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3049,6 +3081,7 @@
         "buildername=Build-Ubuntu-Clang-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3078,6 +3111,7 @@
         "buildername=Build-Ubuntu-Clang-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3107,6 +3141,7 @@
         "buildername=Build-Ubuntu-Clang-x86_64-Release-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3136,6 +3171,7 @@
         "buildername=Build-Ubuntu-Clang-x86_64-Release-Fast",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3165,6 +3201,7 @@
         "buildername=Build-Ubuntu-Clang-x86_64-Release-Mini",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3194,6 +3231,7 @@
         "buildername=Build-Ubuntu-Clang-x86_64-Release-TSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3228,6 +3266,7 @@
         "buildername=Build-Ubuntu-Clang-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3257,6 +3296,7 @@
         "buildername=Build-Ubuntu-GCC-arm-Debug-Chromecast",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3286,6 +3326,7 @@
         "buildername=Build-Ubuntu-GCC-arm-Release-Chromecast",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3308,6 +3349,7 @@
         "buildername=Build-Ubuntu-GCC-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3330,6 +3372,7 @@
         "buildername=Build-Ubuntu-GCC-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3352,6 +3395,7 @@
         "buildername=Build-Ubuntu-GCC-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3374,6 +3418,7 @@
         "buildername=Build-Ubuntu-GCC-x86_64-Debug-NoGPU",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3396,6 +3441,7 @@
         "buildername=Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3418,6 +3464,7 @@
         "buildername=Build-Ubuntu-GCC-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3440,6 +3487,7 @@
         "buildername=Build-Ubuntu-GCC-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3469,6 +3517,7 @@
         "buildername=Build-Ubuntu-GCC-x86_64-Release-Flutter_Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3491,6 +3540,7 @@
         "buildername=Build-Ubuntu-GCC-x86_64-Release-Mesa",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3513,6 +3563,7 @@
         "buildername=Build-Ubuntu-GCC-x86_64-Release-NoGPU",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3535,6 +3586,7 @@
         "buildername=Build-Ubuntu-GCC-x86_64-Release-PDFium",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3557,6 +3609,7 @@
         "buildername=Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3579,6 +3632,7 @@
         "buildername=Build-Ubuntu-GCC-x86_64-Release-SKNX_NO_SIMD",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3601,6 +3655,7 @@
         "buildername=Build-Ubuntu-GCC-x86_64-Release-Shared",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3629,6 +3684,7 @@
         "buildername=Build-Win-Clang-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3657,6 +3713,7 @@
         "buildername=Build-Win-MSVC-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3685,6 +3742,7 @@
         "buildername=Build-Win-MSVC-x86-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3713,6 +3771,7 @@
         "buildername=Build-Win-MSVC-x86-Debug-Exceptions",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3741,6 +3800,7 @@
         "buildername=Build-Win-MSVC-x86-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3769,6 +3829,7 @@
         "buildername=Build-Win-MSVC-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3797,6 +3858,7 @@
         "buildername=Build-Win-MSVC-x86-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3825,6 +3887,7 @@
         "buildername=Build-Win-MSVC-x86-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3853,6 +3916,7 @@
         "buildername=Build-Win-MSVC-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3881,6 +3945,7 @@
         "buildername=Build-Win-MSVC-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3909,6 +3974,7 @@
         "buildername=Build-Win-MSVC-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3942,6 +4008,7 @@
         "buildername=Build-Win-MSVC-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3970,6 +4037,7 @@
         "buildername=Build-Win-MSVC-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -3998,6 +4066,7 @@
         "buildername=Build-Win-MSVC-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4026,6 +4095,7 @@
         "buildername=Build-Win-MSVC-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4059,6 +4129,7 @@
         "buildername=Build-Win-MSVC-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4089,6 +4160,7 @@
         "buildername=Housekeeper-Nightly-RecreateSKPs_Canary",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4122,6 +4194,7 @@
         "buildername=Housekeeper-PerCommit",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4144,6 +4217,7 @@
         "buildername=Housekeeper-PerCommit-BundleRecipes",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4173,6 +4247,7 @@
         "buildername=Housekeeper-PerCommit-InfraTests",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4203,6 +4278,7 @@
         "buildername=Housekeeper-Weekly-RecreateSKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4249,6 +4325,7 @@
         "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4296,6 +4373,7 @@
         "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4343,6 +4421,7 @@
         "buildername=Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4390,6 +4469,7 @@
         "buildername=Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4437,6 +4517,7 @@
         "buildername=Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4484,6 +4565,7 @@
         "buildername=Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4531,6 +4613,7 @@
         "buildername=Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4578,6 +4661,7 @@
         "buildername=Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4625,6 +4709,7 @@
         "buildername=Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4672,6 +4757,7 @@
         "buildername=Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4719,6 +4805,7 @@
         "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4766,6 +4853,7 @@
         "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4813,6 +4901,7 @@
         "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4860,6 +4949,7 @@
         "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4907,6 +4997,7 @@
         "buildername=Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -4954,6 +5045,7 @@
         "buildername=Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5001,6 +5093,7 @@
         "buildername=Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5048,6 +5141,7 @@
         "buildername=Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5095,6 +5189,7 @@
         "buildername=Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5142,6 +5237,7 @@
         "buildername=Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5189,6 +5285,7 @@
         "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5236,6 +5333,7 @@
         "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5283,6 +5381,7 @@
         "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5330,6 +5429,7 @@
         "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5377,6 +5477,7 @@
         "buildername=Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5424,6 +5525,7 @@
         "buildername=Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5471,6 +5573,7 @@
         "buildername=Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5518,6 +5621,7 @@
         "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5565,6 +5669,7 @@
         "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5612,6 +5717,7 @@
         "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5659,6 +5765,7 @@
         "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5706,6 +5813,7 @@
         "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5753,6 +5861,7 @@
         "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5800,6 +5909,7 @@
         "buildername=Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5847,6 +5957,7 @@
         "buildername=Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5884,6 +5995,7 @@
         "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5921,6 +6033,7 @@
         "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -5967,6 +6080,7 @@
         "buildername=Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6013,6 +6127,7 @@
         "buildername=Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6059,6 +6174,7 @@
         "buildername=Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6105,6 +6221,7 @@
         "buildername=Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6151,6 +6268,7 @@
         "buildername=Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6197,6 +6315,7 @@
         "buildername=Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6243,6 +6362,7 @@
         "buildername=Perf-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6289,6 +6409,7 @@
         "buildername=Perf-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6326,6 +6447,7 @@
         "buildername=Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6363,6 +6485,7 @@
         "buildername=Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6410,6 +6533,7 @@
         "buildername=Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6457,6 +6581,7 @@
         "buildername=Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6503,6 +6628,7 @@
         "buildername=Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6549,6 +6675,7 @@
         "buildername=Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6595,6 +6722,7 @@
         "buildername=Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6642,6 +6770,7 @@
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6694,6 +6823,7 @@
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6746,6 +6876,7 @@
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6793,6 +6924,7 @@
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6845,6 +6977,7 @@
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6892,6 +7025,7 @@
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6943,6 +7077,7 @@
         "buildername=Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -6994,6 +7129,7 @@
         "buildername=Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7041,6 +7177,7 @@
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7088,6 +7225,7 @@
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7135,6 +7273,7 @@
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7182,6 +7321,7 @@
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7204,6 +7344,7 @@
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7225,6 +7366,7 @@
         "buildername=Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7270,6 +7412,7 @@
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7316,6 +7459,7 @@
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7362,6 +7506,7 @@
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7408,6 +7553,7 @@
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7454,6 +7600,7 @@
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7500,6 +7647,7 @@
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7551,6 +7699,7 @@
         "buildername=Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7602,6 +7751,7 @@
         "buildername=Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7653,6 +7803,7 @@
         "buildername=Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7709,6 +7860,7 @@
         "buildername=Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7760,6 +7912,7 @@
         "buildername=Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7816,6 +7969,7 @@
         "buildername=Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7867,6 +8021,7 @@
         "buildername=Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7918,6 +8073,7 @@
         "buildername=Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -7969,6 +8125,7 @@
         "buildername=Perf-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8020,6 +8177,7 @@
         "buildername=Perf-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8066,6 +8224,7 @@
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8112,6 +8271,7 @@
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8158,6 +8318,7 @@
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8204,6 +8365,7 @@
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8250,6 +8412,7 @@
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8296,6 +8459,7 @@
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8342,6 +8506,7 @@
         "buildername=Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8388,6 +8553,7 @@
         "buildername=Perf-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8434,6 +8600,7 @@
         "buildername=Perf-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8480,6 +8647,7 @@
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8526,6 +8694,7 @@
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8572,6 +8741,7 @@
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8618,6 +8788,7 @@
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8664,6 +8835,7 @@
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8710,6 +8882,7 @@
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8757,6 +8930,7 @@
         "buildername=Perf-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8804,6 +8978,7 @@
         "buildername=Perf-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8850,6 +9025,7 @@
         "buildername=Perf-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8896,6 +9072,7 @@
         "buildername=Perf-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8942,6 +9119,7 @@
         "buildername=Perf-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -8988,6 +9166,7 @@
         "buildername=Perf-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9034,6 +9213,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9080,6 +9260,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9126,6 +9307,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9172,6 +9354,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9218,6 +9401,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9264,6 +9448,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9310,6 +9495,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9356,6 +9542,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9403,6 +9590,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9450,6 +9638,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9497,6 +9686,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9544,6 +9734,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9590,6 +9781,7 @@
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9636,6 +9828,7 @@
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9682,6 +9875,7 @@
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9728,6 +9922,7 @@
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9774,6 +9969,7 @@
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9820,6 +10016,7 @@
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9867,6 +10064,7 @@
         "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9914,6 +10112,7 @@
         "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -9961,6 +10160,7 @@
         "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10008,6 +10208,7 @@
         "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10055,6 +10256,7 @@
         "buildername=Perf-Win7-MSVC-Golo-CPU-AVX-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10102,6 +10304,7 @@
         "buildername=Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10149,6 +10352,7 @@
         "buildername=Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10196,6 +10400,7 @@
         "buildername=Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10243,6 +10448,7 @@
         "buildername=Perf-Win8-MSVC-Golo-CPU-AVX-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10290,6 +10496,7 @@
         "buildername=Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10337,6 +10544,7 @@
         "buildername=Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10384,6 +10592,7 @@
         "buildername=Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10430,6 +10639,7 @@
         "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10476,6 +10686,7 @@
         "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10523,6 +10734,7 @@
         "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10570,6 +10782,7 @@
         "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10617,6 +10830,7 @@
         "buildername=Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10664,6 +10878,7 @@
         "buildername=Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10711,6 +10926,7 @@
         "buildername=Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10758,6 +10974,7 @@
         "buildername=Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10805,6 +11022,7 @@
         "buildername=Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10852,6 +11070,7 @@
         "buildername=Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10899,6 +11118,7 @@
         "buildername=Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10946,6 +11166,7 @@
         "buildername=Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -10993,6 +11214,7 @@
         "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11040,6 +11262,7 @@
         "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11087,6 +11310,7 @@
         "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11134,6 +11358,7 @@
         "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11181,6 +11406,7 @@
         "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11228,6 +11454,7 @@
         "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11275,6 +11502,7 @@
         "buildername=Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11322,6 +11550,7 @@
         "buildername=Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11369,6 +11598,7 @@
         "buildername=Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11416,6 +11646,7 @@
         "buildername=Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11463,6 +11694,7 @@
         "buildername=Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11510,6 +11742,7 @@
         "buildername=Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11557,6 +11790,7 @@
         "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11604,6 +11838,7 @@
         "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11651,6 +11886,7 @@
         "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11698,6 +11934,7 @@
         "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11745,6 +11982,7 @@
         "buildername=Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11792,6 +12030,7 @@
         "buildername=Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11839,6 +12078,7 @@
         "buildername=Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11886,6 +12126,7 @@
         "buildername=Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11933,6 +12174,7 @@
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -11980,6 +12222,7 @@
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12027,6 +12270,7 @@
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12074,6 +12318,7 @@
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12121,6 +12366,7 @@
         "buildername=Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12168,6 +12414,7 @@
         "buildername=Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12215,6 +12462,7 @@
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12262,6 +12510,7 @@
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12309,6 +12558,7 @@
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12356,6 +12606,7 @@
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12402,6 +12653,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12448,6 +12700,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12494,6 +12747,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12540,6 +12794,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12586,6 +12841,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12632,6 +12888,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12678,6 +12935,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12724,6 +12982,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12771,6 +13030,7 @@
         "buildername=Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12818,6 +13078,7 @@
         "buildername=Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12864,6 +13125,7 @@
         "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12910,6 +13172,7 @@
         "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -12956,6 +13219,7 @@
         "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13003,6 +13267,7 @@
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13055,6 +13320,7 @@
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13107,6 +13373,7 @@
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13154,6 +13421,7 @@
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13206,6 +13474,7 @@
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13253,6 +13522,7 @@
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13305,6 +13575,7 @@
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13356,6 +13627,7 @@
         "buildername=Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13407,6 +13679,7 @@
         "buildername=Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13458,6 +13731,7 @@
         "buildername=Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13505,6 +13779,7 @@
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13552,6 +13827,7 @@
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13574,6 +13850,7 @@
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13595,6 +13872,7 @@
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13616,6 +13894,7 @@
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13662,6 +13941,7 @@
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13709,6 +13989,7 @@
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13756,6 +14037,7 @@
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13802,6 +14084,7 @@
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13848,6 +14131,7 @@
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13894,6 +14178,7 @@
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13940,6 +14225,7 @@
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -13986,6 +14272,7 @@
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14032,6 +14319,7 @@
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14078,6 +14366,7 @@
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14129,6 +14418,7 @@
         "buildername=Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14180,6 +14470,7 @@
         "buildername=Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14231,6 +14522,7 @@
         "buildername=Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14287,6 +14579,7 @@
         "buildername=Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14338,6 +14631,7 @@
         "buildername=Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14394,6 +14688,7 @@
         "buildername=Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14445,6 +14740,7 @@
         "buildername=Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14496,6 +14792,7 @@
         "buildername=Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14547,6 +14844,7 @@
         "buildername=Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14598,6 +14896,7 @@
         "buildername=Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14644,6 +14943,7 @@
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14690,6 +14990,7 @@
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14736,6 +15037,7 @@
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14782,6 +15084,7 @@
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14828,6 +15131,7 @@
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14874,6 +15178,7 @@
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14920,6 +15225,7 @@
         "buildername=Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -14966,6 +15272,7 @@
         "buildername=Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15012,6 +15319,7 @@
         "buildername=Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15058,6 +15366,7 @@
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15104,6 +15413,7 @@
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15150,6 +15460,7 @@
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15196,6 +15507,7 @@
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15242,6 +15554,7 @@
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15288,6 +15601,7 @@
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15335,6 +15649,7 @@
         "buildername=Test-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15382,6 +15697,7 @@
         "buildername=Test-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15428,6 +15744,7 @@
         "buildername=Test-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15474,6 +15791,7 @@
         "buildername=Test-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15520,6 +15838,7 @@
         "buildername=Test-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15566,6 +15885,7 @@
         "buildername=Test-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15612,6 +15932,7 @@
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15658,6 +15979,7 @@
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15704,6 +16026,7 @@
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15750,6 +16073,7 @@
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15796,6 +16120,7 @@
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15842,6 +16167,7 @@
         "buildername=Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15888,6 +16214,7 @@
         "buildername=Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15935,6 +16262,7 @@
         "buildername=Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -15982,6 +16310,7 @@
         "buildername=Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16029,6 +16358,7 @@
         "buildername=Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16076,6 +16406,7 @@
         "buildername=Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16122,6 +16453,7 @@
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16168,6 +16500,7 @@
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16214,6 +16547,7 @@
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16260,6 +16594,7 @@
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16306,6 +16641,7 @@
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16352,6 +16688,7 @@
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16399,6 +16736,7 @@
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16446,6 +16784,7 @@
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16493,6 +16832,7 @@
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16540,6 +16880,7 @@
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16587,6 +16928,7 @@
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16634,6 +16976,7 @@
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16681,6 +17024,7 @@
         "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16728,6 +17072,7 @@
         "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16775,6 +17120,7 @@
         "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16822,6 +17168,7 @@
         "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16869,6 +17216,7 @@
         "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16916,6 +17264,7 @@
         "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -16963,6 +17312,7 @@
         "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -17010,6 +17360,7 @@
         "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -17057,6 +17408,7 @@
         "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -17104,6 +17456,7 @@
         "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -17151,6 +17504,7 @@
         "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -17198,6 +17552,7 @@
         "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -17244,6 +17599,7 @@
         "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -17290,6 +17646,7 @@
         "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
@@ -17317,6 +17674,7 @@
         "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17343,6 +17701,7 @@
         "buildername=Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17369,6 +17728,7 @@
         "buildername=Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17395,6 +17755,7 @@
         "buildername=Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17421,6 +17782,7 @@
         "buildername=Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17447,6 +17809,7 @@
         "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17473,6 +17836,7 @@
         "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17499,6 +17863,7 @@
         "buildername=Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17525,6 +17890,7 @@
         "buildername=Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17551,6 +17917,7 @@
         "buildername=Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17577,6 +17944,7 @@
         "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17603,6 +17971,7 @@
         "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17629,6 +17998,7 @@
         "buildername=Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17655,6 +18025,7 @@
         "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17681,6 +18052,7 @@
         "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17707,6 +18079,7 @@
         "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17733,6 +18106,7 @@
         "buildername=Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17759,6 +18133,7 @@
         "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17785,6 +18160,7 @@
         "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17811,6 +18187,7 @@
         "buildername=Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17837,6 +18214,7 @@
         "buildername=Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17863,6 +18241,7 @@
         "buildername=Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17889,6 +18268,7 @@
         "buildername=Perf-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17915,6 +18295,7 @@
         "buildername=Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17941,6 +18322,7 @@
         "buildername=Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17967,6 +18349,7 @@
         "buildername=Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -17993,6 +18376,7 @@
         "buildername=Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18019,6 +18403,7 @@
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18045,6 +18430,7 @@
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18071,6 +18457,7 @@
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18097,6 +18484,7 @@
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18123,6 +18511,7 @@
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18149,6 +18538,7 @@
         "buildername=Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18175,6 +18565,7 @@
         "buildername=Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18201,6 +18592,7 @@
         "buildername=Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18227,6 +18619,7 @@
         "buildername=Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18253,6 +18646,7 @@
         "buildername=Perf-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18279,6 +18673,7 @@
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18305,6 +18700,7 @@
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18331,6 +18727,7 @@
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18357,6 +18754,7 @@
         "buildername=Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18383,6 +18781,7 @@
         "buildername=Perf-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18409,6 +18808,7 @@
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18435,6 +18835,7 @@
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18461,6 +18862,7 @@
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18487,6 +18889,7 @@
         "buildername=Perf-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18513,6 +18916,7 @@
         "buildername=Perf-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18539,6 +18943,7 @@
         "buildername=Perf-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18565,6 +18970,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18591,6 +18997,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18617,6 +19024,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18643,6 +19051,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18669,6 +19078,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18695,6 +19105,7 @@
         "buildername=Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18721,6 +19132,7 @@
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18747,6 +19159,7 @@
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18773,6 +19186,7 @@
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18799,6 +19213,7 @@
         "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18825,6 +19240,7 @@
         "buildername=Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18851,6 +19267,7 @@
         "buildername=Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18877,6 +19294,7 @@
         "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18903,6 +19321,7 @@
         "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18929,6 +19348,7 @@
         "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18955,6 +19375,7 @@
         "buildername=Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -18981,6 +19402,7 @@
         "buildername=Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19007,6 +19429,7 @@
         "buildername=Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19033,6 +19456,7 @@
         "buildername=Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19059,6 +19483,7 @@
         "buildername=Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19085,6 +19510,7 @@
         "buildername=Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19111,6 +19537,7 @@
         "buildername=Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19137,6 +19564,7 @@
         "buildername=Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19163,6 +19591,7 @@
         "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19189,6 +19618,7 @@
         "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19215,6 +19645,7 @@
         "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19241,6 +19672,7 @@
         "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19267,6 +19699,7 @@
         "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19293,6 +19726,7 @@
         "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19319,6 +19753,7 @@
         "buildername=Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19345,6 +19780,7 @@
         "buildername=Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19371,6 +19807,7 @@
         "buildername=Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19397,6 +19834,7 @@
         "buildername=Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19423,6 +19861,7 @@
         "buildername=Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19449,6 +19888,7 @@
         "buildername=Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19475,6 +19915,7 @@
         "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19501,6 +19942,7 @@
         "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19527,6 +19969,7 @@
         "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19553,6 +19996,7 @@
         "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19579,6 +20023,7 @@
         "buildername=Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19605,6 +20050,7 @@
         "buildername=Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19631,6 +20077,7 @@
         "buildername=Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19657,6 +20104,7 @@
         "buildername=Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19683,6 +20131,7 @@
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19709,6 +20158,7 @@
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19735,6 +20185,7 @@
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19761,6 +20212,7 @@
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19787,6 +20239,7 @@
         "buildername=Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19813,6 +20266,7 @@
         "buildername=Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19839,6 +20293,7 @@
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19865,6 +20320,7 @@
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19891,6 +20347,7 @@
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19917,6 +20374,7 @@
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19943,6 +20401,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19969,6 +20428,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -19995,6 +20455,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20021,6 +20482,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20047,6 +20509,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20073,6 +20536,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20099,6 +20563,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20125,6 +20590,7 @@
         "buildername=Test-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20151,6 +20617,7 @@
         "buildername=Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20177,6 +20644,7 @@
         "buildername=Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20203,6 +20671,7 @@
         "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20229,6 +20698,7 @@
         "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20255,6 +20725,7 @@
         "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20281,6 +20752,7 @@
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20307,6 +20779,7 @@
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20333,6 +20806,7 @@
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20359,6 +20833,7 @@
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20385,6 +20860,7 @@
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20411,6 +20887,7 @@
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20437,6 +20914,7 @@
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20463,6 +20941,7 @@
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20489,6 +20968,7 @@
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20515,6 +20995,7 @@
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20541,6 +21022,7 @@
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20567,6 +21049,7 @@
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20593,6 +21076,7 @@
         "buildername=Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20619,6 +21103,7 @@
         "buildername=Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20645,6 +21130,7 @@
         "buildername=Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20671,6 +21157,7 @@
         "buildername=Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20697,6 +21184,7 @@
         "buildername=Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20723,6 +21211,7 @@
         "buildername=Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20749,6 +21238,7 @@
         "buildername=Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20775,6 +21265,7 @@
         "buildername=Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20801,6 +21292,7 @@
         "buildername=Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20827,6 +21319,7 @@
         "buildername=Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20853,6 +21346,7 @@
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20879,6 +21373,7 @@
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20905,6 +21400,7 @@
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20931,6 +21427,7 @@
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20957,6 +21454,7 @@
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -20983,6 +21481,7 @@
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21009,6 +21508,7 @@
         "buildername=Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21035,6 +21535,7 @@
         "buildername=Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21061,6 +21562,7 @@
         "buildername=Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21087,6 +21589,7 @@
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21113,6 +21616,7 @@
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21139,6 +21643,7 @@
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21165,6 +21670,7 @@
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21191,6 +21697,7 @@
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21217,6 +21724,7 @@
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21243,6 +21751,7 @@
         "buildername=Test-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21269,6 +21778,7 @@
         "buildername=Test-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21295,6 +21805,7 @@
         "buildername=Test-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21321,6 +21832,7 @@
         "buildername=Test-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21347,6 +21859,7 @@
         "buildername=Test-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21373,6 +21886,7 @@
         "buildername=Test-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21399,6 +21913,7 @@
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21425,6 +21940,7 @@
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21451,6 +21967,7 @@
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21477,6 +21994,7 @@
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21503,6 +22021,7 @@
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21529,6 +22048,7 @@
         "buildername=Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21555,6 +22075,7 @@
         "buildername=Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21581,6 +22102,7 @@
         "buildername=Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21607,6 +22129,7 @@
         "buildername=Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21633,6 +22156,7 @@
         "buildername=Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21659,6 +22183,7 @@
         "buildername=Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21685,6 +22210,7 @@
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21711,6 +22237,7 @@
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21737,6 +22264,7 @@
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21763,6 +22291,7 @@
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21789,6 +22318,7 @@
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21815,6 +22345,7 @@
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21841,6 +22372,7 @@
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21867,6 +22399,7 @@
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21893,6 +22426,7 @@
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21919,6 +22453,7 @@
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21945,6 +22480,7 @@
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21971,6 +22507,7 @@
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -21997,6 +22534,7 @@
         "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -22023,6 +22561,7 @@
         "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -22049,6 +22588,7 @@
         "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -22075,6 +22615,7 @@
         "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -22101,6 +22642,7 @@
         "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -22127,6 +22669,7 @@
         "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -22153,6 +22696,7 @@
         "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -22179,6 +22723,7 @@
         "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -22205,6 +22750,7 @@
         "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -22231,6 +22777,7 @@
         "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -22257,6 +22804,7 @@
         "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -22283,6 +22831,7 @@
         "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -22309,6 +22858,7 @@
         "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
@@ -22335,6 +22885,7 @@
         "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)",
