@@ -15,14 +15,29 @@ kInfraStep = False
 class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
 
   def install(self):
-    self.device_dirs = default_flavor.DeviceDirs(
-        dm_dir='dm',
-        perf_data_dir='perf',
-        resource_dir='resources',
-        images_dir='images',
-        skp_dir='skps',
-        svg_dir='svgs',
-        tmp_dir='tmp')
+    env = self.m.step.get_from_context('env', {})
+    env['IOS_MOUNT_POINT'] = self.m.vars.slave_dir.join('mnt_iosdevice')
+
+    with self.m.step.context({'env': env}):
+      # Set up the device
+      self.m.run(self.m.step, 'setup_device', cmd=['ios.py'])
+
+      # Install the app.
+      for app_name in ['dm', 'nanobench']:
+        app_package = self.m.vars.skia_out.join(self.m.vars.configuration,
+                                                '%s.app' % app_name)
+        self.m.run(self.m.step,
+                  'install_' + app_name,
+                  cmd=['ideviceinstaller', '-i', app_package])
+
+      self.device_dirs = default_flavor.DeviceDirs(
+          dm_dir='dm',
+          perf_data_dir='perf',
+          resource_dir='resources',
+          images_dir='images',
+          skp_dir='skps',
+          svg_dir='svgs',
+          tmp_dir='tmp')
 
   def compile(self, unused_target, **kwargs):
     """ Build Skia with GN and sign the iOS apps"""
@@ -36,11 +51,14 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
               args=[self.out_dir.join(app)])
 
   def step(self, name, cmd, env=None, **kwargs):
-    app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
+    bundle_id = 'com.google.%s' % cmd[0]
+    env = self.m.step.get_from_context('env', {})
+    env['IOS_BUNDLE_ID'] = bundle_id
 
-    self._run(name,
-              ['ios-deploy', '-b', '%s.app' % app,
-               '-I', '--args', ' '.join(map(str, cmd[1:]))])
+    with self.m.step.context({'env': env}):
+      self.m.run(self.m.step, name,
+                cmd=['idevice-app-runner', '-s', bundle_id, '--args'] +
+                     map(str, cmd[1:]))
 
   def _run_ios_script(self, script, first, *rest):
     full = self.m.vars.skia_dir.join('platform_tools/ios/bin/ios_' + script)
