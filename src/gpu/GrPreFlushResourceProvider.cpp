@@ -49,7 +49,9 @@ sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext
         return nullptr;
     }
 
-    renderTargetContext->discard();
+    if (!renderTargetContext->discard1()) {
+        return nullptr;
+    }
 
     return renderTargetContext;
 }
@@ -79,7 +81,9 @@ sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext
         return nullptr;
     }
 
-    renderTargetContext->discard();
+    if (!renderTargetContext->discard1()) {
+        return nullptr;
+    }
 
     return renderTargetContext;
 }

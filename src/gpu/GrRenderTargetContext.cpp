@@ -184,9 +184,12 @@ void GrRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& pain
                                    y, filter, clipBounds);
 }
 
-void GrRenderTargetContext::discard() {
+// MDB TODO: Until GrSurfaceProxy instantiation is pushed past the TextureSamplers we can
+// use discard as a canary for failed instantiation and abort the creation of 
+// RenderTargetContexts.
+bool GrRenderTargetContext::discard1() {
     ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
+    RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::discard");
 
@@ -197,10 +200,12 @@ void GrRenderTargetContext::discard() {
     if (this->caps()->discardRenderTargetSupport()) {
         std::unique_ptr<GrOp> op(GrDiscardOp::Make(this));
         if (!op) {
-            return;
+            return false;
         }
         this->getOpList()->addOp(std::move(op), this);
     }
+
+    return true;
 }
 
 void GrRenderTargetContext::clear(const SkIRect* rect,
@@ -297,7 +302,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
         // target before the target is read.
         SkIRect clearRect = SkIRect::MakeWH(this->width(), this->height());
         if (isFull) {
-            this->discard();
+            this->discard1();
         } else if (!clearRect.intersect(clip.scissorRect())) {
             return;
         }

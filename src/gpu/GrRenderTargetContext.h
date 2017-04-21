@@ -77,7 +77,7 @@ public:
      * Provides a perfomance hint that the render target's contents are allowed
      * to become undefined.
      */
-    void discard();
+    bool discard1();
 
     /**
      * Clear the entire or rect of the render target, ignoring any clips.

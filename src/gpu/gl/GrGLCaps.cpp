@@ -1151,9 +1151,9 @@ void GrGLCaps::initStencilFormats(const GrGLContextInfo& ctxInfo) {
     }
 }
 
-SkString GrGLCaps::dump() const {
+SkString GrGLCaps::dump1() const {
 
-    SkString r = INHERITED::dump();
+    SkString r = INHERITED::dump1();
 
     r.appendf("--- GL-Specific ---\n");
     for (int i = 0; i < fStencilFormats.count(); ++i) {
@@ -1628,6 +1628,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if (kSkia8888_GrPixelConfig == kBGRA_8888_GrPixelConfig && kGLES_GrGLStandard == standard) {
         fSRGBSupport = false;
     }
+    fSRGBSupport = false;
 
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_SRGB_ALPHA;
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_SRGB8_ALPHA8;

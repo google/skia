@@ -352,7 +352,7 @@ DRAW_OP_TEST_DEFINE(TextBlobOp) {
     }
 
     // Setup dummy SkPaint / GrPaint / GrRenderTargetContext
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
         SkBackingFit::kApprox, 1024, 1024, kRGBA_8888_GrPixelConfig, nullptr));
 
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
