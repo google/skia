@@ -77,25 +77,9 @@ static bool set_encode_config(J_COLOR_SPACE* jpegColorType, int* numComponents,
         default:
             return false;
     }
-
-
 }
 
 bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, const SkEncodeOptions& opts) {
-    if (SkTransferFunctionBehavior::kRespect == opts.fUnpremulBehavior) {
-        // Respecting the transfer function requries a color space.  It's not actually critical
-        // in the jpeg case (since jpegs are opaque), but Skia color correct behavior generally
-        // requires pixels to be tagged with color spaces.
-        if (!pixmap.colorSpace() || (!pixmap.colorSpace()->gammaCloseToSRGB() &&
-                                     !pixmap.colorSpace()->gammaIsLinear())) {
-            return false;
-        }
-    }
-
-    return SkEncodeImageAsJPEG(stream, pixmap, 100);
-}
-
-bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality) {
     if (!pixmap.addr()) {
         return false;
     }
@@ -132,7 +116,7 @@ bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality)
     // for the image.  This improves compression at the cost of
     // slower encode performance.
     cinfo.optimize_coding = TRUE;
-    jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
+    jpeg_set_quality(&cinfo, opts.fFormat.fJPEG.fQuality, TRUE /* limit to baseline-JPEG values */);
 
     jpeg_start_compress(&cinfo, TRUE);
 
