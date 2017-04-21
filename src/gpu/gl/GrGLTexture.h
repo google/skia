@@ -36,9 +36,19 @@ public:
     GrGLTexture(GrGLGpu*, SkBudgeted, const GrSurfaceDesc&, const IDDesc&,
                 bool wasMipMapDataProvided);
 
+    ~GrGLTexture() override {
+        // check that invokeReleaseProc has been called (if needed)
+        SkASSERT(!fReleaseProc);
+    }
+
     GrBackendObject getTextureHandle() const override;
 
     void textureParamsModified() override { fTexParams.invalidate(); }
+
+    void setRelease(ReleaseProc proc, ReleaseCtx ctx) override {
+        fReleaseProc = proc;
+        fReleaseCtx = ctx;
+    }
 
     // These functions are used to track the texture parameters associated with the texture.
     const TexParams& getCachedTexParams(GrGpu::ResetTimestamp* timestamp) const {
@@ -74,12 +84,22 @@ protected:
     std::unique_ptr<GrExternalTextureData> detachBackendTexture() override;
 
 private:
+    void invokeReleaseProc() {
+        if (fReleaseProc) {
+            fReleaseProc(fReleaseCtx);
+            fReleaseProc = nullptr;
+        }
+    }
+
     TexParams                       fTexParams;
     GrGpu::ResetTimestamp           fTexParamsTimestamp;
     // Holds the texture target and ID. A pointer to this may be shared to external clients for
     // direct interaction with the GL object.
     GrGLTextureInfo                 fInfo;
     GrBackendObjectOwnership        fTextureIDOwnership;
+
+    ReleaseProc                     fReleaseProc = nullptr;
+    ReleaseCtx                      fReleaseCtx = nullptr;
 
     typedef GrTexture INHERITED;
 };

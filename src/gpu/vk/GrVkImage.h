@@ -84,6 +84,12 @@ public:
     // Destroys the internal VkImage and VkDeviceMemory in the GrVkImageInfo
     static void DestroyImageInfo(const GrVkGpu* gpu, GrVkImageInfo*);
 
+    // These match the definitions in SkImage, for whence they came
+    typedef void* ReleaseCtx;
+    typedef void (*ReleaseProc)(ReleaseCtx);
+
+    void setResourceRelease(ReleaseProc proc, ReleaseCtx ctx);
+
 protected:
     void releaseImage(const GrVkGpu* gpu);
     void abandonImage();
@@ -98,23 +104,42 @@ private:
     public:
         Resource()
             : INHERITED()
+            , fReleaseProc(nullptr)
+            , fReleaseCtx(nullptr)
             , fImage(VK_NULL_HANDLE) {
             fAlloc.fMemory = VK_NULL_HANDLE;
             fAlloc.fOffset = 0;
         }
 
         Resource(VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling)
-            : fImage(image), fAlloc(alloc), fImageTiling(tiling) {}
+            : fReleaseProc(nullptr)
+            , fReleaseCtx(nullptr)
+            , fImage(image)
+            , fAlloc(alloc)
+            , fImageTiling(tiling) {}
 
-        ~Resource() override {}
+        ~Resource() override {
+            SkASSERT(!fReleaseProc);
+        }
 
 #ifdef SK_TRACE_VK_RESOURCES
         void dumpInfo() const override {
             SkDebugf("GrVkImage: %d (%d refs)\n", fImage, this->getRefCnt());
         }
 #endif
+        void setRelease(ReleaseProc proc, ReleaseCtx ctx) const {
+            fReleaseProc = proc;
+            fReleaseCtx = ctx;
+        }
+    protected:
+        mutable ReleaseProc fReleaseProc;
+        mutable ReleaseCtx  fReleaseCtx;
+
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;
+        void abandonGPUData() const override {
+            SkASSERT(!fReleaseProc);
+        }
 
         VkImage        fImage;
         GrVkAlloc      fAlloc;
@@ -130,7 +155,15 @@ private:
             : Resource(image, alloc, tiling) {
         }
     private:
+        void invokeReleaseProc() const {
+            if (fReleaseProc) {
+                fReleaseProc(fReleaseCtx);
+                fReleaseProc = nullptr;
+            }
+        }
+
         void freeGPUData(const GrVkGpu* gpu) const override;
+        void abandonGPUData() const override;
     };
 
     const Resource* fResource;

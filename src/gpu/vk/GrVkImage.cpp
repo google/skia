@@ -152,11 +152,23 @@ void GrVkImage::abandonImage() {
     }
 }
 
+void GrVkImage::setResourceRelease(ReleaseProc proc, ReleaseCtx ctx) {
+    // Forward the release proc on to GrVkImage::Resource
+    fResource->setRelease(proc, ctx);
+}
+
 void GrVkImage::Resource::freeGPUData(const GrVkGpu* gpu) const {
+    SkASSERT(!fReleaseProc);
     VK_CALL(gpu, DestroyImage(gpu->device(), fImage, nullptr));
     bool isLinear = (VK_IMAGE_TILING_LINEAR == fImageTiling);
     GrVkMemory::FreeImageMemory(gpu, isLinear, fAlloc);
 }
 
 void GrVkImage::BorrowedResource::freeGPUData(const GrVkGpu* gpu) const {
+    this->invokeReleaseProc();
 }
+
+void GrVkImage::BorrowedResource::abandonGPUData() const {
+    this->invokeReleaseProc();
+}
+
