@@ -494,12 +494,16 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
                     break;
-                case Token::PLUS: // fall through
-                case Token::MINUS:
+                case Token::PLUS:
                     if (is_constant(*bin->fLeft, 0)) {
                         delete_left(&b, iter, outUpdated, outNeedsRescan);
                     }
-                    else if (is_constant(*bin->fRight, 0)) {
+                    if (is_constant(*bin->fRight, 0)) {
+                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                    }
+                    break;
+                case Token::MINUS:
+                    if (is_constant(*bin->fRight, 0)) {
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
                     break;
