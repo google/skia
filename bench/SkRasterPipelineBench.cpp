@@ -90,3 +90,24 @@ public:
     }
 };
 DEF_BENCH( return (new SkRasterPipelineLegacyBench); )
+
+class SkRasterPipeline_2dot2 : public Benchmark {
+public:
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    const char* onGetName() override {
+        return "SkRasterPipeline_2dot2";
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        SkColor4f c = { 1.0f, 1.0f, 1.0f, 1.0f };
+        SkRasterPipeline p;
+        p.append(SkRasterPipeline::constant_color, &c);
+        p.append(SkRasterPipeline::from_2dot2);
+        p.append(SkRasterPipeline::to_2dot2);
+
+        while (loops --> 0) {
+            p.run(0,N);
+        }
+    }
+};
+DEF_BENCH( return (new SkRasterPipeline_2dot2); )
