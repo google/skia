@@ -22,15 +22,11 @@
 #include "SkUtils.h"
 
 #include "png.h"
+#include <algorithm>
 
 // This warning triggers false postives way too often in here.
 #if defined(__GNUC__) && !defined(__clang__)
     #pragma GCC diagnostic ignored "-Wclobbered"
-#endif
-
-#if PNG_LIBPNG_VER_MAJOR > 1 || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 5)
-    // This is not needed with version 1.5
-    #undef SK_GOOGLE3_PNG_HACK
 #endif
 
 // FIXME (scroggo): We can use png_jumpbuf directly once Google3 is on 1.6
@@ -80,8 +76,6 @@ public:
             SkCodec** codecPtr)
         : fPng_ptr(png_ptr)
         , fInfo_ptr(nullptr)
-        , fDecodedBounds(false)
-        , fReadHeader(false)
         , fStream(stream)
         , fChunkReader(reader)
         , fOutCodec(codecPtr)
@@ -117,28 +111,12 @@ public:
 private:
     png_structp         fPng_ptr;
     png_infop           fInfo_ptr;
-    bool                fDecodedBounds;
-    bool                fReadHeader;
     SkStream*           fStream;
     SkPngChunkReader*   fChunkReader;
     SkCodec**           fOutCodec;
 
-    /**
-     *  Supplied to libpng to call when it has read enough data to determine
-     *  bounds.
-     */
-    static void InfoCallback(png_structp png_ptr, png_infop) {
-        // png_get_progressive_ptr returns the pointer we set on the png_ptr with
-        // png_set_progressive_read_fn
-        static_cast<AutoCleanPng*>(png_get_progressive_ptr(png_ptr))->infoCallback();
-    }
+    void infoCallback(size_t idatLength);
 
-    void infoCallback();
-
-#ifdef SK_GOOGLE3_PNG_HACK
-// public so it can be called by SkPngCodec::rereadHeaderIfNecessary().
-public:
-#endif
     void releasePngPtrs() {
         fPng_ptr = nullptr;
         fInfo_ptr = nullptr;
@@ -146,12 +124,29 @@ public:
 };
 #define AutoCleanPng(...) SK_REQUIRE_LOCAL_VAR(AutoCleanPng)
 
+static inline bool is_chunk(const png_byte* chunk, const char* tag) {
+    return memcmp(chunk + 4, tag, 4) == 0;
+}
+
+static inline bool process_data(png_structp png_ptr, png_infop info_ptr,
+        SkStream* stream, void* buffer, size_t bufferSize, size_t length) {
+    while (length > 0) {
+        const size_t bytesToProcess = std::min(bufferSize, length);
+        if (stream->read(buffer, bytesToProcess) < bytesToProcess) {
+            return false;
+        }
+        png_process_data(png_ptr, info_ptr, (png_bytep) buffer, bytesToProcess);
+        length -= bytesToProcess;
+    }
+    return true;
+}
+
 bool AutoCleanPng::decodeBounds() {
     if (setjmp(PNG_JMPBUF(fPng_ptr))) {
         return false;
     }
 
-    png_set_progressive_read_fn(fPng_ptr, this, InfoCallback, nullptr, nullptr);
+    png_set_progressive_read_fn(fPng_ptr, nullptr, nullptr, nullptr, nullptr);
 
     // Arbitrary buffer size, though note that it matches (below)
     // SkPngCodec::processData(). FIXME: Can we better suit this to the size of
@@ -159,22 +154,38 @@ bool AutoCleanPng::decodeBounds() {
     constexpr size_t kBufferSize = 4096;
     char buffer[kBufferSize];
 
+    {
+        // Parse the signature.
+        if (fStream->read(buffer, 8) < 8) {
+            return false;
+        }
+
+        png_process_data(fPng_ptr, fInfo_ptr, (png_bytep) buffer, 8);
+    }
+
     while (true) {
-        const size_t bytesRead = fStream->read(buffer, kBufferSize);
-        if (!bytesRead) {
+        // Parse chunk length and type.
+        if (fStream->read(buffer, 8) < 8) {
             // We have read to the end of the input without decoding bounds.
             break;
         }
 
-        png_process_data(fPng_ptr, fInfo_ptr, (png_bytep) buffer, bytesRead);
-        if (fReadHeader) {
-            break;
+        png_byte* chunk = reinterpret_cast<png_byte*>(buffer);
+        const size_t length = png_get_uint_32(chunk);
+
+        if (is_chunk(chunk, "IDAT")) {
+            this->infoCallback(length);
+            return true;
+        }
+
+        png_process_data(fPng_ptr, fInfo_ptr, chunk, 8);
+        // Process the full chunk + CRC.
+        if (!process_data(fPng_ptr, fInfo_ptr, fStream, buffer, kBufferSize, length + 4)) {
+            return false;
         }
     }
 
-    // For safety, clear the pointer to this object.
-    png_set_progressive_read_fn(fPng_ptr, nullptr, nullptr, nullptr, nullptr);
-    return fDecodedBounds;
+    return false;
 }
 
 void SkPngCodec::processData() {
@@ -198,16 +209,33 @@ void SkPngCodec::processData() {
     constexpr size_t kBufferSize = 4096;
     char buffer[kBufferSize];
 
+    bool iend = false;
     while (true) {
-        const size_t bytesRead = this->stream()->read(buffer, kBufferSize);
-        png_process_data(fPng_ptr, fInfo_ptr, (png_bytep) buffer, bytesRead);
+        size_t length;
+        if (fDecodedIdat) {
+            // Parse chunk length and type.
+            if (this->stream()->read(buffer, 8) < 8) {
+                break;
+            }
 
-        if (!bytesRead) {
-            // We have read to the end of the input. Note that we quit *after*
-            // calling png_process_data, because decodeBounds may have told
-            // libpng to save the remainder of the buffer, in which case
-            // png_process_data will process the saved buffer, though the
-            // stream has no more to read.
+            png_byte* chunk = reinterpret_cast<png_byte*>(buffer);
+            png_process_data(fPng_ptr, fInfo_ptr, chunk, 8);
+            if (is_chunk(chunk, "IEND")) {
+                iend = true;
+            }
+
+            length = png_get_uint_32(chunk);
+        } else {
+            length = fIdatLength;
+            png_byte idat[] = {0, 0, 0, 0, 'I', 'D', 'A', 'T'};
+            png_save_uint_32(idat, length);
+            png_process_data(fPng_ptr, fInfo_ptr, idat, 8);
+            fDecodedIdat = true;
+        }
+
+        // Process the full chunk + CRC.
+        if (!process_data(fPng_ptr, fInfo_ptr, this->stream(), buffer, kBufferSize, length + 4)
+                || iend) {
             break;
         }
     }
@@ -485,12 +513,6 @@ public:
         GetDecoder(png_ptr)->rowCallback(row, rowNum);
     }
 
-#ifdef SK_GOOGLE3_PNG_HACK
-    static void RereadInfoCallback(png_structp png_ptr, png_infop) {
-        GetDecoder(png_ptr)->rereadInfoCallback();
-    }
-#endif
-
 private:
     int                         fRowsWrittenToOutput;
     void*                       fDst;
@@ -509,11 +531,7 @@ private:
 
     Result decodeAllRows(void* dst, size_t rowBytes, int* rowsDecoded) override {
         const int height = this->getInfo().height();
-        png_progressive_info_ptr callback = nullptr;
-#ifdef SK_GOOGLE3_PNG_HACK
-        callback = RereadInfoCallback;
-#endif
-        png_set_progressive_read_fn(this->png_ptr(), this, callback, AllRowsCallback, nullptr);
+        png_set_progressive_read_fn(this->png_ptr(), this, nullptr, AllRowsCallback, nullptr);
         fDst = dst;
         fRowBytes = rowBytes;
 
@@ -542,11 +560,7 @@ private:
     }
 
     void setRange(int firstRow, int lastRow, void* dst, size_t rowBytes) override {
-        png_progressive_info_ptr callback = nullptr;
-#ifdef SK_GOOGLE3_PNG_HACK
-        callback = RereadInfoCallback;
-#endif
-        png_set_progressive_read_fn(this->png_ptr(), this, callback, RowCallback, nullptr);
+        png_set_progressive_read_fn(this->png_ptr(), this, nullptr, RowCallback, nullptr);
         fFirstRow = firstRow;
         fLastRow = lastRow;
         fDst = dst;
@@ -615,12 +629,6 @@ public:
         decoder->interlacedRowCallback(row, rowNum, pass);
     }
 
-#ifdef SK_GOOGLE3_PNG_HACK
-    static void RereadInfoInterlacedCallback(png_structp png_ptr, png_infop) {
-        static_cast<SkPngInterlacedDecoder*>(png_get_progressive_ptr(png_ptr))->rereadInfoInterlaced();
-    }
-#endif
-
 private:
     const int               fNumberPasses;
     int                     fFirstRow;
@@ -633,14 +641,6 @@ private:
     SkAutoTMalloc<png_byte> fInterlaceBuffer;
 
     typedef SkPngCodec INHERITED;
-
-#ifdef SK_GOOGLE3_PNG_HACK
-    void rereadInfoInterlaced() {
-        this->rereadInfoCallback();
-        // Note: This allocates more memory than necessary, if we are sampling/subset.
-        this->setUpInterlaceBuffer(this->getInfo().height());
-    }
-#endif
 
     // FIXME: Currently sharing interlaced callback for all rows and subset. It's not
     // as expensive as the subset version of non-interlaced, but it still does extra
@@ -675,11 +675,7 @@ private:
     SkCodec::Result decodeAllRows(void* dst, size_t rowBytes, int* rowsDecoded) override {
         const int height = this->getInfo().height();
         this->setUpInterlaceBuffer(height);
-        png_progressive_info_ptr callback = nullptr;
-#ifdef SK_GOOGLE3_PNG_HACK
-        callback = RereadInfoInterlacedCallback;
-#endif
-        png_set_progressive_read_fn(this->png_ptr(), this, callback, InterlacedRowCallback,
+        png_set_progressive_read_fn(this->png_ptr(), this, nullptr, InterlacedRowCallback,
                                     nullptr);
 
         fFirstRow = 0;
@@ -709,11 +705,7 @@ private:
     void setRange(int firstRow, int lastRow, void* dst, size_t rowBytes) override {
         // FIXME: We could skip rows in the interlace buffer that we won't put in the output.
         this->setUpInterlaceBuffer(lastRow - firstRow + 1);
-        png_progressive_info_ptr callback = nullptr;
-#ifdef SK_GOOGLE3_PNG_HACK
-        callback = RereadInfoInterlacedCallback;
-#endif
-        png_set_progressive_read_fn(this->png_ptr(), this, callback, InterlacedRowCallback, nullptr);
+        png_set_progressive_read_fn(this->png_ptr(), this, nullptr, InterlacedRowCallback, nullptr);
         fFirstRow = firstRow;
         fLastRow = lastRow;
         fDst = dst;
@@ -766,54 +758,6 @@ private:
         fInterlacedComplete = false;
     }
 };
-
-#ifdef SK_GOOGLE3_PNG_HACK
-bool SkPngCodec::rereadHeaderIfNecessary() {
-    if (!fNeedsToRereadHeader) {
-        return true;
-    }
-
-    // On the first call, we'll need to rewind ourselves. Future calls will
-    // have already rewound in rewindIfNecessary.
-    if (this->stream()->getPosition() > 0) {
-        this->stream()->rewind();
-    }
-
-    this->destroyReadStruct();
-    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
-                                                 sk_error_fn, sk_warning_fn);
-    if (!png_ptr) {
-        return false;
-    }
-
-    // Only use the AutoCleanPng to delete png_ptr as necessary.
-    // (i.e. not for reading bounds etc.)
-    AutoCleanPng autoClean(png_ptr, nullptr, nullptr, nullptr);
-
-    png_infop info_ptr = png_create_info_struct(png_ptr);
-    if (info_ptr == nullptr) {
-        return false;
-    }
-
-    autoClean.setInfoPtr(info_ptr);
-
-#ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
-    // Hookup our chunkReader so we can see any user-chunks the caller may be interested in.
-    // This needs to be installed before we read the png header.  Android may store ninepatch
-    // chunks in the header.
-    if (fPngChunkReader.get()) {
-        png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_ALWAYS, (png_byte*)"", 0);
-        png_set_read_user_chunk_fn(png_ptr, (png_voidp) fPngChunkReader.get(), sk_read_user_chunk);
-    }
-#endif
-
-    fPng_ptr = png_ptr;
-    fInfo_ptr = info_ptr;
-    autoClean.releasePngPtrs();
-    fNeedsToRereadHeader = false;
-    return true;
-}
-#endif // SK_GOOGLE3_PNG_HACK
 
 // Reads the header and initializes the output fields, if not NULL.
 //
@@ -886,21 +830,17 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec
     return true;
 }
 
-// FIXME (scroggo): Once SK_GOOGLE3_PNG_HACK is no more, this method can be inline in
-// AutoCleanPng::infoCallback
-static void general_info_callback(png_structp png_ptr, png_infop info_ptr,
-                                  SkEncodedInfo::Color* outColor, SkEncodedInfo::Alpha* outAlpha,
-                                  int* outBitDepth) {
+void AutoCleanPng::infoCallback(size_t idatLength) {
     png_uint_32 origWidth, origHeight;
     int bitDepth, encodedColorType;
-    png_get_IHDR(png_ptr, info_ptr, &origWidth, &origHeight, &bitDepth,
+    png_get_IHDR(fPng_ptr, fInfo_ptr, &origWidth, &origHeight, &bitDepth,
                  &encodedColorType, nullptr, nullptr, nullptr);
 
     // TODO: Should we support 16-bits of precision for gray images?
     if (bitDepth == 16 && (PNG_COLOR_TYPE_GRAY == encodedColorType ||
                            PNG_COLOR_TYPE_GRAY_ALPHA == encodedColorType)) {
         bitDepth = 8;
-        png_set_strip_16(png_ptr);
+        png_set_strip_16(fPng_ptr);
     }
 
     // Now determine the default colorType and alphaType and set the required transforms.
@@ -915,18 +855,18 @@ static void general_info_callback(png_structp png_ptr, png_infop info_ptr,
             if (bitDepth < 8) {
                 // TODO: Should we use SkSwizzler here?
                 bitDepth = 8;
-                png_set_packing(png_ptr);
+                png_set_packing(fPng_ptr);
             }
 
             color = SkEncodedInfo::kPalette_Color;
             // Set the alpha depending on if a transparency chunk exists.
-            alpha = png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) ?
+            alpha = png_get_valid(fPng_ptr, fInfo_ptr, PNG_INFO_tRNS) ?
                     SkEncodedInfo::kUnpremul_Alpha : SkEncodedInfo::kOpaque_Alpha;
             break;
         case PNG_COLOR_TYPE_RGB:
-            if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
+            if (png_get_valid(fPng_ptr, fInfo_ptr, PNG_INFO_tRNS)) {
                 // Convert to RGBA if transparency chunk exists.
-                png_set_tRNS_to_alpha(png_ptr);
+                png_set_tRNS_to_alpha(fPng_ptr);
                 color = SkEncodedInfo::kRGBA_Color;
                 alpha = SkEncodedInfo::kBinary_Alpha;
             } else {
@@ -939,11 +879,11 @@ static void general_info_callback(png_structp png_ptr, png_infop info_ptr,
             if (bitDepth < 8) {
                 // TODO: Should we use SkSwizzler here?
                 bitDepth = 8;
-                png_set_expand_gray_1_2_4_to_8(png_ptr);
+                png_set_expand_gray_1_2_4_to_8(fPng_ptr);
             }
 
-            if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
-                png_set_tRNS_to_alpha(png_ptr);
+            if (png_get_valid(fPng_ptr, fInfo_ptr, PNG_INFO_tRNS)) {
+                png_set_tRNS_to_alpha(fPng_ptr);
                 color = SkEncodedInfo::kGrayAlpha_Color;
                 alpha = SkEncodedInfo::kBinary_Alpha;
             } else {
@@ -965,43 +905,9 @@ static void general_info_callback(png_structp png_ptr, png_infop info_ptr,
             color = SkEncodedInfo::kRGBA_Color;
             alpha = SkEncodedInfo::kUnpremul_Alpha;
     }
-    if (outColor) {
-        *outColor = color;
-    }
-    if (outAlpha) {
-        *outAlpha = alpha;
-    }
-    if (outBitDepth) {
-        *outBitDepth = bitDepth;
-    }
-}
-
-#ifdef SK_GOOGLE3_PNG_HACK
-void SkPngCodec::rereadInfoCallback() {
-    general_info_callback(fPng_ptr, fInfo_ptr, nullptr, nullptr, nullptr);
-    png_set_interlace_handling(fPng_ptr);
-    png_read_update_info(fPng_ptr, fInfo_ptr);
-}
-#endif
-
-void AutoCleanPng::infoCallback() {
-    SkEncodedInfo::Color color;
-    SkEncodedInfo::Alpha alpha;
-    int bitDepth;
-    general_info_callback(fPng_ptr, fInfo_ptr, &color, &alpha, &bitDepth);
 
     const int numberPasses = png_set_interlace_handling(fPng_ptr);
 
-    fReadHeader = true;
-    fDecodedBounds = true;
-#ifndef SK_GOOGLE3_PNG_HACK
-    // 1 tells libpng to save any extra data. We may be able to be more efficient by saving
-    // it ourselves.
-    png_process_data_pause(fPng_ptr, 1);
-#else
-    // Hack to make png_process_data stop.
-    fPng_ptr->buffer_size = 0;
-#endif
     if (fOutCodec) {
         SkASSERT(nullptr == *fOutCodec);
         SkColorSpace_Base::ICCTypeFlag iccType = SkColorSpace_Base::kRGB_ICCTypeFlag;
@@ -1016,11 +922,6 @@ void AutoCleanPng::infoCallback() {
         }
 
         SkEncodedInfo encodedInfo = SkEncodedInfo::Make(color, alpha, bitDepth);
-        // FIXME (scroggo): Once we get rid of SK_GOOGLE3_PNG_HACK, general_info_callback can
-        // be inlined, so these values will already be set.
-        png_uint_32 origWidth = png_get_image_width(fPng_ptr, fInfo_ptr);
-        png_uint_32 origHeight = png_get_image_height(fPng_ptr, fInfo_ptr);
-        png_byte bitDepth = png_get_bit_depth(fPng_ptr, fInfo_ptr);
         SkImageInfo imageInfo = encodedInfo.makeImageInfo(origWidth, origHeight, colorSpace);
 
         if (SkEncodedInfo::kOpaque_Alpha == alpha) {
@@ -1041,8 +942,8 @@ void AutoCleanPng::infoCallback() {
                     fChunkReader, fPng_ptr, fInfo_ptr, bitDepth, numberPasses);
         }
         (*fOutCodec)->setUnsupportedICC(unsupportedICC);
+        static_cast<SkPngCodec*>(*fOutCodec)->setIdatLength(idatLength);
     }
-
 
     // Release the pointers, which are now owned by the codec or the caller is expected to
     // take ownership.
@@ -1058,9 +959,8 @@ SkPngCodec::SkPngCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imag
     , fInfo_ptr(info_ptr)
     , fColorXformSrcRow(nullptr)
     , fBitDepth(bitDepth)
-#ifdef SK_GOOGLE3_PNG_HACK
-    , fNeedsToRereadHeader(true)
-#endif
+    , fIdatLength(0)
+    , fDecodedIdat(false)
 {}
 
 SkPngCodec::~SkPngCodec() {
@@ -1187,10 +1087,6 @@ SkSampler* SkPngCodec::getSampler(bool createIfNecessary) {
 }
 
 bool SkPngCodec::onRewind() {
-#ifdef SK_GOOGLE3_PNG_HACK
-    fNeedsToRereadHeader = true;
-    return true;
-#else
     // This sets fPng_ptr and fInfo_ptr to nullptr. If read_header
     // succeeds, they will be repopulated, and if it fails, they will
     // remain nullptr. Any future accesses to fPng_ptr and fInfo_ptr will
@@ -1206,8 +1102,8 @@ bool SkPngCodec::onRewind() {
 
     fPng_ptr = png_ptr;
     fInfo_ptr = info_ptr;
+    fDecodedIdat = false;
     return true;
-#endif
 }
 
 SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
@@ -1219,13 +1115,6 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
     {
         return kInvalidConversion;
     }
-#ifdef SK_GOOGLE3_PNG_HACK
-    // Note that this is done after initializeXforms. Otherwise that method
-    // would not have png_ptr to use.
-    if (!this->rereadHeaderIfNecessary()) {
-        return kCouldNotRewind;
-    }
-#endif
 
     if (options.fSubset) {
         return kUnimplemented;
@@ -1244,12 +1133,6 @@ SkCodec::Result SkPngCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
     {
         return kInvalidConversion;
     }
-#ifdef SK_GOOGLE3_PNG_HACK
-    // See note in onGetPixels.
-    if (!this->rereadHeaderIfNecessary()) {
-        return kCouldNotRewind;
-    }
-#endif
 
     this->allocateStorage(dstInfo);
 
