@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "010aa14a_9effcea6",
+        "filename": "infra/bots/recipe_modules/core/example.expected/cross_repo_trybot.json",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-21T15:30:49Z",
+      "side": 1,
+      "message": "Is this correct?",
+      "range": {
+        "startLine": 105,
+        "startChar": 7,
+        "endLine": 105,
+        "endChar": 25
+      },
+      "revId": "bbf464482b07da03787834034ca4d4f6e5ea1c89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
