@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03a82990_d31c3697",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-21T15:39:36Z",
+      "side": 1,
+      "message": "Do this in the ctor?",
+      "revId": "9eb21c6066d1b6b5048592b49d9b8ef4af3f8c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdfe3d35_7d79e80a",
+        "filename": "src/gpu/gl/GrGLTexture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-21T15:39:36Z",
+      "side": 1,
+      "message": "!fReleaseProxy ?",
+      "revId": "9eb21c6066d1b6b5048592b49d9b8ef4af3f8c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea2c3df1_f157ec54",
+        "filename": "src/gpu/vk/GrVkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-21T15:39:36Z",
+      "side": 1,
+      "message": "Can we not pull these from GrTexture?\nIf not, add a comment like: \"// These match the definition in GrTexture, from whence they came\" ?",
+      "revId": "9eb21c6066d1b6b5048592b49d9b8ef4af3f8c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6848a3d5_949767ab",
+        "filename": "src/gpu/vk/GrVkTexture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-21T15:39:36Z",
+      "side": 1,
+      "message": "// Forward the release proc on to ...\n\n?",
+      "revId": "9eb21c6066d1b6b5048592b49d9b8ef4af3f8c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
