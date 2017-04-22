@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be741546_464b06e1",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-04-22T20:02:25Z",
+      "side": 1,
+      "message": "Please note that the last time I changed the API, reed@ insisted that I keep it simple and move utility functions out of include/ into tools/.\n\nhttps://skia-review.googlesource.com/4909\n\nHe said:  \"Do we really need all those \"helpers\" in our public API?\"\n\nhttps://skia-review.googlesource.com/c/4909/#message-8db25316e52b7817192cd2281648113b7d20280d",
+      "revId": "8e48a5c40d16aa17bb942cd8ad376914d8575ef9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
