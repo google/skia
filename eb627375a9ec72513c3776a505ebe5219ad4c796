@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "a1beaa04_c3854f8d",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-24T15:14:07Z",
+      "side": 1,
+      "message": "yep",
+      "parentUuid": "80fd720c_d93801ba",
+      "range": {
+        "startLine": 75,
+        "startChar": 21,
+        "endLine": 75,
+        "endChar": 36
+      },
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7ffec8bf_3a494a57",
         "filename": "include/gpu/GrBackendSurface.h",
         "patchSetId": 2
@@ -107,6 +131,30 @@
       "side": 1,
       "message": "This is used in the ctor that takes in the Desc objects so we don\u0027t have to do a bunch of casting based on backend. If we don\u0027t mind the extra code I could do it without?",
       "parentUuid": "7ffec8bf_3a494a57",
+      "range": {
+        "startLine": 118,
+        "startChar": 25,
+        "endLine": 118,
+        "endChar": 32
+      },
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c527d8ad_e03999a8",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-24T15:14:07Z",
+      "side": 1,
+      "message": "I guess if you take my suggestion to copy the backend-specific structs then the casting is unavoidable.",
+      "parentUuid": "8d138396_df9712fa",
       "range": {
         "startLine": 118,
         "startChar": 25,
@@ -183,6 +231,24 @@
       "side": 1,
       "message": "I don\u0027t think so since we still use default in many places.",
       "parentUuid": "96e299ce_5cff0b75",
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dccad7d_09e9a3e7",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-24T15:14:07Z",
+      "side": 1,
+      "message": "Is that in our test code or in client code?",
+      "parentUuid": "7c9e6036_9063ce94",
       "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
