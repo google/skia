@@ -344,6 +344,8 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrYUVEffect.cpp",
   "$_src/gpu/effects/GrYUVEffect.h",
 
+  "$_src/gpu/instanced/InstancedOp.cpp",
+  "$_src/gpu/instanced/InstancedOp.h",
   "$_src/gpu/instanced/InstancedRendering.cpp",
   "$_src/gpu/instanced/InstancedRendering.h",
   "$_src/gpu/instanced/InstancedRenderingTypes.h",

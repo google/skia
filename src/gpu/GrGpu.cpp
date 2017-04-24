@@ -255,6 +255,11 @@ GrBuffer* GrGpu::createBuffer(size_t size, GrBufferType intendedType,
     return buffer;
 }
 
+std::unique_ptr<gr_instanced::OpAllocator> GrGpu::createInstancedRenderingAllocator() {
+    SkASSERT(GrCaps::InstancedSupport::kNone != this->caps()->instancedSupport());
+    return this->onCreateInstancedRenderingAllocator();
+}
+
 gr_instanced::InstancedRendering* GrGpu::createInstancedRendering() {
     SkASSERT(GrCaps::InstancedSupport::kNone != this->caps()->instancedSupport());
     return this->onCreateInstancedRendering();

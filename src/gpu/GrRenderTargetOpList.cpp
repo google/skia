@@ -370,7 +370,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
     }
     fRecordedOps.emplace_back(std::move(op), renderTarget, clip, dstTexture);
-    fRecordedOps.back().fOp->wasRecorded();
+    fRecordedOps.back().fOp->wasRecorded(this);
     fLastFullClearOp = nullptr;
     fLastFullClearResourceID.makeInvalid();
     fLastFullClearProxyID.makeInvalid();

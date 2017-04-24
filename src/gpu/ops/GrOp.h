@@ -21,6 +21,7 @@
 class GrCaps;
 class GrGpuCommandBuffer;
 class GrOpFlushState;
+class GrRenderTargetOpList;
 
 /**
  * GrOp is the base class for all Ganesh deferred GPU operations. To facilitate reordering and to
@@ -132,7 +133,7 @@ public:
      * combined into another op or have another op combined into it via combineIfPossible() after
      * this call is made.
      */
-    virtual void wasRecorded() {}
+    virtual void wasRecorded(GrRenderTargetOpList*) {}
 
     /**
      * Called prior to executing. The op should perform any resource creation or data transfers
