@@ -64,9 +64,11 @@ static bool is_hinted(DWriteFontTypeface* typeface) {
 /** A GaspRange is inclusive, [min, max]. */
 struct GaspRange {
     using Behavior = SkOTTableGridAndScanProcedure::GaspRange::behavior;
-    GaspRange(int min, int max, Behavior flags) : fMin(min), fMax(max), fFlags(flags) { }
+    GaspRange(int min, int max, int version, Behavior flags)
+        : fMin(min), fMax(max), fVersion(version), fFlags(flags) { }
     int fMin;
     int fMax;
+    int fVersion;
     Behavior fFlags;
 };
 
@@ -100,6 +102,7 @@ bool get_gasp_range(DWriteFontTypeface* typeface, int size, GaspRange* range) {
         if (minPPEM < size && size <= maxPPEM) {
             range->fMin = minPPEM + 1;
             range->fMax = maxPPEM;
+            range->fVersion = SkEndian_SwapBE16(gasp->version);
             range->fFlags = rangeTable->flags;
             return true;
         }
@@ -254,10 +257,10 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         // When embedded bitmaps are requested, treat the entire range like
         // a bitmap strike if the range is gridfit only and contains a bitmap.
         int bitmapPPEM = SkScalarTruncToInt(gdiTextSize);
-        GaspRange range(bitmapPPEM, bitmapPPEM, GaspRange::Behavior());
+        GaspRange range(bitmapPPEM, bitmapPPEM, 0, GaspRange::Behavior());
         if (get_gasp_range(typeface, bitmapPPEM, &range)) {
             if (!is_gridfit_only(range.fFlags)) {
-                range = GaspRange(bitmapPPEM, bitmapPPEM, GaspRange::Behavior());
+                range = GaspRange(bitmapPPEM, bitmapPPEM, 0, GaspRange::Behavior());
             }
         }
         treatLikeBitmap = has_bitmap_strike(typeface, range);
@@ -265,7 +268,7 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         axisAlignedBitmap = is_axis_aligned(fRec);
     }
 
-    GaspRange range(0, 0xFFFF, GaspRange::Behavior());
+    GaspRange range(0, 0xFFFF, 0, GaspRange::Behavior());
 
     // If the user requested aliased, do so with aliased compatible metrics.
     if (SkMask::kBW_Format == fRec.fMaskFormat) {
@@ -293,8 +296,14 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         fTextSizeMeasure = gdiTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_GDI_CLASSIC;
 
-    // If the font has a gasp table, use it to determine symmetric rendering.
-    } else if (get_gasp_range(typeface, SkScalarRoundToInt(gdiTextSize), &range)) {
+    // If the font has a gasp table version 1, use it to determine symmetric rendering.
+    } else if (get_gasp_range(typeface, SkScalarRoundToInt(gdiTextSize), &range) &&
+#ifdef SK_IGNORE_GASP_VERSION_CHECK
+               true)
+#else
+               range.fVersion >= 1)
+#endif
+    {
         fTextSizeRender = realTextSize;
         fRenderingMode = range.fFlags.field.SymmetricSmoothing
                        ? DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC
@@ -311,10 +320,9 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
 
-    // Fonts that have hints, no gasp table, and below 20px get non-symmetric rendering.
-    // Often such fonts have low quality hints which were never tested
-    // with anything but GDI ClearType classic. Such fonts often rely on
-    // drop out control in the y direction in order to be legible.
+    // Fonts with hints, no gasp or gasp version 0, and below 20px get non-symmetric rendering.
+    // Often such fonts have hints which were only tested with GDI ClearType classic.
+    // Some of these fonts rely on drop out control in the y direction in order to be legible.
     // Tenor Sans
     //    https://fonts.google.com/specimen/Tenor+Sans
     // Gill Sans W04
