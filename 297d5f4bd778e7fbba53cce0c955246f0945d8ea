@@ -22,6 +22,30 @@
       "revId": "297d5f4bd778e7fbba53cce0c955246f0945d8ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b874cce7_ccc0086d",
+        "filename": "src/core/SkImageCacherator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-24T20:46:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9146daf8_5d93239a",
+      "range": {
+        "startLine": 52,
+        "startChar": 9,
+        "endLine": 52,
+        "endChar": 21
+      },
+      "revId": "297d5f4bd778e7fbba53cce0c955246f0945d8ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
