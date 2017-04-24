@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "934a884b_1eacf316",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-24T18:01:05Z",
+      "side": 1,
+      "message": "Maybe I should back out this part of the change, since as I point out below, subset/sampled decoding wouldn\u0027t work in the Android bug since we got rid of png_read_end for scanline decoding in N.\n\nThe downside is we\u0027ll now do extra work, telling libpng to process the rest of the input even though we\u0027ll ignore its output. But this simplifies the code and stays consistent with the interlaced decoder.",
+      "range": {
+        "startLine": 575,
+        "startChar": 34,
+        "endLine": 575,
+        "endChar": 54
+      },
+      "revId": "efff492e1eca9c8ccf60c65a3036968b5f1e6a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95cd22ec_8bde1b4e",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-24T18:01:05Z",
+      "side": 1,
+      "message": "The original motivation for this change was to allow picking up the stream from where we left off after an interlaced PNG, but it also makes it work for subset/sampled decoding, which was broken in N with https://bugs.chromium.org/p/skia/issues/detail?id\u003d4041. I think it would be messy to deliberately break those while still supporting interlaced.",
+      "range": {
+        "startLine": 628,
+        "startChar": 55,
+        "endLine": 628,
+        "endChar": 74
+      },
+      "revId": "efff492e1eca9c8ccf60c65a3036968b5f1e6a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e384feb_13902c2c",
+        "filename": "tests/CodecExactReadTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-24T18:01:05Z",
+      "side": 1,
+      "message": "This particular image works. I think we broke RLE bitmaps with https://skia-review.googlesource.com/c/7028/. They\u0027ll now fail for the same reason as WEBP, JPEG, RAW [1], and PNG prior to my fixes. (That said, that was a security bug, so it was backported to earlier versions of Android. So devices from K on will already not work for RLE bitmaps.)\n\nMy reading of the wikipedia page (https://en.wikipedia.org/wiki/BMP_file_format) suggests that the only thing that can come after the pixel data is an ICC profile. It looks like we currently do not read any ICC profile for BMPs, and we just stop reading when we reach the last row, so if there was an ICC profile, this test would fail. But this would not be a regression from N.\n\n(On a related note: GIF currently fails, due to the fact that I only bother to parse the first image, since Android will only ever show the first image. It already failed in N similarly to BMP with ICC - we simply stopped reading once we saw the last line of the image. So no backwards compatibility problem.)\n\n[1] If a RAW image has an embedded JPEG, we\u0027ll fail for a different reason - we only read to the end of the JPEG. Again, this is not a regression.",
+      "range": {
+        "startLine": 53,
+        "startChar": 31,
+        "endLine": 53,
+        "endChar": 45
+      },
+      "revId": "efff492e1eca9c8ccf60c65a3036968b5f1e6a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
