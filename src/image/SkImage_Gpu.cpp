@@ -11,6 +11,7 @@
 
 #include "SkAutoPixmapStorage.h"
 #include "GrBackendSurface.h"
+#include "GrBackendTextureImageGenerator.h"
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -309,6 +310,15 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                         TextureReleaseProc releaseP, ReleaseContext releaseC) {
     return new_wrapped_texture_common(ctx, tex, origin, at, std::move(cs), kBorrow_GrWrapOwnership,
                                       releaseP, releaseC);
+}
+
+sk_sp<SkImage> SkImage::MakeLazyFromTexture(const GrBackendTexture& tex, GrSurfaceOrigin origin,
+                                            SkAlphaType at, sk_sp<SkColorSpace> cs,
+                                            TextureReleaseProc releaseP, ReleaseContext releaseC) {
+    std::unique_ptr<SkImageGenerator> gen = GrBackendTextureImageGenerator::Make(
+            tex, origin, at, std::move(cs), releaseP, releaseC);
+    return SkImage::MakeFromGenerator(std::move(gen));
+
 }
 
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,

@@ -159,6 +159,17 @@ public:
                                           SkAlphaType, sk_sp<SkColorSpace>,
                                           TextureReleaseProc, ReleaseContext);
 
+    /**
+     *  Create a new image from the GrBackendTexture. The underlying platform texture must stay
+     *  valid and unaltered until the specified release-proc is invoked, indicating that Skia
+     *  no longer holds a reference to it.
+     *
+     *  Unlike the other MakeFromTexture factories, no GrContext is required. The backend texture
+     *  will not be imported or wrapped until the image is used (eg drawn).
+     */
+    static sk_sp<SkImage> MakeLazyFromTexture(const GrBackendTexture&, GrSurfaceOrigin origin,
+                                              SkAlphaType, sk_sp<SkColorSpace>,
+                                              TextureReleaseProc, ReleaseContext);
 
     /**
      *  Create a new image from the specified descriptor. Note - Skia will delete or recycle the
