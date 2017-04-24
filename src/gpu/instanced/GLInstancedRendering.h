@@ -10,7 +10,6 @@
 
 #include "GrCaps.h"
 #include "gl/GrGLBuffer.h"
-#include "instanced/InstancedOp.h"
 #include "instanced/InstancedRendering.h"
 
 class GrGLCaps;
@@ -19,16 +18,6 @@ class GrGLGpu;
 #define GR_GL_LOG_INSTANCED_OPS 0
 
 namespace gr_instanced {
-
-class GLOpAllocator final : public OpAllocator {
-public:
-    GLOpAllocator(const GrCaps* caps) : INHERITED(caps) {}
-
-private:
-    std::unique_ptr<InstancedOp> makeOp(GrPaint&& paint) override;
-
-    typedef OpAllocator INHERITED;
-};
 
 class GLInstancedRendering final : public InstancedRendering {
 public:
@@ -44,8 +33,10 @@ private:
 
     GrGLGpu* glGpu() const;
 
+    std::unique_ptr<Op> makeOp(GrPaint&& paint) override;
+
     void onBeginFlush(GrResourceProvider*) override;
-    void onDraw(const GrPipeline&, const InstanceProcessor&, const InstancedOp*) override;
+    void onDraw(const GrPipeline&, const InstanceProcessor&, const Op*) override;
     void onEndFlush() override;
     void onResetGpuResources(ResetType) override;
 
@@ -62,6 +53,8 @@ private:
     SkAutoSTMalloc<1024, GLDrawCmdInfo>   fGLDrawCmdsInfo;
     GrGpuResource::UniqueID               fInstanceAttribsBufferUniqueId;
     int                                   fInstanceAttribsBaseInstance;
+
+    class GLOp;
 
     friend class ::GrGLCaps; // For CheckSupport.
 

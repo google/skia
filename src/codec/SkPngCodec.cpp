@@ -36,16 +36,9 @@
 // Callback functions
 ///////////////////////////////////////////////////////////////////////////////
 
-// When setjmp is first called, it returns 0, meaning longjmp was not called.
-constexpr int kSetJmpOkay   = 0;
-// An error internal to libpng.
-constexpr int kPngError     = 1;
-// Passed to longjmp when we have decoded as many lines as we need.
-constexpr int kStopDecoding = 2;
-
 static void sk_error_fn(png_structp png_ptr, png_const_charp msg) {
     SkCodecPrintf("------ png error %s\n", msg);
-    longjmp(PNG_JMPBUF(png_ptr), kPngError);
+    longjmp(PNG_JMPBUF(png_ptr), 1);
 }
 
 void sk_warning_fn(png_structp, png_const_charp msg) {
@@ -132,11 +125,10 @@ static inline bool process_data(png_structp png_ptr, png_infop info_ptr,
         SkStream* stream, void* buffer, size_t bufferSize, size_t length) {
     while (length > 0) {
         const size_t bytesToProcess = std::min(bufferSize, length);
-        const size_t bytesRead = stream->read(buffer, bytesToProcess);
-        png_process_data(png_ptr, info_ptr, (png_bytep) buffer, bytesRead);
-        if (bytesRead < bytesToProcess) {
+        if (stream->read(buffer, bytesToProcess) < bytesToProcess) {
             return false;
         }
+        png_process_data(png_ptr, info_ptr, (png_bytep) buffer, bytesToProcess);
         length -= bytesToProcess;
     }
     return true;
@@ -190,20 +182,10 @@ bool AutoCleanPng::decodeBounds() {
 }
 
 void SkPngCodec::processData() {
-    switch (setjmp(PNG_JMPBUF(fPng_ptr))) {
-        case kPngError:
-            // There was an error. Stop processing data.
-            // FIXME: Do we need to discard png_ptr?
-            return;
-        case kStopDecoding:
-            // We decoded all the lines we want.
-            return;
-        case kSetJmpOkay:
-            // Everything is okay.
-            break;
-        default:
-            // No other values should be passed to longjmp.
-            SkASSERT(false);
+    if (setjmp(PNG_JMPBUF(fPng_ptr))) {
+        // There was an error. Stop processing data.
+        // FIXME: Do we need to discard png_ptr?
+        return;
     }
 
     // Arbitrary buffer size
@@ -589,7 +571,7 @@ private:
     }
 
     void rowCallback(png_bytep row, int rowNum) {
-        if (rowNum < fFirstRow) {
+        if (rowNum < fFirstRow || fRowsWrittenToOutput == fRowsNeeded) {
             // Ignore this row.
             return;
         }
@@ -602,11 +584,6 @@ private:
             this->applyXformRow(fDst, row);
             fDst = SkTAddOffset<void>(fDst, fRowBytes);
             fRowsWrittenToOutput++;
-        }
-
-        if (fRowsWrittenToOutput == fRowsNeeded) {
-            // Fake error to stop decoding scanlines.
-            longjmp(PNG_JMPBUF(this->png_ptr()), kStopDecoding);
         }
     }
 };
@@ -647,7 +624,7 @@ private:
     // as expensive as the subset version of non-interlaced, but it still does extra
     // work.
     void interlacedRowCallback(png_bytep row, int rowNum, int pass) {
-        if (rowNum < fFirstRow || rowNum > fLastRow) {
+        if (rowNum < fFirstRow || rowNum > fLastRow || fInterlacedComplete) {
             // Ignore this row
             return;
         }
@@ -663,12 +640,8 @@ private:
         } else {
             SkASSERT(fLinesDecoded == fLastRow - fFirstRow + 1);
             if (fNumberPasses - 1 == pass && rowNum == fLastRow) {
-                // Last pass, and we have read all of the rows we care about. Note that
-                // we do not care about reading anything beyond the end of the image (or
-                // beyond the last scanline requested).
+                // Last pass, and we have read all of the rows we care about.
                 fInterlacedComplete = true;
-                // Fake error to stop decoding scanlines.
-                longjmp(PNG_JMPBUF(this->png_ptr()), kStopDecoding);
             }
         }
     }

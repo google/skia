@@ -11,6 +11,7 @@
 #include "GrTypes.h"
 #include "GrTypesPriv.h"
 #include "GrBlend.h"
+#include "GrShaderVar.h"
 #include "GrShaderCaps.h"
 #include "SkRefCnt.h"
 #include "SkString.h"

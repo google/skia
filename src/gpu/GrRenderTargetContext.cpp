@@ -52,6 +52,8 @@
 #define RETURN_FALSE_IF_ABANDONED_PRIV  if (fRenderTargetContext->drawingManager()->wasAbandoned()) { return false; }
 #define RETURN_NULL_IF_ABANDONED   if (this->drawingManager()->wasAbandoned()) { return nullptr; }
 
+using gr_instanced::InstancedRendering;
+
 class AutoCheckFlush {
 public:
     AutoCheckFlush(GrDrawingManager* drawingManager) : fDrawingManager(drawingManager) {
@@ -126,7 +128,7 @@ GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     return fOpList.get();
 }
 
-// MDB TODO: move this (and GrTextContext::copy) to GrSurfaceContext?
+// TODO: move this (and GrTextContext::copy) to GrSurfaceContext?
 bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
                                    const SkIRect& srcRect,
                                    const SkIPoint& dstPoint) {
@@ -435,9 +437,9 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
 
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
         (!ss || ss->isDisabled(false))) {
-        gr_instanced::OpAllocator* oa = this->drawingManager()->instancingAllocator();
-        std::unique_ptr<GrDrawOp> op = oa->recordRect(croppedRect, viewMatrix, std::move(paint),
-                                                      aa, fInstancedPipelineInfo);
+        InstancedRendering* ir = this->getOpList()->instancedRendering();
+        std::unique_ptr<GrDrawOp> op = ir->recordRect(croppedRect, viewMatrix, std::move(paint), aa,
+                                                      fInstancedPipelineInfo);
         if (op) {
             this->addDrawOp(clip, std::move(op));
             return true;
@@ -738,8 +740,8 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
-        gr_instanced::OpAllocator* oa = this->drawingManager()->instancingAllocator();
-        std::unique_ptr<GrDrawOp> op(oa->recordRect(croppedRect, viewMatrix, std::move(paint),
+        InstancedRendering* ir = this->getOpList()->instancedRendering();
+        std::unique_ptr<GrDrawOp> op(ir->recordRect(croppedRect, viewMatrix, std::move(paint),
                                                     croppedLocalRect, aa, fInstancedPipelineInfo));
         if (op) {
             this->addDrawOp(clip, std::move(op));
@@ -794,8 +796,8 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
-        gr_instanced::OpAllocator* oa = this->drawingManager()->instancingAllocator();
-        std::unique_ptr<GrDrawOp> op(oa->recordRect(croppedRect, viewMatrix, std::move(paint),
+        InstancedRendering* ir = this->getOpList()->instancedRendering();
+        std::unique_ptr<GrDrawOp> op(ir->recordRect(croppedRect, viewMatrix, std::move(paint),
                                                     localMatrix, aa, fInstancedPipelineInfo));
         if (op) {
             this->addDrawOp(clip, std::move(op));
@@ -946,9 +948,9 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
 
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
         stroke.isFillStyle()) {
-        gr_instanced::OpAllocator* oa = this->drawingManager()->instancingAllocator();
+        InstancedRendering* ir = this->getOpList()->instancedRendering();
         std::unique_ptr<GrDrawOp> op(
-                oa->recordRRect(rrect, viewMatrix, std::move(paint), aa, fInstancedPipelineInfo));
+                ir->recordRRect(rrect, viewMatrix, std::move(paint), aa, fInstancedPipelineInfo));
         if (op) {
             this->addDrawOp(*clip, std::move(op));
             return;
@@ -1022,8 +1024,8 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
     SkASSERT(!origOuter.isEmpty());
 
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
-        gr_instanced::OpAllocator* oa = this->drawingManager()->instancingAllocator();
-        std::unique_ptr<GrDrawOp> op(oa->recordDRRect(
+        InstancedRendering* ir = this->getOpList()->instancedRendering();
+        std::unique_ptr<GrDrawOp> op(ir->recordDRRect(
                 origOuter, origInner, viewMatrix, std::move(paint), aa, fInstancedPipelineInfo));
         if (op) {
             this->addDrawOp(clip, std::move(op));
@@ -1171,9 +1173,9 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
 
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
         stroke.isFillStyle()) {
-        gr_instanced::OpAllocator* oa = this->drawingManager()->instancingAllocator();
+        InstancedRendering* ir = this->getOpList()->instancedRendering();
         std::unique_ptr<GrDrawOp> op(
-                oa->recordOval(oval, viewMatrix, std::move(paint), aa, fInstancedPipelineInfo));
+                ir->recordOval(oval, viewMatrix, std::move(paint), aa, fInstancedPipelineInfo));
         if (op) {
             this->addDrawOp(clip, std::move(op));
             return;
