@@ -1,6 +1,52 @@
 [
   {
     "cmd": [
+      "ios.py"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "setup_device"
+  },
+  {
+    "cmd": [
+      "ideviceinstaller",
+      "-i",
+      "[START_DIR]/out/Release/dm.app"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "install_dm"
+  },
+  {
+    "cmd": [
+      "ideviceinstaller",
+      "-i",
+      "[START_DIR]/out/Release/nanobench.app"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "install_nanobench"
+  },
+  {
+    "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
       "[START_DIR]/skia/resources",
       "resources"
@@ -9,6 +55,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -23,7 +70,8 @@
       "/path/to/tmp/"
     ],
     "env": {
-      "IOS_BUNDLE_ID": "com.google.nanobench"
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
     },
     "infra_step": true,
     "name": "Get downloaded SKP VERSION"
@@ -37,7 +85,8 @@
       "[START_DIR]/tmp/SKP_VERSION"
     ],
     "env": {
-      "IOS_BUNDLE_ID": "com.google.nanobench"
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
     },
     "infra_step": true,
     "name": "write SKP_VERSION"
@@ -51,6 +100,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -66,6 +116,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -80,6 +131,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -94,6 +146,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -109,6 +162,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -124,6 +178,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -138,7 +193,8 @@
       "/path/to/tmp/"
     ],
     "env": {
-      "IOS_BUNDLE_ID": "com.google.nanobench"
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
     },
     "infra_step": true,
     "name": "Get downloaded skimage VERSION"
@@ -152,7 +208,8 @@
       "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
     "env": {
-      "IOS_BUNDLE_ID": "com.google.nanobench"
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
     },
     "infra_step": true,
     "name": "write SK_IMAGE_VERSION"
@@ -166,6 +223,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -181,6 +239,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -195,6 +254,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -209,6 +269,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -224,6 +285,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -239,6 +301,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -253,7 +316,8 @@
       "/path/to/tmp/"
     ],
     "env": {
-      "IOS_BUNDLE_ID": "com.google.nanobench"
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
     },
     "infra_step": true,
     "name": "Get downloaded SVG VERSION"
@@ -267,7 +331,8 @@
       "[START_DIR]/tmp/SVG_VERSION"
     ],
     "env": {
-      "IOS_BUNDLE_ID": "com.google.nanobench"
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
     },
     "infra_step": true,
     "name": "write SVG_VERSION"
@@ -281,6 +346,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -296,6 +362,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -310,6 +377,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -324,6 +392,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -339,6 +408,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -354,6 +424,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -368,6 +439,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -382,6 +454,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -394,7 +467,8 @@
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
     "env": {
-      "IOS_BUNDLE_ID": "com.google.nanobench"
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
     },
     "name": "get swarming bot id",
     "stdout": "/path/to/tmp/",
@@ -411,7 +485,8 @@
       "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
     ],
     "env": {
-      "IOS_BUNDLE_ID": "com.google.nanobench"
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
     },
     "name": "get swarming task id",
     "stdout": "/path/to/tmp/",
@@ -423,17 +498,88 @@
   },
   {
     "cmd": [
-      "ios-deploy",
-      "-b",
-      "[START_DIR]/out/Release/nanobench.app",
-      "-I",
+      "idevice-app-runner",
+      "-s",
+      "com.google.nanobench",
       "--args",
-      "--undefok -i resources --skps skps --images images/nanobench --svgs svgs --nocpu --pre_log --images --gpuStatsDump true --scales 1.0 1.1 --skps ignore_skps --config 8888 nonrendering hwui gles --match ~blurroundrect ~patch_grid ~desk_carsvg ~keymobi ~path_hairline ~GLInstancedArraysBench ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile perf/nanobench_abc123_1337000001.json --properties gitHash abc123 swarming_bot_id  swarming_task_id  --key arch arm compiler Clang cpu_or_gpu GPU cpu_or_gpu_value GX6450 model iPadMini4 os iOS"
+      "--undefok",
+      "-i",
+      "resources",
+      "--skps",
+      "skps",
+      "--images",
+      "images/nanobench",
+      "--svgs",
+      "svgs",
+      "--nocpu",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--skps",
+      "ignore_skps",
+      "--config",
+      "8888",
+      "nonrendering",
+      "hwui",
+      "gles",
+      "--match",
+      "~blurroundrect",
+      "~patch_grid",
+      "~desk_carsvg",
+      "~keymobi",
+      "~path_hairline",
+      "~GLInstancedArraysBench",
+      "~inc0.gif",
+      "~inc1.gif",
+      "~incInterlaced.gif",
+      "~inc0.jpg",
+      "~incGray.jpg",
+      "~inc0.wbmp",
+      "~inc1.wbmp",
+      "~inc0.webp",
+      "~inc1.webp",
+      "~inc0.ico",
+      "~inc1.ico",
+      "~inc0.png",
+      "~inc1.png",
+      "~inc2.png",
+      "~inc12.png",
+      "~inc13.png",
+      "~inc14.png",
+      "~inc0.webp",
+      "~inc1.webp",
+      "--outResultsFile",
+      "perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "",
+      "swarming_task_id",
+      "",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "GX6450",
+      "model",
+      "iPadMini4",
+      "os",
+      "iOS"
     ],
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -448,7 +594,8 @@
       "511"
     ],
     "env": {
-      "IOS_BUNDLE_ID": "com.google.nanobench"
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
     },
     "name": "makedirs perf_dir",
     "~followup_annotations": [
@@ -474,6 +621,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
