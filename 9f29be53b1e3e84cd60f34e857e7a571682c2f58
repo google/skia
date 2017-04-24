@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75d1a74b_363322aa",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-24T15:27:46Z",
+      "side": 1,
+      "message": "I wonder whether we should even expose that the implementation is a generator. The alternative I\u0027m thinking of is a SkImage factory that happens to create a SkImage_Generator backed by a GrBackendTextureImageGenerator. It\u0027s not a big difference but would let us change the implementation in the future if we decide that generator isn\u0027t the right implementation in the future.",
+      "revId": "9f29be53b1e3e84cd60f34e857e7a571682c2f58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1fecd47_a8cff00a",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-24T15:27:46Z",
+      "side": 1,
+      "message": "Do these need to be atomic? Should we inherit from SkNVRefCnt?",
+      "revId": "9f29be53b1e3e84cd60f34e857e7a571682c2f58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
