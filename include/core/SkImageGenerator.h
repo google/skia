@@ -137,6 +137,18 @@ public:
      */
     sk_sp<GrTextureProxy> generateTexture(GrContext*, const SkImageInfo& info,
                                           const SkIPoint& origin);
+
+    // These match the definitions in SkImage, whence they came
+    typedef void* ReleaseCtx;
+    typedef void (*ReleaseProc)(ReleaseCtx);
+
+    /**
+     *  Return a new image generator that wraps the specified backend texture.
+     */
+    static std::unique_ptr<SkImageGenerator> MakeFromBackendTexture(const GrBackendTexture&,
+                                                                    GrSurfaceOrigin, SkAlphaType,
+                                                                    sk_sp<SkColorSpace>,
+                                                                    ReleaseProc, ReleaseCtx);
 #endif
 
     /**
