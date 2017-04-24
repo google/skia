@@ -16,6 +16,24 @@
       "revId": "8e48a5c40d16aa17bb942cd8ad376914d8575ef9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6a1c02c_952a9081",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-24T13:20:32Z",
+      "side": 1,
+      "message": "Got it, thanks for the heads up.  I can move this to tools/ if necessary.  For now, I\u0027ll advocate for it.  The SkWStream version is more flexible - but I find this to be simpler and it\u0027s often what the client wants anyway.",
+      "parentUuid": "be741546_464b06e1",
+      "revId": "8e48a5c40d16aa17bb942cd8ad376914d8575ef9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
