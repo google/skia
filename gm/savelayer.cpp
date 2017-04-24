@@ -8,7 +8,6 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 
-
 static const uint32_t SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag = 1U << 31;
 
 // This GM tests out the deprecated Android-specific unclipped saveLayer "feature".
@@ -122,3 +121,81 @@ DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
     canvas->restore();
 };
 
+#include "SkGradientShader.h"
+#include "SkPicture.h"
+#include "SkPictureRecorder.h"
+#include "SkSurface.h"
+
+static void draw_mask(SkCanvas* canvas, int size) {
+    const SkScalar cx = size * SK_ScalarHalf,
+                   cy = cx;
+    const SkColor colors[] = { 0x00000000, 0xffff0000, 0x00000000, 0xffff0000, 0x00000000,
+                               0xffff0000, 0x00000000, 0xffff0000, 0x00000000 };
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setShader(SkGradientShader::MakeSweep(cx, cy, colors, nullptr, SK_ARRAY_COUNT(colors)));
+    canvas->drawPaint(paint);
+
+    paint.setShader(SkGradientShader::MakeRadial({cx, cy}, size / 4, colors, nullptr, 2,
+                                                 SkShader::kClamp_TileMode));
+    canvas->drawCircle(cx, cy, size / 4, paint);
+}
+
+DEF_SIMPLE_GM(savelayer_clipmask, canvas, 256, 256) {
+    static constexpr int kSize = 100;
+    static constexpr SkScalar kMatrices[][9] = {
+        { 1     ,  0     ,   0,   0     , 1     ,   0,   0, 0, 1 },
+        { 2     ,  0     ,   0,   0     , 2     ,   0,   0, 0, 1 },
+        { 2     ,  0     , -50,   0     , 2     , -50,   0, 0, 1 },
+        { 0.707f, -0.707f,  50,   0.707f, 0.707f, -25,   0, 0, 1 },
+        { 0.5f  ,  0     ,  25,   0     , 0.5f  ,  25,   0, 0, 1 },
+    };
+
+    using MakerFunc = sk_sp<SkImage> (*)(int size);
+    static const MakerFunc kMaskMakers[] = {
+        [](int size) -> sk_sp<SkImage> {
+            auto surf = SkSurface::MakeRaster(SkImageInfo::MakeA8(size, size));
+            draw_mask(surf->getCanvas(), size);
+            return surf->makeImageSnapshot();
+        },
+
+        [](int size) -> sk_sp<SkImage> {
+            auto surf = SkSurface::MakeRasterN32Premul(size, size);
+            draw_mask(surf->getCanvas(), size);
+            return surf->makeImageSnapshot();
+        },
+
+        [](int size) -> sk_sp<SkImage> {
+            SkPictureRecorder recorder;
+            draw_mask(recorder.beginRecording(size, size), size);
+            return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
+                                            SkISize::Make(size, size),
+                                            nullptr, nullptr,
+                                            SkImage::BitDepth::kU8, nullptr);
+        }
+    };
+
+
+    SkMatrix clipMatrix;
+    SkCanvas::SaveLayerRec rec;
+    rec.fClipMatrix = &clipMatrix;
+
+    SkPaint paint;
+    paint.setColor(SK_ColorBLUE);
+
+    for (const auto& maker : kMaskMakers) {
+        rec.fClipMask = maker(kSize);
+
+        canvas->save();
+        for (const auto m : kMatrices) {
+            clipMatrix.set9(m);
+            canvas->saveLayer(rec);
+            canvas->drawRect(SkRect::MakeWH(100, 100), paint);
+            canvas->restore();
+            canvas->translate(120, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, 150);
+    }
+}
