@@ -58,6 +58,20 @@ struct GrVkBackendContext : public SkRefCnt {
                                             CanPresentFn = CanPresentFn(),
                                             GrVkInterface::GetProc getProc = nullptr);
 
+    static const GrVkBackendContext* Create(const GrVkInterface::GetInstanceProc& getInstanceProc,
+                                            const GrVkInterface::GetDeviceProc& getDeviceProc,
+                                            uint32_t* presentQueueIndex = nullptr,
+                                            CanPresentFn canPresent = CanPresentFn()) {
+        auto getProc = [&getInstanceProc, &getDeviceProc](const char* proc_name,
+                                                          VkInstance instance, VkDevice device) {
+            if (device != VK_NULL_HANDLE) {
+                return getDeviceProc(device, proc_name);
+            }
+            return getInstanceProc(instance, proc_name);
+        };
+        return Create(presentQueueIndex, canPresent, getProc);
+    }
+
     ~GrVkBackendContext() override;
 };
 

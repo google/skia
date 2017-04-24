@@ -77,10 +77,7 @@ GrGpu* GrVkGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
     const GrVkBackendContext* vkBackendContext =
         reinterpret_cast<const GrVkBackendContext*>(backendContext);
     if (!vkBackendContext) {
-        vkBackendContext = GrVkBackendContext::Create();
-        if (!vkBackendContext) {
-            return nullptr;
-        }
+        return nullptr;
     } else {
         vkBackendContext->ref();
     }

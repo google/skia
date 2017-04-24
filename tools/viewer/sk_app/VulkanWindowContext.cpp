@@ -41,7 +41,8 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
     , fBackbuffers(nullptr) {
 
     // any config code here (particularly for msaa)?
-    fBackendContext.reset(GrVkBackendContext::Create(&fPresentQueueIndex, canPresent));
+    fBackendContext.reset(GrVkBackendContext::Create(vkGetInstanceProcAddr, vkGetDeviceProcAddr,
+                                                     &fPresentQueueIndex, canPresent));
 
     if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
         !(fBackendContext->fExtensions & kKHR_swapchain_GrVkExtensionFlag)) {

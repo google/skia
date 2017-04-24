@@ -40,6 +40,13 @@ public:
         VkInstance,  // instance or VK_NULL_HANDLE
         VkDevice     // device or VK_NULL_HANDLE
         )>;
+
+    // This is typically vkGetInstanceProcAddr.
+    using GetInstanceProc = std::function<PFN_vkVoidFunction(VkInstance, const char*)>;
+
+    // This is typically vkGetDeviceProcAddr.
+    using GetDeviceProc = std::function<PFN_vkVoidFunction(VkDevice, const char*)>;
+
     GrVkInterface(GetProc getProc,
                   VkInstance instance,
                   VkDevice device,
