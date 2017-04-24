@@ -8,7 +8,6 @@
 #ifndef SkCodecAnimation_DEFINED
 #define SkCodecAnimation_DEFINED
 
-#include "SkCodec.h"
 #include "SkRect.h"
 
 class SkCodecAnimation {
