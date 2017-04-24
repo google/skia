@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "80fd720c_d93801ba",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-24T14:58:51Z",
+      "side": 1,
+      "message": "Vulkan ones are 64 bytes and will probably need to grow larger. We fine copying them?",
+      "parentUuid": "03fd0d26_e5832101",
+      "range": {
+        "startLine": 75,
+        "startChar": 21,
+        "endLine": 75,
+        "endChar": 36
+      },
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7ffec8bf_3a494a57",
         "filename": "include/gpu/GrBackendSurface.h",
         "patchSetId": 2
@@ -59,6 +83,30 @@
       "writtenOn": "2017-04-24T14:36:20Z",
       "side": 1,
       "message": "Is this used?",
+      "range": {
+        "startLine": 118,
+        "startChar": 25,
+        "endLine": 118,
+        "endChar": 32
+      },
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d138396_df9712fa",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-24T14:58:51Z",
+      "side": 1,
+      "message": "This is used in the ctor that takes in the Desc objects so we don\u0027t have to do a bunch of casting based on backend. If we don\u0027t mind the extra code I could do it without?",
+      "parentUuid": "7ffec8bf_3a494a57",
       "range": {
         "startLine": 118,
         "startChar": 25,
@@ -88,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "c184b9ee_a3b8819b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-24T14:58:51Z",
+      "side": 1,
+      "message": "woops, that\u0027s what I get for just doing mechanical changes without thinking.",
+      "parentUuid": "8b63d647_c3381417",
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "96e299ce_5cff0b75",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 2
@@ -105,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "7c9e6036_9063ce94",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-24T14:58:51Z",
+      "side": 1,
+      "message": "I don\u0027t think so since we still use default in many places.",
+      "parentUuid": "96e299ce_5cff0b75",
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7d318939_9b5f2a6a",
         "filename": "src/views/SkWindow.cpp",
         "patchSetId": 2
@@ -116,6 +200,24 @@
       "writtenOn": "2017-04-24T14:44:50Z",
       "side": 1,
       "message": "Why on earth does SkWindow have SkScalar width \u0026 height ?",
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c451bcfe_7bfbe86d",
+        "filename": "src/views/SkWindow.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-24T14:58:51Z",
+      "side": 1,
+      "message": "\\shrug",
+      "parentUuid": "7d318939_9b5f2a6a",
       "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
