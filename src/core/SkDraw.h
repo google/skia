@@ -123,6 +123,7 @@ public:
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
 private:
     void    drawDevMask(const SkMask& mask, const SkPaint&) const;
+
     void    drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
 
     void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
