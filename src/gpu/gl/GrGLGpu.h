@@ -174,6 +174,7 @@ private:
     sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) override;
     sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override;
 
+    std::unique_ptr<gr_instanced::OpAllocator> onCreateInstancedRenderingAllocator() override;
     gr_instanced::InstancedRendering* onCreateInstancedRendering() override;
 
     // Given a GrPixelConfig return the index into the stencil format array on GrGLCaps to a
