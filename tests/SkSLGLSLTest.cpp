@@ -23,7 +23,7 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
                  SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
     SkSL::Compiler compiler;
     SkSL::String output;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, SkString(src), settings);
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, src, settings);
     if (!program) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
     }
@@ -573,6 +573,28 @@ DEF_TEST(SkSLConstantFolding, r) {
          "sk_FragColor = vec4(2) * vec4(1, 2, 3, 4);"
          "sk_FragColor = vec4(12) / vec4(1, 2, 3, 4);"
          "sk_FragColor.r = (vec4(12) / vec4(1, 2, 3, 4)).y;"
+         "sk_FragColor.x = vec4(1) == vec4(1) ? 1.0 : 0.0;"
+         "sk_FragColor.x = vec4(1) == vec4(2) ? 1.0 : 0.0;"
+         "sk_FragColor.x = vec2(1) == vec2(1, 1) ? 1.0 : 0.0;"
+         "sk_FragColor.x = vec2(1, 1) == vec2(1, 1) ? 1.0 : 0.0;"
+         "sk_FragColor.x = vec2(1) == vec2(1, 0) ? 1.0 : 0.0;"
+         "sk_FragColor.x = vec4(1) == vec4(vec2(1), vec2(1)) ? 1.0 : 0.0;"
+         "sk_FragColor.x = vec4(vec3(1), 1) == vec4(vec2(1), vec2(1)) ? 1.0 : 0.0;"
+         "sk_FragColor.x = vec4(vec3(1), 1) == vec4(vec2(1), 1, 0) ? 1.0 : 0.0;"
+         "sk_FragColor.x = mat2(vec2(1.0, 0.0), vec2(0.0, 1.0)) == "
+                          "mat2(vec2(1.0, 0.0), vec2(0.0, 1.0)) ? 1.0 : 0.0;"
+         "sk_FragColor.x = mat2(vec2(1.0, 0.0), vec2(1.0, 1.0)) == "
+                          "mat2(vec2(1.0, 0.0), vec2(0.0, 1.0)) ? 1.0 : 0.0;"
+         "sk_FragColor.x = mat2(1) == mat2(1) ? 1.0 : 0.0;"
+         "sk_FragColor.x = mat2(1) == mat2(0) ? 1.0 : 0.0;"
+         "sk_FragColor.x = mat2(1) == mat2(vec2(1.0, 0.0), vec2(0.0, 1.0)) ? 1.0 : 0.0;"
+         "sk_FragColor.x = mat2(2) == mat2(vec2(1.0, 0.0), vec2(0.0, 1.0)) ? 1.0 : 0.0;"
+         "sk_FragColor.x = mat3x2(2) == mat3x2(vec3(2.0, 0.0, 0.0), vec3(0.0, 2.0, 0.0)) ? "
+                                                                                        "1.0 : 0.0;"
+         "sk_FragColor.x = vec2(1) != vec2(1, 0) ? 1.0 : 0.0;"
+         "sk_FragColor.x = vec4(1) != vec4(vec2(1), vec2(1)) ? 1.0 : 0.0;"
+         "sk_FragColor.x = mat2(1) != mat2(1) ? 1.0 : 0.0;"
+         "sk_FragColor.x = mat2(1) != mat2(0) ? 1.0 : 0.0;"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
@@ -617,6 +639,25 @@ DEF_TEST(SkSLConstantFolding, r) {
          "    sk_FragColor = vec4(2.0, 4.0, 6.0, 8.0);\n"
          "    sk_FragColor = vec4(12.0, 6.0, 4.0, 3.0);\n"
          "    sk_FragColor.x = 6.0;\n"
+         "    sk_FragColor.x = 1.0;\n"
+         "    sk_FragColor.x = 0.0;\n"
+         "    sk_FragColor.x = 1.0;\n"
+         "    sk_FragColor.x = 1.0;\n"
+         "    sk_FragColor.x = 0.0;\n"
+         "    sk_FragColor.x = 1.0;\n"
+         "    sk_FragColor.x = 1.0;\n"
+         "    sk_FragColor.x = 0.0;\n"
+         "    sk_FragColor.x = 1.0;\n"
+         "    sk_FragColor.x = 0.0;\n"
+         "    sk_FragColor.x = 1.0;\n"
+         "    sk_FragColor.x = 0.0;\n"
+         "    sk_FragColor.x = 1.0;\n"
+         "    sk_FragColor.x = 0.0;\n"
+         "    sk_FragColor.x = 1.0;\n"
+         "    sk_FragColor.x = 1.0;\n"
+         "    sk_FragColor.x = 0.0;\n"
+         "    sk_FragColor.x = 0.0;\n"
+         "    sk_FragColor.x = 1.0;\n"
          "}\n");
 }
 
@@ -875,18 +916,7 @@ DEF_TEST(SkSLSwitch, r) {
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    float x;\n"
-         "    switch (1) {\n"
-         "        case 0:\n"
-         "            x = 0.0;\n"
-         "            break;\n"
-         "        case 1:\n"
-         "            x = 1.0;\n"
-         "            break;\n"
-         "        default:\n"
-         "            x = 2.0;\n"
-         "    }\n"
-         "    sk_FragColor = vec4(x);\n"
+         "    sk_FragColor = vec4(1.0);\n"
          "}\n");
     test(r,
          "void main() {"

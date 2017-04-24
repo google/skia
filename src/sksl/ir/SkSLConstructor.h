@@ -118,6 +118,23 @@ struct Constructor : public Expression {
         return ((IntLiteral&) c).fValue;
     }
 
+    // null return should be interpreted as zero
+    const Expression* getMatComponent(int col, int row) const {
+        ASSERT(this->isConstant());
+        ASSERT(fType.kind() == Type::kMatrix_Kind);
+        if (fArguments.size() == 1) {
+            if (fArguments[0]->fType.kind() == Type::kScalar_Kind) {
+                return col == row ? fArguments[0].get() : nullptr;
+            }
+            ASSERT(fArguments[0]->fType.kind() == Type::kMatrix_Kind);
+            ASSERT(fArguments[0]->fKind == Expression::kConstructor_Kind);
+            return ((Constructor&) *fArguments[0]).getMatComponent(col, row);
+        }
+        ASSERT((int) fArguments.size() == fType.rows());
+        ASSERT(fArguments[row]->fKind == Expression::kConstructor_Kind);
+        return &((Constructor&) *fArguments[row]).getVecComponent(col);
+    }
+
     std::vector<std::unique_ptr<Expression>> fArguments;
 
     typedef Expression INHERITED;

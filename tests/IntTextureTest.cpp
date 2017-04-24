@@ -14,7 +14,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
 #include "GrTexture.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "GrSimpleTextureEffect.h"
 
 template <typename I>
 static SK_WHEN(std::is_integral<I>::value && 4 == sizeof(I), void)

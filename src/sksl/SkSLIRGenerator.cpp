@@ -40,6 +40,7 @@
 #include "ir/SkSLPostfixExpression.h"
 #include "ir/SkSLPrefixExpression.h"
 #include "ir/SkSLReturnStatement.h"
+#include "ir/SkSLSetting.h"
 #include "ir/SkSLSwitchCase.h"
 #include "ir/SkSLSwitchStatement.h"
 #include "ir/SkSLSwizzle.h"
@@ -133,6 +134,7 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps, std::unordered_map<String, Ca
     CAP(mustEnableSpecificAdvBlendEqs);
     CAP(mustDeclareFragmentShaderOutput);
     CAP(canUseAnyFunctionInShader);
+    CAP(floatPrecisionVaries);
 #undef CAP
 }
 
@@ -746,13 +748,20 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTIdentifier& 
         }
         case Symbol::kVariable_Kind: {
             const Variable* var = (const Variable*) result;
-            if (var->fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
-                fInputs.fFlipY = true;
-                if (fSettings->fFlipY &&
-                    (!fSettings->fCaps ||
-                     !fSettings->fCaps->fragCoordConventionsExtensionString())) {
-                    fInputs.fRTHeight = true;
-                }
+            switch (var->fModifiers.fLayout.fBuiltin) {
+                case SK_FRAGCOORD_BUILTIN:
+#ifndef SKSL_STANDALONE
+                    fInputs.fFlipY = true;
+                    if (fSettings->fFlipY &&
+                        (!fSettings->fCaps ||
+                         !fSettings->fCaps->fragCoordConventionsExtensionString())) {
+                        fInputs.fRTHeight = true;
+                    }
+#endif
+                    break;
+                case SK_DISTANCEVECTOR_BUILTIN:
+                    fInputs.fDistanceVector = true;
+                    break;
             }
             // default to kRead_RefKind; this will be corrected later if the variable is written to
             return std::unique_ptr<VariableReference>(new VariableReference(
@@ -777,8 +786,12 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTIdentifier& 
         default:
             ABORT("unsupported symbol type %d\n", result->fKind);
     }
-
 }
+
+std::unique_ptr<Section> IRGenerator::convertSection(const ASTSection& s) {
+    return std::unique_ptr<Section>(new Section(s.fPosition, s.fName, s.fArgument, s.fText));
+}
+
 
 std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr,
                                                 const Type& type) {
@@ -804,6 +817,9 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
         std::unique_ptr<Expression> ctor = this->convertIdentifier(id);
         ASSERT(ctor);
         return this->call(Position(), std::move(ctor), std::move(args));
+    }
+    if (type == *fContext.fGrColorSpaceXform_Type && expr->fType == *fContext.fMat4x4_Type) {
+        return expr;
     }
     std::vector<std::unique_ptr<Expression>> args;
     args.push_back(std::move(expr));
@@ -947,6 +963,64 @@ static bool determine_binary_type(const Context& context,
     return false;
 }
 
+bool IRGenerator::compareConstants(const Expression& e1, const Expression& e2) const {
+    ASSERT(e1.isConstant() && e2.isConstant());
+    ASSERT(e1.fType == e2.fType);
+    ASSERT(e1.fKind == e2.fKind);
+    switch (e1.fKind) {
+        case Expression::kConstructor_Kind: {
+            Constructor& c1 = (Constructor&) e1;
+            Constructor& c2 = (Constructor&) e2;
+            if (c1.fType.kind() == Type::kVector_Kind) {
+                for (int i = 0; i < c1.fType.columns(); i++) {
+                    if (!this->compareConstants(c1.getVecComponent(i), c2.getVecComponent(i))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            ASSERT(c1.fType.kind() == Type::kMatrix_Kind);
+            const FloatLiteral fzero(fContext, Position(), 0);
+            const IntLiteral izero(fContext, Position(), 0);
+            const Expression* zero;
+            if (c1.fType.componentType() == *fContext.fFloat_Type) {
+                zero = &fzero;
+            } else {
+                ASSERT(c1.fType.componentType() == *fContext.fInt_Type);
+                zero = &izero;
+            }
+            for (int col = 0; col < c1.fType.columns(); col++) {
+                for (int row = 0; row < c1.fType.rows(); row++) {
+                    const Expression* component1 = c1.getMatComponent(col, row);
+                    const Expression* component2 = c2.getMatComponent(col, row);
+                    if (!this->compareConstants(component1 ? *component1 : *zero,
+                                                component2 ? *component2 : *zero)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        case Expression::kBoolLiteral_Kind: {
+            BoolLiteral& b1 = (BoolLiteral&) e1;
+            BoolLiteral& b2 = (BoolLiteral&) e2;
+            return b1.fValue == b2.fValue;
+        }
+        case Expression::kIntLiteral_Kind: {
+            IntLiteral& i1 = (IntLiteral&) e1;
+            IntLiteral& i2 = (IntLiteral&) e2;
+            return i1.fValue == i2.fValue;
+        }
+        case Expression::kFloatLiteral_Kind: {
+            FloatLiteral& f1 = (FloatLiteral&) e1;
+            FloatLiteral& f2 = (FloatLiteral&) e2;
+            return f1.fValue == f2.fValue;
+        }
+        default:
+            ABORT("unsupported constant comparison");
+    }
+}
+
 std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                                                       Token::Kind op,
                                                       const Expression& right) const {
@@ -1043,12 +1117,36 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             return std::unique_ptr<Expression>(new Constructor(Position(), left.fType, \
                                                                std::move(args)));
         switch (op) {
+            case Token::EQEQ:
+                return std::unique_ptr<Expression>(new BoolLiteral(fContext, Position(),
+                                                                   this->compareConstants(left,
+                                                                                          right)));
+            case Token::NEQ:
+                return std::unique_ptr<Expression>(new BoolLiteral(fContext, Position(),
+                                                                  !this->compareConstants(left,
+                                                                                          right)));
             case Token::PLUS:  RETURN_VEC_COMPONENTWISE_RESULT(+);
             case Token::MINUS: RETURN_VEC_COMPONENTWISE_RESULT(-);
             case Token::STAR:  RETURN_VEC_COMPONENTWISE_RESULT(*);
             case Token::SLASH: RETURN_VEC_COMPONENTWISE_RESULT(/);
             default:           return nullptr;
         }
+    }
+    if (left.fType.kind() == Type::kMatrix_Kind &&
+        right.fType.kind() == Type::kMatrix_Kind &&
+        left.fKind == right.fKind) {
+        switch (op) {
+            case Token::EQEQ:
+                return std::unique_ptr<Expression>(new BoolLiteral(fContext, Position(),
+                                                                   this->compareConstants(left,
+                                                                                          right)));
+            case Token::NEQ:
+                return std::unique_ptr<Expression>(new BoolLiteral(fContext, Position(),
+                                                                  !this->compareConstants(left,
+                                                                                          right)));
+            default:
+                return nullptr;
+        }        
     }
     #undef RESULT
     return nullptr;
@@ -1208,7 +1306,7 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
             return nullptr;
         }
         if (arguments[i] && (function.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag)) {
-            this->markWrittenTo(*arguments[i], 
+            this->markWrittenTo(*arguments[i],
                                 function.fParameters[i]->fModifiers.fFlags & Modifiers::kIn_Flag);
         }
     }
@@ -1603,16 +1701,71 @@ std::unique_ptr<Expression> IRGenerator::getCap(Position position, String name) 
         fErrors.error(position, "unknown capability flag '" + name + "'");
         return nullptr;
     }
+    String fullName = "sk_Caps." + name;
+    std::unique_ptr<Expression> value;
     switch (found->second.fKind) {
         case CapValue::kBool_Kind:
-            return std::unique_ptr<Expression>(new BoolLiteral(fContext, position,
-                                                               (bool) found->second.fValue));
+            value.reset(new BoolLiteral(fContext, position, found->second.fValue));
+            break;
         case CapValue::kInt_Kind:
-            return std::unique_ptr<Expression>(new IntLiteral(fContext, position,
-                                                              found->second.fValue));
+            value.reset(new IntLiteral(fContext, position, found->second.fValue));
+            break;
     }
-    ASSERT(false);
-    return nullptr;
+    return std::unique_ptr<Expression>(new Setting(position, fullName, std::move(value)));
+}
+
+std::unique_ptr<Expression> vec2_from_array(const Context& context, const float a[]) {
+    std::vector<std::unique_ptr<Expression>> args;
+    args.emplace_back(new FloatLiteral(context, Position(), a[0]));
+    args.emplace_back(new FloatLiteral(context, Position(), a[1]));
+    return std::unique_ptr<Expression>(new Constructor(Position(), *context.fVec2_Type,
+                                                       std::move(args)));
+}
+
+std::unique_ptr<Expression> vec4_from_array(const Context& context, const float a[]) {
+    std::vector<std::unique_ptr<Expression>> args;
+    args.emplace_back(new FloatLiteral(context, Position(), a[0]));
+    args.emplace_back(new FloatLiteral(context, Position(), a[1]));
+    args.emplace_back(new FloatLiteral(context, Position(), a[2]));
+    args.emplace_back(new FloatLiteral(context, Position(), a[3]));
+    return std::unique_ptr<Expression>(new Constructor(Position(), *context.fVec4_Type,
+                                                       std::move(args)));
+}
+
+std::unique_ptr<Expression> IRGenerator::getArg(Position position, String name) {
+    auto found = fSettings->fArgs.find(name);
+    if (found == fSettings->fArgs.end()) {
+        fErrors.error(position, "unknown argument '" + name + "'");
+        return nullptr;
+    }
+    String fullName = "sk_Args." + name;
+    std::unique_ptr<Expression> value;
+    switch (found->second.fType) {
+        case SettingValue::kBool_Type:
+            value.reset(new BoolLiteral(fContext, position, found->second.fValue.fBool));
+            break;
+        case SettingValue::kInt_Type:
+            value.reset(new IntLiteral(fContext, position, found->second.fValue.fInt));
+            break;
+        case SettingValue::kFloat_Type:
+            value.reset(new FloatLiteral(fContext, position, found->second.fValue.fFloat));
+            break;
+        case SettingValue::kVec2_Type:
+            value = vec2_from_array(fContext, found->second.fValue.fVec2);
+            break;
+        case SettingValue::kVec4_Type:
+            value = vec4_from_array(fContext, found->second.fValue.fVec4);
+            break;
+        case SettingValue::kMat4_Type:
+            std::vector<std::unique_ptr<Expression>> args;
+            args.push_back(vec4_from_array(fContext, found->second.fValue.fMat4 +  0));
+            args.push_back(vec4_from_array(fContext, found->second.fValue.fMat4 +  4));
+            args.push_back(vec4_from_array(fContext, found->second.fValue.fMat4 +  8));
+            args.push_back(vec4_from_array(fContext, found->second.fValue.fMat4 + 12));
+            value.reset(new Constructor(position, *fContext.fMat4x4_Type, std::move(args)));
+            break;
+    }
+    return std::unique_ptr<Expression>(new Setting(position, fullName, std::move(value)));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
@@ -1654,6 +1807,10 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
         case ASTSuffix::kField_Kind: {
             if (base->fType == *fContext.fSkCaps_Type) {
                 return this->getCap(expression.fPosition,
+                                    ((ASTFieldSuffix&) *expression.fSuffix).fField);
+            }
+            if (base->fType == *fContext.fSkArgs_Type) {
+                return this->getArg(expression.fPosition,
                                     ((ASTFieldSuffix&) *expression.fSuffix).fField);
             }
             switch (base->fType.kind()) {

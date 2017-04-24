@@ -9,7 +9,9 @@
 
 #include "ast/SkSLASTPrecision.h"
 #include "SkSLCFGGenerator.h"
+#include "SkSLCPPCodeGenerator.h"
 #include "SkSLGLSLCodeGenerator.h"
+#include "SkSLHCodeGenerator.h"
 #include "SkSLIRGenerator.h"
 #include "SkSLParser.h"
 #include "SkSLSPIRVCodeGenerator.h"
@@ -46,6 +48,11 @@ static const char* SKSL_FRAG_INCLUDE =
 static const char* SKSL_GEOM_INCLUDE =
 #include "sksl_geom.include"
 ;
+
+static const char* SKSL_FP_INCLUDE =
+#include "sksl_fp.include"
+;
+
 
 namespace SkSL {
 
@@ -148,11 +155,17 @@ Compiler::Compiler()
     ADD_TYPE(SamplerCubeArrayShadow);
     ADD_TYPE(GSampler2DArrayShadow);
     ADD_TYPE(GSamplerCubeArrayShadow);
+    ADD_TYPE(GrColorSpaceXform);
 
     String skCapsName("sk_Caps");
     Variable* skCaps = new Variable(Position(), Modifiers(), skCapsName,
                                     *fContext.fSkCaps_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skCapsName, std::unique_ptr<Symbol>(skCaps));
+
+    String skArgsName("sk_Args");
+    Variable* skArgs = new Variable(Position(), Modifiers(), skArgsName,
+                                    *fContext.fSkArgs_Type, Variable::kGlobal_Storage);
+    fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
 
     Modifiers::Flag ignored1;
     std::vector<std::unique_ptr<ProgramElement>> ignored2;
@@ -448,12 +461,13 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
     if ((*iter)->fConstantPropagation) {
         std::unique_ptr<Expression> optimized = expr->constantPropagate(*fIRGenerator, definitions);
         if (optimized) {
+            *outUpdated = true;
             if (!try_replace_expression(&b, iter, &optimized)) {
                 *outNeedsRescan = true;
+                return;
             }
             ASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind);
             expr = (*iter)->expression()->get();
-            *outUpdated = true;
         }
     }
     switch (expr->fKind) {
@@ -521,12 +535,63 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
     }
 }
 
+// returns true if this statement could potentially execute a break at the current level (we ignore
+// nested loops and switches, since any breaks inside of them will merely break the loop / switch)
+static bool contains_break(Statement& s) {
+    switch (s.fKind) {
+        case Statement::kBlock_Kind:
+            for (const auto& sub : ((Block&) s).fStatements) {
+                if (contains_break(*sub)) {
+                    return true;
+                }
+            }
+            return false;
+        case Statement::kBreak_Kind:
+            return true;
+        case Statement::kIf_Kind: {
+            const IfStatement& i = (IfStatement&) s;
+            return contains_break(*i.fIfTrue) || (i.fIfFalse && contains_break(*i.fIfFalse));
+        }
+        default:
+            return false;
+    }
+}
+
+// returns a block containing all of the statements that will be run if the given case matches.
+// Returns null if no such simple reduction is possible, such as when break statements appear inside
+// conditionals.
+static std::unique_ptr<Statement> block_for_case(SwitchStatement& s, SwitchCase& c) {
+    bool capturing = false;
+    std::vector<std::unique_ptr<Statement>> statements;
+    for (const auto& current : s.fCases) {
+        if (current.get() == &c) {
+            capturing = true;
+        }
+        if (capturing) {
+            for (auto& stmt : current->fStatements) {
+                if (stmt->fKind == Statement::kBreak_Kind) {
+                    capturing = false;
+                    break;
+                }
+                if (contains_break(*stmt)) {
+                    return nullptr;
+                }
+                statements.push_back(std::move(stmt));
+            }
+            if (!capturing) {
+                break;
+            }
+        }
+    }
+    return std::unique_ptr<Statement>(new Block(Position(), std::move(statements)));
+}
+
 void Compiler::simplifyStatement(DefinitionMap& definitions,
-                                  BasicBlock& b,
-                                  std::vector<BasicBlock::Node>::iterator* iter,
-                                  std::unordered_set<const Variable*>* undefinedVariables,
-                                  bool* outUpdated,
-                                  bool* outNeedsRescan) {
+                                 BasicBlock& b,
+                                 std::vector<BasicBlock::Node>::iterator* iter,
+                                 std::unordered_set<const Variable*>* undefinedVariables,
+                                 bool* outUpdated,
+                                 bool* outNeedsRescan) {
     Statement* stmt = (*iter)->statement()->get();
     switch (stmt->fKind) {
         case Statement::kVarDeclarations_Kind: {
@@ -555,6 +620,22 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
         }
         case Statement::kIf_Kind: {
             IfStatement& i = (IfStatement&) *stmt;
+            if (i.fTest->fKind == Expression::kBoolLiteral_Kind) {
+                // constant if, collapse down to a single branch
+                if (((BoolLiteral&) *i.fTest).fValue) {
+                    ASSERT(i.fIfTrue);
+                    (*iter)->setStatement(std::move(i.fIfTrue));
+                } else {
+                    if (i.fIfFalse) {
+                        (*iter)->setStatement(std::move(i.fIfFalse));
+                    } else {
+                        (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+                    }
+                }
+                *outUpdated = true;
+                *outNeedsRescan = true;
+                break;
+            }
             if (i.fIfFalse && i.fIfFalse->isEmpty()) {
                 // else block doesn't do anything, remove it
                 i.fIfFalse.reset();
@@ -571,6 +652,58 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                     // no if, no else, no test side effects, kill the whole if
                     // statement
                     (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+                }
+                *outUpdated = true;
+                *outNeedsRescan = true;
+            }
+            break;
+        }
+        case Statement::kSwitch_Kind: {
+            SwitchStatement& s = (SwitchStatement&) *stmt;
+            if (s.fValue->isConstant()) {
+                // switch is constant, replace it with the case that matches
+                bool found = false;
+                SwitchCase* defaultCase = nullptr;
+                for (const auto& c : s.fCases) {
+                    if (!c->fValue) {
+                        defaultCase = c.get();
+                        continue;
+                    }
+                    ASSERT(c->fValue->fKind == s.fValue->fKind);
+                    switch (c->fValue->fKind) {
+                        case Expression::kFloatLiteral_Kind:
+                            found = ((FloatLiteral&) *c->fValue).fValue ==
+                                    ((FloatLiteral&) *s.fValue).fValue;
+                            break;
+                        case Expression::kIntLiteral_Kind:
+                            found = ((IntLiteral&) *c->fValue).fValue ==
+                                    ((IntLiteral&) *s.fValue).fValue;
+                            break;
+                        default:
+                            ABORT("unsupported switch type");
+                    }
+                    if (found) {
+                        std::unique_ptr<Statement> newBlock = block_for_case(s, *c);
+                        if (newBlock) {
+                            (*iter)->setStatement(std::move(newBlock));
+                            break;
+                        } else {
+                            return; // can't simplify
+                        }
+                    }
+                }
+                if (!found) {
+                    // no matching case. use default if it exists, or kill the whole thing
+                    if (defaultCase) {
+                        std::unique_ptr<Statement> newBlock = block_for_case(s, *defaultCase);
+                        if (newBlock) {
+                            (*iter)->setStatement(std::move(newBlock));
+                        } else {
+                            return; // can't simplify
+                        }
+                    } else {
+                        (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+                    }
                 }
                 *outUpdated = true;
                 *outNeedsRescan = true;
@@ -732,6 +865,13 @@ void Compiler::internalConvertProgram(String text,
                 }
                 break;
             }
+            case ASTDeclaration::kSection_Kind: {
+                std::unique_ptr<Section> s = fIRGenerator->convertSection((ASTSection&) decl);
+                if (s) {
+                    result->push_back(std::move(s));
+                }
+                break;
+            }
             case ASTDeclaration::kPrecision_Kind: {
                 *defaultPrecision = ((ASTPrecision&) decl).fPrecision;
                 break;
@@ -758,6 +898,9 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             break;
         case Program::kGeometry_Kind:
             this->internalConvertProgram(String(SKSL_GEOM_INCLUDE), &ignored, &elements);
+            break;
+        case Program::kFragmentProcessor_Kind:
+            this->internalConvertProgram(String(SKSL_FP_INCLUDE), &ignored, &elements);
             break;
     }
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
@@ -825,6 +968,19 @@ bool Compiler::toGLSL(const Program& program, String* out) {
     return result;
 }
 
+bool Compiler::toCPP(const Program& program, String name, OutputStream& out) {
+    CPPCodeGenerator cg(&fContext, &program, this, name, &out);
+    bool result = cg.generateCode();
+    this->writeErrorCount();
+    return result;
+}
+
+bool Compiler::toH(const Program& program, String name, OutputStream& out) {
+    HCodeGenerator cg(&program, this, name, &out);
+    bool result = cg.generateCode();
+    this->writeErrorCount();
+    return result;
+}
 
 void Compiler::error(Position position, String msg) {
     fErrorCount++;

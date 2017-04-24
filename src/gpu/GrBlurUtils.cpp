@@ -13,7 +13,7 @@
 #include "GrFixedClip.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "GrSimpleTextureEffect.h"
 #include "GrStyle.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"

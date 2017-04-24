@@ -51,7 +51,7 @@ private:
                                  GrGLuint programId,
                                  GrGLenum type,
                                  SkTDArray<GrGLuint>* shaderIds,
-                                 const SkSL::Program::Settings& settings,
+                                 SkSL::Program::Settings& settings,
                                  SkSL::Program::Inputs* outInputs);
     GrGLProgram* finalize();
     void bindProgramResourceLocations(GrGLuint programID);
