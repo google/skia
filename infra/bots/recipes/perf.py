@@ -12,6 +12,8 @@ import calendar
 DEPS = [
   'build/file',
   'core',
+  'env',
+  'flavor',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
@@ -20,7 +22,6 @@ DEPS = [
   'recipe_engine/step',
   'recipe_engine/time',
   'run',
-  'flavor',
   'vars',
 ]
 
@@ -254,7 +255,7 @@ def perf_steps(api):
       if not k in keys_blacklist:
         args.extend([k, api.vars.builder_cfg[k]])
 
-  env = api.step.get_from_context('env', {})
+  env = {}
   if 'Ubuntu16' in api.vars.builder_name:
     # The vulkan in this asset name simply means that the graphics driver
     # supports Vulkan. It is also the driver used for GL code.
@@ -282,7 +283,7 @@ def perf_steps(api):
   if '_AbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
     args.extend(['--abandonGpuContext', '--nocpu'])
 
-  with api.step.context({'env': env}):
+  with api.env(env):
     api.run(api.flavor.step, target, cmd=args,
             abort_on_failure=False)
 
@@ -296,10 +297,10 @@ def perf_steps(api):
 
 def RunSteps(api):
   api.core.setup()
-  env = api.step.get_from_context('env', {})
+  env = {}
   if 'iOS' in api.vars.builder_name:
     env['IOS_BUNDLE_ID'] = 'com.google.nanobench'
-  with api.step.context({'env': env}):
+  with api.env(env):
     try:
       if 'Chromecast' in api.vars.builder_name:
         api.flavor.install(resources=True, skps=True)
