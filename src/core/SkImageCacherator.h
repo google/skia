@@ -42,16 +42,6 @@ public:
         kNumCachedFormats,
     };
 
-    /**
-     *  On success (true), bitmap will point to the pixels for this generator. If this returns
-     *  false, the bitmap will be reset to empty.
-     *
-     *  If not NULL, the client will be notified (->notifyAddedToCache()) when resources are
-     *  added to the cache on its behalf.
-     */
-    bool lockAsBitmap(GrContext*, SkBitmap*, const SkImage* client, SkColorSpace* dstColorSpace,
-                      SkImage::CachingHint = SkImage::kAllow_CachingHint);
-
 #if SK_SUPPORT_GPU
     /**
      *  Returns a ref() on the texture produced by this generator. The caller must call unref()
@@ -130,8 +120,16 @@ private:
     CachedFormat chooseCacheFormat(SkColorSpace* dstColorSpace, const GrCaps* = nullptr);
     SkImageInfo buildCacheInfo(CachedFormat);
 
-    bool tryLockAsBitmap(SkBitmap*, const SkImage*, SkImage::CachingHint, CachedFormat,
-                         const SkImageInfo&);
+    /**
+     *  On success (true), bitmap will point to the pixels for this generator. If this returns
+     *  false, the bitmap will be reset to empty.
+     *
+     *  If not NULL, the client will be notified (->notifyAddedToCache()) when resources are
+     *  added to the cache on its behalf.
+     */
+    bool lockAsBitmap(SkBitmap*, const SkImage*, SkImage::CachingHint, CachedFormat,
+                      const SkImageInfo&);
+
 #if SK_SUPPORT_GPU
     // Returns the texture proxy. If the cacherator is generating the texture and wants to cache it,
     // it should use the passed in key (if the key is valid).
