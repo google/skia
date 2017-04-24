@@ -68,6 +68,74 @@
       "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b63d647_c3381417",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-24T14:44:50Z",
+      "side": 1,
+      "message": "So we can\u0027t wrap FBO 0?",
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96e299ce_5cff0b75",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-24T14:44:50Z",
+      "side": 1,
+      "message": "Can we assert this isn\u0027t kDefault here?",
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d318939_9b5f2a6a",
+        "filename": "src/views/SkWindow.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-24T14:44:50Z",
+      "side": 1,
+      "message": "Why on earth does SkWindow have SkScalar width \u0026 height ?",
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddabe31e_44b678bd",
+        "filename": "tools/viewer/sk_app/GLWindowContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-24T14:44:50Z",
+      "side": 1,
+      "message": "The this-\u003e seems a bit extreme here ...",
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
