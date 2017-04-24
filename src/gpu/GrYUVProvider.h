@@ -19,7 +19,7 @@ class GrTextureProxy;
 /**
  *  There are at least 2 different ways to extract/retrieve YUV planar data...
  *  - SkPixelRef
- *  - SkImageGeneartor
+ *  - SkImageGenerator
  *
  *  To share common functionality around using the planar data, we use this abstract base-class
  *  to represent accessing that data.
