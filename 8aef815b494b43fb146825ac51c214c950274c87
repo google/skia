@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0010ebea_986bcb57",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-24T13:08:27Z",
+      "side": 1,
+      "message": "Is it ok to call png_process_data() with 0 bytes?",
+      "range": {
+        "startLine": 136,
+        "startChar": 8,
+        "endLine": 136,
+        "endChar": 75
+      },
+      "revId": "8aef815b494b43fb146825ac51c214c950274c87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
