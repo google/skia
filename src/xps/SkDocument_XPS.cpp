@@ -65,13 +65,37 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// UWP Mobile does not support XPS, but Desktop does
+static inline bool xps_available() {
+#ifdef SK_BUILD_FOR_WINRT
+    static bool available = []{ 
+        SkTScopedComPtr<IXpsOMObjectFactory> factory;
+        auto hr = CoCreateInstance(
+            CLSID_XpsOMObjectFactory,
+            nullptr,
+            CLSCTX_INPROC_SERVER,
+            IID_PPV_ARGS(&factory));
+        return SUCCEEDED(hr);
+    }();
+    return available;
+#else
+    return true;
+#endif
+}
+
 sk_sp<SkDocument> SkDocument::MakeXPS(SkWStream* stream, SkScalar dpi) {
+    if (!xps_available()) {
+        return nullptr;
+    }
     return stream ? sk_make_sp<SkDocument_XPS>(stream, nullptr, dpi) : nullptr;
 }
 
 static void delete_wstream(SkWStream* stream, bool aborted) { delete stream; }
 
 sk_sp<SkDocument> SkDocument::MakeXPS(const char path[], SkScalar dpi) {
+    if (!xps_available()) {
+        return nullptr;
+    }
     std::unique_ptr<SkFILEWStream> stream(new SkFILEWStream(path));
     if (!stream->isValid()) {
         return nullptr;
