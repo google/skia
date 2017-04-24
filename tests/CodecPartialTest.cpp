@@ -406,7 +406,6 @@ DEF_TEST(Codec_emptyIDAT, r) {
     const char* name = "baby_tux.png";
     sk_sp<SkData> file = GetResourceAsData(name);
     if (!file) {
-        SkDebugf("REMOVE\n");
         return;
     }
 
