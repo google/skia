@@ -160,26 +160,6 @@
       "-t",
       "-t",
       "foo@127.0.0.1",
-      "touch",
-      "/home/chronos/user/SKP_VERSION"
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "touch /home/chronos/user/SKP_VERSION"
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
       "cat",
       "/home/chronos/user/SKP_VERSION"
     ],
@@ -326,26 +306,6 @@
       "-t",
       "-t",
       "foo@127.0.0.1",
-      "touch",
-      "/home/chronos/user/SK_IMAGE_VERSION"
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "touch /home/chronos/user/SK_IMAGE_VERSION"
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
       "cat",
       "/home/chronos/user/SK_IMAGE_VERSION"
     ],
@@ -483,26 +443,6 @@
     ],
     "infra_step": true,
     "name": "write SVG_VERSION"
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
-      "touch",
-      "/home/chronos/user/SVG_VERSION"
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "touch /home/chronos/user/SVG_VERSION"
   },
   {
     "cmd": [

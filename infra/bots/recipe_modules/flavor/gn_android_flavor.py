@@ -218,9 +218,11 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   def copy_directory_contents_to_host(self, device, host):
     self._adb('pull %s %s' % (device, host), 'pull', device, host)
 
-  def read_file_on_device(self, path):
-    return self._adb('read %s' % path,
-                     'shell', 'cat', path, stdout=self.m.raw_io.output()).stdout
+  def read_file_on_device(self, path, **kwargs):
+    rv = self._adb('read %s' % path,
+                   'shell', 'cat', path, stdout=self.m.raw_io.output(),
+                   **kwargs)
+    return rv.stdout.rstrip() if rv and rv.stdout else None
 
   def remove_file_on_device(self, path):
     self._adb('rm %s' % path, 'shell', 'rm', '-f', path)
