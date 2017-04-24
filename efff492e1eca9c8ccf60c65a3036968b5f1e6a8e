@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "97fd6948_81e22e4b",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-24T19:28:54Z",
+      "side": 1,
+      "message": "It hasn\u0027t come up, and I\u0027m not sure it belongs as a part of this patch, but possibly.\n\nIf the client attempts to decode again, we should rewind, which will delete this one and create a new one. Maybe the client tries to misuse our API, and continue incremental decoding after a failure. That would be a bug on the client\u0027s part, but perhaps it could cause a problem. (I suspect libpng will recognize that it is in a busted state, but I should write a test. They may make the same conclusion I made - caller\u0027s fault.)",
+      "parentUuid": "02e149d8_b6ab434f",
+      "range": {
+        "startLine": 188,
+        "startChar": 8,
+        "endLine": 188,
+        "endChar": 48
+      },
+      "revId": "efff492e1eca9c8ccf60c65a3036968b5f1e6a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "934a884b_1eacf316",
         "filename": "src/codec/SkPngCodec.cpp",
         "patchSetId": 6
@@ -60,6 +84,30 @@
       "side": 1,
       "message": "I like the simplicity.  And I think incidentally supporting sampled PNGs is fine - at least we\u0027re consistent with regular PNG decodes.",
       "parentUuid": "934a884b_1eacf316",
+      "range": {
+        "startLine": 575,
+        "startChar": 34,
+        "endLine": 575,
+        "endChar": 54
+      },
+      "revId": "efff492e1eca9c8ccf60c65a3036968b5f1e6a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfbbe74c_91027c67",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-24T19:28:54Z",
+      "side": 1,
+      "message": "The more I think about it, the more I think this is a bad trade. Especially when we\u0027re doing subset decodes on large images. PTAL at the latest, which (re)breaks AndroidCodec (and stops testing for it), while fixing interlaced.",
+      "parentUuid": "1cf109ee_3f8e320f",
       "range": {
         "startLine": 575,
         "startChar": 34,
