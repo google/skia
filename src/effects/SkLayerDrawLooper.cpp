@@ -218,7 +218,7 @@ sk_sp<SkDrawLooper> SkLayerDrawLooper::onMakeColorSpace(SkColorSpaceXformer* xfo
     Rec* oldRec = fRecs;
     Rec* newTopRec = new Rec();
     newTopRec->fInfo = oldRec->fInfo;
-    newTopRec->fPaint = xformer->apply(oldRec->fPaint);
+    xformer->apply(&newTopRec->fPaint, oldRec->fPaint);
     newTopRec->fNext = nullptr;
 
     Rec* prevNewRec = newTopRec;
@@ -226,7 +226,7 @@ sk_sp<SkDrawLooper> SkLayerDrawLooper::onMakeColorSpace(SkColorSpaceXformer* xfo
     while (oldRec) {
         Rec* newRec = new Rec();
         newRec->fInfo = oldRec->fInfo;
-        newRec->fPaint = xformer->apply(oldRec->fPaint);
+        xformer->apply(&newRec->fPaint, oldRec->fPaint);
         newRec->fNext = nullptr;
         prevNewRec->fNext = newRec;
 

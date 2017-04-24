@@ -75,14 +75,14 @@ SkColor SkColorSpaceXformer::apply(SkColor srgb) {
     return xformed;
 }
 
-const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
-    const SkPaint* result = &src;
+bool SkColorSpaceXformer::applyHelper(SkPaint* dst, const SkPaint& src) {
+    bool didXform = false;
     auto get_dst = [&] {
-        if (result == &src) {
-            fDstPaint = src;
-            result = &fDstPaint;
+        if (!didXform) {
+            *dst = src;
+            didXform = true;
         }
-        return &fDstPaint;
+        return dst;
     };
 
     // All SkColorSpaces have the same black point.
@@ -118,7 +118,21 @@ const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
         }
     }
 
-    return *result;
+    return didXform;
+}
+
+void SkColorSpaceXformer::apply(SkPaint* dst, const SkPaint& src) {
+    if (!this->applyHelper(dst, src)) {
+        *dst = src;
+    }
+}
+
+const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
+    if (this->applyHelper(&fDstPaint, src)) {
+        return fDstPaint;
+    }
+
+    return src;
 }
 
 const SkPaint* SkColorSpaceXformer::apply(const SkPaint* src) {
