@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ac1fd1cc_02c9112b",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-24T17:16:08Z",
+      "side": 1,
+      "message": "Right. All of our other generator-backed image types currently have generator and image factories (that forward to the former), but we can easily just expose the image factory for now. Done.",
+      "parentUuid": "75d1a74b_363322aa",
+      "revId": "9f29be53b1e3e84cd60f34e857e7a571682c2f58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e1fecd47_a8cff00a",
         "filename": "src/gpu/GrBackendTextureImageGenerator.h",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "9f29be53b1e3e84cd60f34e857e7a571682c2f58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8bf09c4_39f94e39",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-24T17:16:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1fecd47_a8cff00a",
+      "revId": "9f29be53b1e3e84cd60f34e857e7a571682c2f58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
