@@ -167,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "7d75222b_6fdfcfe6",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-24T15:23:00Z",
+      "side": 1,
+      "message": "Yeah I\u0027m removing since we\u0027re going to copy version",
+      "parentUuid": "c527d8ad_e03999a8",
+      "range": {
+        "startLine": 118,
+        "startChar": 25,
+        "endLine": 118,
+        "endChar": 32
+      },
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8b63d647_c3381417",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 2
@@ -249,6 +273,24 @@
       "side": 1,
       "message": "Is that in our test code or in client code?",
       "parentUuid": "7c9e6036_9063ce94",
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57cd0833_b95dda72",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-24T15:23:00Z",
+      "side": 1,
+      "message": "A quick scan in chrome at least looks like they explicitly let the origin, not sure about other clients. However it is in our code as well as all over our test code. If you just search for it explicitly it doesn\u0027t seem like it is used much but then you realize it is the default value for GrSurfaceDesc and GrBackend*Desc. So especially the GrSurfaceDesc is used all over the place. I think this sort of change would need to happen on its own when we decide to actually remove kDefault.",
+      "parentUuid": "9dccad7d_09e9a3e7",
       "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
