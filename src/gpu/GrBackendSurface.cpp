@@ -90,7 +90,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int sampleCnt,
                                              int stencilBits,
                                              GrPixelConfig config,
-                                             const GrGLTextureInfo* glInfo)
+                                             const GrGLFramebufferInfo* glInfo)
         : fWidth(width)
         , fHeight(height)
         , fSampleCnt(sampleCnt)
@@ -122,7 +122,7 @@ const GrVkImageInfo* GrBackendRenderTarget::getVkImageInfo() const {
     return nullptr;
 }
 
-const GrGLTextureInfo* GrBackendRenderTarget::getGLTextureInfo() const {
+const GrGLFramebufferInfo* GrBackendRenderTarget::getGLFramebufferInfo() const {
     if (kOpenGL_GrBackend == fBackend) {
         return fGLInfo;
     }

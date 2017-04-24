@@ -11,6 +11,7 @@
 #include "GrTypes.h"
 
 struct GrVkImageInfo;
+struct GrGLFramebufferInfo;
 struct GrGLTextureInfo;
 
 class GrBackendTexture {
@@ -78,7 +79,7 @@ public:
                           int sampleCnt,
                           int stencilBits,
                           GrPixelConfig config,
-                          const GrGLTextureInfo* glInfo);
+                          const GrGLFramebufferInfo* glInfo);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
@@ -91,9 +92,9 @@ public:
     // it returns nullptr.
     const GrVkImageInfo* getVkImageInfo() const;
 
-    // If the backend API is GL, this returns a pointer to the GrGLTextureInfo struct. Otherwise
+    // If the backend API is GL, this returns a pointer to the GrGLFramebufferInfo struct. Otherwise
     // it returns nullptr.
-    const GrGLTextureInfo* getGLTextureInfo() const;
+    const GrGLFramebufferInfo* getGLFramebufferInfo() const;
 
 private:
     // Temporary constructor which can be used to convert from a GrBackendRenderTargetDesc.
@@ -113,7 +114,7 @@ private:
 
     union {
         const GrVkImageInfo*   fVkInfo;
-        const GrGLTextureInfo* fGLInfo;
+        const GrGLFramebufferInfo* fGLInfo;
         GrBackendObject  fHandle;
     };
 };
