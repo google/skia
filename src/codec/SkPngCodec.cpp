@@ -132,10 +132,11 @@ static inline bool process_data(png_structp png_ptr, png_infop info_ptr,
         SkStream* stream, void* buffer, size_t bufferSize, size_t length) {
     while (length > 0) {
         const size_t bytesToProcess = std::min(bufferSize, length);
-        if (stream->read(buffer, bytesToProcess) < bytesToProcess) {
+        const size_t bytesRead = stream->read(buffer, bytesToProcess);
+        png_process_data(png_ptr, info_ptr, (png_bytep) buffer, bytesRead);
+        if (bytesRead < bytesToProcess) {
             return false;
         }
-        png_process_data(png_ptr, info_ptr, (png_bytep) buffer, bytesToProcess);
         length -= bytesToProcess;
     }
     return true;
