@@ -193,7 +193,6 @@ void SkPngCodec::processData() {
     switch (setjmp(PNG_JMPBUF(fPng_ptr))) {
         case kPngError:
             // There was an error. Stop processing data.
-            // FIXME: Do we need to discard png_ptr?
             return;
         case kStopDecoding:
             // We decoded all the lines we want.
@@ -647,7 +646,7 @@ private:
     // as expensive as the subset version of non-interlaced, but it still does extra
     // work.
     void interlacedRowCallback(png_bytep row, int rowNum, int pass) {
-        if (rowNum < fFirstRow || rowNum > fLastRow) {
+        if (rowNum < fFirstRow || rowNum > fLastRow || fInterlacedComplete) {
             // Ignore this row
             return;
         }
@@ -663,12 +662,15 @@ private:
         } else {
             SkASSERT(fLinesDecoded == fLastRow - fFirstRow + 1);
             if (fNumberPasses - 1 == pass && rowNum == fLastRow) {
-                // Last pass, and we have read all of the rows we care about. Note that
-                // we do not care about reading anything beyond the end of the image (or
-                // beyond the last scanline requested).
+                // Last pass, and we have read all of the rows we care about.
                 fInterlacedComplete = true;
-                // Fake error to stop decoding scanlines.
-                longjmp(PNG_JMPBUF(this->png_ptr()), kStopDecoding);
+                if (fLastRow != this->getInfo().height() - 1 || this->swizzler()->sampleY() != 1) {
+                    // Fake error to stop decoding scanlines. Only stop if we're not decoding the
+                    // whole image, in which case processing the rest of the image might be
+                    // expensive. When decoding the whole image, read through the IEND chunk to
+                    // preserve Android behavior of leaving the input stream in the right place.
+                    longjmp(PNG_JMPBUF(this->png_ptr()), kStopDecoding);
+                }
             }
         }
     }
