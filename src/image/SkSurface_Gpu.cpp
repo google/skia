@@ -159,7 +159,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
 }
 
 void SkSurface_Gpu::onDiscard() {
-    fDevice->accessRenderTargetContext()->discard();
+    fDevice->accessRenderTargetContext()->discard1();
 }
 
 void SkSurface_Gpu::onPrepareForExternalIO() {

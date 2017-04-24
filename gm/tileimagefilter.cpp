@@ -27,7 +27,7 @@ public:
 
 protected:
     SkString onShortName() override {
-        return SkString("tileimagefilter");
+        return SkString("tileimagefilter2");
     }
 
     SkISize onISize() override{
