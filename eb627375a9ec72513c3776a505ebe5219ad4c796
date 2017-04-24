@@ -297,6 +297,24 @@
     },
     {
       "key": {
+        "uuid": "b53ddbe6_a6f8cdb1",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-24T15:29:53Z",
+      "side": 1,
+      "message": "I believe we use kDefault all over the place with GrSurfaceDesc. But do we really use it for wrapped surfaces? I would think not or perhaps in a few tests, but could be very wrong.",
+      "parentUuid": "57cd0833_b95dda72",
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7d318939_9b5f2a6a",
         "filename": "src/views/SkWindow.cpp",
         "patchSetId": 2
