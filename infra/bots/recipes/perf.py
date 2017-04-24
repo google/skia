@@ -299,6 +299,7 @@ def RunSteps(api):
   env = api.step.get_from_context('env', {})
   if 'iOS' in api.vars.builder_name:
     env['IOS_BUNDLE_ID'] = 'com.google.nanobench'
+    env['IOS_MOUNT_POINT'] = api.vars.slave_dir.join('mnt_iosdevice')
   with api.step.context({'env': env}):
     try:
       if 'Chromecast' in api.vars.builder_name:
