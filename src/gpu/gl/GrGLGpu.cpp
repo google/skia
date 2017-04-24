@@ -588,23 +588,24 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     }
 }
 
-sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc){
+sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,
+                                                         GrSurfaceOrigin origin) {
     GrGLRenderTarget::IDDesc idDesc;
-    idDesc.fRTFBOID = static_cast<GrGLuint>(wrapDesc.fRenderTargetHandle);
+    idDesc.fRTFBOID = backendRT.getGLFramebufferInfo()->fFBOID;
     idDesc.fMSColorRenderbufferID = 0;
     idDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     idDesc.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
     idDesc.fIsMixedSampled = false;
 
     GrSurfaceDesc desc;
-    desc.fConfig = wrapDesc.fConfig;
+    desc.fConfig = backendRT.config();
     desc.fFlags = kCheckAllocation_GrSurfaceFlag | kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = wrapDesc.fWidth;
-    desc.fHeight = wrapDesc.fHeight;
-    desc.fSampleCnt = SkTMin(wrapDesc.fSampleCnt, this->caps()->maxSampleCount());
-    desc.fOrigin = resolve_origin(wrapDesc.fOrigin, true);
+    desc.fWidth = backendRT.width();
+    desc.fHeight = backendRT.height();
+    desc.fSampleCnt = SkTMin(backendRT.sampleCnt(), this->caps()->maxSampleCount());
+    desc.fOrigin = resolve_origin(origin, true);
 
-    return GrGLRenderTarget::MakeWrapped(this, desc, idDesc, wrapDesc.fStencilBits);
+    return GrGLRenderTarget::MakeWrapped(this, desc, idDesc, backendRT.stencilBits());
 }
 
 sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
