@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "02e149d8_b6ab434f",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-24T18:32:51Z",
+      "side": 1,
+      "message": "Should we fix this?",
+      "range": {
+        "startLine": 188,
+        "startChar": 8,
+        "endLine": 188,
+        "endChar": 48
+      },
+      "revId": "efff492e1eca9c8ccf60c65a3036968b5f1e6a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "934a884b_1eacf316",
         "filename": "src/codec/SkPngCodec.cpp",
         "patchSetId": 6
@@ -13,6 +36,30 @@
       "writtenOn": "2017-04-24T18:01:05Z",
       "side": 1,
       "message": "Maybe I should back out this part of the change, since as I point out below, subset/sampled decoding wouldn\u0027t work in the Android bug since we got rid of png_read_end for scanline decoding in N.\n\nThe downside is we\u0027ll now do extra work, telling libpng to process the rest of the input even though we\u0027ll ignore its output. But this simplifies the code and stays consistent with the interlaced decoder.",
+      "range": {
+        "startLine": 575,
+        "startChar": 34,
+        "endLine": 575,
+        "endChar": 54
+      },
+      "revId": "efff492e1eca9c8ccf60c65a3036968b5f1e6a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cf109ee_3f8e320f",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-24T18:32:51Z",
+      "side": 1,
+      "message": "I like the simplicity.  And I think incidentally supporting sampled PNGs is fine - at least we\u0027re consistent with regular PNG decodes.",
+      "parentUuid": "934a884b_1eacf316",
       "range": {
         "startLine": 575,
         "startChar": 34,
@@ -45,6 +92,30 @@
       "revId": "efff492e1eca9c8ccf60c65a3036968b5f1e6a8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3d347f0_15974eb5",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-24T18:32:51Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "95cd22ec_8bde1b4e",
+      "range": {
+        "startLine": 628,
+        "startChar": 55,
+        "endLine": 628,
+        "endChar": 74
+      },
+      "revId": "efff492e1eca9c8ccf60c65a3036968b5f1e6a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
