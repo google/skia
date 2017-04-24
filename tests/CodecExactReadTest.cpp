@@ -14,89 +14,74 @@
 #include "SkStream.h"
 
 namespace {
-// This class emits a skiatest failure if a client attempts to read beyond its
-// end. Since it is used with complete, valid images, and contains nothing
-// after the encoded image data, it will emit a failure if the client attempts
-// to read beyond the logical end of the data.
-class MyStream : public SkStream {
+// This class wraps another SkStream. It does not own the underlying stream, so
+// that the underlying stream can be reused starting from where the first
+// client left off. This mimics Android's JavaInputStreamAdaptor.
+class UnowningStream : public SkStream {
 public:
-    static MyStream* Make(const char* path, skiatest::Reporter* r) {
-        SkASSERT(path);
-        sk_sp<SkData> data(GetResourceAsData(path));
-        if (!data) {
-            return nullptr;
-        }
-
-        return new MyStream(path, std::move(data), r);
-    }
+    explicit UnowningStream(SkStream* stream)
+        : fStream(stream)
+    {}
 
     size_t read(void* buf, size_t bytes) override {
-        const size_t remaining = fStream.getLength() - fStream.getPosition();
-        if (bytes > remaining) {
-            ERRORF(fReporter, "Tried to read %lu bytes (only %lu remaining) from %s",
-                   bytes, remaining, fPath);
-        }
-        return fStream.read(buf, bytes);
+        return fStream->read(buf, bytes);
     }
 
     bool rewind() override {
-        return fStream.rewind();
+        return fStream->rewind();
     }
 
     bool isAtEnd() const override {
-        return fStream.isAtEnd();
+        return fStream->isAtEnd();
     }
 private:
-    const char* fPath;
-    SkMemoryStream fStream;
-    skiatest::Reporter* fReporter;  // Unowned
-
-    MyStream(const char* path, sk_sp<SkData> data, skiatest::Reporter* r)
-        : fPath(path)
-        , fStream(std::move(data))
-        , fReporter(r)
-    {}
+    SkStream* fStream; // Unowned.
 };
 } // namespace
 
-// Test that SkPngCodec does not attempt to read its input beyond the logical
-// end of its data. Some other SkCodecs do, but some Android apps rely on not
-// doing so for PNGs.
+// Test that some SkCodecs do not attempt to read input beyond the logical
+// end of the data. Some other SkCodecs do, but some Android apps rely on not
+// doing so for PNGs. Test on other formats that work.
 DEF_TEST(Codec_end, r) {
     for (const char* path : { "plane.png",
                               "yellow_rose.png",
-                              "plane_interlaced.png" }) {
-        std::unique_ptr<MyStream> stream(MyStream::Make(path, r));
-        if (!stream) {
+                              "plane_interlaced.png",
+                              "google_chrome.ico",
+                              "color_wheel.ico",
+                              "mandrill.wbmp",
+                              "randPixels.bmp",
+                              }) {
+        sk_sp<SkData> data = GetResourceAsData(path);
+        if (!data) {
             continue;
         }
 
-        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
-        if (!codec) {
-            ERRORF(r, "Failed to create a codec from %s\n", path);
-            continue;
+        const int kNumImages = 2;
+        const size_t size = data->size();
+        sk_sp<SkData> multiData = SkData::MakeUninitialized(size * kNumImages);
+        void* dst = multiData->writable_data();
+        for (int i = 0; i < kNumImages; i++) {
+            memcpy(SkTAddOffset<void>(dst, size * i), data->data(), size);
         }
+        data.reset();
 
-        auto info = codec->getInfo().makeColorType(kN32_SkColorType);
-        SkBitmap bm;
-        bm.allocPixels(info);
+        SkMemoryStream stream(std::move(multiData));
+        for (int i = 0; i < kNumImages; ++i) {
+            std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(new UnowningStream(&stream)));
+            if (!codec) {
+                ERRORF(r, "Failed to create a codec from %s, iteration %i", path, i);
+                continue;
+            }
 
-        auto result = codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes());
-        if (result != SkCodec::kSuccess) {
-            ERRORF(r, "Failed to getPixels from %s. error %i", path, result);
-            continue;
-        }
+            auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+            SkBitmap bm;
+            bm.allocPixels(info);
 
-        // Rewind and do an incremental decode.
-        result = codec->startIncrementalDecode(bm.info(), bm.getPixels(), bm.rowBytes());
-        if (result != SkCodec::kSuccess) {
-            ERRORF(r, "Failed to startIncrementalDecode from %s. error %i", path, result);
-            continue;
-        }
-
-        result = codec->incrementalDecode();
-        if (result != SkCodec::kSuccess) {
-            ERRORF(r, "Failed to incrementalDecode from %s. error %i", path, result);
+            auto result = codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes());
+            if (result != SkCodec::kSuccess) {
+                ERRORF(r, "Failed to getPixels from %s, iteration %i error %i", path, i, result);
+                continue;
+            }
         }
     }
 }
