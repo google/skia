@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9146daf8_5d93239a",
+        "filename": "src/core/SkImageCacherator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-24T20:38:09Z",
+      "side": 1,
+      "message": "can this be private now?",
+      "range": {
+        "startLine": 52,
+        "startChar": 9,
+        "endLine": 52,
+        "endChar": 21
+      },
+      "revId": "297d5f4bd778e7fbba53cce0c955246f0945d8ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
