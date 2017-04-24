@@ -9,6 +9,8 @@
 DEPS = [
   'build/file',
   'core',
+  'env',
+  'flavor',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
@@ -16,7 +18,6 @@ DEPS = [
   'recipe_engine/python',
   'recipe_engine/raw_io',
   'recipe_engine/step',
-  'flavor',
   'run',
   'vars',
 ]
@@ -647,7 +648,7 @@ def test_steps(api):
     args.append(skip_flag)
   args.extend(dm_flags(api.vars.builder_name))
 
-  env = api.step.get_from_context('env', {})
+  env = {}
   if 'Ubuntu16' in api.vars.builder_name:
     # The vulkan in this asset name simply means that the graphics driver
     # supports Vulkan. It is also the driver used for GL code.
@@ -677,7 +678,7 @@ def test_steps(api):
   if '_PreAbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
     args.append('--preAbandonGpuContext')
 
-  with api.step.context({'env': env}):
+  with api.env(env):
     api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
 
   if api.vars.upload_dm_results:

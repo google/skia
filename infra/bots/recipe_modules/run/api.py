@@ -70,10 +70,9 @@ class SkiaStepApi(recipe_api.RecipeApi):
 
   def rmtree(self, path):
     """Wrapper around api.file.rmtree with environment fix."""
-    env = self.m.step.get_from_context('env', {})
-    env['PYTHONPATH'] = str(self.m.path['start_dir'].join(
-        'skia', 'infra', 'bots', '.recipe_deps', 'build', 'scripts'))
-    with self.m.step.context({'env': env}):
+    env = {'PYTHONPATH': str(self.m.path['start_dir'].join(
+        'skia', 'infra', 'bots', '.recipe_deps', 'build', 'scripts'))}
+    with self.m.env(env):
       self.m.file.rmtree(self.m.path.basename(path),
                          path,
                          infra_step=True)
@@ -81,18 +80,8 @@ class SkiaStepApi(recipe_api.RecipeApi):
   def __call__(self, steptype, name, abort_on_failure=True,
                fail_build_on_failure=True, **kwargs):
     """Run a step. If it fails, keep going but mark the build status failed."""
-    env = self.m.step.get_from_context('env', {})
-    # If PATH is defined in both, merge them together, merging default_env into
-    # path by replacing %(PATH)s
-    path = env.get('PATH', '')
-    env.update(self.m.vars.default_env)
-    default_path = self.m.vars.default_env.get('PATH', '')
-    if path and default_path and path != default_path:
-      path = path.replace(r'%(PATH)s', default_path)
-      env['PATH'] = path
-
     try:
-      with self.m.step.context({'env': env}):
+      with self.m.env(self.m.vars.default_env):
         return steptype(name=name, **kwargs)
     except self.m.step.StepFailure as e:
       if abort_on_failure or fail_build_on_failure:
