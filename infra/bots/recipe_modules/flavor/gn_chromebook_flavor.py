@@ -151,11 +151,11 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     self._ssh('rm %s' % path, 'rm', '-rf', path)
     self._ssh('mkdir %s' % path, 'mkdir', '-p', path)
 
-  def read_file_on_device(self, path):
-    # To avoid failure if file doesn't exist.
-    self._ssh('touch %s' % path, 'touch', path)
-    return self._ssh('read %s' % path,
-                     'cat', path, stdout=self.m.raw_io.output()).stdout
+  def read_file_on_device(self, path, **kwargs):
+    rv = self._ssh('read %s' % path,
+                   'cat', path, stdout=self.m.raw_io.output(),
+                   **kwargs)
+    return rv.stdout.rstrip() if rv and rv.stdout else None
 
   def remove_file_on_device(self, path):
     # use -f to silently return if path doesn't exist

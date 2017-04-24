@@ -65,11 +65,12 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
     self._run_ios_script('rm',    path)
     self._run_ios_script('mkdir', path)
 
-  def read_file_on_device(self, path):
+  def read_file_on_device(self, path, **kwargs):
     full = self.m.vars.skia_dir.join('platform_tools/ios/bin/ios_cat_file')
-    rc = self.m.run(self.m.step,
+    rv = self.m.run(self.m.step,
                     name = 'cat_file %s' % path,
                     cmd = [full, path],
                     stdout=self.m.raw_io.output(),
-                    infra_step=kInfraStep)
-    return rc.stdout.rstrip() if rc.stdout else rc.stdout
+                    infra_step=kInfraStep,
+                    **kwargs)
+    return rv.stdout.rstrip() if rv and rv.stdout else None
