@@ -467,12 +467,25 @@ STAGE(from_srgb) {
 }
 STAGE(to_srgb) {
     auto fn = [&](F l) {
-        F sqrt = rcp  (rsqrt(l)),
-          ftrt = rsqrt(rsqrt(l));
+# if 0
+        F N = -2.3679949087706198e-6_f
+              + l*(0.0030796309593074432_f
+                   + l*(0.2143691887890287_f
+                        + l*(1.1388807154730998_f
+                           + l*0.28143322937598275_f))),
+          D= 0.00014410035667119622_f
+              + l*(0.03205097685732152_f
+                  + l*(0.609871891195403_f
+                       + l));
+#else
+        F N = -0.000014046713097174338_f
+              + l*(0.0418889554362975_f
+                   + l*(0.8052814063910991_f
+                      + l*0.39673371310288885_f)),
+        D = 0.0025084759381936907_f + l*(0.2398042103504513_f + l);
+#endif
         auto lo = l * 12.46_f;
-        auto hi = min(1.0_f, mad(0.411192_f, ftrt,
-                             mad(0.689206_f, sqrt, -0.0988_f)));
-        return if_then_else(l < 0.0043_f, lo, hi);
+        return if_then_else(l < 0.0043_f, lo, N / D);
     };
     r = fn(r);
     g = fn(g);
@@ -485,9 +498,18 @@ STAGE(from_2dot2) {
     b = approx_powf(b, C(2.2f));
 }
 STAGE(to_2dot2) {
-    r = approx_powf(r, C(1/2.2f));
-    g = approx_powf(g, C(1/2.2f));
-    b = approx_powf(b, C(1/2.2f));
+    auto convert = [](F x) {
+        F N = 1.7658158953139763e-6_f
+              + x*(0.010484084677243847_f + (0.5186383339533776_f + 0.8955079110886065_f*x)*x),
+          D = 0.0062072158485633345_f + x*(0.4160600625534518_f + x);
+
+        // Use reciprocal sqrt by swapping N and D and force small numbers to zero.
+        return if_then_else(x < 0.00195313_f, 0.0_f, rsqrt(D / N));
+    };
+
+    r = convert(r);
+    g = convert(g);
+    b = convert(b);
 }
 
 STAGE(rgb_to_hsl) {
