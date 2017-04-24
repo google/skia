@@ -210,6 +210,12 @@
   "Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Release",
   "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
   "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
+  "Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-RaspberryPi",
+  "Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi",
+  "Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-RaspberryPi",
+  "Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-RaspberryPi",
+  "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-RaspberryPi",
+  "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-RaspberryPi",
   "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android",
   "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
   "Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Debug-Android",
@@ -355,5 +361,11 @@
   "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release",
   "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release-GDI",
   "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
-  "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
+  "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
+  "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-RaspberryPi",
+  "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi",
+  "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-RaspberryPi",
+  "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-RaspberryPi",
+  "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-RaspberryPi",
+  "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-RaspberryPi"
 ]
