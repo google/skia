@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "449f8a87_3c2dec89",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-24T14:19:33Z",
+      "side": 1,
+      "message": "Let\u0027s add a translate component also.",
+      "revId": "e277969739a183b2461688e07138f1e1b768a555",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ab4b9fa_516eb86d",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-24T14:19:33Z",
+      "side": 1,
+      "message": "Are we missing a canvas-\u003etranslate(-bounds.x(), -bounds.y()) around here?  To map from dev space to buffer space -- otherwise it seems the clipMatrix below can throw everything off buffer.",
+      "revId": "e277969739a183b2461688e07138f1e1b768a555",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
