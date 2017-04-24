@@ -11,6 +11,7 @@
 #include "SkColorSpaceXform.h"
 #include "SkImage.h"
 #include "SkShader.h"
+#include "../private/SkTArray.h"
 
 class SkColorSpaceXformer : public SkNoncopyable {
 public:
@@ -31,7 +32,8 @@ private:
 
     sk_sp<SkColorSpace>                fDst;
     std::unique_ptr<SkColorSpaceXform> fFromSRGB;
-    SkPaint                            fDstPaint;
+    SkTArray<SkPaint>                  fPaints;
+    int                                fPaintsToRecycle;
 };
 
 #endif

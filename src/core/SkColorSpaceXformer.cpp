@@ -23,8 +23,9 @@ std::unique_ptr<SkColorSpaceXformer> SkColorSpaceXformer::Make(sk_sp<SkColorSpac
     }
 
     auto xformer = std::unique_ptr<SkColorSpaceXformer>(new SkColorSpaceXformer());
-    xformer->fDst      = std::move(dst);
+    xformer->fDst = std::move(dst);
     xformer->fFromSRGB = std::move(fromSRGB);
+    xformer->fPaintsToRecycle = 0;
     return xformer;
 }
 
@@ -75,14 +76,22 @@ SkColor SkColorSpaceXformer::apply(SkColor srgb) {
     return xformed;
 }
 
+static constexpr int kMaxPaints = 5; // Arbitrary
+
 const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
+    if (fPaintsToRecycle > kMaxPaints && fPaintsToRecycle == fPaints.count()) {
+        fPaintsToRecycle = 0;
+        fPaints.reset();
+    }
+
     const SkPaint* result = &src;
+    SkPaint* dst = nullptr;
     auto get_dst = [&] {
         if (result == &src) {
-            fDstPaint = src;
-            result = &fDstPaint;
+            dst = &fPaints.push_back(src);
+            result = dst;
         }
-        return &fDstPaint;
+        return dst;
     };
 
     // All SkColorSpaces have the same black point.
@@ -116,6 +125,10 @@ const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
         if (replacement.get() != imageFilter) {
             get_dst()->setImageFilter(std::move(replacement));
         }
+    }
+
+    if (result != &src) {
+        fPaintsToRecycle++;
     }
 
     return *result;
