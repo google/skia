@@ -250,8 +250,11 @@ protected:
     /** The SkDevice passed will be an SkDevice which was returned by a call to
         onCreateDevice on this device with kNeverTile_TileExpectation.
      */
-    virtual void drawDevice(SkBaseDevice*, int x, int y,
-                            const SkPaint&) = 0;
+    virtual void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) = 0;
+
+    virtual void drawClippedDevice(SkBaseDevice*, int x, int y, const SkPaint&,
+                                   const SkIRect& devClipBounds, SkImage* clipImage,
+                                   const SkMatrix& clipMatrix);
 
     virtual void drawTextOnPath(const void* text, size_t len, const SkPath&,
                                 const SkMatrix*, const SkPaint&);
