@@ -49,8 +49,8 @@ public:
      *  If not NULL, the client will be notified (->notifyAddedToCache()) when resources are
      *  added to the cache on its behalf.
      */
-    bool lockAsBitmap(GrContext*, SkBitmap*, const SkImage* client, SkColorSpace* dstColorSpace,
-                      SkImage::CachingHint = SkImage::kAllow_CachingHint);
+    bool lockAsBitmap(SkBitmap*, const SkImage*, SkImage::CachingHint, CachedFormat,
+                      const SkImageInfo&);
 
 #if SK_SUPPORT_GPU
     /**
@@ -130,8 +130,6 @@ private:
     CachedFormat chooseCacheFormat(SkColorSpace* dstColorSpace, const GrCaps* = nullptr);
     SkImageInfo buildCacheInfo(CachedFormat);
 
-    bool tryLockAsBitmap(SkBitmap*, const SkImage*, SkImage::CachingHint, CachedFormat,
-                         const SkImageInfo&);
 #if SK_SUPPORT_GPU
     // Returns the texture proxy. If the cacherator is generating the texture and wants to cache it,
     // it should use the passed in key (if the key is valid).
