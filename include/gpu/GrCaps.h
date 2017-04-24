@@ -27,7 +27,7 @@ public:
     GrCaps(const GrContextOptions&);
 
     virtual SkString dump() const;
-
+    
     const GrShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
 
     bool npotTextureTileSupport() const { return fNPOTTextureTileSupport; }
