@@ -199,9 +199,9 @@ static bool generate_pixels(SkImageGenerator* gen, const SkPixmap& pmap, int ori
     return true;
 }
 
-bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client,
-                                        SkImage::CachingHint chint, CachedFormat format,
-                                        const SkImageInfo& info) {
+bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
+                                     SkImage::CachingHint chint, CachedFormat format,
+                                     const SkImageInfo& info) {
     if (this->lockAsBitmapOnlyIfAlreadyCached(bitmap, format)) {
         return true;
     }
@@ -243,77 +243,9 @@ bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client,
         *bitmap = tmpBitmap;
         bitmap->pixelRef()->setImmutableWithID(uniqueID);
     }
+
+    check_output_bitmap(*bitmap, uniqueID);
     return true;
-}
-
-bool SkImageCacherator::lockAsBitmap(GrContext* context, SkBitmap* bitmap, const SkImage* client,
-                                     SkColorSpace* dstColorSpace,
-                                     SkImage::CachingHint chint) {
-    CachedFormat format = this->chooseCacheFormat(dstColorSpace);
-    SkImageInfo cacheInfo = this->buildCacheInfo(format);
-    const uint32_t uniqueID = this->getUniqueID(format);
-
-    if (this->tryLockAsBitmap(bitmap, client, chint, format, cacheInfo)) {
-        return check_output_bitmap(*bitmap, uniqueID);
-    }
-
-#if SK_SUPPORT_GPU
-    if (!context) {
-        bitmap->reset();
-        return false;
-    }
-
-    // Try to get a texture and read it back to raster (and then cache that with our ID)
-    sk_sp<GrTextureProxy> proxy;
-
-    {
-        ScopedGenerator generator(fSharedGenerator);
-        proxy = generator->generateTexture(context, cacheInfo, fOrigin);
-    }
-    if (!proxy) {
-        bitmap->reset();
-        return false;
-    }
-
-    const auto desc = SkBitmapCacheDesc::Make(uniqueID, fInfo.width(), fInfo.height());
-    SkBitmapCache::RecPtr rec;
-    SkPixmap pmap;
-    if (SkImage::kAllow_CachingHint == chint) {
-        rec = SkBitmapCache::Alloc(desc, cacheInfo, &pmap);
-        if (!rec) {
-            bitmap->reset();
-            return false;
-        }
-    } else {
-        if (!bitmap->tryAllocPixels(cacheInfo)) {
-            bitmap->reset();
-            return false;
-        }
-    }
-
-    sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
-                                                    proxy,
-                                                    fInfo.refColorSpace())); // src colorSpace
-    if (!sContext) {
-        bitmap->reset();
-        return false;
-    }
-
-    if (!sContext->readPixels(pmap.info(), pmap.writable_addr(), pmap.rowBytes(), 0, 0)) {
-        bitmap->reset();
-        return false;
-    }
-
-    if (rec) {
-        SkBitmapCache::Add(std::move(rec), bitmap);
-        if (client) {
-            as_IB(client)->notifyAddedToCache();
-        }
-    }
-    return check_output_bitmap(*bitmap, uniqueID);
-#else
-    return false;
-#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -628,7 +560,7 @@ sk_sp<GrTextureProxy> SkImageCacherator::lockTextureProxy(GrContext* ctx,
 
     // 5. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
-    if (this->tryLockAsBitmap(&bitmap, client, chint, format, cacheInfo)) {
+    if (this->lockAsBitmap(&bitmap, client, chint, format, cacheInfo)) {
         sk_sp<GrTextureProxy> proxy;
         if (willBeMipped) {
             proxy = GrGenerateMipMapsAndUploadToTextureProxy(ctx, bitmap, dstColorSpace);

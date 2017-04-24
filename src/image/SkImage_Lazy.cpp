@@ -80,7 +80,9 @@ SkData* SkImage_Lazy::onRefEncoded(GrContext* ctx) const {
 
 bool SkImage_Lazy::getROPixels(SkBitmap* bitmap, SkColorSpace* dstColorSpace,
                                CachingHint chint) const {
-    return fCache.lockAsBitmap(nullptr, bitmap, this, dstColorSpace, chint);
+    SkImageCacherator::CachedFormat cacheFormat = fCache.chooseCacheFormat(dstColorSpace);
+    SkImageInfo cacheInfo = fCache.buildCacheInfo(cacheFormat);
+    return fCache.lockAsBitmap(bitmap, this, chint, cacheFormat, cacheInfo);
 }
 
 #if SK_SUPPORT_GPU
