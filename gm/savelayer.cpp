@@ -122,3 +122,31 @@ DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
     canvas->restore();
 };
 
+#include "SkGradientShader.h"
+#include "SkSurface.h"
+
+static sk_sp<SkImage> make_mask(int w, int h) {
+    const SkScalar cx = w * SK_ScalarHalf;
+    const SkScalar cy = h * SK_ScalarHalf;
+    const SkColor colors[] = { 0, 0xFF000000 };
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setShader(SkGradientShader::MakeRadial({cx, cy}, w/2, colors, nullptr, 2,
+                                                 SkShader::kClamp_TileMode));
+    auto surf = SkSurface::MakeRaster(SkImageInfo::MakeA8(w, h));
+    surf->getCanvas()->drawCircle(cx, cy, w/2, paint);
+    return surf->makeImageSnapshot();
+}
+
+DEF_SIMPLE_GM(savelayer_clipmask, canvas, 256, 256) {
+    auto mask = make_mask(100, 100);
+    SkCanvas::SaveLayerRec rec;
+    SkMatrix clipMatrix;
+    clipMatrix.setScale(256 / 100.f, 256 / 100.f);
+    clipMatrix.postTranslate(50, 50);
+    rec.fClipMask = mask;
+    rec.fClipMatrix = &clipMatrix;
+    canvas->saveLayer(rec);
+    canvas->drawColor(SK_ColorBLUE);
+    canvas->restore();
+}
