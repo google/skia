@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f039b71_94c7a2fa",
+        "filename": "gm/colortypexfermode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-04-24T19:40:49Z",
+      "side": 0,
+      "message": "This gm is interesting. The coloremoji gm tests shaders, imagefilters, colorfilters, and clips, but it doesn\u0027t test blendmodes.",
+      "range": {
+        "startLine": 18,
+        "startChar": 6,
+        "endLine": 18,
+        "endChar": 25
+      },
+      "revId": "df2bf213649e0b2bcb9402548af9976bbdf7a218",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6961142_35f62687",
+        "filename": "gm/colortypexfermode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-04-24T19:40:49Z",
+      "side": 0,
+      "message": "sk_tool_utils::emoji_typeface();",
+      "range": {
+        "startLine": 42,
+        "startChar": 21,
+        "endLine": 42,
+        "endChar": 58
+      },
+      "revId": "df2bf213649e0b2bcb9402548af9976bbdf7a218",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6a755a8_1d4ebc83",
+        "filename": "gm/colortypexfermode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-04-24T19:40:49Z",
+      "side": 0,
+      "message": "paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);\nconst char* text \u003d sk_tool_utils::emoji_sample_text();\nSkUnichar char \u003d SkUTF8_ToUnichar(text);\n\ncanvas-\u003edrawText(\u0026char, 4, ...",
+      "range": {
+        "startLine": 129,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 12
+      },
+      "revId": "df2bf213649e0b2bcb9402548af9976bbdf7a218",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
