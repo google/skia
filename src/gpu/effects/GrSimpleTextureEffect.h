@@ -25,6 +25,14 @@ public:
                                            sk_sp<GrTextureProxy> proxy,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& matrix) {
+        // MDB TODO: remove this instantiation once instantiation is pushed past the
+        // TextureSamplers. Instantiation failure in the TextureSampler is difficult to
+        // recover from.
+        GrTexture* temp = proxy->instantiate(resourceProvider);
+        if (!temp) {
+            return nullptr;
+        }
+
         return sk_sp<GrFragmentProcessor>(
             new GrSimpleTextureEffect(resourceProvider, std::move(proxy),
                                       std::move(colorSpaceXform), matrix,
@@ -37,6 +45,14 @@ public:
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& matrix,
                                            GrSamplerParams::FilterMode filterMode) {
+        // MDB TODO: remove this instantiation once instantiation is pushed past the
+        // TextureSamplers. Instantiation failure in the TextureSampler is difficult to
+        // recover from.
+        GrTexture* temp = proxy->instantiate(resourceProvider);
+        if (!temp) {
+            return nullptr;
+        }
+
         return sk_sp<GrFragmentProcessor>(
             new GrSimpleTextureEffect(resourceProvider, std::move(proxy),
                                       std::move(colorSpaceXform),
@@ -48,6 +64,14 @@ public:
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& matrix,
                                            const GrSamplerParams& p) {
+        // MDB TODO: remove this instantiation once instantiation is pushed past the
+        // TextureSamplers. Instantiation failure in the TextureSampler is difficult to
+        // recover from.
+        GrTexture* temp = proxy->instantiate(resourceProvider);
+        if (!temp) {
+            return nullptr;
+        }
+
         return sk_sp<GrFragmentProcessor>(new GrSimpleTextureEffect(resourceProvider,
                                                                     std::move(proxy),
                                                                     std::move(colorSpaceXform),
