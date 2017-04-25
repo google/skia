@@ -125,6 +125,9 @@ DEF_TEST(SkSLConstructorTypeMismatch, r) {
     test_failure(r,
                  "struct foo { int x; } foo; void main() { vec2 x = vec2(foo); }",
                  "error: 1: 'foo' is not a valid parameter to 'vec2' constructor\n1 error\n");
+    test_failure(r,
+                 "void main() { mat2 x = mat2(true); }",
+                 "error: 1: expected 'float', but found 'bool'\n1 error\n");
 }
 
 DEF_TEST(SkSLConstructorArgumentCount, r) {

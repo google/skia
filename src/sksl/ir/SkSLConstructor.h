@@ -118,6 +118,51 @@ struct Constructor : public Expression {
         return ((IntLiteral&) c).fValue;
     }
 
+    // null return should be interpreted as zero
+    const Expression* getMatComponent(int col, int row) const {
+        ASSERT(this->isConstant());
+        ASSERT(fType.kind() == Type::kMatrix_Kind);
+        ASSERT(col < fType.columns() && row < fType.rows());
+        if (fArguments.size() == 1) {
+            if (fArguments[0]->fType.kind() == Type::kScalar_Kind) {
+                // single scalar argument, so matrix is of the form:
+                // x 0 0
+                // 0 x 0
+                // 0 0 x
+                // return x if col == row
+                return col == row ? fArguments[0].get() : nullptr;
+            }
+            if (fArguments[0]->fType.kind() == Type::kMatrix_Kind) {
+                ASSERT(fArguments[0]->fKind == Expression::kConstructor_Kind);
+                // single matrix argument. make sure we're within the argument's bounds.
+                const Type& argType = ((Constructor&) *fArguments[0]).fType;
+                if (col < argType.columns() && row < argType.rows()) {
+                    // within bounds, defer to argument
+                    return ((Constructor&) *fArguments[0]).getMatComponent(col, row);
+                }
+                // out of bounds, return 0
+                return nullptr;
+            }
+        }
+        int currentIndex = 0;
+        int targetIndex = col * fType.rows() + row;
+        for (const auto& arg : fArguments) {
+            ASSERT(targetIndex >= currentIndex);
+            ASSERT(arg->fType.rows() == 1);
+            if (currentIndex + arg->fType.columns() > targetIndex) {
+                if (arg->fType.columns() == 1) {
+                    return arg.get();
+                } else {
+                    ASSERT(arg->fType.kind() == Type::kVector_Kind);
+                    ASSERT(arg->fKind == Expression::kConstructor_Kind);
+                    return &((Constructor&) *arg).getVecComponent(targetIndex - currentIndex);
+                }
+            }
+            currentIndex += arg->fType.columns();
+        }
+        ABORT("can't happen, matrix component out of bounds");
+    }
+
     std::vector<std::unique_ptr<Expression>> fArguments;
 
     typedef Expression INHERITED;

@@ -52,6 +52,9 @@ struct Expression : public IRNode {
         return false;
     }
 
+    static bool CompareConstants(const Context& context, const Expression& e1,
+                                 const Expression& e2);
+
     /**
      * Returns true if evaluating the expression potentially has side effects. Expressions may never
      * return false if they actually have side effects, but it is legal (though suboptimal) to
