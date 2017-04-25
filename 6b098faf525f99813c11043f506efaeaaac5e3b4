@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04e7642e_ed23b292",
+        "filename": "gm/colortypexfermode.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-04-25T14:51:33Z",
+      "side": 1,
+      "message": "Since we should change the name to match the platform, why not just change the name to line up with the other color emoji test?\n\n        SkString name(\"coloremoji_blendmodes\");\n        name.append(sk_tool_utils::platform_os_emoji());\n        return name;\n\nNot sure if we want to change the name of this test to coloremoji_blendmodes. If you feel like it that\u0027s great, otherwise we can just leave it and maybe do it later.",
+      "range": {
+        "startLine": 49,
+        "startChar": 8,
+        "endLine": 49,
+        "endChar": 47
+      },
+      "revId": "6b098faf525f99813c11043f506efaeaaac5e3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e1f6498_ee3c46c7",
+        "filename": "gm/colortypexfermode.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-04-25T14:51:33Z",
+      "side": 1,
+      "message": "{\n            SkAutoCanvasRestore arc(canvas, true);\n            canvas-\u003eclipRect(r);",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 12
+      },
+      "revId": "6b098faf525f99813c11043f506efaeaaac5e3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6b0497b_dc15fd1e",
+        "filename": "gm/colortypexfermode.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-04-25T14:51:33Z",
+      "side": 1,
+      "message": "} after this line to restore the canvas clip",
+      "revId": "6b098faf525f99813c11043f506efaeaaac5e3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
