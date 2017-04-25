@@ -75,11 +75,7 @@ SkImageGeneratorCG::SkImageGeneratorCG(const SkImageInfo& info, const void* imag
     , fData(SkRef(data))
 {}
 
-SkData* SkImageGeneratorCG::onRefEncodedData(
-#ifdef SK_SUPPORT_GPU_REF_ENCODED_DATA
-        GrContext* ctx
-#endif
-        ) {
+SkData* SkImageGeneratorCG::onRefEncodedData() {
     return SkRef(fData.get());
 }
 

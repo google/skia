@@ -31,11 +31,7 @@ SkCodecImageGenerator::SkCodecImageGenerator(SkCodec* codec, sk_sp<SkData> data)
     , fData(std::move(data))
 {}
 
-SkData* SkCodecImageGenerator::onRefEncodedData(
-#ifdef SK_SUPPORT_GPU_REF_ENCODED_DATA
-        GrContext* ctx
-#endif
-        ) {
+SkData* SkCodecImageGenerator::onRefEncodedData() {
     return SkRef(fData.get());
 }
 
