@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c08f9ebd_3f6f5b8f",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-25T14:52:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30ab6168_56249eaa",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 54
+      },
+      "revId": "249f263a9fa7fbd88b8174d60507ce547d6de6fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e688ad2_4785e83f",
         "filename": "third_party/vulkan/vulkan/vk_platform.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "249f263a9fa7fbd88b8174d60507ce547d6de6fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eca3f419_5b1e9d0a",
+        "filename": "third_party/vulkan/vulkan/vk_platform.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-25T14:52:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e688ad2_4785e83f",
+      "range": {
+        "startLine": 22,
+        "startChar": 75,
+        "endLine": 22,
+        "endChar": 90
+      },
+      "revId": "249f263a9fa7fbd88b8174d60507ce547d6de6fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
