@@ -19,8 +19,7 @@ public:
     sk_sp<SkImage> apply(const SkImage* src);
     sk_sp<SkImage> apply(const SkBitmap& bitmap);
     sk_sp<SkColorFilter> apply(const SkColorFilter* filter);
-    const SkPaint* apply(const SkPaint* src);
-    const SkPaint& apply(const SkPaint& src);
+    SkPaint apply(const SkPaint& src);
     void apply(SkColor dst[], const SkColor src[], int n);
     SkColor apply(SkColor srgb);
 
@@ -31,7 +30,6 @@ private:
 
     sk_sp<SkColorSpace>                fDst;
     std::unique_ptr<SkColorSpaceXform> fFromSRGB;
-    SkPaint                            fDstPaint;
 };
 
 #endif
