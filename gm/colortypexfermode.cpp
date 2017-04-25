@@ -9,7 +9,7 @@
 #include "SkBitmap.h"
 #include "SkGradientShader.h"
 #include "SkShader.h"
-#include "../src/fonts/SkGScalerContext.h"
+#include "SkUtils.h"
 
 namespace skiagm {
 
@@ -39,7 +39,7 @@ protected:
         if (nullptr == orig) {
             orig = SkTypeface::MakeDefault();
         }
-        fColorType = sk_make_sp<SkGTypeface>(orig, paint);
+        fColorType = sk_tool_utils::emoji_typeface();
 
         fBG.installPixels(SkImageInfo::Make(2, 2, kARGB_4444_SkColorType,
                                             kOpaque_SkAlphaType), gData, 4);
@@ -126,7 +126,10 @@ protected:
             canvas->drawRect(r, p);
 
             textP.setBlendMode(gModes[i]);
-            canvas->drawText("H", 1, x+ w/10.f, y + 7.f*h/8.f, textP);
+            textP.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+            const char* text = sk_tool_utils::emoji_sample_text();
+            SkUnichar unichar = SkUTF8_ToUnichar(text);
+            canvas->drawText(&unichar, 4, x+ w/10.f, y + 7.f*h/8.f, textP);
 #if 1
             const char* label = SkBlendMode_Name(gModes[i]);
             canvas->drawText(label, strlen(label),
