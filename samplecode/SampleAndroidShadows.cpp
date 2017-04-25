@@ -50,7 +50,7 @@ public:
         : fZDelta(0)
         , fAnimTranslate(0)
         , fAnimAngle(0)
-        , fShowAmbient(true)
+        , fShowAmbient(false)
         , fShowSpot(true)
         , fUseAlt(true)
         , fShowObject(true)
@@ -412,12 +412,22 @@ protected:
 #ifdef USE_SHADOW_UTILS
         SkScalar zValue = zFunc(0, 0);
         if (fUseAlt) {
-            if (fShowAmbient) {
-                this->drawAmbientShadowAlt(canvas, path, zValue, ambientAlpha);
+            if (!fShowAmbient) {
+                ambientAlpha = 0;
             }
-            if (fShowSpot) {
-                this->drawSpotShadowAlt(canvas, path, zValue, lightPos, lightWidth, spotAlpha);
+            if (!fShowSpot) {
+                spotAlpha = 0;
             }
+            SkShadowUtils::DrawShadow(canvas, path,
+                                      zValue,
+                                      lightPos, lightWidth,
+                                      ambientAlpha, spotAlpha, SK_ColorBLACK);
+            //if (fShowAmbient) {
+            //    this->drawAmbientShadowAlt(canvas, path, zValue, ambientAlpha);
+            //}
+            //if (fShowSpot) {
+            //    this->drawSpotShadowAlt(canvas, path, zValue, lightPos, lightWidth, spotAlpha);
+            //}
         } else {
             if (!fShowAmbient) {
                 ambientAlpha = 0;
@@ -466,8 +476,8 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         this->drawBG(canvas);
         const SkScalar kLightWidth = 2800;
-        const SkScalar kAmbientAlpha = 0.25f;
-        const SkScalar kSpotAlpha = 0.25f;
+        const SkScalar kAmbientAlpha = 1.0f;
+        const SkScalar kSpotAlpha = 1.0f;
 
         SkPaint paint;
         paint.setAntiAlias(true);
