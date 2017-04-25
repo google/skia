@@ -70,6 +70,30 @@
       "revId": "a52e22beb77b0fb0c00ed91009f8ae1cc82a7b62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6486177f_635ba3a9",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-04-25T17:36:10Z",
+      "side": 1,
+      "message": "Yeah, agreed.  .get() is cool with me if you like it.\n\nI\u0027m just willing to make an exception here for how closely tied this MaybePaint is with the rest of the file.  It\u0027s kind of like a macro, you know?",
+      "parentUuid": "e095daae_ca89920f",
+      "range": {
+        "startLine": 23,
+        "startChar": 36,
+        "endLine": 23,
+        "endChar": 56
+      },
+      "revId": "a52e22beb77b0fb0c00ed91009f8ae1cc82a7b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
