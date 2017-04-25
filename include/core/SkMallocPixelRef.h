@@ -74,29 +74,6 @@ public:
                                           size_t rowBytes,
                                           sk_sp<SkColorTable>,
                                           sk_sp<SkData> data);
-    
-#ifdef SK_SUPPORT_LEGACY_PIXELREFFACTORY
-    static SkMallocPixelRef* NewDirect(const SkImageInfo& info, void* addr,
-                                       size_t rowBytes, SkColorTable* ctable) {
-        return (SkMallocPixelRef*)MakeDirect(info, addr, rowBytes, sk_ref_sp(ctable)).release();
-    }
-    static SkMallocPixelRef* NewAllocate(const SkImageInfo& info, size_t rb, SkColorTable* ct) {
-        return (SkMallocPixelRef*)MakeAllocate(info, rb, sk_ref_sp(ct)).release();
-    }
-    static SkMallocPixelRef* NewZeroed(const SkImageInfo& info, size_t rowBytes, SkColorTable* ct) {
-        return (SkMallocPixelRef*)MakeZeroed(info, rowBytes, sk_ref_sp(ct)).release();
-    }
-    static SkMallocPixelRef* NewWithProc(const SkImageInfo& info,
-                                               size_t rowBytes, SkColorTable* ctable,
-                                               void* addr, ReleaseProc proc,
-                                               void* ctx) {
-        return (SkMallocPixelRef*)MakeWithProc(info, rowBytes, sk_ref_sp(ctable), addr, proc, ctx).release();
-    }
-    static SkMallocPixelRef* NewWithData(const SkImageInfo& info,
-                                         size_t rowBytes,
-                                         SkColorTable* ctable,
-                                         SkData* data);
-#endif
 
 protected:
     ~SkMallocPixelRef() override;
