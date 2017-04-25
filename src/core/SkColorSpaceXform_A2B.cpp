@@ -112,13 +112,22 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         case SkColorSpace_Base::kRGB_ICCTypeFlag:
             currentChannels = 3;
             break;
-        case SkColorSpace_Base::kCMYK_ICCTypeFlag:
+        case SkColorSpace_Base::kCMYK_ICCTypeFlag: {
             currentChannels = 4;
             // CMYK images from JPEGs (the only format that supports it) are actually
             // inverted CMYK, so we need to invert every channel.
             // TransferFn is y = -x + 1 for x < 1.f, otherwise 0x + 0, ie y = 1 - x for x in [0,1]
-            this->addTransferFns({1.f, 0.f, 0.f, -1.f, 1.f, 0.f, 1.f}, 4);
+            SkColorSpaceTransferFn fn = {0,0,0,0,0,0,0};
+            fn.fG =  1;
+            fn.fA =  0;
+            fn.fB =  0;
+            fn.fC = -1;
+            fn.fD =  1;
+            fn.fE =  0;
+            fn.fF =  1;
+            this->addTransferFns(fn,4);
             break;
+        }
         default:
             currentChannels = 0;
             SkASSERT(false);
@@ -134,18 +143,12 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                     break;
                 }
 
-                // take the fast path for 3-channel named gammas
-                if (3 == currentChannels) {
-                    if (k2Dot2Curve_SkGammaNamed == e.gammaNamed()) {
-                        SkCSXformPrintf("fast path from 2.2\n");
-                        fElementsPipeline.append(SkRasterPipeline::from_2dot2);
-                        break;
-                    } else if (kSRGB_SkGammaNamed == e.gammaNamed()) {
-                        SkCSXformPrintf("fast path from sRGB\n");
-                        // Images should always start the pipeline as unpremul
-                        fElementsPipeline.append_from_srgb(kUnpremul_SkAlphaType);
-                        break;
-                    }
+                // Take the fast path for ordinary sRGB.
+                if (3 == currentChannels && kSRGB_SkGammaNamed == e.gammaNamed()) {
+                    SkCSXformPrintf("fast path from sRGB\n");
+                    // Images should always start the pipeline as unpremul
+                    fElementsPipeline.append_from_srgb(kUnpremul_SkAlphaType);
+                    break;
                 }
 
                 SkCSXformPrintf("Gamma stage added: %s\n", debugGammaNamed[(int)e.gammaNamed()]);
@@ -234,9 +237,16 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         case kLinear_SkGammaNamed:
             // do nothing
             break;
-        case k2Dot2Curve_SkGammaNamed:
-            fElementsPipeline.append(SkRasterPipeline::to_2dot2);
+        case k2Dot2Curve_SkGammaNamed: {
+            SkColorSpaceTransferFn fn = {0,0,0,0,0,0,0};
+            fn.fG = 1/2.2f;
+            fn.fA = 1;
+            auto to_2dot2 = this->copy(fn);
+            fElementsPipeline.append(SkRasterPipeline::parametric_r, to_2dot2);
+            fElementsPipeline.append(SkRasterPipeline::parametric_g, to_2dot2);
+            fElementsPipeline.append(SkRasterPipeline::parametric_b, to_2dot2);
             break;
+        }
         case kSRGB_SkGammaNamed:
             fElementsPipeline.append(SkRasterPipeline::to_srgb);
             break;

@@ -479,17 +479,6 @@ STAGE(to_srgb) {
     b = fn(b);
 }
 
-STAGE(from_2dot2) {
-    r = approx_powf(r, C(2.2f));
-    g = approx_powf(g, C(2.2f));
-    b = approx_powf(b, C(2.2f));
-}
-STAGE(to_2dot2) {
-    r = approx_powf(r, C(1/2.2f));
-    g = approx_powf(g, C(1/2.2f));
-    b = approx_powf(b, C(1/2.2f));
-}
-
 STAGE(rgb_to_hsl) {
     F mx = max(max(r,g), b),
       mn = min(min(r,g), b),

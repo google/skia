@@ -91,6 +91,13 @@ public:
 };
 DEF_BENCH( return (new SkRasterPipelineLegacyBench); )
 
+static SkColorSpaceTransferFn gamma(float g) {
+    SkColorSpaceTransferFn fn = {0,0,0,0,0,0,0};
+    fn.fG = g;
+    fn.fA = 1;
+    return fn;
+}
+
 class SkRasterPipeline_2dot2 : public Benchmark {
 public:
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
@@ -100,10 +107,17 @@ public:
 
     void onDraw(int loops, SkCanvas*) override {
         SkColor4f c = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+        SkColorSpaceTransferFn from_2dot2 = gamma(  2.2f),
+                                 to_2dot2 = gamma(1/2.2f);
         SkRasterPipeline p;
         p.append(SkRasterPipeline::constant_color, &c);
-        p.append(SkRasterPipeline::from_2dot2);
-        p.append(SkRasterPipeline::to_2dot2);
+        p.append(SkRasterPipeline::parametric_r, &from_2dot2);
+        p.append(SkRasterPipeline::parametric_g, &from_2dot2);
+        p.append(SkRasterPipeline::parametric_b, &from_2dot2);
+        p.append(SkRasterPipeline::parametric_r, &  to_2dot2);
+        p.append(SkRasterPipeline::parametric_g, &  to_2dot2);
+        p.append(SkRasterPipeline::parametric_b, &  to_2dot2);
 
         while (loops --> 0) {
             p.run(0,N);
