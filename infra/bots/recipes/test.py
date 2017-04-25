@@ -63,8 +63,11 @@ def dm_flags(bot):
   # doesn't support it.
   if ('NexusPlayer' in bot or
       'Tegra3'      in bot or
-      # We aren't interested in fixing msaa bugs on iPad4.
+      # We aren't interested in fixing msaa bugs on current iOS devices.
       'iPad4' in bot or
+      'iPadPro' in bot or
+      'iPhone6' in bot or
+      'iPhone7' in bot or
       # skia:5792
       'iHD530'       in bot or
       'IntelIris540' in bot):
