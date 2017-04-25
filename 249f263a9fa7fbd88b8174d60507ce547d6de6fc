@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30ab6168_56249eaa",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-25T14:22:17Z",
+      "side": 1,
+      "message": "I think you can combine these. Windows\u0027 file system is not case sensitive so just using \"/include\" should work.",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 54
+      },
+      "revId": "249f263a9fa7fbd88b8174d60507ce547d6de6fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e688ad2_4785e83f",
+        "filename": "third_party/vulkan/vulkan/vk_platform.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-25T14:22:17Z",
+      "side": 1,
+      "message": "type declarations?",
+      "range": {
+        "startLine": 22,
+        "startChar": 75,
+        "endLine": 22,
+        "endChar": 90
+      },
+      "revId": "249f263a9fa7fbd88b8174d60507ce547d6de6fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
