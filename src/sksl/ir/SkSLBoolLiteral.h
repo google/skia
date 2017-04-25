@@ -33,6 +33,11 @@ struct BoolLiteral : public Expression {
         return true;
     }
 
+    bool compareConstant(const Context& context, const Expression& other) const override {
+        BoolLiteral& b = (BoolLiteral&) other;
+        return fValue == b.fValue;
+    }
+
     const bool fValue;
 
     typedef Expression INHERITED;
