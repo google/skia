@@ -95,8 +95,6 @@ skia_utils_sources = [
   "$_src/utils/win/SkWGL_win.cpp",
 
   #testing
-  "$_src/fonts/SkGScalerContext.cpp",
-  "$_src/fonts/SkGScalerContext.h",
   "$_src/fonts/SkRandomScalerContext.cpp",
   "$_src/fonts/SkRandomScalerContext.h",
   "$_src/fonts/SkTestScalerContext.cpp",

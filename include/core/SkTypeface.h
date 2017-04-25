@@ -385,7 +385,6 @@ protected:
     virtual bool onComputeBounds(SkRect*) const;
 
 private:
-    friend class SkGTypeface;
     friend class SkRandomTypeface;
     friend class SkPDFFont;
     friend class GrPathRendering;
