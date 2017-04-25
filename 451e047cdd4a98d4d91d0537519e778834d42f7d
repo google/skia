@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "111b9df1_f981ed28",
+        "filename": "src/sksl/ir/SkSLExpression.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-04-25T19:07:24Z",
+      "side": 1,
+      "message": "Derp. Fixed.",
+      "parentUuid": "e65f99e6_30da7b4c",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 32
+      },
+      "revId": "451e047cdd4a98d4d91d0537519e778834d42f7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bcf5b671_d8536ab7",
         "filename": "tests/SkSLGLSLTest.cpp",
         "patchSetId": 3
@@ -60,6 +84,30 @@
       "side": 1,
       "message": "Nevermind... mat3x2 is 3 columns, 2 rows.",
       "parentUuid": "bcf5b671_d8536ab7",
+      "range": {
+        "startLine": 592,
+        "startChar": 0,
+        "endLine": 593,
+        "endChar": 100
+      },
+      "revId": "451e047cdd4a98d4d91d0537519e778834d42f7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b1178a2_258739fa",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-04-25T19:07:24Z",
+      "side": 1,
+      "message": "Aaaand that\u0027s exactly why this test was wrong the first time around :-)",
+      "parentUuid": "0d9817b4_31d25cb6",
       "range": {
         "startLine": 592,
         "startChar": 0,
