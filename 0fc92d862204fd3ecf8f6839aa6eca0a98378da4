@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8a0f8b95_2d2821d7",
+        "filename": "infra/bots/recipe_modules/flavor/ios_flavor.py",
+        "patchSetId": 46
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-04-25T16:31:24Z",
+      "side": 1,
+      "message": "I agree this this ugly, but it needs to happen here, because on iOS we cannot write the resources (skps, etc.) to the device directly but into the \"disk space\" of an app. So before we can add anything we need to install the app. \nThe cost of installing both apps is minimal (2-4 sec in try runs).\nTo avoid the unnecessary install we would need a way to figure out here which app we are going to run in \u0027step\u0027.",
+      "parentUuid": "a04d7e08_014d61bd",
+      "range": {
+        "startLine": 19,
+        "startChar": 20,
+        "endLine": 19,
+        "endChar": 39
+      },
+      "revId": "0fc92d862204fd3ecf8f6839aa6eca0a98378da4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0dddddac_db67a924",
         "filename": "infra/bots/recipe_modules/flavor/ios_flavor.py",
         "patchSetId": 46
@@ -45,6 +69,30 @@
       "revId": "0fc92d862204fd3ecf8f6839aa6eca0a98378da4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfe9d2c8_771d7434",
+        "filename": "infra/bots/recipe_modules/flavor/ios_flavor.py",
+        "patchSetId": 46
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-04-25T16:31:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0dddddac_db67a924",
+      "range": {
+        "startLine": 50,
+        "startChar": 13,
+        "endLine": 50,
+        "endChar": 14
+      },
+      "revId": "0fc92d862204fd3ecf8f6839aa6eca0a98378da4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
