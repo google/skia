@@ -17,6 +17,11 @@
 ** limitations under the License.
 */
 
+/*
+ * Below this point is based on the original Khronos vk_platform.h header, but simplified for use in
+ * Skia when we are not building with a Vulkan backend, but still need the type declarations for
+ * compiling.
+ */
 
 #ifndef VK_PLATFORM_H_
 #define VK_PLATFORM_H_
@@ -88,33 +93,5 @@ extern "C"
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus
-
-// Platform-specific headers required by platform window system extensions.
-// These are enabled prior to #including "vulkan.h". The same enable then
-// controls inclusion of the extension interfaces in vulkan.h.
-
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
-struct ANativeWindow;
-#endif
-
-#ifdef VK_USE_PLATFORM_MIR_KHR
-#include <mir_toolkit/client_types.h>
-#endif
-
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
-#include <wayland-client.h>
-#endif
-
-#ifdef VK_USE_PLATFORM_WIN32_KHR
-#include <windows.h>
-#endif
-
-#ifdef VK_USE_PLATFORM_XLIB_KHR
-#include <X11/Xlib.h>
-#endif
-
-#ifdef VK_USE_PLATFORM_XCB_KHR
-#include <xcb/xcb.h>
-#endif
 
 #endif

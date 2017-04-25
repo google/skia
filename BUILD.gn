@@ -55,6 +55,20 @@ declare_args() {
     skia_use_vulkan = skia_vulkan_sdk != ""
   }
 }
+declare_args() {
+  if (skia_use_vulkan) {
+    if (is_fuchsia) {
+      skia_vulkan_headers = "$fuchsia_vulkan_sdk/include"
+    } else if (is_linux || is_win) {
+      skia_vulkan_headers = "$skia_vulkan_sdk/include"
+    } else {
+      # When buliding on Android we get the header via the NDK
+      skia_vulkan_headers = ""
+    }
+  } else {
+    skia_vulkan_headers = "third_party/vulkan"
+  }
+}
 
 # Our tools require static linking (they use non-exported symbols).
 skia_enable_tools = skia_enable_tools && !is_component_build
@@ -75,12 +89,14 @@ skia_public_includes = [
   "include/svg",
   "include/utils",
   "include/utils/mac",
-  "third_party/vulkan",
 ]
 
 # Skia public API, generally provided by :skia.
 config("skia_public") {
   include_dirs = skia_public_includes
+  if (skia_vulkan_headers != "") {
+    include_dirs += [ skia_vulkan_headers ]
+  }
   defines = []
   if (is_component_build) {
     defines += [ "SKIA_DLL" ]
@@ -744,7 +760,8 @@ if (skia_enable_tools) {
     skia_h = "$target_gen_dir/skia.h"
     script = "gn/find_headers.py"
     args = [ rebase_path(skia_h, root_build_dir) ] +
-           rebase_path(skia_public_includes)
+           rebase_path(skia_public_includes) +
+           [ rebase_path("third_party/vulkan") ]
     depfile = "$skia_h.deps"
     outputs = [
       skia_h,
