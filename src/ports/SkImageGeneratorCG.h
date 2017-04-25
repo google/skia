@@ -22,7 +22,11 @@ public:
     static SkImageGenerator* NewFromEncodedCG(SkData* data);
 
 protected:
-    SkData* onRefEncodedData(GrContext* ctx) override;
+    SkData* onRefEncodedData(
+#ifdef SK_SUPPORT_GPU_REF_ENCODED_DATA
+        GrContext* ctx
+#endif
+    ) override;
 
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
             int* ctableCount) override;

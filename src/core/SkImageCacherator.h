@@ -68,11 +68,8 @@ public:
     /**
      *  If the underlying src naturally is represented by an encoded blob (in SkData), this returns
      *  a ref to that data. If not, it returns null.
-     *
-     *  If a GrContext is specified, then the caller is only interested in gpu-specific encoded
-     *  formats, so others (e.g. PNG) can just return nullptr.
      */
-    SkData* refEncoded(GrContext*);
+    SkData* refEncoded();
 
     // Only return true if the generate has already been cached.
     bool lockAsBitmapOnlyIfAlreadyCached(SkBitmap*, CachedFormat);

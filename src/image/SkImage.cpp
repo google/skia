@@ -130,8 +130,7 @@ SkData* SkImage::encode(SkPixelSerializer* serializer) const {
 }
 
 SkData* SkImage::refEncoded() const {
-    GrContext* ctx = nullptr;   // should we allow the caller to pass in a ctx?
-    return as_IB(this)->onRefEncoded(ctx);
+    return as_IB(this)->onRefEncoded();
 }
 
 sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset) {

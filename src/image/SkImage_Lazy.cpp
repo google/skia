@@ -34,7 +34,7 @@ public:
                                             SkScalar scaleAdjust[2]) const override;
 #endif
     SkImageCacherator* peekCacherator() const override { return &fCache; }
-    SkData* onRefEncoded(GrContext*) const override;
+    SkData* onRefEncoded() const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
     bool onIsLazyGenerated() const override { return true; }
@@ -74,8 +74,8 @@ bool SkImage_Lazy::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, siz
     return false;
 }
 
-SkData* SkImage_Lazy::onRefEncoded(GrContext* ctx) const {
-    return fCache.refEncoded(ctx);
+SkData* SkImage_Lazy::onRefEncoded() const {
+    return fCache.refEncoded();
 }
 
 bool SkImage_Lazy::getROPixels(SkBitmap* bitmap, SkColorSpace* dstColorSpace,

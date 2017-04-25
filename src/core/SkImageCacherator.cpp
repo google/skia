@@ -127,9 +127,9 @@ uint32_t SkImageCacherator::getUniqueID(CachedFormat format) const {
     return rec->fUniqueID;
 }
 
-SkData* SkImageCacherator::refEncoded(GrContext* ctx) {
+SkData* SkImageCacherator::refEncoded() {
     ScopedGenerator generator(fSharedGenerator);
-    return generator->refEncodedData(ctx);
+    return generator->refEncodedData();
 }
 
 static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
@@ -425,20 +425,6 @@ void SkImageCacherator::makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, Cach
     }
 }
 
-#ifdef SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
-static GrTexture* load_compressed_into_texture(GrContext* ctx, SkData* data, GrSurfaceDesc desc) {
-    const void* rawStart;
-    GrPixelConfig config = GrIsCompressedTextureDataSupported(ctx, data, desc.fWidth, desc.fHeight,
-                                                              &rawStart);
-    if (kUnknown_GrPixelConfig == config) {
-        return nullptr;
-    }
-
-    desc.fConfig = config;
-    return ctx->resourceProvider()->createTexture(desc, SkBudgeted::kYes, rawStart, 0);
-}
-#endif
-
 class Generator_GrYUVProvider : public GrYUVProvider {
     SkImageGenerator* fGen;
 
@@ -471,13 +457,12 @@ sk_sp<SkColorSpace> SkImageCacherator::getColorSpace(GrContext* ctx, SkColorSpac
 }
 
 /*
- *  We have a 5 ways to try to return a texture (in sorted order)
+ *  We have 4 ways to try to return a texture (in sorted order)
  *
  *  1. Check the cache for a pre-existing one
  *  2. Ask the generator to natively create one
- *  3. Ask the generator to return a compressed form that the GPU might support
- *  4. Ask the generator to return YUV planes, which the GPU can convert
- *  5. Ask the generator to return RGB(A) data, which the GPU can convert
+ *  3. Ask the generator to return YUV planes, which the GPU can convert
+ *  4. Ask the generator to return RGB(A) data, which the GPU can convert
  */
 sk_sp<GrTextureProxy> SkImageCacherator::lockTextureProxy(GrContext* ctx,
                                                           const GrUniqueKey& origKey,
@@ -491,7 +476,7 @@ sk_sp<GrTextureProxy> SkImageCacherator::lockTextureProxy(GrContext* ctx,
         kFailure_LockTexturePath,
         kPreExisting_LockTexturePath,
         kNative_LockTexturePath,
-        kCompressed_LockTexturePath,
+        kCompressed_LockTexturePath, // Deprecated
         kYUV_LockTexturePath,
         kRGBA_LockTexturePath,
     };
@@ -531,23 +516,9 @@ sk_sp<GrTextureProxy> SkImageCacherator::lockTextureProxy(GrContext* ctx,
         }
     }
 
-    const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(cacheInfo, *ctx->caps());
-
-#ifdef SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
-    // 3. Ask the generator to return a compressed form that the GPU might support
-    sk_sp<SkData> data(this->refEncoded(ctx));
-    if (data) {
-        GrTexture* tex = load_compressed_into_texture(ctx, data, desc);
-        if (tex) {
-            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kCompressed_LockTexturePath,
-                                     kLockTexturePathCount);
-            return set_key_and_return(tex, key);
-        }
-    }
-#endif
-
-    // 4. Ask the generator to return YUV planes, which the GPU can convert
+    // 3. Ask the generator to return YUV planes, which the GPU can convert
     if (!ctx->contextPriv().disableGpuYUVConversion()) {
+        const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(cacheInfo, *ctx->caps());
         ScopedGenerator generator(fSharedGenerator);
         Generator_GrYUVProvider provider(generator);
         if (sk_sp<GrTextureProxy> proxy = provider.refAsTextureProxy(ctx, desc, true)) {
@@ -558,7 +529,7 @@ sk_sp<GrTextureProxy> SkImageCacherator::lockTextureProxy(GrContext* ctx,
         }
     }
 
-    // 5. Ask the generator to return RGB(A) data, which the GPU can convert
+    // 4. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
     if (this->lockAsBitmap(&bitmap, client, chint, format, cacheInfo)) {
         sk_sp<GrTextureProxy> proxy;

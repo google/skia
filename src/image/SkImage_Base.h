@@ -73,8 +73,7 @@ public:
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
 
-    // If a ctx is specified, then only gpu-specific formats are requested.
-    virtual SkData* onRefEncoded(GrContext*) const { return nullptr; }
+    virtual SkData* onRefEncoded() const { return nullptr; }
 
     virtual bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
 
