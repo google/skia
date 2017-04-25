@@ -55,6 +55,21 @@ declare_args() {
     skia_use_vulkan = skia_vulkan_sdk != ""
   }
 }
+declare_args() {
+  if (skia_use_vulkan) {
+    if (is_fuchsia) {
+      skia_vulkan_headers = "$fuchsia_vulkan_sdk/include"
+    } else if (is_linux) {
+      skia_vulkan_headers = "$skia_vulkan_sdk/include"
+    } else if (is_win) {
+      skia_vulkan_headers = "$skia_vulkan_sdk/Include"
+    } else {
+      skia_vulkan_headers = ""
+    }
+  } else {
+    skia_vulkan_headers = "third_party/vulkan"
+  }
+}
 
 # Our tools require static linking (they use non-exported symbols).
 skia_enable_tools = skia_enable_tools && !is_component_build
@@ -75,8 +90,11 @@ skia_public_includes = [
   "include/svg",
   "include/utils",
   "include/utils/mac",
-  "third_party/vulkan",
 ]
+
+if (skia_vulkan_headers != "") {
+  skia_public_includes += [ skia_vulkan_headers ]
+}
 
 # Skia public API, generally provided by :skia.
 config("skia_public") {
