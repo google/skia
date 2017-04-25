@@ -444,9 +444,11 @@ class SK_API SkNoncopyable {
 public:
     SkNoncopyable() {}
 
-private:
-    SkNoncopyable(const SkNoncopyable&);
-    SkNoncopyable& operator=(const SkNoncopyable&);
+    SkNonCopyable(SkNoncopyable&&) = default;
+    SkNonCopyable& operator =(SkNoncopyable&&) = default;
+
+    SkNoncopyable(const SkNoncopyable&) = delete;
+    SkNoncopyable& operator=(const SkNoncopyable&) = delete;
 };
 
 #endif /* C++ */
