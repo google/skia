@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e26e7e39_c8972f17",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-25T16:59:12Z",
+      "side": 1,
+      "message": "Do you think it makes sense to make a little file-local type that encapsulates this logic?\n\nnamespace {\n    struct MaybePaint {\n       SkTLazy\u003cSkPaint\u003e fStorage;\n       const SkPaint* fPaint \u003d nullptr;\n\n       MaybePaint(const SkPaint* p, SkColorSpaceXformer* xformer) {\n           if (p) { fPaint \u003d fStorage.set(xformer-\u003eapply(*p)); }\n       }\n\n       operator const SkPaint*() const { return fPaint; }\n    };\n}\n\n  ...\n\n  fTarget-\u003edrawSomething(..., MaybePaint(paint, xformer));",
+      "range": {
+        "startLine": 129,
+        "startChar": 0,
+        "endLine": 133,
+        "endChar": 9
+      },
+      "revId": "0d2e33f0dc69b0b24eba4dda6b2112e480ad538a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
