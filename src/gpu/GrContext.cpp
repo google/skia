@@ -400,7 +400,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        paint.setAllowSRGBInputs(true);
+        paint.setAllowSRGBInputs(SkToBool(dst->getColorSpace()));
         SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
         renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, matrix, rect,
                                         nullptr);

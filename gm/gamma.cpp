@@ -13,7 +13,7 @@
 #include "SkGradientShader.h"
 #include "SkPM4fPriv.h"
 
-DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
+DEF_SIMPLE_GM(gamma, canvas, 850, 300) {
     SkPaint p;
     const SkScalar sz = 50.0f;
     const int szInt = SkScalarTruncToInt(sz);
@@ -223,4 +223,8 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     nextXferRect(0xffdbdbdb, SkBlendMode::kModulate, 0xffdbdbdb);
 
     canvas->restore();
+
+    // writePixels ignores canvas matrix, so manually position this test:
+    // See skbug.com/6547
+    canvas->writePixels(srgbGreyBmp, 7 * tx, 2 * sz);
 }
