@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25bbcbe1_8f4663b9",
+        "filename": "src/core/SkImageCacherator.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-25T11:55:06Z",
+      "side": 1,
+      "message": "Probably want to have \"const SkImage* client\" so this comment makes sense.",
+      "revId": "a28e2b07b7a11fc14be7178a32ce6bf726d8b0bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
