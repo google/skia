@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ca2b54c_22b572a9",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-25T15:50:16Z",
+      "side": 1,
+      "message": "Hmm.  Now that we can\u0027t return the internal state, how about we just write this as\n\n    SkPaint apply(const SkPaint\u0026);\n\n?\n\nCallers would do something like\n\n   this-\u003efoo(..., xformer-\u003eapply(paint));   // things taking SkPaint\u0026, const SkPaint\u0026\n   this-\u003efoo(..., paint ? \u0026xformer-\u003eapply(*paint) : nullptr);  // things taking const SkPaint*",
+      "revId": "3710e43b4968230d7aba451d0aaea0ee5a1c08cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94a76fe9_88f62e23",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-25T15:50:16Z",
+      "side": 1,
+      "message": "Ought to be we can remove fDstPaint now?  It can\u0027t be safe to use recursively, right?",
+      "revId": "3710e43b4968230d7aba451d0aaea0ee5a1c08cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
