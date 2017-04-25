@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a51a426_25a23737",
+        "filename": "BUILD.gn",
+        "patchSetId": 7
+      },
+      "lineNbr": 770,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-04-25T17:19:24Z",
+      "side": 1,
+      "message": "This bit makes me think that we should move skia_vulkan_headers out of skia_public_includes after all.  Just make it a sibling instead.... \n\nconfig(\"skia_public\") {\n  include_dirs \u003d skia_public_includes + [ skia_vulkan_headers ]\n  ...\n}",
+      "range": {
+        "startLine": 763,
+        "startChar": 4,
+        "endLine": 770,
+        "endChar": 47
+      },
+      "revId": "121d6e3b7680afd2f71a219585d87819c6a9d3a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
