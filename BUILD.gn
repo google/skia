@@ -41,7 +41,6 @@ declare_args() {
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
-  skia_link_with_vulkan = !is_fuchsia
 }
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
@@ -165,15 +164,6 @@ config("skia_private") {
         ]
       } else {
         lib_dirs += [ "$skia_vulkan_sdk/lib/" ]
-      }
-    }
-
-    if (skia_link_with_vulkan) {
-      defines += [ "SK_LINK_WITH_VULKAN" ]
-      if (is_win) {
-        libs += [ "vulkan-1.lib" ]
-      } else {
-        libs += [ "vulkan" ]
       }
     }
   }
@@ -911,6 +901,11 @@ if (skia_enable_tools) {
       }
       if (skia_use_vulkan) {
         sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
+        if (is_win) {
+          libs += [ "vulkan-1.lib" ]
+        } else {
+          libs += [ "vulkan" ]
+        }
       }
     }
   }
