@@ -5966,7 +5966,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:NMF26H",
+        "device_os:N2G47D",
         "device_type:dragon",
         "os:Android",
         "pool:Skia"
@@ -6014,7 +6014,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:NMF26H",
+        "device_os:N2G47D",
         "device_type:dragon",
         "os:Android",
         "pool:Skia"
@@ -6052,7 +6052,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:NMF26H",
+        "device_os:N2G47D",
         "device_type:dragon",
         "os:Android",
         "pool:Skia"
@@ -6090,7 +6090,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:NMF26H",
+        "device_os:N2G47D",
         "device_type:dragon",
         "os:Android",
         "pool:Skia"
@@ -12711,7 +12711,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:NMF26H",
+        "device_os:N2G47D",
         "device_type:dragon",
         "os:Android",
         "pool:Skia"
@@ -12759,7 +12759,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:NMF26H",
+        "device_os:N2G47D",
         "device_type:dragon",
         "os:Android",
         "pool:Skia"
