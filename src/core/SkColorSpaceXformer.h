@@ -19,6 +19,7 @@ public:
     sk_sp<SkImage> apply(const SkImage* src);
     sk_sp<SkImage> apply(const SkBitmap& bitmap);
     sk_sp<SkColorFilter> apply(const SkColorFilter* filter);
+    sk_sp<SkImageFilter> apply(const SkImageFilter* filter);
     const SkPaint* apply(const SkPaint* src);
     const SkPaint& apply(const SkPaint& src);
     void apply(SkColor dst[], const SkColor src[], int n);

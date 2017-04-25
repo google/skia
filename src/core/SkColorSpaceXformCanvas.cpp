@@ -9,8 +9,9 @@
 #include "SkColorSpaceXformCanvas.h"
 #include "SkColorSpaceXformer.h"
 #include "SkGradientShader.h"
-#include "SkImage_Base.h"
+#include "SkImageFilter.h"
 #include "SkImagePriv.h"
+#include "SkImage_Base.h"
 #include "SkMakeUnique.h"
 #include "SkNoDrawCanvas.h"
 #include "SkSurface.h"
@@ -219,10 +220,11 @@ public:
     }
 
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
+        sk_sp<SkImageFilter> backdrop = rec.fBackdrop ? fXformer->apply(rec.fBackdrop) : nullptr;
         fTarget->saveLayer({
             rec.fBounds,
             fXformer->apply(rec.fPaint),
-            rec.fBackdrop,  // TODO: this is an image filter
+            backdrop.get(),
             rec.fSaveLayerFlags,
         });
         return kNoLayer_SaveLayerStrategy;
