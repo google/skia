@@ -27,10 +27,7 @@ class PoolDiscardableMemory;
  */
 class DiscardableMemoryPool : public SkDiscardableMemoryPool {
 public:
-    /**
-     *  Without mutex, will be not be thread safe.
-     */
-    DiscardableMemoryPool(size_t budget, SkBaseMutex* mutex = nullptr);
+    DiscardableMemoryPool(size_t budget);
     ~DiscardableMemoryPool() override;
 
     std::unique_ptr<SkDiscardableMemory> make(size_t bytes);
@@ -56,7 +53,7 @@ public:
     #endif  // SK_LAZY_CACHE_STATS
 
 private:
-    SkBaseMutex* fMutex;
+    SkMutex      fMutex;
     size_t       fBudget;
     size_t       fUsed;
     SkTInternalLList<PoolDiscardableMemory> fList;
@@ -126,10 +123,8 @@ void PoolDiscardableMemory::unlock() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-DiscardableMemoryPool::DiscardableMemoryPool(size_t budget,
-                                             SkBaseMutex* mutex)
-    : fMutex(mutex)
-    , fBudget(budget)
+DiscardableMemoryPool::DiscardableMemoryPool(size_t budget)
+    : fBudget(budget)
     , fUsed(0) {
     #if SK_LAZY_CACHE_STATS
     fCacheHits = 0;
@@ -144,9 +139,7 @@ DiscardableMemoryPool::~DiscardableMemoryPool() {
 }
 
 void DiscardableMemoryPool::dumpDownTo(size_t budget) {
-    if (fMutex != nullptr) {
-        fMutex->assertHeld();
-    }
+    fMutex.assertHeld();
     if (fUsed <= budget) {
         return;
     }
@@ -236,14 +229,13 @@ void DiscardableMemoryPool::dumpPool() {
 
 }  // namespace
 
-sk_sp<SkDiscardableMemoryPool> SkDiscardableMemoryPool::Make(size_t size, SkBaseMutex* mutex) {
-    return sk_make_sp<DiscardableMemoryPool>(size, mutex);
+sk_sp<SkDiscardableMemoryPool> SkDiscardableMemoryPool::Make(size_t size) {
+    return sk_make_sp<DiscardableMemoryPool>(size);
 }
 
 SkDiscardableMemoryPool* SkGetGlobalDiscardableMemoryPool() {
-    static SkBaseMutex gMutex;
     // Intentionally leak this global pool.
     static SkDiscardableMemoryPool* global =
-            new DiscardableMemoryPool(SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE, &gMutex);
+            new DiscardableMemoryPool(SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE);
     return global;
 }
