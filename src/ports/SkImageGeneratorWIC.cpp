@@ -132,7 +132,11 @@ SkImageGeneratorWIC::SkImageGeneratorWIC(const SkImageInfo& info,
     , fData(SkRef(data))
 {}
 
-SkData* SkImageGeneratorWIC::onRefEncodedData(GrContext* ctx) {
+SkData* SkImageGeneratorWIC::onRefEncodedData(
+#ifdef SK_SUPPORT_GPU_REF_ENCODED_DATA
+        GrContext* ctx
+#endif
+        ) {
     return SkRef(fData.get());
 }
 

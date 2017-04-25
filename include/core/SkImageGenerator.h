@@ -35,16 +35,19 @@ public:
     uint32_t uniqueID() const { return fUniqueID; }
 
     /**
-     *  Return a ref to the encoded (i.e. compressed) representation,
-     *  of this data. If the GrContext is non-null, then the caller is only interested in
-     *  gpu-specific formats, so the impl may return null even if they have encoded data,
-     *  assuming they know it is not suitable for the gpu.
+     *  Return a ref to the encoded (i.e. compressed) representation
+     *  of this data.
      *
      *  If non-NULL is returned, the caller is responsible for calling
      *  unref() on the data when it is finished.
      */
-    SkData* refEncodedData(GrContext* ctx = nullptr) {
+    SkData* refEncodedData() {
+#ifdef SK_SUPPORT_GPU_REF_ENCODED_DATA
+        GrContext* ctx = nullptr;
         return this->onRefEncodedData(ctx);
+#else
+        return this->onRefEncodedData();
+#endif
     }
 
     /**
@@ -163,7 +166,11 @@ protected:
 
     SkImageGenerator(const SkImageInfo& info, uint32_t uniqueId = kNeedNewImageUniqueID);
 
-    virtual SkData* onRefEncodedData(GrContext* ctx);
+    virtual SkData* onRefEncodedData(
+#ifdef SK_SUPPORT_GPU_REF_ENCODED_DATA
+        GrContext* ctx
+#endif
+    );
 
     virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                              SkPMColor ctable[], int* ctableCount);

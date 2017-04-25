@@ -106,7 +106,11 @@ sk_sp<GrTextureProxy> SkImageGenerator::onGenerateTexture(GrContext*, const SkIm
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-SkData* SkImageGenerator::onRefEncodedData(GrContext* ctx) {
+SkData* SkImageGenerator::onRefEncodedData(
+#ifdef SK_SUPPORT_GPU_REF_ENCODED_DATA
+        GrContext* ctx
+#endif
+        ) {
     return nullptr;
 }
 
