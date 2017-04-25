@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "756639d5_2ffa64e3",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-25T13:00:48Z",
+      "side": 1,
+      "message": "nit: static constexpr size_t kMaxJpegBufferSize \u003d 512*1024;",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 38
+      },
+      "revId": "0f341d46a757c2c1d145e2ed1a56dff8befb807f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14dd9508_9c1d26f1",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-25T13:00:48Z",
+      "side": 1,
+      "message": "I\u0027m still not sure I understand this calculation.  Why does this ensure that the buffer size is large enough to avoid bitstream checks?  Is it just because it is larger than the stream?  In that case, should we just use a buffer that matches the size of the stream?",
+      "range": {
+        "startLine": 86,
+        "startChar": 18,
+        "endLine": 86,
+        "endChar": 44
+      },
+      "revId": "0f341d46a757c2c1d145e2ed1a56dff8befb807f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6907f0d9_5bacc691",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-25T13:00:48Z",
+      "side": 1,
+      "message": "I think you can remove this.  new should throw std::bad_alloc() if it fails - no reason to check for failure and then throw another exception.",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 5
+      },
+      "revId": "0f341d46a757c2c1d145e2ed1a56dff8befb807f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
