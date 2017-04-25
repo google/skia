@@ -414,6 +414,7 @@ private:
     friend class SkAlphaThresholdFilterImpl;
     friend class SkBlurImageFilterImpl;
     friend class SkColorFilterImageFilter;
+    friend class SkColorSpaceXformCanvas;
     friend class SkColorSpaceXformer;
     friend class SkComposeImageFilter;
     friend class SkDiffuseLightingImageFilter;

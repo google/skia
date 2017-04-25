@@ -10,6 +10,7 @@
 #include "SkColorSpaceXformer.h"
 #include "SkGradientShader.h"
 #include "SkImage_Base.h"
+#include "SkImageFilter.h"
 #include "SkImagePriv.h"
 #include "SkMakeUnique.h"
 #include "SkNoDrawCanvas.h"
@@ -208,7 +209,6 @@ public:
                                   fXformer->apply(paint));
     }
 
-    // TODO: May not be ideal to unfurl pictures.
     void onDrawPicture(const SkPicture* pic,
                        const SkMatrix* matrix,
                        const SkPaint* paint) override {
@@ -219,10 +219,15 @@ public:
     }
 
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
+        sk_sp<SkImageFilter> xformedBackdrop = nullptr;
+        if (rec.fBackdrop) {
+            xformedBackdrop = rec.fBackdrop->makeColorSpace(fXformer.get());
+        }
+
         fTarget->saveLayer({
             rec.fBounds,
             fXformer->apply(rec.fPaint),
-            rec.fBackdrop,  // TODO: this is an image filter
+            xformedBackdrop.get(),
             rec.fSaveLayerFlags,
         });
         return kNoLayer_SaveLayerStrategy;
