@@ -1848,8 +1848,8 @@ int SkTypeface_Mac::onGetVariationDesignPosition(
 {
     // The CGFont variation data does not contain the tag.
 
-    // This call always returns nullptr on 10.10 and under for CGFontCreateWithDataProvider fonts.
-    // When this happens, there is no API to provide the tag.
+    // CTFontCopyVariationAxes returns nullptr for CGFontCreateWithDataProvider fonts with
+    // macOS 10.10 and iOS 9 or earlier. When this happens, there is no API to provide the tag.
     UniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(fFontRef.get()));
     if (!ctAxes) {
         return -1;
@@ -2425,8 +2425,8 @@ protected:
         // CTFont variation dictionary runs into bugs. So use the CTFont variation data
         // to match names to tags to create the appropriate CGFont.
         UniqueCFRef<CTFontRef> ct(CTFontCreateWithGraphicsFont(cg, 0, nullptr, nullptr));
-        // This call always returns nullptr on 10.10 and under.
-        // When this happens, there is no API to provide the tag.
+        // CTFontCopyVariationAxes returns nullptr for CGFontCreateWithDataProvider fonts with
+        // macOS 10.10 and iOS 9 or earlier. When this happens, there is no API to provide the tag.
         UniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ct.get()));
         if (!ctAxes) {
             return nullptr;
