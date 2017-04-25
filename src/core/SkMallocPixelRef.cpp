@@ -171,12 +171,3 @@ SkMallocPixelRef::~SkMallocPixelRef() {
 size_t SkMallocPixelRef::getAllocatedSizeInBytes() const {
     return this->info().getSafeSize(this->rowBytes());
 }
-
-#ifdef SK_SUPPORT_LEGACY_PIXELREFFACTORY
-SkMallocPixelRef* SkMallocPixelRef::NewWithData(const SkImageInfo& info,
-                                                size_t rowBytes,
-                                                SkColorTable* ctable,
-                                                SkData* data) {
-    return (SkMallocPixelRef*)MakeWithData(info, rowBytes, sk_ref_sp(ctable), sk_ref_sp(data)).release();
-}
-#endif
