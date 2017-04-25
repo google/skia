@@ -1043,11 +1043,31 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             return std::unique_ptr<Expression>(new Constructor(Position(), left.fType, \
                                                                std::move(args)));
         switch (op) {
+            case Token::EQEQ:
+                return std::unique_ptr<Expression>(new BoolLiteral(fContext, Position(),
+                                                            left.compareConstant(fContext, right)));
+            case Token::NEQ:
+                return std::unique_ptr<Expression>(new BoolLiteral(fContext, Position(),
+                                                           !left.compareConstant(fContext, right)));
             case Token::PLUS:  RETURN_VEC_COMPONENTWISE_RESULT(+);
             case Token::MINUS: RETURN_VEC_COMPONENTWISE_RESULT(-);
             case Token::STAR:  RETURN_VEC_COMPONENTWISE_RESULT(*);
             case Token::SLASH: RETURN_VEC_COMPONENTWISE_RESULT(/);
             default:           return nullptr;
+        }
+    }
+    if (left.fType.kind() == Type::kMatrix_Kind &&
+        right.fType.kind() == Type::kMatrix_Kind &&
+        left.fKind == right.fKind) {
+        switch (op) {
+            case Token::EQEQ:
+                return std::unique_ptr<Expression>(new BoolLiteral(fContext, Position(),
+                                                            left.compareConstant(fContext, right)));
+            case Token::NEQ:
+                return std::unique_ptr<Expression>(new BoolLiteral(fContext, Position(),
+                                                           !left.compareConstant(fContext, right)));
+            default:
+                return nullptr;
         }
     }
     #undef RESULT

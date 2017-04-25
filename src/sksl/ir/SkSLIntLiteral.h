@@ -35,6 +35,11 @@ struct IntLiteral : public Expression {
         return true;
     }
 
+    bool compareConstant(const Context& context, const Expression& other) const override {
+        IntLiteral& i = (IntLiteral&) other;
+        return fValue == i.fValue;
+    }
+
     const int64_t fValue;
 
     typedef Expression INHERITED;

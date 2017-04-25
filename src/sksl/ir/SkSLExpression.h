@@ -48,8 +48,21 @@ struct Expression : public IRNode {
     , fKind(kind)
     , fType(std::move(type)) {}
 
+    /**
+     * Returns true if this expression is constant. compareConstant must be implemented for all
+     * constants!
+     */
     virtual bool isConstant() const {
         return false;
+    }
+
+    /**
+     * Compares this constant expression against another constant expression of the same type. It is
+     * an error to call this on non-constant expressions, or if the types of the expressions do not
+     * match.
+     */
+    virtual bool compareConstant(const Context& context, const Expression& other) const {
+        ABORT("cannot call compareConstant on this type");
     }
 
     /**

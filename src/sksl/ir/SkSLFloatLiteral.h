@@ -34,6 +34,11 @@ struct FloatLiteral : public Expression {
         return true;
     }
 
+    bool compareConstant(const Context& context, const Expression& other) const override {
+        FloatLiteral& f = (FloatLiteral&) other;
+        return fValue == f.fValue;
+    }
+
     const double fValue;
 
     typedef Expression INHERITED;
