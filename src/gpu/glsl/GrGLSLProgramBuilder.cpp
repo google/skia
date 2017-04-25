@@ -235,6 +235,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrGLSLExpr4& colorIn,
 
     SamplerHandle dstTextureSamplerHandle;
     GrSurfaceOrigin dstTextureOrigin = kTopLeft_GrSurfaceOrigin;
+#if 0
     if (GrTexture* dstTexture = fPipeline.dstTexture()) {
         // GrProcessor::TextureSampler sampler(dstTexture);
         SkString name("DstTextureSampler");
@@ -244,6 +245,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrGLSLExpr4& colorIn,
         dstTextureOrigin = dstTexture->origin();
         SkASSERT(kTextureExternalSampler_GrSLType != dstTexture->texturePriv().samplerType());
     }
+#endif
 
     GrGLSLXferProcessor::EmitArgs args(&fFS,
                                        this->uniformHandler(),
@@ -273,7 +275,7 @@ void GrGLSLProgramBuilder::emitSamplersAndImageStorages(
     for (int t = 0; t < numTextureSamplers; ++t) {
         const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(t);
         name.printf("TextureSampler_%d", outTexSamplerHandles->count());
-        GrSLType samplerType = sampler.texture()->texturePriv().samplerType();
+        GrSLType samplerType = sampler.texture2()->texturePriv().samplerType();
         if (kTextureExternalSampler_GrSLType == samplerType) {
             const char* externalFeatureString =
                     this->shaderCaps()->externalTextureExtensionString();
@@ -284,7 +286,7 @@ void GrGLSLProgramBuilder::emitSamplersAndImageStorages(
                              externalFeatureString);
         }
         outTexSamplerHandles->emplace_back(this->emitSampler(
-                samplerType, sampler.texture()->config(), name.c_str(), sampler.visibility()));
+                samplerType, sampler.proxy()->config(), name.c_str(), sampler.visibility()));
     }
     if (int numBuffers = processor.numBuffers()) {
         SkASSERT(this->shaderCaps()->texelBufferSupport());
@@ -346,7 +348,7 @@ GrGLSLProgramBuilder::ImageStorageHandle GrGLSLProgramBuilder::emitImageStorage(
     if (access.visibility() & kFragment_GrShaderFlag) {
         ++fNumFragmentImageStorages;
     }
-    GrSLType uniformType = access.texture()->texturePriv().imageStorageType();
+    GrSLType uniformType = kVoid_GrSLType;// = access.texture()->texturePriv().imageStorageType();
     return this->uniformHandler()->addImageStorage(access.visibility(), uniformType,
                                                    access.format(), access.memoryModel(),
                                                    access.restrict(), access.ioType(), name);

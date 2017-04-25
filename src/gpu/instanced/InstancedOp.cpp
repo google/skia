@@ -226,7 +226,7 @@ void InstancedOp::onExecute(GrOpFlushState* state) {
     args.fProcessors = &fProcessors;
     args.fFlags = GrAATypeIsHW(fInfo.aaType()) ? GrPipeline::kHWAntialias_Flag : 0;
     args.fRenderTarget = state->drawOpArgs().fRenderTarget;
-    args.fDstTexture = state->drawOpArgs().fDstTexture;
+    args.fDstProxy = state->drawOpArgs().fDstProxy;
     pipeline.init(args);
 
     if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*state->gpu()->caps())) {

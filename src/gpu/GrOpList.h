@@ -17,6 +17,7 @@ class GrAuditTrail;
 class GrOpFlushState;
 class GrRenderTargetOpList;
 class GrSurfaceProxy;
+class GrTextureProxy;
 class GrTextureOpList;
 
 class GrOpList : public SkRefCnt {
