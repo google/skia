@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "0c99d26e_abd22c30",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-25T13:05:55Z",
+      "side": 1,
+      "message": "How did you choose these values? Trial and error? What other values did you try? What files did you test on?\n\nYou specifically mentioned the case where the SkStream is an SkMemoryStream, when we know the length. Matt and I tried a similar approach: returning a pointer directly to the memory (skbug.com/4463, skbug.com/4200), and found it to be roughly the same speed (or slower!). So it would be nice to understand why this is faster.\n\nI also wonder if we should consider BitmapFactory\u0027s inTempStorage. It recommends (and defaults to) using a buffer of 16KB, which is used for a generic Java InputStream. We read into that buffer before copying into this one. Would it make sense for them to be the same size?",
+      "range": {
+        "startLine": 81,
+        "startChar": 33,
+        "endLine": 81,
+        "endChar": 36
+      },
+      "revId": "0f341d46a757c2c1d145e2ed1a56dff8befb807f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "756639d5_2ffa64e3",
         "filename": "src/codec/SkJpegUtility.cpp",
         "patchSetId": 1
