@@ -127,7 +127,7 @@ private:
      *  If not NULL, the client will be notified (->notifyAddedToCache()) when resources are
      *  added to the cache on its behalf.
      */
-    bool lockAsBitmap(SkBitmap*, const SkImage*, SkImage::CachingHint, CachedFormat,
+    bool lockAsBitmap(SkBitmap*, const SkImage* client, SkImage::CachingHint, CachedFormat,
                       const SkImageInfo&);
 
 #if SK_SUPPORT_GPU
