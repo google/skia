@@ -148,7 +148,7 @@ sk_sp<SkImageFilter> SkMergeImageFilter::onMakeColorSpace(SkColorSpaceXformer* x
     SkSTArray<5, SkBlendMode> modes(this->countInputs());
     for (int i = 0; i < this->countInputs(); i++) {
         inputs.push_back(this->getInput(i) ? this->getInput(i)->makeColorSpace(xformer) : nullptr);
-        modes.push_back((SkBlendMode) fModes[i]);
+        modes.push_back(fModes ? (SkBlendMode) fModes[i] : SkBlendMode::kSrcOver);
     }
 
     return SkMergeImageFilter::MakeN(inputs.begin(), this->countInputs(), modes.begin(),
