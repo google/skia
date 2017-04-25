@@ -45,6 +45,30 @@
       "revId": "451e047cdd4a98d4d91d0537519e778834d42f7d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d9817b4_31d25cb6",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-25T18:25:59Z",
+      "side": 1,
+      "message": "Nevermind... mat3x2 is 3 columns, 2 rows.",
+      "parentUuid": "bcf5b671_d8536ab7",
+      "range": {
+        "startLine": 592,
+        "startChar": 0,
+        "endLine": 593,
+        "endChar": 100
+      },
+      "revId": "451e047cdd4a98d4d91d0537519e778834d42f7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
