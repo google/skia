@@ -140,25 +140,16 @@ sk_sp<SkShader> SkColorSpaceXformer::apply(const SkShader* shader) {
     return sk_ref_sp(const_cast<SkShader*>(shader));
 }
 
-const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
-    const SkPaint* result = &src;
-    auto get_dst = [&] {
-        if (result == &src) {
-            fDstPaint = src;
-            result = &fDstPaint;
-        }
-        return &fDstPaint;
-    };
+SkPaint SkColorSpaceXformer::apply(const SkPaint& src) {
+    SkPaint dst = src;
 
     // All SkColorSpaces have the same black point.
     if (src.getColor() & 0xffffff) {
-        get_dst()->setColor(this->apply(src.getColor()));
+        dst.setColor(this->apply(src.getColor()));
     }
 
     if (auto shader = src.getShader()) {
-        if (auto replacement = this->apply(shader)) {
-            get_dst()->setShader(std::move(replacement));
-        }
+        dst.setShader(this->apply(shader));
     }
 
     // As far as I know, SkModeColorFilter is the only color filter that holds a color.
@@ -166,19 +157,15 @@ const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
         SkColor color;
         SkBlendMode mode;
         if (cf->asColorMode(&color, &mode)) {
-            get_dst()->setColorFilter(SkColorFilter::MakeModeFilter(this->apply(color), mode));
+            dst.setColorFilter(SkColorFilter::MakeModeFilter(this->apply(color), mode));
         }
     }
 
     if (auto looper = src.getDrawLooper()) {
-        get_dst()->setDrawLooper(looper->makeColorSpace(this));
+        dst.setDrawLooper(looper->makeColorSpace(this));
     }
 
     // TODO:
     //    - image filters?
-    return *result;
-}
-
-const SkPaint* SkColorSpaceXformer::apply(const SkPaint* src) {
-    return src ? &this->apply(*src) : nullptr;
+    return dst;
 }

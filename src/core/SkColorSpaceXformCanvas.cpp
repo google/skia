@@ -14,6 +14,18 @@
 #include "SkMakeUnique.h"
 #include "SkNoDrawCanvas.h"
 #include "SkSurface.h"
+#include "SkTLazy.h"
+
+namespace {
+    struct MaybePaint {
+       SkTLazy<SkPaint> fStorage;
+       const SkPaint* fPaint = nullptr;
+       MaybePaint(const SkPaint* p, SkColorSpaceXformer* xformer) {
+           if (p) { fPaint = fStorage.set(xformer->apply(*p)); }
+       }
+       operator const SkPaint*() const { return fPaint; }
+    };
+};
 
 class SkColorSpaceXformCanvas : public SkNoDrawCanvas {
 public:
@@ -125,30 +137,26 @@ public:
     void onDrawImage(const SkImage* img,
                      SkScalar l, SkScalar t,
                      const SkPaint* paint) override {
-        fTarget->drawImage(fXformer->apply(img).get(),
-                           l, t,
-                           fXformer->apply(paint));
+        fTarget->drawImage(fXformer->apply(img).get(), l, t, MaybePaint(paint, fXformer.get()));
     }
     void onDrawImageRect(const SkImage* img,
                          const SkRect* src, const SkRect& dst,
                          const SkPaint* paint, SrcRectConstraint constraint) override {
         fTarget->drawImageRect(fXformer->apply(img).get(),
                                src ? *src : SkRect::MakeIWH(img->width(), img->height()), dst,
-                               fXformer->apply(paint), constraint);
+                               MaybePaint(paint, fXformer.get()), constraint);
     }
     void onDrawImageNine(const SkImage* img,
                          const SkIRect& center, const SkRect& dst,
                          const SkPaint* paint) override {
-        fTarget->drawImageNine(fXformer->apply(img).get(),
-                               center, dst,
-                               fXformer->apply(paint));
+        fTarget->drawImageNine(fXformer->apply(img).get(), center, dst,
+                               MaybePaint(paint, fXformer.get()));
     }
     void onDrawImageLattice(const SkImage* img,
                             const Lattice& lattice, const SkRect& dst,
                             const SkPaint* paint) override {
-        fTarget->drawImageLattice(fXformer->apply(img).get(),
-                                  lattice, dst,
-                                  fXformer->apply(paint));
+        fTarget->drawImageLattice(fXformer->apply(img).get(), lattice, dst,
+                                  MaybePaint(paint, fXformer.get()));
     }
     void onDrawAtlas(const SkImage* atlas, const SkRSXform* xforms, const SkRect* tex,
                      const SkColor* colors, int count, SkBlendMode mode,
@@ -159,19 +167,18 @@ public:
             fXformer->apply(xformed.begin(), colors, count);
             colors = xformed.begin();
         }
-
         fTarget->drawAtlas(fXformer->apply(atlas).get(), xforms, tex, colors, count, mode, cull,
-                           fXformer->apply(paint));
+                           MaybePaint(paint, fXformer.get()));
     }
 
     void onDrawBitmap(const SkBitmap& bitmap,
                       SkScalar l, SkScalar t,
                       const SkPaint* paint) override {
         if (this->skipXform(bitmap)) {
-            return fTarget->drawBitmap(bitmap, l, t, fXformer->apply(paint));
+            return fTarget->drawBitmap(bitmap, l, t, MaybePaint(paint, fXformer.get()));
         }
 
-        fTarget->drawImage(fXformer->apply(bitmap).get(), l, t, fXformer->apply(paint));
+        fTarget->drawImage(fXformer->apply(bitmap).get(), l, t, MaybePaint(paint, fXformer.get()));
     }
     void onDrawBitmapRect(const SkBitmap& bitmap,
                           const SkRect* src, const SkRect& dst,
@@ -179,40 +186,42 @@ public:
         if (this->skipXform(bitmap)) {
             return fTarget->drawBitmapRect(bitmap,
                     src ? *src : SkRect::MakeIWH(bitmap.width(), bitmap.height()), dst,
-                    fXformer->apply(paint), constraint);
+                    MaybePaint(paint, fXformer.get()), constraint);
         }
 
         fTarget->drawImageRect(fXformer->apply(bitmap).get(),
                                src ? *src : SkRect::MakeIWH(bitmap.width(), bitmap.height()), dst,
-                               fXformer->apply(paint), constraint);
+                               MaybePaint(paint, fXformer.get()), constraint);
     }
     void onDrawBitmapNine(const SkBitmap& bitmap,
                           const SkIRect& center, const SkRect& dst,
                           const SkPaint* paint) override {
         if (this->skipXform(bitmap)) {
-            return fTarget->drawBitmapNine(bitmap, center, dst, fXformer->apply(paint));
+            return fTarget->drawBitmapNine(bitmap, center, dst, MaybePaint(paint, fXformer.get()));
         }
 
-        fTarget->drawImageNine(fXformer->apply(bitmap).get(), center, dst, fXformer->apply(paint));
+        fTarget->drawImageNine(fXformer->apply(bitmap).get(), center, dst,
+                               MaybePaint(paint, fXformer.get()));
 
     }
     void onDrawBitmapLattice(const SkBitmap& bitmap,
                              const Lattice& lattice, const SkRect& dst,
                              const SkPaint* paint) override {
         if (this->skipXform(bitmap)) {
-            return fTarget->drawBitmapLattice(bitmap, lattice, dst, fXformer->apply(paint));
+            return fTarget->drawBitmapLattice(bitmap, lattice, dst,
+                                              MaybePaint(paint, fXformer.get()));
         }
 
 
         fTarget->drawImageLattice(fXformer->apply(bitmap).get(), lattice, dst,
-                                  fXformer->apply(paint));
+                                  MaybePaint(paint, fXformer.get()));
     }
 
     // TODO: May not be ideal to unfurl pictures.
     void onDrawPicture(const SkPicture* pic,
                        const SkMatrix* matrix,
                        const SkPaint* paint) override {
-        SkCanvas::onDrawPicture(pic, matrix, fXformer->apply(paint));
+        SkCanvas::onDrawPicture(pic, matrix, MaybePaint(paint, fXformer.get()));
     }
     void onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) override {
         SkCanvas::onDrawDrawable(drawable, matrix);
@@ -221,7 +230,7 @@ public:
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
         fTarget->saveLayer({
             rec.fBounds,
-            fXformer->apply(rec.fPaint),
+            MaybePaint(rec.fPaint, fXformer.get()),
             rec.fBackdrop,  // TODO: this is an image filter
             rec.fSaveLayerFlags,
         });
