@@ -90,6 +90,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "push_file file.txt"
   },
   {
@@ -140,6 +141,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "rm device_results_dir"
   },
   {
@@ -153,7 +155,51 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "mkdir device_results_dir"
+  },
+  {
+    "cmd": [
+      "ios.py"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "setup_device"
+  },
+  {
+    "cmd": [
+      "ideviceinstaller",
+      "-i",
+      "[START_DIR]/out/Debug/dm.app"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "install_dm"
+  },
+  {
+    "cmd": [
+      "ideviceinstaller",
+      "-i",
+      "[START_DIR]/out/Debug/nanobench.app"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "install_nanobench"
   },
   {
     "cmd": [
@@ -167,6 +213,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "push_if_needed [START_DIR]/skia/resources"
   },
   {
@@ -202,6 +249,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "cat_file tmp/SKP_VERSION",
     "stdout": "/path/to/tmp/"
   },
@@ -216,6 +264,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "rm tmp/SKP_VERSION"
   },
   {
@@ -229,6 +278,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "rm skps"
   },
   {
@@ -242,6 +292,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "mkdir skps"
   },
   {
@@ -256,6 +307,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "push_if_needed [START_DIR]/skp"
   },
   {
@@ -270,6 +322,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "push_file [START_DIR]/tmp/SKP_VERSION"
   },
   {
@@ -305,6 +358,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "cat_file tmp/SK_IMAGE_VERSION",
     "stdout": "/path/to/tmp/"
   },
@@ -319,6 +373,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "rm tmp/SK_IMAGE_VERSION"
   },
   {
@@ -332,6 +387,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "rm images"
   },
   {
@@ -345,6 +401,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "mkdir images"
   },
   {
@@ -359,6 +416,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "push_if_needed [START_DIR]/skimage"
   },
   {
@@ -373,6 +431,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "push_file [START_DIR]/tmp/SK_IMAGE_VERSION"
   },
   {
@@ -408,6 +467,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "cat_file tmp/SVG_VERSION",
     "stdout": "/path/to/tmp/"
   },
@@ -422,6 +482,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "rm tmp/SVG_VERSION"
   },
   {
@@ -435,6 +496,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "rm svgs"
   },
   {
@@ -448,6 +510,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "mkdir svgs"
   },
   {
@@ -462,6 +525,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "push_if_needed [START_DIR]/svg"
   },
   {
@@ -476,14 +540,14 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "push_file [START_DIR]/tmp/SVG_VERSION"
   },
   {
     "cmd": [
-      "ios-deploy",
-      "-b",
-      "[START_DIR]/out/Debug/dm.app",
-      "-I",
+      "idevice-app-runner",
+      "-s",
+      "com.google.dm",
       "--args",
       "--some-flag"
     ],
@@ -507,6 +571,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "pull_if_needed dm"
   },
   {
@@ -521,6 +586,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "pull_if_needed perf"
   },
   {
