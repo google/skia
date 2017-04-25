@@ -52,6 +52,12 @@ public:
                   VkDevice device,
                   uint32_t extensionFlags);
 
+    GrVkInterface(const GetInstanceProc&,
+                  const GetDeviceProc&,
+                  VkInstance instance,
+                  VkDevice device,
+                  uint32_t extensionFlags);
+
     // Validates that the GrVkInterface supports its advertised standard. This means the necessary
     // function pointers have been initialized for Vulkan version.
     bool validate(uint32_t extensionFlags) const;
