@@ -225,11 +225,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
 
         // Write srgba data to a rgba texture and read back as srgba and rgba
         if (sContext->writePixels(iiSRGBA, origData, 0, 0, 0)) {
+#if 0
+            // We don't support this conversion (read from untagged source into tagged destination.
+            // If we decide there is a meaningful way to implement this, restore this test.
             read_and_check_pixels(reporter, sContext.get(), origData, iiSRGBA,
                                   check_srgb_to_linear_to_srgb_conversion, error,
                                   "write/read srgba to rgba texture");
+#endif
+            // We expect the sRGB -> linear write to do no sRGB conversion (to match the behavior of
+            // drawing tagged sources). skbug.com/6547. So the data we read should still contain
+            // sRGB encoded values.
+            //
+            // srgb_to_linear_to_srgb is a proxy for the expected identity transform.
             read_and_check_pixels(reporter, sContext.get(), origData, iiRGBA,
-                                  check_srgb_to_linear_conversion, error,
+                                  check_srgb_to_linear_to_srgb_conversion, error,
                                   "write srgba/read rgba to rgba texture");
         } else {
             ERRORF(reporter, "Could not write srgba data to rgba texture.");
