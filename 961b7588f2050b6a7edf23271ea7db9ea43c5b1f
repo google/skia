@@ -22,6 +22,30 @@
       "revId": "961b7588f2050b6a7edf23271ea7db9ea43c5b1f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0d66101_485f6c13",
+        "filename": "gm/coloremoji_blendmodes.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-25T15:09:33Z",
+      "side": 1,
+      "message": "Ahh oops.",
+      "parentUuid": "399be15f_6b20c53b",
+      "range": {
+        "startLine": 142,
+        "startChar": 12,
+        "endLine": 142,
+        "endChar": 13
+      },
+      "revId": "961b7588f2050b6a7edf23271ea7db9ea43c5b1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
