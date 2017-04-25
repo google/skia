@@ -53,7 +53,7 @@ DEF_TEST(DiscardableMemory_global, reporter) {
 
 DEF_TEST(DiscardableMemory_nonglobal, reporter) {
     sk_sp<SkDiscardableMemoryPool> pool(
-        SkDiscardableMemoryPool::Make(1024, /* mutex = */ nullptr));
+        SkDiscardableMemoryPool::Make(1024));
     std::unique_ptr<SkDiscardableMemory> dm(pool->create(kTestStringLength));
     test_dm(reporter, dm.get(), true);
 }
