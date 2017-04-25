@@ -63,6 +63,10 @@ sk_sp<SkColorFilter> SkColorSpaceXformer::apply(const SkColorFilter* colorFilter
     return sk_ref_sp(const_cast<SkColorFilter*>(colorFilter));
 }
 
+sk_sp<SkImageFilter> SkColorSpaceXformer::apply(const SkImageFilter* imageFilter) {
+    return imageFilter->makeColorSpace(this);
+}
+
 void SkColorSpaceXformer::apply(SkColor* xformed, const SkColor* srgb, int n) {
     SkAssertResult(fFromSRGB->apply(SkColorSpaceXform::kBGRA_8888_ColorFormat, xformed,
                                     SkColorSpaceXform::kBGRA_8888_ColorFormat, srgb,
@@ -112,7 +116,7 @@ const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
     }
 
     if (auto imageFilter = src.getImageFilter()) {
-        auto replacement = imageFilter->makeColorSpace(this);
+        auto replacement = this->apply(imageFilter);
         if (replacement.get() != imageFilter) {
             get_dst()->setImageFilter(std::move(replacement));
         }
