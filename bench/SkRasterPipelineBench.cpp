@@ -100,10 +100,16 @@ public:
 
     void onDraw(int loops, SkCanvas*) override {
         SkColor4f c = { 1.0f, 1.0f, 1.0f, 1.0f };
+        SkColorSpaceTransferFn from_2dot2 = {  2.2f,1, 0,0,0,0,0 },
+                                 to_2dot2 = {1/2.2f,1, 0,0,0,0,0 };
         SkRasterPipeline p;
         p.append(SkRasterPipeline::constant_color, &c);
-        p.append(SkRasterPipeline::from_2dot2);
-        p.append(SkRasterPipeline::to_2dot2);
+        p.append(SkRasterPipeline::parametric_r, &from_2dot2);
+        p.append(SkRasterPipeline::parametric_g, &from_2dot2);
+        p.append(SkRasterPipeline::parametric_b, &from_2dot2);
+        p.append(SkRasterPipeline::parametric_r, &  to_2dot2);
+        p.append(SkRasterPipeline::parametric_g, &  to_2dot2);
+        p.append(SkRasterPipeline::parametric_b, &  to_2dot2);
 
         while (loops --> 0) {
             p.run(0,N);

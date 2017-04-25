@@ -134,18 +134,12 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                     break;
                 }
 
-                // take the fast path for 3-channel named gammas
-                if (3 == currentChannels) {
-                    if (k2Dot2Curve_SkGammaNamed == e.gammaNamed()) {
-                        SkCSXformPrintf("fast path from 2.2\n");
-                        fElementsPipeline.append(SkRasterPipeline::from_2dot2);
-                        break;
-                    } else if (kSRGB_SkGammaNamed == e.gammaNamed()) {
-                        SkCSXformPrintf("fast path from sRGB\n");
-                        // Images should always start the pipeline as unpremul
-                        fElementsPipeline.append_from_srgb(kUnpremul_SkAlphaType);
-                        break;
-                    }
+                // Take the fast path for ordinary sRGB.
+                if (3 == currentChannels && kSRGB_SkGammaNamed == e.gammaNamed()) {
+                    SkCSXformPrintf("fast path from sRGB\n");
+                    // Images should always start the pipeline as unpremul
+                    fElementsPipeline.append_from_srgb(kUnpremul_SkAlphaType);
+                    break;
                 }
 
                 SkCSXformPrintf("Gamma stage added: %s\n", debugGammaNamed[(int)e.gammaNamed()]);
@@ -234,9 +228,13 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         case kLinear_SkGammaNamed:
             // do nothing
             break;
-        case k2Dot2Curve_SkGammaNamed:
-            fElementsPipeline.append(SkRasterPipeline::to_2dot2);
+        case k2Dot2Curve_SkGammaNamed: {
+            auto to_2dot2 = this->copy(SkColorSpaceTransferFn{1/2.2f,1, 0,0,0,0,0});
+            fElementsPipeline.append(SkRasterPipeline::parametric_r, to_2dot2);
+            fElementsPipeline.append(SkRasterPipeline::parametric_g, to_2dot2);
+            fElementsPipeline.append(SkRasterPipeline::parametric_b, to_2dot2);
             break;
+        }
         case kSRGB_SkGammaNamed:
             fElementsPipeline.append(SkRasterPipeline::to_srgb);
             break;
