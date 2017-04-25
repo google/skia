@@ -51,12 +51,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
                                                      CanPresentFn canPresent,
                                                      GrVkInterface::GetProc getProc) {
     if (!getProc) {
-#ifdef SK_LINK_WITH_VULKAN
-        return GrVkBackendContext::Create(vkGetInstanceProcAddr, vkGetDeviceProcAddr,
-                                          presentQueueIndexPtr, canPresent);
-#else
         return nullptr;
-#endif
     }
     SkASSERT(getProc);
 
