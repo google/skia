@@ -12,6 +12,26 @@
 #define ACQUIRE_PROC(name, instance, device) fFunctions.f##name = \
     reinterpret_cast<PFN_vk##name>(getProc("vk"#name, instance, device));
 
+GrVkInterface::GetProc make_unified_getter(const GrVkInterface::GetInstanceProc& iproc,
+                                           const GrVkInterface::GetDeviceProc& dproc) {
+    return [&iproc, &dproc](const char* proc_name, VkInstance instance, VkDevice device) {
+        if (device != VK_NULL_HANDLE) {
+            return dproc(device, proc_name);
+        }
+        return iproc(instance, proc_name);
+    };
+}
+
+GrVkInterface::GrVkInterface(const GetInstanceProc& getInstanceProc,
+                             const GetDeviceProc& getDeviceProc,
+                             VkInstance instance,
+                             VkDevice device,
+                             uint32_t extensionFlags)
+        : GrVkInterface(make_unified_getter(getInstanceProc, getDeviceProc),
+                        instance,
+                        device,
+                        extensionFlags) {}
+
 GrVkInterface::GrVkInterface(GetProc getProc,
                              VkInstance instance,
                              VkDevice device,

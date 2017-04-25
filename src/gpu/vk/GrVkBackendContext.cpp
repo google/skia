@@ -50,19 +50,15 @@ const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
 const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndexPtr,
                                                      CanPresentFn canPresent,
                                                      GrVkInterface::GetProc getProc) {
+    if (!getProc) {
 #ifdef SK_LINK_WITH_VULKAN
-    if (getProc == nullptr) {
-        getProc = [](const char* proc_name,
-                     VkInstance instance, VkDevice device) {
-            if (device != VK_NULL_HANDLE) {
-                return vkGetDeviceProcAddr(device, proc_name);
-            }
-            return vkGetInstanceProcAddr(instance, proc_name);
-            };
-    }
+        return GrVkBackendContext::Create(vkGetInstanceProcAddr, vkGetDeviceProcAddr,
+                                          presentQueueIndexPtr, canPresent);
 #else
-    SkASSERT(getProc != nullptr);
+        return nullptr;
 #endif
+    }
+    SkASSERT(getProc);
 
     VkPhysicalDevice physDev;
     VkDevice device;
