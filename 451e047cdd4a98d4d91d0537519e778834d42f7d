@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e65f99e6_30da7b4c",
+        "filename": "src/sksl/ir/SkSLExpression.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-25T18:24:41Z",
+      "side": 1,
+      "message": "nit: Sorry, should have been more clear. I was thinking it would be \u0027virtual bool constantEqual(...);\u0027.",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 32
+      },
+      "revId": "451e047cdd4a98d4d91d0537519e778834d42f7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcf5b671_d8536ab7",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-25T18:24:41Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be 0?\n\nmat3x2(2) \u003d\u003d mat3x2(2, 0, 0, 0, 2, 0)\nmat3x2(vec2(2.0, 0.0), vec2(0.0, 2.0), vec2(0.0))) \u003d\u003d mat3x2(2, 0, 0, 2, 0, 0)",
+      "range": {
+        "startLine": 592,
+        "startChar": 0,
+        "endLine": 593,
+        "endChar": 100
+      },
+      "revId": "451e047cdd4a98d4d91d0537519e778834d42f7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
