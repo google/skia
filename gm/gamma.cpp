@@ -223,4 +223,8 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     nextXferRect(0xffdbdbdb, SkBlendMode::kModulate, 0xffdbdbdb);
 
     canvas->restore();
+
+    // writePixels ignores canvas matrix, so manually position this test:
+    // See skbug.com/6547
+    canvas->writePixels(srgbGreyBmp, 7 * tx, 2 * sz);
 }
