@@ -301,12 +301,13 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
     ctx->fExtensions = extensionFlags;
     ctx->fFeatures = featureFlags;
     ctx->fInterface.reset(interface.release());
+    ctx->fOwnsInstanceAndDevice = true;
 
     return ctx;
 }
 
 GrVkBackendContext::~GrVkBackendContext() {
-    if (fInterface == nullptr) {
+    if (fInterface == nullptr || !fOwnsInstanceAndDevice) {
         return;
     }
 
