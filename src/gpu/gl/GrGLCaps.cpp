@@ -113,6 +113,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fTextureBarrierSupport = ctxInfo.hasExtension("GL_NV_texture_barrier");
     }
 
+    fTextureBarrierSupport = false;
+
     if (kGL_GrGLStandard == standard) {
         fSampleLocationsSupport = version >= GR_GL_VER(3,2) ||
                                   ctxInfo.hasExtension("GL_ARB_texture_multisample");
@@ -289,6 +291,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         shaderCaps->fIntegerSupport = ctxInfo.version() >= GR_GL_VER(3, 0) &&
             ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // We use this value for GLSL ES 3.0.
     }
+
+    shaderCaps->fDualSourceBlendingSupport = false;
 
     // Protect ourselves against tracking huge amounts of texture state.
     static const uint8_t kMaxSaneSamplers = 32;
@@ -1049,6 +1053,8 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
 
 void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
     GrShaderCaps* shaderCaps = static_cast<GrShaderCaps*>(fShaderCaps.get());
+
+    return;
 
     // Disabling advanced blend on various platforms with major known issues. We also block Chrome
     // for now until its own blacklists can be updated.

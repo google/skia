@@ -118,6 +118,8 @@ public:
 
     SkDEBUGCODE(void validateTargetsSingleRenderTarget() const override;)
 
+    int numOps() const override { return fRecordedOps.count(); }
+
 private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
 

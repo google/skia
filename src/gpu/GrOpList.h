@@ -81,6 +81,8 @@ public:
 
     SkDEBUGCODE(virtual void validateTargetsSingleRenderTarget() const = 0;)
 
+    virtual int numOps() const = 0;
+
 protected:
     GrSurfaceProxy*      fTarget;
     GrAuditTrail*        fAuditTrail;

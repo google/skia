@@ -86,13 +86,17 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
     fFlushing = true;
     bool flushed = false;
 
+    int numOps = 0;
     for (int i = 0; i < fOpLists.count(); ++i) {
         // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
         // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
         // but need to be flushed anyway. Closing such GrOpLists here will mean new
         // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
         fOpLists[i]->makeClosed();
+        numOps += fOpLists[i]->numOps();
     }
+
+//    SkDebugf("numOpLists: %d numOps: %d\n", fOpLists.count(), numOps);
 
 #ifdef ENABLE_MDB
     SkDEBUGCODE(bool result =)
