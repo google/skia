@@ -9,17 +9,17 @@
 #include "SkBitmap.h"
 #include "SkGradientShader.h"
 #include "SkShader.h"
-#include "../src/fonts/SkGScalerContext.h"
+#include "SkUtils.h"
 
 namespace skiagm {
 
 static uint16_t gData[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
 
-class ColorTypeXfermodeGM : public GM {
+class ColorEmojiBlendModesGM : public GM {
 public:
     const static int W = 64;
     const static int H = 64;
-    ColorTypeXfermodeGM() {}
+    ColorEmojiBlendModesGM() {}
 
 protected:
     void onOnceBeforeDraw() override {
@@ -39,14 +39,16 @@ protected:
         if (nullptr == orig) {
             orig = SkTypeface::MakeDefault();
         }
-        fColorType = sk_make_sp<SkGTypeface>(orig, paint);
+        fColorType = sk_tool_utils::emoji_typeface();
 
         fBG.installPixels(SkImageInfo::Make(2, 2, kARGB_4444_SkColorType,
                                             kOpaque_SkAlphaType), gData, 4);
     }
 
     virtual SkString onShortName() override {
-        return SkString("colortype_xfermodes");
+        SkString name("coloremoji_blendmodes");
+        name.append(sk_tool_utils::platform_os_emoji());
+        return name;
     }
 
     virtual SkISize onISize() override {
@@ -125,12 +127,18 @@ protected:
             p.setShader(nullptr);
             canvas->drawRect(r, p);
 
-            textP.setBlendMode(gModes[i]);
-            canvas->drawText("H", 1, x+ w/10.f, y + 7.f*h/8.f, textP);
+            {
+                SkAutoCanvasRestore arc(canvas, true);
+                canvas->clipRect(r);
+                textP.setBlendMode(gModes[i]);
+                textP.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+                const char* text = sk_tool_utils::emoji_sample_text();
+                SkUnichar unichar = SkUTF8_ToUnichar(text);
+                canvas->drawText(&unichar, 4, x+ w/10.f, y + 7.f*h/8.f, textP);
+            }
 #if 1
             const char* label = SkBlendMode_Name(gModes[i]);
-            canvas->drawText(label, strlen(label),
-                             x + w/2, y - labelP.getTextSize()/2, labelP);
+            canvas->drawText(label, strlen(label), x + w/2, y - labelP.getTextSize()/2, labelP);
 #endif
             x += w + SkIntToScalar(10);
             if ((i % W) == W - 1) {
@@ -149,7 +157,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ColorTypeXfermodeGM; }
+static GM* MyFactory(void*) { return new ColorEmojiBlendModesGM; }
 static GMRegistry reg(MyFactory);
 
 }
