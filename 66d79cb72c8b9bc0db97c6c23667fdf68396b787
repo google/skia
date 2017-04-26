@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e354bdb9_596ef15d",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-26T17:53:07Z",
+      "side": 1,
+      "message": "I just chose this because we have high capacity for this GPU/OS.  Is there a better place to run it?",
+      "range": {
+        "startLine": 310,
+        "startChar": 19,
+        "endLine": 310,
+        "endChar": 46
+      },
+      "revId": "66d79cb72c8b9bc0db97c6c23667fdf68396b787",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
