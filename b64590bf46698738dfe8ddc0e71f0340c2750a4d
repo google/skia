@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "f7becf94_89614e71",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1247,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-26T14:18:35Z",
+      "side": 1,
+      "message": "I\u0027m happy with it in its own header.\n\nI think we can/should definitely add both constructors that you suggested.  And maybe the default constructor should zero it?  I wish I had never allowed a default constructor at all...",
+      "parentUuid": "7da64170_4eabe60d",
+      "range": {
+        "startLine": 1247,
+        "startChar": 38,
+        "endLine": 1247,
+        "endChar": 62
+      },
+      "revId": "b64590bf46698738dfe8ddc0e71f0340c2750a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d5732196_4b8118e8",
         "filename": "src/core/SkColorSpaceXform_A2B.cpp",
         "patchSetId": 1
