@@ -29,8 +29,7 @@ GrRenderTargetOpList::GrRenderTargetOpList(sk_sp<GrRenderTargetProxy> proxy, GrG
                                            GrAuditTrail* auditTrail)
         : INHERITED(std::move(proxy), auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
-        , fClipAllocator(fClipAllocatorStorage, sizeof(fClipAllocatorStorage),
-                         sizeof(fClipAllocatorStorage)) {
+        , fClipAllocator(nullptr, 0, 4096) {
     if (GrCaps::InstancedSupport::kNone != gpu->caps()->instancedSupport()) {
         fInstancedRendering.reset(gpu->createInstancedRendering());
     }
