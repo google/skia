@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8710d9bd_d7f4f177",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1469,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-26T14:56:08Z",
+      "side": 1,
+      "message": "I think this is a new image? Do you need to add it to resources/ ?",
+      "range": {
+        "startLine": 1469,
+        "startChar": 43,
+        "endLine": 1469,
+        "endChar": 54
+      },
+      "revId": "a1f3bd2f4d07de2552e7bfb82a392ee65851888b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c51169d_a8164e2c",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1475,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-26T14:56:08Z",
+      "side": 1,
+      "message": "This matches the way we do other tests, which allows people to run tests without failing due to not passing the resource directory. I always worry that I\u0027ll use the wrong name and so we\u0027ll never actually run the test. In this case, I think the CQ won\u0027t catch the fact that bad_palette.png isn\u0027t checked in.\n\nMaybe a better solution (to the general problem) is to check whether the resource path is empty. If so, we skip tests that require resources. If not, we assume that it contains all the resources we need and report a failure if we do not get a valid stream.",
+      "range": {
+        "startLine": 1475,
+        "startChar": 9,
+        "endLine": 1475,
+        "endChar": 15
+      },
+      "revId": "a1f3bd2f4d07de2552e7bfb82a392ee65851888b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
