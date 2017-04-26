@@ -38,22 +38,29 @@ const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 3);
 const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
 #endif
 
-#define ACQUIRE_VK_PROC(name, instance, device)                                \
-    PFN_vk##name grVk##name =                                                  \
-        reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device)); \
-    if (grVk##name == nullptr) {                                               \
-        SkDebugf("Function ptr for vk%s could not be acquired\n", #name);      \
-        return nullptr;                                                        \
+#define ACQUIRE_VK_INST_PROC(inst, name)                                                         \
+    PFN_vk##name grVk##name = reinterpret_cast<PFN_vk##name>(getInstanceProc(inst, "vk" #name)); \
+    if (grVk##name == nullptr) {                                                                 \
+        SkDebugf("Function ptr for vk%s could not be acquired\n", #name);                        \
+        return nullptr;                                                                          \
+    }
+
+#define ACQUIRE_VK_DEV_PROC(dev, name)                                                           \
+    PFN_vk##name grVk##name = reinterpret_cast<PFN_vk##name>((*getDeviceProc)(dev, "vk" #name)); \
+    if (grVk##name == nullptr) {                                                                 \
+        SkDebugf("Function ptr for vk%s could not be acquired\n", #name);                        \
+        return nullptr;                                                                          \
     }
 
 // Create the base Vulkan objects needed by the GrVkGpu object
-const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndexPtr,
-                                                     CanPresentFn canPresent,
-                                                     GrVkInterface::GetProc getProc) {
-    if (!getProc) {
+const GrVkBackendContext* GrVkBackendContext::Create(
+        const GrVkInterface::GetInstanceProc& getInstanceProc,
+        const GrVkInterface::GetDeviceProc& origGetDeviceProc,
+        uint32_t* presentQueueIndexPtr,
+        CanPresentFn canPresent) {
+    if (!getInstanceProc) {
         return nullptr;
     }
-    SkASSERT(getProc);
 
     VkPhysicalDevice physDev;
     VkDevice device;
@@ -70,7 +77,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         kGrVkMinimumVersion,                // apiVersion
     };
 
-    GrVkExtensions extensions(getProc);
+    GrVkExtensions extensions(getInstanceProc);
     extensions.initInstance(kGrVkMinimumVersion);
 
     SkTArray<const char*> instanceLayerNames;
@@ -124,21 +131,18 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         instanceExtensionNames.begin(),            // ppEnabledExtensionNames
     };
 
-    ACQUIRE_VK_PROC(CreateInstance, VK_NULL_HANDLE, VK_NULL_HANDLE);
+    ACQUIRE_VK_INST_PROC(VK_NULL_HANDLE, CreateInstance);
     err = grVkCreateInstance(&instance_create, nullptr, &inst);
     if (err < 0) {
         SkDebugf("vkCreateInstance failed: %d\n", err);
         return nullptr;
     }
 
-    ACQUIRE_VK_PROC(DestroyInstance, inst, VK_NULL_HANDLE);
-    ACQUIRE_VK_PROC(EnumeratePhysicalDevices, inst, VK_NULL_HANDLE);
-    ACQUIRE_VK_PROC(GetPhysicalDeviceQueueFamilyProperties, inst, VK_NULL_HANDLE);
-    ACQUIRE_VK_PROC(GetPhysicalDeviceFeatures, inst, VK_NULL_HANDLE);
-    ACQUIRE_VK_PROC(CreateDevice, inst, VK_NULL_HANDLE);
-    ACQUIRE_VK_PROC(GetDeviceQueue, inst, VK_NULL_HANDLE);
-    ACQUIRE_VK_PROC(DeviceWaitIdle, inst, VK_NULL_HANDLE);
-    ACQUIRE_VK_PROC(DestroyDevice, inst, VK_NULL_HANDLE);
+    ACQUIRE_VK_INST_PROC(inst, DestroyInstance);
+    ACQUIRE_VK_INST_PROC(inst, EnumeratePhysicalDevices);
+    ACQUIRE_VK_INST_PROC(inst, GetPhysicalDeviceQueueFamilyProperties);
+    ACQUIRE_VK_INST_PROC(inst, GetPhysicalDeviceFeatures);
+    ACQUIRE_VK_INST_PROC(inst, CreateDevice);
 
     uint32_t gpuCount;
     err = grVkEnumeratePhysicalDevices(inst, &gpuCount, nullptr);
@@ -273,8 +277,22 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         return nullptr;
     }
 
-    auto interface =
-        sk_make_sp<GrVkInterface>(getProc, inst, device, extensionFlags);
+    // If the client doesn't provide a device proc getter we fall back on the instance getter.
+    const GrVkInterface::GetDeviceProc* getDeviceProc = &origGetDeviceProc;
+    GrVkInterface::GetDeviceProc tempGetDeviceProc;
+    if (!origGetDeviceProc) {
+        tempGetDeviceProc = [&getInstanceProc, inst](VkDevice, const char* name) {
+            return getInstanceProc(inst, name);
+        };
+        getDeviceProc = &tempGetDeviceProc;
+    }
+
+    ACQUIRE_VK_DEV_PROC(device, GetDeviceQueue);
+    ACQUIRE_VK_DEV_PROC(device, DeviceWaitIdle);
+    ACQUIRE_VK_DEV_PROC(device, DestroyDevice);
+
+    auto interface = sk_make_sp<GrVkInterface>(
+            getInstanceProc, *getDeviceProc, inst, device, extensionFlags);
     if (!interface->validate(extensionFlags)) {
         SkDebugf("Vulkan interface validation failed\n");
         grVkDeviceWaitIdle(device);

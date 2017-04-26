@@ -35,31 +35,42 @@ private:
     typedef SkRefCnt INHERITED;
 
 public:
-    using GetProc = std::function<PFN_vkVoidFunction(
-        const char*, // function name
-        VkInstance,  // instance or VK_NULL_HANDLE
-        VkDevice     // device or VK_NULL_HANDLE
-        )>;
-
     // This is typically vkGetInstanceProcAddr.
     using GetInstanceProc = std::function<PFN_vkVoidFunction(VkInstance, const char*)>;
 
     // This is typically vkGetDeviceProcAddr.
     using GetDeviceProc = std::function<PFN_vkVoidFunction(VkDevice, const char*)>;
 
+    /** DEPRECATED. Use the separate instance and device proc getters. */
+    using GetProc = std::function<PFN_vkVoidFunction(
+        const char*, // function name
+        VkInstance,  // instance or VK_NULL_HANDLE
+        VkDevice     // device or VK_NULL_HANDLE
+        )>;
+
+    /**
+     * This uses the provided proc getters, instance, and device to automatically initialize the
+     * GrVkInterface. If getDeviceProc is passed nullptr then we will rely solely on
+     * getInstanceProc.
+     */
+    GrVkInterface(const GetInstanceProc& getInstanceProc,
+                  const GetDeviceProc& getDeviceProc,
+                  VkInstance instance,
+                  VkDevice device,
+                  uint32_t extensionFlags);
+
+    /**
+     * DEPRECATED. Use the above constructor.
+     */
     GrVkInterface(GetProc getProc,
                   VkInstance instance,
                   VkDevice device,
                   uint32_t extensionFlags);
 
-    GrVkInterface(const GetInstanceProc&,
-                  const GetDeviceProc&,
-                  VkInstance instance,
-                  VkDevice device,
-                  uint32_t extensionFlags);
-
-    // Validates that the GrVkInterface supports its advertised standard. This means the necessary
-    // function pointers have been initialized for Vulkan version.
+    /**
+     * Validates that the GrVkInterface supports its advertised standard. This means the necessary
+     * function pointers have been initialized for the Vulkan version and extension flags.
+     */
     bool validate(uint32_t extensionFlags) const;
 
     /**
