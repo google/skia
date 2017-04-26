@@ -33,14 +33,7 @@ private:
     using DstTexture = GrXferProcessor::DstTexture;
 
 public:
-    /** Options for GrRenderTargetOpList behavior. */
-    struct Options {
-        int fMaxOpCombineLookback = -1;
-        int fMaxOpCombineLookahead = -1;
-    };
-
-    GrRenderTargetOpList(sk_sp<GrRenderTargetProxy>, GrGpu*, GrResourceProvider*,
-                         GrAuditTrail*, const Options&);
+    GrRenderTargetOpList(sk_sp<GrRenderTargetProxy>, GrGpu*, GrResourceProvider*, GrAuditTrail*);
 
     ~GrRenderTargetOpList() override;
 
@@ -157,9 +150,6 @@ private:
 
     GrGpu* fGpu;
     GrResourceProvider* fResourceProvider;
-
-    int fMaxOpLookback;
-    int fMaxOpLookahead;
 
     std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
 

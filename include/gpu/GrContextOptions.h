@@ -40,11 +40,6 @@ struct GrContextOptions {
         immediately. Intended to ease debugging. */
     bool fImmediateMode = false;
 
-    /** For debugging, override the default maximum look-back or look-ahead window for GrOp
-        combining. */
-    int fMaxOpCombineLookback = -1;
-    int fMaxOpCombineLookahead = -1;
-
     /** Force us to do all swizzling manually in the shader and don't rely on extensions to do
         swizzling. */
     bool fUseShaderSwizzling = false;

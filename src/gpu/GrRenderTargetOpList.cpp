@@ -22,23 +22,18 @@ using gr_instanced::InstancedRendering;
 ////////////////////////////////////////////////////////////////////////////////
 
 // Experimentally we have found that most combining occurs within the first 10 comparisons.
-static const int kDefaultMaxOpLookback = 10;
-static const int kDefaultMaxOpLookahead = 10;
+static const int kMaxOpLookback = 10;
+static const int kMaxOpLookahead = 10;
 
 GrRenderTargetOpList::GrRenderTargetOpList(sk_sp<GrRenderTargetProxy> proxy, GrGpu* gpu,
                                            GrResourceProvider* resourceProvider,
-                                           GrAuditTrail* auditTrail, const Options& options)
+                                           GrAuditTrail* auditTrail)
         : INHERITED(std::move(proxy), auditTrail)
         , fGpu(SkRef(gpu))
         , fResourceProvider(resourceProvider)
         , fLastClipStackGenID(SK_InvalidUniqueID)
         , fClipAllocator(fClipAllocatorStorage, sizeof(fClipAllocatorStorage),
                          sizeof(fClipAllocatorStorage)) {
-    fMaxOpLookback = (options.fMaxOpCombineLookback < 0) ? kDefaultMaxOpLookback
-                                                         : options.fMaxOpCombineLookback;
-    fMaxOpLookahead = (options.fMaxOpCombineLookahead < 0) ? kDefaultMaxOpLookahead
-                                                           : options.fMaxOpCombineLookahead;
-
     if (GrCaps::InstancedSupport::kNone != this->caps()->instancedSupport()) {
         fInstancedRendering.reset(fGpu->createInstancedRendering());
     }
@@ -332,7 +327,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                op->bounds().fRight, op->bounds().fBottom);
     GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
     GrOP_INFO("\tOutcome:\n");
-    int maxCandidates = SkTMin(fMaxOpLookback, fRecordedOps.count());
+    int maxCandidates = SkTMin(kMaxOpLookback, fRecordedOps.count());
     // If we don't have a valid destination render target then we cannot reorder.
     if (maxCandidates && renderTarget) {
         int i = 0;
@@ -383,9 +378,6 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
 void GrRenderTargetOpList::forwardCombine() {
     SkASSERT(!this->isClosed());
 
-    if (fMaxOpLookahead <= 0) {
-        return;
-    }
     for (int i = 0; i < fRecordedOps.count() - 1; ++i) {
         GrOp* op = fRecordedOps[i].fOp.get();
         GrRenderTarget* renderTarget = fRecordedOps[i].fRenderTarget.get();
@@ -394,7 +386,7 @@ void GrRenderTargetOpList::forwardCombine() {
         if (!renderTarget) {
             continue;
         }
-        int maxCandidateIdx = SkTMin(i + fMaxOpLookahead, fRecordedOps.count() - 1);
+        int maxCandidateIdx = SkTMin(i + kMaxOpLookahead, fRecordedOps.count() - 1);
         int j = i + 1;
         while (true) {
             const RecordedOp& candidate = fRecordedOps[j];
