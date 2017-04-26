@@ -213,7 +213,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
         for (auto config : { kAlpha_8_GrPixelConfig, kRGBA_8888_GrPixelConfig }) {
             for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                 for (auto numSamples: { 0, 4}) {
-                    if (caps.maxSampleCount() < numSamples) continue;
+                    if (caps.maxSampleCount() < numSamples) {
+                        continue;
+                    }
+
                     bool renderable = caps.isConfigRenderable(config, numSamples > 0);
 
                     GrSurfaceDesc desc;
@@ -273,6 +276,36 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                   kWidthHeight, kWidthHeight, config, tex->uniqueID(), budgeted);
                     check_texture(reporter, provider, sProxy->asTextureProxy(),
                                   SkBackingFit::kExact, true);
+                }
+            }
+        }
+    }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
+    GrResourceProvider* provider = ctxInfo.grContext()->resourceProvider();
+
+    for (auto flags : { kRenderTarget_GrSurfaceFlag, kNone_GrSurfaceFlags }) {
+        for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
+            for (int width : { 0, 100 }) {
+                for (int height : { 0, 100}) {
+                    if (width && height) {
+                        continue; // not zero-sized
+                    }
+
+                    GrSurfaceDesc desc;
+                    desc.fFlags = flags;
+                    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+                    desc.fWidth = width;
+                    desc.fHeight = height;
+                    desc.fConfig = kRGBA_8888_GrPixelConfig;
+                    desc.fSampleCnt = 0;
+
+                    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(provider,
+                                                                             desc,
+                                                                             fit,
+                                                                             SkBudgeted::kNo));
+                    REPORTER_ASSERT(reporter, !proxy);
                 }
             }
         }
