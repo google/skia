@@ -623,7 +623,6 @@ def test_steps(api):
   args = [
     'dm',
     '--undefok',   # This helps branches that may not know new flags.
-    '--resourcePath', api.flavor.device_dirs.resource_dir,
     '--skps', api.flavor.device_dirs.skp_dir,
     '--images', api.flavor.device_path_join(
         api.flavor.device_dirs.images_dir, 'dm'),
@@ -632,6 +631,8 @@ def test_steps(api):
     '--nameByHash',
     '--properties'
   ] + properties
+  if 'NoResourcePath' not in api.vars.builder_cfg.get('extra_config', ''):
+    args.extend(['--resourcePath', api.flavor.device_dirs.resource_dir])
 
   args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
 

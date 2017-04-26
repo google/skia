@@ -94,7 +94,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			// skia:6267
 			ec = ""
 		}
-		if ec == "ReleaseAndAbandonGpuContext" {
+		if ec == "ReleaseAndAbandonGpuContext" || ec == "NoResourcePath" {
 			ec = ""
 		}
 		if task_os == "Android" {
