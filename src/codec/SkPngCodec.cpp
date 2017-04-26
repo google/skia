@@ -986,11 +986,11 @@ void SkPngCodec::destroyReadStruct() {
 // Getting the pixels
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& options,
-                                  SkPMColor ctable[], int* ctableCount) {
+SkCodec::Result SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& options,
+                                             SkPMColor ctable[], int* ctableCount) {
     if (setjmp(PNG_JMPBUF((png_struct*)fPng_ptr))) {
         SkCodecPrintf("Failed on png_read_update_info.\n");
-        return false;
+        return kInvalidInput;
     }
     png_read_update_info(fPng_ptr, fInfo_ptr);
 
@@ -999,7 +999,7 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     fSwizzler.reset(nullptr);
 
     if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
-        return false;
+        return kInvalidConversion;
     }
 
     // If SkColorSpaceXform directly supports the encoded PNG format, we should skip format
@@ -1020,12 +1020,12 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     }
     if (skipFormatConversion && !options.fSubset) {
         fXformMode = kColorOnly_XformMode;
-        return true;
+        return kSuccess;
     }
 
     if (SkEncodedInfo::kPalette_Color == this->getEncodedInfo().color()) {
         if (!this->createColorTable(dstInfo, ctableCount)) {
-            return false;
+            return kInvalidInput;
         }
     }
 
@@ -1033,7 +1033,7 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     copy_color_table(dstInfo, fColorTable.get(), ctable, ctableCount);
 
     this->initializeSwizzler(dstInfo, options, skipFormatConversion);
-    return true;
+    return kSuccess;
 }
 
 void SkPngCodec::initializeXformParams() {
@@ -1115,10 +1115,13 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
                                         size_t rowBytes, const Options& options,
                                         SkPMColor ctable[], int* ctableCount,
                                         int* rowsDecoded) {
-    if (!conversion_possible(dstInfo, this->getInfo()) ||
-        !this->initializeXforms(dstInfo, options, ctable, ctableCount))
-    {
+    if (!conversion_possible(dstInfo, this->getInfo())) {
         return kInvalidConversion;
+    }
+
+    Result result = this->initializeXforms(dstInfo, options, ctable, ctableCount);
+    if (kSuccess != result) {
+        return result;
     }
 
     if (options.fSubset) {
@@ -1133,10 +1136,13 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
 SkCodec::Result SkPngCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
         void* dst, size_t rowBytes, const SkCodec::Options& options,
         SkPMColor* ctable, int* ctableCount) {
-    if (!conversion_possible(dstInfo, this->getInfo()) ||
-        !this->initializeXforms(dstInfo, options, ctable, ctableCount))
-    {
+    if (!conversion_possible(dstInfo, this->getInfo())) {
         return kInvalidConversion;
+    }
+
+    Result result = this->initializeXforms(dstInfo, options, ctable, ctableCount);
+    if (kSuccess != result) {
+        return result;
     }
 
     this->allocateStorage(dstInfo);
