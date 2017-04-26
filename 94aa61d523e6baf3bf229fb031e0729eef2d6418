@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d673ddb_35e72789",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-26T13:31:10Z",
+      "side": 1,
+      "message": "Should we make this same split in other SkCodecs?",
+      "range": {
+        "startLine": 1118,
+        "startChar": 9,
+        "endLine": 1118,
+        "endChar": 28
+      },
+      "revId": "94aa61d523e6baf3bf229fb031e0729eef2d6418",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1d1bb72_d5736962",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1122,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-26T13:31:10Z",
+      "side": 1,
+      "message": "Since result is never used again, you might compare inside the if. But I don\u0027t have a strong preference. (Same for below.)",
+      "range": {
+        "startLine": 1122,
+        "startChar": 11,
+        "endLine": 1122,
+        "endChar": 17
+      },
+      "revId": "94aa61d523e6baf3bf229fb031e0729eef2d6418",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
