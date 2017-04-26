@@ -14,14 +14,9 @@
 #include "SkImageCacherator.h"
 #include "SkPixelRef.h"
 
-static bool cacher_is_alpha_only(const SkImageCacherator& cacher) {
-    return kAlpha_8_SkColorType == cacher.info().colorType();
-}
-
 GrImageTextureMaker::GrImageTextureMaker(GrContext* context, SkImageCacherator* cacher,
                                          const SkImage* client, SkImage::CachingHint chint)
-    : INHERITED(context, cacher->info().width(), cacher->info().height(),
-                cacher_is_alpha_only(*cacher))
+    : INHERITED(context, client->width(), client->height(), client->isAlphaOnly())
     , fCacher(cacher)
     , fClient(client)
     , fCachingHint(chint) {
@@ -55,7 +50,7 @@ void GrImageTextureMaker::didCacheCopy(const GrUniqueKey& copyKey) {
 }
 
 SkAlphaType GrImageTextureMaker::alphaType() const {
-    return fCacher->info().alphaType();
+    return fClient->alphaType();
 }
 sk_sp<SkColorSpace> GrImageTextureMaker::getColorSpace(SkColorSpace* dstColorSpace) {
     return fCacher->getColorSpace(this->context(), dstColorSpace);

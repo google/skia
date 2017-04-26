@@ -9,7 +9,6 @@
 #include "SkColorFilter.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
-#include "SkImageCacherator.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkImagePriv.h"

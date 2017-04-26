@@ -172,7 +172,7 @@ private:
 
     void setImmutableWithID(uint32_t genID);
     friend class SkImage_Gpu;
-    friend class SkImageCacherator;
+    friend class SkImage_Lazy;
     friend class SkSpecialImage_Gpu;
     friend void SkBitmapCache_setImmutableWithID(SkPixelRef*, uint32_t);
 
