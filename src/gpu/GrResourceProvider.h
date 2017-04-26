@@ -12,6 +12,7 @@
 #include "GrGpu.h"
 #include "GrPathRange.h"
 
+class GrBackendRenderTarget;
 class GrPath;
 class GrRenderTarget;
 class GrSingleOwner;
@@ -100,7 +101,7 @@ public:
      *
      * @return GrRenderTarget object or NULL on failure.
      */
-    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc);
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&, GrSurfaceOrigin);
 
     static const int kMinScratchTextureSize;
 

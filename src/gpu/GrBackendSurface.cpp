@@ -70,14 +70,14 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
                                              int stencilBits,
-                                             const GrVkImageInfo* vkInfo)
+                                             const GrVkImageInfo& vkInfo)
         : fWidth(width)
         , fHeight(height)
         , fSampleCnt(sampleCnt)
         , fStencilBits(stencilBits)
         , fConfig(
 #ifdef SK_VULKAN
-                  GrVkFormatToPixelConfig(vkInfo->fFormat)
+                  GrVkFormatToPixelConfig(vkInfo.fFormat)
 #else
                   kUnknown_GrPixelConfig
 #endif
@@ -90,7 +90,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int sampleCnt,
                                              int stencilBits,
                                              GrPixelConfig config,
-                                             const GrGLTextureInfo* glInfo)
+                                             const GrGLFramebufferInfo& glInfo)
         : fWidth(width)
         , fHeight(height)
         , fSampleCnt(sampleCnt)
@@ -105,26 +105,33 @@ GrBackendRenderTarget::GrBackendRenderTarget(const GrBackendRenderTargetDesc& de
         , fHeight(desc.fHeight)
         , fSampleCnt(desc.fSampleCnt)
         , fStencilBits(desc.fStencilBits)
-        , fConfig(kVulkan_GrBackend == backend
+        , fConfig(desc.fConfig)
+        , fBackend(backend) {
+    if (kOpenGL_GrBackend == backend) {
+        fGLInfo = *reinterpret_cast<const GrGLFramebufferInfo*>(desc.fRenderTargetHandle);
+    } else {
+        SkASSERT(kVulkan_GrBackend == backend);
 #ifdef SK_VULKAN
-                  ? GrVkFormatToPixelConfig(((GrVkImageInfo*)desc.fRenderTargetHandle)->fFormat)
+        const GrVkImageInfo* vkInfo =
+                reinterpret_cast<const GrVkImageInfo*>(desc.fRenderTargetHandle);
+        fConfig = GrVkFormatToPixelConfig(vkInfo->fFormat);
+        fVkInfo = *vkInfo;
 #else
-                  ? kUnknown_GrPixelConfig
+        fConfig = kUnknown_GrPixelConfig;
 #endif
-                  : desc.fConfig)
-        , fBackend(backend)
-        , fHandle(desc.fRenderTargetHandle) {}
+    }
+}
 
 const GrVkImageInfo* GrBackendRenderTarget::getVkImageInfo() const {
     if (kVulkan_GrBackend == fBackend) {
-        return fVkInfo;
+        return &fVkInfo;
     }
     return nullptr;
 }
 
-const GrGLTextureInfo* GrBackendRenderTarget::getGLTextureInfo() const {
+const GrGLFramebufferInfo* GrBackendRenderTarget::getGLFramebufferInfo() const {
     if (kOpenGL_GrBackend == fBackend) {
-        return fGLInfo;
+        return &fGLInfo;
     }
     return nullptr;
 }
