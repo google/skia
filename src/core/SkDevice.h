@@ -370,6 +370,10 @@ private:
 
     virtual SkImageFilterCache* getImageFilterCache() { return NULL; }
 
+    void drawClippedDevice(SkBaseDevice*, int x, int y, const SkPaint&,
+                           const SkIRect& devClipBounds, SkImage* clipImage,
+                           const SkMatrix& clipMatrix);
+
     friend class SkNoPixelsDevice;
     friend class SkBitmapDevice;
     void privateResize(int w, int h) {
