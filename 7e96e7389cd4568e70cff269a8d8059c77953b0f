@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e1e1061_3211f959",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-26T18:47:38Z",
+      "side": 1,
+      "message": "you don\u0027t need to use this complicated ctor here.",
+      "range": {
+        "startLine": 34,
+        "startChar": 25,
+        "endLine": 34,
+        "endChar": 41
+      },
+      "revId": "7e96e7389cd4568e70cff269a8d8059c77953b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "752c1100_49be3dce",
+        "filename": "src/gpu/GrRenderTargetOpList.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-26T18:47:38Z",
+      "side": 1,
+      "message": "SkArenaAlloc fClipAllocator{4096};",
+      "range": {
+        "startLine": 153,
+        "startChar": 17,
+        "endLine": 153,
+        "endChar": 31
+      },
+      "revId": "7e96e7389cd4568e70cff269a8d8059c77953b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
