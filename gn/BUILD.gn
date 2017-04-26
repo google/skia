@@ -668,7 +668,7 @@ toolchain("gcc_like") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description = "compile {{source}}"
+    description = "assemble {{source}}"
   }
 
   tool("alink") {
