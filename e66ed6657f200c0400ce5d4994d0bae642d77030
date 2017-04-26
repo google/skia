@@ -46,6 +46,30 @@
       "revId": "e66ed6657f200c0400ce5d4994d0bae642d77030",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de662779_5a938bc6",
+        "filename": "src/gpu/vk/GrVkInterface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-26T20:21:57Z",
+      "side": 1,
+      "message": "Okay keeping it fine. But lets not require device if getDevProc is null. Also, maybe we can update the comments in the headers to say something like \"... we will fallback to the InstanceProc, but this may have performance penalties\". I\u0027m not sure how familiar with the Vulkan spec clients who use us will be so I don\u0027t want to encourage the use of just instance.",
+      "parentUuid": "9aafd6e4_79d9c4db",
+      "range": {
+        "startLine": 48,
+        "startChar": 4,
+        "endLine": 48,
+        "endChar": 93
+      },
+      "revId": "e66ed6657f200c0400ce5d4994d0bae642d77030",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
