@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "75a79820_7208e776",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-26T15:31:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "562d5f9d_ff5315de",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 4
+      },
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03fd0d26_e5832101",
         "filename": "include/gpu/GrBackendSurface.h",
         "patchSetId": 2
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "yep",
       "parentUuid": "80fd720c_d93801ba",
+      "range": {
+        "startLine": 75,
+        "startChar": 21,
+        "endLine": 75,
+        "endChar": 36
+      },
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f1f2349_47dfb780",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-26T15:31:17Z",
+      "side": 1,
+      "message": "Done. I will update the Texture version in a follow on CL.",
+      "parentUuid": "a1beaa04_c3854f8d",
       "range": {
         "startLine": 75,
         "startChar": 21,
@@ -315,6 +363,24 @@
     },
     {
       "key": {
+        "uuid": "f5b923c1_23c3c226",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-26T15:31:17Z",
+      "side": 1,
+      "message": "Added Assert for both Vulkan and GL here. From my search, our main clients all are setting a specific value and not default so should be safe in GL",
+      "parentUuid": "b53ddbe6_a6f8cdb1",
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7d318939_9b5f2a6a",
         "filename": "src/views/SkWindow.cpp",
         "patchSetId": 2
@@ -364,6 +430,24 @@
       "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46f018af_6bca4f5d",
+        "filename": "tools/viewer/sk_app/GLWindowContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-26T15:31:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ddabe31e_44b678bd",
+      "revId": "eb627375a9ec72513c3776a505ebe5219ad4c796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

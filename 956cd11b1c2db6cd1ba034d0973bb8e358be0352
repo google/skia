@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2318007b_154a545c",
+        "filename": "include/gpu/vk/GrVkDefines.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-26T15:31:17Z",
+      "side": 1,
+      "message": "How unsafe is this? Since we do use these macros in SkOSWindow_Unix.cpp....",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 6
+      },
+      "revId": "956cd11b1c2db6cd1ba034d0973bb8e358be0352",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
