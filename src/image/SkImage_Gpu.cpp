@@ -457,8 +457,8 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
         return peek->getContext() == context ? sk_ref_sp(const_cast<SkImage*>(this)) : nullptr;
     }
 
-    if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
-        GrImageTextureMaker maker(context, cacher, this, kDisallow_CachingHint);
+    if (this->isLazyGenerated()) {
+        GrImageTextureMaker maker(context, this, kDisallow_CachingHint);
         return create_image_from_maker(context, &maker, this->alphaType(),
                                        this->uniqueID(), dstColorSpace);
     }

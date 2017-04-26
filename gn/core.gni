@@ -171,7 +171,6 @@ skia_core_sources = [
   "$_src/core/SkImageFilterCache.h",
   "$_src/core/SkImageInfo.cpp",
   "$_src/core/SkImageCacherator.h",
-  "$_src/core/SkImageCacherator.cpp",
   "$_src/core/SkImageGenerator.cpp",
   "$_src/core/SkLightingShader.h",
   "$_src/core/SkLightingShader.cpp",

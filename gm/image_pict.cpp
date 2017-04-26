@@ -8,7 +8,7 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
-#include "SkImageCacherator.h"
+#include "SkImageGenerator.h"
 #include "SkImage_Base.h"
 #include "SkMakeUnique.h"
 #include "SkPictureRecorder.h"
@@ -316,26 +316,15 @@ protected:
 
     void makeCaches(GrContext* ctx) {
         auto gen = fFactory(ctx, fPicture);
-        SkDEBUGCODE(const uint32_t genID = gen->uniqueID();)
         fImage = SkImage::MakeFromGenerator(std::move(gen));
 
         const SkIRect subset = SkIRect::MakeLTRB(50, 50, 100, 100);
 
         gen = fFactory(ctx, fPicture);
-        SkDEBUGCODE(const uint32_t genSubsetID = gen->uniqueID();)
         fImageSubset = SkImage::MakeFromGenerator(std::move(gen), &subset);
 
-        // whole caches should have the same ID as the generator. Subsets should be diff
-        SkDEBUGCODE(SkImageCacherator* cache = as_IB(fImage)->peekCacherator();)
-        SkDEBUGCODE(SkImageCacherator* cacheSubset = as_IB(fImageSubset)->peekCacherator();)
-        SkASSERT(cache);
-        SkASSERT(cacheSubset);
-        SkASSERT(cache->uniqueID() == genID);
-        SkASSERT(cacheSubset->uniqueID() != genID);
-        SkASSERT(cacheSubset->uniqueID() != genSubsetID);
-
-        SkASSERT(cache->info().dimensions() == SkISize::Make(100, 100));
-        SkASSERT(cacheSubset->info().dimensions() == SkISize::Make(50, 50));
+        SkASSERT(fImage->dimensions() == SkISize::Make(100, 100));
+        SkASSERT(fImageSubset->dimensions() == SkISize::Make(50, 50));
     }
 
     static void draw_as_bitmap(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {

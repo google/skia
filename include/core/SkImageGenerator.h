@@ -199,7 +199,7 @@ private:
     const SkImageInfo fInfo;
     const uint32_t fUniqueID;
 
-    friend class SkImageCacherator;
+    friend class SkImage_Lazy;
 
     // This is our default impl, which may be different on different platforms.
     // It is called from NewFromEncoded() after it has checked for any runtime factory.

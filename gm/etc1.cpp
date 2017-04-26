@@ -35,8 +35,6 @@ protected:
         return SkISize::Make(kTexWidth + 2*kPad, kTexHeight + 2*kPad);
     }
 
-    // TODO: we should be creating an ETC1 SkData blob here and going through SkImageCacherator.
-    // That will require an ETC1 Codec though - so for later.
     void onOnceBeforeDraw() override {
         SkBitmap bm;
         SkImageInfo ii = SkImageInfo::Make(kTexWidth, kTexHeight, kRGB_565_SkColorType,
