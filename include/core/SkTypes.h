@@ -442,11 +442,13 @@ be copied. It hides its copy-constructor and its assignment-operator.
 */
 class SK_API SkNoncopyable {
 public:
-    SkNoncopyable() {}
+    SkNoncopyable() = default;
 
-private:
-    SkNoncopyable(const SkNoncopyable&);
-    SkNoncopyable& operator=(const SkNoncopyable&);
+    SkNoncopyable(SkNoncopyable&&) = default;
+    SkNoncopyable& operator =(SkNoncopyable&&) = default;
+
+    SkNoncopyable(const SkNoncopyable&) = delete;
+    SkNoncopyable& operator=(const SkNoncopyable&) = delete;
 };
 
 #endif /* C++ */
