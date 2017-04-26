@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e480c214_94ea23a9",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-26T01:01:05Z",
+      "side": 1,
+      "message": "why does the constructor take some data but not others? Why not take format, quality, transfer ?",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 19
+      },
+      "revId": "a5031bb878663fd3315dc8ab64547cbea4020606",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
