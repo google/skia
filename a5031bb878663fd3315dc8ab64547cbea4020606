@@ -22,6 +22,30 @@
       "revId": "a5031bb878663fd3315dc8ab64547cbea4020606",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d60a53e_68d815e5",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-26T14:48:09Z",
+      "side": 1,
+      "message": "The reason it has a parameter is so that we can set reasonable defaults for each image type.  Given that we are using a union, the default values fro jpeg might not make sense for png.\n\nIt would be fine to take TransferFnBehavior.  I\u0027d like to leave out things like quality because that doesn\u0027t make sense for all image types.\n\nAs another approach, this could have factories: ex: MakeJpegOptions(transfer, quality), MakePngOptions(transfer, \u003cfuture png options\u003e) etc.  But these are harder to maintain as we add options.",
+      "parentUuid": "e480c214_94ea23a9",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 19
+      },
+      "revId": "a5031bb878663fd3315dc8ab64547cbea4020606",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
