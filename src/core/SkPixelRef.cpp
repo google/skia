@@ -89,6 +89,10 @@ void SkPixelRef::android_only_reset(const SkImageInfo& info, size_t rowBytes,
     // conservative, since its possible the "new" settings are the same as the old.
     this->notifyPixelsChanged();
 }
+
+void SkPixelRef::android_only_cloneGenID(const SkPixelRef& that) {
+    this->cloneGenID(that);
+}
 #endif
 
 void SkPixelRef::needsNewGenID() {

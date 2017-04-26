@@ -127,6 +127,7 @@ protected:
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     // This is undefined if there are clients in-flight trying to use us
     void android_only_reset(const SkImageInfo&, size_t rowBytes, sk_sp<SkColorTable>);
+    void android_only_cloneGenID(const SkPixelRef&);
 #endif
 
 private:
