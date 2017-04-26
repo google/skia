@@ -301,10 +301,21 @@ bool SkImage::isAlphaOnly() const {
 
 sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target,
                                        SkTransferFunctionBehavior premulBehavior) const {
-    if (SkTransferFunctionBehavior::kRespect == premulBehavior) {
-        // TODO (msarett, brianosman): Implement this.
-        return nullptr;
-    }
+    Precision precision = (SkTransferFunctionBehavior::kRespect == premulBehavior) ?
+            Precision::kPreserve : Precision::kAlwaysU8;
+    return as_IB(this)->makeColorSpace(std::move(target), precision, premulBehavior);
+}
+
+sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target, Precision precision) const {
+    return as_IB(this)->makeColorSpace(std::move(target), precision,
+                                       SkTransferFunctionBehavior::kRespect);
+}
+
+sk_sp<SkImage> SkImage_Base::makeColorSpace(sk_sp<SkColorSpace> target,
+                                            Precision precision,
+                                            SkTransferFunctionBehavior premulBehavior) const {
+    SkASSERT(SkTransferFunctionBehavior::kRespect == premulBehavior ||
+             Precision::kAlwaysU8 == precision);
 
     SkColorSpaceTransferFn fn;
     if (!target || !target->isNumericalTransferFn(&fn)) {
@@ -317,11 +328,16 @@ sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target,
     if ((!this->colorSpace() && target->isSRGB()) ||
             SkColorSpace::Equals(this->colorSpace(), target.get()) ||
             kAlpha_8_SkColorType == as_IB(this)->onImageInfo().colorType()) {
-        return sk_ref_sp(const_cast<SkImage*>(this));
+        return sk_ref_sp(const_cast<SkImage_Base*>(this));
+    }
+
+    SkColorType targetColorType = kN32_SkColorType;
+    if (Precision::kPreserve == precision && target->gammaIsLinear()) {
+        targetColorType = kRGBA_F16_SkColorType;
     }
 
     // TODO: We might consider making this a deferred conversion?
-    return as_IB(this)->onMakeColorSpace(std::move(target));
+    return as_IB(this)->onMakeColorSpace(std::move(target), targetColorType, premulBehavior);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

@@ -38,7 +38,8 @@ public:
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
     bool onIsLazyGenerated() const override { return true; }
-    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
+    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
+                                    SkTransferFunctionBehavior) const override;
 
 private:
     mutable SkImageCacherator fCache;
@@ -105,20 +106,14 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset) const {
     return validator ? sk_sp<SkImage>(new SkImage_Lazy(&validator)) : nullptr;
 }
 
-sk_sp<SkImage> SkImage_Lazy::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
+sk_sp<SkImage> SkImage_Lazy::onMakeColorSpace(sk_sp<SkColorSpace> target,
+                                              SkColorType targetColorType,
+                                              SkTransferFunctionBehavior premulBehavior) const {
     SkBitmap dst;
-    SkImageInfo dstInfo = fCache.info().makeColorSpace(target);
-    if (kIndex_8_SkColorType == dstInfo.colorType() ||
-        kGray_8_SkColorType == dstInfo.colorType() ||
-        kRGB_565_SkColorType == dstInfo.colorType()) {
-        dstInfo = dstInfo.makeColorType(kN32_SkColorType);
-    }
+    SkImageInfo dstInfo = fCache.info().makeColorType(targetColorType).makeColorSpace(target);
     dst.allocPixels(dstInfo);
-
-    // Use kIgnore for transfer function behavior.  This is used by the SkColorSpaceXformCanvas,
-    // which wants to pre-xform the inputs but ignore the transfer function on blends.
     if (!fCache.directGeneratePixels(dstInfo, dst.getPixels(), dst.rowBytes(), 0, 0,
-                                     SkTransferFunctionBehavior::kIgnore)) {
+                                     premulBehavior)) {
         return nullptr;
     }
 

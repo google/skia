@@ -486,6 +486,11 @@ public:
      */
     bool isLazyGenerated() const;
 
+    enum class Precision {
+        kPreserve,
+        kAlwaysU8,
+    };
+
     /**
      *  If |target| is supported, returns an SkImage in the |target| color space.
      *  Otherwise, returns nullptr.
@@ -497,10 +502,17 @@ public:
      *
      *  If |premulBehavior| is kIgnore, any premultiplication or unpremultiplication will
      *  be performed in the gamma encoded space.  If it is kRespect, premultiplication is
-     *  assumed to be linear.
+     *  assumed to be linear.  kRespect is the default.
+     *
+     *  If |precision| is kAlwaysU8, we will use 8888 for the output image (if it is
+     *  necessary to create a new image).  If it is kPreserve, we will expand to F16 as
+     *  necessary to preserve the precision of the original image.  Note that F16 is only
+     *  supported for linear color spaces and is not supported with kIgnore transfer
+     *  function behavior.
      */
     sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target,
                                   SkTransferFunctionBehavior premulBehavior) const;
+    sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target, Precision precision) const;
 
 protected:
     SkImage(int width, int height, uint32_t uniqueID);
