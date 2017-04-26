@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8236601_c6a791bc",
+        "filename": "bench/SkRasterPipelineBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-26T13:36:39Z",
+      "side": 1,
+      "message": "Same applies here.",
+      "range": {
+        "startLine": 103,
+        "startChar": 8,
+        "endLine": 103,
+        "endChar": 67
+      },
+      "revId": "b64590bf46698738dfe8ddc0e71f0340c2750a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f49f7190_481ea184",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1247,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-26T13:36:39Z",
+      "side": 1,
+      "message": "Would like to avoid code that depends on the order of the parameters G, A, B, C, D, E, F...  I\u0027ve been told it\u0027s kind of silly to have G first.  Might change this at some point.",
+      "range": {
+        "startLine": 1247,
+        "startChar": 38,
+        "endLine": 1247,
+        "endChar": 62
+      },
+      "revId": "b64590bf46698738dfe8ddc0e71f0340c2750a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5732196_4b8118e8",
+        "filename": "src/core/SkColorSpaceXform_A2B.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-26T13:36:39Z",
+      "side": 1,
+      "message": "Oops",
+      "range": {
+        "startLine": 120,
+        "startChar": 33,
+        "endLine": 120,
+        "endChar": 69
+      },
+      "revId": "b64590bf46698738dfe8ddc0e71f0340c2750a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77412eb5_1fb5cb84",
+        "filename": "src/core/SkColorSpaceXform_A2B.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-26T13:36:39Z",
+      "side": 1,
+      "message": "nit",
+      "range": {
+        "startLine": 232,
+        "startChar": 12,
+        "endLine": 232,
+        "endChar": 84
+      },
+      "revId": "b64590bf46698738dfe8ddc0e71f0340c2750a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
