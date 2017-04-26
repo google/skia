@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71ae4c72_e1ebaa0a",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-26T20:24:39Z",
+      "side": 1,
+      "message": "Are most of the changes in this file moved from cacherator?  Can you point out interesting differences?",
+      "range": {
+        "startLine": 145,
+        "startChar": 0,
+        "endLine": 145,
+        "endChar": 85
+      },
+      "revId": "50afaafab4107ec32cfad693177cfdbbdb6439de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
