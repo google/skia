@@ -224,8 +224,7 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetPr
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(rtp,
                                                                 fContext->getGpu(),
                                                                 fContext->resourceProvider(),
-                                                                fContext->getAuditTrail(),
-                                                                fOptionsForOpLists));
+                                                                fContext->getAuditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
 
     fOpLists.push_back() = opList;
