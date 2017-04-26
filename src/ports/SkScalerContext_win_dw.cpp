@@ -298,11 +298,7 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
 
     // If the font has a gasp table version 1, use it to determine symmetric rendering.
     } else if (get_gasp_range(typeface, SkScalarRoundToInt(gdiTextSize), &range) &&
-#ifdef SK_IGNORE_GASP_VERSION_CHECK
-               true)
-#else
                range.fVersion >= 1)
-#endif
     {
         fTextSizeRender = realTextSize;
         fRenderingMode = range.fFlags.field.SymmetricSmoothing
