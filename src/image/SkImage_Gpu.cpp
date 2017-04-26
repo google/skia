@@ -315,11 +315,11 @@ static GrBackendTexture make_backend_texture_from_handle(GrBackend backend,
 
     if (kOpenGL_GrBackend == backend) {
         GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
-        return GrBackendTexture(width, height, config, glInfo);
+        return GrBackendTexture(width, height, config, *glInfo);
     } else {
         SkASSERT(kVulkan_GrBackend == backend);
         GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
-        return GrBackendTexture(width, height, vkInfo);
+        return GrBackendTexture(width, height, *vkInfo);
     }
 }
 

@@ -14,18 +14,14 @@
 
 class GrBackendTexture {
 public:
-    // The passed in GrVkImageInfo must live until the GrBackendTexture is no longer used in
-    // creation of SkImages or SkSurfaces.
     GrBackendTexture(int width,
                      int height,
-                     const GrVkImageInfo* vkInfo);
+                     const GrVkImageInfo& vkInfo);
 
-    // The passed in GrGLTextureInfo must live until the GrBackendTexture is no longer used in
-    // creation of SkImages or SkSurfaces.
     GrBackendTexture(int width,
                      int height,
                      GrPixelConfig config,
-                     const GrGLTextureInfo* glInfo);
+                     const GrGLTextureInfo& glInfo);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
@@ -54,9 +50,8 @@ private:
     GrBackend fBackend;
 
     union {
-        const GrVkImageInfo*   fVkInfo;
-        const GrGLTextureInfo* fGLInfo;
-        GrBackendObject  fHandle;
+        GrVkImageInfo   fVkInfo;
+        GrGLTextureInfo fGLInfo;
     };
 };
 

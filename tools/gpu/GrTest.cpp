@@ -60,11 +60,11 @@ GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
                                       GrPixelConfig config, GrBackendObject handle) {
     if (kOpenGL_GrBackend == backend) {
         GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
-        return GrBackendTexture(width, height, config, glInfo);
+        return GrBackendTexture(width, height, config, *glInfo);
     } else {
         SkASSERT(kVulkan_GrBackend == backend);
         GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
-        return GrBackendTexture(width, height, vkInfo);
+        return GrBackendTexture(width, height, *vkInfo);
     }
 }
 };
