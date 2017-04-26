@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1ecd9a6_1cb171c2",
+        "filename": "src/gpu/vk/GrVkInterface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-26T20:10:04Z",
+      "side": 1,
+      "message": "When do we expect this happen?\n\nIf it does happen, I expect device to also be VK_NULL_HANDLE so we probably shouldn\u0027t return in the previous line if we just fall back to the instance getproc",
+      "range": {
+        "startLine": 48,
+        "startChar": 4,
+        "endLine": 48,
+        "endChar": 93
+      },
+      "revId": "e66ed6657f200c0400ce5d4994d0bae642d77030",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
