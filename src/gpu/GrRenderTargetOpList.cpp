@@ -25,12 +25,13 @@ using gr_instanced::InstancedRendering;
 static const int kMaxOpLookback = 10;
 static const int kMaxOpLookahead = 10;
 
+// MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
+// Gather statistics to determine the correct size.
 GrRenderTargetOpList::GrRenderTargetOpList(sk_sp<GrRenderTargetProxy> proxy, GrGpu* gpu,
                                            GrAuditTrail* auditTrail)
         : INHERITED(std::move(proxy), auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
-        , fClipAllocator(fClipAllocatorStorage, sizeof(fClipAllocatorStorage),
-                         sizeof(fClipAllocatorStorage)) {
+        , fClipAllocator(nullptr, 0, 4096) {
     if (GrCaps::InstancedSupport::kNone != gpu->caps()->instancedSupport()) {
         fInstancedRendering.reset(gpu->createInstancedRendering());
     }

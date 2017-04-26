@@ -150,7 +150,6 @@ private:
 
     SkSTArray<256, RecordedOp, true> fRecordedOps;
 
-    char fClipAllocatorStorage[4096];
     SkArenaAlloc fClipAllocator;
 
     typedef GrOpList INHERITED;
