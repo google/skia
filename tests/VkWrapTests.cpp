@@ -33,7 +33,7 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
                                                                       false);
     const GrVkImageInfo* imageInfo = reinterpret_cast<const GrVkImageInfo*>(backendObj);
 
-    GrBackendTexture backendTex = GrBackendTexture(kW, kH, imageInfo);
+    GrBackendTexture backendTex = GrBackendTexture(kW, kH, *imageInfo);
     sk_sp<GrTexture> tex = gpu->wrapBackendTexture(backendTex,
                                                    kTopLeft_GrSurfaceOrigin,
                                                    kNone_GrBackendTextureFlag,
@@ -44,7 +44,7 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
     // image is null
     GrVkImageInfo backendCopy = *imageInfo;
     backendCopy.fImage = VK_NULL_HANDLE;
-    backendTex = GrBackendTexture(kW, kH, &backendCopy);
+    backendTex = GrBackendTexture(kW, kH, backendCopy);
     tex = gpu->wrapBackendTexture(backendTex,
                                   kTopLeft_GrSurfaceOrigin,
                                   kNone_GrBackendTextureFlag,
@@ -125,7 +125,7 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
                                                                       true);
     const GrVkImageInfo* imageInfo = reinterpret_cast<const GrVkImageInfo*>(backendObj);
 
-    GrBackendTexture backendTex = GrBackendTexture(kW, kH, imageInfo);
+    GrBackendTexture backendTex = GrBackendTexture(kW, kH, *imageInfo);
     sk_sp<GrTexture> tex = gpu->wrapBackendTexture(backendTex,
                                                    kTopLeft_GrSurfaceOrigin,
                                                    kRenderTarget_GrBackendTextureFlag,
@@ -136,7 +136,7 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
     // image is null
     GrVkImageInfo backendCopy = *imageInfo;
     backendCopy.fImage = VK_NULL_HANDLE;
-    backendTex = GrBackendTexture(kW, kH, &backendCopy);
+    backendTex = GrBackendTexture(kW, kH, backendCopy);
     tex = gpu->wrapBackendTexture(backendTex,
                                   kTopLeft_GrSurfaceOrigin,
                                   kRenderTarget_GrBackendTextureFlag,

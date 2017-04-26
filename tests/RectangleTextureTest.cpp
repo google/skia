@@ -119,7 +119,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         rectangleInfo.fID = rectTexID;
         rectangleInfo.fTarget = GR_GL_TEXTURE_RECTANGLE;
 
-        GrBackendTexture rectangleTex(kWidth, kHeight, kRGBA_8888_GrPixelConfig, &rectangleInfo);
+        GrBackendTexture rectangleTex(kWidth, kHeight, kRGBA_8888_GrPixelConfig, rectangleInfo);
 
         GrColor refPixels[kWidth * kHeight];
         for (int y = 0; y < kHeight; ++y) {
