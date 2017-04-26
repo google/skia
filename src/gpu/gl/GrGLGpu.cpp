@@ -399,7 +399,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
             }
             GL_CALL(Disable(GR_GL_POLYGON_OFFSET_FILL));
 
-            GL_CALL(PolygonMode(GR_GL_FRONT_AND_BACK, GR_GL_FILL));
+            GL_CALL(PolygonMode(GR_GL_FRONT_AND_BACK, GR_GL_LINE));
 #endif
             // Since ES doesn't support glPointSize at all we always use the VS to
             // set the point size
