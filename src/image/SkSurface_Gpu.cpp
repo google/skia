@@ -261,35 +261,42 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     if (!context) {
         return nullptr;
     }
-    if (!SkSurface_Gpu::Valid(context, desc.fConfig, colorSpace.get())) {
+
+    GrBackendRenderTarget backendRT(desc, context->contextPriv().getBackend());
+    return MakeFromBackendRenderTarget(context, backendRT, desc.fOrigin,
+                                       std::move(colorSpace), props);
+
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
+                                                        const GrBackendRenderTarget& backendRT,
+                                                        GrSurfaceOrigin origin,
+                                                        sk_sp<SkColorSpace> colorSpace,
+                                                        const SkSurfaceProps* props) {
+    if (!context) {
+        return nullptr;
+    }
+    if (!SkSurface_Gpu::Valid(context, backendRT.config(), colorSpace.get())) {
         return nullptr;
     }
 
     sk_sp<GrRenderTargetContext> rtc(
-        context->contextPriv().makeBackendRenderTargetRenderTargetContext(desc,
+        context->contextPriv().makeBackendRenderTargetRenderTargetContext(backendRT,
+                                                                          origin,
                                                                           std::move(colorSpace),
                                                                           props));
     if (!rtc) {
         return nullptr;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc), desc.fWidth, desc.fHeight,
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc),
+                                                backendRT.width(), backendRT.height(),
                                                 SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
     }
 
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
-}
-
-sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
-                                                        const GrBackendRenderTarget&,
-                                                        GrSurfaceOrigin origin,
-                                                        sk_sp<SkColorSpace>,
-                                                        const SkSurfaceProps*) {
-    // This function is not implemented yet
-    sk_throw();
-    return nullptr;
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
