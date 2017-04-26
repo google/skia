@@ -14,26 +14,20 @@
 #include "SkImageCacherator.h"
 #include "SkPixelRef.h"
 
-static bool cacher_is_alpha_only(const SkImageCacherator& cacher) {
-    return kAlpha_8_SkColorType == cacher.info().colorType();
-}
-
-GrImageTextureMaker::GrImageTextureMaker(GrContext* context, SkImageCacherator* cacher,
-                                         const SkImage* client, SkImage::CachingHint chint)
-    : INHERITED(context, cacher->info().width(), cacher->info().height(),
-                cacher_is_alpha_only(*cacher))
-    , fCacher(cacher)
-    , fClient(client)
-    , fCachingHint(chint) {
-    if (client) {
-        GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),
-                             SkIRect::MakeWH(this->width(), this->height()));
-    }
+GrImageTextureMaker::GrImageTextureMaker(GrContext* context, const SkImage* client,
+                                         SkImage::CachingHint chint)
+        : INHERITED(context, client->width(), client->height(), client->isAlphaOnly())
+        , fCacher(as_IB(client)->peekCacherator())
+        , fClient(client)
+        , fCachingHint(chint) {
+    SkASSERT(fCacher);
+    GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),
+                         SkIRect::MakeWH(this->width(), this->height()));
 }
 
 sk_sp<GrTextureProxy> GrImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
                                                                    SkColorSpace* dstColorSpace) {
-    return fCacher->lockTextureProxy(this->context(), fOriginalKey, fClient, fCachingHint,
+    return fCacher->lockTextureProxy(this->context(), fOriginalKey, fCachingHint,
                                      willBeMipped, dstColorSpace);
 }
 
@@ -49,13 +43,11 @@ void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* pa
 }
 
 void GrImageTextureMaker::didCacheCopy(const GrUniqueKey& copyKey) {
-    if (fClient) {
-        as_IB(fClient)->notifyAddedToCache();
-    }
+    as_IB(fClient)->notifyAddedToCache();
 }
 
 SkAlphaType GrImageTextureMaker::alphaType() const {
-    return fCacher->info().alphaType();
+    return fClient->alphaType();
 }
 sk_sp<SkColorSpace> GrImageTextureMaker::getColorSpace(SkColorSpace* dstColorSpace) {
     return fCacher->getColorSpace(this->context(), dstColorSpace);
