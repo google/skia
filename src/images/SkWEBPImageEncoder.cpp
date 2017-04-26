@@ -123,15 +123,7 @@ static int stream_writer(const uint8_t* data, size_t data_size,
   return stream->write(data, data_size) ? 1 : 0;
 }
 
-static bool do_encode(SkWStream* stream, const SkPixmap& pixmap, const SkEncodeOptions& opts,
-                      int quality) {
-    if (SkTransferFunctionBehavior::kRespect == opts.fUnpremulBehavior) {
-        if (!pixmap.colorSpace() || (!pixmap.colorSpace()->gammaCloseToSRGB() &&
-                                     !pixmap.colorSpace()->gammaIsLinear())) {
-            return false;
-        }
-    }
-
+static bool do_encode(SkWStream* stream, const SkPixmap& pixmap, const SkEncodeOptions& opts) {
     const transform_scanline_proc proc = choose_proc(pixmap.info(), opts.fUnpremulBehavior);
     if (!proc) {
         return false;
@@ -166,7 +158,7 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap, const SkEncodeO
     }
 
     WebPConfig webp_config;
-    if (!WebPConfigPreset(&webp_config, WEBP_PRESET_DEFAULT, (float) quality)) {
+    if (!WebPConfigPreset(&webp_config, WEBP_PRESET_DEFAULT, 100.0f*opts.fFormat.fWEBP.fQuality)) {
         return false;
     }
 
@@ -238,12 +230,8 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap, const SkEncodeO
     return true;
 }
 
-bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& src, int quality) {
-    return do_encode(stream, src, SkEncodeOptions(), quality);
-}
-
 bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& src, const SkEncodeOptions& opts) {
-    return do_encode(stream, src, opts, 100);
+    return do_encode(stream, src, opts);
 }
 
 #endif

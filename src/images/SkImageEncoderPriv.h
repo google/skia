@@ -10,13 +10,11 @@
 
 #include "SkImageEncoder.h"
 
-struct SkEncodeOptions {
-    SkTransferFunctionBehavior fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
-};
+sk_sp<SkData> SkEncodeImage(const SkPixmap& src, SkEncodedImageFormat format,
+                            const SkEncodeOptions& options);
 
 #ifdef SK_HAS_JPEG_LIBRARY
     bool SkEncodeImageAsJPEG(SkWStream*, const SkPixmap&, const SkEncodeOptions&);
-    bool SkEncodeImageAsJPEG(SkWStream*, const SkPixmap&, int quality);
 #else
     #define SkEncodeImageAsJPEG(...) false
 #endif
@@ -29,7 +27,6 @@ struct SkEncodeOptions {
 
 #ifdef SK_HAS_WEBP_LIBRARY
     bool SkEncodeImageAsWEBP(SkWStream*, const SkPixmap&, const SkEncodeOptions&);
-    bool SkEncodeImageAsWEBP(SkWStream*, const SkPixmap&, int quality);
 #else
     #define SkEncodeImageAsWEBP(...) false
 #endif
