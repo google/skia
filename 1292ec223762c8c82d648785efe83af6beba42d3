@@ -22,6 +22,30 @@
       "revId": "1292ec223762c8c82d648785efe83af6beba42d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e61c5e61_ec708f60",
+        "filename": "include/gpu/vk/GrVkDefines.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-26T16:14:05Z",
+      "side": 1,
+      "message": "So looking back when the error was added, it looks like it was added in conjunction with old xlib use. So I guess we don\u0027t use xlib any more in viewer, so nothing in vulkan.h should ever be trying to redefine these things.\n\nThe above USE are all vulkan specific. I\u0027ve wrapped them in a vulkan check",
+      "parentUuid": "ff550eca_fea932a3",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 6
+      },
+      "revId": "1292ec223762c8c82d648785efe83af6beba42d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
