@@ -1447,37 +1447,9 @@ DEF_TEST(Codec_rowsDecoded, r) {
     REPORTER_ASSERT(r, rowsDecoded == 0);
 }
 
-static void test_invalid_images(skiatest::Reporter* r, const char* path, bool shouldSucceed) {
-    SkBitmap bitmap;
-    const bool success = GetResourceAsBitmap(path, &bitmap);
-    REPORTER_ASSERT(r, success == shouldSucceed);
-}
-
-DEF_TEST(Codec_InvalidImages, r) {
-    // ASAN will complain if there is an issue.
-    test_invalid_images(r, "invalid_images/int_overflow.ico", false);
-    test_invalid_images(r, "invalid_images/skbug5887.gif", true);
-    test_invalid_images(r, "invalid_images/many-progressive-scans.jpg", false);
-}
-
-DEF_TEST(Codec_InvalidBmp, r) {
-    // These files report values that have caused problems with SkFILEStreams.
-    // They are invalid, and should not create SkCodecs.
-    for (auto* bmp : { "b33651913.bmp", "b34778578.bmp" } ) {
-        SkString path = SkOSPath::Join("invalid_images", bmp);
-        path = GetResourcePath(path.c_str());
-        std::unique_ptr<SkFILEStream> stream(new SkFILEStream(path.c_str()));
-        if (!stream->isValid()) {
-            return;
-        }
-
-        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
-        REPORTER_ASSERT(r, !codec);
-    }
-}
-
-DEF_TEST(Codec_InvalidRLEBmp, r) {
-    auto* stream = GetResourceAsStream("invalid_images/b33251605.bmp");
+static void test_invalid_images(skiatest::Reporter* r, const char* path,
+                                SkCodec::Result expectedResult) {
+    auto* stream = GetResourceAsStream(path);
     if (!stream) {
         return;
     }
@@ -1485,7 +1457,36 @@ DEF_TEST(Codec_InvalidRLEBmp, r) {
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream));
     REPORTER_ASSERT(r, codec);
 
-    test_info(r, codec.get(), codec->getInfo(), SkCodec::kIncompleteInput, nullptr);
+    test_info(r, codec.get(), codec->getInfo().makeColorType(kN32_SkColorType), expectedResult,
+              nullptr);
+}
+
+DEF_TEST(Codec_InvalidImages, r) {
+    // ASAN will complain if there is an issue.
+    test_invalid_images(r, "invalid_images/skbug5887.gif", SkCodec::kIncompleteInput);
+    test_invalid_images(r, "invalid_images/many-progressive-scans.jpg", SkCodec::kInvalidInput);
+    test_invalid_images(r, "invalid_images/b33251605.bmp", SkCodec::kIncompleteInput);
+    test_invalid_images(r, "invalid_images/bad_palette.png", SkCodec::kInvalidInput);
+}
+
+static void test_invalid_header(skiatest::Reporter* r, const char* path) {
+    SkString resourcePath = GetResourcePath(path);
+    std::unique_ptr<SkFILEStream> stream(new SkFILEStream(resourcePath.c_str()));
+    if (!stream->isValid()) {
+        return;
+    }
+
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    REPORTER_ASSERT(r, !codec);
+}
+
+DEF_TEST(Codec_InvalidHeader, r) {
+    test_invalid_header(r, "invalid_images/int_overflow.ico");
+
+    // These files report values that have caused problems with SkFILEStreams.
+    // They are invalid, and should not create SkCodecs.
+    test_invalid_header(r, "invalid_images/b33651913.bmp");
+    test_invalid_header(r, "invalid_images/b34778578.bmp");
 }
 
 DEF_TEST(Codec_InvalidAnimated, r) {
