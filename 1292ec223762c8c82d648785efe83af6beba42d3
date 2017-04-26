@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff550eca_fea932a3",
+        "filename": "include/gpu/vk/GrVkDefines.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-26T16:06:31Z",
+      "side": 1,
+      "message": "Are you doing this just to not hit the #pragma error below? Can we just delete all of this?\n\nAre the above VK_USE_... defines just for the no-vulkan build?",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 6
+      },
+      "revId": "1292ec223762c8c82d648785efe83af6beba42d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
