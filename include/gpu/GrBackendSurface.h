@@ -9,9 +9,8 @@
 #define GrBackendSurface_DEFINED
 
 #include "GrTypes.h"
-
-struct GrVkImageInfo;
-struct GrGLTextureInfo;
+#include "gl/GrGLTypes.h"
+#include "vk/GrVkTypes.h"
 
 class GrBackendTexture {
 public:
@@ -69,7 +68,7 @@ public:
                           int height,
                           int sampleCnt,
                           int stencilBits,
-                          const GrVkImageInfo* vkInfo);
+                          const GrVkImageInfo& vkInfo);
 
     // The passed in GrGLTextureInfo must live until the GrBackendTexture is no longer used in
     // creation of SkImages or SkSurfaces.
@@ -78,7 +77,7 @@ public:
                           int sampleCnt,
                           int stencilBits,
                           GrPixelConfig config,
-                          const GrGLTextureInfo* glInfo);
+                          const GrGLFramebufferInfo& glInfo);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
@@ -87,13 +86,13 @@ public:
     GrPixelConfig config() const { return fConfig; }
     GrBackend backend() const {return fBackend; }
 
-    // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
-    // it returns nullptr.
+    // If the backend API is Vulkan, this returns a point to the GrVkImageInfo struct. Otherwise it
+    // returns nullptr
     const GrVkImageInfo* getVkImageInfo() const;
 
-    // If the backend API is GL, this returns a pointer to the GrGLTextureInfo struct. Otherwise
+    // If the backend API is GL, this returns a pointer to the GrGLFramebufferInfo struct. Otherwise
     // it returns nullptr.
-    const GrGLTextureInfo* getGLTextureInfo() const;
+    const GrGLFramebufferInfo* getGLFramebufferInfo() const;
 
 private:
     // Temporary constructor which can be used to convert from a GrBackendRenderTargetDesc.
@@ -112,9 +111,8 @@ private:
     GrBackend fBackend;
 
     union {
-        const GrVkImageInfo*   fVkInfo;
-        const GrGLTextureInfo* fGLInfo;
-        GrBackendObject  fHandle;
+        GrVkImageInfo   fVkInfo;
+        GrGLFramebufferInfo fGLInfo;
     };
 };
 

@@ -29,6 +29,20 @@
 #   endif
 #endif
 
+// Xlib.h SkOSWindow_Unix may define these macros with common names (Grrr)
+#ifdef Bool
+#   undef Bool
+#endif
+#ifdef Status
+#   undef Status
+#endif
+#ifdef True
+#   undef True
+#endif
+#ifdef False
+#   undef False
+#endif
+
 #if defined(Bool) || defined(Status) || defined(True) || defined(False)
 #   pragma error "Macros unexpectedly defined."
 #endif
