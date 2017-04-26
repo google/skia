@@ -103,13 +103,10 @@ void GrContext::initCommon(const GrContextOptions& options) {
     fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
     fDidTestPMConversions = false;
 
-    GrRenderTargetOpList::Options rtOpListOptions;
-    rtOpListOptions.fMaxOpCombineLookback = options.fMaxOpCombineLookback;
-    rtOpListOptions.fMaxOpCombineLookahead = options.fMaxOpCombineLookahead;
     GrPathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = options.fAllowPathMaskCaching;
     prcOptions.fGpuPathRenderers = options.fGpuPathRenderers;
-    fDrawingManager.reset(new GrDrawingManager(this, rtOpListOptions, prcOptions,
+    fDrawingManager.reset(new GrDrawingManager(this, prcOptions,
                                                options.fImmediateMode, &fSingleOwner));
 
     fAtlasGlyphCache = new GrAtlasGlyphCache(this);

@@ -75,11 +75,9 @@ public:
 
 private:
     GrDrawingManager(GrContext* context,
-                     const GrRenderTargetOpList::Options& optionsForOpLists,
                      const GrPathRendererChain::Options& optionsForPathRendererChain,
                      bool isImmediateMode, GrSingleOwner* singleOwner)
         : fContext(context)
-        , fOptionsForOpLists(optionsForOpLists)
         , fOptionsForPathRendererChain(optionsForPathRendererChain)
         , fSingleOwner(singleOwner)
         , fAbandoned(false)
@@ -107,7 +105,6 @@ private:
     static const int kNumDFTOptions = 2;      // DFT or no DFT
 
     GrContext*                        fContext;
-    GrRenderTargetOpList::Options     fOptionsForOpLists;
     GrPathRendererChain::Options      fOptionsForPathRendererChain;
 
     // In debug builds we guard against improper thread handling
