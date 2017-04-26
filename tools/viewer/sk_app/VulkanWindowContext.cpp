@@ -274,7 +274,7 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         info.fFormat = format;
         info.fLevelCount = 1;
 
-        GrBackendTexture backendTex(fWidth, fHeight, &info);
+        GrBackendTexture backendTex(fWidth, fHeight, info);
 
         fSurfaces[i] = SkSurface::MakeFromBackendTextureAsRenderTarget(fContext, backendTex,
                                                                        kTopLeft_GrSurfaceOrigin,

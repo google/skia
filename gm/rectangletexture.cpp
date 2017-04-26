@@ -109,7 +109,7 @@ protected:
         info.fID = id;
         info.fTarget = TARGET;
 
-        GrBackendTexture rectangleTex(width, height, kRGBA_8888_GrPixelConfig, &info);
+        GrBackendTexture rectangleTex(width, height, kRGBA_8888_GrPixelConfig, info);
 
         if (sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(context, rectangleTex,
                                                                    kTopLeft_GrSurfaceOrigin)) {

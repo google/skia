@@ -130,7 +130,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     externalTexture.fID = glCtx0->eglImageToExternalTexture(image);
 
     // Wrap this texture ID in a GrTexture
-    GrBackendTexture backendTex(kSize, kSize, kRGBA_8888_GrPixelConfig, &externalTexture);
+    GrBackendTexture backendTex(kSize, kSize, kRGBA_8888_GrPixelConfig, externalTexture);
 
     // TODO: If I make this TopLeft origin to match resolve_origin calls for kDefault, this test
     // fails on the Nexus5. Why?

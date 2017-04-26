@@ -14,12 +14,12 @@
 
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
-                                   const GrVkImageInfo* vkInfo)
+                                   const GrVkImageInfo& vkInfo)
         : fWidth(width)
         , fHeight(height)
         , fConfig(
 #ifdef SK_VULKAN
-                  GrVkFormatToPixelConfig(vkInfo->fFormat)
+                  GrVkFormatToPixelConfig(vkInfo.fFormat)
 #else
                   kUnknown_GrPixelConfig
 #endif
@@ -30,7 +30,7 @@ GrBackendTexture::GrBackendTexture(int width,
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrPixelConfig config,
-                                   const GrGLTextureInfo* glInfo)
+                                   const GrGLTextureInfo& glInfo)
         : fWidth(width)
         , fHeight(height)
         , fConfig(config)
@@ -40,26 +40,33 @@ GrBackendTexture::GrBackendTexture(int width,
 GrBackendTexture::GrBackendTexture(const GrBackendTextureDesc& desc, GrBackend backend)
         : fWidth(desc.fWidth)
         , fHeight(desc.fHeight)
-        , fConfig(kVulkan_GrBackend == backend
+        , fConfig(desc.fConfig)
+        , fBackend(backend) {
+    if (kOpenGL_GrBackend == backend) {
+        fGLInfo = *reinterpret_cast<const GrGLTextureInfo*>(desc.fTextureHandle);
+    } else {
+        SkASSERT(kVulkan_GrBackend == backend);
 #ifdef SK_VULKAN
-                  ? GrVkFormatToPixelConfig(((GrVkImageInfo*)desc.fTextureHandle)->fFormat)
+        const GrVkImageInfo* vkInfo =
+                reinterpret_cast<const GrVkImageInfo*>(desc.fTextureHandle);
+        fConfig = GrVkFormatToPixelConfig(vkInfo->fFormat);
+        fVkInfo = *vkInfo;
 #else
-                  ? kUnknown_GrPixelConfig
+        fConfig = kUnknown_GrPixelConfig;
 #endif
-                  : desc.fConfig)
-        , fBackend(backend)
-        , fHandle(desc.fTextureHandle) {}
+    }
+}
 
 const GrVkImageInfo* GrBackendTexture::getVkImageInfo() const {
     if (kVulkan_GrBackend == fBackend) {
-        return fVkInfo;
+        return &fVkInfo;
     }
     return nullptr;
 }
 
 const GrGLTextureInfo* GrBackendTexture::getGLTextureInfo() const {
     if (kOpenGL_GrBackend == fBackend) {
-        return fGLInfo;
+        return &fGLInfo;
     }
     return nullptr;
 }
