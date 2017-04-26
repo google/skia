@@ -22,7 +22,6 @@
 #include "SkDraw.h"
 #include "SkGlyphCache.h"
 #include "SkGr.h"
-#include "SkImageCacherator.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkImageInfoPriv.h"
@@ -1382,9 +1381,9 @@ void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
                 return;
             }
             this->drawBitmap(bm, SkMatrix::MakeTrans(x, y), paint);
-        } else if (SkImageCacherator* cacher = as_IB(image)->peekCacherator()) {
+        } else if (image->isLazyGenerated()) {
             CHECK_SHOULD_DRAW();
-            GrImageTextureMaker maker(fContext.get(), cacher, image, SkImage::kAllow_CachingHint);
+            GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
             this->drawTextureProducer(&maker, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
                                       viewMatrix, this->clip(), paint);
         } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
@@ -1418,9 +1417,9 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src,
             return;
         }
         this->drawBitmapRect(bm, src, dst, paint, constraint);
-    } else if (SkImageCacherator* cacher = as_IB(image)->peekCacherator()) {
+    } else if (image->isLazyGenerated()) {
         CHECK_SHOULD_DRAW();
-        GrImageTextureMaker maker(fContext.get(), cacher, image, SkImage::kAllow_CachingHint);
+        GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
         this->drawTextureProducer(&maker, src, &dst, constraint, this->ctm(), this->clip(), paint);
     } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
         this->drawBitmapRect(bm, src, dst, paint, constraint);
@@ -1482,8 +1481,8 @@ void SkGpuDevice::drawImageNine(const SkImage* image,
         this->drawProducerNine(&adjuster, center, dst, paint);
     } else {
         SkBitmap bm;
-        if (SkImageCacherator* cacher = as_IB(image)->peekCacherator()) {
-            GrImageTextureMaker maker(fContext.get(), cacher, image, SkImage::kAllow_CachingHint);
+        if (image->isLazyGenerated()) {
+            GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
             this->drawProducerNine(&maker, center, dst, paint);
         } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
             this->drawBitmapNine(bm, center, dst, paint);
@@ -1538,8 +1537,8 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
         this->drawProducerLattice(&adjuster, lattice, dst, paint);
     } else {
         SkBitmap bm;
-        if (SkImageCacherator* cacher = as_IB(image)->peekCacherator()) {
-            GrImageTextureMaker maker(fContext.get(), cacher, image, SkImage::kAllow_CachingHint);
+        if (image->isLazyGenerated()) {
+            GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
             this->drawProducerLattice(&maker, lattice, dst, paint);
         } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
             this->drawBitmapLattice(bm, lattice, dst, paint);
