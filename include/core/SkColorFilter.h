@@ -18,6 +18,7 @@ class GrFragmentProcessor;
 class SkArenaAlloc;
 class SkBitmap;
 class SkColorSpace;
+class SkColorSpaceXformer;
 class SkRasterPipeline;
 
 /**
@@ -162,6 +163,13 @@ protected:
 
     virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                                 bool shaderIsOpaque) const;
+
+    sk_sp<SkColorFilter> makeColorSpace(SkColorSpaceXformer* xformer) const {
+        return this->onMakeColorSpace(xformer);
+    }
+    virtual sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer*) const {
+        return sk_ref_sp(const_cast<SkColorFilter*>(this));
+    }
 
 private:
     /*

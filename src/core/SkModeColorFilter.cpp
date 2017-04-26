@@ -5,21 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitRow.h"
+#include "SkArenaAlloc.h"
 #include "SkBlendModePriv.h"
+#include "SkBlitRow.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
-#include "SkArenaAlloc.h"
+#include "SkColorSpaceXformer.h"
 #include "SkModeColorFilter.h"
+#include "SkPM4f.h"
 #include "SkPM4fPriv.h"
+#include "SkRandom.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkUtils.h"
-#include "SkRandom.h"
 #include "SkString.h"
+#include "SkUtils.h"
 #include "SkValidationUtils.h"
-#include "SkPM4f.h"
+#include "SkWriteBuffer.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -101,6 +102,10 @@ bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
     }
     if (SkBlendMode_CanOverflow(mode)) { p->append(SkRasterPipeline::clamp_a); }
     return true;
+}
+
+sk_sp<SkColorFilter> SkModeColorFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    return SkColorFilter::MakeModeFilter(xformer->apply(fColor), fMode);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
