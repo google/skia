@@ -9,13 +9,13 @@
 #define SkFixedAlloc_DEFINED
 
 #include "SkRefCnt.h"
+#include "SkTDArray.h"
 #include "SkTFitsIn.h"
 #include "SkTypes.h"
 #include <cstddef>
 #include <new>
 #include <type_traits>
 #include <utility>
-#include <vector>
 
 // SkArenaAlloc allocates object and destroys the allocated objects when destroyed. It's designed
 // to minimize the number of underlying block allocations. SkArenaAlloc allocates first out of an
@@ -200,6 +200,79 @@ private:
     // Use the Fibonacci sequence as the growth factor for block size. The size of the block
     // allocated is fFib0 * fExtraSize. Using 2 ^ n * fExtraSize had too much slop for Android.
     uint32_t       fFib0 {1}, fFib1 {1};
+};
+
+template <typename T>
+class SkArenaAllocArray : SkNoncopyable {
+public:
+    explicit SkArenaAllocArray(SkArenaAlloc* alloc) : fAlloc(alloc) {}
+
+    // The n Ts are returned uninitialized.
+    T* push_back(int n = 1) {
+        auto entry = fIndex.append();
+        entry->ptr = fAlloc->makeArrayDefault<T>(n);
+        entry->len = n;
+        return entry->ptr;
+    }
+
+    struct Iterator {
+        SkArenaAllocArray* fArray;
+        int fEntry, fOffset;
+
+        T& operator*() const {
+            return fArray->fIndex[fEntry].ptr[fOffset];
+        }
+
+        void operator++(int) { ++(*this); }
+        void operator++() {
+            if (++fOffset == fArray->fIndex[fEntry].len) {
+                fOffset = 0;
+                ++fEntry;
+            }
+        }
+
+        bool operator!=(const Iterator& it) const { return !(*this == it); }
+        bool operator==(const Iterator& it) const {
+            return fArray  == it.fArray
+                && fEntry  == it.fEntry
+                && fOffset == it.fOffset;
+        }
+    };
+
+    struct ConstIterator {
+        const SkArenaAllocArray* fArray;
+        int fEntry, fOffset;
+
+        const T& operator*() const {
+            return fArray->fIndex[fEntry].ptr[fOffset];
+        }
+
+        void operator++(int) { ++(*this); }
+        void operator++() {
+            if (++fOffset == fArray->fIndex[fEntry].len) {
+                fOffset = 0;
+                ++fEntry;
+            }
+        }
+
+        bool operator!=(const ConstIterator& it) const { return !(*this == it); }
+        bool operator==(const ConstIterator& it) const {
+            return fArray  == it.fArray
+                && fEntry  == it.fEntry
+                && fOffset == it.fOffset;
+        }
+    };
+
+    Iterator      begin()       { return { this, 0,0 }; }
+    ConstIterator begin() const { return { this, 0,0 }; }
+    Iterator        end()       { return { this, fIndex.count(), 0 }; }
+    ConstIterator   end() const { return { this, fIndex.count(), 0 }; }
+
+private:
+    struct Entry { T* ptr; int len; };
+
+    SkTDArray<Entry> fIndex;
+    SkArenaAlloc*    fAlloc;
 };
 
 #endif//SkFixedAlloc_DEFINED

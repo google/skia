@@ -185,3 +185,37 @@ DEF_TEST(ArenaAlloc, r) {
     REPORTER_ASSERT(r, created == 1);
     REPORTER_ASSERT(r, destroyed == 1);
 }
+
+DEF_TEST(ArenaAllocArray, r) {
+    SkArenaAlloc alloc(32);
+
+    SkArenaAllocArray<int> arr(&alloc);
+
+    int* ptr;
+
+    ptr = arr.push_back(20);
+    for (int i = 0; i < 20; i++) {
+        ptr[i] = i;
+    }
+    ptr = arr.push_back(30);
+    for (int i = 0; i < 30; i++) {
+        ptr[i] = i + 20;
+    }
+
+    {
+        int i = 0;
+        for (int& x : arr) {
+            REPORTER_ASSERT(r, x == i++);
+        }
+        REPORTER_ASSERT(r, i == 50);
+    }
+
+    {
+        const SkArenaAllocArray<int>& carr = arr;
+        int i = 0;
+        for (const int& x : carr) {
+            REPORTER_ASSERT(r, x == i++);
+        }
+        REPORTER_ASSERT(r, i == 50);
+    }
+}
