@@ -94,6 +94,9 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			// skia:6267
 			ec = ""
 		}
+		if ec == "ReleaseAndAbandonGpuContext" {
+			ec = ""
+		}
 		if task_os == "Android" {
 			if ec == "Vulkan" {
 				ec = "Android_Vulkan"
