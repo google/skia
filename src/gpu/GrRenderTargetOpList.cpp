@@ -28,9 +28,7 @@ static const int kMaxOpLookahead = 10;
 GrRenderTargetOpList::GrRenderTargetOpList(sk_sp<GrRenderTargetProxy> proxy, GrGpu* gpu,
                                            GrAuditTrail* auditTrail)
         : INHERITED(std::move(proxy), auditTrail)
-        , fLastClipStackGenID(SK_InvalidUniqueID)
-        , fClipAllocator(fClipAllocatorStorage, sizeof(fClipAllocatorStorage),
-                         sizeof(fClipAllocatorStorage)) {
+        , fLastClipStackGenID(SK_InvalidUniqueID) {
     if (GrCaps::InstancedSupport::kNone != gpu->caps()->instancedSupport()) {
         fInstancedRendering.reset(gpu->createInstancedRendering());
     }

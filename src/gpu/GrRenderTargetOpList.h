@@ -150,8 +150,9 @@ private:
 
     SkSTArray<256, RecordedOp, true> fRecordedOps;
 
-    char fClipAllocatorStorage[4096];
-    SkArenaAlloc fClipAllocator;
+    // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
+    // Gather statistics to determine the correct size.
+    SkArenaAlloc fClipAllocator{4096};
 
     typedef GrOpList INHERITED;
 };
