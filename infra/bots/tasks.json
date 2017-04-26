@@ -222,6 +222,18 @@
         "Build-Ubuntu-Clang-x86_64-Release-Mini"
       ]
     },
+    "Build-Ubuntu-Clang-x86_64-Release-SK_CPU_LIMIT_SSE2": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-x86_64-Release-SK_CPU_LIMIT_SSE2"
+      ]
+    },
+    "Build-Ubuntu-Clang-x86_64-Release-SK_CPU_LIMIT_SSE41": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-x86_64-Release-SK_CPU_LIMIT_SSE41"
+      ]
+    },
     "Build-Ubuntu-Clang-x86_64-Release-TSAN": {
       "priority": 0.8,
       "tasks": [
@@ -1656,6 +1668,18 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast"
+      ]
+    },
+    "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2"
+      ]
+    },
+    "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41"
       ]
     },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN": {
@@ -3277,6 +3301,66 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Release-Mini",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-Clang-x86_64-Release-SK_CPU_LIMIT_SSE2": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:8"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-x86_64-Release-SK_CPU_LIMIT_SSE2",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-Clang-x86_64-Release-SK_CPU_LIMIT_SSE41": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:8"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-x86_64-Release-SK_CPU_LIMIT_SSE41",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -13898,6 +13982,102 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:24"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:50"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Release-SK_CPU_LIMIT_SSE2",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:24"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:50"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Release-SK_CPU_LIMIT_SSE41",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN": {
       "cipd_packages": [
         {
@@ -21586,6 +21766,60 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2": {
+      "dependencies": [
+        "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41": {
+      "dependencies": [
+        "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
