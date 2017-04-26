@@ -778,7 +778,7 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
         // if the umbra would collapse, we back off a bit on inner blur and adjust the alpha
         SkScalar newRadius = SkScalarSqrt(minDistSq) - kTolerance;
         fOffsetAdjust = newRadius - radius;
-        SkScalar ratio = 256 * newRadius / radius;
+        SkScalar ratio = 128 * (newRadius + radius) / radius;
         // they aren't PMColors, but the interpolation algorithm is the same
         fUmbraColor = SkPMLerp(fUmbraColor, fPenumbraColor, (unsigned)ratio);
         radius = newRadius;
