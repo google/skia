@@ -19,12 +19,12 @@
  */
 class SK_API GrVkExtensions {
 public:
-    GrVkExtensions(GrVkInterface::GetProc getProc)
-                     : fGetProc(getProc)
-                     , fInstanceExtensionStrings(new SkTArray<SkString>)
-                     , fDeviceExtensionStrings(new SkTArray<SkString>)
-                     , fInstanceLayerStrings(new SkTArray<SkString>)
-                     , fDeviceLayerStrings(new SkTArray<SkString>) {}
+    GrVkExtensions(GrVkInterface::GetInstanceProc getInstanceProc)
+            : fGetInstanceProc(getInstanceProc)
+            , fInstanceExtensionStrings(new SkTArray<SkString>)
+            , fDeviceExtensionStrings(new SkTArray<SkString>)
+            , fInstanceLayerStrings(new SkTArray<SkString>)
+            , fDeviceLayerStrings(new SkTArray<SkString>) {}
 
     bool initInstance(uint32_t specVersion);
     bool initDevice(uint32_t specVersion, VkInstance, VkPhysicalDevice);
@@ -40,7 +40,7 @@ public:
     void print(const char* sep = "\n") const;
 
 private:
-    GrVkInterface::GetProc fGetProc;
+    GrVkInterface::GetInstanceProc fGetInstanceProc;
     std::unique_ptr<SkTArray<SkString>>  fInstanceExtensionStrings;
     std::unique_ptr<SkTArray<SkString>>  fDeviceExtensionStrings;
     std::unique_ptr<SkTArray<SkString>>  fInstanceLayerStrings;
