@@ -191,7 +191,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
         maxSize = caps->maxTextureSize();
     }
 
-    if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
+    if (desc.fWidth > maxSize || desc.fHeight > maxSize || desc.fWidth <= 0 || desc.fHeight <= 0) {
         return nullptr;
     }
 

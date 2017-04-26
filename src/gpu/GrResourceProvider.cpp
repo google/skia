@@ -203,6 +203,7 @@ GrTexture* GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(!GrPixelConfigIsCompressed(inDesc.fConfig));
+    SkASSERT(inDesc.fWidth > 0 && inDesc.fHeight > 0);
 
     SkTCopyOnFirstWrite<GrSurfaceDesc> desc(inDesc);
 
