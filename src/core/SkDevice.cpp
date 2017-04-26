@@ -277,6 +277,48 @@ sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkBitmap&) { return nullpt
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkImage*) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() { return nullptr; }
 
+void SkBaseDevice::drawClippedDevice(SkBaseDevice* srcDev, int x, int y, const SkPaint& paint,
+                                     const SkIRect& devClipBounds, SkImage* clipImage,
+                                     const SkMatrix& clipMatrix) {
+    SkASSERT(clipImage);
+    const SkMatrix totalMatrix = SkMatrix::Concat(this->ctm(), clipMatrix);
+
+    SkRect clipBounds;
+    totalMatrix.mapRect(&clipBounds, SkRect::Make(clipImage->bounds()));
+
+    SkIRect maskDevBounds = devClipBounds;
+    if (!maskDevBounds.intersect(clipBounds.roundOut())) {
+        return;
+    }
+
+    const auto& srcInfo = srcDev->imageInfo();
+    SkImageInfo info = SkImageInfo::Make(maskDevBounds.width(),
+                                         maskDevBounds.height(),
+                                         srcInfo.colorType(),
+                                         kPremul_SkAlphaType,
+                                         srcInfo.refColorSpace());
+
+    std::unique_ptr<SkBaseDevice> maskDev(
+        this->onCreateDevice(CreateInfo(info, kNever_TileUsage, kUnknown_SkPixelGeometry), &paint));
+
+    // First, draw the mask.
+    {
+        SkAutoDeviceCTMRestore adctmr(maskDev.get(),
+                                      SkMatrix::Concat(SkMatrix::MakeTrans(-maskDevBounds.x(),
+                                                                           -maskDevBounds.y()),
+                                                       totalMatrix));
+        maskDev->drawImage(clipImage, 0, 0, SkPaint());
+    }
+
+    // Then draw the srcDev content, in src-in mode.
+    SkPaint maskPaint;
+    maskPaint.setBlendMode(SkBlendMode::kSrcIn);
+    maskDev->drawDevice(srcDev, x - maskDevBounds.x(), y - maskDevBounds.y(), maskPaint);
+
+    // Finally, draw the temp device (now holding the clipped content).
+    this->drawDevice(maskDev.get(), maskDevBounds.x(), maskDevBounds.y(), paint);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkBaseDevice::readPixels(const SkImageInfo& info, void* dstP, size_t rowBytes, int x, int y) {

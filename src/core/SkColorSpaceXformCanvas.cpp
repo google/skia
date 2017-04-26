@@ -223,6 +223,8 @@ public:
             rec.fBounds,
             fXformer->apply(rec.fPaint),
             rec.fBackdrop,  // TODO: this is an image filter
+            rec.fClipMask,  // TODO: this is an alpha mask
+            rec.fClipMatrix,
             rec.fSaveLayerFlags,
         });
         return kNoLayer_SaveLayerStrategy;
