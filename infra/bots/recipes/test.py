@@ -680,6 +680,9 @@ def test_steps(api):
     args.append('--abandonGpuContext')
   if '_PreAbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
     args.append('--preAbandonGpuContext')
+  if ('ReleaseAndAbandonGpuContext' in
+      api.vars.builder_cfg.get('extra_config', '')):
+    args.append('--releaseAndAbandonGpuContext')
 
   with api.env(env):
     api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
@@ -738,6 +741,8 @@ TEST_BUILDERS = [
   'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release',
   'Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug',
   'Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan',
+  ('Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-'
+   'ReleaseAndAbandonGpuContext'),
   'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE',
   'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',

@@ -1887,6 +1887,12 @@
         "Upload-Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ANGLE"
       ]
     },
+    "Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ReleaseAndAbandonGpuContext": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ReleaseAndAbandonGpuContext"
+      ]
+    },
     "Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -15689,6 +15695,53 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ReleaseAndAbandonGpuContext": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:24"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:50"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:162b",
+        "os:Windows-10-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ReleaseAndAbandonGpuContext",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug": {
       "cipd_packages": [
         {
@@ -22289,6 +22342,33 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ANGLE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ReleaseAndAbandonGpuContext": {
+      "dependencies": [
+        "Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ReleaseAndAbandonGpuContext"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ReleaseAndAbandonGpuContext",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",

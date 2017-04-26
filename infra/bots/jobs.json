@@ -313,6 +313,7 @@
   "Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
   "Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-ANGLE",
   "Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ANGLE",
+  "Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ReleaseAndAbandonGpuContext",
   "Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug",
   "Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE",
   "Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan",
