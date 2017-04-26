@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e5b156c_5eb5f15b",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-26T20:18:05Z",
+      "side": 1,
+      "message": "Can we comment out the dstColorSpace name and then add a beefy comment about why it is being ignored (basically your CL description) ?",
+      "revId": "c232548b28ead102d5a6ba3eee6b33e5b11b5cdd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
