@@ -14,6 +14,7 @@
 //#define ENABLE_MDB 1
 
 class GrAuditTrail;
+class GrCaps;
 class GrOpFlushState;
 class GrRenderTargetOpList;
 class GrSurfaceProxy;
@@ -28,7 +29,7 @@ public:
     virtual void prepareOps(GrOpFlushState* flushState) = 0;
     virtual bool executeOps(GrOpFlushState* flushState) = 0;
 
-    virtual void makeClosed() {
+    virtual void makeClosed(const GrCaps&) {
         // We only close GrOpLists when MDB is enabled. When MDB is disabled there is only
         // ever one GrOpLists and all calls will be funnelled into it.
 #ifdef ENABLE_MDB
@@ -53,7 +54,7 @@ public:
     /*
      * Notify this GrOpList that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrSurfaceProxy* dependedOn);
+    void addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps);
 
     /*
      * Does this opList depend on 'dependedOn'?

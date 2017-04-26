@@ -35,7 +35,6 @@ sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
                                                     sk_ref_sp(proxy->asRenderTargetProxy()),
                                                     fDrawingMgr->fContext->getGpu(),
-                                                    fDrawingMgr->fContext->resourceProvider(),
                                                     fDrawingMgr->fContext->getAuditTrail()));
     proxy->setLastOpList(opList.get());
 
@@ -64,7 +63,6 @@ sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
                                                     sk_ref_sp(proxy->asRenderTargetProxy()),
                                                     fDrawingMgr->fContext->getGpu(),
-                                                    fDrawingMgr->fContext->resourceProvider(),
                                                     fDrawingMgr->fContext->getAuditTrail()));
     proxy->setLastOpList(opList.get());
 

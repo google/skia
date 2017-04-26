@@ -163,7 +163,7 @@ void InstancedOp::wasRecorded(GrRenderTargetOpList* opList) {
     fIsTracked = true;
 }
 
-bool InstancedOp::onCombineIfPossible(GrOp* other, const GrCaps& caps) {
+bool InstancedOp::onCombineIfPossible(GrOp* other, const GrCaps&) {
     InstancedOp* that = static_cast<InstancedOp*>(other);
     SkASSERT(!that->fInstancedRendering || (fInstancedRendering == that->fInstancedRendering));
     SkASSERT(fTailDraw);

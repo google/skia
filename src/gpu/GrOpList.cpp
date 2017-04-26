@@ -48,7 +48,7 @@ void GrOpList::addDependency(GrOpList* dependedOn) {
 }
 
 // Convert from a GrSurface-based dependency to a GrOpList one
-void GrOpList::addDependency(GrSurfaceProxy* dependedOn) {
+void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
     if (dependedOn->getLastOpList()) {
         // If it is still receiving dependencies, this GrOpList shouldn't be closed
         SkASSERT(!this->isClosed());
@@ -60,7 +60,7 @@ void GrOpList::addDependency(GrSurfaceProxy* dependedOn) {
             this->addDependency(opList);
 
             // Can't make it closed in the self-read case
-            opList->makeClosed();
+            opList->makeClosed(caps);
         }
     }
 }
