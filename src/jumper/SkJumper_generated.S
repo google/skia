@@ -11,12 +11,14 @@
     #define FUNCTION(name)
     #define BALIGN4  .align 2
     #define BALIGN16 .align 4
+    #define BALIGN32 .align 5
 #else
     .section .note.GNU-stack,"",%progbits
     #define HIDDEN .hidden
     #define FUNCTION(name) .type name,%function
     #define BALIGN4  .balign 4
     #define BALIGN16 .balign 16
+    #define BALIGN32 .balign 32
 #endif
 .text
 #if defined(__aarch64__)
@@ -7268,7 +7270,7 @@ _sk_callback_vfp4:
   .long  0xe8bd48f0                          // pop           {r4, r5, r6, r7, fp, lr}
   .long  0xe12fff13                          // bx            r3
 #elif defined(__x86_64__)
-BALIGN16
+BALIGN32
 
 HIDDEN _sk_start_pipeline_hsw
 .globl _sk_start_pipeline_hsw
@@ -11715,7 +11717,7 @@ BALIGN4
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128                                 // .byte         0x80
   .byte  63                                  // (bad)
-BALIGN16
+BALIGN32
 
 HIDDEN _sk_start_pipeline_avx
 .globl _sk_start_pipeline_avx
@@ -17590,7 +17592,7 @@ BALIGN4
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128                                 // .byte         0x80
   .byte  63                                  // (bad)
-BALIGN16
+BALIGN32
 
 HIDDEN _sk_start_pipeline_sse41
 .globl _sk_start_pipeline_sse41
@@ -22106,7 +22108,7 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128                                 // .byte         0x80
   .byte  63                                  // (bad)
-BALIGN16
+BALIGN32
 
 HIDDEN _sk_start_pipeline_sse2
 .globl _sk_start_pipeline_sse2

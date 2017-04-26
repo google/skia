@@ -7,8 +7,8 @@
 ;   $ src/jumper/build_stages.py
 
 IFDEF RAX
-_text SEGMENT
-ALIGN 16
+_text32 SEGMENT ALIGN(32) 'CODE'
+ALIGN 32
 
 PUBLIC _sk_start_pipeline_hsw
 _sk_start_pipeline_hsw LABEL PROC
@@ -4256,7 +4256,7 @@ ALIGN 4
   DB  0,0                                 ; add           %al,(%rax)
   DB  128                                 ; .byte         0x80
   DB  63                                  ; (bad)
-ALIGN 16
+ALIGN 32
 
 PUBLIC _sk_start_pipeline_avx
 _sk_start_pipeline_avx LABEL PROC
@@ -9934,7 +9934,7 @@ ALIGN 4
   DB  0,0                                 ; add           %al,(%rax)
   DB  128                                 ; .byte         0x80
   DB  63                                  ; (bad)
-ALIGN 16
+ALIGN 32
 
 PUBLIC _sk_start_pipeline_sse41
 _sk_start_pipeline_sse41 LABEL PROC
@@ -14253,7 +14253,7 @@ ALIGN 16
   DB  0,0                                 ; add           %al,(%rax)
   DB  128                                 ; .byte         0x80
   DB  63                                  ; (bad)
-ALIGN 16
+ALIGN 32
 
 PUBLIC _sk_start_pipeline_sse2
 _sk_start_pipeline_sse2 LABEL PROC
