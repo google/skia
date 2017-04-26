@@ -1149,3 +1149,67 @@ DEF_TEST(image_roundtrip_premul, reporter) {
 
     REPORTER_ASSERT(reporter, equal(bm0, bm2));
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void check_scaled_pixels(skiatest::Reporter* reporter, SkPixmap* pmap, uint32_t expected) {
+    // Verify that all pixels contain the original test color
+    for (auto y = 0; y < pmap->height(); ++y) {
+        for (auto x = 0; x < pmap->width(); ++x) {
+            uint32_t pixel = *pmap->addr32(x, y);
+            if (pixel != expected) {
+                ERRORF(reporter, "Expected scaled pixels to be the same. At %d,%d 0x%08x != 0x%08x",
+                       x, y, pixel, expected);
+                return;
+            }
+        }
+    }
+}
+
+static void test_scale_pixels(skiatest::Reporter* reporter, const SkImage* image,
+                              uint32_t expected) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(image->width() * 2, image->height() * 2);
+
+    // Make sure to test kDisallow first, so we don't just get a cache hit in that case
+    for (auto chint : { SkImage::kDisallow_CachingHint, SkImage::kAllow_CachingHint }) {
+        SkAutoPixmapStorage scaled;
+        scaled.alloc(info);
+        if (!image->scalePixels(scaled, kLow_SkFilterQuality, chint)) {
+            ERRORF(reporter, "Failed to scale image");
+            continue;
+        }
+
+        check_scaled_pixels(reporter, &scaled, expected);
+    }
+}
+
+DEF_TEST(ImageScalePixels, reporter) {
+    const SkPMColor pmRed = SkPackARGB32(0xFF, 0xFF, 0, 0);
+    const SkColor red = SK_ColorRED;
+
+    // Test raster image
+    SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
+    sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
+    surface->getCanvas()->clear(red);
+    sk_sp<SkImage> rasterImage = surface->makeImageSnapshot();
+    test_scale_pixels(reporter, rasterImage.get(), pmRed);
+
+    // Test encoded image
+    sk_sp<SkData> data(rasterImage->encode());
+    sk_sp<SkImage> codecImage = SkImage::MakeFromEncoded(data);
+    test_scale_pixels(reporter, codecImage.get(), pmRed);
+}
+
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageScalePixels_Gpu, reporter, ctxInfo) {
+    const SkPMColor pmRed = SkPackARGB32(0xFF, 0xFF, 0, 0);
+    const SkColor red = SK_ColorRED;
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(16, 16);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo,
+                                                           info);
+    surface->getCanvas()->clear(red);
+    sk_sp<SkImage> gpuImage = surface->makeImageSnapshot();
+    test_scale_pixels(reporter, gpuImage.get(), pmRed);
+}
+#endif

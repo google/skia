@@ -86,7 +86,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace, Cachin
             return false;
         }
     } else {
-        if (!dst->tryAllocPixels(ii)) {
+        if (!dst->tryAllocPixels(ii) || !dst->peekPixels(&pmap)) {
             return false;
         }
     }
