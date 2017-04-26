@@ -5,16 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilter.h"
 #include "SkArenaAlloc.h"
+#include "SkColorFilter.h"
+#include "SkColorSpaceXformer.h"
+#include "SkNx.h"
+#include "SkPM4f.h"
 #include "SkReadBuffer.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 #include "SkTDArray.h"
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
-#include "SkPM4f.h"
-#include "SkNx.h"
 
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
@@ -159,6 +160,11 @@ private:
         *outer = fOuter.get();
         *inner = fInner.get();
         return true;
+    }
+
+    sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
+        return SkColorFilter::MakeComposeFilter(xformer->apply(fOuter.get()),
+                                                xformer->apply(fInner.get()));
     }
 
     sk_sp<SkColorFilter> fOuter;
