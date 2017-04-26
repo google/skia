@@ -272,6 +272,7 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
                                                        SkTMax(SkTAbs(rrect.rect().fTop),
                                                               SkTAbs(rrect.rect().fBottom)));
         SkScalar insetAmount = spotOffset.length() - (0.5f * srcSpaceSpotRadius) + scaleOffset;
+        insetAmount = 0;
 
         // Compute area
         SkScalar strokeWidth = srcSpaceSpotRadius + insetAmount;
@@ -285,10 +286,10 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         paint.setColor4f(color);
 
         SkStrokeRec spotStrokeRec(SkStrokeRec::kFill_InitStyle);
+        bool transparent = SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
         // If the area of the stroked geometry is larger than the fill geometry,
         // or if the caster is transparent, just fill it.
-        if (strokedArea > filledArea ||
-            fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag) {
+        if (strokedArea > filledArea || transparent) {
             spotStrokeRec.setStrokeStyle(srcSpaceSpotRadius, true);
         } else {
             // Since we can't have unequal strokes, inset the shadow rect so the inner
