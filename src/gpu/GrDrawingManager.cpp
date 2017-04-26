@@ -25,7 +25,8 @@
 
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->makeClosed();  // no opList should receive a new command after this
+        // no opList should receive a new command after this
+        fOpLists[i]->makeClosed(*fContext->caps());
         fOpLists[i]->clearTarget();
 
         // We shouldn't need to do this, but it turns out some clients still hold onto opLists
@@ -91,7 +92,7 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
         // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
         // but need to be flushed anyway. Closing such GrOpLists here will mean new
         // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
-        fOpLists[i]->makeClosed();
+        fOpLists[i]->makeClosed(*fContext->caps());
     }
 
 #ifdef ENABLE_MDB
@@ -223,7 +224,6 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetPr
 
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(rtp,
                                                                 fContext->getGpu(),
-                                                                fContext->resourceProvider(),
                                                                 fContext->getAuditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
 

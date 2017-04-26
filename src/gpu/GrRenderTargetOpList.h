@@ -33,19 +33,19 @@ private:
     using DstTexture = GrXferProcessor::DstTexture;
 
 public:
-    GrRenderTargetOpList(sk_sp<GrRenderTargetProxy>, GrGpu*, GrResourceProvider*, GrAuditTrail*);
+    GrRenderTargetOpList(sk_sp<GrRenderTargetProxy>, GrGpu*, GrAuditTrail*);
 
     ~GrRenderTargetOpList() override;
 
-    void makeClosed() override {
+    void makeClosed(const GrCaps& caps) override {
         if (this->isClosed()) {
             return;
         }
 
         fLastFullClearOp = nullptr;
-        this->forwardCombine();
+        this->forwardCombine(caps);
 
-        INHERITED::makeClosed();
+        INHERITED::makeClosed(caps);
     }
 
     bool isEmpty() const { return fRecordedOps.empty(); }
@@ -64,11 +64,6 @@ public:
      */
     void prepareOps(GrOpFlushState* flushState) override;
     bool executeOps(GrOpFlushState* flushState) override;
-
-    /**
-     * Gets the capabilities of the draw target.
-     */
-    const GrCaps* caps() const { return fGpu->caps(); }
 
     uint32_t addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
         this->recordOp(std::move(op), renderTargetContext, nullptr, nullptr);
@@ -138,18 +133,15 @@ private:
     GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, GrAppliedClip* = nullptr,
                    const DstTexture* = nullptr);
 
-    void forwardCombine();
+    void forwardCombine(const GrCaps&);
 
     // If this returns true then b has been merged into a's op.
     bool combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
-                           const DstTexture* bDstTexture);
+                           const DstTexture* bDstTexture, const GrCaps&);
 
     GrClearOp* fLastFullClearOp = nullptr;
     GrGpuResource::UniqueID fLastFullClearResourceID = GrGpuResource::UniqueID::InvalidID();
     GrSurfaceProxy::UniqueID fLastFullClearProxyID = GrSurfaceProxy::UniqueID::InvalidID();
-
-    GrGpu* fGpu;
-    GrResourceProvider* fResourceProvider;
 
     std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
 
