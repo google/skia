@@ -22,6 +22,30 @@
       "revId": "e66ed6657f200c0400ce5d4994d0bae642d77030",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9aafd6e4_79d9c4db",
+        "filename": "src/gpu/vk/GrVkInterface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-26T20:16:53Z",
+      "side": 1,
+      "message": "I did this because my read of the vk docs was that you *can* get everything using vkGetInstanceProcAddr. It just might go through an extra hop to get to a VkDevice-specific implementation. This constructor is publicly exposed, so I was trying to make it easy for a client that wanted to perform custom vk interface setup using a GetInstanceProc (e.g. insert vk call logging) without also having to write a GetDeviceProc. I\u0027m not that attached to it, though.",
+      "parentUuid": "f1ecd9a6_1cb171c2",
+      "range": {
+        "startLine": 48,
+        "startChar": 4,
+        "endLine": 48,
+        "endChar": 93
+      },
+      "revId": "e66ed6657f200c0400ce5d4994d0bae642d77030",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
