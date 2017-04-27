@@ -32,13 +32,42 @@ class SkDiscardableMemory;
 */
 class SK_API SkPixelRef : public SkRefCnt {
 public:
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_API
     SkPixelRef(const SkImageInfo&, void* addr, size_t rowBytes, sk_sp<SkColorTable> = nullptr);
-    ~SkPixelRef() override;
 
     const SkImageInfo& info() const {
         return fInfo;
     }
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // This is undefined if there are clients in-flight trying to use us
+    void android_only_reset(const SkImageInfo&, size_t rowBytes, sk_sp<SkColorTable>);
+#endif
+
+    /**
+     *  Change the info's AlphaType. Note that this does not automatically
+     *  invalidate the generation ID. If the pixel values themselves have
+     *  changed, then you must explicitly call notifyPixelsChanged() as well.
+     */
+    void changeAlphaType(SkAlphaType at);
+
+    /**
+     *  Returns the size (in bytes) of the internally allocated memory.
+     *  This should be implemented in all serializable SkPixelRef derived classes.
+     *  SkBitmap::fPixelRefOffset + SkBitmap::getSafeSize() should never overflow this value,
+     *  otherwise the rendering code may attempt to read memory out of bounds.
+     *
+     *  @return default impl returns 0.
+     */
+    virtual size_t getAllocatedSizeInBytes() const { return 0; }
+
+#endif
+    SkPixelRef(int width, int height, void* addr, size_t rowBytes, sk_sp<SkColorTable> = nullptr);
+
+    ~SkPixelRef() override;
+
+    int width() const { return fInfo.width(); }
+    int height() const { return fInfo.height(); }
     void* pixels() const { return fPixels; }
     SkColorTable* colorTable() const { return fCTable.get(); }
     size_t rowBytes() const { return fRowBytes; }
@@ -67,13 +96,6 @@ public:
      *  getGenerationID().
      */
     void notifyPixelsChanged();
-
-    /**
-     *  Change the info's AlphaType. Note that this does not automatically
-     *  invalidate the generation ID. If the pixel values themselves have
-     *  changed, then you must explicitly call notifyPixelsChanged() as well.
-     */
-    void changeAlphaType(SkAlphaType at);
 
     /** Returns true if this pixelref is marked as immutable, meaning that the
         contents of its pixels will not change for the lifetime of the pixelref.
@@ -114,27 +136,18 @@ protected:
     // default impl does nothing.
     virtual void onNotifyPixelsChanged();
 
-    /**
-     *  Returns the size (in bytes) of the internally allocated memory.
-     *  This should be implemented in all serializable SkPixelRef derived classes.
-     *  SkBitmap::fPixelRefOffset + SkBitmap::getSafeSize() should never overflow this value,
-     *  otherwise the rendering code may attempt to read memory out of bounds.
-     *
-     *  @return default impl returns 0.
-     */
-    virtual size_t getAllocatedSizeInBytes() const;
-
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     // This is undefined if there are clients in-flight trying to use us
-    void android_only_reset(const SkImageInfo&, size_t rowBytes, sk_sp<SkColorTable>);
+    void android_only_reset(int width, int height, size_t rowBytes, sk_sp<SkColorTable>);
 #endif
 
 private:
-    // mostly const. fInfo.fAlpahType can be changed at runtime.
-    const SkImageInfo fInfo;
+    // TODO (msarett): After we remove legacy APIs, we should replace |fInfo| with just a width
+    //                 and height.
+    const SkImageInfo   fInfo;
     sk_sp<SkColorTable> fCTable;
-    void*             fPixels;
-    size_t            fRowBytes;
+    void*               fPixels;
+    size_t              fRowBytes;
 
     // Bottom bit indicates the Gen ID is unique.
     bool genIDIsUnique() const { return SkToBool(fTaggedGenID.load() & 1); }
