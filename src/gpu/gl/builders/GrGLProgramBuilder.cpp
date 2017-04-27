@@ -33,6 +33,10 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
                                                const GrPrimitiveProcessor& primProc,
                                                GrProgramDesc* desc,
                                                GrGLGpu* gpu) {
+    if (pipeline.isBad() || primProc.isBad()) {
+        return nullptr;
+    }
+
     ATRACE_ANDROID_FRAMEWORK("Shader Compile");
     GrAutoLocaleSetter als("C");
 

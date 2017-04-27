@@ -18,11 +18,20 @@
 
 #include "ops/GrOp.h"
 
+void GrPipeline::markAsBad() {
+    fIsBad = true;
+}
+
+bool GrPipeline::isBad() const {
+    return fIsBad;
+}
+
 void GrPipeline::init(const InitArgs& args) {
     SkASSERT(args.fRenderTarget);
     SkASSERT(args.fProcessors);
     SkASSERT(args.fProcessors->isFinalized());
 
+    fIsBad = false;
     fRenderTarget.reset(args.fRenderTarget);
 
     fFlags = args.fFlags;
@@ -70,15 +79,24 @@ void GrPipeline::init(const InitArgs& args) {
     for (int i = 0; i < args.fProcessors->numColorFragmentProcessors(); ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->colorFragmentProcessor(i);
         fFragmentProcessors[currFPIdx].reset(fp);
+        if (fp->isBad()) {
+            this->markAsBad();
+        }
     }
 
     for (int i = 0; i < args.fProcessors->numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->coverageFragmentProcessor(i);
         fFragmentProcessors[currFPIdx].reset(fp);
+        if (fp->isBad()) {
+            this->markAsBad();
+        }
     }
     if (args.fAppliedClip) {
         if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
             fFragmentProcessors[currFPIdx].reset(fp);
+            if (fp->isBad()) {
+                this->markAsBad();
+            }
         }
     }
 }
@@ -119,7 +137,8 @@ GrPipeline::GrPipeline(GrRenderTarget* rt, SkBlendMode blendmode)
         , fFlags()
         , fXferProcessor(GrPorterDuffXPFactory::MakeNoCoverageXP(blendmode))
         , fFragmentProcessors()
-        , fNumColorProcessors(0) {}
+        , fNumColorProcessors(0)
+        , fIsBad(false) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 

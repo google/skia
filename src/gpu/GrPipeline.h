@@ -36,6 +36,10 @@ class GrRenderTargetContext;
  */
 class GrPipeline : public GrNonAtomicRef<GrPipeline> {
 public:
+    void markAsBad();
+    bool isBad() const;
+    bool fIsBad;
+
     ///////////////////////////////////////////////////////////////////////////
     /// @name Creation
 
