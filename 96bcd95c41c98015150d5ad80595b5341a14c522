@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b200e020_4a1fab10",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-27T21:19:14Z",
+      "side": 1,
+      "message": "If we\u0027re gonna do this here, we\u0027d better make sure is_fuchsia_host is defined... something like what we do for is_skia_standalone?  I\u0027ll kick the bots so you can see them fail.  :P\n\nAlternatively, have you considered setting these in your .gn file\u0027s default_args section?\n\nWhat does is_fuchsia_host mean exactly?  I gather it\u0027s some sort of Linux setup from how you\u0027re modifying skia_use_fontconfig?  Does is_fuchsia_host imply is_linux and !is_fuchsia?  (I assume is_linux NAND is_fuchsia, right?)",
+      "range": {
+        "startLine": 22,
+        "startChar": 37,
+        "endLine": 22,
+        "endChar": 52
+      },
+      "revId": "96bcd95c41c98015150d5ad80595b5341a14c522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
