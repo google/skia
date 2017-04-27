@@ -20,7 +20,6 @@
 #include "SkTArray.h"
 #include <map>
 
-class GrBackendRenderTarget;
 class GrBuffer;
 class GrContext;
 struct GrContextOptions;
@@ -136,7 +135,7 @@ public:
     /**
      * Implements GrResourceProvider::wrapBackendRenderTarget
      */
-    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&, GrSurfaceOrigin);
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc&);
 
     /**
      * Implements GrResourceProvider::wrapBackendTextureAsRenderTarget
@@ -557,8 +556,7 @@ private:
                                                   GrBackendTextureFlags,
                                                   int sampleCnt,
                                                   GrWrapOwnership) = 0;
-    virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&,
-                                                            GrSurfaceOrigin) = 0;
+    virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) = 0;
     virtual sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
                                                                      GrSurfaceOrigin,
                                                                      int sampleCnt)=0;

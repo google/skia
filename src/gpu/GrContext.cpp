@@ -702,14 +702,12 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetContext(
-                                                const GrBackendRenderTarget& backendRT,
-                                                GrSurfaceOrigin origin,
+                                                const GrBackendRenderTargetDesc& desc,
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrRenderTarget> rt(fContext->resourceProvider()->wrapBackendRenderTarget(backendRT,
-                                                                                   origin));
+    sk_sp<GrRenderTarget> rt(fContext->resourceProvider()->wrapBackendRenderTarget(desc));
     if (!rt) {
         return nullptr;
     }

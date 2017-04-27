@@ -223,13 +223,12 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
     return tex;
 }
 
-sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,
-                                                     GrSurfaceOrigin origin) {
-    if (!this->caps()->isConfigRenderable(backendRT.config(), backendRT.sampleCnt() > 0)) {
+sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc) {
+    if (!this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
     }
     this->handleDirtyContext();
-    return this->onWrapBackendRenderTarget(backendRT, origin);
+    return this->onWrapBackendRenderTarget(desc);
 }
 
 sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,

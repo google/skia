@@ -9,8 +9,9 @@
 #define GrBackendSurface_DEFINED
 
 #include "GrTypes.h"
-#include "gl/GrGLTypes.h"
-#include "vk/GrVkTypes.h"
+
+struct GrVkImageInfo;
+struct GrGLTextureInfo;
 
 class GrBackendTexture {
 public:
@@ -62,18 +63,22 @@ private:
 
 class GrBackendRenderTarget {
 public:
+    // The passed in GrVkImageInfo must live until the GrBackendTexture is no longer used in
+    // creation of SkImages or SkSurfaces.
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
                           int stencilBits,
-                          const GrVkImageInfo& vkInfo);
+                          const GrVkImageInfo* vkInfo);
 
+    // The passed in GrGLTextureInfo must live until the GrBackendTexture is no longer used in
+    // creation of SkImages or SkSurfaces.
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
                           int stencilBits,
                           GrPixelConfig config,
-                          const GrGLFramebufferInfo& glInfo);
+                          const GrGLTextureInfo* glInfo);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
@@ -83,12 +88,12 @@ public:
     GrBackend backend() const {return fBackend; }
 
     // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
-    // it returns nullptr
+    // it returns nullptr.
     const GrVkImageInfo* getVkImageInfo() const;
 
-    // If the backend API is GL, this returns a pointer to the GrGLFramebufferInfo struct. Otherwise
+    // If the backend API is GL, this returns a pointer to the GrGLTextureInfo struct. Otherwise
     // it returns nullptr.
-    const GrGLFramebufferInfo* getGLFramebufferInfo() const;
+    const GrGLTextureInfo* getGLTextureInfo() const;
 
 private:
     // Temporary constructor which can be used to convert from a GrBackendRenderTargetDesc.
@@ -107,8 +112,9 @@ private:
     GrBackend fBackend;
 
     union {
-        GrVkImageInfo   fVkInfo;
-        GrGLFramebufferInfo fGLInfo;
+        const GrVkImageInfo*   fVkInfo;
+        const GrGLTextureInfo* fGLInfo;
+        GrBackendObject  fHandle;
     };
 };
 
