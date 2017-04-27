@@ -167,17 +167,20 @@ static void start(const char* config, const char* src, const char* srcOptions, c
     gRunning.push_back({id,SkGetThreadID()});
 }
 
-static void print_status() {
+static bool print_status() {
     int curr = sk_tools::getCurrResidentSetSizeMB(),
         peak = sk_tools::getMaxResidentSetSizeMB();
     SkString elapsed = HumanizeMs(SkTime::GetMSecs() - kStartMs);
 
     SkAutoMutexAcquire lock(gMutex);
+    int queued = gPending - gRunning.count();
     info("\n%s elapsed, %d active, %d queued, %dMB RAM, %dMB peak\n",
-         elapsed.c_str(), gRunning.count(), gPending - gRunning.count(), curr, peak);
+         elapsed.c_str(), gRunning.count(), queued, curr, peak);
     for (auto& task : gRunning) {
         task.dump();
     }
+    // Return true if all tasks are done.
+    return queued == 0;
 }
 
 static void find_culprit() {
@@ -1289,8 +1292,7 @@ DEFINE_int32(status_sec, 15, "Print status this often (and if we crash).");
 
 SkThread* start_status_thread() {
     auto thread = new SkThread([] (void*) {
-        for (;;) {
-            print_status();
+        while(!print_status()) {
         #if defined(SK_BUILD_FOR_WIN)
             Sleep(FLAGS_status_sec * 1000);
         #else
@@ -1425,6 +1427,9 @@ int main(int argc, char** argv) {
 
     print_status();
     SkGraphics::PurgeAllCaches();
+    info("Waiting for status thread to finish.");
+    statusThread->join();
+
     info("Finished!\n");
     return 0;
 }
