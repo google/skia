@@ -22,6 +22,30 @@
       "revId": "50afaafab4107ec32cfad693177cfdbbdb6439de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6420f24f_9f54a6cc",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-27T13:32:11Z",
+      "side": 1,
+      "message": "Yes, I\u0027m not sure there\u0027s anything particularly interesting, actually. This is pretty much\n\n1) A giant copy-paste, replacing SklmageCacherator with SkImage_Lazy\n2) Collapsing down a few functions that were just pass-through\n3) Rather than pass \"SkImage* client\", just access \u0027this\u0027",
+      "parentUuid": "71ae4c72_e1ebaa0a",
+      "range": {
+        "startLine": 145,
+        "startChar": 0,
+        "endLine": 145,
+        "endChar": 85
+      },
+      "revId": "50afaafab4107ec32cfad693177cfdbbdb6439de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
