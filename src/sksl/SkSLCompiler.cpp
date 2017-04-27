@@ -396,14 +396,27 @@ bool try_replace_expression(BasicBlock* b,
 }
 
 /**
- * Returns true if the expression is a constant numeric literal with the specified value.
+ * Returns true if the expression is a constant numeric literal with the specified value, or a
+ * constant vector with all elements equal to the specified value.
  */
-bool is_constant(Expression& expr, double value) {
+bool is_constant(const Expression& expr, double value) {
     switch (expr.fKind) {
         case Expression::kIntLiteral_Kind:
             return ((IntLiteral&) expr).fValue == value;
         case Expression::kFloatLiteral_Kind:
             return ((FloatLiteral&) expr).fValue == value;
+        case Expression::kConstructor_Kind: {
+            Constructor& c = (Constructor&) expr;
+            if (c.fType.kind() == Type::kVector_Kind && c.isConstant()) {
+                for (int i = 0; i < c.fType.columns(); ++i) {
+                    if (!is_constant(c.getVecComponent(i), value)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
         default:
             return false;
     }
@@ -417,6 +430,7 @@ void delete_left(BasicBlock* b,
                  std::vector<BasicBlock::Node>::iterator* iter,
                  bool* outUpdated,
                  bool* outNeedsRescan) {
+    ASSERT((*(*iter)->expression())->fKind == Expression::kBinary_Kind);
     *outUpdated = true;
     if (!try_replace_expression(b, iter, &((BinaryExpression&) **(*iter)->expression()).fRight)) {
         *outNeedsRescan = true;
@@ -431,9 +445,92 @@ void delete_right(BasicBlock* b,
                   std::vector<BasicBlock::Node>::iterator* iter,
                   bool* outUpdated,
                   bool* outNeedsRescan) {
+    ASSERT((*(*iter)->expression())->fKind == Expression::kBinary_Kind);
     *outUpdated = true;
     if (!try_replace_expression(b, iter, &((BinaryExpression&) **(*iter)->expression()).fLeft)) {
         *outNeedsRescan = true;
+    }
+}
+
+/**
+ * Constructs the specified type using a single argument.
+ */
+static std::unique_ptr<Expression> construct(const Type& type, std::unique_ptr<Expression> v) {
+    std::vector<std::unique_ptr<Expression>> args;
+    args.push_back(std::move(v));
+    auto result = std::unique_ptr<Expression>(new Constructor(Position(), type, std::move(args)));
+    return result;
+}
+
+/**
+ * Used in the implementations of vectorize_left and vectorize_right. Given a vector type and an
+ * expression x, deletes the expression pointed to by iter and replaces it with <type>(x).
+ */
+static void vectorize(BasicBlock* b,
+                      std::vector<BasicBlock::Node>::iterator* iter,
+                      const Type& type,
+                      std::unique_ptr<Expression>* otherExpression,
+                      bool* outUpdated,
+                      bool* outNeedsRescan) {
+    ASSERT((*(*iter)->expression())->fKind == Expression::kBinary_Kind);
+    ASSERT(type.kind() == Type::kVector_Kind);
+    ASSERT((*otherExpression)->fType.kind() == Type::kScalar_Kind);
+    *outUpdated = true;
+    std::unique_ptr<Expression>* target = (*iter)->expression();
+    if (!b->tryRemoveExpression(iter)) {
+        *target = construct(type, std::move(*otherExpression));
+        *outNeedsRescan = true;
+    } else {
+        *target = construct(type, std::move(*otherExpression));
+        if (!b->tryInsertExpression(iter, target)) {
+            *outNeedsRescan = true;
+        }
+    }
+}
+
+/**
+ * Given a binary expression of the form x <op> vec<n>(y), deletes the right side and vectorizes the
+ * left to yield vec<n>(x).
+ */
+static void vectorize_left(BasicBlock* b,
+                           std::vector<BasicBlock::Node>::iterator* iter,
+                           bool* outUpdated,
+                           bool* outNeedsRescan) {
+    BinaryExpression& bin = (BinaryExpression&) **(*iter)->expression();
+    vectorize(b, iter, bin.fRight->fType, &bin.fLeft, outUpdated, outNeedsRescan);
+}
+
+/**
+ * Given a binary expression of the form vec<n>(x) <op> y, deletes the left side and vectorizes the
+ * right to yield vec<n>(y).
+ */
+static void vectorize_right(BasicBlock* b,
+                            std::vector<BasicBlock::Node>::iterator* iter,
+                            bool* outUpdated,
+                            bool* outNeedsRescan) {
+    BinaryExpression& bin = (BinaryExpression&) **(*iter)->expression();
+    vectorize(b, iter, bin.fLeft->fType, &bin.fRight, outUpdated, outNeedsRescan);
+}
+
+// Mark that an expression which we were writing to is no longer being written to
+void clear_write(const Expression& expr) {
+    switch (expr.fKind) {
+        case Expression::kVariableReference_Kind: {
+            ((VariableReference&) expr).setRefKind(VariableReference::kRead_RefKind);
+            break;
+        }
+        case Expression::kFieldAccess_Kind:
+            clear_write(*((FieldAccess&) expr).fBase);
+            break;
+        case Expression::kSwizzle_Kind:
+            clear_write(*((Swizzle&) expr).fBase);
+            break;
+        case Expression::kIndex_Kind:
+            clear_write(*((IndexExpression&) expr).fBase);
+            break;
+        default:
+            ABORT("shouldn't be writing to this kind of expression\n");
+            break;
     }
 }
 
@@ -485,30 +582,148 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
         case Expression::kBinary_Kind: {
             // collapse useless expressions like x * 1 or x + 0
             BinaryExpression* bin = (BinaryExpression*) expr;
+            if (((bin->fLeft->fType.kind()  != Type::kScalar_Kind) &&
+                 (bin->fLeft->fType.kind()  != Type::kVector_Kind)) ||
+                ((bin->fRight->fType.kind() != Type::kScalar_Kind) &&
+                 (bin->fRight->fType.kind() != Type::kVector_Kind))) {
+                break;
+            }
             switch (bin->fOperator) {
                 case Token::STAR:
                     if (is_constant(*bin->fLeft, 1)) {
-                        delete_left(&b, iter, outUpdated, outNeedsRescan);
+                        if (bin->fLeft->fType.kind() == Type::kVector_Kind &&
+                            bin->fRight->fType.kind() == Type::kScalar_Kind) {
+                            // vec4(1) * x -> vec4(x)
+                            vectorize_right(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // 1 * x -> x
+                            // 1 * vec4(x) -> vec4(x)
+                            // vec4(1) * vec4(x) -> vec4(x)
+                            delete_left(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    }
+                    else if (is_constant(*bin->fLeft, 0)) {
+                        if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
+                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            // 0 * vec4(x) -> vec4(0)
+                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // 0 * x -> 0
+                            // vec4(0) * x -> vec4(0)
+                            // vec4(0) * vec4(x) -> vec4(0)
+                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        }
                     }
                     else if (is_constant(*bin->fRight, 1)) {
-                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
+                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            // x * vec4(1) -> vec4(x)
+                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // x * 1 -> x
+                            // vec4(x) * 1 -> vec4(x)
+                            // vec4(x) * vec4(1) -> vec4(x)
+                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    }
+                    else if (is_constant(*bin->fRight, 0)) {
+                        if (bin->fLeft->fType.kind() == Type::kVector_Kind &&
+                            bin->fRight->fType.kind() == Type::kScalar_Kind) {
+                            // vec4(x) * 0 -> vec4(0)
+                            vectorize_right(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // x * 0 -> 0
+                            // x * vec4(0) -> vec4(0)
+                            // vec4(x) * vec4(0) -> vec4(0)
+                            delete_left(&b, iter, outUpdated, outNeedsRescan);
+                        }
                     }
                     break;
                 case Token::PLUS:
                     if (is_constant(*bin->fLeft, 0)) {
-                        delete_left(&b, iter, outUpdated, outNeedsRescan);
-                    }
-                    if (is_constant(*bin->fRight, 0)) {
-                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        if (bin->fLeft->fType.kind() == Type::kVector_Kind &&
+                            bin->fRight->fType.kind() == Type::kScalar_Kind) {
+                            // vec4(0) + x -> vec4(x)
+                            vectorize_right(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // 0 + x -> x
+                            // 0 + vec4(x) -> vec4(x)
+                            // vec4(0) + vec4(x) -> vec4(x)
+                            delete_left(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    } else if (is_constant(*bin->fRight, 0)) {
+                        if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
+                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            // x + vec4(0) -> vec4(x)
+                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // x + 0 -> x
+                            // vec4(x) + 0 -> vec4(x)
+                            // vec4(x) + vec4(0) -> vec4(x)
+                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        }
                     }
                     break;
                 case Token::MINUS:
                     if (is_constant(*bin->fRight, 0)) {
-                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
+                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            // x - vec4(0) -> vec4(x)
+                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // x - 0 -> x
+                            // vec4(x) - 0 -> vec4(x)
+                            // vec4(x) - vec4(0) -> vec4(x)
+                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        }
                     }
                     break;
                 case Token::SLASH:
                     if (is_constant(*bin->fRight, 1)) {
+                        if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
+                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            // x / vec4(1) -> vec4(x)
+                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // x / 1 -> x
+                            // vec4(x) / 1 -> vec4(x)
+                            // vec4(x) / vec4(1) -> vec4(x)
+                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    } else if (is_constant(*bin->fLeft, 0)) {
+                        if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
+                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            // 0 / vec4(x) -> vec4(0)
+                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // 0 / x -> 0
+                            // vec4(0) / x -> vec4(0)
+                            // vec4(0) / vec4(x) -> vec4(0)
+                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    }
+                    break;
+                case Token::PLUSEQ:
+                    if (is_constant(*bin->fRight, 0)) {
+                        clear_write(*bin->fLeft);
+                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                    }
+                    break;
+                case Token::MINUSEQ:
+                    if (is_constant(*bin->fRight, 0)) {
+                        clear_write(*bin->fLeft);
+                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                    }
+                    break;
+                case Token::STAREQ:
+                    if (is_constant(*bin->fRight, 1)) {
+                        clear_write(*bin->fLeft);
+                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                    }
+                    break;
+                case Token::SLASHEQ:
+                    if (is_constant(*bin->fRight, 1)) {
+                        clear_write(*bin->fLeft);
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
                     break;
