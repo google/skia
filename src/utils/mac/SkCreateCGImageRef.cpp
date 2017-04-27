@@ -110,9 +110,10 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
     SkBitmap* copy;
     if (upscaleTo32) {
         copy = new SkBitmap;
-        // here we make a ceep copy of the pixels, since CG won't take our
+        // here we make a deep copy of the pixels, since CG won't take our
         // 565 directly
-        bm.copyTo(copy, kN32_SkColorType);
+        copy->allocPixels(bm.info().makeColorType(kN32_SkColorType));
+        bm.readPixels(copy->info(), copy->getPixels(), copy->rowBytes(), 0, 0);
     } else {
         copy = new SkBitmap(bm);
     }

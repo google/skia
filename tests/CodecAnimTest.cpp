@@ -14,6 +14,7 @@
 
 #include "Resources.h"
 #include "Test.h"
+#include "sk_tool_utils.h"
 
 #include <initializer_list>
 #include <vector>
@@ -239,7 +240,8 @@ DEF_TEST(Codec_frames, r) {
                     // First copy the pixels from the cached frame
                     const int requiredFrame = frameInfos[index].fRequiredFrame;
                     if (requiredFrame != SkCodec::kNone) {
-                        const bool success = cachedFrames[requiredFrame].copyTo(bm);
+                        const bool success = sk_tool_utils::copy_to(bm, kN32_SkColorType,
+                                cachedFrames[requiredFrame]);
                         REPORTER_ASSERT(r, success);
                     }
                 }
