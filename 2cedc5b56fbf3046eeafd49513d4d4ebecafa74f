@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52c63e91_535a3e7a",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-27T18:19:11Z",
+      "side": 1,
+      "message": "\u003e\u003e\u003e",
+      "revId": "2cedc5b56fbf3046eeafd49513d4d4ebecafa74f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62f01a45_c28e5d92",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-27T18:19:11Z",
+      "side": 1,
+      "message": "\u003e\u003e\u003e",
+      "revId": "2cedc5b56fbf3046eeafd49513d4d4ebecafa74f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e80af50_d008157f",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-27T18:19:11Z",
+      "side": 1,
+      "message": "\u003e\u003e\u003e",
+      "revId": "2cedc5b56fbf3046eeafd49513d4d4ebecafa74f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d7552ff_904162a3",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 858,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-27T18:19:11Z",
+      "side": 1,
+      "message": "Ignore test code - this was written against API from earlier revisions.",
+      "revId": "2cedc5b56fbf3046eeafd49513d4d4ebecafa74f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
