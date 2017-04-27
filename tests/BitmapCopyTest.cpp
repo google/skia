@@ -9,6 +9,7 @@
 #include "SkRect.h"
 #include "SkTemplates.h"
 #include "Test.h"
+#include "sk_tool_utils.h"
 
 static void init_src(const SkBitmap& bitmap) {
     if (bitmap.getPixels()) {
@@ -112,7 +113,7 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
             // Test copying an extracted subset.
             for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
                 SkBitmap copy;
-                bool success = subset.copyTo(&copy, gPairs[j].fColorType);
+                bool success = sk_tool_utils::copy_to(&copy, gPairs[j].fColorType, subset);
                 if (!success) {
                     // Skip checking that success matches fValid, which is redundant
                     // with the code below.
@@ -235,21 +236,4 @@ DEF_TEST(BitmapReadPixels, reporter) {
             }
         }
     }
-}
-
-DEF_TEST(BitmapCopy_ColorSpaceMatch, r) {
-    // We should support matching color spaces, even if they are parametric.
-    SkColorSpaceTransferFn fn;
-    fn.fA = 1.f; fn.fB = 0.f; fn.fC = 0.f; fn.fD = 0.f; fn.fE = 0.f; fn.fF = 0.f; fn.fG = 1.8f;
-    sk_sp<SkColorSpace> cs = SkColorSpace::MakeRGB(fn, SkColorSpace::kRec2020_Gamut);
-
-    SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1, cs);
-    SkBitmap bitmap;
-    bitmap.allocPixels(info);
-    bitmap.eraseColor(0);
-
-    SkBitmap copy;
-    bool success = bitmap.copyTo(&copy, kN32_SkColorType);
-    REPORTER_ASSERT(r, success);
-    REPORTER_ASSERT(r, cs.get() == copy.colorSpace());
 }

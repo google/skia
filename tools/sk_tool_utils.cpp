@@ -586,6 +586,44 @@ SkRect compute_tallest_occluder(const SkRRect& rr) {
     return SkRect::MakeLTRB(r.fLeft + maxL, r.fTop, r.fRight - maxR, r.fBottom);
 }
 
+bool copy_to(SkBitmap* dst, SkColorType dstColorType, const SkBitmap& src) {
+    SkPixmap srcPM;
+    if (!src.peekPixels(&srcPM)) {
+        return false;
+    }
+
+    SkBitmap tmpDst;
+    SkImageInfo dstInfo = srcPM.info().makeColorType(dstColorType);
+    if (!tmpDst.setInfo(dstInfo)) {
+        return false;
+    }
+
+    // allocate colortable if srcConfig == kIndex8_Config
+    sk_sp<SkColorTable> ctable = nullptr;
+    if (dstColorType == kIndex_8_SkColorType) {
+        if (src.colorType() != kIndex_8_SkColorType) {
+            return false;
+        }
+
+        ctable = sk_ref_sp(srcPM.ctable());
+    }
+    if (!tmpDst.tryAllocPixels(ctable.get())) {
+        return false;
+    }
+
+    SkPixmap dstPM;
+    if (!tmpDst.peekPixels(&dstPM)) {
+        return false;
+    }
+
+    if (!srcPM.readPixels(dstPM)) {
+        return false;
+    }
+
+    dst->swap(tmpDst);
+    return true;
+}
+
 void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
     SkASSERT(kBGRA_8888_SkColorType == src.colorType() ||
              kRGBA_8888_SkColorType == src.colorType());

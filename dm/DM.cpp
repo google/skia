@@ -1123,7 +1123,8 @@ struct Task {
                         // We might consider promoting 565 to RGBA too.
                         if (bitmap.colorType() == kBGRA_8888_SkColorType) {
                             SkBitmap swizzle;
-                            SkAssertResult(bitmap.copyTo(&swizzle, kRGBA_8888_SkColorType));
+                            SkAssertResult(sk_tool_utils::copy_to(&swizzle, kRGBA_8888_SkColorType,
+                                                                  bitmap));
                             hash.write(swizzle.getPixels(), swizzle.getSize());
                         } else {
                             hash.write(bitmap.getPixels(), bitmap.getSize());
