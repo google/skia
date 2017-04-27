@@ -52,7 +52,7 @@ public:
         , fAnimAngle(0)
         , fShowAmbient(true)
         , fShowSpot(true)
-        , fUseAlt(true)
+        , fUseAlt(false)
         , fShowObject(true)
         , fIgnoreShadowAlpha(false) {}
 
@@ -72,7 +72,7 @@ protected:
         fWideRectPath.addRect(SkRect::MakeXYWH(0, 0, 630, 70));
         fWideOvalPath.addOval(SkRect::MakeXYWH(0, 0, 630, 70));
 
-        fLightPos = SkPoint3::Make(-700, -700, 2800);
+        fLightPos = SkPoint3::Make(350, 0, 600);
     }
 
     // overrides from SkEventSink
@@ -465,38 +465,32 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         this->drawBG(canvas);
-        const SkScalar kLightWidth = 2800;
-        const SkScalar kAmbientAlpha = 0.25f;
+        const SkScalar kLightWidth = 800;
+        const SkScalar kAmbientAlpha = 0.1f;
         const SkScalar kSpotAlpha = 0.25f;
 
         SkPaint paint;
         paint.setAntiAlias(true);
 
         SkPoint3 lightPos = fLightPos;
-        lightPos.fX = canvas->getBaseLayerSize().fWidth * 0.5f;
 
         paint.setColor(SK_ColorWHITE);
         canvas->translate(200, 90);
-        lightPos.fX += 200;
-        lightPos.fY += 90;
         SkScalar zValue = SkTMax(1.0f, 2 + fZDelta);
-        std::function<SkScalar(SkScalar, SkScalar)> zFunc = 
+        std::function<SkScalar(SkScalar, SkScalar)> zFunc =
             [zValue](SkScalar, SkScalar) { return zValue; };
         this->drawShadowedPath(canvas, fRRPath, zFunc, paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorRED);
         canvas->translate(250, 0);
-        lightPos.fX += 250;
-        zValue = SkTMax(1.0f, 4 + fZDelta);
+        zValue = SkTMax(1.0f, 8 + fZDelta);
         zFunc = [zValue](SkScalar, SkScalar) { return zValue; };
         this->drawShadowedPath(canvas, fRectPath, zFunc, paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorBLUE);
         canvas->translate(-250, 110);
-        lightPos.fX -= 250;
-        lightPos.fY += 110;
         zValue = SkTMax(1.0f, 12 + fZDelta);
         zFunc = [zValue](SkScalar, SkScalar) { return zValue; };
         this->drawShadowedPath(canvas, fCirclePath, zFunc, paint, kAmbientAlpha,
@@ -504,7 +498,6 @@ protected:
 
         paint.setColor(SK_ColorGREEN);
         canvas->translate(250, 0);
-        lightPos.fX += 250;
         zValue = SkTMax(1.0f, 64 + fZDelta);
         zFunc = [zValue](SkScalar, SkScalar) { return zValue; };
         this->drawShadowedPath(canvas, fRRPath, zFunc, paint, kAmbientAlpha,
@@ -512,8 +505,6 @@ protected:
 
         paint.setColor(SK_ColorYELLOW);
         canvas->translate(-250, 110);
-        lightPos.fX -= 250;
-        lightPos.fY += 110;
         zValue = SkTMax(1.0f, 8 + fZDelta);
         zFunc = [zValue](SkScalar, SkScalar) { return zValue; };
         this->drawShadowedPath(canvas, fFunkyRRPath, zFunc, paint, kAmbientAlpha,
@@ -521,7 +512,6 @@ protected:
 
         paint.setColor(SK_ColorCYAN);
         canvas->translate(250, 0);
-        lightPos.fX += 250;
         zValue = SkTMax(1.0f, 16 + fZDelta);
         zFunc = [zValue](SkScalar, SkScalar) { return zValue; };
         this->drawShadowedPath(canvas, fCubicPath, zFunc, paint,
@@ -535,8 +525,6 @@ protected:
 
         paint.setColor(SK_ColorMAGENTA);
         canvas->translate(-125, 60);
-        lightPos.fX -= 125;
-        lightPos.fY += 60;
         zValue = SkTMax(1.0f, 32 + fZDelta);
         zFunc = [zValue](SkScalar, SkScalar) { return zValue; };
         this->drawShadowedPath(canvas, tmpPath, zFunc, paint, .1f,
@@ -555,9 +543,6 @@ protected:
         persp.preTranslate(-pivot.fX, -pivot.fY);
         persp.postTranslate(pivot.fX + translate.fX, pivot.fY + translate.fY);
         canvas->setMatrix(persp);
-        lightPos = fLightPos;
-        lightPos.fX += pivot.fX + translate.fX;
-        lightPos.fY += pivot.fY + translate.fY;
         zValue = SkTMax(1.0f, 16 + fZDelta);
         SkScalar radians = SkDegreesToRadians(fAnimAngle);
         zFunc = [zValue, pivot, radians](SkScalar x, SkScalar y) {
@@ -576,9 +561,6 @@ protected:
         persp.preTranslate(-pivot.fX, -pivot.fY);
         persp.postTranslate(pivot.fX + translate.fX, pivot.fY + translate.fY);
         canvas->setMatrix(persp);
-        lightPos = fLightPos;
-        lightPos.fX += pivot.fX + translate.fX;
-        lightPos.fY += pivot.fY + translate.fY;
         zValue = SkTMax(1.0f, 32 + fZDelta);
         zFunc = [zValue, pivot, radians](SkScalar x, SkScalar y) {
             return -SkScalarSin(radians)*x +
