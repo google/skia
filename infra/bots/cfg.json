@@ -8,6 +8,7 @@
     "MSAN",
     "TSAN",
     "UBSAN",
-    "Valgrind"
+    "Valgrind",
+    "AbandonGpuContext"
   ]
 }
