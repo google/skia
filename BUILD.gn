@@ -19,13 +19,13 @@ declare_args() {
   skia_use_angle = false
   skia_use_egl = false
   skia_use_expat = true
-  skia_use_fontconfig = is_linux
+  skia_use_fontconfig = is_linux && !is_fuchsia_host
   skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_gdi = false
-  skia_use_icu = !is_fuchsia && !is_ios && !is_win  # TODO: Windows
-  skia_use_libjpeg_turbo = true
+  skia_use_icu = !is_fuchsia && !is_fuchsia_host && !is_ios && !is_win  # TODO: Windows
+  skia_use_libjpeg_turbo = !is_fuchsia_host
   skia_use_libpng = true
-  skia_use_libwebp = !is_fuchsia
+  skia_use_libwebp = !is_fuchsia && !is_fuchsia_host
   skia_use_lua = false
   skia_use_mesa = false
   skia_use_piex = !is_win
@@ -44,7 +44,8 @@ declare_args() {
   skia_link_with_vulkan = !is_fuchsia
 }
 declare_args() {
-  skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
+  skia_use_dng_sdk =
+      !is_fuchsia && !is_fuchsia_host && skia_use_libjpeg_turbo && skia_use_zlib
   skia_use_sfntly = skia_use_icu
 
   if (is_android) {
