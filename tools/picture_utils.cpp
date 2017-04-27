@@ -126,7 +126,7 @@ namespace sk_tools {
             // Convert smaller formats up to premul linear 8-bit (in SkPMColor order).
             if (bitmap.colorType() != kN32_SkColorType) {
                 SkBitmap n32;
-                if (!bitmap.copyTo(&n32, kN32_SkColorType)) {
+                if (!sk_tool_utils::copy_to(&n32, kN32_SkColorType, bitmap)) {
                     return nullptr;
                 }
                 bitmap = n32;

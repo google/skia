@@ -117,7 +117,6 @@
         #define SK_A32_SHIFT    24
 #endif
 
-
 /* Determines whether to build code that supports the GPU backend. Some classes
    that are not GPU-specific, such as SkShader subclasses, have optional code
    that is used allows them to interact with the GPU backend. If you'd like to
