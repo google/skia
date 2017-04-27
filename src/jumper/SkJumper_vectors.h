@@ -162,7 +162,7 @@
 
     SI F floor_(F v) {
         F roundtrip = vcvt_f32_s32(vcvt_s32_f32(v));
-        return roundtrip - if_then_else(roundtrip > v, 1.0_f, 0);
+        return roundtrip - if_then_else(roundtrip > v, 1, 0);
     }
 
     template <typename T>
@@ -467,7 +467,7 @@
         return _mm_floor_ps(v);
     #else
         F roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
-        return roundtrip - if_then_else(roundtrip > v, 1.0_f, 0);
+        return roundtrip - if_then_else(roundtrip > v, 1, 0);
     #endif
     }
 
@@ -579,18 +579,18 @@ SI F approx_log2(F x) {
     F e = cast(bit_cast<U32>(x)) * C(1.0f / (1<<23));
 
     // ... but using the mantissa to refine its error is _much_ better.
-    F m = bit_cast<F>((bit_cast<U32>(x) & 0x007fffff_i) | 0x3f000000_i);
+    F m = bit_cast<F>((bit_cast<U32>(x) & 0x007fffff) | 0x3f000000);
     return e
-         - 124.225514990_f
-         -   1.498030302_f * m
-         -   1.725879990_f / (0.3520887068_f + m);
+         - 124.225514990f
+         -   1.498030302f * m
+         -   1.725879990f / (0.3520887068f + m);
 }
 SI F approx_pow2(F x) {
     F f = fract(x);
     return bit_cast<F>(round(C(1.0f * (1<<23)),
-                             x + 121.274057500_f
-                               -   1.490129070_f * f
-                               +  27.728023300_f / (4.84252568_f - f)));
+                             x + 121.274057500f
+                               -   1.490129070f * f
+                               +  27.728023300f / (4.84252568f - f)));
 }
 
 SI F approx_powf(F x, F y) {
@@ -611,11 +611,11 @@ SI F from_half(U16 h) {
 #else
     // Remember, a half is 1-5-10 (sign-exponent-mantissa) with 15 exponent bias.
     U32 sem = expand(h),
-        s   = sem & 0x8000_i,
+        s   = sem & 0x8000,
          em = sem ^ s;
 
     // Convert to 1-8-23 float with 127 bias, flushing denorm halfs (including zero) to zero.
-    auto denorm = (I32)em < 0x0400_i;      // I32 comparison is often quicker, and always safe here.
+    auto denorm = (I32)em < 0x0400;      // I32 comparison is often quicker, and always safe here.
     return if_then_else(denorm, F(0)
                               , bit_cast<F>( (s<<16) + (em<<13) + C((127-15)<<23) ));
 #endif
@@ -636,11 +636,11 @@ SI U16 to_half(F f) {
 #else
     // Remember, a float is 1-8-23 (sign-exponent-mantissa) with 127 exponent bias.
     U32 sem = bit_cast<U32>(f),
-        s   = sem & 0x80000000_i,
+        s   = sem & 0x80000000,
          em = sem ^ s;
 
     // Convert to 1-5-10 half with 15 bias, flushing denorm halfs (including zero) to zero.
-    auto denorm = (I32)em < 0x38800000_i;  // I32 comparison is often quicker, and always safe here.
+    auto denorm = (I32)em < 0x38800000;  // I32 comparison is often quicker, and always safe here.
     return pack(if_then_else(denorm, U32(0)
                                    , (s>>16) + (em>>13) - C((127-15)<<10)));
 #endif
