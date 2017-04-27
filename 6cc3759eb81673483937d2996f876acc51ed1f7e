@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fbba1c69_f4342411",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 978,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-27T15:01:03Z",
+      "side": 1,
+      "message": "not sure. we do null checks in lots of canvas places (e.g. null image, zero byteLength for text, null textblob, null picture). Perhaps we should do a null check on string (before calling strlen).",
+      "range": {
+        "startLine": 978,
+        "startChar": 17,
+        "endLine": 978,
+        "endChar": 23
+      },
+      "revId": "6cc3759eb81673483937d2996f876acc51ed1f7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "532079c7_bb8553e8",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-27T15:01:03Z",
+      "side": 1,
+      "message": "Lets keep the impl private (no real cost) so we don\u0027t have to actually include SkString.h at this level.",
+      "range": {
+        "startLine": 989,
+        "startChar": 8,
+        "endLine": 989,
+        "endChar": 16
+      },
+      "revId": "6cc3759eb81673483937d2996f876acc51ed1f7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
