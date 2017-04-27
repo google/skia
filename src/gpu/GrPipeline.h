@@ -22,7 +22,7 @@
 #include "effects/GrCoverageSetOpXP.h"
 #include "effects/GrDisableColorXP.h"
 #include "effects/GrPorterDuffXferProcessor.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "GrSimpleTextureEffect.h"
 
 class GrAppliedClip;
 class GrDeviceCoordTexture;

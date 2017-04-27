@@ -16,7 +16,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrQuad.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "GrSimpleTextureEffect.h"
 #include "ops/GrTestMeshDrawOp.h"
 
 // This is a simplified mesh drawing op that can be used in the atlas generation test.
