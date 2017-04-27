@@ -91,10 +91,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
         }
         fragBuilder->codeAppendf("coord += %s;\n", imgInc);
     }
-
-    SkString modulate;
-    GrGLSLMulVarBy4f(&modulate, args.fOutputColor, args.fInputColor);
-    fragBuilder->codeAppend(modulate.c_str());
+    fragBuilder->codeAppendf("%s *= %s;\n", args.fOutputColor, args.fInputColor);
 }
 
 void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
