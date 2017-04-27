@@ -850,7 +850,7 @@ DEF_TEST(Codec_pngChunkReader, r) {
 
     if (decodedBm.colorType() != bm.colorType()) {
         SkBitmap tmp;
-        bool success = sk_tool_utils::copy_to(&tmp, bm.colorType(), decodedBm);
+        bool success = decodedBm.copyTo(&tmp, bm.colorType());
         REPORTER_ASSERT(r, success);
         if (!success) {
             return;

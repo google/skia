@@ -71,7 +71,7 @@ protected:
         draw_checks(&canvasTmp, 40, 40);
 
         for (unsigned i = 0; i < NUM_CONFIGS; ++i) {
-            sk_tool_utils::copy_to(&fDst[i], gColorTypes[i], src);
+            src.copyTo(&fDst[i], gColorTypes[i]);
         }
 
         canvas->clear(sk_tool_utils::color_to_565(0xFFDDDDDD));
