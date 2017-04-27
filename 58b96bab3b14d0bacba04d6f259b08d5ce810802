@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "38f5c34d_8c6ee35f",
+        "filename": "tools/ok.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-27T15:19:30Z",
+      "side": 1,
+      "message": "Perhaps auto?",
+      "range": {
+        "startLine": 122,
+        "startChar": 10,
+        "endLine": 122,
+        "endChar": 47
+      },
+      "revId": "58b96bab3b14d0bacba04d6f259b08d5ce810802",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
