@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7398cb2f_3d9b2fe0",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-04-27T20:25:53Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1781d4e0_e1e3e402",
+      "range": {
+        "startLine": 468,
+        "startChar": 11,
+        "endLine": 468,
+        "endChar": 18
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ee94dd6_82bf1ba7",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cc3a3c4_ffe0e5be",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-04-27T20:25:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ee94dd6_82bf1ba7",
+      "range": {
+        "startLine": 472,
+        "startChar": 51,
+        "endLine": 472,
+        "endChar": 67
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "db3de1f2_6a2dca17",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-04-27T20:25:53Z",
+      "side": 1,
+      "message": "Good catch, fixed",
+      "parentUuid": "87f67b74_39b03bc6",
+      "range": {
+        "startLine": 685,
+        "startChar": 0,
+        "endLine": 704,
+        "endChar": 26
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db25ab16_c1cdfcd0",
         "filename": "tests/SkSLGLSLTest.cpp",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2017-04-27T19:53:10Z",
       "side": 1,
       "message": "nit: should probably split this up again",
+      "range": {
+        "startLine": 687,
+        "startChar": 9,
+        "endLine": 687,
+        "endChar": 23
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3581ea70_4c6c09ce",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-04-27T20:25:53Z",
+      "side": 1,
+      "message": "I\u0027ll do this in a separate change.",
+      "parentUuid": "db25ab16_c1cdfcd0",
       "range": {
         "startLine": 687,
         "startChar": 9,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "e08df92e_e84e6ef5",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-04-27T20:25:53Z",
+      "side": 1,
+      "message": "I\u0027ll roll this into the same change mentioned above. (I have verified them locally and they work fine.)",
+      "parentUuid": "f9a9d362_1ecfdbd0",
+      "range": {
+        "startLine": 710,
+        "startChar": 28,
+        "endLine": 710,
+        "endChar": 29
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cc03ae4e_9cff53fc",
         "filename": "tests/SkSLGLSLTest.cpp",
         "patchSetId": 2
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "748ff7f9_7faae69e",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-04-27T20:25:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc03ae4e_9cff53fc",
+      "range": {
+        "startLine": 724,
+        "startChar": 9,
+        "endLine": 724,
+        "endChar": 45
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e170929_c47bed12",
         "filename": "tests/SkSLGLSLTest.cpp",
         "patchSetId": 2
@@ -160,6 +304,30 @@
       "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48ceb1a2_a056d72f",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1157,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-04-27T20:25:53Z",
+      "side": 1,
+      "message": "That particular one, yes, but since the ones farther down had to change from 1.0 to avoid being killed by optimization, I figured I\u0027d be consistent.",
+      "parentUuid": "7e170929_c47bed12",
+      "range": {
+        "startLine": 1157,
+        "startChar": 48,
+        "endLine": 1157,
+        "endChar": 51
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
