@@ -22,6 +22,30 @@
       "revId": "0968021f6c7bb6df3f829e9b57a5b60f1395c162",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd38c238_a57d21e3",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-27T18:49:02Z",
+      "side": 1,
+      "message": "Either of those seem fine to me, to simplify the api.",
+      "parentUuid": "1b1c393a_bd274688",
+      "range": {
+        "startLine": 514,
+        "startChar": 4,
+        "endLine": 514,
+        "endChar": 89
+      },
+      "revId": "0968021f6c7bb6df3f829e9b57a5b60f1395c162",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
