@@ -106,14 +106,14 @@ _sk_seed_shader_hsw LABEL PROC
   DB  197,249,110,199                     ; vmovd         %edi,%xmm0
   DB  196,226,125,88,192                  ; vpbroadcastd  %xmm0,%ymm0
   DB  197,252,91,192                      ; vcvtdq2ps     %ymm0,%ymm0
-  DB  196,226,125,24,13,74,64,0,0         ; vbroadcastss  0x404a(%rip),%ymm1        # 41a4 <_sk_callback_hsw+0x11a>
+  DB  196,226,125,24,13,10,64,0,0         ; vbroadcastss  0x400a(%rip),%ymm1        # 4164 <_sk_callback_hsw+0x11a>
   DB  197,252,88,193                      ; vaddps        %ymm1,%ymm0,%ymm0
   DB  197,252,88,2                        ; vaddps        (%rdx),%ymm0,%ymm0
   DB  196,226,125,24,16                   ; vbroadcastss  (%rax),%ymm2
   DB  197,252,91,210                      ; vcvtdq2ps     %ymm2,%ymm2
   DB  197,236,88,201                      ; vaddps        %ymm1,%ymm2,%ymm1
   DB  72,173                              ; lods          %ds:(%rsi),%rax
-  DB  196,226,125,24,21,46,64,0,0         ; vbroadcastss  0x402e(%rip),%ymm2        # 41a8 <_sk_callback_hsw+0x11e>
+  DB  196,226,125,24,21,238,63,0,0        ; vbroadcastss  0x3fee(%rip),%ymm2        # 4168 <_sk_callback_hsw+0x11e>
   DB  197,228,87,219                      ; vxorps        %ymm3,%ymm3,%ymm3
   DB  197,220,87,228                      ; vxorps        %ymm4,%ymm4,%ymm4
   DB  197,212,87,237                      ; vxorps        %ymm5,%ymm5,%ymm5
@@ -1299,24 +1299,19 @@ _sk_load_tables_hsw LABEL PROC
   DB  76,141,12,189,0,0,0,0               ; lea           0x0(,%rdi,4),%r9
   DB  76,3,8                              ; add           (%rax),%r9
   DB  77,133,192                          ; test          %r8,%r8
-  DB  117,121                             ; jne           13b6 <_sk_load_tables_hsw+0x8e>
+  DB  117,109                             ; jne           13aa <_sk_load_tables_hsw+0x82>
   DB  196,193,126,111,25                  ; vmovdqu       (%r9),%ymm3
-  DB  185,255,0,0,0                       ; mov           $0xff,%ecx
-  DB  197,249,110,193                     ; vmovd         %ecx,%xmm0
-  DB  196,226,125,88,208                  ; vpbroadcastd  %xmm0,%ymm2
-  DB  197,237,219,203                     ; vpand         %ymm3,%ymm2,%ymm1
+  DB  197,229,219,13,246,46,0,0           ; vpand         0x2ef6(%rip),%ymm3,%ymm1        # 4240 <_sk_callback_hsw+0x1f6>
   DB  196,65,61,118,192                   ; vpcmpeqd      %ymm8,%ymm8,%ymm8
   DB  72,139,72,8                         ; mov           0x8(%rax),%rcx
   DB  76,139,72,16                        ; mov           0x10(%rax),%r9
+  DB  197,237,118,210                     ; vpcmpeqd      %ymm2,%ymm2,%ymm2
+  DB  196,226,109,146,4,137               ; vgatherdps    %ymm2,(%rcx,%ymm1,4),%ymm0
+  DB  196,226,101,0,21,246,46,0,0         ; vpshufb       0x2ef6(%rip),%ymm3,%ymm2        # 4260 <_sk_callback_hsw+0x216>
   DB  196,65,53,118,201                   ; vpcmpeqd      %ymm9,%ymm9,%ymm9
-  DB  196,226,53,146,4,137                ; vgatherdps    %ymm9,(%rcx,%ymm1,4),%ymm0
-  DB  197,245,114,211,8                   ; vpsrld        $0x8,%ymm3,%ymm1
-  DB  197,109,219,201                     ; vpand         %ymm1,%ymm2,%ymm9
-  DB  196,65,45,118,210                   ; vpcmpeqd      %ymm10,%ymm10,%ymm10
-  DB  196,130,45,146,12,137               ; vgatherdps    %ymm10,(%r9,%ymm9,4),%ymm1
+  DB  196,194,53,146,12,145               ; vgatherdps    %ymm9,(%r9,%ymm2,4),%ymm1
   DB  72,139,64,24                        ; mov           0x18(%rax),%rax
-  DB  197,181,114,211,16                  ; vpsrld        $0x10,%ymm3,%ymm9
-  DB  196,65,109,219,201                  ; vpand         %ymm9,%ymm2,%ymm9
+  DB  196,98,101,0,13,254,46,0,0          ; vpshufb       0x2efe(%rip),%ymm3,%ymm9        # 4280 <_sk_callback_hsw+0x236>
   DB  196,162,61,146,20,136               ; vgatherdps    %ymm8,(%rax,%ymm9,4),%ymm2
   DB  197,229,114,211,24                  ; vpsrld        $0x18,%ymm3,%ymm3
   DB  197,124,91,195                      ; vcvtdq2ps     %ymm3,%ymm8
@@ -1335,7 +1330,7 @@ _sk_load_tables_hsw LABEL PROC
   DB  196,193,249,110,194                 ; vmovq         %r10,%xmm0
   DB  196,226,125,33,192                  ; vpmovsxbd     %xmm0,%ymm0
   DB  196,194,125,140,25                  ; vpmaskmovd    (%r9),%ymm0,%ymm3
-  DB  233,99,255,255,255                  ; jmpq          1342 <_sk_load_tables_hsw+0x1a>
+  DB  233,111,255,255,255                 ; jmpq          1342 <_sk_load_tables_hsw+0x1a>
 
 PUBLIC _sk_load_tables_u16_be_hsw
 _sk_load_tables_u16_be_hsw LABEL PROC
@@ -1343,7 +1338,7 @@ _sk_load_tables_u16_be_hsw LABEL PROC
   DB  76,139,0                            ; mov           (%rax),%r8
   DB  76,141,12,189,0,0,0,0               ; lea           0x0(,%rdi,4),%r9
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,216,0,0,0                    ; jne           14cd <_sk_load_tables_u16_be_hsw+0xee>
+  DB  15,133,208,0,0,0                    ; jne           14b9 <_sk_load_tables_u16_be_hsw+0xe6>
   DB  196,1,121,16,4,72                   ; vmovupd       (%r8,%r9,2),%xmm8
   DB  196,129,121,16,84,72,16             ; vmovupd       0x10(%r8,%r9,2),%xmm2
   DB  196,129,121,16,92,72,32             ; vmovupd       0x20(%r8,%r9,2),%xmm3
@@ -1354,28 +1349,26 @@ _sk_load_tables_u16_be_hsw LABEL PROC
   DB  196,193,97,105,217                  ; vpunpckhwd    %xmm9,%xmm3,%xmm3
   DB  197,121,97,194                      ; vpunpcklwd    %xmm2,%xmm0,%xmm8
   DB  197,121,105,202                     ; vpunpckhwd    %xmm2,%xmm0,%xmm9
-  DB  197,241,97,211                      ; vpunpcklwd    %xmm3,%xmm1,%xmm2
+  DB  197,241,97,195                      ; vpunpcklwd    %xmm3,%xmm1,%xmm0
   DB  197,113,105,235                     ; vpunpckhwd    %xmm3,%xmm1,%xmm13
-  DB  197,185,108,194                     ; vpunpcklqdq   %xmm2,%xmm8,%xmm0
-  DB  196,226,125,51,192                  ; vpmovzxwd     %xmm0,%ymm0
-  DB  65,184,255,0,0,0                    ; mov           $0xff,%r8d
-  DB  196,193,121,110,200                 ; vmovd         %r8d,%xmm1
-  DB  196,98,125,88,209                   ; vpbroadcastd  %xmm1,%ymm10
-  DB  196,193,125,219,202                 ; vpand         %ymm10,%ymm0,%ymm1
+  DB  197,185,108,200                     ; vpunpcklqdq   %xmm0,%xmm8,%xmm1
+  DB  197,185,109,208                     ; vpunpckhqdq   %xmm0,%xmm8,%xmm2
+  DB  196,65,49,108,197                   ; vpunpcklqdq   %xmm13,%xmm9,%xmm8
+  DB  197,121,111,21,133,47,0,0           ; vmovdqa       0x2f85(%rip),%xmm10        # 43c0 <_sk_callback_hsw+0x376>
+  DB  196,193,113,219,194                 ; vpand         %xmm10,%xmm1,%xmm0
+  DB  196,226,125,51,200                  ; vpmovzxwd     %xmm0,%ymm1
   DB  196,65,37,118,219                   ; vpcmpeqd      %ymm11,%ymm11,%ymm11
   DB  76,139,64,8                         ; mov           0x8(%rax),%r8
   DB  76,139,72,16                        ; mov           0x10(%rax),%r9
   DB  196,65,29,118,228                   ; vpcmpeqd      %ymm12,%ymm12,%ymm12
   DB  196,194,29,146,4,136                ; vgatherdps    %ymm12,(%r8,%ymm1,4),%ymm0
-  DB  197,185,109,202                     ; vpunpckhqdq   %xmm2,%xmm8,%xmm1
-  DB  196,226,125,51,201                  ; vpmovzxwd     %xmm1,%ymm1
-  DB  196,193,117,219,210                 ; vpand         %ymm10,%ymm1,%ymm2
-  DB  196,65,61,118,192                   ; vpcmpeqd      %ymm8,%ymm8,%ymm8
-  DB  196,194,61,146,12,145               ; vgatherdps    %ymm8,(%r9,%ymm2,4),%ymm1
+  DB  196,193,105,219,202                 ; vpand         %xmm10,%xmm2,%xmm1
+  DB  196,226,125,51,209                  ; vpmovzxwd     %xmm1,%ymm2
+  DB  196,65,29,118,228                   ; vpcmpeqd      %ymm12,%ymm12,%ymm12
+  DB  196,194,29,146,12,145               ; vgatherdps    %ymm12,(%r9,%ymm2,4),%ymm1
   DB  72,139,64,24                        ; mov           0x18(%rax),%rax
-  DB  196,193,49,108,213                  ; vpunpcklqdq   %xmm13,%xmm9,%xmm2
-  DB  196,226,125,51,210                  ; vpmovzxwd     %xmm2,%ymm2
-  DB  196,65,109,219,194                  ; vpand         %ymm10,%ymm2,%ymm8
+  DB  196,193,57,219,210                  ; vpand         %xmm10,%xmm8,%xmm2
+  DB  196,98,125,51,194                   ; vpmovzxwd     %xmm2,%ymm8
   DB  196,162,37,146,20,128               ; vgatherdps    %ymm11,(%rax,%ymm8,4),%ymm2
   DB  184,128,0,128,55                    ; mov           $0x37800080,%eax
   DB  197,249,110,216                     ; vmovd         %eax,%xmm3
@@ -1392,29 +1385,29 @@ _sk_load_tables_u16_be_hsw LABEL PROC
   DB  196,1,123,16,4,72                   ; vmovsd        (%r8,%r9,2),%xmm8
   DB  196,65,49,239,201                   ; vpxor         %xmm9,%xmm9,%xmm9
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  116,85                              ; je            1533 <_sk_load_tables_u16_be_hsw+0x154>
+  DB  116,85                              ; je            151f <_sk_load_tables_u16_be_hsw+0x14c>
   DB  196,1,57,22,68,72,8                 ; vmovhpd       0x8(%r8,%r9,2),%xmm8,%xmm8
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,72                              ; jb            1533 <_sk_load_tables_u16_be_hsw+0x154>
+  DB  114,72                              ; jb            151f <_sk_load_tables_u16_be_hsw+0x14c>
   DB  196,129,123,16,84,72,16             ; vmovsd        0x10(%r8,%r9,2),%xmm2
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  116,72                              ; je            1540 <_sk_load_tables_u16_be_hsw+0x161>
+  DB  116,72                              ; je            152c <_sk_load_tables_u16_be_hsw+0x159>
   DB  196,129,105,22,84,72,24             ; vmovhpd       0x18(%r8,%r9,2),%xmm2,%xmm2
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,59                              ; jb            1540 <_sk_load_tables_u16_be_hsw+0x161>
+  DB  114,59                              ; jb            152c <_sk_load_tables_u16_be_hsw+0x159>
   DB  196,129,123,16,92,72,32             ; vmovsd        0x20(%r8,%r9,2),%xmm3
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  15,132,250,254,255,255              ; je            1410 <_sk_load_tables_u16_be_hsw+0x31>
+  DB  15,132,2,255,255,255                ; je            1404 <_sk_load_tables_u16_be_hsw+0x31>
   DB  196,129,97,22,92,72,40              ; vmovhpd       0x28(%r8,%r9,2),%xmm3,%xmm3
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  15,130,233,254,255,255              ; jb            1410 <_sk_load_tables_u16_be_hsw+0x31>
+  DB  15,130,241,254,255,255              ; jb            1404 <_sk_load_tables_u16_be_hsw+0x31>
   DB  196,1,122,126,76,72,48              ; vmovq         0x30(%r8,%r9,2),%xmm9
-  DB  233,221,254,255,255                 ; jmpq          1410 <_sk_load_tables_u16_be_hsw+0x31>
+  DB  233,229,254,255,255                 ; jmpq          1404 <_sk_load_tables_u16_be_hsw+0x31>
   DB  197,225,87,219                      ; vxorpd        %xmm3,%xmm3,%xmm3
   DB  197,233,87,210                      ; vxorpd        %xmm2,%xmm2,%xmm2
-  DB  233,208,254,255,255                 ; jmpq          1410 <_sk_load_tables_u16_be_hsw+0x31>
+  DB  233,216,254,255,255                 ; jmpq          1404 <_sk_load_tables_u16_be_hsw+0x31>
   DB  197,225,87,219                      ; vxorpd        %xmm3,%xmm3,%xmm3
-  DB  233,199,254,255,255                 ; jmpq          1410 <_sk_load_tables_u16_be_hsw+0x31>
+  DB  233,207,254,255,255                 ; jmpq          1404 <_sk_load_tables_u16_be_hsw+0x31>
 
 PUBLIC _sk_load_tables_rgb_u16_be_hsw
 _sk_load_tables_rgb_u16_be_hsw LABEL PROC
@@ -1422,7 +1415,7 @@ _sk_load_tables_rgb_u16_be_hsw LABEL PROC
   DB  76,139,0                            ; mov           (%rax),%r8
   DB  76,141,12,127                       ; lea           (%rdi,%rdi,2),%r9
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,207,0,0,0                    ; jne           162a <_sk_load_tables_rgb_u16_be_hsw+0xe1>
+  DB  15,133,198,0,0,0                    ; jne           160d <_sk_load_tables_rgb_u16_be_hsw+0xd8>
   DB  196,129,122,111,4,72                ; vmovdqu       (%r8,%r9,2),%xmm0
   DB  196,129,122,111,84,72,12            ; vmovdqu       0xc(%r8,%r9,2),%xmm2
   DB  196,129,122,111,76,72,24            ; vmovdqu       0x18(%r8,%r9,2),%xmm1
@@ -1437,30 +1430,28 @@ _sk_load_tables_rgb_u16_be_hsw LABEL PROC
   DB  197,241,97,203                      ; vpunpcklwd    %xmm3,%xmm1,%xmm1
   DB  196,193,33,97,218                   ; vpunpcklwd    %xmm10,%xmm11,%xmm3
   DB  197,121,97,194                      ; vpunpcklwd    %xmm2,%xmm0,%xmm8
-  DB  197,121,105,202                     ; vpunpckhwd    %xmm2,%xmm0,%xmm9
+  DB  197,249,105,194                     ; vpunpckhwd    %xmm2,%xmm0,%xmm0
   DB  197,241,97,211                      ; vpunpcklwd    %xmm3,%xmm1,%xmm2
-  DB  197,241,105,219                     ; vpunpckhwd    %xmm3,%xmm1,%xmm3
-  DB  197,185,108,194                     ; vpunpcklqdq   %xmm2,%xmm8,%xmm0
-  DB  196,226,125,51,192                  ; vpmovzxwd     %xmm0,%ymm0
-  DB  65,184,255,0,0,0                    ; mov           $0xff,%r8d
-  DB  196,193,121,110,200                 ; vmovd         %r8d,%xmm1
-  DB  196,98,125,88,209                   ; vpbroadcastd  %xmm1,%ymm10
-  DB  196,193,125,219,202                 ; vpand         %ymm10,%ymm0,%ymm1
-  DB  196,65,37,118,219                   ; vpcmpeqd      %ymm11,%ymm11,%ymm11
+  DB  197,241,105,203                     ; vpunpckhwd    %xmm3,%xmm1,%xmm1
+  DB  197,185,108,218                     ; vpunpcklqdq   %xmm2,%xmm8,%xmm3
+  DB  197,185,109,210                     ; vpunpckhqdq   %xmm2,%xmm8,%xmm2
+  DB  197,121,108,193                     ; vpunpcklqdq   %xmm1,%xmm0,%xmm8
+  DB  197,121,111,13,31,46,0,0            ; vmovdqa       0x2e1f(%rip),%xmm9        # 43d0 <_sk_callback_hsw+0x386>
+  DB  196,193,97,219,193                  ; vpand         %xmm9,%xmm3,%xmm0
+  DB  196,226,125,51,200                  ; vpmovzxwd     %xmm0,%ymm1
+  DB  197,229,118,219                     ; vpcmpeqd      %ymm3,%ymm3,%ymm3
   DB  76,139,64,8                         ; mov           0x8(%rax),%r8
   DB  76,139,72,16                        ; mov           0x10(%rax),%r9
-  DB  196,65,29,118,228                   ; vpcmpeqd      %ymm12,%ymm12,%ymm12
-  DB  196,194,29,146,4,136                ; vgatherdps    %ymm12,(%r8,%ymm1,4),%ymm0
-  DB  197,185,109,202                     ; vpunpckhqdq   %xmm2,%xmm8,%xmm1
-  DB  196,226,125,51,201                  ; vpmovzxwd     %xmm1,%ymm1
-  DB  196,193,117,219,210                 ; vpand         %ymm10,%ymm1,%ymm2
-  DB  196,65,61,118,192                   ; vpcmpeqd      %ymm8,%ymm8,%ymm8
-  DB  196,194,61,146,12,145               ; vgatherdps    %ymm8,(%r9,%ymm2,4),%ymm1
+  DB  196,65,45,118,210                   ; vpcmpeqd      %ymm10,%ymm10,%ymm10
+  DB  196,194,45,146,4,136                ; vgatherdps    %ymm10,(%r8,%ymm1,4),%ymm0
+  DB  196,193,105,219,201                 ; vpand         %xmm9,%xmm2,%xmm1
+  DB  196,226,125,51,209                  ; vpmovzxwd     %xmm1,%ymm2
+  DB  196,65,45,118,210                   ; vpcmpeqd      %ymm10,%ymm10,%ymm10
+  DB  196,194,45,146,12,145               ; vgatherdps    %ymm10,(%r9,%ymm2,4),%ymm1
   DB  72,139,64,24                        ; mov           0x18(%rax),%rax
-  DB  197,177,108,211                     ; vpunpcklqdq   %xmm3,%xmm9,%xmm2
-  DB  196,226,125,51,210                  ; vpmovzxwd     %xmm2,%ymm2
-  DB  196,193,109,219,218                 ; vpand         %ymm10,%ymm2,%ymm3
-  DB  196,226,37,146,20,152               ; vgatherdps    %ymm11,(%rax,%ymm3,4),%ymm2
+  DB  196,193,57,219,209                  ; vpand         %xmm9,%xmm8,%xmm2
+  DB  196,98,125,51,194                   ; vpmovzxwd     %xmm2,%ymm8
+  DB  196,162,101,146,20,128              ; vgatherdps    %ymm3,(%rax,%ymm8,4),%ymm2
   DB  184,0,0,128,63                      ; mov           $0x3f800000,%eax
   DB  197,249,110,216                     ; vmovd         %eax,%xmm3
   DB  196,226,125,88,219                  ; vpbroadcastd  %xmm3,%ymm3
@@ -1469,36 +1460,36 @@ _sk_load_tables_rgb_u16_be_hsw LABEL PROC
   DB  196,129,121,110,4,72                ; vmovd         (%r8,%r9,2),%xmm0
   DB  196,129,121,196,68,72,4,2           ; vpinsrw       $0x2,0x4(%r8,%r9,2),%xmm0,%xmm0
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  117,5                               ; jne           1643 <_sk_load_tables_rgb_u16_be_hsw+0xfa>
-  DB  233,76,255,255,255                  ; jmpq          158f <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  DB  117,5                               ; jne           1626 <_sk_load_tables_rgb_u16_be_hsw+0xf1>
+  DB  233,85,255,255,255                  ; jmpq          157b <_sk_load_tables_rgb_u16_be_hsw+0x46>
   DB  196,129,121,110,76,72,6             ; vmovd         0x6(%r8,%r9,2),%xmm1
   DB  196,1,113,196,68,72,10,2            ; vpinsrw       $0x2,0xa(%r8,%r9,2),%xmm1,%xmm8
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,26                              ; jb            1672 <_sk_load_tables_rgb_u16_be_hsw+0x129>
+  DB  114,26                              ; jb            1655 <_sk_load_tables_rgb_u16_be_hsw+0x120>
   DB  196,129,121,110,76,72,12            ; vmovd         0xc(%r8,%r9,2),%xmm1
   DB  196,129,113,196,84,72,16,2          ; vpinsrw       $0x2,0x10(%r8,%r9,2),%xmm1,%xmm2
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  117,10                              ; jne           1677 <_sk_load_tables_rgb_u16_be_hsw+0x12e>
-  DB  233,29,255,255,255                  ; jmpq          158f <_sk_load_tables_rgb_u16_be_hsw+0x46>
-  DB  233,24,255,255,255                  ; jmpq          158f <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  DB  117,10                              ; jne           165a <_sk_load_tables_rgb_u16_be_hsw+0x125>
+  DB  233,38,255,255,255                  ; jmpq          157b <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  DB  233,33,255,255,255                  ; jmpq          157b <_sk_load_tables_rgb_u16_be_hsw+0x46>
   DB  196,129,121,110,76,72,18            ; vmovd         0x12(%r8,%r9,2),%xmm1
   DB  196,1,113,196,76,72,22,2            ; vpinsrw       $0x2,0x16(%r8,%r9,2),%xmm1,%xmm9
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,26                              ; jb            16a6 <_sk_load_tables_rgb_u16_be_hsw+0x15d>
+  DB  114,26                              ; jb            1689 <_sk_load_tables_rgb_u16_be_hsw+0x154>
   DB  196,129,121,110,76,72,24            ; vmovd         0x18(%r8,%r9,2),%xmm1
   DB  196,129,113,196,76,72,28,2          ; vpinsrw       $0x2,0x1c(%r8,%r9,2),%xmm1,%xmm1
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  117,10                              ; jne           16ab <_sk_load_tables_rgb_u16_be_hsw+0x162>
-  DB  233,233,254,255,255                 ; jmpq          158f <_sk_load_tables_rgb_u16_be_hsw+0x46>
-  DB  233,228,254,255,255                 ; jmpq          158f <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  DB  117,10                              ; jne           168e <_sk_load_tables_rgb_u16_be_hsw+0x159>
+  DB  233,242,254,255,255                 ; jmpq          157b <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  DB  233,237,254,255,255                 ; jmpq          157b <_sk_load_tables_rgb_u16_be_hsw+0x46>
   DB  196,129,121,110,92,72,30            ; vmovd         0x1e(%r8,%r9,2),%xmm3
   DB  196,1,97,196,92,72,34,2             ; vpinsrw       $0x2,0x22(%r8,%r9,2),%xmm3,%xmm11
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  114,20                              ; jb            16d4 <_sk_load_tables_rgb_u16_be_hsw+0x18b>
+  DB  114,20                              ; jb            16b7 <_sk_load_tables_rgb_u16_be_hsw+0x182>
   DB  196,129,121,110,92,72,36            ; vmovd         0x24(%r8,%r9,2),%xmm3
   DB  196,129,97,196,92,72,40,2           ; vpinsrw       $0x2,0x28(%r8,%r9,2),%xmm3,%xmm3
-  DB  233,187,254,255,255                 ; jmpq          158f <_sk_load_tables_rgb_u16_be_hsw+0x46>
-  DB  233,182,254,255,255                 ; jmpq          158f <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  DB  233,196,254,255,255                 ; jmpq          157b <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  DB  233,191,254,255,255                 ; jmpq          157b <_sk_load_tables_rgb_u16_be_hsw+0x46>
 
 PUBLIC _sk_byte_tables_hsw
 _sk_byte_tables_hsw LABEL PROC
@@ -1864,33 +1855,33 @@ _sk_parametric_r_hsw LABEL PROC
   DB  196,66,125,168,211                  ; vfmadd213ps   %ymm11,%ymm0,%ymm10
   DB  196,226,125,24,0                    ; vbroadcastss  (%rax),%ymm0
   DB  196,65,124,91,218                   ; vcvtdq2ps     %ymm10,%ymm11
-  DB  196,98,125,24,37,231,36,0,0         ; vbroadcastss  0x24e7(%rip),%ymm12        # 41ac <_sk_callback_hsw+0x122>
-  DB  196,98,125,24,45,226,36,0,0         ; vbroadcastss  0x24e2(%rip),%ymm13        # 41b0 <_sk_callback_hsw+0x126>
+  DB  196,98,125,24,37,196,36,0,0         ; vbroadcastss  0x24c4(%rip),%ymm12        # 416c <_sk_callback_hsw+0x122>
+  DB  196,98,125,24,45,191,36,0,0         ; vbroadcastss  0x24bf(%rip),%ymm13        # 4170 <_sk_callback_hsw+0x126>
   DB  196,65,44,84,213                    ; vandps        %ymm13,%ymm10,%ymm10
-  DB  196,98,125,24,45,216,36,0,0         ; vbroadcastss  0x24d8(%rip),%ymm13        # 41b4 <_sk_callback_hsw+0x12a>
+  DB  196,98,125,24,45,181,36,0,0         ; vbroadcastss  0x24b5(%rip),%ymm13        # 4174 <_sk_callback_hsw+0x12a>
   DB  196,65,44,86,213                    ; vorps         %ymm13,%ymm10,%ymm10
-  DB  196,98,125,24,45,206,36,0,0         ; vbroadcastss  0x24ce(%rip),%ymm13        # 41b8 <_sk_callback_hsw+0x12e>
+  DB  196,98,125,24,45,171,36,0,0         ; vbroadcastss  0x24ab(%rip),%ymm13        # 4178 <_sk_callback_hsw+0x12e>
   DB  196,66,37,184,236                   ; vfmadd231ps   %ymm12,%ymm11,%ymm13
-  DB  196,98,125,24,29,196,36,0,0         ; vbroadcastss  0x24c4(%rip),%ymm11        # 41bc <_sk_callback_hsw+0x132>
+  DB  196,98,125,24,29,161,36,0,0         ; vbroadcastss  0x24a1(%rip),%ymm11        # 417c <_sk_callback_hsw+0x132>
   DB  196,66,45,172,221                   ; vfnmadd213ps  %ymm13,%ymm10,%ymm11
-  DB  196,98,125,24,37,186,36,0,0         ; vbroadcastss  0x24ba(%rip),%ymm12        # 41c0 <_sk_callback_hsw+0x136>
+  DB  196,98,125,24,37,151,36,0,0         ; vbroadcastss  0x2497(%rip),%ymm12        # 4180 <_sk_callback_hsw+0x136>
   DB  196,65,44,88,212                    ; vaddps        %ymm12,%ymm10,%ymm10
-  DB  196,98,125,24,37,176,36,0,0         ; vbroadcastss  0x24b0(%rip),%ymm12        # 41c4 <_sk_callback_hsw+0x13a>
+  DB  196,98,125,24,37,141,36,0,0         ; vbroadcastss  0x248d(%rip),%ymm12        # 4184 <_sk_callback_hsw+0x13a>
   DB  196,65,28,94,210                    ; vdivps        %ymm10,%ymm12,%ymm10
   DB  196,65,36,92,210                    ; vsubps        %ymm10,%ymm11,%ymm10
   DB  196,193,124,89,194                  ; vmulps        %ymm10,%ymm0,%ymm0
   DB  196,99,125,8,208,1                  ; vroundps      $0x1,%ymm0,%ymm10
   DB  196,65,124,92,210                   ; vsubps        %ymm10,%ymm0,%ymm10
-  DB  196,98,125,24,29,145,36,0,0         ; vbroadcastss  0x2491(%rip),%ymm11        # 41c8 <_sk_callback_hsw+0x13e>
+  DB  196,98,125,24,29,110,36,0,0         ; vbroadcastss  0x246e(%rip),%ymm11        # 4188 <_sk_callback_hsw+0x13e>
   DB  196,193,124,88,195                  ; vaddps        %ymm11,%ymm0,%ymm0
-  DB  196,98,125,24,29,135,36,0,0         ; vbroadcastss  0x2487(%rip),%ymm11        # 41cc <_sk_callback_hsw+0x142>
+  DB  196,98,125,24,29,100,36,0,0         ; vbroadcastss  0x2464(%rip),%ymm11        # 418c <_sk_callback_hsw+0x142>
   DB  196,98,45,172,216                   ; vfnmadd213ps  %ymm0,%ymm10,%ymm11
-  DB  196,226,125,24,5,125,36,0,0         ; vbroadcastss  0x247d(%rip),%ymm0        # 41d0 <_sk_callback_hsw+0x146>
+  DB  196,226,125,24,5,90,36,0,0          ; vbroadcastss  0x245a(%rip),%ymm0        # 4190 <_sk_callback_hsw+0x146>
   DB  196,193,124,92,194                  ; vsubps        %ymm10,%ymm0,%ymm0
-  DB  196,98,125,24,21,115,36,0,0         ; vbroadcastss  0x2473(%rip),%ymm10        # 41d4 <_sk_callback_hsw+0x14a>
+  DB  196,98,125,24,21,80,36,0,0          ; vbroadcastss  0x2450(%rip),%ymm10        # 4194 <_sk_callback_hsw+0x14a>
   DB  197,172,94,192                      ; vdivps        %ymm0,%ymm10,%ymm0
   DB  197,164,88,192                      ; vaddps        %ymm0,%ymm11,%ymm0
-  DB  196,98,125,24,21,102,36,0,0         ; vbroadcastss  0x2466(%rip),%ymm10        # 41d8 <_sk_callback_hsw+0x14e>
+  DB  196,98,125,24,21,67,36,0,0          ; vbroadcastss  0x2443(%rip),%ymm10        # 4198 <_sk_callback_hsw+0x14e>
   DB  196,193,124,89,194                  ; vmulps        %ymm10,%ymm0,%ymm0
   DB  197,253,91,192                      ; vcvtps2dq     %ymm0,%ymm0
   DB  196,98,125,24,80,20                 ; vbroadcastss  0x14(%rax),%ymm10
@@ -1918,33 +1909,33 @@ _sk_parametric_g_hsw LABEL PROC
   DB  196,66,117,168,211                  ; vfmadd213ps   %ymm11,%ymm1,%ymm10
   DB  196,226,125,24,8                    ; vbroadcastss  (%rax),%ymm1
   DB  196,65,124,91,218                   ; vcvtdq2ps     %ymm10,%ymm11
-  DB  196,98,125,24,37,237,35,0,0         ; vbroadcastss  0x23ed(%rip),%ymm12        # 41dc <_sk_callback_hsw+0x152>
-  DB  196,98,125,24,45,232,35,0,0         ; vbroadcastss  0x23e8(%rip),%ymm13        # 41e0 <_sk_callback_hsw+0x156>
+  DB  196,98,125,24,37,202,35,0,0         ; vbroadcastss  0x23ca(%rip),%ymm12        # 419c <_sk_callback_hsw+0x152>
+  DB  196,98,125,24,45,197,35,0,0         ; vbroadcastss  0x23c5(%rip),%ymm13        # 41a0 <_sk_callback_hsw+0x156>
   DB  196,65,44,84,213                    ; vandps        %ymm13,%ymm10,%ymm10
-  DB  196,98,125,24,45,222,35,0,0         ; vbroadcastss  0x23de(%rip),%ymm13        # 41e4 <_sk_callback_hsw+0x15a>
+  DB  196,98,125,24,45,187,35,0,0         ; vbroadcastss  0x23bb(%rip),%ymm13        # 41a4 <_sk_callback_hsw+0x15a>
   DB  196,65,44,86,213                    ; vorps         %ymm13,%ymm10,%ymm10
-  DB  196,98,125,24,45,212,35,0,0         ; vbroadcastss  0x23d4(%rip),%ymm13        # 41e8 <_sk_callback_hsw+0x15e>
+  DB  196,98,125,24,45,177,35,0,0         ; vbroadcastss  0x23b1(%rip),%ymm13        # 41a8 <_sk_callback_hsw+0x15e>
   DB  196,66,37,184,236                   ; vfmadd231ps   %ymm12,%ymm11,%ymm13
-  DB  196,98,125,24,29,202,35,0,0         ; vbroadcastss  0x23ca(%rip),%ymm11        # 41ec <_sk_callback_hsw+0x162>
+  DB  196,98,125,24,29,167,35,0,0         ; vbroadcastss  0x23a7(%rip),%ymm11        # 41ac <_sk_callback_hsw+0x162>
   DB  196,66,45,172,221                   ; vfnmadd213ps  %ymm13,%ymm10,%ymm11
-  DB  196,98,125,24,37,192,35,0,0         ; vbroadcastss  0x23c0(%rip),%ymm12        # 41f0 <_sk_callback_hsw+0x166>
+  DB  196,98,125,24,37,157,35,0,0         ; vbroadcastss  0x239d(%rip),%ymm12        # 41b0 <_sk_callback_hsw+0x166>
   DB  196,65,44,88,212                    ; vaddps        %ymm12,%ymm10,%ymm10
-  DB  196,98,125,24,37,182,35,0,0         ; vbroadcastss  0x23b6(%rip),%ymm12        # 41f4 <_sk_callback_hsw+0x16a>
+  DB  196,98,125,24,37,147,35,0,0         ; vbroadcastss  0x2393(%rip),%ymm12        # 41b4 <_sk_callback_hsw+0x16a>
   DB  196,65,28,94,210                    ; vdivps        %ymm10,%ymm12,%ymm10
   DB  196,65,36,92,210                    ; vsubps        %ymm10,%ymm11,%ymm10
   DB  196,193,116,89,202                  ; vmulps        %ymm10,%ymm1,%ymm1
   DB  196,99,125,8,209,1                  ; vroundps      $0x1,%ymm1,%ymm10
   DB  196,65,116,92,210                   ; vsubps        %ymm10,%ymm1,%ymm10
-  DB  196,98,125,24,29,151,35,0,0         ; vbroadcastss  0x2397(%rip),%ymm11        # 41f8 <_sk_callback_hsw+0x16e>
+  DB  196,98,125,24,29,116,35,0,0         ; vbroadcastss  0x2374(%rip),%ymm11        # 41b8 <_sk_callback_hsw+0x16e>
   DB  196,193,116,88,203                  ; vaddps        %ymm11,%ymm1,%ymm1
-  DB  196,98,125,24,29,141,35,0,0         ; vbroadcastss  0x238d(%rip),%ymm11        # 41fc <_sk_callback_hsw+0x172>
+  DB  196,98,125,24,29,106,35,0,0         ; vbroadcastss  0x236a(%rip),%ymm11        # 41bc <_sk_callback_hsw+0x172>
   DB  196,98,45,172,217                   ; vfnmadd213ps  %ymm1,%ymm10,%ymm11
-  DB  196,226,125,24,13,131,35,0,0        ; vbroadcastss  0x2383(%rip),%ymm1        # 4200 <_sk_callback_hsw+0x176>
+  DB  196,226,125,24,13,96,35,0,0         ; vbroadcastss  0x2360(%rip),%ymm1        # 41c0 <_sk_callback_hsw+0x176>
   DB  196,193,116,92,202                  ; vsubps        %ymm10,%ymm1,%ymm1
-  DB  196,98,125,24,21,121,35,0,0         ; vbroadcastss  0x2379(%rip),%ymm10        # 4204 <_sk_callback_hsw+0x17a>
+  DB  196,98,125,24,21,86,35,0,0          ; vbroadcastss  0x2356(%rip),%ymm10        # 41c4 <_sk_callback_hsw+0x17a>
   DB  197,172,94,201                      ; vdivps        %ymm1,%ymm10,%ymm1
   DB  197,164,88,201                      ; vaddps        %ymm1,%ymm11,%ymm1
-  DB  196,98,125,24,21,108,35,0,0         ; vbroadcastss  0x236c(%rip),%ymm10        # 4208 <_sk_callback_hsw+0x17e>
+  DB  196,98,125,24,21,73,35,0,0          ; vbroadcastss  0x2349(%rip),%ymm10        # 41c8 <_sk_callback_hsw+0x17e>
   DB  196,193,116,89,202                  ; vmulps        %ymm10,%ymm1,%ymm1
   DB  197,253,91,201                      ; vcvtps2dq     %ymm1,%ymm1
   DB  196,98,125,24,80,20                 ; vbroadcastss  0x14(%rax),%ymm10
@@ -1972,33 +1963,33 @@ _sk_parametric_b_hsw LABEL PROC
   DB  196,66,109,168,211                  ; vfmadd213ps   %ymm11,%ymm2,%ymm10
   DB  196,226,125,24,16                   ; vbroadcastss  (%rax),%ymm2
   DB  196,65,124,91,218                   ; vcvtdq2ps     %ymm10,%ymm11
-  DB  196,98,125,24,37,243,34,0,0         ; vbroadcastss  0x22f3(%rip),%ymm12        # 420c <_sk_callback_hsw+0x182>
-  DB  196,98,125,24,45,238,34,0,0         ; vbroadcastss  0x22ee(%rip),%ymm13        # 4210 <_sk_callback_hsw+0x186>
+  DB  196,98,125,24,37,208,34,0,0         ; vbroadcastss  0x22d0(%rip),%ymm12        # 41cc <_sk_callback_hsw+0x182>
+  DB  196,98,125,24,45,203,34,0,0         ; vbroadcastss  0x22cb(%rip),%ymm13        # 41d0 <_sk_callback_hsw+0x186>
   DB  196,65,44,84,213                    ; vandps        %ymm13,%ymm10,%ymm10
-  DB  196,98,125,24,45,228,34,0,0         ; vbroadcastss  0x22e4(%rip),%ymm13        # 4214 <_sk_callback_hsw+0x18a>
+  DB  196,98,125,24,45,193,34,0,0         ; vbroadcastss  0x22c1(%rip),%ymm13        # 41d4 <_sk_callback_hsw+0x18a>
   DB  196,65,44,86,213                    ; vorps         %ymm13,%ymm10,%ymm10
-  DB  196,98,125,24,45,218,34,0,0         ; vbroadcastss  0x22da(%rip),%ymm13        # 4218 <_sk_callback_hsw+0x18e>
+  DB  196,98,125,24,45,183,34,0,0         ; vbroadcastss  0x22b7(%rip),%ymm13        # 41d8 <_sk_callback_hsw+0x18e>
   DB  196,66,37,184,236                   ; vfmadd231ps   %ymm12,%ymm11,%ymm13
-  DB  196,98,125,24,29,208,34,0,0         ; vbroadcastss  0x22d0(%rip),%ymm11        # 421c <_sk_callback_hsw+0x192>
+  DB  196,98,125,24,29,173,34,0,0         ; vbroadcastss  0x22ad(%rip),%ymm11        # 41dc <_sk_callback_hsw+0x192>
   DB  196,66,45,172,221                   ; vfnmadd213ps  %ymm13,%ymm10,%ymm11
-  DB  196,98,125,24,37,198,34,0,0         ; vbroadcastss  0x22c6(%rip),%ymm12        # 4220 <_sk_callback_hsw+0x196>
+  DB  196,98,125,24,37,163,34,0,0         ; vbroadcastss  0x22a3(%rip),%ymm12        # 41e0 <_sk_callback_hsw+0x196>
   DB  196,65,44,88,212                    ; vaddps        %ymm12,%ymm10,%ymm10
-  DB  196,98,125,24,37,188,34,0,0         ; vbroadcastss  0x22bc(%rip),%ymm12        # 4224 <_sk_callback_hsw+0x19a>
+  DB  196,98,125,24,37,153,34,0,0         ; vbroadcastss  0x2299(%rip),%ymm12        # 41e4 <_sk_callback_hsw+0x19a>
   DB  196,65,28,94,210                    ; vdivps        %ymm10,%ymm12,%ymm10
   DB  196,65,36,92,210                    ; vsubps        %ymm10,%ymm11,%ymm10
   DB  196,193,108,89,210                  ; vmulps        %ymm10,%ymm2,%ymm2
   DB  196,99,125,8,210,1                  ; vroundps      $0x1,%ymm2,%ymm10
   DB  196,65,108,92,210                   ; vsubps        %ymm10,%ymm2,%ymm10
-  DB  196,98,125,24,29,157,34,0,0         ; vbroadcastss  0x229d(%rip),%ymm11        # 4228 <_sk_callback_hsw+0x19e>
+  DB  196,98,125,24,29,122,34,0,0         ; vbroadcastss  0x227a(%rip),%ymm11        # 41e8 <_sk_callback_hsw+0x19e>
   DB  196,193,108,88,211                  ; vaddps        %ymm11,%ymm2,%ymm2
-  DB  196,98,125,24,29,147,34,0,0         ; vbroadcastss  0x2293(%rip),%ymm11        # 422c <_sk_callback_hsw+0x1a2>
+  DB  196,98,125,24,29,112,34,0,0         ; vbroadcastss  0x2270(%rip),%ymm11        # 41ec <_sk_callback_hsw+0x1a2>
   DB  196,98,45,172,218                   ; vfnmadd213ps  %ymm2,%ymm10,%ymm11
-  DB  196,226,125,24,21,137,34,0,0        ; vbroadcastss  0x2289(%rip),%ymm2        # 4230 <_sk_callback_hsw+0x1a6>
+  DB  196,226,125,24,21,102,34,0,0        ; vbroadcastss  0x2266(%rip),%ymm2        # 41f0 <_sk_callback_hsw+0x1a6>
   DB  196,193,108,92,210                  ; vsubps        %ymm10,%ymm2,%ymm2
-  DB  196,98,125,24,21,127,34,0,0         ; vbroadcastss  0x227f(%rip),%ymm10        # 4234 <_sk_callback_hsw+0x1aa>
+  DB  196,98,125,24,21,92,34,0,0          ; vbroadcastss  0x225c(%rip),%ymm10        # 41f4 <_sk_callback_hsw+0x1aa>
   DB  197,172,94,210                      ; vdivps        %ymm2,%ymm10,%ymm2
   DB  197,164,88,210                      ; vaddps        %ymm2,%ymm11,%ymm2
-  DB  196,98,125,24,21,114,34,0,0         ; vbroadcastss  0x2272(%rip),%ymm10        # 4238 <_sk_callback_hsw+0x1ae>
+  DB  196,98,125,24,21,79,34,0,0          ; vbroadcastss  0x224f(%rip),%ymm10        # 41f8 <_sk_callback_hsw+0x1ae>
   DB  196,193,108,89,210                  ; vmulps        %ymm10,%ymm2,%ymm2
   DB  197,253,91,210                      ; vcvtps2dq     %ymm2,%ymm2
   DB  196,98,125,24,80,20                 ; vbroadcastss  0x14(%rax),%ymm10
@@ -2026,33 +2017,33 @@ _sk_parametric_a_hsw LABEL PROC
   DB  196,66,101,168,211                  ; vfmadd213ps   %ymm11,%ymm3,%ymm10
   DB  196,226,125,24,24                   ; vbroadcastss  (%rax),%ymm3
   DB  196,65,124,91,218                   ; vcvtdq2ps     %ymm10,%ymm11
-  DB  196,98,125,24,37,249,33,0,0         ; vbroadcastss  0x21f9(%rip),%ymm12        # 423c <_sk_callback_hsw+0x1b2>
-  DB  196,98,125,24,45,244,33,0,0         ; vbroadcastss  0x21f4(%rip),%ymm13        # 4240 <_sk_callback_hsw+0x1b6>
+  DB  196,98,125,24,37,214,33,0,0         ; vbroadcastss  0x21d6(%rip),%ymm12        # 41fc <_sk_callback_hsw+0x1b2>
+  DB  196,98,125,24,45,209,33,0,0         ; vbroadcastss  0x21d1(%rip),%ymm13        # 4200 <_sk_callback_hsw+0x1b6>
   DB  196,65,44,84,213                    ; vandps        %ymm13,%ymm10,%ymm10
-  DB  196,98,125,24,45,234,33,0,0         ; vbroadcastss  0x21ea(%rip),%ymm13        # 4244 <_sk_callback_hsw+0x1ba>
+  DB  196,98,125,24,45,199,33,0,0         ; vbroadcastss  0x21c7(%rip),%ymm13        # 4204 <_sk_callback_hsw+0x1ba>
   DB  196,65,44,86,213                    ; vorps         %ymm13,%ymm10,%ymm10
-  DB  196,98,125,24,45,224,33,0,0         ; vbroadcastss  0x21e0(%rip),%ymm13        # 4248 <_sk_callback_hsw+0x1be>
+  DB  196,98,125,24,45,189,33,0,0         ; vbroadcastss  0x21bd(%rip),%ymm13        # 4208 <_sk_callback_hsw+0x1be>
   DB  196,66,37,184,236                   ; vfmadd231ps   %ymm12,%ymm11,%ymm13
-  DB  196,98,125,24,29,214,33,0,0         ; vbroadcastss  0x21d6(%rip),%ymm11        # 424c <_sk_callback_hsw+0x1c2>
+  DB  196,98,125,24,29,179,33,0,0         ; vbroadcastss  0x21b3(%rip),%ymm11        # 420c <_sk_callback_hsw+0x1c2>
   DB  196,66,45,172,221                   ; vfnmadd213ps  %ymm13,%ymm10,%ymm11
-  DB  196,98,125,24,37,204,33,0,0         ; vbroadcastss  0x21cc(%rip),%ymm12        # 4250 <_sk_callback_hsw+0x1c6>
+  DB  196,98,125,24,37,169,33,0,0         ; vbroadcastss  0x21a9(%rip),%ymm12        # 4210 <_sk_callback_hsw+0x1c6>
   DB  196,65,44,88,212                    ; vaddps        %ymm12,%ymm10,%ymm10
-  DB  196,98,125,24,37,194,33,0,0         ; vbroadcastss  0x21c2(%rip),%ymm12        # 4254 <_sk_callback_hsw+0x1ca>
+  DB  196,98,125,24,37,159,33,0,0         ; vbroadcastss  0x219f(%rip),%ymm12        # 4214 <_sk_callback_hsw+0x1ca>
   DB  196,65,28,94,210                    ; vdivps        %ymm10,%ymm12,%ymm10
   DB  196,65,36,92,210                    ; vsubps        %ymm10,%ymm11,%ymm10
   DB  196,193,100,89,218                  ; vmulps        %ymm10,%ymm3,%ymm3
   DB  196,99,125,8,211,1                  ; vroundps      $0x1,%ymm3,%ymm10
   DB  196,65,100,92,210                   ; vsubps        %ymm10,%ymm3,%ymm10
-  DB  196,98,125,24,29,163,33,0,0         ; vbroadcastss  0x21a3(%rip),%ymm11        # 4258 <_sk_callback_hsw+0x1ce>
+  DB  196,98,125,24,29,128,33,0,0         ; vbroadcastss  0x2180(%rip),%ymm11        # 4218 <_sk_callback_hsw+0x1ce>
   DB  196,193,100,88,219                  ; vaddps        %ymm11,%ymm3,%ymm3
-  DB  196,98,125,24,29,153,33,0,0         ; vbroadcastss  0x2199(%rip),%ymm11        # 425c <_sk_callback_hsw+0x1d2>
+  DB  196,98,125,24,29,118,33,0,0         ; vbroadcastss  0x2176(%rip),%ymm11        # 421c <_sk_callback_hsw+0x1d2>
   DB  196,98,45,172,219                   ; vfnmadd213ps  %ymm3,%ymm10,%ymm11
-  DB  196,226,125,24,29,143,33,0,0        ; vbroadcastss  0x218f(%rip),%ymm3        # 4260 <_sk_callback_hsw+0x1d6>
+  DB  196,226,125,24,29,108,33,0,0        ; vbroadcastss  0x216c(%rip),%ymm3        # 4220 <_sk_callback_hsw+0x1d6>
   DB  196,193,100,92,218                  ; vsubps        %ymm10,%ymm3,%ymm3
-  DB  196,98,125,24,21,133,33,0,0         ; vbroadcastss  0x2185(%rip),%ymm10        # 4264 <_sk_callback_hsw+0x1da>
+  DB  196,98,125,24,21,98,33,0,0          ; vbroadcastss  0x2162(%rip),%ymm10        # 4224 <_sk_callback_hsw+0x1da>
   DB  197,172,94,219                      ; vdivps        %ymm3,%ymm10,%ymm3
   DB  197,164,88,219                      ; vaddps        %ymm3,%ymm11,%ymm3
-  DB  196,98,125,24,21,120,33,0,0         ; vbroadcastss  0x2178(%rip),%ymm10        # 4268 <_sk_callback_hsw+0x1de>
+  DB  196,98,125,24,21,85,33,0,0          ; vbroadcastss  0x2155(%rip),%ymm10        # 4228 <_sk_callback_hsw+0x1de>
   DB  196,193,100,89,218                  ; vmulps        %ymm10,%ymm3,%ymm3
   DB  197,253,91,219                      ; vcvtps2dq     %ymm3,%ymm3
   DB  196,98,125,24,80,20                 ; vbroadcastss  0x14(%rax),%ymm10
@@ -2141,7 +2132,7 @@ _sk_load_a8_hsw LABEL PROC
   DB  72,139,0                            ; mov           (%rax),%rax
   DB  72,1,248                            ; add           %rdi,%rax
   DB  77,133,192                          ; test          %r8,%r8
-  DB  117,50                              ; jne           2299 <_sk_load_a8_hsw+0x42>
+  DB  117,50                              ; jne           227c <_sk_load_a8_hsw+0x42>
   DB  197,250,126,0                       ; vmovq         (%rax),%xmm0
   DB  196,226,125,49,192                  ; vpmovzxbd     %xmm0,%ymm0
   DB  197,252,91,192                      ; vcvtdq2ps     %ymm0,%ymm0
@@ -2164,9 +2155,9 @@ _sk_load_a8_hsw LABEL PROC
   DB  77,9,217                            ; or            %r11,%r9
   DB  72,131,193,8                        ; add           $0x8,%rcx
   DB  73,255,202                          ; dec           %r10
-  DB  117,234                             ; jne           22a1 <_sk_load_a8_hsw+0x4a>
+  DB  117,234                             ; jne           2284 <_sk_load_a8_hsw+0x4a>
   DB  196,193,249,110,193                 ; vmovq         %r9,%xmm0
-  DB  235,173                             ; jmp           226b <_sk_load_a8_hsw+0x14>
+  DB  235,173                             ; jmp           224e <_sk_load_a8_hsw+0x14>
 
 PUBLIC _sk_gather_a8_hsw
 _sk_gather_a8_hsw LABEL PROC
@@ -2237,7 +2228,7 @@ _sk_store_a8_hsw LABEL PROC
   DB  196,66,57,43,193                    ; vpackusdw     %xmm9,%xmm8,%xmm8
   DB  196,65,57,103,192                   ; vpackuswb     %xmm8,%xmm8,%xmm8
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,10                              ; jne           23d6 <_sk_store_a8_hsw+0x3b>
+  DB  117,10                              ; jne           23b9 <_sk_store_a8_hsw+0x3b>
   DB  196,65,123,17,4,57                  ; vmovsd        %xmm8,(%r9,%rdi,1)
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  255,224                             ; jmpq          *%rax
@@ -2245,10 +2236,10 @@ _sk_store_a8_hsw LABEL PROC
   DB  65,128,224,7                        ; and           $0x7,%r8b
   DB  65,254,200                          ; dec           %r8b
   DB  65,128,248,6                        ; cmp           $0x6,%r8b
-  DB  119,236                             ; ja            23d2 <_sk_store_a8_hsw+0x37>
+  DB  119,236                             ; ja            23b5 <_sk_store_a8_hsw+0x37>
   DB  196,66,121,48,192                   ; vpmovzxbw     %xmm8,%xmm8
   DB  65,15,182,192                       ; movzbl        %r8b,%eax
-  DB  76,141,5,66,0,0,0                   ; lea           0x42(%rip),%r8        # 2438 <_sk_store_a8_hsw+0x9d>
+  DB  76,141,5,67,0,0,0                   ; lea           0x43(%rip),%r8        # 241c <_sk_store_a8_hsw+0x9e>
   DB  73,99,4,128                         ; movslq        (%r8,%rax,4),%rax
   DB  76,1,192                            ; add           %r8,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -2259,26 +2250,27 @@ _sk_store_a8_hsw LABEL PROC
   DB  196,67,121,20,68,57,2,4             ; vpextrb       $0x4,%xmm8,0x2(%r9,%rdi,1)
   DB  196,67,121,20,68,57,1,2             ; vpextrb       $0x2,%xmm8,0x1(%r9,%rdi,1)
   DB  196,67,121,20,4,57,0                ; vpextrb       $0x0,%xmm8,(%r9,%rdi,1)
-  DB  235,154                             ; jmp           23d2 <_sk_store_a8_hsw+0x37>
-  DB  247,255                             ; idiv          %edi
+  DB  235,154                             ; jmp           23b5 <_sk_store_a8_hsw+0x37>
+  DB  144                                 ; nop
+  DB  246,255                             ; idiv          %bh
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  239                                 ; out           %eax,(%dx)
+  DB  238                                 ; out           %al,(%dx)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,231                             ; jmpq          *%rdi
+  DB  255,230                             ; jmpq          *%rsi
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  223,255                             ; (bad)
+  DB  222,255                             ; fdivrp        %st,%st(7)
   DB  255                                 ; (bad)
-  DB  255,215                             ; callq         *%rdi
-  DB  255                                 ; (bad)
-  DB  255                                 ; (bad)
-  DB  255,207                             ; dec           %edi
+  DB  255,214                             ; callq         *%rsi
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,199                             ; inc           %edi
+  DB  255,206                             ; dec           %esi
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,198                             ; inc           %esi
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; .byte         0xff
@@ -2290,7 +2282,7 @@ _sk_load_g8_hsw LABEL PROC
   DB  72,139,0                            ; mov           (%rax),%rax
   DB  72,1,248                            ; add           %rdi,%rax
   DB  77,133,192                          ; test          %r8,%r8
-  DB  117,60                              ; jne           24a0 <_sk_load_g8_hsw+0x4c>
+  DB  117,60                              ; jne           2484 <_sk_load_g8_hsw+0x4c>
   DB  197,250,126,0                       ; vmovq         (%rax),%xmm0
   DB  196,226,125,49,192                  ; vpmovzxbd     %xmm0,%ymm0
   DB  197,252,91,192                      ; vcvtdq2ps     %ymm0,%ymm0
@@ -2315,9 +2307,9 @@ _sk_load_g8_hsw LABEL PROC
   DB  77,9,217                            ; or            %r11,%r9
   DB  72,131,193,8                        ; add           $0x8,%rcx
   DB  73,255,202                          ; dec           %r10
-  DB  117,234                             ; jne           24a8 <_sk_load_g8_hsw+0x54>
+  DB  117,234                             ; jne           248c <_sk_load_g8_hsw+0x54>
   DB  196,193,249,110,193                 ; vmovq         %r9,%xmm0
-  DB  235,163                             ; jmp           2468 <_sk_load_g8_hsw+0x14>
+  DB  235,163                             ; jmp           244c <_sk_load_g8_hsw+0x14>
 
 PUBLIC _sk_gather_g8_hsw
 _sk_gather_g8_hsw LABEL PROC
@@ -2382,9 +2374,9 @@ _sk_gather_i8_hsw LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  73,137,192                          ; mov           %rax,%r8
   DB  77,133,192                          ; test          %r8,%r8
-  DB  116,5                               ; je            25bb <_sk_gather_i8_hsw+0xf>
+  DB  116,5                               ; je            259f <_sk_gather_i8_hsw+0xf>
   DB  76,137,192                          ; mov           %r8,%rax
-  DB  235,2                               ; jmp           25bd <_sk_gather_i8_hsw+0x11>
+  DB  235,2                               ; jmp           25a1 <_sk_gather_i8_hsw+0x11>
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  65,87                               ; push          %r15
   DB  65,86                               ; push          %r14
@@ -2422,21 +2414,16 @@ _sk_gather_i8_hsw LABEL PROC
   DB  73,139,64,8                         ; mov           0x8(%r8),%rax
   DB  197,245,118,201                     ; vpcmpeqd      %ymm1,%ymm1,%ymm1
   DB  196,226,117,144,28,128              ; vpgatherdd    %ymm1,(%rax,%ymm0,4),%ymm3
-  DB  184,255,0,0,0                       ; mov           $0xff,%eax
-  DB  197,249,110,192                     ; vmovd         %eax,%xmm0
-  DB  196,226,125,88,208                  ; vpbroadcastd  %xmm0,%ymm2
-  DB  197,237,219,195                     ; vpand         %ymm3,%ymm2,%ymm0
+  DB  197,229,219,5,81,28,0,0             ; vpand         0x1c51(%rip),%ymm3,%ymm0        # 42a0 <_sk_callback_hsw+0x256>
   DB  197,252,91,192                      ; vcvtdq2ps     %ymm0,%ymm0
   DB  184,129,128,128,59                  ; mov           $0x3b808081,%eax
   DB  197,249,110,200                     ; vmovd         %eax,%xmm1
   DB  196,98,125,88,193                   ; vpbroadcastd  %xmm1,%ymm8
   DB  196,193,124,89,192                  ; vmulps        %ymm8,%ymm0,%ymm0
-  DB  197,245,114,211,8                   ; vpsrld        $0x8,%ymm3,%ymm1
-  DB  197,237,219,201                     ; vpand         %ymm1,%ymm2,%ymm1
+  DB  196,226,101,0,13,81,28,0,0          ; vpshufb       0x1c51(%rip),%ymm3,%ymm1        # 42c0 <_sk_callback_hsw+0x276>
   DB  197,252,91,201                      ; vcvtdq2ps     %ymm1,%ymm1
   DB  196,193,116,89,200                  ; vmulps        %ymm8,%ymm1,%ymm1
-  DB  197,181,114,211,16                  ; vpsrld        $0x10,%ymm3,%ymm9
-  DB  196,193,109,219,209                 ; vpand         %ymm9,%ymm2,%ymm2
+  DB  196,226,101,0,21,95,28,0,0          ; vpshufb       0x1c5f(%rip),%ymm3,%ymm2        # 42e0 <_sk_callback_hsw+0x296>
   DB  197,252,91,210                      ; vcvtdq2ps     %ymm2,%ymm2
   DB  196,193,108,89,208                  ; vmulps        %ymm8,%ymm2,%ymm2
   DB  197,229,114,211,24                  ; vpsrld        $0x18,%ymm3,%ymm3
@@ -2455,7 +2442,7 @@ _sk_load_565_hsw LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  76,139,16                           ; mov           (%rax),%r10
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,149,0,0,0                    ; jne           276f <_sk_load_565_hsw+0xa3>
+  DB  15,133,149,0,0,0                    ; jne           2748 <_sk_load_565_hsw+0xa3>
   DB  196,193,122,111,4,122               ; vmovdqu       (%r10,%rdi,2),%xmm0
   DB  196,226,125,51,208                  ; vpmovzxwd     %xmm0,%ymm2
   DB  184,0,248,0,0                       ; mov           $0xf800,%eax
@@ -2495,9 +2482,9 @@ _sk_load_565_hsw LABEL PROC
   DB  197,249,239,192                     ; vpxor         %xmm0,%xmm0,%xmm0
   DB  65,254,200                          ; dec           %r8b
   DB  65,128,248,6                        ; cmp           $0x6,%r8b
-  DB  15,135,89,255,255,255               ; ja            26e0 <_sk_load_565_hsw+0x14>
+  DB  15,135,89,255,255,255               ; ja            26b9 <_sk_load_565_hsw+0x14>
   DB  69,15,182,192                       ; movzbl        %r8b,%r8d
-  DB  76,141,13,74,0,0,0                  ; lea           0x4a(%rip),%r9        # 27dc <_sk_load_565_hsw+0x110>
+  DB  76,141,13,73,0,0,0                  ; lea           0x49(%rip),%r9        # 27b4 <_sk_load_565_hsw+0x10f>
   DB  75,99,4,129                         ; movslq        (%r9,%r8,4),%rax
   DB  76,1,200                            ; add           %r9,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -2509,27 +2496,27 @@ _sk_load_565_hsw LABEL PROC
   DB  196,193,121,196,68,122,4,2          ; vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm0,%xmm0
   DB  196,193,121,196,68,122,2,1          ; vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm0,%xmm0
   DB  196,193,121,196,4,122,0             ; vpinsrw       $0x0,(%r10,%rdi,2),%xmm0,%xmm0
-  DB  233,5,255,255,255                   ; jmpq          26e0 <_sk_load_565_hsw+0x14>
-  DB  144                                 ; nop
-  DB  243,255                             ; repz          (bad)
-  DB  255                                 ; (bad)
-  DB  255                                 ; (bad)
-  DB  235,255                             ; jmp           27e1 <_sk_load_565_hsw+0x115>
-  DB  255                                 ; (bad)
-  DB  255,227                             ; jmpq          *%rbx
+  DB  233,5,255,255,255                   ; jmpq          26b9 <_sk_load_565_hsw+0x14>
+  DB  244                                 ; hlt
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  219,255                             ; (bad)
-  DB  255                                 ; (bad)
-  DB  255,211                             ; callq         *%rbx
+  DB  236                                 ; in            (%dx),%al
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,203                             ; dec           %ebx
+  DB  255,228                             ; jmpq          *%rsp
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  191                                 ; .byte         0xbf
+  DB  220,255                             ; fdivr         %st,%st(7)
+  DB  255                                 ; (bad)
+  DB  255,212                             ; callq         *%rsp
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,204                             ; dec           %esp
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,192                             ; inc           %eax
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; .byte         0xff
@@ -2637,7 +2624,7 @@ _sk_store_565_hsw LABEL PROC
   DB  196,67,125,57,193,1                 ; vextracti128  $0x1,%ymm8,%xmm9
   DB  196,66,57,43,193                    ; vpackusdw     %xmm9,%xmm8,%xmm8
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,10                              ; jne           29a7 <_sk_store_565_hsw+0x6c>
+  DB  117,10                              ; jne           297f <_sk_store_565_hsw+0x6c>
   DB  196,65,122,127,4,121                ; vmovdqu       %xmm8,(%r9,%rdi,2)
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  255,224                             ; jmpq          *%rax
@@ -2645,9 +2632,9 @@ _sk_store_565_hsw LABEL PROC
   DB  65,128,224,7                        ; and           $0x7,%r8b
   DB  65,254,200                          ; dec           %r8b
   DB  65,128,248,6                        ; cmp           $0x6,%r8b
-  DB  119,236                             ; ja            29a3 <_sk_store_565_hsw+0x68>
+  DB  119,236                             ; ja            297b <_sk_store_565_hsw+0x68>
   DB  65,15,182,192                       ; movzbl        %r8b,%eax
-  DB  76,141,5,66,0,0,0                   ; lea           0x42(%rip),%r8        # 2a04 <_sk_store_565_hsw+0xc9>
+  DB  76,141,5,66,0,0,0                   ; lea           0x42(%rip),%r8        # 29dc <_sk_store_565_hsw+0xc9>
   DB  73,99,4,128                         ; movslq        (%r8,%rax,4),%rax
   DB  76,1,192                            ; add           %r8,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -2658,7 +2645,7 @@ _sk_store_565_hsw LABEL PROC
   DB  196,67,121,21,68,121,4,2            ; vpextrw       $0x2,%xmm8,0x4(%r9,%rdi,2)
   DB  196,67,121,21,68,121,2,1            ; vpextrw       $0x1,%xmm8,0x2(%r9,%rdi,2)
   DB  196,67,121,21,4,121,0               ; vpextrw       $0x0,%xmm8,(%r9,%rdi,2)
-  DB  235,159                             ; jmp           29a3 <_sk_store_565_hsw+0x68>
+  DB  235,159                             ; jmp           297b <_sk_store_565_hsw+0x68>
   DB  247,255                             ; idiv          %edi
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
@@ -2687,7 +2674,7 @@ _sk_load_4444_hsw LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  76,139,16                           ; mov           (%rax),%r10
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,179,0,0,0                    ; jne           2ae1 <_sk_load_4444_hsw+0xc1>
+  DB  15,133,179,0,0,0                    ; jne           2ab9 <_sk_load_4444_hsw+0xc1>
   DB  196,193,122,111,4,122               ; vmovdqu       (%r10,%rdi,2),%xmm0
   DB  196,98,125,51,200                   ; vpmovzxwd     %xmm0,%ymm9
   DB  184,0,240,0,0                       ; mov           $0xf000,%eax
@@ -2733,9 +2720,9 @@ _sk_load_4444_hsw LABEL PROC
   DB  197,249,239,192                     ; vpxor         %xmm0,%xmm0,%xmm0
   DB  65,254,200                          ; dec           %r8b
   DB  65,128,248,6                        ; cmp           $0x6,%r8b
-  DB  15,135,59,255,255,255               ; ja            2a34 <_sk_load_4444_hsw+0x14>
+  DB  15,135,59,255,255,255               ; ja            2a0c <_sk_load_4444_hsw+0x14>
   DB  69,15,182,192                       ; movzbl        %r8b,%r8d
-  DB  76,141,13,76,0,0,0                  ; lea           0x4c(%rip),%r9        # 2b50 <_sk_load_4444_hsw+0x130>
+  DB  76,141,13,76,0,0,0                  ; lea           0x4c(%rip),%r9        # 2b28 <_sk_load_4444_hsw+0x130>
   DB  75,99,4,129                         ; movslq        (%r9,%r8,4),%rax
   DB  76,1,200                            ; add           %r9,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -2747,13 +2734,13 @@ _sk_load_4444_hsw LABEL PROC
   DB  196,193,121,196,68,122,4,2          ; vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm0,%xmm0
   DB  196,193,121,196,68,122,2,1          ; vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm0,%xmm0
   DB  196,193,121,196,4,122,0             ; vpinsrw       $0x0,(%r10,%rdi,2),%xmm0,%xmm0
-  DB  233,231,254,255,255                 ; jmpq          2a34 <_sk_load_4444_hsw+0x14>
+  DB  233,231,254,255,255                 ; jmpq          2a0c <_sk_load_4444_hsw+0x14>
   DB  15,31,0                             ; nopl          (%rax)
   DB  241                                 ; icebp
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  233,255,255,255,225                 ; jmpq          ffffffffe2002b58 <_sk_callback_hsw+0xffffffffe1ffeace>
+  DB  233,255,255,255,225                 ; jmpq          ffffffffe2002b30 <_sk_callback_hsw+0xffffffffe1ffeae6>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
@@ -2881,7 +2868,7 @@ _sk_store_4444_hsw LABEL PROC
   DB  196,67,125,57,193,1                 ; vextracti128  $0x1,%ymm8,%xmm9
   DB  196,66,57,43,193                    ; vpackusdw     %xmm9,%xmm8,%xmm8
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,10                              ; jne           2d3f <_sk_store_4444_hsw+0x72>
+  DB  117,10                              ; jne           2d17 <_sk_store_4444_hsw+0x72>
   DB  196,65,122,127,4,121                ; vmovdqu       %xmm8,(%r9,%rdi,2)
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  255,224                             ; jmpq          *%rax
@@ -2889,9 +2876,9 @@ _sk_store_4444_hsw LABEL PROC
   DB  65,128,224,7                        ; and           $0x7,%r8b
   DB  65,254,200                          ; dec           %r8b
   DB  65,128,248,6                        ; cmp           $0x6,%r8b
-  DB  119,236                             ; ja            2d3b <_sk_store_4444_hsw+0x6e>
+  DB  119,236                             ; ja            2d13 <_sk_store_4444_hsw+0x6e>
   DB  65,15,182,192                       ; movzbl        %r8b,%eax
-  DB  76,141,5,66,0,0,0                   ; lea           0x42(%rip),%r8        # 2d9c <_sk_store_4444_hsw+0xcf>
+  DB  76,141,5,66,0,0,0                   ; lea           0x42(%rip),%r8        # 2d74 <_sk_store_4444_hsw+0xcf>
   DB  73,99,4,128                         ; movslq        (%r8,%rax,4),%rax
   DB  76,1,192                            ; add           %r8,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -2902,7 +2889,7 @@ _sk_store_4444_hsw LABEL PROC
   DB  196,67,121,21,68,121,4,2            ; vpextrw       $0x2,%xmm8,0x4(%r9,%rdi,2)
   DB  196,67,121,21,68,121,2,1            ; vpextrw       $0x1,%xmm8,0x2(%r9,%rdi,2)
   DB  196,67,121,21,4,121,0               ; vpextrw       $0x0,%xmm8,(%r9,%rdi,2)
-  DB  235,159                             ; jmp           2d3b <_sk_store_4444_hsw+0x6e>
+  DB  235,159                             ; jmp           2d13 <_sk_store_4444_hsw+0x6e>
   DB  247,255                             ; idiv          %edi
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
@@ -2933,23 +2920,18 @@ _sk_load_8888_hsw LABEL PROC
   DB  76,141,12,189,0,0,0,0               ; lea           0x0(,%rdi,4),%r9
   DB  76,3,8                              ; add           (%rax),%r9
   DB  77,133,192                          ; test          %r8,%r8
-  DB  117,104                             ; jne           2e35 <_sk_load_8888_hsw+0x7d>
+  DB  117,93                              ; jne           2e02 <_sk_load_8888_hsw+0x72>
   DB  196,193,126,111,25                  ; vmovdqu       (%r9),%ymm3
-  DB  184,255,0,0,0                       ; mov           $0xff,%eax
-  DB  197,249,110,192                     ; vmovd         %eax,%xmm0
-  DB  196,226,125,88,208                  ; vpbroadcastd  %xmm0,%ymm2
-  DB  197,237,219,195                     ; vpand         %ymm3,%ymm2,%ymm0
+  DB  197,229,219,5,78,21,0,0             ; vpand         0x154e(%rip),%ymm3,%ymm0        # 4300 <_sk_callback_hsw+0x2b6>
   DB  197,252,91,192                      ; vcvtdq2ps     %ymm0,%ymm0
   DB  184,129,128,128,59                  ; mov           $0x3b808081,%eax
   DB  197,249,110,200                     ; vmovd         %eax,%xmm1
   DB  196,98,125,88,193                   ; vpbroadcastd  %xmm1,%ymm8
   DB  196,193,124,89,192                  ; vmulps        %ymm8,%ymm0,%ymm0
-  DB  197,245,114,211,8                   ; vpsrld        $0x8,%ymm3,%ymm1
-  DB  197,237,219,201                     ; vpand         %ymm1,%ymm2,%ymm1
+  DB  196,226,101,0,13,78,21,0,0          ; vpshufb       0x154e(%rip),%ymm3,%ymm1        # 4320 <_sk_callback_hsw+0x2d6>
   DB  197,252,91,201                      ; vcvtdq2ps     %ymm1,%ymm1
   DB  196,193,116,89,200                  ; vmulps        %ymm8,%ymm1,%ymm1
-  DB  197,181,114,211,16                  ; vpsrld        $0x10,%ymm3,%ymm9
-  DB  196,193,109,219,209                 ; vpand         %ymm9,%ymm2,%ymm2
+  DB  196,226,101,0,21,92,21,0,0          ; vpshufb       0x155c(%rip),%ymm3,%ymm2        # 4340 <_sk_callback_hsw+0x2f6>
   DB  197,252,91,210                      ; vcvtdq2ps     %ymm2,%ymm2
   DB  196,193,108,89,208                  ; vmulps        %ymm8,%ymm2,%ymm2
   DB  197,229,114,211,24                  ; vpsrld        $0x18,%ymm3,%ymm3
@@ -2966,7 +2948,7 @@ _sk_load_8888_hsw LABEL PROC
   DB  196,225,249,110,192                 ; vmovq         %rax,%xmm0
   DB  196,226,125,33,192                  ; vpmovsxbd     %xmm0,%ymm0
   DB  196,194,125,140,25                  ; vpmaskmovd    (%r9),%ymm0,%ymm3
-  DB  233,116,255,255,255                 ; jmpq          2dd2 <_sk_load_8888_hsw+0x1a>
+  DB  235,130                             ; jmp           2daa <_sk_load_8888_hsw+0x1a>
 
 PUBLIC _sk_gather_8888_hsw
 _sk_gather_8888_hsw LABEL PROC
@@ -2979,21 +2961,16 @@ _sk_gather_8888_hsw LABEL PROC
   DB  197,245,254,192                     ; vpaddd        %ymm0,%ymm1,%ymm0
   DB  197,245,118,201                     ; vpcmpeqd      %ymm1,%ymm1,%ymm1
   DB  196,194,117,144,28,128              ; vpgatherdd    %ymm1,(%r8,%ymm0,4),%ymm3
-  DB  184,255,0,0,0                       ; mov           $0xff,%eax
-  DB  197,249,110,192                     ; vmovd         %eax,%xmm0
-  DB  196,226,125,88,208                  ; vpbroadcastd  %xmm0,%ymm2
-  DB  197,237,219,195                     ; vpand         %ymm3,%ymm2,%ymm0
+  DB  197,229,219,5,10,21,0,0             ; vpand         0x150a(%rip),%ymm3,%ymm0        # 4360 <_sk_callback_hsw+0x316>
   DB  197,252,91,192                      ; vcvtdq2ps     %ymm0,%ymm0
   DB  184,129,128,128,59                  ; mov           $0x3b808081,%eax
   DB  197,249,110,200                     ; vmovd         %eax,%xmm1
   DB  196,98,125,88,193                   ; vpbroadcastd  %xmm1,%ymm8
   DB  196,193,124,89,192                  ; vmulps        %ymm8,%ymm0,%ymm0
-  DB  197,245,114,211,8                   ; vpsrld        $0x8,%ymm3,%ymm1
-  DB  197,237,219,201                     ; vpand         %ymm1,%ymm2,%ymm1
+  DB  196,226,101,0,13,10,21,0,0          ; vpshufb       0x150a(%rip),%ymm3,%ymm1        # 4380 <_sk_callback_hsw+0x336>
   DB  197,252,91,201                      ; vcvtdq2ps     %ymm1,%ymm1
   DB  196,193,116,89,200                  ; vmulps        %ymm8,%ymm1,%ymm1
-  DB  197,181,114,211,16                  ; vpsrld        $0x10,%ymm3,%ymm9
-  DB  196,193,109,219,209                 ; vpand         %ymm9,%ymm2,%ymm2
+  DB  196,226,101,0,21,24,21,0,0          ; vpshufb       0x1518(%rip),%ymm3,%ymm2        # 43a0 <_sk_callback_hsw+0x356>
   DB  197,252,91,210                      ; vcvtdq2ps     %ymm2,%ymm2
   DB  196,193,108,89,208                  ; vmulps        %ymm8,%ymm2,%ymm2
   DB  197,229,114,211,24                  ; vpsrld        $0x18,%ymm3,%ymm3
@@ -3026,7 +3003,7 @@ _sk_store_8888_hsw LABEL PROC
   DB  196,65,45,235,192                   ; vpor          %ymm8,%ymm10,%ymm8
   DB  196,65,53,235,192                   ; vpor          %ymm8,%ymm9,%ymm8
   DB  77,133,192                          ; test          %r8,%r8
-  DB  117,12                              ; jne           2f58 <_sk_store_8888_hsw+0x74>
+  DB  117,12                              ; jne           2f17 <_sk_store_8888_hsw+0x74>
   DB  196,65,126,127,1                    ; vmovdqu       %ymm8,(%r9)
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  76,137,193                          ; mov           %r8,%rcx
@@ -3039,14 +3016,14 @@ _sk_store_8888_hsw LABEL PROC
   DB  196,97,249,110,200                  ; vmovq         %rax,%xmm9
   DB  196,66,125,33,201                   ; vpmovsxbd     %xmm9,%ymm9
   DB  196,66,53,142,1                     ; vpmaskmovd    %ymm8,%ymm9,(%r9)
-  DB  235,211                             ; jmp           2f51 <_sk_store_8888_hsw+0x6d>
+  DB  235,211                             ; jmp           2f10 <_sk_store_8888_hsw+0x6d>
 
 PUBLIC _sk_load_f16_hsw
 _sk_load_f16_hsw LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  72,139,0                            ; mov           (%rax),%rax
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,97                              ; jne           2fe9 <_sk_load_f16_hsw+0x6b>
+  DB  117,97                              ; jne           2fa8 <_sk_load_f16_hsw+0x6b>
   DB  197,121,16,4,248                    ; vmovupd       (%rax,%rdi,8),%xmm8
   DB  197,249,16,84,248,16                ; vmovupd       0x10(%rax,%rdi,8),%xmm2
   DB  197,249,16,92,248,32                ; vmovupd       0x20(%rax,%rdi,8),%xmm3
@@ -3072,29 +3049,29 @@ _sk_load_f16_hsw LABEL PROC
   DB  197,123,16,4,248                    ; vmovsd        (%rax,%rdi,8),%xmm8
   DB  196,65,49,239,201                   ; vpxor         %xmm9,%xmm9,%xmm9
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  116,79                              ; je            3048 <_sk_load_f16_hsw+0xca>
+  DB  116,79                              ; je            3007 <_sk_load_f16_hsw+0xca>
   DB  197,57,22,68,248,8                  ; vmovhpd       0x8(%rax,%rdi,8),%xmm8,%xmm8
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,67                              ; jb            3048 <_sk_load_f16_hsw+0xca>
+  DB  114,67                              ; jb            3007 <_sk_load_f16_hsw+0xca>
   DB  197,251,16,84,248,16                ; vmovsd        0x10(%rax,%rdi,8),%xmm2
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  116,68                              ; je            3055 <_sk_load_f16_hsw+0xd7>
+  DB  116,68                              ; je            3014 <_sk_load_f16_hsw+0xd7>
   DB  197,233,22,84,248,24                ; vmovhpd       0x18(%rax,%rdi,8),%xmm2,%xmm2
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,56                              ; jb            3055 <_sk_load_f16_hsw+0xd7>
+  DB  114,56                              ; jb            3014 <_sk_load_f16_hsw+0xd7>
   DB  197,251,16,92,248,32                ; vmovsd        0x20(%rax,%rdi,8),%xmm3
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  15,132,114,255,255,255              ; je            2f9f <_sk_load_f16_hsw+0x21>
+  DB  15,132,114,255,255,255              ; je            2f5e <_sk_load_f16_hsw+0x21>
   DB  197,225,22,92,248,40                ; vmovhpd       0x28(%rax,%rdi,8),%xmm3,%xmm3
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  15,130,98,255,255,255               ; jb            2f9f <_sk_load_f16_hsw+0x21>
+  DB  15,130,98,255,255,255               ; jb            2f5e <_sk_load_f16_hsw+0x21>
   DB  197,122,126,76,248,48               ; vmovq         0x30(%rax,%rdi,8),%xmm9
-  DB  233,87,255,255,255                  ; jmpq          2f9f <_sk_load_f16_hsw+0x21>
+  DB  233,87,255,255,255                  ; jmpq          2f5e <_sk_load_f16_hsw+0x21>
   DB  197,225,87,219                      ; vxorpd        %xmm3,%xmm3,%xmm3
   DB  197,233,87,210                      ; vxorpd        %xmm2,%xmm2,%xmm2
-  DB  233,74,255,255,255                  ; jmpq          2f9f <_sk_load_f16_hsw+0x21>
+  DB  233,74,255,255,255                  ; jmpq          2f5e <_sk_load_f16_hsw+0x21>
   DB  197,225,87,219                      ; vxorpd        %xmm3,%xmm3,%xmm3
-  DB  233,65,255,255,255                  ; jmpq          2f9f <_sk_load_f16_hsw+0x21>
+  DB  233,65,255,255,255                  ; jmpq          2f5e <_sk_load_f16_hsw+0x21>
 
 PUBLIC _sk_gather_f16_hsw
 _sk_gather_f16_hsw LABEL PROC
@@ -3148,7 +3125,7 @@ _sk_store_f16_hsw LABEL PROC
   DB  196,65,57,98,205                    ; vpunpckldq    %xmm13,%xmm8,%xmm9
   DB  196,65,57,106,197                   ; vpunpckhdq    %xmm13,%xmm8,%xmm8
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,27                              ; jne           314d <_sk_store_f16_hsw+0x65>
+  DB  117,27                              ; jne           310c <_sk_store_f16_hsw+0x65>
   DB  197,120,17,28,248                   ; vmovups       %xmm11,(%rax,%rdi,8)
   DB  197,120,17,84,248,16                ; vmovups       %xmm10,0x10(%rax,%rdi,8)
   DB  197,120,17,76,248,32                ; vmovups       %xmm9,0x20(%rax,%rdi,8)
@@ -3157,22 +3134,22 @@ _sk_store_f16_hsw LABEL PROC
   DB  255,224                             ; jmpq          *%rax
   DB  197,121,214,28,248                  ; vmovq         %xmm11,(%rax,%rdi,8)
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  116,241                             ; je            3149 <_sk_store_f16_hsw+0x61>
+  DB  116,241                             ; je            3108 <_sk_store_f16_hsw+0x61>
   DB  197,121,23,92,248,8                 ; vmovhpd       %xmm11,0x8(%rax,%rdi,8)
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,229                             ; jb            3149 <_sk_store_f16_hsw+0x61>
+  DB  114,229                             ; jb            3108 <_sk_store_f16_hsw+0x61>
   DB  197,121,214,84,248,16               ; vmovq         %xmm10,0x10(%rax,%rdi,8)
-  DB  116,221                             ; je            3149 <_sk_store_f16_hsw+0x61>
+  DB  116,221                             ; je            3108 <_sk_store_f16_hsw+0x61>
   DB  197,121,23,84,248,24                ; vmovhpd       %xmm10,0x18(%rax,%rdi,8)
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,209                             ; jb            3149 <_sk_store_f16_hsw+0x61>
+  DB  114,209                             ; jb            3108 <_sk_store_f16_hsw+0x61>
   DB  197,121,214,76,248,32               ; vmovq         %xmm9,0x20(%rax,%rdi,8)
-  DB  116,201                             ; je            3149 <_sk_store_f16_hsw+0x61>
+  DB  116,201                             ; je            3108 <_sk_store_f16_hsw+0x61>
   DB  197,121,23,76,248,40                ; vmovhpd       %xmm9,0x28(%rax,%rdi,8)
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  114,189                             ; jb            3149 <_sk_store_f16_hsw+0x61>
+  DB  114,189                             ; jb            3108 <_sk_store_f16_hsw+0x61>
   DB  197,121,214,68,248,48               ; vmovq         %xmm8,0x30(%rax,%rdi,8)
-  DB  235,181                             ; jmp           3149 <_sk_store_f16_hsw+0x61>
+  DB  235,181                             ; jmp           3108 <_sk_store_f16_hsw+0x61>
 
 PUBLIC _sk_load_u16_be_hsw
 _sk_load_u16_be_hsw LABEL PROC
@@ -3180,7 +3157,7 @@ _sk_load_u16_be_hsw LABEL PROC
   DB  76,139,0                            ; mov           (%rax),%r8
   DB  72,141,4,189,0,0,0,0                ; lea           0x0(,%rdi,4),%rax
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,205,0,0,0                    ; jne           3277 <_sk_load_u16_be_hsw+0xe3>
+  DB  15,133,205,0,0,0                    ; jne           3236 <_sk_load_u16_be_hsw+0xe3>
   DB  196,65,121,16,4,64                  ; vmovupd       (%r8,%rax,2),%xmm8
   DB  196,193,121,16,84,64,16             ; vmovupd       0x10(%r8,%rax,2),%xmm2
   DB  196,193,121,16,92,64,32             ; vmovupd       0x20(%r8,%rax,2),%xmm3
@@ -3229,29 +3206,29 @@ _sk_load_u16_be_hsw LABEL PROC
   DB  196,65,123,16,4,64                  ; vmovsd        (%r8,%rax,2),%xmm8
   DB  196,65,49,239,201                   ; vpxor         %xmm9,%xmm9,%xmm9
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  116,85                              ; je            32dd <_sk_load_u16_be_hsw+0x149>
+  DB  116,85                              ; je            329c <_sk_load_u16_be_hsw+0x149>
   DB  196,65,57,22,68,64,8                ; vmovhpd       0x8(%r8,%rax,2),%xmm8,%xmm8
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,72                              ; jb            32dd <_sk_load_u16_be_hsw+0x149>
+  DB  114,72                              ; jb            329c <_sk_load_u16_be_hsw+0x149>
   DB  196,193,123,16,84,64,16             ; vmovsd        0x10(%r8,%rax,2),%xmm2
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  116,72                              ; je            32ea <_sk_load_u16_be_hsw+0x156>
+  DB  116,72                              ; je            32a9 <_sk_load_u16_be_hsw+0x156>
   DB  196,193,105,22,84,64,24             ; vmovhpd       0x18(%r8,%rax,2),%xmm2,%xmm2
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,59                              ; jb            32ea <_sk_load_u16_be_hsw+0x156>
+  DB  114,59                              ; jb            32a9 <_sk_load_u16_be_hsw+0x156>
   DB  196,193,123,16,92,64,32             ; vmovsd        0x20(%r8,%rax,2),%xmm3
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  15,132,5,255,255,255                ; je            31c5 <_sk_load_u16_be_hsw+0x31>
+  DB  15,132,5,255,255,255                ; je            3184 <_sk_load_u16_be_hsw+0x31>
   DB  196,193,97,22,92,64,40              ; vmovhpd       0x28(%r8,%rax,2),%xmm3,%xmm3
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  15,130,244,254,255,255              ; jb            31c5 <_sk_load_u16_be_hsw+0x31>
+  DB  15,130,244,254,255,255              ; jb            3184 <_sk_load_u16_be_hsw+0x31>
   DB  196,65,122,126,76,64,48             ; vmovq         0x30(%r8,%rax,2),%xmm9
-  DB  233,232,254,255,255                 ; jmpq          31c5 <_sk_load_u16_be_hsw+0x31>
+  DB  233,232,254,255,255                 ; jmpq          3184 <_sk_load_u16_be_hsw+0x31>
   DB  197,225,87,219                      ; vxorpd        %xmm3,%xmm3,%xmm3
   DB  197,233,87,210                      ; vxorpd        %xmm2,%xmm2,%xmm2
-  DB  233,219,254,255,255                 ; jmpq          31c5 <_sk_load_u16_be_hsw+0x31>
+  DB  233,219,254,255,255                 ; jmpq          3184 <_sk_load_u16_be_hsw+0x31>
   DB  197,225,87,219                      ; vxorpd        %xmm3,%xmm3,%xmm3
-  DB  233,210,254,255,255                 ; jmpq          31c5 <_sk_load_u16_be_hsw+0x31>
+  DB  233,210,254,255,255                 ; jmpq          3184 <_sk_load_u16_be_hsw+0x31>
 
 PUBLIC _sk_load_rgb_u16_be_hsw
 _sk_load_rgb_u16_be_hsw LABEL PROC
@@ -3259,7 +3236,7 @@ _sk_load_rgb_u16_be_hsw LABEL PROC
   DB  76,139,0                            ; mov           (%rax),%r8
   DB  72,141,4,127                        ; lea           (%rdi,%rdi,2),%rax
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,211,0,0,0                    ; jne           33d8 <_sk_load_rgb_u16_be_hsw+0xe5>
+  DB  15,133,211,0,0,0                    ; jne           3397 <_sk_load_rgb_u16_be_hsw+0xe5>
   DB  196,193,122,111,4,64                ; vmovdqu       (%r8,%rax,2),%xmm0
   DB  196,193,122,111,84,64,12            ; vmovdqu       0xc(%r8,%rax,2),%xmm2
   DB  196,193,122,111,76,64,24            ; vmovdqu       0x18(%r8,%rax,2),%xmm1
@@ -3309,36 +3286,36 @@ _sk_load_rgb_u16_be_hsw LABEL PROC
   DB  196,193,121,110,4,64                ; vmovd         (%r8,%rax,2),%xmm0
   DB  196,193,121,196,68,64,4,2           ; vpinsrw       $0x2,0x4(%r8,%rax,2),%xmm0,%xmm0
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  117,5                               ; jne           33f1 <_sk_load_rgb_u16_be_hsw+0xfe>
-  DB  233,72,255,255,255                  ; jmpq          3339 <_sk_load_rgb_u16_be_hsw+0x46>
+  DB  117,5                               ; jne           33b0 <_sk_load_rgb_u16_be_hsw+0xfe>
+  DB  233,72,255,255,255                  ; jmpq          32f8 <_sk_load_rgb_u16_be_hsw+0x46>
   DB  196,193,121,110,76,64,6             ; vmovd         0x6(%r8,%rax,2),%xmm1
   DB  196,65,113,196,68,64,10,2           ; vpinsrw       $0x2,0xa(%r8,%rax,2),%xmm1,%xmm8
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,26                              ; jb            3420 <_sk_load_rgb_u16_be_hsw+0x12d>
+  DB  114,26                              ; jb            33df <_sk_load_rgb_u16_be_hsw+0x12d>
   DB  196,193,121,110,76,64,12            ; vmovd         0xc(%r8,%rax,2),%xmm1
   DB  196,193,113,196,84,64,16,2          ; vpinsrw       $0x2,0x10(%r8,%rax,2),%xmm1,%xmm2
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  117,10                              ; jne           3425 <_sk_load_rgb_u16_be_hsw+0x132>
-  DB  233,25,255,255,255                  ; jmpq          3339 <_sk_load_rgb_u16_be_hsw+0x46>
-  DB  233,20,255,255,255                  ; jmpq          3339 <_sk_load_rgb_u16_be_hsw+0x46>
+  DB  117,10                              ; jne           33e4 <_sk_load_rgb_u16_be_hsw+0x132>
+  DB  233,25,255,255,255                  ; jmpq          32f8 <_sk_load_rgb_u16_be_hsw+0x46>
+  DB  233,20,255,255,255                  ; jmpq          32f8 <_sk_load_rgb_u16_be_hsw+0x46>
   DB  196,193,121,110,76,64,18            ; vmovd         0x12(%r8,%rax,2),%xmm1
   DB  196,65,113,196,76,64,22,2           ; vpinsrw       $0x2,0x16(%r8,%rax,2),%xmm1,%xmm9
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,26                              ; jb            3454 <_sk_load_rgb_u16_be_hsw+0x161>
+  DB  114,26                              ; jb            3413 <_sk_load_rgb_u16_be_hsw+0x161>
   DB  196,193,121,110,76,64,24            ; vmovd         0x18(%r8,%rax,2),%xmm1
   DB  196,193,113,196,76,64,28,2          ; vpinsrw       $0x2,0x1c(%r8,%rax,2),%xmm1,%xmm1
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  117,10                              ; jne           3459 <_sk_load_rgb_u16_be_hsw+0x166>
-  DB  233,229,254,255,255                 ; jmpq          3339 <_sk_load_rgb_u16_be_hsw+0x46>
-  DB  233,224,254,255,255                 ; jmpq          3339 <_sk_load_rgb_u16_be_hsw+0x46>
+  DB  117,10                              ; jne           3418 <_sk_load_rgb_u16_be_hsw+0x166>
+  DB  233,229,254,255,255                 ; jmpq          32f8 <_sk_load_rgb_u16_be_hsw+0x46>
+  DB  233,224,254,255,255                 ; jmpq          32f8 <_sk_load_rgb_u16_be_hsw+0x46>
   DB  196,193,121,110,92,64,30            ; vmovd         0x1e(%r8,%rax,2),%xmm3
   DB  196,65,97,196,92,64,34,2            ; vpinsrw       $0x2,0x22(%r8,%rax,2),%xmm3,%xmm11
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  114,20                              ; jb            3482 <_sk_load_rgb_u16_be_hsw+0x18f>
+  DB  114,20                              ; jb            3441 <_sk_load_rgb_u16_be_hsw+0x18f>
   DB  196,193,121,110,92,64,36            ; vmovd         0x24(%r8,%rax,2),%xmm3
   DB  196,193,97,196,92,64,40,2           ; vpinsrw       $0x2,0x28(%r8,%rax,2),%xmm3,%xmm3
-  DB  233,183,254,255,255                 ; jmpq          3339 <_sk_load_rgb_u16_be_hsw+0x46>
-  DB  233,178,254,255,255                 ; jmpq          3339 <_sk_load_rgb_u16_be_hsw+0x46>
+  DB  233,183,254,255,255                 ; jmpq          32f8 <_sk_load_rgb_u16_be_hsw+0x46>
+  DB  233,178,254,255,255                 ; jmpq          32f8 <_sk_load_rgb_u16_be_hsw+0x46>
 
 PUBLIC _sk_store_u16_be_hsw
 _sk_store_u16_be_hsw LABEL PROC
@@ -3385,7 +3362,7 @@ _sk_store_u16_be_hsw LABEL PROC
   DB  196,65,17,98,200                    ; vpunpckldq    %xmm8,%xmm13,%xmm9
   DB  196,65,17,106,192                   ; vpunpckhdq    %xmm8,%xmm13,%xmm8
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,31                              ; jne           3582 <_sk_store_u16_be_hsw+0xfb>
+  DB  117,31                              ; jne           3541 <_sk_store_u16_be_hsw+0xfb>
   DB  196,1,120,17,28,72                  ; vmovups       %xmm11,(%r8,%r9,2)
   DB  196,1,120,17,84,72,16               ; vmovups       %xmm10,0x10(%r8,%r9,2)
   DB  196,1,120,17,76,72,32               ; vmovups       %xmm9,0x20(%r8,%r9,2)
@@ -3394,31 +3371,31 @@ _sk_store_u16_be_hsw LABEL PROC
   DB  255,224                             ; jmpq          *%rax
   DB  196,1,121,214,28,72                 ; vmovq         %xmm11,(%r8,%r9,2)
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  116,240                             ; je            357e <_sk_store_u16_be_hsw+0xf7>
+  DB  116,240                             ; je            353d <_sk_store_u16_be_hsw+0xf7>
   DB  196,1,121,23,92,72,8                ; vmovhpd       %xmm11,0x8(%r8,%r9,2)
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,227                             ; jb            357e <_sk_store_u16_be_hsw+0xf7>
+  DB  114,227                             ; jb            353d <_sk_store_u16_be_hsw+0xf7>
   DB  196,1,121,214,84,72,16              ; vmovq         %xmm10,0x10(%r8,%r9,2)
-  DB  116,218                             ; je            357e <_sk_store_u16_be_hsw+0xf7>
+  DB  116,218                             ; je            353d <_sk_store_u16_be_hsw+0xf7>
   DB  196,1,121,23,84,72,24               ; vmovhpd       %xmm10,0x18(%r8,%r9,2)
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,205                             ; jb            357e <_sk_store_u16_be_hsw+0xf7>
+  DB  114,205                             ; jb            353d <_sk_store_u16_be_hsw+0xf7>
   DB  196,1,121,214,76,72,32              ; vmovq         %xmm9,0x20(%r8,%r9,2)
-  DB  116,196                             ; je            357e <_sk_store_u16_be_hsw+0xf7>
+  DB  116,196                             ; je            353d <_sk_store_u16_be_hsw+0xf7>
   DB  196,1,121,23,76,72,40               ; vmovhpd       %xmm9,0x28(%r8,%r9,2)
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  114,183                             ; jb            357e <_sk_store_u16_be_hsw+0xf7>
+  DB  114,183                             ; jb            353d <_sk_store_u16_be_hsw+0xf7>
   DB  196,1,121,214,68,72,48              ; vmovq         %xmm8,0x30(%r8,%r9,2)
-  DB  235,174                             ; jmp           357e <_sk_store_u16_be_hsw+0xf7>
+  DB  235,174                             ; jmp           353d <_sk_store_u16_be_hsw+0xf7>
 
 PUBLIC _sk_load_f32_hsw
 _sk_load_f32_hsw LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  119,110                             ; ja            3646 <_sk_load_f32_hsw+0x76>
+  DB  119,110                             ; ja            3605 <_sk_load_f32_hsw+0x76>
   DB  76,139,0                            ; mov           (%rax),%r8
   DB  76,141,12,189,0,0,0,0               ; lea           0x0(,%rdi,4),%r9
-  DB  76,141,21,134,0,0,0                 ; lea           0x86(%rip),%r10        # 3670 <_sk_load_f32_hsw+0xa0>
+  DB  76,141,21,135,0,0,0                 ; lea           0x87(%rip),%r10        # 3630 <_sk_load_f32_hsw+0xa1>
   DB  73,99,4,138                         ; movslq        (%r10,%rcx,4),%rax
   DB  76,1,208                            ; add           %r10,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -3444,19 +3421,21 @@ _sk_load_f32_hsw LABEL PROC
   DB  196,193,101,21,216                  ; vunpckhpd     %ymm8,%ymm3,%ymm3
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  255,224                             ; jmpq          *%rax
-  DB  102,144                             ; xchg          %ax,%ax
-  DB  131,255,255                         ; cmp           $0xffffffff,%edi
-  DB  255,202                             ; dec           %edx
+  DB  15,31,0                             ; nopl          (%rax)
+  DB  130                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,201                             ; dec           %ecx
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  189,255,255,255,176                 ; mov           $0xb0ffffff,%ebp
+  DB  188,255,255,255,175                 ; mov           $0xafffffff,%esp
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,163,255,255,255,155             ; jmpq          *-0x64000001(%rbx)
+  DB  255,162,255,255,255,154             ; jmpq          *-0x65000001(%rdx)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,147,255,255,255,139             ; callq         *-0x74000001(%rbx)
+  DB  255,146,255,255,255,138             ; callq         *-0x75000001(%rdx)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; .byte         0xff
@@ -3475,7 +3454,7 @@ _sk_store_f32_hsw LABEL PROC
   DB  196,65,37,20,196                    ; vunpcklpd     %ymm12,%ymm11,%ymm8
   DB  196,65,37,21,220                    ; vunpckhpd     %ymm12,%ymm11,%ymm11
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,55                              ; jne           36fd <_sk_store_f32_hsw+0x6d>
+  DB  117,55                              ; jne           36bd <_sk_store_f32_hsw+0x6d>
   DB  196,67,45,24,225,1                  ; vinsertf128   $0x1,%xmm9,%ymm10,%ymm12
   DB  196,67,61,24,235,1                  ; vinsertf128   $0x1,%xmm11,%ymm8,%ymm13
   DB  196,67,45,6,201,49                  ; vperm2f128    $0x31,%ymm9,%ymm10,%ymm9
@@ -3488,22 +3467,22 @@ _sk_store_f32_hsw LABEL PROC
   DB  255,224                             ; jmpq          *%rax
   DB  196,65,121,17,20,128                ; vmovupd       %xmm10,(%r8,%rax,4)
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  116,240                             ; je            36f9 <_sk_store_f32_hsw+0x69>
+  DB  116,240                             ; je            36b9 <_sk_store_f32_hsw+0x69>
   DB  196,65,121,17,76,128,16             ; vmovupd       %xmm9,0x10(%r8,%rax,4)
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,227                             ; jb            36f9 <_sk_store_f32_hsw+0x69>
+  DB  114,227                             ; jb            36b9 <_sk_store_f32_hsw+0x69>
   DB  196,65,121,17,68,128,32             ; vmovupd       %xmm8,0x20(%r8,%rax,4)
-  DB  116,218                             ; je            36f9 <_sk_store_f32_hsw+0x69>
+  DB  116,218                             ; je            36b9 <_sk_store_f32_hsw+0x69>
   DB  196,65,121,17,92,128,48             ; vmovupd       %xmm11,0x30(%r8,%rax,4)
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,205                             ; jb            36f9 <_sk_store_f32_hsw+0x69>
+  DB  114,205                             ; jb            36b9 <_sk_store_f32_hsw+0x69>
   DB  196,67,125,25,84,128,64,1           ; vextractf128  $0x1,%ymm10,0x40(%r8,%rax,4)
-  DB  116,195                             ; je            36f9 <_sk_store_f32_hsw+0x69>
+  DB  116,195                             ; je            36b9 <_sk_store_f32_hsw+0x69>
   DB  196,67,125,25,76,128,80,1           ; vextractf128  $0x1,%ymm9,0x50(%r8,%rax,4)
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  114,181                             ; jb            36f9 <_sk_store_f32_hsw+0x69>
+  DB  114,181                             ; jb            36b9 <_sk_store_f32_hsw+0x69>
   DB  196,67,125,25,68,128,96,1           ; vextractf128  $0x1,%ymm8,0x60(%r8,%rax,4)
-  DB  235,171                             ; jmp           36f9 <_sk_store_f32_hsw+0x69>
+  DB  235,171                             ; jmp           36b9 <_sk_store_f32_hsw+0x69>
 
 PUBLIC _sk_clamp_x_hsw
 _sk_clamp_x_hsw LABEL PROC
@@ -3744,7 +3723,7 @@ _sk_linear_gradient_hsw LABEL PROC
   DB  196,98,125,24,72,28                 ; vbroadcastss  0x1c(%rax),%ymm9
   DB  76,139,0                            ; mov           (%rax),%r8
   DB  77,133,192                          ; test          %r8,%r8
-  DB  15,132,143,0,0,0                    ; je            3b89 <_sk_linear_gradient_hsw+0xb5>
+  DB  15,132,143,0,0,0                    ; je            3b49 <_sk_linear_gradient_hsw+0xb5>
   DB  72,139,64,8                         ; mov           0x8(%rax),%rax
   DB  72,131,192,32                       ; add           $0x20,%rax
   DB  196,65,28,87,228                    ; vxorps        %ymm12,%ymm12,%ymm12
@@ -3771,8 +3750,8 @@ _sk_linear_gradient_hsw LABEL PROC
   DB  196,67,13,74,201,208                ; vblendvps     %ymm13,%ymm9,%ymm14,%ymm9
   DB  72,131,192,36                       ; add           $0x24,%rax
   DB  73,255,200                          ; dec           %r8
-  DB  117,140                             ; jne           3b13 <_sk_linear_gradient_hsw+0x3f>
-  DB  235,17                              ; jmp           3b9a <_sk_linear_gradient_hsw+0xc6>
+  DB  117,140                             ; jne           3ad3 <_sk_linear_gradient_hsw+0x3f>
+  DB  235,17                              ; jmp           3b5a <_sk_linear_gradient_hsw+0xc6>
   DB  197,244,87,201                      ; vxorps        %ymm1,%ymm1,%ymm1
   DB  197,236,87,210                      ; vxorps        %ymm2,%ymm2,%ymm2
   DB  197,228,87,219                      ; vxorps        %ymm3,%ymm3,%ymm3
@@ -4162,10 +4141,10 @@ ALIGN 4
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            41b4 <.literal4+0x10>
+  DB  127,0                               ; jg            4174 <.literal4+0x10>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            422d <.literal4+0x89>
+  DB  119,115                             ; ja            41ed <.literal4+0x89>
   DB  248                                 ; clc
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,249,68,180                   ; mov           $0xb444f93f,%edi
@@ -4179,10 +4158,10 @@ ALIGN 4
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            41e4 <.literal4+0x40>
+  DB  127,0                               ; jg            41a4 <.literal4+0x40>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            425d <.literal4+0xb9>
+  DB  119,115                             ; ja            421d <.literal4+0xb9>
   DB  248                                 ; clc
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,249,68,180                   ; mov           $0xb444f93f,%edi
@@ -4196,10 +4175,10 @@ ALIGN 4
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4214 <.literal4+0x70>
+  DB  127,0                               ; jg            41d4 <.literal4+0x70>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            428d <_sk_callback_hsw+0x203>
+  DB  119,115                             ; ja            424d <_sk_callback_hsw+0x203>
   DB  248                                 ; clc
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,249,68,180                   ; mov           $0xb444f93f,%edi
@@ -4213,10 +4192,10 @@ ALIGN 4
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4244 <.literal4+0xa0>
+  DB  127,0                               ; jg            4204 <.literal4+0xa0>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            42bd <_sk_callback_hsw+0x233>
+  DB  119,115                             ; ja            427d <_sk_callback_hsw+0x233>
   DB  248                                 ; clc
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,249,68,180                   ; mov           $0xb444f93f,%edi
@@ -4228,6 +4207,234 @@ ALIGN 4
   DB  65,0,0                              ; add           %al,(%r8)
   DB  0                                   ; .byte         0x0
   DB  75                                  ; rex.WXB
+
+ALIGN 32
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  1,255                               ; add           %edi,%edi
+  DB  255                                 ; (bad)
+  DB  255,5,255,255,255,9                 ; incl          0x9ffffff(%rip)        # a004268 <_sk_callback_hsw+0xa00021e>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,13,255,255,255,17               ; decl          0x11ffffff(%rip)        # 12004270 <_sk_callback_hsw+0x12000226>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,21,255,255,255,25               ; callq         *0x19ffffff(%rip)        # 1a004278 <_sk_callback_hsw+0x1a00022e>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,29,255,255,255,2                ; lcall         *0x2ffffff(%rip)        # 3004280 <_sk_callback_hsw+0x3000236>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,6                               ; incl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,10                              ; decl          (%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,14                              ; decl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,18                              ; callq         *(%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,22                              ; callq         *(%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,26                              ; lcall         *(%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,30                              ; lcall         *(%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  1,255                               ; add           %edi,%edi
+  DB  255                                 ; (bad)
+  DB  255,5,255,255,255,9                 ; incl          0x9ffffff(%rip)        # a0042c8 <_sk_callback_hsw+0xa00027e>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,13,255,255,255,17               ; decl          0x11ffffff(%rip)        # 120042d0 <_sk_callback_hsw+0x12000286>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,21,255,255,255,25               ; callq         *0x19ffffff(%rip)        # 1a0042d8 <_sk_callback_hsw+0x1a00028e>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,29,255,255,255,2                ; lcall         *0x2ffffff(%rip)        # 30042e0 <_sk_callback_hsw+0x3000296>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,6                               ; incl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,10                              ; decl          (%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,14                              ; decl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,18                              ; callq         *(%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,22                              ; callq         *(%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,26                              ; lcall         *(%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,30                              ; lcall         *(%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  1,255                               ; add           %edi,%edi
+  DB  255                                 ; (bad)
+  DB  255,5,255,255,255,9                 ; incl          0x9ffffff(%rip)        # a004328 <_sk_callback_hsw+0xa0002de>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,13,255,255,255,17               ; decl          0x11ffffff(%rip)        # 12004330 <_sk_callback_hsw+0x120002e6>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,21,255,255,255,25               ; callq         *0x19ffffff(%rip)        # 1a004338 <_sk_callback_hsw+0x1a0002ee>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,29,255,255,255,2                ; lcall         *0x2ffffff(%rip)        # 3004340 <_sk_callback_hsw+0x30002f6>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,6                               ; incl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,10                              ; decl          (%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,14                              ; decl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,18                              ; callq         *(%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,22                              ; callq         *(%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,26                              ; lcall         *(%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,30                              ; lcall         *(%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  1,255                               ; add           %edi,%edi
+  DB  255                                 ; (bad)
+  DB  255,5,255,255,255,9                 ; incl          0x9ffffff(%rip)        # a004388 <_sk_callback_hsw+0xa00033e>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,13,255,255,255,17               ; decl          0x11ffffff(%rip)        # 12004390 <_sk_callback_hsw+0x12000346>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,21,255,255,255,25               ; callq         *0x19ffffff(%rip)        # 1a004398 <_sk_callback_hsw+0x1a00034e>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,29,255,255,255,2                ; lcall         *0x2ffffff(%rip)        # 30043a0 <_sk_callback_hsw+0x3000356>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,6                               ; incl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,10                              ; decl          (%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,14                              ; decl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,18                              ; callq         *(%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,22                              ; callq         *(%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,26                              ; lcall         *(%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,30                              ; lcall         *(%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255                                 ; .byte         0xff
+
+ALIGN 16
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
 ALIGN 32
 
 PUBLIC _sk_start_pipeline_avx
@@ -4327,14 +4534,14 @@ _sk_seed_shader_avx LABEL PROC
   DB  197,249,112,192,0                   ; vpshufd       $0x0,%xmm0,%xmm0
   DB  196,227,125,24,192,1                ; vinsertf128   $0x1,%xmm0,%ymm0,%ymm0
   DB  197,252,91,192                      ; vcvtdq2ps     %ymm0,%ymm0
-  DB  196,226,125,24,13,164,91,0,0        ; vbroadcastss  0x5ba4(%rip),%ymm1        # 5d04 <_sk_callback_avx+0x11a>
+  DB  196,226,125,24,13,40,91,0,0         ; vbroadcastss  0x5b28(%rip),%ymm1        # 5c88 <_sk_callback_avx+0x11a>
   DB  197,252,88,193                      ; vaddps        %ymm1,%ymm0,%ymm0
   DB  197,252,88,2                        ; vaddps        (%rdx),%ymm0,%ymm0
   DB  196,226,125,24,16                   ; vbroadcastss  (%rax),%ymm2
   DB  197,252,91,210                      ; vcvtdq2ps     %ymm2,%ymm2
   DB  197,236,88,201                      ; vaddps        %ymm1,%ymm2,%ymm1
   DB  72,173                              ; lods          %ds:(%rsi),%rax
-  DB  196,226,125,24,21,136,91,0,0        ; vbroadcastss  0x5b88(%rip),%ymm2        # 5d08 <_sk_callback_avx+0x11e>
+  DB  196,226,125,24,21,12,91,0,0         ; vbroadcastss  0x5b0c(%rip),%ymm2        # 5c8c <_sk_callback_avx+0x11e>
   DB  197,228,87,219                      ; vxorps        %ymm3,%ymm3,%ymm3
   DB  197,220,87,228                      ; vxorps        %ymm4,%ymm4,%ymm4
   DB  197,212,87,237                      ; vxorps        %ymm5,%ymm5,%ymm5
@@ -5668,22 +5875,19 @@ _sk_lerp_565_avx LABEL PROC
 
 PUBLIC _sk_load_tables_avx
 _sk_load_tables_avx LABEL PROC
+  DB  72,173                              ; lods          %ds:(%rsi),%rax
+  DB  76,139,0                            ; mov           (%rax),%r8
+  DB  72,133,201                          ; test          %rcx,%rcx
+  DB  15,133,37,2,0,0                     ; jne           1863 <_sk_load_tables_avx+0x233>
+  DB  196,65,124,16,4,184                 ; vmovups       (%r8,%rdi,4),%ymm8
   DB  85                                  ; push          %rbp
   DB  65,87                               ; push          %r15
   DB  65,86                               ; push          %r14
   DB  65,85                               ; push          %r13
   DB  65,84                               ; push          %r12
   DB  83                                  ; push          %rbx
-  DB  72,173                              ; lods          %ds:(%rsi),%rax
-  DB  76,139,0                            ; mov           (%rax),%r8
-  DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,56,2,0,0                     ; jne           1880 <_sk_load_tables_avx+0x250>
-  DB  196,65,124,16,4,184                 ; vmovups       (%r8,%rdi,4),%ymm8
-  DB  187,255,0,0,0                       ; mov           $0xff,%ebx
-  DB  197,249,110,195                     ; vmovd         %ebx,%xmm0
-  DB  197,249,112,192,0                   ; vpshufd       $0x0,%xmm0,%xmm0
-  DB  196,99,125,24,200,1                 ; vinsertf128   $0x1,%xmm0,%ymm0,%ymm9
-  DB  196,193,52,84,192                   ; vandps        %ymm8,%ymm9,%ymm0
+  DB  197,124,40,13,42,71,0,0             ; vmovaps       0x472a(%rip),%ymm9        # 5d80 <_sk_callback_avx+0x212>
+  DB  196,193,60,84,193                   ; vandps        %ymm9,%ymm8,%ymm0
   DB  196,193,249,126,193                 ; vmovq         %xmm0,%r9
   DB  69,137,203                          ; mov           %r9d,%r11d
   DB  196,195,249,22,194,1                ; vpextrq       $0x1,%xmm0,%r10
@@ -5701,22 +5905,18 @@ _sk_load_tables_avx LABEL PROC
   DB  76,139,64,16                        ; mov           0x10(%rax),%r8
   DB  196,161,122,16,68,189,0             ; vmovss        0x0(%rbp,%r15,4),%xmm0
   DB  196,163,121,33,68,165,0,16          ; vinsertps     $0x10,0x0(%rbp,%r12,4),%xmm0,%xmm0
-  DB  196,161,122,16,76,173,0             ; vmovss        0x0(%rbp,%r13,4),%xmm1
-  DB  196,227,121,33,193,32               ; vinsertps     $0x20,%xmm1,%xmm0,%xmm0
-  DB  197,250,16,76,157,0                 ; vmovss        0x0(%rbp,%rbx,4),%xmm1
-  DB  196,227,121,33,193,48               ; vinsertps     $0x30,%xmm1,%xmm0,%xmm0
+  DB  196,163,121,33,68,173,0,32          ; vinsertps     $0x20,0x0(%rbp,%r13,4),%xmm0,%xmm0
+  DB  196,227,121,33,68,157,0,48          ; vinsertps     $0x30,0x0(%rbp,%rbx,4),%xmm0,%xmm0
   DB  196,161,122,16,76,157,0             ; vmovss        0x0(%rbp,%r11,4),%xmm1
   DB  196,163,113,33,76,141,0,16          ; vinsertps     $0x10,0x0(%rbp,%r9,4),%xmm1,%xmm1
-  DB  196,161,122,16,92,181,0             ; vmovss        0x0(%rbp,%r14,4),%xmm3
-  DB  196,227,113,33,203,32               ; vinsertps     $0x20,%xmm3,%xmm1,%xmm1
-  DB  196,161,122,16,92,149,0             ; vmovss        0x0(%rbp,%r10,4),%xmm3
-  DB  196,227,113,33,203,48               ; vinsertps     $0x30,%xmm3,%xmm1,%xmm1
+  DB  196,163,113,33,76,181,0,32          ; vinsertps     $0x20,0x0(%rbp,%r14,4),%xmm1,%xmm1
+  DB  196,163,113,33,76,149,0,48          ; vinsertps     $0x30,0x0(%rbp,%r10,4),%xmm1,%xmm1
   DB  196,227,117,24,192,1                ; vinsertf128   $0x1,%xmm0,%ymm1,%ymm0
   DB  196,193,113,114,208,8               ; vpsrld        $0x8,%xmm8,%xmm1
   DB  196,67,125,25,194,1                 ; vextractf128  $0x1,%ymm8,%xmm10
   DB  196,193,105,114,210,8               ; vpsrld        $0x8,%xmm10,%xmm2
   DB  196,227,117,24,202,1                ; vinsertf128   $0x1,%xmm2,%ymm1,%ymm1
-  DB  197,180,84,201                      ; vandps        %ymm1,%ymm9,%ymm1
+  DB  196,193,116,84,201                  ; vandps        %ymm9,%ymm1,%ymm1
   DB  196,193,249,126,201                 ; vmovq         %xmm1,%r9
   DB  69,137,203                          ; mov           %r9d,%r11d
   DB  196,195,249,22,202,1                ; vpextrq       $0x1,%xmm1,%r10
@@ -5747,7 +5947,7 @@ _sk_load_tables_avx LABEL PROC
   DB  196,193,105,114,208,16              ; vpsrld        $0x10,%xmm8,%xmm2
   DB  196,193,97,114,210,16               ; vpsrld        $0x10,%xmm10,%xmm3
   DB  196,227,109,24,211,1                ; vinsertf128   $0x1,%xmm3,%ymm2,%ymm2
-  DB  197,180,84,210                      ; vandps        %ymm2,%ymm9,%ymm2
+  DB  196,193,108,84,209                  ; vandps        %ymm9,%ymm2,%ymm2
   DB  196,193,249,126,208                 ; vmovq         %xmm2,%r8
   DB  69,137,194                          ; mov           %r8d,%r10d
   DB  196,195,249,22,209,1                ; vpextrq       $0x1,%xmm2,%r9
@@ -5791,17 +5991,17 @@ _sk_load_tables_avx LABEL PROC
   DB  65,95                               ; pop           %r15
   DB  93                                  ; pop           %rbp
   DB  255,224                             ; jmpq          *%rax
-  DB  137,203                             ; mov           %ecx,%ebx
-  DB  128,227,7                           ; and           $0x7,%bl
+  DB  65,137,201                          ; mov           %ecx,%r9d
+  DB  65,128,225,7                        ; and           $0x7,%r9b
   DB  196,65,60,87,192                    ; vxorps        %ymm8,%ymm8,%ymm8
-  DB  254,203                             ; dec           %bl
-  DB  128,251,6                           ; cmp           $0x6,%bl
-  DB  15,135,185,253,255,255              ; ja            164e <_sk_load_tables_avx+0x1e>
-  DB  15,182,219                          ; movzbl        %bl,%ebx
-  DB  76,141,13,137,0,0,0                 ; lea           0x89(%rip),%r9        # 1928 <_sk_load_tables_avx+0x2f8>
-  DB  73,99,28,153                        ; movslq        (%r9,%rbx,4),%rbx
-  DB  76,1,203                            ; add           %r9,%rbx
-  DB  255,227                             ; jmpq          *%rbx
+  DB  65,254,201                          ; dec           %r9b
+  DB  65,128,249,6                        ; cmp           $0x6,%r9b
+  DB  15,135,200,253,255,255              ; ja            1644 <_sk_load_tables_avx+0x14>
+  DB  69,15,182,201                       ; movzbl        %r9b,%r9d
+  DB  76,141,21,141,0,0,0                 ; lea           0x8d(%rip),%r10        # 1914 <_sk_load_tables_avx+0x2e4>
+  DB  79,99,12,138                        ; movslq        (%r10,%r9,4),%r9
+  DB  77,1,209                            ; add           %r10,%r9
+  DB  65,255,225                          ; jmpq          *%r9
   DB  196,193,121,110,68,184,24           ; vmovd         0x18(%r8,%rdi,4),%xmm0
   DB  197,249,112,192,68                  ; vpshufd       $0x44,%xmm0,%xmm0
   DB  196,227,125,24,192,1                ; vinsertf128   $0x1,%xmm0,%ymm0,%ymm0
@@ -5821,24 +6021,25 @@ _sk_load_tables_avx LABEL PROC
   DB  196,99,61,12,192,15                 ; vblendps      $0xf,%ymm0,%ymm8,%ymm8
   DB  196,195,57,34,4,184,0               ; vpinsrd       $0x0,(%r8,%rdi,4),%xmm8,%xmm0
   DB  196,99,61,12,192,15                 ; vblendps      $0xf,%ymm0,%ymm8,%ymm8
-  DB  233,38,253,255,255                  ; jmpq          164e <_sk_load_tables_avx+0x1e>
-  DB  238                                 ; out           %al,(%dx)
+  DB  233,51,253,255,255                  ; jmpq          1644 <_sk_load_tables_avx+0x14>
+  DB  15,31,0                             ; nopl          (%rax)
+  DB  235,255                             ; jmp           1915 <_sk_load_tables_avx+0x2e5>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,224                             ; jmpq          *%rax
+  DB  221,255                             ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,207                             ; dec           %edi
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,210                             ; callq         *%rdx
+  DB  255,193                             ; inc           %ecx
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,196                             ; inc           %esp
+  DB  255,173,255,255,255,153             ; ljmp          *-0x66000001(%rbp)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,176,255,255,255,156             ; pushq         -0x63000001(%rax)
   DB  255                                 ; (bad)
+  DB  125,255                             ; jge           192d <_sk_load_tables_avx+0x2fd>
   DB  255                                 ; (bad)
-  DB  255                                 ; .byte         0xff
-  DB  128,255,255                         ; cmp           $0xff,%bh
   DB  255                                 ; .byte         0xff
 
 PUBLIC _sk_load_tables_u16_be_avx
@@ -5847,7 +6048,7 @@ _sk_load_tables_u16_be_avx LABEL PROC
   DB  76,139,0                            ; mov           (%rax),%r8
   DB  76,141,12,189,0,0,0,0               ; lea           0x0(,%rdi,4),%r9
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,165,2,0,0                    ; jne           1bff <_sk_load_tables_u16_be_avx+0x2bb>
+  DB  15,133,125,2,0,0                    ; jne           1bc3 <_sk_load_tables_u16_be_avx+0x293>
   DB  196,1,121,16,4,72                   ; vmovupd       (%r8,%r9,2),%xmm8
   DB  196,129,121,16,84,72,16             ; vmovupd       0x10(%r8,%r9,2),%xmm2
   DB  196,129,121,16,92,72,32             ; vmovupd       0x20(%r8,%r9,2),%xmm3
@@ -5862,124 +6063,117 @@ _sk_load_tables_u16_be_avx LABEL PROC
   DB  197,185,105,210                     ; vpunpckhwd    %xmm2,%xmm8,%xmm2
   DB  196,193,97,97,201                   ; vpunpcklwd    %xmm9,%xmm3,%xmm1
   DB  196,193,97,105,217                  ; vpunpckhwd    %xmm9,%xmm3,%xmm3
-  DB  197,121,97,218                      ; vpunpcklwd    %xmm2,%xmm0,%xmm11
-  DB  197,121,105,202                     ; vpunpckhwd    %xmm2,%xmm0,%xmm9
-  DB  197,241,97,211                      ; vpunpcklwd    %xmm3,%xmm1,%xmm2
-  DB  197,113,105,211                     ; vpunpckhwd    %xmm3,%xmm1,%xmm10
-  DB  197,161,108,194                     ; vpunpcklqdq   %xmm2,%xmm11,%xmm0
-  DB  196,65,57,239,192                   ; vpxor         %xmm8,%xmm8,%xmm8
-  DB  196,193,121,105,200                 ; vpunpckhwd    %xmm8,%xmm0,%xmm1
-  DB  196,226,121,51,192                  ; vpmovzxwd     %xmm0,%xmm0
-  DB  196,227,125,24,193,1                ; vinsertf128   $0x1,%xmm1,%ymm0,%ymm0
-  DB  187,255,0,0,0                       ; mov           $0xff,%ebx
-  DB  197,249,110,203                     ; vmovd         %ebx,%xmm1
-  DB  197,249,112,201,0                   ; vpshufd       $0x0,%xmm1,%xmm1
-  DB  196,99,117,24,225,1                 ; vinsertf128   $0x1,%xmm1,%ymm1,%ymm12
-  DB  196,193,124,84,196                  ; vandps        %ymm12,%ymm0,%ymm0
-  DB  196,193,249,126,193                 ; vmovq         %xmm0,%r9
-  DB  69,137,203                          ; mov           %r9d,%r11d
-  DB  196,195,249,22,194,1                ; vpextrq       $0x1,%xmm0,%r10
-  DB  69,137,214                          ; mov           %r10d,%r14d
+  DB  197,121,97,202                      ; vpunpcklwd    %xmm2,%xmm0,%xmm9
+  DB  197,121,105,194                     ; vpunpckhwd    %xmm2,%xmm0,%xmm8
+  DB  197,241,97,195                      ; vpunpcklwd    %xmm3,%xmm1,%xmm0
+  DB  197,113,105,227                     ; vpunpckhwd    %xmm3,%xmm1,%xmm12
+  DB  197,177,108,208                     ; vpunpcklqdq   %xmm0,%xmm9,%xmm2
+  DB  197,177,109,200                     ; vpunpckhqdq   %xmm0,%xmm9,%xmm1
+  DB  196,65,57,108,212                   ; vpunpcklqdq   %xmm12,%xmm8,%xmm10
+  DB  197,121,111,29,94,68,0,0            ; vmovdqa       0x445e(%rip),%xmm11        # 5e00 <_sk_callback_avx+0x292>
+  DB  196,193,105,219,195                 ; vpand         %xmm11,%xmm2,%xmm0
+  DB  196,65,49,239,201                   ; vpxor         %xmm9,%xmm9,%xmm9
+  DB  196,193,121,105,209                 ; vpunpckhwd    %xmm9,%xmm0,%xmm2
+  DB  196,195,249,22,208,1                ; vpextrq       $0x1,%xmm2,%r8
+  DB  69,137,193                          ; mov           %r8d,%r9d
+  DB  77,137,194                          ; mov           %r8,%r10
   DB  73,193,234,32                       ; shr           $0x20,%r10
-  DB  73,193,233,32                       ; shr           $0x20,%r9
-  DB  196,227,125,25,192,1                ; vextractf128  $0x1,%ymm0,%xmm0
-  DB  196,193,249,126,196                 ; vmovq         %xmm0,%r12
-  DB  69,137,231                          ; mov           %r12d,%r15d
-  DB  196,227,249,22,195,1                ; vpextrq       $0x1,%xmm0,%rbx
-  DB  65,137,221                          ; mov           %ebx,%r13d
-  DB  72,193,235,32                       ; shr           $0x20,%rbx
-  DB  73,193,236,32                       ; shr           $0x20,%r12
+  DB  196,193,249,126,208                 ; vmovq         %xmm2,%r8
+  DB  69,137,195                          ; mov           %r8d,%r11d
+  DB  77,137,198                          ; mov           %r8,%r14
+  DB  73,193,238,32                       ; shr           $0x20,%r14
+  DB  196,226,121,51,192                  ; vpmovzxwd     %xmm0,%xmm0
+  DB  196,225,249,126,195                 ; vmovq         %xmm0,%rbx
+  DB  65,137,223                          ; mov           %ebx,%r15d
+  DB  72,193,235,30                       ; shr           $0x1e,%rbx
+  DB  196,195,249,22,196,1                ; vpextrq       $0x1,%xmm0,%r12
+  DB  69,137,229                          ; mov           %r12d,%r13d
+  DB  73,193,236,30                       ; shr           $0x1e,%r12
   DB  72,139,104,8                        ; mov           0x8(%rax),%rbp
   DB  76,139,64,16                        ; mov           0x10(%rax),%r8
-  DB  196,161,122,16,68,189,0             ; vmovss        0x0(%rbp,%r15,4),%xmm0
-  DB  196,163,121,33,68,165,0,16          ; vinsertps     $0x10,0x0(%rbp,%r12,4),%xmm0,%xmm0
-  DB  196,161,122,16,76,173,0             ; vmovss        0x0(%rbp,%r13,4),%xmm1
-  DB  196,227,121,33,193,32               ; vinsertps     $0x20,%xmm1,%xmm0,%xmm0
-  DB  197,250,16,76,157,0                 ; vmovss        0x0(%rbp,%rbx,4),%xmm1
-  DB  196,227,121,33,193,48               ; vinsertps     $0x30,%xmm1,%xmm0,%xmm0
-  DB  196,161,122,16,76,157,0             ; vmovss        0x0(%rbp,%r11,4),%xmm1
-  DB  196,163,113,33,76,141,0,16          ; vinsertps     $0x10,0x0(%rbp,%r9,4),%xmm1,%xmm1
-  DB  196,161,122,16,92,181,0             ; vmovss        0x0(%rbp,%r14,4),%xmm3
-  DB  196,227,113,33,203,32               ; vinsertps     $0x20,%xmm3,%xmm1,%xmm1
-  DB  196,161,122,16,92,149,0             ; vmovss        0x0(%rbp,%r10,4),%xmm3
-  DB  196,227,113,33,203,48               ; vinsertps     $0x30,%xmm3,%xmm1,%xmm1
-  DB  196,227,117,24,192,1                ; vinsertf128   $0x1,%xmm0,%ymm1,%ymm0
-  DB  197,161,109,202                     ; vpunpckhqdq   %xmm2,%xmm11,%xmm1
-  DB  196,193,113,105,208                 ; vpunpckhwd    %xmm8,%xmm1,%xmm2
-  DB  196,226,121,51,201                  ; vpmovzxwd     %xmm1,%xmm1
-  DB  196,227,117,24,202,1                ; vinsertf128   $0x1,%xmm2,%ymm1,%ymm1
-  DB  196,193,116,84,204                  ; vandps        %ymm12,%ymm1,%ymm1
-  DB  196,193,249,126,201                 ; vmovq         %xmm1,%r9
-  DB  69,137,203                          ; mov           %r9d,%r11d
-  DB  196,195,249,22,202,1                ; vpextrq       $0x1,%xmm1,%r10
-  DB  69,137,214                          ; mov           %r10d,%r14d
-  DB  73,193,234,32                       ; shr           $0x20,%r10
-  DB  73,193,233,32                       ; shr           $0x20,%r9
-  DB  196,227,125,25,201,1                ; vextractf128  $0x1,%ymm1,%xmm1
-  DB  196,225,249,126,205                 ; vmovq         %xmm1,%rbp
-  DB  65,137,239                          ; mov           %ebp,%r15d
-  DB  196,227,249,22,203,1                ; vpextrq       $0x1,%xmm1,%rbx
-  DB  65,137,220                          ; mov           %ebx,%r12d
-  DB  72,193,235,32                       ; shr           $0x20,%rbx
-  DB  72,193,237,32                       ; shr           $0x20,%rbp
-  DB  196,129,122,16,12,184               ; vmovss        (%r8,%r15,4),%xmm1
-  DB  196,195,113,33,12,168,16            ; vinsertps     $0x10,(%r8,%rbp,4),%xmm1,%xmm1
-  DB  196,129,122,16,20,160               ; vmovss        (%r8,%r12,4),%xmm2
-  DB  196,227,113,33,202,32               ; vinsertps     $0x20,%xmm2,%xmm1,%xmm1
-  DB  196,193,122,16,20,152               ; vmovss        (%r8,%rbx,4),%xmm2
-  DB  196,227,113,33,202,48               ; vinsertps     $0x30,%xmm2,%xmm1,%xmm1
-  DB  196,129,122,16,20,152               ; vmovss        (%r8,%r11,4),%xmm2
-  DB  196,131,105,33,20,136,16            ; vinsertps     $0x10,(%r8,%r9,4),%xmm2,%xmm2
-  DB  196,129,122,16,28,176               ; vmovss        (%r8,%r14,4),%xmm3
+  DB  196,161,122,16,68,157,0             ; vmovss        0x0(%rbp,%r11,4),%xmm0
+  DB  196,163,121,33,68,181,0,16          ; vinsertps     $0x10,0x0(%rbp,%r14,4),%xmm0,%xmm0
+  DB  196,161,122,16,84,141,0             ; vmovss        0x0(%rbp,%r9,4),%xmm2
+  DB  196,227,121,33,194,32               ; vinsertps     $0x20,%xmm2,%xmm0,%xmm0
+  DB  196,161,122,16,84,149,0             ; vmovss        0x0(%rbp,%r10,4),%xmm2
+  DB  196,227,121,33,194,48               ; vinsertps     $0x30,%xmm2,%xmm0,%xmm0
+  DB  196,161,122,16,84,189,0             ; vmovss        0x0(%rbp,%r15,4),%xmm2
+  DB  196,227,105,33,84,29,0,16           ; vinsertps     $0x10,0x0(%rbp,%rbx,1),%xmm2,%xmm2
+  DB  196,161,122,16,92,173,0             ; vmovss        0x0(%rbp,%r13,4),%xmm3
   DB  196,227,105,33,211,32               ; vinsertps     $0x20,%xmm3,%xmm2,%xmm2
-  DB  196,129,122,16,28,144               ; vmovss        (%r8,%r10,4),%xmm3
+  DB  196,161,122,16,92,37,0              ; vmovss        0x0(%rbp,%r12,1),%xmm3
+  DB  196,227,105,33,211,48               ; vinsertps     $0x30,%xmm3,%xmm2,%xmm2
+  DB  196,227,109,24,192,1                ; vinsertf128   $0x1,%xmm0,%ymm2,%ymm0
+  DB  196,193,113,219,203                 ; vpand         %xmm11,%xmm1,%xmm1
+  DB  196,193,113,105,209                 ; vpunpckhwd    %xmm9,%xmm1,%xmm2
+  DB  196,227,249,22,213,1                ; vpextrq       $0x1,%xmm2,%rbp
+  DB  65,137,233                          ; mov           %ebp,%r9d
+  DB  72,193,237,32                       ; shr           $0x20,%rbp
+  DB  196,225,249,126,211                 ; vmovq         %xmm2,%rbx
+  DB  65,137,218                          ; mov           %ebx,%r10d
+  DB  72,193,235,32                       ; shr           $0x20,%rbx
+  DB  196,226,121,51,201                  ; vpmovzxwd     %xmm1,%xmm1
+  DB  196,193,249,126,203                 ; vmovq         %xmm1,%r11
+  DB  69,137,222                          ; mov           %r11d,%r14d
+  DB  73,193,235,30                       ; shr           $0x1e,%r11
+  DB  196,195,249,22,207,1                ; vpextrq       $0x1,%xmm1,%r15
+  DB  69,137,252                          ; mov           %r15d,%r12d
+  DB  73,193,239,30                       ; shr           $0x1e,%r15
+  DB  196,129,122,16,12,144               ; vmovss        (%r8,%r10,4),%xmm1
+  DB  196,195,113,33,12,152,16            ; vinsertps     $0x10,(%r8,%rbx,4),%xmm1,%xmm1
+  DB  196,129,122,16,20,136               ; vmovss        (%r8,%r9,4),%xmm2
+  DB  196,227,113,33,202,32               ; vinsertps     $0x20,%xmm2,%xmm1,%xmm1
+  DB  196,193,122,16,20,168               ; vmovss        (%r8,%rbp,4),%xmm2
+  DB  196,227,113,33,202,48               ; vinsertps     $0x30,%xmm2,%xmm1,%xmm1
+  DB  196,129,122,16,20,176               ; vmovss        (%r8,%r14,4),%xmm2
+  DB  196,131,105,33,20,24,16             ; vinsertps     $0x10,(%r8,%r11,1),%xmm2,%xmm2
+  DB  196,129,122,16,28,160               ; vmovss        (%r8,%r12,4),%xmm3
+  DB  196,227,105,33,211,32               ; vinsertps     $0x20,%xmm3,%xmm2,%xmm2
+  DB  196,129,122,16,28,56                ; vmovss        (%r8,%r15,1),%xmm3
   DB  196,227,105,33,211,48               ; vinsertps     $0x30,%xmm3,%xmm2,%xmm2
   DB  196,227,109,24,201,1                ; vinsertf128   $0x1,%xmm1,%ymm2,%ymm1
-  DB  72,139,64,24                        ; mov           0x18(%rax),%rax
-  DB  196,193,49,108,210                  ; vpunpcklqdq   %xmm10,%xmm9,%xmm2
-  DB  196,193,105,105,216                 ; vpunpckhwd    %xmm8,%xmm2,%xmm3
-  DB  196,226,121,51,210                  ; vpmovzxwd     %xmm2,%xmm2
-  DB  196,227,109,24,211,1                ; vinsertf128   $0x1,%xmm3,%ymm2,%ymm2
-  DB  196,193,108,84,212                  ; vandps        %ymm12,%ymm2,%ymm2
-  DB  196,193,249,126,208                 ; vmovq         %xmm2,%r8
-  DB  69,137,194                          ; mov           %r8d,%r10d
-  DB  196,195,249,22,209,1                ; vpextrq       $0x1,%xmm2,%r9
-  DB  69,137,203                          ; mov           %r9d,%r11d
-  DB  73,193,233,32                       ; shr           $0x20,%r9
-  DB  73,193,232,32                       ; shr           $0x20,%r8
-  DB  196,227,125,25,210,1                ; vextractf128  $0x1,%ymm2,%xmm2
-  DB  196,225,249,126,213                 ; vmovq         %xmm2,%rbp
-  DB  65,137,238                          ; mov           %ebp,%r14d
-  DB  196,227,249,22,211,1                ; vpextrq       $0x1,%xmm2,%rbx
-  DB  65,137,223                          ; mov           %ebx,%r15d
-  DB  72,193,235,32                       ; shr           $0x20,%rbx
+  DB  76,139,80,24                        ; mov           0x18(%rax),%r10
+  DB  196,193,41,219,211                  ; vpand         %xmm11,%xmm10,%xmm2
+  DB  196,193,105,105,217                 ; vpunpckhwd    %xmm9,%xmm2,%xmm3
+  DB  196,227,249,22,221,1                ; vpextrq       $0x1,%xmm3,%rbp
+  DB  65,137,232                          ; mov           %ebp,%r8d
   DB  72,193,237,32                       ; shr           $0x20,%rbp
-  DB  196,161,122,16,20,176               ; vmovss        (%rax,%r14,4),%xmm2
-  DB  196,227,105,33,20,168,16            ; vinsertps     $0x10,(%rax,%rbp,4),%xmm2,%xmm2
-  DB  196,161,122,16,28,184               ; vmovss        (%rax,%r15,4),%xmm3
+  DB  196,225,249,126,219                 ; vmovq         %xmm3,%rbx
+  DB  65,137,217                          ; mov           %ebx,%r9d
+  DB  72,193,235,32                       ; shr           $0x20,%rbx
+  DB  196,226,121,51,210                  ; vpmovzxwd     %xmm2,%xmm2
+  DB  196,225,249,126,208                 ; vmovq         %xmm2,%rax
+  DB  65,137,195                          ; mov           %eax,%r11d
+  DB  72,193,232,30                       ; shr           $0x1e,%rax
+  DB  196,195,249,22,214,1                ; vpextrq       $0x1,%xmm2,%r14
+  DB  69,137,247                          ; mov           %r14d,%r15d
+  DB  73,193,238,30                       ; shr           $0x1e,%r14
+  DB  196,129,122,16,20,138               ; vmovss        (%r10,%r9,4),%xmm2
+  DB  196,195,105,33,20,154,16            ; vinsertps     $0x10,(%r10,%rbx,4),%xmm2,%xmm2
+  DB  196,129,122,16,28,130               ; vmovss        (%r10,%r8,4),%xmm3
   DB  196,227,105,33,211,32               ; vinsertps     $0x20,%xmm3,%xmm2,%xmm2
-  DB  197,250,16,28,152                   ; vmovss        (%rax,%rbx,4),%xmm3
-  DB  196,99,105,33,219,48                ; vinsertps     $0x30,%xmm3,%xmm2,%xmm11
-  DB  196,161,122,16,28,144               ; vmovss        (%rax,%r10,4),%xmm3
-  DB  196,163,97,33,28,128,16             ; vinsertps     $0x10,(%rax,%r8,4),%xmm3,%xmm3
-  DB  196,161,122,16,20,152               ; vmovss        (%rax,%r11,4),%xmm2
+  DB  196,193,122,16,28,170               ; vmovss        (%r10,%rbp,4),%xmm3
+  DB  196,99,105,33,211,48                ; vinsertps     $0x30,%xmm3,%xmm2,%xmm10
+  DB  196,129,122,16,28,154               ; vmovss        (%r10,%r11,4),%xmm3
+  DB  196,195,97,33,28,2,16               ; vinsertps     $0x10,(%r10,%rax,1),%xmm3,%xmm3
+  DB  196,129,122,16,20,186               ; vmovss        (%r10,%r15,4),%xmm2
   DB  196,227,97,33,210,32                ; vinsertps     $0x20,%xmm2,%xmm3,%xmm2
-  DB  196,161,122,16,28,136               ; vmovss        (%rax,%r9,4),%xmm3
+  DB  196,129,122,16,28,50                ; vmovss        (%r10,%r14,1),%xmm3
   DB  196,227,105,33,211,48               ; vinsertps     $0x30,%xmm3,%xmm2,%xmm2
-  DB  196,195,109,24,211,1                ; vinsertf128   $0x1,%xmm11,%ymm2,%ymm2
+  DB  196,195,109,24,210,1                ; vinsertf128   $0x1,%xmm10,%ymm2,%ymm2
   DB  184,128,0,128,55                    ; mov           $0x37800080,%eax
   DB  197,249,110,216                     ; vmovd         %eax,%xmm3
   DB  196,227,121,4,219,0                 ; vpermilps     $0x0,%xmm3,%xmm3
-  DB  196,99,101,24,219,1                 ; vinsertf128   $0x1,%xmm3,%ymm3,%ymm11
-  DB  196,193,49,109,218                  ; vpunpckhqdq   %xmm10,%xmm9,%xmm3
-  DB  197,177,113,243,8                   ; vpsllw        $0x8,%xmm3,%xmm9
+  DB  196,99,101,24,211,1                 ; vinsertf128   $0x1,%xmm3,%ymm3,%ymm10
+  DB  196,193,57,109,220                  ; vpunpckhqdq   %xmm12,%xmm8,%xmm3
+  DB  197,185,113,243,8                   ; vpsllw        $0x8,%xmm3,%xmm8
   DB  197,225,113,211,8                   ; vpsrlw        $0x8,%xmm3,%xmm3
-  DB  197,177,235,219                     ; vpor          %xmm3,%xmm9,%xmm3
-  DB  196,65,97,105,192                   ; vpunpckhwd    %xmm8,%xmm3,%xmm8
+  DB  197,185,235,219                     ; vpor          %xmm3,%xmm8,%xmm3
+  DB  196,65,97,105,193                   ; vpunpckhwd    %xmm9,%xmm3,%xmm8
   DB  196,226,121,51,219                  ; vpmovzxwd     %xmm3,%xmm3
   DB  196,195,101,24,216,1                ; vinsertf128   $0x1,%xmm8,%ymm3,%ymm3
   DB  197,252,91,219                      ; vcvtdq2ps     %ymm3,%ymm3
-  DB  196,193,100,89,219                  ; vmulps        %ymm11,%ymm3,%ymm3
+  DB  196,193,100,89,218                  ; vmulps        %ymm10,%ymm3,%ymm3
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  91                                  ; pop           %rbx
   DB  65,92                               ; pop           %r12
@@ -5991,29 +6185,29 @@ _sk_load_tables_u16_be_avx LABEL PROC
   DB  196,1,123,16,4,72                   ; vmovsd        (%r8,%r9,2),%xmm8
   DB  196,65,49,239,201                   ; vpxor         %xmm9,%xmm9,%xmm9
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  116,85                              ; je            1c65 <_sk_load_tables_u16_be_avx+0x321>
+  DB  116,85                              ; je            1c29 <_sk_load_tables_u16_be_avx+0x2f9>
   DB  196,1,57,22,68,72,8                 ; vmovhpd       0x8(%r8,%r9,2),%xmm8,%xmm8
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,72                              ; jb            1c65 <_sk_load_tables_u16_be_avx+0x321>
+  DB  114,72                              ; jb            1c29 <_sk_load_tables_u16_be_avx+0x2f9>
   DB  196,129,123,16,84,72,16             ; vmovsd        0x10(%r8,%r9,2),%xmm2
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  116,72                              ; je            1c72 <_sk_load_tables_u16_be_avx+0x32e>
+  DB  116,72                              ; je            1c36 <_sk_load_tables_u16_be_avx+0x306>
   DB  196,129,105,22,84,72,24             ; vmovhpd       0x18(%r8,%r9,2),%xmm2,%xmm2
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,59                              ; jb            1c72 <_sk_load_tables_u16_be_avx+0x32e>
+  DB  114,59                              ; jb            1c36 <_sk_load_tables_u16_be_avx+0x306>
   DB  196,129,123,16,92,72,32             ; vmovsd        0x20(%r8,%r9,2),%xmm3
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  15,132,45,253,255,255               ; je            1975 <_sk_load_tables_u16_be_avx+0x31>
+  DB  15,132,85,253,255,255               ; je            1961 <_sk_load_tables_u16_be_avx+0x31>
   DB  196,129,97,22,92,72,40              ; vmovhpd       0x28(%r8,%r9,2),%xmm3,%xmm3
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  15,130,28,253,255,255               ; jb            1975 <_sk_load_tables_u16_be_avx+0x31>
+  DB  15,130,68,253,255,255               ; jb            1961 <_sk_load_tables_u16_be_avx+0x31>
   DB  196,1,122,126,76,72,48              ; vmovq         0x30(%r8,%r9,2),%xmm9
-  DB  233,16,253,255,255                  ; jmpq          1975 <_sk_load_tables_u16_be_avx+0x31>
+  DB  233,56,253,255,255                  ; jmpq          1961 <_sk_load_tables_u16_be_avx+0x31>
   DB  197,225,87,219                      ; vxorpd        %xmm3,%xmm3,%xmm3
   DB  197,233,87,210                      ; vxorpd        %xmm2,%xmm2,%xmm2
-  DB  233,3,253,255,255                   ; jmpq          1975 <_sk_load_tables_u16_be_avx+0x31>
+  DB  233,43,253,255,255                  ; jmpq          1961 <_sk_load_tables_u16_be_avx+0x31>
   DB  197,225,87,219                      ; vxorpd        %xmm3,%xmm3,%xmm3
-  DB  233,250,252,255,255                 ; jmpq          1975 <_sk_load_tables_u16_be_avx+0x31>
+  DB  233,34,253,255,255                  ; jmpq          1961 <_sk_load_tables_u16_be_avx+0x31>
 
 PUBLIC _sk_load_tables_rgb_u16_be_avx
 _sk_load_tables_rgb_u16_be_avx LABEL PROC
@@ -6021,7 +6215,7 @@ _sk_load_tables_rgb_u16_be_avx LABEL PROC
   DB  76,139,0                            ; mov           (%rax),%r8
   DB  76,141,12,127                       ; lea           (%rdi,%rdi,2),%r9
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,146,2,0,0                    ; jne           1f1f <_sk_load_tables_rgb_u16_be_avx+0x2a4>
+  DB  15,133,105,2,0,0                    ; jne           1eba <_sk_load_tables_rgb_u16_be_avx+0x27b>
   DB  196,129,122,111,4,72                ; vmovdqu       (%r8,%r9,2),%xmm0
   DB  196,129,122,111,84,72,12            ; vmovdqu       0xc(%r8,%r9,2),%xmm2
   DB  196,129,122,111,76,72,24            ; vmovdqu       0x18(%r8,%r9,2),%xmm1
@@ -6041,109 +6235,102 @@ _sk_load_tables_rgb_u16_be_avx LABEL PROC
   DB  196,193,57,97,209                   ; vpunpcklwd    %xmm9,%xmm8,%xmm2
   DB  197,241,97,203                      ; vpunpcklwd    %xmm3,%xmm1,%xmm1
   DB  196,193,33,97,218                   ; vpunpcklwd    %xmm10,%xmm11,%xmm3
-  DB  197,121,97,218                      ; vpunpcklwd    %xmm2,%xmm0,%xmm11
-  DB  197,121,105,194                     ; vpunpckhwd    %xmm2,%xmm0,%xmm8
+  DB  197,121,97,194                      ; vpunpcklwd    %xmm2,%xmm0,%xmm8
+  DB  197,249,105,194                     ; vpunpckhwd    %xmm2,%xmm0,%xmm0
   DB  197,241,97,211                      ; vpunpcklwd    %xmm3,%xmm1,%xmm2
-  DB  197,113,105,211                     ; vpunpckhwd    %xmm3,%xmm1,%xmm10
-  DB  197,161,108,194                     ; vpunpcklqdq   %xmm2,%xmm11,%xmm0
-  DB  196,65,25,239,228                   ; vpxor         %xmm12,%xmm12,%xmm12
-  DB  196,193,121,105,204                 ; vpunpckhwd    %xmm12,%xmm0,%xmm1
-  DB  196,226,121,51,192                  ; vpmovzxwd     %xmm0,%xmm0
-  DB  196,227,125,24,193,1                ; vinsertf128   $0x1,%xmm1,%ymm0,%ymm0
-  DB  187,255,0,0,0                       ; mov           $0xff,%ebx
-  DB  197,249,110,203                     ; vmovd         %ebx,%xmm1
-  DB  197,249,112,201,0                   ; vpshufd       $0x0,%xmm1,%xmm1
-  DB  196,99,117,24,201,1                 ; vinsertf128   $0x1,%xmm1,%ymm1,%ymm9
-  DB  196,193,124,84,193                  ; vandps        %ymm9,%ymm0,%ymm0
-  DB  196,193,249,126,193                 ; vmovq         %xmm0,%r9
-  DB  69,137,203                          ; mov           %r9d,%r11d
-  DB  196,195,249,22,194,1                ; vpextrq       $0x1,%xmm0,%r10
-  DB  69,137,214                          ; mov           %r10d,%r14d
+  DB  197,241,105,219                     ; vpunpckhwd    %xmm3,%xmm1,%xmm3
+  DB  197,185,108,202                     ; vpunpcklqdq   %xmm2,%xmm8,%xmm1
+  DB  197,185,109,210                     ; vpunpckhqdq   %xmm2,%xmm8,%xmm2
+  DB  197,121,108,195                     ; vpunpcklqdq   %xmm3,%xmm0,%xmm8
+  DB  197,121,111,13,75,65,0,0            ; vmovdqa       0x414b(%rip),%xmm9        # 5e10 <_sk_callback_avx+0x2a2>
+  DB  196,193,113,219,193                 ; vpand         %xmm9,%xmm1,%xmm0
+  DB  196,65,41,239,210                   ; vpxor         %xmm10,%xmm10,%xmm10
+  DB  196,193,121,105,202                 ; vpunpckhwd    %xmm10,%xmm0,%xmm1
+  DB  196,195,249,22,200,1                ; vpextrq       $0x1,%xmm1,%r8
+  DB  69,137,193                          ; mov           %r8d,%r9d
+  DB  77,137,194                          ; mov           %r8,%r10
   DB  73,193,234,32                       ; shr           $0x20,%r10
-  DB  73,193,233,32                       ; shr           $0x20,%r9
-  DB  196,227,125,25,192,1                ; vextractf128  $0x1,%ymm0,%xmm0
-  DB  196,193,249,126,196                 ; vmovq         %xmm0,%r12
-  DB  69,137,231                          ; mov           %r12d,%r15d
-  DB  196,227,249,22,195,1                ; vpextrq       $0x1,%xmm0,%rbx
-  DB  65,137,221                          ; mov           %ebx,%r13d
-  DB  72,193,235,32                       ; shr           $0x20,%rbx
-  DB  73,193,236,32                       ; shr           $0x20,%r12
+  DB  196,193,249,126,200                 ; vmovq         %xmm1,%r8
+  DB  69,137,195                          ; mov           %r8d,%r11d
+  DB  77,137,198                          ; mov           %r8,%r14
+  DB  73,193,238,32                       ; shr           $0x20,%r14
+  DB  196,226,121,51,192                  ; vpmovzxwd     %xmm0,%xmm0
+  DB  196,225,249,126,195                 ; vmovq         %xmm0,%rbx
+  DB  65,137,223                          ; mov           %ebx,%r15d
+  DB  72,193,235,30                       ; shr           $0x1e,%rbx
+  DB  196,195,249,22,196,1                ; vpextrq       $0x1,%xmm0,%r12
+  DB  69,137,229                          ; mov           %r12d,%r13d
+  DB  73,193,236,30                       ; shr           $0x1e,%r12
   DB  72,139,104,8                        ; mov           0x8(%rax),%rbp
   DB  76,139,64,16                        ; mov           0x10(%rax),%r8
-  DB  196,161,122,16,68,189,0             ; vmovss        0x0(%rbp,%r15,4),%xmm0
-  DB  196,163,121,33,68,165,0,16          ; vinsertps     $0x10,0x0(%rbp,%r12,4),%xmm0,%xmm0
-  DB  196,161,122,16,76,173,0             ; vmovss        0x0(%rbp,%r13,4),%xmm1
+  DB  196,161,122,16,68,157,0             ; vmovss        0x0(%rbp,%r11,4),%xmm0
+  DB  196,163,121,33,68,181,0,16          ; vinsertps     $0x10,0x0(%rbp,%r14,4),%xmm0,%xmm0
+  DB  196,161,122,16,76,141,0             ; vmovss        0x0(%rbp,%r9,4),%xmm1
   DB  196,227,121,33,193,32               ; vinsertps     $0x20,%xmm1,%xmm0,%xmm0
-  DB  197,250,16,76,157,0                 ; vmovss        0x0(%rbp,%rbx,4),%xmm1
+  DB  196,161,122,16,76,149,0             ; vmovss        0x0(%rbp,%r10,4),%xmm1
   DB  196,227,121,33,193,48               ; vinsertps     $0x30,%xmm1,%xmm0,%xmm0
-  DB  196,161,122,16,76,157,0             ; vmovss        0x0(%rbp,%r11,4),%xmm1
-  DB  196,163,113,33,76,141,0,16          ; vinsertps     $0x10,0x0(%rbp,%r9,4),%xmm1,%xmm1
-  DB  196,161,122,16,92,181,0             ; vmovss        0x0(%rbp,%r14,4),%xmm3
+  DB  196,161,122,16,76,189,0             ; vmovss        0x0(%rbp,%r15,4),%xmm1
+  DB  196,227,113,33,76,29,0,16           ; vinsertps     $0x10,0x0(%rbp,%rbx,1),%xmm1,%xmm1
+  DB  196,161,122,16,92,173,0             ; vmovss        0x0(%rbp,%r13,4),%xmm3
   DB  196,227,113,33,203,32               ; vinsertps     $0x20,%xmm3,%xmm1,%xmm1
-  DB  196,161,122,16,92,149,0             ; vmovss        0x0(%rbp,%r10,4),%xmm3
+  DB  196,161,122,16,92,37,0              ; vmovss        0x0(%rbp,%r12,1),%xmm3
   DB  196,227,113,33,203,48               ; vinsertps     $0x30,%xmm3,%xmm1,%xmm1
   DB  196,227,117,24,192,1                ; vinsertf128   $0x1,%xmm0,%ymm1,%ymm0
-  DB  197,161,109,202                     ; vpunpckhqdq   %xmm2,%xmm11,%xmm1
-  DB  196,193,113,105,212                 ; vpunpckhwd    %xmm12,%xmm1,%xmm2
-  DB  196,226,121,51,201                  ; vpmovzxwd     %xmm1,%xmm1
-  DB  196,227,117,24,202,1                ; vinsertf128   $0x1,%xmm2,%ymm1,%ymm1
-  DB  196,193,116,84,201                  ; vandps        %ymm9,%ymm1,%ymm1
-  DB  196,193,249,126,201                 ; vmovq         %xmm1,%r9
-  DB  69,137,203                          ; mov           %r9d,%r11d
-  DB  196,195,249,22,202,1                ; vpextrq       $0x1,%xmm1,%r10
-  DB  69,137,214                          ; mov           %r10d,%r14d
-  DB  73,193,234,32                       ; shr           $0x20,%r10
-  DB  73,193,233,32                       ; shr           $0x20,%r9
-  DB  196,227,125,25,201,1                ; vextractf128  $0x1,%ymm1,%xmm1
-  DB  196,225,249,126,205                 ; vmovq         %xmm1,%rbp
-  DB  65,137,239                          ; mov           %ebp,%r15d
-  DB  196,227,249,22,203,1                ; vpextrq       $0x1,%xmm1,%rbx
-  DB  65,137,220                          ; mov           %ebx,%r12d
-  DB  72,193,235,32                       ; shr           $0x20,%rbx
+  DB  196,193,105,219,201                 ; vpand         %xmm9,%xmm2,%xmm1
+  DB  196,193,113,105,210                 ; vpunpckhwd    %xmm10,%xmm1,%xmm2
+  DB  196,227,249,22,213,1                ; vpextrq       $0x1,%xmm2,%rbp
+  DB  65,137,233                          ; mov           %ebp,%r9d
   DB  72,193,237,32                       ; shr           $0x20,%rbp
-  DB  196,129,122,16,12,184               ; vmovss        (%r8,%r15,4),%xmm1
-  DB  196,195,113,33,12,168,16            ; vinsertps     $0x10,(%r8,%rbp,4),%xmm1,%xmm1
-  DB  196,129,122,16,20,160               ; vmovss        (%r8,%r12,4),%xmm2
+  DB  196,225,249,126,211                 ; vmovq         %xmm2,%rbx
+  DB  65,137,218                          ; mov           %ebx,%r10d
+  DB  72,193,235,32                       ; shr           $0x20,%rbx
+  DB  196,226,121,51,201                  ; vpmovzxwd     %xmm1,%xmm1
+  DB  196,193,249,126,203                 ; vmovq         %xmm1,%r11
+  DB  69,137,222                          ; mov           %r11d,%r14d
+  DB  73,193,235,30                       ; shr           $0x1e,%r11
+  DB  196,195,249,22,207,1                ; vpextrq       $0x1,%xmm1,%r15
+  DB  69,137,252                          ; mov           %r15d,%r12d
+  DB  73,193,239,30                       ; shr           $0x1e,%r15
+  DB  196,129,122,16,12,144               ; vmovss        (%r8,%r10,4),%xmm1
+  DB  196,195,113,33,12,152,16            ; vinsertps     $0x10,(%r8,%rbx,4),%xmm1,%xmm1
+  DB  196,129,122,16,20,136               ; vmovss        (%r8,%r9,4),%xmm2
   DB  196,227,113,33,202,32               ; vinsertps     $0x20,%xmm2,%xmm1,%xmm1
-  DB  196,193,122,16,20,152               ; vmovss        (%r8,%rbx,4),%xmm2
+  DB  196,193,122,16,20,168               ; vmovss        (%r8,%rbp,4),%xmm2
   DB  196,227,113,33,202,48               ; vinsertps     $0x30,%xmm2,%xmm1,%xmm1
-  DB  196,129,122,16,20,152               ; vmovss        (%r8,%r11,4),%xmm2
-  DB  196,131,105,33,20,136,16            ; vinsertps     $0x10,(%r8,%r9,4),%xmm2,%xmm2
-  DB  196,129,122,16,28,176               ; vmovss        (%r8,%r14,4),%xmm3
+  DB  196,129,122,16,20,176               ; vmovss        (%r8,%r14,4),%xmm2
+  DB  196,131,105,33,20,24,16             ; vinsertps     $0x10,(%r8,%r11,1),%xmm2,%xmm2
+  DB  196,129,122,16,28,160               ; vmovss        (%r8,%r12,4),%xmm3
   DB  196,227,105,33,211,32               ; vinsertps     $0x20,%xmm3,%xmm2,%xmm2
-  DB  196,129,122,16,28,144               ; vmovss        (%r8,%r10,4),%xmm3
+  DB  196,129,122,16,28,56                ; vmovss        (%r8,%r15,1),%xmm3
   DB  196,227,105,33,211,48               ; vinsertps     $0x30,%xmm3,%xmm2,%xmm2
   DB  196,227,109,24,201,1                ; vinsertf128   $0x1,%xmm1,%ymm2,%ymm1
-  DB  72,139,64,24                        ; mov           0x18(%rax),%rax
-  DB  196,193,57,108,210                  ; vpunpcklqdq   %xmm10,%xmm8,%xmm2
-  DB  196,193,105,105,220                 ; vpunpckhwd    %xmm12,%xmm2,%xmm3
-  DB  196,226,121,51,210                  ; vpmovzxwd     %xmm2,%xmm2
-  DB  196,227,109,24,211,1                ; vinsertf128   $0x1,%xmm3,%ymm2,%ymm2
-  DB  196,193,108,84,209                  ; vandps        %ymm9,%ymm2,%ymm2
-  DB  196,193,249,126,208                 ; vmovq         %xmm2,%r8
-  DB  69,137,194                          ; mov           %r8d,%r10d
-  DB  196,195,249,22,209,1                ; vpextrq       $0x1,%xmm2,%r9
-  DB  69,137,203                          ; mov           %r9d,%r11d
-  DB  73,193,233,32                       ; shr           $0x20,%r9
-  DB  73,193,232,32                       ; shr           $0x20,%r8
-  DB  196,227,125,25,210,1                ; vextractf128  $0x1,%ymm2,%xmm2
-  DB  196,225,249,126,213                 ; vmovq         %xmm2,%rbp
-  DB  65,137,238                          ; mov           %ebp,%r14d
-  DB  196,227,249,22,211,1                ; vpextrq       $0x1,%xmm2,%rbx
-  DB  65,137,223                          ; mov           %ebx,%r15d
-  DB  72,193,235,32                       ; shr           $0x20,%rbx
+  DB  76,139,80,24                        ; mov           0x18(%rax),%r10
+  DB  196,193,57,219,209                  ; vpand         %xmm9,%xmm8,%xmm2
+  DB  196,193,105,105,218                 ; vpunpckhwd    %xmm10,%xmm2,%xmm3
+  DB  196,227,249,22,221,1                ; vpextrq       $0x1,%xmm3,%rbp
+  DB  65,137,232                          ; mov           %ebp,%r8d
   DB  72,193,237,32                       ; shr           $0x20,%rbp
-  DB  196,161,122,16,20,176               ; vmovss        (%rax,%r14,4),%xmm2
-  DB  196,227,105,33,20,168,16            ; vinsertps     $0x10,(%rax,%rbp,4),%xmm2,%xmm2
-  DB  196,161,122,16,28,184               ; vmovss        (%rax,%r15,4),%xmm3
+  DB  196,225,249,126,219                 ; vmovq         %xmm3,%rbx
+  DB  65,137,217                          ; mov           %ebx,%r9d
+  DB  72,193,235,32                       ; shr           $0x20,%rbx
+  DB  196,226,121,51,210                  ; vpmovzxwd     %xmm2,%xmm2
+  DB  196,225,249,126,208                 ; vmovq         %xmm2,%rax
+  DB  65,137,195                          ; mov           %eax,%r11d
+  DB  72,193,232,30                       ; shr           $0x1e,%rax
+  DB  196,195,249,22,214,1                ; vpextrq       $0x1,%xmm2,%r14
+  DB  69,137,247                          ; mov           %r14d,%r15d
+  DB  73,193,238,30                       ; shr           $0x1e,%r14
+  DB  196,129,122,16,20,138               ; vmovss        (%r10,%r9,4),%xmm2
+  DB  196,195,105,33,20,154,16            ; vinsertps     $0x10,(%r10,%rbx,4),%xmm2,%xmm2
+  DB  196,129,122,16,28,130               ; vmovss        (%r10,%r8,4),%xmm3
   DB  196,227,105,33,211,32               ; vinsertps     $0x20,%xmm3,%xmm2,%xmm2
-  DB  197,250,16,28,152                   ; vmovss        (%rax,%rbx,4),%xmm3
+  DB  196,193,122,16,28,170               ; vmovss        (%r10,%rbp,4),%xmm3
   DB  196,99,105,33,195,48                ; vinsertps     $0x30,%xmm3,%xmm2,%xmm8
-  DB  196,161,122,16,28,144               ; vmovss        (%rax,%r10,4),%xmm3
-  DB  196,163,97,33,28,128,16             ; vinsertps     $0x10,(%rax,%r8,4),%xmm3,%xmm3
-  DB  196,161,122,16,20,152               ; vmovss        (%rax,%r11,4),%xmm2
+  DB  196,129,122,16,28,154               ; vmovss        (%r10,%r11,4),%xmm3
+  DB  196,195,97,33,28,2,16               ; vinsertps     $0x10,(%r10,%rax,1),%xmm3,%xmm3
+  DB  196,129,122,16,20,186               ; vmovss        (%r10,%r15,4),%xmm2
   DB  196,227,97,33,210,32                ; vinsertps     $0x20,%xmm2,%xmm3,%xmm2
-  DB  196,161,122,16,28,136               ; vmovss        (%rax,%r9,4),%xmm3
+  DB  196,129,122,16,28,50                ; vmovss        (%r10,%r14,1),%xmm3
   DB  196,227,105,33,211,48               ; vinsertps     $0x30,%xmm3,%xmm2,%xmm2
   DB  196,195,109,24,208,1                ; vinsertf128   $0x1,%xmm8,%ymm2,%ymm2
   DB  184,0,0,128,63                      ; mov           $0x3f800000,%eax
@@ -6161,36 +6348,36 @@ _sk_load_tables_rgb_u16_be_avx LABEL PROC
   DB  196,129,121,110,4,72                ; vmovd         (%r8,%r9,2),%xmm0
   DB  196,129,121,196,68,72,4,2           ; vpinsrw       $0x2,0x4(%r8,%r9,2),%xmm0,%xmm0
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  117,5                               ; jne           1f38 <_sk_load_tables_rgb_u16_be_avx+0x2bd>
-  DB  233,137,253,255,255                 ; jmpq          1cc1 <_sk_load_tables_rgb_u16_be_avx+0x46>
+  DB  117,5                               ; jne           1ed3 <_sk_load_tables_rgb_u16_be_avx+0x294>
+  DB  233,178,253,255,255                 ; jmpq          1c85 <_sk_load_tables_rgb_u16_be_avx+0x46>
   DB  196,129,121,110,76,72,6             ; vmovd         0x6(%r8,%r9,2),%xmm1
   DB  196,1,113,196,68,72,10,2            ; vpinsrw       $0x2,0xa(%r8,%r9,2),%xmm1,%xmm8
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,26                              ; jb            1f67 <_sk_load_tables_rgb_u16_be_avx+0x2ec>
+  DB  114,26                              ; jb            1f02 <_sk_load_tables_rgb_u16_be_avx+0x2c3>
   DB  196,129,121,110,76,72,12            ; vmovd         0xc(%r8,%r9,2),%xmm1
   DB  196,129,113,196,84,72,16,2          ; vpinsrw       $0x2,0x10(%r8,%r9,2),%xmm1,%xmm2
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  117,10                              ; jne           1f6c <_sk_load_tables_rgb_u16_be_avx+0x2f1>
-  DB  233,90,253,255,255                  ; jmpq          1cc1 <_sk_load_tables_rgb_u16_be_avx+0x46>
-  DB  233,85,253,255,255                  ; jmpq          1cc1 <_sk_load_tables_rgb_u16_be_avx+0x46>
+  DB  117,10                              ; jne           1f07 <_sk_load_tables_rgb_u16_be_avx+0x2c8>
+  DB  233,131,253,255,255                 ; jmpq          1c85 <_sk_load_tables_rgb_u16_be_avx+0x46>
+  DB  233,126,253,255,255                 ; jmpq          1c85 <_sk_load_tables_rgb_u16_be_avx+0x46>
   DB  196,129,121,110,76,72,18            ; vmovd         0x12(%r8,%r9,2),%xmm1
   DB  196,1,113,196,76,72,22,2            ; vpinsrw       $0x2,0x16(%r8,%r9,2),%xmm1,%xmm9
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,26                              ; jb            1f9b <_sk_load_tables_rgb_u16_be_avx+0x320>
+  DB  114,26                              ; jb            1f36 <_sk_load_tables_rgb_u16_be_avx+0x2f7>
   DB  196,129,121,110,76,72,24            ; vmovd         0x18(%r8,%r9,2),%xmm1
   DB  196,129,113,196,76,72,28,2          ; vpinsrw       $0x2,0x1c(%r8,%r9,2),%xmm1,%xmm1
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  117,10                              ; jne           1fa0 <_sk_load_tables_rgb_u16_be_avx+0x325>
-  DB  233,38,253,255,255                  ; jmpq          1cc1 <_sk_load_tables_rgb_u16_be_avx+0x46>
-  DB  233,33,253,255,255                  ; jmpq          1cc1 <_sk_load_tables_rgb_u16_be_avx+0x46>
+  DB  117,10                              ; jne           1f3b <_sk_load_tables_rgb_u16_be_avx+0x2fc>
+  DB  233,79,253,255,255                  ; jmpq          1c85 <_sk_load_tables_rgb_u16_be_avx+0x46>
+  DB  233,74,253,255,255                  ; jmpq          1c85 <_sk_load_tables_rgb_u16_be_avx+0x46>
   DB  196,129,121,110,92,72,30            ; vmovd         0x1e(%r8,%r9,2),%xmm3
   DB  196,1,97,196,92,72,34,2             ; vpinsrw       $0x2,0x22(%r8,%r9,2),%xmm3,%xmm11
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  114,20                              ; jb            1fc9 <_sk_load_tables_rgb_u16_be_avx+0x34e>
+  DB  114,20                              ; jb            1f64 <_sk_load_tables_rgb_u16_be_avx+0x325>
   DB  196,129,121,110,92,72,36            ; vmovd         0x24(%r8,%r9,2),%xmm3
   DB  196,129,97,196,92,72,40,2           ; vpinsrw       $0x2,0x28(%r8,%r9,2),%xmm3,%xmm3
-  DB  233,248,252,255,255                 ; jmpq          1cc1 <_sk_load_tables_rgb_u16_be_avx+0x46>
-  DB  233,243,252,255,255                 ; jmpq          1cc1 <_sk_load_tables_rgb_u16_be_avx+0x46>
+  DB  233,33,253,255,255                  ; jmpq          1c85 <_sk_load_tables_rgb_u16_be_avx+0x46>
+  DB  233,28,253,255,255                  ; jmpq          1c85 <_sk_load_tables_rgb_u16_be_avx+0x46>
 
 PUBLIC _sk_byte_tables_avx
 _sk_byte_tables_avx LABEL PROC
@@ -6694,36 +6881,36 @@ _sk_parametric_r_avx LABEL PROC
   DB  196,193,124,88,195                  ; vaddps        %ymm11,%ymm0,%ymm0
   DB  196,98,125,24,16                    ; vbroadcastss  (%rax),%ymm10
   DB  197,124,91,216                      ; vcvtdq2ps     %ymm0,%ymm11
-  DB  196,98,125,24,37,210,52,0,0         ; vbroadcastss  0x34d2(%rip),%ymm12        # 5d0c <_sk_callback_avx+0x122>
+  DB  196,98,125,24,37,187,52,0,0         ; vbroadcastss  0x34bb(%rip),%ymm12        # 5c90 <_sk_callback_avx+0x122>
   DB  196,65,36,89,220                    ; vmulps        %ymm12,%ymm11,%ymm11
-  DB  196,98,125,24,37,200,52,0,0         ; vbroadcastss  0x34c8(%rip),%ymm12        # 5d10 <_sk_callback_avx+0x126>
+  DB  196,98,125,24,37,177,52,0,0         ; vbroadcastss  0x34b1(%rip),%ymm12        # 5c94 <_sk_callback_avx+0x126>
   DB  196,193,124,84,196                  ; vandps        %ymm12,%ymm0,%ymm0
-  DB  196,98,125,24,37,190,52,0,0         ; vbroadcastss  0x34be(%rip),%ymm12        # 5d14 <_sk_callback_avx+0x12a>
+  DB  196,98,125,24,37,167,52,0,0         ; vbroadcastss  0x34a7(%rip),%ymm12        # 5c98 <_sk_callback_avx+0x12a>
   DB  196,193,124,86,196                  ; vorps         %ymm12,%ymm0,%ymm0
-  DB  196,98,125,24,37,180,52,0,0         ; vbroadcastss  0x34b4(%rip),%ymm12        # 5d18 <_sk_callback_avx+0x12e>
+  DB  196,98,125,24,37,157,52,0,0         ; vbroadcastss  0x349d(%rip),%ymm12        # 5c9c <_sk_callback_avx+0x12e>
   DB  196,65,36,88,220                    ; vaddps        %ymm12,%ymm11,%ymm11
-  DB  196,98,125,24,37,170,52,0,0         ; vbroadcastss  0x34aa(%rip),%ymm12        # 5d1c <_sk_callback_avx+0x132>
+  DB  196,98,125,24,37,147,52,0,0         ; vbroadcastss  0x3493(%rip),%ymm12        # 5ca0 <_sk_callback_avx+0x132>
   DB  196,65,124,89,228                   ; vmulps        %ymm12,%ymm0,%ymm12
   DB  196,65,36,92,220                    ; vsubps        %ymm12,%ymm11,%ymm11
-  DB  196,98,125,24,37,155,52,0,0         ; vbroadcastss  0x349b(%rip),%ymm12        # 5d20 <_sk_callback_avx+0x136>
+  DB  196,98,125,24,37,132,52,0,0         ; vbroadcastss  0x3484(%rip),%ymm12        # 5ca4 <_sk_callback_avx+0x136>
   DB  196,193,124,88,196                  ; vaddps        %ymm12,%ymm0,%ymm0
-  DB  196,98,125,24,37,145,52,0,0         ; vbroadcastss  0x3491(%rip),%ymm12        # 5d24 <_sk_callback_avx+0x13a>
+  DB  196,98,125,24,37,122,52,0,0         ; vbroadcastss  0x347a(%rip),%ymm12        # 5ca8 <_sk_callback_avx+0x13a>
   DB  197,156,94,192                      ; vdivps        %ymm0,%ymm12,%ymm0
   DB  197,164,92,192                      ; vsubps        %ymm0,%ymm11,%ymm0
   DB  197,172,89,192                      ; vmulps        %ymm0,%ymm10,%ymm0
   DB  196,99,125,8,208,1                  ; vroundps      $0x1,%ymm0,%ymm10
   DB  196,65,124,92,210                   ; vsubps        %ymm10,%ymm0,%ymm10
-  DB  196,98,125,24,29,117,52,0,0         ; vbroadcastss  0x3475(%rip),%ymm11        # 5d28 <_sk_callback_avx+0x13e>
+  DB  196,98,125,24,29,94,52,0,0          ; vbroadcastss  0x345e(%rip),%ymm11        # 5cac <_sk_callback_avx+0x13e>
   DB  196,193,124,88,195                  ; vaddps        %ymm11,%ymm0,%ymm0
-  DB  196,98,125,24,29,107,52,0,0         ; vbroadcastss  0x346b(%rip),%ymm11        # 5d2c <_sk_callback_avx+0x142>
+  DB  196,98,125,24,29,84,52,0,0          ; vbroadcastss  0x3454(%rip),%ymm11        # 5cb0 <_sk_callback_avx+0x142>
   DB  196,65,44,89,219                    ; vmulps        %ymm11,%ymm10,%ymm11
   DB  196,193,124,92,195                  ; vsubps        %ymm11,%ymm0,%ymm0
-  DB  196,98,125,24,29,92,52,0,0          ; vbroadcastss  0x345c(%rip),%ymm11        # 5d30 <_sk_callback_avx+0x146>
+  DB  196,98,125,24,29,69,52,0,0          ; vbroadcastss  0x3445(%rip),%ymm11        # 5cb4 <_sk_callback_avx+0x146>
   DB  196,65,36,92,210                    ; vsubps        %ymm10,%ymm11,%ymm10
-  DB  196,98,125,24,29,82,52,0,0          ; vbroadcastss  0x3452(%rip),%ymm11        # 5d34 <_sk_callback_avx+0x14a>
+  DB  196,98,125,24,29,59,52,0,0          ; vbroadcastss  0x343b(%rip),%ymm11        # 5cb8 <_sk_callback_avx+0x14a>
   DB  196,65,36,94,210                    ; vdivps        %ymm10,%ymm11,%ymm10
   DB  196,193,124,88,194                  ; vaddps        %ymm10,%ymm0,%ymm0
-  DB  196,98,125,24,21,67,52,0,0          ; vbroadcastss  0x3443(%rip),%ymm10        # 5d38 <_sk_callback_avx+0x14e>
+  DB  196,98,125,24,21,44,52,0,0          ; vbroadcastss  0x342c(%rip),%ymm10        # 5cbc <_sk_callback_avx+0x14e>
   DB  196,193,124,89,194                  ; vmulps        %ymm10,%ymm0,%ymm0
   DB  197,253,91,192                      ; vcvtps2dq     %ymm0,%ymm0
   DB  196,98,125,24,80,20                 ; vbroadcastss  0x14(%rax),%ymm10
@@ -6754,36 +6941,36 @@ _sk_parametric_g_avx LABEL PROC
   DB  196,193,116,88,203                  ; vaddps        %ymm11,%ymm1,%ymm1
   DB  196,98,125,24,16                    ; vbroadcastss  (%rax),%ymm10
   DB  197,124,91,217                      ; vcvtdq2ps     %ymm1,%ymm11
-  DB  196,98,125,24,37,188,51,0,0         ; vbroadcastss  0x33bc(%rip),%ymm12        # 5d3c <_sk_callback_avx+0x152>
+  DB  196,98,125,24,37,165,51,0,0         ; vbroadcastss  0x33a5(%rip),%ymm12        # 5cc0 <_sk_callback_avx+0x152>
   DB  196,65,36,89,220                    ; vmulps        %ymm12,%ymm11,%ymm11
-  DB  196,98,125,24,37,178,51,0,0         ; vbroadcastss  0x33b2(%rip),%ymm12        # 5d40 <_sk_callback_avx+0x156>
+  DB  196,98,125,24,37,155,51,0,0         ; vbroadcastss  0x339b(%rip),%ymm12        # 5cc4 <_sk_callback_avx+0x156>
   DB  196,193,116,84,204                  ; vandps        %ymm12,%ymm1,%ymm1
-  DB  196,98,125,24,37,168,51,0,0         ; vbroadcastss  0x33a8(%rip),%ymm12        # 5d44 <_sk_callback_avx+0x15a>
+  DB  196,98,125,24,37,145,51,0,0         ; vbroadcastss  0x3391(%rip),%ymm12        # 5cc8 <_sk_callback_avx+0x15a>
   DB  196,193,116,86,204                  ; vorps         %ymm12,%ymm1,%ymm1
-  DB  196,98,125,24,37,158,51,0,0         ; vbroadcastss  0x339e(%rip),%ymm12        # 5d48 <_sk_callback_avx+0x15e>
+  DB  196,98,125,24,37,135,51,0,0         ; vbroadcastss  0x3387(%rip),%ymm12        # 5ccc <_sk_callback_avx+0x15e>
   DB  196,65,36,88,220                    ; vaddps        %ymm12,%ymm11,%ymm11
-  DB  196,98,125,24,37,148,51,0,0         ; vbroadcastss  0x3394(%rip),%ymm12        # 5d4c <_sk_callback_avx+0x162>
+  DB  196,98,125,24,37,125,51,0,0         ; vbroadcastss  0x337d(%rip),%ymm12        # 5cd0 <_sk_callback_avx+0x162>
   DB  196,65,116,89,228                   ; vmulps        %ymm12,%ymm1,%ymm12
   DB  196,65,36,92,220                    ; vsubps        %ymm12,%ymm11,%ymm11
-  DB  196,98,125,24,37,133,51,0,0         ; vbroadcastss  0x3385(%rip),%ymm12        # 5d50 <_sk_callback_avx+0x166>
+  DB  196,98,125,24,37,110,51,0,0         ; vbroadcastss  0x336e(%rip),%ymm12        # 5cd4 <_sk_callback_avx+0x166>
   DB  196,193,116,88,204                  ; vaddps        %ymm12,%ymm1,%ymm1
-  DB  196,98,125,24,37,123,51,0,0         ; vbroadcastss  0x337b(%rip),%ymm12        # 5d54 <_sk_callback_avx+0x16a>
+  DB  196,98,125,24,37,100,51,0,0         ; vbroadcastss  0x3364(%rip),%ymm12        # 5cd8 <_sk_callback_avx+0x16a>
   DB  197,156,94,201                      ; vdivps        %ymm1,%ymm12,%ymm1
   DB  197,164,92,201                      ; vsubps        %ymm1,%ymm11,%ymm1
   DB  197,172,89,201                      ; vmulps        %ymm1,%ymm10,%ymm1
   DB  196,99,125,8,209,1                  ; vroundps      $0x1,%ymm1,%ymm10
   DB  196,65,116,92,210                   ; vsubps        %ymm10,%ymm1,%ymm10
-  DB  196,98,125,24,29,95,51,0,0          ; vbroadcastss  0x335f(%rip),%ymm11        # 5d58 <_sk_callback_avx+0x16e>
+  DB  196,98,125,24,29,72,51,0,0          ; vbroadcastss  0x3348(%rip),%ymm11        # 5cdc <_sk_callback_avx+0x16e>
   DB  196,193,116,88,203                  ; vaddps        %ymm11,%ymm1,%ymm1
-  DB  196,98,125,24,29,85,51,0,0          ; vbroadcastss  0x3355(%rip),%ymm11        # 5d5c <_sk_callback_avx+0x172>
+  DB  196,98,125,24,29,62,51,0,0          ; vbroadcastss  0x333e(%rip),%ymm11        # 5ce0 <_sk_callback_avx+0x172>
   DB  196,65,44,89,219                    ; vmulps        %ymm11,%ymm10,%ymm11
   DB  196,193,116,92,203                  ; vsubps        %ymm11,%ymm1,%ymm1
-  DB  196,98,125,24,29,70,51,0,0          ; vbroadcastss  0x3346(%rip),%ymm11        # 5d60 <_sk_callback_avx+0x176>
+  DB  196,98,125,24,29,47,51,0,0          ; vbroadcastss  0x332f(%rip),%ymm11        # 5ce4 <_sk_callback_avx+0x176>
   DB  196,65,36,92,210                    ; vsubps        %ymm10,%ymm11,%ymm10
-  DB  196,98,125,24,29,60,51,0,0          ; vbroadcastss  0x333c(%rip),%ymm11        # 5d64 <_sk_callback_avx+0x17a>
+  DB  196,98,125,24,29,37,51,0,0          ; vbroadcastss  0x3325(%rip),%ymm11        # 5ce8 <_sk_callback_avx+0x17a>
   DB  196,65,36,94,210                    ; vdivps        %ymm10,%ymm11,%ymm10
   DB  196,193,116,88,202                  ; vaddps        %ymm10,%ymm1,%ymm1
-  DB  196,98,125,24,21,45,51,0,0          ; vbroadcastss  0x332d(%rip),%ymm10        # 5d68 <_sk_callback_avx+0x17e>
+  DB  196,98,125,24,21,22,51,0,0          ; vbroadcastss  0x3316(%rip),%ymm10        # 5cec <_sk_callback_avx+0x17e>
   DB  196,193,116,89,202                  ; vmulps        %ymm10,%ymm1,%ymm1
   DB  197,253,91,201                      ; vcvtps2dq     %ymm1,%ymm1
   DB  196,98,125,24,80,20                 ; vbroadcastss  0x14(%rax),%ymm10
@@ -6814,36 +7001,36 @@ _sk_parametric_b_avx LABEL PROC
   DB  196,193,108,88,211                  ; vaddps        %ymm11,%ymm2,%ymm2
   DB  196,98,125,24,16                    ; vbroadcastss  (%rax),%ymm10
   DB  197,124,91,218                      ; vcvtdq2ps     %ymm2,%ymm11
-  DB  196,98,125,24,37,166,50,0,0         ; vbroadcastss  0x32a6(%rip),%ymm12        # 5d6c <_sk_callback_avx+0x182>
+  DB  196,98,125,24,37,143,50,0,0         ; vbroadcastss  0x328f(%rip),%ymm12        # 5cf0 <_sk_callback_avx+0x182>
   DB  196,65,36,89,220                    ; vmulps        %ymm12,%ymm11,%ymm11
-  DB  196,98,125,24,37,156,50,0,0         ; vbroadcastss  0x329c(%rip),%ymm12        # 5d70 <_sk_callback_avx+0x186>
+  DB  196,98,125,24,37,133,50,0,0         ; vbroadcastss  0x3285(%rip),%ymm12        # 5cf4 <_sk_callback_avx+0x186>
   DB  196,193,108,84,212                  ; vandps        %ymm12,%ymm2,%ymm2
-  DB  196,98,125,24,37,146,50,0,0         ; vbroadcastss  0x3292(%rip),%ymm12        # 5d74 <_sk_callback_avx+0x18a>
+  DB  196,98,125,24,37,123,50,0,0         ; vbroadcastss  0x327b(%rip),%ymm12        # 5cf8 <_sk_callback_avx+0x18a>
   DB  196,193,108,86,212                  ; vorps         %ymm12,%ymm2,%ymm2
-  DB  196,98,125,24,37,136,50,0,0         ; vbroadcastss  0x3288(%rip),%ymm12        # 5d78 <_sk_callback_avx+0x18e>
+  DB  196,98,125,24,37,113,50,0,0         ; vbroadcastss  0x3271(%rip),%ymm12        # 5cfc <_sk_callback_avx+0x18e>
   DB  196,65,36,88,220                    ; vaddps        %ymm12,%ymm11,%ymm11
-  DB  196,98,125,24,37,126,50,0,0         ; vbroadcastss  0x327e(%rip),%ymm12        # 5d7c <_sk_callback_avx+0x192>
+  DB  196,98,125,24,37,103,50,0,0         ; vbroadcastss  0x3267(%rip),%ymm12        # 5d00 <_sk_callback_avx+0x192>
   DB  196,65,108,89,228                   ; vmulps        %ymm12,%ymm2,%ymm12
   DB  196,65,36,92,220                    ; vsubps        %ymm12,%ymm11,%ymm11
-  DB  196,98,125,24,37,111,50,0,0         ; vbroadcastss  0x326f(%rip),%ymm12        # 5d80 <_sk_callback_avx+0x196>
+  DB  196,98,125,24,37,88,50,0,0          ; vbroadcastss  0x3258(%rip),%ymm12        # 5d04 <_sk_callback_avx+0x196>
   DB  196,193,108,88,212                  ; vaddps        %ymm12,%ymm2,%ymm2
-  DB  196,98,125,24,37,101,50,0,0         ; vbroadcastss  0x3265(%rip),%ymm12        # 5d84 <_sk_callback_avx+0x19a>
+  DB  196,98,125,24,37,78,50,0,0          ; vbroadcastss  0x324e(%rip),%ymm12        # 5d08 <_sk_callback_avx+0x19a>
   DB  197,156,94,210                      ; vdivps        %ymm2,%ymm12,%ymm2
   DB  197,164,92,210                      ; vsubps        %ymm2,%ymm11,%ymm2
   DB  197,172,89,210                      ; vmulps        %ymm2,%ymm10,%ymm2
   DB  196,99,125,8,210,1                  ; vroundps      $0x1,%ymm2,%ymm10
   DB  196,65,108,92,210                   ; vsubps        %ymm10,%ymm2,%ymm10
-  DB  196,98,125,24,29,73,50,0,0          ; vbroadcastss  0x3249(%rip),%ymm11        # 5d88 <_sk_callback_avx+0x19e>
+  DB  196,98,125,24,29,50,50,0,0          ; vbroadcastss  0x3232(%rip),%ymm11        # 5d0c <_sk_callback_avx+0x19e>
   DB  196,193,108,88,211                  ; vaddps        %ymm11,%ymm2,%ymm2
-  DB  196,98,125,24,29,63,50,0,0          ; vbroadcastss  0x323f(%rip),%ymm11        # 5d8c <_sk_callback_avx+0x1a2>
+  DB  196,98,125,24,29,40,50,0,0          ; vbroadcastss  0x3228(%rip),%ymm11        # 5d10 <_sk_callback_avx+0x1a2>
   DB  196,65,44,89,219                    ; vmulps        %ymm11,%ymm10,%ymm11
   DB  196,193,108,92,211                  ; vsubps        %ymm11,%ymm2,%ymm2
-  DB  196,98,125,24,29,48,50,0,0          ; vbroadcastss  0x3230(%rip),%ymm11        # 5d90 <_sk_callback_avx+0x1a6>
+  DB  196,98,125,24,29,25,50,0,0          ; vbroadcastss  0x3219(%rip),%ymm11        # 5d14 <_sk_callback_avx+0x1a6>
   DB  196,65,36,92,210                    ; vsubps        %ymm10,%ymm11,%ymm10
-  DB  196,98,125,24,29,38,50,0,0          ; vbroadcastss  0x3226(%rip),%ymm11        # 5d94 <_sk_callback_avx+0x1aa>
+  DB  196,98,125,24,29,15,50,0,0          ; vbroadcastss  0x320f(%rip),%ymm11        # 5d18 <_sk_callback_avx+0x1aa>
   DB  196,65,36,94,210                    ; vdivps        %ymm10,%ymm11,%ymm10
   DB  196,193,108,88,210                  ; vaddps        %ymm10,%ymm2,%ymm2
-  DB  196,98,125,24,21,23,50,0,0          ; vbroadcastss  0x3217(%rip),%ymm10        # 5d98 <_sk_callback_avx+0x1ae>
+  DB  196,98,125,24,21,0,50,0,0           ; vbroadcastss  0x3200(%rip),%ymm10        # 5d1c <_sk_callback_avx+0x1ae>
   DB  196,193,108,89,210                  ; vmulps        %ymm10,%ymm2,%ymm2
   DB  197,253,91,210                      ; vcvtps2dq     %ymm2,%ymm2
   DB  196,98,125,24,80,20                 ; vbroadcastss  0x14(%rax),%ymm10
@@ -6874,36 +7061,36 @@ _sk_parametric_a_avx LABEL PROC
   DB  196,193,100,88,219                  ; vaddps        %ymm11,%ymm3,%ymm3
   DB  196,98,125,24,16                    ; vbroadcastss  (%rax),%ymm10
   DB  197,124,91,219                      ; vcvtdq2ps     %ymm3,%ymm11
-  DB  196,98,125,24,37,144,49,0,0         ; vbroadcastss  0x3190(%rip),%ymm12        # 5d9c <_sk_callback_avx+0x1b2>
+  DB  196,98,125,24,37,121,49,0,0         ; vbroadcastss  0x3179(%rip),%ymm12        # 5d20 <_sk_callback_avx+0x1b2>
   DB  196,65,36,89,220                    ; vmulps        %ymm12,%ymm11,%ymm11
-  DB  196,98,125,24,37,134,49,0,0         ; vbroadcastss  0x3186(%rip),%ymm12        # 5da0 <_sk_callback_avx+0x1b6>
+  DB  196,98,125,24,37,111,49,0,0         ; vbroadcastss  0x316f(%rip),%ymm12        # 5d24 <_sk_callback_avx+0x1b6>
   DB  196,193,100,84,220                  ; vandps        %ymm12,%ymm3,%ymm3
-  DB  196,98,125,24,37,124,49,0,0         ; vbroadcastss  0x317c(%rip),%ymm12        # 5da4 <_sk_callback_avx+0x1ba>
+  DB  196,98,125,24,37,101,49,0,0         ; vbroadcastss  0x3165(%rip),%ymm12        # 5d28 <_sk_callback_avx+0x1ba>
   DB  196,193,100,86,220                  ; vorps         %ymm12,%ymm3,%ymm3
-  DB  196,98,125,24,37,114,49,0,0         ; vbroadcastss  0x3172(%rip),%ymm12        # 5da8 <_sk_callback_avx+0x1be>
+  DB  196,98,125,24,37,91,49,0,0          ; vbroadcastss  0x315b(%rip),%ymm12        # 5d2c <_sk_callback_avx+0x1be>
   DB  196,65,36,88,220                    ; vaddps        %ymm12,%ymm11,%ymm11
-  DB  196,98,125,24,37,104,49,0,0         ; vbroadcastss  0x3168(%rip),%ymm12        # 5dac <_sk_callback_avx+0x1c2>
+  DB  196,98,125,24,37,81,49,0,0          ; vbroadcastss  0x3151(%rip),%ymm12        # 5d30 <_sk_callback_avx+0x1c2>
   DB  196,65,100,89,228                   ; vmulps        %ymm12,%ymm3,%ymm12
   DB  196,65,36,92,220                    ; vsubps        %ymm12,%ymm11,%ymm11
-  DB  196,98,125,24,37,89,49,0,0          ; vbroadcastss  0x3159(%rip),%ymm12        # 5db0 <_sk_callback_avx+0x1c6>
+  DB  196,98,125,24,37,66,49,0,0          ; vbroadcastss  0x3142(%rip),%ymm12        # 5d34 <_sk_callback_avx+0x1c6>
   DB  196,193,100,88,220                  ; vaddps        %ymm12,%ymm3,%ymm3
-  DB  196,98,125,24,37,79,49,0,0          ; vbroadcastss  0x314f(%rip),%ymm12        # 5db4 <_sk_callback_avx+0x1ca>
+  DB  196,98,125,24,37,56,49,0,0          ; vbroadcastss  0x3138(%rip),%ymm12        # 5d38 <_sk_callback_avx+0x1ca>
   DB  197,156,94,219                      ; vdivps        %ymm3,%ymm12,%ymm3
   DB  197,164,92,219                      ; vsubps        %ymm3,%ymm11,%ymm3
   DB  197,172,89,219                      ; vmulps        %ymm3,%ymm10,%ymm3
   DB  196,99,125,8,211,1                  ; vroundps      $0x1,%ymm3,%ymm10
   DB  196,65,100,92,210                   ; vsubps        %ymm10,%ymm3,%ymm10
-  DB  196,98,125,24,29,51,49,0,0          ; vbroadcastss  0x3133(%rip),%ymm11        # 5db8 <_sk_callback_avx+0x1ce>
+  DB  196,98,125,24,29,28,49,0,0          ; vbroadcastss  0x311c(%rip),%ymm11        # 5d3c <_sk_callback_avx+0x1ce>
   DB  196,193,100,88,219                  ; vaddps        %ymm11,%ymm3,%ymm3
-  DB  196,98,125,24,29,41,49,0,0          ; vbroadcastss  0x3129(%rip),%ymm11        # 5dbc <_sk_callback_avx+0x1d2>
+  DB  196,98,125,24,29,18,49,0,0          ; vbroadcastss  0x3112(%rip),%ymm11        # 5d40 <_sk_callback_avx+0x1d2>
   DB  196,65,44,89,219                    ; vmulps        %ymm11,%ymm10,%ymm11
   DB  196,193,100,92,219                  ; vsubps        %ymm11,%ymm3,%ymm3
-  DB  196,98,125,24,29,26,49,0,0          ; vbroadcastss  0x311a(%rip),%ymm11        # 5dc0 <_sk_callback_avx+0x1d6>
+  DB  196,98,125,24,29,3,49,0,0           ; vbroadcastss  0x3103(%rip),%ymm11        # 5d44 <_sk_callback_avx+0x1d6>
   DB  196,65,36,92,210                    ; vsubps        %ymm10,%ymm11,%ymm10
-  DB  196,98,125,24,29,16,49,0,0          ; vbroadcastss  0x3110(%rip),%ymm11        # 5dc4 <_sk_callback_avx+0x1da>
+  DB  196,98,125,24,29,249,48,0,0         ; vbroadcastss  0x30f9(%rip),%ymm11        # 5d48 <_sk_callback_avx+0x1da>
   DB  196,65,36,94,210                    ; vdivps        %ymm10,%ymm11,%ymm10
   DB  196,193,100,88,218                  ; vaddps        %ymm10,%ymm3,%ymm3
-  DB  196,98,125,24,21,1,49,0,0           ; vbroadcastss  0x3101(%rip),%ymm10        # 5dc8 <_sk_callback_avx+0x1de>
+  DB  196,98,125,24,21,234,48,0,0         ; vbroadcastss  0x30ea(%rip),%ymm10        # 5d4c <_sk_callback_avx+0x1de>
   DB  196,193,100,89,218                  ; vmulps        %ymm10,%ymm3,%ymm3
   DB  197,253,91,219                      ; vcvtps2dq     %ymm3,%ymm3
   DB  196,98,125,24,80,20                 ; vbroadcastss  0x14(%rax),%ymm10
@@ -7010,7 +7197,7 @@ _sk_load_a8_avx LABEL PROC
   DB  72,139,0                            ; mov           (%rax),%rax
   DB  72,1,248                            ; add           %rdi,%rax
   DB  77,133,192                          ; test          %r8,%r8
-  DB  117,74                              ; jne           2eec <_sk_load_a8_avx+0x5a>
+  DB  117,74                              ; jne           2e87 <_sk_load_a8_avx+0x5a>
   DB  197,250,126,0                       ; vmovq         (%rax),%xmm0
   DB  196,226,121,49,200                  ; vpmovzxbd     %xmm0,%xmm1
   DB  196,227,121,4,192,229               ; vpermilps     $0xe5,%xmm0,%xmm0
@@ -7037,9 +7224,9 @@ _sk_load_a8_avx LABEL PROC
   DB  77,9,217                            ; or            %r11,%r9
   DB  72,131,193,8                        ; add           $0x8,%rcx
   DB  73,255,202                          ; dec           %r10
-  DB  117,234                             ; jne           2ef4 <_sk_load_a8_avx+0x62>
+  DB  117,234                             ; jne           2e8f <_sk_load_a8_avx+0x62>
   DB  196,193,249,110,193                 ; vmovq         %r9,%xmm0
-  DB  235,149                             ; jmp           2ea6 <_sk_load_a8_avx+0x14>
+  DB  235,149                             ; jmp           2e41 <_sk_load_a8_avx+0x14>
 
 PUBLIC _sk_gather_a8_avx
 _sk_gather_a8_avx LABEL PROC
@@ -7116,7 +7303,7 @@ _sk_store_a8_avx LABEL PROC
   DB  196,66,57,43,193                    ; vpackusdw     %xmm9,%xmm8,%xmm8
   DB  196,65,57,103,192                   ; vpackuswb     %xmm8,%xmm8,%xmm8
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,10                              ; jne           304d <_sk_store_a8_avx+0x42>
+  DB  117,10                              ; jne           2fe8 <_sk_store_a8_avx+0x42>
   DB  196,65,123,17,4,57                  ; vmovsd        %xmm8,(%r9,%rdi,1)
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  255,224                             ; jmpq          *%rax
@@ -7124,10 +7311,10 @@ _sk_store_a8_avx LABEL PROC
   DB  65,128,224,7                        ; and           $0x7,%r8b
   DB  65,254,200                          ; dec           %r8b
   DB  65,128,248,6                        ; cmp           $0x6,%r8b
-  DB  119,236                             ; ja            3049 <_sk_store_a8_avx+0x3e>
+  DB  119,236                             ; ja            2fe4 <_sk_store_a8_avx+0x3e>
   DB  196,66,121,48,192                   ; vpmovzxbw     %xmm8,%xmm8
   DB  65,15,182,192                       ; movzbl        %r8b,%eax
-  DB  76,141,5,67,0,0,0                   ; lea           0x43(%rip),%r8        # 30b0 <_sk_store_a8_avx+0xa5>
+  DB  76,141,5,68,0,0,0                   ; lea           0x44(%rip),%r8        # 304c <_sk_store_a8_avx+0xa6>
   DB  73,99,4,128                         ; movslq        (%r8,%rax,4),%rax
   DB  76,1,192                            ; add           %r8,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -7138,27 +7325,28 @@ _sk_store_a8_avx LABEL PROC
   DB  196,67,121,20,68,57,2,4             ; vpextrb       $0x4,%xmm8,0x2(%r9,%rdi,1)
   DB  196,67,121,20,68,57,1,2             ; vpextrb       $0x2,%xmm8,0x1(%r9,%rdi,1)
   DB  196,67,121,20,4,57,0                ; vpextrb       $0x0,%xmm8,(%r9,%rdi,1)
-  DB  235,154                             ; jmp           3049 <_sk_store_a8_avx+0x3e>
-  DB  144                                 ; nop
-  DB  246,255                             ; idiv          %bh
-  DB  255                                 ; (bad)
-  DB  255                                 ; (bad)
-  DB  238                                 ; out           %al,(%dx)
-  DB  255                                 ; (bad)
-  DB  255                                 ; (bad)
-  DB  255,230                             ; jmpq          *%rsi
+  DB  235,154                             ; jmp           2fe4 <_sk_store_a8_avx+0x3e>
+  DB  102,144                             ; xchg          %ax,%ax
+  DB  245                                 ; cmc
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  222,255                             ; fdivrp        %st,%st(7)
-  DB  255                                 ; (bad)
-  DB  255,214                             ; callq         *%rsi
+  DB  237                                 ; in            (%dx),%eax
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,206                             ; dec           %esi
+  DB  255,229                             ; jmpq          *%rbp
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,198                             ; inc           %esi
+  DB  255                                 ; (bad)
+  DB  221,255                             ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,213                             ; callq         *%rbp
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,205                             ; dec           %ebp
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,197                             ; inc           %ebp
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; .byte         0xff
@@ -7170,7 +7358,7 @@ _sk_load_g8_avx LABEL PROC
   DB  72,139,0                            ; mov           (%rax),%rax
   DB  72,1,248                            ; add           %rdi,%rax
   DB  77,133,192                          ; test          %r8,%r8
-  DB  117,91                              ; jne           3137 <_sk_load_g8_avx+0x6b>
+  DB  117,91                              ; jne           30d3 <_sk_load_g8_avx+0x6b>
   DB  197,250,126,0                       ; vmovq         (%rax),%xmm0
   DB  196,226,121,49,200                  ; vpmovzxbd     %xmm0,%xmm1
   DB  196,227,121,4,192,229               ; vpermilps     $0xe5,%xmm0,%xmm0
@@ -7200,9 +7388,9 @@ _sk_load_g8_avx LABEL PROC
   DB  77,9,217                            ; or            %r11,%r9
   DB  72,131,193,8                        ; add           $0x8,%rcx
   DB  73,255,202                          ; dec           %r10
-  DB  117,234                             ; jne           313f <_sk_load_g8_avx+0x73>
+  DB  117,234                             ; jne           30db <_sk_load_g8_avx+0x73>
   DB  196,193,249,110,193                 ; vmovq         %r9,%xmm0
-  DB  235,132                             ; jmp           30e0 <_sk_load_g8_avx+0x14>
+  DB  235,132                             ; jmp           307c <_sk_load_g8_avx+0x14>
 
 PUBLIC _sk_gather_g8_avx
 _sk_gather_g8_avx LABEL PROC
@@ -7273,9 +7461,9 @@ _sk_gather_i8_avx LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  73,137,192                          ; mov           %rax,%r8
   DB  77,133,192                          ; test          %r8,%r8
-  DB  116,5                               ; je            3276 <_sk_gather_i8_avx+0xf>
+  DB  116,5                               ; je            3212 <_sk_gather_i8_avx+0xf>
   DB  76,137,192                          ; mov           %r8,%rax
-  DB  235,2                               ; jmp           3278 <_sk_gather_i8_avx+0x11>
+  DB  235,2                               ; jmp           3214 <_sk_gather_i8_avx+0x11>
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  65,87                               ; push          %r15
   DB  65,86                               ; push          %r14
@@ -7337,27 +7525,24 @@ _sk_gather_i8_avx LABEL PROC
   DB  196,163,121,34,4,163,2              ; vpinsrd       $0x2,(%rbx,%r12,4),%xmm0,%xmm0
   DB  196,163,121,34,28,19,3              ; vpinsrd       $0x3,(%rbx,%r10,1),%xmm0,%xmm3
   DB  196,227,61,24,195,1                 ; vinsertf128   $0x1,%xmm3,%ymm8,%ymm0
-  DB  184,255,0,0,0                       ; mov           $0xff,%eax
-  DB  197,249,110,200                     ; vmovd         %eax,%xmm1
-  DB  197,249,112,201,0                   ; vpshufd       $0x0,%xmm1,%xmm1
-  DB  196,99,117,24,217,1                 ; vinsertf128   $0x1,%xmm1,%ymm1,%ymm11
-  DB  197,164,84,192                      ; vandps        %ymm0,%ymm11,%ymm0
+  DB  197,124,40,21,98,42,0,0             ; vmovaps       0x2a62(%rip),%ymm10        # 5da0 <_sk_callback_avx+0x232>
+  DB  196,193,124,84,194                  ; vandps        %ymm10,%ymm0,%ymm0
   DB  197,252,91,192                      ; vcvtdq2ps     %ymm0,%ymm0
   DB  184,129,128,128,59                  ; mov           $0x3b808081,%eax
   DB  197,249,110,200                     ; vmovd         %eax,%xmm1
   DB  196,227,121,4,201,0                 ; vpermilps     $0x0,%xmm1,%xmm1
   DB  196,99,117,24,201,1                 ; vinsertf128   $0x1,%xmm1,%ymm1,%ymm9
   DB  196,193,124,89,193                  ; vmulps        %ymm9,%ymm0,%ymm0
-  DB  196,193,41,114,208,8                ; vpsrld        $0x8,%xmm8,%xmm10
-  DB  197,241,114,211,8                   ; vpsrld        $0x8,%xmm3,%xmm1
-  DB  196,227,45,24,201,1                 ; vinsertf128   $0x1,%xmm1,%ymm10,%ymm1
-  DB  197,164,84,201                      ; vandps        %ymm1,%ymm11,%ymm1
+  DB  196,193,113,114,208,8               ; vpsrld        $0x8,%xmm8,%xmm1
+  DB  197,233,114,211,8                   ; vpsrld        $0x8,%xmm3,%xmm2
+  DB  196,227,117,24,202,1                ; vinsertf128   $0x1,%xmm2,%ymm1,%ymm1
+  DB  196,193,116,84,202                  ; vandps        %ymm10,%ymm1,%ymm1
   DB  197,252,91,201                      ; vcvtdq2ps     %ymm1,%ymm1
   DB  196,193,116,89,201                  ; vmulps        %ymm9,%ymm1,%ymm1
-  DB  196,193,41,114,208,16               ; vpsrld        $0x10,%xmm8,%xmm10
+  DB  196,193,33,114,208,16               ; vpsrld        $0x10,%xmm8,%xmm11
   DB  197,233,114,211,16                  ; vpsrld        $0x10,%xmm3,%xmm2
-  DB  196,227,45,24,210,1                 ; vinsertf128   $0x1,%xmm2,%ymm10,%ymm2
-  DB  197,164,84,210                      ; vandps        %ymm2,%ymm11,%ymm2
+  DB  196,227,37,24,210,1                 ; vinsertf128   $0x1,%xmm2,%ymm11,%ymm2
+  DB  196,193,108,84,210                  ; vandps        %ymm10,%ymm2,%ymm2
   DB  197,252,91,210                      ; vcvtdq2ps     %ymm2,%ymm2
   DB  196,193,108,89,209                  ; vmulps        %ymm9,%ymm2,%ymm2
   DB  196,193,57,114,208,24               ; vpsrld        $0x18,%xmm8,%xmm8
@@ -7378,7 +7563,7 @@ _sk_load_565_avx LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  76,139,16                           ; mov           (%rax),%r10
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,209,0,0,0                    ; jne           3512 <_sk_load_565_avx+0xdf>
+  DB  15,133,209,0,0,0                    ; jne           34a5 <_sk_load_565_avx+0xdf>
   DB  196,193,122,111,4,122               ; vmovdqu       (%r10,%rdi,2),%xmm0
   DB  197,241,239,201                     ; vpxor         %xmm1,%xmm1,%xmm1
   DB  197,249,105,201                     ; vpunpckhwd    %xmm1,%xmm0,%xmm1
@@ -7428,9 +7613,9 @@ _sk_load_565_avx LABEL PROC
   DB  197,249,239,192                     ; vpxor         %xmm0,%xmm0,%xmm0
   DB  65,254,200                          ; dec           %r8b
   DB  65,128,248,6                        ; cmp           $0x6,%r8b
-  DB  15,135,29,255,255,255               ; ja            3447 <_sk_load_565_avx+0x14>
+  DB  15,135,29,255,255,255               ; ja            33da <_sk_load_565_avx+0x14>
   DB  69,15,182,192                       ; movzbl        %r8b,%r8d
-  DB  76,141,13,75,0,0,0                  ; lea           0x4b(%rip),%r9        # 3580 <_sk_load_565_avx+0x14d>
+  DB  76,141,13,76,0,0,0                  ; lea           0x4c(%rip),%r9        # 3514 <_sk_load_565_avx+0x14e>
   DB  75,99,4,129                         ; movslq        (%r9,%r8,4),%rax
   DB  76,1,200                            ; add           %r9,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -7442,28 +7627,26 @@ _sk_load_565_avx LABEL PROC
   DB  196,193,121,196,68,122,4,2          ; vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm0,%xmm0
   DB  196,193,121,196,68,122,2,1          ; vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm0,%xmm0
   DB  196,193,121,196,4,122,0             ; vpinsrw       $0x0,(%r10,%rdi,2),%xmm0,%xmm0
-  DB  233,201,254,255,255                 ; jmpq          3447 <_sk_load_565_avx+0x14>
-  DB  102,144                             ; xchg          %ax,%ax
-  DB  242,255                             ; repnz         (bad)
-  DB  255                                 ; (bad)
-  DB  255                                 ; (bad)
-  DB  234                                 ; (bad)
-  DB  255                                 ; (bad)
-  DB  255                                 ; (bad)
-  DB  255,226                             ; jmpq          *%rdx
+  DB  233,201,254,255,255                 ; jmpq          33da <_sk_load_565_avx+0x14>
+  DB  15,31,0                             ; nopl          (%rax)
+  DB  241                                 ; icebp
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  218,255                             ; (bad)
-  DB  255                                 ; (bad)
-  DB  255,210                             ; callq         *%rdx
-  DB  255                                 ; (bad)
-  DB  255                                 ; (bad)
-  DB  255,202                             ; dec           %edx
+  DB  233,255,255,255,225                 ; jmpq          ffffffffe200351c <_sk_callback_avx+0xffffffffe1ffd9ae>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  190                                 ; .byte         0xbe
+  DB  217,255                             ; fcos
+  DB  255                                 ; (bad)
+  DB  255,209                             ; callq         *%rcx
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,201                             ; dec           %ecx
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  189                                 ; .byte         0xbd
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; .byte         0xff
@@ -7595,7 +7778,7 @@ _sk_store_565_avx LABEL PROC
   DB  196,67,125,25,193,1                 ; vextractf128  $0x1,%ymm8,%xmm9
   DB  196,66,57,43,193                    ; vpackusdw     %xmm9,%xmm8,%xmm8
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,10                              ; jne           37cb <_sk_store_565_avx+0x9e>
+  DB  117,10                              ; jne           375f <_sk_store_565_avx+0x9e>
   DB  196,65,122,127,4,121                ; vmovdqu       %xmm8,(%r9,%rdi,2)
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  255,224                             ; jmpq          *%rax
@@ -7603,9 +7786,9 @@ _sk_store_565_avx LABEL PROC
   DB  65,128,224,7                        ; and           $0x7,%r8b
   DB  65,254,200                          ; dec           %r8b
   DB  65,128,248,6                        ; cmp           $0x6,%r8b
-  DB  119,236                             ; ja            37c7 <_sk_store_565_avx+0x9a>
+  DB  119,236                             ; ja            375b <_sk_store_565_avx+0x9a>
   DB  65,15,182,192                       ; movzbl        %r8b,%eax
-  DB  76,141,5,66,0,0,0                   ; lea           0x42(%rip),%r8        # 3828 <_sk_store_565_avx+0xfb>
+  DB  76,141,5,66,0,0,0                   ; lea           0x42(%rip),%r8        # 37bc <_sk_store_565_avx+0xfb>
   DB  73,99,4,128                         ; movslq        (%r8,%rax,4),%rax
   DB  76,1,192                            ; add           %r8,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -7616,7 +7799,7 @@ _sk_store_565_avx LABEL PROC
   DB  196,67,121,21,68,121,4,2            ; vpextrw       $0x2,%xmm8,0x4(%r9,%rdi,2)
   DB  196,67,121,21,68,121,2,1            ; vpextrw       $0x1,%xmm8,0x2(%r9,%rdi,2)
   DB  196,67,121,21,4,121,0               ; vpextrw       $0x0,%xmm8,(%r9,%rdi,2)
-  DB  235,159                             ; jmp           37c7 <_sk_store_565_avx+0x9a>
+  DB  235,159                             ; jmp           375b <_sk_store_565_avx+0x9a>
   DB  247,255                             ; idiv          %edi
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
@@ -7645,7 +7828,7 @@ _sk_load_4444_avx LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  76,139,16                           ; mov           (%rax),%r10
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,245,0,0,0                    ; jne           3947 <_sk_load_4444_avx+0x103>
+  DB  15,133,245,0,0,0                    ; jne           38db <_sk_load_4444_avx+0x103>
   DB  196,193,122,111,4,122               ; vmovdqu       (%r10,%rdi,2),%xmm0
   DB  197,241,239,201                     ; vpxor         %xmm1,%xmm1,%xmm1
   DB  197,249,105,201                     ; vpunpckhwd    %xmm1,%xmm0,%xmm1
@@ -7702,9 +7885,9 @@ _sk_load_4444_avx LABEL PROC
   DB  197,249,239,192                     ; vpxor         %xmm0,%xmm0,%xmm0
   DB  65,254,200                          ; dec           %r8b
   DB  65,128,248,6                        ; cmp           $0x6,%r8b
-  DB  15,135,249,254,255,255              ; ja            3858 <_sk_load_4444_avx+0x14>
+  DB  15,135,249,254,255,255              ; ja            37ec <_sk_load_4444_avx+0x14>
   DB  69,15,182,192                       ; movzbl        %r8b,%r8d
-  DB  76,141,13,74,0,0,0                  ; lea           0x4a(%rip),%r9        # 39b4 <_sk_load_4444_avx+0x170>
+  DB  76,141,13,74,0,0,0                  ; lea           0x4a(%rip),%r9        # 3948 <_sk_load_4444_avx+0x170>
   DB  75,99,4,129                         ; movslq        (%r9,%r8,4),%rax
   DB  76,1,200                            ; add           %r9,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -7716,12 +7899,12 @@ _sk_load_4444_avx LABEL PROC
   DB  196,193,121,196,68,122,4,2          ; vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm0,%xmm0
   DB  196,193,121,196,68,122,2,1          ; vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm0,%xmm0
   DB  196,193,121,196,4,122,0             ; vpinsrw       $0x0,(%r10,%rdi,2),%xmm0,%xmm0
-  DB  233,165,254,255,255                 ; jmpq          3858 <_sk_load_4444_avx+0x14>
+  DB  233,165,254,255,255                 ; jmpq          37ec <_sk_load_4444_avx+0x14>
   DB  144                                 ; nop
   DB  243,255                             ; repz          (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  235,255                             ; jmp           39b9 <_sk_load_4444_avx+0x175>
+  DB  235,255                             ; jmp           394d <_sk_load_4444_avx+0x175>
   DB  255                                 ; (bad)
   DB  255,227                             ; jmpq          *%rbx
   DB  255                                 ; (bad)
@@ -7878,7 +8061,7 @@ _sk_store_4444_avx LABEL PROC
   DB  196,67,125,25,193,1                 ; vextractf128  $0x1,%ymm8,%xmm9
   DB  196,66,57,43,193                    ; vpackusdw     %xmm9,%xmm8,%xmm8
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,10                              ; jne           3c34 <_sk_store_4444_avx+0xaf>
+  DB  117,10                              ; jne           3bc8 <_sk_store_4444_avx+0xaf>
   DB  196,65,122,127,4,121                ; vmovdqu       %xmm8,(%r9,%rdi,2)
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  255,224                             ; jmpq          *%rax
@@ -7886,9 +8069,9 @@ _sk_store_4444_avx LABEL PROC
   DB  65,128,224,7                        ; and           $0x7,%r8b
   DB  65,254,200                          ; dec           %r8b
   DB  65,128,248,6                        ; cmp           $0x6,%r8b
-  DB  119,236                             ; ja            3c30 <_sk_store_4444_avx+0xab>
+  DB  119,236                             ; ja            3bc4 <_sk_store_4444_avx+0xab>
   DB  65,15,182,192                       ; movzbl        %r8b,%eax
-  DB  76,141,5,69,0,0,0                   ; lea           0x45(%rip),%r8        # 3c94 <_sk_store_4444_avx+0x10f>
+  DB  76,141,5,69,0,0,0                   ; lea           0x45(%rip),%r8        # 3c28 <_sk_store_4444_avx+0x10f>
   DB  73,99,4,128                         ; movslq        (%r8,%rax,4),%rax
   DB  76,1,192                            ; add           %r8,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -7899,7 +8082,7 @@ _sk_store_4444_avx LABEL PROC
   DB  196,67,121,21,68,121,4,2            ; vpextrw       $0x2,%xmm8,0x4(%r9,%rdi,2)
   DB  196,67,121,21,68,121,2,1            ; vpextrw       $0x1,%xmm8,0x2(%r9,%rdi,2)
   DB  196,67,121,21,4,121,0               ; vpextrw       $0x0,%xmm8,(%r9,%rdi,2)
-  DB  235,159                             ; jmp           3c30 <_sk_store_4444_avx+0xab>
+  DB  235,159                             ; jmp           3bc4 <_sk_store_4444_avx+0xab>
   DB  15,31,0                             ; nopl          (%rax)
   DB  244                                 ; hlt
   DB  255                                 ; (bad)
@@ -7930,30 +8113,27 @@ _sk_load_8888_avx LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  76,139,16                           ; mov           (%rax),%r10
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,157,0,0,0                    ; jne           3d5b <_sk_load_8888_avx+0xab>
+  DB  15,133,147,0,0,0                    ; jne           3ce5 <_sk_load_8888_avx+0xa1>
   DB  196,65,124,16,12,186                ; vmovups       (%r10,%rdi,4),%ymm9
-  DB  184,255,0,0,0                       ; mov           $0xff,%eax
-  DB  197,249,110,192                     ; vmovd         %eax,%xmm0
-  DB  197,249,112,192,0                   ; vpshufd       $0x0,%xmm0,%xmm0
-  DB  196,99,125,24,216,1                 ; vinsertf128   $0x1,%xmm0,%ymm0,%ymm11
-  DB  196,193,36,84,193                   ; vandps        %ymm9,%ymm11,%ymm0
+  DB  197,124,40,21,96,33,0,0             ; vmovaps       0x2160(%rip),%ymm10        # 5dc0 <_sk_callback_avx+0x252>
+  DB  196,193,52,84,194                   ; vandps        %ymm10,%ymm9,%ymm0
   DB  197,252,91,192                      ; vcvtdq2ps     %ymm0,%ymm0
   DB  184,129,128,128,59                  ; mov           $0x3b808081,%eax
   DB  197,249,110,200                     ; vmovd         %eax,%xmm1
   DB  196,227,121,4,201,0                 ; vpermilps     $0x0,%xmm1,%xmm1
   DB  196,99,117,24,193,1                 ; vinsertf128   $0x1,%xmm1,%ymm1,%ymm8
   DB  196,193,124,89,192                  ; vmulps        %ymm8,%ymm0,%ymm0
-  DB  196,193,41,114,209,8                ; vpsrld        $0x8,%xmm9,%xmm10
+  DB  196,193,113,114,209,8               ; vpsrld        $0x8,%xmm9,%xmm1
   DB  196,99,125,25,203,1                 ; vextractf128  $0x1,%ymm9,%xmm3
-  DB  197,241,114,211,8                   ; vpsrld        $0x8,%xmm3,%xmm1
-  DB  196,227,45,24,201,1                 ; vinsertf128   $0x1,%xmm1,%ymm10,%ymm1
-  DB  197,164,84,201                      ; vandps        %ymm1,%ymm11,%ymm1
+  DB  197,233,114,211,8                   ; vpsrld        $0x8,%xmm3,%xmm2
+  DB  196,227,117,24,202,1                ; vinsertf128   $0x1,%xmm2,%ymm1,%ymm1
+  DB  196,193,116,84,202                  ; vandps        %ymm10,%ymm1,%ymm1
   DB  197,252,91,201                      ; vcvtdq2ps     %ymm1,%ymm1
   DB  196,193,116,89,200                  ; vmulps        %ymm8,%ymm1,%ymm1
-  DB  196,193,41,114,209,16               ; vpsrld        $0x10,%xmm9,%xmm10
+  DB  196,193,33,114,209,16               ; vpsrld        $0x10,%xmm9,%xmm11
   DB  197,233,114,211,16                  ; vpsrld        $0x10,%xmm3,%xmm2
-  DB  196,227,45,24,210,1                 ; vinsertf128   $0x1,%xmm2,%ymm10,%ymm2
-  DB  197,164,84,210                      ; vandps        %ymm2,%ymm11,%ymm2
+  DB  196,227,37,24,210,1                 ; vinsertf128   $0x1,%xmm2,%ymm11,%ymm2
+  DB  196,193,108,84,210                  ; vandps        %ymm10,%ymm2,%ymm2
   DB  197,252,91,210                      ; vcvtdq2ps     %ymm2,%ymm2
   DB  196,193,108,89,208                  ; vmulps        %ymm8,%ymm2,%ymm2
   DB  196,193,49,114,209,24               ; vpsrld        $0x18,%xmm9,%xmm9
@@ -7968,9 +8148,9 @@ _sk_load_8888_avx LABEL PROC
   DB  196,65,52,87,201                    ; vxorps        %ymm9,%ymm9,%ymm9
   DB  65,254,200                          ; dec           %r8b
   DB  65,128,248,6                        ; cmp           $0x6,%r8b
-  DB  15,135,80,255,255,255               ; ja            3cc4 <_sk_load_8888_avx+0x14>
+  DB  15,135,90,255,255,255               ; ja            3c58 <_sk_load_8888_avx+0x14>
   DB  69,15,182,192                       ; movzbl        %r8b,%r8d
-  DB  76,141,13,137,0,0,0                 ; lea           0x89(%rip),%r9        # 3e08 <_sk_load_8888_avx+0x158>
+  DB  76,141,13,139,0,0,0                 ; lea           0x8b(%rip),%r9        # 3d94 <_sk_load_8888_avx+0x150>
   DB  75,99,4,129                         ; movslq        (%r9,%r8,4),%rax
   DB  76,1,200                            ; add           %r9,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -7993,24 +8173,26 @@ _sk_load_8888_avx LABEL PROC
   DB  196,99,53,12,200,15                 ; vblendps      $0xf,%ymm0,%ymm9,%ymm9
   DB  196,195,49,34,4,186,0               ; vpinsrd       $0x0,(%r10,%rdi,4),%xmm9,%xmm0
   DB  196,99,53,12,200,15                 ; vblendps      $0xf,%ymm0,%ymm9,%ymm9
-  DB  233,188,254,255,255                 ; jmpq          3cc4 <_sk_load_8888_avx+0x14>
-  DB  238                                 ; out           %al,(%dx)
+  DB  233,198,254,255,255                 ; jmpq          3c58 <_sk_load_8888_avx+0x14>
+  DB  102,144                             ; xchg          %ax,%ax
+  DB  236                                 ; in            (%dx),%al
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,224                             ; jmpq          *%rax
+  DB  255                                 ; (bad)
+  DB  222,255                             ; fdivrp        %st,%st(7)
+  DB  255                                 ; (bad)
+  DB  255,208                             ; callq         *%rax
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,210                             ; callq         *%rdx
+  DB  255,194                             ; inc           %edx
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,196                             ; inc           %esp
+  DB  255,174,255,255,255,154             ; ljmp          *-0x65000001(%rsi)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,176,255,255,255,156             ; pushq         -0x63000001(%rax)
   DB  255                                 ; (bad)
+  DB  126,255                             ; jle           3dad <_sk_load_8888_avx+0x169>
   DB  255                                 ; (bad)
-  DB  255                                 ; .byte         0xff
-  DB  128,255,255                         ; cmp           $0xff,%bh
   DB  255                                 ; .byte         0xff
 
 PUBLIC _sk_gather_8888_avx
@@ -8052,27 +8234,24 @@ _sk_gather_8888_avx LABEL PROC
   DB  196,131,121,34,4,152,2              ; vpinsrd       $0x2,(%r8,%r11,4),%xmm0,%xmm0
   DB  196,131,121,34,28,144,3             ; vpinsrd       $0x3,(%r8,%r10,4),%xmm0,%xmm3
   DB  196,227,61,24,195,1                 ; vinsertf128   $0x1,%xmm3,%ymm8,%ymm0
-  DB  184,255,0,0,0                       ; mov           $0xff,%eax
-  DB  197,249,110,200                     ; vmovd         %eax,%xmm1
-  DB  197,249,112,201,0                   ; vpshufd       $0x0,%xmm1,%xmm1
-  DB  196,99,117,24,217,1                 ; vinsertf128   $0x1,%xmm1,%ymm1,%ymm11
-  DB  197,164,84,192                      ; vandps        %ymm0,%ymm11,%ymm0
+  DB  197,124,40,21,126,31,0,0            ; vmovaps       0x1f7e(%rip),%ymm10        # 5de0 <_sk_callback_avx+0x272>
+  DB  196,193,124,84,194                  ; vandps        %ymm10,%ymm0,%ymm0
   DB  197,252,91,192                      ; vcvtdq2ps     %ymm0,%ymm0
   DB  184,129,128,128,59                  ; mov           $0x3b808081,%eax
   DB  197,249,110,200                     ; vmovd         %eax,%xmm1
   DB  196,227,121,4,201,0                 ; vpermilps     $0x0,%xmm1,%xmm1
   DB  196,99,117,24,201,1                 ; vinsertf128   $0x1,%xmm1,%ymm1,%ymm9
   DB  196,193,124,89,193                  ; vmulps        %ymm9,%ymm0,%ymm0
-  DB  196,193,41,114,208,8                ; vpsrld        $0x8,%xmm8,%xmm10
-  DB  197,241,114,211,8                   ; vpsrld        $0x8,%xmm3,%xmm1
-  DB  196,227,45,24,201,1                 ; vinsertf128   $0x1,%xmm1,%ymm10,%ymm1
-  DB  197,164,84,201                      ; vandps        %ymm1,%ymm11,%ymm1
+  DB  196,193,113,114,208,8               ; vpsrld        $0x8,%xmm8,%xmm1
+  DB  197,233,114,211,8                   ; vpsrld        $0x8,%xmm3,%xmm2
+  DB  196,227,117,24,202,1                ; vinsertf128   $0x1,%xmm2,%ymm1,%ymm1
+  DB  196,193,116,84,202                  ; vandps        %ymm10,%ymm1,%ymm1
   DB  197,252,91,201                      ; vcvtdq2ps     %ymm1,%ymm1
   DB  196,193,116,89,201                  ; vmulps        %ymm9,%ymm1,%ymm1
-  DB  196,193,41,114,208,16               ; vpsrld        $0x10,%xmm8,%xmm10
+  DB  196,193,33,114,208,16               ; vpsrld        $0x10,%xmm8,%xmm11
   DB  197,233,114,211,16                  ; vpsrld        $0x10,%xmm3,%xmm2
-  DB  196,227,45,24,210,1                 ; vinsertf128   $0x1,%xmm2,%ymm10,%ymm2
-  DB  197,164,84,210                      ; vandps        %ymm2,%ymm11,%ymm2
+  DB  196,227,37,24,210,1                 ; vinsertf128   $0x1,%xmm2,%ymm11,%ymm2
+  DB  196,193,108,84,210                  ; vandps        %ymm10,%ymm2,%ymm2
   DB  197,252,91,210                      ; vcvtdq2ps     %ymm2,%ymm2
   DB  196,193,108,89,209                  ; vmulps        %ymm9,%ymm2,%ymm2
   DB  196,193,57,114,208,24               ; vpsrld        $0x18,%xmm8,%xmm8
@@ -8119,7 +8298,7 @@ _sk_store_8888_avx LABEL PROC
   DB  196,65,45,86,192                    ; vorpd         %ymm8,%ymm10,%ymm8
   DB  196,65,53,86,192                    ; vorpd         %ymm8,%ymm9,%ymm8
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,10                              ; jne           4009 <_sk_store_8888_avx+0xa4>
+  DB  117,10                              ; jne           3f8c <_sk_store_8888_avx+0xa4>
   DB  196,65,124,17,4,185                 ; vmovups       %ymm8,(%r9,%rdi,4)
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  255,224                             ; jmpq          *%rax
@@ -8127,9 +8306,9 @@ _sk_store_8888_avx LABEL PROC
   DB  65,128,224,7                        ; and           $0x7,%r8b
   DB  65,254,200                          ; dec           %r8b
   DB  65,128,248,6                        ; cmp           $0x6,%r8b
-  DB  119,236                             ; ja            4005 <_sk_store_8888_avx+0xa0>
+  DB  119,236                             ; ja            3f88 <_sk_store_8888_avx+0xa0>
   DB  65,15,182,192                       ; movzbl        %r8b,%eax
-  DB  76,141,5,84,0,0,0                   ; lea           0x54(%rip),%r8        # 4078 <_sk_store_8888_avx+0x113>
+  DB  76,141,5,85,0,0,0                   ; lea           0x55(%rip),%r8        # 3ffc <_sk_store_8888_avx+0x114>
   DB  73,99,4,128                         ; movslq        (%r8,%rax,4),%rax
   DB  76,1,192                            ; add           %r8,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -8143,28 +8322,29 @@ _sk_store_8888_avx LABEL PROC
   DB  196,67,121,22,68,185,8,2            ; vpextrd       $0x2,%xmm8,0x8(%r9,%rdi,4)
   DB  196,67,121,22,68,185,4,1            ; vpextrd       $0x1,%xmm8,0x4(%r9,%rdi,4)
   DB  196,65,121,126,4,185                ; vmovd         %xmm8,(%r9,%rdi,4)
-  DB  235,143                             ; jmp           4005 <_sk_store_8888_avx+0xa0>
-  DB  102,144                             ; xchg          %ax,%ax
-  DB  246,255                             ; idiv          %bh
-  DB  255                                 ; (bad)
-  DB  255                                 ; (bad)
-  DB  238                                 ; out           %al,(%dx)
-  DB  255                                 ; (bad)
-  DB  255                                 ; (bad)
-  DB  255,230                             ; jmpq          *%rsi
+  DB  235,143                             ; jmp           3f88 <_sk_store_8888_avx+0xa0>
+  DB  15,31,0                             ; nopl          (%rax)
+  DB  245                                 ; cmc
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  222,255                             ; fdivrp        %st,%st(7)
-  DB  255                                 ; (bad)
-  DB  255,209                             ; callq         *%rcx
+  DB  237                                 ; in            (%dx),%eax
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  255,195                             ; inc           %ebx
+  DB  255,229                             ; jmpq          *%rbp
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  221,255                             ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,208                             ; callq         *%rax
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,194                             ; inc           %edx
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
   DB  255                                 ; .byte         0xff
-  DB  181,255                             ; mov           $0xff,%ch
+  DB  180,255                             ; mov           $0xff,%ah
   DB  255                                 ; (bad)
   DB  255                                 ; .byte         0xff
 
@@ -8178,7 +8358,7 @@ _sk_load_f16_avx LABEL PROC
   DB  197,252,17,116,36,64                ; vmovups       %ymm6,0x40(%rsp)
   DB  197,252,17,108,36,32                ; vmovups       %ymm5,0x20(%rsp)
   DB  197,254,127,36,36                   ; vmovdqu       %ymm4,(%rsp)
-  DB  15,133,143,2,0,0                    ; jne           434f <_sk_load_f16_avx+0x2bb>
+  DB  15,133,143,2,0,0                    ; jne           42d3 <_sk_load_f16_avx+0x2bb>
   DB  197,121,16,4,248                    ; vmovupd       (%rax,%rdi,8),%xmm8
   DB  197,249,16,84,248,16                ; vmovupd       0x10(%rax,%rdi,8),%xmm2
   DB  197,249,16,76,248,32                ; vmovupd       0x20(%rax,%rdi,8),%xmm1
@@ -8196,13 +8376,13 @@ _sk_load_f16_avx LABEL PROC
   DB  197,249,105,201                     ; vpunpckhwd    %xmm1,%xmm0,%xmm1
   DB  196,226,121,51,192                  ; vpmovzxwd     %xmm0,%xmm0
   DB  196,227,125,24,193,1                ; vinsertf128   $0x1,%xmm1,%ymm0,%ymm0
-  DB  196,98,125,24,37,179,28,0,0         ; vbroadcastss  0x1cb3(%rip),%ymm12        # 5dcc <_sk_callback_avx+0x1e2>
+  DB  196,98,125,24,37,179,28,0,0         ; vbroadcastss  0x1cb3(%rip),%ymm12        # 5d50 <_sk_callback_avx+0x1e2>
   DB  196,193,124,84,204                  ; vandps        %ymm12,%ymm0,%ymm1
   DB  197,252,87,193                      ; vxorps        %ymm1,%ymm0,%ymm0
   DB  196,195,125,25,198,1                ; vextractf128  $0x1,%ymm0,%xmm14
-  DB  196,98,121,24,29,159,28,0,0         ; vbroadcastss  0x1c9f(%rip),%xmm11        # 5dd0 <_sk_callback_avx+0x1e6>
+  DB  196,98,121,24,29,159,28,0,0         ; vbroadcastss  0x1c9f(%rip),%xmm11        # 5d54 <_sk_callback_avx+0x1e6>
   DB  196,193,8,87,219                    ; vxorps        %xmm11,%xmm14,%xmm3
-  DB  196,98,121,24,45,149,28,0,0         ; vbroadcastss  0x1c95(%rip),%xmm13        # 5dd4 <_sk_callback_avx+0x1ea>
+  DB  196,98,121,24,45,149,28,0,0         ; vbroadcastss  0x1c95(%rip),%xmm13        # 5d58 <_sk_callback_avx+0x1ea>
   DB  197,145,102,219                     ; vpcmpgtd      %xmm3,%xmm13,%xmm3
   DB  196,65,120,87,211                   ; vxorps        %xmm11,%xmm0,%xmm10
   DB  196,65,17,102,210                   ; vpcmpgtd      %xmm10,%xmm13,%xmm10
@@ -8216,7 +8396,7 @@ _sk_load_f16_avx LABEL PROC
   DB  196,227,125,24,195,1                ; vinsertf128   $0x1,%xmm3,%ymm0,%ymm0
   DB  197,252,86,193                      ; vorps         %ymm1,%ymm0,%ymm0
   DB  196,227,125,25,193,1                ; vextractf128  $0x1,%ymm0,%xmm1
-  DB  196,226,121,24,29,75,28,0,0         ; vbroadcastss  0x1c4b(%rip),%xmm3        # 5dd8 <_sk_callback_avx+0x1ee>
+  DB  196,226,121,24,29,75,28,0,0         ; vbroadcastss  0x1c4b(%rip),%xmm3        # 5d5c <_sk_callback_avx+0x1ee>
   DB  197,241,254,203                     ; vpaddd        %xmm3,%xmm1,%xmm1
   DB  197,249,254,195                     ; vpaddd        %xmm3,%xmm0,%xmm0
   DB  196,227,125,24,193,1                ; vinsertf128   $0x1,%xmm1,%ymm0,%ymm0
@@ -8309,29 +8489,29 @@ _sk_load_f16_avx LABEL PROC
   DB  197,123,16,4,248                    ; vmovsd        (%rax,%rdi,8),%xmm8
   DB  196,65,49,239,201                   ; vpxor         %xmm9,%xmm9,%xmm9
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  116,79                              ; je            43ae <_sk_load_f16_avx+0x31a>
+  DB  116,79                              ; je            4332 <_sk_load_f16_avx+0x31a>
   DB  197,57,22,68,248,8                  ; vmovhpd       0x8(%rax,%rdi,8),%xmm8,%xmm8
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,67                              ; jb            43ae <_sk_load_f16_avx+0x31a>
+  DB  114,67                              ; jb            4332 <_sk_load_f16_avx+0x31a>
   DB  197,251,16,84,248,16                ; vmovsd        0x10(%rax,%rdi,8),%xmm2
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  116,68                              ; je            43bb <_sk_load_f16_avx+0x327>
+  DB  116,68                              ; je            433f <_sk_load_f16_avx+0x327>
   DB  197,233,22,84,248,24                ; vmovhpd       0x18(%rax,%rdi,8),%xmm2,%xmm2
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,56                              ; jb            43bb <_sk_load_f16_avx+0x327>
+  DB  114,56                              ; jb            433f <_sk_load_f16_avx+0x327>
   DB  197,251,16,76,248,32                ; vmovsd        0x20(%rax,%rdi,8),%xmm1
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  15,132,68,253,255,255               ; je            40d7 <_sk_load_f16_avx+0x43>
+  DB  15,132,68,253,255,255               ; je            405b <_sk_load_f16_avx+0x43>
   DB  197,241,22,76,248,40                ; vmovhpd       0x28(%rax,%rdi,8),%xmm1,%xmm1
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  15,130,52,253,255,255               ; jb            40d7 <_sk_load_f16_avx+0x43>
+  DB  15,130,52,253,255,255               ; jb            405b <_sk_load_f16_avx+0x43>
   DB  197,122,126,76,248,48               ; vmovq         0x30(%rax,%rdi,8),%xmm9
-  DB  233,41,253,255,255                  ; jmpq          40d7 <_sk_load_f16_avx+0x43>
+  DB  233,41,253,255,255                  ; jmpq          405b <_sk_load_f16_avx+0x43>
   DB  197,241,87,201                      ; vxorpd        %xmm1,%xmm1,%xmm1
   DB  197,233,87,210                      ; vxorpd        %xmm2,%xmm2,%xmm2
-  DB  233,28,253,255,255                  ; jmpq          40d7 <_sk_load_f16_avx+0x43>
+  DB  233,28,253,255,255                  ; jmpq          405b <_sk_load_f16_avx+0x43>
   DB  197,241,87,201                      ; vxorpd        %xmm1,%xmm1,%xmm1
-  DB  233,19,253,255,255                  ; jmpq          40d7 <_sk_load_f16_avx+0x43>
+  DB  233,19,253,255,255                  ; jmpq          405b <_sk_load_f16_avx+0x43>
 
 PUBLIC _sk_gather_f16_avx
 _sk_gather_f16_avx LABEL PROC
@@ -8393,13 +8573,13 @@ _sk_gather_f16_avx LABEL PROC
   DB  197,249,105,210                     ; vpunpckhwd    %xmm2,%xmm0,%xmm2
   DB  196,226,121,51,192                  ; vpmovzxwd     %xmm0,%xmm0
   DB  196,227,125,24,194,1                ; vinsertf128   $0x1,%xmm2,%ymm0,%ymm0
-  DB  196,98,125,24,37,11,25,0,0          ; vbroadcastss  0x190b(%rip),%ymm12        # 5ddc <_sk_callback_avx+0x1f2>
+  DB  196,98,125,24,37,11,25,0,0          ; vbroadcastss  0x190b(%rip),%ymm12        # 5d60 <_sk_callback_avx+0x1f2>
   DB  196,193,124,84,212                  ; vandps        %ymm12,%ymm0,%ymm2
   DB  197,252,87,194                      ; vxorps        %ymm2,%ymm0,%ymm0
   DB  196,195,125,25,198,1                ; vextractf128  $0x1,%ymm0,%xmm14
-  DB  196,98,121,24,29,247,24,0,0         ; vbroadcastss  0x18f7(%rip),%xmm11        # 5de0 <_sk_callback_avx+0x1f6>
+  DB  196,98,121,24,29,247,24,0,0         ; vbroadcastss  0x18f7(%rip),%xmm11        # 5d64 <_sk_callback_avx+0x1f6>
   DB  196,193,8,87,219                    ; vxorps        %xmm11,%xmm14,%xmm3
-  DB  196,98,121,24,45,237,24,0,0         ; vbroadcastss  0x18ed(%rip),%xmm13        # 5de4 <_sk_callback_avx+0x1fa>
+  DB  196,98,121,24,45,237,24,0,0         ; vbroadcastss  0x18ed(%rip),%xmm13        # 5d68 <_sk_callback_avx+0x1fa>
   DB  197,145,102,219                     ; vpcmpgtd      %xmm3,%xmm13,%xmm3
   DB  196,65,120,87,211                   ; vxorps        %xmm11,%xmm0,%xmm10
   DB  196,65,17,102,210                   ; vpcmpgtd      %xmm10,%xmm13,%xmm10
@@ -8413,7 +8593,7 @@ _sk_gather_f16_avx LABEL PROC
   DB  196,227,125,24,195,1                ; vinsertf128   $0x1,%xmm3,%ymm0,%ymm0
   DB  197,252,86,194                      ; vorps         %ymm2,%ymm0,%ymm0
   DB  196,227,125,25,194,1                ; vextractf128  $0x1,%ymm0,%xmm2
-  DB  196,226,121,24,29,163,24,0,0        ; vbroadcastss  0x18a3(%rip),%xmm3        # 5de8 <_sk_callback_avx+0x1fe>
+  DB  196,226,121,24,29,163,24,0,0        ; vbroadcastss  0x18a3(%rip),%xmm3        # 5d6c <_sk_callback_avx+0x1fe>
   DB  197,233,254,211                     ; vpaddd        %xmm3,%xmm2,%xmm2
   DB  197,249,254,195                     ; vpaddd        %xmm3,%xmm0,%xmm0
   DB  196,227,125,24,194,1                ; vinsertf128   $0x1,%xmm2,%ymm0,%ymm0
@@ -8515,12 +8695,12 @@ _sk_store_f16_avx LABEL PROC
   DB  197,252,17,180,36,128,0,0,0         ; vmovups       %ymm6,0x80(%rsp)
   DB  197,252,17,108,36,96                ; vmovups       %ymm5,0x60(%rsp)
   DB  197,252,17,100,36,64                ; vmovups       %ymm4,0x40(%rsp)
-  DB  196,98,125,24,13,176,22,0,0         ; vbroadcastss  0x16b0(%rip),%ymm9        # 5dec <_sk_callback_avx+0x202>
+  DB  196,98,125,24,13,176,22,0,0         ; vbroadcastss  0x16b0(%rip),%ymm9        # 5d70 <_sk_callback_avx+0x202>
   DB  196,65,124,84,209                   ; vandps        %ymm9,%ymm0,%ymm10
   DB  197,252,17,4,36                     ; vmovups       %ymm0,(%rsp)
   DB  196,65,124,87,218                   ; vxorps        %ymm10,%ymm0,%ymm11
   DB  196,67,125,25,220,1                 ; vextractf128  $0x1,%ymm11,%xmm12
-  DB  196,98,121,24,5,150,22,0,0          ; vbroadcastss  0x1696(%rip),%xmm8        # 5df0 <_sk_callback_avx+0x206>
+  DB  196,98,121,24,5,150,22,0,0          ; vbroadcastss  0x1696(%rip),%xmm8        # 5d74 <_sk_callback_avx+0x206>
   DB  196,65,57,102,236                   ; vpcmpgtd      %xmm12,%xmm8,%xmm13
   DB  196,65,57,102,243                   ; vpcmpgtd      %xmm11,%xmm8,%xmm14
   DB  196,67,13,24,237,1                  ; vinsertf128   $0x1,%xmm13,%ymm14,%ymm13
@@ -8530,7 +8710,7 @@ _sk_store_f16_avx LABEL PROC
   DB  196,67,13,24,242,1                  ; vinsertf128   $0x1,%xmm10,%ymm14,%ymm14
   DB  196,193,33,114,211,13               ; vpsrld        $0xd,%xmm11,%xmm11
   DB  196,193,25,114,212,13               ; vpsrld        $0xd,%xmm12,%xmm12
-  DB  196,98,125,24,21,93,22,0,0          ; vbroadcastss  0x165d(%rip),%ymm10        # 5df4 <_sk_callback_avx+0x20a>
+  DB  196,98,125,24,21,93,22,0,0          ; vbroadcastss  0x165d(%rip),%ymm10        # 5d78 <_sk_callback_avx+0x20a>
   DB  196,65,12,86,242                    ; vorps         %ymm10,%ymm14,%ymm14
   DB  196,67,125,25,247,1                 ; vextractf128  $0x1,%ymm14,%xmm15
   DB  196,65,1,254,228                    ; vpaddd        %xmm12,%xmm15,%xmm12
@@ -8612,7 +8792,7 @@ _sk_store_f16_avx LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  72,139,0                            ; mov           (%rax),%rax
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,75                              ; jne           497e <_sk_store_f16_avx+0x270>
+  DB  117,75                              ; jne           4902 <_sk_store_f16_avx+0x270>
   DB  197,120,17,28,248                   ; vmovups       %xmm11,(%rax,%rdi,8)
   DB  197,120,17,84,248,16                ; vmovups       %xmm10,0x10(%rax,%rdi,8)
   DB  197,120,17,76,248,32                ; vmovups       %xmm9,0x20(%rax,%rdi,8)
@@ -8628,22 +8808,22 @@ _sk_store_f16_avx LABEL PROC
   DB  255,224                             ; jmpq          *%rax
   DB  197,121,214,28,248                  ; vmovq         %xmm11,(%rax,%rdi,8)
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  116,193                             ; je            494a <_sk_store_f16_avx+0x23c>
+  DB  116,193                             ; je            48ce <_sk_store_f16_avx+0x23c>
   DB  197,121,23,92,248,8                 ; vmovhpd       %xmm11,0x8(%rax,%rdi,8)
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,181                             ; jb            494a <_sk_store_f16_avx+0x23c>
+  DB  114,181                             ; jb            48ce <_sk_store_f16_avx+0x23c>
   DB  197,121,214,84,248,16               ; vmovq         %xmm10,0x10(%rax,%rdi,8)
-  DB  116,173                             ; je            494a <_sk_store_f16_avx+0x23c>
+  DB  116,173                             ; je            48ce <_sk_store_f16_avx+0x23c>
   DB  197,121,23,84,248,24                ; vmovhpd       %xmm10,0x18(%rax,%rdi,8)
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,161                             ; jb            494a <_sk_store_f16_avx+0x23c>
+  DB  114,161                             ; jb            48ce <_sk_store_f16_avx+0x23c>
   DB  197,121,214,76,248,32               ; vmovq         %xmm9,0x20(%rax,%rdi,8)
-  DB  116,153                             ; je            494a <_sk_store_f16_avx+0x23c>
+  DB  116,153                             ; je            48ce <_sk_store_f16_avx+0x23c>
   DB  197,121,23,76,248,40                ; vmovhpd       %xmm9,0x28(%rax,%rdi,8)
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  114,141                             ; jb            494a <_sk_store_f16_avx+0x23c>
+  DB  114,141                             ; jb            48ce <_sk_store_f16_avx+0x23c>
   DB  197,121,214,68,248,48               ; vmovq         %xmm8,0x30(%rax,%rdi,8)
-  DB  235,133                             ; jmp           494a <_sk_store_f16_avx+0x23c>
+  DB  235,133                             ; jmp           48ce <_sk_store_f16_avx+0x23c>
 
 PUBLIC _sk_load_u16_be_avx
 _sk_load_u16_be_avx LABEL PROC
@@ -8651,7 +8831,7 @@ _sk_load_u16_be_avx LABEL PROC
   DB  76,139,0                            ; mov           (%rax),%r8
   DB  72,141,4,189,0,0,0,0                ; lea           0x0(,%rdi,4),%rax
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,5,1,0,0                      ; jne           4ae0 <_sk_load_u16_be_avx+0x11b>
+  DB  15,133,5,1,0,0                      ; jne           4a64 <_sk_load_u16_be_avx+0x11b>
   DB  196,65,121,16,4,64                  ; vmovupd       (%r8,%rax,2),%xmm8
   DB  196,193,121,16,84,64,16             ; vmovupd       0x10(%r8,%rax,2),%xmm2
   DB  196,193,121,16,92,64,32             ; vmovupd       0x20(%r8,%rax,2),%xmm3
@@ -8710,29 +8890,29 @@ _sk_load_u16_be_avx LABEL PROC
   DB  196,65,123,16,4,64                  ; vmovsd        (%r8,%rax,2),%xmm8
   DB  196,65,49,239,201                   ; vpxor         %xmm9,%xmm9,%xmm9
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  116,85                              ; je            4b46 <_sk_load_u16_be_avx+0x181>
+  DB  116,85                              ; je            4aca <_sk_load_u16_be_avx+0x181>
   DB  196,65,57,22,68,64,8                ; vmovhpd       0x8(%r8,%rax,2),%xmm8,%xmm8
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,72                              ; jb            4b46 <_sk_load_u16_be_avx+0x181>
+  DB  114,72                              ; jb            4aca <_sk_load_u16_be_avx+0x181>
   DB  196,193,123,16,84,64,16             ; vmovsd        0x10(%r8,%rax,2),%xmm2
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  116,72                              ; je            4b53 <_sk_load_u16_be_avx+0x18e>
+  DB  116,72                              ; je            4ad7 <_sk_load_u16_be_avx+0x18e>
   DB  196,193,105,22,84,64,24             ; vmovhpd       0x18(%r8,%rax,2),%xmm2,%xmm2
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,59                              ; jb            4b53 <_sk_load_u16_be_avx+0x18e>
+  DB  114,59                              ; jb            4ad7 <_sk_load_u16_be_avx+0x18e>
   DB  196,193,123,16,92,64,32             ; vmovsd        0x20(%r8,%rax,2),%xmm3
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  15,132,205,254,255,255              ; je            49f6 <_sk_load_u16_be_avx+0x31>
+  DB  15,132,205,254,255,255              ; je            497a <_sk_load_u16_be_avx+0x31>
   DB  196,193,97,22,92,64,40              ; vmovhpd       0x28(%r8,%rax,2),%xmm3,%xmm3
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  15,130,188,254,255,255              ; jb            49f6 <_sk_load_u16_be_avx+0x31>
+  DB  15,130,188,254,255,255              ; jb            497a <_sk_load_u16_be_avx+0x31>
   DB  196,65,122,126,76,64,48             ; vmovq         0x30(%r8,%rax,2),%xmm9
-  DB  233,176,254,255,255                 ; jmpq          49f6 <_sk_load_u16_be_avx+0x31>
+  DB  233,176,254,255,255                 ; jmpq          497a <_sk_load_u16_be_avx+0x31>
   DB  197,225,87,219                      ; vxorpd        %xmm3,%xmm3,%xmm3
   DB  197,233,87,210                      ; vxorpd        %xmm2,%xmm2,%xmm2
-  DB  233,163,254,255,255                 ; jmpq          49f6 <_sk_load_u16_be_avx+0x31>
+  DB  233,163,254,255,255                 ; jmpq          497a <_sk_load_u16_be_avx+0x31>
   DB  197,225,87,219                      ; vxorpd        %xmm3,%xmm3,%xmm3
-  DB  233,154,254,255,255                 ; jmpq          49f6 <_sk_load_u16_be_avx+0x31>
+  DB  233,154,254,255,255                 ; jmpq          497a <_sk_load_u16_be_avx+0x31>
 
 PUBLIC _sk_load_rgb_u16_be_avx
 _sk_load_rgb_u16_be_avx LABEL PROC
@@ -8740,7 +8920,7 @@ _sk_load_rgb_u16_be_avx LABEL PROC
   DB  76,139,0                            ; mov           (%rax),%r8
   DB  72,141,4,127                        ; lea           (%rdi,%rdi,2),%rax
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,133,8,1,0,0                      ; jne           4c76 <_sk_load_rgb_u16_be_avx+0x11a>
+  DB  15,133,8,1,0,0                      ; jne           4bfa <_sk_load_rgb_u16_be_avx+0x11a>
   DB  196,193,122,111,4,64                ; vmovdqu       (%r8,%rax,2),%xmm0
   DB  196,193,122,111,84,64,12            ; vmovdqu       0xc(%r8,%rax,2),%xmm2
   DB  196,193,122,111,76,64,24            ; vmovdqu       0x18(%r8,%rax,2),%xmm1
@@ -8799,36 +8979,36 @@ _sk_load_rgb_u16_be_avx LABEL PROC
   DB  196,193,121,110,4,64                ; vmovd         (%r8,%rax,2),%xmm0
   DB  196,193,121,196,68,64,4,2           ; vpinsrw       $0x2,0x4(%r8,%rax,2),%xmm0,%xmm0
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  117,5                               ; jne           4c8f <_sk_load_rgb_u16_be_avx+0x133>
-  DB  233,19,255,255,255                  ; jmpq          4ba2 <_sk_load_rgb_u16_be_avx+0x46>
+  DB  117,5                               ; jne           4c13 <_sk_load_rgb_u16_be_avx+0x133>
+  DB  233,19,255,255,255                  ; jmpq          4b26 <_sk_load_rgb_u16_be_avx+0x46>
   DB  196,193,121,110,76,64,6             ; vmovd         0x6(%r8,%rax,2),%xmm1
   DB  196,65,113,196,68,64,10,2           ; vpinsrw       $0x2,0xa(%r8,%rax,2),%xmm1,%xmm8
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,26                              ; jb            4cbe <_sk_load_rgb_u16_be_avx+0x162>
+  DB  114,26                              ; jb            4c42 <_sk_load_rgb_u16_be_avx+0x162>
   DB  196,193,121,110,76,64,12            ; vmovd         0xc(%r8,%rax,2),%xmm1
   DB  196,193,113,196,84,64,16,2          ; vpinsrw       $0x2,0x10(%r8,%rax,2),%xmm1,%xmm2
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  117,10                              ; jne           4cc3 <_sk_load_rgb_u16_be_avx+0x167>
-  DB  233,228,254,255,255                 ; jmpq          4ba2 <_sk_load_rgb_u16_be_avx+0x46>
-  DB  233,223,254,255,255                 ; jmpq          4ba2 <_sk_load_rgb_u16_be_avx+0x46>
+  DB  117,10                              ; jne           4c47 <_sk_load_rgb_u16_be_avx+0x167>
+  DB  233,228,254,255,255                 ; jmpq          4b26 <_sk_load_rgb_u16_be_avx+0x46>
+  DB  233,223,254,255,255                 ; jmpq          4b26 <_sk_load_rgb_u16_be_avx+0x46>
   DB  196,193,121,110,76,64,18            ; vmovd         0x12(%r8,%rax,2),%xmm1
   DB  196,65,113,196,76,64,22,2           ; vpinsrw       $0x2,0x16(%r8,%rax,2),%xmm1,%xmm9
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,26                              ; jb            4cf2 <_sk_load_rgb_u16_be_avx+0x196>
+  DB  114,26                              ; jb            4c76 <_sk_load_rgb_u16_be_avx+0x196>
   DB  196,193,121,110,76,64,24            ; vmovd         0x18(%r8,%rax,2),%xmm1
   DB  196,193,113,196,76,64,28,2          ; vpinsrw       $0x2,0x1c(%r8,%rax,2),%xmm1,%xmm1
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  117,10                              ; jne           4cf7 <_sk_load_rgb_u16_be_avx+0x19b>
-  DB  233,176,254,255,255                 ; jmpq          4ba2 <_sk_load_rgb_u16_be_avx+0x46>
-  DB  233,171,254,255,255                 ; jmpq          4ba2 <_sk_load_rgb_u16_be_avx+0x46>
+  DB  117,10                              ; jne           4c7b <_sk_load_rgb_u16_be_avx+0x19b>
+  DB  233,176,254,255,255                 ; jmpq          4b26 <_sk_load_rgb_u16_be_avx+0x46>
+  DB  233,171,254,255,255                 ; jmpq          4b26 <_sk_load_rgb_u16_be_avx+0x46>
   DB  196,193,121,110,92,64,30            ; vmovd         0x1e(%r8,%rax,2),%xmm3
   DB  196,65,97,196,92,64,34,2            ; vpinsrw       $0x2,0x22(%r8,%rax,2),%xmm3,%xmm11
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  114,20                              ; jb            4d20 <_sk_load_rgb_u16_be_avx+0x1c4>
+  DB  114,20                              ; jb            4ca4 <_sk_load_rgb_u16_be_avx+0x1c4>
   DB  196,193,121,110,92,64,36            ; vmovd         0x24(%r8,%rax,2),%xmm3
   DB  196,193,97,196,92,64,40,2           ; vpinsrw       $0x2,0x28(%r8,%rax,2),%xmm3,%xmm3
-  DB  233,130,254,255,255                 ; jmpq          4ba2 <_sk_load_rgb_u16_be_avx+0x46>
-  DB  233,125,254,255,255                 ; jmpq          4ba2 <_sk_load_rgb_u16_be_avx+0x46>
+  DB  233,130,254,255,255                 ; jmpq          4b26 <_sk_load_rgb_u16_be_avx+0x46>
+  DB  233,125,254,255,255                 ; jmpq          4b26 <_sk_load_rgb_u16_be_avx+0x46>
 
 PUBLIC _sk_store_u16_be_avx
 _sk_store_u16_be_avx LABEL PROC
@@ -8876,7 +9056,7 @@ _sk_store_u16_be_avx LABEL PROC
   DB  196,65,17,98,200                    ; vpunpckldq    %xmm8,%xmm13,%xmm9
   DB  196,65,17,106,192                   ; vpunpckhdq    %xmm8,%xmm13,%xmm8
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,31                              ; jne           4e27 <_sk_store_u16_be_avx+0x102>
+  DB  117,31                              ; jne           4dab <_sk_store_u16_be_avx+0x102>
   DB  196,1,120,17,28,72                  ; vmovups       %xmm11,(%r8,%r9,2)
   DB  196,1,120,17,84,72,16               ; vmovups       %xmm10,0x10(%r8,%r9,2)
   DB  196,1,120,17,76,72,32               ; vmovups       %xmm9,0x20(%r8,%r9,2)
@@ -8885,31 +9065,31 @@ _sk_store_u16_be_avx LABEL PROC
   DB  255,224                             ; jmpq          *%rax
   DB  196,1,121,214,28,72                 ; vmovq         %xmm11,(%r8,%r9,2)
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  116,240                             ; je            4e23 <_sk_store_u16_be_avx+0xfe>
+  DB  116,240                             ; je            4da7 <_sk_store_u16_be_avx+0xfe>
   DB  196,1,121,23,92,72,8                ; vmovhpd       %xmm11,0x8(%r8,%r9,2)
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,227                             ; jb            4e23 <_sk_store_u16_be_avx+0xfe>
+  DB  114,227                             ; jb            4da7 <_sk_store_u16_be_avx+0xfe>
   DB  196,1,121,214,84,72,16              ; vmovq         %xmm10,0x10(%r8,%r9,2)
-  DB  116,218                             ; je            4e23 <_sk_store_u16_be_avx+0xfe>
+  DB  116,218                             ; je            4da7 <_sk_store_u16_be_avx+0xfe>
   DB  196,1,121,23,84,72,24               ; vmovhpd       %xmm10,0x18(%r8,%r9,2)
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,205                             ; jb            4e23 <_sk_store_u16_be_avx+0xfe>
+  DB  114,205                             ; jb            4da7 <_sk_store_u16_be_avx+0xfe>
   DB  196,1,121,214,76,72,32              ; vmovq         %xmm9,0x20(%r8,%r9,2)
-  DB  116,196                             ; je            4e23 <_sk_store_u16_be_avx+0xfe>
+  DB  116,196                             ; je            4da7 <_sk_store_u16_be_avx+0xfe>
   DB  196,1,121,23,76,72,40               ; vmovhpd       %xmm9,0x28(%r8,%r9,2)
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  114,183                             ; jb            4e23 <_sk_store_u16_be_avx+0xfe>
+  DB  114,183                             ; jb            4da7 <_sk_store_u16_be_avx+0xfe>
   DB  196,1,121,214,68,72,48              ; vmovq         %xmm8,0x30(%r8,%r9,2)
-  DB  235,174                             ; jmp           4e23 <_sk_store_u16_be_avx+0xfe>
+  DB  235,174                             ; jmp           4da7 <_sk_store_u16_be_avx+0xfe>
 
 PUBLIC _sk_load_f32_avx
 _sk_load_f32_avx LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  119,110                             ; ja            4eeb <_sk_load_f32_avx+0x76>
+  DB  119,110                             ; ja            4e6f <_sk_load_f32_avx+0x76>
   DB  76,139,0                            ; mov           (%rax),%r8
   DB  76,141,12,189,0,0,0,0               ; lea           0x0(,%rdi,4),%r9
-  DB  76,141,21,133,0,0,0                 ; lea           0x85(%rip),%r10        # 4f14 <_sk_load_f32_avx+0x9f>
+  DB  76,141,21,133,0,0,0                 ; lea           0x85(%rip),%r10        # 4e98 <_sk_load_f32_avx+0x9f>
   DB  73,99,4,138                         ; movslq        (%r10,%rcx,4),%rax
   DB  76,1,208                            ; add           %r10,%rax
   DB  255,224                             ; jmpq          *%rax
@@ -8965,7 +9145,7 @@ _sk_store_f32_avx LABEL PROC
   DB  196,65,37,20,196                    ; vunpcklpd     %ymm12,%ymm11,%ymm8
   DB  196,65,37,21,220                    ; vunpckhpd     %ymm12,%ymm11,%ymm11
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  117,55                              ; jne           4fa1 <_sk_store_f32_avx+0x6d>
+  DB  117,55                              ; jne           4f25 <_sk_store_f32_avx+0x6d>
   DB  196,67,45,24,225,1                  ; vinsertf128   $0x1,%xmm9,%ymm10,%ymm12
   DB  196,67,61,24,235,1                  ; vinsertf128   $0x1,%xmm11,%ymm8,%ymm13
   DB  196,67,45,6,201,49                  ; vperm2f128    $0x31,%ymm9,%ymm10,%ymm9
@@ -8978,22 +9158,22 @@ _sk_store_f32_avx LABEL PROC
   DB  255,224                             ; jmpq          *%rax
   DB  196,65,121,17,20,128                ; vmovupd       %xmm10,(%r8,%rax,4)
   DB  72,131,249,1                        ; cmp           $0x1,%rcx
-  DB  116,240                             ; je            4f9d <_sk_store_f32_avx+0x69>
+  DB  116,240                             ; je            4f21 <_sk_store_f32_avx+0x69>
   DB  196,65,121,17,76,128,16             ; vmovupd       %xmm9,0x10(%r8,%rax,4)
   DB  72,131,249,3                        ; cmp           $0x3,%rcx
-  DB  114,227                             ; jb            4f9d <_sk_store_f32_avx+0x69>
+  DB  114,227                             ; jb            4f21 <_sk_store_f32_avx+0x69>
   DB  196,65,121,17,68,128,32             ; vmovupd       %xmm8,0x20(%r8,%rax,4)
-  DB  116,218                             ; je            4f9d <_sk_store_f32_avx+0x69>
+  DB  116,218                             ; je            4f21 <_sk_store_f32_avx+0x69>
   DB  196,65,121,17,92,128,48             ; vmovupd       %xmm11,0x30(%r8,%rax,4)
   DB  72,131,249,5                        ; cmp           $0x5,%rcx
-  DB  114,205                             ; jb            4f9d <_sk_store_f32_avx+0x69>
+  DB  114,205                             ; jb            4f21 <_sk_store_f32_avx+0x69>
   DB  196,67,125,25,84,128,64,1           ; vextractf128  $0x1,%ymm10,0x40(%r8,%rax,4)
-  DB  116,195                             ; je            4f9d <_sk_store_f32_avx+0x69>
+  DB  116,195                             ; je            4f21 <_sk_store_f32_avx+0x69>
   DB  196,67,125,25,76,128,80,1           ; vextractf128  $0x1,%ymm9,0x50(%r8,%rax,4)
   DB  72,131,249,7                        ; cmp           $0x7,%rcx
-  DB  114,181                             ; jb            4f9d <_sk_store_f32_avx+0x69>
+  DB  114,181                             ; jb            4f21 <_sk_store_f32_avx+0x69>
   DB  196,67,125,25,68,128,96,1           ; vextractf128  $0x1,%ymm8,0x60(%r8,%rax,4)
-  DB  235,171                             ; jmp           4f9d <_sk_store_f32_avx+0x69>
+  DB  235,171                             ; jmp           4f21 <_sk_store_f32_avx+0x69>
 
 PUBLIC _sk_clamp_x_avx
 _sk_clamp_x_avx LABEL PROC
@@ -9297,7 +9477,7 @@ _sk_linear_gradient_avx LABEL PROC
   DB  196,226,125,24,88,28                ; vbroadcastss  0x1c(%rax),%ymm3
   DB  76,139,0                            ; mov           (%rax),%r8
   DB  77,133,192                          ; test          %r8,%r8
-  DB  15,132,146,0,0,0                    ; je            5555 <_sk_linear_gradient_avx+0xb8>
+  DB  15,132,146,0,0,0                    ; je            54d9 <_sk_linear_gradient_avx+0xb8>
   DB  72,139,64,8                         ; mov           0x8(%rax),%rax
   DB  72,131,192,32                       ; add           $0x20,%rax
   DB  196,65,28,87,228                    ; vxorps        %ymm12,%ymm12,%ymm12
@@ -9324,8 +9504,8 @@ _sk_linear_gradient_avx LABEL PROC
   DB  196,227,13,74,219,208               ; vblendvps     %ymm13,%ymm3,%ymm14,%ymm3
   DB  72,131,192,36                       ; add           $0x24,%rax
   DB  73,255,200                          ; dec           %r8
-  DB  117,140                             ; jne           54df <_sk_linear_gradient_avx+0x42>
-  DB  235,20                              ; jmp           5569 <_sk_linear_gradient_avx+0xcc>
+  DB  117,140                             ; jne           5463 <_sk_linear_gradient_avx+0x42>
+  DB  235,20                              ; jmp           54ed <_sk_linear_gradient_avx+0xcc>
   DB  196,65,36,87,219                    ; vxorps        %ymm11,%ymm11,%ymm11
   DB  196,65,44,87,210                    ; vxorps        %ymm10,%ymm10,%ymm10
   DB  196,65,52,87,201                    ; vxorps        %ymm9,%ymm9,%ymm9
@@ -9783,10 +9963,10 @@ ALIGN 4
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            5d14 <.literal4+0x10>
+  DB  127,0                               ; jg            5c98 <.literal4+0x10>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            5d8d <.literal4+0x89>
+  DB  119,115                             ; ja            5d11 <.literal4+0x89>
   DB  248                                 ; clc
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,249,68,180                   ; mov           $0xb444f93f,%edi
@@ -9800,10 +9980,10 @@ ALIGN 4
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            5d44 <.literal4+0x40>
+  DB  127,0                               ; jg            5cc8 <.literal4+0x40>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            5dbd <.literal4+0xb9>
+  DB  119,115                             ; ja            5d41 <.literal4+0xb9>
   DB  248                                 ; clc
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,249,68,180                   ; mov           $0xb444f93f,%edi
@@ -9817,10 +9997,10 @@ ALIGN 4
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            5d74 <.literal4+0x70>
+  DB  127,0                               ; jg            5cf8 <.literal4+0x70>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            5ded <.literal4+0xe9>
+  DB  119,115                             ; ja            5d71 <.literal4+0xe9>
   DB  248                                 ; clc
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,249,68,180                   ; mov           $0xb444f93f,%edi
@@ -9834,10 +10014,10 @@ ALIGN 4
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            5da4 <.literal4+0xa0>
+  DB  127,0                               ; jg            5d28 <.literal4+0xa0>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            5e1d <_sk_callback_avx+0x233>
+  DB  119,115                             ; ja            5da1 <_sk_callback_avx+0x233>
   DB  248                                 ; clc
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,249,68,180                   ; mov           $0xb444f93f,%edi
@@ -9861,6 +10041,90 @@ ALIGN 4
   DB  0,128,0,0,128,56                    ; add           %al,0x38800000(%rax)
   DB  0,64,254                            ; add           %al,-0x2(%rax)
   DB  255                                 ; .byte         0xff
+
+ALIGN 32
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+
+ALIGN 16
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
 ALIGN 32
 
 PUBLIC _sk_start_pipeline_sse41
@@ -9942,7 +10206,7 @@ _sk_seed_shader_sse41 LABEL PROC
   DB  102,15,110,199                      ; movd          %edi,%xmm0
   DB  102,15,112,192,0                    ; pshufd        $0x0,%xmm0,%xmm0
   DB  15,91,200                           ; cvtdq2ps      %xmm0,%xmm1
-  DB  15,40,21,193,62,0,0                 ; movaps        0x3ec1(%rip),%xmm2        # 3fd0 <_sk_callback_sse41+0xb4>
+  DB  15,40,21,209,62,0,0                 ; movaps        0x3ed1(%rip),%xmm2        # 3fe0 <_sk_callback_sse41+0xb8>
   DB  15,88,202                           ; addps         %xmm2,%xmm1
   DB  15,16,2                             ; movups        (%rdx),%xmm0
   DB  15,88,193                           ; addps         %xmm1,%xmm0
@@ -9951,7 +10215,7 @@ _sk_seed_shader_sse41 LABEL PROC
   DB  15,91,201                           ; cvtdq2ps      %xmm1,%xmm1
   DB  15,88,202                           ; addps         %xmm2,%xmm1
   DB  72,173                              ; lods          %ds:(%rsi),%rax
-  DB  15,40,21,176,62,0,0                 ; movaps        0x3eb0(%rip),%xmm2        # 3fe0 <_sk_callback_sse41+0xc4>
+  DB  15,40,21,192,62,0,0                 ; movaps        0x3ec0(%rip),%xmm2        # 3ff0 <_sk_callback_sse41+0xc8>
   DB  15,87,219                           ; xorps         %xmm3,%xmm3
   DB  15,87,228                           ; xorps         %xmm4,%xmm4
   DB  15,87,237                           ; xorps         %xmm5,%xmm5
@@ -11463,56 +11727,51 @@ _sk_lerp_565_sse41 LABEL PROC
 PUBLIC _sk_load_tables_sse41
 _sk_load_tables_sse41 LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
-  DB  72,139,8                            ; mov           (%rax),%rcx
-  DB  76,139,64,8                         ; mov           0x8(%rax),%r8
-  DB  243,68,15,111,4,185                 ; movdqu        (%rcx,%rdi,4),%xmm8
-  DB  185,255,0,0,0                       ; mov           $0xff,%ecx
-  DB  102,15,110,193                      ; movd          %ecx,%xmm0
-  DB  102,15,112,192,0                    ; pshufd        $0x0,%xmm0,%xmm0
-  DB  102,65,15,111,200                   ; movdqa        %xmm8,%xmm1
-  DB  102,15,114,209,8                    ; psrld         $0x8,%xmm1
-  DB  102,15,219,200                      ; pand          %xmm0,%xmm1
-  DB  102,65,15,111,208                   ; movdqa        %xmm8,%xmm2
-  DB  102,15,114,210,16                   ; psrld         $0x10,%xmm2
-  DB  102,15,219,208                      ; pand          %xmm0,%xmm2
+  DB  76,139,0                            ; mov           (%rax),%r8
+  DB  76,139,72,8                         ; mov           0x8(%rax),%r9
+  DB  243,69,15,111,4,184                 ; movdqu        (%r8,%rdi,4),%xmm8
+  DB  102,15,111,5,232,41,0,0             ; movdqa        0x29e8(%rip),%xmm0        # 4000 <_sk_callback_sse41+0xd8>
   DB  102,65,15,219,192                   ; pand          %xmm8,%xmm0
-  DB  102,72,15,58,22,193,1               ; pextrq        $0x1,%xmm0,%rcx
-  DB  65,137,201                          ; mov           %ecx,%r9d
-  DB  72,193,233,32                       ; shr           $0x20,%rcx
-  DB  102,73,15,126,194                   ; movq          %xmm0,%r10
-  DB  69,137,211                          ; mov           %r10d,%r11d
-  DB  73,193,234,32                       ; shr           $0x20,%r10
-  DB  243,67,15,16,4,152                  ; movss         (%r8,%r11,4),%xmm0
-  DB  102,67,15,58,33,4,144,16            ; insertps      $0x10,(%r8,%r10,4),%xmm0
-  DB  102,67,15,58,33,4,136,32            ; insertps      $0x20,(%r8,%r9,4),%xmm0
-  DB  102,65,15,58,33,4,136,48            ; insertps      $0x30,(%r8,%rcx,4),%xmm0
-  DB  76,139,64,16                        ; mov           0x10(%rax),%r8
-  DB  102,73,15,58,22,202,1               ; pextrq        $0x1,%xmm1,%r10
-  DB  77,137,209                          ; mov           %r10,%r9
-  DB  73,193,233,32                       ; shr           $0x20,%r9
-  DB  102,72,15,126,201                   ; movq          %xmm1,%rcx
-  DB  65,137,203                          ; mov           %ecx,%r11d
-  DB  65,129,227,255,255,255,0            ; and           $0xffffff,%r11d
+  DB  102,73,15,58,22,192,1               ; pextrq        $0x1,%xmm0,%r8
+  DB  102,72,15,126,193                   ; movq          %xmm0,%rcx
+  DB  68,15,182,209                       ; movzbl        %cl,%r10d
   DB  72,193,233,30                       ; shr           $0x1e,%rcx
-  DB  65,129,226,255,255,255,0            ; and           $0xffffff,%r10d
-  DB  243,67,15,16,12,152                 ; movss         (%r8,%r11,4),%xmm1
+  DB  69,15,182,216                       ; movzbl        %r8b,%r11d
+  DB  73,193,232,30                       ; shr           $0x1e,%r8
+  DB  243,67,15,16,4,145                  ; movss         (%r9,%r10,4),%xmm0
+  DB  102,65,15,58,33,4,9,16              ; insertps      $0x10,(%r9,%rcx,1),%xmm0
+  DB  102,67,15,58,33,4,153,32            ; insertps      $0x20,(%r9,%r11,4),%xmm0
+  DB  243,67,15,16,12,1                   ; movss         (%r9,%r8,1),%xmm1
+  DB  102,15,58,33,193,48                 ; insertps      $0x30,%xmm1,%xmm0
+  DB  76,139,64,16                        ; mov           0x10(%rax),%r8
+  DB  102,65,15,111,200                   ; movdqa        %xmm8,%xmm1
+  DB  102,15,56,0,13,163,41,0,0           ; pshufb        0x29a3(%rip),%xmm1        # 4010 <_sk_callback_sse41+0xe8>
+  DB  102,73,15,58,22,201,1               ; pextrq        $0x1,%xmm1,%r9
+  DB  102,72,15,126,201                   ; movq          %xmm1,%rcx
+  DB  68,15,182,209                       ; movzbl        %cl,%r10d
+  DB  72,193,233,30                       ; shr           $0x1e,%rcx
+  DB  69,15,182,217                       ; movzbl        %r9b,%r11d
+  DB  73,193,233,30                       ; shr           $0x1e,%r9
+  DB  243,67,15,16,12,144                 ; movss         (%r8,%r10,4),%xmm1
   DB  102,65,15,58,33,12,8,16             ; insertps      $0x10,(%r8,%rcx,1),%xmm1
-  DB  243,67,15,16,28,144                 ; movss         (%r8,%r10,4),%xmm3
-  DB  102,15,58,33,203,32                 ; insertps      $0x20,%xmm3,%xmm1
-  DB  243,67,15,16,28,136                 ; movss         (%r8,%r9,4),%xmm3
-  DB  102,15,58,33,203,48                 ; insertps      $0x30,%xmm3,%xmm1
-  DB  76,139,72,24                        ; mov           0x18(%rax),%r9
+  DB  243,67,15,16,20,152                 ; movss         (%r8,%r11,4),%xmm2
+  DB  102,15,58,33,202,32                 ; insertps      $0x20,%xmm2,%xmm1
+  DB  243,67,15,16,20,8                   ; movss         (%r8,%r9,1),%xmm2
+  DB  102,15,58,33,202,48                 ; insertps      $0x30,%xmm2,%xmm1
+  DB  76,139,64,24                        ; mov           0x18(%rax),%r8
+  DB  102,65,15,111,208                   ; movdqa        %xmm8,%xmm2
+  DB  102,15,56,0,21,95,41,0,0            ; pshufb        0x295f(%rip),%xmm2        # 4020 <_sk_callback_sse41+0xf8>
   DB  102,72,15,58,22,209,1               ; pextrq        $0x1,%xmm2,%rcx
-  DB  68,15,183,193                       ; movzwl        %cx,%r8d
-  DB  72,193,233,32                       ; shr           $0x20,%rcx
   DB  102,72,15,126,208                   ; movq          %xmm2,%rax
-  DB  68,15,183,208                       ; movzwl        %ax,%r10d
+  DB  68,15,182,200                       ; movzbl        %al,%r9d
   DB  72,193,232,30                       ; shr           $0x1e,%rax
-  DB  243,67,15,16,20,145                 ; movss         (%r9,%r10,4),%xmm2
-  DB  102,65,15,58,33,20,1,16             ; insertps      $0x10,(%r9,%rax,1),%xmm2
-  DB  243,67,15,16,28,129                 ; movss         (%r9,%r8,4),%xmm3
+  DB  68,15,182,209                       ; movzbl        %cl,%r10d
+  DB  72,193,233,30                       ; shr           $0x1e,%rcx
+  DB  243,67,15,16,20,136                 ; movss         (%r8,%r9,4),%xmm2
+  DB  102,65,15,58,33,20,0,16             ; insertps      $0x10,(%r8,%rax,1),%xmm2
+  DB  243,67,15,16,28,144                 ; movss         (%r8,%r10,4),%xmm3
   DB  102,15,58,33,211,32                 ; insertps      $0x20,%xmm3,%xmm2
-  DB  243,65,15,16,28,137                 ; movss         (%r9,%rcx,4),%xmm3
+  DB  243,65,15,16,28,8                   ; movss         (%r8,%rcx,1),%xmm3
   DB  102,15,58,33,211,48                 ; insertps      $0x30,%xmm3,%xmm2
   DB  102,65,15,114,208,24                ; psrld         $0x18,%xmm8
   DB  69,15,91,192                        ; cvtdq2ps      %xmm8,%xmm8
@@ -11530,36 +11789,36 @@ _sk_load_tables_u16_be_sse41 LABEL PROC
   DB  76,139,64,8                         ; mov           0x8(%rax),%r8
   DB  243,15,111,4,249                    ; movdqu        (%rcx,%rdi,8),%xmm0
   DB  243,15,111,76,249,16                ; movdqu        0x10(%rcx,%rdi,8),%xmm1
-  DB  102,15,111,216                      ; movdqa        %xmm0,%xmm3
-  DB  102,15,97,217                       ; punpcklwd     %xmm1,%xmm3
+  DB  102,68,15,111,200                   ; movdqa        %xmm0,%xmm9
+  DB  102,68,15,97,201                    ; punpcklwd     %xmm1,%xmm9
   DB  102,15,105,193                      ; punpckhwd     %xmm1,%xmm0
-  DB  102,15,111,203                      ; movdqa        %xmm3,%xmm1
+  DB  102,65,15,111,201                   ; movdqa        %xmm9,%xmm1
   DB  102,15,97,200                       ; punpcklwd     %xmm0,%xmm1
-  DB  102,15,105,216                      ; punpckhwd     %xmm0,%xmm3
-  DB  102,15,56,51,193                    ; pmovzxwd      %xmm1,%xmm0
-  DB  185,255,0,0,0                       ; mov           $0xff,%ecx
-  DB  102,15,110,209                      ; movd          %ecx,%xmm2
-  DB  102,68,15,112,194,0                 ; pshufd        $0x0,%xmm2,%xmm8
+  DB  102,68,15,105,200                   ; punpckhwd     %xmm0,%xmm9
+  DB  102,68,15,111,5,213,40,0,0          ; movdqa        0x28d5(%rip),%xmm8        # 4030 <_sk_callback_sse41+0x108>
+  DB  102,15,111,193                      ; movdqa        %xmm1,%xmm0
   DB  102,65,15,219,192                   ; pand          %xmm8,%xmm0
+  DB  102,15,56,51,192                    ; pmovzxwd      %xmm0,%xmm0
   DB  102,73,15,58,22,193,1               ; pextrq        $0x1,%xmm0,%r9
   DB  102,72,15,126,193                   ; movq          %xmm0,%rcx
-  DB  65,137,202                          ; mov           %ecx,%r10d
+  DB  68,15,182,209                       ; movzbl        %cl,%r10d
   DB  72,193,233,30                       ; shr           $0x1e,%rcx
-  DB  69,137,203                          ; mov           %r9d,%r11d
+  DB  69,15,182,217                       ; movzbl        %r9b,%r11d
   DB  73,193,233,30                       ; shr           $0x1e,%r9
   DB  243,67,15,16,4,144                  ; movss         (%r8,%r10,4),%xmm0
   DB  102,65,15,58,33,4,8,16              ; insertps      $0x10,(%r8,%rcx,1),%xmm0
-  DB  102,67,15,58,33,4,152,32            ; insertps      $0x20,(%r8,%r11,4),%xmm0
-  DB  102,67,15,58,33,4,8,48              ; insertps      $0x30,(%r8,%r9,1),%xmm0
+  DB  243,67,15,16,20,152                 ; movss         (%r8,%r11,4),%xmm2
+  DB  102,15,58,33,194,32                 ; insertps      $0x20,%xmm2,%xmm0
+  DB  243,67,15,16,20,8                   ; movss         (%r8,%r9,1),%xmm2
+  DB  102,15,58,33,194,48                 ; insertps      $0x30,%xmm2,%xmm0
   DB  76,139,64,16                        ; mov           0x10(%rax),%r8
-  DB  102,15,115,217,8                    ; psrldq        $0x8,%xmm1
+  DB  102,15,56,0,13,136,40,0,0           ; pshufb        0x2888(%rip),%xmm1        # 4040 <_sk_callback_sse41+0x118>
   DB  102,15,56,51,201                    ; pmovzxwd      %xmm1,%xmm1
-  DB  102,65,15,219,200                   ; pand          %xmm8,%xmm1
   DB  102,73,15,58,22,201,1               ; pextrq        $0x1,%xmm1,%r9
   DB  102,72,15,126,201                   ; movq          %xmm1,%rcx
-  DB  65,137,202                          ; mov           %ecx,%r10d
+  DB  68,15,182,209                       ; movzbl        %cl,%r10d
   DB  72,193,233,30                       ; shr           $0x1e,%rcx
-  DB  69,137,203                          ; mov           %r9d,%r11d
+  DB  69,15,182,217                       ; movzbl        %r9b,%r11d
   DB  73,193,233,30                       ; shr           $0x1e,%r9
   DB  243,67,15,16,12,144                 ; movss         (%r8,%r10,4),%xmm1
   DB  102,65,15,58,33,12,8,16             ; insertps      $0x10,(%r8,%rcx,1),%xmm1
@@ -11568,22 +11827,24 @@ _sk_load_tables_u16_be_sse41 LABEL PROC
   DB  243,67,15,16,20,8                   ; movss         (%r8,%r9,1),%xmm2
   DB  102,15,58,33,202,48                 ; insertps      $0x30,%xmm2,%xmm1
   DB  76,139,64,24                        ; mov           0x18(%rax),%r8
-  DB  102,15,56,51,211                    ; pmovzxwd      %xmm3,%xmm2
-  DB  102,65,15,219,208                   ; pand          %xmm8,%xmm2
+  DB  102,69,15,219,193                   ; pand          %xmm9,%xmm8
+  DB  102,65,15,56,51,208                 ; pmovzxwd      %xmm8,%xmm2
   DB  102,72,15,58,22,209,1               ; pextrq        $0x1,%xmm2,%rcx
   DB  102,72,15,126,208                   ; movq          %xmm2,%rax
-  DB  65,137,193                          ; mov           %eax,%r9d
+  DB  68,15,182,200                       ; movzbl        %al,%r9d
   DB  72,193,232,30                       ; shr           $0x1e,%rax
-  DB  65,137,202                          ; mov           %ecx,%r10d
+  DB  68,15,182,209                       ; movzbl        %cl,%r10d
   DB  72,193,233,30                       ; shr           $0x1e,%rcx
   DB  243,67,15,16,20,136                 ; movss         (%r8,%r9,4),%xmm2
   DB  102,65,15,58,33,20,0,16             ; insertps      $0x10,(%r8,%rax,1),%xmm2
-  DB  102,67,15,58,33,20,144,32           ; insertps      $0x20,(%r8,%r10,4),%xmm2
-  DB  102,65,15,58,33,20,8,48             ; insertps      $0x30,(%r8,%rcx,1),%xmm2
+  DB  243,67,15,16,28,144                 ; movss         (%r8,%r10,4),%xmm3
+  DB  102,15,58,33,211,32                 ; insertps      $0x20,%xmm3,%xmm2
+  DB  243,65,15,16,28,8                   ; movss         (%r8,%rcx,1),%xmm3
+  DB  102,15,58,33,211,48                 ; insertps      $0x30,%xmm3,%xmm2
   DB  184,128,0,128,55                    ; mov           $0x37800080,%eax
   DB  102,68,15,110,192                   ; movd          %eax,%xmm8
   DB  69,15,198,192,0                     ; shufps        $0x0,%xmm8,%xmm8
-  DB  102,15,112,219,78                   ; pshufd        $0x4e,%xmm3,%xmm3
+  DB  102,65,15,112,217,78                ; pshufd        $0x4e,%xmm9,%xmm3
   DB  102,68,15,111,203                   ; movdqa        %xmm3,%xmm9
   DB  102,65,15,113,241,8                 ; psllw         $0x8,%xmm9
   DB  102,15,113,211,8                    ; psrlw         $0x8,%xmm3
@@ -11603,38 +11864,37 @@ _sk_load_tables_rgb_u16_be_sse41 LABEL PROC
   DB  243,66,15,111,20,73                 ; movdqu        (%rcx,%r9,2),%xmm2
   DB  243,66,15,111,68,73,8               ; movdqu        0x8(%rcx,%r9,2),%xmm0
   DB  102,15,115,216,4                    ; psrldq        $0x4,%xmm0
-  DB  102,15,111,202                      ; movdqa        %xmm2,%xmm1
-  DB  102,15,115,217,6                    ; psrldq        $0x6,%xmm1
+  DB  102,68,15,111,202                   ; movdqa        %xmm2,%xmm9
+  DB  102,65,15,115,217,6                 ; psrldq        $0x6,%xmm9
   DB  102,15,97,208                       ; punpcklwd     %xmm0,%xmm2
   DB  102,15,115,216,6                    ; psrldq        $0x6,%xmm0
-  DB  102,15,97,200                       ; punpcklwd     %xmm0,%xmm1
-  DB  102,15,111,194                      ; movdqa        %xmm2,%xmm0
-  DB  102,15,97,193                       ; punpcklwd     %xmm1,%xmm0
-  DB  102,68,15,112,192,78                ; pshufd        $0x4e,%xmm0,%xmm8
-  DB  102,15,105,209                      ; punpckhwd     %xmm1,%xmm2
+  DB  102,68,15,97,200                    ; punpcklwd     %xmm0,%xmm9
+  DB  102,15,111,202                      ; movdqa        %xmm2,%xmm1
+  DB  102,65,15,97,201                    ; punpcklwd     %xmm9,%xmm1
+  DB  102,68,15,111,5,124,39,0,0          ; movdqa        0x277c(%rip),%xmm8        # 4050 <_sk_callback_sse41+0x128>
+  DB  102,15,111,193                      ; movdqa        %xmm1,%xmm0
+  DB  102,65,15,219,192                   ; pand          %xmm8,%xmm0
   DB  102,15,56,51,192                    ; pmovzxwd      %xmm0,%xmm0
-  DB  185,255,0,0,0                       ; mov           $0xff,%ecx
-  DB  102,15,110,201                      ; movd          %ecx,%xmm1
-  DB  102,68,15,112,201,0                 ; pshufd        $0x0,%xmm1,%xmm9
-  DB  102,65,15,219,193                   ; pand          %xmm9,%xmm0
   DB  102,73,15,58,22,193,1               ; pextrq        $0x1,%xmm0,%r9
   DB  102,72,15,126,193                   ; movq          %xmm0,%rcx
-  DB  65,137,202                          ; mov           %ecx,%r10d
+  DB  68,15,182,209                       ; movzbl        %cl,%r10d
   DB  72,193,233,30                       ; shr           $0x1e,%rcx
-  DB  69,137,203                          ; mov           %r9d,%r11d
+  DB  69,15,182,217                       ; movzbl        %r9b,%r11d
   DB  73,193,233,30                       ; shr           $0x1e,%r9
   DB  243,67,15,16,4,144                  ; movss         (%r8,%r10,4),%xmm0
   DB  102,65,15,58,33,4,8,16              ; insertps      $0x10,(%r8,%rcx,1),%xmm0
-  DB  102,67,15,58,33,4,152,32            ; insertps      $0x20,(%r8,%r11,4),%xmm0
-  DB  102,67,15,58,33,4,8,48              ; insertps      $0x30,(%r8,%r9,1),%xmm0
+  DB  243,67,15,16,28,152                 ; movss         (%r8,%r11,4),%xmm3
+  DB  102,15,58,33,195,32                 ; insertps      $0x20,%xmm3,%xmm0
+  DB  243,67,15,16,28,8                   ; movss         (%r8,%r9,1),%xmm3
+  DB  102,15,58,33,195,48                 ; insertps      $0x30,%xmm3,%xmm0
   DB  76,139,64,16                        ; mov           0x10(%rax),%r8
-  DB  102,65,15,56,51,200                 ; pmovzxwd      %xmm8,%xmm1
-  DB  102,65,15,219,201                   ; pand          %xmm9,%xmm1
+  DB  102,15,56,0,13,47,39,0,0            ; pshufb        0x272f(%rip),%xmm1        # 4060 <_sk_callback_sse41+0x138>
+  DB  102,15,56,51,201                    ; pmovzxwd      %xmm1,%xmm1
   DB  102,73,15,58,22,201,1               ; pextrq        $0x1,%xmm1,%r9
   DB  102,72,15,126,201                   ; movq          %xmm1,%rcx
-  DB  65,137,202                          ; mov           %ecx,%r10d
+  DB  68,15,182,209                       ; movzbl        %cl,%r10d
   DB  72,193,233,30                       ; shr           $0x1e,%rcx
-  DB  69,137,203                          ; mov           %r9d,%r11d
+  DB  69,15,182,217                       ; movzbl        %r9b,%r11d
   DB  73,193,233,30                       ; shr           $0x1e,%r9
   DB  243,67,15,16,12,144                 ; movss         (%r8,%r10,4),%xmm1
   DB  102,65,15,58,33,12,8,16             ; insertps      $0x10,(%r8,%rcx,1),%xmm1
@@ -11643,18 +11903,21 @@ _sk_load_tables_rgb_u16_be_sse41 LABEL PROC
   DB  243,67,15,16,28,8                   ; movss         (%r8,%r9,1),%xmm3
   DB  102,15,58,33,203,48                 ; insertps      $0x30,%xmm3,%xmm1
   DB  76,139,64,24                        ; mov           0x18(%rax),%r8
+  DB  102,65,15,105,209                   ; punpckhwd     %xmm9,%xmm2
+  DB  102,65,15,219,208                   ; pand          %xmm8,%xmm2
   DB  102,15,56,51,210                    ; pmovzxwd      %xmm2,%xmm2
-  DB  102,65,15,219,209                   ; pand          %xmm9,%xmm2
   DB  102,72,15,58,22,209,1               ; pextrq        $0x1,%xmm2,%rcx
   DB  102,72,15,126,208                   ; movq          %xmm2,%rax
-  DB  65,137,193                          ; mov           %eax,%r9d
+  DB  68,15,182,200                       ; movzbl        %al,%r9d
   DB  72,193,232,30                       ; shr           $0x1e,%rax
-  DB  65,137,202                          ; mov           %ecx,%r10d
+  DB  68,15,182,209                       ; movzbl        %cl,%r10d
   DB  72,193,233,30                       ; shr           $0x1e,%rcx
   DB  243,67,15,16,20,136                 ; movss         (%r8,%r9,4),%xmm2
   DB  102,65,15,58,33,20,0,16             ; insertps      $0x10,(%r8,%rax,1),%xmm2
-  DB  102,67,15,58,33,20,144,32           ; insertps      $0x20,(%r8,%r10,4),%xmm2
-  DB  102,65,15,58,33,20,8,48             ; insertps      $0x30,(%r8,%rcx,1),%xmm2
+  DB  243,67,15,16,28,144                 ; movss         (%r8,%r10,4),%xmm3
+  DB  102,15,58,33,211,32                 ; insertps      $0x20,%xmm3,%xmm2
+  DB  243,65,15,16,28,8                   ; movss         (%r8,%rcx,1),%xmm3
+  DB  102,15,58,33,211,48                 ; insertps      $0x30,%xmm3,%xmm2
   DB  184,0,0,128,63                      ; mov           $0x3f800000,%eax
   DB  102,15,110,216                      ; movd          %eax,%xmm3
   DB  15,198,219,0                        ; shufps        $0x0,%xmm3,%xmm3
@@ -11948,31 +12211,31 @@ _sk_parametric_r_sse41 LABEL PROC
   DB  69,15,88,208                        ; addps         %xmm8,%xmm10
   DB  69,15,198,219,0                     ; shufps        $0x0,%xmm11,%xmm11
   DB  69,15,91,194                        ; cvtdq2ps      %xmm10,%xmm8
-  DB  68,15,89,5,111,33,0,0               ; mulps         0x216f(%rip),%xmm8        # 3ff0 <_sk_callback_sse41+0xd4>
-  DB  68,15,84,21,119,33,0,0              ; andps         0x2177(%rip),%xmm10        # 4000 <_sk_callback_sse41+0xe4>
-  DB  68,15,86,21,127,33,0,0              ; orps          0x217f(%rip),%xmm10        # 4010 <_sk_callback_sse41+0xf4>
-  DB  68,15,88,5,135,33,0,0               ; addps         0x2187(%rip),%xmm8        # 4020 <_sk_callback_sse41+0x104>
-  DB  68,15,40,37,143,33,0,0              ; movaps        0x218f(%rip),%xmm12        # 4030 <_sk_callback_sse41+0x114>
+  DB  68,15,89,5,204,33,0,0               ; mulps         0x21cc(%rip),%xmm8        # 4070 <_sk_callback_sse41+0x148>
+  DB  68,15,84,21,212,33,0,0              ; andps         0x21d4(%rip),%xmm10        # 4080 <_sk_callback_sse41+0x158>
+  DB  68,15,86,21,220,33,0,0              ; orps          0x21dc(%rip),%xmm10        # 4090 <_sk_callback_sse41+0x168>
+  DB  68,15,88,5,228,33,0,0               ; addps         0x21e4(%rip),%xmm8        # 40a0 <_sk_callback_sse41+0x178>
+  DB  68,15,40,37,236,33,0,0              ; movaps        0x21ec(%rip),%xmm12        # 40b0 <_sk_callback_sse41+0x188>
   DB  69,15,89,226                        ; mulps         %xmm10,%xmm12
   DB  69,15,92,196                        ; subps         %xmm12,%xmm8
-  DB  68,15,88,21,143,33,0,0              ; addps         0x218f(%rip),%xmm10        # 4040 <_sk_callback_sse41+0x124>
-  DB  68,15,40,37,151,33,0,0              ; movaps        0x2197(%rip),%xmm12        # 4050 <_sk_callback_sse41+0x134>
+  DB  68,15,88,21,236,33,0,0              ; addps         0x21ec(%rip),%xmm10        # 40c0 <_sk_callback_sse41+0x198>
+  DB  68,15,40,37,244,33,0,0              ; movaps        0x21f4(%rip),%xmm12        # 40d0 <_sk_callback_sse41+0x1a8>
   DB  69,15,94,226                        ; divps         %xmm10,%xmm12
   DB  69,15,92,196                        ; subps         %xmm12,%xmm8
   DB  69,15,89,195                        ; mulps         %xmm11,%xmm8
   DB  102,69,15,58,8,208,1                ; roundps       $0x1,%xmm8,%xmm10
   DB  69,15,40,216                        ; movaps        %xmm8,%xmm11
   DB  69,15,92,218                        ; subps         %xmm10,%xmm11
-  DB  68,15,88,5,132,33,0,0               ; addps         0x2184(%rip),%xmm8        # 4060 <_sk_callback_sse41+0x144>
-  DB  68,15,40,21,140,33,0,0              ; movaps        0x218c(%rip),%xmm10        # 4070 <_sk_callback_sse41+0x154>
+  DB  68,15,88,5,225,33,0,0               ; addps         0x21e1(%rip),%xmm8        # 40e0 <_sk_callback_sse41+0x1b8>
+  DB  68,15,40,21,233,33,0,0              ; movaps        0x21e9(%rip),%xmm10        # 40f0 <_sk_callback_sse41+0x1c8>
   DB  69,15,89,211                        ; mulps         %xmm11,%xmm10
   DB  69,15,92,194                        ; subps         %xmm10,%xmm8
-  DB  68,15,40,21,140,33,0,0              ; movaps        0x218c(%rip),%xmm10        # 4080 <_sk_callback_sse41+0x164>
+  DB  68,15,40,21,233,33,0,0              ; movaps        0x21e9(%rip),%xmm10        # 4100 <_sk_callback_sse41+0x1d8>
   DB  69,15,92,211                        ; subps         %xmm11,%xmm10
-  DB  68,15,40,29,144,33,0,0              ; movaps        0x2190(%rip),%xmm11        # 4090 <_sk_callback_sse41+0x174>
+  DB  68,15,40,29,237,33,0,0              ; movaps        0x21ed(%rip),%xmm11        # 4110 <_sk_callback_sse41+0x1e8>
   DB  69,15,94,218                        ; divps         %xmm10,%xmm11
   DB  69,15,88,216                        ; addps         %xmm8,%xmm11
-  DB  68,15,89,29,144,33,0,0              ; mulps         0x2190(%rip),%xmm11        # 40a0 <_sk_callback_sse41+0x184>
+  DB  68,15,89,29,237,33,0,0              ; mulps         0x21ed(%rip),%xmm11        # 4120 <_sk_callback_sse41+0x1f8>
   DB  102,69,15,91,211                    ; cvtps2dq      %xmm11,%xmm10
   DB  243,68,15,16,64,20                  ; movss         0x14(%rax),%xmm8
   DB  69,15,198,192,0                     ; shufps        $0x0,%xmm8,%xmm8
@@ -12011,31 +12274,31 @@ _sk_parametric_g_sse41 LABEL PROC
   DB  68,15,88,217                        ; addps         %xmm1,%xmm11
   DB  69,15,198,210,0                     ; shufps        $0x0,%xmm10,%xmm10
   DB  69,15,91,227                        ; cvtdq2ps      %xmm11,%xmm12
-  DB  68,15,89,37,255,32,0,0              ; mulps         0x20ff(%rip),%xmm12        # 40b0 <_sk_callback_sse41+0x194>
-  DB  68,15,84,29,7,33,0,0                ; andps         0x2107(%rip),%xmm11        # 40c0 <_sk_callback_sse41+0x1a4>
-  DB  68,15,86,29,15,33,0,0               ; orps          0x210f(%rip),%xmm11        # 40d0 <_sk_callback_sse41+0x1b4>
-  DB  68,15,88,37,23,33,0,0               ; addps         0x2117(%rip),%xmm12        # 40e0 <_sk_callback_sse41+0x1c4>
-  DB  15,40,13,32,33,0,0                  ; movaps        0x2120(%rip),%xmm1        # 40f0 <_sk_callback_sse41+0x1d4>
+  DB  68,15,89,37,92,33,0,0               ; mulps         0x215c(%rip),%xmm12        # 4130 <_sk_callback_sse41+0x208>
+  DB  68,15,84,29,100,33,0,0              ; andps         0x2164(%rip),%xmm11        # 4140 <_sk_callback_sse41+0x218>
+  DB  68,15,86,29,108,33,0,0              ; orps          0x216c(%rip),%xmm11        # 4150 <_sk_callback_sse41+0x228>
+  DB  68,15,88,37,116,33,0,0              ; addps         0x2174(%rip),%xmm12        # 4160 <_sk_callback_sse41+0x238>
+  DB  15,40,13,125,33,0,0                 ; movaps        0x217d(%rip),%xmm1        # 4170 <_sk_callback_sse41+0x248>
   DB  65,15,89,203                        ; mulps         %xmm11,%xmm1
   DB  68,15,92,225                        ; subps         %xmm1,%xmm12
-  DB  68,15,88,29,32,33,0,0               ; addps         0x2120(%rip),%xmm11        # 4100 <_sk_callback_sse41+0x1e4>
-  DB  15,40,13,41,33,0,0                  ; movaps        0x2129(%rip),%xmm1        # 4110 <_sk_callback_sse41+0x1f4>
+  DB  68,15,88,29,125,33,0,0              ; addps         0x217d(%rip),%xmm11        # 4180 <_sk_callback_sse41+0x258>
+  DB  15,40,13,134,33,0,0                 ; movaps        0x2186(%rip),%xmm1        # 4190 <_sk_callback_sse41+0x268>
   DB  65,15,94,203                        ; divps         %xmm11,%xmm1
   DB  68,15,92,225                        ; subps         %xmm1,%xmm12
   DB  69,15,89,226                        ; mulps         %xmm10,%xmm12
   DB  102,69,15,58,8,212,1                ; roundps       $0x1,%xmm12,%xmm10
   DB  69,15,40,220                        ; movaps        %xmm12,%xmm11
   DB  69,15,92,218                        ; subps         %xmm10,%xmm11
-  DB  68,15,88,37,22,33,0,0               ; addps         0x2116(%rip),%xmm12        # 4120 <_sk_callback_sse41+0x204>
-  DB  15,40,13,31,33,0,0                  ; movaps        0x211f(%rip),%xmm1        # 4130 <_sk_callback_sse41+0x214>
+  DB  68,15,88,37,115,33,0,0              ; addps         0x2173(%rip),%xmm12        # 41a0 <_sk_callback_sse41+0x278>
+  DB  15,40,13,124,33,0,0                 ; movaps        0x217c(%rip),%xmm1        # 41b0 <_sk_callback_sse41+0x288>
   DB  65,15,89,203                        ; mulps         %xmm11,%xmm1
   DB  68,15,92,225                        ; subps         %xmm1,%xmm12
-  DB  68,15,40,21,31,33,0,0               ; movaps        0x211f(%rip),%xmm10        # 4140 <_sk_callback_sse41+0x224>
+  DB  68,15,40,21,124,33,0,0              ; movaps        0x217c(%rip),%xmm10        # 41c0 <_sk_callback_sse41+0x298>
   DB  69,15,92,211                        ; subps         %xmm11,%xmm10
-  DB  15,40,13,36,33,0,0                  ; movaps        0x2124(%rip),%xmm1        # 4150 <_sk_callback_sse41+0x234>
+  DB  15,40,13,129,33,0,0                 ; movaps        0x2181(%rip),%xmm1        # 41d0 <_sk_callback_sse41+0x2a8>
   DB  65,15,94,202                        ; divps         %xmm10,%xmm1
   DB  65,15,88,204                        ; addps         %xmm12,%xmm1
-  DB  15,89,13,37,33,0,0                  ; mulps         0x2125(%rip),%xmm1        # 4160 <_sk_callback_sse41+0x244>
+  DB  15,89,13,130,33,0,0                 ; mulps         0x2182(%rip),%xmm1        # 41e0 <_sk_callback_sse41+0x2b8>
   DB  102,68,15,91,209                    ; cvtps2dq      %xmm1,%xmm10
   DB  243,15,16,72,20                     ; movss         0x14(%rax),%xmm1
   DB  15,198,201,0                        ; shufps        $0x0,%xmm1,%xmm1
@@ -12074,31 +12337,31 @@ _sk_parametric_b_sse41 LABEL PROC
   DB  68,15,88,218                        ; addps         %xmm2,%xmm11
   DB  69,15,198,210,0                     ; shufps        $0x0,%xmm10,%xmm10
   DB  69,15,91,227                        ; cvtdq2ps      %xmm11,%xmm12
-  DB  68,15,89,37,152,32,0,0              ; mulps         0x2098(%rip),%xmm12        # 4170 <_sk_callback_sse41+0x254>
-  DB  68,15,84,29,160,32,0,0              ; andps         0x20a0(%rip),%xmm11        # 4180 <_sk_callback_sse41+0x264>
-  DB  68,15,86,29,168,32,0,0              ; orps          0x20a8(%rip),%xmm11        # 4190 <_sk_callback_sse41+0x274>
-  DB  68,15,88,37,176,32,0,0              ; addps         0x20b0(%rip),%xmm12        # 41a0 <_sk_callback_sse41+0x284>
-  DB  15,40,21,185,32,0,0                 ; movaps        0x20b9(%rip),%xmm2        # 41b0 <_sk_callback_sse41+0x294>
+  DB  68,15,89,37,245,32,0,0              ; mulps         0x20f5(%rip),%xmm12        # 41f0 <_sk_callback_sse41+0x2c8>
+  DB  68,15,84,29,253,32,0,0              ; andps         0x20fd(%rip),%xmm11        # 4200 <_sk_callback_sse41+0x2d8>
+  DB  68,15,86,29,5,33,0,0                ; orps          0x2105(%rip),%xmm11        # 4210 <_sk_callback_sse41+0x2e8>
+  DB  68,15,88,37,13,33,0,0               ; addps         0x210d(%rip),%xmm12        # 4220 <_sk_callback_sse41+0x2f8>
+  DB  15,40,21,22,33,0,0                  ; movaps        0x2116(%rip),%xmm2        # 4230 <_sk_callback_sse41+0x308>
   DB  65,15,89,211                        ; mulps         %xmm11,%xmm2
   DB  68,15,92,226                        ; subps         %xmm2,%xmm12
-  DB  68,15,88,29,185,32,0,0              ; addps         0x20b9(%rip),%xmm11        # 41c0 <_sk_callback_sse41+0x2a4>
-  DB  15,40,21,194,32,0,0                 ; movaps        0x20c2(%rip),%xmm2        # 41d0 <_sk_callback_sse41+0x2b4>
+  DB  68,15,88,29,22,33,0,0               ; addps         0x2116(%rip),%xmm11        # 4240 <_sk_callback_sse41+0x318>
+  DB  15,40,21,31,33,0,0                  ; movaps        0x211f(%rip),%xmm2        # 4250 <_sk_callback_sse41+0x328>
   DB  65,15,94,211                        ; divps         %xmm11,%xmm2
   DB  68,15,92,226                        ; subps         %xmm2,%xmm12
   DB  69,15,89,226                        ; mulps         %xmm10,%xmm12
   DB  102,69,15,58,8,212,1                ; roundps       $0x1,%xmm12,%xmm10
   DB  69,15,40,220                        ; movaps        %xmm12,%xmm11
   DB  69,15,92,218                        ; subps         %xmm10,%xmm11
-  DB  68,15,88,37,175,32,0,0              ; addps         0x20af(%rip),%xmm12        # 41e0 <_sk_callback_sse41+0x2c4>
-  DB  15,40,21,184,32,0,0                 ; movaps        0x20b8(%rip),%xmm2        # 41f0 <_sk_callback_sse41+0x2d4>
+  DB  68,15,88,37,12,33,0,0               ; addps         0x210c(%rip),%xmm12        # 4260 <_sk_callback_sse41+0x338>
+  DB  15,40,21,21,33,0,0                  ; movaps        0x2115(%rip),%xmm2        # 4270 <_sk_callback_sse41+0x348>
   DB  65,15,89,211                        ; mulps         %xmm11,%xmm2
   DB  68,15,92,226                        ; subps         %xmm2,%xmm12
-  DB  68,15,40,21,184,32,0,0              ; movaps        0x20b8(%rip),%xmm10        # 4200 <_sk_callback_sse41+0x2e4>
+  DB  68,15,40,21,21,33,0,0               ; movaps        0x2115(%rip),%xmm10        # 4280 <_sk_callback_sse41+0x358>
   DB  69,15,92,211                        ; subps         %xmm11,%xmm10
-  DB  15,40,21,189,32,0,0                 ; movaps        0x20bd(%rip),%xmm2        # 4210 <_sk_callback_sse41+0x2f4>
+  DB  15,40,21,26,33,0,0                  ; movaps        0x211a(%rip),%xmm2        # 4290 <_sk_callback_sse41+0x368>
   DB  65,15,94,210                        ; divps         %xmm10,%xmm2
   DB  65,15,88,212                        ; addps         %xmm12,%xmm2
-  DB  15,89,21,190,32,0,0                 ; mulps         0x20be(%rip),%xmm2        # 4220 <_sk_callback_sse41+0x304>
+  DB  15,89,21,27,33,0,0                  ; mulps         0x211b(%rip),%xmm2        # 42a0 <_sk_callback_sse41+0x378>
   DB  102,68,15,91,210                    ; cvtps2dq      %xmm2,%xmm10
   DB  243,15,16,80,20                     ; movss         0x14(%rax),%xmm2
   DB  15,198,210,0                        ; shufps        $0x0,%xmm2,%xmm2
@@ -12137,31 +12400,31 @@ _sk_parametric_a_sse41 LABEL PROC
   DB  68,15,88,219                        ; addps         %xmm3,%xmm11
   DB  69,15,198,210,0                     ; shufps        $0x0,%xmm10,%xmm10
   DB  69,15,91,227                        ; cvtdq2ps      %xmm11,%xmm12
-  DB  68,15,89,37,49,32,0,0               ; mulps         0x2031(%rip),%xmm12        # 4230 <_sk_callback_sse41+0x314>
-  DB  68,15,84,29,57,32,0,0               ; andps         0x2039(%rip),%xmm11        # 4240 <_sk_callback_sse41+0x324>
-  DB  68,15,86,29,65,32,0,0               ; orps          0x2041(%rip),%xmm11        # 4250 <_sk_callback_sse41+0x334>
-  DB  68,15,88,37,73,32,0,0               ; addps         0x2049(%rip),%xmm12        # 4260 <_sk_callback_sse41+0x344>
-  DB  15,40,29,82,32,0,0                  ; movaps        0x2052(%rip),%xmm3        # 4270 <_sk_callback_sse41+0x354>
+  DB  68,15,89,37,142,32,0,0              ; mulps         0x208e(%rip),%xmm12        # 42b0 <_sk_callback_sse41+0x388>
+  DB  68,15,84,29,150,32,0,0              ; andps         0x2096(%rip),%xmm11        # 42c0 <_sk_callback_sse41+0x398>
+  DB  68,15,86,29,158,32,0,0              ; orps          0x209e(%rip),%xmm11        # 42d0 <_sk_callback_sse41+0x3a8>
+  DB  68,15,88,37,166,32,0,0              ; addps         0x20a6(%rip),%xmm12        # 42e0 <_sk_callback_sse41+0x3b8>
+  DB  15,40,29,175,32,0,0                 ; movaps        0x20af(%rip),%xmm3        # 42f0 <_sk_callback_sse41+0x3c8>
   DB  65,15,89,219                        ; mulps         %xmm11,%xmm3
   DB  68,15,92,227                        ; subps         %xmm3,%xmm12
-  DB  68,15,88,29,82,32,0,0               ; addps         0x2052(%rip),%xmm11        # 4280 <_sk_callback_sse41+0x364>
-  DB  15,40,29,91,32,0,0                  ; movaps        0x205b(%rip),%xmm3        # 4290 <_sk_callback_sse41+0x374>
+  DB  68,15,88,29,175,32,0,0              ; addps         0x20af(%rip),%xmm11        # 4300 <_sk_callback_sse41+0x3d8>
+  DB  15,40,29,184,32,0,0                 ; movaps        0x20b8(%rip),%xmm3        # 4310 <_sk_callback_sse41+0x3e8>
   DB  65,15,94,219                        ; divps         %xmm11,%xmm3
   DB  68,15,92,227                        ; subps         %xmm3,%xmm12
   DB  69,15,89,226                        ; mulps         %xmm10,%xmm12
   DB  102,69,15,58,8,212,1                ; roundps       $0x1,%xmm12,%xmm10
   DB  69,15,40,220                        ; movaps        %xmm12,%xmm11
   DB  69,15,92,218                        ; subps         %xmm10,%xmm11
-  DB  68,15,88,37,72,32,0,0               ; addps         0x2048(%rip),%xmm12        # 42a0 <_sk_callback_sse41+0x384>
-  DB  15,40,29,81,32,0,0                  ; movaps        0x2051(%rip),%xmm3        # 42b0 <_sk_callback_sse41+0x394>
+  DB  68,15,88,37,165,32,0,0              ; addps         0x20a5(%rip),%xmm12        # 4320 <_sk_callback_sse41+0x3f8>
+  DB  15,40,29,174,32,0,0                 ; movaps        0x20ae(%rip),%xmm3        # 4330 <_sk_callback_sse41+0x408>
   DB  65,15,89,219                        ; mulps         %xmm11,%xmm3
   DB  68,15,92,227                        ; subps         %xmm3,%xmm12
-  DB  68,15,40,21,81,32,0,0               ; movaps        0x2051(%rip),%xmm10        # 42c0 <_sk_callback_sse41+0x3a4>
+  DB  68,15,40,21,174,32,0,0              ; movaps        0x20ae(%rip),%xmm10        # 4340 <_sk_callback_sse41+0x418>
   DB  69,15,92,211                        ; subps         %xmm11,%xmm10
-  DB  15,40,29,86,32,0,0                  ; movaps        0x2056(%rip),%xmm3        # 42d0 <_sk_callback_sse41+0x3b4>
+  DB  15,40,29,179,32,0,0                 ; movaps        0x20b3(%rip),%xmm3        # 4350 <_sk_callback_sse41+0x428>
   DB  65,15,94,218                        ; divps         %xmm10,%xmm3
   DB  65,15,88,220                        ; addps         %xmm12,%xmm3
-  DB  15,89,29,87,32,0,0                  ; mulps         0x2057(%rip),%xmm3        # 42e0 <_sk_callback_sse41+0x3c4>
+  DB  15,89,29,180,32,0,0                 ; mulps         0x20b4(%rip),%xmm3        # 4360 <_sk_callback_sse41+0x438>
   DB  102,68,15,91,211                    ; cvtps2dq      %xmm3,%xmm10
   DB  243,15,16,88,20                     ; movss         0x14(%rax),%xmm3
   DB  15,198,219,0                        ; shufps        $0x0,%xmm3,%xmm3
@@ -12381,9 +12644,9 @@ _sk_gather_i8_sse41 LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  73,137,192                          ; mov           %rax,%r8
   DB  77,133,192                          ; test          %r8,%r8
-  DB  116,5                               ; je            25c0 <_sk_gather_i8_sse41+0xf>
+  DB  116,5                               ; je            25e3 <_sk_gather_i8_sse41+0xf>
   DB  76,137,192                          ; mov           %r8,%rax
-  DB  235,2                               ; jmp           25c2 <_sk_gather_i8_sse41+0x11>
+  DB  235,2                               ; jmp           25e5 <_sk_gather_i8_sse41+0x11>
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  76,139,16                           ; mov           (%rax),%r10
   DB  243,15,91,201                       ; cvttps2dq     %xmm1,%xmm1
@@ -12414,23 +12677,19 @@ _sk_gather_i8_sse41 LABEL PROC
   DB  102,15,58,34,28,8,1                 ; pinsrd        $0x1,(%rax,%rcx,1),%xmm3
   DB  102,66,15,58,34,28,144,2            ; pinsrd        $0x2,(%rax,%r10,4),%xmm3
   DB  102,66,15,58,34,28,8,3              ; pinsrd        $0x3,(%rax,%r9,1),%xmm3
-  DB  184,255,0,0,0                       ; mov           $0xff,%eax
-  DB  102,15,110,192                      ; movd          %eax,%xmm0
-  DB  102,15,112,192,0                    ; pshufd        $0x0,%xmm0,%xmm0
-  DB  102,15,111,203                      ; movdqa        %xmm3,%xmm1
-  DB  102,15,114,209,8                    ; psrld         $0x8,%xmm1
-  DB  102,15,219,200                      ; pand          %xmm0,%xmm1
-  DB  102,15,111,211                      ; movdqa        %xmm3,%xmm2
-  DB  102,15,114,210,16                   ; psrld         $0x10,%xmm2
-  DB  102,15,219,208                      ; pand          %xmm0,%xmm2
+  DB  102,15,111,5,235,28,0,0             ; movdqa        0x1ceb(%rip),%xmm0        # 4370 <_sk_callback_sse41+0x448>
   DB  102,15,219,195                      ; pand          %xmm3,%xmm0
   DB  15,91,192                           ; cvtdq2ps      %xmm0,%xmm0
   DB  184,129,128,128,59                  ; mov           $0x3b808081,%eax
   DB  102,68,15,110,192                   ; movd          %eax,%xmm8
   DB  69,15,198,192,0                     ; shufps        $0x0,%xmm8,%xmm8
   DB  65,15,89,192                        ; mulps         %xmm8,%xmm0
+  DB  102,15,111,203                      ; movdqa        %xmm3,%xmm1
+  DB  102,15,56,0,13,212,28,0,0           ; pshufb        0x1cd4(%rip),%xmm1        # 4380 <_sk_callback_sse41+0x458>
   DB  15,91,201                           ; cvtdq2ps      %xmm1,%xmm1
   DB  65,15,89,200                        ; mulps         %xmm8,%xmm1
+  DB  102,15,111,211                      ; movdqa        %xmm3,%xmm2
+  DB  102,15,56,0,21,208,28,0,0           ; pshufb        0x1cd0(%rip),%xmm2        # 4390 <_sk_callback_sse41+0x468>
   DB  15,91,210                           ; cvtdq2ps      %xmm2,%xmm2
   DB  65,15,89,208                        ; mulps         %xmm8,%xmm2
   DB  102,15,114,211,24                   ; psrld         $0x18,%xmm3
@@ -12698,24 +12957,20 @@ PUBLIC _sk_load_8888_sse41
 _sk_load_8888_sse41 LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  72,139,0                            ; mov           (%rax),%rax
-  DB  243,15,111,28,184                   ; movdqu        (%rax,%rdi,4),%xmm3
-  DB  184,255,0,0,0                       ; mov           $0xff,%eax
-  DB  102,15,110,192                      ; movd          %eax,%xmm0
-  DB  102,15,112,192,0                    ; pshufd        $0x0,%xmm0,%xmm0
-  DB  102,15,111,203                      ; movdqa        %xmm3,%xmm1
-  DB  102,15,114,209,8                    ; psrld         $0x8,%xmm1
-  DB  102,15,219,200                      ; pand          %xmm0,%xmm1
-  DB  102,15,111,211                      ; movdqa        %xmm3,%xmm2
-  DB  102,15,114,210,16                   ; psrld         $0x10,%xmm2
-  DB  102,15,219,208                      ; pand          %xmm0,%xmm2
-  DB  102,15,219,195                      ; pand          %xmm3,%xmm0
+  DB  15,16,28,184                        ; movups        (%rax,%rdi,4),%xmm3
+  DB  15,40,5,194,24,0,0                  ; movaps        0x18c2(%rip),%xmm0        # 43a0 <_sk_callback_sse41+0x478>
+  DB  15,84,195                           ; andps         %xmm3,%xmm0
   DB  15,91,192                           ; cvtdq2ps      %xmm0,%xmm0
   DB  184,129,128,128,59                  ; mov           $0x3b808081,%eax
   DB  102,68,15,110,192                   ; movd          %eax,%xmm8
   DB  69,15,198,192,0                     ; shufps        $0x0,%xmm8,%xmm8
   DB  65,15,89,192                        ; mulps         %xmm8,%xmm0
+  DB  15,40,203                           ; movaps        %xmm3,%xmm1
+  DB  102,15,56,0,13,173,24,0,0           ; pshufb        0x18ad(%rip),%xmm1        # 43b0 <_sk_callback_sse41+0x488>
   DB  15,91,201                           ; cvtdq2ps      %xmm1,%xmm1
   DB  65,15,89,200                        ; mulps         %xmm8,%xmm1
+  DB  15,40,211                           ; movaps        %xmm3,%xmm2
+  DB  102,15,56,0,21,170,24,0,0           ; pshufb        0x18aa(%rip),%xmm2        # 43c0 <_sk_callback_sse41+0x498>
   DB  15,91,210                           ; cvtdq2ps      %xmm2,%xmm2
   DB  65,15,89,208                        ; mulps         %xmm8,%xmm2
   DB  102,15,114,211,24                   ; psrld         $0x18,%xmm3
@@ -12744,23 +12999,19 @@ _sk_gather_8888_sse41 LABEL PROC
   DB  102,65,15,58,34,28,129,1            ; pinsrd        $0x1,(%r9,%rax,4),%xmm3
   DB  102,67,15,58,34,28,145,2            ; pinsrd        $0x2,(%r9,%r10,4),%xmm3
   DB  102,65,15,58,34,28,137,3            ; pinsrd        $0x3,(%r9,%rcx,4),%xmm3
-  DB  184,255,0,0,0                       ; mov           $0xff,%eax
-  DB  102,15,110,192                      ; movd          %eax,%xmm0
-  DB  102,15,112,192,0                    ; pshufd        $0x0,%xmm0,%xmm0
-  DB  102,15,111,203                      ; movdqa        %xmm3,%xmm1
-  DB  102,15,114,209,8                    ; psrld         $0x8,%xmm1
-  DB  102,15,219,200                      ; pand          %xmm0,%xmm1
-  DB  102,15,111,211                      ; movdqa        %xmm3,%xmm2
-  DB  102,15,114,210,16                   ; psrld         $0x10,%xmm2
-  DB  102,15,219,208                      ; pand          %xmm0,%xmm2
+  DB  102,15,111,5,67,24,0,0              ; movdqa        0x1843(%rip),%xmm0        # 43d0 <_sk_callback_sse41+0x4a8>
   DB  102,15,219,195                      ; pand          %xmm3,%xmm0
   DB  15,91,192                           ; cvtdq2ps      %xmm0,%xmm0
   DB  184,129,128,128,59                  ; mov           $0x3b808081,%eax
   DB  102,68,15,110,192                   ; movd          %eax,%xmm8
   DB  69,15,198,192,0                     ; shufps        $0x0,%xmm8,%xmm8
   DB  65,15,89,192                        ; mulps         %xmm8,%xmm0
+  DB  102,15,111,203                      ; movdqa        %xmm3,%xmm1
+  DB  102,15,56,0,13,44,24,0,0            ; pshufb        0x182c(%rip),%xmm1        # 43e0 <_sk_callback_sse41+0x4b8>
   DB  15,91,201                           ; cvtdq2ps      %xmm1,%xmm1
   DB  65,15,89,200                        ; mulps         %xmm8,%xmm1
+  DB  102,15,111,211                      ; movdqa        %xmm3,%xmm2
+  DB  102,15,56,0,21,40,24,0,0            ; pshufb        0x1828(%rip),%xmm2        # 43f0 <_sk_callback_sse41+0x4c8>
   DB  15,91,210                           ; cvtdq2ps      %xmm2,%xmm2
   DB  65,15,89,208                        ; mulps         %xmm8,%xmm2
   DB  102,15,114,211,24                   ; psrld         $0x18,%xmm3
@@ -12810,18 +13061,18 @@ _sk_load_f16_sse41 LABEL PROC
   DB  102,68,15,97,216                    ; punpcklwd     %xmm0,%xmm11
   DB  102,68,15,105,200                   ; punpckhwd     %xmm0,%xmm9
   DB  102,65,15,56,51,203                 ; pmovzxwd      %xmm11,%xmm1
-  DB  102,68,15,111,5,114,22,0,0          ; movdqa        0x1672(%rip),%xmm8        # 42f0 <_sk_callback_sse41+0x3d4>
+  DB  102,68,15,111,5,118,23,0,0          ; movdqa        0x1776(%rip),%xmm8        # 4400 <_sk_callback_sse41+0x4d8>
   DB  102,15,111,209                      ; movdqa        %xmm1,%xmm2
   DB  102,65,15,219,208                   ; pand          %xmm8,%xmm2
   DB  102,15,239,202                      ; pxor          %xmm2,%xmm1
-  DB  102,15,111,29,109,22,0,0            ; movdqa        0x166d(%rip),%xmm3        # 4300 <_sk_callback_sse41+0x3e4>
+  DB  102,15,111,29,113,23,0,0            ; movdqa        0x1771(%rip),%xmm3        # 4410 <_sk_callback_sse41+0x4e8>
   DB  102,15,114,242,16                   ; pslld         $0x10,%xmm2
   DB  102,15,111,193                      ; movdqa        %xmm1,%xmm0
   DB  102,15,56,63,195                    ; pmaxud        %xmm3,%xmm0
   DB  102,15,118,193                      ; pcmpeqd       %xmm1,%xmm0
   DB  102,15,114,241,13                   ; pslld         $0xd,%xmm1
   DB  102,15,235,202                      ; por           %xmm2,%xmm1
-  DB  102,68,15,111,21,89,22,0,0          ; movdqa        0x1659(%rip),%xmm10        # 4310 <_sk_callback_sse41+0x3f4>
+  DB  102,68,15,111,21,93,23,0,0          ; movdqa        0x175d(%rip),%xmm10        # 4420 <_sk_callback_sse41+0x4f8>
   DB  102,65,15,254,202                   ; paddd         %xmm10,%xmm1
   DB  102,15,219,193                      ; pand          %xmm1,%xmm0
   DB  102,65,15,115,219,8                 ; psrldq        $0x8,%xmm11
@@ -12892,18 +13143,18 @@ _sk_gather_f16_sse41 LABEL PROC
   DB  102,68,15,97,218                    ; punpcklwd     %xmm2,%xmm11
   DB  102,68,15,105,202                   ; punpckhwd     %xmm2,%xmm9
   DB  102,65,15,56,51,203                 ; pmovzxwd      %xmm11,%xmm1
-  DB  102,68,15,111,5,23,21,0,0           ; movdqa        0x1517(%rip),%xmm8        # 4320 <_sk_callback_sse41+0x404>
+  DB  102,68,15,111,5,27,22,0,0           ; movdqa        0x161b(%rip),%xmm8        # 4430 <_sk_callback_sse41+0x508>
   DB  102,15,111,209                      ; movdqa        %xmm1,%xmm2
   DB  102,65,15,219,208                   ; pand          %xmm8,%xmm2
   DB  102,15,239,202                      ; pxor          %xmm2,%xmm1
-  DB  102,15,111,29,18,21,0,0             ; movdqa        0x1512(%rip),%xmm3        # 4330 <_sk_callback_sse41+0x414>
+  DB  102,15,111,29,22,22,0,0             ; movdqa        0x1616(%rip),%xmm3        # 4440 <_sk_callback_sse41+0x518>
   DB  102,15,114,242,16                   ; pslld         $0x10,%xmm2
   DB  102,15,111,193                      ; movdqa        %xmm1,%xmm0
   DB  102,15,56,63,195                    ; pmaxud        %xmm3,%xmm0
   DB  102,15,118,193                      ; pcmpeqd       %xmm1,%xmm0
   DB  102,15,114,241,13                   ; pslld         $0xd,%xmm1
   DB  102,15,235,202                      ; por           %xmm2,%xmm1
-  DB  102,68,15,111,21,254,20,0,0         ; movdqa        0x14fe(%rip),%xmm10        # 4340 <_sk_callback_sse41+0x424>
+  DB  102,68,15,111,21,2,22,0,0           ; movdqa        0x1602(%rip),%xmm10        # 4450 <_sk_callback_sse41+0x528>
   DB  102,65,15,254,202                   ; paddd         %xmm10,%xmm1
   DB  102,15,219,193                      ; pand          %xmm1,%xmm0
   DB  102,65,15,115,219,8                 ; psrldq        $0x8,%xmm11
@@ -12949,17 +13200,17 @@ PUBLIC _sk_store_f16_sse41
 _sk_store_f16_sse41 LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  72,139,0                            ; mov           (%rax),%rax
-  DB  102,68,15,111,21,52,20,0,0          ; movdqa        0x1434(%rip),%xmm10        # 4350 <_sk_callback_sse41+0x434>
+  DB  102,68,15,111,21,56,21,0,0          ; movdqa        0x1538(%rip),%xmm10        # 4460 <_sk_callback_sse41+0x538>
   DB  102,68,15,111,224                   ; movdqa        %xmm0,%xmm12
   DB  102,68,15,111,232                   ; movdqa        %xmm0,%xmm13
   DB  102,69,15,219,234                   ; pand          %xmm10,%xmm13
   DB  102,69,15,239,229                   ; pxor          %xmm13,%xmm12
-  DB  102,68,15,111,13,39,20,0,0          ; movdqa        0x1427(%rip),%xmm9        # 4360 <_sk_callback_sse41+0x444>
+  DB  102,68,15,111,13,43,21,0,0          ; movdqa        0x152b(%rip),%xmm9        # 4470 <_sk_callback_sse41+0x548>
   DB  102,65,15,114,213,16                ; psrld         $0x10,%xmm13
   DB  102,69,15,111,193                   ; movdqa        %xmm9,%xmm8
   DB  102,69,15,102,196                   ; pcmpgtd       %xmm12,%xmm8
   DB  102,65,15,114,212,13                ; psrld         $0xd,%xmm12
-  DB  102,68,15,111,29,24,20,0,0          ; movdqa        0x1418(%rip),%xmm11        # 4370 <_sk_callback_sse41+0x454>
+  DB  102,68,15,111,29,28,21,0,0          ; movdqa        0x151c(%rip),%xmm11        # 4480 <_sk_callback_sse41+0x558>
   DB  102,69,15,235,235                   ; por           %xmm11,%xmm13
   DB  102,69,15,254,236                   ; paddd         %xmm12,%xmm13
   DB  102,69,15,223,197                   ; pandn         %xmm13,%xmm8
@@ -13548,7 +13799,7 @@ _sk_linear_gradient_sse41 LABEL PROC
   DB  69,15,198,237,0                     ; shufps        $0x0,%xmm13,%xmm13
   DB  72,139,8                            ; mov           (%rax),%rcx
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,132,4,1,0,0                      ; je            399e <_sk_linear_gradient_sse41+0x13e>
+  DB  15,132,4,1,0,0                      ; je            39aa <_sk_linear_gradient_sse41+0x13e>
   DB  72,131,236,88                       ; sub           $0x58,%rsp
   DB  15,41,36,36                         ; movaps        %xmm4,(%rsp)
   DB  15,41,108,36,16                     ; movaps        %xmm5,0x10(%rsp)
@@ -13599,13 +13850,13 @@ _sk_linear_gradient_sse41 LABEL PROC
   DB  15,40,196                           ; movaps        %xmm4,%xmm0
   DB  72,131,192,36                       ; add           $0x24,%rax
   DB  72,255,201                          ; dec           %rcx
-  DB  15,133,65,255,255,255               ; jne           38c6 <_sk_linear_gradient_sse41+0x66>
+  DB  15,133,65,255,255,255               ; jne           38d2 <_sk_linear_gradient_sse41+0x66>
   DB  15,40,124,36,48                     ; movaps        0x30(%rsp),%xmm7
   DB  15,40,116,36,32                     ; movaps        0x20(%rsp),%xmm6
   DB  15,40,108,36,16                     ; movaps        0x10(%rsp),%xmm5
   DB  15,40,36,36                         ; movaps        (%rsp),%xmm4
   DB  72,131,196,88                       ; add           $0x58,%rsp
-  DB  235,13                              ; jmp           39ab <_sk_linear_gradient_sse41+0x14b>
+  DB  235,13                              ; jmp           39b7 <_sk_linear_gradient_sse41+0x14b>
   DB  15,87,201                           ; xorps         %xmm1,%xmm1
   DB  15,87,210                           ; xorps         %xmm2,%xmm2
   DB  15,87,219                           ; xorps         %xmm3,%xmm3
@@ -14048,9 +14299,67 @@ ALIGN 16
   DB  0,128,63,0,0,128                    ; add           %al,-0x7fffffc1(%rax)
   DB  63                                  ; (bad)
   DB  0,0                                 ; add           %al,(%rax)
-  DB  128,63,0                            ; cmpb          $0x0,(%rdi)
+  DB  128,63,255                          ; cmpb          $0xff,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
-  DB  52,0                                ; xor           $0x0,%al
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,1                                 ; add           %al,(%rcx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,5,255,255,255,9                 ; incl          0x9ffffff(%rip)        # a004018 <_sk_callback_sse41+0xa0000f0>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,13,255,255,255,2                ; decl          0x2ffffff(%rip)        # 3004020 <_sk_callback_sse41+0x30000f8>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,6                               ; incl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,10                              ; decl          (%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,14                              ; decl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  8,255                               ; or            %bh,%bh
+  DB  10,255                              ; or            %bh,%bh
+  DB  12,255                              ; or            $0xff,%al
+  DB  14                                  ; (bad)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,8                                 ; add           %cl,(%rax)
+  DB  128,10,128                          ; orb           $0x80,(%rdx)
+  DB  12,128                              ; or            $0x80,%al
+  DB  14                                  ; (bad)
+  DB  128,0,0                             ; addb          $0x0,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,52,0                              ; add           %dh,(%rax,%rax,1)
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,0                                ; xor           $0x0,%al
   DB  0,0                                 ; add           %al,(%rax)
@@ -14058,16 +14367,16 @@ ALIGN 16
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4004 <.literal16+0x34>
+  DB  127,0                               ; jg            4084 <.literal16+0xa4>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4008 <.literal16+0x38>
+  DB  127,0                               ; jg            4088 <.literal16+0xa8>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            400c <.literal16+0x3c>
+  DB  127,0                               ; jg            408c <.literal16+0xac>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4010 <.literal16+0x40>
+  DB  127,0                               ; jg            4090 <.literal16+0xb0>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
@@ -14076,7 +14385,7 @@ ALIGN 16
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            4095 <.literal16+0xc5>
+  DB  119,115                             ; ja            4115 <.literal16+0x135>
   DB  248                                 ; clc
   DB  194,119,115                         ; retq          $0x7377
   DB  248                                 ; clc
@@ -14087,7 +14396,7 @@ ALIGN 16
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
-  DB  117,191                             ; jne           3ff9 <.literal16+0x29>
+  DB  117,191                             ; jne           4079 <.literal16+0x99>
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
   DB  249                                 ; stc
@@ -14099,7 +14408,7 @@ ALIGN 16
   DB  249                                 ; stc
   DB  68,180,62                           ; rex.R         mov $0x3e,%spl
   DB  163,233,220,63,163,233,220,63,163   ; movabs        %eax,0xa33fdce9a33fdce9
-  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a3803a <_sk_callback_sse41+0xffffffffe9a3411e>
+  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a380ba <_sk_callback_sse41+0xffffffffe9a34192>
   DB  220,63                              ; fdivrl        (%rdi)
   DB  81                                  ; push          %rcx
   DB  140,242                             ; mov           %?,%edx
@@ -14148,16 +14457,16 @@ ALIGN 16
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            40c4 <.literal16+0xf4>
+  DB  127,0                               ; jg            4144 <.literal16+0x164>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            40c8 <.literal16+0xf8>
+  DB  127,0                               ; jg            4148 <.literal16+0x168>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            40cc <.literal16+0xfc>
+  DB  127,0                               ; jg            414c <.literal16+0x16c>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            40d0 <.literal16+0x100>
+  DB  127,0                               ; jg            4150 <.literal16+0x170>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
@@ -14166,7 +14475,7 @@ ALIGN 16
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            4155 <.literal16+0x185>
+  DB  119,115                             ; ja            41d5 <.literal16+0x1f5>
   DB  248                                 ; clc
   DB  194,119,115                         ; retq          $0x7377
   DB  248                                 ; clc
@@ -14177,7 +14486,7 @@ ALIGN 16
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
-  DB  117,191                             ; jne           40b9 <.literal16+0xe9>
+  DB  117,191                             ; jne           4139 <.literal16+0x159>
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
   DB  249                                 ; stc
@@ -14189,7 +14498,7 @@ ALIGN 16
   DB  249                                 ; stc
   DB  68,180,62                           ; rex.R         mov $0x3e,%spl
   DB  163,233,220,63,163,233,220,63,163   ; movabs        %eax,0xa33fdce9a33fdce9
-  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a380fa <_sk_callback_sse41+0xffffffffe9a341de>
+  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a3817a <_sk_callback_sse41+0xffffffffe9a34252>
   DB  220,63                              ; fdivrl        (%rdi)
   DB  81                                  ; push          %rcx
   DB  140,242                             ; mov           %?,%edx
@@ -14238,16 +14547,16 @@ ALIGN 16
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4184 <.literal16+0x1b4>
+  DB  127,0                               ; jg            4204 <.literal16+0x224>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4188 <.literal16+0x1b8>
+  DB  127,0                               ; jg            4208 <.literal16+0x228>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            418c <.literal16+0x1bc>
+  DB  127,0                               ; jg            420c <.literal16+0x22c>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4190 <.literal16+0x1c0>
+  DB  127,0                               ; jg            4210 <.literal16+0x230>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
@@ -14256,7 +14565,7 @@ ALIGN 16
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            4215 <.literal16+0x245>
+  DB  119,115                             ; ja            4295 <.literal16+0x2b5>
   DB  248                                 ; clc
   DB  194,119,115                         ; retq          $0x7377
   DB  248                                 ; clc
@@ -14267,7 +14576,7 @@ ALIGN 16
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
-  DB  117,191                             ; jne           4179 <.literal16+0x1a9>
+  DB  117,191                             ; jne           41f9 <.literal16+0x219>
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
   DB  249                                 ; stc
@@ -14279,7 +14588,7 @@ ALIGN 16
   DB  249                                 ; stc
   DB  68,180,62                           ; rex.R         mov $0x3e,%spl
   DB  163,233,220,63,163,233,220,63,163   ; movabs        %eax,0xa33fdce9a33fdce9
-  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a381ba <_sk_callback_sse41+0xffffffffe9a3429e>
+  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a3823a <_sk_callback_sse41+0xffffffffe9a34312>
   DB  220,63                              ; fdivrl        (%rdi)
   DB  81                                  ; push          %rcx
   DB  140,242                             ; mov           %?,%edx
@@ -14328,16 +14637,16 @@ ALIGN 16
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4244 <.literal16+0x274>
+  DB  127,0                               ; jg            42c4 <.literal16+0x2e4>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4248 <.literal16+0x278>
+  DB  127,0                               ; jg            42c8 <.literal16+0x2e8>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            424c <.literal16+0x27c>
+  DB  127,0                               ; jg            42cc <.literal16+0x2ec>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4250 <.literal16+0x280>
+  DB  127,0                               ; jg            42d0 <.literal16+0x2f0>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
@@ -14346,7 +14655,7 @@ ALIGN 16
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            42d5 <.literal16+0x305>
+  DB  119,115                             ; ja            4355 <.literal16+0x375>
   DB  248                                 ; clc
   DB  194,119,115                         ; retq          $0x7377
   DB  248                                 ; clc
@@ -14357,7 +14666,7 @@ ALIGN 16
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
-  DB  117,191                             ; jne           4239 <.literal16+0x269>
+  DB  117,191                             ; jne           42b9 <.literal16+0x2d9>
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
   DB  249                                 ; stc
@@ -14369,7 +14678,7 @@ ALIGN 16
   DB  249                                 ; stc
   DB  68,180,62                           ; rex.R         mov $0x3e,%spl
   DB  163,233,220,63,163,233,220,63,163   ; movabs        %eax,0xa33fdce9a33fdce9
-  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a3827a <_sk_callback_sse41+0xffffffffe9a3435e>
+  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a382fa <_sk_callback_sse41+0xffffffffe9a343d2>
   DB  220,63                              ; fdivrl        (%rdi)
   DB  81                                  ; push          %rcx
   DB  140,242                             ; mov           %?,%edx
@@ -14409,13 +14718,90 @@ ALIGN 16
   DB  75,0,0                              ; rex.WXB       add %al,(%r8)
   DB  0,75,0                              ; add           %cl,0x0(%rbx)
   DB  0,0                                 ; add           %al,(%rax)
-  DB  75,0,128,0,0,0,128                  ; rex.WXB       add %al,-0x80000000(%r8)
+  DB  75,255,0                            ; rex.WXB       incq (%r8)
   DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  1,255                               ; add           %edi,%edi
+  DB  255                                 ; (bad)
+  DB  255,5,255,255,255,9                 ; incl          0x9ffffff(%rip)        # a004388 <_sk_callback_sse41+0xa000460>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,13,255,255,255,2                ; decl          0x2ffffff(%rip)        # 3004390 <_sk_callback_sse41+0x3000468>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,6                               ; incl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,10                              ; decl          (%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,14                              ; decl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  1,255                               ; add           %edi,%edi
+  DB  255                                 ; (bad)
+  DB  255,5,255,255,255,9                 ; incl          0x9ffffff(%rip)        # a0043b8 <_sk_callback_sse41+0xa000490>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,13,255,255,255,2                ; decl          0x2ffffff(%rip)        # 30043c0 <_sk_callback_sse41+0x3000498>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,6                               ; incl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,10                              ; decl          (%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,14                              ; decl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  1,255                               ; add           %edi,%edi
+  DB  255                                 ; (bad)
+  DB  255,5,255,255,255,9                 ; incl          0x9ffffff(%rip)        # a0043e8 <_sk_callback_sse41+0xa0004c0>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,13,255,255,255,2                ; decl          0x2ffffff(%rip)        # 30043f0 <_sk_callback_sse41+0x30004c8>
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,6                               ; incl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,10                              ; decl          (%rdx)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,14                              ; decl          (%rsi)
+  DB  255                                 ; (bad)
+  DB  255                                 ; (bad)
+  DB  255,0                               ; incl          (%rax)
+  DB  128,0,0                             ; addb          $0x0,(%rax)
   DB  0,128,0,0,0,128                     ; add           %al,-0x80000000(%rax)
   DB  0,0                                 ; add           %al,(%rax)
-  DB  0,4,0                               ; add           %al,(%rax,%rax,1)
+  DB  0,128,0,0,0,4                       ; add           %al,0x4000000(%rax)
   DB  0,0                                 ; add           %al,(%rax)
-  DB  4,0                                 ; add           $0x0,%al
+  DB  0,4,0                               ; add           %al,(%rax,%rax,1)
   DB  0,0                                 ; add           %al,(%rax)
   DB  4,0                                 ; add           $0x0,%al
   DB  0,0                                 ; add           %al,(%rax)
@@ -14546,7 +14932,7 @@ _sk_seed_shader_sse2 LABEL PROC
   DB  102,15,110,199                      ; movd          %edi,%xmm0
   DB  102,15,112,192,0                    ; pshufd        $0x0,%xmm0,%xmm0
   DB  15,91,200                           ; cvtdq2ps      %xmm0,%xmm1
-  DB  15,40,21,177,66,0,0                 ; movaps        0x42b1(%rip),%xmm2        # 43c0 <_sk_callback_sse2+0xab>
+  DB  15,40,21,161,66,0,0                 ; movaps        0x42a1(%rip),%xmm2        # 43b0 <_sk_callback_sse2+0xad>
   DB  15,88,202                           ; addps         %xmm2,%xmm1
   DB  15,16,2                             ; movups        (%rdx),%xmm0
   DB  15,88,193                           ; addps         %xmm1,%xmm0
@@ -14555,7 +14941,7 @@ _sk_seed_shader_sse2 LABEL PROC
   DB  15,91,201                           ; cvtdq2ps      %xmm1,%xmm1
   DB  15,88,202                           ; addps         %xmm2,%xmm1
   DB  72,173                              ; lods          %ds:(%rsi),%rax
-  DB  15,40,21,160,66,0,0                 ; movaps        0x42a0(%rip),%xmm2        # 43d0 <_sk_callback_sse2+0xbb>
+  DB  15,40,21,144,66,0,0                 ; movaps        0x4290(%rip),%xmm2        # 43c0 <_sk_callback_sse2+0xbd>
   DB  15,87,219                           ; xorps         %xmm3,%xmm3
   DB  15,87,228                           ; xorps         %xmm4,%xmm4
   DB  15,87,237                           ; xorps         %xmm5,%xmm5
@@ -16107,67 +16493,64 @@ _sk_lerp_565_sse2 LABEL PROC
 PUBLIC _sk_load_tables_sse2
 _sk_load_tables_sse2 LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
-  DB  72,139,8                            ; mov           (%rax),%rcx
-  DB  76,139,64,8                         ; mov           0x8(%rax),%r8
-  DB  243,68,15,111,4,185                 ; movdqu        (%rcx,%rdi,4),%xmm8
-  DB  185,255,0,0,0                       ; mov           $0xff,%ecx
-  DB  102,15,110,193                      ; movd          %ecx,%xmm0
-  DB  102,15,112,192,0                    ; pshufd        $0x0,%xmm0,%xmm0
-  DB  102,69,15,111,200                   ; movdqa        %xmm8,%xmm9
-  DB  102,65,15,114,209,8                 ; psrld         $0x8,%xmm9
-  DB  102,68,15,219,200                   ; pand          %xmm0,%xmm9
-  DB  102,69,15,111,208                   ; movdqa        %xmm8,%xmm10
-  DB  102,65,15,114,210,16                ; psrld         $0x10,%xmm10
-  DB  102,68,15,219,208                   ; pand          %xmm0,%xmm10
+  DB  76,139,0                            ; mov           (%rax),%r8
+  DB  76,139,72,8                         ; mov           0x8(%rax),%r9
+  DB  243,69,15,111,12,184                ; movdqu        (%r8,%rdi,4),%xmm9
+  DB  102,68,15,111,5,76,45,0,0           ; movdqa        0x2d4c(%rip),%xmm8        # 43d0 <_sk_callback_sse2+0xcd>
+  DB  102,65,15,111,193                   ; movdqa        %xmm9,%xmm0
   DB  102,65,15,219,192                   ; pand          %xmm8,%xmm0
-  DB  102,15,112,216,78                   ; pshufd        $0x4e,%xmm0,%xmm3
-  DB  102,72,15,126,217                   ; movq          %xmm3,%rcx
-  DB  65,137,201                          ; mov           %ecx,%r9d
-  DB  72,193,233,32                       ; shr           $0x20,%rcx
-  DB  102,73,15,126,194                   ; movq          %xmm0,%r10
-  DB  69,137,211                          ; mov           %r10d,%r11d
-  DB  73,193,234,32                       ; shr           $0x20,%r10
-  DB  243,67,15,16,28,144                 ; movss         (%r8,%r10,4),%xmm3
-  DB  243,65,15,16,4,136                  ; movss         (%r8,%rcx,4),%xmm0
-  DB  15,20,216                           ; unpcklps      %xmm0,%xmm3
-  DB  243,67,15,16,4,152                  ; movss         (%r8,%r11,4),%xmm0
-  DB  243,67,15,16,12,136                 ; movss         (%r8,%r9,4),%xmm1
-  DB  15,20,193                           ; unpcklps      %xmm1,%xmm0
-  DB  15,20,195                           ; unpcklps      %xmm3,%xmm0
-  DB  76,139,64,16                        ; mov           0x10(%rax),%r8
-  DB  102,65,15,112,201,78                ; pshufd        $0x4e,%xmm9,%xmm1
-  DB  102,73,15,126,202                   ; movq          %xmm1,%r10
-  DB  77,137,209                          ; mov           %r10,%r9
-  DB  73,193,233,32                       ; shr           $0x20,%r9
-  DB  102,76,15,126,201                   ; movq          %xmm9,%rcx
-  DB  65,137,203                          ; mov           %ecx,%r11d
-  DB  65,129,227,255,255,255,0            ; and           $0xffffff,%r11d
+  DB  102,15,112,200,78                   ; pshufd        $0x4e,%xmm0,%xmm1
+  DB  102,73,15,126,200                   ; movq          %xmm1,%r8
+  DB  102,72,15,126,193                   ; movq          %xmm0,%rcx
+  DB  68,15,182,209                       ; movzbl        %cl,%r10d
   DB  72,193,233,30                       ; shr           $0x1e,%rcx
-  DB  65,129,226,255,255,255,0            ; and           $0xffffff,%r10d
-  DB  243,65,15,16,28,8                   ; movss         (%r8,%rcx,1),%xmm3
-  DB  243,67,15,16,12,136                 ; movss         (%r8,%r9,4),%xmm1
-  DB  15,20,217                           ; unpcklps      %xmm1,%xmm3
-  DB  243,67,15,16,12,152                 ; movss         (%r8,%r11,4),%xmm1
-  DB  243,67,15,16,20,144                 ; movss         (%r8,%r10,4),%xmm2
-  DB  15,20,202                           ; unpcklps      %xmm2,%xmm1
+  DB  69,15,182,216                       ; movzbl        %r8b,%r11d
+  DB  73,193,232,30                       ; shr           $0x1e,%r8
+  DB  243,65,15,16,12,9                   ; movss         (%r9,%rcx,1),%xmm1
+  DB  243,67,15,16,4,1                    ; movss         (%r9,%r8,1),%xmm0
+  DB  15,20,200                           ; unpcklps      %xmm0,%xmm1
+  DB  243,67,15,16,4,145                  ; movss         (%r9,%r10,4),%xmm0
+  DB  243,67,15,16,20,153                 ; movss         (%r9,%r11,4),%xmm2
+  DB  15,20,194                           ; unpcklps      %xmm2,%xmm0
+  DB  15,20,193                           ; unpcklps      %xmm1,%xmm0
+  DB  76,139,64,16                        ; mov           0x10(%rax),%r8
+  DB  102,65,15,111,201                   ; movdqa        %xmm9,%xmm1
+  DB  102,15,114,209,8                    ; psrld         $0x8,%xmm1
+  DB  102,65,15,219,200                   ; pand          %xmm8,%xmm1
+  DB  102,15,112,209,78                   ; pshufd        $0x4e,%xmm1,%xmm2
+  DB  102,73,15,126,209                   ; movq          %xmm2,%r9
+  DB  102,72,15,126,201                   ; movq          %xmm1,%rcx
+  DB  68,15,182,209                       ; movzbl        %cl,%r10d
+  DB  72,193,233,30                       ; shr           $0x1e,%rcx
+  DB  69,15,182,217                       ; movzbl        %r9b,%r11d
+  DB  73,193,233,30                       ; shr           $0x1e,%r9
+  DB  243,65,15,16,20,8                   ; movss         (%r8,%rcx,1),%xmm2
+  DB  243,67,15,16,12,8                   ; movss         (%r8,%r9,1),%xmm1
+  DB  15,20,209                           ; unpcklps      %xmm1,%xmm2
+  DB  243,67,15,16,12,144                 ; movss         (%r8,%r10,4),%xmm1
+  DB  243,67,15,16,28,152                 ; movss         (%r8,%r11,4),%xmm3
   DB  15,20,203                           ; unpcklps      %xmm3,%xmm1
-  DB  76,139,72,24                        ; mov           0x18(%rax),%r9
-  DB  102,65,15,112,210,78                ; pshufd        $0x4e,%xmm10,%xmm2
-  DB  102,72,15,126,209                   ; movq          %xmm2,%rcx
-  DB  68,15,183,193                       ; movzwl        %cx,%r8d
-  DB  72,193,233,32                       ; shr           $0x20,%rcx
-  DB  102,76,15,126,208                   ; movq          %xmm10,%rax
-  DB  68,15,183,208                       ; movzwl        %ax,%r10d
+  DB  15,20,202                           ; unpcklps      %xmm2,%xmm1
+  DB  76,139,64,24                        ; mov           0x18(%rax),%r8
+  DB  102,65,15,111,209                   ; movdqa        %xmm9,%xmm2
+  DB  102,15,114,210,16                   ; psrld         $0x10,%xmm2
+  DB  102,65,15,219,208                   ; pand          %xmm8,%xmm2
+  DB  102,15,112,218,78                   ; pshufd        $0x4e,%xmm2,%xmm3
+  DB  102,72,15,126,217                   ; movq          %xmm3,%rcx
+  DB  102,72,15,126,208                   ; movq          %xmm2,%rax
+  DB  68,15,182,200                       ; movzbl        %al,%r9d
   DB  72,193,232,30                       ; shr           $0x1e,%rax
-  DB  243,69,15,16,12,1                   ; movss         (%r9,%rax,1),%xmm9
-  DB  243,65,15,16,20,137                 ; movss         (%r9,%rcx,4),%xmm2
-  DB  68,15,20,202                        ; unpcklps      %xmm2,%xmm9
-  DB  243,67,15,16,20,145                 ; movss         (%r9,%r10,4),%xmm2
-  DB  243,67,15,16,28,129                 ; movss         (%r9,%r8,4),%xmm3
+  DB  68,15,182,209                       ; movzbl        %cl,%r10d
+  DB  72,193,233,30                       ; shr           $0x1e,%rcx
+  DB  243,69,15,16,4,0                    ; movss         (%r8,%rax,1),%xmm8
+  DB  243,65,15,16,20,8                   ; movss         (%r8,%rcx,1),%xmm2
+  DB  68,15,20,194                        ; unpcklps      %xmm2,%xmm8
+  DB  243,67,15,16,20,136                 ; movss         (%r8,%r9,4),%xmm2
+  DB  243,67,15,16,28,144                 ; movss         (%r8,%r10,4),%xmm3
   DB  15,20,211                           ; unpcklps      %xmm3,%xmm2
-  DB  65,15,20,209                        ; unpcklps      %xmm9,%xmm2
-  DB  102,65,15,114,208,24                ; psrld         $0x18,%xmm8
-  DB  69,15,91,192                        ; cvtdq2ps      %xmm8,%xmm8
+  DB  65,15,20,208                        ; unpcklps      %xmm8,%xmm2
+  DB  102,65,15,114,209,24                ; psrld         $0x18,%xmm9
+  DB  69,15,91,193                        ; cvtdq2ps      %xmm9,%xmm8
   DB  184,129,128,128,59                  ; mov           $0x3b808081,%eax
   DB  102,15,110,216                      ; movd          %eax,%xmm3
   DB  15,198,219,0                        ; shufps        $0x0,%xmm3,%xmm3
@@ -16182,25 +16565,23 @@ _sk_load_tables_u16_be_sse2 LABEL PROC
   DB  76,139,64,8                         ; mov           0x8(%rax),%r8
   DB  243,15,111,4,249                    ; movdqu        (%rcx,%rdi,8),%xmm0
   DB  243,15,111,76,249,16                ; movdqu        0x10(%rcx,%rdi,8),%xmm1
-  DB  102,68,15,111,208                   ; movdqa        %xmm0,%xmm10
-  DB  102,68,15,97,209                    ; punpcklwd     %xmm1,%xmm10
+  DB  102,68,15,111,200                   ; movdqa        %xmm0,%xmm9
+  DB  102,68,15,97,201                    ; punpcklwd     %xmm1,%xmm9
   DB  102,15,105,193                      ; punpckhwd     %xmm1,%xmm0
-  DB  102,65,15,111,202                   ; movdqa        %xmm10,%xmm1
+  DB  102,65,15,111,201                   ; movdqa        %xmm9,%xmm1
   DB  102,15,97,200                       ; punpcklwd     %xmm0,%xmm1
-  DB  102,68,15,105,208                   ; punpckhwd     %xmm0,%xmm10
-  DB  102,69,15,239,192                   ; pxor          %xmm8,%xmm8
+  DB  102,68,15,105,200                   ; punpckhwd     %xmm0,%xmm9
+  DB  102,68,15,111,21,18,44,0,0          ; movdqa        0x2c12(%rip),%xmm10        # 43e0 <_sk_callback_sse2+0xdd>
   DB  102,15,111,193                      ; movdqa        %xmm1,%xmm0
+  DB  102,65,15,219,194                   ; pand          %xmm10,%xmm0
+  DB  102,69,15,239,192                   ; pxor          %xmm8,%xmm8
   DB  102,65,15,97,192                    ; punpcklwd     %xmm8,%xmm0
-  DB  185,255,0,0,0                       ; mov           $0xff,%ecx
-  DB  102,15,110,217                      ; movd          %ecx,%xmm3
-  DB  102,68,15,112,203,0                 ; pshufd        $0x0,%xmm3,%xmm9
-  DB  102,65,15,219,193                   ; pand          %xmm9,%xmm0
   DB  102,15,112,216,78                   ; pshufd        $0x4e,%xmm0,%xmm3
   DB  102,72,15,126,217                   ; movq          %xmm3,%rcx
-  DB  68,15,183,201                       ; movzwl        %cx,%r9d
+  DB  68,15,182,201                       ; movzbl        %cl,%r9d
   DB  72,193,233,32                       ; shr           $0x20,%rcx
   DB  102,73,15,126,194                   ; movq          %xmm0,%r10
-  DB  69,15,183,218                       ; movzwl        %r10w,%r11d
+  DB  69,15,182,218                       ; movzbl        %r10b,%r11d
   DB  73,193,234,30                       ; shr           $0x1e,%r10
   DB  243,67,15,16,28,16                  ; movss         (%r8,%r10,1),%xmm3
   DB  243,65,15,16,4,136                  ; movss         (%r8,%rcx,4),%xmm0
@@ -16211,14 +16592,14 @@ _sk_load_tables_u16_be_sse2 LABEL PROC
   DB  15,20,195                           ; unpcklps      %xmm3,%xmm0
   DB  76,139,80,16                        ; mov           0x10(%rax),%r10
   DB  102,15,115,217,8                    ; psrldq        $0x8,%xmm1
+  DB  102,65,15,219,202                   ; pand          %xmm10,%xmm1
   DB  102,65,15,97,200                    ; punpcklwd     %xmm8,%xmm1
-  DB  102,65,15,219,201                   ; pand          %xmm9,%xmm1
   DB  102,15,112,209,78                   ; pshufd        $0x4e,%xmm1,%xmm2
   DB  102,73,15,126,208                   ; movq          %xmm2,%r8
-  DB  69,15,183,200                       ; movzwl        %r8w,%r9d
+  DB  69,15,182,200                       ; movzbl        %r8b,%r9d
   DB  73,193,232,32                       ; shr           $0x20,%r8
   DB  102,72,15,126,201                   ; movq          %xmm1,%rcx
-  DB  68,15,183,217                       ; movzwl        %cx,%r11d
+  DB  68,15,182,217                       ; movzbl        %cl,%r11d
   DB  72,193,233,30                       ; shr           $0x1e,%rcx
   DB  243,65,15,16,20,10                  ; movss         (%r10,%rcx,1),%xmm2
   DB  243,67,15,16,12,130                 ; movss         (%r10,%r8,4),%xmm1
@@ -16228,33 +16609,33 @@ _sk_load_tables_u16_be_sse2 LABEL PROC
   DB  15,20,203                           ; unpcklps      %xmm3,%xmm1
   DB  15,20,202                           ; unpcklps      %xmm2,%xmm1
   DB  76,139,72,24                        ; mov           0x18(%rax),%r9
-  DB  102,69,15,112,218,78                ; pshufd        $0x4e,%xmm10,%xmm11
-  DB  102,69,15,97,208                    ; punpcklwd     %xmm8,%xmm10
   DB  102,69,15,219,209                   ; pand          %xmm9,%xmm10
+  DB  102,69,15,97,208                    ; punpcklwd     %xmm8,%xmm10
   DB  102,65,15,112,210,78                ; pshufd        $0x4e,%xmm10,%xmm2
   DB  102,72,15,126,209                   ; movq          %xmm2,%rcx
-  DB  68,15,183,193                       ; movzwl        %cx,%r8d
+  DB  68,15,182,193                       ; movzbl        %cl,%r8d
   DB  72,193,233,32                       ; shr           $0x20,%rcx
   DB  102,76,15,126,208                   ; movq          %xmm10,%rax
-  DB  68,15,183,208                       ; movzwl        %ax,%r10d
+  DB  68,15,182,208                       ; movzbl        %al,%r10d
   DB  72,193,232,30                       ; shr           $0x1e,%rax
-  DB  243,69,15,16,12,1                   ; movss         (%r9,%rax,1),%xmm9
+  DB  243,69,15,16,20,1                   ; movss         (%r9,%rax,1),%xmm10
   DB  243,65,15,16,20,137                 ; movss         (%r9,%rcx,4),%xmm2
-  DB  68,15,20,202                        ; unpcklps      %xmm2,%xmm9
+  DB  68,15,20,210                        ; unpcklps      %xmm2,%xmm10
   DB  243,67,15,16,20,145                 ; movss         (%r9,%r10,4),%xmm2
   DB  243,67,15,16,28,129                 ; movss         (%r9,%r8,4),%xmm3
   DB  15,20,211                           ; unpcklps      %xmm3,%xmm2
-  DB  65,15,20,209                        ; unpcklps      %xmm9,%xmm2
+  DB  65,15,20,210                        ; unpcklps      %xmm10,%xmm2
   DB  184,128,0,128,55                    ; mov           $0x37800080,%eax
-  DB  102,68,15,110,200                   ; movd          %eax,%xmm9
-  DB  69,15,198,201,0                     ; shufps        $0x0,%xmm9,%xmm9
-  DB  102,65,15,111,219                   ; movdqa        %xmm11,%xmm3
-  DB  102,15,113,243,8                    ; psllw         $0x8,%xmm3
-  DB  102,65,15,113,211,8                 ; psrlw         $0x8,%xmm11
-  DB  102,68,15,235,219                   ; por           %xmm3,%xmm11
-  DB  102,69,15,97,216                    ; punpcklwd     %xmm8,%xmm11
-  DB  65,15,91,219                        ; cvtdq2ps      %xmm11,%xmm3
-  DB  65,15,89,217                        ; mulps         %xmm9,%xmm3
+  DB  102,68,15,110,208                   ; movd          %eax,%xmm10
+  DB  69,15,198,210,0                     ; shufps        $0x0,%xmm10,%xmm10
+  DB  102,65,15,112,217,78                ; pshufd        $0x4e,%xmm9,%xmm3
+  DB  102,68,15,111,203                   ; movdqa        %xmm3,%xmm9
+  DB  102,65,15,113,241,8                 ; psllw         $0x8,%xmm9
+  DB  102,15,113,211,8                    ; psrlw         $0x8,%xmm3
+  DB  102,65,15,235,217                   ; por           %xmm9,%xmm3
+  DB  102,65,15,97,216                    ; punpcklwd     %xmm8,%xmm3
+  DB  15,91,219                           ; cvtdq2ps      %xmm3,%xmm3
+  DB  65,15,89,218                        ; mulps         %xmm10,%xmm3
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  255,224                             ; jmpq          *%rax
 
@@ -16267,61 +16648,59 @@ _sk_load_tables_rgb_u16_be_sse2 LABEL PROC
   DB  243,70,15,111,28,73                 ; movdqu        (%rcx,%r9,2),%xmm11
   DB  243,66,15,111,68,73,8               ; movdqu        0x8(%rcx,%r9,2),%xmm0
   DB  102,15,115,216,4                    ; psrldq        $0x4,%xmm0
-  DB  102,65,15,111,219                   ; movdqa        %xmm11,%xmm3
-  DB  102,15,115,219,6                    ; psrldq        $0x6,%xmm3
+  DB  102,69,15,111,211                   ; movdqa        %xmm11,%xmm10
+  DB  102,65,15,115,218,6                 ; psrldq        $0x6,%xmm10
   DB  102,68,15,97,216                    ; punpcklwd     %xmm0,%xmm11
   DB  102,15,115,216,6                    ; psrldq        $0x6,%xmm0
-  DB  102,15,97,216                       ; punpcklwd     %xmm0,%xmm3
+  DB  102,68,15,97,208                    ; punpcklwd     %xmm0,%xmm10
   DB  102,65,15,111,195                   ; movdqa        %xmm11,%xmm0
-  DB  102,15,97,195                       ; punpcklwd     %xmm3,%xmm0
-  DB  102,68,15,112,208,78                ; pshufd        $0x4e,%xmm0,%xmm10
-  DB  102,68,15,105,219                   ; punpckhwd     %xmm3,%xmm11
-  DB  102,69,15,239,192                   ; pxor          %xmm8,%xmm8
-  DB  102,65,15,97,192                    ; punpcklwd     %xmm8,%xmm0
-  DB  185,255,0,0,0                       ; mov           $0xff,%ecx
-  DB  102,15,110,217                      ; movd          %ecx,%xmm3
-  DB  102,68,15,112,203,0                 ; pshufd        $0x0,%xmm3,%xmm9
-  DB  102,65,15,219,193                   ; pand          %xmm9,%xmm0
+  DB  102,65,15,97,194                    ; punpcklwd     %xmm10,%xmm0
+  DB  102,68,15,111,5,165,42,0,0          ; movdqa        0x2aa5(%rip),%xmm8        # 43f0 <_sk_callback_sse2+0xed>
+  DB  102,15,112,200,78                   ; pshufd        $0x4e,%xmm0,%xmm1
+  DB  102,65,15,219,192                   ; pand          %xmm8,%xmm0
+  DB  102,69,15,239,201                   ; pxor          %xmm9,%xmm9
+  DB  102,65,15,97,193                    ; punpcklwd     %xmm9,%xmm0
   DB  102,15,112,216,78                   ; pshufd        $0x4e,%xmm0,%xmm3
   DB  102,72,15,126,217                   ; movq          %xmm3,%rcx
-  DB  68,15,183,201                       ; movzwl        %cx,%r9d
+  DB  68,15,182,201                       ; movzbl        %cl,%r9d
   DB  72,193,233,32                       ; shr           $0x20,%rcx
   DB  102,73,15,126,194                   ; movq          %xmm0,%r10
-  DB  69,15,183,218                       ; movzwl        %r10w,%r11d
+  DB  69,15,182,218                       ; movzbl        %r10b,%r11d
   DB  73,193,234,30                       ; shr           $0x1e,%r10
   DB  243,67,15,16,28,16                  ; movss         (%r8,%r10,1),%xmm3
   DB  243,65,15,16,4,136                  ; movss         (%r8,%rcx,4),%xmm0
   DB  15,20,216                           ; unpcklps      %xmm0,%xmm3
   DB  243,67,15,16,4,152                  ; movss         (%r8,%r11,4),%xmm0
-  DB  243,67,15,16,12,136                 ; movss         (%r8,%r9,4),%xmm1
-  DB  15,20,193                           ; unpcklps      %xmm1,%xmm0
+  DB  243,67,15,16,20,136                 ; movss         (%r8,%r9,4),%xmm2
+  DB  15,20,194                           ; unpcklps      %xmm2,%xmm0
   DB  15,20,195                           ; unpcklps      %xmm3,%xmm0
   DB  76,139,80,16                        ; mov           0x10(%rax),%r10
-  DB  102,69,15,97,208                    ; punpcklwd     %xmm8,%xmm10
-  DB  102,69,15,219,209                   ; pand          %xmm9,%xmm10
-  DB  102,65,15,112,202,78                ; pshufd        $0x4e,%xmm10,%xmm1
-  DB  102,73,15,126,200                   ; movq          %xmm1,%r8
-  DB  69,15,183,200                       ; movzwl        %r8w,%r9d
+  DB  102,65,15,219,200                   ; pand          %xmm8,%xmm1
+  DB  102,65,15,97,201                    ; punpcklwd     %xmm9,%xmm1
+  DB  102,15,112,209,78                   ; pshufd        $0x4e,%xmm1,%xmm2
+  DB  102,73,15,126,208                   ; movq          %xmm2,%r8
+  DB  69,15,182,200                       ; movzbl        %r8b,%r9d
   DB  73,193,232,32                       ; shr           $0x20,%r8
-  DB  102,76,15,126,209                   ; movq          %xmm10,%rcx
-  DB  68,15,183,217                       ; movzwl        %cx,%r11d
+  DB  102,72,15,126,201                   ; movq          %xmm1,%rcx
+  DB  68,15,182,217                       ; movzbl        %cl,%r11d
   DB  72,193,233,30                       ; shr           $0x1e,%rcx
-  DB  243,65,15,16,28,10                  ; movss         (%r10,%rcx,1),%xmm3
+  DB  243,65,15,16,20,10                  ; movss         (%r10,%rcx,1),%xmm2
   DB  243,67,15,16,12,130                 ; movss         (%r10,%r8,4),%xmm1
-  DB  15,20,217                           ; unpcklps      %xmm1,%xmm3
+  DB  15,20,209                           ; unpcklps      %xmm1,%xmm2
   DB  243,67,15,16,12,154                 ; movss         (%r10,%r11,4),%xmm1
-  DB  243,67,15,16,20,138                 ; movss         (%r10,%r9,4),%xmm2
-  DB  15,20,202                           ; unpcklps      %xmm2,%xmm1
+  DB  243,67,15,16,28,138                 ; movss         (%r10,%r9,4),%xmm3
   DB  15,20,203                           ; unpcklps      %xmm3,%xmm1
+  DB  15,20,202                           ; unpcklps      %xmm2,%xmm1
   DB  76,139,72,24                        ; mov           0x18(%rax),%r9
-  DB  102,69,15,97,216                    ; punpcklwd     %xmm8,%xmm11
-  DB  102,69,15,219,217                   ; pand          %xmm9,%xmm11
+  DB  102,69,15,105,218                   ; punpckhwd     %xmm10,%xmm11
+  DB  102,69,15,219,216                   ; pand          %xmm8,%xmm11
+  DB  102,69,15,97,217                    ; punpcklwd     %xmm9,%xmm11
   DB  102,65,15,112,211,78                ; pshufd        $0x4e,%xmm11,%xmm2
   DB  102,72,15,126,209                   ; movq          %xmm2,%rcx
-  DB  68,15,183,193                       ; movzwl        %cx,%r8d
+  DB  68,15,182,193                       ; movzbl        %cl,%r8d
   DB  72,193,233,32                       ; shr           $0x20,%rcx
   DB  102,76,15,126,216                   ; movq          %xmm11,%rax
-  DB  68,15,183,208                       ; movzwl        %ax,%r10d
+  DB  68,15,182,208                       ; movzbl        %al,%r10d
   DB  72,193,232,30                       ; shr           $0x1e,%rax
   DB  243,69,15,16,4,1                    ; movss         (%r9,%rax,1),%xmm8
   DB  243,65,15,16,20,137                 ; movss         (%r9,%rcx,4),%xmm2
@@ -16675,15 +17054,15 @@ _sk_parametric_r_sse2 LABEL PROC
   DB  69,15,88,209                        ; addps         %xmm9,%xmm10
   DB  69,15,198,219,0                     ; shufps        $0x0,%xmm11,%xmm11
   DB  69,15,91,202                        ; cvtdq2ps      %xmm10,%xmm9
-  DB  68,15,89,13,78,36,0,0               ; mulps         0x244e(%rip),%xmm9        # 43e0 <_sk_callback_sse2+0xcb>
-  DB  68,15,84,21,86,36,0,0               ; andps         0x2456(%rip),%xmm10        # 43f0 <_sk_callback_sse2+0xdb>
-  DB  68,15,86,21,94,36,0,0               ; orps          0x245e(%rip),%xmm10        # 4400 <_sk_callback_sse2+0xeb>
-  DB  68,15,88,13,102,36,0,0              ; addps         0x2466(%rip),%xmm9        # 4410 <_sk_callback_sse2+0xfb>
-  DB  68,15,40,37,110,36,0,0              ; movaps        0x246e(%rip),%xmm12        # 4420 <_sk_callback_sse2+0x10b>
+  DB  68,15,89,13,136,36,0,0              ; mulps         0x2488(%rip),%xmm9        # 4400 <_sk_callback_sse2+0xfd>
+  DB  68,15,84,21,144,36,0,0              ; andps         0x2490(%rip),%xmm10        # 4410 <_sk_callback_sse2+0x10d>
+  DB  68,15,86,21,152,36,0,0              ; orps          0x2498(%rip),%xmm10        # 4420 <_sk_callback_sse2+0x11d>
+  DB  68,15,88,13,160,36,0,0              ; addps         0x24a0(%rip),%xmm9        # 4430 <_sk_callback_sse2+0x12d>
+  DB  68,15,40,37,168,36,0,0              ; movaps        0x24a8(%rip),%xmm12        # 4440 <_sk_callback_sse2+0x13d>
   DB  69,15,89,226                        ; mulps         %xmm10,%xmm12
   DB  69,15,92,204                        ; subps         %xmm12,%xmm9
-  DB  68,15,88,21,110,36,0,0              ; addps         0x246e(%rip),%xmm10        # 4430 <_sk_callback_sse2+0x11b>
-  DB  68,15,40,37,118,36,0,0              ; movaps        0x2476(%rip),%xmm12        # 4440 <_sk_callback_sse2+0x12b>
+  DB  68,15,88,21,168,36,0,0              ; addps         0x24a8(%rip),%xmm10        # 4450 <_sk_callback_sse2+0x14d>
+  DB  68,15,40,37,176,36,0,0              ; movaps        0x24b0(%rip),%xmm12        # 4460 <_sk_callback_sse2+0x15d>
   DB  69,15,94,226                        ; divps         %xmm10,%xmm12
   DB  69,15,92,204                        ; subps         %xmm12,%xmm9
   DB  69,15,89,203                        ; mulps         %xmm11,%xmm9
@@ -16691,21 +17070,21 @@ _sk_parametric_r_sse2 LABEL PROC
   DB  69,15,91,218                        ; cvtdq2ps      %xmm10,%xmm11
   DB  69,15,40,225                        ; movaps        %xmm9,%xmm12
   DB  69,15,194,227,1                     ; cmpltps       %xmm11,%xmm12
-  DB  68,15,84,37,96,36,0,0               ; andps         0x2460(%rip),%xmm12        # 4450 <_sk_callback_sse2+0x13b>
+  DB  68,15,84,37,154,36,0,0              ; andps         0x249a(%rip),%xmm12        # 4470 <_sk_callback_sse2+0x16d>
   DB  69,15,87,210                        ; xorps         %xmm10,%xmm10
   DB  69,15,92,220                        ; subps         %xmm12,%xmm11
   DB  69,15,40,225                        ; movaps        %xmm9,%xmm12
   DB  69,15,92,227                        ; subps         %xmm11,%xmm12
-  DB  68,15,88,13,88,36,0,0               ; addps         0x2458(%rip),%xmm9        # 4460 <_sk_callback_sse2+0x14b>
-  DB  68,15,40,29,96,36,0,0               ; movaps        0x2460(%rip),%xmm11        # 4470 <_sk_callback_sse2+0x15b>
+  DB  68,15,88,13,146,36,0,0              ; addps         0x2492(%rip),%xmm9        # 4480 <_sk_callback_sse2+0x17d>
+  DB  68,15,40,29,154,36,0,0              ; movaps        0x249a(%rip),%xmm11        # 4490 <_sk_callback_sse2+0x18d>
   DB  69,15,89,220                        ; mulps         %xmm12,%xmm11
   DB  69,15,92,203                        ; subps         %xmm11,%xmm9
-  DB  68,15,40,29,96,36,0,0               ; movaps        0x2460(%rip),%xmm11        # 4480 <_sk_callback_sse2+0x16b>
+  DB  68,15,40,29,154,36,0,0              ; movaps        0x249a(%rip),%xmm11        # 44a0 <_sk_callback_sse2+0x19d>
   DB  69,15,92,220                        ; subps         %xmm12,%xmm11
-  DB  68,15,40,37,100,36,0,0              ; movaps        0x2464(%rip),%xmm12        # 4490 <_sk_callback_sse2+0x17b>
+  DB  68,15,40,37,158,36,0,0              ; movaps        0x249e(%rip),%xmm12        # 44b0 <_sk_callback_sse2+0x1ad>
   DB  69,15,94,227                        ; divps         %xmm11,%xmm12
   DB  69,15,88,225                        ; addps         %xmm9,%xmm12
-  DB  68,15,89,37,100,36,0,0              ; mulps         0x2464(%rip),%xmm12        # 44a0 <_sk_callback_sse2+0x18b>
+  DB  68,15,89,37,158,36,0,0              ; mulps         0x249e(%rip),%xmm12        # 44c0 <_sk_callback_sse2+0x1bd>
   DB  102,69,15,91,204                    ; cvtps2dq      %xmm12,%xmm9
   DB  243,68,15,16,88,20                  ; movss         0x14(%rax),%xmm11
   DB  69,15,198,219,0                     ; shufps        $0x0,%xmm11,%xmm11
@@ -16742,15 +17121,15 @@ _sk_parametric_g_sse2 LABEL PROC
   DB  69,15,88,209                        ; addps         %xmm9,%xmm10
   DB  69,15,198,219,0                     ; shufps        $0x0,%xmm11,%xmm11
   DB  69,15,91,202                        ; cvtdq2ps      %xmm10,%xmm9
-  DB  68,15,89,13,213,35,0,0              ; mulps         0x23d5(%rip),%xmm9        # 44b0 <_sk_callback_sse2+0x19b>
-  DB  68,15,84,21,221,35,0,0              ; andps         0x23dd(%rip),%xmm10        # 44c0 <_sk_callback_sse2+0x1ab>
-  DB  68,15,86,21,229,35,0,0              ; orps          0x23e5(%rip),%xmm10        # 44d0 <_sk_callback_sse2+0x1bb>
-  DB  68,15,88,13,237,35,0,0              ; addps         0x23ed(%rip),%xmm9        # 44e0 <_sk_callback_sse2+0x1cb>
-  DB  68,15,40,37,245,35,0,0              ; movaps        0x23f5(%rip),%xmm12        # 44f0 <_sk_callback_sse2+0x1db>
+  DB  68,15,89,13,15,36,0,0               ; mulps         0x240f(%rip),%xmm9        # 44d0 <_sk_callback_sse2+0x1cd>
+  DB  68,15,84,21,23,36,0,0               ; andps         0x2417(%rip),%xmm10        # 44e0 <_sk_callback_sse2+0x1dd>
+  DB  68,15,86,21,31,36,0,0               ; orps          0x241f(%rip),%xmm10        # 44f0 <_sk_callback_sse2+0x1ed>
+  DB  68,15,88,13,39,36,0,0               ; addps         0x2427(%rip),%xmm9        # 4500 <_sk_callback_sse2+0x1fd>
+  DB  68,15,40,37,47,36,0,0               ; movaps        0x242f(%rip),%xmm12        # 4510 <_sk_callback_sse2+0x20d>
   DB  69,15,89,226                        ; mulps         %xmm10,%xmm12
   DB  69,15,92,204                        ; subps         %xmm12,%xmm9
-  DB  68,15,88,21,245,35,0,0              ; addps         0x23f5(%rip),%xmm10        # 4500 <_sk_callback_sse2+0x1eb>
-  DB  68,15,40,37,253,35,0,0              ; movaps        0x23fd(%rip),%xmm12        # 4510 <_sk_callback_sse2+0x1fb>
+  DB  68,15,88,21,47,36,0,0               ; addps         0x242f(%rip),%xmm10        # 4520 <_sk_callback_sse2+0x21d>
+  DB  68,15,40,37,55,36,0,0               ; movaps        0x2437(%rip),%xmm12        # 4530 <_sk_callback_sse2+0x22d>
   DB  69,15,94,226                        ; divps         %xmm10,%xmm12
   DB  69,15,92,204                        ; subps         %xmm12,%xmm9
   DB  69,15,89,203                        ; mulps         %xmm11,%xmm9
@@ -16758,21 +17137,21 @@ _sk_parametric_g_sse2 LABEL PROC
   DB  69,15,91,218                        ; cvtdq2ps      %xmm10,%xmm11
   DB  69,15,40,225                        ; movaps        %xmm9,%xmm12
   DB  69,15,194,227,1                     ; cmpltps       %xmm11,%xmm12
-  DB  68,15,84,37,231,35,0,0              ; andps         0x23e7(%rip),%xmm12        # 4520 <_sk_callback_sse2+0x20b>
+  DB  68,15,84,37,33,36,0,0               ; andps         0x2421(%rip),%xmm12        # 4540 <_sk_callback_sse2+0x23d>
   DB  69,15,87,210                        ; xorps         %xmm10,%xmm10
   DB  69,15,92,220                        ; subps         %xmm12,%xmm11
   DB  69,15,40,225                        ; movaps        %xmm9,%xmm12
   DB  69,15,92,227                        ; subps         %xmm11,%xmm12
-  DB  68,15,88,13,223,35,0,0              ; addps         0x23df(%rip),%xmm9        # 4530 <_sk_callback_sse2+0x21b>
-  DB  68,15,40,29,231,35,0,0              ; movaps        0x23e7(%rip),%xmm11        # 4540 <_sk_callback_sse2+0x22b>
+  DB  68,15,88,13,25,36,0,0               ; addps         0x2419(%rip),%xmm9        # 4550 <_sk_callback_sse2+0x24d>
+  DB  68,15,40,29,33,36,0,0               ; movaps        0x2421(%rip),%xmm11        # 4560 <_sk_callback_sse2+0x25d>
   DB  69,15,89,220                        ; mulps         %xmm12,%xmm11
   DB  69,15,92,203                        ; subps         %xmm11,%xmm9
-  DB  68,15,40,29,231,35,0,0              ; movaps        0x23e7(%rip),%xmm11        # 4550 <_sk_callback_sse2+0x23b>
+  DB  68,15,40,29,33,36,0,0               ; movaps        0x2421(%rip),%xmm11        # 4570 <_sk_callback_sse2+0x26d>
   DB  69,15,92,220                        ; subps         %xmm12,%xmm11
-  DB  68,15,40,37,235,35,0,0              ; movaps        0x23eb(%rip),%xmm12        # 4560 <_sk_callback_sse2+0x24b>
+  DB  68,15,40,37,37,36,0,0               ; movaps        0x2425(%rip),%xmm12        # 4580 <_sk_callback_sse2+0x27d>
   DB  69,15,94,227                        ; divps         %xmm11,%xmm12
   DB  69,15,88,225                        ; addps         %xmm9,%xmm12
-  DB  68,15,89,37,235,35,0,0              ; mulps         0x23eb(%rip),%xmm12        # 4570 <_sk_callback_sse2+0x25b>
+  DB  68,15,89,37,37,36,0,0               ; mulps         0x2425(%rip),%xmm12        # 4590 <_sk_callback_sse2+0x28d>
   DB  102,69,15,91,204                    ; cvtps2dq      %xmm12,%xmm9
   DB  243,68,15,16,88,20                  ; movss         0x14(%rax),%xmm11
   DB  69,15,198,219,0                     ; shufps        $0x0,%xmm11,%xmm11
@@ -16809,15 +17188,15 @@ _sk_parametric_b_sse2 LABEL PROC
   DB  69,15,88,209                        ; addps         %xmm9,%xmm10
   DB  69,15,198,219,0                     ; shufps        $0x0,%xmm11,%xmm11
   DB  69,15,91,202                        ; cvtdq2ps      %xmm10,%xmm9
-  DB  68,15,89,13,92,35,0,0               ; mulps         0x235c(%rip),%xmm9        # 4580 <_sk_callback_sse2+0x26b>
-  DB  68,15,84,21,100,35,0,0              ; andps         0x2364(%rip),%xmm10        # 4590 <_sk_callback_sse2+0x27b>
-  DB  68,15,86,21,108,35,0,0              ; orps          0x236c(%rip),%xmm10        # 45a0 <_sk_callback_sse2+0x28b>
-  DB  68,15,88,13,116,35,0,0              ; addps         0x2374(%rip),%xmm9        # 45b0 <_sk_callback_sse2+0x29b>
-  DB  68,15,40,37,124,35,0,0              ; movaps        0x237c(%rip),%xmm12        # 45c0 <_sk_callback_sse2+0x2ab>
+  DB  68,15,89,13,150,35,0,0              ; mulps         0x2396(%rip),%xmm9        # 45a0 <_sk_callback_sse2+0x29d>
+  DB  68,15,84,21,158,35,0,0              ; andps         0x239e(%rip),%xmm10        # 45b0 <_sk_callback_sse2+0x2ad>
+  DB  68,15,86,21,166,35,0,0              ; orps          0x23a6(%rip),%xmm10        # 45c0 <_sk_callback_sse2+0x2bd>
+  DB  68,15,88,13,174,35,0,0              ; addps         0x23ae(%rip),%xmm9        # 45d0 <_sk_callback_sse2+0x2cd>
+  DB  68,15,40,37,182,35,0,0              ; movaps        0x23b6(%rip),%xmm12        # 45e0 <_sk_callback_sse2+0x2dd>
   DB  69,15,89,226                        ; mulps         %xmm10,%xmm12
   DB  69,15,92,204                        ; subps         %xmm12,%xmm9
-  DB  68,15,88,21,124,35,0,0              ; addps         0x237c(%rip),%xmm10        # 45d0 <_sk_callback_sse2+0x2bb>
-  DB  68,15,40,37,132,35,0,0              ; movaps        0x2384(%rip),%xmm12        # 45e0 <_sk_callback_sse2+0x2cb>
+  DB  68,15,88,21,182,35,0,0              ; addps         0x23b6(%rip),%xmm10        # 45f0 <_sk_callback_sse2+0x2ed>
+  DB  68,15,40,37,190,35,0,0              ; movaps        0x23be(%rip),%xmm12        # 4600 <_sk_callback_sse2+0x2fd>
   DB  69,15,94,226                        ; divps         %xmm10,%xmm12
   DB  69,15,92,204                        ; subps         %xmm12,%xmm9
   DB  69,15,89,203                        ; mulps         %xmm11,%xmm9
@@ -16825,21 +17204,21 @@ _sk_parametric_b_sse2 LABEL PROC
   DB  69,15,91,218                        ; cvtdq2ps      %xmm10,%xmm11
   DB  69,15,40,225                        ; movaps        %xmm9,%xmm12
   DB  69,15,194,227,1                     ; cmpltps       %xmm11,%xmm12
-  DB  68,15,84,37,110,35,0,0              ; andps         0x236e(%rip),%xmm12        # 45f0 <_sk_callback_sse2+0x2db>
+  DB  68,15,84,37,168,35,0,0              ; andps         0x23a8(%rip),%xmm12        # 4610 <_sk_callback_sse2+0x30d>
   DB  69,15,87,210                        ; xorps         %xmm10,%xmm10
   DB  69,15,92,220                        ; subps         %xmm12,%xmm11
   DB  69,15,40,225                        ; movaps        %xmm9,%xmm12
   DB  69,15,92,227                        ; subps         %xmm11,%xmm12
-  DB  68,15,88,13,102,35,0,0              ; addps         0x2366(%rip),%xmm9        # 4600 <_sk_callback_sse2+0x2eb>
-  DB  68,15,40,29,110,35,0,0              ; movaps        0x236e(%rip),%xmm11        # 4610 <_sk_callback_sse2+0x2fb>
+  DB  68,15,88,13,160,35,0,0              ; addps         0x23a0(%rip),%xmm9        # 4620 <_sk_callback_sse2+0x31d>
+  DB  68,15,40,29,168,35,0,0              ; movaps        0x23a8(%rip),%xmm11        # 4630 <_sk_callback_sse2+0x32d>
   DB  69,15,89,220                        ; mulps         %xmm12,%xmm11
   DB  69,15,92,203                        ; subps         %xmm11,%xmm9
-  DB  68,15,40,29,110,35,0,0              ; movaps        0x236e(%rip),%xmm11        # 4620 <_sk_callback_sse2+0x30b>
+  DB  68,15,40,29,168,35,0,0              ; movaps        0x23a8(%rip),%xmm11        # 4640 <_sk_callback_sse2+0x33d>
   DB  69,15,92,220                        ; subps         %xmm12,%xmm11
-  DB  68,15,40,37,114,35,0,0              ; movaps        0x2372(%rip),%xmm12        # 4630 <_sk_callback_sse2+0x31b>
+  DB  68,15,40,37,172,35,0,0              ; movaps        0x23ac(%rip),%xmm12        # 4650 <_sk_callback_sse2+0x34d>
   DB  69,15,94,227                        ; divps         %xmm11,%xmm12
   DB  69,15,88,225                        ; addps         %xmm9,%xmm12
-  DB  68,15,89,37,114,35,0,0              ; mulps         0x2372(%rip),%xmm12        # 4640 <_sk_callback_sse2+0x32b>
+  DB  68,15,89,37,172,35,0,0              ; mulps         0x23ac(%rip),%xmm12        # 4660 <_sk_callback_sse2+0x35d>
   DB  102,69,15,91,204                    ; cvtps2dq      %xmm12,%xmm9
   DB  243,68,15,16,88,20                  ; movss         0x14(%rax),%xmm11
   DB  69,15,198,219,0                     ; shufps        $0x0,%xmm11,%xmm11
@@ -16876,15 +17255,15 @@ _sk_parametric_a_sse2 LABEL PROC
   DB  69,15,88,209                        ; addps         %xmm9,%xmm10
   DB  69,15,198,219,0                     ; shufps        $0x0,%xmm11,%xmm11
   DB  69,15,91,202                        ; cvtdq2ps      %xmm10,%xmm9
-  DB  68,15,89,13,227,34,0,0              ; mulps         0x22e3(%rip),%xmm9        # 4650 <_sk_callback_sse2+0x33b>
-  DB  68,15,84,21,235,34,0,0              ; andps         0x22eb(%rip),%xmm10        # 4660 <_sk_callback_sse2+0x34b>
-  DB  68,15,86,21,243,34,0,0              ; orps          0x22f3(%rip),%xmm10        # 4670 <_sk_callback_sse2+0x35b>
-  DB  68,15,88,13,251,34,0,0              ; addps         0x22fb(%rip),%xmm9        # 4680 <_sk_callback_sse2+0x36b>
-  DB  68,15,40,37,3,35,0,0                ; movaps        0x2303(%rip),%xmm12        # 4690 <_sk_callback_sse2+0x37b>
+  DB  68,15,89,13,29,35,0,0               ; mulps         0x231d(%rip),%xmm9        # 4670 <_sk_callback_sse2+0x36d>
+  DB  68,15,84,21,37,35,0,0               ; andps         0x2325(%rip),%xmm10        # 4680 <_sk_callback_sse2+0x37d>
+  DB  68,15,86,21,45,35,0,0               ; orps          0x232d(%rip),%xmm10        # 4690 <_sk_callback_sse2+0x38d>
+  DB  68,15,88,13,53,35,0,0               ; addps         0x2335(%rip),%xmm9        # 46a0 <_sk_callback_sse2+0x39d>
+  DB  68,15,40,37,61,35,0,0               ; movaps        0x233d(%rip),%xmm12        # 46b0 <_sk_callback_sse2+0x3ad>
   DB  69,15,89,226                        ; mulps         %xmm10,%xmm12
   DB  69,15,92,204                        ; subps         %xmm12,%xmm9
-  DB  68,15,88,21,3,35,0,0                ; addps         0x2303(%rip),%xmm10        # 46a0 <_sk_callback_sse2+0x38b>
-  DB  68,15,40,37,11,35,0,0               ; movaps        0x230b(%rip),%xmm12        # 46b0 <_sk_callback_sse2+0x39b>
+  DB  68,15,88,21,61,35,0,0               ; addps         0x233d(%rip),%xmm10        # 46c0 <_sk_callback_sse2+0x3bd>
+  DB  68,15,40,37,69,35,0,0               ; movaps        0x2345(%rip),%xmm12        # 46d0 <_sk_callback_sse2+0x3cd>
   DB  69,15,94,226                        ; divps         %xmm10,%xmm12
   DB  69,15,92,204                        ; subps         %xmm12,%xmm9
   DB  69,15,89,203                        ; mulps         %xmm11,%xmm9
@@ -16892,21 +17271,21 @@ _sk_parametric_a_sse2 LABEL PROC
   DB  69,15,91,218                        ; cvtdq2ps      %xmm10,%xmm11
   DB  69,15,40,225                        ; movaps        %xmm9,%xmm12
   DB  69,15,194,227,1                     ; cmpltps       %xmm11,%xmm12
-  DB  68,15,84,37,245,34,0,0              ; andps         0x22f5(%rip),%xmm12        # 46c0 <_sk_callback_sse2+0x3ab>
+  DB  68,15,84,37,47,35,0,0               ; andps         0x232f(%rip),%xmm12        # 46e0 <_sk_callback_sse2+0x3dd>
   DB  69,15,87,210                        ; xorps         %xmm10,%xmm10
   DB  69,15,92,220                        ; subps         %xmm12,%xmm11
   DB  69,15,40,225                        ; movaps        %xmm9,%xmm12
   DB  69,15,92,227                        ; subps         %xmm11,%xmm12
-  DB  68,15,88,13,237,34,0,0              ; addps         0x22ed(%rip),%xmm9        # 46d0 <_sk_callback_sse2+0x3bb>
-  DB  68,15,40,29,245,34,0,0              ; movaps        0x22f5(%rip),%xmm11        # 46e0 <_sk_callback_sse2+0x3cb>
+  DB  68,15,88,13,39,35,0,0               ; addps         0x2327(%rip),%xmm9        # 46f0 <_sk_callback_sse2+0x3ed>
+  DB  68,15,40,29,47,35,0,0               ; movaps        0x232f(%rip),%xmm11        # 4700 <_sk_callback_sse2+0x3fd>
   DB  69,15,89,220                        ; mulps         %xmm12,%xmm11
   DB  69,15,92,203                        ; subps         %xmm11,%xmm9
-  DB  68,15,40,29,245,34,0,0              ; movaps        0x22f5(%rip),%xmm11        # 46f0 <_sk_callback_sse2+0x3db>
+  DB  68,15,40,29,47,35,0,0               ; movaps        0x232f(%rip),%xmm11        # 4710 <_sk_callback_sse2+0x40d>
   DB  69,15,92,220                        ; subps         %xmm12,%xmm11
-  DB  68,15,40,37,249,34,0,0              ; movaps        0x22f9(%rip),%xmm12        # 4700 <_sk_callback_sse2+0x3eb>
+  DB  68,15,40,37,51,35,0,0               ; movaps        0x2333(%rip),%xmm12        # 4720 <_sk_callback_sse2+0x41d>
   DB  69,15,94,227                        ; divps         %xmm11,%xmm12
   DB  69,15,88,225                        ; addps         %xmm9,%xmm12
-  DB  68,15,89,37,249,34,0,0              ; mulps         0x22f9(%rip),%xmm12        # 4710 <_sk_callback_sse2+0x3fb>
+  DB  68,15,89,37,51,35,0,0               ; mulps         0x2333(%rip),%xmm12        # 4730 <_sk_callback_sse2+0x42d>
   DB  102,69,15,91,204                    ; cvtps2dq      %xmm12,%xmm9
   DB  243,68,15,16,88,20                  ; movss         0x14(%rax),%xmm11
   DB  69,15,198,219,0                     ; shufps        $0x0,%xmm11,%xmm11
@@ -17162,9 +17541,9 @@ _sk_gather_i8_sse2 LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  73,137,192                          ; mov           %rax,%r8
   DB  77,133,192                          ; test          %r8,%r8
-  DB  116,5                               ; je            27bd <_sk_gather_i8_sse2+0xf>
+  DB  116,5                               ; je            27a3 <_sk_gather_i8_sse2+0xf>
   DB  76,137,192                          ; mov           %r8,%rax
-  DB  235,2                               ; jmp           27bf <_sk_gather_i8_sse2+0x11>
+  DB  235,2                               ; jmp           27a5 <_sk_gather_i8_sse2+0x11>
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  76,139,16                           ; mov           (%rax),%r10
   DB  243,15,91,201                       ; cvttps2dq     %xmm1,%xmm1
@@ -17209,31 +17588,30 @@ _sk_gather_i8_sse2 LABEL PROC
   DB  102,65,15,110,4,8                   ; movd          (%r8,%rcx,1),%xmm0
   DB  102,65,15,110,12,128                ; movd          (%r8,%rax,4),%xmm1
   DB  102,15,98,193                       ; punpckldq     %xmm1,%xmm0
-  DB  102,67,15,110,28,144                ; movd          (%r8,%r10,4),%xmm3
+  DB  102,71,15,110,12,144                ; movd          (%r8,%r10,4),%xmm9
   DB  102,67,15,110,12,136                ; movd          (%r8,%r9,4),%xmm1
-  DB  102,15,98,217                       ; punpckldq     %xmm1,%xmm3
-  DB  102,15,98,216                       ; punpckldq     %xmm0,%xmm3
-  DB  184,255,0,0,0                       ; mov           $0xff,%eax
-  DB  102,15,110,192                      ; movd          %eax,%xmm0
-  DB  102,15,112,192,0                    ; pshufd        $0x0,%xmm0,%xmm0
-  DB  102,15,111,203                      ; movdqa        %xmm3,%xmm1
-  DB  102,15,114,209,8                    ; psrld         $0x8,%xmm1
-  DB  102,15,219,200                      ; pand          %xmm0,%xmm1
-  DB  102,15,111,211                      ; movdqa        %xmm3,%xmm2
-  DB  102,15,114,210,16                   ; psrld         $0x10,%xmm2
-  DB  102,15,219,208                      ; pand          %xmm0,%xmm2
-  DB  102,15,219,195                      ; pand          %xmm3,%xmm0
+  DB  102,68,15,98,201                    ; punpckldq     %xmm1,%xmm9
+  DB  102,68,15,98,200                    ; punpckldq     %xmm0,%xmm9
+  DB  102,15,111,21,195,30,0,0            ; movdqa        0x1ec3(%rip),%xmm2        # 4740 <_sk_callback_sse2+0x43d>
+  DB  102,65,15,111,193                   ; movdqa        %xmm9,%xmm0
+  DB  102,15,219,194                      ; pand          %xmm2,%xmm0
   DB  15,91,192                           ; cvtdq2ps      %xmm0,%xmm0
   DB  184,129,128,128,59                  ; mov           $0x3b808081,%eax
   DB  102,68,15,110,192                   ; movd          %eax,%xmm8
   DB  69,15,198,192,0                     ; shufps        $0x0,%xmm8,%xmm8
   DB  65,15,89,192                        ; mulps         %xmm8,%xmm0
+  DB  102,65,15,111,201                   ; movdqa        %xmm9,%xmm1
+  DB  102,15,114,209,8                    ; psrld         $0x8,%xmm1
+  DB  102,15,219,202                      ; pand          %xmm2,%xmm1
   DB  15,91,201                           ; cvtdq2ps      %xmm1,%xmm1
   DB  65,15,89,200                        ; mulps         %xmm8,%xmm1
-  DB  15,91,210                           ; cvtdq2ps      %xmm2,%xmm2
+  DB  102,65,15,111,217                   ; movdqa        %xmm9,%xmm3
+  DB  102,15,114,211,16                   ; psrld         $0x10,%xmm3
+  DB  102,15,219,218                      ; pand          %xmm2,%xmm3
+  DB  15,91,211                           ; cvtdq2ps      %xmm3,%xmm2
   DB  65,15,89,208                        ; mulps         %xmm8,%xmm2
-  DB  102,15,114,211,24                   ; psrld         $0x18,%xmm3
-  DB  15,91,219                           ; cvtdq2ps      %xmm3,%xmm3
+  DB  102,65,15,114,209,24                ; psrld         $0x18,%xmm9
+  DB  65,15,91,217                        ; cvtdq2ps      %xmm9,%xmm3
   DB  65,15,89,216                        ; mulps         %xmm8,%xmm3
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  255,224                             ; jmpq          *%rax
@@ -17519,28 +17897,27 @@ PUBLIC _sk_load_8888_sse2
 _sk_load_8888_sse2 LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  72,139,0                            ; mov           (%rax),%rax
-  DB  243,15,111,28,184                   ; movdqu        (%rax,%rdi,4),%xmm3
-  DB  184,255,0,0,0                       ; mov           $0xff,%eax
-  DB  102,15,110,192                      ; movd          %eax,%xmm0
-  DB  102,15,112,192,0                    ; pshufd        $0x0,%xmm0,%xmm0
-  DB  102,15,111,203                      ; movdqa        %xmm3,%xmm1
-  DB  102,15,114,209,8                    ; psrld         $0x8,%xmm1
-  DB  102,15,219,200                      ; pand          %xmm0,%xmm1
-  DB  102,15,111,211                      ; movdqa        %xmm3,%xmm2
-  DB  102,15,114,210,16                   ; psrld         $0x10,%xmm2
-  DB  102,15,219,208                      ; pand          %xmm0,%xmm2
-  DB  102,15,219,195                      ; pand          %xmm3,%xmm0
+  DB  68,15,16,12,184                     ; movups        (%rax,%rdi,4),%xmm9
+  DB  15,40,21,17,26,0,0                  ; movaps        0x1a11(%rip),%xmm2        # 4750 <_sk_callback_sse2+0x44d>
+  DB  65,15,40,193                        ; movaps        %xmm9,%xmm0
+  DB  15,84,194                           ; andps         %xmm2,%xmm0
   DB  15,91,192                           ; cvtdq2ps      %xmm0,%xmm0
   DB  184,129,128,128,59                  ; mov           $0x3b808081,%eax
   DB  102,68,15,110,192                   ; movd          %eax,%xmm8
   DB  69,15,198,192,0                     ; shufps        $0x0,%xmm8,%xmm8
   DB  65,15,89,192                        ; mulps         %xmm8,%xmm0
+  DB  65,15,40,201                        ; movaps        %xmm9,%xmm1
+  DB  102,15,114,209,8                    ; psrld         $0x8,%xmm1
+  DB  102,15,219,202                      ; pand          %xmm2,%xmm1
   DB  15,91,201                           ; cvtdq2ps      %xmm1,%xmm1
   DB  65,15,89,200                        ; mulps         %xmm8,%xmm1
-  DB  15,91,210                           ; cvtdq2ps      %xmm2,%xmm2
+  DB  65,15,40,217                        ; movaps        %xmm9,%xmm3
+  DB  102,15,114,211,16                   ; psrld         $0x10,%xmm3
+  DB  102,15,219,218                      ; pand          %xmm2,%xmm3
+  DB  15,91,211                           ; cvtdq2ps      %xmm3,%xmm2
   DB  65,15,89,208                        ; mulps         %xmm8,%xmm2
-  DB  102,15,114,211,24                   ; psrld         $0x18,%xmm3
-  DB  15,91,219                           ; cvtdq2ps      %xmm3,%xmm3
+  DB  102,65,15,114,209,24                ; psrld         $0x18,%xmm9
+  DB  65,15,91,217                        ; cvtdq2ps      %xmm9,%xmm3
   DB  65,15,89,216                        ; mulps         %xmm8,%xmm3
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  255,224                             ; jmpq          *%rax
@@ -17570,31 +17947,30 @@ _sk_gather_8888_sse2 LABEL PROC
   DB  102,65,15,110,4,137                 ; movd          (%r9,%rcx,4),%xmm0
   DB  102,65,15,110,12,129                ; movd          (%r9,%rax,4),%xmm1
   DB  102,15,98,193                       ; punpckldq     %xmm1,%xmm0
-  DB  102,67,15,110,28,145                ; movd          (%r9,%r10,4),%xmm3
+  DB  102,71,15,110,12,145                ; movd          (%r9,%r10,4),%xmm9
   DB  102,67,15,110,12,129                ; movd          (%r9,%r8,4),%xmm1
-  DB  102,15,98,217                       ; punpckldq     %xmm1,%xmm3
-  DB  102,15,98,216                       ; punpckldq     %xmm0,%xmm3
-  DB  184,255,0,0,0                       ; mov           $0xff,%eax
-  DB  102,15,110,192                      ; movd          %eax,%xmm0
-  DB  102,15,112,192,0                    ; pshufd        $0x0,%xmm0,%xmm0
-  DB  102,15,111,203                      ; movdqa        %xmm3,%xmm1
-  DB  102,15,114,209,8                    ; psrld         $0x8,%xmm1
-  DB  102,15,219,200                      ; pand          %xmm0,%xmm1
-  DB  102,15,111,211                      ; movdqa        %xmm3,%xmm2
-  DB  102,15,114,210,16                   ; psrld         $0x10,%xmm2
-  DB  102,15,219,208                      ; pand          %xmm0,%xmm2
-  DB  102,15,219,195                      ; pand          %xmm3,%xmm0
+  DB  102,68,15,98,201                    ; punpckldq     %xmm1,%xmm9
+  DB  102,68,15,98,200                    ; punpckldq     %xmm0,%xmm9
+  DB  102,15,111,21,73,25,0,0             ; movdqa        0x1949(%rip),%xmm2        # 4760 <_sk_callback_sse2+0x45d>
+  DB  102,65,15,111,193                   ; movdqa        %xmm9,%xmm0
+  DB  102,15,219,194                      ; pand          %xmm2,%xmm0
   DB  15,91,192                           ; cvtdq2ps      %xmm0,%xmm0
   DB  184,129,128,128,59                  ; mov           $0x3b808081,%eax
   DB  102,68,15,110,192                   ; movd          %eax,%xmm8
   DB  69,15,198,192,0                     ; shufps        $0x0,%xmm8,%xmm8
   DB  65,15,89,192                        ; mulps         %xmm8,%xmm0
+  DB  102,65,15,111,201                   ; movdqa        %xmm9,%xmm1
+  DB  102,15,114,209,8                    ; psrld         $0x8,%xmm1
+  DB  102,15,219,202                      ; pand          %xmm2,%xmm1
   DB  15,91,201                           ; cvtdq2ps      %xmm1,%xmm1
   DB  65,15,89,200                        ; mulps         %xmm8,%xmm1
-  DB  15,91,210                           ; cvtdq2ps      %xmm2,%xmm2
+  DB  102,65,15,111,217                   ; movdqa        %xmm9,%xmm3
+  DB  102,15,114,211,16                   ; psrld         $0x10,%xmm3
+  DB  102,15,219,218                      ; pand          %xmm2,%xmm3
+  DB  15,91,211                           ; cvtdq2ps      %xmm3,%xmm2
   DB  65,15,89,208                        ; mulps         %xmm8,%xmm2
-  DB  102,15,114,211,24                   ; psrld         $0x18,%xmm3
-  DB  15,91,219                           ; cvtdq2ps      %xmm3,%xmm3
+  DB  102,65,15,114,209,24                ; psrld         $0x18,%xmm9
+  DB  65,15,91,217                        ; cvtdq2ps      %xmm9,%xmm3
   DB  65,15,89,216                        ; mulps         %xmm8,%xmm3
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  255,224                             ; jmpq          *%rax
@@ -17642,7 +18018,7 @@ _sk_load_f16_sse2 LABEL PROC
   DB  102,69,15,239,210                   ; pxor          %xmm10,%xmm10
   DB  102,65,15,111,206                   ; movdqa        %xmm14,%xmm1
   DB  102,65,15,97,202                    ; punpcklwd     %xmm10,%xmm1
-  DB  102,68,15,111,13,232,23,0,0         ; movdqa        0x17e8(%rip),%xmm9        # 4720 <_sk_callback_sse2+0x40b>
+  DB  102,68,15,111,13,74,24,0,0          ; movdqa        0x184a(%rip),%xmm9        # 4770 <_sk_callback_sse2+0x46d>
   DB  102,15,111,193                      ; movdqa        %xmm1,%xmm0
   DB  102,65,15,219,193                   ; pand          %xmm9,%xmm0
   DB  102,15,239,200                      ; pxor          %xmm0,%xmm1
@@ -17650,11 +18026,11 @@ _sk_load_f16_sse2 LABEL PROC
   DB  102,68,15,111,233                   ; movdqa        %xmm1,%xmm13
   DB  102,65,15,114,245,13                ; pslld         $0xd,%xmm13
   DB  102,68,15,235,232                   ; por           %xmm0,%xmm13
-  DB  102,68,15,111,29,205,23,0,0         ; movdqa        0x17cd(%rip),%xmm11        # 4730 <_sk_callback_sse2+0x41b>
+  DB  102,68,15,111,29,47,24,0,0          ; movdqa        0x182f(%rip),%xmm11        # 4780 <_sk_callback_sse2+0x47d>
   DB  102,69,15,254,235                   ; paddd         %xmm11,%xmm13
-  DB  102,68,15,111,37,207,23,0,0         ; movdqa        0x17cf(%rip),%xmm12        # 4740 <_sk_callback_sse2+0x42b>
+  DB  102,68,15,111,37,49,24,0,0          ; movdqa        0x1831(%rip),%xmm12        # 4790 <_sk_callback_sse2+0x48d>
   DB  102,65,15,239,204                   ; pxor          %xmm12,%xmm1
-  DB  102,15,111,29,210,23,0,0            ; movdqa        0x17d2(%rip),%xmm3        # 4750 <_sk_callback_sse2+0x43b>
+  DB  102,15,111,29,52,24,0,0             ; movdqa        0x1834(%rip),%xmm3        # 47a0 <_sk_callback_sse2+0x49d>
   DB  102,15,111,195                      ; movdqa        %xmm3,%xmm0
   DB  102,15,102,193                      ; pcmpgtd       %xmm1,%xmm0
   DB  102,65,15,223,197                   ; pandn         %xmm13,%xmm0
@@ -17738,7 +18114,7 @@ _sk_gather_f16_sse2 LABEL PROC
   DB  102,69,15,239,210                   ; pxor          %xmm10,%xmm10
   DB  102,65,15,111,206                   ; movdqa        %xmm14,%xmm1
   DB  102,65,15,97,202                    ; punpcklwd     %xmm10,%xmm1
-  DB  102,68,15,111,13,96,22,0,0          ; movdqa        0x1660(%rip),%xmm9        # 4760 <_sk_callback_sse2+0x44b>
+  DB  102,68,15,111,13,194,22,0,0         ; movdqa        0x16c2(%rip),%xmm9        # 47b0 <_sk_callback_sse2+0x4ad>
   DB  102,15,111,193                      ; movdqa        %xmm1,%xmm0
   DB  102,65,15,219,193                   ; pand          %xmm9,%xmm0
   DB  102,15,239,200                      ; pxor          %xmm0,%xmm1
@@ -17746,11 +18122,11 @@ _sk_gather_f16_sse2 LABEL PROC
   DB  102,68,15,111,233                   ; movdqa        %xmm1,%xmm13
   DB  102,65,15,114,245,13                ; pslld         $0xd,%xmm13
   DB  102,68,15,235,232                   ; por           %xmm0,%xmm13
-  DB  102,68,15,111,29,69,22,0,0          ; movdqa        0x1645(%rip),%xmm11        # 4770 <_sk_callback_sse2+0x45b>
+  DB  102,68,15,111,29,167,22,0,0         ; movdqa        0x16a7(%rip),%xmm11        # 47c0 <_sk_callback_sse2+0x4bd>
   DB  102,69,15,254,235                   ; paddd         %xmm11,%xmm13
-  DB  102,68,15,111,37,71,22,0,0          ; movdqa        0x1647(%rip),%xmm12        # 4780 <_sk_callback_sse2+0x46b>
+  DB  102,68,15,111,37,169,22,0,0         ; movdqa        0x16a9(%rip),%xmm12        # 47d0 <_sk_callback_sse2+0x4cd>
   DB  102,65,15,239,204                   ; pxor          %xmm12,%xmm1
-  DB  102,15,111,29,74,22,0,0             ; movdqa        0x164a(%rip),%xmm3        # 4790 <_sk_callback_sse2+0x47b>
+  DB  102,15,111,29,172,22,0,0            ; movdqa        0x16ac(%rip),%xmm3        # 47e0 <_sk_callback_sse2+0x4dd>
   DB  102,15,111,195                      ; movdqa        %xmm3,%xmm0
   DB  102,15,102,193                      ; pcmpgtd       %xmm1,%xmm0
   DB  102,65,15,223,197                   ; pandn         %xmm13,%xmm0
@@ -17801,17 +18177,17 @@ PUBLIC _sk_store_f16_sse2
 _sk_store_f16_sse2 LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  72,139,0                            ; mov           (%rax),%rax
-  DB  102,68,15,111,21,114,21,0,0         ; movdqa        0x1572(%rip),%xmm10        # 47a0 <_sk_callback_sse2+0x48b>
+  DB  102,68,15,111,21,212,21,0,0         ; movdqa        0x15d4(%rip),%xmm10        # 47f0 <_sk_callback_sse2+0x4ed>
   DB  102,68,15,111,224                   ; movdqa        %xmm0,%xmm12
   DB  102,68,15,111,232                   ; movdqa        %xmm0,%xmm13
   DB  102,69,15,219,234                   ; pand          %xmm10,%xmm13
   DB  102,69,15,239,229                   ; pxor          %xmm13,%xmm12
-  DB  102,68,15,111,13,101,21,0,0         ; movdqa        0x1565(%rip),%xmm9        # 47b0 <_sk_callback_sse2+0x49b>
+  DB  102,68,15,111,13,199,21,0,0         ; movdqa        0x15c7(%rip),%xmm9        # 4800 <_sk_callback_sse2+0x4fd>
   DB  102,65,15,114,213,16                ; psrld         $0x10,%xmm13
   DB  102,69,15,111,193                   ; movdqa        %xmm9,%xmm8
   DB  102,69,15,102,196                   ; pcmpgtd       %xmm12,%xmm8
   DB  102,65,15,114,212,13                ; psrld         $0xd,%xmm12
-  DB  102,68,15,111,29,86,21,0,0          ; movdqa        0x1556(%rip),%xmm11        # 47c0 <_sk_callback_sse2+0x4ab>
+  DB  102,68,15,111,29,184,21,0,0         ; movdqa        0x15b8(%rip),%xmm11        # 4810 <_sk_callback_sse2+0x50d>
   DB  102,69,15,235,235                   ; por           %xmm11,%xmm13
   DB  102,69,15,254,236                   ; paddd         %xmm12,%xmm13
   DB  102,65,15,114,245,16                ; pslld         $0x10,%xmm13
@@ -18111,7 +18487,7 @@ _sk_repeat_x_sse2 LABEL PROC
   DB  243,69,15,91,209                    ; cvttps2dq     %xmm9,%xmm10
   DB  69,15,91,210                        ; cvtdq2ps      %xmm10,%xmm10
   DB  69,15,194,202,1                     ; cmpltps       %xmm10,%xmm9
-  DB  68,15,84,13,135,16,0,0              ; andps         0x1087(%rip),%xmm9        # 47d0 <_sk_callback_sse2+0x4bb>
+  DB  68,15,84,13,233,16,0,0              ; andps         0x10e9(%rip),%xmm9        # 4820 <_sk_callback_sse2+0x51d>
   DB  69,15,92,209                        ; subps         %xmm9,%xmm10
   DB  69,15,89,208                        ; mulps         %xmm8,%xmm10
   DB  65,15,92,194                        ; subps         %xmm10,%xmm0
@@ -18131,7 +18507,7 @@ _sk_repeat_y_sse2 LABEL PROC
   DB  243,69,15,91,209                    ; cvttps2dq     %xmm9,%xmm10
   DB  69,15,91,210                        ; cvtdq2ps      %xmm10,%xmm10
   DB  69,15,194,202,1                     ; cmpltps       %xmm10,%xmm9
-  DB  68,15,84,13,79,16,0,0               ; andps         0x104f(%rip),%xmm9        # 47e0 <_sk_callback_sse2+0x4cb>
+  DB  68,15,84,13,177,16,0,0              ; andps         0x10b1(%rip),%xmm9        # 4830 <_sk_callback_sse2+0x52d>
   DB  69,15,92,209                        ; subps         %xmm9,%xmm10
   DB  69,15,89,208                        ; mulps         %xmm8,%xmm10
   DB  65,15,92,202                        ; subps         %xmm10,%xmm1
@@ -18155,7 +18531,7 @@ _sk_mirror_x_sse2 LABEL PROC
   DB  243,69,15,91,218                    ; cvttps2dq     %xmm10,%xmm11
   DB  69,15,91,219                        ; cvtdq2ps      %xmm11,%xmm11
   DB  69,15,194,211,1                     ; cmpltps       %xmm11,%xmm10
-  DB  68,15,84,21,5,16,0,0                ; andps         0x1005(%rip),%xmm10        # 47f0 <_sk_callback_sse2+0x4db>
+  DB  68,15,84,21,103,16,0,0              ; andps         0x1067(%rip),%xmm10        # 4840 <_sk_callback_sse2+0x53d>
   DB  69,15,87,228                        ; xorps         %xmm12,%xmm12
   DB  69,15,92,218                        ; subps         %xmm10,%xmm11
   DB  69,15,89,216                        ; mulps         %xmm8,%xmm11
@@ -18183,7 +18559,7 @@ _sk_mirror_y_sse2 LABEL PROC
   DB  243,69,15,91,218                    ; cvttps2dq     %xmm10,%xmm11
   DB  69,15,91,219                        ; cvtdq2ps      %xmm11,%xmm11
   DB  69,15,194,211,1                     ; cmpltps       %xmm11,%xmm10
-  DB  68,15,84,21,171,15,0,0              ; andps         0xfab(%rip),%xmm10        # 4800 <_sk_callback_sse2+0x4eb>
+  DB  68,15,84,21,13,16,0,0               ; andps         0x100d(%rip),%xmm10        # 4850 <_sk_callback_sse2+0x54d>
   DB  69,15,87,228                        ; xorps         %xmm12,%xmm12
   DB  69,15,92,218                        ; subps         %xmm10,%xmm11
   DB  69,15,89,216                        ; mulps         %xmm8,%xmm11
@@ -18434,7 +18810,7 @@ _sk_linear_gradient_sse2 LABEL PROC
   DB  69,15,198,228,0                     ; shufps        $0x0,%xmm12,%xmm12
   DB  72,139,8                            ; mov           (%rax),%rcx
   DB  72,133,201                          ; test          %rcx,%rcx
-  DB  15,132,15,1,0,0                     ; je            3d69 <_sk_linear_gradient_sse2+0x149>
+  DB  15,132,15,1,0,0                     ; je            3d57 <_sk_linear_gradient_sse2+0x149>
   DB  72,139,64,8                         ; mov           0x8(%rax),%rax
   DB  72,131,192,32                       ; add           $0x20,%rax
   DB  69,15,87,192                        ; xorps         %xmm8,%xmm8
@@ -18495,8 +18871,8 @@ _sk_linear_gradient_sse2 LABEL PROC
   DB  69,15,86,231                        ; orps          %xmm15,%xmm12
   DB  72,131,192,36                       ; add           $0x24,%rax
   DB  72,255,201                          ; dec           %rcx
-  DB  15,133,8,255,255,255                ; jne           3c6f <_sk_linear_gradient_sse2+0x4f>
-  DB  235,13                              ; jmp           3d76 <_sk_linear_gradient_sse2+0x156>
+  DB  15,133,8,255,255,255                ; jne           3c5d <_sk_linear_gradient_sse2+0x4f>
+  DB  235,13                              ; jmp           3d64 <_sk_linear_gradient_sse2+0x156>
   DB  15,87,201                           ; xorps         %xmm1,%xmm1
   DB  15,87,210                           ; xorps         %xmm2,%xmm2
   DB  15,87,219                           ; xorps         %xmm3,%xmm3
@@ -18556,7 +18932,7 @@ _sk_save_xy_sse2 LABEL PROC
   DB  69,15,91,210                        ; cvtdq2ps      %xmm10,%xmm10
   DB  69,15,40,217                        ; movaps        %xmm9,%xmm11
   DB  69,15,194,218,1                     ; cmpltps       %xmm10,%xmm11
-  DB  68,15,40,37,210,9,0,0               ; movaps        0x9d2(%rip),%xmm12        # 4810 <_sk_callback_sse2+0x4fb>
+  DB  68,15,40,37,52,10,0,0               ; movaps        0xa34(%rip),%xmm12        # 4860 <_sk_callback_sse2+0x55d>
   DB  69,15,84,220                        ; andps         %xmm12,%xmm11
   DB  69,15,92,211                        ; subps         %xmm11,%xmm10
   DB  69,15,92,202                        ; subps         %xmm10,%xmm9
@@ -18950,7 +19326,31 @@ ALIGN 16
   DB  0,128,63,0,0,128                    ; add           %al,-0x7fffffc1(%rax)
   DB  63                                  ; (bad)
   DB  0,0                                 ; add           %al,(%rax)
-  DB  128,63,0                            ; cmpb          $0x0,(%rdi)
+  DB  128,63,255                          ; cmpb          $0xff,(%rdi)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,0                                 ; add           %al,(%rax)
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,0                                ; xor           $0x0,%al
   DB  0,0                                 ; add           %al,(%rax)
@@ -18960,16 +19360,16 @@ ALIGN 16
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            43f4 <.literal16+0x34>
+  DB  127,0                               ; jg            4414 <.literal16+0x64>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            43f8 <.literal16+0x38>
+  DB  127,0                               ; jg            4418 <.literal16+0x68>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            43fc <.literal16+0x3c>
+  DB  127,0                               ; jg            441c <.literal16+0x6c>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4400 <.literal16+0x40>
+  DB  127,0                               ; jg            4420 <.literal16+0x70>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
@@ -18978,7 +19378,7 @@ ALIGN 16
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            4485 <.literal16+0xc5>
+  DB  119,115                             ; ja            44a5 <.literal16+0xf5>
   DB  248                                 ; clc
   DB  194,119,115                         ; retq          $0x7377
   DB  248                                 ; clc
@@ -18989,7 +19389,7 @@ ALIGN 16
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
-  DB  117,191                             ; jne           43e9 <.literal16+0x29>
+  DB  117,191                             ; jne           4409 <.literal16+0x59>
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
   DB  249                                 ; stc
@@ -19001,7 +19401,7 @@ ALIGN 16
   DB  249                                 ; stc
   DB  68,180,62                           ; rex.R         mov $0x3e,%spl
   DB  163,233,220,63,163,233,220,63,163   ; movabs        %eax,0xa33fdce9a33fdce9
-  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a3842a <_sk_callback_sse2+0xffffffffe9a34115>
+  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a3844a <_sk_callback_sse2+0xffffffffe9a34147>
   DB  220,63                              ; fdivrl        (%rdi)
   DB  0,0                                 ; add           %al,(%rax)
   DB  128,63,0                            ; cmpb          $0x0,(%rdi)
@@ -19055,16 +19455,16 @@ ALIGN 16
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            44c4 <.literal16+0x104>
+  DB  127,0                               ; jg            44e4 <.literal16+0x134>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            44c8 <.literal16+0x108>
+  DB  127,0                               ; jg            44e8 <.literal16+0x138>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            44cc <.literal16+0x10c>
+  DB  127,0                               ; jg            44ec <.literal16+0x13c>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            44d0 <.literal16+0x110>
+  DB  127,0                               ; jg            44f0 <.literal16+0x140>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
@@ -19073,7 +19473,7 @@ ALIGN 16
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            4555 <.literal16+0x195>
+  DB  119,115                             ; ja            4575 <.literal16+0x1c5>
   DB  248                                 ; clc
   DB  194,119,115                         ; retq          $0x7377
   DB  248                                 ; clc
@@ -19084,7 +19484,7 @@ ALIGN 16
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
-  DB  117,191                             ; jne           44b9 <.literal16+0xf9>
+  DB  117,191                             ; jne           44d9 <.literal16+0x129>
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
   DB  249                                 ; stc
@@ -19096,7 +19496,7 @@ ALIGN 16
   DB  249                                 ; stc
   DB  68,180,62                           ; rex.R         mov $0x3e,%spl
   DB  163,233,220,63,163,233,220,63,163   ; movabs        %eax,0xa33fdce9a33fdce9
-  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a384fa <_sk_callback_sse2+0xffffffffe9a341e5>
+  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a3851a <_sk_callback_sse2+0xffffffffe9a34217>
   DB  220,63                              ; fdivrl        (%rdi)
   DB  0,0                                 ; add           %al,(%rax)
   DB  128,63,0                            ; cmpb          $0x0,(%rdi)
@@ -19150,16 +19550,16 @@ ALIGN 16
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4594 <.literal16+0x1d4>
+  DB  127,0                               ; jg            45b4 <.literal16+0x204>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4598 <.literal16+0x1d8>
+  DB  127,0                               ; jg            45b8 <.literal16+0x208>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            459c <.literal16+0x1dc>
+  DB  127,0                               ; jg            45bc <.literal16+0x20c>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            45a0 <.literal16+0x1e0>
+  DB  127,0                               ; jg            45c0 <.literal16+0x210>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
@@ -19168,7 +19568,7 @@ ALIGN 16
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            4625 <.literal16+0x265>
+  DB  119,115                             ; ja            4645 <.literal16+0x295>
   DB  248                                 ; clc
   DB  194,119,115                         ; retq          $0x7377
   DB  248                                 ; clc
@@ -19179,7 +19579,7 @@ ALIGN 16
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
-  DB  117,191                             ; jne           4589 <.literal16+0x1c9>
+  DB  117,191                             ; jne           45a9 <.literal16+0x1f9>
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
   DB  249                                 ; stc
@@ -19191,7 +19591,7 @@ ALIGN 16
   DB  249                                 ; stc
   DB  68,180,62                           ; rex.R         mov $0x3e,%spl
   DB  163,233,220,63,163,233,220,63,163   ; movabs        %eax,0xa33fdce9a33fdce9
-  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a385ca <_sk_callback_sse2+0xffffffffe9a342b5>
+  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a385ea <_sk_callback_sse2+0xffffffffe9a342e7>
   DB  220,63                              ; fdivrl        (%rdi)
   DB  0,0                                 ; add           %al,(%rax)
   DB  128,63,0                            ; cmpb          $0x0,(%rdi)
@@ -19245,16 +19645,16 @@ ALIGN 16
   DB  0,0                                 ; add           %al,(%rax)
   DB  52,255                              ; xor           $0xff,%al
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4664 <.literal16+0x2a4>
+  DB  127,0                               ; jg            4684 <.literal16+0x2d4>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4668 <.literal16+0x2a8>
+  DB  127,0                               ; jg            4688 <.literal16+0x2d8>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            466c <.literal16+0x2ac>
+  DB  127,0                               ; jg            468c <.literal16+0x2dc>
   DB  255                                 ; (bad)
   DB  255                                 ; (bad)
-  DB  127,0                               ; jg            4670 <.literal16+0x2b0>
+  DB  127,0                               ; jg            4690 <.literal16+0x2e0>
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
@@ -19263,7 +19663,7 @@ ALIGN 16
   DB  0,63                                ; add           %bh,(%rdi)
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,63                                ; add           %bh,(%rdi)
-  DB  119,115                             ; ja            46f5 <.literal16+0x335>
+  DB  119,115                             ; ja            4715 <.literal16+0x365>
   DB  248                                 ; clc
   DB  194,119,115                         ; retq          $0x7377
   DB  248                                 ; clc
@@ -19274,7 +19674,7 @@ ALIGN 16
   DB  194,117,191                         ; retq          $0xbf75
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
-  DB  117,191                             ; jne           4659 <.literal16+0x299>
+  DB  117,191                             ; jne           4679 <.literal16+0x2c9>
   DB  191,63,117,191,191                  ; mov           $0xbfbf753f,%edi
   DB  63                                  ; (bad)
   DB  249                                 ; stc
@@ -19286,7 +19686,7 @@ ALIGN 16
   DB  249                                 ; stc
   DB  68,180,62                           ; rex.R         mov $0x3e,%spl
   DB  163,233,220,63,163,233,220,63,163   ; movabs        %eax,0xa33fdce9a33fdce9
-  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a3869a <_sk_callback_sse2+0xffffffffe9a34385>
+  DB  233,220,63,163,233                  ; jmpq          ffffffffe9a386ba <_sk_callback_sse2+0xffffffffe9a343b7>
   DB  220,63                              ; fdivrl        (%rdi)
   DB  0,0                                 ; add           %al,(%rax)
   DB  128,63,0                            ; cmpb          $0x0,(%rdi)
@@ -19331,7 +19731,31 @@ ALIGN 16
   DB  75,0,0                              ; rex.WXB       add %al,(%r8)
   DB  0,75,0                              ; add           %cl,0x0(%rbx)
   DB  0,0                                 ; add           %al,(%rax)
-  DB  75,0,128,0,0,0,128                  ; rex.WXB       add %al,-0x80000000(%r8)
+  DB  75,255,0                            ; rex.WXB       incq (%r8)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  255,0                               ; incl          (%rax)
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,128,0,0,0,128                     ; add           %al,-0x80000000(%rax)
   DB  0,0                                 ; add           %al,(%rax)
   DB  0,128,0,0,0,128                     ; add           %al,-0x80000000(%rax)
   DB  0,0                                 ; add           %al,(%rax)
