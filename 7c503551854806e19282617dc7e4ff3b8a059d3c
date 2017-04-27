@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1781d4e0_e1e3e402",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-27T19:53:10Z",
+      "side": 1,
+      "message": "vec\u003cn\u003e?",
+      "range": {
+        "startLine": 468,
+        "startChar": 11,
+        "endLine": 468,
+        "endChar": 18
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ee94dd6_82bf1ba7",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-27T19:53:10Z",
+      "side": 1,
+      "message": "nit: I think it would be less confusing to just pass (*vectorExpression)-\u003efType.",
+      "range": {
+        "startLine": 472,
+        "startChar": 51,
+        "endLine": 472,
+        "endChar": 67
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87f67b74_39b03bc6",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-27T19:53:10Z",
+      "side": 1,
+      "message": "Do we need to recompute variable read/write count?",
+      "range": {
+        "startLine": 685,
+        "startChar": 0,
+        "endLine": 704,
+        "endChar": 26
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db25ab16_c1cdfcd0",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-27T19:53:10Z",
+      "side": 1,
+      "message": "nit: should probably split this up again",
+      "range": {
+        "startLine": 687,
+        "startChar": 9,
+        "endLine": 687,
+        "endChar": 23
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9a9d362_1ecfdbd0",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-27T19:53:10Z",
+      "side": 1,
+      "message": "nit: test different vec sizes",
+      "range": {
+        "startLine": 710,
+        "startChar": 28,
+        "endLine": 710,
+        "endChar": 29
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc03ae4e_9cff53fc",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-27T19:53:10Z",
+      "side": 1,
+      "message": "nit: add \"sk_FragColor \u003d vec4(sqrt(19.5)) - 0;\"",
+      "range": {
+        "startLine": 724,
+        "startChar": 9,
+        "endLine": 724,
+        "endChar": 45
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e170929_c47bed12",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1157,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-27T19:53:10Z",
+      "side": 1,
+      "message": "Just checking -- this could have remained 1, correct?",
+      "range": {
+        "startLine": 1157,
+        "startChar": 48,
+        "endLine": 1157,
+        "endChar": 51
+      },
+      "revId": "7c503551854806e19282617dc7e4ff3b8a059d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
