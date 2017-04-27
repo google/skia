@@ -55,7 +55,7 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
                        args.fShaderCaps,
                        childProc,
                        outputColor,
-                       inputColor,
+                       inputColor ? inputColor : "vec4(1)",
                        coordVars,
                        textureSamplers,
                        bufferSamplers,

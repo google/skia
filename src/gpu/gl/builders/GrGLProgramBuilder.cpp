@@ -42,8 +42,8 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
 
     // TODO: Once all stages can handle taking a float or vec4 and correctly handling them we can
     // seed correctly here
-    GrGLSLExpr4 inputColor;
-    GrGLSLExpr4 inputCoverage;
+    SkString inputColor;
+    SkString inputCoverage;
 
     if (!builder.emitAndInstallProcs(&inputColor, &inputCoverage)) {
         builder.cleanupFragmentProcessors();
