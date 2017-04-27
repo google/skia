@@ -46,6 +46,30 @@
       "revId": "96bcd95c41c98015150d5ad80595b5341a14c522",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1a80c3c_39ab7f68",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-27T21:50:17Z",
+      "side": 1,
+      "message": "It\u0027s a shame that default_args in .gn doesn\u0027t work.  This sounds like exactly the sort of thing it\u0027s designed for.  I wonder if there\u0027s a way to shut GN up about that.",
+      "parentUuid": "960db5d5_adab64c7",
+      "range": {
+        "startLine": 22,
+        "startChar": 37,
+        "endLine": 22,
+        "endChar": 52
+      },
+      "revId": "96bcd95c41c98015150d5ad80595b5341a14c522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
