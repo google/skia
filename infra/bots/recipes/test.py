@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 
-# Recipe module for Skia Swarming test.
+# Recipe module for    Skia Swarming test.
 
 
 DEPS = [
