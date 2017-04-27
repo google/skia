@@ -130,9 +130,10 @@ struct ThreadEngine : Engine {
             return Status::None;
         }
 
+        static const auto the_past = std::chrono::steady_clock::now();
         for (;;) {
             for (auto it = live.begin(); it != live.end(); it++) {
-                if (it->wait_for(std::chrono::seconds::zero()) == std::future_status::ready) {
+                if (it->wait_until(the_past) == std::future_status::ready) {
                     Status s = it->get();
                     live.erase(it);
                     return s;
