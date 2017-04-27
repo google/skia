@@ -51,7 +51,6 @@ SI float C(float f) {
 }
 
 // Syntax sugar to make C() easy to use for constant literals.
-SI int   operator "" _i(unsigned long long int i) { return C(  (int)i); }
-SI float operator "" _f(           long double f) { return C((float)f); }
+SI float operator "" _f(long double f) { return C((float)f); }
 
 #endif//SkJumper_misc_DEFINED

@@ -6,7 +6,7 @@
  */
 
 #include "SkJumper.h"
-#include "SkJumper_misc.h"     // SI, unaligned_load(), bit_cast(), C(), operator"" _i and _f.
+#include "SkJumper_misc.h"     // SI, unaligned_load(), bit_cast(), C(), operator"" and _f.
 #include "SkJumper_vectors.h"  // F, I32, U32, U16, U8, cast(), expand()
 
 // Our fundamental vector depth is our pixel stride.
@@ -18,8 +18,8 @@ static const size_t kStride = sizeof(F) / sizeof(float);
 // Otherwise, F, I32, etc. just alias the basic scalar types (and so kStride == 1).
 
 // Another reminder:
-// You can't generally use constants in this file except via C() or operator"" _i/_f.
-// Not all constants can be generated using C() or _i/_f.  Stages read the rest from this struct.
+// You can't generally use constants in this file except via C() or operator"" _f.
+// Not all constants can be generated using C() or _f.  Stages read the rest from this struct.
 using K = const SkJumper_constants;
 
 
@@ -268,10 +268,10 @@ SI void from_4444(U16 _4444, F* r, F* g, F* b, F* a) {
     *a = cast(wide & C(15<< 0)) * C(1.0f / (15<< 0));
 }
 SI void from_8888(U32 _8888, F* r, F* g, F* b, F* a) {
-    *r = cast((_8888      ) & 0xff_i) * C(1/255.0f);
-    *g = cast((_8888 >>  8) & 0xff_i) * C(1/255.0f);
-    *b = cast((_8888 >> 16) & 0xff_i) * C(1/255.0f);
-    *a = cast((_8888 >> 24)         ) * C(1/255.0f);
+    *r = cast((_8888      ) & 0xff) * C(1/255.0f);
+    *g = cast((_8888 >>  8) & 0xff) * C(1/255.0f);
+    *b = cast((_8888 >> 16) & 0xff) * C(1/255.0f);
+    *a = cast((_8888 >> 24)       ) * C(1/255.0f);
 }
 
 template <typename T>
@@ -582,9 +582,9 @@ STAGE(load_tables) {
     auto c = (const SkJumper_LoadTablesCtx*)ctx;
 
     auto px = load<U32>((const uint32_t*)c->src + x, tail);
-    r = gather(c->r, (px      ) & 0xff_i);
-    g = gather(c->g, (px >>  8) & 0xff_i);
-    b = gather(c->b, (px >> 16) & 0xff_i);
+    r = gather(c->r, (px      ) & 0xff);
+    g = gather(c->g, (px >>  8) & 0xff);
+    b = gather(c->b, (px >> 16) & 0xff);
     a = cast(        (px >> 24)) * C(1/255.0f);
 }
 STAGE(load_tables_u16_be) {
@@ -594,10 +594,10 @@ STAGE(load_tables_u16_be) {
     U16 R,G,B,A;
     load4(ptr, tail, &R,&G,&B,&A);
 
-    // c->src is big-endian, so & 0xff_i grabs the 8 most signficant bits.
-    r = gather(c->r, expand(R) & 0xff_i);
-    g = gather(c->g, expand(G) & 0xff_i);
-    b = gather(c->b, expand(B) & 0xff_i);
+    // c->src is big-endian, so & 0xff grabs the 8 most signficant bits.
+    r = gather(c->r, expand(R) & 0xff);
+    g = gather(c->g, expand(G) & 0xff);
+    b = gather(c->b, expand(B) & 0xff);
     a = C(1/65535.0f) * cast(expand(bswap(A)));
 }
 STAGE(load_tables_rgb_u16_be) {
@@ -607,10 +607,10 @@ STAGE(load_tables_rgb_u16_be) {
     U16 R,G,B;
     load3(ptr, tail, &R,&G,&B);
 
-    // c->src is big-endian, so & 0xff_i grabs the 8 most signficant bits.
-    r = gather(c->r, expand(R) & 0xff_i);
-    g = gather(c->g, expand(G) & 0xff_i);
-    b = gather(c->b, expand(B) & 0xff_i);
+    // c->src is big-endian, so & 0xff grabs the 8 most signficant bits.
+    r = gather(c->r, expand(R) & 0xff);
+    g = gather(c->g, expand(G) & 0xff);
+    b = gather(c->b, expand(B) & 0xff);
     a = 1.0_f;
 }
 
