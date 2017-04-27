@@ -11,6 +11,7 @@
 #include "GrBufferAllocPool.h"
 #include "GrGpu.h"
 #include "ops/GrMeshDrawOp.h"
+#include "SkArenaAlloc.h"
 
 class GrGpuCommandBuffer;
 class GrResourceProvider;
@@ -94,6 +95,7 @@ public:
     void reset() {
         fVertexPool.reset();
         fIndexPool.reset();
+        fPipelines.reset();
     }
 
     /** Additional data required on a per-op basis when executing GrDrawOps. */
@@ -110,16 +112,19 @@ public:
         return *fOpArgs;
     }
 
+    GrPipeline* allocPipeline() { return fPipelines.make<GrPipeline>(); }
+
 private:
-    GrGpu*                                      fGpu;
-    GrResourceProvider*                         fResourceProvider;
-    GrGpuCommandBuffer*                         fCommandBuffer;
-    GrVertexBufferAllocPool                     fVertexPool;
-    GrIndexBufferAllocPool                      fIndexPool;
-    SkSTArray<4, GrDrawOp::DeferredUploadFn>    fAsapUploads;
-    GrDrawOpUploadToken                         fLastIssuedToken;
-    GrDrawOpUploadToken                         fLastFlushedToken;
-    DrawOpArgs*                                 fOpArgs;
+        GrGpu*                                      fGpu;
+        GrResourceProvider*                         fResourceProvider;
+        GrGpuCommandBuffer*                         fCommandBuffer;
+        GrVertexBufferAllocPool                     fVertexPool;
+        GrIndexBufferAllocPool                      fIndexPool;
+        SkSTArray<4, GrDrawOp::DeferredUploadFn>    fAsapUploads;
+        GrDrawOpUploadToken                         fLastIssuedToken;
+        GrDrawOpUploadToken                         fLastFlushedToken;
+        DrawOpArgs*                                 fOpArgs;
+        SkArenaAlloc                                fPipelines{sizeof(GrPipeline)*100};
 };
 
 /**
@@ -182,6 +187,7 @@ public:
 protected:
     GrDrawOp* op() { return fOp; }
     GrOpFlushState* state() { return fState; }
+    const GrOpFlushState* state() const { return fState; }
 
 private:
     GrOpFlushState* fState;
@@ -210,6 +216,11 @@ public:
     void putBackVertices(int vertices, size_t vertexStride) {
         this->state()->putBackVertexSpace(vertices * vertexStride);
     }
+
+    GrRenderTarget* renderTarget() const { return this->state()->drawOpArgs().fRenderTarget; }
+    const GrAppliedClip* clip() const { return this->state()->drawOpArgs().fAppliedClip; }
+    const GrXferProcessor::DstTexture& dstTexture() const { return this->state()->drawOpArgs().fDstTexture; }
+    GrPipeline* allocPipeline() { return this->state()->allocPipeline(); }
 
 private:
     GrMeshDrawOp* meshDrawOp() { return static_cast<GrMeshDrawOp*>(this->op()); }

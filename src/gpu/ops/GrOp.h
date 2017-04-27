@@ -54,7 +54,7 @@ class GrRenderTargetOpList;
 // A helper macro to generate a class static id
 #define DEFINE_OP_CLASS_ID \
     static uint32_t ClassID() { \
-        static uint32_t kClassID = GenOpClassID(); \
+        static uint32_t kClassID = GrOp::GenOpClassID(); \
         return kClassID; \
     }
 

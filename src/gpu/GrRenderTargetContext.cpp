@@ -37,6 +37,7 @@
 #include "ops/GrRegionOp.h"
 #include "ops/GrShadowRRectOp.h"
 #include "ops/GrStencilPathOp.h"
+#include "ops/GrNewNonAAFillRectOp.h"
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
 #include "../private/GrAuditTrail.h"
@@ -1276,7 +1277,14 @@ void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
                                                 const GrUserStencilSettings* ss,
                                                 GrAAType hwOrNoneAAType) {
     SkASSERT(GrAAType::kCoverage != hwOrNoneAAType);
-    SkASSERT(hwOrNoneAAType == GrAAType::kNone || this->isStencilBufferMultisampled());
+    SkASSERT(GrAAType::kNone == hwOrNoneAAType || this->isStencilBufferMultisampled());
+    if (!ss && !viewMatrix.hasPerspective() && (!localMatrix || !localMatrix->hasPerspective())) {
+        std::unique_ptr<GrDrawOp> op = GrNewNonAAFillRectOp::Make(std::move(paint), viewMatrix,
+                                                                  rect, localRect, localMatrix,
+                                                                  GrAATypeIsHW(hwOrNoneAAType));
+        this->addDrawOp(clip, std::move(op));
+        return;
+    }
     std::unique_ptr<GrLegacyMeshDrawOp> op = GrRectOpFactory::MakeNonAAFill(
             paint.getColor(), viewMatrix, rect, localRect, localMatrix);
     GrPipelineBuilder pipelineBuilder(std::move(paint), hwOrNoneAAType);
