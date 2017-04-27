@@ -71,8 +71,7 @@ protected:
         for (size_t s = 0; s < SK_ARRAY_COUNT(kStrokes); ++s) {
             for (size_t m = 0; m <= (size_t)SkBlendMode::kLastMode; ++m) {
                 SkBlendMode mode = static_cast<SkBlendMode>(m);
-                canvas->drawText(SkBlendMode_Name(mode),
-                                 strlen(SkBlendMode_Name(mode)),
+                canvas->drawString(SkBlendMode_Name(mode),
                                  SkIntToScalar(x),
                                  SkIntToScalar(y + kSize + 3) + labelP.getTextSize(),
                                  labelP);

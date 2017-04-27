@@ -26,7 +26,7 @@ namespace {
         SkPaint paint;
         SkRect bounds;
         paint.measureText(errorText.c_str(), errorText.size(), &bounds);
-        canvas->drawText(errorText.c_str(), errorText.size(), kOffset, bounds.height() + kOffset,
+        canvas->drawString(errorText, kOffset, bounds.height() + kOffset,
                          paint);
     }
 }

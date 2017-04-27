@@ -83,10 +83,10 @@ static void draw(SkCanvas* canvas, bool doClose) {
         const char titleClose[] = "Line Closed Drawn Into Rectangle Clips With "
             "Indicated Style, Fill and Linecaps, with stroke width 10";
         const char* title = doClose ? titleClose : titleNoClose;
-        canvas->drawText(title, strlen(title),
-                            20 * SK_Scalar1,
-                            20 * SK_Scalar1,
-                            titlePaint);
+        canvas->drawString(title,
+                           20 * SK_Scalar1,
+                           20 * SK_Scalar1,
+                           titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
@@ -125,18 +125,15 @@ static void draw(SkCanvas* canvas, bool doClose) {
                     labelPaint.setAntiAlias(true);
                     sk_tool_utils::set_portable_typeface(&labelPaint);
                     labelPaint.setTextSize(10 * SK_Scalar1);
-                    canvas->drawText(gStyles[style].fName,
-                                        strlen(gStyles[style].fName),
-                                        0, rect.height() + 12 * SK_Scalar1,
-                                        labelPaint);
-                    canvas->drawText(gFills[fill].fName,
-                                        strlen(gFills[fill].fName),
-                                        0, rect.height() + 24 * SK_Scalar1,
-                                        labelPaint);
-                    canvas->drawText(gCaps[cap].fName,
-                                        strlen(gCaps[cap].fName),
-                                        0, rect.height() + 36 * SK_Scalar1,
-                                        labelPaint);
+                    canvas->drawString(gStyles[style].fName,
+                                       0, rect.height() + 12 * SK_Scalar1,
+                                       labelPaint);
+                    canvas->drawString(gFills[fill].fName,
+                                       0, rect.height() + 24 * SK_Scalar1,
+                                       labelPaint);
+                    canvas->drawString(gCaps[cap].fName,
+                                       0, rect.height() + 36 * SK_Scalar1,
+                                       labelPaint);
                 }
                 canvas->restore();
             }

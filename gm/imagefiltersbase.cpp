@@ -155,7 +155,7 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> im
     sk_tool_utils::set_portable_typeface(&paint);
     paint.setTextSize(r.height()/2);
     paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas->drawText("Text", 4, r.centerX(), r.centerY(), paint);
+    canvas->drawString("Text", r.centerX(), r.centerY(), paint);
 }
 
 static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
@@ -271,7 +271,7 @@ protected:
         SkAutoCanvasRestore acr(canvas, true);
         for (size_t i = 0; i < SK_ARRAY_COUNT(flags); ++i) {
             paint.setFlags(flags[i]);
-            canvas->drawText("Hamburgefons", 11, 0, 0, paint);
+            canvas->drawString("Hamburgefon", 0, 0, paint);
             canvas->translate(0, 40);
         }
     }

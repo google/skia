@@ -543,7 +543,7 @@ DEF_SIMPLE_GM(dashtextcaps, canvas, 512, 512) {
     sk_tool_utils::set_portable_typeface(&p);
     const SkScalar intervals[] = { 12, 12 };
     p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
-    canvas->drawText("Sausages", 8, 10, 90, p);
+    canvas->drawString("Sausages", 10, 90, p);
     canvas->drawLine(8, 120, 456, 120, p);
 }
 

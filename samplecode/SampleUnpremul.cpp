@@ -93,7 +93,7 @@ protected:
             } else {
                 failure.printf("Failed to decode %s", fCurrFile.c_str());
             }
-            canvas->drawText(failure.c_str(), failure.size(), 0, height, paint);
+            canvas->drawString(failure, 0, height, paint);
             return;
         }
 
@@ -101,16 +101,16 @@ protected:
         SkString header(SkOSPath::Basename(fCurrFile.c_str()));
         header.appendf("     [%dx%d]     %s", fBitmap.width(), fBitmap.height(),
                        (fPremul ? "premultiplied" : "unpremultiplied"));
-        canvas->drawText(header.c_str(), header.size(), 0, height, paint);
+        canvas->drawString(header, 0, height, paint);
         canvas->translate(0, height);
 
         // Help messages
         header.printf("Press '%c' to move to the next image.'", fNextImageChar);
-        canvas->drawText(header.c_str(), header.size(), 0, height, paint);
+        canvas->drawString(header, 0, height, paint);
         canvas->translate(0, height);
 
         header.printf("Press '%c' to toggle premultiplied decode.", fTogglePremulChar);
-        canvas->drawText(header.c_str(), header.size(), 0, height, paint);
+        canvas->drawString(header, 0, height, paint);
 
         // Now draw the image itself.
         canvas->translate(height * 2, height * 2);

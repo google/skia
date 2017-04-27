@@ -1049,7 +1049,7 @@ void GrAAConvexTessellator::Ring::draw(SkCanvas* canvas, const GrAAConvexTessell
 
         SkString num;
         num.printf("%d", this->origEdgeID(cur));
-        canvas->drawText(num.c_str(), num.size(), mid.fX, mid.fY, paint);
+        canvas->drawString(num, mid.fX, mid.fY, paint);
 
         if (fPts.count()) {
             draw_arrow(canvas, tess.point(fPts[cur].fIndex), fPts[cur].fBisector,
@@ -1094,7 +1094,7 @@ void GrAAConvexTessellator::draw(SkCanvas* canvas) const {
 
         SkString num;
         num.printf("%d", i);
-        canvas->drawText(num.c_str(), num.size(),
+        canvas->drawString(num,
                          this->point(i).fX, this->point(i).fY+(kPointRadius/2.0f),
                          paint);
     }
