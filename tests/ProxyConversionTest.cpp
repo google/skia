@@ -10,7 +10,6 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
-#include "GrBackendSurface.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceProxy.h"
@@ -19,12 +18,16 @@
 static sk_sp<GrSurfaceProxy> make_wrapped_FBO0(GrResourceProvider* provider,
                                                skiatest::Reporter* reporter,
                                                const GrSurfaceDesc& desc) {
-    GrGLFramebufferInfo fboInfo;
-    fboInfo.fFBOID = 0;
-    GrBackendRenderTarget backendRT(desc.fWidth, desc.fHeight, desc.fSampleCnt, 8,
-                                    desc.fConfig, fboInfo);
+    GrBackendRenderTargetDesc backendDesc;
+    backendDesc.fWidth = desc.fWidth;
+    backendDesc.fHeight = desc.fHeight;
+    backendDesc.fConfig = desc.fConfig;
+    backendDesc.fOrigin = desc.fOrigin;
+    backendDesc.fSampleCnt = desc.fSampleCnt;
+    backendDesc.fStencilBits = 8;
+    backendDesc.fRenderTargetHandle = 0;
 
-    sk_sp<GrRenderTarget> defaultFBO(provider->wrapBackendRenderTarget(backendRT, desc.fOrigin));
+    sk_sp<GrRenderTarget> defaultFBO(provider->wrapBackendRenderTarget(backendDesc));
     SkASSERT(!defaultFBO->asTexture());
 
     return GrSurfaceProxy::MakeWrapped(std::move(defaultFBO));
@@ -59,7 +62,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyConversionTest, reporter, ctxInfo
     desc.fWidth = 64;
     desc.fHeight = 64;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
 
     if (kOpenGL_GrBackend == ctxInfo.backend()) {
         // External on-screen render target.

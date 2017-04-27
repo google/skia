@@ -11,7 +11,6 @@
 #include "GrContext.h"
 #include "GrSurfaceContext.h"
 
-class GrBackendRenderTarget;
 class GrSemaphore;
 class GrSurfaceProxy;
 class GrPreFlushCallbackObject;
@@ -53,8 +52,7 @@ public:
                                                          const SkSurfaceProps* = nullptr);
 
     sk_sp<GrRenderTargetContext> makeBackendRenderTargetRenderTargetContext(
-                                                              const GrBackendRenderTarget&,
-                                                              GrSurfaceOrigin origin,
+                                                              const GrBackendRenderTargetDesc& desc,
                                                               sk_sp<SkColorSpace> colorSpace,
                                                               const SkSurfaceProps* = nullptr);
 

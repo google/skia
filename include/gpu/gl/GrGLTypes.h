@@ -135,10 +135,4 @@ protected:
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLTextureInfo*));
 
-struct GrGLFramebufferInfo {
-    GrGLuint fFBOID;
-};
-
-GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLFramebufferInfo*));
-
 #endif
