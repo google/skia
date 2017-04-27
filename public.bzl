@@ -445,6 +445,7 @@ INCLUDES = [
     "src/utils",
     "third_party/etc1",
     "third_party/gif",
+    "third_party/vulkan",
 ]
 
 ################################################################################
