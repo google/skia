@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4f821fe_83364624",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-27T19:14:08Z",
+      "side": 1,
+      "message": "Is this not handled by the isRRect line?",
+      "range": {
+        "startLine": 500,
+        "startChar": 19,
+        "endLine": 500,
+        "endChar": 38
+      },
+      "revId": "46028ac645d03e376b4750773d857a3ca60215b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb72136e_aa21444c",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-27T19:14:08Z",
+      "side": 1,
+      "message": "This seems like a lot of duplication with the cached case, do you think it could be shared somehow?",
+      "revId": "46028ac645d03e376b4750773d857a3ca60215b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
