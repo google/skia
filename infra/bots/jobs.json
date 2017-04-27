@@ -296,6 +296,7 @@
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext",
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
+  "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-PreAbandonGpuContext",
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Debug",
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
   "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug",
