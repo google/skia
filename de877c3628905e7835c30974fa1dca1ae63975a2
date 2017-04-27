@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2eace4b7_45f7f9a3",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 961,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-27T17:01:14Z",
+      "side": 1,
+      "message": "Not the same as my other examples, where we do a runtime check, not an assert. However I\u0027m fine to leave it this way for now. We can always revisit it later as needed.",
+      "range": {
+        "startLine": 961,
+        "startChar": 17,
+        "endLine": 961,
+        "endChar": 23
+      },
+      "revId": "de877c3628905e7835c30974fa1dca1ae63975a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
