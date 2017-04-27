@@ -13,6 +13,7 @@
 #include "SkRegion.h"
 #include "SkUtils.h"
 #include "SkView.h"
+#include "sk_tool_utils.h"
 
 static void draw_rect(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
     canvas->drawRect(r, p);
@@ -77,7 +78,7 @@ public:
     DitherBitmapView() {
         fResult = test_pathregion();
         fBM8 = make_bitmap();
-        fBM8.copyTo(&fBM32, kN32_SkColorType);
+        sk_tool_utils::copy_to(&fBM32, kN32_SkColorType, fBM8);
 
         this->setBGColor(0xFFDDDDDD);
     }

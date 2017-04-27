@@ -120,7 +120,7 @@ protected:
 
     static void DrawAndFrame(SkCanvas* canvas, const SkBitmap& orig, SkScalar x, SkScalar y) {
         SkBitmap bm;
-        orig.copyTo(&bm);
+        sk_tool_utils::copy_to(&bm, orig.colorType(), orig);
         apply_gamma(bm);
 
         canvas->drawBitmap(bm, x, y, nullptr);
@@ -218,7 +218,14 @@ void copy_to(SkBitmap* dst, SkColorType dstColorType, const SkBitmap& src) {
         return sk_tool_utils::copy_to_g8(dst, src);
     }
 
-    src.copyTo(dst, dstColorType);
+    const SkBitmap* srcPtr = &src;
+    SkBitmap tmp(src);
+    if (kRGB_565_SkColorType == dstColorType) {
+        tmp.setAlphaType(kOpaque_SkAlphaType);
+        srcPtr = &tmp;
+    }
+
+    sk_tool_utils::copy_to(dst, dstColorType, *srcPtr);
 }
 
 /**

@@ -147,7 +147,8 @@ static const SkBitmap& not4444(const SkBitmap& input, SkBitmap* copy) {
         return input;
     }
     // ARGB_4444 is rarely used, so we can do a wasteful tmp copy.
-    SkAssertResult(input.copyTo(copy, kN32_SkColorType));
+    copy->allocPixels(input.info().makeColorType(kN32_SkColorType));
+    SkAssertResult(input.readPixels(copy->info(), copy->getPixels(), copy->rowBytes(), 0, 0));
     copy->setImmutable();
     return *copy;
 }

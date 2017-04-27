@@ -327,13 +327,15 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(const SkIRect& subset,
     }
 
     const SkBitmap* srcBM = &bm;
-    SkBitmap tmpStorage;
+    SkBitmap tmp;
     // ImageFilters only handle N32 at the moment, so force our src to be that
     if (!valid_for_imagefilters(bm.info())) {
-        if (!bm.copyTo(&tmpStorage, kN32_SkColorType)) {
+        if (!tmp.tryAllocPixels(bm.info().makeColorType(kN32_SkColorType)) ||
+            !bm.readPixels(tmp.info(), tmp.getPixels(), tmp.rowBytes(), 0, 0))
+        {
             return nullptr;
         }
-        srcBM = &tmpStorage;
+        srcBM = &tmp;
     }
     return sk_make_sp<SkSpecialImage_Raster>(subset, *srcBM, props);
 }
