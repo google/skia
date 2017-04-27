@@ -256,16 +256,16 @@ SI F from_byte(U8 b) {
 }
 SI void from_565(U16 _565, F* r, F* g, F* b) {
     U32 wide = expand(_565);
-    *r = cast(wide & C(31<<11)) * C(1.0f / (31<<11));
-    *g = cast(wide & C(63<< 5)) * C(1.0f / (63<< 5));
-    *b = cast(wide & C(31<< 0)) * C(1.0f / (31<< 0));
+    *r = cast(wide & (31<<11)) * C(1.0f / (31<<11));
+    *g = cast(wide & (63<< 5)) * C(1.0f / (63<< 5));
+    *b = cast(wide & (31<< 0)) * C(1.0f / (31<< 0));
 }
 SI void from_4444(U16 _4444, F* r, F* g, F* b, F* a) {
     U32 wide = expand(_4444);
-    *r = cast(wide & C(15<<12)) * C(1.0f / (15<<12));
-    *g = cast(wide & C(15<< 8)) * C(1.0f / (15<< 8));
-    *b = cast(wide & C(15<< 4)) * C(1.0f / (15<< 4));
-    *a = cast(wide & C(15<< 0)) * C(1.0f / (15<< 0));
+    *r = cast(wide & (15<<12)) * C(1.0f / (15<<12));
+    *g = cast(wide & (15<< 8)) * C(1.0f / (15<< 8));
+    *b = cast(wide & (15<< 4)) * C(1.0f / (15<< 4));
+    *a = cast(wide & (15<< 0)) * C(1.0f / (15<< 0));
 }
 SI void from_8888(U32 _8888, F* r, F* g, F* b, F* a) {
     *r = cast((_8888      ) & 0xff) * C(1/255.0f);
