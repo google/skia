@@ -22,6 +22,30 @@
       "revId": "96bcd95c41c98015150d5ad80595b5341a14c522",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "960db5d5_adab64c7",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 6830
+      },
+      "writtenOn": "2017-04-27T21:46:29Z",
+      "side": 1,
+      "message": "Ah yes, forgot about that detail :)\n\nI initially set those arguments in our wrapper for \"gn gen\" but the issue is that we use it both for builds with and without skia; in the latter case gn would complain about not having definitions for skia_* arguments. I tried defining these in our .gn file but gn also complains.\n\nis_fuchsia_host means it\u0027s a build in the Fuchsia tree, but for the host (currently Linux or Mac) not for the Fuchsia target.",
+      "parentUuid": "b200e020_4a1fab10",
+      "range": {
+        "startLine": 22,
+        "startChar": 37,
+        "endLine": 22,
+        "endChar": 52
+      },
+      "revId": "96bcd95c41c98015150d5ad80595b5341a14c522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
