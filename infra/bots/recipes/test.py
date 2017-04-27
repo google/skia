@@ -676,12 +676,12 @@ def test_steps(api):
       })
 
   # See skia:2789.
-  if '_AbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
+  extra_config_parts = api.vars.builder_cfg.get('extra_config', '').split('_')
+  if 'AbandonGpuContext' in extra_config_parts:
     args.append('--abandonGpuContext')
-  if '_PreAbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
+  if 'PreAbandonGpuContext' in extra_config_parts:
     args.append('--preAbandonGpuContext')
-  if ('ReleaseAndAbandonGpuContext' in
-      api.vars.builder_cfg.get('extra_config', '')):
+  if 'ReleaseAndAbandonGpuContext' in extra_config_parts:
     args.append('--releaseAndAbandonGpuContext')
 
   with api.env(env):

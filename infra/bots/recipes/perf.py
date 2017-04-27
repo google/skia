@@ -280,7 +280,8 @@ def perf_steps(api):
       })
 
   # See skia:2789.
-  if '_AbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
+  extra_config_parts = api.vars.builder_cfg.get('extra_config', '').split('_')
+  if 'AbandonGpuContext' in extra_config_parts:
     args.extend(['--abandonGpuContext', '--nocpu'])
 
   with api.env(env):
