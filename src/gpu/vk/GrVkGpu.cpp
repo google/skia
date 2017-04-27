@@ -593,6 +593,8 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     // allocate buffer to hold our mip data
     GrVkTransferBuffer* transferBuffer =
                    GrVkTransferBuffer::Create(this, combinedBufferSize, GrVkBuffer::kCopyRead_Type);
+    if(!transferBuffer)
+        return false;
 
     char* buffer = (char*) transferBuffer->map();
     SkTArray<VkBufferImageCopy> regions(texelsShallowCopy.count());
