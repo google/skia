@@ -119,6 +119,7 @@ struct SerialEngine : Engine {
 
 struct ThreadEngine : Engine {
     std::list<std::future<Status>> live;
+    const std::chrono::steady_clock::time_point the_past = std::chrono::steady_clock::now();
 
     bool spawn(std::function<Status(void)> fn) override {
         live.push_back(std::async(std::launch::async, fn));
@@ -132,7 +133,7 @@ struct ThreadEngine : Engine {
 
         for (;;) {
             for (auto it = live.begin(); it != live.end(); it++) {
-                if (it->wait_for(std::chrono::seconds::zero()) == std::future_status::ready) {
+                if (it->wait_until(the_past) == std::future_status::ready) {
                     Status s = it->get();
                     live.erase(it);
                     return s;
