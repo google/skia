@@ -11,6 +11,7 @@
 
 #include "SkAutoPixmapStorage.h"
 #include "GrBackendSurface.h"
+#include "GrBackendTextureImageGenerator.h"
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -469,6 +470,47 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
                                        this->uniqueID(), dstColorSpace);
     }
     return nullptr;
+}
+
+sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<SkData> encoded,
+                                                    bool buildMips, SkColorSpace* dstColorSpace) {
+    sk_sp<SkImage> codecImage = SkImage::MakeFromEncoded(std::move(encoded));
+    if (!codecImage) {
+        return nullptr;
+    }
+
+    // Some backends or drivers don't support (safely) moving resources between contexts
+    if (!context || !context->caps()->crossContextTextureSupport()) {
+        return codecImage;
+    }
+
+    // Turn the codec image into a GrTexture
+    SkImageCacherator* cacher = as_IB(codecImage)->peekCacherator();
+    SkASSERT(cacher);
+    GrImageTextureMaker maker(context, cacher, codecImage.get(), kDisallow_CachingHint);
+    sk_sp<SkColorSpace> texColorSpace;
+    GrSamplerParams params(SkShader::kClamp_TileMode,
+                           buildMips ? GrSamplerParams::kMipMap_FilterMode
+                                     : GrSamplerParams::kBilerp_FilterMode);
+    sk_sp<GrTextureProxy> proxy(maker.refTextureProxyForParams(params, dstColorSpace,
+                                                               &texColorSpace, nullptr));
+    if (!proxy) {
+        return codecImage;
+    }
+
+    sk_sp<GrTexture> texture(proxy->instantiate(context->resourceProvider()));
+    if (!texture) {
+        return codecImage;
+    }
+
+    // Flush any writes or uploads
+    context->contextPriv().prepareSurfaceForExternalIO(proxy.get());
+
+    // TODO: Semaphore? Even if we do that, who waits on it? Sigh.
+
+    auto gen = GrBackendTextureImageGenerator::Make(std::move(texture), codecImage->alphaType(),
+                                                    std::move(texColorSpace));
+    return SkImage::MakeFromGenerator(std::move(gen));
 }
 
 std::unique_ptr<SkCrossContextImageData> SkCrossContextImageData::MakeFromEncoded(

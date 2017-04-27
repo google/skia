@@ -806,6 +806,7 @@ struct TextureReleaseChecker {
         static_cast<TextureReleaseChecker*>(self)->fReleaseCount++;
     }
 };
+
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, ctxInfo) {
     const int kWidth = 10;
     const int kHeight = 10;
@@ -852,6 +853,84 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
 
     ctxInfo.grContext()->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
+}
+
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_MakeLazyFromTextureRelease, reporter, ctxInfo) {
+#if 0
+    const int kWidth = 10;
+    const int kHeight = 10;
+    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
+
+    GrContext* ctx = ctxInfo.grContext();
+
+    // We test three lifetime patterns:
+    // 1) Create image, free image
+    // 2) Create image, draw, flush, free image
+    // 3) Create image, draw, free image, flush
+
+    GrBackendObject backendTexHandle =
+            ctxInfo.grContext()->getGpu()->createTestingOnlyBackendTexture(
+                    pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true);
+
+    GrBackendTexture backendTex = GrTest::CreateBackendTexture(ctx->contextPriv().getBackend(),
+                                                               kWidth,
+                                                               kHeight,
+                                                               kRGBA_8888_GrPixelConfig,
+                                                               backendTexHandle);
+    GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
+
+    // Case #1: Create image, free image
+    {
+        TextureReleaseChecker releaseChecker;
+        sk_sp<SkImage> refImg(SkImage::MakeLazyFromTexture(backendTex, texOrigin,
+                                                           kPremul_SkAlphaType, nullptr,
+                                                           TextureReleaseChecker::Release,
+                                                           &releaseChecker));
+
+
+        REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+        refImg.reset(nullptr); // force a release of the image
+        REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
+    }
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+    SkCanvas* canvas = surface->getCanvas();
+
+    // Case #2: Create image, draw, flush, free image
+    {
+        TextureReleaseChecker releaseChecker;
+        sk_sp<SkImage> refImg(SkImage::MakeLazyFromTexture(backendTex, texOrigin,
+                                                           kPremul_SkAlphaType, nullptr,
+                                                           TextureReleaseChecker::Release,
+                                                           &releaseChecker));
+
+        canvas->drawImage(refImg, 0, 0);
+        canvas->flush();
+
+        REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+        refImg.reset(nullptr); // force a release of the image
+        REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
+    }
+
+    // Case #3: Create image, draw, free image, flush
+    {
+        TextureReleaseChecker releaseChecker;
+        sk_sp<SkImage> refImg(SkImage::MakeLazyFromTexture(backendTex, texOrigin,
+                                                           kPremul_SkAlphaType, nullptr,
+                                                           TextureReleaseChecker::Release,
+                                                           &releaseChecker));
+
+        canvas->drawImage(refImg, 0, 0);
+        refImg.reset(nullptr); // force a release of the image
+
+        REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+        canvas->flush();
+        REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
+    }
+
+    ctxInfo.grContext()->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
+#endif
 }
 
 static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, const SkImage* b) {
