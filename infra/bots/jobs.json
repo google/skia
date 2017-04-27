@@ -283,6 +283,7 @@
   "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN",
   "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN",
   "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN",
+  "Test-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-PreAbandonGpuContext",
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug",
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug",
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs",
