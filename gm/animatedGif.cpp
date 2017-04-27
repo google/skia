@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
@@ -60,8 +59,7 @@ private:
                          && static_cast<size_t>(requiredFrame) < fFrames.size());
                 SkBitmap& requiredBitmap = fFrames[requiredFrame];
                 // For simplicity, do not try to cache old frames
-                if (requiredBitmap.getPixels() &&
-                        sk_tool_utils::copy_to(&bm, requiredBitmap.colorType(), requiredBitmap)) {
+                if (requiredBitmap.getPixels() && requiredBitmap.copyTo(&bm)) {
                     opts.fHasPriorFrame = true;
                 }
             }
