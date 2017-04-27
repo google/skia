@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c0a223d_897f0a4d",
+        "filename": "src/gpu/vk/GrVkBackendContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-27T17:08:17Z",
+      "side": 1,
+      "message": "+1 thanks!",
+      "range": {
+        "startLine": 150,
+        "startChar": 9,
+        "endLine": 150,
+        "endChar": 17
+      },
+      "revId": "e99b826c96d2df312f736a601cdbd62bae322fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
