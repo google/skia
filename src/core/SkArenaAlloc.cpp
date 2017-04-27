@@ -11,6 +11,64 @@
 
 static char* end_chain(char*) { return nullptr; }
 
+SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize, Tracking tracking)
+    : fDtorCursor {block}
+    , fCursor     {block}
+    , fEnd        {block + SkTo<uint32_t>(size)}
+    , fFirstBlock {block}
+    , fFirstSize  {SkTo<uint32_t>(size)}
+    , fExtraSize  {SkTo<uint32_t>(extraSize)}
+{
+    if (size < sizeof(Footer)) {
+        fEnd = fCursor = fDtorCursor = nullptr;
+    }
+
+    if (tracking == kTrack) {
+        fTotalSlop = 0;
+    }
+
+    if (fCursor != nullptr) {
+        this->installFooter(end_chain, 0);
+        if (fTotalSlop >= 0) {
+            fTotalAlloc += fFirstSize;
+        }
+    }
+}
+
+SkArenaAlloc::~SkArenaAlloc() {
+    if (fTotalSlop >= 0) {
+        int32_t lastSlop = fEnd - fCursor;
+        fTotalSlop += lastSlop;
+        SkDebugf("SkArenaAlloc initial: %p %u %u total alloc: %u total slop: %d last slop: %d\n",
+            fFirstBlock, fFirstSize, fExtraSize, fTotalAlloc, fTotalSlop, lastSlop);
+    }
+    RunDtorsOnBlock(fDtorCursor);
+}
+
+void SkArenaAlloc::reset() {
+    this->~SkArenaAlloc();
+    new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fExtraSize,
+                            fTotalSlop < 0 ? kDontTrack : kTrack};
+}
+
+void SkArenaAlloc::installFooter(FooterAction* action, uint32_t padding) {
+    SkASSERT(padding < 64);
+    int64_t actionInt = (int64_t)(intptr_t)action;
+
+    // The top 14 bits should be either all 0s or all 1s. Check this.
+    SkASSERT((actionInt << 6) >> 6 == actionInt);
+    Footer encodedFooter = (actionInt << 6) | padding;
+    memmove(fCursor, &encodedFooter, sizeof(Footer));
+    fCursor += sizeof(Footer);
+    fDtorCursor = fCursor;
+}
+
+void SkArenaAlloc::installPtrFooter(FooterAction* action, char* ptr, uint32_t padding) {
+    memmove(fCursor, &ptr, sizeof(char*));
+    fCursor += sizeof(char*);
+    this->installFooter(action, padding);
+}
+
 char* SkArenaAlloc::SkipPod(char* footerEnd) {
     char* objEnd = footerEnd - (sizeof(Footer) + sizeof(int32_t));
     int32_t skip;
@@ -37,50 +95,6 @@ char* SkArenaAlloc::NextBlock(char* footerEnd) {
     RunDtorsOnBlock(next);
     delete [] objEnd;
     return nullptr;
-}
-
-SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize)
-    : fDtorCursor {block}
-    , fCursor     {block}
-    , fEnd        {block + SkTo<uint32_t>(size)}
-    , fFirstBlock {block}
-    , fFirstSize  {SkTo<uint32_t>(size)}
-    , fExtraSize  {SkTo<uint32_t>(extraSize)}
-{
-    if (size < sizeof(Footer)) {
-        fEnd = fCursor = fDtorCursor = nullptr;
-    }
-
-    if (fCursor != nullptr) {
-        this->installFooter(end_chain, 0);
-    }
-}
-
-SkArenaAlloc::~SkArenaAlloc() {
-    RunDtorsOnBlock(fDtorCursor);
-}
-
-void SkArenaAlloc::reset() {
-    this->~SkArenaAlloc();
-    new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fExtraSize};
-}
-
-void SkArenaAlloc::installFooter(FooterAction* action, uint32_t padding) {
-    SkASSERT(padding < 64);
-    int64_t actionInt = (int64_t)(intptr_t)action;
-
-    // The top 14 bits should be either all 0s or all 1s. Check this.
-    SkASSERT((actionInt << 6) >> 6 == actionInt);
-    Footer encodedFooter = (actionInt << 6) | padding;
-    memmove(fCursor, &encodedFooter, sizeof(Footer));
-    fCursor += sizeof(Footer);
-    fDtorCursor = fCursor;
-}
-
-void SkArenaAlloc::installPtrFooter(FooterAction* action, char* ptr, uint32_t padding) {
-    memmove(fCursor, &ptr, sizeof(char*));
-    fCursor += sizeof(char*);
-    this->installFooter(action, padding);
 }
 
 void SkArenaAlloc::installUint32Footer(FooterAction* action, uint32_t value, uint32_t padding) {
@@ -112,6 +126,11 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     }
 
     char* newBlock = new char[allocationSize];
+
+    if (fTotalSlop >= 0) {
+        fTotalAlloc += allocationSize;
+        fTotalSlop += fEnd - fCursor;
+    }
 
     auto previousDtor = fDtorCursor;
     fCursor = newBlock;
