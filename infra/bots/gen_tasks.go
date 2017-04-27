@@ -86,30 +86,31 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 		return "Build-Ubuntu-GCC-x86_64-Release-Shared"
 	} else if parts["role"] == "Test" || parts["role"] == "Perf" {
 		task_os := parts["os"]
-		ec := parts["extra_config"]
-		ec = strings.TrimSuffix(ec, "_Skpbench")
-		ec = strings.TrimSuffix(ec, "_AbandonGpuContext")
-		ec = strings.TrimSuffix(ec, "_PreAbandonGpuContext")
-		if ec == "Valgrind" {
-			// skia:6267
-			ec = ""
-		}
-		if ec == "ReleaseAndAbandonGpuContext" {
-			ec = ""
+		ec := []string{}
+		if val := parts["extra_config"]; val != "" {
+			ec = strings.Split(val, "_")
+			ignore := []string{"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "ReleaseAndAbandonGpuContext", "RaspberryPi"}
+			keep := make([]string, 0, len(ec))
+			for _, part := range ec {
+				if !util.In(part, ignore) {
+					keep = append(keep, part)
+				}
+			}
+			ec = keep
 		}
 		if task_os == "Android" {
-			if ec == "Vulkan" {
-				ec = "Android_Vulkan"
+			if !util.In("Android", ec) {
+				ec = append([]string{"Android"}, ec...)
 			}
 			task_os = "Ubuntu"
 		} else if task_os == "Chromecast" {
 			task_os = "Ubuntu"
-			ec = "Chromecast"
+			ec = append([]string{"Chromecast"}, ec...)
 		} else if strings.Contains(task_os, "ChromeOS") {
-			ec = "Chromebook_ARM_GLES"
+			ec = append([]string{"Chromebook", "ARM", "GLES"}, ec...)
 			task_os = "Ubuntu"
 		} else if task_os == "iOS" {
-			ec = task_os
+			ec = append([]string{task_os}, ec...)
 			task_os = "Mac"
 		} else if strings.Contains(task_os, "Win") {
 			task_os = "Win"
@@ -123,8 +124,8 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			"target_arch":   parts["arch"],
 			"configuration": parts["configuration"],
 		}
-		if ec != "" {
-			jobNameMap["extra_config"] = ec
+		if len(ec) > 0 {
+			jobNameMap["extra_config"] = strings.Join(ec, "_")
 		}
 		name, err := jobNameSchema.MakeJobName(jobNameMap)
 		if err != nil {
