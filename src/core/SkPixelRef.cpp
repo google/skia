@@ -96,20 +96,6 @@ void SkPixelRef::needsNewGenID() {
     SkASSERT(!this->genIDIsUnique()); // This method isn't threadsafe, so the assert should be fine.
 }
 
-void SkPixelRef::cloneGenID(const SkPixelRef& that) {
-    // This is subtle.  We must call that.getGenerationID() to make sure its genID isn't 0.
-    uint32_t genID = that.getGenerationID();
-
-    // Neither ID is unique any more.
-    // (These & ~1u are actually redundant.  that.getGenerationID() just did it for us.)
-    this->fTaggedGenID.store(genID & ~1u);
-    that. fTaggedGenID.store(genID & ~1u);
-
-    // This method isn't threadsafe, so these asserts should be fine.
-    SkASSERT(!this->genIDIsUnique());
-    SkASSERT(!that. genIDIsUnique());
-}
-
 uint32_t SkPixelRef::getGenerationID() const {
     uint32_t id = fTaggedGenID.load();
     if (0 == id) {
