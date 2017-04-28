@@ -1,0 +1,2691 @@
+diff --git a/bin/list-skia-bots b/bin/list-skia-bots
+old mode 100644
+new mode 100755
+diff --git a/include/gpu/GrProgramElement.h b/include/gpu/GrProgramElement.h
+index 0e065c2..2538680 100644
+--- a/include/gpu/GrProgramElement.h
++++ b/include/gpu/GrProgramElement.h
+@@ -84,7 +84,6 @@ protected:
+ 
+     void addPendingExecution() const {
+         this->validate();
+-        SkASSERT(fRefCnt > 0);
+         if (0 == fPendingExecutions) {
+             static_cast<const DERIVED*>(this)->addPendingIOs();
+         }
+diff --git a/src/gpu/GrAppliedClip.h b/src/gpu/GrAppliedClip.h
+index ed75bec..9185472 100644
+--- a/src/gpu/GrAppliedClip.h
++++ b/src/gpu/GrAppliedClip.h
+@@ -16,8 +16,11 @@
+  * Produced by GrClip. It provides a set of modifications to the drawing state that are used to
+  * create the final GrPipeline for a GrOp.
+  */
+-class GrAppliedClip : public SkNoncopyable {
++class GrAppliedClip {
+ public:
++    GrAppliedClip() = delete;
++    GrAppliedClip(GrAppliedClip&& that) : fScissorState(that.fScissorState), fWindowRectsState(that.fWindowRectsState), fClipCoverageFP(std::move(that.fClipCoverageFP)), fHasStencilClip(that.fHasStencilClip), fClippedDrawBounds(that.fClippedDrawBounds) {}
++
+     GrAppliedClip(const SkRect& drawBounds)
+         : fHasStencilClip(false)
+         , fClippedDrawBounds(drawBounds) {
+@@ -56,6 +59,13 @@ public:
+         fHasStencilClip = true;
+     }
+ 
++    bool doesClip() const {
++        return fScissorState.enabled() || fClipCoverageFP || fHasStencilClip ||
++                fWindowRectsState.enabled();
++    }
++
++    bool isCompatibleWith(const GrAppliedClip&) const { return false; }
++
+     /**
+      * Returns the device bounds of the draw after clip has been applied. TODO: Ideally this would
+      * consider the combined effect of all clipping techniques in play (scissor, stencil, fp, etc.).
+diff --git a/src/gpu/GrOpFlushState.cpp b/src/gpu/GrOpFlushState.cpp
+index 2dddbba..7d7f728 100644
+--- a/src/gpu/GrOpFlushState.cpp
++++ b/src/gpu/GrOpFlushState.cpp
+@@ -17,7 +17,8 @@ GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
+     , fVertexPool(gpu)
+     , fIndexPool(gpu)
+     , fLastIssuedToken(GrDrawOpUploadToken::AlreadyFlushedToken())
+-    , fLastFlushedToken(0) {}
++    , fLastFlushedToken(0)
++    , fOpArgs(nullptr) {}
+ 
+ void* GrOpFlushState::makeVertexSpace(size_t vertexSize, int vertexCount,
+                                          const GrBuffer** buffer, int* startVertex) {
+diff --git a/src/gpu/GrOpFlushState.h b/src/gpu/GrOpFlushState.h
+index ed77c3b..3759833 100644
+--- a/src/gpu/GrOpFlushState.h
++++ b/src/gpu/GrOpFlushState.h
+@@ -96,22 +96,30 @@ public:
+         fIndexPool.reset();
+     }
+ 
+-private:
++    // Additional information provided per-op when executing ops.
++    struct DrawOpArgs {
++        GrRenderTarget* fRenderTarget;
++        const GrAppliedClip* fAppliedClip;
++        GrXferProcessor::DstTexture fDstTexture;
++    };
++
++    void setDrawOpArgs(DrawOpArgs* opArgs) { fOpArgs = opArgs; }
++
++    const DrawOpArgs& drawOpArgs() const {
++        SkASSERT(fOpArgs);
++        return *fOpArgs;
++    }
+ 
++private:
+     GrGpu*                                      fGpu;
+-
+     GrResourceProvider*                         fResourceProvider;
+-
+     GrGpuCommandBuffer*                         fCommandBuffer;
+-
+     GrVertexBufferAllocPool                     fVertexPool;
+     GrIndexBufferAllocPool                      fIndexPool;
+-
+     SkSTArray<4, GrDrawOp::DeferredUploadFn>    fAsapUploads;
+-
+     GrDrawOpUploadToken                         fLastIssuedToken;
+-
+     GrDrawOpUploadToken                         fLastFlushedToken;
++    DrawOpArgs*                                     fOpArgs;
+ };
+ 
+ /**
+diff --git a/src/gpu/GrPipeline.cpp b/src/gpu/GrPipeline.cpp
+index e1cbd65..d7fccd6 100644
+--- a/src/gpu/GrPipeline.cpp
++++ b/src/gpu/GrPipeline.cpp
+@@ -24,21 +24,18 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
+     SkASSERT(args.fRenderTarget);
+ 
+     fRenderTarget.reset(args.fRenderTarget);
+-    fScissorState = args.fAppliedClip->scissorState();
+-    fWindowRectsState = args.fAppliedClip->windowRectsState();
+-    fUserStencilSettings = args.fUserStencil;
+-    fDrawFace = static_cast<int16_t>(args.fDrawFace);
+ 
+     fFlags = args.fFlags;
++    if (args.fAppliedClip) {
++        fScissorState = args.fAppliedClip->scissorState();
++        if (args.fAppliedClip->hasStencilClip()) {
++            fFlags |= kHasStencilClip_Flag;
++        }
++        fWindowRectsState = args.fAppliedClip->windowRectsState();
++    }
+     if (args.fProcessors->usesDistanceVectorField()) {
+         fFlags |= kUsesDistanceVectorField_Flag;
+     }
+-    if (args.fAppliedClip->hasStencilClip()) {
+-        fFlags |= kHasStencilClip_Flag;
+-    }
+-    if (!args.fUserStencil->isDisabled(args.fAppliedClip->hasStencilClip())) {
+-        fFlags |= kStencilEnabled_Flag;
+-    }
+     if (args.fProcessors->disableOutputConversionToSRGB()) {
+         fFlags |= kDisableOutputConversionToSRGB_Flag;
+     }
+@@ -46,6 +43,14 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
+         fFlags |= kAllowSRGBInputs_Flag;
+     }
+ 
++    if (!args.fUserStencil->isDisabled(fFlags & kHasStencilClip_Flag)) {
++        fFlags |= kStencilEnabled_Flag;
++    }
++
++    fUserStencilSettings = args.fUserStencil;
++
++    fDrawFace = static_cast<int16_t>(args.fDrawFace);
++
+     bool isHWAA = kHWAntialias_Flag & args.fFlags;
+ 
+     // Create XferProcessor from DS's XPFactory
+@@ -86,7 +91,7 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
+     fNumColorProcessors = args.fProcessors->numColorFragmentProcessors() - colorFPsToEliminate;
+     int numTotalProcessors =
+             fNumColorProcessors + args.fProcessors->numCoverageFragmentProcessors();
+-    if (args.fAppliedClip->clipCoverageFragmentProcessor()) {
++    if (args.fAppliedClip && args.fAppliedClip->clipCoverageFragmentProcessor()) {
+         ++numTotalProcessors;
+     }
+     fFragmentProcessors.reset(numTotalProcessors);
+@@ -101,8 +106,10 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
+         const GrFragmentProcessor* fp = args.fProcessors->coverageFragmentProcessor(i);
+         fFragmentProcessors[currFPIdx].reset(fp);
+     }
+-    if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
+-        fFragmentProcessors[currFPIdx].reset(fp);
++    if (args.fAppliedClip) {
++        if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
++            fFragmentProcessors[currFPIdx].reset(fp);
++        }
+     }
+ 
+     // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
+diff --git a/src/gpu/GrPipeline.h b/src/gpu/GrPipeline.h
+index 7f2ac79..4405d1c 100644
+--- a/src/gpu/GrPipeline.h
++++ b/src/gpu/GrPipeline.h
+@@ -16,6 +16,7 @@
+ #include "GrProcOptInfo.h"
+ #include "GrProcessorSet.h"
+ #include "GrProgramDesc.h"
++#include "GrProcessorSet.h"
+ #include "GrScissorState.h"
+ #include "GrUserStencilSettings.h"
+ #include "GrWindowRectsState.h"
+diff --git a/src/gpu/GrProcessorSet.cpp b/src/gpu/GrProcessorSet.cpp
+index e5beca0..525e1ea 100644
+--- a/src/gpu/GrProcessorSet.cpp
++++ b/src/gpu/GrProcessorSet.cpp
+@@ -14,16 +14,21 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
+     fXPFactory = paint.fXPFactory;
+     fColorFragmentProcessorCnt = paint.numColorFragmentProcessors();
+     fFragmentProcessors.reset(paint.numTotalFragmentProcessors());
+-    int i = 0;
+-    for (auto& fp : paint.fColorFragmentProcessors) {
+-        fFragmentProcessors[i++] = fp.release();
+-    }
+-    for (auto& fp : paint.fCoverageFragmentProcessors) {
+-        fFragmentProcessors[i++] = fp.release();
+-    }
+     fFlags = 0;
+-    if (paint.usesDistanceVectorField()) {
+-        fFlags |= kUseDistanceVectorField_Flag;
++    if (fColorFragmentProcessorCnt <= kMaxColorProcessors) {
++        int i = 0;
++        for (auto& fp : paint.fColorFragmentProcessors) {
++            fFragmentProcessors[i++] = fp.release();
++        }
++        for (auto& fp : paint.fCoverageFragmentProcessors) {
++            fFragmentProcessors[i++] = fp.release();
++        }
++        if (paint.usesDistanceVectorField()) {
++            fFlags |= kUseDistanceVectorField_Flag;
++        }
++    } else {
++        SkDebugf("Insane number of color fragment processors in paint. Dropping all processors.");
++        fFragmentProcessors.reset(0);
+     }
+     if (paint.getDisableOutputConversionToSRGB()) {
+         fFlags |= kDisableOutputConversionToSRGB_Flag;
+@@ -33,15 +38,25 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
+     }
+ }
+ 
++void GrProcessorSet::makePendingExecution() {
++    SkASSERT(!(kPendingExecution_Flag & fFlags));
++    fFlags |= kPendingExecution_Flag;
++    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
++        fFragmentProcessors[i]->addPendingExecution();
++        fFragmentProcessors[i]->unref();
++    }
++}
++
+ //////////////////////////////////////////////////////////////////////////////
+ 
+-void GrProcessorSet::FragmentProcessorAnalysis::internalReset(const GrPipelineInput& colorInput,
+-                                                              const GrPipelineInput coverageInput,
+-                                                              const GrProcessorSet& processors,
+-                                                              const GrFragmentProcessor* clipFP,
+-                                                              const GrCaps& caps) {
++void GrProcessorSet::FragmentProcessorAnalysis::internalInit(const GrPipelineInput& colorInput,
++                                                             const GrPipelineInput coverageInput,
++                                                             const GrProcessorSet& processors,
++                                                             const GrFragmentProcessor* clipFP,
++                                                             const GrCaps& caps) {
+     GrProcOptInfo colorInfo(colorInput);
+     fCompatibleWithCoverageAsAlpha = !coverageInput.isLCDCoverage();
++    fValidInputColor = colorInput.isConstant(&fInputColor);
+ 
+     const GrFragmentProcessor* const* fps = processors.fFragmentProcessors.get();
+     colorInfo.analyzeProcessors(fps, processors.fColorFragmentProcessorCnt);
+@@ -65,38 +80,40 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalReset(const GrPipelineIn
+         fUsesLocalCoords |= clipFP->usesLocalCoords();
+         hasCoverageFP = true;
+     }
+-    fInitialColorProcessorsToEliminate =
+-            colorInfo.initialProcessorsToEliminate(&fOverrideInputColor);
++    fInitialColorProcessorsToEliminate = colorInfo.initialProcessorsToEliminate(&fInputColor);
++    fValidInputColor |= SkToBool(fInitialColorProcessorsToEliminate);
+ 
+     bool opaque = colorInfo.isOpaque();
+     if (colorInfo.hasKnownOutputColor(&fKnownOutputColor)) {
+-        fColorType = opaque ? ColorType::kOpaqueConstant : ColorType::kConstant;
++        fOutputColorType = opaque ? ColorType::kOpaqueConstant : ColorType::kConstant;
+     } else if (opaque) {
+-        fColorType = ColorType::kOpaque;
++        fOutputColorType = ColorType::kOpaque;
+     } else {
+-        fColorType = ColorType::kUnknown;
++        fOutputColorType = ColorType::kUnknown;
+     }
+ 
+     if (coverageInput.isLCDCoverage()) {
+-        fCoverageType = CoverageType::kLCD;
++        fOutputCoverageType = CoverageType::kLCD;
+     } else {
+-        fCoverageType = hasCoverageFP || !coverageInput.isSolidWhite()
+-                                ? CoverageType::kSingleChannel
+-                                : CoverageType::kNone;
++        fOutputCoverageType = hasCoverageFP || !coverageInput.isSolidWhite()
++                                      ? CoverageType::kSingleChannel
++                                      : CoverageType::kNone;
+     }
+ }
+ 
+-void GrProcessorSet::FragmentProcessorAnalysis::reset(const GrPipelineInput& colorInput,
+-                                                      const GrPipelineInput coverageInput,
+-                                                      const GrProcessorSet& processors,
+-                                                      const GrAppliedClip& appliedClip,
+-                                                      const GrCaps& caps) {
+-    this->internalReset(colorInput, coverageInput, processors,
+-                        appliedClip.clipCoverageFragmentProcessor(), caps);
++void GrProcessorSet::FragmentProcessorAnalysis::init(const GrPipelineInput& colorInput,
++                                                     const GrPipelineInput coverageInput,
++                                                     const GrProcessorSet& processors,
++                                                     const GrAppliedClip* appliedClip,
++                                                     const GrCaps& caps) {
++    const GrFragmentProcessor* clipFP =
++            appliedClip ? appliedClip->clipCoverageFragmentProcessor() : nullptr;
++    this->internalInit(colorInput, coverageInput, processors, clipFP, caps);
++    fIsInitializedWithProcessorSet = true;
+ }
+ 
+ GrProcessorSet::FragmentProcessorAnalysis::FragmentProcessorAnalysis(
+         const GrPipelineInput& colorInput, const GrPipelineInput coverageInput, const GrCaps& caps)
+         : FragmentProcessorAnalysis() {
+-    this->internalReset(colorInput, coverageInput, GrProcessorSet(GrPaint()), nullptr, caps);
++    this->internalInit(colorInput, coverageInput, GrProcessorSet(GrPaint()), nullptr, caps);
+ }
+diff --git a/src/gpu/GrProcessorSet.h b/src/gpu/GrProcessorSet.h
+index de8bd69..a31b9a9 100644
+--- a/src/gpu/GrProcessorSet.h
++++ b/src/gpu/GrProcessorSet.h
+@@ -21,13 +21,25 @@ public:
+     GrProcessorSet(GrPaint&& paint);
+ 
+     ~GrProcessorSet() {
+-        // We are deliberately not using sk_sp here because this will be updated to work with
+-        // "pending execution" refs.
+-        for (auto fp : fFragmentProcessors) {
+-            fp->unref();
++        if (this->isPendingExecution()) {
++            for (auto fp : fFragmentProcessors) {
++                fp->completedExecution();
++            }
++        } else {
++            for (auto fp : fFragmentProcessors) {
++                fp->unref();
++            }
+         }
+     }
+ 
++    /**
++     * If an op is recorded with this processor set then this must be called to ensure pending
++     * reads and writes are propogated to resources referred to by the processors. Otherwise,
++     * data hazards may occur.
++     */
++    void makePendingExecution();
++    bool isPendingExecution() const { return SkToBool(kPendingExecution_Flag & fFlags); }
++
+     int numColorFragmentProcessors() const { return fColorFragmentProcessorCnt; }
+     int numCoverageFragmentProcessors() const {
+         return fFragmentProcessors.count() - fColorFragmentProcessorCnt;
+@@ -50,68 +62,130 @@ public:
+     }
+     bool allowSRGBInputs() const { return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
+ 
++    bool operator==(const GrProcessorSet& that) const {
++        if (((fFlags ^ that.fFlags) & ~kPendingExecution_Flag) ||
++            fFragmentProcessors.count() != that.fFragmentProcessors.count() ||
++            fColorFragmentProcessorCnt != that.fColorFragmentProcessorCnt) {
++            return false;
++        }
++        for (int i = 0; i < fFragmentProcessors.count(); ++i) {
++            if (!fFragmentProcessors[i]->isEqual(*that.fFragmentProcessors[i])) {
++                return false;
++            }
++        }
++        if (fXPFactory != that.fXPFactory) {
++            return false;
++        }
++        return true;
++    }
++    bool operator!=(const GrProcessorSet& that) const { return !(*this == that); }
++
+     /**
+      * This is used to track analysis of color and coverage values through the fragment processors.
+      */
+     class FragmentProcessorAnalysis {
+     public:
+-        FragmentProcessorAnalysis() = default;
+-        // This version is used by a unit test that assumes no clip and no fragment processors.
++        /**
++         * This constructor allows an op to record its initial color in a FragmentProcessorAnalysis
++         * member and then run analysis later when the analysis inputs are available. If the
++         * analysis produces color fragment processor elimination then the input color is replaced
++         * by the expected input to the first non-eliminated processor. Otherwise, the original
++         * input color is preserved. The only reason to use this is to save space on the op by not
++         * separately storing the initial color.
++         */
++        explicit FragmentProcessorAnalysis(GrColor initialColor) : FragmentProcessorAnalysis() {
++            fInputColor = initialColor;
++            fValidInputColor = true;
++        }
++
++        FragmentProcessorAnalysis()
++                : fIsInitializedWithProcessorSet(false)
++                , fCompatibleWithCoverageAsAlpha(true)
++                , fValidInputColor(false)
++                , fOutputCoverageType(CoverageType::kNone)
++                , fOutputColorType(ColorType::kUnknown)
++                , fInitialColorProcessorsToEliminate(0) {}
++
++        // This version is used by a unit test that assumes no clip, no processors, and no PLS.
+         FragmentProcessorAnalysis(const GrPipelineInput& colorInput,
+                                   const GrPipelineInput coverageInput, const GrCaps&);
+ 
+-        void reset(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
+-                   const GrProcessorSet&, const GrAppliedClip&, const GrCaps&);
++        void init(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
++                  const GrProcessorSet&, const GrAppliedClip*, const GrCaps&);
++
++        bool isInitializedWithProcessorSet() const { return fIsInitializedWithProcessorSet; }
+ 
+         int initialColorProcessorsToEliminate(GrColor* newInputColor) const {
+             if (fInitialColorProcessorsToEliminate > 0) {
+-                *newInputColor = fOverrideInputColor;
++                SkASSERT(fValidInputColor);
++                *newInputColor = fInputColor;
+             }
+             return fInitialColorProcessorsToEliminate;
+         }
+ 
++        /**
++         * Valid if initialProcessorsToEliminate returns true or this analysis was initialized with
++         * a known color via constructor or init(). If color fragment processors are eliminated then
++         * this returns the expected input to the first non-eliminated processors. Otherwise it is
++         * the color passed to the constructor or init().
++         */
++        GrColor inputColor() const {
++            SkASSERT(fValidInputColor);
++            return fInputColor;
++        }
++
+         bool usesLocalCoords() const { return fUsesLocalCoords; }
+         bool isCompatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
+         bool isOutputColorOpaque() const {
+-            return ColorType::kOpaque == fColorType || ColorType::kOpaqueConstant == fColorType;
++            return ColorType::kOpaque == fOutputColorType ||
++                   ColorType::kOpaqueConstant == fOutputColorType;
+         }
+         bool hasKnownOutputColor(GrColor* color = nullptr) const {
+-            bool constant =
+-                    ColorType::kConstant == fColorType || ColorType::kOpaqueConstant == fColorType;
++            bool constant = ColorType::kConstant == fOutputColorType ||
++                            ColorType::kOpaqueConstant == fOutputColorType;
+             if (constant && color) {
+                 *color = fKnownOutputColor;
+             }
+             return constant;
+         }
+-        bool hasCoverage() const { return CoverageType::kNone != fCoverageType; }
+-        bool hasLCDCoverage() const { return CoverageType::kLCD == fCoverageType; }
++        bool hasCoverage() const { return CoverageType::kNone != fOutputCoverageType; }
++        bool hasLCDCoverage() const { return CoverageType::kLCD == fOutputCoverageType; }
+ 
+     private:
+-        void internalReset(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
+-                           const GrProcessorSet&, const GrFragmentProcessor* clipFP, const GrCaps&);
+-
+-        enum class ColorType { kUnknown, kOpaqueConstant, kConstant, kOpaque };
+-        enum class CoverageType { kNone, kSingleChannel, kLCD };
+-
+-        bool fCompatibleWithCoverageAsAlpha = true;
+-        bool fUsesLocalCoords = false;
+-        CoverageType fCoverageType = CoverageType::kNone;
+-        ColorType fColorType = ColorType::kUnknown;
+-        int fInitialColorProcessorsToEliminate = 0;
+-        GrColor fOverrideInputColor;
++        void internalInit(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
++                          const GrProcessorSet&, const GrFragmentProcessor* clipFP, const GrCaps&);
++
++        enum class ColorType : unsigned { kUnknown, kOpaqueConstant, kConstant, kOpaque };
++        enum class CoverageType : unsigned { kNone, kSingleChannel, kLCD };
++
++        bool fIsInitializedWithProcessorSet : 1;
++        bool fUsesLocalCoords : 1;
++        bool fCompatibleWithCoverageAsAlpha : 1;
++        bool fValidInputColor : 1;
++        CoverageType fOutputCoverageType : 2;
++        ColorType fOutputColorType : 2;
++        unsigned fInitialColorProcessorsToEliminate : 32 - 8;
++
++        GrColor fInputColor;
+         GrColor fKnownOutputColor;
+     };
++    GR_STATIC_ASSERT(sizeof(FragmentProcessorAnalysis) == 2 * sizeof(GrColor) + sizeof(uint32_t));
+ 
+ private:
+-    const GrXPFactory* fXPFactory = nullptr;
+-    SkAutoSTArray<4, const GrFragmentProcessor*> fFragmentProcessors;
+-    int fColorFragmentProcessorCnt;
+-    enum Flags : uint32_t {
++    // This absurdly large limit allows FragmentProcessorAnalysis and this to pack fields together.
++    static constexpr int kMaxColorProcessors = SK_MaxU16;
++
++    enum Flags : uint16_t {
+         kUseDistanceVectorField_Flag = 0x1,
+         kDisableOutputConversionToSRGB_Flag = 0x2,
+-        kAllowSRGBInputs_Flag = 0x4
++        kAllowSRGBInputs_Flag = 0x4,
++        kPendingExecution_Flag  = 0x8
+     };
+-    uint32_t fFlags;
++
++    const GrXPFactory* fXPFactory = nullptr;
++    SkAutoSTArray<4, const GrFragmentProcessor*> fFragmentProcessors;
++    uint16_t fColorFragmentProcessorCnt;
++    uint16_t fFlags;
+ };
+ 
+ #endif
+diff --git a/src/gpu/GrRenderTargetContext.cpp b/src/gpu/GrRenderTargetContext.cpp
+index 5937054..19a2df5 100644
+--- a/src/gpu/GrRenderTargetContext.cpp
++++ b/src/gpu/GrRenderTargetContext.cpp
+@@ -509,16 +509,13 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
+ 
+     GrAAType aaType;
+ 
+-    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
++    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
++        (!ss || ss->isDisabled(false))) {
+         InstancedRendering* ir = this->getOpList()->instancedRendering();
+-        std::unique_ptr<GrDrawOp> op = ir->recordRect(croppedRect, viewMatrix, paint.getColor(), aa,
++        std::unique_ptr<GrDrawOp> op = ir->recordRect(croppedRect, viewMatrix, std::move(paint), aa,
+                                                       fInstancedPipelineInfo, &aaType);
+         if (op) {
+-            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+-            if (ss) {
+-                pipelineBuilder.setUserStencil(ss);
+-            }
+-            this->addDrawOp(pipelineBuilder, clip, std::move(op));
++            this->addDrawOp(clip, std::move(op));
+             return true;
+         }
+     }
+@@ -815,12 +812,11 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
+ 
+     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
+         InstancedRendering* ir = this->getOpList()->instancedRendering();
+-        std::unique_ptr<GrDrawOp> op(ir->recordRect(croppedRect, viewMatrix, paint.getColor(),
++        std::unique_ptr<GrDrawOp> op(ir->recordRect(croppedRect, viewMatrix, std::move(paint),
+                                                     croppedLocalRect, aa, fInstancedPipelineInfo,
+                                                     &aaType));
+         if (op) {
+-            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+-            this->addDrawOp(pipelineBuilder, clip, std::move(op));
++            this->addDrawOp(clip, std::move(op));
+             return;
+         }
+     }
+@@ -833,10 +829,10 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
+     }
+ 
+     if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
+-        std::unique_ptr<GrDrawOp> op = GrAAFillRectOp::MakeWithLocalRect(
++        std::unique_ptr<GrMeshDrawOp> op = GrAAFillRectOp::MakeWithLocalRect(
+                 paint.getColor(), viewMatrix, croppedRect, croppedLocalRect);
+         GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+-        this->addDrawOp(pipelineBuilder, clip, std::move(op));
++        this->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
+         return;
+     }
+ 
+@@ -874,12 +870,11 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
+ 
+     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
+         InstancedRendering* ir = this->getOpList()->instancedRendering();
+-        std::unique_ptr<GrDrawOp> op(ir->recordRect(croppedRect, viewMatrix, paint.getColor(),
++        std::unique_ptr<GrDrawOp> op(ir->recordRect(croppedRect, viewMatrix, std::move(paint),
+                                                     localMatrix, aa, fInstancedPipelineInfo,
+                                                     &aaType));
+         if (op) {
+-            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+-            this->addDrawOp(pipelineBuilder, clip, std::move(op));
++            this->addDrawOp(clip, std::move(op));
+             return;
+         }
+     }
+@@ -1030,11 +1025,10 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
+     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
+         stroke.isFillStyle()) {
+         InstancedRendering* ir = this->getOpList()->instancedRendering();
+-        std::unique_ptr<GrDrawOp> op(ir->recordRRect(rrect, viewMatrix, paint.getColor(), aa,
++        std::unique_ptr<GrDrawOp> op(ir->recordRRect(rrect, viewMatrix, std::move(paint), aa,
+                                                      fInstancedPipelineInfo, &aaType));
+         if (op) {
+-            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+-            this->addDrawOp(pipelineBuilder, *clip, std::move(op));
++            this->addDrawOp(*clip, std::move(op));
+             return;
+         }
+     }
+@@ -1109,11 +1103,10 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
+     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
+         InstancedRendering* ir = this->getOpList()->instancedRendering();
+         std::unique_ptr<GrDrawOp> op(ir->recordDRRect(origOuter, origInner, viewMatrix,
+-                                                      paint.getColor(), aa, fInstancedPipelineInfo,
++                                                      std::move(paint), aa, fInstancedPipelineInfo,
+                                                       &aaType));
+         if (op) {
+-            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+-            this->addDrawOp(pipelineBuilder, clip, std::move(op));
++            this->addDrawOp(clip, std::move(op));
+             return true;
+         }
+     }
+@@ -1260,11 +1253,10 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
+     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
+         stroke.isFillStyle()) {
+         InstancedRendering* ir = this->getOpList()->instancedRendering();
+-        std::unique_ptr<GrDrawOp> op(ir->recordOval(oval, viewMatrix, paint.getColor(), aa,
++        std::unique_ptr<GrDrawOp> op(ir->recordOval(oval, viewMatrix, std::move(paint), aa,
+                                                     fInstancedPipelineInfo, &aaType));
+         if (op) {
+-            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+-            this->addDrawOp(pipelineBuilder, clip, std::move(op));
++            this->addDrawOp(clip, std::move(op));
+             return;
+         }
+     }
+@@ -1673,21 +1665,61 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
+     }
+ }
+ 
+-uint32_t GrRenderTargetContext::addMeshDrawOp(const GrPipelineBuilder& pipelineBuilder,
+-                                              const GrClip& clip,
+-                                              std::unique_ptr<GrMeshDrawOp> op) {
+-    return this->addDrawOp(pipelineBuilder, clip, std::move(op));
++uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDrawOp> op) {
++    ASSERT_SINGLE_OWNER
++    if (this->drawingManager()->wasAbandoned()) {
++        return SK_InvalidUniqueID;
++    }
++    SkDEBUGCODE(this->validate();)
++    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::addDrawOp");
++
++    // Setup clip
++    SkRect bounds;
++    op_bounds(&bounds, op.get());
++    GrAppliedClip appliedClip(bounds);
++    GrDrawOp::FixedFunctionFlags fixedFunctionFlags = op->fixedFunctionFlags();
++    if (!clip.apply(fContext, this,
++                    fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA,
++                    fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil,
++                    &appliedClip)) {
++        return SK_InvalidUniqueID;
++    }
++
++    // This forces instantiation of the render target. Pipeline creation is moving to flush time
++    // by which point instantiation must have occurred anyway.
++    GrRenderTarget* rt = this->accessRenderTarget();
++    if (!rt) {
++        return SK_InvalidUniqueID;
++    }
++
++    if (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil ||
++        appliedClip.hasStencilClip()) {
++
++        if (!fContext->resourceProvider()->attachStencilAttachment(rt)) {
++            SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
++            return SK_InvalidUniqueID;
++        }
++    }
++
++
++    GrXferProcessor::DstTexture dstTexture;
++    if (op->xpRequiresDstTexture(*this->caps(), &appliedClip)) {
++        this->setupDstTexture(rt, clip, op->bounds(), &dstTexture);
++        if (!dstTexture.texture()) {
++            return SK_InvalidUniqueID;
++        }
++    }
++
++    return this->getOpList()->addOp(std::move(op), this, appliedClip.doesClip() ? &appliedClip : nullptr, dstTexture);
+ }
+ 
+-uint32_t GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
+-                                          const GrClip& clip,
+-                                          std::unique_ptr<GrDrawOp> op) {
++uint32_t GrRenderTargetContext::addMeshDrawOp(const GrPipelineBuilder& pipelineBuilder, const GrClip& clip, std::unique_ptr<GrMeshDrawOp> op) {
+     ASSERT_SINGLE_OWNER
+     if (this->drawingManager()->wasAbandoned()) {
+         return SK_InvalidUniqueID;
+     }
+     SkDEBUGCODE(this->validate();)
+-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::addDrawOp");
++    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::addMeshDrawOp");
+ 
+     // Setup clip
+     SkRect bounds;
+@@ -1714,7 +1746,7 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuild
+     }
+ 
+     GrProcessorSet::FragmentProcessorAnalysis analysis;
+-    op->analyzeProcessors(&analysis, pipelineBuilder.processors(), appliedClip, *this->caps());
++    op->analyzeProcessors(&analysis, pipelineBuilder.processors(), &appliedClip, *this->caps());
+ 
+     GrPipeline::InitArgs args;
+     pipelineBuilder.getPipelineInitArgs(&args);
+diff --git a/src/gpu/GrRenderTargetContext.h b/src/gpu/GrRenderTargetContext.h
+index 479fc93..0186b63 100644
+--- a/src/gpu/GrRenderTargetContext.h
++++ b/src/gpu/GrRenderTargetContext.h
+@@ -22,8 +22,8 @@ class GrClip;
+ class GrDrawingManager;
+ class GrDrawOp;
+ class GrFixedClip;
+-class GrPipelineBuilder;
+ class GrMeshDrawOp;
++class GrPipelineBuilder;
+ class GrRenderTarget;
+ class GrRenderTargetContextPriv;
+ class GrRenderTargetOpList;
+@@ -476,9 +476,8 @@ private:
+     // These perform processing specific to Gr[Mesh]DrawOp-derived ops before recording them into
+     // the op list. They return the id of the opList to which the op was added, or 0, if it was
+     // dropped (e.g., due to clipping).
+-    uint32_t addDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrDrawOp>);
+-    uint32_t addMeshDrawOp(const GrPipelineBuilder&, const GrClip&,
+-                           std::unique_ptr<GrMeshDrawOp> op);
++    uint32_t addMeshDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrMeshDrawOp>);
++    uint32_t addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
+ 
+     // Makes a copy of the dst if it is necessary for the draw and returns the texture that should
+     // be used by GrXferProcessor to access the destination color. If the texture is nullptr then
+diff --git a/src/gpu/GrRenderTargetOpList.cpp b/src/gpu/GrRenderTargetOpList.cpp
+index 1c98353..ca218ad 100644
+--- a/src/gpu/GrRenderTargetOpList.cpp
++++ b/src/gpu/GrRenderTargetOpList.cpp
+@@ -81,9 +81,17 @@ void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
+ 
+     // Loop over the ops that haven't yet been prepared.
+     for (int i = 0; i < fRecordedOps.count(); ++i) {
+-        if (fRecordedOps[i].fOp) {
+-            fRecordedOps[i].fOp->prepare(flushState);
++        GrOpFlushState::DrawOpArgs opArgs;
++        if (fRecordedOps[i].fRenderTarget) {
++            opArgs = {
++                fRecordedOps[i].fRenderTarget.get(),
++                fRecordedOps[i].fAppliedClip,
++                fRecordedOps[i].fDstTexture
++            };
+         }
++        flushState->setDrawOpArgs(&opArgs);
++        fRecordedOps[i].fOp->prepare(flushState);
++        flushState->setDrawOpArgs(nullptr);
+     }
+ 
+     if (fInstancedRendering) {
+@@ -122,7 +130,17 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
+             }
+             flushState->setCommandBuffer(commandBuffer.get());
+         }
++        GrOpFlushState::DrawOpArgs opArgs;
++        if (fRecordedOps[i].fRenderTarget) {
++            opArgs = {
++                fRecordedOps[i].fRenderTarget.get(),
++                fRecordedOps[i].fAppliedClip,
++                fRecordedOps[i].fDstTexture
++            };
++            flushState->setDrawOpArgs(&opArgs);
++        }
+         fRecordedOps[i].fOp->execute(flushState);
++        flushState->setDrawOpArgs(nullptr);
+     }
+     if (commandBuffer) {
+         commandBuffer->end();
+@@ -213,8 +231,51 @@ static inline bool can_reorder(const SkRect& a, const SkRect& b) {
+            b.fRight <= a.fLeft || b.fBottom <= a.fTop;
+ }
+ 
++uint32_t GrRenderTargetOpList::addOp(std::unique_ptr<GrOp> op,
++                                     GrRenderTargetContext* renderTargetContext,
++                                     GrAppliedClip* clip, const DstTexture& dstTexture) {
++    const GrOp* opForCombineCheck = op.get();
++    if (clip) {
++        clip = &fAppliedClips.push_back(std::move(*clip));
++    }
++    const GrOp* recordedOp = this->recordOp(std::move(op), renderTargetContext, clip,
++                                            &dstTexture);
++    // Can we not reord it until after?
++    if (clip && recordedOp != opForCombineCheck) {
++        fAppliedClips.pop_back();
++    }
++    return this->uniqueID();
++}
++
++bool GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,
++                                             const GrAppliedClip* bClip,
++                                             const DstTexture* bDstTexture) {
++    bool aHasClip = a.fAppliedClip;
++    bool bHasClip = bClip;
++    if (aHasClip != bHasClip) {
++        return false;
++    }
++    const GrAppliedClip* clip = nullptr;
++    if (aHasClip) {
++        if (!a.fAppliedClip->isCompatibleWith(*bClip)) {
++            return false;
++        }
++        clip = a.fAppliedClip;
++    }
++    if (bDstTexture) {
++        if (a.fDstTexture != *bDstTexture) {
++            return false;
++        }
++    } else if (a.fDstTexture.texture()) {
++        return false;
++    }
++    return a.fOp->combineIfPossible(b, *this->caps(), clip);
++}
++
+ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
+-                                     GrRenderTargetContext* renderTargetContext) {
++                                     GrRenderTargetContext* renderTargetContext,
++                                     const GrAppliedClip* clip,
++                                     const DstTexture* dstTexture) {
+     GrRenderTarget* renderTarget =
+             renderTargetContext ? renderTargetContext->accessRenderTarget()
+                                 : nullptr;
+@@ -249,7 +310,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
+                           candidate.fOp->uniqueID());
+                 break;
+             }
+-            if (candidate.fOp->combineIfPossible(op.get(), *this->caps())) {
++            if (this->combineIfPossible(candidate, op.get(), clip, dstTexture)) {
+                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
+                           candidate.fOp->uniqueID());
+                 GrOP_INFO("\t\t\tCombined op info:\n");
+@@ -273,7 +334,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
+         GrOP_INFO("\t\tFirstOp\n");
+     }
+     GR_AUDIT_TRAIL_OP_RESULT_NEW(fAuditTrail, op);
+-    fRecordedOps.emplace_back(std::move(op), renderTarget);
++    fRecordedOps.emplace_back(std::move(op), renderTarget, clip, dstTexture);
+     fRecordedOps.back().fOp->wasRecorded();
+     fLastFullClearOp = nullptr;
+     fLastFullClearRenderTargetID.makeInvalid();
+@@ -306,9 +367,10 @@ void GrRenderTargetOpList::forwardCombine() {
+                 // via backwards combining in recordOp.
+ 
+                 // not sure why this fires with device-clipping in gm/complexclip4.cpp
+-//                SkASSERT(!op->combineIfPossible(candidate.fOp.get(), *this->caps()));
+-
+-            } else if (op->combineIfPossible(candidate.fOp.get(), *this->caps())) {
++                SkASSERT(!this->combineIfPossible(fRecordedOps[i], candidate.fOp.get(),
++                                                  candidate.fAppliedClip, &candidate.fDstTexture));
++            } else if (this->combineIfPossible(fRecordedOps[i], candidate.fOp.get(),
++                                               candidate.fAppliedClip, &candidate.fDstTexture)) {
+                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
+                           candidate.fOp->uniqueID());
+                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, op, candidate.fOp.get());
+diff --git a/src/gpu/GrRenderTargetOpList.h b/src/gpu/GrRenderTargetOpList.h
+index 3929c5c..ae505c7 100644
+--- a/src/gpu/GrRenderTargetOpList.h
++++ b/src/gpu/GrRenderTargetOpList.h
+@@ -8,6 +8,7 @@
+ #ifndef GrRenderTargetOpList_DEFINED
+ #define GrRenderTargetOpList_DEFINED
+ 
++#include "GrAppliedClip.h"
+ #include "GrOpList.h"
+ #include "GrPrimitiveProcessor.h"
+ #include "GrPathRendering.h"
+@@ -22,12 +23,14 @@
+ class GrAuditTrail;
+ class GrClearOp;
+ class GrCaps;
+-class GrClip;
+ class GrOp;
+ class GrPipelineBuilder;
+ class GrRenderTargetProxy;
+ 
+ class GrRenderTargetOpList final : public GrOpList {
++private:
++    using DstTexture = GrXferProcessor::DstTexture;
++
+ public:
+     /** Options for GrRenderTargetOpList behavior. */
+     struct Options {
+@@ -68,9 +71,11 @@ public:
+     const GrCaps* caps() const { return fGpu->caps(); }
+ 
+     uint32_t addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
+-        this->recordOp(std::move(op), renderTargetContext);
+-        return this->uniqueID();
++        static const DstTexture kEmptyDstTexture = DstTexture();
++        return this->addOp(std::move(op), renderTargetContext, nullptr, kEmptyDstTexture);
+     }
++    uint32_t addOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, GrAppliedClip*,
++                   const DstTexture&);
+ 
+     /** Clears the entire render target */
+     void fullClear(GrRenderTargetContext*, GrColor color);
+@@ -105,23 +110,37 @@ public:
+ private:
+     friend class GrRenderTargetContextPriv; // for clearStencilClip and stencil clip state.
+ 
++    struct RecordedOp {
++        RecordedOp(std::unique_ptr<GrOp> op, GrRenderTarget* rt, const GrAppliedClip* appliedClip,
++                   const DstTexture* dstTexture)
++                : fOp(std::move(op)), fRenderTarget(rt), fAppliedClip(appliedClip) {
++            if (dstTexture) {
++                fDstTexture = *dstTexture;
++            }
++        }
++        std::unique_ptr<GrOp> fOp;
++        // TODO: These ops will all to target the same render target and this won't be needed.
++        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
++        DstTexture fDstTexture;
++        const GrAppliedClip* fAppliedClip;
++    };
++
+     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
+     // returns the input op.
+-    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*);
++    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, const GrAppliedClip* = nullptr,
++                   const DstTexture* = nullptr);
+ 
+     void forwardCombine();
+ 
+     // Used only via GrRenderTargetContextPriv.
+     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTargetContext*);
+ 
+-    struct RecordedOp {
+-        RecordedOp(std::unique_ptr<GrOp> op, GrRenderTarget* rt)
+-                : fOp(std::move(op)), fRenderTarget(rt) {}
+-        std::unique_ptr<GrOp> fOp;
+-        // TODO: These ops will all to target the same render target and this won't be needed.
+-        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+-    };
++    // If this returns true then b has been merged into a's op.
++    bool combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
++                           const DstTexture* bDstTexture);
++
+     SkSTArray<256, RecordedOp, true> fRecordedOps;
++    SkSTArray<32, GrAppliedClip, true> fAppliedClips;
+ 
+     GrClearOp* fLastFullClearOp = nullptr;
+     GrGpuResource::UniqueID fLastFullClearRenderTargetID = GrGpuResource::UniqueID::InvalidID();
+diff --git a/src/gpu/GrTextureOpList.cpp b/src/gpu/GrTextureOpList.cpp
+index d70daa2..b977b0f 100644
+--- a/src/gpu/GrTextureOpList.cpp
++++ b/src/gpu/GrTextureOpList.cpp
+@@ -54,6 +54,7 @@ void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
+     // Loop over the ops that haven't yet generated their geometry
+     for (int i = 0; i < fRecordedOps.count(); ++i) {
+         if (fRecordedOps[i]) {
++            // We do not create DrawOpArgs because this op list does not support GrDrawOps.
+             fRecordedOps[i]->prepare(flushState);
+         }
+     }
+@@ -64,7 +65,9 @@ bool GrTextureOpList::executeOps(GrOpFlushState* flushState) {
+         return false;
+     }
+ 
++    GrXferProcessor::DstTexture dummyDstTexture;
+     for (int i = 0; i < fRecordedOps.count(); ++i) {
++        // We do not create DrawOpArgs because this op list does not support GrDrawOps.
+         fRecordedOps[i]->execute(flushState);
+     }
+ 
+diff --git a/src/gpu/GrXferProcessor.cpp b/src/gpu/GrXferProcessor.cpp
+index 3b8a2bf..4d877d6 100644
+--- a/src/gpu/GrXferProcessor.cpp
++++ b/src/gpu/GrXferProcessor.cpp
+@@ -197,6 +197,13 @@ bool GrXPFactory::WillNeedDstTexture(const GrXPFactory* factory, const GrCaps& c
+     return result;
+ }
+ 
++bool GrXPFactory::CompatibleWithCoverageAsAlpha(const GrXPFactory* factory, bool colorIsOpaque) {
++    if (factory) {
++        return factory->compatibleWithCoverageAsAlpha(colorIsOpaque);
++    }
++    return GrPorterDuffXPFactory::SrcOverIsCompatibleWithCoverageAsAlpha();
++}
++
+ GrXferProcessor* GrXPFactory::createXferProcessor(const FragmentProcessorAnalysis& analysis,
+                                                   bool hasMixedSamples,
+                                                   const DstTexture* dstTexture,
+diff --git a/src/gpu/GrXferProcessor.h b/src/gpu/GrXferProcessor.h
+index d6d6fa3..2a83072 100644
+--- a/src/gpu/GrXferProcessor.h
++++ b/src/gpu/GrXferProcessor.h
+@@ -66,7 +66,7 @@ public:
+ 
+         DstTexture(GrTexture* texture, const SkIPoint& offset)
+             : fTexture(SkSafeRef(texture))
+-            , fOffset(offset) {
++            , fOffset(texture ? offset : SkIPoint{0, 0}) {
+         }
+ 
+         DstTexture& operator=(const DstTexture& other) {
+@@ -75,6 +75,13 @@ public:
+             return *this;
+         }
+ 
++        bool operator==(const DstTexture& that) const {
++            return fTexture == that.fTexture && fOffset == that.fOffset;
++        }
++        bool operator!=(const DstTexture& that) const {
++            return !(*this == that);
++        }
++
+         const SkIPoint& offset() const { return fOffset; }
+ 
+         void setOffset(const SkIPoint& offset) { fOffset = offset; }
+@@ -84,6 +91,9 @@ public:
+ 
+         void setTexture(sk_sp<GrTexture> texture) {
+             fTexture = std::move(texture);
++            if (!fTexture) {
++                fOffset = {0, 0};
++            }
+         }
+ 
+     private:
+@@ -313,6 +323,8 @@ public:
+                                    const GrCaps&,
+                                    const FragmentProcessorAnalysis&);
+ 
++    static bool CompatibleWithCoverageAsAlpha(const GrXPFactory*, bool colorIsOpaque);
++
+ protected:
+     constexpr GrXPFactory() {}
+ 
+@@ -330,6 +342,8 @@ private:
+      *  shader.
+      */
+     virtual bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const = 0;
++
++    virtual bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const = 0;
+ };
+ #if defined(__GNUC__) || defined(__clang)
+ #pragma GCC diagnostic pop
+diff --git a/src/gpu/effects/GrCoverageSetOpXP.h b/src/gpu/effects/GrCoverageSetOpXP.h
+index 02db11b..807a2b0 100644
+--- a/src/gpu/effects/GrCoverageSetOpXP.h
++++ b/src/gpu/effects/GrCoverageSetOpXP.h
+@@ -45,6 +45,8 @@ private:
+         return false;
+     }
+ 
++    bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const override { return false; }
++
+     GR_DECLARE_XP_FACTORY_TEST;
+ 
+     SkRegion::Op fRegionOp;
+diff --git a/src/gpu/effects/GrCustomXfermode.cpp b/src/gpu/effects/GrCustomXfermode.cpp
+index 8895d7c..81b9e45 100644
+--- a/src/gpu/effects/GrCustomXfermode.cpp
++++ b/src/gpu/effects/GrCustomXfermode.cpp
+@@ -331,6 +331,8 @@ private:
+ 
+     bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override;
+ 
++    bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const override { return true; }
++
+     GR_DECLARE_XP_FACTORY_TEST;
+ 
+     SkBlendMode     fMode;
+diff --git a/src/gpu/effects/GrDisableColorXP.h b/src/gpu/effects/GrDisableColorXP.h
+index 6a9f2ad..f9206f7 100644
+--- a/src/gpu/effects/GrDisableColorXP.h
++++ b/src/gpu/effects/GrDisableColorXP.h
+@@ -32,6 +32,8 @@ private:
+         return false;
+     }
+ 
++    bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const override { return true; }
++
+     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
+                                            const FragmentProcessorAnalysis&,
+                                            bool hasMixedSamples,
+diff --git a/src/gpu/effects/GrPorterDuffXferProcessor.cpp b/src/gpu/effects/GrPorterDuffXferProcessor.cpp
+index c7e61ca..6ef0900 100644
+--- a/src/gpu/effects/GrPorterDuffXferProcessor.cpp
++++ b/src/gpu/effects/GrPorterDuffXferProcessor.cpp
+@@ -791,6 +791,11 @@ bool GrPorterDuffXPFactory::willReadDstInShader(const GrCaps& caps,
+     return formula.hasSecondaryOutput();
+ }
+ 
++bool GrPorterDuffXPFactory::compatibleWithCoverageAsAlpha(bool colorIsOpaque) const {
++    // We assume we have coverage (or else this doesn't matter).
++    return gBlendTable[colorIsOpaque][1][(int)fBlendMode].canTweakAlphaForCoverage();
++}
++
+ GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
+ 
+ #if GR_TEST_UTILS
+diff --git a/src/gpu/effects/GrPorterDuffXferProcessor.h b/src/gpu/effects/GrPorterDuffXferProcessor.h
+index b82c106..f65d7db 100644
+--- a/src/gpu/effects/GrPorterDuffXferProcessor.h
++++ b/src/gpu/effects/GrPorterDuffXferProcessor.h
+@@ -38,9 +38,11 @@ public:
+     static const GrXferProcessor& SimpleSrcOverXP();
+ 
+     static bool WillSrcOverReadDst(const FragmentProcessorAnalysis& analysis);
++    // DELETE THIS?
+     static bool IsSrcOverPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
+                                                          GrColor* color);
+     static bool WillSrcOverNeedDstTexture(const GrCaps&, const FragmentProcessorAnalysis&);
++    static bool SrcOverIsCompatibleWithCoverageAsAlpha() { return true; }
+ 
+ private:
+     constexpr GrPorterDuffXPFactory(SkBlendMode);
+@@ -54,6 +56,8 @@ private:
+ 
+     bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override;
+ 
++    bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const override;
++
+     GR_DECLARE_XP_FACTORY_TEST;
+     static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);
+ 
+diff --git a/src/gpu/instanced/GLInstancedRendering.cpp b/src/gpu/instanced/GLInstancedRendering.cpp
+index 0d2a2dd..08dac4e 100644
+--- a/src/gpu/instanced/GLInstancedRendering.cpp
++++ b/src/gpu/instanced/GLInstancedRendering.cpp
+@@ -19,7 +19,7 @@ class GLInstancedRendering::GLOp final : public InstancedRendering::Op {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+-    GLOp(GLInstancedRendering* instRendering) : INHERITED(ClassID(), instRendering) {}
++    GLOp(GLInstancedRendering* instRendering, GrPaint&& paint) : INHERITED(ClassID(), std::move(paint), instRendering) {}
+     int numGLCommands() const { return 1 + fNumChangesInGeometry; }
+ 
+ private:
+@@ -60,8 +60,8 @@ inline GrGLGpu* GLInstancedRendering::glGpu() const {
+     return static_cast<GrGLGpu*>(this->gpu());
+ }
+ 
+-std::unique_ptr<InstancedRendering::Op> GLInstancedRendering::makeOp() {
+-    return std::unique_ptr<Op>(new GLOp(this));
++std::unique_ptr<InstancedRendering::Op> GLInstancedRendering::makeOp(GrPaint&& paint) {
++    return std::unique_ptr<Op>(new GLOp(this, std::move(paint)));
+ }
+ 
+ void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
+diff --git a/src/gpu/instanced/GLInstancedRendering.h b/src/gpu/instanced/GLInstancedRendering.h
+index 0088217..d1affba 100644
+--- a/src/gpu/instanced/GLInstancedRendering.h
++++ b/src/gpu/instanced/GLInstancedRendering.h
+@@ -33,7 +33,7 @@ private:
+ 
+     GrGLGpu* glGpu() const;
+ 
+-    std::unique_ptr<Op> makeOp() override;
++    std::unique_ptr<Op> makeOp(GrPaint&& paint) override;
+ 
+     void onBeginFlush(GrResourceProvider*) override;
+     void onDraw(const GrPipeline&, const InstanceProcessor&, const Op*) override;
+diff --git a/src/gpu/instanced/InstancedRendering.cpp b/src/gpu/instanced/InstancedRendering.cpp
+index ef2264b..1d7af27 100644
+--- a/src/gpu/instanced/InstancedRendering.cpp
++++ b/src/gpu/instanced/InstancedRendering.cpp
+@@ -22,31 +22,31 @@ InstancedRendering::InstancedRendering(GrGpu* gpu)
+ }
+ 
+ std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
+-                                                         const SkMatrix& viewMatrix, GrColor color,
++                                                         const SkMatrix& viewMatrix, GrPaint&& paint,
+                                                          GrAA aa,
+                                                          const GrInstancedPipelineInfo& info,
+                                                          GrAAType* aaType) {
+-    return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect, aa, info, aaType);
++    return this->recordShape(ShapeType::kRect, rect, viewMatrix, std::move(paint), rect, aa, info, aaType);
+ }
+ 
+ std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
+-                                                         const SkMatrix& viewMatrix, GrColor color,
++                                                         const SkMatrix& viewMatrix, GrPaint&& paint,
+                                                          const SkRect& localRect, GrAA aa,
+                                                          const GrInstancedPipelineInfo& info,
+                                                          GrAAType* aaType) {
+-    return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, localRect, aa, info,
++    return this->recordShape(ShapeType::kRect, rect, viewMatrix, std::move(paint), localRect, aa, info,
+                              aaType);
+ }
+ 
+ std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
+-                                                         const SkMatrix& viewMatrix, GrColor color,
++                                                         const SkMatrix& viewMatrix, GrPaint&& paint,
+                                                          const SkMatrix& localMatrix, GrAA aa,
+                                                          const GrInstancedPipelineInfo& info,
+                                                          GrAAType* aaType) {
+     if (localMatrix.hasPerspective()) {
+         return nullptr; // Perspective is not yet supported in the local matrix.
+     }
+-    if (std::unique_ptr<Op> op = this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect,
++    if (std::unique_ptr<Op> op = this->recordShape(ShapeType::kRect, rect, viewMatrix, std::move(paint), rect,
+                                                    aa, info, aaType)) {
+         op->getSingleInstance().fInfo |= kLocalMatrix_InfoFlag;
+         op->appendParamsTexel(localMatrix.getScaleX(), localMatrix.getSkewX(),
+@@ -60,20 +60,20 @@ std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
+ }
+ 
+ std::unique_ptr<GrDrawOp> InstancedRendering::recordOval(const SkRect& oval,
+-                                                         const SkMatrix& viewMatrix, GrColor color,
++                                                         const SkMatrix& viewMatrix, GrPaint&& paint,
+                                                          GrAA aa,
+                                                          const GrInstancedPipelineInfo& info,
+                                                          GrAAType* aaType) {
+-    return this->recordShape(ShapeType::kOval, oval, viewMatrix, color, oval, aa, info, aaType);
++    return this->recordShape(ShapeType::kOval, oval, viewMatrix, std::move(paint), oval, aa, info, aaType);
+ }
+ 
+ std::unique_ptr<GrDrawOp> InstancedRendering::recordRRect(const SkRRect& rrect,
+-                                                          const SkMatrix& viewMatrix, GrColor color,
++                                                          const SkMatrix& viewMatrix,  GrPaint&& paint,
+                                                           GrAA aa,
+                                                           const GrInstancedPipelineInfo& info,
+                                                           GrAAType* aaType) {
+     if (std::unique_ptr<Op> op =
+-                this->recordShape(GetRRectShapeType(rrect), rrect.rect(), viewMatrix, color,
++                this->recordShape(GetRRectShapeType(rrect), rrect.rect(), viewMatrix, std::move(paint),
+                                   rrect.rect(), aa, info, aaType)) {
+         op->appendRRectParams(rrect);
+         return std::move(op);
+@@ -82,16 +82,16 @@ std::unique_ptr<GrDrawOp> InstancedRendering::recordRRect(const SkRRect& rrect,
+ }
+ 
+ std::unique_ptr<GrDrawOp> InstancedRendering::recordDRRect(
+-        const SkRRect& outer, const SkRRect& inner, const SkMatrix& viewMatrix, GrColor color,
++        const SkRRect& outer, const SkRRect& inner, const SkMatrix& viewMatrix, GrPaint&& paint,
+         GrAA aa, const GrInstancedPipelineInfo& info, GrAAType* aaType) {
+     if (inner.getType() > SkRRect::kSimple_Type) {
+        return nullptr; // Complex inner round rects are not yet supported.
+     }
+     if (SkRRect::kEmpty_Type == inner.getType()) {
+-        return this->recordRRect(outer, viewMatrix, color, aa, info, aaType);
++        return this->recordRRect(outer, viewMatrix, std::move(paint), aa, info, aaType);
+     }
+     if (std::unique_ptr<Op> op =
+-                this->recordShape(GetRRectShapeType(outer), outer.rect(), viewMatrix, color,
++                this->recordShape(GetRRectShapeType(outer), outer.rect(), viewMatrix, std::move(paint),
+                                   outer.rect(), aa, info, aaType)) {
+         op->appendRRectParams(outer);
+         ShapeType innerShapeType = GetRRectShapeType(inner);
+@@ -105,7 +105,7 @@ std::unique_ptr<GrDrawOp> InstancedRendering::recordDRRect(
+ }
+ 
+ std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
+-        ShapeType type, const SkRect& bounds, const SkMatrix& viewMatrix, GrColor color,
++        ShapeType type, const SkRect& bounds, const SkMatrix& viewMatrix, GrPaint&& paint,
+         const SkRect& localRect, GrAA aa, const GrInstancedPipelineInfo& info, GrAAType* aaType) {
+     SkASSERT(State::kRecordingDraws == fState);
+ 
+@@ -117,11 +117,13 @@ std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
+         return nullptr;
+     }
+ 
+-    std::unique_ptr<Op> op = this->makeOp();
++    GrColor color = paint.getColor();
++    std::unique_ptr<Op> op = this->makeOp(std::move(paint));
+     op->fInfo.setAAType(*aaType);
+     op->fInfo.fShapeTypes = GetShapeFlag(type);
+     op->fInfo.fCannotDiscard = true;
+-
++    op->fDrawColorsAreOpaque = GrColorIsOpaque(color);
++    op->fDrawColorsAreSame = true;
+     Instance& instance = op->getSingleInstance();
+     instance.fInfo = (int)type << kShapeType_InfoBit;
+ 
+@@ -229,9 +231,10 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix,
+     return false;
+ }
+ 
+-InstancedRendering::Op::Op(uint32_t classID, InstancedRendering* ir)
++InstancedRendering::Op::Op(uint32_t classID, GrPaint&& paint, InstancedRendering* ir)
+         : INHERITED(classID)
+         , fInstancedRendering(ir)
++        , fProcessors(std::move(paint))
+         , fIsTracked(false)
+         , fNumDraws(1)
+         , fNumChangesInGeometry(0) {
+@@ -329,20 +332,17 @@ void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar
+     fInfo.fHasParams = true;
+ }
+ 
+-void InstancedRendering::Op::getFragmentProcessorAnalysisInputs(
+-        FragmentProcessorAnalysisInputs* input) const {
+-    input->colorInput()->setToConstant(this->getSingleInstance().fColor);
+-
++bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) {
++    GrProcessorSet::FragmentProcessorAnalysis analysis;
++    GrPipelineInput coverageInput;
+     if (GrAAType::kCoverage == fInfo.aaType() ||
+         (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
+-        input->coverageInput()->setToUnknown();
++        coverageInput = GrPipelineInput();
+     } else {
+-        input->coverageInput()->setToSolidCoverage();
++        coverageInput = GrColor_WHITE;
+     }
+-}
++    analysis.init(this->getSingleInstance().fColor, coverageInput, fProcessors, clip, caps);
+ 
+-void InstancedRendering::Op::applyPipelineOptimizations(
+-        const GrPipelineOptimizations& optimizations) {
+     Draw& draw = this->getSingleDraw(); // This will assert if we have > 1 command.
+     SkASSERT(draw.fGeometry.isEmpty());
+     SkASSERT(SkIsPow2(fInfo.fShapeTypes));
+@@ -356,36 +356,39 @@ void InstancedRendering::Op::applyPipelineOptimizations(
+         draw.fGeometry = InstanceProcessor::GetIndexRangeForRRect(fInfo.aaType());
+     }
+ 
++    GrColor overrideColor;
++    if (analysis.initialColorProcessorsToEliminate(&overrideColor)) {
++        SkASSERT(State::kRecordingDraws == fInstancedRendering->fState);
++        this->getSingleDraw().fInstance.fColor = overrideColor;
++    }
++
+     if (!fParams.empty()) {
+         SkASSERT(fInstancedRendering->fParams.count() < (int)kParamsIdx_InfoMask); // TODO: cleaner.
+         this->getSingleInstance().fInfo |= fInstancedRendering->fParams.count();
+         fInstancedRendering->fParams.push_back_n(fParams.count(), fParams.begin());
+     }
++    fInfo.fCannotTweakAlphaForCoverage = !analysis.isCompatibleWithCoverageAsAlpha() ||
++            !GrXPFactory::CompatibleWithCoverageAsAlpha(fProcessors.xpFactory(),
++                                                        analysis.isOutputColorOpaque());
+ 
+-    GrColor overrideColor;
+-    if (optimizations.getOverrideColorIfSet(&overrideColor)) {
+-        SkASSERT(State::kRecordingDraws == fInstancedRendering->fState);
+-        this->getSingleInstance().fColor = overrideColor;
+-    }
+-    fInfo.fUsesLocalCoords = optimizations.readsLocalCoords();
+-    fInfo.fCannotTweakAlphaForCoverage = !optimizations.canTweakAlphaForCoverage();
++    fInfo.fUsesLocalCoords = analysis.usesLocalCoords();
++    return GrXPFactory::WillNeedDstTexture(fProcessors.xpFactory(), caps, analysis);
+ }
+ 
+ void InstancedRendering::Op::wasRecorded() {
+     SkASSERT(!fIsTracked);
+     fInstancedRendering->fTrackedOps.addToTail(this);
++    fProcessors.makePendingExecution();
+     fIsTracked = true;
+ }
+ 
+-bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps) {
++bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps, const GrAppliedClip*) {
+     Op* that = static_cast<Op*>(other);
+     SkASSERT(fInstancedRendering == that->fInstancedRendering);
+     SkASSERT(fTailDraw);
+     SkASSERT(that->fTailDraw);
+ 
+-    if (!OpInfo::CanCombine(fInfo, that->fInfo) ||
+-        !GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+-                                that->bounds(), caps)) {
++    if (!OpInfo::CanCombine(fInfo, that->fInfo) || fProcessors != that->fProcessors) {
+         return false;
+     }
+ 
+@@ -406,7 +409,9 @@ bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps
+     this->joinBounds(*that);
+     fInfo = combinedInfo;
+     fPixelLoad += that->fPixelLoad;
+-
++    fDrawColorsAreOpaque = fDrawColorsAreOpaque && that->fDrawColorsAreOpaque;
++    fDrawColorsAreSame = fDrawColorsAreSame && that->fDrawColorsAreSame &&
++            fHeadDraw->fInstance.fColor == that->fHeadDraw->fInstance.fColor;
+     // Adopt the other op's draws.
+     fNumDraws += that->fNumDraws;
+     fNumChangesInGeometry += that->fNumChangesInGeometry;
+@@ -462,12 +467,40 @@ void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
+     SkASSERT(state->gpu() == fInstancedRendering->gpu());
+ 
+     state->gpu()->handleDirtyContext();
+-    if (GrXferBarrierType barrierType = this->pipeline()->xferBarrierType(*state->gpu()->caps())) {
+-        state->gpu()->xferBarrier(this->pipeline()->getRenderTarget(), barrierType);
+-    }
+ 
++    GrProcessorSet::FragmentProcessorAnalysis analysis;
++    GrPipelineInput coverageInput;
++    if (GrAAType::kCoverage == fInfo.aaType() ||
++        (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
++        coverageInput = GrPipelineInput();
++    } else {
++        coverageInput = GrColor_WHITE;
++    }
++    GrPipelineInput colorInput;
++    if (fDrawColorsAreSame) {
++        colorInput = fHeadDraw->fInstance.fColor;
++    } else if (fDrawColorsAreOpaque) {
++        colorInput = GrPipelineInput::Opaque::kYes;
++    }
++    const GrAppliedClip* clip = state->drawOpArgs().fAppliedClip;
++    analysis.init(colorInput, coverageInput, fProcessors, clip, state->caps());
++
++    GrPipeline pipeline;
++    GrPipeline::InitArgs args;
++    args.fAnalysis = &analysis;
++    args.fAppliedClip = clip;
++    args.fCaps = &state->caps();
++    args.fProcessors = &fProcessors;
++    args.fFlags = GrAATypeIsHW(fInfo.aaType()) ? GrPipeline::kHWAntialias_Flag : 0;
++    args.fRenderTarget = state->drawOpArgs().fRenderTarget;
++    args.fDstTexture = state->drawOpArgs().fDstTexture;
++    /*GrPipelineOptimizations optimizations = */ pipeline.init(args);
++
++    if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*state->gpu()->caps())) {
++        state->gpu()->xferBarrier(pipeline.getRenderTarget(), barrierType);
++    }
+     InstanceProcessor instProc(fInfo, fInstancedRendering->fParamsBuffer.get());
+-    fInstancedRendering->onDraw(*this->pipeline(), instProc, this);
++    fInstancedRendering->onDraw(pipeline, instProc, this);
+ }
+ 
+ void InstancedRendering::endFlush() {
+diff --git a/src/gpu/instanced/InstancedRendering.h b/src/gpu/instanced/InstancedRendering.h
+index 778e8b4..a35d555 100644
+--- a/src/gpu/instanced/InstancedRendering.h
++++ b/src/gpu/instanced/InstancedRendering.h
+@@ -46,33 +46,33 @@ public:
+      * draws between beginFlush() and endFlush().
+      */
+     std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&,
+-                                                               GrColor, GrAA,
++                                                               GrPaint&&, GrAA,
+                                                                const GrInstancedPipelineInfo&,
+                                                                GrAAType*);
+ 
+     std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&,
+-                                                               GrColor, const SkRect& localRect,
++                                                               GrPaint&&, const SkRect& localRect,
+                                                                GrAA, const GrInstancedPipelineInfo&,
+                                                                GrAAType*);
+ 
+     std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&,
+-                                                               GrColor, const SkMatrix& localMatrix,
++                                                               GrPaint&&, const SkMatrix& localMatrix,
+                                                                GrAA, const GrInstancedPipelineInfo&,
+                                                                GrAAType*);
+ 
+     std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordOval(const SkRect&, const SkMatrix&,
+-                                                               GrColor, GrAA,
++                                                               GrPaint&&, GrAA,
+                                                                const GrInstancedPipelineInfo&,
+                                                                GrAAType*);
+ 
+     std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordRRect(const SkRRect&, const SkMatrix&,
+-                                                                GrColor, GrAA,
++                                                                GrPaint&&, GrAA,
+                                                                 const GrInstancedPipelineInfo&,
+                                                                 GrAAType*);
+ 
+     std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordDRRect(const SkRRect& outer,
+                                                                  const SkRRect& inner,
+-                                                                 const SkMatrix&, GrColor, GrAA,
++                                                                 const SkMatrix&, GrPaint&&, GrAA,
+                                                                  const GrInstancedPipelineInfo&,
+                                                                  GrAAType*);
+ 
+@@ -122,7 +122,6 @@ protected:
+                     fIsTracked,
+                     fNumDraws,
+                     fNumChangesInGeometry);
+-            string.append(DumpPipelineInfo(*this->pipeline()));
+             string.append(INHERITED::dumpInfo());
+             return string;
+         }
+@@ -140,28 +139,32 @@ protected:
+         void appendParamsTexel(const SkScalar* vals, int count);
+         void appendParamsTexel(SkScalar x, SkScalar y, SkScalar z, SkScalar w);
+         void appendParamsTexel(SkScalar x, SkScalar y, SkScalar z);
++        FixedFunctionFlags fixedFunctionFlags() const override {
++            return GrAATypeIsHW(fInfo.aaType()) ? FixedFunctionFlags::kUsesHWAA : FixedFunctionFlags::kNone;
++        }
++        bool xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*) override;
+ 
+         // Registers the op with the InstancedRendering list of tracked ops.
+         void wasRecorded() override;
+ 
+     protected:
+-        Op(uint32_t classID, InstancedRendering* ir);
++        Op(uint32_t classID, GrPaint&&, InstancedRendering*);
+ 
+         InstancedRendering* const fInstancedRendering;
+         OpInfo fInfo;
+         SkScalar fPixelLoad;
++        GrProcessorSet fProcessors;
+         SkSTArray<5, ParamsTexel, true> fParams;
+-        bool fIsTracked;
++        bool fIsTracked : 1;
++        bool fDrawColorsAreOpaque : 1;
++        bool fDrawColorsAreSame : 1;
+         int fNumDraws;
+         int fNumChangesInGeometry;
+         Draw* fHeadDraw;
+         Draw* fTailDraw;
+ 
+     private:
+-        void getFragmentProcessorAnalysisInputs(
+-                FragmentProcessorAnalysisInputs* input) const override;
+-        void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
+-        bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
++        bool onCombineIfPossible(GrOp* other, const GrCaps& caps, const GrAppliedClip*) override;
+         void onPrepare(GrOpFlushState*) override {}
+         void onExecute(GrOpFlushState*) override;
+ 
+@@ -190,7 +193,7 @@ private:
+     };
+ 
+     std::unique_ptr<Op> SK_WARN_UNUSED_RESULT recordShape(ShapeType, const SkRect& bounds,
+-                                                          const SkMatrix& viewMatrix, GrColor,
++                                                          const SkMatrix& viewMatrix, GrPaint&&,
+                                                           const SkRect& localRect, GrAA aa,
+                                                           const GrInstancedPipelineInfo&,
+                                                           GrAAType*);
+@@ -198,7 +201,7 @@ private:
+     bool selectAntialiasMode(const SkMatrix& viewMatrix, GrAA aa, const GrInstancedPipelineInfo&,
+                              GrAAType*);
+ 
+-    virtual std::unique_ptr<Op> makeOp() = 0;
++    virtual std::unique_ptr<Op> makeOp(GrPaint&&) = 0;
+ 
+     const sk_sp<GrGpu> fGpu;
+     State fState;
+diff --git a/src/gpu/ops/GrAAConvexPathRenderer.cpp b/src/gpu/ops/GrAAConvexPathRenderer.cpp
+index 68f4357..cc92b25 100644
+--- a/src/gpu/ops/GrAAConvexPathRenderer.cpp
++++ b/src/gpu/ops/GrAAConvexPathRenderer.cpp
+@@ -911,7 +911,7 @@ private:
+         }
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         AAConvexPathOp* that = t->cast<AAConvexPathOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrAADistanceFieldPathRenderer.cpp b/src/gpu/ops/GrAADistanceFieldPathRenderer.cpp
+index e77dfa9..519d9e3 100644
+--- a/src/gpu/ops/GrAADistanceFieldPathRenderer.cpp
++++ b/src/gpu/ops/GrAADistanceFieldPathRenderer.cpp
+@@ -693,7 +693,7 @@ private:
+     bool usesLocalCoords() const { return fUsesLocalCoords; }
+     bool usesDistanceField() const { return fUsesDistanceField; }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         AADistanceFieldPathOp* that = t->cast<AADistanceFieldPathOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrAAFillRectOp.cpp b/src/gpu/ops/GrAAFillRectOp.cpp
+index 850a3c9..4b0b047 100644
+--- a/src/gpu/ops/GrAAFillRectOp.cpp
++++ b/src/gpu/ops/GrAAFillRectOp.cpp
+@@ -259,7 +259,7 @@ private:
+         helper.recordDraw(target, gp.get());
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         AAFillRectOp* that = t->cast<AAFillRectOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrAAHairLinePathRenderer.cpp b/src/gpu/ops/GrAAHairLinePathRenderer.cpp
+index e373b97..a0953cc 100644
+--- a/src/gpu/ops/GrAAHairLinePathRenderer.cpp
++++ b/src/gpu/ops/GrAAHairLinePathRenderer.cpp
+@@ -730,7 +730,7 @@ private:
+     typedef SkTArray<int, true> IntArray;
+     typedef SkTArray<float, true> FloatArray;
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         AAHairlineOp* that = t->cast<AAHairlineOp>();
+ 
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+diff --git a/src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp b/src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp
+index bdec758..059d698 100644
+--- a/src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp
++++ b/src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp
+@@ -276,7 +276,7 @@ private:
+         sk_free(indices);
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         AAFlatteningConvexPathOp* that = t->cast<AAFlatteningConvexPathOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrAAStrokeRectOp.cpp b/src/gpu/ops/GrAAStrokeRectOp.cpp
+index 3780752..28fbdbd 100644
+--- a/src/gpu/ops/GrAAStrokeRectOp.cpp
++++ b/src/gpu/ops/GrAAStrokeRectOp.cpp
+@@ -188,7 +188,7 @@ private:
+     const SkMatrix& viewMatrix() const { return fViewMatrix; }
+     bool miterStroke() const { return fMiterStroke; }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
++    bool onCombineIfPossible(GrOp* t, const GrCaps&, const GrAppliedClip*) override;
+ 
+     void generateAAStrokeRectGeometry(void* vertices,
+                                       size_t offset,
+@@ -374,7 +374,7 @@ const GrBuffer* AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvi
+     }
+ }
+ 
+-bool AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
++bool AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) {
+     AAStrokeRectOp* that = t->cast<AAStrokeRectOp>();
+ 
+     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+diff --git a/src/gpu/ops/GrAnalyticRectOp.cpp b/src/gpu/ops/GrAnalyticRectOp.cpp
+index 5dbfd5e..5d9a2dc 100644
+--- a/src/gpu/ops/GrAnalyticRectOp.cpp
++++ b/src/gpu/ops/GrAnalyticRectOp.cpp
+@@ -346,7 +346,7 @@ private:
+         helper.recordDraw(target, gp.get());
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         AnalyticRectOp* that = t->cast<AnalyticRectOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrAtlasTextOp.cpp b/src/gpu/ops/GrAtlasTextOp.cpp
+index b7e7ea3..08fec16 100644
+--- a/src/gpu/ops/GrAtlasTextOp.cpp
++++ b/src/gpu/ops/GrAtlasTextOp.cpp
+@@ -154,7 +154,7 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
+     flushInfo->fGlyphsToFlush = 0;
+ }
+ 
+-bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
++bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) {
+     GrAtlasTextOp* that = t->cast<GrAtlasTextOp>();
+     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                 that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrAtlasTextOp.h b/src/gpu/ops/GrAtlasTextOp.h
+index a52be6c..432e3ae 100644
+--- a/src/gpu/ops/GrAtlasTextOp.h
++++ b/src/gpu/ops/GrAtlasTextOp.h
+@@ -144,7 +144,7 @@ private:
+     bool usesLocalCoords() const { return fUsesLocalCoords; }
+     int numGlyphs() const { return fNumGlyphs; }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override;
+ 
+     // TODO just use class params
+     // TODO trying to figure out why lcd is so whack
+diff --git a/src/gpu/ops/GrClearOp.h b/src/gpu/ops/GrClearOp.h
+index 218dcd1..24c5d3f 100644
+--- a/src/gpu/ops/GrClearOp.h
++++ b/src/gpu/ops/GrClearOp.h
+@@ -80,7 +80,7 @@ private:
+         this->setBounds(SkRect::Make(rect), HasAABloat::kNo, IsZeroArea::kNo);
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         // This could be much more complicated. Currently we look at cases where the new clear
+         // contains the old clear, or when the new clear is a subset of the old clear and is the
+         // same color.
+diff --git a/src/gpu/ops/GrClearStencilClipOp.h b/src/gpu/ops/GrClearStencilClipOp.h
+index ef46a4c..2579954 100644
+--- a/src/gpu/ops/GrClearStencilClipOp.h
++++ b/src/gpu/ops/GrClearStencilClipOp.h
+@@ -49,7 +49,7 @@ private:
+         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override { return false; }
+ 
+     void onPrepare(GrOpFlushState*) override {}
+ 
+diff --git a/src/gpu/ops/GrCopySurfaceOp.h b/src/gpu/ops/GrCopySurfaceOp.h
+index 4c4500b..b3adee1 100644
+--- a/src/gpu/ops/GrCopySurfaceOp.h
++++ b/src/gpu/ops/GrCopySurfaceOp.h
+@@ -53,7 +53,7 @@ private:
+         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
+     }
+ 
+-    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override { return false; }
++    bool onCombineIfPossible(GrOp* that, const GrCaps& caps, const GrAppliedClip*) override { return false; }
+ 
+     void onPrepare(GrOpFlushState*) override {}
+ 
+diff --git a/src/gpu/ops/GrDashOp.cpp b/src/gpu/ops/GrDashOp.cpp
+index 1372a8b..da6bead 100644
+--- a/src/gpu/ops/GrDashOp.cpp
++++ b/src/gpu/ops/GrDashOp.cpp
+@@ -627,7 +627,7 @@ private:
+         helper.recordDraw(target, gp.get());
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         DashOp* that = t->cast<DashOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrDefaultPathRenderer.cpp b/src/gpu/ops/GrDefaultPathRenderer.cpp
+index 300090d..17e7b30 100644
+--- a/src/gpu/ops/GrDefaultPathRenderer.cpp
++++ b/src/gpu/ops/GrDefaultPathRenderer.cpp
+@@ -261,7 +261,7 @@ private:
+         target->putBackVertices((size_t)(maxVertices - vertexOffset), (size_t)vertexStride);
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         DefaultPathOp* that = t->cast<DefaultPathOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrDiscardOp.h b/src/gpu/ops/GrDiscardOp.h
+index 098df63..4d5a16d 100644
+--- a/src/gpu/ops/GrDiscardOp.h
++++ b/src/gpu/ops/GrDiscardOp.h
+@@ -35,7 +35,7 @@ private:
+                         IsZeroArea::kNo);
+     }
+ 
+-    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* that, const GrCaps& caps, const GrAppliedClip*) override {
+         return fRenderTarget.get() == that->cast<GrDiscardOp>()->fRenderTarget.get();
+     }
+ 
+diff --git a/src/gpu/ops/GrDrawAtlasOp.cpp b/src/gpu/ops/GrDrawAtlasOp.cpp
+index 7ef7e06..ef1f506 100644
+--- a/src/gpu/ops/GrDrawAtlasOp.cpp
++++ b/src/gpu/ops/GrDrawAtlasOp.cpp
+@@ -151,7 +151,7 @@ GrDrawAtlasOp::GrDrawAtlasOp(GrColor color, const SkMatrix& viewMatrix, int spri
+     this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
+ }
+ 
+-bool GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
++bool GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) {
+     GrDrawAtlasOp* that = t->cast<GrDrawAtlasOp>();
+ 
+     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+diff --git a/src/gpu/ops/GrDrawAtlasOp.h b/src/gpu/ops/GrDrawAtlasOp.h
+index cde345e..0fda516 100644
+--- a/src/gpu/ops/GrDrawAtlasOp.h
++++ b/src/gpu/ops/GrDrawAtlasOp.h
+@@ -57,7 +57,7 @@ private:
+     bool hasColors() const { return fHasColors; }
+     int quadCount() const { return fQuadCount; }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
++    bool onCombineIfPossible(GrOp* t, const GrCaps&, const GrAppliedClip*) override;
+ 
+     struct Geometry {
+         GrColor fColor;
+diff --git a/src/gpu/ops/GrDrawOp.h b/src/gpu/ops/GrDrawOp.h
+index 18c218f..b7f0480 100644
+--- a/src/gpu/ops/GrDrawOp.h
++++ b/src/gpu/ops/GrDrawOp.h
+@@ -12,6 +12,8 @@
+ #include "GrOp.h"
+ #include "GrPipeline.h"
+ 
++class GrAppliedClip;
++
+ /**
+  * GrDrawOps are flushed in two phases (preDraw, and draw). In preDraw uploads to GrGpuResources
+  * and draws are determined and scheduled. They are issued in the draw phase. GrDrawOpUploadToken is
+@@ -56,22 +58,27 @@ public:
+ 
+     GrDrawOp(uint32_t classID) : INHERITED(classID) {}
+ 
+-    void initPipeline(const GrPipeline::InitArgs& args) {
+-        this->applyPipelineOptimizations(fPipeline.init(args));
+-    }
++    /**
++     * This information is required to determine how to compute a GrAppliedClip from a GrClip for
++     * this op.
++     */
++     enum class FixedFunctionFlags : uint32_t {
++         kNone = 0x0,
++         /** Indices that the op will enable MSAA or mixed samples rendering. */
++         kUsesHWAA = 0x1,
++         /** Indices that the op reads and/or writes the stencil buffer */
++         kUsesStencil = 0x2,
++     };
++    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(FixedFunctionFlags);
++    virtual FixedFunctionFlags fixedFunctionFlags() const = 0;
+ 
+     /**
+-     * Performs analysis of the fragment processors in GrProcessorSet and GrAppliedClip using the
+-     * initial color and coverage from this op's geometry processor.
++     * This is called after the GrAppliedClip has been computed and just prior to recording the op
++     * or combining it with a previously recorded op. It is used to determine whether a copy of the
++     * destination (or destination texture itself) needs to be provided to the xp when this op
++     * executes.
+      */
+-    void analyzeProcessors(GrProcessorSet::FragmentProcessorAnalysis* analysis,
+-                           const GrProcessorSet& processors,
+-                           const GrAppliedClip& appliedClip,
+-                           const GrCaps& caps) const {
+-        FragmentProcessorAnalysisInputs input;
+-        this->getFragmentProcessorAnalysisInputs(&input);
+-        analysis->reset(*input.colorInput(), *input.coverageInput(), processors, appliedClip, caps);
+-    }
++    virtual bool xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*) = 0;
+ 
+ protected:
+     static SkString DumpPipelineInfo(const GrPipeline& pipeline) {
+@@ -105,53 +112,20 @@ protected:
+         return string;
+     }
+ 
+-    const GrPipeline* pipeline() const {
+-        SkASSERT(fPipeline.isInitialized());
+-        return &fPipeline;
+-    }
+-
+-    /**
+-     * This describes aspects of the GrPrimitiveProcessor produced by a GrDrawOp that are used in
+-     * pipeline analysis.
+-     */
+-    class FragmentProcessorAnalysisInputs {
+-    public:
+-        FragmentProcessorAnalysisInputs() = default;
+-        GrPipelineInput* colorInput() { return &fColorInput; }
+-        GrPipelineInput* coverageInput() { return &fCoverageInput; }
+-
+-    private:
+-        GrPipelineInput fColorInput;
+-        GrPipelineInput fCoverageInput;
+-    };
+-
+-private:
+-    /**
+-     * Provides information about the GrPrimitiveProccesor color and coverage outputs which become
+-     * inputs to the first color and coverage fragment processors.
+-     */
+-    virtual void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs*) const = 0;
+-
+-    /**
+-     * After GrPipeline analysis is complete this is called so that the op can use the analysis
+-     * results when constructing its GrPrimitiveProcessor.
+-     */
+-    virtual void applyPipelineOptimizations(const GrPipelineOptimizations&) = 0;
+-
+-protected:
+     struct QueuedUpload {
+         QueuedUpload(DeferredUploadFn&& upload, GrDrawOpUploadToken token)
+             : fUpload(std::move(upload))
+             , fUploadBeforeToken(token) {}
+-        DeferredUploadFn    fUpload;
++        DeferredUploadFn fUpload;
+         GrDrawOpUploadToken fUploadBeforeToken;
+     };
+ 
+-    SkTArray<QueuedUpload>                          fInlineUploads;
++    SkTArray<QueuedUpload> fInlineUploads;
+ 
+ private:
+-    GrPipeline fPipeline;
+     typedef GrOp INHERITED;
+ };
+ 
++GR_MAKE_BITFIELD_CLASS_OPS(GrDrawOp::FixedFunctionFlags);
++
+ #endif
+diff --git a/src/gpu/ops/GrDrawPathOp.cpp b/src/gpu/ops/GrDrawPathOp.cpp
+index 85fb147..8be6780 100644
+--- a/src/gpu/ops/GrDrawPathOp.cpp
++++ b/src/gpu/ops/GrDrawPathOp.cpp
+@@ -6,36 +6,74 @@
+  */
+ 
+ #include "GrDrawPathOp.h"
+-
+ #include "GrRenderTargetPriv.h"
++#include "SkTemplates.h"
++#include "GrRenderTargetContext.h"
++#include "GrAppliedClip.h"
++
++GrDrawPathOpBase::GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix, GrPaint&& paint,
++                 GrPathRendering::FillType fill, GrAA aa)
++        : INHERITED(classID), fViewMatrix(viewMatrix), fProcessorSet(std::move(paint)), fAnalysis(paint.getColor()), fFillType(fill), fAA(aa) {}
+ 
+ static void pre_translate_transform_values(const float* xforms,
+                                            GrPathRendering::PathTransformType type, int count,
+                                            SkScalar x, SkScalar y, float* dst);
+ 
+-void GrDrawPathOpBase::onPrepare(GrOpFlushState*) {
+-    const GrRenderTargetPriv& rtPriv = this->pipeline()->getRenderTarget()->renderTargetPriv();
+-    fStencilPassSettings.reset(GrPathRendering::GetStencilPassSettings(fFillType),
+-                               this->pipeline()->hasStencilClip(), rtPriv.numStencilBits());
+-}
+-
+ SkString GrDrawPathOp::dumpInfo() const {
+     SkString string;
+     string.printf("PATH: 0x%p", fPath.get());
+-    string.append(DumpPipelineInfo(*this->pipeline()));
+     string.append(INHERITED::dumpInfo());
+     return string;
+ }
+ 
++GrPipelineOptimizations GrDrawPathOpBase::initPipeline(const GrOpFlushState& state,
++                                                       GrPipeline* pipeline) {
++    static constexpr GrUserStencilSettings kCoverPass {
++        GrUserStencilSettings::StaticInit<
++            0x0000,
++            GrUserStencilTest::kNotEqual,
++            0xffff,
++            GrUserStencilOp::kZero,
++            GrUserStencilOp::kKeep,
++            0xffff>()
++    };
++    GrPipeline::InitArgs args;
++    args.fProcessors = &this->processors();
++    args.fFlags = GrAA::kYes == fAA ? GrPipeline::kHWAntialias_Flag : 0;
++    args.fUserStencil = &kCoverPass;
++    args.fAppliedClip = state.drawOpArgs().fAppliedClip;
++    args.fRenderTarget = state.drawOpArgs().fRenderTarget;
++    args.fCaps = &state.caps();
++    args.fDstTexture = state.drawOpArgs().fDstTexture;
++    args.fAnalysis = &this->fragmentProcessorAnalysis(state.caps(), state.drawOpArgs().fAppliedClip);
++
++   return pipeline->init(args);
++}
++
++//////////////////////////////////////////////////////////////////////////////
++
++void init_stencil_pass_settings(const GrOpFlushState& flushState,
++                                GrPathRendering::FillType fillType, GrStencilSettings* stencil) {
++    const GrAppliedClip* appliedClip = flushState.drawOpArgs().fAppliedClip;
++    bool stencilClip = appliedClip && appliedClip->hasStencilClip();
++    stencil->reset(GrPathRendering::GetStencilPassSettings(fillType), stencilClip,
++                   flushState.drawOpArgs().fRenderTarget->renderTargetPriv().numStencilBits());
++}
++
+ void GrDrawPathOp::onExecute(GrOpFlushState* state) {
+-    GrProgramDesc desc;
++    GrColor color = this->color();
++    GrPipeline pipeline;
++    GrPipelineOptimizations optimizations = this->initPipeline(*state, &pipeline);
++    optimizations.getOverrideColorIfSet(&color);
++    sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(color, this->viewMatrix()));
+ 
+-    sk_sp<GrPathProcessor> pathProc(
+-            GrPathProcessor::Create(this->color(), this->viewMatrix()));
+-    state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc,
+-                                            this->stencilPassSettings(), fPath.get());
++    GrStencilSettings stencil;
++    init_stencil_pass_settings(*state, this->fillType(), &stencil);
++    state->gpu()->pathRendering()->drawPath(pipeline, *pathProc, stencil, fPath.get());
+ }
+ 
++//////////////////////////////////////////////////////////////////////////////
++
+ SkString GrDrawPathRangeOp::dumpInfo() const {
+     SkString string;
+     string.printf("RANGE: 0x%p COUNTS: [", fPathRange.get());
+@@ -44,16 +82,16 @@ SkString GrDrawPathRangeOp::dumpInfo() const {
+     }
+     string.remove(string.size() - 2, 2);
+     string.append("]");
+-    string.append(DumpPipelineInfo(*this->pipeline()));
++    //string.append(DumpPipelineInfo(*this->pipeline()));
+     string.append(INHERITED::dumpInfo());
+     return string;
+ }
+ 
+ GrDrawPathRangeOp::GrDrawPathRangeOp(const SkMatrix& viewMatrix, SkScalar scale, SkScalar x,
+-                                     SkScalar y, GrColor color, GrPathRendering::FillType fill,
+-                                     GrPathRange* range, const InstanceData* instanceData,
++                                     SkScalar y, GrPaint&& paint, GrPathRendering::FillType fill,
++                                     GrAA aa, GrPathRange* range, const InstanceData* instanceData,
+                                      const SkRect& bounds)
+-        : INHERITED(ClassID(), viewMatrix, color, fill)
++        : INHERITED(ClassID(), viewMatrix, std::move(paint), fill, aa)
+         , fPathRange(range)
+         , fTotalPathCount(instanceData->count())
+         , fScale(scale) {
+@@ -61,14 +99,14 @@ GrDrawPathRangeOp::GrDrawPathRangeOp(const SkMatrix& viewMatrix, SkScalar scale,
+     this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
+ }
+ 
+-bool GrDrawPathRangeOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
++bool GrDrawPathRangeOp::onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip* clip) {
+     GrDrawPathRangeOp* that = t->cast<GrDrawPathRangeOp>();
+     if (this->fPathRange.get() != that->fPathRange.get() ||
+         this->transformType() != that->transformType() || this->fScale != that->fScale ||
+         this->color() != that->color() || !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+         return false;
+     }
+-    if (!GrPipeline::AreEqual(*this->pipeline(), *that->pipeline())) {
++    if (this->processors() != that->processors()) {
+         return false;
+     }
+     switch (fDraws.head()->fInstanceData->transformType()) {
+@@ -98,11 +136,12 @@ bool GrDrawPathRangeOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+     // work). Note that it's also possible for overlapping paths to cancel each other's winding
+     // numbers, and we only partially account for this by not allowing even/odd paths to be
+     // combined. (Glyphs in the same font tend to wind the same direction so it works out OK.)
++
+     if (GrPathRendering::kWinding_FillType != this->fillType() ||
+-        GrPathRendering::kWinding_FillType != that->fillType() || this->xpReadsDst()) {
++        GrPathRendering::kWinding_FillType != that->fillType() || this->xpReadsDst(caps, clip)) {
+         return false;
+     }
+-    SkASSERT(!that->xpReadsDst());
++    SkASSERT(!that->xpReadsDst(caps, clip));
+     fTotalPathCount += that->fTotalPathCount;
+     while (Draw* head = that->fDraws.head()) {
+         Draw* draw = fDraws.addToTail();
+@@ -129,11 +168,15 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state) {
+     sk_sp<GrPathProcessor> pathProc(
+             GrPathProcessor::Create(this->color(), drawMatrix, localMatrix));
+ 
++    GrPipeline pipeline;
++    this->initPipeline(*state, &pipeline);
++    GrStencilSettings stencil;
++    init_stencil_pass_settings(*state, this->fillType(), &stencil);
+     if (fDraws.count() == 1) {
+         const InstanceData& instances = *head.fInstanceData;
+-        state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
++        state->gpu()->pathRendering()->drawPaths(pipeline,
+                                                  *pathProc,
+-                                                 this->stencilPassSettings(),
++                                                 stencil,
+                                                  fPathRange.get(),
+                                                  instances.indices(),
+                                                  GrPathRange::kU16_PathIndexType,
+@@ -159,9 +202,9 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state) {
+         }
+         SkASSERT(idx == fTotalPathCount);
+ 
+-        state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
++        state->gpu()->pathRendering()->drawPaths(pipeline,
+                                                  *pathProc,
+-                                                 this->stencilPassSettings(),
++                                                 stencil,
+                                                  fPathRange.get(),
+                                                  indexStorage,
+                                                  GrPathRange::kU16_PathIndexType,
+diff --git a/src/gpu/ops/GrDrawPathOp.h b/src/gpu/ops/GrDrawPathOp.h
+index ffe8768..d3ccfb8 100644
+--- a/src/gpu/ops/GrDrawPathOp.h
++++ b/src/gpu/ops/GrDrawPathOp.h
+@@ -14,45 +14,52 @@
+ #include "GrPath.h"
+ #include "GrPathProcessor.h"
+ #include "GrPathRendering.h"
++#include "GrProcessorSet.h"
+ #include "GrStencilSettings.h"
+ 
+ #include "SkTLList.h"
+ 
++class GrPaint;
++
+ class GrDrawPathOpBase : public GrDrawOp {
+ protected:
+-    GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix, GrColor initialColor,
+-                     GrPathRendering::FillType fill)
+-            : INHERITED(classID), fViewMatrix(viewMatrix), fColor(initialColor), fFillType(fill) {}
+-
+-    const GrStencilSettings& stencilPassSettings() const {
+-        SkASSERT(!fStencilPassSettings.isDisabled());  // This shouldn't be called before onPrepare.
+-        return fStencilPassSettings;
++    GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix, GrPaint&& paint,
++                     GrPathRendering::FillType fill, GrAA aa);
++    FixedFunctionFlags fixedFunctionFlags() const override {
++        return FixedFunctionFlags::kUsesHWAA | FixedFunctionFlags::kUsesStencil;
++    }
++    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
++        return GrXPFactory::WillNeedDstTexture(fProcessorSet.xpFactory(), caps,
++                                               this->fragmentProcessorAnalysis(caps, clip));
+     }
+ 
++    void wasRecorded() override { fProcessorSet.makePendingExecution(); }
++
+ protected:
+     const SkMatrix& viewMatrix() const { return fViewMatrix; }
+-    GrColor color() const { return fColor; }
++    GrColor color() const { return fAnalysis.inputColor(); }
+     GrPathRendering::FillType fillType() const { return fFillType; }
+-    bool xpReadsDst() const { return fXPReadsDst; }
+-
+-private:
+-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
+-        input->colorInput()->setToConstant(fColor);
+-        input->coverageInput()->setToSolidCoverage();
++    const GrProcessorSet& processors() const { return fProcessorSet; }
++    GrPipelineOptimizations initPipeline(const GrOpFlushState&, GrPipeline*);
++    const GrProcessorSet::FragmentProcessorAnalysis& fragmentProcessorAnalysis(const GrCaps& caps,
++                                                                               const GrAppliedClip* clip) {
++        if (!fAnalysis.isInitializedWithProcessorSet()) {
++            fAnalysis.init(fAnalysis.inputColor(), GrColor_WHITE, fProcessorSet, clip, caps);
++        }
++        return fAnalysis;
+     }
+-
+-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+-        optimizations.getOverrideColorIfSet(&fColor);
+-        fXPReadsDst = optimizations.xpReadsDst();
++    bool xpReadsDst(const GrCaps& caps, const GrAppliedClip* clip) {
++        return GrXPFactory::WillReadDst(this->processors().xpFactory(),
++                                        this->fragmentProcessorAnalysis(caps, clip));
+     }
+-
+-    void onPrepare(GrOpFlushState*) override;  // Initializes fStencilPassSettings.
++private:
++    void onPrepare(GrOpFlushState*) final {}
+ 
+     SkMatrix fViewMatrix;
+-    GrColor fColor;
++    GrProcessorSet fProcessorSet;
++    GrProcessorSet::FragmentProcessorAnalysis fAnalysis;
+     GrPathRendering::FillType fFillType;
+-    GrStencilSettings fStencilPassSettings;
+-    bool fXPReadsDst;
++    GrAA fAA;
+ 
+     typedef GrDrawOp INHERITED;
+ };
+@@ -61,9 +68,9 @@ class GrDrawPathOp final : public GrDrawPathOpBase {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+-    static std::unique_ptr<GrDrawOp> Make(const SkMatrix& viewMatrix, GrColor color,
+-                                          const GrPath* path) {
+-        return std::unique_ptr<GrDrawOp>(new GrDrawPathOp(viewMatrix, color, path));
++    static std::unique_ptr<GrDrawOp> Make(const SkMatrix& viewMatrix, GrPaint&& paint,
++                                          GrAA aa, GrPath* path) {
++        return std::unique_ptr<GrDrawOp>(new GrDrawPathOp(viewMatrix, std::move(paint), aa, path));
+     }
+ 
+     const char* name() const override { return "DrawPath"; }
+@@ -71,12 +78,12 @@ public:
+     SkString dumpInfo() const override;
+ 
+ private:
+-    GrDrawPathOp(const SkMatrix& viewMatrix, GrColor color, const GrPath* path)
+-            : GrDrawPathOpBase(ClassID(), viewMatrix, color, path->getFillType()), fPath(path) {
++    GrDrawPathOp(const SkMatrix& viewMatrix, GrPaint&& paint, GrAA aa, const GrPath* path)
++            : GrDrawPathOpBase(ClassID(), viewMatrix, std::move(paint), path->getFillType(), aa), fPath(path) {
+         this->setTransformedBounds(path->getBounds(), viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override { return false; }
+ 
+     void onExecute(GrOpFlushState* state) override;
+ 
+@@ -152,10 +159,10 @@ public:
+     };
+ 
+     static std::unique_ptr<GrDrawOp> Make(const SkMatrix& viewMatrix, SkScalar scale, SkScalar x,
+-                                          SkScalar y, GrColor color, GrPathRendering::FillType fill,
+-                                          GrPathRange* range, const InstanceData* instanceData,
+-                                          const SkRect& bounds) {
+-        return std::unique_ptr<GrDrawOp>(new GrDrawPathRangeOp(viewMatrix, scale, x, y, color, fill,
++                                          SkScalar y, GrPaint&& paint, GrPathRendering::FillType fill,
++                                          GrAA aa, GrPathRange* range,
++                                          const InstanceData* instanceData, const SkRect& bounds) {
++        return std::unique_ptr<GrDrawOp>(new GrDrawPathRangeOp(viewMatrix, scale, x, y, std::move(paint), fill, aa,
+                                                                range, instanceData, bounds));
+     }
+ 
+@@ -165,12 +172,12 @@ public:
+ 
+ private:
+     GrDrawPathRangeOp(const SkMatrix& viewMatrix, SkScalar scale, SkScalar x, SkScalar y,
+-                      GrColor color, GrPathRendering::FillType fill, GrPathRange* range,
++                      GrPaint&& paint, GrPathRendering::FillType fill, GrAA aa, GrPathRange* range,
+                       const InstanceData* instanceData, const SkRect& bounds);
+ 
+     TransformType transformType() const { return fDraws.head()->fInstanceData->transformType(); }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override;
+ 
+     void onExecute(GrOpFlushState* state) override;
+ 
+diff --git a/src/gpu/ops/GrDrawVerticesOp.cpp b/src/gpu/ops/GrDrawVerticesOp.cpp
+index c79d9ac..29adf9c 100644
+--- a/src/gpu/ops/GrDrawVerticesOp.cpp
++++ b/src/gpu/ops/GrDrawVerticesOp.cpp
+@@ -276,7 +276,7 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) const {
+     target->draw(gp.get(), mesh);
+ }
+ 
+-bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
++bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) {
+     GrDrawVerticesOp* that = t->cast<GrDrawVerticesOp>();
+ 
+     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+diff --git a/src/gpu/ops/GrDrawVerticesOp.h b/src/gpu/ops/GrDrawVerticesOp.h
+index c837734..721bfe3 100644
+--- a/src/gpu/ops/GrDrawVerticesOp.h
++++ b/src/gpu/ops/GrDrawVerticesOp.h
+@@ -78,7 +78,7 @@ private:
+                kPoints_GrPrimitiveType == fPrimitiveType;
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
++    bool onCombineIfPossible(GrOp* t, const GrCaps&, const GrAppliedClip*) override;
+ 
+     struct Mesh {
+         GrColor fColor;  // Used if this->hasPerVertexColors() is false.
+diff --git a/src/gpu/ops/GrLatticeOp.cpp b/src/gpu/ops/GrLatticeOp.cpp
+index a1b7584..e73c8fc 100644
+--- a/src/gpu/ops/GrLatticeOp.cpp
++++ b/src/gpu/ops/GrLatticeOp.cpp
+@@ -135,7 +135,7 @@ private:
+         helper.recordDraw(target, gp.get());
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         NonAALatticeOp* that = t->cast<NonAALatticeOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrMSAAPathRenderer.cpp b/src/gpu/ops/GrMSAAPathRenderer.cpp
+index 04b0b14..cc4f678 100644
+--- a/src/gpu/ops/GrMSAAPathRenderer.cpp
++++ b/src/gpu/ops/GrMSAAPathRenderer.cpp
+@@ -449,7 +449,7 @@ private:
+         }
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         MSAAPathOp* that = t->cast<MSAAPathOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrMeshDrawOp.cpp b/src/gpu/ops/GrMeshDrawOp.cpp
+index 5d83bd5..d614fb9 100644
+--- a/src/gpu/ops/GrMeshDrawOp.cpp
++++ b/src/gpu/ops/GrMeshDrawOp.cpp
+@@ -12,6 +12,7 @@
+ GrMeshDrawOp::GrMeshDrawOp(uint32_t classID)
+     : INHERITED(classID), fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()) {}
+ 
++
+ void GrMeshDrawOp::onPrepare(GrOpFlushState* state) {
+     Target target(state, this);
+     this->onPrepareDraws(&target);
+@@ -60,6 +61,9 @@ void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int qu
+ }
+ 
+ void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
++    SkASSERT(!state->drawOpArgs().fAppliedClip);
++    SkASSERT(!state->drawOpArgs().fDstTexture.texture());
++    SkASSERT(state->drawOpArgs().fRenderTarget == this->pipeline()->getRenderTarget());
+     int currUploadIdx = 0;
+     int currMeshIdx = 0;
+ 
+diff --git a/src/gpu/ops/GrMeshDrawOp.h b/src/gpu/ops/GrMeshDrawOp.h
+index a7d312f..82f37d6 100644
+--- a/src/gpu/ops/GrMeshDrawOp.h
++++ b/src/gpu/ops/GrMeshDrawOp.h
+@@ -8,6 +8,7 @@
+ #ifndef GrMeshDrawOp_DEFINED
+ #define GrMeshDrawOp_DEFINED
+ 
++#include "GrCaps.h"
+ #include "GrDrawOp.h"
+ #include "GrGeometryProcessor.h"
+ #include "GrMesh.h"
+@@ -24,9 +25,39 @@ class GrMeshDrawOp : public GrDrawOp {
+ public:
+     class Target;
+ 
+-    GrMeshDrawOp(uint32_t classID);
++    /**
++     * Performs analysis of the fragment processors in GrProcessorSet and GrAppliedClip using the
++     * initial color and coverage from this op's geometry processor.
++     */
++    void analyzeProcessors(GrProcessorSet::FragmentProcessorAnalysis* analysis,
++                           const GrProcessorSet& processors,
++                           const GrAppliedClip* appliedClip,
++                           const GrCaps& caps) const {
++        FragmentProcessorAnalysisInputs input;
++        this->getFragmentProcessorAnalysisInputs(&input);
++        analysis->init(*input.colorInput(), *input.coverageInput(), processors, appliedClip, caps);
++    }
++
++    void initPipeline(const GrPipeline::InitArgs& args) {
++        this->applyPipelineOptimizations(fPipeline.init(args));
++    }
++
++    /**
++     * Mesh draw ops use a legacy system in GrRenderTargetContext where the pipeline is created when
++     * the op is recorded. These methods are unnecessary as this information is in the pipeline.
++     */
++    FixedFunctionFlags fixedFunctionFlags() const override {
++        SkFAIL("This should never be called for mesh draw ops.");
++        return FixedFunctionFlags::kNone;
++    }
++    bool xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*) override {
++        SkFAIL("Should never be called for mesh draw ops.");
++        return false;
++    }
+ 
+ protected:
++    GrMeshDrawOp(uint32_t classID);
++
+     /** Helper for rendering instances using an instanced index index buffer. This class creates the
+         space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
+     class InstancedHelper {
+@@ -62,7 +93,39 @@ protected:
+         typedef InstancedHelper INHERITED;
+     };
+ 
++    const GrPipeline* pipeline() const {
++        SkASSERT(fPipeline.isInitialized());
++        return &fPipeline;
++    }
++
++    /**
++     * This describes aspects of the GrPrimitiveProcessor produced by a GrDrawOp that are used in
++     * pipeline analysis.
++     */
++    class FragmentProcessorAnalysisInputs {
++    public:
++        FragmentProcessorAnalysisInputs() = default;
++        GrPipelineInput* colorInput() { return &fColorInput; }
++        GrPipelineInput* coverageInput() { return &fCoverageInput; }
++
++    private:
++        GrPipelineInput fColorInput;
++        GrPipelineInput fCoverageInput;
++    };
++
+ private:
++    /**
++    * Provides information about the GrPrimitiveProccesor color and coverage outputs which become
++    * inputs to the first color and coverage fragment processors.
++    */
++    virtual void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs*) const = 0;
++
++    /**
++     * After GrPipeline analysis is complete this is called so that the op can use the analysis
++     * results when constructing its GrPrimitiveProcessor.
++     */
++    virtual void applyPipelineOptimizations(const GrPipelineOptimizations&) = 0;
++
+     void onPrepare(GrOpFlushState* state) final;
+     void onExecute(GrOpFlushState* state) final;
+ 
+@@ -82,7 +145,7 @@ private:
+     // globally across all ops. This is the offset of the first entry in fQueuedDraws.
+     // fQueuedDraws[i]'s token is fBaseDrawToken + i.
+     GrDrawOpUploadToken fBaseDrawToken;
+-
++    GrPipeline fPipeline;
+     SkSTArray<4, GrMesh> fMeshes;
+     SkSTArray<4, QueuedDraw, true> fQueuedDraws;
+ 
+diff --git a/src/gpu/ops/GrNonAAFillRectOp.cpp b/src/gpu/ops/GrNonAAFillRectOp.cpp
+index a83da15..eb49783 100644
+--- a/src/gpu/ops/GrNonAAFillRectOp.cpp
++++ b/src/gpu/ops/GrNonAAFillRectOp.cpp
+@@ -150,7 +150,7 @@ private:
+         helper.recordDraw(target, gp.get());
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         NonAAFillRectOp* that = t->cast<NonAAFillRectOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrNonAAFillRectPerspectiveOp.cpp b/src/gpu/ops/GrNonAAFillRectPerspectiveOp.cpp
+index 26a6469..33221a7 100644
+--- a/src/gpu/ops/GrNonAAFillRectPerspectiveOp.cpp
++++ b/src/gpu/ops/GrNonAAFillRectPerspectiveOp.cpp
+@@ -180,7 +180,7 @@ private:
+         helper.recordDraw(target, gp.get());
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         NonAAFillRectPerspectiveOp* that = t->cast<NonAAFillRectPerspectiveOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrNonAAStrokeRectOp.cpp b/src/gpu/ops/GrNonAAStrokeRectOp.cpp
+index a4de594..5613b49 100644
+--- a/src/gpu/ops/GrNonAAStrokeRectOp.cpp
++++ b/src/gpu/ops/GrNonAAStrokeRectOp.cpp
+@@ -165,7 +165,7 @@ private:
+         fNeedsLocalCoords = optimizations.readsLocalCoords();
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps&, const GrAppliedClip*) override {
+         // NonAA stroke rects cannot combine right now
+         // TODO make these combinable.
+         return false;
+diff --git a/src/gpu/ops/GrOp.h b/src/gpu/ops/GrOp.h
+index c1bf7f7..49ec88b 100644
+--- a/src/gpu/ops/GrOp.h
++++ b/src/gpu/ops/GrOp.h
+@@ -11,15 +11,18 @@
+ #include "../private/SkAtomics.h"
+ #include "GrGpuResource.h"
+ #include "GrNonAtomicRef.h"
++#include "GrXferProcessor.h"
+ #include "SkMatrix.h"
+ #include "SkRect.h"
+ #include "SkString.h"
+ 
+ #include <new>
+ 
++class GrAppliedClip;
+ class GrCaps;
+ class GrGpuCommandBuffer;
+ class GrOpFlushState;
++class GrRenderTarget;
+ 
+ /**
+  * GrOp is the base class for all Ganesh deferred GPU operations. To facilitate reordering and to
+@@ -63,12 +66,12 @@ public:
+ 
+     virtual const char* name() const = 0;
+ 
+-    bool combineIfPossible(GrOp* that, const GrCaps& caps) {
++    bool combineIfPossible(GrOp* that, const GrCaps& caps, const GrAppliedClip* clip) {
+         if (this->classID() != that->classID()) {
+             return false;
+         }
+ 
+-        return this->onCombineIfPossible(that, caps);
++        return this->onCombineIfPossible(that, caps, clip);
+     }
+ 
+     const SkRect& bounds() const {
+@@ -139,8 +142,15 @@ public:
+      */
+     void prepare(GrOpFlushState* state) { this->onPrepare(state); }
+ 
+-    /** Issues the op's commands to GrGpu. */
+-    void execute(GrOpFlushState* state) { this->onExecute(state); }
++    /**
++     * Issues the op's commands to GrGpu. The clip and dst will be null for ops not derived from
++     * GrDrawOp. The dst texture will be null if the op is not a GrDrawOp or if the op's
++     * GrXferProcessor does not require a dst texture for blending. The clip may also be null
++     * if the op is a GrDrawOp that is unclipped.
++     */
++    void execute(GrOpFlushState* state) {
++        this->onExecute(state);
++    }
+ 
+     /** Used for spewing information about ops when debugging. */
+     virtual SkString dumpInfo() const {
+@@ -196,7 +206,7 @@ protected:
+     static uint32_t GenOpClassID() { return GenID(&gCurrOpClassID); }
+ 
+ private:
+-    virtual bool onCombineIfPossible(GrOp*, const GrCaps& caps) = 0;
++    virtual bool onCombineIfPossible(GrOp*, const GrCaps& caps, const GrAppliedClip*) = 0;
+ 
+     virtual void onPrepare(GrOpFlushState*) = 0;
+     virtual void onExecute(GrOpFlushState*) = 0;
+diff --git a/src/gpu/ops/GrOvalOpFactory.cpp b/src/gpu/ops/GrOvalOpFactory.cpp
+index 8ab33f5..429cbaf 100644
+--- a/src/gpu/ops/GrOvalOpFactory.cpp
++++ b/src/gpu/ops/GrOvalOpFactory.cpp
+@@ -1100,7 +1100,7 @@ private:
+         target->draw(gp.get(), mesh);
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         CircleOp* that = t->cast<CircleOp>();
+ 
+         // can only represent 65535 unique vertices with 16-bit indices
+@@ -1335,7 +1335,7 @@ private:
+         helper.recordDraw(target, gp.get());
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         EllipseOp* that = t->cast<EllipseOp>();
+ 
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+@@ -1536,7 +1536,7 @@ private:
+         helper.recordDraw(target, gp.get());
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         DIEllipseOp* that = t->cast<DIEllipseOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+@@ -1997,7 +1997,7 @@ private:
+         target->draw(gp.get(), mesh);
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         CircularRRectOp* that = t->cast<CircularRRectOp>();
+ 
+         // can only represent 65535 unique vertices with 16-bit indices
+@@ -2244,7 +2244,7 @@ private:
+         helper.recordDraw(target, gp.get());
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         EllipticalRRectOp* that = t->cast<EllipticalRRectOp>();
+ 
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+diff --git a/src/gpu/ops/GrRegionOp.cpp b/src/gpu/ops/GrRegionOp.cpp
+index 32cb8e4..3c9d639 100644
+--- a/src/gpu/ops/GrRegionOp.cpp
++++ b/src/gpu/ops/GrRegionOp.cpp
+@@ -120,7 +120,7 @@ private:
+         helper.recordDraw(target, gp.get());
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         RegionOp* that = t->cast<RegionOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrSemaphoreOp.h b/src/gpu/ops/GrSemaphoreOp.h
+index a88b66c..4e234ad 100644
+--- a/src/gpu/ops/GrSemaphoreOp.h
++++ b/src/gpu/ops/GrSemaphoreOp.h
+@@ -26,7 +26,7 @@ protected:
+     sk_sp<GrSemaphore> fSemaphore;
+ 
+ private:
+-    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override { return false; }
++    bool onCombineIfPossible(GrOp* that, const GrCaps& caps, const GrAppliedClip*) override { return false; }
+     void onPrepare(GrOpFlushState*) override {}
+ 
+     typedef GrOp INHERITED;
+diff --git a/src/gpu/ops/GrShadowRRectOp.cpp b/src/gpu/ops/GrShadowRRectOp.cpp
+index 1381bc9..104ea4f 100644
+--- a/src/gpu/ops/GrShadowRRectOp.cpp
++++ b/src/gpu/ops/GrShadowRRectOp.cpp
+@@ -355,7 +355,7 @@ private:
+         target->draw(gp.get(), mesh);
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         ShadowCircleOp* that = t->cast<ShadowCircleOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+@@ -769,7 +769,7 @@ private:
+         target->draw(gp.get(), mesh);
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
+         ShadowCircularRRectOp* that = t->cast<ShadowCircularRRectOp>();
+         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
+diff --git a/src/gpu/ops/GrStencilAndCoverPathRenderer.cpp b/src/gpu/ops/GrStencilAndCoverPathRenderer.cpp
+index 3b38163..4c2edf4 100644
+--- a/src/gpu/ops/GrStencilAndCoverPathRenderer.cpp
++++ b/src/gpu/ops/GrStencilAndCoverPathRenderer.cpp
+@@ -145,22 +145,10 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
+                                                      std::move(coverOp));
+         }
+     } else {
+-        static constexpr GrUserStencilSettings kCoverPass(
+-            GrUserStencilSettings::StaticInit<
+-                0x0000,
+-                GrUserStencilTest::kNotEqual,
+-                0xffff,
+-                GrUserStencilOp::kZero,
+-                GrUserStencilOp::kKeep,
+-                0xffff>()
+-        );
+-
++        GrAA aa = GrBoolToAA(GrAATypeIsHW(args.fAAType));
+         std::unique_ptr<GrDrawOp> op =
+-                GrDrawPathOp::Make(viewMatrix, args.fPaint.getColor(), path.get());
+-
+-        GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
+-        pipelineBuilder.setUserStencil(&kCoverPass);
+-        args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
++                GrDrawPathOp::Make(viewMatrix, std::move(args.fPaint), aa, path.get());
++        args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
+     }
+ 
+     return true;
+diff --git a/src/gpu/ops/GrStencilPathOp.h b/src/gpu/ops/GrStencilPathOp.h
+index ac19b5a..de76d8f 100644
+--- a/src/gpu/ops/GrStencilPathOp.h
++++ b/src/gpu/ops/GrStencilPathOp.h
+@@ -62,7 +62,7 @@ private:
+         this->setBounds(path->getBounds(), HasAABloat::kNo, IsZeroArea::kNo);
+     }
+ 
+-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
++    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override { return false; }
+ 
+     void onPrepare(GrOpFlushState*) override {}
+ 
+diff --git a/src/gpu/ops/GrTessellatingPathRenderer.cpp b/src/gpu/ops/GrTessellatingPathRenderer.cpp
+index d1fd28a..abc42d9 100644
+--- a/src/gpu/ops/GrTessellatingPathRenderer.cpp
++++ b/src/gpu/ops/GrTessellatingPathRenderer.cpp
+@@ -316,7 +316,7 @@ private:
+         target->draw(gp, mesh);
+     }
+ 
+-    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
++    bool onCombineIfPossible(GrOp*, const GrCaps&, const GrAppliedClip*) override { return false; }
+ 
+     TessellatingPathOp(const GrColor& color,
+                        const GrShape& shape,
+diff --git a/src/gpu/ops/GrTestMeshDrawOp.h b/src/gpu/ops/GrTestMeshDrawOp.h
+index d78d3e9..7cd6e4d 100644
+--- a/src/gpu/ops/GrTestMeshDrawOp.h
++++ b/src/gpu/ops/GrTestMeshDrawOp.h
+@@ -43,7 +43,7 @@ private:
+         fUsesLocalCoords = optimizations.readsLocalCoords();
+     }
+ 
+-    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
++    bool onCombineIfPossible(GrOp*, const GrCaps&, const GrAppliedClip*) override { return false; }
+ 
+     GrColor fColor;
+     bool fUsesLocalCoords = false;
+diff --git a/src/gpu/text/GrAtlasTextContext.cpp b/src/gpu/text/GrAtlasTextContext.cpp
+index e15281e..5407d16 100644
+--- a/src/gpu/text/GrAtlasTextContext.cpp
++++ b/src/gpu/text/GrAtlasTextContext.cpp
+@@ -6,6 +6,7 @@
+  */
+ #include "GrAtlasTextContext.h"
+ #include "GrContext.h"
++#include "ops/GrMeshDrawOp.h"
+ #include "GrRenderTargetContext.h"
+ #include "GrTextBlobCache.h"
+ #include "SkDraw.h"
+diff --git a/src/gpu/text/GrStencilAndCoverTextContext.cpp b/src/gpu/text/GrStencilAndCoverTextContext.cpp
+index afa54d5..1592447 100644
+--- a/src/gpu/text/GrStencilAndCoverTextContext.cpp
++++ b/src/gpu/text/GrStencilAndCoverTextContext.cpp
+@@ -607,24 +607,13 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
+         const SkRect bounds = SkRect::MakeIWH(renderTargetContext->width(),
+                                               renderTargetContext->height());
+ 
++        // The run's "font" overrides the anti-aliasing of the passed in SkPaint!
+         std::unique_ptr<GrDrawOp> op = GrDrawPathRangeOp::Make(
+                 viewMatrix, fTextRatio, fTextInverseRatio * x, fTextInverseRatio * y,
+-                grPaint.getColor(), GrPathRendering::kWinding_FillType, glyphs.get(),
++                std::move(grPaint), GrPathRendering::kWinding_FillType, runAA, glyphs.get(),
+                 fInstanceData.get(), bounds);
+ 
+-        // The run's "font" overrides the anti-aliasing of the passed in SkPaint!
+-        GrAAType aaType = GrAAType::kNone;
+-        if (GrAA::kYes == runAA) {
+-            if (renderTargetContext->isUnifiedMultisampled()) {
+-                aaType = GrAAType::kMSAA;
+-            } else if (renderTargetContext->isStencilBufferMultisampled()) {
+-                aaType = GrAAType::kMixedSamples;
+-            }
+-        }
+-        GrPipelineBuilder pipelineBuilder(std::move(grPaint), aaType);
+-        pipelineBuilder.setUserStencil(&kCoverPass);
+-
+-        renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
++        renderTargetContext->addDrawOp(clip, std::move(op));
+     }
+ 
+     if (fFallbackTextBlob) {
+diff --git a/tests/GrPorterDuffTest.cpp b/tests/GrPorterDuffTest.cpp
+index 89067cf..018fe21 100644
+--- a/tests/GrPorterDuffTest.cpp
++++ b/tests/GrPorterDuffTest.cpp
+@@ -961,7 +961,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const
+         }
+ 
+         void applyPipelineOptimizations(const GrPipelineOptimizations&) override {}
+-        bool onCombineIfPossible(GrOp*, const GrCaps&) override  { return false; }
++        bool onCombineIfPossible(GrOp*, const GrCaps&, const GrAppliedClip*) override  { return false; }
+         void onPrepareDraws(Target*) const override {}
+ 
+         typedef GrMeshDrawOp INHERITED;
+@@ -969,7 +969,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const
+ 
+     GrProcessorSet::FragmentProcessorAnalysis analysis;
+     GrAppliedClip clip(SkRect::MakeLargest());
+-    testLCDCoverageOp.analyzeProcessors(&analysis, GrProcessorSet(GrPaint()), clip, caps);
++    testLCDCoverageOp.analyzeProcessors(&analysis, GrProcessorSet(GrPaint()), &clip, caps);
+ 
+     SkASSERT(analysis.hasKnownOutputColor());
+     SkASSERT(analysis.hasLCDCoverage());
+diff --git a/tests/PrimitiveProcessorTest.cpp b/tests/PrimitiveProcessorTest.cpp
+index 30bfed9..e994ae0 100644
+--- a/tests/PrimitiveProcessorTest.cpp
++++ b/tests/PrimitiveProcessorTest.cpp
+@@ -46,7 +46,7 @@ private:
+     }
+ 
+     void applyPipelineOptimizations(const GrPipelineOptimizations&) override {}
+-    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
++    bool onCombineIfPossible(GrOp*, const GrCaps&, const GrAppliedClip*) override { return false; }
+     void onPrepareDraws(Target* target) const override {
+         class GP : public GrGeometryProcessor {
+         public:

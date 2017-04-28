@@ -1,0 +1,1 @@
+--src gm --config gpu msaa4 glinst glinst4 nvprdit4

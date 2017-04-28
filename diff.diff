@@ -1,0 +1,2395 @@
+diff --git a/gm/beziereffects.cpp b/gm/beziereffects.cpp
+index 523ccd3..5b87e03 100644
+--- a/gm/beziereffects.cpp
++++ b/gm/beziereffects.cpp
+@@ -30,9 +30,9 @@ public:
+ 
+     const char* name() const override { return "BezierCubicOrConicTestOp"; }
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(sk_sp<GrGeometryProcessor> gp, const SkRect& rect,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(sk_sp<GrGeometryProcessor> gp, const SkRect& rect,
+                                               GrColor color, const SkMatrix& klm, SkScalar sign) {
+-        return std::unique_ptr<GrMeshDrawOp>(
++        return std::unique_ptr<GrLegacyMeshDrawOp>(
+                 new BezierCubicOrConicTestOp(gp, rect, color, klm, sign));
+     }
+ 
+@@ -197,7 +197,7 @@ protected:
+                         sign = -1.0f;
+                     }
+ 
+-                    std::unique_ptr<GrMeshDrawOp> op =
++                    std::unique_ptr<GrLegacyMeshDrawOp> op =
+                             BezierCubicOrConicTestOp::Make(gp, bounds, color, klm, sign);
+ 
+                     renderTargetContext->priv().testingOnly_addMeshDrawOp(
+@@ -330,7 +330,7 @@ protected:
+                     GrPaint grPaint;
+                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+ 
+-                    std::unique_ptr<GrMeshDrawOp> op =
++                    std::unique_ptr<GrLegacyMeshDrawOp> op =
+                             BezierCubicOrConicTestOp::Make(gp, bounds, color, klm, 1.f);
+ 
+                     renderTargetContext->priv().testingOnly_addMeshDrawOp(
+@@ -396,10 +396,10 @@ public:
+     DEFINE_OP_CLASS_ID
+     const char* name() const override { return "BezierQuadTestOp"; }
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(sk_sp<GrGeometryProcessor> gp, const SkRect& rect,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(sk_sp<GrGeometryProcessor> gp, const SkRect& rect,
+                                               GrColor color,
+                                               const GrPathUtils::QuadUVMatrix& devToUV) {
+-        return std::unique_ptr<GrMeshDrawOp>(new BezierQuadTestOp(gp, rect, color, devToUV));
++        return std::unique_ptr<GrLegacyMeshDrawOp>(new BezierQuadTestOp(gp, rect, color, devToUV));
+     }
+ 
+ private:
+@@ -548,7 +548,7 @@ protected:
+ 
+                     GrPathUtils::QuadUVMatrix DevToUV(pts);
+ 
+-                    std::unique_ptr<GrMeshDrawOp> op =
++                    std::unique_ptr<GrLegacyMeshDrawOp> op =
+                             BezierQuadTestOp::Make(gp, bounds, color, DevToUV);
+ 
+                     renderTargetContext->priv().testingOnly_addMeshDrawOp(
+diff --git a/gm/bigrrectaaeffect.cpp b/gm/bigrrectaaeffect.cpp
+index 0520776..7660f53 100644
+--- a/gm/bigrrectaaeffect.cpp
++++ b/gm/bigrrectaaeffect.cpp
+@@ -87,7 +87,7 @@ protected:
+                     SkRect bounds = testBounds;
+                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
+ 
+-                    std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
++                    std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                             0xff000000, SkMatrix::I(), bounds, nullptr, nullptr));
+                     renderTargetContext->priv().testingOnly_addMeshDrawOp(
+                             std::move(grPaint), GrAAType::kNone, std::move(op));
+diff --git a/gm/constcolorprocessor.cpp b/gm/constcolorprocessor.cpp
+index 9f30bed..b66758f 100644
+--- a/gm/constcolorprocessor.cpp
++++ b/gm/constcolorprocessor.cpp
+@@ -110,7 +110,7 @@ protected:
+ 
+                     grPaint.addColorFragmentProcessor(std::move(fp));
+ 
+-                    std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
++                    std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                             grPaint.getColor(), viewMatrix, renderRect, nullptr, nullptr));
+                     renderTargetContext->priv().testingOnly_addMeshDrawOp(
+                             std::move(grPaint), GrAAType::kNone, std::move(op));
+diff --git a/gm/convexpolyeffect.cpp b/gm/convexpolyeffect.cpp
+index 0ce7ba7..442a962 100644
+--- a/gm/convexpolyeffect.cpp
++++ b/gm/convexpolyeffect.cpp
+@@ -46,8 +46,8 @@ public:
+ 
+     const char* name() const override { return "PolyBoundsOp"; }
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(const SkRect& rect, GrColor color) {
+-        return std::unique_ptr<GrMeshDrawOp>(new PolyBoundsOp(rect, color));
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(const SkRect& rect, GrColor color) {
++        return std::unique_ptr<GrLegacyMeshDrawOp>(new PolyBoundsOp(rect, color));
+     }
+ 
+ private:
+@@ -183,7 +183,7 @@ protected:
+                 grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+                 grPaint.addCoverageFragmentProcessor(std::move(fp));
+ 
+-                std::unique_ptr<GrMeshDrawOp> op = PolyBoundsOp::Make(p.getBounds(), 0xff000000);
++                std::unique_ptr<GrLegacyMeshDrawOp> op = PolyBoundsOp::Make(p.getBounds(), 0xff000000);
+ 
+                 renderTargetContext->priv().testingOnly_addMeshDrawOp(
+                         std::move(grPaint), GrAAType::kNone, std::move(op));
+@@ -223,7 +223,7 @@ protected:
+                 grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+                 grPaint.addCoverageFragmentProcessor(std::move(fp));
+ 
+-                std::unique_ptr<GrMeshDrawOp> op = PolyBoundsOp::Make(rect, 0xff000000);
++                std::unique_ptr<GrLegacyMeshDrawOp> op = PolyBoundsOp::Make(rect, 0xff000000);
+ 
+                 renderTargetContext->priv().testingOnly_addMeshDrawOp(
+                         std::move(grPaint), GrAAType::kNone, std::move(op));
+diff --git a/gm/etc1.cpp b/gm/etc1.cpp
+index 26e6051..2464da1 100644
+--- a/gm/etc1.cpp
++++ b/gm/etc1.cpp
+@@ -99,7 +99,7 @@ protected:
+ 
+         SkRect rect = SkRect::MakeXYWH(kPad, kPad, kTexWidth, kTexHeight);
+ 
+-        std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
++        std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                 GrColor_WHITE, SkMatrix::I(), rect, nullptr, nullptr));
+         renderTargetContext->priv().testingOnly_addMeshDrawOp(std::move(grPaint), GrAAType::kNone,
+                                                               std::move(op));
+diff --git a/gm/rrects.cpp b/gm/rrects.cpp
+index ac66d52..b021fef 100644
+--- a/gm/rrects.cpp
++++ b/gm/rrects.cpp
+@@ -115,7 +115,7 @@ protected:
+                             SkRect bounds = rrect.getBounds();
+                             bounds.outset(2.f, 2.f);
+ 
+-                            std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
++                            std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                                     0xff000000, SkMatrix::I(), bounds, nullptr, nullptr));
+                             renderTargetContext->priv().testingOnly_addMeshDrawOp(
+                                     std::move(grPaint), GrAAType::kNone, std::move(op));
+diff --git a/gm/texturedomaineffect.cpp b/gm/texturedomaineffect.cpp
+index 88bcc57..61280a2 100644
+--- a/gm/texturedomaineffect.cpp
++++ b/gm/texturedomaineffect.cpp
+@@ -134,7 +134,7 @@ protected:
+                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
+                     grPaint.addColorFragmentProcessor(std::move(fp));
+ 
+-                    std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
++                    std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                             GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
+                     renderTargetContext->priv().testingOnly_addMeshDrawOp(
+                             std::move(grPaint), GrAAType::kNone, std::move(op));
+diff --git a/gm/yuvtorgbeffect.cpp b/gm/yuvtorgbeffect.cpp
+index fda0565..037800d 100644
+--- a/gm/yuvtorgbeffect.cpp
++++ b/gm/yuvtorgbeffect.cpp
+@@ -132,7 +132,7 @@ protected:
+                     grPaint.addColorFragmentProcessor(std::move(fp));
+                     SkMatrix viewMatrix;
+                     viewMatrix.setTranslate(x, y);
+-                    std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
++                    std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                             GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
+                     renderTargetContext->priv().testingOnly_addMeshDrawOp(
+                             std::move(grPaint), GrAAType::kNone, std::move(op));
+@@ -257,7 +257,7 @@ protected:
+                 SkMatrix viewMatrix;
+                 viewMatrix.setTranslate(x, y);
+                 grPaint.addColorFragmentProcessor(fp);
+-                std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
++                std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                         GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
+                 renderTargetContext->priv().testingOnly_addMeshDrawOp(
+                         std::move(grPaint), GrAAType::kNone, std::move(op));
+diff --git a/src/gpu/GrDrawOpTest.cpp b/src/gpu/GrDrawOpTest.cpp
+index 6e63f5d..7ca41d0 100644
+--- a/src/gpu/GrDrawOpTest.cpp
++++ b/src/gpu/GrDrawOpTest.cpp
+@@ -13,7 +13,7 @@
+ #if GR_TEST_UTILS
+ 
+ #define DRAW_OP_TEST_EXTERN(Op) \
+-    extern std::unique_ptr<GrMeshDrawOp> Op##__Test(SkRandom*, GrContext* context);
++    extern std::unique_ptr<GrLegacyMeshDrawOp> Op##__Test(SkRandom*, GrContext* context);
+ 
+ #define DRAW_OP_TEST_ENTRY(Op) Op##__Test
+ 
+@@ -37,8 +37,8 @@ DRAW_OP_TEST_EXTERN(TesselatingPathOp);
+ DRAW_OP_TEST_EXTERN(TextBlobOp);
+ DRAW_OP_TEST_EXTERN(VerticesOp);
+ 
+-std::unique_ptr<GrMeshDrawOp> GrRandomDrawOp(SkRandom* random, GrContext* context) {
+-    using MakeTestDrawOpFn = std::unique_ptr<GrMeshDrawOp>(SkRandom* random, GrContext* context);
++std::unique_ptr<GrLegacyMeshDrawOp> GrRandomDrawOp(SkRandom* random, GrContext* context) {
++    using MakeTestDrawOpFn = std::unique_ptr<GrLegacyMeshDrawOp>(SkRandom* random, GrContext* context);
+     static constexpr MakeTestDrawOpFn* gFactories[] = {
+         DRAW_OP_TEST_ENTRY(AAConvexPathOp),
+         DRAW_OP_TEST_ENTRY(AAFillRectOp),
+diff --git a/src/gpu/GrDrawOpTest.h b/src/gpu/GrDrawOpTest.h
+index 43bd21a..3760229 100644
+--- a/src/gpu/GrDrawOpTest.h
++++ b/src/gpu/GrDrawOpTest.h
+@@ -14,19 +14,19 @@
+ #if GR_TEST_UTILS
+ 
+ class GrContext;
+-class GrMeshDrawOp;
++class GrLegacyMeshDrawOp;
+ class SkRandom;
+ 
+ /**  This function returns a randomly configured GrDrawOp for testing purposes. */
+-std::unique_ptr<GrMeshDrawOp> GrRandomDrawOp(SkRandom*, GrContext*);
++std::unique_ptr<GrLegacyMeshDrawOp> GrRandomDrawOp(SkRandom*, GrContext*);
+ 
+ /** GrDrawOp subclasses should define test factory functions using this macro. */
+ #define DRAW_OP_TEST_DEFINE(Op) \
+-    std::unique_ptr<GrMeshDrawOp> Op##__Test(SkRandom* random, GrContext* context)
++    std::unique_ptr<GrLegacyMeshDrawOp> Op##__Test(SkRandom* random, GrContext* context)
+ 
+ /** This macro may be used if the test factory function must be made a friend of a class. */
+ #define DRAW_OP_TEST_FRIEND(Op) \
+-    friend std::unique_ptr<GrMeshDrawOp> Op##__Test(SkRandom* random, GrContext* context);
++    friend std::unique_ptr<GrLegacyMeshDrawOp> Op##__Test(SkRandom* random, GrContext* context);
+ 
+ #endif
+ #endif
+diff --git a/src/gpu/GrOpFlushState.h b/src/gpu/GrOpFlushState.h
+index d7ed4e0..16ae257 100644
+--- a/src/gpu/GrOpFlushState.h
++++ b/src/gpu/GrOpFlushState.h
+@@ -212,7 +212,7 @@ public:
+     }
+ 
+ private:
+-    GrMeshDrawOp* meshDrawOp() { return static_cast<GrMeshDrawOp*>(this->op()); }
++    GrLegacyMeshDrawOp* meshDrawOp() { return static_cast<GrLegacyMeshDrawOp*>(this->op()); }
+     typedef GrDrawOp::Target INHERITED;
+ };
+ 
+diff --git a/src/gpu/GrPipeline.cpp b/src/gpu/GrPipeline.cpp
+index 82d938e..900dd47 100644
+--- a/src/gpu/GrPipeline.cpp
++++ b/src/gpu/GrPipeline.cpp
+@@ -74,7 +74,7 @@ void GrPipeline::init(const InitArgs& args) {
+         fXferProcessor.reset(xferProcessor.get());
+     }
+ 
+-    // This is for the legacy GrPipeline creation in GrMeshDrawOp where analysis does not eliminate
++    // This is for the legacy GrPipeline creation in GrLegacyMeshDrawOp where analysis does not eliminate
+     // fragment processors from GrProcessorSet.
+     int colorFPsToEliminate = 0;
+     if (args.fAnalysis) {
+diff --git a/src/gpu/GrPipeline.h b/src/gpu/GrPipeline.h
+index 75d82d6..5ac996f 100644
+--- a/src/gpu/GrPipeline.h
++++ b/src/gpu/GrPipeline.h
+@@ -59,7 +59,7 @@ public:
+         const GrProcessorSet* fProcessors = nullptr;
+         GrProcessorAnalysisColor fInputColor;
+         GrProcessorAnalysisCoverage fInputCoverage = GrProcessorAnalysisCoverage::kNone;
+-        // This is only used for GrMeshDrawOp's legacy pipeline creation system.
++        // This is only used for GrLegacyMeshDrawOp's legacy pipeline creation system.
+         const GrProcessorSet::Analysis* fAnalysis = nullptr;
+         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
+         const GrAppliedClip* fAppliedClip = nullptr;
+diff --git a/src/gpu/GrRenderTargetContext.cpp b/src/gpu/GrRenderTargetContext.cpp
+index 352cac9..6b4109d 100644
+--- a/src/gpu/GrRenderTargetContext.cpp
++++ b/src/gpu/GrRenderTargetContext.cpp
+@@ -523,7 +523,7 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
+         if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
+             SkRect devBoundRect;
+             viewMatrix.mapRect(&devBoundRect, croppedRect);
+-            std::unique_ptr<GrMeshDrawOp> op =
++            std::unique_ptr<GrLegacyMeshDrawOp> op =
+                     GrRectOpFactory::MakeAAFill(paint, viewMatrix, rect, croppedRect, devBoundRect);
+             if (op) {
+                 GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+@@ -631,7 +631,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
+         }
+ 
+         bool snapToPixelCenters = false;
+-        std::unique_ptr<GrMeshDrawOp> op;
++        std::unique_ptr<GrLegacyMeshDrawOp> op;
+ 
+         GrColor color = paint.getColor();
+         GrAAType aaType = this->decideAAType(aa);
+@@ -825,7 +825,7 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
+     }
+ 
+     if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
+-        std::unique_ptr<GrMeshDrawOp> op = GrAAFillRectOp::MakeWithLocalRect(
++        std::unique_ptr<GrLegacyMeshDrawOp> op = GrAAFillRectOp::MakeWithLocalRect(
+                 paint.getColor(), viewMatrix, croppedRect, croppedLocalRect);
+         GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+         this->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
+@@ -881,7 +881,7 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
+     }
+ 
+     if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
+-        std::unique_ptr<GrMeshDrawOp> op =
++        std::unique_ptr<GrLegacyMeshDrawOp> op =
+                 GrAAFillRectOp::Make(paint.getColor(), viewMatrix, localMatrix, croppedRect);
+         GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+         this->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
+@@ -927,7 +927,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
+         return;
+     }
+ 
+-    std::unique_ptr<GrMeshDrawOp> op = GrDrawVerticesOp::Make(
++    std::unique_ptr<GrLegacyMeshDrawOp> op = GrDrawVerticesOp::Make(
+             paint.getColor(), primitiveType, viewMatrix, positions, vertexCount, indices,
+             indexCount, colors, texCoords, bounds, colorArrayType);
+     if (!op) {
+@@ -949,7 +949,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
+     AutoCheckFlush acf(this->drawingManager());
+ 
+     SkASSERT(vertices);
+-    std::unique_ptr<GrMeshDrawOp> op =
++    std::unique_ptr<GrLegacyMeshDrawOp> op =
+             GrDrawVerticesOp::Make(paint.getColor(), std::move(vertices), viewMatrix);
+     if (!op) {
+         return;
+@@ -974,7 +974,7 @@ void GrRenderTargetContext::drawAtlas(const GrClip& clip,
+ 
+     AutoCheckFlush acf(this->drawingManager());
+ 
+-    std::unique_ptr<GrMeshDrawOp> op =
++    std::unique_ptr<GrLegacyMeshDrawOp> op =
+             GrDrawAtlasOp::Make(paint.getColor(), viewMatrix, spriteCount, xform, texRect, colors);
+     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
+     this->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
+@@ -1028,7 +1028,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
+     GrAAType aaType = this->decideAAType(aa);
+     if (GrAAType::kCoverage == aaType) {
+         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+-        std::unique_ptr<GrMeshDrawOp> op =
++        std::unique_ptr<GrLegacyMeshDrawOp> op =
+                 GrOvalOpFactory::MakeRRectOp(paint.getColor(),
+                                              paint.usesDistanceVectorField(),
+                                              viewMatrix,
+@@ -1071,7 +1071,7 @@ void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
+     // TODO: add instancing support?
+ 
+     const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+-    std::unique_ptr<GrMeshDrawOp> op = GrShadowRRectOp::Make(paint.getColor(), viewMatrix, rrect,
++    std::unique_ptr<GrLegacyMeshDrawOp> op = GrShadowRRectOp::Make(paint.getColor(), viewMatrix, rrect,
+                                                              blurRadius, stroke, shaderCaps);
+     if (op) {
+         GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
+@@ -1214,7 +1214,7 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
+         return this->drawPath(clip, std::move(paint), aa, viewMatrix, path, style);
+     }
+ 
+-    std::unique_ptr<GrMeshDrawOp> op = GrRegionOp::Make(paint.getColor(), viewMatrix, region);
++    std::unique_ptr<GrLegacyMeshDrawOp> op = GrRegionOp::Make(paint.getColor(), viewMatrix, region);
+     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
+     this->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
+ }
+@@ -1253,7 +1253,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
+     GrAAType aaType = this->decideAAType(aa);
+     if (GrAAType::kCoverage == aaType) {
+         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+-        std::unique_ptr<GrMeshDrawOp> op =
++        std::unique_ptr<GrLegacyMeshDrawOp> op =
+                 GrOvalOpFactory::MakeOvalOp(paint.getColor(), viewMatrix, oval, stroke, shaderCaps);
+         if (op) {
+             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+@@ -1287,7 +1287,7 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
+     GrAAType aaType = this->decideAAType(aa);
+     if (GrAAType::kCoverage == aaType) {
+         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+-        std::unique_ptr<GrMeshDrawOp> op = GrOvalOpFactory::MakeArcOp(paint.getColor(),
++        std::unique_ptr<GrLegacyMeshDrawOp> op = GrOvalOpFactory::MakeArcOp(paint.getColor(),
+                                                                       viewMatrix,
+                                                                       oval,
+                                                                       startAngle,
+@@ -1321,7 +1321,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
+ 
+     AutoCheckFlush acf(this->drawingManager());
+ 
+-    std::unique_ptr<GrMeshDrawOp> op = GrLatticeOp::MakeNonAA(
++    std::unique_ptr<GrLegacyMeshDrawOp> op = GrLatticeOp::MakeNonAA(
+             paint.getColor(), viewMatrix, imageWidth, imageHeight, std::move(iter), dst);
+ 
+     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
+@@ -1347,7 +1347,7 @@ void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
+                                                 GrAAType hwOrNoneAAType) {
+     SkASSERT(GrAAType::kCoverage != hwOrNoneAAType);
+     SkASSERT(hwOrNoneAAType == GrAAType::kNone || this->isStencilBufferMultisampled());
+-    std::unique_ptr<GrMeshDrawOp> op = GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewMatrix,
++    std::unique_ptr<GrLegacyMeshDrawOp> op = GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewMatrix,
+                                                                       rect, localRect, localMatrix);
+     GrPipelineBuilder pipelineBuilder(std::move(paint), hwOrNoneAAType);
+     if (ss) {
+@@ -1429,7 +1429,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
+             SkRect rects[2];
+ 
+             if (fills_as_nested_rects(viewMatrix, path, rects)) {
+-                std::unique_ptr<GrMeshDrawOp> op =
++                std::unique_ptr<GrLegacyMeshDrawOp> op =
+                         GrRectOpFactory::MakeAAFillNestedRects(paint.getColor(), viewMatrix, rects);
+                 if (op) {
+                     GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+@@ -1443,7 +1443,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
+ 
+         if (isOval && !path.isInverseFillType()) {
+             const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+-            std::unique_ptr<GrMeshDrawOp> op = GrOvalOpFactory::MakeOvalOp(
++            std::unique_ptr<GrLegacyMeshDrawOp> op = GrOvalOpFactory::MakeOvalOp(
+                     paint.getColor(), viewMatrix, ovalRect, style.strokeRec(), shaderCaps);
+             if (op) {
+                 GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+@@ -1692,7 +1692,7 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
+ 
+ uint32_t GrRenderTargetContext::addMeshDrawOp(const GrPipelineBuilder& pipelineBuilder,
+                                               const GrClip& clip,
+-                                              std::unique_ptr<GrMeshDrawOp> op) {
++                                              std::unique_ptr<GrLegacyMeshDrawOp> op) {
+     ASSERT_SINGLE_OWNER
+     if (this->drawingManager()->wasAbandoned()) {
+         return SK_InvalidUniqueID;
+diff --git a/src/gpu/GrRenderTargetContext.h b/src/gpu/GrRenderTargetContext.h
+index acb7f77..31935f4 100644
+--- a/src/gpu/GrRenderTargetContext.h
++++ b/src/gpu/GrRenderTargetContext.h
+@@ -22,7 +22,7 @@ class GrClip;
+ class GrDrawingManager;
+ class GrDrawOp;
+ class GrFixedClip;
+-class GrMeshDrawOp;
++class GrLegacyMeshDrawOp;
+ class GrPipelineBuilder;
+ class GrRenderTarget;
+ class GrRenderTargetContextPriv;
+@@ -478,7 +478,7 @@ private:
+     // the op list. They return the id of the opList to which the op was added, or 0, if it was
+     // dropped (e.g., due to clipping).
+     uint32_t addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
+-    uint32_t addMeshDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrMeshDrawOp>);
++    uint32_t addMeshDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrLegacyMeshDrawOp>);
+ 
+     // Makes a copy of the dst if it is necessary for the draw and returns the texture that should
+     // be used by GrXferProcessor to access the destination color. If the texture is nullptr then
+diff --git a/src/gpu/GrRenderTargetContextPriv.h b/src/gpu/GrRenderTargetContextPriv.h
+index dcde608..2f7b4fb 100644
+--- a/src/gpu/GrRenderTargetContextPriv.h
++++ b/src/gpu/GrRenderTargetContextPriv.h
+@@ -102,7 +102,7 @@ public:
+         return fRenderTargetContext->fRenderTargetProxy->uniqueID();
+     }
+ 
+-    uint32_t testingOnly_addMeshDrawOp(GrPaint&&, GrAAType, std::unique_ptr<GrMeshDrawOp>,
++    uint32_t testingOnly_addMeshDrawOp(GrPaint&&, GrAAType, std::unique_ptr<GrLegacyMeshDrawOp>,
+                                        const GrUserStencilSettings* = nullptr,
+                                        bool snapToCenters = false);
+ 
+diff --git a/src/gpu/GrSWMaskHelper.cpp b/src/gpu/GrSWMaskHelper.cpp
+index 647496d..636ebd7 100644
+--- a/src/gpu/GrSWMaskHelper.cpp
++++ b/src/gpu/GrSWMaskHelper.cpp
+@@ -173,7 +173,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(sk_sp<GrTextureProxy> proxy,
+     SkMatrix maskMatrix = SkMatrix::MakeTrans(SkIntToScalar(-textureOriginInDeviceSpace.fX),
+                                               SkIntToScalar(-textureOriginInDeviceSpace.fY));
+     maskMatrix.preConcat(viewMatrix);
+-    std::unique_ptr<GrMeshDrawOp> op = GrRectOpFactory::MakeNonAAFill(
++    std::unique_ptr<GrLegacyMeshDrawOp> op = GrRectOpFactory::MakeNonAAFill(
+             paint.getColor(), SkMatrix::I(), dstRect, nullptr, &invert);
+     paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
+             resourceProvider, std::move(proxy), nullptr, maskMatrix,
+diff --git a/src/gpu/GrSoftwarePathRenderer.cpp b/src/gpu/GrSoftwarePathRenderer.cpp
+index 0228937..42038df 100644
+--- a/src/gpu/GrSoftwarePathRenderer.cpp
++++ b/src/gpu/GrSoftwarePathRenderer.cpp
+@@ -76,7 +76,7 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
+                                            const SkMatrix& viewMatrix,
+                                            const SkRect& rect,
+                                            const SkMatrix& localMatrix) {
+-    std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewMatrix,
++    std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewMatrix,
+                                                                     rect, nullptr, &localMatrix));
+ 
+     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
+diff --git a/src/gpu/ops/GrAAConvexPathRenderer.cpp b/src/gpu/ops/GrAAConvexPathRenderer.cpp
+index 3b0fd69..6768c85 100644
+--- a/src/gpu/ops/GrAAConvexPathRenderer.cpp
++++ b/src/gpu/ops/GrAAConvexPathRenderer.cpp
+@@ -722,12 +722,12 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
+                               viewMatrix);
+ }
+ 
+-class AAConvexPathOp final : public GrMeshDrawOp {
++class AAConvexPathOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                               const SkPath& path) {
+-        return std::unique_ptr<GrMeshDrawOp>(new AAConvexPathOp(color, viewMatrix, path));
++        return std::unique_ptr<GrLegacyMeshDrawOp>(new AAConvexPathOp(color, viewMatrix, path));
+     }
+ 
+     const char* name() const override { return "AAConvexPathOp"; }
+@@ -961,7 +961,7 @@ private:
+ 
+     SkSTArray<1, PathData, true> fPaths;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
+@@ -973,7 +973,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
+     SkPath path;
+     args.fShape->asPath(&path);
+ 
+-    std::unique_ptr<GrMeshDrawOp> op =
++    std::unique_ptr<GrLegacyMeshDrawOp> op =
+             AAConvexPathOp::Make(args.fPaint.getColor(), *args.fViewMatrix, path);
+ 
+     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
+diff --git a/src/gpu/ops/GrAAFillRectOp.cpp b/src/gpu/ops/GrAAFillRectOp.cpp
+index b48ec0e..1d30952 100644
+--- a/src/gpu/ops/GrAAFillRectOp.cpp
++++ b/src/gpu/ops/GrAAFillRectOp.cpp
+@@ -153,7 +153,7 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
+     }
+ }
+ 
+-class AAFillRectOp final: public GrMeshDrawOp {
++class AAFillRectOp final: public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -338,29 +338,29 @@ private:
+     SkSTArray<4 * sizeof(RectWithLocalMatrixInfo), uint8_t, true> fRectData;
+     int fRectCnt;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ namespace GrAAFillRectOp {
+ 
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rect,
+                                    const SkRect& devRect) {
+-    return std::unique_ptr<GrMeshDrawOp>(
++    return std::unique_ptr<GrLegacyMeshDrawOp>(
+             new AAFillRectOp(color, viewMatrix, rect, devRect, nullptr));
+ }
+ 
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkMatrix& localMatrix,
+                                    const SkRect& rect,
+                                    const SkRect& devRect) {
+-    return std::unique_ptr<GrMeshDrawOp>(
++    return std::unique_ptr<GrLegacyMeshDrawOp>(
+             new AAFillRectOp(color, viewMatrix, rect, devRect, &localMatrix));
+ }
+ 
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkMatrix& localMatrix,
+                                    const SkRect& rect) {
+@@ -369,7 +369,7 @@ std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
+     return Make(color, viewMatrix, localMatrix, rect, devRect);
+ }
+ 
+-std::unique_ptr<GrMeshDrawOp> MakeWithLocalRect(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> MakeWithLocalRect(GrColor color,
+                                                 const SkMatrix& viewMatrix,
+                                                 const SkRect& rect,
+                                                 const SkRect& localRect) {
+diff --git a/src/gpu/ops/GrAAFillRectOp.h b/src/gpu/ops/GrAAFillRectOp.h
+index c047eed..dcc5df2 100644
+--- a/src/gpu/ops/GrAAFillRectOp.h
++++ b/src/gpu/ops/GrAAFillRectOp.h
+@@ -11,28 +11,28 @@
+ #include "GrColor.h"
+ #include "SkRefCnt.h"
+ 
+-class GrMeshDrawOp;
++class GrLegacyMeshDrawOp;
+ class SkMatrix;
+ struct SkRect;
+ 
+ namespace GrAAFillRectOp {
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rect,
+                                    const SkRect& devRect);
+ 
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkMatrix& localMatrix,
+                                    const SkRect& rect);
+ 
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkMatrix& localMatrix,
+                                    const SkRect& rect,
+                                    const SkRect& devRect);
+ 
+-std::unique_ptr<GrMeshDrawOp> MakeWithLocalRect(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> MakeWithLocalRect(GrColor color,
+                                                 const SkMatrix& viewMatrix,
+                                                 const SkRect& rect,
+                                                 const SkRect& localRect);
+diff --git a/src/gpu/ops/GrAAHairLinePathRenderer.cpp b/src/gpu/ops/GrAAHairLinePathRenderer.cpp
+index 9e1ac83c..8208502 100644
+--- a/src/gpu/ops/GrAAHairLinePathRenderer.cpp
++++ b/src/gpu/ops/GrAAHairLinePathRenderer.cpp
+@@ -668,11 +668,11 @@ bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* ver
+     return true;
+ }
+ 
+-class AAHairlineOp final : public GrMeshDrawOp {
++class AAHairlineOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                               const SkMatrix& viewMatrix,
+                                               const SkPath& path,
+                                               const GrStyle& style,
+@@ -683,7 +683,7 @@ public:
+             newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
+         }
+ 
+-        return std::unique_ptr<GrMeshDrawOp>(
++        return std::unique_ptr<GrLegacyMeshDrawOp>(
+                 new AAHairlineOp(color, newCoverage, viewMatrix, path, devClipBounds));
+     }
+ 
+@@ -783,7 +783,7 @@ private:
+ 
+     SkSTArray<1, PathData, true> fPaths;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ void AAHairlineOp::onPrepareDraws(Target* target) const {
+@@ -946,7 +946,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
+                                       &devClipBounds);
+     SkPath path;
+     args.fShape->asPath(&path);
+-    std::unique_ptr<GrMeshDrawOp> op = AAHairlineOp::Make(
++    std::unique_ptr<GrLegacyMeshDrawOp> op = AAHairlineOp::Make(
+             args.fPaint.getColor(), *args.fViewMatrix, path, args.fShape->style(), devClipBounds);
+     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
+     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
+diff --git a/src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp b/src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp
+index b1f1f98..3ce9f2f 100644
+--- a/src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp
++++ b/src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp
+@@ -117,17 +117,17 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
+                               viewMatrix);
+ }
+ 
+-class AAFlatteningConvexPathOp final : public GrMeshDrawOp {
++class AAFlatteningConvexPathOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                               const SkMatrix& viewMatrix,
+                                               const SkPath& path,
+                                               SkScalar strokeWidth,
+                                               SkStrokeRec::Style style,
+                                               SkPaint::Join join,
+                                               SkScalar miterLimit) {
+-        return std::unique_ptr<GrMeshDrawOp>(new AAFlatteningConvexPathOp(
++        return std::unique_ptr<GrLegacyMeshDrawOp>(new AAFlatteningConvexPathOp(
+                 color, viewMatrix, path, strokeWidth, style, join, miterLimit));
+     }
+ 
+@@ -184,7 +184,7 @@ private:
+         fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
+     }
+ 
+-    void draw(GrMeshDrawOp::Target* target, const GrGeometryProcessor* gp, int vertexCount,
++    void draw(GrLegacyMeshDrawOp::Target* target, const GrGeometryProcessor* gp, int vertexCount,
+               size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
+         if (vertexCount == 0 || indexCount == 0) {
+             return;
+@@ -318,7 +318,7 @@ private:
+     bool fCanTweakAlphaForCoverage;
+     SkSTArray<1, PathData, true> fPaths;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
+@@ -336,7 +336,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
+     SkPaint::Join join = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
+     SkScalar miterLimit = stroke.getMiter();
+ 
+-    std::unique_ptr<GrMeshDrawOp> op =
++    std::unique_ptr<GrLegacyMeshDrawOp> op =
+             AAFlatteningConvexPathOp::Make(args.fPaint.getColor(), *args.fViewMatrix, path,
+                                            strokeWidth, stroke.getStyle(), join, miterLimit);
+ 
+diff --git a/src/gpu/ops/GrAAStrokeRectOp.cpp b/src/gpu/ops/GrAAStrokeRectOp.cpp
+index ce0cef6..9986d3f 100644
+--- a/src/gpu/ops/GrAAStrokeRectOp.cpp
++++ b/src/gpu/ops/GrAAStrokeRectOp.cpp
+@@ -110,7 +110,7 @@ static sk_sp<GrGeometryProcessor> create_stroke_rect_gp(bool tweakAlphaForCovera
+                               viewMatrix);
+ }
+ 
+-class AAStrokeRectOp final : public GrMeshDrawOp {
++class AAStrokeRectOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -125,7 +125,7 @@ public:
+         fMiterStroke = true;
+     }
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                               const SkRect& rect, const SkStrokeRec& stroke) {
+         bool isMiter;
+         if (!allowed_stroke(stroke, &isMiter)) {
+@@ -148,7 +148,7 @@ public:
+             op->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
+         }
+         op->fViewMatrix = viewMatrix;
+-        return std::unique_ptr<GrMeshDrawOp>(op);
++        return std::unique_ptr<GrLegacyMeshDrawOp>(op);
+     }
+ 
+     const char* name() const override { return "AAStrokeRect"; }
+@@ -227,7 +227,7 @@ private:
+     SkMatrix fViewMatrix;
+     bool fMiterStroke;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ void AAStrokeRectOp::applyPipelineOptimizations(const PipelineOptimizations& optimizations) {
+@@ -571,15 +571,15 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(void* vertices,
+ 
+ namespace GrAAStrokeRectOp {
+ 
+-std::unique_ptr<GrMeshDrawOp> MakeFillBetweenRects(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> MakeFillBetweenRects(GrColor color,
+                                                    const SkMatrix& viewMatrix,
+                                                    const SkRect& devOutside,
+                                                    const SkRect& devInside) {
+-    return std::unique_ptr<GrMeshDrawOp>(
++    return std::unique_ptr<GrLegacyMeshDrawOp>(
+             new AAStrokeRectOp(color, viewMatrix, devOutside, devInside));
+ }
+ 
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rect,
+                                    const SkStrokeRec& stroke) {
+diff --git a/src/gpu/ops/GrAAStrokeRectOp.h b/src/gpu/ops/GrAAStrokeRectOp.h
+index 4dfbe64..aadeec6 100644
+--- a/src/gpu/ops/GrAAStrokeRectOp.h
++++ b/src/gpu/ops/GrAAStrokeRectOp.h
+@@ -11,19 +11,19 @@
+ #include "GrColor.h"
+ #include "SkRefCnt.h"
+ 
+-class GrMeshDrawOp;
++class GrLegacyMeshDrawOp;
+ class SkMatrix;
+ struct SkRect;
+ class SkStrokeRec;
+ 
+ namespace GrAAStrokeRectOp {
+ 
+-std::unique_ptr<GrMeshDrawOp> MakeFillBetweenRects(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> MakeFillBetweenRects(GrColor color,
+                                                    const SkMatrix& viewMatrix,
+                                                    const SkRect& devOutside,
+                                                    const SkRect& devInside);
+ 
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rect,
+                                    const SkStrokeRec& stroke);
+diff --git a/src/gpu/ops/GrAnalyticRectOp.cpp b/src/gpu/ops/GrAnalyticRectOp.cpp
+index 85da29c..54cc414 100644
+--- a/src/gpu/ops/GrAnalyticRectOp.cpp
++++ b/src/gpu/ops/GrAnalyticRectOp.cpp
+@@ -230,7 +230,7 @@ sk_sp<GrGeometryProcessor> RectGeometryProcessor::TestCreate(GrProcessorTestData
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+-class AnalyticRectOp final : public GrMeshDrawOp {
++class AnalyticRectOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -375,15 +375,15 @@ private:
+     SkMatrix fViewMatrixIfUsingLocalCoords;
+     SkSTArray<1, Geometry, true> fGeoData;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+-std::unique_ptr<GrMeshDrawOp> GrAnalyticRectOp::Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> GrAnalyticRectOp::Make(GrColor color,
+                                                      const SkMatrix& viewMatrix,
+                                                      const SkRect& rect,
+                                                      const SkRect& croppedRect,
+                                                      const SkRect& bounds) {
+-    return std::unique_ptr<GrMeshDrawOp>(
++    return std::unique_ptr<GrLegacyMeshDrawOp>(
+             new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds));
+ }
+ 
+@@ -395,7 +395,7 @@ DRAW_OP_TEST_DEFINE(AnalyticRectOp) {
+     SkRect rect = GrTest::TestSquare(random);
+     SkRect croppedRect = GrTest::TestSquare(random);
+     SkRect bounds = GrTest::TestSquare(random);
+-    return std::unique_ptr<GrMeshDrawOp>(
++    return std::unique_ptr<GrLegacyMeshDrawOp>(
+             new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds));
+ }
+ 
+diff --git a/src/gpu/ops/GrAnalyticRectOp.h b/src/gpu/ops/GrAnalyticRectOp.h
+index 4331794..9858bc4 100644
+--- a/src/gpu/ops/GrAnalyticRectOp.h
++++ b/src/gpu/ops/GrAnalyticRectOp.h
+@@ -11,7 +11,7 @@
+ #include "GrColor.h"
+ #include "SkRefCnt.h"
+ 
+-class GrMeshDrawOp;
++class GrLegacyMeshDrawOp;
+ class SkMatrix;
+ struct SkRect;
+ 
+@@ -27,7 +27,7 @@ struct SkRect;
+  */
+ class GrAnalyticRectOp {
+ public:
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                               const SkMatrix& viewMatrix,
+                                               const SkRect& rect,
+                                               const SkRect& croppedRect,
+diff --git a/src/gpu/ops/GrAtlasTextOp.cpp b/src/gpu/ops/GrAtlasTextOp.cpp
+index bf2745b..6c8bc36 100644
+--- a/src/gpu/ops/GrAtlasTextOp.cpp
++++ b/src/gpu/ops/GrAtlasTextOp.cpp
+@@ -145,7 +145,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) const {
+     this->flush(target, &flushInfo);
+ }
+ 
+-void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
++void GrAtlasTextOp::flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
+     GrMesh mesh;
+     int maxGlyphsPerDraw =
+             static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
+diff --git a/src/gpu/ops/GrAtlasTextOp.h b/src/gpu/ops/GrAtlasTextOp.h
+index 452cfbd..8b65fb9 100644
+--- a/src/gpu/ops/GrAtlasTextOp.h
++++ b/src/gpu/ops/GrAtlasTextOp.h
+@@ -13,7 +13,7 @@
+ #include "text/GrAtlasTextContext.h"
+ #include "text/GrDistanceFieldAdjustTable.h"
+ 
+-class GrAtlasTextOp final : public GrMeshDrawOp {
++class GrAtlasTextOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -138,7 +138,7 @@ private:
+         return kLCDCoverageMask_MaskType == fMaskType || kLCDDistanceField_MaskType == fMaskType;
+     }
+ 
+-    inline void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
++    inline void flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
+ 
+     GrColor color() const { return fColor; }
+     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
+@@ -180,7 +180,7 @@ private:
+ 
+     friend class GrBlobRegenHelper;  // Needs to trigger flushes
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ /*
+@@ -189,7 +189,7 @@ private:
+  */
+ class GrBlobRegenHelper {
+ public:
+-    GrBlobRegenHelper(const GrAtlasTextOp* op, GrMeshDrawOp::Target* target,
++    GrBlobRegenHelper(const GrAtlasTextOp* op, GrLegacyMeshDrawOp::Target* target,
+                       GrAtlasTextOp::FlushInfo* flushInfo)
+             : fOp(op), fTarget(target), fFlushInfo(flushInfo) {}
+ 
+@@ -199,7 +199,7 @@ public:
+ 
+ private:
+     const GrAtlasTextOp* fOp;
+-    GrMeshDrawOp::Target* fTarget;
++    GrLegacyMeshDrawOp::Target* fTarget;
+     GrAtlasTextOp::FlushInfo* fFlushInfo;
+ };
+ 
+diff --git a/src/gpu/ops/GrDashLinePathRenderer.cpp b/src/gpu/ops/GrDashLinePathRenderer.cpp
+index 9f170ff..0a6644b 100644
+--- a/src/gpu/ops/GrDashLinePathRenderer.cpp
++++ b/src/gpu/ops/GrDashLinePathRenderer.cpp
+@@ -46,7 +46,7 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
+     }
+     SkPoint pts[2];
+     SkAssertResult(args.fShape->asLine(pts, nullptr));
+-    std::unique_ptr<GrMeshDrawOp> op = GrDashOp::MakeDashLineOp(
++    std::unique_ptr<GrLegacyMeshDrawOp> op = GrDashOp::MakeDashLineOp(
+             args.fPaint.getColor(), *args.fViewMatrix, pts, aaMode, args.fShape->style());
+     if (!op) {
+         return false;
+diff --git a/src/gpu/ops/GrDashOp.cpp b/src/gpu/ops/GrDashOp.cpp
+index 3e8c07e..c9ce57c 100644
+--- a/src/gpu/ops/GrDashOp.cpp
++++ b/src/gpu/ops/GrDashOp.cpp
+@@ -237,7 +237,7 @@ static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor,
+                                                const SkMatrix& localMatrix,
+                                                bool usesLocalCoords);
+ 
+-class DashOp final : public GrMeshDrawOp {
++class DashOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+     struct LineData {
+@@ -251,9 +251,9 @@ public:
+         SkScalar fPerpendicularScale;
+     };
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(const LineData& geometry, GrColor color,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(const LineData& geometry, GrColor color,
+                                               SkPaint::Cap cap, AAMode aaMode, bool fullDash) {
+-        return std::unique_ptr<GrMeshDrawOp>(new DashOp(geometry, color, cap, aaMode, fullDash));
++        return std::unique_ptr<GrLegacyMeshDrawOp>(new DashOp(geometry, color, cap, aaMode, fullDash));
+     }
+ 
+     const char* name() const override { return "DashOp"; }
+@@ -679,10 +679,10 @@ private:
+     bool fFullDash;
+     SkSTArray<1, LineData, true> fLines;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+-std::unique_ptr<GrMeshDrawOp> GrDashOp::MakeDashLineOp(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> GrDashOp::MakeDashLineOp(GrColor color,
+                                                        const SkMatrix& viewMatrix,
+                                                        const SkPoint pts[2],
+                                                        AAMode aaMode,
+diff --git a/src/gpu/ops/GrDashOp.h b/src/gpu/ops/GrDashOp.h
+index 6ffd326..230896e 100644
+--- a/src/gpu/ops/GrDashOp.h
++++ b/src/gpu/ops/GrDashOp.h
+@@ -12,7 +12,7 @@
+ #include "GrTypesPriv.h"
+ #include "SkPathEffect.h"
+ 
+-class GrMeshDrawOp;
++class GrLegacyMeshDrawOp;
+ class GrStyle;
+ 
+ namespace GrDashOp {
+@@ -23,7 +23,7 @@ enum class AAMode {
+ };
+ static const int kAAModeCnt = static_cast<int>(AAMode::kCoverageWithMSAA) + 1;
+ 
+-std::unique_ptr<GrMeshDrawOp> MakeDashLineOp(GrColor, const SkMatrix& viewMatrix,
++std::unique_ptr<GrLegacyMeshDrawOp> MakeDashLineOp(GrColor, const SkMatrix& viewMatrix,
+                                              const SkPoint pts[2], AAMode, const GrStyle& style);
+ bool CanDrawDashLine(const SkPoint pts[2], const GrStyle& style, const SkMatrix& viewMatrix);
+ }
+diff --git a/src/gpu/ops/GrDefaultPathRenderer.cpp b/src/gpu/ops/GrDefaultPathRenderer.cpp
+index f33fc66..e8fcf1e 100644
+--- a/src/gpu/ops/GrDefaultPathRenderer.cpp
++++ b/src/gpu/ops/GrDefaultPathRenderer.cpp
+@@ -94,14 +94,14 @@ static inline void add_quad(SkPoint** vert, const SkPoint* base, const SkPoint p
+     }
+ }
+ 
+-class DefaultPathOp final : public GrMeshDrawOp {
++class DefaultPathOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkPath& path, SkScalar tolerance,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkPath& path, SkScalar tolerance,
+                                               uint8_t coverage, const SkMatrix& viewMatrix,
+                                               bool isHairline, const SkRect& devBounds) {
+-        return std::unique_ptr<GrMeshDrawOp>(new DefaultPathOp(color, path, tolerance, coverage,
++        return std::unique_ptr<GrLegacyMeshDrawOp>(new DefaultPathOp(color, path, tolerance, coverage,
+                                                                viewMatrix, isHairline, devBounds));
+     }
+ 
+@@ -403,7 +403,7 @@ private:
+     bool fIsHairline;
+     SkSTArray<1, PathData, true> fPaths;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,
+@@ -548,7 +548,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
+             }
+             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
+                                                                                viewMatrix;
+-            std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
++            std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                     paint.getColor(), viewM, bounds, nullptr, &localMatrix));
+ 
+             SkASSERT(GrDrawFace::kBoth == drawFace[p]);
+@@ -557,7 +557,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
+             pipelineBuilder.setUserStencil(passes[p]);
+             renderTargetContext->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
+         } else {
+-            std::unique_ptr<GrMeshDrawOp> op =
++            std::unique_ptr<GrLegacyMeshDrawOp> op =
+                     DefaultPathOp::Make(paint.getColor(), path, srcSpaceTol, newCoverage,
+                                         viewMatrix, isHairline, devBounds);
+             bool stencilPass = stencilOnly || passCount > 1;
+diff --git a/src/gpu/ops/GrDrawAtlasOp.h b/src/gpu/ops/GrDrawAtlasOp.h
+index 7d60974..220866a 100644
+--- a/src/gpu/ops/GrDrawAtlasOp.h
++++ b/src/gpu/ops/GrDrawAtlasOp.h
+@@ -12,14 +12,14 @@
+ #include "GrDefaultGeoProcFactory.h"
+ #include "GrMeshDrawOp.h"
+ 
+-class GrDrawAtlasOp final : public GrMeshDrawOp {
++class GrDrawAtlasOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                               int spriteCount, const SkRSXform* xforms,
+                                               const SkRect* rects, const SkColor* colors) {
+-        return std::unique_ptr<GrMeshDrawOp>(
++        return std::unique_ptr<GrLegacyMeshDrawOp>(
+                 new GrDrawAtlasOp(color, viewMatrix, spriteCount, xforms, rects, colors));
+     }
+ 
+@@ -72,7 +72,7 @@ private:
+     int fQuadCount;
+     bool fHasColors;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ #endif
+diff --git a/src/gpu/ops/GrDrawVerticesOp.cpp b/src/gpu/ops/GrDrawVerticesOp.cpp
+index 1af49d2..304293e 100644
+--- a/src/gpu/ops/GrDrawVerticesOp.cpp
++++ b/src/gpu/ops/GrDrawVerticesOp.cpp
+@@ -10,7 +10,7 @@
+ #include "GrOpFlushState.h"
+ #include "SkGr.h"
+ 
+-std::unique_ptr<GrMeshDrawOp> GrDrawVerticesOp::Make(
++std::unique_ptr<GrLegacyMeshDrawOp> GrDrawVerticesOp::Make(
+         GrColor color, GrPrimitiveType primitiveType, const SkMatrix& viewMatrix,
+         const SkPoint* positions, int vertexCount, const uint16_t* indices, int indexCount,
+         const uint32_t* colors, const SkPoint* localCoords, const SkRect& bounds,
+@@ -27,15 +27,15 @@ std::unique_ptr<GrMeshDrawOp> GrDrawVerticesOp::Make(
+     if (!vertices) {
+         return nullptr;
+     }
+-    return std::unique_ptr<GrMeshDrawOp>(new GrDrawVerticesOp(std::move(vertices), primitiveType,
++    return std::unique_ptr<GrLegacyMeshDrawOp>(new GrDrawVerticesOp(std::move(vertices), primitiveType,
+                                                               color, colorArrayType, viewMatrix));
+ }
+ 
+-std::unique_ptr<GrMeshDrawOp> GrDrawVerticesOp::Make(GrColor color, sk_sp<SkVertices> vertices,
++std::unique_ptr<GrLegacyMeshDrawOp> GrDrawVerticesOp::Make(GrColor color, sk_sp<SkVertices> vertices,
+                                                      const SkMatrix& viewMatrix) {
+     SkASSERT(vertices);
+     GrPrimitiveType primType = SkVertexModeToGrPrimitiveType(vertices->mode());
+-    return std::unique_ptr<GrMeshDrawOp>(new GrDrawVerticesOp(
++    return std::unique_ptr<GrLegacyMeshDrawOp>(new GrDrawVerticesOp(
+             std::move(vertices), primType, color, GrRenderTargetContext::ColorArrayType::kSkColor,
+             viewMatrix));
+ }
+diff --git a/src/gpu/ops/GrDrawVerticesOp.h b/src/gpu/ops/GrDrawVerticesOp.h
+index 2c4d1c9..737356a 100644
+--- a/src/gpu/ops/GrDrawVerticesOp.h
++++ b/src/gpu/ops/GrDrawVerticesOp.h
+@@ -21,7 +21,7 @@ class GrOpFlushState;
+ class SkVertices;
+ struct GrInitInvariantOutput;
+ 
+-class GrDrawVerticesOp final : public GrMeshDrawOp {
++class GrDrawVerticesOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -38,7 +38,7 @@ public:
+      * as local coords. 'colorArrayType' specifies whether the colors are premul GrColors or
+      * unpremul SkColors.
+      */
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, GrPrimitiveType primitiveType,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, GrPrimitiveType primitiveType,
+                                               const SkMatrix& viewMatrix, const SkPoint* positions,
+                                               int vertexCount, const uint16_t* indices,
+                                               int indexCount, const uint32_t* colors,
+@@ -51,7 +51,7 @@ public:
+      * specified by SkCanvas::VerticesFlags. If the vertices lack local coords or 'flags' indicates
+      * that they should be ignored then the vertex positions are used as local coords.
+      */
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, sk_sp<SkVertices>,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, sk_sp<SkVertices>,
+                                               const SkMatrix& viewMatrix);
+ 
+     const char* name() const override { return "DrawVerticesOp"; }
+@@ -139,7 +139,7 @@ private:
+     GrRenderTargetContext::ColorArrayType fColorArrayType;
+     SkSTArray<1, Mesh, true> fMeshes;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ #endif
+diff --git a/src/gpu/ops/GrLatticeOp.cpp b/src/gpu/ops/GrLatticeOp.cpp
+index 6dce60e..1172960 100644
+--- a/src/gpu/ops/GrLatticeOp.cpp
++++ b/src/gpu/ops/GrLatticeOp.cpp
+@@ -21,7 +21,7 @@ static sk_sp<GrGeometryProcessor> create_gp() {
+                                          LocalCoords::kHasExplicit_Type, SkMatrix::I());
+ }
+ 
+-class NonAALatticeOp final : public GrMeshDrawOp {
++class NonAALatticeOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -162,14 +162,14 @@ private:
+     int fImageHeight;
+     SkSTArray<1, Patch, true> fPatches;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ namespace GrLatticeOp {
+-std::unique_ptr<GrMeshDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
++std::unique_ptr<GrLegacyMeshDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
+                                         int imageHeight, std::unique_ptr<SkLatticeIter> iter,
+                                         const SkRect& dst) {
+-    return std::unique_ptr<GrMeshDrawOp>(
++    return std::unique_ptr<GrLegacyMeshDrawOp>(
+             new NonAALatticeOp(color, viewMatrix, imageWidth, imageHeight, std::move(iter), dst));
+ }
+ };
+diff --git a/src/gpu/ops/GrLatticeOp.h b/src/gpu/ops/GrLatticeOp.h
+index ef0f58a..e09c4f6 100644
+--- a/src/gpu/ops/GrLatticeOp.h
++++ b/src/gpu/ops/GrLatticeOp.h
+@@ -11,13 +11,13 @@
+ #include "GrColor.h"
+ #include "SkRefCnt.h"
+ 
+-class GrMeshDrawOp;
++class GrLegacyMeshDrawOp;
+ class SkLatticeIter;
+ class SkMatrix;
+ struct SkRect;
+ 
+ namespace GrLatticeOp {
+-std::unique_ptr<GrMeshDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
++std::unique_ptr<GrLegacyMeshDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
+                                         int imageHeight, std::unique_ptr<SkLatticeIter> iter,
+                                         const SkRect& dst);
+ };
+diff --git a/src/gpu/ops/GrMSAAPathRenderer.cpp b/src/gpu/ops/GrMSAAPathRenderer.cpp
+index 8cbe2a3..54616dd 100644
+--- a/src/gpu/ops/GrMSAAPathRenderer.cpp
++++ b/src/gpu/ops/GrMSAAPathRenderer.cpp
+@@ -215,10 +215,10 @@ private:
+     typedef GrGeometryProcessor INHERITED;
+ };
+ 
+-class MSAAPathOp final : public GrMeshDrawOp {
++class MSAAPathOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkPath& path,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkPath& path,
+                                               const SkMatrix& viewMatrix, const SkRect& devBounds) {
+         int contourCount;
+         int maxLineVertices;
+@@ -230,7 +230,7 @@ public:
+             return nullptr;
+         }
+ 
+-        return std::unique_ptr<GrMeshDrawOp>(new MSAAPathOp(
++        return std::unique_ptr<GrLegacyMeshDrawOp>(new MSAAPathOp(
+                 color, path, viewMatrix, devBounds, maxLineVertices, maxQuadVertices, isIndexed));
+     }
+ 
+@@ -564,7 +564,7 @@ private:
+     int fMaxQuadVertices;
+     bool fIsIndexed;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,
+@@ -621,7 +621,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
+ 
+     SkASSERT(passes[0]);
+     {  // First pass
+-        std::unique_ptr<GrMeshDrawOp> op =
++        std::unique_ptr<GrLegacyMeshDrawOp> op =
+                 MSAAPathOp::Make(paint.getColor(), path, viewMatrix, devBounds);
+         if (!op) {
+             return false;
+@@ -658,7 +658,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
+         }
+         const SkMatrix& viewM =
+                 (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() : viewMatrix;
+-        std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
++        std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                 paint.getColor(), viewM, bounds, nullptr, &localMatrix));
+ 
+         GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+diff --git a/src/gpu/ops/GrMeshDrawOp.cpp b/src/gpu/ops/GrMeshDrawOp.cpp
+index c3a191d..a3df417 100644
+--- a/src/gpu/ops/GrMeshDrawOp.cpp
++++ b/src/gpu/ops/GrMeshDrawOp.cpp
+@@ -90,12 +90,12 @@ void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
+ //////////////////////////////////////////////////////////////////////////////
+ 
+ void GrMeshDrawOp::Target::draw(const GrGeometryProcessor* gp, const GrMesh& mesh) {
+-    GrMeshDrawOp* op = this->meshDrawOp();
++    GrLegacyMeshDrawOp* op = this->meshDrawOp();
+     op->fMeshes.push_back(mesh);
+     if (!op->fQueuedDraws.empty()) {
+         // If the last draw shares a geometry processor and there are no intervening uploads,
+         // add this mesh to it.
+-        GrMeshDrawOp::QueuedDraw& lastDraw = op->fQueuedDraws.back();
++        GrLegacyMeshDrawOp::QueuedDraw& lastDraw = op->fQueuedDraws.back();
+         if (lastDraw.fGeometryProcessor == gp &&
+             (op->fInlineUploads.empty() ||
+              op->fInlineUploads.back().fUploadBeforeToken != this->nextDrawToken())) {
+@@ -103,7 +103,7 @@ void GrMeshDrawOp::Target::draw(const GrGeometryProcessor* gp, const GrMesh& mes
+             return;
+         }
+     }
+-    GrMeshDrawOp::QueuedDraw& draw = op->fQueuedDraws.push_back();
++    GrLegacyMeshDrawOp::QueuedDraw& draw = op->fQueuedDraws.push_back();
+     GrDrawOpUploadToken token = this->state()->issueDrawToken();
+     draw.fGeometryProcessor.reset(gp);
+     draw.fMeshCnt = 1;
+diff --git a/src/gpu/ops/GrMeshDrawOp.h b/src/gpu/ops/GrMeshDrawOp.h
+index a8da29a..4dfafbb 100644
+--- a/src/gpu/ops/GrMeshDrawOp.h
++++ b/src/gpu/ops/GrMeshDrawOp.h
+@@ -25,6 +25,76 @@ class GrMeshDrawOp : public GrDrawOp {
+ public:
+     class Target;
+ 
++protected:
++    GrMeshDrawOp(uint32_t classID);
++
++    /** Helper for rendering instances using an instanced index index buffer. This class creates the
++        space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
++    class InstancedHelper {
++    public:
++        InstancedHelper() {}
++        /** Returns the allocated storage for the vertices. The caller should populate the vertices
++            before calling recordDraws(). */
++        void* init(Target*, GrPrimitiveType, size_t vertexStride, const GrBuffer*,
++                   int verticesPerInstance, int indicesPerInstance, int instancesToDraw);
++
++        /** Call after init() to issue draws to the GrMeshDrawOp::Target.*/
++        void recordDraw(Target*, const GrGeometryProcessor*);
++
++    private:
++        GrMesh fMesh;
++    };
++
++    static const int kVerticesPerQuad = 4;
++    static const int kIndicesPerQuad = 6;
++
++    /** A specialization of InstanceHelper for quad rendering. */
++    class QuadHelper : private InstancedHelper {
++    public:
++        QuadHelper() : INHERITED() {}
++        /** Finds the cached quad index buffer and reserves vertex space. Returns nullptr on failure
++            and on success a pointer to the vertex data that the caller should populate before
++            calling recordDraws(). */
++        void* init(Target*, size_t vertexStride, int quadsToDraw);
++
++        using InstancedHelper::recordDraw;
++
++    private:
++        typedef InstancedHelper INHERITED;
++    };
++
++private:
++    void onPrepare(GrOpFlushState* state) final;
++    void onExecute(GrOpFlushState* state) final;
++
++    virtual void onPrepareDraws(Target*) const = 0;
++
++    // A set of contiguous draws that share a draw token and primitive processor. The draws all use
++    // the op's pipeline. The meshes for the draw are stored in the fMeshes array and each
++    // Queued draw uses fMeshCnt meshes from the fMeshes array. The reason for coallescing meshes
++    // that share a primitive processor into a QueuedDraw is that it allows the Gpu object to setup
++    // the shared state once and then issue draws for each mesh.
++    struct QueuedDraw {
++        int fMeshCnt = 0;
++        GrPendingProgramElement<const GrGeometryProcessor> fGeometryProcessor;
++    };
++
++    // All draws in all the GrMeshDrawOps have implicit tokens based on the order they are enqueued
++    // globally across all ops. This is the offset of the first entry in fQueuedDraws.
++    // fQueuedDraws[i]'s token is fBaseDrawToken + i.
++    GrDrawOpUploadToken fBaseDrawToken;
++    SkSTArray<4, GrMesh> fMeshes;
++    SkSTArray<4, QueuedDraw, true> fQueuedDraws;
++
++    typedef GrDrawOp INHERITED;
++};
++
++/**
++ * Many of our ops derive from this class which initializes a GrPipeline just before being recorded.
++ * We are migrating away from use of this class.
++ */
++class GrLegacyMeshDrawOp : public GrMeshDrawOp {
++public:
+     /**
+      * Performs analysis of the fragment processors in GrProcessorSet and GrAppliedClip using the
+      * initial color and coverage from this op's geometry processor.
+@@ -49,19 +119,19 @@ public:
+      * the op is recorded. These methods are unnecessary as this information is in the pipeline.
+      */
+     FixedFunctionFlags fixedFunctionFlags() const override {
+-        SkFAIL("This should never be called for mesh draw ops.");
++        SkFAIL("This should never be called for legacy mesh draw ops.");
+         return FixedFunctionFlags::kNone;
+     }
+     bool xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*) override {
+-        SkFAIL("Should never be called for mesh draw ops.");
++        SkFAIL("Should never be called for legacy mesh draw ops.");
+         return false;
+     }
+ 
+ protected:
+-    GrMeshDrawOp(uint32_t classID);
++    GrLegacyMeshDrawOp(uint32_t classID) : INHERITED(classID) {}
+     /**
+-     * This is a legacy class only used by GrMeshDrawOp and will be removed. It presents some
+-     * aspects of GrProcessorSet::Analysis to GrMeshDrawOp subclasses.
++     * This is a legacy class only used by GrLegacyMeshDrawOp and will be removed. It presents some
++     * aspects of GrProcessorSet::Analysis to GrLegacyMeshDrawOp subclasses.
+      */
+     class PipelineOptimizations {
+     public:
+@@ -116,41 +186,6 @@ protected:
+         GrColor fOverrideColor;
+     };
+ 
+-    /** Helper for rendering instances using an instanced index index buffer. This class creates the
+-        space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
+-    class InstancedHelper {
+-    public:
+-        InstancedHelper() {}
+-        /** Returns the allocated storage for the vertices. The caller should populate the vertices
+-            before calling recordDraws(). */
+-        void* init(Target*, GrPrimitiveType, size_t vertexStride, const GrBuffer*,
+-                   int verticesPerInstance, int indicesPerInstance, int instancesToDraw);
+-
+-        /** Call after init() to issue draws to the GrMeshDrawOp::Target.*/
+-        void recordDraw(Target*, const GrGeometryProcessor*);
+-
+-    private:
+-        GrMesh fMesh;
+-    };
+-
+-    static const int kVerticesPerQuad = 4;
+-    static const int kIndicesPerQuad = 6;
+-
+-    /** A specialization of InstanceHelper for quad rendering. */
+-    class QuadHelper : private InstancedHelper {
+-    public:
+-        QuadHelper() : INHERITED() {}
+-        /** Finds the cached quad index buffer and reserves vertex space. Returns nullptr on failure
+-            and on success a pointer to the vertex data that the caller should populate before
+-            calling recordDraws(). */
+-        void* init(Target*, size_t vertexStride, int quadsToDraw);
+-
+-        using InstancedHelper::recordDraw;
+-
+-    private:
+-        typedef InstancedHelper INHERITED;
+-    };
+-
+     const GrPipeline* pipeline() const {
+         SkASSERT(fPipeline.isInitialized());
+         return &fPipeline;
+@@ -170,30 +205,9 @@ private:
+      */
+     virtual void applyPipelineOptimizations(const PipelineOptimizations&) = 0;
+ 
+-    void onPrepare(GrOpFlushState* state) final;
+-    void onExecute(GrOpFlushState* state) final;
+-
+-    virtual void onPrepareDraws(Target*) const = 0;
+-
+-    // A set of contiguous draws that share a draw token and primitive processor. The draws all use
+-    // the op's pipeline. The meshes for the draw are stored in the fMeshes array and each
+-    // Queued draw uses fMeshCnt meshes from the fMeshes array. The reason for coallescing meshes
+-    // that share a primitive processor into a QueuedDraw is that it allows the Gpu object to setup
+-    // the shared state once and then issue draws for each mesh.
+-    struct QueuedDraw {
+-        int fMeshCnt = 0;
+-        GrPendingProgramElement<const GrGeometryProcessor> fGeometryProcessor;
+-    };
+-
+-    // All draws in all the GrMeshDrawOps have implicit tokens based on the order they are enqueued
+-    // globally across all ops. This is the offset of the first entry in fQueuedDraws.
+-    // fQueuedDraws[i]'s token is fBaseDrawToken + i.
+-    GrDrawOpUploadToken fBaseDrawToken;
+     GrPipeline fPipeline;
+-    SkSTArray<4, GrMesh> fMeshes;
+-    SkSTArray<4, QueuedDraw, true> fQueuedDraws;
+ 
+-    typedef GrDrawOp INHERITED;
++    typedef GrMeshDrawOp INHERITED;
+ };
+ 
+ #endif
+diff --git a/src/gpu/ops/GrNonAAFillRectOp.cpp b/src/gpu/ops/GrNonAAFillRectOp.cpp
+index c522794..be7dae1 100644
+--- a/src/gpu/ops/GrNonAAFillRectOp.cpp
++++ b/src/gpu/ops/GrNonAAFillRectOp.cpp
+@@ -67,7 +67,7 @@ static void tesselate(intptr_t vertices,
+     }
+ }
+ 
+-class NonAAFillRectOp final : public GrMeshDrawOp {
++class NonAAFillRectOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -172,17 +172,17 @@ private:
+ 
+     SkSTArray<1, RectInfo, true> fRects;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ namespace GrNonAAFillRectOp {
+ 
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rect,
+                                    const SkRect* localRect,
+                                    const SkMatrix* localMatrix) {
+-    return std::unique_ptr<GrMeshDrawOp>(
++    return std::unique_ptr<GrLegacyMeshDrawOp>(
+             new NonAAFillRectOp(color, viewMatrix, rect, localRect, localMatrix));
+ }
+ };
+diff --git a/src/gpu/ops/GrNonAAFillRectOp.h b/src/gpu/ops/GrNonAAFillRectOp.h
+index 046a955..634e956 100644
+--- a/src/gpu/ops/GrNonAAFillRectOp.h
++++ b/src/gpu/ops/GrNonAAFillRectOp.h
+@@ -11,19 +11,19 @@
+ #include "GrColor.h"
+ #include "SkRefCnt.h"
+ 
+-class GrMeshDrawOp;
++class GrLegacyMeshDrawOp;
+ class SkMatrix;
+ struct SkRect;
+ 
+ namespace GrNonAAFillRectOp {
+ 
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rect,
+                                    const SkRect* localRect,
+                                    const SkMatrix* localMatrix);
+ 
+-std::unique_ptr<GrMeshDrawOp> MakeWithPerspective(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> MakeWithPerspective(GrColor color,
+                                                   const SkMatrix& viewMatrix,
+                                                   const SkRect& rect,
+                                                   const SkRect* localRect,
+diff --git a/src/gpu/ops/GrNonAAFillRectPerspectiveOp.cpp b/src/gpu/ops/GrNonAAFillRectPerspectiveOp.cpp
+index a7c445c..1c2d3fc 100644
+--- a/src/gpu/ops/GrNonAAFillRectPerspectiveOp.cpp
++++ b/src/gpu/ops/GrNonAAFillRectPerspectiveOp.cpp
+@@ -89,7 +89,7 @@ static void tesselate(intptr_t vertices,
+ }
+ 
+ // We handle perspective in the local matrix or viewmatrix with special ops.
+-class NonAAFillRectPerspectiveOp final : public GrMeshDrawOp {
++class NonAAFillRectPerspectiveOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -216,17 +216,17 @@ private:
+     SkMatrix fLocalMatrix;
+     SkMatrix fViewMatrix;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ namespace GrNonAAFillRectOp {
+ 
+-std::unique_ptr<GrMeshDrawOp> MakeWithPerspective(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> MakeWithPerspective(GrColor color,
+                                                   const SkMatrix& viewMatrix,
+                                                   const SkRect& rect,
+                                                   const SkRect* localRect,
+                                                   const SkMatrix* localMatrix) {
+-    return std::unique_ptr<GrMeshDrawOp>(
++    return std::unique_ptr<GrLegacyMeshDrawOp>(
+             new NonAAFillRectPerspectiveOp(color, viewMatrix, rect, localRect, localMatrix));
+ }
+ };
+diff --git a/src/gpu/ops/GrNonAAStrokeRectOp.cpp b/src/gpu/ops/GrNonAAStrokeRectOp.cpp
+index ffabad1..78c7cc0 100644
+--- a/src/gpu/ops/GrNonAAStrokeRectOp.cpp
++++ b/src/gpu/ops/GrNonAAStrokeRectOp.cpp
+@@ -46,7 +46,7 @@ inline static bool allowed_stroke(const SkStrokeRec& stroke) {
+            (stroke.getJoin() == SkPaint::kMiter_Join && stroke.getMiter() > SK_ScalarSqrt2);
+ }
+ 
+-class NonAAStrokeRectOp final : public GrMeshDrawOp {
++class NonAAStrokeRectOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -63,7 +63,7 @@ public:
+         return string;
+     }
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                               const SkRect& rect, const SkStrokeRec& stroke,
+                                               bool snapToPixelCenters) {
+         if (!allowed_stroke(stroke)) {
+@@ -96,7 +96,7 @@ public:
+         } else {
+             op->setTransformedBounds(bounds, op->fViewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
+         }
+-        return std::unique_ptr<GrMeshDrawOp>(op);
++        return std::unique_ptr<GrLegacyMeshDrawOp>(op);
+     }
+ 
+ private:
+@@ -181,12 +181,12 @@ private:
+     const static int kVertsPerHairlineRect = 5;
+     const static int kVertsPerStrokeRect = 10;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ namespace GrNonAAStrokeRectOp {
+ 
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rect,
+                                    const SkStrokeRec& stroke,
+diff --git a/src/gpu/ops/GrNonAAStrokeRectOp.h b/src/gpu/ops/GrNonAAStrokeRectOp.h
+index 5c9c98e..d1d894c 100644
+--- a/src/gpu/ops/GrNonAAStrokeRectOp.h
++++ b/src/gpu/ops/GrNonAAStrokeRectOp.h
+@@ -11,14 +11,14 @@
+ #include "GrColor.h"
+ #include "SkRefCnt.h"
+ 
+-class GrMeshDrawOp;
++class GrLegacyMeshDrawOp;
+ struct SkRect;
+ class SkStrokeRec;
+ class SkMatrix;
+ 
+ namespace GrNonAAStrokeRectOp {
+ 
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rect,
+                                    const SkStrokeRec&,
+diff --git a/src/gpu/ops/GrOvalOpFactory.cpp b/src/gpu/ops/GrOvalOpFactory.cpp
+index 5ede5e1..30c5f33 100644
+--- a/src/gpu/ops/GrOvalOpFactory.cpp
++++ b/src/gpu/ops/GrOvalOpFactory.cpp
+@@ -608,7 +608,7 @@ static const uint16_t* circle_type_to_indices(bool stroked) {
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+-class CircleOp final : public GrMeshDrawOp {
++class CircleOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -618,7 +618,7 @@ public:
+         SkScalar fSweepAngleRadians;
+         bool fUseCenter;
+     };
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                               SkPoint center, SkScalar radius, const GrStyle& style,
+                                               const ArcParams* arcParams = nullptr) {
+         SkASSERT(circle_stays_circle(viewMatrix));
+@@ -1152,15 +1152,15 @@ private:
+     bool fClipPlaneIsect;
+     bool fClipPlaneUnion;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+-class EllipseOp : public GrMeshDrawOp {
++class EllipseOp : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                               const SkRect& ellipse, const SkStrokeRec& stroke) {
+         SkASSERT(viewMatrix.rectStaysRect());
+ 
+@@ -1371,16 +1371,16 @@ private:
+     SkMatrix fViewMatrixIfUsingLocalCoords;
+     SkSTArray<1, Geometry, true> fGeoData;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ /////////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-class DIEllipseOp : public GrMeshDrawOp {
++class DIEllipseOp : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                               const SkMatrix& viewMatrix,
+                                               const SkRect& ellipse,
+                                               const SkStrokeRec& stroke) {
+@@ -1579,7 +1579,7 @@ private:
+     bool fUsesLocalCoords;
+     SkSTArray<1, Geometry, true> fGeoData;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+@@ -1712,7 +1712,7 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
+ //   each vertex is also given the normalized x & y distance from the interior rect's edge
+ //      the GP takes the min of those depths +1 to get the normalized distance to the outer edge
+ 
+-class CircularRRectOp : public GrMeshDrawOp {
++class CircularRRectOp : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -2040,7 +2040,7 @@ private:
+     int fIndexCount;
+     bool fAllFill;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ static const int kNumRRectsInIndexBuffer = 256;
+@@ -2066,13 +2066,13 @@ static const GrBuffer* ref_rrect_index_buffer(RRectType type,
+     };
+ }
+ 
+-class EllipticalRRectOp : public GrMeshDrawOp {
++class EllipticalRRectOp : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+     // If devStrokeWidths values are <= 0 indicates then fill only. Otherwise, strokeOnly indicates
+     // whether the rrect is only stroked or stroked and filled.
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                               const SkRect& devRect, float devXRadius,
+                                               float devYRadius, SkVector devStrokeWidths,
+                                               bool strokeOnly) {
+@@ -2283,10 +2283,10 @@ private:
+     SkMatrix fViewMatrixIfUsingLocalCoords;
+     SkSTArray<1, Geometry, true> fGeoData;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+-static std::unique_ptr<GrMeshDrawOp> make_rrect_op(GrColor color,
++static std::unique_ptr<GrLegacyMeshDrawOp> make_rrect_op(GrColor color,
+                                                    bool needsDistance,
+                                                    const SkMatrix& viewMatrix,
+                                                    const SkRRect& rrect,
+@@ -2348,7 +2348,7 @@ static std::unique_ptr<GrMeshDrawOp> make_rrect_op(GrColor color,
+ 
+     // if the corners are circles, use the circle renderer
+     if (isCircular) {
+-        return std::unique_ptr<GrMeshDrawOp>(new CircularRRectOp(
++        return std::unique_ptr<GrLegacyMeshDrawOp>(new CircularRRectOp(
+                 color, needsDistance, viewMatrix, bounds, xRadius, scaledStroke.fX, isStrokeOnly));
+         // otherwise we use the ellipse renderer
+     } else {
+@@ -2357,7 +2357,7 @@ static std::unique_ptr<GrMeshDrawOp> make_rrect_op(GrColor color,
+     }
+ }
+ 
+-std::unique_ptr<GrMeshDrawOp> GrOvalOpFactory::MakeRRectOp(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> GrOvalOpFactory::MakeRRectOp(GrColor color,
+                                                            bool needsDistance,
+                                                            const SkMatrix& viewMatrix,
+                                                            const SkRRect& rrect,
+@@ -2376,7 +2376,7 @@ std::unique_ptr<GrMeshDrawOp> GrOvalOpFactory::MakeRRectOp(GrColor color,
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+-std::unique_ptr<GrMeshDrawOp> GrOvalOpFactory::MakeOvalOp(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> GrOvalOpFactory::MakeOvalOp(GrColor color,
+                                                           const SkMatrix& viewMatrix,
+                                                           const SkRect& oval,
+                                                           const SkStrokeRec& stroke,
+@@ -2403,7 +2403,7 @@ std::unique_ptr<GrMeshDrawOp> GrOvalOpFactory::MakeOvalOp(GrColor color,
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+-std::unique_ptr<GrMeshDrawOp> GrOvalOpFactory::MakeArcOp(GrColor color, const SkMatrix& viewMatrix,
++std::unique_ptr<GrLegacyMeshDrawOp> GrOvalOpFactory::MakeArcOp(GrColor color, const SkMatrix& viewMatrix,
+                                                          const SkRect& oval, SkScalar startAngle,
+                                                          SkScalar sweepAngle, bool useCenter,
+                                                          const GrStyle& style,
+@@ -2450,7 +2450,7 @@ DRAW_OP_TEST_DEFINE(CircleOp) {
+             arcParamsTmp.fUseCenter = random->nextBool();
+             arcParams = &arcParamsTmp;
+         }
+-        std::unique_ptr<GrMeshDrawOp> op = CircleOp::Make(color, viewMatrix, center, radius,
++        std::unique_ptr<GrLegacyMeshDrawOp> op = CircleOp::Make(color, viewMatrix, center, radius,
+                                                           GrStyle(stroke, nullptr), arcParams);
+         if (op) {
+             return op;
+diff --git a/src/gpu/ops/GrOvalOpFactory.h b/src/gpu/ops/GrOvalOpFactory.h
+index e6a160d..6394282 100644
+--- a/src/gpu/ops/GrOvalOpFactory.h
++++ b/src/gpu/ops/GrOvalOpFactory.h
+@@ -11,7 +11,7 @@
+ #include "GrColor.h"
+ #include "SkRefCnt.h"
+ 
+-class GrMeshDrawOp;
++class GrLegacyMeshDrawOp;
+ class GrShaderCaps;
+ class GrStyle;
+ class SkMatrix;
+@@ -24,19 +24,19 @@ class SkStrokeRec;
+  */
+ class GrOvalOpFactory {
+ public:
+-    static std::unique_ptr<GrMeshDrawOp> MakeOvalOp(GrColor,
++    static std::unique_ptr<GrLegacyMeshDrawOp> MakeOvalOp(GrColor,
+                                                     const SkMatrix& viewMatrix,
+                                                     const SkRect& oval,
+                                                     const SkStrokeRec& stroke,
+                                                     const GrShaderCaps* shaderCaps);
+-    static std::unique_ptr<GrMeshDrawOp> MakeRRectOp(GrColor,
++    static std::unique_ptr<GrLegacyMeshDrawOp> MakeRRectOp(GrColor,
+                                                      bool needsDistance,
+                                                      const SkMatrix& viewMatrix,
+                                                      const SkRRect& rrect,
+                                                      const SkStrokeRec& stroke,
+                                                      const GrShaderCaps* shaderCaps);
+ 
+-    static std::unique_ptr<GrMeshDrawOp> MakeArcOp(GrColor,
++    static std::unique_ptr<GrLegacyMeshDrawOp> MakeArcOp(GrColor,
+                                                    const SkMatrix& viewMatrix,
+                                                    const SkRect& oval,
+                                                    SkScalar startAngle,
+diff --git a/src/gpu/ops/GrRectOpFactory.cpp b/src/gpu/ops/GrRectOpFactory.cpp
+index e6d0c1f..11d1448 100644
+--- a/src/gpu/ops/GrRectOpFactory.cpp
++++ b/src/gpu/ops/GrRectOpFactory.cpp
+@@ -13,7 +13,7 @@
+ 
+ namespace GrRectOpFactory {
+ 
+-std::unique_ptr<GrMeshDrawOp> MakeAAFillNestedRects(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFillNestedRects(GrColor color,
+                                                     const SkMatrix& viewMatrix,
+                                                     const SkRect rects[2]) {
+     SkASSERT(viewMatrix.rectStaysRect());
+diff --git a/src/gpu/ops/GrRectOpFactory.h b/src/gpu/ops/GrRectOpFactory.h
+index 19bce7f..6fbd4c6 100644
+--- a/src/gpu/ops/GrRectOpFactory.h
++++ b/src/gpu/ops/GrRectOpFactory.h
+@@ -27,7 +27,7 @@ class SkStrokeRec;
+  */
+ namespace GrRectOpFactory {
+ 
+-inline std::unique_ptr<GrMeshDrawOp> MakeNonAAFill(GrColor color,
++inline std::unique_ptr<GrLegacyMeshDrawOp> MakeNonAAFill(GrColor color,
+                                                    const SkMatrix& viewMatrix,
+                                                    const SkRect& rect,
+                                                    const SkRect* localRect,
+@@ -40,7 +40,7 @@ inline std::unique_ptr<GrMeshDrawOp> MakeNonAAFill(GrColor color,
+     }
+ }
+ 
+-inline std::unique_ptr<GrMeshDrawOp> MakeAAFill(const GrPaint& paint,
++inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFill(const GrPaint& paint,
+                                                 const SkMatrix& viewMatrix,
+                                                 const SkRect& rect,
+                                                 const SkRect& croppedRect,
+@@ -52,7 +52,7 @@ inline std::unique_ptr<GrMeshDrawOp> MakeAAFill(const GrPaint& paint,
+     }
+ }
+ 
+-inline std::unique_ptr<GrMeshDrawOp> MakeAAFill(GrColor color,
++inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFill(GrColor color,
+                                                 const SkMatrix& viewMatrix,
+                                                 const SkMatrix& localMatrix,
+                                                 const SkRect& rect,
+@@ -60,7 +60,7 @@ inline std::unique_ptr<GrMeshDrawOp> MakeAAFill(GrColor color,
+     return GrAAFillRectOp::Make(color, viewMatrix, localMatrix, rect, devRect);
+ }
+ 
+-inline std::unique_ptr<GrMeshDrawOp> MakeNonAAStroke(GrColor color,
++inline std::unique_ptr<GrLegacyMeshDrawOp> MakeNonAAStroke(GrColor color,
+                                                      const SkMatrix& viewMatrix,
+                                                      const SkRect& rect,
+                                                      const SkStrokeRec& strokeRec,
+@@ -68,7 +68,7 @@ inline std::unique_ptr<GrMeshDrawOp> MakeNonAAStroke(GrColor color,
+     return GrNonAAStrokeRectOp::Make(color, viewMatrix, rect, strokeRec, snapToPixelCenters);
+ }
+ 
+-inline std::unique_ptr<GrMeshDrawOp> MakeAAStroke(GrColor color,
++inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAStroke(GrColor color,
+                                                   const SkMatrix& viewMatrix,
+                                                   const SkRect& rect,
+                                                   const SkStrokeRec& stroke) {
+@@ -76,7 +76,7 @@ inline std::unique_ptr<GrMeshDrawOp> MakeAAStroke(GrColor color,
+ }
+ 
+ // First rect is outer; second rect is inner
+-std::unique_ptr<GrMeshDrawOp> MakeAAFillNestedRects(GrColor, const SkMatrix& viewMatrix,
++std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFillNestedRects(GrColor, const SkMatrix& viewMatrix,
+                                                     const SkRect rects[2]);
+ };
+ 
+diff --git a/src/gpu/ops/GrRegionOp.cpp b/src/gpu/ops/GrRegionOp.cpp
+index ba153a6..e61a6fc 100644
+--- a/src/gpu/ops/GrRegionOp.cpp
++++ b/src/gpu/ops/GrRegionOp.cpp
+@@ -47,7 +47,7 @@ static void tesselate_region(intptr_t vertices,
+     }
+ }
+ 
+-class RegionOp final : public GrMeshDrawOp {
++class RegionOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -145,13 +145,13 @@ private:
+     SkMatrix fViewMatrix;
+     SkSTArray<1, RegionInfo, true> fRegions;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ namespace GrRegionOp {
+ 
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                    const SkRegion& region) {
+-    return std::unique_ptr<GrMeshDrawOp>(new RegionOp(color, viewMatrix, region));
++    return std::unique_ptr<GrLegacyMeshDrawOp>(new RegionOp(color, viewMatrix, region));
+ }
+ }
+diff --git a/src/gpu/ops/GrRegionOp.h b/src/gpu/ops/GrRegionOp.h
+index 5ee6f35..0116b81 100644
+--- a/src/gpu/ops/GrRegionOp.h
++++ b/src/gpu/ops/GrRegionOp.h
+@@ -11,12 +11,12 @@
+ #include "GrColor.h"
+ #include "SkRefCnt.h"
+ 
+-class GrMeshDrawOp;
++class GrLegacyMeshDrawOp;
+ class SkMatrix;
+ class SkRegion;
+ 
+ namespace GrRegionOp {
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                    const SkRegion& region);
+ }
+ 
+diff --git a/src/gpu/ops/GrShadowRRectOp.cpp b/src/gpu/ops/GrShadowRRectOp.cpp
+index 9b2bc82..98a8047 100644
+--- a/src/gpu/ops/GrShadowRRectOp.cpp
++++ b/src/gpu/ops/GrShadowRRectOp.cpp
+@@ -63,11 +63,11 @@ static const uint16_t* circle_type_to_indices(bool stroked) {
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+-class ShadowCircleOp final : public GrMeshDrawOp {
++class ShadowCircleOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                               SkPoint center, SkScalar radius, SkScalar blurRadius,
+                                               const GrStyle& style) {
+         SkASSERT(viewMatrix.isSimilarity());
+@@ -388,7 +388,7 @@ private:
+     int fVertCount;
+     int fIndexCount;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ ///////////////////////////////////////////////////////////////////////////////////////////////////
+@@ -504,7 +504,7 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
+ //   each vertex is also given the normalized x & y distance from the interior rect's edge
+ //      the GP takes the min of those depths +1 to get the normalized distance to the outer edge
+ 
+-class ShadowCircularRRectOp final : public GrMeshDrawOp {
++class ShadowCircularRRectOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -803,12 +803,12 @@ private:
+     int fVertCount;
+     int fIndexCount;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+-std::unique_ptr<GrMeshDrawOp> make_shadow_circle_op(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> make_shadow_circle_op(GrColor color,
+                                                     const SkMatrix& viewMatrix,
+                                                     const SkRect& oval,
+                                                     SkScalar blurRadius,
+@@ -822,7 +822,7 @@ std::unique_ptr<GrMeshDrawOp> make_shadow_circle_op(GrColor color,
+                                 GrStyle(stroke, nullptr));
+ }
+ 
+-static std::unique_ptr<GrMeshDrawOp> make_shadow_rrect_op(GrColor color,
++static std::unique_ptr<GrLegacyMeshDrawOp> make_shadow_rrect_op(GrColor color,
+                                                           const SkMatrix& viewMatrix,
+                                                           const SkRRect& rrect,
+                                                           SkScalar blurRadius,
+@@ -879,12 +879,12 @@ static std::unique_ptr<GrMeshDrawOp> make_shadow_rrect_op(GrColor color,
+         return nullptr;
+     }
+ 
+-    return std::unique_ptr<GrMeshDrawOp>(new ShadowCircularRRectOp(
++    return std::unique_ptr<GrLegacyMeshDrawOp>(new ShadowCircularRRectOp(
+             color, viewMatrix, bounds, xRadius, blurRadius, scaledStroke.fX, isStrokeOnly));
+ }
+ 
+ namespace GrShadowRRectOp {
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRRect& rrect,
+                                    const SkScalar blurRadius,
+@@ -922,7 +922,7 @@ DRAW_OP_TEST_DEFINE(ShadowCircleOp) {
+         SkScalar radius = circle.width() / 2.f;
+         SkStrokeRec stroke = GrTest::TestStrokeRec(random);
+         SkScalar blurRadius = random->nextSScalar1() * 72.f;
+-        std::unique_ptr<GrMeshDrawOp> op = ShadowCircleOp::Make(
++        std::unique_ptr<GrLegacyMeshDrawOp> op = ShadowCircleOp::Make(
+                 color, viewMatrix, center, radius, blurRadius, GrStyle(stroke, nullptr));
+         if (op) {
+             return op;
+diff --git a/src/gpu/ops/GrShadowRRectOp.h b/src/gpu/ops/GrShadowRRectOp.h
+index 081b217..a926f1d 100644
+--- a/src/gpu/ops/GrShadowRRectOp.h
++++ b/src/gpu/ops/GrShadowRRectOp.h
+@@ -11,7 +11,7 @@
+ #include "GrColor.h"
+ #include "SkRefCnt.h"
+ 
+-class GrMeshDrawOp;
++class GrLegacyMeshDrawOp;
+ class GrShaderCaps;
+ class SkMatrix;
+ class SkRRect;
+@@ -19,7 +19,7 @@ class SkStrokeRec;
+ 
+ namespace GrShadowRRectOp {
+ 
+-std::unique_ptr<GrMeshDrawOp> Make(GrColor, const SkMatrix& viewMatrix, const SkRRect& rrect,
++std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor, const SkMatrix& viewMatrix, const SkRRect& rrect,
+                                    const SkScalar blurRadius, const SkStrokeRec& stroke,
+                                    const GrShaderCaps* shaderCaps);
+ }
+diff --git a/src/gpu/ops/GrSmallPathRenderer.cpp b/src/gpu/ops/GrSmallPathRenderer.cpp
+index ced9b4e..b7e2547 100644
+--- a/src/gpu/ops/GrSmallPathRenderer.cpp
++++ b/src/gpu/ops/GrSmallPathRenderer.cpp
+@@ -133,7 +133,7 @@ bool GrSmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+ // padding around path bounds to allow for antialiased pixels
+ static const SkScalar kAntiAliasPad = 1.0f;
+ 
+-class SmallPathOp final : public GrMeshDrawOp {
++class SmallPathOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+@@ -141,11 +141,11 @@ public:
+     using ShapeCache = SkTDynamicHash<ShapeData, ShapeData::Key>;
+     using ShapeDataList = GrSmallPathRenderer::ShapeDataList;
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const GrShape& shape,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const GrShape& shape,
+                                               const SkMatrix& viewMatrix, GrDrawOpAtlas* atlas,
+                                               ShapeCache* shapeCache, ShapeDataList* shapeList,
+                                               bool gammaCorrect) {
+-        return std::unique_ptr<GrMeshDrawOp>(new SmallPathOp(color, shape, viewMatrix, atlas,
++        return std::unique_ptr<GrLegacyMeshDrawOp>(new SmallPathOp(color, shape, viewMatrix, atlas,
+                                                              shapeCache, shapeList, gammaCorrect));
+     }
+ 
+@@ -388,7 +388,7 @@ private:
+         this->flush(target, &flushInfo);
+     }
+ 
+-    bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, GrDrawOpAtlas* atlas,
++    bool addDFPathToAtlas(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo, GrDrawOpAtlas* atlas,
+                           ShapeData* shapeData, const GrShape& shape, uint32_t dimension,
+                           SkScalar scale) const {
+         const SkRect& bounds = shape.bounds();
+@@ -505,7 +505,7 @@ private:
+         return true;
+     }
+ 
+-    bool addBMPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, 
++    bool addBMPathToAtlas(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo,
+                           GrDrawOpAtlas* atlas, ShapeData* shapeData,
+                           const GrShape& shape, const SkMatrix& ctm) const {
+         const SkRect& bounds = shape.bounds();
+@@ -677,7 +677,7 @@ private:
+         textureCoords[1] = t;
+     }
+ 
+-    void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
++    void flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
+         if (flushInfo->fInstancesToFlush) {
+             GrMesh mesh;
+             int maxInstancesPerDraw =
+@@ -738,7 +738,7 @@ private:
+     ShapeDataList* fShapeList;
+     bool fGammaCorrect;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
+@@ -760,7 +760,7 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
+         }
+     }
+ 
+-    std::unique_ptr<GrMeshDrawOp> op = SmallPathOp::Make(
++    std::unique_ptr<GrLegacyMeshDrawOp> op = SmallPathOp::Make(
+             args.fPaint.getColor(), *args.fShape, *args.fViewMatrix, fAtlas.get(), &fShapeCache,
+             &fShapeList, args.fGammaCorrect);
+     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
+diff --git a/src/gpu/ops/GrStencilAndCoverPathRenderer.cpp b/src/gpu/ops/GrStencilAndCoverPathRenderer.cpp
+index 4c2edf4..7749b3e 100644
+--- a/src/gpu/ops/GrStencilAndCoverPathRenderer.cpp
++++ b/src/gpu/ops/GrStencilAndCoverPathRenderer.cpp
+@@ -112,7 +112,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
+         }
+         const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
+ 
+-        std::unique_ptr<GrMeshDrawOp> coverOp(GrRectOpFactory::MakeNonAAFill(
++        std::unique_ptr<GrLegacyMeshDrawOp> coverOp(GrRectOpFactory::MakeNonAAFill(
+                 args.fPaint.getColor(), viewM, bounds, nullptr, &invert));
+ 
+         // fake inverse with a stencil and cover
+diff --git a/src/gpu/ops/GrTessellatingPathRenderer.cpp b/src/gpu/ops/GrTessellatingPathRenderer.cpp
+index 9f3b1d6e..8c8999a 100644
+--- a/src/gpu/ops/GrTessellatingPathRenderer.cpp
++++ b/src/gpu/ops/GrTessellatingPathRenderer.cpp
+@@ -103,7 +103,7 @@ private:
+ 
+ class DynamicVertexAllocator : public GrTessellator::VertexAllocator {
+ public:
+-    DynamicVertexAllocator(size_t stride, GrMeshDrawOp::Target* target)
++    DynamicVertexAllocator(size_t stride, GrLegacyMeshDrawOp::Target* target)
+         : VertexAllocator(stride), fTarget(target), fVertexBuffer(nullptr), fVertices(nullptr) {}
+     void* lock(int vertexCount) override {
+         fVertexCount = vertexCount;
+@@ -117,7 +117,7 @@ public:
+     const GrBuffer* vertexBuffer() const { return fVertexBuffer; }
+     int firstVertex() const { return fFirstVertex; }
+ private:
+-    GrMeshDrawOp::Target* fTarget;
++    GrLegacyMeshDrawOp::Target* fTarget;
+     const GrBuffer* fVertexBuffer;
+     int fVertexCount;
+     int fFirstVertex;
+@@ -156,16 +156,16 @@ bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) cons
+     return true;
+ }
+ 
+-class TessellatingPathOp final : public GrMeshDrawOp {
++class TessellatingPathOp final : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(const GrColor& color,
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(const GrColor& color,
+                                               const GrShape& shape,
+                                               const SkMatrix& viewMatrix,
+                                               SkIRect devClipBounds,
+                                               bool antiAlias) {
+-        return std::unique_ptr<GrMeshDrawOp>(
++        return std::unique_ptr<GrLegacyMeshDrawOp>(
+                 new TessellatingPathOp(color, shape, viewMatrix, devClipBounds, antiAlias));
+     }
+ 
+@@ -348,7 +348,7 @@ private:
+     bool                    fCanTweakAlphaForCoverage;
+     bool                    fNeedsLocalCoords;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
+@@ -358,7 +358,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
+     args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
+                                       args.fRenderTargetContext->height(),
+                                       &clipBoundsI);
+-    std::unique_ptr<GrMeshDrawOp> op =
++    std::unique_ptr<GrLegacyMeshDrawOp> op =
+             TessellatingPathOp::Make(args.fPaint.getColor(),
+                                      *args.fShape,
+                                      *args.fViewMatrix,
+diff --git a/src/gpu/ops/GrTestMeshDrawOp.h b/src/gpu/ops/GrTestMeshDrawOp.h
+index 5ca4af7..e35daa1 100644
+--- a/src/gpu/ops/GrTestMeshDrawOp.h
++++ b/src/gpu/ops/GrTestMeshDrawOp.h
+@@ -14,10 +14,10 @@
+ #include "ops/GrMeshDrawOp.h"
+ 
+ /*
+- * A simple solid color GrMeshDrawOp for testing purposes which doesn't ever combine. Subclassing
++ * A simple solid color GrLegacyMeshDrawOp for testing purposes which doesn't ever combine. Subclassing
+  * this in tests saves having to fill out some boiler plate methods.
+  */
+-class GrTestMeshDrawOp : public GrMeshDrawOp {
++class GrTestMeshDrawOp : public GrLegacyMeshDrawOp {
+ public:
+     const char* name() const override = 0;
+ 
+@@ -49,7 +49,7 @@ private:
+     GrColor fColor;
+     bool fUsesLocalCoords = false;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ #endif
+diff --git a/src/gpu/text/GrAtlasTextBlob.cpp b/src/gpu/text/GrAtlasTextBlob.cpp
+index 5427855..4dee6fd 100644
+--- a/src/gpu/text/GrAtlasTextBlob.cpp
++++ b/src/gpu/text/GrAtlasTextBlob.cpp
+@@ -257,7 +257,7 @@ bool GrAtlasTextBlob::mustRegenerate(const GrTextUtils::Paint& paint,
+     return false;
+ }
+ 
+-inline std::unique_ptr<GrMeshDrawOp> GrAtlasTextBlob::makeOp(
++inline std::unique_ptr<GrLegacyMeshDrawOp> GrAtlasTextBlob::makeOp(
+         const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
+         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const GrTextUtils::Paint& paint,
+         const SkSurfaceProps& props, const GrDistanceFieldAdjustTable* distanceAdjustTable,
+@@ -305,7 +305,7 @@ inline void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrClip&
+             continue;
+         }
+ 
+-        std::unique_ptr<GrMeshDrawOp> op(this->makeOp(info, glyphCount, run, subRun, viewMatrix, x,
++        std::unique_ptr<GrLegacyMeshDrawOp> op(this->makeOp(info, glyphCount, run, subRun, viewMatrix, x,
+                                                       y, paint, props, distanceAdjustTable,
+                                                       rtc->isGammaCorrect(), cache));
+         GrPipelineBuilder pipelineBuilder(std::move(grPaint), GrAAType::kNone);
+@@ -425,7 +425,7 @@ void GrAtlasTextBlob::flushThrowaway(GrContext* context, GrRenderTargetContext*
+     this->flushBigGlyphs(context, rtc, clip, paint, viewMatrix, x, y, clipBounds);
+ }
+ 
+-std::unique_ptr<GrMeshDrawOp> GrAtlasTextBlob::test_makeOp(
++std::unique_ptr<GrLegacyMeshDrawOp> GrAtlasTextBlob::test_makeOp(
+         int glyphCount, int run, int subRun, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+         const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
+         const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache) {
+diff --git a/src/gpu/text/GrAtlasTextBlob.h b/src/gpu/text/GrAtlasTextBlob.h
+index 47dd1db..e3839e7 100644
+--- a/src/gpu/text/GrAtlasTextBlob.h
++++ b/src/gpu/text/GrAtlasTextBlob.h
+@@ -24,7 +24,7 @@
+ class GrBlobRegenHelper;
+ struct GrDistanceFieldAdjustTable;
+ class GrMemoryPool;
+-class GrMeshDrawOp;
++class GrLegacyMeshDrawOp;
+ class SkDrawFilter;
+ class SkTextBlob;
+ class SkTextBlobRunIterator;
+@@ -270,7 +270,7 @@ public:
+ 
+     ////////////////////////////////////////////////////////////////////////////////////////////////
+     // Internal test methods
+-    std::unique_ptr<GrMeshDrawOp> test_makeOp(int glyphCount, int run, int subRun,
++    std::unique_ptr<GrLegacyMeshDrawOp> test_makeOp(int glyphCount, int run, int subRun,
+                                               const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                                               const GrTextUtils::Paint& paint,
+                                               const SkSurfaceProps& props,
+@@ -489,7 +489,7 @@ private:
+                    Run* run, Run::SubRunInfo* info, SkAutoGlyphCache*, int glyphCount,
+                    size_t vertexStride, GrColor color, SkScalar transX, SkScalar transY) const;
+ 
+-    inline std::unique_ptr<GrMeshDrawOp> makeOp(
++    inline std::unique_ptr<GrLegacyMeshDrawOp> makeOp(
+             const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
+             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const GrTextUtils::Paint& paint,
+             const SkSurfaceProps& props, const GrDistanceFieldAdjustTable* distanceAdjustTable,
+diff --git a/tests/GLProgramsTest.cpp b/tests/GLProgramsTest.cpp
+index 125f5d0..b8a78f3 100644
+--- a/tests/GLProgramsTest.cpp
++++ b/tests/GLProgramsTest.cpp
+@@ -323,7 +323,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
+ 
+         GrPaint grPaint;
+ 
+-        std::unique_ptr<GrMeshDrawOp> op(GrRandomDrawOp(&random, context));
++        std::unique_ptr<GrLegacyMeshDrawOp> op(GrRandomDrawOp(&random, context));
+         SkASSERT(op);
+ 
+         GrProcessorTestData ptd(&random, context, renderTargetContext.get(), dummyTextures);
+@@ -358,7 +358,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
+     for (int i = 0; i < fpFactoryCnt; ++i) {
+         // Since FP factories internally randomize, call each 10 times.
+         for (int j = 0; j < 10; ++j) {
+-            std::unique_ptr<GrMeshDrawOp> op(GrRandomDrawOp(&random, context));
++            std::unique_ptr<GrLegacyMeshDrawOp> op(GrRandomDrawOp(&random, context));
+             SkASSERT(op);
+             GrProcessorTestData ptd(&random, context, renderTargetContext.get(), dummyTextures);
+             GrPaint grPaint;
+diff --git a/tests/PreFlushCallbackTest.cpp b/tests/PreFlushCallbackTest.cpp
+index e5acae9..411710b 100644
+--- a/tests/PreFlushCallbackTest.cpp
++++ b/tests/PreFlushCallbackTest.cpp
+@@ -21,7 +21,7 @@
+ 
+ // This is a simplified mesh drawing op that can be used in the atlas generation test.
+ // Please see AtlasedRectOp below.
+-class NonAARectOp : public GrMeshDrawOp {
++class NonAARectOp : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+     const char* name() const override { return "NonAARectOp"; }
+@@ -153,7 +153,7 @@ private:
+         target->draw(gp.get(), mesh);
+     }
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ 
+ #ifdef SK_DEBUG
+diff --git a/tests/PrimitiveProcessorTest.cpp b/tests/PrimitiveProcessorTest.cpp
+index 337c8b9..53bddad 100644
+--- a/tests/PrimitiveProcessorTest.cpp
++++ b/tests/PrimitiveProcessorTest.cpp
+@@ -25,14 +25,14 @@
+ #include "ops/GrMeshDrawOp.h"
+ 
+ namespace {
+-class Op : public GrMeshDrawOp {
++class Op : public GrLegacyMeshDrawOp {
+ public:
+     DEFINE_OP_CLASS_ID
+ 
+     const char* name() const override { return "Dummy Op"; }
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make(int numAttribs) {
+-        return std::unique_ptr<GrMeshDrawOp>(new Op(numAttribs));
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make(int numAttribs) {
++        return std::unique_ptr<GrLegacyMeshDrawOp>(new Op(numAttribs));
+     }
+ 
+ private:
+@@ -98,7 +98,7 @@ private:
+ 
+     int fNumAttribs;
+ 
+-    typedef GrMeshDrawOp INHERITED;
++    typedef GrLegacyMeshDrawOp INHERITED;
+ };
+ }
+ 
+diff --git a/tests/ProcessorTest.cpp b/tests/ProcessorTest.cpp
+index 140ff15..58946f5 100644
+--- a/tests/ProcessorTest.cpp
++++ b/tests/ProcessorTest.cpp
+@@ -28,8 +28,8 @@ public:
+     DEFINE_OP_CLASS_ID
+     const char* name() const override { return "TestOp"; }
+ 
+-    static std::unique_ptr<GrMeshDrawOp> Make() {
+-        return std::unique_ptr<GrMeshDrawOp>(new TestOp);
++    static std::unique_ptr<GrLegacyMeshDrawOp> Make() {
++        return std::unique_ptr<GrLegacyMeshDrawOp>(new TestOp);
+     }
+ 
+ private:
+@@ -170,7 +170,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
+                     images.emplace_back(texture3, GrIOType::kWrite_GrIOType);
+                     images.emplace_back(texture4, GrIOType::kRW_GrIOType);
+                 }
+-                std::unique_ptr<GrMeshDrawOp> op(TestOp::Make());
++                std::unique_ptr<GrLegacyMeshDrawOp> op(TestOp::Make());
+                 GrPaint paint;
+                 auto fp = TestFP::Make(context,
+                                        std::move(proxies), std::move(buffers), std::move(images));
+diff --git a/tools/gpu/GrTest.cpp b/tools/gpu/GrTest.cpp
+index 28c1738..4aa40a5 100644
+--- a/tools/gpu/GrTest.cpp
++++ b/tools/gpu/GrTest.cpp
+@@ -230,7 +230,7 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
+ 
+ uint32_t GrRenderTargetContextPriv::testingOnly_addMeshDrawOp(GrPaint&& paint,
+                                                               GrAAType aaType,
+-                                                              std::unique_ptr<GrMeshDrawOp> op,
++                                                              std::unique_ptr<GrLegacyMeshDrawOp> op,
+                                                               const GrUserStencilSettings* uss,
+                                                               bool snapToCenters) {
+     ASSERT_SINGLE_OWNER

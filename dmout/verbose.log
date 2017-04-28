@@ -1,0 +1,11 @@
+1.05s	WARNING: can not create GPU context for config 'angle_gl_es2'. GM tests will be skipped.
+1.05s	Skipping config angle_gl_es2: Don't understand 'angle_gl_es2'.
+1.05s	1 srcs * 2 sinks + 0 tests == 2 tasks1.05s	start gl skp  layer_0.skp
+1.05s	
+1.05s elapsed, 1 active, 1 queued, 52MB RAM, 52MB peak
+1.05s		gl skp  layer_0.skp
+1.56s	done  gl skp  layer_0.skp
+1.56s	start gles skp  layer_0.skp
+2.02s	done  gles skp  layer_0.skp
+2.02s	
+2.02s elapsed, 0 active, 0 queued, 76MB RAM, 77MB peak
