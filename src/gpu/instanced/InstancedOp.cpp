@@ -17,13 +17,15 @@ namespace gr_instanced {
 
 InstancedOp::InstancedOp(uint32_t classID, GrPaint&& paint, OpAllocator* alloc)
         : INHERITED(classID)
-        , fAllocator(alloc)
-        , fInstancedRendering(nullptr)
-        , fProcessors(std::move(paint))
         , fIsTracked(false)
         , fRequiresBarrierOnOverlap(false)
+        , fAllowsSRGBInputs(paint.getAllowSRGBInputs())
+        , fDisableSRGBOutputConversion(paint.getDisableOutputConversionToSRGB())
         , fNumDraws(1)
-        , fNumChangesInGeometry(0) {
+        , fNumChangesInGeometry(0)
+        , fAllocator(alloc)
+        , fInstancedRendering(nullptr)
+        , fProcessors(std::move(paint)) {
     fHeadDraw = fTailDraw = alloc->allocateDraw();
 #ifdef SK_DEBUG
     fHeadDraw->fGeometry = {-1, 0};
@@ -173,6 +175,10 @@ bool InstancedOp::onCombineIfPossible(GrOp* other, const GrCaps&) {
         return false;
     }
 
+    if (fAllowsSRGBInputs != that->fAllowsSRGBInputs ||
+        fDisableSRGBOutputConversion != that->fDisableSRGBOutputConversion) {
+        return false;
+    }
     SkASSERT(fRequiresBarrierOnOverlap == that->fRequiresBarrierOnOverlap);
     if (fRequiresBarrierOnOverlap && this->bounds().intersects(that->bounds())) {
         return false;
@@ -225,6 +231,12 @@ void InstancedOp::onExecute(GrOpFlushState* state) {
     args.fCaps = &state->caps();
     args.fProcessors = &fProcessors;
     args.fFlags = GrAATypeIsHW(fInfo.aaType()) ? GrPipeline::kHWAntialias_Flag : 0;
+    if (fAllowsSRGBInputs) {
+        args.fFlags |= GrPipeline::kAllowSRGBInputs_Flag;
+    }
+    if (fDisableSRGBOutputConversion) {
+        args.fFlags |= GrPipeline::kDisableOutputConversionToSRGB_Flag;
+    }
     args.fRenderTarget = state->drawOpArgs().fRenderTarget;
     args.fDstTexture = state->drawOpArgs().fDstTexture;
     pipeline.init(args);

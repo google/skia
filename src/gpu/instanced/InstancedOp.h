@@ -72,18 +72,20 @@ public:
 protected:
     InstancedOp(uint32_t classID, GrPaint&&, OpAllocator*);
 
+    bool fIsTracked : 1;
+    bool fRequiresBarrierOnOverlap : 1;
+    bool fAllowsSRGBInputs : 1;
+    bool fDisableSRGBOutputConversion : 1;
+    int fNumDraws;
+    int fNumChangesInGeometry;
+    Draw* fHeadDraw;
+    Draw* fTailDraw;
     OpAllocator* fAllocator;
     InstancedRendering* fInstancedRendering;
     OpInfo fInfo;
     SkScalar fPixelLoad;
     GrProcessorSet fProcessors;
     SkSTArray<5, ParamsTexel, true> fParams;
-    bool fIsTracked : 1;
-    bool fRequiresBarrierOnOverlap : 1;
-    int fNumDraws;
-    int fNumChangesInGeometry;
-    Draw* fHeadDraw;
-    Draw* fTailDraw;
 
 private:
     bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;

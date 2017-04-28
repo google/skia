@@ -30,12 +30,6 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) : fXP(paint.getXPFactory()) {
         SkDebugf("Insane number of color fragment processors in paint. Dropping all processors.");
         fColorFragmentProcessorCnt = 0;
     }
-    if (paint.getDisableOutputConversionToSRGB()) {
-        fFlags |= kDisableOutputConversionToSRGB_Flag;
-    }
-    if (paint.getAllowSRGBInputs()) {
-        fFlags |= kAllowSRGBInputs_Flag;
-    }
 }
 
 GrProcessorSet::~GrProcessorSet() {
