@@ -70,6 +70,30 @@
       "revId": "96bcd95c41c98015150d5ad80595b5341a14c522",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "361bad6c_6031a17b",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 6830
+      },
+      "writtenOn": "2017-04-28T05:50:48Z",
+      "side": 1,
+      "message": "There isn\u0027t, as far as I know. I\u0027m going to abandon this change though, is_fuchsia_host is too hacky.",
+      "parentUuid": "f1a80c3c_39ab7f68",
+      "range": {
+        "startLine": 22,
+        "startChar": 37,
+        "endLine": 22,
+        "endChar": 52
+      },
+      "revId": "96bcd95c41c98015150d5ad80595b5341a14c522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
