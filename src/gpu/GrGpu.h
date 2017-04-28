@@ -385,12 +385,8 @@ public:
     virtual void deleteFence(GrFence) const = 0;
 
     virtual sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() = 0;
-    virtual void insertSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
+    virtual void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush = false) = 0;
     virtual void waitSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
-
-    // Ensures that all queued up driver-level commands have been sent to the GPU. For example, on
-    // OpenGL, this calls glFlush.
-    virtual void flush() = 0;
 
     ///////////////////////////////////////////////////////////////////////////
     // Debugging and Stats
