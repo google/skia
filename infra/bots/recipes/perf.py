@@ -155,6 +155,9 @@ def nanobench_flags(bot):
     match.append('~shapes_mixed_10000_32x33')
     match.append('~shapes_rrect_10000_32x32')
     match.append('~shapes_oval_10000_32x33')
+  if 'ANGLE' in bot and 'GTX960' in bot and 'Release' in bot:
+    # skia:6534
+    match.append('~shapes_mixed_10000_32x33')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -336,7 +339,7 @@ TEST_BUILDERS = [
   'Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE',
   'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE',
   'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan',
-  'Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE',
+  'Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE',
   'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug',
   'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release',
   'Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release'
