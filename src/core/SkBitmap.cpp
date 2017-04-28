@@ -171,6 +171,9 @@ bool SkBitmap::setAlphaType(SkAlphaType newAlphaType) {
     }
     if (fInfo.alphaType() != newAlphaType) {
         fInfo = fInfo.makeAlphaType(newAlphaType);
+        if (fPixelRef) {
+            fPixelRef->changeAlphaType(newAlphaType);
+        }
     }
     SkDEBUGCODE(this->validate();)
     return true;
@@ -195,15 +198,32 @@ void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
 #ifdef SK_DEBUG
     if (pr) {
         if (kUnknown_SkColorType != fInfo.colorType()) {
-            SkASSERT(fInfo.width() <= pr->width());
-            SkASSERT(fInfo.height() <= pr->height());
+            const SkImageInfo& prInfo = pr->info();
+            SkASSERT(fInfo.width() <= prInfo.width());
+            SkASSERT(fInfo.height() <= prInfo.height());
+            SkASSERT(fInfo.colorType() == prInfo.colorType());
+            switch (prInfo.alphaType()) {
+                case kUnknown_SkAlphaType:
+                    SkASSERT(fInfo.alphaType() == kUnknown_SkAlphaType);
+                    break;
+                case kOpaque_SkAlphaType:
+                case kPremul_SkAlphaType:
+                    SkASSERT(fInfo.alphaType() == kOpaque_SkAlphaType ||
+                             fInfo.alphaType() == kPremul_SkAlphaType);
+                    break;
+                case kUnpremul_SkAlphaType:
+                    SkASSERT(fInfo.alphaType() == kOpaque_SkAlphaType ||
+                             fInfo.alphaType() == kUnpremul_SkAlphaType);
+                    break;
+            }
         }
     }
 #endif
 
     fPixelRef = std::move(pr);
     if (fPixelRef) {
-        fPixelRefOrigin.set(SkTPin(dx, 0, fPixelRef->width()), SkTPin(dy, 0, fPixelRef->height()));
+        const SkImageInfo& info = fPixelRef->info();
+        fPixelRefOrigin.set(SkTPin(dx, 0, info.width()), SkTPin(dy, 0, info.height()));
         this->updatePixelsFromRef();
     } else {
         // ignore dx,dy if there is no pixelref
@@ -657,9 +677,9 @@ bool SkBitmap::internalCopyTo(SkBitmap* dst, SkColorType dstColorType, Allocator
     //      if (src_pixelref->info == dst_pixelref->info)
     //
     if (srcPM.colorType() == dstColorType && tmpDst.getSize() == srcPM.getSize64()) {
-        if (tmpDst.info() == this->info() && tmpDst.pixelRef()->width() == fPixelRef->width() &&
-                tmpDst.pixelRef()->height() == fPixelRef->height()) {
-            tmpDst.pixelRef()->cloneGenID(*fPixelRef);
+        SkPixelRef* dstPixelRef = tmpDst.pixelRef();
+        if (dstPixelRef->info() == fPixelRef->info()) {
+            dstPixelRef->cloneGenID(*fPixelRef);
         }
     }
 
@@ -896,7 +916,7 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
     if (!pr) {
         return false;
     }
-    bitmap->setInfo(info);
+    bitmap->setInfo(pr->info());
     bitmap->setPixelRef(std::move(pr), 0, 0);
     return true;
 }
@@ -936,8 +956,8 @@ void SkBitmap::validate() const {
         SkASSERT(fPixelRef->rowBytes() == fRowBytes);
         SkASSERT(fPixelRefOrigin.fX >= 0);
         SkASSERT(fPixelRefOrigin.fY >= 0);
-        SkASSERT(fPixelRef->width() >= (int)this->width() + fPixelRefOrigin.fX);
-        SkASSERT(fPixelRef->height() >= (int)this->height() + fPixelRefOrigin.fY);
+        SkASSERT(fPixelRef->info().width() >= (int)this->width() + fPixelRefOrigin.fX);
+        SkASSERT(fPixelRef->info().height() >= (int)this->height() + fPixelRefOrigin.fY);
         SkASSERT(fPixelRef->rowBytes() >= fInfo.minRowBytes());
     }
 }

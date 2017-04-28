@@ -156,7 +156,7 @@ SkMallocPixelRef::SkMallocPixelRef(const SkImageInfo& info, void* storage,
                                    size_t rowBytes, sk_sp<SkColorTable> ctable,
                                    SkMallocPixelRef::ReleaseProc proc,
                                    void* context)
-    : INHERITED(info.width(), info.height(), storage, rowBytes, sanitize(info, std::move(ctable)))
+    : INHERITED(info, storage, rowBytes, sanitize(info, std::move(ctable)))
     , fReleaseProc(proc)
     , fReleaseProcContext(context)
 {}
@@ -166,4 +166,8 @@ SkMallocPixelRef::~SkMallocPixelRef() {
     if (fReleaseProc != nullptr) {
         fReleaseProc(this->pixels(), fReleaseProcContext);
     }
+}
+
+size_t SkMallocPixelRef::getAllocatedSizeInBytes() const {
+    return this->info().getSafeSize(this->rowBytes());
 }
