@@ -212,8 +212,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrTextureRenderTargetProxy.cpp",
   "$_src/gpu/GrTextureRenderTargetProxy.h",
   "$_src/gpu/GrTextureStripAtlas.h",
-  "$_src/gpu/GrTextureToYUVPlanes.cpp",
-  "$_src/gpu/GrTextureToYUVPlanes.h",
   "$_src/gpu/GrTRecorder.h",
   "$_src/gpu/GrUserStencilSettings.h",
   "$_src/gpu/GrWindowRectangles.h",
