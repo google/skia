@@ -1676,7 +1676,7 @@ void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawText", fContext.get());
 
     SkPaint p(paint);
-    p.setShader(atlas->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode));
+    p.setShader(atlas->makeShader());
 
     GrPaint grPaint;
     if (colors) {

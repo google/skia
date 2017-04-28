@@ -163,8 +163,7 @@ protected:
 
                 SkPaint clampPaint;
                 clampPaint.setFilterQuality(q);
-                clampPaint.setShader(rectImg->makeShader(SkShader::kClamp_TileMode,
-                                                         SkShader::kClamp_TileMode));
+                clampPaint.setShader(rectImg->makeShader());
                 canvas->drawRect(SkRect::MakeWH(1.5f * kWidth, 1.5f * kHeight), clampPaint);
                 canvas->translate(kWidth * 1.5f + kPad, 0);
 

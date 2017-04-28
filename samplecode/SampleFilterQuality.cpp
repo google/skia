@@ -29,10 +29,7 @@ static sk_sp<SkSurface> make_surface(SkCanvas* canvas, const SkImageInfo& info) 
 
 static sk_sp<SkShader> make_shader(const SkRect& bounds) {
     sk_sp<SkImage> image(GetResourceAsImage("mandrill_128.png"));
-    if (!image) {
-        return nullptr;
-    }
-    return image->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+    return image ? image->makeShader() : nullptr;
 }
 
 #define N   128

@@ -2907,10 +2907,8 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
         diffuseMap = surf->makeImageSnapshot();
     }
 
-    sk_sp<SkShader> povDepthShader = povDepthMap->makeShader(SkShader::kClamp_TileMode,
-                                                             SkShader::kClamp_TileMode);
-    sk_sp<SkShader> diffuseShader = diffuseMap->makeShader(SkShader::kClamp_TileMode,
-                                                           SkShader::kClamp_TileMode);
+    sk_sp<SkShader> povDepthShader = povDepthMap->makeShader();
+    sk_sp<SkShader> diffuseShader = diffuseMap->makeShader();
 
     // TODO: pass the depth to the shader in vertices, or uniforms
     //       so we don't have to render depth and color separately

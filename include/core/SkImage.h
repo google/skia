@@ -252,6 +252,12 @@ public:
 
     sk_sp<SkShader> makeShader(SkShader::TileMode, SkShader::TileMode,
                                const SkMatrix* localMatrix = nullptr) const;
+    /**
+     *  Helper version of makeShader() that specifies Clamp tilemode.
+     */
+    sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr) const {
+        return this->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, localMatrix);
+    }
 
     /**
      *  If the image has direct access to its pixels (i.e. they are in local RAM)

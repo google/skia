@@ -37,6 +37,5 @@ DEF_TEST(FlattenableFactoryToName, r) {
     bm.allocN32Pixels(8, 8);
     bm.eraseColor(SK_ColorCYAN);
     sk_sp<SkImage> image(SkImage::MakeFromBitmap(bm));
-    auto shader = image->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
-    test_flattenable(r, shader.get(), "SkImage::newShader()");
+    test_flattenable(r, image->makeShader().get(), "SkImage::newShader()");
 }
