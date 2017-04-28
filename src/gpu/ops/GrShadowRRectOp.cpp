@@ -168,8 +168,7 @@ private:
             SkPoint fPos;
             GrColor fColor;
             SkPoint fOffset;
-            SkScalar fOuterRadius;
-            SkScalar fBlurRadius;
+            SkScalar fDistanceCorrection;
         };
 
         int instanceCount = fCircles.count();
@@ -201,6 +200,7 @@ private:
             SkScalar outerRadius = circle.fOuterRadius;
             SkScalar innerRadius = circle.fInnerRadius;
             SkScalar blurRadius = circle.fBlurRadius;
+            SkScalar distanceCorrection = outerRadius / blurRadius;
 
             const SkRect& bounds = circle.fDevBounds;
             CircleVertex* ov0 = reinterpret_cast<CircleVertex*>(vertices + 0 * vertexStride);
@@ -222,50 +222,42 @@ private:
             ov0->fPos = center + SkPoint::Make(-octOffset * halfWidth, -halfWidth);
             ov0->fColor = color;
             ov0->fOffset = SkPoint::Make(-octOffset, -1);
-            ov0->fOuterRadius = outerRadius;
-            ov0->fBlurRadius = blurRadius;
+            ov0->fDistanceCorrection = distanceCorrection;
 
             ov1->fPos = center + SkPoint::Make(octOffset * halfWidth, -halfWidth);
             ov1->fColor = color;
             ov1->fOffset = SkPoint::Make(octOffset, -1);
-            ov1->fOuterRadius = outerRadius;
-            ov1->fBlurRadius = blurRadius;
+            ov1->fDistanceCorrection = distanceCorrection;
 
             ov2->fPos = center + SkPoint::Make(halfWidth, -octOffset * halfWidth);
             ov2->fColor = color;
             ov2->fOffset = SkPoint::Make(1, -octOffset);
-            ov2->fOuterRadius = outerRadius;
-            ov2->fBlurRadius = blurRadius;
+            ov2->fDistanceCorrection = distanceCorrection;
 
             ov3->fPos = center + SkPoint::Make(halfWidth, octOffset * halfWidth);
             ov3->fColor = color;
             ov3->fOffset = SkPoint::Make(1, octOffset);
-            ov3->fOuterRadius = outerRadius;
-            ov3->fBlurRadius = blurRadius;
+            ov3->fDistanceCorrection = distanceCorrection;
 
             ov4->fPos = center + SkPoint::Make(octOffset * halfWidth, halfWidth);
             ov4->fColor = color;
             ov4->fOffset = SkPoint::Make(octOffset, 1);
-            ov4->fOuterRadius = outerRadius;
-            ov4->fBlurRadius = blurRadius;
+            ov4->fDistanceCorrection = distanceCorrection;
 
             ov5->fPos = center + SkPoint::Make(-octOffset * halfWidth, halfWidth);
             ov5->fColor = color;
             ov5->fOffset = SkPoint::Make(-octOffset, 1);
-            ov5->fOuterRadius = outerRadius;
-            ov5->fBlurRadius = blurRadius;
+            ov5->fDistanceCorrection = distanceCorrection;
 
             ov6->fPos = center + SkPoint::Make(-halfWidth, octOffset * halfWidth);
             ov6->fColor = color;
             ov6->fOffset = SkPoint::Make(-1, octOffset);
-            ov6->fOuterRadius = outerRadius;
-            ov6->fBlurRadius = blurRadius;
+            ov6->fDistanceCorrection = distanceCorrection;
 
             ov7->fPos = center + SkPoint::Make(-halfWidth, -octOffset * halfWidth);
             ov7->fColor = color;
             ov7->fOffset = SkPoint::Make(-1, -octOffset);
-            ov7->fOuterRadius = outerRadius;
-            ov7->fBlurRadius = blurRadius;
+            ov7->fDistanceCorrection = distanceCorrection;
 
             if (circle.fStroked) {
                 // compute the inner ring
@@ -286,58 +278,49 @@ private:
                 iv0->fPos = center + SkPoint::Make(-s * r, -c * r);
                 iv0->fColor = color;
                 iv0->fOffset = SkPoint::Make(-s * innerRadius, -c * innerRadius);
-                iv0->fOuterRadius = outerRadius;
-                iv0->fBlurRadius = blurRadius;
+                iv0->fDistanceCorrection = distanceCorrection;
 
                 iv1->fPos = center + SkPoint::Make(s * r, -c * r);
                 iv1->fColor = color;
                 iv1->fOffset = SkPoint::Make(s * innerRadius, -c * innerRadius);
-                iv1->fOuterRadius = outerRadius;
-                iv1->fBlurRadius = blurRadius;
+                iv1->fDistanceCorrection = distanceCorrection;
 
                 iv2->fPos = center + SkPoint::Make(c * r, -s * r);
                 iv2->fColor = color;
                 iv2->fOffset = SkPoint::Make(c * innerRadius, -s * innerRadius);
-                iv2->fOuterRadius = outerRadius;
-                iv2->fBlurRadius = blurRadius;
+                iv2->fDistanceCorrection = distanceCorrection;
 
                 iv3->fPos = center + SkPoint::Make(c * r, s * r);
                 iv3->fColor = color;
                 iv3->fOffset = SkPoint::Make(c * innerRadius, s * innerRadius);
-                iv3->fOuterRadius = outerRadius;
-                iv3->fBlurRadius = blurRadius;
+                iv3->fDistanceCorrection = distanceCorrection;
 
                 iv4->fPos = center + SkPoint::Make(s * r, c * r);
                 iv4->fColor = color;
                 iv4->fOffset = SkPoint::Make(s * innerRadius, c * innerRadius);
-                iv4->fOuterRadius = outerRadius;
-                iv4->fBlurRadius = blurRadius;
+                iv4->fDistanceCorrection = distanceCorrection;
 
                 iv5->fPos = center + SkPoint::Make(-s * r, c * r);
                 iv5->fColor = color;
                 iv5->fOffset = SkPoint::Make(-s * innerRadius, c * innerRadius);
-                iv5->fOuterRadius = outerRadius;
-                iv5->fBlurRadius = blurRadius;
+                iv5->fDistanceCorrection = distanceCorrection;
 
                 iv6->fPos = center + SkPoint::Make(-c * r, s * r);
                 iv6->fColor = color;
                 iv6->fOffset = SkPoint::Make(-c * innerRadius, s * innerRadius);
-                iv6->fOuterRadius = outerRadius;
-                iv6->fBlurRadius = blurRadius;
+                iv6->fDistanceCorrection = distanceCorrection;
 
                 iv7->fPos = center + SkPoint::Make(-c * r, -s * r);
                 iv7->fColor = color;
                 iv7->fOffset = SkPoint::Make(-c * innerRadius, -s * innerRadius);
-                iv7->fOuterRadius = outerRadius;
-                iv7->fBlurRadius = blurRadius;
+                iv7->fDistanceCorrection = distanceCorrection;
             } else {
                 // filled
                 CircleVertex* iv = reinterpret_cast<CircleVertex*>(vertices + 8 * vertexStride);
                 iv->fPos = center;
                 iv->fColor = color;
                 iv->fOffset = SkPoint::Make(0, 0);
-                iv->fOuterRadius = outerRadius;
-                iv->fBlurRadius = blurRadius;
+                iv->fDistanceCorrection = distanceCorrection;
             }
 
             const uint16_t* primIndices = circle_type_to_indices(circle.fStroked);
@@ -392,10 +375,7 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-// We have two possible cases for geometry for a shadow roundrect.
-//
-// In the case of a normal stroke, we draw the roundrect as a 9-patch without the center quad.
+// The geometry for a shadow roundrect is similar to a 9-patch:
 //    ____________
 //   |_|________|_|
 //   | |        | |
@@ -404,9 +384,23 @@ private:
 //   |_|________|_|
 //   |_|________|_|
 //
-// In the case where the stroke width is greater than twice the corner radius (overstroke),
-// we add additional geometry to mark out the rectangle in the center. The shared vertices
-// are duplicated so we can set a different outer radius for the fill calculation.
+// However, each corner is rendered as a fan rather than a simple quad, as below. (The diagram
+// shows the upper part of the upper left corner. The bottom triangle would similarly be split
+// into two triangles.)
+//    ________
+//   |\  \   |
+//   |  \ \  |
+//   |    \\ |
+//   |      \|
+//   --------
+//
+// The center of the fan handles the curve of the corner. For roundrects where the stroke width
+// is greater than the corner radius, the outer triangles blend from the curve to the straight
+// sides. Otherwise these triangles will be degenerate.
+//
+// In the case where the stroke width is greater than the corner radius and the
+// blur radius (overstroke), we add additional geometry to mark out the rectangle in the center.
+// This rectangle extends the coverage values of the center edges of the 9-patch.
 //    ____________
 //   |_|________|_|
 //   | |\ ____ /| |
@@ -415,40 +409,44 @@ private:
 //   |_|/______\|_|
 //   |_|________|_|
 //
-// For filled rrects we reuse the overstroke geometry but make the inner rect degenerate
-// (either a point or a horizontal or vertical line).
+// For filled rrects we reuse the stroke geometry but add an additional quad to the center.
 
-static const uint16_t gOverstrokeRRectIndices[] = {
-        // clang-format off
-        // corners
-        0, 1, 5, 0, 5, 4,
-        2, 3, 7, 2, 7, 6,
-        8, 9, 13, 8, 13, 12,
-        10, 11, 15, 10, 15, 14,
+static const uint16_t gRRectIndices[] = {
+    // clang-format off
+    // overstroke quads
+    // we place this at the beginning so that we can skip these indices when rendering as filled
+    0, 6, 25, 0, 25, 24,
+    6, 18, 27, 6, 27, 25,
+    18, 12, 26, 18, 26, 27,
+    12, 0, 24, 12, 24, 26,
 
-        // edges
-        1, 2, 6, 1, 6, 5,
-        4, 5, 9, 4, 9, 8,
-        6, 7, 11, 6, 11, 10,
-        9, 10, 14, 9, 14, 13,
+    // corners
+    0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5,
+    6, 11, 10, 6, 10, 9, 6, 9, 8, 6, 8, 7,
+    12, 17, 16, 12, 16, 15, 12, 15, 14, 12, 14, 13,
+    18, 19, 20, 18, 20, 21, 18, 21, 22, 18, 22, 23,
 
-        // overstroke quads
-        // we place this at the end so that we can skip these indices when rendering as stroked
-        16, 17, 19, 16, 19, 18,
-        19, 17, 23, 19, 23, 21,
-        21, 23, 22, 21, 22, 20,
-        22, 16, 18, 22, 18, 20,
-        // clang-format on
+    // edges
+    0, 5, 11, 0, 11, 6,
+    6, 7, 19, 6, 19, 18,
+    18, 23, 17, 18, 17, 12,
+    12, 13, 1, 12, 1, 0,
+
+    // fill quad
+    // we place this at the end so that we can skip these indices when rendering as stroked
+    0, 6, 18, 0, 18, 12,
+    // clang-format on
 };
-// standard stroke indices start at the same place, but will skip the overstroke "ring"
-static const uint16_t* gStrokeRRectIndices = gOverstrokeRRectIndices;
 
 // overstroke count
-static const int kIndicesPerOverstrokeRRect = SK_ARRAY_COUNT(gOverstrokeRRectIndices);
+static const int kIndicesPerOverstrokeRRect = SK_ARRAY_COUNT(gRRectIndices) - 6;
 // simple stroke count skips overstroke indices
-static const int kIndicesPerStrokeRRect = kIndicesPerOverstrokeRRect - 6 * 4 + 6;
-static const int kVertsPerStrokeRRect = 16;
-static const int kVertsPerOverstrokeRRect = 24;
+static const int kIndicesPerStrokeRRect = kIndicesPerOverstrokeRRect - 6*4;
+// fill count adds final quad to stroke count
+static const int kIndicesPerFillRRect = kIndicesPerStrokeRRect + 6;
+static const int kVertsPerStrokeRRect = 24;
+static const int kVertsPerOverstrokeRRect = 28;
+static const int kVertsPerFillRRect = 24;
 
 enum RRectType {
     kFill_RRectType,
@@ -459,7 +457,7 @@ enum RRectType {
 static int rrect_type_to_vert_count(RRectType type) {
     switch (type) {
         case kFill_RRectType:
-            return kVertsPerOverstrokeRRect;
+            return kVertsPerFillRRect;
         case kStroke_RRectType:
             return kVertsPerStrokeRRect;
         case kOverstroke_RRectType:
@@ -472,7 +470,7 @@ static int rrect_type_to_vert_count(RRectType type) {
 static int rrect_type_to_index_count(RRectType type) {
     switch (type) {
         case kFill_RRectType:
-            return kIndicesPerOverstrokeRRect;
+            return kIndicesPerFillRRect;
         case kStroke_RRectType:
             return kIndicesPerStrokeRRect;
         case kOverstroke_RRectType:
@@ -485,24 +483,14 @@ static int rrect_type_to_index_count(RRectType type) {
 static const uint16_t* rrect_type_to_indices(RRectType type) {
     switch (type) {
         case kFill_RRectType:
-            return gOverstrokeRRectIndices;
         case kStroke_RRectType:
-            return gStrokeRRectIndices;
+            return gRRectIndices + 6*4;
         case kOverstroke_RRectType:
-            return gOverstrokeRRectIndices;
+            return gRRectIndices;
     }
     SkFAIL("Invalid type");
     return nullptr;
 }
-
-// For distance computations in the interior of filled rrects we:
-//
-//   add a interior degenerate (point or line) rect
-//   each vertex of that rect gets -outerRad as its radius
-//      this makes the computation of the distance to the outer edge be negative
-//      negative values are caught and then handled differently in the GP's onEmitCode
-//   each vertex is also given the normalized x & y distance from the interior rect's edge
-//      the GP takes the min of those depths +1 to get the normalized distance to the outer edge
 
 class ShadowCircularRRectOp final : public GrLegacyMeshDrawOp {
 public:
@@ -515,8 +503,9 @@ public:
             : INHERITED(ClassID()), fViewMatrixIfUsingLocalCoords(viewMatrix) {
         SkRect bounds = devRect;
         SkASSERT(!(devStrokeWidth <= 0 && strokeOnly));
-        SkScalar innerRadius = 0.0f;
+        SkScalar overStrokeRadius = 0.0f;
         SkScalar outerRadius = devRadius;
+        SkScalar umbraInset = SkTMax(outerRadius, blurRadius);
         SkScalar halfWidth = 0;
         RRectType type = kFill_RRectType;
         if (devStrokeWidth > 0) {
@@ -525,22 +514,32 @@ public:
             } else {
                 halfWidth = SkScalarHalf(devStrokeWidth);
             }
-
-            if (strokeOnly) {
-                // If stroke is greater than width or height, this is still a fill
-                // Otherwise we compute stroke params
-                if (devStrokeWidth <= devRect.width() && devStrokeWidth <= devRect.height()) {
-                    innerRadius = devRadius - halfWidth;
-                    type = (innerRadius >= 0) ? kStroke_RRectType : kOverstroke_RRectType;
-                }
-            }
             outerRadius += halfWidth;
             bounds.outset(halfWidth, halfWidth);
+
+            // If the client has requested a stroke smaller than the outer radius,
+            // we will assume they want no special umbra inset (this is for ambient shadows).
+            if (devStrokeWidth <= outerRadius) {
+                umbraInset = outerRadius;
+            }
+
+            if (strokeOnly) {
+                // If stroke is greater than width or height, this is still a fill,
+                // otherwise we compute stroke params.
+                if (devStrokeWidth <= devRect.width() && devStrokeWidth <= devRect.height()) {
+                    // We don't worry about an inner radius, we just need to know if we
+                    // need to create overstroke vertices.
+                    overStrokeRadius = SkTMax(devStrokeWidth - umbraInset,
+                                              0.0f);
+                    type = overStrokeRadius > 0 ? kOverstroke_RRectType : kStroke_RRectType;
+                }
+            }
         }
 
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 
-        fGeoData.emplace_back(Geometry{color, outerRadius, innerRadius, blurRadius, bounds, type});
+        fGeoData.emplace_back(Geometry{color, outerRadius, umbraInset, overStrokeRadius,
+                                       blurRadius, bounds, type});
         fVertCount = rrect_type_to_vert_count(type);
         fIndexCount = rrect_type_to_index_count(type);
     }
@@ -552,10 +551,11 @@ public:
         for (int i = 0; i < fGeoData.count(); ++i) {
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
-                    "OuterRad: %.2f, InnerRad: %.2f, BlurRad: %.2f\n",
+                    "OuterRad: %.2f, Umbra: %.2f, Overstroke: %.2f, BlurRad: %.2f\n",
                     fGeoData[i].fColor, fGeoData[i].fDevBounds.fLeft, fGeoData[i].fDevBounds.fTop,
                     fGeoData[i].fDevBounds.fRight, fGeoData[i].fDevBounds.fBottom,
-                    fGeoData[i].fOuterRadius, fGeoData[i].fInnerRadius, fGeoData[i].fBlurRadius);
+                    fGeoData[i].fOuterRadius, fGeoData[i].fUmbraInset,
+                    fGeoData[i].fOverstroke, fGeoData[i].fBlurRadius);
         }
         string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
@@ -580,73 +580,37 @@ private:
         SkPoint fPos;
         GrColor fColor;
         SkPoint fOffset;
-        SkScalar fOuterRadius;
-        SkScalar fBlurRadius;
+        SkScalar fDistanceCorrection;
     };
 
-    static void FillInOverstrokeVerts(CircleVertex** verts, const SkRect& bounds, SkScalar smInset,
-                                      SkScalar bigInset, SkScalar xOffset, SkScalar outerRadius,
-                                      GrColor color, SkScalar blurRadius) {
-        SkASSERT(smInset < bigInset);
-
+    static void FillInOverstrokeVerts(CircleVertex** verts, const SkRect& bounds, SkScalar inset,
+                                      GrColor color, SkScalar distanceCorrection) {
         // TL
-        (*verts)->fPos = SkPoint::Make(bounds.fLeft + smInset, bounds.fTop + smInset);
+        (*verts)->fPos = SkPoint::Make(bounds.fLeft + inset, bounds.fTop + inset);
         (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(xOffset, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fBlurRadius = blurRadius;
+        (*verts)->fOffset = SkPoint::Make(0, 0);
+        (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)++;
 
         // TR
-        (*verts)->fPos = SkPoint::Make(bounds.fRight - smInset, bounds.fTop + smInset);
-        (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(xOffset, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fBlurRadius = blurRadius;
-        (*verts)++;
-
-        (*verts)->fPos = SkPoint::Make(bounds.fLeft + bigInset, bounds.fTop + bigInset);
+        (*verts)->fPos = SkPoint::Make(bounds.fRight - inset, bounds.fTop + inset);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(0, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fBlurRadius = blurRadius;
-        (*verts)++;
-
-        (*verts)->fPos = SkPoint::Make(bounds.fRight - bigInset, bounds.fTop + bigInset);
-        (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(0, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fBlurRadius = blurRadius;
-        (*verts)++;
-
-        (*verts)->fPos = SkPoint::Make(bounds.fLeft + bigInset, bounds.fBottom - bigInset);
-        (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(0, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fBlurRadius = blurRadius;
-        (*verts)++;
-
-        (*verts)->fPos = SkPoint::Make(bounds.fRight - bigInset, bounds.fBottom - bigInset);
-        (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(0, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fBlurRadius = blurRadius;
+        (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)++;
 
         // BL
-        (*verts)->fPos = SkPoint::Make(bounds.fLeft + smInset, bounds.fBottom - smInset);
+        (*verts)->fPos = SkPoint::Make(bounds.fLeft + inset, bounds.fBottom - inset);
         (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(xOffset, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fBlurRadius = blurRadius;
+        (*verts)->fOffset = SkPoint::Make(0, 0);
+        (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)++;
 
         // BR
-        (*verts)->fPos = SkPoint::Make(bounds.fRight - smInset, bounds.fBottom - smInset);
+        (*verts)->fPos = SkPoint::Make(bounds.fRight - inset, bounds.fBottom - inset);
         (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(xOffset, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fBlurRadius = blurRadius;
+        (*verts)->fOffset = SkPoint::Make(0, 0);
+        (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)++;
     }
 
@@ -691,69 +655,90 @@ private:
 
             const SkRect& bounds = args.fDevBounds;
 
-            SkScalar yCoords[4] = {bounds.fTop, bounds.fTop + outerRadius,
-                                   bounds.fBottom - outerRadius, bounds.fBottom};
+            SkScalar umbraInset = args.fUmbraInset;
 
-            SkScalar yOuterRadii[4] = {-1, 0, 0, 1};
-            // The inner radius in the vertex data must be specified in normalized space.
-            // For fills, specifying -1/outerRadius guarantees an alpha of 1.0 at the inner radius.
+            SkScalar minDim = 0.5f*SkTMin(bounds.width(), bounds.height());
+            if (umbraInset > minDim) {
+                umbraInset = minDim;
+            }
+
+            SkScalar xInner[4] = { bounds.fLeft + umbraInset, bounds.fRight - umbraInset,
+                                   bounds.fLeft + umbraInset, bounds.fRight - umbraInset };
+            SkScalar xMid[4]   = { bounds.fLeft + outerRadius, bounds.fRight - outerRadius,
+                                   bounds.fLeft + outerRadius, bounds.fRight - outerRadius};
+            SkScalar xOuter[4] = { bounds.fLeft, bounds.fRight,
+                                   bounds.fLeft, bounds.fRight };
+            SkScalar yInner[4] = { bounds.fTop + umbraInset, bounds.fTop + umbraInset,
+                                   bounds.fBottom - umbraInset, bounds.fBottom - umbraInset };
+            SkScalar yMid[4]   = { bounds.fTop + outerRadius, bounds.fTop + outerRadius,
+                                   bounds.fBottom - outerRadius, bounds.fBottom - outerRadius };
+            SkScalar yOuter[4] = { bounds.fTop, bounds.fTop,
+                                   bounds.fBottom, bounds.fBottom };
+
             SkScalar blurRadius = args.fBlurRadius;
+
+            // In the case where we have to inset more for the umbra, our two triangles in the
+            // corner get skewed to a diamond rather than a square. To correct for that,
+            // we also skew the vectors we send to the shader that help define the circle.
+            // By doing so, we end up with a quarter circle in the corner rather than the
+            // elliptical curve.
+            SkVector outerVec = SkVector::Make(0.5f*(outerRadius - umbraInset), -umbraInset);
+            outerVec.normalize();
+            SkVector diagVec = SkVector::Make(outerVec.fX + outerVec.fY,
+                                              outerVec.fX + outerVec.fY);
+            diagVec *= umbraInset / (2 * umbraInset - outerRadius);
+            SkScalar distanceCorrection = umbraInset / blurRadius;
+
+            // build corner by corner
             for (int i = 0; i < 4; ++i) {
-                verts->fPos = SkPoint::Make(bounds.fLeft, yCoords[i]);
+                // inner point
+                verts->fPos = SkPoint::Make(xInner[i], yInner[i]);
                 verts->fColor = color;
-                verts->fOffset = SkPoint::Make(-1, yOuterRadii[i]);
-                verts->fOuterRadius = outerRadius;
-                verts->fBlurRadius = blurRadius;
+                verts->fOffset = SkVector::Make(0, 0);
+                verts->fDistanceCorrection = distanceCorrection;
                 verts++;
 
-                verts->fPos = SkPoint::Make(bounds.fLeft + outerRadius, yCoords[i]);
+                // outer points
+                verts->fPos = SkPoint::Make(xOuter[i], yInner[i]);
                 verts->fColor = color;
-                verts->fOffset = SkPoint::Make(0, yOuterRadii[i]);
-                verts->fOuterRadius = outerRadius;
-                verts->fBlurRadius = blurRadius;
+                verts->fOffset = SkVector::Make(0, -1);
+                verts->fDistanceCorrection = distanceCorrection;
                 verts++;
 
-                verts->fPos = SkPoint::Make(bounds.fRight - outerRadius, yCoords[i]);
+                verts->fPos = SkPoint::Make(xOuter[i], yMid[i]);
                 verts->fColor = color;
-                verts->fOffset = SkPoint::Make(0, yOuterRadii[i]);
-                verts->fOuterRadius = outerRadius;
-                verts->fBlurRadius = blurRadius;
+                verts->fOffset = outerVec;
+                verts->fDistanceCorrection = distanceCorrection;
                 verts++;
 
-                verts->fPos = SkPoint::Make(bounds.fRight, yCoords[i]);
+                verts->fPos = SkPoint::Make(xOuter[i], yOuter[i]);
                 verts->fColor = color;
-                verts->fOffset = SkPoint::Make(1, yOuterRadii[i]);
-                verts->fOuterRadius = outerRadius;
-                verts->fBlurRadius = blurRadius;
+                verts->fOffset = diagVec;
+                verts->fDistanceCorrection = distanceCorrection;
+                verts++;
+
+                verts->fPos = SkPoint::Make(xMid[i], yOuter[i]);
+                verts->fColor = color;
+                verts->fOffset = outerVec;
+                verts->fDistanceCorrection = distanceCorrection;
+                verts++;
+
+                verts->fPos = SkPoint::Make(xInner[i], yOuter[i]);
+                verts->fColor = color;
+                verts->fOffset = SkVector::Make(0, -1);
+                verts->fDistanceCorrection = distanceCorrection;
                 verts++;
             }
+
             // Add the additional vertices for overstroked rrects.
             // Effectively this is an additional stroked rrect, with its
-            // outer radius = outerRadius - innerRadius, and inner radius = 0.
-            // This will give us correct AA in the center and the correct
-            // distance to the outer edge.
-            //
-            // Also, the outer offset is a constant vector pointing to the right, which
-            // guarantees that the distance value along the outer rectangle is constant.
+            // parameters equal to those in the center of the 9-patch. This will
+            // give constant values across this inner ring.
             if (kOverstroke_RRectType == args.fType) {
-                SkASSERT(args.fInnerRadius <= 0.0f);
+                SkASSERT(args.fOverstroke > 0.0f);
 
-                SkScalar overstrokeOuterRadius = outerRadius - args.fInnerRadius;
-                // this is the normalized distance from the outer rectangle of this
-                // geometry to the outer edge
-                SkScalar maxOffset = -args.fInnerRadius / overstrokeOuterRadius;
-
-                FillInOverstrokeVerts(&verts, bounds, outerRadius, overstrokeOuterRadius, maxOffset,
-                                      overstrokeOuterRadius, color, blurRadius);
-            }
-
-            if (kFill_RRectType == args.fType) {
-                SkScalar halfMinDim = 0.5f * SkTMin(bounds.width(), bounds.height());
-
-                SkScalar xOffset = 1.0f - outerRadius / halfMinDim;
-
-                FillInOverstrokeVerts(&verts, bounds, outerRadius, halfMinDim, xOffset, halfMinDim,
-                                      color, blurRadius);
+                FillInOverstrokeVerts(&verts, bounds, umbraInset + args.fOverstroke,
+                                      color, distanceCorrection);
             }
 
             const uint16_t* primIndices = rrect_type_to_indices(args.fType);
@@ -792,7 +777,8 @@ private:
     struct Geometry {
         GrColor fColor;
         SkScalar fOuterRadius;
-        SkScalar fInnerRadius;
+        SkScalar fUmbraInset;
+        SkScalar fOverstroke;
         SkScalar fBlurRadius;
         SkRect fDevBounds;
         RRectType fType;
@@ -839,9 +825,9 @@ static std::unique_ptr<GrLegacyMeshDrawOp> make_shadow_rrect_op(GrColor color,
 
     SkVector radii = rrect.getSimpleRadii();
     SkScalar xRadius = SkScalarAbs(viewMatrix[SkMatrix::kMScaleX] * radii.fX +
-                                   viewMatrix[SkMatrix::kMSkewY] * radii.fY);
-    SkScalar yRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewX] * radii.fX +
-                                   viewMatrix[SkMatrix::kMScaleY] * radii.fY);
+                                   viewMatrix[SkMatrix::kMSkewX] * radii.fY);
+    SkDEBUGCODE(SkScalar yRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewY] * radii.fX +
+                                               viewMatrix[SkMatrix::kMScaleY] * radii.fY));
     SkASSERT(SkScalarNearlyEqual(xRadius, yRadius));
 
     SkStrokeRec::Style style = stroke.getStyle();
@@ -859,9 +845,9 @@ static std::unique_ptr<GrLegacyMeshDrawOp> make_shadow_rrect_op(GrColor color,
             scaledStroke.set(1, 1);
         } else {
             scaledStroke.fX = SkScalarAbs(
-                    strokeWidth * (viewMatrix[SkMatrix::kMScaleX] + viewMatrix[SkMatrix::kMSkewY]));
+                   strokeWidth * (viewMatrix[SkMatrix::kMScaleX] + viewMatrix[SkMatrix::kMSkewY]));
             scaledStroke.fY = SkScalarAbs(
-                    strokeWidth * (viewMatrix[SkMatrix::kMSkewX] + viewMatrix[SkMatrix::kMScaleY]));
+                   strokeWidth * (viewMatrix[SkMatrix::kMSkewX] + viewMatrix[SkMatrix::kMScaleY]));
         }
 
         // we don't handle anisotropic strokes
@@ -875,7 +861,7 @@ static std::unique_ptr<GrLegacyMeshDrawOp> make_shadow_rrect_op(GrColor color,
     // patch will have fractional coverage. This only matters when the interior is actually filled.
     // We could consider falling back to rect rendering here, since a tiny radius is
     // indistinguishable from a square corner.
-    if (!isStrokeOnly && (SK_ScalarHalf > xRadius || SK_ScalarHalf > yRadius)) {
+    if (!isStrokeOnly && SK_ScalarHalf > xRadius) {
         return nullptr;
     }
 
