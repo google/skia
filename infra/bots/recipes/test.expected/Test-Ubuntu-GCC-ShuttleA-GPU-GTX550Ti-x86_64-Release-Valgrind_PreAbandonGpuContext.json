@@ -480,6 +480,7 @@
       ".SRW",
       "--match",
       "~Threaded",
+      "--verbose",
       "--preAbandonGpuContext"
     ],
     "env": {

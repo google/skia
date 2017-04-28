@@ -535,6 +535,9 @@ def dm_flags(bot):
       or 'Win8-MSVC-ShuttleB' in bot):
     args.append('--noRAW_threading')
 
+  if 'Valgrind' in bot and 'PreAbandonGpuContext' in bot:
+    args.append('--verbose')
+
   return args
 
 
