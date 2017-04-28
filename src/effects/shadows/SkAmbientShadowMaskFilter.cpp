@@ -217,13 +217,13 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
     // TODO: take flags into account when generating shadow data
 
     if (fAmbientAlpha > 0.0f) {
-        SkScalar srcSpaceAmbientRadius = fOccluderHeight * kHeightFactor * kGeomFactor;
+        SkScalar srcSpaceStrokeWidth = fOccluderHeight * kHeightFactor * kGeomFactor;
         const float umbraAlpha = (1.0f + SkTMax(fOccluderHeight * kHeightFactor, 0.0f));
-        const SkScalar strokeWidth = srcSpaceAmbientRadius * umbraAlpha;
+        const SkScalar blurWidth = srcSpaceStrokeWidth * umbraAlpha;
 
         // For the ambient rrect, we outset the offset rect by srcSpaceAmbientRadius
         // minus half the strokeWidth to get our stroke shape.
-        SkScalar ambientPathOutset = SkTMax(srcSpaceAmbientRadius - strokeWidth * 0.5f,
+        SkScalar ambientPathOutset = SkTMax(srcSpaceStrokeWidth * 0.5f,
                                             minRadius);
 
         SkRRect ambientRRect;
@@ -234,17 +234,18 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
              rrect.outset(ambientPathOutset, ambientPathOutset, &ambientRRect);
         }
 
-        const SkScalar devSpaceAmbientRadius = strokeWidth * scaleFactor;
+        const SkScalar devSpaceAmbientBlur = blurWidth * scaleFactor;
 
         GrPaint newPaint(paint);
         GrColor4f color = newPaint.getColor4f();
         color.fRGBA[3] *= fAmbientAlpha;
         newPaint.setColor4f(color);
         SkStrokeRec ambientStrokeRec(SkStrokeRec::kHairline_InitStyle);
-        ambientStrokeRec.setStrokeStyle(strokeWidth, false);
+        bool transparent = SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
+        ambientStrokeRec.setStrokeStyle(srcSpaceStrokeWidth, transparent);
 
         rtContext->drawShadowRRect(clip, std::move(newPaint), viewMatrix, ambientRRect,
-                                   devSpaceAmbientRadius,
+                                   devSpaceAmbientBlur,
                                    GrStyle(ambientStrokeRec, nullptr));
     }
 

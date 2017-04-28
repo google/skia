@@ -454,33 +454,79 @@ void draw_shadow(const FACTORY& factory, SkCanvas* canvas, ShadowedPath& path, S
 }
 }
 
+static bool draw_analytic_shadows(SkCanvas* canvas, const SkPath& path, SkScalar occluderZ,
+                                  const SkPoint3& devLightPos, SkScalar lightRadius,
+                                  SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
+                                  uint32_t flags) {
+    SkRect rect;
+    SkRRect rrect;
+    if (canvas->getTotalMatrix().isSimilarity()) {
+        if (path.isRect(&rect)) {
+            SkPaint newPaint;
+            newPaint.setColor(color);
+            if (ambientAlpha > 0) {
+                newPaint.setMaskFilter(SkAmbientShadowMaskFilter::Make(occluderZ,
+                                                                       ambientAlpha, flags));
+                canvas->drawRect(rect, newPaint);
+            }
+            if (spotAlpha > 0) {
+                newPaint.setMaskFilter(SkSpotShadowMaskFilter::Make(occluderZ, devLightPos,
+                                                                    lightRadius, spotAlpha,
+                                                                    flags));
+                canvas->drawRect(rect, newPaint);
+            }
+            return true;
+        } else if (path.isRRect(&rrect) && rrect.isSimpleCircular() &&
+                   rrect.radii(SkRRect::kUpperLeft_Corner).fX > SK_ScalarNearlyZero) {
+            SkPaint newPaint;
+            newPaint.setColor(color);
+            if (ambientAlpha > 0) {
+                newPaint.setMaskFilter(SkAmbientShadowMaskFilter::Make(occluderZ,
+                                                                       ambientAlpha, flags));
+                canvas->drawRRect(rrect, newPaint);
+            }
+            if (spotAlpha > 0) {
+                newPaint.setMaskFilter(SkSpotShadowMaskFilter::Make(occluderZ, devLightPos,
+                                                                    lightRadius, spotAlpha,
+                                                                    flags));
+                canvas->drawRRect(rrect, newPaint);
+            }
+            return true;
+        } else if (path.isOval(&rect) && SkScalarNearlyEqual(rect.width(), rect.height()) &&
+                   rect.width() > SK_ScalarNearlyZero) {
+            SkPaint newPaint;
+            newPaint.setColor(color);
+            if (ambientAlpha > 0) {
+                newPaint.setMaskFilter(SkAmbientShadowMaskFilter::Make(occluderZ,
+                                                                       ambientAlpha, flags));
+                canvas->drawOval(rect, newPaint);
+            }
+            if (spotAlpha > 0) {
+                newPaint.setMaskFilter(SkSpotShadowMaskFilter::Make(occluderZ, devLightPos,
+                                                                    lightRadius, spotAlpha,
+                                                                    flags));
+                canvas->drawOval(rect, newPaint);
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // Draw an offset spot shadow and outlining ambient shadow for the given path.
 void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar occluderHeight,
                                const SkPoint3& devLightPos, SkScalar lightRadius,
                                SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
                                uint32_t flags, SkResourceCache* cache) {
-    SkAutoCanvasRestore acr(canvas, true);
-    SkMatrix viewMatrix = canvas->getTotalMatrix();
-
-    // try circular fast path
-    SkRect rect;
-    if (viewMatrix.isSimilarity() &&
-        path.isOval(&rect) && rect.width() == rect.height()) {
-        SkPaint newPaint;
-        newPaint.setColor(color);
-        if (ambientAlpha > 0) {
-            newPaint.setMaskFilter(SkAmbientShadowMaskFilter::Make(occluderHeight, ambientAlpha,
-                                                                   flags));
-            canvas->drawOval(rect, newPaint);
-        }
-        if (spotAlpha > 0) {
-            newPaint.setMaskFilter(SkSpotShadowMaskFilter::Make(occluderHeight, devLightPos,
-                                                                lightRadius, spotAlpha, flags));
-            canvas->drawOval(rect, newPaint);
-        }
+    // try fast paths
+    if (draw_analytic_shadows(canvas, path, occluderHeight, devLightPos, lightRadius,
+                              ambientAlpha, spotAlpha, color, flags)) {
         return;
     }
 
+    SkAutoCanvasRestore acr(canvas, true);
+    SkMatrix viewMatrix = canvas->getTotalMatrix();
     canvas->resetMatrix();
 
     ShadowedPath shadowedPath(&path, &viewMatrix);
@@ -563,28 +609,14 @@ void SkShadowUtils::DrawUncachedShadow(SkCanvas* canvas, const SkPath& path,
                                        const SkPoint3& lightPos, SkScalar lightRadius,
                                        SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
                                        uint32_t flags) {
-    SkAutoCanvasRestore acr(canvas, true);
-    SkMatrix viewMatrix = canvas->getTotalMatrix();
-
-    // try circular fast path
-    SkRect rect;
-    if (viewMatrix.isSimilarity() &&
-        path.isOval(&rect) && rect.width() == rect.height()) {
-        SkPaint newPaint;
-        newPaint.setColor(color);
-        if (ambientAlpha > 0) {
-            newPaint.setMaskFilter(SkAmbientShadowMaskFilter::Make(heightFunc(0,0), ambientAlpha,
-                                                                   flags));
-            canvas->drawOval(rect, newPaint);
-        }
-        if (spotAlpha > 0) {
-            newPaint.setMaskFilter(SkSpotShadowMaskFilter::Make(heightFunc(0,0), lightPos,
-                                                                lightRadius, spotAlpha, flags));
-            canvas->drawOval(rect, newPaint);
-        }
+    // try fast paths
+    if (draw_analytic_shadows(canvas, path, heightFunc(0, 0), lightPos, lightRadius,
+                              ambientAlpha, spotAlpha, color, flags)) {
         return;
     }
 
+    SkAutoCanvasRestore acr(canvas, true);
+    SkMatrix viewMatrix = canvas->getTotalMatrix();
     canvas->resetMatrix();
 
     bool transparent = SkToBool(flags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
