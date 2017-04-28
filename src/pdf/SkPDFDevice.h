@@ -170,7 +170,8 @@ protected:
 
     void drawAnnotation(const SkRect&, const char key[], SkData* value) override;
 
-    void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&) override;
+    void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
+                     SkImage*, const SkMatrix&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial() override;
