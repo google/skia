@@ -22,6 +22,30 @@
       "revId": "de877c3628905e7835c30974fa1dca1ae63975a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "462e28be_801efd7a",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 961,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-04-28T19:40:24Z",
+      "side": 1,
+      "message": "I have a strong vested interest in getting the interface right. \n(Done)",
+      "parentUuid": "2eace4b7_45f7f9a3",
+      "range": {
+        "startLine": 961,
+        "startChar": 17,
+        "endLine": 961,
+        "endChar": 23
+      },
+      "revId": "de877c3628905e7835c30974fa1dca1ae63975a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
