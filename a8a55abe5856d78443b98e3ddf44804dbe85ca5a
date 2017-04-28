@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "e273a15e_e74e6973",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-28T15:17:25Z",
+      "side": 1,
+      "message": "Something like:\n\n\"When the image\u0027s ref count reaches zero the original GrContext will be used to destroy the texture. It is assumed that it will be safe to access it. That is, the GL context is current on the unreffing thread if using the GL backend and no other thread is accessing the GrContext.\"\n\n?\n\nBTW, could we use SkMessageBus to delete the texture? It would cause an indeterminate delay in deletion but might make this safer.",
+      "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ef5bae3_b31bddfd",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-28T15:17:25Z",
+      "side": 1,
+      "message": "Could we just add a virtual method to GrTexture that gets a GrBackendTexture? I think we want to stop using GrBackendObject.",
+      "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f17f3e9a_59a056c3",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-28T15:17:25Z",
+      "side": 1,
+      "message": "Will this cause a vk layout change?",
+      "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b06cf567_6267b8db",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 9
@@ -13,6 +64,24 @@
       "writtenOn": "2017-04-28T15:05:06Z",
       "side": 1,
       "message": "I tried to find a better home for this, but I struggled with a name, given the semantics. Greg says we don\u0027t actually need (or want) a semaphore/flush combo here on Vulkan. So we need an operation that is GL-only, and which offers \"make sure the GPU has started any work I\u0027ve submitted thus far, and give me a semaphore back, assuming that you actually did what I just asked\". I considered an alternate version of prepareSurfaceForExternalIO, but that means plumbing through drawing manager, etc... \n\nIn the CCID implementation, this was rolled into detachBackendTexture, but this operation is not texture specific (ie adding a \"flushPendingWrites\" API to texture priv sounded good, but has nothing to do with the texture).",
+      "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f77aa28d_507a06ef",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-28T15:17:25Z",
+      "side": 1,
+      "message": "The only thing I can think if is a cap instead of an explicit opengl check, e.g. if (caps-\u003erequiresSemaphoreForCrossContextTexture()).",
+      "parentUuid": "b06cf567_6267b8db",
       "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
