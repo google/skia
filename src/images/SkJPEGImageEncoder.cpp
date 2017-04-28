@@ -11,6 +11,8 @@
 
 #include "SkColorPriv.h"
 #include "SkImageEncoderFns.h"
+#include "SkImageInfoPriv.h"
+#include "SkJpegEncoder.h"
 #include "SkJPEGWriteUtility.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
@@ -29,10 +31,6 @@ extern "C" {
  *  |proc|          will be set if we need to pre-convert the input before passing to
  *                  libjpeg-turbo.  Otherwise will be set to nullptr.
  */
-// TODO (skbug.com/1501):
-// Should we fail on non-opaque encodes?
-// Or should we change alpha behavior (ex: unpremultiply when the input is premul)?
-// Or is ignoring the alpha type and alpha channel ok here?
 static bool set_encode_config(J_COLOR_SPACE* jpegColorType, int* numComponents,
                               transform_scanline_proc* proc, const SkImageInfo& info) {
     *proc = nullptr;
@@ -77,67 +75,109 @@ static bool set_encode_config(J_COLOR_SPACE* jpegColorType, int* numComponents,
         default:
             return false;
     }
-
-
 }
 
-bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, const SkEncodeOptions& opts) {
-    if (SkTransferFunctionBehavior::kRespect == opts.fUnpremulBehavior) {
-        // Respecting the transfer function requries a color space.  It's not actually critical
-        // in the jpeg case (since jpegs are opaque), but Skia color correct behavior generally
-        // requires pixels to be tagged with color spaces.
-        if (!pixmap.colorSpace() || (!pixmap.colorSpace()->gammaCloseToSRGB() &&
-                                     !pixmap.colorSpace()->gammaIsLinear())) {
-            return false;
+class SkJpegEncoderMgr : SkNoncopyable {
+public:
+
+    /*
+     * Create the decode manager
+     * Does not take ownership of stream
+     */
+    static std::unique_ptr<SkJpegEncoderMgr> Make(SkWStream* stream) {
+        return std::unique_ptr<SkJpegEncoderMgr>(new SkJpegEncoderMgr(stream));
+    }
+
+    /*
+     * Initialize compress struct
+     * Set the source manager
+     */
+    void init() {
+        jpeg_create_compress(&fCInfo);
+        fCInfo.dest = &fDstMgr;
+        fInit = true;
+    }
+
+    jpeg_compress_struct* cinfo() { return &fCInfo; }
+
+    jmp_buf& jmpBuf() { return fErrMgr.fJmpBuf; }
+
+    ~SkJpegEncoderMgr() {
+        if (fInit) {
+            jpeg_destroy_compress(&fCInfo);
         }
     }
 
-    return SkEncodeImageAsJPEG(stream, pixmap, 100);
-}
+private:
 
-bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality) {
-    if (!pixmap.addr()) {
-        return false;
-    }
-    jpeg_compress_struct    cinfo;
-    skjpeg_error_mgr        sk_err;
-    skjpeg_destination_mgr  sk_wstream(stream);
-
-    // Declare before calling setjmp.
-    SkAutoTMalloc<uint8_t>  storage;
-
-    cinfo.err = jpeg_std_error(&sk_err);
-    sk_err.error_exit = skjpeg_error_exit;
-    if (setjmp(sk_err.fJmpBuf)) {
-        return false;
+    SkJpegEncoderMgr(SkWStream* stream)
+        : fDstMgr(stream)
+        , fInit(false)
+    {
+        fCInfo.err = jpeg_std_error(&fErrMgr);
+        fErrMgr.error_exit = skjpeg_error_exit;
     }
 
-    J_COLOR_SPACE jpegColorSpace;
+    jpeg_compress_struct   fCInfo;
+    skjpeg_error_mgr       fErrMgr;
+    skjpeg_destination_mgr fDstMgr;
+    bool                   fInit;
+};
+
+class SkJpegEncoder_Base : SkJpegEncoder {
+private:
+    SkJpegEncoder_Base(std::unique_ptr<SkJpegEncoderMgr> encoderMgr, const SkPixmap& src,
+                       transform_scanline_proc proc);
+
+    bool onEncodeRows(int numRows);
+
+    std::unique_ptr<SkJpegEncoderMgr> fEncoderMgr;
+    SkPixmap                          fSrc;
+    transform_scanline_proc           fProc;
+    int                               fCurrRow;
+    SkAutoTMalloc<uint8_t>            fStorage;
+
+    friend class SkJpegEncoder;
+};
+
+std::unique_ptr<SkJpegEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& src,
+                                                   const Options& options) {
+    if (!SkImageInfoIsValidAllowNumericalCS(src.info()) || !src.addr() ||
+            src.rowBytes() < src.info().minRowBytes()) {
+        return nullptr;
+    }
+
+    std::unique_ptr<SkJpegEncoderMgr> encoderMgr = SkJpegEncoderMgr::Make(dst);
+
+    J_COLOR_SPACE jpegColorType;
     int numComponents;
     transform_scanline_proc proc;
-    if (!set_encode_config(&jpegColorSpace, &numComponents, &proc, pixmap.info())) {
-        return false;
+    if (!set_encode_config(&jpegColorType, &numComponents, &proc, src.info())) {
+        return nullptr;
     }
 
-    jpeg_create_compress(&cinfo);
-    cinfo.dest = &sk_wstream;
-    cinfo.image_width = pixmap.width();
-    cinfo.image_height = pixmap.height();
-    cinfo.input_components = numComponents;
-    cinfo.in_color_space = jpegColorSpace;
+    encoderMgr->init();
+    if (setjmp(encoderMgr->jmpBuf())) {
+        return nullptr;
+    }
 
-    jpeg_set_defaults(&cinfo);
+    encoderMgr->cinfo()->image_width = src.width();
+    encoderMgr->cinfo()->image_height = src.height();
+    encoderMgr->cinfo()->in_color_space = jpegColorType;
+    encoderMgr->cinfo()->input_components = numComponents;
+    jpeg_set_defaults(encoderMgr->cinfo());
 
     // Tells libjpeg-turbo to compute optimal Huffman coding tables
     // for the image.  This improves compression at the cost of
     // slower encode performance.
-    cinfo.optimize_coding = TRUE;
-    jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
+    encoderMgr->cinfo()->optimize_coding = TRUE;
 
-    jpeg_start_compress(&cinfo, TRUE);
+    jpeg_set_quality(encoderMgr->cinfo(), options.fQuality, TRUE);
 
-    if (pixmap.colorSpace()) {
-        sk_sp<SkData> icc = icc_from_color_space(*pixmap.colorSpace());
+    jpeg_start_compress(encoderMgr->cinfo(), TRUE);
+
+    if (src.colorSpace()) {
+        sk_sp<SkData> icc = icc_from_color_space(*src.colorSpace());
         if (icc) {
             // Create a contiguous block of memory with the icc signature followed by the profile.
             sk_sp<SkData> markerData =
@@ -149,30 +189,69 @@ bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality)
             *ptr++ = 1; // Out of one total markers.
             memcpy(ptr, icc->data(), icc->size());
 
-            jpeg_write_marker(&cinfo, kICCMarker, markerData->bytes(), markerData->size());
+            jpeg_write_marker(encoderMgr->cinfo(), kICCMarker, markerData->bytes(),
+                              markerData->size());
         }
     }
 
-    if (proc) {
-        storage.reset(numComponents * pixmap.width());
+    return std::unique_ptr<SkJpegEncoder>(new SkJpegEncoder_Base(std::move(encoderMgr), src, proc));
+}
+
+
+SkJpegEncoder_Base::SkJpegEncoder_Base(std::unique_ptr<SkJpegEncoderMgr> encoderMgr,
+                                       const SkPixmap& src, transform_scanline_proc proc)
+    : fEncoderMgr(std::move(encoderMgr))
+    , fSrc(src)
+    , fProc(proc)
+    , fCurrRow(0)
+    , fStorage(proc ? fEncoderMgr->cinfo()->input_components*src.width() : 0)
+{}
+
+bool SkJpegEncoder::encodeRows(int numRows) {
+    return ((SkJpegEncoder_Base*) this)->onEncodeRows(numRows);
+}
+
+bool SkJpegEncoder_Base::onEncodeRows(int numRows) {
+    if (numRows <= 0 || fCurrRow == fSrc.height()) {
+        return false;
     }
 
-    const void* srcRow = pixmap.addr();
-    const SkPMColor* colors = pixmap.ctable() ? pixmap.ctable()->readColors() : nullptr;
-    while (cinfo.next_scanline < cinfo.image_height) {
+    SkASSERT(fCurrRow < fSrc.height());
+    if (fCurrRow + numRows > fSrc.height()) {
+        numRows = fSrc.height() - fCurrRow;
+    }
+
+    const void* srcRow = fSrc.addr(0, fCurrRow);
+    const SkPMColor* colors = fSrc.ctable() ? fSrc.ctable()->readColors() : nullptr;
+    for (int i = 0; i < numRows; i++) {
         JSAMPLE* jpegSrcRow = (JSAMPLE*) srcRow;
-        if (proc) {
-            proc((char*)storage.get(), (const char*)srcRow, pixmap.width(), numComponents, colors);
-            jpegSrcRow = storage.get();
+        if (fProc) {
+            fProc((char*)fStorage.get(), (const char*)srcRow, fSrc.width(),
+                  fEncoderMgr->cinfo()->input_components, colors);
+            jpegSrcRow = fStorage.get();
         }
 
-        (void) jpeg_write_scanlines(&cinfo, &jpegSrcRow, 1);
-        srcRow = SkTAddOffset<const void>(srcRow, pixmap.rowBytes());
+        jpeg_write_scanlines(fEncoderMgr->cinfo(), &jpegSrcRow, 1);
+        srcRow = SkTAddOffset<const void>(srcRow, fSrc.rowBytes());
     }
 
-    jpeg_finish_compress(&cinfo);
-    jpeg_destroy_compress(&cinfo);
+    fCurrRow += numRows;
+    if (fCurrRow == fSrc.height()) {
+        jpeg_finish_compress(fEncoderMgr->cinfo());
+    }
 
     return true;
 }
+
+bool SkJpegEncoder::Encode(SkWStream* dst, const SkPixmap& src, const Options& options) {
+    auto encoder = SkJpegEncoder::Make(dst, src, options);
+    return encoder && encoder->encodeRows(src.height());
+}
+
+bool SkEncodeImageAsJPEG(SkWStream* dst, const SkPixmap& src, int quality) {
+    SkJpegEncoder::Options opts;
+    opts.fQuality = quality;
+    return SkJpegEncoder::Encode(dst, src, opts);
+}
+
 #endif
