@@ -78,6 +78,8 @@ public:
 protected:
     ~SkMallocPixelRef() override;
 
+    size_t getAllocatedSizeInBytes() const override;
+
 private:
     // Uses alloc to implement NewAllocate or NewZeroed.
     static sk_sp<SkPixelRef> MakeUsing(void*(*alloc)(size_t),

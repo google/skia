@@ -106,9 +106,7 @@ static SkImageSubset make_image_subset(const SkBitmap& bitmap) {
     SkIRect subset = bitmap.getSubset();
     SkASSERT(bitmap.pixelRef());
     SkBitmap tmp;
-    SkImageInfo pixelRefInfo =
-            bitmap.info().makeWH(bitmap.pixelRef()->width(), bitmap.pixelRef()->height());
-    tmp.setInfo(pixelRefInfo, bitmap.rowBytes());
+    tmp.setInfo(bitmap.pixelRef()->info(), bitmap.rowBytes());
     tmp.setPixelRef(sk_ref_sp(bitmap.pixelRef()), 0, 0);
     auto img = SkImage::MakeFromBitmap(tmp);
     if (img) {
