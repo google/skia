@@ -6,7 +6,7 @@
  */
 
 #include "GrTextureToYUVPlanes.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "GrSimpleTextureEffect.h"
 #include "effects/GrYUVEffect.h"
 #include "GrClip.h"
 #include "GrContext.h"

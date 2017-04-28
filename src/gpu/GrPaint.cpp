@@ -9,7 +9,7 @@
 #include "GrXferProcessor.h"
 #include "effects/GrCoverageSetOpXP.h"
 #include "effects/GrPorterDuffXferProcessor.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "GrSimpleTextureEffect.h"
 
 void GrPaint::setPorterDuffXPFactory(SkBlendMode mode) {
     fXPFactory = GrPorterDuffXPFactory::Get(mode);

@@ -1876,7 +1876,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             Type intfStruct(Position(), name, fields);
             Layout layout(-1, -1, 1, -1, -1, -1, -1, false, false, false,
                           Layout::Format::kUnspecified, false, Layout::kUnspecified_Primitive, -1,
-                          -1);
+                          -1, "", Layout::kNo_Key);
             Variable* intfVar = new Variable(Position(),
                                              Modifiers(layout, Modifiers::kUniform_Flag),
                                              name,
@@ -2889,6 +2889,8 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         case Program::kGeometry_Kind:
             this->writeWord(SpvExecutionModelGeometry, out);
             break;
+        default:
+            ABORT("cannot write this kind of program to SPIR-V\n");
     }
     this->writeWord(fFunctionMap[main], out);
     this->writeString(main->fName.c_str(), out);

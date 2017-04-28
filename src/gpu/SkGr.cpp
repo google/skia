@@ -33,7 +33,7 @@
 #include "SkTemplates.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrConstColorProcessor.h"
-#include "effects/GrDitherEffect.h"
+#include "GrDitherEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 

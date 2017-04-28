@@ -18,7 +18,7 @@ namespace SkSL {
  */
 struct Block : public Statement {
     Block(Position position, std::vector<std::unique_ptr<Statement>> statements,
-          const std::shared_ptr<SymbolTable> symbols)
+          const std::shared_ptr<SymbolTable> symbols = nullptr)
     : INHERITED(position, kBlock_Kind)
     , fSymbols(std::move(symbols))
     , fStatements(std::move(statements)) {}
