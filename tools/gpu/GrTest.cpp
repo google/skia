@@ -330,10 +330,9 @@ public:
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence, uint64_t) override { return true; }
     void deleteFence(GrFence) const override {}
-    void flush() override {}
 
     sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() override { return nullptr; }
-    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override {}
+    void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override {}
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
 
 private:
