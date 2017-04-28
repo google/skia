@@ -199,20 +199,8 @@ SkImage_Base::~SkImage_Base() {
     }
 }
 
-bool SkImage_Base::onReadYUV8Planes(const SkISize sizes[3], void* const planes[3],
-                                    const size_t rowBytes[3], SkYUVColorSpace colorSpace) const {
-    return SkRGBAToYUV(this, sizes, planes, rowBytes, colorSpace);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY, CachingHint chint) const {
     return this->readPixels(pmap.info(), pmap.writable_addr(), pmap.rowBytes(), srcX, srcY, chint);
-}
-
-bool SkImage::readYUV8Planes(const SkISize sizes[3], void* const planes[3],
-                             const size_t rowBytes[3], SkYUVColorSpace colorSpace) const {
-    return as_IB(this)->onReadYUV8Planes(sizes, planes, rowBytes, colorSpace);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
