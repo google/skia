@@ -441,7 +441,10 @@
       "_",
       "image",
       "_",
-      ".SRW"
+      ".SRW",
+      "--match",
+      "~HalfFloatAlphaTextureTest",
+      "~HalfFloatRGBATextureTest"
     ],
     "env": {
       "BUILDTYPE": "Debug",
