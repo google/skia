@@ -137,7 +137,7 @@ public:
 
 
             SkString occluder("occluder");
-            this->emitChild(0, nullptr, &occluder, args);
+            this->emitChild(0, GR_DEFAULT_INPUTCOLOR, &occluder, args);
 
             // Modify the input texture coordinates to index into our 1D output
             fragBuilder->codeAppend("float distHere;");

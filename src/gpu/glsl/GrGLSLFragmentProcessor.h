@@ -13,6 +13,8 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
+#define GR_DEFAULT_INPUTCOLOR "vec4(1.0)"
+
 class GrProcessor;
 class GrProcessorKeyBuilder;
 class GrGLSLFPBuilder;

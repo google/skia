@@ -276,9 +276,7 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("\t\t\tcoord.%s = min(highBound, coord.%s);", dir, dir);
     }
     fragBuilder->codeAppend("\t\t}\n");
-    SkString modulate;
-    GrGLSLMulVarBy4f(&modulate, args.fOutputColor, args.fInputColor);
-    fragBuilder->codeAppend(modulate.c_str());
+    fragBuilder->codeAppendf("%s *= %s;\n", args.fOutputColor, args.fInputColor);
 }
 
 void GrGLMorphologyEffect::GenKey(const GrProcessor& proc,

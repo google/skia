@@ -250,12 +250,12 @@ public:
 
             SkString povDepthSampler("_povDepth");
             SkString povDepth("povDepth");
-            this->emitChild(0, nullptr, &povDepthSampler, args);
+            this->emitChild(0, GR_DEFAULT_INPUTCOLOR, &povDepthSampler, args);
             fragBuilder->codeAppendf("vec4 %s = %s;", povDepth.c_str(), povDepthSampler.c_str());
 
             SkString diffuseColorSampler("_inDiffuseColor");
             SkString diffuseColor("inDiffuseColor");
-            this->emitChild(1, nullptr, &diffuseColorSampler, args);
+            this->emitChild(1, GR_DEFAULT_INPUTCOLOR, &diffuseColorSampler, args);
             fragBuilder->codeAppendf("vec4 %s = %s;", diffuseColor.c_str(),
                                      diffuseColorSampler.c_str());
 
