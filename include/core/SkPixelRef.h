@@ -178,11 +178,6 @@ private:
     friend class SkImage_Raster;
     friend class SkSpecialImage_Raster;
 
-    // When copying a bitmap to another with the same shape and config, we can safely
-    // clone the pixelref generation ID too, which makes them equivalent under caching.
-    friend class SkBitmap;  // only for cloneGenID
-    void cloneGenID(const SkPixelRef&);
-
     void setImmutableWithID(uint32_t genID);
     friend class SkImage_Gpu;
     friend class SkImage_Lazy;
