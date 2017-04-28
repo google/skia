@@ -371,6 +371,10 @@ def dm_flags(bot):
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
 
+  if 'CommandBuffer' in bot:
+    # https://crbug.com/697030
+    match.append('~HalfFloatAlphaTextureTest')
+
   if 'AndroidOne' in bot:  # skia:4711
     match.append('~WritePixels')
 
