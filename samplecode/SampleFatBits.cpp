@@ -462,7 +462,7 @@ protected:
             paint.setAntiAlias(true);
             paint.setTextSize(16);
             paint.setColor(SK_ColorBLUE);
-            canvas->drawText(str.c_str(), str.size(), 10, 16, paint);
+            canvas->drawString(str, 10, 16, paint);
         }
     }
 

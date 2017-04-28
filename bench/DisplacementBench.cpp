@@ -40,7 +40,7 @@ protected:
         paint.setColor(0xFF884422);
         paint.setTextSize(SkIntToScalar(96));
         const char* str = "g";
-        canvas.drawText(str, strlen(str), SkIntToScalar(15), SkIntToScalar(55), paint);
+        canvas.drawString(str, SkIntToScalar(15), SkIntToScalar(55), paint);
     }
 
     void makeCheckerboard() {

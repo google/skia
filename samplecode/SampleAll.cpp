@@ -544,7 +544,7 @@ protected:
                                     gLightingColors[index].fAdd));
 #endif
 
-            canvas->drawText(str.c_str(), str.size(), x, y, paint);
+            canvas->drawString(str, x, y, paint);
             SkRect  oval = { x, y - SkIntToScalar(40), x + SkIntToScalar(40), y };
             paint.setStyle(SkPaint::kStroke_Style);
             canvas->drawOval(oval, paint);

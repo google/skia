@@ -125,13 +125,13 @@ class FilterBitmapTextGM: public FilterBitmapGM {
           paint.setTextSize(fTextSize);
 
           setTypeface(&paint, "serif", SkFontStyle());
-          canvas.drawText("Hamburgefons", 12, fTextSize/2, 1.2f*fTextSize, paint);
+          canvas.drawString("Hamburgefons", fTextSize/2, 1.2f*fTextSize, paint);
           setTypeface(&paint, "serif", SkFontStyle::FromOldStyle(SkTypeface::kBold));
-          canvas.drawText("Hamburgefons", 12, fTextSize/2, 2.4f*fTextSize, paint);
+          canvas.drawString("Hamburgefons", fTextSize/2, 2.4f*fTextSize, paint);
           setTypeface(&paint, "serif", SkFontStyle::FromOldStyle(SkTypeface::kItalic));
-          canvas.drawText("Hamburgefons", 12, fTextSize/2, 3.6f*fTextSize, paint);
+          canvas.drawString("Hamburgefons", fTextSize/2, 3.6f*fTextSize, paint);
           setTypeface(&paint, "serif", SkFontStyle::FromOldStyle(SkTypeface::kBoldItalic));
-          canvas.drawText("Hamburgefons", 12, fTextSize/2, 4.8f*fTextSize, paint);
+          canvas.drawString("Hamburgefons", fTextSize/2, 4.8f*fTextSize, paint);
       }
   private:
       typedef FilterBitmapGM INHERITED;

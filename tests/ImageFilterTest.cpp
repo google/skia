@@ -738,14 +738,14 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
             SkScalar ypos = SkIntToScalar(height);
             untiledCanvas.save();
             untiledCanvas.scale(SkIntToScalar(scale), SkIntToScalar(scale));
-            untiledCanvas.drawText(text, strlen(text), 0, ypos, paint);
+            untiledCanvas.drawString(text, 0, ypos, paint);
             untiledCanvas.restore();
             for (int y = 0; y < height; y += tileSize) {
                 for (int x = 0; x < width; x += tileSize) {
                     tiledCanvas.save();
                     tiledCanvas.clipRect(SkRect::Make(SkIRect::MakeXYWH(x, y, tileSize, tileSize)));
                     tiledCanvas.scale(SkIntToScalar(scale), SkIntToScalar(scale));
-                    tiledCanvas.drawText(text, strlen(text), 0, ypos, paint);
+                    tiledCanvas.drawString(text, 0, ypos, paint);
                     tiledCanvas.restore();
                 }
             }
