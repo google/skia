@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b06cf567_6267b8db",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-28T15:05:06Z",
+      "side": 1,
+      "message": "I tried to find a better home for this, but I struggled with a name, given the semantics. Greg says we don\u0027t actually need (or want) a semaphore/flush combo here on Vulkan. So we need an operation that is GL-only, and which offers \"make sure the GPU has started any work I\u0027ve submitted thus far, and give me a semaphore back, assuming that you actually did what I just asked\". I considered an alternate version of prepareSurfaceForExternalIO, but that means plumbing through drawing manager, etc... \n\nIn the CCID implementation, this was rolled into detachBackendTexture, but this operation is not texture specific (ie adding a \"flushPendingWrites\" API to texture priv sounded good, but has nothing to do with the texture).",
+      "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
