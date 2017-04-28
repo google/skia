@@ -63,12 +63,12 @@ sk_sp<SkSpecialImage> SkSpecialSurface::makeImageSnapshot() {
 
 class SkSpecialSurface_Raster : public SkSpecialSurface_Base {
 public:
-    SkSpecialSurface_Raster(sk_sp<SkPixelRef> pr,
+    SkSpecialSurface_Raster(const SkImageInfo& info,
+                            sk_sp<SkPixelRef> pr,
                             const SkIRect& subset,
                             const SkSurfaceProps* props)
         : INHERITED(subset, props) {
-        const SkImageInfo& info = pr->info();
-
+        SkASSERT(info.width() == pr->width() && info.height() == pr->height());
         fBitmap.setInfo(info, info.minRowBytes());
         fBitmap.setPixelRef(std::move(pr), 0, 0);
 
@@ -93,7 +93,7 @@ private:
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromBitmap(const SkIRect& subset, SkBitmap& bm,
                                                          const SkSurfaceProps* props) {
-    return sk_make_sp<SkSpecialSurface_Raster>(sk_ref_sp(bm.pixelRef()), subset, props);
+    return sk_make_sp<SkSpecialSurface_Raster>(bm.info(), sk_ref_sp(bm.pixelRef()), subset, props);
 }
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
@@ -103,9 +103,9 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
         return nullptr;
     }
 
-    const SkIRect subset = SkIRect::MakeWH(pr->info().width(), pr->info().height());
+    const SkIRect subset = SkIRect::MakeWH(info.width(), info.height());
 
-    return sk_make_sp<SkSpecialSurface_Raster>(std::move(pr), subset, props);
+    return sk_make_sp<SkSpecialSurface_Raster>(info, std::move(pr), subset, props);
 }
 
 #if SK_SUPPORT_GPU
