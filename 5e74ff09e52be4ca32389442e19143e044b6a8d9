@@ -2,6 +2,144 @@
   "comments": [
     {
       "key": {
+        "uuid": "84db8821_94f0b89f",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-28T15:39:58Z",
+      "side": 1,
+      "message": "given we have srcImg and srcImage (line 428), maybe we could rename this parameter special or something else?",
+      "range": {
+        "startLine": 391,
+        "startChar": 49,
+        "endLine": 391,
+        "endChar": 55
+      },
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "738a24ba_f3427989",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-28T15:39:58Z",
+      "side": 1,
+      "message": "do we need a rename for this? Can we just reassign srcImg on line 413?",
+      "range": {
+        "startLine": 395,
+        "startChar": 19,
+        "endLine": 395,
+        "endChar": 20
+      },
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1464d4f_794816a8",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-28T15:39:58Z",
+      "side": 1,
+      "message": "do we need pmap at all?",
+      "range": {
+        "startLine": 452,
+        "startChar": 13,
+        "endLine": 452,
+        "endChar": 17
+      },
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "999dadaf_b4d3c8e6",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-28T15:39:58Z",
+      "side": 1,
+      "message": "rebase nit: just need to specify the local matrix :)",
+      "range": {
+        "startLine": 456,
+        "startChar": 53,
+        "endLine": 456,
+        "endChar": 61
+      },
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3737ba9c_4d7c7517",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-28T15:39:58Z",
+      "side": 1,
+      "message": "seems complicated just to save at worst a ref? Given the cost of savelayer is this measurable?",
+      "range": {
+        "startLine": 1025,
+        "startChar": 4,
+        "endLine": 1025,
+        "endChar": 23
+      },
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b2603ae_bd8bbf31",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-28T15:39:58Z",
+      "side": 1,
+      "message": "Let\u0027s name the last two parameters, to help document them (its not obvious they are both related to mask clipping)",
+      "range": {
+        "startLine": 262,
+        "startChar": 29,
+        "endLine": 262,
+        "endChar": 36
+      },
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cb4b0229_dc8c8fd0",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 13
