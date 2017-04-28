@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "93129235_03eab084",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-28T16:10:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "84db8821_94f0b89f",
+      "range": {
+        "startLine": 391,
+        "startChar": 49,
+        "endLine": 391,
+        "endChar": 55
+      },
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "738a24ba_f3427989",
         "filename": "src/core/SkBitmapDevice.cpp",
         "patchSetId": 13
@@ -36,6 +60,30 @@
       "writtenOn": "2017-04-28T15:39:58Z",
       "side": 1,
       "message": "do we need a rename for this? Can we just reassign srcImg on line 413?",
+      "range": {
+        "startLine": 395,
+        "startChar": 19,
+        "endLine": 395,
+        "endChar": 20
+      },
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13a4d573_c12cf16a",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-28T16:10:12Z",
+      "side": 1,
+      "message": "Ack/done.",
+      "parentUuid": "738a24ba_f3427989",
       "range": {
         "startLine": 395,
         "startChar": 19,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "782ba38c_91f52fda",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-28T16:10:12Z",
+      "side": 1,
+      "message": "leftover, removed.",
+      "parentUuid": "a1464d4f_794816a8",
+      "range": {
+        "startLine": 452,
+        "startChar": 13,
+        "endLine": 452,
+        "endChar": 17
+      },
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "999dadaf_b4d3c8e6",
         "filename": "src/core/SkBitmapDevice.cpp",
         "patchSetId": 13
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "7dfdd0e2_250f5703",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-28T16:10:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "999dadaf_b4d3c8e6",
+      "range": {
+        "startLine": 456,
+        "startChar": 53,
+        "endLine": 456,
+        "endChar": 61
+      },
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3737ba9c_4d7c7517",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 13
@@ -105,6 +201,30 @@
       "writtenOn": "2017-04-28T15:39:58Z",
       "side": 1,
       "message": "seems complicated just to save at worst a ref? Given the cost of savelayer is this measurable?",
+      "range": {
+        "startLine": 1025,
+        "startChar": 4,
+        "endLine": 1025,
+        "endChar": 23
+      },
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42cd9e66_b0e0ce89",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-28T16:10:12Z",
+      "side": 1,
+      "message": "gIgnoreSaveLayerBounds is never used outside skia testing, just trying to avoid unneeded ref churn now that we start using sk_sps.  I don\u0027t feel strongly about it, but I\u0027m biased \u0027cause I see SkTCOW as simple and free :)",
+      "parentUuid": "3737ba9c_4d7c7517",
       "range": {
         "startLine": 1025,
         "startChar": 4,
@@ -137,6 +257,30 @@
       "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcd60b3e_627e0237",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-28T16:10:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b2603ae_bd8bbf31",
+      "range": {
+        "startLine": 262,
+        "startChar": 29,
+        "endLine": 262,
+        "endChar": 36
+      },
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
