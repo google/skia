@@ -441,7 +441,9 @@
       "_",
       "image",
       "_",
-      ".SRW"
+      ".SRW",
+      "--match",
+      "~FloatingPointTextureTest"
     ],
     "env": {
       "BUILDTYPE": "Debug",
