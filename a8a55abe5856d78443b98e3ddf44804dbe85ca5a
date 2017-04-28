@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d51463a9_c5e13d27",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-28T16:19:41Z",
+      "side": 1,
+      "message": "Comment: Done.\n\nMessage bus: Are you picturing that the resource cache from the original GrContext is keeping refs on the textures, and polling another inbox to release the final ref (alongside the other messages it\u0027s getting)? Final ref on the image posts the message, so we know for sure that the texture deletion happens on correct thread/context?",
+      "parentUuid": "e273a15e_e74e6973",
+      "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3ef5bae3_b31bddfd",
         "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
         "patchSetId": 9
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "9f13e2f2_943b0cea",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-28T16:19:41Z",
+      "side": 1,
+      "message": "Yes, although I was waiting for some of Greg\u0027s upcoming changes to land. We discussed it, and he\u0027s about to alter how some of this works.",
+      "parentUuid": "3ef5bae3_b31bddfd",
+      "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f17f3e9a_59a056c3",
         "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
         "patchSetId": 9
@@ -47,6 +83,24 @@
       "writtenOn": "2017-04-28T15:17:25Z",
       "side": 1,
       "message": "Will this cause a vk layout change?",
+      "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "165d5cec_d4ebde25",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-28T16:19:41Z",
+      "side": 1,
+      "message": "Yes, I was just looking at that again. I could add some flag that forces the source to always be copied as draw, but it\u0027s probably easier to just make an RT context here and do the draw at this level?",
+      "parentUuid": "f17f3e9a_59a056c3",
       "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -82,6 +136,24 @@
       "side": 1,
       "message": "The only thing I can think if is a cap instead of an explicit opengl check, e.g. if (caps-\u003erequiresSemaphoreForCrossContextTexture()).",
       "parentUuid": "b06cf567_6267b8db",
+      "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b26fcf3_5fd84182",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-28T16:19:41Z",
+      "side": 1,
+      "message": "Ah, yes, that\u0027s probably an improvement. Will do.",
+      "parentUuid": "f77aa28d_507a06ef",
       "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
