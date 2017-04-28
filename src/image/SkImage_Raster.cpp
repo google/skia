@@ -28,7 +28,7 @@
 // fixes https://bug.skia.org/5096
 static bool is_not_subset(const SkBitmap& bm) {
     SkASSERT(bm.pixelRef());
-    SkISize dim = SkISize::Make(bm.pixelRef()->width(), bm.pixelRef()->height());
+    SkISize dim = bm.pixelRef()->info().dimensions();
     SkASSERT(dim != bm.dimensions() || bm.pixelRefOrigin().isZero());
     return dim == bm.dimensions();
 }
