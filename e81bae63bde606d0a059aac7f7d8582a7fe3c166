@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b857f201_c62f2f18",
+        "filename": "src/gpu/ops/GrNewNonAAFillRectOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-28T19:31:47Z",
+      "side": 1,
+      "message": "This file is mostly copy pasta from GrNonAAFillRectOp.cpp.\n\nThe changes are to pass the stencil settings here (rather than use a GrPipelineBuilder), to use GrDrawOpOptionalPipelineInputs to implement GrDrawMeshOp\u0027s virtuals rather than inherit from GrLegacyMeshDrawOp.",
+      "revId": "e81bae63bde606d0a059aac7f7d8582a7fe3c166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
