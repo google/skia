@@ -187,7 +187,6 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
                                                              const SkRRect& rrect,
                                                              const SkRRect& devRRect) const {
     // It's likely the caller has already done these checks, but we have to be sure.
-    // TODO: support analytic blurring of general rrect
 
     // Fast path only supports filled rrects for now.
     // TODO: fill and stroke as well.
@@ -195,52 +194,43 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         return false;
     }
     // Fast path only supports simple rrects with circular corners.
-    SkASSERT(devRRect.allCornersCircular());
-    if (!rrect.isRect() && !rrect.isOval() && !rrect.isSimple()) {
+    if (!devRRect.isRect() && !devRRect.isCircle() &&
+        (!devRRect.isSimple() || !devRRect.allCornersCircular())) {
         return false;
     }
     // Fast path only supports uniform scale.
-    SkScalar scaleFactors[2];
-    if (!viewMatrix.getMinMaxScales(scaleFactors)) {
-        // matrix is degenerate
+    if (!viewMatrix.isSimilarity()) {
         return false;
     }
-    if (scaleFactors[0] != scaleFactors[1]) {
-        return false;
-    }
-    SkScalar scaleFactor = scaleFactors[0];
-
-    // For all of these, we need to ensure we have a rrect with radius >= 0.5f in device space
-    const SkScalar minRadius = 0.5f / scaleFactor;
-    bool isRect = rrect.getSimpleRadii().fX <= minRadius;
-
-    // TODO: take flags into account when generating shadow data
+    // 1/scale
+    SkScalar scaleFactor = viewMatrix.isScaleTranslate() ?
+        SkScalarInvert(viewMatrix[SkMatrix::kMScaleX]) :
+        sk_float_rsqrt(viewMatrix[SkMatrix::kMScaleX] * viewMatrix[SkMatrix::kMScaleX] +
+                       viewMatrix[SkMatrix::kMSkewX] * viewMatrix[SkMatrix::kMSkewX]);
 
     if (fAmbientAlpha > 0.0f) {
-        SkScalar srcSpaceStrokeWidth = fOccluderHeight * kHeightFactor * kGeomFactor;
+        SkScalar devSpaceStrokeWidth = fOccluderHeight * kHeightFactor * kGeomFactor;
         const float umbraAlpha = (1.0f + SkTMax(fOccluderHeight * kHeightFactor, 0.0f));
-        const SkScalar blurWidth = srcSpaceStrokeWidth * umbraAlpha;
+        const SkScalar devSpaceAmbientBlur = devSpaceStrokeWidth * umbraAlpha;
 
-        // For the ambient rrect, we outset the offset rect by srcSpaceAmbientRadius
-        // minus half the strokeWidth to get our stroke shape.
-        SkScalar ambientPathOutset = SkTMax(srcSpaceStrokeWidth * 0.5f,
-                                            minRadius);
+        // For the ambient rrect, we outset the offset rect
+        // by half the strokeWidth to get our stroke shape.
+        SkScalar srcSpaceStrokeWidth = devSpaceStrokeWidth * scaleFactor;
+        SkScalar ambientPathOutset = 0.5f*srcSpaceStrokeWidth;
 
         SkRRect ambientRRect;
-        if (isRect) {
+        if (rrect.isRect()) {
             const SkRect temp = rrect.rect().makeOutset(ambientPathOutset, ambientPathOutset);
             ambientRRect = SkRRect::MakeRectXY(temp, ambientPathOutset, ambientPathOutset);
         } else {
              rrect.outset(ambientPathOutset, ambientPathOutset, &ambientRRect);
         }
 
-        const SkScalar devSpaceAmbientBlur = blurWidth * scaleFactor;
-
         GrPaint newPaint(paint);
         GrColor4f color = newPaint.getColor4f();
         color.fRGBA[3] *= fAmbientAlpha;
         newPaint.setColor4f(color);
-        SkStrokeRec ambientStrokeRec(SkStrokeRec::kHairline_InitStyle);
+        SkStrokeRec ambientStrokeRec(SkStrokeRec::kFill_InitStyle);
         bool transparent = SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
         ambientStrokeRec.setStrokeStyle(srcSpaceStrokeWidth, transparent);
 
@@ -280,12 +270,6 @@ void SkAmbientShadowMaskFilterImpl::toString(SkString* str) const {
         SkAddFlagToString(str,
                           SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag),
                           "TransparentOccluder", &needSeparator);
-        SkAddFlagToString(str,
-                          SkToBool(fFlags & SkShadowFlags::kGaussianEdge_ShadowFlag),
-                          "GaussianEdge", &needSeparator);
-        SkAddFlagToString(str,
-                          SkToBool(fFlags & SkShadowFlags::kLargerUmbra_ShadowFlag),
-                          "LargerUmbra", &needSeparator);
     } else {
         str->append("None");
     }
