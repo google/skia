@@ -428,12 +428,8 @@ GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace* colorSpace) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-static inline bool blend_requires_shader(const SkBlendMode mode, bool primitiveIsSrc) {
-    if (primitiveIsSrc) {
-        return SkBlendMode::kSrc != mode;
-    } else {
-        return SkBlendMode::kDst != mode;
-    }
+static inline bool blend_requires_shader(const SkBlendMode mode) {
+    return SkBlendMode::kDst != mode;
 }
 
 static inline bool skpaint_to_grpaint_impl(GrContext* context,
@@ -442,7 +438,6 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            const SkMatrix& viewM,
                                            sk_sp<GrFragmentProcessor>* shaderProcessor,
                                            SkBlendMode* primColorMode,
-                                           bool primitiveIsSrc,
                                            GrPaint* grPaint) {
     grPaint->setAllowSRGBInputs(rtc->isGammaCorrect());
 
@@ -453,7 +448,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
     sk_sp<GrFragmentProcessor> shaderFP;
-    if (!primColorMode || blend_requires_shader(*primColorMode, primitiveIsSrc)) {
+    if (!primColorMode || blend_requires_shader(*primColorMode)) {
         if (shaderProcessor) {
             shaderFP = *shaderProcessor;
         } else if (const SkShader* shader = skPaint.getShader()) {
@@ -481,13 +476,9 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
 
             GrColor4f shaderInput = origColor.opaque();
             shaderFP = GrFragmentProcessor::OverrideInput(shaderFP, shaderInput);
-            if (primitiveIsSrc) {
-                shaderFP = GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(shaderFP),
-                                                                             *primColorMode);
-            } else {
-                shaderFP = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(shaderFP),
-                                                                             *primColorMode);
-            }
+            shaderFP = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(shaderFP),
+                                                                         *primColorMode);
+
             // The above may return null if compose results in a pass through of the prim color.
             if (shaderFP) {
                 grPaint->addColorFragmentProcessor(shaderFP);
@@ -514,13 +505,8 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             sk_sp<GrFragmentProcessor> processor(
                 GrConstColorProcessor::Make(origColor.opaque(),
                                             GrConstColorProcessor::kIgnore_InputMode));
-            if (primitiveIsSrc) {
-                processor = GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(processor),
-                                                                              *primColorMode);
-            } else {
-                processor = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(processor),
-                                                                              *primColorMode);
-            }
+            processor = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(processor),
+                                                                          *primColorMode);
             if (processor) {
                 grPaint->addColorFragmentProcessor(std::move(processor));
             }
@@ -591,7 +577,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
 
 bool SkPaintToGrPaint(GrContext* context, GrRenderTargetContext* rtc, const SkPaint& skPaint,
                       const SkMatrix& viewM, GrPaint* grPaint) {
-    return skpaint_to_grpaint_impl(context, rtc, skPaint, viewM, nullptr, nullptr, false, grPaint);
+    return skpaint_to_grpaint_impl(context, rtc, skPaint, viewM, nullptr, nullptr, grPaint);
 }
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. */
@@ -603,7 +589,7 @@ bool SkPaintToGrPaintReplaceShader(GrContext* context,
     if (!shaderFP) {
         return false;
     }
-    return skpaint_to_grpaint_impl(context, rtc, skPaint, SkMatrix::I(), &shaderFP, nullptr, false,
+    return skpaint_to_grpaint_impl(context, rtc, skPaint, SkMatrix::I(), &shaderFP, nullptr,
                                    grPaint);
 }
 
@@ -616,7 +602,7 @@ bool SkPaintToGrPaintNoShader(GrContext* context,
     static sk_sp<GrFragmentProcessor> kNullShaderFP(nullptr);
     static sk_sp<GrFragmentProcessor>* kIgnoreShader = &kNullShaderFP;
     return skpaint_to_grpaint_impl(context, rtc, skPaint, SkMatrix::I(), kIgnoreShader, nullptr,
-                                   false, grPaint);
+                                   grPaint);
 }
 
 /** Blends the SkPaint's shader (or color if no shader) with a per-primitive color which must
@@ -626,10 +612,9 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
                                   const SkPaint& skPaint,
                                   const SkMatrix& viewM,
                                   SkBlendMode primColorMode,
-                                  bool primitiveIsSrc,
                                   GrPaint* grPaint) {
     return skpaint_to_grpaint_impl(context, rtc, skPaint, viewM, nullptr, &primColorMode,
-                                   primitiveIsSrc, grPaint);
+                                   grPaint);
 }
 
 bool SkPaintToGrPaintWithTexture(GrContext* context,
