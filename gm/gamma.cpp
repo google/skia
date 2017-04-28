@@ -63,9 +63,9 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
 
     auto nextRect = [&](const char* label, const char* label2) {
         canvas->drawRect(r, p);
-        canvas->drawText(label, strlen(label), 0, sz + textPaint.getFontSpacing(), textPaint);
+        canvas->drawString(label, 0, sz + textPaint.getFontSpacing(), textPaint);
         if (label2) {
-            canvas->drawText(label2, strlen(label2), 0, sz + 2 * textPaint.getFontSpacing(),
+            canvas->drawString(label2, 0, sz + 2 * textPaint.getFontSpacing(),
                              textPaint);
         }
         advance();
@@ -73,7 +73,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
 
     auto nextBitmap = [&](const SkBitmap& bmp, const char* label) {
         canvas->drawBitmap(bmp, 0, 0);
-        canvas->drawText(label, strlen(label), 0, sz + textPaint.getFontSpacing(), textPaint);
+        canvas->drawString(label, 0, sz + textPaint.getFontSpacing(), textPaint);
         advance();
     };
 
@@ -86,12 +86,12 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
 
         SkString srcText = SkStringPrintf("%08X", srcColor);
         SkString dstText = SkStringPrintf("%08X", dstColor);
-        canvas->drawText(srcText.c_str(), srcText.size(), 0, sz + textPaint.getFontSpacing(),
+        canvas->drawString(srcText, 0, sz + textPaint.getFontSpacing(),
                          textPaint);
         const char* modeName = SkBlendMode_Name(mode);
-        canvas->drawText(modeName, strlen(modeName), 0, sz + 2 * textPaint.getFontSpacing(),
+        canvas->drawString(modeName, 0, sz + 2 * textPaint.getFontSpacing(),
                          textPaint);
-        canvas->drawText(dstText.c_str(), dstText.size(), 0, sz + 3 * textPaint.getFontSpacing(),
+        canvas->drawString(dstText, 0, sz + 3 * textPaint.getFontSpacing(),
                          textPaint);
         advance();
     };

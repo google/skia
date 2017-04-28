@@ -103,8 +103,7 @@ protected:
                                                    doAAB ? "A" : "B",
                                                    doInvB ? "I" : "N");
 
-                        canvas->drawText(str.c_str(), strlen(str.c_str()), txtX, SkIntToScalar(130),
-                                         paint);
+                        canvas->drawString(str.c_str(), txtX, SkIntToScalar(130), paint);
                         if (doInvB) {
                             canvas->translate(SkIntToScalar(150),0);
                         } else {

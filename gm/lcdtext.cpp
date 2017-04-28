@@ -58,7 +58,7 @@ protected:
         paint.setLCDRenderText(lcdRenderTextEnabled);
         paint.setTextSize(textHeight);
 
-        canvas->drawText(string.c_str(), string.size(), 0, y, paint);
+        canvas->drawString(string, 0, y, paint);
         y += textHeight;
     }
 
@@ -120,7 +120,7 @@ protected:
 
             paint.setTextSize(rec[i].fTextSize);
             ScaleAbout(canvas, rec[i].fScale, rec[i].fScale, loc.x(), loc.y());
-            canvas->drawText(rec[i].fText, strlen(rec[i].fText), loc.x(), loc.y(), paint);
+            canvas->drawString(rec[i].fText, loc.x(), loc.y(), paint);
         }
     }
 
@@ -138,7 +138,7 @@ DEF_SIMPLE_GM(savelayer_lcdtext, canvas, 620, 260) {
     paint.setLCDRenderText(true);
     paint.setTextSize(20);
 
-    canvas->drawText("Hamburgefons", 12, 30, 30, paint);
+    canvas->drawString("Hamburgefons", 30, 30, paint);
 
     const bool gPreserveLCDText[] = { false, true };
 
@@ -149,15 +149,15 @@ DEF_SIMPLE_GM(savelayer_lcdtext, canvas, 620, 260) {
         if (preserve) {
             SkPaint noLCD = paint;
             noLCD.setLCDRenderText(false);
-            canvas->drawText("LCD not supported", 17, 30, 60, noLCD);
+            canvas->drawString("LCD not supported", 30, 60, noLCD);
         } else {
-            canvas->drawText("Hamburgefons", 12, 30, 60, paint);
+            canvas->drawString("Hamburgefons", 30, 60, paint);
         }
 
         SkPaint p;
         p.setColor(0xFFCCCCCC);
         canvas->drawRect(SkRect::MakeLTRB(25, 70, 200, 100), p);
-        canvas->drawText("Hamburgefons", 12, 30, 90, paint);
+        canvas->drawString("Hamburgefons", 30, 90, paint);
 
         canvas->restore();
         canvas->translate(0, 80);

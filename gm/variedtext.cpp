@@ -116,7 +116,7 @@ protected:
             canvas->save();
                 canvas->clipRect(fClipRects[i]);
                 canvas->translate(fPositions[i].fX, fPositions[i].fY);
-                canvas->drawText(fStrings[i].c_str(), fStrings[i].size(), 0, 0, fPaint);
+                canvas->drawString(fStrings[i], 0, 0, fPaint);
             canvas->restore();
         }
 

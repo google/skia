@@ -235,7 +235,7 @@ protected:
         paint.setTypeface(fFace);
 
         apply_shader(&paint, SkScalarToFloat(fInterp));
-        canvas->drawText(str.c_str(), str.size(), x, y, paint);
+        canvas->drawString(str, x, y, paint);
 
     //    drawdots(canvas, paint);
 

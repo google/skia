@@ -35,6 +35,7 @@
 #include "SkShadowPaintFilterCanvas.h"
 #include "SkShadowShader.h"
 #include "SkSpecialImage.h"
+#include "SkString.h"
 #include "SkSurface_Base.h"
 #include "SkTextBlob.h"
 #include "SkTextFormatParams.h"
@@ -2573,6 +2574,10 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     LOOPER_END
 
     fMCRec->fFilter = drawFilter;
+}
+
+void SkCanvas::drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint) {
+    this->drawText(string.c_str(), string.size(), x, y, paint);
 }
 
 // These will become non-virtual, so they always call the (virtual) onDraw... method

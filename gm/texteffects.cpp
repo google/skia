@@ -188,7 +188,7 @@ DEF_SIMPLE_GM(texteffects, canvas, 460, 680) {
             //  paint.setMaskFilter(nullptr);
             //  paint.setColor(SK_ColorBLACK);
 
-            canvas->drawText(str.c_str(), str.size(), x, y, paint);
+            canvas->drawString(str, x, y, paint);
 
             y += paint.getFontSpacing();
         }

@@ -180,7 +180,7 @@ protected:
         sk_tool_utils::set_portable_typeface(&blackPaint);
         SkString title;
         title.printf("Bitmap size: %d x %d", gBmpSize, gBmpSize);
-        canvas->drawText(title.c_str(), title.size(), 0,
+        canvas->drawString(title, 0,
                          titleHeight, blackPaint);
 
         canvas->translate(0, SK_Scalar1 * kPadY / 2  + titleHeight);
@@ -199,7 +199,7 @@ protected:
                 blackPaint.setTextSize(SK_Scalar1 * 10);
                 SkScalar baseline = dstRect.height() +
                                     blackPaint.getTextSize() + SK_Scalar1 * 3;
-                canvas->drawText(label.c_str(), label.size(),
+                canvas->drawString(label,
                                     0, baseline,
                                     blackPaint);
                 blackPaint.setStyle(SkPaint::kStroke_Style);

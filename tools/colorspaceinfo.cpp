@@ -252,9 +252,9 @@ static void draw_gamut(SkCanvas* canvas, const SkMatrix44& xyz, const char* name
     paint.setTextSize(75.0f);
     canvas->drawPoints(SkCanvas::kPolygon_PointMode, 4, rgb, paint);
     if (label) {
-        canvas->drawText("R", 1, rgb[0].fX + 5.0f, rgb[0].fY + 75.0f, paint);
-        canvas->drawText("G", 1, rgb[1].fX + 5.0f, rgb[1].fY - 5.0f, paint);
-        canvas->drawText("B", 1, rgb[2].fX - 75.0f, rgb[2].fY - 5.0f, paint);
+        canvas->drawString("R", rgb[0].fX + 5.0f, rgb[0].fY + 75.0f, paint);
+        canvas->drawString("G", rgb[1].fX + 5.0f, rgb[1].fY - 5.0f, paint);
+        canvas->drawString("B", rgb[2].fX - 75.0f, rgb[2].fY - 5.0f, paint);
     }
 }
 

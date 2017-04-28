@@ -119,13 +119,13 @@ protected:
                    100.0f * totArea / ((float)kWidth*kHeight),
                    fCurRandRect,
                    kNumRandRects);
-        canvas->drawText(str.c_str(), str.size(), 50, kHeight + 50, blackBigFont);
+        canvas->drawString(str, 50, kHeight + 50, blackBigFont);
 
         str.printf("Press \'j\' to toggle rectanizer");
-        canvas->drawText(str.c_str(), str.size(), 50, kHeight + 100, blackBigFont);
+        canvas->drawString(str, 50, kHeight + 100, blackBigFont);
 
         str.printf("Press \'h\' to toggle rects");
-        canvas->drawText(str.c_str(), str.size(), 50, kHeight + 150, blackBigFont);
+        canvas->drawString(str, 50, kHeight + 150, blackBigFont);
 
         this->inval(nullptr);
     }

@@ -85,7 +85,7 @@ protected:
                 paint->setTextSize(100.f);
                 paint->setFakeBoldText(true);
                 sk_tool_utils::set_portable_typeface(paint);
-                canvas->drawText(text, strlen(text), 0.f, 100.f, *paint);
+                canvas->drawString(text, 0.f, 100.f, *paint);
             }
             default:
                 break;

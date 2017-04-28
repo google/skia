@@ -105,7 +105,7 @@ protected:
                 str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
                 p.setTextAlign(SkPaint::kCenter_Align);
-                canvas->drawText(str.c_str(), str.size(), x + r.width()/2, y, p);
+                canvas->drawString(str, x + r.width()/2, y, p);
 
                 x += r.width() * 4 / 3;
             }
@@ -142,7 +142,7 @@ protected:
                     p.setAntiAlias(true);
                     sk_tool_utils::set_portable_typeface(&p);
                     str.printf("%s, %s", gConfigNames[i], gFilterNames[j]);
-                    canvas->drawText(str.c_str(), str.size(), x, y + r.height() * 2 / 3, p);
+                    canvas->drawString(str, x, y + r.height() * 2 / 3, p);
                 }
 
                 y += r.height() * 4 / 3;
@@ -224,7 +224,7 @@ protected:
 
         for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
             SkString str(gModeNames[kx]);
-            canvas->drawText(str.c_str(), str.size(), x + r.width()/2, y, p);
+            canvas->drawString(str, x + r.width()/2, y, p);
             x += r.width() * 4 / 3;
         }
 
@@ -235,7 +235,7 @@ protected:
             x = SkIntToScalar(16) + w;
 
             SkString str(gModeNames[ky]);
-            canvas->drawText(str.c_str(), str.size(), x, y + h/2, p);
+            canvas->drawString(str, x, y + h/2, p);
 
             x += SkIntToScalar(50);
             for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {

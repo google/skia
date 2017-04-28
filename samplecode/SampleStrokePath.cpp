@@ -170,7 +170,7 @@ protected:
                     if (x) {
                         paint.setMaskFilter(SkBlurMaskFilter::Make(gStyle[x - 1], sigma));
                     }
-                    canvas->drawText("Title Bar", 9, x*SkIntToScalar(100), y*SkIntToScalar(30), paint);
+                    canvas->drawString("Title Bar", x*SkIntToScalar(100), y*SkIntToScalar(30), paint);
                     sigma *= 0.75f;
                 }
 

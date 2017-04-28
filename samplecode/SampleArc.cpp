@@ -127,7 +127,7 @@ protected:
         str.appendScalar(start);
         str.append(", ");
         str.appendScalar(sweep);
-        canvas->drawText(str.c_str(), str.size(), rect.centerX(),
+        canvas->drawString(str, rect.centerX(),
                          rect.fBottom + paint.getTextSize() * 5/4, paint);
     }
 

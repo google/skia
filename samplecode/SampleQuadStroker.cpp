@@ -321,7 +321,7 @@ protected:
                     label.appendS32(index);
                     SkRect dot = SkRect::MakeXYWH(pos.x() - 2, pos.y() - 2, 4, 4);
                     canvas->drawRect(dot, labelP);
-                    canvas->drawText(label.c_str(), label.size(),
+                    canvas->drawString(label,
                         pos.x() - tan.x() * 1.25f, pos.y() - tan.y() * 1.25f, labelP);
                 }
             }
@@ -381,7 +381,7 @@ protected:
             if (0 == index % 10) {
                 SkString label;
                 label.appendS32(index);
-                canvas->drawText(label.c_str(), label.size(),
+                canvas->drawString(label,
                     pos.x() + tan.x() * 1.25f, pos.y() + tan.y() * 1.25f, paint);
             }
         }
@@ -509,9 +509,9 @@ protected:
         paint.setColor(0xFF000000);
         paint.setTextSize(11.0f);
         paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawText(label.c_str(), label.size(), bounds.fLeft + 5, yPos - 5, paint);
+        canvas->drawString(label, bounds.fLeft + 5, yPos - 5, paint);
         paint.setTextSize(13.0f);
-        canvas->drawText(name, strlen(name), bounds.fLeft, bounds.bottom() + 11, paint);
+        canvas->drawString(name, bounds.fLeft, bounds.bottom() + 11, paint);
     }
 
     void setForGeometry() {

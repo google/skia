@@ -57,7 +57,7 @@ protected:
         paint.setShader(make_chrome_solid());
         paint.setTextSize(SkIntToScalar(500));
 
-        canvas->drawText("I", 1, 0, 100, paint);
+        canvas->drawString("I", 0, 100, paint);
     }
 private:
     typedef GM INHERITED;
@@ -77,17 +77,17 @@ protected:
         sk_tool_utils::set_portable_typeface(&paint);
 
         paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawText("Normal Fill Text", 16, 0, 50, paint);
+        canvas->drawString("Normal Fill Text", 0, 50, paint);
         paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawText("Normal Stroke Text", 18, 0, 100, paint);
+        canvas->drawString("Normal Stroke Text", 0, 100, paint);
 
         // Minimal repro doesn't require AA, LCD, or a nondefault typeface
         paint.setShader(make_chrome_solid());
 
         paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawText("Gradient Fill Text", 18, 0, 150, paint);
+        canvas->drawString("Gradient Fill Text", 0, 150, paint);
         paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawText("Gradient Stroke Text", 20, 0, 200, paint);
+        canvas->drawString("Gradient Stroke Text", 0, 200, paint);
     }
 private:
     typedef GM INHERITED;

@@ -187,7 +187,7 @@ protected:
         if (fEmojiTypeface) {
             paint.setTypeface(fEmojiTypeface);
             paint.setTextSize(SkIntToScalar(19));
-            canvas->drawText(fEmojiText, strlen(fEmojiText), 670, 90, paint);
+            canvas->drawString(fEmojiText, 670, 90, paint);
         }
 #if SK_SUPPORT_GPU
         // render offscreen buffer

@@ -37,7 +37,7 @@ protected:
 
             for (int ps = 9; ps <= 24; ps += 2) {
                 paint.setTextSize(SkIntToScalar(ps));
-                canvas->drawText(fText.c_str(), fText.size(),
+                canvas->drawString(fText,
                         0, SkIntToScalar(20), paint);
             }
         }

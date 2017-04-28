@@ -24,7 +24,7 @@ static sk_sp<SkImage> make_bitmap() {
     paint.setColor(0xFF884422);
     paint.setTextSize(SkIntToScalar(96));
     const char* str = "g";
-    surface->getCanvas()->drawText(str, strlen(str), 15, 55, paint);
+    surface->getCanvas()->drawString(str, 15, 55, paint);
     return surface->makeImageSnapshot();
 }
 

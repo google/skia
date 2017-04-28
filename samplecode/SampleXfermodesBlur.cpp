@@ -160,7 +160,7 @@ protected:
                 canvas->drawRect(r, p);
 
                 const char* label = SkBlendMode_Name(gModes[i]);
-                canvas->drawText(label, strlen(label),
+                canvas->drawString(label,
                                  x + w/2, y - labelP.getTextSize()/2, labelP);
                 x += w + SkIntToScalar(10);
                 if ((i % W) == W - 1) {

@@ -277,14 +277,14 @@ protected:
         paint.setTextSize(36);
         SkString str;
         str.appendScalar(fScale);
-        canvas->drawText(str.c_str(), str.size(), textX, 100, paint);
+        canvas->drawString(str, textX, 100, paint);
         str.reset(); str.appendScalar(fAngle);
-        canvas->drawText(str.c_str(), str.size(), textX, 150, paint);
+        canvas->drawString(str, textX, 150, paint);
 
         str.reset(); str.appendScalar(trans[0]);
-        canvas->drawText(str.c_str(), str.size(), textX, 200, paint);
+        canvas->drawString(str, textX, 200, paint);
         str.reset(); str.appendScalar(trans[1]);
-        canvas->drawText(str.c_str(), str.size(), textX, 250, paint);
+        canvas->drawString(str, textX, 250, paint);
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

@@ -140,7 +140,7 @@ protected:
             } else {
                 SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
                 SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
-                canvas->drawText(fText.c_str(), fText.size(), x, y, paint);
+                canvas->drawString(fText, x, y, paint);
             }
         }
     }

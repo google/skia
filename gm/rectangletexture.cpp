@@ -138,7 +138,7 @@ protected:
             SkPaint paint;
             paint.setAntiAlias(true);
             const char* kMsg = "Could not create rectangle texture image.";
-            canvas->drawText(kMsg, strlen(kMsg), 10, 100, paint);
+            canvas->drawString(kMsg, 10, 100, paint);
             return;
         }
 

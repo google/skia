@@ -135,7 +135,7 @@ protected:
                     // get the bounds of the text in order to position it
                     labelPaint.measureText(inputLabel.c_str(), inputLabel.size(),
                                            &inputLabelBounds);
-                    canvas->drawText(inputLabel.c_str(), inputLabel.size(),
+                    canvas->drawString(inputLabel,
                                      renderRect.fRight + kPad,
                                      -inputLabelBounds.fTop, labelPaint);
                     // update the bounds to reflect the offset we used to draw it.
@@ -144,7 +144,7 @@ protected:
                     SkRect procLabelBounds;
                     labelPaint.measureText(procLabel.c_str(), procLabel.size(),
                                            &procLabelBounds);
-                    canvas->drawText(procLabel.c_str(), procLabel.size(),
+                    canvas->drawString(procLabel,
                                      renderRect.fRight + kPad,
                                      inputLabelBounds.fBottom + 2.f - procLabelBounds.fTop,
                                      labelPaint);

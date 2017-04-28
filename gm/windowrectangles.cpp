@@ -284,7 +284,7 @@ void WindowRectanglesMaskGM::fail(SkCanvas* canvas) {
 
     canvas->clipRect(SkRect::Make(kCoverRect));
     canvas->clear(SK_ColorWHITE);
-    canvas->drawText(errorMsg.c_str(), errorMsg.size(), SkIntToScalar(kCoverRect.centerX()),
+    canvas->drawString(errorMsg, SkIntToScalar(kCoverRect.centerX()),
                      SkIntToScalar(kCoverRect.centerY() - 10), paint);
 }
 

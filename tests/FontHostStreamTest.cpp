@@ -82,7 +82,7 @@ DEF_TEST(FontHostStream, reporter) {
 
         // Test: origTypeface and streamTypeface from orig data draw the same
         drawBG(&origCanvas);
-        origCanvas.drawText("A", 1, point.fX, point.fY, paint);
+        origCanvas.drawString("A", point.fX, point.fY, paint);
 
         sk_sp<SkTypeface> typeface(paint.getTypeface() ? paint.refTypeface()
                                                        : SkTypeface::MakeDefault());

@@ -150,7 +150,7 @@ static void draw(SkCanvas* canvas,
                  const char text[]) {
     SkASSERT(src.colorType() == colorType);
     canvas->drawBitmap(src, 0.0f, 0.0f);
-    canvas->drawText(text, strlen(text), 0.0f, 12.0f, p);
+    canvas->drawString(text, 0.0f, 12.0f, p);
 }
 
 DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {

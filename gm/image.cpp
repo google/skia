@@ -150,17 +150,17 @@ protected:
         sk_tool_utils::set_portable_typeface(&textPaint);
         textPaint.setTextSize(8);
 
-        canvas->drawText(kLabel1, strlen(kLabel1), 10,  60, textPaint);
-        canvas->drawText(kLabel2, strlen(kLabel2), 10, 140, textPaint);
-        canvas->drawText(kLabel3, strlen(kLabel3), 10, 220, textPaint);
-        canvas->drawText(kLabel4, strlen(kLabel4), 10, 300, textPaint);
-        canvas->drawText(kLabel5, strlen(kLabel5), 10, 380, textPaint);
-        canvas->drawText(kLabel6, strlen(kLabel6), 10, 460, textPaint);
-        canvas->drawText(kLabel7, strlen(kLabel7), 10, 540, textPaint);
+        canvas->drawString(kLabel1, 10,  60, textPaint);
+        canvas->drawString(kLabel2, 10, 140, textPaint);
+        canvas->drawString(kLabel3, 10, 220, textPaint);
+        canvas->drawString(kLabel4, 10, 300, textPaint);
+        canvas->drawString(kLabel5, 10, 380, textPaint);
+        canvas->drawString(kLabel6, 10, 460, textPaint);
+        canvas->drawString(kLabel7, 10, 540, textPaint);
 
-        canvas->drawText(kLabel8, strlen(kLabel8),  80, 10, textPaint);
-        canvas->drawText(kLabel9, strlen(kLabel9), 160, 10, textPaint);
-        canvas->drawText(kLabel10, strlen(kLabel10), 265, 10, textPaint);
+        canvas->drawString(kLabel8, 80, 10, textPaint);
+        canvas->drawString(kLabel9, 160, 10, textPaint);
+        canvas->drawString(kLabel10, 265, 10, textPaint);
 
         canvas->translate(80, 20);
 
