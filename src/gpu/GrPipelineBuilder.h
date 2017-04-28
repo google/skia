@@ -29,7 +29,7 @@ public:
      * which is unmodified by this function and clipping which will be enabled.
      */
     GrPipelineBuilder(GrPaint&& paint, GrAAType aaType)
-            : fFlags(0x0)
+            : fFlags(GrPipeline::SRGBFlagsFromPaint(paint))
             , fDrawFace(GrDrawFace::kBoth)
             , fUserStencilSettings(&GrUserStencilSettings::kUnused)
             , fProcessors(std::move(paint)) {

@@ -46,12 +46,26 @@ public:
          * the 3D API.
          */
         kHWAntialias_Flag = 0x1,
-
         /**
          * Modifies the vertex shader so that vertices will be positioned at pixel centers.
          */
         kSnapVerticesToPixelCenters_Flag = 0x2,
+        /** Disables conversion to sRGB from linear when writing to a sRGB destination. */
+        kDisableOutputConversionToSRGB_Flag = 0x4,
+        /** Allows conversion from sRGB to linear when reading from processor's sRGB texture. */
+        kAllowSRGBInputs_Flag = 0x8,
     };
+
+    static uint32_t SRGBFlagsFromPaint(const GrPaint& paint) {
+        uint32_t flags = 0;
+        if (paint.getAllowSRGBInputs()) {
+            flags |= kAllowSRGBInputs_Flag;
+        }
+        if (paint.getDisableOutputConversionToSRGB()) {
+            flags |= kDisableOutputConversionToSRGB_Flag;
+        }
+        return flags;
+    }
 
     struct InitArgs {
         uint32_t fFlags = 0;
@@ -217,8 +231,6 @@ public:
 private:
     /** This is a continuation of the public "Flags" enum. */
     enum PrivateFlags {
-        kDisableOutputConversionToSRGB_Flag = 0x4,
-        kAllowSRGBInputs_Flag = 0x8,
         kUsesDistanceVectorField_Flag = 0x10,
         kHasStencilClip_Flag = 0x20,
         kStencilEnabled_Flag = 0x40,

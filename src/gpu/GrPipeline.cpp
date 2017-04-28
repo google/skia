@@ -36,12 +36,6 @@ void GrPipeline::init(const InitArgs& args) {
     if (args.fProcessors->usesDistanceVectorField()) {
         fFlags |= kUsesDistanceVectorField_Flag;
     }
-    if (args.fProcessors->disableOutputConversionToSRGB()) {
-        fFlags |= kDisableOutputConversionToSRGB_Flag;
-    }
-    if (args.fProcessors->allowSRGBInputs()) {
-        fFlags |= kAllowSRGBInputs_Flag;
-    }
     if (!args.fUserStencil->isDisabled(fFlags & kHasStencilClip_Flag)) {
         fFlags |= kStencilEnabled_Flag;
     }

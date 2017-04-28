@@ -16,11 +16,10 @@ GrDrawPathOpBase::GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix,
         : INHERITED(classID)
         , fViewMatrix(viewMatrix)
         , fInputColor(paint.getColor())
-        , fProcessorSet(std::move(paint))
         , fFillType(fill)
-        , fAAType(aaType) {
-    SkASSERT(fAAType != GrAAType::kCoverage);
-}
+        , fAAType(aaType)
+        , fPipelineSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
+        , fProcessorSet(std::move(paint)) {}
 
 SkString GrDrawPathOp::dumpInfo() const {
     SkString string;
@@ -41,7 +40,10 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
     };
     GrPipeline::InitArgs args;
     args.fProcessors = &this->processors();
-    args.fFlags = GrAATypeIsHW(fAAType) ? GrPipeline::kHWAntialias_Flag : 0;
+    args.fFlags = fPipelineSRGBFlags;
+    if (GrAATypeIsHW(fAAType)) {
+        args.fFlags |= GrPipeline::kHWAntialias_Flag;
+    }
     args.fUserStencil = &kCoverPass;
     args.fAppliedClip = state.drawOpArgs().fAppliedClip;
     args.fRenderTarget = state.drawOpArgs().fRenderTarget;
@@ -111,6 +113,9 @@ bool GrDrawPathRangeOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
     if (this->processors() != that->processors()) {
+        return false;
+    }
+    if (this->pipelineSRGBFlags() != that->pipelineSRGBFlags()) {
         return false;
     }
     switch (fDraws.head()->fInstanceData->transformType()) {
