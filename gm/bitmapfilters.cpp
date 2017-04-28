@@ -18,7 +18,7 @@ static void make_bm(SkBitmap* bm) {
         colorsPM[i] = SkPreMultiplyColor(colors[i]);
     }
     bm->allocPixels(SkImageInfo::Make(2, 2, kIndex_8_SkColorType,
-                                      kPremul_SkAlphaType),
+                                      kOpaque_SkAlphaType),
                     SkColorTable::Make(colorsPM, 4));
 
     *bm->getAddr8(0, 0) = 0;
