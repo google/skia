@@ -143,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "1fa64deb_452d89ce",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-28T19:03:01Z",
+      "side": 1,
+      "message": "GrVkGpu does support draw-based copies. Looks like I could add isBorrowed() to GrVkImage (it already stores an fIsBorrowed, just doesn\u0027t expose it), then use that to veto all non-draw copy modes in GrVkGpu::onCopySurface. I definitely prefer the higher level code using surface context and copy, it\u0027s a much cleaner expression of intent.",
+      "parentUuid": "62d7db32_b656d144",
+      "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b06cf567_6267b8db",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 9
