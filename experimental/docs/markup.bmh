@@ -1,0 +1,76 @@
+# Book Maker Hunk file format
+
+# redefine markup character so example below will not be parsed
+###$  
+
+  text, except for the single markup character, requires no annotation
+
+  # comments are preceded by a hash symbol and whitespace
+  # comments may terminated by linefeed or double hash ## <- end of comment
+
+  keywords are preceded by a single hash symbol without whitespace
+  # #Keyword
+
+  tables use single hash symbols to delimit columns, and double to end row
+#Table
+# first column in table # next column in table ##
+# another row           # another row ##
+#Table ##   # or, just ##
+
+  special characters may be inserted with #0
+#0xalphanum              UTF-8 character in hex
+#0num                    UTF-8 character in octal
+
+  the markup character is initially # at the start of any .bmh file
+###x                     redefine the markup character as 'x'
+xxx#                     restore the default markup character
+
+  anchor, ala HTML
+  anchors may start anywhere in the line
+#A text #_reference ##
+
+  class description
+#Class _reference_
+description
+methods
+#Class _reference_ ##
+
+  the description to be written to the Skia include
+#Doxygen __optional_method_reference
+description
+#Doxygen __optional_method_reference ##
+
+  the description extracted from the Skia cinclude
+#Doxygen -L number,number path/to/file yyyy-mm-dd hh:mm:ss +/-zone
+
+  if the example is not named, it inherits the name of its container
+#Example
+    #Description
+    ##
+    code...
+    #StdOut
+    expected example output
+    ##
+##
+
+#Enum __required_reference
+description
+#Code
+##
+#Example
+##
+#Enum ##
+
+  method description
+  the _method_reference must be unique within the class
+#Method type name(params..) 
+description
+#Param description ##
+#Return return ##
+example
+##
+
+#ToDo  description ##
+
+$ restore markup character
+$$$#   
