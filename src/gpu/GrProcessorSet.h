@@ -18,6 +18,10 @@ class GrXferProcessor;
 class GrXPFactory;
 
 class GrProcessorSet : private SkNoncopyable {
+private:
+    // Arbitrary constructor arg for empty set and analysis
+    enum class Empty { kEmpty };
+
 public:
     GrProcessorSet(GrPaint&& paint);
 
@@ -80,6 +84,14 @@ public:
         }
 
     private:
+        constexpr Analysis(Empty)
+                : fUsesLocalCoords(false)
+                , fCompatibleWithCoverageAsAlpha(true)
+                , fRequiresDstTexture(false)
+                , fCanCombineOverlappedStencilAndCover(true)
+                , fRequiresBarrierBetweenOverlappingDraws(false)
+                , fIsInitialized(true)
+                , fInputColorType(kOriginal_InputColorType) {}
         enum InputColorType : uint32_t {
             kOriginal_InputColorType,
             kOverridden_InputColorType,
@@ -122,7 +134,13 @@ public:
 
     bool isFinalized() const { return SkToBool(kFinalized_Flag & fFlags); }
 
+    static const GrProcessorSet& EmptySet() { return gEmpty; }
+    static constexpr const Analysis EmptySetAnalysis() { return Analysis(Empty::kEmpty); }
+
 private:
+    GrProcessorSet(Empty) : fXP((const GrXferProcessor*)nullptr), fFlags(kFinalized_Flag) {}
+    static const GrProcessorSet gEmpty;
+
     // This absurdly large limit allows Analysis and this to pack fields together.
     static constexpr int kMaxColorProcessors = UINT8_MAX;
 
@@ -130,6 +148,7 @@ private:
 
     union XP {
         XP(const GrXPFactory* factory) : fFactory(factory) {}
+        XP(const GrXferProcessor* processor) : fProcessor(processor) {}
         const GrXPFactory* fFactory;
         const GrXferProcessor* fProcessor;
     };
@@ -141,7 +160,7 @@ private:
 
     SkAutoSTArray<4, const GrFragmentProcessor*> fFragmentProcessors;
     XP fXP;
-    uint8_t fColorFragmentProcessorCnt;
+    uint8_t fColorFragmentProcessorCnt = 0;
     uint8_t fFragmentProcessorOffset = 0;
     uint8_t fFlags;
 };
