@@ -264,7 +264,15 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 // instead of syncing recipe DEPS itself.
 func useBundledRecipes(parts map[string]string) bool {
 	// Use bundled recipes for all test/perf tasks.
-	return true
+	if parts["role"] == "Build" {
+		if strings.Contains(parts["os"], "Win") {
+			return true
+		} else {
+			return false
+		}
+	} else {
+		return true
+	}
 }
 
 // compile generates a compile task. Returns the name of the last task in the
@@ -318,7 +326,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 	}
 
 	// Add the task.
-	b.MustAddTask(name, &specs.TaskSpec{
+	s := &specs.TaskSpec{
 		CipdPackages: pkgs,
 		Dimensions:   dimensions,
 		ExtraArgs: []string{
@@ -334,7 +342,17 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		},
 		Isolate:  "compile_skia.isolate",
 		Priority: 0.8,
-	})
+	}
+	if useBundledRecipes(parts) {
+		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
+		if strings.Contains(parts["os"], "Win") {
+			s.Isolate = "compile_skia_bundled_win.isolate"
+		} else {
+			s.Isolate = "compile_skia_bundled_unix.isolate"
+		}
+	}
+	b.MustAddTask(name, s)
+
 	// All compile tasks are runnable as their own Job. Assert that the Job
 	// is listed in JOBS.
 	if !util.In(name, JOBS) {
