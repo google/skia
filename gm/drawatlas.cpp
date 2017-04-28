@@ -169,4 +169,65 @@ DEF_SIMPLE_GM(drawTextRSXform, canvas, 860, 860) {
     canvas->drawPath(path, paint);
 }
 
+#include "Resources.h"
+#include "SkColorFilter.h"
+#include "SkVertices.h"
 
+static sk_sp<SkVertices> make_vertices(sk_sp<SkImage> image, const SkRect& r,
+                                       SkColor color) {
+    SkPoint pos[4];
+    r.toQuad(pos);
+    SkColor colors[4] = { color, color, color, color };
+    return SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, 4,
+                                pos, pos, colors);
+}
+
+/*
+ *  drawAtlas and drawVertices have several things in common:
+ *  - can create compound "shaders", combining texture and colors
+ *      - these are combined via an explicit blendmode
+ *  - like drawImage, they only respect parts of the paint
+ *      - colorfilter, imagefilter, blendmode, alpha
+ *
+ *  This GM produces a series of pairs of images (atlas | vertices).
+ *  Each pair should look the same, and each set shows a different combination
+ *  of alpha | colorFilter | mode
+ */
+DEF_SIMPLE_GM(compare_atlas_vertices, canvas, 560, 585) {
+    const SkRect tex = SkRect::MakeWH(128, 128);
+    const SkRSXform xform = SkRSXform::Make(1, 0, 0, 0);
+    const SkColor color = 0x884488CC;
+
+    auto image = GetResourceAsImage("mandrill_128.png");
+    auto verts = make_vertices(image, tex, color);
+    const sk_sp<SkColorFilter> filters[] = {
+        nullptr,
+        SkColorFilter::MakeModeFilter(0xFF00FF88, SkBlendMode::kModulate),
+    };
+    const SkBlendMode modes[] = {
+        SkBlendMode::kSrcOver,
+        SkBlendMode::kPlus,
+    };
+
+    canvas->translate(10, 10);
+    SkPaint paint;
+    for (SkBlendMode mode : modes) {
+        for (int alpha : { 0xFF, 0x7F }) {
+            paint.setAlpha(alpha);
+            canvas->save();
+            for (auto cf : filters) {
+                paint.setColorFilter(cf);
+                canvas->drawAtlas(image, &xform, &tex, &color, 1,
+                                  mode, &tex, &paint);
+                canvas->translate(128, 0);
+                paint.setShader(image->makeShader(SkShader::kClamp_TileMode,
+                                                  SkShader::kClamp_TileMode));
+                canvas->drawVertices(verts, mode, paint);
+                paint.setShader(nullptr);
+                canvas->translate(145, 0);
+            }
+            canvas->restore();
+            canvas->translate(0, 145);
+        }
+    }
+}
