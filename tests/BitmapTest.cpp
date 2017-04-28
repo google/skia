@@ -9,6 +9,7 @@
 #include "SkMallocPixelRef.h"
 #include "SkRandom.h"
 #include "Test.h"
+#include "sk_tool_utils.h"
 
 static void test_peekpixels(skiatest::Reporter* reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
@@ -137,7 +138,7 @@ DEF_TEST(Bitmap_getColor_Swizzle, r) {
     };
     for (SkColorType ct : colorTypes) {
         SkBitmap copy;
-        if (!source.copyTo(&copy, ct)) {
+        if (!sk_tool_utils::copy_to(&copy, ct, source)) {
             ERRORF(r, "SkBitmap::copy failed %d", (int)ct);
             continue;
         }
