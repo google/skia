@@ -47,8 +47,7 @@ private:
         srcCanvas->drawRect(kSrcImageClip.makeInset(kStrokeWidth / 2, kStrokeWidth / 2), stroke);
 
         fSrcImage = srcSurface->makeImageSnapshot();
-        fSrcImageShader = fSrcImage->makeShader(SkShader::kClamp_TileMode,
-                                                SkShader::kClamp_TileMode);
+        fSrcImageShader = fSrcImage->makeShader();
     }
 
     void onDraw(SkCanvas* canvas) override {

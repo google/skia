@@ -426,8 +426,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SkPixmap pmap(info, pixels, info.minRowBytes());
     SkMatrix localMatrix = SkMatrix::MakeScale(1.0f / w, 1.0f / h);
     auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
-    auto fontShader = fontImage->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
-                                            &localMatrix);
+    auto fontShader = fontImage->makeShader(&localMatrix);
     fImGuiFontPaint.setShader(fontShader);
     fImGuiFontPaint.setColor(SK_ColorWHITE);
     fImGuiFontPaint.setFilterQuality(kLow_SkFilterQuality);
@@ -435,9 +434,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     auto gamutImage = GetResourceAsImage("gamut.png");
     if (gamutImage) {
-        auto gamutShader = gamutImage->makeShader(SkShader::kClamp_TileMode,
-                                                  SkShader::kClamp_TileMode);
-        fImGuiGamutPaint.setShader(gamutShader);
+        fImGuiGamutPaint.setShader(gamutImage->makeShader());
     }
     fImGuiGamutPaint.setColor(SK_ColorWHITE);
     fImGuiGamutPaint.setFilterQuality(kLow_SkFilterQuality);
@@ -1152,8 +1149,7 @@ void Viewer::drawImGui(SkCanvas* canvas) {
             static int zoomFactor = 4;
             ImGui::SliderInt("Scale", &zoomFactor, 1, 16);
 
-            zoomImagePaint.setShader(fLastImage->makeShader(SkShader::kClamp_TileMode,
-                                                            SkShader::kClamp_TileMode));
+            zoomImagePaint.setShader(fLastImage->makeShader());
             zoomImagePaint.setColor(SK_ColorWHITE);
 
             // Zoom by shrinking the corner UVs towards the mouse cursor

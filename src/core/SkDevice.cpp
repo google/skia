@@ -250,9 +250,7 @@ void SkBaseDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
         localM.preTranslate(-tex[i].left(), -tex[i].top());
 
         SkPaint pnt(paint);
-        sk_sp<SkShader> shader = atlas->makeShader(SkShader::kClamp_TileMode,
-                                                   SkShader::kClamp_TileMode,
-                                                   &localM);
+        sk_sp<SkShader> shader = atlas->makeShader(&localM);
         if (!shader) {
             break;
         }

@@ -220,8 +220,7 @@ DEF_SIMPLE_GM(compare_atlas_vertices, canvas, 560, 585) {
                 canvas->drawAtlas(image, &xform, &tex, &color, 1,
                                   mode, &tex, &paint);
                 canvas->translate(128, 0);
-                paint.setShader(image->makeShader(SkShader::kClamp_TileMode,
-                                                  SkShader::kClamp_TileMode));
+                paint.setShader(image->makeShader());
                 canvas->drawVertices(verts, mode, paint);
                 paint.setShader(nullptr);
                 canvas->translate(145, 0);
