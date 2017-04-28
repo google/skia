@@ -1924,9 +1924,10 @@ sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrVkGpu::makeSemaphore() {
     return GrVkSemaphore::Make(this);
 }
 
-void GrVkGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {
+void GrVkGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore, bool /*flush*/) {
     GrVkSemaphore* vkSem = static_cast<GrVkSemaphore*>(semaphore.get());
 
+    // We *always* flush, so ignore that parameter
     this->submitCommandBuffer(kSkip_SyncQueue, vkSem->getResource());
 }
 
@@ -1936,8 +1937,4 @@ void GrVkGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
     const GrVkSemaphore::Resource* resource = vkSem->getResource();
     resource->ref();
     fSemaphoresToWaitOn.push_back(resource);
-}
-
-void GrVkGpu::flush() {
-    // We submit the command buffer to the queue whenever Ganesh is flushed, so nothing is needed
 }

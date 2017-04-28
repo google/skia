@@ -11,6 +11,7 @@
 
 #include "SkAutoPixmapStorage.h"
 #include "GrBackendSurface.h"
+#include "GrBackendTextureImageGenerator.h"
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -469,6 +470,51 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
                                        this->uniqueID(), dstColorSpace);
     }
     return nullptr;
+}
+
+sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<SkData> encoded,
+                                                    bool buildMips, SkColorSpace* dstColorSpace) {
+    sk_sp<SkImage> codecImage = SkImage::MakeFromEncoded(std::move(encoded));
+    if (!codecImage) {
+        return nullptr;
+    }
+
+    // Some backends or drivers don't support (safely) moving resources between contexts
+    if (!context || !context->caps()->crossContextTextureSupport()) {
+        return codecImage;
+    }
+
+    // Turn the codec image into a GrTexture
+    GrImageTextureMaker maker(context, codecImage.get(), kDisallow_CachingHint);
+    sk_sp<SkColorSpace> texColorSpace;
+    GrSamplerParams params(SkShader::kClamp_TileMode,
+                           buildMips ? GrSamplerParams::kMipMap_FilterMode
+                                     : GrSamplerParams::kBilerp_FilterMode);
+    sk_sp<GrTextureProxy> proxy(maker.refTextureProxyForParams(params, dstColorSpace,
+                                                               &texColorSpace, nullptr));
+    if (!proxy) {
+        return codecImage;
+    }
+
+    sk_sp<GrTexture> texture(proxy->instantiate(context->resourceProvider()));
+    if (!texture) {
+        return codecImage;
+    }
+
+    // Flush any writes or uploads
+    context->contextPriv().prepareSurfaceForExternalIO(proxy.get());
+
+    sk_sp<GrSemaphore> semaphore = nullptr;
+    if (context->caps()->crossContextTextureRequiresSemaphore()) {
+        // Set up a semaphore to be signaled once the data is ready, and flush the GPU
+        semaphore = context->resourceProvider()->makeSemaphore();
+        context->getGpu()->insertSemaphore(semaphore, true);
+    }
+
+    auto gen = GrBackendTextureImageGenerator::Make(std::move(texture), std::move(semaphore),
+                                                    codecImage->alphaType(),
+                                                    std::move(texColorSpace));
+    return SkImage::MakeFromGenerator(std::move(gen));
 }
 
 std::unique_ptr<SkCrossContextImageData> SkCrossContextImageData::MakeFromEncoded(
