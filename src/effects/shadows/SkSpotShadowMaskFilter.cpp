@@ -203,53 +203,38 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
                                                           const SkRRect& rrect,
                                                           const SkRRect& devRRect) const {
     // It's likely the caller has already done these checks, but we have to be sure.
-    // TODO: support analytic blurring of general rrect
 
     // Fast path only supports filled rrects for now.
     // TODO: fill and stroke as well.
     if (SkStrokeRec::kFill_Style != strokeRec.getStyle()) {
         return false;
     }
-    // Fast path only supports simple rrects with near-circular corners.
-    SkASSERT(devRRect.allCornersCircular());
-    if (!rrect.isRect() && !rrect.isOval() && !rrect.isSimple()) {
+    // Fast path only supports simple rrects with circular corners.
+    if (!devRRect.isRect() && !devRRect.isCircle() &&
+        (!devRRect.isSimple() || !devRRect.allCornersCircular())) {
         return false;
     }
     // Fast path only supports uniform scale.
-    SkScalar scaleFactors[2];
-    if (!viewMatrix.getMinMaxScales(scaleFactors)) {
-        // matrix is degenerate
+    if (!viewMatrix.isSimilarity()) {
         return false;
     }
-    if (scaleFactors[0] != scaleFactors[1]) {
-        return false;
-    }
-    SkScalar scaleFactor = scaleFactors[0];
-
-    // For all of these, we need to ensure we have a rrect with radius >= 0.5f in device space
-    const SkScalar minRadius = 0.5f / scaleFactor;
-    bool isRect = rrect.getSimpleRadii().fX <= minRadius;
-
-    // TODO: take flags into account when generating shadow data
+    // 1/scale
+    SkScalar scaleFactor = viewMatrix.isScaleTranslate() ?
+        SkScalarInvert(viewMatrix[SkMatrix::kMScaleX]) :
+        sk_float_rsqrt(viewMatrix[SkMatrix::kMScaleX] * viewMatrix[SkMatrix::kMScaleX] +
+                       viewMatrix[SkMatrix::kMSkewX] * viewMatrix[SkMatrix::kMSkewX]);
 
     if (fSpotAlpha > 0.0f) {
         float zRatio = SkTPin(fOccluderHeight / (fLightPos.fZ - fOccluderHeight), 0.0f, 0.95f);
 
         SkScalar devSpaceSpotRadius = 2.0f * fLightRadius * zRatio;
         // handle scale of radius and pad due to CTM
-        const SkScalar srcSpaceSpotRadius = devSpaceSpotRadius / scaleFactor;
-
-        SkRRect spotRRect;
-        if (isRect) {
-            spotRRect = SkRRect::MakeRectXY(rrect.rect(), minRadius, minRadius);
-        } else {
-            spotRRect = rrect;
-        }
+        const SkScalar srcSpaceSpotRadius = devSpaceSpotRadius * scaleFactor;
 
         SkRRect spotShadowRRect;
         // Compute the scale and translation for the spot shadow.
         const SkScalar scale = fLightPos.fZ / (fLightPos.fZ - fOccluderHeight);
-        spotRRect.transform(SkMatrix::MakeScale(scale, scale), &spotShadowRRect);
+        rrect.transform(SkMatrix::MakeScale(scale, scale), &spotShadowRRect);
 
         SkPoint spotOffset = SkPoint::Make(zRatio*(-fLightPos.fX), zRatio*(-fLightPos.fY));
         // Adjust for the effect of the scale.
@@ -258,8 +243,8 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         // This offset is in dev space, need to transform it into source space.
         SkMatrix ctmInverse;
         if (!viewMatrix.invert(&ctmInverse)) {
+            // Since the matrix is a similarity, this should never happen, but just in case...
             SkDebugf("Matrix is degenerate. Will not render spot shadow!\n");
-            //**** TODO: this is not good
             return true;
         }
         ctmInverse.mapPoints(&spotOffset, 1);
@@ -300,8 +285,7 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
             if (spotShadowRRect.isOval()) {
                 spotShadowRRect = SkRRect::MakeOval(insetRect);
             } else {
-                SkScalar insetRad = SkTMax(spotShadowRRect.getSimpleRadii().fX - insetAmount,
-                                           minRadius);
+                SkScalar insetRad = spotShadowRRect.getSimpleRadii().fX - insetAmount;
                 spotShadowRRect = SkRRect::MakeRectXY(insetRect, insetRad, insetRad);
             }
             spotStrokeRec.setStrokeStyle(strokeWidth, false);
@@ -356,12 +340,6 @@ void SkSpotShadowMaskFilterImpl::toString(SkString* str) const {
         SkAddFlagToString(str,
                           SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag),
                           "TransparentOccluder", &needSeparator);
-        SkAddFlagToString(str,
-                          SkToBool(fFlags & SkShadowFlags::kGaussianEdge_ShadowFlag),
-                          "GaussianEdge", &needSeparator);
-        SkAddFlagToString(str,
-                          SkToBool(fFlags & SkShadowFlags::kLargerUmbra_ShadowFlag),
-                          "LargerUmbra", &needSeparator);
     } else {
         str->append("None");
     }
