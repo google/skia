@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d21f99b8_db03d0f9",
+        "filename": "src/core/SkSpecialSurface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-28T19:27:32Z",
+      "side": 0,
+      "message": "can we assert here that info.width() \u003d\u003d pr-\u003ewidth() ?",
+      "range": {
+        "startLine": 70,
+        "startChar": 38,
+        "endLine": 70,
+        "endChar": 42
+      },
+      "revId": "dc87c95382d5beab7fdae2e654d6de568fbe1671",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
