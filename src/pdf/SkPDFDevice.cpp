@@ -2202,9 +2202,11 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
 #include "SkSpecialImage.h"
 #include "SkImageFilter.h"
 
-void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y,
-                              const SkPaint& paint) {
+void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPaint& paint,
+                              SkImage* clipImage, const SkMatrix& clipMatrix) {
     SkASSERT(!srcImg->isTextureBacked());
+
+    //TODO: clipImage support
 
     SkBitmap resultBM;
 

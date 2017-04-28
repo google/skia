@@ -98,6 +98,14 @@ void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
         flatFlags |= SAVELAYERREC_HAS_FLAGS;
         size += sizeof(uint32_t);
     }
+    if (rec.fClipMask) {
+        flatFlags |= SAVELAYERREC_HAS_CLIPMASK;
+        size += sizeof(uint32_t); // clip image index
+    }
+    if (rec.fClipMatrix) {
+        flatFlags |= SAVELAYERREC_HAS_CLIPMATRIX;
+        size += rec.fClipMatrix->writeToMemory(nullptr);
+    }
 
     const size_t initialOffset = this->addDraw(SAVE_LAYER_SAVELAYERREC, &size);
     this->addInt(flatFlags);
@@ -115,6 +123,12 @@ void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
     }
     if (flatFlags & SAVELAYERREC_HAS_FLAGS) {
         this->addInt(rec.fSaveLayerFlags);
+    }
+    if (flatFlags & SAVELAYERREC_HAS_CLIPMASK) {
+        this->addImage(rec.fClipMask.get());
+    }
+    if (flatFlags & SAVELAYERREC_HAS_CLIPMATRIX) {
+        this->addMatrix(*rec.fClipMatrix);
     }
     this->validate(initialOffset, size);
 }

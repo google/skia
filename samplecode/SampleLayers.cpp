@@ -260,7 +260,7 @@ protected:
 
         SkPaint paint;
         paint.setAlpha(0xCC);
-        canvas->saveLayer({ &bounds, &paint, fFilter.get(), 0 });
+        canvas->saveLayer({ &bounds, &paint, fFilter.get(), nullptr, nullptr, 0 });
 
         canvas->restore();
     }

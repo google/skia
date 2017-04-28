@@ -31,7 +31,8 @@ SkDrawFilter* SkLiteRecorder::setDrawFilter(SkDrawFilter* df) {
 
 void SkLiteRecorder::willSave() { fDL->save(); }
 SkCanvas::SaveLayerStrategy SkLiteRecorder::getSaveLayerStrategy(const SaveLayerRec& rec) {
-    fDL->saveLayer(rec.fBounds, rec.fPaint, rec.fBackdrop, rec.fSaveLayerFlags);
+    fDL->saveLayer(rec.fBounds, rec.fPaint, rec.fBackdrop, rec.fClipMask, rec.fClipMatrix,
+                   rec.fSaveLayerFlags);
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }
 void SkLiteRecorder::willRestore() { fDL->restore(); }

@@ -258,7 +258,8 @@ protected:
     virtual void drawTextRSXform(const void* text, size_t len, const SkRSXform[],
                                  const SkPaint&);
 
-    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&);
+    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
+                             SkImage* clipImage, const SkMatrix& clipMatrix);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
     virtual sk_sp<SkSpecialImage> snapSpecial();

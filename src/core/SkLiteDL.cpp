@@ -91,18 +91,24 @@ namespace {
     struct SaveLayer final : Op {
         static const auto kType = Type::SaveLayer;
         SaveLayer(const SkRect* bounds, const SkPaint* paint,
-                  const SkImageFilter* backdrop, SkCanvas::SaveLayerFlags flags) {
+                  const SkImageFilter* backdrop, sk_sp<SkImage> clipMask,
+                  const SkMatrix* clipMatrix, SkCanvas::SaveLayerFlags flags) {
             if (bounds) { this->bounds = *bounds; }
             if (paint)  { this->paint  = *paint;  }
             this->backdrop = sk_ref_sp(backdrop);
+            this->clipMask = std::move(clipMask);
+            this->clipMatrix = clipMatrix ? *clipMatrix : SkMatrix::I();
             this->flags = flags;
         }
         SkRect                     bounds = kUnset;
         SkPaint                    paint;
         sk_sp<const SkImageFilter> backdrop;
+        sk_sp<SkImage>             clipMask;
+        SkMatrix                   clipMatrix;
         SkCanvas::SaveLayerFlags   flags;
         void draw(SkCanvas* c, const SkMatrix&) const {
-            c->saveLayer({ maybe_unset(bounds), &paint, backdrop.get(), flags });
+            c->saveLayer({ maybe_unset(bounds), &paint, backdrop.get(), clipMask,
+                           clipMatrix.isIdentity() ? nullptr : &clipMatrix, flags });
         }
     };
 
@@ -544,8 +550,9 @@ void SkLiteDL::setDrawFilter(SkDrawFilter* df) {
 void SkLiteDL::   save() { this->push   <Save>(0); }
 void SkLiteDL::restore() { this->push<Restore>(0); }
 void SkLiteDL::saveLayer(const SkRect* bounds, const SkPaint* paint,
-                         const SkImageFilter* backdrop, SkCanvas::SaveLayerFlags flags) {
-    this->push<SaveLayer>(0, bounds, paint, backdrop, flags);
+                         const SkImageFilter* backdrop, sk_sp<SkImage> clipMask,
+                         const SkMatrix* clipMatrix, SkCanvas::SaveLayerFlags flags) {
+    this->push<SaveLayer>(0, bounds, paint, backdrop, std::move(clipMask), clipMatrix, flags);
 }
 
 void SkLiteDL::   concat(const SkMatrix& matrix)   { this->push   <Concat>(0, matrix); }

@@ -110,8 +110,8 @@ public:
     void drawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&,
                            const SkRect& dst, const SkPaint&) override;
 
-    void drawSpecial(SkSpecialImage*,
-                     int left, int top, const SkPaint& paint) override;
+    void drawSpecial(SkSpecialImage*, int left, int top, const SkPaint& paint,
+                     SkImage*, const SkMatrix&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial() override;

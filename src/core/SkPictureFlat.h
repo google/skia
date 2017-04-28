@@ -122,6 +122,8 @@ enum SaveLayerRecFlatFlags {
     SAVELAYERREC_HAS_PAINT      = 1 << 1,
     SAVELAYERREC_HAS_BACKDROP   = 1 << 2,
     SAVELAYERREC_HAS_FLAGS      = 1 << 3,
+    SAVELAYERREC_HAS_CLIPMASK   = 1 << 4,
+    SAVELAYERREC_HAS_CLIPMATRIX = 1 << 5,
 };
 
 ///////////////////////////////////////////////////////////////////////////////

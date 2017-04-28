@@ -1125,16 +1125,17 @@ void SkGpuDevice::drawSprite(const SkBitmap& bitmap,
         return;
     }
 
-    this->drawSpecial(srcImg.get(), left, top, paint);
+    this->drawSpecial(srcImg.get(), left, top, paint, nullptr, SkMatrix::I());
 }
 
 
-void SkGpuDevice::drawSpecial(SkSpecialImage* special1,
-                              int left, int top,
-                              const SkPaint& paint) {
+void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const SkPaint& paint,
+                              SkImage* clipImage,const SkMatrix& clipMatrix) {
     ASSERT_SINGLE_OWNER
     CHECK_SHOULD_DRAW();
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpecial", fContext.get());
+
+    // TODO: clipImage support.
 
     SkIPoint offset = { 0, 0 };
 
@@ -1354,7 +1355,7 @@ void SkGpuDevice::drawDevice(SkBaseDevice* device,
         return;
     }
 
-    this->drawSpecial(srcImg.get(), left, top, paint);
+    this->drawSpecial(srcImg.get(), left, top, paint, nullptr, SkMatrix::I());
 }
 
 void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
