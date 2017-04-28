@@ -1561,8 +1561,7 @@ static bool init_vertices_paint(GrContext* context, GrRenderTargetContext* rtc,
     if (hasTexs && skPaint.getShader()) {
         if (hasColors) {
             // When there are texs and colors the shader and colors are combined using bmode.
-            return SkPaintToGrPaintWithXfermode(context, rtc, skPaint, matrix, bmode, false,
-                                                grPaint);
+            return SkPaintToGrPaintWithXfermode(context, rtc, skPaint, matrix, bmode, grPaint);
         } else {
             // We have a shader, but no colors to blend it against.
             return SkPaintToGrPaint(context, rtc, skPaint, matrix, grPaint);
@@ -1681,7 +1680,7 @@ void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
     GrPaint grPaint;
     if (colors) {
         if (!SkPaintToGrPaintWithXfermode(this->context(), fRenderTargetContext.get(), p,
-                                          this->ctm(), (SkBlendMode)mode, true, &grPaint)) {
+                                          this->ctm(), (SkBlendMode)mode, &grPaint)) {
             return;
         }
     } else {

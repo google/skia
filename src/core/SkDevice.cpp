@@ -24,6 +24,7 @@
 #include "SkTLazy.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
+#include "SkUtils.h"
 #include "SkVertices.h"
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
@@ -235,36 +236,48 @@ void SkBaseDevice::drawBitmapLattice(const SkBitmap& bitmap,
     }
 }
 
+static SkPoint* quad_to_tris(SkPoint tris[6], const SkPoint quad[4]) {
+    tris[0] = quad[0];
+    tris[1] = quad[1];
+    tris[2] = quad[2];
+
+    tris[3] = quad[0];
+    tris[4] = quad[2];
+    tris[5] = quad[3];
+
+    return tris + 6;
+}
+
 void SkBaseDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
-                             const SkRect tex[], const SkColor colors[], int count,
+                             const SkRect tex[], const SkColor colors[], int quadCount,
                              SkBlendMode mode, const SkPaint& paint) {
-    SkPath path;
-    path.setIsVolatile(true);
+    const int triCount = quadCount << 1;
+    const int vertexCount = triCount * 3;
+    uint32_t flags = SkVertices::kHasTexCoords_BuilderFlag;
+    if (colors) {
+        flags |= SkVertices::kHasColors_BuilderFlag;
+    }
+    SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vertexCount, 0, flags);
 
-    for (int i = 0; i < count; ++i) {
-        SkPoint quad[4];
-        xform[i].toQuad(tex[i].width(), tex[i].height(), quad);
+    SkPoint* vPos = builder.positions();
+    SkPoint* vTex = builder.texCoords();
+    SkColor* vCol = builder.colors();
+    for (int i = 0; i < quadCount; ++i) {
+        SkPoint tmp[4];
+        xform[i].toQuad(tex[i].width(), tex[i].height(), tmp);
+        vPos = quad_to_tris(vPos, tmp);
 
-        SkMatrix localM;
-        localM.setRSXform(xform[i]);
-        localM.preTranslate(-tex[i].left(), -tex[i].top());
-
-        SkPaint pnt(paint);
-        sk_sp<SkShader> shader = atlas->makeShader(&localM);
-        if (!shader) {
-            break;
-        }
-        pnt.setShader(std::move(shader));
+        tex[i].toQuad(tmp);
+        vTex = quad_to_tris(vTex, tmp);
 
         if (colors) {
-            pnt.setColorFilter(SkColorFilter::MakeModeFilter(colors[i], (SkBlendMode)mode));
+            sk_memset32(vCol, colors[i], 6);
+            vCol += 6;
         }
-
-        path.rewind();
-        path.addPoly(quad, 4, true);
-        path.setConvexity(SkPath::kConvex_Convexity);
-        this->drawPath(path, pnt, nullptr, true);
     }
+    SkPaint p(paint);
+    p.setShader(atlas->makeShader());
+    this->drawVertices(builder.detach().get(), mode, p);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
