@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "2de12a8e_b5e1c772",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-28T16:57:31Z",
+      "side": 1,
+      "message": "Yeah, something along those lines. It\u0027d trade guaranteed deletion timing for a safer API. I don\u0027t know if it\u0027s a great idea.",
+      "parentUuid": "d51463a9_c5e13d27",
+      "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3ef5bae3_b31bddfd",
         "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
         "patchSetId": 9
@@ -101,6 +119,24 @@
       "side": 1,
       "message": "Yes, I was just looking at that again. I could add some flag that forces the source to always be copied as draw, but it\u0027s probably easier to just make an RT context here and do the draw at this level?",
       "parentUuid": "f17f3e9a_59a056c3",
+      "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62d7db32_b656d144",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-28T16:57:31Z",
+      "side": 1,
+      "message": "My worry with just doing that here is that we wind up with code paths we remembered of or haven\u0027t written yet that trigger a copy. Does the vk backend support draw-based copies down in GrVkGpu? Maybe we could use that when a flag is set or for all borrowed textures?",
+      "parentUuid": "165d5cec_d4ebde25",
       "revId": "a8a55abe5856d78443b98e3ddf44804dbe85ca5a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
