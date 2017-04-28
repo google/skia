@@ -22,7 +22,7 @@ def RunSteps(api):
 
 TEST_BUILDERS = [
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
-  'Build-Ubuntu-GCC-x86_64-Release-Flutter_Android',
+  'Build-Ubuntu-GCC-x86_64-Release-Android~Flutter',
   'Build-Ubuntu-GCC-x86_64-Release-PDFium',
   'Build-Win-MSVC-x86_64-Release-Vulkan',
   'Housekeeper-Weekly-RecreateSKPs',

@@ -54,7 +54,7 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
-  'Build-Mac-Clang-arm64-Debug-Android_Vulkan',
+  'Build-Mac-Clang-arm64-Debug-Android~Vulkan',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Ubuntu-Clang-x86_64-Release-Mini',
   'Build-Ubuntu-Clang-x86_64-Release-Shared',
@@ -62,11 +62,11 @@ TEST_BUILDERS = [
   'Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
   'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
   'Build-Ubuntu-GCC-x86_64-Release-Fast',
-  'Build-Ubuntu-GCC-x86_64-Release-Flutter_Android',
+  'Build-Ubuntu-GCC-x86_64-Release-Android~Flutter',
   'Build-Ubuntu-GCC-x86_64-Release-Mesa',
   'Build-Ubuntu-GCC-x86_64-Release-PDFium',
   'Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths',
-  'Build-Win-Clang-arm64-Release-Android_FrameworkDefs',
+  'Build-Win-Clang-arm64-Release-Android~FrameworkDefs',
   'Build-Win-MSVC-x86_64-Debug-GDI',
   'Build-Win-MSVC-x86_64-Debug-NoGPU',
   'Build-Win-MSVC-x86_64-Release-Exceptions',
@@ -78,7 +78,7 @@ TEST_BUILDERS = [
   'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-MSAN',
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release',
   ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-'
-   'Valgrind_AbandonGpuContext'),
+   'AbandonGpuContext~Valgrind'),
   'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug',
   'Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug',
 ]

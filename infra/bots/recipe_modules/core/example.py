@@ -69,7 +69,7 @@ def GenTests(api):
       )
   )
 
-  buildername = 'Build-Ubuntu-GCC-x86_64-Release-Flutter_Android'
+  buildername = 'Build-Ubuntu-GCC-x86_64-Release-Android~Flutter'
   yield (
       api.test('flutter_trybot') +
       api.properties(

@@ -676,7 +676,7 @@ def test_steps(api):
       })
 
   # See skia:2789.
-  extra_config_parts = api.vars.builder_cfg.get('extra_config', '').split('_')
+  extra_config_parts = api.vars.builder_cfg.get('extra_config', '').split('~')
   if 'AbandonGpuContext' in extra_config_parts:
     args.append('--abandonGpuContext')
   if 'PreAbandonGpuContext' in extra_config_parts:
@@ -716,10 +716,10 @@ TEST_BUILDERS = [
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android',
   'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android',
-  'Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan',
+  'Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android~Vulkan',
   'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android',
   'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-Android',
-  'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan',
+  'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android~Vulkan',
   'Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android',
   'Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug',
   'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
@@ -730,10 +730,10 @@ TEST_BUILDERS = [
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug',
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
   'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
-  ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind' +
-   '_AbandonGpuContext'),
-  ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind' +
-   '_PreAbandonGpuContext'),
+  ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-' +
+   'AbandonGpuContext~Valgrind'),
+  ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-' +
+   'PreAbandonGpuContext~Valgrind'),
   ('Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_' +
     'SCALEDIMAGECACHE'),
   'Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug',

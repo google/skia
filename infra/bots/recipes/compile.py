@@ -81,9 +81,9 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Mac-Clang-x86_64-Release',
   'Build-Ubuntu-Clang-arm-Release-Chromebook_C100p',
-  'Build-Ubuntu-Clang-arm64-Debug-Android_FrameworkDefs',
+  'Build-Ubuntu-Clang-arm64-Debug-Android~FrameworkDefs',
   'Build-Ubuntu-Clang-arm64-Release-Android',
-  'Build-Ubuntu-Clang-arm64-Release-Android_Vulkan',
+  'Build-Ubuntu-Clang-arm64-Release-Android~Vulkan',
   'Build-Ubuntu-Clang-mipsel-Debug-Android',
   'Build-Ubuntu-Clang-x86_64-Debug',
   'Build-Ubuntu-Clang-x86_64-Debug-ASAN',
@@ -98,7 +98,7 @@ TEST_BUILDERS = [
   'Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
   'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
   'Build-Ubuntu-GCC-x86_64-Release-Fast',
-  'Build-Ubuntu-GCC-x86_64-Release-Flutter_Android',
+  'Build-Ubuntu-GCC-x86_64-Release-Android~Flutter',
   'Build-Ubuntu-GCC-x86_64-Release-Mesa',
   'Build-Ubuntu-GCC-x86_64-Release-PDFium',
   'Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths',
@@ -191,7 +191,7 @@ def GenTests(api):
       )
   )
 
-  buildername = 'Build-Ubuntu-GCC-x86_64-Release-Flutter_Android'
+  buildername = 'Build-Ubuntu-GCC-x86_64-Release-Android~Flutter'
   yield (
       api.test('flutter_trybot') +
       api.properties(

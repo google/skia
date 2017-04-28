@@ -60,16 +60,22 @@
         "Build-Mac-Clang-x86_64-Release-CommandBuffer"
       ]
     },
+    "Build-Ubuntu-Clang-arm-Debug-ARM~Chromebook~GLES": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-arm-Debug-ARM~Chromebook~GLES"
+      ]
+    },
     "Build-Ubuntu-Clang-arm-Debug-Android": {
       "priority": 0.8,
       "tasks": [
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ]
     },
-    "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES": {
+    "Build-Ubuntu-Clang-arm-Release-ARM~Chromebook~GLES": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES"
+        "Build-Ubuntu-Clang-arm-Release-ARM~Chromebook~GLES"
       ]
     },
     "Build-Ubuntu-Clang-arm-Release-Android": {
@@ -78,28 +84,22 @@
         "Build-Ubuntu-Clang-arm-Release-Android"
       ]
     },
-    "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES"
-      ]
-    },
     "Build-Ubuntu-Clang-arm64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ]
     },
-    "Build-Ubuntu-Clang-arm64-Debug-Android_FrameworkDefs": {
+    "Build-Ubuntu-Clang-arm64-Debug-Android~FrameworkDefs": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_FrameworkDefs"
+        "Build-Ubuntu-Clang-arm64-Debug-Android~FrameworkDefs"
       ]
     },
-    "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan": {
+    "Build-Ubuntu-Clang-arm64-Debug-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Debug-Android~Vulkan"
       ]
     },
     "Build-Ubuntu-Clang-arm64-Release-Android": {
@@ -108,10 +108,10 @@
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ]
     },
-    "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan": {
+    "Build-Ubuntu-Clang-arm64-Release-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Release-Android~Vulkan"
       ]
     },
     "Build-Ubuntu-Clang-mips64el-Debug-Android": {
@@ -156,10 +156,10 @@
         "Build-Ubuntu-Clang-x86-Debug-Android"
       ]
     },
-    "Build-Ubuntu-Clang-x86-Debug-Android_Vulkan": {
+    "Build-Ubuntu-Clang-x86-Debug-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-x86-Debug-Android_Vulkan"
+        "Build-Ubuntu-Clang-x86-Debug-Android~Vulkan"
       ]
     },
     "Build-Ubuntu-Clang-x86-Release-Android": {
@@ -168,10 +168,10 @@
         "Build-Ubuntu-Clang-x86-Release-Android"
       ]
     },
-    "Build-Ubuntu-Clang-x86-Release-Android_Vulkan": {
+    "Build-Ubuntu-Clang-x86-Release-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-x86-Release-Android_Vulkan"
+        "Build-Ubuntu-Clang-x86-Release-Android~Vulkan"
       ]
     },
     "Build-Ubuntu-Clang-x86_64-Debug": {
@@ -300,10 +300,10 @@
         "Build-Ubuntu-GCC-x86_64-Release-ANGLE"
       ]
     },
-    "Build-Ubuntu-GCC-x86_64-Release-Flutter_Android": {
+    "Build-Ubuntu-GCC-x86_64-Release-Android~Flutter": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-GCC-x86_64-Release-Flutter_Android"
+        "Build-Ubuntu-GCC-x86_64-Release-Android~Flutter"
       ]
     },
     "Build-Ubuntu-GCC-x86_64-Release-Mesa": {
@@ -536,10 +536,10 @@
         "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android"
       ]
     },
-    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
+    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan"
+        "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android~Vulkan"
       ]
     },
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android": {
@@ -548,10 +548,10 @@
         "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android"
       ]
     },
-    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan": {
+    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan"
+        "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan"
       ]
     },
     "Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Debug-Android": {
@@ -596,10 +596,10 @@
         "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android"
       ]
     },
-    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan"
+        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android~Vulkan"
       ]
     },
     "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
@@ -608,10 +608,10 @@
         "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android"
       ]
     },
-    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan"
+        "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan"
       ]
     },
     "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android": {
@@ -650,10 +650,10 @@
         "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android"
       ]
     },
-    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android_Vulkan": {
+    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android_Vulkan"
+        "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android~Vulkan"
       ]
     },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android": {
@@ -662,10 +662,10 @@
         "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android"
       ]
     },
-    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan": {
+    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan"
+        "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android~Vulkan"
       ]
     },
     "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android": {
@@ -680,16 +680,16 @@
         "Upload-Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android"
       ]
     },
-    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench": {
+    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench"
+        "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench"
       ]
     },
-    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench": {
+    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench"
+        "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench~Vulkan"
       ]
     },
     "Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug": {
@@ -866,16 +866,16 @@
         "Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs"
       ]
     },
+    "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-AbandonGpuContext~Valgrind": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-AbandonGpuContext~Valgrind"
+      ]
+    },
     "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
       "priority": 0.8,
       "tasks": [
         "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind"
-      ]
-    },
-    "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext"
       ]
     },
     "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
@@ -1394,10 +1394,10 @@
         "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android"
       ]
     },
-    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan"
+        "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android~Vulkan"
       ]
     },
     "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android": {
@@ -1406,10 +1406,10 @@
         "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android"
       ]
     },
-    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan": {
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan"
+        "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan"
       ]
     },
     "Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Debug-Android": {
@@ -1454,10 +1454,10 @@
         "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android"
       ]
     },
-    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan"
+        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android~Vulkan"
       ]
     },
     "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
@@ -1466,10 +1466,10 @@
         "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android"
       ]
     },
-    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan"
+        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan"
       ]
     },
     "Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android": {
@@ -1502,10 +1502,10 @@
         "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android"
       ]
     },
-    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan": {
+    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan"
+        "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android~Vulkan"
       ]
     },
     "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
@@ -1514,10 +1514,10 @@
         "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android"
       ]
     },
-    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
+    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan"
+        "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android~Vulkan"
       ]
     },
     "Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android": {
@@ -1538,10 +1538,10 @@
         "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android"
       ]
     },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan": {
+    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan"
+        "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android~Vulkan"
       ]
     },
     "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android": {
@@ -1550,10 +1550,10 @@
         "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android"
       ]
     },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan": {
+    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android~Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan"
+        "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android~Vulkan"
       ]
     },
     "Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug": {
@@ -1755,22 +1755,22 @@
         "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD"
       ]
     },
+    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-AbandonGpuContext~Valgrind": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-AbandonGpuContext~Valgrind"
+      ]
+    },
+    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-PreAbandonGpuContext~Valgrind": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-PreAbandonGpuContext~Valgrind"
+      ]
+    },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
       "priority": 0.8,
       "tasks": [
         "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind"
-      ]
-    },
-    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
-      "priority": 0.8,
-      "tasks": [
-        "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext"
-      ]
-    },
-    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext": {
-      "priority": 0.8,
-      "tasks": [
-        "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext"
       ]
     },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
@@ -2476,6 +2476,46 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Ubuntu-Clang-arm-Debug-ARM~Chromebook~GLES": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:8"
+        },
+        {
+          "name": "skia/bots/armhf_sysroot",
+          "path": "armhf_sysroot",
+          "version": "version:3"
+        },
+        {
+          "name": "skia/bots/chromebook_arm_gles",
+          "path": "chromebook_arm_gles",
+          "version": "version:0"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-arm-Debug-ARM~Chromebook~GLES",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Ubuntu-Clang-arm-Debug-Android": {
       "cipd_packages": [
         {
@@ -2506,7 +2546,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES": {
+    "Build-Ubuntu-Clang-arm-Release-ARM~Chromebook~GLES": {
       "cipd_packages": [
         {
           "name": "skia/bots/clang_linux",
@@ -2535,7 +2575,7 @@
         "../../..",
         "compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
+        "buildername=Build-Ubuntu-Clang-arm-Release-ARM~Chromebook~GLES",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -2576,46 +2616,6 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:8"
-        },
-        {
-          "name": "skia/bots/armhf_sysroot",
-          "path": "armhf_sysroot",
-          "version": "version:3"
-        },
-        {
-          "name": "skia/bots/chromebook_arm_gles",
-          "path": "chromebook_arm_gles",
-          "version": "version:0"
-        }
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "compile",
-        "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
     "Build-Ubuntu-Clang-arm64-Debug-Android": {
       "cipd_packages": [
         {
@@ -2646,7 +2646,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-arm64-Debug-Android_FrameworkDefs": {
+    "Build-Ubuntu-Clang-arm64-Debug-Android~FrameworkDefs": {
       "cipd_packages": [
         {
           "name": "skia/bots/android_ndk_linux",
@@ -2665,7 +2665,7 @@
         "../../..",
         "compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-arm64-Debug-Android_FrameworkDefs",
+        "buildername=Build-Ubuntu-Clang-arm64-Debug-Android~FrameworkDefs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -2676,7 +2676,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan": {
+    "Build-Ubuntu-Clang-arm64-Debug-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/android_ndk_linux",
@@ -2695,7 +2695,7 @@
         "../../..",
         "compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
+        "buildername=Build-Ubuntu-Clang-arm64-Debug-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -2736,7 +2736,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan": {
+    "Build-Ubuntu-Clang-arm64-Release-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/android_ndk_linux",
@@ -2755,7 +2755,7 @@
         "../../..",
         "compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "buildername=Build-Ubuntu-Clang-arm64-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -2976,7 +2976,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-x86-Debug-Android_Vulkan": {
+    "Build-Ubuntu-Clang-x86-Debug-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/android_ndk_linux",
@@ -2995,7 +2995,7 @@
         "../../..",
         "compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-x86-Debug-Android_Vulkan",
+        "buildername=Build-Ubuntu-Clang-x86-Debug-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -3036,7 +3036,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-x86-Release-Android_Vulkan": {
+    "Build-Ubuntu-Clang-x86-Release-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/android_ndk_linux",
@@ -3055,7 +3055,7 @@
         "../../..",
         "compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-x86-Release-Android_Vulkan",
+        "buildername=Build-Ubuntu-Clang-x86-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -3657,7 +3657,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-GCC-x86_64-Release-Flutter_Android": {
+    "Build-Ubuntu-GCC-x86_64-Release-Android~Flutter": {
       "cipd_packages": [
         {
           "name": "skia/bots/android_ndk_linux",
@@ -3676,7 +3676,7 @@
         "../../..",
         "compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-GCC-x86_64-Release-Flutter_Android",
+        "buildername=Build-Ubuntu-GCC-x86_64-Release-Android~Flutter",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -4977,7 +4977,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
+    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -4996,7 +4996,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
+        "Build-Ubuntu-Clang-arm64-Debug-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -5012,7 +5012,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan",
+        "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -5073,7 +5073,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan": {
+    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -5092,7 +5092,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Build-Ubuntu-Clang-arm64-Release-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -5108,7 +5108,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan",
+        "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -5457,7 +5457,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -5476,7 +5476,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
+        "Build-Ubuntu-Clang-arm64-Debug-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -5492,7 +5492,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -5553,7 +5553,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -5572,7 +5572,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Build-Ubuntu-Clang-arm64-Release-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -5588,7 +5588,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -5889,7 +5889,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android_Vulkan": {
+    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -5908,7 +5908,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
+        "Build-Ubuntu-Clang-arm64-Debug-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -5924,7 +5924,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android_Vulkan",
+        "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -5985,7 +5985,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan": {
+    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -6004,7 +6004,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Build-Ubuntu-Clang-arm64-Release-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -6020,7 +6020,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan",
+        "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -6129,7 +6129,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench": {
+    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench": {
       "cipd_packages": [
         {
           "name": "skia/bots/skp",
@@ -6154,7 +6154,7 @@
         "../../..",
         "skpbench",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench",
+        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -6167,7 +6167,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench": {
+    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skp",
@@ -6176,7 +6176,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Build-Ubuntu-Clang-arm64-Release-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -6192,7 +6192,7 @@
         "../../..",
         "skpbench",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench",
+        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -6224,7 +6224,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Debug-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -6271,7 +6271,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Release-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -6318,7 +6318,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Debug-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -6365,7 +6365,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Release-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -6412,7 +6412,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Debug-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -6459,7 +6459,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Release-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -6506,7 +6506,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Debug-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -6553,7 +6553,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Release-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -7537,6 +7537,53 @@
       "isolate": "ct_skps_skia.isolate",
       "priority": 0.8
     },
+    "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-AbandonGpuContext~Valgrind": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:24"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:50"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1244",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-AbandonGpuContext~Valgrind",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
       "cipd_packages": [
         {
@@ -7572,53 +7619,6 @@
         "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 3600000000000,
-      "isolate": "perf_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:50"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
-      "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1244",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -11770,7 +11770,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -11789,7 +11789,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
+        "Build-Ubuntu-Clang-arm64-Debug-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11805,7 +11805,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -11866,7 +11866,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan": {
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -11885,7 +11885,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Build-Ubuntu-Clang-arm64-Release-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11901,7 +11901,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12250,7 +12250,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12269,7 +12269,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
+        "Build-Ubuntu-Clang-arm64-Debug-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12285,7 +12285,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12346,7 +12346,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12365,7 +12365,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Build-Ubuntu-Clang-arm64-Release-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12381,7 +12381,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12634,7 +12634,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan": {
+    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12653,7 +12653,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-x86-Debug-Android_Vulkan",
+        "Build-Ubuntu-Clang-x86-Debug-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12669,7 +12669,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan",
+        "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12730,7 +12730,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
+    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12749,7 +12749,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-x86-Release-Android_Vulkan",
+        "Build-Ubuntu-Clang-x86-Release-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12765,7 +12765,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
+        "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12922,7 +12922,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan": {
+    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12941,7 +12941,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
+        "Build-Ubuntu-Clang-arm64-Debug-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12957,7 +12957,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan",
+        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -13018,7 +13018,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan": {
+    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android~Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -13037,7 +13037,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Build-Ubuntu-Clang-arm64-Release-Android~Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -13053,7 +13053,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan",
+        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -13085,7 +13085,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Debug-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -13132,7 +13132,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Release-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -13179,7 +13179,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Debug-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -13226,7 +13226,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Release-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -13273,7 +13273,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Debug-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -13320,7 +13320,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Release-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -13367,7 +13367,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Debug-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -13414,7 +13414,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
+        "Build-Ubuntu-Clang-arm-Release-ARM~Chromebook~GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -14593,6 +14593,100 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-AbandonGpuContext~Valgrind": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:24"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:50"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1244",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-AbandonGpuContext~Valgrind",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-PreAbandonGpuContext~Valgrind": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:24"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:50"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1244",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-PreAbandonGpuContext~Valgrind",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
       "cipd_packages": [
         {
@@ -14628,100 +14722,6 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 3600000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:50"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
-      "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1244",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 3600000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:50"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
-      "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1244",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -18699,9 +18699,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan": {
+    "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan": {
       "dependencies": [
-        "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan"
+        "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -18714,7 +18714,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan",
+        "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -18834,9 +18834,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
+    "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan": {
       "dependencies": [
-        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan"
+        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -18849,7 +18849,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -18942,9 +18942,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan": {
+    "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android~Vulkan": {
       "dependencies": [
-        "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan"
+        "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android~Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -18957,7 +18957,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan",
+        "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -18996,9 +18996,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench": {
+    "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench": {
       "dependencies": [
-        "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench"
+        "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -19011,7 +19011,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench",
+        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19023,9 +19023,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench": {
+    "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench~Vulkan": {
       "dependencies": [
-        "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench"
+        "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench~Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -19038,7 +19038,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench",
+        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android~Skpbench~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20616,9 +20616,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
+    "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android~Vulkan": {
       "dependencies": [
-        "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan"
+        "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android~Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -20631,7 +20631,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20670,9 +20670,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan": {
+    "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan": {
       "dependencies": [
-        "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan"
+        "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -20685,7 +20685,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20886,9 +20886,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
+    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android~Vulkan": {
       "dependencies": [
-        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan"
+        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android~Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -20901,7 +20901,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20940,9 +20940,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
+    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan": {
       "dependencies": [
-        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan"
+        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -20955,7 +20955,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -21102,9 +21102,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan": {
+    "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android~Vulkan": {
       "dependencies": [
-        "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan"
+        "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android~Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -21117,7 +21117,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan",
+        "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -21156,9 +21156,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
+    "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android~Vulkan": {
       "dependencies": [
-        "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan"
+        "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android~Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -21171,7 +21171,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
+        "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -21264,9 +21264,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan": {
+    "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android~Vulkan": {
       "dependencies": [
-        "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan"
+        "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android~Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -21279,7 +21279,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan",
+        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -21318,9 +21318,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan": {
+    "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android~Vulkan": {
       "dependencies": [
-        "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan"
+        "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android~Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -21333,7 +21333,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan",
+        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android~Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",

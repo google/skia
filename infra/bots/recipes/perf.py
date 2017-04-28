@@ -280,7 +280,7 @@ def perf_steps(api):
       })
 
   # See skia:2789.
-  extra_config_parts = api.vars.builder_cfg.get('extra_config', '').split('_')
+  extra_config_parts = api.vars.builder_cfg.get('extra_config', '').split('~')
   if 'AbandonGpuContext' in extra_config_parts:
     args.extend(['--abandonGpuContext', '--nocpu'])
 
@@ -315,12 +315,12 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
-  'Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan',
+  'Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android~Vulkan',
   'Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android',
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android',
   'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android',
-  'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan',
+  'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android~Vulkan',
   'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android',
   'Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug',
@@ -329,8 +329,8 @@ TEST_BUILDERS = [
   'Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
   'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release',
   'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
-  ('Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind' +
-  '_AbandonGpuContext'),
+  ('Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-' +
+   'AbandonGpuContext~Valgrind'),
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release',
   'Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE',

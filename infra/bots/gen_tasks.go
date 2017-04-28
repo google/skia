@@ -88,7 +88,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 		task_os := parts["os"]
 		ec := []string{}
 		if val := parts["extra_config"]; val != "" {
-			ec = strings.Split(val, "_")
+			ec = strings.Split(val, "~")
 			ignore := []string{"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "ReleaseAndAbandonGpuContext", "RaspberryPi"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
@@ -100,17 +100,17 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 		}
 		if task_os == "Android" {
 			if !util.In("Android", ec) {
-				ec = append([]string{"Android"}, ec...)
+				ec = append(ec, "Android")
 			}
 			task_os = "Ubuntu"
 		} else if task_os == "Chromecast" {
 			task_os = "Ubuntu"
-			ec = append([]string{"Chromecast"}, ec...)
+			ec = append(ec, "Chromecast")
 		} else if strings.Contains(task_os, "ChromeOS") {
-			ec = append([]string{"Chromebook", "ARM", "GLES"}, ec...)
+			ec = append(ec, "Chromebook", "ARM", "GLES")
 			task_os = "Ubuntu"
 		} else if task_os == "iOS" {
-			ec = append([]string{task_os}, ec...)
+			ec = append(ec, task_os)
 			task_os = "Mac"
 		} else if strings.Contains(task_os, "Win") {
 			task_os = "Win"
@@ -124,8 +124,9 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			"target_arch":   parts["arch"],
 			"configuration": parts["configuration"],
 		}
+		sort.Strings(ec)
 		if len(ec) > 0 {
-			jobNameMap["extra_config"] = strings.Join(ec, "_")
+			jobNameMap["extra_config"] = strings.Join(ec, "~")
 		}
 		name, err := jobNameSchema.MakeJobName(jobNameMap)
 		if err != nil {
