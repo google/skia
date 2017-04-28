@@ -22,6 +22,30 @@
       "revId": "dc87c95382d5beab7fdae2e654d6de568fbe1671",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f97c644_d7dfd17d",
+        "filename": "src/core/SkSpecialSurface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-28T19:44:29Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "d21f99b8_db03d0f9",
+      "range": {
+        "startLine": 70,
+        "startChar": 38,
+        "endLine": 70,
+        "endChar": 42
+      },
+      "revId": "dc87c95382d5beab7fdae2e654d6de568fbe1671",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
