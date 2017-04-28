@@ -20,6 +20,7 @@
 #include "SkShader.h"
 #include "SkSpecialImage.h"
 #include "SkSurface.h"
+#include "SkTLazy.h"
 #include "SkVertices.h"
 
 class SkColorTable;
@@ -387,35 +388,71 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkBitmapDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y,
-                                 const SkPaint& paint) {
-    SkASSERT(!srcImg->isTextureBacked());
+void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPaint& origPaint,
+                                 SkImage* clipImage, const SkMatrix& clipMatrix) {
+    SkASSERT(!src->isTextureBacked());
 
-    SkBitmap resultBM;
+    sk_sp<SkSpecialImage> filteredImage;
+    SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
 
-    SkImageFilter* filter = paint.getImageFilter();
-    if (filter) {
+    if (SkImageFilter* filter = paint->getImageFilter()) {
         SkIPoint offset = SkIPoint::Make(0, 0);
-        SkMatrix matrix = this->ctm();
-        matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+        const SkMatrix matrix = SkMatrix::Concat(
+            SkMatrix::MakeTrans(SkIntToScalar(-x), SkIntToScalar(-y)), this->ctm());
         const SkIRect clipBounds = fRCStack.rc().getBounds().makeOffset(-x, -y);
         sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
         SkImageFilter::OutputProperties outputProperties(fBitmap.colorSpace());
         SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
 
-        sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg, ctx, &offset));
-        if (resultImg) {
-            SkPaint tmpUnfiltered(paint);
-            tmpUnfiltered.setImageFilter(nullptr);
-            if (resultImg->getROPixels(&resultBM)) {
-                this->drawSprite(resultBM, x + offset.x(), y + offset.y(), tmpUnfiltered);
-            }
+        filteredImage = filter->filterImage(src, ctx, &offset);
+        if (!filteredImage) {
+            return;
         }
-    } else {
-        if (srcImg->getROPixels(&resultBM)) {
-            this->drawSprite(resultBM, x, y, paint);
-        }
+
+        src = filteredImage.get();
+        paint.writable()->setImageFilter(nullptr);
+        x += offset.x();
+        y += offset.y();
     }
+
+    if (!clipImage) {
+        SkBitmap resultBM;
+        if (src->getROPixels(&resultBM)) {
+            this->drawSprite(resultBM, x, y, *paint);
+        }
+        return;
+    }
+
+    // Clip image case.
+    sk_sp<SkImage> srcImage(src->asImage());
+    if (!srcImage) {
+        return;
+    }
+
+    const SkMatrix totalMatrix = SkMatrix::Concat(this->ctm(), clipMatrix);
+
+    SkRect clipBounds;
+    totalMatrix.mapRect(&clipBounds, SkRect::Make(clipImage->bounds()));
+    const SkIRect srcBounds = srcImage->bounds().makeOffset(x, y);
+
+    SkIRect maskBounds = fRCStack.rc().getBounds();
+    if (!maskBounds.intersect(clipBounds.roundOut()) || !maskBounds.intersect(srcBounds)) {
+        return;
+    }
+
+    sk_sp<SkSurface> surf = SkSurface::MakeRaster(SkImageInfo::MakeA8(maskBounds.width(),
+                                                                      maskBounds.height()));
+    SkCanvas* canvas = surf->getCanvas();
+    canvas->translate(-maskBounds.x(), -maskBounds.y());
+    canvas->concat(totalMatrix);
+    canvas->drawImage(clipImage, 0, 0);
+    sk_sp<SkImage> mask = surf->makeImageSnapshot();
+
+    const SkMatrix m = SkMatrix::MakeTrans(x - maskBounds.x(), y - maskBounds.y());
+    paint.writable()->setShader(srcImage->makeShader(&m));
+
+    SkAutoDeviceCTMRestore adctmr(this, SkMatrix::I());
+    this->drawImage(mask.get(), maskBounds.x(), maskBounds.y(), *paint);
 }
 
 sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkBitmap& bitmap) {

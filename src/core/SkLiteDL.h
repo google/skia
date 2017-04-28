@@ -29,7 +29,8 @@ public:
 #endif
 
     void save();
-    void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, SkCanvas::SaveLayerFlags);
+    void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, sk_sp<SkImage>,
+                   const SkMatrix*, SkCanvas::SaveLayerFlags);
     void restore();
 
     void    concat (const SkMatrix&);
