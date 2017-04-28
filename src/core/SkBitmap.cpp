@@ -529,7 +529,6 @@ bool SkBitmap::canCopyTo(SkColorType dstCT) const {
         case kRGB_565_SkColorType:
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-        case kRGBA_F16_SkColorType:
             break;
         case kGray_8_SkColorType:
             if (!sameConfigs) {
@@ -575,7 +574,8 @@ bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY,
     return true;
 }
 
-bool SkBitmap::internalCopyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc) const {
+#ifdef SK_SUPPORT_LEGACY_BITMAP_COPYTO
+bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType) const {
     if (!this->canCopyTo(dstColorType)) {
         return false;
     }
@@ -585,36 +585,8 @@ bool SkBitmap::internalCopyTo(SkBitmap* dst, SkColorType dstColorType, Allocator
         return false;
     }
 
-    // Various Android specific compatibility modes.
-    // TODO:
-    // Move the logic of this entire function into the framework, then call readPixels() directly.
-    SkImageInfo dstInfo = srcPM.info().makeColorType(dstColorType);
-    switch (dstColorType) {
-        case kRGB_565_SkColorType:
-            // copyTo() is not strict on alpha type.  Here we set the src to opaque to allow
-            // the call to readPixels() to succeed and preserve this lenient behavior.
-            if (kOpaque_SkAlphaType != srcPM.alphaType()) {
-                srcPM = SkPixmap(srcPM.info().makeAlphaType(kOpaque_SkAlphaType), srcPM.addr(),
-                                 srcPM.rowBytes(), srcPM.ctable());
-                dstInfo = dstInfo.makeAlphaType(kOpaque_SkAlphaType);
-            }
-            break;
-        case kRGBA_F16_SkColorType:
-            // The caller does not have an opportunity to pass a dst color space.  Assume that
-            // they want linear sRGB.
-            dstInfo = dstInfo.makeColorSpace(SkColorSpace::MakeSRGBLinear());
-
-            if (!srcPM.colorSpace()) {
-                // We can't do a sane conversion to F16 without a dst color space.  Guess sRGB
-                // in this case.
-                srcPM.setColorSpace(SkColorSpace::MakeSRGB());
-            }
-            break;
-        default:
-            break;
-    }
-
     SkBitmap tmpDst;
+    SkImageInfo dstInfo = srcPM.info().makeColorType(dstColorType);
     if (!tmpDst.setInfo(dstInfo)) {
         return false;
     }
@@ -624,7 +596,7 @@ bool SkBitmap::internalCopyTo(SkBitmap* dst, SkColorType dstColorType, Allocator
     if (dstColorType == kIndex_8_SkColorType) {
         ctable.reset(SkRef(srcPM.ctable()));
     }
-    if (!tmpDst.tryAllocPixels(alloc, ctable.get())) {
+    if (!tmpDst.tryAllocPixels(ctable.get())) {
         return false;
     }
 
@@ -633,59 +605,14 @@ bool SkBitmap::internalCopyTo(SkBitmap* dst, SkColorType dstColorType, Allocator
         return false;
     }
 
-    // We can't do a sane conversion from F16 without a src color space.  Guess sRGB in this case.
-    if (kRGBA_F16_SkColorType == srcPM.colorType() && !dstPM.colorSpace()) {
-        dstPM.setColorSpace(SkColorSpace::MakeSRGB());
-    }
-
-    // readPixels does not yet support color spaces with parametric transfer functions.  This
-    // works around that restriction when the color spaces are equal.
-    if (kRGBA_F16_SkColorType != dstColorType && kRGBA_F16_SkColorType != srcPM.colorType() &&
-            dstPM.colorSpace() == srcPM.colorSpace()) {
-        dstPM.setColorSpace(nullptr);
-        srcPM.setColorSpace(nullptr);
-    }
-
     if (!srcPM.readPixels(dstPM)) {
         return false;
-    }
-
-    //  (for BitmapHeap) Clone the pixelref genID even though we have a new pixelref.
-    //  The old copyTo impl did this, so we continue it for now.
-    //
-    //  TODO: should we ignore rowbytes (i.e. getSize)? Then it could just be
-    //      if (src_pixelref->info == dst_pixelref->info)
-    //
-    if (srcPM.colorType() == dstColorType && tmpDst.getSize() == srcPM.getSize64()) {
-        if (tmpDst.info() == this->info() && tmpDst.pixelRef()->width() == fPixelRef->width() &&
-                tmpDst.pixelRef()->height() == fPixelRef->height()) {
-            tmpDst.pixelRef()->cloneGenID(*fPixelRef);
-        }
     }
 
     dst->swap(tmpDst);
     return true;
 }
-
-bool SkBitmap::copyTo(SkBitmap* dst, SkColorType ct) const {
-    return this->internalCopyTo(dst, ct, nullptr);
-}
-
-#ifdef SK_BUILD_FOR_ANDROID
-bool SkBitmap::copyTo(SkBitmap* dst, SkColorType ct, Allocator* alloc) const {
-    return this->internalCopyTo(dst, ct, alloc);
-}
 #endif
-
-// TODO: can we merge this with copyTo?
-bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
-    const SkColorType dstCT = this->colorType();
-
-    if (!this->canCopyTo(dstCT)) {
-        return false;
-    }
-    return this->copyTo(dst, dstCT);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 

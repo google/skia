@@ -837,7 +837,9 @@ static SkBitmap* convert_colortype(SkBitmap* bitmap, SkColorType colorType) {
         return bitmap;
     }
     SkBitmap* dst = new SkBitmap();
-    if (bitmap->copyTo(dst, colorType)) {
+    if (dst->tryAllocPixels(bitmap->info().makeColorType(colorType)) &&
+        bitmap->readPixels(dst->info(), dst->getPixels(), dst->rowBytes(), 0, 0))
+    {
         delete bitmap;
         return dst;
     }

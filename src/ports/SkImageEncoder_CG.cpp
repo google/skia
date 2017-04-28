@@ -89,9 +89,10 @@ bool SkEncodeImageWithCG(SkWStream* stream, const SkPixmap& pixmap, SkEncodedIma
             // <Error>: CGImageDestinationFinalize image destination does not have enough images
             // So instead we copy to 8888.
             if (bm.colorType() == kARGB_4444_SkColorType) {
-                SkBitmap bitmap8888;
-                bm.copyTo(&bitmap8888, kN32_SkColorType);
-                bm.swap(bitmap8888);
+                SkBitmap bitmapN32;
+                bitmapN32.allocPixels(bm.info().makeColorType(kN32_SkColorType));
+                bm.readPixels(bitmapN32.info(), bitmapN32.getPixels(), bitmapN32.rowBytes(), 0, 0);
+                bm.swap(bitmapN32);
             }
             type = kUTTypePNG;
             break;

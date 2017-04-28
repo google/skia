@@ -552,39 +552,15 @@ public:
     */
     bool extractSubset(SkBitmap* dst, const SkIRect& subset) const;
 
-#ifdef SK_BUILD_FOR_ANDROID
-    /** Makes a deep copy of this bitmap, respecting the requested colorType,
-     *  and allocating the dst pixels on the cpu.
-     *  Returns false if either there is an error (i.e. the src does not have
-     *  pixels) or the request cannot be satisfied (e.g. the src has per-pixel
-     *  alpha, and the requested colortype does not support alpha).
-     *  @param dst The bitmap to be sized and allocated
-     *  @param ct The desired colorType for dst
-     *  @param allocator Allocator used to allocate the pixelref for the dst
-     *                   bitmap. If this is null, the standard HeapAllocator
-     *                   will be used.
-     *  @return true if the copy was made.
-     */
-    bool copyTo(SkBitmap* dst, SkColorType ct, Allocator*) const;
-
-    bool copyTo(SkBitmap* dst, Allocator* allocator) const {
-        return this->copyTo(dst, this->colorType(), allocator);
-    }
-#endif
-
-    /** Makes a deep copy of this bitmap, respecting the requested colorType.
-     *  Returns false if either there is an error (i.e. the src does not have
-     *  pixels) or the request cannot be satisfied (e.g. the src has per-pixel
-     *  alpha, and the requested colortype does not support alpha).
-     *  @param dst The bitmap to be sized and allocated
-     *  @param ct The desired colorType for dst
-     *  @return true if the copy was made.
-     */
+#ifdef SK_SUPPORT_LEGACY_BITMAP_COPYTO
     bool copyTo(SkBitmap* dst, SkColorType ct) const;
-
     bool copyTo(SkBitmap* dst) const {
         return this->copyTo(dst, this->colorType());
     }
+    bool deepCopyTo(SkBitmap* dst) const {
+        return this->copyTo(dst, this->colorType());
+    }
+#endif
 
     /**
      *  Copy the bitmap's pixels into the specified buffer (pixels + rowBytes),
@@ -624,20 +600,6 @@ public:
     bool writePixels(const SkPixmap& src) {
         return this->writePixels(src, 0, 0);
     }
-
-    /**
-     *  Returns true if this bitmap's pixels can be converted into the requested
-     *  colorType, such that copyTo() could succeed.
-     */
-    bool canCopyTo(SkColorType colorType) const;
-
-    /** Makes a deep copy of this bitmap, keeping the copied pixels
-     *  in the same domain as the source: If the src pixels are allocated for
-     *  the cpu, then so will the dst. If the src pixels are allocated on the
-     *  gpu (typically as a texture), the it will do the same for the dst.
-     *  If the request cannot be fulfilled, returns false and dst is unmodified.
-     */
-    bool deepCopyTo(SkBitmap* dst) const;
 
 #ifdef SK_BUILD_FOR_ANDROID
     bool hasHardwareMipMap() const {
@@ -736,7 +698,8 @@ private:
     uint8_t             fFlags;
 
     bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior behavior);
-    bool internalCopyTo(SkBitmap* dst, SkColorType ct, Allocator*) const;
+
+    bool canCopyTo(SkColorType colorType) const;
 
     /*  Unreference any pixelrefs or colortables
     */
