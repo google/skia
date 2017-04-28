@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb4b0229_dc8c8fd0",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1139,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-28T15:25:35Z",
+      "side": 1,
+      "message": "This should be pretty easy...",
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79e832c5_d57c2238",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1184,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-28T15:25:35Z",
+      "side": 1,
+      "message": "... grPaint.addCoverageTextureProcessor(image-\u003easTextureProxyRef()) /** in reality takes some more params */",
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
