@@ -8,7 +8,6 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 
-
 static const uint32_t SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag = 1U << 31;
 
 // This GM tests out the deprecated Android-specific unclipped saveLayer "feature".
@@ -17,7 +16,8 @@ static const uint32_t SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag = 1U << 31;
 static void save_layer_unclipped(SkCanvas* canvas,
                                  SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
     SkRect rect = SkRect::MakeLTRB(l, t, r, b);
-    canvas->saveLayer({ &rect, nullptr, nullptr, SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag });
+    canvas->saveLayer({ &rect, nullptr, nullptr, nullptr, nullptr,
+                        SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag });
 }
 
 static void do_draw(SkCanvas* canvas) {
@@ -94,8 +94,8 @@ DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
     for(int i = 1; i < 2; ++i) {
         canvas->translate(100 * i, 0);
         auto flag = i ? SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag : 0;
-        canvas->saveLayer({ &rect1, &paint1, nullptr, flag});
-        canvas->saveLayer({ &rect2, &paint2, nullptr, flag});
+        canvas->saveLayer({ &rect1, &paint1, nullptr, nullptr, nullptr, flag});
+        canvas->saveLayer({ &rect2, &paint2, nullptr, nullptr, nullptr, flag});
         canvas->drawRect(rect3, paint3);
         canvas->restore();
         canvas->restore();
@@ -122,3 +122,118 @@ DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
     canvas->restore();
 };
 
+#include "SkBlurImageFilter.h"
+#include "SkGradientShader.h"
+#include "SkPicture.h"
+#include "SkPictureRecorder.h"
+#include "SkSurface.h"
+
+static void draw_mask(SkCanvas* canvas, int size) {
+    const SkScalar cx = size * SK_ScalarHalf,
+                   cy = cx;
+    const SkColor colors[] = { 0x00000000, 0xffff0000, 0x00000000, 0xffff0000, 0x00000000,
+                               0xffff0000, 0x00000000, 0xffff0000, 0x00000000 };
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setShader(SkGradientShader::MakeSweep(cx, cy, colors, nullptr, SK_ARRAY_COUNT(colors)));
+    canvas->drawPaint(paint);
+
+    paint.setShader(SkGradientShader::MakeRadial({cx, cy}, size / 4, colors, nullptr, 2,
+                                                 SkShader::kClamp_TileMode));
+    canvas->drawCircle(cx, cy, size / 4, paint);
+}
+
+DEF_SIMPLE_GM(savelayer_clipmask, canvas, 1200, 1200) {
+    static constexpr int kSize = 100;
+    static constexpr SkRect kLayerBounds = { kSize * 0.25f, kSize * 0.25f,
+                                             kSize * 0.75f, kSize * 0.75f };
+    static constexpr struct {
+        const SkRect* bounds;
+        const SkScalar matrix[9];
+    } kConfigs[] = {
+        { nullptr, { 1     ,  0     ,   0,   0     , 1     ,   0,   0, 0, 1 } },
+        { nullptr, { 2     ,  0     ,   0,   0     , 2     ,   0,   0, 0, 1 } },
+        { nullptr, { 2     ,  0     , -50,   0     , 2     , -50,   0, 0, 1 } },
+        { nullptr, { 0.707f, -0.707f,  50,   0.707f, 0.707f, -20,   0, 0, 1 } },
+        { nullptr, { 0.5f  ,  0     ,  25,   0     , 0.5f  ,  25,   0, 0, 1 } },
+
+        { &kLayerBounds, { 1     ,  0     ,   0,   0     , 1     ,   0,   0, 0, 1 } },
+        { &kLayerBounds, { 2     ,  0     ,   0,   0     , 2     ,   0,   0, 0, 1 } },
+        { &kLayerBounds, { 2     ,  0     , -50,   0     , 2     , -50,   0, 0, 1 } },
+        { &kLayerBounds, { 0.707f, -0.707f,  50,   0.707f, 0.707f, -20,   0, 0, 1 } },
+        { &kLayerBounds, { 0.5f  ,  0     ,  25,   0     , 0.5f  ,  25,   0, 0, 1 } },
+    };
+
+    using MaskMakerFunc = sk_sp<SkImage> (*)(int size);
+    static const MaskMakerFunc kMaskMakers[] = {
+        [](int size) -> sk_sp<SkImage> {
+            auto surf = SkSurface::MakeRaster(SkImageInfo::MakeA8(size, size));
+            draw_mask(surf->getCanvas(), size);
+            return surf->makeImageSnapshot();
+        },
+
+        [](int size) -> sk_sp<SkImage> {
+            auto surf = SkSurface::MakeRasterN32Premul(size, size);
+            draw_mask(surf->getCanvas(), size);
+            return surf->makeImageSnapshot();
+        },
+
+        [](int size) -> sk_sp<SkImage> {
+            SkPictureRecorder recorder;
+            draw_mask(recorder.beginRecording(size, size), size);
+            return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
+                                            SkISize::Make(size, size),
+                                            nullptr, nullptr,
+                                            SkImage::BitDepth::kU8,
+                                            SkColorSpace::MakeSRGB());
+        }
+    };
+
+    using PaintMakerFunc = SkPaint (*)();
+    static const PaintMakerFunc kPaintMakers[] = {
+        []() -> SkPaint { return SkPaint(); },
+        []() -> SkPaint {
+            SkPaint p; p.setImageFilter(SkBlurImageFilter::Make(2, 2, nullptr)); return p;
+        },
+        []() -> SkPaint { SkPaint p; p.setBlendMode(SkBlendMode::kSrcOut); return p; },
+    };
+
+    canvas->drawColor(0xffcccccc);
+
+    SkMatrix clipMatrix;
+    SkCanvas::SaveLayerRec rec;
+    rec.fClipMatrix = &clipMatrix;
+
+    for (const auto& paintMaker : kPaintMakers) {
+        auto layerPaint = paintMaker();
+        rec.fPaint = &layerPaint;
+
+        for (const auto& maskMaker : kMaskMakers) {
+            maskMaker(kSize);
+            rec.fClipMask = maskMaker(kSize);
+
+            canvas->save();
+            for (const auto cfg : kConfigs) {
+                rec.fBounds = cfg.bounds;
+                clipMatrix.set9(cfg.matrix);
+                canvas->saveLayer(rec);
+
+                SkPaint paint;
+                paint.setColor(0xff0000ff);
+                canvas->drawRect(SkRect::MakeWH(50, 50), paint);
+                paint.setColor(0xffff0000);
+                canvas->drawRect(SkRect::MakeXYWH(50, 0, 50, 50), paint);
+                paint.setColor(0xff00ff00);
+                canvas->drawRect(SkRect::MakeXYWH(50, 50, 50, 50), paint);
+                paint.setColor(0xffffff00);
+                canvas->drawRect(SkRect::MakeXYWH(0, 50, 50, 50), paint);
+
+                canvas->restore();
+                canvas->translate(120, 0);
+            }
+            canvas->restore();
+            canvas->translate(0, 120);
+        }
+    }
+}
