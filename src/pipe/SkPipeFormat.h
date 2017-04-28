@@ -107,6 +107,8 @@ enum {
     kHasPaint_SaveLayerMask         = 1 << 9,
     kHasBackdrop_SaveLayerMask      = 1 << 10,
     kDontClipToLayer_SaveLayerMask  = 1 << 11,
+    kHasClipMask_SaveLayerMask      = 1 << 12,
+    kHasClipMatrix_SaveLayerMask    = 1 << 13,
 };
 
 enum {

@@ -188,8 +188,8 @@ struct SaveLayerDrawRestoreNooper {
     typedef Pattern<Is<SaveLayer>, IsDraw, Is<Restore>> Match;
 
     bool onMatch(SkRecord* record, Match* match, int begin, int end) {
-        if (match->first<SaveLayer>()->backdrop) {
-            // can't throw away the layer if we have a backdrop
+        if (match->first<SaveLayer>()->backdrop || match->first<SaveLayer>()->clipMask) {
+            // can't throw away the layer if we have a backdrop or clip mask
             return false;
         }
 
