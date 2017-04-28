@@ -22,6 +22,30 @@
       "revId": "d45521ea6fcf9f712b3489774016cb8349cd95ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b5d0982_d93bac57",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-28T15:01:43Z",
+      "side": 1,
+      "message": "I think I vote for unique_ptr",
+      "parentUuid": "853b26da_83131dc5",
+      "range": {
+        "startLine": 253,
+        "startChar": 4,
+        "endLine": 253,
+        "endChar": 34
+      },
+      "revId": "d45521ea6fcf9f712b3489774016cb8349cd95ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
