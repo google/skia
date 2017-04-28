@@ -243,13 +243,6 @@ public:
     bool isAlphaOnly() const;
     bool isOpaque() const { return SkAlphaTypeIsOpaque(this->alphaType()); }
 
-    /**
-     * Extracts YUV planes from the SkImage and stores them in client-provided memory. The sizes
-     * planes and rowBytes arrays are ordered [y, u, v].
-     */
-    bool readYUV8Planes(const SkISize[3], void* const planes[3], const size_t rowBytes[3],
-                        SkYUVColorSpace) const;
-
     sk_sp<SkShader> makeShader(SkShader::TileMode, SkShader::TileMode,
                                const SkMatrix* localMatrix = nullptr) const;
     /**

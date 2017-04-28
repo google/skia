@@ -41,9 +41,6 @@ public:
 
     virtual const SkBitmap* onPeekBitmap() const { return nullptr; }
 
-    virtual bool onReadYUV8Planes(const SkISize sizes[3], void* const planes[3],
-                                  const size_t rowBytes[3], SkYUVColorSpace colorSpace) const;
-
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY, CachingHint) const = 0;
 
