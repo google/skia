@@ -20,7 +20,7 @@ public:
     SkSurface_Raster(const SkImageInfo&, void*, size_t rb,
                      void (*releaseProc)(void* pixels, void* context), void* context,
                      const SkSurfaceProps*);
-    SkSurface_Raster(sk_sp<SkPixelRef>, const SkSurfaceProps*);
+    SkSurface_Raster(const SkImageInfo& info, sk_sp<SkPixelRef>, const SkSurfaceProps*);
 
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
@@ -108,11 +108,10 @@ SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, void* pixels, size_t
     fWeOwnThePixels = false;    // We are "Direct"
 }
 
-SkSurface_Raster::SkSurface_Raster(sk_sp<SkPixelRef> pr, const SkSurfaceProps* props)
-    : INHERITED(pr->info().width(), pr->info().height(), props)
+SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, sk_sp<SkPixelRef> pr,
+                                   const SkSurfaceProps* props)
+    : INHERITED(pr->width(), pr->height(), props)
 {
-    const SkImageInfo& info = pr->info();
-
     fBitmap.setInfo(info, pr->rowBytes());
     fRowBytes = pr->rowBytes(); // we track this, so that subsequent re-allocs will match
     fBitmap.setPixelRef(std::move(pr), 0, 0);
@@ -215,5 +214,5 @@ sk_sp<SkSurface> SkSurface::MakeRaster(const SkImageInfo& info, size_t rowBytes,
     if (rowBytes) {
         SkASSERT(pr->rowBytes() == rowBytes);
     }
-    return sk_make_sp<SkSurface_Raster>(std::move(pr), props);
+    return sk_make_sp<SkSurface_Raster>(info, std::move(pr), props);
 }

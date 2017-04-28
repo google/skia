@@ -39,6 +39,8 @@ public:
         return fInfo;
     }
 
+    int width() const { return fInfo.width(); }
+    int height() const { return fInfo.height(); }
     void* pixels() const { return fPixels; }
     SkColorTable* colorTable() const { return fCTable.get(); }
     size_t rowBytes() const { return fRowBytes; }
