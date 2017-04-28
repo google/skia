@@ -315,6 +315,24 @@
       "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0616bb93_3867cf42",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1184,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-28T18:14:51Z",
+      "side": 1,
+      "message": "Thanks, that almost works :)\n\nIt\u0027s slightly more complicated because the clip mask is not an SkSpecialImage, but a general SkImage (possibly generated, not necessarily A8).\n\nI need to dig a bit deeper, maybe in a separate CL.",
+      "parentUuid": "79e832c5_d57c2238",
+      "revId": "5e74ff09e52be4ca32389442e19143e044b6a8d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
