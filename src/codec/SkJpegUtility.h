@@ -36,7 +36,7 @@ struct skjpeg_source_mgr : jpeg_source_mgr {
     enum {
         // TODO (msarett): Experiment with different buffer sizes.
         // This size was chosen because it matches SkImageDecoder.
-        kBufferSize = 1024
+        kBufferSize = 8192*64
     };
     uint8_t fBuffer[kBufferSize];
 };

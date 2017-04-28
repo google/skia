@@ -473,8 +473,8 @@ optional("jpeg") {
     "src/codec/SkJpegCodec.cpp",
     "src/codec/SkJpegDecoderMgr.cpp",
     "src/codec/SkJpegUtility.cpp",
-    "src/images/SkJPEGImageEncoder.cpp",
     "src/images/SkJPEGWriteUtility.cpp",
+    "src/images/SkJpegEncoder.cpp",
   ]
 }
 
