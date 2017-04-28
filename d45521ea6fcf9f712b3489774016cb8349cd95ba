@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "853b26da_83131dc5",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-28T14:58:21Z",
+      "side": 1,
+      "message": "This could also be SkTLazy\u003cconst SkPaint\u003e, depending on whether we\u0027re trying to minimize allocations or DeviceCM size.",
+      "range": {
+        "startLine": 253,
+        "startChar": 4,
+        "endLine": 253,
+        "endChar": 34
+      },
+      "revId": "d45521ea6fcf9f712b3489774016cb8349cd95ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
