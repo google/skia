@@ -65,7 +65,7 @@ protected:
         SkScalar vertMargin = 10;
 
         SkBitmap src;
-        src.allocN32Pixels(40, 40);
+        src.allocN32Pixels(40, 40, kOpaque_SkAlphaType);
         SkCanvas canvasTmp(src);
 
         draw_checks(&canvasTmp, 40, 40);
