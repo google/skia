@@ -92,7 +92,7 @@
       "--patch_root",
       "pdfium/third_party/skia",
       "--revision_mapping_file",
-      "{\"pdfium\": \"got_pdfium_revision\", \"pdfium/third_party/skia\": \"got_revision\"}",
+      "{\"got_pdfium_revision\": \"pdfium\", \"got_revision\": \"pdfium/third_party/skia\"}",
       "--git-cache-dir",
       "[CUSTOM_/_B_CACHE]",
       "--gerrit_repo",

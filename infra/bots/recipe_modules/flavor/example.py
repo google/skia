@@ -36,7 +36,7 @@ def RunSteps(api):
 
   api.flavor.compile('dm')
   api.flavor.copy_extra_build_products(api.vars.swarming_out_dir)
-  assert api.flavor.out_dir != ''
+  assert str(api.flavor.out_dir) != ''
   if 'Build' not in api.properties['buildername']:
     try:
       api.flavor.copy_file_to_device('file.txt', 'file.txt')
