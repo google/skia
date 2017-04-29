@@ -92,7 +92,7 @@
       "--patch_root",
       "src/third_party/skia",
       "--revision_mapping_file",
-      "{\"src/flutter\": \"got_flutter_revision\", \"src/third_party/skia\": \"got_revision\"}",
+      "{\"got_flutter_revision\": \"src/flutter\", \"got_revision\": \"src/third_party/skia\"}",
       "--git-cache-dir",
       "[CUSTOM_/_B_CACHE]",
       "--gerrit_repo",

@@ -92,7 +92,7 @@
       "--patch_root",
       "skia",
       "--revision_mapping_file",
-      "{\"parent_repo\": \"got_revision\"}",
+      "{\"got_revision\": \"parent_repo\"}",
       "--git-cache-dir",
       "[CUSTOM_/_B_CACHE]",
       "--gerrit_repo",
