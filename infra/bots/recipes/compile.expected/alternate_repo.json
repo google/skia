@@ -92,7 +92,7 @@
       "--patch_root",
       "other_repo",
       "--revision_mapping_file",
-      "{\"other_repo\": \"got_revision\"}",
+      "{\"got_revision\": \"other_repo\"}",
       "--git-cache-dir",
       "[CUSTOM_C:\\_B_CACHE]",
       "--output_json",
