@@ -53,6 +53,16 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "See swarming task for verbose logs.",
+      "[START_DIR]/dm/verbose.log"
+    ],
+    "name": "write dummy verbose.log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "[START_DIR]/dm/verbose.log",
       "[START_DIR]/tmp_upload"
     ],

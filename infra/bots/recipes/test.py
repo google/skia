@@ -153,6 +153,9 @@ def dm_flags(bot):
     args.remove('svg')
     args.remove('image')
 
+  # Some people don't like verbose output.
+  verbose = False
+
   blacklisted = []
   def blacklist(quad):
     config, src, options, name = quad.split(' ') if type(quad) is str else quad
@@ -416,6 +419,10 @@ def dm_flags(bot):
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Ubuntu' in bot:
     match.extend(['~VkHeapTests']) # skia:6245
 
+  if 'Intel' in bot and 'Ubuntu' in bot and not 'Vulkan' in bot:
+    # TODO(dogben): Track down what's causing bots to die.
+    verbose = True
+    
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
     # skia:6398
     blacklist(['vk', 'gm', '_', 'aarectmodes'])
@@ -496,6 +503,8 @@ def dm_flags(bot):
 
   if 'IntelBayTrail' in bot and 'Ubuntu' in bot:
     match.append('~ImageStorageLoad') # skia:6358
+    # TODO(dogben): Track down what's causing bots to die.
+    verbose = True
 
   if 'Ci20' in bot:
     match.append('~Codec_Dimensions') # skia:6477
@@ -511,6 +520,9 @@ def dm_flags(bot):
   if match:
     args.append('--match')
     args.extend(match)
+
+  if verbose:
+    args.append('--verbose')
 
   # These bots run out of memory running RAW codec tests. Do not run them in
   # parallel

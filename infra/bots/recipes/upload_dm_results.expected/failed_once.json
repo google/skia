@@ -36,16 +36,6 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[START_DIR]/dm/verbose.log",
-      "[START_DIR]/tmp_upload"
-    ],
-    "name": "copy verbose.log"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
       "[START_DIR]/dm/dm.json"
     ],
@@ -57,6 +47,16 @@
       "@@@STEP_LOG_LINE@python.inline@os.remove(sys.argv[1])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]/dm/verbose.log",
+      "[START_DIR]/tmp_upload"
+    ],
+    "name": "copy verbose.log"
   },
   {
     "cmd": [
