@@ -329,7 +329,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "set -x; /cache/skia/nanobench -i /cache/skia/resources --images /cache/skia/resources/color_wheel.jpg --svgs /cache/skia/svgs --outResultsFile /cache/skia/perf/nanobench_abc123_1337000001.json --properties gitHash abc123 swarming_bot_id \"\" swarming_task_id \"\" --key arch arm compiler GCC cpu_or_gpu CPU cpu_or_gpu_value Cortex_A7 model Chorizo os Chromecast; echo $? >/cache/skia/rc",
+      "set -x; /cache/skia/nanobench -i /cache/skia/resources --images /cache/skia/resources/color_wheel.jpg --svgs /cache/skia/svgs --outResultsFile /cache/skia/perf/nanobench_abc123_1337000001.json --properties gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456 --key arch arm compiler GCC cpu_or_gpu CPU cpu_or_gpu_value Cortex_A7 model Chorizo os Chromecast; echo $? >/cache/skia/rc",
       "[START_DIR]/tmp/nanobench.sh"
     ],
     "env": {
