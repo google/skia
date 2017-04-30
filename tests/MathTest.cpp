@@ -757,3 +757,22 @@ DEF_TEST(GrNextSizePow2, reporter) {
 
     test_nextsizepow2(reporter, SIZE_MAX, SIZE_MAX);
 }
+
+DEF_TEST(PinToFixed, reporter) {
+    REPORTER_ASSERT(reporter, 0 == SkFloatPinToFixed(0.0f));
+    REPORTER_ASSERT(reporter, 0x10000 == SkFloatPinToFixed(1.0f));
+    // SkFixed has more precision than float near SK_FixedMax, so SkFloatPinToFixed will never
+    // produce output between 0x7FFFFF80 and 0x7FFFFFFF.
+    REPORTER_ASSERT(reporter, 0x7FFFFF80 == SkFloatPinToFixed(32767.9990f));
+    REPORTER_ASSERT(reporter, 0x7FFFFFFF == SkFloatPinToFixed(32767.9991f));
+    REPORTER_ASSERT(reporter, 0x7FFFFFFF == SkFloatPinToFixed(32768.0f));
+    REPORTER_ASSERT(reporter, 0x7FFFFFFF == SkFloatPinToFixed(5e10f));
+    REPORTER_ASSERT(reporter, 0x7FFFFFFF == SkFloatPinToFixed(FLT_MAX));
+    REPORTER_ASSERT(reporter, -0x10000 == SkFloatPinToFixed(-1.0f));
+    // SK_FixedMin is defined to be -SK_FixedMax.
+    REPORTER_ASSERT(reporter, -0x7FFFFF80 == SkFloatPinToFixed(-32767.9990f));
+    //REPORTER_ASSERT(reporter, -0x7FFFFFFF == SkFloatPinToFixed(-32767.9991f));
+    //REPORTER_ASSERT(reporter, -0x7FFFFFFF == SkFloatPinToFixed(-32768.0f));
+    //REPORTER_ASSERT(reporter, -0x7FFFFFFF == SkFloatPinToFixed(-5e10f));
+    //REPORTER_ASSERT(reporter, -0x7FFFFFFF == SkFloatPinToFixed(-FLT_MAX));
+}
