@@ -206,6 +206,16 @@
     "cmd": [
       "python",
       "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "See swarming task 123456 for verbose logs.",
+      "v[CUSTOM_[SWARM_OUT_DIR]]/dme[CUSTOM_[SWARM_OUT_DIR]]/dmr[CUSTOM_[SWARM_OUT_DIR]]/dmb[CUSTOM_[SWARM_OUT_DIR]]/dmo[CUSTOM_[SWARM_OUT_DIR]]/dms[CUSTOM_[SWARM_OUT_DIR]]/dme[CUSTOM_[SWARM_OUT_DIR]]/dm.[CUSTOM_[SWARM_OUT_DIR]]/dml[CUSTOM_[SWARM_OUT_DIR]]/dmo[CUSTOM_[SWARM_OUT_DIR]]/dmg"
+    ],
+    "name": "write dummy verbose.log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "[START_DIR]/out/Release/dm",
@@ -562,7 +572,8 @@
       "_",
       "image",
       "_",
-      ".SRW"
+      ".SRW",
+      "--verbose"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

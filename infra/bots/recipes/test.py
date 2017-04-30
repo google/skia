@@ -17,6 +17,7 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/raw_io',
+  'recipe_engine/shutil',
   'recipe_engine/step',
   'run',
   'vars',
@@ -152,6 +153,9 @@ def dm_flags(bot):
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     args.remove('svg')
     args.remove('image')
+
+  # Some people don't like verbose output.
+  verbose = False
 
   blacklisted = []
   def blacklist(quad):
@@ -416,6 +420,10 @@ def dm_flags(bot):
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Ubuntu' in bot:
     match.extend(['~VkHeapTests']) # skia:6245
 
+  if 'Intel' in bot and 'Ubuntu' in bot and not 'Vulkan' in bot:
+    # TODO(dogben): Track down what's causing bots to die.
+    verbose = True
+    
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
     # skia:6398
     blacklist(['vk', 'gm', '_', 'aarectmodes'])
@@ -496,6 +504,8 @@ def dm_flags(bot):
 
   if 'IntelBayTrail' in bot and 'Ubuntu' in bot:
     match.append('~ImageStorageLoad') # skia:6358
+    # TODO(dogben): Track down what's causing bots to die.
+    verbose = True
 
   if 'Ci20' in bot:
     match.append('~Codec_Dimensions') # skia:6477
@@ -511,6 +521,9 @@ def dm_flags(bot):
   if match:
     args.append('--match')
     args.extend(match)
+
+  if verbose:
+    args.append('--verbose')
 
   # These bots run out of memory running RAW codec tests. Do not run them in
   # parallel
@@ -650,6 +663,14 @@ def test_steps(api):
   if skip_flag:
     args.append(skip_flag)
   args.extend(dm_flags(api.vars.builder_name))
+
+  if (api.vars.upload_dm_results and
+      any(isinstance(x, basestring) and x == '--verbose' for x in args)):
+      # Write a dummy verbose.log to avoid failure in Upload step.
+      api.shutil.write('write dummy verbose.log',
+                       api.flavor.device_dirs.dm_dir.join('verbose.log'),
+                       ("See swarming task %s for verbose logs." %
+                        api.vars.swarming_task_id))
 
   env = {}
   if 'Ubuntu16' in api.vars.builder_name:
