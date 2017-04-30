@@ -56,7 +56,9 @@ def RunSteps(api):
   tmp_dir = api.path['start_dir'].join('tmp_upload')
   api.shutil.makedirs('tmp dir', tmp_dir, infra_step=True)
   api.shutil.copy('copy dm.json', json_file, tmp_dir)
-  api.shutil.copy('copy verbose.log', log_file, tmp_dir)
+  # dm doesn't write verbose.log when the --verbose flag is given.
+  if api.path.exists(log_file):
+    api.shutil.copy('copy verbose.log', log_file, tmp_dir)
   api.shutil.remove('rm old dm.json', json_file)
   api.shutil.remove('rm old verbose.log', log_file)
 
@@ -103,6 +105,15 @@ def GenTests(api):
     api.properties(buildername=builder,
                    gs_bucket='skia-infra-gm',
                    revision='abc123',
+                   path_config='kitchen') +
+    api.path.exists(api.path['start_dir'].join('dm', VERBOSE_LOG))
+  )
+
+  yield (
+    api.test('no_verbose_log') +
+    api.properties(buildername=builder,
+                   gs_bucket='skia-infra-gm',
+                   revision='abc123',
                    path_config='kitchen')
   )
 
@@ -112,7 +123,8 @@ def GenTests(api):
                    gs_bucket='skia-infra-gm',
                    revision='abc123',
                    path_config='kitchen') +
-    api.step_data('upload images', retcode=1)
+    api.step_data('upload images', retcode=1) +
+    api.path.exists(api.path['start_dir'].join('dm', VERBOSE_LOG))
   )
 
   yield (
@@ -125,7 +137,8 @@ def GenTests(api):
     api.step_data('upload images (attempt 2)', retcode=1) +
     api.step_data('upload images (attempt 3)', retcode=1) +
     api.step_data('upload images (attempt 4)', retcode=1) +
-    api.step_data('upload images (attempt 5)', retcode=1)
+    api.step_data('upload images (attempt 5)', retcode=1) +
+    api.path.exists(api.path['start_dir'].join('dm', VERBOSE_LOG))
   )
 
   builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug'
@@ -141,5 +154,6 @@ def GenTests(api):
           buildername=builder,
           gerrit_project='skia',
           gerrit_url='https://skia-review.googlesource.com/',
-      )
+      ) +
+      api.path.exists(api.path['start_dir'].join('dm', VERBOSE_LOG))
   )

@@ -107,6 +107,9 @@ def nanobench_flags(bot):
     # Ensure that the bot framework does not think we have timed out.
     args.extend(['--keepAlive', 'true'])
 
+  # Some people don't like verbose output.
+  verbose = False
+
   match = []
   if 'Android' in bot:
     # Segfaults when run as GPU bench. Very large texture?
@@ -128,6 +131,8 @@ def nanobench_flags(bot):
     match.append('~tile_image_filter_tiled_64')  # skia:6082
   if 'Intel' in bot and 'Ubuntu' in bot and not 'Vulkan' in bot:
     match.append('~native_image_to_raster_surface')  # skia:6401
+    # TODO(dogben): Track down what's causing bots to die.
+    verbose = True
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
     # skia:6398
     match.append('~GM_varied_text_clipped_lcd')
@@ -146,6 +151,9 @@ def nanobench_flags(bot):
     match.append('~text_16_LCD_BK')
     match.append('~text_16_LCD_FF')
     match.append('~text_16_LCD_WT')
+  if 'IntelBayTrail' in bot and 'Ubuntu' in bot:
+    # TODO(dogben): Track down what's causing bots to die.
+    verbose = True
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~hardstop') # skia:6037
   if 'ANGLE' in bot and any('msaa' in x for x in configs):
@@ -181,6 +189,9 @@ def nanobench_flags(bot):
   if match:
     args.append('--match')
     args.extend(match)
+
+  if verbose:
+    args.append('--verbose')
 
   return args
 
@@ -333,6 +344,7 @@ TEST_BUILDERS = [
   '_AbandonGpuContext'),
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release',
+  'Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release',
   'Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE',
   'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE',
   'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan',

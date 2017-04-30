@@ -71,7 +71,7 @@
       "-u",
       "RECIPE_MODULE[build::file]/resources/fileutil.py",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release/data"
     ],
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
@@ -84,7 +84,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release/data",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release/data",
       "511"
     ],
     "infra_step": true,
@@ -185,7 +185,7 @@
       "~inc1.webp",
       "--verbose",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release/data/nanobench_abc123_1337000001.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release/data/nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -201,9 +201,9 @@
       "cpu_or_gpu",
       "GPU",
       "cpu_or_gpu_value",
-      "IntelIris540",
+      "IntelBayTrail",
       "model",
-      "NUC6i5SYK",
+      "NUCDE3815TYKHE",
       "os",
       "Ubuntu16"
     ],
@@ -223,7 +223,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release/data",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release/data",
       "511"
     ],
     "name": "makedirs perf_dir",
