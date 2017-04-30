@@ -31,21 +31,78 @@ typedef int32_t             SkFixed;
 #define SK_FixedRoot2Over2  (0xB505)
 
 #define SkFixedToFloat(x)   ((x) * 1.52587890625e-5f)
-#define SkFloatToFixed(x)   ((SkFixed)((x) * SK_Fixed1))
 
-#ifdef SK_DEBUG
-    static inline SkFixed SkFloatToFixed_Check(float x) {
-        int64_t n64 = (int64_t)(x * SK_Fixed1);
-        SkFixed n32 = (SkFixed)n64;
-        SkASSERT(n64 == n32);
-        return n32;
+///////////////////////////////////////////////////////////////////////////////
+// ASM alternatives for our portable versions.
+
+#if defined(SK_CPU_ARM32)
+    /* This guy does not handle NaN or other obscurities, but is faster than
+       than (int)(x*65536).  When built on Android with -Os, needs forcing
+       to inline or we lose the speed benefit.
+    */
+    SK_ALWAYS_INLINE SkFixed SkFloatToFixed_arm(float x)
+    {
+        int32_t y;
+        asm("vcvt.s32.f32 %0, %0, #16": "+w"(x));
+        memcpy(&y, &x, sizeof(y));
+        return y;
     }
+    inline SkFixed SkFixedMul_arm(SkFixed x, SkFixed y)
+    {
+        int32_t t;
+        asm("smull  %0, %2, %1, %3          \n"
+            "mov    %0, %0, lsr #16         \n"
+            "orr    %0, %0, %2, lsl #16     \n"
+            : "=r"(x), "=&r"(y), "=r"(t)
+            : "r"(x), "1"(y)
+            :
+            );
+        return x;
+    }
+    #define SkFixedMul(x, y)           SkFixedMul_arm(x, y)
+    #define SkFloatToFixed_Unsafe(x)   SkFloatToFixed_arm(x)
 #else
-    #define SkFloatToFixed_Check(x) SkFloatToFixed(x)
+    inline SkFixed SkFixedMul_longlong(SkFixed a, SkFixed b) {
+        return (SkFixed)((int64_t)a * b >> 16);
+    }
+
+    #define SkFixedMul(x, y)           SkFixedMul_longlong(x, y)
+    #define SkFloatToFixed_Unsafe(x)   ((SkFixed)((x) * SK_Fixed1))
 #endif
 
-#define SkFixedToDouble(x)  ((x) * 1.52587890625e-5)
-#define SkDoubleToFixed(x)  ((SkFixed)((x) * SK_Fixed1))
+///////////////////////////////////////////////////////////////////////////////
+
+static inline SkFixed SkFloatToFixed(float x) {
+    const SkFixed result = SkFloatToFixed_Unsafe(x);
+    SkASSERT(truncf(x * SK_Fixed1) == static_cast<float>(result));
+    return result;
+}
+
+// Pins over/under flows to SK_FixedMax/SK_FixedMin (slower than just a cast).
+static inline SkFixed SkFloatPinToFixed(float x) {
+    // SkFixed has more precision than float near SK_FixedMax, so we need to be careful to avoid
+    // float cast overflow.
+    static const SkFixed kMaxFixed = 0x7FFFFF80;
+    static const float kMaxFloat = SkFixedToFloat(kMaxFixed);
+    static_assert((SkFixed)(kMaxFloat * SK_Fixed1) == kMaxFixed,
+                  "Incorrect max in SkFloatPinToFixed");
+    // Casting float to int outside the range of the target type (int32_t) is undefined behavior.
+    if (x > kMaxFloat) return SK_FixedMax;
+    if (x < -kMaxFloat) return SK_FixedMin;
+    x *= SK_Fixed1;
+    const SkFixed result = static_cast<SkFixed>(x);
+    SkASSERT(truncf(x) == static_cast<float>(result));
+    return result;
+}
+
+#define SkFixedToDouble(x)         ((x) * 1.52587890625e-5)
+#define SkDoubleToFixed_Unsafe(x)  ((SkFixed)((x) * SK_Fixed1))
+
+static inline SkFixed SkDoubleToFixed(double x) {
+    const SkFixed result = SkDoubleToFixed_Unsafe(x);
+    SkASSERT(trunc(x * SK_Fixed1) == static_cast<double>(result));
+    return result;
+}
 
 /** Converts an integer to a SkFixed, asserting that the result does not overflow
     a 32 bit signed integer
@@ -86,50 +143,11 @@ static inline SkFixed SkFixedFloorToFixed(SkFixed x) {
 #define SkFixedDiv(numer, denom) \
     SkToS32(SkTPin<int64_t>((SkLeftShift((int64_t)(numer), 16) / (denom)), SK_MinS32, SK_MaxS32))
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-// Now look for ASM overrides for our portable versions (should consider putting this in its own file)
-
-inline SkFixed SkFixedMul_longlong(SkFixed a, SkFixed b) {
-    return (SkFixed)((int64_t)a * b >> 16);
-}
-#define SkFixedMul(a,b)     SkFixedMul_longlong(a,b)
-
-
-#if defined(SK_CPU_ARM32)
-    /* This guy does not handle NaN or other obscurities, but is faster than
-       than (int)(x*65536).  When built on Android with -Os, needs forcing
-       to inline or we lose the speed benefit.
-    */
-    SK_ALWAYS_INLINE SkFixed SkFloatToFixed_arm(float x)
-    {
-        int32_t y;
-        asm("vcvt.s32.f32 %0, %0, #16": "+w"(x));
-        memcpy(&y, &x, sizeof(y));
-        return y;
-    }
-    inline SkFixed SkFixedMul_arm(SkFixed x, SkFixed y)
-    {
-        int32_t t;
-        asm("smull  %0, %2, %1, %3          \n"
-            "mov    %0, %0, lsr #16         \n"
-            "orr    %0, %0, %2, lsl #16     \n"
-            : "=r"(x), "=&r"(y), "=r"(t)
-            : "r"(x), "1"(y)
-            :
-            );
-        return x;
-    }
-    #undef SkFixedMul
-    #define SkFixedMul(x, y)        SkFixedMul_arm(x, y)
-
-    #undef SkFloatToFixed
-    #define SkFloatToFixed(x)  SkFloatToFixed_arm(x)
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #define SkFixedToScalar(x)          SkFixedToFloat(x)
 #define SkScalarToFixed(x)          SkFloatToFixed(x)
+#define SkScalarPinToFixed(x)       SkFloatPinToFixed(x)
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -138,13 +156,20 @@ typedef int64_t SkFixed3232;   // 32.32
 #define SkFixed3232Max            (0x7FFFFFFFFFFFFFFFLL)
 #define SkFixed3232Min            (-SkFixed3232Max)
 
-#define SkIntToFixed3232(x)       (SkLeftShift((SkFixed3232)(x), 32))
-#define SkFixed3232ToInt(x)       ((int)((x) >> 32))
-#define SkFixedToFixed3232(x)     (SkLeftShift((SkFixed3232)(x), 16))
-#define SkFixed3232ToFixed(x)     ((SkFixed)((x) >> 16))
-#define SkFloatToFixed3232(x)     ((SkFixed3232)((x) * (65536.0f * 65536.0f)))
-#define SkFixed3232ToFloat(x)     (x * (1 / (65536.0f * 65536.0f)))
+#define SK_Fixed3232_1                (static_cast<SkFixed3232>(1) << 32)
+#define SkIntToFixed3232(x)           (SkLeftShift((SkFixed3232)(x), 32))
+#define SkFixed3232ToInt(x)           ((int)((x) >> 32))
+#define SkFixedToFixed3232(x)         (SkLeftShift((SkFixed3232)(x), 16))
+#define SkFixed3232ToFixed(x)         ((SkFixed)((x) >> 16))
+#define SkFloatToFixed3232_Unsafe(x)  (static_cast<SkFixed3232>((x) * SK_Fixed3232_1))
 
-#define SkScalarToFixed3232(x)    SkFloatToFixed3232(x)
+static inline SkFixed3232 SkFloatToFixed3232(float x) {
+    const SkFixed3232 result = SkFloatToFixed3232_Unsafe(x);
+    SkASSERT(truncf(x * SK_Fixed3232_1) == static_cast<float>(result));
+    return result;
+}
+
+#define SkScalarToFixed3232(x) SkFloatToFixed3232(x)
+#define SkFixed3232ToFloat(x)  (x * (1.0f / SK_Fixed3232_1))
 
 #endif
