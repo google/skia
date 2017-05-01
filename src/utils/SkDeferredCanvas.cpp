@@ -63,7 +63,8 @@ void SkDeferredCanvas::reset(SkCanvas* canvas) {
     }
     fRecs.reset();
     if (canvas) {
-        this->resetForNextPicture(SkIRect::MakeSize(canvas->getBaseLayerSize()));
+        this->resetCanvas(canvas->getBaseLayerSize().width(),
+                          canvas->getBaseLayerSize().height());
         fCanvas = canvas;
     }
 }

@@ -14,7 +14,7 @@ SkLiteRecorder::SkLiteRecorder()
     , fDL(nullptr) {}
 
 void SkLiteRecorder::reset(SkLiteDL* dl, const SkIRect& bounds) {
-    this->resetForNextPicture(bounds);
+    this->resetCanvas(bounds.right(), bounds.bottom());
     fDL = dl;
 }
 

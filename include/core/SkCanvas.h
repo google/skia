@@ -1530,13 +1530,10 @@ private:
     friend class AutoDrawLooper;
     friend class SkDebugCanvas;     // needs experimental fAllowSimplifyClip
     friend class SkSurface_Raster;  // needs getDevice()
-    friend class SkRecorder;        // resetForNextPicture
-    friend class SkLiteRecorder;    // resetForNextPicture
     friend class SkNoDrawCanvas;    // InitFlags
     friend class SkPictureImageFilter;  // SkCanvas(SkBaseDevice*, SkSurfaceProps*, InitFlags)
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
     friend class SkPicturePlayback; // SaveFlagsToSaveLayerFlags
-    friend class SkDeferredCanvas;  // For use of resetForNextPicture
     friend class SkOverdrawCanvas;
     friend class SkRasterHandleAllocator;
 
