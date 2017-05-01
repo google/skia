@@ -125,7 +125,7 @@ void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
         this->addInt(rec.fSaveLayerFlags);
     }
     if (flatFlags & SAVELAYERREC_HAS_CLIPMASK) {
-        this->addImage(rec.fClipMask.get());
+        this->addImage(rec.fClipMask);
     }
     if (flatFlags & SAVELAYERREC_HAS_CLIPMATRIX) {
         this->addMatrix(*rec.fClipMatrix);

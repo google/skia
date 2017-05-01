@@ -259,7 +259,7 @@ static void saveLayer_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanva
         flags |= (1 << 31);//SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag;
     }
 
-    canvas->saveLayer(SkCanvas::SaveLayerRec(bounds, paint, backdrop.get(), std::move(clipMask),
+    canvas->saveLayer(SkCanvas::SaveLayerRec(bounds, paint, backdrop.get(), clipMask.get(),
                       (extra & kHasClipMatrix_SaveLayerMask) ? &clipMatrix : nullptr, flags));
 }
 

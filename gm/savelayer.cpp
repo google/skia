@@ -210,8 +210,8 @@ DEF_SIMPLE_GM(savelayer_clipmask, canvas, 1200, 1200) {
         rec.fPaint = &layerPaint;
 
         for (const auto& maskMaker : kMaskMakers) {
-            maskMaker(kSize);
-            rec.fClipMask = maskMaker(kSize);
+            sk_sp<SkImage> mask = maskMaker(kSize);
+            rec.fClipMask = mask.get();
 
             canvas->save();
             for (const auto cfg : kConfigs) {
