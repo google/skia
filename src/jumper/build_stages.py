@@ -115,6 +115,9 @@ def parse_object_file(dot_o, directive, target=None):
         print sym.replace('.literal', align)
       elif sym.startswith('.const'):  # 32-byte constants
         print align + '32'
+      elif not sym.startswith('sk_'):
+        print >>sys.stderr, "build_stages.py can't handle '%s' (yet?)." % sym
+        assert sym.startswith('sk_')
       else:  # a stage function
         if hidden:
           print hidden + ' _' + sym

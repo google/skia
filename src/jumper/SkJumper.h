@@ -48,17 +48,6 @@
     #include <stdint.h>
 #endif
 
-// SkJumper_stages.cpp has some unusual constraints on what constants it can use.
-//
-// If the constant is baked into the instruction, that's ok.
-// If the constant is synthesized through code, that's ok.
-// If the constant is loaded from memory, that's no good.
-//
-// We offer a couple facilities to get at any other constants you need:
-//   - the C() function usually constrains constants to be directly baked into an instruction; or
-//   - the _i and _f user-defined literal operators call C() for you in a prettier way; or
-//   - you can load values from this struct.
-
 static const int SkJumper_kMaxStride = 8;
 
 struct SkJumper_constants {
