@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b39b215_b06f411f",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-05-01T10:53:31Z",
+      "side": 1,
+      "message": "Personally, I\u0027d rather turn on the verbose log everywhere so that we have it when we need it.  But I know there are others who disagree.",
+      "range": {
+        "startLine": 110,
+        "startChar": 2,
+        "endLine": 110,
+        "endChar": 42
+      },
+      "revId": "5ba5860a197ffdf07626ea91b0ed0aa0d7445f04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35c63b88_0663bc1e",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-05-01T10:53:31Z",
+      "side": 1,
+      "message": "Nit: whitespace",
+      "range": {
+        "startLine": 425,
+        "startChar": 0,
+        "endLine": 425,
+        "endChar": 4
+      },
+      "revId": "5ba5860a197ffdf07626ea91b0ed0aa0d7445f04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
