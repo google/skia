@@ -1077,10 +1077,12 @@ SpvId SPIRVCodeGenerator::getType(const Type& type, const MemoryLayout& layout) 
                                            (int32_t) layout.stride(type),
                                            fDecorationBuffer);
                 } else {
-                    ABORT("runtime-sized arrays are not yet supported");
                     this->writeInstruction(SpvOpTypeRuntimeArray, result,
                                            this->getType(type.componentType(), layout),
                                            fConstantBuffer);
+                    this->writeInstruction(SpvOpDecorate, result, SpvDecorationArrayStride,
+                                           (int32_t) layout.stride(type),
+                                           fDecorationBuffer);
                 }
                 break;
             }
@@ -2526,7 +2528,8 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, int mem
 }
 
 SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
-    MemoryLayout layout = intf.fVariable.fModifiers.fLayout.fPushConstant ?
+    MemoryLayout layout = intf.fVariable.fModifiers.fLayout.fPushConstant |
+                          (0 != (intf.fVariable.fModifiers.fFlags & Modifiers::kBuffer_Flag)) ?
                           MemoryLayout(MemoryLayout::k430_Standard) :
                           fDefaultLayout;
     SpvId result = this->nextId();
@@ -2541,7 +2544,11 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         type = new Type(type->fPosition, type->name(), fields);
     }
     SpvId typeId = this->getType(*type, layout);
-    this->writeInstruction(SpvOpDecorate, typeId, SpvDecorationBlock, fDecorationBuffer);
+    if (intf.fVariable.fModifiers.fFlags & Modifiers::kBuffer_Flag) {
+        this->writeInstruction(SpvOpDecorate, typeId, SpvDecorationBufferBlock, fDecorationBuffer);
+    } else {
+        this->writeInstruction(SpvOpDecorate, typeId, SpvDecorationBlock, fDecorationBuffer);
+    }
     SpvStorageClass_ storageClass = get_storage_class(intf.fVariable.fModifiers);
     SpvId ptrType = this->nextId();
     this->writeInstruction(SpvOpTypePointer, ptrType, storageClass, typeId, fConstantBuffer);
@@ -2577,7 +2584,8 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
         if (!var->fReadCount && !var->fWriteCount &&
                 !(var->fModifiers.fFlags & (Modifiers::kIn_Flag |
                                             Modifiers::kOut_Flag |
-                                            Modifiers::kUniform_Flag))) {
+                                            Modifiers::kUniform_Flag |
+                                            Modifiers::kBuffer_Flag))) {
             // variable is dead and not an input / output var (the Vulkan debug layers complain if
             // we elide an interface var, even if it's dead)
             continue;
