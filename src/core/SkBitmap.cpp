@@ -171,9 +171,6 @@ bool SkBitmap::setAlphaType(SkAlphaType newAlphaType) {
     }
     if (fInfo.alphaType() != newAlphaType) {
         fInfo = fInfo.makeAlphaType(newAlphaType);
-        if (fPixelRef) {
-            fPixelRef->changeAlphaType(newAlphaType);
-        }
     }
     SkDEBUGCODE(this->validate();)
     return true;
@@ -612,6 +609,22 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType) const {
         return false;
     }
 
+<<<<<<< HEAD
+=======
+    //  (for BitmapHeap) Clone the pixelref genID even though we have a new pixelref.
+    //  The old copyTo impl did this, so we continue it for now.
+    //
+    //  TODO: should we ignore rowbytes (i.e. getSize)? Then it could just be
+    //      if (src_pixelref->info == dst_pixelref->info)
+    //
+    if (srcPM.colorType() == dstColorType && tmpDst.getSize() == srcPM.getSize64()) {
+        if (tmpDst.info() == this->info() && tmpDst.pixelRef()->width() == fPixelRef->width() &&
+                tmpDst.pixelRef()->height() == fPixelRef->height()) {
+            tmpDst.pixelRef()->cloneGenID(*fPixelRef);
+        }
+    }
+
+>>>>>>> 2cbb6662e3... Only store width and height on SkPixelRef
     dst->swap(tmpDst);
     return true;
 }
