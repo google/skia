@@ -16,16 +16,17 @@
 /**
  *  Helper class for reading from a stream that may not have all its data
  *  available yet.
- *
- *  Used by GIFImageReader, and currently set up for that use case.
- *
- *  Buffers up to 256 * 3 bytes (256 colors, with 3 bytes each) to support GIF.
- *  FIXME (scroggo): Make this more general purpose?
  */
 class SkStreamBuffer : SkNoncopyable {
 public:
-    // Takes ownership of the SkStream.
-    SkStreamBuffer(SkStream*);
+    /**
+     *  Create a new SkStreamBuffer.
+     *
+     *  @param SkStream Stream to buffer and read. This object takes
+     *          ownership.
+     *  @param bufferSize Constant size of the buffer.
+     */
+    SkStreamBuffer(SkStream*, size_t bufferSize);
 
     ~SkStreamBuffer();
 
@@ -52,6 +53,20 @@ public:
     bool buffer(size_t bytes);
 
     /**
+     *  Return the number of bytes buffered.
+     *
+     *  If buffer() succeeded, this should be equal to that number.
+     */
+    size_t bytesBuffered() const { return fBytesBuffered; }
+
+    /**
+     *  Size of the buffer.
+     *
+     *  Unchanged from the constructor.
+     */
+    size_t bufferSize() const { return fBufferSize; }
+
+    /**
      *  Flush the buffer.
      *
      *  After this call, no bytes are buffered.
@@ -65,6 +80,20 @@ public:
         }
         fPosition += fBytesBuffered;
         fBytesBuffered = 0;
+    }
+
+    /**
+     *  Rewind the stream and reset state.
+     */
+    bool rewind() {
+        if (!fStream->rewind()) {
+            return false;
+        }
+
+        fPosition = 0;
+        fBytesBuffered = 0;
+        fTrulyBuffered = 0;
+        return true;
     }
 
     /**
@@ -89,11 +118,10 @@ public:
     sk_sp<SkData> getDataAtPosition(size_t position, size_t length);
 
 private:
-    static constexpr size_t kMaxSize = 256 * 3;
-
     std::unique_ptr<SkStream>   fStream;
+    const size_t                fBufferSize;
+    std::unique_ptr<char[]>     fBuffer;
     size_t                      fPosition;
-    char                        fBuffer[kMaxSize];
     size_t                      fBytesBuffered;
     // If the stream has a length and position, we can make two optimizations:
     // - We can skip buffering

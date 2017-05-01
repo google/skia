@@ -16,7 +16,7 @@
 #include "SkPngCodec.h"
 #include "SkPoint3.h"
 #include "SkSize.h"
-#include "SkStream.h"
+#include "SkStreamBuffer.h"
 #include "SkSwizzler.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
@@ -60,6 +60,12 @@ static int sk_read_user_chunk(png_structp png_ptr, png_unknown_chunkp chunk) {
 }
 #endif
 
+// Helper to treat SkStreamBuffer's buffer as a non-const png_byte*, which is
+// what png_process_data expects (though it does not modify it).
+static png_byte* to_png_bytep(SkStreamBuffer* sb) {
+    return reinterpret_cast<png_byte*>(const_cast<char*>(sb->get()));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Helpers
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,16 +73,16 @@ static int sk_read_user_chunk(png_structp png_ptr, png_unknown_chunkp chunk) {
 class AutoCleanPng : public SkNoncopyable {
 public:
     /*
-     *  This class does not take ownership of stream or reader, but if codecPtr
-     *  is non-NULL, and decodeBounds succeeds, it will have created a new
-     *  SkCodec (pointed to by *codecPtr) which will own/ref them, as well as
-     *  the png_ptr and info_ptr.
+     *  This class does not take ownership of streamBuffer or reader, but if
+     *  codecPtr is non-NULL, and decodeBounds succeeds, it will have created a
+     *  new SkCodec (pointed to by *codecPtr) which will own/ref them, as well
+     *  as the png_ptr and info_ptr.
      */
-    AutoCleanPng(png_structp png_ptr, SkStream* stream, SkPngChunkReader* reader,
-            SkCodec** codecPtr)
+    AutoCleanPng(png_structp png_ptr, SkStreamBuffer* streamBuffer,
+            SkPngChunkReader* reader, SkCodec** codecPtr)
         : fPng_ptr(png_ptr)
         , fInfo_ptr(nullptr)
-        , fStream(stream)
+        , fStreamBuffer(streamBuffer)
         , fChunkReader(reader)
         , fOutCodec(codecPtr)
     {}
@@ -111,11 +117,11 @@ public:
 private:
     png_structp         fPng_ptr;
     png_infop           fInfo_ptr;
-    SkStream*           fStream;
+    SkStreamBuffer*     fStreamBuffer;
     SkPngChunkReader*   fChunkReader;
     SkCodec**           fOutCodec;
 
-    void infoCallback(size_t idatLength);
+    void infoCallback();
 
     void releasePngPtrs() {
         fPng_ptr = nullptr;
@@ -128,18 +134,25 @@ static inline bool is_chunk(const png_byte* chunk, const char* tag) {
     return memcmp(chunk + 4, tag, 4) == 0;
 }
 
-static inline bool process_data(png_structp png_ptr, png_infop info_ptr,
-        SkStream* stream, void* buffer, size_t bufferSize, size_t length) {
+// returns bytes unprocessed
+static inline size_t process_data(png_structp png_ptr, png_infop info_ptr,
+        SkStreamBuffer* stream, size_t length) {
     while (length > 0) {
-        const size_t bytesToProcess = std::min(bufferSize, length);
-        const size_t bytesRead = stream->read(buffer, bytesToProcess);
-        png_process_data(png_ptr, info_ptr, (png_bytep) buffer, bytesRead);
-        if (bytesRead < bytesToProcess) {
-            return false;
+        const size_t bytesToProcess = std::min(stream->bufferSize(), length);
+        const bool success = stream->buffer(bytesToProcess);
+        const size_t bytesRead = stream->bytesBuffered();
+        SkASSERT(success == (bytesRead == bytesToProcess));
+        if (!bytesRead) {
+            return bytesToProcess;
         }
-        length -= bytesToProcess;
+        png_process_data(png_ptr, info_ptr, to_png_bytep(stream), bytesRead);
+        stream->flush();
+        length -= bytesRead;
+        if (!success) {
+            return bytesToProcess - bytesRead;
+        }
     }
-    return true;
+    return 0;
 }
 
 bool AutoCleanPng::decodeBounds() {
@@ -149,39 +162,36 @@ bool AutoCleanPng::decodeBounds() {
 
     png_set_progressive_read_fn(fPng_ptr, nullptr, nullptr, nullptr, nullptr);
 
-    // Arbitrary buffer size, though note that it matches (below)
-    // SkPngCodec::processData(). FIXME: Can we better suit this to the size of
-    // the PNG header?
-    constexpr size_t kBufferSize = 4096;
-    char buffer[kBufferSize];
-
     {
         // Parse the signature.
-        if (fStream->read(buffer, 8) < 8) {
+        if (!fStreamBuffer->buffer(8)) {
             return false;
         }
 
-        png_process_data(fPng_ptr, fInfo_ptr, (png_bytep) buffer, 8);
+        png_process_data(fPng_ptr, fInfo_ptr, to_png_bytep(fStreamBuffer), 8);
+        fStreamBuffer->flush();
     }
 
     while (true) {
         // Parse chunk length and type.
-        if (fStream->read(buffer, 8) < 8) {
+        if (!fStreamBuffer->buffer(8)) {
             // We have read to the end of the input without decoding bounds.
             break;
         }
 
-        png_byte* chunk = reinterpret_cast<png_byte*>(buffer);
+        png_byte* chunk = to_png_bytep(fStreamBuffer);
         const size_t length = png_get_uint_32(chunk);
 
         if (is_chunk(chunk, "IDAT")) {
-            this->infoCallback(length);
+            this->infoCallback();
             return true;
         }
 
         png_process_data(fPng_ptr, fInfo_ptr, chunk, 8);
+        fStreamBuffer->flush();
+
         // Process the full chunk + CRC.
-        if (!process_data(fPng_ptr, fInfo_ptr, fStream, buffer, kBufferSize, length + 4)) {
+        if (process_data(fPng_ptr, fInfo_ptr, fStreamBuffer, length + 4) != 0) {
             return false;
         }
     }
@@ -206,37 +216,43 @@ void SkPngCodec::processData() {
             SkASSERT(false);
     }
 
-    // Arbitrary buffer size
-    constexpr size_t kBufferSize = 4096;
-    char buffer[kBufferSize];
-
     bool iend = false;
     while (true) {
         size_t length;
-        if (fDecodedIdat) {
+        if (!fDecodedIdat) {
+            // The IDAT length and tag are still in the buffer.
+            SkASSERT(fStreamBuffer->bytesBuffered() == 8);
+
+            png_byte* chunk = to_png_bytep(fStreamBuffer.get());
+            SkASSERT(is_chunk(chunk, "IDAT"));
+
+            png_process_data(fPng_ptr, fInfo_ptr, chunk, 8);
+
+            // Process the full chunk + CRC.
+            length = png_get_uint_32(chunk) + 4;
+            fStreamBuffer->flush();
+            fDecodedIdat = true;
+        } else if (fBytesToProcess) {
+            length = fBytesToProcess;
+        } else {
             // Parse chunk length and type.
-            if (this->stream()->read(buffer, 8) < 8) {
+            if (!fStreamBuffer->buffer(8)) {
                 break;
             }
 
-            png_byte* chunk = reinterpret_cast<png_byte*>(buffer);
+            png_byte* chunk = to_png_bytep(fStreamBuffer.get());
             png_process_data(fPng_ptr, fInfo_ptr, chunk, 8);
             if (is_chunk(chunk, "IEND")) {
                 iend = true;
             }
 
-            length = png_get_uint_32(chunk);
-        } else {
-            length = fIdatLength;
-            png_byte idat[] = {0, 0, 0, 0, 'I', 'D', 'A', 'T'};
-            png_save_uint_32(idat, length);
-            png_process_data(fPng_ptr, fInfo_ptr, idat, 8);
-            fDecodedIdat = true;
+            // Process the full chunk + CRC.
+            length = png_get_uint_32(chunk) + 4;
+            fStreamBuffer->flush();
         }
 
-        // Process the full chunk + CRC.
-        if (!process_data(fPng_ptr, fInfo_ptr, this->stream(), buffer, kBufferSize, length + 4)
-                || iend) {
+        fBytesToProcess = process_data(fPng_ptr, fInfo_ptr, fStreamBuffer.get(), length);
+        if (fBytesToProcess || iend) {
             break;
         }
     }
@@ -496,8 +512,9 @@ void SkPngCodec::applyXformRow(void* dst, const void* src) {
 
 class SkPngNormalDecoder : public SkPngCodec {
 public:
-    SkPngNormalDecoder(const SkEncodedInfo& info, const SkImageInfo& imageInfo, SkStream* stream,
-            SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr, int bitDepth)
+    SkPngNormalDecoder(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
+            SkStreamBuffer* stream, SkPngChunkReader* reader,
+            png_structp png_ptr, png_infop info_ptr, int bitDepth)
         : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth)
         , fRowsWrittenToOutput(0)
         , fDst(nullptr)
@@ -614,9 +631,9 @@ private:
 class SkPngInterlacedDecoder : public SkPngCodec {
 public:
     SkPngInterlacedDecoder(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
-            SkStream* stream, SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr,
-            int bitDepth, int numberPasses)
-        : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth)
+            SkStreamBuffer* streamBuffer, SkPngChunkReader* reader,
+            png_structp png_ptr, png_infop info_ptr,int bitDepth, int numberPasses)
+        : INHERITED(info, imageInfo, streamBuffer, reader, png_ptr, info_ptr, bitDepth)
         , fNumberPasses(numberPasses)
         , fFirstRow(0)
         , fLastRow(0)
@@ -780,7 +797,8 @@ private:
 // @return true on success, in which case the caller is responsible for calling
 //      png_destroy_read_struct(png_ptrp, info_ptrp).
 //      If it returns false, the passed in fields (except stream) are unchanged.
-static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec** outCodec,
+static bool read_header(SkStreamBuffer* streamBuffer,
+                        SkPngChunkReader* chunkReader, SkCodec** outCodec,
                         png_structp* png_ptrp, png_infop* info_ptrp) {
     // The image is known to be a PNG. Decode enough to know the SkImageInfo.
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
@@ -789,7 +807,7 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec
         return false;
     }
 
-    AutoCleanPng autoClean(png_ptr, stream, chunkReader, outCodec);
+    AutoCleanPng autoClean(png_ptr, streamBuffer, chunkReader, outCodec);
 
     png_infop info_ptr = png_create_info_struct(png_ptr);
     if (info_ptr == nullptr) {
@@ -835,7 +853,7 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec
     return true;
 }
 
-void AutoCleanPng::infoCallback(size_t idatLength) {
+void AutoCleanPng::infoCallback() {
     png_uint_32 origWidth, origHeight;
     int bitDepth, encodedColorType;
     png_get_IHDR(fPng_ptr, fInfo_ptr, &origWidth, &origHeight, &bitDepth,
@@ -940,14 +958,13 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
         }
 
         if (1 == numberPasses) {
-            *fOutCodec = new SkPngNormalDecoder(encodedInfo, imageInfo, fStream,
+            *fOutCodec = new SkPngNormalDecoder(encodedInfo, imageInfo, fStreamBuffer,
                     fChunkReader, fPng_ptr, fInfo_ptr, bitDepth);
         } else {
-            *fOutCodec = new SkPngInterlacedDecoder(encodedInfo, imageInfo, fStream,
+            *fOutCodec = new SkPngInterlacedDecoder(encodedInfo, imageInfo, fStreamBuffer,
                     fChunkReader, fPng_ptr, fInfo_ptr, bitDepth, numberPasses);
         }
         (*fOutCodec)->setUnsupportedICC(unsupportedICC);
-        static_cast<SkPngCodec*>(*fOutCodec)->setIdatLength(idatLength);
     }
 
     // Release the pointers, which are now owned by the codec or the caller is expected to
@@ -956,16 +973,17 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
 }
 
 SkPngCodec::SkPngCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
-                       SkStream* stream, SkPngChunkReader* chunkReader, void* png_ptr,
-                       void* info_ptr, int bitDepth)
-    : INHERITED(encodedInfo, imageInfo, stream)
+                       SkStreamBuffer* streamBuffer, SkPngChunkReader* chunkReader,
+                       void* png_ptr, void* info_ptr, int bitDepth)
+    : INHERITED(encodedInfo, imageInfo, nullptr)
     , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
     , fInfo_ptr(info_ptr)
     , fColorXformSrcRow(nullptr)
     , fBitDepth(bitDepth)
-    , fIdatLength(0)
     , fDecodedIdat(false)
+    , fStreamBuffer(streamBuffer)
+    , fBytesToProcess(0)
 {}
 
 SkPngCodec::~SkPngCodec() {
@@ -1099,15 +1117,20 @@ bool SkPngCodec::onRewind() {
     // to reinitialize them.
     this->destroyReadStruct();
 
+    if (!fStreamBuffer->rewind()) {
+        return false;
+    }
+
     png_structp png_ptr;
     png_infop info_ptr;
-    if (!read_header(this->stream(), fPngChunkReader.get(), nullptr, &png_ptr, &info_ptr)) {
+    if (!read_header(fStreamBuffer.get(), fPngChunkReader.get(), nullptr, &png_ptr, &info_ptr)) {
         return false;
     }
 
     fPng_ptr = png_ptr;
     fInfo_ptr = info_ptr;
     fDecodedIdat = false;
+    fBytesToProcess = 0;
     return true;
 }
 
@@ -1178,13 +1201,14 @@ uint64_t SkPngCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
 }
 
 SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
-    std::unique_ptr<SkStream> streamDeleter(stream);
+    // Arbitrary read size.
+    std::unique_ptr<SkStreamBuffer> streamBuffer(new SkStreamBuffer(stream, 4096));
 
     SkCodec* outCodec = nullptr;
-    if (read_header(streamDeleter.get(), chunkReader, &outCodec, nullptr, nullptr)) {
+    if (read_header(streamBuffer.get(), chunkReader, &outCodec, nullptr, nullptr)) {
         // Codec has taken ownership of the stream.
         SkASSERT(outCodec);
-        streamDeleter.release();
+        streamBuffer.release();
         return outCodec;
     }
 

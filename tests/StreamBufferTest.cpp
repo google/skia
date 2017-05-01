@@ -24,36 +24,50 @@ static void test_get_data_at_position(skiatest::Reporter* r, SkStreamBuffer* buf
     }
 }
 
+// Matches SkGifImageReader's use.
+static constexpr size_t kBufferSize = 256 * 3;
+
 // Test buffering from the beginning, by different amounts.
 static void test_buffer_from_beginning(skiatest::Reporter* r, SkStream* stream, size_t length) {
-    SkStreamBuffer buffer(stream);
+    SkStreamBuffer buffer(stream, kBufferSize);
+    REPORTER_ASSERT(r, buffer.bufferSize() == kBufferSize);
 
-    // Buffer an arbitrary amount:
-    size_t buffered = length / 2;
-    REPORTER_ASSERT(r, buffer.buffer(buffered));
-    REPORTER_ASSERT(r, !memcmp(buffer.get(), gText, buffered));
+    for (int i = 0; i < 2; i++) {
+        // Buffer an arbitrary amount:
+        size_t buffered = length / 2;
+        REPORTER_ASSERT(r, buffer.buffer(buffered));
+        REPORTER_ASSERT(r, buffer.bytesBuffered() == buffered);
+        REPORTER_ASSERT(r, !memcmp(buffer.get(), gText, buffered));
 
-    // Buffering less is free:
-    REPORTER_ASSERT(r, buffer.buffer(buffered / 2));
+        // Buffering less is free:
+        REPORTER_ASSERT(r, buffer.buffer(buffered / 2));
+        REPORTER_ASSERT(r, buffer.bytesBuffered() == buffered);
 
-    // Buffer more should succeed:
-    REPORTER_ASSERT(r, buffer.buffer(length));
-    REPORTER_ASSERT(r, !memcmp(buffer.get(), gText, length));
+        // Buffer more should succeed:
+        REPORTER_ASSERT(r, buffer.buffer(length));
+        REPORTER_ASSERT(r, buffer.bytesBuffered() == length);
+        REPORTER_ASSERT(r, !memcmp(buffer.get(), gText, length));
+
+        REPORTER_ASSERT(r, buffer.rewind());
+        REPORTER_ASSERT(r, buffer.bytesBuffered() == 0);
+    }
 }
 
 // Test flushing the stream as we read.
 static void test_flushing(skiatest::Reporter* r, SkStream* stream, size_t length,
                           bool getDataAtPosition) {
-    SkStreamBuffer buffer(stream);
+    SkStreamBuffer buffer(stream, kBufferSize);
     const size_t step = 5;
     for (size_t position = 0; position + step <= length; position += step) {
         REPORTER_ASSERT(r, buffer.buffer(step));
+        REPORTER_ASSERT(r, buffer.bytesBuffered() == step);
         REPORTER_ASSERT(r, buffer.markPosition() == position);
 
         if (!getDataAtPosition) {
             REPORTER_ASSERT(r, !memcmp(buffer.get(), gText + position, step));
         }
         buffer.flush();
+        REPORTER_ASSERT(r, buffer.bytesBuffered() == 0);
     }
 
     REPORTER_ASSERT(r, !buffer.buffer(step));
@@ -62,6 +76,19 @@ static void test_flushing(skiatest::Reporter* r, SkStream* stream, size_t length
         for (size_t position = 0; position + step <= length; position += step) {
             test_get_data_at_position(r, &buffer, position, step);
         }
+    }
+}
+
+static void test_size(skiatest::Reporter* r,
+        std::function<SkStream*()> createStream, size_t size) {
+    for (size_t bufferSize : { size / 2, size, size * 2 }) {
+        SkStreamBuffer buffer(createStream(), bufferSize);
+        REPORTER_ASSERT(r, buffer.bufferSize() == bufferSize);
+
+        bool success = buffer.buffer(bufferSize);
+        REPORTER_ASSERT(r, success == (size >= bufferSize));
+
+        REPORTER_ASSERT(r, buffer.bytesBuffered() == SkTMin(bufferSize, size));
     }
 }
 
@@ -95,41 +122,58 @@ DEF_TEST(StreamBuffer, r) {
         test_buffer_from_beginning(r, f.createStream(), size);
         test_flushing(r, f.createStream(), size, false);
         test_flushing(r, f.createStream(), size, true);
+        test_size(r, f.createStream, size);
     }
 
     // Stream that will receive more data. Will be owned by the SkStreamBuffer.
     HaltingStream* stream = new HaltingStream(data, 6);
-    SkStreamBuffer buffer(stream);
+    SkStreamBuffer buffer(stream, kBufferSize);
 
     // Can only buffer less than what's available (6).
     REPORTER_ASSERT(r, !buffer.buffer(7));
+    REPORTER_ASSERT(r, buffer.bytesBuffered() == 6);
     REPORTER_ASSERT(r, buffer.buffer(5));
+    REPORTER_ASSERT(r, buffer.bytesBuffered() == 6);
     REPORTER_ASSERT(r, !memcmp(buffer.get(), gText, 5));
 
     // Add some more data. We can buffer and read all of it.
     stream->addNewData(8);
     REPORTER_ASSERT(r, buffer.buffer(14));
+    REPORTER_ASSERT(r, buffer.bytesBuffered() == 14);
     REPORTER_ASSERT(r, !memcmp(buffer.get(), gText, 14));
 
     // Flush the buffer, which moves the position.
     buffer.flush();
+    REPORTER_ASSERT(r, buffer.bytesBuffered() == 0);
 
     // Add some data, and try to read more. Can only read what is
     // available.
     stream->addNewData(9);
     REPORTER_ASSERT(r, !buffer.buffer(13));
+    REPORTER_ASSERT(r, buffer.bytesBuffered() == 9);
     stream->addNewData(4);
     REPORTER_ASSERT(r, buffer.buffer(13));
+    REPORTER_ASSERT(r, buffer.bytesBuffered() == 13);
 
     // Do not call get on this data. We'll come back to this data after adding
     // more.
     buffer.flush();
+    REPORTER_ASSERT(r, buffer.bytesBuffered() == 0);
+
     const size_t remaining = size - 27;
     REPORTER_ASSERT(r, remaining > 0);
     stream->addNewData(remaining);
     REPORTER_ASSERT(r, buffer.buffer(remaining));
+    REPORTER_ASSERT(r, buffer.bytesBuffered() == remaining);
     REPORTER_ASSERT(r, !memcmp(buffer.get(), gText + 27, remaining));
 
     // Now go back to the data we skipped.
     test_get_data_at_position(r, &buffer, 14, 13);
+
+    // Test rewind.
+    REPORTER_ASSERT(r, buffer.rewind());
+    REPORTER_ASSERT(r, buffer.bytesBuffered() == 0);
+    REPORTER_ASSERT(r, buffer.buffer(size));
+    REPORTER_ASSERT(r, buffer.bytesBuffered() == size);
+    REPORTER_ASSERT(r, !memcmp(buffer.get(), gText, size));
 }

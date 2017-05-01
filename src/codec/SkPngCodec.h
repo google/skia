@@ -16,7 +16,7 @@
 #include "SkRefCnt.h"
 #include "SkSwizzler.h"
 
-class SkStream;
+class SkStreamBuffer;
 
 class SkPngCodec : public SkCodec {
 public:
@@ -24,9 +24,6 @@ public:
 
     // Assume IsPng was called and returned true.
     static SkCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
-
-    // FIXME (scroggo): Temporarily needed by AutoCleanPng.
-    void setIdatLength(size_t len) { fIdatLength = len; }
 
     ~SkPngCodec() override;
 
@@ -44,7 +41,7 @@ protected:
         void* fPtr;
     };
 
-    SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, SkStream*, SkPngChunkReader*,
+    SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, SkStreamBuffer*, SkPngChunkReader*,
             void* png_ptr, void* info_ptr, int bitDepth);
 
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
@@ -118,8 +115,10 @@ private:
     SkAlphaType                    fXformAlphaType;
     int                            fXformWidth;
 
-    size_t                         fIdatLength;
     bool                           fDecodedIdat;
+
+    std::unique_ptr<SkStreamBuffer> fStreamBuffer;
+    size_t                          fBytesToProcess;
 
     typedef SkCodec INHERITED;
 };

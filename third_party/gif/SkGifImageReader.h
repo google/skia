@@ -322,7 +322,8 @@ public:
         , m_screenWidth(0)
         , m_screenHeight(0)
         , m_loopCount(cLoopCountNotSeen)
-        , m_streamBuffer(stream)
+          // Max size of a single read: 256 color table with 3 bytes per component
+        , m_streamBuffer(stream, 256 * 3)
         , m_parseCompleted(false)
         , m_firstFrameHasAlpha(false)
         , m_firstFrameSupportsIndex8(false)

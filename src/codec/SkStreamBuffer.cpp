@@ -7,8 +7,10 @@
 
 #include "SkStreamBuffer.h"
 
-SkStreamBuffer::SkStreamBuffer(SkStream* stream)
+SkStreamBuffer::SkStreamBuffer(SkStream* stream, size_t bufferSize)
     : fStream(stream)
+    , fBufferSize(bufferSize)
+    , fBuffer(new char[bufferSize])
     , fPosition(0)
     , fBytesBuffered(0)
     , fHasLengthAndPosition(stream->hasLength() && stream->hasPosition())
@@ -23,7 +25,7 @@ const char* SkStreamBuffer::get() const {
     SkASSERT(fBytesBuffered >= 1);
     if (fHasLengthAndPosition && fTrulyBuffered < fBytesBuffered) {
         const size_t bytesToBuffer = fBytesBuffered - fTrulyBuffered;
-        char* dst = SkTAddOffset<char>(const_cast<char*>(fBuffer), fTrulyBuffered);
+        char* dst = SkTAddOffset<char>(const_cast<char*>(fBuffer.get()), fTrulyBuffered);
         SkDEBUGCODE(const size_t bytesRead =)
         // This stream is rewindable, so it should be safe to call the non-const
         // read()
@@ -31,13 +33,13 @@ const char* SkStreamBuffer::get() const {
         SkASSERT(bytesRead == bytesToBuffer);
         fTrulyBuffered = fBytesBuffered;
     }
-    return fBuffer;
+    return fBuffer.get();
 }
 
 bool SkStreamBuffer::buffer(size_t totalBytesToBuffer) {
-    // FIXME (scroggo): What should we do if the client tries to read too much?
-    // Should not be a problem in GIF.
-    SkASSERT(totalBytesToBuffer <= kMaxSize);
+    // Client should have allocated with a larger size if they needed a larger
+    // buffer.
+    SkASSERT(totalBytesToBuffer <= fBufferSize);
 
     if (totalBytesToBuffer <= fBytesBuffered) {
         return true;
@@ -48,7 +50,8 @@ bool SkStreamBuffer::buffer(size_t totalBytesToBuffer) {
         fBytesBuffered = SkTMin(remaining, totalBytesToBuffer);
     } else {
         const size_t extraBytes = totalBytesToBuffer - fBytesBuffered;
-        const size_t bytesBuffered = fStream->read(fBuffer + fBytesBuffered, extraBytes);
+        char* dst = SkTAddOffset<char>(fBuffer.get(), fBytesBuffered);
+        const size_t bytesBuffered = fStream->read(dst, extraBytes);
         fBytesBuffered += bytesBuffered;
     }
     return fBytesBuffered == totalBytesToBuffer;
@@ -57,7 +60,7 @@ bool SkStreamBuffer::buffer(size_t totalBytesToBuffer) {
 size_t SkStreamBuffer::markPosition() {
     SkASSERT(fBytesBuffered >= 1);
     if (!fHasLengthAndPosition) {
-        sk_sp<SkData> data(SkData::MakeWithCopy(fBuffer, fBytesBuffered));
+        sk_sp<SkData> data(SkData::MakeWithCopy(fBuffer.get(), fBytesBuffered));
         SkASSERT(nullptr == fMarkedData.find(fPosition));
         fMarkedData.set(fPosition, data.release());
     }
