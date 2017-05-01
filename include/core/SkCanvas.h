@@ -336,10 +336,8 @@ public:
             , fBackdrop(backdrop)
             , fSaveLayerFlags(saveLayerFlags)
         {}
-
-        // EXPERIMENTAL: not ready for general use.
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
-                     const SkImage* clipMask, const SkMatrix* clipMatrix,
+                     sk_sp<SkImage> clipMask, const SkMatrix* clipMatrix,
                      SaveLayerFlags saveLayerFlags)
             : fBounds(bounds)
             , fPaint(paint)
@@ -352,7 +350,7 @@ public:
         const SkRect*           fBounds = nullptr;      // optional
         const SkPaint*          fPaint = nullptr;       // optional
         const SkImageFilter*    fBackdrop = nullptr;    // optional
-        const SkImage*          fClipMask = nullptr;    // optional
+        sk_sp<SkImage>          fClipMask;              // optional
         const SkMatrix*         fClipMatrix = nullptr;  // optional -- only used with fClipMask
         SaveLayerFlags          fSaveLayerFlags = 0;
     };

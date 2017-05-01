@@ -257,12 +257,12 @@ struct DeviceCM {
     SkMatrix                       fClipMatrix;
 
     DeviceCM(sk_sp<SkBaseDevice> device, const SkPaint* paint, const SkMatrix& stashed,
-             const SkImage* clipImage, const SkMatrix* clipMatrix)
+             sk_sp<SkImage> clipImage, const SkMatrix* clipMatrix)
         : fNext(nullptr)
         , fDevice(std::move(device))
         , fPaint(paint ? skstd::make_unique<SkPaint>(*paint) : nullptr)
         , fStashedMatrix(stashed)
-        , fClipImage(sk_ref_sp(const_cast<SkImage*>(clipImage)))
+        , fClipImage(std::move(clipImage))
         , fClipMatrix(clipMatrix ? *clipMatrix : SkMatrix::I())
     {}
 
