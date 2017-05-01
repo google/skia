@@ -174,6 +174,9 @@ public:
     };
     void notifyFlushOccurred(FlushType);
 
+    /** Maintain a ref to this surface proxy until we receive a GrSurfaceProxyFreedMessage. */
+    void insertCrossContextSurfaceProxy(GrSurfaceProxy* proxy);
+
 #if GR_CACHE_STATS
     struct Stats {
         int fTotal;
@@ -241,6 +244,7 @@ private:
     /// @}
 
     void processInvalidUniqueKeys(const SkTArray<GrUniqueKeyInvalidatedMessage>&);
+    void processFreedSurfaceProxies(const SkTArray<GrSurfaceProxyFreedMessage>&);
     void addToNonpurgeableArray(GrGpuResource*);
     void removeFromNonpurgeableArray(GrGpuResource*);
     bool overBudget() const { return fBudgetedBytes > fMaxBytes || fBudgetedCount > fMaxCount; }
@@ -287,6 +291,8 @@ private:
     }
 
     typedef SkMessageBus<GrUniqueKeyInvalidatedMessage>::Inbox InvalidUniqueKeyInbox;
+    typedef SkMessageBus<GrSurfaceProxyFreedMessage>::Inbox FreedSurfaceProxyInbox;
+    typedef SkTDArray<GrSurfaceProxy*> SurfaceProxyArray;
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
     typedef SkTDArray<GrGpuResource*> ResourceArray;
 
@@ -296,6 +302,11 @@ private:
     uint32_t                            fTimestamp;
     PurgeableQueue                      fPurgeableQueue;
     ResourceArray                       fNonpurgeableResources;
+
+    // For cross-context textures, we allow the "last" ref to a GrSurfaceProxy to be released on any
+    // thread. In that case, the last real ref is still held here, and a message is posted, letting
+    // us know we can release it.
+    SurfaceProxyArray                   fSurfaceProxies;
 
     // This map holds all resources that can be used as scratch resources.
     ScratchMap                          fScratchMap;
@@ -326,6 +337,7 @@ private:
     uint32_t                            fExternalFlushCnt;
 
     InvalidUniqueKeyInbox               fInvalidUniqueKeyInbox;
+    FreedSurfaceProxyInbox              fFreedSurfaceProxyInbox;
 
     // This resource is allowed to be in the nonpurgeable array for the sake of validate() because
     // we're in the midst of converting it to purgeable status.

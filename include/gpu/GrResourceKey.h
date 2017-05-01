@@ -330,4 +330,11 @@ public:
 private:
     GrUniqueKey fKey;
 };
+
+class GrSurfaceProxy;
+
+// The cache listens for these messages to free GrSurfaceProxy objects on the correct context.
+struct GrSurfaceProxyFreedMessage {
+    GrSurfaceProxy* fProxy;
+};
 #endif

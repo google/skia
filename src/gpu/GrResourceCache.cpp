@@ -18,6 +18,8 @@
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
 
+DECLARE_SKMESSAGEBUS_MESSAGE(GrSurfaceProxyFreedMessage);
+
 //////////////////////////////////////////////////////////////////////////////
 
 GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
@@ -196,6 +198,11 @@ void GrResourceCache::releaseAll() {
         GrGpuResource* top = fPurgeableQueue.peek();
         SkASSERT(!top->wasDestroyed());
         top->cacheAccess().release();
+    }
+
+    while (fSurfaceProxies.count()) {
+        GrSurfaceProxy* back = *(fSurfaceProxies.end() - 1);
+        back->unref();
     }
 
     SkASSERT(!fScratchMap.count());
@@ -450,6 +457,12 @@ void GrResourceCache::purgeAsNeeded() {
         this->processInvalidUniqueKeys(invalidKeyMsgs);
     }
 
+    SkTArray<GrSurfaceProxyFreedMessage> freedSurfaceProxyMsgs;
+    fFreedSurfaceProxyInbox.poll(&freedSurfaceProxyMsgs);
+    if (freedSurfaceProxyMsgs.count()) {
+        this->processFreedSurfaceProxies(freedSurfaceProxyMsgs);
+    }
+
     if (fMaxUnusedFlushes > 0) {
         // We want to know how many complete flushes have occurred without the resource being used.
         // If the resource was tagged when fExternalFlushCnt was N then this means it became
@@ -460,7 +473,7 @@ void GrResourceCache::purgeAsNeeded() {
         if (oldestAllowedFlushCnt < fExternalFlushCnt) {
             while (fPurgeableQueue.count()) {
                 uint32_t flushWhenResourceBecamePurgeable =
-                        fPurgeableQueue.peek()->cacheAccess().flushCntWhenResourceBecamePurgeable();
+                    fPurgeableQueue.peek()->cacheAccess().flushCntWhenResourceBecamePurgeable();
                 if (oldestAllowedFlushCnt < flushWhenResourceBecamePurgeable) {
                     // Resources were given both LRU timestamps and tagged with a flush cnt when
                     // they first became purgeable. The LRU timestamp won't change again until the
@@ -508,7 +521,7 @@ void GrResourceCache::purgeAllUnlocked() {
 void GrResourceCache::purgeResourcesNotUsedSince(GrStdSteadyClock::time_point purgeTime) {
     while (fPurgeableQueue.count()) {
         const GrStdSteadyClock::time_point resourceTime =
-                fPurgeableQueue.peek()->cacheAccess().timeWhenResourceBecamePurgeable();
+            fPurgeableQueue.peek()->cacheAccess().timeWhenResourceBecamePurgeable();
         if (resourceTime >= purgeTime) {
             // Resources were given both LRU timestamps and tagged with a frame number when
             // they first became purgeable. The LRU timestamp won't change again until the
@@ -530,6 +543,23 @@ void GrResourceCache::processInvalidUniqueKeys(
         if (resource) {
             resource->resourcePriv().removeUniqueKey();
             resource->unref(); // If this resource is now purgeable, the cache will be notified.
+        }
+    }
+}
+
+void GrResourceCache::insertCrossContextSurfaceProxy(GrSurfaceProxy* proxy) {
+    SkASSERT(!fSurfaceProxies.contains(proxy));
+    proxy->ref();
+    fSurfaceProxies.push(proxy);
+}
+
+void GrResourceCache::processFreedSurfaceProxies(const SkTArray<GrSurfaceProxyFreedMessage>& msgs) {
+    for (int i = 0; i < msgs.count(); ++i) {
+        GrSurfaceProxy* proxy = msgs[i].fProxy;
+        int index = fSurfaceProxies.find(proxy);
+        if (index >= 0) {
+            proxy->unref();
+            fSurfaceProxies.removeShuffle(index);
         }
     }
 }
