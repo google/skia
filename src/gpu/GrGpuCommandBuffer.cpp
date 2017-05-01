@@ -39,6 +39,10 @@ bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
                               const GrMesh* mesh,
                               int meshCount,
                               const SkRect& bounds) {
+    if (pipeline.isBad() || primProc.isBad()) {
+        return false;
+    }
+
     SkASSERT(pipeline.isInitialized());
     if (primProc.numAttribs() > this->gpu()->caps()->maxVertexAttributes()) {
         this->gpu()->stats()->incNumFailedDraws();

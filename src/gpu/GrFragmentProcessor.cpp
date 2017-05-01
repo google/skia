@@ -62,6 +62,10 @@ void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
 }
 
 int GrFragmentProcessor::registerChildProcessor(sk_sp<GrFragmentProcessor> child) {
+    if (child->isBad()) {
+        this->markAsBad();
+    }
+
     this->combineRequiredFeatures(*child);
 
     if (child->usesLocalCoords()) {
