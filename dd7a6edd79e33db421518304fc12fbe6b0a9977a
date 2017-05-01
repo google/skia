@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd7b8d0c_2545cca5",
+        "filename": "src/core/SkImageInfoPriv.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T15:48:27Z",
+      "side": 1,
+      "message": "Maybe add a comment that people who think they want to call this function probably want one of the two below?",
+      "range": {
+        "startLine": 13,
+        "startChar": 19,
+        "endLine": 13,
+        "endChar": 41
+      },
+      "revId": "dd7a6edd79e33db421518304fc12fbe6b0a9977a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3451cd1d_ab414580",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T15:48:27Z",
+      "side": 1,
+      "message": "Did this get moved? Or did this change make this happen more often?",
+      "range": {
+        "startLine": 27,
+        "startChar": 3,
+        "endLine": 27,
+        "endChar": 62
+      },
+      "revId": "dd7a6edd79e33db421518304fc12fbe6b0a9977a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76bcb03c_1c40c882",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T15:48:27Z",
+      "side": 1,
+      "message": "Is this just for calling the constructor and onEncodeRows? Why not make those public?\n\n(Right now the class is entirely private, but the only class that knows about it is a friend.)",
+      "range": {
+        "startLine": 145,
+        "startChar": 4,
+        "endLine": 145,
+        "endChar": 30
+      },
+      "revId": "dd7a6edd79e33db421518304fc12fbe6b0a9977a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20108b5d_9c8bc136",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T15:48:27Z",
+      "side": 1,
+      "message": "Why not do this work in the constructor?",
+      "range": {
+        "startLine": 156,
+        "startChar": 16,
+        "endLine": 156,
+        "endChar": 20
+      },
+      "revId": "dd7a6edd79e33db421518304fc12fbe6b0a9977a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57da47eb_fa80d403",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T15:48:27Z",
+      "side": 1,
+      "message": "This seems not-very-encapsulated. How would you feel about a method on SkJpegEncoderMgr that does all this work for you? This method doesn\u0027t need to know about numComponents or jpegColorType (and it the only thing it does with proc is pass it to the SkJpegEncoderMgr).",
+      "range": {
+        "startLine": 162,
+        "startChar": 4,
+        "endLine": 172,
+        "endChar": 43
+      },
+      "revId": "dd7a6edd79e33db421518304fc12fbe6b0a9977a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75519fe8_b32a09dc",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T15:48:27Z",
+      "side": 1,
+      "message": "Why should this never happen?",
+      "range": {
+        "startLine": 229,
+        "startChar": 8,
+        "endLine": 229,
+        "endChar": 24
+      },
+      "revId": "dd7a6edd79e33db421518304fc12fbe6b0a9977a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11c09660_a4325feb",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T15:48:27Z",
+      "side": 1,
+      "message": "nit: When I read this line, I initially thought that this was returning a pointer (although that would\u0027ve been dumb since it would be returning a raw pointer to a deleted object).\n\nI think this is clearer as:\n\n  if (!encoder) {\n    return false;\n  }\n\n  encoder-\u003eencodeRaws(src.height());\n  return true;",
+      "range": {
+        "startLine": 259,
+        "startChar": 11,
+        "endLine": 259,
+        "endChar": 24
+      },
+      "revId": "dd7a6edd79e33db421518304fc12fbe6b0a9977a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1d3d12c_092883c6",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T15:48:27Z",
+      "side": 1,
+      "message": "I think this will flummox people who run dm without resources.",
+      "range": {
+        "startLine": 18,
+        "startChar": 4,
+        "endLine": 18,
+        "endChar": 32
+      },
+      "revId": "dd7a6edd79e33db421518304fc12fbe6b0a9977a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c47becc6_c7fe6fc1",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T15:48:27Z",
+      "side": 1,
+      "message": "If not success, should this return?",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 32
+      },
+      "revId": "dd7a6edd79e33db421518304fc12fbe6b0a9977a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6603fef_eba2f372",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T15:48:27Z",
+      "side": 1,
+      "message": "Should we also test the case where the caller requests a numRows greater than the height of the image?",
+      "range": {
+        "startLine": 35,
+        "startChar": 4,
+        "endLine": 35,
+        "endChar": 78
+      },
+      "revId": "dd7a6edd79e33db421518304fc12fbe6b0a9977a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
