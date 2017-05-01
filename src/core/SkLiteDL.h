@@ -14,6 +14,7 @@
 #include "SkDrawable.h"
 #include "SkRect.h"
 #include "SkTDArray.h"
+#include "SkTemplates.h"
 
 class SkLiteDL final {
 public:

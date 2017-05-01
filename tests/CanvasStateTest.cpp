@@ -6,6 +6,7 @@
  */
 
 #include "CanvasStateHelpers.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkClipOpPriv.h"
 #include "SkCanvasStateUtils.h"

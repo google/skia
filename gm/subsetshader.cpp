@@ -7,6 +7,7 @@
 
 #include "Resources.h"
 #include "SkBitmap.h"
+#include "SkShader.h"
 #include "gm.h"
 
 DEF_SIMPLE_GM(bitmap_subset_shader, canvas, 256, 256) {

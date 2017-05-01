@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "Resources.h"
 #include "SkCodec.h"
+#include "SkImage.h"
 
 namespace skiagm {
 
