@@ -28,6 +28,11 @@ public:
     // TODO: investigate the users of this ctor.
     SkNoDrawCanvas(const SkIRect&);
 
+    // Optimization to reset state to be the same as after construction.
+    void resetCanvas(int width, int height) {
+        resetForNextPicture(SkIRect::MakeWH(width, height));
+    }
+
 protected:
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
 
