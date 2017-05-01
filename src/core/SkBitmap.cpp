@@ -198,24 +198,8 @@ void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
 #ifdef SK_DEBUG
     if (pr) {
         if (kUnknown_SkColorType != fInfo.colorType()) {
-            const SkImageInfo& prInfo = pr->info();
-            SkASSERT(fInfo.width() <= prInfo.width());
-            SkASSERT(fInfo.height() <= prInfo.height());
-            SkASSERT(fInfo.colorType() == prInfo.colorType());
-            switch (prInfo.alphaType()) {
-                case kUnknown_SkAlphaType:
-                    SkASSERT(fInfo.alphaType() == kUnknown_SkAlphaType);
-                    break;
-                case kOpaque_SkAlphaType:
-                case kPremul_SkAlphaType:
-                    SkASSERT(fInfo.alphaType() == kOpaque_SkAlphaType ||
-                             fInfo.alphaType() == kPremul_SkAlphaType);
-                    break;
-                case kUnpremul_SkAlphaType:
-                    SkASSERT(fInfo.alphaType() == kOpaque_SkAlphaType ||
-                             fInfo.alphaType() == kUnpremul_SkAlphaType);
-                    break;
-            }
+            SkASSERT(fInfo.width() <= pr->width());
+            SkASSERT(fInfo.height() <= pr->height());
         }
     }
 #endif
