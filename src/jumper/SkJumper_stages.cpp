@@ -252,26 +252,26 @@ SI void store(T* dst, V v, size_t tail) {
 #endif
 
 SI F from_byte(U8 b) {
-    return cast(expand(b)) * C(1/255.0f);
+    return cast(expand(b)) * (1/255.0f);
 }
 SI void from_565(U16 _565, F* r, F* g, F* b) {
     U32 wide = expand(_565);
-    *r = cast(wide & (31<<11)) * C(1.0f / (31<<11));
-    *g = cast(wide & (63<< 5)) * C(1.0f / (63<< 5));
-    *b = cast(wide & (31<< 0)) * C(1.0f / (31<< 0));
+    *r = cast(wide & (31<<11)) * (1.0f / (31<<11));
+    *g = cast(wide & (63<< 5)) * (1.0f / (63<< 5));
+    *b = cast(wide & (31<< 0)) * (1.0f / (31<< 0));
 }
 SI void from_4444(U16 _4444, F* r, F* g, F* b, F* a) {
     U32 wide = expand(_4444);
-    *r = cast(wide & (15<<12)) * C(1.0f / (15<<12));
-    *g = cast(wide & (15<< 8)) * C(1.0f / (15<< 8));
-    *b = cast(wide & (15<< 4)) * C(1.0f / (15<< 4));
-    *a = cast(wide & (15<< 0)) * C(1.0f / (15<< 0));
+    *r = cast(wide & (15<<12)) * (1.0f / (15<<12));
+    *g = cast(wide & (15<< 8)) * (1.0f / (15<< 8));
+    *b = cast(wide & (15<< 4)) * (1.0f / (15<< 4));
+    *a = cast(wide & (15<< 0)) * (1.0f / (15<< 0));
 }
 SI void from_8888(U32 _8888, F* r, F* g, F* b, F* a) {
-    *r = cast((_8888      ) & 0xff) * C(1/255.0f);
-    *g = cast((_8888 >>  8) & 0xff) * C(1/255.0f);
-    *b = cast((_8888 >> 16) & 0xff) * C(1/255.0f);
-    *a = cast((_8888 >> 24)       ) * C(1/255.0f);
+    *r = cast((_8888      ) & 0xff) * (1/255.0f);
+    *g = cast((_8888 >>  8) & 0xff) * (1/255.0f);
+    *b = cast((_8888 >> 16) & 0xff) * (1/255.0f);
+    *a = cast((_8888 >> 24)       ) * (1/255.0f);
 }
 
 template <typename T>
@@ -314,7 +314,7 @@ STAGE(constant_color) {
     }                                          \
     SI F name##_channel(F s, F d, F sa, F da)
 
-SI F inv(F x) { return 1.0_f - x; }
+SI F inv(F x) { return 1.0f - x; }
 SI F two(F x) { return x + x; }
 
 BLEND_MODE(clear)    { return 0; }
@@ -378,9 +378,9 @@ BLEND_MODE(softlight) {
     //    1. dark src?
     //    2. light src, dark dst?
     //    3. light src, light dst?
-    F darkSrc = d*(sa + (s2 - sa)*(1.0_f - m)),      // Used in case 1.
-      darkDst = (m4*m4 + m4)*(m - 1.0_f) + 7.0_f*m,  // Used in case 2.
-      liteDst = rcp(rsqrt(m)) - m,                   // Used in case 3.
+    F darkSrc = d*(sa + (s2 - sa)*(1.0f - m)),     // Used in case 1.
+      darkDst = (m4*m4 + m4)*(m - 1.0f) + 7.0f*m,  // Used in case 2.
+      liteDst = rcp(rsqrt(m)) - m,                 // Used in case 3.
       liteSrc = d*sa + da*(s2 - sa) * if_then_else(two(two(d)) <= da, darkDst, liteDst); // 2 or 3?
     return s*inv(da) + d*inv(sa) + if_then_else(s2 <= sa, darkSrc, liteSrc);      // 1 or (2 or 3)?
 }
@@ -394,14 +394,14 @@ STAGE(clamp_0) {
 }
 
 STAGE(clamp_1) {
-    r = min(r, 1.0_f);
-    g = min(g, 1.0_f);
-    b = min(b, 1.0_f);
-    a = min(a, 1.0_f);
+    r = min(r, 1.0f);
+    g = min(g, 1.0f);
+    b = min(b, 1.0f);
+    a = min(a, 1.0f);
 }
 
 STAGE(clamp_a) {
-    a = min(a, 1.0_f);
+    a = min(a, 1.0f);
     r = min(r, a);
     g = min(g, a);
     b = min(b, a);
@@ -449,7 +449,7 @@ STAGE(premul) {
     b = b * a;
 }
 STAGE(unpremul) {
-    auto scale = if_then_else(a == 0, 0, 1.0_f / a);
+    auto scale = if_then_else(a == 0, 0, 1.0f / a);
     r = r * scale;
     g = g * scale;
     b = b * scale;
@@ -457,9 +457,9 @@ STAGE(unpremul) {
 
 STAGE(from_srgb) {
     auto fn = [&](F s) {
-        auto lo = s * C(1/12.92f);
-        auto hi = mad(s*s, mad(s, 0.3000_f, 0.6975_f), 0.0025_f);
-        return if_then_else(s < 0.055_f, lo, hi);
+        auto lo = s * (1/12.92f);
+        auto hi = mad(s*s, mad(s, 0.3000f, 0.6975f), 0.0025f);
+        return if_then_else(s < 0.055f, lo, hi);
     };
     r = fn(r);
     g = fn(g);
@@ -469,10 +469,10 @@ STAGE(to_srgb) {
     auto fn = [&](F l) {
         F sqrt = rcp  (rsqrt(l)),
           ftrt = rsqrt(rsqrt(l));
-        auto lo = l * 12.46_f;
-        auto hi = min(1.0_f, mad(0.411192_f, ftrt,
-                             mad(0.689206_f, sqrt, -0.0988_f)));
-        return if_then_else(l < 0.0043_f, lo, hi);
+        auto lo = l * 12.46f;
+        auto hi = min(1.0f, mad(0.411192f, ftrt,
+                            mad(0.689206f, sqrt, -0.0988f)));
+        return if_then_else(l < 0.0043f, lo, hi);
     };
     r = fn(r);
     g = fn(g);
@@ -483,17 +483,17 @@ STAGE(rgb_to_hsl) {
     F mx = max(max(r,g), b),
       mn = min(min(r,g), b),
       d = mx - mn,
-      d_rcp = 1.0_f / d;
+      d_rcp = 1.0f / d;
 
-    F h = C(1/6.0f) *
+    F h = (1/6.0f) *
           if_then_else(mx == mn, 0,
-          if_then_else(mx ==  r, (g-b)*d_rcp + if_then_else(g < b, 6.0_f, 0),
-          if_then_else(mx ==  g, (b-r)*d_rcp + 2.0_f,
-                                 (r-g)*d_rcp + 4.0_f)));
+          if_then_else(mx ==  r, (g-b)*d_rcp + if_then_else(g < b, 6.0f, 0),
+          if_then_else(mx ==  g, (b-r)*d_rcp + 2.0f,
+                                 (r-g)*d_rcp + 4.0f)));
 
-    F l = (mx + mn) * 0.5_f;
+    F l = (mx + mn) * 0.5f;
     F s = if_then_else(mx == mn, 0,
-                       d / if_then_else(l > 0.5_f, 2.0_f-mx-mn, mx+mn));
+                       d / if_then_else(l > 0.5f, 2.0f-mx-mn, mx+mn));
 
     r = h;
     g = s;
@@ -575,7 +575,7 @@ STAGE(lerp_565) {
     r = lerp(dr, r, cr);
     g = lerp(dg, g, cg);
     b = lerp(db, b, cb);
-    a = 1.0_f;
+    a = 1.0f;
 }
 
 STAGE(load_tables) {
@@ -585,7 +585,7 @@ STAGE(load_tables) {
     r = gather(c->r, (px      ) & 0xff);
     g = gather(c->g, (px >>  8) & 0xff);
     b = gather(c->b, (px >> 16) & 0xff);
-    a = cast(        (px >> 24)) * C(1/255.0f);
+    a = cast(        (px >> 24)) * (1/255.0f);
 }
 STAGE(load_tables_u16_be) {
     auto c = (const SkJumper_LoadTablesCtx*)ctx;
@@ -598,7 +598,7 @@ STAGE(load_tables_u16_be) {
     r = gather(c->r, expand(R) & 0xff);
     g = gather(c->g, expand(G) & 0xff);
     b = gather(c->b, expand(B) & 0xff);
-    a = C(1/65535.0f) * cast(expand(bswap(A)));
+    a = (1/65535.0f) * cast(expand(bswap(A)));
 }
 STAGE(load_tables_rgb_u16_be) {
     auto c = (const SkJumper_LoadTablesCtx*)ctx;
@@ -611,17 +611,17 @@ STAGE(load_tables_rgb_u16_be) {
     r = gather(c->r, expand(R) & 0xff);
     g = gather(c->g, expand(G) & 0xff);
     b = gather(c->b, expand(B) & 0xff);
-    a = 1.0_f;
+    a = 1.0f;
 }
 
 STAGE(byte_tables) {
     struct Tables { const uint8_t *r, *g, *b, *a; };
     auto tables = (const Tables*)ctx;
 
-    r = from_byte(gather(tables->r, round(r, 255.0_f)));
-    g = from_byte(gather(tables->g, round(g, 255.0_f)));
-    b = from_byte(gather(tables->b, round(b, 255.0_f)));
-    a = from_byte(gather(tables->a, round(a, 255.0_f)));
+    r = from_byte(gather(tables->r, round(r, 255.0f)));
+    g = from_byte(gather(tables->g, round(g, 255.0f)));
+    b = from_byte(gather(tables->b, round(b, 255.0f)));
+    a = from_byte(gather(tables->a, round(a, 255.0f)));
 }
 
 STAGE(byte_tables_rgb) {
@@ -645,7 +645,7 @@ STAGE(table_a) { a = table(a, ctx); }
 SI F parametric(F v, const SkJumper_ParametricTransferFunction* ctx) {
     F r = if_then_else(v <= ctx->D, mad(ctx->C, v, ctx->F)
                                   , approx_powf(mad(ctx->A, v, ctx->B), ctx->G) + ctx->E);
-    return min(max(r, 0), 1.0_f);  // Clamp to [0,1], with argument order mattering to handle NaN.
+    return min(max(r, 0), 1.0f);  // Clamp to [0,1], with argument order mattering to handle NaN.
 }
 STAGE(parametric_r) { r = parametric(r, ctx); }
 STAGE(parametric_g) { g = parametric(g, ctx); }
@@ -805,10 +805,10 @@ STAGE(load_u16_be) {
     U16 R,G,B,A;
     load4(ptr,tail, &R,&G,&B,&A);
 
-    r = C(1/65535.0f) * cast(expand(bswap(R)));
-    g = C(1/65535.0f) * cast(expand(bswap(G)));
-    b = C(1/65535.0f) * cast(expand(bswap(B)));
-    a = C(1/65535.0f) * cast(expand(bswap(A)));
+    r = (1/65535.0f) * cast(expand(bswap(R)));
+    g = (1/65535.0f) * cast(expand(bswap(G)));
+    b = (1/65535.0f) * cast(expand(bswap(B)));
+    a = (1/65535.0f) * cast(expand(bswap(A)));
 }
 STAGE(load_rgb_u16_be) {
     auto ptr = *(const uint16_t**)ctx + 3*x;
@@ -816,9 +816,9 @@ STAGE(load_rgb_u16_be) {
     U16 R,G,B;
     load3(ptr,tail, &R,&G,&B);
 
-    r = C(1/65535.0f) * cast(expand(bswap(R)));
-    g = C(1/65535.0f) * cast(expand(bswap(G)));
-    b = C(1/65535.0f) * cast(expand(bswap(B)));
+    r = (1/65535.0f) * cast(expand(bswap(R)));
+    g = (1/65535.0f) * cast(expand(bswap(G)));
+    b = (1/65535.0f) * cast(expand(bswap(B)));
     a = 1.0_f;
 }
 STAGE(store_u16_be) {
