@@ -91,7 +91,7 @@ def parse_object_file(dot_o, directive, target=None):
     # literal sections should be fine to just dump in with .text.
     disassemble = ['-d',               # DO NOT USE -D.
                    '-z',               # Print zero bytes instead of ...
-                   '--insn-width=10',
+                   '--insn-width=11',
                    '-j', '.text',
                    '-j', '.literal4',
                    '-j', '.literal16',
@@ -125,6 +125,7 @@ def parse_object_file(dot_o, directive, target=None):
       continue
 
     columns = line.split('\t')
+   #print >>sys.stderr, columns
     code = columns[1]
     if len(columns) >= 4:
       inst = columns[2]
