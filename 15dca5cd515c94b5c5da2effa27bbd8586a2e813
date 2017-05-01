@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90e5af48_c81b0eed",
+        "filename": "src/core/SkMallocPixelRef.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-01T15:15:32Z",
+      "side": 1,
+      "message": "My best guess is that this was the breaking change.  Might be that this should land after the Chrome change lands first.",
+      "range": {
+        "startLine": 159,
+        "startChar": 16,
+        "endLine": 159,
+        "endChar": 43
+      },
+      "revId": "15dca5cd515c94b5c5da2effa27bbd8586a2e813",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
