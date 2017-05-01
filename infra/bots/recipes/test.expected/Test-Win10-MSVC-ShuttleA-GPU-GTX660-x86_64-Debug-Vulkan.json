@@ -397,7 +397,11 @@
       "_",
       "image",
       "_",
-      ".SRW"
+      ".SRW",
+      "_",
+      "test",
+      "_",
+      "SkImage_makeTextureImage"
     ],
     "env": {
       "BUILDTYPE": "Debug_x64",
