@@ -129,6 +129,10 @@ void GrProcessor::operator delete(void* target) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrResourceIOProcessor::addTextureSampler(const TextureSampler* access) {
+    if (access->isBad()) {
+        this->markAsBad();
+    }
+
     fTextureSamplers.push_back(access);
 }
 
@@ -237,7 +241,10 @@ void GrResourceIOProcessor::TextureSampler::reset(GrResourceProvider* resourcePr
     // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
     // to taking a GrSurfaceProxy just use the IORefs on the proxy
     GrTexture* texture = proxy->instantiate(resourceProvider);
-    SkASSERT(texture);
+    if (!texture) {
+        return;
+    }
+
     fTexture.set(SkRef(texture), kRead_GrIOType);
     fParams = params;
     fParams.setFilterMode(SkTMin(params.filterMode(), texture->texturePriv().highestFilterMode()));
@@ -252,7 +259,10 @@ void GrResourceIOProcessor::TextureSampler::reset(GrResourceProvider* resourcePr
     // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
     // to taking a GrSurfaceProxy just use the IORefs on the proxy
     GrTexture* texture = proxy->instantiate(resourceProvider);
-    SkASSERT(texture);
+    if (!texture) {
+        return;
+    }
+
     fTexture.set(SkRef(texture), kRead_GrIOType);
     filterMode = SkTMin(filterMode, texture->texturePriv().highestFilterMode());
     fParams.reset(tileXAndY, filterMode);
