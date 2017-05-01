@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f369be97_d2b90fa4",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-01T21:27:47Z",
+      "side": 1,
+      "message": "We can call this sweep if you like.  Who knows, we might find some other non-gradient use for it.  I\u0027m feeling lucky.\n\nOr xy_to_polar_phi?",
+      "range": {
+        "startLine": 951,
+        "startChar": 6,
+        "endLine": 951,
+        "endChar": 30
+      },
+      "revId": "c76bf9c9b4a63962edc12a1f8f21862031b0d911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40d698d2_24fd1cda",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 952,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-01T21:27:47Z",
+      "side": 1,
+      "message": ":(  It stinks when we\u0027re already using a name you want, particularly x.  I\u0027ve found X and Y pretty good substitutes.",
+      "range": {
+        "startLine": 952,
+        "startChar": 6,
+        "endLine": 952,
+        "endChar": 8
+      },
+      "revId": "c76bf9c9b4a63962edc12a1f8f21862031b0d911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a2d5caa_8dae9423",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 956,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-01T21:27:47Z",
+      "side": 1,
+      "message": "Somewhere in here let\u0027s leave a note about what we\u0027re doing, maybe\n\n// Now we\u0027ll approximate atan2 with a 7th order polynomial...\n\nor \n\n// See SkSweepGradient.cpp for details on this approximation.",
+      "revId": "c76bf9c9b4a63962edc12a1f8f21862031b0d911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60562539_e21f764d",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 962,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-01T21:27:47Z",
+      "side": 1,
+      "message": "Might be clearer to do something like F phi \u003d ... and then a final r \u003d phi at the end?  (or F t \u003d ... / r \u003d t.)\n\nI think Clang ought to be able to see that the value of r/xmm0 is dead anyway and use the register just the same... adding the extra name shouldn\u0027t affect register pressure.",
+      "range": {
+        "startLine": 962,
+        "startChar": 3,
+        "endLine": 962,
+        "endChar": 13
+      },
+      "revId": "c76bf9c9b4a63962edc12a1f8f21862031b0d911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8ecd5ab_fc8ff493",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 963,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-01T21:27:47Z",
+      "side": 1,
+      "message": "I dunno.  I think we need more precision.  :P",
+      "revId": "c76bf9c9b4a63962edc12a1f8f21862031b0d911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
