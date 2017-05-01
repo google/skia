@@ -22,6 +22,30 @@
       "revId": "53f77bd4fdd76525b66b7f26d1c5c550858120df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "424c16d1_0c0e2147",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-01T14:36:15Z",
+      "side": 1,
+      "message": "Thanks, looking.",
+      "parentUuid": "8c991ada_2defa42c",
+      "range": {
+        "startLine": 332,
+        "startChar": 8,
+        "endLine": 334,
+        "endChar": 51
+      },
+      "revId": "53f77bd4fdd76525b66b7f26d1c5c550858120df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
