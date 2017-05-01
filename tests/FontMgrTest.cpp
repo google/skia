@@ -114,6 +114,12 @@ static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
     }
 }
 
+static void test_match(skiatest::Reporter* reporter) {
+    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontStyleSet> styleSet(fm->matchFamily(nullptr));
+    REPORTER_ASSERT(reporter, styleSet);
+}
+
 static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
     static const SkFontStyle invalidFontStyle(101, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
 
@@ -710,6 +716,7 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
 DEFINE_bool(verboseFontMgr, false, "run verbose fontmgr tests.");
 
 DEF_TEST(FontMgr, reporter) {
+    test_match(reporter);
     test_matchStyleCSS3(reporter);
     test_fontiter(reporter, FLAGS_verboseFontMgr);
     test_alias_names(reporter);

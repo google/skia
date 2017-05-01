@@ -2362,14 +2362,17 @@ protected:
     }
 
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
+        if (!familyName) {
+            return nullptr;
+        }
         UniqueCFRef<CFStringRef> cfName = make_CFString(familyName);
         return CreateSet(cfName.get());
     }
 
     SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                   const SkFontStyle& fontStyle) const override {
-        sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
-        return sset->matchStyle(fontStyle);
+                                   const SkFontStyle& style) const override {
+        UniqueCFRef<CTFontDescriptorRef> desc = create_descriptor(familyName, style);
+        return create_from_desc(desc.get());
     }
 
     SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
