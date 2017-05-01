@@ -282,8 +282,6 @@ public:
 
     size_t getLength() const override;
 
-    const void* getMemoryBase() override;
-
 private:
     explicit SkFILEStream(std::shared_ptr<FILE>, size_t size, size_t offset);
     explicit SkFILEStream(std::shared_ptr<FILE>, size_t size, size_t offset, size_t originalOffset);
