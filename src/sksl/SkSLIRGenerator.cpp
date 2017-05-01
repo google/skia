@@ -606,6 +606,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
     std::shared_ptr<SymbolTable> old = fSymbolTable;
     AutoSymbolTable table(this);
     std::vector<Type::Field> fields;
+    bool haveRuntimeArray = false;
     for (size_t i = 0; i < intf.fDeclarations.size(); i++) {
         std::unique_ptr<VarDeclarations> decl = this->convertVarDeclarations(
                                                                          *intf.fDeclarations[i],
@@ -614,6 +615,11 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
             return nullptr;
         }
         for (const auto& var : decl->fVars) {
+            if (haveRuntimeArray) {
+                fErrors.error(decl->fPosition,
+                              "only the last entry in an interface block may be a runtime-sized "
+                              "array");
+            }
             fields.push_back(Type::Field(var->fVar->fModifiers, var->fVar->fName,
                                          &var->fVar->fType));
             if (var->fValue) {
@@ -623,9 +629,14 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
             if (var->fVar->fModifiers.fFlags & (Modifiers::kIn_Flag |
                                                 Modifiers::kOut_Flag |
                                                 Modifiers::kUniform_Flag |
+                                                Modifiers::kBuffer_Flag |
                                                 Modifiers::kConst_Flag)) {
                 fErrors.error(decl->fPosition,
                               "interface block fields may not have storage qualifiers");
+            }
+            if (var->fVar->fType.kind() == Type::kArray_Kind &&
+                var->fVar->fType.columns() == -1) {
+                haveRuntimeArray = true;
             }
         }
     }

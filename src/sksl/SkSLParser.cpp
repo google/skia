@@ -12,8 +12,8 @@
 #define register
 #include "disable_flex_warnings.h"
 #include "lex.sksl.c"
-static_assert(YY_FLEX_MAJOR_VERSION * 100 + YY_FLEX_MINOR_VERSION * 10 +
-              YY_FLEX_SUBMINOR_VERSION >= 261,
+static_assert(YY_FLEX_MAJOR_VERSION * 10000 + YY_FLEX_MINOR_VERSION * 100 +
+              YY_FLEX_SUBMINOR_VERSION >= 20601,
               "we require Flex 2.6.1 or better for security reasons");
 #undef register
 #ifdef __clang__
@@ -655,7 +655,7 @@ Layout Parser::layout() {
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
-            READONLY | WRITEONLY | COHERENT | VOLATILE | RESTRICT)* */
+            READONLY | WRITEONLY | COHERENT | VOLATILE | RESTRICT | BUFFER)* */
 Modifiers Parser::modifiers() {
     Layout layout = this->layout();
     int flags = 0;
@@ -722,6 +722,10 @@ Modifiers Parser::modifiers() {
             case Token::RESTRICT:
                 this->nextToken();
                 flags |= Modifiers::kRestrict_Flag;
+                break;
+            case Token::BUFFER:
+                this->nextToken();
+                flags |= Modifiers::kBuffer_Flag;
                 break;
             case Token::HASSIDEEFFECTS:
                 this->nextToken();
