@@ -109,7 +109,7 @@ static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrResourc
  * transforms, etc, for the space allotted in the meta-key.  NOTE, both FPs and GPs share this
  * function because it is hairy, though FPs do not have attribs, and GPs do not have transforms
  */
-static bool gen_meta_key(const GrResourceIOProcessor& proc,
+static bool gen_xmeta_key(const GrResourceIOProcessor& proc,
                          const GrShaderCaps& shaderCaps,
                          uint32_t transformKey,
                          GrProcessorKeyBuilder* b) {

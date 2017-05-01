@@ -176,8 +176,10 @@ public:
         return *fImageStorageAccesses[index];
     }
 
+    bool isBad() const { return fIsBad; }
+
 protected:
-    GrResourceIOProcessor() = default;
+    GrResourceIOProcessor() : fIsBad(false) {}
 
     /**
      * Subclasses call these from their constructor to register sampler/image sources. The processor
@@ -196,10 +198,13 @@ protected:
     void removeRefs() const;
     void pendingIOComplete() const;
 
+    void markAsBad() { fIsBad = true; }
+
 private:
     SkSTArray<4, const TextureSampler*, true> fTextureSamplers;
     SkSTArray<1, const BufferAccess*, true> fBufferAccesses;
     SkSTArray<1, const ImageStorageAccess*, true> fImageStorageAccesses;
+    bool fIsBad;
 
     typedef GrProcessor INHERITED;
 };
@@ -251,6 +256,8 @@ public:
      * For internal use by GrProcessor.
      */
     const GrGpuResourceRef* programTexture() const { return &fTexture; }
+
+    bool isBad() const { return !fTexture.get(); }
 
 private:
 

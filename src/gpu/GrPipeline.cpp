@@ -64,15 +64,24 @@ void GrPipeline::init(const InitArgs& args) {
     for (int i = 0; i < args.fProcessors->numColorFragmentProcessors(); ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->colorFragmentProcessor(i);
         fFragmentProcessors[currFPIdx].reset(fp);
+        if (fp->isBad()) {
+            this->markAsBad();
+        }
     }
 
     for (int i = 0; i < args.fProcessors->numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->coverageFragmentProcessor(i);
         fFragmentProcessors[currFPIdx].reset(fp);
+        if (fp->isBad()) {
+            this->markAsBad();
+        }
     }
     if (args.fAppliedClip) {
         if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
             fFragmentProcessors[currFPIdx].reset(fp);
+            if (fp->isBad()) {
+                this->markAsBad();
+            }
         }
     }
 }
