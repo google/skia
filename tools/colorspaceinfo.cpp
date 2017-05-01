@@ -24,8 +24,9 @@
 #include <string>
 #include <vector>
 
-DEFINE_string(input, "input.png", "A path to the input image or icc profile.");
+DEFINE_string(input, "input.png", "A path to the input image (or icc profile with --icc).");
 DEFINE_string(output, ".", "A path to the output image directory.");
+DEFINE_bool(icc, false, "Indicates that the input is an icc profile.");
 DEFINE_bool(sRGB_gamut, false, "Draws the sRGB gamut on the gamut visualization.");
 DEFINE_bool(adobeRGB, false, "Draws the Adobe RGB gamut on the gamut visualization.");
 DEFINE_bool(sRGB_gamma, false, "Draws the sRGB gamma on all gamma output images.");
@@ -432,8 +433,9 @@ private:
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage(
-            "Usage: colorspaceinfo --input <path to input image or icc profile> "
+            "Usage: colorspaceinfo --input <path to input image (or icc profile with --icc)> "
                                   "--output <directory to output images> "
+                                  "--icc <indicates that the input is an icc profile>"
                                   "--sRGB_gamut <draw canonical sRGB gamut> "
                                   "--adobeRGB <draw canonical Adobe RGB gamut> "
                                   "--sRGB_gamma <draw sRGB gamma> "
@@ -454,13 +456,14 @@ int main(int argc, char** argv) {
         SkDebugf("Cannot find input image.\n");
         return -1;
     }
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+
+    std::unique_ptr<SkCodec> codec = nullptr;
     sk_sp<SkColorSpace> colorSpace = nullptr;
-    const bool isImage = (codec != nullptr);
-    if (isImage) {
-        colorSpace = sk_ref_sp(codec->getInfo().colorSpace());
-    } else {
+    if (FLAGS_icc) {
         colorSpace = SkColorSpace::MakeICC(data->bytes(), data->size());
+    } else {
+        codec.reset(SkCodec::NewFromData(data));
+        colorSpace = sk_ref_sp(codec->getInfo().colorSpace());
     }
 
     if (!colorSpace) {
@@ -611,11 +614,11 @@ int main(int argc, char** argv) {
     for (const std::string& filename : outputFilenames) {
         SkDebugf("%s\n", filename.c_str());
     }
-    if (isImage) {
+    if (!FLAGS_icc) {
         SkDebugf("%s\n", input);
     }
     // Also, if requested, decode and reencode the uncorrected input image.
-    if (!FLAGS_uncorrected.isEmpty() && isImage) {
+    if (!FLAGS_uncorrected.isEmpty() && !FLAGS_icc) {
         SkBitmap bitmap;
         int width = codec->getInfo().width();
         int height = codec->getInfo().height();
