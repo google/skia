@@ -167,7 +167,3 @@ SkMallocPixelRef::~SkMallocPixelRef() {
         fReleaseProc(this->pixels(), fReleaseProcContext);
     }
 }
-
-size_t SkMallocPixelRef::getAllocatedSizeInBytes() const {
-    return this->info().getSafeSize(this->rowBytes());
-}
