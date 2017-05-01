@@ -459,4 +459,11 @@ DEF_TEST(SkSLDuplicateCase, r) {
                  "error: 1: duplicate case value\n1 error\n");
 }
 
+DEF_TEST(SkSLFieldAfterRuntimeArray, r) {
+    test_failure(r,
+                 "buffer broken { float x[]; float y; };",
+                 "error: 1: only the last entry in an interface block may be a runtime-sized "
+                 "array\n1 error\n");
+}
+
 #endif

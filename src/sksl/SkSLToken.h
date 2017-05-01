@@ -104,6 +104,7 @@ struct Token {
         COHERENT,
         VOLATILE,
         RESTRICT,
+        BUFFER,
         HASSIDEEFFECTS,
         STRUCT,
         LAYOUT,

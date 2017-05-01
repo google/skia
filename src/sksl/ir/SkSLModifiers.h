@@ -32,7 +32,8 @@ struct Modifiers {
         kCoherent_Flag       = 1 << 11,
         kVolatile_Flag       = 1 << 12,
         kRestrict_Flag       = 1 << 13,
-        kHasSideEffects_Flag = 1 << 14
+        kBuffer_Flag         = 1 << 14,
+        kHasSideEffects_Flag = 1 << 15
     };
 
     Modifiers()
@@ -80,6 +81,9 @@ struct Modifiers {
         }
         if (fFlags & kRestrict_Flag) {
             result += "restrict ";
+        }
+        if (fFlags & kBuffer_Flag) {
+            result += "buffer ";
         }
         if (fFlags & kHasSideEffects_Flag) {
             result += "sk_has_side_effects ";
