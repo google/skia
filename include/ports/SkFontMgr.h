@@ -45,7 +45,9 @@ public:
      *  The caller must call unref() on the returned object.
      *  Never returns NULL; will return an empty set if the name is not found.
      *
-     *  Passing |nullptr| as the parameter will return the default system font.
+     *  Passing nullptr as the parameter will return the default system family.
+     *  Note that most systems don't have a default system family, so passing nullptr will often
+     *  result in the empty set.
      *
      *  It is possible that this will return a style set not accessible from
      *  createStyleSet(int) due to hidden or auto-activated fonts.
