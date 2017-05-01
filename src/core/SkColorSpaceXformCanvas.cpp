@@ -229,12 +229,12 @@ public:
 
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
         sk_sp<SkImageFilter> backdrop = rec.fBackdrop ? fXformer->apply(rec.fBackdrop) : nullptr;
-        sk_sp<SkImage> clipMask = rec.fClipMask ? fXformer->apply(rec.fClipMask.get()) : nullptr;
+        sk_sp<SkImage> clipMask = rec.fClipMask ? fXformer->apply(rec.fClipMask) : nullptr;
         fTarget->saveLayer({
             rec.fBounds,
             MaybePaint(rec.fPaint, fXformer.get()),
             backdrop.get(),
-            std::move(clipMask),
+            clipMask.get(),
             rec.fClipMatrix,
             rec.fSaveLayerFlags,
         });
