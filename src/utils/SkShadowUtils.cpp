@@ -458,6 +458,11 @@ static bool draw_analytic_shadows(SkCanvas* canvas, const SkPath& path, SkScalar
                                   const SkPoint3& devLightPos, SkScalar lightRadius,
                                   SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
                                   uint32_t flags) {
+    // only supported in GPU code
+    if (!canvas->getGrContext()) {
+        return false;
+    }
+
     SkRect rect;
     SkRRect rrect;
     if (canvas->getTotalMatrix().isSimilarity()) {
