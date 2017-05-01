@@ -508,14 +508,14 @@ STAGE(hsl_to_rgb) {
       p = 2.0f*l - q;
 
     auto hue_to_rgb = [&](F t) {
-        F t2 = if_then_else(t < 0.0_f, t + 1.0f,
-               if_then_else(t > 1.0_f, t - 1.0f,
-                                       t));
+        t = if_then_else(t < 0.0_f, t + 1.0f,
+            if_then_else(t > 1.0_f, t - 1.0f,
+                                    t));
 
-        return if_then_else(t2 < C(1/6.0f),  p + (q-p)*6.0f*t,
-               if_then_else(t2 < C(3/6.0f),  q,
-               if_then_else(t2 < C(4/6.0f),  p + (q-p)*6.0f*((4/6.0f) - t2),
-                                             p)));
+        return if_then_else(t < C(1/6.0f),  p + (q-p)*6.0f*t,
+               if_then_else(t < C(3/6.0f),  q,
+               if_then_else(t < C(4/6.0f),  p + (q-p)*6.0f*((4/6.0f) - t),
+                                            p)));
     };
 
     r = if_then_else(s == 0, l, hue_to_rgb(h + (1/3.0f)));
