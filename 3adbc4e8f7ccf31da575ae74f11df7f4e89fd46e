@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e1e28bc_7619df7a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T13:40:07Z",
+      "side": 1,
+      "message": "nit: This bug seems only tangentially related.",
+      "range": {
+        "startLine": 10,
+        "startChar": 5,
+        "endLine": 10,
+        "endChar": 14
+      },
+      "revId": "3adbc4e8f7ccf31da575ae74f11df7f4e89fd46e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57c823b4_b2fbfbf6",
+        "filename": "src/images/SkJpegEncoder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T13:40:07Z",
+      "side": 1,
+      "message": "Should there be a base class with virtual methods?",
+      "range": {
+        "startLine": 16,
+        "startChar": 6,
+        "endLine": 16,
+        "endChar": 35
+      },
+      "revId": "3adbc4e8f7ccf31da575ae74f11df7f4e89fd46e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8a05976_17df02ed",
+        "filename": "src/images/SkJpegEncoder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T13:40:07Z",
+      "side": 1,
+      "message": "If we don\u0027t support doing something with the alpha channel, are there other (future) reasons to have an Options struct, rather than a single int?",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 18
+      },
+      "revId": "3adbc4e8f7ccf31da575ae74f11df7f4e89fd46e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e885b9dc_641f959c",
+        "filename": "src/images/SkJpegEncoder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T13:40:07Z",
+      "side": 1,
+      "message": "And I suppose it will return true in that case?",
+      "range": {
+        "startLine": 53,
+        "startChar": 54,
+        "endLine": 53,
+        "endChar": 95
+      },
+      "revId": "3adbc4e8f7ccf31da575ae74f11df7f4e89fd46e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c871919e_1dcb6e6f",
+        "filename": "src/images/SkJpegEncoder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-01T13:40:07Z",
+      "side": 1,
+      "message": "It seems weird to me that this will only return false due to a dumb client. (i.e. client passed a bad value or keeps calling after the encode is complete)\n\nMaybe there\u0027s no need to return a boolean? What will the call site look like? It kind of looks like someone might call something like\n\n  while (encodeRows(\u003csome value\u003e)\n\nBut then they don\u0027t need to use a loop, since they can just pass the height (or some really large number).\n\nIf the client passes \u003c\u003d 0, maybe that should be a signal to encode all lines remaining?",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 25
+      },
+      "revId": "3adbc4e8f7ccf31da575ae74f11df7f4e89fd46e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
