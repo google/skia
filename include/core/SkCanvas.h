@@ -330,6 +330,13 @@ public:
             , fSaveLayerFlags(saveLayerFlags)
         {}
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                     SaveLayerFlags saveLayerFlags)
+            : fBounds(bounds)
+            , fPaint(paint)
+            , fBackdrop(backdrop)
+            , fSaveLayerFlags(saveLayerFlags)
+        {}
+        SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
                      sk_sp<SkImage> clipMask, const SkMatrix* clipMatrix,
                      SaveLayerFlags saveLayerFlags)
             : fBounds(bounds)
