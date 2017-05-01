@@ -152,6 +152,10 @@ GR_MAKE_BITFIELD_OPS(GrProcessor::RequiredFeatures);
 /** A GrProcessor with the ability to access textures, buffers, and image storages. */
 class GrResourceIOProcessor : public GrProcessor {
 public:
+    bool isBad() const { return fIsBad; }
+    void markAsBad() { fIsBad = true; }
+    bool fIsBad;
+
     class TextureSampler;
     class BufferAccess;
     class ImageStorageAccess;
@@ -177,7 +181,7 @@ public:
     }
 
 protected:
-    GrResourceIOProcessor() = default;
+    GrResourceIOProcessor() : fIsBad(false) {}
 
     /**
      * Subclasses call these from their constructor to register sampler/image sources. The processor
@@ -211,6 +215,7 @@ private:
  */
 class GrResourceIOProcessor::TextureSampler : public SkNoncopyable {
 public:
+    bool isBad() const { return !fTexture.get(); }
     /**
      * Must be initialized before adding to a GrProcessor's texture access list.
      */

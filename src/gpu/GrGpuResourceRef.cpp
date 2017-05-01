@@ -66,6 +66,10 @@ void GrGpuResourceRef::setResource(GrGpuResource* resource, GrIOType ioType) {
 }
 
 void GrGpuResourceRef::markPendingIO() const {
+    if (!fResource) {
+        return;
+    }
+
     // This should only be called when the owning GrProgramElement gets its first
     // pendingExecution ref.
     SkASSERT(!fPendingIO);
@@ -86,6 +90,10 @@ void GrGpuResourceRef::markPendingIO() const {
 }
 
 void GrGpuResourceRef::pendingIOComplete() const {
+    if (!fResource) {
+        return;
+    }
+
     // This should only be called when the owner's pending executions have ocurred but it is still
     // reffed.
     SkASSERT(fOwnRef);
@@ -107,6 +115,10 @@ void GrGpuResourceRef::pendingIOComplete() const {
 }
 
 void GrGpuResourceRef::removeRef() const {
+    if (!fResource) {
+        return;
+    }
+
     // This should only be called once, when the owners last ref goes away and
     // there is a pending execution.
     SkASSERT(fOwnRef);
