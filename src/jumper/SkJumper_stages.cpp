@@ -504,23 +504,23 @@ STAGE(hsl_to_rgb) {
       s = g,
       l = b;
 
-    F q = if_then_else(l < 0.5_f, l*(1.0_f + s), l + s - l*s),
-      p = 2.0_f*l - q;
+    F q = if_then_else(l < 0.5_f, l*(1.0f + s), l + s - l*s),
+      p = 2.0f*l - q;
 
     auto hue_to_rgb = [&](F t) {
-        F t2 = if_then_else(t < 0.0_f, t + 1.0_f,
-               if_then_else(t > 1.0_f, t - 1.0_f,
+        F t2 = if_then_else(t < 0.0_f, t + 1.0f,
+               if_then_else(t > 1.0_f, t - 1.0f,
                                        t));
 
-        return if_then_else(t2 < C(1/6.0f),  p + (q-p)*6.0_f*t,
+        return if_then_else(t2 < C(1/6.0f),  p + (q-p)*6.0f*t,
                if_then_else(t2 < C(3/6.0f),  q,
-               if_then_else(t2 < C(4/6.0f),  p + (q-p)*6.0_f*(C(4/6.0f) - t2),
+               if_then_else(t2 < C(4/6.0f),  p + (q-p)*6.0f*((4/6.0f) - t2),
                                              p)));
     };
 
-    r = if_then_else(s == 0, l, hue_to_rgb(h + C(1/3.0f)));
-    g = if_then_else(s == 0, l, hue_to_rgb(h            ));
-    b = if_then_else(s == 0, l, hue_to_rgb(h - C(1/3.0f)));
+    r = if_then_else(s == 0, l, hue_to_rgb(h + (1/3.0f)));
+    g = if_then_else(s == 0, l, hue_to_rgb(h           ));
+    b = if_then_else(s == 0, l, hue_to_rgb(h - (1/3.0f)));
 }
 
 STAGE(scale_1_float) {
