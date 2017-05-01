@@ -22,6 +22,30 @@
       "revId": "00ee4b93cb36fd18b9bfe916d1bb9be928a95605",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b957722_ad93a49d",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-01T14:23:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d4aa0314_44956844",
+      "range": {
+        "startLine": 201,
+        "startChar": 21,
+        "endLine": 201,
+        "endChar": 26
+      },
+      "revId": "00ee4b93cb36fd18b9bfe916d1bb9be928a95605",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
