@@ -744,7 +744,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 rec.fSaveLayerFlags = reader->readInt();
             }
             if (flatFlags & SAVELAYERREC_HAS_CLIPMASK) {
-                rec.fClipMask = sk_ref_sp(const_cast<SkImage*>(fPictureData->getImage(reader)));
+                rec.fClipMask = fPictureData->getImage(reader);
             }
             if (flatFlags & SAVELAYERREC_HAS_CLIPMATRIX) {
                 reader->readMatrix(&clipMatrix);

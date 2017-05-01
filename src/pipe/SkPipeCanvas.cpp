@@ -258,7 +258,7 @@ SkCanvas::SaveLayerStrategy SkPipeCanvas::getSaveLayerStrategy(const SaveLayerRe
         writer.writeFlattenable(rec.fBackdrop);
     }
     if (rec.fClipMask) {
-        writer.writeImage(rec.fClipMask.get());
+        writer.writeImage(rec.fClipMask);
     }
     if (rec.fClipMatrix) {
         writer.writeMatrix(*rec.fClipMatrix);
