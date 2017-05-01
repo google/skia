@@ -948,6 +948,29 @@ STAGE(linear_gradient_2stops) {
     a = mad(t, c->f[3], c->b[3]);
 }
 
+STAGE(sweep_to_linear_gradient) {
+    F xs = r,
+      ys = g;
+    F xabs = abs_(xs),
+      yabs = abs_(ys);
+
+    F little = min(xabs, yabs),
+      big    = max(xabs, yabs);
+
+    F slope = little/big;
+    F s = slope * slope;
+    r = slope
+        * (0.15915494309189533576888376337251436203445964574046f    + s
+        * (-5.2115671459535901661333291899568858819198151480566e-2f + s
+        * (2.5274979842804860907831694912050027090339297692483e-2f  + s
+        * (-7.3449636894430329017844124863272051708534440211574e-3f))));
+
+    r = if_then_else(xabs < yabs, 1.0f/4.0f - r, r);
+    r = if_then_else(xs < 0.0f  , 1.0f/2.0f - r, r);
+    r = if_then_else(ys < 0.0f  , 1.0f - r     , r);
+    r = if_then_else(big == 0.0f, 0            , r);
+}
+
 STAGE(save_xy) {
     auto c = (SkJumper_SamplerCtx*)ctx;
 
