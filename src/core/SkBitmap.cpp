@@ -171,6 +171,9 @@ bool SkBitmap::setAlphaType(SkAlphaType newAlphaType) {
     }
     if (fInfo.alphaType() != newAlphaType) {
         fInfo = fInfo.makeAlphaType(newAlphaType);
+        if (fPixelRef) {
+            fPixelRef->changeAlphaType(newAlphaType);
+        }
     }
     SkDEBUGCODE(this->validate();)
     return true;

@@ -108,7 +108,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(const GrBackendRenderTargetDesc& de
         , fConfig(desc.fConfig)
         , fBackend(backend) {
     if (kOpenGL_GrBackend == backend) {
-        fGLInfo.fFBOID = static_cast<GrGLuint>(desc.fRenderTargetHandle);
+        fGLInfo = *reinterpret_cast<const GrGLFramebufferInfo*>(desc.fRenderTargetHandle);
     } else {
         SkASSERT(kVulkan_GrBackend == backend);
 #ifdef SK_VULKAN

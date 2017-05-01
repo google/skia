@@ -752,9 +752,6 @@ protected:
     }
 
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
-        if (!familyName) {
-            return nullptr;
-        }
         FCLocker lock;
 
         SkAutoFcPattern pattern;

@@ -484,10 +484,6 @@ SkFontStyleSet* SkFontMgr_DirectWrite::onCreateStyleSet(int index) const {
 }
 
 SkFontStyleSet* SkFontMgr_DirectWrite::onMatchFamily(const char familyName[]) const {
-    if (!familyName) {
-        return nullptr;
-    }
-
     SkSMallocWCHAR dwFamilyName;
     HRN(sk_cstring_to_wchar(familyName, &dwFamilyName));
 
