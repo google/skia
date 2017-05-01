@@ -582,12 +582,6 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool fitsInsideLimit(const SkRect& r, SkScalar max) {
-    const SkScalar min = -max;
-    return  r.fLeft > min && r.fTop > min &&
-            r.fRight < max && r.fBottom < max;
-}
-
 static int overflows_short_shift(int value, int shift) {
     const int s = 16 + shift;
     return (SkLeftShift(value, s) >> s) - value;
@@ -597,7 +591,7 @@ static int overflows_short_shift(int value, int shift) {
   Would any of the coordinates of this rectangle not fit in a short,
   when left-shifted by shift?
 */
-static int rect_overflows_short_shift(SkIRect rect, int shift) {
+static int rect_overflows_short_shift(SkIRect rect) {
     SkASSERT(!overflows_short_shift(8191, SHIFT));
     SkASSERT(overflows_short_shift(8192, SHIFT));
     SkASSERT(!overflows_short_shift(32767, 0));
@@ -611,14 +605,21 @@ static int rect_overflows_short_shift(SkIRect rect, int shift) {
            overflows_short_shift(rect.fBottom, SHIFT);
 }
 
-static bool safeRoundOut(const SkRect& src, SkIRect* dst, int32_t maxInt) {
-    const SkScalar maxScalar = SkIntToScalar(maxInt);
-
-    if (fitsInsideLimit(src, maxScalar)) {
+// When src has huge coordinates, clips dst by clip and returns true.
+static bool roundOutClipped(const SkRect& src, const SkIRect& clip, SkIRect* dst) {
+    static const int32_t kLimit = (SK_MaxS32 >> SHIFT) - 1;
+    const SkIRect max = SkIRect::MakeLTRB(-kLimit, -kLimit, kLimit, kLimit);
+    if (max.contains(src)) {
         src.roundOut(dst);
-        return true;
+        return false;
     }
-    return false;
+    SkRect clipped;
+    if (clipped.intersect(src, SkRect::Make(clip))) {
+        clipped.roundOut(dst);
+    } else {
+        dst->setEmpty();
+    }
+    return true;
 }
 
 void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
@@ -630,13 +631,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
     const bool isInverse = path.isInverseFillType();
     SkIRect ir;
 
-    if (!safeRoundOut(path.getBounds(), &ir, SK_MaxS32 >> SHIFT)) {
-#if 0
-        const SkRect& r = path.getBounds();
-        SkDebugf("--- bounds can't fit in SkIRect\n", r.fLeft, r.fTop, r.fRight, r.fBottom);
-#endif
-        return;
-    }
+    bool irIsClipped = roundOutClipped(path.getBounds(), origClip.getBounds(), &ir);
     if (ir.isEmpty()) {
         if (isInverse) {
             blitter->blitRegion(origClip);
@@ -657,7 +652,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
            return;
        }
     }
-    if (rect_overflows_short_shift(clippedIR, SHIFT)) {
+    if (rect_overflows_short_shift(clippedIR)) {
         SkScan::FillPath(path, origClip, blitter);
         return;
     }
@@ -681,7 +676,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
     }
     // for here down, use clipRgn, not origClip
 
-    SkScanClipper   clipper(blitter, clipRgn, ir);
+    SkScanClipper   clipper(blitter, clipRgn, ir, /* skipRejectTest */ false, irIsClipped);
     const SkIRect*  clipRect = clipper.getClipRect();
 
     if (clipper.getBlitter() == nullptr) { // clipped out
@@ -711,11 +706,9 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         superClipRect = &superRect;
     }
 
-    SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
-
     // MaskSuperBlitter can't handle drawing outside of ir, so we can't use it
     // if we're an inverse filltype
-    if (!isInverse && MaskSuperBlitter::CanHandleRect(ir) && !forceRLE) {
+    if (!isInverse && !irIsClipped && MaskSuperBlitter::CanHandleRect(ir) && !forceRLE) {
         MaskSuperBlitter    superBlit(blitter, ir, *clipRgn, isInverse);
         SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
         sk_fill_path(path, clipRgn->getBounds(), &superBlit, ir.fTop, ir.fBottom, SHIFT,

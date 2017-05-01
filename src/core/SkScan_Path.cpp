@@ -506,22 +506,22 @@ void sk_blit_below(SkBlitter* blitter, const SkIRect& ir, const SkRegion& clip) 
 
 /**
  *  If the caller is drawing an inverse-fill path, then it pass true for
- *  skipRejectTest, so we don't abort drawing just because the src bounds (ir)
+ *  skipRejectTest, so we don't abort drawing just because the src bounds
  *  is outside of the clip.
  */
 SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
-                             const SkIRect& ir, bool skipRejectTest) {
+                             const SkIRect& bounds, bool skipRejectTest, bool boundsIsTruncated) {
     fBlitter = nullptr;     // null means blit nothing
     fClipRect = nullptr;
 
     if (clip) {
         fClipRect = &clip->getBounds();
-        if (!skipRejectTest && !SkIRect::Intersects(*fClipRect, ir)) { // completely clipped out
+        if (!skipRejectTest && !SkIRect::Intersects(*fClipRect, bounds)) { // completely clipped out
             return;
         }
 
         if (clip->isRect()) {
-            if (fClipRect->contains(ir)) {
+            if (!boundsIsTruncated && fClipRect->contains(bounds)) {
 #ifdef SK_DEBUG
                 fRectClipCheckBlitter.init(blitter, *fClipRect);
                 blitter = &fRectClipCheckBlitter;
@@ -529,7 +529,8 @@ SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
                 fClipRect = nullptr;
             } else {
                 // only need a wrapper blitter if we're horizontally clipped
-                if (fClipRect->fLeft > ir.fLeft || fClipRect->fRight < ir.fRight) {
+                if (boundsIsTruncated ||
+                    fClipRect->fLeft > bounds.fLeft || fClipRect->fRight < bounds.fRight) {
                     fRectBlitter.init(blitter, *fClipRect);
                     blitter = &fRectBlitter;
                 } else {
@@ -598,6 +599,8 @@ static inline int round_up_to_int(SkScalar x) {
   *  which may be slower than calling SkScalarRountToInt(), but gives slightly more accurate
   *  results. Also rounds top and left using double, flooring when the fraction is exactly 0.5f.
   *
+  *  When src has huge coordinates, clips dst by clip and returns true.
+  *
   *  e.g.
   *      SkScalar left = 0.5f;
   *      int ileft = SkScalarRoundToInt(left);
@@ -622,10 +625,23 @@ static inline int round_up_to_int(SkScalar x) {
   *  Thus, bottom and right are rounded in this manner (biased up), ensuring the rect is large
   *  enough.
   */
-static void round_asymmetric_to_int(const SkRect& src, SkIRect* dst) {
+static bool round_asymmetric_to_int(const SkRect& src, const SkIRect& clip, SkIRect* dst) {
     SkASSERT(dst);
-    dst->set(round_down_to_int(src.fLeft), round_down_to_int(src.fTop),
-             round_up_to_int(src.fRight), round_up_to_int(src.fBottom));
+    static const int32_t kLimit = 32767;
+    const SkIRect max = SkIRect::MakeLTRB(-kLimit, -kLimit, kLimit, kLimit);
+    if (max.contains(src)) {
+        dst->set(round_down_to_int(src.fLeft), round_down_to_int(src.fTop),
+                 round_up_to_int(src.fRight), round_up_to_int(src.fBottom));
+        return false;
+    }
+    SkRect clipped;
+    if (clipped.intersect(src, SkRect::Make(clip))) {
+        dst->set(round_down_to_int(clipped.fLeft), round_down_to_int(clipped.fTop),
+                 round_up_to_int(clipped.fRight), round_up_to_int(clipped.fBottom));
+    } else {
+        dst->setEmpty();
+    }
+    return true;
 }
 
 void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
@@ -651,7 +667,7 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
     // to generate a bounds that is tighter than the corresponding SkEdges. The edge code basically
     // converts the floats to fixed, and then "rounds". If we called round() instead of
     // round_asymmetric_to_int() here, we could generate the wrong ir for values like 0.4999997.
-    round_asymmetric_to_int(path.getBounds(), &ir);
+    bool irIsClipped = round_asymmetric_to_int(path.getBounds(), clipPtr->getBounds(), &ir);
     if (ir.isEmpty()) {
         if (path.isInverseFillType()) {
             blitter->blitRegion(*clipPtr);
@@ -659,7 +675,7 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
         return;
     }
 
-    SkScanClipper clipper(blitter, clipPtr, ir, path.isInverseFillType());
+    SkScanClipper clipper(blitter, clipPtr, ir, path.isInverseFillType(), irIsClipped);
 
     blitter = clipper.getBlitter();
     if (blitter) {

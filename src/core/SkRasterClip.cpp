@@ -429,6 +429,23 @@ bool SkRasterClip::quickContains(const SkIRect& ir) const {
     return fIsBW ? fBW.quickContains(ir) : fAA.quickContains(ir);
 }
 
+bool SkRasterClip::quickContains(const SkRect& r) const {
+    return fIsBW ? fBW.quickContains(r) : fAA.quickContains(r);
+}
+
+bool SkRasterClip::quickReject(const SkRect& rect) const {
+    if (rect.isEmpty()) return true;
+    SkIRect bounds = this->getBounds();
+    if (bounds.isEmpty()) return true;
+    SkRect s32rect;
+    if (!s32rect.intersect(rect, SkRect::MakeLargestS32())) {
+        return true;
+    }
+    SkASSERT(s32rect.canRound());
+    const SkIRect irect = s32rect.roundOut();
+    return this->quickReject(irect);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 const SkRegion& SkRasterClip::forceGetBW() {

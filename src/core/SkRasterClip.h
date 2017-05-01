@@ -106,6 +106,7 @@ public:
     bool quickContains(int left, int top, int right, int bottom) const {
         return quickContains(SkIRect::MakeLTRB(left, top, right, bottom));
     }
+    bool quickContains(const SkRect& rect) const;
 
     /**
      *  Return true if this region is empty, or if the specified rectangle does
@@ -115,6 +116,7 @@ public:
     bool quickReject(const SkIRect& rect) const {
         return !SkIRect::Intersects(this->getBounds(), rect);
     }
+    bool quickReject(const SkRect& rect) const;
 
     // hack for SkCanvas::getTotalClip
     const SkRegion& forceGetBW();

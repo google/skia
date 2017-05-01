@@ -203,6 +203,17 @@ public:
     }
 
     /**
+     *  Same as above, but works for rectangles outside of the range of int32_t.
+     */
+    bool quickContains(const SkRect& r) const {
+        SkASSERT(this->isEmpty() == fBounds.isEmpty()); // valid region
+
+        return !r.isEmpty() &&
+               fRunHead == SkRegion_gRectRunHeadPtr &&  // this->isRect()
+               fBounds.contains(r);
+    }
+
+    /**
      *  Return true if this region is empty, or if the specified rectangle does
      *  not intersect the region. Returning false is not a guarantee that they
      *  intersect, but returning true is a guarantee that they do not.

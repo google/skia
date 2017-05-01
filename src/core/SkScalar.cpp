@@ -9,6 +9,9 @@
 #include "SkMath.h"
 #include "SkScalar.h"
 
+static_assert(SK_MaxS32Scalar == SkIntToScalar(SkScalarTruncToInt(SK_MaxS32Scalar)),
+              "Value of SK_MaxS32Scalar is incorrect.");
+
 SkScalar SkScalarInterpFunc(SkScalar searchKey, const SkScalar keys[],
                             const SkScalar values[], int length) {
     SkASSERT(length > 0);

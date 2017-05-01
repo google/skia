@@ -64,6 +64,7 @@ public:
     bool quickContains(const SkIRect& r) const {
         return this->quickContains(r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
+    bool quickContains(const SkRect& r) const;
 
     const uint8_t* findRow(int y, int* lastYForRow = nullptr) const;
     const uint8_t* findX(const uint8_t data[], int x, int* initialCount = nullptr) const;

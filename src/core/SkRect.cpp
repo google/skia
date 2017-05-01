@@ -9,6 +9,18 @@
 
 #include "SkMalloc.h"
 
+bool SkIRect::contains(const SkRect& r) const {
+    if (r.isEmpty() || this->isEmpty()) {
+        return false;
+    }
+    // If r's coords are greater than the max int32_t, then they must be outside this SkIRect.
+    if (!r.canRound()) {
+        return false;
+    }
+    // At this point, we can convert the SkRect to SkIRect and compare directly.
+    return this->contains(r.roundOut());
+}
+
 void SkIRect::join(int32_t left, int32_t top, int32_t right, int32_t bottom) {
     // do nothing if the params are empty
     if (left >= right || top >= bottom) {
@@ -141,6 +153,19 @@ void SkRect::join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) 
         fTop    = SkMinScalar(fTop, top);
         fRight  = SkMaxScalar(fRight, right);
         fBottom = SkMaxScalar(fBottom, bottom);
+    }
+}
+
+bool SkRect::canRound() const {
+    if (fLeft < -SK_MaxS32Scalar || fTop < -SK_MaxS32Scalar ||
+        fRight > SK_MaxS32Scalar || fBottom > SK_MaxS32Scalar) {
+        return false;
+    }
+    if (this->isEmpty()) {
+        return fLeft < SK_MaxS32Scalar && fTop < SK_MaxS32Scalar &&
+               fRight > -SK_MaxS32Scalar && fBottom > -SK_MaxS32Scalar;
+    } else {
+        return true;
     }
 }
 

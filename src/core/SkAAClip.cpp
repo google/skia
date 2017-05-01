@@ -941,6 +941,17 @@ bool SkAAClip::quickContains(int left, int top, int right, int bottom) const {
 #endif
 }
 
+bool SkAAClip::quickContains(const SkRect& r) const {
+    if (this->isEmpty()) {
+        return false;
+    }
+    if (!fBounds.contains(r)) {
+        return false;
+    }
+    // If r is contained in fBounds, it has to be in range of int32.
+    return this->quickContains(r.roundOut());
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkAAClip::Builder {

@@ -25,6 +25,9 @@ typedef float SkScalar;
 #define SK_ScalarInfinity           SK_FloatInfinity
 #define SK_ScalarNegativeInfinity   SK_FloatNegativeInfinity
 #define SK_ScalarNaN                SK_FloatNaN
+// This is the largest number <= SK_MaxS32 that can be round-trip converted between SkScalar and
+// int32_t.
+#define SK_MaxS32Scalar             2.14748352e+9f
 
 #define SkScalarFloorToScalar(x)    sk_float_floor(x)
 #define SkScalarCeilToScalar(x)     sk_float_ceil(x)

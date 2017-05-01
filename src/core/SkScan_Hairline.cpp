@@ -148,12 +148,11 @@ void SkScan::HairRect(const SkRect& rect, const SkRasterClip& clip,
                       SkBlitter* blitter) {
     SkAAClipBlitterWrapper wrapper;
     SkBlitterClipper    clipper;
-    SkIRect             r;
 
-    r.set(SkScalarToFixed(rect.fLeft) >> 16,
-          SkScalarToFixed(rect.fTop) >> 16,
-          (SkScalarToFixed(rect.fRight) >> 16) + 1,
-          (SkScalarToFixed(rect.fBottom) >> 16) + 1);
+    const SkIRect r = SkIRect::MakeLTRB(SkScalarTruncToInt(rect.fLeft),
+                                        SkScalarTruncToInt(rect.fTop),
+                                        SkScalarTruncToInt(rect.fRight) + 1,
+                                        SkScalarTruncToInt(rect.fBottom) + 1);
 
     if (clip.quickReject(r)) {
         return;
@@ -484,11 +483,11 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
 
     {
         const int capOut = SkPaint::kButt_Cap == capStyle ? 1 : 2;
-        const SkIRect ibounds = path.getBounds().roundOut().makeOutset(capOut, capOut);
-        if (rclip.quickReject(ibounds)) {
+        const SkRect bounds = path.getBounds().makeOutset(capOut, capOut);
+        if (rclip.quickReject(bounds)) {
             return;
         }
-        if (!rclip.quickContains(ibounds)) {
+        if (!rclip.quickContains(bounds)) {
             if (rclip.isBW()) {
                 clip = &rclip.bwRgn();
             } else {

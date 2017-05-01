@@ -14,8 +14,12 @@
 
 class SkScanClipper {
 public:
+    /**
+     *  boundsIsTruncated indicates that the blitter should be clipped even if
+     *  clip->contains(bounds) is true.
+     */
     SkScanClipper(SkBlitter* blitter, const SkRegion* clip, const SkIRect& bounds,
-                  bool skipRejectTest = false);
+                  bool skipRejectTest = false, bool boundsIsTruncated = false);
 
     SkBlitter*      getBlitter() const { return fBlitter; }
     const SkIRect*  getClipRect() const { return fClipRect; }

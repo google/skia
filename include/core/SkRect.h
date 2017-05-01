@@ -399,6 +399,16 @@ struct SK_API SkRect {
         return r;
     }
 
+    /**
+     * Make the largest SkRect for which canRound() returns true.
+     */
+    static SkRect SK_WARN_UNUSED_RESULT MakeLargestS32() {
+        const SkRect r = MakeLTRB(-SK_MaxS32Scalar, -SK_MaxS32Scalar,
+                                  SK_MaxS32Scalar, SK_MaxS32Scalar);
+        SkASSERT(r == Make(r.round()));
+        return r;
+    }
+
     static SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h) {
         SkRect r;
         r.set(0, 0, w, h);
@@ -813,6 +823,11 @@ public:
     }
 
     /**
+     *  Return true if round(SkIRect) and roundOut(SkIRect) will not overflow SkIRect.
+     */
+    bool canRound() const;
+
+    /**
      *  Set the dst rectangle by rounding this rectangle's coordinates to their
      *  nearest integer values using SkScalarRoundToInt.
      */
@@ -896,11 +911,5 @@ public:
     void dump() const { this->dump(false); }
     void dumpHex() const { this->dump(true); }
 };
-
-inline bool SkIRect::contains(const SkRect& r) const {
-    return  !r.isEmpty() && !this->isEmpty() &&     // check for empties
-            (SkScalar)fLeft <= r.fLeft && (SkScalar)fTop <= r.fTop &&
-            (SkScalar)fRight >= r.fRight && (SkScalar)fBottom >= r.fBottom;
-}
 
 #endif

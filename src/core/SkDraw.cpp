@@ -764,6 +764,19 @@ static SkPoint* rect_points(SkRect& r) {
     return SkTCast<SkPoint*>(&r);
 }
 
+namespace {
+
+void drawRectAsPath(const SkDraw& origDraw, const SkMatrix* matrix, const SkRect& prePaintRect, const SkPaint& paint) {
+    SkDraw draw(origDraw);
+    draw.fMatrix = matrix;
+    SkPath  tmp;
+    tmp.addRect(prePaintRect);
+    tmp.setFillType(SkPath::kWinding_FillType);
+    draw.drawPath(tmp, paint, nullptr, true);
+}
+
+}  // namespace
+
 void SkDraw::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
                       const SkMatrix* paintMatrix, const SkRect* postPaintRect) const {
     SkDEBUGCODE(this->validate();)
@@ -788,14 +801,7 @@ void SkDraw::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
     RectType rtype = ComputeRectType(paint, *fMatrix, &strokeSize);
 
     if (kPath_RectType == rtype) {
-        SkDraw draw(*this);
-        if (paintMatrix) {
-            draw.fMatrix = matrix;
-        }
-        SkPath  tmp;
-        tmp.addRect(prePaintRect);
-        tmp.setFillType(SkPath::kWinding_FillType);
-        draw.drawPath(tmp, paint, nullptr, true);
+        drawRectAsPath(*this, matrix, prePaintRect, paint);
         return;
     }
 
@@ -818,6 +824,12 @@ void SkDraw::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
                 : compute_stroke_size(paint, *fMatrix);
             bbox.outset(SkScalarHalf(ssize.x()), SkScalarHalf(ssize.y()));
         }
+    }
+
+    // If bbox is larger than the largest SkIRect, use drawRectAsPath.
+    if (!bbox.canRound()) {
+        drawRectAsPath(*this, matrix, prePaintRect, paint);
+        return;
     }
 
     SkIRect ir = bbox.roundOut();
