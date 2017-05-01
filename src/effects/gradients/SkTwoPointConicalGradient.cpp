@@ -128,6 +128,13 @@ SkFixed TwoPtRadialContext::nextT() {
             return TwoPtRadial::kDontDrawT;
         }
     }
+    // SkFixed has more precision than float near SK_FixedMax, so we need to be careful to avoid
+    // float cast overflow.
+    static const SkFixed kMaxFixed = 0x7FFFFF80;
+    static const float kMaxFloat = SkFixedToFloat(kMaxFixed);
+    if (t > kMaxFloat || t < -kMaxFloat) {
+        return TwoPtRadial::kDontDrawT;
+    }
     return SkFloatToFixed(t);
 }
 
