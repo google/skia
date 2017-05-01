@@ -218,7 +218,7 @@ def dm_flags(bot):
     blacklist('_ image gen_platf inc13.png')
     blacklist('_ image gen_platf inc14.png')
 
-  # WIC fails on questionable bmps and arithmetic jpegs
+  # WIC fails on questionable bmps
   if 'Win' in bot:
     blacklist('_ image gen_platf rle8-height-negative.bmp')
     blacklist('_ image gen_platf rle4-height-negative.bmp')
@@ -231,10 +231,13 @@ def dm_flags(bot):
     blacklist('_ image gen_platf 4bpp-pixeldata-cropped.bmp')
     blacklist('_ image gen_platf 32bpp-pixeldata-cropped.bmp')
     blacklist('_ image gen_platf 24bpp-pixeldata-cropped.bmp')
-    blacklist('_ image gen_platf testimgari.jpg')
     if 'x86_64' in bot and 'CPU' in bot:
       # This GM triggers a SkSmallAllocator assert.
       blacklist('_ gm _ composeshader_bitmap')
+
+  # WIC and CG fail on arithmetic jpegs
+  if 'Win' in bot or 'Mac' in bot:
+    blacklist('_ image gen_platf testimgari.jpg')
 
   if 'Android' in bot or 'iOS' in bot:
     # This test crashes the N9 (perhaps because of large malloc/frees). It also
