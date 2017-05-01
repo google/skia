@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7d85759a_c0ad5ed9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-01T14:58:51Z",
+      "side": 1,
+      "message": "Removing",
+      "parentUuid": "3e1e28bc_7619df7a",
+      "range": {
+        "startLine": 10,
+        "startChar": 5,
+        "endLine": 10,
+        "endChar": 14
+      },
+      "revId": "3adbc4e8f7ccf31da575ae74f11df7f4e89fd46e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c296c6c6_6eaf0642",
         "filename": "src/core/SkImageInfoPriv.h",
         "patchSetId": 6
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "36e2339d_815f41a0",
+        "filename": "src/core/SkImageInfoPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-01T14:58:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c296c6c6_6eaf0642",
+      "range": {
+        "startLine": 61,
+        "startChar": 19,
+        "endLine": 61,
+        "endChar": 37
+      },
+      "revId": "3adbc4e8f7ccf31da575ae74f11df7f4e89fd46e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "57c823b4_b2fbfbf6",
         "filename": "src/images/SkJpegEncoder.h",
         "patchSetId": 6
@@ -59,6 +107,30 @@
       "writtenOn": "2017-05-01T13:40:07Z",
       "side": 1,
       "message": "Should there be a base class with virtual methods?",
+      "range": {
+        "startLine": 16,
+        "startChar": 6,
+        "endLine": 16,
+        "endChar": 35
+      },
+      "revId": "3adbc4e8f7ccf31da575ae74f11df7f4e89fd46e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3267b432_1e20b797",
+        "filename": "src/images/SkJpegEncoder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-01T14:58:51Z",
+      "side": 1,
+      "message": "I\u0027m leaning towards not.  We could have a base class with a virtual onEncodeRows() that was overridden by Jpeg and Png.  I believe that Webp cannot and does not need to support row-by-row encoding.\n\nEverything else is very format specific.  And all of the current callsites seem to use a switch statement anyway to select the Skia format enum.  I think it\u0027s nice for the three implementations to be totally separate.",
+      "parentUuid": "57c823b4_b2fbfbf6",
       "range": {
         "startLine": 16,
         "startChar": 6,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "09632756_a7d17960",
+        "filename": "src/images/SkJpegEncoder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-01T14:58:51Z",
+      "side": 1,
+      "message": "I think so.  There are seemingly endless encoding options.  I\u0027m just adding them as we need them.  A non-complete list of things that we might want later:\n(1) Control how the Huffman tables are created.\n(2) Arithmetic vs Huffman encoding\n(3) That perceptual encoding idea?\n\nAnd I will definitely *need* to add the alpha options in order to support Chrome.",
+      "parentUuid": "f8a05976_17df02ed",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 18
+      },
+      "revId": "3adbc4e8f7ccf31da575ae74f11df7f4e89fd46e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e885b9dc_641f959c",
         "filename": "src/images/SkJpegEncoder.h",
         "patchSetId": 6
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "320995ac_f8aaea28",
+        "filename": "src/images/SkJpegEncoder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-01T14:58:51Z",
+      "side": 1,
+      "message": "Yes. Adding comment.",
+      "parentUuid": "e885b9dc_641f959c",
+      "range": {
+        "startLine": 53,
+        "startChar": 54,
+        "endLine": 53,
+        "endChar": 95
+      },
+      "revId": "3adbc4e8f7ccf31da575ae74f11df7f4e89fd46e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c871919e_1dcb6e6f",
         "filename": "src/images/SkJpegEncoder.h",
         "patchSetId": 6
@@ -128,6 +248,30 @@
       "writtenOn": "2017-05-01T13:40:07Z",
       "side": 1,
       "message": "It seems weird to me that this will only return false due to a dumb client. (i.e. client passed a bad value or keeps calling after the encode is complete)\n\nMaybe there\u0027s no need to return a boolean? What will the call site look like? It kind of looks like someone might call something like\n\n  while (encodeRows(\u003csome value\u003e)\n\nBut then they don\u0027t need to use a loop, since they can just pass the height (or some really large number).\n\nIf the client passes \u003c\u003d 0, maybe that should be a signal to encode all lines remaining?",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 25
+      },
+      "revId": "3adbc4e8f7ccf31da575ae74f11df7f4e89fd46e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10558615_988c239f",
+        "filename": "src/images/SkJpegEncoder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-01T14:58:51Z",
+      "side": 1,
+      "message": "\u003e It seems weird to me that this will only return false due to a dumb client. (i.e. client passed a bad value or keeps calling after\n\u003e the encode is complete)\n\nAgreed.\n\n\u003e Maybe there\u0027s no need to return a boolean? What will the call site look like? It kind of looks like someone might call something\n\u003e like\n\n\u003e  while (encodeRows(\u003csome value\u003e)\n\n\u003e But then they don\u0027t need to use a loop, since they can just pass the height (or some really large number).\n\nI can make this void.  I was on the fence anyway...  FWIW, I think the callsite will be something like.\n\nfor (int i \u003d 0; i \u003c remainingRows; i++) {\n  encodeRows(1);\n\n  if (out of time) {\n    break;\n  }\n}\n\n\u003e If the client passes \u003c\u003d 0, maybe that should be a signal to encode all lines remaining?\n\nI\u0027m not sure I like this, but I can see how it makes returning void more reasonable.  I\u0027d rather just assert and do nothing.",
+      "parentUuid": "c871919e_1dcb6e6f",
       "range": {
         "startLine": 55,
         "startChar": 8,
