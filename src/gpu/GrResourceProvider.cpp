@@ -254,10 +254,10 @@ sk_sp<GrTexture> GrResourceProvider::wrapBackendTexture(const GrBackendTexture& 
 }
 
 sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendRenderTarget(
-        const GrBackendRenderTargetDesc& desc)
+        const GrBackendRenderTarget& backendRT, GrSurfaceOrigin origin)
 {
     ASSERT_SINGLE_OWNER
-    return this->isAbandoned() ? nullptr : fGpu->wrapBackendRenderTarget(desc);
+    return this->isAbandoned() ? nullptr : fGpu->wrapBackendRenderTarget(backendRT, origin);
 }
 
 void GrResourceProvider::assignUniqueKeyToResource(const GrUniqueKey& key,
