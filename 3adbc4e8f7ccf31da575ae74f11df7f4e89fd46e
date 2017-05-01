@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "c296c6c6_6eaf0642",
+        "filename": "src/core/SkImageInfoPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-01T13:51:50Z",
+      "side": 1,
+      "message": "wonder if this should likewise be renamed to reflect its colorspace assumptions...",
+      "range": {
+        "startLine": 61,
+        "startChar": 19,
+        "endLine": 61,
+        "endChar": 37
+      },
+      "revId": "3adbc4e8f7ccf31da575ae74f11df7f4e89fd46e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "57c823b4_b2fbfbf6",
         "filename": "src/images/SkJpegEncoder.h",
         "patchSetId": 6
