@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkImage.h"
 #include "SkLatticeIter.h"
 #include "SkPDFCanvas.h"
 #include "SkPDFDevice.h"

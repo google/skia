@@ -20,6 +20,7 @@
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkLatticeIter.h"
+#include "SkLights.h"
 #include "SkMakeUnique.h"
 #include "SkMatrixUtils.h"
 #include "SkMetaData.h"
