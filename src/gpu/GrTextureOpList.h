@@ -30,7 +30,7 @@ public:
     /**
      * Empties the draw buffer of any queued ops.
      */
-    void reset() override;
+    void reset1() override;
 
     void abandonGpuResources() override {}
     void freeGpuResources() override {}
@@ -63,6 +63,8 @@ public:
     SkDEBUGCODE(void dump() const override;)
 
     SkDEBUGCODE(virtual void validateTargetsSingleRenderTarget() const override;)
+
+    int numOps() const override { return fRecordedOps.count(); }
 
 private:
     // MDB TODO: The unique IDs are only needed for the audit trail. There should only be one
