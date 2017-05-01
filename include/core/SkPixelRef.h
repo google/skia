@@ -32,6 +32,7 @@ class SkDiscardableMemory;
 */
 class SK_API SkPixelRef : public SkRefCnt {
 public:
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_API
     SkPixelRef(const SkImageInfo&, void* addr, size_t rowBytes, sk_sp<SkColorTable> = nullptr);
 
     const SkImageInfo& info() const {
@@ -59,6 +60,8 @@ public:
      *  @return default impl returns 0.
      */
     virtual size_t getAllocatedSizeInBytes() const { return 0; }
+
+#endif
 
     SkPixelRef(int width, int height, void* addr, size_t rowBytes, sk_sp<SkColorTable> = nullptr);
 

@@ -156,7 +156,7 @@ SkMallocPixelRef::SkMallocPixelRef(const SkImageInfo& info, void* storage,
                                    size_t rowBytes, sk_sp<SkColorTable> ctable,
                                    SkMallocPixelRef::ReleaseProc proc,
                                    void* context)
-    : INHERITED(info, storage, rowBytes, sanitize(info, std::move(ctable)))
+    : INHERITED(info.width(), info.height(), storage, rowBytes, sanitize(info, std::move(ctable)))
     , fReleaseProc(proc)
     , fReleaseProcContext(context)
 {}
