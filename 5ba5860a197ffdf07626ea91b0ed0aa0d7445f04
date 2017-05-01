@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f755cf4b_b91bb030",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-05-01T15:02:45Z",
+      "side": 1,
+      "message": "If the bot doesn\u0027t die, verbose.log is included in the isolated output, so I\u0027m not going to argue too hard in favor of turning it on everywhere.\n\nIf I knew enough about recipes, I would instead start a background process that either sends verbose.log to cloud logging or GCS in real time or periodically copies it somewhere that Swarming won\u0027t delete it. Is that hard?",
+      "parentUuid": "2b39b215_b06f411f",
+      "range": {
+        "startLine": 110,
+        "startChar": 2,
+        "endLine": 110,
+        "endChar": 42
+      },
+      "revId": "5ba5860a197ffdf07626ea91b0ed0aa0d7445f04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "35c63b88_0663bc1e",
         "filename": "infra/bots/recipes/test.py",
         "patchSetId": 5
