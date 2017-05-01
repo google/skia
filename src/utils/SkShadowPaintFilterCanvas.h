@@ -8,6 +8,7 @@
 #ifndef SkShadowPaintFilterCanvas_DEFINED
 #define SkShadowPaintFilterCanvas_DEFINED
 
+#include "SkLights.h"
 #include "SkPaintFilterCanvas.h"
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
