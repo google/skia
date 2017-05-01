@@ -316,6 +316,7 @@ bool SkWindow::onDispatchClick(int x, int y, Click::State state,
 
 #if SK_SUPPORT_GPU
 
+#include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
@@ -324,10 +325,9 @@ bool SkWindow::onDispatchClick(int x, int y, Click::State state,
 sk_sp<SkSurface> SkWindow::makeGpuBackedSurface(const AttachmentInfo& attachmentInfo,
                                                 const GrGLInterface* interface,
                                                 GrContext* grContext) {
-    GrBackendRenderTargetDesc desc;
-    desc.fWidth = SkScalarRoundToInt(this->width());
-    desc.fHeight = SkScalarRoundToInt(this->height());
-    if (0 == desc.fWidth || 0 == desc.fHeight) {
+    int width = SkScalarRoundToInt(this->width());
+    int height = SkScalarRoundToInt(this->height());
+    if (0 == width || 0 == height) {
         return nullptr;
     }
 
@@ -340,22 +340,28 @@ sk_sp<SkSurface> SkWindow::makeGpuBackedSurface(const AttachmentInfo& attachment
     //
     // ... and, if we're using a 10-bit/channel FB0, it doesn't do sRGB conversion on write,
     // so pretend that it's non-sRGB 8888:
-    desc.fConfig =
-        grContext->caps()->srgbSupport() &&
-        info().colorSpace() &&
-        (attachmentInfo.fColorBits != 30)
-        ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-    desc.fSampleCnt = attachmentInfo.fSampleCount;
-    desc.fStencilBits = attachmentInfo.fStencilBits;
+    GrPixelConfig config = grContext->caps()->srgbSupport() &&
+                           info().colorSpace() &&
+                           (attachmentInfo.fColorBits != 30)
+                           ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
+    GrGLFramebufferInfo fbInfo;
     GrGLint buffer;
     GR_GL_GetIntegerv(interface, GR_GL_FRAMEBUFFER_BINDING, &buffer);
-    desc.fRenderTargetHandle = buffer;
+    fbInfo.fFBOID = buffer;
+
+    GrBackendRenderTarget backendRT(width,
+                                    height,
+                                    attachmentInfo.fSampleCount,
+                                    attachmentInfo.fStencilBits,
+                                    config,
+                                    fbInfo);
+
 
     sk_sp<SkColorSpace> colorSpace =
         grContext->caps()->srgbSupport() && info().colorSpace()
         ? SkColorSpace::MakeSRGB() : nullptr;
-    return SkSurface::MakeFromBackendRenderTarget(grContext, desc, colorSpace, &fSurfaceProps);
+    return SkSurface::MakeFromBackendRenderTarget(grContext, backendRT, kBottomLeft_GrSurfaceOrigin,
+                                                  colorSpace, &fSurfaceProps);
 }
 
 #endif

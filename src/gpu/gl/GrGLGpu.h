@@ -174,7 +174,8 @@ private:
                                           GrBackendTextureFlags,
                                           int sampleCnt,
                                           GrWrapOwnership) override;
-    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) override;
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&,
+                                                    GrSurfaceOrigin origin) override;
     sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
                                                              GrSurfaceOrigin,
                                                              int sampleCnt) override;

@@ -93,30 +93,24 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
                                                                       true);
     const GrVkImageInfo* backendTex = reinterpret_cast<const GrVkImageInfo*>(backendObj);
 
-    // check basic borrowed creation
-    GrBackendRenderTargetDesc desc;
-    desc.fWidth = kW;
-    desc.fHeight = kH;
-    desc.fConfig = kPixelConfig;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    desc.fSampleCnt = 0;
-    desc.fStencilBits = 0;
-    desc.fRenderTargetHandle = backendObj;
-    sk_sp<GrRenderTarget> rt = gpu->wrapBackendRenderTarget(desc);
+    GrBackendRenderTarget backendRT(kW, kH, 0, 0, *backendTex);
+
+    sk_sp<GrRenderTarget> rt = gpu->wrapBackendRenderTarget(backendRT, kTopLeft_GrSurfaceOrigin);
     REPORTER_ASSERT(reporter, rt);
 
     // image is null
     GrVkImageInfo backendCopy = *backendTex;
     backendCopy.fImage = VK_NULL_HANDLE;
-    desc.fRenderTargetHandle = (GrBackendObject)&backendCopy;
-    rt = gpu->wrapBackendRenderTarget(desc);
+    GrBackendRenderTarget backendRT2(kW, kH, 0, 0, backendCopy);
+    rt = gpu->wrapBackendRenderTarget(backendRT2, kTopLeft_GrSurfaceOrigin);
     REPORTER_ASSERT(reporter, !rt);
 
     // alloc is null
     backendCopy.fImage = backendTex->fImage;
     backendCopy.fAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
     // can wrap null alloc
-    rt = gpu->wrapBackendRenderTarget(desc);
+    GrBackendRenderTarget backendRT3(kW, kH, 0, 0, backendCopy);
+    rt = gpu->wrapBackendRenderTarget(backendRT3, kTopLeft_GrSurfaceOrigin);
     REPORTER_ASSERT(reporter, rt);
 
     // When we wrapBackendRenderTarget it is always borrowed, so we must make sure to free the
