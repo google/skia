@@ -6,7 +6,7 @@
  */
 
 #include "SkJumper.h"
-#include "SkJumper_misc.h"     // SI, unaligned_load(), bit_cast(), C(), operator"" and _f.
+#include "SkJumper_misc.h"     // SI, unaligned_load(), bit_cast()
 #include "SkJumper_vectors.h"  // F, I32, U32, U16, U8, cast(), expand()
 
 // Our fundamental vector depth is our pixel stride.
@@ -17,9 +17,7 @@ static const size_t kStride = sizeof(F) / sizeof(float);
 // and that F, I32, etc. are kStride-deep ext_vector_types of the appropriate type.
 // Otherwise, F, I32, etc. just alias the basic scalar types (and so kStride == 1).
 
-// Another reminder:
-// You can't generally use constants in this file except via C() or operator"" _f.
-// Not all constants can be generated using C() or _f.  Stages read the rest from this struct.
+// You can use most constants in this file, but in a few rare exceptions we read from this struct.
 using K = const SkJumper_constants;
 
 
@@ -504,16 +502,17 @@ STAGE(hsl_to_rgb) {
       s = g,
       l = b;
 
-    F q = l + if_then_else(l < 0.5_f,     l*s
-                                    , s - l*s);
-    F p = 2.0f*l - q;
+    F q = l + if_then_else(l >= 0.5f, s - l*s, l*s),
+      p = 2.0f*l - q;
 
     auto hue_to_rgb = [&](F t) {
         t = fract(t);
-        return if_then_else(t < C(1/6.0f),  p + (q-p)*(       6.0f*t),
-               if_then_else(t < C(3/6.0f),  q,
-               if_then_else(t < C(4/6.0f),  p + (q-p)*(4.0f - 6.0f*t),
-                                            p)));
+
+        F r = p;
+        r = if_then_else(t >= 4/6.0f, r, p + (q-p)*(4.0f - 6.0f*t));
+        r = if_then_else(t >= 3/6.0f, r, q);
+        r = if_then_else(t >= 1/6.0f, r, p + (q-p)*(       6.0f*t));
+        return r;
     };
 
     r = if_then_else(s == 0, l, hue_to_rgb(h + (1/3.0f)));
