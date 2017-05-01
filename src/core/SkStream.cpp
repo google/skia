@@ -242,10 +242,6 @@ size_t SkFILEStream::getLength() const {
     return fSize;
 }
 
-const void* SkFILEStream::getMemoryBase() {
-    return nullptr;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkData> newFromParams(const void* src, size_t size, bool copyData) {
