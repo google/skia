@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9fb90aaa_2a233a51",
+        "filename": "src/gpu/vk/GrVkDescriptorSetManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-02T14:52:34Z",
+      "side": 1,
+      "message": "Is there a reason this is static?",
+      "range": {
+        "startLine": 89,
+        "startChar": 8,
+        "endLine": 89,
+        "endChar": 15
+      },
+      "revId": "1f03a19f162b0cfa00076f47dacfb9b7afa4f2c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e825f010_3694f335",
+        "filename": "src/gpu/vk/GrVkUniformHandler.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-02T14:52:34Z",
+      "side": 1,
+      "message": "kTexelBufferDescSet? It seems to odd to have a SamplerDescSet and a more specific BufferSamplerDescSet.",
+      "range": {
+        "startLine": 22,
+        "startChar": 8,
+        "endLine": 22,
+        "endChar": 30
+      },
+      "revId": "1f03a19f162b0cfa00076f47dacfb9b7afa4f2c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
