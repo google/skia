@@ -333,7 +333,11 @@ def dm_flags(bot):
   # Blacklist RAW images (and a few large PNGs) on GPU bots
   # until we can resolve failures.
   # Also blacklisted on 32-bit Win2k8 for F16 OOM errors.
-  if 'GPU' in bot or ('Win2k8' in bot and 'x86-' in bot):
+  # Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug is running out of memory on the
+  # interlaced images, so blacklist those. For simplicity, blacklist the
+  # RAW images which also use lots of memory.
+  if ('GPU' in bot or ('Win2k8' in bot and 'x86-' in bot)
+      or 'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug' in bot):
     blacklist('_ image _ interlaced1.png')
     blacklist('_ image _ interlaced2.png')
     blacklist('_ image _ interlaced3.png')
@@ -750,6 +754,7 @@ TEST_BUILDERS = [
   'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release',
   'Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug',
+  'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug',
   'Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan',
   ('Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-'
    'ReleaseAndAbandonGpuContext'),
