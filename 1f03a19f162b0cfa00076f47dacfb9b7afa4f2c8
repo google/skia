@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b4ef1a3f_7af3c66d",
+        "filename": "src/gpu/vk/GrVkDescriptorSetManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-02T18:02:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fb90aaa_2a233a51",
+      "range": {
+        "startLine": 89,
+        "startChar": 8,
+        "endLine": 89,
+        "endChar": 15
+      },
+      "revId": "1f03a19f162b0cfa00076f47dacfb9b7afa4f2c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e825f010_3694f335",
         "filename": "src/gpu/vk/GrVkUniformHandler.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "1f03a19f162b0cfa00076f47dacfb9b7afa4f2c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c841730_7f8aa1e7",
+        "filename": "src/gpu/vk/GrVkUniformHandler.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-02T18:02:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e825f010_3694f335",
+      "range": {
+        "startLine": 22,
+        "startChar": 8,
+        "endLine": 22,
+        "endChar": 30
+      },
+      "revId": "1f03a19f162b0cfa00076f47dacfb9b7afa4f2c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
