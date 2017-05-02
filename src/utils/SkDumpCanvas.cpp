@@ -7,6 +7,7 @@
 
 #include "SkData.h"
 #include "SkDumpCanvas.h"
+#include "SkImage.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkPixelRef.h"
