@@ -182,6 +182,9 @@ public:
 
     bool fenceSyncSupport() const { return fFenceSyncSupport; }
     bool crossContextTextureSupport() const { return fCrossContextTextureSupport; }
+    bool crossContextTextureRequiresSemaphore() const {
+        return fCrossContextTextureRequiresSemaphore;
+    }
 
     /**
      * This is can be called before allocating a texture to be a dst for copySurface. This is only
@@ -237,6 +240,7 @@ protected:
 
     // Vulkan doesn't support this (yet) and some drivers have issues, too
     bool fCrossContextTextureSupport                 : 1;
+    bool fCrossContextTextureRequiresSemaphore       : 1;
 
     InstancedSupport fInstancedSupport;
 

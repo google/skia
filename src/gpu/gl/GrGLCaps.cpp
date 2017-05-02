@@ -596,6 +596,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // Safely moving textures between contexts requires fences. The Windows Intel driver has a
     // bug with deleting and reusing texture IDs across contexts, so disallow this feature.
     fCrossContextTextureSupport = fFenceSyncSupport;
+    fCrossContextTextureRequiresSemaphore = true;
 #ifdef SK_BUILD_FOR_WIN
     if (kIntel_GrGLVendor == ctxInfo.vendor()) {
         fCrossContextTextureSupport = false;
