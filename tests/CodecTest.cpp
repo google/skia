@@ -20,6 +20,7 @@
 #include "SkImageEncoderPriv.h"
 #include "SkMD5.h"
 #include "SkOSPath.h"
+#include "SkJpegEncoder.h"
 #include "SkPngChunkReader.h"
 #include "SkRandom.h"
 #include "SkStream.h"
@@ -1530,7 +1531,7 @@ static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap
             SkEncodeImageAsPNG(stream, pixmap, opts);
             break;
         case SkEncodedImageFormat::kJPEG:
-            SkEncodeImageAsJPEG(stream, pixmap, opts);
+            SkJpegEncoder::Encode(stream, pixmap, SkJpegEncoder::Options());
             break;
         case SkEncodedImageFormat::kWEBP:
             SkEncodeImageAsWEBP(stream, pixmap, opts);

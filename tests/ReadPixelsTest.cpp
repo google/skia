@@ -530,7 +530,7 @@ static const void* five_reference_pixels(SkColorType colorType) {
 
 static void test_conversion(skiatest::Reporter* r, const SkImageInfo& dstInfo,
                             const SkImageInfo& srcInfo) {
-    if (!SkImageInfoIsValid(srcInfo)) {
+    if (!SkImageInfoIsValidRenderingCS(srcInfo)) {
         return;
     }
 

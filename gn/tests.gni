@@ -63,6 +63,7 @@ tests_sources = [
   "$_tests/DynamicHashTest.cpp",
   "$_tests/EGLImageTest.cpp",
   "$_tests/EmptyPathTest.cpp",
+  "$_tests/EncodeTest.cpp",
   "$_tests/ExifTest.cpp",
   "$_tests/F16StagesTest.cpp",
   "$_tests/FillPathTest.cpp",
