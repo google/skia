@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "68692b33_ccccad70",
+        "filename": "src/effects/gradients/SkSweepGradient.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-02T23:05:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db19cb9f_5c4aad5a",
+      "range": {
+        "startLine": 43,
+        "startChar": 40,
+        "endLine": 43,
+        "endChar": 48
+      },
+      "revId": "30cbd152d73ba578d7cc4b5c6b6fb4477d62031b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c3a68ca_f9fd3322",
         "filename": "src/jumper/SkJumper_stages.cpp",
         "patchSetId": 6
@@ -59,6 +83,30 @@
       "writtenOn": "2017-05-02T22:00:13Z",
       "side": 1,
       "message": "This might be clearer without names?\n\n  F slope \u003d min(xabs, yabs) / max(xabs, yabs);\n\n?",
+      "range": {
+        "startLine": 957,
+        "startChar": 14,
+        "endLine": 957,
+        "endChar": 24
+      },
+      "revId": "30cbd152d73ba578d7cc4b5c6b6fb4477d62031b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78f816b0_23b18763",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 957,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-02T23:05:42Z",
+      "side": 1,
+      "message": "I used to use big to detect NaN, but doing differently now. Done.",
+      "parentUuid": "5c3a68ca_f9fd3322",
       "range": {
         "startLine": 957,
         "startChar": 14,
