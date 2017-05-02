@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba3fcb83_4de86bf0",
+        "filename": "src/effects/gradients/SkSweepGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-02T14:25:26Z",
+      "side": 1,
+      "message": "nit: move these closer to use/after sweep_to_linear_gradient.",
+      "revId": "c76bf9c9b4a63962edc12a1f8f21862031b0d911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f369be97_d2b90fa4",
         "filename": "src/jumper/SkJumper_stages.cpp",
         "patchSetId": 5
@@ -99,6 +116,40 @@
       "writtenOn": "2017-05-01T21:27:47Z",
       "side": 1,
       "message": "I dunno.  I think we need more precision.  :P",
+      "revId": "c76bf9c9b4a63962edc12a1f8f21862031b0d911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f014813b_c435efc5",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 968,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-02T14:25:26Z",
+      "side": 1,
+      "message": "We can look at this later, but we\u0027re comparing xabs/yabs three times (min, max and here).  Maybe we can fuse into one if_then_else.",
+      "revId": "c76bf9c9b4a63962edc12a1f8f21862031b0d911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbb9675b_41e25203",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 971,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-02T14:25:26Z",
+      "side": 1,
+      "message": "Is this sufficient to catch all nan cases?  Can we test for nan directly instead?",
       "revId": "c76bf9c9b4a63962edc12a1f8f21862031b0d911",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
