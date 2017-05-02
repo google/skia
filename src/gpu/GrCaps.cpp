@@ -54,6 +54,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fSampleShadingSupport = false;
     fFenceSyncSupport = false;
     fCrossContextTextureSupport = false;
+    fCrossContextTextureRequiresSemaphore = false;
 
     fUseDrawInsteadOfClear = false;
 
@@ -143,6 +144,8 @@ SkString GrCaps::dump() const {
     r.appendf("Sample shading support             : %s\n", gNY[fSampleShadingSupport]);
     r.appendf("Fence sync support                 : %s\n", gNY[fFenceSyncSupport]);
     r.appendf("Cross context texture support      : %s\n", gNY[fCrossContextTextureSupport]);
+    r.appendf("Cross context texture requires semaphore : %s\n",
+              gNY[fCrossContextTextureRequiresSemaphore]);
 
     r.appendf("Draw Instead of Clear [workaround] : %s\n", gNY[fUseDrawInsteadOfClear]);
     r.appendf("Draw Instead of TexSubImage [workaround] : %s\n",

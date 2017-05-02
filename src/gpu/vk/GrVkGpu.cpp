@@ -1650,6 +1650,11 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
         srcImage = static_cast<GrVkTexture*>(src->asTexture());
     }
 
+    // For borrowed textures, we *only* want to copy using draws (to avoid layout changes)
+    if (srcImage->isBorrowed()) {
+        return false;
+    }
+
     if (can_copy_image(dst, src, this)) {
         this->copySurfaceAsCopyImage(dst, src, dstImage, srcImage, srcRect, dstPoint);
         return true;
