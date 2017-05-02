@@ -284,6 +284,30 @@
     },
     {
       "key": {
+        "uuid": "45fd0591_be8148ac",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-02T15:22:05Z",
+      "side": 1,
+      "message": "sgtm\n\n+1 on idea to short circuit future calls.",
+      "parentUuid": "d66b1476_b8e820b1",
+      "range": {
+        "startLine": 229,
+        "startChar": 8,
+        "endLine": 229,
+        "endChar": 24
+      },
+      "revId": "dd7a6edd79e33db421518304fc12fbe6b0a9977a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "11c09660_a4325feb",
         "filename": "src/images/SkJPEGImageEncoder.cpp",
         "patchSetId": 8

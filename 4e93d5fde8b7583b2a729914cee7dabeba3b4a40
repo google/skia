@@ -22,6 +22,30 @@
       "revId": "4e93d5fde8b7583b2a729914cee7dabeba3b4a40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45be5c15_7204e3aa",
+        "filename": "src/core/SkImageInfoPriv.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-02T15:22:05Z",
+      "side": 1,
+      "message": "Yeah I agree, much better.  Done.",
+      "parentUuid": "68ac629c_8f2d1c5b",
+      "range": {
+        "startLine": 17,
+        "startChar": 19,
+        "endLine": 17,
+        "endChar": 41
+      },
+      "revId": "4e93d5fde8b7583b2a729914cee7dabeba3b4a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
