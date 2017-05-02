@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "24e43b8e_a3f58bc0",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-02T16:04:17Z",
+      "side": 1,
+      "message": "I don\u0027t think that this is strictly legally initialized.  Global-scoped statics are initialized to zero, but I\u0027m not confident that function scoped statics are required to be.  It\u0027s probably best to write \u003d false here or move it outside the function.",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 21
+      },
+      "revId": "8a23b7465c62a8b16e6a09fcf2fb58f541d583c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "428f9edc_d4ed2c5a",
         "filename": "src/utils/SkShadowUtils.cpp",
         "patchSetId": 2
