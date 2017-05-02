@@ -204,7 +204,6 @@ SkDrawCommand::~SkDrawCommand() {
 const char* SkDrawCommand::GetCommandString(OpType type) {
     switch (type) {
         case kBeginDrawPicture_OpType: return "BeginDrawPicture";
-        case kBeginDrawShadowedPicture_OpType: return "BeginDrawShadowedPicture";
         case kClipPath_OpType: return "ClipPath";
         case kClipRegion_OpType: return "ClipRegion";
         case kClipRect_OpType: return "ClipRect";
@@ -234,7 +233,6 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawTextRSXform_OpType: return "DrawTextRSXform";
         case kDrawVertices_OpType: return "DrawVertices";
         case kEndDrawPicture_OpType: return "EndDrawPicture";
-        case kEndDrawShadowedPicture_OpType: return "EndDrawShadowedPicture";
         case kRestore_OpType: return "Restore";
         case kSave_OpType: return "Save";
         case kSaveLayer_OpType: return "SaveLayer";
@@ -2590,91 +2588,6 @@ SkEndDrawPictureCommand::SkEndDrawPictureCommand(bool restore)
     : INHERITED(kEndDrawPicture_OpType) , fRestore(restore) { }
 
 void SkEndDrawPictureCommand::execute(SkCanvas* canvas) const {
-    if (fRestore) {
-        canvas->restore();
-    }
-}
-
-SkBeginDrawShadowedPictureCommand::SkBeginDrawShadowedPictureCommand(const SkPicture* picture,
-                                                                     const SkMatrix* matrix,
-                                                                     const SkPaint* paint,
-                                                                     const SkShadowParams& params)
-        : INHERITED(kBeginDrawShadowedPicture_OpType)
-#ifdef SK_EXPERIMENTAL_SHADOWING
-        , fPicture(SkRef(picture))
-        , fShadowParams(params) {
-#else
-        , fPicture(SkRef(picture)) {
-#endif
-    SkString* str = new SkString;
-    str->appendf("SkPicture: L: %f T: %f R: %f B: %f\n",
-                 picture->cullRect().fLeft, picture->cullRect().fTop,
-                 picture->cullRect().fRight, picture->cullRect().fBottom);
-    str->appendf("SkShadowParams: bias:%f, minVariance:%f, shRadius:%f, shType:",
-                   params.fBiasingConstant,
-                   params.fMinVariance,
-                   params.fShadowRadius);
-
-    SkASSERT(SkShadowParams::kShadowTypeCount == 2);
-
-    switch (params.fType) {
-        case SkShadowParams::ShadowType::kNoBlur_ShadowType:
-            str->append("kNoBlur_ShadowType\n");
-            break;
-        case SkShadowParams::ShadowType::kVariance_ShadowType:
-            str->append("kVariance_ShadowType\n");
-            break;
-    }
-
-    fInfo.push(str);
-
-    if (matrix) {
-        fMatrix.set(*matrix);
-        fInfo.push(SkObjectParser::MatrixToString(*matrix));
-    }
-
-    if (paint) {
-        fPaint.set(*paint);
-        fInfo.push(SkObjectParser::PaintToString(*paint));
-    }
-}
-
-void SkBeginDrawShadowedPictureCommand::execute(SkCanvas* canvas) const {
-    if (fPaint.isValid()) {
-        SkRect bounds = fPicture->cullRect();
-        if (fMatrix.isValid()) {
-            fMatrix.get()->mapRect(&bounds);
-        }
-        canvas->saveLayer(&bounds, fPaint.get());
-    }
-
-    if (fMatrix.isValid()) {
-        if (!fPaint.isValid()) {
-            canvas->save();
-        }
-        canvas->concat(*fMatrix.get());
-    }
-}
-
-bool SkBeginDrawShadowedPictureCommand::render(SkCanvas* canvas) const {
-    canvas->clear(0xFFFFFFFF);
-    canvas->save();
-
-    xlate_and_scale_to_bounds(canvas, fPicture->cullRect());
-#ifdef SK_EXPERIMENTAL_SHADOWING
-    canvas->drawShadowedPicture(fPicture.get(), fMatrix.get(), fPaint.get(), fShadowParams);
-#else
-    canvas->drawPicture(fPicture.get(), fMatrix.get(), fPaint.get());
-#endif
-    canvas->restore();
-
-    return true;
-}
-
-SkEndDrawShadowedPictureCommand::SkEndDrawShadowedPictureCommand(bool restore)
-        : INHERITED(kEndDrawShadowedPicture_OpType) , fRestore(restore) { }
-
-void SkEndDrawShadowedPictureCommand::execute(SkCanvas* canvas) const {
     if (fRestore) {
         canvas->restore();
     }

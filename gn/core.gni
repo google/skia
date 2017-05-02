@@ -261,8 +261,6 @@ skia_core_sources = [
   "$_src/core/SkPtrRecorder.cpp",
   "$_src/core/SkQuadClipper.cpp",
   "$_src/core/SkQuadClipper.h",
-  "$_src/core/SkRadialShadowMapShader.cpp",
-  "$_src/core/SkRadialShadowMapShader.h",
   "$_src/core/SkRasterClip.cpp",
   "$_src/core/SkRasterPipeline.cpp",
   "$_src/core/SkRasterPipelineBlitter.cpp",
@@ -369,8 +367,6 @@ skia_core_sources = [
   "$_src/core/SkXfermodeInterpretation.h",
   "$_src/core/SkYUVPlanesCache.cpp",
   "$_src/core/SkYUVPlanesCache.h",
-  "$_src/core/SkShadowShader.cpp",
-  "$_src/core/SkShadowShader.h",
 
   "$_src/image/SkImage.cpp",
 
@@ -466,7 +462,6 @@ skia_core_sources = [
   "$_include/private/SkRecords.h",
   "$_include/private/SkSemaphore.h",
   "$_include/private/SkShadowFlags.h",
-  "$_include/private/SkShadowParams.h",
   "$_include/private/SkSpinlock.h",
   "$_include/private/SkTemplates.h",
   "$_include/private/SkTArray.h",

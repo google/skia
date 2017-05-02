@@ -58,17 +58,6 @@ protected:
         this->SkCanvas::onDrawPicture(picture, matrix, paint);
     }
 
-    void onDrawShadowedPicture(const SkPicture* picture,
-                               const SkMatrix* matrix,
-                               const SkPaint* paint,
-                               const SkShadowParams& params) {
-#ifdef SK_EXPERIMENTAL_SHADOWING
-        this->SkCanvas::onDrawShadowedPicture(picture, matrix, paint, params);
-#else
-        this->SkCanvas::onDrawPicture(picture, matrix, paint);
-#endif
-    }
-
 private:
     bool fOverdrawViz;
     bool fOverrideFilterQuality;
@@ -544,16 +533,6 @@ void SkDebugCanvas::onDrawPicture(const SkPicture* picture,
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
     picture->playback(this);
     this->addDrawCommand(new SkEndDrawPictureCommand(SkToBool(matrix) || SkToBool(paint)));
-}
-
-void SkDebugCanvas::onDrawShadowedPicture(const SkPicture* picture,
-                                          const SkMatrix* matrix,
-                                          const SkPaint* paint,
-                                          const SkShadowParams& params) {
-    this->addDrawCommand(new SkBeginDrawShadowedPictureCommand(picture, matrix, paint, params));
-    SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
-    picture->playback(this);
-    this->addDrawCommand(new SkEndDrawShadowedPictureCommand(SkToBool(matrix) || SkToBool(paint)));
 }
 
 void SkDebugCanvas::onDrawPoints(PointMode mode, size_t count,

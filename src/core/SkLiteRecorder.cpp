@@ -198,9 +198,3 @@ void SkLiteRecorder::onDrawAtlas(const SkImage* atlas,
 void SkLiteRecorder::didTranslateZ(SkScalar dz) {
     fDL->translateZ(dz);
 }
-void SkLiteRecorder::onDrawShadowedPicture(const SkPicture* picture,
-                                           const SkMatrix* matrix,
-                                           const SkPaint* paint,
-                                           const SkShadowParams& params) {
-    fDL->drawShadowedPicture(picture, matrix, paint, params);
-}

@@ -58,8 +58,6 @@ skia_utils_sources = [
   "$_src/utils/SkParsePath.cpp",
   "$_src/utils/SkPatchUtils.cpp",
   "$_src/utils/SkPatchUtils.h",
-  "$_src/utils/SkShadowPaintFilterCanvas.cpp",
-  "$_src/utils/SkShadowPaintFilterCanvas.h",
   "$_src/utils/SkShadowTessellator.cpp",
   "$_src/utils/SkShadowTessellator.h",
   "$_src/utils/SkShadowUtils.cpp",

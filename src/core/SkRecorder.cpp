@@ -310,23 +310,6 @@ void SkRecorder::onDrawPicture(const SkPicture* pic, const SkMatrix* matrix, con
     }
 }
 
-void SkRecorder::onDrawShadowedPicture(const SkPicture* pic, const SkMatrix* matrix,
-                                       const SkPaint* paint, const SkShadowParams& params) {
-    if (fDrawPictureMode == Record_DrawPictureMode) {
-        fApproxBytesUsedBySubPictures += pic->approximateBytesUsed();
-        APPEND(DrawShadowedPicture, this->copy(paint),
-                                    sk_ref_sp(pic),
-                                    matrix ? *matrix : SkMatrix::I(),
-                                    params);
-    } else {
-        // TODO update pic->playback(this) to draw the shadowed pic
-        SkASSERT(fDrawPictureMode == Playback_DrawPictureMode);
-        SkAutoCanvasMatrixPaint acmp(this,  matrix, paint, pic->cullRect());
-        pic->playback(this);
-    }
-}
-
-
 void SkRecorder::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
                                       const SkPaint& paint) {
     APPEND(DrawVertices, paint, sk_ref_sp(const_cast<SkVertices*>(vertices)), bmode);
