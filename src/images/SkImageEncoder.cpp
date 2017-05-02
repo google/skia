@@ -23,7 +23,9 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
                 return SkJpegEncoder::Encode(dst, src, opts);
             }
             case SkEncodedImageFormat::kPNG:
-                return SkEncodeImageAsPNG(dst, src, SkEncodeOptions());
+                SkPngEncoder::Options opts;
+                opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
+                return SkPngEncoder::Encode(dst, src, opts);
             case SkEncodedImageFormat::kWEBP:
                 return SkEncodeImageAsWEBP(dst, src, quality);
             default:
