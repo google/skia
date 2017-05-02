@@ -375,6 +375,7 @@ static VkCullModeFlags draw_face_to_vk_cull_mode(GrDrawFace drawFace) {
 }
 
 static void setup_raster_state(const GrPipeline& pipeline,
+                               const GrCaps* caps,
                                VkPipelineRasterizationStateCreateInfo* rasterInfo) {
     memset(rasterInfo, 0, sizeof(VkPipelineRasterizationStateCreateInfo));
     rasterInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -382,7 +383,8 @@ static void setup_raster_state(const GrPipeline& pipeline,
     rasterInfo->flags = 0;
     rasterInfo->depthClampEnable = VK_FALSE;
     rasterInfo->rasterizerDiscardEnable = VK_FALSE;
-    rasterInfo->polygonMode = VK_POLYGON_MODE_FILL;
+    rasterInfo->polygonMode = caps->wireframeMode() ? VK_POLYGON_MODE_LINE
+                                                    : VK_POLYGON_MODE_FILL;
     rasterInfo->cullMode = draw_face_to_vk_cull_mode(pipeline.getDrawFace());
     rasterInfo->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterInfo->depthBiasEnable = VK_FALSE;
@@ -439,7 +441,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
     setup_color_blend_state(pipeline, &colorBlendInfo, attachmentStates);
 
     VkPipelineRasterizationStateCreateInfo rasterInfo;
-    setup_raster_state(pipeline, &rasterInfo);
+    setup_raster_state(pipeline, gpu->caps(), &rasterInfo);
 
     VkDynamicState dynamicStates[3];
     VkPipelineDynamicStateCreateInfo dynamicInfo;
