@@ -260,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "d66b1476_b8e820b1",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-02T14:30:55Z",
+      "side": 1,
+      "message": "Yeah, that seems like a good reason to return a bool.\n\n(And then perhaps we should set fCurrRow to fSrc.height() to short-circuit later calls.)",
+      "parentUuid": "be17a12e_9cf52af6",
+      "range": {
+        "startLine": 229,
+        "startChar": 8,
+        "endLine": 229,
+        "endChar": 24
+      },
+      "revId": "dd7a6edd79e33db421518304fc12fbe6b0a9977a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "11c09660_a4325feb",
         "filename": "src/images/SkJPEGImageEncoder.cpp",
         "patchSetId": 8
@@ -436,6 +460,30 @@
       "side": 1,
       "message": "Yes, adding a fourth case.",
       "parentUuid": "f6603fef_eba2f372",
+      "range": {
+        "startLine": 35,
+        "startChar": 4,
+        "endLine": 35,
+        "endChar": 78
+      },
+      "revId": "dd7a6edd79e33db421518304fc12fbe6b0a9977a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94205b53_9f06b33f",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-02T14:30:55Z",
+      "side": 1,
+      "message": "Oops, that was probably covered by encoder2 (since mandrill_128\u0027s height is not divisible by 3). But I suppose encoder3 covers a slightly different case.",
+      "parentUuid": "5b9a2024_3ebdbe99",
       "range": {
         "startLine": 35,
         "startChar": 4,

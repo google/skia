@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68ac629c_8f2d1c5b",
+        "filename": "src/core/SkImageInfoPriv.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-02T14:30:55Z",
+      "side": 1,
+      "message": "What do you think of naming this SkImageInfoIsValidCommon? (Sorry, didn\u0027t think of that til now. I think it\u0027s a little better, but I\u0027m fine with this name, too.)",
+      "range": {
+        "startLine": 17,
+        "startChar": 19,
+        "endLine": 17,
+        "endChar": 41
+      },
+      "revId": "4e93d5fde8b7583b2a729914cee7dabeba3b4a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
