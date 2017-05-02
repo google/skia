@@ -26,6 +26,7 @@ void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor, 
 
 void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
                                         SkString* outputColor, EmitArgs& args) {
+
     SkASSERT(outputColor);
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     outputColor->append(fragBuilder->getMangleString());
@@ -35,7 +36,6 @@ void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
 
 void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inputColor,
                                                 const char* outputColor, EmitArgs& args) {
-    SkASSERT(inputColor);
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
     fragBuilder->onBeforeChildProcEmitCode();  // call first so mangleString is updated

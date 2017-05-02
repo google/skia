@@ -1434,7 +1434,8 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             if (ge.fColorSpaceXform) {
                 fragBuilder->codeAppend("colorTemp.rgb = clamp(colorTemp.rgb, 0, colorTemp.a);");
             }
-            fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
+            fragBuilder->codeAppendf("%s = %s;", outputColor,
+                                     (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
 
             break;
         }
@@ -1472,7 +1473,8 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             if (ge.fColorSpaceXform) {
                 fragBuilder->codeAppend("colorTemp.rgb = clamp(colorTemp.rgb, 0, colorTemp.a);");
             }
-            fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
+            fragBuilder->codeAppendf("%s = %s;", outputColor,
+                                     (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
 
             break;
         }
@@ -1510,7 +1512,8 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             if (ge.fColorSpaceXform) {
                 fragBuilder->codeAppend("colorTemp.rgb = clamp(colorTemp.rgb, 0, colorTemp.a);");
             }
-            fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
+            fragBuilder->codeAppendf("%s = %s;", outputColor,
+                                     (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
 
             break;
         }
@@ -1536,7 +1539,8 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
                 fragBuilder->codeAppend("colorTemp.rgb = clamp(colorTemp.rgb, 0, colorTemp.a);");
             }
 
-            fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
+            fragBuilder->codeAppendf("%s = %s;", outputColor,
+                                     (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
 
             break;
         }
@@ -1567,7 +1571,8 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
                 fragBuilder->codeAppend("colorTemp.rgb = clamp(colorTemp.rgb, 0, colorTemp.a);");
             }
 
-            fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
+            fragBuilder->codeAppendf("%s = %s;", outputColor,
+                                     (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
 
             break;
         }

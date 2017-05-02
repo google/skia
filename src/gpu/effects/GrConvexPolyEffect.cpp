@@ -132,7 +132,8 @@ void GLAARectEffect::emitCode(EmitArgs& args) {
     if (GrProcessorEdgeTypeIsInverseFill(aare.getEdgeType())) {
         fragBuilder->codeAppend("\t\talpha = 1.0 - alpha;\n");
     }
-    fragBuilder->codeAppendf("\t\t%s = %s * alpha;\n", args.fOutputColor, args.fInputColor);
+    fragBuilder->codeAppendf("\t\t%s = %s;\n", args.fOutputColor,
+                             (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
 void GLAARectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
@@ -211,7 +212,8 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
     if (GrProcessorEdgeTypeIsInverseFill(cpe.getEdgeType())) {
         fragBuilder->codeAppend("\talpha = 1.0 - alpha;\n");
     }
-    fragBuilder->codeAppendf("\t%s = %s * alpha;\n", args.fOutputColor, args.fInputColor);
+    fragBuilder->codeAppendf("\t%s = %s;\n", args.fOutputColor,
+                             (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
 void GrGLConvexPolyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
