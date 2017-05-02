@@ -806,6 +806,7 @@ struct TextureReleaseChecker {
         static_cast<TextureReleaseChecker*>(self)->fReleaseCount++;
     }
 };
+
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, ctxInfo) {
     const int kWidth = 10;
     const int kHeight = 10;
@@ -852,6 +853,90 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
 
     ctxInfo.grContext()->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
+}
+
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_MakeCrossContextRelease, reporter, ctxInfo) {
+    sk_sp<SkData> data = GetResourceAsData("mandrill_128.png");
+    SkASSERT(data.get());
+
+    GrContext* ctx = ctxInfo.grContext();
+
+    // We test three lifetime patterns for a single context:
+    // 1) Create image, free image
+    // 2) Create image, draw, flush, free image
+    // 3) Create image, draw, free image, flush
+    // ... and then repeat the last two patterns with drawing on a second* context:
+    // 4) Create image, draw*, flush*, free image
+    // 5) Create image, draw*, free iamge, flush*
+
+    // Case #1: Create image, free image
+    {
+        sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+        refImg.reset(nullptr); // force a release of the image
+    }
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+    SkCanvas* canvas = surface->getCanvas();
+
+    // Case #2: Create image, draw, flush, free image
+    {
+        sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+
+        canvas->drawImage(refImg, 0, 0);
+        canvas->flush();
+
+        refImg.reset(nullptr); // force a release of the image
+    }
+
+    // Case #3: Create image, draw, free image, flush
+    {
+        sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+
+        canvas->drawImage(refImg, 0, 0);
+        refImg.reset(nullptr); // force a release of the image
+
+        canvas->flush();
+    }
+
+    // Configure second context
+    sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
+
+    GrContextFactory otherFactory;
+    ContextInfo otherContextInfo = otherFactory.getContextInfo(pick_second_context_type(ctxInfo));
+    GrContext* otherCtx = otherContextInfo.grContext();
+    sk_gpu_test::TestContext* otherTestContext = otherContextInfo.testContext();
+
+    surface = SkSurface::MakeRenderTarget(otherCtx, SkBudgeted::kNo, info);
+    canvas = surface->getCanvas();
+
+    // Case #4: Create image, draw*, flush*, free image
+    {
+        testContext->makeCurrent();
+        sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+
+        otherTestContext->makeCurrent();
+        canvas->drawImage(refImg, 0, 0);
+        canvas->flush();
+
+        testContext->makeCurrent();
+        refImg.reset(nullptr); // force a release of the image
+    }
+
+    // Case #5: Create image, draw*, free image, flush*
+    {
+        testContext->makeCurrent();
+        sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+
+        otherTestContext->makeCurrent();
+        canvas->drawImage(refImg, 0, 0);
+
+        testContext->makeCurrent();
+        refImg.reset(nullptr); // force a release of the image
+
+        otherTestContext->makeCurrent();
+        canvas->flush();
+    }
 }
 
 static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, const SkImage* b) {
