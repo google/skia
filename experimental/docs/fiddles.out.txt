@@ -1,0 +1,17 @@
+fiddles.htm:70 name: SkPaint_move_assignment_operator  fiddleHash: b178ef2aaf49b5da6ec78b87873ad0c2
+fiddles.htm:70 name: SkPaint_copy_constructor  fiddleHash: 2de7fa7ce51a8f560b2951f8f5732cca
+fiddles.htm:70 name: SkPaint_copy_assignment_operator  fiddleHash: a33951d3aac20c13eab365dddb06e8e5
+fiddles.htm:70 name: SkPaint_equal_operator  fiddleHash: 2ebadcc4709652a1f39981ccfe4f85a6
+fiddles.htm:70 name: SkPaint_empty_constructor  fiddleHash: 9db1cabd02ad20f6e8654de6d697b1bc
+fiddles.htm:70 name: SkPaint_move_constructor  fiddleHash: e1134ec3127c6793ba0c5841e0e2a35e
+fiddles.htm:70 name: SkPaint_reset  fiddleHash: af301c5e19c8f5adab8c23e47413923f
+fiddles.htm:70 name: SkPaint_flatten  fiddleHash: c0840d7a4a2992f81082639f6c86f7bd
+fiddles.htm:70 name: SkPaint_getHinting  fiddleHash: c91cfb5a3767889b802c577ebfd73221
+fiddles.htm:70 name: SkPaint_setHinting  fiddleHash: 39a0706eaf1135f09657265ea8ad1d37
+fiddles.htm:70 name: SkPaint_not_equal_operator  fiddleHash: 96fb444c9a41da32105af262bfa4413d
+fiddles.htm:70 name: SkPaint_getHash  fiddleHash: 008d3bc3dfe20a442a77c0121e9a4c53
+fiddles.htm:70 name: SkPaint_setFlags  fiddleHash: 3c209da57ee0acba480ba05ade14b6d7
+fiddles.htm:70 name: Anti_alias  fiddleHash: 1bb6f16fe6899fedbd155f862680aad1
+fiddles.htm:70 name: SkPaint_isAntiAlias  fiddleHash: aecda6fe10e4a19b2574f1f2fb80d437
+fiddles.htm:70 name: SkPaint_getFlags  fiddleHash: e95d09086fe8a862f78087e5fff070a4
+fiddles.htm:70 name: Dither  fiddleHash: b28987b65d3be
