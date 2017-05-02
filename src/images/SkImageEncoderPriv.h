@@ -14,13 +14,6 @@ struct SkEncodeOptions {
     SkTransferFunctionBehavior fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
 };
 
-#ifdef SK_HAS_JPEG_LIBRARY
-    bool SkEncodeImageAsJPEG(SkWStream*, const SkPixmap&, const SkEncodeOptions&);
-    bool SkEncodeImageAsJPEG(SkWStream*, const SkPixmap&, int quality);
-#else
-    #define SkEncodeImageAsJPEG(...) false
-#endif
-
 #ifdef SK_HAS_PNG_LIBRARY
     bool SkEncodeImageAsPNG(SkWStream*, const SkPixmap&, const SkEncodeOptions&);
 #else
