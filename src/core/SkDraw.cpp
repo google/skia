@@ -1802,10 +1802,8 @@ void SkTriColorShader::TriColorShaderContext::shadeSpan(int x, int y, SkPMColor 
 
     SkPoint src;
 
+    fDstToUnit.mapXY(SkIntToScalar(x) + 0.5, SkIntToScalar(y) + 0.5, &src);
     for (int i = 0; i < count; i++) {
-        fDstToUnit.mapXY(SkIntToScalar(x), SkIntToScalar(y), &src);
-        x += 1;
-
         int scale1 = ScalarTo256(src.fX);
         int scale2 = ScalarTo256(src.fY);
         int scale0 = 256 - scale1 - scale2;
@@ -1827,6 +1825,9 @@ void SkTriColorShader::TriColorShaderContext::shadeSpan(int x, int y, SkPMColor 
         dstC[i] = SkAlphaMulQ(fColors[0], scale0) +
                   SkAlphaMulQ(fColors[1], scale1) +
                   SkAlphaMulQ(fColors[2], scale2);
+
+        src.fX += fDstToUnit.getScaleX();
+        src.fY += fDstToUnit.getSkewY();
     }
 }
 
