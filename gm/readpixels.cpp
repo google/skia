@@ -91,10 +91,12 @@ static sk_sp<SkImage> make_picture_image() {
                                     SkColorSpace::MakeSRGB());
 }
 
-static sk_sp<SkColorSpace> make_srgb_transfer_fn(const SkColorSpacePrimaries& primaries) {
+static sk_sp<SkColorSpace> make_parametric_transfer_fn(const SkColorSpacePrimaries& primaries) {
     SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
     SkAssertResult(primaries.toXYZD50(&toXYZD50));
-    return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, toXYZD50);
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.f; fn.fB = 0.f; fn.fC = 0.f; fn.fD = 0.f; fn.fE = 0.f; fn.fF = 0.f; fn.fG = 1.8f;
+    return SkColorSpace::MakeRGB(fn, toXYZD50);
 }
 
 static sk_sp<SkColorSpace> make_wide_gamut() {
@@ -108,7 +110,7 @@ static sk_sp<SkColorSpace> make_wide_gamut() {
     primaries.fBY = 0.0001f;
     primaries.fWX = 0.34567f;
     primaries.fWY = 0.35850f;
-    return make_srgb_transfer_fn(primaries);
+    return make_parametric_transfer_fn(primaries);
 }
 
 static sk_sp<SkColorSpace> make_small_gamut() {
@@ -121,7 +123,7 @@ static sk_sp<SkColorSpace> make_small_gamut() {
     primaries.fBY = 0.16f;
     primaries.fWX = 0.3127f;
     primaries.fWY = 0.3290f;
-    return make_srgb_transfer_fn(primaries);
+    return make_parametric_transfer_fn(primaries);
 }
 
 static void draw_image(SkCanvas* canvas, SkImage* image, SkColorType dstColorType,

@@ -94,7 +94,7 @@ static inline bool SkImageInfoIsValidRenderingCS(const SkImageInfo& info) {
  *      conversion is not well-defined.
  */
 static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkImageInfo& src) {
-    if (!SkImageInfoIsValidRenderingCS(dst) || !SkImageInfoIsValidRenderingCS(src)) {
+    if (!SkImageInfoIsValidAllowNumericalCS(dst) || !SkImageInfoIsValidAllowNumericalCS(src)) {
         return false;
     }
 
