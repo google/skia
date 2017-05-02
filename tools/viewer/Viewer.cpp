@@ -690,6 +690,7 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
     // Switching from OpenGL to Vulkan in the same window is problematic at this point on
     // Windows, so we just delete the window and recreate it.
     if (sk_app::Window::kVulkan_BackendType == fBackendType) {
+        DisplayParams params = fWindow->getRequestedDisplayParams();
         delete fWindow;
         fWindow = Window::CreateNativeWindow(nullptr);
 
@@ -703,6 +704,7 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
         fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
         fWindow->registerKeyFunc(on_key_handler, this);
         fWindow->registerCharFunc(on_char_handler, this);
+        fWindow->setRequestedDisplayParams(params);
     }
 #endif
 
@@ -1020,6 +1022,10 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 const GrContext* ctx = fWindow->getGrContext();
                 bool* inst = &params.fGrContextOptions.fEnableInstancedRendering;
                 if (ctx && ImGui::Checkbox("Instanced Rendering", inst)) {
+                    paramsChanged = true;
+                }
+                bool* wire = &params.fGrContextOptions.fWireframeMode;
+                if (ctx && ImGui::Checkbox("Wireframe Mode", wire)) {
                     paramsChanged = true;
                 }
 

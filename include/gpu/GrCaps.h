@@ -178,6 +178,8 @@ public:
         is not initialized (even if not read by draw calls). */
     bool mustClearUploadedBufferData() const { return fMustClearUploadedBufferData; }
 
+    bool wireframeMode() const { return fWireframeMode; }
+
     bool sampleShadingSupport() const { return fSampleShadingSupport; }
 
     bool fenceSyncSupport() const { return fFenceSyncSupport; }
@@ -260,7 +262,8 @@ private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
 
     bool fSuppressPrints : 1;
-    bool fImmediateFlush: 1;
+    bool fImmediateFlush : 1;
+    bool fWireframeMode  : 1;
 
     typedef SkRefCnt INHERITED;
 };

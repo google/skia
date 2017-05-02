@@ -14,6 +14,8 @@ namespace sk_app {
 
 class RasterWindowContext : public WindowContext {
 public:
+    RasterWindowContext(const DisplayParams& params) : WindowContext(params) {}
+
     // Explicitly convert nullptr to GrBackendContext is needed for compiling
     GrBackendContext getBackendContext() override { return (GrBackendContext) nullptr; }
 

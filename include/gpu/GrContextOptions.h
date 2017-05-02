@@ -79,6 +79,11 @@ struct GrContextOptions {
     bool fSuppressPathRendering = false;
 
     /**
+     * Render everything in wireframe
+     */
+    bool fWireframeMode = false;
+
+    /**
      * Allows the client to include or exclude specific GPU path renderers.
      */
     enum class GpuPathRenderers {

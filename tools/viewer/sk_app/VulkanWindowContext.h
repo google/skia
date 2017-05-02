@@ -33,7 +33,9 @@ public:
     }
 
     void setDisplayParams(const DisplayParams& params) override {
-        this->createSwapchain(fWidth, fHeight, params);
+        this->destroyContext();
+        fDisplayParams = params;
+        this->initializeContext();
     }
 
     GrBackendContext getBackendContext() override {
@@ -48,6 +50,7 @@ public:
     VulkanWindowContext(const DisplayParams&, CreateVkSurfaceFn, CanPresentFn);
 
 private:
+    void initializeContext();
     void destroyContext();
 
     struct BackbufferInfo {
@@ -74,6 +77,10 @@ private:
     private:
         FNPTR_TYPE fPtr;
     };
+
+    // Create functions
+    CreateVkSurfaceFn fCreateVkSurfaceFn;
+    CanPresentFn      fCanPresentFn;
 
     // WSI interface functions
     VkPtr<PFN_vkDestroySurfaceKHR> fDestroySurfaceKHR;
