@@ -783,14 +783,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
 
             canvas->translate(dx, dy);
         } break;
-        case TRANSLATE_Z: {
-#ifdef SK_EXPERIMENTAL_SHADOWING
-            SkScalar dz = reader->readScalar();
-            BREAK_ON_READ_ERROR(reader);
-
-            canvas->translateZ(dz);
-#endif
-        } break;
         default:
             SkASSERTF(false, "Unknown draw type: %d", op);
     }

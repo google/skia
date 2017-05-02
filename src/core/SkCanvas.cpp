@@ -293,22 +293,17 @@ public:
     SkMatrix            fMatrix;
     int                 fDeferredSaveCount;
 
-    // This is the current cumulative depth (aggregate of all done translateZ calls)
-    SkScalar        fCurDrawDepth;
-
     MCRec() {
         fFilter     = nullptr;
         fLayer      = nullptr;
         fTopLayer   = nullptr;
         fMatrix.reset();
         fDeferredSaveCount = 0;
-        fCurDrawDepth      = 0;
 
         // don't bother initializing fNext
         inc_rec();
     }
-    MCRec(const MCRec& prev) : fRasterClip(prev.fRasterClip), fMatrix(prev.fMatrix),
-                               fCurDrawDepth(prev.fCurDrawDepth) {
+    MCRec(const MCRec& prev) : fRasterClip(prev.fRasterClip), fMatrix(prev.fMatrix) {
         fFilter = SkSafeRef(prev.fFilter);
         fLayer = nullptr;
         fTopLayer = prev.fTopLayer;
@@ -640,9 +635,6 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fAllowSimplifyClip = false;
     fSaveCount = 1;
     fMetaData = nullptr;
-#ifdef SK_EXPERIMENTAL_SHADOWING
-    fLights = nullptr;
-#endif
 
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec;
@@ -1404,26 +1396,6 @@ void SkCanvas::setMatrix(const SkMatrix& matrix) {
 void SkCanvas::resetMatrix() {
     this->setMatrix(SkMatrix::I());
 }
-
-#ifdef SK_EXPERIMENTAL_SHADOWING
-void SkCanvas::translateZ(SkScalar z) {
-    this->checkForDeferredSave();
-    this->fMCRec->fCurDrawDepth += z;
-    this->didTranslateZ(z);
-}
-
-SkScalar SkCanvas::getZ() const {
-    return this->fMCRec->fCurDrawDepth;
-}
-
-void SkCanvas::setLights(sk_sp<SkLights> lights) {
-    this->fLights = lights;
-}
-
-sk_sp<SkLights> SkCanvas::getLights() const {
-    return this->fLights;
-}
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 

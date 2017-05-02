@@ -50,7 +50,6 @@ namespace SkRecords {
     M(SaveLayer)                                                    \
     M(SetMatrix)                                                    \
     M(Translate)                                                    \
-    M(TranslateZ)                                                   \
     M(Concat)                                                       \
     M(ClipPath)                                                     \
     M(ClipRRect)                                                    \
@@ -191,7 +190,6 @@ RECORD(Concat, 0,
 RECORD(Translate, 0,
         SkScalar dx;
         SkScalar dy);
-RECORD(TranslateZ, 0, SkScalar z);
 
 struct ClipOpAndAA {
     ClipOpAndAA() {}
