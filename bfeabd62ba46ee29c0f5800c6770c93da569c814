@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1108a23f_8268e5f6",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-02T15:07:32Z",
+      "side": 1,
+      "message": "Depending on whether https://skia.googlesource.com/skia.git/+/9ff301bf918cd85d9f67047f10631b7a74345a90 sticks, you may need to rebase -- sorry.",
+      "revId": "bfeabd62ba46ee29c0f5800c6770c93da569c814",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

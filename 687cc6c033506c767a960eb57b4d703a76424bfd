@@ -69,6 +69,30 @@
       "revId": "687cc6c033506c767a960eb57b4d703a76424bfd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3d3e1e8_b3a34043",
+        "filename": "tools/debugger/SkDrawCommand.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-02T15:07:32Z",
+      "side": 0,
+      "message": "Yup, this is (old) debugger only, should be fine.",
+      "parentUuid": "ffcda5af_4b8b2c99",
+      "range": {
+        "startLine": 27,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 40
+      },
+      "revId": "687cc6c033506c767a960eb57b4d703a76424bfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
