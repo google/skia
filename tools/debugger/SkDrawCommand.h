@@ -8,6 +8,7 @@
 #ifndef SKDRAWCOMMAND_H_
 #define SKDRAWCOMMAND_H_
 
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkTLazy.h"
 #include "SkPath.h"

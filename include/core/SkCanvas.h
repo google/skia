@@ -14,7 +14,6 @@
 #include "SkPaint.h"
 #include "SkRasterHandleAllocator.h"
 #include "SkSurfaceProps.h"
-#include "SkLights.h"
 
 class GrContext;
 class GrRenderTargetContext;
@@ -27,6 +26,7 @@ class SkDrawable;
 class SkDrawFilter;
 class SkImage;
 class SkImageFilter;
+class SkLights;
 class SkMetaData;
 class SkPath;
 class SkPicture;

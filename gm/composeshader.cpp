@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
+#include "SkImage.h"
 #include "SkShader.h"
 #include "SkString.h"
 #include "SkTDArray.h"

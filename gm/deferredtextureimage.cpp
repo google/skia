@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "gm.h"
+#include "SkImage.h"
 #include "SkMipMap.h"
 #include "Resources.h"
 
