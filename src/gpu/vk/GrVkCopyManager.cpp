@@ -97,7 +97,8 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
     uint32_t samplerVisibility = kFragment_GrShaderFlag;
     SkTArray<uint32_t> visibilityArray(&samplerVisibility, 1);
 
-    resourceProvider.getSamplerDescriptorSetHandle(visibilityArray, &fSamplerDSHandle);
+    resourceProvider.getSamplerDescriptorSetHandle(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                                   visibilityArray, &fSamplerDSHandle);
     dsLayout[GrVkUniformHandler::kSamplerDescSet] =
         resourceProvider.getSamplerDSLayout(fSamplerDSHandle);
 

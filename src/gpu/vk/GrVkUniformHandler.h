@@ -19,6 +19,7 @@ public:
     enum {
         kUniformBufferDescSet = 0,
         kSamplerDescSet = 1,
+        kBufferSamplerDescSet = 2,
     };
     enum {
         kVertexBinding = 0,
@@ -46,6 +47,7 @@ private:
         : INHERITED(program)
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock)
+        , fBufferSamplers(kUniformsPerBlock)
         , fCurrentVertexUBOOffset(0)
         , fCurrentFragmentUBOOffset(0)
         , fCurrentSamplerBinding(0) {
@@ -76,6 +78,11 @@ private:
         return fSamplers[handle.toIndex()].fVisibility;
     }
 
+    int numBufferSamplers() const { return fBufferSamplers.count(); }
+    uint32_t bufferSamplerVisibility(SamplerHandle handle) const {
+        return fBufferSamplers[handle.toIndex()].fVisibility;
+    }
+
     ImageStorageHandle addImageStorage(uint32_t visibility, GrSLType,  GrImageStorageFormat,
                                        GrSLMemoryModel, GrSLRestrict, GrIOType,
                                        const char* name) override {
@@ -103,6 +110,7 @@ private:
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
+    UniformInfoArray    fBufferSamplers;
 
     uint32_t            fCurrentVertexUBOOffset;
     uint32_t            fCurrentFragmentUBOOffset;

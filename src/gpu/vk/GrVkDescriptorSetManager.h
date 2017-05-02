@@ -85,6 +85,13 @@ private:
                   const SkTArray<uint32_t>* visibilities);
 
         void getNewPool(GrVkGpu* gpu);
+
+        static void SetupSamplerDescLayout(GrVkGpu* gpu,
+                                           VkDescriptorType type,
+                                           const GrVkUniformHandler* uniformHandler,
+                                           const SkTArray<uint32_t>* visibilities,
+                                           uint32_t numSamplers,
+                                           VkDescriptorSetLayout* layout);
     };
 
     DescriptorPoolManager                    fPoolManager;
