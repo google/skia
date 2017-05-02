@@ -22,6 +22,29 @@
       "revId": "687cc6c033506c767a960eb57b4d703a76424bfd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "daf2a285_ae2461d6",
+        "filename": "tools/debugger/SkDrawCommand.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-02T15:00:25Z",
+      "side": 0,
+      "message": "This and kEndDrawShadowedPicture_OpType are the two I was talking about.",
+      "range": {
+        "startLine": 27,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 40
+      },
+      "revId": "687cc6c033506c767a960eb57b4d703a76424bfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
