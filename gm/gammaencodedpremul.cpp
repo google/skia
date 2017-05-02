@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "SkColorPriv.h"
 #include "SkColorSpaceXform.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkOpts.h"

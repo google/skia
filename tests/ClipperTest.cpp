@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkEdgeClipper.h"
 #include "SkLineClipper.h"
