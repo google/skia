@@ -50,11 +50,6 @@ extern sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&, SkCopyPixelsM
 // in which case the surface may need to perform a copy-on-write.
 extern const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* rasterImage);
 
-// Update the texture wrapped by an image created with NewTexture. This
-// is called when a surface and image share the same GrTexture and the
-// surface needs to perform a copy-on-write
-extern void SkTextureImageSetTexture(SkImage* image, GrTexture* texture);
-
 /**
  *  Will attempt to upload and lock the contents of the image as a texture, so that subsequent
  *  draws to a gpu-target will come from that texture (and not by looking at the original image
