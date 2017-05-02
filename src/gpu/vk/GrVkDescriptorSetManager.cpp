@@ -16,13 +16,18 @@ GrVkDescriptorSetManager::GrVkDescriptorSetManager(GrVkGpu* gpu,
                                                    VkDescriptorType type,
                                                    const GrVkUniformHandler* uniformHandler)
     : fPoolManager(type, gpu, uniformHandler) {
-    if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
+    if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type) {
         SkASSERT(uniformHandler);
         for (int i = 0; i < uniformHandler->numSamplers(); ++i) {
             fBindingVisibilities.push_back(uniformHandler->samplerVisibility(i));
         }
+    } else if (VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type) {
+        SkASSERT(uniformHandler);
+        for (int i = 0; i < uniformHandler->numTexelBuffers(); ++i) {
+            fBindingVisibilities.push_back(uniformHandler->texelBufferVisibility(i));
+        }
     } else {
-        SkASSERT(type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+        SkASSERT(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER == type);
         // We set the visibility of the first binding to the vertex shader and the second to the
         // fragment shader.
         fBindingVisibilities.push_back(kVertex_GrShaderFlag);
@@ -34,12 +39,13 @@ GrVkDescriptorSetManager::GrVkDescriptorSetManager(GrVkGpu* gpu,
                                                    VkDescriptorType type,
                                                    const SkTArray<uint32_t>& visibilities)
     : fPoolManager(type, gpu, visibilities) {
-    if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
+    if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type ||
+        VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type) {
         for (int i = 0; i < visibilities.count(); ++i) {
             fBindingVisibilities.push_back(visibilities[i]);
         }
     } else {
-        SkASSERT(type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+        SkASSERT(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER == type);
         SkASSERT(2 == visibilities.count() &&
                  kVertex_GrShaderFlag == visibilities[0] &&
                  kFragment_GrShaderFlag == visibilities[1]);
@@ -106,6 +112,15 @@ bool GrVkDescriptorSetManager::isCompatible(VkDescriptorType type,
                 return false;
             }
         }
+    } else if (VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type) {
+        if (fBindingVisibilities.count() != uniHandler->numTexelBuffers()) {
+            return false;
+        }
+        for (int i = 0; i < uniHandler->numSamplers(); ++i) {
+            if (uniHandler->texelBufferVisibility(i) != fBindingVisibilities[i]) {
+                return false;
+            }
+        }
     }
     return true;
 }
@@ -116,7 +131,8 @@ bool GrVkDescriptorSetManager::isCompatible(VkDescriptorType type,
         return false;
     }
 
-    if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
+    if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type ||
+        VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type) {
         if (fBindingVisibilities.count() != visibilities.count()) {
             return false;
         }
@@ -166,54 +182,73 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
     this->init(gpu, type, nullptr, &visibilities);
 }
 
+void GrVkDescriptorSetManager::DescriptorPoolManager::setupDescriptorLayout(
+        GrVkGpu* gpu,
+        VkDescriptorType type,
+        const GrVkUniformHandler* uniformHandler,
+        const SkTArray<uint32_t>* visibilities,
+        uint32_t numSamplers) {
+    SkASSERT(SkToBool(uniformHandler) != SkToBool(visibilities));
+    std::unique_ptr<VkDescriptorSetLayoutBinding[]> dsSamplerBindings(
+        new VkDescriptorSetLayoutBinding[numSamplers]);
+    for (uint32_t i = 0; i < numSamplers; ++i) {
+        uint32_t visibility;
+        if (uniformHandler) {
+            if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
+                visibility = uniformHandler->samplerVisibility(i);
+            } else {
+                SkASSERT(type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER);
+                visibility = uniformHandler->texelBufferVisibility(i);
+            }
+        } else {
+            visibility = (*visibilities)[i];
+        }
+        dsSamplerBindings[i].binding = i;
+        dsSamplerBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        dsSamplerBindings[i].descriptorCount = 1;
+        dsSamplerBindings[i].stageFlags = visibility_to_vk_stage_flags(visibility);
+        dsSamplerBindings[i].pImmutableSamplers = nullptr;
+    }
+
+    VkDescriptorSetLayoutCreateInfo dsSamplerLayoutCreateInfo;
+    memset(&dsSamplerLayoutCreateInfo, 0, sizeof(VkDescriptorSetLayoutCreateInfo));
+    dsSamplerLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    dsSamplerLayoutCreateInfo.pNext = nullptr;
+    dsSamplerLayoutCreateInfo.flags = 0;
+    dsSamplerLayoutCreateInfo.bindingCount = numSamplers;
+    // Setting to nullptr fixes an error in the param checker validation layer. Even though
+    // bindingCount is 0 (which is valid), it still tries to validate pBindings unless it is
+    // null.
+    dsSamplerLayoutCreateInfo.pBindings = numSamplers ? dsSamplerBindings.get() : nullptr;
+
+    GR_VK_CALL_ERRCHECK(gpu->vkInterface(),
+                        CreateDescriptorSetLayout(gpu->device(),
+                                                  &dsSamplerLayoutCreateInfo,
+                                                  nullptr,
+                                                  &fDescLayout));
+}
+
 void GrVkDescriptorSetManager::DescriptorPoolManager::init(GrVkGpu* gpu,
                                                            VkDescriptorType type,
                                                            const GrVkUniformHandler* uniformHandler,
                                                            const SkTArray<uint32_t>* visibilities) {
-    if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
-        SkASSERT(SkToBool(uniformHandler) != SkToBool(visibilities));
+    if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type ||
+         VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type) {
         uint32_t numSamplers;
         if (uniformHandler) {
-            numSamplers = (uint32_t)uniformHandler->numSamplers();
+            if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type) {
+                numSamplers = (uint32_t)uniformHandler->numSamplers();
+            } else {
+                numSamplers = (uint32_t)uniformHandler->numTexelBuffers();
+            }
         } else {
             numSamplers = (uint32_t)visibilities->count();
         }
+        this->setupDescriptorLayout(gpu, type, uniformHandler, visibilities, numSamplers);
 
-        std::unique_ptr<VkDescriptorSetLayoutBinding[]> dsSamplerBindings(
-            new VkDescriptorSetLayoutBinding[numSamplers]);
-        for (uint32_t i = 0; i < numSamplers; ++i) {
-            uint32_t visibility;
-            if (uniformHandler) {
-                visibility = uniformHandler->samplerVisibility(i);
-            } else {
-                visibility = (*visibilities)[i];
-            }
-            dsSamplerBindings[i].binding = i;
-            dsSamplerBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            dsSamplerBindings[i].descriptorCount = 1;
-            dsSamplerBindings[i].stageFlags = visibility_to_vk_stage_flags(visibility);
-            dsSamplerBindings[i].pImmutableSamplers = nullptr;
-        }
-
-        VkDescriptorSetLayoutCreateInfo dsSamplerLayoutCreateInfo;
-        memset(&dsSamplerLayoutCreateInfo, 0, sizeof(VkDescriptorSetLayoutCreateInfo));
-        dsSamplerLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        dsSamplerLayoutCreateInfo.pNext = nullptr;
-        dsSamplerLayoutCreateInfo.flags = 0;
-        dsSamplerLayoutCreateInfo.bindingCount = numSamplers;
-        // Setting to nullptr fixes an error in the param checker validation layer. Even though
-        // bindingCount is 0 (which is valid), it still tries to validate pBindings unless it is
-        // null.
-        dsSamplerLayoutCreateInfo.pBindings = numSamplers ? dsSamplerBindings.get() : nullptr;
-
-        GR_VK_CALL_ERRCHECK(gpu->vkInterface(),
-                            CreateDescriptorSetLayout(gpu->device(),
-                                                      &dsSamplerLayoutCreateInfo,
-                                                      nullptr,
-                                                      &fDescLayout));
         fDescCountPerSet = numSamplers;
     } else {
-        SkASSERT(type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+        SkASSERT(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER == type);
         // Create Uniform Buffer Descriptor
         // The vertex uniform buffer will have binding 0 and the fragment binding 1.
         VkDescriptorSetLayoutBinding dsUniBindings[kUniformDescPerSet];

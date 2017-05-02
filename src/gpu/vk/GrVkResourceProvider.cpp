@@ -183,35 +183,37 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::findOrCreateCompatiblePipelineSta
     return fPipelineStateCache->refPipelineState(pipeline, proc, primitiveType, renderPass);
 }
 
-void GrVkResourceProvider::getSamplerDescriptorSetHandle(const GrVkUniformHandler& uniformHandler,
+void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
+                                                         const GrVkUniformHandler& uniformHandler,
                                                          GrVkDescriptorSetManager::Handle* handle) {
     SkASSERT(handle);
+    SkASSERT(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type ||
+             VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type);
     for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
-        if (fDescriptorSetManagers[i].isCompatible(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                                   &uniformHandler)) {
+        if (fDescriptorSetManagers[i].isCompatible(type, &uniformHandler)) {
            *handle = GrVkDescriptorSetManager::Handle(i);
            return;
         }
     }
 
-    fDescriptorSetManagers.emplace_back(fGpu, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                        &uniformHandler);
+    fDescriptorSetManagers.emplace_back(fGpu, type, &uniformHandler);
     *handle = GrVkDescriptorSetManager::Handle(fDescriptorSetManagers.count() - 1);
 }
 
-void GrVkResourceProvider::getSamplerDescriptorSetHandle(const SkTArray<uint32_t>& visibilities,
+void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
+                                                         const SkTArray<uint32_t>& visibilities,
                                                          GrVkDescriptorSetManager::Handle* handle) {
     SkASSERT(handle);
+    SkASSERT(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type ||
+             VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type);
     for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
-        if (fDescriptorSetManagers[i].isCompatible(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                                   visibilities)) {
+        if (fDescriptorSetManagers[i].isCompatible(type, visibilities)) {
             *handle = GrVkDescriptorSetManager::Handle(i);
             return;
         }
     }
 
-    fDescriptorSetManagers.emplace_back(fGpu, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                        visibilities);
+    fDescriptorSetManagers.emplace_back(fGpu, type, visibilities);
     *handle = GrVkDescriptorSetManager::Handle(fDescriptorSetManagers.count() - 1);
 }
 

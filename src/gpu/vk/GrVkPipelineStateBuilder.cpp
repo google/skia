@@ -103,7 +103,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     dsLayout[GrVkUniformHandler::kUniformBufferDescSet] = resourceProvider.getUniformDSLayout();
 
     GrVkDescriptorSetManager::Handle samplerDSHandle;
-    resourceProvider.getSamplerDescriptorSetHandle(fUniformHandler, &samplerDSHandle);
+    resourceProvider.getSamplerDescriptorSetHandle(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                                   fUniformHandler, &samplerDSHandle);
     dsLayout[GrVkUniformHandler::kSamplerDescSet] =
             resourceProvider.getSamplerDSLayout(samplerDSHandle);
 
