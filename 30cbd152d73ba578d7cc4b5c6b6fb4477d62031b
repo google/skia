@@ -45,6 +45,29 @@
       "revId": "30cbd152d73ba578d7cc4b5c6b6fb4477d62031b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c3a68ca_f9fd3322",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 957,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-02T22:00:13Z",
+      "side": 1,
+      "message": "This might be clearer without names?\n\n  F slope \u003d min(xabs, yabs) / max(xabs, yabs);\n\n?",
+      "range": {
+        "startLine": 957,
+        "startChar": 14,
+        "endLine": 957,
+        "endChar": 24
+      },
+      "revId": "30cbd152d73ba578d7cc4b5c6b6fb4477d62031b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
