@@ -11,10 +11,10 @@
 #include "SkImageInfo.h"
 
 /**
- *  This contains shared checks on SkImageInfo.  Depending on the desired color space behavior,
- *  the caller should choose one of the two versions below.
+ *  Returns true if |info| contains a valid combination of width, height, colorType, alphaType,
+ *  colorSpace.  Returns false otherwise.
  */
-static inline bool SkImageInfoIsValidCommon(const SkImageInfo& info) {
+static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
     if (info.width() <= 0 || info.height() <= 0) {
         return false;
     }
@@ -35,35 +35,6 @@ static inline bool SkImageInfoIsValidCommon(const SkImageInfo& info) {
 
     if (kRGBA_F16_SkColorType == info.colorType() &&
        (!info.colorSpace() || !info.colorSpace()->gammaIsLinear())) {
-        return false;
-    }
-
-    return true;
-}
-
-/**
- *  Returns true if |info| contains a valid combination of width, height, colorType, alphaType,
- *  colorSpace.  Allows numerical color spaces.  Returns false otherwise.
- */
-static inline bool SkImageInfoIsValidAllowNumericalCS(const SkImageInfo& info) {
-    if (!SkImageInfoIsValidCommon(info)) {
-        return false;
-    }
-
-    SkColorSpaceTransferFn fn;
-    if (info.colorSpace() && !info.colorSpace()->isNumericalTransferFn(&fn)) {
-        return false;
-    }
-
-    return true;
-}
-
-/**
- *  Returns true if |info| contains a valid combination of width, height, colorType, alphaType,
- *  colorSpace.  Only supports rendering color spaces.  Returns false otherwise.
- */
-static inline bool SkImageInfoIsValidRenderingCS(const SkImageInfo& info) {
-    if (!SkImageInfoIsValidCommon(info)) {
         return false;
     }
 
@@ -94,7 +65,7 @@ static inline bool SkImageInfoIsValidRenderingCS(const SkImageInfo& info) {
  *      conversion is not well-defined.
  */
 static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkImageInfo& src) {
-    if (!SkImageInfoIsValidRenderingCS(dst) || !SkImageInfoIsValidRenderingCS(src)) {
+    if (!SkImageInfoIsValid(dst) || !SkImageInfoIsValid(src)) {
         return false;
     }
 
