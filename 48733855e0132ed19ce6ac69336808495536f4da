@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "4321013d_0690f036",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-02T14:49:04Z",
+      "side": 1,
+      "message": "Should we check here if we\u0027re on the original context and avoid the wrap below? Seems nicer to not have two GrTextures in the same context referring to the same texture.",
+      "revId": "48733855e0132ed19ce6ac69336808495536f4da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3709ac31_4558f0d8",
         "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
         "patchSetId": 18
@@ -13,6 +30,41 @@
       "writtenOn": "2017-05-02T14:40:39Z",
       "side": 1,
       "message": "Now that we\u0027re using the message bus to release the final ref, I could re-instate the ref helper and install a texture release proc here. We could defer sending the FreedMessage until we\u0027re sure no other context is using the texture. That\u0027s probably worth doing? (Otherwise there are fairly simple usage patterns that result in a 2nd context using a texture that\u0027s already been freed).",
+      "revId": "48733855e0132ed19ce6ac69336808495536f4da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7361271b_06676342",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-02T14:49:04Z",
+      "side": 1,
+      "message": "Oh, that makes sense to me.",
+      "parentUuid": "3709ac31_4558f0d8",
+      "revId": "48733855e0132ed19ce6ac69336808495536f4da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "113f1615_4942c260",
+        "filename": "src/gpu/GrResourceCache.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-02T14:49:04Z",
+      "side": 1,
+      "message": "Maybe we could call this fContextUniqueID? Just to be clear that this is sort of borrowed or inferred from the context.",
       "revId": "48733855e0132ed19ce6ac69336808495536f4da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
