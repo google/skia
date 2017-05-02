@@ -93,6 +93,30 @@
       "revId": "687cc6c033506c767a960eb57b4d703a76424bfd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01f23152_61ca6164",
+        "filename": "tools/debugger/SkDrawCommand.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-02T15:14:24Z",
+      "side": 0,
+      "message": "I think this code is also used by (new) debugger, FWIW.  As far as I know it\u0027s live.",
+      "parentUuid": "f3d3e1e8_b3a34043",
+      "range": {
+        "startLine": 27,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 40
+      },
+      "revId": "687cc6c033506c767a960eb57b4d703a76424bfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
