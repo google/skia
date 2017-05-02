@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "679a8459_38be8c77",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-05-02T15:05:20Z",
+      "side": 1,
+      "message": "Please update comment.",
+      "range": {
+        "startLine": 337,
+        "startChar": 10,
+        "endLine": 337,
+        "endChar": 47
+      },
+      "revId": "4e0838fbd28f4ff6b5edbe5aed44e4029ba2d494",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
