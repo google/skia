@@ -13,7 +13,6 @@
 #include "SkColorSpace_Base.h"
 #include "SkData.h"
 #include "SkImageEncoderPriv.h"
-#include "SkJpegEncoder.h"
 #include "SkPM4f.h"
 #include "SkSRGB.h"
 
@@ -129,7 +128,7 @@ static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat fo
             SkAssertResult(SkEncodeImageAsWEBP(&buf, src, options));
             break;
         case SkEncodedImageFormat::kJPEG:
-            SkAssertResult(SkJpegEncoder::Encode(&buf, src, SkJpegEncoder::Options()));
+            SkAssertResult(SkEncodeImageAsJPEG(&buf, src, options));
             break;
         default:
             break;

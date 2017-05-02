@@ -11,7 +11,6 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkImageEncoderPriv.h"
-#include "SkJpegEncoder.h"
 #include "SkUnPreMultiply.h"
 
 namespace skiagm {
@@ -71,10 +70,8 @@ static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitm
             case SkEncodedImageFormat::kPNG:
                 return SkEncodeImageAsPNG(&buf, src, SkEncodeOptions()) ? buf.detachAsData()
                                                                         : nullptr;
-            case SkEncodedImageFormat::kJPEG: {
-                bool success = SkJpegEncoder::Encode(&buf, src, SkJpegEncoder::Options());
-                return success ? buf.detachAsData() : nullptr;
-            }
+            case SkEncodedImageFormat::kJPEG:
+                return SkEncodeImageAsJPEG(&buf, src, 100) ? buf.detachAsData() : nullptr;
             case SkEncodedImageFormat::kWEBP:
                 return SkEncodeImageAsWEBP(&buf, src, 100) ? buf.detachAsData() : nullptr;
             default:

@@ -6,7 +6,6 @@
  */
 
 #include "SkImageEncoderPriv.h"
-#include "SkJpegEncoder.h"
 
 bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
                    SkEncodedImageFormat format, int quality) {
@@ -17,11 +16,8 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
         return SkEncodeImageWithWIC(dst, src, format, quality);
     #else
         switch(format) {
-            case SkEncodedImageFormat::kJPEG: {
-                SkJpegEncoder::Options opts;
-                opts.fQuality = quality;
-                return SkJpegEncoder::Encode(dst, src, opts);
-            }
+            case SkEncodedImageFormat::kJPEG:
+                return SkEncodeImageAsJPEG(dst, src, quality);
             case SkEncodedImageFormat::kPNG:
                 return SkEncodeImageAsPNG(dst, src, SkEncodeOptions());
             case SkEncodedImageFormat::kWEBP:
