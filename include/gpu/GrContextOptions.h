@@ -100,6 +100,12 @@ struct GrContextOptions {
     };
 
     GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
+
+    /**
+     * The desired size of the GrAtlasGlyphCache's cache textures. Used to size the RGBA
+     * texture. Other (RGB565 and A8) textures will be roughly half this size.
+     */
+    float fAtlasGlyphCacheMaxTextureSizeBytes = 2048 * 1024 * 4;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrContextOptions::GpuPathRenderers)
