@@ -97,6 +97,7 @@
     M(save_xy) M(accumulate)                                     \
     M(linear_gradient)                                           \
     M(linear_gradient_2stops)                                    \
+    M(xy_to_polar_unit)                                          \
     M(byte_tables) M(byte_tables_rgb)                            \
     M(rgb_to_hsl)                                                \
     M(hsl_to_rgb)
