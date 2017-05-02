@@ -139,6 +139,24 @@
     },
     {
       "key": {
+        "uuid": "f17c6af7_5594caf6",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 968,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-02T14:48:45Z",
+      "side": 1,
+      "message": "This looks hard to beat as written to me.\n\nYou\u0027ve got to evaluate both sides of any if_then_else(), so if you were to do that naively you\u0027d need to evaluate two completely different 7th-degree polynomials.",
+      "parentUuid": "f014813b_c435efc5",
+      "revId": "c76bf9c9b4a63962edc12a1f8f21862031b0d911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fbb9675b_41e25203",
         "filename": "src/jumper/SkJumper_stages.cpp",
         "patchSetId": 5
@@ -150,6 +168,24 @@
       "writtenOn": "2017-05-02T14:25:26Z",
       "side": 1,
       "message": "Is this sufficient to catch all nan cases?  Can we test for nan directly instead?",
+      "revId": "c76bf9c9b4a63962edc12a1f8f21862031b0d911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c058fc9_e17a512a",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 971,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-02T14:48:45Z",
+      "side": 1,
+      "message": "(You can test for NaN the usual way, x !\u003d x.)",
+      "parentUuid": "fbb9675b_41e25203",
       "revId": "c76bf9c9b4a63962edc12a1f8f21862031b0d911",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
