@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "520c16ee_83bd5266",
+        "filename": "src/core/SkRasterPipeline.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-02T21:59:03Z",
+      "side": 1,
+      "message": "we\u0027re gonna want an angle or phi in here somewhere as soon as we start radial right?  I\u0027m fine to wait until then... just want to make sure I\u0027m not confused.",
+      "range": {
+        "startLine": 100,
+        "startChar": 6,
+        "endLine": 100,
+        "endChar": 22
+      },
+      "revId": "30cbd152d73ba578d7cc4b5c6b6fb4477d62031b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db19cb9f_5c4aad5a",
+        "filename": "src/effects/gradients/SkSweepGradient.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-02T21:59:03Z",
+      "side": 1,
+      "message": "It\u0027s probably better to leave this name off than just skMatrix?  localM seems to be working pretty well.",
+      "range": {
+        "startLine": 43,
+        "startChar": 40,
+        "endLine": 43,
+        "endChar": 48
+      },
+      "revId": "30cbd152d73ba578d7cc4b5c6b6fb4477d62031b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
