@@ -6,7 +6,6 @@
 */
 
 #include "Benchmark.h"
-#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorSpaceXformCanvas.h"
 #include "SkString.h"

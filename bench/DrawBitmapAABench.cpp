@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
