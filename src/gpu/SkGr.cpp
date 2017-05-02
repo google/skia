@@ -176,7 +176,7 @@ sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxyNoCheck(GrResourceProvider* re
 sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceProvider,
                                                    const SkPixmap& pixmap,
                                                    SkBudgeted budgeted) {
-    if (!SkImageInfoIsValid(pixmap.info())) {
+    if (!SkImageInfoIsValidRenderingCS(pixmap.info())) {
         return nullptr;
     }
 
@@ -205,7 +205,7 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
         ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
         : SkDestinationSurfaceColorMode::kLegacy;
 
-    if (!SkImageInfoIsValid(bitmap.info())) {
+    if (!SkImageInfoIsValidRenderingCS(bitmap.info())) {
         return nullptr;
     }
 
@@ -252,7 +252,7 @@ sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext* ctx, const SkImage
                                                    const GrMipLevel* texels,
                                                    int mipLevelCount,
                                                    SkDestinationSurfaceColorMode colorMode) {
-    if (!SkImageInfoIsValid(info)) {
+    if (!SkImageInfoIsValidRenderingCS(info)) {
         return nullptr;
     }
 
