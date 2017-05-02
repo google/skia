@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3709ac31_4558f0d8",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-05-02T14:40:39Z",
+      "side": 1,
+      "message": "Now that we\u0027re using the message bus to release the final ref, I could re-instate the ref helper and install a texture release proc here. We could defer sending the FreedMessage until we\u0027re sure no other context is using the texture. That\u0027s probably worth doing? (Otherwise there are fairly simple usage patterns that result in a 2nd context using a texture that\u0027s already been freed).",
+      "revId": "48733855e0132ed19ce6ac69336808495536f4da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
