@@ -18,6 +18,8 @@
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
 
+DECLARE_SKMESSAGEBUS_MESSAGE(GrGpuResourceFreedMessage);
+
 //////////////////////////////////////////////////////////////////////////////
 
 GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
@@ -59,7 +61,7 @@ private:
  //////////////////////////////////////////////////////////////////////////////
 
 
-GrResourceCache::GrResourceCache(const GrCaps* caps)
+GrResourceCache::GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID)
     : fTimestamp(0)
     , fMaxCount(kDefaultMaxCount)
     , fMaxBytes(kDefaultMaxSize)
@@ -75,6 +77,7 @@ GrResourceCache::GrResourceCache(const GrCaps* caps)
     , fBudgetedBytes(0)
     , fRequestFlush(false)
     , fExternalFlushCnt(0)
+    , fContextUniqueID(contextUniqueID)
     , fPreferVRAMUseOverFlushes(caps->preferVRAMUseOverFlushes()) {
     SkDEBUGCODE(fCount = 0;)
     SkDEBUGCODE(fNewlyPurgeableResourceForValidation = nullptr;)
@@ -450,6 +453,12 @@ void GrResourceCache::purgeAsNeeded() {
         this->processInvalidUniqueKeys(invalidKeyMsgs);
     }
 
+    SkTArray<GrGpuResourceFreedMessage> freedGpuResourceMsgs;
+    fFreedGpuResourceInbox.poll(&freedGpuResourceMsgs);
+    if (freedGpuResourceMsgs.count()) {
+        this->processFreedGpuResources(freedGpuResourceMsgs);
+    }
+
     if (fMaxUnusedFlushes > 0) {
         // We want to know how many complete flushes have occurred without the resource being used.
         // If the resource was tagged when fExternalFlushCnt was N then this means it became
@@ -530,6 +539,18 @@ void GrResourceCache::processInvalidUniqueKeys(
         if (resource) {
             resource->resourcePriv().removeUniqueKey();
             resource->unref(); // If this resource is now purgeable, the cache will be notified.
+        }
+    }
+}
+
+void GrResourceCache::insertCrossContextGpuResource(GrGpuResource* resource) {
+    resource->ref();
+}
+
+void GrResourceCache::processFreedGpuResources(const SkTArray<GrGpuResourceFreedMessage>& msgs) {
+    for (int i = 0; i < msgs.count(); ++i) {
+        if (msgs[i].fOwningUniqueID == fContextUniqueID) {
+            msgs[i].fResource->unref();
         }
     }
 }
