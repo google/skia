@@ -31,7 +31,9 @@ namespace sk_app {
 VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
                                          CreateVkSurfaceFn createVkSurface,
                                          CanPresentFn canPresent)
-    : WindowContext()
+    : WindowContext(params)
+    , fCreateVkSurfaceFn(createVkSurface)
+    , fCanPresentFn(canPresent)
     , fSurface(VK_NULL_HANDLE)
     , fSwapchain(VK_NULL_HANDLE)
     , fImages(nullptr)
@@ -39,10 +41,13 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
     , fSurfaces(nullptr)
     , fCommandPool(VK_NULL_HANDLE)
     , fBackbuffers(nullptr) {
+    this->initializeContext();
+}
 
+void VulkanWindowContext::initializeContext() {
     // any config code here (particularly for msaa)?
     fBackendContext.reset(GrVkBackendContext::Create(vkGetInstanceProcAddr, vkGetDeviceProcAddr,
-                                                     &fPresentQueueIndex, canPresent));
+                                                     &fPresentQueueIndex, fCanPresentFn));
 
     if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
         !(fBackendContext->fExtensions & kKHR_swapchain_GrVkExtensionFlag)) {
@@ -64,9 +69,9 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
     GET_DEV_PROC(QueuePresentKHR);
 
     fContext = GrContext::Create(kVulkan_GrBackend, (GrBackendContext) fBackendContext.get(),
-                                 params.fGrContextOptions);
+                                 fDisplayParams.fGrContextOptions);
 
-    fSurface = createVkSurface(instance);
+    fSurface = fCreateVkSurfaceFn(instance);
     if (VK_NULL_HANDLE == fSurface) {
         fBackendContext.reset(nullptr);
         return;
@@ -81,7 +86,7 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
         return;
     }
 
-    if (!this->createSwapchain(-1, -1, params)) {
+    if (!this->createSwapchain(-1, -1, fDisplayParams)) {
         this->destroyContext();
         return;
     }

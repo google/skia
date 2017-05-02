@@ -440,6 +440,9 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
 
     VkPipelineRasterizationStateCreateInfo rasterInfo;
     setup_raster_state(pipeline, &rasterInfo);
+    if (gpu->caps()->wireframeMode()) {
+        rasterInfo.polygonMode = VK_POLYGON_MODE_LINE;
+    }
 
     VkDynamicState dynamicStates[3];
     VkPipelineDynamicStateCreateInfo dynamicInfo;

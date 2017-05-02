@@ -22,10 +22,9 @@
 namespace sk_app {
 
 GLWindowContext::GLWindowContext(const DisplayParams& params)
-    : WindowContext()
+    : WindowContext(params)
     , fBackendContext(nullptr)
     , fSurface(nullptr) {
-    fDisplayParams = params;
     fDisplayParams.fMSAASampleCount = fDisplayParams.fMSAASampleCount ?
                                       GrNextPow2(fDisplayParams.fMSAASampleCount) :
                                       0;

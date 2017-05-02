@@ -33,10 +33,12 @@ protected:
 private:
     HWND              fHWND;
     HGLRC             fHGLRC;
+
+    typedef GLWindowContext INHERITED;
 };
 
 GLWindowContext_win::GLWindowContext_win(HWND wnd, const DisplayParams& params)
-    : GLWindowContext(params)
+    : INHERITED(params)
     , fHWND(wnd)
     , fHGLRC(NULL) {
 

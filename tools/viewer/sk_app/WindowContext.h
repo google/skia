@@ -20,10 +20,12 @@ namespace sk_app {
 
 class WindowContext {
 public:
-    WindowContext() : fContext(nullptr)
-                    , fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)
-                    , fSampleCount(0)
-                    , fStencilBits(0) {}
+    WindowContext(const DisplayParams& params)
+        : fContext(nullptr)
+        , fDisplayParams(params)
+        , fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)
+        , fSampleCount(0)
+        , fStencilBits(0) {}
 
     virtual ~WindowContext() {}
 
