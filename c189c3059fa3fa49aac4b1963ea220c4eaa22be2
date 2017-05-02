@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5793075_c63e790b",
+        "filename": "src/core/SkPictureFlat.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-02T20:44:35Z",
+      "side": 1,
+      "message": "Might want to note  // deprecated (M60) ?",
+      "range": {
+        "startLine": 90,
+        "startChar": 20,
+        "endLine": 90,
+        "endChar": 30
+      },
+      "revId": "c189c3059fa3fa49aac4b1963ea220c4eaa22be2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
