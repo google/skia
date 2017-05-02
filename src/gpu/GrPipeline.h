@@ -90,6 +90,8 @@ public:
      **/
     GrPipeline(GrRenderTarget*, SkBlendMode);
 
+    GrPipeline(const InitArgs& args) { this->init(args); }
+
     /** (Re)initializes a pipeline. After initialization the pipeline can be used. */
     void init(const InitArgs&);
 
