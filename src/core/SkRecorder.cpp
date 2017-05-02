@@ -372,12 +372,6 @@ void SkRecorder::didTranslate(SkScalar dx, SkScalar dy) {
     APPEND(Translate, dx, dy);
 }
 
-void SkRecorder::didTranslateZ(SkScalar z) {
-#ifdef SK_EXPERIMENTAL_SHADOWING
-    APPEND(TranslateZ, z);
-#endif
-}
-
 void SkRecorder::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     INHERITED(onClipRect, rect, op, edgeStyle);
     SkRecords::ClipOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);

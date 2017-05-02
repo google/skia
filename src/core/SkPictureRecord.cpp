@@ -234,18 +234,6 @@ void SkPictureRecord::didSetMatrix(const SkMatrix& matrix) {
     this->INHERITED::didSetMatrix(matrix);
 }
 
-void SkPictureRecord::didTranslateZ(SkScalar z) {
-#ifdef SK_EXPERIMENTAL_SHADOWING
-    this->validate(fWriter.bytesWritten(), 0);
-    // op + scalar
-    size_t size = 1 * kUInt32Size + 1 * sizeof(SkScalar);
-    size_t initialOffset = this->addDraw(TRANSLATE_Z, &size);
-    this->addScalar(z);
-    this->validate(initialOffset, size);
-    this->INHERITED::didTranslateZ(z);
-#endif
-}
-
 static bool clipOpExpands(SkClipOp op) {
     switch (op) {
         case kUnion_SkClipOp:

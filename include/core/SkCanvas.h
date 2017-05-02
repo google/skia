@@ -423,24 +423,6 @@ public:
     */
     void resetMatrix();
 
-#ifdef SK_EXPERIMENTAL_SHADOWING
-    /** Add the specified translation to the current draw depth of the canvas.
-        @param z    The distance to translate in Z.
-                    Negative into screen, positive out of screen.
-                    Without translation, the draw depth defaults to 0.
-    */
-    void translateZ(SkScalar z);
-
-    /** Set the current set of lights in the canvas.
-        @param lights   The lights that we want the canvas to have.
-    */
-    void setLights(sk_sp<SkLights> lights);
-
-    /** Returns the current set of lights the canvas uses
-      */
-    sk_sp<SkLights> getLights() const;
-#endif
-
     /**
      *  Modify the current clip with the specified rectangle.
      *  @param rect The rect to combine with the current clip
@@ -1249,14 +1231,6 @@ public:
     void temporary_internal_getRgnClip(SkRegion*);
 
 protected:
-#ifdef SK_EXPERIMENTAL_SHADOWING
-    /** Returns the current (cumulative) draw depth of the canvas.
-      */
-    SkScalar getZ() const;
-
-    sk_sp<SkLights> fLights;
-#endif
-
     // default impl defers to getDevice()->newSurface(info)
     virtual sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&);
 
@@ -1287,10 +1261,6 @@ protected:
     virtual void didTranslate(SkScalar dx, SkScalar dy) {
         this->didConcat(SkMatrix::MakeTrans(dx, dy));
     }
-
-#ifdef SK_EXPERIMENTAL_SHADOWING
-    virtual void didTranslateZ(SkScalar) {}
-#endif
 
     virtual SkRect onGetLocalClipBounds() const;
     virtual SkIRect onGetDeviceClipBounds() const;

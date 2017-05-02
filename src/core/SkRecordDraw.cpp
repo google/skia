@@ -89,12 +89,6 @@ DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op(), r.opAA.aa()));
 DRAW(ClipRect, clipRect(r.rect, r.opAA.op(), r.opAA.aa()));
 DRAW(ClipRegion, clipRegion(r.region, r.op));
 
-#ifdef SK_EXPERIMENTAL_SHADOWING
-DRAW(TranslateZ, SkCanvas::translateZ(r.z));
-#else
-template <> void Draw::draw(const TranslateZ& r) { }
-#endif
-
 DRAW(DrawArc, drawArc(r.oval, r.startAngle, r.sweepAngle, r.useCenter, r.paint));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
 DRAW(DrawImage, drawImage(r.image.get(), r.left, r.top, r.paint));
@@ -297,7 +291,6 @@ private:
     void trackBounds(const SetMatrix&)         { this->pushControl(); }
     void trackBounds(const Concat&)            { this->pushControl(); }
     void trackBounds(const Translate&)         { this->pushControl(); }
-    void trackBounds(const TranslateZ&)        { this->pushControl(); }
     void trackBounds(const ClipRect&)          { this->pushControl(); }
     void trackBounds(const ClipRRect&)         { this->pushControl(); }
     void trackBounds(const ClipPath&)          { this->pushControl(); }

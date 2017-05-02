@@ -47,7 +47,7 @@ static const D* pod(const T* op, size_t offset = 0) {
 namespace {
 #define TYPES(M)                                                                \
     M(SetDrawFilter) M(Save) M(Restore) M(SaveLayer)                            \
-    M(Concat) M(SetMatrix) M(Translate) M(TranslateZ)                           \
+    M(Concat) M(SetMatrix) M(Translate)                                         \
     M(ClipPath) M(ClipRect) M(ClipRRect) M(ClipRegion)                          \
     M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawRegion) M(DrawOval) M(DrawArc)   \
     M(DrawRRect) M(DrawDRRect) M(DrawAnnotation) M(DrawDrawable) M(DrawPicture) \
@@ -131,16 +131,6 @@ namespace {
         SkScalar dx,dy;
         void draw(SkCanvas* c, const SkMatrix&) const {
             c->translate(dx, dy);
-        }
-    };
-    struct TranslateZ final : Op {
-        static const auto kType = Type::TranslateZ;
-        TranslateZ(SkScalar dz) : dz(dz) {}
-        SkScalar dz;
-        void draw(SkCanvas* c, const SkMatrix&) const {
-        #ifdef SK_EXPERIMENTAL_SHADOWING
-            c->translateZ(dz);
-        #endif
         }
     };
 
@@ -538,7 +528,6 @@ void SkLiteDL::saveLayer(const SkRect* bounds, const SkPaint* paint,
 void SkLiteDL::   concat(const SkMatrix& matrix)   { this->push   <Concat>(0, matrix); }
 void SkLiteDL::setMatrix(const SkMatrix& matrix)   { this->push<SetMatrix>(0, matrix); }
 void SkLiteDL::translate(SkScalar dx, SkScalar dy) { this->push<Translate>(0, dx, dy); }
-void SkLiteDL::translateZ(SkScalar dz) { this->push<TranslateZ>(0, dz); }
 
 void SkLiteDL::clipPath(const SkPath& path, SkClipOp op, bool aa) {
     this->push<ClipPath>(0, path, op, aa);

@@ -57,9 +57,8 @@ public:
         kSave_OpType,
         kSaveLayer_OpType,
         kSetMatrix_OpType,
-        kTranslateZ_OpType,
 
-        kLast_OpType = kTranslateZ_OpType
+        kLast_OpType = kSetMatrix_OpType
     };
 
     static const int kOpTypeCount = kLast_OpType + 1;
@@ -758,19 +757,6 @@ public:
 private:
     SkMatrix fUserMatrix;
     SkMatrix fMatrix;
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkTranslateZCommand : public SkDrawCommand {
-public:
-    SkTranslateZCommand(SkScalar);
-    void execute(SkCanvas* canvas) const override;
-    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
-    static SkTranslateZCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
-
-private:
-    SkScalar fZTranslate;
 
     typedef SkDrawCommand INHERITED;
 };

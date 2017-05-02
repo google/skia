@@ -62,12 +62,6 @@ public:
     void didSetMatrix(const SkMatrix&) override;
     void didTranslate(SkScalar, SkScalar) override;
 
-#ifdef SK_EXPERIMENTAL_SHADOWING
-    void didTranslateZ(SkScalar) override;
-#else
-    void didTranslateZ(SkScalar);
-#endif
-
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
     void onDrawText(const void* text,

@@ -194,7 +194,3 @@ void SkLiteRecorder::onDrawAtlas(const SkImage* atlas,
                                  const SkPaint* paint) {
     fDL->drawAtlas(atlas, xforms, texs, colors, count, bmode, cull, paint);
 }
-
-void SkLiteRecorder::didTranslateZ(SkScalar dz) {
-    fDL->translateZ(dz);
-}
