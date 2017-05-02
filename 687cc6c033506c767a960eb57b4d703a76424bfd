@@ -45,6 +45,30 @@
       "revId": "687cc6c033506c767a960eb57b4d703a76424bfd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffcda5af_4b8b2c99",
+        "filename": "tools/debugger/SkDrawCommand.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-02T15:02:21Z",
+      "side": 0,
+      "message": "Don\u0027t think these files have anything to do with .skps.  They\u0027re only used by the debugger.",
+      "parentUuid": "daf2a285_ae2461d6",
+      "range": {
+        "startLine": 27,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 40
+      },
+      "revId": "687cc6c033506c767a960eb57b4d703a76424bfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
