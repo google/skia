@@ -38,7 +38,6 @@ skia_gpu_sources = [
   # Private includes
   "$_include/private/GrAuditTrail.h",
   "$_include/private/GrGLSL.h",
-  "$_include/private/GrGLSL_impl.h",
   "$_include/private/GrInstancedPipelineInfo.h",
   "$_include/private/GrSingleOwner.h",
   "$_include/private/GrRenderTargetProxy.h",
