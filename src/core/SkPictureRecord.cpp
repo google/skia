@@ -696,29 +696,6 @@ void SkPictureRecord::onDrawPicture(const SkPicture* picture, const SkMatrix* ma
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawShadowedPicture(const SkPicture* picture,
-                                            const SkMatrix* matrix,
-                                            const SkPaint* paint,
-                                            const SkShadowParams& params) {
-    // op + picture index
-    size_t size = 2 * kUInt32Size;
-    size_t initialOffset;
-
-    // TODO: handle recording params.
-    if (nullptr == matrix && nullptr == paint) {
-        initialOffset = this->addDraw(DRAW_PICTURE, &size);
-        this->addPicture(picture);
-    } else {
-        const SkMatrix& m = matrix ? *matrix : SkMatrix::I();
-        size += m.writeToMemory(nullptr) + kUInt32Size;    // matrix + paint
-        initialOffset = this->addDraw(DRAW_PICTURE_MATRIX_PAINT, &size);
-        this->addPaintPtr(paint);
-        this->addMatrix(m);
-        this->addPicture(picture);
-    }
-    this->validate(initialOffset, size);
-}
-
 void SkPictureRecord::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
     // op + drawable index
     size_t size = 2 * kUInt32Size;

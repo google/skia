@@ -117,13 +117,6 @@ DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
 DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.bmode, r.paint));
 DRAW(DrawPicture, drawPicture(r.picture.get(), &r.matrix, r.paint));
-
-#ifdef SK_EXPERIMENTAL_SHADOWING
-DRAW(DrawShadowedPicture, drawShadowedPicture(r.picture.get(), &r.matrix, r.paint, r.params));
-#else
-template <> void Draw::draw(const DrawShadowedPicture& r) { }
-#endif
-
 DRAW(DrawPoints, drawPoints(r.mode, r.count, r.pts, r.paint));
 DRAW(DrawPosText, drawPosText(r.text, r.byteLength, r.pos, r.paint));
 DRAW(DrawPosTextH, drawPosTextH(r.text, r.byteLength, r.xpos, r.y, r.paint));
@@ -469,12 +462,6 @@ private:
     }
 
     Bounds bounds(const DrawPicture& op) const {
-        SkRect dst = op.picture->cullRect();
-        op.matrix.mapRect(&dst);
-        return this->adjustAndMap(dst, op.paint);
-    }
-
-    Bounds bounds(const DrawShadowedPicture& op) const {
         SkRect dst = op.picture->cullRect();
         op.matrix.mapRect(&dst);
         return this->adjustAndMap(dst, op.paint);

@@ -24,7 +24,6 @@ class SkDrawCommand {
 public:
     enum OpType {
         kBeginDrawPicture_OpType,
-        kBeginDrawShadowedPicture_OpType,
         kClipPath_OpType,
         kClipRegion_OpType,
         kClipRect_OpType,
@@ -54,7 +53,6 @@ public:
         kDrawTextRSXform_OpType,
         kDrawVertices_OpType,
         kEndDrawPicture_OpType,
-        kEndDrawShadowedPicture_OpType,
         kRestore_OpType,
         kSave_OpType,
         kSaveLayer_OpType,
@@ -487,39 +485,6 @@ private:
 class SkEndDrawPictureCommand : public SkDrawCommand {
 public:
     SkEndDrawPictureCommand(bool restore);
-
-    void execute(SkCanvas* canvas) const override;
-
-private:
-    bool fRestore;
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkBeginDrawShadowedPictureCommand : public SkDrawCommand {
-public:
-    SkBeginDrawShadowedPictureCommand(const SkPicture* picture,
-                                      const SkMatrix* matrix,
-                                      const SkPaint* paint,
-                                      const SkShadowParams& params);
-
-    void execute(SkCanvas* canvas) const override;
-    bool render(SkCanvas* canvas) const override;
-
-private:
-    sk_sp<const SkPicture>        fPicture;
-    SkTLazy<SkMatrix>             fMatrix;
-    SkTLazy<SkPaint>              fPaint;
-#ifdef SK_EXPERIMENTAL_SHADOWING
-    SkShadowParams                fShadowParams;
-#endif
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkEndDrawShadowedPictureCommand : public SkDrawCommand {
-public:
-    SkEndDrawShadowedPictureCommand(bool restore);
 
     void execute(SkCanvas* canvas) const override;
 

@@ -55,8 +55,6 @@ public:
     void drawAnnotation     (const SkRect&, const char*, SkData*);
     void drawDrawable       (SkDrawable*, const SkMatrix*);
     void drawPicture        (const SkPicture*, const SkMatrix*, const SkPaint*);
-    void drawShadowedPicture(const SkPicture*, const SkMatrix*,
-                             const SkPaint*, const SkShadowParams& params);
 
     void drawText       (const void*, size_t, SkScalar, SkScalar, const SkPaint&);
     void drawPosText    (const void*, size_t, const SkPoint[], const SkPaint&);
