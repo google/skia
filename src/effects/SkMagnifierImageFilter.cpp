@@ -196,8 +196,10 @@ void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
                                      &fColorSpaceHelper);
     fragBuilder->codeAppend(";\n");
 
-    fragBuilder->codeAppendf("\t\t%s = output_color;\n", args.fOutputColor);
-    fragBuilder->codeAppendf("%s *= %s;\n", args.fOutputColor, args.fInputColor);
+    fragBuilder->codeAppendf("\t\t%s = output_color;", args.fOutputColor);
+    SkString modulate;
+    GrGLSLMulVarBy4f(&modulate, args.fOutputColor, args.fInputColor);
+    fragBuilder->codeAppend(modulate.c_str());
 }
 
 void GrGLMagnifierEffect::onSetData(const GrGLSLProgramDataManager& pdman,

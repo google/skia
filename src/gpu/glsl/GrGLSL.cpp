@@ -45,3 +45,15 @@ void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision p,
         }
     }
 }
+
+void GrGLSLMulVarBy4f(SkString* outAppend, const char* vec4VarName, const GrGLSLExpr4& mulFactor) {
+    if (mulFactor.isOnes()) {
+        *outAppend = SkString();
+    }
+
+    if (mulFactor.isZeros()) {
+        outAppend->appendf("%s = vec4(0);", vec4VarName);
+    } else {
+        outAppend->appendf("%s *= %s;", vec4VarName, mulFactor.c_str());
+    }
+}

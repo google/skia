@@ -47,7 +47,7 @@ public:
                                                    kDefault_GrSLPrecision, "Xform", &xformUniName);
 
             SkString dstNormalColorName("dstNormalColor");
-            this->emitChild(0, &dstNormalColorName, args);
+            this->emitChild(0, nullptr, &dstNormalColorName, args);
             fragBuilder->codeAppendf("vec3 normal = normalize(%s.rgb - vec3(0.5));",
                                      dstNormalColorName.c_str());
 
