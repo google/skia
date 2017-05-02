@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6aaf4d10_b7fabb60",
+        "filename": "src/core/SkPictureRecord.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-02T14:55:55Z",
+      "side": 0,
+      "message": "I think .skps are going to be fine.  This code is identical to onDrawPicture(), with a TODO to serialize the shadow.",
+      "range": {
+        "startLine": 699,
+        "startChar": 5,
+        "endLine": 699,
+        "endChar": 43
+      },
+      "revId": "687cc6c033506c767a960eb57b4d703a76424bfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
