@@ -13,7 +13,6 @@
 #include "SkCanvas.h"
 #include "SkMask.h"
 #include "SkPaint.h"
-#include "SkPixmap.h"
 #include "SkStrokeRec.h"
 #include "SkVertices.h"
 

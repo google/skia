@@ -8,7 +8,6 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDrawFilter.h"
-#include "SkImage.h"
 #include "SkImageFilter.h"
 #include "SkLiteDL.h"
 #include "SkMath.h"

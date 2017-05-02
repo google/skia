@@ -11,7 +11,6 @@
 #include "SkData.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
-#include "SkImage.h"
 #include "SkImageFilter.h"
 #include "SkMatrix.h"
 #include "SkPath.h"

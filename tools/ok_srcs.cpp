@@ -7,7 +7,6 @@
 
 #include "ok.h"
 #include "gm.h"
-#include "SkData.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include <vector>
