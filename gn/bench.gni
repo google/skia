@@ -27,6 +27,7 @@ bench_sources = [
   "$_bench/ChartBench.cpp",
   "$_bench/ChecksumBench.cpp",
   "$_bench/ChromeBench.cpp",
+  "$_bench/ClipMaskBench.cpp",
   "$_bench/CmapBench.cpp",
   "$_bench/CodecBench.cpp",
   "$_bench/ColorCanvasDrawBitmapBench.cpp",
