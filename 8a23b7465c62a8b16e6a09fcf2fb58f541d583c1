@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "428f9edc_d4ed2c5a",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-02T15:50:07Z",
+      "side": 1,
+      "message": "A #if 0 block and a comment (something like \u0027Uncomment to generate gByteExpU16Table values\u0027) would be clearer, I think.",
+      "range": {
+        "startLine": 109,
+        "startChar": 8,
+        "endLine": 109,
+        "endChar": 13
+      },
+      "revId": "8a23b7465c62a8b16e6a09fcf2fb58f541d583c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
