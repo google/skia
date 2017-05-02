@@ -25,10 +25,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
     // uniforms, varyings, textures, etc
     GrVkPipelineStateBuilder builder(gpu, pipeline, primProc, desc);
 
-    GrGLSLExpr4 inputColor;
-    GrGLSLExpr4 inputCoverage;
-
-    if (!builder.emitAndInstallProcs(&inputColor, &inputCoverage)) {
+    if (!builder.emitAndInstallProcs()) {
         builder.cleanupFragmentProcessors();
         return nullptr;
     }
