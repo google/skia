@@ -22,6 +22,30 @@
       "revId": "08fc870745563421e93c949af5ed4cad52d309ac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa50f346_a7139e92",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-02T15:33:16Z",
+      "side": 1,
+      "message": "Of course, good catch.",
+      "parentUuid": "b3e1a8be_fc1ae11f",
+      "range": {
+        "startLine": 241,
+        "startChar": 4,
+        "endLine": 241,
+        "endChar": 11
+      },
+      "revId": "08fc870745563421e93c949af5ed4cad52d309ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
