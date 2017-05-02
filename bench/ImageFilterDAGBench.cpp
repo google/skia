@@ -10,6 +10,7 @@
 #include "SkBlurImageFilter.h"
 #include "SkDisplacementMapEffect.h"
 #include "SkCanvas.h"
+#include "SkImage.h"
 #include "SkMergeImageFilter.h"
 
 

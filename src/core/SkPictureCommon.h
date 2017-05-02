@@ -14,6 +14,7 @@
 
 #include "SkPathEffect.h"
 #include "SkRecords.h"
+#include "SkShader.h"
 #include "SkTLogic.h"
 
 // N.B. This name is slightly historical: hunting season is now open for SkImages too.
