@@ -20,6 +20,7 @@ public:
 
     using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
     GR_DEFINE_RESOURCE_HANDLE_CLASS(SamplerHandle);
+    GR_DEFINE_RESOURCE_HANDLE_CLASS(TexelBufferHandle);
     GR_DEFINE_RESOURCE_HANDLE_CLASS(ImageStorageHandle);
 
     /** Add a uniform variable to the current program, that has visibility in one or more shaders.
@@ -67,6 +68,10 @@ private:
 
     virtual SamplerHandle addSampler(uint32_t visibility, GrSwizzle, GrSLType, GrSLPrecision,
                                      const char* name) = 0;
+
+    virtual const GrShaderVar& texelBufferVariable(TexelBufferHandle) const = 0;
+    virtual TexelBufferHandle addTexelBuffer(uint32_t visibility, GrSLPrecision,
+                                             const char* name) = 0;
 
     virtual const GrShaderVar& imageStorageVariable(ImageStorageHandle) const = 0;
     virtual ImageStorageHandle addImageStorage(uint32_t visibility, GrSLType type,

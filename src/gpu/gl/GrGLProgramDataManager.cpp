@@ -60,6 +60,16 @@ void GrGLProgramDataManager::setSamplers(const UniformInfoArray& samplers) const
     }
 }
 
+void GrGLProgramDataManager::setTexelBuffers(const UniformInfoArray& texelBuffers) const {
+    for (int i = 0; i < texelBuffers.count(); ++i) {
+        const UniformInfo& texelBuffer = texelBuffers[i];
+        SkASSERT(texelBuffer.fVisibility);
+        if (kUnusedUniform != texelBuffer.fLocation) {
+            GR_GL_CALL(fGpu->glInterface(), Uniform1i(texelBuffer.fLocation, i));
+        }
+    }
+}
+
 void GrGLProgramDataManager::setImageStorages(const UniformInfoArray& images) const {
     for (int i = 0; i < images.count(); ++i) {
         const UniformInfo& image = images[i];

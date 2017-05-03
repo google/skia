@@ -47,6 +47,7 @@ public:
 
 
     void setSamplers(const UniformInfoArray& samplers) const;
+    void setTexelBuffers(const UniformInfoArray& texelBuffers) const;
     void setImageStorages(const UniformInfoArray &images) const;
 
     /** Functions for uploading uniform values. The varities ending in v can be used to upload to an

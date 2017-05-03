@@ -31,6 +31,7 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          GrGLuint programID,
                          const UniformInfoArray& uniforms,
                          const UniformInfoArray& samplers,
+                         const UniformInfoArray& texelBuffers,
                          const UniformInfoArray& imageStorages,
                          const VaryingInfoArray& pathProcVaryings,
                          GrGLSLPrimitiveProcessor* geometryProcessor,
@@ -47,6 +48,7 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
     // Assign texture units to sampler uniforms one time up front.
     GL_CALL(UseProgram(fProgramID));
     fProgramDataManager.setSamplers(samplers);
+    fProgramDataManager.setTexelBuffers(texelBuffers);
     fProgramDataManager.setImageStorages(imageStorages);
 }
 
