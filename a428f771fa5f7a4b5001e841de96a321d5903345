@@ -45,6 +45,30 @@
       "revId": "a428f771fa5f7a4b5001e841de96a321d5903345",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9720bcf8_379790f1",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-03T19:48:32Z",
+      "side": 1,
+      "message": "I did the underscore_case to emphasize that this is a wacky call not intended for normal consumption (it is only public to allow me to not include CTFont.h). We have the same sort of convention in other classes. Renaming to make this even clearer.\n\nAlso, removing the indirection of calling SkTYpeface_GetCTFontRef -- not needed, and can skip the null-check.",
+      "parentUuid": "3540ae73_3be9f212",
+      "range": {
+        "startLine": 545,
+        "startChar": 21,
+        "endLine": 545,
+        "endChar": 54
+      },
+      "revId": "a428f771fa5f7a4b5001e841de96a321d5903345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
