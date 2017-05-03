@@ -251,29 +251,35 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
 
         // We want to extend the stroked area in so that it meets up with the caster
         // geometry. The stroked geometry will, by definition already be inset half the
-        // stroke width but we also have to account for the scaling.
-        SkScalar scaleOffset = (scale - 1.0f) * SkTMax(SkTMax(SkTAbs(rrect.rect().fLeft),
-                                                              SkTAbs(rrect.rect().fRight)),
-                                                       SkTMax(SkTAbs(rrect.rect().fTop),
-                                                              SkTAbs(rrect.rect().fBottom)));
-        SkScalar insetAmount = spotOffset.length() - (0.5f * srcSpaceSpotRadius) + scaleOffset;
+        // stroke width but we also have to account for the scaling and translation.
+        // We transform the min and max corners, inset by the radius, by the scale and translation,
+        // then distance from that to the original inset point + the difference of the radii gives
+        // the distance from the shadow stroke shape to the original shape. Taking the max of the
+        // two distances, if this is greater than the strokeWidth then we need to inset to cover
+        // the hole. If less, then we can outset and decrease the strokeWidth to reduce our
+        // coverage.
 
-        // Compute area
+        // This handles the transform scale and subtracting the original point.
+        SkScalar comboScale = scale - 1;
+        SkScalar r = rrect.getSimpleRadii().fX;
+        SkPoint upperLeftOffset = SkPoint::Make(comboScale*(rrect.rect().fLeft + r),
+                                                comboScale*(rrect.rect().fTop + r));
+        upperLeftOffset += spotOffset;
+        SkPoint lowerRightOffset = SkPoint::Make(comboScale*(rrect.rect().fRight - r),
+                                                comboScale*(rrect.rect().fBottom - r));
+        lowerRightOffset += spotOffset;
+
+        SkScalar maxOffset = SkTMax(upperLeftOffset.length(), lowerRightOffset.length())
+                           + comboScale*r;
+        SkScalar insetAmount = maxOffset - (0.5f * srcSpaceSpotRadius);
         SkScalar strokeWidth = srcSpaceSpotRadius + insetAmount;
-        SkScalar strokedArea = 2.0f*strokeWidth *
-                               (spotShadowRRect.width() + spotShadowRRect.height());
-        SkScalar filledArea = (spotShadowRRect.height() + srcSpaceSpotRadius) *
-                              (spotShadowRRect.width() + srcSpaceSpotRadius);
 
-        GrColor4f color = paint.getColor4f();
-        color.fRGBA[3] *= fSpotAlpha;
-        paint.setColor4f(color);
+        SkScalar strokedDiff = SkTMin(spotShadowRRect.width(), spotShadowRRect.height())
+                             - insetAmount - strokeWidth;
 
         SkStrokeRec spotStrokeRec(SkStrokeRec::kFill_InitStyle);
-        // If the area of the stroked geometry is larger than the fill geometry,
-        // or if the caster is transparent, just fill it.
-        if (strokedArea > filledArea ||
-            fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag) {
+        // If the caster has too large a stroke or is transparent, just fill it.
+        if (strokedDiff < 0 || fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag) {
             spotStrokeRec.setStrokeStyle(srcSpaceSpotRadius, true);
         } else {
             // Since we can't have unequal strokes, inset the shadow rect so the inner
@@ -293,6 +299,9 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
 
         spotShadowRRect.offset(spotOffset.fX, spotOffset.fY);
 
+        GrColor4f color = paint.getColor4f();
+        color.fRGBA[3] *= fSpotAlpha;
+        paint.setColor4f(color);
         rtContext->drawShadowRRect(clip, std::move(paint), viewMatrix, spotShadowRRect,
                                    devSpaceSpotRadius, GrStyle(spotStrokeRec, nullptr));
     }
