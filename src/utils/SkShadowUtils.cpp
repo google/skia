@@ -108,7 +108,7 @@ void SkGaussianColorFilter::filterSpan(const SkPMColor src[], int count, SkPMCol
     }
     for (int i = 0; i < count; ++i) {
         SkPMColor c = src[i];
-        uint8_t a = gByteExpU16Table[SkGetPackedB32(c)] * SkGetPackedG32(c) >> 16;
+        uint8_t a = gByteExpU16Table[SkGetPackedA32(c)] >> 8;
         dst[i] = SkPackARGB32(a, a, a, a);
     }
 }
@@ -142,12 +142,10 @@ uint64_t resource_cache_shared_id() {
 /** Factory for an ambient shadow mesh with particular shadow properties. */
 struct AmbientVerticesFactory {
     SkScalar fOccluderHeight = SK_ScalarNaN;  // NaN so that isCompatible will fail until init'ed.
-    SkScalar fAmbientAlpha;
     bool fTransparent;
 
     bool isCompatible(const AmbientVerticesFactory& that, SkVector* translate) const {
-        if (fOccluderHeight != that.fOccluderHeight || fAmbientAlpha != that.fAmbientAlpha ||
-            fTransparent != that.fTransparent) {
+        if (fOccluderHeight != that.fOccluderHeight || fTransparent != that.fTransparent) {
             return false;
         }
         translate->set(0, 0);
@@ -158,7 +156,7 @@ struct AmbientVerticesFactory {
         SkScalar z = fOccluderHeight;
         return SkShadowTessellator::MakeAmbient(path, ctm,
                                                 [z](SkScalar, SkScalar) { return z; },
-                                                fAmbientAlpha, fTransparent);
+                                                fTransparent);
     }
 };
 
@@ -177,13 +175,11 @@ struct SpotVerticesFactory {
     SkScalar fOccluderHeight = SK_ScalarNaN; // NaN so that isCompatible will fail until init'ed.
     SkPoint3 fDevLightPos;
     SkScalar fLightRadius;
-    SkScalar fSpotAlpha;
     OccluderType fOccluderType;
 
     bool isCompatible(const SpotVerticesFactory& that, SkVector* translate) const {
         if (fOccluderHeight != that.fOccluderHeight || fDevLightPos.fZ != that.fDevLightPos.fZ ||
-            fLightRadius != that.fLightRadius || fSpotAlpha != that.fSpotAlpha ||
-            fOccluderType != that.fOccluderType) {
+            fLightRadius != that.fLightRadius || fOccluderType != that.fOccluderType) {
             return false;
         }
         switch (fOccluderType) {
@@ -211,8 +207,7 @@ struct SpotVerticesFactory {
         SkScalar z = fOccluderHeight;
         return SkShadowTessellator::MakeSpot(path, ctm,
                                              [z](SkScalar, SkScalar) -> SkScalar { return z; },
-                                             fDevLightPos, fLightRadius,
-                                             fSpotAlpha, transparent);
+                                             fDevLightPos, fLightRadius, transparent);
     }
 };
 
@@ -568,14 +563,21 @@ static bool draw_analytic_shadows(SkCanvas* canvas, const SkPath& path, SkScalar
     return false;
 }
 
+static SkColor compute_render_color(SkColor color, float alpha) {
+    return SkColorSetARGB(alpha*SkColorGetA(color), SkColorGetR(color),
+                          SkColorGetG(color), SkColorGetB(color));
+}
+
 // Draw an offset spot shadow and outlining ambient shadow for the given path.
 void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar occluderHeight,
                                const SkPoint3& devLightPos, SkScalar lightRadius,
                                SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
                                uint32_t flags, SkResourceCache* cache) {
     // try fast paths
-    if (draw_analytic_shadows(canvas, path, occluderHeight, devLightPos, lightRadius,
-                              ambientAlpha, spotAlpha, color, flags)) {
+    bool skipAnalytic = SkToBool(flags & SkShadowFlags::kGeometricOnly_ShadowFlag);
+    if (!skipAnalytic && draw_analytic_shadows(canvas, path, occluderHeight, devLightPos,
+                                               lightRadius, ambientAlpha, spotAlpha, color,
+                                               flags)) {
         return;
     }
 
@@ -591,10 +593,10 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
         ambientAlpha = SkTMin(ambientAlpha, 1.f);
         AmbientVerticesFactory factory;
         factory.fOccluderHeight = occluderHeight;
-        factory.fAmbientAlpha = ambientAlpha;
         factory.fTransparent = transparent;
 
-        draw_shadow(factory, canvas, shadowedPath, color, cache);
+        SkColor renderColor = compute_render_color(color, ambientAlpha);
+        draw_shadow(factory, canvas, shadowedPath, renderColor, cache);
     }
 
     if (spotAlpha > 0) {
@@ -613,7 +615,6 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
         factory.fOccluderHeight = occluderHeight;
         factory.fDevLightPos = devLightPos;
         factory.fLightRadius = lightRadius;
-        factory.fSpotAlpha = spotAlpha;
 
         SkRRect rrect;
         if (transparent) {
@@ -652,7 +653,9 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
         if (factory.fOccluderType == SpotVerticesFactory::OccluderType::kOpaque) {
             factory.fOccluderType = SpotVerticesFactory::OccluderType::kTransparent;
         }
-        draw_shadow(factory, canvas, shadowedPath, color, cache);
+
+        SkColor renderColor = compute_render_color(color, spotAlpha);
+        draw_shadow(factory, canvas, shadowedPath, renderColor, cache);
     }
 }
 
@@ -664,8 +667,10 @@ void SkShadowUtils::DrawUncachedShadow(SkCanvas* canvas, const SkPath& path,
                                        SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
                                        uint32_t flags) {
     // try fast paths
-    if (draw_analytic_shadows(canvas, path, heightFunc(0, 0), lightPos, lightRadius,
-                              ambientAlpha, spotAlpha, color, flags)) {
+    bool skipAnalytic = SkToBool(flags & SkShadowFlags::kGeometricOnly_ShadowFlag);
+    if (!skipAnalytic && draw_analytic_shadows(canvas, path, heightFunc(0, 0), lightPos,
+                                               lightRadius, ambientAlpha, spotAlpha, color,
+                                               flags)) {
         return;
     }
 
@@ -678,13 +683,13 @@ void SkShadowUtils::DrawUncachedShadow(SkCanvas* canvas, const SkPath& path,
     if (ambientAlpha > 0) {
         ambientAlpha = SkTMin(ambientAlpha, 1.f);
         sk_sp<SkVertices> vertices = SkShadowTessellator::MakeAmbient(path, viewMatrix,
-                                                                      heightFunc, ambientAlpha,
-                                                                      transparent);
+                                                                      heightFunc, transparent);
+        SkColor renderColor = compute_render_color(color, ambientAlpha);
         SkPaint paint;
         // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
         // result of that against our 'color' param.
         paint.setColorFilter(SkColorFilter::MakeComposeFilter(
-            SkColorFilter::MakeModeFilter(color, SkBlendMode::kModulate),
+            SkColorFilter::MakeModeFilter(renderColor, SkBlendMode::kModulate),
             SkGaussianColorFilter::Make()));
         canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
     }
@@ -693,12 +698,13 @@ void SkShadowUtils::DrawUncachedShadow(SkCanvas* canvas, const SkPath& path,
         spotAlpha = SkTMin(spotAlpha, 1.f);
         sk_sp<SkVertices> vertices = SkShadowTessellator::MakeSpot(path, viewMatrix, heightFunc,
                                                                    lightPos, lightRadius,
-                                                                   spotAlpha, transparent);
+                                                                   transparent);
+        SkColor renderColor = compute_render_color(color, spotAlpha);
         SkPaint paint;
         // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
         // result of that against our 'color' param.
         paint.setColorFilter(SkColorFilter::MakeComposeFilter(
-            SkColorFilter::MakeModeFilter(color, SkBlendMode::kModulate),
+            SkColorFilter::MakeModeFilter(renderColor, SkBlendMode::kModulate),
             SkGaussianColorFilter::Make()));
         canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
     }
