@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96dbea66_a63be43f",
+        "filename": "gm/gradients.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 957,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T15:08:25Z",
+      "side": 1,
+      "message": "I bet you if you delete all the static, const, and constexpr, this GM will still do the exact same thing...",
+      "revId": "75478a2de5c80ba005571fc13333d06c4ecd1df6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
