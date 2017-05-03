@@ -11,12 +11,19 @@
 #include "SkResourceCache.h"
 #include "SkShadowUtils.h"
 
+bool gUseGeometric = false;
+
 void draw_shadow(SkCanvas* canvas, const SkPath& path, int height, SkColor color, SkPoint3 lightPos,
                  SkScalar lightR, bool isAmbient, uint32_t flags, SkResourceCache* cache) {
+    if (gUseGeometric) {
+        flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
+    }
     SkScalar ambientAlpha = isAmbient ? .5f : 0.f;
     SkScalar spotAlpha = isAmbient ? 0.f : .5f;
-    SkShadowUtils::DrawShadow(canvas, path, height, lightPos, lightR, ambientAlpha, spotAlpha,
-                              color, flags, cache);
+    SkShadowUtils::DrawUncachedShadow(canvas, path,
+                                      [height](SkScalar, SkScalar) { return height; },
+                                      lightPos, lightR, ambientAlpha, spotAlpha,
+                                      color, flags);
 }
 
 static constexpr int kW = 800;
