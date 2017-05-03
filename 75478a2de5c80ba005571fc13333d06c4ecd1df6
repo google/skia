@@ -16,6 +16,24 @@
       "revId": "75478a2de5c80ba005571fc13333d06c4ecd1df6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86d7be37_44317fc2",
+        "filename": "gm/gradients.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 957,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-03T15:15:22Z",
+      "side": 1,
+      "message": "nope.  it\u0027ll actually compile then :)",
+      "parentUuid": "96dbea66_a63be43f",
+      "revId": "75478a2de5c80ba005571fc13333d06c4ecd1df6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
