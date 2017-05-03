@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd99bbb6_03c347be",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-05-03T17:01:09Z",
+      "side": 1,
+      "message": "Snake case?",
+      "range": {
+        "startLine": 326,
+        "startChar": 10,
+        "endLine": 326,
+        "endChar": 42
+      },
+      "revId": "a428f771fa5f7a4b5001e841de96a321d5903345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3540ae73_3be9f212",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-05-03T17:01:09Z",
+      "side": 1,
+      "message": "Changing to this here adds a compare and a virtual call to what was a single indirect lookup. Here we know that the cached face is non-null and an SkTypefaceMac. That being said, calling CFEqual below is also going to be an indirect call and perhaps a bunch of compares, so maybe it\u0027s not that big of an issue. However, this bit of code doesn\u0027t really require the flexibility of the new function.",
+      "range": {
+        "startLine": 545,
+        "startChar": 21,
+        "endLine": 545,
+        "endChar": 54
+      },
+      "revId": "a428f771fa5f7a4b5001e841de96a321d5903345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
