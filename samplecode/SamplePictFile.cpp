@@ -30,18 +30,6 @@
 
 #include "SkGlyphCache.h"
 
-#include "SkDrawFilter.h"
-class SkCounterDrawFilter : public SkDrawFilter {
-public:
-    SkCounterDrawFilter(int count) : fCount(count) {}
-
-    bool filter(SkPaint*, Type t) override {
-        return --fCount >= 0;
-    }
-
-    int fCount;
-};
-
 class PictFileView : public SampleView {
 public:
     PictFileView(const char name[] = nullptr)
@@ -128,14 +116,6 @@ protected:
 
         if (!*picture) {
             *picture = LoadPicture(fFilename.c_str(), fBBox).release();
-        }
-        if (*picture) {
-            SkCounterDrawFilter filter(fCount);
-            if (fCount > 0) {
-                canvas->setDrawFilter(&filter);
-            }
-            canvas->drawPicture(*picture);
-            canvas->setDrawFilter(nullptr);
         }
 
 #ifdef SK_GLYPHCACHE_TRACK_HASH_STATS
