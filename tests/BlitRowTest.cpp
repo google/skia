@@ -195,7 +195,6 @@ static void test_diagonal(skiatest::Reporter* reporter) {
 
     static const SkColorType gDstColorType[] = {
         kN32_SkColorType,
-        kRGB_565_SkColorType,
     };
 
     static const SkColor gDstBG[] = { 0, 0xFFFFFFFF };
