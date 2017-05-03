@@ -52,6 +52,24 @@
       "revId": "2186640c4c60e2518fbb5506696021f149c6930f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec7125e4_2c9892d6",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-03T15:17:02Z",
+      "side": 1,
+      "message": "Yup, LGTM, assuming we know the input is always premul (I think it is).",
+      "parentUuid": "9702b73c_c1c9294f",
+      "revId": "2186640c4c60e2518fbb5506696021f149c6930f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
