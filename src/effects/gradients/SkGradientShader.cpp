@@ -12,8 +12,8 @@
 #include "SkLinearGradient.h"
 #include "SkMallocPixelRef.h"
 #include "SkRadialGradient.h"
-#include "SkTwoPointConicalGradient.h"
 #include "SkSweepGradient.h"
+#include "SkTwoPointConicalGradient.h"
 
 enum GradientSerializationFlags {
     // Bits 29:31 used for various boolean flags
@@ -1173,7 +1173,7 @@ GrGradientEffect::ColorType GrGradientEffect::determineColorType(
             } else if (SkScalarNearlyEqual(shader.fOrigPos[0], 0.0f) &&
                        SkScalarNearlyEqual(shader.fOrigPos[1], 1.0f) &&
                        SkScalarNearlyEqual(shader.fOrigPos[2], 1.0f)) {
-                
+
                 return kHardStopRightEdged_ColorType;
             }
         }
@@ -1369,7 +1369,7 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
     } else if (GrGradientEffect::kHardStopRightEdged_ColorType == e.getColorType()) {
         key |= kHardStopZeroOneOneKey;
     }
-   
+
     if (SkShader::TileMode::kClamp_TileMode == e.fTileMode) {
         key |= kClampTileMode;
     } else if (SkShader::TileMode::kRepeat_TileMode == e.fTileMode) {
