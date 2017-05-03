@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71fc4f78_88a414cd",
+        "filename": "include/gpu/GrGpuResourceRef.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-03T04:19:59Z",
+      "side": 1,
+      "message": "This is so we don\u0027t have to create a copy Constructor for GrMesh",
+      "range": {
+        "startLine": 166,
+        "startChar": 4,
+        "endLine": 166,
+        "endChar": 23
+      },
+      "revId": "1f16795fe15f2db70abc5d9b33a0e5355dc1f3b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
