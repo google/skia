@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "114f8b90_f8444079",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-03T19:40:58Z",
+      "side": 1,
+      "message": "I wonder if we can get rid of the template by refactoring as\n\n * SkGradientShaderBase::onAppendStages() final \n * Sk*GradientShader::onMapGradient() virtuals for specialization\n\nAnyway, we can look at that later - this is a good cleanup.",
+      "revId": "6abe74f8fa59de31a9e8dc42b4a1261762128814",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
