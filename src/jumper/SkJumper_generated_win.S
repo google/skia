@@ -3870,11 +3870,10 @@ ALIGN 4
   DB  0,0                                 ; add           %al,(%rax)
   DB  2,0                                 ; add           (%rax),%al
   DB  0,0                                 ; add           %al,(%rax)
-  DB  33,8                                ; and           %ecx,(%rax)
-  DB  130                                 ; (bad)
-  DB  60,0                                ; cmp           $0x0,%al
   DB  0,0                                 ; add           %al,(%rax)
-  DB  191,0,0,128,63                      ; mov           $0x3f800000,%edi
+  DB  128,60,0,0                          ; cmpb          $0x0,(%rax,%rax,1)
+  DB  252                                 ; cld
+  DB  190,0,0,128,63                      ; mov           $0x3f800000,%esi
   DB  0,0                                 ; add           %al,(%rax)
   DB  128,63,0                            ; cmpb          $0x0,(%rdi)
   DB  0,128,63,0,0,128                    ; add           %al,-0x7fffffc1(%rax)
@@ -9523,11 +9522,10 @@ ALIGN 4
   DB  0,0                                 ; add           %al,(%rax)
   DB  2,0                                 ; add           (%rax),%al
   DB  0,0                                 ; add           %al,(%rax)
-  DB  33,8                                ; and           %ecx,(%rax)
-  DB  130                                 ; (bad)
-  DB  60,0                                ; cmp           $0x0,%al
   DB  0,0                                 ; add           %al,(%rax)
-  DB  191,0,0,128,63                      ; mov           $0x3f800000,%edi
+  DB  128,60,0,0                          ; cmpb          $0x0,(%rax,%rax,1)
+  DB  252                                 ; cld
+  DB  190,0,0,128,63                      ; mov           $0x3f800000,%esi
   DB  0,0                                 ; add           %al,(%rax)
   DB  128,63,0                            ; cmpb          $0x0,(%rdi)
   DB  0,128,63,0,0,128                    ; add           %al,-0x7fffffc1(%rax)
@@ -13763,15 +13761,16 @@ ALIGN 16
   DB  0,0                                 ; add           %al,(%rax)
   DB  2,0                                 ; add           (%rax),%al
   DB  0,0                                 ; add           %al,(%rax)
-  DB  33,8                                ; and           %ecx,(%rax)
-  DB  130                                 ; (bad)
-  DB  60,33                               ; cmp           $0x21,%al
-  DB  8,130,60,33,8,130                   ; or            %al,-0x7df7dec4(%rdx)
-  DB  60,33                               ; cmp           $0x21,%al
-  DB  8,130,60,0,0,0                      ; or            %al,0x3c(%rdx)
-  DB  191,0,0,0,191                       ; mov           $0xbf000000,%edi
   DB  0,0                                 ; add           %al,(%rax)
-  DB  0,191,0,0,0,191                     ; add           %bh,-0x41000000(%rdi)
+  DB  128,60,0,0                          ; cmpb          $0x0,(%rax,%rax,1)
+  DB  128,60,0,0                          ; cmpb          $0x0,(%rax,%rax,1)
+  DB  128,60,0,0                          ; cmpb          $0x0,(%rax,%rax,1)
+  DB  128,60,0,0                          ; cmpb          $0x0,(%rax,%rax,1)
+  DB  252                                 ; cld
+  DB  190,0,0,252,190                     ; mov           $0xbefc0000,%esi
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  252                                 ; cld
+  DB  190,0,0,252,190                     ; mov           $0xbefc0000,%esi
   DB  0,0                                 ; add           %al,(%rax)
   DB  128,63,0                            ; cmpb          $0x0,(%rdi)
   DB  0,128,63,0,0,128                    ; add           %al,-0x7fffffc1(%rax)
@@ -19584,15 +19583,16 @@ ALIGN 16
   DB  0,0                                 ; add           %al,(%rax)
   DB  2,0                                 ; add           (%rax),%al
   DB  0,0                                 ; add           %al,(%rax)
-  DB  33,8                                ; and           %ecx,(%rax)
-  DB  130                                 ; (bad)
-  DB  60,33                               ; cmp           $0x21,%al
-  DB  8,130,60,33,8,130                   ; or            %al,-0x7df7dec4(%rdx)
-  DB  60,33                               ; cmp           $0x21,%al
-  DB  8,130,60,0,0,0                      ; or            %al,0x3c(%rdx)
-  DB  191,0,0,0,191                       ; mov           $0xbf000000,%edi
   DB  0,0                                 ; add           %al,(%rax)
-  DB  0,191,0,0,0,191                     ; add           %bh,-0x41000000(%rdi)
+  DB  128,60,0,0                          ; cmpb          $0x0,(%rax,%rax,1)
+  DB  128,60,0,0                          ; cmpb          $0x0,(%rax,%rax,1)
+  DB  128,60,0,0                          ; cmpb          $0x0,(%rax,%rax,1)
+  DB  128,60,0,0                          ; cmpb          $0x0,(%rax,%rax,1)
+  DB  252                                 ; cld
+  DB  190,0,0,252,190                     ; mov           $0xbefc0000,%esi
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  252                                 ; cld
+  DB  190,0,0,252,190                     ; mov           $0xbefc0000,%esi
   DB  0,0                                 ; add           %al,(%rax)
   DB  128,63,0                            ; cmpb          $0x0,(%rdi)
   DB  0,128,63,0,0,128                    ; add           %al,-0x7fffffc1(%rax)

@@ -121,14 +121,14 @@ _sk_dither_aarch64:
   .long  0x4e331e10                          // and           v16.16b, v16.16b, v19.16b
   .long  0x4f225694                          // shl           v20.4s, v20.4s, #2
   .long  0x4eb21e31                          // orr           v17.16b, v17.16b, v18.16b
-  .long  0x52a79049                          // mov           w9, #0x3c820000
+  .long  0x52a79009                          // mov           w9, #0x3c800000
   .long  0xbd400913                          // ldr           s19, [x8, #8]
   .long  0x6f3f0610                          // ushr          v16.4s, v16.4s, #1
   .long  0x4eb41e31                          // orr           v17.16b, v17.16b, v20.16b
-  .long  0x72810429                          // movk          w9, #0x821
-  .long  0x4eb01e30                          // orr           v16.16b, v17.16b, v16.16b
   .long  0x4e040d36                          // dup           v22.4s, w9
-  .long  0x4f0567f5                          // movi          v21.4s, #0xbf, lsl #24
+  .long  0x52b7df89                          // mov           w9, #0xbefc0000
+  .long  0x4eb01e30                          // orr           v16.16b, v17.16b, v16.16b
+  .long  0x4e040d35                          // dup           v21.4s, w9
   .long  0x4e21da10                          // scvtf         v16.4s, v16.4s
   .long  0x4e30ced5                          // fmla          v21.4s, v22.4s, v16.4s
   .long  0x4f9392b0                          // fmul          v16.4s, v21.4s, v19.s[0]
@@ -3631,16 +3631,17 @@ HIDDEN _sk_dither_vfp4
 .globl _sk_dither_vfp4
 FUNCTION(_sk_dither_vfp4)
 _sk_dither_vfp4:
-  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe92d4010                          // push          {r4, lr}
   .long  0xee800b90                          // vdup.32       d16, r0
   .long  0xf2c02012                          // vmov.i32      d18, #2
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
   .long  0xedd21b00                          // vldr          d17, [r2]
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe8911010                          // ldm           r1, {r4, ip}
   .long  0xf2c03014                          // vmov.i32      d19, #4
+  .long  0xe3a035f2                          // mov           r3, #1015021568
   .long  0xe2811008                          // add           r1, r1, #8
   .long  0xf2400da1                          // vadd.f32      d16, d16, d17
-  .long  0xe493e004                          // ldr           lr, [r3], #4
+  .long  0xe494e004                          // ldr           lr, [r4], #4
   .long  0xf2c01011                          // vmov.i32      d17, #1
   .long  0xf4ee5c9f                          // vld1.32       {d21[]}, [lr :32]
   .long  0xf3fb0720                          // vcvt.s32.f32  d16, d16
@@ -3662,21 +3663,22 @@ _sk_dither_vfp4:
   .long  0xf3ff1033                          // vshr.u32      d17, d19, #1
   .long  0xf26001b2                          // vorr          d16, d16, d18
   .long  0xf26001b1                          // vorr          d16, d16, d17
-  .long  0xeddf1b0b                          // vldr          d17, [pc, #44]
+  .long  0xee813b90                          // vdup.32       d17, r3
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
   .long  0xf3400db1                          // vmul.f32      d16, d16, d17
-  .long  0xf3c3161f                          // vmov.i32      d17, #-1090519040
+  .long  0xeddf1b09                          // vldr          d17, [pc, #36]
   .long  0xf2400da1                          // vadd.f32      d16, d16, d17
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
   .long  0xf3410db0                          // vmul.f32      d16, d17, d16
   .long  0xf3400d93                          // vmul.f32      d16, d16, d3
   .long  0xf2000d80                          // vadd.f32      d0, d16, d0
   .long  0xf2001d81                          // vadd.f32      d1, d16, d1
   .long  0xf2002d82                          // vadd.f32      d2, d16, d2
-  .long  0xe8bd4800                          // pop           {fp, lr}
+  .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0x3c820821                          // .word         0x3c820821
-  .long  0x3c820821                          // .word         0x3c820821
+  .long  0xe320f000                          // nop           {0}
+  .long  0xbefc0000                          // .word         0xbefc0000
+  .long  0xbefc0000                          // .word         0xbefc0000
 
 HIDDEN _sk_constant_color_vfp4
 .globl _sk_constant_color_vfp4
@@ -6947,7 +6949,7 @@ _sk_linear_gradient_vfp4:
   .long  0xe494c00c                          // ldr           ip, [r4], #12
   .long  0xf4a41c9f                          // vld1.32       {d1[]}, [r4 :32]
   .long  0xe35c0000                          // cmp           ip, #0
-  .long  0x0a000036                          // beq           2e38 <sk_linear_gradient_vfp4+0x110>
+  .long  0x0a000036                          // beq           2e40 <sk_linear_gradient_vfp4+0x110>
   .long  0xe59e3004                          // ldr           r3, [lr, #4]
   .long  0xf2c01010                          // vmov.i32      d17, #0
   .long  0xf2c07010                          // vmov.i32      d23, #0
@@ -6997,12 +6999,12 @@ _sk_linear_gradient_vfp4:
   .long  0xf26371b3                          // vorr          d23, d19, d19
   .long  0xf26481b4                          // vorr          d24, d20, d20
   .long  0xf26561b5                          // vorr          d22, d21, d21
-  .long  0x1affffd3                          // bne           2d74 <sk_linear_gradient_vfp4+0x4c>
+  .long  0x1affffd3                          // bne           2d7c <sk_linear_gradient_vfp4+0x4c>
   .long  0xf26c01bc                          // vorr          d16, d28, d28
   .long  0xf22b11bb                          // vorr          d1, d27, d27
   .long  0xf22a21ba                          // vorr          d2, d26, d26
   .long  0xf22931b9                          // vorr          d3, d25, d25
-  .long  0xea000003                          // b             2e48 <sk_linear_gradient_vfp4+0x120>
+  .long  0xea000003                          // b             2e50 <sk_linear_gradient_vfp4+0x120>
   .long  0xf2c05010                          // vmov.i32      d21, #0
   .long  0xf2c04010                          // vmov.i32      d20, #0
   .long  0xf2c03010                          // vmov.i32      d19, #0
@@ -11525,11 +11527,10 @@ BALIGN4
   .byte  0,0                                 // add           %al,(%rax)
   .byte  2,0                                 // add           (%rax),%al
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  33,8                                // and           %ecx,(%rax)
-  .byte  130                                 // (bad)
-  .byte  60,0                                // cmp           $0x0,%al
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  191,0,0,128,63                      // mov           $0x3f800000,%edi
+  .byte  128,60,0,0                          // cmpb          $0x0,(%rax,%rax,1)
+  .byte  252                                 // cld
+  .byte  190,0,0,128,63                      // mov           $0x3f800000,%esi
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
@@ -17384,11 +17385,10 @@ BALIGN4
   .byte  0,0                                 // add           %al,(%rax)
   .byte  2,0                                 // add           (%rax),%al
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  33,8                                // and           %ecx,(%rax)
-  .byte  130                                 // (bad)
-  .byte  60,0                                // cmp           $0x0,%al
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  191,0,0,128,63                      // mov           $0x3f800000,%edi
+  .byte  128,60,0,0                          // cmpb          $0x0,(%rax,%rax,1)
+  .byte  252                                 // cld
+  .byte  190,0,0,128,63                      // mov           $0x3f800000,%esi
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
@@ -21825,15 +21825,16 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  2,0                                 // add           (%rax),%al
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  33,8                                // and           %ecx,(%rax)
-  .byte  130                                 // (bad)
-  .byte  60,33                               // cmp           $0x21,%al
-  .byte  8,130,60,33,8,130                   // or            %al,-0x7df7dec4(%rdx)
-  .byte  60,33                               // cmp           $0x21,%al
-  .byte  8,130,60,0,0,0                      // or            %al,0x3c(%rdx)
-  .byte  191,0,0,0,191                       // mov           $0xbf000000,%edi
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,191,0,0,0,191                     // add           %bh,-0x41000000(%rdi)
+  .byte  128,60,0,0                          // cmpb          $0x0,(%rax,%rax,1)
+  .byte  128,60,0,0                          // cmpb          $0x0,(%rax,%rax,1)
+  .byte  128,60,0,0                          // cmpb          $0x0,(%rax,%rax,1)
+  .byte  128,60,0,0                          // cmpb          $0x0,(%rax,%rax,1)
+  .byte  252                                 // cld
+  .byte  190,0,0,252,190                     // mov           $0xbefc0000,%esi
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  252                                 // cld
+  .byte  190,0,0,252,190                     // mov           $0xbefc0000,%esi
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
@@ -27851,15 +27852,16 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  2,0                                 // add           (%rax),%al
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  33,8                                // and           %ecx,(%rax)
-  .byte  130                                 // (bad)
-  .byte  60,33                               // cmp           $0x21,%al
-  .byte  8,130,60,33,8,130                   // or            %al,-0x7df7dec4(%rdx)
-  .byte  60,33                               // cmp           $0x21,%al
-  .byte  8,130,60,0,0,0                      // or            %al,0x3c(%rdx)
-  .byte  191,0,0,0,191                       // mov           $0xbf000000,%edi
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,191,0,0,0,191                     // add           %bh,-0x41000000(%rdi)
+  .byte  128,60,0,0                          // cmpb          $0x0,(%rax,%rax,1)
+  .byte  128,60,0,0                          // cmpb          $0x0,(%rax,%rax,1)
+  .byte  128,60,0,0                          // cmpb          $0x0,(%rax,%rax,1)
+  .byte  128,60,0,0                          // cmpb          $0x0,(%rax,%rax,1)
+  .byte  252                                 // cld
+  .byte  190,0,0,252,190                     // mov           $0xbefc0000,%esi
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  252                                 // cld
+  .byte  190,0,0,252,190                     // mov           $0xbefc0000,%esi
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
