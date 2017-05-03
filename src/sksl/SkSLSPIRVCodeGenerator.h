@@ -89,8 +89,9 @@ private:
 
     enum SpecialIntrinsic {
         kAtan_SpecialIntrinsic,
-        kTexture_SpecialIntrinsic,
         kSubpassLoad_SpecialIntrinsic,
+        kTexelFetch_SpecialIntrinsic,
+        kTexture_SpecialIntrinsic,
     };
 
     void setupIntrinsics();
@@ -100,6 +101,8 @@ private:
     SpvId getType(const Type& type);
 
     SpvId getType(const Type& type, const MemoryLayout& layout);
+
+    SpvId getImageType(const Type& type);
 
     SpvId getFunctionType(const FunctionDeclaration& function);
 
@@ -276,6 +279,7 @@ private:
     std::unordered_map<const FunctionDeclaration*, SpvId> fFunctionMap;
     std::unordered_map<const Variable*, SpvId> fVariableMap;
     std::unordered_map<const Variable*, int32_t> fInterfaceBlockMap;
+    std::unordered_map<String, SpvId> fImageTypeMap;
     std::unordered_map<String, SpvId> fTypeMap;
     StringStream fCapabilitiesBuffer;
     StringStream fGlobalInitializersBuffer;
