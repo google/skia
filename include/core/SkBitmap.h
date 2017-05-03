@@ -552,16 +552,6 @@ public:
     */
     bool extractSubset(SkBitmap* dst, const SkIRect& subset) const;
 
-#ifdef SK_SUPPORT_LEGACY_BITMAP_COPYTO
-    bool copyTo(SkBitmap* dst, SkColorType ct) const;
-    bool copyTo(SkBitmap* dst) const {
-        return this->copyTo(dst, this->colorType());
-    }
-    bool deepCopyTo(SkBitmap* dst) const {
-        return this->copyTo(dst, this->colorType());
-    }
-#endif
-
     /**
      *  Copy the bitmap's pixels into the specified buffer (pixels + rowBytes),
      *  converting them into the requested format (SkImageInfo). The src pixels are read
@@ -698,8 +688,6 @@ private:
     uint8_t             fFlags;
 
     bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior behavior);
-
-    bool canCopyTo(SkColorType colorType) const;
 
     /*  Unreference any pixelrefs or colortables
     */
