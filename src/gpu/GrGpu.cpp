@@ -25,24 +25,6 @@
 #include "GrTexturePriv.h"
 #include "SkMathPriv.h"
 
-GrMesh& GrMesh::operator =(const GrMesh& di) {
-    fPrimitiveType  = di.fPrimitiveType;
-    fStartVertex    = di.fStartVertex;
-    fStartIndex     = di.fStartIndex;
-    fVertexCount    = di.fVertexCount;
-    fIndexCount     = di.fIndexCount;
-
-    fInstanceCount          = di.fInstanceCount;
-    fVerticesPerInstance    = di.fVerticesPerInstance;
-    fIndicesPerInstance     = di.fIndicesPerInstance;
-    fMaxInstancesPerDraw    = di.fMaxInstancesPerDraw;
-
-    fVertexBuffer.reset(di.vertexBuffer());
-    fIndexBuffer.reset(di.indexBuffer());
-
-    return *this;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 GrGpu::GrGpu(GrContext* context)

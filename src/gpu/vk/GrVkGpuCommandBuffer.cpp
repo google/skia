@@ -425,27 +425,25 @@ void GrVkGpuCommandBuffer::inlineUpload(GrOpFlushState* state, GrDrawOp::Deferre
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrVkGpuCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
-                                        const GrNonInstancedMesh& mesh) {
-    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
+                                        const GrBuffer* indexBuffer,
+                                        const GrBuffer* vertexBuffer) {
+    GrVkSecondaryCommandBuffer* currCmdBuf = fCommandBufferInfos[fCurrentCmdInfo].currentCmdBuf();
     // There is no need to put any memory barriers to make sure host writes have finished here.
     // When a command buffer is submitted to a queue, there is an implicit memory barrier that
     // occurs for all host writes. Additionally, BufferMemoryBarriers are not allowed inside of
     // an active RenderPass.
-    SkASSERT(!mesh.vertexBuffer()->isCPUBacked());
-    GrVkVertexBuffer* vbuf;
-    vbuf = (GrVkVertexBuffer*)mesh.vertexBuffer();
-    SkASSERT(vbuf);
-    SkASSERT(!vbuf->isMapped());
+    SkASSERT(vertexBuffer);
+    SkASSERT(!vertexBuffer->isCPUBacked());
+    SkASSERT(!vertexBuffer->isMapped());
 
-    cbInfo.currentCmdBuf()->bindVertexBuffer(fGpu, vbuf);
+    currCmdBuf->bindVertexBuffer(fGpu, static_cast<const GrVkVertexBuffer*>(vertexBuffer));
 
-    if (mesh.isIndexed()) {
-        SkASSERT(!mesh.indexBuffer()->isCPUBacked());
-        GrVkIndexBuffer* ibuf = (GrVkIndexBuffer*)mesh.indexBuffer();
-        SkASSERT(ibuf);
-        SkASSERT(!ibuf->isMapped());
+    if (indexBuffer) {
+        SkASSERT(indexBuffer);
+        SkASSERT(!indexBuffer->isMapped());
+        SkASSERT(!indexBuffer->isCPUBacked());
 
-        cbInfo.currentCmdBuf()->bindIndexBuffer(fGpu, ibuf);
+        currCmdBuf->bindIndexBuffer(fGpu, static_cast<const GrVkIndexBuffer*>(indexBuffer));
     }
 }
 
@@ -539,7 +537,7 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
         set_texture_layout(dstTexture, fGpu);
     }
 
-    GrPrimitiveType primitiveType = meshes[0].primitiveType();
+    GrPrimitiveType primitiveType = meshes[0].fPrimitiveType;
     sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,
                                                                     primProc,
                                                                     primitiveType);
@@ -551,16 +549,14 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
-        GrMesh::Iterator iter;
-        const GrNonInstancedMesh* nonIdxMesh = iter.init(mesh);
-        do {
-            if (nonIdxMesh->primitiveType() != primitiveType) {
+        for (GrMesh::PatternBatch batch : mesh) {
+            if (mesh.fPrimitiveType != primitiveType) {
                 // Technically we don't have to call this here (since there is a safety check in
                 // pipelineState:setData but this will allow for quicker freeing of resources if the
                 // pipelineState sits in a cache for a while.
                 pipelineState->freeTempResources(fGpu);
                 SkDEBUGCODE(pipelineState = nullptr);
-                primitiveType = nonIdxMesh->primitiveType();
+                primitiveType = mesh.fPrimitiveType;
                 pipelineState = this->prepareDrawState(pipeline,
                                                        primProc,
                                                        primitiveType);
@@ -569,26 +565,26 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
                 }
             }
             SkASSERT(pipelineState);
-            this->bindGeometry(primProc, *nonIdxMesh);
+            this->bindGeometry(primProc, mesh.fIndexBuffer.get(), mesh.fVertexBuffer.get());
 
-            if (nonIdxMesh->isIndexed()) {
+            if (mesh.fIndexBuffer) {
                 cbInfo.currentCmdBuf()->drawIndexed(fGpu,
-                                                   nonIdxMesh->indexCount(),
-                                                   1,
-                                                   nonIdxMesh->startIndex(),
-                                                   nonIdxMesh->startVertex(),
-                                                   0);
+                                                    mesh.fIndexCount * batch.fRepeatCount,
+                                                    1,
+                                                    mesh.fBaseIndex,
+                                                    batch.fBaseVertex,
+                                                    0);
             } else {
                 cbInfo.currentCmdBuf()->draw(fGpu,
-                                            nonIdxMesh->vertexCount(),
-                                            1,
-                                            nonIdxMesh->startVertex(),
-                                            0);
+                                             mesh.fVertexCount * batch.fRepeatCount,
+                                             1,
+                                             batch.fBaseVertex,
+                                             0);
             }
             cbInfo.fIsEmpty = false;
 
             fGpu->stats()->incNumDraws();
-        } while ((nonIdxMesh = iter.next()));
+        }
     }
 
     // Update command buffer bounds

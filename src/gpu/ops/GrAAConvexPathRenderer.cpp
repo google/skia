@@ -813,10 +813,13 @@ private:
             extract_verts(tess, verts, vertexStride, fColor, idxs, canTweakAlphaForCoverage);
 
             GrMesh mesh;
-            mesh.initIndexed(kTriangles_GrPrimitiveType,
-                             vertexBuffer, indexBuffer,
-                             firstVertex, firstIndex,
-                             tess.numPts(), tess.numIndices());
+            mesh.fPrimitiveType = kTriangles_GrPrimitiveType;
+            mesh.fIndexBuffer.reset(indexBuffer);
+            mesh.fIndexCount = tess.numIndices();
+            mesh.fBaseIndex = firstIndex;
+            mesh.fVertexBuffer.reset(vertexBuffer);
+            mesh.fVertexCount = tess.numPts();
+            mesh.fBaseVertex = firstVertex;
             target->draw(gp.get(), this->pipeline(), mesh);
         }
     }
@@ -875,12 +878,14 @@ private:
                 continue;
             }
 
-            const GrBuffer* vertexBuffer;
-            int firstVertex;
+            GrMesh mesh;
+            mesh.fPrimitiveType = kTriangles_GrPrimitiveType;
 
+            const GrBuffer* vertexBuffer;
             size_t vertexStride = quadProcessor->getVertexStride();
             QuadVertex* verts = reinterpret_cast<QuadVertex*>(target->makeVertexSpace(
-                vertexStride, vertexCount, &vertexBuffer, &firstVertex));
+                vertexStride, vertexCount, &vertexBuffer, &mesh.fBaseVertex));
+            mesh.fVertexBuffer.reset(vertexBuffer);
 
             if (!verts) {
                 SkDebugf("Could not allocate vertices\n");
@@ -888,26 +893,23 @@ private:
             }
 
             const GrBuffer* indexBuffer;
-            int firstIndex;
-
-            uint16_t *idxs = target->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
+            uint16_t *idxs = target->makeIndexSpace(indexCount, &indexBuffer, &mesh.fBaseIndex);
             if (!idxs) {
                 SkDebugf("Could not allocate indices\n");
                 return;
             }
+            mesh.fIndexBuffer.reset(indexBuffer);
 
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
             create_vertices(segments, fanPt, &draws, verts, idxs);
 
-            GrMesh mesh;
-
             for (int j = 0; j < draws.count(); ++j) {
                 const Draw& draw = draws[j];
-                mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer,
-                                 firstVertex, firstIndex, draw.fVertexCnt, draw.fIndexCnt);
+                mesh.fIndexCount = draw.fIndexCnt;
+                mesh.fVertexCount = draw.fVertexCnt;
                 target->draw(quadProcessor.get(), this->pipeline(), mesh);
-                firstVertex += draw.fVertexCnt;
-                firstIndex += draw.fIndexCnt;
+                mesh.fBaseIndex += draw.fIndexCnt;
+                mesh.fBaseVertex += draw.fVertexCnt;
             }
         }
     }

@@ -41,7 +41,7 @@ const GrBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
     // clang-format on
 
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(gFillAARectIdx) == kIndicesPerAAFillRect);
-    return resourceProvider->findOrCreateInstancedIndexBuffer(
+    return resourceProvider->findOrCreatePatternedIndexBuffer(
             gFillAARectIdx, kIndicesPerAAFillRect, kNumAAFillRectsInIndexBuffer,
             kVertsPerAAFillRect, gAAFillRectIndexBufferKey);
 }
@@ -231,7 +231,7 @@ private:
         size_t vertexStride = gp->getVertexStride();
 
         sk_sp<const GrBuffer> indexBuffer(get_index_buffer(target->resourceProvider()));
-        InstancedHelper helper;
+        PatternHelper helper;
         void* vertices =
                 helper.init(target, kTriangles_GrPrimitiveType, vertexStride, indexBuffer.get(),
                             kVertsPerAAFillRect, kIndicesPerAAFillRect, fRectCnt);
