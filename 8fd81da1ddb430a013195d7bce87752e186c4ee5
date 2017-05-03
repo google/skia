@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec79de5f_6f37d632",
+        "filename": "src/effects/SkLumaColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T21:03:54Z",
+      "side": 1,
+      "message": "0,0,0,luma",
+      "range": {
+        "startLine": 52,
+        "startChar": 19,
+        "endLine": 52,
+        "endChar": 34
+      },
+      "revId": "8fd81da1ddb430a013195d7bce87752e186c4ee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
