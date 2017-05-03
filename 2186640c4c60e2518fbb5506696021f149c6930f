@@ -16,6 +16,24 @@
       "revId": "2186640c4c60e2518fbb5506696021f149c6930f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1370aa68_17cf34f7",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T14:33:35Z",
+      "side": 1,
+      "message": "There\u0027s not necessarily a \"before premul\" point, but sure.  I think we can just fold an extra multiply-by-alpha into the works to make it as if we\u0027re dithering the unpremul values, right?\n\n  red +\u003d rate * dither * alpha\n\netc?",
+      "parentUuid": "822aa6b4_62d12bc3",
+      "revId": "2186640c4c60e2518fbb5506696021f149c6930f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
