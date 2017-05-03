@@ -22,6 +22,23 @@
       "revId": "8fd81da1ddb430a013195d7bce87752e186c4ee5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2b9ca4a_055e476c",
+        "filename": "src/effects/SkOverdrawColorFilter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-03T21:05:39Z",
+      "side": 1,
+      "message": "nit: any particular reason to reduce visibility (and not keep next to fiterSpan)?",
+      "revId": "8fd81da1ddb430a013195d7bce87752e186c4ee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
