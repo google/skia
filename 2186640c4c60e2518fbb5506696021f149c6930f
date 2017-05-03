@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "822aa6b4_62d12bc3",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-03T13:36:14Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be applied before premul?",
+      "revId": "2186640c4c60e2518fbb5506696021f149c6930f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
