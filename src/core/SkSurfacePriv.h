@@ -10,6 +10,8 @@
 
 #include "SkSurfaceProps.h"
 
+struct SkImageInfo;
+
 static inline SkSurfaceProps SkSurfacePropsCopyOrDefault(const SkSurfaceProps* props) {
     if (props) {
         return *props;
@@ -21,5 +23,9 @@ static inline SkSurfaceProps SkSurfacePropsCopyOrDefault(const SkSurfaceProps* p
 static inline SkPixelGeometry SkSurfacePropsDefaultPixelGeometry() {
     return SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType).pixelGeometry();
 }
+
+constexpr size_t kIgnoreRowBytesValue = static_cast<size_t>(~0);
+
+bool SkSurfaceValidateRasterInfo(const SkImageInfo&, size_t rb = kIgnoreRowBytesValue);
 
 #endif

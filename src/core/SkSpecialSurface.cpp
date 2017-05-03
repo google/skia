@@ -93,11 +93,18 @@ private:
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromBitmap(const SkIRect& subset, SkBitmap& bm,
                                                          const SkSurfaceProps* props) {
+    if (subset.isEmpty() || !SkSurfaceValidateRasterInfo(bm.info(), bm.rowBytes())) {
+        return nullptr;
+    }
     return sk_make_sp<SkSpecialSurface_Raster>(bm.info(), sk_ref_sp(bm.pixelRef()), subset, props);
 }
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
                                                      const SkSurfaceProps* props) {
+    if (!SkSurfaceValidateRasterInfo(info)) {
+        return nullptr;
+    }
+
     sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeZeroed(info, 0, nullptr);
     if (!pr) {
         return nullptr;

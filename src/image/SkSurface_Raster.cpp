@@ -11,12 +11,8 @@
 #include "SkDevice.h"
 #include "SkMallocPixelRef.h"
 
-static const size_t kIgnoreRowBytesValue = (size_t)~0;
-
 class SkSurface_Raster : public SkSurface_Base {
 public:
-    static bool Valid(const SkImageInfo&, size_t rb = kIgnoreRowBytesValue);
-
     SkSurface_Raster(const SkImageInfo&, void*, size_t rb,
                      void (*releaseProc)(void* pixels, void* context), void* context,
                      const SkSurfaceProps*);
@@ -39,7 +35,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
+bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
     if (info.isEmpty()) {
         return false;
     }
@@ -186,7 +182,7 @@ sk_sp<SkSurface> SkSurface::MakeRasterDirectReleaseProc(const SkImageInfo& info,
     if (nullptr == releaseProc) {
         context = nullptr;
     }
-    if (!SkSurface_Raster::Valid(info, rb)) {
+    if (!SkSurfaceValidateRasterInfo(info, rb)) {
         return nullptr;
     }
     if (nullptr == pixels) {
@@ -203,7 +199,7 @@ sk_sp<SkSurface> SkSurface::MakeRasterDirect(const SkImageInfo& info, void* pixe
 
 sk_sp<SkSurface> SkSurface::MakeRaster(const SkImageInfo& info, size_t rowBytes,
                                        const SkSurfaceProps* props) {
-    if (!SkSurface_Raster::Valid(info)) {
+    if (!SkSurfaceValidateRasterInfo(info)) {
         return nullptr;
     }
 
