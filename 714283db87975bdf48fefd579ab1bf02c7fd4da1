@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c24f35d_e07c5043",
+        "filename": "include/gpu/GrGpuResourceRef.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-03T21:38:29Z",
+      "side": 1,
+      "message": "Maybe just GrTextureProxyRef? The other class owns a Gr\"GpuResource\" while this owns a Gr\"TextureProxy\"",
+      "range": {
+        "startLine": 94,
+        "startChar": 6,
+        "endLine": 94,
+        "endChar": 26
+      },
+      "revId": "714283db87975bdf48fefd579ab1bf02c7fd4da1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
