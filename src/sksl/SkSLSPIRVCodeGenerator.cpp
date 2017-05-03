@@ -64,12 +64,12 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("determinant")]   = ALL_GLSL(Determinant);
     fIntrinsicMap[String("matrixInverse")] = ALL_GLSL(MatrixInverse);
     fIntrinsicMap[String("mod")]           = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpFMod,
-                                                               SpvOpSMod, SpvOpUMod, SpvOpUndef);
+                                                             SpvOpSMod, SpvOpUMod, SpvOpUndef);
     fIntrinsicMap[String("min")]           = BY_TYPE_GLSL(FMin, SMin, UMin);
     fIntrinsicMap[String("max")]           = BY_TYPE_GLSL(FMax, SMax, UMax);
     fIntrinsicMap[String("clamp")]         = BY_TYPE_GLSL(FClamp, SClamp, UClamp);
     fIntrinsicMap[String("dot")]           = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDot,
-                                                               SpvOpUndef, SpvOpUndef, SpvOpUndef);
+                                                             SpvOpUndef, SpvOpUndef, SpvOpUndef);
     fIntrinsicMap[String("mix")]           = ALL_GLSL(FMix);
     fIntrinsicMap[String("step")]          = ALL_GLSL(Step);
     fIntrinsicMap[String("smoothstep")]    = ALL_GLSL(SmoothStep);
@@ -95,44 +95,44 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("findLSB")]     = ALL_GLSL(FindILsb);
     fIntrinsicMap[String("findMSB")]     = BY_TYPE_GLSL(FindSMsb, FindSMsb, FindUMsb);
     fIntrinsicMap[String("dFdx")]        = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDPdx,
-                                                             SpvOpUndef, SpvOpUndef, SpvOpUndef);
+                                                           SpvOpUndef, SpvOpUndef, SpvOpUndef);
     fIntrinsicMap[String("dFdy")]        = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDPdy,
-                                                             SpvOpUndef, SpvOpUndef, SpvOpUndef);
+                                                           SpvOpUndef, SpvOpUndef, SpvOpUndef);
     fIntrinsicMap[String("dFdy")]        = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDPdy,
-                                                             SpvOpUndef, SpvOpUndef, SpvOpUndef);
+                                                           SpvOpUndef, SpvOpUndef, SpvOpUndef);
     fIntrinsicMap[String("texture")]     = SPECIAL(Texture);
-
+    fIntrinsicMap[String("texelFetch")]  = SPECIAL(TexelFetch);
     fIntrinsicMap[String("subpassLoad")] = SPECIAL(SubpassLoad);
 
     fIntrinsicMap[String("any")]              = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpUndef,
-                                                                  SpvOpUndef, SpvOpUndef, SpvOpAny);
+                                                                SpvOpUndef, SpvOpUndef, SpvOpAny);
     fIntrinsicMap[String("all")]              = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpUndef,
-                                                                  SpvOpUndef, SpvOpUndef, SpvOpAll);
+                                                                SpvOpUndef, SpvOpUndef, SpvOpAll);
     fIntrinsicMap[String("equal")]            = std::make_tuple(kSPIRV_IntrinsicKind,
-                                                                  SpvOpFOrdEqual, SpvOpIEqual,
-                                                                  SpvOpIEqual, SpvOpLogicalEqual);
+                                                                SpvOpFOrdEqual, SpvOpIEqual,
+                                                                SpvOpIEqual, SpvOpLogicalEqual);
     fIntrinsicMap[String("notEqual")]         = std::make_tuple(kSPIRV_IntrinsicKind,
-                                                                  SpvOpFOrdNotEqual, SpvOpINotEqual,
-                                                                  SpvOpINotEqual,
-                                                                  SpvOpLogicalNotEqual);
+                                                                SpvOpFOrdNotEqual, SpvOpINotEqual,
+                                                                SpvOpINotEqual,
+                                                                SpvOpLogicalNotEqual);
     fIntrinsicMap[String("lessThan")]         = std::make_tuple(kSPIRV_IntrinsicKind,
-                                                                  SpvOpSLessThan, SpvOpULessThan,
-                                                                  SpvOpFOrdLessThan, SpvOpUndef);
+                                                                SpvOpSLessThan, SpvOpULessThan,
+                                                                SpvOpFOrdLessThan, SpvOpUndef);
     fIntrinsicMap[String("lessThanEqual")]    = std::make_tuple(kSPIRV_IntrinsicKind,
-                                                                  SpvOpSLessThanEqual,
-                                                                  SpvOpULessThanEqual,
-                                                                  SpvOpFOrdLessThanEqual,
-                                                                  SpvOpUndef);
+                                                                SpvOpSLessThanEqual,
+                                                                SpvOpULessThanEqual,
+                                                                SpvOpFOrdLessThanEqual,
+                                                                SpvOpUndef);
     fIntrinsicMap[String("greaterThan")]      = std::make_tuple(kSPIRV_IntrinsicKind,
-                                                                  SpvOpSGreaterThan,
-                                                                  SpvOpUGreaterThan,
-                                                                  SpvOpFOrdGreaterThan,
-                                                                  SpvOpUndef);
+                                                                SpvOpSGreaterThan,
+                                                                SpvOpUGreaterThan,
+                                                                SpvOpFOrdGreaterThan,
+                                                                SpvOpUndef);
     fIntrinsicMap[String("greaterThanEqual")] = std::make_tuple(kSPIRV_IntrinsicKind,
-                                                                  SpvOpSGreaterThanEqual,
-                                                                  SpvOpUGreaterThanEqual,
-                                                                  SpvOpFOrdGreaterThanEqual,
-                                                                  SpvOpUndef);
+                                                                SpvOpSGreaterThanEqual,
+                                                                SpvOpUGreaterThanEqual,
+                                                                SpvOpFOrdGreaterThanEqual,
+                                                                SpvOpUndef);
 // interpolateAt* not yet supported...
 }
 
@@ -1091,11 +1091,15 @@ SpvId SPIRVCodeGenerator::getType(const Type& type, const MemoryLayout& layout) 
                 if (SpvDimSubpassData != type.dimensions()) {
                     image = this->nextId();
                 }
+                if (SpvDimBuffer == type.dimensions()) {
+                    fCapabilities |= (((uint64_t) 1) << SpvCapabilitySampledBuffer);
+                }
                 this->writeInstruction(SpvOpTypeImage, image,
                                        this->getType(*fContext.fFloat_Type, layout),
                                        type.dimensions(), type.isDepth(), type.isArrayed(),
                                        type.isMultisampled(), type.isSampled() ? 1 : 2,
                                        SpvImageFormatUnknown, fConstantBuffer);
+                fImageTypeMap[key] = image;
                 if (SpvDimSubpassData != type.dimensions()) {
                     this->writeInstruction(SpvOpTypeSampledImage, result, image, fConstantBuffer);
                 }
@@ -1112,6 +1116,14 @@ SpvId SPIRVCodeGenerator::getType(const Type& type, const MemoryLayout& layout) 
         return result;
     }
     return entry->second;
+}
+
+SpvId SPIRVCodeGenerator::getImageType(const Type& type) {
+    ASSERT(type.kind() == Type::kSampler_Kind);
+    this->getType(type);
+    String key = type.name() + to_string((int) fDefaultLayout.fStd);
+    ASSERT(fImageTypeMap.find(key) != fImageTypeMap.end());
+    return fImageTypeMap[key];
 }
 
 SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
@@ -1295,7 +1307,51 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             for (SpvId id : arguments) {
                 this->writeWord(id, out);
             }
-            return result;
+            break;
+        }
+        case kSubpassLoad_SpecialIntrinsic: {
+            SpvId img = this->writeExpression(*c.fArguments[0], out);
+            std::vector<std::unique_ptr<Expression>> args;
+            args.emplace_back(new FloatLiteral(fContext, Position(), 0.0));
+            args.emplace_back(new FloatLiteral(fContext, Position(), 0.0));
+            Constructor ctor(Position(), *fContext.fVec2_Type, std::move(args));
+            SpvId coords = this->writeConstantVector(ctor);
+            if (1 == c.fArguments.size()) {
+                this->writeInstruction(SpvOpImageRead,
+                                       this->getType(c.fType),
+                                       result,
+                                       img,
+                                       coords,
+                                       out);
+            } else {
+                ASSERT(2 == c.fArguments.size());
+                SpvId sample = this->writeExpression(*c.fArguments[1], out);
+                this->writeInstruction(SpvOpImageRead,
+                                       this->getType(c.fType),
+                                       result,
+                                       img,
+                                       coords,
+                                       SpvImageOperandsSampleMask,
+                                       sample,
+                                       out);
+            }
+            break;
+        }
+        case kTexelFetch_SpecialIntrinsic: {
+            ASSERT(c.fArguments.size() == 2);
+            SpvId image = this->nextId();
+            this->writeInstruction(SpvOpImage,
+                                   this->getImageType(c.fArguments[0]->fType),
+                                   image,
+                                   this->writeExpression(*c.fArguments[0], out),
+                                   out);
+            this->writeInstruction(SpvOpImageFetch,
+                                   this->getType(c.fType),
+                                   result,
+                                   image,
+                                   this->writeExpression(*c.fArguments[1], out),
+                                   out);
+            break;
         }
         case kTexture_SpecialIntrinsic: {
             SpvOp_ op = SpvOpImageSampleImplicitLod;
@@ -1338,34 +1394,6 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             } else {
                 ASSERT(c.fArguments.size() == 2);
                 this->writeInstruction(op, type, result, sampler, uv,
-                                       out);
-            }
-            break;
-        }
-        case kSubpassLoad_SpecialIntrinsic: {
-            SpvId img = this->writeExpression(*c.fArguments[0], out);
-            std::vector<std::unique_ptr<Expression>> args;
-            args.emplace_back(new FloatLiteral(fContext, Position(), 0.0));
-            args.emplace_back(new FloatLiteral(fContext, Position(), 0.0));
-            Constructor ctor(Position(), *fContext.fVec2_Type, std::move(args));
-            SpvId coords = this->writeConstantVector(ctor);
-            if (1 == c.fArguments.size()) {
-                this->writeInstruction(SpvOpImageRead,
-                                       this->getType(c.fType),
-                                       result,
-                                       img,
-                                       coords,
-                                       out);
-            } else {
-                ASSERT(2 == c.fArguments.size());
-                SpvId sample = this->writeExpression(*c.fArguments[1], out);
-                this->writeInstruction(SpvOpImageRead,
-                                       this->getType(c.fType),
-                                       result,
-                                       img,
-                                       coords,
-                                       SpvImageOperandsSampleMask,
-                                       sample,
                                        out);
             }
             break;

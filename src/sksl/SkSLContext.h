@@ -71,7 +71,8 @@ public:
     , fSampler1DArray_Type(new Type(String("sampler1DArray")))
     , fSampler2DArray_Type(new Type(String("sampler2DArray")))
     , fSamplerCubeArray_Type(new Type(String("samplerCubeArray")))
-    , fSamplerBuffer_Type(new Type(String("samplerBuffer")))
+    , fSamplerBuffer_Type(new Type(String("samplerBuffer"), SpvDimBuffer, false, false, false,
+                                   true))
     , fSampler2DMS_Type(new Type(String("sampler2DMS")))
     , fSampler2DMSArray_Type(new Type(String("sampler2DMSArray")))
     , fSampler1DShadow_Type(new Type(String("sampler1DShadow")))

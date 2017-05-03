@@ -345,9 +345,10 @@ float textureOffset(sampler1DArrayShadow sampler, vec3 P, int offset);
 float textureOffset(sampler1DArrayShadow sampler, vec3 P, int offset, float bias);
 float textureOffset(sampler2DArrayShadow sampler, vec4 P, ivec2 offset);
 */
+vec4 texelFetch(samplerBuffer sampler, int P);
+
 $gvec4 texelFetch($gsampler1D sampler, int P, int lod);
 $gvec4 texelFetch($gsampler2D sampler, ivec2 P, int lod);
-$gvec4 texelFetch($gsamplerBuffer sampler, int P);
 $gvec4 texelFetch($gsampler2DRect sampler, ivec2 P);
 /*
 $gvec4 texelFetch($gsampler3D sampler, ivec3 P, int lod);
