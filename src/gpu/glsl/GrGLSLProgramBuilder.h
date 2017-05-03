@@ -22,7 +22,7 @@
 
 class GrShaderVar;
 class GrGLSLVaryingHandler;
-class GrGLSLExpr4;
+class SkString;
 class GrShaderCaps;
 
 typedef SkSTArray<8, GrGLSLFragmentProcessor*, true> GrGLSLFragProcs;
@@ -110,7 +110,7 @@ protected:
 
     void addFeature(GrShaderFlags shaders, uint32_t featureBit, const char* extensionName);
 
-    bool emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage);
+    bool emitAndInstallProcs();
 
     void cleanupFragmentProcessors();
 
@@ -140,19 +140,18 @@ private:
     };
 
     // Generates a possibly mangled name for a stage variable and writes it to the fragment shader.
-    // If GrGLSLExpr4 has a valid name then it will use that instead
-    void nameExpression(GrGLSLExpr4*, const char* baseName);
+    void nameExpression(SkString*, const char* baseName);
 
     void emitAndInstallPrimProc(const GrPrimitiveProcessor&,
-                                GrGLSLExpr4* outputColor,
-                                GrGLSLExpr4* outputCoverage);
-    void emitAndInstallFragProcs(GrGLSLExpr4* colorInOut, GrGLSLExpr4* coverageInOut);
-    void emitAndInstallFragProc(const GrFragmentProcessor&,
-                                int index,
-                                int transformedCoordVarsIdx,
-                                const GrGLSLExpr4& input,
-                                GrGLSLExpr4* output);
-    void emitAndInstallXferProc(const GrGLSLExpr4& colorIn, const GrGLSLExpr4& coverageIn);
+                                SkString* outputColor,
+                                SkString* outputCoverage);
+    void emitAndInstallFragProcs(SkString* colorInOut, SkString* coverageInOut);
+    SkString emitAndInstallFragProc(const GrFragmentProcessor&,
+                                    int index,
+                                    int transformedCoordVarsIdx,
+                                    const SkString& input,
+                                    SkString output);
+    void emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
     void emitSamplersAndImageStorages(const GrResourceIOProcessor& processor,
                                       SkTArray<SamplerHandle>* outTexSamplerHandles,
                                       SkTArray<SamplerHandle>* outBufferSamplerHandles,
