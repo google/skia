@@ -37,10 +37,6 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 
-#ifndef SK_IGNORE_ETC1_SUPPORT
-#  include "etc1.h"
-#endif
-
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info, const GrCaps& caps) {
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
@@ -62,32 +58,6 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
     builder[2] = imageBounds.fTop;
     builder[3] = imageBounds.fRight;
     builder[4] = imageBounds.fBottom;
-}
-
-GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
-                                                 int expectedW, int expectedH,
-                                                 const void** outStartOfDataToUpload) {
-    *outStartOfDataToUpload = nullptr;
-#ifndef SK_IGNORE_ETC1_SUPPORT
-    if (!ctx->caps()->isConfigTexturable(kETC1_GrPixelConfig)) {
-        return kUnknown_GrPixelConfig;
-    }
-
-    const uint8_t* bytes = data->bytes();
-    if (data->size() > ETC_PKM_HEADER_SIZE && etc1_pkm_is_valid(bytes)) {
-        // Does the data match the dimensions of the bitmap? If not,
-        // then we don't know how to scale the image to match it...
-        if (etc1_pkm_get_width(bytes) != (unsigned)expectedW ||
-            etc1_pkm_get_height(bytes) != (unsigned)expectedH)
-        {
-            return kUnknown_GrPixelConfig;
-        }
-
-        *outStartOfDataToUpload = bytes + ETC_PKM_HEADER_SIZE;
-        return kETC1_GrPixelConfig;
-    }
-#endif
-    return kUnknown_GrPixelConfig;
 }
 
 //////////////////////////////////////////////////////////////////////////////
