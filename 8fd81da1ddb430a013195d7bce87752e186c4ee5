@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "f69df7b2_76858aee",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T21:07:58Z",
+      "side": 1,
+      "message": "We\u0027ll need to delete this guy\u0027s impl, right?",
+      "revId": "8fd81da1ddb430a013195d7bce87752e186c4ee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ec79de5f_6f37d632",
         "filename": "src/effects/SkLumaColorFilter.cpp",
         "patchSetId": 2
