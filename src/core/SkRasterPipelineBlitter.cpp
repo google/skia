@@ -16,7 +16,7 @@
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-
+#include "../jumper/SkJumper.h"
 
 class SkRasterPipelineBlitter : public SkBlitter {
 public:
@@ -130,6 +130,30 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             return nullptr;
         }
         is_opaque = is_opaque && (colorFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
+    }
+
+    // TODO: Think more about under what conditions we dither:
+    //   - if we're drawing anything into 565 and the user has asked us to dither, or
+    //   - if we're drawing a gradient into 565 or 8888.
+    // TODO: move this later in the pipeline, perhaps the first thing we do in append_store()?
+    if ((paint.isDither() && dst.info().colorType() == kRGB_565_SkColorType) ||
+        (shader && shader->asAGradient(nullptr) >= SkShader::kLinear_GradientType)) {
+        float rate;
+        switch (dst.info().colorType()) {
+            case   kRGB_565_SkColorType:  rate =  1/63.0f; break;
+            case kBGRA_8888_SkColorType:
+            case kRGBA_8888_SkColorType:  rate = 1/255.0f; break;
+            default:                      rate =     0.0f; break;
+        }
+        if (rate) {
+            auto ctx = alloc->make<SkJumper_DitherCtx>();
+            ctx->y    = &blitter->fCurrentY;
+            ctx->rate = rate;
+            pipeline->append(SkRasterPipeline::dither, ctx);
+            pipeline->append(SkRasterPipeline::clamp_0);
+            pipeline->append(SkRasterPipeline::clamp_a);
+            is_constant = false;
+        }
     }
 
     if (is_constant) {
