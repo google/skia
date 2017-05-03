@@ -39,7 +39,7 @@ public:
     // Textures
 
     /**
-     * Creates a new texture in the resource cache and returns it. The caller owns a
+     * Creates a new texture in the resorce cache and returns it. The caller owns a
      * ref on the returned texture which must be balanced by a call to unref.
      *
      * @param desc          Description of the texture properties.
