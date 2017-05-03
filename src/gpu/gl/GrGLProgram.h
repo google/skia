@@ -112,20 +112,29 @@ protected:
                 GrGLuint programID,
                 const UniformInfoArray& uniforms,
                 const UniformInfoArray& samplers,
+                const UniformInfoArray& texelBuffers,
                 const UniformInfoArray& imageStorages,
                 const VaryingInfoArray&, // used for NVPR only currently
                 GrGLSLPrimitiveProcessor* geometryProcessor,
                 GrGLSLXferProcessor* xferProcessor,
                 const GrGLSLFragProcs& fragmentProcessors);
 
-    // A helper to loop over effects, set the transforms (via subclass) and bind textures
-    void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&, int* nextSamplerIdx);
+    // A helper to loop over effects, set the transforms (via subclass)
+    void setFragmentData(const GrPipeline&);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
     void setRenderTargetState(const GrPrimitiveProcessor&, const GrRenderTarget*);
 
-    // Helper for setData() that binds textures and texel buffers to the appropriate texture units
-    void bindTextures(const GrResourceIOProcessor&, bool allowSRGBInputs, int* nextSamplerIdx);
+    // Helpersfor setData() that binds resources to texture units
+    void bindTextureSamplers(const GrPrimitiveProcessor&, const GrPipeline&, int* nextSamplerIdx);
+    void bindTexelBuffers(const GrPrimitiveProcessor&, const GrPipeline&, int* nextSamplerIdx);
+    void bindImageStorages(const GrPrimitiveProcessor&, const GrPipeline&, int* nextSamplerIdx);
+
+    void bindTextureSamplers(const GrResourceIOProcessor&, bool allowSRGBInputs,
+                             int* nextSamplerIdx);
+    void bindTexelBuffers(const GrResourceIOProcessor&, bool allowSRGBInputs, int* nextSamplerIdx);
+    void bindImageStorages(const GrResourceIOProcessor&, bool allowSRGBInputs, int* nextSamplerIdx);
+
 
     // Helper for generateMipmaps() that ensures mipmaps are up to date
     void generateMipmaps(const GrResourceIOProcessor&, bool allowSRGBInputs);

@@ -60,12 +60,24 @@ void GrGLProgramDataManager::setSamplers(const UniformInfoArray& samplers) const
     }
 }
 
-void GrGLProgramDataManager::setImageStorages(const UniformInfoArray& images) const {
+void GrGLProgramDataManager::setTexelBuffers(const UniformInfoArray& texelBuffers,
+                                             int startIdx) const {
+    for (int i = 0; i < texelBuffers.count(); ++i) {
+        const UniformInfo& texelBuffer = texelBuffers[i];
+        SkASSERT(texelBuffer.fVisibility);
+        if (kUnusedUniform != texelBuffer.fLocation) {
+            GR_GL_CALL(fGpu->glInterface(), Uniform1i(texelBuffer.fLocation, i + startIdx));
+        }
+    }
+}
+
+void GrGLProgramDataManager::setImageStorages(const UniformInfoArray& images,
+                                              int startIdx) const {
     for (int i = 0; i < images.count(); ++i) {
         const UniformInfo& image = images[i];
         SkASSERT(image.fVisibility);
         if (kUnusedUniform != image.fLocation) {
-            GR_GL_CALL(fGpu->glInterface(), Uniform1i(image.fLocation, i));
+            GR_GL_CALL(fGpu->glInterface(), Uniform1i(image.fLocation, i + startIdx));
         }
     }
 }
