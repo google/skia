@@ -70,6 +70,24 @@
       "revId": "2186640c4c60e2518fbb5506696021f149c6930f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d8ba940_1231b513",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T15:19:27Z",
+      "side": 1,
+      "message": "Right, the resting state for all the colors in the pipeline is premul.  After the shader, {r,g,b,a} hold premul pixels unless you\u0027ve made them not, and then it\u0027s your job to eventually get them back.",
+      "parentUuid": "ec7125e4_2c9892d6",
+      "revId": "2186640c4c60e2518fbb5506696021f149c6930f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
