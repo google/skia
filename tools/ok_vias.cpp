@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkImage.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "ok.h"
