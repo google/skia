@@ -293,6 +293,36 @@ STAGE(seed_shader) {
     dr = dg = db = da = 0;
 }
 
+STAGE(dither) {
+    auto c = (const SkJumper_DitherCtx*)ctx;
+
+    // Get [(x,y), (x+1,y), (x+2,y), ...] loaded up in integer vectors.
+    U32 X = trunc_((int)x + unaligned_load<F>(k->iota)),  // Going through float is kind of lazy..
+        Y = (uint32_t)*c->y;
+
+    // We're doing 8x8 ordered dithering, see https://en.wikipedia.org/wiki/Ordered_dithering.
+    // In this case n=8 and we're using the matrix that looks like 1/64 x [ 0 48 12 60 ... ].
+
+    // We only need X and X^Y from here on, so it's easier to just think of that as "Y".
+    Y ^= X;
+
+    // We'll mix the bottom 3 bits of each of X and Y to make 6 bits,
+    // for 2^6 == 64 == 8x8 matrix values.  If X=abc and Y=def, we make fcebda.
+    U32 M = (Y & 1) << 5 | (X & 1) << 4
+          | (Y & 2) << 2 | (X & 2) << 1
+          | (Y & 4) >> 1 | (X & 4) >> 2;
+
+    // Scale that dither to [0,1], then [-0.5,+0.5].
+    // I chose to scale by 1/63.0f here to make this exactly [0,1].
+    // I suspect the divide by 64 in the article was written with fast integer math in mind.
+    F dither = cast(M) * (1/63.0f) - 0.5f;
+
+    // Fold in an extra alpha to dither as if applied to the unpremul values of r,g,b.
+    r += c->rate*dither*a;
+    g += c->rate*dither*a;
+    b += c->rate*dither*a;
+}
+
 STAGE(constant_color) {
     auto rgba = (const float*)ctx;
     r = rgba[0];
