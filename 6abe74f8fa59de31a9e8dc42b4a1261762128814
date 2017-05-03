@@ -34,6 +34,23 @@
       "revId": "6abe74f8fa59de31a9e8dc42b4a1261762128814",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64ae550a_8841543d",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T19:47:45Z",
+      "side": 1,
+      "message": "It\u0027d be pretty easy to merge adjustMatrix() and stageAdder() into one hook instead of two:\n\nSkRasterPipeline p;\nif (!this-\u003eadjustMatrixAndAppendStages(\u0026matrix, \u0026p)) {\n   return false;\n}\nauto* m \u003d alloc-\u003emakeArrayDefault\u003cfloat\u003e(9);\n...  append matrix stage ...\npipeline-\u003eextend(p);",
+      "revId": "6abe74f8fa59de31a9e8dc42b4a1261762128814",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
