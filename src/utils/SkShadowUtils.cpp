@@ -8,7 +8,6 @@
 #include "SkShadowUtils.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
-#include "SkColorPriv.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkResourceCache.h"

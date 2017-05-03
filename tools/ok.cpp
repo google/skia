@@ -10,7 +10,6 @@
 //   * ok is entirely opt-in.  No more maintaining huge --blacklists.
 
 #include "SkGraphics.h"
-#include "SkImage.h"
 #include "ok.h"
 #include <chrono>
 #include <future>

@@ -10,7 +10,6 @@
 #include "SkColorSpace_Base.h"
 #include "SkColorSpaceXform.h"
 #include "SkRect.h"
-#include "SkShader.h"
 
 class ColorSpaceXformGM : public skiagm::GM {
 public:

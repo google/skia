@@ -6,7 +6,6 @@
  */
 
 #include "DumpRecord.h"
-#include "SkBitmap.h"
 #include "SkCommandLineFlags.h"
 #include "SkDeferredCanvas.h"
 #include "SkPicture.h"

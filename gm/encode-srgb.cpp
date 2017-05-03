@@ -12,7 +12,6 @@
 #include "SkCodec.h"
 #include "SkColorSpace_Base.h"
 #include "SkData.h"
-#include "SkImage.h"
 #include "SkImageEncoderPriv.h"
 #include "SkJpegEncoder.h"
 #include "SkPM4f.h"
