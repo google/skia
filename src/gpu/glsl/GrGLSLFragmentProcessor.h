@@ -156,6 +156,10 @@ public:
         return fChildProcessors[index];
     }
 
+    inline void emitChild(int childIndex, SkString* outputColor, EmitArgs& parentArgs) {
+        this->emitChild(childIndex, "vec4(1.0)", outputColor, parentArgs);
+    }
+
     /** Will emit the code of a child proc in its own scope. Pass in the parent's EmitArgs and
      *  emitChild will automatically extract the coords and samplers of that child and pass them
      *  on to the child's emitCode(). Also, any uniforms or functions emitted by the child will
@@ -166,6 +170,10 @@ public:
      */
     void emitChild(int childIndex, const char* inputColor, SkString* outputColor,
                    EmitArgs& parentArgs);
+
+    inline void emitChild(int childIndex, EmitArgs& args) {
+        this->emitChild(childIndex, "vec4(1.0)", args);
+    }
 
     /** Variation that uses the parent's output color variable to hold the child's output.*/
     void emitChild(int childIndex, const char* inputColor, EmitArgs& parentArgs);

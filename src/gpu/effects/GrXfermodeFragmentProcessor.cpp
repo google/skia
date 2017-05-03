@@ -415,7 +415,7 @@ public:
         ComposeOneFragmentProcessor::Child child =
             args.fFp.cast<ComposeOneFragmentProcessor>().child();
         SkString childColor("child");
-        this->emitChild(0, nullptr, &childColor, args);
+        this->emitChild(0, &childColor, args);
 
         const char* inputColor = args.fInputColor;
         // We don't try to optimize for this case at all
