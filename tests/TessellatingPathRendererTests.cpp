@@ -261,6 +261,19 @@ static SkPath create_path_17() {
     return path;
 }
 
+// A shape with a vertex collinear to the right hand edge.
+// This messes up find_enclosing_edges.
+static SkPath create_path_18() {
+    SkPath path;
+    path.moveTo(80, 20);
+    path.lineTo(80, 60);
+    path.lineTo(20, 60);
+    path.moveTo(80, 50);
+    path.lineTo(80, 80);
+    path.lineTo(20, 80);
+    return path;
+}
+
 static sk_sp<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
     SkPoint pts[2] = { {0, 0}, {1, 1} };
     SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
@@ -335,5 +348,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     SkMatrix nonInvertibleMatrix = SkMatrix::MakeScale(0, 0);
     sk_sp<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx));
     test_path(ctx, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage, fp);
+    test_path(ctx, rtc.get(), create_path_18());
 }
 #endif
