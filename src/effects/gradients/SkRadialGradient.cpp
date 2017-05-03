@@ -376,6 +376,41 @@ sk_sp<SkShader> SkRadialGradient::onMakeColorSpace(SkColorSpaceXformer* xformer)
                                         &this->getLocalMatrix());
 }
 
+bool SkRadialGradient::onAppendStages(
+    SkRasterPipeline* pipeline, SkColorSpace* dstCS, SkArenaAlloc* alloc,
+    const SkMatrix& ctm, const SkPaint& paint,
+    const SkMatrix* localM) const {
+
+    auto adjustMatrix = [&] (SkMatrix* matrix) {
+        matrix->preTranslate(-fCenter.fX, -fCenter.fY);
+        matrix->preScale(1/fRadius, 1/fRadius);
+        return true;
+    };
+
+    auto addStage = [&] (SkRasterPipeline* p) {
+        p->append(SkRasterPipeline::xy_to_radial_unit);
+        auto* limit = alloc->make<float>(1.0f);
+        if (fColorCount == 2 && fOrigPos == nullptr) {
+            switch (fTileMode) {
+                case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x, limit);  break;
+                case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit); break;
+                case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit); break;
+            }
+        } else {
+            switch (fTileMode) {
+                // The search strategy does not need clamping. It has implicit hard stops at the
+                // first and last stop.
+                case kClamp_TileMode:  break;
+                case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit); break;
+                case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit); break;
+            }
+        }
+        return true;
+    };
+
+    return gradientStageHelper(pipeline, dstCS, alloc, ctm, paint, localM, adjustMatrix, addStage);
+}
+
 #ifndef SK_IGNORE_TO_STRING
 void SkRadialGradient::toString(SkString* str) const {
     str->append("SkRadialGradient: (");

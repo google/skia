@@ -971,6 +971,12 @@ STAGE(xy_to_polar_unit) {
     r = phi;
 }
 
+STAGE(xy_to_radial_unit) {
+    F X2 = r * r,
+      Y2 = g * g;
+    r = rcp(rsqrt(X2 + Y2));
+}
+
 STAGE(save_xy) {
     auto c = (SkJumper_SamplerCtx*)ctx;
 
