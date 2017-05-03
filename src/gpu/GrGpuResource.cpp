@@ -134,8 +134,8 @@ void GrGpuResource::setUniqueKey(const GrUniqueKey& key) {
     SkASSERT(this->internalHasRef());
     SkASSERT(key.isValid());
 
-    // Wrapped and uncached resources can never have a unique key.
-    if (SkBudgeted::kNo == this->resourcePriv().isBudgeted()) {
+    // Uncached resources can never have a unique key, unless they're wrapped resources
+    if (SkBudgeted::kNo == this->resourcePriv().isBudgeted() && !this->fRefsWrappedObjects) {
         return;
     }
 
