@@ -25,7 +25,7 @@ class GrBuffer;
 class GrContext;
 struct GrContextOptions;
 class GrGLContext;
-class GrMesh;
+struct GrMesh;
 class GrNonInstancedVertices;
 class GrPath;
 class GrPathRange;

@@ -861,9 +861,14 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
         }
 
         GrMesh mesh;
-        mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, linesIndexBuffer.get(),
-                           firstVertex, kLineSegNumVertices, kIdxsPerLineSeg, lineCount,
-                           kLineSegsNumInIdxBuffer);
+        mesh.fPrimitiveType = kTriangles_GrPrimitiveType;
+        mesh.fIndexBuffer.reset(linesIndexBuffer.get());
+        mesh.fIndexCount = kIdxsPerLineSeg;
+        mesh.fVertexBuffer.reset(vertexBuffer);
+        mesh.fVertexCount = kLineSegNumVertices;
+        mesh.fBaseVertex = firstVertex;
+        mesh.fSoftRepeatCount = lineCount;
+        mesh.fMaxRepetitionsInIndexBuffer = kLineSegsNumInIdxBuffer;
         target->draw(lineGP.get(), this->pipeline(), mesh);
     }
 
@@ -918,18 +923,28 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
 
         if (quadCount > 0) {
             GrMesh mesh;
-            mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer.get(),
-                               firstVertex, kQuadNumVertices, kIdxsPerQuad, quadCount,
-                               kQuadsNumInIdxBuffer);
+            mesh.fPrimitiveType = kTriangles_GrPrimitiveType;
+            mesh.fIndexBuffer.reset(quadsIndexBuffer.get());
+            mesh.fIndexCount = kIdxsPerQuad;
+            mesh.fVertexBuffer.reset(vertexBuffer);
+            mesh.fVertexCount = kQuadNumVertices;
+            mesh.fBaseVertex = firstVertex;
+            mesh.fSoftRepeatCount = quadCount;
+            mesh.fMaxRepetitionsInIndexBuffer = kQuadsNumInIdxBuffer;
             target->draw(quadGP.get(), this->pipeline(), mesh);
             firstVertex += quadCount * kQuadNumVertices;
         }
 
         if (conicCount > 0) {
             GrMesh mesh;
-            mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer.get(),
-                               firstVertex, kQuadNumVertices, kIdxsPerQuad, conicCount,
-                               kQuadsNumInIdxBuffer);
+            mesh.fPrimitiveType = kTriangles_GrPrimitiveType;
+            mesh.fIndexBuffer.reset(quadsIndexBuffer.get());
+            mesh.fIndexCount = kIdxsPerQuad;
+            mesh.fVertexBuffer.reset(vertexBuffer);
+            mesh.fVertexCount = kQuadNumVertices;
+            mesh.fBaseVertex = firstVertex;
+            mesh.fSoftRepeatCount = conicCount;
+            mesh.fMaxRepetitionsInIndexBuffer = kQuadsNumInIdxBuffer;
             target->draw(conicGP.get(), this->pipeline(), mesh);
         }
     }

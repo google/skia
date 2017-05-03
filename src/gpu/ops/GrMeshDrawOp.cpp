@@ -38,14 +38,20 @@ void* GrMeshDrawOp::InstancedHelper::init(Target* target, GrPrimitiveType primTy
     size_t ibSize = indexBuffer->gpuMemorySize();
     int maxInstancesPerDraw = static_cast<int>(ibSize / (sizeof(uint16_t) * indicesPerInstance));
 
-    fMesh.initInstanced(primType, vertexBuffer, indexBuffer, firstVertex, verticesPerInstance,
-                        indicesPerInstance, instancesToDraw, maxInstancesPerDraw);
+    fMesh.fPrimitiveType = primType;
+    fMesh.fIndexBuffer.reset(indexBuffer);
+    fMesh.fIndexCount = indicesPerInstance;
+    fMesh.fBaseIndex = 0;
+    fMesh.fVertexBuffer.reset(vertexBuffer);
+    fMesh.fVertexCount = verticesPerInstance;
+    fMesh.fBaseVertex = firstVertex;
+    fMesh.fSoftRepeatCount = instancesToDraw;
+    fMesh.fMaxRepetitionsInIndexBuffer = maxInstancesPerDraw;
     return vertices;
 }
 
 void GrMeshDrawOp::InstancedHelper::recordDraw(Target* target, const GrGeometryProcessor* gp,
                                                const GrPipeline* pipeline) {
-    SkASSERT(fMesh.instanceCount());
     target->draw(gp, pipeline, fMesh);
 }
 

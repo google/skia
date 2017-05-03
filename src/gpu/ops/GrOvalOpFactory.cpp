@@ -1097,8 +1097,13 @@ private:
         }
 
         GrMesh mesh;
-        mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
-                         firstIndex, fVertCount, fIndexCount);
+        mesh.fPrimitiveType = kTriangles_GrPrimitiveType;
+        mesh.fIndexBuffer.reset(indexBuffer);
+        mesh.fIndexCount = fIndexCount;
+        mesh.fBaseIndex = firstIndex;
+        mesh.fVertexBuffer.reset(vertexBuffer);
+        mesh.fVertexCount = fVertCount;
+        mesh.fBaseVertex = firstVertex;
         target->draw(gp.get(), this->pipeline(), mesh);
     }
 
@@ -1998,8 +2003,13 @@ private:
         }
 
         GrMesh mesh;
-        mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
-                         firstIndex, fVertCount, fIndexCount);
+        mesh.fPrimitiveType = kTriangles_GrPrimitiveType;
+        mesh.fIndexBuffer.reset(indexBuffer);
+        mesh.fIndexCount = fIndexCount;
+        mesh.fBaseIndex = firstIndex;
+        mesh.fVertexBuffer.reset(vertexBuffer);
+        mesh.fVertexCount = fVertCount;
+        mesh.fBaseVertex = firstVertex;
         target->draw(gp.get(), this->pipeline(), mesh);
     }
 
