@@ -60,10 +60,11 @@ private:
 
     // These values are pointed to by the blit pipelines above,
     // which allows us to adjust them from call to call.
-    void*       fDstPtr          = nullptr;
-    const void* fMaskPtr         = nullptr;
-    float       fCurrentCoverage = 0.0f;
-    int         fCurrentY        = 0;
+    void*              fDstPtr          = nullptr;
+    const void*        fMaskPtr         = nullptr;
+    float              fCurrentCoverage = 0.0f;
+    int                fCurrentY        = 0;
+    SkJumper_DitherCtx fDitherCtx = { &fCurrentY, 0.0f };
 
     typedef SkBlitter INHERITED;
 };
@@ -107,8 +108,21 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         return nullptr;
     }
 
+    // TODO: Think more about under what conditions we dither:
+    //   - if we're drawing anything into 565 and the user has asked us to dither, or
+    //   - if we're drawing a gradient into 565 or 8888.
+    if ((paint.isDither() && dst.info().colorType() == kRGB_565_SkColorType) ||
+        (shader && shader->asAGradient(nullptr) >= SkShader::kLinear_GradientType)) {
+        switch (dst.info().colorType()) {
+            default:                     blitter->fDitherCtx.rate =     0.0f; break;
+            case   kRGB_565_SkColorType: blitter->fDitherCtx.rate =  1/63.0f; break;
+            case kRGBA_8888_SkColorType:
+            case kBGRA_8888_SkColorType: blitter->fDitherCtx.rate = 1/255.0f; break;
+        }
+    }
+
     bool is_opaque   = paintColor->a() == 1.0f,
-         is_constant = true;
+         is_constant = blitter->fDitherCtx.rate == 0.0f;
     if (shader) {
         pipeline->append(SkRasterPipeline::seed_shader, &blitter->fCurrentY);
         if (!shader->appendStages(pipeline, dst.colorSpace(), alloc, ctm, paint)) {
@@ -119,8 +133,8 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                              &paintColor->fVec[SkPM4f::A]);
         }
 
-        is_opaque   = is_opaque && shader->isOpaque();
-        is_constant = shader->isConstant();
+        is_opaque   = is_opaque   && shader->isOpaque();
+        is_constant = is_constant && shader->isConstant();
     } else {
         pipeline->append(SkRasterPipeline::constant_color, paintColor);
     }
@@ -130,30 +144,6 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             return nullptr;
         }
         is_opaque = is_opaque && (colorFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
-    }
-
-    // TODO: Think more about under what conditions we dither:
-    //   - if we're drawing anything into 565 and the user has asked us to dither, or
-    //   - if we're drawing a gradient into 565 or 8888.
-    // TODO: move this later in the pipeline, perhaps the first thing we do in append_store()?
-    if ((paint.isDither() && dst.info().colorType() == kRGB_565_SkColorType) ||
-        (shader && shader->asAGradient(nullptr) >= SkShader::kLinear_GradientType)) {
-        float rate;
-        switch (dst.info().colorType()) {
-            case   kRGB_565_SkColorType:  rate =  1/63.0f; break;
-            case kBGRA_8888_SkColorType:
-            case kRGBA_8888_SkColorType:  rate = 1/255.0f; break;
-            default:                      rate =     0.0f; break;
-        }
-        if (rate) {
-            auto ctx = alloc->make<SkJumper_DitherCtx>();
-            ctx->y    = &blitter->fCurrentY;
-            ctx->rate = rate;
-            pipeline->append(SkRasterPipeline::dither, ctx);
-            pipeline->append(SkRasterPipeline::clamp_0);
-            pipeline->append(SkRasterPipeline::clamp_a);
-            is_constant = false;
-        }
     }
 
     if (is_constant) {
@@ -208,10 +198,15 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
     if (fDst.info().gammaCloseToSRGB()) {
         p->append(SkRasterPipeline::to_srgb);
     }
+    if (fDitherCtx.rate > 0.0f) {
+        // We dither after any sRGB transfer function to make sure our 1/255.0f is sensible
+        // over the whole range.  If we did it before, 1/255.0f is too big a rate near zero.
+        p->append(SkRasterPipeline::dither, &fDitherCtx);
+    }
+
     if (fDst.info().colorType() == kBGRA_8888_SkColorType) {
         p->append(SkRasterPipeline::swap_rb);
     }
-
     SkASSERT(supported(fDst.info()));
     switch (fDst.info().colorType()) {
         case kAlpha_8_SkColorType:   p->append(SkRasterPipeline::store_a8,   &fDstPtr); break;

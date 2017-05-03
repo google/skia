@@ -312,15 +312,14 @@ STAGE(dither) {
           | (Y & 2) << 2 | (X & 2) << 1
           | (Y & 4) >> 1 | (X & 4) >> 2;
 
-    // Scale that dither to [0,1], then [-0.5,+0.5].
-    // I chose to scale by 1/63.0f here to make this exactly [0,1].
-    // I suspect the divide by 64 in the article was written with fast integer math in mind.
-    F dither = cast(M) * (1/63.0f) - 0.5f;
+    // Scale that dither to [0,1), then (-0.5,+0.5), here using 63/128 = 0.4921875 as 0.5-epsilon.
+    // We want to make sure our dither is less than 0.5 in either direction to keep exact values
+    // like 0 and 1 unchanged after rounding.
+    F dither = cast(M) * (2/128.0f) - (63/128.0f);
 
-    // Fold in an extra alpha to dither as if applied to the unpremul values of r,g,b.
-    r += c->rate*dither*a;
-    g += c->rate*dither*a;
-    b += c->rate*dither*a;
+    r += c->rate*dither;
+    g += c->rate*dither;
+    b += c->rate*dither;
 }
 
 STAGE(constant_color) {
