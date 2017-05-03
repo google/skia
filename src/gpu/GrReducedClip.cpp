@@ -734,6 +734,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
             canDrawArgs.fViewMatrix = &SkMatrix::I();
             canDrawArgs.fShape = &shape;
             canDrawArgs.fAAType = aaType;
+            canDrawArgs.fAvoidStencilBuffers = context->caps()->avoidStencilBuffers();
             canDrawArgs.fHasUserStencilSettings = false;
 
             GrDrawingManager* dm = context->contextPriv().drawingManager();

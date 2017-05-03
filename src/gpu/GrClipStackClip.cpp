@@ -283,6 +283,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     SkASSERT(rtIBounds.contains(clipIBounds)); // Mask shouldn't be larger than the RT.
 #endif
 
+    bool mustUseAnalyticPath = context->caps()->avoidStencilBuffers();
+
     // An element count of 4 was chosen because of the common pattern in Blink of:
     //   isect RR
     //   diff  RR
@@ -291,10 +293,11 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     // when drawing rounded div borders. This could probably be tuned based on a
     // configuration's relative costs of switching RTs to generate a mask vs
     // longer shaders.
-    if (reducedClip.elements().count() <= kMaxAnalyticElements) {
+    if (mustUseAnalyticPath || reducedClip.elements().count() <= kMaxAnalyticElements) {
         // When there are multiple samples we want to do per-sample clipping, not compute a
         // fractional pixel coverage.
-        bool disallowAnalyticAA = renderTargetContext->isStencilBufferMultisampled();
+        bool disallowAnalyticAA =
+                !mustUseAnalyticPath && renderTargetContext->isStencilBufferMultisampled();
         if (disallowAnalyticAA && !renderTargetContext->numColorSamples()) {
             // With a single color sample, any coverage info is lost from color once it hits the
             // color buffer anyway, so we may as well use coverage AA if nothing else in the pipe
@@ -302,11 +305,13 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
             disallowAnalyticAA = useHWAA || hasUserStencilSettings;
         }
         sk_sp<GrFragmentProcessor> clipFP;
-        if (reducedClip.requiresAA() &&
+        if ((mustUseAnalyticPath || reducedClip.requiresAA()) &&
             get_analytic_clip_processor(reducedClip.elements(), disallowAnalyticAA, devBounds,
                                         &clipFP)) {
             out->addCoverageFP(std::move(clipFP));
             return true;
+        } else if (mustUseAnalyticPath) {
+            return false;
         }
     }
 

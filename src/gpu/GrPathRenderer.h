@@ -85,6 +85,7 @@ public:
         const SkMatrix*             fViewMatrix;
         const GrShape*              fShape;
         GrAAType                    fAAType;
+        bool fAvoidStencilBuffers;
 
         // These next two are only used by GrStencilAndCoverPathRenderer
         bool                        fHasUserStencilSettings;
@@ -157,6 +158,7 @@ public:
         canArgs.fViewMatrix = args.fViewMatrix;
         canArgs.fShape = args.fShape;
         canArgs.fAAType = args.fAAType;
+        canArgs.fAvoidStencilBuffers = args.fContext->caps()->avoidStencilBuffers();
 
         canArgs.fHasUserStencilSettings = !args.fUserStencilSettings->isUnused();
         SkASSERT(!(canArgs.fAAType == GrAAType::kMSAA &&

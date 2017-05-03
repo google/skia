@@ -675,6 +675,8 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
 }
 
 bool GrMSAAPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    // If we aren't single pass, we need a stencil buffer.
+    if (!single_pass_shape(*args.fShape) && args.fAvoidStencilBuffers) return false;
     // This path renderer only fills and relies on MSAA for antialiasing. Stroked shapes are
     // handled by passing on the original shape and letting the caller compute the stroked shape
     // which will have a fill style.
