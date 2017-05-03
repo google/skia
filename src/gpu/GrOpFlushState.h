@@ -10,7 +10,6 @@
 
 #include "GrBufferAllocPool.h"
 #include "GrGpu.h"
-#include "SkArenaAlloc.h"
 #include "ops/GrMeshDrawOp.h"
 
 class GrGpuCommandBuffer;
@@ -95,7 +94,6 @@ public:
     void reset() {
         fVertexPool.reset();
         fIndexPool.reset();
-        fPipelines.reset();
     }
 
     /** Additional data required on a per-op basis when executing GrDrawOps. */
@@ -112,22 +110,16 @@ public:
         return *fOpArgs;
     }
 
-    template <typename... Args>
-    GrPipeline* allocPipeline(Args... args) {
-        return fPipelines.make<GrPipeline>(std::forward<Args>(args)...);
-    }
-
 private:
-    GrGpu* fGpu;
-    GrResourceProvider* fResourceProvider;
-    GrGpuCommandBuffer* fCommandBuffer;
-    GrVertexBufferAllocPool fVertexPool;
-    GrIndexBufferAllocPool fIndexPool;
-    SkSTArray<4, GrDrawOp::DeferredUploadFn> fAsapUploads;
-    GrDrawOpUploadToken fLastIssuedToken;
-    GrDrawOpUploadToken fLastFlushedToken;
-    DrawOpArgs* fOpArgs;
-    SkArenaAlloc fPipelines{sizeof(GrPipeline) * 100};
+    GrGpu*                                      fGpu;
+    GrResourceProvider*                         fResourceProvider;
+    GrGpuCommandBuffer*                         fCommandBuffer;
+    GrVertexBufferAllocPool                     fVertexPool;
+    GrIndexBufferAllocPool                      fIndexPool;
+    SkSTArray<4, GrDrawOp::DeferredUploadFn>    fAsapUploads;
+    GrDrawOpUploadToken                         fLastIssuedToken;
+    GrDrawOpUploadToken                         fLastFlushedToken;
+    DrawOpArgs*                                 fOpArgs;
 };
 
 /**
@@ -190,7 +182,6 @@ public:
 protected:
     GrDrawOp* op() { return fOp; }
     GrOpFlushState* state() { return fState; }
-    const GrOpFlushState* state() const { return fState; }
 
 private:
     GrOpFlushState* fState;
@@ -218,19 +209,6 @@ public:
     void putBackIndices(int indices) { this->state()->putBackIndices(indices); }
     void putBackVertices(int vertices, size_t vertexStride) {
         this->state()->putBackVertexSpace(vertices * vertexStride);
-    }
-
-    GrRenderTarget* renderTarget() const { return this->state()->drawOpArgs().fRenderTarget; }
-
-    const GrAppliedClip* clip() const { return this->state()->drawOpArgs().fAppliedClip; }
-
-    const GrXferProcessor::DstTexture& dstTexture() const {
-        return this->state()->drawOpArgs().fDstTexture;
-    }
-
-    template <typename... Args>
-    GrPipeline* allocPipeline(Args... args) {
-        return this->state()->allocPipeline(std::forward<Args>(args)...);
     }
 
 private:
