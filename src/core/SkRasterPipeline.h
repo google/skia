@@ -62,7 +62,7 @@
     M(unpremul) M(premul)                                        \
     M(set_rgb) M(swap_rb)                                        \
     M(from_srgb) M(to_srgb)                                      \
-    M(constant_color) M(seed_shader)                             \
+    M(constant_color) M(seed_shader) M(dither)                   \
     M(load_a8)   M(store_a8)                                     \
     M(load_g8)                                                   \
     M(load_565)  M(store_565)                                    \
