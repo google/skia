@@ -50,6 +50,10 @@ public:
     sk_sp<GrRenderTargetOpList> newRTOpList(sk_sp<GrRenderTargetProxy> rtp);
     sk_sp<GrTextureOpList> newTextureOpList(sk_sp<GrTextureProxy> textureProxy);
 
+    SkTDArray<GrRenderTargetOpList*> fSpares;
+
+    void recycle(GrRenderTargetOpList*);
+
     GrContext* getContext() { return fContext; }
 
     GrAtlasTextContext* getAtlasTextContext();
@@ -87,11 +91,12 @@ private:
         , fFlushState(context->getGpu(), context->resourceProvider())
         , fFlushing(false)
         , fIsImmediateMode(isImmediateMode) {
+        SkDebugf("rtop %d\n", sizeof(GrRenderTargetOpList));
     }
 
     void abandon();
-    void cleanup();
-    void reset();
+    void cleanup1();
+    void reset1();
     void flush(GrSurfaceProxy* proxy) {
         this->internalFlush(proxy, GrResourceCache::FlushType::kExternal);
     }
@@ -111,7 +116,7 @@ private:
     GrSingleOwner*                    fSingleOwner;
 
     bool                              fAbandoned;
-    SkTArray<sk_sp<GrOpList>>         fOpLists;
+    SkTArray<sk_sp<GrOpList>>         fOpLists1;
 
     std::unique_ptr<GrAtlasTextContext> fAtlasTextContext;
 

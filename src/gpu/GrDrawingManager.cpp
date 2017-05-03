@@ -23,18 +23,107 @@
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
 
-void GrDrawingManager::cleanup() {
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        // no opList should receive a new command after this
-        fOpLists[i]->makeClosed(*fContext->caps());
-        fOpLists[i]->clearTarget();
-
-        // We shouldn't need to do this, but it turns out some clients still hold onto opLists
-        // after a cleanup
-        fOpLists[i]->reset();
+class StatsCollector {
+public:
+    StatsCollector(const char* title, int expected)
+        : fTitle(title)
+        , fNum(0)
+        , fMin(INT_MAX)
+        , fMax(-1) {
+        fXs.setReserve(expected);
     }
 
-    fOpLists.reset();
+    void add(int x) {
+        SkASSERT(x >= 0);
+
+        if (x >= fXs.count()) {
+            for (int i = fXs.count(); i < x+1; ++i) {
+                fXs.appendClear();
+            }
+            SkASSERT(fXs.count() == x+1);
+            SkASSERT(0 == fXs[x]);
+        }
+
+        fNum++;
+        fXs[x]++;
+        if (fMin > x) {
+            fMin = x;
+        }
+        if (fMax < x) {
+            fMax = x;
+        }
+    }
+
+    void done() {
+        float mean = 0.0f;
+
+        for (int i = 0; i < fXs.count(); ++i) {
+            mean += i * fXs[i];
+        }
+        mean /= fNum;
+
+        float stdDev = 0.0;
+        for (int i = 0; i < fXs.count(); ++i) {
+            stdDev += fXs[i]*(i-mean)*(i-mean);
+        }
+        stdDev /= fNum;
+        stdDev = sqrt(stdDev);
+
+        SkDebugf("-------------------- %s: mean %f stdDev: %f min %d max %d\n", fTitle, mean, stdDev, fMin, fMax);
+
+        fNum = 0;
+        fXs.rewind();
+    }
+
+private:
+    const char*    fTitle;
+    int            fNum;
+    SkTDArray<int> fXs;
+    int            fMin;
+    int            fMax;
+};
+
+static void test() {
+    StatsCollector stats("test", 1);
+
+    stats.add(4);
+    stats.add(36);
+    stats.add(45);
+    stats.add(50);
+    stats.add(75);
+    stats.done(); // expect mean of 42
+
+    stats.add(2);
+    stats.add(4);
+    stats.add(4);
+    stats.add(4);
+    stats.add(5);
+    stats.add(5);
+    stats.add(7);
+    stats.add(9);
+    stats.done(); // expect mean of 5 & stdDev of 2
+}
+
+StatsCollector gOpStats("ops/opList", 100);
+StatsCollector gClipStats("clips/opList", 100);
+
+void done26() {
+    gOpStats.done();
+    gClipStats.done();
+}
+
+void GrDrawingManager::cleanup1() {
+    for (int i = 0; i < fOpLists1.count(); ++i) {
+        // no opList should receive a new command after this
+        fOpLists1[i]->makeClosed(*fContext->caps());
+
+        // We shouldn't need to do this, but it turns out some clients still hold onto opLists
+        // after a cleanup.
+        // MDB TODO: is this still true?
+        fOpLists1[i]->reset1();
+    }
+
+    fOpLists1.reset();
 
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
@@ -42,15 +131,15 @@ void GrDrawingManager::cleanup() {
 }
 
 GrDrawingManager::~GrDrawingManager() {
-    this->cleanup();
+    this->cleanup1();
 }
 
 void GrDrawingManager::abandon() {
     fAbandoned = true;
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->abandonGpuResources();
+    for (int i = 0; i < fOpLists1.count(); ++i) {
+        fOpLists1[i]->abandonGpuResources();
     }
-    this->cleanup();
+    this->cleanup1();
 }
 
 void GrDrawingManager::freeGpuResources() {
@@ -58,14 +147,14 @@ void GrDrawingManager::freeGpuResources() {
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
     SkSafeSetNull(fSoftwarePathRenderer);
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->freeGpuResources();
+    for (int i = 0; i < fOpLists1.count(); ++i) {
+        fOpLists1[i]->freeGpuResources();
     }
 }
 
-void GrDrawingManager::reset() {
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->reset();
+void GrDrawingManager::reset1() {
+    for (int i = 0; i < fOpLists1.count(); ++i) {
+        fOpLists1[i]->reset1();
     }
     fFlushState.reset();
 }
@@ -79,21 +168,33 @@ gr_instanced::OpAllocator* GrDrawingManager::instancingAllocator() {
     return fInstancingAllocator.get();
 }
 
+void GrDrawingManager::recycle(GrRenderTargetOpList* rtol) {
+    fSpares.push(SkRef(rtol));
+}
+
 // MDB TODO: make use of the 'proxy' parameter.
 void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType type) {
+
     if (fFlushing || this->wasAbandoned()) {
         return;
     }
     fFlushing = true;
     bool flushed = false;
 
-    for (int i = 0; i < fOpLists.count(); ++i) {
+    int numOps = 0;
+    for (int i = 0; i < fOpLists1.count(); ++i) {
         // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
         // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
         // but need to be flushed anyway. Closing such GrOpLists here will mean new
         // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
-        fOpLists[i]->makeClosed(*fContext->caps());
+        fOpLists1[i]->makeClosed(*fContext->caps());
+        SkDEBUGCODE(fOpLists1[i]->validateTargetsSingleRenderTarget());
+        numOps += fOpLists1[i]->numOps();
+        gOpStats.add(fOpLists1[i]->numOps());
+        gClipStats.add(fOpLists1[i]->numClips());
     }
+
+    SkDebugf("numOpLists: %d numOps: %d\n", fOpLists1.count(), numOps);
 
 #ifdef ENABLE_MDB
     SkDEBUGCODE(bool result =)
@@ -106,9 +207,9 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
     if (fPreFlushCBObjects.count()) {
         // MDB TODO: pre-MDB '1' is the correct pre-allocated size. Post-MDB it will need
         // to be larger.
-        SkAutoSTArray<1, uint32_t> opListIds(fOpLists.count());
-        for (int i = 0; i < fOpLists.count(); ++i) {
-            opListIds[i] = fOpLists[i]->uniqueID();
+        SkAutoSTArray<1, uint32_t> opListIds(fOpLists1.count());
+        for (int i = 0; i < fOpLists1.count(); ++i) {
+            opListIds[i] = fOpLists1[i]->uniqueID();
         }
 
         SkSTArray<1, sk_sp<GrRenderTargetContext>> renderTargetContexts;
@@ -125,6 +226,7 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
                 if (!opList) {
                     continue;   // Odd - but not a big deal
                 }
+                opList->makeClosed(*fContext->caps());
                 SkDEBUGCODE(opList->validateTargetsSingleRenderTarget());
                 opList->prepareOps(&fFlushState);
                 if (!opList->executeOps(&fFlushState)) {
@@ -135,8 +237,8 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
         }
     }
 
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->prepareOps(&fFlushState);
+    for (int i = 0; i < fOpLists1.count(); ++i) {
+        fOpLists1[i]->prepareOps(&fFlushState);
     }
 
 #if 0
@@ -149,29 +251,24 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
     // Upload all data to the GPU
     fFlushState.preIssueDraws();
 
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        if (fOpLists[i]->executeOps(&fFlushState)) {
+    for (int i = 0; i < fOpLists1.count(); ++i) {
+        if (fOpLists1[i]->executeOps(&fFlushState)) {
             flushed = true;
         }
     }
 
     SkASSERT(fFlushState.nextDrawToken() == fFlushState.nextTokenToFlush());
 
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->reset();
+    for (int i = 0; i < fOpLists1.count(); ++i) {
+        fOpLists1[i]->reset1();
+
+        if (1 == fOpLists1[i]->getRefCnt() && fOpLists1[i]->asRenderTargetOpList()) {
+            this->recycle(fOpLists1[i]->asRenderTargetOpList());
+            fOpLists1[i] = nullptr;
+        }
     }
 
-#ifndef ENABLE_MDB
-    // When MDB is disabled we keep reusing the same GrOpList
-    if (fOpLists.count()) {
-        SkASSERT(fOpLists.count() == 1);
-        // Clear out this flag so the topological sort's SkTTopoSort_CheckAllUnmarked check
-        // won't bark
-        fOpLists[0]->resetFlag(GrOpList::kWasOutput_Flag);
-    }
-#else
-    fOpLists.reset();
-#endif
+    fOpLists1.reset();
 
     fFlushState.reset();
     // We always have to notify the cache when it requested a flush so it can reset its state.
@@ -208,26 +305,27 @@ void GrDrawingManager::addPreFlushCallbackObject(sk_sp<GrPreFlushCallbackObject>
 sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetProxy> rtp) {
     SkASSERT(fContext);
 
-#ifndef ENABLE_MDB
-    // When MDB is disabled we always just return the single GrOpList
-    if (fOpLists.count()) {
-        SkASSERT(fOpLists.count() == 1);
-        // In the non-MDB-world the same GrOpList gets reused for multiple render targets.
-        // Update this pointer so all the asserts are happy
-        rtp->setLastOpList(fOpLists[0].get());
-        // DrawingManager gets the creation ref - this ref is for the caller
-
-        // TODO: although this is true right now it isn't cool
-        return sk_ref_sp((GrRenderTargetOpList*) fOpLists[0].get());
+    // This is  a temporary fix for the partial-MDB world. In that world we're not reordering
+    // so ops that (in the single opList world) would've just glommed onto the end of the single
+    // opList but referred to a far earlier RT need to appear in their own opList.
+    if (!fOpLists1.empty()) {
+        fOpLists1.back()->makeClosed(*fContext->caps());
     }
-#endif
+
+    if (fSpares.count()) {
+        sk_sp<GrRenderTargetOpList> tmp(fSpares.top());
+        fSpares.pop();
+        SkASSERT(tmp->getRefCnt() == 1);
+        tmp->init(std::move(rtp), fContext->getGpu(), fContext->getAuditTrail());
+        return tmp;
+    }
 
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(rtp,
                                                                 fContext->getGpu(),
                                                                 fContext->getAuditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
 
-    fOpLists.push_back() = opList;
+    fOpLists1.push_back() = opList;
 
     return opList;
 }
@@ -235,19 +333,21 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetPr
 sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(sk_sp<GrTextureProxy> textureProxy) {
     SkASSERT(fContext);
 
-    sk_sp<GrTextureOpList> opList(new GrTextureOpList(std::move(textureProxy), fContext->getGpu(),
+    // This is  a temporary fix for the partial-MDB world. In that world we're not reordering
+    // so ops that (in the single opList world) would've just glommed onto the end of the single
+    // opList but referred to a far earlier RT need to appear in their own opList.
+    if (!fOpLists1.empty()) {
+        fOpLists1.back()->makeClosed(*fContext->caps());
+    }
+
+    sk_sp<GrTextureOpList> opList(new GrTextureOpList(textureProxy, fContext->getGpu(),
                                                       fContext->getAuditTrail()));
 
-#ifndef ENABLE_MDB
-    // When MDB is disabled we still create a new GrOpList, but don't store or ref it - we rely
-    // on the caller to immediately execute and free it.
-    return opList;
-#else
-    *fOpLists.append() = opList;
+    SkASSERT(textureProxy->getLastOpList() == opList.get());
 
-    // Drawing manager gets the creation ref - this ref is for the caller
+    fOpLists1.push_back() = opList;
+
     return opList;
-#endif
 }
 
 GrAtlasTextContext* GrDrawingManager::getAtlasTextContext() {

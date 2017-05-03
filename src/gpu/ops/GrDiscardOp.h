@@ -48,6 +48,7 @@ private:
         this->setBounds(SkRect::MakeIWH(rtc->width(), rtc->height()), HasAABloat::kNo,
                         IsZeroArea::kNo);
 
+        SkDebugf("GrDiscardOp: %d\n", sizeof(GrDiscardOp));
         fRenderTarget.reset(rtc->accessRenderTarget());
     }
 

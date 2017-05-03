@@ -20,10 +20,17 @@ uint32_t GrOpList::CreateUniqueID() {
     return id;
 }
 
+void GrOpList::init(sk_sp<GrSurfaceProxy> surfaceProxy, GrAuditTrail* auditTrail) {
+    SkASSERT(!fTarget);
+    fTarget = surfaceProxy;
+    fAuditTrail = auditTrail;
+    fUniqueID = CreateUniqueID();
+    fFlags = 0;
+    surfaceProxy->setLastOpList(this);
+}
+
 GrOpList::GrOpList(sk_sp<GrSurfaceProxy> surfaceProxy, GrAuditTrail* auditTrail)
-    // MDB TODO: in the future opLists will own the GrSurfaceProxy they target.
-    // For now, preserve the status quo.
-    : fTarget(surfaceProxy.get())
+    : fTarget(surfaceProxy)
     , fAuditTrail(auditTrail)
     , fUniqueID(CreateUniqueID())
     , fFlags(0) {
@@ -34,6 +41,15 @@ GrOpList::~GrOpList() {
     if (fTarget && this == fTarget->getLastOpList()) {
         fTarget->setLastOpList(nullptr);
     }
+}
+
+void GrOpList::reset1() {
+    if (fTarget && this == fTarget->getLastOpList()) {
+        fTarget->setLastOpList(nullptr);
+    }
+
+    fTarget = nullptr;
+    fAuditTrail = nullptr;
 }
 
 // Add a GrOpList-based dependency

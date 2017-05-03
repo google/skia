@@ -1317,6 +1317,8 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle s
 
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
 
+extern void done26();
+
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 #if defined(SK_BUILD_FOR_IOS)
@@ -1426,6 +1428,7 @@ int main(int argc, char** argv) {
 
     print_status();
     SkGraphics::PurgeAllCaches();
+    done26();
     info("Finished!\n");
     return 0;
 }
