@@ -16,6 +16,24 @@
       "revId": "6abe74f8fa59de31a9e8dc42b4a1261762128814",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1686b750_3790d689",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T19:42:35Z",
+      "side": 1,
+      "message": "Yeah, this is my inclination as well.  It\u0027s kind of the more usual thing to do, given that there\u0027s no really important performance reason to inline AdjustMatrix or StageAdder into independent copies of this function.",
+      "parentUuid": "114f8b90_f8444079",
+      "revId": "6abe74f8fa59de31a9e8dc42b4a1261762128814",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

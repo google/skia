@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a60a80af_7d841813",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T19:42:35Z",
+      "side": 1,
+      "message": "Rather, appendStagesHelper()?  It\u0027s kind of assumed we\u0027re dealing with gradients here.  :)",
+      "range": {
+        "startLine": 236,
+        "startChar": 9,
+        "endLine": 236,
+        "endChar": 28
+      },
+      "revId": "8ce3ad2ff7c4a5575feb82db7d7404e5345f6f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c8a5fcb_3f0a8a7f",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T19:42:35Z",
+      "side": 1,
+      "message": "Might want to group these two on their own line so that they stand out as the additions?",
+      "range": {
+        "startLine": 239,
+        "startChar": 32,
+        "endLine": 239,
+        "endChar": 80
+      },
+      "revId": "8ce3ad2ff7c4a5575feb82db7d7404e5345f6f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73a5ac3c_c337cef5",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T19:42:35Z",
+      "side": 1,
+      "message": "I don\u0027t think I\u0027m really following what these notes are saying.  I think you might just want to remove them and describe what AdjustMatrix and StageAdder are for?",
+      "range": {
+        "startLine": 292,
+        "startChar": 2,
+        "endLine": 295,
+        "endChar": 22
+      },
+      "revId": "8ce3ad2ff7c4a5575feb82db7d7404e5345f6f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49a9022f_c7e41ff1",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T19:42:35Z",
+      "side": 1,
+      "message": "Name?  dstToGradient is fine if you want to keep it that way, given the comments that you\u0027ve written here.",
+      "range": {
+        "startLine": 308,
+        "startChar": 13,
+        "endLine": 308,
+        "endChar": 26
+      },
+      "revId": "8ce3ad2ff7c4a5575feb82db7d7404e5345f6f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "281dbb08_36bc0150",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T19:42:35Z",
+      "side": 1,
+      "message": "update?",
+      "range": {
+        "startLine": 308,
+        "startChar": 60,
+        "endLine": 308,
+        "endChar": 73
+      },
+      "revId": "8ce3ad2ff7c4a5575feb82db7d7404e5345f6f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e5d2737_72af2737",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T19:42:35Z",
+      "side": 1,
+      "message": "I think this would read more clearly if you end the sentence after transform.",
+      "range": {
+        "startLine": 309,
+        "startChar": 7,
+        "endLine": 309,
+        "endChar": 25
+      },
+      "revId": "8ce3ad2ff7c4a5575feb82db7d7404e5345f6f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
