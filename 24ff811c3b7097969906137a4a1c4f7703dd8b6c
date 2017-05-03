@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "28adb527_c3a44320",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-03T18:34:02Z",
+      "side": 1,
+      "message": "Why do we need a PinFunc?",
+      "revId": "24ff811c3b7097969906137a4a1c4f7703dd8b6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d56df29_ff4716e5",
+        "filename": "src/image/SkPinnedTexture.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-03T18:34:02Z",
+      "side": 1,
+      "message": "// Info ...\n\n?",
+      "revId": "24ff811c3b7097969906137a4a1c4f7703dd8b6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c386769_f726f0be",
+        "filename": "src/image/SkPinnedTexture.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-03T18:34:02Z",
+      "side": 1,
+      "message": "Having these mutable and the SkPinnedTexture member variable mutable seems overkill but may communicate the horror that is occurring.",
+      "revId": "24ff811c3b7097969906137a4a1c4f7703dd8b6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
