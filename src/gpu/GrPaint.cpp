@@ -12,11 +12,11 @@
 #include "effects/GrSimpleTextureEffect.h"
 
 void GrPaint::setPorterDuffXPFactory(SkBlendMode mode) {
-    fXPFactory = GrPorterDuffXPFactory::Get(mode);
+    this->setXPFactory(GrPorterDuffXPFactory::Get(mode));
 }
 
 void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage) {
-    fXPFactory = GrCoverageSetOpXPFactory::Get(regionOp, invertCoverage);
+    this->setXPFactory(GrCoverageSetOpXPFactory::Get(regionOp, invertCoverage));
 }
 
 void GrPaint::addColorTextureProcessor(GrResourceProvider* resourceProvider,
