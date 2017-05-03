@@ -22,6 +22,23 @@
       "revId": "1f16795fe15f2db70abc5d9b33a0e5355dc1f3b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4574c77f_3e79515a",
+        "filename": "src/gpu/GrMesh.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-03T12:47:13Z",
+      "side": 1,
+      "message": "We could probably use some comments here or elsewhere about what these fields mean (and how they relate to the iterator).",
+      "revId": "1f16795fe15f2db70abc5d9b33a0e5355dc1f3b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
