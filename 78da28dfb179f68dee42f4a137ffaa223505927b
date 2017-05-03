@@ -22,6 +22,30 @@
       "revId": "78da28dfb179f68dee42f4a137ffaa223505927b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68ec954e_62a803bf",
+        "filename": "src/core/SkColor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-03T20:01:38Z",
+      "side": 1,
+      "message": "I\u0027m leaning towards this as the globally only right thing to do for SkPMColors, so I do kind of like the uncouched name FromPMColor.  The only exception I can think of is if we were using SkPM4f (not say, Sk4f, but SkPM4f) to do legacy blits and effects faster.... so far, it doesn\u0027t look like that\u0027s the case, given that nothing changes in 8888 mode.",
+      "parentUuid": "a1f31c7b_b746d862",
+      "range": {
+        "startLine": 111,
+        "startChar": 17,
+        "endLine": 111,
+        "endChar": 18
+      },
+      "revId": "78da28dfb179f68dee42f4a137ffaa223505927b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
