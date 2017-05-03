@@ -321,6 +321,10 @@ public:
     void getFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const {
         this->onGetFontDescriptor(desc, isLocal);
     }
+    // PRIVATE / EXPERIMENTAL -- do not call
+    void* internal_private_getCTFontRef() const {
+        return this->onGetCTFontRef();
+    }
 
 protected:
     // The type of advance data wanted.
@@ -383,6 +387,8 @@ protected:
                                   size_t length, void* data) const = 0;
 
     virtual bool onComputeBounds(SkRect*) const;
+
+    virtual void* onGetCTFontRef() const { return nullptr; }
 
 private:
     friend class SkRandomTypeface;
