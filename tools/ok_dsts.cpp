@@ -17,6 +17,12 @@ struct SWDst : Dst {
         if (options("ct") == "565") { info = info.makeColorType(kRGB_565_SkColorType); }
         if (options("ct") == "f16") { info = info.makeColorType(kRGBA_F16_SkColorType); }
 
+        if (options("cs") == "srgb") {
+            auto cs = info.colorType() == kRGBA_F16_SkColorType ? SkColorSpace::MakeSRGBLinear()
+                                                                : SkColorSpace::MakeSRGB();
+            info = info.makeColorSpace(std::move(cs));
+        }
+
         SWDst dst;
         dst.info = info;
         return move_unique(dst);
@@ -36,5 +42,16 @@ static Register sw{"sw", "draw with the software backend", SWDst::Create};
 
 static Register _565{"565", "alias for sw:ct=565", [](Options options) {
     options["ct"] = "565";
+    return SWDst::Create(options);
+}};
+
+static Register srgb{"srgb", "alias for sw:cs=srgb", [](Options options) {
+    options["cs"] = "srgb";
+    return SWDst::Create(options);
+}};
+
+static Register f16{"f16", "alias for sw:ct=f16,cs=srgb", [](Options options) {
+    options["ct"] = "f16";
+    options["cs"] = "srgb";
     return SWDst::Create(options);
 }};
