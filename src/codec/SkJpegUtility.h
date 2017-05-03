@@ -21,24 +21,27 @@ extern "C" {
     #include "jerror.h"
 }
 
+
 /*
  * Error handling function
  */
 void skjpeg_err_exit(j_common_ptr cinfo);
 
+/* source for memory backed streams with a valid length */
+struct skjpeg_mem_source_mgr : jpeg_source_mgr {
+    skjpeg_mem_source_mgr(SkStream* stream);
+};
+
 /*
  * Source handling struct for that allows libjpeg to use our stream object
  */
-struct skjpeg_source_mgr : jpeg_source_mgr {
-    skjpeg_source_mgr(SkStream* stream);
-
+struct skjpeg_buffered_source_mgr : jpeg_source_mgr {
+    skjpeg_buffered_source_mgr(SkStream* stream);
+    static constexpr size_t kDefaultJpegBufferSize = 4*1024;
+    static constexpr size_t kMaxJpegBufferSize = 512*1024;
     SkStream* fStream; // unowned
-    enum {
-        // TODO (msarett): Experiment with different buffer sizes.
-        // This size was chosen because it matches SkImageDecoder.
-        kBufferSize = 1024
-    };
-    uint8_t fBuffer[kBufferSize];
+    size_t fBufferSize = 0;
+    std::unique_ptr<char[]> fBuffer;
 };
 
 #endif

@@ -66,7 +66,7 @@ public:
 private:
 
     jpeg_decompress_struct fDInfo;
-    skjpeg_source_mgr      fSrcMgr;
+    jpeg_source_mgr*       fSrcMgr;
     skjpeg_error_mgr       fErrorMgr;
     jpeg_progress_mgr      fProgressMgr;
     bool                   fInit;

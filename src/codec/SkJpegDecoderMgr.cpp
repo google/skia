@@ -69,9 +69,14 @@ bool JpegDecoderMgr::getEncodedColor(SkEncodedInfo::Color* outColor) {
 }
 
 JpegDecoderMgr::JpegDecoderMgr(SkStream* stream)
-    : fSrcMgr(stream)
-    , fInit(false)
+    : fInit(false)
 {
+    if(stream->getMemoryBase() && stream->getLength()) {
+        fSrcMgr = new skjpeg_mem_source_mgr(stream);
+    } else {
+        fSrcMgr = new skjpeg_buffered_source_mgr(stream);
+    }
+
     // Error manager must be set before any calls to libjeg in order to handle failures
     fDInfo.err = jpeg_std_error(&fErrorMgr);
     fErrorMgr.error_exit = skjpeg_err_exit;
@@ -80,7 +85,7 @@ JpegDecoderMgr::JpegDecoderMgr(SkStream* stream)
 void JpegDecoderMgr::init() {
     jpeg_create_decompress(&fDInfo);
     fInit = true;
-    fDInfo.src = &fSrcMgr;
+    fDInfo.src = fSrcMgr;
     fDInfo.err->output_message = &output_message;
     fDInfo.progress = &fProgressMgr;
     fProgressMgr.progress_monitor = &progress_monitor;
