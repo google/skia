@@ -1267,6 +1267,11 @@ void simplify(const VertexList& vertices, Comparator& c, SkArenaAlloc& alloc) {
         do {
             restartChecks = false;
             find_enclosing_edges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
+            if (rightEnclosingEdge && !rightEnclosingEdge->isRightOf(v)) {
+                split_edge(rightEnclosingEdge, v, &activeEdges, c, alloc);
+                restartChecks = true;
+                continue;
+            }
             if (v->fFirstEdgeBelow) {
                 for (Edge* edge = v->fFirstEdgeBelow; edge; edge = edge->fNextEdgeBelow) {
                     if (check_for_intersection(edge, leftEnclosingEdge, &activeEdges, c, alloc)) {
@@ -1395,7 +1400,6 @@ Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc) {
             }
             for (Edge* e = v->fFirstEdgeAbove; e != v->fLastEdgeAbove; e = e->fNextEdgeAbove) {
                 Edge* rightEdge = e->fNextEdgeAbove;
-                SkASSERT(rightEdge->isRightOf(e->fTop));
                 remove_edge(e, &activeEdges);
                 if (e->fRightPoly) {
                     e->fRightPoly->addEdge(e, Poly::kLeft_Side, alloc);
