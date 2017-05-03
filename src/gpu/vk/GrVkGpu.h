@@ -22,7 +22,6 @@
 #include "vk/GrVkDefines.h"
 
 class GrPipeline;
-class GrNonInstancedMesh;
 
 class GrVkBufferImpl;
 class GrVkPipeline;

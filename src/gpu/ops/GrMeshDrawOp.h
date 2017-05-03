@@ -29,15 +29,15 @@ public:
 protected:
     GrMeshDrawOp(uint32_t classID);
 
-    /** Helper for rendering instances using an instanced index buffer. This class creates the space
-        for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
-    class InstancedHelper {
+    /** Helper for rendering repeating meshes using a patterned index buffer. This class creates the
+        space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
+    class PatternHelper {
     public:
-        InstancedHelper() {}
+        PatternHelper() {}
         /** Returns the allocated storage for the vertices. The caller should populate the vertices
             before calling recordDraws(). */
         void* init(Target*, GrPrimitiveType, size_t vertexStride, const GrBuffer*,
-                   int verticesPerInstance, int indicesPerInstance, int instancesToDraw);
+                   int verticesPerRepetition, int indicesPerRepetition, int repeatCount);
 
         /** Call after init() to issue draws to the GrMeshDrawOp::Target.*/
         void recordDraw(Target*, const GrGeometryProcessor*, const GrPipeline*);
@@ -50,7 +50,7 @@ protected:
     static const int kIndicesPerQuad = 6;
 
     /** A specialization of InstanceHelper for quad rendering. */
-    class QuadHelper : private InstancedHelper {
+    class QuadHelper : private PatternHelper {
     public:
         QuadHelper() : INHERITED() {}
         /** Finds the cached quad index buffer and reserves vertex space. Returns nullptr on failure
@@ -58,10 +58,10 @@ protected:
             calling recordDraws(). */
         void* init(Target*, size_t vertexStride, int quadsToDraw);
 
-        using InstancedHelper::recordDraw;
+        using PatternHelper::recordDraw;
 
     private:
-        typedef InstancedHelper INHERITED;
+        typedef PatternHelper INHERITED;
     };
 
 private:

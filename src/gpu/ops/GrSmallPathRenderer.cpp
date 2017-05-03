@@ -682,9 +682,14 @@ private:
             GrMesh mesh;
             int maxInstancesPerDraw =
                 static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
-            mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer.get(),
-                flushInfo->fIndexBuffer.get(), flushInfo->fVertexOffset, kVerticesPerQuad,
-                kIndicesPerQuad, flushInfo->fInstancesToFlush, maxInstancesPerDraw);
+            mesh.fPrimitiveType = kTriangles_GrPrimitiveType;
+            mesh.fIndexBuffer.reset(flushInfo->fIndexBuffer.get());
+            mesh.fIndexCount = kIndicesPerQuad;
+            mesh.fVertexBuffer.reset(flushInfo->fVertexBuffer.get());
+            mesh.fVertexCount = kVerticesPerQuad;
+            mesh.fBaseVertex = flushInfo->fVertexOffset;
+            mesh.fPatternRepeatCount = flushInfo->fInstancesToFlush;
+            mesh.fMaxPatternRepetitionsInIndexBuffer = maxInstancesPerDraw;
             target->draw(flushInfo->fGeometryProcessor.get(), this->pipeline(), mesh);
             flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
             flushInfo->fInstancesToFlush = 0;

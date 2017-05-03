@@ -313,7 +313,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::findProxyByUniqueKey(const GrUniqueKey
     return GrSurfaceProxy::MakeWrapped(std::move(texture));
 }
 
-const GrBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16_t* pattern,
+const GrBuffer* GrResourceProvider::createPatternedIndexBuffer(const uint16_t* pattern,
                                                                int patternSize,
                                                                int reps,
                                                                int vertCount,
@@ -356,7 +356,7 @@ const GrBuffer* GrResourceProvider::createQuadIndexBuffer() {
     GR_STATIC_ASSERT(4 * kMaxQuads <= 65535);
     static const uint16_t kPattern[] = { 0, 1, 2, 0, 2, 3 };
 
-    return this->createInstancedIndexBuffer(kPattern, 6, kMaxQuads, 4, fQuadIndexBufferKey);
+    return this->createPatternedIndexBuffer(kPattern, 6, kMaxQuads, 4, fQuadIndexBufferKey);
 }
 
 GrPath* GrResourceProvider::createPath(const SkPath& path, const GrStyle& style) {
