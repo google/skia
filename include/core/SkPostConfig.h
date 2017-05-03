@@ -248,14 +248,6 @@
 #  define SK_ATTR_DEPRECATED(msg) SK_ATTRIBUTE(deprecated)
 #endif
 
-#if !defined(SK_ATTR_EXTERNALLY_DEPRECATED)
-#  if !defined(SK_INTERNAL)
-#    define SK_ATTR_EXTERNALLY_DEPRECATED(msg) SK_ATTR_DEPRECATED(msg)
-#  else
-#    define SK_ATTR_EXTERNALLY_DEPRECATED(msg)
-#  endif
-#endif
-
 /**
  * If your judgment is better than the compiler's (i.e. you've profiled it),
  * you can use SK_ALWAYS_INLINE to force inlining. E.g.

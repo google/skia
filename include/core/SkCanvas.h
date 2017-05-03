@@ -1157,18 +1157,12 @@ public:
     }
 
     //////////////////////////////////////////////////////////////////////////
-#ifdef SK_INTERNAL
-#ifndef SK_SUPPORT_LEGACY_DRAWFILTER
-    #define SK_SUPPORT_LEGACY_DRAWFILTER
-#endif
-#endif
 
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER
     /** Get the current filter object. The filter's reference count is not
         affected. The filter is saved/restored, just like the matrix and clip.
         @return the canvas' filter (or NULL).
     */
-    SK_ATTR_EXTERNALLY_DEPRECATED("getDrawFilter use is deprecated")
     SkDrawFilter* getDrawFilter() const;
 
     /** Set the new filter (or NULL). Pass NULL to clear any existing filter.
@@ -1179,7 +1173,6 @@ public:
         @param filter the new filter (or NULL)
         @return the new filter
     */
-    SK_ATTR_EXTERNALLY_DEPRECATED("setDrawFilter use is deprecated")
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter);
 #endif
     //////////////////////////////////////////////////////////////////////////

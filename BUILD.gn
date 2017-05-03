@@ -139,10 +139,7 @@ config("skia_private") {
     "third_party/gif",
   ]
 
-  defines = [
-    "SK_GAMMA_APPLY_TO_A8",
-    "SK_INTERNAL",
-  ]
+  defines = [ "SK_GAMMA_APPLY_TO_A8" ]
   if (is_android) {
     defines += [
       "SK_GAMMA_EXPONENT=1.4",
