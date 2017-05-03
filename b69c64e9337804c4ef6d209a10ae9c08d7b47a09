@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c4749c9_f6d844ef",
+        "filename": "samplecode/SampleAndroidShadows.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-03T21:20:19Z",
+      "side": 1,
+      "message": "rm spaces ?",
+      "revId": "b69c64e9337804c4ef6d209a10ae9c08d7b47a09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
