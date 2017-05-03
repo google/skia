@@ -513,36 +513,6 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkBitmap::canCopyTo(SkColorType dstCT) const {
-    const SkColorType srcCT = this->colorType();
-
-    if (srcCT == kUnknown_SkColorType) {
-        return false;
-    }
-    if (srcCT == kAlpha_8_SkColorType && dstCT != kAlpha_8_SkColorType) {
-        return false;   // can't convert from alpha to non-alpha
-    }
-
-    bool sameConfigs = (srcCT == dstCT);
-    switch (dstCT) {
-        case kAlpha_8_SkColorType:
-        case kRGB_565_SkColorType:
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            break;
-        case kGray_8_SkColorType:
-            if (!sameConfigs) {
-                return false;
-            }
-            break;
-        case kARGB_4444_SkColorType:
-            return sameConfigs || kN32_SkColorType == srcCT || kIndex_8_SkColorType == srcCT;
-        default:
-            return false;
-    }
-    return true;
-}
-
 bool SkBitmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, size_t dstRB,
                           int x, int y) const {
     SkPixmap src;
@@ -573,46 +543,6 @@ bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY,
                     src.ctable(), behavior);
     return true;
 }
-
-#ifdef SK_SUPPORT_LEGACY_BITMAP_COPYTO
-bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType) const {
-    if (!this->canCopyTo(dstColorType)) {
-        return false;
-    }
-
-    SkPixmap srcPM;
-    if (!this->peekPixels(&srcPM)) {
-        return false;
-    }
-
-    SkBitmap tmpDst;
-    SkImageInfo dstInfo = srcPM.info().makeColorType(dstColorType);
-    if (!tmpDst.setInfo(dstInfo)) {
-        return false;
-    }
-
-    // allocate colortable if srcConfig == kIndex8_Config
-    sk_sp<SkColorTable> ctable;
-    if (dstColorType == kIndex_8_SkColorType) {
-        ctable.reset(SkRef(srcPM.ctable()));
-    }
-    if (!tmpDst.tryAllocPixels(ctable.get())) {
-        return false;
-    }
-
-    SkPixmap dstPM;
-    if (!tmpDst.peekPixels(&dstPM)) {
-        return false;
-    }
-
-    if (!srcPM.readPixels(dstPM)) {
-        return false;
-    }
-
-    dst->swap(tmpDst);
-    return true;
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
