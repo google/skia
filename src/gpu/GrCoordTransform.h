@@ -21,7 +21,7 @@ class GrTextureProxy;
 class GrCoordTransform : SkNoncopyable {
 public:
     GrCoordTransform()
-        : fTexture(nullptr)
+        : fProxy(nullptr)
         , fNormalize(false)
         , fReverseY(false) {
         SkDEBUGCODE(fInProcessor = false);
@@ -61,7 +61,7 @@ public:
     void reset(const SkMatrix& m) {
         SkASSERT(!fInProcessor);
         fMatrix = m;
-        fTexture = nullptr;
+        fProxy = nullptr;
         fNormalize = false;
         fReverseY = false;
     }
@@ -69,7 +69,7 @@ public:
     GrCoordTransform& operator= (const GrCoordTransform& that) {
         SkASSERT(!fInProcessor);
         fMatrix = that.fMatrix;
-        fTexture = that.fTexture;
+        fProxy = that.fProxy;
         fNormalize = that.fNormalize;
         fReverseY = that.fReverseY;
         return *this;
@@ -92,16 +92,17 @@ public:
         }
 
         if (fNormalize) {
-            SkASSERT(fTexture && that.fTexture);
-            return fTexture->width() == that.fTexture->width() &&
-                   fTexture->height() == that.fTexture->height();
+//            SkASSERT(fTexture && that.fTexture);
+//            return fTexture->width() == that.fTexture->width() &&
+//                   fTexture->height() == that.fTexture->height();
         }
 
         return true;
     }
 
     const SkMatrix& getMatrix() const { return fMatrix; }
-    const GrTexture* texture() const { return fTexture; }
+    const GrTexture* texture2() const { return nullptr; }
+    const GrTextureProxy* proxy() const { return fProxy; }
     bool normalize() const { return fNormalize; }
     bool reverseY() const { return fReverseY; }
 
@@ -112,7 +113,7 @@ private:
     bool operator!=(const GrCoordTransform& that) const;
 
     SkMatrix                fMatrix;
-    const GrTexture*        fTexture;
+    const GrTextureProxy*   fProxy;
     bool                    fNormalize;
     bool                    fReverseY;
     typedef SkNoncopyable INHERITED;

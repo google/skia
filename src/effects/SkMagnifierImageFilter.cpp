@@ -204,7 +204,7 @@ void GrGLMagnifierEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                     const GrFragmentProcessor& effect) {
     const GrMagnifierEffect& zoom = effect.cast<GrMagnifierEffect>();
 
-    GrTexture* tex = zoom.textureSampler(0).texture();
+    GrTexture* tex = zoom.textureSampler(0).texture2();
     SkASSERT(tex);
 
     SkScalar invW = 1.0f / tex->width();

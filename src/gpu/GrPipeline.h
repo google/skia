@@ -75,7 +75,7 @@ public:
         const GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTarget* fRenderTarget = nullptr;
         const GrCaps* fCaps = nullptr;
-        GrXferProcessor::DstTexture fDstTexture;
+        GrXferProcessor::DstProxy fDstProxy;
     };
 
     /**
@@ -158,11 +158,11 @@ public:
      * If the GrXferProcessor uses a texture to access the dst color, then this returns that
      * texture and the offset to the dst contents within that texture.
      */
-    GrTexture* dstTexture(SkIPoint* offset = nullptr) const {
+    GrTextureProxy* dstTextureProxy(SkIPoint* offset = nullptr) const {
         if (offset) {
             *offset = fDstTextureOffset;
         }
-        return fDstTexture.get();
+        return fDstTextureProxy.get();
     }
 
     const GrFragmentProcessor& getColorFragmentProcessor(int idx) const {
@@ -216,7 +216,7 @@ public:
     bool isBad() const { return SkToBool(fFlags & kIsBad_Flag); }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
-        if (fDstTexture.get() && fDstTexture.get() == fRenderTarget.get()->asTexture()) {
+        if (fDstTextureProxy.get()) { // && fDstTexture.get() == fRenderTarget.get()->asTexture()) {
             return kTexture_GrXferBarrierType;
         }
         return this->getXferProcessor().xferBarrierType(caps);
@@ -241,11 +241,11 @@ private:
     };
 
     using RenderTarget = GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>;
-    using DstTexture = GrPendingIOResource<GrTexture, kRead_GrIOType>;
+    using DstTextureProxy = GrPendingIOResource<GrTextureProxy, kRead_GrIOType>;
     using PendingFragmentProcessor = GrPendingProgramElement<const GrFragmentProcessor>;
     using FragmentProcessorArray = SkAutoSTArray<8, PendingFragmentProcessor>;
 
-    DstTexture fDstTexture;
+    DstTextureProxy fDstTextureProxy;
     SkIPoint fDstTextureOffset;
     RenderTarget fRenderTarget;
     GrScissorState fScissorState;
