@@ -143,8 +143,7 @@
       "--revision",
       "skia@abc123",
       "--revision",
-      "src@origin/lkgr",
-      "--output_manifest"
+      "src@origin/lkgr"
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {

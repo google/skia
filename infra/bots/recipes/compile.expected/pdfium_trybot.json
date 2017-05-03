@@ -104,8 +104,7 @@
       "--revision",
       "pdfium@origin/master",
       "--revision",
-      "pdfium/third_party/skia@abc123",
-      "--output_manifest"
+      "pdfium/third_party/skia@abc123"
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
