@@ -316,7 +316,10 @@ private:
         GrPrimitiveType primitiveType = TESSELLATOR_WIREFRAME ? kLines_GrPrimitiveType
                                                               : kTriangles_GrPrimitiveType;
         GrMesh mesh;
-        mesh.init(primitiveType, vb, firstVertex, count);
+        mesh.fPrimitiveType = primitiveType;
+        mesh.fVertexBuffer.reset(vb);
+        mesh.fVertexCount = count;
+        mesh.fBaseVertex = firstVertex;
         target->draw(gp, this->pipeline(), mesh);
     }
 

@@ -157,7 +157,10 @@ private:
         }
 
         GrMesh mesh;
-        mesh.init(primType, vertexBuffer, firstVertex, vertexCount);
+        mesh.fPrimitiveType = primType;
+        mesh.fVertexBuffer.reset(vertexBuffer);
+        mesh.fVertexCount = vertexCount;
+        mesh.fBaseVertex = firstVertex;
         target->draw(gp.get(), this->pipeline(), mesh);
     }
 

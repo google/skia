@@ -236,13 +236,15 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) const {
     }
 
     GrMesh mesh;
+    mesh.fPrimitiveType = this->primitiveType();
     if (indices) {
-        mesh.initIndexed(this->primitiveType(), vertexBuffer, indexBuffer, firstVertex, firstIndex,
-                         fVertexCount, fIndexCount);
-
-    } else {
-        mesh.init(this->primitiveType(), vertexBuffer, firstVertex, fVertexCount);
+        mesh.fIndexBuffer.reset(indexBuffer);
+        mesh.fIndexCount = fIndexCount;
+        mesh.fBaseIndex = firstIndex;
     }
+    mesh.fVertexBuffer.reset(vertexBuffer);
+    mesh.fVertexCount = fVertexCount;
+    mesh.fBaseVertex = firstVertex;
     target->draw(gp.get(), this->pipeline(), mesh);
 }
 

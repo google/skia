@@ -14,7 +14,6 @@
 #include "GrTypes.h"
 #include "GrVkPipelineState.h"
 
-class GrNonInstancedMesh;
 class GrVkGpu;
 class GrVkImage;
 class GrVkRenderPass;
@@ -46,7 +45,9 @@ private:
     void onSubmit() override;
 
     // Bind vertex and index buffers
-    void bindGeometry(const GrPrimitiveProcessor&, const GrNonInstancedMesh&);
+    void bindGeometry(const GrPrimitiveProcessor&,
+                      const GrBuffer* indexBuffer,
+                      const GrBuffer* vertexBuffer);
 
     sk_sp<GrVkPipelineState> prepareDrawState(const GrPipeline&,
                                               const GrPrimitiveProcessor&,

@@ -1984,34 +1984,29 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
 }
 
 void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
-                            const GrNonInstancedMesh& mesh,
-                            size_t* indexOffsetInBytes) {
-    const GrBuffer* vbuf = mesh.vertexBuffer();
-    SkASSERT(vbuf);
-    SkASSERT(!vbuf->isMapped());
-
+                            const GrBuffer* indexBuffer,
+                            const GrBuffer* vertexBuffer,
+                            int baseVertex) {
     GrGLAttribArrayState* attribState;
-    if (mesh.isIndexed()) {
-        SkASSERT(indexOffsetInBytes);
-
-        *indexOffsetInBytes = 0;
-        const GrBuffer* ibuf = mesh.indexBuffer();
-        SkASSERT(ibuf);
-        SkASSERT(!ibuf->isMapped());
-        *indexOffsetInBytes += ibuf->baseOffset();
-        attribState = fHWVertexArrayState.bindInternalVertexArray(this, ibuf);
+    if (indexBuffer) {
+        SkASSERT(indexBuffer);
+        SkASSERT(!indexBuffer->isMapped());
+        attribState = fHWVertexArrayState.bindInternalVertexArray(this, indexBuffer);
     } else {
         attribState = fHWVertexArrayState.bindInternalVertexArray(this);
     }
+
+    SkASSERT(vertexBuffer);
+    SkASSERT(!vertexBuffer->isMapped());
 
     int vaCount = primProc.numAttribs();
     if (vaCount > 0) {
 
         GrGLsizei stride = static_cast<GrGLsizei>(primProc.getVertexStride());
 
-        size_t vertexOffsetInBytes = stride * mesh.startVertex();
+        size_t vertexOffsetInBytes = stride * baseVertex;
 
-        vertexOffsetInBytes += vbuf->baseOffset();
+        vertexOffsetInBytes += vertexBuffer->baseOffset();
 
         uint32_t usedAttribArraysMask = 0;
         size_t offset = 0;
@@ -2022,7 +2017,7 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
             GrVertexAttribType attribType = attrib.fType;
             attribState->set(this,
                              attribIndex,
-                             vbuf,
+                             vertexBuffer,
                              attribType,
                              stride,
                              reinterpret_cast<GrGLvoid*>(vertexOffsetInBytes + offset));
@@ -2646,7 +2641,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
 
     bool hasPoints = false;
     for (int i = 0; i < meshCount; ++i) {
-        if (meshes[i].primitiveType() == kPoints_GrPrimitiveType) {
+        if (meshes[i].fPrimitiveType == kPoints_GrPrimitiveType) {
             hasPoints = true;
             break;
         }
@@ -2661,41 +2656,38 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
         }
 
         const GrMesh& mesh = meshes[i];
-        GrMesh::Iterator iter;
-        const GrNonInstancedMesh* nonInstMesh = iter.init(mesh);
-        do {
-            size_t indexOffsetInBytes = 0;
-            this->setupGeometry(primProc, *nonInstMesh, &indexOffsetInBytes);
-            if (nonInstMesh->isIndexed()) {
-                GrGLvoid* indices =
-                    reinterpret_cast<GrGLvoid*>(indexOffsetInBytes +
-                                                sizeof(uint16_t) * nonInstMesh->startIndex());
-                // info.startVertex() was accounted for by setupGeometry.
+        for (GrMesh::PatternBatch batch : mesh) {
+            this->setupGeometry(primProc, mesh.fIndexBuffer.get(), mesh.fVertexBuffer.get(),
+                                batch.fBaseVertex);
+            if (const GrBuffer* indexBuffer = mesh.fIndexBuffer.get()) {
+                GrGLvoid* indices = reinterpret_cast<void*>(indexBuffer->baseOffset() +
+                                                            sizeof(uint16_t) * mesh.fBaseIndex);
+                // mesh.fBaseVertex was accounted for by setupGeometry.
                 if (this->glCaps().drawRangeElementsSupport()) {
                     // We assume here that the GrMeshDrawOps that generated the mesh used the full
                     // 0..vertexCount()-1 range.
                     int start = 0;
-                    int end = nonInstMesh->vertexCount() - 1;
-                    GL_CALL(DrawRangeElements(gPrimitiveType2GLMode[nonInstMesh->primitiveType()],
+                    int end = mesh.fVertexCount * batch.fRepeatCount - 1;
+                    GL_CALL(DrawRangeElements(gPrimitiveType2GLMode[mesh.fPrimitiveType],
                                               start, end,
-                                              nonInstMesh->indexCount(),
+                                              mesh.fIndexCount * batch.fRepeatCount,
                                               GR_GL_UNSIGNED_SHORT,
                                               indices));
                 } else {
-                    GL_CALL(DrawElements(gPrimitiveType2GLMode[nonInstMesh->primitiveType()],
-                                         nonInstMesh->indexCount(),
+                    GL_CALL(DrawElements(gPrimitiveType2GLMode[mesh.fPrimitiveType],
+                                         mesh.fIndexCount * batch.fRepeatCount,
                                          GR_GL_UNSIGNED_SHORT,
                                          indices));
                 }
             } else {
                 // Pass 0 for parameter first. We have to adjust glVertexAttribPointer() to account
-                // for startVertex in the DrawElements case. So we always rely on setupGeometry to
-                // have accounted for startVertex.
-                GL_CALL(DrawArrays(gPrimitiveType2GLMode[nonInstMesh->primitiveType()], 0,
-                                   nonInstMesh->vertexCount()));
+                // for mesh.fBaseVertex in the DrawElements case. So we always rely on setupGeometry
+                // to have accounted for mesh.fBaseVertex.
+                GL_CALL(DrawArrays(gPrimitiveType2GLMode[mesh.fPrimitiveType], 0,
+                                   mesh.fVertexCount * batch.fRepeatCount));
             }
             fStats.incNumDraws();
-        } while ((nonInstMesh = iter.next()));
+        }
     }
 
 #if SWAP_PER_DRAW

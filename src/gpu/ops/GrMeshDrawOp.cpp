@@ -17,17 +17,17 @@ void GrMeshDrawOp::onPrepare(GrOpFlushState* state) {
     this->onPrepareDraws(&target);
 }
 
-void* GrMeshDrawOp::InstancedHelper::init(Target* target, GrPrimitiveType primType,
+void* GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primType,
                                           size_t vertexStride, const GrBuffer* indexBuffer,
-                                          int verticesPerInstance, int indicesPerInstance,
-                                          int instancesToDraw) {
+                                          int verticesPerRepetition, int indicesPerRepetition,
+                                          int repeatCount) {
     SkASSERT(target);
     if (!indexBuffer) {
         return nullptr;
     }
     const GrBuffer* vertexBuffer;
     int firstVertex;
-    int vertexCount = verticesPerInstance * instancesToDraw;
+    int vertexCount = verticesPerRepetition * repeatCount;
     void* vertices =
             target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
     if (!vertices) {
@@ -36,16 +36,22 @@ void* GrMeshDrawOp::InstancedHelper::init(Target* target, GrPrimitiveType primTy
     }
     SkASSERT(vertexBuffer);
     size_t ibSize = indexBuffer->gpuMemorySize();
-    int maxInstancesPerDraw = static_cast<int>(ibSize / (sizeof(uint16_t) * indicesPerInstance));
+    int maxRepetitions = static_cast<int>(ibSize / (sizeof(uint16_t) * indicesPerRepetition));
 
-    fMesh.initInstanced(primType, vertexBuffer, indexBuffer, firstVertex, verticesPerInstance,
-                        indicesPerInstance, instancesToDraw, maxInstancesPerDraw);
+    fMesh.fPrimitiveType = primType;
+    fMesh.fIndexBuffer.reset(indexBuffer);
+    fMesh.fIndexCount = indicesPerRepetition;
+    fMesh.fBaseIndex = 0;
+    fMesh.fVertexBuffer.reset(vertexBuffer);
+    fMesh.fVertexCount = verticesPerRepetition;
+    fMesh.fBaseVertex = firstVertex;
+    fMesh.fPatternRepeatCount = repeatCount;
+    fMesh.fMaxPatternRepetitionsInIndexBuffer = maxRepetitions;
     return vertices;
 }
 
-void GrMeshDrawOp::InstancedHelper::recordDraw(Target* target, const GrGeometryProcessor* gp,
+void GrMeshDrawOp::PatternHelper::recordDraw(Target* target, const GrGeometryProcessor* gp,
                                                const GrPipeline* pipeline) {
-    SkASSERT(fMesh.instanceCount());
     target->draw(gp, pipeline, fMesh);
 }
 

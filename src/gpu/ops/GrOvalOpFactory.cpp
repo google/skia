@@ -1097,8 +1097,13 @@ private:
         }
 
         GrMesh mesh;
-        mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
-                         firstIndex, fVertCount, fIndexCount);
+        mesh.fPrimitiveType = kTriangles_GrPrimitiveType;
+        mesh.fIndexBuffer.reset(indexBuffer);
+        mesh.fIndexCount = fIndexCount;
+        mesh.fBaseIndex = firstIndex;
+        mesh.fVertexBuffer.reset(vertexBuffer);
+        mesh.fVertexCount = fVertCount;
+        mesh.fBaseVertex = firstVertex;
         target->draw(gp.get(), this->pipeline(), mesh);
     }
 
@@ -1998,8 +2003,13 @@ private:
         }
 
         GrMesh mesh;
-        mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
-                         firstIndex, fVertCount, fIndexCount);
+        mesh.fPrimitiveType = kTriangles_GrPrimitiveType;
+        mesh.fIndexBuffer.reset(indexBuffer);
+        mesh.fIndexCount = fIndexCount;
+        mesh.fBaseIndex = firstIndex;
+        mesh.fVertexBuffer.reset(vertexBuffer);
+        mesh.fVertexCount = fVertCount;
+        mesh.fBaseVertex = firstVertex;
         target->draw(gp.get(), this->pipeline(), mesh);
     }
 
@@ -2055,11 +2065,11 @@ static const GrBuffer* ref_rrect_index_buffer(RRectType type,
     GR_DEFINE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
     switch (type) {
         case kFill_RRectType:
-            return resourceProvider->findOrCreateInstancedIndexBuffer(
+            return resourceProvider->findOrCreatePatternedIndexBuffer(
                     gStandardRRectIndices, kIndicesPerFillRRect, kNumRRectsInIndexBuffer,
                     kVertsPerStandardRRect, gRRectOnlyIndexBufferKey);
         case kStroke_RRectType:
-            return resourceProvider->findOrCreateInstancedIndexBuffer(
+            return resourceProvider->findOrCreatePatternedIndexBuffer(
                     gStandardRRectIndices, kIndicesPerStrokeRRect, kNumRRectsInIndexBuffer,
                     kVertsPerStandardRRect, gStrokeRRectOnlyIndexBufferKey);
         default:
@@ -2185,7 +2195,7 @@ private:
         sk_sp<const GrBuffer> indexBuffer(ref_rrect_index_buffer(
                 fStroked ? kStroke_RRectType : kFill_RRectType, target->resourceProvider()));
 
-        InstancedHelper helper;
+        PatternHelper helper;
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
                 helper.init(target, kTriangles_GrPrimitiveType, vertexStride, indexBuffer.get(),
                             kVertsPerStandardRRect, indicesPerInstance, instanceCount));

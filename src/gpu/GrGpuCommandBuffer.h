@@ -14,7 +14,7 @@
 class GrOpFlushState;
 class GrFixedClip;
 class GrGpu;
-class GrMesh;
+struct GrMesh;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrRenderTarget;

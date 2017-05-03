@@ -163,6 +163,10 @@ public:
         this->reset(resource);
     }
 
+    GrPendingIOResource(const GrPendingIOResource& that)
+        : GrPendingIOResource(that.get()) {
+    }
+
     void reset(T* resource) {
         if (resource) {
             switch (IO_TYPE) {

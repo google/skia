@@ -251,12 +251,15 @@ private:
         }
 
         GrMesh mesh;
+        mesh.fPrimitiveType = primitiveType;
         if (isIndexed) {
-            mesh.initIndexed(primitiveType, vertexBuffer, indexBuffer, firstVertex, firstIndex,
-                             vertexOffset, indexOffset);
-        } else {
-            mesh.init(primitiveType, vertexBuffer, firstVertex, vertexOffset);
+            mesh.fIndexBuffer.reset(indexBuffer);
+            mesh.fIndexCount = indexOffset;
+            mesh.fBaseIndex = firstIndex;
         }
+        mesh.fVertexBuffer.reset(vertexBuffer);
+        mesh.fVertexCount = vertexOffset;
+        mesh.fBaseVertex = firstVertex;
         target->draw(gp.get(), this->pipeline(), mesh);
 
         // put back reserves

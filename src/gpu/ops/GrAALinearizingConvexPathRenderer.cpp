@@ -189,27 +189,30 @@ private:
         if (vertexCount == 0 || indexCount == 0) {
             return;
         }
-        const GrBuffer* vertexBuffer;
+
         GrMesh mesh;
-        int firstVertex;
+        mesh.fPrimitiveType = kTriangles_GrPrimitiveType;
+        const GrBuffer* vertexBuffer;
         void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
-                                              &firstVertex);
+                                              &mesh.fBaseVertex);
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
+        mesh.fVertexBuffer.reset(vertexBuffer);
+        mesh.fVertexCount = vertexCount;
         memcpy(verts, vertices, vertexCount * vertexStride);
 
         const GrBuffer* indexBuffer;
-        int firstIndex;
-        uint16_t* idxs = target->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
+        uint16_t* idxs = target->makeIndexSpace(indexCount, &indexBuffer, &mesh.fBaseIndex);
         if (!idxs) {
             SkDebugf("Could not allocate indices\n");
             return;
         }
+        mesh.fIndexBuffer.reset(indexBuffer);
+        mesh.fIndexCount = indexCount;
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
-        mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
-                         firstIndex, vertexCount, indexCount);
+
         target->draw(gp, this->pipeline(), mesh);
     }
 

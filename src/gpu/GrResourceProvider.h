@@ -106,9 +106,9 @@ public:
     static const int kMinScratchTextureSize;
 
     /**
-     * Either finds and refs, or creates an index buffer for instanced drawing with a specific
-     * pattern if the index buffer is not found. If the return is non-null, the caller owns
-     * a ref on the returned GrBuffer.
+     * Either finds and refs, or creates an index buffer with a repeating pattern for drawing
+     * contiguous vertices of a repeated mesh. If the return is non-null, the caller owns a ref on
+     * the returned GrBuffer.
      *
      * @param pattern     the pattern of indices to repeat
      * @param patternSize size in bytes of the pattern
@@ -118,7 +118,7 @@ public:
      *
      * @return The index buffer if successful, otherwise nullptr.
      */
-    const GrBuffer* findOrCreateInstancedIndexBuffer(const uint16_t* pattern,
+    const GrBuffer* findOrCreatePatternedIndexBuffer(const uint16_t* pattern,
                                                      int patternSize,
                                                      int reps,
                                                      int vertCount,
@@ -126,7 +126,7 @@ public:
         if (GrBuffer* buffer = this->findAndRefTByUniqueKey<GrBuffer>(key)) {
             return buffer;
         }
-        return this->createInstancedIndexBuffer(pattern, patternSize, reps, vertCount, key);
+        return this->createPatternedIndexBuffer(pattern, patternSize, reps, vertCount, key);
     }
 
     /**
@@ -268,7 +268,7 @@ private:
         return !SkToBool(fCache);
     }
 
-    const GrBuffer* createInstancedIndexBuffer(const uint16_t* pattern,
+    const GrBuffer* createPatternedIndexBuffer(const uint16_t* pattern,
                                                int patternSize,
                                                int reps,
                                                int vertCount,
