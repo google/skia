@@ -6,6 +6,7 @@
  */
 
 #include "SkRecordDraw.h"
+#include "SkImage.h"
 #include "SkPatchUtils.h"
 
 void SkRecordDraw(const SkRecord& record,

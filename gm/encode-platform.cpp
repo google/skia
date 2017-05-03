@@ -10,6 +10,7 @@
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkImage.h"
 #include "SkImageEncoderPriv.h"
 #include "SkJpegEncoder.h"
 #include "SkUnPreMultiply.h"
