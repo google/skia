@@ -72,7 +72,7 @@ public:
     */
     virtual void filterSpan(const SkPMColor src[], int count, SkPMColor result[]) const = 0;
 
-    virtual void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const;
+    virtual void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const = 0;
 
     bool appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                       bool shaderIsOpaque) const;
