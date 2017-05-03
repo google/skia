@@ -272,7 +272,6 @@ defines.extend([
   'SK_BUILD_FOR_ANDROID_FRAMEWORK',
   'SK_DEFAULT_FONT_CACHE_LIMIT   (768 * 1024)',
   'SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE (512 * 1024)',
-  'SK_IGNORE_ETC1_SUPPORT',
   'SK_USE_FREETYPE_EMBOLDEN',
 ])
 # TODO: move these all to android_framework_defines.gni?
