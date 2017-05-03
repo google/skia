@@ -937,3 +937,78 @@ DEF_SIMPLE_GM(gradient_subpixel, canvas, 500, 500) {
 DEF_SIMPLE_GM(gradient_subpixel_4f, canvas, 500, 500) {
     draw_subpixel_gradient(canvas, SkLinearGradient::kForce4fContext_PrivateFlag);
 }
+
+#include "SkPictureRecorder.h"
+
+static void draw_circle_shader(SkCanvas* canvas, SkScalar cx, SkScalar cy, SkScalar r,
+                               sk_sp<SkShader> (*shaderFunc)()) {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setShader(shaderFunc());
+    canvas->drawCircle(cx, cy, r, p);
+
+    p.setShader(nullptr);
+    p.setColor(SK_ColorGRAY);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(2);
+    canvas->drawCircle(cx, cy, r, p);
+}
+
+DEF_SIMPLE_GM(fancy_gradients, canvas, 800, 300) {
+    draw_circle_shader(canvas, 150, 150, 100, []() -> sk_sp<SkShader> {
+        // Checkerboard using two linear gradients + picture shader.
+        static const SkScalar kTileSize = 80 / sqrtf(2);
+        static constexpr SkColor colors1[] = { 0xff000000, 0xff000000,
+                                               0xffffffff, 0xffffffff,
+                                               0xff000000, 0xff000000 };
+        static constexpr SkColor colors2[] = { 0xff000000, 0xff000000,
+                                               0x00000000, 0x00000000,
+                                               0xff000000, 0xff000000 };
+        static constexpr SkScalar pos[] = { 0, .25f, .25f, .75f, .75f, 1 };
+        static_assert(SK_ARRAY_COUNT(colors1) == SK_ARRAY_COUNT(pos), "color/pos size mismatch");
+        static_assert(SK_ARRAY_COUNT(colors2) == SK_ARRAY_COUNT(pos), "color/pos size mismatch");
+
+        SkPictureRecorder recorder;
+        recorder.beginRecording(SkRect::MakeWH(kTileSize, kTileSize));
+
+        SkPaint p;
+
+        static constexpr SkPoint pts1[] = { { 0, 0 }, { kTileSize, kTileSize }};
+        p.setShader(SkGradientShader::MakeLinear(pts1, colors1, pos, SK_ARRAY_COUNT(colors1),
+                                                 SkShader::kClamp_TileMode, 0, nullptr));
+        recorder.getRecordingCanvas()->drawPaint(p);
+
+        static constexpr SkPoint pts2[] = { { 0, kTileSize }, { kTileSize, 0 }};
+        p.setShader(SkGradientShader::MakeLinear(pts2, colors2, pos, SK_ARRAY_COUNT(colors2),
+                                                 SkShader::kClamp_TileMode, 0, nullptr));
+        recorder.getRecordingCanvas()->drawPaint(p);
+
+        SkMatrix m = SkMatrix::I();
+        m.preRotate(45);
+        return SkShader::MakePictureShader(recorder.finishRecordingAsPicture(),
+                                           SkShader::kRepeat_TileMode,
+                                           SkShader::kRepeat_TileMode, &m, nullptr);
+    });
+
+    draw_circle_shader(canvas, 400, 150, 100, []() -> sk_sp<SkShader> {
+        // Checkerboard using a sweep gradient + picture shader.
+        static constexpr SkScalar kTileSize = 80;
+        static constexpr SkColor colors[] = { 0xff000000, 0xff000000,
+                                              0xffffffff, 0xffffffff,
+                                              0xff000000, 0xff000000,
+                                              0xffffffff, 0xffffffff };
+        static constexpr SkScalar pos[] = { 0, .25f, .25f, .5f, .5f, .75f, .75f, 1 };
+        static_assert(SK_ARRAY_COUNT(colors) == SK_ARRAY_COUNT(pos), "color/pos size mismatch");
+
+        SkPaint p;
+        p.setShader(SkGradientShader::MakeSweep(kTileSize / 2, kTileSize / 2,
+                                                colors, pos, SK_ARRAY_COUNT(colors), 0, nullptr));
+        SkPictureRecorder recorder;
+        recorder.beginRecording(SkRect::MakeWH(kTileSize, kTileSize))->drawPaint(p);
+
+        return SkShader::MakePictureShader(recorder.finishRecordingAsPicture(),
+                                           SkShader::kRepeat_TileMode,
+                                           SkShader::kRepeat_TileMode, nullptr, nullptr);
+    });
+
+}
