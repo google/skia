@@ -293,6 +293,32 @@ STAGE(seed_shader) {
     dr = dg = db = da = 0;
 }
 
+STAGE(dither) {
+    auto c = (const SkJumper_DitherCtx*)ctx;
+
+    U32 X = trunc_(x + unaligned_load<F>(k->iota)),
+        Y = *c->y;
+
+    // We're going to do 8x8 ordered dithering, so we need the bottom 3 bits from each.
+    X &= 0x7;
+    Y &= 0x7;
+
+    // We need to use X and X^Y from here on, so it's easier to just think of that as "Y".
+    Y ^= X;
+
+    // We'll interlace the 6 bits X: abc, Y: def into daebfc, and bit reverse that to cfbead.
+    auto V = (X & 1) << 5 | (Y & 1) << 4
+           | (X & 2) << 2 | (Y & 2) << 1
+           | (X & 4) >> 1 | (Y & 4) >> 2;
+
+    // Scale that dither to [0,1], then [-0.5,+0.5].
+    F m = cast(V) * (1/63.0f) - 0.5f;
+
+    r += c->rate*m;
+    g += c->rate*m;
+    b += c->rate*m;
+}
+
 STAGE(constant_color) {
     auto rgba = (const float*)ctx;
     r = rgba[0];
