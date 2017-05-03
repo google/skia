@@ -40,6 +40,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
+    void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const override;
 
 private:
     SkOverdrawColorFilter(const SkPMColor colors[kNumColors]) {
