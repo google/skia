@@ -287,6 +287,9 @@ def dm_flags(bot):
   # skia:6189
   bad_serialize_gms.append('shadow_utils')
 
+  # Not expected to round trip encoding/decoding.
+  bad_serialize_gms.append('makecolorspace')
+
   for test in bad_serialize_gms:
     blacklist(['serialize-8888', 'gm', '_', test])
 
