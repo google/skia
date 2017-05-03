@@ -94,4 +94,9 @@ struct SkJumper_ParametricTransferFunction {
     float G, A,B,C,D,E,F;
 };
 
+struct SkJumper_DitherCtx {
+    const int* y;
+    float rate;
+};
+
 #endif//SkJumper_DEFINED
