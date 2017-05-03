@@ -322,6 +322,11 @@ public:
         this->onGetFontDescriptor(desc, isLocal);
     }
 
+    // On mac/ios, if not null, it is correct to cast this to CTFontRef
+    void* get_platform_specific_CTFontRef() const {
+        return this->onGet_platform_specific_CTFontRef();
+    }
+
 protected:
     // The type of advance data wanted.
     enum PerGlyphInfo {
@@ -383,6 +388,8 @@ protected:
                                   size_t length, void* data) const = 0;
 
     virtual bool onComputeBounds(SkRect*) const;
+
+    virtual void* onGet_platform_specific_CTFontRef() const { return nullptr; }
 
 private:
     friend class SkRandomTypeface;

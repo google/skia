@@ -528,15 +528,21 @@ protected:
                         uint16_t glyphs[], int glyphCount) const override;
     int onCountGlyphs() const override;
 
+    void* onGet_platform_specific_CTFontRef() const override { return (void*)fFontRef.get(); }
+
 private:
     bool fIsLocalStream;
 
     typedef SkTypeface INHERITED;
 };
 
+CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face) {
+    return face ? (CTFontRef)face->get_platform_specific_CTFontRef() : nullptr;
+}
+
 static bool find_by_CTFontRef(SkTypeface* cached, void* context) {
     CTFontRef self = (CTFontRef)context;
-    CTFontRef other = ((SkTypeface_Mac*)cached)->fFontRef.get();
+    CTFontRef other = SkTypeface_GetCTFontRef(cached);
 
     return CFEqual(self, other);
 }
@@ -652,12 +658,6 @@ static SkTypeface* create_from_name(const char familyName[], const SkFontStyle& 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-extern CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face);
-CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face) {
-    const SkTypeface_Mac* macface = (const SkTypeface_Mac*)face;
-    return macface ? macface->fFontRef.get() : nullptr;
-}
 
 /*  This function is visible on the outside. It first searches the cache, and if
  *  not found, returns a new entry (after adding it to the cache).
@@ -779,7 +779,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
 {
     AUTO_CG_LOCK();
 
-    CTFontRef ctFont = static_cast<SkTypeface_Mac*>(this->getTypeface())->fFontRef.get();
+    CTFontRef ctFont = (CTFontRef)this->getTypeface()->get_platform_specific_CTFontRef();
     CFIndex numGlyphs = CTFontGetGlyphCount(ctFont);
     SkASSERT(numGlyphs >= 1 && numGlyphs <= 0xFFFF);
     fGlyphCount = SkToU16(numGlyphs);
