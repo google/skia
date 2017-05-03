@@ -50,12 +50,7 @@ struct SkPM4f {
     Sk4f to4f_bgra() const { return swizzle_rb(this->to4f()); }
     Sk4f to4f_pmorder() const { return swizzle_rb_if_bgra(this->to4f()); }
 
-    SkPMColor toPMColor() const {
-        Sk4f value = swizzle_rb_if_bgra(this->to4f());
-        SkPMColor result;
-        SkNx_cast<uint8_t>(value * Sk4f(255) + Sk4f(0.5f)).store(&result);
-        return result;
-    }
+    SkPMColor toPMColor() const;
 
     void toF16(uint16_t[4]) const;
     uint64_t toF16() const; // 4 float16 values packed into uint64_t

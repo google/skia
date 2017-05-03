@@ -108,7 +108,11 @@ SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
 #include "SkHalf.h"
 
 SkPM4f SkPM4f::FromPMColor(SkPMColor c) {
-    return From4f(swizzle_rb_if_bgra(Sk4f_fromL32(c)));
+    return From4f(swizzle_rb_if_bgra(Sk4f_fromS32(c)));
+}
+
+SkPMColor SkPM4f::toPMColor() const {
+    return Sk4f_toS32(swizzle_rb_if_bgra(this->to4f()));
 }
 
 SkColor4f SkPM4f::unpremul() const {
