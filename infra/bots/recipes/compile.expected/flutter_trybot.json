@@ -104,8 +104,7 @@
       "--revision",
       "src/flutter@origin/master",
       "--revision",
-      "src/third_party/skia@abc123",
-      "--output_manifest"
+      "src/third_party/skia@abc123"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/flutter",
     "env": {

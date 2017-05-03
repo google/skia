@@ -98,8 +98,7 @@
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
-      "other_repo@abc123",
-      "--output_manifest"
+      "other_repo@abc123"
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]",
     "env": {

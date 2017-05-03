@@ -98,8 +98,7 @@
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
-      "skia@abc123",
-      "--output_manifest"
+      "skia@abc123"
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
