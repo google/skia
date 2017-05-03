@@ -293,6 +293,30 @@ STAGE(seed_shader) {
     dr = dg = db = da = 0;
 }
 
+STAGE(dither) {
+#if defined(__AVX2__)
+    auto c = (const SkJumper_DitherCtx*)ctx;
+    size_t y = *c->y;
+
+    // We're going to do 8x8 ordered dithering, so we need the bottom 3 bits from each.
+    x &= 0x7;
+    y &= 0x7;
+
+    // We need to use x and x^y from here on, so it's easier to just think of that as "y".
+    y ^= x;
+
+    // We'll interlace the 6 bits x: abc, y: def into daebfc, and bit reverse that to cfbead.
+    size_t v = (x & 1) << 5 | (y & 1) << 4
+             | (x & 2) << 2 | (y & 2) << 1
+             | (x & 4) >> 1 | (y & 4) >> 2;
+    F m = v * (1/63.0f);  // Scale to [0,1].
+
+    r += c->rate*m;
+    g += c->rate*m;
+    b += c->rate*m;
+#endif
+}
+
 STAGE(constant_color) {
     auto rgba = (const float*)ctx;
     r = rgba[0];

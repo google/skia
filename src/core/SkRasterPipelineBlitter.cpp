@@ -16,7 +16,7 @@
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-
+#include "../jumper/SkJumper.h"
 
 class SkRasterPipelineBlitter : public SkBlitter {
 public:
@@ -117,6 +117,17 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         if (!is_opaque) {
             pipeline->append(SkRasterPipeline::scale_1_float,
                              &paintColor->fVec[SkPM4f::A]);
+        }
+        if (paint.isDither()) {
+            auto ctx = alloc->make<SkJumper_DitherCtx>();
+            ctx->y = &blitter->fCurrentY;
+            switch (dst.info().colorType()) {
+                case kRGB_565_SkColorType:    ctx->rate =  1/63.0f; break;
+                case kBGRA_8888_SkColorType:
+                case kRGBA_8888_SkColorType:  ctx->rate = 1/255.0f; break;
+                default:                      ctx->rate =     0.0f; break;
+            }
+            pipeline->append(SkRasterPipeline::dither, ctx);
         }
 
         is_opaque   = is_opaque && shader->isOpaque();
