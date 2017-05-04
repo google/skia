@@ -419,3 +419,12 @@ void SkTwoPointConicalGradient::toString(SkString* str) const {
     str->append(")");
 }
 #endif
+
+bool SkTwoPointConicalGradient::onAppendStages(SkRasterPipeline* p,
+                                               SkColorSpace* dstCS,
+                                               SkArenaAlloc* alloc,
+                                               const SkMatrix& ctm,
+                                               const SkPaint& paint,
+                                               const SkMatrix* localM) const {
+    return SkShader::onAppendStages(p, dstCS, alloc, ctm, paint, localM);
+}
