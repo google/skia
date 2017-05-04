@@ -783,6 +783,408 @@ _sk_softlight_aarch64:
   .long  0x4e27ce43                          // fmla          v3.4s, v18.4s, v7.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_hue_aarch64
+.globl _sk_hue_aarch64
+FUNCTION(_sk_hue_aarch64)
+_sk_hue_aarch64:
+  .long  0x4f03f611                          // fmov          v17.4s, #1.000000000000000000e+00
+  .long  0x4ea0d872                          // fcmeq         v18.4s, v3.4s, #0.0
+  .long  0x4e27d470                          // fadd          v16.4s, v3.4s, v7.4s
+  .long  0x6e23fe36                          // fdiv          v22.4s, v17.4s, v3.4s
+  .long  0x4e26f4b3                          // fmax          v19.4s, v5.4s, v6.4s
+  .long  0x4ea6f4b4                          // fmin          v20.4s, v5.4s, v6.4s
+  .long  0x4ea7cc70                          // fmls          v16.4s, v3.4s, v7.4s
+  .long  0x4e721ec3                          // bic           v3.16b, v22.16b, v18.16b
+  .long  0x4e33f493                          // fmax          v19.4s, v4.4s, v19.4s
+  .long  0x4eb4f494                          // fmin          v20.4s, v4.4s, v20.4s
+  .long  0x6e21dc61                          // fmul          v1.4s, v3.4s, v1.4s
+  .long  0x6e22dc62                          // fmul          v2.4s, v3.4s, v2.4s
+  .long  0x4eb4d672                          // fsub          v18.4s, v19.4s, v20.4s
+  .long  0x6e20dc60                          // fmul          v0.4s, v3.4s, v0.4s
+  .long  0x4ea2f423                          // fmin          v3.4s, v1.4s, v2.4s
+  .long  0x4e22f433                          // fmax          v19.4s, v1.4s, v2.4s
+  .long  0x4ea3f414                          // fmin          v20.4s, v0.4s, v3.4s
+  .long  0x4e33f416                          // fmax          v22.4s, v0.4s, v19.4s
+  .long  0x4eb4d6d6                          // fsub          v22.4s, v22.4s, v20.4s
+  .long  0x4eb4d400                          // fsub          v0.4s, v0.4s, v20.4s
+  .long  0x4ea0dad4                          // fcmeq         v20.4s, v22.4s, #0.0
+  .long  0x6e36fe56                          // fdiv          v22.4s, v18.4s, v22.4s
+  .long  0x4e741ed4                          // bic           v20.16b, v22.16b, v20.16b
+  .long  0x6e34dc00                          // fmul          v0.4s, v0.4s, v20.4s
+  .long  0x4ea3f403                          // fmin          v3.4s, v0.4s, v3.4s
+  .long  0x4e33f413                          // fmax          v19.4s, v0.4s, v19.4s
+  .long  0x4ea3d673                          // fsub          v19.4s, v19.4s, v3.4s
+  .long  0x4ea3d421                          // fsub          v1.4s, v1.4s, v3.4s
+  .long  0x4ea0da63                          // fcmeq         v3.4s, v19.4s, #0.0
+  .long  0x6e33fe53                          // fdiv          v19.4s, v18.4s, v19.4s
+  .long  0x4e631e63                          // bic           v3.16b, v19.16b, v3.16b
+  .long  0x52a7d328                          // mov           w8, #0x3e990000
+  .long  0x6e23dc21                          // fmul          v1.4s, v1.4s, v3.4s
+  .long  0x72933348                          // movk          w8, #0x999a
+  .long  0x4ea2f423                          // fmin          v3.4s, v1.4s, v2.4s
+  .long  0x4e22f433                          // fmax          v19.4s, v1.4s, v2.4s
+  .long  0x4e040d15                          // dup           v21.4s, w8
+  .long  0x52a7e2e8                          // mov           w8, #0x3f170000
+  .long  0x4ea3f403                          // fmin          v3.4s, v0.4s, v3.4s
+  .long  0x4e33f413                          // fmax          v19.4s, v0.4s, v19.4s
+  .long  0x728147a8                          // movk          w8, #0xa3d
+  .long  0x4ea3d673                          // fsub          v19.4s, v19.4s, v3.4s
+  .long  0x4e040d16                          // dup           v22.4s, w8
+  .long  0x52a7bc28                          // mov           w8, #0x3de10000
+  .long  0x6e33fe52                          // fdiv          v18.4s, v18.4s, v19.4s
+  .long  0x4ea0da73                          // fcmeq         v19.4s, v19.4s, #0.0
+  .long  0x7288f5c8                          // movk          w8, #0x47ae
+  .long  0x4ea3d442                          // fsub          v2.4s, v2.4s, v3.4s
+  .long  0x6e36dca3                          // fmul          v3.4s, v5.4s, v22.4s
+  .long  0x4e731e52                          // bic           v18.16b, v18.16b, v19.16b
+  .long  0x6e36dc33                          // fmul          v19.4s, v1.4s, v22.4s
+  .long  0x4e040d14                          // dup           v20.4s, w8
+  .long  0x4e24cea3                          // fmla          v3.4s, v21.4s, v4.4s
+  .long  0x4e20ceb3                          // fmla          v19.4s, v21.4s, v0.4s
+  .long  0x6e32dc42                          // fmul          v2.4s, v2.4s, v18.4s
+  .long  0x4e26ce83                          // fmla          v3.4s, v20.4s, v6.4s
+  .long  0x4e22ce93                          // fmla          v19.4s, v20.4s, v2.4s
+  .long  0x4eb3d463                          // fsub          v3.4s, v3.4s, v19.4s
+  .long  0x4e23d421                          // fadd          v1.4s, v1.4s, v3.4s
+  .long  0x4e23d400                          // fadd          v0.4s, v0.4s, v3.4s
+  .long  0x6e36dc33                          // fmul          v19.4s, v1.4s, v22.4s
+  .long  0x4e23d442                          // fadd          v2.4s, v2.4s, v3.4s
+  .long  0x4e20ceb3                          // fmla          v19.4s, v21.4s, v0.4s
+  .long  0x4ea2f423                          // fmin          v3.4s, v1.4s, v2.4s
+  .long  0x4e22ce93                          // fmla          v19.4s, v20.4s, v2.4s
+  .long  0x4ea3f403                          // fmin          v3.4s, v0.4s, v3.4s
+  .long  0x4eb3d415                          // fsub          v21.4s, v0.4s, v19.4s
+  .long  0x6ea0c874                          // fcmge         v20.4s, v3.4s, #0.0
+  .long  0x4ea3d663                          // fsub          v3.4s, v19.4s, v3.4s
+  .long  0x6e35de75                          // fmul          v21.4s, v19.4s, v21.4s
+  .long  0x6e23feb5                          // fdiv          v21.4s, v21.4s, v3.4s
+  .long  0x4e22f432                          // fmax          v18.4s, v1.4s, v2.4s
+  .long  0x4eb41e96                          // mov           v22.16b, v20.16b
+  .long  0x4e35d675                          // fadd          v21.4s, v19.4s, v21.4s
+  .long  0x4e32f412                          // fmax          v18.4s, v0.4s, v18.4s
+  .long  0x6e751c16                          // bsl           v22.16b, v0.16b, v21.16b
+  .long  0x4eb3d420                          // fsub          v0.4s, v1.4s, v19.4s
+  .long  0x6e20de60                          // fmul          v0.4s, v19.4s, v0.4s
+  .long  0x6e23fc00                          // fdiv          v0.4s, v0.4s, v3.4s
+  .long  0x4eb41e95                          // mov           v21.16b, v20.16b
+  .long  0x4e20d660                          // fadd          v0.4s, v19.4s, v0.4s
+  .long  0x6e601c35                          // bsl           v21.16b, v1.16b, v0.16b
+  .long  0x4eb3d441                          // fsub          v1.4s, v2.4s, v19.4s
+  .long  0x6e21de61                          // fmul          v1.4s, v19.4s, v1.4s
+  .long  0x6e23fc21                          // fdiv          v1.4s, v1.4s, v3.4s
+  .long  0x4e21d661                          // fadd          v1.4s, v19.4s, v1.4s
+  .long  0x6e611c54                          // bsl           v20.16b, v2.16b, v1.16b
+  .long  0x4eb3d6c1                          // fsub          v1.4s, v22.4s, v19.4s
+  .long  0x4eb3d6a2                          // fsub          v2.4s, v21.4s, v19.4s
+  .long  0x4eb3d683                          // fsub          v3.4s, v20.4s, v19.4s
+  .long  0x6eb1e651                          // fcmgt         v17.4s, v18.4s, v17.4s
+  .long  0x4eb3d652                          // fsub          v18.4s, v18.4s, v19.4s
+  .long  0x6e21de61                          // fmul          v1.4s, v19.4s, v1.4s
+  .long  0x6e22de62                          // fmul          v2.4s, v19.4s, v2.4s
+  .long  0x6e23de63                          // fmul          v3.4s, v19.4s, v3.4s
+  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0x6e32fc21                          // fdiv          v1.4s, v1.4s, v18.4s
+  .long  0x6e32fc42                          // fdiv          v2.4s, v2.4s, v18.4s
+  .long  0x6e32fc63                          // fdiv          v3.4s, v3.4s, v18.4s
+  .long  0x4eb11e20                          // mov           v0.16b, v17.16b
+  .long  0x4eb11e32                          // mov           v18.16b, v17.16b
+  .long  0x4e21d661                          // fadd          v1.4s, v19.4s, v1.4s
+  .long  0x4e22d662                          // fadd          v2.4s, v19.4s, v2.4s
+  .long  0x4e23d663                          // fadd          v3.4s, v19.4s, v3.4s
+  .long  0x6e761c20                          // bsl           v0.16b, v1.16b, v22.16b
+  .long  0x6e751c52                          // bsl           v18.16b, v2.16b, v21.16b
+  .long  0x6e741c71                          // bsl           v17.16b, v3.16b, v20.16b
+  .long  0x6e20de00                          // fmul          v0.4s, v16.4s, v0.4s
+  .long  0x6e32de01                          // fmul          v1.4s, v16.4s, v18.4s
+  .long  0x6e31de02                          // fmul          v2.4s, v16.4s, v17.4s
+  .long  0x4eb01e03                          // mov           v3.16b, v16.16b
+  .long  0xd61f0060                          // br            x3
+
+HIDDEN _sk_saturation_aarch64
+.globl _sk_saturation_aarch64
+FUNCTION(_sk_saturation_aarch64)
+_sk_saturation_aarch64:
+  .long  0x4f03f611                          // fmov          v17.4s, #1.000000000000000000e+00
+  .long  0x4ea0d8f2                          // fcmeq         v18.4s, v7.4s, #0.0
+  .long  0x4e22f433                          // fmax          v19.4s, v1.4s, v2.4s
+  .long  0x4ea2f421                          // fmin          v1.4s, v1.4s, v2.4s
+  .long  0x6e27fe34                          // fdiv          v20.4s, v17.4s, v7.4s
+  .long  0x4e27d470                          // fadd          v16.4s, v3.4s, v7.4s
+  .long  0x4e33f413                          // fmax          v19.4s, v0.4s, v19.4s
+  .long  0x4ea1f400                          // fmin          v0.4s, v0.4s, v1.4s
+  .long  0x4e721e81                          // bic           v1.16b, v20.16b, v18.16b
+  .long  0x4ea7cc70                          // fmls          v16.4s, v3.4s, v7.4s
+  .long  0x6e24dc23                          // fmul          v3.4s, v1.4s, v4.4s
+  .long  0x6e25dc32                          // fmul          v18.4s, v1.4s, v5.4s
+  .long  0x6e26dc21                          // fmul          v1.4s, v1.4s, v6.4s
+  .long  0x4ea0d660                          // fsub          v0.4s, v19.4s, v0.4s
+  .long  0x4ea1f653                          // fmin          v19.4s, v18.4s, v1.4s
+  .long  0x4e21f654                          // fmax          v20.4s, v18.4s, v1.4s
+  .long  0x4eb3f475                          // fmin          v21.4s, v3.4s, v19.4s
+  .long  0x4e34f476                          // fmax          v22.4s, v3.4s, v20.4s
+  .long  0x4eb5d6d6                          // fsub          v22.4s, v22.4s, v21.4s
+  .long  0x4eb5d463                          // fsub          v3.4s, v3.4s, v21.4s
+  .long  0x4ea0dad5                          // fcmeq         v21.4s, v22.4s, #0.0
+  .long  0x6e36fc16                          // fdiv          v22.4s, v0.4s, v22.4s
+  .long  0x4e751ed5                          // bic           v21.16b, v22.16b, v21.16b
+  .long  0x6e35dc63                          // fmul          v3.4s, v3.4s, v21.4s
+  .long  0x4eb3f473                          // fmin          v19.4s, v3.4s, v19.4s
+  .long  0x4e34f474                          // fmax          v20.4s, v3.4s, v20.4s
+  .long  0x4eb3d694                          // fsub          v20.4s, v20.4s, v19.4s
+  .long  0x4eb3d652                          // fsub          v18.4s, v18.4s, v19.4s
+  .long  0x4ea0da93                          // fcmeq         v19.4s, v20.4s, #0.0
+  .long  0x6e34fc14                          // fdiv          v20.4s, v0.4s, v20.4s
+  .long  0x4e731e93                          // bic           v19.16b, v20.16b, v19.16b
+  .long  0x52a7d328                          // mov           w8, #0x3e990000
+  .long  0x6e33de52                          // fmul          v18.4s, v18.4s, v19.4s
+  .long  0x72933348                          // movk          w8, #0x999a
+  .long  0x4ea1f653                          // fmin          v19.4s, v18.4s, v1.4s
+  .long  0x4e21f654                          // fmax          v20.4s, v18.4s, v1.4s
+  .long  0x4e040d02                          // dup           v2.4s, w8
+  .long  0x52a7e2e8                          // mov           w8, #0x3f170000
+  .long  0x4eb3f473                          // fmin          v19.4s, v3.4s, v19.4s
+  .long  0x4e34f474                          // fmax          v20.4s, v3.4s, v20.4s
+  .long  0x728147a8                          // movk          w8, #0xa3d
+  .long  0x4eb3d694                          // fsub          v20.4s, v20.4s, v19.4s
+  .long  0x4e040d16                          // dup           v22.4s, w8
+  .long  0x52a7bc28                          // mov           w8, #0x3de10000
+  .long  0x6e34fc00                          // fdiv          v0.4s, v0.4s, v20.4s
+  .long  0x4ea0da94                          // fcmeq         v20.4s, v20.4s, #0.0
+  .long  0x7288f5c8                          // movk          w8, #0x47ae
+  .long  0x4eb3d421                          // fsub          v1.4s, v1.4s, v19.4s
+  .long  0x6e36dcb3                          // fmul          v19.4s, v5.4s, v22.4s
+  .long  0x4e741c00                          // bic           v0.16b, v0.16b, v20.16b
+  .long  0x6e36de54                          // fmul          v20.4s, v18.4s, v22.4s
+  .long  0x4e040d15                          // dup           v21.4s, w8
+  .long  0x4e24cc53                          // fmla          v19.4s, v2.4s, v4.4s
+  .long  0x4e23cc54                          // fmla          v20.4s, v2.4s, v3.4s
+  .long  0x6e20dc20                          // fmul          v0.4s, v1.4s, v0.4s
+  .long  0x4e26ceb3                          // fmla          v19.4s, v21.4s, v6.4s
+  .long  0x4e20ceb4                          // fmla          v20.4s, v21.4s, v0.4s
+  .long  0x4eb4d661                          // fsub          v1.4s, v19.4s, v20.4s
+  .long  0x4e21d652                          // fadd          v18.4s, v18.4s, v1.4s
+  .long  0x4e21d463                          // fadd          v3.4s, v3.4s, v1.4s
+  .long  0x6e36de54                          // fmul          v20.4s, v18.4s, v22.4s
+  .long  0x4e21d400                          // fadd          v0.4s, v0.4s, v1.4s
+  .long  0x4e23cc54                          // fmla          v20.4s, v2.4s, v3.4s
+  .long  0x4ea0f641                          // fmin          v1.4s, v18.4s, v0.4s
+  .long  0x4e20ceb4                          // fmla          v20.4s, v21.4s, v0.4s
+  .long  0x4ea1f461                          // fmin          v1.4s, v3.4s, v1.4s
+  .long  0x4eb4d475                          // fsub          v21.4s, v3.4s, v20.4s
+  .long  0x6ea0c822                          // fcmge         v2.4s, v1.4s, #0.0
+  .long  0x4ea1d681                          // fsub          v1.4s, v20.4s, v1.4s
+  .long  0x6e35de95                          // fmul          v21.4s, v20.4s, v21.4s
+  .long  0x6e21feb5                          // fdiv          v21.4s, v21.4s, v1.4s
+  .long  0x4e20f653                          // fmax          v19.4s, v18.4s, v0.4s
+  .long  0x4ea21c56                          // mov           v22.16b, v2.16b
+  .long  0x4e35d695                          // fadd          v21.4s, v20.4s, v21.4s
+  .long  0x4e33f473                          // fmax          v19.4s, v3.4s, v19.4s
+  .long  0x6e751c76                          // bsl           v22.16b, v3.16b, v21.16b
+  .long  0x4eb4d643                          // fsub          v3.4s, v18.4s, v20.4s
+  .long  0x6e23de83                          // fmul          v3.4s, v20.4s, v3.4s
+  .long  0x6e21fc63                          // fdiv          v3.4s, v3.4s, v1.4s
+  .long  0x4ea21c55                          // mov           v21.16b, v2.16b
+  .long  0x4e23d683                          // fadd          v3.4s, v20.4s, v3.4s
+  .long  0x6e631e55                          // bsl           v21.16b, v18.16b, v3.16b
+  .long  0x4eb4d412                          // fsub          v18.4s, v0.4s, v20.4s
+  .long  0x6e32de92                          // fmul          v18.4s, v20.4s, v18.4s
+  .long  0x6e21fe41                          // fdiv          v1.4s, v18.4s, v1.4s
+  .long  0x4e21d681                          // fadd          v1.4s, v20.4s, v1.4s
+  .long  0x6e611c02                          // bsl           v2.16b, v0.16b, v1.16b
+  .long  0x4eb4d6c0                          // fsub          v0.4s, v22.4s, v20.4s
+  .long  0x4eb4d6a1                          // fsub          v1.4s, v21.4s, v20.4s
+  .long  0x4eb4d452                          // fsub          v18.4s, v2.4s, v20.4s
+  .long  0x6eb1e671                          // fcmgt         v17.4s, v19.4s, v17.4s
+  .long  0x4eb4d673                          // fsub          v19.4s, v19.4s, v20.4s
+  .long  0x6e20de80                          // fmul          v0.4s, v20.4s, v0.4s
+  .long  0x6e21de81                          // fmul          v1.4s, v20.4s, v1.4s
+  .long  0x6e32de92                          // fmul          v18.4s, v20.4s, v18.4s
+  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0x6e33fc00                          // fdiv          v0.4s, v0.4s, v19.4s
+  .long  0x6e33fc21                          // fdiv          v1.4s, v1.4s, v19.4s
+  .long  0x6e33fe52                          // fdiv          v18.4s, v18.4s, v19.4s
+  .long  0x4eb11e23                          // mov           v3.16b, v17.16b
+  .long  0x4eb11e33                          // mov           v19.16b, v17.16b
+  .long  0x4e20d680                          // fadd          v0.4s, v20.4s, v0.4s
+  .long  0x4e21d681                          // fadd          v1.4s, v20.4s, v1.4s
+  .long  0x4e32d692                          // fadd          v18.4s, v20.4s, v18.4s
+  .long  0x6e761c03                          // bsl           v3.16b, v0.16b, v22.16b
+  .long  0x6e751c33                          // bsl           v19.16b, v1.16b, v21.16b
+  .long  0x6e621e51                          // bsl           v17.16b, v18.16b, v2.16b
+  .long  0x6e23de00                          // fmul          v0.4s, v16.4s, v3.4s
+  .long  0x6e33de01                          // fmul          v1.4s, v16.4s, v19.4s
+  .long  0x6e31de02                          // fmul          v2.4s, v16.4s, v17.4s
+  .long  0x4eb01e03                          // mov           v3.16b, v16.16b
+  .long  0xd61f0060                          // br            x3
+
+HIDDEN _sk_color_aarch64
+.globl _sk_color_aarch64
+FUNCTION(_sk_color_aarch64)
+_sk_color_aarch64:
+  .long  0x52a7d328                          // mov           w8, #0x3e990000
+  .long  0x4f03f611                          // fmov          v17.4s, #1.000000000000000000e+00
+  .long  0x72933348                          // movk          w8, #0x999a
+  .long  0x4ea0d873                          // fcmeq         v19.4s, v3.4s, #0.0
+  .long  0x4e040d12                          // dup           v18.4s, w8
+  .long  0x52a7e2e8                          // mov           w8, #0x3f170000
+  .long  0x4e27d470                          // fadd          v16.4s, v3.4s, v7.4s
+  .long  0x6e23fe35                          // fdiv          v21.4s, v17.4s, v3.4s
+  .long  0x728147a8                          // movk          w8, #0xa3d
+  .long  0x4ea7cc70                          // fmls          v16.4s, v3.4s, v7.4s
+  .long  0x4e731ea3                          // bic           v3.16b, v21.16b, v19.16b
+  .long  0x4e040d14                          // dup           v20.4s, w8
+  .long  0x52a7bc28                          // mov           w8, #0x3de10000
+  .long  0x6e21dc61                          // fmul          v1.4s, v3.4s, v1.4s
+  .long  0x7288f5c8                          // movk          w8, #0x47ae
+  .long  0x6e34dcb3                          // fmul          v19.4s, v5.4s, v20.4s
+  .long  0x6e20dc60                          // fmul          v0.4s, v3.4s, v0.4s
+  .long  0x6e22dc62                          // fmul          v2.4s, v3.4s, v2.4s
+  .long  0x6e34dc23                          // fmul          v3.4s, v1.4s, v20.4s
+  .long  0x4e040d16                          // dup           v22.4s, w8
+  .long  0x4e24ce53                          // fmla          v19.4s, v18.4s, v4.4s
+  .long  0x4e20ce43                          // fmla          v3.4s, v18.4s, v0.4s
+  .long  0x4e26ced3                          // fmla          v19.4s, v22.4s, v6.4s
+  .long  0x4e22cec3                          // fmla          v3.4s, v22.4s, v2.4s
+  .long  0x4ea3d663                          // fsub          v3.4s, v19.4s, v3.4s
+  .long  0x4e23d421                          // fadd          v1.4s, v1.4s, v3.4s
+  .long  0x4e23d400                          // fadd          v0.4s, v0.4s, v3.4s
+  .long  0x6e34dc34                          // fmul          v20.4s, v1.4s, v20.4s
+  .long  0x4e23d442                          // fadd          v2.4s, v2.4s, v3.4s
+  .long  0x4e20ce54                          // fmla          v20.4s, v18.4s, v0.4s
+  .long  0x4ea2f423                          // fmin          v3.4s, v1.4s, v2.4s
+  .long  0x4e22ced4                          // fmla          v20.4s, v22.4s, v2.4s
+  .long  0x4ea3f403                          // fmin          v3.4s, v0.4s, v3.4s
+  .long  0x4eb4d415                          // fsub          v21.4s, v0.4s, v20.4s
+  .long  0x6ea0c872                          // fcmge         v18.4s, v3.4s, #0.0
+  .long  0x4ea3d683                          // fsub          v3.4s, v20.4s, v3.4s
+  .long  0x6e35de95                          // fmul          v21.4s, v20.4s, v21.4s
+  .long  0x6e23feb5                          // fdiv          v21.4s, v21.4s, v3.4s
+  .long  0x4e22f433                          // fmax          v19.4s, v1.4s, v2.4s
+  .long  0x4eb21e56                          // mov           v22.16b, v18.16b
+  .long  0x4e35d695                          // fadd          v21.4s, v20.4s, v21.4s
+  .long  0x4e33f413                          // fmax          v19.4s, v0.4s, v19.4s
+  .long  0x6e751c16                          // bsl           v22.16b, v0.16b, v21.16b
+  .long  0x4eb4d420                          // fsub          v0.4s, v1.4s, v20.4s
+  .long  0x6e20de80                          // fmul          v0.4s, v20.4s, v0.4s
+  .long  0x6e23fc00                          // fdiv          v0.4s, v0.4s, v3.4s
+  .long  0x4eb21e55                          // mov           v21.16b, v18.16b
+  .long  0x4e20d680                          // fadd          v0.4s, v20.4s, v0.4s
+  .long  0x6e601c35                          // bsl           v21.16b, v1.16b, v0.16b
+  .long  0x4eb4d441                          // fsub          v1.4s, v2.4s, v20.4s
+  .long  0x6e21de81                          // fmul          v1.4s, v20.4s, v1.4s
+  .long  0x6e23fc21                          // fdiv          v1.4s, v1.4s, v3.4s
+  .long  0x4e21d681                          // fadd          v1.4s, v20.4s, v1.4s
+  .long  0x6e611c52                          // bsl           v18.16b, v2.16b, v1.16b
+  .long  0x4eb4d6c1                          // fsub          v1.4s, v22.4s, v20.4s
+  .long  0x4eb4d6a2                          // fsub          v2.4s, v21.4s, v20.4s
+  .long  0x4eb4d643                          // fsub          v3.4s, v18.4s, v20.4s
+  .long  0x6eb1e671                          // fcmgt         v17.4s, v19.4s, v17.4s
+  .long  0x4eb4d673                          // fsub          v19.4s, v19.4s, v20.4s
+  .long  0x6e21de81                          // fmul          v1.4s, v20.4s, v1.4s
+  .long  0x6e22de82                          // fmul          v2.4s, v20.4s, v2.4s
+  .long  0x6e23de83                          // fmul          v3.4s, v20.4s, v3.4s
+  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0x6e33fc21                          // fdiv          v1.4s, v1.4s, v19.4s
+  .long  0x6e33fc42                          // fdiv          v2.4s, v2.4s, v19.4s
+  .long  0x6e33fc63                          // fdiv          v3.4s, v3.4s, v19.4s
+  .long  0x4eb11e20                          // mov           v0.16b, v17.16b
+  .long  0x4eb11e33                          // mov           v19.16b, v17.16b
+  .long  0x4e21d681                          // fadd          v1.4s, v20.4s, v1.4s
+  .long  0x4e22d682                          // fadd          v2.4s, v20.4s, v2.4s
+  .long  0x4e23d683                          // fadd          v3.4s, v20.4s, v3.4s
+  .long  0x6e761c20                          // bsl           v0.16b, v1.16b, v22.16b
+  .long  0x6e751c53                          // bsl           v19.16b, v2.16b, v21.16b
+  .long  0x6e721c71                          // bsl           v17.16b, v3.16b, v18.16b
+  .long  0x6e20de00                          // fmul          v0.4s, v16.4s, v0.4s
+  .long  0x6e33de01                          // fmul          v1.4s, v16.4s, v19.4s
+  .long  0x6e31de02                          // fmul          v2.4s, v16.4s, v17.4s
+  .long  0x4eb01e03                          // mov           v3.16b, v16.16b
+  .long  0xd61f0060                          // br            x3
+
+HIDDEN _sk_luminosity_aarch64
+.globl _sk_luminosity_aarch64
+FUNCTION(_sk_luminosity_aarch64)
+_sk_luminosity_aarch64:
+  .long  0x52a7d328                          // mov           w8, #0x3e990000
+  .long  0x72933348                          // movk          w8, #0x999a
+  .long  0x4f03f611                          // fmov          v17.4s, #1.000000000000000000e+00
+  .long  0x4e040d12                          // dup           v18.4s, w8
+  .long  0x52a7e2e8                          // mov           w8, #0x3f170000
+  .long  0x4ea0d8f3                          // fcmeq         v19.4s, v7.4s, #0.0
+  .long  0x728147a8                          // movk          w8, #0xa3d
+  .long  0x4e27d470                          // fadd          v16.4s, v3.4s, v7.4s
+  .long  0x6e27fe35                          // fdiv          v21.4s, v17.4s, v7.4s
+  .long  0x4e040d14                          // dup           v20.4s, w8
+  .long  0x4ea7cc70                          // fmls          v16.4s, v3.4s, v7.4s
+  .long  0x4e731ea3                          // bic           v3.16b, v21.16b, v19.16b
+  .long  0x52a7bc28                          // mov           w8, #0x3de10000
+  .long  0x6e34dc21                          // fmul          v1.4s, v1.4s, v20.4s
+  .long  0x6e25dc75                          // fmul          v21.4s, v3.4s, v5.4s
+  .long  0x7288f5c8                          // movk          w8, #0x47ae
+  .long  0x6e24dc73                          // fmul          v19.4s, v3.4s, v4.4s
+  .long  0x4e20ce41                          // fmla          v1.4s, v18.4s, v0.4s
+  .long  0x6e34dea0                          // fmul          v0.4s, v21.4s, v20.4s
+  .long  0x4e040d16                          // dup           v22.4s, w8
+  .long  0x6e26dc63                          // fmul          v3.4s, v3.4s, v6.4s
+  .long  0x4e33ce40                          // fmla          v0.4s, v18.4s, v19.4s
+  .long  0x4e22cec1                          // fmla          v1.4s, v22.4s, v2.4s
+  .long  0x4e23cec0                          // fmla          v0.4s, v22.4s, v3.4s
+  .long  0x4ea0d420                          // fsub          v0.4s, v1.4s, v0.4s
+  .long  0x4e20d6a2                          // fadd          v2.4s, v21.4s, v0.4s
+  .long  0x4e20d661                          // fadd          v1.4s, v19.4s, v0.4s
+  .long  0x6e34dc54                          // fmul          v20.4s, v2.4s, v20.4s
+  .long  0x4e20d460                          // fadd          v0.4s, v3.4s, v0.4s
+  .long  0x4e21ce54                          // fmla          v20.4s, v18.4s, v1.4s
+  .long  0x4ea0f443                          // fmin          v3.4s, v2.4s, v0.4s
+  .long  0x4e20ced4                          // fmla          v20.4s, v22.4s, v0.4s
+  .long  0x4ea3f423                          // fmin          v3.4s, v1.4s, v3.4s
+  .long  0x4eb4d435                          // fsub          v21.4s, v1.4s, v20.4s
+  .long  0x6ea0c872                          // fcmge         v18.4s, v3.4s, #0.0
+  .long  0x4ea3d683                          // fsub          v3.4s, v20.4s, v3.4s
+  .long  0x6e35de95                          // fmul          v21.4s, v20.4s, v21.4s
+  .long  0x6e23feb5                          // fdiv          v21.4s, v21.4s, v3.4s
+  .long  0x4e20f453                          // fmax          v19.4s, v2.4s, v0.4s
+  .long  0x4eb21e56                          // mov           v22.16b, v18.16b
+  .long  0x4e35d695                          // fadd          v21.4s, v20.4s, v21.4s
+  .long  0x4e33f433                          // fmax          v19.4s, v1.4s, v19.4s
+  .long  0x6e751c36                          // bsl           v22.16b, v1.16b, v21.16b
+  .long  0x4eb4d441                          // fsub          v1.4s, v2.4s, v20.4s
+  .long  0x6e21de81                          // fmul          v1.4s, v20.4s, v1.4s
+  .long  0x6e23fc21                          // fdiv          v1.4s, v1.4s, v3.4s
+  .long  0x4eb21e55                          // mov           v21.16b, v18.16b
+  .long  0x4e21d681                          // fadd          v1.4s, v20.4s, v1.4s
+  .long  0x6e611c55                          // bsl           v21.16b, v2.16b, v1.16b
+  .long  0x4eb4d402                          // fsub          v2.4s, v0.4s, v20.4s
+  .long  0x6e22de82                          // fmul          v2.4s, v20.4s, v2.4s
+  .long  0x6e23fc42                          // fdiv          v2.4s, v2.4s, v3.4s
+  .long  0x4e22d682                          // fadd          v2.4s, v20.4s, v2.4s
+  .long  0x6e621c12                          // bsl           v18.16b, v0.16b, v2.16b
+  .long  0x4eb4d6c0                          // fsub          v0.4s, v22.4s, v20.4s
+  .long  0x4eb4d6a2                          // fsub          v2.4s, v21.4s, v20.4s
+  .long  0x4eb4d643                          // fsub          v3.4s, v18.4s, v20.4s
+  .long  0x6eb1e671                          // fcmgt         v17.4s, v19.4s, v17.4s
+  .long  0x4eb4d673                          // fsub          v19.4s, v19.4s, v20.4s
+  .long  0x6e20de80                          // fmul          v0.4s, v20.4s, v0.4s
+  .long  0x6e22de82                          // fmul          v2.4s, v20.4s, v2.4s
+  .long  0x6e23de83                          // fmul          v3.4s, v20.4s, v3.4s
+  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0x6e33fc00                          // fdiv          v0.4s, v0.4s, v19.4s
+  .long  0x6e33fc42                          // fdiv          v2.4s, v2.4s, v19.4s
+  .long  0x6e33fc63                          // fdiv          v3.4s, v3.4s, v19.4s
+  .long  0x4eb11e21                          // mov           v1.16b, v17.16b
+  .long  0x4eb11e33                          // mov           v19.16b, v17.16b
+  .long  0x4e20d680                          // fadd          v0.4s, v20.4s, v0.4s
+  .long  0x4e22d682                          // fadd          v2.4s, v20.4s, v2.4s
+  .long  0x4e23d683                          // fadd          v3.4s, v20.4s, v3.4s
+  .long  0x6e761c01                          // bsl           v1.16b, v0.16b, v22.16b
+  .long  0x6e751c53                          // bsl           v19.16b, v2.16b, v21.16b
+  .long  0x6e721c71                          // bsl           v17.16b, v3.16b, v18.16b
+  .long  0x6e21de00                          // fmul          v0.4s, v16.4s, v1.4s
+  .long  0x6e33de01                          // fmul          v1.4s, v16.4s, v19.4s
+  .long  0x6e31de02                          // fmul          v2.4s, v16.4s, v17.4s
+  .long  0x4eb01e03                          // mov           v3.16b, v16.16b
+  .long  0xd61f0060                          // br            x3
+
 HIDDEN _sk_clamp_0_aarch64
 .globl _sk_clamp_0_aarch64
 FUNCTION(_sk_clamp_0_aarch64)
@@ -2250,9 +2652,9 @@ FUNCTION(_sk_gather_i8_aarch64)
 _sk_gather_i8_aarch64:
   .long  0xaa0103e8                          // mov           x8, x1
   .long  0xf8408429                          // ldr           x9, [x1], #8
-  .long  0xb4000069                          // cbz           x9, 1d9c <sk_gather_i8_aarch64+0x14>
+  .long  0xb4000069                          // cbz           x9, 2394 <sk_gather_i8_aarch64+0x14>
   .long  0xaa0903ea                          // mov           x10, x9
-  .long  0x14000003                          // b             1da4 <sk_gather_i8_aarch64+0x1c>
+  .long  0x14000003                          // b             239c <sk_gather_i8_aarch64+0x1c>
   .long  0xf940050a                          // ldr           x10, [x8, #8]
   .long  0x91004101                          // add           x1, x8, #0x10
   .long  0xf8410548                          // ldr           x8, [x10], #16
@@ -3101,7 +3503,7 @@ _sk_linear_gradient_aarch64:
   .long  0x4d40c902                          // ld1r          {v2.4s}, [x8]
   .long  0xf9400128                          // ldr           x8, [x9]
   .long  0x4d40c943                          // ld1r          {v3.4s}, [x10]
-  .long  0xb40006c8                          // cbz           x8, 2970 <sk_linear_gradient_aarch64+0x100>
+  .long  0xb40006c8                          // cbz           x8, 2f68 <sk_linear_gradient_aarch64+0x100>
   .long  0x6dbf23e9                          // stp           d9, d8, [sp, #-16]!
   .long  0xf9400529                          // ldr           x9, [x9, #8]
   .long  0x6f00e413                          // movi          v19.2d, #0x0
@@ -3152,9 +3554,9 @@ _sk_linear_gradient_aarch64:
   .long  0xd1000508                          // sub           x8, x8, #0x1
   .long  0x6e771fd0                          // bsl           v16.16b, v30.16b, v23.16b
   .long  0x91009129                          // add           x9, x9, #0x24
-  .long  0xb5fffaa8                          // cbnz          x8, 28b8 <sk_linear_gradient_aarch64+0x48>
+  .long  0xb5fffaa8                          // cbnz          x8, 2eb0 <sk_linear_gradient_aarch64+0x48>
   .long  0x6cc123e9                          // ldp           d9, d8, [sp], #16
-  .long  0x14000005                          // b             2980 <sk_linear_gradient_aarch64+0x110>
+  .long  0x14000005                          // b             2f78 <sk_linear_gradient_aarch64+0x110>
   .long  0x6f00e414                          // movi          v20.2d, #0x0
   .long  0x6f00e412                          // movi          v18.2d, #0x0
   .long  0x6f00e411                          // movi          v17.2d, #0x0
@@ -4392,6 +4794,482 @@ _sk_softlight_vfp4:
   .long  0xf2082daa                          // vadd.f32      d2, d24, d26
   .long  0xecbd8b06                          // vpop          {d8-d10}
   .long  0xe12fff13                          // bx            r3
+
+HIDDEN _sk_hue_vfp4
+.globl _sk_hue_vfp4
+FUNCTION(_sk_hue_vfp4)
+_sk_hue_vfp4:
+  .long  0xed2d8b04                          // vpush         {d8-d9}
+  .long  0xeeb78a00                          // vmov.f32      s16, #112
+  .long  0xf3f91503                          // vceq.f32      d17, d3, #0
+  .long  0xf2c00010                          // vmov.i32      d16, #0
+  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xf2654f06                          // vmin.f32      d20, d5, d6
+  .long  0xf2455f06                          // vmax.f32      d21, d5, d6
+  .long  0xf2644f24                          // vmin.f32      d20, d4, d20
+  .long  0xeec89a23                          // vdiv.f32      s19, s16, s7
+  .long  0xee889a03                          // vdiv.f32      s18, s16, s6
+  .long  0xf3501199                          // vbsl          d17, d16, d9
+  .long  0xf2445f25                          // vmax.f32      d21, d4, d21
+  .long  0xf3412d92                          // vmul.f32      d18, d17, d2
+  .long  0xf3413d91                          // vmul.f32      d19, d17, d1
+  .long  0xf3411d90                          // vmul.f32      d17, d17, d0
+  .long  0xf2250da4                          // vsub.f32      d0, d21, d20
+  .long  0xf2636fa2                          // vmin.f32      d22, d19, d18
+  .long  0xf2437fa2                          // vmax.f32      d23, d19, d18
+  .long  0xf2618fa6                          // vmin.f32      d24, d17, d22
+  .long  0xf2419fa7                          // vmax.f32      d25, d17, d23
+  .long  0xf2611da8                          // vsub.f32      d17, d17, d24
+  .long  0xf2291da8                          // vsub.f32      d1, d25, d24
+  .long  0xeddf9b6a                          // vldr          d25, [pc, #424]
+  .long  0xf3f94501                          // vceq.f32      d20, d1, #0
+  .long  0xeec02aa1                          // vdiv.f32      s5, s1, s3
+  .long  0xee802a01                          // vdiv.f32      s4, s0, s2
+  .long  0xf3504192                          // vbsl          d20, d16, d2
+  .long  0xf3411db4                          // vmul.f32      d17, d17, d20
+  .long  0xf2614fa6                          // vmin.f32      d20, d17, d22
+  .long  0xeddf6b61                          // vldr          d22, [pc, #388]
+  .long  0xf2415fa7                          // vmax.f32      d21, d17, d23
+  .long  0xf2633da4                          // vsub.f32      d19, d19, d20
+  .long  0xf2251da4                          // vsub.f32      d1, d21, d20
+  .long  0xf3f94501                          // vceq.f32      d20, d1, #0
+  .long  0xeec02aa1                          // vdiv.f32      s5, s1, s3
+  .long  0xee802a01                          // vdiv.f32      s4, s0, s2
+  .long  0xf3504192                          // vbsl          d20, d16, d2
+  .long  0xf3433db4                          // vmul.f32      d19, d19, d20
+  .long  0xf2634fa2                          // vmin.f32      d20, d19, d18
+  .long  0xf2435fa2                          // vmax.f32      d21, d19, d18
+  .long  0xf343adb6                          // vmul.f32      d26, d19, d22
+  .long  0xf2614fa4                          // vmin.f32      d20, d17, d20
+  .long  0xf2415fa5                          // vmax.f32      d21, d17, d21
+  .long  0xf2622da4                          // vsub.f32      d18, d18, d20
+  .long  0xf2251da4                          // vsub.f32      d1, d21, d20
+  .long  0xeddf5b4f                          // vldr          d21, [pc, #316]
+  .long  0xf3f94501                          // vceq.f32      d20, d1, #0
+  .long  0xf3447d35                          // vmul.f32      d23, d4, d21
+  .long  0xf3418db5                          // vmul.f32      d24, d17, d21
+  .long  0xeec02aa1                          // vdiv.f32      s5, s1, s3
+  .long  0xee802a01                          // vdiv.f32      s4, s0, s2
+  .long  0xf3504192                          // vbsl          d20, d16, d2
+  .long  0xf3450d36                          // vmul.f32      d16, d5, d22
+  .long  0xf3422db4                          // vmul.f32      d18, d18, d20
+  .long  0xf3464d39                          // vmul.f32      d20, d6, d25
+  .long  0xf2470da0                          // vadd.f32      d16, d23, d16
+  .long  0xf2487daa                          // vadd.f32      d23, d24, d26
+  .long  0xf3428db9                          // vmul.f32      d24, d18, d25
+  .long  0xf2400da4                          // vadd.f32      d16, d16, d20
+  .long  0xf2474da8                          // vadd.f32      d20, d23, d24
+  .long  0xf2600da4                          // vsub.f32      d16, d16, d20
+  .long  0xf2411da0                          // vadd.f32      d17, d17, d16
+  .long  0xf2433da0                          // vadd.f32      d19, d19, d16
+  .long  0xf2422da0                          // vadd.f32      d18, d18, d16
+  .long  0xf3414db5                          // vmul.f32      d20, d17, d21
+  .long  0xf3430db6                          // vmul.f32      d16, d19, d22
+  .long  0xf3425db9                          // vmul.f32      d21, d18, d25
+  .long  0xf2440da0                          // vadd.f32      d16, d20, d16
+  .long  0xf2634fa2                          // vmin.f32      d20, d19, d18
+  .long  0xf2450da0                          // vadd.f32      d16, d21, d16
+  .long  0xf2614fa4                          // vmin.f32      d20, d17, d20
+  .long  0xf2635da0                          // vsub.f32      d21, d19, d16
+  .long  0xf2200da4                          // vsub.f32      d0, d16, d20
+  .long  0xf3f944a4                          // vcge.f32      d20, d20, #0
+  .long  0xf2626da0                          // vsub.f32      d22, d18, d16
+  .long  0xf2617da0                          // vsub.f32      d23, d17, d16
+  .long  0xf26491b4                          // vorr          d25, d20, d20
+  .long  0xf3001db5                          // vmul.f32      d1, d16, d21
+  .long  0xf2435fa2                          // vmax.f32      d21, d19, d18
+  .long  0xf3002db6                          // vmul.f32      d2, d16, d22
+  .long  0xf3008db7                          // vmul.f32      d8, d16, d23
+  .long  0xeec19aa0                          // vdiv.f32      s19, s3, s1
+  .long  0xee819a00                          // vdiv.f32      s18, s2, s0
+  .long  0xeec21aa0                          // vdiv.f32      s3, s5, s1
+  .long  0xee821a00                          // vdiv.f32      s2, s4, s0
+  .long  0xeec82aa0                          // vdiv.f32      s5, s17, s1
+  .long  0xee882a00                          // vdiv.f32      s4, s16, s0
+  .long  0xf2408d82                          // vadd.f32      d24, d16, d2
+  .long  0xf35191b8                          // vbsl          d25, d17, d24
+  .long  0xf2407d81                          // vadd.f32      d23, d16, d1
+  .long  0xf26481b4                          // vorr          d24, d20, d20
+  .long  0xf35241b7                          // vbsl          d20, d18, d23
+  .long  0xf2692da0                          // vsub.f32      d18, d25, d16
+  .long  0xf2411fa5                          // vmax.f32      d17, d17, d21
+  .long  0xf2406d89                          // vadd.f32      d22, d16, d9
+  .long  0xf35381b6                          // vbsl          d24, d19, d22
+  .long  0xf2645da0                          // vsub.f32      d21, d20, d16
+  .long  0xf3001db2                          // vmul.f32      d1, d16, d18
+  .long  0xf2210da0                          // vsub.f32      d0, d17, d16
+  .long  0xf2683da0                          // vsub.f32      d19, d24, d16
+  .long  0xf2c72f10                          // vmov.f32      d18, #1
+  .long  0xf3008db5                          // vmul.f32      d8, d16, d21
+  .long  0xf2435d07                          // vadd.f32      d21, d3, d7
+  .long  0xeec19aa0                          // vdiv.f32      s19, s3, s1
+  .long  0xf3002db3                          // vmul.f32      d2, d16, d19
+  .long  0xee819a00                          // vdiv.f32      s18, s2, s0
+  .long  0xeec21aa0                          // vdiv.f32      s3, s5, s1
+  .long  0xee821a00                          // vdiv.f32      s2, s4, s0
+  .long  0xeec82aa0                          // vdiv.f32      s5, s17, s1
+  .long  0xee882a00                          // vdiv.f32      s4, s16, s0
+  .long  0xf3433d17                          // vmul.f32      d19, d3, d7
+  .long  0xf3611ea2                          // vcgt.f32      d17, d17, d18
+  .long  0xf2402d89                          // vadd.f32      d18, d16, d9
+  .long  0xf2406d81                          // vadd.f32      d22, d16, d1
+  .long  0xf2253da3                          // vsub.f32      d3, d21, d19
+  .long  0xf26131b1                          // vorr          d19, d17, d17
+  .long  0xf2400d82                          // vadd.f32      d16, d16, d2
+  .long  0xf35231b9                          // vbsl          d19, d18, d25
+  .long  0xf26121b1                          // vorr          d18, d17, d17
+  .long  0xf35621b8                          // vbsl          d18, d22, d24
+  .long  0xf35011b4                          // vbsl          d17, d16, d20
+  .long  0xf3030d33                          // vmul.f32      d0, d3, d19
+  .long  0xf3031d32                          // vmul.f32      d1, d3, d18
+  .long  0xf3032d31                          // vmul.f32      d2, d3, d17
+  .long  0xecbd8b04                          // vpop          {d8-d9}
+  .long  0xe12fff13                          // bx            r3
+  .long  0x3e99999a                          // .word         0x3e99999a
+  .long  0x3e99999a                          // .word         0x3e99999a
+  .long  0x3f170a3d                          // .word         0x3f170a3d
+  .long  0x3f170a3d                          // .word         0x3f170a3d
+  .long  0x3de147ae                          // .word         0x3de147ae
+  .long  0x3de147ae                          // .word         0x3de147ae
+
+HIDDEN _sk_saturation_vfp4
+.globl _sk_saturation_vfp4
+FUNCTION(_sk_saturation_vfp4)
+_sk_saturation_vfp4:
+  .long  0xed2d8b04                          // vpush         {d8-d9}
+  .long  0xeeb78a00                          // vmov.f32      s16, #112
+  .long  0xf3f91507                          // vceq.f32      d17, d7, #0
+  .long  0xf2c00010                          // vmov.i32      d16, #0
+  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xf2614f02                          // vmin.f32      d20, d1, d2
+  .long  0xf2415f02                          // vmax.f32      d21, d1, d2
+  .long  0xf2604f24                          // vmin.f32      d20, d0, d20
+  .long  0xeec89a27                          // vdiv.f32      s19, s16, s15
+  .long  0xee889a07                          // vdiv.f32      s18, s16, s14
+  .long  0xf3501199                          // vbsl          d17, d16, d9
+  .long  0xf2405f25                          // vmax.f32      d21, d0, d21
+  .long  0xf3412d96                          // vmul.f32      d18, d17, d6
+  .long  0xf3413d95                          // vmul.f32      d19, d17, d5
+  .long  0xf3411d94                          // vmul.f32      d17, d17, d4
+  .long  0xf2250da4                          // vsub.f32      d0, d21, d20
+  .long  0xf2636fa2                          // vmin.f32      d22, d19, d18
+  .long  0xf2437fa2                          // vmax.f32      d23, d19, d18
+  .long  0xf2618fa6                          // vmin.f32      d24, d17, d22
+  .long  0xf2419fa7                          // vmax.f32      d25, d17, d23
+  .long  0xf2611da8                          // vsub.f32      d17, d17, d24
+  .long  0xf2291da8                          // vsub.f32      d1, d25, d24
+  .long  0xeddf9b6a                          // vldr          d25, [pc, #424]
+  .long  0xf3f94501                          // vceq.f32      d20, d1, #0
+  .long  0xeec02aa1                          // vdiv.f32      s5, s1, s3
+  .long  0xee802a01                          // vdiv.f32      s4, s0, s2
+  .long  0xf3504192                          // vbsl          d20, d16, d2
+  .long  0xf3411db4                          // vmul.f32      d17, d17, d20
+  .long  0xf2614fa6                          // vmin.f32      d20, d17, d22
+  .long  0xeddf6b61                          // vldr          d22, [pc, #388]
+  .long  0xf2415fa7                          // vmax.f32      d21, d17, d23
+  .long  0xf2633da4                          // vsub.f32      d19, d19, d20
+  .long  0xf2251da4                          // vsub.f32      d1, d21, d20
+  .long  0xf3f94501                          // vceq.f32      d20, d1, #0
+  .long  0xeec02aa1                          // vdiv.f32      s5, s1, s3
+  .long  0xee802a01                          // vdiv.f32      s4, s0, s2
+  .long  0xf3504192                          // vbsl          d20, d16, d2
+  .long  0xf3433db4                          // vmul.f32      d19, d19, d20
+  .long  0xf2634fa2                          // vmin.f32      d20, d19, d18
+  .long  0xf2435fa2                          // vmax.f32      d21, d19, d18
+  .long  0xf343adb6                          // vmul.f32      d26, d19, d22
+  .long  0xf2614fa4                          // vmin.f32      d20, d17, d20
+  .long  0xf2415fa5                          // vmax.f32      d21, d17, d21
+  .long  0xf2622da4                          // vsub.f32      d18, d18, d20
+  .long  0xf2251da4                          // vsub.f32      d1, d21, d20
+  .long  0xeddf5b4f                          // vldr          d21, [pc, #316]
+  .long  0xf3f94501                          // vceq.f32      d20, d1, #0
+  .long  0xf3447d35                          // vmul.f32      d23, d4, d21
+  .long  0xf3418db5                          // vmul.f32      d24, d17, d21
+  .long  0xeec02aa1                          // vdiv.f32      s5, s1, s3
+  .long  0xee802a01                          // vdiv.f32      s4, s0, s2
+  .long  0xf3504192                          // vbsl          d20, d16, d2
+  .long  0xf3450d36                          // vmul.f32      d16, d5, d22
+  .long  0xf3422db4                          // vmul.f32      d18, d18, d20
+  .long  0xf3464d39                          // vmul.f32      d20, d6, d25
+  .long  0xf2470da0                          // vadd.f32      d16, d23, d16
+  .long  0xf2487daa                          // vadd.f32      d23, d24, d26
+  .long  0xf3428db9                          // vmul.f32      d24, d18, d25
+  .long  0xf2400da4                          // vadd.f32      d16, d16, d20
+  .long  0xf2474da8                          // vadd.f32      d20, d23, d24
+  .long  0xf2600da4                          // vsub.f32      d16, d16, d20
+  .long  0xf2411da0                          // vadd.f32      d17, d17, d16
+  .long  0xf2433da0                          // vadd.f32      d19, d19, d16
+  .long  0xf2422da0                          // vadd.f32      d18, d18, d16
+  .long  0xf3414db5                          // vmul.f32      d20, d17, d21
+  .long  0xf3430db6                          // vmul.f32      d16, d19, d22
+  .long  0xf3425db9                          // vmul.f32      d21, d18, d25
+  .long  0xf2440da0                          // vadd.f32      d16, d20, d16
+  .long  0xf2634fa2                          // vmin.f32      d20, d19, d18
+  .long  0xf2450da0                          // vadd.f32      d16, d21, d16
+  .long  0xf2614fa4                          // vmin.f32      d20, d17, d20
+  .long  0xf2635da0                          // vsub.f32      d21, d19, d16
+  .long  0xf2200da4                          // vsub.f32      d0, d16, d20
+  .long  0xf3f944a4                          // vcge.f32      d20, d20, #0
+  .long  0xf2626da0                          // vsub.f32      d22, d18, d16
+  .long  0xf2617da0                          // vsub.f32      d23, d17, d16
+  .long  0xf26491b4                          // vorr          d25, d20, d20
+  .long  0xf3001db5                          // vmul.f32      d1, d16, d21
+  .long  0xf2435fa2                          // vmax.f32      d21, d19, d18
+  .long  0xf3002db6                          // vmul.f32      d2, d16, d22
+  .long  0xf3008db7                          // vmul.f32      d8, d16, d23
+  .long  0xeec19aa0                          // vdiv.f32      s19, s3, s1
+  .long  0xee819a00                          // vdiv.f32      s18, s2, s0
+  .long  0xeec21aa0                          // vdiv.f32      s3, s5, s1
+  .long  0xee821a00                          // vdiv.f32      s2, s4, s0
+  .long  0xeec82aa0                          // vdiv.f32      s5, s17, s1
+  .long  0xee882a00                          // vdiv.f32      s4, s16, s0
+  .long  0xf2408d82                          // vadd.f32      d24, d16, d2
+  .long  0xf35191b8                          // vbsl          d25, d17, d24
+  .long  0xf2407d81                          // vadd.f32      d23, d16, d1
+  .long  0xf26481b4                          // vorr          d24, d20, d20
+  .long  0xf35241b7                          // vbsl          d20, d18, d23
+  .long  0xf2692da0                          // vsub.f32      d18, d25, d16
+  .long  0xf2411fa5                          // vmax.f32      d17, d17, d21
+  .long  0xf2406d89                          // vadd.f32      d22, d16, d9
+  .long  0xf35381b6                          // vbsl          d24, d19, d22
+  .long  0xf2645da0                          // vsub.f32      d21, d20, d16
+  .long  0xf3001db2                          // vmul.f32      d1, d16, d18
+  .long  0xf2210da0                          // vsub.f32      d0, d17, d16
+  .long  0xf2683da0                          // vsub.f32      d19, d24, d16
+  .long  0xf2c72f10                          // vmov.f32      d18, #1
+  .long  0xf3008db5                          // vmul.f32      d8, d16, d21
+  .long  0xf2435d07                          // vadd.f32      d21, d3, d7
+  .long  0xeec19aa0                          // vdiv.f32      s19, s3, s1
+  .long  0xf3002db3                          // vmul.f32      d2, d16, d19
+  .long  0xee819a00                          // vdiv.f32      s18, s2, s0
+  .long  0xeec21aa0                          // vdiv.f32      s3, s5, s1
+  .long  0xee821a00                          // vdiv.f32      s2, s4, s0
+  .long  0xeec82aa0                          // vdiv.f32      s5, s17, s1
+  .long  0xee882a00                          // vdiv.f32      s4, s16, s0
+  .long  0xf3433d17                          // vmul.f32      d19, d3, d7
+  .long  0xf3611ea2                          // vcgt.f32      d17, d17, d18
+  .long  0xf2402d89                          // vadd.f32      d18, d16, d9
+  .long  0xf2406d81                          // vadd.f32      d22, d16, d1
+  .long  0xf2253da3                          // vsub.f32      d3, d21, d19
+  .long  0xf26131b1                          // vorr          d19, d17, d17
+  .long  0xf2400d82                          // vadd.f32      d16, d16, d2
+  .long  0xf35231b9                          // vbsl          d19, d18, d25
+  .long  0xf26121b1                          // vorr          d18, d17, d17
+  .long  0xf35621b8                          // vbsl          d18, d22, d24
+  .long  0xf35011b4                          // vbsl          d17, d16, d20
+  .long  0xf3030d33                          // vmul.f32      d0, d3, d19
+  .long  0xf3031d32                          // vmul.f32      d1, d3, d18
+  .long  0xf3032d31                          // vmul.f32      d2, d3, d17
+  .long  0xecbd8b04                          // vpop          {d8-d9}
+  .long  0xe12fff13                          // bx            r3
+  .long  0x3e99999a                          // .word         0x3e99999a
+  .long  0x3e99999a                          // .word         0x3e99999a
+  .long  0x3f170a3d                          // .word         0x3f170a3d
+  .long  0x3f170a3d                          // .word         0x3f170a3d
+  .long  0x3de147ae                          // .word         0x3de147ae
+  .long  0x3de147ae                          // .word         0x3de147ae
+
+HIDDEN _sk_color_vfp4
+.globl _sk_color_vfp4
+FUNCTION(_sk_color_vfp4)
+_sk_color_vfp4:
+  .long  0xed2d8b04                          // vpush         {d8-d9}
+  .long  0xeeb78a00                          // vmov.f32      s16, #112
+  .long  0xf3f91503                          // vceq.f32      d17, d3, #0
+  .long  0xf2c00010                          // vmov.i32      d16, #0
+  .long  0xeddf3b56                          // vldr          d19, [pc, #344]
+  .long  0xeddf7b57                          // vldr          d23, [pc, #348]
+  .long  0xf3446d33                          // vmul.f32      d22, d4, d19
+  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xf346ad37                          // vmul.f32      d26, d6, d23
+  .long  0xeec89a23                          // vdiv.f32      s19, s16, s7
+  .long  0xee889a03                          // vdiv.f32      s18, s16, s6
+  .long  0xf3501199                          // vbsl          d17, d16, d9
+  .long  0xeddf0b4c                          // vldr          d16, [pc, #304]
+  .long  0xf3412d91                          // vmul.f32      d18, d17, d1
+  .long  0xf3414d90                          // vmul.f32      d20, d17, d0
+  .long  0xf3455d30                          // vmul.f32      d21, d5, d16
+  .long  0xf3411d92                          // vmul.f32      d17, d17, d2
+  .long  0xf3428db0                          // vmul.f32      d24, d18, d16
+  .long  0xf3449db3                          // vmul.f32      d25, d20, d19
+  .long  0xf2465da5                          // vadd.f32      d21, d22, d21
+  .long  0xf3416db7                          // vmul.f32      d22, d17, d23
+  .long  0xf2498da8                          // vadd.f32      d24, d25, d24
+  .long  0xf2455daa                          // vadd.f32      d21, d21, d26
+  .long  0xf2466da8                          // vadd.f32      d22, d22, d24
+  .long  0xf2655da6                          // vsub.f32      d21, d21, d22
+  .long  0xf2422da5                          // vadd.f32      d18, d18, d21
+  .long  0xf2444da5                          // vadd.f32      d20, d20, d21
+  .long  0xf2411da5                          // vadd.f32      d17, d17, d21
+  .long  0xf3420db0                          // vmul.f32      d16, d18, d16
+  .long  0xf3443db3                          // vmul.f32      d19, d20, d19
+  .long  0xf3415db7                          // vmul.f32      d21, d17, d23
+  .long  0xf2430da0                          // vadd.f32      d16, d19, d16
+  .long  0xf2623fa1                          // vmin.f32      d19, d18, d17
+  .long  0xf2450da0                          // vadd.f32      d16, d21, d16
+  .long  0xf2643fa3                          // vmin.f32      d19, d20, d19
+  .long  0xf2625da0                          // vsub.f32      d21, d18, d16
+  .long  0xf2200da3                          // vsub.f32      d0, d16, d19
+  .long  0xf3f934a3                          // vcge.f32      d19, d19, #0
+  .long  0xf2616da0                          // vsub.f32      d22, d17, d16
+  .long  0xf2647da0                          // vsub.f32      d23, d20, d16
+  .long  0xf26391b3                          // vorr          d25, d19, d19
+  .long  0xf3001db5                          // vmul.f32      d1, d16, d21
+  .long  0xf2425fa1                          // vmax.f32      d21, d18, d17
+  .long  0xf3002db6                          // vmul.f32      d2, d16, d22
+  .long  0xf3008db7                          // vmul.f32      d8, d16, d23
+  .long  0xeec19aa0                          // vdiv.f32      s19, s3, s1
+  .long  0xee819a00                          // vdiv.f32      s18, s2, s0
+  .long  0xeec21aa0                          // vdiv.f32      s3, s5, s1
+  .long  0xee821a00                          // vdiv.f32      s2, s4, s0
+  .long  0xeec82aa0                          // vdiv.f32      s5, s17, s1
+  .long  0xee882a00                          // vdiv.f32      s4, s16, s0
+  .long  0xf2408d82                          // vadd.f32      d24, d16, d2
+  .long  0xf35491b8                          // vbsl          d25, d20, d24
+  .long  0xf2407d81                          // vadd.f32      d23, d16, d1
+  .long  0xf26381b3                          // vorr          d24, d19, d19
+  .long  0xf2406d89                          // vadd.f32      d22, d16, d9
+  .long  0xf35131b7                          // vbsl          d19, d17, d23
+  .long  0xf2691da0                          // vsub.f32      d17, d25, d16
+  .long  0xf35281b6                          // vbsl          d24, d18, d22
+  .long  0xf2442fa5                          // vmax.f32      d18, d20, d21
+  .long  0xf2684da0                          // vsub.f32      d20, d24, d16
+  .long  0xf2635da0                          // vsub.f32      d21, d19, d16
+  .long  0xf3001db1                          // vmul.f32      d1, d16, d17
+  .long  0xf2220da0                          // vsub.f32      d0, d18, d16
+  .long  0xf2c71f10                          // vmov.f32      d17, #1
+  .long  0xf3002db4                          // vmul.f32      d2, d16, d20
+  .long  0xf3008db5                          // vmul.f32      d8, d16, d21
+  .long  0xf3434d17                          // vmul.f32      d20, d3, d7
+  .long  0xeec19aa0                          // vdiv.f32      s19, s3, s1
+  .long  0xee819a00                          // vdiv.f32      s18, s2, s0
+  .long  0xeec21aa0                          // vdiv.f32      s3, s5, s1
+  .long  0xee821a00                          // vdiv.f32      s2, s4, s0
+  .long  0xeec82aa0                          // vdiv.f32      s5, s17, s1
+  .long  0xee882a00                          // vdiv.f32      s4, s16, s0
+  .long  0xf2435d07                          // vadd.f32      d21, d3, d7
+  .long  0xf3621ea1                          // vcgt.f32      d17, d18, d17
+  .long  0xf2402d89                          // vadd.f32      d18, d16, d9
+  .long  0xf2406d81                          // vadd.f32      d22, d16, d1
+  .long  0xf2253da4                          // vsub.f32      d3, d21, d20
+  .long  0xf26141b1                          // vorr          d20, d17, d17
+  .long  0xf2400d82                          // vadd.f32      d16, d16, d2
+  .long  0xf35241b9                          // vbsl          d20, d18, d25
+  .long  0xf26121b1                          // vorr          d18, d17, d17
+  .long  0xf35621b8                          // vbsl          d18, d22, d24
+  .long  0xf35011b3                          // vbsl          d17, d16, d19
+  .long  0xf3030d34                          // vmul.f32      d0, d3, d20
+  .long  0xf3031d32                          // vmul.f32      d1, d3, d18
+  .long  0xf3032d31                          // vmul.f32      d2, d3, d17
+  .long  0xecbd8b04                          // vpop          {d8-d9}
+  .long  0xe12fff13                          // bx            r3
+  .long  0x3f170a3d                          // .word         0x3f170a3d
+  .long  0x3f170a3d                          // .word         0x3f170a3d
+  .long  0x3e99999a                          // .word         0x3e99999a
+  .long  0x3e99999a                          // .word         0x3e99999a
+  .long  0x3de147ae                          // .word         0x3de147ae
+  .long  0x3de147ae                          // .word         0x3de147ae
+
+HIDDEN _sk_luminosity_vfp4
+.globl _sk_luminosity_vfp4
+FUNCTION(_sk_luminosity_vfp4)
+_sk_luminosity_vfp4:
+  .long  0xed2d8b04                          // vpush         {d8-d9}
+  .long  0xeeb78a00                          // vmov.f32      s16, #112
+  .long  0xf3f91507                          // vceq.f32      d17, d7, #0
+  .long  0xf2c00010                          // vmov.i32      d16, #0
+  .long  0xeddf3b56                          // vldr          d19, [pc, #344]
+  .long  0xeddf7b57                          // vldr          d23, [pc, #348]
+  .long  0xf3406d33                          // vmul.f32      d22, d0, d19
+  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xf342ad37                          // vmul.f32      d26, d2, d23
+  .long  0xeec89a27                          // vdiv.f32      s19, s16, s15
+  .long  0xee889a07                          // vdiv.f32      s18, s16, s14
+  .long  0xf3501199                          // vbsl          d17, d16, d9
+  .long  0xeddf0b4c                          // vldr          d16, [pc, #304]
+  .long  0xf3412d95                          // vmul.f32      d18, d17, d5
+  .long  0xf3414d94                          // vmul.f32      d20, d17, d4
+  .long  0xf3415d30                          // vmul.f32      d21, d1, d16
+  .long  0xf3411d96                          // vmul.f32      d17, d17, d6
+  .long  0xf3428db0                          // vmul.f32      d24, d18, d16
+  .long  0xf3449db3                          // vmul.f32      d25, d20, d19
+  .long  0xf2465da5                          // vadd.f32      d21, d22, d21
+  .long  0xf3416db7                          // vmul.f32      d22, d17, d23
+  .long  0xf2498da8                          // vadd.f32      d24, d25, d24
+  .long  0xf2455daa                          // vadd.f32      d21, d21, d26
+  .long  0xf2466da8                          // vadd.f32      d22, d22, d24
+  .long  0xf2655da6                          // vsub.f32      d21, d21, d22
+  .long  0xf2422da5                          // vadd.f32      d18, d18, d21
+  .long  0xf2444da5                          // vadd.f32      d20, d20, d21
+  .long  0xf2411da5                          // vadd.f32      d17, d17, d21
+  .long  0xf3420db0                          // vmul.f32      d16, d18, d16
+  .long  0xf3443db3                          // vmul.f32      d19, d20, d19
+  .long  0xf3415db7                          // vmul.f32      d21, d17, d23
+  .long  0xf2430da0                          // vadd.f32      d16, d19, d16
+  .long  0xf2623fa1                          // vmin.f32      d19, d18, d17
+  .long  0xf2450da0                          // vadd.f32      d16, d21, d16
+  .long  0xf2643fa3                          // vmin.f32      d19, d20, d19
+  .long  0xf2625da0                          // vsub.f32      d21, d18, d16
+  .long  0xf2200da3                          // vsub.f32      d0, d16, d19
+  .long  0xf3f934a3                          // vcge.f32      d19, d19, #0
+  .long  0xf2616da0                          // vsub.f32      d22, d17, d16
+  .long  0xf2647da0                          // vsub.f32      d23, d20, d16
+  .long  0xf26391b3                          // vorr          d25, d19, d19
+  .long  0xf3001db5                          // vmul.f32      d1, d16, d21
+  .long  0xf2425fa1                          // vmax.f32      d21, d18, d17
+  .long  0xf3002db6                          // vmul.f32      d2, d16, d22
+  .long  0xf3008db7                          // vmul.f32      d8, d16, d23
+  .long  0xeec19aa0                          // vdiv.f32      s19, s3, s1
+  .long  0xee819a00                          // vdiv.f32      s18, s2, s0
+  .long  0xeec21aa0                          // vdiv.f32      s3, s5, s1
+  .long  0xee821a00                          // vdiv.f32      s2, s4, s0
+  .long  0xeec82aa0                          // vdiv.f32      s5, s17, s1
+  .long  0xee882a00                          // vdiv.f32      s4, s16, s0
+  .long  0xf2408d82                          // vadd.f32      d24, d16, d2
+  .long  0xf35491b8                          // vbsl          d25, d20, d24
+  .long  0xf2407d81                          // vadd.f32      d23, d16, d1
+  .long  0xf26381b3                          // vorr          d24, d19, d19
+  .long  0xf2406d89                          // vadd.f32      d22, d16, d9
+  .long  0xf35131b7                          // vbsl          d19, d17, d23
+  .long  0xf2691da0                          // vsub.f32      d17, d25, d16
+  .long  0xf35281b6                          // vbsl          d24, d18, d22
+  .long  0xf2442fa5                          // vmax.f32      d18, d20, d21
+  .long  0xf2684da0                          // vsub.f32      d20, d24, d16
+  .long  0xf2635da0                          // vsub.f32      d21, d19, d16
+  .long  0xf3001db1                          // vmul.f32      d1, d16, d17
+  .long  0xf2220da0                          // vsub.f32      d0, d18, d16
+  .long  0xf2c71f10                          // vmov.f32      d17, #1
+  .long  0xf3002db4                          // vmul.f32      d2, d16, d20
+  .long  0xf3008db5                          // vmul.f32      d8, d16, d21
+  .long  0xf3434d17                          // vmul.f32      d20, d3, d7
+  .long  0xeec19aa0                          // vdiv.f32      s19, s3, s1
+  .long  0xee819a00                          // vdiv.f32      s18, s2, s0
+  .long  0xeec21aa0                          // vdiv.f32      s3, s5, s1
+  .long  0xee821a00                          // vdiv.f32      s2, s4, s0
+  .long  0xeec82aa0                          // vdiv.f32      s5, s17, s1
+  .long  0xee882a00                          // vdiv.f32      s4, s16, s0
+  .long  0xf2435d07                          // vadd.f32      d21, d3, d7
+  .long  0xf3621ea1                          // vcgt.f32      d17, d18, d17
+  .long  0xf2402d89                          // vadd.f32      d18, d16, d9
+  .long  0xf2406d81                          // vadd.f32      d22, d16, d1
+  .long  0xf2253da4                          // vsub.f32      d3, d21, d20
+  .long  0xf26141b1                          // vorr          d20, d17, d17
+  .long  0xf2400d82                          // vadd.f32      d16, d16, d2
+  .long  0xf35241b9                          // vbsl          d20, d18, d25
+  .long  0xf26121b1                          // vorr          d18, d17, d17
+  .long  0xf35621b8                          // vbsl          d18, d22, d24
+  .long  0xf35011b3                          // vbsl          d17, d16, d19
+  .long  0xf3030d34                          // vmul.f32      d0, d3, d20
+  .long  0xf3031d32                          // vmul.f32      d1, d3, d18
+  .long  0xf3032d31                          // vmul.f32      d2, d3, d17
+  .long  0xecbd8b04                          // vpop          {d8-d9}
+  .long  0xe12fff13                          // bx            r3
+  .long  0x3f170a3d                          // .word         0x3f170a3d
+  .long  0x3f170a3d                          // .word         0x3f170a3d
+  .long  0x3e99999a                          // .word         0x3e99999a
+  .long  0x3e99999a                          // .word         0x3e99999a
+  .long  0x3de147ae                          // .word         0x3de147ae
+  .long  0x3de147ae                          // .word         0x3de147ae
 
 HIDDEN _sk_clamp_0_vfp4
 .globl _sk_clamp_0_vfp4
@@ -6946,7 +7824,7 @@ _sk_linear_gradient_vfp4:
   .long  0xe494c00c                          // ldr           ip, [r4], #12
   .long  0xf4a41c9f                          // vld1.32       {d1[]}, [r4 :32]
   .long  0xe35c0000                          // cmp           ip, #0
-  .long  0x0a000036                          // beq           2e38 <sk_linear_gradient_vfp4+0x110>
+  .long  0x0a000036                          // beq           3558 <sk_linear_gradient_vfp4+0x110>
   .long  0xe59e3004                          // ldr           r3, [lr, #4]
   .long  0xf2c01010                          // vmov.i32      d17, #0
   .long  0xf2c07010                          // vmov.i32      d23, #0
@@ -6996,12 +7874,12 @@ _sk_linear_gradient_vfp4:
   .long  0xf26371b3                          // vorr          d23, d19, d19
   .long  0xf26481b4                          // vorr          d24, d20, d20
   .long  0xf26561b5                          // vorr          d22, d21, d21
-  .long  0x1affffd3                          // bne           2d74 <sk_linear_gradient_vfp4+0x4c>
+  .long  0x1affffd3                          // bne           3494 <sk_linear_gradient_vfp4+0x4c>
   .long  0xf26c01bc                          // vorr          d16, d28, d28
   .long  0xf22b11bb                          // vorr          d1, d27, d27
   .long  0xf22a21ba                          // vorr          d2, d26, d26
   .long  0xf22931b9                          // vorr          d3, d25, d25
-  .long  0xea000003                          // b             2e48 <sk_linear_gradient_vfp4+0x120>
+  .long  0xea000003                          // b             3568 <sk_linear_gradient_vfp4+0x120>
   .long  0xf2c05010                          // vmov.i32      d21, #0
   .long  0xf2c04010                          // vmov.i32      d20, #0
   .long  0xf2c03010                          // vmov.i32      d19, #0
@@ -7534,14 +8412,14 @@ _sk_seed_shader_hsw:
   .byte  197,249,110,199                     // vmovd         %edi,%xmm0
   .byte  196,226,125,88,192                  // vpbroadcastd  %xmm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,169,61,0,0        // vbroadcastss  0x3da9(%rip),%ymm1        # 3e6c <_sk_callback_hsw+0x127>
+  .byte  196,226,125,24,13,73,68,0,0         // vbroadcastss  0x4449(%rip),%ymm1        # 450c <_sk_callback_hsw+0x127>
   .byte  197,252,88,193                      // vaddps        %ymm1,%ymm0,%ymm0
   .byte  197,252,88,2                        // vaddps        (%rdx),%ymm0,%ymm0
   .byte  196,226,125,24,16                   // vbroadcastss  (%rax),%ymm2
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
   .byte  197,236,88,201                      // vaddps        %ymm1,%ymm2,%ymm1
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,21,141,61,0,0        // vbroadcastss  0x3d8d(%rip),%ymm2        # 3e70 <_sk_callback_hsw+0x12b>
+  .byte  196,226,125,24,21,45,68,0,0         // vbroadcastss  0x442d(%rip),%ymm2        # 4510 <_sk_callback_hsw+0x12b>
   .byte  197,228,87,219                      // vxorps        %ymm3,%ymm3,%ymm3
   .byte  197,220,87,228                      // vxorps        %ymm4,%ymm4,%ymm4
   .byte  197,212,87,237                      // vxorps        %ymm5,%ymm5,%ymm5
@@ -7562,13 +8440,13 @@ _sk_dither_hsw:
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  196,66,125,88,8                     // vpbroadcastd  (%r8),%ymm9
   .byte  196,65,61,239,201                   // vpxor         %ymm9,%ymm8,%ymm9
-  .byte  196,98,125,88,21,76,61,0,0          // vpbroadcastd  0x3d4c(%rip),%ymm10        # 3e74 <_sk_callback_hsw+0x12f>
+  .byte  196,98,125,88,21,236,67,0,0         // vpbroadcastd  0x43ec(%rip),%ymm10        # 4514 <_sk_callback_hsw+0x12f>
   .byte  196,65,53,219,218                   // vpand         %ymm10,%ymm9,%ymm11
   .byte  196,193,37,114,243,5                // vpslld        $0x5,%ymm11,%ymm11
   .byte  196,65,61,219,210                   // vpand         %ymm10,%ymm8,%ymm10
   .byte  196,193,45,114,242,4                // vpslld        $0x4,%ymm10,%ymm10
-  .byte  196,98,125,88,37,49,61,0,0          // vpbroadcastd  0x3d31(%rip),%ymm12        # 3e78 <_sk_callback_hsw+0x133>
-  .byte  196,98,125,88,45,44,61,0,0          // vpbroadcastd  0x3d2c(%rip),%ymm13        # 3e7c <_sk_callback_hsw+0x137>
+  .byte  196,98,125,88,37,209,67,0,0         // vpbroadcastd  0x43d1(%rip),%ymm12        # 4518 <_sk_callback_hsw+0x133>
+  .byte  196,98,125,88,45,204,67,0,0         // vpbroadcastd  0x43cc(%rip),%ymm13        # 451c <_sk_callback_hsw+0x137>
   .byte  196,65,53,219,245                   // vpand         %ymm13,%ymm9,%ymm14
   .byte  196,193,13,114,246,2                // vpslld        $0x2,%ymm14,%ymm14
   .byte  196,65,61,219,237                   // vpand         %ymm13,%ymm8,%ymm13
@@ -7583,8 +8461,8 @@ _sk_dither_hsw:
   .byte  196,65,61,235,194                   // vpor          %ymm10,%ymm8,%ymm8
   .byte  196,65,61,235,193                   // vpor          %ymm9,%ymm8,%ymm8
   .byte  196,65,124,91,192                   // vcvtdq2ps     %ymm8,%ymm8
-  .byte  196,98,125,24,13,222,60,0,0         // vbroadcastss  0x3cde(%rip),%ymm9        # 3e80 <_sk_callback_hsw+0x13b>
-  .byte  196,98,125,24,21,217,60,0,0         // vbroadcastss  0x3cd9(%rip),%ymm10        # 3e84 <_sk_callback_hsw+0x13f>
+  .byte  196,98,125,24,13,126,67,0,0         // vbroadcastss  0x437e(%rip),%ymm9        # 4520 <_sk_callback_hsw+0x13b>
+  .byte  196,98,125,24,21,121,67,0,0         // vbroadcastss  0x4379(%rip),%ymm10        # 4524 <_sk_callback_hsw+0x13f>
   .byte  196,66,61,184,209                   // vfmadd231ps   %ymm9,%ymm8,%ymm10
   .byte  196,98,125,24,64,8                  // vbroadcastss  0x8(%rax),%ymm8
   .byte  196,65,60,89,194                    // vmulps        %ymm10,%ymm8,%ymm8
@@ -7622,7 +8500,7 @@ HIDDEN _sk_srcatop_hsw
 FUNCTION(_sk_srcatop_hsw)
 _sk_srcatop_hsw:
   .byte  197,252,89,199                      // vmulps        %ymm7,%ymm0,%ymm0
-  .byte  196,98,125,24,5,127,60,0,0          // vbroadcastss  0x3c7f(%rip),%ymm8        # 3e88 <_sk_callback_hsw+0x143>
+  .byte  196,98,125,24,5,31,67,0,0           // vbroadcastss  0x431f(%rip),%ymm8        # 4528 <_sk_callback_hsw+0x143>
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
   .byte  196,226,61,184,196                  // vfmadd231ps   %ymm4,%ymm8,%ymm0
   .byte  197,244,89,207                      // vmulps        %ymm7,%ymm1,%ymm1
@@ -7638,7 +8516,7 @@ HIDDEN _sk_dstatop_hsw
 .globl _sk_dstatop_hsw
 FUNCTION(_sk_dstatop_hsw)
 _sk_dstatop_hsw:
-  .byte  196,98,125,24,5,82,60,0,0           // vbroadcastss  0x3c52(%rip),%ymm8        # 3e8c <_sk_callback_hsw+0x147>
+  .byte  196,98,125,24,5,242,66,0,0          // vbroadcastss  0x42f2(%rip),%ymm8        # 452c <_sk_callback_hsw+0x147>
   .byte  197,60,92,199                       // vsubps        %ymm7,%ymm8,%ymm8
   .byte  197,188,89,192                      // vmulps        %ymm0,%ymm8,%ymm0
   .byte  196,226,101,184,196                 // vfmadd231ps   %ymm4,%ymm3,%ymm0
@@ -7677,7 +8555,7 @@ HIDDEN _sk_srcout_hsw
 .globl _sk_srcout_hsw
 FUNCTION(_sk_srcout_hsw)
 _sk_srcout_hsw:
-  .byte  196,98,125,24,5,249,59,0,0          // vbroadcastss  0x3bf9(%rip),%ymm8        # 3e90 <_sk_callback_hsw+0x14b>
+  .byte  196,98,125,24,5,153,66,0,0          // vbroadcastss  0x4299(%rip),%ymm8        # 4530 <_sk_callback_hsw+0x14b>
   .byte  197,60,92,199                       // vsubps        %ymm7,%ymm8,%ymm8
   .byte  197,188,89,192                      // vmulps        %ymm0,%ymm8,%ymm0
   .byte  197,188,89,201                      // vmulps        %ymm1,%ymm8,%ymm1
@@ -7690,7 +8568,7 @@ HIDDEN _sk_dstout_hsw
 .globl _sk_dstout_hsw
 FUNCTION(_sk_dstout_hsw)
 _sk_dstout_hsw:
-  .byte  196,226,125,24,5,220,59,0,0         // vbroadcastss  0x3bdc(%rip),%ymm0        # 3e94 <_sk_callback_hsw+0x14f>
+  .byte  196,226,125,24,5,124,66,0,0         // vbroadcastss  0x427c(%rip),%ymm0        # 4534 <_sk_callback_hsw+0x14f>
   .byte  197,252,92,219                      // vsubps        %ymm3,%ymm0,%ymm3
   .byte  197,228,89,196                      // vmulps        %ymm4,%ymm3,%ymm0
   .byte  197,228,89,205                      // vmulps        %ymm5,%ymm3,%ymm1
@@ -7703,7 +8581,7 @@ HIDDEN _sk_srcover_hsw
 .globl _sk_srcover_hsw
 FUNCTION(_sk_srcover_hsw)
 _sk_srcover_hsw:
-  .byte  196,98,125,24,5,191,59,0,0          // vbroadcastss  0x3bbf(%rip),%ymm8        # 3e98 <_sk_callback_hsw+0x153>
+  .byte  196,98,125,24,5,95,66,0,0           // vbroadcastss  0x425f(%rip),%ymm8        # 4538 <_sk_callback_hsw+0x153>
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
   .byte  196,194,93,184,192                  // vfmadd231ps   %ymm8,%ymm4,%ymm0
   .byte  196,194,85,184,200                  // vfmadd231ps   %ymm8,%ymm5,%ymm1
@@ -7716,7 +8594,7 @@ HIDDEN _sk_dstover_hsw
 .globl _sk_dstover_hsw
 FUNCTION(_sk_dstover_hsw)
 _sk_dstover_hsw:
-  .byte  196,98,125,24,5,158,59,0,0          // vbroadcastss  0x3b9e(%rip),%ymm8        # 3e9c <_sk_callback_hsw+0x157>
+  .byte  196,98,125,24,5,62,66,0,0           // vbroadcastss  0x423e(%rip),%ymm8        # 453c <_sk_callback_hsw+0x157>
   .byte  197,60,92,199                       // vsubps        %ymm7,%ymm8,%ymm8
   .byte  196,226,61,168,196                  // vfmadd213ps   %ymm4,%ymm8,%ymm0
   .byte  196,226,61,168,205                  // vfmadd213ps   %ymm5,%ymm8,%ymm1
@@ -7740,7 +8618,7 @@ HIDDEN _sk_multiply_hsw
 .globl _sk_multiply_hsw
 FUNCTION(_sk_multiply_hsw)
 _sk_multiply_hsw:
-  .byte  196,98,125,24,5,105,59,0,0          // vbroadcastss  0x3b69(%rip),%ymm8        # 3ea0 <_sk_callback_hsw+0x15b>
+  .byte  196,98,125,24,5,9,66,0,0            // vbroadcastss  0x4209(%rip),%ymm8        # 4540 <_sk_callback_hsw+0x15b>
   .byte  197,60,92,207                       // vsubps        %ymm7,%ymm8,%ymm9
   .byte  197,52,89,208                       // vmulps        %ymm0,%ymm9,%ymm10
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
@@ -7788,7 +8666,7 @@ HIDDEN _sk_xor__hsw
 .globl _sk_xor__hsw
 FUNCTION(_sk_xor__hsw)
 _sk_xor__hsw:
-  .byte  196,98,125,24,5,228,58,0,0          // vbroadcastss  0x3ae4(%rip),%ymm8        # 3ea4 <_sk_callback_hsw+0x15f>
+  .byte  196,98,125,24,5,132,65,0,0          // vbroadcastss  0x4184(%rip),%ymm8        # 4544 <_sk_callback_hsw+0x15f>
   .byte  197,60,92,207                       // vsubps        %ymm7,%ymm8,%ymm9
   .byte  197,180,89,192                      // vmulps        %ymm0,%ymm9,%ymm0
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
@@ -7822,7 +8700,7 @@ _sk_darken_hsw:
   .byte  197,100,89,206                      // vmulps        %ymm6,%ymm3,%ymm9
   .byte  196,193,108,95,209                  // vmaxps        %ymm9,%ymm2,%ymm2
   .byte  197,188,92,210                      // vsubps        %ymm2,%ymm8,%ymm2
-  .byte  196,98,125,24,5,108,58,0,0          // vbroadcastss  0x3a6c(%rip),%ymm8        # 3ea8 <_sk_callback_hsw+0x163>
+  .byte  196,98,125,24,5,12,65,0,0           // vbroadcastss  0x410c(%rip),%ymm8        # 4548 <_sk_callback_hsw+0x163>
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
   .byte  196,194,69,184,216                  // vfmadd231ps   %ymm8,%ymm7,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7847,7 +8725,7 @@ _sk_lighten_hsw:
   .byte  197,100,89,206                      // vmulps        %ymm6,%ymm3,%ymm9
   .byte  196,193,108,93,209                  // vminps        %ymm9,%ymm2,%ymm2
   .byte  197,188,92,210                      // vsubps        %ymm2,%ymm8,%ymm2
-  .byte  196,98,125,24,5,27,58,0,0           // vbroadcastss  0x3a1b(%rip),%ymm8        # 3eac <_sk_callback_hsw+0x167>
+  .byte  196,98,125,24,5,187,64,0,0          // vbroadcastss  0x40bb(%rip),%ymm8        # 454c <_sk_callback_hsw+0x167>
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
   .byte  196,194,69,184,216                  // vfmadd231ps   %ymm8,%ymm7,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7875,7 +8753,7 @@ _sk_difference_hsw:
   .byte  196,193,108,93,209                  // vminps        %ymm9,%ymm2,%ymm2
   .byte  197,236,88,210                      // vaddps        %ymm2,%ymm2,%ymm2
   .byte  197,188,92,210                      // vsubps        %ymm2,%ymm8,%ymm2
-  .byte  196,98,125,24,5,190,57,0,0          // vbroadcastss  0x39be(%rip),%ymm8        # 3eb0 <_sk_callback_hsw+0x16b>
+  .byte  196,98,125,24,5,94,64,0,0           // vbroadcastss  0x405e(%rip),%ymm8        # 4550 <_sk_callback_hsw+0x16b>
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
   .byte  196,194,69,184,216                  // vfmadd231ps   %ymm8,%ymm7,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7897,7 +8775,7 @@ _sk_exclusion_hsw:
   .byte  197,236,89,214                      // vmulps        %ymm6,%ymm2,%ymm2
   .byte  197,236,88,210                      // vaddps        %ymm2,%ymm2,%ymm2
   .byte  197,188,92,210                      // vsubps        %ymm2,%ymm8,%ymm2
-  .byte  196,98,125,24,5,124,57,0,0          // vbroadcastss  0x397c(%rip),%ymm8        # 3eb4 <_sk_callback_hsw+0x16f>
+  .byte  196,98,125,24,5,28,64,0,0           // vbroadcastss  0x401c(%rip),%ymm8        # 4554 <_sk_callback_hsw+0x16f>
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
   .byte  196,194,69,184,216                  // vfmadd231ps   %ymm8,%ymm7,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7907,7 +8785,7 @@ HIDDEN _sk_colorburn_hsw
 .globl _sk_colorburn_hsw
 FUNCTION(_sk_colorburn_hsw)
 _sk_colorburn_hsw:
-  .byte  196,98,125,24,5,106,57,0,0          // vbroadcastss  0x396a(%rip),%ymm8        # 3eb8 <_sk_callback_hsw+0x173>
+  .byte  196,98,125,24,5,10,64,0,0           // vbroadcastss  0x400a(%rip),%ymm8        # 4558 <_sk_callback_hsw+0x173>
   .byte  197,60,92,207                       // vsubps        %ymm7,%ymm8,%ymm9
   .byte  197,52,89,216                       // vmulps        %ymm0,%ymm9,%ymm11
   .byte  196,65,44,87,210                    // vxorps        %ymm10,%ymm10,%ymm10
@@ -7965,7 +8843,7 @@ HIDDEN _sk_colordodge_hsw
 FUNCTION(_sk_colordodge_hsw)
 _sk_colordodge_hsw:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
-  .byte  196,98,125,24,13,117,56,0,0         // vbroadcastss  0x3875(%rip),%ymm9        # 3ebc <_sk_callback_hsw+0x177>
+  .byte  196,98,125,24,13,21,63,0,0          // vbroadcastss  0x3f15(%rip),%ymm9        # 455c <_sk_callback_hsw+0x177>
   .byte  197,52,92,215                       // vsubps        %ymm7,%ymm9,%ymm10
   .byte  197,44,89,216                       // vmulps        %ymm0,%ymm10,%ymm11
   .byte  197,52,92,203                       // vsubps        %ymm3,%ymm9,%ymm9
@@ -8018,7 +8896,7 @@ HIDDEN _sk_hardlight_hsw
 .globl _sk_hardlight_hsw
 FUNCTION(_sk_hardlight_hsw)
 _sk_hardlight_hsw:
-  .byte  196,98,125,24,5,150,55,0,0          // vbroadcastss  0x3796(%rip),%ymm8        # 3ec0 <_sk_callback_hsw+0x17b>
+  .byte  196,98,125,24,5,54,62,0,0           // vbroadcastss  0x3e36(%rip),%ymm8        # 4560 <_sk_callback_hsw+0x17b>
   .byte  197,60,92,215                       // vsubps        %ymm7,%ymm8,%ymm10
   .byte  197,44,89,216                       // vmulps        %ymm0,%ymm10,%ymm11
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
@@ -8069,7 +8947,7 @@ HIDDEN _sk_overlay_hsw
 .globl _sk_overlay_hsw
 FUNCTION(_sk_overlay_hsw)
 _sk_overlay_hsw:
-  .byte  196,98,125,24,5,206,54,0,0          // vbroadcastss  0x36ce(%rip),%ymm8        # 3ec4 <_sk_callback_hsw+0x17f>
+  .byte  196,98,125,24,5,110,61,0,0          // vbroadcastss  0x3d6e(%rip),%ymm8        # 4564 <_sk_callback_hsw+0x17f>
   .byte  197,60,92,215                       // vsubps        %ymm7,%ymm8,%ymm10
   .byte  197,44,89,216                       // vmulps        %ymm0,%ymm10,%ymm11
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
@@ -8130,10 +9008,10 @@ _sk_softlight_hsw:
   .byte  196,65,20,88,197                    // vaddps        %ymm13,%ymm13,%ymm8
   .byte  196,65,60,88,192                    // vaddps        %ymm8,%ymm8,%ymm8
   .byte  196,66,61,168,192                   // vfmadd213ps   %ymm8,%ymm8,%ymm8
-  .byte  196,98,125,24,29,217,53,0,0         // vbroadcastss  0x35d9(%rip),%ymm11        # 3ecc <_sk_callback_hsw+0x187>
+  .byte  196,98,125,24,29,121,60,0,0         // vbroadcastss  0x3c79(%rip),%ymm11        # 456c <_sk_callback_hsw+0x187>
   .byte  196,65,20,88,227                    // vaddps        %ymm11,%ymm13,%ymm12
   .byte  196,65,28,89,192                    // vmulps        %ymm8,%ymm12,%ymm8
-  .byte  196,98,125,24,37,202,53,0,0         // vbroadcastss  0x35ca(%rip),%ymm12        # 3ed0 <_sk_callback_hsw+0x18b>
+  .byte  196,98,125,24,37,106,60,0,0         // vbroadcastss  0x3c6a(%rip),%ymm12        # 4570 <_sk_callback_hsw+0x18b>
   .byte  196,66,21,184,196                   // vfmadd231ps   %ymm12,%ymm13,%ymm8
   .byte  196,65,124,82,245                   // vrsqrtps      %ymm13,%ymm14
   .byte  196,65,124,83,246                   // vrcpps        %ymm14,%ymm14
@@ -8143,7 +9021,7 @@ _sk_softlight_hsw:
   .byte  197,4,194,255,2                     // vcmpleps      %ymm7,%ymm15,%ymm15
   .byte  196,67,13,74,240,240                // vblendvps     %ymm15,%ymm8,%ymm14,%ymm14
   .byte  197,116,88,249                      // vaddps        %ymm1,%ymm1,%ymm15
-  .byte  196,98,125,24,5,141,53,0,0          // vbroadcastss  0x358d(%rip),%ymm8        # 3ec8 <_sk_callback_hsw+0x183>
+  .byte  196,98,125,24,5,45,60,0,0           // vbroadcastss  0x3c2d(%rip),%ymm8        # 4568 <_sk_callback_hsw+0x183>
   .byte  196,65,60,92,237                    // vsubps        %ymm13,%ymm8,%ymm13
   .byte  197,132,92,195                      // vsubps        %ymm3,%ymm15,%ymm0
   .byte  196,98,125,168,235                  // vfmadd213ps   %ymm3,%ymm0,%ymm13
@@ -8220,6 +9098,368 @@ _sk_softlight_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_hue_hsw
+.globl _sk_hue_hsw
+FUNCTION(_sk_hue_hsw)
+_sk_hue_hsw:
+  .byte  196,65,52,87,201                    // vxorps        %ymm9,%ymm9,%ymm9
+  .byte  196,65,100,194,209,0                // vcmpeqps      %ymm9,%ymm3,%ymm10
+  .byte  196,98,125,24,5,196,58,0,0          // vbroadcastss  0x3ac4(%rip),%ymm8        # 4574 <_sk_callback_hsw+0x18f>
+  .byte  197,60,94,219                       // vdivps        %ymm3,%ymm8,%ymm11
+  .byte  196,67,37,74,209,160                // vblendvps     %ymm10,%ymm9,%ymm11,%ymm10
+  .byte  197,172,89,192                      // vmulps        %ymm0,%ymm10,%ymm0
+  .byte  197,172,89,201                      // vmulps        %ymm1,%ymm10,%ymm1
+  .byte  197,172,89,210                      // vmulps        %ymm2,%ymm10,%ymm2
+  .byte  197,84,95,214                       // vmaxps        %ymm6,%ymm5,%ymm10
+  .byte  196,65,92,95,210                    // vmaxps        %ymm10,%ymm4,%ymm10
+  .byte  197,84,93,222                       // vminps        %ymm6,%ymm5,%ymm11
+  .byte  196,65,92,93,219                    // vminps        %ymm11,%ymm4,%ymm11
+  .byte  196,65,44,92,211                    // vsubps        %ymm11,%ymm10,%ymm10
+  .byte  197,116,93,218                      // vminps        %ymm2,%ymm1,%ymm11
+  .byte  196,65,124,93,227                   // vminps        %ymm11,%ymm0,%ymm12
+  .byte  197,116,95,234                      // vmaxps        %ymm2,%ymm1,%ymm13
+  .byte  196,65,124,95,245                   // vmaxps        %ymm13,%ymm0,%ymm14
+  .byte  196,65,12,92,244                    // vsubps        %ymm12,%ymm14,%ymm14
+  .byte  196,193,124,92,196                  // vsubps        %ymm12,%ymm0,%ymm0
+  .byte  196,65,12,194,225,0                 // vcmpeqps      %ymm9,%ymm14,%ymm12
+  .byte  196,65,44,94,246                    // vdivps        %ymm14,%ymm10,%ymm14
+  .byte  196,67,13,74,225,192                // vblendvps     %ymm12,%ymm9,%ymm14,%ymm12
+  .byte  196,193,124,89,196                  // vmulps        %ymm12,%ymm0,%ymm0
+  .byte  196,65,124,93,219                   // vminps        %ymm11,%ymm0,%ymm11
+  .byte  196,65,124,95,229                   // vmaxps        %ymm13,%ymm0,%ymm12
+  .byte  196,65,28,92,227                    // vsubps        %ymm11,%ymm12,%ymm12
+  .byte  196,193,116,92,203                  // vsubps        %ymm11,%ymm1,%ymm1
+  .byte  196,65,28,194,217,0                 // vcmpeqps      %ymm9,%ymm12,%ymm11
+  .byte  196,65,44,94,228                    // vdivps        %ymm12,%ymm10,%ymm12
+  .byte  196,67,29,74,217,176                // vblendvps     %ymm11,%ymm9,%ymm12,%ymm11
+  .byte  196,193,116,89,203                  // vmulps        %ymm11,%ymm1,%ymm1
+  .byte  197,116,93,218                      // vminps        %ymm2,%ymm1,%ymm11
+  .byte  196,65,124,93,219                   // vminps        %ymm11,%ymm0,%ymm11
+  .byte  197,116,95,226                      // vmaxps        %ymm2,%ymm1,%ymm12
+  .byte  196,65,124,95,228                   // vmaxps        %ymm12,%ymm0,%ymm12
+  .byte  196,65,28,92,227                    // vsubps        %ymm11,%ymm12,%ymm12
+  .byte  196,193,108,92,211                  // vsubps        %ymm11,%ymm2,%ymm2
+  .byte  196,65,28,194,217,0                 // vcmpeqps      %ymm9,%ymm12,%ymm11
+  .byte  196,65,44,94,212                    // vdivps        %ymm12,%ymm10,%ymm10
+  .byte  196,67,45,74,209,176                // vblendvps     %ymm11,%ymm9,%ymm10,%ymm10
+  .byte  196,193,108,89,210                  // vmulps        %ymm10,%ymm2,%ymm2
+  .byte  196,98,125,24,21,4,58,0,0           // vbroadcastss  0x3a04(%rip),%ymm10        # 4578 <_sk_callback_hsw+0x193>
+  .byte  196,98,125,24,29,255,57,0,0         // vbroadcastss  0x39ff(%rip),%ymm11        # 457c <_sk_callback_hsw+0x197>
+  .byte  196,65,84,89,227                    // vmulps        %ymm11,%ymm5,%ymm12
+  .byte  196,66,93,184,226                   // vfmadd231ps   %ymm10,%ymm4,%ymm12
+  .byte  196,98,125,24,45,240,57,0,0         // vbroadcastss  0x39f0(%rip),%ymm13        # 4580 <_sk_callback_hsw+0x19b>
+  .byte  196,66,77,184,229                   // vfmadd231ps   %ymm13,%ymm6,%ymm12
+  .byte  196,65,116,89,243                   // vmulps        %ymm11,%ymm1,%ymm14
+  .byte  196,66,125,184,242                  // vfmadd231ps   %ymm10,%ymm0,%ymm14
+  .byte  196,66,109,184,245                  // vfmadd231ps   %ymm13,%ymm2,%ymm14
+  .byte  196,65,28,92,230                    // vsubps        %ymm14,%ymm12,%ymm12
+  .byte  196,65,124,88,244                   // vaddps        %ymm12,%ymm0,%ymm14
+  .byte  196,65,116,88,252                   // vaddps        %ymm12,%ymm1,%ymm15
+  .byte  196,193,108,88,196                  // vaddps        %ymm12,%ymm2,%ymm0
+  .byte  197,132,93,200                      // vminps        %ymm0,%ymm15,%ymm1
+  .byte  197,140,93,209                      // vminps        %ymm1,%ymm14,%ymm2
+  .byte  197,132,95,200                      // vmaxps        %ymm0,%ymm15,%ymm1
+  .byte  197,12,95,225                       // vmaxps        %ymm1,%ymm14,%ymm12
+  .byte  196,193,4,89,203                    // vmulps        %ymm11,%ymm15,%ymm1
+  .byte  196,194,13,184,202                  // vfmadd231ps   %ymm10,%ymm14,%ymm1
+  .byte  196,194,125,184,205                 // vfmadd231ps   %ymm13,%ymm0,%ymm1
+  .byte  197,52,194,202,2                    // vcmpleps      %ymm2,%ymm9,%ymm9
+  .byte  197,12,92,209                       // vsubps        %ymm1,%ymm14,%ymm10
+  .byte  196,65,116,89,210                   // vmulps        %ymm10,%ymm1,%ymm10
+  .byte  197,244,92,210                      // vsubps        %ymm2,%ymm1,%ymm2
+  .byte  197,44,94,210                       // vdivps        %ymm2,%ymm10,%ymm10
+  .byte  196,65,116,88,210                   // vaddps        %ymm10,%ymm1,%ymm10
+  .byte  196,67,45,74,214,144                // vblendvps     %ymm9,%ymm14,%ymm10,%ymm10
+  .byte  196,65,60,194,196,1                 // vcmpltps      %ymm12,%ymm8,%ymm8
+  .byte  197,44,92,217                       // vsubps        %ymm1,%ymm10,%ymm11
+  .byte  196,65,116,89,219                   // vmulps        %ymm11,%ymm1,%ymm11
+  .byte  197,28,92,225                       // vsubps        %ymm1,%ymm12,%ymm12
+  .byte  196,65,36,94,220                    // vdivps        %ymm12,%ymm11,%ymm11
+  .byte  196,65,116,88,219                   // vaddps        %ymm11,%ymm1,%ymm11
+  .byte  196,67,45,74,211,128                // vblendvps     %ymm8,%ymm11,%ymm10,%ymm10
+  .byte  197,4,92,217                        // vsubps        %ymm1,%ymm15,%ymm11
+  .byte  196,65,116,89,219                   // vmulps        %ymm11,%ymm1,%ymm11
+  .byte  197,36,94,218                       // vdivps        %ymm2,%ymm11,%ymm11
+  .byte  196,65,116,88,219                   // vaddps        %ymm11,%ymm1,%ymm11
+  .byte  196,67,37,74,223,144                // vblendvps     %ymm9,%ymm15,%ymm11,%ymm11
+  .byte  197,36,92,233                       // vsubps        %ymm1,%ymm11,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  196,65,20,94,236                    // vdivps        %ymm12,%ymm13,%ymm13
+  .byte  196,65,116,88,237                   // vaddps        %ymm13,%ymm1,%ymm13
+  .byte  196,67,37,74,221,128                // vblendvps     %ymm8,%ymm13,%ymm11,%ymm11
+  .byte  197,124,92,233                      // vsubps        %ymm1,%ymm0,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  197,148,94,210                      // vdivps        %ymm2,%ymm13,%ymm2
+  .byte  197,244,88,210                      // vaddps        %ymm2,%ymm1,%ymm2
+  .byte  196,227,109,74,192,144              // vblendvps     %ymm9,%ymm0,%ymm2,%ymm0
+  .byte  197,252,92,209                      // vsubps        %ymm1,%ymm0,%ymm2
+  .byte  197,244,89,210                      // vmulps        %ymm2,%ymm1,%ymm2
+  .byte  196,193,108,94,212                  // vdivps        %ymm12,%ymm2,%ymm2
+  .byte  197,244,88,202                      // vaddps        %ymm2,%ymm1,%ymm1
+  .byte  196,227,125,74,209,128              // vblendvps     %ymm8,%ymm1,%ymm0,%ymm2
+  .byte  197,228,88,199                      // vaddps        %ymm7,%ymm3,%ymm0
+  .byte  196,226,69,172,216                  // vfnmadd213ps  %ymm0,%ymm7,%ymm3
+  .byte  196,193,100,89,194                  // vmulps        %ymm10,%ymm3,%ymm0
+  .byte  196,193,100,89,203                  // vmulps        %ymm11,%ymm3,%ymm1
+  .byte  197,228,89,210                      // vmulps        %ymm2,%ymm3,%ymm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  255,224                             // jmpq          *%rax
+
+HIDDEN _sk_saturation_hsw
+.globl _sk_saturation_hsw
+FUNCTION(_sk_saturation_hsw)
+_sk_saturation_hsw:
+  .byte  196,65,52,87,201                    // vxorps        %ymm9,%ymm9,%ymm9
+  .byte  196,65,68,194,209,0                 // vcmpeqps      %ymm9,%ymm7,%ymm10
+  .byte  196,98,125,24,5,219,56,0,0          // vbroadcastss  0x38db(%rip),%ymm8        # 4584 <_sk_callback_hsw+0x19f>
+  .byte  197,60,94,223                       // vdivps        %ymm7,%ymm8,%ymm11
+  .byte  196,67,37,74,209,160                // vblendvps     %ymm10,%ymm9,%ymm11,%ymm10
+  .byte  197,44,89,220                       // vmulps        %ymm4,%ymm10,%ymm11
+  .byte  197,44,89,229                       // vmulps        %ymm5,%ymm10,%ymm12
+  .byte  197,44,89,214                       // vmulps        %ymm6,%ymm10,%ymm10
+  .byte  197,116,95,234                      // vmaxps        %ymm2,%ymm1,%ymm13
+  .byte  196,65,124,95,237                   // vmaxps        %ymm13,%ymm0,%ymm13
+  .byte  197,244,93,202                      // vminps        %ymm2,%ymm1,%ymm1
+  .byte  197,252,93,193                      // vminps        %ymm1,%ymm0,%ymm0
+  .byte  197,148,92,200                      // vsubps        %ymm0,%ymm13,%ymm1
+  .byte  196,193,28,93,210                   // vminps        %ymm10,%ymm12,%ymm2
+  .byte  197,164,93,194                      // vminps        %ymm2,%ymm11,%ymm0
+  .byte  196,65,28,95,234                    // vmaxps        %ymm10,%ymm12,%ymm13
+  .byte  196,65,36,95,245                    // vmaxps        %ymm13,%ymm11,%ymm14
+  .byte  197,12,92,240                       // vsubps        %ymm0,%ymm14,%ymm14
+  .byte  197,164,92,192                      // vsubps        %ymm0,%ymm11,%ymm0
+  .byte  196,65,12,194,217,0                 // vcmpeqps      %ymm9,%ymm14,%ymm11
+  .byte  196,65,116,94,246                   // vdivps        %ymm14,%ymm1,%ymm14
+  .byte  196,67,13,74,217,176                // vblendvps     %ymm11,%ymm9,%ymm14,%ymm11
+  .byte  196,193,124,89,195                  // vmulps        %ymm11,%ymm0,%ymm0
+  .byte  197,252,93,210                      // vminps        %ymm2,%ymm0,%ymm2
+  .byte  196,65,124,95,221                   // vmaxps        %ymm13,%ymm0,%ymm11
+  .byte  197,36,92,218                       // vsubps        %ymm2,%ymm11,%ymm11
+  .byte  197,156,92,210                      // vsubps        %ymm2,%ymm12,%ymm2
+  .byte  196,65,36,194,225,0                 // vcmpeqps      %ymm9,%ymm11,%ymm12
+  .byte  196,65,116,94,219                   // vdivps        %ymm11,%ymm1,%ymm11
+  .byte  196,67,37,74,217,192                // vblendvps     %ymm12,%ymm9,%ymm11,%ymm11
+  .byte  196,193,108,89,211                  // vmulps        %ymm11,%ymm2,%ymm2
+  .byte  196,65,108,93,218                   // vminps        %ymm10,%ymm2,%ymm11
+  .byte  196,65,124,93,219                   // vminps        %ymm11,%ymm0,%ymm11
+  .byte  196,65,108,95,226                   // vmaxps        %ymm10,%ymm2,%ymm12
+  .byte  196,65,124,95,228                   // vmaxps        %ymm12,%ymm0,%ymm12
+  .byte  196,65,28,92,227                    // vsubps        %ymm11,%ymm12,%ymm12
+  .byte  196,65,44,92,211                    // vsubps        %ymm11,%ymm10,%ymm10
+  .byte  196,65,28,194,217,0                 // vcmpeqps      %ymm9,%ymm12,%ymm11
+  .byte  196,193,116,94,204                  // vdivps        %ymm12,%ymm1,%ymm1
+  .byte  196,195,117,74,201,176              // vblendvps     %ymm11,%ymm9,%ymm1,%ymm1
+  .byte  197,172,89,201                      // vmulps        %ymm1,%ymm10,%ymm1
+  .byte  196,98,125,24,21,32,56,0,0          // vbroadcastss  0x3820(%rip),%ymm10        # 4588 <_sk_callback_hsw+0x1a3>
+  .byte  196,98,125,24,29,27,56,0,0          // vbroadcastss  0x381b(%rip),%ymm11        # 458c <_sk_callback_hsw+0x1a7>
+  .byte  196,65,84,89,227                    // vmulps        %ymm11,%ymm5,%ymm12
+  .byte  196,66,93,184,226                   // vfmadd231ps   %ymm10,%ymm4,%ymm12
+  .byte  196,98,125,24,45,12,56,0,0          // vbroadcastss  0x380c(%rip),%ymm13        # 4590 <_sk_callback_hsw+0x1ab>
+  .byte  196,66,77,184,229                   // vfmadd231ps   %ymm13,%ymm6,%ymm12
+  .byte  196,65,108,89,243                   // vmulps        %ymm11,%ymm2,%ymm14
+  .byte  196,66,125,184,242                  // vfmadd231ps   %ymm10,%ymm0,%ymm14
+  .byte  196,66,117,184,245                  // vfmadd231ps   %ymm13,%ymm1,%ymm14
+  .byte  196,65,28,92,230                    // vsubps        %ymm14,%ymm12,%ymm12
+  .byte  196,65,124,88,244                   // vaddps        %ymm12,%ymm0,%ymm14
+  .byte  196,193,108,88,212                  // vaddps        %ymm12,%ymm2,%ymm2
+  .byte  196,193,116,88,196                  // vaddps        %ymm12,%ymm1,%ymm0
+  .byte  197,236,93,200                      // vminps        %ymm0,%ymm2,%ymm1
+  .byte  197,12,93,225                       // vminps        %ymm1,%ymm14,%ymm12
+  .byte  197,236,95,200                      // vmaxps        %ymm0,%ymm2,%ymm1
+  .byte  197,12,95,249                       // vmaxps        %ymm1,%ymm14,%ymm15
+  .byte  196,193,108,89,203                  // vmulps        %ymm11,%ymm2,%ymm1
+  .byte  196,194,13,184,202                  // vfmadd231ps   %ymm10,%ymm14,%ymm1
+  .byte  196,194,125,184,205                 // vfmadd231ps   %ymm13,%ymm0,%ymm1
+  .byte  196,65,52,194,204,2                 // vcmpleps      %ymm12,%ymm9,%ymm9
+  .byte  197,12,92,209                       // vsubps        %ymm1,%ymm14,%ymm10
+  .byte  196,65,116,89,210                   // vmulps        %ymm10,%ymm1,%ymm10
+  .byte  196,65,116,92,220                   // vsubps        %ymm12,%ymm1,%ymm11
+  .byte  196,65,44,94,211                    // vdivps        %ymm11,%ymm10,%ymm10
+  .byte  196,65,116,88,210                   // vaddps        %ymm10,%ymm1,%ymm10
+  .byte  196,67,45,74,214,144                // vblendvps     %ymm9,%ymm14,%ymm10,%ymm10
+  .byte  196,65,60,194,199,1                 // vcmpltps      %ymm15,%ymm8,%ymm8
+  .byte  197,44,92,225                       // vsubps        %ymm1,%ymm10,%ymm12
+  .byte  196,65,116,89,228                   // vmulps        %ymm12,%ymm1,%ymm12
+  .byte  197,4,92,233                        // vsubps        %ymm1,%ymm15,%ymm13
+  .byte  196,65,28,94,229                    // vdivps        %ymm13,%ymm12,%ymm12
+  .byte  196,65,116,88,228                   // vaddps        %ymm12,%ymm1,%ymm12
+  .byte  196,67,45,74,212,128                // vblendvps     %ymm8,%ymm12,%ymm10,%ymm10
+  .byte  197,108,92,225                      // vsubps        %ymm1,%ymm2,%ymm12
+  .byte  196,65,116,89,228                   // vmulps        %ymm12,%ymm1,%ymm12
+  .byte  196,65,28,94,227                    // vdivps        %ymm11,%ymm12,%ymm12
+  .byte  196,65,116,88,228                   // vaddps        %ymm12,%ymm1,%ymm12
+  .byte  196,227,29,74,210,144               // vblendvps     %ymm9,%ymm2,%ymm12,%ymm2
+  .byte  197,108,92,225                      // vsubps        %ymm1,%ymm2,%ymm12
+  .byte  196,65,116,89,228                   // vmulps        %ymm12,%ymm1,%ymm12
+  .byte  196,65,28,94,229                    // vdivps        %ymm13,%ymm12,%ymm12
+  .byte  196,65,116,88,228                   // vaddps        %ymm12,%ymm1,%ymm12
+  .byte  196,195,109,74,212,128              // vblendvps     %ymm8,%ymm12,%ymm2,%ymm2
+  .byte  197,124,92,225                      // vsubps        %ymm1,%ymm0,%ymm12
+  .byte  196,65,116,89,228                   // vmulps        %ymm12,%ymm1,%ymm12
+  .byte  196,65,28,94,219                    // vdivps        %ymm11,%ymm12,%ymm11
+  .byte  196,65,116,88,219                   // vaddps        %ymm11,%ymm1,%ymm11
+  .byte  196,227,37,74,192,144               // vblendvps     %ymm9,%ymm0,%ymm11,%ymm0
+  .byte  197,124,92,201                      // vsubps        %ymm1,%ymm0,%ymm9
+  .byte  196,65,116,89,201                   // vmulps        %ymm9,%ymm1,%ymm9
+  .byte  196,65,52,94,205                    // vdivps        %ymm13,%ymm9,%ymm9
+  .byte  196,193,116,88,201                  // vaddps        %ymm9,%ymm1,%ymm1
+  .byte  196,99,125,74,193,128               // vblendvps     %ymm8,%ymm1,%ymm0,%ymm8
+  .byte  197,228,88,199                      // vaddps        %ymm7,%ymm3,%ymm0
+  .byte  196,226,69,172,216                  // vfnmadd213ps  %ymm0,%ymm7,%ymm3
+  .byte  196,193,100,89,194                  // vmulps        %ymm10,%ymm3,%ymm0
+  .byte  197,228,89,202                      // vmulps        %ymm2,%ymm3,%ymm1
+  .byte  196,193,100,89,208                  // vmulps        %ymm8,%ymm3,%ymm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  255,224                             // jmpq          *%rax
+
+HIDDEN _sk_color_hsw
+.globl _sk_color_hsw
+FUNCTION(_sk_color_hsw)
+_sk_color_hsw:
+  .byte  196,65,52,87,201                    // vxorps        %ymm9,%ymm9,%ymm9
+  .byte  196,65,100,194,209,0                // vcmpeqps      %ymm9,%ymm3,%ymm10
+  .byte  196,98,125,24,5,239,54,0,0          // vbroadcastss  0x36ef(%rip),%ymm8        # 4594 <_sk_callback_hsw+0x1af>
+  .byte  197,60,94,219                       // vdivps        %ymm3,%ymm8,%ymm11
+  .byte  196,67,37,74,209,160                // vblendvps     %ymm10,%ymm9,%ymm11,%ymm10
+  .byte  197,172,89,192                      // vmulps        %ymm0,%ymm10,%ymm0
+  .byte  197,172,89,201                      // vmulps        %ymm1,%ymm10,%ymm1
+  .byte  197,172,89,210                      // vmulps        %ymm2,%ymm10,%ymm2
+  .byte  196,98,125,24,21,212,54,0,0         // vbroadcastss  0x36d4(%rip),%ymm10        # 4598 <_sk_callback_hsw+0x1b3>
+  .byte  196,98,125,24,29,207,54,0,0         // vbroadcastss  0x36cf(%rip),%ymm11        # 459c <_sk_callback_hsw+0x1b7>
+  .byte  196,65,84,89,227                    // vmulps        %ymm11,%ymm5,%ymm12
+  .byte  196,66,93,184,226                   // vfmadd231ps   %ymm10,%ymm4,%ymm12
+  .byte  196,98,125,24,45,192,54,0,0         // vbroadcastss  0x36c0(%rip),%ymm13        # 45a0 <_sk_callback_hsw+0x1bb>
+  .byte  196,66,77,184,229                   // vfmadd231ps   %ymm13,%ymm6,%ymm12
+  .byte  196,65,116,89,243                   // vmulps        %ymm11,%ymm1,%ymm14
+  .byte  196,66,125,184,242                  // vfmadd231ps   %ymm10,%ymm0,%ymm14
+  .byte  196,66,109,184,245                  // vfmadd231ps   %ymm13,%ymm2,%ymm14
+  .byte  196,65,28,92,230                    // vsubps        %ymm14,%ymm12,%ymm12
+  .byte  196,65,124,88,244                   // vaddps        %ymm12,%ymm0,%ymm14
+  .byte  196,65,116,88,252                   // vaddps        %ymm12,%ymm1,%ymm15
+  .byte  196,193,108,88,196                  // vaddps        %ymm12,%ymm2,%ymm0
+  .byte  197,132,93,200                      // vminps        %ymm0,%ymm15,%ymm1
+  .byte  197,140,93,209                      // vminps        %ymm1,%ymm14,%ymm2
+  .byte  197,132,95,200                      // vmaxps        %ymm0,%ymm15,%ymm1
+  .byte  197,12,95,225                       // vmaxps        %ymm1,%ymm14,%ymm12
+  .byte  196,193,4,89,203                    // vmulps        %ymm11,%ymm15,%ymm1
+  .byte  196,194,13,184,202                  // vfmadd231ps   %ymm10,%ymm14,%ymm1
+  .byte  196,194,125,184,205                 // vfmadd231ps   %ymm13,%ymm0,%ymm1
+  .byte  197,52,194,202,2                    // vcmpleps      %ymm2,%ymm9,%ymm9
+  .byte  197,12,92,209                       // vsubps        %ymm1,%ymm14,%ymm10
+  .byte  196,65,116,89,210                   // vmulps        %ymm10,%ymm1,%ymm10
+  .byte  197,244,92,210                      // vsubps        %ymm2,%ymm1,%ymm2
+  .byte  197,44,94,210                       // vdivps        %ymm2,%ymm10,%ymm10
+  .byte  196,65,116,88,210                   // vaddps        %ymm10,%ymm1,%ymm10
+  .byte  196,67,45,74,214,144                // vblendvps     %ymm9,%ymm14,%ymm10,%ymm10
+  .byte  196,65,60,194,196,1                 // vcmpltps      %ymm12,%ymm8,%ymm8
+  .byte  197,44,92,217                       // vsubps        %ymm1,%ymm10,%ymm11
+  .byte  196,65,116,89,219                   // vmulps        %ymm11,%ymm1,%ymm11
+  .byte  197,28,92,225                       // vsubps        %ymm1,%ymm12,%ymm12
+  .byte  196,65,36,94,220                    // vdivps        %ymm12,%ymm11,%ymm11
+  .byte  196,65,116,88,219                   // vaddps        %ymm11,%ymm1,%ymm11
+  .byte  196,67,45,74,211,128                // vblendvps     %ymm8,%ymm11,%ymm10,%ymm10
+  .byte  197,4,92,217                        // vsubps        %ymm1,%ymm15,%ymm11
+  .byte  196,65,116,89,219                   // vmulps        %ymm11,%ymm1,%ymm11
+  .byte  197,36,94,218                       // vdivps        %ymm2,%ymm11,%ymm11
+  .byte  196,65,116,88,219                   // vaddps        %ymm11,%ymm1,%ymm11
+  .byte  196,67,37,74,223,144                // vblendvps     %ymm9,%ymm15,%ymm11,%ymm11
+  .byte  197,36,92,233                       // vsubps        %ymm1,%ymm11,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  196,65,20,94,236                    // vdivps        %ymm12,%ymm13,%ymm13
+  .byte  196,65,116,88,237                   // vaddps        %ymm13,%ymm1,%ymm13
+  .byte  196,67,37,74,221,128                // vblendvps     %ymm8,%ymm13,%ymm11,%ymm11
+  .byte  197,124,92,233                      // vsubps        %ymm1,%ymm0,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  197,148,94,210                      // vdivps        %ymm2,%ymm13,%ymm2
+  .byte  197,244,88,210                      // vaddps        %ymm2,%ymm1,%ymm2
+  .byte  196,227,109,74,192,144              // vblendvps     %ymm9,%ymm0,%ymm2,%ymm0
+  .byte  197,252,92,209                      // vsubps        %ymm1,%ymm0,%ymm2
+  .byte  197,244,89,210                      // vmulps        %ymm2,%ymm1,%ymm2
+  .byte  196,193,108,94,212                  // vdivps        %ymm12,%ymm2,%ymm2
+  .byte  197,244,88,202                      // vaddps        %ymm2,%ymm1,%ymm1
+  .byte  196,227,125,74,209,128              // vblendvps     %ymm8,%ymm1,%ymm0,%ymm2
+  .byte  197,228,88,199                      // vaddps        %ymm7,%ymm3,%ymm0
+  .byte  196,226,69,172,216                  // vfnmadd213ps  %ymm0,%ymm7,%ymm3
+  .byte  196,193,100,89,194                  // vmulps        %ymm10,%ymm3,%ymm0
+  .byte  196,193,100,89,203                  // vmulps        %ymm11,%ymm3,%ymm1
+  .byte  197,228,89,210                      // vmulps        %ymm2,%ymm3,%ymm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  255,224                             // jmpq          *%rax
+
+HIDDEN _sk_luminosity_hsw
+.globl _sk_luminosity_hsw
+FUNCTION(_sk_luminosity_hsw)
+_sk_luminosity_hsw:
+  .byte  196,65,52,87,201                    // vxorps        %ymm9,%ymm9,%ymm9
+  .byte  196,65,68,194,209,0                 // vcmpeqps      %ymm9,%ymm7,%ymm10
+  .byte  196,98,125,24,5,171,53,0,0          // vbroadcastss  0x35ab(%rip),%ymm8        # 45a4 <_sk_callback_hsw+0x1bf>
+  .byte  197,60,94,223                       // vdivps        %ymm7,%ymm8,%ymm11
+  .byte  196,67,37,74,209,160                // vblendvps     %ymm10,%ymm9,%ymm11,%ymm10
+  .byte  197,44,89,220                       // vmulps        %ymm4,%ymm10,%ymm11
+  .byte  197,44,89,229                       // vmulps        %ymm5,%ymm10,%ymm12
+  .byte  197,44,89,214                       // vmulps        %ymm6,%ymm10,%ymm10
+  .byte  196,98,125,24,45,144,53,0,0         // vbroadcastss  0x3590(%rip),%ymm13        # 45a8 <_sk_callback_hsw+0x1c3>
+  .byte  196,98,125,24,53,139,53,0,0         // vbroadcastss  0x358b(%rip),%ymm14        # 45ac <_sk_callback_hsw+0x1c7>
+  .byte  196,193,116,89,206                  // vmulps        %ymm14,%ymm1,%ymm1
+  .byte  196,226,21,168,193                  // vfmadd213ps   %ymm1,%ymm13,%ymm0
+  .byte  196,98,125,24,61,124,53,0,0         // vbroadcastss  0x357c(%rip),%ymm15        # 45b0 <_sk_callback_hsw+0x1cb>
+  .byte  196,226,5,168,208                   // vfmadd213ps   %ymm0,%ymm15,%ymm2
+  .byte  196,193,28,89,198                   // vmulps        %ymm14,%ymm12,%ymm0
+  .byte  196,194,37,184,197                  // vfmadd231ps   %ymm13,%ymm11,%ymm0
+  .byte  196,194,45,184,199                  // vfmadd231ps   %ymm15,%ymm10,%ymm0
+  .byte  197,236,92,192                      // vsubps        %ymm0,%ymm2,%ymm0
+  .byte  197,164,88,208                      // vaddps        %ymm0,%ymm11,%ymm2
+  .byte  197,28,88,216                       // vaddps        %ymm0,%ymm12,%ymm11
+  .byte  197,172,88,192                      // vaddps        %ymm0,%ymm10,%ymm0
+  .byte  197,164,93,200                      // vminps        %ymm0,%ymm11,%ymm1
+  .byte  197,108,93,209                      // vminps        %ymm1,%ymm2,%ymm10
+  .byte  197,164,95,200                      // vmaxps        %ymm0,%ymm11,%ymm1
+  .byte  197,108,95,225                      // vmaxps        %ymm1,%ymm2,%ymm12
+  .byte  196,193,36,89,206                   // vmulps        %ymm14,%ymm11,%ymm1
+  .byte  196,194,109,184,205                 // vfmadd231ps   %ymm13,%ymm2,%ymm1
+  .byte  196,194,125,184,207                 // vfmadd231ps   %ymm15,%ymm0,%ymm1
+  .byte  196,65,52,194,202,2                 // vcmpleps      %ymm10,%ymm9,%ymm9
+  .byte  197,108,92,233                      // vsubps        %ymm1,%ymm2,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  196,65,116,92,210                   // vsubps        %ymm10,%ymm1,%ymm10
+  .byte  196,65,20,94,234                    // vdivps        %ymm10,%ymm13,%ymm13
+  .byte  196,65,116,88,237                   // vaddps        %ymm13,%ymm1,%ymm13
+  .byte  196,227,21,74,210,144               // vblendvps     %ymm9,%ymm2,%ymm13,%ymm2
+  .byte  196,65,60,194,196,1                 // vcmpltps      %ymm12,%ymm8,%ymm8
+  .byte  197,108,92,233                      // vsubps        %ymm1,%ymm2,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  197,28,92,225                       // vsubps        %ymm1,%ymm12,%ymm12
+  .byte  196,65,20,94,236                    // vdivps        %ymm12,%ymm13,%ymm13
+  .byte  196,65,116,88,237                   // vaddps        %ymm13,%ymm1,%ymm13
+  .byte  196,195,109,74,213,128              // vblendvps     %ymm8,%ymm13,%ymm2,%ymm2
+  .byte  197,36,92,233                       // vsubps        %ymm1,%ymm11,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  196,65,20,94,234                    // vdivps        %ymm10,%ymm13,%ymm13
+  .byte  196,65,116,88,237                   // vaddps        %ymm13,%ymm1,%ymm13
+  .byte  196,67,21,74,219,144                // vblendvps     %ymm9,%ymm11,%ymm13,%ymm11
+  .byte  197,36,92,233                       // vsubps        %ymm1,%ymm11,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  196,65,20,94,236                    // vdivps        %ymm12,%ymm13,%ymm13
+  .byte  196,65,116,88,237                   // vaddps        %ymm13,%ymm1,%ymm13
+  .byte  196,67,37,74,221,128                // vblendvps     %ymm8,%ymm13,%ymm11,%ymm11
+  .byte  197,124,92,233                      // vsubps        %ymm1,%ymm0,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  196,65,20,94,210                    // vdivps        %ymm10,%ymm13,%ymm10
+  .byte  196,65,116,88,210                   // vaddps        %ymm10,%ymm1,%ymm10
+  .byte  196,227,45,74,192,144               // vblendvps     %ymm9,%ymm0,%ymm10,%ymm0
+  .byte  197,124,92,201                      // vsubps        %ymm1,%ymm0,%ymm9
+  .byte  196,65,116,89,201                   // vmulps        %ymm9,%ymm1,%ymm9
+  .byte  196,65,52,94,204                    // vdivps        %ymm12,%ymm9,%ymm9
+  .byte  196,193,116,88,201                  // vaddps        %ymm9,%ymm1,%ymm1
+  .byte  196,99,125,74,193,128               // vblendvps     %ymm8,%ymm1,%ymm0,%ymm8
+  .byte  197,228,88,199                      // vaddps        %ymm7,%ymm3,%ymm0
+  .byte  196,226,69,172,216                  // vfnmadd213ps  %ymm0,%ymm7,%ymm3
+  .byte  197,228,89,194                      // vmulps        %ymm2,%ymm3,%ymm0
+  .byte  196,193,100,89,203                  // vmulps        %ymm11,%ymm3,%ymm1
+  .byte  196,193,100,89,208                  // vmulps        %ymm8,%ymm3,%ymm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  255,224                             // jmpq          *%rax
+
 HIDDEN _sk_clamp_0_hsw
 .globl _sk_clamp_0_hsw
 FUNCTION(_sk_clamp_0_hsw)
@@ -8236,7 +9476,7 @@ HIDDEN _sk_clamp_1_hsw
 .globl _sk_clamp_1_hsw
 FUNCTION(_sk_clamp_1_hsw)
 _sk_clamp_1_hsw:
-  .byte  196,98,125,24,5,18,52,0,0           // vbroadcastss  0x3412(%rip),%ymm8        # 3ed4 <_sk_callback_hsw+0x18f>
+  .byte  196,98,125,24,5,81,52,0,0           // vbroadcastss  0x3451(%rip),%ymm8        # 45b4 <_sk_callback_hsw+0x1cf>
   .byte  196,193,124,93,192                  // vminps        %ymm8,%ymm0,%ymm0
   .byte  196,193,116,93,200                  // vminps        %ymm8,%ymm1,%ymm1
   .byte  196,193,108,93,208                  // vminps        %ymm8,%ymm2,%ymm2
@@ -8248,7 +9488,7 @@ HIDDEN _sk_clamp_a_hsw
 .globl _sk_clamp_a_hsw
 FUNCTION(_sk_clamp_a_hsw)
 _sk_clamp_a_hsw:
-  .byte  196,98,125,24,5,245,51,0,0          // vbroadcastss  0x33f5(%rip),%ymm8        # 3ed8 <_sk_callback_hsw+0x193>
+  .byte  196,98,125,24,5,52,52,0,0           // vbroadcastss  0x3434(%rip),%ymm8        # 45b8 <_sk_callback_hsw+0x1d3>
   .byte  196,193,100,93,216                  // vminps        %ymm8,%ymm3,%ymm3
   .byte  197,252,93,195                      // vminps        %ymm3,%ymm0,%ymm0
   .byte  197,244,93,203                      // vminps        %ymm3,%ymm1,%ymm1
@@ -8334,7 +9574,7 @@ FUNCTION(_sk_unpremul_hsw)
 _sk_unpremul_hsw:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,65,100,194,200,0                // vcmpeqps      %ymm8,%ymm3,%ymm9
-  .byte  196,98,125,24,21,61,51,0,0          // vbroadcastss  0x333d(%rip),%ymm10        # 3edc <_sk_callback_hsw+0x197>
+  .byte  196,98,125,24,21,124,51,0,0         // vbroadcastss  0x337c(%rip),%ymm10        # 45bc <_sk_callback_hsw+0x1d7>
   .byte  197,44,94,211                       // vdivps        %ymm3,%ymm10,%ymm10
   .byte  196,67,45,74,192,144                // vblendvps     %ymm9,%ymm8,%ymm10,%ymm8
   .byte  197,188,89,192                      // vmulps        %ymm0,%ymm8,%ymm0
@@ -8347,16 +9587,16 @@ HIDDEN _sk_from_srgb_hsw
 .globl _sk_from_srgb_hsw
 FUNCTION(_sk_from_srgb_hsw)
 _sk_from_srgb_hsw:
-  .byte  196,98,125,24,5,30,51,0,0           // vbroadcastss  0x331e(%rip),%ymm8        # 3ee0 <_sk_callback_hsw+0x19b>
+  .byte  196,98,125,24,5,93,51,0,0           // vbroadcastss  0x335d(%rip),%ymm8        # 45c0 <_sk_callback_hsw+0x1db>
   .byte  196,65,124,89,200                   // vmulps        %ymm8,%ymm0,%ymm9
   .byte  197,124,89,208                      // vmulps        %ymm0,%ymm0,%ymm10
-  .byte  196,98,125,24,29,16,51,0,0          // vbroadcastss  0x3310(%rip),%ymm11        # 3ee4 <_sk_callback_hsw+0x19f>
-  .byte  196,98,125,24,37,11,51,0,0          // vbroadcastss  0x330b(%rip),%ymm12        # 3ee8 <_sk_callback_hsw+0x1a3>
+  .byte  196,98,125,24,29,79,51,0,0          // vbroadcastss  0x334f(%rip),%ymm11        # 45c4 <_sk_callback_hsw+0x1df>
+  .byte  196,98,125,24,37,74,51,0,0          // vbroadcastss  0x334a(%rip),%ymm12        # 45c8 <_sk_callback_hsw+0x1e3>
   .byte  196,65,124,40,236                   // vmovaps       %ymm12,%ymm13
   .byte  196,66,125,168,235                  // vfmadd213ps   %ymm11,%ymm0,%ymm13
-  .byte  196,98,125,24,53,252,50,0,0         // vbroadcastss  0x32fc(%rip),%ymm14        # 3eec <_sk_callback_hsw+0x1a7>
+  .byte  196,98,125,24,53,59,51,0,0          // vbroadcastss  0x333b(%rip),%ymm14        # 45cc <_sk_callback_hsw+0x1e7>
   .byte  196,66,45,168,238                   // vfmadd213ps   %ymm14,%ymm10,%ymm13
-  .byte  196,98,125,24,21,242,50,0,0         // vbroadcastss  0x32f2(%rip),%ymm10        # 3ef0 <_sk_callback_hsw+0x1ab>
+  .byte  196,98,125,24,21,49,51,0,0          // vbroadcastss  0x3331(%rip),%ymm10        # 45d0 <_sk_callback_hsw+0x1eb>
   .byte  196,193,124,194,194,1               // vcmpltps      %ymm10,%ymm0,%ymm0
   .byte  196,195,21,74,193,0                 // vblendvps     %ymm0,%ymm9,%ymm13,%ymm0
   .byte  196,65,116,89,200                   // vmulps        %ymm8,%ymm1,%ymm9
@@ -8382,16 +9622,16 @@ _sk_to_srgb_hsw:
   .byte  197,124,82,192                      // vrsqrtps      %ymm0,%ymm8
   .byte  196,65,124,83,200                   // vrcpps        %ymm8,%ymm9
   .byte  196,65,124,82,208                   // vrsqrtps      %ymm8,%ymm10
-  .byte  196,98,125,24,5,140,50,0,0          // vbroadcastss  0x328c(%rip),%ymm8        # 3ef4 <_sk_callback_hsw+0x1af>
+  .byte  196,98,125,24,5,203,50,0,0          // vbroadcastss  0x32cb(%rip),%ymm8        # 45d4 <_sk_callback_hsw+0x1ef>
   .byte  196,65,124,89,216                   // vmulps        %ymm8,%ymm0,%ymm11
-  .byte  196,98,125,24,37,130,50,0,0         // vbroadcastss  0x3282(%rip),%ymm12        # 3ef8 <_sk_callback_hsw+0x1b3>
-  .byte  196,98,125,24,45,125,50,0,0         // vbroadcastss  0x327d(%rip),%ymm13        # 3efc <_sk_callback_hsw+0x1b7>
+  .byte  196,98,125,24,37,193,50,0,0         // vbroadcastss  0x32c1(%rip),%ymm12        # 45d8 <_sk_callback_hsw+0x1f3>
+  .byte  196,98,125,24,45,188,50,0,0         // vbroadcastss  0x32bc(%rip),%ymm13        # 45dc <_sk_callback_hsw+0x1f7>
   .byte  196,66,21,168,204                   // vfmadd213ps   %ymm12,%ymm13,%ymm9
-  .byte  196,98,125,24,53,115,50,0,0         // vbroadcastss  0x3273(%rip),%ymm14        # 3f00 <_sk_callback_hsw+0x1bb>
+  .byte  196,98,125,24,53,178,50,0,0         // vbroadcastss  0x32b2(%rip),%ymm14        # 45e0 <_sk_callback_hsw+0x1fb>
   .byte  196,66,13,184,202                   // vfmadd231ps   %ymm10,%ymm14,%ymm9
-  .byte  196,98,125,24,21,105,50,0,0         // vbroadcastss  0x3269(%rip),%ymm10        # 3f04 <_sk_callback_hsw+0x1bf>
+  .byte  196,98,125,24,21,168,50,0,0         // vbroadcastss  0x32a8(%rip),%ymm10        # 45e4 <_sk_callback_hsw+0x1ff>
   .byte  196,65,44,93,201                    // vminps        %ymm9,%ymm10,%ymm9
-  .byte  196,98,125,24,61,95,50,0,0          // vbroadcastss  0x325f(%rip),%ymm15        # 3f08 <_sk_callback_hsw+0x1c3>
+  .byte  196,98,125,24,61,158,50,0,0         // vbroadcastss  0x329e(%rip),%ymm15        # 45e8 <_sk_callback_hsw+0x203>
   .byte  196,193,124,194,199,1               // vcmpltps      %ymm15,%ymm0,%ymm0
   .byte  196,195,53,74,195,0                 // vblendvps     %ymm0,%ymm11,%ymm9,%ymm0
   .byte  197,124,82,201                      // vrsqrtps      %ymm1,%ymm9
@@ -8424,26 +9664,26 @@ _sk_rgb_to_hsl_hsw:
   .byte  197,124,93,201                      // vminps        %ymm1,%ymm0,%ymm9
   .byte  197,52,93,202                       // vminps        %ymm2,%ymm9,%ymm9
   .byte  196,65,60,92,209                    // vsubps        %ymm9,%ymm8,%ymm10
-  .byte  196,98,125,24,29,217,49,0,0         // vbroadcastss  0x31d9(%rip),%ymm11        # 3f0c <_sk_callback_hsw+0x1c7>
+  .byte  196,98,125,24,29,24,50,0,0          // vbroadcastss  0x3218(%rip),%ymm11        # 45ec <_sk_callback_hsw+0x207>
   .byte  196,65,36,94,218                    // vdivps        %ymm10,%ymm11,%ymm11
   .byte  197,116,92,226                      // vsubps        %ymm2,%ymm1,%ymm12
   .byte  197,116,194,234,1                   // vcmpltps      %ymm2,%ymm1,%ymm13
-  .byte  196,98,125,24,53,198,49,0,0         // vbroadcastss  0x31c6(%rip),%ymm14        # 3f10 <_sk_callback_hsw+0x1cb>
+  .byte  196,98,125,24,53,5,50,0,0           // vbroadcastss  0x3205(%rip),%ymm14        # 45f0 <_sk_callback_hsw+0x20b>
   .byte  196,65,4,87,255                     // vxorps        %ymm15,%ymm15,%ymm15
   .byte  196,67,5,74,238,208                 // vblendvps     %ymm13,%ymm14,%ymm15,%ymm13
   .byte  196,66,37,168,229                   // vfmadd213ps   %ymm13,%ymm11,%ymm12
   .byte  197,236,92,208                      // vsubps        %ymm0,%ymm2,%ymm2
   .byte  197,124,92,233                      // vsubps        %ymm1,%ymm0,%ymm13
-  .byte  196,98,125,24,53,173,49,0,0         // vbroadcastss  0x31ad(%rip),%ymm14        # 3f18 <_sk_callback_hsw+0x1d3>
+  .byte  196,98,125,24,53,236,49,0,0         // vbroadcastss  0x31ec(%rip),%ymm14        # 45f8 <_sk_callback_hsw+0x213>
   .byte  196,66,37,168,238                   // vfmadd213ps   %ymm14,%ymm11,%ymm13
-  .byte  196,98,125,24,53,155,49,0,0         // vbroadcastss  0x319b(%rip),%ymm14        # 3f14 <_sk_callback_hsw+0x1cf>
+  .byte  196,98,125,24,53,218,49,0,0         // vbroadcastss  0x31da(%rip),%ymm14        # 45f4 <_sk_callback_hsw+0x20f>
   .byte  196,194,37,168,214                  // vfmadd213ps   %ymm14,%ymm11,%ymm2
   .byte  197,188,194,201,0                   // vcmpeqps      %ymm1,%ymm8,%ymm1
   .byte  196,227,21,74,202,16                // vblendvps     %ymm1,%ymm2,%ymm13,%ymm1
   .byte  197,188,194,192,0                   // vcmpeqps      %ymm0,%ymm8,%ymm0
   .byte  196,195,117,74,196,0                // vblendvps     %ymm0,%ymm12,%ymm1,%ymm0
   .byte  196,193,60,88,201                   // vaddps        %ymm9,%ymm8,%ymm1
-  .byte  196,98,125,24,29,126,49,0,0         // vbroadcastss  0x317e(%rip),%ymm11        # 3f20 <_sk_callback_hsw+0x1db>
+  .byte  196,98,125,24,29,189,49,0,0         // vbroadcastss  0x31bd(%rip),%ymm11        # 4600 <_sk_callback_hsw+0x21b>
   .byte  196,193,116,89,211                  // vmulps        %ymm11,%ymm1,%ymm2
   .byte  197,36,194,218,1                    // vcmpltps      %ymm2,%ymm11,%ymm11
   .byte  196,65,12,92,224                    // vsubps        %ymm8,%ymm14,%ymm12
@@ -8453,7 +9693,7 @@ _sk_rgb_to_hsl_hsw:
   .byte  197,172,94,201                      // vdivps        %ymm1,%ymm10,%ymm1
   .byte  196,195,125,74,199,128              // vblendvps     %ymm8,%ymm15,%ymm0,%ymm0
   .byte  196,195,117,74,207,128              // vblendvps     %ymm8,%ymm15,%ymm1,%ymm1
-  .byte  196,98,125,24,5,65,49,0,0           // vbroadcastss  0x3141(%rip),%ymm8        # 3f1c <_sk_callback_hsw+0x1d7>
+  .byte  196,98,125,24,5,128,49,0,0          // vbroadcastss  0x3180(%rip),%ymm8        # 45fc <_sk_callback_hsw+0x217>
   .byte  196,193,124,89,192                  // vmulps        %ymm8,%ymm0,%ymm0
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -8470,30 +9710,30 @@ _sk_hsl_to_rgb_hsw:
   .byte  197,252,17,92,36,128                // vmovups       %ymm3,-0x80(%rsp)
   .byte  197,252,40,233                      // vmovaps       %ymm1,%ymm5
   .byte  197,252,40,224                      // vmovaps       %ymm0,%ymm4
-  .byte  196,98,125,24,5,14,49,0,0           // vbroadcastss  0x310e(%rip),%ymm8        # 3f24 <_sk_callback_hsw+0x1df>
+  .byte  196,98,125,24,5,77,49,0,0           // vbroadcastss  0x314d(%rip),%ymm8        # 4604 <_sk_callback_hsw+0x21f>
   .byte  197,60,194,202,2                    // vcmpleps      %ymm2,%ymm8,%ymm9
   .byte  197,84,89,210                       // vmulps        %ymm2,%ymm5,%ymm10
   .byte  196,65,84,92,218                    // vsubps        %ymm10,%ymm5,%ymm11
   .byte  196,67,45,74,203,144                // vblendvps     %ymm9,%ymm11,%ymm10,%ymm9
   .byte  197,52,88,210                       // vaddps        %ymm2,%ymm9,%ymm10
-  .byte  196,98,125,24,13,241,48,0,0         // vbroadcastss  0x30f1(%rip),%ymm9        # 3f28 <_sk_callback_hsw+0x1e3>
+  .byte  196,98,125,24,13,48,49,0,0          // vbroadcastss  0x3130(%rip),%ymm9        # 4608 <_sk_callback_hsw+0x223>
   .byte  196,66,109,170,202                  // vfmsub213ps   %ymm10,%ymm2,%ymm9
-  .byte  196,98,125,24,29,231,48,0,0         // vbroadcastss  0x30e7(%rip),%ymm11        # 3f2c <_sk_callback_hsw+0x1e7>
+  .byte  196,98,125,24,29,38,49,0,0          // vbroadcastss  0x3126(%rip),%ymm11        # 460c <_sk_callback_hsw+0x227>
   .byte  196,65,92,88,219                    // vaddps        %ymm11,%ymm4,%ymm11
   .byte  196,67,125,8,227,1                  // vroundps      $0x1,%ymm11,%ymm12
   .byte  196,65,36,92,252                    // vsubps        %ymm12,%ymm11,%ymm15
   .byte  196,65,44,92,217                    // vsubps        %ymm9,%ymm10,%ymm11
-  .byte  196,98,125,24,45,209,48,0,0         // vbroadcastss  0x30d1(%rip),%ymm13        # 3f34 <_sk_callback_hsw+0x1ef>
+  .byte  196,98,125,24,45,16,49,0,0          // vbroadcastss  0x3110(%rip),%ymm13        # 4614 <_sk_callback_hsw+0x22f>
   .byte  196,193,4,89,197                    // vmulps        %ymm13,%ymm15,%ymm0
-  .byte  196,98,125,24,53,199,48,0,0         // vbroadcastss  0x30c7(%rip),%ymm14        # 3f38 <_sk_callback_hsw+0x1f3>
+  .byte  196,98,125,24,53,6,49,0,0           // vbroadcastss  0x3106(%rip),%ymm14        # 4618 <_sk_callback_hsw+0x233>
   .byte  197,12,92,224                       // vsubps        %ymm0,%ymm14,%ymm12
   .byte  196,66,37,168,225                   // vfmadd213ps   %ymm9,%ymm11,%ymm12
-  .byte  196,226,125,24,29,173,48,0,0        // vbroadcastss  0x30ad(%rip),%ymm3        # 3f30 <_sk_callback_hsw+0x1eb>
+  .byte  196,226,125,24,29,236,48,0,0        // vbroadcastss  0x30ec(%rip),%ymm3        # 4610 <_sk_callback_hsw+0x22b>
   .byte  196,193,100,194,255,2               // vcmpleps      %ymm15,%ymm3,%ymm7
   .byte  196,195,29,74,249,112               // vblendvps     %ymm7,%ymm9,%ymm12,%ymm7
   .byte  196,65,60,194,231,2                 // vcmpleps      %ymm15,%ymm8,%ymm12
   .byte  196,227,45,74,255,192               // vblendvps     %ymm12,%ymm7,%ymm10,%ymm7
-  .byte  196,98,125,24,37,152,48,0,0         // vbroadcastss  0x3098(%rip),%ymm12        # 3f3c <_sk_callback_hsw+0x1f7>
+  .byte  196,98,125,24,37,215,48,0,0         // vbroadcastss  0x30d7(%rip),%ymm12        # 461c <_sk_callback_hsw+0x237>
   .byte  196,65,28,194,255,2                 // vcmpleps      %ymm15,%ymm12,%ymm15
   .byte  196,194,37,168,193                  // vfmadd213ps   %ymm9,%ymm11,%ymm0
   .byte  196,99,125,74,255,240               // vblendvps     %ymm15,%ymm7,%ymm0,%ymm15
@@ -8509,7 +9749,7 @@ _sk_hsl_to_rgb_hsw:
   .byte  197,156,194,192,2                   // vcmpleps      %ymm0,%ymm12,%ymm0
   .byte  196,194,37,168,249                  // vfmadd213ps   %ymm9,%ymm11,%ymm7
   .byte  196,227,69,74,201,0                 // vblendvps     %ymm0,%ymm1,%ymm7,%ymm1
-  .byte  196,226,125,24,5,68,48,0,0          // vbroadcastss  0x3044(%rip),%ymm0        # 3f40 <_sk_callback_hsw+0x1fb>
+  .byte  196,226,125,24,5,131,48,0,0         // vbroadcastss  0x3083(%rip),%ymm0        # 4620 <_sk_callback_hsw+0x23b>
   .byte  197,220,88,192                      // vaddps        %ymm0,%ymm4,%ymm0
   .byte  196,227,125,8,224,1                 // vroundps      $0x1,%ymm0,%ymm4
   .byte  197,252,92,196                      // vsubps        %ymm4,%ymm0,%ymm0
@@ -8559,11 +9799,11 @@ _sk_scale_u8_hsw:
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  72,1,248                            // add           %rdi,%rax
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,51                              // jne           fdc <_sk_scale_u8_hsw+0x43>
+  .byte  117,51                              // jne           167d <_sk_scale_u8_hsw+0x43>
   .byte  197,122,126,0                       // vmovq         (%rax),%xmm8
   .byte  196,66,125,49,192                   // vpmovzxbd     %xmm8,%ymm8
   .byte  196,65,124,91,192                   // vcvtdq2ps     %ymm8,%ymm8
-  .byte  196,98,125,24,13,132,47,0,0         // vbroadcastss  0x2f84(%rip),%ymm9        # 3f44 <_sk_callback_hsw+0x1ff>
+  .byte  196,98,125,24,13,195,47,0,0         // vbroadcastss  0x2fc3(%rip),%ymm9        # 4624 <_sk_callback_hsw+0x23f>
   .byte  196,65,60,89,193                    // vmulps        %ymm9,%ymm8,%ymm8
   .byte  197,188,89,192                      // vmulps        %ymm0,%ymm8,%ymm0
   .byte  197,188,89,201                      // vmulps        %ymm1,%ymm8,%ymm1
@@ -8581,9 +9821,9 @@ _sk_scale_u8_hsw:
   .byte  77,9,217                            // or            %r11,%r9
   .byte  72,131,193,8                        // add           $0x8,%rcx
   .byte  73,255,202                          // dec           %r10
-  .byte  117,234                             // jne           fe4 <_sk_scale_u8_hsw+0x4b>
+  .byte  117,234                             // jne           1685 <_sk_scale_u8_hsw+0x4b>
   .byte  196,65,249,110,193                  // vmovq         %r9,%xmm8
-  .byte  235,172                             // jmp           fad <_sk_scale_u8_hsw+0x14>
+  .byte  235,172                             // jmp           164e <_sk_scale_u8_hsw+0x14>
 
 HIDDEN _sk_lerp_1_float_hsw
 .globl _sk_lerp_1_float_hsw
@@ -8611,11 +9851,11 @@ _sk_lerp_u8_hsw:
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  72,1,248                            // add           %rdi,%rax
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,71                              // jne           1087 <_sk_lerp_u8_hsw+0x57>
+  .byte  117,71                              // jne           1728 <_sk_lerp_u8_hsw+0x57>
   .byte  197,122,126,0                       // vmovq         (%rax),%xmm8
   .byte  196,66,125,49,192                   // vpmovzxbd     %xmm8,%ymm8
   .byte  196,65,124,91,192                   // vcvtdq2ps     %ymm8,%ymm8
-  .byte  196,98,125,24,13,241,46,0,0         // vbroadcastss  0x2ef1(%rip),%ymm9        # 3f48 <_sk_callback_hsw+0x203>
+  .byte  196,98,125,24,13,48,47,0,0          // vbroadcastss  0x2f30(%rip),%ymm9        # 4628 <_sk_callback_hsw+0x243>
   .byte  196,65,60,89,193                    // vmulps        %ymm9,%ymm8,%ymm8
   .byte  197,252,92,196                      // vsubps        %ymm4,%ymm0,%ymm0
   .byte  196,226,61,168,196                  // vfmadd213ps   %ymm4,%ymm8,%ymm0
@@ -8637,9 +9877,9 @@ _sk_lerp_u8_hsw:
   .byte  77,9,217                            // or            %r11,%r9
   .byte  72,131,193,8                        // add           $0x8,%rcx
   .byte  73,255,202                          // dec           %r10
-  .byte  117,234                             // jne           108f <_sk_lerp_u8_hsw+0x5f>
+  .byte  117,234                             // jne           1730 <_sk_lerp_u8_hsw+0x5f>
   .byte  196,65,249,110,193                  // vmovq         %r9,%xmm8
-  .byte  235,152                             // jmp           1044 <_sk_lerp_u8_hsw+0x14>
+  .byte  235,152                             // jmp           16e5 <_sk_lerp_u8_hsw+0x14>
 
 HIDDEN _sk_lerp_565_hsw
 .globl _sk_lerp_565_hsw
@@ -8648,23 +9888,23 @@ _sk_lerp_565_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,149,0,0,0                    // jne           114f <_sk_lerp_565_hsw+0xa3>
+  .byte  15,133,149,0,0,0                    // jne           17f0 <_sk_lerp_565_hsw+0xa3>
   .byte  196,193,122,111,28,122              // vmovdqu       (%r10,%rdi,2),%xmm3
   .byte  196,226,125,51,219                  // vpmovzxwd     %xmm3,%ymm3
-  .byte  196,98,125,88,5,126,46,0,0          // vpbroadcastd  0x2e7e(%rip),%ymm8        # 3f4c <_sk_callback_hsw+0x207>
+  .byte  196,98,125,88,5,189,46,0,0          // vpbroadcastd  0x2ebd(%rip),%ymm8        # 462c <_sk_callback_hsw+0x247>
   .byte  196,65,101,219,192                  // vpand         %ymm8,%ymm3,%ymm8
   .byte  196,65,124,91,192                   // vcvtdq2ps     %ymm8,%ymm8
-  .byte  196,98,125,24,13,111,46,0,0         // vbroadcastss  0x2e6f(%rip),%ymm9        # 3f50 <_sk_callback_hsw+0x20b>
+  .byte  196,98,125,24,13,174,46,0,0         // vbroadcastss  0x2eae(%rip),%ymm9        # 4630 <_sk_callback_hsw+0x24b>
   .byte  196,65,60,89,193                    // vmulps        %ymm9,%ymm8,%ymm8
-  .byte  196,98,125,88,13,101,46,0,0         // vpbroadcastd  0x2e65(%rip),%ymm9        # 3f54 <_sk_callback_hsw+0x20f>
+  .byte  196,98,125,88,13,164,46,0,0         // vpbroadcastd  0x2ea4(%rip),%ymm9        # 4634 <_sk_callback_hsw+0x24f>
   .byte  196,65,101,219,201                  // vpand         %ymm9,%ymm3,%ymm9
   .byte  196,65,124,91,201                   // vcvtdq2ps     %ymm9,%ymm9
-  .byte  196,98,125,24,21,86,46,0,0          // vbroadcastss  0x2e56(%rip),%ymm10        # 3f58 <_sk_callback_hsw+0x213>
+  .byte  196,98,125,24,21,149,46,0,0         // vbroadcastss  0x2e95(%rip),%ymm10        # 4638 <_sk_callback_hsw+0x253>
   .byte  196,65,52,89,202                    // vmulps        %ymm10,%ymm9,%ymm9
-  .byte  196,98,125,88,21,76,46,0,0          // vpbroadcastd  0x2e4c(%rip),%ymm10        # 3f5c <_sk_callback_hsw+0x217>
+  .byte  196,98,125,88,21,139,46,0,0         // vpbroadcastd  0x2e8b(%rip),%ymm10        # 463c <_sk_callback_hsw+0x257>
   .byte  196,193,101,219,218                 // vpand         %ymm10,%ymm3,%ymm3
   .byte  197,252,91,219                      // vcvtdq2ps     %ymm3,%ymm3
-  .byte  196,98,125,24,21,62,46,0,0          // vbroadcastss  0x2e3e(%rip),%ymm10        # 3f60 <_sk_callback_hsw+0x21b>
+  .byte  196,98,125,24,21,125,46,0,0         // vbroadcastss  0x2e7d(%rip),%ymm10        # 4640 <_sk_callback_hsw+0x25b>
   .byte  196,193,100,89,218                  // vmulps        %ymm10,%ymm3,%ymm3
   .byte  197,252,92,196                      // vsubps        %ymm4,%ymm0,%ymm0
   .byte  196,226,61,168,196                  // vfmadd213ps   %ymm4,%ymm8,%ymm0
@@ -8673,16 +9913,16 @@ _sk_lerp_565_hsw:
   .byte  197,236,92,214                      // vsubps        %ymm6,%ymm2,%ymm2
   .byte  196,226,101,168,214                 // vfmadd213ps   %ymm6,%ymm3,%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,23,46,0,0         // vbroadcastss  0x2e17(%rip),%ymm3        # 3f64 <_sk_callback_hsw+0x21f>
+  .byte  196,226,125,24,29,86,46,0,0         // vbroadcastss  0x2e56(%rip),%ymm3        # 4644 <_sk_callback_hsw+0x25f>
   .byte  255,224                             // jmpq          *%rax
   .byte  65,137,200                          // mov           %ecx,%r8d
   .byte  65,128,224,7                        // and           $0x7,%r8b
   .byte  197,225,239,219                     // vpxor         %xmm3,%xmm3,%xmm3
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  15,135,89,255,255,255               // ja            10c0 <_sk_lerp_565_hsw+0x14>
+  .byte  15,135,89,255,255,255               // ja            1761 <_sk_lerp_565_hsw+0x14>
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,74,0,0,0                  // lea           0x4a(%rip),%r9        # 11bc <_sk_lerp_565_hsw+0x110>
+  .byte  76,141,13,73,0,0,0                  // lea           0x49(%rip),%r9        # 185c <_sk_lerp_565_hsw+0x10f>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -8694,27 +9934,27 @@ _sk_lerp_565_hsw:
   .byte  196,193,97,196,92,122,4,2           // vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm3,%xmm3
   .byte  196,193,97,196,92,122,2,1           // vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm3,%xmm3
   .byte  196,193,97,196,28,122,0             // vpinsrw       $0x0,(%r10,%rdi,2),%xmm3,%xmm3
-  .byte  233,5,255,255,255                   // jmpq          10c0 <_sk_lerp_565_hsw+0x14>
-  .byte  144                                 // nop
-  .byte  243,255                             // repz          (bad)
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  235,255                             // jmp           11c1 <_sk_lerp_565_hsw+0x115>
-  .byte  255                                 // (bad)
-  .byte  255,227                             // jmpq          *%rbx
+  .byte  233,5,255,255,255                   // jmpq          1761 <_sk_lerp_565_hsw+0x14>
+  .byte  244                                 // hlt
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  219,255                             // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,211                             // callq         *%rbx
+  .byte  236                                 // in            (%dx),%al
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,203                             // dec           %ebx
+  .byte  255,228                             // jmpq          *%rsp
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  191                                 // .byte         0xbf
+  .byte  220,255                             // fdivr         %st,%st(7)
+  .byte  255                                 // (bad)
+  .byte  255,212                             // callq         *%rsp
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,204                             // dec           %esp
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,192                             // inc           %eax
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
@@ -8728,23 +9968,23 @@ _sk_load_tables_hsw:
   .byte  76,141,12,189,0,0,0,0               // lea           0x0(,%rdi,4),%r9
   .byte  76,3,8                              // add           (%rax),%r9
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,105                             // jne           1256 <_sk_load_tables_hsw+0x7e>
+  .byte  117,105                             // jne           18f6 <_sk_load_tables_hsw+0x7e>
   .byte  196,193,126,111,25                  // vmovdqu       (%r9),%ymm3
-  .byte  197,229,219,13,38,48,0,0            // vpand         0x3026(%rip),%ymm3,%ymm1        # 4220 <_sk_callback_hsw+0x4db>
+  .byte  197,229,219,13,102,48,0,0           // vpand         0x3066(%rip),%ymm3,%ymm1        # 4900 <_sk_callback_hsw+0x51b>
   .byte  196,65,61,118,192                   // vpcmpeqd      %ymm8,%ymm8,%ymm8
   .byte  72,139,72,8                         // mov           0x8(%rax),%rcx
   .byte  76,139,72,16                        // mov           0x10(%rax),%r9
   .byte  197,237,118,210                     // vpcmpeqd      %ymm2,%ymm2,%ymm2
   .byte  196,226,109,146,4,137               // vgatherdps    %ymm2,(%rcx,%ymm1,4),%ymm0
-  .byte  196,226,101,0,21,38,48,0,0          // vpshufb       0x3026(%rip),%ymm3,%ymm2        # 4240 <_sk_callback_hsw+0x4fb>
+  .byte  196,226,101,0,21,102,48,0,0         // vpshufb       0x3066(%rip),%ymm3,%ymm2        # 4920 <_sk_callback_hsw+0x53b>
   .byte  196,65,53,118,201                   // vpcmpeqd      %ymm9,%ymm9,%ymm9
   .byte  196,194,53,146,12,145               // vgatherdps    %ymm9,(%r9,%ymm2,4),%ymm1
   .byte  72,139,64,24                        // mov           0x18(%rax),%rax
-  .byte  196,98,101,0,13,46,48,0,0           // vpshufb       0x302e(%rip),%ymm3,%ymm9        # 4260 <_sk_callback_hsw+0x51b>
+  .byte  196,98,101,0,13,110,48,0,0          // vpshufb       0x306e(%rip),%ymm3,%ymm9        # 4940 <_sk_callback_hsw+0x55b>
   .byte  196,162,61,146,20,136               // vgatherdps    %ymm8,(%rax,%ymm9,4),%ymm2
   .byte  197,229,114,211,24                  // vpsrld        $0x18,%ymm3,%ymm3
   .byte  197,252,91,219                      // vcvtdq2ps     %ymm3,%ymm3
-  .byte  196,98,125,24,5,30,45,0,0           // vbroadcastss  0x2d1e(%rip),%ymm8        # 3f68 <_sk_callback_hsw+0x223>
+  .byte  196,98,125,24,5,94,45,0,0           // vbroadcastss  0x2d5e(%rip),%ymm8        # 4648 <_sk_callback_hsw+0x263>
   .byte  196,193,100,89,216                  // vmulps        %ymm8,%ymm3,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,137,193                          // mov           %r8,%rcx
@@ -8757,7 +9997,7 @@ _sk_load_tables_hsw:
   .byte  196,193,249,110,194                 // vmovq         %r10,%xmm0
   .byte  196,226,125,33,192                  // vpmovsxbd     %xmm0,%ymm0
   .byte  196,194,125,140,25                  // vpmaskmovd    (%r9),%ymm0,%ymm3
-  .byte  233,115,255,255,255                 // jmpq          11f2 <_sk_load_tables_hsw+0x1a>
+  .byte  233,115,255,255,255                 // jmpq          1892 <_sk_load_tables_hsw+0x1a>
 
 HIDDEN _sk_load_tables_u16_be_hsw
 .globl _sk_load_tables_u16_be_hsw
@@ -8767,7 +10007,7 @@ _sk_load_tables_u16_be_hsw:
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  76,141,12,189,0,0,0,0               // lea           0x0(,%rdi,4),%r9
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,201,0,0,0                    // jne           135e <_sk_load_tables_u16_be_hsw+0xdf>
+  .byte  15,133,201,0,0,0                    // jne           19fe <_sk_load_tables_u16_be_hsw+0xdf>
   .byte  196,1,121,16,4,72                   // vmovupd       (%r8,%r9,2),%xmm8
   .byte  196,129,121,16,84,72,16             // vmovupd       0x10(%r8,%r9,2),%xmm2
   .byte  196,129,121,16,92,72,32             // vmovupd       0x20(%r8,%r9,2),%xmm3
@@ -8783,7 +10023,7 @@ _sk_load_tables_u16_be_hsw:
   .byte  197,185,108,200                     // vpunpcklqdq   %xmm0,%xmm8,%xmm1
   .byte  197,185,109,208                     // vpunpckhqdq   %xmm0,%xmm8,%xmm2
   .byte  197,49,108,195                      // vpunpcklqdq   %xmm3,%xmm9,%xmm8
-  .byte  197,121,111,21,186,48,0,0           // vmovdqa       0x30ba(%rip),%xmm10        # 43a0 <_sk_callback_hsw+0x65b>
+  .byte  197,121,111,21,250,48,0,0           // vmovdqa       0x30fa(%rip),%xmm10        # 4a80 <_sk_callback_hsw+0x69b>
   .byte  196,193,113,219,194                 // vpand         %xmm10,%xmm1,%xmm0
   .byte  196,226,125,51,200                  // vpmovzxwd     %xmm0,%ymm1
   .byte  196,65,37,118,219                   // vpcmpeqd      %ymm11,%ymm11,%ymm11
@@ -8805,36 +10045,36 @@ _sk_load_tables_u16_be_hsw:
   .byte  197,185,235,219                     // vpor          %xmm3,%xmm8,%xmm3
   .byte  196,226,125,51,219                  // vpmovzxwd     %xmm3,%ymm3
   .byte  197,252,91,219                      // vcvtdq2ps     %ymm3,%ymm3
-  .byte  196,98,125,24,5,23,44,0,0           // vbroadcastss  0x2c17(%rip),%ymm8        # 3f6c <_sk_callback_hsw+0x227>
+  .byte  196,98,125,24,5,87,44,0,0           // vbroadcastss  0x2c57(%rip),%ymm8        # 464c <_sk_callback_hsw+0x267>
   .byte  196,193,100,89,216                  // vmulps        %ymm8,%ymm3,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
   .byte  196,1,123,16,4,72                   // vmovsd        (%r8,%r9,2),%xmm8
   .byte  196,65,49,239,201                   // vpxor         %xmm9,%xmm9,%xmm9
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  116,85                              // je            13c4 <_sk_load_tables_u16_be_hsw+0x145>
+  .byte  116,85                              // je            1a64 <_sk_load_tables_u16_be_hsw+0x145>
   .byte  196,1,57,22,68,72,8                 // vmovhpd       0x8(%r8,%r9,2),%xmm8,%xmm8
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,72                              // jb            13c4 <_sk_load_tables_u16_be_hsw+0x145>
+  .byte  114,72                              // jb            1a64 <_sk_load_tables_u16_be_hsw+0x145>
   .byte  196,129,123,16,84,72,16             // vmovsd        0x10(%r8,%r9,2),%xmm2
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  116,72                              // je            13d1 <_sk_load_tables_u16_be_hsw+0x152>
+  .byte  116,72                              // je            1a71 <_sk_load_tables_u16_be_hsw+0x152>
   .byte  196,129,105,22,84,72,24             // vmovhpd       0x18(%r8,%r9,2),%xmm2,%xmm2
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,59                              // jb            13d1 <_sk_load_tables_u16_be_hsw+0x152>
+  .byte  114,59                              // jb            1a71 <_sk_load_tables_u16_be_hsw+0x152>
   .byte  196,129,123,16,92,72,32             // vmovsd        0x20(%r8,%r9,2),%xmm3
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  15,132,9,255,255,255                // je            12b0 <_sk_load_tables_u16_be_hsw+0x31>
+  .byte  15,132,9,255,255,255                // je            1950 <_sk_load_tables_u16_be_hsw+0x31>
   .byte  196,129,97,22,92,72,40              // vmovhpd       0x28(%r8,%r9,2),%xmm3,%xmm3
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  15,130,248,254,255,255              // jb            12b0 <_sk_load_tables_u16_be_hsw+0x31>
+  .byte  15,130,248,254,255,255              // jb            1950 <_sk_load_tables_u16_be_hsw+0x31>
   .byte  196,1,122,126,76,72,48              // vmovq         0x30(%r8,%r9,2),%xmm9
-  .byte  233,236,254,255,255                 // jmpq          12b0 <_sk_load_tables_u16_be_hsw+0x31>
+  .byte  233,236,254,255,255                 // jmpq          1950 <_sk_load_tables_u16_be_hsw+0x31>
   .byte  197,225,87,219                      // vxorpd        %xmm3,%xmm3,%xmm3
   .byte  197,233,87,210                      // vxorpd        %xmm2,%xmm2,%xmm2
-  .byte  233,223,254,255,255                 // jmpq          12b0 <_sk_load_tables_u16_be_hsw+0x31>
+  .byte  233,223,254,255,255                 // jmpq          1950 <_sk_load_tables_u16_be_hsw+0x31>
   .byte  197,225,87,219                      // vxorpd        %xmm3,%xmm3,%xmm3
-  .byte  233,214,254,255,255                 // jmpq          12b0 <_sk_load_tables_u16_be_hsw+0x31>
+  .byte  233,214,254,255,255                 // jmpq          1950 <_sk_load_tables_u16_be_hsw+0x31>
 
 HIDDEN _sk_load_tables_rgb_u16_be_hsw
 .globl _sk_load_tables_rgb_u16_be_hsw
@@ -8844,7 +10084,7 @@ _sk_load_tables_rgb_u16_be_hsw:
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  76,141,12,127                       // lea           (%rdi,%rdi,2),%r9
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,193,0,0,0                    // jne           14ad <_sk_load_tables_rgb_u16_be_hsw+0xd3>
+  .byte  15,133,193,0,0,0                    // jne           1b4d <_sk_load_tables_rgb_u16_be_hsw+0xd3>
   .byte  196,129,122,111,4,72                // vmovdqu       (%r8,%r9,2),%xmm0
   .byte  196,129,122,111,84,72,12            // vmovdqu       0xc(%r8,%r9,2),%xmm2
   .byte  196,129,122,111,76,72,24            // vmovdqu       0x18(%r8,%r9,2),%xmm1
@@ -8865,7 +10105,7 @@ _sk_load_tables_rgb_u16_be_hsw:
   .byte  197,185,108,218                     // vpunpcklqdq   %xmm2,%xmm8,%xmm3
   .byte  197,185,109,210                     // vpunpckhqdq   %xmm2,%xmm8,%xmm2
   .byte  197,121,108,193                     // vpunpcklqdq   %xmm1,%xmm0,%xmm8
-  .byte  197,121,111,13,90,47,0,0            // vmovdqa       0x2f5a(%rip),%xmm9        # 43b0 <_sk_callback_hsw+0x66b>
+  .byte  197,121,111,13,154,47,0,0           // vmovdqa       0x2f9a(%rip),%xmm9        # 4a90 <_sk_callback_hsw+0x6ab>
   .byte  196,193,97,219,193                  // vpand         %xmm9,%xmm3,%xmm0
   .byte  196,226,125,51,200                  // vpmovzxwd     %xmm0,%ymm1
   .byte  197,229,118,219                     // vpcmpeqd      %ymm3,%ymm3,%ymm3
@@ -8882,41 +10122,41 @@ _sk_load_tables_rgb_u16_be_hsw:
   .byte  196,98,125,51,194                   // vpmovzxwd     %xmm2,%ymm8
   .byte  196,162,101,146,20,128              // vgatherdps    %ymm3,(%rax,%ymm8,4),%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,197,42,0,0        // vbroadcastss  0x2ac5(%rip),%ymm3        # 3f70 <_sk_callback_hsw+0x22b>
+  .byte  196,226,125,24,29,5,43,0,0          // vbroadcastss  0x2b05(%rip),%ymm3        # 4650 <_sk_callback_hsw+0x26b>
   .byte  255,224                             // jmpq          *%rax
   .byte  196,129,121,110,4,72                // vmovd         (%r8,%r9,2),%xmm0
   .byte  196,129,121,196,68,72,4,2           // vpinsrw       $0x2,0x4(%r8,%r9,2),%xmm0,%xmm0
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  117,5                               // jne           14c6 <_sk_load_tables_rgb_u16_be_hsw+0xec>
-  .byte  233,90,255,255,255                  // jmpq          1420 <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  .byte  117,5                               // jne           1b66 <_sk_load_tables_rgb_u16_be_hsw+0xec>
+  .byte  233,90,255,255,255                  // jmpq          1ac0 <_sk_load_tables_rgb_u16_be_hsw+0x46>
   .byte  196,129,121,110,76,72,6             // vmovd         0x6(%r8,%r9,2),%xmm1
   .byte  196,1,113,196,68,72,10,2            // vpinsrw       $0x2,0xa(%r8,%r9,2),%xmm1,%xmm8
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,26                              // jb            14f5 <_sk_load_tables_rgb_u16_be_hsw+0x11b>
+  .byte  114,26                              // jb            1b95 <_sk_load_tables_rgb_u16_be_hsw+0x11b>
   .byte  196,129,121,110,76,72,12            // vmovd         0xc(%r8,%r9,2),%xmm1
   .byte  196,129,113,196,84,72,16,2          // vpinsrw       $0x2,0x10(%r8,%r9,2),%xmm1,%xmm2
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  117,10                              // jne           14fa <_sk_load_tables_rgb_u16_be_hsw+0x120>
-  .byte  233,43,255,255,255                  // jmpq          1420 <_sk_load_tables_rgb_u16_be_hsw+0x46>
-  .byte  233,38,255,255,255                  // jmpq          1420 <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  .byte  117,10                              // jne           1b9a <_sk_load_tables_rgb_u16_be_hsw+0x120>
+  .byte  233,43,255,255,255                  // jmpq          1ac0 <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  .byte  233,38,255,255,255                  // jmpq          1ac0 <_sk_load_tables_rgb_u16_be_hsw+0x46>
   .byte  196,129,121,110,76,72,18            // vmovd         0x12(%r8,%r9,2),%xmm1
   .byte  196,1,113,196,76,72,22,2            // vpinsrw       $0x2,0x16(%r8,%r9,2),%xmm1,%xmm9
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,26                              // jb            1529 <_sk_load_tables_rgb_u16_be_hsw+0x14f>
+  .byte  114,26                              // jb            1bc9 <_sk_load_tables_rgb_u16_be_hsw+0x14f>
   .byte  196,129,121,110,76,72,24            // vmovd         0x18(%r8,%r9,2),%xmm1
   .byte  196,129,113,196,76,72,28,2          // vpinsrw       $0x2,0x1c(%r8,%r9,2),%xmm1,%xmm1
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  117,10                              // jne           152e <_sk_load_tables_rgb_u16_be_hsw+0x154>
-  .byte  233,247,254,255,255                 // jmpq          1420 <_sk_load_tables_rgb_u16_be_hsw+0x46>
-  .byte  233,242,254,255,255                 // jmpq          1420 <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  .byte  117,10                              // jne           1bce <_sk_load_tables_rgb_u16_be_hsw+0x154>
+  .byte  233,247,254,255,255                 // jmpq          1ac0 <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  .byte  233,242,254,255,255                 // jmpq          1ac0 <_sk_load_tables_rgb_u16_be_hsw+0x46>
   .byte  196,129,121,110,92,72,30            // vmovd         0x1e(%r8,%r9,2),%xmm3
   .byte  196,1,97,196,92,72,34,2             // vpinsrw       $0x2,0x22(%r8,%r9,2),%xmm3,%xmm11
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  114,20                              // jb            1557 <_sk_load_tables_rgb_u16_be_hsw+0x17d>
+  .byte  114,20                              // jb            1bf7 <_sk_load_tables_rgb_u16_be_hsw+0x17d>
   .byte  196,129,121,110,92,72,36            // vmovd         0x24(%r8,%r9,2),%xmm3
   .byte  196,129,97,196,92,72,40,2           // vpinsrw       $0x2,0x28(%r8,%r9,2),%xmm3,%xmm3
-  .byte  233,201,254,255,255                 // jmpq          1420 <_sk_load_tables_rgb_u16_be_hsw+0x46>
-  .byte  233,196,254,255,255                 // jmpq          1420 <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  .byte  233,201,254,255,255                 // jmpq          1ac0 <_sk_load_tables_rgb_u16_be_hsw+0x46>
+  .byte  233,196,254,255,255                 // jmpq          1ac0 <_sk_load_tables_rgb_u16_be_hsw+0x46>
 
 HIDDEN _sk_byte_tables_hsw
 .globl _sk_byte_tables_hsw
@@ -8929,7 +10169,7 @@ _sk_byte_tables_hsw:
   .byte  65,84                               // push          %r12
   .byte  83                                  // push          %rbx
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,98,125,24,5,3,42,0,0            // vbroadcastss  0x2a03(%rip),%ymm8        # 3f74 <_sk_callback_hsw+0x22f>
+  .byte  196,98,125,24,5,67,42,0,0           // vbroadcastss  0x2a43(%rip),%ymm8        # 4654 <_sk_callback_hsw+0x26f>
   .byte  196,193,124,89,192                  // vmulps        %ymm8,%ymm0,%ymm0
   .byte  197,253,91,192                      // vcvtps2dq     %ymm0,%ymm0
   .byte  196,195,249,22,192,1                // vpextrq       $0x1,%xmm0,%r8
@@ -8966,7 +10206,7 @@ _sk_byte_tables_hsw:
   .byte  196,227,121,32,197,7                // vpinsrb       $0x7,%ebp,%xmm0,%xmm0
   .byte  196,226,125,49,192                  // vpmovzxbd     %xmm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,13,84,41,0,0          // vbroadcastss  0x2954(%rip),%ymm9        # 3f78 <_sk_callback_hsw+0x233>
+  .byte  196,98,125,24,13,148,41,0,0         // vbroadcastss  0x2994(%rip),%ymm9        # 4658 <_sk_callback_hsw+0x273>
   .byte  196,193,124,89,193                  // vmulps        %ymm9,%ymm0,%ymm0
   .byte  196,193,116,89,200                  // vmulps        %ymm8,%ymm1,%ymm1
   .byte  197,253,91,201                      // vcvtps2dq     %ymm1,%ymm1
@@ -9127,7 +10367,7 @@ _sk_byte_tables_rgb_hsw:
   .byte  196,227,121,32,197,7                // vpinsrb       $0x7,%ebp,%xmm0,%xmm0
   .byte  196,226,125,49,192                  // vpmovzxbd     %xmm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,13,141,38,0,0         // vbroadcastss  0x268d(%rip),%ymm9        # 3f7c <_sk_callback_hsw+0x237>
+  .byte  196,98,125,24,13,205,38,0,0         // vbroadcastss  0x26cd(%rip),%ymm9        # 465c <_sk_callback_hsw+0x277>
   .byte  196,193,124,89,193                  // vmulps        %ymm9,%ymm0,%ymm0
   .byte  197,188,89,201                      // vmulps        %ymm1,%ymm8,%ymm1
   .byte  197,253,91,201                      // vcvtps2dq     %ymm1,%ymm1
@@ -9290,33 +10530,33 @@ _sk_parametric_r_hsw:
   .byte  196,66,125,168,211                  // vfmadd213ps   %ymm11,%ymm0,%ymm10
   .byte  196,226,125,24,0                    // vbroadcastss  (%rax),%ymm0
   .byte  196,65,124,91,218                   // vcvtdq2ps     %ymm10,%ymm11
-  .byte  196,98,125,24,37,64,36,0,0          // vbroadcastss  0x2440(%rip),%ymm12        # 3f80 <_sk_callback_hsw+0x23b>
-  .byte  196,98,125,24,45,59,36,0,0          // vbroadcastss  0x243b(%rip),%ymm13        # 3f84 <_sk_callback_hsw+0x23f>
+  .byte  196,98,125,24,37,128,36,0,0         // vbroadcastss  0x2480(%rip),%ymm12        # 4660 <_sk_callback_hsw+0x27b>
+  .byte  196,98,125,24,45,123,36,0,0         // vbroadcastss  0x247b(%rip),%ymm13        # 4664 <_sk_callback_hsw+0x27f>
   .byte  196,65,44,84,213                    // vandps        %ymm13,%ymm10,%ymm10
-  .byte  196,98,125,24,45,49,36,0,0          // vbroadcastss  0x2431(%rip),%ymm13        # 3f88 <_sk_callback_hsw+0x243>
+  .byte  196,98,125,24,45,113,36,0,0         // vbroadcastss  0x2471(%rip),%ymm13        # 4668 <_sk_callback_hsw+0x283>
   .byte  196,65,44,86,213                    // vorps         %ymm13,%ymm10,%ymm10
-  .byte  196,98,125,24,45,39,36,0,0          // vbroadcastss  0x2427(%rip),%ymm13        # 3f8c <_sk_callback_hsw+0x247>
+  .byte  196,98,125,24,45,103,36,0,0         // vbroadcastss  0x2467(%rip),%ymm13        # 466c <_sk_callback_hsw+0x287>
   .byte  196,66,37,184,236                   // vfmadd231ps   %ymm12,%ymm11,%ymm13
-  .byte  196,98,125,24,29,29,36,0,0          // vbroadcastss  0x241d(%rip),%ymm11        # 3f90 <_sk_callback_hsw+0x24b>
+  .byte  196,98,125,24,29,93,36,0,0          // vbroadcastss  0x245d(%rip),%ymm11        # 4670 <_sk_callback_hsw+0x28b>
   .byte  196,66,45,172,221                   // vfnmadd213ps  %ymm13,%ymm10,%ymm11
-  .byte  196,98,125,24,37,19,36,0,0          // vbroadcastss  0x2413(%rip),%ymm12        # 3f94 <_sk_callback_hsw+0x24f>
+  .byte  196,98,125,24,37,83,36,0,0          // vbroadcastss  0x2453(%rip),%ymm12        # 4674 <_sk_callback_hsw+0x28f>
   .byte  196,65,44,88,212                    // vaddps        %ymm12,%ymm10,%ymm10
-  .byte  196,98,125,24,37,9,36,0,0           // vbroadcastss  0x2409(%rip),%ymm12        # 3f98 <_sk_callback_hsw+0x253>
+  .byte  196,98,125,24,37,73,36,0,0          // vbroadcastss  0x2449(%rip),%ymm12        # 4678 <_sk_callback_hsw+0x293>
   .byte  196,65,28,94,210                    // vdivps        %ymm10,%ymm12,%ymm10
   .byte  196,65,36,92,210                    // vsubps        %ymm10,%ymm11,%ymm10
   .byte  196,193,124,89,194                  // vmulps        %ymm10,%ymm0,%ymm0
   .byte  196,99,125,8,208,1                  // vroundps      $0x1,%ymm0,%ymm10
   .byte  196,65,124,92,210                   // vsubps        %ymm10,%ymm0,%ymm10
-  .byte  196,98,125,24,29,234,35,0,0         // vbroadcastss  0x23ea(%rip),%ymm11        # 3f9c <_sk_callback_hsw+0x257>
+  .byte  196,98,125,24,29,42,36,0,0          // vbroadcastss  0x242a(%rip),%ymm11        # 467c <_sk_callback_hsw+0x297>
   .byte  196,193,124,88,195                  // vaddps        %ymm11,%ymm0,%ymm0
-  .byte  196,98,125,24,29,224,35,0,0         // vbroadcastss  0x23e0(%rip),%ymm11        # 3fa0 <_sk_callback_hsw+0x25b>
+  .byte  196,98,125,24,29,32,36,0,0          // vbroadcastss  0x2420(%rip),%ymm11        # 4680 <_sk_callback_hsw+0x29b>
   .byte  196,98,45,172,216                   // vfnmadd213ps  %ymm0,%ymm10,%ymm11
-  .byte  196,226,125,24,5,214,35,0,0         // vbroadcastss  0x23d6(%rip),%ymm0        # 3fa4 <_sk_callback_hsw+0x25f>
+  .byte  196,226,125,24,5,22,36,0,0          // vbroadcastss  0x2416(%rip),%ymm0        # 4684 <_sk_callback_hsw+0x29f>
   .byte  196,193,124,92,194                  // vsubps        %ymm10,%ymm0,%ymm0
-  .byte  196,98,125,24,21,204,35,0,0         // vbroadcastss  0x23cc(%rip),%ymm10        # 3fa8 <_sk_callback_hsw+0x263>
+  .byte  196,98,125,24,21,12,36,0,0          // vbroadcastss  0x240c(%rip),%ymm10        # 4688 <_sk_callback_hsw+0x2a3>
   .byte  197,172,94,192                      // vdivps        %ymm0,%ymm10,%ymm0
   .byte  197,164,88,192                      // vaddps        %ymm0,%ymm11,%ymm0
-  .byte  196,98,125,24,21,191,35,0,0         // vbroadcastss  0x23bf(%rip),%ymm10        # 3fac <_sk_callback_hsw+0x267>
+  .byte  196,98,125,24,21,255,35,0,0         // vbroadcastss  0x23ff(%rip),%ymm10        # 468c <_sk_callback_hsw+0x2a7>
   .byte  196,193,124,89,194                  // vmulps        %ymm10,%ymm0,%ymm0
   .byte  197,253,91,192                      // vcvtps2dq     %ymm0,%ymm0
   .byte  196,98,125,24,80,20                 // vbroadcastss  0x14(%rax),%ymm10
@@ -9324,7 +10564,7 @@ _sk_parametric_r_hsw:
   .byte  196,195,125,74,193,128              // vblendvps     %ymm8,%ymm9,%ymm0,%ymm0
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,193,124,95,192                  // vmaxps        %ymm8,%ymm0,%ymm0
-  .byte  196,98,125,24,5,150,35,0,0          // vbroadcastss  0x2396(%rip),%ymm8        # 3fb0 <_sk_callback_hsw+0x26b>
+  .byte  196,98,125,24,5,214,35,0,0          // vbroadcastss  0x23d6(%rip),%ymm8        # 4690 <_sk_callback_hsw+0x2ab>
   .byte  196,193,124,93,192                  // vminps        %ymm8,%ymm0,%ymm0
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -9344,33 +10584,33 @@ _sk_parametric_g_hsw:
   .byte  196,66,117,168,211                  // vfmadd213ps   %ymm11,%ymm1,%ymm10
   .byte  196,226,125,24,8                    // vbroadcastss  (%rax),%ymm1
   .byte  196,65,124,91,218                   // vcvtdq2ps     %ymm10,%ymm11
-  .byte  196,98,125,24,37,78,35,0,0          // vbroadcastss  0x234e(%rip),%ymm12        # 3fb4 <_sk_callback_hsw+0x26f>
-  .byte  196,98,125,24,45,73,35,0,0          // vbroadcastss  0x2349(%rip),%ymm13        # 3fb8 <_sk_callback_hsw+0x273>
+  .byte  196,98,125,24,37,142,35,0,0         // vbroadcastss  0x238e(%rip),%ymm12        # 4694 <_sk_callback_hsw+0x2af>
+  .byte  196,98,125,24,45,137,35,0,0         // vbroadcastss  0x2389(%rip),%ymm13        # 4698 <_sk_callback_hsw+0x2b3>
   .byte  196,65,44,84,213                    // vandps        %ymm13,%ymm10,%ymm10
-  .byte  196,98,125,24,45,63,35,0,0          // vbroadcastss  0x233f(%rip),%ymm13        # 3fbc <_sk_callback_hsw+0x277>
+  .byte  196,98,125,24,45,127,35,0,0         // vbroadcastss  0x237f(%rip),%ymm13        # 469c <_sk_callback_hsw+0x2b7>
   .byte  196,65,44,86,213                    // vorps         %ymm13,%ymm10,%ymm10
-  .byte  196,98,125,24,45,53,35,0,0          // vbroadcastss  0x2335(%rip),%ymm13        # 3fc0 <_sk_callback_hsw+0x27b>
+  .byte  196,98,125,24,45,117,35,0,0         // vbroadcastss  0x2375(%rip),%ymm13        # 46a0 <_sk_callback_hsw+0x2bb>
   .byte  196,66,37,184,236                   // vfmadd231ps   %ymm12,%ymm11,%ymm13
-  .byte  196,98,125,24,29,43,35,0,0          // vbroadcastss  0x232b(%rip),%ymm11        # 3fc4 <_sk_callback_hsw+0x27f>
+  .byte  196,98,125,24,29,107,35,0,0         // vbroadcastss  0x236b(%rip),%ymm11        # 46a4 <_sk_callback_hsw+0x2bf>
   .byte  196,66,45,172,221                   // vfnmadd213ps  %ymm13,%ymm10,%ymm11
-  .byte  196,98,125,24,37,33,35,0,0          // vbroadcastss  0x2321(%rip),%ymm12        # 3fc8 <_sk_callback_hsw+0x283>
+  .byte  196,98,125,24,37,97,35,0,0          // vbroadcastss  0x2361(%rip),%ymm12        # 46a8 <_sk_callback_hsw+0x2c3>
   .byte  196,65,44,88,212                    // vaddps        %ymm12,%ymm10,%ymm10
-  .byte  196,98,125,24,37,23,35,0,0          // vbroadcastss  0x2317(%rip),%ymm12        # 3fcc <_sk_callback_hsw+0x287>
+  .byte  196,98,125,24,37,87,35,0,0          // vbroadcastss  0x2357(%rip),%ymm12        # 46ac <_sk_callback_hsw+0x2c7>
   .byte  196,65,28,94,210                    // vdivps        %ymm10,%ymm12,%ymm10
   .byte  196,65,36,92,210                    // vsubps        %ymm10,%ymm11,%ymm10
   .byte  196,193,116,89,202                  // vmulps        %ymm10,%ymm1,%ymm1
   .byte  196,99,125,8,209,1                  // vroundps      $0x1,%ymm1,%ymm10
   .byte  196,65,116,92,210                   // vsubps        %ymm10,%ymm1,%ymm10
-  .byte  196,98,125,24,29,248,34,0,0         // vbroadcastss  0x22f8(%rip),%ymm11        # 3fd0 <_sk_callback_hsw+0x28b>
+  .byte  196,98,125,24,29,56,35,0,0          // vbroadcastss  0x2338(%rip),%ymm11        # 46b0 <_sk_callback_hsw+0x2cb>
   .byte  196,193,116,88,203                  // vaddps        %ymm11,%ymm1,%ymm1
-  .byte  196,98,125,24,29,238,34,0,0         // vbroadcastss  0x22ee(%rip),%ymm11        # 3fd4 <_sk_callback_hsw+0x28f>
+  .byte  196,98,125,24,29,46,35,0,0          // vbroadcastss  0x232e(%rip),%ymm11        # 46b4 <_sk_callback_hsw+0x2cf>
   .byte  196,98,45,172,217                   // vfnmadd213ps  %ymm1,%ymm10,%ymm11
-  .byte  196,226,125,24,13,228,34,0,0        // vbroadcastss  0x22e4(%rip),%ymm1        # 3fd8 <_sk_callback_hsw+0x293>
+  .byte  196,226,125,24,13,36,35,0,0         // vbroadcastss  0x2324(%rip),%ymm1        # 46b8 <_sk_callback_hsw+0x2d3>
   .byte  196,193,116,92,202                  // vsubps        %ymm10,%ymm1,%ymm1
-  .byte  196,98,125,24,21,218,34,0,0         // vbroadcastss  0x22da(%rip),%ymm10        # 3fdc <_sk_callback_hsw+0x297>
+  .byte  196,98,125,24,21,26,35,0,0          // vbroadcastss  0x231a(%rip),%ymm10        # 46bc <_sk_callback_hsw+0x2d7>
   .byte  197,172,94,201                      // vdivps        %ymm1,%ymm10,%ymm1
   .byte  197,164,88,201                      // vaddps        %ymm1,%ymm11,%ymm1
-  .byte  196,98,125,24,21,205,34,0,0         // vbroadcastss  0x22cd(%rip),%ymm10        # 3fe0 <_sk_callback_hsw+0x29b>
+  .byte  196,98,125,24,21,13,35,0,0          // vbroadcastss  0x230d(%rip),%ymm10        # 46c0 <_sk_callback_hsw+0x2db>
   .byte  196,193,116,89,202                  // vmulps        %ymm10,%ymm1,%ymm1
   .byte  197,253,91,201                      // vcvtps2dq     %ymm1,%ymm1
   .byte  196,98,125,24,80,20                 // vbroadcastss  0x14(%rax),%ymm10
@@ -9378,7 +10618,7 @@ _sk_parametric_g_hsw:
   .byte  196,195,117,74,201,128              // vblendvps     %ymm8,%ymm9,%ymm1,%ymm1
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,193,116,95,200                  // vmaxps        %ymm8,%ymm1,%ymm1
-  .byte  196,98,125,24,5,164,34,0,0          // vbroadcastss  0x22a4(%rip),%ymm8        # 3fe4 <_sk_callback_hsw+0x29f>
+  .byte  196,98,125,24,5,228,34,0,0          // vbroadcastss  0x22e4(%rip),%ymm8        # 46c4 <_sk_callback_hsw+0x2df>
   .byte  196,193,116,93,200                  // vminps        %ymm8,%ymm1,%ymm1
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -9398,33 +10638,33 @@ _sk_parametric_b_hsw:
   .byte  196,66,109,168,211                  // vfmadd213ps   %ymm11,%ymm2,%ymm10
   .byte  196,226,125,24,16                   // vbroadcastss  (%rax),%ymm2
   .byte  196,65,124,91,218                   // vcvtdq2ps     %ymm10,%ymm11
-  .byte  196,98,125,24,37,92,34,0,0          // vbroadcastss  0x225c(%rip),%ymm12        # 3fe8 <_sk_callback_hsw+0x2a3>
-  .byte  196,98,125,24,45,87,34,0,0          // vbroadcastss  0x2257(%rip),%ymm13        # 3fec <_sk_callback_hsw+0x2a7>
+  .byte  196,98,125,24,37,156,34,0,0         // vbroadcastss  0x229c(%rip),%ymm12        # 46c8 <_sk_callback_hsw+0x2e3>
+  .byte  196,98,125,24,45,151,34,0,0         // vbroadcastss  0x2297(%rip),%ymm13        # 46cc <_sk_callback_hsw+0x2e7>
   .byte  196,65,44,84,213                    // vandps        %ymm13,%ymm10,%ymm10
-  .byte  196,98,125,24,45,77,34,0,0          // vbroadcastss  0x224d(%rip),%ymm13        # 3ff0 <_sk_callback_hsw+0x2ab>
+  .byte  196,98,125,24,45,141,34,0,0         // vbroadcastss  0x228d(%rip),%ymm13        # 46d0 <_sk_callback_hsw+0x2eb>
   .byte  196,65,44,86,213                    // vorps         %ymm13,%ymm10,%ymm10
-  .byte  196,98,125,24,45,67,34,0,0          // vbroadcastss  0x2243(%rip),%ymm13        # 3ff4 <_sk_callback_hsw+0x2af>
+  .byte  196,98,125,24,45,131,34,0,0         // vbroadcastss  0x2283(%rip),%ymm13        # 46d4 <_sk_callback_hsw+0x2ef>
   .byte  196,66,37,184,236                   // vfmadd231ps   %ymm12,%ymm11,%ymm13
-  .byte  196,98,125,24,29,57,34,0,0          // vbroadcastss  0x2239(%rip),%ymm11        # 3ff8 <_sk_callback_hsw+0x2b3>
+  .byte  196,98,125,24,29,121,34,0,0         // vbroadcastss  0x2279(%rip),%ymm11        # 46d8 <_sk_callback_hsw+0x2f3>
   .byte  196,66,45,172,221                   // vfnmadd213ps  %ymm13,%ymm10,%ymm11
-  .byte  196,98,125,24,37,47,34,0,0          // vbroadcastss  0x222f(%rip),%ymm12        # 3ffc <_sk_callback_hsw+0x2b7>
+  .byte  196,98,125,24,37,111,34,0,0         // vbroadcastss  0x226f(%rip),%ymm12        # 46dc <_sk_callback_hsw+0x2f7>
   .byte  196,65,44,88,212                    // vaddps        %ymm12,%ymm10,%ymm10
-  .byte  196,98,125,24,37,37,34,0,0          // vbroadcastss  0x2225(%rip),%ymm12        # 4000 <_sk_callback_hsw+0x2bb>
+  .byte  196,98,125,24,37,101,34,0,0         // vbroadcastss  0x2265(%rip),%ymm12        # 46e0 <_sk_callback_hsw+0x2fb>
   .byte  196,65,28,94,210                    // vdivps        %ymm10,%ymm12,%ymm10
   .byte  196,65,36,92,210                    // vsubps        %ymm10,%ymm11,%ymm10
   .byte  196,193,108,89,210                  // vmulps        %ymm10,%ymm2,%ymm2
   .byte  196,99,125,8,210,1                  // vroundps      $0x1,%ymm2,%ymm10
   .byte  196,65,108,92,210                   // vsubps        %ymm10,%ymm2,%ymm10
-  .byte  196,98,125,24,29,6,34,0,0           // vbroadcastss  0x2206(%rip),%ymm11        # 4004 <_sk_callback_hsw+0x2bf>
+  .byte  196,98,125,24,29,70,34,0,0          // vbroadcastss  0x2246(%rip),%ymm11        # 46e4 <_sk_callback_hsw+0x2ff>
   .byte  196,193,108,88,211                  // vaddps        %ymm11,%ymm2,%ymm2
-  .byte  196,98,125,24,29,252,33,0,0         // vbroadcastss  0x21fc(%rip),%ymm11        # 4008 <_sk_callback_hsw+0x2c3>
+  .byte  196,98,125,24,29,60,34,0,0          // vbroadcastss  0x223c(%rip),%ymm11        # 46e8 <_sk_callback_hsw+0x303>
   .byte  196,98,45,172,218                   // vfnmadd213ps  %ymm2,%ymm10,%ymm11
-  .byte  196,226,125,24,21,242,33,0,0        // vbroadcastss  0x21f2(%rip),%ymm2        # 400c <_sk_callback_hsw+0x2c7>
+  .byte  196,226,125,24,21,50,34,0,0         // vbroadcastss  0x2232(%rip),%ymm2        # 46ec <_sk_callback_hsw+0x307>
   .byte  196,193,108,92,210                  // vsubps        %ymm10,%ymm2,%ymm2
-  .byte  196,98,125,24,21,232,33,0,0         // vbroadcastss  0x21e8(%rip),%ymm10        # 4010 <_sk_callback_hsw+0x2cb>
+  .byte  196,98,125,24,21,40,34,0,0          // vbroadcastss  0x2228(%rip),%ymm10        # 46f0 <_sk_callback_hsw+0x30b>
   .byte  197,172,94,210                      // vdivps        %ymm2,%ymm10,%ymm2
   .byte  197,164,88,210                      // vaddps        %ymm2,%ymm11,%ymm2
-  .byte  196,98,125,24,21,219,33,0,0         // vbroadcastss  0x21db(%rip),%ymm10        # 4014 <_sk_callback_hsw+0x2cf>
+  .byte  196,98,125,24,21,27,34,0,0          // vbroadcastss  0x221b(%rip),%ymm10        # 46f4 <_sk_callback_hsw+0x30f>
   .byte  196,193,108,89,210                  // vmulps        %ymm10,%ymm2,%ymm2
   .byte  197,253,91,210                      // vcvtps2dq     %ymm2,%ymm2
   .byte  196,98,125,24,80,20                 // vbroadcastss  0x14(%rax),%ymm10
@@ -9432,7 +10672,7 @@ _sk_parametric_b_hsw:
   .byte  196,195,109,74,209,128              // vblendvps     %ymm8,%ymm9,%ymm2,%ymm2
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,193,108,95,208                  // vmaxps        %ymm8,%ymm2,%ymm2
-  .byte  196,98,125,24,5,178,33,0,0          // vbroadcastss  0x21b2(%rip),%ymm8        # 4018 <_sk_callback_hsw+0x2d3>
+  .byte  196,98,125,24,5,242,33,0,0          // vbroadcastss  0x21f2(%rip),%ymm8        # 46f8 <_sk_callback_hsw+0x313>
   .byte  196,193,108,93,208                  // vminps        %ymm8,%ymm2,%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -9452,33 +10692,33 @@ _sk_parametric_a_hsw:
   .byte  196,66,101,168,211                  // vfmadd213ps   %ymm11,%ymm3,%ymm10
   .byte  196,226,125,24,24                   // vbroadcastss  (%rax),%ymm3
   .byte  196,65,124,91,218                   // vcvtdq2ps     %ymm10,%ymm11
-  .byte  196,98,125,24,37,106,33,0,0         // vbroadcastss  0x216a(%rip),%ymm12        # 401c <_sk_callback_hsw+0x2d7>
-  .byte  196,98,125,24,45,101,33,0,0         // vbroadcastss  0x2165(%rip),%ymm13        # 4020 <_sk_callback_hsw+0x2db>
+  .byte  196,98,125,24,37,170,33,0,0         // vbroadcastss  0x21aa(%rip),%ymm12        # 46fc <_sk_callback_hsw+0x317>
+  .byte  196,98,125,24,45,165,33,0,0         // vbroadcastss  0x21a5(%rip),%ymm13        # 4700 <_sk_callback_hsw+0x31b>
   .byte  196,65,44,84,213                    // vandps        %ymm13,%ymm10,%ymm10
-  .byte  196,98,125,24,45,91,33,0,0          // vbroadcastss  0x215b(%rip),%ymm13        # 4024 <_sk_callback_hsw+0x2df>
+  .byte  196,98,125,24,45,155,33,0,0         // vbroadcastss  0x219b(%rip),%ymm13        # 4704 <_sk_callback_hsw+0x31f>
   .byte  196,65,44,86,213                    // vorps         %ymm13,%ymm10,%ymm10
-  .byte  196,98,125,24,45,81,33,0,0          // vbroadcastss  0x2151(%rip),%ymm13        # 4028 <_sk_callback_hsw+0x2e3>
+  .byte  196,98,125,24,45,145,33,0,0         // vbroadcastss  0x2191(%rip),%ymm13        # 4708 <_sk_callback_hsw+0x323>
   .byte  196,66,37,184,236                   // vfmadd231ps   %ymm12,%ymm11,%ymm13
-  .byte  196,98,125,24,29,71,33,0,0          // vbroadcastss  0x2147(%rip),%ymm11        # 402c <_sk_callback_hsw+0x2e7>
+  .byte  196,98,125,24,29,135,33,0,0         // vbroadcastss  0x2187(%rip),%ymm11        # 470c <_sk_callback_hsw+0x327>
   .byte  196,66,45,172,221                   // vfnmadd213ps  %ymm13,%ymm10,%ymm11
-  .byte  196,98,125,24,37,61,33,0,0          // vbroadcastss  0x213d(%rip),%ymm12        # 4030 <_sk_callback_hsw+0x2eb>
+  .byte  196,98,125,24,37,125,33,0,0         // vbroadcastss  0x217d(%rip),%ymm12        # 4710 <_sk_callback_hsw+0x32b>
   .byte  196,65,44,88,212                    // vaddps        %ymm12,%ymm10,%ymm10
-  .byte  196,98,125,24,37,51,33,0,0          // vbroadcastss  0x2133(%rip),%ymm12        # 4034 <_sk_callback_hsw+0x2ef>
+  .byte  196,98,125,24,37,115,33,0,0         // vbroadcastss  0x2173(%rip),%ymm12        # 4714 <_sk_callback_hsw+0x32f>
   .byte  196,65,28,94,210                    // vdivps        %ymm10,%ymm12,%ymm10
   .byte  196,65,36,92,210                    // vsubps        %ymm10,%ymm11,%ymm10
   .byte  196,193,100,89,218                  // vmulps        %ymm10,%ymm3,%ymm3
   .byte  196,99,125,8,211,1                  // vroundps      $0x1,%ymm3,%ymm10
   .byte  196,65,100,92,210                   // vsubps        %ymm10,%ymm3,%ymm10
-  .byte  196,98,125,24,29,20,33,0,0          // vbroadcastss  0x2114(%rip),%ymm11        # 4038 <_sk_callback_hsw+0x2f3>
+  .byte  196,98,125,24,29,84,33,0,0          // vbroadcastss  0x2154(%rip),%ymm11        # 4718 <_sk_callback_hsw+0x333>
   .byte  196,193,100,88,219                  // vaddps        %ymm11,%ymm3,%ymm3
-  .byte  196,98,125,24,29,10,33,0,0          // vbroadcastss  0x210a(%rip),%ymm11        # 403c <_sk_callback_hsw+0x2f7>
+  .byte  196,98,125,24,29,74,33,0,0          // vbroadcastss  0x214a(%rip),%ymm11        # 471c <_sk_callback_hsw+0x337>
   .byte  196,98,45,172,219                   // vfnmadd213ps  %ymm3,%ymm10,%ymm11
-  .byte  196,226,125,24,29,0,33,0,0          // vbroadcastss  0x2100(%rip),%ymm3        # 4040 <_sk_callback_hsw+0x2fb>
+  .byte  196,226,125,24,29,64,33,0,0         // vbroadcastss  0x2140(%rip),%ymm3        # 4720 <_sk_callback_hsw+0x33b>
   .byte  196,193,100,92,218                  // vsubps        %ymm10,%ymm3,%ymm3
-  .byte  196,98,125,24,21,246,32,0,0         // vbroadcastss  0x20f6(%rip),%ymm10        # 4044 <_sk_callback_hsw+0x2ff>
+  .byte  196,98,125,24,21,54,33,0,0          // vbroadcastss  0x2136(%rip),%ymm10        # 4724 <_sk_callback_hsw+0x33f>
   .byte  197,172,94,219                      // vdivps        %ymm3,%ymm10,%ymm3
   .byte  197,164,88,219                      // vaddps        %ymm3,%ymm11,%ymm3
-  .byte  196,98,125,24,21,233,32,0,0         // vbroadcastss  0x20e9(%rip),%ymm10        # 4048 <_sk_callback_hsw+0x303>
+  .byte  196,98,125,24,21,41,33,0,0          // vbroadcastss  0x2129(%rip),%ymm10        # 4728 <_sk_callback_hsw+0x343>
   .byte  196,193,100,89,218                  // vmulps        %ymm10,%ymm3,%ymm3
   .byte  197,253,91,219                      // vcvtps2dq     %ymm3,%ymm3
   .byte  196,98,125,24,80,20                 // vbroadcastss  0x14(%rax),%ymm10
@@ -9486,7 +10726,7 @@ _sk_parametric_a_hsw:
   .byte  196,195,101,74,217,128              // vblendvps     %ymm8,%ymm9,%ymm3,%ymm3
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,193,100,95,216                  // vmaxps        %ymm8,%ymm3,%ymm3
-  .byte  196,98,125,24,5,192,32,0,0          // vbroadcastss  0x20c0(%rip),%ymm8        # 404c <_sk_callback_hsw+0x307>
+  .byte  196,98,125,24,5,0,33,0,0            // vbroadcastss  0x2100(%rip),%ymm8        # 472c <_sk_callback_hsw+0x347>
   .byte  196,193,100,93,216                  // vminps        %ymm8,%ymm3,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -9495,26 +10735,26 @@ HIDDEN _sk_lab_to_xyz_hsw
 .globl _sk_lab_to_xyz_hsw
 FUNCTION(_sk_lab_to_xyz_hsw)
 _sk_lab_to_xyz_hsw:
-  .byte  196,98,125,24,5,178,32,0,0          // vbroadcastss  0x20b2(%rip),%ymm8        # 4050 <_sk_callback_hsw+0x30b>
-  .byte  196,98,125,24,13,173,32,0,0         // vbroadcastss  0x20ad(%rip),%ymm9        # 4054 <_sk_callback_hsw+0x30f>
-  .byte  196,98,125,24,21,168,32,0,0         // vbroadcastss  0x20a8(%rip),%ymm10        # 4058 <_sk_callback_hsw+0x313>
+  .byte  196,98,125,24,5,242,32,0,0          // vbroadcastss  0x20f2(%rip),%ymm8        # 4730 <_sk_callback_hsw+0x34b>
+  .byte  196,98,125,24,13,237,32,0,0         // vbroadcastss  0x20ed(%rip),%ymm9        # 4734 <_sk_callback_hsw+0x34f>
+  .byte  196,98,125,24,21,232,32,0,0         // vbroadcastss  0x20e8(%rip),%ymm10        # 4738 <_sk_callback_hsw+0x353>
   .byte  196,194,53,168,202                  // vfmadd213ps   %ymm10,%ymm9,%ymm1
   .byte  196,194,53,168,210                  // vfmadd213ps   %ymm10,%ymm9,%ymm2
-  .byte  196,98,125,24,13,153,32,0,0         // vbroadcastss  0x2099(%rip),%ymm9        # 405c <_sk_callback_hsw+0x317>
+  .byte  196,98,125,24,13,217,32,0,0         // vbroadcastss  0x20d9(%rip),%ymm9        # 473c <_sk_callback_hsw+0x357>
   .byte  196,66,125,184,200                  // vfmadd231ps   %ymm8,%ymm0,%ymm9
-  .byte  196,226,125,24,5,143,32,0,0         // vbroadcastss  0x208f(%rip),%ymm0        # 4060 <_sk_callback_hsw+0x31b>
+  .byte  196,226,125,24,5,207,32,0,0         // vbroadcastss  0x20cf(%rip),%ymm0        # 4740 <_sk_callback_hsw+0x35b>
   .byte  197,180,89,192                      // vmulps        %ymm0,%ymm9,%ymm0
-  .byte  196,98,125,24,5,134,32,0,0          // vbroadcastss  0x2086(%rip),%ymm8        # 4064 <_sk_callback_hsw+0x31f>
+  .byte  196,98,125,24,5,198,32,0,0          // vbroadcastss  0x20c6(%rip),%ymm8        # 4744 <_sk_callback_hsw+0x35f>
   .byte  196,98,117,168,192                  // vfmadd213ps   %ymm0,%ymm1,%ymm8
-  .byte  196,98,125,24,13,124,32,0,0         // vbroadcastss  0x207c(%rip),%ymm9        # 4068 <_sk_callback_hsw+0x323>
+  .byte  196,98,125,24,13,188,32,0,0         // vbroadcastss  0x20bc(%rip),%ymm9        # 4748 <_sk_callback_hsw+0x363>
   .byte  196,98,109,172,200                  // vfnmadd213ps  %ymm0,%ymm2,%ymm9
   .byte  196,193,60,89,200                   // vmulps        %ymm8,%ymm8,%ymm1
   .byte  197,188,89,201                      // vmulps        %ymm1,%ymm8,%ymm1
-  .byte  196,226,125,24,21,105,32,0,0        // vbroadcastss  0x2069(%rip),%ymm2        # 406c <_sk_callback_hsw+0x327>
+  .byte  196,226,125,24,21,169,32,0,0        // vbroadcastss  0x20a9(%rip),%ymm2        # 474c <_sk_callback_hsw+0x367>
   .byte  197,108,194,209,1                   // vcmpltps      %ymm1,%ymm2,%ymm10
-  .byte  196,98,125,24,29,95,32,0,0          // vbroadcastss  0x205f(%rip),%ymm11        # 4070 <_sk_callback_hsw+0x32b>
+  .byte  196,98,125,24,29,159,32,0,0         // vbroadcastss  0x209f(%rip),%ymm11        # 4750 <_sk_callback_hsw+0x36b>
   .byte  196,65,60,88,195                    // vaddps        %ymm11,%ymm8,%ymm8
-  .byte  196,98,125,24,37,85,32,0,0          // vbroadcastss  0x2055(%rip),%ymm12        # 4074 <_sk_callback_hsw+0x32f>
+  .byte  196,98,125,24,37,149,32,0,0         // vbroadcastss  0x2095(%rip),%ymm12        # 4754 <_sk_callback_hsw+0x36f>
   .byte  196,65,60,89,196                    // vmulps        %ymm12,%ymm8,%ymm8
   .byte  196,99,61,74,193,160                // vblendvps     %ymm10,%ymm1,%ymm8,%ymm8
   .byte  197,252,89,200                      // vmulps        %ymm0,%ymm0,%ymm1
@@ -9529,9 +10769,9 @@ _sk_lab_to_xyz_hsw:
   .byte  196,65,52,88,203                    // vaddps        %ymm11,%ymm9,%ymm9
   .byte  196,65,52,89,204                    // vmulps        %ymm12,%ymm9,%ymm9
   .byte  196,227,53,74,208,32                // vblendvps     %ymm2,%ymm0,%ymm9,%ymm2
-  .byte  196,226,125,24,5,10,32,0,0          // vbroadcastss  0x200a(%rip),%ymm0        # 4078 <_sk_callback_hsw+0x333>
+  .byte  196,226,125,24,5,74,32,0,0          // vbroadcastss  0x204a(%rip),%ymm0        # 4758 <_sk_callback_hsw+0x373>
   .byte  197,188,89,192                      // vmulps        %ymm0,%ymm8,%ymm0
-  .byte  196,98,125,24,5,1,32,0,0            // vbroadcastss  0x2001(%rip),%ymm8        # 407c <_sk_callback_hsw+0x337>
+  .byte  196,98,125,24,5,65,32,0,0           // vbroadcastss  0x2041(%rip),%ymm8        # 475c <_sk_callback_hsw+0x377>
   .byte  196,193,108,89,208                  // vmulps        %ymm8,%ymm2,%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -9545,11 +10785,11 @@ _sk_load_a8_hsw:
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  72,1,248                            // add           %rdi,%rax
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,45                              // jne           20c1 <_sk_load_a8_hsw+0x3d>
+  .byte  117,45                              // jne           2761 <_sk_load_a8_hsw+0x3d>
   .byte  197,250,126,0                       // vmovq         (%rax),%xmm0
   .byte  196,226,125,49,192                  // vpmovzxbd     %xmm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,214,31,0,0        // vbroadcastss  0x1fd6(%rip),%ymm1        # 4080 <_sk_callback_hsw+0x33b>
+  .byte  196,226,125,24,13,22,32,0,0         // vbroadcastss  0x2016(%rip),%ymm1        # 4760 <_sk_callback_hsw+0x37b>
   .byte  197,252,89,217                      // vmulps        %ymm1,%ymm0,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,252,87,192                      // vxorps        %ymm0,%ymm0,%ymm0
@@ -9566,9 +10806,9 @@ _sk_load_a8_hsw:
   .byte  77,9,217                            // or            %r11,%r9
   .byte  72,131,193,8                        // add           $0x8,%rcx
   .byte  73,255,202                          // dec           %r10
-  .byte  117,234                             // jne           20c9 <_sk_load_a8_hsw+0x45>
+  .byte  117,234                             // jne           2769 <_sk_load_a8_hsw+0x45>
   .byte  196,193,249,110,193                 // vmovq         %r9,%xmm0
-  .byte  235,178                             // jmp           2098 <_sk_load_a8_hsw+0x14>
+  .byte  235,178                             // jmp           2738 <_sk_load_a8_hsw+0x14>
 
 HIDDEN _sk_gather_a8_hsw
 .globl _sk_gather_a8_hsw
@@ -9614,7 +10854,7 @@ _sk_gather_a8_hsw:
   .byte  196,227,121,32,192,7                // vpinsrb       $0x7,%eax,%xmm0,%xmm0
   .byte  196,226,125,49,192                  // vpmovzxbd     %xmm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,225,30,0,0        // vbroadcastss  0x1ee1(%rip),%ymm1        # 4084 <_sk_callback_hsw+0x33f>
+  .byte  196,226,125,24,13,33,31,0,0         // vbroadcastss  0x1f21(%rip),%ymm1        # 4764 <_sk_callback_hsw+0x37f>
   .byte  197,252,89,217                      // vmulps        %ymm1,%ymm0,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,252,87,192                      // vxorps        %ymm0,%ymm0,%ymm0
@@ -9632,14 +10872,14 @@ FUNCTION(_sk_store_a8_hsw)
 _sk_store_a8_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
-  .byte  196,98,125,24,5,188,30,0,0          // vbroadcastss  0x1ebc(%rip),%ymm8        # 4088 <_sk_callback_hsw+0x343>
+  .byte  196,98,125,24,5,252,30,0,0          // vbroadcastss  0x1efc(%rip),%ymm8        # 4768 <_sk_callback_hsw+0x383>
   .byte  196,65,100,89,192                   // vmulps        %ymm8,%ymm3,%ymm8
   .byte  196,65,125,91,192                   // vcvtps2dq     %ymm8,%ymm8
   .byte  196,67,125,25,193,1                 // vextractf128  $0x1,%ymm8,%xmm9
   .byte  196,66,57,43,193                    // vpackusdw     %xmm9,%xmm8,%xmm8
   .byte  196,65,57,103,192                   // vpackuswb     %xmm8,%xmm8,%xmm8
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,10                              // jne           21f5 <_sk_store_a8_hsw+0x37>
+  .byte  117,10                              // jne           2895 <_sk_store_a8_hsw+0x37>
   .byte  196,65,123,17,4,58                  // vmovsd        %xmm8,(%r10,%rdi,1)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -9647,10 +10887,10 @@ _sk_store_a8_hsw:
   .byte  65,128,224,7                        // and           $0x7,%r8b
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  119,236                             // ja            21f1 <_sk_store_a8_hsw+0x33>
+  .byte  119,236                             // ja            2891 <_sk_store_a8_hsw+0x33>
   .byte  196,66,121,48,192                   // vpmovzxbw     %xmm8,%xmm8
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,67,0,0,0                  // lea           0x43(%rip),%r9        # 2258 <_sk_store_a8_hsw+0x9a>
+  .byte  76,141,13,67,0,0,0                  // lea           0x43(%rip),%r9        # 28f8 <_sk_store_a8_hsw+0x9a>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -9661,7 +10901,7 @@ _sk_store_a8_hsw:
   .byte  196,67,121,20,68,58,2,4             // vpextrb       $0x4,%xmm8,0x2(%r10,%rdi,1)
   .byte  196,67,121,20,68,58,1,2             // vpextrb       $0x2,%xmm8,0x1(%r10,%rdi,1)
   .byte  196,67,121,20,4,58,0                // vpextrb       $0x0,%xmm8,(%r10,%rdi,1)
-  .byte  235,154                             // jmp           21f1 <_sk_store_a8_hsw+0x33>
+  .byte  235,154                             // jmp           2891 <_sk_store_a8_hsw+0x33>
   .byte  144                                 // nop
   .byte  246,255                             // idiv          %bh
   .byte  255                                 // (bad)
@@ -9695,14 +10935,14 @@ _sk_load_g8_hsw:
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  72,1,248                            // add           %rdi,%rax
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,50                              // jne           22b6 <_sk_load_g8_hsw+0x42>
+  .byte  117,50                              // jne           2956 <_sk_load_g8_hsw+0x42>
   .byte  197,250,126,0                       // vmovq         (%rax),%xmm0
   .byte  196,226,125,49,192                  // vpmovzxbd     %xmm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,242,29,0,0        // vbroadcastss  0x1df2(%rip),%ymm1        # 408c <_sk_callback_hsw+0x347>
+  .byte  196,226,125,24,13,50,30,0,0         // vbroadcastss  0x1e32(%rip),%ymm1        # 476c <_sk_callback_hsw+0x387>
   .byte  197,252,89,193                      // vmulps        %ymm1,%ymm0,%ymm0
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,231,29,0,0        // vbroadcastss  0x1de7(%rip),%ymm3        # 4090 <_sk_callback_hsw+0x34b>
+  .byte  196,226,125,24,29,39,30,0,0         // vbroadcastss  0x1e27(%rip),%ymm3        # 4770 <_sk_callback_hsw+0x38b>
   .byte  76,137,193                          // mov           %r8,%rcx
   .byte  197,252,40,200                      // vmovaps       %ymm0,%ymm1
   .byte  197,252,40,208                      // vmovaps       %ymm0,%ymm2
@@ -9716,9 +10956,9 @@ _sk_load_g8_hsw:
   .byte  77,9,217                            // or            %r11,%r9
   .byte  72,131,193,8                        // add           $0x8,%rcx
   .byte  73,255,202                          // dec           %r10
-  .byte  117,234                             // jne           22be <_sk_load_g8_hsw+0x4a>
+  .byte  117,234                             // jne           295e <_sk_load_g8_hsw+0x4a>
   .byte  196,193,249,110,193                 // vmovq         %r9,%xmm0
-  .byte  235,173                             // jmp           2288 <_sk_load_g8_hsw+0x14>
+  .byte  235,173                             // jmp           2928 <_sk_load_g8_hsw+0x14>
 
 HIDDEN _sk_gather_g8_hsw
 .globl _sk_gather_g8_hsw
@@ -9764,10 +11004,10 @@ _sk_gather_g8_hsw:
   .byte  196,227,121,32,192,7                // vpinsrb       $0x7,%eax,%xmm0,%xmm0
   .byte  196,226,125,49,192                  // vpmovzxbd     %xmm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,252,28,0,0        // vbroadcastss  0x1cfc(%rip),%ymm1        # 4094 <_sk_callback_hsw+0x34f>
+  .byte  196,226,125,24,13,60,29,0,0         // vbroadcastss  0x1d3c(%rip),%ymm1        # 4774 <_sk_callback_hsw+0x38f>
   .byte  197,252,89,193                      // vmulps        %ymm1,%ymm0,%ymm0
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,241,28,0,0        // vbroadcastss  0x1cf1(%rip),%ymm3        # 4098 <_sk_callback_hsw+0x353>
+  .byte  196,226,125,24,29,49,29,0,0         // vbroadcastss  0x1d31(%rip),%ymm3        # 4778 <_sk_callback_hsw+0x393>
   .byte  197,252,40,200                      // vmovaps       %ymm0,%ymm1
   .byte  197,252,40,208                      // vmovaps       %ymm0,%ymm2
   .byte  91                                  // pop           %rbx
@@ -9783,9 +11023,9 @@ _sk_gather_i8_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  73,137,192                          // mov           %rax,%r8
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  116,5                               // je            23c7 <_sk_gather_i8_hsw+0xf>
+  .byte  116,5                               // je            2a67 <_sk_gather_i8_hsw+0xf>
   .byte  76,137,192                          // mov           %r8,%rax
-  .byte  235,2                               // jmp           23c9 <_sk_gather_i8_hsw+0x11>
+  .byte  235,2                               // jmp           2a69 <_sk_gather_i8_hsw+0x11>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -9823,14 +11063,14 @@ _sk_gather_i8_hsw:
   .byte  73,139,64,8                         // mov           0x8(%r8),%rax
   .byte  197,245,118,201                     // vpcmpeqd      %ymm1,%ymm1,%ymm1
   .byte  196,226,117,144,28,128              // vpgatherdd    %ymm1,(%rax,%ymm0,4),%ymm3
-  .byte  197,229,219,5,9,30,0,0              // vpand         0x1e09(%rip),%ymm3,%ymm0        # 4280 <_sk_callback_hsw+0x53b>
+  .byte  197,229,219,5,73,30,0,0             // vpand         0x1e49(%rip),%ymm3,%ymm0        # 4960 <_sk_callback_hsw+0x57b>
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,5,24,28,0,0           // vbroadcastss  0x1c18(%rip),%ymm8        # 409c <_sk_callback_hsw+0x357>
+  .byte  196,98,125,24,5,88,28,0,0           // vbroadcastss  0x1c58(%rip),%ymm8        # 477c <_sk_callback_hsw+0x397>
   .byte  196,193,124,89,192                  // vmulps        %ymm8,%ymm0,%ymm0
-  .byte  196,226,101,0,13,14,30,0,0          // vpshufb       0x1e0e(%rip),%ymm3,%ymm1        # 42a0 <_sk_callback_hsw+0x55b>
+  .byte  196,226,101,0,13,78,30,0,0          // vpshufb       0x1e4e(%rip),%ymm3,%ymm1        # 4980 <_sk_callback_hsw+0x59b>
   .byte  197,252,91,201                      // vcvtdq2ps     %ymm1,%ymm1
   .byte  196,193,116,89,200                  // vmulps        %ymm8,%ymm1,%ymm1
-  .byte  196,226,101,0,21,28,30,0,0          // vpshufb       0x1e1c(%rip),%ymm3,%ymm2        # 42c0 <_sk_callback_hsw+0x57b>
+  .byte  196,226,101,0,21,92,30,0,0          // vpshufb       0x1e5c(%rip),%ymm3,%ymm2        # 49a0 <_sk_callback_hsw+0x5bb>
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
   .byte  196,193,108,89,208                  // vmulps        %ymm8,%ymm2,%ymm2
   .byte  197,229,114,211,24                  // vpsrld        $0x18,%ymm3,%ymm3
@@ -9851,35 +11091,35 @@ _sk_load_565_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,114                             // jne           2544 <_sk_load_565_hsw+0x7c>
+  .byte  117,114                             // jne           2be4 <_sk_load_565_hsw+0x7c>
   .byte  196,193,122,111,4,122               // vmovdqu       (%r10,%rdi,2),%xmm0
   .byte  196,226,125,51,208                  // vpmovzxwd     %xmm0,%ymm2
-  .byte  196,226,125,88,5,186,27,0,0         // vpbroadcastd  0x1bba(%rip),%ymm0        # 40a0 <_sk_callback_hsw+0x35b>
+  .byte  196,226,125,88,5,250,27,0,0         // vpbroadcastd  0x1bfa(%rip),%ymm0        # 4780 <_sk_callback_hsw+0x39b>
   .byte  197,237,219,192                     // vpand         %ymm0,%ymm2,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,173,27,0,0        // vbroadcastss  0x1bad(%rip),%ymm1        # 40a4 <_sk_callback_hsw+0x35f>
+  .byte  196,226,125,24,13,237,27,0,0        // vbroadcastss  0x1bed(%rip),%ymm1        # 4784 <_sk_callback_hsw+0x39f>
   .byte  197,252,89,193                      // vmulps        %ymm1,%ymm0,%ymm0
-  .byte  196,226,125,88,13,164,27,0,0        // vpbroadcastd  0x1ba4(%rip),%ymm1        # 40a8 <_sk_callback_hsw+0x363>
+  .byte  196,226,125,88,13,228,27,0,0        // vpbroadcastd  0x1be4(%rip),%ymm1        # 4788 <_sk_callback_hsw+0x3a3>
   .byte  197,237,219,201                     // vpand         %ymm1,%ymm2,%ymm1
   .byte  197,252,91,201                      // vcvtdq2ps     %ymm1,%ymm1
-  .byte  196,226,125,24,29,151,27,0,0        // vbroadcastss  0x1b97(%rip),%ymm3        # 40ac <_sk_callback_hsw+0x367>
+  .byte  196,226,125,24,29,215,27,0,0        // vbroadcastss  0x1bd7(%rip),%ymm3        # 478c <_sk_callback_hsw+0x3a7>
   .byte  197,244,89,203                      // vmulps        %ymm3,%ymm1,%ymm1
-  .byte  196,226,125,88,29,142,27,0,0        // vpbroadcastd  0x1b8e(%rip),%ymm3        # 40b0 <_sk_callback_hsw+0x36b>
+  .byte  196,226,125,88,29,206,27,0,0        // vpbroadcastd  0x1bce(%rip),%ymm3        # 4790 <_sk_callback_hsw+0x3ab>
   .byte  197,237,219,211                     // vpand         %ymm3,%ymm2,%ymm2
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
-  .byte  196,226,125,24,29,129,27,0,0        // vbroadcastss  0x1b81(%rip),%ymm3        # 40b4 <_sk_callback_hsw+0x36f>
+  .byte  196,226,125,24,29,193,27,0,0        // vbroadcastss  0x1bc1(%rip),%ymm3        # 4794 <_sk_callback_hsw+0x3af>
   .byte  197,236,89,211                      // vmulps        %ymm3,%ymm2,%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,118,27,0,0        // vbroadcastss  0x1b76(%rip),%ymm3        # 40b8 <_sk_callback_hsw+0x373>
+  .byte  196,226,125,24,29,182,27,0,0        // vbroadcastss  0x1bb6(%rip),%ymm3        # 4798 <_sk_callback_hsw+0x3b3>
   .byte  255,224                             // jmpq          *%rax
   .byte  65,137,200                          // mov           %ecx,%r8d
   .byte  65,128,224,7                        // and           $0x7,%r8b
   .byte  197,249,239,192                     // vpxor         %xmm0,%xmm0,%xmm0
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  119,128                             // ja            24d8 <_sk_load_565_hsw+0x10>
+  .byte  119,128                             // ja            2b78 <_sk_load_565_hsw+0x10>
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,73,0,0,0                  // lea           0x49(%rip),%r9        # 25ac <_sk_load_565_hsw+0xe4>
+  .byte  76,141,13,73,0,0,0                  // lea           0x49(%rip),%r9        # 2c4c <_sk_load_565_hsw+0xe4>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -9891,7 +11131,7 @@ _sk_load_565_hsw:
   .byte  196,193,121,196,68,122,4,2          // vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm0,%xmm0
   .byte  196,193,121,196,68,122,2,1          // vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm0,%xmm0
   .byte  196,193,121,196,4,122,0             // vpinsrw       $0x0,(%r10,%rdi,2),%xmm0,%xmm0
-  .byte  233,44,255,255,255                  // jmpq          24d8 <_sk_load_565_hsw+0x10>
+  .byte  233,44,255,255,255                  // jmpq          2b78 <_sk_load_565_hsw+0x10>
   .byte  244                                 // hlt
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
@@ -9961,23 +11201,23 @@ _sk_gather_565_hsw:
   .byte  65,15,183,4,88                      // movzwl        (%r8,%rbx,2),%eax
   .byte  197,249,196,192,7                   // vpinsrw       $0x7,%eax,%xmm0,%xmm0
   .byte  196,226,125,51,208                  // vpmovzxwd     %xmm0,%ymm2
-  .byte  196,226,125,88,5,57,26,0,0          // vpbroadcastd  0x1a39(%rip),%ymm0        # 40bc <_sk_callback_hsw+0x377>
+  .byte  196,226,125,88,5,121,26,0,0         // vpbroadcastd  0x1a79(%rip),%ymm0        # 479c <_sk_callback_hsw+0x3b7>
   .byte  197,237,219,192                     // vpand         %ymm0,%ymm2,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,44,26,0,0         // vbroadcastss  0x1a2c(%rip),%ymm1        # 40c0 <_sk_callback_hsw+0x37b>
+  .byte  196,226,125,24,13,108,26,0,0        // vbroadcastss  0x1a6c(%rip),%ymm1        # 47a0 <_sk_callback_hsw+0x3bb>
   .byte  197,252,89,193                      // vmulps        %ymm1,%ymm0,%ymm0
-  .byte  196,226,125,88,13,35,26,0,0         // vpbroadcastd  0x1a23(%rip),%ymm1        # 40c4 <_sk_callback_hsw+0x37f>
+  .byte  196,226,125,88,13,99,26,0,0         // vpbroadcastd  0x1a63(%rip),%ymm1        # 47a4 <_sk_callback_hsw+0x3bf>
   .byte  197,237,219,201                     // vpand         %ymm1,%ymm2,%ymm1
   .byte  197,252,91,201                      // vcvtdq2ps     %ymm1,%ymm1
-  .byte  196,226,125,24,29,22,26,0,0         // vbroadcastss  0x1a16(%rip),%ymm3        # 40c8 <_sk_callback_hsw+0x383>
+  .byte  196,226,125,24,29,86,26,0,0         // vbroadcastss  0x1a56(%rip),%ymm3        # 47a8 <_sk_callback_hsw+0x3c3>
   .byte  197,244,89,203                      // vmulps        %ymm3,%ymm1,%ymm1
-  .byte  196,226,125,88,29,13,26,0,0         // vpbroadcastd  0x1a0d(%rip),%ymm3        # 40cc <_sk_callback_hsw+0x387>
+  .byte  196,226,125,88,29,77,26,0,0         // vpbroadcastd  0x1a4d(%rip),%ymm3        # 47ac <_sk_callback_hsw+0x3c7>
   .byte  197,237,219,211                     // vpand         %ymm3,%ymm2,%ymm2
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
-  .byte  196,226,125,24,29,0,26,0,0          // vbroadcastss  0x1a00(%rip),%ymm3        # 40d0 <_sk_callback_hsw+0x38b>
+  .byte  196,226,125,24,29,64,26,0,0         // vbroadcastss  0x1a40(%rip),%ymm3        # 47b0 <_sk_callback_hsw+0x3cb>
   .byte  197,236,89,211                      // vmulps        %ymm3,%ymm2,%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,245,25,0,0        // vbroadcastss  0x19f5(%rip),%ymm3        # 40d4 <_sk_callback_hsw+0x38f>
+  .byte  196,226,125,24,29,53,26,0,0         // vbroadcastss  0x1a35(%rip),%ymm3        # 47b4 <_sk_callback_hsw+0x3cf>
   .byte  91                                  // pop           %rbx
   .byte  65,92                               // pop           %r12
   .byte  65,94                               // pop           %r14
@@ -9990,11 +11230,11 @@ FUNCTION(_sk_store_565_hsw)
 _sk_store_565_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
-  .byte  196,98,125,24,5,226,25,0,0          // vbroadcastss  0x19e2(%rip),%ymm8        # 40d8 <_sk_callback_hsw+0x393>
+  .byte  196,98,125,24,5,34,26,0,0           // vbroadcastss  0x1a22(%rip),%ymm8        # 47b8 <_sk_callback_hsw+0x3d3>
   .byte  196,65,124,89,200                   // vmulps        %ymm8,%ymm0,%ymm9
   .byte  196,65,125,91,201                   // vcvtps2dq     %ymm9,%ymm9
   .byte  196,193,53,114,241,11               // vpslld        $0xb,%ymm9,%ymm9
-  .byte  196,98,125,24,21,205,25,0,0         // vbroadcastss  0x19cd(%rip),%ymm10        # 40dc <_sk_callback_hsw+0x397>
+  .byte  196,98,125,24,21,13,26,0,0          // vbroadcastss  0x1a0d(%rip),%ymm10        # 47bc <_sk_callback_hsw+0x3d7>
   .byte  196,65,116,89,210                   // vmulps        %ymm10,%ymm1,%ymm10
   .byte  196,65,125,91,210                   // vcvtps2dq     %ymm10,%ymm10
   .byte  196,193,45,114,242,5                // vpslld        $0x5,%ymm10,%ymm10
@@ -10005,7 +11245,7 @@ _sk_store_565_hsw:
   .byte  196,67,125,57,193,1                 // vextracti128  $0x1,%ymm8,%xmm9
   .byte  196,66,57,43,193                    // vpackusdw     %xmm9,%xmm8,%xmm8
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,10                              // jne           274d <_sk_store_565_hsw+0x65>
+  .byte  117,10                              // jne           2ded <_sk_store_565_hsw+0x65>
   .byte  196,65,122,127,4,122                // vmovdqu       %xmm8,(%r10,%rdi,2)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -10013,9 +11253,9 @@ _sk_store_565_hsw:
   .byte  65,128,224,7                        // and           $0x7,%r8b
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  119,236                             // ja            2749 <_sk_store_565_hsw+0x61>
+  .byte  119,236                             // ja            2de9 <_sk_store_565_hsw+0x61>
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,68,0,0,0                  // lea           0x44(%rip),%r9        # 27ac <_sk_store_565_hsw+0xc4>
+  .byte  76,141,13,68,0,0,0                  // lea           0x44(%rip),%r9        # 2e4c <_sk_store_565_hsw+0xc4>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -10026,7 +11266,7 @@ _sk_store_565_hsw:
   .byte  196,67,121,21,68,122,4,2            // vpextrw       $0x2,%xmm8,0x4(%r10,%rdi,2)
   .byte  196,67,121,21,68,122,2,1            // vpextrw       $0x1,%xmm8,0x2(%r10,%rdi,2)
   .byte  196,67,121,21,4,122,0               // vpextrw       $0x0,%xmm8,(%r10,%rdi,2)
-  .byte  235,159                             // jmp           2749 <_sk_store_565_hsw+0x61>
+  .byte  235,159                             // jmp           2de9 <_sk_store_565_hsw+0x61>
   .byte  102,144                             // xchg          %ax,%ax
   .byte  245                                 // cmc
   .byte  255                                 // (bad)
@@ -10059,28 +11299,28 @@ _sk_load_4444_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,138,0,0,0                    // jne           2860 <_sk_load_4444_hsw+0x98>
+  .byte  15,133,138,0,0,0                    // jne           2f00 <_sk_load_4444_hsw+0x98>
   .byte  196,193,122,111,4,122               // vmovdqu       (%r10,%rdi,2),%xmm0
   .byte  196,226,125,51,216                  // vpmovzxwd     %xmm0,%ymm3
-  .byte  196,226,125,88,5,246,24,0,0         // vpbroadcastd  0x18f6(%rip),%ymm0        # 40e0 <_sk_callback_hsw+0x39b>
+  .byte  196,226,125,88,5,54,25,0,0          // vpbroadcastd  0x1936(%rip),%ymm0        # 47c0 <_sk_callback_hsw+0x3db>
   .byte  197,229,219,192                     // vpand         %ymm0,%ymm3,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,233,24,0,0        // vbroadcastss  0x18e9(%rip),%ymm1        # 40e4 <_sk_callback_hsw+0x39f>
+  .byte  196,226,125,24,13,41,25,0,0         // vbroadcastss  0x1929(%rip),%ymm1        # 47c4 <_sk_callback_hsw+0x3df>
   .byte  197,252,89,193                      // vmulps        %ymm1,%ymm0,%ymm0
-  .byte  196,226,125,88,13,224,24,0,0        // vpbroadcastd  0x18e0(%rip),%ymm1        # 40e8 <_sk_callback_hsw+0x3a3>
+  .byte  196,226,125,88,13,32,25,0,0         // vpbroadcastd  0x1920(%rip),%ymm1        # 47c8 <_sk_callback_hsw+0x3e3>
   .byte  197,229,219,201                     // vpand         %ymm1,%ymm3,%ymm1
   .byte  197,252,91,201                      // vcvtdq2ps     %ymm1,%ymm1
-  .byte  196,226,125,24,21,211,24,0,0        // vbroadcastss  0x18d3(%rip),%ymm2        # 40ec <_sk_callback_hsw+0x3a7>
+  .byte  196,226,125,24,21,19,25,0,0         // vbroadcastss  0x1913(%rip),%ymm2        # 47cc <_sk_callback_hsw+0x3e7>
   .byte  197,244,89,202                      // vmulps        %ymm2,%ymm1,%ymm1
-  .byte  196,226,125,88,21,202,24,0,0        // vpbroadcastd  0x18ca(%rip),%ymm2        # 40f0 <_sk_callback_hsw+0x3ab>
+  .byte  196,226,125,88,21,10,25,0,0         // vpbroadcastd  0x190a(%rip),%ymm2        # 47d0 <_sk_callback_hsw+0x3eb>
   .byte  197,229,219,210                     // vpand         %ymm2,%ymm3,%ymm2
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
-  .byte  196,98,125,24,5,189,24,0,0          // vbroadcastss  0x18bd(%rip),%ymm8        # 40f4 <_sk_callback_hsw+0x3af>
+  .byte  196,98,125,24,5,253,24,0,0          // vbroadcastss  0x18fd(%rip),%ymm8        # 47d4 <_sk_callback_hsw+0x3ef>
   .byte  196,193,108,89,208                  // vmulps        %ymm8,%ymm2,%ymm2
-  .byte  196,98,125,88,5,179,24,0,0          // vpbroadcastd  0x18b3(%rip),%ymm8        # 40f8 <_sk_callback_hsw+0x3b3>
+  .byte  196,98,125,88,5,243,24,0,0          // vpbroadcastd  0x18f3(%rip),%ymm8        # 47d8 <_sk_callback_hsw+0x3f3>
   .byte  196,193,101,219,216                 // vpand         %ymm8,%ymm3,%ymm3
   .byte  197,252,91,219                      // vcvtdq2ps     %ymm3,%ymm3
-  .byte  196,98,125,24,5,165,24,0,0          // vbroadcastss  0x18a5(%rip),%ymm8        # 40fc <_sk_callback_hsw+0x3b7>
+  .byte  196,98,125,24,5,229,24,0,0          // vbroadcastss  0x18e5(%rip),%ymm8        # 47dc <_sk_callback_hsw+0x3f7>
   .byte  196,193,100,89,216                  // vmulps        %ymm8,%ymm3,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -10089,9 +11329,9 @@ _sk_load_4444_hsw:
   .byte  197,249,239,192                     // vpxor         %xmm0,%xmm0,%xmm0
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  15,135,100,255,255,255              // ja            27dc <_sk_load_4444_hsw+0x14>
+  .byte  15,135,100,255,255,255              // ja            2e7c <_sk_load_4444_hsw+0x14>
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,73,0,0,0                  // lea           0x49(%rip),%r9        # 28cc <_sk_load_4444_hsw+0x104>
+  .byte  76,141,13,73,0,0,0                  // lea           0x49(%rip),%r9        # 2f6c <_sk_load_4444_hsw+0x104>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -10103,7 +11343,7 @@ _sk_load_4444_hsw:
   .byte  196,193,121,196,68,122,4,2          // vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm0,%xmm0
   .byte  196,193,121,196,68,122,2,1          // vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm0,%xmm0
   .byte  196,193,121,196,4,122,0             // vpinsrw       $0x0,(%r10,%rdi,2),%xmm0,%xmm0
-  .byte  233,16,255,255,255                  // jmpq          27dc <_sk_load_4444_hsw+0x14>
+  .byte  233,16,255,255,255                  // jmpq          2e7c <_sk_load_4444_hsw+0x14>
   .byte  244                                 // hlt
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
@@ -10173,25 +11413,25 @@ _sk_gather_4444_hsw:
   .byte  65,15,183,4,88                      // movzwl        (%r8,%rbx,2),%eax
   .byte  197,249,196,192,7                   // vpinsrw       $0x7,%eax,%xmm0,%xmm0
   .byte  196,226,125,51,216                  // vpmovzxwd     %xmm0,%ymm3
-  .byte  196,226,125,88,5,93,23,0,0          // vpbroadcastd  0x175d(%rip),%ymm0        # 4100 <_sk_callback_hsw+0x3bb>
+  .byte  196,226,125,88,5,157,23,0,0         // vpbroadcastd  0x179d(%rip),%ymm0        # 47e0 <_sk_callback_hsw+0x3fb>
   .byte  197,229,219,192                     // vpand         %ymm0,%ymm3,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,80,23,0,0         // vbroadcastss  0x1750(%rip),%ymm1        # 4104 <_sk_callback_hsw+0x3bf>
+  .byte  196,226,125,24,13,144,23,0,0        // vbroadcastss  0x1790(%rip),%ymm1        # 47e4 <_sk_callback_hsw+0x3ff>
   .byte  197,252,89,193                      // vmulps        %ymm1,%ymm0,%ymm0
-  .byte  196,226,125,88,13,71,23,0,0         // vpbroadcastd  0x1747(%rip),%ymm1        # 4108 <_sk_callback_hsw+0x3c3>
+  .byte  196,226,125,88,13,135,23,0,0        // vpbroadcastd  0x1787(%rip),%ymm1        # 47e8 <_sk_callback_hsw+0x403>
   .byte  197,229,219,201                     // vpand         %ymm1,%ymm3,%ymm1
   .byte  197,252,91,201                      // vcvtdq2ps     %ymm1,%ymm1
-  .byte  196,226,125,24,21,58,23,0,0         // vbroadcastss  0x173a(%rip),%ymm2        # 410c <_sk_callback_hsw+0x3c7>
+  .byte  196,226,125,24,21,122,23,0,0        // vbroadcastss  0x177a(%rip),%ymm2        # 47ec <_sk_callback_hsw+0x407>
   .byte  197,244,89,202                      // vmulps        %ymm2,%ymm1,%ymm1
-  .byte  196,226,125,88,21,49,23,0,0         // vpbroadcastd  0x1731(%rip),%ymm2        # 4110 <_sk_callback_hsw+0x3cb>
+  .byte  196,226,125,88,21,113,23,0,0        // vpbroadcastd  0x1771(%rip),%ymm2        # 47f0 <_sk_callback_hsw+0x40b>
   .byte  197,229,219,210                     // vpand         %ymm2,%ymm3,%ymm2
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
-  .byte  196,98,125,24,5,36,23,0,0           // vbroadcastss  0x1724(%rip),%ymm8        # 4114 <_sk_callback_hsw+0x3cf>
+  .byte  196,98,125,24,5,100,23,0,0          // vbroadcastss  0x1764(%rip),%ymm8        # 47f4 <_sk_callback_hsw+0x40f>
   .byte  196,193,108,89,208                  // vmulps        %ymm8,%ymm2,%ymm2
-  .byte  196,98,125,88,5,26,23,0,0           // vpbroadcastd  0x171a(%rip),%ymm8        # 4118 <_sk_callback_hsw+0x3d3>
+  .byte  196,98,125,88,5,90,23,0,0           // vpbroadcastd  0x175a(%rip),%ymm8        # 47f8 <_sk_callback_hsw+0x413>
   .byte  196,193,101,219,216                 // vpand         %ymm8,%ymm3,%ymm3
   .byte  197,252,91,219                      // vcvtdq2ps     %ymm3,%ymm3
-  .byte  196,98,125,24,5,12,23,0,0           // vbroadcastss  0x170c(%rip),%ymm8        # 411c <_sk_callback_hsw+0x3d7>
+  .byte  196,98,125,24,5,76,23,0,0           // vbroadcastss  0x174c(%rip),%ymm8        # 47fc <_sk_callback_hsw+0x417>
   .byte  196,193,100,89,216                  // vmulps        %ymm8,%ymm3,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  91                                  // pop           %rbx
@@ -10206,7 +11446,7 @@ FUNCTION(_sk_store_4444_hsw)
 _sk_store_4444_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
-  .byte  196,98,125,24,5,242,22,0,0          // vbroadcastss  0x16f2(%rip),%ymm8        # 4120 <_sk_callback_hsw+0x3db>
+  .byte  196,98,125,24,5,50,23,0,0           // vbroadcastss  0x1732(%rip),%ymm8        # 4800 <_sk_callback_hsw+0x41b>
   .byte  196,65,124,89,200                   // vmulps        %ymm8,%ymm0,%ymm9
   .byte  196,65,125,91,201                   // vcvtps2dq     %ymm9,%ymm9
   .byte  196,193,53,114,241,12               // vpslld        $0xc,%ymm9,%ymm9
@@ -10224,7 +11464,7 @@ _sk_store_4444_hsw:
   .byte  196,67,125,57,193,1                 // vextracti128  $0x1,%ymm8,%xmm9
   .byte  196,66,57,43,193                    // vpackusdw     %xmm9,%xmm8,%xmm8
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,10                              // jne           2a91 <_sk_store_4444_hsw+0x71>
+  .byte  117,10                              // jne           3131 <_sk_store_4444_hsw+0x71>
   .byte  196,65,122,127,4,122                // vmovdqu       %xmm8,(%r10,%rdi,2)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -10232,9 +11472,9 @@ _sk_store_4444_hsw:
   .byte  65,128,224,7                        // and           $0x7,%r8b
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  119,236                             // ja            2a8d <_sk_store_4444_hsw+0x6d>
+  .byte  119,236                             // ja            312d <_sk_store_4444_hsw+0x6d>
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,68,0,0,0                  // lea           0x44(%rip),%r9        # 2af0 <_sk_store_4444_hsw+0xd0>
+  .byte  76,141,13,68,0,0,0                  // lea           0x44(%rip),%r9        # 3190 <_sk_store_4444_hsw+0xd0>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -10245,7 +11485,7 @@ _sk_store_4444_hsw:
   .byte  196,67,121,21,68,122,4,2            // vpextrw       $0x2,%xmm8,0x4(%r10,%rdi,2)
   .byte  196,67,121,21,68,122,2,1            // vpextrw       $0x1,%xmm8,0x2(%r10,%rdi,2)
   .byte  196,67,121,21,4,122,0               // vpextrw       $0x0,%xmm8,(%r10,%rdi,2)
-  .byte  235,159                             // jmp           2a8d <_sk_store_4444_hsw+0x6d>
+  .byte  235,159                             // jmp           312d <_sk_store_4444_hsw+0x6d>
   .byte  102,144                             // xchg          %ax,%ax
   .byte  245                                 // cmc
   .byte  255                                 // (bad)
@@ -10280,16 +11520,16 @@ _sk_load_8888_hsw:
   .byte  76,141,12,189,0,0,0,0               // lea           0x0(,%rdi,4),%r9
   .byte  76,3,8                              // add           (%rax),%r9
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,88                              // jne           2b79 <_sk_load_8888_hsw+0x6d>
+  .byte  117,88                              // jne           3219 <_sk_load_8888_hsw+0x6d>
   .byte  196,193,126,111,25                  // vmovdqu       (%r9),%ymm3
-  .byte  197,229,219,5,178,23,0,0            // vpand         0x17b2(%rip),%ymm3,%ymm0        # 42e0 <_sk_callback_hsw+0x59b>
+  .byte  197,229,219,5,242,23,0,0            // vpand         0x17f2(%rip),%ymm3,%ymm0        # 49c0 <_sk_callback_hsw+0x5db>
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,5,233,21,0,0          // vbroadcastss  0x15e9(%rip),%ymm8        # 4124 <_sk_callback_hsw+0x3df>
+  .byte  196,98,125,24,5,41,22,0,0           // vbroadcastss  0x1629(%rip),%ymm8        # 4804 <_sk_callback_hsw+0x41f>
   .byte  196,193,124,89,192                  // vmulps        %ymm8,%ymm0,%ymm0
-  .byte  196,226,101,0,13,183,23,0,0         // vpshufb       0x17b7(%rip),%ymm3,%ymm1        # 4300 <_sk_callback_hsw+0x5bb>
+  .byte  196,226,101,0,13,247,23,0,0         // vpshufb       0x17f7(%rip),%ymm3,%ymm1        # 49e0 <_sk_callback_hsw+0x5fb>
   .byte  197,252,91,201                      // vcvtdq2ps     %ymm1,%ymm1
   .byte  196,193,116,89,200                  // vmulps        %ymm8,%ymm1,%ymm1
-  .byte  196,226,101,0,21,197,23,0,0         // vpshufb       0x17c5(%rip),%ymm3,%ymm2        # 4320 <_sk_callback_hsw+0x5db>
+  .byte  196,226,101,0,21,5,24,0,0           // vpshufb       0x1805(%rip),%ymm3,%ymm2        # 4a00 <_sk_callback_hsw+0x61b>
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
   .byte  196,193,108,89,208                  // vmulps        %ymm8,%ymm2,%ymm2
   .byte  197,229,114,211,24                  // vpsrld        $0x18,%ymm3,%ymm3
@@ -10306,7 +11546,7 @@ _sk_load_8888_hsw:
   .byte  196,225,249,110,192                 // vmovq         %rax,%xmm0
   .byte  196,226,125,33,192                  // vpmovsxbd     %xmm0,%ymm0
   .byte  196,194,125,140,25                  // vpmaskmovd    (%r9),%ymm0,%ymm3
-  .byte  235,135                             // jmp           2b26 <_sk_load_8888_hsw+0x1a>
+  .byte  235,135                             // jmp           31c6 <_sk_load_8888_hsw+0x1a>
 
 HIDDEN _sk_gather_8888_hsw
 .globl _sk_gather_8888_hsw
@@ -10321,14 +11561,14 @@ _sk_gather_8888_hsw:
   .byte  197,245,254,192                     // vpaddd        %ymm0,%ymm1,%ymm0
   .byte  197,245,118,201                     // vpcmpeqd      %ymm1,%ymm1,%ymm1
   .byte  196,194,117,144,28,128              // vpgatherdd    %ymm1,(%r8,%ymm0,4),%ymm3
-  .byte  197,229,219,5,115,23,0,0            // vpand         0x1773(%rip),%ymm3,%ymm0        # 4340 <_sk_callback_hsw+0x5fb>
+  .byte  197,229,219,5,179,23,0,0            // vpand         0x17b3(%rip),%ymm3,%ymm0        # 4a20 <_sk_callback_hsw+0x63b>
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,5,78,21,0,0           // vbroadcastss  0x154e(%rip),%ymm8        # 4128 <_sk_callback_hsw+0x3e3>
+  .byte  196,98,125,24,5,142,21,0,0          // vbroadcastss  0x158e(%rip),%ymm8        # 4808 <_sk_callback_hsw+0x423>
   .byte  196,193,124,89,192                  // vmulps        %ymm8,%ymm0,%ymm0
-  .byte  196,226,101,0,13,120,23,0,0         // vpshufb       0x1778(%rip),%ymm3,%ymm1        # 4360 <_sk_callback_hsw+0x61b>
+  .byte  196,226,101,0,13,184,23,0,0         // vpshufb       0x17b8(%rip),%ymm3,%ymm1        # 4a40 <_sk_callback_hsw+0x65b>
   .byte  197,252,91,201                      // vcvtdq2ps     %ymm1,%ymm1
   .byte  196,193,116,89,200                  // vmulps        %ymm8,%ymm1,%ymm1
-  .byte  196,226,101,0,21,134,23,0,0         // vpshufb       0x1786(%rip),%ymm3,%ymm2        # 4380 <_sk_callback_hsw+0x63b>
+  .byte  196,226,101,0,21,198,23,0,0         // vpshufb       0x17c6(%rip),%ymm3,%ymm2        # 4a60 <_sk_callback_hsw+0x67b>
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
   .byte  196,193,108,89,208                  // vmulps        %ymm8,%ymm2,%ymm2
   .byte  197,229,114,211,24                  // vpsrld        $0x18,%ymm3,%ymm3
@@ -10345,7 +11585,7 @@ _sk_store_8888_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,141,12,189,0,0,0,0               // lea           0x0(,%rdi,4),%r9
   .byte  76,3,8                              // add           (%rax),%r9
-  .byte  196,98,125,24,5,254,20,0,0          // vbroadcastss  0x14fe(%rip),%ymm8        # 412c <_sk_callback_hsw+0x3e7>
+  .byte  196,98,125,24,5,62,21,0,0           // vbroadcastss  0x153e(%rip),%ymm8        # 480c <_sk_callback_hsw+0x427>
   .byte  196,65,124,89,200                   // vmulps        %ymm8,%ymm0,%ymm9
   .byte  196,65,125,91,201                   // vcvtps2dq     %ymm9,%ymm9
   .byte  196,65,116,89,208                   // vmulps        %ymm8,%ymm1,%ymm10
@@ -10361,7 +11601,7 @@ _sk_store_8888_hsw:
   .byte  196,65,45,235,192                   // vpor          %ymm8,%ymm10,%ymm8
   .byte  196,65,53,235,192                   // vpor          %ymm8,%ymm9,%ymm8
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,12                              // jne           2c88 <_sk_store_8888_hsw+0x73>
+  .byte  117,12                              // jne           3328 <_sk_store_8888_hsw+0x73>
   .byte  196,65,126,127,1                    // vmovdqu       %ymm8,(%r9)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,137,193                          // mov           %r8,%rcx
@@ -10374,7 +11614,7 @@ _sk_store_8888_hsw:
   .byte  196,97,249,110,200                  // vmovq         %rax,%xmm9
   .byte  196,66,125,33,201                   // vpmovsxbd     %xmm9,%ymm9
   .byte  196,66,53,142,1                     // vpmaskmovd    %ymm8,%ymm9,(%r9)
-  .byte  235,211                             // jmp           2c81 <_sk_store_8888_hsw+0x6c>
+  .byte  235,211                             // jmp           3321 <_sk_store_8888_hsw+0x6c>
 
 HIDDEN _sk_load_f16_hsw
 .globl _sk_load_f16_hsw
@@ -10383,7 +11623,7 @@ _sk_load_f16_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,97                              // jne           2d19 <_sk_load_f16_hsw+0x6b>
+  .byte  117,97                              // jne           33b9 <_sk_load_f16_hsw+0x6b>
   .byte  197,121,16,4,248                    // vmovupd       (%rax,%rdi,8),%xmm8
   .byte  197,249,16,84,248,16                // vmovupd       0x10(%rax,%rdi,8),%xmm2
   .byte  197,249,16,92,248,32                // vmovupd       0x20(%rax,%rdi,8),%xmm3
@@ -10409,29 +11649,29 @@ _sk_load_f16_hsw:
   .byte  197,123,16,4,248                    // vmovsd        (%rax,%rdi,8),%xmm8
   .byte  196,65,49,239,201                   // vpxor         %xmm9,%xmm9,%xmm9
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  116,79                              // je            2d78 <_sk_load_f16_hsw+0xca>
+  .byte  116,79                              // je            3418 <_sk_load_f16_hsw+0xca>
   .byte  197,57,22,68,248,8                  // vmovhpd       0x8(%rax,%rdi,8),%xmm8,%xmm8
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,67                              // jb            2d78 <_sk_load_f16_hsw+0xca>
+  .byte  114,67                              // jb            3418 <_sk_load_f16_hsw+0xca>
   .byte  197,251,16,84,248,16                // vmovsd        0x10(%rax,%rdi,8),%xmm2
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  116,68                              // je            2d85 <_sk_load_f16_hsw+0xd7>
+  .byte  116,68                              // je            3425 <_sk_load_f16_hsw+0xd7>
   .byte  197,233,22,84,248,24                // vmovhpd       0x18(%rax,%rdi,8),%xmm2,%xmm2
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,56                              // jb            2d85 <_sk_load_f16_hsw+0xd7>
+  .byte  114,56                              // jb            3425 <_sk_load_f16_hsw+0xd7>
   .byte  197,251,16,92,248,32                // vmovsd        0x20(%rax,%rdi,8),%xmm3
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  15,132,114,255,255,255              // je            2ccf <_sk_load_f16_hsw+0x21>
+  .byte  15,132,114,255,255,255              // je            336f <_sk_load_f16_hsw+0x21>
   .byte  197,225,22,92,248,40                // vmovhpd       0x28(%rax,%rdi,8),%xmm3,%xmm3
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  15,130,98,255,255,255               // jb            2ccf <_sk_load_f16_hsw+0x21>
+  .byte  15,130,98,255,255,255               // jb            336f <_sk_load_f16_hsw+0x21>
   .byte  197,122,126,76,248,48               // vmovq         0x30(%rax,%rdi,8),%xmm9
-  .byte  233,87,255,255,255                  // jmpq          2ccf <_sk_load_f16_hsw+0x21>
+  .byte  233,87,255,255,255                  // jmpq          336f <_sk_load_f16_hsw+0x21>
   .byte  197,225,87,219                      // vxorpd        %xmm3,%xmm3,%xmm3
   .byte  197,233,87,210                      // vxorpd        %xmm2,%xmm2,%xmm2
-  .byte  233,74,255,255,255                  // jmpq          2ccf <_sk_load_f16_hsw+0x21>
+  .byte  233,74,255,255,255                  // jmpq          336f <_sk_load_f16_hsw+0x21>
   .byte  197,225,87,219                      // vxorpd        %xmm3,%xmm3,%xmm3
-  .byte  233,65,255,255,255                  // jmpq          2ccf <_sk_load_f16_hsw+0x21>
+  .byte  233,65,255,255,255                  // jmpq          336f <_sk_load_f16_hsw+0x21>
 
 HIDDEN _sk_gather_f16_hsw
 .globl _sk_gather_f16_hsw
@@ -10489,7 +11729,7 @@ _sk_store_f16_hsw:
   .byte  196,65,57,98,205                    // vpunpckldq    %xmm13,%xmm8,%xmm9
   .byte  196,65,57,106,197                   // vpunpckhdq    %xmm13,%xmm8,%xmm8
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,27                              // jne           2e7d <_sk_store_f16_hsw+0x65>
+  .byte  117,27                              // jne           351d <_sk_store_f16_hsw+0x65>
   .byte  197,120,17,28,248                   // vmovups       %xmm11,(%rax,%rdi,8)
   .byte  197,120,17,84,248,16                // vmovups       %xmm10,0x10(%rax,%rdi,8)
   .byte  197,120,17,76,248,32                // vmovups       %xmm9,0x20(%rax,%rdi,8)
@@ -10498,22 +11738,22 @@ _sk_store_f16_hsw:
   .byte  255,224                             // jmpq          *%rax
   .byte  197,121,214,28,248                  // vmovq         %xmm11,(%rax,%rdi,8)
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  116,241                             // je            2e79 <_sk_store_f16_hsw+0x61>
+  .byte  116,241                             // je            3519 <_sk_store_f16_hsw+0x61>
   .byte  197,121,23,92,248,8                 // vmovhpd       %xmm11,0x8(%rax,%rdi,8)
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,229                             // jb            2e79 <_sk_store_f16_hsw+0x61>
+  .byte  114,229                             // jb            3519 <_sk_store_f16_hsw+0x61>
   .byte  197,121,214,84,248,16               // vmovq         %xmm10,0x10(%rax,%rdi,8)
-  .byte  116,221                             // je            2e79 <_sk_store_f16_hsw+0x61>
+  .byte  116,221                             // je            3519 <_sk_store_f16_hsw+0x61>
   .byte  197,121,23,84,248,24                // vmovhpd       %xmm10,0x18(%rax,%rdi,8)
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,209                             // jb            2e79 <_sk_store_f16_hsw+0x61>
+  .byte  114,209                             // jb            3519 <_sk_store_f16_hsw+0x61>
   .byte  197,121,214,76,248,32               // vmovq         %xmm9,0x20(%rax,%rdi,8)
-  .byte  116,201                             // je            2e79 <_sk_store_f16_hsw+0x61>
+  .byte  116,201                             // je            3519 <_sk_store_f16_hsw+0x61>
   .byte  197,121,23,76,248,40                // vmovhpd       %xmm9,0x28(%rax,%rdi,8)
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  114,189                             // jb            2e79 <_sk_store_f16_hsw+0x61>
+  .byte  114,189                             // jb            3519 <_sk_store_f16_hsw+0x61>
   .byte  197,121,214,68,248,48               // vmovq         %xmm8,0x30(%rax,%rdi,8)
-  .byte  235,181                             // jmp           2e79 <_sk_store_f16_hsw+0x61>
+  .byte  235,181                             // jmp           3519 <_sk_store_f16_hsw+0x61>
 
 HIDDEN _sk_load_u16_be_hsw
 .globl _sk_load_u16_be_hsw
@@ -10523,7 +11763,7 @@ _sk_load_u16_be_hsw:
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  72,141,4,189,0,0,0,0                // lea           0x0(,%rdi,4),%rax
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,204,0,0,0                    // jne           2fa6 <_sk_load_u16_be_hsw+0xe2>
+  .byte  15,133,204,0,0,0                    // jne           3646 <_sk_load_u16_be_hsw+0xe2>
   .byte  196,65,121,16,4,64                  // vmovupd       (%r8,%rax,2),%xmm8
   .byte  196,193,121,16,84,64,16             // vmovupd       0x10(%r8,%rax,2),%xmm2
   .byte  196,193,121,16,92,64,32             // vmovupd       0x20(%r8,%rax,2),%xmm3
@@ -10542,7 +11782,7 @@ _sk_load_u16_be_hsw:
   .byte  197,241,235,192                     // vpor          %xmm0,%xmm1,%xmm0
   .byte  196,226,125,51,192                  // vpmovzxwd     %xmm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,21,245,17,0,0         // vbroadcastss  0x11f5(%rip),%ymm10        # 4130 <_sk_callback_hsw+0x3eb>
+  .byte  196,98,125,24,21,53,18,0,0          // vbroadcastss  0x1235(%rip),%ymm10        # 4810 <_sk_callback_hsw+0x42b>
   .byte  196,193,124,89,194                  // vmulps        %ymm10,%ymm0,%ymm0
   .byte  197,185,109,202                     // vpunpckhqdq   %xmm2,%xmm8,%xmm1
   .byte  197,233,113,241,8                   // vpsllw        $0x8,%xmm1,%xmm2
@@ -10570,29 +11810,29 @@ _sk_load_u16_be_hsw:
   .byte  196,65,123,16,4,64                  // vmovsd        (%r8,%rax,2),%xmm8
   .byte  196,65,49,239,201                   // vpxor         %xmm9,%xmm9,%xmm9
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  116,85                              // je            300c <_sk_load_u16_be_hsw+0x148>
+  .byte  116,85                              // je            36ac <_sk_load_u16_be_hsw+0x148>
   .byte  196,65,57,22,68,64,8                // vmovhpd       0x8(%r8,%rax,2),%xmm8,%xmm8
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,72                              // jb            300c <_sk_load_u16_be_hsw+0x148>
+  .byte  114,72                              // jb            36ac <_sk_load_u16_be_hsw+0x148>
   .byte  196,193,123,16,84,64,16             // vmovsd        0x10(%r8,%rax,2),%xmm2
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  116,72                              // je            3019 <_sk_load_u16_be_hsw+0x155>
+  .byte  116,72                              // je            36b9 <_sk_load_u16_be_hsw+0x155>
   .byte  196,193,105,22,84,64,24             // vmovhpd       0x18(%r8,%rax,2),%xmm2,%xmm2
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,59                              // jb            3019 <_sk_load_u16_be_hsw+0x155>
+  .byte  114,59                              // jb            36b9 <_sk_load_u16_be_hsw+0x155>
   .byte  196,193,123,16,92,64,32             // vmovsd        0x20(%r8,%rax,2),%xmm3
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  15,132,6,255,255,255                // je            2ef5 <_sk_load_u16_be_hsw+0x31>
+  .byte  15,132,6,255,255,255                // je            3595 <_sk_load_u16_be_hsw+0x31>
   .byte  196,193,97,22,92,64,40              // vmovhpd       0x28(%r8,%rax,2),%xmm3,%xmm3
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  15,130,245,254,255,255              // jb            2ef5 <_sk_load_u16_be_hsw+0x31>
+  .byte  15,130,245,254,255,255              // jb            3595 <_sk_load_u16_be_hsw+0x31>
   .byte  196,65,122,126,76,64,48             // vmovq         0x30(%r8,%rax,2),%xmm9
-  .byte  233,233,254,255,255                 // jmpq          2ef5 <_sk_load_u16_be_hsw+0x31>
+  .byte  233,233,254,255,255                 // jmpq          3595 <_sk_load_u16_be_hsw+0x31>
   .byte  197,225,87,219                      // vxorpd        %xmm3,%xmm3,%xmm3
   .byte  197,233,87,210                      // vxorpd        %xmm2,%xmm2,%xmm2
-  .byte  233,220,254,255,255                 // jmpq          2ef5 <_sk_load_u16_be_hsw+0x31>
+  .byte  233,220,254,255,255                 // jmpq          3595 <_sk_load_u16_be_hsw+0x31>
   .byte  197,225,87,219                      // vxorpd        %xmm3,%xmm3,%xmm3
-  .byte  233,211,254,255,255                 // jmpq          2ef5 <_sk_load_u16_be_hsw+0x31>
+  .byte  233,211,254,255,255                 // jmpq          3595 <_sk_load_u16_be_hsw+0x31>
 
 HIDDEN _sk_load_rgb_u16_be_hsw
 .globl _sk_load_rgb_u16_be_hsw
@@ -10602,7 +11842,7 @@ _sk_load_rgb_u16_be_hsw:
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  72,141,4,127                        // lea           (%rdi,%rdi,2),%rax
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,204,0,0,0                    // jne           3100 <_sk_load_rgb_u16_be_hsw+0xde>
+  .byte  15,133,204,0,0,0                    // jne           37a0 <_sk_load_rgb_u16_be_hsw+0xde>
   .byte  196,193,122,111,4,64                // vmovdqu       (%r8,%rax,2),%xmm0
   .byte  196,193,122,111,84,64,12            // vmovdqu       0xc(%r8,%rax,2),%xmm2
   .byte  196,193,122,111,76,64,24            // vmovdqu       0x18(%r8,%rax,2),%xmm1
@@ -10626,7 +11866,7 @@ _sk_load_rgb_u16_be_hsw:
   .byte  197,241,235,192                     // vpor          %xmm0,%xmm1,%xmm0
   .byte  196,226,125,51,192                  // vpmovzxwd     %xmm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,21,134,16,0,0         // vbroadcastss  0x1086(%rip),%ymm10        # 4134 <_sk_callback_hsw+0x3ef>
+  .byte  196,98,125,24,21,198,16,0,0         // vbroadcastss  0x10c6(%rip),%ymm10        # 4814 <_sk_callback_hsw+0x42f>
   .byte  196,193,124,89,194                  // vmulps        %ymm10,%ymm0,%ymm0
   .byte  197,185,109,202                     // vpunpckhqdq   %xmm2,%xmm8,%xmm1
   .byte  197,233,113,241,8                   // vpsllw        $0x8,%xmm1,%xmm2
@@ -10643,41 +11883,41 @@ _sk_load_rgb_u16_be_hsw:
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
   .byte  196,193,108,89,210                  // vmulps        %ymm10,%ymm2,%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,58,16,0,0         // vbroadcastss  0x103a(%rip),%ymm3        # 4138 <_sk_callback_hsw+0x3f3>
+  .byte  196,226,125,24,29,122,16,0,0        // vbroadcastss  0x107a(%rip),%ymm3        # 4818 <_sk_callback_hsw+0x433>
   .byte  255,224                             // jmpq          *%rax
   .byte  196,193,121,110,4,64                // vmovd         (%r8,%rax,2),%xmm0
   .byte  196,193,121,196,68,64,4,2           // vpinsrw       $0x2,0x4(%r8,%rax,2),%xmm0,%xmm0
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  117,5                               // jne           3119 <_sk_load_rgb_u16_be_hsw+0xf7>
-  .byte  233,79,255,255,255                  // jmpq          3068 <_sk_load_rgb_u16_be_hsw+0x46>
+  .byte  117,5                               // jne           37b9 <_sk_load_rgb_u16_be_hsw+0xf7>
+  .byte  233,79,255,255,255                  // jmpq          3708 <_sk_load_rgb_u16_be_hsw+0x46>
   .byte  196,193,121,110,76,64,6             // vmovd         0x6(%r8,%rax,2),%xmm1
   .byte  196,65,113,196,68,64,10,2           // vpinsrw       $0x2,0xa(%r8,%rax,2),%xmm1,%xmm8
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,26                              // jb            3148 <_sk_load_rgb_u16_be_hsw+0x126>
+  .byte  114,26                              // jb            37e8 <_sk_load_rgb_u16_be_hsw+0x126>
   .byte  196,193,121,110,76,64,12            // vmovd         0xc(%r8,%rax,2),%xmm1
   .byte  196,193,113,196,84,64,16,2          // vpinsrw       $0x2,0x10(%r8,%rax,2),%xmm1,%xmm2
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  117,10                              // jne           314d <_sk_load_rgb_u16_be_hsw+0x12b>
-  .byte  233,32,255,255,255                  // jmpq          3068 <_sk_load_rgb_u16_be_hsw+0x46>
-  .byte  233,27,255,255,255                  // jmpq          3068 <_sk_load_rgb_u16_be_hsw+0x46>
+  .byte  117,10                              // jne           37ed <_sk_load_rgb_u16_be_hsw+0x12b>
+  .byte  233,32,255,255,255                  // jmpq          3708 <_sk_load_rgb_u16_be_hsw+0x46>
+  .byte  233,27,255,255,255                  // jmpq          3708 <_sk_load_rgb_u16_be_hsw+0x46>
   .byte  196,193,121,110,76,64,18            // vmovd         0x12(%r8,%rax,2),%xmm1
   .byte  196,65,113,196,76,64,22,2           // vpinsrw       $0x2,0x16(%r8,%rax,2),%xmm1,%xmm9
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,26                              // jb            317c <_sk_load_rgb_u16_be_hsw+0x15a>
+  .byte  114,26                              // jb            381c <_sk_load_rgb_u16_be_hsw+0x15a>
   .byte  196,193,121,110,76,64,24            // vmovd         0x18(%r8,%rax,2),%xmm1
   .byte  196,193,113,196,76,64,28,2          // vpinsrw       $0x2,0x1c(%r8,%rax,2),%xmm1,%xmm1
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  117,10                              // jne           3181 <_sk_load_rgb_u16_be_hsw+0x15f>
-  .byte  233,236,254,255,255                 // jmpq          3068 <_sk_load_rgb_u16_be_hsw+0x46>
-  .byte  233,231,254,255,255                 // jmpq          3068 <_sk_load_rgb_u16_be_hsw+0x46>
+  .byte  117,10                              // jne           3821 <_sk_load_rgb_u16_be_hsw+0x15f>
+  .byte  233,236,254,255,255                 // jmpq          3708 <_sk_load_rgb_u16_be_hsw+0x46>
+  .byte  233,231,254,255,255                 // jmpq          3708 <_sk_load_rgb_u16_be_hsw+0x46>
   .byte  196,193,121,110,92,64,30            // vmovd         0x1e(%r8,%rax,2),%xmm3
   .byte  196,65,97,196,92,64,34,2            // vpinsrw       $0x2,0x22(%r8,%rax,2),%xmm3,%xmm11
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  114,20                              // jb            31aa <_sk_load_rgb_u16_be_hsw+0x188>
+  .byte  114,20                              // jb            384a <_sk_load_rgb_u16_be_hsw+0x188>
   .byte  196,193,121,110,92,64,36            // vmovd         0x24(%r8,%rax,2),%xmm3
   .byte  196,193,97,196,92,64,40,2           // vpinsrw       $0x2,0x28(%r8,%rax,2),%xmm3,%xmm3
-  .byte  233,190,254,255,255                 // jmpq          3068 <_sk_load_rgb_u16_be_hsw+0x46>
-  .byte  233,185,254,255,255                 // jmpq          3068 <_sk_load_rgb_u16_be_hsw+0x46>
+  .byte  233,190,254,255,255                 // jmpq          3708 <_sk_load_rgb_u16_be_hsw+0x46>
+  .byte  233,185,254,255,255                 // jmpq          3708 <_sk_load_rgb_u16_be_hsw+0x46>
 
 HIDDEN _sk_store_u16_be_hsw
 .globl _sk_store_u16_be_hsw
@@ -10686,7 +11926,7 @@ _sk_store_u16_be_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  72,141,4,189,0,0,0,0                // lea           0x0(,%rdi,4),%rax
-  .byte  196,98,125,24,5,119,15,0,0          // vbroadcastss  0xf77(%rip),%ymm8        # 413c <_sk_callback_hsw+0x3f7>
+  .byte  196,98,125,24,5,183,15,0,0          // vbroadcastss  0xfb7(%rip),%ymm8        # 481c <_sk_callback_hsw+0x437>
   .byte  196,65,124,89,200                   // vmulps        %ymm8,%ymm0,%ymm9
   .byte  196,65,125,91,201                   // vcvtps2dq     %ymm9,%ymm9
   .byte  196,67,125,25,202,1                 // vextractf128  $0x1,%ymm9,%xmm10
@@ -10724,7 +11964,7 @@ _sk_store_u16_be_hsw:
   .byte  196,65,17,98,200                    // vpunpckldq    %xmm8,%xmm13,%xmm9
   .byte  196,65,17,106,192                   // vpunpckhdq    %xmm8,%xmm13,%xmm8
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,31                              // jne           32a9 <_sk_store_u16_be_hsw+0xfa>
+  .byte  117,31                              // jne           3949 <_sk_store_u16_be_hsw+0xfa>
   .byte  196,65,120,17,28,64                 // vmovups       %xmm11,(%r8,%rax,2)
   .byte  196,65,120,17,84,64,16              // vmovups       %xmm10,0x10(%r8,%rax,2)
   .byte  196,65,120,17,76,64,32              // vmovups       %xmm9,0x20(%r8,%rax,2)
@@ -10733,22 +11973,22 @@ _sk_store_u16_be_hsw:
   .byte  255,224                             // jmpq          *%rax
   .byte  196,65,121,214,28,64                // vmovq         %xmm11,(%r8,%rax,2)
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  116,240                             // je            32a5 <_sk_store_u16_be_hsw+0xf6>
+  .byte  116,240                             // je            3945 <_sk_store_u16_be_hsw+0xf6>
   .byte  196,65,121,23,92,64,8               // vmovhpd       %xmm11,0x8(%r8,%rax,2)
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,227                             // jb            32a5 <_sk_store_u16_be_hsw+0xf6>
+  .byte  114,227                             // jb            3945 <_sk_store_u16_be_hsw+0xf6>
   .byte  196,65,121,214,84,64,16             // vmovq         %xmm10,0x10(%r8,%rax,2)
-  .byte  116,218                             // je            32a5 <_sk_store_u16_be_hsw+0xf6>
+  .byte  116,218                             // je            3945 <_sk_store_u16_be_hsw+0xf6>
   .byte  196,65,121,23,84,64,24              // vmovhpd       %xmm10,0x18(%r8,%rax,2)
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,205                             // jb            32a5 <_sk_store_u16_be_hsw+0xf6>
+  .byte  114,205                             // jb            3945 <_sk_store_u16_be_hsw+0xf6>
   .byte  196,65,121,214,76,64,32             // vmovq         %xmm9,0x20(%r8,%rax,2)
-  .byte  116,196                             // je            32a5 <_sk_store_u16_be_hsw+0xf6>
+  .byte  116,196                             // je            3945 <_sk_store_u16_be_hsw+0xf6>
   .byte  196,65,121,23,76,64,40              // vmovhpd       %xmm9,0x28(%r8,%rax,2)
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  114,183                             // jb            32a5 <_sk_store_u16_be_hsw+0xf6>
+  .byte  114,183                             // jb            3945 <_sk_store_u16_be_hsw+0xf6>
   .byte  196,65,121,214,68,64,48             // vmovq         %xmm8,0x30(%r8,%rax,2)
-  .byte  235,174                             // jmp           32a5 <_sk_store_u16_be_hsw+0xf6>
+  .byte  235,174                             // jmp           3945 <_sk_store_u16_be_hsw+0xf6>
 
 HIDDEN _sk_load_f32_hsw
 .globl _sk_load_f32_hsw
@@ -10756,10 +11996,10 @@ FUNCTION(_sk_load_f32_hsw)
 _sk_load_f32_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  119,110                             // ja            336d <_sk_load_f32_hsw+0x76>
+  .byte  119,110                             // ja            3a0d <_sk_load_f32_hsw+0x76>
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  76,141,12,189,0,0,0,0               // lea           0x0(,%rdi,4),%r9
-  .byte  76,141,21,135,0,0,0                 // lea           0x87(%rip),%r10        # 3398 <_sk_load_f32_hsw+0xa1>
+  .byte  76,141,21,135,0,0,0                 // lea           0x87(%rip),%r10        # 3a38 <_sk_load_f32_hsw+0xa1>
   .byte  73,99,4,138                         // movslq        (%r10,%rcx,4),%rax
   .byte  76,1,208                            // add           %r10,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -10820,7 +12060,7 @@ _sk_store_f32_hsw:
   .byte  196,65,37,20,196                    // vunpcklpd     %ymm12,%ymm11,%ymm8
   .byte  196,65,37,21,220                    // vunpckhpd     %ymm12,%ymm11,%ymm11
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,55                              // jne           3425 <_sk_store_f32_hsw+0x6d>
+  .byte  117,55                              // jne           3ac5 <_sk_store_f32_hsw+0x6d>
   .byte  196,67,45,24,225,1                  // vinsertf128   $0x1,%xmm9,%ymm10,%ymm12
   .byte  196,67,61,24,235,1                  // vinsertf128   $0x1,%xmm11,%ymm8,%ymm13
   .byte  196,67,45,6,201,49                  // vperm2f128    $0x31,%ymm9,%ymm10,%ymm9
@@ -10833,22 +12073,22 @@ _sk_store_f32_hsw:
   .byte  255,224                             // jmpq          *%rax
   .byte  196,65,121,17,20,128                // vmovupd       %xmm10,(%r8,%rax,4)
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  116,240                             // je            3421 <_sk_store_f32_hsw+0x69>
+  .byte  116,240                             // je            3ac1 <_sk_store_f32_hsw+0x69>
   .byte  196,65,121,17,76,128,16             // vmovupd       %xmm9,0x10(%r8,%rax,4)
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,227                             // jb            3421 <_sk_store_f32_hsw+0x69>
+  .byte  114,227                             // jb            3ac1 <_sk_store_f32_hsw+0x69>
   .byte  196,65,121,17,68,128,32             // vmovupd       %xmm8,0x20(%r8,%rax,4)
-  .byte  116,218                             // je            3421 <_sk_store_f32_hsw+0x69>
+  .byte  116,218                             // je            3ac1 <_sk_store_f32_hsw+0x69>
   .byte  196,65,121,17,92,128,48             // vmovupd       %xmm11,0x30(%r8,%rax,4)
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,205                             // jb            3421 <_sk_store_f32_hsw+0x69>
+  .byte  114,205                             // jb            3ac1 <_sk_store_f32_hsw+0x69>
   .byte  196,67,125,25,84,128,64,1           // vextractf128  $0x1,%ymm10,0x40(%r8,%rax,4)
-  .byte  116,195                             // je            3421 <_sk_store_f32_hsw+0x69>
+  .byte  116,195                             // je            3ac1 <_sk_store_f32_hsw+0x69>
   .byte  196,67,125,25,76,128,80,1           // vextractf128  $0x1,%ymm9,0x50(%r8,%rax,4)
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  114,181                             // jb            3421 <_sk_store_f32_hsw+0x69>
+  .byte  114,181                             // jb            3ac1 <_sk_store_f32_hsw+0x69>
   .byte  196,67,125,25,68,128,96,1           // vextractf128  $0x1,%ymm8,0x60(%r8,%rax,4)
-  .byte  235,171                             // jmp           3421 <_sk_store_f32_hsw+0x69>
+  .byte  235,171                             // jmp           3ac1 <_sk_store_f32_hsw+0x69>
 
 HIDDEN _sk_clamp_x_hsw
 .globl _sk_clamp_x_hsw
@@ -10958,11 +12198,11 @@ HIDDEN _sk_luminance_to_alpha_hsw
 .globl _sk_luminance_to_alpha_hsw
 FUNCTION(_sk_luminance_to_alpha_hsw)
 _sk_luminance_to_alpha_hsw:
-  .byte  196,226,125,24,29,145,11,0,0        // vbroadcastss  0xb91(%rip),%ymm3        # 4140 <_sk_callback_hsw+0x3fb>
-  .byte  196,98,125,24,5,140,11,0,0          // vbroadcastss  0xb8c(%rip),%ymm8        # 4144 <_sk_callback_hsw+0x3ff>
+  .byte  196,226,125,24,29,209,11,0,0        // vbroadcastss  0xbd1(%rip),%ymm3        # 4820 <_sk_callback_hsw+0x43b>
+  .byte  196,98,125,24,5,204,11,0,0          // vbroadcastss  0xbcc(%rip),%ymm8        # 4824 <_sk_callback_hsw+0x43f>
   .byte  196,193,116,89,200                  // vmulps        %ymm8,%ymm1,%ymm1
   .byte  196,226,125,184,203                 // vfmadd231ps   %ymm3,%ymm0,%ymm1
-  .byte  196,226,125,24,29,125,11,0,0        // vbroadcastss  0xb7d(%rip),%ymm3        # 4148 <_sk_callback_hsw+0x403>
+  .byte  196,226,125,24,29,189,11,0,0        // vbroadcastss  0xbbd(%rip),%ymm3        # 4828 <_sk_callback_hsw+0x443>
   .byte  196,226,109,168,217                 // vfmadd213ps   %ymm1,%ymm2,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,252,87,192                      // vxorps        %ymm0,%ymm0,%ymm0
@@ -11107,7 +12347,7 @@ _sk_linear_gradient_hsw:
   .byte  196,98,125,24,72,28                 // vbroadcastss  0x1c(%rax),%ymm9
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  15,132,143,0,0,0                    // je            38a3 <_sk_linear_gradient_hsw+0xb5>
+  .byte  15,132,143,0,0,0                    // je            3f43 <_sk_linear_gradient_hsw+0xb5>
   .byte  72,139,64,8                         // mov           0x8(%rax),%rax
   .byte  72,131,192,32                       // add           $0x20,%rax
   .byte  196,65,28,87,228                    // vxorps        %ymm12,%ymm12,%ymm12
@@ -11134,8 +12374,8 @@ _sk_linear_gradient_hsw:
   .byte  196,67,13,74,201,208                // vblendvps     %ymm13,%ymm9,%ymm14,%ymm9
   .byte  72,131,192,36                       // add           $0x24,%rax
   .byte  73,255,200                          // dec           %r8
-  .byte  117,140                             // jne           382d <_sk_linear_gradient_hsw+0x3f>
-  .byte  235,17                              // jmp           38b4 <_sk_linear_gradient_hsw+0xc6>
+  .byte  117,140                             // jne           3ecd <_sk_linear_gradient_hsw+0x3f>
+  .byte  235,17                              // jmp           3f54 <_sk_linear_gradient_hsw+0xc6>
   .byte  197,244,87,201                      // vxorps        %ymm1,%ymm1,%ymm1
   .byte  197,236,87,210                      // vxorps        %ymm2,%ymm2,%ymm2
   .byte  197,228,87,219                      // vxorps        %ymm3,%ymm3,%ymm3
@@ -11182,24 +12422,24 @@ _sk_xy_to_polar_unit_hsw:
   .byte  196,65,52,95,226                    // vmaxps        %ymm10,%ymm9,%ymm12
   .byte  196,65,36,94,220                    // vdivps        %ymm12,%ymm11,%ymm11
   .byte  196,65,36,89,227                    // vmulps        %ymm11,%ymm11,%ymm12
-  .byte  196,98,125,24,45,253,7,0,0          // vbroadcastss  0x7fd(%rip),%ymm13        # 414c <_sk_callback_hsw+0x407>
-  .byte  196,98,125,24,53,248,7,0,0          // vbroadcastss  0x7f8(%rip),%ymm14        # 4150 <_sk_callback_hsw+0x40b>
+  .byte  196,98,125,24,45,61,8,0,0           // vbroadcastss  0x83d(%rip),%ymm13        # 482c <_sk_callback_hsw+0x447>
+  .byte  196,98,125,24,53,56,8,0,0           // vbroadcastss  0x838(%rip),%ymm14        # 4830 <_sk_callback_hsw+0x44b>
   .byte  196,66,29,184,245                   // vfmadd231ps   %ymm13,%ymm12,%ymm14
-  .byte  196,98,125,24,45,238,7,0,0          // vbroadcastss  0x7ee(%rip),%ymm13        # 4154 <_sk_callback_hsw+0x40f>
+  .byte  196,98,125,24,45,46,8,0,0           // vbroadcastss  0x82e(%rip),%ymm13        # 4834 <_sk_callback_hsw+0x44f>
   .byte  196,66,29,184,238                   // vfmadd231ps   %ymm14,%ymm12,%ymm13
-  .byte  196,98,125,24,53,228,7,0,0          // vbroadcastss  0x7e4(%rip),%ymm14        # 4158 <_sk_callback_hsw+0x413>
+  .byte  196,98,125,24,53,36,8,0,0           // vbroadcastss  0x824(%rip),%ymm14        # 4838 <_sk_callback_hsw+0x453>
   .byte  196,66,29,184,245                   // vfmadd231ps   %ymm13,%ymm12,%ymm14
   .byte  196,65,36,89,222                    // vmulps        %ymm14,%ymm11,%ymm11
   .byte  196,65,52,194,202,1                 // vcmpltps      %ymm10,%ymm9,%ymm9
-  .byte  196,98,125,24,21,207,7,0,0          // vbroadcastss  0x7cf(%rip),%ymm10        # 415c <_sk_callback_hsw+0x417>
+  .byte  196,98,125,24,21,15,8,0,0           // vbroadcastss  0x80f(%rip),%ymm10        # 483c <_sk_callback_hsw+0x457>
   .byte  196,65,44,92,211                    // vsubps        %ymm11,%ymm10,%ymm10
   .byte  196,67,37,74,202,144                // vblendvps     %ymm9,%ymm10,%ymm11,%ymm9
   .byte  196,193,124,194,192,1               // vcmpltps      %ymm8,%ymm0,%ymm0
-  .byte  196,98,125,24,21,185,7,0,0          // vbroadcastss  0x7b9(%rip),%ymm10        # 4160 <_sk_callback_hsw+0x41b>
+  .byte  196,98,125,24,21,249,7,0,0          // vbroadcastss  0x7f9(%rip),%ymm10        # 4840 <_sk_callback_hsw+0x45b>
   .byte  196,65,44,92,209                    // vsubps        %ymm9,%ymm10,%ymm10
   .byte  196,195,53,74,194,0                 // vblendvps     %ymm0,%ymm10,%ymm9,%ymm0
   .byte  196,65,116,194,200,1                // vcmpltps      %ymm8,%ymm1,%ymm9
-  .byte  196,98,125,24,21,163,7,0,0          // vbroadcastss  0x7a3(%rip),%ymm10        # 4164 <_sk_callback_hsw+0x41f>
+  .byte  196,98,125,24,21,227,7,0,0          // vbroadcastss  0x7e3(%rip),%ymm10        # 4844 <_sk_callback_hsw+0x45f>
   .byte  197,44,92,208                       // vsubps        %ymm0,%ymm10,%ymm10
   .byte  196,195,125,74,194,144              // vblendvps     %ymm9,%ymm10,%ymm0,%ymm0
   .byte  196,65,124,194,200,3                // vcmpunordps   %ymm8,%ymm0,%ymm9
@@ -11212,7 +12452,7 @@ HIDDEN _sk_save_xy_hsw
 FUNCTION(_sk_save_xy_hsw)
 _sk_save_xy_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,98,125,24,5,130,7,0,0           // vbroadcastss  0x782(%rip),%ymm8        # 4168 <_sk_callback_hsw+0x423>
+  .byte  196,98,125,24,5,194,7,0,0           // vbroadcastss  0x7c2(%rip),%ymm8        # 4848 <_sk_callback_hsw+0x463>
   .byte  196,65,124,88,200                   // vaddps        %ymm8,%ymm0,%ymm9
   .byte  196,67,125,8,209,1                  // vroundps      $0x1,%ymm9,%ymm10
   .byte  196,65,52,92,202                    // vsubps        %ymm10,%ymm9,%ymm9
@@ -11246,9 +12486,9 @@ HIDDEN _sk_bilinear_nx_hsw
 FUNCTION(_sk_bilinear_nx_hsw)
 _sk_bilinear_nx_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,5,22,7,0,0           // vbroadcastss  0x716(%rip),%ymm0        # 416c <_sk_callback_hsw+0x427>
+  .byte  196,226,125,24,5,86,7,0,0           // vbroadcastss  0x756(%rip),%ymm0        # 484c <_sk_callback_hsw+0x467>
   .byte  197,252,88,0                        // vaddps        (%rax),%ymm0,%ymm0
-  .byte  196,98,125,24,5,13,7,0,0            // vbroadcastss  0x70d(%rip),%ymm8        # 4170 <_sk_callback_hsw+0x42b>
+  .byte  196,98,125,24,5,77,7,0,0            // vbroadcastss  0x74d(%rip),%ymm8        # 4850 <_sk_callback_hsw+0x46b>
   .byte  197,60,92,64,64                     // vsubps        0x40(%rax),%ymm8,%ymm8
   .byte  197,124,17,128,128,0,0,0            // vmovups       %ymm8,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -11259,7 +12499,7 @@ HIDDEN _sk_bilinear_px_hsw
 FUNCTION(_sk_bilinear_px_hsw)
 _sk_bilinear_px_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,5,245,6,0,0          // vbroadcastss  0x6f5(%rip),%ymm0        # 4174 <_sk_callback_hsw+0x42f>
+  .byte  196,226,125,24,5,53,7,0,0           // vbroadcastss  0x735(%rip),%ymm0        # 4854 <_sk_callback_hsw+0x46f>
   .byte  197,252,88,0                        // vaddps        (%rax),%ymm0,%ymm0
   .byte  197,124,16,64,64                    // vmovups       0x40(%rax),%ymm8
   .byte  197,124,17,128,128,0,0,0            // vmovups       %ymm8,0x80(%rax)
@@ -11271,9 +12511,9 @@ HIDDEN _sk_bilinear_ny_hsw
 FUNCTION(_sk_bilinear_ny_hsw)
 _sk_bilinear_ny_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,13,217,6,0,0         // vbroadcastss  0x6d9(%rip),%ymm1        # 4178 <_sk_callback_hsw+0x433>
+  .byte  196,226,125,24,13,25,7,0,0          // vbroadcastss  0x719(%rip),%ymm1        # 4858 <_sk_callback_hsw+0x473>
   .byte  197,244,88,72,32                    // vaddps        0x20(%rax),%ymm1,%ymm1
-  .byte  196,98,125,24,5,207,6,0,0           // vbroadcastss  0x6cf(%rip),%ymm8        # 417c <_sk_callback_hsw+0x437>
+  .byte  196,98,125,24,5,15,7,0,0            // vbroadcastss  0x70f(%rip),%ymm8        # 485c <_sk_callback_hsw+0x477>
   .byte  197,60,92,64,96                     // vsubps        0x60(%rax),%ymm8,%ymm8
   .byte  197,124,17,128,160,0,0,0            // vmovups       %ymm8,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -11284,7 +12524,7 @@ HIDDEN _sk_bilinear_py_hsw
 FUNCTION(_sk_bilinear_py_hsw)
 _sk_bilinear_py_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,13,183,6,0,0         // vbroadcastss  0x6b7(%rip),%ymm1        # 4180 <_sk_callback_hsw+0x43b>
+  .byte  196,226,125,24,13,247,6,0,0         // vbroadcastss  0x6f7(%rip),%ymm1        # 4860 <_sk_callback_hsw+0x47b>
   .byte  197,244,88,72,32                    // vaddps        0x20(%rax),%ymm1,%ymm1
   .byte  197,124,16,64,96                    // vmovups       0x60(%rax),%ymm8
   .byte  197,124,17,128,160,0,0,0            // vmovups       %ymm8,0xa0(%rax)
@@ -11296,13 +12536,13 @@ HIDDEN _sk_bicubic_n3x_hsw
 FUNCTION(_sk_bicubic_n3x_hsw)
 _sk_bicubic_n3x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,5,154,6,0,0          // vbroadcastss  0x69a(%rip),%ymm0        # 4184 <_sk_callback_hsw+0x43f>
+  .byte  196,226,125,24,5,218,6,0,0          // vbroadcastss  0x6da(%rip),%ymm0        # 4864 <_sk_callback_hsw+0x47f>
   .byte  197,252,88,0                        // vaddps        (%rax),%ymm0,%ymm0
-  .byte  196,98,125,24,5,145,6,0,0           // vbroadcastss  0x691(%rip),%ymm8        # 4188 <_sk_callback_hsw+0x443>
+  .byte  196,98,125,24,5,209,6,0,0           // vbroadcastss  0x6d1(%rip),%ymm8        # 4868 <_sk_callback_hsw+0x483>
   .byte  197,60,92,64,64                     // vsubps        0x40(%rax),%ymm8,%ymm8
   .byte  196,65,60,89,200                    // vmulps        %ymm8,%ymm8,%ymm9
-  .byte  196,98,125,24,21,130,6,0,0          // vbroadcastss  0x682(%rip),%ymm10        # 418c <_sk_callback_hsw+0x447>
-  .byte  196,98,125,24,29,125,6,0,0          // vbroadcastss  0x67d(%rip),%ymm11        # 4190 <_sk_callback_hsw+0x44b>
+  .byte  196,98,125,24,21,194,6,0,0          // vbroadcastss  0x6c2(%rip),%ymm10        # 486c <_sk_callback_hsw+0x487>
+  .byte  196,98,125,24,29,189,6,0,0          // vbroadcastss  0x6bd(%rip),%ymm11        # 4870 <_sk_callback_hsw+0x48b>
   .byte  196,66,61,168,218                   // vfmadd213ps   %ymm10,%ymm8,%ymm11
   .byte  196,65,36,89,193                    // vmulps        %ymm9,%ymm11,%ymm8
   .byte  197,124,17,128,128,0,0,0            // vmovups       %ymm8,0x80(%rax)
@@ -11314,16 +12554,16 @@ HIDDEN _sk_bicubic_n1x_hsw
 FUNCTION(_sk_bicubic_n1x_hsw)
 _sk_bicubic_n1x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,5,96,6,0,0           // vbroadcastss  0x660(%rip),%ymm0        # 4194 <_sk_callback_hsw+0x44f>
+  .byte  196,226,125,24,5,160,6,0,0          // vbroadcastss  0x6a0(%rip),%ymm0        # 4874 <_sk_callback_hsw+0x48f>
   .byte  197,252,88,0                        // vaddps        (%rax),%ymm0,%ymm0
-  .byte  196,98,125,24,5,87,6,0,0            // vbroadcastss  0x657(%rip),%ymm8        # 4198 <_sk_callback_hsw+0x453>
+  .byte  196,98,125,24,5,151,6,0,0           // vbroadcastss  0x697(%rip),%ymm8        # 4878 <_sk_callback_hsw+0x493>
   .byte  197,60,92,64,64                     // vsubps        0x40(%rax),%ymm8,%ymm8
-  .byte  196,98,125,24,13,77,6,0,0           // vbroadcastss  0x64d(%rip),%ymm9        # 419c <_sk_callback_hsw+0x457>
-  .byte  196,98,125,24,21,72,6,0,0           // vbroadcastss  0x648(%rip),%ymm10        # 41a0 <_sk_callback_hsw+0x45b>
+  .byte  196,98,125,24,13,141,6,0,0          // vbroadcastss  0x68d(%rip),%ymm9        # 487c <_sk_callback_hsw+0x497>
+  .byte  196,98,125,24,21,136,6,0,0          // vbroadcastss  0x688(%rip),%ymm10        # 4880 <_sk_callback_hsw+0x49b>
   .byte  196,66,61,168,209                   // vfmadd213ps   %ymm9,%ymm8,%ymm10
-  .byte  196,98,125,24,13,62,6,0,0           // vbroadcastss  0x63e(%rip),%ymm9        # 41a4 <_sk_callback_hsw+0x45f>
+  .byte  196,98,125,24,13,126,6,0,0          // vbroadcastss  0x67e(%rip),%ymm9        # 4884 <_sk_callback_hsw+0x49f>
   .byte  196,66,61,184,202                   // vfmadd231ps   %ymm10,%ymm8,%ymm9
-  .byte  196,98,125,24,21,52,6,0,0           // vbroadcastss  0x634(%rip),%ymm10        # 41a8 <_sk_callback_hsw+0x463>
+  .byte  196,98,125,24,21,116,6,0,0          // vbroadcastss  0x674(%rip),%ymm10        # 4888 <_sk_callback_hsw+0x4a3>
   .byte  196,66,61,184,209                   // vfmadd231ps   %ymm9,%ymm8,%ymm10
   .byte  197,124,17,144,128,0,0,0            // vmovups       %ymm10,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -11334,14 +12574,14 @@ HIDDEN _sk_bicubic_p1x_hsw
 FUNCTION(_sk_bicubic_p1x_hsw)
 _sk_bicubic_p1x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,98,125,24,5,28,6,0,0            // vbroadcastss  0x61c(%rip),%ymm8        # 41ac <_sk_callback_hsw+0x467>
+  .byte  196,98,125,24,5,92,6,0,0            // vbroadcastss  0x65c(%rip),%ymm8        # 488c <_sk_callback_hsw+0x4a7>
   .byte  197,188,88,0                        // vaddps        (%rax),%ymm8,%ymm0
   .byte  197,124,16,72,64                    // vmovups       0x40(%rax),%ymm9
-  .byte  196,98,125,24,21,14,6,0,0           // vbroadcastss  0x60e(%rip),%ymm10        # 41b0 <_sk_callback_hsw+0x46b>
-  .byte  196,98,125,24,29,9,6,0,0            // vbroadcastss  0x609(%rip),%ymm11        # 41b4 <_sk_callback_hsw+0x46f>
+  .byte  196,98,125,24,21,78,6,0,0           // vbroadcastss  0x64e(%rip),%ymm10        # 4890 <_sk_callback_hsw+0x4ab>
+  .byte  196,98,125,24,29,73,6,0,0           // vbroadcastss  0x649(%rip),%ymm11        # 4894 <_sk_callback_hsw+0x4af>
   .byte  196,66,53,168,218                   // vfmadd213ps   %ymm10,%ymm9,%ymm11
   .byte  196,66,53,168,216                   // vfmadd213ps   %ymm8,%ymm9,%ymm11
-  .byte  196,98,125,24,5,250,5,0,0           // vbroadcastss  0x5fa(%rip),%ymm8        # 41b8 <_sk_callback_hsw+0x473>
+  .byte  196,98,125,24,5,58,6,0,0            // vbroadcastss  0x63a(%rip),%ymm8        # 4898 <_sk_callback_hsw+0x4b3>
   .byte  196,66,53,184,195                   // vfmadd231ps   %ymm11,%ymm9,%ymm8
   .byte  197,124,17,128,128,0,0,0            // vmovups       %ymm8,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -11352,12 +12592,12 @@ HIDDEN _sk_bicubic_p3x_hsw
 FUNCTION(_sk_bicubic_p3x_hsw)
 _sk_bicubic_p3x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,5,226,5,0,0          // vbroadcastss  0x5e2(%rip),%ymm0        # 41bc <_sk_callback_hsw+0x477>
+  .byte  196,226,125,24,5,34,6,0,0           // vbroadcastss  0x622(%rip),%ymm0        # 489c <_sk_callback_hsw+0x4b7>
   .byte  197,252,88,0                        // vaddps        (%rax),%ymm0,%ymm0
   .byte  197,124,16,64,64                    // vmovups       0x40(%rax),%ymm8
   .byte  196,65,60,89,200                    // vmulps        %ymm8,%ymm8,%ymm9
-  .byte  196,98,125,24,21,207,5,0,0          // vbroadcastss  0x5cf(%rip),%ymm10        # 41c0 <_sk_callback_hsw+0x47b>
-  .byte  196,98,125,24,29,202,5,0,0          // vbroadcastss  0x5ca(%rip),%ymm11        # 41c4 <_sk_callback_hsw+0x47f>
+  .byte  196,98,125,24,21,15,6,0,0           // vbroadcastss  0x60f(%rip),%ymm10        # 48a0 <_sk_callback_hsw+0x4bb>
+  .byte  196,98,125,24,29,10,6,0,0           // vbroadcastss  0x60a(%rip),%ymm11        # 48a4 <_sk_callback_hsw+0x4bf>
   .byte  196,66,61,168,218                   // vfmadd213ps   %ymm10,%ymm8,%ymm11
   .byte  196,65,52,89,195                    // vmulps        %ymm11,%ymm9,%ymm8
   .byte  197,124,17,128,128,0,0,0            // vmovups       %ymm8,0x80(%rax)
@@ -11369,13 +12609,13 @@ HIDDEN _sk_bicubic_n3y_hsw
 FUNCTION(_sk_bicubic_n3y_hsw)
 _sk_bicubic_n3y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,13,173,5,0,0         // vbroadcastss  0x5ad(%rip),%ymm1        # 41c8 <_sk_callback_hsw+0x483>
+  .byte  196,226,125,24,13,237,5,0,0         // vbroadcastss  0x5ed(%rip),%ymm1        # 48a8 <_sk_callback_hsw+0x4c3>
   .byte  197,244,88,72,32                    // vaddps        0x20(%rax),%ymm1,%ymm1
-  .byte  196,98,125,24,5,163,5,0,0           // vbroadcastss  0x5a3(%rip),%ymm8        # 41cc <_sk_callback_hsw+0x487>
+  .byte  196,98,125,24,5,227,5,0,0           // vbroadcastss  0x5e3(%rip),%ymm8        # 48ac <_sk_callback_hsw+0x4c7>
   .byte  197,60,92,64,96                     // vsubps        0x60(%rax),%ymm8,%ymm8
   .byte  196,65,60,89,200                    // vmulps        %ymm8,%ymm8,%ymm9
-  .byte  196,98,125,24,21,148,5,0,0          // vbroadcastss  0x594(%rip),%ymm10        # 41d0 <_sk_callback_hsw+0x48b>
-  .byte  196,98,125,24,29,143,5,0,0          // vbroadcastss  0x58f(%rip),%ymm11        # 41d4 <_sk_callback_hsw+0x48f>
+  .byte  196,98,125,24,21,212,5,0,0          // vbroadcastss  0x5d4(%rip),%ymm10        # 48b0 <_sk_callback_hsw+0x4cb>
+  .byte  196,98,125,24,29,207,5,0,0          // vbroadcastss  0x5cf(%rip),%ymm11        # 48b4 <_sk_callback_hsw+0x4cf>
   .byte  196,66,61,168,218                   // vfmadd213ps   %ymm10,%ymm8,%ymm11
   .byte  196,65,36,89,193                    // vmulps        %ymm9,%ymm11,%ymm8
   .byte  197,124,17,128,160,0,0,0            // vmovups       %ymm8,0xa0(%rax)
@@ -11387,16 +12627,16 @@ HIDDEN _sk_bicubic_n1y_hsw
 FUNCTION(_sk_bicubic_n1y_hsw)
 _sk_bicubic_n1y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,13,114,5,0,0         // vbroadcastss  0x572(%rip),%ymm1        # 41d8 <_sk_callback_hsw+0x493>
+  .byte  196,226,125,24,13,178,5,0,0         // vbroadcastss  0x5b2(%rip),%ymm1        # 48b8 <_sk_callback_hsw+0x4d3>
   .byte  197,244,88,72,32                    // vaddps        0x20(%rax),%ymm1,%ymm1
-  .byte  196,98,125,24,5,104,5,0,0           // vbroadcastss  0x568(%rip),%ymm8        # 41dc <_sk_callback_hsw+0x497>
+  .byte  196,98,125,24,5,168,5,0,0           // vbroadcastss  0x5a8(%rip),%ymm8        # 48bc <_sk_callback_hsw+0x4d7>
   .byte  197,60,92,64,96                     // vsubps        0x60(%rax),%ymm8,%ymm8
-  .byte  196,98,125,24,13,94,5,0,0           // vbroadcastss  0x55e(%rip),%ymm9        # 41e0 <_sk_callback_hsw+0x49b>
-  .byte  196,98,125,24,21,89,5,0,0           // vbroadcastss  0x559(%rip),%ymm10        # 41e4 <_sk_callback_hsw+0x49f>
+  .byte  196,98,125,24,13,158,5,0,0          // vbroadcastss  0x59e(%rip),%ymm9        # 48c0 <_sk_callback_hsw+0x4db>
+  .byte  196,98,125,24,21,153,5,0,0          // vbroadcastss  0x599(%rip),%ymm10        # 48c4 <_sk_callback_hsw+0x4df>
   .byte  196,66,61,168,209                   // vfmadd213ps   %ymm9,%ymm8,%ymm10
-  .byte  196,98,125,24,13,79,5,0,0           // vbroadcastss  0x54f(%rip),%ymm9        # 41e8 <_sk_callback_hsw+0x4a3>
+  .byte  196,98,125,24,13,143,5,0,0          // vbroadcastss  0x58f(%rip),%ymm9        # 48c8 <_sk_callback_hsw+0x4e3>
   .byte  196,66,61,184,202                   // vfmadd231ps   %ymm10,%ymm8,%ymm9
-  .byte  196,98,125,24,21,69,5,0,0           // vbroadcastss  0x545(%rip),%ymm10        # 41ec <_sk_callback_hsw+0x4a7>
+  .byte  196,98,125,24,21,133,5,0,0          // vbroadcastss  0x585(%rip),%ymm10        # 48cc <_sk_callback_hsw+0x4e7>
   .byte  196,66,61,184,209                   // vfmadd231ps   %ymm9,%ymm8,%ymm10
   .byte  197,124,17,144,160,0,0,0            // vmovups       %ymm10,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -11407,14 +12647,14 @@ HIDDEN _sk_bicubic_p1y_hsw
 FUNCTION(_sk_bicubic_p1y_hsw)
 _sk_bicubic_p1y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,98,125,24,5,45,5,0,0            // vbroadcastss  0x52d(%rip),%ymm8        # 41f0 <_sk_callback_hsw+0x4ab>
+  .byte  196,98,125,24,5,109,5,0,0           // vbroadcastss  0x56d(%rip),%ymm8        # 48d0 <_sk_callback_hsw+0x4eb>
   .byte  197,188,88,72,32                    // vaddps        0x20(%rax),%ymm8,%ymm1
   .byte  197,124,16,72,96                    // vmovups       0x60(%rax),%ymm9
-  .byte  196,98,125,24,21,30,5,0,0           // vbroadcastss  0x51e(%rip),%ymm10        # 41f4 <_sk_callback_hsw+0x4af>
-  .byte  196,98,125,24,29,25,5,0,0           // vbroadcastss  0x519(%rip),%ymm11        # 41f8 <_sk_callback_hsw+0x4b3>
+  .byte  196,98,125,24,21,94,5,0,0           // vbroadcastss  0x55e(%rip),%ymm10        # 48d4 <_sk_callback_hsw+0x4ef>
+  .byte  196,98,125,24,29,89,5,0,0           // vbroadcastss  0x559(%rip),%ymm11        # 48d8 <_sk_callback_hsw+0x4f3>
   .byte  196,66,53,168,218                   // vfmadd213ps   %ymm10,%ymm9,%ymm11
   .byte  196,66,53,168,216                   // vfmadd213ps   %ymm8,%ymm9,%ymm11
-  .byte  196,98,125,24,5,10,5,0,0            // vbroadcastss  0x50a(%rip),%ymm8        # 41fc <_sk_callback_hsw+0x4b7>
+  .byte  196,98,125,24,5,74,5,0,0            // vbroadcastss  0x54a(%rip),%ymm8        # 48dc <_sk_callback_hsw+0x4f7>
   .byte  196,66,53,184,195                   // vfmadd231ps   %ymm11,%ymm9,%ymm8
   .byte  197,124,17,128,160,0,0,0            // vmovups       %ymm8,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -11425,12 +12665,12 @@ HIDDEN _sk_bicubic_p3y_hsw
 FUNCTION(_sk_bicubic_p3y_hsw)
 _sk_bicubic_p3y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,13,242,4,0,0         // vbroadcastss  0x4f2(%rip),%ymm1        # 4200 <_sk_callback_hsw+0x4bb>
+  .byte  196,226,125,24,13,50,5,0,0          // vbroadcastss  0x532(%rip),%ymm1        # 48e0 <_sk_callback_hsw+0x4fb>
   .byte  197,244,88,72,32                    // vaddps        0x20(%rax),%ymm1,%ymm1
   .byte  197,124,16,64,96                    // vmovups       0x60(%rax),%ymm8
   .byte  196,65,60,89,200                    // vmulps        %ymm8,%ymm8,%ymm9
-  .byte  196,98,125,24,21,222,4,0,0          // vbroadcastss  0x4de(%rip),%ymm10        # 4204 <_sk_callback_hsw+0x4bf>
-  .byte  196,98,125,24,29,217,4,0,0          // vbroadcastss  0x4d9(%rip),%ymm11        # 4208 <_sk_callback_hsw+0x4c3>
+  .byte  196,98,125,24,21,30,5,0,0           // vbroadcastss  0x51e(%rip),%ymm10        # 48e4 <_sk_callback_hsw+0x4ff>
+  .byte  196,98,125,24,29,25,5,0,0           // vbroadcastss  0x519(%rip),%ymm11        # 48e8 <_sk_callback_hsw+0x503>
   .byte  196,66,61,168,218                   // vfmadd213ps   %ymm10,%ymm8,%ymm11
   .byte  196,65,52,89,195                    // vmulps        %ymm11,%ymm9,%ymm8
   .byte  197,124,17,128,160,0,0,0            // vmovups       %ymm8,0xa0(%rax)
@@ -11551,6 +12791,30 @@ BALIGN4
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,128,191,0,0,224                   // add           %al,-0x1fffff41(%rax)
   .byte  64,0,0                              // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,174                  // ds            cmp $0xae3f170a,%eax
+  .byte  71,225,61                           // rex.RXB       loope 45c1 <.literal4+0xb5>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,174                  // ds            cmp $0xae3f170a,%eax
+  .byte  71,225,61                           // rex.RXB       loope 45d1 <.literal4+0xc5>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,174                  // ds            cmp $0xae3f170a,%eax
+  .byte  71,225,61                           // rex.RXB       loope 45e1 <.literal4+0xd5>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,174                  // ds            cmp $0xae3f170a,%eax
+  .byte  71,225,61                           // rex.RXB       loope 45f1 <.literal4+0xe5>
+  .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
   .byte  63                                  // (bad)
@@ -11598,7 +12862,7 @@ BALIGN4
   .byte  190,129,128,128,59                  // mov           $0x3b808081,%esi
   .byte  129,128,128,59,0,248,0,0,8,33       // addl          $0x21080000,-0x7ffc480(%rax)
   .byte  132,55                              // test          %dh,(%rdi)
-  .byte  224,7                               // loopne        3f5d <.literal4+0xf1>
+  .byte  224,7                               // loopne        463d <.literal4+0x131>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  33,8                                // and           %ecx,(%rax)
   .byte  2,58                                // add           (%rdx),%bh
@@ -11612,10 +12876,10 @@ BALIGN4
   .byte  129,128,128,59,129,128,128,59,0,0   // addl          $0x3b80,-0x7f7ec480(%rax)
   .byte  0,52,255                            // add           %dh,(%rdi,%rdi,8)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            3f88 <.literal4+0x11c>
+  .byte  127,0                               // jg            4668 <.literal4+0x15c>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            4001 <.literal4+0x195>
+  .byte  119,115                             // ja            46e1 <.literal4+0x1d5>
   .byte  248                                 // clc
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,249,68,180                   // mov           $0xb444f93f,%edi
@@ -11629,10 +12893,10 @@ BALIGN4
   .byte  0,128,63,0,0,0                      // add           %al,0x3f(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            3fbc <.literal4+0x150>
+  .byte  127,0                               // jg            469c <.literal4+0x190>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            4035 <.literal4+0x1c9>
+  .byte  119,115                             // ja            4715 <.literal4+0x209>
   .byte  248                                 // clc
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,249,68,180                   // mov           $0xb444f93f,%edi
@@ -11646,10 +12910,10 @@ BALIGN4
   .byte  0,128,63,0,0,0                      // add           %al,0x3f(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            3ff0 <.literal4+0x184>
+  .byte  127,0                               // jg            46d0 <.literal4+0x1c4>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            4069 <.literal4+0x1fd>
+  .byte  119,115                             // ja            4749 <.literal4+0x23d>
   .byte  248                                 // clc
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,249,68,180                   // mov           $0xb444f93f,%edi
@@ -11663,10 +12927,10 @@ BALIGN4
   .byte  0,128,63,0,0,0                      // add           %al,0x3f(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4024 <.literal4+0x1b8>
+  .byte  127,0                               // jg            4704 <.literal4+0x1f8>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            409d <.literal4+0x231>
+  .byte  119,115                             // ja            477d <.literal4+0x271>
   .byte  248                                 // clc
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,249,68,180                   // mov           $0xb444f93f,%edi
@@ -11679,7 +12943,7 @@ BALIGN4
   .byte  0,75,0                              // add           %cl,0x0(%rbx)
   .byte  0,128,63,0,0,200                    // add           %al,-0x37ffffc1(%rax)
   .byte  66,0,0                              // rex.X         add %al,(%rax)
-  .byte  127,67                              // jg            409b <.literal4+0x22f>
+  .byte  127,67                              // jg            477b <.literal4+0x26f>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,195                               // add           %al,%bl
   .byte  0,0                                 // add           %al,(%rax)
@@ -11691,10 +12955,10 @@ BALIGN4
   .byte  190,80,128,3,62                     // mov           $0x3e038050,%esi
   .byte  31                                  // (bad)
   .byte  215                                 // xlat          %ds:(%rbx)
-  .byte  118,63                              // jbe           40bb <.literal4+0x24f>
+  .byte  118,63                              // jbe           479b <.literal4+0x28f>
   .byte  246,64,83,63                        // testb         $0x3f,0x53(%rax)
   .byte  129,128,128,59,129,128,128,59,0,0   // addl          $0x3b80,-0x7f7ec480(%rax)
-  .byte  127,67                              // jg            40cf <.literal4+0x263>
+  .byte  127,67                              // jg            47af <.literal4+0x2a3>
   .byte  129,128,128,59,0,0,128,63,129,128   // addl          $0x80813f80,0x3b80(%rax)
   .byte  128,59,0                            // cmpb          $0x0,(%rbx)
   .byte  0,128,63,129,128,128                // add           %al,-0x7f7f7ec1(%rax)
@@ -11703,7 +12967,7 @@ BALIGN4
   .byte  0,0                                 // add           %al,(%rax)
   .byte  8,33                                // or            %ah,(%rcx)
   .byte  132,55                              // test          %dh,(%rdi)
-  .byte  224,7                               // loopne        40b1 <.literal4+0x245>
+  .byte  224,7                               // loopne        4791 <.literal4+0x285>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  33,8                                // and           %ecx,(%rax)
   .byte  2,58                                // add           (%rdx),%bh
@@ -11715,7 +12979,7 @@ BALIGN4
   .byte  0,0                                 // add           %al,(%rax)
   .byte  8,33                                // or            %ah,(%rcx)
   .byte  132,55                              // test          %dh,(%rdi)
-  .byte  224,7                               // loopne        40cd <.literal4+0x261>
+  .byte  224,7                               // loopne        47ad <.literal4+0x2a1>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  33,8                                // and           %ecx,(%rax)
   .byte  2,58                                // add           (%rdx),%bh
@@ -11726,7 +12990,7 @@ BALIGN4
   .byte  0,0                                 // add           %al,(%rax)
   .byte  248                                 // clc
   .byte  65,0,0                              // add           %al,(%r8)
-  .byte  124,66                              // jl            4122 <.literal4+0x2b6>
+  .byte  124,66                              // jl            4802 <.literal4+0x2f6>
   .byte  0,240                               // add           %dh,%al
   .byte  0,0                                 // add           %al,(%rax)
   .byte  137,136,136,55,0,15                 // mov           %ecx,0xf003788(%rax)
@@ -11744,9 +13008,9 @@ BALIGN4
   .byte  137,136,136,59,15,0                 // mov           %ecx,0xf3b88(%rax)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  137,136,136,61,0,0                  // mov           %ecx,0x3d88(%rax)
-  .byte  112,65                              // jo            4165 <.literal4+0x2f9>
+  .byte  112,65                              // jo            4845 <.literal4+0x339>
   .byte  129,128,128,59,129,128,128,59,0,0   // addl          $0x3b80,-0x7f7ec480(%rax)
-  .byte  127,67                              // jg            4173 <.literal4+0x307>
+  .byte  127,67                              // jg            4853 <.literal4+0x347>
   .byte  128,0,128                           // addb          $0x80,(%rax)
   .byte  55                                  // (bad)
   .byte  128,0,128                           // addb          $0x80,(%rax)
@@ -11754,7 +13018,7 @@ BALIGN4
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  255                                 // (bad)
-  .byte  127,71                              // jg            4187 <.literal4+0x31b>
+  .byte  127,71                              // jg            4867 <.literal4+0x35b>
   .byte  208                                 // (bad)
   .byte  179,89                              // mov           $0x59,%bl
   .byte  62,89                               // ds            pop %rcx
@@ -11851,68 +13115,16 @@ BALIGN32
   .byte  0,0                                 // add           %al,(%rax)
   .byte  1,255                               // add           %edi,%edi
   .byte  255                                 // (bad)
-  .byte  255,5,255,255,255,9                 // incl          0x9ffffff(%rip)        # a004248 <_sk_callback_hsw+0xa000503>
+  .byte  255,5,255,255,255,9                 // incl          0x9ffffff(%rip)        # a004928 <_sk_callback_hsw+0xa000543>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,13,255,255,255,17               // decl          0x11ffffff(%rip)        # 12004250 <_sk_callback_hsw+0x1200050b>
+  .byte  255,13,255,255,255,17               // decl          0x11ffffff(%rip)        # 12004930 <_sk_callback_hsw+0x1200054b>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,21,255,255,255,25               // callq         *0x19ffffff(%rip)        # 1a004258 <_sk_callback_hsw+0x1a000513>
+  .byte  255,21,255,255,255,25               // callq         *0x19ffffff(%rip)        # 1a004938 <_sk_callback_hsw+0x1a000553>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,29,255,255,255,2                // lcall         *0x2ffffff(%rip)        # 3004260 <_sk_callback_hsw+0x300051b>
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,6                               // incl          (%rsi)
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,10                              // decl          (%rdx)
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,14                              // decl          (%rsi)
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,18                              // callq         *(%rdx)
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,22                              // callq         *(%rsi)
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,26                              // lcall         *(%rdx)
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,30                              // lcall         *(%rsi)
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,0                               // incl          (%rax)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  255,0                               // incl          (%rax)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  255,0                               // incl          (%rax)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  255,0                               // incl          (%rax)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  255,0                               // incl          (%rax)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  255,0                               // incl          (%rax)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  255,0                               // incl          (%rax)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  255,0                               // incl          (%rax)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  1,255                               // add           %edi,%edi
-  .byte  255                                 // (bad)
-  .byte  255,5,255,255,255,9                 // incl          0x9ffffff(%rip)        # a0042a8 <_sk_callback_hsw+0xa000563>
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,13,255,255,255,17               // decl          0x11ffffff(%rip)        # 120042b0 <_sk_callback_hsw+0x1200056b>
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,21,255,255,255,25               // callq         *0x19ffffff(%rip)        # 1a0042b8 <_sk_callback_hsw+0x1a000573>
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,29,255,255,255,2                // lcall         *0x2ffffff(%rip)        # 30042c0 <_sk_callback_hsw+0x300057b>
+  .byte  255,29,255,255,255,2                // lcall         *0x2ffffff(%rip)        # 3004940 <_sk_callback_hsw+0x300055b>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255,6                               // incl          (%rsi)
@@ -11955,16 +13167,16 @@ BALIGN32
   .byte  0,0                                 // add           %al,(%rax)
   .byte  1,255                               // add           %edi,%edi
   .byte  255                                 // (bad)
-  .byte  255,5,255,255,255,9                 // incl          0x9ffffff(%rip)        # a004308 <_sk_callback_hsw+0xa0005c3>
+  .byte  255,5,255,255,255,9                 // incl          0x9ffffff(%rip)        # a004988 <_sk_callback_hsw+0xa0005a3>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,13,255,255,255,17               // decl          0x11ffffff(%rip)        # 12004310 <_sk_callback_hsw+0x120005cb>
+  .byte  255,13,255,255,255,17               // decl          0x11ffffff(%rip)        # 12004990 <_sk_callback_hsw+0x120005ab>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,21,255,255,255,25               // callq         *0x19ffffff(%rip)        # 1a004318 <_sk_callback_hsw+0x1a0005d3>
+  .byte  255,21,255,255,255,25               // callq         *0x19ffffff(%rip)        # 1a004998 <_sk_callback_hsw+0x1a0005b3>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,29,255,255,255,2                // lcall         *0x2ffffff(%rip)        # 3004320 <_sk_callback_hsw+0x30005db>
+  .byte  255,29,255,255,255,2                // lcall         *0x2ffffff(%rip)        # 30049a0 <_sk_callback_hsw+0x30005bb>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255,6                               // incl          (%rsi)
@@ -12007,16 +13219,68 @@ BALIGN32
   .byte  0,0                                 // add           %al,(%rax)
   .byte  1,255                               // add           %edi,%edi
   .byte  255                                 // (bad)
-  .byte  255,5,255,255,255,9                 // incl          0x9ffffff(%rip)        # a004368 <_sk_callback_hsw+0xa000623>
+  .byte  255,5,255,255,255,9                 // incl          0x9ffffff(%rip)        # a0049e8 <_sk_callback_hsw+0xa000603>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,13,255,255,255,17               // decl          0x11ffffff(%rip)        # 12004370 <_sk_callback_hsw+0x1200062b>
+  .byte  255,13,255,255,255,17               // decl          0x11ffffff(%rip)        # 120049f0 <_sk_callback_hsw+0x1200060b>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,21,255,255,255,25               // callq         *0x19ffffff(%rip)        # 1a004378 <_sk_callback_hsw+0x1a000633>
+  .byte  255,21,255,255,255,25               // callq         *0x19ffffff(%rip)        # 1a0049f8 <_sk_callback_hsw+0x1a000613>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,29,255,255,255,2                // lcall         *0x2ffffff(%rip)        # 3004380 <_sk_callback_hsw+0x300063b>
+  .byte  255,29,255,255,255,2                // lcall         *0x2ffffff(%rip)        # 3004a00 <_sk_callback_hsw+0x300061b>
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,6                               // incl          (%rsi)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,10                              // decl          (%rdx)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,14                              // decl          (%rsi)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,18                              // callq         *(%rdx)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,22                              // callq         *(%rsi)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,26                              // lcall         *(%rdx)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,30                              // lcall         *(%rsi)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,0                               // incl          (%rax)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  255,0                               // incl          (%rax)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  255,0                               // incl          (%rax)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  255,0                               // incl          (%rax)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  255,0                               // incl          (%rax)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  255,0                               // incl          (%rax)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  255,0                               // incl          (%rax)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  255,0                               // incl          (%rax)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  1,255                               // add           %edi,%edi
+  .byte  255                                 // (bad)
+  .byte  255,5,255,255,255,9                 // incl          0x9ffffff(%rip)        # a004a48 <_sk_callback_hsw+0xa000663>
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,13,255,255,255,17               // decl          0x11ffffff(%rip)        # 12004a50 <_sk_callback_hsw+0x1200066b>
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,21,255,255,255,25               // callq         *0x19ffffff(%rip)        # 1a004a58 <_sk_callback_hsw+0x1a000673>
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,29,255,255,255,2                // lcall         *0x2ffffff(%rip)        # 3004a60 <_sk_callback_hsw+0x300067b>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255,6                               // incl          (%rsi)
@@ -12137,14 +13401,14 @@ _sk_seed_shader_avx:
   .byte  197,249,112,192,0                   // vpshufd       $0x0,%xmm0,%xmm0
   .byte  196,227,125,24,192,1                // vinsertf128   $0x1,%xmm0,%ymm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,203,84,0,0        // vbroadcastss  0x54cb(%rip),%ymm1        # 5594 <_sk_callback_avx+0x125>
+  .byte  196,226,125,24,13,235,91,0,0        // vbroadcastss  0x5beb(%rip),%ymm1        # 5cb4 <_sk_callback_avx+0x125>
   .byte  197,252,88,193                      // vaddps        %ymm1,%ymm0,%ymm0
   .byte  197,252,88,2                        // vaddps        (%rdx),%ymm0,%ymm0
   .byte  196,226,125,24,16                   // vbroadcastss  (%rax),%ymm2
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
   .byte  197,236,88,201                      // vaddps        %ymm1,%ymm2,%ymm1
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,21,175,84,0,0        // vbroadcastss  0x54af(%rip),%ymm2        # 5598 <_sk_callback_avx+0x129>
+  .byte  196,226,125,24,21,207,91,0,0        // vbroadcastss  0x5bcf(%rip),%ymm2        # 5cb8 <_sk_callback_avx+0x129>
   .byte  197,228,87,219                      // vxorps        %ymm3,%ymm3,%ymm3
   .byte  197,220,87,228                      // vxorps        %ymm4,%ymm4,%ymm4
   .byte  197,212,87,237                      // vxorps        %ymm5,%ymm5,%ymm5
@@ -12166,7 +13430,7 @@ _sk_dither_avx:
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  196,66,125,24,8                     // vbroadcastss  (%r8),%ymm9
   .byte  196,65,60,87,209                    // vxorps        %ymm9,%ymm8,%ymm10
-  .byte  196,98,125,24,29,103,84,0,0         // vbroadcastss  0x5467(%rip),%ymm11        # 559c <_sk_callback_avx+0x12d>
+  .byte  196,98,125,24,29,135,91,0,0         // vbroadcastss  0x5b87(%rip),%ymm11        # 5cbc <_sk_callback_avx+0x12d>
   .byte  196,65,44,84,203                    // vandps        %ymm11,%ymm10,%ymm9
   .byte  196,193,25,114,241,5                // vpslld        $0x5,%xmm9,%xmm12
   .byte  196,67,125,25,201,1                 // vextractf128  $0x1,%ymm9,%xmm9
@@ -12177,8 +13441,8 @@ _sk_dither_avx:
   .byte  196,67,125,25,219,1                 // vextractf128  $0x1,%ymm11,%xmm11
   .byte  196,193,33,114,243,4                // vpslld        $0x4,%xmm11,%xmm11
   .byte  196,67,29,24,219,1                  // vinsertf128   $0x1,%xmm11,%ymm12,%ymm11
-  .byte  196,98,125,24,37,40,84,0,0          // vbroadcastss  0x5428(%rip),%ymm12        # 55a0 <_sk_callback_avx+0x131>
-  .byte  196,98,125,24,45,35,84,0,0          // vbroadcastss  0x5423(%rip),%ymm13        # 55a4 <_sk_callback_avx+0x135>
+  .byte  196,98,125,24,37,72,91,0,0          // vbroadcastss  0x5b48(%rip),%ymm12        # 5cc0 <_sk_callback_avx+0x131>
+  .byte  196,98,125,24,45,67,91,0,0          // vbroadcastss  0x5b43(%rip),%ymm13        # 5cc4 <_sk_callback_avx+0x135>
   .byte  196,65,44,84,245                    // vandps        %ymm13,%ymm10,%ymm14
   .byte  196,193,1,114,246,2                 // vpslld        $0x2,%xmm14,%xmm15
   .byte  196,67,125,25,246,1                 // vextractf128  $0x1,%ymm14,%xmm14
@@ -12205,9 +13469,9 @@ _sk_dither_avx:
   .byte  196,65,60,86,193                    // vorps         %ymm9,%ymm8,%ymm8
   .byte  196,65,60,86,194                    // vorps         %ymm10,%ymm8,%ymm8
   .byte  196,65,124,91,192                   // vcvtdq2ps     %ymm8,%ymm8
-  .byte  196,98,125,24,13,142,83,0,0         // vbroadcastss  0x538e(%rip),%ymm9        # 55a8 <_sk_callback_avx+0x139>
+  .byte  196,98,125,24,13,174,90,0,0         // vbroadcastss  0x5aae(%rip),%ymm9        # 5cc8 <_sk_callback_avx+0x139>
   .byte  196,65,60,89,193                    // vmulps        %ymm9,%ymm8,%ymm8
-  .byte  196,98,125,24,13,132,83,0,0         // vbroadcastss  0x5384(%rip),%ymm9        # 55ac <_sk_callback_avx+0x13d>
+  .byte  196,98,125,24,13,164,90,0,0         // vbroadcastss  0x5aa4(%rip),%ymm9        # 5ccc <_sk_callback_avx+0x13d>
   .byte  196,65,60,88,193                    // vaddps        %ymm9,%ymm8,%ymm8
   .byte  196,98,125,24,72,8                  // vbroadcastss  0x8(%rax),%ymm9
   .byte  196,65,52,89,192                    // vmulps        %ymm8,%ymm9,%ymm8
@@ -12245,7 +13509,7 @@ HIDDEN _sk_srcatop_avx
 FUNCTION(_sk_srcatop_avx)
 _sk_srcatop_avx:
   .byte  197,252,89,199                      // vmulps        %ymm7,%ymm0,%ymm0
-  .byte  196,98,125,24,5,42,83,0,0           // vbroadcastss  0x532a(%rip),%ymm8        # 55b0 <_sk_callback_avx+0x141>
+  .byte  196,98,125,24,5,74,90,0,0           // vbroadcastss  0x5a4a(%rip),%ymm8        # 5cd0 <_sk_callback_avx+0x141>
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
   .byte  197,60,89,204                       // vmulps        %ymm4,%ymm8,%ymm9
   .byte  197,180,88,192                      // vaddps        %ymm0,%ymm9,%ymm0
@@ -12266,7 +13530,7 @@ HIDDEN _sk_dstatop_avx
 FUNCTION(_sk_dstatop_avx)
 _sk_dstatop_avx:
   .byte  197,100,89,196                      // vmulps        %ymm4,%ymm3,%ymm8
-  .byte  196,98,125,24,13,236,82,0,0         // vbroadcastss  0x52ec(%rip),%ymm9        # 55b4 <_sk_callback_avx+0x145>
+  .byte  196,98,125,24,13,12,90,0,0          // vbroadcastss  0x5a0c(%rip),%ymm9        # 5cd4 <_sk_callback_avx+0x145>
   .byte  197,52,92,207                       // vsubps        %ymm7,%ymm9,%ymm9
   .byte  197,180,89,192                      // vmulps        %ymm0,%ymm9,%ymm0
   .byte  197,188,88,192                      // vaddps        %ymm0,%ymm8,%ymm0
@@ -12308,7 +13572,7 @@ HIDDEN _sk_srcout_avx
 .globl _sk_srcout_avx
 FUNCTION(_sk_srcout_avx)
 _sk_srcout_avx:
-  .byte  196,98,125,24,5,139,82,0,0          // vbroadcastss  0x528b(%rip),%ymm8        # 55b8 <_sk_callback_avx+0x149>
+  .byte  196,98,125,24,5,171,89,0,0          // vbroadcastss  0x59ab(%rip),%ymm8        # 5cd8 <_sk_callback_avx+0x149>
   .byte  197,60,92,199                       // vsubps        %ymm7,%ymm8,%ymm8
   .byte  197,188,89,192                      // vmulps        %ymm0,%ymm8,%ymm0
   .byte  197,188,89,201                      // vmulps        %ymm1,%ymm8,%ymm1
@@ -12321,7 +13585,7 @@ HIDDEN _sk_dstout_avx
 .globl _sk_dstout_avx
 FUNCTION(_sk_dstout_avx)
 _sk_dstout_avx:
-  .byte  196,226,125,24,5,110,82,0,0         // vbroadcastss  0x526e(%rip),%ymm0        # 55bc <_sk_callback_avx+0x14d>
+  .byte  196,226,125,24,5,142,89,0,0         // vbroadcastss  0x598e(%rip),%ymm0        # 5cdc <_sk_callback_avx+0x14d>
   .byte  197,252,92,219                      // vsubps        %ymm3,%ymm0,%ymm3
   .byte  197,228,89,196                      // vmulps        %ymm4,%ymm3,%ymm0
   .byte  197,228,89,205                      // vmulps        %ymm5,%ymm3,%ymm1
@@ -12334,7 +13598,7 @@ HIDDEN _sk_srcover_avx
 .globl _sk_srcover_avx
 FUNCTION(_sk_srcover_avx)
 _sk_srcover_avx:
-  .byte  196,98,125,24,5,81,82,0,0           // vbroadcastss  0x5251(%rip),%ymm8        # 55c0 <_sk_callback_avx+0x151>
+  .byte  196,98,125,24,5,113,89,0,0          // vbroadcastss  0x5971(%rip),%ymm8        # 5ce0 <_sk_callback_avx+0x151>
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
   .byte  197,60,89,204                       // vmulps        %ymm4,%ymm8,%ymm9
   .byte  197,180,88,192                      // vaddps        %ymm0,%ymm9,%ymm0
@@ -12351,7 +13615,7 @@ HIDDEN _sk_dstover_avx
 .globl _sk_dstover_avx
 FUNCTION(_sk_dstover_avx)
 _sk_dstover_avx:
-  .byte  196,98,125,24,5,36,82,0,0           // vbroadcastss  0x5224(%rip),%ymm8        # 55c4 <_sk_callback_avx+0x155>
+  .byte  196,98,125,24,5,68,89,0,0           // vbroadcastss  0x5944(%rip),%ymm8        # 5ce4 <_sk_callback_avx+0x155>
   .byte  197,60,92,199                       // vsubps        %ymm7,%ymm8,%ymm8
   .byte  197,188,89,192                      // vmulps        %ymm0,%ymm8,%ymm0
   .byte  197,252,88,196                      // vaddps        %ymm4,%ymm0,%ymm0
@@ -12379,7 +13643,7 @@ HIDDEN _sk_multiply_avx
 .globl _sk_multiply_avx
 FUNCTION(_sk_multiply_avx)
 _sk_multiply_avx:
-  .byte  196,98,125,24,5,227,81,0,0          // vbroadcastss  0x51e3(%rip),%ymm8        # 55c8 <_sk_callback_avx+0x159>
+  .byte  196,98,125,24,5,3,89,0,0            // vbroadcastss  0x5903(%rip),%ymm8        # 5ce8 <_sk_callback_avx+0x159>
   .byte  197,60,92,207                       // vsubps        %ymm7,%ymm8,%ymm9
   .byte  197,52,89,208                       // vmulps        %ymm0,%ymm9,%ymm10
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
@@ -12439,7 +13703,7 @@ HIDDEN _sk_xor__avx
 .globl _sk_xor__avx
 FUNCTION(_sk_xor__avx)
 _sk_xor__avx:
-  .byte  196,98,125,24,5,50,81,0,0           // vbroadcastss  0x5132(%rip),%ymm8        # 55cc <_sk_callback_avx+0x15d>
+  .byte  196,98,125,24,5,82,88,0,0           // vbroadcastss  0x5852(%rip),%ymm8        # 5cec <_sk_callback_avx+0x15d>
   .byte  197,60,92,207                       // vsubps        %ymm7,%ymm8,%ymm9
   .byte  197,180,89,192                      // vmulps        %ymm0,%ymm9,%ymm0
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
@@ -12476,7 +13740,7 @@ _sk_darken_avx:
   .byte  197,100,89,206                      // vmulps        %ymm6,%ymm3,%ymm9
   .byte  196,193,108,95,209                  // vmaxps        %ymm9,%ymm2,%ymm2
   .byte  197,188,92,210                      // vsubps        %ymm2,%ymm8,%ymm2
-  .byte  196,98,125,24,5,178,80,0,0          // vbroadcastss  0x50b2(%rip),%ymm8        # 55d0 <_sk_callback_avx+0x161>
+  .byte  196,98,125,24,5,210,87,0,0          // vbroadcastss  0x57d2(%rip),%ymm8        # 5cf0 <_sk_callback_avx+0x161>
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
   .byte  197,60,89,199                       // vmulps        %ymm7,%ymm8,%ymm8
   .byte  197,188,88,219                      // vaddps        %ymm3,%ymm8,%ymm3
@@ -12502,7 +13766,7 @@ _sk_lighten_avx:
   .byte  197,100,89,206                      // vmulps        %ymm6,%ymm3,%ymm9
   .byte  196,193,108,93,209                  // vminps        %ymm9,%ymm2,%ymm2
   .byte  197,188,92,210                      // vsubps        %ymm2,%ymm8,%ymm2
-  .byte  196,98,125,24,5,94,80,0,0           // vbroadcastss  0x505e(%rip),%ymm8        # 55d4 <_sk_callback_avx+0x165>
+  .byte  196,98,125,24,5,126,87,0,0          // vbroadcastss  0x577e(%rip),%ymm8        # 5cf4 <_sk_callback_avx+0x165>
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
   .byte  197,60,89,199                       // vmulps        %ymm7,%ymm8,%ymm8
   .byte  197,188,88,219                      // vaddps        %ymm3,%ymm8,%ymm3
@@ -12531,7 +13795,7 @@ _sk_difference_avx:
   .byte  196,193,108,93,209                  // vminps        %ymm9,%ymm2,%ymm2
   .byte  197,236,88,210                      // vaddps        %ymm2,%ymm2,%ymm2
   .byte  197,188,92,210                      // vsubps        %ymm2,%ymm8,%ymm2
-  .byte  196,98,125,24,5,254,79,0,0          // vbroadcastss  0x4ffe(%rip),%ymm8        # 55d8 <_sk_callback_avx+0x169>
+  .byte  196,98,125,24,5,30,87,0,0           // vbroadcastss  0x571e(%rip),%ymm8        # 5cf8 <_sk_callback_avx+0x169>
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
   .byte  197,60,89,199                       // vmulps        %ymm7,%ymm8,%ymm8
   .byte  197,188,88,219                      // vaddps        %ymm3,%ymm8,%ymm3
@@ -12554,7 +13818,7 @@ _sk_exclusion_avx:
   .byte  197,236,89,214                      // vmulps        %ymm6,%ymm2,%ymm2
   .byte  197,236,88,210                      // vaddps        %ymm2,%ymm2,%ymm2
   .byte  197,188,92,210                      // vsubps        %ymm2,%ymm8,%ymm2
-  .byte  196,98,125,24,5,185,79,0,0          // vbroadcastss  0x4fb9(%rip),%ymm8        # 55dc <_sk_callback_avx+0x16d>
+  .byte  196,98,125,24,5,217,86,0,0          // vbroadcastss  0x56d9(%rip),%ymm8        # 5cfc <_sk_callback_avx+0x16d>
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
   .byte  197,60,89,199                       // vmulps        %ymm7,%ymm8,%ymm8
   .byte  197,188,88,219                      // vaddps        %ymm3,%ymm8,%ymm3
@@ -12565,7 +13829,7 @@ HIDDEN _sk_colorburn_avx
 .globl _sk_colorburn_avx
 FUNCTION(_sk_colorburn_avx)
 _sk_colorburn_avx:
-  .byte  196,98,125,24,5,164,79,0,0          // vbroadcastss  0x4fa4(%rip),%ymm8        # 55e0 <_sk_callback_avx+0x171>
+  .byte  196,98,125,24,5,196,86,0,0          // vbroadcastss  0x56c4(%rip),%ymm8        # 5d00 <_sk_callback_avx+0x171>
   .byte  197,60,92,207                       // vsubps        %ymm7,%ymm8,%ymm9
   .byte  197,52,89,216                       // vmulps        %ymm0,%ymm9,%ymm11
   .byte  196,65,44,87,210                    // vxorps        %ymm10,%ymm10,%ymm10
@@ -12627,7 +13891,7 @@ HIDDEN _sk_colordodge_avx
 FUNCTION(_sk_colordodge_avx)
 _sk_colordodge_avx:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
-  .byte  196,98,125,24,13,160,78,0,0         // vbroadcastss  0x4ea0(%rip),%ymm9        # 55e4 <_sk_callback_avx+0x175>
+  .byte  196,98,125,24,13,192,85,0,0         // vbroadcastss  0x55c0(%rip),%ymm9        # 5d04 <_sk_callback_avx+0x175>
   .byte  197,52,92,215                       // vsubps        %ymm7,%ymm9,%ymm10
   .byte  197,44,89,216                       // vmulps        %ymm0,%ymm10,%ymm11
   .byte  197,52,92,203                       // vsubps        %ymm3,%ymm9,%ymm9
@@ -12684,7 +13948,7 @@ HIDDEN _sk_hardlight_avx
 .globl _sk_hardlight_avx
 FUNCTION(_sk_hardlight_avx)
 _sk_hardlight_avx:
-  .byte  196,98,125,24,5,178,77,0,0          // vbroadcastss  0x4db2(%rip),%ymm8        # 55e8 <_sk_callback_avx+0x179>
+  .byte  196,98,125,24,5,210,84,0,0          // vbroadcastss  0x54d2(%rip),%ymm8        # 5d08 <_sk_callback_avx+0x179>
   .byte  197,60,92,215                       // vsubps        %ymm7,%ymm8,%ymm10
   .byte  197,44,89,200                       // vmulps        %ymm0,%ymm10,%ymm9
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
@@ -12739,7 +14003,7 @@ HIDDEN _sk_overlay_avx
 .globl _sk_overlay_avx
 FUNCTION(_sk_overlay_avx)
 _sk_overlay_avx:
-  .byte  196,98,125,24,5,219,76,0,0          // vbroadcastss  0x4cdb(%rip),%ymm8        # 55ec <_sk_callback_avx+0x17d>
+  .byte  196,98,125,24,5,251,83,0,0          // vbroadcastss  0x53fb(%rip),%ymm8        # 5d0c <_sk_callback_avx+0x17d>
   .byte  197,60,92,215                       // vsubps        %ymm7,%ymm8,%ymm10
   .byte  197,44,89,200                       // vmulps        %ymm0,%ymm10,%ymm9
   .byte  197,60,92,195                       // vsubps        %ymm3,%ymm8,%ymm8
@@ -12805,10 +14069,10 @@ _sk_softlight_avx:
   .byte  196,65,60,88,192                    // vaddps        %ymm8,%ymm8,%ymm8
   .byte  196,65,60,89,216                    // vmulps        %ymm8,%ymm8,%ymm11
   .byte  196,65,60,88,195                    // vaddps        %ymm11,%ymm8,%ymm8
-  .byte  196,98,125,24,29,210,75,0,0         // vbroadcastss  0x4bd2(%rip),%ymm11        # 55f4 <_sk_callback_avx+0x185>
+  .byte  196,98,125,24,29,242,82,0,0         // vbroadcastss  0x52f2(%rip),%ymm11        # 5d14 <_sk_callback_avx+0x185>
   .byte  196,65,28,88,235                    // vaddps        %ymm11,%ymm12,%ymm13
   .byte  196,65,20,89,192                    // vmulps        %ymm8,%ymm13,%ymm8
-  .byte  196,98,125,24,45,195,75,0,0         // vbroadcastss  0x4bc3(%rip),%ymm13        # 55f8 <_sk_callback_avx+0x189>
+  .byte  196,98,125,24,45,227,82,0,0         // vbroadcastss  0x52e3(%rip),%ymm13        # 5d18 <_sk_callback_avx+0x189>
   .byte  196,65,28,89,245                    // vmulps        %ymm13,%ymm12,%ymm14
   .byte  196,65,12,88,192                    // vaddps        %ymm8,%ymm14,%ymm8
   .byte  196,65,124,82,244                   // vrsqrtps      %ymm12,%ymm14
@@ -12819,7 +14083,7 @@ _sk_softlight_avx:
   .byte  197,4,194,255,2                     // vcmpleps      %ymm7,%ymm15,%ymm15
   .byte  196,67,13,74,240,240                // vblendvps     %ymm15,%ymm8,%ymm14,%ymm14
   .byte  197,116,88,249                      // vaddps        %ymm1,%ymm1,%ymm15
-  .byte  196,98,125,24,5,129,75,0,0          // vbroadcastss  0x4b81(%rip),%ymm8        # 55f0 <_sk_callback_avx+0x181>
+  .byte  196,98,125,24,5,161,82,0,0          // vbroadcastss  0x52a1(%rip),%ymm8        # 5d10 <_sk_callback_avx+0x181>
   .byte  196,65,60,92,228                    // vsubps        %ymm12,%ymm8,%ymm12
   .byte  197,132,92,195                      // vsubps        %ymm3,%ymm15,%ymm0
   .byte  196,65,124,89,228                   // vmulps        %ymm12,%ymm0,%ymm12
@@ -12910,6 +14174,396 @@ _sk_softlight_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_hue_avx
+.globl _sk_hue_avx
+FUNCTION(_sk_hue_avx)
+_sk_hue_avx:
+  .byte  196,65,52,87,201                    // vxorps        %ymm9,%ymm9,%ymm9
+  .byte  196,65,100,194,209,0                // vcmpeqps      %ymm9,%ymm3,%ymm10
+  .byte  196,98,125,24,5,3,81,0,0            // vbroadcastss  0x5103(%rip),%ymm8        # 5d1c <_sk_callback_avx+0x18d>
+  .byte  197,60,94,219                       // vdivps        %ymm3,%ymm8,%ymm11
+  .byte  196,67,37,74,209,160                // vblendvps     %ymm10,%ymm9,%ymm11,%ymm10
+  .byte  197,172,89,192                      // vmulps        %ymm0,%ymm10,%ymm0
+  .byte  197,172,89,201                      // vmulps        %ymm1,%ymm10,%ymm1
+  .byte  197,172,89,210                      // vmulps        %ymm2,%ymm10,%ymm2
+  .byte  197,84,95,214                       // vmaxps        %ymm6,%ymm5,%ymm10
+  .byte  196,65,92,95,210                    // vmaxps        %ymm10,%ymm4,%ymm10
+  .byte  197,84,93,222                       // vminps        %ymm6,%ymm5,%ymm11
+  .byte  196,65,92,93,219                    // vminps        %ymm11,%ymm4,%ymm11
+  .byte  196,65,44,92,211                    // vsubps        %ymm11,%ymm10,%ymm10
+  .byte  197,116,93,218                      // vminps        %ymm2,%ymm1,%ymm11
+  .byte  196,65,124,93,227                   // vminps        %ymm11,%ymm0,%ymm12
+  .byte  197,116,95,234                      // vmaxps        %ymm2,%ymm1,%ymm13
+  .byte  196,65,124,95,245                   // vmaxps        %ymm13,%ymm0,%ymm14
+  .byte  196,65,12,92,244                    // vsubps        %ymm12,%ymm14,%ymm14
+  .byte  196,193,124,92,196                  // vsubps        %ymm12,%ymm0,%ymm0
+  .byte  196,65,12,194,225,0                 // vcmpeqps      %ymm9,%ymm14,%ymm12
+  .byte  196,65,44,94,246                    // vdivps        %ymm14,%ymm10,%ymm14
+  .byte  196,67,13,74,225,192                // vblendvps     %ymm12,%ymm9,%ymm14,%ymm12
+  .byte  196,193,124,89,196                  // vmulps        %ymm12,%ymm0,%ymm0
+  .byte  196,65,124,93,219                   // vminps        %ymm11,%ymm0,%ymm11
+  .byte  196,65,124,95,229                   // vmaxps        %ymm13,%ymm0,%ymm12
+  .byte  196,65,28,92,227                    // vsubps        %ymm11,%ymm12,%ymm12
+  .byte  196,193,116,92,203                  // vsubps        %ymm11,%ymm1,%ymm1
+  .byte  196,65,28,194,217,0                 // vcmpeqps      %ymm9,%ymm12,%ymm11
+  .byte  196,65,44,94,228                    // vdivps        %ymm12,%ymm10,%ymm12
+  .byte  196,67,29,74,217,176                // vblendvps     %ymm11,%ymm9,%ymm12,%ymm11
+  .byte  196,193,116,89,203                  // vmulps        %ymm11,%ymm1,%ymm1
+  .byte  197,116,93,218                      // vminps        %ymm2,%ymm1,%ymm11
+  .byte  196,65,124,93,219                   // vminps        %ymm11,%ymm0,%ymm11
+  .byte  197,116,95,226                      // vmaxps        %ymm2,%ymm1,%ymm12
+  .byte  196,65,124,95,228                   // vmaxps        %ymm12,%ymm0,%ymm12
+  .byte  196,65,28,92,227                    // vsubps        %ymm11,%ymm12,%ymm12
+  .byte  196,193,108,92,211                  // vsubps        %ymm11,%ymm2,%ymm2
+  .byte  196,65,28,194,217,0                 // vcmpeqps      %ymm9,%ymm12,%ymm11
+  .byte  196,65,44,94,212                    // vdivps        %ymm12,%ymm10,%ymm10
+  .byte  196,67,45,74,209,176                // vblendvps     %ymm11,%ymm9,%ymm10,%ymm10
+  .byte  196,193,108,89,210                  // vmulps        %ymm10,%ymm2,%ymm2
+  .byte  196,98,125,24,21,67,80,0,0          // vbroadcastss  0x5043(%rip),%ymm10        # 5d20 <_sk_callback_avx+0x191>
+  .byte  196,65,92,89,218                    // vmulps        %ymm10,%ymm4,%ymm11
+  .byte  196,98,125,24,37,57,80,0,0          // vbroadcastss  0x5039(%rip),%ymm12        # 5d24 <_sk_callback_avx+0x195>
+  .byte  196,65,84,89,236                    // vmulps        %ymm12,%ymm5,%ymm13
+  .byte  196,65,36,88,221                    // vaddps        %ymm13,%ymm11,%ymm11
+  .byte  196,98,125,24,45,42,80,0,0          // vbroadcastss  0x502a(%rip),%ymm13        # 5d28 <_sk_callback_avx+0x199>
+  .byte  196,65,76,89,245                    // vmulps        %ymm13,%ymm6,%ymm14
+  .byte  196,65,36,88,222                    // vaddps        %ymm14,%ymm11,%ymm11
+  .byte  196,65,124,89,242                   // vmulps        %ymm10,%ymm0,%ymm14
+  .byte  196,65,116,89,252                   // vmulps        %ymm12,%ymm1,%ymm15
+  .byte  196,65,12,88,247                    // vaddps        %ymm15,%ymm14,%ymm14
+  .byte  196,65,108,89,253                   // vmulps        %ymm13,%ymm2,%ymm15
+  .byte  196,65,12,88,247                    // vaddps        %ymm15,%ymm14,%ymm14
+  .byte  196,65,36,92,222                    // vsubps        %ymm14,%ymm11,%ymm11
+  .byte  196,65,124,88,243                   // vaddps        %ymm11,%ymm0,%ymm14
+  .byte  196,65,116,88,251                   // vaddps        %ymm11,%ymm1,%ymm15
+  .byte  196,193,108,88,195                  // vaddps        %ymm11,%ymm2,%ymm0
+  .byte  197,132,93,200                      // vminps        %ymm0,%ymm15,%ymm1
+  .byte  197,140,93,209                      // vminps        %ymm1,%ymm14,%ymm2
+  .byte  197,132,95,200                      // vmaxps        %ymm0,%ymm15,%ymm1
+  .byte  197,12,95,217                       // vmaxps        %ymm1,%ymm14,%ymm11
+  .byte  196,193,12,89,202                   // vmulps        %ymm10,%ymm14,%ymm1
+  .byte  196,65,4,89,212                     // vmulps        %ymm12,%ymm15,%ymm10
+  .byte  196,193,116,88,202                  // vaddps        %ymm10,%ymm1,%ymm1
+  .byte  196,65,124,89,213                   // vmulps        %ymm13,%ymm0,%ymm10
+  .byte  197,172,88,201                      // vaddps        %ymm1,%ymm10,%ymm1
+  .byte  197,52,194,202,2                    // vcmpleps      %ymm2,%ymm9,%ymm9
+  .byte  197,12,92,209                       // vsubps        %ymm1,%ymm14,%ymm10
+  .byte  196,65,116,89,210                   // vmulps        %ymm10,%ymm1,%ymm10
+  .byte  197,244,92,210                      // vsubps        %ymm2,%ymm1,%ymm2
+  .byte  197,44,94,210                       // vdivps        %ymm2,%ymm10,%ymm10
+  .byte  196,65,116,88,210                   // vaddps        %ymm10,%ymm1,%ymm10
+  .byte  196,67,45,74,214,144                // vblendvps     %ymm9,%ymm14,%ymm10,%ymm10
+  .byte  196,65,60,194,195,1                 // vcmpltps      %ymm11,%ymm8,%ymm8
+  .byte  197,44,92,225                       // vsubps        %ymm1,%ymm10,%ymm12
+  .byte  196,65,116,89,228                   // vmulps        %ymm12,%ymm1,%ymm12
+  .byte  197,36,92,217                       // vsubps        %ymm1,%ymm11,%ymm11
+  .byte  196,65,28,94,227                    // vdivps        %ymm11,%ymm12,%ymm12
+  .byte  196,65,116,88,228                   // vaddps        %ymm12,%ymm1,%ymm12
+  .byte  196,67,45,74,212,128                // vblendvps     %ymm8,%ymm12,%ymm10,%ymm10
+  .byte  197,4,92,225                        // vsubps        %ymm1,%ymm15,%ymm12
+  .byte  196,65,116,89,228                   // vmulps        %ymm12,%ymm1,%ymm12
+  .byte  197,28,94,226                       // vdivps        %ymm2,%ymm12,%ymm12
+  .byte  196,65,116,88,228                   // vaddps        %ymm12,%ymm1,%ymm12
+  .byte  196,67,29,74,231,144                // vblendvps     %ymm9,%ymm15,%ymm12,%ymm12
+  .byte  197,28,92,233                       // vsubps        %ymm1,%ymm12,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  196,65,20,94,235                    // vdivps        %ymm11,%ymm13,%ymm13
+  .byte  196,65,116,88,237                   // vaddps        %ymm13,%ymm1,%ymm13
+  .byte  196,67,29,74,229,128                // vblendvps     %ymm8,%ymm13,%ymm12,%ymm12
+  .byte  197,124,92,233                      // vsubps        %ymm1,%ymm0,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  197,148,94,210                      // vdivps        %ymm2,%ymm13,%ymm2
+  .byte  197,244,88,210                      // vaddps        %ymm2,%ymm1,%ymm2
+  .byte  196,227,109,74,192,144              // vblendvps     %ymm9,%ymm0,%ymm2,%ymm0
+  .byte  197,252,92,209                      // vsubps        %ymm1,%ymm0,%ymm2
+  .byte  197,244,89,210                      // vmulps        %ymm2,%ymm1,%ymm2
+  .byte  196,193,108,94,211                  // vdivps        %ymm11,%ymm2,%ymm2
+  .byte  197,244,88,202                      // vaddps        %ymm2,%ymm1,%ymm1
+  .byte  196,227,125,74,209,128              // vblendvps     %ymm8,%ymm1,%ymm0,%ymm2
+  .byte  197,228,88,199                      // vaddps        %ymm7,%ymm3,%ymm0
+  .byte  197,228,89,207                      // vmulps        %ymm7,%ymm3,%ymm1
+  .byte  197,252,92,217                      // vsubps        %ymm1,%ymm0,%ymm3
+  .byte  196,193,100,89,194                  // vmulps        %ymm10,%ymm3,%ymm0
+  .byte  196,193,100,89,204                  // vmulps        %ymm12,%ymm3,%ymm1
+  .byte  197,228,89,210                      // vmulps        %ymm2,%ymm3,%ymm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  255,224                             // jmpq          *%rax
+
+HIDDEN _sk_saturation_avx
+.globl _sk_saturation_avx
+FUNCTION(_sk_saturation_avx)
+_sk_saturation_avx:
+  .byte  196,65,52,87,201                    // vxorps        %ymm9,%ymm9,%ymm9
+  .byte  196,65,68,194,209,0                 // vcmpeqps      %ymm9,%ymm7,%ymm10
+  .byte  196,98,125,24,5,250,78,0,0          // vbroadcastss  0x4efa(%rip),%ymm8        # 5d2c <_sk_callback_avx+0x19d>
+  .byte  197,60,94,223                       // vdivps        %ymm7,%ymm8,%ymm11
+  .byte  196,67,37,74,209,160                // vblendvps     %ymm10,%ymm9,%ymm11,%ymm10
+  .byte  197,44,89,220                       // vmulps        %ymm4,%ymm10,%ymm11
+  .byte  197,44,89,229                       // vmulps        %ymm5,%ymm10,%ymm12
+  .byte  197,44,89,214                       // vmulps        %ymm6,%ymm10,%ymm10
+  .byte  197,116,95,234                      // vmaxps        %ymm2,%ymm1,%ymm13
+  .byte  196,65,124,95,237                   // vmaxps        %ymm13,%ymm0,%ymm13
+  .byte  197,244,93,202                      // vminps        %ymm2,%ymm1,%ymm1
+  .byte  197,252,93,193                      // vminps        %ymm1,%ymm0,%ymm0
+  .byte  197,148,92,200                      // vsubps        %ymm0,%ymm13,%ymm1
+  .byte  196,193,28,93,210                   // vminps        %ymm10,%ymm12,%ymm2
+  .byte  197,164,93,194                      // vminps        %ymm2,%ymm11,%ymm0
+  .byte  196,65,28,95,234                    // vmaxps        %ymm10,%ymm12,%ymm13
+  .byte  196,65,36,95,245                    // vmaxps        %ymm13,%ymm11,%ymm14
+  .byte  197,12,92,240                       // vsubps        %ymm0,%ymm14,%ymm14
+  .byte  197,164,92,192                      // vsubps        %ymm0,%ymm11,%ymm0
+  .byte  196,65,12,194,217,0                 // vcmpeqps      %ymm9,%ymm14,%ymm11
+  .byte  196,65,116,94,246                   // vdivps        %ymm14,%ymm1,%ymm14
+  .byte  196,67,13,74,217,176                // vblendvps     %ymm11,%ymm9,%ymm14,%ymm11
+  .byte  196,193,124,89,195                  // vmulps        %ymm11,%ymm0,%ymm0
+  .byte  197,252,93,210                      // vminps        %ymm2,%ymm0,%ymm2
+  .byte  196,65,124,95,221                   // vmaxps        %ymm13,%ymm0,%ymm11
+  .byte  197,36,92,218                       // vsubps        %ymm2,%ymm11,%ymm11
+  .byte  197,156,92,210                      // vsubps        %ymm2,%ymm12,%ymm2
+  .byte  196,65,36,194,225,0                 // vcmpeqps      %ymm9,%ymm11,%ymm12
+  .byte  196,65,116,94,219                   // vdivps        %ymm11,%ymm1,%ymm11
+  .byte  196,67,37,74,217,192                // vblendvps     %ymm12,%ymm9,%ymm11,%ymm11
+  .byte  196,193,108,89,211                  // vmulps        %ymm11,%ymm2,%ymm2
+  .byte  196,65,108,93,218                   // vminps        %ymm10,%ymm2,%ymm11
+  .byte  196,65,124,93,219                   // vminps        %ymm11,%ymm0,%ymm11
+  .byte  196,65,108,95,226                   // vmaxps        %ymm10,%ymm2,%ymm12
+  .byte  196,65,124,95,228                   // vmaxps        %ymm12,%ymm0,%ymm12
+  .byte  196,65,28,92,227                    // vsubps        %ymm11,%ymm12,%ymm12
+  .byte  196,65,44,92,211                    // vsubps        %ymm11,%ymm10,%ymm10
+  .byte  196,65,28,194,217,0                 // vcmpeqps      %ymm9,%ymm12,%ymm11
+  .byte  196,193,116,94,204                  // vdivps        %ymm12,%ymm1,%ymm1
+  .byte  196,195,117,74,201,176              // vblendvps     %ymm11,%ymm9,%ymm1,%ymm1
+  .byte  197,172,89,201                      // vmulps        %ymm1,%ymm10,%ymm1
+  .byte  196,98,125,24,21,63,78,0,0          // vbroadcastss  0x4e3f(%rip),%ymm10        # 5d30 <_sk_callback_avx+0x1a1>
+  .byte  196,65,92,89,218                    // vmulps        %ymm10,%ymm4,%ymm11
+  .byte  196,98,125,24,37,53,78,0,0          // vbroadcastss  0x4e35(%rip),%ymm12        # 5d34 <_sk_callback_avx+0x1a5>
+  .byte  196,65,84,89,236                    // vmulps        %ymm12,%ymm5,%ymm13
+  .byte  196,65,36,88,221                    // vaddps        %ymm13,%ymm11,%ymm11
+  .byte  196,98,125,24,45,38,78,0,0          // vbroadcastss  0x4e26(%rip),%ymm13        # 5d38 <_sk_callback_avx+0x1a9>
+  .byte  196,65,76,89,245                    // vmulps        %ymm13,%ymm6,%ymm14
+  .byte  196,65,36,88,222                    // vaddps        %ymm14,%ymm11,%ymm11
+  .byte  196,65,124,89,242                   // vmulps        %ymm10,%ymm0,%ymm14
+  .byte  196,65,108,89,252                   // vmulps        %ymm12,%ymm2,%ymm15
+  .byte  196,65,12,88,247                    // vaddps        %ymm15,%ymm14,%ymm14
+  .byte  196,65,116,89,253                   // vmulps        %ymm13,%ymm1,%ymm15
+  .byte  196,65,12,88,247                    // vaddps        %ymm15,%ymm14,%ymm14
+  .byte  196,65,36,92,222                    // vsubps        %ymm14,%ymm11,%ymm11
+  .byte  196,65,124,88,243                   // vaddps        %ymm11,%ymm0,%ymm14
+  .byte  196,193,108,88,211                  // vaddps        %ymm11,%ymm2,%ymm2
+  .byte  196,193,116,88,195                  // vaddps        %ymm11,%ymm1,%ymm0
+  .byte  197,236,93,200                      // vminps        %ymm0,%ymm2,%ymm1
+  .byte  197,12,93,217                       // vminps        %ymm1,%ymm14,%ymm11
+  .byte  197,236,95,200                      // vmaxps        %ymm0,%ymm2,%ymm1
+  .byte  197,12,95,249                       // vmaxps        %ymm1,%ymm14,%ymm15
+  .byte  196,193,12,89,202                   // vmulps        %ymm10,%ymm14,%ymm1
+  .byte  196,65,108,89,212                   // vmulps        %ymm12,%ymm2,%ymm10
+  .byte  196,193,116,88,202                  // vaddps        %ymm10,%ymm1,%ymm1
+  .byte  196,65,124,89,213                   // vmulps        %ymm13,%ymm0,%ymm10
+  .byte  197,172,88,201                      // vaddps        %ymm1,%ymm10,%ymm1
+  .byte  196,65,52,194,203,2                 // vcmpleps      %ymm11,%ymm9,%ymm9
+  .byte  197,12,92,209                       // vsubps        %ymm1,%ymm14,%ymm10
+  .byte  196,65,116,89,210                   // vmulps        %ymm10,%ymm1,%ymm10
+  .byte  196,65,116,92,219                   // vsubps        %ymm11,%ymm1,%ymm11
+  .byte  196,65,44,94,211                    // vdivps        %ymm11,%ymm10,%ymm10
+  .byte  196,65,116,88,210                   // vaddps        %ymm10,%ymm1,%ymm10
+  .byte  196,67,45,74,214,144                // vblendvps     %ymm9,%ymm14,%ymm10,%ymm10
+  .byte  196,65,60,194,199,1                 // vcmpltps      %ymm15,%ymm8,%ymm8
+  .byte  197,44,92,225                       // vsubps        %ymm1,%ymm10,%ymm12
+  .byte  196,65,116,89,228                   // vmulps        %ymm12,%ymm1,%ymm12
+  .byte  197,4,92,233                        // vsubps        %ymm1,%ymm15,%ymm13
+  .byte  196,65,28,94,229                    // vdivps        %ymm13,%ymm12,%ymm12
+  .byte  196,65,116,88,228                   // vaddps        %ymm12,%ymm1,%ymm12
+  .byte  196,67,45,74,212,128                // vblendvps     %ymm8,%ymm12,%ymm10,%ymm10
+  .byte  197,108,92,225                      // vsubps        %ymm1,%ymm2,%ymm12
+  .byte  196,65,116,89,228                   // vmulps        %ymm12,%ymm1,%ymm12
+  .byte  196,65,28,94,227                    // vdivps        %ymm11,%ymm12,%ymm12
+  .byte  196,65,116,88,228                   // vaddps        %ymm12,%ymm1,%ymm12
+  .byte  196,227,29,74,210,144               // vblendvps     %ymm9,%ymm2,%ymm12,%ymm2
+  .byte  197,108,92,225                      // vsubps        %ymm1,%ymm2,%ymm12
+  .byte  196,65,116,89,228                   // vmulps        %ymm12,%ymm1,%ymm12
+  .byte  196,65,28,94,229                    // vdivps        %ymm13,%ymm12,%ymm12
+  .byte  196,65,116,88,228                   // vaddps        %ymm12,%ymm1,%ymm12
+  .byte  196,195,109,74,212,128              // vblendvps     %ymm8,%ymm12,%ymm2,%ymm2
+  .byte  197,124,92,225                      // vsubps        %ymm1,%ymm0,%ymm12
+  .byte  196,65,116,89,228                   // vmulps        %ymm12,%ymm1,%ymm12
+  .byte  196,65,28,94,219                    // vdivps        %ymm11,%ymm12,%ymm11
+  .byte  196,65,116,88,219                   // vaddps        %ymm11,%ymm1,%ymm11
+  .byte  196,227,37,74,192,144               // vblendvps     %ymm9,%ymm0,%ymm11,%ymm0
+  .byte  197,124,92,201                      // vsubps        %ymm1,%ymm0,%ymm9
+  .byte  196,65,116,89,201                   // vmulps        %ymm9,%ymm1,%ymm9
+  .byte  196,65,52,94,205                    // vdivps        %ymm13,%ymm9,%ymm9
+  .byte  196,193,116,88,201                  // vaddps        %ymm9,%ymm1,%ymm1
+  .byte  196,99,125,74,193,128               // vblendvps     %ymm8,%ymm1,%ymm0,%ymm8
+  .byte  197,228,88,199                      // vaddps        %ymm7,%ymm3,%ymm0
+  .byte  197,228,89,207                      // vmulps        %ymm7,%ymm3,%ymm1
+  .byte  197,252,92,217                      // vsubps        %ymm1,%ymm0,%ymm3
+  .byte  196,193,100,89,194                  // vmulps        %ymm10,%ymm3,%ymm0
+  .byte  197,228,89,202                      // vmulps        %ymm2,%ymm3,%ymm1
+  .byte  196,193,100,89,208                  // vmulps        %ymm8,%ymm3,%ymm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  255,224                             // jmpq          *%rax
+
+HIDDEN _sk_color_avx
+.globl _sk_color_avx
+FUNCTION(_sk_color_avx)
+_sk_color_avx:
+  .byte  196,65,52,87,201                    // vxorps        %ymm9,%ymm9,%ymm9
+  .byte  196,65,100,194,209,0                // vcmpeqps      %ymm9,%ymm3,%ymm10
+  .byte  196,98,125,24,5,238,76,0,0          // vbroadcastss  0x4cee(%rip),%ymm8        # 5d3c <_sk_callback_avx+0x1ad>
+  .byte  197,60,94,219                       // vdivps        %ymm3,%ymm8,%ymm11
+  .byte  196,67,37,74,209,160                // vblendvps     %ymm10,%ymm9,%ymm11,%ymm10
+  .byte  197,172,89,192                      // vmulps        %ymm0,%ymm10,%ymm0
+  .byte  197,172,89,201                      // vmulps        %ymm1,%ymm10,%ymm1
+  .byte  197,172,89,210                      // vmulps        %ymm2,%ymm10,%ymm2
+  .byte  196,98,125,24,21,211,76,0,0         // vbroadcastss  0x4cd3(%rip),%ymm10        # 5d40 <_sk_callback_avx+0x1b1>
+  .byte  196,65,92,89,218                    // vmulps        %ymm10,%ymm4,%ymm11
+  .byte  196,98,125,24,37,201,76,0,0         // vbroadcastss  0x4cc9(%rip),%ymm12        # 5d44 <_sk_callback_avx+0x1b5>
+  .byte  196,65,84,89,236                    // vmulps        %ymm12,%ymm5,%ymm13
+  .byte  196,65,36,88,221                    // vaddps        %ymm13,%ymm11,%ymm11
+  .byte  196,98,125,24,45,186,76,0,0         // vbroadcastss  0x4cba(%rip),%ymm13        # 5d48 <_sk_callback_avx+0x1b9>
+  .byte  196,65,76,89,245                    // vmulps        %ymm13,%ymm6,%ymm14
+  .byte  196,65,36,88,222                    // vaddps        %ymm14,%ymm11,%ymm11
+  .byte  196,65,124,89,242                   // vmulps        %ymm10,%ymm0,%ymm14
+  .byte  196,65,116,89,252                   // vmulps        %ymm12,%ymm1,%ymm15
+  .byte  196,65,12,88,247                    // vaddps        %ymm15,%ymm14,%ymm14
+  .byte  196,65,108,89,253                   // vmulps        %ymm13,%ymm2,%ymm15
+  .byte  196,65,4,88,246                     // vaddps        %ymm14,%ymm15,%ymm14
+  .byte  196,65,36,92,222                    // vsubps        %ymm14,%ymm11,%ymm11
+  .byte  196,65,124,88,243                   // vaddps        %ymm11,%ymm0,%ymm14
+  .byte  196,65,116,88,251                   // vaddps        %ymm11,%ymm1,%ymm15
+  .byte  196,193,108,88,195                  // vaddps        %ymm11,%ymm2,%ymm0
+  .byte  197,132,93,200                      // vminps        %ymm0,%ymm15,%ymm1
+  .byte  197,140,93,209                      // vminps        %ymm1,%ymm14,%ymm2
+  .byte  197,132,95,200                      // vmaxps        %ymm0,%ymm15,%ymm1
+  .byte  197,12,95,217                       // vmaxps        %ymm1,%ymm14,%ymm11
+  .byte  196,193,12,89,202                   // vmulps        %ymm10,%ymm14,%ymm1
+  .byte  196,65,4,89,212                     // vmulps        %ymm12,%ymm15,%ymm10
+  .byte  196,193,116,88,202                  // vaddps        %ymm10,%ymm1,%ymm1
+  .byte  196,65,124,89,213                   // vmulps        %ymm13,%ymm0,%ymm10
+  .byte  197,172,88,201                      // vaddps        %ymm1,%ymm10,%ymm1
+  .byte  197,52,194,202,2                    // vcmpleps      %ymm2,%ymm9,%ymm9
+  .byte  197,12,92,209                       // vsubps        %ymm1,%ymm14,%ymm10
+  .byte  196,65,116,89,210                   // vmulps        %ymm10,%ymm1,%ymm10
+  .byte  197,244,92,210                      // vsubps        %ymm2,%ymm1,%ymm2
+  .byte  197,44,94,210                       // vdivps        %ymm2,%ymm10,%ymm10
+  .byte  196,65,116,88,210                   // vaddps        %ymm10,%ymm1,%ymm10
+  .byte  196,67,45,74,214,144                // vblendvps     %ymm9,%ymm14,%ymm10,%ymm10
+  .byte  196,65,60,194,195,1                 // vcmpltps      %ymm11,%ymm8,%ymm8
+  .byte  197,44,92,225                       // vsubps        %ymm1,%ymm10,%ymm12
+  .byte  196,65,116,89,228                   // vmulps        %ymm12,%ymm1,%ymm12
+  .byte  197,36,92,217                       // vsubps        %ymm1,%ymm11,%ymm11
+  .byte  196,65,28,94,227                    // vdivps        %ymm11,%ymm12,%ymm12
+  .byte  196,65,116,88,228                   // vaddps        %ymm12,%ymm1,%ymm12
+  .byte  196,67,45,74,212,128                // vblendvps     %ymm8,%ymm12,%ymm10,%ymm10
+  .byte  197,4,92,225                        // vsubps        %ymm1,%ymm15,%ymm12
+  .byte  196,65,116,89,228                   // vmulps        %ymm12,%ymm1,%ymm12
+  .byte  197,28,94,226                       // vdivps        %ymm2,%ymm12,%ymm12
+  .byte  196,65,116,88,228                   // vaddps        %ymm12,%ymm1,%ymm12
+  .byte  196,67,29,74,231,144                // vblendvps     %ymm9,%ymm15,%ymm12,%ymm12
+  .byte  197,28,92,233                       // vsubps        %ymm1,%ymm12,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  196,65,20,94,235                    // vdivps        %ymm11,%ymm13,%ymm13
+  .byte  196,65,116,88,237                   // vaddps        %ymm13,%ymm1,%ymm13
+  .byte  196,67,29,74,229,128                // vblendvps     %ymm8,%ymm13,%ymm12,%ymm12
+  .byte  197,124,92,233                      // vsubps        %ymm1,%ymm0,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  197,148,94,210                      // vdivps        %ymm2,%ymm13,%ymm2
+  .byte  197,244,88,210                      // vaddps        %ymm2,%ymm1,%ymm2
+  .byte  196,227,109,74,192,144              // vblendvps     %ymm9,%ymm0,%ymm2,%ymm0
+  .byte  197,252,92,209                      // vsubps        %ymm1,%ymm0,%ymm2
+  .byte  197,244,89,210                      // vmulps        %ymm2,%ymm1,%ymm2
+  .byte  196,193,108,94,211                  // vdivps        %ymm11,%ymm2,%ymm2
+  .byte  197,244,88,202                      // vaddps        %ymm2,%ymm1,%ymm1
+  .byte  196,227,125,74,209,128              // vblendvps     %ymm8,%ymm1,%ymm0,%ymm2
+  .byte  197,228,88,199                      // vaddps        %ymm7,%ymm3,%ymm0
+  .byte  197,228,89,207                      // vmulps        %ymm7,%ymm3,%ymm1
+  .byte  197,252,92,217                      // vsubps        %ymm1,%ymm0,%ymm3
+  .byte  196,193,100,89,194                  // vmulps        %ymm10,%ymm3,%ymm0
+  .byte  196,193,100,89,204                  // vmulps        %ymm12,%ymm3,%ymm1
+  .byte  197,228,89,210                      // vmulps        %ymm2,%ymm3,%ymm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  255,224                             // jmpq          *%rax
+
+HIDDEN _sk_luminosity_avx
+.globl _sk_luminosity_avx
+FUNCTION(_sk_luminosity_avx)
+_sk_luminosity_avx:
+  .byte  196,65,52,87,201                    // vxorps        %ymm9,%ymm9,%ymm9
+  .byte  196,65,68,194,209,0                 // vcmpeqps      %ymm9,%ymm7,%ymm10
+  .byte  196,98,125,24,5,138,75,0,0          // vbroadcastss  0x4b8a(%rip),%ymm8        # 5d4c <_sk_callback_avx+0x1bd>
+  .byte  197,60,94,223                       // vdivps        %ymm7,%ymm8,%ymm11
+  .byte  196,67,37,74,209,160                // vblendvps     %ymm10,%ymm9,%ymm11,%ymm10
+  .byte  197,44,89,220                       // vmulps        %ymm4,%ymm10,%ymm11
+  .byte  197,44,89,229                       // vmulps        %ymm5,%ymm10,%ymm12
+  .byte  197,44,89,214                       // vmulps        %ymm6,%ymm10,%ymm10
+  .byte  196,98,125,24,45,111,75,0,0         // vbroadcastss  0x4b6f(%rip),%ymm13        # 5d50 <_sk_callback_avx+0x1c1>
+  .byte  196,193,124,89,197                  // vmulps        %ymm13,%ymm0,%ymm0
+  .byte  196,98,125,24,53,101,75,0,0         // vbroadcastss  0x4b65(%rip),%ymm14        # 5d54 <_sk_callback_avx+0x1c5>
+  .byte  196,193,116,89,206                  // vmulps        %ymm14,%ymm1,%ymm1
+  .byte  197,252,88,193                      // vaddps        %ymm1,%ymm0,%ymm0
+  .byte  196,226,125,24,13,87,75,0,0         // vbroadcastss  0x4b57(%rip),%ymm1        # 5d58 <_sk_callback_avx+0x1c9>
+  .byte  197,236,89,209                      // vmulps        %ymm1,%ymm2,%ymm2
+  .byte  197,252,88,194                      // vaddps        %ymm2,%ymm0,%ymm0
+  .byte  196,193,36,89,213                   // vmulps        %ymm13,%ymm11,%ymm2
+  .byte  196,65,28,89,254                    // vmulps        %ymm14,%ymm12,%ymm15
+  .byte  196,193,108,88,215                  // vaddps        %ymm15,%ymm2,%ymm2
+  .byte  197,44,89,249                       // vmulps        %ymm1,%ymm10,%ymm15
+  .byte  197,132,88,210                      // vaddps        %ymm2,%ymm15,%ymm2
+  .byte  197,252,92,194                      // vsubps        %ymm2,%ymm0,%ymm0
+  .byte  197,164,88,208                      // vaddps        %ymm0,%ymm11,%ymm2
+  .byte  197,28,88,216                       // vaddps        %ymm0,%ymm12,%ymm11
+  .byte  197,172,88,192                      // vaddps        %ymm0,%ymm10,%ymm0
+  .byte  197,36,93,208                       // vminps        %ymm0,%ymm11,%ymm10
+  .byte  196,65,108,93,210                   // vminps        %ymm10,%ymm2,%ymm10
+  .byte  197,36,95,224                       // vmaxps        %ymm0,%ymm11,%ymm12
+  .byte  196,65,108,95,228                   // vmaxps        %ymm12,%ymm2,%ymm12
+  .byte  196,65,108,89,237                   // vmulps        %ymm13,%ymm2,%ymm13
+  .byte  196,65,36,89,246                    // vmulps        %ymm14,%ymm11,%ymm14
+  .byte  196,65,20,88,238                    // vaddps        %ymm14,%ymm13,%ymm13
+  .byte  197,252,89,201                      // vmulps        %ymm1,%ymm0,%ymm1
+  .byte  196,193,116,88,205                  // vaddps        %ymm13,%ymm1,%ymm1
+  .byte  196,65,52,194,202,2                 // vcmpleps      %ymm10,%ymm9,%ymm9
+  .byte  197,108,92,233                      // vsubps        %ymm1,%ymm2,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  196,65,116,92,210                   // vsubps        %ymm10,%ymm1,%ymm10
+  .byte  196,65,20,94,234                    // vdivps        %ymm10,%ymm13,%ymm13
+  .byte  196,65,116,88,237                   // vaddps        %ymm13,%ymm1,%ymm13
+  .byte  196,227,21,74,210,144               // vblendvps     %ymm9,%ymm2,%ymm13,%ymm2
+  .byte  196,65,60,194,196,1                 // vcmpltps      %ymm12,%ymm8,%ymm8
+  .byte  197,108,92,233                      // vsubps        %ymm1,%ymm2,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  197,28,92,225                       // vsubps        %ymm1,%ymm12,%ymm12
+  .byte  196,65,20,94,236                    // vdivps        %ymm12,%ymm13,%ymm13
+  .byte  196,65,116,88,237                   // vaddps        %ymm13,%ymm1,%ymm13
+  .byte  196,195,109,74,213,128              // vblendvps     %ymm8,%ymm13,%ymm2,%ymm2
+  .byte  197,36,92,233                       // vsubps        %ymm1,%ymm11,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  196,65,20,94,234                    // vdivps        %ymm10,%ymm13,%ymm13
+  .byte  196,65,116,88,237                   // vaddps        %ymm13,%ymm1,%ymm13
+  .byte  196,67,21,74,219,144                // vblendvps     %ymm9,%ymm11,%ymm13,%ymm11
+  .byte  197,36,92,233                       // vsubps        %ymm1,%ymm11,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  196,65,20,94,236                    // vdivps        %ymm12,%ymm13,%ymm13
+  .byte  196,65,116,88,237                   // vaddps        %ymm13,%ymm1,%ymm13
+  .byte  196,67,37,74,221,128                // vblendvps     %ymm8,%ymm13,%ymm11,%ymm11
+  .byte  197,124,92,233                      // vsubps        %ymm1,%ymm0,%ymm13
+  .byte  196,65,116,89,237                   // vmulps        %ymm13,%ymm1,%ymm13
+  .byte  196,65,20,94,210                    // vdivps        %ymm10,%ymm13,%ymm10
+  .byte  196,65,116,88,210                   // vaddps        %ymm10,%ymm1,%ymm10
+  .byte  196,227,45,74,192,144               // vblendvps     %ymm9,%ymm0,%ymm10,%ymm0
+  .byte  197,124,92,201                      // vsubps        %ymm1,%ymm0,%ymm9
+  .byte  196,65,116,89,201                   // vmulps        %ymm9,%ymm1,%ymm9
+  .byte  196,65,52,94,204                    // vdivps        %ymm12,%ymm9,%ymm9
+  .byte  196,193,116,88,201                  // vaddps        %ymm9,%ymm1,%ymm1
+  .byte  196,99,125,74,193,128               // vblendvps     %ymm8,%ymm1,%ymm0,%ymm8
+  .byte  197,228,88,199                      // vaddps        %ymm7,%ymm3,%ymm0
+  .byte  197,228,89,207                      // vmulps        %ymm7,%ymm3,%ymm1
+  .byte  197,252,92,217                      // vsubps        %ymm1,%ymm0,%ymm3
+  .byte  197,228,89,194                      // vmulps        %ymm2,%ymm3,%ymm0
+  .byte  196,193,100,89,203                  // vmulps        %ymm11,%ymm3,%ymm1
+  .byte  196,193,100,89,208                  // vmulps        %ymm8,%ymm3,%ymm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  255,224                             // jmpq          *%rax
+
 HIDDEN _sk_clamp_0_avx
 .globl _sk_clamp_0_avx
 FUNCTION(_sk_clamp_0_avx)
@@ -12926,7 +14580,7 @@ HIDDEN _sk_clamp_1_avx
 .globl _sk_clamp_1_avx
 FUNCTION(_sk_clamp_1_avx)
 _sk_clamp_1_avx:
-  .byte  196,98,125,24,5,209,73,0,0          // vbroadcastss  0x49d1(%rip),%ymm8        # 55fc <_sk_callback_avx+0x18d>
+  .byte  196,98,125,24,5,19,74,0,0           // vbroadcastss  0x4a13(%rip),%ymm8        # 5d5c <_sk_callback_avx+0x1cd>
   .byte  196,193,124,93,192                  // vminps        %ymm8,%ymm0,%ymm0
   .byte  196,193,116,93,200                  // vminps        %ymm8,%ymm1,%ymm1
   .byte  196,193,108,93,208                  // vminps        %ymm8,%ymm2,%ymm2
@@ -12938,7 +14592,7 @@ HIDDEN _sk_clamp_a_avx
 .globl _sk_clamp_a_avx
 FUNCTION(_sk_clamp_a_avx)
 _sk_clamp_a_avx:
-  .byte  196,98,125,24,5,180,73,0,0          // vbroadcastss  0x49b4(%rip),%ymm8        # 5600 <_sk_callback_avx+0x191>
+  .byte  196,98,125,24,5,246,73,0,0          // vbroadcastss  0x49f6(%rip),%ymm8        # 5d60 <_sk_callback_avx+0x1d1>
   .byte  196,193,100,93,216                  // vminps        %ymm8,%ymm3,%ymm3
   .byte  197,252,93,195                      // vminps        %ymm3,%ymm0,%ymm0
   .byte  197,244,93,203                      // vminps        %ymm3,%ymm1,%ymm1
@@ -13024,7 +14678,7 @@ FUNCTION(_sk_unpremul_avx)
 _sk_unpremul_avx:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,65,100,194,200,0                // vcmpeqps      %ymm8,%ymm3,%ymm9
-  .byte  196,98,125,24,21,252,72,0,0         // vbroadcastss  0x48fc(%rip),%ymm10        # 5604 <_sk_callback_avx+0x195>
+  .byte  196,98,125,24,21,62,73,0,0          // vbroadcastss  0x493e(%rip),%ymm10        # 5d64 <_sk_callback_avx+0x1d5>
   .byte  197,44,94,211                       // vdivps        %ymm3,%ymm10,%ymm10
   .byte  196,67,45,74,192,144                // vblendvps     %ymm9,%ymm8,%ymm10,%ymm8
   .byte  197,188,89,192                      // vmulps        %ymm0,%ymm8,%ymm0
@@ -13037,17 +14691,17 @@ HIDDEN _sk_from_srgb_avx
 .globl _sk_from_srgb_avx
 FUNCTION(_sk_from_srgb_avx)
 _sk_from_srgb_avx:
-  .byte  196,98,125,24,5,221,72,0,0          // vbroadcastss  0x48dd(%rip),%ymm8        # 5608 <_sk_callback_avx+0x199>
+  .byte  196,98,125,24,5,31,73,0,0           // vbroadcastss  0x491f(%rip),%ymm8        # 5d68 <_sk_callback_avx+0x1d9>
   .byte  196,65,124,89,200                   // vmulps        %ymm8,%ymm0,%ymm9
   .byte  197,124,89,208                      // vmulps        %ymm0,%ymm0,%ymm10
-  .byte  196,98,125,24,29,207,72,0,0         // vbroadcastss  0x48cf(%rip),%ymm11        # 560c <_sk_callback_avx+0x19d>
+  .byte  196,98,125,24,29,17,73,0,0          // vbroadcastss  0x4911(%rip),%ymm11        # 5d6c <_sk_callback_avx+0x1dd>
   .byte  196,65,124,89,227                   // vmulps        %ymm11,%ymm0,%ymm12
-  .byte  196,98,125,24,45,197,72,0,0         // vbroadcastss  0x48c5(%rip),%ymm13        # 5610 <_sk_callback_avx+0x1a1>
+  .byte  196,98,125,24,45,7,73,0,0           // vbroadcastss  0x4907(%rip),%ymm13        # 5d70 <_sk_callback_avx+0x1e1>
   .byte  196,65,28,88,229                    // vaddps        %ymm13,%ymm12,%ymm12
   .byte  196,65,44,89,212                    // vmulps        %ymm12,%ymm10,%ymm10
-  .byte  196,98,125,24,37,182,72,0,0         // vbroadcastss  0x48b6(%rip),%ymm12        # 5614 <_sk_callback_avx+0x1a5>
+  .byte  196,98,125,24,37,248,72,0,0         // vbroadcastss  0x48f8(%rip),%ymm12        # 5d74 <_sk_callback_avx+0x1e5>
   .byte  196,65,44,88,212                    // vaddps        %ymm12,%ymm10,%ymm10
-  .byte  196,98,125,24,53,172,72,0,0         // vbroadcastss  0x48ac(%rip),%ymm14        # 5618 <_sk_callback_avx+0x1a9>
+  .byte  196,98,125,24,53,238,72,0,0         // vbroadcastss  0x48ee(%rip),%ymm14        # 5d78 <_sk_callback_avx+0x1e9>
   .byte  196,193,124,194,198,1               // vcmpltps      %ymm14,%ymm0,%ymm0
   .byte  196,195,45,74,193,0                 // vblendvps     %ymm0,%ymm9,%ymm10,%ymm0
   .byte  196,65,116,89,200                   // vmulps        %ymm8,%ymm1,%ymm9
@@ -13076,18 +14730,18 @@ _sk_to_srgb_avx:
   .byte  197,124,82,192                      // vrsqrtps      %ymm0,%ymm8
   .byte  196,65,124,83,200                   // vrcpps        %ymm8,%ymm9
   .byte  196,65,124,82,208                   // vrsqrtps      %ymm8,%ymm10
-  .byte  196,98,125,24,5,55,72,0,0           // vbroadcastss  0x4837(%rip),%ymm8        # 561c <_sk_callback_avx+0x1ad>
+  .byte  196,98,125,24,5,121,72,0,0          // vbroadcastss  0x4879(%rip),%ymm8        # 5d7c <_sk_callback_avx+0x1ed>
   .byte  196,65,124,89,216                   // vmulps        %ymm8,%ymm0,%ymm11
-  .byte  196,98,125,24,37,45,72,0,0          // vbroadcastss  0x482d(%rip),%ymm12        # 5620 <_sk_callback_avx+0x1b1>
+  .byte  196,98,125,24,37,111,72,0,0         // vbroadcastss  0x486f(%rip),%ymm12        # 5d80 <_sk_callback_avx+0x1f1>
   .byte  196,65,52,89,204                    // vmulps        %ymm12,%ymm9,%ymm9
-  .byte  196,98,125,24,45,35,72,0,0          // vbroadcastss  0x4823(%rip),%ymm13        # 5624 <_sk_callback_avx+0x1b5>
+  .byte  196,98,125,24,45,101,72,0,0         // vbroadcastss  0x4865(%rip),%ymm13        # 5d84 <_sk_callback_avx+0x1f5>
   .byte  196,65,52,88,205                    // vaddps        %ymm13,%ymm9,%ymm9
-  .byte  196,98,125,24,53,25,72,0,0          // vbroadcastss  0x4819(%rip),%ymm14        # 5628 <_sk_callback_avx+0x1b9>
+  .byte  196,98,125,24,53,91,72,0,0          // vbroadcastss  0x485b(%rip),%ymm14        # 5d88 <_sk_callback_avx+0x1f9>
   .byte  196,65,44,89,214                    // vmulps        %ymm14,%ymm10,%ymm10
   .byte  196,65,44,88,201                    // vaddps        %ymm9,%ymm10,%ymm9
-  .byte  196,98,125,24,21,10,72,0,0          // vbroadcastss  0x480a(%rip),%ymm10        # 562c <_sk_callback_avx+0x1bd>
+  .byte  196,98,125,24,21,76,72,0,0          // vbroadcastss  0x484c(%rip),%ymm10        # 5d8c <_sk_callback_avx+0x1fd>
   .byte  196,65,44,93,201                    // vminps        %ymm9,%ymm10,%ymm9
-  .byte  196,98,125,24,61,0,72,0,0           // vbroadcastss  0x4800(%rip),%ymm15        # 5630 <_sk_callback_avx+0x1c1>
+  .byte  196,98,125,24,61,66,72,0,0          // vbroadcastss  0x4842(%rip),%ymm15        # 5d90 <_sk_callback_avx+0x201>
   .byte  196,193,124,194,199,1               // vcmpltps      %ymm15,%ymm0,%ymm0
   .byte  196,195,53,74,195,0                 // vblendvps     %ymm0,%ymm11,%ymm9,%ymm0
   .byte  197,124,82,201                      // vrsqrtps      %ymm1,%ymm9
@@ -13124,7 +14778,7 @@ _sk_rgb_to_hsl_avx:
   .byte  197,124,93,201                      // vminps        %ymm1,%ymm0,%ymm9
   .byte  197,52,93,202                       // vminps        %ymm2,%ymm9,%ymm9
   .byte  196,65,60,92,209                    // vsubps        %ymm9,%ymm8,%ymm10
-  .byte  196,98,125,24,29,102,71,0,0         // vbroadcastss  0x4766(%rip),%ymm11        # 5634 <_sk_callback_avx+0x1c5>
+  .byte  196,98,125,24,29,168,71,0,0         // vbroadcastss  0x47a8(%rip),%ymm11        # 5d94 <_sk_callback_avx+0x205>
   .byte  196,65,36,94,218                    // vdivps        %ymm10,%ymm11,%ymm11
   .byte  197,116,92,226                      // vsubps        %ymm2,%ymm1,%ymm12
   .byte  196,65,28,89,227                    // vmulps        %ymm11,%ymm12,%ymm12
@@ -13134,19 +14788,19 @@ _sk_rgb_to_hsl_avx:
   .byte  196,193,108,89,211                  // vmulps        %ymm11,%ymm2,%ymm2
   .byte  197,252,92,201                      // vsubps        %ymm1,%ymm0,%ymm1
   .byte  196,193,116,89,203                  // vmulps        %ymm11,%ymm1,%ymm1
-  .byte  196,98,125,24,29,63,71,0,0          // vbroadcastss  0x473f(%rip),%ymm11        # 5640 <_sk_callback_avx+0x1d1>
+  .byte  196,98,125,24,29,129,71,0,0         // vbroadcastss  0x4781(%rip),%ymm11        # 5da0 <_sk_callback_avx+0x211>
   .byte  196,193,116,88,203                  // vaddps        %ymm11,%ymm1,%ymm1
-  .byte  196,98,125,24,29,45,71,0,0          // vbroadcastss  0x472d(%rip),%ymm11        # 563c <_sk_callback_avx+0x1cd>
+  .byte  196,98,125,24,29,111,71,0,0         // vbroadcastss  0x476f(%rip),%ymm11        # 5d9c <_sk_callback_avx+0x20d>
   .byte  196,193,108,88,211                  // vaddps        %ymm11,%ymm2,%ymm2
   .byte  196,227,117,74,202,224              // vblendvps     %ymm14,%ymm2,%ymm1,%ymm1
-  .byte  196,226,125,24,21,21,71,0,0         // vbroadcastss  0x4715(%rip),%ymm2        # 5638 <_sk_callback_avx+0x1c9>
+  .byte  196,226,125,24,21,87,71,0,0         // vbroadcastss  0x4757(%rip),%ymm2        # 5d98 <_sk_callback_avx+0x209>
   .byte  196,65,12,87,246                    // vxorps        %ymm14,%ymm14,%ymm14
   .byte  196,227,13,74,210,208               // vblendvps     %ymm13,%ymm2,%ymm14,%ymm2
   .byte  197,188,194,192,0                   // vcmpeqps      %ymm0,%ymm8,%ymm0
   .byte  196,193,108,88,212                  // vaddps        %ymm12,%ymm2,%ymm2
   .byte  196,227,117,74,194,0                // vblendvps     %ymm0,%ymm2,%ymm1,%ymm0
   .byte  196,193,60,88,201                   // vaddps        %ymm9,%ymm8,%ymm1
-  .byte  196,98,125,24,37,252,70,0,0         // vbroadcastss  0x46fc(%rip),%ymm12        # 5648 <_sk_callback_avx+0x1d9>
+  .byte  196,98,125,24,37,62,71,0,0          // vbroadcastss  0x473e(%rip),%ymm12        # 5da8 <_sk_callback_avx+0x219>
   .byte  196,193,116,89,212                  // vmulps        %ymm12,%ymm1,%ymm2
   .byte  197,28,194,226,1                    // vcmpltps      %ymm2,%ymm12,%ymm12
   .byte  196,65,36,92,216                    // vsubps        %ymm8,%ymm11,%ymm11
@@ -13156,7 +14810,7 @@ _sk_rgb_to_hsl_avx:
   .byte  197,172,94,201                      // vdivps        %ymm1,%ymm10,%ymm1
   .byte  196,195,125,74,198,128              // vblendvps     %ymm8,%ymm14,%ymm0,%ymm0
   .byte  196,195,117,74,206,128              // vblendvps     %ymm8,%ymm14,%ymm1,%ymm1
-  .byte  196,98,125,24,5,191,70,0,0          // vbroadcastss  0x46bf(%rip),%ymm8        # 5644 <_sk_callback_avx+0x1d5>
+  .byte  196,98,125,24,5,1,71,0,0            // vbroadcastss  0x4701(%rip),%ymm8        # 5da4 <_sk_callback_avx+0x215>
   .byte  196,193,124,89,192                  // vmulps        %ymm8,%ymm0,%ymm0
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -13173,7 +14827,7 @@ _sk_hsl_to_rgb_avx:
   .byte  197,252,17,92,36,128                // vmovups       %ymm3,-0x80(%rsp)
   .byte  197,252,40,225                      // vmovaps       %ymm1,%ymm4
   .byte  197,252,40,216                      // vmovaps       %ymm0,%ymm3
-  .byte  196,98,125,24,5,140,70,0,0          // vbroadcastss  0x468c(%rip),%ymm8        # 564c <_sk_callback_avx+0x1dd>
+  .byte  196,98,125,24,5,206,70,0,0          // vbroadcastss  0x46ce(%rip),%ymm8        # 5dac <_sk_callback_avx+0x21d>
   .byte  197,60,194,202,2                    // vcmpleps      %ymm2,%ymm8,%ymm9
   .byte  197,92,89,210                       // vmulps        %ymm2,%ymm4,%ymm10
   .byte  196,65,92,92,218                    // vsubps        %ymm10,%ymm4,%ymm11
@@ -13181,23 +14835,23 @@ _sk_hsl_to_rgb_avx:
   .byte  197,52,88,210                       // vaddps        %ymm2,%ymm9,%ymm10
   .byte  197,108,88,202                      // vaddps        %ymm2,%ymm2,%ymm9
   .byte  196,65,52,92,202                    // vsubps        %ymm10,%ymm9,%ymm9
-  .byte  196,98,125,24,29,102,70,0,0         // vbroadcastss  0x4666(%rip),%ymm11        # 5650 <_sk_callback_avx+0x1e1>
+  .byte  196,98,125,24,29,168,70,0,0         // vbroadcastss  0x46a8(%rip),%ymm11        # 5db0 <_sk_callback_avx+0x221>
   .byte  196,65,100,88,219                   // vaddps        %ymm11,%ymm3,%ymm11
   .byte  196,67,125,8,227,1                  // vroundps      $0x1,%ymm11,%ymm12
   .byte  196,65,36,92,252                    // vsubps        %ymm12,%ymm11,%ymm15
   .byte  196,65,44,92,217                    // vsubps        %ymm9,%ymm10,%ymm11
-  .byte  196,98,125,24,37,80,70,0,0          // vbroadcastss  0x4650(%rip),%ymm12        # 5658 <_sk_callback_avx+0x1e9>
+  .byte  196,98,125,24,37,146,70,0,0         // vbroadcastss  0x4692(%rip),%ymm12        # 5db8 <_sk_callback_avx+0x229>
   .byte  196,193,4,89,196                    // vmulps        %ymm12,%ymm15,%ymm0
-  .byte  196,98,125,24,45,70,70,0,0          // vbroadcastss  0x4646(%rip),%ymm13        # 565c <_sk_callback_avx+0x1ed>
+  .byte  196,98,125,24,45,136,70,0,0         // vbroadcastss  0x4688(%rip),%ymm13        # 5dbc <_sk_callback_avx+0x22d>
   .byte  197,20,92,240                       // vsubps        %ymm0,%ymm13,%ymm14
   .byte  196,65,36,89,246                    // vmulps        %ymm14,%ymm11,%ymm14
   .byte  196,65,52,88,246                    // vaddps        %ymm14,%ymm9,%ymm14
-  .byte  196,226,125,24,13,39,70,0,0         // vbroadcastss  0x4627(%rip),%ymm1        # 5654 <_sk_callback_avx+0x1e5>
+  .byte  196,226,125,24,13,105,70,0,0        // vbroadcastss  0x4669(%rip),%ymm1        # 5db4 <_sk_callback_avx+0x225>
   .byte  196,193,116,194,255,2               // vcmpleps      %ymm15,%ymm1,%ymm7
   .byte  196,195,13,74,249,112               // vblendvps     %ymm7,%ymm9,%ymm14,%ymm7
   .byte  196,65,60,194,247,2                 // vcmpleps      %ymm15,%ymm8,%ymm14
   .byte  196,227,45,74,255,224               // vblendvps     %ymm14,%ymm7,%ymm10,%ymm7
-  .byte  196,98,125,24,53,18,70,0,0          // vbroadcastss  0x4612(%rip),%ymm14        # 5660 <_sk_callback_avx+0x1f1>
+  .byte  196,98,125,24,53,84,70,0,0          // vbroadcastss  0x4654(%rip),%ymm14        # 5dc0 <_sk_callback_avx+0x231>
   .byte  196,65,12,194,255,2                 // vcmpleps      %ymm15,%ymm14,%ymm15
   .byte  196,193,124,89,195                  // vmulps        %ymm11,%ymm0,%ymm0
   .byte  197,180,88,192                      // vaddps        %ymm0,%ymm9,%ymm0
@@ -13216,7 +14870,7 @@ _sk_hsl_to_rgb_avx:
   .byte  197,164,89,247                      // vmulps        %ymm7,%ymm11,%ymm6
   .byte  197,180,88,246                      // vaddps        %ymm6,%ymm9,%ymm6
   .byte  196,227,77,74,237,0                 // vblendvps     %ymm0,%ymm5,%ymm6,%ymm5
-  .byte  196,226,125,24,5,180,69,0,0         // vbroadcastss  0x45b4(%rip),%ymm0        # 5664 <_sk_callback_avx+0x1f5>
+  .byte  196,226,125,24,5,246,69,0,0         // vbroadcastss  0x45f6(%rip),%ymm0        # 5dc4 <_sk_callback_avx+0x235>
   .byte  197,228,88,192                      // vaddps        %ymm0,%ymm3,%ymm0
   .byte  196,227,125,8,216,1                 // vroundps      $0x1,%ymm0,%ymm3
   .byte  197,252,92,195                      // vsubps        %ymm3,%ymm0,%ymm0
@@ -13268,14 +14922,14 @@ _sk_scale_u8_avx:
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  72,1,248                            // add           %rdi,%rax
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,68                              // jne           11a7 <_sk_scale_u8_avx+0x54>
+  .byte  117,68                              // jne           18c5 <_sk_scale_u8_avx+0x54>
   .byte  197,122,126,0                       // vmovq         (%rax),%xmm8
   .byte  196,66,121,49,200                   // vpmovzxbd     %xmm8,%xmm9
   .byte  196,67,121,4,192,229                // vpermilps     $0xe5,%xmm8,%xmm8
   .byte  196,66,121,49,192                   // vpmovzxbd     %xmm8,%xmm8
   .byte  196,67,53,24,192,1                  // vinsertf128   $0x1,%xmm8,%ymm9,%ymm8
   .byte  196,65,124,91,192                   // vcvtdq2ps     %ymm8,%ymm8
-  .byte  196,98,125,24,13,221,68,0,0         // vbroadcastss  0x44dd(%rip),%ymm9        # 5668 <_sk_callback_avx+0x1f9>
+  .byte  196,98,125,24,13,31,69,0,0          // vbroadcastss  0x451f(%rip),%ymm9        # 5dc8 <_sk_callback_avx+0x239>
   .byte  196,65,60,89,193                    // vmulps        %ymm9,%ymm8,%ymm8
   .byte  197,188,89,192                      // vmulps        %ymm0,%ymm8,%ymm0
   .byte  197,188,89,201                      // vmulps        %ymm1,%ymm8,%ymm1
@@ -13293,9 +14947,9 @@ _sk_scale_u8_avx:
   .byte  77,9,217                            // or            %r11,%r9
   .byte  72,131,193,8                        // add           $0x8,%rcx
   .byte  73,255,202                          // dec           %r10
-  .byte  117,234                             // jne           11af <_sk_scale_u8_avx+0x5c>
+  .byte  117,234                             // jne           18cd <_sk_scale_u8_avx+0x5c>
   .byte  196,65,249,110,193                  // vmovq         %r9,%xmm8
-  .byte  235,155                             // jmp           1167 <_sk_scale_u8_avx+0x14>
+  .byte  235,155                             // jmp           1885 <_sk_scale_u8_avx+0x14>
 
 HIDDEN _sk_lerp_1_float_avx
 .globl _sk_lerp_1_float_avx
@@ -13327,14 +14981,14 @@ _sk_lerp_u8_avx:
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  72,1,248                            // add           %rdi,%rax
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,104                             // jne           1283 <_sk_lerp_u8_avx+0x78>
+  .byte  117,104                             // jne           19a1 <_sk_lerp_u8_avx+0x78>
   .byte  197,122,126,0                       // vmovq         (%rax),%xmm8
   .byte  196,66,121,49,200                   // vpmovzxbd     %xmm8,%xmm9
   .byte  196,67,121,4,192,229                // vpermilps     $0xe5,%xmm8,%xmm8
   .byte  196,66,121,49,192                   // vpmovzxbd     %xmm8,%xmm8
   .byte  196,67,53,24,192,1                  // vinsertf128   $0x1,%xmm8,%ymm9,%ymm8
   .byte  196,65,124,91,192                   // vcvtdq2ps     %ymm8,%ymm8
-  .byte  196,98,125,24,13,41,68,0,0          // vbroadcastss  0x4429(%rip),%ymm9        # 566c <_sk_callback_avx+0x1fd>
+  .byte  196,98,125,24,13,107,68,0,0         // vbroadcastss  0x446b(%rip),%ymm9        # 5dcc <_sk_callback_avx+0x23d>
   .byte  196,65,60,89,193                    // vmulps        %ymm9,%ymm8,%ymm8
   .byte  197,252,92,196                      // vsubps        %ymm4,%ymm0,%ymm0
   .byte  196,193,124,89,192                  // vmulps        %ymm8,%ymm0,%ymm0
@@ -13360,9 +15014,9 @@ _sk_lerp_u8_avx:
   .byte  77,9,217                            // or            %r11,%r9
   .byte  72,131,193,8                        // add           $0x8,%rcx
   .byte  73,255,202                          // dec           %r10
-  .byte  117,234                             // jne           128b <_sk_lerp_u8_avx+0x80>
+  .byte  117,234                             // jne           19a9 <_sk_lerp_u8_avx+0x80>
   .byte  196,65,249,110,193                  // vmovq         %r9,%xmm8
-  .byte  233,116,255,255,255                 // jmpq          121f <_sk_lerp_u8_avx+0x14>
+  .byte  233,116,255,255,255                 // jmpq          193d <_sk_lerp_u8_avx+0x14>
 
 HIDDEN _sk_lerp_565_avx
 .globl _sk_lerp_565_avx
@@ -13371,26 +15025,26 @@ _sk_lerp_565_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,174,0,0,0                    // jne           1367 <_sk_lerp_565_avx+0xbc>
+  .byte  15,133,174,0,0,0                    // jne           1a85 <_sk_lerp_565_avx+0xbc>
   .byte  196,65,122,111,4,122                // vmovdqu       (%r10,%rdi,2),%xmm8
   .byte  197,225,239,219                     // vpxor         %xmm3,%xmm3,%xmm3
   .byte  197,185,105,219                     // vpunpckhwd    %xmm3,%xmm8,%xmm3
   .byte  196,66,121,51,192                   // vpmovzxwd     %xmm8,%xmm8
   .byte  196,227,61,24,219,1                 // vinsertf128   $0x1,%xmm3,%ymm8,%ymm3
-  .byte  196,98,125,24,5,149,67,0,0          // vbroadcastss  0x4395(%rip),%ymm8        # 5670 <_sk_callback_avx+0x201>
+  .byte  196,98,125,24,5,215,67,0,0          // vbroadcastss  0x43d7(%rip),%ymm8        # 5dd0 <_sk_callback_avx+0x241>
   .byte  196,65,100,84,192                   // vandps        %ymm8,%ymm3,%ymm8
   .byte  196,65,124,91,192                   // vcvtdq2ps     %ymm8,%ymm8
-  .byte  196,98,125,24,13,134,67,0,0         // vbroadcastss  0x4386(%rip),%ymm9        # 5674 <_sk_callback_avx+0x205>
+  .byte  196,98,125,24,13,200,67,0,0         // vbroadcastss  0x43c8(%rip),%ymm9        # 5dd4 <_sk_callback_avx+0x245>
   .byte  196,65,60,89,193                    // vmulps        %ymm9,%ymm8,%ymm8
-  .byte  196,98,125,24,13,124,67,0,0         // vbroadcastss  0x437c(%rip),%ymm9        # 5678 <_sk_callback_avx+0x209>
+  .byte  196,98,125,24,13,190,67,0,0         // vbroadcastss  0x43be(%rip),%ymm9        # 5dd8 <_sk_callback_avx+0x249>
   .byte  196,65,100,84,201                   // vandps        %ymm9,%ymm3,%ymm9
   .byte  196,65,124,91,201                   // vcvtdq2ps     %ymm9,%ymm9
-  .byte  196,98,125,24,21,109,67,0,0         // vbroadcastss  0x436d(%rip),%ymm10        # 567c <_sk_callback_avx+0x20d>
+  .byte  196,98,125,24,21,175,67,0,0         // vbroadcastss  0x43af(%rip),%ymm10        # 5ddc <_sk_callback_avx+0x24d>
   .byte  196,65,52,89,202                    // vmulps        %ymm10,%ymm9,%ymm9
-  .byte  196,98,125,24,21,99,67,0,0          // vbroadcastss  0x4363(%rip),%ymm10        # 5680 <_sk_callback_avx+0x211>
+  .byte  196,98,125,24,21,165,67,0,0         // vbroadcastss  0x43a5(%rip),%ymm10        # 5de0 <_sk_callback_avx+0x251>
   .byte  196,193,100,84,218                  // vandps        %ymm10,%ymm3,%ymm3
   .byte  197,252,91,219                      // vcvtdq2ps     %ymm3,%ymm3
-  .byte  196,98,125,24,21,85,67,0,0          // vbroadcastss  0x4355(%rip),%ymm10        # 5684 <_sk_callback_avx+0x215>
+  .byte  196,98,125,24,21,151,67,0,0         // vbroadcastss  0x4397(%rip),%ymm10        # 5de4 <_sk_callback_avx+0x255>
   .byte  196,193,100,89,218                  // vmulps        %ymm10,%ymm3,%ymm3
   .byte  197,252,92,196                      // vsubps        %ymm4,%ymm0,%ymm0
   .byte  196,193,124,89,192                  // vmulps        %ymm8,%ymm0,%ymm0
@@ -13402,16 +15056,16 @@ _sk_lerp_565_avx:
   .byte  197,236,89,211                      // vmulps        %ymm3,%ymm2,%ymm2
   .byte  197,236,88,214                      // vaddps        %ymm6,%ymm2,%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,35,67,0,0         // vbroadcastss  0x4323(%rip),%ymm3        # 5688 <_sk_callback_avx+0x219>
+  .byte  196,226,125,24,29,101,67,0,0        // vbroadcastss  0x4365(%rip),%ymm3        # 5de8 <_sk_callback_avx+0x259>
   .byte  255,224                             // jmpq          *%rax
   .byte  65,137,200                          // mov           %ecx,%r8d
   .byte  65,128,224,7                        // and           $0x7,%r8b
   .byte  196,65,57,239,192                   // vpxor         %xmm8,%xmm8,%xmm8
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  15,135,63,255,255,255               // ja            12bf <_sk_lerp_565_avx+0x14>
+  .byte  15,135,63,255,255,255               // ja            19dd <_sk_lerp_565_avx+0x14>
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,73,0,0,0                  // lea           0x49(%rip),%r9        # 13d4 <_sk_lerp_565_avx+0x129>
+  .byte  76,141,13,75,0,0,0                  // lea           0x4b(%rip),%r9        # 1af4 <_sk_lerp_565_avx+0x12b>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -13423,27 +15077,28 @@ _sk_lerp_565_avx:
   .byte  196,65,57,196,68,122,4,2            // vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm8,%xmm8
   .byte  196,65,57,196,68,122,2,1            // vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm8,%xmm8
   .byte  196,65,57,196,4,122,0               // vpinsrw       $0x0,(%r10,%rdi,2),%xmm8,%xmm8
-  .byte  233,235,254,255,255                 // jmpq          12bf <_sk_lerp_565_avx+0x14>
-  .byte  244                                 // hlt
+  .byte  233,235,254,255,255                 // jmpq          19dd <_sk_lerp_565_avx+0x14>
+  .byte  102,144                             // xchg          %ax,%ax
+  .byte  242,255                             // repnz         (bad)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  234                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,226                             // jmpq          *%rdx
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  236                                 // in            (%dx),%al
+  .byte  218,255                             // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,210                             // callq         *%rdx
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,228                             // jmpq          *%rsp
+  .byte  255,202                             // dec           %edx
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  220,255                             // fdivr         %st,%st(7)
-  .byte  255                                 // (bad)
-  .byte  255,212                             // callq         *%rsp
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,204                             // dec           %esp
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,192                             // inc           %eax
+  .byte  190                                 // .byte         0xbe
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
@@ -13455,7 +15110,7 @@ _sk_load_tables_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,26,2,0,0                     // jne           1618 <_sk_load_tables_avx+0x228>
+  .byte  15,133,26,2,0,0                     // jne           1d38 <_sk_load_tables_avx+0x228>
   .byte  196,65,124,16,4,184                 // vmovups       (%r8,%rdi,4),%ymm8
   .byte  85                                  // push          %rbp
   .byte  65,87                               // push          %r15
@@ -13463,7 +15118,7 @@ _sk_load_tables_avx:
   .byte  65,85                               // push          %r13
   .byte  65,84                               // push          %r12
   .byte  83                                  // push          %rbx
-  .byte  197,124,40,13,74,69,0,0             // vmovaps       0x454a(%rip),%ymm9        # 5960 <_sk_callback_avx+0x4f1>
+  .byte  197,124,40,13,138,69,0,0            // vmovaps       0x458a(%rip),%ymm9        # 60c0 <_sk_callback_avx+0x531>
   .byte  196,193,60,84,193                   // vandps        %ymm9,%ymm8,%ymm0
   .byte  196,193,249,126,193                 // vmovq         %xmm0,%r9
   .byte  69,137,203                          // mov           %r9d,%r11d
@@ -13555,7 +15210,7 @@ _sk_load_tables_avx:
   .byte  196,193,97,114,210,24               // vpsrld        $0x18,%xmm10,%xmm3
   .byte  196,227,61,24,219,1                 // vinsertf128   $0x1,%xmm3,%ymm8,%ymm3
   .byte  197,252,91,219                      // vcvtdq2ps     %ymm3,%ymm3
-  .byte  196,98,125,24,5,135,64,0,0          // vbroadcastss  0x4087(%rip),%ymm8        # 568c <_sk_callback_avx+0x21d>
+  .byte  196,98,125,24,5,199,64,0,0          // vbroadcastss  0x40c7(%rip),%ymm8        # 5dec <_sk_callback_avx+0x25d>
   .byte  196,193,100,89,216                  // vmulps        %ymm8,%ymm3,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  91                                  // pop           %rbx
@@ -13570,9 +15225,9 @@ _sk_load_tables_avx:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  65,254,201                          // dec           %r9b
   .byte  65,128,249,6                        // cmp           $0x6,%r9b
-  .byte  15,135,211,253,255,255              // ja            1404 <_sk_load_tables_avx+0x14>
+  .byte  15,135,211,253,255,255              // ja            1b24 <_sk_load_tables_avx+0x14>
   .byte  69,15,182,201                       // movzbl        %r9b,%r9d
-  .byte  76,141,21,140,0,0,0                 // lea           0x8c(%rip),%r10        # 16c8 <_sk_load_tables_avx+0x2d8>
+  .byte  76,141,21,140,0,0,0                 // lea           0x8c(%rip),%r10        # 1de8 <_sk_load_tables_avx+0x2d8>
   .byte  79,99,12,138                        // movslq        (%r10,%r9,4),%r9
   .byte  77,1,209                            // add           %r10,%r9
   .byte  65,255,225                          // jmpq          *%r9
@@ -13595,7 +15250,7 @@ _sk_load_tables_avx:
   .byte  196,99,61,12,192,15                 // vblendps      $0xf,%ymm0,%ymm8,%ymm8
   .byte  196,195,57,34,4,184,0               // vpinsrd       $0x0,(%r8,%rdi,4),%xmm8,%xmm0
   .byte  196,99,61,12,192,15                 // vblendps      $0xf,%ymm0,%ymm8,%ymm8
-  .byte  233,62,253,255,255                  // jmpq          1404 <_sk_load_tables_avx+0x14>
+  .byte  233,62,253,255,255                  // jmpq          1b24 <_sk_load_tables_avx+0x14>
   .byte  102,144                             // xchg          %ax,%ax
   .byte  236                                 // in            (%dx),%al
   .byte  255                                 // (bad)
@@ -13613,7 +15268,7 @@ _sk_load_tables_avx:
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  126,255                             // jle           16e1 <_sk_load_tables_avx+0x2f1>
+  .byte  126,255                             // jle           1e01 <_sk_load_tables_avx+0x2f1>
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
 
@@ -13625,7 +15280,7 @@ _sk_load_tables_u16_be_avx:
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  76,141,12,189,0,0,0,0               // lea           0x0(,%rdi,4),%r9
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,113,2,0,0                    // jne           196b <_sk_load_tables_u16_be_avx+0x287>
+  .byte  15,133,113,2,0,0                    // jne           208b <_sk_load_tables_u16_be_avx+0x287>
   .byte  196,1,121,16,4,72                   // vmovupd       (%r8,%r9,2),%xmm8
   .byte  196,129,121,16,84,72,16             // vmovupd       0x10(%r8,%r9,2),%xmm2
   .byte  196,129,121,16,92,72,32             // vmovupd       0x20(%r8,%r9,2),%xmm3
@@ -13647,7 +15302,7 @@ _sk_load_tables_u16_be_avx:
   .byte  197,177,108,208                     // vpunpcklqdq   %xmm0,%xmm9,%xmm2
   .byte  197,177,109,200                     // vpunpckhqdq   %xmm0,%xmm9,%xmm1
   .byte  196,65,57,108,212                   // vpunpcklqdq   %xmm12,%xmm8,%xmm10
-  .byte  197,121,111,29,138,66,0,0           // vmovdqa       0x428a(%rip),%xmm11        # 59e0 <_sk_callback_avx+0x571>
+  .byte  197,121,111,29,202,66,0,0           // vmovdqa       0x42ca(%rip),%xmm11        # 6140 <_sk_callback_avx+0x5b1>
   .byte  196,193,105,219,195                 // vpand         %xmm11,%xmm2,%xmm0
   .byte  196,65,49,239,201                   // vpxor         %xmm9,%xmm9,%xmm9
   .byte  196,193,121,105,209                 // vpunpckhwd    %xmm9,%xmm0,%xmm2
@@ -13746,7 +15401,7 @@ _sk_load_tables_u16_be_avx:
   .byte  196,226,121,51,219                  // vpmovzxwd     %xmm3,%xmm3
   .byte  196,195,101,24,216,1                // vinsertf128   $0x1,%xmm8,%ymm3,%ymm3
   .byte  197,252,91,219                      // vcvtdq2ps     %ymm3,%ymm3
-  .byte  196,98,125,24,5,56,61,0,0           // vbroadcastss  0x3d38(%rip),%ymm8        # 5690 <_sk_callback_avx+0x221>
+  .byte  196,98,125,24,5,120,61,0,0          // vbroadcastss  0x3d78(%rip),%ymm8        # 5df0 <_sk_callback_avx+0x261>
   .byte  196,193,100,89,216                  // vmulps        %ymm8,%ymm3,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  91                                  // pop           %rbx
@@ -13759,29 +15414,29 @@ _sk_load_tables_u16_be_avx:
   .byte  196,1,123,16,4,72                   // vmovsd        (%r8,%r9,2),%xmm8
   .byte  196,65,49,239,201                   // vpxor         %xmm9,%xmm9,%xmm9
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  116,85                              // je            19d1 <_sk_load_tables_u16_be_avx+0x2ed>
+  .byte  116,85                              // je            20f1 <_sk_load_tables_u16_be_avx+0x2ed>
   .byte  196,1,57,22,68,72,8                 // vmovhpd       0x8(%r8,%r9,2),%xmm8,%xmm8
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,72                              // jb            19d1 <_sk_load_tables_u16_be_avx+0x2ed>
+  .byte  114,72                              // jb            20f1 <_sk_load_tables_u16_be_avx+0x2ed>
   .byte  196,129,123,16,84,72,16             // vmovsd        0x10(%r8,%r9,2),%xmm2
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  116,72                              // je            19de <_sk_load_tables_u16_be_avx+0x2fa>
+  .byte  116,72                              // je            20fe <_sk_load_tables_u16_be_avx+0x2fa>
   .byte  196,129,105,22,84,72,24             // vmovhpd       0x18(%r8,%r9,2),%xmm2,%xmm2
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,59                              // jb            19de <_sk_load_tables_u16_be_avx+0x2fa>
+  .byte  114,59                              // jb            20fe <_sk_load_tables_u16_be_avx+0x2fa>
   .byte  196,129,123,16,92,72,32             // vmovsd        0x20(%r8,%r9,2),%xmm3
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  15,132,97,253,255,255               // je            1715 <_sk_load_tables_u16_be_avx+0x31>
+  .byte  15,132,97,253,255,255               // je            1e35 <_sk_load_tables_u16_be_avx+0x31>
   .byte  196,129,97,22,92,72,40              // vmovhpd       0x28(%r8,%r9,2),%xmm3,%xmm3
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  15,130,80,253,255,255               // jb            1715 <_sk_load_tables_u16_be_avx+0x31>
+  .byte  15,130,80,253,255,255               // jb            1e35 <_sk_load_tables_u16_be_avx+0x31>
   .byte  196,1,122,126,76,72,48              // vmovq         0x30(%r8,%r9,2),%xmm9
-  .byte  233,68,253,255,255                  // jmpq          1715 <_sk_load_tables_u16_be_avx+0x31>
+  .byte  233,68,253,255,255                  // jmpq          1e35 <_sk_load_tables_u16_be_avx+0x31>
   .byte  197,225,87,219                      // vxorpd        %xmm3,%xmm3,%xmm3
   .byte  197,233,87,210                      // vxorpd        %xmm2,%xmm2,%xmm2
-  .byte  233,55,253,255,255                  // jmpq          1715 <_sk_load_tables_u16_be_avx+0x31>
+  .byte  233,55,253,255,255                  // jmpq          1e35 <_sk_load_tables_u16_be_avx+0x31>
   .byte  197,225,87,219                      // vxorpd        %xmm3,%xmm3,%xmm3
-  .byte  233,46,253,255,255                  // jmpq          1715 <_sk_load_tables_u16_be_avx+0x31>
+  .byte  233,46,253,255,255                  // jmpq          1e35 <_sk_load_tables_u16_be_avx+0x31>
 
 HIDDEN _sk_load_tables_rgb_u16_be_avx
 .globl _sk_load_tables_rgb_u16_be_avx
@@ -13791,7 +15446,7 @@ _sk_load_tables_rgb_u16_be_avx:
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  76,141,12,127                       // lea           (%rdi,%rdi,2),%r9
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,93,2,0,0                     // jne           1c56 <_sk_load_tables_rgb_u16_be_avx+0x26f>
+  .byte  15,133,93,2,0,0                     // jne           2376 <_sk_load_tables_rgb_u16_be_avx+0x26f>
   .byte  196,129,122,111,4,72                // vmovdqu       (%r8,%r9,2),%xmm0
   .byte  196,129,122,111,84,72,12            // vmovdqu       0xc(%r8,%r9,2),%xmm2
   .byte  196,129,122,111,76,72,24            // vmovdqu       0x18(%r8,%r9,2),%xmm1
@@ -13818,7 +15473,7 @@ _sk_load_tables_rgb_u16_be_avx:
   .byte  197,185,108,202                     // vpunpcklqdq   %xmm2,%xmm8,%xmm1
   .byte  197,185,109,210                     // vpunpckhqdq   %xmm2,%xmm8,%xmm2
   .byte  197,121,108,195                     // vpunpcklqdq   %xmm3,%xmm0,%xmm8
-  .byte  197,121,111,13,131,63,0,0           // vmovdqa       0x3f83(%rip),%xmm9        # 59f0 <_sk_callback_avx+0x581>
+  .byte  197,121,111,13,195,63,0,0           // vmovdqa       0x3fc3(%rip),%xmm9        # 6150 <_sk_callback_avx+0x5c1>
   .byte  196,193,113,219,193                 // vpand         %xmm9,%xmm1,%xmm0
   .byte  196,65,41,239,210                   // vpxor         %xmm10,%xmm10,%xmm10
   .byte  196,193,121,105,202                 // vpunpckhwd    %xmm10,%xmm0,%xmm1
@@ -13910,7 +15565,7 @@ _sk_load_tables_rgb_u16_be_avx:
   .byte  196,227,105,33,211,48               // vinsertps     $0x30,%xmm3,%xmm2,%xmm2
   .byte  196,195,109,24,208,1                // vinsertf128   $0x1,%xmm8,%ymm2,%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,74,58,0,0         // vbroadcastss  0x3a4a(%rip),%ymm3        # 5694 <_sk_callback_avx+0x225>
+  .byte  196,226,125,24,29,138,58,0,0        // vbroadcastss  0x3a8a(%rip),%ymm3        # 5df4 <_sk_callback_avx+0x265>
   .byte  91                                  // pop           %rbx
   .byte  65,92                               // pop           %r12
   .byte  65,93                               // pop           %r13
@@ -13921,36 +15576,36 @@ _sk_load_tables_rgb_u16_be_avx:
   .byte  196,129,121,110,4,72                // vmovd         (%r8,%r9,2),%xmm0
   .byte  196,129,121,196,68,72,4,2           // vpinsrw       $0x2,0x4(%r8,%r9,2),%xmm0,%xmm0
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  117,5                               // jne           1c6f <_sk_load_tables_rgb_u16_be_avx+0x288>
-  .byte  233,190,253,255,255                 // jmpq          1a2d <_sk_load_tables_rgb_u16_be_avx+0x46>
+  .byte  117,5                               // jne           238f <_sk_load_tables_rgb_u16_be_avx+0x288>
+  .byte  233,190,253,255,255                 // jmpq          214d <_sk_load_tables_rgb_u16_be_avx+0x46>
   .byte  196,129,121,110,76,72,6             // vmovd         0x6(%r8,%r9,2),%xmm1
   .byte  196,1,113,196,68,72,10,2            // vpinsrw       $0x2,0xa(%r8,%r9,2),%xmm1,%xmm8
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,26                              // jb            1c9e <_sk_load_tables_rgb_u16_be_avx+0x2b7>
+  .byte  114,26                              // jb            23be <_sk_load_tables_rgb_u16_be_avx+0x2b7>
   .byte  196,129,121,110,76,72,12            // vmovd         0xc(%r8,%r9,2),%xmm1
   .byte  196,129,113,196,84,72,16,2          // vpinsrw       $0x2,0x10(%r8,%r9,2),%xmm1,%xmm2
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  117,10                              // jne           1ca3 <_sk_load_tables_rgb_u16_be_avx+0x2bc>
-  .byte  233,143,253,255,255                 // jmpq          1a2d <_sk_load_tables_rgb_u16_be_avx+0x46>
-  .byte  233,138,253,255,255                 // jmpq          1a2d <_sk_load_tables_rgb_u16_be_avx+0x46>
+  .byte  117,10                              // jne           23c3 <_sk_load_tables_rgb_u16_be_avx+0x2bc>
+  .byte  233,143,253,255,255                 // jmpq          214d <_sk_load_tables_rgb_u16_be_avx+0x46>
+  .byte  233,138,253,255,255                 // jmpq          214d <_sk_load_tables_rgb_u16_be_avx+0x46>
   .byte  196,129,121,110,76,72,18            // vmovd         0x12(%r8,%r9,2),%xmm1
   .byte  196,1,113,196,76,72,22,2            // vpinsrw       $0x2,0x16(%r8,%r9,2),%xmm1,%xmm9
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,26                              // jb            1cd2 <_sk_load_tables_rgb_u16_be_avx+0x2eb>
+  .byte  114,26                              // jb            23f2 <_sk_load_tables_rgb_u16_be_avx+0x2eb>
   .byte  196,129,121,110,76,72,24            // vmovd         0x18(%r8,%r9,2),%xmm1
   .byte  196,129,113,196,76,72,28,2          // vpinsrw       $0x2,0x1c(%r8,%r9,2),%xmm1,%xmm1
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  117,10                              // jne           1cd7 <_sk_load_tables_rgb_u16_be_avx+0x2f0>
-  .byte  233,91,253,255,255                  // jmpq          1a2d <_sk_load_tables_rgb_u16_be_avx+0x46>
-  .byte  233,86,253,255,255                  // jmpq          1a2d <_sk_load_tables_rgb_u16_be_avx+0x46>
+  .byte  117,10                              // jne           23f7 <_sk_load_tables_rgb_u16_be_avx+0x2f0>
+  .byte  233,91,253,255,255                  // jmpq          214d <_sk_load_tables_rgb_u16_be_avx+0x46>
+  .byte  233,86,253,255,255                  // jmpq          214d <_sk_load_tables_rgb_u16_be_avx+0x46>
   .byte  196,129,121,110,92,72,30            // vmovd         0x1e(%r8,%r9,2),%xmm3
   .byte  196,1,97,196,92,72,34,2             // vpinsrw       $0x2,0x22(%r8,%r9,2),%xmm3,%xmm11
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  114,20                              // jb            1d00 <_sk_load_tables_rgb_u16_be_avx+0x319>
+  .byte  114,20                              // jb            2420 <_sk_load_tables_rgb_u16_be_avx+0x319>
   .byte  196,129,121,110,92,72,36            // vmovd         0x24(%r8,%r9,2),%xmm3
   .byte  196,129,97,196,92,72,40,2           // vpinsrw       $0x2,0x28(%r8,%r9,2),%xmm3,%xmm3
-  .byte  233,45,253,255,255                  // jmpq          1a2d <_sk_load_tables_rgb_u16_be_avx+0x46>
-  .byte  233,40,253,255,255                  // jmpq          1a2d <_sk_load_tables_rgb_u16_be_avx+0x46>
+  .byte  233,45,253,255,255                  // jmpq          214d <_sk_load_tables_rgb_u16_be_avx+0x46>
+  .byte  233,40,253,255,255                  // jmpq          214d <_sk_load_tables_rgb_u16_be_avx+0x46>
 
 HIDDEN _sk_byte_tables_avx
 .globl _sk_byte_tables_avx
@@ -13963,7 +15618,7 @@ _sk_byte_tables_avx:
   .byte  65,84                               // push          %r12
   .byte  83                                  // push          %rbx
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,98,125,24,5,126,57,0,0          // vbroadcastss  0x397e(%rip),%ymm8        # 5698 <_sk_callback_avx+0x229>
+  .byte  196,98,125,24,5,190,57,0,0          // vbroadcastss  0x39be(%rip),%ymm8        # 5df8 <_sk_callback_avx+0x269>
   .byte  196,193,124,89,192                  // vmulps        %ymm8,%ymm0,%ymm0
   .byte  197,253,91,192                      // vcvtps2dq     %ymm0,%ymm0
   .byte  196,195,249,22,192,1                // vpextrq       $0x1,%xmm0,%r8
@@ -14000,7 +15655,7 @@ _sk_byte_tables_avx:
   .byte  196,226,121,49,192                  // vpmovzxbd     %xmm0,%xmm0
   .byte  196,227,53,24,192,1                 // vinsertf128   $0x1,%xmm0,%ymm9,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,13,204,56,0,0         // vbroadcastss  0x38cc(%rip),%ymm9        # 569c <_sk_callback_avx+0x22d>
+  .byte  196,98,125,24,13,12,57,0,0          // vbroadcastss  0x390c(%rip),%ymm9        # 5dfc <_sk_callback_avx+0x26d>
   .byte  196,193,124,89,193                  // vmulps        %ymm9,%ymm0,%ymm0
   .byte  196,193,116,89,200                  // vmulps        %ymm8,%ymm1,%ymm1
   .byte  197,253,91,201                      // vcvtps2dq     %ymm1,%ymm1
@@ -14162,7 +15817,7 @@ _sk_byte_tables_rgb_avx:
   .byte  196,226,121,49,192                  // vpmovzxbd     %xmm0,%xmm0
   .byte  196,227,53,24,192,1                 // vinsertf128   $0x1,%xmm0,%ymm9,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,13,242,53,0,0         // vbroadcastss  0x35f2(%rip),%ymm9        # 56a0 <_sk_callback_avx+0x231>
+  .byte  196,98,125,24,13,50,54,0,0          // vbroadcastss  0x3632(%rip),%ymm9        # 5e00 <_sk_callback_avx+0x271>
   .byte  196,193,124,89,193                  // vmulps        %ymm9,%ymm0,%ymm0
   .byte  197,188,89,201                      // vmulps        %ymm1,%ymm8,%ymm1
   .byte  197,253,91,201                      // vcvtps2dq     %ymm1,%ymm1
@@ -14459,36 +16114,36 @@ _sk_parametric_r_avx:
   .byte  196,193,124,88,195                  // vaddps        %ymm11,%ymm0,%ymm0
   .byte  196,98,125,24,16                    // vbroadcastss  (%rax),%ymm10
   .byte  197,124,91,216                      // vcvtdq2ps     %ymm0,%ymm11
-  .byte  196,98,125,24,37,80,49,0,0          // vbroadcastss  0x3150(%rip),%ymm12        # 56a4 <_sk_callback_avx+0x235>
+  .byte  196,98,125,24,37,144,49,0,0         // vbroadcastss  0x3190(%rip),%ymm12        # 5e04 <_sk_callback_avx+0x275>
   .byte  196,65,36,89,220                    // vmulps        %ymm12,%ymm11,%ymm11
-  .byte  196,98,125,24,37,70,49,0,0          // vbroadcastss  0x3146(%rip),%ymm12        # 56a8 <_sk_callback_avx+0x239>
+  .byte  196,98,125,24,37,134,49,0,0         // vbroadcastss  0x3186(%rip),%ymm12        # 5e08 <_sk_callback_avx+0x279>
   .byte  196,193,124,84,196                  // vandps        %ymm12,%ymm0,%ymm0
-  .byte  196,98,125,24,37,60,49,0,0          // vbroadcastss  0x313c(%rip),%ymm12        # 56ac <_sk_callback_avx+0x23d>
+  .byte  196,98,125,24,37,124,49,0,0         // vbroadcastss  0x317c(%rip),%ymm12        # 5e0c <_sk_callback_avx+0x27d>
   .byte  196,193,124,86,196                  // vorps         %ymm12,%ymm0,%ymm0
-  .byte  196,98,125,24,37,50,49,0,0          // vbroadcastss  0x3132(%rip),%ymm12        # 56b0 <_sk_callback_avx+0x241>
+  .byte  196,98,125,24,37,114,49,0,0         // vbroadcastss  0x3172(%rip),%ymm12        # 5e10 <_sk_callback_avx+0x281>
   .byte  196,65,36,88,220                    // vaddps        %ymm12,%ymm11,%ymm11
-  .byte  196,98,125,24,37,40,49,0,0          // vbroadcastss  0x3128(%rip),%ymm12        # 56b4 <_sk_callback_avx+0x245>
+  .byte  196,98,125,24,37,104,49,0,0         // vbroadcastss  0x3168(%rip),%ymm12        # 5e14 <_sk_callback_avx+0x285>
   .byte  196,65,124,89,228                   // vmulps        %ymm12,%ymm0,%ymm12
   .byte  196,65,36,92,220                    // vsubps        %ymm12,%ymm11,%ymm11
-  .byte  196,98,125,24,37,25,49,0,0          // vbroadcastss  0x3119(%rip),%ymm12        # 56b8 <_sk_callback_avx+0x249>
+  .byte  196,98,125,24,37,89,49,0,0          // vbroadcastss  0x3159(%rip),%ymm12        # 5e18 <_sk_callback_avx+0x289>
   .byte  196,193,124,88,196                  // vaddps        %ymm12,%ymm0,%ymm0
-  .byte  196,98,125,24,37,15,49,0,0          // vbroadcastss  0x310f(%rip),%ymm12        # 56bc <_sk_callback_avx+0x24d>
+  .byte  196,98,125,24,37,79,49,0,0          // vbroadcastss  0x314f(%rip),%ymm12        # 5e1c <_sk_callback_avx+0x28d>
   .byte  197,156,94,192                      // vdivps        %ymm0,%ymm12,%ymm0
   .byte  197,164,92,192                      // vsubps        %ymm0,%ymm11,%ymm0
   .byte  197,172,89,192                      // vmulps        %ymm0,%ymm10,%ymm0
   .byte  196,99,125,8,208,1                  // vroundps      $0x1,%ymm0,%ymm10
   .byte  196,65,124,92,210                   // vsubps        %ymm10,%ymm0,%ymm10
-  .byte  196,98,125,24,29,243,48,0,0         // vbroadcastss  0x30f3(%rip),%ymm11        # 56c0 <_sk_callback_avx+0x251>
+  .byte  196,98,125,24,29,51,49,0,0          // vbroadcastss  0x3133(%rip),%ymm11        # 5e20 <_sk_callback_avx+0x291>
   .byte  196,193,124,88,195                  // vaddps        %ymm11,%ymm0,%ymm0
-  .byte  196,98,125,24,29,233,48,0,0         // vbroadcastss  0x30e9(%rip),%ymm11        # 56c4 <_sk_callback_avx+0x255>
+  .byte  196,98,125,24,29,41,49,0,0          // vbroadcastss  0x3129(%rip),%ymm11        # 5e24 <_sk_callback_avx+0x295>
   .byte  196,65,44,89,219                    // vmulps        %ymm11,%ymm10,%ymm11
   .byte  196,193,124,92,195                  // vsubps        %ymm11,%ymm0,%ymm0
-  .byte  196,98,125,24,29,218,48,0,0         // vbroadcastss  0x30da(%rip),%ymm11        # 56c8 <_sk_callback_avx+0x259>
+  .byte  196,98,125,24,29,26,49,0,0          // vbroadcastss  0x311a(%rip),%ymm11        # 5e28 <_sk_callback_avx+0x299>
   .byte  196,65,36,92,210                    // vsubps        %ymm10,%ymm11,%ymm10
-  .byte  196,98,125,24,29,208,48,0,0         // vbroadcastss  0x30d0(%rip),%ymm11        # 56cc <_sk_callback_avx+0x25d>
+  .byte  196,98,125,24,29,16,49,0,0          // vbroadcastss  0x3110(%rip),%ymm11        # 5e2c <_sk_callback_avx+0x29d>
   .byte  196,65,36,94,210                    // vdivps        %ymm10,%ymm11,%ymm10
   .byte  196,193,124,88,194                  // vaddps        %ymm10,%ymm0,%ymm0
-  .byte  196,98,125,24,21,193,48,0,0         // vbroadcastss  0x30c1(%rip),%ymm10        # 56d0 <_sk_callback_avx+0x261>
+  .byte  196,98,125,24,21,1,49,0,0           // vbroadcastss  0x3101(%rip),%ymm10        # 5e30 <_sk_callback_avx+0x2a1>
   .byte  196,193,124,89,194                  // vmulps        %ymm10,%ymm0,%ymm0
   .byte  197,253,91,192                      // vcvtps2dq     %ymm0,%ymm0
   .byte  196,98,125,24,80,20                 // vbroadcastss  0x14(%rax),%ymm10
@@ -14496,7 +16151,7 @@ _sk_parametric_r_avx:
   .byte  196,195,125,74,193,128              // vblendvps     %ymm8,%ymm9,%ymm0,%ymm0
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,193,124,95,192                  // vmaxps        %ymm8,%ymm0,%ymm0
-  .byte  196,98,125,24,5,152,48,0,0          // vbroadcastss  0x3098(%rip),%ymm8        # 56d4 <_sk_callback_avx+0x265>
+  .byte  196,98,125,24,5,216,48,0,0          // vbroadcastss  0x30d8(%rip),%ymm8        # 5e34 <_sk_callback_avx+0x2a5>
   .byte  196,193,124,93,192                  // vminps        %ymm8,%ymm0,%ymm0
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -14518,36 +16173,36 @@ _sk_parametric_g_avx:
   .byte  196,193,116,88,203                  // vaddps        %ymm11,%ymm1,%ymm1
   .byte  196,98,125,24,16                    // vbroadcastss  (%rax),%ymm10
   .byte  197,124,91,217                      // vcvtdq2ps     %ymm1,%ymm11
-  .byte  196,98,125,24,37,73,48,0,0          // vbroadcastss  0x3049(%rip),%ymm12        # 56d8 <_sk_callback_avx+0x269>
+  .byte  196,98,125,24,37,137,48,0,0         // vbroadcastss  0x3089(%rip),%ymm12        # 5e38 <_sk_callback_avx+0x2a9>
   .byte  196,65,36,89,220                    // vmulps        %ymm12,%ymm11,%ymm11
-  .byte  196,98,125,24,37,63,48,0,0          // vbroadcastss  0x303f(%rip),%ymm12        # 56dc <_sk_callback_avx+0x26d>
+  .byte  196,98,125,24,37,127,48,0,0         // vbroadcastss  0x307f(%rip),%ymm12        # 5e3c <_sk_callback_avx+0x2ad>
   .byte  196,193,116,84,204                  // vandps        %ymm12,%ymm1,%ymm1
-  .byte  196,98,125,24,37,53,48,0,0          // vbroadcastss  0x3035(%rip),%ymm12        # 56e0 <_sk_callback_avx+0x271>
+  .byte  196,98,125,24,37,117,48,0,0         // vbroadcastss  0x3075(%rip),%ymm12        # 5e40 <_sk_callback_avx+0x2b1>
   .byte  196,193,116,86,204                  // vorps         %ymm12,%ymm1,%ymm1
-  .byte  196,98,125,24,37,43,48,0,0          // vbroadcastss  0x302b(%rip),%ymm12        # 56e4 <_sk_callback_avx+0x275>
+  .byte  196,98,125,24,37,107,48,0,0         // vbroadcastss  0x306b(%rip),%ymm12        # 5e44 <_sk_callback_avx+0x2b5>
   .byte  196,65,36,88,220                    // vaddps        %ymm12,%ymm11,%ymm11
-  .byte  196,98,125,24,37,33,48,0,0          // vbroadcastss  0x3021(%rip),%ymm12        # 56e8 <_sk_callback_avx+0x279>
+  .byte  196,98,125,24,37,97,48,0,0          // vbroadcastss  0x3061(%rip),%ymm12        # 5e48 <_sk_callback_avx+0x2b9>
   .byte  196,65,116,89,228                   // vmulps        %ymm12,%ymm1,%ymm12
   .byte  196,65,36,92,220                    // vsubps        %ymm12,%ymm11,%ymm11
-  .byte  196,98,125,24,37,18,48,0,0          // vbroadcastss  0x3012(%rip),%ymm12        # 56ec <_sk_callback_avx+0x27d>
+  .byte  196,98,125,24,37,82,48,0,0          // vbroadcastss  0x3052(%rip),%ymm12        # 5e4c <_sk_callback_avx+0x2bd>
   .byte  196,193,116,88,204                  // vaddps        %ymm12,%ymm1,%ymm1
-  .byte  196,98,125,24,37,8,48,0,0           // vbroadcastss  0x3008(%rip),%ymm12        # 56f0 <_sk_callback_avx+0x281>
+  .byte  196,98,125,24,37,72,48,0,0          // vbroadcastss  0x3048(%rip),%ymm12        # 5e50 <_sk_callback_avx+0x2c1>
   .byte  197,156,94,201                      // vdivps        %ymm1,%ymm12,%ymm1
   .byte  197,164,92,201                      // vsubps        %ymm1,%ymm11,%ymm1
   .byte  197,172,89,201                      // vmulps        %ymm1,%ymm10,%ymm1
   .byte  196,99,125,8,209,1                  // vroundps      $0x1,%ymm1,%ymm10
   .byte  196,65,116,92,210                   // vsubps        %ymm10,%ymm1,%ymm10
-  .byte  196,98,125,24,29,236,47,0,0         // vbroadcastss  0x2fec(%rip),%ymm11        # 56f4 <_sk_callback_avx+0x285>
+  .byte  196,98,125,24,29,44,48,0,0          // vbroadcastss  0x302c(%rip),%ymm11        # 5e54 <_sk_callback_avx+0x2c5>
   .byte  196,193,116,88,203                  // vaddps        %ymm11,%ymm1,%ymm1
-  .byte  196,98,125,24,29,226,47,0,0         // vbroadcastss  0x2fe2(%rip),%ymm11        # 56f8 <_sk_callback_avx+0x289>
+  .byte  196,98,125,24,29,34,48,0,0          // vbroadcastss  0x3022(%rip),%ymm11        # 5e58 <_sk_callback_avx+0x2c9>
   .byte  196,65,44,89,219                    // vmulps        %ymm11,%ymm10,%ymm11
   .byte  196,193,116,92,203                  // vsubps        %ymm11,%ymm1,%ymm1
-  .byte  196,98,125,24,29,211,47,0,0         // vbroadcastss  0x2fd3(%rip),%ymm11        # 56fc <_sk_callback_avx+0x28d>
+  .byte  196,98,125,24,29,19,48,0,0          // vbroadcastss  0x3013(%rip),%ymm11        # 5e5c <_sk_callback_avx+0x2cd>
   .byte  196,65,36,92,210                    // vsubps        %ymm10,%ymm11,%ymm10
-  .byte  196,98,125,24,29,201,47,0,0         // vbroadcastss  0x2fc9(%rip),%ymm11        # 5700 <_sk_callback_avx+0x291>
+  .byte  196,98,125,24,29,9,48,0,0           // vbroadcastss  0x3009(%rip),%ymm11        # 5e60 <_sk_callback_avx+0x2d1>
   .byte  196,65,36,94,210                    // vdivps        %ymm10,%ymm11,%ymm10
   .byte  196,193,116,88,202                  // vaddps        %ymm10,%ymm1,%ymm1
-  .byte  196,98,125,24,21,186,47,0,0         // vbroadcastss  0x2fba(%rip),%ymm10        # 5704 <_sk_callback_avx+0x295>
+  .byte  196,98,125,24,21,250,47,0,0         // vbroadcastss  0x2ffa(%rip),%ymm10        # 5e64 <_sk_callback_avx+0x2d5>
   .byte  196,193,116,89,202                  // vmulps        %ymm10,%ymm1,%ymm1
   .byte  197,253,91,201                      // vcvtps2dq     %ymm1,%ymm1
   .byte  196,98,125,24,80,20                 // vbroadcastss  0x14(%rax),%ymm10
@@ -14555,7 +16210,7 @@ _sk_parametric_g_avx:
   .byte  196,195,117,74,201,128              // vblendvps     %ymm8,%ymm9,%ymm1,%ymm1
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,193,116,95,200                  // vmaxps        %ymm8,%ymm1,%ymm1
-  .byte  196,98,125,24,5,145,47,0,0          // vbroadcastss  0x2f91(%rip),%ymm8        # 5708 <_sk_callback_avx+0x299>
+  .byte  196,98,125,24,5,209,47,0,0          // vbroadcastss  0x2fd1(%rip),%ymm8        # 5e68 <_sk_callback_avx+0x2d9>
   .byte  196,193,116,93,200                  // vminps        %ymm8,%ymm1,%ymm1
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -14577,36 +16232,36 @@ _sk_parametric_b_avx:
   .byte  196,193,108,88,211                  // vaddps        %ymm11,%ymm2,%ymm2
   .byte  196,98,125,24,16                    // vbroadcastss  (%rax),%ymm10
   .byte  197,124,91,218                      // vcvtdq2ps     %ymm2,%ymm11
-  .byte  196,98,125,24,37,66,47,0,0          // vbroadcastss  0x2f42(%rip),%ymm12        # 570c <_sk_callback_avx+0x29d>
+  .byte  196,98,125,24,37,130,47,0,0         // vbroadcastss  0x2f82(%rip),%ymm12        # 5e6c <_sk_callback_avx+0x2dd>
   .byte  196,65,36,89,220                    // vmulps        %ymm12,%ymm11,%ymm11
-  .byte  196,98,125,24,37,56,47,0,0          // vbroadcastss  0x2f38(%rip),%ymm12        # 5710 <_sk_callback_avx+0x2a1>
+  .byte  196,98,125,24,37,120,47,0,0         // vbroadcastss  0x2f78(%rip),%ymm12        # 5e70 <_sk_callback_avx+0x2e1>
   .byte  196,193,108,84,212                  // vandps        %ymm12,%ymm2,%ymm2
-  .byte  196,98,125,24,37,46,47,0,0          // vbroadcastss  0x2f2e(%rip),%ymm12        # 5714 <_sk_callback_avx+0x2a5>
+  .byte  196,98,125,24,37,110,47,0,0         // vbroadcastss  0x2f6e(%rip),%ymm12        # 5e74 <_sk_callback_avx+0x2e5>
   .byte  196,193,108,86,212                  // vorps         %ymm12,%ymm2,%ymm2
-  .byte  196,98,125,24,37,36,47,0,0          // vbroadcastss  0x2f24(%rip),%ymm12        # 5718 <_sk_callback_avx+0x2a9>
+  .byte  196,98,125,24,37,100,47,0,0         // vbroadcastss  0x2f64(%rip),%ymm12        # 5e78 <_sk_callback_avx+0x2e9>
   .byte  196,65,36,88,220                    // vaddps        %ymm12,%ymm11,%ymm11
-  .byte  196,98,125,24,37,26,47,0,0          // vbroadcastss  0x2f1a(%rip),%ymm12        # 571c <_sk_callback_avx+0x2ad>
+  .byte  196,98,125,24,37,90,47,0,0          // vbroadcastss  0x2f5a(%rip),%ymm12        # 5e7c <_sk_callback_avx+0x2ed>
   .byte  196,65,108,89,228                   // vmulps        %ymm12,%ymm2,%ymm12
   .byte  196,65,36,92,220                    // vsubps        %ymm12,%ymm11,%ymm11
-  .byte  196,98,125,24,37,11,47,0,0          // vbroadcastss  0x2f0b(%rip),%ymm12        # 5720 <_sk_callback_avx+0x2b1>
+  .byte  196,98,125,24,37,75,47,0,0          // vbroadcastss  0x2f4b(%rip),%ymm12        # 5e80 <_sk_callback_avx+0x2f1>
   .byte  196,193,108,88,212                  // vaddps        %ymm12,%ymm2,%ymm2
-  .byte  196,98,125,24,37,1,47,0,0           // vbroadcastss  0x2f01(%rip),%ymm12        # 5724 <_sk_callback_avx+0x2b5>
+  .byte  196,98,125,24,37,65,47,0,0          // vbroadcastss  0x2f41(%rip),%ymm12        # 5e84 <_sk_callback_avx+0x2f5>
   .byte  197,156,94,210                      // vdivps        %ymm2,%ymm12,%ymm2
   .byte  197,164,92,210                      // vsubps        %ymm2,%ymm11,%ymm2
   .byte  197,172,89,210                      // vmulps        %ymm2,%ymm10,%ymm2
   .byte  196,99,125,8,210,1                  // vroundps      $0x1,%ymm2,%ymm10
   .byte  196,65,108,92,210                   // vsubps        %ymm10,%ymm2,%ymm10
-  .byte  196,98,125,24,29,229,46,0,0         // vbroadcastss  0x2ee5(%rip),%ymm11        # 5728 <_sk_callback_avx+0x2b9>
+  .byte  196,98,125,24,29,37,47,0,0          // vbroadcastss  0x2f25(%rip),%ymm11        # 5e88 <_sk_callback_avx+0x2f9>
   .byte  196,193,108,88,211                  // vaddps        %ymm11,%ymm2,%ymm2
-  .byte  196,98,125,24,29,219,46,0,0         // vbroadcastss  0x2edb(%rip),%ymm11        # 572c <_sk_callback_avx+0x2bd>
+  .byte  196,98,125,24,29,27,47,0,0          // vbroadcastss  0x2f1b(%rip),%ymm11        # 5e8c <_sk_callback_avx+0x2fd>
   .byte  196,65,44,89,219                    // vmulps        %ymm11,%ymm10,%ymm11
   .byte  196,193,108,92,211                  // vsubps        %ymm11,%ymm2,%ymm2
-  .byte  196,98,125,24,29,204,46,0,0         // vbroadcastss  0x2ecc(%rip),%ymm11        # 5730 <_sk_callback_avx+0x2c1>
+  .byte  196,98,125,24,29,12,47,0,0          // vbroadcastss  0x2f0c(%rip),%ymm11        # 5e90 <_sk_callback_avx+0x301>
   .byte  196,65,36,92,210                    // vsubps        %ymm10,%ymm11,%ymm10
-  .byte  196,98,125,24,29,194,46,0,0         // vbroadcastss  0x2ec2(%rip),%ymm11        # 5734 <_sk_callback_avx+0x2c5>
+  .byte  196,98,125,24,29,2,47,0,0           // vbroadcastss  0x2f02(%rip),%ymm11        # 5e94 <_sk_callback_avx+0x305>
   .byte  196,65,36,94,210                    // vdivps        %ymm10,%ymm11,%ymm10
   .byte  196,193,108,88,210                  // vaddps        %ymm10,%ymm2,%ymm2
-  .byte  196,98,125,24,21,179,46,0,0         // vbroadcastss  0x2eb3(%rip),%ymm10        # 5738 <_sk_callback_avx+0x2c9>
+  .byte  196,98,125,24,21,243,46,0,0         // vbroadcastss  0x2ef3(%rip),%ymm10        # 5e98 <_sk_callback_avx+0x309>
   .byte  196,193,108,89,210                  // vmulps        %ymm10,%ymm2,%ymm2
   .byte  197,253,91,210                      // vcvtps2dq     %ymm2,%ymm2
   .byte  196,98,125,24,80,20                 // vbroadcastss  0x14(%rax),%ymm10
@@ -14614,7 +16269,7 @@ _sk_parametric_b_avx:
   .byte  196,195,109,74,209,128              // vblendvps     %ymm8,%ymm9,%ymm2,%ymm2
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,193,108,95,208                  // vmaxps        %ymm8,%ymm2,%ymm2
-  .byte  196,98,125,24,5,138,46,0,0          // vbroadcastss  0x2e8a(%rip),%ymm8        # 573c <_sk_callback_avx+0x2cd>
+  .byte  196,98,125,24,5,202,46,0,0          // vbroadcastss  0x2eca(%rip),%ymm8        # 5e9c <_sk_callback_avx+0x30d>
   .byte  196,193,108,93,208                  // vminps        %ymm8,%ymm2,%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -14636,36 +16291,36 @@ _sk_parametric_a_avx:
   .byte  196,193,100,88,219                  // vaddps        %ymm11,%ymm3,%ymm3
   .byte  196,98,125,24,16                    // vbroadcastss  (%rax),%ymm10
   .byte  197,124,91,219                      // vcvtdq2ps     %ymm3,%ymm11
-  .byte  196,98,125,24,37,59,46,0,0          // vbroadcastss  0x2e3b(%rip),%ymm12        # 5740 <_sk_callback_avx+0x2d1>
+  .byte  196,98,125,24,37,123,46,0,0         // vbroadcastss  0x2e7b(%rip),%ymm12        # 5ea0 <_sk_callback_avx+0x311>
   .byte  196,65,36,89,220                    // vmulps        %ymm12,%ymm11,%ymm11
-  .byte  196,98,125,24,37,49,46,0,0          // vbroadcastss  0x2e31(%rip),%ymm12        # 5744 <_sk_callback_avx+0x2d5>
+  .byte  196,98,125,24,37,113,46,0,0         // vbroadcastss  0x2e71(%rip),%ymm12        # 5ea4 <_sk_callback_avx+0x315>
   .byte  196,193,100,84,220                  // vandps        %ymm12,%ymm3,%ymm3
-  .byte  196,98,125,24,37,39,46,0,0          // vbroadcastss  0x2e27(%rip),%ymm12        # 5748 <_sk_callback_avx+0x2d9>
+  .byte  196,98,125,24,37,103,46,0,0         // vbroadcastss  0x2e67(%rip),%ymm12        # 5ea8 <_sk_callback_avx+0x319>
   .byte  196,193,100,86,220                  // vorps         %ymm12,%ymm3,%ymm3
-  .byte  196,98,125,24,37,29,46,0,0          // vbroadcastss  0x2e1d(%rip),%ymm12        # 574c <_sk_callback_avx+0x2dd>
+  .byte  196,98,125,24,37,93,46,0,0          // vbroadcastss  0x2e5d(%rip),%ymm12        # 5eac <_sk_callback_avx+0x31d>
   .byte  196,65,36,88,220                    // vaddps        %ymm12,%ymm11,%ymm11
-  .byte  196,98,125,24,37,19,46,0,0          // vbroadcastss  0x2e13(%rip),%ymm12        # 5750 <_sk_callback_avx+0x2e1>
+  .byte  196,98,125,24,37,83,46,0,0          // vbroadcastss  0x2e53(%rip),%ymm12        # 5eb0 <_sk_callback_avx+0x321>
   .byte  196,65,100,89,228                   // vmulps        %ymm12,%ymm3,%ymm12
   .byte  196,65,36,92,220                    // vsubps        %ymm12,%ymm11,%ymm11
-  .byte  196,98,125,24,37,4,46,0,0           // vbroadcastss  0x2e04(%rip),%ymm12        # 5754 <_sk_callback_avx+0x2e5>
+  .byte  196,98,125,24,37,68,46,0,0          // vbroadcastss  0x2e44(%rip),%ymm12        # 5eb4 <_sk_callback_avx+0x325>
   .byte  196,193,100,88,220                  // vaddps        %ymm12,%ymm3,%ymm3
-  .byte  196,98,125,24,37,250,45,0,0         // vbroadcastss  0x2dfa(%rip),%ymm12        # 5758 <_sk_callback_avx+0x2e9>
+  .byte  196,98,125,24,37,58,46,0,0          // vbroadcastss  0x2e3a(%rip),%ymm12        # 5eb8 <_sk_callback_avx+0x329>
   .byte  197,156,94,219                      // vdivps        %ymm3,%ymm12,%ymm3
   .byte  197,164,92,219                      // vsubps        %ymm3,%ymm11,%ymm3
   .byte  197,172,89,219                      // vmulps        %ymm3,%ymm10,%ymm3
   .byte  196,99,125,8,211,1                  // vroundps      $0x1,%ymm3,%ymm10
   .byte  196,65,100,92,210                   // vsubps        %ymm10,%ymm3,%ymm10
-  .byte  196,98,125,24,29,222,45,0,0         // vbroadcastss  0x2dde(%rip),%ymm11        # 575c <_sk_callback_avx+0x2ed>
+  .byte  196,98,125,24,29,30,46,0,0          // vbroadcastss  0x2e1e(%rip),%ymm11        # 5ebc <_sk_callback_avx+0x32d>
   .byte  196,193,100,88,219                  // vaddps        %ymm11,%ymm3,%ymm3
-  .byte  196,98,125,24,29,212,45,0,0         // vbroadcastss  0x2dd4(%rip),%ymm11        # 5760 <_sk_callback_avx+0x2f1>
+  .byte  196,98,125,24,29,20,46,0,0          // vbroadcastss  0x2e14(%rip),%ymm11        # 5ec0 <_sk_callback_avx+0x331>
   .byte  196,65,44,89,219                    // vmulps        %ymm11,%ymm10,%ymm11
   .byte  196,193,100,92,219                  // vsubps        %ymm11,%ymm3,%ymm3
-  .byte  196,98,125,24,29,197,45,0,0         // vbroadcastss  0x2dc5(%rip),%ymm11        # 5764 <_sk_callback_avx+0x2f5>
+  .byte  196,98,125,24,29,5,46,0,0           // vbroadcastss  0x2e05(%rip),%ymm11        # 5ec4 <_sk_callback_avx+0x335>
   .byte  196,65,36,92,210                    // vsubps        %ymm10,%ymm11,%ymm10
-  .byte  196,98,125,24,29,187,45,0,0         // vbroadcastss  0x2dbb(%rip),%ymm11        # 5768 <_sk_callback_avx+0x2f9>
+  .byte  196,98,125,24,29,251,45,0,0         // vbroadcastss  0x2dfb(%rip),%ymm11        # 5ec8 <_sk_callback_avx+0x339>
   .byte  196,65,36,94,210                    // vdivps        %ymm10,%ymm11,%ymm10
   .byte  196,193,100,88,218                  // vaddps        %ymm10,%ymm3,%ymm3
-  .byte  196,98,125,24,21,172,45,0,0         // vbroadcastss  0x2dac(%rip),%ymm10        # 576c <_sk_callback_avx+0x2fd>
+  .byte  196,98,125,24,21,236,45,0,0         // vbroadcastss  0x2dec(%rip),%ymm10        # 5ecc <_sk_callback_avx+0x33d>
   .byte  196,193,100,89,218                  // vmulps        %ymm10,%ymm3,%ymm3
   .byte  197,253,91,219                      // vcvtps2dq     %ymm3,%ymm3
   .byte  196,98,125,24,80,20                 // vbroadcastss  0x14(%rax),%ymm10
@@ -14673,7 +16328,7 @@ _sk_parametric_a_avx:
   .byte  196,195,101,74,217,128              // vblendvps     %ymm8,%ymm9,%ymm3,%ymm3
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  196,193,100,95,216                  // vmaxps        %ymm8,%ymm3,%ymm3
-  .byte  196,98,125,24,5,131,45,0,0          // vbroadcastss  0x2d83(%rip),%ymm8        # 5770 <_sk_callback_avx+0x301>
+  .byte  196,98,125,24,5,195,45,0,0          // vbroadcastss  0x2dc3(%rip),%ymm8        # 5ed0 <_sk_callback_avx+0x341>
   .byte  196,193,100,93,216                  // vminps        %ymm8,%ymm3,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -14682,31 +16337,31 @@ HIDDEN _sk_lab_to_xyz_avx
 .globl _sk_lab_to_xyz_avx
 FUNCTION(_sk_lab_to_xyz_avx)
 _sk_lab_to_xyz_avx:
-  .byte  196,98,125,24,5,117,45,0,0          // vbroadcastss  0x2d75(%rip),%ymm8        # 5774 <_sk_callback_avx+0x305>
+  .byte  196,98,125,24,5,181,45,0,0          // vbroadcastss  0x2db5(%rip),%ymm8        # 5ed4 <_sk_callback_avx+0x345>
   .byte  196,193,124,89,192                  // vmulps        %ymm8,%ymm0,%ymm0
-  .byte  196,98,125,24,5,107,45,0,0          // vbroadcastss  0x2d6b(%rip),%ymm8        # 5778 <_sk_callback_avx+0x309>
+  .byte  196,98,125,24,5,171,45,0,0          // vbroadcastss  0x2dab(%rip),%ymm8        # 5ed8 <_sk_callback_avx+0x349>
   .byte  196,193,116,89,200                  // vmulps        %ymm8,%ymm1,%ymm1
-  .byte  196,98,125,24,13,97,45,0,0          // vbroadcastss  0x2d61(%rip),%ymm9        # 577c <_sk_callback_avx+0x30d>
+  .byte  196,98,125,24,13,161,45,0,0         // vbroadcastss  0x2da1(%rip),%ymm9        # 5edc <_sk_callback_avx+0x34d>
   .byte  196,193,116,88,201                  // vaddps        %ymm9,%ymm1,%ymm1
   .byte  196,193,108,89,208                  // vmulps        %ymm8,%ymm2,%ymm2
   .byte  196,193,108,88,209                  // vaddps        %ymm9,%ymm2,%ymm2
-  .byte  196,98,125,24,5,77,45,0,0           // vbroadcastss  0x2d4d(%rip),%ymm8        # 5780 <_sk_callback_avx+0x311>
+  .byte  196,98,125,24,5,141,45,0,0          // vbroadcastss  0x2d8d(%rip),%ymm8        # 5ee0 <_sk_callback_avx+0x351>
   .byte  196,193,124,88,192                  // vaddps        %ymm8,%ymm0,%ymm0
-  .byte  196,98,125,24,5,67,45,0,0           // vbroadcastss  0x2d43(%rip),%ymm8        # 5784 <_sk_callback_avx+0x315>
+  .byte  196,98,125,24,5,131,45,0,0          // vbroadcastss  0x2d83(%rip),%ymm8        # 5ee4 <_sk_callback_avx+0x355>
   .byte  196,193,124,89,192                  // vmulps        %ymm8,%ymm0,%ymm0
-  .byte  196,98,125,24,5,57,45,0,0           // vbroadcastss  0x2d39(%rip),%ymm8        # 5788 <_sk_callback_avx+0x319>
+  .byte  196,98,125,24,5,121,45,0,0          // vbroadcastss  0x2d79(%rip),%ymm8        # 5ee8 <_sk_callback_avx+0x359>
   .byte  196,193,116,89,200                  // vmulps        %ymm8,%ymm1,%ymm1
   .byte  197,252,88,201                      // vaddps        %ymm1,%ymm0,%ymm1
-  .byte  196,98,125,24,5,43,45,0,0           // vbroadcastss  0x2d2b(%rip),%ymm8        # 578c <_sk_callback_avx+0x31d>
+  .byte  196,98,125,24,5,107,45,0,0          // vbroadcastss  0x2d6b(%rip),%ymm8        # 5eec <_sk_callback_avx+0x35d>
   .byte  196,193,108,89,208                  // vmulps        %ymm8,%ymm2,%ymm2
   .byte  197,252,92,210                      // vsubps        %ymm2,%ymm0,%ymm2
   .byte  197,116,89,193                      // vmulps        %ymm1,%ymm1,%ymm8
   .byte  196,65,116,89,192                   // vmulps        %ymm8,%ymm1,%ymm8
-  .byte  196,98,125,24,13,20,45,0,0          // vbroadcastss  0x2d14(%rip),%ymm9        # 5790 <_sk_callback_avx+0x321>
+  .byte  196,98,125,24,13,84,45,0,0          // vbroadcastss  0x2d54(%rip),%ymm9        # 5ef0 <_sk_callback_avx+0x361>
   .byte  196,65,52,194,208,1                 // vcmpltps      %ymm8,%ymm9,%ymm10
-  .byte  196,98,125,24,29,9,45,0,0           // vbroadcastss  0x2d09(%rip),%ymm11        # 5794 <_sk_callback_avx+0x325>
+  .byte  196,98,125,24,29,73,45,0,0          // vbroadcastss  0x2d49(%rip),%ymm11        # 5ef4 <_sk_callback_avx+0x365>
   .byte  196,193,116,88,203                  // vaddps        %ymm11,%ymm1,%ymm1
-  .byte  196,98,125,24,37,255,44,0,0         // vbroadcastss  0x2cff(%rip),%ymm12        # 5798 <_sk_callback_avx+0x329>
+  .byte  196,98,125,24,37,63,45,0,0          // vbroadcastss  0x2d3f(%rip),%ymm12        # 5ef8 <_sk_callback_avx+0x369>
   .byte  196,193,116,89,204                  // vmulps        %ymm12,%ymm1,%ymm1
   .byte  196,67,117,74,192,160               // vblendvps     %ymm10,%ymm8,%ymm1,%ymm8
   .byte  197,252,89,200                      // vmulps        %ymm0,%ymm0,%ymm1
@@ -14721,9 +16376,9 @@ _sk_lab_to_xyz_avx:
   .byte  196,193,108,88,211                  // vaddps        %ymm11,%ymm2,%ymm2
   .byte  196,193,108,89,212                  // vmulps        %ymm12,%ymm2,%ymm2
   .byte  196,227,109,74,208,144              // vblendvps     %ymm9,%ymm0,%ymm2,%ymm2
-  .byte  196,226,125,24,5,181,44,0,0         // vbroadcastss  0x2cb5(%rip),%ymm0        # 579c <_sk_callback_avx+0x32d>
+  .byte  196,226,125,24,5,245,44,0,0         // vbroadcastss  0x2cf5(%rip),%ymm0        # 5efc <_sk_callback_avx+0x36d>
   .byte  197,188,89,192                      // vmulps        %ymm0,%ymm8,%ymm0
-  .byte  196,98,125,24,5,172,44,0,0          // vbroadcastss  0x2cac(%rip),%ymm8        # 57a0 <_sk_callback_avx+0x331>
+  .byte  196,98,125,24,5,236,44,0,0          // vbroadcastss  0x2cec(%rip),%ymm8        # 5f00 <_sk_callback_avx+0x371>
   .byte  196,193,108,89,208                  // vmulps        %ymm8,%ymm2,%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -14737,14 +16392,14 @@ _sk_load_a8_avx:
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  72,1,248                            // add           %rdi,%rax
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,62                              // jne           2b4b <_sk_load_a8_avx+0x4e>
+  .byte  117,62                              // jne           326b <_sk_load_a8_avx+0x4e>
   .byte  197,250,126,0                       // vmovq         (%rax),%xmm0
   .byte  196,226,121,49,200                  // vpmovzxbd     %xmm0,%xmm1
   .byte  196,227,121,4,192,229               // vpermilps     $0xe5,%xmm0,%xmm0
   .byte  196,226,121,49,192                  // vpmovzxbd     %xmm0,%xmm0
   .byte  196,227,117,24,192,1                // vinsertf128   $0x1,%xmm0,%ymm1,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,112,44,0,0        // vbroadcastss  0x2c70(%rip),%ymm1        # 57a4 <_sk_callback_avx+0x335>
+  .byte  196,226,125,24,13,176,44,0,0        // vbroadcastss  0x2cb0(%rip),%ymm1        # 5f04 <_sk_callback_avx+0x375>
   .byte  197,252,89,217                      // vmulps        %ymm1,%ymm0,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,252,87,192                      // vxorps        %ymm0,%ymm0,%ymm0
@@ -14761,9 +16416,9 @@ _sk_load_a8_avx:
   .byte  77,9,217                            // or            %r11,%r9
   .byte  72,131,193,8                        // add           $0x8,%rcx
   .byte  73,255,202                          // dec           %r10
-  .byte  117,234                             // jne           2b53 <_sk_load_a8_avx+0x56>
+  .byte  117,234                             // jne           3273 <_sk_load_a8_avx+0x56>
   .byte  196,193,249,110,193                 // vmovq         %r9,%xmm0
-  .byte  235,161                             // jmp           2b11 <_sk_load_a8_avx+0x14>
+  .byte  235,161                             // jmp           3231 <_sk_load_a8_avx+0x14>
 
 HIDDEN _sk_gather_a8_avx
 .globl _sk_gather_a8_avx
@@ -14813,7 +16468,7 @@ _sk_gather_a8_avx:
   .byte  196,226,121,49,201                  // vpmovzxbd     %xmm1,%xmm1
   .byte  196,227,125,24,193,1                // vinsertf128   $0x1,%xmm1,%ymm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,101,43,0,0        // vbroadcastss  0x2b65(%rip),%ymm1        # 57a8 <_sk_callback_avx+0x339>
+  .byte  196,226,125,24,13,165,43,0,0        // vbroadcastss  0x2ba5(%rip),%ymm1        # 5f08 <_sk_callback_avx+0x379>
   .byte  197,252,89,217                      // vmulps        %ymm1,%ymm0,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,252,87,192                      // vxorps        %ymm0,%ymm0,%ymm0
@@ -14831,14 +16486,14 @@ FUNCTION(_sk_store_a8_avx)
 _sk_store_a8_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
-  .byte  196,98,125,24,5,64,43,0,0           // vbroadcastss  0x2b40(%rip),%ymm8        # 57ac <_sk_callback_avx+0x33d>
+  .byte  196,98,125,24,5,128,43,0,0          // vbroadcastss  0x2b80(%rip),%ymm8        # 5f0c <_sk_callback_avx+0x37d>
   .byte  196,65,100,89,192                   // vmulps        %ymm8,%ymm3,%ymm8
   .byte  196,65,125,91,192                   // vcvtps2dq     %ymm8,%ymm8
   .byte  196,67,125,25,193,1                 // vextractf128  $0x1,%ymm8,%xmm9
   .byte  196,66,57,43,193                    // vpackusdw     %xmm9,%xmm8,%xmm8
   .byte  196,65,57,103,192                   // vpackuswb     %xmm8,%xmm8,%xmm8
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,10                              // jne           2c95 <_sk_store_a8_avx+0x37>
+  .byte  117,10                              // jne           33b5 <_sk_store_a8_avx+0x37>
   .byte  196,65,123,17,4,58                  // vmovsd        %xmm8,(%r10,%rdi,1)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -14846,10 +16501,10 @@ _sk_store_a8_avx:
   .byte  65,128,224,7                        // and           $0x7,%r8b
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  119,236                             // ja            2c91 <_sk_store_a8_avx+0x33>
+  .byte  119,236                             // ja            33b1 <_sk_store_a8_avx+0x33>
   .byte  196,66,121,48,192                   // vpmovzxbw     %xmm8,%xmm8
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,67,0,0,0                  // lea           0x43(%rip),%r9        # 2cf8 <_sk_store_a8_avx+0x9a>
+  .byte  76,141,13,67,0,0,0                  // lea           0x43(%rip),%r9        # 3418 <_sk_store_a8_avx+0x9a>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -14860,7 +16515,7 @@ _sk_store_a8_avx:
   .byte  196,67,121,20,68,58,2,4             // vpextrb       $0x4,%xmm8,0x2(%r10,%rdi,1)
   .byte  196,67,121,20,68,58,1,2             // vpextrb       $0x2,%xmm8,0x1(%r10,%rdi,1)
   .byte  196,67,121,20,4,58,0                // vpextrb       $0x0,%xmm8,(%r10,%rdi,1)
-  .byte  235,154                             // jmp           2c91 <_sk_store_a8_avx+0x33>
+  .byte  235,154                             // jmp           33b1 <_sk_store_a8_avx+0x33>
   .byte  144                                 // nop
   .byte  246,255                             // idiv          %bh
   .byte  255                                 // (bad)
@@ -14894,17 +16549,17 @@ _sk_load_g8_avx:
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  72,1,248                            // add           %rdi,%rax
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,67                              // jne           2d67 <_sk_load_g8_avx+0x53>
+  .byte  117,67                              // jne           3487 <_sk_load_g8_avx+0x53>
   .byte  197,250,126,0                       // vmovq         (%rax),%xmm0
   .byte  196,226,121,49,200                  // vpmovzxbd     %xmm0,%xmm1
   .byte  196,227,121,4,192,229               // vpermilps     $0xe5,%xmm0,%xmm0
   .byte  196,226,121,49,192                  // vpmovzxbd     %xmm0,%xmm0
   .byte  196,227,117,24,192,1                // vinsertf128   $0x1,%xmm0,%ymm1,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,101,42,0,0        // vbroadcastss  0x2a65(%rip),%ymm1        # 57b0 <_sk_callback_avx+0x341>
+  .byte  196,226,125,24,13,165,42,0,0        // vbroadcastss  0x2aa5(%rip),%ymm1        # 5f10 <_sk_callback_avx+0x381>
   .byte  197,252,89,193                      // vmulps        %ymm1,%ymm0,%ymm0
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,90,42,0,0         // vbroadcastss  0x2a5a(%rip),%ymm3        # 57b4 <_sk_callback_avx+0x345>
+  .byte  196,226,125,24,29,154,42,0,0        // vbroadcastss  0x2a9a(%rip),%ymm3        # 5f14 <_sk_callback_avx+0x385>
   .byte  76,137,193                          // mov           %r8,%rcx
   .byte  197,252,40,200                      // vmovaps       %ymm0,%ymm1
   .byte  197,252,40,208                      // vmovaps       %ymm0,%ymm2
@@ -14918,9 +16573,9 @@ _sk_load_g8_avx:
   .byte  77,9,217                            // or            %r11,%r9
   .byte  72,131,193,8                        // add           $0x8,%rcx
   .byte  73,255,202                          // dec           %r10
-  .byte  117,234                             // jne           2d6f <_sk_load_g8_avx+0x5b>
+  .byte  117,234                             // jne           348f <_sk_load_g8_avx+0x5b>
   .byte  196,193,249,110,193                 // vmovq         %r9,%xmm0
-  .byte  235,156                             // jmp           2d28 <_sk_load_g8_avx+0x14>
+  .byte  235,156                             // jmp           3448 <_sk_load_g8_avx+0x14>
 
 HIDDEN _sk_gather_g8_avx
 .globl _sk_gather_g8_avx
@@ -14970,10 +16625,10 @@ _sk_gather_g8_avx:
   .byte  196,226,121,49,201                  // vpmovzxbd     %xmm1,%xmm1
   .byte  196,227,125,24,193,1                // vinsertf128   $0x1,%xmm1,%ymm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,89,41,0,0         // vbroadcastss  0x2959(%rip),%ymm1        # 57b8 <_sk_callback_avx+0x349>
+  .byte  196,226,125,24,13,153,41,0,0        // vbroadcastss  0x2999(%rip),%ymm1        # 5f18 <_sk_callback_avx+0x389>
   .byte  197,252,89,193                      // vmulps        %ymm1,%ymm0,%ymm0
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,78,41,0,0         // vbroadcastss  0x294e(%rip),%ymm3        # 57bc <_sk_callback_avx+0x34d>
+  .byte  196,226,125,24,29,142,41,0,0        // vbroadcastss  0x298e(%rip),%ymm3        # 5f1c <_sk_callback_avx+0x38d>
   .byte  197,252,40,200                      // vmovaps       %ymm0,%ymm1
   .byte  197,252,40,208                      // vmovaps       %ymm0,%ymm2
   .byte  91                                  // pop           %rbx
@@ -14989,9 +16644,9 @@ _sk_gather_i8_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  73,137,192                          // mov           %rax,%r8
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  116,5                               // je            2e8e <_sk_gather_i8_avx+0xf>
+  .byte  116,5                               // je            35ae <_sk_gather_i8_avx+0xf>
   .byte  76,137,192                          // mov           %r8,%rax
-  .byte  235,2                               // jmp           2e90 <_sk_gather_i8_avx+0x11>
+  .byte  235,2                               // jmp           35b0 <_sk_gather_i8_avx+0x11>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,87                               // push          %r15
   .byte  65,86                               // push          %r14
@@ -15053,10 +16708,10 @@ _sk_gather_i8_avx:
   .byte  196,163,121,34,4,163,2              // vpinsrd       $0x2,(%rbx,%r12,4),%xmm0,%xmm0
   .byte  196,163,121,34,28,19,3              // vpinsrd       $0x3,(%rbx,%r10,1),%xmm0,%xmm3
   .byte  196,227,61,24,195,1                 // vinsertf128   $0x1,%xmm3,%ymm8,%ymm0
-  .byte  197,124,40,21,198,41,0,0            // vmovaps       0x29c6(%rip),%ymm10        # 5980 <_sk_callback_avx+0x511>
+  .byte  197,124,40,21,6,42,0,0              // vmovaps       0x2a06(%rip),%ymm10        # 60e0 <_sk_callback_avx+0x551>
   .byte  196,193,124,84,194                  // vandps        %ymm10,%ymm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,13,244,39,0,0         // vbroadcastss  0x27f4(%rip),%ymm9        # 57c0 <_sk_callback_avx+0x351>
+  .byte  196,98,125,24,13,52,40,0,0          // vbroadcastss  0x2834(%rip),%ymm9        # 5f20 <_sk_callback_avx+0x391>
   .byte  196,193,124,89,193                  // vmulps        %ymm9,%ymm0,%ymm0
   .byte  196,193,113,114,208,8               // vpsrld        $0x8,%xmm8,%xmm1
   .byte  197,233,114,211,8                   // vpsrld        $0x8,%xmm3,%xmm2
@@ -15090,38 +16745,38 @@ _sk_load_565_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,128,0,0,0                    // jne           30c4 <_sk_load_565_avx+0x8e>
+  .byte  15,133,128,0,0,0                    // jne           37e4 <_sk_load_565_avx+0x8e>
   .byte  196,193,122,111,4,122               // vmovdqu       (%r10,%rdi,2),%xmm0
   .byte  197,241,239,201                     // vpxor         %xmm1,%xmm1,%xmm1
   .byte  197,249,105,201                     // vpunpckhwd    %xmm1,%xmm0,%xmm1
   .byte  196,226,121,51,192                  // vpmovzxwd     %xmm0,%xmm0
   .byte  196,227,125,24,209,1                // vinsertf128   $0x1,%xmm1,%ymm0,%ymm2
-  .byte  196,226,125,24,5,94,39,0,0          // vbroadcastss  0x275e(%rip),%ymm0        # 57c4 <_sk_callback_avx+0x355>
+  .byte  196,226,125,24,5,158,39,0,0         // vbroadcastss  0x279e(%rip),%ymm0        # 5f24 <_sk_callback_avx+0x395>
   .byte  197,236,84,192                      // vandps        %ymm0,%ymm2,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,81,39,0,0         // vbroadcastss  0x2751(%rip),%ymm1        # 57c8 <_sk_callback_avx+0x359>
+  .byte  196,226,125,24,13,145,39,0,0        // vbroadcastss  0x2791(%rip),%ymm1        # 5f28 <_sk_callback_avx+0x399>
   .byte  197,252,89,193                      // vmulps        %ymm1,%ymm0,%ymm0
-  .byte  196,226,125,24,13,72,39,0,0         // vbroadcastss  0x2748(%rip),%ymm1        # 57cc <_sk_callback_avx+0x35d>
+  .byte  196,226,125,24,13,136,39,0,0        // vbroadcastss  0x2788(%rip),%ymm1        # 5f2c <_sk_callback_avx+0x39d>
   .byte  197,236,84,201                      // vandps        %ymm1,%ymm2,%ymm1
   .byte  197,252,91,201                      // vcvtdq2ps     %ymm1,%ymm1
-  .byte  196,226,125,24,29,59,39,0,0         // vbroadcastss  0x273b(%rip),%ymm3        # 57d0 <_sk_callback_avx+0x361>
+  .byte  196,226,125,24,29,123,39,0,0        // vbroadcastss  0x277b(%rip),%ymm3        # 5f30 <_sk_callback_avx+0x3a1>
   .byte  197,244,89,203                      // vmulps        %ymm3,%ymm1,%ymm1
-  .byte  196,226,125,24,29,50,39,0,0         // vbroadcastss  0x2732(%rip),%ymm3        # 57d4 <_sk_callback_avx+0x365>
+  .byte  196,226,125,24,29,114,39,0,0        // vbroadcastss  0x2772(%rip),%ymm3        # 5f34 <_sk_callback_avx+0x3a5>
   .byte  197,236,84,211                      // vandps        %ymm3,%ymm2,%ymm2
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
-  .byte  196,226,125,24,29,37,39,0,0         // vbroadcastss  0x2725(%rip),%ymm3        # 57d8 <_sk_callback_avx+0x369>
+  .byte  196,226,125,24,29,101,39,0,0        // vbroadcastss  0x2765(%rip),%ymm3        # 5f38 <_sk_callback_avx+0x3a9>
   .byte  197,236,89,211                      // vmulps        %ymm3,%ymm2,%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,26,39,0,0         // vbroadcastss  0x271a(%rip),%ymm3        # 57dc <_sk_callback_avx+0x36d>
+  .byte  196,226,125,24,29,90,39,0,0         // vbroadcastss  0x275a(%rip),%ymm3        # 5f3c <_sk_callback_avx+0x3ad>
   .byte  255,224                             // jmpq          *%rax
   .byte  65,137,200                          // mov           %ecx,%r8d
   .byte  65,128,224,7                        // and           $0x7,%r8b
   .byte  197,249,239,192                     // vpxor         %xmm0,%xmm0,%xmm0
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  15,135,110,255,255,255              // ja            304a <_sk_load_565_avx+0x14>
+  .byte  15,135,110,255,255,255              // ja            376a <_sk_load_565_avx+0x14>
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,73,0,0,0                  // lea           0x49(%rip),%r9        # 3130 <_sk_load_565_avx+0xfa>
+  .byte  76,141,13,73,0,0,0                  // lea           0x49(%rip),%r9        # 3850 <_sk_load_565_avx+0xfa>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -15133,7 +16788,7 @@ _sk_load_565_avx:
   .byte  196,193,121,196,68,122,4,2          // vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm0,%xmm0
   .byte  196,193,121,196,68,122,2,1          // vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm0,%xmm0
   .byte  196,193,121,196,4,122,0             // vpinsrw       $0x0,(%r10,%rdi,2),%xmm0,%xmm0
-  .byte  233,26,255,255,255                  // jmpq          304a <_sk_load_565_avx+0x14>
+  .byte  233,26,255,255,255                  // jmpq          376a <_sk_load_565_avx+0x14>
   .byte  244                                 // hlt
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
@@ -15211,23 +16866,23 @@ _sk_gather_565_avx:
   .byte  197,249,105,201                     // vpunpckhwd    %xmm1,%xmm0,%xmm1
   .byte  196,226,121,51,192                  // vpmovzxwd     %xmm0,%xmm0
   .byte  196,227,125,24,209,1                // vinsertf128   $0x1,%xmm1,%ymm0,%ymm2
-  .byte  196,226,125,24,5,186,37,0,0         // vbroadcastss  0x25ba(%rip),%ymm0        # 57e0 <_sk_callback_avx+0x371>
+  .byte  196,226,125,24,5,250,37,0,0         // vbroadcastss  0x25fa(%rip),%ymm0        # 5f40 <_sk_callback_avx+0x3b1>
   .byte  197,236,84,192                      // vandps        %ymm0,%ymm2,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,173,37,0,0        // vbroadcastss  0x25ad(%rip),%ymm1        # 57e4 <_sk_callback_avx+0x375>
+  .byte  196,226,125,24,13,237,37,0,0        // vbroadcastss  0x25ed(%rip),%ymm1        # 5f44 <_sk_callback_avx+0x3b5>
   .byte  197,252,89,193                      // vmulps        %ymm1,%ymm0,%ymm0
-  .byte  196,226,125,24,13,164,37,0,0        // vbroadcastss  0x25a4(%rip),%ymm1        # 57e8 <_sk_callback_avx+0x379>
+  .byte  196,226,125,24,13,228,37,0,0        // vbroadcastss  0x25e4(%rip),%ymm1        # 5f48 <_sk_callback_avx+0x3b9>
   .byte  197,236,84,201                      // vandps        %ymm1,%ymm2,%ymm1
   .byte  197,252,91,201                      // vcvtdq2ps     %ymm1,%ymm1
-  .byte  196,226,125,24,29,151,37,0,0        // vbroadcastss  0x2597(%rip),%ymm3        # 57ec <_sk_callback_avx+0x37d>
+  .byte  196,226,125,24,29,215,37,0,0        // vbroadcastss  0x25d7(%rip),%ymm3        # 5f4c <_sk_callback_avx+0x3bd>
   .byte  197,244,89,203                      // vmulps        %ymm3,%ymm1,%ymm1
-  .byte  196,226,125,24,29,142,37,0,0        // vbroadcastss  0x258e(%rip),%ymm3        # 57f0 <_sk_callback_avx+0x381>
+  .byte  196,226,125,24,29,206,37,0,0        // vbroadcastss  0x25ce(%rip),%ymm3        # 5f50 <_sk_callback_avx+0x3c1>
   .byte  197,236,84,211                      // vandps        %ymm3,%ymm2,%ymm2
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
-  .byte  196,226,125,24,29,129,37,0,0        // vbroadcastss  0x2581(%rip),%ymm3        # 57f4 <_sk_callback_avx+0x385>
+  .byte  196,226,125,24,29,193,37,0,0        // vbroadcastss  0x25c1(%rip),%ymm3        # 5f54 <_sk_callback_avx+0x3c5>
   .byte  197,236,89,211                      // vmulps        %ymm3,%ymm2,%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,118,37,0,0        // vbroadcastss  0x2576(%rip),%ymm3        # 57f8 <_sk_callback_avx+0x389>
+  .byte  196,226,125,24,29,182,37,0,0        // vbroadcastss  0x25b6(%rip),%ymm3        # 5f58 <_sk_callback_avx+0x3c9>
   .byte  91                                  // pop           %rbx
   .byte  65,92                               // pop           %r12
   .byte  65,94                               // pop           %r14
@@ -15241,14 +16896,14 @@ FUNCTION(_sk_store_565_avx)
 _sk_store_565_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
-  .byte  196,98,125,24,5,98,37,0,0           // vbroadcastss  0x2562(%rip),%ymm8        # 57fc <_sk_callback_avx+0x38d>
+  .byte  196,98,125,24,5,162,37,0,0          // vbroadcastss  0x25a2(%rip),%ymm8        # 5f5c <_sk_callback_avx+0x3cd>
   .byte  196,65,124,89,200                   // vmulps        %ymm8,%ymm0,%ymm9
   .byte  196,65,125,91,201                   // vcvtps2dq     %ymm9,%ymm9
   .byte  196,193,41,114,241,11               // vpslld        $0xb,%xmm9,%xmm10
   .byte  196,67,125,25,201,1                 // vextractf128  $0x1,%ymm9,%xmm9
   .byte  196,193,49,114,241,11               // vpslld        $0xb,%xmm9,%xmm9
   .byte  196,67,45,24,201,1                  // vinsertf128   $0x1,%xmm9,%ymm10,%ymm9
-  .byte  196,98,125,24,21,59,37,0,0          // vbroadcastss  0x253b(%rip),%ymm10        # 5800 <_sk_callback_avx+0x391>
+  .byte  196,98,125,24,21,123,37,0,0         // vbroadcastss  0x257b(%rip),%ymm10        # 5f60 <_sk_callback_avx+0x3d1>
   .byte  196,65,116,89,210                   // vmulps        %ymm10,%ymm1,%ymm10
   .byte  196,65,125,91,210                   // vcvtps2dq     %ymm10,%ymm10
   .byte  196,193,33,114,242,5                // vpslld        $0x5,%xmm10,%xmm11
@@ -15262,7 +16917,7 @@ _sk_store_565_avx:
   .byte  196,67,125,25,193,1                 // vextractf128  $0x1,%ymm8,%xmm9
   .byte  196,66,57,43,193                    // vpackusdw     %xmm9,%xmm8,%xmm8
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,10                              // jne           3315 <_sk_store_565_avx+0x89>
+  .byte  117,10                              // jne           3a35 <_sk_store_565_avx+0x89>
   .byte  196,65,122,127,4,122                // vmovdqu       %xmm8,(%r10,%rdi,2)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -15270,9 +16925,9 @@ _sk_store_565_avx:
   .byte  65,128,224,7                        // and           $0x7,%r8b
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  119,236                             // ja            3311 <_sk_store_565_avx+0x85>
+  .byte  119,236                             // ja            3a31 <_sk_store_565_avx+0x85>
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,68,0,0,0                  // lea           0x44(%rip),%r9        # 3374 <_sk_store_565_avx+0xe8>
+  .byte  76,141,13,68,0,0,0                  // lea           0x44(%rip),%r9        # 3a94 <_sk_store_565_avx+0xe8>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -15283,7 +16938,7 @@ _sk_store_565_avx:
   .byte  196,67,121,21,68,122,4,2            // vpextrw       $0x2,%xmm8,0x4(%r10,%rdi,2)
   .byte  196,67,121,21,68,122,2,1            // vpextrw       $0x1,%xmm8,0x2(%r10,%rdi,2)
   .byte  196,67,121,21,4,122,0               // vpextrw       $0x0,%xmm8,(%r10,%rdi,2)
-  .byte  235,159                             // jmp           3311 <_sk_store_565_avx+0x85>
+  .byte  235,159                             // jmp           3a31 <_sk_store_565_avx+0x85>
   .byte  102,144                             // xchg          %ax,%ax
   .byte  245                                 // cmc
   .byte  255                                 // (bad)
@@ -15316,31 +16971,31 @@ _sk_load_4444_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,152,0,0,0                    // jne           3436 <_sk_load_4444_avx+0xa6>
+  .byte  15,133,152,0,0,0                    // jne           3b56 <_sk_load_4444_avx+0xa6>
   .byte  196,193,122,111,4,122               // vmovdqu       (%r10,%rdi,2),%xmm0
   .byte  197,241,239,201                     // vpxor         %xmm1,%xmm1,%xmm1
   .byte  197,249,105,201                     // vpunpckhwd    %xmm1,%xmm0,%xmm1
   .byte  196,226,121,51,192                  // vpmovzxwd     %xmm0,%xmm0
   .byte  196,227,125,24,217,1                // vinsertf128   $0x1,%xmm1,%ymm0,%ymm3
-  .byte  196,226,125,24,5,68,36,0,0          // vbroadcastss  0x2444(%rip),%ymm0        # 5804 <_sk_callback_avx+0x395>
+  .byte  196,226,125,24,5,132,36,0,0         // vbroadcastss  0x2484(%rip),%ymm0        # 5f64 <_sk_callback_avx+0x3d5>
   .byte  197,228,84,192                      // vandps        %ymm0,%ymm3,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,55,36,0,0         // vbroadcastss  0x2437(%rip),%ymm1        # 5808 <_sk_callback_avx+0x399>
+  .byte  196,226,125,24,13,119,36,0,0        // vbroadcastss  0x2477(%rip),%ymm1        # 5f68 <_sk_callback_avx+0x3d9>
   .byte  197,252,89,193                      // vmulps        %ymm1,%ymm0,%ymm0
-  .byte  196,226,125,24,13,46,36,0,0         // vbroadcastss  0x242e(%rip),%ymm1        # 580c <_sk_callback_avx+0x39d>
+  .byte  196,226,125,24,13,110,36,0,0        // vbroadcastss  0x246e(%rip),%ymm1        # 5f6c <_sk_callback_avx+0x3dd>
   .byte  197,228,84,201                      // vandps        %ymm1,%ymm3,%ymm1
   .byte  197,252,91,201                      // vcvtdq2ps     %ymm1,%ymm1
-  .byte  196,226,125,24,21,33,36,0,0         // vbroadcastss  0x2421(%rip),%ymm2        # 5810 <_sk_callback_avx+0x3a1>
+  .byte  196,226,125,24,21,97,36,0,0         // vbroadcastss  0x2461(%rip),%ymm2        # 5f70 <_sk_callback_avx+0x3e1>
   .byte  197,244,89,202                      // vmulps        %ymm2,%ymm1,%ymm1
-  .byte  196,226,125,24,21,24,36,0,0         // vbroadcastss  0x2418(%rip),%ymm2        # 5814 <_sk_callback_avx+0x3a5>
+  .byte  196,226,125,24,21,88,36,0,0         // vbroadcastss  0x2458(%rip),%ymm2        # 5f74 <_sk_callback_avx+0x3e5>
   .byte  197,228,84,210                      // vandps        %ymm2,%ymm3,%ymm2
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
-  .byte  196,98,125,24,5,11,36,0,0           // vbroadcastss  0x240b(%rip),%ymm8        # 5818 <_sk_callback_avx+0x3a9>
+  .byte  196,98,125,24,5,75,36,0,0           // vbroadcastss  0x244b(%rip),%ymm8        # 5f78 <_sk_callback_avx+0x3e9>
   .byte  196,193,108,89,208                  // vmulps        %ymm8,%ymm2,%ymm2
-  .byte  196,98,125,24,5,1,36,0,0            // vbroadcastss  0x2401(%rip),%ymm8        # 581c <_sk_callback_avx+0x3ad>
+  .byte  196,98,125,24,5,65,36,0,0           // vbroadcastss  0x2441(%rip),%ymm8        # 5f7c <_sk_callback_avx+0x3ed>
   .byte  196,193,100,84,216                  // vandps        %ymm8,%ymm3,%ymm3
   .byte  197,252,91,219                      // vcvtdq2ps     %ymm3,%ymm3
-  .byte  196,98,125,24,5,243,35,0,0          // vbroadcastss  0x23f3(%rip),%ymm8        # 5820 <_sk_callback_avx+0x3b1>
+  .byte  196,98,125,24,5,51,36,0,0           // vbroadcastss  0x2433(%rip),%ymm8        # 5f80 <_sk_callback_avx+0x3f1>
   .byte  196,193,100,89,216                  // vmulps        %ymm8,%ymm3,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -15349,9 +17004,9 @@ _sk_load_4444_avx:
   .byte  197,249,239,192                     // vpxor         %xmm0,%xmm0,%xmm0
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  15,135,86,255,255,255               // ja            33a4 <_sk_load_4444_avx+0x14>
+  .byte  15,135,86,255,255,255               // ja            3ac4 <_sk_load_4444_avx+0x14>
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,75,0,0,0                  // lea           0x4b(%rip),%r9        # 34a4 <_sk_load_4444_avx+0x114>
+  .byte  76,141,13,75,0,0,0                  // lea           0x4b(%rip),%r9        # 3bc4 <_sk_load_4444_avx+0x114>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -15363,7 +17018,7 @@ _sk_load_4444_avx:
   .byte  196,193,121,196,68,122,4,2          // vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm0,%xmm0
   .byte  196,193,121,196,68,122,2,1          // vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm0,%xmm0
   .byte  196,193,121,196,4,122,0             // vpinsrw       $0x0,(%r10,%rdi,2),%xmm0,%xmm0
-  .byte  233,2,255,255,255                   // jmpq          33a4 <_sk_load_4444_avx+0x14>
+  .byte  233,2,255,255,255                   // jmpq          3ac4 <_sk_load_4444_avx+0x14>
   .byte  102,144                             // xchg          %ax,%ax
   .byte  242,255                             // repnz         (bad)
   .byte  255                                 // (bad)
@@ -15442,25 +17097,25 @@ _sk_gather_4444_avx:
   .byte  197,249,105,201                     // vpunpckhwd    %xmm1,%xmm0,%xmm1
   .byte  196,226,121,51,192                  // vpmovzxwd     %xmm0,%xmm0
   .byte  196,227,125,24,217,1                // vinsertf128   $0x1,%xmm1,%ymm0,%ymm3
-  .byte  196,226,125,24,5,138,34,0,0         // vbroadcastss  0x228a(%rip),%ymm0        # 5824 <_sk_callback_avx+0x3b5>
+  .byte  196,226,125,24,5,202,34,0,0         // vbroadcastss  0x22ca(%rip),%ymm0        # 5f84 <_sk_callback_avx+0x3f5>
   .byte  197,228,84,192                      // vandps        %ymm0,%ymm3,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,226,125,24,13,125,34,0,0        // vbroadcastss  0x227d(%rip),%ymm1        # 5828 <_sk_callback_avx+0x3b9>
+  .byte  196,226,125,24,13,189,34,0,0        // vbroadcastss  0x22bd(%rip),%ymm1        # 5f88 <_sk_callback_avx+0x3f9>
   .byte  197,252,89,193                      // vmulps        %ymm1,%ymm0,%ymm0
-  .byte  196,226,125,24,13,116,34,0,0        // vbroadcastss  0x2274(%rip),%ymm1        # 582c <_sk_callback_avx+0x3bd>
+  .byte  196,226,125,24,13,180,34,0,0        // vbroadcastss  0x22b4(%rip),%ymm1        # 5f8c <_sk_callback_avx+0x3fd>
   .byte  197,228,84,201                      // vandps        %ymm1,%ymm3,%ymm1
   .byte  197,252,91,201                      // vcvtdq2ps     %ymm1,%ymm1
-  .byte  196,226,125,24,21,103,34,0,0        // vbroadcastss  0x2267(%rip),%ymm2        # 5830 <_sk_callback_avx+0x3c1>
+  .byte  196,226,125,24,21,167,34,0,0        // vbroadcastss  0x22a7(%rip),%ymm2        # 5f90 <_sk_callback_avx+0x401>
   .byte  197,244,89,202                      // vmulps        %ymm2,%ymm1,%ymm1
-  .byte  196,226,125,24,21,94,34,0,0         // vbroadcastss  0x225e(%rip),%ymm2        # 5834 <_sk_callback_avx+0x3c5>
+  .byte  196,226,125,24,21,158,34,0,0        // vbroadcastss  0x229e(%rip),%ymm2        # 5f94 <_sk_callback_avx+0x405>
   .byte  197,228,84,210                      // vandps        %ymm2,%ymm3,%ymm2
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
-  .byte  196,98,125,24,5,81,34,0,0           // vbroadcastss  0x2251(%rip),%ymm8        # 5838 <_sk_callback_avx+0x3c9>
+  .byte  196,98,125,24,5,145,34,0,0          // vbroadcastss  0x2291(%rip),%ymm8        # 5f98 <_sk_callback_avx+0x409>
   .byte  196,193,108,89,208                  // vmulps        %ymm8,%ymm2,%ymm2
-  .byte  196,98,125,24,5,71,34,0,0           // vbroadcastss  0x2247(%rip),%ymm8        # 583c <_sk_callback_avx+0x3cd>
+  .byte  196,98,125,24,5,135,34,0,0          // vbroadcastss  0x2287(%rip),%ymm8        # 5f9c <_sk_callback_avx+0x40d>
   .byte  196,193,100,84,216                  // vandps        %ymm8,%ymm3,%ymm3
   .byte  197,252,91,219                      // vcvtdq2ps     %ymm3,%ymm3
-  .byte  196,98,125,24,5,57,34,0,0           // vbroadcastss  0x2239(%rip),%ymm8        # 5840 <_sk_callback_avx+0x3d1>
+  .byte  196,98,125,24,5,121,34,0,0          // vbroadcastss  0x2279(%rip),%ymm8        # 5fa0 <_sk_callback_avx+0x411>
   .byte  196,193,100,89,216                  // vmulps        %ymm8,%ymm3,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  91                                  // pop           %rbx
@@ -15476,7 +17131,7 @@ FUNCTION(_sk_store_4444_avx)
 _sk_store_4444_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
-  .byte  196,98,125,24,5,30,34,0,0           // vbroadcastss  0x221e(%rip),%ymm8        # 5844 <_sk_callback_avx+0x3d5>
+  .byte  196,98,125,24,5,94,34,0,0           // vbroadcastss  0x225e(%rip),%ymm8        # 5fa4 <_sk_callback_avx+0x415>
   .byte  196,65,124,89,200                   // vmulps        %ymm8,%ymm0,%ymm9
   .byte  196,65,125,91,201                   // vcvtps2dq     %ymm9,%ymm9
   .byte  196,193,41,114,241,12               // vpslld        $0xc,%xmm9,%xmm10
@@ -15503,7 +17158,7 @@ _sk_store_4444_avx:
   .byte  196,67,125,25,193,1                 // vextractf128  $0x1,%ymm8,%xmm9
   .byte  196,66,57,43,193                    // vpackusdw     %xmm9,%xmm8,%xmm8
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,10                              // jne           36bf <_sk_store_4444_avx+0xa7>
+  .byte  117,10                              // jne           3ddf <_sk_store_4444_avx+0xa7>
   .byte  196,65,122,127,4,122                // vmovdqu       %xmm8,(%r10,%rdi,2)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -15511,9 +17166,9 @@ _sk_store_4444_avx:
   .byte  65,128,224,7                        // and           $0x7,%r8b
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  119,236                             // ja            36bb <_sk_store_4444_avx+0xa3>
+  .byte  119,236                             // ja            3ddb <_sk_store_4444_avx+0xa3>
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,66,0,0,0                  // lea           0x42(%rip),%r9        # 371c <_sk_store_4444_avx+0x104>
+  .byte  76,141,13,66,0,0,0                  // lea           0x42(%rip),%r9        # 3e3c <_sk_store_4444_avx+0x104>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -15524,7 +17179,7 @@ _sk_store_4444_avx:
   .byte  196,67,121,21,68,122,4,2            // vpextrw       $0x2,%xmm8,0x4(%r10,%rdi,2)
   .byte  196,67,121,21,68,122,2,1            // vpextrw       $0x1,%xmm8,0x2(%r10,%rdi,2)
   .byte  196,67,121,21,4,122,0               // vpextrw       $0x0,%xmm8,(%r10,%rdi,2)
-  .byte  235,159                             // jmp           36bb <_sk_store_4444_avx+0xa3>
+  .byte  235,159                             // jmp           3ddb <_sk_store_4444_avx+0xa3>
   .byte  247,255                             // idiv          %edi
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
@@ -15555,12 +17210,12 @@ _sk_load_8888_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,135,0,0,0                    // jne           37cd <_sk_load_8888_avx+0x95>
+  .byte  15,133,135,0,0,0                    // jne           3eed <_sk_load_8888_avx+0x95>
   .byte  196,65,124,16,12,186                // vmovups       (%r10,%rdi,4),%ymm9
-  .byte  197,124,40,21,76,34,0,0             // vmovaps       0x224c(%rip),%ymm10        # 59a0 <_sk_callback_avx+0x531>
+  .byte  197,124,40,21,140,34,0,0            // vmovaps       0x228c(%rip),%ymm10        # 6100 <_sk_callback_avx+0x571>
   .byte  196,193,52,84,194                   // vandps        %ymm10,%ymm9,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,5,226,32,0,0          // vbroadcastss  0x20e2(%rip),%ymm8        # 5848 <_sk_callback_avx+0x3d9>
+  .byte  196,98,125,24,5,34,33,0,0           // vbroadcastss  0x2122(%rip),%ymm8        # 5fa8 <_sk_callback_avx+0x419>
   .byte  196,193,124,89,192                  // vmulps        %ymm8,%ymm0,%ymm0
   .byte  196,193,113,114,209,8               // vpsrld        $0x8,%xmm9,%xmm1
   .byte  196,99,125,25,203,1                 // vextractf128  $0x1,%ymm9,%xmm3
@@ -15587,9 +17242,9 @@ _sk_load_8888_avx:
   .byte  196,65,52,87,201                    // vxorps        %ymm9,%ymm9,%ymm9
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  15,135,102,255,255,255              // ja            374c <_sk_load_8888_avx+0x14>
+  .byte  15,135,102,255,255,255              // ja            3e6c <_sk_load_8888_avx+0x14>
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,139,0,0,0                 // lea           0x8b(%rip),%r9        # 387c <_sk_load_8888_avx+0x144>
+  .byte  76,141,13,139,0,0,0                 // lea           0x8b(%rip),%r9        # 3f9c <_sk_load_8888_avx+0x144>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -15612,7 +17267,7 @@ _sk_load_8888_avx:
   .byte  196,99,53,12,200,15                 // vblendps      $0xf,%ymm0,%ymm9,%ymm9
   .byte  196,195,49,34,4,186,0               // vpinsrd       $0x0,(%r10,%rdi,4),%xmm9,%xmm0
   .byte  196,99,53,12,200,15                 // vblendps      $0xf,%ymm0,%ymm9,%ymm9
-  .byte  233,210,254,255,255                 // jmpq          374c <_sk_load_8888_avx+0x14>
+  .byte  233,210,254,255,255                 // jmpq          3e6c <_sk_load_8888_avx+0x14>
   .byte  102,144                             // xchg          %ax,%ax
   .byte  236                                 // in            (%dx),%al
   .byte  255                                 // (bad)
@@ -15630,7 +17285,7 @@ _sk_load_8888_avx:
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  126,255                             // jle           3895 <_sk_load_8888_avx+0x15d>
+  .byte  126,255                             // jle           3fb5 <_sk_load_8888_avx+0x15d>
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
 
@@ -15675,10 +17330,10 @@ _sk_gather_8888_avx:
   .byte  196,131,121,34,4,152,2              // vpinsrd       $0x2,(%r8,%r11,4),%xmm0,%xmm0
   .byte  196,131,121,34,28,144,3             // vpinsrd       $0x3,(%r8,%r10,4),%xmm0,%xmm3
   .byte  196,227,61,24,195,1                 // vinsertf128   $0x1,%xmm3,%ymm8,%ymm0
-  .byte  197,124,40,21,118,32,0,0            // vmovaps       0x2076(%rip),%ymm10        # 59c0 <_sk_callback_avx+0x551>
+  .byte  197,124,40,21,182,32,0,0            // vmovaps       0x20b6(%rip),%ymm10        # 6120 <_sk_callback_avx+0x591>
   .byte  196,193,124,84,194                  // vandps        %ymm10,%ymm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,13,240,30,0,0         // vbroadcastss  0x1ef0(%rip),%ymm9        # 584c <_sk_callback_avx+0x3dd>
+  .byte  196,98,125,24,13,48,31,0,0          // vbroadcastss  0x1f30(%rip),%ymm9        # 5fac <_sk_callback_avx+0x41d>
   .byte  196,193,124,89,193                  // vmulps        %ymm9,%ymm0,%ymm0
   .byte  196,193,113,114,208,8               // vpsrld        $0x8,%xmm8,%xmm1
   .byte  197,233,114,211,8                   // vpsrld        $0x8,%xmm3,%xmm2
@@ -15710,7 +17365,7 @@ FUNCTION(_sk_store_8888_avx)
 _sk_store_8888_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
-  .byte  196,98,125,24,5,126,30,0,0          // vbroadcastss  0x1e7e(%rip),%ymm8        # 5850 <_sk_callback_avx+0x3e1>
+  .byte  196,98,125,24,5,190,30,0,0          // vbroadcastss  0x1ebe(%rip),%ymm8        # 5fb0 <_sk_callback_avx+0x421>
   .byte  196,65,124,89,200                   // vmulps        %ymm8,%ymm0,%ymm9
   .byte  196,65,125,91,201                   // vcvtps2dq     %ymm9,%ymm9
   .byte  196,65,116,89,208                   // vmulps        %ymm8,%ymm1,%ymm10
@@ -15735,7 +17390,7 @@ _sk_store_8888_avx:
   .byte  196,65,45,86,192                    // vorpd         %ymm8,%ymm10,%ymm8
   .byte  196,65,53,86,192                    // vorpd         %ymm8,%ymm9,%ymm8
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,10                              // jne           3a60 <_sk_store_8888_avx+0x9c>
+  .byte  117,10                              // jne           4180 <_sk_store_8888_avx+0x9c>
   .byte  196,65,124,17,4,186                 // vmovups       %ymm8,(%r10,%rdi,4)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -15743,9 +17398,9 @@ _sk_store_8888_avx:
   .byte  65,128,224,7                        // and           $0x7,%r8b
   .byte  65,254,200                          // dec           %r8b
   .byte  65,128,248,6                        // cmp           $0x6,%r8b
-  .byte  119,236                             // ja            3a5c <_sk_store_8888_avx+0x98>
+  .byte  119,236                             // ja            417c <_sk_store_8888_avx+0x98>
   .byte  69,15,182,192                       // movzbl        %r8b,%r8d
-  .byte  76,141,13,85,0,0,0                  // lea           0x55(%rip),%r9        # 3ad0 <_sk_store_8888_avx+0x10c>
+  .byte  76,141,13,85,0,0,0                  // lea           0x55(%rip),%r9        # 41f0 <_sk_store_8888_avx+0x10c>
   .byte  75,99,4,129                         // movslq        (%r9,%r8,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -15759,7 +17414,7 @@ _sk_store_8888_avx:
   .byte  196,67,121,22,68,186,8,2            // vpextrd       $0x2,%xmm8,0x8(%r10,%rdi,4)
   .byte  196,67,121,22,68,186,4,1            // vpextrd       $0x1,%xmm8,0x4(%r10,%rdi,4)
   .byte  196,65,121,126,4,186                // vmovd         %xmm8,(%r10,%rdi,4)
-  .byte  235,143                             // jmp           3a5c <_sk_store_8888_avx+0x98>
+  .byte  235,143                             // jmp           417c <_sk_store_8888_avx+0x98>
   .byte  15,31,0                             // nopl          (%rax)
   .byte  245                                 // cmc
   .byte  255                                 // (bad)
@@ -15797,7 +17452,7 @@ _sk_load_f16_avx:
   .byte  197,252,17,116,36,192               // vmovups       %ymm6,-0x40(%rsp)
   .byte  197,252,17,108,36,160               // vmovups       %ymm5,-0x60(%rsp)
   .byte  197,254,127,100,36,128              // vmovdqu       %ymm4,-0x80(%rsp)
-  .byte  15,133,141,2,0,0                    // jne           3da3 <_sk_load_f16_avx+0x2b7>
+  .byte  15,133,141,2,0,0                    // jne           44c3 <_sk_load_f16_avx+0x2b7>
   .byte  197,121,16,4,248                    // vmovupd       (%rax,%rdi,8),%xmm8
   .byte  197,249,16,84,248,16                // vmovupd       0x10(%rax,%rdi,8),%xmm2
   .byte  197,249,16,76,248,32                // vmovupd       0x20(%rax,%rdi,8),%xmm1
@@ -15815,13 +17470,13 @@ _sk_load_f16_avx:
   .byte  197,249,105,201                     // vpunpckhwd    %xmm1,%xmm0,%xmm1
   .byte  196,226,121,51,192                  // vpmovzxwd     %xmm0,%xmm0
   .byte  196,227,125,24,193,1                // vinsertf128   $0x1,%xmm1,%ymm0,%ymm0
-  .byte  196,98,125,24,37,229,28,0,0         // vbroadcastss  0x1ce5(%rip),%ymm12        # 5854 <_sk_callback_avx+0x3e5>
+  .byte  196,98,125,24,37,37,29,0,0          // vbroadcastss  0x1d25(%rip),%ymm12        # 5fb4 <_sk_callback_avx+0x425>
   .byte  196,193,124,84,204                  // vandps        %ymm12,%ymm0,%ymm1
   .byte  197,252,87,193                      // vxorps        %ymm1,%ymm0,%ymm0
   .byte  196,195,125,25,198,1                // vextractf128  $0x1,%ymm0,%xmm14
-  .byte  196,98,121,24,29,209,28,0,0         // vbroadcastss  0x1cd1(%rip),%xmm11        # 5858 <_sk_callback_avx+0x3e9>
+  .byte  196,98,121,24,29,17,29,0,0          // vbroadcastss  0x1d11(%rip),%xmm11        # 5fb8 <_sk_callback_avx+0x429>
   .byte  196,193,8,87,219                    // vxorps        %xmm11,%xmm14,%xmm3
-  .byte  196,98,121,24,45,199,28,0,0         // vbroadcastss  0x1cc7(%rip),%xmm13        # 585c <_sk_callback_avx+0x3ed>
+  .byte  196,98,121,24,45,7,29,0,0           // vbroadcastss  0x1d07(%rip),%xmm13        # 5fbc <_sk_callback_avx+0x42d>
   .byte  197,145,102,219                     // vpcmpgtd      %xmm3,%xmm13,%xmm3
   .byte  196,65,120,87,211                   // vxorps        %xmm11,%xmm0,%xmm10
   .byte  196,65,17,102,210                   // vpcmpgtd      %xmm10,%xmm13,%xmm10
@@ -15835,7 +17490,7 @@ _sk_load_f16_avx:
   .byte  196,227,125,24,195,1                // vinsertf128   $0x1,%xmm3,%ymm0,%ymm0
   .byte  197,252,86,193                      // vorps         %ymm1,%ymm0,%ymm0
   .byte  196,227,125,25,193,1                // vextractf128  $0x1,%ymm0,%xmm1
-  .byte  196,226,121,24,29,125,28,0,0        // vbroadcastss  0x1c7d(%rip),%xmm3        # 5860 <_sk_callback_avx+0x3f1>
+  .byte  196,226,121,24,29,189,28,0,0        // vbroadcastss  0x1cbd(%rip),%xmm3        # 5fc0 <_sk_callback_avx+0x431>
   .byte  197,241,254,203                     // vpaddd        %xmm3,%xmm1,%xmm1
   .byte  197,249,254,195                     // vpaddd        %xmm3,%xmm0,%xmm0
   .byte  196,227,125,24,193,1                // vinsertf128   $0x1,%xmm1,%ymm0,%ymm0
@@ -15928,29 +17583,29 @@ _sk_load_f16_avx:
   .byte  197,123,16,4,248                    // vmovsd        (%rax,%rdi,8),%xmm8
   .byte  196,65,49,239,201                   // vpxor         %xmm9,%xmm9,%xmm9
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  116,79                              // je            3e02 <_sk_load_f16_avx+0x316>
+  .byte  116,79                              // je            4522 <_sk_load_f16_avx+0x316>
   .byte  197,57,22,68,248,8                  // vmovhpd       0x8(%rax,%rdi,8),%xmm8,%xmm8
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,67                              // jb            3e02 <_sk_load_f16_avx+0x316>
+  .byte  114,67                              // jb            4522 <_sk_load_f16_avx+0x316>
   .byte  197,251,16,84,248,16                // vmovsd        0x10(%rax,%rdi,8),%xmm2
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  116,68                              // je            3e0f <_sk_load_f16_avx+0x323>
+  .byte  116,68                              // je            452f <_sk_load_f16_avx+0x323>
   .byte  197,233,22,84,248,24                // vmovhpd       0x18(%rax,%rdi,8),%xmm2,%xmm2
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,56                              // jb            3e0f <_sk_load_f16_avx+0x323>
+  .byte  114,56                              // jb            452f <_sk_load_f16_avx+0x323>
   .byte  197,251,16,76,248,32                // vmovsd        0x20(%rax,%rdi,8),%xmm1
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  15,132,70,253,255,255               // je            3b2d <_sk_load_f16_avx+0x41>
+  .byte  15,132,70,253,255,255               // je            424d <_sk_load_f16_avx+0x41>
   .byte  197,241,22,76,248,40                // vmovhpd       0x28(%rax,%rdi,8),%xmm1,%xmm1
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  15,130,54,253,255,255               // jb            3b2d <_sk_load_f16_avx+0x41>
+  .byte  15,130,54,253,255,255               // jb            424d <_sk_load_f16_avx+0x41>
   .byte  197,122,126,76,248,48               // vmovq         0x30(%rax,%rdi,8),%xmm9
-  .byte  233,43,253,255,255                  // jmpq          3b2d <_sk_load_f16_avx+0x41>
+  .byte  233,43,253,255,255                  // jmpq          424d <_sk_load_f16_avx+0x41>
   .byte  197,241,87,201                      // vxorpd        %xmm1,%xmm1,%xmm1
   .byte  197,233,87,210                      // vxorpd        %xmm2,%xmm2,%xmm2
-  .byte  233,30,253,255,255                  // jmpq          3b2d <_sk_load_f16_avx+0x41>
+  .byte  233,30,253,255,255                  // jmpq          424d <_sk_load_f16_avx+0x41>
   .byte  197,241,87,201                      // vxorpd        %xmm1,%xmm1,%xmm1
-  .byte  233,21,253,255,255                  // jmpq          3b2d <_sk_load_f16_avx+0x41>
+  .byte  233,21,253,255,255                  // jmpq          424d <_sk_load_f16_avx+0x41>
 
 HIDDEN _sk_gather_f16_avx
 .globl _sk_gather_f16_avx
@@ -16014,13 +17669,13 @@ _sk_gather_f16_avx:
   .byte  197,249,105,210                     // vpunpckhwd    %xmm2,%xmm0,%xmm2
   .byte  196,226,121,51,192                  // vpmovzxwd     %xmm0,%xmm0
   .byte  196,227,125,24,194,1                // vinsertf128   $0x1,%xmm2,%ymm0,%ymm0
-  .byte  196,98,125,24,37,65,25,0,0          // vbroadcastss  0x1941(%rip),%ymm12        # 5864 <_sk_callback_avx+0x3f5>
+  .byte  196,98,125,24,37,129,25,0,0         // vbroadcastss  0x1981(%rip),%ymm12        # 5fc4 <_sk_callback_avx+0x435>
   .byte  196,193,124,84,212                  // vandps        %ymm12,%ymm0,%ymm2
   .byte  197,252,87,194                      // vxorps        %ymm2,%ymm0,%ymm0
   .byte  196,195,125,25,198,1                // vextractf128  $0x1,%ymm0,%xmm14
-  .byte  196,98,121,24,29,45,25,0,0          // vbroadcastss  0x192d(%rip),%xmm11        # 5868 <_sk_callback_avx+0x3f9>
+  .byte  196,98,121,24,29,109,25,0,0         // vbroadcastss  0x196d(%rip),%xmm11        # 5fc8 <_sk_callback_avx+0x439>
   .byte  196,193,8,87,219                    // vxorps        %xmm11,%xmm14,%xmm3
-  .byte  196,98,121,24,45,35,25,0,0          // vbroadcastss  0x1923(%rip),%xmm13        # 586c <_sk_callback_avx+0x3fd>
+  .byte  196,98,121,24,45,99,25,0,0          // vbroadcastss  0x1963(%rip),%xmm13        # 5fcc <_sk_callback_avx+0x43d>
   .byte  197,145,102,219                     // vpcmpgtd      %xmm3,%xmm13,%xmm3
   .byte  196,65,120,87,211                   // vxorps        %xmm11,%xmm0,%xmm10
   .byte  196,65,17,102,210                   // vpcmpgtd      %xmm10,%xmm13,%xmm10
@@ -16034,7 +17689,7 @@ _sk_gather_f16_avx:
   .byte  196,227,125,24,195,1                // vinsertf128   $0x1,%xmm3,%ymm0,%ymm0
   .byte  197,252,86,194                      // vorps         %ymm2,%ymm0,%ymm0
   .byte  196,227,125,25,194,1                // vextractf128  $0x1,%ymm0,%xmm2
-  .byte  196,226,121,24,29,217,24,0,0        // vbroadcastss  0x18d9(%rip),%xmm3        # 5870 <_sk_callback_avx+0x401>
+  .byte  196,226,121,24,29,25,25,0,0         // vbroadcastss  0x1919(%rip),%xmm3        # 5fd0 <_sk_callback_avx+0x441>
   .byte  197,233,254,211                     // vpaddd        %xmm3,%xmm2,%xmm2
   .byte  197,249,254,195                     // vpaddd        %xmm3,%xmm0,%xmm0
   .byte  196,227,125,24,194,1                // vinsertf128   $0x1,%xmm2,%ymm0,%ymm0
@@ -16138,12 +17793,12 @@ _sk_store_f16_avx:
   .byte  197,252,17,52,36                    // vmovups       %ymm6,(%rsp)
   .byte  197,252,17,108,36,224               // vmovups       %ymm5,-0x20(%rsp)
   .byte  197,252,17,100,36,192               // vmovups       %ymm4,-0x40(%rsp)
-  .byte  196,98,125,24,13,242,22,0,0         // vbroadcastss  0x16f2(%rip),%ymm9        # 5874 <_sk_callback_avx+0x405>
+  .byte  196,98,125,24,13,50,23,0,0          // vbroadcastss  0x1732(%rip),%ymm9        # 5fd4 <_sk_callback_avx+0x445>
   .byte  196,65,124,84,209                   // vandps        %ymm9,%ymm0,%ymm10
   .byte  197,252,17,68,36,128                // vmovups       %ymm0,-0x80(%rsp)
   .byte  196,65,124,87,218                   // vxorps        %ymm10,%ymm0,%ymm11
   .byte  196,67,125,25,220,1                 // vextractf128  $0x1,%ymm11,%xmm12
-  .byte  196,98,121,24,5,215,22,0,0          // vbroadcastss  0x16d7(%rip),%xmm8        # 5878 <_sk_callback_avx+0x409>
+  .byte  196,98,121,24,5,23,23,0,0           // vbroadcastss  0x1717(%rip),%xmm8        # 5fd8 <_sk_callback_avx+0x449>
   .byte  196,65,57,102,236                   // vpcmpgtd      %xmm12,%xmm8,%xmm13
   .byte  196,65,57,102,243                   // vpcmpgtd      %xmm11,%xmm8,%xmm14
   .byte  196,67,13,24,237,1                  // vinsertf128   $0x1,%xmm13,%ymm14,%ymm13
@@ -16153,7 +17808,7 @@ _sk_store_f16_avx:
   .byte  196,67,13,24,242,1                  // vinsertf128   $0x1,%xmm10,%ymm14,%ymm14
   .byte  196,193,33,114,211,13               // vpsrld        $0xd,%xmm11,%xmm11
   .byte  196,193,25,114,212,13               // vpsrld        $0xd,%xmm12,%xmm12
-  .byte  196,98,125,24,21,158,22,0,0         // vbroadcastss  0x169e(%rip),%ymm10        # 587c <_sk_callback_avx+0x40d>
+  .byte  196,98,125,24,21,222,22,0,0         // vbroadcastss  0x16de(%rip),%ymm10        # 5fdc <_sk_callback_avx+0x44d>
   .byte  196,65,12,86,242                    // vorps         %ymm10,%ymm14,%ymm14
   .byte  196,67,125,25,247,1                 // vextractf128  $0x1,%ymm14,%xmm15
   .byte  196,65,1,254,228                    // vpaddd        %xmm12,%xmm15,%xmm12
@@ -16235,7 +17890,7 @@ _sk_store_f16_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,66                              // jne           43bc <_sk_store_f16_avx+0x25e>
+  .byte  117,66                              // jne           4adc <_sk_store_f16_avx+0x25e>
   .byte  197,120,17,28,248                   // vmovups       %xmm11,(%rax,%rdi,8)
   .byte  197,120,17,84,248,16                // vmovups       %xmm10,0x10(%rax,%rdi,8)
   .byte  197,120,17,76,248,32                // vmovups       %xmm9,0x20(%rax,%rdi,8)
@@ -16251,22 +17906,22 @@ _sk_store_f16_avx:
   .byte  255,224                             // jmpq          *%rax
   .byte  197,121,214,28,248                  // vmovq         %xmm11,(%rax,%rdi,8)
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  116,202                             // je            4391 <_sk_store_f16_avx+0x233>
+  .byte  116,202                             // je            4ab1 <_sk_store_f16_avx+0x233>
   .byte  197,121,23,92,248,8                 // vmovhpd       %xmm11,0x8(%rax,%rdi,8)
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,190                             // jb            4391 <_sk_store_f16_avx+0x233>
+  .byte  114,190                             // jb            4ab1 <_sk_store_f16_avx+0x233>
   .byte  197,121,214,84,248,16               // vmovq         %xmm10,0x10(%rax,%rdi,8)
-  .byte  116,182                             // je            4391 <_sk_store_f16_avx+0x233>
+  .byte  116,182                             // je            4ab1 <_sk_store_f16_avx+0x233>
   .byte  197,121,23,84,248,24                // vmovhpd       %xmm10,0x18(%rax,%rdi,8)
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,170                             // jb            4391 <_sk_store_f16_avx+0x233>
+  .byte  114,170                             // jb            4ab1 <_sk_store_f16_avx+0x233>
   .byte  197,121,214,76,248,32               // vmovq         %xmm9,0x20(%rax,%rdi,8)
-  .byte  116,162                             // je            4391 <_sk_store_f16_avx+0x233>
+  .byte  116,162                             // je            4ab1 <_sk_store_f16_avx+0x233>
   .byte  197,121,23,76,248,40                // vmovhpd       %xmm9,0x28(%rax,%rdi,8)
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  114,150                             // jb            4391 <_sk_store_f16_avx+0x233>
+  .byte  114,150                             // jb            4ab1 <_sk_store_f16_avx+0x233>
   .byte  197,121,214,68,248,48               // vmovq         %xmm8,0x30(%rax,%rdi,8)
-  .byte  235,142                             // jmp           4391 <_sk_store_f16_avx+0x233>
+  .byte  235,142                             // jmp           4ab1 <_sk_store_f16_avx+0x233>
 
 HIDDEN _sk_load_u16_be_avx
 .globl _sk_load_u16_be_avx
@@ -16276,7 +17931,7 @@ _sk_load_u16_be_avx:
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  72,141,4,189,0,0,0,0                // lea           0x0(,%rdi,4),%rax
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,253,0,0,0                    // jne           4516 <_sk_load_u16_be_avx+0x113>
+  .byte  15,133,253,0,0,0                    // jne           4c36 <_sk_load_u16_be_avx+0x113>
   .byte  196,65,121,16,4,64                  // vmovupd       (%r8,%rax,2),%xmm8
   .byte  196,193,121,16,84,64,16             // vmovupd       0x10(%r8,%rax,2),%xmm2
   .byte  196,193,121,16,92,64,32             // vmovupd       0x20(%r8,%rax,2),%xmm3
@@ -16298,7 +17953,7 @@ _sk_load_u16_be_avx:
   .byte  196,226,121,51,192                  // vpmovzxwd     %xmm0,%xmm0
   .byte  196,227,125,24,193,1                // vinsertf128   $0x1,%xmm1,%ymm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,29,246,19,0,0         // vbroadcastss  0x13f6(%rip),%ymm11        # 5880 <_sk_callback_avx+0x411>
+  .byte  196,98,125,24,29,54,20,0,0          // vbroadcastss  0x1436(%rip),%ymm11        # 5fe0 <_sk_callback_avx+0x451>
   .byte  196,193,124,89,195                  // vmulps        %ymm11,%ymm0,%ymm0
   .byte  197,177,109,202                     // vpunpckhqdq   %xmm2,%xmm9,%xmm1
   .byte  197,233,113,241,8                   // vpsllw        $0x8,%xmm1,%xmm2
@@ -16332,29 +17987,29 @@ _sk_load_u16_be_avx:
   .byte  196,65,123,16,4,64                  // vmovsd        (%r8,%rax,2),%xmm8
   .byte  196,65,49,239,201                   // vpxor         %xmm9,%xmm9,%xmm9
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  116,85                              // je            457c <_sk_load_u16_be_avx+0x179>
+  .byte  116,85                              // je            4c9c <_sk_load_u16_be_avx+0x179>
   .byte  196,65,57,22,68,64,8                // vmovhpd       0x8(%r8,%rax,2),%xmm8,%xmm8
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,72                              // jb            457c <_sk_load_u16_be_avx+0x179>
+  .byte  114,72                              // jb            4c9c <_sk_load_u16_be_avx+0x179>
   .byte  196,193,123,16,84,64,16             // vmovsd        0x10(%r8,%rax,2),%xmm2
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  116,72                              // je            4589 <_sk_load_u16_be_avx+0x186>
+  .byte  116,72                              // je            4ca9 <_sk_load_u16_be_avx+0x186>
   .byte  196,193,105,22,84,64,24             // vmovhpd       0x18(%r8,%rax,2),%xmm2,%xmm2
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,59                              // jb            4589 <_sk_load_u16_be_avx+0x186>
+  .byte  114,59                              // jb            4ca9 <_sk_load_u16_be_avx+0x186>
   .byte  196,193,123,16,92,64,32             // vmovsd        0x20(%r8,%rax,2),%xmm3
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  15,132,213,254,255,255              // je            4434 <_sk_load_u16_be_avx+0x31>
+  .byte  15,132,213,254,255,255              // je            4b54 <_sk_load_u16_be_avx+0x31>
   .byte  196,193,97,22,92,64,40              // vmovhpd       0x28(%r8,%rax,2),%xmm3,%xmm3
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  15,130,196,254,255,255              // jb            4434 <_sk_load_u16_be_avx+0x31>
+  .byte  15,130,196,254,255,255              // jb            4b54 <_sk_load_u16_be_avx+0x31>
   .byte  196,65,122,126,76,64,48             // vmovq         0x30(%r8,%rax,2),%xmm9
-  .byte  233,184,254,255,255                 // jmpq          4434 <_sk_load_u16_be_avx+0x31>
+  .byte  233,184,254,255,255                 // jmpq          4b54 <_sk_load_u16_be_avx+0x31>
   .byte  197,225,87,219                      // vxorpd        %xmm3,%xmm3,%xmm3
   .byte  197,233,87,210                      // vxorpd        %xmm2,%xmm2,%xmm2
-  .byte  233,171,254,255,255                 // jmpq          4434 <_sk_load_u16_be_avx+0x31>
+  .byte  233,171,254,255,255                 // jmpq          4b54 <_sk_load_u16_be_avx+0x31>
   .byte  197,225,87,219                      // vxorpd        %xmm3,%xmm3,%xmm3
-  .byte  233,162,254,255,255                 // jmpq          4434 <_sk_load_u16_be_avx+0x31>
+  .byte  233,162,254,255,255                 // jmpq          4b54 <_sk_load_u16_be_avx+0x31>
 
 HIDDEN _sk_load_rgb_u16_be_avx
 .globl _sk_load_rgb_u16_be_avx
@@ -16364,7 +18019,7 @@ _sk_load_rgb_u16_be_avx:
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  72,141,4,127                        // lea           (%rdi,%rdi,2),%rax
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,133,243,0,0,0                    // jne           4697 <_sk_load_rgb_u16_be_avx+0x105>
+  .byte  15,133,243,0,0,0                    // jne           4db7 <_sk_load_rgb_u16_be_avx+0x105>
   .byte  196,193,122,111,4,64                // vmovdqu       (%r8,%rax,2),%xmm0
   .byte  196,193,122,111,84,64,12            // vmovdqu       0xc(%r8,%rax,2),%xmm2
   .byte  196,193,122,111,76,64,24            // vmovdqu       0x18(%r8,%rax,2),%xmm1
@@ -16391,7 +18046,7 @@ _sk_load_rgb_u16_be_avx:
   .byte  196,226,121,51,192                  // vpmovzxwd     %xmm0,%xmm0
   .byte  196,227,125,24,193,1                // vinsertf128   $0x1,%xmm1,%ymm0,%ymm0
   .byte  197,252,91,192                      // vcvtdq2ps     %ymm0,%ymm0
-  .byte  196,98,125,24,29,86,18,0,0          // vbroadcastss  0x1256(%rip),%ymm11        # 5884 <_sk_callback_avx+0x415>
+  .byte  196,98,125,24,29,150,18,0,0         // vbroadcastss  0x1296(%rip),%ymm11        # 5fe4 <_sk_callback_avx+0x455>
   .byte  196,193,124,89,195                  // vmulps        %ymm11,%ymm0,%ymm0
   .byte  197,185,109,202                     // vpunpckhqdq   %xmm2,%xmm8,%xmm1
   .byte  197,233,113,241,8                   // vpsllw        $0x8,%xmm1,%xmm2
@@ -16412,41 +18067,41 @@ _sk_load_rgb_u16_be_avx:
   .byte  197,252,91,210                      // vcvtdq2ps     %ymm2,%ymm2
   .byte  196,193,108,89,211                  // vmulps        %ymm11,%ymm2,%ymm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,29,243,17,0,0        // vbroadcastss  0x11f3(%rip),%ymm3        # 5888 <_sk_callback_avx+0x419>
+  .byte  196,226,125,24,29,51,18,0,0         // vbroadcastss  0x1233(%rip),%ymm3        # 5fe8 <_sk_callback_avx+0x459>
   .byte  255,224                             // jmpq          *%rax
   .byte  196,193,121,110,4,64                // vmovd         (%r8,%rax,2),%xmm0
   .byte  196,193,121,196,68,64,4,2           // vpinsrw       $0x2,0x4(%r8,%rax,2),%xmm0,%xmm0
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  117,5                               // jne           46b0 <_sk_load_rgb_u16_be_avx+0x11e>
-  .byte  233,40,255,255,255                  // jmpq          45d8 <_sk_load_rgb_u16_be_avx+0x46>
+  .byte  117,5                               // jne           4dd0 <_sk_load_rgb_u16_be_avx+0x11e>
+  .byte  233,40,255,255,255                  // jmpq          4cf8 <_sk_load_rgb_u16_be_avx+0x46>
   .byte  196,193,121,110,76,64,6             // vmovd         0x6(%r8,%rax,2),%xmm1
   .byte  196,65,113,196,68,64,10,2           // vpinsrw       $0x2,0xa(%r8,%rax,2),%xmm1,%xmm8
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,26                              // jb            46df <_sk_load_rgb_u16_be_avx+0x14d>
+  .byte  114,26                              // jb            4dff <_sk_load_rgb_u16_be_avx+0x14d>
   .byte  196,193,121,110,76,64,12            // vmovd         0xc(%r8,%rax,2),%xmm1
   .byte  196,193,113,196,84,64,16,2          // vpinsrw       $0x2,0x10(%r8,%rax,2),%xmm1,%xmm2
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  117,10                              // jne           46e4 <_sk_load_rgb_u16_be_avx+0x152>
-  .byte  233,249,254,255,255                 // jmpq          45d8 <_sk_load_rgb_u16_be_avx+0x46>
-  .byte  233,244,254,255,255                 // jmpq          45d8 <_sk_load_rgb_u16_be_avx+0x46>
+  .byte  117,10                              // jne           4e04 <_sk_load_rgb_u16_be_avx+0x152>
+  .byte  233,249,254,255,255                 // jmpq          4cf8 <_sk_load_rgb_u16_be_avx+0x46>
+  .byte  233,244,254,255,255                 // jmpq          4cf8 <_sk_load_rgb_u16_be_avx+0x46>
   .byte  196,193,121,110,76,64,18            // vmovd         0x12(%r8,%rax,2),%xmm1
   .byte  196,65,113,196,76,64,22,2           // vpinsrw       $0x2,0x16(%r8,%rax,2),%xmm1,%xmm9
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,26                              // jb            4713 <_sk_load_rgb_u16_be_avx+0x181>
+  .byte  114,26                              // jb            4e33 <_sk_load_rgb_u16_be_avx+0x181>
   .byte  196,193,121,110,76,64,24            // vmovd         0x18(%r8,%rax,2),%xmm1
   .byte  196,193,113,196,76,64,28,2          // vpinsrw       $0x2,0x1c(%r8,%rax,2),%xmm1,%xmm1
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  117,10                              // jne           4718 <_sk_load_rgb_u16_be_avx+0x186>
-  .byte  233,197,254,255,255                 // jmpq          45d8 <_sk_load_rgb_u16_be_avx+0x46>
-  .byte  233,192,254,255,255                 // jmpq          45d8 <_sk_load_rgb_u16_be_avx+0x46>
+  .byte  117,10                              // jne           4e38 <_sk_load_rgb_u16_be_avx+0x186>
+  .byte  233,197,254,255,255                 // jmpq          4cf8 <_sk_load_rgb_u16_be_avx+0x46>
+  .byte  233,192,254,255,255                 // jmpq          4cf8 <_sk_load_rgb_u16_be_avx+0x46>
   .byte  196,193,121,110,92,64,30            // vmovd         0x1e(%r8,%rax,2),%xmm3
   .byte  196,65,97,196,92,64,34,2            // vpinsrw       $0x2,0x22(%r8,%rax,2),%xmm3,%xmm11
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  114,20                              // jb            4741 <_sk_load_rgb_u16_be_avx+0x1af>
+  .byte  114,20                              // jb            4e61 <_sk_load_rgb_u16_be_avx+0x1af>
   .byte  196,193,121,110,92,64,36            // vmovd         0x24(%r8,%rax,2),%xmm3
   .byte  196,193,97,196,92,64,40,2           // vpinsrw       $0x2,0x28(%r8,%rax,2),%xmm3,%xmm3
-  .byte  233,151,254,255,255                 // jmpq          45d8 <_sk_load_rgb_u16_be_avx+0x46>
-  .byte  233,146,254,255,255                 // jmpq          45d8 <_sk_load_rgb_u16_be_avx+0x46>
+  .byte  233,151,254,255,255                 // jmpq          4cf8 <_sk_load_rgb_u16_be_avx+0x46>
+  .byte  233,146,254,255,255                 // jmpq          4cf8 <_sk_load_rgb_u16_be_avx+0x46>
 
 HIDDEN _sk_store_u16_be_avx
 .globl _sk_store_u16_be_avx
@@ -16455,7 +18110,7 @@ _sk_store_u16_be_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  72,141,4,189,0,0,0,0                // lea           0x0(,%rdi,4),%rax
-  .byte  196,98,125,24,5,48,17,0,0           // vbroadcastss  0x1130(%rip),%ymm8        # 588c <_sk_callback_avx+0x41d>
+  .byte  196,98,125,24,5,112,17,0,0          // vbroadcastss  0x1170(%rip),%ymm8        # 5fec <_sk_callback_avx+0x45d>
   .byte  196,65,124,89,200                   // vmulps        %ymm8,%ymm0,%ymm9
   .byte  196,65,125,91,201                   // vcvtps2dq     %ymm9,%ymm9
   .byte  196,67,125,25,202,1                 // vextractf128  $0x1,%ymm9,%xmm10
@@ -16493,7 +18148,7 @@ _sk_store_u16_be_avx:
   .byte  196,65,17,98,200                    // vpunpckldq    %xmm8,%xmm13,%xmm9
   .byte  196,65,17,106,192                   // vpunpckhdq    %xmm8,%xmm13,%xmm8
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,31                              // jne           4840 <_sk_store_u16_be_avx+0xfa>
+  .byte  117,31                              // jne           4f60 <_sk_store_u16_be_avx+0xfa>
   .byte  196,65,120,17,28,64                 // vmovups       %xmm11,(%r8,%rax,2)
   .byte  196,65,120,17,84,64,16              // vmovups       %xmm10,0x10(%r8,%rax,2)
   .byte  196,65,120,17,76,64,32              // vmovups       %xmm9,0x20(%r8,%rax,2)
@@ -16502,22 +18157,22 @@ _sk_store_u16_be_avx:
   .byte  255,224                             // jmpq          *%rax
   .byte  196,65,121,214,28,64                // vmovq         %xmm11,(%r8,%rax,2)
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  116,240                             // je            483c <_sk_store_u16_be_avx+0xf6>
+  .byte  116,240                             // je            4f5c <_sk_store_u16_be_avx+0xf6>
   .byte  196,65,121,23,92,64,8               // vmovhpd       %xmm11,0x8(%r8,%rax,2)
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,227                             // jb            483c <_sk_store_u16_be_avx+0xf6>
+  .byte  114,227                             // jb            4f5c <_sk_store_u16_be_avx+0xf6>
   .byte  196,65,121,214,84,64,16             // vmovq         %xmm10,0x10(%r8,%rax,2)
-  .byte  116,218                             // je            483c <_sk_store_u16_be_avx+0xf6>
+  .byte  116,218                             // je            4f5c <_sk_store_u16_be_avx+0xf6>
   .byte  196,65,121,23,84,64,24              // vmovhpd       %xmm10,0x18(%r8,%rax,2)
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,205                             // jb            483c <_sk_store_u16_be_avx+0xf6>
+  .byte  114,205                             // jb            4f5c <_sk_store_u16_be_avx+0xf6>
   .byte  196,65,121,214,76,64,32             // vmovq         %xmm9,0x20(%r8,%rax,2)
-  .byte  116,196                             // je            483c <_sk_store_u16_be_avx+0xf6>
+  .byte  116,196                             // je            4f5c <_sk_store_u16_be_avx+0xf6>
   .byte  196,65,121,23,76,64,40              // vmovhpd       %xmm9,0x28(%r8,%rax,2)
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  114,183                             // jb            483c <_sk_store_u16_be_avx+0xf6>
+  .byte  114,183                             // jb            4f5c <_sk_store_u16_be_avx+0xf6>
   .byte  196,65,121,214,68,64,48             // vmovq         %xmm8,0x30(%r8,%rax,2)
-  .byte  235,174                             // jmp           483c <_sk_store_u16_be_avx+0xf6>
+  .byte  235,174                             // jmp           4f5c <_sk_store_u16_be_avx+0xf6>
 
 HIDDEN _sk_load_f32_avx
 .globl _sk_load_f32_avx
@@ -16525,10 +18180,10 @@ FUNCTION(_sk_load_f32_avx)
 _sk_load_f32_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  119,110                             // ja            4904 <_sk_load_f32_avx+0x76>
+  .byte  119,110                             // ja            5024 <_sk_load_f32_avx+0x76>
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  76,141,12,189,0,0,0,0               // lea           0x0(,%rdi,4),%r9
-  .byte  76,141,21,132,0,0,0                 // lea           0x84(%rip),%r10        # 492c <_sk_load_f32_avx+0x9e>
+  .byte  76,141,21,132,0,0,0                 // lea           0x84(%rip),%r10        # 504c <_sk_load_f32_avx+0x9e>
   .byte  73,99,4,138                         // movslq        (%r10,%rcx,4),%rax
   .byte  76,1,208                            // add           %r10,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -16587,7 +18242,7 @@ _sk_store_f32_avx:
   .byte  196,65,37,20,196                    // vunpcklpd     %ymm12,%ymm11,%ymm8
   .byte  196,65,37,21,220                    // vunpckhpd     %ymm12,%ymm11,%ymm11
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  117,55                              // jne           49b9 <_sk_store_f32_avx+0x6d>
+  .byte  117,55                              // jne           50d9 <_sk_store_f32_avx+0x6d>
   .byte  196,67,45,24,225,1                  // vinsertf128   $0x1,%xmm9,%ymm10,%ymm12
   .byte  196,67,61,24,235,1                  // vinsertf128   $0x1,%xmm11,%ymm8,%ymm13
   .byte  196,67,45,6,201,49                  // vperm2f128    $0x31,%ymm9,%ymm10,%ymm9
@@ -16600,22 +18255,22 @@ _sk_store_f32_avx:
   .byte  255,224                             // jmpq          *%rax
   .byte  196,65,121,17,20,128                // vmovupd       %xmm10,(%r8,%rax,4)
   .byte  72,131,249,1                        // cmp           $0x1,%rcx
-  .byte  116,240                             // je            49b5 <_sk_store_f32_avx+0x69>
+  .byte  116,240                             // je            50d5 <_sk_store_f32_avx+0x69>
   .byte  196,65,121,17,76,128,16             // vmovupd       %xmm9,0x10(%r8,%rax,4)
   .byte  72,131,249,3                        // cmp           $0x3,%rcx
-  .byte  114,227                             // jb            49b5 <_sk_store_f32_avx+0x69>
+  .byte  114,227                             // jb            50d5 <_sk_store_f32_avx+0x69>
   .byte  196,65,121,17,68,128,32             // vmovupd       %xmm8,0x20(%r8,%rax,4)
-  .byte  116,218                             // je            49b5 <_sk_store_f32_avx+0x69>
+  .byte  116,218                             // je            50d5 <_sk_store_f32_avx+0x69>
   .byte  196,65,121,17,92,128,48             // vmovupd       %xmm11,0x30(%r8,%rax,4)
   .byte  72,131,249,5                        // cmp           $0x5,%rcx
-  .byte  114,205                             // jb            49b5 <_sk_store_f32_avx+0x69>
+  .byte  114,205                             // jb            50d5 <_sk_store_f32_avx+0x69>
   .byte  196,67,125,25,84,128,64,1           // vextractf128  $0x1,%ymm10,0x40(%r8,%rax,4)
-  .byte  116,195                             // je            49b5 <_sk_store_f32_avx+0x69>
+  .byte  116,195                             // je            50d5 <_sk_store_f32_avx+0x69>
   .byte  196,67,125,25,76,128,80,1           // vextractf128  $0x1,%ymm9,0x50(%r8,%rax,4)
   .byte  72,131,249,7                        // cmp           $0x7,%rcx
-  .byte  114,181                             // jb            49b5 <_sk_store_f32_avx+0x69>
+  .byte  114,181                             // jb            50d5 <_sk_store_f32_avx+0x69>
   .byte  196,67,125,25,68,128,96,1           // vextractf128  $0x1,%ymm8,0x60(%r8,%rax,4)
-  .byte  235,171                             // jmp           49b5 <_sk_store_f32_avx+0x69>
+  .byte  235,171                             // jmp           50d5 <_sk_store_f32_avx+0x69>
 
 HIDDEN _sk_clamp_x_avx
 .globl _sk_clamp_x_avx
@@ -16751,12 +18406,12 @@ HIDDEN _sk_luminance_to_alpha_avx
 .globl _sk_luminance_to_alpha_avx
 FUNCTION(_sk_luminance_to_alpha_avx)
 _sk_luminance_to_alpha_avx:
-  .byte  196,226,125,24,29,187,12,0,0        // vbroadcastss  0xcbb(%rip),%ymm3        # 5890 <_sk_callback_avx+0x421>
+  .byte  196,226,125,24,29,251,12,0,0        // vbroadcastss  0xcfb(%rip),%ymm3        # 5ff0 <_sk_callback_avx+0x461>
   .byte  197,252,89,195                      // vmulps        %ymm3,%ymm0,%ymm0
-  .byte  196,226,125,24,29,178,12,0,0        // vbroadcastss  0xcb2(%rip),%ymm3        # 5894 <_sk_callback_avx+0x425>
+  .byte  196,226,125,24,29,242,12,0,0        // vbroadcastss  0xcf2(%rip),%ymm3        # 5ff4 <_sk_callback_avx+0x465>
   .byte  197,244,89,203                      // vmulps        %ymm3,%ymm1,%ymm1
   .byte  197,252,88,193                      // vaddps        %ymm1,%ymm0,%ymm0
-  .byte  196,226,125,24,13,165,12,0,0        // vbroadcastss  0xca5(%rip),%ymm1        # 5898 <_sk_callback_avx+0x429>
+  .byte  196,226,125,24,13,229,12,0,0        // vbroadcastss  0xce5(%rip),%ymm1        # 5ff8 <_sk_callback_avx+0x469>
   .byte  197,236,89,201                      // vmulps        %ymm1,%ymm2,%ymm1
   .byte  197,252,88,217                      // vaddps        %ymm1,%ymm0,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -16934,7 +18589,7 @@ _sk_linear_gradient_avx:
   .byte  196,226,125,24,88,28                // vbroadcastss  0x1c(%rax),%ymm3
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  15,132,146,0,0,0                    // je            4f49 <_sk_linear_gradient_avx+0xb8>
+  .byte  15,132,146,0,0,0                    // je            5669 <_sk_linear_gradient_avx+0xb8>
   .byte  72,139,64,8                         // mov           0x8(%rax),%rax
   .byte  72,131,192,32                       // add           $0x20,%rax
   .byte  196,65,28,87,228                    // vxorps        %ymm12,%ymm12,%ymm12
@@ -16961,8 +18616,8 @@ _sk_linear_gradient_avx:
   .byte  196,227,13,74,219,208               // vblendvps     %ymm13,%ymm3,%ymm14,%ymm3
   .byte  72,131,192,36                       // add           $0x24,%rax
   .byte  73,255,200                          // dec           %r8
-  .byte  117,140                             // jne           4ed3 <_sk_linear_gradient_avx+0x42>
-  .byte  235,20                              // jmp           4f5d <_sk_linear_gradient_avx+0xcc>
+  .byte  117,140                             // jne           55f3 <_sk_linear_gradient_avx+0x42>
+  .byte  235,20                              // jmp           567d <_sk_linear_gradient_avx+0xcc>
   .byte  196,65,36,87,219                    // vxorps        %ymm11,%ymm11,%ymm11
   .byte  196,65,44,87,210                    // vxorps        %ymm10,%ymm10,%ymm10
   .byte  196,65,52,87,201                    // vxorps        %ymm9,%ymm9,%ymm9
@@ -17017,27 +18672,27 @@ _sk_xy_to_polar_unit_avx:
   .byte  196,65,52,95,226                    // vmaxps        %ymm10,%ymm9,%ymm12
   .byte  196,65,36,94,220                    // vdivps        %ymm12,%ymm11,%ymm11
   .byte  196,65,36,89,227                    // vmulps        %ymm11,%ymm11,%ymm12
-  .byte  196,98,125,24,45,138,8,0,0          // vbroadcastss  0x88a(%rip),%ymm13        # 589c <_sk_callback_avx+0x42d>
+  .byte  196,98,125,24,45,202,8,0,0          // vbroadcastss  0x8ca(%rip),%ymm13        # 5ffc <_sk_callback_avx+0x46d>
   .byte  196,65,28,89,237                    // vmulps        %ymm13,%ymm12,%ymm13
-  .byte  196,98,125,24,53,128,8,0,0          // vbroadcastss  0x880(%rip),%ymm14        # 58a0 <_sk_callback_avx+0x431>
+  .byte  196,98,125,24,53,192,8,0,0          // vbroadcastss  0x8c0(%rip),%ymm14        # 6000 <_sk_callback_avx+0x471>
   .byte  196,65,20,88,238                    // vaddps        %ymm14,%ymm13,%ymm13
   .byte  196,65,28,89,237                    // vmulps        %ymm13,%ymm12,%ymm13
-  .byte  196,98,125,24,53,113,8,0,0          // vbroadcastss  0x871(%rip),%ymm14        # 58a4 <_sk_callback_avx+0x435>
+  .byte  196,98,125,24,53,177,8,0,0          // vbroadcastss  0x8b1(%rip),%ymm14        # 6004 <_sk_callback_avx+0x475>
   .byte  196,65,20,88,238                    // vaddps        %ymm14,%ymm13,%ymm13
   .byte  196,65,28,89,229                    // vmulps        %ymm13,%ymm12,%ymm12
-  .byte  196,98,125,24,45,98,8,0,0           // vbroadcastss  0x862(%rip),%ymm13        # 58a8 <_sk_callback_avx+0x439>
+  .byte  196,98,125,24,45,162,8,0,0          // vbroadcastss  0x8a2(%rip),%ymm13        # 6008 <_sk_callback_avx+0x479>
   .byte  196,65,28,88,229                    // vaddps        %ymm13,%ymm12,%ymm12
   .byte  196,65,36,89,220                    // vmulps        %ymm12,%ymm11,%ymm11
   .byte  196,65,52,194,202,1                 // vcmpltps      %ymm10,%ymm9,%ymm9
-  .byte  196,98,125,24,21,77,8,0,0           // vbroadcastss  0x84d(%rip),%ymm10        # 58ac <_sk_callback_avx+0x43d>
+  .byte  196,98,125,24,21,141,8,0,0          // vbroadcastss  0x88d(%rip),%ymm10        # 600c <_sk_callback_avx+0x47d>
   .byte  196,65,44,92,211                    // vsubps        %ymm11,%ymm10,%ymm10
   .byte  196,67,37,74,202,144                // vblendvps     %ymm9,%ymm10,%ymm11,%ymm9
   .byte  196,193,124,194,192,1               // vcmpltps      %ymm8,%ymm0,%ymm0
-  .byte  196,98,125,24,21,55,8,0,0           // vbroadcastss  0x837(%rip),%ymm10        # 58b0 <_sk_callback_avx+0x441>
+  .byte  196,98,125,24,21,119,8,0,0          // vbroadcastss  0x877(%rip),%ymm10        # 6010 <_sk_callback_avx+0x481>
   .byte  196,65,44,92,209                    // vsubps        %ymm9,%ymm10,%ymm10
   .byte  196,195,53,74,194,0                 // vblendvps     %ymm0,%ymm10,%ymm9,%ymm0
   .byte  196,65,116,194,200,1                // vcmpltps      %ymm8,%ymm1,%ymm9
-  .byte  196,98,125,24,21,33,8,0,0           // vbroadcastss  0x821(%rip),%ymm10        # 58b4 <_sk_callback_avx+0x445>
+  .byte  196,98,125,24,21,97,8,0,0           // vbroadcastss  0x861(%rip),%ymm10        # 6014 <_sk_callback_avx+0x485>
   .byte  197,44,92,208                       // vsubps        %ymm0,%ymm10,%ymm10
   .byte  196,195,125,74,194,144              // vblendvps     %ymm9,%ymm10,%ymm0,%ymm0
   .byte  196,65,124,194,200,3                // vcmpunordps   %ymm8,%ymm0,%ymm9
@@ -17050,7 +18705,7 @@ HIDDEN _sk_save_xy_avx
 FUNCTION(_sk_save_xy_avx)
 _sk_save_xy_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,98,125,24,5,0,8,0,0             // vbroadcastss  0x800(%rip),%ymm8        # 58b8 <_sk_callback_avx+0x449>
+  .byte  196,98,125,24,5,64,8,0,0            // vbroadcastss  0x840(%rip),%ymm8        # 6018 <_sk_callback_avx+0x489>
   .byte  196,65,124,88,200                   // vaddps        %ymm8,%ymm0,%ymm9
   .byte  196,67,125,8,209,1                  // vroundps      $0x1,%ymm9,%ymm10
   .byte  196,65,52,92,202                    // vsubps        %ymm10,%ymm9,%ymm9
@@ -17087,9 +18742,9 @@ HIDDEN _sk_bilinear_nx_avx
 FUNCTION(_sk_bilinear_nx_avx)
 _sk_bilinear_nx_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,5,140,7,0,0          // vbroadcastss  0x78c(%rip),%ymm0        # 58bc <_sk_callback_avx+0x44d>
+  .byte  196,226,125,24,5,204,7,0,0          // vbroadcastss  0x7cc(%rip),%ymm0        # 601c <_sk_callback_avx+0x48d>
   .byte  197,252,88,0                        // vaddps        (%rax),%ymm0,%ymm0
-  .byte  196,98,125,24,5,131,7,0,0           // vbroadcastss  0x783(%rip),%ymm8        # 58c0 <_sk_callback_avx+0x451>
+  .byte  196,98,125,24,5,195,7,0,0           // vbroadcastss  0x7c3(%rip),%ymm8        # 6020 <_sk_callback_avx+0x491>
   .byte  197,60,92,64,64                     // vsubps        0x40(%rax),%ymm8,%ymm8
   .byte  197,124,17,128,128,0,0,0            // vmovups       %ymm8,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -17100,7 +18755,7 @@ HIDDEN _sk_bilinear_px_avx
 FUNCTION(_sk_bilinear_px_avx)
 _sk_bilinear_px_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,5,107,7,0,0          // vbroadcastss  0x76b(%rip),%ymm0        # 58c4 <_sk_callback_avx+0x455>
+  .byte  196,226,125,24,5,171,7,0,0          // vbroadcastss  0x7ab(%rip),%ymm0        # 6024 <_sk_callback_avx+0x495>
   .byte  197,252,88,0                        // vaddps        (%rax),%ymm0,%ymm0
   .byte  197,124,16,64,64                    // vmovups       0x40(%rax),%ymm8
   .byte  197,124,17,128,128,0,0,0            // vmovups       %ymm8,0x80(%rax)
@@ -17112,9 +18767,9 @@ HIDDEN _sk_bilinear_ny_avx
 FUNCTION(_sk_bilinear_ny_avx)
 _sk_bilinear_ny_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,13,79,7,0,0          // vbroadcastss  0x74f(%rip),%ymm1        # 58c8 <_sk_callback_avx+0x459>
+  .byte  196,226,125,24,13,143,7,0,0         // vbroadcastss  0x78f(%rip),%ymm1        # 6028 <_sk_callback_avx+0x499>
   .byte  197,244,88,72,32                    // vaddps        0x20(%rax),%ymm1,%ymm1
-  .byte  196,98,125,24,5,69,7,0,0            // vbroadcastss  0x745(%rip),%ymm8        # 58cc <_sk_callback_avx+0x45d>
+  .byte  196,98,125,24,5,133,7,0,0           // vbroadcastss  0x785(%rip),%ymm8        # 602c <_sk_callback_avx+0x49d>
   .byte  197,60,92,64,96                     // vsubps        0x60(%rax),%ymm8,%ymm8
   .byte  197,124,17,128,160,0,0,0            // vmovups       %ymm8,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -17125,7 +18780,7 @@ HIDDEN _sk_bilinear_py_avx
 FUNCTION(_sk_bilinear_py_avx)
 _sk_bilinear_py_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,13,45,7,0,0          // vbroadcastss  0x72d(%rip),%ymm1        # 58d0 <_sk_callback_avx+0x461>
+  .byte  196,226,125,24,13,109,7,0,0         // vbroadcastss  0x76d(%rip),%ymm1        # 6030 <_sk_callback_avx+0x4a1>
   .byte  197,244,88,72,32                    // vaddps        0x20(%rax),%ymm1,%ymm1
   .byte  197,124,16,64,96                    // vmovups       0x60(%rax),%ymm8
   .byte  197,124,17,128,160,0,0,0            // vmovups       %ymm8,0xa0(%rax)
@@ -17137,14 +18792,14 @@ HIDDEN _sk_bicubic_n3x_avx
 FUNCTION(_sk_bicubic_n3x_avx)
 _sk_bicubic_n3x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,5,16,7,0,0           // vbroadcastss  0x710(%rip),%ymm0        # 58d4 <_sk_callback_avx+0x465>
+  .byte  196,226,125,24,5,80,7,0,0           // vbroadcastss  0x750(%rip),%ymm0        # 6034 <_sk_callback_avx+0x4a5>
   .byte  197,252,88,0                        // vaddps        (%rax),%ymm0,%ymm0
-  .byte  196,98,125,24,5,7,7,0,0             // vbroadcastss  0x707(%rip),%ymm8        # 58d8 <_sk_callback_avx+0x469>
+  .byte  196,98,125,24,5,71,7,0,0            // vbroadcastss  0x747(%rip),%ymm8        # 6038 <_sk_callback_avx+0x4a9>
   .byte  197,60,92,64,64                     // vsubps        0x40(%rax),%ymm8,%ymm8
   .byte  196,65,60,89,200                    // vmulps        %ymm8,%ymm8,%ymm9
-  .byte  196,98,125,24,21,248,6,0,0          // vbroadcastss  0x6f8(%rip),%ymm10        # 58dc <_sk_callback_avx+0x46d>
+  .byte  196,98,125,24,21,56,7,0,0           // vbroadcastss  0x738(%rip),%ymm10        # 603c <_sk_callback_avx+0x4ad>
   .byte  196,65,60,89,194                    // vmulps        %ymm10,%ymm8,%ymm8
-  .byte  196,98,125,24,21,238,6,0,0          // vbroadcastss  0x6ee(%rip),%ymm10        # 58e0 <_sk_callback_avx+0x471>
+  .byte  196,98,125,24,21,46,7,0,0           // vbroadcastss  0x72e(%rip),%ymm10        # 6040 <_sk_callback_avx+0x4b1>
   .byte  196,65,60,88,194                    // vaddps        %ymm10,%ymm8,%ymm8
   .byte  196,65,52,89,192                    // vmulps        %ymm8,%ymm9,%ymm8
   .byte  197,124,17,128,128,0,0,0            // vmovups       %ymm8,0x80(%rax)
@@ -17156,19 +18811,19 @@ HIDDEN _sk_bicubic_n1x_avx
 FUNCTION(_sk_bicubic_n1x_avx)
 _sk_bicubic_n1x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,5,209,6,0,0          // vbroadcastss  0x6d1(%rip),%ymm0        # 58e4 <_sk_callback_avx+0x475>
+  .byte  196,226,125,24,5,17,7,0,0           // vbroadcastss  0x711(%rip),%ymm0        # 6044 <_sk_callback_avx+0x4b5>
   .byte  197,252,88,0                        // vaddps        (%rax),%ymm0,%ymm0
-  .byte  196,98,125,24,5,200,6,0,0           // vbroadcastss  0x6c8(%rip),%ymm8        # 58e8 <_sk_callback_avx+0x479>
+  .byte  196,98,125,24,5,8,7,0,0             // vbroadcastss  0x708(%rip),%ymm8        # 6048 <_sk_callback_avx+0x4b9>
   .byte  197,60,92,64,64                     // vsubps        0x40(%rax),%ymm8,%ymm8
-  .byte  196,98,125,24,13,190,6,0,0          // vbroadcastss  0x6be(%rip),%ymm9        # 58ec <_sk_callback_avx+0x47d>
+  .byte  196,98,125,24,13,254,6,0,0          // vbroadcastss  0x6fe(%rip),%ymm9        # 604c <_sk_callback_avx+0x4bd>
   .byte  196,65,60,89,201                    // vmulps        %ymm9,%ymm8,%ymm9
-  .byte  196,98,125,24,21,180,6,0,0          // vbroadcastss  0x6b4(%rip),%ymm10        # 58f0 <_sk_callback_avx+0x481>
+  .byte  196,98,125,24,21,244,6,0,0          // vbroadcastss  0x6f4(%rip),%ymm10        # 6050 <_sk_callback_avx+0x4c1>
   .byte  196,65,52,88,202                    // vaddps        %ymm10,%ymm9,%ymm9
   .byte  196,65,60,89,201                    // vmulps        %ymm9,%ymm8,%ymm9
-  .byte  196,98,125,24,21,165,6,0,0          // vbroadcastss  0x6a5(%rip),%ymm10        # 58f4 <_sk_callback_avx+0x485>
+  .byte  196,98,125,24,21,229,6,0,0          // vbroadcastss  0x6e5(%rip),%ymm10        # 6054 <_sk_callback_avx+0x4c5>
   .byte  196,65,52,88,202                    // vaddps        %ymm10,%ymm9,%ymm9
   .byte  196,65,60,89,193                    // vmulps        %ymm9,%ymm8,%ymm8
-  .byte  196,98,125,24,13,150,6,0,0          // vbroadcastss  0x696(%rip),%ymm9        # 58f8 <_sk_callback_avx+0x489>
+  .byte  196,98,125,24,13,214,6,0,0          // vbroadcastss  0x6d6(%rip),%ymm9        # 6058 <_sk_callback_avx+0x4c9>
   .byte  196,65,60,88,193                    // vaddps        %ymm9,%ymm8,%ymm8
   .byte  197,124,17,128,128,0,0,0            // vmovups       %ymm8,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -17179,17 +18834,17 @@ HIDDEN _sk_bicubic_p1x_avx
 FUNCTION(_sk_bicubic_p1x_avx)
 _sk_bicubic_p1x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,98,125,24,5,126,6,0,0           // vbroadcastss  0x67e(%rip),%ymm8        # 58fc <_sk_callback_avx+0x48d>
+  .byte  196,98,125,24,5,190,6,0,0           // vbroadcastss  0x6be(%rip),%ymm8        # 605c <_sk_callback_avx+0x4cd>
   .byte  197,188,88,0                        // vaddps        (%rax),%ymm8,%ymm0
   .byte  197,124,16,72,64                    // vmovups       0x40(%rax),%ymm9
-  .byte  196,98,125,24,21,112,6,0,0          // vbroadcastss  0x670(%rip),%ymm10        # 5900 <_sk_callback_avx+0x491>
+  .byte  196,98,125,24,21,176,6,0,0          // vbroadcastss  0x6b0(%rip),%ymm10        # 6060 <_sk_callback_avx+0x4d1>
   .byte  196,65,52,89,210                    // vmulps        %ymm10,%ymm9,%ymm10
-  .byte  196,98,125,24,29,102,6,0,0          // vbroadcastss  0x666(%rip),%ymm11        # 5904 <_sk_callback_avx+0x495>
+  .byte  196,98,125,24,29,166,6,0,0          // vbroadcastss  0x6a6(%rip),%ymm11        # 6064 <_sk_callback_avx+0x4d5>
   .byte  196,65,44,88,211                    // vaddps        %ymm11,%ymm10,%ymm10
   .byte  196,65,52,89,210                    // vmulps        %ymm10,%ymm9,%ymm10
   .byte  196,65,44,88,192                    // vaddps        %ymm8,%ymm10,%ymm8
   .byte  196,65,52,89,192                    // vmulps        %ymm8,%ymm9,%ymm8
-  .byte  196,98,125,24,13,77,6,0,0           // vbroadcastss  0x64d(%rip),%ymm9        # 5908 <_sk_callback_avx+0x499>
+  .byte  196,98,125,24,13,141,6,0,0          // vbroadcastss  0x68d(%rip),%ymm9        # 6068 <_sk_callback_avx+0x4d9>
   .byte  196,65,60,88,193                    // vaddps        %ymm9,%ymm8,%ymm8
   .byte  197,124,17,128,128,0,0,0            // vmovups       %ymm8,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -17200,13 +18855,13 @@ HIDDEN _sk_bicubic_p3x_avx
 FUNCTION(_sk_bicubic_p3x_avx)
 _sk_bicubic_p3x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,5,53,6,0,0           // vbroadcastss  0x635(%rip),%ymm0        # 590c <_sk_callback_avx+0x49d>
+  .byte  196,226,125,24,5,117,6,0,0          // vbroadcastss  0x675(%rip),%ymm0        # 606c <_sk_callback_avx+0x4dd>
   .byte  197,252,88,0                        // vaddps        (%rax),%ymm0,%ymm0
   .byte  197,124,16,64,64                    // vmovups       0x40(%rax),%ymm8
   .byte  196,65,60,89,200                    // vmulps        %ymm8,%ymm8,%ymm9
-  .byte  196,98,125,24,21,34,6,0,0           // vbroadcastss  0x622(%rip),%ymm10        # 5910 <_sk_callback_avx+0x4a1>
+  .byte  196,98,125,24,21,98,6,0,0           // vbroadcastss  0x662(%rip),%ymm10        # 6070 <_sk_callback_avx+0x4e1>
   .byte  196,65,60,89,194                    // vmulps        %ymm10,%ymm8,%ymm8
-  .byte  196,98,125,24,21,24,6,0,0           // vbroadcastss  0x618(%rip),%ymm10        # 5914 <_sk_callback_avx+0x4a5>
+  .byte  196,98,125,24,21,88,6,0,0           // vbroadcastss  0x658(%rip),%ymm10        # 6074 <_sk_callback_avx+0x4e5>
   .byte  196,65,60,88,194                    // vaddps        %ymm10,%ymm8,%ymm8
   .byte  196,65,52,89,192                    // vmulps        %ymm8,%ymm9,%ymm8
   .byte  197,124,17,128,128,0,0,0            // vmovups       %ymm8,0x80(%rax)
@@ -17218,14 +18873,14 @@ HIDDEN _sk_bicubic_n3y_avx
 FUNCTION(_sk_bicubic_n3y_avx)
 _sk_bicubic_n3y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,13,251,5,0,0         // vbroadcastss  0x5fb(%rip),%ymm1        # 5918 <_sk_callback_avx+0x4a9>
+  .byte  196,226,125,24,13,59,6,0,0          // vbroadcastss  0x63b(%rip),%ymm1        # 6078 <_sk_callback_avx+0x4e9>
   .byte  197,244,88,72,32                    // vaddps        0x20(%rax),%ymm1,%ymm1
-  .byte  196,98,125,24,5,241,5,0,0           // vbroadcastss  0x5f1(%rip),%ymm8        # 591c <_sk_callback_avx+0x4ad>
+  .byte  196,98,125,24,5,49,6,0,0            // vbroadcastss  0x631(%rip),%ymm8        # 607c <_sk_callback_avx+0x4ed>
   .byte  197,60,92,64,96                     // vsubps        0x60(%rax),%ymm8,%ymm8
   .byte  196,65,60,89,200                    // vmulps        %ymm8,%ymm8,%ymm9
-  .byte  196,98,125,24,21,226,5,0,0          // vbroadcastss  0x5e2(%rip),%ymm10        # 5920 <_sk_callback_avx+0x4b1>
+  .byte  196,98,125,24,21,34,6,0,0           // vbroadcastss  0x622(%rip),%ymm10        # 6080 <_sk_callback_avx+0x4f1>
   .byte  196,65,60,89,194                    // vmulps        %ymm10,%ymm8,%ymm8
-  .byte  196,98,125,24,21,216,5,0,0          // vbroadcastss  0x5d8(%rip),%ymm10        # 5924 <_sk_callback_avx+0x4b5>
+  .byte  196,98,125,24,21,24,6,0,0           // vbroadcastss  0x618(%rip),%ymm10        # 6084 <_sk_callback_avx+0x4f5>
   .byte  196,65,60,88,194                    // vaddps        %ymm10,%ymm8,%ymm8
   .byte  196,65,52,89,192                    // vmulps        %ymm8,%ymm9,%ymm8
   .byte  197,124,17,128,160,0,0,0            // vmovups       %ymm8,0xa0(%rax)
@@ -17237,19 +18892,19 @@ HIDDEN _sk_bicubic_n1y_avx
 FUNCTION(_sk_bicubic_n1y_avx)
 _sk_bicubic_n1y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,13,187,5,0,0         // vbroadcastss  0x5bb(%rip),%ymm1        # 5928 <_sk_callback_avx+0x4b9>
+  .byte  196,226,125,24,13,251,5,0,0         // vbroadcastss  0x5fb(%rip),%ymm1        # 6088 <_sk_callback_avx+0x4f9>
   .byte  197,244,88,72,32                    // vaddps        0x20(%rax),%ymm1,%ymm1
-  .byte  196,98,125,24,5,177,5,0,0           // vbroadcastss  0x5b1(%rip),%ymm8        # 592c <_sk_callback_avx+0x4bd>
+  .byte  196,98,125,24,5,241,5,0,0           // vbroadcastss  0x5f1(%rip),%ymm8        # 608c <_sk_callback_avx+0x4fd>
   .byte  197,60,92,64,96                     // vsubps        0x60(%rax),%ymm8,%ymm8
-  .byte  196,98,125,24,13,167,5,0,0          // vbroadcastss  0x5a7(%rip),%ymm9        # 5930 <_sk_callback_avx+0x4c1>
+  .byte  196,98,125,24,13,231,5,0,0          // vbroadcastss  0x5e7(%rip),%ymm9        # 6090 <_sk_callback_avx+0x501>
   .byte  196,65,60,89,201                    // vmulps        %ymm9,%ymm8,%ymm9
-  .byte  196,98,125,24,21,157,5,0,0          // vbroadcastss  0x59d(%rip),%ymm10        # 5934 <_sk_callback_avx+0x4c5>
+  .byte  196,98,125,24,21,221,5,0,0          // vbroadcastss  0x5dd(%rip),%ymm10        # 6094 <_sk_callback_avx+0x505>
   .byte  196,65,52,88,202                    // vaddps        %ymm10,%ymm9,%ymm9
   .byte  196,65,60,89,201                    // vmulps        %ymm9,%ymm8,%ymm9
-  .byte  196,98,125,24,21,142,5,0,0          // vbroadcastss  0x58e(%rip),%ymm10        # 5938 <_sk_callback_avx+0x4c9>
+  .byte  196,98,125,24,21,206,5,0,0          // vbroadcastss  0x5ce(%rip),%ymm10        # 6098 <_sk_callback_avx+0x509>
   .byte  196,65,52,88,202                    // vaddps        %ymm10,%ymm9,%ymm9
   .byte  196,65,60,89,193                    // vmulps        %ymm9,%ymm8,%ymm8
-  .byte  196,98,125,24,13,127,5,0,0          // vbroadcastss  0x57f(%rip),%ymm9        # 593c <_sk_callback_avx+0x4cd>
+  .byte  196,98,125,24,13,191,5,0,0          // vbroadcastss  0x5bf(%rip),%ymm9        # 609c <_sk_callback_avx+0x50d>
   .byte  196,65,60,88,193                    // vaddps        %ymm9,%ymm8,%ymm8
   .byte  197,124,17,128,160,0,0,0            // vmovups       %ymm8,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -17260,17 +18915,17 @@ HIDDEN _sk_bicubic_p1y_avx
 FUNCTION(_sk_bicubic_p1y_avx)
 _sk_bicubic_p1y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,98,125,24,5,103,5,0,0           // vbroadcastss  0x567(%rip),%ymm8        # 5940 <_sk_callback_avx+0x4d1>
+  .byte  196,98,125,24,5,167,5,0,0           // vbroadcastss  0x5a7(%rip),%ymm8        # 60a0 <_sk_callback_avx+0x511>
   .byte  197,188,88,72,32                    // vaddps        0x20(%rax),%ymm8,%ymm1
   .byte  197,124,16,72,96                    // vmovups       0x60(%rax),%ymm9
-  .byte  196,98,125,24,21,88,5,0,0           // vbroadcastss  0x558(%rip),%ymm10        # 5944 <_sk_callback_avx+0x4d5>
+  .byte  196,98,125,24,21,152,5,0,0          // vbroadcastss  0x598(%rip),%ymm10        # 60a4 <_sk_callback_avx+0x515>
   .byte  196,65,52,89,210                    // vmulps        %ymm10,%ymm9,%ymm10
-  .byte  196,98,125,24,29,78,5,0,0           // vbroadcastss  0x54e(%rip),%ymm11        # 5948 <_sk_callback_avx+0x4d9>
+  .byte  196,98,125,24,29,142,5,0,0          // vbroadcastss  0x58e(%rip),%ymm11        # 60a8 <_sk_callback_avx+0x519>
   .byte  196,65,44,88,211                    // vaddps        %ymm11,%ymm10,%ymm10
   .byte  196,65,52,89,210                    // vmulps        %ymm10,%ymm9,%ymm10
   .byte  196,65,44,88,192                    // vaddps        %ymm8,%ymm10,%ymm8
   .byte  196,65,52,89,192                    // vmulps        %ymm8,%ymm9,%ymm8
-  .byte  196,98,125,24,13,53,5,0,0           // vbroadcastss  0x535(%rip),%ymm9        # 594c <_sk_callback_avx+0x4dd>
+  .byte  196,98,125,24,13,117,5,0,0          // vbroadcastss  0x575(%rip),%ymm9        # 60ac <_sk_callback_avx+0x51d>
   .byte  196,65,60,88,193                    // vaddps        %ymm9,%ymm8,%ymm8
   .byte  197,124,17,128,160,0,0,0            // vmovups       %ymm8,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -17281,13 +18936,13 @@ HIDDEN _sk_bicubic_p3y_avx
 FUNCTION(_sk_bicubic_p3y_avx)
 _sk_bicubic_p3y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  196,226,125,24,13,29,5,0,0          // vbroadcastss  0x51d(%rip),%ymm1        # 5950 <_sk_callback_avx+0x4e1>
+  .byte  196,226,125,24,13,93,5,0,0          // vbroadcastss  0x55d(%rip),%ymm1        # 60b0 <_sk_callback_avx+0x521>
   .byte  197,244,88,72,32                    // vaddps        0x20(%rax),%ymm1,%ymm1
   .byte  197,124,16,64,96                    // vmovups       0x60(%rax),%ymm8
   .byte  196,65,60,89,200                    // vmulps        %ymm8,%ymm8,%ymm9
-  .byte  196,98,125,24,21,9,5,0,0            // vbroadcastss  0x509(%rip),%ymm10        # 5954 <_sk_callback_avx+0x4e5>
+  .byte  196,98,125,24,21,73,5,0,0           // vbroadcastss  0x549(%rip),%ymm10        # 60b4 <_sk_callback_avx+0x525>
   .byte  196,65,60,89,194                    // vmulps        %ymm10,%ymm8,%ymm8
-  .byte  196,98,125,24,21,255,4,0,0          // vbroadcastss  0x4ff(%rip),%ymm10        # 5958 <_sk_callback_avx+0x4e9>
+  .byte  196,98,125,24,21,63,5,0,0           // vbroadcastss  0x53f(%rip),%ymm10        # 60b8 <_sk_callback_avx+0x529>
   .byte  196,65,60,88,194                    // vaddps        %ymm10,%ymm8,%ymm8
   .byte  196,65,52,89,192                    // vmulps        %ymm8,%ymm9,%ymm8
   .byte  197,124,17,128,160,0,0,0            // vmovups       %ymm8,0xa0(%rax)
@@ -17408,6 +19063,30 @@ BALIGN4
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,128,191,0,0,224                   // add           %al,-0x1fffff41(%rax)
   .byte  64,0,0                              // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,174                  // ds            cmp $0xae3f170a,%eax
+  .byte  71,225,61                           // rex.RXB       loope 5d69 <.literal4+0xb5>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,174                  // ds            cmp $0xae3f170a,%eax
+  .byte  71,225,61                           // rex.RXB       loope 5d79 <.literal4+0xc5>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,174                  // ds            cmp $0xae3f170a,%eax
+  .byte  71,225,61                           // rex.RXB       loope 5d89 <.literal4+0xd5>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,174                  // ds            cmp $0xae3f170a,%eax
+  .byte  71,225,61                           // rex.RXB       loope 5d99 <.literal4+0xe5>
+  .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
   .byte  63                                  // (bad)
@@ -17455,7 +19134,7 @@ BALIGN4
   .byte  190,129,128,128,59                  // mov           $0x3b808081,%esi
   .byte  129,128,128,59,0,248,0,0,8,33       // addl          $0x21080000,-0x7ffc480(%rax)
   .byte  132,55                              // test          %dh,(%rdi)
-  .byte  224,7                               // loopne        5681 <.literal4+0xed>
+  .byte  224,7                               // loopne        5de1 <.literal4+0x12d>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  33,8                                // and           %ecx,(%rax)
   .byte  2,58                                // add           (%rdx),%bh
@@ -17469,10 +19148,10 @@ BALIGN4
   .byte  129,128,128,59,129,128,128,59,0,0   // addl          $0x3b80,-0x7f7ec480(%rax)
   .byte  0,52,255                            // add           %dh,(%rdi,%rdi,8)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            56ac <.literal4+0x118>
+  .byte  127,0                               // jg            5e0c <.literal4+0x158>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            5725 <.literal4+0x191>
+  .byte  119,115                             // ja            5e85 <.literal4+0x1d1>
   .byte  248                                 // clc
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,249,68,180                   // mov           $0xb444f93f,%edi
@@ -17486,10 +19165,10 @@ BALIGN4
   .byte  0,128,63,0,0,0                      // add           %al,0x3f(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            56e0 <.literal4+0x14c>
+  .byte  127,0                               // jg            5e40 <.literal4+0x18c>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            5759 <.literal4+0x1c5>
+  .byte  119,115                             // ja            5eb9 <.literal4+0x205>
   .byte  248                                 // clc
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,249,68,180                   // mov           $0xb444f93f,%edi
@@ -17503,10 +19182,10 @@ BALIGN4
   .byte  0,128,63,0,0,0                      // add           %al,0x3f(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            5714 <.literal4+0x180>
+  .byte  127,0                               // jg            5e74 <.literal4+0x1c0>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            578d <.literal4+0x1f9>
+  .byte  119,115                             // ja            5eed <.literal4+0x239>
   .byte  248                                 // clc
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,249,68,180                   // mov           $0xb444f93f,%edi
@@ -17520,10 +19199,10 @@ BALIGN4
   .byte  0,128,63,0,0,0                      // add           %al,0x3f(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            5748 <.literal4+0x1b4>
+  .byte  127,0                               // jg            5ea8 <.literal4+0x1f4>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            57c1 <.literal4+0x22d>
+  .byte  119,115                             // ja            5f21 <.literal4+0x26d>
   .byte  248                                 // clc
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,249,68,180                   // mov           $0xb444f93f,%edi
@@ -17536,7 +19215,7 @@ BALIGN4
   .byte  0,75,0                              // add           %cl,0x0(%rbx)
   .byte  0,128,63,0,0,200                    // add           %al,-0x37ffffc1(%rax)
   .byte  66,0,0                              // rex.X         add %al,(%rax)
-  .byte  127,67                              // jg            57bf <.literal4+0x22b>
+  .byte  127,67                              // jg            5f1f <.literal4+0x26b>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,195                               // add           %al,%bl
   .byte  0,0                                 // add           %al,(%rax)
@@ -17548,10 +19227,10 @@ BALIGN4
   .byte  190,80,128,3,62                     // mov           $0x3e038050,%esi
   .byte  31                                  // (bad)
   .byte  215                                 // xlat          %ds:(%rbx)
-  .byte  118,63                              // jbe           57df <.literal4+0x24b>
+  .byte  118,63                              // jbe           5f3f <.literal4+0x28b>
   .byte  246,64,83,63                        // testb         $0x3f,0x53(%rax)
   .byte  129,128,128,59,129,128,128,59,0,0   // addl          $0x3b80,-0x7f7ec480(%rax)
-  .byte  127,67                              // jg            57f3 <.literal4+0x25f>
+  .byte  127,67                              // jg            5f53 <.literal4+0x29f>
   .byte  129,128,128,59,0,0,128,63,129,128   // addl          $0x80813f80,0x3b80(%rax)
   .byte  128,59,0                            // cmpb          $0x0,(%rbx)
   .byte  0,128,63,129,128,128                // add           %al,-0x7f7f7ec1(%rax)
@@ -17560,7 +19239,7 @@ BALIGN4
   .byte  0,0                                 // add           %al,(%rax)
   .byte  8,33                                // or            %ah,(%rcx)
   .byte  132,55                              // test          %dh,(%rdi)
-  .byte  224,7                               // loopne        57d5 <.literal4+0x241>
+  .byte  224,7                               // loopne        5f35 <.literal4+0x281>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  33,8                                // and           %ecx,(%rax)
   .byte  2,58                                // add           (%rdx),%bh
@@ -17572,7 +19251,7 @@ BALIGN4
   .byte  0,0                                 // add           %al,(%rax)
   .byte  8,33                                // or            %ah,(%rcx)
   .byte  132,55                              // test          %dh,(%rdi)
-  .byte  224,7                               // loopne        57f1 <.literal4+0x25d>
+  .byte  224,7                               // loopne        5f51 <.literal4+0x29d>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  33,8                                // and           %ecx,(%rax)
   .byte  2,58                                // add           (%rdx),%bh
@@ -17583,7 +19262,7 @@ BALIGN4
   .byte  0,0                                 // add           %al,(%rax)
   .byte  248                                 // clc
   .byte  65,0,0                              // add           %al,(%r8)
-  .byte  124,66                              // jl            5846 <.literal4+0x2b2>
+  .byte  124,66                              // jl            5fa6 <.literal4+0x2f2>
   .byte  0,240                               // add           %dh,%al
   .byte  0,0                                 // add           %al,(%rax)
   .byte  137,136,136,55,0,15                 // mov           %ecx,0xf003788(%rax)
@@ -17601,9 +19280,9 @@ BALIGN4
   .byte  137,136,136,59,15,0                 // mov           %ecx,0xf3b88(%rax)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  137,136,136,61,0,0                  // mov           %ecx,0x3d88(%rax)
-  .byte  112,65                              // jo            5889 <.literal4+0x2f5>
+  .byte  112,65                              // jo            5fe9 <.literal4+0x335>
   .byte  129,128,128,59,129,128,128,59,0,0   // addl          $0x3b80,-0x7f7ec480(%rax)
-  .byte  127,67                              // jg            5897 <.literal4+0x303>
+  .byte  127,67                              // jg            5ff7 <.literal4+0x343>
   .byte  0,128,0,0,0,0                       // add           %al,0x0(%rax)
   .byte  0,128,0,4,0,128                     // add           %al,-0x7ffffc00(%rax)
   .byte  0,0                                 // add           %al,(%rax)
@@ -17619,7 +19298,7 @@ BALIGN4
   .byte  0,128,55,0,0,128                    // add           %al,-0x7fffffc9(%rax)
   .byte  63                                  // (bad)
   .byte  0,255                               // add           %bh,%bh
-  .byte  127,71                              // jg            58d7 <.literal4+0x343>
+  .byte  127,71                              // jg            6037 <.literal4+0x383>
   .byte  208                                 // (bad)
   .byte  179,89                              // mov           $0x59,%bl
   .byte  62,89                               // ds            pop %rcx
@@ -17846,7 +19525,7 @@ _sk_seed_shader_sse41:
   .byte  102,15,110,199                      // movd          %edi,%xmm0
   .byte  102,15,112,192,0                    // pshufd        $0x0,%xmm0,%xmm0
   .byte  15,91,200                           // cvtdq2ps      %xmm0,%xmm1
-  .byte  15,40,21,68,58,0,0                  // movaps        0x3a44(%rip),%xmm2        # 3ac0 <_sk_callback_sse41+0xe0>
+  .byte  15,40,21,244,66,0,0                 // movaps        0x42f4(%rip),%xmm2        # 4370 <_sk_callback_sse41+0xe1>
   .byte  15,88,202                           // addps         %xmm2,%xmm1
   .byte  15,16,2                             // movups        (%rdx),%xmm0
   .byte  15,88,193                           // addps         %xmm1,%xmm0
@@ -17855,7 +19534,7 @@ _sk_seed_shader_sse41:
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
   .byte  15,88,202                           // addps         %xmm2,%xmm1
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,21,51,58,0,0                  // movaps        0x3a33(%rip),%xmm2        # 3ad0 <_sk_callback_sse41+0xf0>
+  .byte  15,40,21,227,66,0,0                 // movaps        0x42e3(%rip),%xmm2        # 4380 <_sk_callback_sse41+0xf1>
   .byte  15,87,219                           // xorps         %xmm3,%xmm3
   .byte  15,87,228                           // xorps         %xmm4,%xmm4
   .byte  15,87,237                           // xorps         %xmm5,%xmm5
@@ -17878,14 +19557,14 @@ _sk_dither_sse41:
   .byte  102,68,15,110,1                     // movd          (%rcx),%xmm8
   .byte  102,69,15,112,192,0                 // pshufd        $0x0,%xmm8,%xmm8
   .byte  102,69,15,239,193                   // pxor          %xmm9,%xmm8
-  .byte  102,68,15,111,21,248,57,0,0         // movdqa        0x39f8(%rip),%xmm10        # 3ae0 <_sk_callback_sse41+0x100>
+  .byte  102,68,15,111,21,168,66,0,0         // movdqa        0x42a8(%rip),%xmm10        # 4390 <_sk_callback_sse41+0x101>
   .byte  102,69,15,111,216                   // movdqa        %xmm8,%xmm11
   .byte  102,69,15,219,218                   // pand          %xmm10,%xmm11
   .byte  102,65,15,114,243,5                 // pslld         $0x5,%xmm11
   .byte  102,69,15,219,209                   // pand          %xmm9,%xmm10
   .byte  102,65,15,114,242,4                 // pslld         $0x4,%xmm10
-  .byte  102,68,15,111,37,228,57,0,0         // movdqa        0x39e4(%rip),%xmm12        # 3af0 <_sk_callback_sse41+0x110>
-  .byte  102,68,15,111,45,235,57,0,0         // movdqa        0x39eb(%rip),%xmm13        # 3b00 <_sk_callback_sse41+0x120>
+  .byte  102,68,15,111,37,148,66,0,0         // movdqa        0x4294(%rip),%xmm12        # 43a0 <_sk_callback_sse41+0x111>
+  .byte  102,68,15,111,45,155,66,0,0         // movdqa        0x429b(%rip),%xmm13        # 43b0 <_sk_callback_sse41+0x121>
   .byte  102,69,15,111,240                   // movdqa        %xmm8,%xmm14
   .byte  102,69,15,219,245                   // pand          %xmm13,%xmm14
   .byte  102,65,15,114,246,2                 // pslld         $0x2,%xmm14
@@ -17901,8 +19580,8 @@ _sk_dither_sse41:
   .byte  102,69,15,235,245                   // por           %xmm13,%xmm14
   .byte  102,69,15,235,240                   // por           %xmm8,%xmm14
   .byte  69,15,91,198                        // cvtdq2ps      %xmm14,%xmm8
-  .byte  68,15,89,5,166,57,0,0               // mulps         0x39a6(%rip),%xmm8        # 3b10 <_sk_callback_sse41+0x130>
-  .byte  68,15,88,5,174,57,0,0               // addps         0x39ae(%rip),%xmm8        # 3b20 <_sk_callback_sse41+0x140>
+  .byte  68,15,89,5,86,66,0,0                // mulps         0x4256(%rip),%xmm8        # 43c0 <_sk_callback_sse41+0x131>
+  .byte  68,15,88,5,94,66,0,0                // addps         0x425e(%rip),%xmm8        # 43d0 <_sk_callback_sse41+0x141>
   .byte  243,68,15,16,72,8                   // movss         0x8(%rax),%xmm9
   .byte  69,15,198,201,0                     // shufps        $0x0,%xmm9,%xmm9
   .byte  69,15,89,200                        // mulps         %xmm8,%xmm9
@@ -17944,7 +19623,7 @@ HIDDEN _sk_srcatop_sse41
 FUNCTION(_sk_srcatop_sse41)
 _sk_srcatop_sse41:
   .byte  15,89,199                           // mulps         %xmm7,%xmm0
-  .byte  68,15,40,5,91,57,0,0                // movaps        0x395b(%rip),%xmm8        # 3b30 <_sk_callback_sse41+0x150>
+  .byte  68,15,40,5,11,66,0,0                // movaps        0x420b(%rip),%xmm8        # 43e0 <_sk_callback_sse41+0x151>
   .byte  68,15,92,195                        // subps         %xmm3,%xmm8
   .byte  69,15,40,200                        // movaps        %xmm8,%xmm9
   .byte  68,15,89,204                        // mulps         %xmm4,%xmm9
@@ -17969,7 +19648,7 @@ FUNCTION(_sk_dstatop_sse41)
 _sk_dstatop_sse41:
   .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
   .byte  68,15,89,196                        // mulps         %xmm4,%xmm8
-  .byte  68,15,40,13,30,57,0,0               // movaps        0x391e(%rip),%xmm9        # 3b40 <_sk_callback_sse41+0x160>
+  .byte  68,15,40,13,206,65,0,0              // movaps        0x41ce(%rip),%xmm9        # 43f0 <_sk_callback_sse41+0x161>
   .byte  68,15,92,207                        // subps         %xmm7,%xmm9
   .byte  65,15,89,193                        // mulps         %xmm9,%xmm0
   .byte  65,15,88,192                        // addps         %xmm8,%xmm0
@@ -18016,7 +19695,7 @@ HIDDEN _sk_srcout_sse41
 .globl _sk_srcout_sse41
 FUNCTION(_sk_srcout_sse41)
 _sk_srcout_sse41:
-  .byte  68,15,40,5,194,56,0,0               // movaps        0x38c2(%rip),%xmm8        # 3b50 <_sk_callback_sse41+0x170>
+  .byte  68,15,40,5,114,65,0,0               // movaps        0x4172(%rip),%xmm8        # 4400 <_sk_callback_sse41+0x171>
   .byte  68,15,92,199                        // subps         %xmm7,%xmm8
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
@@ -18029,7 +19708,7 @@ HIDDEN _sk_dstout_sse41
 .globl _sk_dstout_sse41
 FUNCTION(_sk_dstout_sse41)
 _sk_dstout_sse41:
-  .byte  68,15,40,5,178,56,0,0               // movaps        0x38b2(%rip),%xmm8        # 3b60 <_sk_callback_sse41+0x180>
+  .byte  68,15,40,5,98,65,0,0                // movaps        0x4162(%rip),%xmm8        # 4410 <_sk_callback_sse41+0x181>
   .byte  68,15,92,195                        // subps         %xmm3,%xmm8
   .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
   .byte  15,89,196                           // mulps         %xmm4,%xmm0
@@ -18046,7 +19725,7 @@ HIDDEN _sk_srcover_sse41
 .globl _sk_srcover_sse41
 FUNCTION(_sk_srcover_sse41)
 _sk_srcover_sse41:
-  .byte  68,15,40,5,149,56,0,0               // movaps        0x3895(%rip),%xmm8        # 3b70 <_sk_callback_sse41+0x190>
+  .byte  68,15,40,5,69,65,0,0                // movaps        0x4145(%rip),%xmm8        # 4420 <_sk_callback_sse41+0x191>
   .byte  68,15,92,195                        // subps         %xmm3,%xmm8
   .byte  69,15,40,200                        // movaps        %xmm8,%xmm9
   .byte  68,15,89,204                        // mulps         %xmm4,%xmm9
@@ -18066,7 +19745,7 @@ HIDDEN _sk_dstover_sse41
 .globl _sk_dstover_sse41
 FUNCTION(_sk_dstover_sse41)
 _sk_dstover_sse41:
-  .byte  68,15,40,5,105,56,0,0               // movaps        0x3869(%rip),%xmm8        # 3b80 <_sk_callback_sse41+0x1a0>
+  .byte  68,15,40,5,25,65,0,0                // movaps        0x4119(%rip),%xmm8        # 4430 <_sk_callback_sse41+0x1a1>
   .byte  68,15,92,199                        // subps         %xmm7,%xmm8
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  15,88,196                           // addps         %xmm4,%xmm0
@@ -18094,7 +19773,7 @@ HIDDEN _sk_multiply_sse41
 .globl _sk_multiply_sse41
 FUNCTION(_sk_multiply_sse41)
 _sk_multiply_sse41:
-  .byte  68,15,40,5,61,56,0,0                // movaps        0x383d(%rip),%xmm8        # 3b90 <_sk_callback_sse41+0x1b0>
+  .byte  68,15,40,5,237,64,0,0               // movaps        0x40ed(%rip),%xmm8        # 4440 <_sk_callback_sse41+0x1b1>
   .byte  69,15,40,200                        // movaps        %xmm8,%xmm9
   .byte  68,15,92,207                        // subps         %xmm7,%xmm9
   .byte  69,15,40,209                        // movaps        %xmm9,%xmm10
@@ -18170,7 +19849,7 @@ HIDDEN _sk_xor__sse41
 FUNCTION(_sk_xor__sse41)
 _sk_xor__sse41:
   .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
-  .byte  15,40,29,110,55,0,0                 // movaps        0x376e(%rip),%xmm3        # 3ba0 <_sk_callback_sse41+0x1c0>
+  .byte  15,40,29,30,64,0,0                  // movaps        0x401e(%rip),%xmm3        # 4450 <_sk_callback_sse41+0x1c1>
   .byte  68,15,40,203                        // movaps        %xmm3,%xmm9
   .byte  68,15,92,207                        // subps         %xmm7,%xmm9
   .byte  65,15,89,193                        // mulps         %xmm9,%xmm0
@@ -18218,7 +19897,7 @@ _sk_darken_sse41:
   .byte  68,15,89,206                        // mulps         %xmm6,%xmm9
   .byte  65,15,95,209                        // maxps         %xmm9,%xmm2
   .byte  68,15,92,194                        // subps         %xmm2,%xmm8
-  .byte  15,40,21,217,54,0,0                 // movaps        0x36d9(%rip),%xmm2        # 3bb0 <_sk_callback_sse41+0x1d0>
+  .byte  15,40,21,137,63,0,0                 // movaps        0x3f89(%rip),%xmm2        # 4460 <_sk_callback_sse41+0x1d1>
   .byte  15,92,211                           // subps         %xmm3,%xmm2
   .byte  15,89,215                           // mulps         %xmm7,%xmm2
   .byte  15,88,218                           // addps         %xmm2,%xmm3
@@ -18252,7 +19931,7 @@ _sk_lighten_sse41:
   .byte  68,15,89,206                        // mulps         %xmm6,%xmm9
   .byte  65,15,93,209                        // minps         %xmm9,%xmm2
   .byte  68,15,92,194                        // subps         %xmm2,%xmm8
-  .byte  15,40,21,126,54,0,0                 // movaps        0x367e(%rip),%xmm2        # 3bc0 <_sk_callback_sse41+0x1e0>
+  .byte  15,40,21,46,63,0,0                  // movaps        0x3f2e(%rip),%xmm2        # 4470 <_sk_callback_sse41+0x1e1>
   .byte  15,92,211                           // subps         %xmm3,%xmm2
   .byte  15,89,215                           // mulps         %xmm7,%xmm2
   .byte  15,88,218                           // addps         %xmm2,%xmm3
@@ -18289,7 +19968,7 @@ _sk_difference_sse41:
   .byte  65,15,93,209                        // minps         %xmm9,%xmm2
   .byte  15,88,210                           // addps         %xmm2,%xmm2
   .byte  68,15,92,194                        // subps         %xmm2,%xmm8
-  .byte  15,40,21,24,54,0,0                  // movaps        0x3618(%rip),%xmm2        # 3bd0 <_sk_callback_sse41+0x1f0>
+  .byte  15,40,21,200,62,0,0                 // movaps        0x3ec8(%rip),%xmm2        # 4480 <_sk_callback_sse41+0x1f1>
   .byte  15,92,211                           // subps         %xmm3,%xmm2
   .byte  15,89,215                           // mulps         %xmm7,%xmm2
   .byte  15,88,218                           // addps         %xmm2,%xmm3
@@ -18316,7 +19995,7 @@ _sk_exclusion_sse41:
   .byte  15,89,214                           // mulps         %xmm6,%xmm2
   .byte  15,88,210                           // addps         %xmm2,%xmm2
   .byte  68,15,92,202                        // subps         %xmm2,%xmm9
-  .byte  15,40,13,217,53,0,0                 // movaps        0x35d9(%rip),%xmm1        # 3be0 <_sk_callback_sse41+0x200>
+  .byte  15,40,13,137,62,0,0                 // movaps        0x3e89(%rip),%xmm1        # 4490 <_sk_callback_sse41+0x201>
   .byte  15,92,203                           // subps         %xmm3,%xmm1
   .byte  15,89,207                           // mulps         %xmm7,%xmm1
   .byte  15,88,217                           // addps         %xmm1,%xmm3
@@ -18330,7 +20009,7 @@ HIDDEN _sk_colorburn_sse41
 FUNCTION(_sk_colorburn_sse41)
 _sk_colorburn_sse41:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
-  .byte  68,15,40,21,200,53,0,0              // movaps        0x35c8(%rip),%xmm10        # 3bf0 <_sk_callback_sse41+0x210>
+  .byte  68,15,40,21,120,62,0,0              // movaps        0x3e78(%rip),%xmm10        # 44a0 <_sk_callback_sse41+0x211>
   .byte  69,15,40,218                        // movaps        %xmm10,%xmm11
   .byte  68,15,92,223                        // subps         %xmm7,%xmm11
   .byte  69,15,40,203                        // movaps        %xmm11,%xmm9
@@ -18412,7 +20091,7 @@ HIDDEN _sk_colordodge_sse41
 FUNCTION(_sk_colordodge_sse41)
 _sk_colordodge_sse41:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
-  .byte  68,15,40,21,166,52,0,0              // movaps        0x34a6(%rip),%xmm10        # 3c00 <_sk_callback_sse41+0x220>
+  .byte  68,15,40,21,86,61,0,0               // movaps        0x3d56(%rip),%xmm10        # 44b0 <_sk_callback_sse41+0x221>
   .byte  69,15,40,218                        // movaps        %xmm10,%xmm11
   .byte  68,15,92,223                        // subps         %xmm7,%xmm11
   .byte  69,15,40,227                        // movaps        %xmm11,%xmm12
@@ -18494,7 +20173,7 @@ _sk_hardlight_sse41:
   .byte  15,40,244                           // movaps        %xmm4,%xmm6
   .byte  15,40,227                           // movaps        %xmm3,%xmm4
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
-  .byte  68,15,40,21,127,51,0,0              // movaps        0x337f(%rip),%xmm10        # 3c10 <_sk_callback_sse41+0x230>
+  .byte  68,15,40,21,47,60,0,0               // movaps        0x3c2f(%rip),%xmm10        # 44c0 <_sk_callback_sse41+0x231>
   .byte  65,15,40,234                        // movaps        %xmm10,%xmm5
   .byte  15,92,239                           // subps         %xmm7,%xmm5
   .byte  15,40,197                           // movaps        %xmm5,%xmm0
@@ -18577,7 +20256,7 @@ FUNCTION(_sk_overlay_sse41)
 _sk_overlay_sse41:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
   .byte  68,15,40,240                        // movaps        %xmm0,%xmm14
-  .byte  68,15,40,21,100,50,0,0              // movaps        0x3264(%rip),%xmm10        # 3c20 <_sk_callback_sse41+0x240>
+  .byte  68,15,40,21,20,59,0,0               // movaps        0x3b14(%rip),%xmm10        # 44d0 <_sk_callback_sse41+0x241>
   .byte  69,15,40,218                        // movaps        %xmm10,%xmm11
   .byte  68,15,92,223                        // subps         %xmm7,%xmm11
   .byte  65,15,40,195                        // movaps        %xmm11,%xmm0
@@ -18662,7 +20341,7 @@ _sk_softlight_sse41:
   .byte  15,40,198                           // movaps        %xmm6,%xmm0
   .byte  15,94,199                           // divps         %xmm7,%xmm0
   .byte  65,15,84,193                        // andps         %xmm9,%xmm0
-  .byte  15,40,13,59,49,0,0                  // movaps        0x313b(%rip),%xmm1        # 3c30 <_sk_callback_sse41+0x250>
+  .byte  15,40,13,235,57,0,0                 // movaps        0x39eb(%rip),%xmm1        # 44e0 <_sk_callback_sse41+0x251>
   .byte  68,15,40,209                        // movaps        %xmm1,%xmm10
   .byte  68,15,92,208                        // subps         %xmm0,%xmm10
   .byte  68,15,40,240                        // movaps        %xmm0,%xmm14
@@ -18675,10 +20354,10 @@ _sk_softlight_sse41:
   .byte  15,40,208                           // movaps        %xmm0,%xmm2
   .byte  15,89,210                           // mulps         %xmm2,%xmm2
   .byte  15,88,208                           // addps         %xmm0,%xmm2
-  .byte  68,15,40,45,25,49,0,0               // movaps        0x3119(%rip),%xmm13        # 3c40 <_sk_callback_sse41+0x260>
+  .byte  68,15,40,45,201,57,0,0              // movaps        0x39c9(%rip),%xmm13        # 44f0 <_sk_callback_sse41+0x261>
   .byte  69,15,88,245                        // addps         %xmm13,%xmm14
   .byte  68,15,89,242                        // mulps         %xmm2,%xmm14
-  .byte  68,15,40,37,25,49,0,0               // movaps        0x3119(%rip),%xmm12        # 3c50 <_sk_callback_sse41+0x270>
+  .byte  68,15,40,37,201,57,0,0              // movaps        0x39c9(%rip),%xmm12        # 4500 <_sk_callback_sse41+0x271>
   .byte  69,15,89,252                        // mulps         %xmm12,%xmm15
   .byte  69,15,88,254                        // addps         %xmm14,%xmm15
   .byte  15,40,198                           // movaps        %xmm6,%xmm0
@@ -18810,6 +20489,575 @@ _sk_softlight_sse41:
   .byte  65,15,40,209                        // movaps        %xmm9,%xmm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_hue_sse41
+.globl _sk_hue_sse41
+FUNCTION(_sk_hue_sse41)
+_sk_hue_sse41:
+  .byte  15,41,124,36,232                    // movaps        %xmm7,-0x18(%rsp)
+  .byte  68,15,40,229                        // movaps        %xmm5,%xmm12
+  .byte  15,40,252                           // movaps        %xmm4,%xmm7
+  .byte  15,40,235                           // movaps        %xmm3,%xmm5
+  .byte  15,40,217                           // movaps        %xmm1,%xmm3
+  .byte  69,15,87,201                        // xorps         %xmm9,%xmm9
+  .byte  68,15,40,5,221,55,0,0               // movaps        0x37dd(%rip),%xmm8        # 4510 <_sk_callback_sse41+0x281>
+  .byte  69,15,40,216                        // movaps        %xmm8,%xmm11
+  .byte  68,15,94,221                        // divps         %xmm5,%xmm11
+  .byte  68,15,40,213                        // movaps        %xmm5,%xmm10
+  .byte  69,15,194,209,4                     // cmpneqps      %xmm9,%xmm10
+  .byte  69,15,84,211                        // andps         %xmm11,%xmm10
+  .byte  65,15,89,194                        // mulps         %xmm10,%xmm0
+  .byte  65,15,89,218                        // mulps         %xmm10,%xmm3
+  .byte  68,15,89,210                        // mulps         %xmm2,%xmm10
+  .byte  65,15,40,204                        // movaps        %xmm12,%xmm1
+  .byte  68,15,40,217                        // movaps        %xmm1,%xmm11
+  .byte  68,15,40,233                        // movaps        %xmm1,%xmm13
+  .byte  68,15,41,108,36,216                 // movaps        %xmm13,-0x28(%rsp)
+  .byte  68,15,95,230                        // maxps         %xmm6,%xmm12
+  .byte  15,40,230                           // movaps        %xmm6,%xmm4
+  .byte  15,40,215                           // movaps        %xmm7,%xmm2
+  .byte  68,15,40,247                        // movaps        %xmm7,%xmm14
+  .byte  68,15,40,255                        // movaps        %xmm7,%xmm15
+  .byte  69,15,95,252                        // maxps         %xmm12,%xmm15
+  .byte  68,15,93,220                        // minps         %xmm4,%xmm11
+  .byte  15,41,100,36,200                    // movaps        %xmm4,-0x38(%rsp)
+  .byte  65,15,93,211                        // minps         %xmm11,%xmm2
+  .byte  68,15,92,250                        // subps         %xmm2,%xmm15
+  .byte  68,15,40,219                        // movaps        %xmm3,%xmm11
+  .byte  69,15,93,218                        // minps         %xmm10,%xmm11
+  .byte  68,15,40,224                        // movaps        %xmm0,%xmm12
+  .byte  69,15,93,227                        // minps         %xmm11,%xmm12
+  .byte  15,40,203                           // movaps        %xmm3,%xmm1
+  .byte  65,15,95,202                        // maxps         %xmm10,%xmm1
+  .byte  15,40,208                           // movaps        %xmm0,%xmm2
+  .byte  15,95,209                           // maxps         %xmm1,%xmm2
+  .byte  65,15,92,212                        // subps         %xmm12,%xmm2
+  .byte  65,15,92,196                        // subps         %xmm12,%xmm0
+  .byte  69,15,40,231                        // movaps        %xmm15,%xmm12
+  .byte  68,15,94,226                        // divps         %xmm2,%xmm12
+  .byte  65,15,194,209,4                     // cmpneqps      %xmm9,%xmm2
+  .byte  65,15,84,212                        // andps         %xmm12,%xmm2
+  .byte  65,15,40,245                        // movaps        %xmm13,%xmm6
+  .byte  15,89,208                           // mulps         %xmm0,%xmm2
+  .byte  15,40,194                           // movaps        %xmm2,%xmm0
+  .byte  65,15,93,195                        // minps         %xmm11,%xmm0
+  .byte  68,15,40,234                        // movaps        %xmm2,%xmm13
+  .byte  68,15,95,233                        // maxps         %xmm1,%xmm13
+  .byte  68,15,92,232                        // subps         %xmm0,%xmm13
+  .byte  15,92,216                           // subps         %xmm0,%xmm3
+  .byte  65,15,40,199                        // movaps        %xmm15,%xmm0
+  .byte  65,15,94,197                        // divps         %xmm13,%xmm0
+  .byte  69,15,194,233,4                     // cmpneqps      %xmm9,%xmm13
+  .byte  68,15,84,232                        // andps         %xmm0,%xmm13
+  .byte  68,15,89,235                        // mulps         %xmm3,%xmm13
+  .byte  65,15,40,197                        // movaps        %xmm13,%xmm0
+  .byte  65,15,93,194                        // minps         %xmm10,%xmm0
+  .byte  15,40,202                           // movaps        %xmm2,%xmm1
+  .byte  15,93,200                           // minps         %xmm0,%xmm1
+  .byte  65,15,40,197                        // movaps        %xmm13,%xmm0
+  .byte  65,15,95,194                        // maxps         %xmm10,%xmm0
+  .byte  15,40,218                           // movaps        %xmm2,%xmm3
+  .byte  15,95,216                           // maxps         %xmm0,%xmm3
+  .byte  15,92,217                           // subps         %xmm1,%xmm3
+  .byte  68,15,92,209                        // subps         %xmm1,%xmm10
+  .byte  68,15,94,251                        // divps         %xmm3,%xmm15
+  .byte  65,15,194,217,4                     // cmpneqps      %xmm9,%xmm3
+  .byte  65,15,84,223                        // andps         %xmm15,%xmm3
+  .byte  65,15,89,218                        // mulps         %xmm10,%xmm3
+  .byte  68,15,40,21,239,54,0,0              // movaps        0x36ef(%rip),%xmm10        # 4520 <_sk_callback_sse41+0x291>
+  .byte  69,15,89,242                        // mulps         %xmm10,%xmm14
+  .byte  15,40,13,244,54,0,0                 // movaps        0x36f4(%rip),%xmm1        # 4530 <_sk_callback_sse41+0x2a1>
+  .byte  15,89,241                           // mulps         %xmm1,%xmm6
+  .byte  65,15,88,246                        // addps         %xmm14,%xmm6
+  .byte  68,15,40,29,245,54,0,0              // movaps        0x36f5(%rip),%xmm11        # 4540 <_sk_callback_sse41+0x2b1>
+  .byte  65,15,89,227                        // mulps         %xmm11,%xmm4
+  .byte  15,88,230                           // addps         %xmm6,%xmm4
+  .byte  15,40,242                           // movaps        %xmm2,%xmm6
+  .byte  65,15,89,242                        // mulps         %xmm10,%xmm6
+  .byte  65,15,40,197                        // movaps        %xmm13,%xmm0
+  .byte  15,89,193                           // mulps         %xmm1,%xmm0
+  .byte  15,88,198                           // addps         %xmm6,%xmm0
+  .byte  15,40,243                           // movaps        %xmm3,%xmm6
+  .byte  65,15,89,243                        // mulps         %xmm11,%xmm6
+  .byte  15,88,240                           // addps         %xmm0,%xmm6
+  .byte  15,92,230                           // subps         %xmm6,%xmm4
+  .byte  15,88,212                           // addps         %xmm4,%xmm2
+  .byte  68,15,88,236                        // addps         %xmm4,%xmm13
+  .byte  15,88,227                           // addps         %xmm3,%xmm4
+  .byte  65,15,40,197                        // movaps        %xmm13,%xmm0
+  .byte  15,93,196                           // minps         %xmm4,%xmm0
+  .byte  15,40,218                           // movaps        %xmm2,%xmm3
+  .byte  15,93,216                           // minps         %xmm0,%xmm3
+  .byte  65,15,40,245                        // movaps        %xmm13,%xmm6
+  .byte  15,95,244                           // maxps         %xmm4,%xmm6
+  .byte  68,15,89,210                        // mulps         %xmm2,%xmm10
+  .byte  65,15,89,205                        // mulps         %xmm13,%xmm1
+  .byte  65,15,88,202                        // addps         %xmm10,%xmm1
+  .byte  68,15,89,220                        // mulps         %xmm4,%xmm11
+  .byte  68,15,88,217                        // addps         %xmm1,%xmm11
+  .byte  68,15,194,203,2                     // cmpleps       %xmm3,%xmm9
+  .byte  68,15,40,210                        // movaps        %xmm2,%xmm10
+  .byte  69,15,92,211                        // subps         %xmm11,%xmm10
+  .byte  69,15,89,211                        // mulps         %xmm11,%xmm10
+  .byte  69,15,40,251                        // movaps        %xmm11,%xmm15
+  .byte  68,15,92,251                        // subps         %xmm3,%xmm15
+  .byte  69,15,94,215                        // divps         %xmm15,%xmm10
+  .byte  69,15,88,211                        // addps         %xmm11,%xmm10
+  .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
+  .byte  102,68,15,56,20,210                 // blendvps      %xmm0,%xmm2,%xmm10
+  .byte  68,15,40,242                        // movaps        %xmm2,%xmm14
+  .byte  68,15,95,246                        // maxps         %xmm6,%xmm14
+  .byte  69,15,194,198,1                     // cmpltps       %xmm14,%xmm8
+  .byte  65,15,40,202                        // movaps        %xmm10,%xmm1
+  .byte  65,15,92,203                        // subps         %xmm11,%xmm1
+  .byte  65,15,89,203                        // mulps         %xmm11,%xmm1
+  .byte  69,15,92,243                        // subps         %xmm11,%xmm14
+  .byte  65,15,94,206                        // divps         %xmm14,%xmm1
+  .byte  65,15,88,203                        // addps         %xmm11,%xmm1
+  .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
+  .byte  102,68,15,56,20,209                 // blendvps      %xmm0,%xmm1,%xmm10
+  .byte  65,15,40,205                        // movaps        %xmm13,%xmm1
+  .byte  65,15,92,203                        // subps         %xmm11,%xmm1
+  .byte  65,15,89,203                        // mulps         %xmm11,%xmm1
+  .byte  65,15,94,207                        // divps         %xmm15,%xmm1
+  .byte  65,15,88,203                        // addps         %xmm11,%xmm1
+  .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
+  .byte  102,65,15,56,20,205                 // blendvps      %xmm0,%xmm13,%xmm1
+  .byte  15,40,209                           // movaps        %xmm1,%xmm2
+  .byte  65,15,92,211                        // subps         %xmm11,%xmm2
+  .byte  65,15,89,211                        // mulps         %xmm11,%xmm2
+  .byte  65,15,94,214                        // divps         %xmm14,%xmm2
+  .byte  65,15,88,211                        // addps         %xmm11,%xmm2
+  .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
+  .byte  102,15,56,20,202                    // blendvps      %xmm0,%xmm2,%xmm1
+  .byte  15,40,212                           // movaps        %xmm4,%xmm2
+  .byte  65,15,92,211                        // subps         %xmm11,%xmm2
+  .byte  65,15,89,211                        // mulps         %xmm11,%xmm2
+  .byte  65,15,94,215                        // divps         %xmm15,%xmm2
+  .byte  65,15,88,211                        // addps         %xmm11,%xmm2
+  .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
+  .byte  102,15,56,20,212                    // blendvps      %xmm0,%xmm4,%xmm2
+  .byte  15,40,218                           // movaps        %xmm2,%xmm3
+  .byte  65,15,92,219                        // subps         %xmm11,%xmm3
+  .byte  65,15,89,219                        // mulps         %xmm11,%xmm3
+  .byte  65,15,94,222                        // divps         %xmm14,%xmm3
+  .byte  65,15,88,219                        // addps         %xmm11,%xmm3
+  .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
+  .byte  102,15,56,20,211                    // blendvps      %xmm0,%xmm3,%xmm2
+  .byte  68,15,40,197                        // movaps        %xmm5,%xmm8
+  .byte  68,15,40,76,36,232                  // movaps        -0x18(%rsp),%xmm9
+  .byte  69,15,88,193                        // addps         %xmm9,%xmm8
+  .byte  65,15,89,233                        // mulps         %xmm9,%xmm5
+  .byte  68,15,92,197                        // subps         %xmm5,%xmm8
+  .byte  69,15,89,208                        // mulps         %xmm8,%xmm10
+  .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
+  .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  15,40,231                           // movaps        %xmm7,%xmm4
+  .byte  15,40,108,36,216                    // movaps        -0x28(%rsp),%xmm5
+  .byte  15,40,116,36,200                    // movaps        -0x38(%rsp),%xmm6
+  .byte  65,15,40,194                        // movaps        %xmm10,%xmm0
+  .byte  65,15,40,216                        // movaps        %xmm8,%xmm3
+  .byte  65,15,40,249                        // movaps        %xmm9,%xmm7
+  .byte  255,224                             // jmpq          *%rax
+
+HIDDEN _sk_saturation_sse41
+.globl _sk_saturation_sse41
+FUNCTION(_sk_saturation_sse41)
+_sk_saturation_sse41:
+  .byte  15,41,92,36,232                     // movaps        %xmm3,-0x18(%rsp)
+  .byte  69,15,87,210                        // xorps         %xmm10,%xmm10
+  .byte  68,15,40,13,146,53,0,0              // movaps        0x3592(%rip),%xmm9        # 4550 <_sk_callback_sse41+0x2c1>
+  .byte  69,15,40,217                        // movaps        %xmm9,%xmm11
+  .byte  68,15,94,223                        // divps         %xmm7,%xmm11
+  .byte  68,15,40,199                        // movaps        %xmm7,%xmm8
+  .byte  69,15,194,194,4                     // cmpneqps      %xmm10,%xmm8
+  .byte  69,15,84,195                        // andps         %xmm11,%xmm8
+  .byte  69,15,40,232                        // movaps        %xmm8,%xmm13
+  .byte  68,15,89,236                        // mulps         %xmm4,%xmm13
+  .byte  15,40,220                           // movaps        %xmm4,%xmm3
+  .byte  15,41,92,36,216                     // movaps        %xmm3,-0x28(%rsp)
+  .byte  69,15,40,224                        // movaps        %xmm8,%xmm12
+  .byte  68,15,89,229                        // mulps         %xmm5,%xmm12
+  .byte  15,41,108,36,200                    // movaps        %xmm5,-0x38(%rsp)
+  .byte  68,15,89,198                        // mulps         %xmm6,%xmm8
+  .byte  68,15,40,241                        // movaps        %xmm1,%xmm14
+  .byte  68,15,95,242                        // maxps         %xmm2,%xmm14
+  .byte  68,15,40,216                        // movaps        %xmm0,%xmm11
+  .byte  69,15,95,222                        // maxps         %xmm14,%xmm11
+  .byte  15,93,202                           // minps         %xmm2,%xmm1
+  .byte  15,93,193                           // minps         %xmm1,%xmm0
+  .byte  68,15,92,216                        // subps         %xmm0,%xmm11
+  .byte  69,15,40,244                        // movaps        %xmm12,%xmm14
+  .byte  69,15,93,240                        // minps         %xmm8,%xmm14
+  .byte  65,15,40,213                        // movaps        %xmm13,%xmm2
+  .byte  65,15,93,214                        // minps         %xmm14,%xmm2
+  .byte  69,15,40,252                        // movaps        %xmm12,%xmm15
+  .byte  69,15,95,248                        // maxps         %xmm8,%xmm15
+  .byte  65,15,40,205                        // movaps        %xmm13,%xmm1
+  .byte  65,15,95,207                        // maxps         %xmm15,%xmm1
+  .byte  15,92,202                           // subps         %xmm2,%xmm1
+  .byte  68,15,92,234                        // subps         %xmm2,%xmm13
+  .byte  65,15,40,211                        // movaps        %xmm11,%xmm2
+  .byte  15,94,209                           // divps         %xmm1,%xmm2
+  .byte  65,15,194,202,4                     // cmpneqps      %xmm10,%xmm1
+  .byte  15,84,202                           // andps         %xmm2,%xmm1
+  .byte  65,15,89,205                        // mulps         %xmm13,%xmm1
+  .byte  15,40,193                           // movaps        %xmm1,%xmm0
+  .byte  65,15,93,198                        // minps         %xmm14,%xmm0
+  .byte  15,40,225                           // movaps        %xmm1,%xmm4
+  .byte  65,15,95,231                        // maxps         %xmm15,%xmm4
+  .byte  15,92,224                           // subps         %xmm0,%xmm4
+  .byte  68,15,92,224                        // subps         %xmm0,%xmm12
+  .byte  65,15,40,195                        // movaps        %xmm11,%xmm0
+  .byte  15,94,196                           // divps         %xmm4,%xmm0
+  .byte  65,15,194,226,4                     // cmpneqps      %xmm10,%xmm4
+  .byte  15,84,224                           // andps         %xmm0,%xmm4
+  .byte  65,15,89,228                        // mulps         %xmm12,%xmm4
+  .byte  15,40,196                           // movaps        %xmm4,%xmm0
+  .byte  65,15,93,192                        // minps         %xmm8,%xmm0
+  .byte  68,15,40,225                        // movaps        %xmm1,%xmm12
+  .byte  68,15,93,224                        // minps         %xmm0,%xmm12
+  .byte  68,15,40,236                        // movaps        %xmm4,%xmm13
+  .byte  69,15,95,232                        // maxps         %xmm8,%xmm13
+  .byte  15,40,193                           // movaps        %xmm1,%xmm0
+  .byte  65,15,95,197                        // maxps         %xmm13,%xmm0
+  .byte  65,15,92,196                        // subps         %xmm12,%xmm0
+  .byte  69,15,92,196                        // subps         %xmm12,%xmm8
+  .byte  68,15,94,216                        // divps         %xmm0,%xmm11
+  .byte  65,15,194,194,4                     // cmpneqps      %xmm10,%xmm0
+  .byte  65,15,84,195                        // andps         %xmm11,%xmm0
+  .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
+  .byte  68,15,40,29,177,52,0,0              // movaps        0x34b1(%rip),%xmm11        # 4560 <_sk_callback_sse41+0x2d1>
+  .byte  65,15,89,219                        // mulps         %xmm11,%xmm3
+  .byte  68,15,40,53,181,52,0,0              // movaps        0x34b5(%rip),%xmm14        # 4570 <_sk_callback_sse41+0x2e1>
+  .byte  65,15,89,238                        // mulps         %xmm14,%xmm5
+  .byte  15,88,235                           // addps         %xmm3,%xmm5
+  .byte  68,15,40,37,182,52,0,0              // movaps        0x34b6(%rip),%xmm12        # 4580 <_sk_callback_sse41+0x2f1>
+  .byte  68,15,40,238                        // movaps        %xmm6,%xmm13
+  .byte  69,15,89,236                        // mulps         %xmm12,%xmm13
+  .byte  68,15,88,237                        // addps         %xmm5,%xmm13
+  .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
+  .byte  69,15,89,195                        // mulps         %xmm11,%xmm8
+  .byte  15,40,212                           // movaps        %xmm4,%xmm2
+  .byte  65,15,89,214                        // mulps         %xmm14,%xmm2
+  .byte  65,15,88,208                        // addps         %xmm8,%xmm2
+  .byte  68,15,40,248                        // movaps        %xmm0,%xmm15
+  .byte  69,15,89,252                        // mulps         %xmm12,%xmm15
+  .byte  68,15,88,250                        // addps         %xmm2,%xmm15
+  .byte  15,40,84,36,232                     // movaps        -0x18(%rsp),%xmm2
+  .byte  68,15,40,194                        // movaps        %xmm2,%xmm8
+  .byte  68,15,88,199                        // addps         %xmm7,%xmm8
+  .byte  15,89,215                           // mulps         %xmm7,%xmm2
+  .byte  15,40,234                           // movaps        %xmm2,%xmm5
+  .byte  69,15,92,239                        // subps         %xmm15,%xmm13
+  .byte  65,15,88,205                        // addps         %xmm13,%xmm1
+  .byte  65,15,88,229                        // addps         %xmm13,%xmm4
+  .byte  68,15,88,232                        // addps         %xmm0,%xmm13
+  .byte  15,40,196                           // movaps        %xmm4,%xmm0
+  .byte  65,15,93,197                        // minps         %xmm13,%xmm0
+  .byte  15,40,209                           // movaps        %xmm1,%xmm2
+  .byte  15,93,208                           // minps         %xmm0,%xmm2
+  .byte  68,15,40,252                        // movaps        %xmm4,%xmm15
+  .byte  69,15,95,253                        // maxps         %xmm13,%xmm15
+  .byte  68,15,89,217                        // mulps         %xmm1,%xmm11
+  .byte  68,15,89,244                        // mulps         %xmm4,%xmm14
+  .byte  69,15,88,243                        // addps         %xmm11,%xmm14
+  .byte  69,15,89,229                        // mulps         %xmm13,%xmm12
+  .byte  69,15,88,230                        // addps         %xmm14,%xmm12
+  .byte  68,15,194,210,2                     // cmpleps       %xmm2,%xmm10
+  .byte  68,15,40,217                        // movaps        %xmm1,%xmm11
+  .byte  69,15,92,220                        // subps         %xmm12,%xmm11
+  .byte  69,15,89,220                        // mulps         %xmm12,%xmm11
+  .byte  69,15,40,244                        // movaps        %xmm12,%xmm14
+  .byte  68,15,92,242                        // subps         %xmm2,%xmm14
+  .byte  69,15,94,222                        // divps         %xmm14,%xmm11
+  .byte  69,15,88,220                        // addps         %xmm12,%xmm11
+  .byte  65,15,40,194                        // movaps        %xmm10,%xmm0
+  .byte  102,68,15,56,20,217                 // blendvps      %xmm0,%xmm1,%xmm11
+  .byte  15,40,217                           // movaps        %xmm1,%xmm3
+  .byte  65,15,95,223                        // maxps         %xmm15,%xmm3
+  .byte  68,15,194,203,1                     // cmpltps       %xmm3,%xmm9
+  .byte  65,15,40,203                        // movaps        %xmm11,%xmm1
+  .byte  65,15,92,204                        // subps         %xmm12,%xmm1
+  .byte  65,15,89,204                        // mulps         %xmm12,%xmm1
+  .byte  65,15,92,220                        // subps         %xmm12,%xmm3
+  .byte  15,94,203                           // divps         %xmm3,%xmm1
+  .byte  65,15,88,204                        // addps         %xmm12,%xmm1
+  .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
+  .byte  102,68,15,56,20,217                 // blendvps      %xmm0,%xmm1,%xmm11
+  .byte  15,40,204                           // movaps        %xmm4,%xmm1
+  .byte  65,15,92,204                        // subps         %xmm12,%xmm1
+  .byte  65,15,89,204                        // mulps         %xmm12,%xmm1
+  .byte  65,15,94,206                        // divps         %xmm14,%xmm1
+  .byte  65,15,88,204                        // addps         %xmm12,%xmm1
+  .byte  65,15,40,194                        // movaps        %xmm10,%xmm0
+  .byte  102,15,56,20,204                    // blendvps      %xmm0,%xmm4,%xmm1
+  .byte  15,40,209                           // movaps        %xmm1,%xmm2
+  .byte  65,15,92,212                        // subps         %xmm12,%xmm2
+  .byte  65,15,89,212                        // mulps         %xmm12,%xmm2
+  .byte  15,94,211                           // divps         %xmm3,%xmm2
+  .byte  65,15,88,212                        // addps         %xmm12,%xmm2
+  .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
+  .byte  102,15,56,20,202                    // blendvps      %xmm0,%xmm2,%xmm1
+  .byte  65,15,40,213                        // movaps        %xmm13,%xmm2
+  .byte  65,15,92,212                        // subps         %xmm12,%xmm2
+  .byte  65,15,89,212                        // mulps         %xmm12,%xmm2
+  .byte  65,15,94,214                        // divps         %xmm14,%xmm2
+  .byte  65,15,88,212                        // addps         %xmm12,%xmm2
+  .byte  65,15,40,194                        // movaps        %xmm10,%xmm0
+  .byte  102,65,15,56,20,213                 // blendvps      %xmm0,%xmm13,%xmm2
+  .byte  15,40,226                           // movaps        %xmm2,%xmm4
+  .byte  65,15,92,228                        // subps         %xmm12,%xmm4
+  .byte  65,15,89,228                        // mulps         %xmm12,%xmm4
+  .byte  15,94,227                           // divps         %xmm3,%xmm4
+  .byte  65,15,88,228                        // addps         %xmm12,%xmm4
+  .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
+  .byte  102,15,56,20,212                    // blendvps      %xmm0,%xmm4,%xmm2
+  .byte  68,15,92,197                        // subps         %xmm5,%xmm8
+  .byte  69,15,89,216                        // mulps         %xmm8,%xmm11
+  .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
+  .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  15,40,100,36,216                    // movaps        -0x28(%rsp),%xmm4
+  .byte  15,40,108,36,200                    // movaps        -0x38(%rsp),%xmm5
+  .byte  65,15,40,195                        // movaps        %xmm11,%xmm0
+  .byte  65,15,40,216                        // movaps        %xmm8,%xmm3
+  .byte  255,224                             // jmpq          *%rax
+
+HIDDEN _sk_color_sse41
+.globl _sk_color_sse41
+FUNCTION(_sk_color_sse41)
+_sk_color_sse41:
+  .byte  68,15,40,238                        // movaps        %xmm6,%xmm13
+  .byte  68,15,41,108,36,232                 // movaps        %xmm13,-0x18(%rsp)
+  .byte  15,40,245                           // movaps        %xmm5,%xmm6
+  .byte  15,40,236                           // movaps        %xmm4,%xmm5
+  .byte  15,40,227                           // movaps        %xmm3,%xmm4
+  .byte  68,15,40,208                        // movaps        %xmm0,%xmm10
+  .byte  69,15,87,201                        // xorps         %xmm9,%xmm9
+  .byte  68,15,40,5,62,51,0,0                // movaps        0x333e(%rip),%xmm8        # 4590 <_sk_callback_sse41+0x301>
+  .byte  69,15,40,216                        // movaps        %xmm8,%xmm11
+  .byte  68,15,94,220                        // divps         %xmm4,%xmm11
+  .byte  65,15,194,217,4                     // cmpneqps      %xmm9,%xmm3
+  .byte  65,15,84,219                        // andps         %xmm11,%xmm3
+  .byte  68,15,89,211                        // mulps         %xmm3,%xmm10
+  .byte  15,89,203                           // mulps         %xmm3,%xmm1
+  .byte  15,89,218                           // mulps         %xmm2,%xmm3
+  .byte  68,15,40,29,43,51,0,0               // movaps        0x332b(%rip),%xmm11        # 45a0 <_sk_callback_sse41+0x311>
+  .byte  68,15,40,229                        // movaps        %xmm5,%xmm12
+  .byte  69,15,89,227                        // mulps         %xmm11,%xmm12
+  .byte  68,15,40,53,43,51,0,0               // movaps        0x332b(%rip),%xmm14        # 45b0 <_sk_callback_sse41+0x321>
+  .byte  15,40,214                           // movaps        %xmm6,%xmm2
+  .byte  65,15,89,214                        // mulps         %xmm14,%xmm2
+  .byte  65,15,88,212                        // addps         %xmm12,%xmm2
+  .byte  68,15,40,37,40,51,0,0               // movaps        0x3328(%rip),%xmm12        # 45c0 <_sk_callback_sse41+0x331>
+  .byte  69,15,89,236                        // mulps         %xmm12,%xmm13
+  .byte  68,15,88,234                        // addps         %xmm2,%xmm13
+  .byte  69,15,40,250                        // movaps        %xmm10,%xmm15
+  .byte  69,15,89,251                        // mulps         %xmm11,%xmm15
+  .byte  15,40,209                           // movaps        %xmm1,%xmm2
+  .byte  65,15,89,214                        // mulps         %xmm14,%xmm2
+  .byte  65,15,88,215                        // addps         %xmm15,%xmm2
+  .byte  15,40,195                           // movaps        %xmm3,%xmm0
+  .byte  65,15,89,196                        // mulps         %xmm12,%xmm0
+  .byte  15,88,194                           // addps         %xmm2,%xmm0
+  .byte  68,15,92,232                        // subps         %xmm0,%xmm13
+  .byte  69,15,88,213                        // addps         %xmm13,%xmm10
+  .byte  65,15,88,205                        // addps         %xmm13,%xmm1
+  .byte  68,15,88,235                        // addps         %xmm3,%xmm13
+  .byte  15,40,193                           // movaps        %xmm1,%xmm0
+  .byte  65,15,93,197                        // minps         %xmm13,%xmm0
+  .byte  65,15,40,210                        // movaps        %xmm10,%xmm2
+  .byte  15,93,208                           // minps         %xmm0,%xmm2
+  .byte  15,40,217                           // movaps        %xmm1,%xmm3
+  .byte  65,15,95,221                        // maxps         %xmm13,%xmm3
+  .byte  69,15,89,218                        // mulps         %xmm10,%xmm11
+  .byte  68,15,89,241                        // mulps         %xmm1,%xmm14
+  .byte  69,15,88,243                        // addps         %xmm11,%xmm14
+  .byte  69,15,89,229                        // mulps         %xmm13,%xmm12
+  .byte  69,15,88,230                        // addps         %xmm14,%xmm12
+  .byte  68,15,194,202,2                     // cmpleps       %xmm2,%xmm9
+  .byte  69,15,40,218                        // movaps        %xmm10,%xmm11
+  .byte  69,15,92,220                        // subps         %xmm12,%xmm11
+  .byte  69,15,89,220                        // mulps         %xmm12,%xmm11
+  .byte  69,15,40,252                        // movaps        %xmm12,%xmm15
+  .byte  68,15,92,250                        // subps         %xmm2,%xmm15
+  .byte  69,15,94,223                        // divps         %xmm15,%xmm11
+  .byte  69,15,88,220                        // addps         %xmm12,%xmm11
+  .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
+  .byte  102,69,15,56,20,218                 // blendvps      %xmm0,%xmm10,%xmm11
+  .byte  69,15,40,242                        // movaps        %xmm10,%xmm14
+  .byte  68,15,95,243                        // maxps         %xmm3,%xmm14
+  .byte  69,15,194,198,1                     // cmpltps       %xmm14,%xmm8
+  .byte  65,15,40,211                        // movaps        %xmm11,%xmm2
+  .byte  65,15,92,212                        // subps         %xmm12,%xmm2
+  .byte  65,15,89,212                        // mulps         %xmm12,%xmm2
+  .byte  69,15,92,244                        // subps         %xmm12,%xmm14
+  .byte  65,15,94,214                        // divps         %xmm14,%xmm2
+  .byte  65,15,88,212                        // addps         %xmm12,%xmm2
+  .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
+  .byte  102,68,15,56,20,218                 // blendvps      %xmm0,%xmm2,%xmm11
+  .byte  68,15,40,209                        // movaps        %xmm1,%xmm10
+  .byte  69,15,92,212                        // subps         %xmm12,%xmm10
+  .byte  69,15,89,212                        // mulps         %xmm12,%xmm10
+  .byte  69,15,94,215                        // divps         %xmm15,%xmm10
+  .byte  69,15,88,212                        // addps         %xmm12,%xmm10
+  .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
+  .byte  102,68,15,56,20,209                 // blendvps      %xmm0,%xmm1,%xmm10
+  .byte  65,15,40,202                        // movaps        %xmm10,%xmm1
+  .byte  65,15,92,204                        // subps         %xmm12,%xmm1
+  .byte  65,15,89,204                        // mulps         %xmm12,%xmm1
+  .byte  65,15,94,206                        // divps         %xmm14,%xmm1
+  .byte  65,15,88,204                        // addps         %xmm12,%xmm1
+  .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
+  .byte  102,68,15,56,20,209                 // blendvps      %xmm0,%xmm1,%xmm10
+  .byte  65,15,40,213                        // movaps        %xmm13,%xmm2
+  .byte  65,15,92,212                        // subps         %xmm12,%xmm2
+  .byte  65,15,89,212                        // mulps         %xmm12,%xmm2
+  .byte  65,15,94,215                        // divps         %xmm15,%xmm2
+  .byte  65,15,88,212                        // addps         %xmm12,%xmm2
+  .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
+  .byte  102,65,15,56,20,213                 // blendvps      %xmm0,%xmm13,%xmm2
+  .byte  15,40,202                           // movaps        %xmm2,%xmm1
+  .byte  65,15,92,204                        // subps         %xmm12,%xmm1
+  .byte  65,15,89,204                        // mulps         %xmm12,%xmm1
+  .byte  65,15,94,206                        // divps         %xmm14,%xmm1
+  .byte  65,15,88,204                        // addps         %xmm12,%xmm1
+  .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
+  .byte  102,15,56,20,209                    // blendvps      %xmm0,%xmm1,%xmm2
+  .byte  68,15,40,196                        // movaps        %xmm4,%xmm8
+  .byte  68,15,88,199                        // addps         %xmm7,%xmm8
+  .byte  15,89,231                           // mulps         %xmm7,%xmm4
+  .byte  68,15,92,196                        // subps         %xmm4,%xmm8
+  .byte  69,15,89,216                        // mulps         %xmm8,%xmm11
+  .byte  69,15,89,208                        // mulps         %xmm8,%xmm10
+  .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  15,40,229                           // movaps        %xmm5,%xmm4
+  .byte  15,40,238                           // movaps        %xmm6,%xmm5
+  .byte  15,40,116,36,232                    // movaps        -0x18(%rsp),%xmm6
+  .byte  65,15,40,195                        // movaps        %xmm11,%xmm0
+  .byte  65,15,40,202                        // movaps        %xmm10,%xmm1
+  .byte  65,15,40,216                        // movaps        %xmm8,%xmm3
+  .byte  255,224                             // jmpq          *%rax
+
+HIDDEN _sk_luminosity_sse41
+.globl _sk_luminosity_sse41
+FUNCTION(_sk_luminosity_sse41)
+_sk_luminosity_sse41:
+  .byte  68,15,40,206                        // movaps        %xmm6,%xmm9
+  .byte  68,15,41,76,36,216                  // movaps        %xmm9,-0x28(%rsp)
+  .byte  68,15,40,229                        // movaps        %xmm5,%xmm12
+  .byte  68,15,41,100,36,232                 // movaps        %xmm12,-0x18(%rsp)
+  .byte  15,40,244                           // movaps        %xmm4,%xmm6
+  .byte  15,40,235                           // movaps        %xmm3,%xmm5
+  .byte  69,15,87,210                        // xorps         %xmm10,%xmm10
+  .byte  68,15,40,5,174,49,0,0               // movaps        0x31ae(%rip),%xmm8        # 45d0 <_sk_callback_sse41+0x341>
+  .byte  65,15,40,216                        // movaps        %xmm8,%xmm3
+  .byte  15,94,223                           // divps         %xmm7,%xmm3
+  .byte  68,15,40,223                        // movaps        %xmm7,%xmm11
+  .byte  69,15,194,218,4                     // cmpneqps      %xmm10,%xmm11
+  .byte  68,15,84,219                        // andps         %xmm3,%xmm11
+  .byte  69,15,40,243                        // movaps        %xmm11,%xmm14
+  .byte  68,15,89,246                        // mulps         %xmm6,%xmm14
+  .byte  65,15,40,219                        // movaps        %xmm11,%xmm3
+  .byte  65,15,89,220                        // mulps         %xmm12,%xmm3
+  .byte  69,15,89,217                        // mulps         %xmm9,%xmm11
+  .byte  68,15,40,61,142,49,0,0              // movaps        0x318e(%rip),%xmm15        # 45e0 <_sk_callback_sse41+0x351>
+  .byte  65,15,89,199                        // mulps         %xmm15,%xmm0
+  .byte  15,40,37,147,49,0,0                 // movaps        0x3193(%rip),%xmm4        # 45f0 <_sk_callback_sse41+0x361>
+  .byte  15,89,204                           // mulps         %xmm4,%xmm1
+  .byte  15,88,200                           // addps         %xmm0,%xmm1
+  .byte  68,15,40,45,149,49,0,0              // movaps        0x3195(%rip),%xmm13        # 4600 <_sk_callback_sse41+0x371>
+  .byte  65,15,89,213                        // mulps         %xmm13,%xmm2
+  .byte  15,88,209                           // addps         %xmm1,%xmm2
+  .byte  65,15,40,198                        // movaps        %xmm14,%xmm0
+  .byte  65,15,89,199                        // mulps         %xmm15,%xmm0
+  .byte  15,40,203                           // movaps        %xmm3,%xmm1
+  .byte  15,89,204                           // mulps         %xmm4,%xmm1
+  .byte  15,88,200                           // addps         %xmm0,%xmm1
+  .byte  65,15,40,195                        // movaps        %xmm11,%xmm0
+  .byte  65,15,89,197                        // mulps         %xmm13,%xmm0
+  .byte  15,88,193                           // addps         %xmm1,%xmm0
+  .byte  68,15,40,205                        // movaps        %xmm5,%xmm9
+  .byte  68,15,88,207                        // addps         %xmm7,%xmm9
+  .byte  15,89,239                           // mulps         %xmm7,%xmm5
+  .byte  15,92,208                           // subps         %xmm0,%xmm2
+  .byte  68,15,88,242                        // addps         %xmm2,%xmm14
+  .byte  15,88,218                           // addps         %xmm2,%xmm3
+  .byte  65,15,88,211                        // addps         %xmm11,%xmm2
+  .byte  15,40,195                           // movaps        %xmm3,%xmm0
+  .byte  15,93,194                           // minps         %xmm2,%xmm0
+  .byte  65,15,40,206                        // movaps        %xmm14,%xmm1
+  .byte  15,93,200                           // minps         %xmm0,%xmm1
+  .byte  68,15,40,227                        // movaps        %xmm3,%xmm12
+  .byte  68,15,95,226                        // maxps         %xmm2,%xmm12
+  .byte  69,15,89,254                        // mulps         %xmm14,%xmm15
+  .byte  15,89,227                           // mulps         %xmm3,%xmm4
+  .byte  65,15,88,231                        // addps         %xmm15,%xmm4
+  .byte  68,15,89,234                        // mulps         %xmm2,%xmm13
+  .byte  68,15,88,236                        // addps         %xmm4,%xmm13
+  .byte  68,15,194,209,2                     // cmpleps       %xmm1,%xmm10
+  .byte  69,15,40,222                        // movaps        %xmm14,%xmm11
+  .byte  69,15,92,221                        // subps         %xmm13,%xmm11
+  .byte  69,15,89,221                        // mulps         %xmm13,%xmm11
+  .byte  65,15,40,229                        // movaps        %xmm13,%xmm4
+  .byte  15,92,225                           // subps         %xmm1,%xmm4
+  .byte  68,15,94,220                        // divps         %xmm4,%xmm11
+  .byte  69,15,88,221                        // addps         %xmm13,%xmm11
+  .byte  65,15,40,194                        // movaps        %xmm10,%xmm0
+  .byte  102,69,15,56,20,222                 // blendvps      %xmm0,%xmm14,%xmm11
+  .byte  69,15,95,244                        // maxps         %xmm12,%xmm14
+  .byte  69,15,194,198,1                     // cmpltps       %xmm14,%xmm8
+  .byte  65,15,40,203                        // movaps        %xmm11,%xmm1
+  .byte  65,15,92,205                        // subps         %xmm13,%xmm1
+  .byte  65,15,89,205                        // mulps         %xmm13,%xmm1
+  .byte  69,15,92,245                        // subps         %xmm13,%xmm14
+  .byte  65,15,94,206                        // divps         %xmm14,%xmm1
+  .byte  65,15,88,205                        // addps         %xmm13,%xmm1
+  .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
+  .byte  102,68,15,56,20,217                 // blendvps      %xmm0,%xmm1,%xmm11
+  .byte  15,40,203                           // movaps        %xmm3,%xmm1
+  .byte  65,15,92,205                        // subps         %xmm13,%xmm1
+  .byte  65,15,89,205                        // mulps         %xmm13,%xmm1
+  .byte  15,94,204                           // divps         %xmm4,%xmm1
+  .byte  65,15,88,205                        // addps         %xmm13,%xmm1
+  .byte  65,15,40,194                        // movaps        %xmm10,%xmm0
+  .byte  102,15,56,20,203                    // blendvps      %xmm0,%xmm3,%xmm1
+  .byte  15,40,217                           // movaps        %xmm1,%xmm3
+  .byte  65,15,92,221                        // subps         %xmm13,%xmm3
+  .byte  65,15,89,221                        // mulps         %xmm13,%xmm3
+  .byte  65,15,94,222                        // divps         %xmm14,%xmm3
+  .byte  65,15,88,221                        // addps         %xmm13,%xmm3
+  .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
+  .byte  102,15,56,20,203                    // blendvps      %xmm0,%xmm3,%xmm1
+  .byte  68,15,40,226                        // movaps        %xmm2,%xmm12
+  .byte  69,15,92,229                        // subps         %xmm13,%xmm12
+  .byte  69,15,89,229                        // mulps         %xmm13,%xmm12
+  .byte  68,15,94,228                        // divps         %xmm4,%xmm12
+  .byte  69,15,88,229                        // addps         %xmm13,%xmm12
+  .byte  65,15,40,194                        // movaps        %xmm10,%xmm0
+  .byte  102,68,15,56,20,226                 // blendvps      %xmm0,%xmm2,%xmm12
+  .byte  65,15,40,212                        // movaps        %xmm12,%xmm2
+  .byte  65,15,92,213                        // subps         %xmm13,%xmm2
+  .byte  65,15,89,213                        // mulps         %xmm13,%xmm2
+  .byte  65,15,94,214                        // divps         %xmm14,%xmm2
+  .byte  65,15,88,213                        // addps         %xmm13,%xmm2
+  .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
+  .byte  102,68,15,56,20,226                 // blendvps      %xmm0,%xmm2,%xmm12
+  .byte  68,15,92,205                        // subps         %xmm5,%xmm9
+  .byte  69,15,89,217                        // mulps         %xmm9,%xmm11
+  .byte  65,15,89,201                        // mulps         %xmm9,%xmm1
+  .byte  69,15,89,225                        // mulps         %xmm9,%xmm12
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  65,15,40,195                        // movaps        %xmm11,%xmm0
+  .byte  65,15,40,212                        // movaps        %xmm12,%xmm2
+  .byte  65,15,40,217                        // movaps        %xmm9,%xmm3
+  .byte  15,40,230                           // movaps        %xmm6,%xmm4
+  .byte  15,40,108,36,232                    // movaps        -0x18(%rsp),%xmm5
+  .byte  15,40,116,36,216                    // movaps        -0x28(%rsp),%xmm6
+  .byte  255,224                             // jmpq          *%rax
+
 HIDDEN _sk_clamp_0_sse41
 .globl _sk_clamp_0_sse41
 FUNCTION(_sk_clamp_0_sse41)
@@ -18826,7 +21074,7 @@ HIDDEN _sk_clamp_1_sse41
 .globl _sk_clamp_1_sse41
 FUNCTION(_sk_clamp_1_sse41)
 _sk_clamp_1_sse41:
-  .byte  68,15,40,5,43,47,0,0                // movaps        0x2f2b(%rip),%xmm8        # 3c60 <_sk_callback_sse41+0x280>
+  .byte  68,15,40,5,44,48,0,0                // movaps        0x302c(%rip),%xmm8        # 4610 <_sk_callback_sse41+0x381>
   .byte  65,15,93,192                        // minps         %xmm8,%xmm0
   .byte  65,15,93,200                        // minps         %xmm8,%xmm1
   .byte  65,15,93,208                        // minps         %xmm8,%xmm2
@@ -18838,7 +21086,7 @@ HIDDEN _sk_clamp_a_sse41
 .globl _sk_clamp_a_sse41
 FUNCTION(_sk_clamp_a_sse41)
 _sk_clamp_a_sse41:
-  .byte  15,93,29,32,47,0,0                  // minps         0x2f20(%rip),%xmm3        # 3c70 <_sk_callback_sse41+0x290>
+  .byte  15,93,29,33,48,0,0                  // minps         0x3021(%rip),%xmm3        # 4620 <_sk_callback_sse41+0x391>
   .byte  15,93,195                           // minps         %xmm3,%xmm0
   .byte  15,93,203                           // minps         %xmm3,%xmm1
   .byte  15,93,211                           // minps         %xmm3,%xmm2
@@ -18925,7 +21173,7 @@ HIDDEN _sk_unpremul_sse41
 FUNCTION(_sk_unpremul_sse41)
 _sk_unpremul_sse41:
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
-  .byte  68,15,40,13,139,46,0,0              // movaps        0x2e8b(%rip),%xmm9        # 3c80 <_sk_callback_sse41+0x2a0>
+  .byte  68,15,40,13,140,47,0,0              // movaps        0x2f8c(%rip),%xmm9        # 4630 <_sk_callback_sse41+0x3a1>
   .byte  68,15,94,203                        // divps         %xmm3,%xmm9
   .byte  68,15,194,195,4                     // cmpneqps      %xmm3,%xmm8
   .byte  69,15,84,193                        // andps         %xmm9,%xmm8
@@ -18939,20 +21187,20 @@ HIDDEN _sk_from_srgb_sse41
 .globl _sk_from_srgb_sse41
 FUNCTION(_sk_from_srgb_sse41)
 _sk_from_srgb_sse41:
-  .byte  68,15,40,29,118,46,0,0              // movaps        0x2e76(%rip),%xmm11        # 3c90 <_sk_callback_sse41+0x2b0>
+  .byte  68,15,40,29,119,47,0,0              // movaps        0x2f77(%rip),%xmm11        # 4640 <_sk_callback_sse41+0x3b1>
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
   .byte  69,15,89,203                        // mulps         %xmm11,%xmm9
   .byte  68,15,40,208                        // movaps        %xmm0,%xmm10
   .byte  69,15,89,210                        // mulps         %xmm10,%xmm10
-  .byte  68,15,40,37,110,46,0,0              // movaps        0x2e6e(%rip),%xmm12        # 3ca0 <_sk_callback_sse41+0x2c0>
+  .byte  68,15,40,37,111,47,0,0              // movaps        0x2f6f(%rip),%xmm12        # 4650 <_sk_callback_sse41+0x3c1>
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  69,15,89,196                        // mulps         %xmm12,%xmm8
-  .byte  68,15,40,45,110,46,0,0              // movaps        0x2e6e(%rip),%xmm13        # 3cb0 <_sk_callback_sse41+0x2d0>
+  .byte  68,15,40,45,111,47,0,0              // movaps        0x2f6f(%rip),%xmm13        # 4660 <_sk_callback_sse41+0x3d1>
   .byte  69,15,88,197                        // addps         %xmm13,%xmm8
   .byte  69,15,89,194                        // mulps         %xmm10,%xmm8
-  .byte  68,15,40,53,110,46,0,0              // movaps        0x2e6e(%rip),%xmm14        # 3cc0 <_sk_callback_sse41+0x2e0>
+  .byte  68,15,40,53,111,47,0,0              // movaps        0x2f6f(%rip),%xmm14        # 4670 <_sk_callback_sse41+0x3e1>
   .byte  69,15,88,198                        // addps         %xmm14,%xmm8
-  .byte  68,15,40,61,114,46,0,0              // movaps        0x2e72(%rip),%xmm15        # 3cd0 <_sk_callback_sse41+0x2f0>
+  .byte  68,15,40,61,115,47,0,0              // movaps        0x2f73(%rip),%xmm15        # 4680 <_sk_callback_sse41+0x3f1>
   .byte  65,15,194,199,1                     // cmpltps       %xmm15,%xmm0
   .byte  102,69,15,56,20,193                 // blendvps      %xmm0,%xmm9,%xmm8
   .byte  68,15,40,209                        // movaps        %xmm1,%xmm10
@@ -18997,20 +21245,20 @@ _sk_to_srgb_sse41:
   .byte  68,15,82,192                        // rsqrtps       %xmm0,%xmm8
   .byte  69,15,83,200                        // rcpps         %xmm8,%xmm9
   .byte  69,15,82,208                        // rsqrtps       %xmm8,%xmm10
-  .byte  68,15,40,29,226,45,0,0              // movaps        0x2de2(%rip),%xmm11        # 3ce0 <_sk_callback_sse41+0x300>
+  .byte  68,15,40,29,227,46,0,0              // movaps        0x2ee3(%rip),%xmm11        # 4690 <_sk_callback_sse41+0x401>
   .byte  15,40,200                           // movaps        %xmm0,%xmm1
   .byte  65,15,89,203                        // mulps         %xmm11,%xmm1
-  .byte  68,15,40,37,227,45,0,0              // movaps        0x2de3(%rip),%xmm12        # 3cf0 <_sk_callback_sse41+0x310>
+  .byte  68,15,40,37,228,46,0,0              // movaps        0x2ee4(%rip),%xmm12        # 46a0 <_sk_callback_sse41+0x411>
   .byte  69,15,89,204                        // mulps         %xmm12,%xmm9
-  .byte  68,15,40,45,231,45,0,0              // movaps        0x2de7(%rip),%xmm13        # 3d00 <_sk_callback_sse41+0x320>
+  .byte  68,15,40,45,232,46,0,0              // movaps        0x2ee8(%rip),%xmm13        # 46b0 <_sk_callback_sse41+0x421>
   .byte  69,15,88,205                        // addps         %xmm13,%xmm9
-  .byte  68,15,40,53,235,45,0,0              // movaps        0x2deb(%rip),%xmm14        # 3d10 <_sk_callback_sse41+0x330>
+  .byte  68,15,40,53,236,46,0,0              // movaps        0x2eec(%rip),%xmm14        # 46c0 <_sk_callback_sse41+0x431>
   .byte  69,15,89,214                        // mulps         %xmm14,%xmm10
   .byte  69,15,88,209                        // addps         %xmm9,%xmm10
-  .byte  68,15,40,5,235,45,0,0               // movaps        0x2deb(%rip),%xmm8        # 3d20 <_sk_callback_sse41+0x340>
+  .byte  68,15,40,5,236,46,0,0               // movaps        0x2eec(%rip),%xmm8        # 46d0 <_sk_callback_sse41+0x441>
   .byte  69,15,40,200                        // movaps        %xmm8,%xmm9
   .byte  69,15,93,202                        // minps         %xmm10,%xmm9
-  .byte  68,15,40,61,235,45,0,0              // movaps        0x2deb(%rip),%xmm15        # 3d30 <_sk_callback_sse41+0x350>
+  .byte  68,15,40,61,236,46,0,0              // movaps        0x2eec(%rip),%xmm15        # 46e0 <_sk_callback_sse41+0x451>
   .byte  65,15,194,199,1                     // cmpltps       %xmm15,%xmm0
   .byte  102,68,15,56,20,201                 // blendvps      %xmm0,%xmm1,%xmm9
   .byte  15,82,194                           // rsqrtps       %xmm2,%xmm0
@@ -19064,7 +21312,7 @@ _sk_rgb_to_hsl_sse41:
   .byte  68,15,93,226                        // minps         %xmm2,%xmm12
   .byte  65,15,40,203                        // movaps        %xmm11,%xmm1
   .byte  65,15,92,204                        // subps         %xmm12,%xmm1
-  .byte  68,15,40,53,60,45,0,0               // movaps        0x2d3c(%rip),%xmm14        # 3d40 <_sk_callback_sse41+0x360>
+  .byte  68,15,40,53,61,46,0,0               // movaps        0x2e3d(%rip),%xmm14        # 46f0 <_sk_callback_sse41+0x461>
   .byte  68,15,94,241                        // divps         %xmm1,%xmm14
   .byte  69,15,40,211                        // movaps        %xmm11,%xmm10
   .byte  69,15,194,208,0                     // cmpeqps       %xmm8,%xmm10
@@ -19073,27 +21321,27 @@ _sk_rgb_to_hsl_sse41:
   .byte  65,15,89,198                        // mulps         %xmm14,%xmm0
   .byte  69,15,40,249                        // movaps        %xmm9,%xmm15
   .byte  68,15,194,250,1                     // cmpltps       %xmm2,%xmm15
-  .byte  68,15,84,61,35,45,0,0               // andps         0x2d23(%rip),%xmm15        # 3d50 <_sk_callback_sse41+0x370>
+  .byte  68,15,84,61,36,46,0,0               // andps         0x2e24(%rip),%xmm15        # 4700 <_sk_callback_sse41+0x471>
   .byte  68,15,88,248                        // addps         %xmm0,%xmm15
   .byte  65,15,40,195                        // movaps        %xmm11,%xmm0
   .byte  65,15,194,193,0                     // cmpeqps       %xmm9,%xmm0
   .byte  65,15,92,208                        // subps         %xmm8,%xmm2
   .byte  65,15,89,214                        // mulps         %xmm14,%xmm2
-  .byte  68,15,40,45,22,45,0,0               // movaps        0x2d16(%rip),%xmm13        # 3d60 <_sk_callback_sse41+0x380>
+  .byte  68,15,40,45,23,46,0,0               // movaps        0x2e17(%rip),%xmm13        # 4710 <_sk_callback_sse41+0x481>
   .byte  65,15,88,213                        // addps         %xmm13,%xmm2
   .byte  69,15,92,193                        // subps         %xmm9,%xmm8
   .byte  69,15,89,198                        // mulps         %xmm14,%xmm8
-  .byte  68,15,88,5,18,45,0,0                // addps         0x2d12(%rip),%xmm8        # 3d70 <_sk_callback_sse41+0x390>
+  .byte  68,15,88,5,19,46,0,0                // addps         0x2e13(%rip),%xmm8        # 4720 <_sk_callback_sse41+0x491>
   .byte  102,68,15,56,20,194                 // blendvps      %xmm0,%xmm2,%xmm8
   .byte  65,15,40,194                        // movaps        %xmm10,%xmm0
   .byte  102,69,15,56,20,199                 // blendvps      %xmm0,%xmm15,%xmm8
-  .byte  68,15,89,5,10,45,0,0                // mulps         0x2d0a(%rip),%xmm8        # 3d80 <_sk_callback_sse41+0x3a0>
+  .byte  68,15,89,5,11,46,0,0                // mulps         0x2e0b(%rip),%xmm8        # 4730 <_sk_callback_sse41+0x4a1>
   .byte  69,15,40,203                        // movaps        %xmm11,%xmm9
   .byte  69,15,194,204,4                     // cmpneqps      %xmm12,%xmm9
   .byte  69,15,84,193                        // andps         %xmm9,%xmm8
   .byte  69,15,92,235                        // subps         %xmm11,%xmm13
   .byte  69,15,88,220                        // addps         %xmm12,%xmm11
-  .byte  15,40,5,254,44,0,0                  // movaps        0x2cfe(%rip),%xmm0        # 3d90 <_sk_callback_sse41+0x3b0>
+  .byte  15,40,5,255,45,0,0                  // movaps        0x2dff(%rip),%xmm0        # 4740 <_sk_callback_sse41+0x4b1>
   .byte  65,15,40,211                        // movaps        %xmm11,%xmm2
   .byte  15,89,208                           // mulps         %xmm0,%xmm2
   .byte  15,194,194,1                        // cmpltps       %xmm2,%xmm0
@@ -19115,7 +21363,7 @@ _sk_hsl_to_rgb_sse41:
   .byte  15,41,100,36,184                    // movaps        %xmm4,-0x48(%rsp)
   .byte  15,41,92,36,168                     // movaps        %xmm3,-0x58(%rsp)
   .byte  68,15,40,208                        // movaps        %xmm0,%xmm10
-  .byte  68,15,40,13,196,44,0,0              // movaps        0x2cc4(%rip),%xmm9        # 3da0 <_sk_callback_sse41+0x3c0>
+  .byte  68,15,40,13,197,45,0,0              // movaps        0x2dc5(%rip),%xmm9        # 4750 <_sk_callback_sse41+0x4c1>
   .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
   .byte  15,194,194,2                        // cmpleps       %xmm2,%xmm0
   .byte  15,40,217                           // movaps        %xmm1,%xmm3
@@ -19128,19 +21376,19 @@ _sk_hsl_to_rgb_sse41:
   .byte  15,41,84,36,152                     // movaps        %xmm2,-0x68(%rsp)
   .byte  69,15,88,192                        // addps         %xmm8,%xmm8
   .byte  68,15,92,197                        // subps         %xmm5,%xmm8
-  .byte  68,15,40,53,159,44,0,0              // movaps        0x2c9f(%rip),%xmm14        # 3db0 <_sk_callback_sse41+0x3d0>
+  .byte  68,15,40,53,160,45,0,0              // movaps        0x2da0(%rip),%xmm14        # 4760 <_sk_callback_sse41+0x4d1>
   .byte  69,15,88,242                        // addps         %xmm10,%xmm14
   .byte  102,65,15,58,8,198,1                // roundps       $0x1,%xmm14,%xmm0
   .byte  68,15,92,240                        // subps         %xmm0,%xmm14
-  .byte  68,15,40,29,152,44,0,0              // movaps        0x2c98(%rip),%xmm11        # 3dc0 <_sk_callback_sse41+0x3e0>
+  .byte  68,15,40,29,153,45,0,0              // movaps        0x2d99(%rip),%xmm11        # 4770 <_sk_callback_sse41+0x4e1>
   .byte  65,15,40,195                        // movaps        %xmm11,%xmm0
   .byte  65,15,194,198,2                     // cmpleps       %xmm14,%xmm0
   .byte  15,40,245                           // movaps        %xmm5,%xmm6
   .byte  65,15,92,240                        // subps         %xmm8,%xmm6
-  .byte  15,40,61,145,44,0,0                 // movaps        0x2c91(%rip),%xmm7        # 3dd0 <_sk_callback_sse41+0x3f0>
+  .byte  15,40,61,146,45,0,0                 // movaps        0x2d92(%rip),%xmm7        # 4780 <_sk_callback_sse41+0x4f1>
   .byte  69,15,40,238                        // movaps        %xmm14,%xmm13
   .byte  68,15,89,239                        // mulps         %xmm7,%xmm13
-  .byte  15,40,29,146,44,0,0                 // movaps        0x2c92(%rip),%xmm3        # 3de0 <_sk_callback_sse41+0x400>
+  .byte  15,40,29,147,45,0,0                 // movaps        0x2d93(%rip),%xmm3        # 4790 <_sk_callback_sse41+0x501>
   .byte  68,15,40,227                        // movaps        %xmm3,%xmm12
   .byte  69,15,92,229                        // subps         %xmm13,%xmm12
   .byte  68,15,89,230                        // mulps         %xmm6,%xmm12
@@ -19150,7 +21398,7 @@ _sk_hsl_to_rgb_sse41:
   .byte  65,15,194,198,2                     // cmpleps       %xmm14,%xmm0
   .byte  68,15,40,253                        // movaps        %xmm5,%xmm15
   .byte  102,69,15,56,20,252                 // blendvps      %xmm0,%xmm12,%xmm15
-  .byte  68,15,40,37,113,44,0,0              // movaps        0x2c71(%rip),%xmm12        # 3df0 <_sk_callback_sse41+0x410>
+  .byte  68,15,40,37,114,45,0,0              // movaps        0x2d72(%rip),%xmm12        # 47a0 <_sk_callback_sse41+0x511>
   .byte  65,15,40,196                        // movaps        %xmm12,%xmm0
   .byte  65,15,194,198,2                     // cmpleps       %xmm14,%xmm0
   .byte  68,15,89,238                        // mulps         %xmm6,%xmm13
@@ -19184,7 +21432,7 @@ _sk_hsl_to_rgb_sse41:
   .byte  65,15,40,198                        // movaps        %xmm14,%xmm0
   .byte  15,40,84,36,152                     // movaps        -0x68(%rsp),%xmm2
   .byte  102,15,56,20,202                    // blendvps      %xmm0,%xmm2,%xmm1
-  .byte  68,15,88,21,233,43,0,0              // addps         0x2be9(%rip),%xmm10        # 3e00 <_sk_callback_sse41+0x420>
+  .byte  68,15,88,21,234,44,0,0              // addps         0x2cea(%rip),%xmm10        # 47b0 <_sk_callback_sse41+0x521>
   .byte  102,65,15,58,8,194,1                // roundps       $0x1,%xmm10,%xmm0
   .byte  68,15,92,208                        // subps         %xmm0,%xmm10
   .byte  69,15,194,218,2                     // cmpleps       %xmm10,%xmm11
@@ -19236,7 +21484,7 @@ _sk_scale_u8_sse41:
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  102,68,15,56,49,4,56                // pmovzxbd      (%rax,%rdi,1),%xmm8
   .byte  69,15,91,192                        // cvtdq2ps      %xmm8,%xmm8
-  .byte  68,15,89,5,70,43,0,0                // mulps         0x2b46(%rip),%xmm8        # 3e10 <_sk_callback_sse41+0x430>
+  .byte  68,15,89,5,71,44,0,0                // mulps         0x2c47(%rip),%xmm8        # 47c0 <_sk_callback_sse41+0x531>
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
   .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
@@ -19274,7 +21522,7 @@ _sk_lerp_u8_sse41:
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  102,68,15,56,49,4,56                // pmovzxbd      (%rax,%rdi,1),%xmm8
   .byte  69,15,91,192                        // cvtdq2ps      %xmm8,%xmm8
-  .byte  68,15,89,5,242,42,0,0               // mulps         0x2af2(%rip),%xmm8        # 3e20 <_sk_callback_sse41+0x440>
+  .byte  68,15,89,5,243,43,0,0               // mulps         0x2bf3(%rip),%xmm8        # 47d0 <_sk_callback_sse41+0x541>
   .byte  15,92,196                           // subps         %xmm4,%xmm0
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  15,88,196                           // addps         %xmm4,%xmm0
@@ -19297,17 +21545,17 @@ _sk_lerp_565_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  102,68,15,56,51,4,120               // pmovzxwd      (%rax,%rdi,2),%xmm8
-  .byte  102,15,111,29,194,42,0,0            // movdqa        0x2ac2(%rip),%xmm3        # 3e30 <_sk_callback_sse41+0x450>
+  .byte  102,15,111,29,195,43,0,0            // movdqa        0x2bc3(%rip),%xmm3        # 47e0 <_sk_callback_sse41+0x551>
   .byte  102,65,15,219,216                   // pand          %xmm8,%xmm3
   .byte  68,15,91,203                        // cvtdq2ps      %xmm3,%xmm9
-  .byte  68,15,89,13,193,42,0,0              // mulps         0x2ac1(%rip),%xmm9        # 3e40 <_sk_callback_sse41+0x460>
-  .byte  102,15,111,29,201,42,0,0            // movdqa        0x2ac9(%rip),%xmm3        # 3e50 <_sk_callback_sse41+0x470>
+  .byte  68,15,89,13,194,43,0,0              // mulps         0x2bc2(%rip),%xmm9        # 47f0 <_sk_callback_sse41+0x561>
+  .byte  102,15,111,29,202,43,0,0            // movdqa        0x2bca(%rip),%xmm3        # 4800 <_sk_callback_sse41+0x571>
   .byte  102,65,15,219,216                   // pand          %xmm8,%xmm3
   .byte  15,91,219                           // cvtdq2ps      %xmm3,%xmm3
-  .byte  15,89,29,202,42,0,0                 // mulps         0x2aca(%rip),%xmm3        # 3e60 <_sk_callback_sse41+0x480>
-  .byte  102,68,15,219,5,209,42,0,0          // pand          0x2ad1(%rip),%xmm8        # 3e70 <_sk_callback_sse41+0x490>
+  .byte  15,89,29,203,43,0,0                 // mulps         0x2bcb(%rip),%xmm3        # 4810 <_sk_callback_sse41+0x581>
+  .byte  102,68,15,219,5,210,43,0,0          // pand          0x2bd2(%rip),%xmm8        # 4820 <_sk_callback_sse41+0x591>
   .byte  69,15,91,192                        // cvtdq2ps      %xmm8,%xmm8
-  .byte  68,15,89,5,213,42,0,0               // mulps         0x2ad5(%rip),%xmm8        # 3e80 <_sk_callback_sse41+0x4a0>
+  .byte  68,15,89,5,214,43,0,0               // mulps         0x2bd6(%rip),%xmm8        # 4830 <_sk_callback_sse41+0x5a1>
   .byte  15,92,196                           // subps         %xmm4,%xmm0
   .byte  65,15,89,193                        // mulps         %xmm9,%xmm0
   .byte  15,88,196                           // addps         %xmm4,%xmm0
@@ -19318,7 +21566,7 @@ _sk_lerp_565_sse41:
   .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
   .byte  15,88,214                           // addps         %xmm6,%xmm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,191,42,0,0                 // movaps        0x2abf(%rip),%xmm3        # 3e90 <_sk_callback_sse41+0x4b0>
+  .byte  15,40,29,192,43,0,0                 // movaps        0x2bc0(%rip),%xmm3        # 4840 <_sk_callback_sse41+0x5b1>
   .byte  255,224                             // jmpq          *%rax
 
 HIDDEN _sk_load_tables_sse41
@@ -19329,7 +21577,7 @@ _sk_load_tables_sse41:
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  76,139,72,8                         // mov           0x8(%rax),%r9
   .byte  243,69,15,111,4,184                 // movdqu        (%r8,%rdi,4),%xmm8
-  .byte  102,15,111,5,182,42,0,0             // movdqa        0x2ab6(%rip),%xmm0        # 3ea0 <_sk_callback_sse41+0x4c0>
+  .byte  102,15,111,5,183,43,0,0             // movdqa        0x2bb7(%rip),%xmm0        # 4850 <_sk_callback_sse41+0x5c1>
   .byte  102,65,15,219,192                   // pand          %xmm8,%xmm0
   .byte  102,73,15,58,22,192,1               // pextrq        $0x1,%xmm0,%r8
   .byte  102,72,15,126,193                   // movq          %xmm0,%rcx
@@ -19344,7 +21592,7 @@ _sk_load_tables_sse41:
   .byte  102,15,58,33,193,48                 // insertps      $0x30,%xmm1,%xmm0
   .byte  76,139,64,16                        // mov           0x10(%rax),%r8
   .byte  102,65,15,111,200                   // movdqa        %xmm8,%xmm1
-  .byte  102,15,56,0,13,113,42,0,0           // pshufb        0x2a71(%rip),%xmm1        # 3eb0 <_sk_callback_sse41+0x4d0>
+  .byte  102,15,56,0,13,114,43,0,0           // pshufb        0x2b72(%rip),%xmm1        # 4860 <_sk_callback_sse41+0x5d1>
   .byte  102,73,15,58,22,201,1               // pextrq        $0x1,%xmm1,%r9
   .byte  102,72,15,126,201                   // movq          %xmm1,%rcx
   .byte  68,15,182,209                       // movzbl        %cl,%r10d
@@ -19359,7 +21607,7 @@ _sk_load_tables_sse41:
   .byte  102,15,58,33,202,48                 // insertps      $0x30,%xmm2,%xmm1
   .byte  76,139,64,24                        // mov           0x18(%rax),%r8
   .byte  102,65,15,111,208                   // movdqa        %xmm8,%xmm2
-  .byte  102,15,56,0,21,45,42,0,0            // pshufb        0x2a2d(%rip),%xmm2        # 3ec0 <_sk_callback_sse41+0x4e0>
+  .byte  102,15,56,0,21,46,43,0,0            // pshufb        0x2b2e(%rip),%xmm2        # 4870 <_sk_callback_sse41+0x5e1>
   .byte  102,72,15,58,22,209,1               // pextrq        $0x1,%xmm2,%rcx
   .byte  102,72,15,126,208                   // movq          %xmm2,%rax
   .byte  68,15,182,200                       // movzbl        %al,%r9d
@@ -19374,7 +21622,7 @@ _sk_load_tables_sse41:
   .byte  102,15,58,33,211,48                 // insertps      $0x30,%xmm3,%xmm2
   .byte  102,65,15,114,208,24                // psrld         $0x18,%xmm8
   .byte  65,15,91,216                        // cvtdq2ps      %xmm8,%xmm3
-  .byte  15,89,29,234,41,0,0                 // mulps         0x29ea(%rip),%xmm3        # 3ed0 <_sk_callback_sse41+0x4f0>
+  .byte  15,89,29,235,42,0,0                 // mulps         0x2aeb(%rip),%xmm3        # 4880 <_sk_callback_sse41+0x5f1>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
@@ -19393,7 +21641,7 @@ _sk_load_tables_u16_be_sse41:
   .byte  102,65,15,111,201                   // movdqa        %xmm9,%xmm1
   .byte  102,15,97,200                       // punpcklwd     %xmm0,%xmm1
   .byte  102,68,15,105,200                   // punpckhwd     %xmm0,%xmm9
-  .byte  102,68,15,111,5,189,41,0,0          // movdqa        0x29bd(%rip),%xmm8        # 3ee0 <_sk_callback_sse41+0x500>
+  .byte  102,68,15,111,5,190,42,0,0          // movdqa        0x2abe(%rip),%xmm8        # 4890 <_sk_callback_sse41+0x601>
   .byte  102,15,111,193                      // movdqa        %xmm1,%xmm0
   .byte  102,65,15,219,192                   // pand          %xmm8,%xmm0
   .byte  102,15,56,51,192                    // pmovzxwd      %xmm0,%xmm0
@@ -19410,7 +21658,7 @@ _sk_load_tables_u16_be_sse41:
   .byte  243,67,15,16,20,8                   // movss         (%r8,%r9,1),%xmm2
   .byte  102,15,58,33,194,48                 // insertps      $0x30,%xmm2,%xmm0
   .byte  76,139,64,16                        // mov           0x10(%rax),%r8
-  .byte  102,15,56,0,13,112,41,0,0           // pshufb        0x2970(%rip),%xmm1        # 3ef0 <_sk_callback_sse41+0x510>
+  .byte  102,15,56,0,13,113,42,0,0           // pshufb        0x2a71(%rip),%xmm1        # 48a0 <_sk_callback_sse41+0x611>
   .byte  102,15,56,51,201                    // pmovzxwd      %xmm1,%xmm1
   .byte  102,73,15,58,22,201,1               // pextrq        $0x1,%xmm1,%r9
   .byte  102,72,15,126,201                   // movq          %xmm1,%rcx
@@ -19446,7 +21694,7 @@ _sk_load_tables_u16_be_sse41:
   .byte  102,65,15,235,216                   // por           %xmm8,%xmm3
   .byte  102,15,56,51,219                    // pmovzxwd      %xmm3,%xmm3
   .byte  15,91,219                           // cvtdq2ps      %xmm3,%xmm3
-  .byte  15,89,29,190,40,0,0                 // mulps         0x28be(%rip),%xmm3        # 3f00 <_sk_callback_sse41+0x520>
+  .byte  15,89,29,191,41,0,0                 // mulps         0x29bf(%rip),%xmm3        # 48b0 <_sk_callback_sse41+0x621>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
@@ -19468,7 +21716,7 @@ _sk_load_tables_rgb_u16_be_sse41:
   .byte  102,68,15,97,200                    // punpcklwd     %xmm0,%xmm9
   .byte  102,15,111,202                      // movdqa        %xmm2,%xmm1
   .byte  102,65,15,97,201                    // punpcklwd     %xmm9,%xmm1
-  .byte  102,68,15,111,5,128,40,0,0          // movdqa        0x2880(%rip),%xmm8        # 3f10 <_sk_callback_sse41+0x530>
+  .byte  102,68,15,111,5,129,41,0,0          // movdqa        0x2981(%rip),%xmm8        # 48c0 <_sk_callback_sse41+0x631>
   .byte  102,15,111,193                      // movdqa        %xmm1,%xmm0
   .byte  102,65,15,219,192                   // pand          %xmm8,%xmm0
   .byte  102,15,56,51,192                    // pmovzxwd      %xmm0,%xmm0
@@ -19485,7 +21733,7 @@ _sk_load_tables_rgb_u16_be_sse41:
   .byte  243,67,15,16,28,8                   // movss         (%r8,%r9,1),%xmm3
   .byte  102,15,58,33,195,48                 // insertps      $0x30,%xmm3,%xmm0
   .byte  76,139,64,16                        // mov           0x10(%rax),%r8
-  .byte  102,15,56,0,13,51,40,0,0            // pshufb        0x2833(%rip),%xmm1        # 3f20 <_sk_callback_sse41+0x540>
+  .byte  102,15,56,0,13,52,41,0,0            // pshufb        0x2934(%rip),%xmm1        # 48d0 <_sk_callback_sse41+0x641>
   .byte  102,15,56,51,201                    // pmovzxwd      %xmm1,%xmm1
   .byte  102,73,15,58,22,201,1               // pextrq        $0x1,%xmm1,%r9
   .byte  102,72,15,126,201                   // movq          %xmm1,%rcx
@@ -19516,7 +21764,7 @@ _sk_load_tables_rgb_u16_be_sse41:
   .byte  243,65,15,16,28,8                   // movss         (%r8,%rcx,1),%xmm3
   .byte  102,15,58,33,211,48                 // insertps      $0x30,%xmm3,%xmm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,158,39,0,0                 // movaps        0x279e(%rip),%xmm3        # 3f30 <_sk_callback_sse41+0x550>
+  .byte  15,40,29,159,40,0,0                 // movaps        0x289f(%rip),%xmm3        # 48e0 <_sk_callback_sse41+0x651>
   .byte  255,224                             // jmpq          *%rax
 
 HIDDEN _sk_byte_tables_sse41
@@ -19526,7 +21774,7 @@ _sk_byte_tables_sse41:
   .byte  65,86                               // push          %r14
   .byte  83                                  // push          %rbx
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  68,15,40,5,159,39,0,0               // movaps        0x279f(%rip),%xmm8        # 3f40 <_sk_callback_sse41+0x560>
+  .byte  68,15,40,5,160,40,0,0               // movaps        0x28a0(%rip),%xmm8        # 48f0 <_sk_callback_sse41+0x661>
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  102,15,91,192                       // cvtps2dq      %xmm0,%xmm0
   .byte  102,72,15,58,22,193,1               // pextrq        $0x1,%xmm0,%rcx
@@ -19545,7 +21793,7 @@ _sk_byte_tables_sse41:
   .byte  102,15,58,32,193,3                  // pinsrb        $0x3,%ecx,%xmm0
   .byte  102,15,56,49,192                    // pmovzxbd      %xmm0,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  68,15,40,13,80,39,0,0               // movaps        0x2750(%rip),%xmm9        # 3f50 <_sk_callback_sse41+0x570>
+  .byte  68,15,40,13,81,40,0,0               // movaps        0x2851(%rip),%xmm9        # 4900 <_sk_callback_sse41+0x671>
   .byte  65,15,89,193                        // mulps         %xmm9,%xmm0
   .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
   .byte  102,15,91,201                       // cvtps2dq      %xmm1,%xmm1
@@ -19636,7 +21884,7 @@ _sk_byte_tables_rgb_sse41:
   .byte  102,15,58,32,193,3                  // pinsrb        $0x3,%ecx,%xmm0
   .byte  102,15,56,49,192                    // pmovzxbd      %xmm0,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  68,15,40,13,216,37,0,0              // movaps        0x25d8(%rip),%xmm9        # 3f60 <_sk_callback_sse41+0x580>
+  .byte  68,15,40,13,217,38,0,0              // movaps        0x26d9(%rip),%xmm9        # 4910 <_sk_callback_sse41+0x681>
   .byte  65,15,89,193                        // mulps         %xmm9,%xmm0
   .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
   .byte  102,15,91,201                       // cvtps2dq      %xmm1,%xmm1
@@ -19813,31 +22061,31 @@ _sk_parametric_r_sse41:
   .byte  69,15,88,208                        // addps         %xmm8,%xmm10
   .byte  69,15,198,219,0                     // shufps        $0x0,%xmm11,%xmm11
   .byte  69,15,91,194                        // cvtdq2ps      %xmm10,%xmm8
-  .byte  68,15,89,5,47,35,0,0                // mulps         0x232f(%rip),%xmm8        # 3f70 <_sk_callback_sse41+0x590>
-  .byte  68,15,84,21,55,35,0,0               // andps         0x2337(%rip),%xmm10        # 3f80 <_sk_callback_sse41+0x5a0>
-  .byte  68,15,86,21,63,35,0,0               // orps          0x233f(%rip),%xmm10        # 3f90 <_sk_callback_sse41+0x5b0>
-  .byte  68,15,88,5,71,35,0,0                // addps         0x2347(%rip),%xmm8        # 3fa0 <_sk_callback_sse41+0x5c0>
-  .byte  68,15,40,37,79,35,0,0               // movaps        0x234f(%rip),%xmm12        # 3fb0 <_sk_callback_sse41+0x5d0>
+  .byte  68,15,89,5,48,36,0,0                // mulps         0x2430(%rip),%xmm8        # 4920 <_sk_callback_sse41+0x691>
+  .byte  68,15,84,21,56,36,0,0               // andps         0x2438(%rip),%xmm10        # 4930 <_sk_callback_sse41+0x6a1>
+  .byte  68,15,86,21,64,36,0,0               // orps          0x2440(%rip),%xmm10        # 4940 <_sk_callback_sse41+0x6b1>
+  .byte  68,15,88,5,72,36,0,0                // addps         0x2448(%rip),%xmm8        # 4950 <_sk_callback_sse41+0x6c1>
+  .byte  68,15,40,37,80,36,0,0               // movaps        0x2450(%rip),%xmm12        # 4960 <_sk_callback_sse41+0x6d1>
   .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
   .byte  69,15,92,196                        // subps         %xmm12,%xmm8
-  .byte  68,15,88,21,79,35,0,0               // addps         0x234f(%rip),%xmm10        # 3fc0 <_sk_callback_sse41+0x5e0>
-  .byte  68,15,40,37,87,35,0,0               // movaps        0x2357(%rip),%xmm12        # 3fd0 <_sk_callback_sse41+0x5f0>
+  .byte  68,15,88,21,80,36,0,0               // addps         0x2450(%rip),%xmm10        # 4970 <_sk_callback_sse41+0x6e1>
+  .byte  68,15,40,37,88,36,0,0               // movaps        0x2458(%rip),%xmm12        # 4980 <_sk_callback_sse41+0x6f1>
   .byte  69,15,94,226                        // divps         %xmm10,%xmm12
   .byte  69,15,92,196                        // subps         %xmm12,%xmm8
   .byte  69,15,89,195                        // mulps         %xmm11,%xmm8
   .byte  102,69,15,58,8,208,1                // roundps       $0x1,%xmm8,%xmm10
   .byte  69,15,40,216                        // movaps        %xmm8,%xmm11
   .byte  69,15,92,218                        // subps         %xmm10,%xmm11
-  .byte  68,15,88,5,68,35,0,0                // addps         0x2344(%rip),%xmm8        # 3fe0 <_sk_callback_sse41+0x600>
-  .byte  68,15,40,21,76,35,0,0               // movaps        0x234c(%rip),%xmm10        # 3ff0 <_sk_callback_sse41+0x610>
+  .byte  68,15,88,5,69,36,0,0                // addps         0x2445(%rip),%xmm8        # 4990 <_sk_callback_sse41+0x701>
+  .byte  68,15,40,21,77,36,0,0               // movaps        0x244d(%rip),%xmm10        # 49a0 <_sk_callback_sse41+0x711>
   .byte  69,15,89,211                        // mulps         %xmm11,%xmm10
   .byte  69,15,92,194                        // subps         %xmm10,%xmm8
-  .byte  68,15,40,21,76,35,0,0               // movaps        0x234c(%rip),%xmm10        # 4000 <_sk_callback_sse41+0x620>
+  .byte  68,15,40,21,77,36,0,0               // movaps        0x244d(%rip),%xmm10        # 49b0 <_sk_callback_sse41+0x721>
   .byte  69,15,92,211                        // subps         %xmm11,%xmm10
-  .byte  68,15,40,29,80,35,0,0               // movaps        0x2350(%rip),%xmm11        # 4010 <_sk_callback_sse41+0x630>
+  .byte  68,15,40,29,81,36,0,0               // movaps        0x2451(%rip),%xmm11        # 49c0 <_sk_callback_sse41+0x731>
   .byte  69,15,94,218                        // divps         %xmm10,%xmm11
   .byte  69,15,88,216                        // addps         %xmm8,%xmm11
-  .byte  68,15,89,29,80,35,0,0               // mulps         0x2350(%rip),%xmm11        # 4020 <_sk_callback_sse41+0x640>
+  .byte  68,15,89,29,81,36,0,0               // mulps         0x2451(%rip),%xmm11        # 49d0 <_sk_callback_sse41+0x741>
   .byte  102,69,15,91,211                    // cvtps2dq      %xmm11,%xmm10
   .byte  243,68,15,16,64,20                  // movss         0x14(%rax),%xmm8
   .byte  69,15,198,192,0                     // shufps        $0x0,%xmm8,%xmm8
@@ -19845,7 +22093,7 @@ _sk_parametric_r_sse41:
   .byte  102,69,15,56,20,193                 // blendvps      %xmm0,%xmm9,%xmm8
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
   .byte  68,15,95,192                        // maxps         %xmm0,%xmm8
-  .byte  68,15,93,5,55,35,0,0                // minps         0x2337(%rip),%xmm8        # 4030 <_sk_callback_sse41+0x650>
+  .byte  68,15,93,5,56,36,0,0                // minps         0x2438(%rip),%xmm8        # 49e0 <_sk_callback_sse41+0x751>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
   .byte  255,224                             // jmpq          *%rax
@@ -19875,31 +22123,31 @@ _sk_parametric_g_sse41:
   .byte  68,15,88,217                        // addps         %xmm1,%xmm11
   .byte  69,15,198,210,0                     // shufps        $0x0,%xmm10,%xmm10
   .byte  69,15,91,227                        // cvtdq2ps      %xmm11,%xmm12
-  .byte  68,15,89,37,216,34,0,0              // mulps         0x22d8(%rip),%xmm12        # 4040 <_sk_callback_sse41+0x660>
-  .byte  68,15,84,29,224,34,0,0              // andps         0x22e0(%rip),%xmm11        # 4050 <_sk_callback_sse41+0x670>
-  .byte  68,15,86,29,232,34,0,0              // orps          0x22e8(%rip),%xmm11        # 4060 <_sk_callback_sse41+0x680>
-  .byte  68,15,88,37,240,34,0,0              // addps         0x22f0(%rip),%xmm12        # 4070 <_sk_callback_sse41+0x690>
-  .byte  15,40,13,249,34,0,0                 // movaps        0x22f9(%rip),%xmm1        # 4080 <_sk_callback_sse41+0x6a0>
+  .byte  68,15,89,37,217,35,0,0              // mulps         0x23d9(%rip),%xmm12        # 49f0 <_sk_callback_sse41+0x761>
+  .byte  68,15,84,29,225,35,0,0              // andps         0x23e1(%rip),%xmm11        # 4a00 <_sk_callback_sse41+0x771>
+  .byte  68,15,86,29,233,35,0,0              // orps          0x23e9(%rip),%xmm11        # 4a10 <_sk_callback_sse41+0x781>
+  .byte  68,15,88,37,241,35,0,0              // addps         0x23f1(%rip),%xmm12        # 4a20 <_sk_callback_sse41+0x791>
+  .byte  15,40,13,250,35,0,0                 // movaps        0x23fa(%rip),%xmm1        # 4a30 <_sk_callback_sse41+0x7a1>
   .byte  65,15,89,203                        // mulps         %xmm11,%xmm1
   .byte  68,15,92,225                        // subps         %xmm1,%xmm12
-  .byte  68,15,88,29,249,34,0,0              // addps         0x22f9(%rip),%xmm11        # 4090 <_sk_callback_sse41+0x6b0>
-  .byte  15,40,13,2,35,0,0                   // movaps        0x2302(%rip),%xmm1        # 40a0 <_sk_callback_sse41+0x6c0>
+  .byte  68,15,88,29,250,35,0,0              // addps         0x23fa(%rip),%xmm11        # 4a40 <_sk_callback_sse41+0x7b1>
+  .byte  15,40,13,3,36,0,0                   // movaps        0x2403(%rip),%xmm1        # 4a50 <_sk_callback_sse41+0x7c1>
   .byte  65,15,94,203                        // divps         %xmm11,%xmm1
   .byte  68,15,92,225                        // subps         %xmm1,%xmm12
   .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
   .byte  102,69,15,58,8,212,1                // roundps       $0x1,%xmm12,%xmm10
   .byte  69,15,40,220                        // movaps        %xmm12,%xmm11
   .byte  69,15,92,218                        // subps         %xmm10,%xmm11
-  .byte  68,15,88,37,239,34,0,0              // addps         0x22ef(%rip),%xmm12        # 40b0 <_sk_callback_sse41+0x6d0>
-  .byte  15,40,13,248,34,0,0                 // movaps        0x22f8(%rip),%xmm1        # 40c0 <_sk_callback_sse41+0x6e0>
+  .byte  68,15,88,37,240,35,0,0              // addps         0x23f0(%rip),%xmm12        # 4a60 <_sk_callback_sse41+0x7d1>
+  .byte  15,40,13,249,35,0,0                 // movaps        0x23f9(%rip),%xmm1        # 4a70 <_sk_callback_sse41+0x7e1>
   .byte  65,15,89,203                        // mulps         %xmm11,%xmm1
   .byte  68,15,92,225                        // subps         %xmm1,%xmm12
-  .byte  68,15,40,21,248,34,0,0              // movaps        0x22f8(%rip),%xmm10        # 40d0 <_sk_callback_sse41+0x6f0>
+  .byte  68,15,40,21,249,35,0,0              // movaps        0x23f9(%rip),%xmm10        # 4a80 <_sk_callback_sse41+0x7f1>
   .byte  69,15,92,211                        // subps         %xmm11,%xmm10
-  .byte  15,40,13,253,34,0,0                 // movaps        0x22fd(%rip),%xmm1        # 40e0 <_sk_callback_sse41+0x700>
+  .byte  15,40,13,254,35,0,0                 // movaps        0x23fe(%rip),%xmm1        # 4a90 <_sk_callback_sse41+0x801>
   .byte  65,15,94,202                        // divps         %xmm10,%xmm1
   .byte  65,15,88,204                        // addps         %xmm12,%xmm1
-  .byte  15,89,13,254,34,0,0                 // mulps         0x22fe(%rip),%xmm1        # 40f0 <_sk_callback_sse41+0x710>
+  .byte  15,89,13,255,35,0,0                 // mulps         0x23ff(%rip),%xmm1        # 4aa0 <_sk_callback_sse41+0x811>
   .byte  102,68,15,91,209                    // cvtps2dq      %xmm1,%xmm10
   .byte  243,15,16,72,20                     // movss         0x14(%rax),%xmm1
   .byte  15,198,201,0                        // shufps        $0x0,%xmm1,%xmm1
@@ -19907,7 +22155,7 @@ _sk_parametric_g_sse41:
   .byte  102,65,15,56,20,201                 // blendvps      %xmm0,%xmm9,%xmm1
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
   .byte  15,95,200                           // maxps         %xmm0,%xmm1
-  .byte  15,93,13,233,34,0,0                 // minps         0x22e9(%rip),%xmm1        # 4100 <_sk_callback_sse41+0x720>
+  .byte  15,93,13,234,35,0,0                 // minps         0x23ea(%rip),%xmm1        # 4ab0 <_sk_callback_sse41+0x821>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
   .byte  255,224                             // jmpq          *%rax
@@ -19937,31 +22185,31 @@ _sk_parametric_b_sse41:
   .byte  68,15,88,218                        // addps         %xmm2,%xmm11
   .byte  69,15,198,210,0                     // shufps        $0x0,%xmm10,%xmm10
   .byte  69,15,91,227                        // cvtdq2ps      %xmm11,%xmm12
-  .byte  68,15,89,37,138,34,0,0              // mulps         0x228a(%rip),%xmm12        # 4110 <_sk_callback_sse41+0x730>
-  .byte  68,15,84,29,146,34,0,0              // andps         0x2292(%rip),%xmm11        # 4120 <_sk_callback_sse41+0x740>
-  .byte  68,15,86,29,154,34,0,0              // orps          0x229a(%rip),%xmm11        # 4130 <_sk_callback_sse41+0x750>
-  .byte  68,15,88,37,162,34,0,0              // addps         0x22a2(%rip),%xmm12        # 4140 <_sk_callback_sse41+0x760>
-  .byte  15,40,21,171,34,0,0                 // movaps        0x22ab(%rip),%xmm2        # 4150 <_sk_callback_sse41+0x770>
+  .byte  68,15,89,37,139,35,0,0              // mulps         0x238b(%rip),%xmm12        # 4ac0 <_sk_callback_sse41+0x831>
+  .byte  68,15,84,29,147,35,0,0              // andps         0x2393(%rip),%xmm11        # 4ad0 <_sk_callback_sse41+0x841>
+  .byte  68,15,86,29,155,35,0,0              // orps          0x239b(%rip),%xmm11        # 4ae0 <_sk_callback_sse41+0x851>
+  .byte  68,15,88,37,163,35,0,0              // addps         0x23a3(%rip),%xmm12        # 4af0 <_sk_callback_sse41+0x861>
+  .byte  15,40,21,172,35,0,0                 // movaps        0x23ac(%rip),%xmm2        # 4b00 <_sk_callback_sse41+0x871>
   .byte  65,15,89,211                        // mulps         %xmm11,%xmm2
   .byte  68,15,92,226                        // subps         %xmm2,%xmm12
-  .byte  68,15,88,29,171,34,0,0              // addps         0x22ab(%rip),%xmm11        # 4160 <_sk_callback_sse41+0x780>
-  .byte  15,40,21,180,34,0,0                 // movaps        0x22b4(%rip),%xmm2        # 4170 <_sk_callback_sse41+0x790>
+  .byte  68,15,88,29,172,35,0,0              // addps         0x23ac(%rip),%xmm11        # 4b10 <_sk_callback_sse41+0x881>
+  .byte  15,40,21,181,35,0,0                 // movaps        0x23b5(%rip),%xmm2        # 4b20 <_sk_callback_sse41+0x891>
   .byte  65,15,94,211                        // divps         %xmm11,%xmm2
   .byte  68,15,92,226                        // subps         %xmm2,%xmm12
   .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
   .byte  102,69,15,58,8,212,1                // roundps       $0x1,%xmm12,%xmm10
   .byte  69,15,40,220                        // movaps        %xmm12,%xmm11
   .byte  69,15,92,218                        // subps         %xmm10,%xmm11
-  .byte  68,15,88,37,161,34,0,0              // addps         0x22a1(%rip),%xmm12        # 4180 <_sk_callback_sse41+0x7a0>
-  .byte  15,40,21,170,34,0,0                 // movaps        0x22aa(%rip),%xmm2        # 4190 <_sk_callback_sse41+0x7b0>
+  .byte  68,15,88,37,162,35,0,0              // addps         0x23a2(%rip),%xmm12        # 4b30 <_sk_callback_sse41+0x8a1>
+  .byte  15,40,21,171,35,0,0                 // movaps        0x23ab(%rip),%xmm2        # 4b40 <_sk_callback_sse41+0x8b1>
   .byte  65,15,89,211                        // mulps         %xmm11,%xmm2
   .byte  68,15,92,226                        // subps         %xmm2,%xmm12
-  .byte  68,15,40,21,170,34,0,0              // movaps        0x22aa(%rip),%xmm10        # 41a0 <_sk_callback_sse41+0x7c0>
+  .byte  68,15,40,21,171,35,0,0              // movaps        0x23ab(%rip),%xmm10        # 4b50 <_sk_callback_sse41+0x8c1>
   .byte  69,15,92,211                        // subps         %xmm11,%xmm10
-  .byte  15,40,21,175,34,0,0                 // movaps        0x22af(%rip),%xmm2        # 41b0 <_sk_callback_sse41+0x7d0>
+  .byte  15,40,21,176,35,0,0                 // movaps        0x23b0(%rip),%xmm2        # 4b60 <_sk_callback_sse41+0x8d1>
   .byte  65,15,94,210                        // divps         %xmm10,%xmm2
   .byte  65,15,88,212                        // addps         %xmm12,%xmm2
-  .byte  15,89,21,176,34,0,0                 // mulps         0x22b0(%rip),%xmm2        # 41c0 <_sk_callback_sse41+0x7e0>
+  .byte  15,89,21,177,35,0,0                 // mulps         0x23b1(%rip),%xmm2        # 4b70 <_sk_callback_sse41+0x8e1>
   .byte  102,68,15,91,210                    // cvtps2dq      %xmm2,%xmm10
   .byte  243,15,16,80,20                     // movss         0x14(%rax),%xmm2
   .byte  15,198,210,0                        // shufps        $0x0,%xmm2,%xmm2
@@ -19969,7 +22217,7 @@ _sk_parametric_b_sse41:
   .byte  102,65,15,56,20,209                 // blendvps      %xmm0,%xmm9,%xmm2
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
   .byte  15,95,208                           // maxps         %xmm0,%xmm2
-  .byte  15,93,21,155,34,0,0                 // minps         0x229b(%rip),%xmm2        # 41d0 <_sk_callback_sse41+0x7f0>
+  .byte  15,93,21,156,35,0,0                 // minps         0x239c(%rip),%xmm2        # 4b80 <_sk_callback_sse41+0x8f1>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
   .byte  255,224                             // jmpq          *%rax
@@ -19999,31 +22247,31 @@ _sk_parametric_a_sse41:
   .byte  68,15,88,219                        // addps         %xmm3,%xmm11
   .byte  69,15,198,210,0                     // shufps        $0x0,%xmm10,%xmm10
   .byte  69,15,91,227                        // cvtdq2ps      %xmm11,%xmm12
-  .byte  68,15,89,37,60,34,0,0               // mulps         0x223c(%rip),%xmm12        # 41e0 <_sk_callback_sse41+0x800>
-  .byte  68,15,84,29,68,34,0,0               // andps         0x2244(%rip),%xmm11        # 41f0 <_sk_callback_sse41+0x810>
-  .byte  68,15,86,29,76,34,0,0               // orps          0x224c(%rip),%xmm11        # 4200 <_sk_callback_sse41+0x820>
-  .byte  68,15,88,37,84,34,0,0               // addps         0x2254(%rip),%xmm12        # 4210 <_sk_callback_sse41+0x830>
-  .byte  15,40,29,93,34,0,0                  // movaps        0x225d(%rip),%xmm3        # 4220 <_sk_callback_sse41+0x840>
+  .byte  68,15,89,37,61,35,0,0               // mulps         0x233d(%rip),%xmm12        # 4b90 <_sk_callback_sse41+0x901>
+  .byte  68,15,84,29,69,35,0,0               // andps         0x2345(%rip),%xmm11        # 4ba0 <_sk_callback_sse41+0x911>
+  .byte  68,15,86,29,77,35,0,0               // orps          0x234d(%rip),%xmm11        # 4bb0 <_sk_callback_sse41+0x921>
+  .byte  68,15,88,37,85,35,0,0               // addps         0x2355(%rip),%xmm12        # 4bc0 <_sk_callback_sse41+0x931>
+  .byte  15,40,29,94,35,0,0                  // movaps        0x235e(%rip),%xmm3        # 4bd0 <_sk_callback_sse41+0x941>
   .byte  65,15,89,219                        // mulps         %xmm11,%xmm3
   .byte  68,15,92,227                        // subps         %xmm3,%xmm12
-  .byte  68,15,88,29,93,34,0,0               // addps         0x225d(%rip),%xmm11        # 4230 <_sk_callback_sse41+0x850>
-  .byte  15,40,29,102,34,0,0                 // movaps        0x2266(%rip),%xmm3        # 4240 <_sk_callback_sse41+0x860>
+  .byte  68,15,88,29,94,35,0,0               // addps         0x235e(%rip),%xmm11        # 4be0 <_sk_callback_sse41+0x951>
+  .byte  15,40,29,103,35,0,0                 // movaps        0x2367(%rip),%xmm3        # 4bf0 <_sk_callback_sse41+0x961>
   .byte  65,15,94,219                        // divps         %xmm11,%xmm3
   .byte  68,15,92,227                        // subps         %xmm3,%xmm12
   .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
   .byte  102,69,15,58,8,212,1                // roundps       $0x1,%xmm12,%xmm10
   .byte  69,15,40,220                        // movaps        %xmm12,%xmm11
   .byte  69,15,92,218                        // subps         %xmm10,%xmm11
-  .byte  68,15,88,37,83,34,0,0               // addps         0x2253(%rip),%xmm12        # 4250 <_sk_callback_sse41+0x870>
-  .byte  15,40,29,92,34,0,0                  // movaps        0x225c(%rip),%xmm3        # 4260 <_sk_callback_sse41+0x880>
+  .byte  68,15,88,37,84,35,0,0               // addps         0x2354(%rip),%xmm12        # 4c00 <_sk_callback_sse41+0x971>
+  .byte  15,40,29,93,35,0,0                  // movaps        0x235d(%rip),%xmm3        # 4c10 <_sk_callback_sse41+0x981>
   .byte  65,15,89,219                        // mulps         %xmm11,%xmm3
   .byte  68,15,92,227                        // subps         %xmm3,%xmm12
-  .byte  68,15,40,21,92,34,0,0               // movaps        0x225c(%rip),%xmm10        # 4270 <_sk_callback_sse41+0x890>
+  .byte  68,15,40,21,93,35,0,0               // movaps        0x235d(%rip),%xmm10        # 4c20 <_sk_callback_sse41+0x991>
   .byte  69,15,92,211                        // subps         %xmm11,%xmm10
-  .byte  15,40,29,97,34,0,0                  // movaps        0x2261(%rip),%xmm3        # 4280 <_sk_callback_sse41+0x8a0>
+  .byte  15,40,29,98,35,0,0                  // movaps        0x2362(%rip),%xmm3        # 4c30 <_sk_callback_sse41+0x9a1>
   .byte  65,15,94,218                        // divps         %xmm10,%xmm3
   .byte  65,15,88,220                        // addps         %xmm12,%xmm3
-  .byte  15,89,29,98,34,0,0                  // mulps         0x2262(%rip),%xmm3        # 4290 <_sk_callback_sse41+0x8b0>
+  .byte  15,89,29,99,35,0,0                  // mulps         0x2363(%rip),%xmm3        # 4c40 <_sk_callback_sse41+0x9b1>
   .byte  102,68,15,91,211                    // cvtps2dq      %xmm3,%xmm10
   .byte  243,15,16,88,20                     // movss         0x14(%rax),%xmm3
   .byte  15,198,219,0                        // shufps        $0x0,%xmm3,%xmm3
@@ -20031,7 +22279,7 @@ _sk_parametric_a_sse41:
   .byte  102,65,15,56,20,217                 // blendvps      %xmm0,%xmm9,%xmm3
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
   .byte  15,95,216                           // maxps         %xmm0,%xmm3
-  .byte  15,93,29,77,34,0,0                  // minps         0x224d(%rip),%xmm3        # 42a0 <_sk_callback_sse41+0x8c0>
+  .byte  15,93,29,78,35,0,0                  // minps         0x234e(%rip),%xmm3        # 4c50 <_sk_callback_sse41+0x9c1>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
   .byte  255,224                             // jmpq          *%rax
@@ -20041,29 +22289,29 @@ HIDDEN _sk_lab_to_xyz_sse41
 FUNCTION(_sk_lab_to_xyz_sse41)
 _sk_lab_to_xyz_sse41:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
-  .byte  68,15,89,5,73,34,0,0                // mulps         0x2249(%rip),%xmm8        # 42b0 <_sk_callback_sse41+0x8d0>
-  .byte  68,15,40,13,81,34,0,0               // movaps        0x2251(%rip),%xmm9        # 42c0 <_sk_callback_sse41+0x8e0>
+  .byte  68,15,89,5,74,35,0,0                // mulps         0x234a(%rip),%xmm8        # 4c60 <_sk_callback_sse41+0x9d1>
+  .byte  68,15,40,13,82,35,0,0               // movaps        0x2352(%rip),%xmm9        # 4c70 <_sk_callback_sse41+0x9e1>
   .byte  65,15,89,201                        // mulps         %xmm9,%xmm1
-  .byte  15,40,5,86,34,0,0                   // movaps        0x2256(%rip),%xmm0        # 42d0 <_sk_callback_sse41+0x8f0>
+  .byte  15,40,5,87,35,0,0                   // movaps        0x2357(%rip),%xmm0        # 4c80 <_sk_callback_sse41+0x9f1>
   .byte  15,88,200                           // addps         %xmm0,%xmm1
   .byte  65,15,89,209                        // mulps         %xmm9,%xmm2
   .byte  15,88,208                           // addps         %xmm0,%xmm2
-  .byte  68,15,88,5,84,34,0,0                // addps         0x2254(%rip),%xmm8        # 42e0 <_sk_callback_sse41+0x900>
-  .byte  68,15,89,5,92,34,0,0                // mulps         0x225c(%rip),%xmm8        # 42f0 <_sk_callback_sse41+0x910>
-  .byte  15,89,13,101,34,0,0                 // mulps         0x2265(%rip),%xmm1        # 4300 <_sk_callback_sse41+0x920>
+  .byte  68,15,88,5,85,35,0,0                // addps         0x2355(%rip),%xmm8        # 4c90 <_sk_callback_sse41+0xa01>
+  .byte  68,15,89,5,93,35,0,0                // mulps         0x235d(%rip),%xmm8        # 4ca0 <_sk_callback_sse41+0xa11>
+  .byte  15,89,13,102,35,0,0                 // mulps         0x2366(%rip),%xmm1        # 4cb0 <_sk_callback_sse41+0xa21>
   .byte  65,15,88,200                        // addps         %xmm8,%xmm1
-  .byte  15,89,21,106,34,0,0                 // mulps         0x226a(%rip),%xmm2        # 4310 <_sk_callback_sse41+0x930>
+  .byte  15,89,21,107,35,0,0                 // mulps         0x236b(%rip),%xmm2        # 4cc0 <_sk_callback_sse41+0xa31>
   .byte  69,15,40,208                        // movaps        %xmm8,%xmm10
   .byte  68,15,92,210                        // subps         %xmm2,%xmm10
   .byte  68,15,40,217                        // movaps        %xmm1,%xmm11
   .byte  69,15,89,219                        // mulps         %xmm11,%xmm11
   .byte  68,15,89,217                        // mulps         %xmm1,%xmm11
-  .byte  68,15,40,13,94,34,0,0               // movaps        0x225e(%rip),%xmm9        # 4320 <_sk_callback_sse41+0x940>
+  .byte  68,15,40,13,95,35,0,0               // movaps        0x235f(%rip),%xmm9        # 4cd0 <_sk_callback_sse41+0xa41>
   .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
   .byte  65,15,194,195,1                     // cmpltps       %xmm11,%xmm0
-  .byte  15,40,21,94,34,0,0                  // movaps        0x225e(%rip),%xmm2        # 4330 <_sk_callback_sse41+0x950>
+  .byte  15,40,21,95,35,0,0                  // movaps        0x235f(%rip),%xmm2        # 4ce0 <_sk_callback_sse41+0xa51>
   .byte  15,88,202                           // addps         %xmm2,%xmm1
-  .byte  68,15,40,37,99,34,0,0               // movaps        0x2263(%rip),%xmm12        # 4340 <_sk_callback_sse41+0x960>
+  .byte  68,15,40,37,100,35,0,0              // movaps        0x2364(%rip),%xmm12        # 4cf0 <_sk_callback_sse41+0xa61>
   .byte  65,15,89,204                        // mulps         %xmm12,%xmm1
   .byte  102,65,15,56,20,203                 // blendvps      %xmm0,%xmm11,%xmm1
   .byte  69,15,40,216                        // movaps        %xmm8,%xmm11
@@ -20082,8 +22330,8 @@ _sk_lab_to_xyz_sse41:
   .byte  65,15,89,212                        // mulps         %xmm12,%xmm2
   .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
   .byte  102,65,15,56,20,211                 // blendvps      %xmm0,%xmm11,%xmm2
-  .byte  15,89,13,28,34,0,0                  // mulps         0x221c(%rip),%xmm1        # 4350 <_sk_callback_sse41+0x970>
-  .byte  15,89,21,37,34,0,0                  // mulps         0x2225(%rip),%xmm2        # 4360 <_sk_callback_sse41+0x980>
+  .byte  15,89,13,29,35,0,0                  // mulps         0x231d(%rip),%xmm1        # 4d00 <_sk_callback_sse41+0xa71>
+  .byte  15,89,21,38,35,0,0                  // mulps         0x2326(%rip),%xmm2        # 4d10 <_sk_callback_sse41+0xa81>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,40,193                           // movaps        %xmm1,%xmm0
   .byte  65,15,40,200                        // movaps        %xmm8,%xmm1
@@ -20097,7 +22345,7 @@ _sk_load_a8_sse41:
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  102,15,56,49,4,56                   // pmovzxbd      (%rax,%rdi,1),%xmm0
   .byte  15,91,216                           // cvtdq2ps      %xmm0,%xmm3
-  .byte  15,89,29,21,34,0,0                  // mulps         0x2215(%rip),%xmm3        # 4370 <_sk_callback_sse41+0x990>
+  .byte  15,89,29,22,35,0,0                  // mulps         0x2316(%rip),%xmm3        # 4d20 <_sk_callback_sse41+0xa91>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
   .byte  15,87,201                           // xorps         %xmm1,%xmm1
@@ -20130,7 +22378,7 @@ _sk_gather_a8_sse41:
   .byte  102,15,58,32,192,3                  // pinsrb        $0x3,%eax,%xmm0
   .byte  102,15,56,49,192                    // pmovzxbd      %xmm0,%xmm0
   .byte  15,91,216                           // cvtdq2ps      %xmm0,%xmm3
-  .byte  15,89,29,169,33,0,0                 // mulps         0x21a9(%rip),%xmm3        # 4380 <_sk_callback_sse41+0x9a0>
+  .byte  15,89,29,170,34,0,0                 // mulps         0x22aa(%rip),%xmm3        # 4d30 <_sk_callback_sse41+0xaa1>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
   .byte  102,15,239,201                      // pxor          %xmm1,%xmm1
@@ -20143,7 +22391,7 @@ FUNCTION(_sk_store_a8_sse41)
 _sk_store_a8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
-  .byte  68,15,40,5,157,33,0,0               // movaps        0x219d(%rip),%xmm8        # 4390 <_sk_callback_sse41+0x9b0>
+  .byte  68,15,40,5,158,34,0,0               // movaps        0x229e(%rip),%xmm8        # 4d40 <_sk_callback_sse41+0xab1>
   .byte  68,15,89,195                        // mulps         %xmm3,%xmm8
   .byte  102,69,15,91,192                    // cvtps2dq      %xmm8,%xmm8
   .byte  102,69,15,56,43,192                 // packusdw      %xmm8,%xmm8
@@ -20160,9 +22408,9 @@ _sk_load_g8_sse41:
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  102,15,56,49,4,56                   // pmovzxbd      (%rax,%rdi,1),%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  15,89,5,122,33,0,0                  // mulps         0x217a(%rip),%xmm0        # 43a0 <_sk_callback_sse41+0x9c0>
+  .byte  15,89,5,123,34,0,0                  // mulps         0x227b(%rip),%xmm0        # 4d50 <_sk_callback_sse41+0xac1>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,129,33,0,0                 // movaps        0x2181(%rip),%xmm3        # 43b0 <_sk_callback_sse41+0x9d0>
+  .byte  15,40,29,130,34,0,0                 // movaps        0x2282(%rip),%xmm3        # 4d60 <_sk_callback_sse41+0xad1>
   .byte  15,40,200                           // movaps        %xmm0,%xmm1
   .byte  15,40,208                           // movaps        %xmm0,%xmm2
   .byte  255,224                             // jmpq          *%rax
@@ -20193,9 +22441,9 @@ _sk_gather_g8_sse41:
   .byte  102,15,58,32,192,3                  // pinsrb        $0x3,%eax,%xmm0
   .byte  102,15,56,49,192                    // pmovzxbd      %xmm0,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  15,89,5,26,33,0,0                   // mulps         0x211a(%rip),%xmm0        # 43c0 <_sk_callback_sse41+0x9e0>
+  .byte  15,89,5,27,34,0,0                   // mulps         0x221b(%rip),%xmm0        # 4d70 <_sk_callback_sse41+0xae1>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,33,33,0,0                  // movaps        0x2121(%rip),%xmm3        # 43d0 <_sk_callback_sse41+0x9f0>
+  .byte  15,40,29,34,34,0,0                  // movaps        0x2222(%rip),%xmm3        # 4d80 <_sk_callback_sse41+0xaf1>
   .byte  15,40,200                           // movaps        %xmm0,%xmm1
   .byte  15,40,208                           // movaps        %xmm0,%xmm2
   .byte  255,224                             // jmpq          *%rax
@@ -20207,9 +22455,9 @@ _sk_gather_i8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  73,137,192                          // mov           %rax,%r8
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  116,5                               // je            22c6 <_sk_gather_i8_sse41+0xf>
+  .byte  116,5                               // je            2b75 <_sk_gather_i8_sse41+0xf>
   .byte  76,137,192                          // mov           %r8,%rax
-  .byte  235,2                               // jmp           22c8 <_sk_gather_i8_sse41+0x11>
+  .byte  235,2                               // jmp           2b77 <_sk_gather_i8_sse41+0x11>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
   .byte  243,15,91,201                       // cvttps2dq     %xmm1,%xmm1
@@ -20240,17 +22488,17 @@ _sk_gather_i8_sse41:
   .byte  102,15,58,34,28,8,1                 // pinsrd        $0x1,(%rax,%rcx,1),%xmm3
   .byte  102,66,15,58,34,28,144,2            // pinsrd        $0x2,(%rax,%r10,4),%xmm3
   .byte  102,66,15,58,34,28,8,3              // pinsrd        $0x3,(%rax,%r9,1),%xmm3
-  .byte  102,15,111,5,120,32,0,0             // movdqa        0x2078(%rip),%xmm0        # 43e0 <_sk_callback_sse41+0xa00>
+  .byte  102,15,111,5,121,33,0,0             // movdqa        0x2179(%rip),%xmm0        # 4d90 <_sk_callback_sse41+0xb01>
   .byte  102,15,219,195                      // pand          %xmm3,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  68,15,40,5,121,32,0,0               // movaps        0x2079(%rip),%xmm8        # 43f0 <_sk_callback_sse41+0xa10>
+  .byte  68,15,40,5,122,33,0,0               // movaps        0x217a(%rip),%xmm8        # 4da0 <_sk_callback_sse41+0xb11>
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  102,15,111,203                      // movdqa        %xmm3,%xmm1
-  .byte  102,15,56,0,13,120,32,0,0           // pshufb        0x2078(%rip),%xmm1        # 4400 <_sk_callback_sse41+0xa20>
+  .byte  102,15,56,0,13,121,33,0,0           // pshufb        0x2179(%rip),%xmm1        # 4db0 <_sk_callback_sse41+0xb21>
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
   .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
   .byte  102,15,111,211                      // movdqa        %xmm3,%xmm2
-  .byte  102,15,56,0,21,116,32,0,0           // pshufb        0x2074(%rip),%xmm2        # 4410 <_sk_callback_sse41+0xa30>
+  .byte  102,15,56,0,21,117,33,0,0           // pshufb        0x2175(%rip),%xmm2        # 4dc0 <_sk_callback_sse41+0xb31>
   .byte  15,91,210                           // cvtdq2ps      %xmm2,%xmm2
   .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
   .byte  102,15,114,211,24                   // psrld         $0x18,%xmm3
@@ -20266,19 +22514,19 @@ _sk_load_565_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  102,15,56,51,20,120                 // pmovzxwd      (%rax,%rdi,2),%xmm2
-  .byte  102,15,111,5,90,32,0,0              // movdqa        0x205a(%rip),%xmm0        # 4420 <_sk_callback_sse41+0xa40>
+  .byte  102,15,111,5,91,33,0,0              // movdqa        0x215b(%rip),%xmm0        # 4dd0 <_sk_callback_sse41+0xb41>
   .byte  102,15,219,194                      // pand          %xmm2,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  15,89,5,92,32,0,0                   // mulps         0x205c(%rip),%xmm0        # 4430 <_sk_callback_sse41+0xa50>
-  .byte  102,15,111,13,100,32,0,0            // movdqa        0x2064(%rip),%xmm1        # 4440 <_sk_callback_sse41+0xa60>
+  .byte  15,89,5,93,33,0,0                   // mulps         0x215d(%rip),%xmm0        # 4de0 <_sk_callback_sse41+0xb51>
+  .byte  102,15,111,13,101,33,0,0            // movdqa        0x2165(%rip),%xmm1        # 4df0 <_sk_callback_sse41+0xb61>
   .byte  102,15,219,202                      // pand          %xmm2,%xmm1
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
-  .byte  15,89,13,102,32,0,0                 // mulps         0x2066(%rip),%xmm1        # 4450 <_sk_callback_sse41+0xa70>
-  .byte  102,15,219,21,110,32,0,0            // pand          0x206e(%rip),%xmm2        # 4460 <_sk_callback_sse41+0xa80>
+  .byte  15,89,13,103,33,0,0                 // mulps         0x2167(%rip),%xmm1        # 4e00 <_sk_callback_sse41+0xb71>
+  .byte  102,15,219,21,111,33,0,0            // pand          0x216f(%rip),%xmm2        # 4e10 <_sk_callback_sse41+0xb81>
   .byte  15,91,210                           // cvtdq2ps      %xmm2,%xmm2
-  .byte  15,89,21,116,32,0,0                 // mulps         0x2074(%rip),%xmm2        # 4470 <_sk_callback_sse41+0xa90>
+  .byte  15,89,21,117,33,0,0                 // mulps         0x2175(%rip),%xmm2        # 4e20 <_sk_callback_sse41+0xb91>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,123,32,0,0                 // movaps        0x207b(%rip),%xmm3        # 4480 <_sk_callback_sse41+0xaa0>
+  .byte  15,40,29,124,33,0,0                 // movaps        0x217c(%rip),%xmm3        # 4e30 <_sk_callback_sse41+0xba1>
   .byte  255,224                             // jmpq          *%rax
 
 HIDDEN _sk_gather_565_sse41
@@ -20306,19 +22554,19 @@ _sk_gather_565_sse41:
   .byte  65,15,183,4,65                      // movzwl        (%r9,%rax,2),%eax
   .byte  102,15,196,192,3                    // pinsrw        $0x3,%eax,%xmm0
   .byte  102,15,56,51,208                    // pmovzxwd      %xmm0,%xmm2
-  .byte  102,15,111,5,32,32,0,0              // movdqa        0x2020(%rip),%xmm0        # 4490 <_sk_callback_sse41+0xab0>
+  .byte  102,15,111,5,33,33,0,0              // movdqa        0x2121(%rip),%xmm0        # 4e40 <_sk_callback_sse41+0xbb1>
   .byte  102,15,219,194                      // pand          %xmm2,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  15,89,5,34,32,0,0                   // mulps         0x2022(%rip),%xmm0        # 44a0 <_sk_callback_sse41+0xac0>
-  .byte  102,15,111,13,42,32,0,0             // movdqa        0x202a(%rip),%xmm1        # 44b0 <_sk_callback_sse41+0xad0>
+  .byte  15,89,5,35,33,0,0                   // mulps         0x2123(%rip),%xmm0        # 4e50 <_sk_callback_sse41+0xbc1>
+  .byte  102,15,111,13,43,33,0,0             // movdqa        0x212b(%rip),%xmm1        # 4e60 <_sk_callback_sse41+0xbd1>
   .byte  102,15,219,202                      // pand          %xmm2,%xmm1
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
-  .byte  15,89,13,44,32,0,0                  // mulps         0x202c(%rip),%xmm1        # 44c0 <_sk_callback_sse41+0xae0>
-  .byte  102,15,219,21,52,32,0,0             // pand          0x2034(%rip),%xmm2        # 44d0 <_sk_callback_sse41+0xaf0>
+  .byte  15,89,13,45,33,0,0                  // mulps         0x212d(%rip),%xmm1        # 4e70 <_sk_callback_sse41+0xbe1>
+  .byte  102,15,219,21,53,33,0,0             // pand          0x2135(%rip),%xmm2        # 4e80 <_sk_callback_sse41+0xbf1>
   .byte  15,91,210                           // cvtdq2ps      %xmm2,%xmm2
-  .byte  15,89,21,58,32,0,0                  // mulps         0x203a(%rip),%xmm2        # 44e0 <_sk_callback_sse41+0xb00>
+  .byte  15,89,21,59,33,0,0                  // mulps         0x213b(%rip),%xmm2        # 4e90 <_sk_callback_sse41+0xc01>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,65,32,0,0                  // movaps        0x2041(%rip),%xmm3        # 44f0 <_sk_callback_sse41+0xb10>
+  .byte  15,40,29,66,33,0,0                  // movaps        0x2142(%rip),%xmm3        # 4ea0 <_sk_callback_sse41+0xc11>
   .byte  255,224                             // jmpq          *%rax
 
 HIDDEN _sk_store_565_sse41
@@ -20327,12 +22575,12 @@ FUNCTION(_sk_store_565_sse41)
 _sk_store_565_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
-  .byte  68,15,40,5,66,32,0,0                // movaps        0x2042(%rip),%xmm8        # 4500 <_sk_callback_sse41+0xb20>
+  .byte  68,15,40,5,67,33,0,0                // movaps        0x2143(%rip),%xmm8        # 4eb0 <_sk_callback_sse41+0xc21>
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
   .byte  69,15,89,200                        // mulps         %xmm8,%xmm9
   .byte  102,69,15,91,201                    // cvtps2dq      %xmm9,%xmm9
   .byte  102,65,15,114,241,11                // pslld         $0xb,%xmm9
-  .byte  68,15,40,21,55,32,0,0               // movaps        0x2037(%rip),%xmm10        # 4510 <_sk_callback_sse41+0xb30>
+  .byte  68,15,40,21,56,33,0,0               // movaps        0x2138(%rip),%xmm10        # 4ec0 <_sk_callback_sse41+0xc31>
   .byte  68,15,89,209                        // mulps         %xmm1,%xmm10
   .byte  102,69,15,91,210                    // cvtps2dq      %xmm10,%xmm10
   .byte  102,65,15,114,242,5                 // pslld         $0x5,%xmm10
@@ -20352,21 +22600,21 @@ _sk_load_4444_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  102,15,56,51,28,120                 // pmovzxwd      (%rax,%rdi,2),%xmm3
-  .byte  102,15,111,5,2,32,0,0               // movdqa        0x2002(%rip),%xmm0        # 4520 <_sk_callback_sse41+0xb40>
+  .byte  102,15,111,5,3,33,0,0               // movdqa        0x2103(%rip),%xmm0        # 4ed0 <_sk_callback_sse41+0xc41>
   .byte  102,15,219,195                      // pand          %xmm3,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  15,89,5,4,32,0,0                    // mulps         0x2004(%rip),%xmm0        # 4530 <_sk_callback_sse41+0xb50>
-  .byte  102,15,111,13,12,32,0,0             // movdqa        0x200c(%rip),%xmm1        # 4540 <_sk_callback_sse41+0xb60>
+  .byte  15,89,5,5,33,0,0                    // mulps         0x2105(%rip),%xmm0        # 4ee0 <_sk_callback_sse41+0xc51>
+  .byte  102,15,111,13,13,33,0,0             // movdqa        0x210d(%rip),%xmm1        # 4ef0 <_sk_callback_sse41+0xc61>
   .byte  102,15,219,203                      // pand          %xmm3,%xmm1
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
-  .byte  15,89,13,14,32,0,0                  // mulps         0x200e(%rip),%xmm1        # 4550 <_sk_callback_sse41+0xb70>
-  .byte  102,15,111,21,22,32,0,0             // movdqa        0x2016(%rip),%xmm2        # 4560 <_sk_callback_sse41+0xb80>
+  .byte  15,89,13,15,33,0,0                  // mulps         0x210f(%rip),%xmm1        # 4f00 <_sk_callback_sse41+0xc71>
+  .byte  102,15,111,21,23,33,0,0             // movdqa        0x2117(%rip),%xmm2        # 4f10 <_sk_callback_sse41+0xc81>
   .byte  102,15,219,211                      // pand          %xmm3,%xmm2
   .byte  15,91,210                           // cvtdq2ps      %xmm2,%xmm2
-  .byte  15,89,21,24,32,0,0                  // mulps         0x2018(%rip),%xmm2        # 4570 <_sk_callback_sse41+0xb90>
-  .byte  102,15,219,29,32,32,0,0             // pand          0x2020(%rip),%xmm3        # 4580 <_sk_callback_sse41+0xba0>
+  .byte  15,89,21,25,33,0,0                  // mulps         0x2119(%rip),%xmm2        # 4f20 <_sk_callback_sse41+0xc91>
+  .byte  102,15,219,29,33,33,0,0             // pand          0x2121(%rip),%xmm3        # 4f30 <_sk_callback_sse41+0xca1>
   .byte  15,91,219                           // cvtdq2ps      %xmm3,%xmm3
-  .byte  15,89,29,38,32,0,0                  // mulps         0x2026(%rip),%xmm3        # 4590 <_sk_callback_sse41+0xbb0>
+  .byte  15,89,29,39,33,0,0                  // mulps         0x2127(%rip),%xmm3        # 4f40 <_sk_callback_sse41+0xcb1>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
@@ -20395,21 +22643,21 @@ _sk_gather_4444_sse41:
   .byte  65,15,183,4,65                      // movzwl        (%r9,%rax,2),%eax
   .byte  102,15,196,192,3                    // pinsrw        $0x3,%eax,%xmm0
   .byte  102,15,56,51,216                    // pmovzxwd      %xmm0,%xmm3
-  .byte  102,15,111,5,201,31,0,0             // movdqa        0x1fc9(%rip),%xmm0        # 45a0 <_sk_callback_sse41+0xbc0>
+  .byte  102,15,111,5,202,32,0,0             // movdqa        0x20ca(%rip),%xmm0        # 4f50 <_sk_callback_sse41+0xcc1>
   .byte  102,15,219,195                      // pand          %xmm3,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  15,89,5,203,31,0,0                  // mulps         0x1fcb(%rip),%xmm0        # 45b0 <_sk_callback_sse41+0xbd0>
-  .byte  102,15,111,13,211,31,0,0            // movdqa        0x1fd3(%rip),%xmm1        # 45c0 <_sk_callback_sse41+0xbe0>
+  .byte  15,89,5,204,32,0,0                  // mulps         0x20cc(%rip),%xmm0        # 4f60 <_sk_callback_sse41+0xcd1>
+  .byte  102,15,111,13,212,32,0,0            // movdqa        0x20d4(%rip),%xmm1        # 4f70 <_sk_callback_sse41+0xce1>
   .byte  102,15,219,203                      // pand          %xmm3,%xmm1
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
-  .byte  15,89,13,213,31,0,0                 // mulps         0x1fd5(%rip),%xmm1        # 45d0 <_sk_callback_sse41+0xbf0>
-  .byte  102,15,111,21,221,31,0,0            // movdqa        0x1fdd(%rip),%xmm2        # 45e0 <_sk_callback_sse41+0xc00>
+  .byte  15,89,13,214,32,0,0                 // mulps         0x20d6(%rip),%xmm1        # 4f80 <_sk_callback_sse41+0xcf1>
+  .byte  102,15,111,21,222,32,0,0            // movdqa        0x20de(%rip),%xmm2        # 4f90 <_sk_callback_sse41+0xd01>
   .byte  102,15,219,211                      // pand          %xmm3,%xmm2
   .byte  15,91,210                           // cvtdq2ps      %xmm2,%xmm2
-  .byte  15,89,21,223,31,0,0                 // mulps         0x1fdf(%rip),%xmm2        # 45f0 <_sk_callback_sse41+0xc10>
-  .byte  102,15,219,29,231,31,0,0            // pand          0x1fe7(%rip),%xmm3        # 4600 <_sk_callback_sse41+0xc20>
+  .byte  15,89,21,224,32,0,0                 // mulps         0x20e0(%rip),%xmm2        # 4fa0 <_sk_callback_sse41+0xd11>
+  .byte  102,15,219,29,232,32,0,0            // pand          0x20e8(%rip),%xmm3        # 4fb0 <_sk_callback_sse41+0xd21>
   .byte  15,91,219                           // cvtdq2ps      %xmm3,%xmm3
-  .byte  15,89,29,237,31,0,0                 // mulps         0x1fed(%rip),%xmm3        # 4610 <_sk_callback_sse41+0xc30>
+  .byte  15,89,29,238,32,0,0                 // mulps         0x20ee(%rip),%xmm3        # 4fc0 <_sk_callback_sse41+0xd31>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
@@ -20419,7 +22667,7 @@ FUNCTION(_sk_store_4444_sse41)
 _sk_store_4444_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
-  .byte  68,15,40,5,236,31,0,0               // movaps        0x1fec(%rip),%xmm8        # 4620 <_sk_callback_sse41+0xc40>
+  .byte  68,15,40,5,237,32,0,0               // movaps        0x20ed(%rip),%xmm8        # 4fd0 <_sk_callback_sse41+0xd41>
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
   .byte  69,15,89,200                        // mulps         %xmm8,%xmm9
   .byte  102,69,15,91,201                    // cvtps2dq      %xmm9,%xmm9
@@ -20449,17 +22697,17 @@ _sk_load_8888_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  15,16,28,184                        // movups        (%rax,%rdi,4),%xmm3
-  .byte  15,40,5,139,31,0,0                  // movaps        0x1f8b(%rip),%xmm0        # 4630 <_sk_callback_sse41+0xc50>
+  .byte  15,40,5,140,32,0,0                  // movaps        0x208c(%rip),%xmm0        # 4fe0 <_sk_callback_sse41+0xd51>
   .byte  15,84,195                           // andps         %xmm3,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  68,15,40,5,141,31,0,0               // movaps        0x1f8d(%rip),%xmm8        # 4640 <_sk_callback_sse41+0xc60>
+  .byte  68,15,40,5,142,32,0,0               // movaps        0x208e(%rip),%xmm8        # 4ff0 <_sk_callback_sse41+0xd61>
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  15,40,203                           // movaps        %xmm3,%xmm1
-  .byte  102,15,56,0,13,141,31,0,0           // pshufb        0x1f8d(%rip),%xmm1        # 4650 <_sk_callback_sse41+0xc70>
+  .byte  102,15,56,0,13,142,32,0,0           // pshufb        0x208e(%rip),%xmm1        # 5000 <_sk_callback_sse41+0xd71>
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
   .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
   .byte  15,40,211                           // movaps        %xmm3,%xmm2
-  .byte  102,15,56,0,21,138,31,0,0           // pshufb        0x1f8a(%rip),%xmm2        # 4660 <_sk_callback_sse41+0xc80>
+  .byte  102,15,56,0,21,139,32,0,0           // pshufb        0x208b(%rip),%xmm2        # 5010 <_sk_callback_sse41+0xd81>
   .byte  15,91,210                           // cvtdq2ps      %xmm2,%xmm2
   .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
   .byte  102,15,114,211,24                   // psrld         $0x18,%xmm3
@@ -20490,17 +22738,17 @@ _sk_gather_8888_sse41:
   .byte  102,65,15,58,34,28,129,1            // pinsrd        $0x1,(%r9,%rax,4),%xmm3
   .byte  102,67,15,58,34,28,145,2            // pinsrd        $0x2,(%r9,%r10,4),%xmm3
   .byte  102,65,15,58,34,28,137,3            // pinsrd        $0x3,(%r9,%rcx,4),%xmm3
-  .byte  102,15,111,5,35,31,0,0              // movdqa        0x1f23(%rip),%xmm0        # 4670 <_sk_callback_sse41+0xc90>
+  .byte  102,15,111,5,36,32,0,0              // movdqa        0x2024(%rip),%xmm0        # 5020 <_sk_callback_sse41+0xd91>
   .byte  102,15,219,195                      // pand          %xmm3,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  68,15,40,5,36,31,0,0                // movaps        0x1f24(%rip),%xmm8        # 4680 <_sk_callback_sse41+0xca0>
+  .byte  68,15,40,5,37,32,0,0                // movaps        0x2025(%rip),%xmm8        # 5030 <_sk_callback_sse41+0xda1>
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  102,15,111,203                      // movdqa        %xmm3,%xmm1
-  .byte  102,15,56,0,13,35,31,0,0            // pshufb        0x1f23(%rip),%xmm1        # 4690 <_sk_callback_sse41+0xcb0>
+  .byte  102,15,56,0,13,36,32,0,0            // pshufb        0x2024(%rip),%xmm1        # 5040 <_sk_callback_sse41+0xdb1>
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
   .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
   .byte  102,15,111,211                      // movdqa        %xmm3,%xmm2
-  .byte  102,15,56,0,21,31,31,0,0            // pshufb        0x1f1f(%rip),%xmm2        # 46a0 <_sk_callback_sse41+0xcc0>
+  .byte  102,15,56,0,21,32,32,0,0            // pshufb        0x2020(%rip),%xmm2        # 5050 <_sk_callback_sse41+0xdc1>
   .byte  15,91,210                           // cvtdq2ps      %xmm2,%xmm2
   .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
   .byte  102,15,114,211,24                   // psrld         $0x18,%xmm3
@@ -20515,7 +22763,7 @@ FUNCTION(_sk_store_8888_sse41)
 _sk_store_8888_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
-  .byte  68,15,40,5,11,31,0,0                // movaps        0x1f0b(%rip),%xmm8        # 46b0 <_sk_callback_sse41+0xcd0>
+  .byte  68,15,40,5,12,32,0,0                // movaps        0x200c(%rip),%xmm8        # 5060 <_sk_callback_sse41+0xdd1>
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
   .byte  69,15,89,200                        // mulps         %xmm8,%xmm9
   .byte  102,69,15,91,201                    // cvtps2dq      %xmm9,%xmm9
@@ -20552,18 +22800,18 @@ _sk_load_f16_sse41:
   .byte  102,68,15,97,216                    // punpcklwd     %xmm0,%xmm11
   .byte  102,68,15,105,200                   // punpckhwd     %xmm0,%xmm9
   .byte  102,65,15,56,51,203                 // pmovzxwd      %xmm11,%xmm1
-  .byte  102,68,15,111,5,132,30,0,0          // movdqa        0x1e84(%rip),%xmm8        # 46c0 <_sk_callback_sse41+0xce0>
+  .byte  102,68,15,111,5,133,31,0,0          // movdqa        0x1f85(%rip),%xmm8        # 5070 <_sk_callback_sse41+0xde1>
   .byte  102,15,111,209                      // movdqa        %xmm1,%xmm2
   .byte  102,65,15,219,208                   // pand          %xmm8,%xmm2
   .byte  102,15,239,202                      // pxor          %xmm2,%xmm1
-  .byte  102,15,111,29,127,30,0,0            // movdqa        0x1e7f(%rip),%xmm3        # 46d0 <_sk_callback_sse41+0xcf0>
+  .byte  102,15,111,29,128,31,0,0            // movdqa        0x1f80(%rip),%xmm3        # 5080 <_sk_callback_sse41+0xdf1>
   .byte  102,15,114,242,16                   // pslld         $0x10,%xmm2
   .byte  102,15,111,193                      // movdqa        %xmm1,%xmm0
   .byte  102,15,56,63,195                    // pmaxud        %xmm3,%xmm0
   .byte  102,15,118,193                      // pcmpeqd       %xmm1,%xmm0
   .byte  102,15,114,241,13                   // pslld         $0xd,%xmm1
   .byte  102,15,235,202                      // por           %xmm2,%xmm1
-  .byte  102,68,15,111,21,107,30,0,0         // movdqa        0x1e6b(%rip),%xmm10        # 46e0 <_sk_callback_sse41+0xd00>
+  .byte  102,68,15,111,21,108,31,0,0         // movdqa        0x1f6c(%rip),%xmm10        # 5090 <_sk_callback_sse41+0xe01>
   .byte  102,65,15,254,202                   // paddd         %xmm10,%xmm1
   .byte  102,15,219,193                      // pand          %xmm1,%xmm0
   .byte  102,65,15,115,219,8                 // psrldq        $0x8,%xmm11
@@ -20636,18 +22884,18 @@ _sk_gather_f16_sse41:
   .byte  102,68,15,97,218                    // punpcklwd     %xmm2,%xmm11
   .byte  102,68,15,105,202                   // punpckhwd     %xmm2,%xmm9
   .byte  102,65,15,56,51,203                 // pmovzxwd      %xmm11,%xmm1
-  .byte  102,68,15,111,5,41,29,0,0           // movdqa        0x1d29(%rip),%xmm8        # 46f0 <_sk_callback_sse41+0xd10>
+  .byte  102,68,15,111,5,42,30,0,0           // movdqa        0x1e2a(%rip),%xmm8        # 50a0 <_sk_callback_sse41+0xe11>
   .byte  102,15,111,209                      // movdqa        %xmm1,%xmm2
   .byte  102,65,15,219,208                   // pand          %xmm8,%xmm2
   .byte  102,15,239,202                      // pxor          %xmm2,%xmm1
-  .byte  102,15,111,29,36,29,0,0             // movdqa        0x1d24(%rip),%xmm3        # 4700 <_sk_callback_sse41+0xd20>
+  .byte  102,15,111,29,37,30,0,0             // movdqa        0x1e25(%rip),%xmm3        # 50b0 <_sk_callback_sse41+0xe21>
   .byte  102,15,114,242,16                   // pslld         $0x10,%xmm2
   .byte  102,15,111,193                      // movdqa        %xmm1,%xmm0
   .byte  102,15,56,63,195                    // pmaxud        %xmm3,%xmm0
   .byte  102,15,118,193                      // pcmpeqd       %xmm1,%xmm0
   .byte  102,15,114,241,13                   // pslld         $0xd,%xmm1
   .byte  102,15,235,202                      // por           %xmm2,%xmm1
-  .byte  102,68,15,111,21,16,29,0,0          // movdqa        0x1d10(%rip),%xmm10        # 4710 <_sk_callback_sse41+0xd30>
+  .byte  102,68,15,111,21,17,30,0,0          // movdqa        0x1e11(%rip),%xmm10        # 50c0 <_sk_callback_sse41+0xe31>
   .byte  102,65,15,254,202                   // paddd         %xmm10,%xmm1
   .byte  102,15,219,193                      // pand          %xmm1,%xmm0
   .byte  102,65,15,115,219,8                 // psrldq        $0x8,%xmm11
@@ -20695,17 +22943,17 @@ FUNCTION(_sk_store_f16_sse41)
 _sk_store_f16_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
-  .byte  102,68,15,111,21,70,28,0,0          // movdqa        0x1c46(%rip),%xmm10        # 4720 <_sk_callback_sse41+0xd40>
+  .byte  102,68,15,111,21,71,29,0,0          // movdqa        0x1d47(%rip),%xmm10        # 50d0 <_sk_callback_sse41+0xe41>
   .byte  102,68,15,111,224                   // movdqa        %xmm0,%xmm12
   .byte  102,68,15,111,232                   // movdqa        %xmm0,%xmm13
   .byte  102,69,15,219,234                   // pand          %xmm10,%xmm13
   .byte  102,69,15,239,229                   // pxor          %xmm13,%xmm12
-  .byte  102,68,15,111,13,57,28,0,0          // movdqa        0x1c39(%rip),%xmm9        # 4730 <_sk_callback_sse41+0xd50>
+  .byte  102,68,15,111,13,58,29,0,0          // movdqa        0x1d3a(%rip),%xmm9        # 50e0 <_sk_callback_sse41+0xe51>
   .byte  102,65,15,114,213,16                // psrld         $0x10,%xmm13
   .byte  102,69,15,111,193                   // movdqa        %xmm9,%xmm8
   .byte  102,69,15,102,196                   // pcmpgtd       %xmm12,%xmm8
   .byte  102,65,15,114,212,13                // psrld         $0xd,%xmm12
-  .byte  102,68,15,111,29,42,28,0,0          // movdqa        0x1c2a(%rip),%xmm11        # 4740 <_sk_callback_sse41+0xd60>
+  .byte  102,68,15,111,29,43,29,0,0          // movdqa        0x1d2b(%rip),%xmm11        # 50f0 <_sk_callback_sse41+0xe61>
   .byte  102,69,15,235,235                   // por           %xmm11,%xmm13
   .byte  102,69,15,254,236                   // paddd         %xmm12,%xmm13
   .byte  102,69,15,223,197                   // pandn         %xmm13,%xmm8
@@ -20775,7 +23023,7 @@ _sk_load_u16_be_sse41:
   .byte  102,15,235,200                      // por           %xmm0,%xmm1
   .byte  102,15,56,51,193                    // pmovzxwd      %xmm1,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  68,15,40,5,249,26,0,0               // movaps        0x1af9(%rip),%xmm8        # 4750 <_sk_callback_sse41+0xd70>
+  .byte  68,15,40,5,250,27,0,0               // movaps        0x1bfa(%rip),%xmm8        # 5100 <_sk_callback_sse41+0xe71>
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  102,15,111,203                      // movdqa        %xmm3,%xmm1
   .byte  102,15,113,241,8                    // psllw         $0x8,%xmm1
@@ -20827,7 +23075,7 @@ _sk_load_rgb_u16_be_sse41:
   .byte  102,15,235,193                      // por           %xmm1,%xmm0
   .byte  102,15,56,51,192                    // pmovzxwd      %xmm0,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  68,15,40,5,58,26,0,0                // movaps        0x1a3a(%rip),%xmm8        # 4760 <_sk_callback_sse41+0xd80>
+  .byte  68,15,40,5,59,27,0,0                // movaps        0x1b3b(%rip),%xmm8        # 5110 <_sk_callback_sse41+0xe81>
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  102,15,111,203                      // movdqa        %xmm3,%xmm1
   .byte  102,15,113,241,8                    // psllw         $0x8,%xmm1
@@ -20844,7 +23092,7 @@ _sk_load_rgb_u16_be_sse41:
   .byte  15,91,210                           // cvtdq2ps      %xmm2,%xmm2
   .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,1,26,0,0                   // movaps        0x1a01(%rip),%xmm3        # 4770 <_sk_callback_sse41+0xd90>
+  .byte  15,40,29,2,27,0,0                   // movaps        0x1b02(%rip),%xmm3        # 5120 <_sk_callback_sse41+0xe91>
   .byte  255,224                             // jmpq          *%rax
 
 HIDDEN _sk_store_u16_be_sse41
@@ -20853,7 +23101,7 @@ FUNCTION(_sk_store_u16_be_sse41)
 _sk_store_u16_be_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
-  .byte  68,15,40,13,2,26,0,0                // movaps        0x1a02(%rip),%xmm9        # 4780 <_sk_callback_sse41+0xda0>
+  .byte  68,15,40,13,3,27,0,0                // movaps        0x1b03(%rip),%xmm9        # 5130 <_sk_callback_sse41+0xea1>
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
   .byte  102,69,15,91,192                    // cvtps2dq      %xmm8,%xmm8
@@ -21076,10 +23324,10 @@ HIDDEN _sk_luminance_to_alpha_sse41
 FUNCTION(_sk_luminance_to_alpha_sse41)
 _sk_luminance_to_alpha_sse41:
   .byte  15,40,218                           // movaps        %xmm2,%xmm3
-  .byte  15,89,5,32,23,0,0                   // mulps         0x1720(%rip),%xmm0        # 4790 <_sk_callback_sse41+0xdb0>
-  .byte  15,89,13,41,23,0,0                  // mulps         0x1729(%rip),%xmm1        # 47a0 <_sk_callback_sse41+0xdc0>
+  .byte  15,89,5,33,24,0,0                   // mulps         0x1821(%rip),%xmm0        # 5140 <_sk_callback_sse41+0xeb1>
+  .byte  15,89,13,42,24,0,0                  // mulps         0x182a(%rip),%xmm1        # 5150 <_sk_callback_sse41+0xec1>
   .byte  15,88,200                           // addps         %xmm0,%xmm1
-  .byte  15,89,29,47,23,0,0                  // mulps         0x172f(%rip),%xmm3        # 47b0 <_sk_callback_sse41+0xdd0>
+  .byte  15,89,29,48,24,0,0                  // mulps         0x1830(%rip),%xmm3        # 5160 <_sk_callback_sse41+0xed1>
   .byte  15,88,217                           // addps         %xmm1,%xmm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
@@ -21312,7 +23560,7 @@ _sk_linear_gradient_sse41:
   .byte  69,15,198,237,0                     // shufps        $0x0,%xmm13,%xmm13
   .byte  72,139,8                            // mov           (%rax),%rcx
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,132,254,0,0,0                    // je            3523 <_sk_linear_gradient_sse41+0x138>
+  .byte  15,132,254,0,0,0                    // je            3dd2 <_sk_linear_gradient_sse41+0x138>
   .byte  15,41,100,36,168                    // movaps        %xmm4,-0x58(%rsp)
   .byte  15,41,108,36,184                    // movaps        %xmm5,-0x48(%rsp)
   .byte  15,41,116,36,200                    // movaps        %xmm6,-0x38(%rsp)
@@ -21362,12 +23610,12 @@ _sk_linear_gradient_sse41:
   .byte  15,40,196                           // movaps        %xmm4,%xmm0
   .byte  72,131,192,36                       // add           $0x24,%rax
   .byte  72,255,201                          // dec           %rcx
-  .byte  15,133,65,255,255,255               // jne           344e <_sk_linear_gradient_sse41+0x63>
+  .byte  15,133,65,255,255,255               // jne           3cfd <_sk_linear_gradient_sse41+0x63>
   .byte  15,40,124,36,216                    // movaps        -0x28(%rsp),%xmm7
   .byte  15,40,116,36,200                    // movaps        -0x38(%rsp),%xmm6
   .byte  15,40,108,36,184                    // movaps        -0x48(%rsp),%xmm5
   .byte  15,40,100,36,168                    // movaps        -0x58(%rsp),%xmm4
-  .byte  235,13                              // jmp           3530 <_sk_linear_gradient_sse41+0x145>
+  .byte  235,13                              // jmp           3ddf <_sk_linear_gradient_sse41+0x145>
   .byte  15,87,201                           // xorps         %xmm1,%xmm1
   .byte  15,87,210                           // xorps         %xmm2,%xmm2
   .byte  15,87,219                           // xorps         %xmm3,%xmm3
@@ -21436,26 +23684,26 @@ _sk_xy_to_polar_unit_sse41:
   .byte  69,15,94,226                        // divps         %xmm10,%xmm12
   .byte  69,15,40,236                        // movaps        %xmm12,%xmm13
   .byte  69,15,89,237                        // mulps         %xmm13,%xmm13
-  .byte  68,15,40,21,184,17,0,0              // movaps        0x11b8(%rip),%xmm10        # 47c0 <_sk_callback_sse41+0xde0>
+  .byte  68,15,40,21,185,18,0,0              // movaps        0x12b9(%rip),%xmm10        # 5170 <_sk_callback_sse41+0xee1>
   .byte  69,15,89,213                        // mulps         %xmm13,%xmm10
-  .byte  68,15,88,21,188,17,0,0              // addps         0x11bc(%rip),%xmm10        # 47d0 <_sk_callback_sse41+0xdf0>
+  .byte  68,15,88,21,189,18,0,0              // addps         0x12bd(%rip),%xmm10        # 5180 <_sk_callback_sse41+0xef1>
   .byte  69,15,89,213                        // mulps         %xmm13,%xmm10
-  .byte  68,15,88,21,192,17,0,0              // addps         0x11c0(%rip),%xmm10        # 47e0 <_sk_callback_sse41+0xe00>
+  .byte  68,15,88,21,193,18,0,0              // addps         0x12c1(%rip),%xmm10        # 5190 <_sk_callback_sse41+0xf01>
   .byte  69,15,89,213                        // mulps         %xmm13,%xmm10
-  .byte  68,15,88,21,196,17,0,0              // addps         0x11c4(%rip),%xmm10        # 47f0 <_sk_callback_sse41+0xe10>
+  .byte  68,15,88,21,197,18,0,0              // addps         0x12c5(%rip),%xmm10        # 51a0 <_sk_callback_sse41+0xf11>
   .byte  69,15,89,212                        // mulps         %xmm12,%xmm10
   .byte  65,15,194,195,1                     // cmpltps       %xmm11,%xmm0
-  .byte  68,15,40,29,195,17,0,0              // movaps        0x11c3(%rip),%xmm11        # 4800 <_sk_callback_sse41+0xe20>
+  .byte  68,15,40,29,196,18,0,0              // movaps        0x12c4(%rip),%xmm11        # 51b0 <_sk_callback_sse41+0xf21>
   .byte  69,15,92,218                        // subps         %xmm10,%xmm11
   .byte  102,69,15,56,20,211                 // blendvps      %xmm0,%xmm11,%xmm10
   .byte  69,15,194,200,1                     // cmpltps       %xmm8,%xmm9
-  .byte  68,15,40,29,188,17,0,0              // movaps        0x11bc(%rip),%xmm11        # 4810 <_sk_callback_sse41+0xe30>
+  .byte  68,15,40,29,189,18,0,0              // movaps        0x12bd(%rip),%xmm11        # 51c0 <_sk_callback_sse41+0xf31>
   .byte  69,15,92,218                        // subps         %xmm10,%xmm11
   .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
   .byte  102,69,15,56,20,211                 // blendvps      %xmm0,%xmm11,%xmm10
   .byte  15,40,193                           // movaps        %xmm1,%xmm0
   .byte  65,15,194,192,1                     // cmpltps       %xmm8,%xmm0
-  .byte  68,15,40,13,174,17,0,0              // movaps        0x11ae(%rip),%xmm9        # 4820 <_sk_callback_sse41+0xe40>
+  .byte  68,15,40,13,175,18,0,0              // movaps        0x12af(%rip),%xmm9        # 51d0 <_sk_callback_sse41+0xf41>
   .byte  69,15,92,202                        // subps         %xmm10,%xmm9
   .byte  102,69,15,56,20,209                 // blendvps      %xmm0,%xmm9,%xmm10
   .byte  69,15,194,194,7                     // cmpordps      %xmm10,%xmm8
@@ -21469,7 +23717,7 @@ HIDDEN _sk_save_xy_sse41
 FUNCTION(_sk_save_xy_sse41)
 _sk_save_xy_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  68,15,40,5,153,17,0,0               // movaps        0x1199(%rip),%xmm8        # 4830 <_sk_callback_sse41+0xe50>
+  .byte  68,15,40,5,154,18,0,0               // movaps        0x129a(%rip),%xmm8        # 51e0 <_sk_callback_sse41+0xf51>
   .byte  15,17,0                             // movups        %xmm0,(%rax)
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
   .byte  69,15,88,200                        // addps         %xmm8,%xmm9
@@ -21513,8 +23761,8 @@ _sk_bilinear_nx_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,0                             // movups        (%rax),%xmm0
   .byte  68,15,16,64,64                      // movups        0x40(%rax),%xmm8
-  .byte  15,88,5,27,17,0,0                   // addps         0x111b(%rip),%xmm0        # 4840 <_sk_callback_sse41+0xe60>
-  .byte  68,15,40,13,35,17,0,0               // movaps        0x1123(%rip),%xmm9        # 4850 <_sk_callback_sse41+0xe70>
+  .byte  15,88,5,28,18,0,0                   // addps         0x121c(%rip),%xmm0        # 51f0 <_sk_callback_sse41+0xf61>
+  .byte  68,15,40,13,36,18,0,0               // movaps        0x1224(%rip),%xmm9        # 5200 <_sk_callback_sse41+0xf71>
   .byte  69,15,92,200                        // subps         %xmm8,%xmm9
   .byte  68,15,17,136,128,0,0,0              // movups        %xmm9,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -21527,7 +23775,7 @@ _sk_bilinear_px_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,0                             // movups        (%rax),%xmm0
   .byte  68,15,16,64,64                      // movups        0x40(%rax),%xmm8
-  .byte  15,88,5,18,17,0,0                   // addps         0x1112(%rip),%xmm0        # 4860 <_sk_callback_sse41+0xe80>
+  .byte  15,88,5,19,18,0,0                   // addps         0x1213(%rip),%xmm0        # 5210 <_sk_callback_sse41+0xf81>
   .byte  68,15,17,128,128,0,0,0              // movups        %xmm8,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -21539,8 +23787,8 @@ _sk_bilinear_ny_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,72,32                         // movups        0x20(%rax),%xmm1
   .byte  68,15,16,64,96                      // movups        0x60(%rax),%xmm8
-  .byte  15,88,13,4,17,0,0                   // addps         0x1104(%rip),%xmm1        # 4870 <_sk_callback_sse41+0xe90>
-  .byte  68,15,40,13,12,17,0,0               // movaps        0x110c(%rip),%xmm9        # 4880 <_sk_callback_sse41+0xea0>
+  .byte  15,88,13,5,18,0,0                   // addps         0x1205(%rip),%xmm1        # 5220 <_sk_callback_sse41+0xf91>
+  .byte  68,15,40,13,13,18,0,0               // movaps        0x120d(%rip),%xmm9        # 5230 <_sk_callback_sse41+0xfa1>
   .byte  69,15,92,200                        // subps         %xmm8,%xmm9
   .byte  68,15,17,136,160,0,0,0              // movups        %xmm9,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -21553,7 +23801,7 @@ _sk_bilinear_py_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,72,32                         // movups        0x20(%rax),%xmm1
   .byte  68,15,16,64,96                      // movups        0x60(%rax),%xmm8
-  .byte  15,88,13,250,16,0,0                 // addps         0x10fa(%rip),%xmm1        # 4890 <_sk_callback_sse41+0xeb0>
+  .byte  15,88,13,251,17,0,0                 // addps         0x11fb(%rip),%xmm1        # 5240 <_sk_callback_sse41+0xfb1>
   .byte  68,15,17,128,160,0,0,0              // movups        %xmm8,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -21565,13 +23813,13 @@ _sk_bicubic_n3x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,0                             // movups        (%rax),%xmm0
   .byte  68,15,16,64,64                      // movups        0x40(%rax),%xmm8
-  .byte  15,88,5,237,16,0,0                  // addps         0x10ed(%rip),%xmm0        # 48a0 <_sk_callback_sse41+0xec0>
-  .byte  68,15,40,13,245,16,0,0              // movaps        0x10f5(%rip),%xmm9        # 48b0 <_sk_callback_sse41+0xed0>
+  .byte  15,88,5,238,17,0,0                  // addps         0x11ee(%rip),%xmm0        # 5250 <_sk_callback_sse41+0xfc1>
+  .byte  68,15,40,13,246,17,0,0              // movaps        0x11f6(%rip),%xmm9        # 5260 <_sk_callback_sse41+0xfd1>
   .byte  69,15,92,200                        // subps         %xmm8,%xmm9
   .byte  69,15,40,193                        // movaps        %xmm9,%xmm8
   .byte  69,15,89,192                        // mulps         %xmm8,%xmm8
-  .byte  68,15,89,13,241,16,0,0              // mulps         0x10f1(%rip),%xmm9        # 48c0 <_sk_callback_sse41+0xee0>
-  .byte  68,15,88,13,249,16,0,0              // addps         0x10f9(%rip),%xmm9        # 48d0 <_sk_callback_sse41+0xef0>
+  .byte  68,15,89,13,242,17,0,0              // mulps         0x11f2(%rip),%xmm9        # 5270 <_sk_callback_sse41+0xfe1>
+  .byte  68,15,88,13,250,17,0,0              // addps         0x11fa(%rip),%xmm9        # 5280 <_sk_callback_sse41+0xff1>
   .byte  69,15,89,200                        // mulps         %xmm8,%xmm9
   .byte  68,15,17,136,128,0,0,0              // movups        %xmm9,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -21584,16 +23832,16 @@ _sk_bicubic_n1x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,0                             // movups        (%rax),%xmm0
   .byte  68,15,16,64,64                      // movups        0x40(%rax),%xmm8
-  .byte  15,88,5,232,16,0,0                  // addps         0x10e8(%rip),%xmm0        # 48e0 <_sk_callback_sse41+0xf00>
-  .byte  68,15,40,13,240,16,0,0              // movaps        0x10f0(%rip),%xmm9        # 48f0 <_sk_callback_sse41+0xf10>
+  .byte  15,88,5,233,17,0,0                  // addps         0x11e9(%rip),%xmm0        # 5290 <_sk_callback_sse41+0x1001>
+  .byte  68,15,40,13,241,17,0,0              // movaps        0x11f1(%rip),%xmm9        # 52a0 <_sk_callback_sse41+0x1011>
   .byte  69,15,92,200                        // subps         %xmm8,%xmm9
-  .byte  68,15,40,5,244,16,0,0               // movaps        0x10f4(%rip),%xmm8        # 4900 <_sk_callback_sse41+0xf20>
+  .byte  68,15,40,5,245,17,0,0               // movaps        0x11f5(%rip),%xmm8        # 52b0 <_sk_callback_sse41+0x1021>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
-  .byte  68,15,88,5,248,16,0,0               // addps         0x10f8(%rip),%xmm8        # 4910 <_sk_callback_sse41+0xf30>
+  .byte  68,15,88,5,249,17,0,0               // addps         0x11f9(%rip),%xmm8        # 52c0 <_sk_callback_sse41+0x1031>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
-  .byte  68,15,88,5,252,16,0,0               // addps         0x10fc(%rip),%xmm8        # 4920 <_sk_callback_sse41+0xf40>
+  .byte  68,15,88,5,253,17,0,0               // addps         0x11fd(%rip),%xmm8        # 52d0 <_sk_callback_sse41+0x1041>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
-  .byte  68,15,88,5,0,17,0,0                 // addps         0x1100(%rip),%xmm8        # 4930 <_sk_callback_sse41+0xf50>
+  .byte  68,15,88,5,1,18,0,0                 // addps         0x1201(%rip),%xmm8        # 52e0 <_sk_callback_sse41+0x1051>
   .byte  68,15,17,128,128,0,0,0              // movups        %xmm8,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -21603,17 +23851,17 @@ HIDDEN _sk_bicubic_p1x_sse41
 FUNCTION(_sk_bicubic_p1x_sse41)
 _sk_bicubic_p1x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  68,15,40,5,250,16,0,0               // movaps        0x10fa(%rip),%xmm8        # 4940 <_sk_callback_sse41+0xf60>
+  .byte  68,15,40,5,251,17,0,0               // movaps        0x11fb(%rip),%xmm8        # 52f0 <_sk_callback_sse41+0x1061>
   .byte  15,16,0                             // movups        (%rax),%xmm0
   .byte  68,15,16,72,64                      // movups        0x40(%rax),%xmm9
   .byte  65,15,88,192                        // addps         %xmm8,%xmm0
-  .byte  68,15,40,21,246,16,0,0              // movaps        0x10f6(%rip),%xmm10        # 4950 <_sk_callback_sse41+0xf70>
+  .byte  68,15,40,21,247,17,0,0              // movaps        0x11f7(%rip),%xmm10        # 5300 <_sk_callback_sse41+0x1071>
   .byte  69,15,89,209                        // mulps         %xmm9,%xmm10
-  .byte  68,15,88,21,250,16,0,0              // addps         0x10fa(%rip),%xmm10        # 4960 <_sk_callback_sse41+0xf80>
+  .byte  68,15,88,21,251,17,0,0              // addps         0x11fb(%rip),%xmm10        # 5310 <_sk_callback_sse41+0x1081>
   .byte  69,15,89,209                        // mulps         %xmm9,%xmm10
   .byte  69,15,88,208                        // addps         %xmm8,%xmm10
   .byte  69,15,89,209                        // mulps         %xmm9,%xmm10
-  .byte  68,15,88,21,246,16,0,0              // addps         0x10f6(%rip),%xmm10        # 4970 <_sk_callback_sse41+0xf90>
+  .byte  68,15,88,21,247,17,0,0              // addps         0x11f7(%rip),%xmm10        # 5320 <_sk_callback_sse41+0x1091>
   .byte  68,15,17,144,128,0,0,0              // movups        %xmm10,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -21625,11 +23873,11 @@ _sk_bicubic_p3x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,0                             // movups        (%rax),%xmm0
   .byte  68,15,16,64,64                      // movups        0x40(%rax),%xmm8
-  .byte  15,88,5,233,16,0,0                  // addps         0x10e9(%rip),%xmm0        # 4980 <_sk_callback_sse41+0xfa0>
+  .byte  15,88,5,234,17,0,0                  // addps         0x11ea(%rip),%xmm0        # 5330 <_sk_callback_sse41+0x10a1>
   .byte  69,15,40,200                        // movaps        %xmm8,%xmm9
   .byte  69,15,89,201                        // mulps         %xmm9,%xmm9
-  .byte  68,15,89,5,233,16,0,0               // mulps         0x10e9(%rip),%xmm8        # 4990 <_sk_callback_sse41+0xfb0>
-  .byte  68,15,88,5,241,16,0,0               // addps         0x10f1(%rip),%xmm8        # 49a0 <_sk_callback_sse41+0xfc0>
+  .byte  68,15,89,5,234,17,0,0               // mulps         0x11ea(%rip),%xmm8        # 5340 <_sk_callback_sse41+0x10b1>
+  .byte  68,15,88,5,242,17,0,0               // addps         0x11f2(%rip),%xmm8        # 5350 <_sk_callback_sse41+0x10c1>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
   .byte  68,15,17,128,128,0,0,0              // movups        %xmm8,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -21642,13 +23890,13 @@ _sk_bicubic_n3y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,72,32                         // movups        0x20(%rax),%xmm1
   .byte  68,15,16,64,96                      // movups        0x60(%rax),%xmm8
-  .byte  15,88,13,223,16,0,0                 // addps         0x10df(%rip),%xmm1        # 49b0 <_sk_callback_sse41+0xfd0>
-  .byte  68,15,40,13,231,16,0,0              // movaps        0x10e7(%rip),%xmm9        # 49c0 <_sk_callback_sse41+0xfe0>
+  .byte  15,88,13,224,17,0,0                 // addps         0x11e0(%rip),%xmm1        # 5360 <_sk_callback_sse41+0x10d1>
+  .byte  68,15,40,13,232,17,0,0              // movaps        0x11e8(%rip),%xmm9        # 5370 <_sk_callback_sse41+0x10e1>
   .byte  69,15,92,200                        // subps         %xmm8,%xmm9
   .byte  69,15,40,193                        // movaps        %xmm9,%xmm8
   .byte  69,15,89,192                        // mulps         %xmm8,%xmm8
-  .byte  68,15,89,13,227,16,0,0              // mulps         0x10e3(%rip),%xmm9        # 49d0 <_sk_callback_sse41+0xff0>
-  .byte  68,15,88,13,235,16,0,0              // addps         0x10eb(%rip),%xmm9        # 49e0 <_sk_callback_sse41+0x1000>
+  .byte  68,15,89,13,228,17,0,0              // mulps         0x11e4(%rip),%xmm9        # 5380 <_sk_callback_sse41+0x10f1>
+  .byte  68,15,88,13,236,17,0,0              // addps         0x11ec(%rip),%xmm9        # 5390 <_sk_callback_sse41+0x1101>
   .byte  69,15,89,200                        // mulps         %xmm8,%xmm9
   .byte  68,15,17,136,160,0,0,0              // movups        %xmm9,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -21661,16 +23909,16 @@ _sk_bicubic_n1y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,72,32                         // movups        0x20(%rax),%xmm1
   .byte  68,15,16,64,96                      // movups        0x60(%rax),%xmm8
-  .byte  15,88,13,217,16,0,0                 // addps         0x10d9(%rip),%xmm1        # 49f0 <_sk_callback_sse41+0x1010>
-  .byte  68,15,40,13,225,16,0,0              // movaps        0x10e1(%rip),%xmm9        # 4a00 <_sk_callback_sse41+0x1020>
+  .byte  15,88,13,218,17,0,0                 // addps         0x11da(%rip),%xmm1        # 53a0 <_sk_callback_sse41+0x1111>
+  .byte  68,15,40,13,226,17,0,0              // movaps        0x11e2(%rip),%xmm9        # 53b0 <_sk_callback_sse41+0x1121>
   .byte  69,15,92,200                        // subps         %xmm8,%xmm9
-  .byte  68,15,40,5,229,16,0,0               // movaps        0x10e5(%rip),%xmm8        # 4a10 <_sk_callback_sse41+0x1030>
+  .byte  68,15,40,5,230,17,0,0               // movaps        0x11e6(%rip),%xmm8        # 53c0 <_sk_callback_sse41+0x1131>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
-  .byte  68,15,88,5,233,16,0,0               // addps         0x10e9(%rip),%xmm8        # 4a20 <_sk_callback_sse41+0x1040>
+  .byte  68,15,88,5,234,17,0,0               // addps         0x11ea(%rip),%xmm8        # 53d0 <_sk_callback_sse41+0x1141>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
-  .byte  68,15,88,5,237,16,0,0               // addps         0x10ed(%rip),%xmm8        # 4a30 <_sk_callback_sse41+0x1050>
+  .byte  68,15,88,5,238,17,0,0               // addps         0x11ee(%rip),%xmm8        # 53e0 <_sk_callback_sse41+0x1151>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
-  .byte  68,15,88,5,241,16,0,0               // addps         0x10f1(%rip),%xmm8        # 4a40 <_sk_callback_sse41+0x1060>
+  .byte  68,15,88,5,242,17,0,0               // addps         0x11f2(%rip),%xmm8        # 53f0 <_sk_callback_sse41+0x1161>
   .byte  68,15,17,128,160,0,0,0              // movups        %xmm8,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -21680,17 +23928,17 @@ HIDDEN _sk_bicubic_p1y_sse41
 FUNCTION(_sk_bicubic_p1y_sse41)
 _sk_bicubic_p1y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  68,15,40,5,235,16,0,0               // movaps        0x10eb(%rip),%xmm8        # 4a50 <_sk_callback_sse41+0x1070>
+  .byte  68,15,40,5,236,17,0,0               // movaps        0x11ec(%rip),%xmm8        # 5400 <_sk_callback_sse41+0x1171>
   .byte  15,16,72,32                         // movups        0x20(%rax),%xmm1
   .byte  68,15,16,72,96                      // movups        0x60(%rax),%xmm9
   .byte  65,15,88,200                        // addps         %xmm8,%xmm1
-  .byte  68,15,40,21,230,16,0,0              // movaps        0x10e6(%rip),%xmm10        # 4a60 <_sk_callback_sse41+0x1080>
+  .byte  68,15,40,21,231,17,0,0              // movaps        0x11e7(%rip),%xmm10        # 5410 <_sk_callback_sse41+0x1181>
   .byte  69,15,89,209                        // mulps         %xmm9,%xmm10
-  .byte  68,15,88,21,234,16,0,0              // addps         0x10ea(%rip),%xmm10        # 4a70 <_sk_callback_sse41+0x1090>
+  .byte  68,15,88,21,235,17,0,0              // addps         0x11eb(%rip),%xmm10        # 5420 <_sk_callback_sse41+0x1191>
   .byte  69,15,89,209                        // mulps         %xmm9,%xmm10
   .byte  69,15,88,208                        // addps         %xmm8,%xmm10
   .byte  69,15,89,209                        // mulps         %xmm9,%xmm10
-  .byte  68,15,88,21,230,16,0,0              // addps         0x10e6(%rip),%xmm10        # 4a80 <_sk_callback_sse41+0x10a0>
+  .byte  68,15,88,21,231,17,0,0              // addps         0x11e7(%rip),%xmm10        # 5430 <_sk_callback_sse41+0x11a1>
   .byte  68,15,17,144,160,0,0,0              // movups        %xmm10,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -21702,11 +23950,11 @@ _sk_bicubic_p3y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,72,32                         // movups        0x20(%rax),%xmm1
   .byte  68,15,16,64,96                      // movups        0x60(%rax),%xmm8
-  .byte  15,88,13,216,16,0,0                 // addps         0x10d8(%rip),%xmm1        # 4a90 <_sk_callback_sse41+0x10b0>
+  .byte  15,88,13,217,17,0,0                 // addps         0x11d9(%rip),%xmm1        # 5440 <_sk_callback_sse41+0x11b1>
   .byte  69,15,40,200                        // movaps        %xmm8,%xmm9
   .byte  69,15,89,201                        // mulps         %xmm9,%xmm9
-  .byte  68,15,89,5,216,16,0,0               // mulps         0x10d8(%rip),%xmm8        # 4aa0 <_sk_callback_sse41+0x10c0>
-  .byte  68,15,88,5,224,16,0,0               // addps         0x10e0(%rip),%xmm8        # 4ab0 <_sk_callback_sse41+0x10d0>
+  .byte  68,15,89,5,217,17,0,0               // mulps         0x11d9(%rip),%xmm8        # 5450 <_sk_callback_sse41+0x11c1>
+  .byte  68,15,88,5,225,17,0,0               // addps         0x11e1(%rip),%xmm8        # 5460 <_sk_callback_sse41+0x11d1>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
   .byte  68,15,17,128,160,0,0,0              // movups        %xmm8,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -21925,11 +24173,135 @@ BALIGN16
   .byte  128,191,0,0,128,191,0               // cmpb          $0x0,-0x40800000(%rdi)
   .byte  0,224                               // add           %ah,%al
   .byte  64,0,0                              // add           %al,(%rax)
-  .byte  224,64                              // loopne        3c98 <.literal16+0x1d8>
+  .byte  224,64                              // loopne        4548 <.literal16+0x1d8>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,64                              // loopne        3c9c <.literal16+0x1dc>
+  .byte  224,64                              // loopne        454c <.literal16+0x1dc>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,64                              // loopne        3ca0 <.literal16+0x1e0>
+  .byte  224,64                              // loopne        4550 <.literal16+0x1e0>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
+  .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
+  .byte  63                                  // (bad)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,61                   // ds            cmp $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  61,10,23,63,61                      // cmp           $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4581 <.literal16+0x211>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4585 <.literal16+0x215>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4589 <.literal16+0x219>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 458d <.literal16+0x21d>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
+  .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
+  .byte  63                                  // (bad)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,61                   // ds            cmp $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  61,10,23,63,61                      // cmp           $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 45c1 <.literal16+0x251>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 45c5 <.literal16+0x255>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 45c9 <.literal16+0x259>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 45cd <.literal16+0x25d>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
+  .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
+  .byte  63                                  // (bad)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,61                   // ds            cmp $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  61,10,23,63,61                      // cmp           $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4601 <.literal16+0x291>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4605 <.literal16+0x295>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4609 <.literal16+0x299>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 460d <.literal16+0x29d>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
+  .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
+  .byte  63                                  // (bad)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,61                   // ds            cmp $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  61,10,23,63,61                      // cmp           $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4641 <.literal16+0x2d1>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4645 <.literal16+0x2d5>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4649 <.literal16+0x2d9>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 464d <.literal16+0x2dd>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
@@ -22148,13 +24520,13 @@ BALIGN16
   .byte  132,55                              // test          %dh,(%rdi)
   .byte  8,33                                // or            %ah,(%rcx)
   .byte  132,55                              // test          %dh,(%rdi)
-  .byte  224,7                               // loopne        3e59 <.literal16+0x399>
+  .byte  224,7                               // loopne        4809 <.literal16+0x499>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        3e5d <.literal16+0x39d>
+  .byte  224,7                               // loopne        480d <.literal16+0x49d>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        3e61 <.literal16+0x3a1>
+  .byte  224,7                               // loopne        4811 <.literal16+0x4a1>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        3e65 <.literal16+0x3a5>
+  .byte  224,7                               // loopne        4815 <.literal16+0x4a5>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  33,8                                // and           %ecx,(%rax)
   .byte  2,58                                // add           (%rdx),%bh
@@ -22194,10 +24566,10 @@ BALIGN16
   .byte  0,1                                 // add           %al,(%rcx)
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,5,255,255,255,9                 // incl          0x9ffffff(%rip)        # a003eb8 <_sk_callback_sse41+0xa0004d8>
+  .byte  255,5,255,255,255,9                 // incl          0x9ffffff(%rip)        # a004868 <_sk_callback_sse41+0xa0005d9>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,13,255,255,255,2                // decl          0x2ffffff(%rip)        # 3003ec0 <_sk_callback_sse41+0x30004e0>
+  .byte  255,13,255,255,255,2                // decl          0x2ffffff(%rip)        # 3004870 <_sk_callback_sse41+0x30005e1>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255,6                               // incl          (%rsi)
@@ -22252,11 +24624,11 @@ BALIGN16
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,127,67                            // add           %bh,0x43(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            3f8b <.literal16+0x4cb>
+  .byte  127,67                              // jg            493b <.literal16+0x5cb>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            3f8f <.literal16+0x4cf>
+  .byte  127,67                              // jg            493f <.literal16+0x5cf>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            3f93 <.literal16+0x4d3>
+  .byte  127,67                              // jg            4943 <.literal16+0x5d3>
   .byte  129,128,128,59,129,128,128,59,129,128// addl          $0x80813b80,-0x7f7ec480(%rax)
   .byte  128,59,129                          // cmpb          $0x81,(%rbx)
   .byte  128,128,59,129,128,128,59           // addb          $0x3b,-0x7f7f7ec5(%rax)
@@ -22271,16 +24643,16 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            3f84 <.literal16+0x4c4>
+  .byte  127,0                               // jg            4934 <.literal16+0x5c4>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            3f88 <.literal16+0x4c8>
+  .byte  127,0                               // jg            4938 <.literal16+0x5c8>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            3f8c <.literal16+0x4cc>
+  .byte  127,0                               // jg            493c <.literal16+0x5cc>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            3f90 <.literal16+0x4d0>
+  .byte  127,0                               // jg            4940 <.literal16+0x5d0>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
@@ -22289,7 +24661,7 @@ BALIGN16
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            4015 <.literal16+0x555>
+  .byte  119,115                             // ja            49c5 <.literal16+0x655>
   .byte  248                                 // clc
   .byte  194,119,115                         // retq          $0x7377
   .byte  248                                 // clc
@@ -22300,7 +24672,7 @@ BALIGN16
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
-  .byte  117,191                             // jne           3f79 <.literal16+0x4b9>
+  .byte  117,191                             // jne           4929 <.literal16+0x5b9>
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
   .byte  249                                 // stc
@@ -22312,7 +24684,7 @@ BALIGN16
   .byte  249                                 // stc
   .byte  68,180,62                           // rex.R         mov $0x3e,%spl
   .byte  163,233,220,63,163,233,220,63,163   // movabs        %eax,0xa33fdce9a33fdce9
-  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a37fba <_sk_callback_sse41+0xffffffffe9a345da>
+  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a3896a <_sk_callback_sse41+0xffffffffe9a346db>
   .byte  220,63                              // fdivrl        (%rdi)
   .byte  81                                  // push          %rcx
   .byte  140,242                             // mov           %?,%edx
@@ -22367,16 +24739,16 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4054 <.literal16+0x594>
+  .byte  127,0                               // jg            4a04 <.literal16+0x694>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4058 <.literal16+0x598>
+  .byte  127,0                               // jg            4a08 <.literal16+0x698>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            405c <.literal16+0x59c>
+  .byte  127,0                               // jg            4a0c <.literal16+0x69c>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4060 <.literal16+0x5a0>
+  .byte  127,0                               // jg            4a10 <.literal16+0x6a0>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
@@ -22385,7 +24757,7 @@ BALIGN16
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            40e5 <.literal16+0x625>
+  .byte  119,115                             // ja            4a95 <.literal16+0x725>
   .byte  248                                 // clc
   .byte  194,119,115                         // retq          $0x7377
   .byte  248                                 // clc
@@ -22396,7 +24768,7 @@ BALIGN16
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
-  .byte  117,191                             // jne           4049 <.literal16+0x589>
+  .byte  117,191                             // jne           49f9 <.literal16+0x689>
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
   .byte  249                                 // stc
@@ -22408,7 +24780,7 @@ BALIGN16
   .byte  249                                 // stc
   .byte  68,180,62                           // rex.R         mov $0x3e,%spl
   .byte  163,233,220,63,163,233,220,63,163   // movabs        %eax,0xa33fdce9a33fdce9
-  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a3808a <_sk_callback_sse41+0xffffffffe9a346aa>
+  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a38a3a <_sk_callback_sse41+0xffffffffe9a347ab>
   .byte  220,63                              // fdivrl        (%rdi)
   .byte  81                                  // push          %rcx
   .byte  140,242                             // mov           %?,%edx
@@ -22463,16 +24835,16 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4124 <.literal16+0x664>
+  .byte  127,0                               // jg            4ad4 <.literal16+0x764>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4128 <.literal16+0x668>
+  .byte  127,0                               // jg            4ad8 <.literal16+0x768>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            412c <.literal16+0x66c>
+  .byte  127,0                               // jg            4adc <.literal16+0x76c>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4130 <.literal16+0x670>
+  .byte  127,0                               // jg            4ae0 <.literal16+0x770>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
@@ -22481,7 +24853,7 @@ BALIGN16
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            41b5 <.literal16+0x6f5>
+  .byte  119,115                             // ja            4b65 <.literal16+0x7f5>
   .byte  248                                 // clc
   .byte  194,119,115                         // retq          $0x7377
   .byte  248                                 // clc
@@ -22492,7 +24864,7 @@ BALIGN16
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
-  .byte  117,191                             // jne           4119 <.literal16+0x659>
+  .byte  117,191                             // jne           4ac9 <.literal16+0x759>
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
   .byte  249                                 // stc
@@ -22504,7 +24876,7 @@ BALIGN16
   .byte  249                                 // stc
   .byte  68,180,62                           // rex.R         mov $0x3e,%spl
   .byte  163,233,220,63,163,233,220,63,163   // movabs        %eax,0xa33fdce9a33fdce9
-  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a3815a <_sk_callback_sse41+0xffffffffe9a3477a>
+  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a38b0a <_sk_callback_sse41+0xffffffffe9a3487b>
   .byte  220,63                              // fdivrl        (%rdi)
   .byte  81                                  // push          %rcx
   .byte  140,242                             // mov           %?,%edx
@@ -22559,16 +24931,16 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            41f4 <.literal16+0x734>
+  .byte  127,0                               // jg            4ba4 <.literal16+0x834>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            41f8 <.literal16+0x738>
+  .byte  127,0                               // jg            4ba8 <.literal16+0x838>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            41fc <.literal16+0x73c>
+  .byte  127,0                               // jg            4bac <.literal16+0x83c>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4200 <.literal16+0x740>
+  .byte  127,0                               // jg            4bb0 <.literal16+0x840>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
@@ -22577,7 +24949,7 @@ BALIGN16
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            4285 <.literal16+0x7c5>
+  .byte  119,115                             // ja            4c35 <.literal16+0x8c5>
   .byte  248                                 // clc
   .byte  194,119,115                         // retq          $0x7377
   .byte  248                                 // clc
@@ -22588,7 +24960,7 @@ BALIGN16
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
-  .byte  117,191                             // jne           41e9 <.literal16+0x729>
+  .byte  117,191                             // jne           4b99 <.literal16+0x829>
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
   .byte  249                                 // stc
@@ -22600,7 +24972,7 @@ BALIGN16
   .byte  249                                 // stc
   .byte  68,180,62                           // rex.R         mov $0x3e,%spl
   .byte  163,233,220,63,163,233,220,63,163   // movabs        %eax,0xa33fdce9a33fdce9
-  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a3822a <_sk_callback_sse41+0xffffffffe9a3484a>
+  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a38bda <_sk_callback_sse41+0xffffffffe9a3494b>
   .byte  220,63                              // fdivrl        (%rdi)
   .byte  81                                  // push          %rcx
   .byte  140,242                             // mov           %?,%edx
@@ -22651,13 +25023,13 @@ BALIGN16
   .byte  200,66,0,0                          // enterq        $0x42,$0x0
   .byte  200,66,0,0                          // enterq        $0x42,$0x0
   .byte  200,66,0,0                          // enterq        $0x42,$0x0
-  .byte  127,67                              // jg            4307 <.literal16+0x847>
+  .byte  127,67                              // jg            4cb7 <.literal16+0x947>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            430b <.literal16+0x84b>
+  .byte  127,67                              // jg            4cbb <.literal16+0x94b>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            430f <.literal16+0x84f>
+  .byte  127,67                              // jg            4cbf <.literal16+0x94f>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            4313 <.literal16+0x853>
+  .byte  127,67                              // jg            4cc3 <.literal16+0x953>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,195                               // add           %al,%bl
   .byte  0,0                                 // add           %al,(%rax)
@@ -22704,16 +25076,16 @@ BALIGN16
   .byte  128,3,62                            // addb          $0x3e,(%rbx)
   .byte  31                                  // (bad)
   .byte  215                                 // xlat          %ds:(%rbx)
-  .byte  118,63                              // jbe           4393 <.literal16+0x8d3>
+  .byte  118,63                              // jbe           4d43 <.literal16+0x9d3>
   .byte  31                                  // (bad)
   .byte  215                                 // xlat          %ds:(%rbx)
-  .byte  118,63                              // jbe           4397 <.literal16+0x8d7>
+  .byte  118,63                              // jbe           4d47 <.literal16+0x9d7>
   .byte  31                                  // (bad)
   .byte  215                                 // xlat          %ds:(%rbx)
-  .byte  118,63                              // jbe           439b <.literal16+0x8db>
+  .byte  118,63                              // jbe           4d4b <.literal16+0x9db>
   .byte  31                                  // (bad)
   .byte  215                                 // xlat          %ds:(%rbx)
-  .byte  118,63                              // jbe           439f <.literal16+0x8df>
+  .byte  118,63                              // jbe           4d4f <.literal16+0x9df>
   .byte  246,64,83,63                        // testb         $0x3f,0x53(%rax)
   .byte  246,64,83,63                        // testb         $0x3f,0x53(%rax)
   .byte  246,64,83,63                        // testb         $0x3f,0x53(%rax)
@@ -22725,11 +25097,11 @@ BALIGN16
   .byte  128,59,0                            // cmpb          $0x0,(%rbx)
   .byte  0,127,67                            // add           %bh,0x43(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            43db <.literal16+0x91b>
+  .byte  127,67                              // jg            4d8b <.literal16+0xa1b>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            43df <.literal16+0x91f>
+  .byte  127,67                              // jg            4d8f <.literal16+0xa1f>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            43e3 <.literal16+0x923>
+  .byte  127,67                              // jg            4d93 <.literal16+0xa23>
   .byte  129,128,128,59,129,128,128,59,129,128// addl          $0x80813b80,-0x7f7ec480(%rax)
   .byte  128,59,129                          // cmpb          $0x81,(%rbx)
   .byte  128,128,59,0,0,128,63               // addb          $0x3f,-0x7fffffc5(%rax)
@@ -22758,7 +25130,7 @@ BALIGN16
   .byte  5,255,255,255,9                     // add           $0x9ffffff,%eax
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,13,255,255,255,2                // decl          0x2ffffff(%rip)        # 3004410 <_sk_callback_sse41+0x3000a30>
+  .byte  255,13,255,255,255,2                // decl          0x2ffffff(%rip)        # 3004dc0 <_sk_callback_sse41+0x3000b31>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255,6                               // incl          (%rsi)
@@ -22787,65 +25159,13 @@ BALIGN16
   .byte  132,55                              // test          %dh,(%rdi)
   .byte  8,33                                // or            %ah,(%rcx)
   .byte  132,55                              // test          %dh,(%rdi)
-  .byte  224,7                               // loopne        4449 <.literal16+0x989>
+  .byte  224,7                               // loopne        4df9 <.literal16+0xa89>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        444d <.literal16+0x98d>
+  .byte  224,7                               // loopne        4dfd <.literal16+0xa8d>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        4451 <.literal16+0x991>
+  .byte  224,7                               // loopne        4e01 <.literal16+0xa91>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        4455 <.literal16+0x995>
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  33,8                                // and           %ecx,(%rax)
-  .byte  2,58                                // add           (%rdx),%bh
-  .byte  33,8                                // and           %ecx,(%rax)
-  .byte  2,58                                // add           (%rdx),%bh
-  .byte  33,8                                // and           %ecx,(%rax)
-  .byte  2,58                                // add           (%rdx),%bh
-  .byte  33,8                                // and           %ecx,(%rax)
-  .byte  2,58                                // add           (%rdx),%bh
-  .byte  31                                  // (bad)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,31                                // add           %bl,(%rdi)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,31                                // add           %bl,(%rdi)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,31                                // add           %bl,(%rdi)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,8                                 // add           %cl,(%rax)
-  .byte  33,4,61,8,33,4,61                   // and           %eax,0x3d042108(,%rdi,1)
-  .byte  8,33                                // or            %ah,(%rcx)
-  .byte  4,61                                // add           $0x3d,%al
-  .byte  8,33                                // or            %ah,(%rcx)
-  .byte  4,61                                // add           $0x3d,%al
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
-  .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
-  .byte  63                                  // (bad)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
-  .byte  248                                 // clc
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,248                               // add           %bh,%al
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,248                               // add           %bh,%al
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,248                               // add           %bh,%al
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  8,33                                // or            %ah,(%rcx)
-  .byte  132,55                              // test          %dh,(%rdi)
-  .byte  8,33                                // or            %ah,(%rcx)
-  .byte  132,55                              // test          %dh,(%rdi)
-  .byte  8,33                                // or            %ah,(%rcx)
-  .byte  132,55                              // test          %dh,(%rdi)
-  .byte  8,33                                // or            %ah,(%rcx)
-  .byte  132,55                              // test          %dh,(%rdi)
-  .byte  224,7                               // loopne        44b9 <.literal16+0x9f9>
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        44bd <.literal16+0x9fd>
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        44c1 <.literal16+0xa01>
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        44c5 <.literal16+0xa05>
+  .byte  224,7                               // loopne        4e05 <.literal16+0xa95>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  33,8                                // and           %ecx,(%rax)
   .byte  2,58                                // add           (%rdx),%bh
@@ -22875,6 +25195,58 @@ BALIGN16
   .byte  63                                  // (bad)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
+  .byte  248                                 // clc
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,248                               // add           %bh,%al
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,248                               // add           %bh,%al
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,248                               // add           %bh,%al
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  8,33                                // or            %ah,(%rcx)
+  .byte  132,55                              // test          %dh,(%rdi)
+  .byte  8,33                                // or            %ah,(%rcx)
+  .byte  132,55                              // test          %dh,(%rdi)
+  .byte  8,33                                // or            %ah,(%rcx)
+  .byte  132,55                              // test          %dh,(%rdi)
+  .byte  8,33                                // or            %ah,(%rcx)
+  .byte  132,55                              // test          %dh,(%rdi)
+  .byte  224,7                               // loopne        4e69 <.literal16+0xaf9>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  224,7                               // loopne        4e6d <.literal16+0xafd>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  224,7                               // loopne        4e71 <.literal16+0xb01>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  224,7                               // loopne        4e75 <.literal16+0xb05>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  33,8                                // and           %ecx,(%rax)
+  .byte  2,58                                // add           (%rdx),%bh
+  .byte  33,8                                // and           %ecx,(%rax)
+  .byte  2,58                                // add           (%rdx),%bh
+  .byte  33,8                                // and           %ecx,(%rax)
+  .byte  2,58                                // add           (%rdx),%bh
+  .byte  33,8                                // and           %ecx,(%rax)
+  .byte  2,58                                // add           (%rdx),%bh
+  .byte  31                                  // (bad)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,31                                // add           %bl,(%rdi)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,31                                // add           %bl,(%rdi)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,31                                // add           %bl,(%rdi)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,8                                 // add           %cl,(%rax)
+  .byte  33,4,61,8,33,4,61                   // and           %eax,0x3d042108(,%rdi,1)
+  .byte  8,33                                // or            %ah,(%rcx)
+  .byte  4,61                                // add           $0x3d,%al
+  .byte  8,33                                // or            %ah,(%rcx)
+  .byte  4,61                                // add           $0x3d,%al
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
+  .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
+  .byte  63                                  // (bad)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,248                               // add           %bh,%al
   .byte  65,0,0                              // add           %al,(%r8)
   .byte  248                                 // clc
@@ -22883,13 +25255,13 @@ BALIGN16
   .byte  65,0,0                              // add           %al,(%r8)
   .byte  248                                 // clc
   .byte  65,0,0                              // add           %al,(%r8)
-  .byte  124,66                              // jl            4556 <.literal16+0xa96>
+  .byte  124,66                              // jl            4f06 <.literal16+0xb96>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  124,66                              // jl            455a <.literal16+0xa9a>
+  .byte  124,66                              // jl            4f0a <.literal16+0xb9a>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  124,66                              // jl            455e <.literal16+0xa9e>
+  .byte  124,66                              // jl            4f0e <.literal16+0xb9e>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  124,66                              // jl            4562 <.literal16+0xaa2>
+  .byte  124,66                              // jl            4f12 <.literal16+0xba2>
   .byte  0,240                               // add           %dh,%al
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,240                               // add           %dh,%al
@@ -22979,13 +25351,13 @@ BALIGN16
   .byte  136,136,61,137,136,136              // mov           %cl,-0x777776c3(%rax)
   .byte  61,137,136,136,61                   // cmp           $0x3d888889,%eax
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  112,65                              // jo            4665 <.literal16+0xba5>
+  .byte  112,65                              // jo            5015 <.literal16+0xca5>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  112,65                              // jo            4669 <.literal16+0xba9>
+  .byte  112,65                              // jo            5019 <.literal16+0xca9>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  112,65                              // jo            466d <.literal16+0xbad>
+  .byte  112,65                              // jo            501d <.literal16+0xcad>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  112,65                              // jo            4671 <.literal16+0xbb1>
+  .byte  112,65                              // jo            5021 <.literal16+0xcb1>
   .byte  255,0                               // incl          (%rax)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  255,0                               // incl          (%rax)
@@ -23000,7 +25372,7 @@ BALIGN16
   .byte  5,255,255,255,9                     // add           $0x9ffffff,%eax
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,13,255,255,255,2                // decl          0x2ffffff(%rip)        # 3004660 <_sk_callback_sse41+0x3000c80>
+  .byte  255,13,255,255,255,2                // decl          0x2ffffff(%rip)        # 3005010 <_sk_callback_sse41+0x3000d81>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255,6                               // incl          (%rsi)
@@ -23027,7 +25399,7 @@ BALIGN16
   .byte  5,255,255,255,9                     // add           $0x9ffffff,%eax
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,13,255,255,255,2                // decl          0x2ffffff(%rip)        # 30046a0 <_sk_callback_sse41+0x3000cc0>
+  .byte  255,13,255,255,255,2                // decl          0x2ffffff(%rip)        # 3005050 <_sk_callback_sse41+0x3000dc1>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255,6                               // incl          (%rsi)
@@ -23042,11 +25414,11 @@ BALIGN16
   .byte  255,0                               // incl          (%rax)
   .byte  0,127,67                            // add           %bh,0x43(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            46fb <.literal16+0xc3b>
+  .byte  127,67                              // jg            50ab <.literal16+0xd3b>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            46ff <.literal16+0xc3f>
+  .byte  127,67                              // jg            50af <.literal16+0xd3f>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            4703 <.literal16+0xc43>
+  .byte  127,67                              // jg            50b3 <.literal16+0xd43>
   .byte  0,128,0,0,0,128                     // add           %al,-0x80000000(%rax)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,128,0,0,0,128                     // add           %al,-0x80000000(%rax)
@@ -23122,13 +25494,13 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  255                                 // (bad)
-  .byte  127,71                              // jg            47cb <.literal16+0xd0b>
+  .byte  127,71                              // jg            517b <.literal16+0xe0b>
   .byte  0,255                               // add           %bh,%bh
-  .byte  127,71                              // jg            47cf <.literal16+0xd0f>
+  .byte  127,71                              // jg            517f <.literal16+0xe0f>
   .byte  0,255                               // add           %bh,%bh
-  .byte  127,71                              // jg            47d3 <.literal16+0xd13>
+  .byte  127,71                              // jg            5183 <.literal16+0xe13>
   .byte  0,255                               // add           %bh,%bh
-  .byte  127,71                              // jg            47d7 <.literal16+0xd17>
+  .byte  127,71                              // jg            5187 <.literal16+0xe17>
   .byte  208                                 // (bad)
   .byte  179,89                              // mov           $0x59,%bl
   .byte  62,208                              // ds            (bad)
@@ -23254,11 +25626,11 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,114                          // cmpb          $0x72,(%rdi)
   .byte  28,199                              // sbb           $0xc7,%al
-  .byte  62,114,28                           // jb,pt         48e2 <.literal16+0xe22>
+  .byte  62,114,28                           // jb,pt         5292 <.literal16+0xf22>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         48e6 <.literal16+0xe26>
+  .byte  62,114,28                           // jb,pt         5296 <.literal16+0xf26>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         48ea <.literal16+0xe2a>
+  .byte  62,114,28                           // jb,pt         529a <.literal16+0xf2a>
   .byte  199                                 // (bad)
   .byte  62,171                              // ds            stos %eax,%es:(%rdi)
   .byte  170                                 // stos          %al,%es:(%rdi)
@@ -23302,7 +25674,7 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  57,142,99,61,57,142                 // cmp           %ecx,-0x71c6c29d(%rsi)
-  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63d775 <_sk_callback_sse41+0x3d639d95>
+  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63e125 <_sk_callback_sse41+0x3d639e96>
   .byte  57,142,99,61,0,0                    // cmp           %ecx,0x3d63(%rsi)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
@@ -23328,7 +25700,7 @@ BALIGN16
   .byte  0,192                               // add           %al,%al
   .byte  63                                  // (bad)
   .byte  57,142,99,61,57,142                 // cmp           %ecx,-0x71c6c29d(%rsi)
-  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63d7b5 <_sk_callback_sse41+0x3d639dd5>
+  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63e165 <_sk_callback_sse41+0x3d639ed6>
   .byte  57,142,99,61,0,0                    // cmp           %ecx,0x3d63(%rsi)
   .byte  192,63,0                            // sarb          $0x0,(%rdi)
   .byte  0,192                               // add           %al,%al
@@ -23337,13 +25709,13 @@ BALIGN16
   .byte  192,63,0                            // sarb          $0x0,(%rdi)
   .byte  0,192                               // add           %al,%al
   .byte  63                                  // (bad)
-  .byte  114,28                              // jb            49ae <.literal16+0xeee>
+  .byte  114,28                              // jb            535e <.literal16+0xfee>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         49b2 <.literal16+0xef2>
+  .byte  62,114,28                           // jb,pt         5362 <.literal16+0xff2>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         49b6 <.literal16+0xef6>
+  .byte  62,114,28                           // jb,pt         5366 <.literal16+0xff6>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         49ba <.literal16+0xefa>
+  .byte  62,114,28                           // jb,pt         536a <.literal16+0xffa>
   .byte  199                                 // (bad)
   .byte  62,171                              // ds            stos %eax,%es:(%rdi)
   .byte  170                                 // stos          %al,%es:(%rdi)
@@ -23364,11 +25736,11 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,114                          // cmpb          $0x72,(%rdi)
   .byte  28,199                              // sbb           $0xc7,%al
-  .byte  62,114,28                           // jb,pt         49f2 <.literal16+0xf32>
+  .byte  62,114,28                           // jb,pt         53a2 <.literal16+0x1032>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         49f6 <.literal16+0xf36>
+  .byte  62,114,28                           // jb,pt         53a6 <.literal16+0x1036>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         49fa <.literal16+0xf3a>
+  .byte  62,114,28                           // jb,pt         53aa <.literal16+0x103a>
   .byte  199                                 // (bad)
   .byte  62,171                              // ds            stos %eax,%es:(%rdi)
   .byte  170                                 // stos          %al,%es:(%rdi)
@@ -23412,7 +25784,7 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  57,142,99,61,57,142                 // cmp           %ecx,-0x71c6c29d(%rsi)
-  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63d885 <_sk_callback_sse41+0x3d639ea5>
+  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63e235 <_sk_callback_sse41+0x3d639fa6>
   .byte  57,142,99,61,0,0                    // cmp           %ecx,0x3d63(%rsi)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
@@ -23438,7 +25810,7 @@ BALIGN16
   .byte  0,192                               // add           %al,%al
   .byte  63                                  // (bad)
   .byte  57,142,99,61,57,142                 // cmp           %ecx,-0x71c6c29d(%rsi)
-  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63d8c5 <_sk_callback_sse41+0x3d639ee5>
+  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63e275 <_sk_callback_sse41+0x3d639fe6>
   .byte  57,142,99,61,0,0                    // cmp           %ecx,0x3d63(%rsi)
   .byte  192,63,0                            // sarb          $0x0,(%rdi)
   .byte  0,192                               // add           %al,%al
@@ -23447,13 +25819,13 @@ BALIGN16
   .byte  192,63,0                            // sarb          $0x0,(%rdi)
   .byte  0,192                               // add           %al,%al
   .byte  63                                  // (bad)
-  .byte  114,28                              // jb            4abe <.literal16+0xffe>
+  .byte  114,28                              // jb            546e <.literal16+0x10fe>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         4ac2 <_sk_callback_sse41+0x10e2>
+  .byte  62,114,28                           // jb,pt         5472 <_sk_callback_sse41+0x11e3>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         4ac6 <_sk_callback_sse41+0x10e6>
+  .byte  62,114,28                           // jb,pt         5476 <_sk_callback_sse41+0x11e7>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         4aca <_sk_callback_sse41+0x10ea>
+  .byte  62,114,28                           // jb,pt         547a <_sk_callback_sse41+0x11eb>
   .byte  199                                 // (bad)
   .byte  62,171                              // ds            stos %eax,%es:(%rdi)
   .byte  170                                 // stos          %al,%es:(%rdi)
@@ -23523,7 +25895,7 @@ _sk_seed_shader_sse2:
   .byte  102,15,110,199                      // movd          %edi,%xmm0
   .byte  102,15,112,192,0                    // pshufd        $0x0,%xmm0,%xmm0
   .byte  15,91,200                           // cvtdq2ps      %xmm0,%xmm1
-  .byte  15,40,21,196,62,0,0                 // movaps        0x3ec4(%rip),%xmm2        # 3f40 <_sk_callback_sse2+0xe4>
+  .byte  15,40,21,116,71,0,0                 // movaps        0x4774(%rip),%xmm2        # 47f0 <_sk_callback_sse2+0xdc>
   .byte  15,88,202                           // addps         %xmm2,%xmm1
   .byte  15,16,2                             // movups        (%rdx),%xmm0
   .byte  15,88,193                           // addps         %xmm1,%xmm0
@@ -23532,7 +25904,7 @@ _sk_seed_shader_sse2:
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
   .byte  15,88,202                           // addps         %xmm2,%xmm1
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,21,179,62,0,0                 // movaps        0x3eb3(%rip),%xmm2        # 3f50 <_sk_callback_sse2+0xf4>
+  .byte  15,40,21,99,71,0,0                  // movaps        0x4763(%rip),%xmm2        # 4800 <_sk_callback_sse2+0xec>
   .byte  15,87,219                           // xorps         %xmm3,%xmm3
   .byte  15,87,228                           // xorps         %xmm4,%xmm4
   .byte  15,87,237                           // xorps         %xmm5,%xmm5
@@ -23555,14 +25927,14 @@ _sk_dither_sse2:
   .byte  102,68,15,110,1                     // movd          (%rcx),%xmm8
   .byte  102,69,15,112,192,0                 // pshufd        $0x0,%xmm8,%xmm8
   .byte  102,69,15,239,193                   // pxor          %xmm9,%xmm8
-  .byte  102,68,15,111,21,120,62,0,0         // movdqa        0x3e78(%rip),%xmm10        # 3f60 <_sk_callback_sse2+0x104>
+  .byte  102,68,15,111,21,40,71,0,0          // movdqa        0x4728(%rip),%xmm10        # 4810 <_sk_callback_sse2+0xfc>
   .byte  102,69,15,111,216                   // movdqa        %xmm8,%xmm11
   .byte  102,69,15,219,218                   // pand          %xmm10,%xmm11
   .byte  102,65,15,114,243,5                 // pslld         $0x5,%xmm11
   .byte  102,69,15,219,209                   // pand          %xmm9,%xmm10
   .byte  102,65,15,114,242,4                 // pslld         $0x4,%xmm10
-  .byte  102,68,15,111,37,100,62,0,0         // movdqa        0x3e64(%rip),%xmm12        # 3f70 <_sk_callback_sse2+0x114>
-  .byte  102,68,15,111,45,107,62,0,0         // movdqa        0x3e6b(%rip),%xmm13        # 3f80 <_sk_callback_sse2+0x124>
+  .byte  102,68,15,111,37,20,71,0,0          // movdqa        0x4714(%rip),%xmm12        # 4820 <_sk_callback_sse2+0x10c>
+  .byte  102,68,15,111,45,27,71,0,0          // movdqa        0x471b(%rip),%xmm13        # 4830 <_sk_callback_sse2+0x11c>
   .byte  102,69,15,111,240                   // movdqa        %xmm8,%xmm14
   .byte  102,69,15,219,245                   // pand          %xmm13,%xmm14
   .byte  102,65,15,114,246,2                 // pslld         $0x2,%xmm14
@@ -23578,8 +25950,8 @@ _sk_dither_sse2:
   .byte  102,69,15,235,245                   // por           %xmm13,%xmm14
   .byte  102,69,15,235,240                   // por           %xmm8,%xmm14
   .byte  69,15,91,198                        // cvtdq2ps      %xmm14,%xmm8
-  .byte  68,15,89,5,38,62,0,0                // mulps         0x3e26(%rip),%xmm8        # 3f90 <_sk_callback_sse2+0x134>
-  .byte  68,15,88,5,46,62,0,0                // addps         0x3e2e(%rip),%xmm8        # 3fa0 <_sk_callback_sse2+0x144>
+  .byte  68,15,89,5,214,70,0,0               // mulps         0x46d6(%rip),%xmm8        # 4840 <_sk_callback_sse2+0x12c>
+  .byte  68,15,88,5,222,70,0,0               // addps         0x46de(%rip),%xmm8        # 4850 <_sk_callback_sse2+0x13c>
   .byte  243,68,15,16,72,8                   // movss         0x8(%rax),%xmm9
   .byte  69,15,198,201,0                     // shufps        $0x0,%xmm9,%xmm9
   .byte  69,15,89,200                        // mulps         %xmm8,%xmm9
@@ -23621,7 +25993,7 @@ HIDDEN _sk_srcatop_sse2
 FUNCTION(_sk_srcatop_sse2)
 _sk_srcatop_sse2:
   .byte  15,89,199                           // mulps         %xmm7,%xmm0
-  .byte  68,15,40,5,219,61,0,0               // movaps        0x3ddb(%rip),%xmm8        # 3fb0 <_sk_callback_sse2+0x154>
+  .byte  68,15,40,5,139,70,0,0               // movaps        0x468b(%rip),%xmm8        # 4860 <_sk_callback_sse2+0x14c>
   .byte  68,15,92,195                        // subps         %xmm3,%xmm8
   .byte  69,15,40,200                        // movaps        %xmm8,%xmm9
   .byte  68,15,89,204                        // mulps         %xmm4,%xmm9
@@ -23646,7 +26018,7 @@ FUNCTION(_sk_dstatop_sse2)
 _sk_dstatop_sse2:
   .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
   .byte  68,15,89,196                        // mulps         %xmm4,%xmm8
-  .byte  68,15,40,13,158,61,0,0              // movaps        0x3d9e(%rip),%xmm9        # 3fc0 <_sk_callback_sse2+0x164>
+  .byte  68,15,40,13,78,70,0,0               // movaps        0x464e(%rip),%xmm9        # 4870 <_sk_callback_sse2+0x15c>
   .byte  68,15,92,207                        // subps         %xmm7,%xmm9
   .byte  65,15,89,193                        // mulps         %xmm9,%xmm0
   .byte  65,15,88,192                        // addps         %xmm8,%xmm0
@@ -23693,7 +26065,7 @@ HIDDEN _sk_srcout_sse2
 .globl _sk_srcout_sse2
 FUNCTION(_sk_srcout_sse2)
 _sk_srcout_sse2:
-  .byte  68,15,40,5,66,61,0,0                // movaps        0x3d42(%rip),%xmm8        # 3fd0 <_sk_callback_sse2+0x174>
+  .byte  68,15,40,5,242,69,0,0               // movaps        0x45f2(%rip),%xmm8        # 4880 <_sk_callback_sse2+0x16c>
   .byte  68,15,92,199                        // subps         %xmm7,%xmm8
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
@@ -23706,7 +26078,7 @@ HIDDEN _sk_dstout_sse2
 .globl _sk_dstout_sse2
 FUNCTION(_sk_dstout_sse2)
 _sk_dstout_sse2:
-  .byte  68,15,40,5,50,61,0,0                // movaps        0x3d32(%rip),%xmm8        # 3fe0 <_sk_callback_sse2+0x184>
+  .byte  68,15,40,5,226,69,0,0               // movaps        0x45e2(%rip),%xmm8        # 4890 <_sk_callback_sse2+0x17c>
   .byte  68,15,92,195                        // subps         %xmm3,%xmm8
   .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
   .byte  15,89,196                           // mulps         %xmm4,%xmm0
@@ -23723,7 +26095,7 @@ HIDDEN _sk_srcover_sse2
 .globl _sk_srcover_sse2
 FUNCTION(_sk_srcover_sse2)
 _sk_srcover_sse2:
-  .byte  68,15,40,5,21,61,0,0                // movaps        0x3d15(%rip),%xmm8        # 3ff0 <_sk_callback_sse2+0x194>
+  .byte  68,15,40,5,197,69,0,0               // movaps        0x45c5(%rip),%xmm8        # 48a0 <_sk_callback_sse2+0x18c>
   .byte  68,15,92,195                        // subps         %xmm3,%xmm8
   .byte  69,15,40,200                        // movaps        %xmm8,%xmm9
   .byte  68,15,89,204                        // mulps         %xmm4,%xmm9
@@ -23743,7 +26115,7 @@ HIDDEN _sk_dstover_sse2
 .globl _sk_dstover_sse2
 FUNCTION(_sk_dstover_sse2)
 _sk_dstover_sse2:
-  .byte  68,15,40,5,233,60,0,0               // movaps        0x3ce9(%rip),%xmm8        # 4000 <_sk_callback_sse2+0x1a4>
+  .byte  68,15,40,5,153,69,0,0               // movaps        0x4599(%rip),%xmm8        # 48b0 <_sk_callback_sse2+0x19c>
   .byte  68,15,92,199                        // subps         %xmm7,%xmm8
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  15,88,196                           // addps         %xmm4,%xmm0
@@ -23771,7 +26143,7 @@ HIDDEN _sk_multiply_sse2
 .globl _sk_multiply_sse2
 FUNCTION(_sk_multiply_sse2)
 _sk_multiply_sse2:
-  .byte  68,15,40,5,189,60,0,0               // movaps        0x3cbd(%rip),%xmm8        # 4010 <_sk_callback_sse2+0x1b4>
+  .byte  68,15,40,5,109,69,0,0               // movaps        0x456d(%rip),%xmm8        # 48c0 <_sk_callback_sse2+0x1ac>
   .byte  69,15,40,200                        // movaps        %xmm8,%xmm9
   .byte  68,15,92,207                        // subps         %xmm7,%xmm9
   .byte  69,15,40,209                        // movaps        %xmm9,%xmm10
@@ -23847,7 +26219,7 @@ HIDDEN _sk_xor__sse2
 FUNCTION(_sk_xor__sse2)
 _sk_xor__sse2:
   .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
-  .byte  15,40,29,238,59,0,0                 // movaps        0x3bee(%rip),%xmm3        # 4020 <_sk_callback_sse2+0x1c4>
+  .byte  15,40,29,158,68,0,0                 // movaps        0x449e(%rip),%xmm3        # 48d0 <_sk_callback_sse2+0x1bc>
   .byte  68,15,40,203                        // movaps        %xmm3,%xmm9
   .byte  68,15,92,207                        // subps         %xmm7,%xmm9
   .byte  65,15,89,193                        // mulps         %xmm9,%xmm0
@@ -23895,7 +26267,7 @@ _sk_darken_sse2:
   .byte  68,15,89,206                        // mulps         %xmm6,%xmm9
   .byte  65,15,95,209                        // maxps         %xmm9,%xmm2
   .byte  68,15,92,194                        // subps         %xmm2,%xmm8
-  .byte  15,40,21,89,59,0,0                  // movaps        0x3b59(%rip),%xmm2        # 4030 <_sk_callback_sse2+0x1d4>
+  .byte  15,40,21,9,68,0,0                   // movaps        0x4409(%rip),%xmm2        # 48e0 <_sk_callback_sse2+0x1cc>
   .byte  15,92,211                           // subps         %xmm3,%xmm2
   .byte  15,89,215                           // mulps         %xmm7,%xmm2
   .byte  15,88,218                           // addps         %xmm2,%xmm3
@@ -23929,7 +26301,7 @@ _sk_lighten_sse2:
   .byte  68,15,89,206                        // mulps         %xmm6,%xmm9
   .byte  65,15,93,209                        // minps         %xmm9,%xmm2
   .byte  68,15,92,194                        // subps         %xmm2,%xmm8
-  .byte  15,40,21,254,58,0,0                 // movaps        0x3afe(%rip),%xmm2        # 4040 <_sk_callback_sse2+0x1e4>
+  .byte  15,40,21,174,67,0,0                 // movaps        0x43ae(%rip),%xmm2        # 48f0 <_sk_callback_sse2+0x1dc>
   .byte  15,92,211                           // subps         %xmm3,%xmm2
   .byte  15,89,215                           // mulps         %xmm7,%xmm2
   .byte  15,88,218                           // addps         %xmm2,%xmm3
@@ -23966,7 +26338,7 @@ _sk_difference_sse2:
   .byte  65,15,93,209                        // minps         %xmm9,%xmm2
   .byte  15,88,210                           // addps         %xmm2,%xmm2
   .byte  68,15,92,194                        // subps         %xmm2,%xmm8
-  .byte  15,40,21,152,58,0,0                 // movaps        0x3a98(%rip),%xmm2        # 4050 <_sk_callback_sse2+0x1f4>
+  .byte  15,40,21,72,67,0,0                  // movaps        0x4348(%rip),%xmm2        # 4900 <_sk_callback_sse2+0x1ec>
   .byte  15,92,211                           // subps         %xmm3,%xmm2
   .byte  15,89,215                           // mulps         %xmm7,%xmm2
   .byte  15,88,218                           // addps         %xmm2,%xmm3
@@ -23993,7 +26365,7 @@ _sk_exclusion_sse2:
   .byte  15,89,214                           // mulps         %xmm6,%xmm2
   .byte  15,88,210                           // addps         %xmm2,%xmm2
   .byte  68,15,92,202                        // subps         %xmm2,%xmm9
-  .byte  15,40,13,89,58,0,0                  // movaps        0x3a59(%rip),%xmm1        # 4060 <_sk_callback_sse2+0x204>
+  .byte  15,40,13,9,67,0,0                   // movaps        0x4309(%rip),%xmm1        # 4910 <_sk_callback_sse2+0x1fc>
   .byte  15,92,203                           // subps         %xmm3,%xmm1
   .byte  15,89,207                           // mulps         %xmm7,%xmm1
   .byte  15,88,217                           // addps         %xmm1,%xmm3
@@ -24007,7 +26379,7 @@ HIDDEN _sk_colorburn_sse2
 FUNCTION(_sk_colorburn_sse2)
 _sk_colorburn_sse2:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
-  .byte  68,15,40,21,72,58,0,0               // movaps        0x3a48(%rip),%xmm10        # 4070 <_sk_callback_sse2+0x214>
+  .byte  68,15,40,21,248,66,0,0              // movaps        0x42f8(%rip),%xmm10        # 4920 <_sk_callback_sse2+0x20c>
   .byte  69,15,40,202                        // movaps        %xmm10,%xmm9
   .byte  68,15,92,207                        // subps         %xmm7,%xmm9
   .byte  69,15,40,217                        // movaps        %xmm9,%xmm11
@@ -24101,7 +26473,7 @@ HIDDEN _sk_colordodge_sse2
 FUNCTION(_sk_colordodge_sse2)
 _sk_colordodge_sse2:
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
-  .byte  68,15,40,21,254,56,0,0              // movaps        0x38fe(%rip),%xmm10        # 4080 <_sk_callback_sse2+0x224>
+  .byte  68,15,40,21,174,65,0,0              // movaps        0x41ae(%rip),%xmm10        # 4930 <_sk_callback_sse2+0x21c>
   .byte  69,15,40,218                        // movaps        %xmm10,%xmm11
   .byte  68,15,92,223                        // subps         %xmm7,%xmm11
   .byte  69,15,40,227                        // movaps        %xmm11,%xmm12
@@ -24195,7 +26567,7 @@ _sk_hardlight_sse2:
   .byte  15,41,116,36,232                    // movaps        %xmm6,-0x18(%rsp)
   .byte  15,40,245                           // movaps        %xmm5,%xmm6
   .byte  15,40,236                           // movaps        %xmm4,%xmm5
-  .byte  68,15,40,29,179,55,0,0              // movaps        0x37b3(%rip),%xmm11        # 4090 <_sk_callback_sse2+0x234>
+  .byte  68,15,40,29,99,64,0,0               // movaps        0x4063(%rip),%xmm11        # 4940 <_sk_callback_sse2+0x22c>
   .byte  69,15,40,211                        // movaps        %xmm11,%xmm10
   .byte  68,15,92,215                        // subps         %xmm7,%xmm10
   .byte  69,15,40,194                        // movaps        %xmm10,%xmm8
@@ -24283,7 +26655,7 @@ FUNCTION(_sk_overlay_sse2)
 _sk_overlay_sse2:
   .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
   .byte  68,15,40,232                        // movaps        %xmm0,%xmm13
-  .byte  68,15,40,13,129,54,0,0              // movaps        0x3681(%rip),%xmm9        # 40a0 <_sk_callback_sse2+0x244>
+  .byte  68,15,40,13,49,63,0,0               // movaps        0x3f31(%rip),%xmm9        # 4950 <_sk_callback_sse2+0x23c>
   .byte  69,15,40,209                        // movaps        %xmm9,%xmm10
   .byte  68,15,92,215                        // subps         %xmm7,%xmm10
   .byte  69,15,40,218                        // movaps        %xmm10,%xmm11
@@ -24374,7 +26746,7 @@ _sk_softlight_sse2:
   .byte  68,15,40,213                        // movaps        %xmm5,%xmm10
   .byte  68,15,94,215                        // divps         %xmm7,%xmm10
   .byte  69,15,84,212                        // andps         %xmm12,%xmm10
-  .byte  68,15,40,13,62,53,0,0               // movaps        0x353e(%rip),%xmm9        # 40b0 <_sk_callback_sse2+0x254>
+  .byte  68,15,40,13,238,61,0,0              // movaps        0x3dee(%rip),%xmm9        # 4960 <_sk_callback_sse2+0x24c>
   .byte  69,15,40,249                        // movaps        %xmm9,%xmm15
   .byte  69,15,92,250                        // subps         %xmm10,%xmm15
   .byte  69,15,40,218                        // movaps        %xmm10,%xmm11
@@ -24387,10 +26759,10 @@ _sk_softlight_sse2:
   .byte  65,15,40,194                        // movaps        %xmm10,%xmm0
   .byte  15,89,192                           // mulps         %xmm0,%xmm0
   .byte  65,15,88,194                        // addps         %xmm10,%xmm0
-  .byte  68,15,40,53,24,53,0,0               // movaps        0x3518(%rip),%xmm14        # 40c0 <_sk_callback_sse2+0x264>
+  .byte  68,15,40,53,200,61,0,0              // movaps        0x3dc8(%rip),%xmm14        # 4970 <_sk_callback_sse2+0x25c>
   .byte  69,15,88,222                        // addps         %xmm14,%xmm11
   .byte  68,15,89,216                        // mulps         %xmm0,%xmm11
-  .byte  68,15,40,21,24,53,0,0               // movaps        0x3518(%rip),%xmm10        # 40d0 <_sk_callback_sse2+0x274>
+  .byte  68,15,40,21,200,61,0,0              // movaps        0x3dc8(%rip),%xmm10        # 4980 <_sk_callback_sse2+0x26c>
   .byte  69,15,89,234                        // mulps         %xmm10,%xmm13
   .byte  69,15,88,235                        // addps         %xmm11,%xmm13
   .byte  15,88,228                           // addps         %xmm4,%xmm4
@@ -24526,6 +26898,582 @@ _sk_softlight_sse2:
   .byte  65,15,40,200                        // movaps        %xmm8,%xmm1
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_hue_sse2
+.globl _sk_hue_sse2
+FUNCTION(_sk_hue_sse2)
+_sk_hue_sse2:
+  .byte  15,41,124,36,232                    // movaps        %xmm7,-0x18(%rsp)
+  .byte  15,40,254                           // movaps        %xmm6,%xmm7
+  .byte  15,40,245                           // movaps        %xmm5,%xmm6
+  .byte  68,15,40,202                        // movaps        %xmm2,%xmm9
+  .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
+  .byte  68,15,40,248                        // movaps        %xmm0,%xmm15
+  .byte  15,87,210                           // xorps         %xmm2,%xmm2
+  .byte  68,15,40,21,213,59,0,0              // movaps        0x3bd5(%rip),%xmm10        # 4990 <_sk_callback_sse2+0x27c>
+  .byte  65,15,40,194                        // movaps        %xmm10,%xmm0
+  .byte  15,94,195                           // divps         %xmm3,%xmm0
+  .byte  68,15,40,219                        // movaps        %xmm3,%xmm11
+  .byte  68,15,194,218,4                     // cmpneqps      %xmm2,%xmm11
+  .byte  68,15,84,216                        // andps         %xmm0,%xmm11
+  .byte  69,15,89,251                        // mulps         %xmm11,%xmm15
+  .byte  69,15,89,195                        // mulps         %xmm11,%xmm8
+  .byte  69,15,89,217                        // mulps         %xmm9,%xmm11
+  .byte  68,15,40,206                        // movaps        %xmm6,%xmm9
+  .byte  68,15,40,230                        // movaps        %xmm6,%xmm12
+  .byte  68,15,95,231                        // maxps         %xmm7,%xmm12
+  .byte  15,40,196                           // movaps        %xmm4,%xmm0
+  .byte  68,15,40,236                        // movaps        %xmm4,%xmm13
+  .byte  68,15,40,244                        // movaps        %xmm4,%xmm14
+  .byte  69,15,95,244                        // maxps         %xmm12,%xmm14
+  .byte  68,15,93,207                        // minps         %xmm7,%xmm9
+  .byte  65,15,93,193                        // minps         %xmm9,%xmm0
+  .byte  68,15,92,240                        // subps         %xmm0,%xmm14
+  .byte  69,15,40,200                        // movaps        %xmm8,%xmm9
+  .byte  69,15,93,203                        // minps         %xmm11,%xmm9
+  .byte  65,15,40,207                        // movaps        %xmm15,%xmm1
+  .byte  65,15,93,201                        // minps         %xmm9,%xmm1
+  .byte  69,15,40,224                        // movaps        %xmm8,%xmm12
+  .byte  69,15,95,227                        // maxps         %xmm11,%xmm12
+  .byte  65,15,40,199                        // movaps        %xmm15,%xmm0
+  .byte  65,15,95,196                        // maxps         %xmm12,%xmm0
+  .byte  15,92,193                           // subps         %xmm1,%xmm0
+  .byte  68,15,92,249                        // subps         %xmm1,%xmm15
+  .byte  65,15,40,206                        // movaps        %xmm14,%xmm1
+  .byte  15,94,200                           // divps         %xmm0,%xmm1
+  .byte  15,194,194,4                        // cmpneqps      %xmm2,%xmm0
+  .byte  15,84,193                           // andps         %xmm1,%xmm0
+  .byte  65,15,89,199                        // mulps         %xmm15,%xmm0
+  .byte  68,15,40,248                        // movaps        %xmm0,%xmm15
+  .byte  69,15,93,249                        // minps         %xmm9,%xmm15
+  .byte  15,40,200                           // movaps        %xmm0,%xmm1
+  .byte  65,15,95,204                        // maxps         %xmm12,%xmm1
+  .byte  65,15,92,207                        // subps         %xmm15,%xmm1
+  .byte  69,15,92,199                        // subps         %xmm15,%xmm8
+  .byte  69,15,40,206                        // movaps        %xmm14,%xmm9
+  .byte  68,15,94,201                        // divps         %xmm1,%xmm9
+  .byte  15,194,202,4                        // cmpneqps      %xmm2,%xmm1
+  .byte  65,15,84,201                        // andps         %xmm9,%xmm1
+  .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
+  .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
+  .byte  69,15,93,195                        // minps         %xmm11,%xmm8
+  .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
+  .byte  69,15,93,200                        // minps         %xmm8,%xmm9
+  .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
+  .byte  69,15,95,195                        // maxps         %xmm11,%xmm8
+  .byte  68,15,40,224                        // movaps        %xmm0,%xmm12
+  .byte  69,15,95,224                        // maxps         %xmm8,%xmm12
+  .byte  69,15,92,225                        // subps         %xmm9,%xmm12
+  .byte  69,15,92,217                        // subps         %xmm9,%xmm11
+  .byte  69,15,94,244                        // divps         %xmm12,%xmm14
+  .byte  68,15,194,226,4                     // cmpneqps      %xmm2,%xmm12
+  .byte  69,15,84,230                        // andps         %xmm14,%xmm12
+  .byte  69,15,89,227                        // mulps         %xmm11,%xmm12
+  .byte  68,15,40,53,249,58,0,0              // movaps        0x3af9(%rip),%xmm14        # 49a0 <_sk_callback_sse2+0x28c>
+  .byte  69,15,89,238                        // mulps         %xmm14,%xmm13
+  .byte  68,15,40,61,253,58,0,0              // movaps        0x3afd(%rip),%xmm15        # 49b0 <_sk_callback_sse2+0x29c>
+  .byte  65,15,89,239                        // mulps         %xmm15,%xmm5
+  .byte  65,15,88,237                        // addps         %xmm13,%xmm5
+  .byte  68,15,40,5,253,58,0,0               // movaps        0x3afd(%rip),%xmm8        # 49c0 <_sk_callback_sse2+0x2ac>
+  .byte  68,15,40,207                        // movaps        %xmm7,%xmm9
+  .byte  68,15,40,239                        // movaps        %xmm7,%xmm13
+  .byte  69,15,89,200                        // mulps         %xmm8,%xmm9
+  .byte  68,15,88,205                        // addps         %xmm5,%xmm9
+  .byte  68,15,40,216                        // movaps        %xmm0,%xmm11
+  .byte  69,15,89,222                        // mulps         %xmm14,%xmm11
+  .byte  15,40,233                           // movaps        %xmm1,%xmm5
+  .byte  65,15,89,239                        // mulps         %xmm15,%xmm5
+  .byte  65,15,88,235                        // addps         %xmm11,%xmm5
+  .byte  65,15,40,252                        // movaps        %xmm12,%xmm7
+  .byte  65,15,89,248                        // mulps         %xmm8,%xmm7
+  .byte  15,88,253                           // addps         %xmm5,%xmm7
+  .byte  68,15,92,207                        // subps         %xmm7,%xmm9
+  .byte  65,15,88,193                        // addps         %xmm9,%xmm0
+  .byte  65,15,88,201                        // addps         %xmm9,%xmm1
+  .byte  69,15,88,204                        // addps         %xmm12,%xmm9
+  .byte  15,40,233                           // movaps        %xmm1,%xmm5
+  .byte  65,15,93,233                        // minps         %xmm9,%xmm5
+  .byte  15,40,248                           // movaps        %xmm0,%xmm7
+  .byte  15,93,253                           // minps         %xmm5,%xmm7
+  .byte  15,40,233                           // movaps        %xmm1,%xmm5
+  .byte  65,15,95,233                        // maxps         %xmm9,%xmm5
+  .byte  68,15,40,216                        // movaps        %xmm0,%xmm11
+  .byte  68,15,95,221                        // maxps         %xmm5,%xmm11
+  .byte  68,15,89,240                        // mulps         %xmm0,%xmm14
+  .byte  68,15,89,249                        // mulps         %xmm1,%xmm15
+  .byte  69,15,88,254                        // addps         %xmm14,%xmm15
+  .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
+  .byte  69,15,88,199                        // addps         %xmm15,%xmm8
+  .byte  15,194,215,2                        // cmpleps       %xmm7,%xmm2
+  .byte  15,40,232                           // movaps        %xmm0,%xmm5
+  .byte  65,15,92,232                        // subps         %xmm8,%xmm5
+  .byte  65,15,89,232                        // mulps         %xmm8,%xmm5
+  .byte  69,15,40,224                        // movaps        %xmm8,%xmm12
+  .byte  68,15,92,231                        // subps         %xmm7,%xmm12
+  .byte  65,15,94,236                        // divps         %xmm12,%xmm5
+  .byte  65,15,88,232                        // addps         %xmm8,%xmm5
+  .byte  15,40,250                           // movaps        %xmm2,%xmm7
+  .byte  15,85,253                           // andnps        %xmm5,%xmm7
+  .byte  15,84,194                           // andps         %xmm2,%xmm0
+  .byte  15,86,199                           // orps          %xmm7,%xmm0
+  .byte  69,15,194,211,1                     // cmpltps       %xmm11,%xmm10
+  .byte  65,15,40,234                        // movaps        %xmm10,%xmm5
+  .byte  15,85,232                           // andnps        %xmm0,%xmm5
+  .byte  65,15,92,192                        // subps         %xmm8,%xmm0
+  .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
+  .byte  69,15,92,216                        // subps         %xmm8,%xmm11
+  .byte  65,15,94,195                        // divps         %xmm11,%xmm0
+  .byte  65,15,88,192                        // addps         %xmm8,%xmm0
+  .byte  65,15,84,194                        // andps         %xmm10,%xmm0
+  .byte  15,86,197                           // orps          %xmm5,%xmm0
+  .byte  15,40,233                           // movaps        %xmm1,%xmm5
+  .byte  65,15,92,232                        // subps         %xmm8,%xmm5
+  .byte  65,15,89,232                        // mulps         %xmm8,%xmm5
+  .byte  65,15,94,236                        // divps         %xmm12,%xmm5
+  .byte  65,15,88,232                        // addps         %xmm8,%xmm5
+  .byte  15,40,250                           // movaps        %xmm2,%xmm7
+  .byte  15,85,253                           // andnps        %xmm5,%xmm7
+  .byte  15,84,202                           // andps         %xmm2,%xmm1
+  .byte  15,86,207                           // orps          %xmm7,%xmm1
+  .byte  65,15,40,234                        // movaps        %xmm10,%xmm5
+  .byte  15,85,233                           // andnps        %xmm1,%xmm5
+  .byte  65,15,92,200                        // subps         %xmm8,%xmm1
+  .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
+  .byte  65,15,94,203                        // divps         %xmm11,%xmm1
+  .byte  65,15,88,200                        // addps         %xmm8,%xmm1
+  .byte  65,15,84,202                        // andps         %xmm10,%xmm1
+  .byte  15,86,205                           // orps          %xmm5,%xmm1
+  .byte  65,15,40,233                        // movaps        %xmm9,%xmm5
+  .byte  65,15,92,232                        // subps         %xmm8,%xmm5
+  .byte  65,15,89,232                        // mulps         %xmm8,%xmm5
+  .byte  65,15,94,236                        // divps         %xmm12,%xmm5
+  .byte  65,15,88,232                        // addps         %xmm8,%xmm5
+  .byte  68,15,84,202                        // andps         %xmm2,%xmm9
+  .byte  15,85,213                           // andnps        %xmm5,%xmm2
+  .byte  65,15,86,209                        // orps          %xmm9,%xmm2
+  .byte  65,15,40,234                        // movaps        %xmm10,%xmm5
+  .byte  15,85,234                           // andnps        %xmm2,%xmm5
+  .byte  65,15,92,208                        // subps         %xmm8,%xmm2
+  .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
+  .byte  65,15,94,211                        // divps         %xmm11,%xmm2
+  .byte  65,15,88,208                        // addps         %xmm8,%xmm2
+  .byte  65,15,84,210                        // andps         %xmm10,%xmm2
+  .byte  15,86,213                           // orps          %xmm5,%xmm2
+  .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
+  .byte  15,40,108,36,232                    // movaps        -0x18(%rsp),%xmm5
+  .byte  68,15,88,197                        // addps         %xmm5,%xmm8
+  .byte  15,89,221                           // mulps         %xmm5,%xmm3
+  .byte  15,40,253                           // movaps        %xmm5,%xmm7
+  .byte  68,15,92,195                        // subps         %xmm3,%xmm8
+  .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
+  .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
+  .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  15,40,238                           // movaps        %xmm6,%xmm5
+  .byte  65,15,40,245                        // movaps        %xmm13,%xmm6
+  .byte  65,15,40,216                        // movaps        %xmm8,%xmm3
+  .byte  255,224                             // jmpq          *%rax
+
+HIDDEN _sk_saturation_sse2
+.globl _sk_saturation_sse2
+FUNCTION(_sk_saturation_sse2)
+_sk_saturation_sse2:
+  .byte  68,15,40,194                        // movaps        %xmm2,%xmm8
+  .byte  15,87,210                           // xorps         %xmm2,%xmm2
+  .byte  68,15,40,13,146,57,0,0              // movaps        0x3992(%rip),%xmm9        # 49d0 <_sk_callback_sse2+0x2bc>
+  .byte  69,15,40,217                        // movaps        %xmm9,%xmm11
+  .byte  68,15,94,223                        // divps         %xmm7,%xmm11
+  .byte  68,15,40,215                        // movaps        %xmm7,%xmm10
+  .byte  68,15,194,210,4                     // cmpneqps      %xmm2,%xmm10
+  .byte  69,15,84,211                        // andps         %xmm11,%xmm10
+  .byte  69,15,40,234                        // movaps        %xmm10,%xmm13
+  .byte  68,15,89,236                        // mulps         %xmm4,%xmm13
+  .byte  69,15,40,226                        // movaps        %xmm10,%xmm12
+  .byte  68,15,89,229                        // mulps         %xmm5,%xmm12
+  .byte  68,15,89,214                        // mulps         %xmm6,%xmm10
+  .byte  68,15,40,241                        // movaps        %xmm1,%xmm14
+  .byte  69,15,95,240                        // maxps         %xmm8,%xmm14
+  .byte  68,15,40,216                        // movaps        %xmm0,%xmm11
+  .byte  69,15,95,222                        // maxps         %xmm14,%xmm11
+  .byte  65,15,93,200                        // minps         %xmm8,%xmm1
+  .byte  15,93,193                           // minps         %xmm1,%xmm0
+  .byte  68,15,92,216                        // subps         %xmm0,%xmm11
+  .byte  69,15,40,196                        // movaps        %xmm12,%xmm8
+  .byte  69,15,93,194                        // minps         %xmm10,%xmm8
+  .byte  65,15,40,205                        // movaps        %xmm13,%xmm1
+  .byte  65,15,93,200                        // minps         %xmm8,%xmm1
+  .byte  69,15,40,244                        // movaps        %xmm12,%xmm14
+  .byte  69,15,95,242                        // maxps         %xmm10,%xmm14
+  .byte  65,15,40,197                        // movaps        %xmm13,%xmm0
+  .byte  65,15,95,198                        // maxps         %xmm14,%xmm0
+  .byte  15,92,193                           // subps         %xmm1,%xmm0
+  .byte  68,15,92,233                        // subps         %xmm1,%xmm13
+  .byte  65,15,40,203                        // movaps        %xmm11,%xmm1
+  .byte  15,94,200                           // divps         %xmm0,%xmm1
+  .byte  15,194,194,4                        // cmpneqps      %xmm2,%xmm0
+  .byte  15,84,193                           // andps         %xmm1,%xmm0
+  .byte  65,15,89,197                        // mulps         %xmm13,%xmm0
+  .byte  68,15,40,232                        // movaps        %xmm0,%xmm13
+  .byte  69,15,93,232                        // minps         %xmm8,%xmm13
+  .byte  15,40,200                           // movaps        %xmm0,%xmm1
+  .byte  65,15,95,206                        // maxps         %xmm14,%xmm1
+  .byte  65,15,92,205                        // subps         %xmm13,%xmm1
+  .byte  69,15,92,229                        // subps         %xmm13,%xmm12
+  .byte  69,15,40,195                        // movaps        %xmm11,%xmm8
+  .byte  68,15,94,193                        // divps         %xmm1,%xmm8
+  .byte  15,194,202,4                        // cmpneqps      %xmm2,%xmm1
+  .byte  65,15,84,200                        // andps         %xmm8,%xmm1
+  .byte  65,15,89,204                        // mulps         %xmm12,%xmm1
+  .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
+  .byte  69,15,93,194                        // minps         %xmm10,%xmm8
+  .byte  68,15,40,224                        // movaps        %xmm0,%xmm12
+  .byte  69,15,93,224                        // minps         %xmm8,%xmm12
+  .byte  68,15,40,233                        // movaps        %xmm1,%xmm13
+  .byte  69,15,95,234                        // maxps         %xmm10,%xmm13
+  .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
+  .byte  69,15,95,197                        // maxps         %xmm13,%xmm8
+  .byte  69,15,92,196                        // subps         %xmm12,%xmm8
+  .byte  69,15,92,212                        // subps         %xmm12,%xmm10
+  .byte  69,15,94,216                        // divps         %xmm8,%xmm11
+  .byte  68,15,194,194,4                     // cmpneqps      %xmm2,%xmm8
+  .byte  69,15,84,195                        // andps         %xmm11,%xmm8
+  .byte  69,15,89,194                        // mulps         %xmm10,%xmm8
+  .byte  68,15,40,37,185,56,0,0              // movaps        0x38b9(%rip),%xmm12        # 49e0 <_sk_callback_sse2+0x2cc>
+  .byte  68,15,40,212                        // movaps        %xmm4,%xmm10
+  .byte  69,15,89,212                        // mulps         %xmm12,%xmm10
+  .byte  68,15,40,45,185,56,0,0              // movaps        0x38b9(%rip),%xmm13        # 49f0 <_sk_callback_sse2+0x2dc>
+  .byte  68,15,40,245                        // movaps        %xmm5,%xmm14
+  .byte  69,15,89,245                        // mulps         %xmm13,%xmm14
+  .byte  69,15,88,242                        // addps         %xmm10,%xmm14
+  .byte  68,15,40,21,181,56,0,0              // movaps        0x38b5(%rip),%xmm10        # 4a00 <_sk_callback_sse2+0x2ec>
+  .byte  68,15,40,222                        // movaps        %xmm6,%xmm11
+  .byte  69,15,89,218                        // mulps         %xmm10,%xmm11
+  .byte  69,15,88,222                        // addps         %xmm14,%xmm11
+  .byte  68,15,40,240                        // movaps        %xmm0,%xmm14
+  .byte  69,15,89,244                        // mulps         %xmm12,%xmm14
+  .byte  68,15,40,249                        // movaps        %xmm1,%xmm15
+  .byte  69,15,89,253                        // mulps         %xmm13,%xmm15
+  .byte  69,15,88,254                        // addps         %xmm14,%xmm15
+  .byte  69,15,40,240                        // movaps        %xmm8,%xmm14
+  .byte  69,15,89,242                        // mulps         %xmm10,%xmm14
+  .byte  69,15,88,247                        // addps         %xmm15,%xmm14
+  .byte  69,15,92,222                        // subps         %xmm14,%xmm11
+  .byte  65,15,88,195                        // addps         %xmm11,%xmm0
+  .byte  65,15,88,203                        // addps         %xmm11,%xmm1
+  .byte  69,15,88,216                        // addps         %xmm8,%xmm11
+  .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
+  .byte  69,15,93,195                        // minps         %xmm11,%xmm8
+  .byte  68,15,40,248                        // movaps        %xmm0,%xmm15
+  .byte  69,15,93,248                        // minps         %xmm8,%xmm15
+  .byte  68,15,40,193                        // movaps        %xmm1,%xmm8
+  .byte  69,15,95,195                        // maxps         %xmm11,%xmm8
+  .byte  68,15,40,240                        // movaps        %xmm0,%xmm14
+  .byte  69,15,95,240                        // maxps         %xmm8,%xmm14
+  .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
+  .byte  68,15,88,199                        // addps         %xmm7,%xmm8
+  .byte  15,89,223                           // mulps         %xmm7,%xmm3
+  .byte  68,15,89,224                        // mulps         %xmm0,%xmm12
+  .byte  68,15,89,233                        // mulps         %xmm1,%xmm13
+  .byte  69,15,88,236                        // addps         %xmm12,%xmm13
+  .byte  69,15,89,211                        // mulps         %xmm11,%xmm10
+  .byte  69,15,88,213                        // addps         %xmm13,%xmm10
+  .byte  65,15,194,215,2                     // cmpleps       %xmm15,%xmm2
+  .byte  68,15,40,224                        // movaps        %xmm0,%xmm12
+  .byte  69,15,92,226                        // subps         %xmm10,%xmm12
+  .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
+  .byte  69,15,40,234                        // movaps        %xmm10,%xmm13
+  .byte  69,15,92,239                        // subps         %xmm15,%xmm13
+  .byte  69,15,94,229                        // divps         %xmm13,%xmm12
+  .byte  69,15,88,226                        // addps         %xmm10,%xmm12
+  .byte  68,15,40,250                        // movaps        %xmm2,%xmm15
+  .byte  69,15,85,252                        // andnps        %xmm12,%xmm15
+  .byte  15,84,194                           // andps         %xmm2,%xmm0
+  .byte  65,15,86,199                        // orps          %xmm15,%xmm0
+  .byte  69,15,194,206,1                     // cmpltps       %xmm14,%xmm9
+  .byte  69,15,40,225                        // movaps        %xmm9,%xmm12
+  .byte  68,15,85,224                        // andnps        %xmm0,%xmm12
+  .byte  65,15,92,194                        // subps         %xmm10,%xmm0
+  .byte  65,15,89,194                        // mulps         %xmm10,%xmm0
+  .byte  69,15,92,242                        // subps         %xmm10,%xmm14
+  .byte  65,15,94,198                        // divps         %xmm14,%xmm0
+  .byte  65,15,88,194                        // addps         %xmm10,%xmm0
+  .byte  65,15,84,193                        // andps         %xmm9,%xmm0
+  .byte  65,15,86,196                        // orps          %xmm12,%xmm0
+  .byte  68,15,40,225                        // movaps        %xmm1,%xmm12
+  .byte  69,15,92,226                        // subps         %xmm10,%xmm12
+  .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
+  .byte  69,15,94,229                        // divps         %xmm13,%xmm12
+  .byte  69,15,88,226                        // addps         %xmm10,%xmm12
+  .byte  68,15,40,250                        // movaps        %xmm2,%xmm15
+  .byte  69,15,85,252                        // andnps        %xmm12,%xmm15
+  .byte  15,84,202                           // andps         %xmm2,%xmm1
+  .byte  65,15,86,207                        // orps          %xmm15,%xmm1
+  .byte  69,15,40,225                        // movaps        %xmm9,%xmm12
+  .byte  68,15,85,225                        // andnps        %xmm1,%xmm12
+  .byte  65,15,92,202                        // subps         %xmm10,%xmm1
+  .byte  65,15,89,202                        // mulps         %xmm10,%xmm1
+  .byte  65,15,94,206                        // divps         %xmm14,%xmm1
+  .byte  65,15,88,202                        // addps         %xmm10,%xmm1
+  .byte  65,15,84,201                        // andps         %xmm9,%xmm1
+  .byte  65,15,86,204                        // orps          %xmm12,%xmm1
+  .byte  69,15,40,227                        // movaps        %xmm11,%xmm12
+  .byte  69,15,92,226                        // subps         %xmm10,%xmm12
+  .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
+  .byte  69,15,94,229                        // divps         %xmm13,%xmm12
+  .byte  69,15,88,226                        // addps         %xmm10,%xmm12
+  .byte  68,15,84,218                        // andps         %xmm2,%xmm11
+  .byte  65,15,85,212                        // andnps        %xmm12,%xmm2
+  .byte  65,15,86,211                        // orps          %xmm11,%xmm2
+  .byte  69,15,40,217                        // movaps        %xmm9,%xmm11
+  .byte  68,15,85,218                        // andnps        %xmm2,%xmm11
+  .byte  65,15,92,210                        // subps         %xmm10,%xmm2
+  .byte  65,15,89,210                        // mulps         %xmm10,%xmm2
+  .byte  65,15,94,214                        // divps         %xmm14,%xmm2
+  .byte  65,15,88,210                        // addps         %xmm10,%xmm2
+  .byte  65,15,84,209                        // andps         %xmm9,%xmm2
+  .byte  65,15,86,211                        // orps          %xmm11,%xmm2
+  .byte  68,15,92,195                        // subps         %xmm3,%xmm8
+  .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
+  .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
+  .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  65,15,40,216                        // movaps        %xmm8,%xmm3
+  .byte  255,224                             // jmpq          *%rax
+
+HIDDEN _sk_color_sse2
+.globl _sk_color_sse2
+FUNCTION(_sk_color_sse2)
+_sk_color_sse2:
+  .byte  68,15,40,194                        // movaps        %xmm2,%xmm8
+  .byte  15,87,210                           // xorps         %xmm2,%xmm2
+  .byte  68,15,40,13,71,55,0,0               // movaps        0x3747(%rip),%xmm9        # 4a10 <_sk_callback_sse2+0x2fc>
+  .byte  69,15,40,209                        // movaps        %xmm9,%xmm10
+  .byte  68,15,94,211                        // divps         %xmm3,%xmm10
+  .byte  68,15,40,219                        // movaps        %xmm3,%xmm11
+  .byte  68,15,194,218,4                     // cmpneqps      %xmm2,%xmm11
+  .byte  69,15,84,218                        // andps         %xmm10,%xmm11
+  .byte  65,15,89,195                        // mulps         %xmm11,%xmm0
+  .byte  65,15,89,203                        // mulps         %xmm11,%xmm1
+  .byte  69,15,89,216                        // mulps         %xmm8,%xmm11
+  .byte  68,15,40,45,46,55,0,0               // movaps        0x372e(%rip),%xmm13        # 4a20 <_sk_callback_sse2+0x30c>
+  .byte  68,15,40,196                        // movaps        %xmm4,%xmm8
+  .byte  69,15,89,197                        // mulps         %xmm13,%xmm8
+  .byte  68,15,40,37,46,55,0,0               // movaps        0x372e(%rip),%xmm12        # 4a30 <_sk_callback_sse2+0x31c>
+  .byte  68,15,40,245                        // movaps        %xmm5,%xmm14
+  .byte  69,15,89,244                        // mulps         %xmm12,%xmm14
+  .byte  69,15,88,240                        // addps         %xmm8,%xmm14
+  .byte  68,15,40,5,42,55,0,0                // movaps        0x372a(%rip),%xmm8        # 4a40 <_sk_callback_sse2+0x32c>
+  .byte  68,15,40,214                        // movaps        %xmm6,%xmm10
+  .byte  69,15,89,208                        // mulps         %xmm8,%xmm10
+  .byte  69,15,88,214                        // addps         %xmm14,%xmm10
+  .byte  68,15,40,240                        // movaps        %xmm0,%xmm14
+  .byte  69,15,89,245                        // mulps         %xmm13,%xmm14
+  .byte  68,15,40,249                        // movaps        %xmm1,%xmm15
+  .byte  69,15,89,252                        // mulps         %xmm12,%xmm15
+  .byte  69,15,88,254                        // addps         %xmm14,%xmm15
+  .byte  69,15,40,243                        // movaps        %xmm11,%xmm14
+  .byte  69,15,89,240                        // mulps         %xmm8,%xmm14
+  .byte  69,15,88,247                        // addps         %xmm15,%xmm14
+  .byte  69,15,92,214                        // subps         %xmm14,%xmm10
+  .byte  65,15,88,194                        // addps         %xmm10,%xmm0
+  .byte  65,15,88,202                        // addps         %xmm10,%xmm1
+  .byte  69,15,88,211                        // addps         %xmm11,%xmm10
+  .byte  68,15,40,217                        // movaps        %xmm1,%xmm11
+  .byte  69,15,93,218                        // minps         %xmm10,%xmm11
+  .byte  68,15,40,240                        // movaps        %xmm0,%xmm14
+  .byte  69,15,93,243                        // minps         %xmm11,%xmm14
+  .byte  68,15,40,249                        // movaps        %xmm1,%xmm15
+  .byte  69,15,95,250                        // maxps         %xmm10,%xmm15
+  .byte  68,15,40,216                        // movaps        %xmm0,%xmm11
+  .byte  69,15,95,223                        // maxps         %xmm15,%xmm11
+  .byte  68,15,89,232                        // mulps         %xmm0,%xmm13
+  .byte  68,15,89,225                        // mulps         %xmm1,%xmm12
+  .byte  69,15,88,229                        // addps         %xmm13,%xmm12
+  .byte  69,15,89,194                        // mulps         %xmm10,%xmm8
+  .byte  69,15,88,196                        // addps         %xmm12,%xmm8
+  .byte  65,15,194,214,2                     // cmpleps       %xmm14,%xmm2
+  .byte  68,15,40,232                        // movaps        %xmm0,%xmm13
+  .byte  69,15,92,232                        // subps         %xmm8,%xmm13
+  .byte  69,15,89,232                        // mulps         %xmm8,%xmm13
+  .byte  69,15,40,224                        // movaps        %xmm8,%xmm12
+  .byte  69,15,92,230                        // subps         %xmm14,%xmm12
+  .byte  69,15,94,236                        // divps         %xmm12,%xmm13
+  .byte  69,15,88,232                        // addps         %xmm8,%xmm13
+  .byte  68,15,40,242                        // movaps        %xmm2,%xmm14
+  .byte  69,15,85,245                        // andnps        %xmm13,%xmm14
+  .byte  15,84,194                           // andps         %xmm2,%xmm0
+  .byte  65,15,86,198                        // orps          %xmm14,%xmm0
+  .byte  69,15,194,203,1                     // cmpltps       %xmm11,%xmm9
+  .byte  69,15,40,233                        // movaps        %xmm9,%xmm13
+  .byte  68,15,85,232                        // andnps        %xmm0,%xmm13
+  .byte  65,15,92,192                        // subps         %xmm8,%xmm0
+  .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
+  .byte  69,15,92,216                        // subps         %xmm8,%xmm11
+  .byte  65,15,94,195                        // divps         %xmm11,%xmm0
+  .byte  65,15,88,192                        // addps         %xmm8,%xmm0
+  .byte  65,15,84,193                        // andps         %xmm9,%xmm0
+  .byte  65,15,86,197                        // orps          %xmm13,%xmm0
+  .byte  68,15,40,233                        // movaps        %xmm1,%xmm13
+  .byte  69,15,92,232                        // subps         %xmm8,%xmm13
+  .byte  69,15,89,232                        // mulps         %xmm8,%xmm13
+  .byte  69,15,94,236                        // divps         %xmm12,%xmm13
+  .byte  69,15,88,232                        // addps         %xmm8,%xmm13
+  .byte  68,15,40,242                        // movaps        %xmm2,%xmm14
+  .byte  69,15,85,245                        // andnps        %xmm13,%xmm14
+  .byte  15,84,202                           // andps         %xmm2,%xmm1
+  .byte  65,15,86,206                        // orps          %xmm14,%xmm1
+  .byte  69,15,40,233                        // movaps        %xmm9,%xmm13
+  .byte  68,15,85,233                        // andnps        %xmm1,%xmm13
+  .byte  65,15,92,200                        // subps         %xmm8,%xmm1
+  .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
+  .byte  65,15,94,203                        // divps         %xmm11,%xmm1
+  .byte  65,15,88,200                        // addps         %xmm8,%xmm1
+  .byte  65,15,84,201                        // andps         %xmm9,%xmm1
+  .byte  65,15,86,205                        // orps          %xmm13,%xmm1
+  .byte  69,15,40,234                        // movaps        %xmm10,%xmm13
+  .byte  69,15,92,232                        // subps         %xmm8,%xmm13
+  .byte  69,15,89,232                        // mulps         %xmm8,%xmm13
+  .byte  69,15,94,236                        // divps         %xmm12,%xmm13
+  .byte  69,15,88,232                        // addps         %xmm8,%xmm13
+  .byte  68,15,84,210                        // andps         %xmm2,%xmm10
+  .byte  65,15,85,213                        // andnps        %xmm13,%xmm2
+  .byte  65,15,86,210                        // orps          %xmm10,%xmm2
+  .byte  69,15,40,209                        // movaps        %xmm9,%xmm10
+  .byte  68,15,85,210                        // andnps        %xmm2,%xmm10
+  .byte  65,15,92,208                        // subps         %xmm8,%xmm2
+  .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
+  .byte  65,15,94,211                        // divps         %xmm11,%xmm2
+  .byte  65,15,88,208                        // addps         %xmm8,%xmm2
+  .byte  65,15,84,209                        // andps         %xmm9,%xmm2
+  .byte  65,15,86,210                        // orps          %xmm10,%xmm2
+  .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
+  .byte  68,15,88,199                        // addps         %xmm7,%xmm8
+  .byte  15,89,223                           // mulps         %xmm7,%xmm3
+  .byte  68,15,92,195                        // subps         %xmm3,%xmm8
+  .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
+  .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
+  .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  65,15,40,216                        // movaps        %xmm8,%xmm3
+  .byte  255,224                             // jmpq          *%rax
+
+HIDDEN _sk_luminosity_sse2
+.globl _sk_luminosity_sse2
+FUNCTION(_sk_luminosity_sse2)
+_sk_luminosity_sse2:
+  .byte  68,15,40,194                        // movaps        %xmm2,%xmm8
+  .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
+  .byte  68,15,40,208                        // movaps        %xmm0,%xmm10
+  .byte  15,87,210                           // xorps         %xmm2,%xmm2
+  .byte  68,15,40,29,180,53,0,0              // movaps        0x35b4(%rip),%xmm11        # 4a50 <_sk_callback_sse2+0x33c>
+  .byte  65,15,40,195                        // movaps        %xmm11,%xmm0
+  .byte  15,94,199                           // divps         %xmm7,%xmm0
+  .byte  68,15,40,247                        // movaps        %xmm7,%xmm14
+  .byte  68,15,194,242,4                     // cmpneqps      %xmm2,%xmm14
+  .byte  68,15,84,240                        // andps         %xmm0,%xmm14
+  .byte  65,15,40,198                        // movaps        %xmm14,%xmm0
+  .byte  15,89,196                           // mulps         %xmm4,%xmm0
+  .byte  65,15,40,206                        // movaps        %xmm14,%xmm1
+  .byte  15,89,205                           // mulps         %xmm5,%xmm1
+  .byte  68,15,89,246                        // mulps         %xmm6,%xmm14
+  .byte  68,15,40,37,150,53,0,0              // movaps        0x3596(%rip),%xmm12        # 4a60 <_sk_callback_sse2+0x34c>
+  .byte  69,15,89,212                        // mulps         %xmm12,%xmm10
+  .byte  68,15,40,45,154,53,0,0              // movaps        0x359a(%rip),%xmm13        # 4a70 <_sk_callback_sse2+0x35c>
+  .byte  69,15,89,205                        // mulps         %xmm13,%xmm9
+  .byte  69,15,88,202                        // addps         %xmm10,%xmm9
+  .byte  68,15,40,21,154,53,0,0              // movaps        0x359a(%rip),%xmm10        # 4a80 <_sk_callback_sse2+0x36c>
+  .byte  69,15,89,194                        // mulps         %xmm10,%xmm8
+  .byte  69,15,88,193                        // addps         %xmm9,%xmm8
+  .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
+  .byte  69,15,89,204                        // mulps         %xmm12,%xmm9
+  .byte  68,15,40,249                        // movaps        %xmm1,%xmm15
+  .byte  69,15,89,253                        // mulps         %xmm13,%xmm15
+  .byte  69,15,88,249                        // addps         %xmm9,%xmm15
+  .byte  69,15,40,206                        // movaps        %xmm14,%xmm9
+  .byte  69,15,89,202                        // mulps         %xmm10,%xmm9
+  .byte  69,15,88,207                        // addps         %xmm15,%xmm9
+  .byte  69,15,92,193                        // subps         %xmm9,%xmm8
+  .byte  65,15,88,192                        // addps         %xmm8,%xmm0
+  .byte  65,15,88,200                        // addps         %xmm8,%xmm1
+  .byte  69,15,88,198                        // addps         %xmm14,%xmm8
+  .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
+  .byte  69,15,93,200                        // minps         %xmm8,%xmm9
+  .byte  68,15,40,248                        // movaps        %xmm0,%xmm15
+  .byte  69,15,93,249                        // minps         %xmm9,%xmm15
+  .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
+  .byte  69,15,95,200                        // maxps         %xmm8,%xmm9
+  .byte  68,15,40,240                        // movaps        %xmm0,%xmm14
+  .byte  69,15,95,241                        // maxps         %xmm9,%xmm14
+  .byte  68,15,40,203                        // movaps        %xmm3,%xmm9
+  .byte  68,15,88,207                        // addps         %xmm7,%xmm9
+  .byte  15,89,223                           // mulps         %xmm7,%xmm3
+  .byte  68,15,89,224                        // mulps         %xmm0,%xmm12
+  .byte  68,15,89,233                        // mulps         %xmm1,%xmm13
+  .byte  69,15,88,236                        // addps         %xmm12,%xmm13
+  .byte  69,15,89,208                        // mulps         %xmm8,%xmm10
+  .byte  69,15,88,213                        // addps         %xmm13,%xmm10
+  .byte  65,15,194,215,2                     // cmpleps       %xmm15,%xmm2
+  .byte  68,15,40,224                        // movaps        %xmm0,%xmm12
+  .byte  69,15,92,226                        // subps         %xmm10,%xmm12
+  .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
+  .byte  69,15,40,234                        // movaps        %xmm10,%xmm13
+  .byte  69,15,92,239                        // subps         %xmm15,%xmm13
+  .byte  69,15,94,229                        // divps         %xmm13,%xmm12
+  .byte  69,15,88,226                        // addps         %xmm10,%xmm12
+  .byte  68,15,40,250                        // movaps        %xmm2,%xmm15
+  .byte  69,15,85,252                        // andnps        %xmm12,%xmm15
+  .byte  15,84,194                           // andps         %xmm2,%xmm0
+  .byte  65,15,86,199                        // orps          %xmm15,%xmm0
+  .byte  69,15,194,222,1                     // cmpltps       %xmm14,%xmm11
+  .byte  69,15,40,227                        // movaps        %xmm11,%xmm12
+  .byte  68,15,85,224                        // andnps        %xmm0,%xmm12
+  .byte  65,15,92,194                        // subps         %xmm10,%xmm0
+  .byte  65,15,89,194                        // mulps         %xmm10,%xmm0
+  .byte  69,15,92,242                        // subps         %xmm10,%xmm14
+  .byte  65,15,94,198                        // divps         %xmm14,%xmm0
+  .byte  65,15,88,194                        // addps         %xmm10,%xmm0
+  .byte  65,15,84,195                        // andps         %xmm11,%xmm0
+  .byte  65,15,86,196                        // orps          %xmm12,%xmm0
+  .byte  68,15,40,225                        // movaps        %xmm1,%xmm12
+  .byte  69,15,92,226                        // subps         %xmm10,%xmm12
+  .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
+  .byte  69,15,94,229                        // divps         %xmm13,%xmm12
+  .byte  69,15,88,226                        // addps         %xmm10,%xmm12
+  .byte  68,15,40,250                        // movaps        %xmm2,%xmm15
+  .byte  69,15,85,252                        // andnps        %xmm12,%xmm15
+  .byte  15,84,202                           // andps         %xmm2,%xmm1
+  .byte  65,15,86,207                        // orps          %xmm15,%xmm1
+  .byte  69,15,40,227                        // movaps        %xmm11,%xmm12
+  .byte  68,15,85,225                        // andnps        %xmm1,%xmm12
+  .byte  65,15,92,202                        // subps         %xmm10,%xmm1
+  .byte  65,15,89,202                        // mulps         %xmm10,%xmm1
+  .byte  65,15,94,206                        // divps         %xmm14,%xmm1
+  .byte  65,15,88,202                        // addps         %xmm10,%xmm1
+  .byte  65,15,84,203                        // andps         %xmm11,%xmm1
+  .byte  65,15,86,204                        // orps          %xmm12,%xmm1
+  .byte  69,15,40,224                        // movaps        %xmm8,%xmm12
+  .byte  69,15,92,226                        // subps         %xmm10,%xmm12
+  .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
+  .byte  69,15,94,229                        // divps         %xmm13,%xmm12
+  .byte  69,15,88,226                        // addps         %xmm10,%xmm12
+  .byte  68,15,84,194                        // andps         %xmm2,%xmm8
+  .byte  65,15,85,212                        // andnps        %xmm12,%xmm2
+  .byte  65,15,86,208                        // orps          %xmm8,%xmm2
+  .byte  69,15,40,195                        // movaps        %xmm11,%xmm8
+  .byte  68,15,85,194                        // andnps        %xmm2,%xmm8
+  .byte  65,15,92,210                        // subps         %xmm10,%xmm2
+  .byte  65,15,89,210                        // mulps         %xmm10,%xmm2
+  .byte  65,15,94,214                        // divps         %xmm14,%xmm2
+  .byte  65,15,88,210                        // addps         %xmm10,%xmm2
+  .byte  65,15,84,211                        // andps         %xmm11,%xmm2
+  .byte  65,15,86,208                        // orps          %xmm8,%xmm2
+  .byte  68,15,92,203                        // subps         %xmm3,%xmm9
+  .byte  65,15,89,193                        // mulps         %xmm9,%xmm0
+  .byte  65,15,89,201                        // mulps         %xmm9,%xmm1
+  .byte  65,15,89,209                        // mulps         %xmm9,%xmm2
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  65,15,40,217                        // movaps        %xmm9,%xmm3
+  .byte  255,224                             // jmpq          *%rax
+
 HIDDEN _sk_clamp_0_sse2
 .globl _sk_clamp_0_sse2
 FUNCTION(_sk_clamp_0_sse2)
@@ -24542,7 +27490,7 @@ HIDDEN _sk_clamp_1_sse2
 .globl _sk_clamp_1_sse2
 FUNCTION(_sk_clamp_1_sse2)
 _sk_clamp_1_sse2:
-  .byte  68,15,40,5,39,51,0,0                // movaps        0x3327(%rip),%xmm8        # 40e0 <_sk_callback_sse2+0x284>
+  .byte  68,15,40,5,31,52,0,0                // movaps        0x341f(%rip),%xmm8        # 4a90 <_sk_callback_sse2+0x37c>
   .byte  65,15,93,192                        // minps         %xmm8,%xmm0
   .byte  65,15,93,200                        // minps         %xmm8,%xmm1
   .byte  65,15,93,208                        // minps         %xmm8,%xmm2
@@ -24554,7 +27502,7 @@ HIDDEN _sk_clamp_a_sse2
 .globl _sk_clamp_a_sse2
 FUNCTION(_sk_clamp_a_sse2)
 _sk_clamp_a_sse2:
-  .byte  15,93,29,28,51,0,0                  // minps         0x331c(%rip),%xmm3        # 40f0 <_sk_callback_sse2+0x294>
+  .byte  15,93,29,20,52,0,0                  // minps         0x3414(%rip),%xmm3        # 4aa0 <_sk_callback_sse2+0x38c>
   .byte  15,93,195                           // minps         %xmm3,%xmm0
   .byte  15,93,203                           // minps         %xmm3,%xmm1
   .byte  15,93,211                           // minps         %xmm3,%xmm2
@@ -24641,7 +27589,7 @@ HIDDEN _sk_unpremul_sse2
 FUNCTION(_sk_unpremul_sse2)
 _sk_unpremul_sse2:
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
-  .byte  68,15,40,13,135,50,0,0              // movaps        0x3287(%rip),%xmm9        # 4100 <_sk_callback_sse2+0x2a4>
+  .byte  68,15,40,13,127,51,0,0              // movaps        0x337f(%rip),%xmm9        # 4ab0 <_sk_callback_sse2+0x39c>
   .byte  68,15,94,203                        // divps         %xmm3,%xmm9
   .byte  68,15,194,195,4                     // cmpneqps      %xmm3,%xmm8
   .byte  69,15,84,193                        // andps         %xmm9,%xmm8
@@ -24655,20 +27603,20 @@ HIDDEN _sk_from_srgb_sse2
 .globl _sk_from_srgb_sse2
 FUNCTION(_sk_from_srgb_sse2)
 _sk_from_srgb_sse2:
-  .byte  68,15,40,5,114,50,0,0               // movaps        0x3272(%rip),%xmm8        # 4110 <_sk_callback_sse2+0x2b4>
+  .byte  68,15,40,5,106,51,0,0               // movaps        0x336a(%rip),%xmm8        # 4ac0 <_sk_callback_sse2+0x3ac>
   .byte  68,15,40,232                        // movaps        %xmm0,%xmm13
   .byte  69,15,89,232                        // mulps         %xmm8,%xmm13
   .byte  68,15,40,216                        // movaps        %xmm0,%xmm11
   .byte  69,15,89,219                        // mulps         %xmm11,%xmm11
-  .byte  68,15,40,13,106,50,0,0              // movaps        0x326a(%rip),%xmm9        # 4120 <_sk_callback_sse2+0x2c4>
+  .byte  68,15,40,13,98,51,0,0               // movaps        0x3362(%rip),%xmm9        # 4ad0 <_sk_callback_sse2+0x3bc>
   .byte  68,15,40,240                        // movaps        %xmm0,%xmm14
   .byte  69,15,89,241                        // mulps         %xmm9,%xmm14
-  .byte  68,15,40,21,106,50,0,0              // movaps        0x326a(%rip),%xmm10        # 4130 <_sk_callback_sse2+0x2d4>
+  .byte  68,15,40,21,98,51,0,0               // movaps        0x3362(%rip),%xmm10        # 4ae0 <_sk_callback_sse2+0x3cc>
   .byte  69,15,88,242                        // addps         %xmm10,%xmm14
   .byte  69,15,89,243                        // mulps         %xmm11,%xmm14
-  .byte  68,15,40,29,106,50,0,0              // movaps        0x326a(%rip),%xmm11        # 4140 <_sk_callback_sse2+0x2e4>
+  .byte  68,15,40,29,98,51,0,0               // movaps        0x3362(%rip),%xmm11        # 4af0 <_sk_callback_sse2+0x3dc>
   .byte  69,15,88,243                        // addps         %xmm11,%xmm14
-  .byte  68,15,40,37,110,50,0,0              // movaps        0x326e(%rip),%xmm12        # 4150 <_sk_callback_sse2+0x2f4>
+  .byte  68,15,40,37,102,51,0,0              // movaps        0x3366(%rip),%xmm12        # 4b00 <_sk_callback_sse2+0x3ec>
   .byte  65,15,194,196,1                     // cmpltps       %xmm12,%xmm0
   .byte  68,15,84,232                        // andps         %xmm0,%xmm13
   .byte  65,15,85,198                        // andnps        %xmm14,%xmm0
@@ -24707,20 +27655,20 @@ _sk_to_srgb_sse2:
   .byte  68,15,82,192                        // rsqrtps       %xmm0,%xmm8
   .byte  69,15,83,200                        // rcpps         %xmm8,%xmm9
   .byte  69,15,82,232                        // rsqrtps       %xmm8,%xmm13
-  .byte  68,15,40,5,243,49,0,0               // movaps        0x31f3(%rip),%xmm8        # 4160 <_sk_callback_sse2+0x304>
+  .byte  68,15,40,5,235,50,0,0               // movaps        0x32eb(%rip),%xmm8        # 4b10 <_sk_callback_sse2+0x3fc>
   .byte  68,15,40,240                        // movaps        %xmm0,%xmm14
   .byte  69,15,89,240                        // mulps         %xmm8,%xmm14
-  .byte  68,15,40,21,243,49,0,0              // movaps        0x31f3(%rip),%xmm10        # 4170 <_sk_callback_sse2+0x314>
+  .byte  68,15,40,21,235,50,0,0              // movaps        0x32eb(%rip),%xmm10        # 4b20 <_sk_callback_sse2+0x40c>
   .byte  69,15,89,202                        // mulps         %xmm10,%xmm9
-  .byte  68,15,40,29,247,49,0,0              // movaps        0x31f7(%rip),%xmm11        # 4180 <_sk_callback_sse2+0x324>
+  .byte  68,15,40,29,239,50,0,0              // movaps        0x32ef(%rip),%xmm11        # 4b30 <_sk_callback_sse2+0x41c>
   .byte  69,15,88,203                        // addps         %xmm11,%xmm9
-  .byte  68,15,40,37,251,49,0,0              // movaps        0x31fb(%rip),%xmm12        # 4190 <_sk_callback_sse2+0x334>
+  .byte  68,15,40,37,243,50,0,0              // movaps        0x32f3(%rip),%xmm12        # 4b40 <_sk_callback_sse2+0x42c>
   .byte  69,15,89,236                        // mulps         %xmm12,%xmm13
   .byte  69,15,88,233                        // addps         %xmm9,%xmm13
-  .byte  68,15,40,13,251,49,0,0              // movaps        0x31fb(%rip),%xmm9        # 41a0 <_sk_callback_sse2+0x344>
+  .byte  68,15,40,13,243,50,0,0              // movaps        0x32f3(%rip),%xmm9        # 4b50 <_sk_callback_sse2+0x43c>
   .byte  69,15,40,249                        // movaps        %xmm9,%xmm15
   .byte  69,15,93,253                        // minps         %xmm13,%xmm15
-  .byte  68,15,40,45,251,49,0,0              // movaps        0x31fb(%rip),%xmm13        # 41b0 <_sk_callback_sse2+0x354>
+  .byte  68,15,40,45,243,50,0,0              // movaps        0x32f3(%rip),%xmm13        # 4b60 <_sk_callback_sse2+0x44c>
   .byte  65,15,194,197,1                     // cmpltps       %xmm13,%xmm0
   .byte  68,15,84,240                        // andps         %xmm0,%xmm14
   .byte  65,15,85,199                        // andnps        %xmm15,%xmm0
@@ -24770,7 +27718,7 @@ _sk_rgb_to_hsl_sse2:
   .byte  68,15,93,218                        // minps         %xmm2,%xmm11
   .byte  65,15,40,202                        // movaps        %xmm10,%xmm1
   .byte  65,15,92,203                        // subps         %xmm11,%xmm1
-  .byte  68,15,40,45,84,49,0,0               // movaps        0x3154(%rip),%xmm13        # 41c0 <_sk_callback_sse2+0x364>
+  .byte  68,15,40,45,76,50,0,0               // movaps        0x324c(%rip),%xmm13        # 4b70 <_sk_callback_sse2+0x45c>
   .byte  68,15,94,233                        // divps         %xmm1,%xmm13
   .byte  65,15,40,194                        // movaps        %xmm10,%xmm0
   .byte  65,15,194,192,0                     // cmpeqps       %xmm8,%xmm0
@@ -24779,30 +27727,30 @@ _sk_rgb_to_hsl_sse2:
   .byte  69,15,89,229                        // mulps         %xmm13,%xmm12
   .byte  69,15,40,241                        // movaps        %xmm9,%xmm14
   .byte  68,15,194,242,1                     // cmpltps       %xmm2,%xmm14
-  .byte  68,15,84,53,58,49,0,0               // andps         0x313a(%rip),%xmm14        # 41d0 <_sk_callback_sse2+0x374>
+  .byte  68,15,84,53,50,50,0,0               // andps         0x3232(%rip),%xmm14        # 4b80 <_sk_callback_sse2+0x46c>
   .byte  69,15,88,244                        // addps         %xmm12,%xmm14
   .byte  69,15,40,250                        // movaps        %xmm10,%xmm15
   .byte  69,15,194,249,0                     // cmpeqps       %xmm9,%xmm15
   .byte  65,15,92,208                        // subps         %xmm8,%xmm2
   .byte  65,15,89,213                        // mulps         %xmm13,%xmm2
-  .byte  68,15,40,37,45,49,0,0               // movaps        0x312d(%rip),%xmm12        # 41e0 <_sk_callback_sse2+0x384>
+  .byte  68,15,40,37,37,50,0,0               // movaps        0x3225(%rip),%xmm12        # 4b90 <_sk_callback_sse2+0x47c>
   .byte  65,15,88,212                        // addps         %xmm12,%xmm2
   .byte  69,15,92,193                        // subps         %xmm9,%xmm8
   .byte  69,15,89,197                        // mulps         %xmm13,%xmm8
-  .byte  68,15,88,5,41,49,0,0                // addps         0x3129(%rip),%xmm8        # 41f0 <_sk_callback_sse2+0x394>
+  .byte  68,15,88,5,33,50,0,0                // addps         0x3221(%rip),%xmm8        # 4ba0 <_sk_callback_sse2+0x48c>
   .byte  65,15,84,215                        // andps         %xmm15,%xmm2
   .byte  69,15,85,248                        // andnps        %xmm8,%xmm15
   .byte  68,15,86,250                        // orps          %xmm2,%xmm15
   .byte  68,15,84,240                        // andps         %xmm0,%xmm14
   .byte  65,15,85,199                        // andnps        %xmm15,%xmm0
   .byte  65,15,86,198                        // orps          %xmm14,%xmm0
-  .byte  15,89,5,26,49,0,0                   // mulps         0x311a(%rip),%xmm0        # 4200 <_sk_callback_sse2+0x3a4>
+  .byte  15,89,5,18,50,0,0                   // mulps         0x3212(%rip),%xmm0        # 4bb0 <_sk_callback_sse2+0x49c>
   .byte  69,15,40,194                        // movaps        %xmm10,%xmm8
   .byte  69,15,194,195,4                     // cmpneqps      %xmm11,%xmm8
   .byte  65,15,84,192                        // andps         %xmm8,%xmm0
   .byte  69,15,92,226                        // subps         %xmm10,%xmm12
   .byte  69,15,88,211                        // addps         %xmm11,%xmm10
-  .byte  68,15,40,13,13,49,0,0               // movaps        0x310d(%rip),%xmm9        # 4210 <_sk_callback_sse2+0x3b4>
+  .byte  68,15,40,13,5,50,0,0                // movaps        0x3205(%rip),%xmm9        # 4bc0 <_sk_callback_sse2+0x4ac>
   .byte  65,15,40,210                        // movaps        %xmm10,%xmm2
   .byte  65,15,89,209                        // mulps         %xmm9,%xmm2
   .byte  68,15,194,202,1                     // cmpltps       %xmm2,%xmm9
@@ -24826,7 +27774,7 @@ _sk_hsl_to_rgb_sse2:
   .byte  15,41,92,36,168                     // movaps        %xmm3,-0x58(%rsp)
   .byte  68,15,40,218                        // movaps        %xmm2,%xmm11
   .byte  15,40,240                           // movaps        %xmm0,%xmm6
-  .byte  68,15,40,13,204,48,0,0              // movaps        0x30cc(%rip),%xmm9        # 4220 <_sk_callback_sse2+0x3c4>
+  .byte  68,15,40,13,196,49,0,0              // movaps        0x31c4(%rip),%xmm9        # 4bd0 <_sk_callback_sse2+0x4bc>
   .byte  69,15,40,209                        // movaps        %xmm9,%xmm10
   .byte  69,15,194,211,2                     // cmpleps       %xmm11,%xmm10
   .byte  15,40,193                           // movaps        %xmm1,%xmm0
@@ -24843,28 +27791,28 @@ _sk_hsl_to_rgb_sse2:
   .byte  69,15,88,211                        // addps         %xmm11,%xmm10
   .byte  69,15,88,219                        // addps         %xmm11,%xmm11
   .byte  69,15,92,218                        // subps         %xmm10,%xmm11
-  .byte  15,40,5,149,48,0,0                  // movaps        0x3095(%rip),%xmm0        # 4230 <_sk_callback_sse2+0x3d4>
+  .byte  15,40,5,141,49,0,0                  // movaps        0x318d(%rip),%xmm0        # 4be0 <_sk_callback_sse2+0x4cc>
   .byte  15,88,198                           // addps         %xmm6,%xmm0
   .byte  243,15,91,200                       // cvttps2dq     %xmm0,%xmm1
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
   .byte  15,40,216                           // movaps        %xmm0,%xmm3
   .byte  15,194,217,1                        // cmpltps       %xmm1,%xmm3
-  .byte  15,84,29,141,48,0,0                 // andps         0x308d(%rip),%xmm3        # 4240 <_sk_callback_sse2+0x3e4>
+  .byte  15,84,29,133,49,0,0                 // andps         0x3185(%rip),%xmm3        # 4bf0 <_sk_callback_sse2+0x4dc>
   .byte  15,92,203                           // subps         %xmm3,%xmm1
   .byte  15,92,193                           // subps         %xmm1,%xmm0
-  .byte  68,15,40,45,143,48,0,0              // movaps        0x308f(%rip),%xmm13        # 4250 <_sk_callback_sse2+0x3f4>
+  .byte  68,15,40,45,135,49,0,0              // movaps        0x3187(%rip),%xmm13        # 4c00 <_sk_callback_sse2+0x4ec>
   .byte  69,15,40,197                        // movaps        %xmm13,%xmm8
   .byte  68,15,194,192,2                     // cmpleps       %xmm0,%xmm8
   .byte  69,15,40,242                        // movaps        %xmm10,%xmm14
   .byte  69,15,92,243                        // subps         %xmm11,%xmm14
   .byte  65,15,40,217                        // movaps        %xmm9,%xmm3
   .byte  15,194,216,2                        // cmpleps       %xmm0,%xmm3
-  .byte  15,40,21,159,48,0,0                 // movaps        0x309f(%rip),%xmm2        # 4280 <_sk_callback_sse2+0x424>
+  .byte  15,40,21,151,49,0,0                 // movaps        0x3197(%rip),%xmm2        # 4c30 <_sk_callback_sse2+0x51c>
   .byte  68,15,40,250                        // movaps        %xmm2,%xmm15
   .byte  68,15,194,248,2                     // cmpleps       %xmm0,%xmm15
-  .byte  15,40,13,111,48,0,0                 // movaps        0x306f(%rip),%xmm1        # 4260 <_sk_callback_sse2+0x404>
+  .byte  15,40,13,103,49,0,0                 // movaps        0x3167(%rip),%xmm1        # 4c10 <_sk_callback_sse2+0x4fc>
   .byte  15,89,193                           // mulps         %xmm1,%xmm0
-  .byte  15,40,45,117,48,0,0                 // movaps        0x3075(%rip),%xmm5        # 4270 <_sk_callback_sse2+0x414>
+  .byte  15,40,45,109,49,0,0                 // movaps        0x316d(%rip),%xmm5        # 4c20 <_sk_callback_sse2+0x50c>
   .byte  15,40,229                           // movaps        %xmm5,%xmm4
   .byte  15,92,224                           // subps         %xmm0,%xmm4
   .byte  65,15,89,230                        // mulps         %xmm14,%xmm4
@@ -24887,7 +27835,7 @@ _sk_hsl_to_rgb_sse2:
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
   .byte  15,40,222                           // movaps        %xmm6,%xmm3
   .byte  15,194,216,1                        // cmpltps       %xmm0,%xmm3
-  .byte  15,84,29,234,47,0,0                 // andps         0x2fea(%rip),%xmm3        # 4240 <_sk_callback_sse2+0x3e4>
+  .byte  15,84,29,226,48,0,0                 // andps         0x30e2(%rip),%xmm3        # 4bf0 <_sk_callback_sse2+0x4dc>
   .byte  15,92,195                           // subps         %xmm3,%xmm0
   .byte  68,15,40,230                        // movaps        %xmm6,%xmm12
   .byte  68,15,92,224                        // subps         %xmm0,%xmm12
@@ -24917,12 +27865,12 @@ _sk_hsl_to_rgb_sse2:
   .byte  15,40,124,36,136                    // movaps        -0x78(%rsp),%xmm7
   .byte  15,40,231                           // movaps        %xmm7,%xmm4
   .byte  15,85,227                           // andnps        %xmm3,%xmm4
-  .byte  15,88,53,194,47,0,0                 // addps         0x2fc2(%rip),%xmm6        # 4290 <_sk_callback_sse2+0x434>
+  .byte  15,88,53,186,48,0,0                 // addps         0x30ba(%rip),%xmm6        # 4c40 <_sk_callback_sse2+0x52c>
   .byte  243,15,91,198                       // cvttps2dq     %xmm6,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
   .byte  15,40,222                           // movaps        %xmm6,%xmm3
   .byte  15,194,216,1                        // cmpltps       %xmm0,%xmm3
-  .byte  15,84,29,93,47,0,0                  // andps         0x2f5d(%rip),%xmm3        # 4240 <_sk_callback_sse2+0x3e4>
+  .byte  15,84,29,85,48,0,0                  // andps         0x3055(%rip),%xmm3        # 4bf0 <_sk_callback_sse2+0x4dc>
   .byte  15,92,195                           // subps         %xmm3,%xmm0
   .byte  15,92,240                           // subps         %xmm0,%xmm6
   .byte  15,89,206                           // mulps         %xmm6,%xmm1
@@ -24986,7 +27934,7 @@ _sk_scale_u8_sse2:
   .byte  102,69,15,96,193                    // punpcklbw     %xmm9,%xmm8
   .byte  102,69,15,97,193                    // punpcklwd     %xmm9,%xmm8
   .byte  69,15,91,192                        // cvtdq2ps      %xmm8,%xmm8
-  .byte  68,15,89,5,235,46,0,0               // mulps         0x2eeb(%rip),%xmm8        # 42a0 <_sk_callback_sse2+0x444>
+  .byte  68,15,89,5,227,47,0,0               // mulps         0x2fe3(%rip),%xmm8        # 4c50 <_sk_callback_sse2+0x53c>
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
   .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
@@ -25027,7 +27975,7 @@ _sk_lerp_u8_sse2:
   .byte  102,69,15,96,193                    // punpcklbw     %xmm9,%xmm8
   .byte  102,69,15,97,193                    // punpcklwd     %xmm9,%xmm8
   .byte  69,15,91,192                        // cvtdq2ps      %xmm8,%xmm8
-  .byte  68,15,89,5,137,46,0,0               // mulps         0x2e89(%rip),%xmm8        # 42b0 <_sk_callback_sse2+0x454>
+  .byte  68,15,89,5,129,47,0,0               // mulps         0x2f81(%rip),%xmm8        # 4c60 <_sk_callback_sse2+0x54c>
   .byte  15,92,196                           // subps         %xmm4,%xmm0
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  15,88,196                           // addps         %xmm4,%xmm0
@@ -25052,17 +28000,17 @@ _sk_lerp_565_sse2:
   .byte  243,68,15,126,4,120                 // movq          (%rax,%rdi,2),%xmm8
   .byte  102,15,239,219                      // pxor          %xmm3,%xmm3
   .byte  102,68,15,97,195                    // punpcklwd     %xmm3,%xmm8
-  .byte  102,15,111,29,81,46,0,0             // movdqa        0x2e51(%rip),%xmm3        # 42c0 <_sk_callback_sse2+0x464>
+  .byte  102,15,111,29,73,47,0,0             // movdqa        0x2f49(%rip),%xmm3        # 4c70 <_sk_callback_sse2+0x55c>
   .byte  102,65,15,219,216                   // pand          %xmm8,%xmm3
   .byte  68,15,91,203                        // cvtdq2ps      %xmm3,%xmm9
-  .byte  68,15,89,13,80,46,0,0               // mulps         0x2e50(%rip),%xmm9        # 42d0 <_sk_callback_sse2+0x474>
-  .byte  102,15,111,29,88,46,0,0             // movdqa        0x2e58(%rip),%xmm3        # 42e0 <_sk_callback_sse2+0x484>
+  .byte  68,15,89,13,72,47,0,0               // mulps         0x2f48(%rip),%xmm9        # 4c80 <_sk_callback_sse2+0x56c>
+  .byte  102,15,111,29,80,47,0,0             // movdqa        0x2f50(%rip),%xmm3        # 4c90 <_sk_callback_sse2+0x57c>
   .byte  102,65,15,219,216                   // pand          %xmm8,%xmm3
   .byte  15,91,219                           // cvtdq2ps      %xmm3,%xmm3
-  .byte  15,89,29,89,46,0,0                  // mulps         0x2e59(%rip),%xmm3        # 42f0 <_sk_callback_sse2+0x494>
-  .byte  102,68,15,219,5,96,46,0,0           // pand          0x2e60(%rip),%xmm8        # 4300 <_sk_callback_sse2+0x4a4>
+  .byte  15,89,29,81,47,0,0                  // mulps         0x2f51(%rip),%xmm3        # 4ca0 <_sk_callback_sse2+0x58c>
+  .byte  102,68,15,219,5,88,47,0,0           // pand          0x2f58(%rip),%xmm8        # 4cb0 <_sk_callback_sse2+0x59c>
   .byte  69,15,91,192                        // cvtdq2ps      %xmm8,%xmm8
-  .byte  68,15,89,5,100,46,0,0               // mulps         0x2e64(%rip),%xmm8        # 4310 <_sk_callback_sse2+0x4b4>
+  .byte  68,15,89,5,92,47,0,0                // mulps         0x2f5c(%rip),%xmm8        # 4cc0 <_sk_callback_sse2+0x5ac>
   .byte  15,92,196                           // subps         %xmm4,%xmm0
   .byte  65,15,89,193                        // mulps         %xmm9,%xmm0
   .byte  15,88,196                           // addps         %xmm4,%xmm0
@@ -25073,7 +28021,7 @@ _sk_lerp_565_sse2:
   .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
   .byte  15,88,214                           // addps         %xmm6,%xmm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,78,46,0,0                  // movaps        0x2e4e(%rip),%xmm3        # 4320 <_sk_callback_sse2+0x4c4>
+  .byte  15,40,29,70,47,0,0                  // movaps        0x2f46(%rip),%xmm3        # 4cd0 <_sk_callback_sse2+0x5bc>
   .byte  255,224                             // jmpq          *%rax
 
 HIDDEN _sk_load_tables_sse2
@@ -25084,7 +28032,7 @@ _sk_load_tables_sse2:
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  76,139,72,8                         // mov           0x8(%rax),%r9
   .byte  243,69,15,111,12,184                // movdqu        (%r8,%rdi,4),%xmm9
-  .byte  102,68,15,111,5,68,46,0,0           // movdqa        0x2e44(%rip),%xmm8        # 4330 <_sk_callback_sse2+0x4d4>
+  .byte  102,68,15,111,5,60,47,0,0           // movdqa        0x2f3c(%rip),%xmm8        # 4ce0 <_sk_callback_sse2+0x5cc>
   .byte  102,65,15,111,193                   // movdqa        %xmm9,%xmm0
   .byte  102,65,15,219,192                   // pand          %xmm8,%xmm0
   .byte  102,15,112,200,78                   // pshufd        $0x4e,%xmm0,%xmm1
@@ -25139,7 +28087,7 @@ _sk_load_tables_sse2:
   .byte  65,15,20,208                        // unpcklps      %xmm8,%xmm2
   .byte  102,65,15,114,209,24                // psrld         $0x18,%xmm9
   .byte  65,15,91,217                        // cvtdq2ps      %xmm9,%xmm3
-  .byte  15,89,29,81,45,0,0                  // mulps         0x2d51(%rip),%xmm3        # 4340 <_sk_callback_sse2+0x4e4>
+  .byte  15,89,29,73,46,0,0                  // mulps         0x2e49(%rip),%xmm3        # 4cf0 <_sk_callback_sse2+0x5dc>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
@@ -25158,7 +28106,7 @@ _sk_load_tables_u16_be_sse2:
   .byte  102,65,15,111,201                   // movdqa        %xmm9,%xmm1
   .byte  102,15,97,200                       // punpcklwd     %xmm0,%xmm1
   .byte  102,68,15,105,200                   // punpckhwd     %xmm0,%xmm9
-  .byte  102,68,15,111,21,36,45,0,0          // movdqa        0x2d24(%rip),%xmm10        # 4350 <_sk_callback_sse2+0x4f4>
+  .byte  102,68,15,111,21,28,46,0,0          // movdqa        0x2e1c(%rip),%xmm10        # 4d00 <_sk_callback_sse2+0x5ec>
   .byte  102,15,111,193                      // movdqa        %xmm1,%xmm0
   .byte  102,65,15,219,194                   // pand          %xmm10,%xmm0
   .byte  102,69,15,239,192                   // pxor          %xmm8,%xmm8
@@ -25219,7 +28167,7 @@ _sk_load_tables_u16_be_sse2:
   .byte  102,65,15,235,217                   // por           %xmm9,%xmm3
   .byte  102,65,15,97,216                    // punpcklwd     %xmm8,%xmm3
   .byte  15,91,219                           // cvtdq2ps      %xmm3,%xmm3
-  .byte  15,89,29,19,44,0,0                  // mulps         0x2c13(%rip),%xmm3        # 4360 <_sk_callback_sse2+0x504>
+  .byte  15,89,29,11,45,0,0                  // mulps         0x2d0b(%rip),%xmm3        # 4d10 <_sk_callback_sse2+0x5fc>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
@@ -25241,7 +28189,7 @@ _sk_load_tables_rgb_u16_be_sse2:
   .byte  102,68,15,97,208                    // punpcklwd     %xmm0,%xmm10
   .byte  102,65,15,111,195                   // movdqa        %xmm11,%xmm0
   .byte  102,65,15,97,194                    // punpcklwd     %xmm10,%xmm0
-  .byte  102,68,15,111,5,211,43,0,0          // movdqa        0x2bd3(%rip),%xmm8        # 4370 <_sk_callback_sse2+0x514>
+  .byte  102,68,15,111,5,203,44,0,0          // movdqa        0x2ccb(%rip),%xmm8        # 4d20 <_sk_callback_sse2+0x60c>
   .byte  102,15,112,200,78                   // pshufd        $0x4e,%xmm0,%xmm1
   .byte  102,65,15,219,192                   // pand          %xmm8,%xmm0
   .byte  102,69,15,239,201                   // pxor          %xmm9,%xmm9
@@ -25296,7 +28244,7 @@ _sk_load_tables_rgb_u16_be_sse2:
   .byte  15,20,211                           // unpcklps      %xmm3,%xmm2
   .byte  65,15,20,208                        // unpcklps      %xmm8,%xmm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,226,42,0,0                 // movaps        0x2ae2(%rip),%xmm3        # 4380 <_sk_callback_sse2+0x524>
+  .byte  15,40,29,218,43,0,0                 // movaps        0x2bda(%rip),%xmm3        # 4d30 <_sk_callback_sse2+0x61c>
   .byte  255,224                             // jmpq          *%rax
 
 HIDDEN _sk_byte_tables_sse2
@@ -25306,7 +28254,7 @@ _sk_byte_tables_sse2:
   .byte  65,86                               // push          %r14
   .byte  83                                  // push          %rbx
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  68,15,40,5,227,42,0,0               // movaps        0x2ae3(%rip),%xmm8        # 4390 <_sk_callback_sse2+0x534>
+  .byte  68,15,40,5,219,43,0,0               // movaps        0x2bdb(%rip),%xmm8        # 4d40 <_sk_callback_sse2+0x62c>
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  102,15,91,192                       // cvtps2dq      %xmm0,%xmm0
   .byte  102,72,15,126,193                   // movq          %xmm0,%rcx
@@ -25333,7 +28281,7 @@ _sk_byte_tables_sse2:
   .byte  102,65,15,96,193                    // punpcklbw     %xmm9,%xmm0
   .byte  102,65,15,97,193                    // punpcklwd     %xmm9,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  68,15,40,21,128,42,0,0              // movaps        0x2a80(%rip),%xmm10        # 43a0 <_sk_callback_sse2+0x544>
+  .byte  68,15,40,21,120,43,0,0              // movaps        0x2b78(%rip),%xmm10        # 4d50 <_sk_callback_sse2+0x63c>
   .byte  65,15,89,194                        // mulps         %xmm10,%xmm0
   .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
   .byte  102,15,91,201                       // cvtps2dq      %xmm1,%xmm1
@@ -25449,7 +28397,7 @@ _sk_byte_tables_rgb_sse2:
   .byte  102,65,15,96,193                    // punpcklbw     %xmm9,%xmm0
   .byte  102,65,15,97,193                    // punpcklwd     %xmm9,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  68,15,40,21,211,40,0,0              // movaps        0x28d3(%rip),%xmm10        # 43b0 <_sk_callback_sse2+0x554>
+  .byte  68,15,40,21,203,41,0,0              // movaps        0x29cb(%rip),%xmm10        # 4d60 <_sk_callback_sse2+0x64c>
   .byte  65,15,89,194                        // mulps         %xmm10,%xmm0
   .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
   .byte  102,15,91,201                       // cvtps2dq      %xmm1,%xmm1
@@ -25646,15 +28594,15 @@ _sk_parametric_r_sse2:
   .byte  69,15,88,209                        // addps         %xmm9,%xmm10
   .byte  69,15,198,219,0                     // shufps        $0x0,%xmm11,%xmm11
   .byte  69,15,91,202                        // cvtdq2ps      %xmm10,%xmm9
-  .byte  68,15,89,13,18,38,0,0               // mulps         0x2612(%rip),%xmm9        # 43c0 <_sk_callback_sse2+0x564>
-  .byte  68,15,84,21,26,38,0,0               // andps         0x261a(%rip),%xmm10        # 43d0 <_sk_callback_sse2+0x574>
-  .byte  68,15,86,21,34,38,0,0               // orps          0x2622(%rip),%xmm10        # 43e0 <_sk_callback_sse2+0x584>
-  .byte  68,15,88,13,42,38,0,0               // addps         0x262a(%rip),%xmm9        # 43f0 <_sk_callback_sse2+0x594>
-  .byte  68,15,40,37,50,38,0,0               // movaps        0x2632(%rip),%xmm12        # 4400 <_sk_callback_sse2+0x5a4>
+  .byte  68,15,89,13,10,39,0,0               // mulps         0x270a(%rip),%xmm9        # 4d70 <_sk_callback_sse2+0x65c>
+  .byte  68,15,84,21,18,39,0,0               // andps         0x2712(%rip),%xmm10        # 4d80 <_sk_callback_sse2+0x66c>
+  .byte  68,15,86,21,26,39,0,0               // orps          0x271a(%rip),%xmm10        # 4d90 <_sk_callback_sse2+0x67c>
+  .byte  68,15,88,13,34,39,0,0               // addps         0x2722(%rip),%xmm9        # 4da0 <_sk_callback_sse2+0x68c>
+  .byte  68,15,40,37,42,39,0,0               // movaps        0x272a(%rip),%xmm12        # 4db0 <_sk_callback_sse2+0x69c>
   .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
   .byte  69,15,92,204                        // subps         %xmm12,%xmm9
-  .byte  68,15,88,21,50,38,0,0               // addps         0x2632(%rip),%xmm10        # 4410 <_sk_callback_sse2+0x5b4>
-  .byte  68,15,40,37,58,38,0,0               // movaps        0x263a(%rip),%xmm12        # 4420 <_sk_callback_sse2+0x5c4>
+  .byte  68,15,88,21,42,39,0,0               // addps         0x272a(%rip),%xmm10        # 4dc0 <_sk_callback_sse2+0x6ac>
+  .byte  68,15,40,37,50,39,0,0               // movaps        0x2732(%rip),%xmm12        # 4dd0 <_sk_callback_sse2+0x6bc>
   .byte  69,15,94,226                        // divps         %xmm10,%xmm12
   .byte  69,15,92,204                        // subps         %xmm12,%xmm9
   .byte  69,15,89,203                        // mulps         %xmm11,%xmm9
@@ -25662,22 +28610,22 @@ _sk_parametric_r_sse2:
   .byte  69,15,91,226                        // cvtdq2ps      %xmm10,%xmm12
   .byte  69,15,40,233                        // movaps        %xmm9,%xmm13
   .byte  69,15,194,236,1                     // cmpltps       %xmm12,%xmm13
-  .byte  68,15,40,21,36,38,0,0               // movaps        0x2624(%rip),%xmm10        # 4430 <_sk_callback_sse2+0x5d4>
+  .byte  68,15,40,21,28,39,0,0               // movaps        0x271c(%rip),%xmm10        # 4de0 <_sk_callback_sse2+0x6cc>
   .byte  69,15,84,234                        // andps         %xmm10,%xmm13
   .byte  69,15,87,219                        // xorps         %xmm11,%xmm11
   .byte  69,15,92,229                        // subps         %xmm13,%xmm12
   .byte  69,15,40,233                        // movaps        %xmm9,%xmm13
   .byte  69,15,92,236                        // subps         %xmm12,%xmm13
-  .byte  68,15,88,13,24,38,0,0               // addps         0x2618(%rip),%xmm9        # 4440 <_sk_callback_sse2+0x5e4>
-  .byte  68,15,40,37,32,38,0,0               // movaps        0x2620(%rip),%xmm12        # 4450 <_sk_callback_sse2+0x5f4>
+  .byte  68,15,88,13,16,39,0,0               // addps         0x2710(%rip),%xmm9        # 4df0 <_sk_callback_sse2+0x6dc>
+  .byte  68,15,40,37,24,39,0,0               // movaps        0x2718(%rip),%xmm12        # 4e00 <_sk_callback_sse2+0x6ec>
   .byte  69,15,89,229                        // mulps         %xmm13,%xmm12
   .byte  69,15,92,204                        // subps         %xmm12,%xmm9
-  .byte  68,15,40,37,32,38,0,0               // movaps        0x2620(%rip),%xmm12        # 4460 <_sk_callback_sse2+0x604>
+  .byte  68,15,40,37,24,39,0,0               // movaps        0x2718(%rip),%xmm12        # 4e10 <_sk_callback_sse2+0x6fc>
   .byte  69,15,92,229                        // subps         %xmm13,%xmm12
-  .byte  68,15,40,45,36,38,0,0               // movaps        0x2624(%rip),%xmm13        # 4470 <_sk_callback_sse2+0x614>
+  .byte  68,15,40,45,28,39,0,0               // movaps        0x271c(%rip),%xmm13        # 4e20 <_sk_callback_sse2+0x70c>
   .byte  69,15,94,236                        // divps         %xmm12,%xmm13
   .byte  69,15,88,233                        // addps         %xmm9,%xmm13
-  .byte  68,15,89,45,36,38,0,0               // mulps         0x2624(%rip),%xmm13        # 4480 <_sk_callback_sse2+0x624>
+  .byte  68,15,89,45,28,39,0,0               // mulps         0x271c(%rip),%xmm13        # 4e30 <_sk_callback_sse2+0x71c>
   .byte  102,69,15,91,205                    // cvtps2dq      %xmm13,%xmm9
   .byte  243,68,15,16,96,20                  // movss         0x14(%rax),%xmm12
   .byte  69,15,198,228,0                     // shufps        $0x0,%xmm12,%xmm12
@@ -25713,15 +28661,15 @@ _sk_parametric_g_sse2:
   .byte  69,15,88,209                        // addps         %xmm9,%xmm10
   .byte  69,15,198,219,0                     // shufps        $0x0,%xmm11,%xmm11
   .byte  69,15,91,202                        // cvtdq2ps      %xmm10,%xmm9
-  .byte  68,15,89,13,164,37,0,0              // mulps         0x25a4(%rip),%xmm9        # 4490 <_sk_callback_sse2+0x634>
-  .byte  68,15,84,21,172,37,0,0              // andps         0x25ac(%rip),%xmm10        # 44a0 <_sk_callback_sse2+0x644>
-  .byte  68,15,86,21,180,37,0,0              // orps          0x25b4(%rip),%xmm10        # 44b0 <_sk_callback_sse2+0x654>
-  .byte  68,15,88,13,188,37,0,0              // addps         0x25bc(%rip),%xmm9        # 44c0 <_sk_callback_sse2+0x664>
-  .byte  68,15,40,37,196,37,0,0              // movaps        0x25c4(%rip),%xmm12        # 44d0 <_sk_callback_sse2+0x674>
+  .byte  68,15,89,13,156,38,0,0              // mulps         0x269c(%rip),%xmm9        # 4e40 <_sk_callback_sse2+0x72c>
+  .byte  68,15,84,21,164,38,0,0              // andps         0x26a4(%rip),%xmm10        # 4e50 <_sk_callback_sse2+0x73c>
+  .byte  68,15,86,21,172,38,0,0              // orps          0x26ac(%rip),%xmm10        # 4e60 <_sk_callback_sse2+0x74c>
+  .byte  68,15,88,13,180,38,0,0              // addps         0x26b4(%rip),%xmm9        # 4e70 <_sk_callback_sse2+0x75c>
+  .byte  68,15,40,37,188,38,0,0              // movaps        0x26bc(%rip),%xmm12        # 4e80 <_sk_callback_sse2+0x76c>
   .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
   .byte  69,15,92,204                        // subps         %xmm12,%xmm9
-  .byte  68,15,88,21,196,37,0,0              // addps         0x25c4(%rip),%xmm10        # 44e0 <_sk_callback_sse2+0x684>
-  .byte  68,15,40,37,204,37,0,0              // movaps        0x25cc(%rip),%xmm12        # 44f0 <_sk_callback_sse2+0x694>
+  .byte  68,15,88,21,188,38,0,0              // addps         0x26bc(%rip),%xmm10        # 4e90 <_sk_callback_sse2+0x77c>
+  .byte  68,15,40,37,196,38,0,0              // movaps        0x26c4(%rip),%xmm12        # 4ea0 <_sk_callback_sse2+0x78c>
   .byte  69,15,94,226                        // divps         %xmm10,%xmm12
   .byte  69,15,92,204                        // subps         %xmm12,%xmm9
   .byte  69,15,89,203                        // mulps         %xmm11,%xmm9
@@ -25729,22 +28677,22 @@ _sk_parametric_g_sse2:
   .byte  69,15,91,226                        // cvtdq2ps      %xmm10,%xmm12
   .byte  69,15,40,233                        // movaps        %xmm9,%xmm13
   .byte  69,15,194,236,1                     // cmpltps       %xmm12,%xmm13
-  .byte  68,15,40,21,182,37,0,0              // movaps        0x25b6(%rip),%xmm10        # 4500 <_sk_callback_sse2+0x6a4>
+  .byte  68,15,40,21,174,38,0,0              // movaps        0x26ae(%rip),%xmm10        # 4eb0 <_sk_callback_sse2+0x79c>
   .byte  69,15,84,234                        // andps         %xmm10,%xmm13
   .byte  69,15,87,219                        // xorps         %xmm11,%xmm11
   .byte  69,15,92,229                        // subps         %xmm13,%xmm12
   .byte  69,15,40,233                        // movaps        %xmm9,%xmm13
   .byte  69,15,92,236                        // subps         %xmm12,%xmm13
-  .byte  68,15,88,13,170,37,0,0              // addps         0x25aa(%rip),%xmm9        # 4510 <_sk_callback_sse2+0x6b4>
-  .byte  68,15,40,37,178,37,0,0              // movaps        0x25b2(%rip),%xmm12        # 4520 <_sk_callback_sse2+0x6c4>
+  .byte  68,15,88,13,162,38,0,0              // addps         0x26a2(%rip),%xmm9        # 4ec0 <_sk_callback_sse2+0x7ac>
+  .byte  68,15,40,37,170,38,0,0              // movaps        0x26aa(%rip),%xmm12        # 4ed0 <_sk_callback_sse2+0x7bc>
   .byte  69,15,89,229                        // mulps         %xmm13,%xmm12
   .byte  69,15,92,204                        // subps         %xmm12,%xmm9
-  .byte  68,15,40,37,178,37,0,0              // movaps        0x25b2(%rip),%xmm12        # 4530 <_sk_callback_sse2+0x6d4>
+  .byte  68,15,40,37,170,38,0,0              // movaps        0x26aa(%rip),%xmm12        # 4ee0 <_sk_callback_sse2+0x7cc>
   .byte  69,15,92,229                        // subps         %xmm13,%xmm12
-  .byte  68,15,40,45,182,37,0,0              // movaps        0x25b6(%rip),%xmm13        # 4540 <_sk_callback_sse2+0x6e4>
+  .byte  68,15,40,45,174,38,0,0              // movaps        0x26ae(%rip),%xmm13        # 4ef0 <_sk_callback_sse2+0x7dc>
   .byte  69,15,94,236                        // divps         %xmm12,%xmm13
   .byte  69,15,88,233                        // addps         %xmm9,%xmm13
-  .byte  68,15,89,45,182,37,0,0              // mulps         0x25b6(%rip),%xmm13        # 4550 <_sk_callback_sse2+0x6f4>
+  .byte  68,15,89,45,174,38,0,0              // mulps         0x26ae(%rip),%xmm13        # 4f00 <_sk_callback_sse2+0x7ec>
   .byte  102,69,15,91,205                    // cvtps2dq      %xmm13,%xmm9
   .byte  243,68,15,16,96,20                  // movss         0x14(%rax),%xmm12
   .byte  69,15,198,228,0                     // shufps        $0x0,%xmm12,%xmm12
@@ -25780,15 +28728,15 @@ _sk_parametric_b_sse2:
   .byte  69,15,88,209                        // addps         %xmm9,%xmm10
   .byte  69,15,198,219,0                     // shufps        $0x0,%xmm11,%xmm11
   .byte  69,15,91,202                        // cvtdq2ps      %xmm10,%xmm9
-  .byte  68,15,89,13,54,37,0,0               // mulps         0x2536(%rip),%xmm9        # 4560 <_sk_callback_sse2+0x704>
-  .byte  68,15,84,21,62,37,0,0               // andps         0x253e(%rip),%xmm10        # 4570 <_sk_callback_sse2+0x714>
-  .byte  68,15,86,21,70,37,0,0               // orps          0x2546(%rip),%xmm10        # 4580 <_sk_callback_sse2+0x724>
-  .byte  68,15,88,13,78,37,0,0               // addps         0x254e(%rip),%xmm9        # 4590 <_sk_callback_sse2+0x734>
-  .byte  68,15,40,37,86,37,0,0               // movaps        0x2556(%rip),%xmm12        # 45a0 <_sk_callback_sse2+0x744>
+  .byte  68,15,89,13,46,38,0,0               // mulps         0x262e(%rip),%xmm9        # 4f10 <_sk_callback_sse2+0x7fc>
+  .byte  68,15,84,21,54,38,0,0               // andps         0x2636(%rip),%xmm10        # 4f20 <_sk_callback_sse2+0x80c>
+  .byte  68,15,86,21,62,38,0,0               // orps          0x263e(%rip),%xmm10        # 4f30 <_sk_callback_sse2+0x81c>
+  .byte  68,15,88,13,70,38,0,0               // addps         0x2646(%rip),%xmm9        # 4f40 <_sk_callback_sse2+0x82c>
+  .byte  68,15,40,37,78,38,0,0               // movaps        0x264e(%rip),%xmm12        # 4f50 <_sk_callback_sse2+0x83c>
   .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
   .byte  69,15,92,204                        // subps         %xmm12,%xmm9
-  .byte  68,15,88,21,86,37,0,0               // addps         0x2556(%rip),%xmm10        # 45b0 <_sk_callback_sse2+0x754>
-  .byte  68,15,40,37,94,37,0,0               // movaps        0x255e(%rip),%xmm12        # 45c0 <_sk_callback_sse2+0x764>
+  .byte  68,15,88,21,78,38,0,0               // addps         0x264e(%rip),%xmm10        # 4f60 <_sk_callback_sse2+0x84c>
+  .byte  68,15,40,37,86,38,0,0               // movaps        0x2656(%rip),%xmm12        # 4f70 <_sk_callback_sse2+0x85c>
   .byte  69,15,94,226                        // divps         %xmm10,%xmm12
   .byte  69,15,92,204                        // subps         %xmm12,%xmm9
   .byte  69,15,89,203                        // mulps         %xmm11,%xmm9
@@ -25796,22 +28744,22 @@ _sk_parametric_b_sse2:
   .byte  69,15,91,226                        // cvtdq2ps      %xmm10,%xmm12
   .byte  69,15,40,233                        // movaps        %xmm9,%xmm13
   .byte  69,15,194,236,1                     // cmpltps       %xmm12,%xmm13
-  .byte  68,15,40,21,72,37,0,0               // movaps        0x2548(%rip),%xmm10        # 45d0 <_sk_callback_sse2+0x774>
+  .byte  68,15,40,21,64,38,0,0               // movaps        0x2640(%rip),%xmm10        # 4f80 <_sk_callback_sse2+0x86c>
   .byte  69,15,84,234                        // andps         %xmm10,%xmm13
   .byte  69,15,87,219                        // xorps         %xmm11,%xmm11
   .byte  69,15,92,229                        // subps         %xmm13,%xmm12
   .byte  69,15,40,233                        // movaps        %xmm9,%xmm13
   .byte  69,15,92,236                        // subps         %xmm12,%xmm13
-  .byte  68,15,88,13,60,37,0,0               // addps         0x253c(%rip),%xmm9        # 45e0 <_sk_callback_sse2+0x784>
-  .byte  68,15,40,37,68,37,0,0               // movaps        0x2544(%rip),%xmm12        # 45f0 <_sk_callback_sse2+0x794>
+  .byte  68,15,88,13,52,38,0,0               // addps         0x2634(%rip),%xmm9        # 4f90 <_sk_callback_sse2+0x87c>
+  .byte  68,15,40,37,60,38,0,0               // movaps        0x263c(%rip),%xmm12        # 4fa0 <_sk_callback_sse2+0x88c>
   .byte  69,15,89,229                        // mulps         %xmm13,%xmm12
   .byte  69,15,92,204                        // subps         %xmm12,%xmm9
-  .byte  68,15,40,37,68,37,0,0               // movaps        0x2544(%rip),%xmm12        # 4600 <_sk_callback_sse2+0x7a4>
+  .byte  68,15,40,37,60,38,0,0               // movaps        0x263c(%rip),%xmm12        # 4fb0 <_sk_callback_sse2+0x89c>
   .byte  69,15,92,229                        // subps         %xmm13,%xmm12
-  .byte  68,15,40,45,72,37,0,0               // movaps        0x2548(%rip),%xmm13        # 4610 <_sk_callback_sse2+0x7b4>
+  .byte  68,15,40,45,64,38,0,0               // movaps        0x2640(%rip),%xmm13        # 4fc0 <_sk_callback_sse2+0x8ac>
   .byte  69,15,94,236                        // divps         %xmm12,%xmm13
   .byte  69,15,88,233                        // addps         %xmm9,%xmm13
-  .byte  68,15,89,45,72,37,0,0               // mulps         0x2548(%rip),%xmm13        # 4620 <_sk_callback_sse2+0x7c4>
+  .byte  68,15,89,45,64,38,0,0               // mulps         0x2640(%rip),%xmm13        # 4fd0 <_sk_callback_sse2+0x8bc>
   .byte  102,69,15,91,205                    // cvtps2dq      %xmm13,%xmm9
   .byte  243,68,15,16,96,20                  // movss         0x14(%rax),%xmm12
   .byte  69,15,198,228,0                     // shufps        $0x0,%xmm12,%xmm12
@@ -25847,15 +28795,15 @@ _sk_parametric_a_sse2:
   .byte  69,15,88,209                        // addps         %xmm9,%xmm10
   .byte  69,15,198,219,0                     // shufps        $0x0,%xmm11,%xmm11
   .byte  69,15,91,202                        // cvtdq2ps      %xmm10,%xmm9
-  .byte  68,15,89,13,200,36,0,0              // mulps         0x24c8(%rip),%xmm9        # 4630 <_sk_callback_sse2+0x7d4>
-  .byte  68,15,84,21,208,36,0,0              // andps         0x24d0(%rip),%xmm10        # 4640 <_sk_callback_sse2+0x7e4>
-  .byte  68,15,86,21,216,36,0,0              // orps          0x24d8(%rip),%xmm10        # 4650 <_sk_callback_sse2+0x7f4>
-  .byte  68,15,88,13,224,36,0,0              // addps         0x24e0(%rip),%xmm9        # 4660 <_sk_callback_sse2+0x804>
-  .byte  68,15,40,37,232,36,0,0              // movaps        0x24e8(%rip),%xmm12        # 4670 <_sk_callback_sse2+0x814>
+  .byte  68,15,89,13,192,37,0,0              // mulps         0x25c0(%rip),%xmm9        # 4fe0 <_sk_callback_sse2+0x8cc>
+  .byte  68,15,84,21,200,37,0,0              // andps         0x25c8(%rip),%xmm10        # 4ff0 <_sk_callback_sse2+0x8dc>
+  .byte  68,15,86,21,208,37,0,0              // orps          0x25d0(%rip),%xmm10        # 5000 <_sk_callback_sse2+0x8ec>
+  .byte  68,15,88,13,216,37,0,0              // addps         0x25d8(%rip),%xmm9        # 5010 <_sk_callback_sse2+0x8fc>
+  .byte  68,15,40,37,224,37,0,0              // movaps        0x25e0(%rip),%xmm12        # 5020 <_sk_callback_sse2+0x90c>
   .byte  69,15,89,226                        // mulps         %xmm10,%xmm12
   .byte  69,15,92,204                        // subps         %xmm12,%xmm9
-  .byte  68,15,88,21,232,36,0,0              // addps         0x24e8(%rip),%xmm10        # 4680 <_sk_callback_sse2+0x824>
-  .byte  68,15,40,37,240,36,0,0              // movaps        0x24f0(%rip),%xmm12        # 4690 <_sk_callback_sse2+0x834>
+  .byte  68,15,88,21,224,37,0,0              // addps         0x25e0(%rip),%xmm10        # 5030 <_sk_callback_sse2+0x91c>
+  .byte  68,15,40,37,232,37,0,0              // movaps        0x25e8(%rip),%xmm12        # 5040 <_sk_callback_sse2+0x92c>
   .byte  69,15,94,226                        // divps         %xmm10,%xmm12
   .byte  69,15,92,204                        // subps         %xmm12,%xmm9
   .byte  69,15,89,203                        // mulps         %xmm11,%xmm9
@@ -25863,22 +28811,22 @@ _sk_parametric_a_sse2:
   .byte  69,15,91,226                        // cvtdq2ps      %xmm10,%xmm12
   .byte  69,15,40,233                        // movaps        %xmm9,%xmm13
   .byte  69,15,194,236,1                     // cmpltps       %xmm12,%xmm13
-  .byte  68,15,40,21,218,36,0,0              // movaps        0x24da(%rip),%xmm10        # 46a0 <_sk_callback_sse2+0x844>
+  .byte  68,15,40,21,210,37,0,0              // movaps        0x25d2(%rip),%xmm10        # 5050 <_sk_callback_sse2+0x93c>
   .byte  69,15,84,234                        // andps         %xmm10,%xmm13
   .byte  69,15,87,219                        // xorps         %xmm11,%xmm11
   .byte  69,15,92,229                        // subps         %xmm13,%xmm12
   .byte  69,15,40,233                        // movaps        %xmm9,%xmm13
   .byte  69,15,92,236                        // subps         %xmm12,%xmm13
-  .byte  68,15,88,13,206,36,0,0              // addps         0x24ce(%rip),%xmm9        # 46b0 <_sk_callback_sse2+0x854>
-  .byte  68,15,40,37,214,36,0,0              // movaps        0x24d6(%rip),%xmm12        # 46c0 <_sk_callback_sse2+0x864>
+  .byte  68,15,88,13,198,37,0,0              // addps         0x25c6(%rip),%xmm9        # 5060 <_sk_callback_sse2+0x94c>
+  .byte  68,15,40,37,206,37,0,0              // movaps        0x25ce(%rip),%xmm12        # 5070 <_sk_callback_sse2+0x95c>
   .byte  69,15,89,229                        // mulps         %xmm13,%xmm12
   .byte  69,15,92,204                        // subps         %xmm12,%xmm9
-  .byte  68,15,40,37,214,36,0,0              // movaps        0x24d6(%rip),%xmm12        # 46d0 <_sk_callback_sse2+0x874>
+  .byte  68,15,40,37,206,37,0,0              // movaps        0x25ce(%rip),%xmm12        # 5080 <_sk_callback_sse2+0x96c>
   .byte  69,15,92,229                        // subps         %xmm13,%xmm12
-  .byte  68,15,40,45,218,36,0,0              // movaps        0x24da(%rip),%xmm13        # 46e0 <_sk_callback_sse2+0x884>
+  .byte  68,15,40,45,210,37,0,0              // movaps        0x25d2(%rip),%xmm13        # 5090 <_sk_callback_sse2+0x97c>
   .byte  69,15,94,236                        // divps         %xmm12,%xmm13
   .byte  69,15,88,233                        // addps         %xmm9,%xmm13
-  .byte  68,15,89,45,218,36,0,0              // mulps         0x24da(%rip),%xmm13        # 46f0 <_sk_callback_sse2+0x894>
+  .byte  68,15,89,45,210,37,0,0              // mulps         0x25d2(%rip),%xmm13        # 50a0 <_sk_callback_sse2+0x98c>
   .byte  102,69,15,91,205                    // cvtps2dq      %xmm13,%xmm9
   .byte  243,68,15,16,96,20                  // movss         0x14(%rax),%xmm12
   .byte  69,15,198,228,0                     // shufps        $0x0,%xmm12,%xmm12
@@ -25895,29 +28843,29 @@ HIDDEN _sk_lab_to_xyz_sse2
 .globl _sk_lab_to_xyz_sse2
 FUNCTION(_sk_lab_to_xyz_sse2)
 _sk_lab_to_xyz_sse2:
-  .byte  15,89,5,183,36,0,0                  // mulps         0x24b7(%rip),%xmm0        # 4700 <_sk_callback_sse2+0x8a4>
-  .byte  68,15,40,5,191,36,0,0               // movaps        0x24bf(%rip),%xmm8        # 4710 <_sk_callback_sse2+0x8b4>
+  .byte  15,89,5,175,37,0,0                  // mulps         0x25af(%rip),%xmm0        # 50b0 <_sk_callback_sse2+0x99c>
+  .byte  68,15,40,5,183,37,0,0               // movaps        0x25b7(%rip),%xmm8        # 50c0 <_sk_callback_sse2+0x9ac>
   .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
-  .byte  68,15,40,13,195,36,0,0              // movaps        0x24c3(%rip),%xmm9        # 4720 <_sk_callback_sse2+0x8c4>
+  .byte  68,15,40,13,187,37,0,0              // movaps        0x25bb(%rip),%xmm9        # 50d0 <_sk_callback_sse2+0x9bc>
   .byte  65,15,88,201                        // addps         %xmm9,%xmm1
   .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
   .byte  65,15,88,209                        // addps         %xmm9,%xmm2
-  .byte  15,88,5,192,36,0,0                  // addps         0x24c0(%rip),%xmm0        # 4730 <_sk_callback_sse2+0x8d4>
-  .byte  15,89,5,201,36,0,0                  // mulps         0x24c9(%rip),%xmm0        # 4740 <_sk_callback_sse2+0x8e4>
-  .byte  15,89,13,210,36,0,0                 // mulps         0x24d2(%rip),%xmm1        # 4750 <_sk_callback_sse2+0x8f4>
+  .byte  15,88,5,184,37,0,0                  // addps         0x25b8(%rip),%xmm0        # 50e0 <_sk_callback_sse2+0x9cc>
+  .byte  15,89,5,193,37,0,0                  // mulps         0x25c1(%rip),%xmm0        # 50f0 <_sk_callback_sse2+0x9dc>
+  .byte  15,89,13,202,37,0,0                 // mulps         0x25ca(%rip),%xmm1        # 5100 <_sk_callback_sse2+0x9ec>
   .byte  15,88,200                           // addps         %xmm0,%xmm1
-  .byte  15,89,21,216,36,0,0                 // mulps         0x24d8(%rip),%xmm2        # 4760 <_sk_callback_sse2+0x904>
+  .byte  15,89,21,208,37,0,0                 // mulps         0x25d0(%rip),%xmm2        # 5110 <_sk_callback_sse2+0x9fc>
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
   .byte  68,15,92,202                        // subps         %xmm2,%xmm9
   .byte  68,15,40,225                        // movaps        %xmm1,%xmm12
   .byte  69,15,89,228                        // mulps         %xmm12,%xmm12
   .byte  68,15,89,225                        // mulps         %xmm1,%xmm12
-  .byte  15,40,21,205,36,0,0                 // movaps        0x24cd(%rip),%xmm2        # 4770 <_sk_callback_sse2+0x914>
+  .byte  15,40,21,197,37,0,0                 // movaps        0x25c5(%rip),%xmm2        # 5120 <_sk_callback_sse2+0xa0c>
   .byte  68,15,40,194                        // movaps        %xmm2,%xmm8
   .byte  69,15,194,196,1                     // cmpltps       %xmm12,%xmm8
-  .byte  68,15,40,21,204,36,0,0              // movaps        0x24cc(%rip),%xmm10        # 4780 <_sk_callback_sse2+0x924>
+  .byte  68,15,40,21,196,37,0,0              // movaps        0x25c4(%rip),%xmm10        # 5130 <_sk_callback_sse2+0xa1c>
   .byte  65,15,88,202                        // addps         %xmm10,%xmm1
-  .byte  68,15,40,29,208,36,0,0              // movaps        0x24d0(%rip),%xmm11        # 4790 <_sk_callback_sse2+0x934>
+  .byte  68,15,40,29,200,37,0,0              // movaps        0x25c8(%rip),%xmm11        # 5140 <_sk_callback_sse2+0xa2c>
   .byte  65,15,89,203                        // mulps         %xmm11,%xmm1
   .byte  69,15,84,224                        // andps         %xmm8,%xmm12
   .byte  68,15,85,193                        // andnps        %xmm1,%xmm8
@@ -25941,8 +28889,8 @@ _sk_lab_to_xyz_sse2:
   .byte  15,84,194                           // andps         %xmm2,%xmm0
   .byte  65,15,85,209                        // andnps        %xmm9,%xmm2
   .byte  15,86,208                           // orps          %xmm0,%xmm2
-  .byte  68,15,89,5,128,36,0,0               // mulps         0x2480(%rip),%xmm8        # 47a0 <_sk_callback_sse2+0x944>
-  .byte  15,89,21,137,36,0,0                 // mulps         0x2489(%rip),%xmm2        # 47b0 <_sk_callback_sse2+0x954>
+  .byte  68,15,89,5,120,37,0,0               // mulps         0x2578(%rip),%xmm8        # 5150 <_sk_callback_sse2+0xa3c>
+  .byte  15,89,21,129,37,0,0                 // mulps         0x2581(%rip),%xmm2        # 5160 <_sk_callback_sse2+0xa4c>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
   .byte  255,224                             // jmpq          *%rax
@@ -25958,7 +28906,7 @@ _sk_load_a8_sse2:
   .byte  102,15,96,193                       // punpcklbw     %xmm1,%xmm0
   .byte  102,15,97,193                       // punpcklwd     %xmm1,%xmm0
   .byte  15,91,216                           // cvtdq2ps      %xmm0,%xmm3
-  .byte  15,89,29,113,36,0,0                 // mulps         0x2471(%rip),%xmm3        # 47c0 <_sk_callback_sse2+0x964>
+  .byte  15,89,29,105,37,0,0                 // mulps         0x2569(%rip),%xmm3        # 5170 <_sk_callback_sse2+0xa5c>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
   .byte  102,15,239,201                      // pxor          %xmm1,%xmm1
@@ -26003,7 +28951,7 @@ _sk_gather_a8_sse2:
   .byte  102,15,96,193                       // punpcklbw     %xmm1,%xmm0
   .byte  102,15,97,193                       // punpcklwd     %xmm1,%xmm0
   .byte  15,91,216                           // cvtdq2ps      %xmm0,%xmm3
-  .byte  15,89,29,224,35,0,0                 // mulps         0x23e0(%rip),%xmm3        # 47d0 <_sk_callback_sse2+0x974>
+  .byte  15,89,29,216,36,0,0                 // mulps         0x24d8(%rip),%xmm3        # 5180 <_sk_callback_sse2+0xa6c>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
   .byte  102,15,239,201                      // pxor          %xmm1,%xmm1
@@ -26016,7 +28964,7 @@ FUNCTION(_sk_store_a8_sse2)
 _sk_store_a8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
-  .byte  68,15,40,5,212,35,0,0               // movaps        0x23d4(%rip),%xmm8        # 47e0 <_sk_callback_sse2+0x984>
+  .byte  68,15,40,5,204,36,0,0               // movaps        0x24cc(%rip),%xmm8        # 5190 <_sk_callback_sse2+0xa7c>
   .byte  68,15,89,195                        // mulps         %xmm3,%xmm8
   .byte  102,69,15,91,192                    // cvtps2dq      %xmm8,%xmm8
   .byte  102,65,15,114,240,16                // pslld         $0x10,%xmm8
@@ -26038,9 +28986,9 @@ _sk_load_g8_sse2:
   .byte  102,15,96,193                       // punpcklbw     %xmm1,%xmm0
   .byte  102,15,97,193                       // punpcklwd     %xmm1,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  15,89,5,155,35,0,0                  // mulps         0x239b(%rip),%xmm0        # 47f0 <_sk_callback_sse2+0x994>
+  .byte  15,89,5,147,36,0,0                  // mulps         0x2493(%rip),%xmm0        # 51a0 <_sk_callback_sse2+0xa8c>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,162,35,0,0                 // movaps        0x23a2(%rip),%xmm3        # 4800 <_sk_callback_sse2+0x9a4>
+  .byte  15,40,29,154,36,0,0                 // movaps        0x249a(%rip),%xmm3        # 51b0 <_sk_callback_sse2+0xa9c>
   .byte  15,40,200                           // movaps        %xmm0,%xmm1
   .byte  15,40,208                           // movaps        %xmm0,%xmm2
   .byte  255,224                             // jmpq          *%rax
@@ -26083,9 +29031,9 @@ _sk_gather_g8_sse2:
   .byte  102,15,96,193                       // punpcklbw     %xmm1,%xmm0
   .byte  102,15,97,193                       // punpcklwd     %xmm1,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  15,89,5,23,35,0,0                   // mulps         0x2317(%rip),%xmm0        # 4810 <_sk_callback_sse2+0x9b4>
+  .byte  15,89,5,15,36,0,0                   // mulps         0x240f(%rip),%xmm0        # 51c0 <_sk_callback_sse2+0xaac>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,30,35,0,0                  // movaps        0x231e(%rip),%xmm3        # 4820 <_sk_callback_sse2+0x9c4>
+  .byte  15,40,29,22,36,0,0                  // movaps        0x2416(%rip),%xmm3        # 51d0 <_sk_callback_sse2+0xabc>
   .byte  15,40,200                           // movaps        %xmm0,%xmm1
   .byte  15,40,208                           // movaps        %xmm0,%xmm2
   .byte  255,224                             // jmpq          *%rax
@@ -26097,9 +29045,9 @@ _sk_gather_i8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  73,137,192                          // mov           %rax,%r8
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  116,5                               // je            2519 <_sk_gather_i8_sse2+0xf>
+  .byte  116,5                               // je            2dd1 <_sk_gather_i8_sse2+0xf>
   .byte  76,137,192                          // mov           %r8,%rax
-  .byte  235,2                               // jmp           251b <_sk_gather_i8_sse2+0x11>
+  .byte  235,2                               // jmp           2dd3 <_sk_gather_i8_sse2+0x11>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,16                           // mov           (%rax),%r10
   .byte  243,15,91,201                       // cvttps2dq     %xmm1,%xmm1
@@ -26148,11 +29096,11 @@ _sk_gather_i8_sse2:
   .byte  102,67,15,110,12,136                // movd          (%r8,%r9,4),%xmm1
   .byte  102,68,15,98,201                    // punpckldq     %xmm1,%xmm9
   .byte  102,68,15,98,200                    // punpckldq     %xmm0,%xmm9
-  .byte  102,15,111,21,61,34,0,0             // movdqa        0x223d(%rip),%xmm2        # 4830 <_sk_callback_sse2+0x9d4>
+  .byte  102,15,111,21,53,35,0,0             // movdqa        0x2335(%rip),%xmm2        # 51e0 <_sk_callback_sse2+0xacc>
   .byte  102,65,15,111,193                   // movdqa        %xmm9,%xmm0
   .byte  102,15,219,194                      // pand          %xmm2,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  68,15,40,5,57,34,0,0                // movaps        0x2239(%rip),%xmm8        # 4840 <_sk_callback_sse2+0x9e4>
+  .byte  68,15,40,5,49,35,0,0                // movaps        0x2331(%rip),%xmm8        # 51f0 <_sk_callback_sse2+0xadc>
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  102,65,15,111,201                   // movdqa        %xmm9,%xmm1
   .byte  102,15,114,209,8                    // psrld         $0x8,%xmm1
@@ -26179,19 +29127,19 @@ _sk_load_565_sse2:
   .byte  243,15,126,20,120                   // movq          (%rax,%rdi,2),%xmm2
   .byte  102,15,239,192                      // pxor          %xmm0,%xmm0
   .byte  102,15,97,208                       // punpcklwd     %xmm0,%xmm2
-  .byte  102,15,111,5,239,33,0,0             // movdqa        0x21ef(%rip),%xmm0        # 4850 <_sk_callback_sse2+0x9f4>
+  .byte  102,15,111,5,231,34,0,0             // movdqa        0x22e7(%rip),%xmm0        # 5200 <_sk_callback_sse2+0xaec>
   .byte  102,15,219,194                      // pand          %xmm2,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  15,89,5,241,33,0,0                  // mulps         0x21f1(%rip),%xmm0        # 4860 <_sk_callback_sse2+0xa04>
-  .byte  102,15,111,13,249,33,0,0            // movdqa        0x21f9(%rip),%xmm1        # 4870 <_sk_callback_sse2+0xa14>
+  .byte  15,89,5,233,34,0,0                  // mulps         0x22e9(%rip),%xmm0        # 5210 <_sk_callback_sse2+0xafc>
+  .byte  102,15,111,13,241,34,0,0            // movdqa        0x22f1(%rip),%xmm1        # 5220 <_sk_callback_sse2+0xb0c>
   .byte  102,15,219,202                      // pand          %xmm2,%xmm1
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
-  .byte  15,89,13,251,33,0,0                 // mulps         0x21fb(%rip),%xmm1        # 4880 <_sk_callback_sse2+0xa24>
-  .byte  102,15,219,21,3,34,0,0              // pand          0x2203(%rip),%xmm2        # 4890 <_sk_callback_sse2+0xa34>
+  .byte  15,89,13,243,34,0,0                 // mulps         0x22f3(%rip),%xmm1        # 5230 <_sk_callback_sse2+0xb1c>
+  .byte  102,15,219,21,251,34,0,0            // pand          0x22fb(%rip),%xmm2        # 5240 <_sk_callback_sse2+0xb2c>
   .byte  15,91,210                           // cvtdq2ps      %xmm2,%xmm2
-  .byte  15,89,21,9,34,0,0                   // mulps         0x2209(%rip),%xmm2        # 48a0 <_sk_callback_sse2+0xa44>
+  .byte  15,89,21,1,35,0,0                   // mulps         0x2301(%rip),%xmm2        # 5250 <_sk_callback_sse2+0xb3c>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,16,34,0,0                  // movaps        0x2210(%rip),%xmm3        # 48b0 <_sk_callback_sse2+0xa54>
+  .byte  15,40,29,8,35,0,0                   // movaps        0x2308(%rip),%xmm3        # 5260 <_sk_callback_sse2+0xb4c>
   .byte  255,224                             // jmpq          *%rax
 
 HIDDEN _sk_gather_565_sse2
@@ -26226,19 +29174,19 @@ _sk_gather_565_sse2:
   .byte  102,15,196,208,3                    // pinsrw        $0x3,%eax,%xmm2
   .byte  102,15,239,192                      // pxor          %xmm0,%xmm0
   .byte  102,15,97,208                       // punpcklwd     %xmm0,%xmm2
-  .byte  102,15,111,5,153,33,0,0             // movdqa        0x2199(%rip),%xmm0        # 48c0 <_sk_callback_sse2+0xa64>
+  .byte  102,15,111,5,145,34,0,0             // movdqa        0x2291(%rip),%xmm0        # 5270 <_sk_callback_sse2+0xb5c>
   .byte  102,15,219,194                      // pand          %xmm2,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  15,89,5,155,33,0,0                  // mulps         0x219b(%rip),%xmm0        # 48d0 <_sk_callback_sse2+0xa74>
-  .byte  102,15,111,13,163,33,0,0            // movdqa        0x21a3(%rip),%xmm1        # 48e0 <_sk_callback_sse2+0xa84>
+  .byte  15,89,5,147,34,0,0                  // mulps         0x2293(%rip),%xmm0        # 5280 <_sk_callback_sse2+0xb6c>
+  .byte  102,15,111,13,155,34,0,0            // movdqa        0x229b(%rip),%xmm1        # 5290 <_sk_callback_sse2+0xb7c>
   .byte  102,15,219,202                      // pand          %xmm2,%xmm1
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
-  .byte  15,89,13,165,33,0,0                 // mulps         0x21a5(%rip),%xmm1        # 48f0 <_sk_callback_sse2+0xa94>
-  .byte  102,15,219,21,173,33,0,0            // pand          0x21ad(%rip),%xmm2        # 4900 <_sk_callback_sse2+0xaa4>
+  .byte  15,89,13,157,34,0,0                 // mulps         0x229d(%rip),%xmm1        # 52a0 <_sk_callback_sse2+0xb8c>
+  .byte  102,15,219,21,165,34,0,0            // pand          0x22a5(%rip),%xmm2        # 52b0 <_sk_callback_sse2+0xb9c>
   .byte  15,91,210                           // cvtdq2ps      %xmm2,%xmm2
-  .byte  15,89,21,179,33,0,0                 // mulps         0x21b3(%rip),%xmm2        # 4910 <_sk_callback_sse2+0xab4>
+  .byte  15,89,21,171,34,0,0                 // mulps         0x22ab(%rip),%xmm2        # 52c0 <_sk_callback_sse2+0xbac>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,186,33,0,0                 // movaps        0x21ba(%rip),%xmm3        # 4920 <_sk_callback_sse2+0xac4>
+  .byte  15,40,29,178,34,0,0                 // movaps        0x22b2(%rip),%xmm3        # 52d0 <_sk_callback_sse2+0xbbc>
   .byte  255,224                             // jmpq          *%rax
 
 HIDDEN _sk_store_565_sse2
@@ -26247,12 +29195,12 @@ FUNCTION(_sk_store_565_sse2)
 _sk_store_565_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
-  .byte  68,15,40,5,187,33,0,0               // movaps        0x21bb(%rip),%xmm8        # 4930 <_sk_callback_sse2+0xad4>
+  .byte  68,15,40,5,179,34,0,0               // movaps        0x22b3(%rip),%xmm8        # 52e0 <_sk_callback_sse2+0xbcc>
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
   .byte  69,15,89,200                        // mulps         %xmm8,%xmm9
   .byte  102,69,15,91,201                    // cvtps2dq      %xmm9,%xmm9
   .byte  102,65,15,114,241,11                // pslld         $0xb,%xmm9
-  .byte  68,15,40,21,176,33,0,0              // movaps        0x21b0(%rip),%xmm10        # 4940 <_sk_callback_sse2+0xae4>
+  .byte  68,15,40,21,168,34,0,0              // movaps        0x22a8(%rip),%xmm10        # 52f0 <_sk_callback_sse2+0xbdc>
   .byte  68,15,89,209                        // mulps         %xmm1,%xmm10
   .byte  102,69,15,91,210                    // cvtps2dq      %xmm10,%xmm10
   .byte  102,65,15,114,242,5                 // pslld         $0x5,%xmm10
@@ -26276,21 +29224,21 @@ _sk_load_4444_sse2:
   .byte  243,15,126,28,120                   // movq          (%rax,%rdi,2),%xmm3
   .byte  102,15,239,192                      // pxor          %xmm0,%xmm0
   .byte  102,15,97,216                       // punpcklwd     %xmm0,%xmm3
-  .byte  102,15,111,5,105,33,0,0             // movdqa        0x2169(%rip),%xmm0        # 4950 <_sk_callback_sse2+0xaf4>
+  .byte  102,15,111,5,97,34,0,0              // movdqa        0x2261(%rip),%xmm0        # 5300 <_sk_callback_sse2+0xbec>
   .byte  102,15,219,195                      // pand          %xmm3,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  15,89,5,107,33,0,0                  // mulps         0x216b(%rip),%xmm0        # 4960 <_sk_callback_sse2+0xb04>
-  .byte  102,15,111,13,115,33,0,0            // movdqa        0x2173(%rip),%xmm1        # 4970 <_sk_callback_sse2+0xb14>
+  .byte  15,89,5,99,34,0,0                   // mulps         0x2263(%rip),%xmm0        # 5310 <_sk_callback_sse2+0xbfc>
+  .byte  102,15,111,13,107,34,0,0            // movdqa        0x226b(%rip),%xmm1        # 5320 <_sk_callback_sse2+0xc0c>
   .byte  102,15,219,203                      // pand          %xmm3,%xmm1
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
-  .byte  15,89,13,117,33,0,0                 // mulps         0x2175(%rip),%xmm1        # 4980 <_sk_callback_sse2+0xb24>
-  .byte  102,15,111,21,125,33,0,0            // movdqa        0x217d(%rip),%xmm2        # 4990 <_sk_callback_sse2+0xb34>
+  .byte  15,89,13,109,34,0,0                 // mulps         0x226d(%rip),%xmm1        # 5330 <_sk_callback_sse2+0xc1c>
+  .byte  102,15,111,21,117,34,0,0            // movdqa        0x2275(%rip),%xmm2        # 5340 <_sk_callback_sse2+0xc2c>
   .byte  102,15,219,211                      // pand          %xmm3,%xmm2
   .byte  15,91,210                           // cvtdq2ps      %xmm2,%xmm2
-  .byte  15,89,21,127,33,0,0                 // mulps         0x217f(%rip),%xmm2        # 49a0 <_sk_callback_sse2+0xb44>
-  .byte  102,15,219,29,135,33,0,0            // pand          0x2187(%rip),%xmm3        # 49b0 <_sk_callback_sse2+0xb54>
+  .byte  15,89,21,119,34,0,0                 // mulps         0x2277(%rip),%xmm2        # 5350 <_sk_callback_sse2+0xc3c>
+  .byte  102,15,219,29,127,34,0,0            // pand          0x227f(%rip),%xmm3        # 5360 <_sk_callback_sse2+0xc4c>
   .byte  15,91,219                           // cvtdq2ps      %xmm3,%xmm3
-  .byte  15,89,29,141,33,0,0                 // mulps         0x218d(%rip),%xmm3        # 49c0 <_sk_callback_sse2+0xb64>
+  .byte  15,89,29,133,34,0,0                 // mulps         0x2285(%rip),%xmm3        # 5370 <_sk_callback_sse2+0xc5c>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
@@ -26326,21 +29274,21 @@ _sk_gather_4444_sse2:
   .byte  102,15,196,216,3                    // pinsrw        $0x3,%eax,%xmm3
   .byte  102,15,239,192                      // pxor          %xmm0,%xmm0
   .byte  102,15,97,216                       // punpcklwd     %xmm0,%xmm3
-  .byte  102,15,111,5,20,33,0,0              // movdqa        0x2114(%rip),%xmm0        # 49d0 <_sk_callback_sse2+0xb74>
+  .byte  102,15,111,5,12,34,0,0              // movdqa        0x220c(%rip),%xmm0        # 5380 <_sk_callback_sse2+0xc6c>
   .byte  102,15,219,195                      // pand          %xmm3,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  15,89,5,22,33,0,0                   // mulps         0x2116(%rip),%xmm0        # 49e0 <_sk_callback_sse2+0xb84>
-  .byte  102,15,111,13,30,33,0,0             // movdqa        0x211e(%rip),%xmm1        # 49f0 <_sk_callback_sse2+0xb94>
+  .byte  15,89,5,14,34,0,0                   // mulps         0x220e(%rip),%xmm0        # 5390 <_sk_callback_sse2+0xc7c>
+  .byte  102,15,111,13,22,34,0,0             // movdqa        0x2216(%rip),%xmm1        # 53a0 <_sk_callback_sse2+0xc8c>
   .byte  102,15,219,203                      // pand          %xmm3,%xmm1
   .byte  15,91,201                           // cvtdq2ps      %xmm1,%xmm1
-  .byte  15,89,13,32,33,0,0                  // mulps         0x2120(%rip),%xmm1        # 4a00 <_sk_callback_sse2+0xba4>
-  .byte  102,15,111,21,40,33,0,0             // movdqa        0x2128(%rip),%xmm2        # 4a10 <_sk_callback_sse2+0xbb4>
+  .byte  15,89,13,24,34,0,0                  // mulps         0x2218(%rip),%xmm1        # 53b0 <_sk_callback_sse2+0xc9c>
+  .byte  102,15,111,21,32,34,0,0             // movdqa        0x2220(%rip),%xmm2        # 53c0 <_sk_callback_sse2+0xcac>
   .byte  102,15,219,211                      // pand          %xmm3,%xmm2
   .byte  15,91,210                           // cvtdq2ps      %xmm2,%xmm2
-  .byte  15,89,21,42,33,0,0                  // mulps         0x212a(%rip),%xmm2        # 4a20 <_sk_callback_sse2+0xbc4>
-  .byte  102,15,219,29,50,33,0,0             // pand          0x2132(%rip),%xmm3        # 4a30 <_sk_callback_sse2+0xbd4>
+  .byte  15,89,21,34,34,0,0                  // mulps         0x2222(%rip),%xmm2        # 53d0 <_sk_callback_sse2+0xcbc>
+  .byte  102,15,219,29,42,34,0,0             // pand          0x222a(%rip),%xmm3        # 53e0 <_sk_callback_sse2+0xccc>
   .byte  15,91,219                           // cvtdq2ps      %xmm3,%xmm3
-  .byte  15,89,29,56,33,0,0                  // mulps         0x2138(%rip),%xmm3        # 4a40 <_sk_callback_sse2+0xbe4>
+  .byte  15,89,29,48,34,0,0                  // mulps         0x2230(%rip),%xmm3        # 53f0 <_sk_callback_sse2+0xcdc>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
@@ -26350,7 +29298,7 @@ FUNCTION(_sk_store_4444_sse2)
 _sk_store_4444_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
-  .byte  68,15,40,5,55,33,0,0                // movaps        0x2137(%rip),%xmm8        # 4a50 <_sk_callback_sse2+0xbf4>
+  .byte  68,15,40,5,47,34,0,0                // movaps        0x222f(%rip),%xmm8        # 5400 <_sk_callback_sse2+0xcec>
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
   .byte  69,15,89,200                        // mulps         %xmm8,%xmm9
   .byte  102,69,15,91,201                    // cvtps2dq      %xmm9,%xmm9
@@ -26382,11 +29330,11 @@ _sk_load_8888_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
   .byte  68,15,16,12,184                     // movups        (%rax,%rdi,4),%xmm9
-  .byte  15,40,21,202,32,0,0                 // movaps        0x20ca(%rip),%xmm2        # 4a60 <_sk_callback_sse2+0xc04>
+  .byte  15,40,21,194,33,0,0                 // movaps        0x21c2(%rip),%xmm2        # 5410 <_sk_callback_sse2+0xcfc>
   .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
   .byte  15,84,194                           // andps         %xmm2,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  68,15,40,5,200,32,0,0               // movaps        0x20c8(%rip),%xmm8        # 4a70 <_sk_callback_sse2+0xc14>
+  .byte  68,15,40,5,192,33,0,0               // movaps        0x21c0(%rip),%xmm8        # 5420 <_sk_callback_sse2+0xd0c>
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  65,15,40,201                        // movaps        %xmm9,%xmm1
   .byte  102,15,114,209,8                    // psrld         $0x8,%xmm1
@@ -26435,11 +29383,11 @@ _sk_gather_8888_sse2:
   .byte  102,67,15,110,12,129                // movd          (%r9,%r8,4),%xmm1
   .byte  102,68,15,98,201                    // punpckldq     %xmm1,%xmm9
   .byte  102,68,15,98,200                    // punpckldq     %xmm0,%xmm9
-  .byte  102,15,111,21,25,32,0,0             // movdqa        0x2019(%rip),%xmm2        # 4a80 <_sk_callback_sse2+0xc24>
+  .byte  102,15,111,21,17,33,0,0             // movdqa        0x2111(%rip),%xmm2        # 5430 <_sk_callback_sse2+0xd1c>
   .byte  102,65,15,111,193                   // movdqa        %xmm9,%xmm0
   .byte  102,15,219,194                      // pand          %xmm2,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  68,15,40,5,21,32,0,0                // movaps        0x2015(%rip),%xmm8        # 4a90 <_sk_callback_sse2+0xc34>
+  .byte  68,15,40,5,13,33,0,0                // movaps        0x210d(%rip),%xmm8        # 5440 <_sk_callback_sse2+0xd2c>
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  102,65,15,111,201                   // movdqa        %xmm9,%xmm1
   .byte  102,15,114,209,8                    // psrld         $0x8,%xmm1
@@ -26463,7 +29411,7 @@ FUNCTION(_sk_store_8888_sse2)
 _sk_store_8888_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
-  .byte  68,15,40,5,216,31,0,0               // movaps        0x1fd8(%rip),%xmm8        # 4aa0 <_sk_callback_sse2+0xc44>
+  .byte  68,15,40,5,208,32,0,0               // movaps        0x20d0(%rip),%xmm8        # 5450 <_sk_callback_sse2+0xd3c>
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
   .byte  69,15,89,200                        // mulps         %xmm8,%xmm9
   .byte  102,69,15,91,201                    // cvtps2dq      %xmm9,%xmm9
@@ -26502,7 +29450,7 @@ _sk_load_f16_sse2:
   .byte  102,69,15,239,210                   // pxor          %xmm10,%xmm10
   .byte  102,65,15,111,206                   // movdqa        %xmm14,%xmm1
   .byte  102,65,15,97,202                    // punpcklwd     %xmm10,%xmm1
-  .byte  102,68,15,111,13,72,31,0,0          // movdqa        0x1f48(%rip),%xmm9        # 4ab0 <_sk_callback_sse2+0xc54>
+  .byte  102,68,15,111,13,64,32,0,0          // movdqa        0x2040(%rip),%xmm9        # 5460 <_sk_callback_sse2+0xd4c>
   .byte  102,15,111,193                      // movdqa        %xmm1,%xmm0
   .byte  102,65,15,219,193                   // pand          %xmm9,%xmm0
   .byte  102,15,239,200                      // pxor          %xmm0,%xmm1
@@ -26510,11 +29458,11 @@ _sk_load_f16_sse2:
   .byte  102,68,15,111,233                   // movdqa        %xmm1,%xmm13
   .byte  102,65,15,114,245,13                // pslld         $0xd,%xmm13
   .byte  102,68,15,235,232                   // por           %xmm0,%xmm13
-  .byte  102,68,15,111,29,45,31,0,0          // movdqa        0x1f2d(%rip),%xmm11        # 4ac0 <_sk_callback_sse2+0xc64>
+  .byte  102,68,15,111,29,37,32,0,0          // movdqa        0x2025(%rip),%xmm11        # 5470 <_sk_callback_sse2+0xd5c>
   .byte  102,69,15,254,235                   // paddd         %xmm11,%xmm13
-  .byte  102,68,15,111,37,47,31,0,0          // movdqa        0x1f2f(%rip),%xmm12        # 4ad0 <_sk_callback_sse2+0xc74>
+  .byte  102,68,15,111,37,39,32,0,0          // movdqa        0x2027(%rip),%xmm12        # 5480 <_sk_callback_sse2+0xd6c>
   .byte  102,65,15,239,204                   // pxor          %xmm12,%xmm1
-  .byte  102,15,111,29,50,31,0,0             // movdqa        0x1f32(%rip),%xmm3        # 4ae0 <_sk_callback_sse2+0xc84>
+  .byte  102,15,111,29,42,32,0,0             // movdqa        0x202a(%rip),%xmm3        # 5490 <_sk_callback_sse2+0xd7c>
   .byte  102,15,111,195                      // movdqa        %xmm3,%xmm0
   .byte  102,15,102,193                      // pcmpgtd       %xmm1,%xmm0
   .byte  102,65,15,223,197                   // pandn         %xmm13,%xmm0
@@ -26600,7 +29548,7 @@ _sk_gather_f16_sse2:
   .byte  102,69,15,239,210                   // pxor          %xmm10,%xmm10
   .byte  102,65,15,111,206                   // movdqa        %xmm14,%xmm1
   .byte  102,65,15,97,202                    // punpcklwd     %xmm10,%xmm1
-  .byte  102,68,15,111,13,192,29,0,0         // movdqa        0x1dc0(%rip),%xmm9        # 4af0 <_sk_callback_sse2+0xc94>
+  .byte  102,68,15,111,13,184,30,0,0         // movdqa        0x1eb8(%rip),%xmm9        # 54a0 <_sk_callback_sse2+0xd8c>
   .byte  102,15,111,193                      // movdqa        %xmm1,%xmm0
   .byte  102,65,15,219,193                   // pand          %xmm9,%xmm0
   .byte  102,15,239,200                      // pxor          %xmm0,%xmm1
@@ -26608,11 +29556,11 @@ _sk_gather_f16_sse2:
   .byte  102,68,15,111,233                   // movdqa        %xmm1,%xmm13
   .byte  102,65,15,114,245,13                // pslld         $0xd,%xmm13
   .byte  102,68,15,235,232                   // por           %xmm0,%xmm13
-  .byte  102,68,15,111,29,165,29,0,0         // movdqa        0x1da5(%rip),%xmm11        # 4b00 <_sk_callback_sse2+0xca4>
+  .byte  102,68,15,111,29,157,30,0,0         // movdqa        0x1e9d(%rip),%xmm11        # 54b0 <_sk_callback_sse2+0xd9c>
   .byte  102,69,15,254,235                   // paddd         %xmm11,%xmm13
-  .byte  102,68,15,111,37,167,29,0,0         // movdqa        0x1da7(%rip),%xmm12        # 4b10 <_sk_callback_sse2+0xcb4>
+  .byte  102,68,15,111,37,159,30,0,0         // movdqa        0x1e9f(%rip),%xmm12        # 54c0 <_sk_callback_sse2+0xdac>
   .byte  102,65,15,239,204                   // pxor          %xmm12,%xmm1
-  .byte  102,15,111,29,170,29,0,0            // movdqa        0x1daa(%rip),%xmm3        # 4b20 <_sk_callback_sse2+0xcc4>
+  .byte  102,15,111,29,162,30,0,0            // movdqa        0x1ea2(%rip),%xmm3        # 54d0 <_sk_callback_sse2+0xdbc>
   .byte  102,15,111,195                      // movdqa        %xmm3,%xmm0
   .byte  102,15,102,193                      // pcmpgtd       %xmm1,%xmm0
   .byte  102,65,15,223,197                   // pandn         %xmm13,%xmm0
@@ -26665,17 +29613,17 @@ FUNCTION(_sk_store_f16_sse2)
 _sk_store_f16_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
-  .byte  102,68,15,111,21,210,28,0,0         // movdqa        0x1cd2(%rip),%xmm10        # 4b30 <_sk_callback_sse2+0xcd4>
+  .byte  102,68,15,111,21,202,29,0,0         // movdqa        0x1dca(%rip),%xmm10        # 54e0 <_sk_callback_sse2+0xdcc>
   .byte  102,68,15,111,224                   // movdqa        %xmm0,%xmm12
   .byte  102,68,15,111,232                   // movdqa        %xmm0,%xmm13
   .byte  102,69,15,219,234                   // pand          %xmm10,%xmm13
   .byte  102,69,15,239,229                   // pxor          %xmm13,%xmm12
-  .byte  102,68,15,111,13,197,28,0,0         // movdqa        0x1cc5(%rip),%xmm9        # 4b40 <_sk_callback_sse2+0xce4>
+  .byte  102,68,15,111,13,189,29,0,0         // movdqa        0x1dbd(%rip),%xmm9        # 54f0 <_sk_callback_sse2+0xddc>
   .byte  102,65,15,114,213,16                // psrld         $0x10,%xmm13
   .byte  102,69,15,111,193                   // movdqa        %xmm9,%xmm8
   .byte  102,69,15,102,196                   // pcmpgtd       %xmm12,%xmm8
   .byte  102,65,15,114,212,13                // psrld         $0xd,%xmm12
-  .byte  102,68,15,111,29,182,28,0,0         // movdqa        0x1cb6(%rip),%xmm11        # 4b50 <_sk_callback_sse2+0xcf4>
+  .byte  102,68,15,111,29,174,29,0,0         // movdqa        0x1dae(%rip),%xmm11        # 5500 <_sk_callback_sse2+0xdec>
   .byte  102,69,15,235,235                   // por           %xmm11,%xmm13
   .byte  102,69,15,254,236                   // paddd         %xmm12,%xmm13
   .byte  102,65,15,114,245,16                // pslld         $0x10,%xmm13
@@ -26754,7 +29702,7 @@ _sk_load_u16_be_sse2:
   .byte  102,69,15,239,201                   // pxor          %xmm9,%xmm9
   .byte  102,65,15,97,201                    // punpcklwd     %xmm9,%xmm1
   .byte  15,91,193                           // cvtdq2ps      %xmm1,%xmm0
-  .byte  68,15,40,5,84,27,0,0                // movaps        0x1b54(%rip),%xmm8        # 4b60 <_sk_callback_sse2+0xd04>
+  .byte  68,15,40,5,76,28,0,0                // movaps        0x1c4c(%rip),%xmm8        # 5510 <_sk_callback_sse2+0xdfc>
   .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
   .byte  102,15,111,203                      // movdqa        %xmm3,%xmm1
   .byte  102,15,113,241,8                    // psllw         $0x8,%xmm1
@@ -26807,7 +29755,7 @@ _sk_load_rgb_u16_be_sse2:
   .byte  102,69,15,239,192                   // pxor          %xmm8,%xmm8
   .byte  102,65,15,97,192                    // punpcklwd     %xmm8,%xmm0
   .byte  15,91,192                           // cvtdq2ps      %xmm0,%xmm0
-  .byte  68,15,40,13,144,26,0,0              // movaps        0x1a90(%rip),%xmm9        # 4b70 <_sk_callback_sse2+0xd14>
+  .byte  68,15,40,13,136,27,0,0              // movaps        0x1b88(%rip),%xmm9        # 5520 <_sk_callback_sse2+0xe0c>
   .byte  65,15,89,193                        // mulps         %xmm9,%xmm0
   .byte  102,15,111,203                      // movdqa        %xmm3,%xmm1
   .byte  102,15,113,241,8                    // psllw         $0x8,%xmm1
@@ -26824,7 +29772,7 @@ _sk_load_rgb_u16_be_sse2:
   .byte  15,91,210                           // cvtdq2ps      %xmm2,%xmm2
   .byte  65,15,89,209                        // mulps         %xmm9,%xmm2
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,87,26,0,0                  // movaps        0x1a57(%rip),%xmm3        # 4b80 <_sk_callback_sse2+0xd24>
+  .byte  15,40,29,79,27,0,0                  // movaps        0x1b4f(%rip),%xmm3        # 5530 <_sk_callback_sse2+0xe1c>
   .byte  255,224                             // jmpq          *%rax
 
 HIDDEN _sk_store_u16_be_sse2
@@ -26833,7 +29781,7 @@ FUNCTION(_sk_store_u16_be_sse2)
 _sk_store_u16_be_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  72,139,0                            // mov           (%rax),%rax
-  .byte  68,15,40,13,88,26,0,0               // movaps        0x1a58(%rip),%xmm9        # 4b90 <_sk_callback_sse2+0xd34>
+  .byte  68,15,40,13,80,27,0,0               // movaps        0x1b50(%rip),%xmm9        # 5540 <_sk_callback_sse2+0xe2c>
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
   .byte  102,69,15,91,192                    // cvtps2dq      %xmm8,%xmm8
@@ -26983,7 +29931,7 @@ _sk_repeat_x_sse2:
   .byte  243,69,15,91,209                    // cvttps2dq     %xmm9,%xmm10
   .byte  69,15,91,210                        // cvtdq2ps      %xmm10,%xmm10
   .byte  69,15,194,202,1                     // cmpltps       %xmm10,%xmm9
-  .byte  68,15,84,13,66,24,0,0               // andps         0x1842(%rip),%xmm9        # 4ba0 <_sk_callback_sse2+0xd44>
+  .byte  68,15,84,13,58,25,0,0               // andps         0x193a(%rip),%xmm9        # 5550 <_sk_callback_sse2+0xe3c>
   .byte  69,15,92,209                        // subps         %xmm9,%xmm10
   .byte  69,15,89,208                        // mulps         %xmm8,%xmm10
   .byte  65,15,92,194                        // subps         %xmm10,%xmm0
@@ -27005,7 +29953,7 @@ _sk_repeat_y_sse2:
   .byte  243,69,15,91,209                    // cvttps2dq     %xmm9,%xmm10
   .byte  69,15,91,210                        // cvtdq2ps      %xmm10,%xmm10
   .byte  69,15,194,202,1                     // cmpltps       %xmm10,%xmm9
-  .byte  68,15,84,13,10,24,0,0               // andps         0x180a(%rip),%xmm9        # 4bb0 <_sk_callback_sse2+0xd54>
+  .byte  68,15,84,13,2,25,0,0                // andps         0x1902(%rip),%xmm9        # 5560 <_sk_callback_sse2+0xe4c>
   .byte  69,15,92,209                        // subps         %xmm9,%xmm10
   .byte  69,15,89,208                        // mulps         %xmm8,%xmm10
   .byte  65,15,92,202                        // subps         %xmm10,%xmm1
@@ -27031,7 +29979,7 @@ _sk_mirror_x_sse2:
   .byte  243,69,15,91,218                    // cvttps2dq     %xmm10,%xmm11
   .byte  69,15,91,219                        // cvtdq2ps      %xmm11,%xmm11
   .byte  69,15,194,211,1                     // cmpltps       %xmm11,%xmm10
-  .byte  68,15,84,21,192,23,0,0              // andps         0x17c0(%rip),%xmm10        # 4bc0 <_sk_callback_sse2+0xd64>
+  .byte  68,15,84,21,184,24,0,0              // andps         0x18b8(%rip),%xmm10        # 5570 <_sk_callback_sse2+0xe5c>
   .byte  69,15,87,228                        // xorps         %xmm12,%xmm12
   .byte  69,15,92,218                        // subps         %xmm10,%xmm11
   .byte  69,15,89,216                        // mulps         %xmm8,%xmm11
@@ -27061,7 +30009,7 @@ _sk_mirror_y_sse2:
   .byte  243,69,15,91,218                    // cvttps2dq     %xmm10,%xmm11
   .byte  69,15,91,219                        // cvtdq2ps      %xmm11,%xmm11
   .byte  69,15,194,211,1                     // cmpltps       %xmm11,%xmm10
-  .byte  68,15,84,21,102,23,0,0              // andps         0x1766(%rip),%xmm10        # 4bd0 <_sk_callback_sse2+0xd74>
+  .byte  68,15,84,21,94,24,0,0               // andps         0x185e(%rip),%xmm10        # 5580 <_sk_callback_sse2+0xe6c>
   .byte  69,15,87,228                        // xorps         %xmm12,%xmm12
   .byte  69,15,92,218                        // subps         %xmm10,%xmm11
   .byte  69,15,89,216                        // mulps         %xmm8,%xmm11
@@ -27080,10 +30028,10 @@ HIDDEN _sk_luminance_to_alpha_sse2
 FUNCTION(_sk_luminance_to_alpha_sse2)
 _sk_luminance_to_alpha_sse2:
   .byte  15,40,218                           // movaps        %xmm2,%xmm3
-  .byte  15,89,5,62,23,0,0                   // mulps         0x173e(%rip),%xmm0        # 4be0 <_sk_callback_sse2+0xd84>
-  .byte  15,89,13,71,23,0,0                  // mulps         0x1747(%rip),%xmm1        # 4bf0 <_sk_callback_sse2+0xd94>
+  .byte  15,89,5,54,24,0,0                   // mulps         0x1836(%rip),%xmm0        # 5590 <_sk_callback_sse2+0xe7c>
+  .byte  15,89,13,63,24,0,0                  // mulps         0x183f(%rip),%xmm1        # 55a0 <_sk_callback_sse2+0xe8c>
   .byte  15,88,200                           // addps         %xmm0,%xmm1
-  .byte  15,89,29,77,23,0,0                  // mulps         0x174d(%rip),%xmm3        # 4c00 <_sk_callback_sse2+0xda4>
+  .byte  15,89,29,69,24,0,0                  // mulps         0x1845(%rip),%xmm3        # 55b0 <_sk_callback_sse2+0xe9c>
   .byte  15,88,217                           // addps         %xmm1,%xmm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
@@ -27316,7 +30264,7 @@ _sk_linear_gradient_sse2:
   .byte  69,15,198,228,0                     // shufps        $0x0,%xmm12,%xmm12
   .byte  72,139,8                            // mov           (%rax),%rcx
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,132,15,1,0,0                     // je            3966 <_sk_linear_gradient_sse2+0x149>
+  .byte  15,132,15,1,0,0                     // je            421e <_sk_linear_gradient_sse2+0x149>
   .byte  72,139,64,8                         // mov           0x8(%rax),%rax
   .byte  72,131,192,32                       // add           $0x20,%rax
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
@@ -27377,8 +30325,8 @@ _sk_linear_gradient_sse2:
   .byte  69,15,86,231                        // orps          %xmm15,%xmm12
   .byte  72,131,192,36                       // add           $0x24,%rax
   .byte  72,255,201                          // dec           %rcx
-  .byte  15,133,8,255,255,255                // jne           386c <_sk_linear_gradient_sse2+0x4f>
-  .byte  235,13                              // jmp           3973 <_sk_linear_gradient_sse2+0x156>
+  .byte  15,133,8,255,255,255                // jne           4124 <_sk_linear_gradient_sse2+0x4f>
+  .byte  235,13                              // jmp           422b <_sk_linear_gradient_sse2+0x156>
   .byte  15,87,201                           // xorps         %xmm1,%xmm1
   .byte  15,87,210                           // xorps         %xmm2,%xmm2
   .byte  15,87,219                           // xorps         %xmm3,%xmm3
@@ -27447,29 +30395,29 @@ _sk_xy_to_polar_unit_sse2:
   .byte  69,15,94,220                        // divps         %xmm12,%xmm11
   .byte  69,15,40,227                        // movaps        %xmm11,%xmm12
   .byte  69,15,89,228                        // mulps         %xmm12,%xmm12
-  .byte  68,15,40,45,197,17,0,0              // movaps        0x11c5(%rip),%xmm13        # 4c10 <_sk_callback_sse2+0xdb4>
+  .byte  68,15,40,45,189,18,0,0              // movaps        0x12bd(%rip),%xmm13        # 55c0 <_sk_callback_sse2+0xeac>
   .byte  69,15,89,236                        // mulps         %xmm12,%xmm13
-  .byte  68,15,88,45,201,17,0,0              // addps         0x11c9(%rip),%xmm13        # 4c20 <_sk_callback_sse2+0xdc4>
+  .byte  68,15,88,45,193,18,0,0              // addps         0x12c1(%rip),%xmm13        # 55d0 <_sk_callback_sse2+0xebc>
   .byte  69,15,89,236                        // mulps         %xmm12,%xmm13
-  .byte  68,15,88,45,205,17,0,0              // addps         0x11cd(%rip),%xmm13        # 4c30 <_sk_callback_sse2+0xdd4>
+  .byte  68,15,88,45,197,18,0,0              // addps         0x12c5(%rip),%xmm13        # 55e0 <_sk_callback_sse2+0xecc>
   .byte  69,15,89,236                        // mulps         %xmm12,%xmm13
-  .byte  68,15,88,45,209,17,0,0              // addps         0x11d1(%rip),%xmm13        # 4c40 <_sk_callback_sse2+0xde4>
+  .byte  68,15,88,45,201,18,0,0              // addps         0x12c9(%rip),%xmm13        # 55f0 <_sk_callback_sse2+0xedc>
   .byte  69,15,89,235                        // mulps         %xmm11,%xmm13
   .byte  69,15,194,202,1                     // cmpltps       %xmm10,%xmm9
-  .byte  68,15,40,21,208,17,0,0              // movaps        0x11d0(%rip),%xmm10        # 4c50 <_sk_callback_sse2+0xdf4>
+  .byte  68,15,40,21,200,18,0,0              // movaps        0x12c8(%rip),%xmm10        # 5600 <_sk_callback_sse2+0xeec>
   .byte  69,15,92,213                        // subps         %xmm13,%xmm10
   .byte  69,15,84,209                        // andps         %xmm9,%xmm10
   .byte  69,15,85,205                        // andnps        %xmm13,%xmm9
   .byte  69,15,86,202                        // orps          %xmm10,%xmm9
   .byte  68,15,194,192,1                     // cmpltps       %xmm0,%xmm8
-  .byte  68,15,40,21,195,17,0,0              // movaps        0x11c3(%rip),%xmm10        # 4c60 <_sk_callback_sse2+0xe04>
+  .byte  68,15,40,21,187,18,0,0              // movaps        0x12bb(%rip),%xmm10        # 5610 <_sk_callback_sse2+0xefc>
   .byte  69,15,92,209                        // subps         %xmm9,%xmm10
   .byte  69,15,84,208                        // andps         %xmm8,%xmm10
   .byte  69,15,85,193                        // andnps        %xmm9,%xmm8
   .byte  69,15,86,194                        // orps          %xmm10,%xmm8
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
   .byte  68,15,194,200,1                     // cmpltps       %xmm0,%xmm9
-  .byte  68,15,40,21,178,17,0,0              // movaps        0x11b2(%rip),%xmm10        # 4c70 <_sk_callback_sse2+0xe14>
+  .byte  68,15,40,21,170,18,0,0              // movaps        0x12aa(%rip),%xmm10        # 5620 <_sk_callback_sse2+0xf0c>
   .byte  69,15,92,208                        // subps         %xmm8,%xmm10
   .byte  69,15,84,209                        // andps         %xmm9,%xmm10
   .byte  69,15,85,200                        // andnps        %xmm8,%xmm9
@@ -27484,7 +30432,7 @@ HIDDEN _sk_save_xy_sse2
 FUNCTION(_sk_save_xy_sse2)
 _sk_save_xy_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  68,15,40,5,155,17,0,0               // movaps        0x119b(%rip),%xmm8        # 4c80 <_sk_callback_sse2+0xe24>
+  .byte  68,15,40,5,147,18,0,0               // movaps        0x1293(%rip),%xmm8        # 5630 <_sk_callback_sse2+0xf1c>
   .byte  15,17,0                             // movups        %xmm0,(%rax)
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
   .byte  69,15,88,200                        // addps         %xmm8,%xmm9
@@ -27492,7 +30440,7 @@ _sk_save_xy_sse2:
   .byte  69,15,91,210                        // cvtdq2ps      %xmm10,%xmm10
   .byte  69,15,40,217                        // movaps        %xmm9,%xmm11
   .byte  69,15,194,218,1                     // cmpltps       %xmm10,%xmm11
-  .byte  68,15,40,37,134,17,0,0              // movaps        0x1186(%rip),%xmm12        # 4c90 <_sk_callback_sse2+0xe34>
+  .byte  68,15,40,37,126,18,0,0              // movaps        0x127e(%rip),%xmm12        # 5640 <_sk_callback_sse2+0xf2c>
   .byte  69,15,84,220                        // andps         %xmm12,%xmm11
   .byte  69,15,92,211                        // subps         %xmm11,%xmm10
   .byte  69,15,92,202                        // subps         %xmm10,%xmm9
@@ -27539,8 +30487,8 @@ _sk_bilinear_nx_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,0                             // movups        (%rax),%xmm0
   .byte  68,15,16,64,64                      // movups        0x40(%rax),%xmm8
-  .byte  15,88,5,255,16,0,0                  // addps         0x10ff(%rip),%xmm0        # 4ca0 <_sk_callback_sse2+0xe44>
-  .byte  68,15,40,13,7,17,0,0                // movaps        0x1107(%rip),%xmm9        # 4cb0 <_sk_callback_sse2+0xe54>
+  .byte  15,88,5,247,17,0,0                  // addps         0x11f7(%rip),%xmm0        # 5650 <_sk_callback_sse2+0xf3c>
+  .byte  68,15,40,13,255,17,0,0              // movaps        0x11ff(%rip),%xmm9        # 5660 <_sk_callback_sse2+0xf4c>
   .byte  69,15,92,200                        // subps         %xmm8,%xmm9
   .byte  68,15,17,136,128,0,0,0              // movups        %xmm9,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -27553,7 +30501,7 @@ _sk_bilinear_px_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,0                             // movups        (%rax),%xmm0
   .byte  68,15,16,64,64                      // movups        0x40(%rax),%xmm8
-  .byte  15,88,5,246,16,0,0                  // addps         0x10f6(%rip),%xmm0        # 4cc0 <_sk_callback_sse2+0xe64>
+  .byte  15,88,5,238,17,0,0                  // addps         0x11ee(%rip),%xmm0        # 5670 <_sk_callback_sse2+0xf5c>
   .byte  68,15,17,128,128,0,0,0              // movups        %xmm8,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -27565,8 +30513,8 @@ _sk_bilinear_ny_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,72,32                         // movups        0x20(%rax),%xmm1
   .byte  68,15,16,64,96                      // movups        0x60(%rax),%xmm8
-  .byte  15,88,13,232,16,0,0                 // addps         0x10e8(%rip),%xmm1        # 4cd0 <_sk_callback_sse2+0xe74>
-  .byte  68,15,40,13,240,16,0,0              // movaps        0x10f0(%rip),%xmm9        # 4ce0 <_sk_callback_sse2+0xe84>
+  .byte  15,88,13,224,17,0,0                 // addps         0x11e0(%rip),%xmm1        # 5680 <_sk_callback_sse2+0xf6c>
+  .byte  68,15,40,13,232,17,0,0              // movaps        0x11e8(%rip),%xmm9        # 5690 <_sk_callback_sse2+0xf7c>
   .byte  69,15,92,200                        // subps         %xmm8,%xmm9
   .byte  68,15,17,136,160,0,0,0              // movups        %xmm9,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -27579,7 +30527,7 @@ _sk_bilinear_py_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,72,32                         // movups        0x20(%rax),%xmm1
   .byte  68,15,16,64,96                      // movups        0x60(%rax),%xmm8
-  .byte  15,88,13,222,16,0,0                 // addps         0x10de(%rip),%xmm1        # 4cf0 <_sk_callback_sse2+0xe94>
+  .byte  15,88,13,214,17,0,0                 // addps         0x11d6(%rip),%xmm1        # 56a0 <_sk_callback_sse2+0xf8c>
   .byte  68,15,17,128,160,0,0,0              // movups        %xmm8,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -27591,13 +30539,13 @@ _sk_bicubic_n3x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,0                             // movups        (%rax),%xmm0
   .byte  68,15,16,64,64                      // movups        0x40(%rax),%xmm8
-  .byte  15,88,5,209,16,0,0                  // addps         0x10d1(%rip),%xmm0        # 4d00 <_sk_callback_sse2+0xea4>
-  .byte  68,15,40,13,217,16,0,0              // movaps        0x10d9(%rip),%xmm9        # 4d10 <_sk_callback_sse2+0xeb4>
+  .byte  15,88,5,201,17,0,0                  // addps         0x11c9(%rip),%xmm0        # 56b0 <_sk_callback_sse2+0xf9c>
+  .byte  68,15,40,13,209,17,0,0              // movaps        0x11d1(%rip),%xmm9        # 56c0 <_sk_callback_sse2+0xfac>
   .byte  69,15,92,200                        // subps         %xmm8,%xmm9
   .byte  69,15,40,193                        // movaps        %xmm9,%xmm8
   .byte  69,15,89,192                        // mulps         %xmm8,%xmm8
-  .byte  68,15,89,13,213,16,0,0              // mulps         0x10d5(%rip),%xmm9        # 4d20 <_sk_callback_sse2+0xec4>
-  .byte  68,15,88,13,221,16,0,0              // addps         0x10dd(%rip),%xmm9        # 4d30 <_sk_callback_sse2+0xed4>
+  .byte  68,15,89,13,205,17,0,0              // mulps         0x11cd(%rip),%xmm9        # 56d0 <_sk_callback_sse2+0xfbc>
+  .byte  68,15,88,13,213,17,0,0              // addps         0x11d5(%rip),%xmm9        # 56e0 <_sk_callback_sse2+0xfcc>
   .byte  69,15,89,200                        // mulps         %xmm8,%xmm9
   .byte  68,15,17,136,128,0,0,0              // movups        %xmm9,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -27610,16 +30558,16 @@ _sk_bicubic_n1x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,0                             // movups        (%rax),%xmm0
   .byte  68,15,16,64,64                      // movups        0x40(%rax),%xmm8
-  .byte  15,88,5,204,16,0,0                  // addps         0x10cc(%rip),%xmm0        # 4d40 <_sk_callback_sse2+0xee4>
-  .byte  68,15,40,13,212,16,0,0              // movaps        0x10d4(%rip),%xmm9        # 4d50 <_sk_callback_sse2+0xef4>
+  .byte  15,88,5,196,17,0,0                  // addps         0x11c4(%rip),%xmm0        # 56f0 <_sk_callback_sse2+0xfdc>
+  .byte  68,15,40,13,204,17,0,0              // movaps        0x11cc(%rip),%xmm9        # 5700 <_sk_callback_sse2+0xfec>
   .byte  69,15,92,200                        // subps         %xmm8,%xmm9
-  .byte  68,15,40,5,216,16,0,0               // movaps        0x10d8(%rip),%xmm8        # 4d60 <_sk_callback_sse2+0xf04>
+  .byte  68,15,40,5,208,17,0,0               // movaps        0x11d0(%rip),%xmm8        # 5710 <_sk_callback_sse2+0xffc>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
-  .byte  68,15,88,5,220,16,0,0               // addps         0x10dc(%rip),%xmm8        # 4d70 <_sk_callback_sse2+0xf14>
+  .byte  68,15,88,5,212,17,0,0               // addps         0x11d4(%rip),%xmm8        # 5720 <_sk_callback_sse2+0x100c>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
-  .byte  68,15,88,5,224,16,0,0               // addps         0x10e0(%rip),%xmm8        # 4d80 <_sk_callback_sse2+0xf24>
+  .byte  68,15,88,5,216,17,0,0               // addps         0x11d8(%rip),%xmm8        # 5730 <_sk_callback_sse2+0x101c>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
-  .byte  68,15,88,5,228,16,0,0               // addps         0x10e4(%rip),%xmm8        # 4d90 <_sk_callback_sse2+0xf34>
+  .byte  68,15,88,5,220,17,0,0               // addps         0x11dc(%rip),%xmm8        # 5740 <_sk_callback_sse2+0x102c>
   .byte  68,15,17,128,128,0,0,0              // movups        %xmm8,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -27629,17 +30577,17 @@ HIDDEN _sk_bicubic_p1x_sse2
 FUNCTION(_sk_bicubic_p1x_sse2)
 _sk_bicubic_p1x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  68,15,40,5,222,16,0,0               // movaps        0x10de(%rip),%xmm8        # 4da0 <_sk_callback_sse2+0xf44>
+  .byte  68,15,40,5,214,17,0,0               // movaps        0x11d6(%rip),%xmm8        # 5750 <_sk_callback_sse2+0x103c>
   .byte  15,16,0                             // movups        (%rax),%xmm0
   .byte  68,15,16,72,64                      // movups        0x40(%rax),%xmm9
   .byte  65,15,88,192                        // addps         %xmm8,%xmm0
-  .byte  68,15,40,21,218,16,0,0              // movaps        0x10da(%rip),%xmm10        # 4db0 <_sk_callback_sse2+0xf54>
+  .byte  68,15,40,21,210,17,0,0              // movaps        0x11d2(%rip),%xmm10        # 5760 <_sk_callback_sse2+0x104c>
   .byte  69,15,89,209                        // mulps         %xmm9,%xmm10
-  .byte  68,15,88,21,222,16,0,0              // addps         0x10de(%rip),%xmm10        # 4dc0 <_sk_callback_sse2+0xf64>
+  .byte  68,15,88,21,214,17,0,0              // addps         0x11d6(%rip),%xmm10        # 5770 <_sk_callback_sse2+0x105c>
   .byte  69,15,89,209                        // mulps         %xmm9,%xmm10
   .byte  69,15,88,208                        // addps         %xmm8,%xmm10
   .byte  69,15,89,209                        // mulps         %xmm9,%xmm10
-  .byte  68,15,88,21,218,16,0,0              // addps         0x10da(%rip),%xmm10        # 4dd0 <_sk_callback_sse2+0xf74>
+  .byte  68,15,88,21,210,17,0,0              // addps         0x11d2(%rip),%xmm10        # 5780 <_sk_callback_sse2+0x106c>
   .byte  68,15,17,144,128,0,0,0              // movups        %xmm10,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -27651,11 +30599,11 @@ _sk_bicubic_p3x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,0                             // movups        (%rax),%xmm0
   .byte  68,15,16,64,64                      // movups        0x40(%rax),%xmm8
-  .byte  15,88,5,205,16,0,0                  // addps         0x10cd(%rip),%xmm0        # 4de0 <_sk_callback_sse2+0xf84>
+  .byte  15,88,5,197,17,0,0                  // addps         0x11c5(%rip),%xmm0        # 5790 <_sk_callback_sse2+0x107c>
   .byte  69,15,40,200                        // movaps        %xmm8,%xmm9
   .byte  69,15,89,201                        // mulps         %xmm9,%xmm9
-  .byte  68,15,89,5,205,16,0,0               // mulps         0x10cd(%rip),%xmm8        # 4df0 <_sk_callback_sse2+0xf94>
-  .byte  68,15,88,5,213,16,0,0               // addps         0x10d5(%rip),%xmm8        # 4e00 <_sk_callback_sse2+0xfa4>
+  .byte  68,15,89,5,197,17,0,0               // mulps         0x11c5(%rip),%xmm8        # 57a0 <_sk_callback_sse2+0x108c>
+  .byte  68,15,88,5,205,17,0,0               // addps         0x11cd(%rip),%xmm8        # 57b0 <_sk_callback_sse2+0x109c>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
   .byte  68,15,17,128,128,0,0,0              // movups        %xmm8,0x80(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -27668,13 +30616,13 @@ _sk_bicubic_n3y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,72,32                         // movups        0x20(%rax),%xmm1
   .byte  68,15,16,64,96                      // movups        0x60(%rax),%xmm8
-  .byte  15,88,13,195,16,0,0                 // addps         0x10c3(%rip),%xmm1        # 4e10 <_sk_callback_sse2+0xfb4>
-  .byte  68,15,40,13,203,16,0,0              // movaps        0x10cb(%rip),%xmm9        # 4e20 <_sk_callback_sse2+0xfc4>
+  .byte  15,88,13,187,17,0,0                 // addps         0x11bb(%rip),%xmm1        # 57c0 <_sk_callback_sse2+0x10ac>
+  .byte  68,15,40,13,195,17,0,0              // movaps        0x11c3(%rip),%xmm9        # 57d0 <_sk_callback_sse2+0x10bc>
   .byte  69,15,92,200                        // subps         %xmm8,%xmm9
   .byte  69,15,40,193                        // movaps        %xmm9,%xmm8
   .byte  69,15,89,192                        // mulps         %xmm8,%xmm8
-  .byte  68,15,89,13,199,16,0,0              // mulps         0x10c7(%rip),%xmm9        # 4e30 <_sk_callback_sse2+0xfd4>
-  .byte  68,15,88,13,207,16,0,0              // addps         0x10cf(%rip),%xmm9        # 4e40 <_sk_callback_sse2+0xfe4>
+  .byte  68,15,89,13,191,17,0,0              // mulps         0x11bf(%rip),%xmm9        # 57e0 <_sk_callback_sse2+0x10cc>
+  .byte  68,15,88,13,199,17,0,0              // addps         0x11c7(%rip),%xmm9        # 57f0 <_sk_callback_sse2+0x10dc>
   .byte  69,15,89,200                        // mulps         %xmm8,%xmm9
   .byte  68,15,17,136,160,0,0,0              // movups        %xmm9,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -27687,16 +30635,16 @@ _sk_bicubic_n1y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,72,32                         // movups        0x20(%rax),%xmm1
   .byte  68,15,16,64,96                      // movups        0x60(%rax),%xmm8
-  .byte  15,88,13,189,16,0,0                 // addps         0x10bd(%rip),%xmm1        # 4e50 <_sk_callback_sse2+0xff4>
-  .byte  68,15,40,13,197,16,0,0              // movaps        0x10c5(%rip),%xmm9        # 4e60 <_sk_callback_sse2+0x1004>
+  .byte  15,88,13,181,17,0,0                 // addps         0x11b5(%rip),%xmm1        # 5800 <_sk_callback_sse2+0x10ec>
+  .byte  68,15,40,13,189,17,0,0              // movaps        0x11bd(%rip),%xmm9        # 5810 <_sk_callback_sse2+0x10fc>
   .byte  69,15,92,200                        // subps         %xmm8,%xmm9
-  .byte  68,15,40,5,201,16,0,0               // movaps        0x10c9(%rip),%xmm8        # 4e70 <_sk_callback_sse2+0x1014>
+  .byte  68,15,40,5,193,17,0,0               // movaps        0x11c1(%rip),%xmm8        # 5820 <_sk_callback_sse2+0x110c>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
-  .byte  68,15,88,5,205,16,0,0               // addps         0x10cd(%rip),%xmm8        # 4e80 <_sk_callback_sse2+0x1024>
+  .byte  68,15,88,5,197,17,0,0               // addps         0x11c5(%rip),%xmm8        # 5830 <_sk_callback_sse2+0x111c>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
-  .byte  68,15,88,5,209,16,0,0               // addps         0x10d1(%rip),%xmm8        # 4e90 <_sk_callback_sse2+0x1034>
+  .byte  68,15,88,5,201,17,0,0               // addps         0x11c9(%rip),%xmm8        # 5840 <_sk_callback_sse2+0x112c>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
-  .byte  68,15,88,5,213,16,0,0               // addps         0x10d5(%rip),%xmm8        # 4ea0 <_sk_callback_sse2+0x1044>
+  .byte  68,15,88,5,205,17,0,0               // addps         0x11cd(%rip),%xmm8        # 5850 <_sk_callback_sse2+0x113c>
   .byte  68,15,17,128,160,0,0,0              // movups        %xmm8,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -27706,17 +30654,17 @@ HIDDEN _sk_bicubic_p1y_sse2
 FUNCTION(_sk_bicubic_p1y_sse2)
 _sk_bicubic_p1y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  68,15,40,5,207,16,0,0               // movaps        0x10cf(%rip),%xmm8        # 4eb0 <_sk_callback_sse2+0x1054>
+  .byte  68,15,40,5,199,17,0,0               // movaps        0x11c7(%rip),%xmm8        # 5860 <_sk_callback_sse2+0x114c>
   .byte  15,16,72,32                         // movups        0x20(%rax),%xmm1
   .byte  68,15,16,72,96                      // movups        0x60(%rax),%xmm9
   .byte  65,15,88,200                        // addps         %xmm8,%xmm1
-  .byte  68,15,40,21,202,16,0,0              // movaps        0x10ca(%rip),%xmm10        # 4ec0 <_sk_callback_sse2+0x1064>
+  .byte  68,15,40,21,194,17,0,0              // movaps        0x11c2(%rip),%xmm10        # 5870 <_sk_callback_sse2+0x115c>
   .byte  69,15,89,209                        // mulps         %xmm9,%xmm10
-  .byte  68,15,88,21,206,16,0,0              // addps         0x10ce(%rip),%xmm10        # 4ed0 <_sk_callback_sse2+0x1074>
+  .byte  68,15,88,21,198,17,0,0              // addps         0x11c6(%rip),%xmm10        # 5880 <_sk_callback_sse2+0x116c>
   .byte  69,15,89,209                        // mulps         %xmm9,%xmm10
   .byte  69,15,88,208                        // addps         %xmm8,%xmm10
   .byte  69,15,89,209                        // mulps         %xmm9,%xmm10
-  .byte  68,15,88,21,202,16,0,0              // addps         0x10ca(%rip),%xmm10        # 4ee0 <_sk_callback_sse2+0x1084>
+  .byte  68,15,88,21,194,17,0,0              // addps         0x11c2(%rip),%xmm10        # 5890 <_sk_callback_sse2+0x117c>
   .byte  68,15,17,144,160,0,0,0              // movups        %xmm10,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -27728,11 +30676,11 @@ _sk_bicubic_p3y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,72,32                         // movups        0x20(%rax),%xmm1
   .byte  68,15,16,64,96                      // movups        0x60(%rax),%xmm8
-  .byte  15,88,13,188,16,0,0                 // addps         0x10bc(%rip),%xmm1        # 4ef0 <_sk_callback_sse2+0x1094>
+  .byte  15,88,13,180,17,0,0                 // addps         0x11b4(%rip),%xmm1        # 58a0 <_sk_callback_sse2+0x118c>
   .byte  69,15,40,200                        // movaps        %xmm8,%xmm9
   .byte  69,15,89,201                        // mulps         %xmm9,%xmm9
-  .byte  68,15,89,5,188,16,0,0               // mulps         0x10bc(%rip),%xmm8        # 4f00 <_sk_callback_sse2+0x10a4>
-  .byte  68,15,88,5,196,16,0,0               // addps         0x10c4(%rip),%xmm8        # 4f10 <_sk_callback_sse2+0x10b4>
+  .byte  68,15,89,5,180,17,0,0               // mulps         0x11b4(%rip),%xmm8        # 58b0 <_sk_callback_sse2+0x119c>
+  .byte  68,15,88,5,188,17,0,0               // addps         0x11bc(%rip),%xmm8        # 58c0 <_sk_callback_sse2+0x11ac>
   .byte  69,15,89,193                        // mulps         %xmm9,%xmm8
   .byte  68,15,17,128,160,0,0,0              // movups        %xmm8,0xa0(%rax)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -27951,11 +30899,135 @@ BALIGN16
   .byte  128,191,0,0,128,191,0               // cmpb          $0x0,-0x40800000(%rdi)
   .byte  0,224                               // add           %ah,%al
   .byte  64,0,0                              // add           %al,(%rax)
-  .byte  224,64                              // loopne        4118 <.literal16+0x1d8>
+  .byte  224,64                              // loopne        49c8 <.literal16+0x1d8>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,64                              // loopne        411c <.literal16+0x1dc>
+  .byte  224,64                              // loopne        49cc <.literal16+0x1dc>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,64                              // loopne        4120 <.literal16+0x1e0>
+  .byte  224,64                              // loopne        49d0 <.literal16+0x1e0>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
+  .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
+  .byte  63                                  // (bad)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,61                   // ds            cmp $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  61,10,23,63,61                      // cmp           $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4a01 <.literal16+0x211>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4a05 <.literal16+0x215>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4a09 <.literal16+0x219>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4a0d <.literal16+0x21d>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
+  .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
+  .byte  63                                  // (bad)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,61                   // ds            cmp $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  61,10,23,63,61                      // cmp           $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4a41 <.literal16+0x251>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4a45 <.literal16+0x255>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4a49 <.literal16+0x259>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4a4d <.literal16+0x25d>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
+  .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
+  .byte  63                                  // (bad)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,61                   // ds            cmp $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  61,10,23,63,61                      // cmp           $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4a81 <.literal16+0x291>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4a85 <.literal16+0x295>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4a89 <.literal16+0x299>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4a8d <.literal16+0x29d>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
+  .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
+  .byte  63                                  // (bad)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,154                          // cmpb          $0x9a,(%rdi)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,154                              // ds            (bad)
+  .byte  153                                 // cltd
+  .byte  153                                 // cltd
+  .byte  62,61,10,23,63,61                   // ds            cmp $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  61,10,23,63,61                      // cmp           $0x3d3f170a,%eax
+  .byte  10,23                               // or            (%rdi),%dl
+  .byte  63                                  // (bad)
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4ac1 <.literal16+0x2d1>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4ac5 <.literal16+0x2d5>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4ac9 <.literal16+0x2d9>
+  .byte  174                                 // scas          %es:(%rdi),%al
+  .byte  71,225,61                           // rex.RXB       loope 4acd <.literal16+0x2dd>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
@@ -28179,13 +31251,13 @@ BALIGN16
   .byte  132,55                              // test          %dh,(%rdi)
   .byte  8,33                                // or            %ah,(%rcx)
   .byte  132,55                              // test          %dh,(%rdi)
-  .byte  224,7                               // loopne        42e9 <.literal16+0x3a9>
+  .byte  224,7                               // loopne        4c99 <.literal16+0x4a9>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        42ed <.literal16+0x3ad>
+  .byte  224,7                               // loopne        4c9d <.literal16+0x4ad>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        42f1 <.literal16+0x3b1>
+  .byte  224,7                               // loopne        4ca1 <.literal16+0x4b1>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        42f5 <.literal16+0x3b5>
+  .byte  224,7                               // loopne        4ca5 <.literal16+0x4b5>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  33,8                                // and           %ecx,(%rax)
   .byte  2,58                                // add           (%rdx),%bh
@@ -28254,11 +31326,11 @@ BALIGN16
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,127,67                            // add           %bh,0x43(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            43db <.literal16+0x49b>
+  .byte  127,67                              // jg            4d8b <.literal16+0x59b>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            43df <.literal16+0x49f>
+  .byte  127,67                              // jg            4d8f <.literal16+0x59f>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            43e3 <.literal16+0x4a3>
+  .byte  127,67                              // jg            4d93 <.literal16+0x5a3>
   .byte  129,128,128,59,129,128,128,59,129,128// addl          $0x80813b80,-0x7f7ec480(%rax)
   .byte  128,59,129                          // cmpb          $0x81,(%rbx)
   .byte  128,128,59,129,128,128,59           // addb          $0x3b,-0x7f7f7ec5(%rax)
@@ -28273,16 +31345,16 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            43d4 <.literal16+0x494>
+  .byte  127,0                               // jg            4d84 <.literal16+0x594>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            43d8 <.literal16+0x498>
+  .byte  127,0                               // jg            4d88 <.literal16+0x598>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            43dc <.literal16+0x49c>
+  .byte  127,0                               // jg            4d8c <.literal16+0x59c>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            43e0 <.literal16+0x4a0>
+  .byte  127,0                               // jg            4d90 <.literal16+0x5a0>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
@@ -28291,7 +31363,7 @@ BALIGN16
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            4465 <.literal16+0x525>
+  .byte  119,115                             // ja            4e15 <.literal16+0x625>
   .byte  248                                 // clc
   .byte  194,119,115                         // retq          $0x7377
   .byte  248                                 // clc
@@ -28302,7 +31374,7 @@ BALIGN16
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
-  .byte  117,191                             // jne           43c9 <.literal16+0x489>
+  .byte  117,191                             // jne           4d79 <.literal16+0x589>
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
   .byte  249                                 // stc
@@ -28314,7 +31386,7 @@ BALIGN16
   .byte  249                                 // stc
   .byte  68,180,62                           // rex.R         mov $0x3e,%spl
   .byte  163,233,220,63,163,233,220,63,163   // movabs        %eax,0xa33fdce9a33fdce9
-  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a3840a <_sk_callback_sse2+0xffffffffe9a345ae>
+  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a38dba <_sk_callback_sse2+0xffffffffe9a346a6>
   .byte  220,63                              // fdivrl        (%rdi)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
@@ -28368,16 +31440,16 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            44a4 <.literal16+0x564>
+  .byte  127,0                               // jg            4e54 <.literal16+0x664>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            44a8 <.literal16+0x568>
+  .byte  127,0                               // jg            4e58 <.literal16+0x668>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            44ac <.literal16+0x56c>
+  .byte  127,0                               // jg            4e5c <.literal16+0x66c>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            44b0 <.literal16+0x570>
+  .byte  127,0                               // jg            4e60 <.literal16+0x670>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
@@ -28386,7 +31458,7 @@ BALIGN16
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            4535 <.literal16+0x5f5>
+  .byte  119,115                             // ja            4ee5 <.literal16+0x6f5>
   .byte  248                                 // clc
   .byte  194,119,115                         // retq          $0x7377
   .byte  248                                 // clc
@@ -28397,7 +31469,7 @@ BALIGN16
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
-  .byte  117,191                             // jne           4499 <.literal16+0x559>
+  .byte  117,191                             // jne           4e49 <.literal16+0x659>
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
   .byte  249                                 // stc
@@ -28409,7 +31481,7 @@ BALIGN16
   .byte  249                                 // stc
   .byte  68,180,62                           // rex.R         mov $0x3e,%spl
   .byte  163,233,220,63,163,233,220,63,163   // movabs        %eax,0xa33fdce9a33fdce9
-  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a384da <_sk_callback_sse2+0xffffffffe9a3467e>
+  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a38e8a <_sk_callback_sse2+0xffffffffe9a34776>
   .byte  220,63                              // fdivrl        (%rdi)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
@@ -28463,16 +31535,16 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4574 <.literal16+0x634>
+  .byte  127,0                               // jg            4f24 <.literal16+0x734>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4578 <.literal16+0x638>
+  .byte  127,0                               // jg            4f28 <.literal16+0x738>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            457c <.literal16+0x63c>
+  .byte  127,0                               // jg            4f2c <.literal16+0x73c>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4580 <.literal16+0x640>
+  .byte  127,0                               // jg            4f30 <.literal16+0x740>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
@@ -28481,7 +31553,7 @@ BALIGN16
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            4605 <.literal16+0x6c5>
+  .byte  119,115                             // ja            4fb5 <.literal16+0x7c5>
   .byte  248                                 // clc
   .byte  194,119,115                         // retq          $0x7377
   .byte  248                                 // clc
@@ -28492,7 +31564,7 @@ BALIGN16
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
-  .byte  117,191                             // jne           4569 <.literal16+0x629>
+  .byte  117,191                             // jne           4f19 <.literal16+0x729>
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
   .byte  249                                 // stc
@@ -28504,7 +31576,7 @@ BALIGN16
   .byte  249                                 // stc
   .byte  68,180,62                           // rex.R         mov $0x3e,%spl
   .byte  163,233,220,63,163,233,220,63,163   // movabs        %eax,0xa33fdce9a33fdce9
-  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a385aa <_sk_callback_sse2+0xffffffffe9a3474e>
+  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a38f5a <_sk_callback_sse2+0xffffffffe9a34846>
   .byte  220,63                              // fdivrl        (%rdi)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
@@ -28558,16 +31630,16 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  52,255                              // xor           $0xff,%al
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4644 <.literal16+0x704>
+  .byte  127,0                               // jg            4ff4 <.literal16+0x804>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4648 <.literal16+0x708>
+  .byte  127,0                               // jg            4ff8 <.literal16+0x808>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            464c <.literal16+0x70c>
+  .byte  127,0                               // jg            4ffc <.literal16+0x80c>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  127,0                               // jg            4650 <.literal16+0x710>
+  .byte  127,0                               // jg            5000 <.literal16+0x810>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
@@ -28576,7 +31648,7 @@ BALIGN16
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
-  .byte  119,115                             // ja            46d5 <.literal16+0x795>
+  .byte  119,115                             // ja            5085 <.literal16+0x895>
   .byte  248                                 // clc
   .byte  194,119,115                         // retq          $0x7377
   .byte  248                                 // clc
@@ -28587,7 +31659,7 @@ BALIGN16
   .byte  194,117,191                         // retq          $0xbf75
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
-  .byte  117,191                             // jne           4639 <.literal16+0x6f9>
+  .byte  117,191                             // jne           4fe9 <.literal16+0x7f9>
   .byte  191,63,117,191,191                  // mov           $0xbfbf753f,%edi
   .byte  63                                  // (bad)
   .byte  249                                 // stc
@@ -28599,7 +31671,7 @@ BALIGN16
   .byte  249                                 // stc
   .byte  68,180,62                           // rex.R         mov $0x3e,%spl
   .byte  163,233,220,63,163,233,220,63,163   // movabs        %eax,0xa33fdce9a33fdce9
-  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a3867a <_sk_callback_sse2+0xffffffffe9a3481e>
+  .byte  233,220,63,163,233                  // jmpq          ffffffffe9a3902a <_sk_callback_sse2+0xffffffffe9a34916>
   .byte  220,63                              // fdivrl        (%rdi)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
@@ -28649,13 +31721,13 @@ BALIGN16
   .byte  200,66,0,0                          // enterq        $0x42,$0x0
   .byte  200,66,0,0                          // enterq        $0x42,$0x0
   .byte  200,66,0,0                          // enterq        $0x42,$0x0
-  .byte  127,67                              // jg            4757 <.literal16+0x817>
+  .byte  127,67                              // jg            5107 <.literal16+0x917>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            475b <.literal16+0x81b>
+  .byte  127,67                              // jg            510b <.literal16+0x91b>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            475f <.literal16+0x81f>
+  .byte  127,67                              // jg            510f <.literal16+0x91f>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            4763 <.literal16+0x823>
+  .byte  127,67                              // jg            5113 <.literal16+0x923>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,195                               // add           %al,%bl
   .byte  0,0                                 // add           %al,(%rax)
@@ -28702,16 +31774,16 @@ BALIGN16
   .byte  128,3,62                            // addb          $0x3e,(%rbx)
   .byte  31                                  // (bad)
   .byte  215                                 // xlat          %ds:(%rbx)
-  .byte  118,63                              // jbe           47e3 <.literal16+0x8a3>
+  .byte  118,63                              // jbe           5193 <.literal16+0x9a3>
   .byte  31                                  // (bad)
   .byte  215                                 // xlat          %ds:(%rbx)
-  .byte  118,63                              // jbe           47e7 <.literal16+0x8a7>
+  .byte  118,63                              // jbe           5197 <.literal16+0x9a7>
   .byte  31                                  // (bad)
   .byte  215                                 // xlat          %ds:(%rbx)
-  .byte  118,63                              // jbe           47eb <.literal16+0x8ab>
+  .byte  118,63                              // jbe           519b <.literal16+0x9ab>
   .byte  31                                  // (bad)
   .byte  215                                 // xlat          %ds:(%rbx)
-  .byte  118,63                              // jbe           47ef <.literal16+0x8af>
+  .byte  118,63                              // jbe           519f <.literal16+0x9af>
   .byte  246,64,83,63                        // testb         $0x3f,0x53(%rax)
   .byte  246,64,83,63                        // testb         $0x3f,0x53(%rax)
   .byte  246,64,83,63                        // testb         $0x3f,0x53(%rax)
@@ -28723,11 +31795,11 @@ BALIGN16
   .byte  128,59,0                            // cmpb          $0x0,(%rbx)
   .byte  0,127,67                            // add           %bh,0x43(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            482b <.literal16+0x8eb>
+  .byte  127,67                              // jg            51db <.literal16+0x9eb>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            482f <.literal16+0x8ef>
+  .byte  127,67                              // jg            51df <.literal16+0x9ef>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            4833 <.literal16+0x8f3>
+  .byte  127,67                              // jg            51e3 <.literal16+0x9f3>
   .byte  129,128,128,59,129,128,128,59,129,128// addl          $0x80813b80,-0x7f7ec480(%rax)
   .byte  128,59,129                          // cmpb          $0x81,(%rbx)
   .byte  128,128,59,0,0,128,63               // addb          $0x3f,-0x7fffffc5(%rax)
@@ -28767,65 +31839,13 @@ BALIGN16
   .byte  132,55                              // test          %dh,(%rdi)
   .byte  8,33                                // or            %ah,(%rcx)
   .byte  132,55                              // test          %dh,(%rdi)
-  .byte  224,7                               // loopne        4879 <.literal16+0x939>
+  .byte  224,7                               // loopne        5229 <.literal16+0xa39>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        487d <.literal16+0x93d>
+  .byte  224,7                               // loopne        522d <.literal16+0xa3d>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        4881 <.literal16+0x941>
+  .byte  224,7                               // loopne        5231 <.literal16+0xa41>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        4885 <.literal16+0x945>
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  33,8                                // and           %ecx,(%rax)
-  .byte  2,58                                // add           (%rdx),%bh
-  .byte  33,8                                // and           %ecx,(%rax)
-  .byte  2,58                                // add           (%rdx),%bh
-  .byte  33,8                                // and           %ecx,(%rax)
-  .byte  2,58                                // add           (%rdx),%bh
-  .byte  33,8                                // and           %ecx,(%rax)
-  .byte  2,58                                // add           (%rdx),%bh
-  .byte  31                                  // (bad)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,31                                // add           %bl,(%rdi)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,31                                // add           %bl,(%rdi)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,31                                // add           %bl,(%rdi)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,8                                 // add           %cl,(%rax)
-  .byte  33,4,61,8,33,4,61                   // and           %eax,0x3d042108(,%rdi,1)
-  .byte  8,33                                // or            %ah,(%rcx)
-  .byte  4,61                                // add           $0x3d,%al
-  .byte  8,33                                // or            %ah,(%rcx)
-  .byte  4,61                                // add           $0x3d,%al
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
-  .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
-  .byte  63                                  // (bad)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
-  .byte  248                                 // clc
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,248                               // add           %bh,%al
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,248                               // add           %bh,%al
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,248                               // add           %bh,%al
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  8,33                                // or            %ah,(%rcx)
-  .byte  132,55                              // test          %dh,(%rdi)
-  .byte  8,33                                // or            %ah,(%rcx)
-  .byte  132,55                              // test          %dh,(%rdi)
-  .byte  8,33                                // or            %ah,(%rcx)
-  .byte  132,55                              // test          %dh,(%rdi)
-  .byte  8,33                                // or            %ah,(%rcx)
-  .byte  132,55                              // test          %dh,(%rdi)
-  .byte  224,7                               // loopne        48e9 <.literal16+0x9a9>
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        48ed <.literal16+0x9ad>
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        48f1 <.literal16+0x9b1>
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  224,7                               // loopne        48f5 <.literal16+0x9b5>
+  .byte  224,7                               // loopne        5235 <.literal16+0xa45>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  33,8                                // and           %ecx,(%rax)
   .byte  2,58                                // add           (%rdx),%bh
@@ -28855,6 +31875,58 @@ BALIGN16
   .byte  63                                  // (bad)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
+  .byte  248                                 // clc
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,248                               // add           %bh,%al
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,248                               // add           %bh,%al
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,248                               // add           %bh,%al
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  8,33                                // or            %ah,(%rcx)
+  .byte  132,55                              // test          %dh,(%rdi)
+  .byte  8,33                                // or            %ah,(%rcx)
+  .byte  132,55                              // test          %dh,(%rdi)
+  .byte  8,33                                // or            %ah,(%rcx)
+  .byte  132,55                              // test          %dh,(%rdi)
+  .byte  8,33                                // or            %ah,(%rcx)
+  .byte  132,55                              // test          %dh,(%rdi)
+  .byte  224,7                               // loopne        5299 <.literal16+0xaa9>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  224,7                               // loopne        529d <.literal16+0xaad>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  224,7                               // loopne        52a1 <.literal16+0xab1>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  224,7                               // loopne        52a5 <.literal16+0xab5>
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  33,8                                // and           %ecx,(%rax)
+  .byte  2,58                                // add           (%rdx),%bh
+  .byte  33,8                                // and           %ecx,(%rax)
+  .byte  2,58                                // add           (%rdx),%bh
+  .byte  33,8                                // and           %ecx,(%rax)
+  .byte  2,58                                // add           (%rdx),%bh
+  .byte  33,8                                // and           %ecx,(%rax)
+  .byte  2,58                                // add           (%rdx),%bh
+  .byte  31                                  // (bad)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,31                                // add           %bl,(%rdi)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,31                                // add           %bl,(%rdi)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,31                                // add           %bl,(%rdi)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  0,8                                 // add           %cl,(%rax)
+  .byte  33,4,61,8,33,4,61                   // and           %eax,0x3d042108(,%rdi,1)
+  .byte  8,33                                // or            %ah,(%rcx)
+  .byte  4,61                                // add           $0x3d,%al
+  .byte  8,33                                // or            %ah,(%rcx)
+  .byte  4,61                                // add           $0x3d,%al
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
+  .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
+  .byte  63                                  // (bad)
+  .byte  0,0                                 // add           %al,(%rax)
+  .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,248                               // add           %bh,%al
   .byte  65,0,0                              // add           %al,(%r8)
   .byte  248                                 // clc
@@ -28863,13 +31935,13 @@ BALIGN16
   .byte  65,0,0                              // add           %al,(%r8)
   .byte  248                                 // clc
   .byte  65,0,0                              // add           %al,(%r8)
-  .byte  124,66                              // jl            4986 <.literal16+0xa46>
+  .byte  124,66                              // jl            5336 <.literal16+0xb46>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  124,66                              // jl            498a <.literal16+0xa4a>
+  .byte  124,66                              // jl            533a <.literal16+0xb4a>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  124,66                              // jl            498e <.literal16+0xa4e>
+  .byte  124,66                              // jl            533e <.literal16+0xb4e>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  124,66                              // jl            4992 <.literal16+0xa52>
+  .byte  124,66                              // jl            5342 <.literal16+0xb52>
   .byte  0,240                               // add           %dh,%al
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,240                               // add           %dh,%al
@@ -28959,13 +32031,13 @@ BALIGN16
   .byte  136,136,61,137,136,136              // mov           %cl,-0x777776c3(%rax)
   .byte  61,137,136,136,61                   // cmp           $0x3d888889,%eax
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  112,65                              // jo            4a95 <.literal16+0xb55>
+  .byte  112,65                              // jo            5445 <.literal16+0xc55>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  112,65                              // jo            4a99 <.literal16+0xb59>
+  .byte  112,65                              // jo            5449 <.literal16+0xc59>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  112,65                              // jo            4a9d <.literal16+0xb5d>
+  .byte  112,65                              // jo            544d <.literal16+0xc5d>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  112,65                              // jo            4aa1 <.literal16+0xb61>
+  .byte  112,65                              // jo            5451 <.literal16+0xc61>
   .byte  255,0                               // incl          (%rax)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  255,0                               // incl          (%rax)
@@ -28987,11 +32059,11 @@ BALIGN16
   .byte  128,59,129                          // cmpb          $0x81,(%rbx)
   .byte  128,128,59,0,0,127,67               // addb          $0x43,0x7f00003b(%rax)
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            4aeb <.literal16+0xbab>
+  .byte  127,67                              // jg            549b <.literal16+0xcab>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            4aef <.literal16+0xbaf>
+  .byte  127,67                              // jg            549f <.literal16+0xcaf>
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  127,67                              // jg            4af3 <.literal16+0xbb3>
+  .byte  127,67                              // jg            54a3 <.literal16+0xcb3>
   .byte  0,128,0,0,0,128                     // add           %al,-0x80000000(%rax)
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,128,0,0,0,128                     // add           %al,-0x80000000(%rax)
@@ -29067,13 +32139,13 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  255                                 // (bad)
-  .byte  127,71                              // jg            4bdb <.literal16+0xc9b>
+  .byte  127,71                              // jg            558b <.literal16+0xd9b>
   .byte  0,255                               // add           %bh,%bh
-  .byte  127,71                              // jg            4bdf <.literal16+0xc9f>
+  .byte  127,71                              // jg            558f <.literal16+0xd9f>
   .byte  0,255                               // add           %bh,%bh
-  .byte  127,71                              // jg            4be3 <.literal16+0xca3>
+  .byte  127,71                              // jg            5593 <.literal16+0xda3>
   .byte  0,255                               // add           %bh,%bh
-  .byte  127,71                              // jg            4be7 <.literal16+0xca7>
+  .byte  127,71                              // jg            5597 <.literal16+0xda7>
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,0                            // cmpb          $0x0,(%rdi)
   .byte  0,128,63,0,0,128                    // add           %al,-0x7fffffc1(%rax)
@@ -29226,11 +32298,11 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,114                          // cmpb          $0x72,(%rdi)
   .byte  28,199                              // sbb           $0xc7,%al
-  .byte  62,114,28                           // jb,pt         4d42 <.literal16+0xe02>
+  .byte  62,114,28                           // jb,pt         56f2 <.literal16+0xf02>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         4d46 <.literal16+0xe06>
+  .byte  62,114,28                           // jb,pt         56f6 <.literal16+0xf06>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         4d4a <.literal16+0xe0a>
+  .byte  62,114,28                           // jb,pt         56fa <.literal16+0xf0a>
   .byte  199                                 // (bad)
   .byte  62,171                              // ds            stos %eax,%es:(%rdi)
   .byte  170                                 // stos          %al,%es:(%rdi)
@@ -29274,7 +32346,7 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  57,142,99,61,57,142                 // cmp           %ecx,-0x71c6c29d(%rsi)
-  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63dbd5 <_sk_callback_sse2+0x3d639d79>
+  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63e585 <_sk_callback_sse2+0x3d639e71>
   .byte  57,142,99,61,0,0                    // cmp           %ecx,0x3d63(%rsi)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
@@ -29300,7 +32372,7 @@ BALIGN16
   .byte  0,192                               // add           %al,%al
   .byte  63                                  // (bad)
   .byte  57,142,99,61,57,142                 // cmp           %ecx,-0x71c6c29d(%rsi)
-  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63dc15 <_sk_callback_sse2+0x3d639db9>
+  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63e5c5 <_sk_callback_sse2+0x3d639eb1>
   .byte  57,142,99,61,0,0                    // cmp           %ecx,0x3d63(%rsi)
   .byte  192,63,0                            // sarb          $0x0,(%rdi)
   .byte  0,192                               // add           %al,%al
@@ -29309,13 +32381,13 @@ BALIGN16
   .byte  192,63,0                            // sarb          $0x0,(%rdi)
   .byte  0,192                               // add           %al,%al
   .byte  63                                  // (bad)
-  .byte  114,28                              // jb            4e0e <.literal16+0xece>
+  .byte  114,28                              // jb            57be <.literal16+0xfce>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         4e12 <.literal16+0xed2>
+  .byte  62,114,28                           // jb,pt         57c2 <.literal16+0xfd2>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         4e16 <.literal16+0xed6>
+  .byte  62,114,28                           // jb,pt         57c6 <.literal16+0xfd6>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         4e1a <.literal16+0xeda>
+  .byte  62,114,28                           // jb,pt         57ca <.literal16+0xfda>
   .byte  199                                 // (bad)
   .byte  62,171                              // ds            stos %eax,%es:(%rdi)
   .byte  170                                 // stos          %al,%es:(%rdi)
@@ -29336,11 +32408,11 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  128,63,114                          // cmpb          $0x72,(%rdi)
   .byte  28,199                              // sbb           $0xc7,%al
-  .byte  62,114,28                           // jb,pt         4e52 <.literal16+0xf12>
+  .byte  62,114,28                           // jb,pt         5802 <.literal16+0x1012>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         4e56 <.literal16+0xf16>
+  .byte  62,114,28                           // jb,pt         5806 <.literal16+0x1016>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         4e5a <.literal16+0xf1a>
+  .byte  62,114,28                           // jb,pt         580a <.literal16+0x101a>
   .byte  199                                 // (bad)
   .byte  62,171                              // ds            stos %eax,%es:(%rdi)
   .byte  170                                 // stos          %al,%es:(%rdi)
@@ -29384,7 +32456,7 @@ BALIGN16
   .byte  0,0                                 // add           %al,(%rax)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  57,142,99,61,57,142                 // cmp           %ecx,-0x71c6c29d(%rsi)
-  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63dce5 <_sk_callback_sse2+0x3d639e89>
+  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63e695 <_sk_callback_sse2+0x3d639f81>
   .byte  57,142,99,61,0,0                    // cmp           %ecx,0x3d63(%rsi)
   .byte  0,63                                // add           %bh,(%rdi)
   .byte  0,0                                 // add           %al,(%rax)
@@ -29410,7 +32482,7 @@ BALIGN16
   .byte  0,192                               // add           %al,%al
   .byte  63                                  // (bad)
   .byte  57,142,99,61,57,142                 // cmp           %ecx,-0x71c6c29d(%rsi)
-  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63dd25 <_sk_callback_sse2+0x3d639ec9>
+  .byte  99,61,57,142,99,61                  // movslq        0x3d638e39(%rip),%edi        # 3d63e6d5 <_sk_callback_sse2+0x3d639fc1>
   .byte  57,142,99,61,0,0                    // cmp           %ecx,0x3d63(%rsi)
   .byte  192,63,0                            // sarb          $0x0,(%rdi)
   .byte  0,192                               // add           %al,%al
@@ -29419,13 +32491,13 @@ BALIGN16
   .byte  192,63,0                            // sarb          $0x0,(%rdi)
   .byte  0,192                               // add           %al,%al
   .byte  63                                  // (bad)
-  .byte  114,28                              // jb            4f1e <.literal16+0xfde>
+  .byte  114,28                              // jb            58ce <.literal16+0x10de>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         4f22 <_sk_callback_sse2+0x10c6>
+  .byte  62,114,28                           // jb,pt         58d2 <_sk_callback_sse2+0x11be>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         4f26 <_sk_callback_sse2+0x10ca>
+  .byte  62,114,28                           // jb,pt         58d6 <_sk_callback_sse2+0x11c2>
   .byte  199                                 // (bad)
-  .byte  62,114,28                           // jb,pt         4f2a <_sk_callback_sse2+0x10ce>
+  .byte  62,114,28                           // jb,pt         58da <_sk_callback_sse2+0x11c6>
   .byte  199                                 // (bad)
   .byte  62,171                              // ds            stos %eax,%es:(%rdi)
   .byte  170                                 // stos          %al,%es:(%rdi)
