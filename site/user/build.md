@@ -133,15 +133,17 @@ you'll want to have a read through go/appledev.
 Windows
 -------
 
-Skia can build on Windows with Visual Studio 2015 Update 3.  No older or newer
-version is supported. The bots use a packaged toolchain, which you may be able
-to download like this:
+Skia can build on Windows with Visual Studio 2015 Update 3, or Visual Studio
+2017 by setting `msvc = 2017` in GN.  No older versions are supported. The bots
+use a packaged 2015 toolchain, which Googlers can download like this:
 
     python infra/bots/assets/win_toolchain/download.py -t C:/toolchain
 
 If you pass that downloaded path to GN via `windk`, you can build using that
 toolchain instead of your own from Visual Studio.  This toolchain is the only
-way we support 32-bit builds, by also setting `target_cpu="x86"`.
+way we support 32-bit builds with 2015, by also setting `target_cpu="x86"`.
+32-bit builds should work with the default 2017 install if you follow the
+directions GN prints to set up your environment.
 
 ### Visual Studio Solutions
 
