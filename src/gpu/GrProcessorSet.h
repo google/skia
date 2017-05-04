@@ -12,9 +12,9 @@
 #include "GrPaint.h"
 #include "GrProcessorAnalysis.h"
 #include "SkTemplates.h"
+#include "GrXferProcessor.h"
 
 class GrAppliedClip;
-class GrXferProcessor;
 class GrXPFactory;
 
 class GrProcessorSet : private SkNoncopyable {
