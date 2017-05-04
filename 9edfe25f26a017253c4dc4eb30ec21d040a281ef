@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15208a69_dbec480c",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-04T13:23:33Z",
+      "side": 1,
+      "message": "Isn\u0027t this the same dst info we looked at in Create()?  If so, can we move this logic there and leave append_store const?",
+      "range": {
+        "startLine": 206,
+        "startChar": 16,
+        "endLine": 206,
+        "endChar": 25
+      },
+      "revId": "9edfe25f26a017253c4dc4eb30ec21d040a281ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
