@@ -352,13 +352,13 @@ bool SkGradientShaderBase::onAppendStages(
     const SkMatrix& ctm, const SkPaint& paint,
     const SkMatrix* localM) const
 {
-    // Local matrix not supported currently.  Remove once we have a generic RP wrapper.
-    if (localM || !getLocalMatrix().isIdentity()) {
-        return false;
-    }
-
     SkMatrix matrix;
-    if (!ctm.invert(&matrix)) {
+    if (!this->computeTotalInverse(ContextRec(paint,
+                                              ctm,
+                                              localM,
+                                              ContextRec::kPM4f_DstType, // doesn't matter here
+                                              dstCS),
+                                   &matrix)) {
         return false;
     }
 
