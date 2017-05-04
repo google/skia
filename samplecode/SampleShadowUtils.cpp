@@ -44,14 +44,14 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fPaths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
-        SkRRect oddRRect;
-        oddRRect.setNinePatch(SkRect::MakeWH(50, 50), 9, 13, 6, 16);
-        fPaths.push_back().addRRect(oddRRect);
+        //fPaths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
+        //SkRRect oddRRect;
+        //oddRRect.setNinePatch(SkRect::MakeWH(50, 50), 9, 13, 6, 16);
+        //fPaths.push_back().addRRect(oddRRect);
         fPaths.push_back().addRect(SkRect::MakeWH(50, 50));
-        fPaths.push_back().addCircle(25, 25, 25);
-        fPaths.push_back().cubicTo(100, 50, 20, 100, 0, 0);
-        fPaths.push_back().addOval(SkRect::MakeWH(20, 60));
+        //fPaths.push_back().addCircle(25, 25, 25);
+        //fPaths.push_back().cubicTo(100, 50, 20, 100, 0, 0);
+        //fPaths.push_back().addOval(SkRect::MakeWH(20, 60));
     }
 
     // overrides from SkEventSink
@@ -166,9 +166,9 @@ protected:
         SkScalar dy = 0;
         SkTDArray<SkMatrix> matrices;
         matrices.push()->reset();
-        SkMatrix* m = matrices.push();
-        m->setRotate(33.f, 25.f, 25.f);
-        m->postScale(1.2f, 0.8f, 25.f, 25.f);
+        //SkMatrix* m = matrices.push();
+        //m->setRotate(33.f, 25.f, 25.f);
+        //m->postScale(1.2f, 0.8f, 25.f, 25.f);
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
         paint.setAntiAlias(true);
@@ -176,7 +176,7 @@ protected:
         std::function<SkScalar(SkScalar, SkScalar)> zFunc =
             [zValue](SkScalar, SkScalar) { return zValue; };
         for (auto& m : matrices) {
-            for (auto flags : { kNone_ShadowFlag, kTransparentOccluder_ShadowFlag }) {
+            for (auto flags : { kNone_ShadowFlag/*, kTransparentOccluder_ShadowFlag */ }) {
                 for (const auto& path : fPaths) {
                     SkRect postMBounds = path.getBounds();
                     m.mapRect(&postMBounds);

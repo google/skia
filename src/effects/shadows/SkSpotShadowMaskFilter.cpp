@@ -272,7 +272,8 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
                                                  comboScale*(rrect.rect().fBottom - r));
         lowerRightOffset += spotOffset;
 
-        SkScalar maxOffset = SkTMax(upperLeftOffset.length(), lowerRightOffset.length());
+        SkScalar maxOffset = SkTMax(upperLeftOffset.lengthSqd(), lowerRightOffset.lengthSqd());
+        maxOffset = SkScalarSqrt(maxOffset);
         maxOffset += comboScale*r;
         SkScalar insetAmount = maxOffset - (0.5f * srcSpaceSpotRadius);
         SkScalar strokeWidth = srcSpaceSpotRadius + insetAmount;
@@ -282,6 +283,7 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
 
         SkStrokeRec spotStrokeRec(SkStrokeRec::kFill_InitStyle);
         // If the caster has too large a stroke or is transparent, just fill it.
+        // TODO: Is it faster to let GrShadowRRectOp handle the strokedDiff check?
         if (strokedDiff < 0 || fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag) {
             spotStrokeRec.setStrokeStyle(srcSpaceSpotRadius, true);
         } else {

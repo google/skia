@@ -199,37 +199,35 @@ public:
         SkScalar innerRadius = 0.0f;
         SkScalar outerRadius = devRadius;
         SkScalar umbraInset;
+
+        RRectType type = kFill_RRectType;
+        SkScalar halfWidth = SkScalarHalf(blurRadius);
+        outerRadius += halfWidth;
+        halfWidth = SkScalarHalf(devStrokeWidth);
+        bounds.outset(halfWidth, halfWidth);
+
         if (isCircle) {
             umbraInset = 0;
+        } else if (devStrokeWidth > 0 && devStrokeWidth <= outerRadius) {
+            // If the client has requested a stroke smaller than the outer radius,
+            // we will assume they want no special umbra inset (this is for ambient shadows).
+            umbraInset = outerRadius;
         } else {
             umbraInset = SkTMax(outerRadius, blurRadius);
         }
 
-        RRectType type = kFill_RRectType;
-        if (devStrokeWidth > 0) {
-            SkScalar halfWidth = SkScalarHalf(devStrokeWidth);
-            outerRadius += halfWidth;
-            bounds.outset(halfWidth, halfWidth);
-
-            // If the client has requested a stroke smaller than the outer radius,
-            // we will assume they want no special umbra inset (this is for ambient shadows).
-            if (devStrokeWidth <= outerRadius) {
-                umbraInset = outerRadius;
-            }
-
-            if (strokeOnly) {
-                // If stroke is greater than width or height, this is still a fill,
-                // otherwise we compute stroke params.
-                if (isCircle) {
-                    innerRadius = devRadius - halfWidth;
-                    type = innerRadius > 0 ? kStroke_RRectType : kFill_RRectType;
-                } else {
-                    if (devStrokeWidth <= devRect.width() && devStrokeWidth <= devRect.height()) {
-                        // We don't worry about a real inner radius, we just need to know if we
-                        // need to create overstroke vertices.
-                        innerRadius = SkTMax(devStrokeWidth - umbraInset, 0.0f);
-                        type = innerRadius > 0 ? kOverstroke_RRectType : kStroke_RRectType;
-                    }
+        if (strokeOnly) {
+            // If stroke is greater than width or height, this is still a fill,
+            // otherwise we compute stroke params.
+            if (isCircle) {
+                innerRadius = devRadius - halfWidth;
+                type = innerRadius > 0 ? kStroke_RRectType : kFill_RRectType;
+            } else {
+                if (devStrokeWidth <= devRect.width() && devStrokeWidth <= devRect.height()) {
+                    // We don't worry about a real inner radius, we just need to know if we
+                    // need to create overstroke vertices.
+                    innerRadius = SkTMax(devStrokeWidth - umbraInset, 0.0f);
+                    type = innerRadius > 0 ? kOverstroke_RRectType : kStroke_RRectType;
                 }
             }
         }
