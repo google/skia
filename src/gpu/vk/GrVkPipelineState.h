@@ -94,7 +94,7 @@ private:
                       const GrVkDescriptorSetManager::Handle& samplerDSHandle,
                       const BuiltinUniformHandles& builtinUniformHandles,
                       const UniformInfoArray& uniforms,
-                      uint32_t vertexUniformSize,
+                      uint32_t geometryUniformSize,
                       uint32_t fragmentUniformSize,
                       uint32_t numSamplers,
                       GrGLSLPrimitiveProcessor* geometryProcessor,
@@ -210,7 +210,7 @@ private:
     int fStartDS;
     int fDSCount;
 
-    std::unique_ptr<GrVkUniformBuffer> fVertexUniformBuffer;
+    std::unique_ptr<GrVkUniformBuffer> fGeometryUniformBuffer;
     std::unique_ptr<GrVkUniformBuffer> fFragmentUniformBuffer;
 
     // GrVkResources used for sampling textures
