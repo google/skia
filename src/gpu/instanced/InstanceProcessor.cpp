@@ -104,7 +104,7 @@ public:
           fVertexBuilder(vertexBuilder) {
     }
 
-    void initParams(const SamplerHandle paramsBuffer) {
+    void initParams(const TexelBufferHandle paramsBuffer) {
         fParamsBuffer = paramsBuffer;
         fVertexBuilder->codeAppendf("highp int paramsIdx = int(%s & 0x%x);",
                                     this->attr(Attrib::kInstanceInfo),
@@ -146,7 +146,7 @@ public:
 private:
     const InstanceProcessor&     fInstProc;
     GrGLSLVertexBuilder*         fVertexBuilder;
-    SamplerHandle                fParamsBuffer;
+    TexelBufferHandle            fParamsBuffer;
 };
 
 class GLSLInstanceProcessor::Backend {
@@ -229,7 +229,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     VertexInputs inputs(ip, v);
     if (ip.opInfo().fHasParams) {
         SkASSERT(1 == ip.numBuffers());
-        inputs.initParams(args.fBufferSamplers[0]);
+        inputs.initParams(args.fTexelBuffers[0]);
     }
 
     if (!ip.opInfo().fHasPerspective) {
