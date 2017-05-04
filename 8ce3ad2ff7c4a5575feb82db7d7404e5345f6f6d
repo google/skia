@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "240773e2_16a3fa45",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-04T18:21:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a60a80af_7d841813",
+      "range": {
+        "startLine": 236,
+        "startChar": 9,
+        "endLine": 236,
+        "endChar": 28
+      },
+      "revId": "8ce3ad2ff7c4a5575feb82db7d7404e5345f6f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c8a5fcb_3f0a8a7f",
         "filename": "src/effects/gradients/SkGradientShaderPriv.h",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "485a7276_8b8ea774",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-04T18:21:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c8a5fcb_3f0a8a7f",
+      "range": {
+        "startLine": 239,
+        "startChar": 32,
+        "endLine": 239,
+        "endChar": 80
+      },
+      "revId": "8ce3ad2ff7c4a5575feb82db7d7404e5345f6f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "73a5ac3c_c337cef5",
         "filename": "src/effects/gradients/SkGradientShaderPriv.h",
         "patchSetId": 3
@@ -68,6 +116,30 @@
       "revId": "8ce3ad2ff7c4a5575feb82db7d7404e5345f6f6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "198d55b5_3c9a3d22",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-04T18:21:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "73a5ac3c_c337cef5",
+      "range": {
+        "startLine": 292,
+        "startChar": 2,
+        "endLine": 295,
+        "endChar": 22
+      },
+      "revId": "8ce3ad2ff7c4a5575feb82db7d7404e5345f6f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "ca7dd22f_2a171daf",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-04T18:21:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49a9022f_c7e41ff1",
+      "range": {
+        "startLine": 308,
+        "startChar": 13,
+        "endLine": 308,
+        "endChar": 26
+      },
+      "revId": "8ce3ad2ff7c4a5575feb82db7d7404e5345f6f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e5d2737_72af2737",
         "filename": "src/effects/gradients/SkGradientShaderPriv.h",
         "patchSetId": 3
@@ -137,6 +233,30 @@
       "revId": "8ce3ad2ff7c4a5575feb82db7d7404e5345f6f6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40f5576f_4e4720a8",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-04T18:21:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e5d2737_72af2737",
+      "range": {
+        "startLine": 309,
+        "startChar": 7,
+        "endLine": 309,
+        "endChar": 25
+      },
+      "revId": "8ce3ad2ff7c4a5575feb82db7d7404e5345f6f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
