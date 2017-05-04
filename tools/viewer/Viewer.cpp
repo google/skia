@@ -84,7 +84,12 @@ static bool on_mouse_handler(int x, int y, Window::InputState state, uint32_t mo
     } else if (Window::kUp_InputState == state) {
         io.MouseDown[0] = false;
     }
-    return true;
+    if (io.WantCaptureMouse) {
+        return true;
+    } else {
+        Viewer* viewer = reinterpret_cast<Viewer*>(userData);
+        return viewer->onMouse(x, y, state, modifiers);
+    }
 }
 
 static bool on_mouse_wheel_handler(float delta, uint32_t modifiers, void* userData) {
@@ -860,6 +865,27 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
         }
         case Window::kMove_InputState: {
             fGesture.touchMoved(castedOwner, touchPoint.fX, touchPoint.fY);
+            break;
+        }
+    }
+    fWindow->inval();
+    return true;
+}
+
+bool Viewer::onMouse(float x, float y, Window::InputState state, uint32_t modifiers) {
+
+    SkPoint touchPoint = fDefaultMatrixInv.mapXY(x, y);
+    switch (state) {
+        case Window::kUp_InputState: {
+            fGesture.touchEnd(nullptr);
+            break;
+        }
+        case Window::kDown_InputState: {
+            fGesture.touchBegin(nullptr, touchPoint.fX, touchPoint.fY);
+            break;
+        }
+        case Window::kMove_InputState: {
+            fGesture.touchMoved(nullptr, touchPoint.fX, touchPoint.fY);
             break;
         }
     }
