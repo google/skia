@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGlyph.h"
@@ -206,11 +207,8 @@ void SkRandomTypeface::onFilterRec(SkScalerContextRec* rec) const {
     rec->fMaskFormat = SkMask::kARGB32_Format;
 }
 
-SkAdvancedTypefaceMetrics* SkRandomTypeface::onGetAdvancedTypefaceMetrics(
-                                PerGlyphInfo info,
-                                const uint32_t* glyphIDs,
-                                uint32_t glyphIDsCount) const {
-    return fProxy->getAdvancedTypefaceMetrics(info, glyphIDs, glyphIDsCount);
+std::unique_ptr<SkAdvancedTypefaceMetrics> SkRandomTypeface::onGetAdvancedMetrics() const {
+    return fProxy->getAdvancedMetrics();
 }
 
 SkStreamAsset* SkRandomTypeface::onOpenStream(int* ttcIndex) const {
