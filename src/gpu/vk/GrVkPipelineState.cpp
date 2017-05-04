@@ -267,7 +267,7 @@ void set_uniform_descriptor_writes(VkWriteDescriptorSet* descriptorWrite,
     memset(descriptorWrite, 0, sizeof(VkWriteDescriptorSet));
     descriptorWrite->sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     descriptorWrite->pNext = nullptr;
-    descriptorWrite->dstSet = descriptorSet,
+    descriptorWrite->dstSet = descriptorSet;
     descriptorWrite->dstBinding = binding;
     descriptorWrite->dstArrayElement = 0;
     descriptorWrite->descriptorCount = 1;
