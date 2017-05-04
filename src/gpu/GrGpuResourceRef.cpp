@@ -125,3 +125,116 @@ void GrGpuResourceRef::removeRef() const {
     fResource->unref();
     fOwnRef = false;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+#include "GrTextureProxy.h"
+
+GrTextureProxyRef::GrTextureProxyRef() {
+    fProxy = nullptr;
+    fOwnRef = false;
+    fPendingIO = false;
+}
+
+GrTextureProxyRef::GrTextureProxyRef(sk_sp<GrTextureProxy> proxy, GrIOType ioType) {
+    fProxy = nullptr;
+    fOwnRef = false;
+    fPendingIO = false;
+    this->setProxy(proxy, ioType);
+}
+
+GrTextureProxyRef::~GrTextureProxyRef() {
+    if (fOwnRef) {
+        SkASSERT(fProxy);
+        fProxy->unref();
+    }
+    if (fPendingIO) {
+        switch (fIOType) {
+            case kRead_GrIOType:
+                fProxy->completedRead();
+                break;
+            case kWrite_GrIOType:
+                fProxy->completedWrite();
+                break;
+            case kRW_GrIOType:
+                fProxy->completedRead();
+                fProxy->completedWrite();
+                break;
+        }
+    }
+}
+
+void GrTextureProxyRef::reset() {
+    SkASSERT(!fPendingIO);
+    SkASSERT(SkToBool(fProxy) == fOwnRef);
+    if (fOwnRef) {
+        fProxy->unref();
+        fOwnRef = false;
+        fProxy = nullptr;
+    }
+}
+
+void GrTextureProxyRef::setProxy(sk_sp<GrTextureProxy> proxy, GrIOType ioType) {
+    SkASSERT(!fPendingIO);
+    SkASSERT(SkToBool(fProxy) == fOwnRef);
+    SkSafeUnref(fProxy);
+    if (!proxy) {
+        fProxy = nullptr;
+        fOwnRef = false;
+    } else {
+        fProxy = proxy.release();   // due to the semantics of this class we unpack from sk_sp
+        fOwnRef = true;
+        fIOType = ioType;
+    }
+}
+
+void GrTextureProxyRef::markPendingIO() const {
+    // This should only be called when the owning GrProgramElement gets its first
+    // pendingExecution ref.
+    SkASSERT(!fPendingIO);
+    SkASSERT(fProxy);
+    fPendingIO = true;
+    switch (fIOType) {
+        case kRead_GrIOType:
+            fProxy->addPendingRead();
+            break;
+        case kWrite_GrIOType:
+            fProxy->addPendingWrite();
+            break;
+        case kRW_GrIOType:
+            fProxy->addPendingRead();
+            fProxy->addPendingWrite();
+            break;
+    }
+}
+
+void GrTextureProxyRef::pendingIOComplete() const {
+    // This should only be called when the owner's pending executions have ocurred but it is still
+    // reffed.
+    SkASSERT(fOwnRef);
+    SkASSERT(fPendingIO);
+    switch (fIOType) {
+        case kRead_GrIOType:
+            fProxy->completedRead();
+            break;
+        case kWrite_GrIOType:
+            fProxy->completedWrite();
+            break;
+        case kRW_GrIOType:
+            fProxy->completedRead();
+            fProxy->completedWrite();
+            break;
+
+    }
+    fPendingIO = false;
+}
+
+void GrTextureProxyRef::removeRef() const {
+    // This should only be called once, when the owners last ref goes away and
+    // there is a pending execution.
+    SkASSERT(fOwnRef);
+    SkASSERT(fPendingIO);
+    SkASSERT(fProxy);
+    fProxy->unref();
+    fOwnRef = false;
+}
+

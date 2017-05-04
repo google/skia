@@ -125,7 +125,7 @@ protected:
 
 private:
     // This class is used to manage conversion of refs to pending reads/writes.
-    friend class GrGpuResourceRef;
+    friend class GrTextureProxyRef;
     template <typename, GrIOType> friend class GrPendingIOResource;
 
     void addPendingRead() const {
