@@ -131,9 +131,14 @@ protected:
                           std::function<SkScalar(SkScalar, SkScalar)> zFunc,
                           const SkPaint& paint, SkScalar ambientAlpha,
                           const SkPoint3& lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
+        if (fIgnoreShadowAlpha) {
+            ambientAlpha = 255;
+            spotAlpha = 255;
+        }
+
+        }
         if (!fShowAmbient) {
             ambientAlpha = 0;
-        }
         if (!fShowSpot) {
             spotAlpha = 0;
         }
