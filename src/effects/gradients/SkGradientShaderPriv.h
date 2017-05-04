@@ -17,6 +17,8 @@
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
 #include "SkOnce.h"
+#include "SkPM4fPriv.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkShader.h"
 #include "SkUtils.h"
@@ -201,27 +203,20 @@ public:
     uint32_t getGradFlags() const { return fGradFlags; }
 
 protected:
+    struct Rec {
+        SkFixed     fPos;   // 0...1
+        uint32_t    fScale; // (1 << 24) / range
+    };
+
     class GradientShaderBase4fContext;
 
     SkGradientShaderBase(SkReadBuffer& );
     void flatten(SkWriteBuffer&) const override;
     SK_TO_STRING_OVERRIDE()
 
-    const SkMatrix fPtsToUnit;
-    TileMode    fTileMode;
-    TileProc    fTileProc;
-    uint8_t     fGradFlags;
-
-    struct Rec {
-        SkFixed     fPos;   // 0...1
-        uint32_t    fScale; // (1 << 24) / range
-    };
-    Rec*        fRecs;
-
     void commonAsAGradient(GradientInfo*, bool flipGrad = false) const;
 
     bool onAsLuminanceColor(SkColor*) const override;
-
 
     void initLinearBitmap(SkBitmap* bitmap) const;
 
@@ -236,6 +231,14 @@ protected:
                                    SkColor* colorSrc, Rec* recSrc,
                                    int count);
 
+    bool onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS, SkArenaAlloc* alloc,
+                        const SkMatrix& ctm, const SkPaint& paint,
+                        const SkMatrix* localM) const final;
+
+    virtual bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
+                                             SkMatrix* matrix,
+                                             SkRasterPipeline* p) const = 0;
+
     template <typename T, typename... Args>
     static Context* CheckedMakeContext(SkArenaAlloc* alloc, Args&&... args) {
         auto* ctx = alloc->make<T>(std::forward<Args>(args)...);
@@ -244,6 +247,12 @@ protected:
         }
         return ctx;
     }
+
+    const SkMatrix fPtsToUnit;
+    TileMode       fTileMode;
+    TileProc       fTileProc;
+    uint8_t        fGradFlags;
+    Rec*           fRecs;
 
 private:
     enum {
@@ -276,6 +285,7 @@ private:
 
     typedef SkShader INHERITED;
 };
+
 
 static inline int init_dither_toggle(int x, int y) {
     x &= 1;
