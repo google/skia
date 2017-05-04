@@ -22,6 +22,30 @@
       "revId": "af4d4c672165dd242d3039e74d011c67da121785",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9924abf3_18266f7a",
+        "filename": "gm/bigrect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-05-04T22:05:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f39d436d_b65870b1",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 16
+      },
+      "revId": "af4d4c672165dd242d3039e74d011c67da121785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
