@@ -79,6 +79,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fUseDrawInsteadOfPartialRenderTargetWrite = options.fUseDrawInsteadOfPartialRenderTargetWrite;
     fUseDrawInsteadOfAllRenderTargetWrites = false;
     fAvoidInstancedDrawsToFPTargets = false;
+    fAvoidStencilBuffers = false;
 
     fPreferVRAMUseOverFlushes = true;
 }
@@ -96,6 +97,14 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkDebugf("WARNING: capping window rectangles at %i. HW advertises support for %i.\n",
                  GrWindowRectangles::kMaxWindows, fMaxWindowRectangles);
         fMaxWindowRectangles = GrWindowRectangles::kMaxWindows;
+    }
+    fAvoidStencilBuffers = options.fAvoidStencilBuffers;
+    // If we can't use stencil buffers, disable MSAA, as these flags typically go together, and
+    // we'd like to reduce test surface.
+    if (fAvoidStencilBuffers) {
+        fMaxColorSampleCount = 0;
+        fMaxStencilSampleCount = 0;
+        fSampleShadingSupport = false;
     }
 }
 
