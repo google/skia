@@ -675,6 +675,8 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
 }
 
 bool GrMSAAPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    // MSAA is always disabled along with stencils.
+    SkASSERT(!args.fAvoidStencilBuffers);
     // This path renderer only fills and relies on MSAA for antialiasing. Stroked shapes are
     // handled by passing on the original shape and letting the caller compute the stroked shape
     // which will have a fill style.

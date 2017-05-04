@@ -283,6 +283,17 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     SkASSERT(rtIBounds.contains(clipIBounds)); // Mask shouldn't be larger than the RT.
 #endif
 
+    // If we can't use stencil buffers, we must use the analytic path, regardless of AA.
+    if (context->caps()->avoidStencilBuffers()) {
+        sk_sp<GrFragmentProcessor> clipFP;
+        if (get_analytic_clip_processor(reducedClip.elements(), false, devBounds, &clipFP)) {
+            out->addCoverageFP(std::move(clipFP));
+            return true;
+        }
+        // We can't use the stencil path, so if we couldn't get an analytic clip processor, early out.
+        return false;
+    }
+
     // An element count of 4 was chosen because of the common pattern in Blink of:
     //   isect RR
     //   diff  RR

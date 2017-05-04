@@ -1427,6 +1427,8 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fAAType = aaType;
+    canDrawArgs.fAvoidStencilBuffers =
+            fRenderTargetContext->drawingManager()->getContext()->caps()->avoidStencilBuffers();
     canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
     // Don't allow the SW renderer
@@ -1487,6 +1489,8 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
     canDrawArgs.fShaderCaps = this->drawingManager()->getContext()->caps()->shaderCaps();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
+    canDrawArgs.fAvoidStencilBuffers =
+            this->drawingManager()->getContext()->caps()->avoidStencilBuffers();
     canDrawArgs.fHasUserStencilSettings = false;
 
     GrPathRenderer* pr;
