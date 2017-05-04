@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e8acfef_852058e0",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-04T18:04:00Z",
+      "side": 1,
+      "message": "I think we can still use the alpha mask approach below.",
+      "range": {
+        "startLine": 293,
+        "startChar": 8,
+        "endLine": 293,
+        "endChar": 102
+      },
+      "revId": "dbcda9be01492a7dcd53f2bc86f8f60c050da4cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c077d98e_c537ad42",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-04T18:04:00Z",
+      "side": 1,
+      "message": "I think if you make this:\n(!renderTargetContext-\u003eisStencilBufferMultisampled() \u0026\u0026 reducedClip.requiresAA()) || caps.avoidStencilBuffers())\n\nand return if this failed for some reason rather than continuing on to the stencil code then you can remove the above code at line 286 and will cover all clip cases.",
+      "range": {
+        "startLine": 325,
+        "startChar": 8,
+        "endLine": 325,
+        "endChar": 87
+      },
+      "revId": "dbcda9be01492a7dcd53f2bc86f8f60c050da4cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3703eb3c_51f3b3f0",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1431,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-04T18:04:00Z",
+      "side": 1,
+      "message": "We could just replace GrShaderCaps* fShaderCaps on CanDrawPathArgs with GrCaps* fCaps. The shader caps are still available via GrCaps::shaderCaps().",
+      "range": {
+        "startLine": 1430,
+        "startChar": 4,
+        "endLine": 1431,
+        "endChar": 96
+      },
+      "revId": "dbcda9be01492a7dcd53f2bc86f8f60c050da4cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7390d155_57dec4af",
+        "filename": "src/gpu/ops/GrMSAAPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-04T18:04:00Z",
+      "side": 1,
+      "message": "This class is actually poorly named. It uses MSAA for antialiasing but if the draw doesn\u0027t require AA it can draw a path without MSAA. I think this should look like the code in GrDefaultPathRenderer.",
+      "revId": "dbcda9be01492a7dcd53f2bc86f8f60c050da4cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
