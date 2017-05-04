@@ -14,6 +14,7 @@
 #include "GrPendingProgramElement.h"
 #include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
+#include "GrRect.h"
 #include "GrScissorState.h"
 #include "GrUserStencilSettings.h"
 #include "GrWindowRectsState.h"
@@ -123,10 +124,7 @@ public:
             return false;
         }
         if (a.xferBarrierType(caps)) {
-            return aBounds.fRight <= bBounds.fLeft ||
-                   aBounds.fBottom <= bBounds.fTop ||
-                   bBounds.fRight <= aBounds.fLeft ||
-                   bBounds.fBottom <= aBounds.fTop;
+            return !GrRectsTouchOrOverlap(aBounds, bBounds);
         }
         return true;
     }

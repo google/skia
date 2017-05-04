@@ -161,7 +161,7 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         NewNonAAFillRectOp* that = t->cast<NewNonAAFillRectOp>();
-        if (!fHelper.isCompatible(that->fHelper)) {
+        if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
             return false;
         }
         fRects.push_back_n(that->fRects.count(), that->fRects.begin());
