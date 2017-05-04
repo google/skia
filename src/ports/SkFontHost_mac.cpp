@@ -526,8 +526,7 @@ protected:
                                            const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
-    SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
-            PerGlyphInfo, const uint32_t* glyphIDs, uint32_t glyphIDsCount) const override;
+    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
     int onCharsToGlyphs(const void* chars, Encoding,
                         uint16_t glyphs[], int glyphCount) const override;
     int onCountGlyphs() const override;
@@ -1491,17 +1490,14 @@ static void CFStringToSkString(CFStringRef src, SkString* dst) {
     dst->resize(strlen(dst->c_str()));
 }
 
-SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
-        PerGlyphInfo perGlyphInfo,
-        const uint32_t* glyphIDs,
-        uint32_t glyphIDsCount) const {
+std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics() const {
 
     AUTO_CG_LOCK();
 
     UniqueCFRef<CTFontRef> ctFont =
             ctfont_create_exact_copy(fFontRef.get(), CTFontGetUnitsPerEm(fFontRef.get()), nullptr);
 
-    SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
+    std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
 
     {
         UniqueCFRef<CFStringRef> fontName(CTFontCopyPostScriptName(ctFont.get()));
@@ -1524,9 +1520,7 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
 
     CFIndex glyphCount = CTFontGetGlyphCount(ctFont.get());
 
-    if (perGlyphInfo & kToUnicode_PerGlyphInfo) {
-        populate_glyph_to_unicode(ctFont.get(), glyphCount, &info->fGlyphToUnicode);
-    }
+    populate_glyph_to_unicode(ctFont.get(), glyphCount, &info->fGlyphToUnicode);
 
     // If it's not a truetype font, mark it as 'other'. Assume that TrueType
     // fonts always have both glyf and loca tables. At the least, this is what
