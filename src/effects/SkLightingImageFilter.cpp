@@ -1915,7 +1915,9 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
                              args.fOutputColor, lightFunc.c_str(), normalName.c_str(), surfScale);
     fLight->emitLightColor(uniformHandler, fragBuilder, "surfaceToLight");
     fragBuilder->codeAppend(");\n");
-    fragBuilder->codeAppendf("%s *= %s;\n", args.fOutputColor, args.fInputColor);
+    SkString modulate;
+    GrGLSLMulVarBy4f(&modulate, args.fOutputColor, args.fInputColor);
+    fragBuilder->codeAppend(modulate.c_str());
 }
 
 void GrGLLightingEffect::GenKey(const GrProcessor& proc,
