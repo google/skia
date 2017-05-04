@@ -59,8 +59,7 @@ public:
     GrContext* context() { return fContext; }
     sk_sp<SkColorSpace> refColorSpace() { return fColorSpace; }
 
-    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
-                                    SkTransferFunctionBehavior) const override;
+    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
 
 private:
     GrContext*             fContext;

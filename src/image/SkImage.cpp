@@ -288,6 +288,11 @@ bool SkImage::isAlphaOnly() const {
 
 sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target,
                                        SkTransferFunctionBehavior premulBehavior) const {
+    if (SkTransferFunctionBehavior::kRespect == premulBehavior) {
+        // TODO (msarett, brianosman): Implement this.
+        return nullptr;
+    }
+
     SkColorSpaceTransferFn fn;
     if (!target || !target->isNumericalTransferFn(&fn)) {
         return nullptr;
@@ -302,13 +307,8 @@ sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target,
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
-    SkColorType targetColorType = kN32_SkColorType;
-    if (SkTransferFunctionBehavior::kRespect == premulBehavior && target->gammaIsLinear()) {
-        targetColorType = kRGBA_F16_SkColorType;
-    }
-
     // TODO: We might consider making this a deferred conversion?
-    return as_IB(this)->onMakeColorSpace(std::move(target), targetColorType, premulBehavior);
+    return as_IB(this)->onMakeColorSpace(std::move(target));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
