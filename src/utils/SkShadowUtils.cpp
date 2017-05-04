@@ -54,52 +54,52 @@ private:
 };
 
 static void build_table() {
-    SkDebugf("const uint16_t gByteExpU16Table[256] = {");
+    SkDebugf("const uint8_t gByteExpU8Table[256] = {");
     for (int i = 0; i <= 255; ++i) {
         if (!(i % 8)) {
             SkDebugf("\n");
         }
         SkScalar factor = SK_Scalar1 - i / 255.f;
         factor = SkScalarExp(-factor * factor * 4) - 0.018f;
-        int v = (int)(factor * 65536);
-        SkDebugf(" 0x%04X,", v);
+        int v = (int)(factor * 255.9f);
+        SkDebugf(" 0x%02X,", v);
     }
     SkDebugf("\n};\n");
 }
 
-const uint16_t gByteExpU16Table[256] = {
-    0x0014, 0x003A, 0x0062, 0x008A, 0x00B3, 0x00DE, 0x010A, 0x0136,
-    0x0165, 0x0194, 0x01C4, 0x01F6, 0x0229, 0x025E, 0x0294, 0x02CB,
-    0x0304, 0x033E, 0x0379, 0x03B7, 0x03F5, 0x0435, 0x0477, 0x04BB,
-    0x0500, 0x0546, 0x058F, 0x05D9, 0x0625, 0x0673, 0x06C3, 0x0714,
-    0x0768, 0x07BD, 0x0814, 0x086E, 0x08C9, 0x0926, 0x0986, 0x09E8,
-    0x0A4B, 0x0AB1, 0x0B1A, 0x0B84, 0x0BF1, 0x0C60, 0x0CD2, 0x0D46,
-    0x0DBC, 0x0E35, 0x0EB0, 0x0F2E, 0x0FAF, 0x1032, 0x10B7, 0x1140,
-    0x11CB, 0x1258, 0x12E9, 0x137C, 0x1412, 0x14AB, 0x1547, 0x15E6,
-    0x1688, 0x172D, 0x17D5, 0x187F, 0x192D, 0x19DE, 0x1A92, 0x1B4A,
-    0x1C04, 0x1CC2, 0x1D83, 0x1E47, 0x1F0E, 0x1FD9, 0x20A7, 0x2178,
-    0x224D, 0x2325, 0x2401, 0x24E0, 0x25C2, 0x26A8, 0x2792, 0x287F,
-    0x296F, 0x2A63, 0x2B5A, 0x2C56, 0x2D54, 0x2E56, 0x2F5C, 0x3065,
-    0x3172, 0x3283, 0x3397, 0x34AE, 0x35CA, 0x36E9, 0x380B, 0x3931,
-    0x3A5B, 0x3B88, 0x3CB9, 0x3DED, 0x3F25, 0x4061, 0x41A0, 0x42E2,
-    0x4428, 0x4572, 0x46BF, 0x480F, 0x4963, 0x4ABA, 0x4C14, 0x4D72,
-    0x4ED3, 0x5038, 0x519F, 0x530A, 0x5478, 0x55E9, 0x575D, 0x58D4,
-    0x5A4F, 0x5BCC, 0x5D4C, 0x5ECF, 0x6054, 0x61DD, 0x6368, 0x64F6,
-    0x6686, 0x6819, 0x69AE, 0x6B45, 0x6CDF, 0x6E7B, 0x701A, 0x71BA,
-    0x735D, 0x7501, 0x76A7, 0x784F, 0x79F9, 0x7BA4, 0x7D51, 0x7F00,
-    0x80AF, 0x8260, 0x8413, 0x85C6, 0x877A, 0x8930, 0x8AE6, 0x8C9C,
-    0x8E54, 0x900C, 0x91C4, 0x937D, 0x9535, 0x96EE, 0x98A7, 0x9A60,
-    0x9C18, 0x9DD1, 0x9F88, 0xA13F, 0xA2F6, 0xA4AB, 0xA660, 0xA814,
-    0xA9C6, 0xAB78, 0xAD27, 0xAED6, 0xB082, 0xB22D, 0xB3D6, 0xB57D,
-    0xB722, 0xB8C5, 0xBA65, 0xBC03, 0xBD9E, 0xBF37, 0xC0CD, 0xC25F,
-    0xC3EF, 0xC57B, 0xC704, 0xC889, 0xCA0B, 0xCB89, 0xCD04, 0xCE7A,
-    0xCFEC, 0xD15A, 0xD2C4, 0xD429, 0xD58A, 0xD6E6, 0xD83D, 0xD990,
-    0xDADD, 0xDC25, 0xDD68, 0xDEA6, 0xDFDE, 0xE111, 0xE23E, 0xE365,
-    0xE486, 0xE5A2, 0xE6B7, 0xE7C6, 0xE8CF, 0xE9D1, 0xEACD, 0xEBC3,
-    0xECB2, 0xED9A, 0xEE7C, 0xEF56, 0xF02A, 0xF0F6, 0xF1BC, 0xF27A,
-    0xF332, 0xF3E1, 0xF48A, 0xF52B, 0xF5C5, 0xF657, 0xF6E1, 0xF764,
-    0xF7DF, 0xF852, 0xF8BE, 0xF922, 0xF97E, 0xF9D2, 0xFA1E, 0xFA62,
-    0xFA9F, 0xFAD3, 0xFAFF, 0xFB23, 0xFB40, 0xFB54, 0xFB60, 0xFB64,
+const uint8_t gByteExpU8Table[256] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01,
+    0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0x02,
+    0x03, 0x03, 0x03, 0x03, 0x03, 0x04, 0x04, 0x04,
+    0x04, 0x05, 0x05, 0x05, 0x06, 0x06, 0x06, 0x07,
+    0x07, 0x07, 0x08, 0x08, 0x08, 0x09, 0x09, 0x09,
+    0x0A, 0x0A, 0x0B, 0x0B, 0x0B, 0x0C, 0x0C, 0x0D,
+    0x0D, 0x0E, 0x0E, 0x0F, 0x0F, 0x10, 0x10, 0x11,
+    0x11, 0x12, 0x12, 0x13, 0x14, 0x14, 0x15, 0x15,
+    0x16, 0x17, 0x17, 0x18, 0x19, 0x19, 0x1A, 0x1B,
+    0x1C, 0x1C, 0x1D, 0x1E, 0x1F, 0x1F, 0x20, 0x21,
+    0x22, 0x23, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,
+    0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30,
+    0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x38, 0x39,
+    0x3A, 0x3B, 0x3C, 0x3D, 0x3F, 0x40, 0x41, 0x42,
+    0x44, 0x45, 0x46, 0x48, 0x49, 0x4A, 0x4C, 0x4D,
+    0x4E, 0x50, 0x51, 0x53, 0x54, 0x55, 0x57, 0x58,
+    0x5A, 0x5B, 0x5D, 0x5E, 0x60, 0x61, 0x63, 0x64,
+    0x66, 0x68, 0x69, 0x6B, 0x6C, 0x6E, 0x70, 0x71,
+    0x73, 0x74, 0x76, 0x78, 0x79, 0x7B, 0x7D, 0x7E,
+    0x80, 0x82, 0x84, 0x85, 0x87, 0x89, 0x8A, 0x8C,
+    0x8E, 0x8F, 0x91, 0x93, 0x95, 0x96, 0x98, 0x9A,
+    0x9C, 0x9D, 0x9F, 0xA1, 0xA2, 0xA4, 0xA6, 0xA8,
+    0xA9, 0xAB, 0xAD, 0xAE, 0xB0, 0xB2, 0xB3, 0xB5,
+    0xB7, 0xB8, 0xBA, 0xBB, 0xBD, 0xBF, 0xC0, 0xC2,
+    0xC3, 0xC5, 0xC6, 0xC8, 0xC9, 0xCB, 0xCC, 0xCE,
+    0xCF, 0xD1, 0xD2, 0xD4, 0xD5, 0xD6, 0xD8, 0xD9,
+    0xDA, 0xDC, 0xDD, 0xDE, 0xDF, 0xE0, 0xE2, 0xE3,
+    0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB,
+    0xEC, 0xED, 0xEE, 0xEF, 0xF0, 0xF0, 0xF1, 0xF2,
+    0xF3, 0xF3, 0xF4, 0xF5, 0xF5, 0xF6, 0xF6, 0xF7,
+    0xF7, 0xF8, 0xF8, 0xF9, 0xF9, 0xF9, 0xFA, 0xFA,
+    0xFA, 0xFA, 0xFA, 0xFB, 0xFB, 0xFB, 0xFB, 0xFB,
 };
 
 void SkGaussianColorFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
@@ -109,7 +109,7 @@ void SkGaussianColorFilter::filterSpan(const SkPMColor src[], int count, SkPMCol
     }
     for (int i = 0; i < count; ++i) {
         SkPMColor c = src[i];
-        uint8_t a = gByteExpU16Table[SkGetPackedB32(c)] * SkGetPackedG32(c) >> 16;
+        uint8_t a = gByteExpU8Table[SkGetPackedA32(c)];
         dst[i] = SkPackARGB32(a, a, a, a);
     }
 }
@@ -143,12 +143,10 @@ uint64_t resource_cache_shared_id() {
 /** Factory for an ambient shadow mesh with particular shadow properties. */
 struct AmbientVerticesFactory {
     SkScalar fOccluderHeight = SK_ScalarNaN;  // NaN so that isCompatible will fail until init'ed.
-    SkScalar fAmbientAlpha;
     bool fTransparent;
 
     bool isCompatible(const AmbientVerticesFactory& that, SkVector* translate) const {
-        if (fOccluderHeight != that.fOccluderHeight || fAmbientAlpha != that.fAmbientAlpha ||
-            fTransparent != that.fTransparent) {
+        if (fOccluderHeight != that.fOccluderHeight || fTransparent != that.fTransparent) {
             return false;
         }
         translate->set(0, 0);
@@ -159,7 +157,7 @@ struct AmbientVerticesFactory {
         SkScalar z = fOccluderHeight;
         return SkShadowTessellator::MakeAmbient(path, ctm,
                                                 [z](SkScalar, SkScalar) { return z; },
-                                                fAmbientAlpha, fTransparent);
+                                                fTransparent);
     }
 };
 
@@ -178,13 +176,11 @@ struct SpotVerticesFactory {
     SkScalar fOccluderHeight = SK_ScalarNaN; // NaN so that isCompatible will fail until init'ed.
     SkPoint3 fDevLightPos;
     SkScalar fLightRadius;
-    SkScalar fSpotAlpha;
     OccluderType fOccluderType;
 
     bool isCompatible(const SpotVerticesFactory& that, SkVector* translate) const {
         if (fOccluderHeight != that.fOccluderHeight || fDevLightPos.fZ != that.fDevLightPos.fZ ||
-            fLightRadius != that.fLightRadius || fSpotAlpha != that.fSpotAlpha ||
-            fOccluderType != that.fOccluderType) {
+            fLightRadius != that.fLightRadius || fOccluderType != that.fOccluderType) {
             return false;
         }
         switch (fOccluderType) {
@@ -212,8 +208,7 @@ struct SpotVerticesFactory {
         SkScalar z = fOccluderHeight;
         return SkShadowTessellator::MakeSpot(path, ctm,
                                              [z](SkScalar, SkScalar) -> SkScalar { return z; },
-                                             fDevLightPos, fLightRadius,
-                                             fSpotAlpha, transparent);
+                                             fDevLightPos, fLightRadius, transparent);
     }
 };
 
@@ -569,14 +564,21 @@ static bool draw_analytic_shadows(SkCanvas* canvas, const SkPath& path, SkScalar
     return false;
 }
 
+static SkColor compute_render_color(SkColor color, float alpha) {
+    return SkColorSetARGB(alpha*SkColorGetA(color), SkColorGetR(color),
+                          SkColorGetG(color), SkColorGetB(color));
+}
+
 // Draw an offset spot shadow and outlining ambient shadow for the given path.
 void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar occluderHeight,
                                const SkPoint3& devLightPos, SkScalar lightRadius,
                                SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
                                uint32_t flags, SkResourceCache* cache) {
     // try fast paths
-    if (draw_analytic_shadows(canvas, path, occluderHeight, devLightPos, lightRadius,
-                              ambientAlpha, spotAlpha, color, flags)) {
+    bool skipAnalytic = SkToBool(flags & SkShadowFlags::kGeometricOnly_ShadowFlag);
+    if (!skipAnalytic && draw_analytic_shadows(canvas, path, occluderHeight, devLightPos,
+                                               lightRadius, ambientAlpha, spotAlpha, color,
+                                               flags)) {
         return;
     }
 
@@ -592,10 +594,10 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
         ambientAlpha = SkTMin(ambientAlpha, 1.f);
         AmbientVerticesFactory factory;
         factory.fOccluderHeight = occluderHeight;
-        factory.fAmbientAlpha = ambientAlpha;
         factory.fTransparent = transparent;
 
-        draw_shadow(factory, canvas, shadowedPath, color, cache);
+        SkColor renderColor = compute_render_color(color, ambientAlpha);
+        draw_shadow(factory, canvas, shadowedPath, renderColor, cache);
     }
 
     if (spotAlpha > 0) {
@@ -614,7 +616,6 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
         factory.fOccluderHeight = occluderHeight;
         factory.fDevLightPos = devLightPos;
         factory.fLightRadius = lightRadius;
-        factory.fSpotAlpha = spotAlpha;
 
         SkRRect rrect;
         if (transparent) {
@@ -653,7 +654,9 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
         if (factory.fOccluderType == SpotVerticesFactory::OccluderType::kOpaque) {
             factory.fOccluderType = SpotVerticesFactory::OccluderType::kTransparent;
         }
-        draw_shadow(factory, canvas, shadowedPath, color, cache);
+
+        SkColor renderColor = compute_render_color(color, spotAlpha);
+        draw_shadow(factory, canvas, shadowedPath, renderColor, cache);
     }
 }
 
@@ -665,8 +668,10 @@ void SkShadowUtils::DrawUncachedShadow(SkCanvas* canvas, const SkPath& path,
                                        SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
                                        uint32_t flags) {
     // try fast paths
-    if (draw_analytic_shadows(canvas, path, heightFunc(0, 0), lightPos, lightRadius,
-                              ambientAlpha, spotAlpha, color, flags)) {
+    bool skipAnalytic = SkToBool(flags & SkShadowFlags::kGeometricOnly_ShadowFlag);
+    if (!skipAnalytic && draw_analytic_shadows(canvas, path, heightFunc(0, 0), lightPos,
+                                               lightRadius, ambientAlpha, spotAlpha, color,
+                                               flags)) {
         return;
     }
 
@@ -679,13 +684,13 @@ void SkShadowUtils::DrawUncachedShadow(SkCanvas* canvas, const SkPath& path,
     if (ambientAlpha > 0) {
         ambientAlpha = SkTMin(ambientAlpha, 1.f);
         sk_sp<SkVertices> vertices = SkShadowTessellator::MakeAmbient(path, viewMatrix,
-                                                                      heightFunc, ambientAlpha,
-                                                                      transparent);
+                                                                      heightFunc, transparent);
+        SkColor renderColor = compute_render_color(color, ambientAlpha);
         SkPaint paint;
         // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
         // result of that against our 'color' param.
         paint.setColorFilter(SkColorFilter::MakeComposeFilter(
-            SkColorFilter::MakeModeFilter(color, SkBlendMode::kModulate),
+            SkColorFilter::MakeModeFilter(renderColor, SkBlendMode::kModulate),
             SkGaussianColorFilter::Make()));
         canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
     }
@@ -694,12 +699,13 @@ void SkShadowUtils::DrawUncachedShadow(SkCanvas* canvas, const SkPath& path,
         spotAlpha = SkTMin(spotAlpha, 1.f);
         sk_sp<SkVertices> vertices = SkShadowTessellator::MakeSpot(path, viewMatrix, heightFunc,
                                                                    lightPos, lightRadius,
-                                                                   spotAlpha, transparent);
+                                                                   transparent);
+        SkColor renderColor = compute_render_color(color, spotAlpha);
         SkPaint paint;
         // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
         // result of that against our 'color' param.
         paint.setColorFilter(SkColorFilter::MakeComposeFilter(
-            SkColorFilter::MakeModeFilter(color, SkBlendMode::kModulate),
+            SkColorFilter::MakeModeFilter(renderColor, SkBlendMode::kModulate),
             SkGaussianColorFilter::Make()));
         canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
     }

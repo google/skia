@@ -26,7 +26,7 @@ typedef std::function<SkScalar(SkScalar, SkScalar)> HeightFunc;
  * If transparent is true, then the center of the ambient shadow will be filled in.
  */
 sk_sp<SkVertices> MakeAmbient(const SkPath& path, const SkMatrix& ctm,
-                              HeightFunc heightFunc, SkScalar ambientAlpha, bool transparent);
+                              HeightFunc heightFunc, bool transparent);
 
 /**
  * This function generates a spot shadow mesh for a path by walking the transformed path,
@@ -34,8 +34,7 @@ sk_sp<SkVertices> MakeAmbient(const SkPath& path, const SkMatrix& ctm,
  * The center will be clipped against the original path unless transparent is true.
  */
 sk_sp<SkVertices> MakeSpot(const SkPath& path, const SkMatrix& ctm, HeightFunc heightFunc,
-                           const SkPoint3& lightPos, SkScalar lightRadius,
-                           SkScalar spotAlpha, bool transparent);
+                           const SkPoint3& lightPos, SkScalar lightRadius, bool transparent);
 }
 
 #endif
