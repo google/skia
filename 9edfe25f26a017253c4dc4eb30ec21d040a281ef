@@ -22,6 +22,53 @@
       "revId": "9edfe25f26a017253c4dc4eb30ec21d040a281ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59fe5834_622b019d",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-04T13:26:56Z",
+      "side": 1,
+      "message": "Yes, duh, yes.  Will do.",
+      "parentUuid": "15208a69_dbec480c",
+      "range": {
+        "startLine": 206,
+        "startChar": 16,
+        "endLine": 206,
+        "endChar": 25
+      },
+      "revId": "9edfe25f26a017253c4dc4eb30ec21d040a281ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "437ed501_c96133e6",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-04T13:26:56Z",
+      "side": 1,
+      "message": "It occurs to me that this no longer makes any sense if we\u0027re dithering after applying the transfer function.  We\u0027re just dithering bits now, moving between representable colors in encoded space... not anything vaguely related to premul or unpremul colors in linear space.",
+      "range": {
+        "startLine": 320,
+        "startChar": 4,
+        "endLine": 320,
+        "endChar": 86
+      },
+      "revId": "9edfe25f26a017253c4dc4eb30ec21d040a281ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
