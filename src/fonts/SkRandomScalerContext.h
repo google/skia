@@ -27,10 +27,7 @@ protected:
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                            const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
-    SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
-        PerGlyphInfo,
-        const uint32_t* glyphIDs,
-        uint32_t glyphIDsCount) const override;
+    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const override;
 

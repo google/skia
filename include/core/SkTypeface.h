@@ -20,12 +20,12 @@ class SkDescriptor;
 class SkFontData;
 class SkFontDescriptor;
 class SkScalerContext;
-struct SkScalerContextRec;
-struct SkScalerContextEffects;
 class SkStream;
 class SkStreamAsset;
-class SkAdvancedTypefaceMetrics;
 class SkWStream;
+struct SkAdvancedTypefaceMetrics;
+struct SkScalerContextEffects;
+struct SkScalerContextRec;
 
 typedef uint32_t SkFontID;
 /** Machine endian. */
@@ -327,14 +327,6 @@ public:
     }
 
 protected:
-    // The type of advance data wanted.
-    enum PerGlyphInfo {
-        kNo_PerGlyphInfo         = 0x0, // Don't populate any per glyph info.
-        kGlyphNames_PerGlyphInfo = 0x1, // Populate glyph names (Type 1 only).
-        kToUnicode_PerGlyphInfo  = 0x2  // Populate ToUnicode table, ignored
-                                        // for Type 1 fonts
-    };
-
     /** uniqueID must be unique and non-zero
     */
     SkTypeface(const SkFontStyle& style, bool isFixedPitch = false);
@@ -351,10 +343,17 @@ protected:
     virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                                    const SkDescriptor*) const = 0;
     virtual void onFilterRec(SkScalerContextRec*) const = 0;
+    virtual std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const;
+
+    enum PerGlyphInfo {
+        kNo_PerGlyphInfo         = 0x0,
+        kGlyphNames_PerGlyphInfo = 0x1,
+        kToUnicode_PerGlyphInfo  = 0x2
+    };
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
-                        PerGlyphInfo,
-                        const uint32_t* glyphIDs,
-                        uint32_t glyphIDsCount) const = 0;
+            PerGlyphInfo, const uint32_t*, uint32_t) const {
+        return nullptr;
+    }
 
     virtual SkStreamAsset* onOpenStream(int* ttcIndex) const = 0;
     // TODO: make pure virtual.
@@ -396,20 +395,8 @@ private:
     friend class GrPathRendering;
     friend class GrGLPathRendering;
 
-    /** Retrieve detailed typeface metrics.  Used by the PDF backend.
-     @param perGlyphInfo Indicate what glyph specific information (advances,
-     names, etc.) should be populated.
-     @param glyphIDs  For per-glyph info, specify subset of the font by
-     giving glyph ids.  Each integer represents a glyph
-     id.  Passing NULL means all glyphs in the font.
-     @param glyphIDsCount Number of elements in subsetGlyphIds. Ignored if
-     glyphIDs is NULL.
-     @return The returned object has already been referenced.
-     */
-    SkAdvancedTypefaceMetrics* getAdvancedTypefaceMetrics(
-                          PerGlyphInfo,
-                          const uint32_t* glyphIDs = NULL,
-                          uint32_t glyphIDsCount = 0) const;
+    /** Retrieve detailed typeface metrics.  Used by the PDF backend.  */
+    std::unique_ptr<SkAdvancedTypefaceMetrics> getAdvancedMetrics() const;
 
 private:
     SkFontID            fUniqueID;
@@ -423,9 +410,4 @@ private:
 
     typedef SkWeakRefCnt INHERITED;
 };
-
-namespace skstd {
-template <> struct is_bitmask_enum<SkTypeface::PerGlyphInfo> : std::true_type {};
-}
-
 #endif
