@@ -36,31 +36,48 @@ bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
     return true;
 }
 
-GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context)
-    : fContext(context)
-    , fPreserveStrike(nullptr) {
+GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes)
+        : fContext(context), fPreserveStrike(nullptr) {
+    // Calculate RGBA size. Must be between 1024 x 512 and MaxTextureSize x MaxTextureSize / 2
+    int log2MaxTextureSize = log2(context->caps()->maxTextureSize());
+    int log2MaxDim = 10;
+    for (; log2MaxDim <= log2MaxTextureSize; ++log2MaxDim) {
+        int maxDim = 1 << log2MaxDim;
+        int minDim = 1 << (log2MaxDim - 1);
 
-    // setup default atlas configs
-    fAtlasConfigs[kA8_GrMaskFormat].fWidth = 2048;
-    fAtlasConfigs[kA8_GrMaskFormat].fHeight = 2048;
-    fAtlasConfigs[kA8_GrMaskFormat].fLog2Width = 11;
-    fAtlasConfigs[kA8_GrMaskFormat].fLog2Height = 11;
-    fAtlasConfigs[kA8_GrMaskFormat].fPlotWidth = 512;
-    fAtlasConfigs[kA8_GrMaskFormat].fPlotHeight = 256;
+        if (maxDim * minDim * 4 >= maxTextureBytes) break;
+    }
 
-    fAtlasConfigs[kA565_GrMaskFormat].fWidth = 1024;
-    fAtlasConfigs[kA565_GrMaskFormat].fHeight = 2048;
-    fAtlasConfigs[kA565_GrMaskFormat].fLog2Width = 10;
-    fAtlasConfigs[kA565_GrMaskFormat].fLog2Height = 11;
-    fAtlasConfigs[kA565_GrMaskFormat].fPlotWidth = 256;
-    fAtlasConfigs[kA565_GrMaskFormat].fPlotHeight = 256;
+    int log2MinDim = log2MaxDim - 1;
+    int maxDim = 1 << log2MaxDim;
+    int minDim = 1 << log2MinDim;
+    // Plots are either 256 or 512.
+    int maxPlot = SkTMin(512, SkTMax(256, 1 << (log2MaxDim - 2)));
+    int minPlot = SkTMin(512, SkTMax(256, 1 << (log2MaxDim - 3)));
 
-    fAtlasConfigs[kARGB_GrMaskFormat].fWidth = 1024;
-    fAtlasConfigs[kARGB_GrMaskFormat].fHeight = 2048;
-    fAtlasConfigs[kARGB_GrMaskFormat].fLog2Width = 10;
-    fAtlasConfigs[kARGB_GrMaskFormat].fLog2Height = 11;
-    fAtlasConfigs[kARGB_GrMaskFormat].fPlotWidth = 256;
-    fAtlasConfigs[kARGB_GrMaskFormat].fPlotHeight = 256;
+    // Setup default atlas configs. The A8 atlas uses maxDim for both width and height, as the A8
+    // format is already very compact.
+    fAtlasConfigs[kA8_GrMaskFormat].fWidth = maxDim;
+    fAtlasConfigs[kA8_GrMaskFormat].fHeight = maxDim;
+    fAtlasConfigs[kA8_GrMaskFormat].fLog2Width = log2MaxDim;
+    fAtlasConfigs[kA8_GrMaskFormat].fLog2Height = log2MaxDim;
+    fAtlasConfigs[kA8_GrMaskFormat].fPlotWidth = maxPlot;
+    fAtlasConfigs[kA8_GrMaskFormat].fPlotHeight = minPlot;
+
+    // A565 and ARGB use maxDim x minDim.
+    fAtlasConfigs[kA565_GrMaskFormat].fWidth = minDim;
+    fAtlasConfigs[kA565_GrMaskFormat].fHeight = maxDim;
+    fAtlasConfigs[kA565_GrMaskFormat].fLog2Width = log2MinDim;
+    fAtlasConfigs[kA565_GrMaskFormat].fLog2Height = log2MaxDim;
+    fAtlasConfigs[kA565_GrMaskFormat].fPlotWidth = minPlot;
+    fAtlasConfigs[kA565_GrMaskFormat].fPlotHeight = minPlot;
+
+    fAtlasConfigs[kARGB_GrMaskFormat].fWidth = minDim;
+    fAtlasConfigs[kARGB_GrMaskFormat].fHeight = maxDim;
+    fAtlasConfigs[kARGB_GrMaskFormat].fLog2Width = log2MinDim;
+    fAtlasConfigs[kARGB_GrMaskFormat].fLog2Height = log2MaxDim;
+    fAtlasConfigs[kARGB_GrMaskFormat].fPlotWidth = minPlot;
+    fAtlasConfigs[kARGB_GrMaskFormat].fPlotHeight = minPlot;
 }
 
 GrAtlasGlyphCache::~GrAtlasGlyphCache() {

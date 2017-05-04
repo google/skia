@@ -110,7 +110,7 @@ private:
  */
 class GrAtlasGlyphCache {
 public:
-    GrAtlasGlyphCache(GrContext*);
+    GrAtlasGlyphCache(GrContext*, float maxTextureBytes);
     ~GrAtlasGlyphCache();
     // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
     // another client of the cache may cause the strike to be purged while it is still reffed.

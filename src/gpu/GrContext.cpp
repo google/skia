@@ -109,7 +109,7 @@ void GrContext::initCommon(const GrContextOptions& options) {
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions,
                                                options.fImmediateMode, &fSingleOwner));
 
-    fAtlasGlyphCache = new GrAtlasGlyphCache(this);
+    fAtlasGlyphCache = new GrAtlasGlyphCache(this, options.fGlyphCacheTextureMaximumBytes);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB, this));
 }
