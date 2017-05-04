@@ -13,7 +13,7 @@
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE42
     #include <immintrin.h>
-#elif defined(SK_CPU_ARM64) && defined(SK_ARM_HAS_CRC32)
+#elif defined(SK_ARM_HAS_CRC32)
     #include <arm_acle.h>
 #endif
 
@@ -127,7 +127,7 @@ static inline T unaligned_load(const uint8_t* src) {
         return hash;
     }
 
-#elif defined(SK_CPU_ARM64) && defined(SK_ARM_HAS_CRC32)
+#elif defined(SK_ARM_HAS_CRC32)
     static uint32_t hash_fn(const void* vdata, size_t bytes, uint32_t hash) {
         auto data = (const uint8_t*)vdata;
         if (bytes >= 24) {
