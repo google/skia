@@ -40,9 +40,7 @@ protected:
 
     bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                      SkMatrix* matrix,
-                                     SkRasterPipeline* p) const final {
-        return false;
-    }
+                                     SkRasterPipeline* p) const final;
 
 private:
     const SkPoint fCenter;
