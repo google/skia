@@ -83,178 +83,31 @@ SkShader::Context* SkLinearGradient::onMakeContext(
            : CheckedMakeContext<  LinearGradientContext>(alloc, *this, rec);
 }
 
-//
-// Stages:
-//
-//   * matrix (map dst -> grad space)
-//   * clamp/repeat/mirror (tiling)
-//   * linear_gradient_2stops (lerp c0/c1)
-//   * optional premul
-//
-bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
-                                      SkColorSpace* dstCS,
-                                      SkArenaAlloc* alloc,
-                                      const SkMatrix& ctm,
-                                      const SkPaint& paint,
-                                      const SkMatrix* localM) const {
-    // Local matrix not supported currently.  Remove once we have a generic RP wrapper.
-    if (localM || !getLocalMatrix().isIdentity()) {
-        return false;
-    }
+bool SkLinearGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
+                                                   SkMatrix* matrix,
+                                                   SkRasterPipeline* p) const {
+    *matrix = SkMatrix::Concat(fPtsToUnit, *matrix);
+    // If the gradient is less than a quarter of a pixel, this falls into the
+    // subpixel gradient code handled on a different path.
+    SkVector dx = matrix->mapVector(1, 0);
+    if (dx.fX >= 4) { return false; }
 
-    SkMatrix dstToPts;
-    if (!ctm.invert(&dstToPts)) {
-        return false;
-    }
-
-    const auto dstToUnit = SkMatrix::Concat(fPtsToUnit, dstToPts);
-
-    // If the gradient is less than a quarter of a pixel, this falls into the subpixel gradient code
-    // handled on a different path.
-    SkVector dx = dstToUnit.mapVector(1, 0);
-    if (dx.fX >= 4) {
-        return false;
-    }
-
-    auto* m = alloc->makeArrayDefault<float>(9);
-    if (dstToUnit.asAffine(m)) {
-        // TODO: mapping y is not needed; split the matrix stages to save some math?
-        p->append(SkRasterPipeline::matrix_2x3, m);
-    } else {
-        dstToUnit.get9(m);
-        p->append(SkRasterPipeline::matrix_perspective, m);
-    }
-
-    // TODO: clamp/repeat/mirror const 1f stages?
     auto* limit = alloc->make<float>(1.0f);
-
-    const bool premulGrad = fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag;
-    auto prepareColor = [premulGrad, dstCS, this](int i) {
-        SkColor4f c = dstCS ? to_colorspace(fOrigColors4f[i], fColorSpace.get(), dstCS)
-                            : SkColor4f_from_SkColor(fOrigColors[i], nullptr);
-        return premulGrad ? c.premul()
-                          : SkPM4f::From4f(Sk4f::Load(&c));
-    };
-
-    // The two-stop case with stops at 0 and 1.
     if (fColorCount == 2 && fOrigPos == nullptr) {
         switch (fTileMode) {
-            case kClamp_TileMode:  p->append(SkRasterPipeline:: clamp_x, limit); break;
+            case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x, limit);  break;
             case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit); break;
             case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit); break;
         }
-
-        const SkPM4f c_l = prepareColor(0),
-                     c_r = prepareColor(1);
-
-        // See F and B below.
-        auto* f_and_b = alloc->makeArrayDefault<SkPM4f>(2);
-        f_and_b[0] = SkPM4f::From4f(c_r.to4f() - c_l.to4f());
-        f_and_b[1] = c_l;
-
-        p->append(SkRasterPipeline::linear_gradient_2stops, f_and_b);
     } else {
         switch (fTileMode) {
             // The search strategy does not need clamping. It has implicit hard stops at the
             // first and last stop.
-            case kClamp_TileMode: break;
+            case kClamp_TileMode:  break;
             case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit); break;
             case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit); break;
         }
-
-        struct Stop { float t; SkPM4f f, b; };
-        struct Ctx { size_t n; Stop* stops; SkPM4f start; };
-
-        auto* ctx = alloc->make<Ctx>();
-        ctx->start = prepareColor(0);
-
-        // For each stop we calculate a bias B and a scale factor F, such that
-        // for any t between stops n and n+1, the color we want is B[n] + F[n]*t.
-        auto init_stop = [](float t_l, float t_r, SkPM4f c_l, SkPM4f c_r, Stop *stop) {
-            auto F = SkPM4f::From4f((c_r.to4f() - c_l.to4f()) / (t_r - t_l));
-            auto B = SkPM4f::From4f(c_l.to4f() - (F.to4f() * t_l));
-            *stop = {t_l, F, B};
-        };
-
-        if (fOrigPos == nullptr) {
-            // Handle evenly distributed stops.
-
-            float dt = 1.0f / (fColorCount - 1);
-            // In the evenly distributed case, fColorCount is the number of stops. There are no
-            // dummy entries.
-            auto* stopsArray = alloc->makeArrayDefault<Stop>(fColorCount);
-
-            float  t_l = 0;
-            SkPM4f c_l = ctx->start;
-            for (int i = 0; i < fColorCount - 1; i++) {
-                // Use multiply instead of accumulating error using repeated addition.
-                float  t_r = (i + 1) * dt;
-                SkPM4f c_r = prepareColor(i + 1);
-                init_stop(t_l, t_r, c_l, c_r, &stopsArray[i]);
-
-                t_l = t_r;
-                c_l = c_r;
-            }
-
-            // Force the last stop.
-            stopsArray[fColorCount - 1].t = 1;
-            stopsArray[fColorCount - 1].f = SkPM4f::From4f(Sk4f{0});
-            stopsArray[fColorCount - 1].b = prepareColor(fColorCount - 1);
-
-            ctx->n = fColorCount;
-            ctx->stops = stopsArray;
-        } else {
-            // Handle arbitrary stops.
-
-            // Remove the dummy stops inserted by SkGradientShaderBase::SkGradientShaderBase
-            // because they are naturally handled by the search method.
-            int firstStop;
-            int lastStop;
-            if (fColorCount > 2) {
-                firstStop = fOrigColors4f[0] != fOrigColors4f[1] ? 0 : 1;
-                lastStop = fOrigColors4f[fColorCount - 2] != fOrigColors4f[fColorCount - 1]
-                           ? fColorCount - 1 : fColorCount - 2;
-            } else {
-                firstStop = 0;
-                lastStop = 1;
-            }
-            int realCount = lastStop - firstStop + 1;
-
-            // This is the maximum number of stops. There may be fewer stops because the duplicate
-            // points of hard stops are removed.
-            auto* stopsArray = alloc->makeArrayDefault<Stop>(realCount);
-
-            size_t stopCount = 0;
-            float  t_l = fOrigPos[firstStop];
-            SkPM4f c_l = prepareColor(firstStop);
-            // N.B. lastStop is the index of the last stop, not one after.
-            for (int i = firstStop; i < lastStop; i++) {
-                float  t_r = fOrigPos[i + 1];
-                SkPM4f c_r = prepareColor(i + 1);
-                if (t_l < t_r) {
-                    init_stop(t_l, t_r, c_l, c_r, &stopsArray[stopCount]);
-                    stopCount += 1;
-                }
-                t_l = t_r;
-                c_l = c_r;
-            }
-
-            stopsArray[stopCount].t = fOrigPos[lastStop];
-            stopsArray[stopCount].f = SkPM4f::From4f(Sk4f{0});
-            stopsArray[stopCount].b = prepareColor(lastStop);
-            stopCount += 1;
-
-            ctx->n = stopCount;
-            ctx->stops = stopsArray;
-        }
-
-        p->append(SkRasterPipeline::linear_gradient, ctx);
     }
-
-    if (!premulGrad && !this->colorsAreOpaque()) {
-        p->append(SkRasterPipeline::premul);
-    }
-
     return true;
 }
 
