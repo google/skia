@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "SkAdvancedTypefaceMetrics.h"
 #include "SkCommandLineFlags.h"
+#include "SkFont.h"
 #include "SkFontMgr.h"
+#include "SkPaint.h"
 #include "SkTypeface.h"
 #include "Test.h"
-
-#include "SkFont.h"
-#include "SkPaint.h"
 
 #include <initializer_list>
 #include <limits>
@@ -133,9 +133,9 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
             return nullptr;
         }
         void onFilterRec(SkScalerContextRec*) const override { }
-        virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
-            PerGlyphInfo,
-            const uint32_t*, uint32_t) const override { return nullptr; }
+        std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
+            return nullptr;
+        }
         void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
         virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
             uint16_t glyphs[], int glyphCount) const override {
