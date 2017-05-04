@@ -105,6 +105,12 @@ struct GrContextOptions {
     };
 
     GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
+
+    /**
+     * Bugs on certain drivers cause stencil buffers to leak. This flag causes Skia to avoid
+     * allocating stencil buffers and use alternate rasterization paths, avoiding the leak.
+     */
+    bool fAvoidStencilBuffers = false;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrContextOptions::GpuPathRenderers)
