@@ -238,7 +238,7 @@ private:
 
                 GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
                 SkString dstColor("dstColor");
-                this->emitChild(0, &dstColor, args);
+                this->emitChild(0, nullptr, &dstColor, args);
 
                 fKUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kVec4f_GrSLType,
                                                          kDefault_GrSLPrecision, "k");
