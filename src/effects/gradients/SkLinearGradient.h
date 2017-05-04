@@ -68,10 +68,8 @@ protected:
     void flatten(SkWriteBuffer& buffer) const override;
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 
-    bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
-                                     SkMatrix* matrix,
-                                     SkRasterPipeline* p) const final;
-
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+                        const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
 
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
