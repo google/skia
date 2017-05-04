@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6aacb25a_6a074337",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-04T14:04:39Z",
+      "side": 1,
+      "message": "If you want to get this done without having to think about rebaselining, I don\u0027t think we\u0027d mind just using the old fallback strategy here, converting to bytes, filterSpan, convert from bytes.  Particularly if it had a note like // This is lazy, but hopefully not long to live.",
+      "range": {
+        "startLine": 181,
+        "startChar": 28,
+        "endLine": 181,
+        "endChar": 40
+      },
+      "revId": "2c8bccecc7aa2db9a0d03ff2d139620400851282",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
