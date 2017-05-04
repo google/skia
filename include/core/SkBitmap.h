@@ -697,6 +697,7 @@ private:
     uint32_t            fRowBytes;
     uint8_t             fFlags;
 
+    friend class SkImage_Raster;
     bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior behavior);
 
     bool canCopyTo(SkColorType colorType) const;
