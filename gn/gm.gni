@@ -188,7 +188,6 @@ gm_sources = [
   "$_gm/localmatriximagefilter.cpp",
   "$_gm/localmatriximageshader.cpp",
   "$_gm/lumafilter.cpp",
-  "$_gm/makecolorspace.cpp",
   "$_gm/manypaths.cpp",
   "$_gm/matrixconvolution.cpp",
   "$_gm/matriximagefilter.cpp",
