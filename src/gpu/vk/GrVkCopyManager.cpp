@@ -228,7 +228,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     descriptorWrites.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     descriptorWrites.pNext = nullptr;
     descriptorWrites.dstSet = uniformDS->descriptorSet();
-    descriptorWrites.dstBinding = GrVkUniformHandler::kVertexBinding;
+    descriptorWrites.dstBinding = GrVkUniformHandler::kGeometryBinding;
     descriptorWrites.dstArrayElement = 0;
     descriptorWrites.descriptorCount = 1;
     descriptorWrites.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
