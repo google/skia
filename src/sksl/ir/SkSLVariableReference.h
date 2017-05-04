@@ -8,6 +8,8 @@
 #ifndef SKSL_VARIABLEREFERENCE
 #define SKSL_VARIABLEREFERENCE
 
+#include "SkSLBoolLiteral.h"
+#include "SkSLConstructor.h"
 #include "SkSLExpression.h"
 #include "SkSLFloatLiteral.h"
 #include "SkSLIRGenerator.h"
