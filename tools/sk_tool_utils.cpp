@@ -40,6 +40,9 @@ public:
     void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override {
         SK_ABORT("SkSRGBColorFilter is only implemented for GPU");
     }
+    void filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const override {
+        SK_ABORT("SkSRGBColorFilter is only implemented for GPU");
+    }
     Factory getFactory() const override { return nullptr; }
 
 #ifndef SK_IGNORE_TO_STRING
