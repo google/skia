@@ -413,6 +413,111 @@ BLEND_MODE(softlight) {
 }
 #undef BLEND_MODE
 
+// We're basing our implemenation of non-separable blend modes on
+//   https://www.khronos.org/registry/OpenGL/extensions/KHR/KHR_blend_equation_advanced.txt,
+// which differs in a few small ways (bugs?) from
+//   https://www.w3.org/TR/compositing-1/#blendingnonseparable.
+// Keep in mind that these specs and our implementation are all using unpremul colors.
+
+SI F max(F r, F g, F b) { return max(r, max(g, b)); }
+SI F min(F r, F g, F b) { return min(r, min(g, b)); }
+
+SI F lum(F r, F g, F b) { return r*0.3f + g*0.59f + b*0.11f; }
+SI F sat(F r, F g, F b) { return max(r,g,b) - min(r,g,b); }
+
+SI void set_sat(F* r, F* g, F* b, F new_sat) {
+    // Maps min channel to 0, max channel to new_sat, and the middle channel scales relatively.
+    auto scale = [&](F c) {
+        F mn  = min(*r,*g,*b),
+          mx  = max(*r,*g,*b),
+          sat = mx - mn;
+        return (c - mn) * if_then_else(sat == 0, 0, new_sat / sat);
+    };
+
+    *r = scale(*r);
+    *g = scale(*g);
+    *b = scale(*b);
+}
+
+SI void clip_color(F* r, F* g, F* b) {
+    F mn = min(*r, *g, *b),
+      mx = max(*r, *g, *b),
+      l  = lum(*r, *g, *b);
+
+    auto clip = [&](F c) {
+        c = if_then_else(mn >= 0, c, l + (c - l) * l / (l - mn)   );
+        c = if_then_else(mx >  1,    l + (c - l) * l / (mx - l), c);
+        return c;
+    };
+
+    *r = clip(*r);
+    *g = clip(*g);
+    *b = clip(*b);
+}
+
+SI void set_lum(F* r, F* g, F* b, F new_lum) {
+    F diff = new_lum - lum(*r, *g, *b);
+    *r += diff;
+    *g += diff;
+    *b += diff;
+    clip_color(r, g, b);
+}
+
+SI F unpremultiply(F c, F a) {
+    return c * if_then_else(a == 0, 0, 1.0f / a);
+}
+
+STAGE(hue) {
+    F R = unpremultiply(r,a),
+      G = unpremultiply(g,a),
+      B = unpremultiply(b,a);
+
+    set_sat(&R, &G, &B, sat(dr,dg,db));
+    set_lum(&R, &G, &B, lum(dr,dg,db));
+
+    a = a + da - a*da;
+    r = R * a;
+    g = G * a;
+    b = B * a;
+}
+STAGE(saturation) {
+    F R = unpremultiply(dr,da),
+      G = unpremultiply(dg,da),
+      B = unpremultiply(db,da);
+
+    set_sat(&R, &G, &B, sat( r, g, b));
+    set_lum(&R, &G, &B, lum(dr,dg,db));  // (This is not redundant.)
+
+    a = a + da - a*da;
+    r = R * a;
+    g = G * a;
+    b = B * a;
+}
+STAGE(color) {
+    F R = unpremultiply(r,a),
+      G = unpremultiply(g,a),
+      B = unpremultiply(b,a);
+
+    set_lum(&R, &G, &B, lum(dr,dg,db));
+
+    a = a + da - a*da;
+    r = R * a;
+    g = G * a;
+    b = B * a;
+}
+STAGE(luminosity) {
+    F R = unpremultiply(dr,da),
+      G = unpremultiply(dg,da),
+      B = unpremultiply(db,da);
+
+    set_lum(&R, &G, &B, lum(r,g,b));
+
+    a = a + da - a*da;
+    r = R * a;
+    g = G * a;
+    b = B * a;
+}
+
 STAGE(clamp_0) {
     r = max(r, 0);
     g = max(g, 0);
@@ -476,10 +581,9 @@ STAGE(premul) {
     b = b * a;
 }
 STAGE(unpremul) {
-    auto scale = if_then_else(a == 0, 0, 1.0f / a);
-    r = r * scale;
-    g = g * scale;
-    b = b * scale;
+    r = unpremultiply(r,a);
+    g = unpremultiply(g,a);
+    b = unpremultiply(b,a);
 }
 
 STAGE(from_srgb) {
