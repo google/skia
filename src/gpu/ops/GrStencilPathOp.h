@@ -14,6 +14,7 @@
 #include "GrPath.h"
 #include "GrPathRendering.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetContext.h"
 #include "GrStencilSettings.h"
 
 class GrStencilPathOp final : public GrOp {
