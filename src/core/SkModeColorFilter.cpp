@@ -97,10 +97,9 @@ bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
     p->append(SkRasterPipeline::move_src_dst);
     p->append(SkRasterPipeline::constant_color, color);
     auto mode = (SkBlendMode)fMode;
-    if (!SkBlendMode_AppendStages(mode, p)) {
-        return false;
-    }
-    if (SkBlendMode_CanOverflow(mode)) { p->append(SkRasterPipeline::clamp_a); }
+    SkBlendMode_AppendStages(mode, p);
+    if (SkBlendMode_CanUnderflow(mode)) { p->append(SkRasterPipeline::clamp_0); }
+    if (SkBlendMode_CanOverflow (mode)) { p->append(SkRasterPipeline::clamp_a); }
     return true;
 }
 

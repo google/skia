@@ -12,8 +12,9 @@
 #include "SkRasterPipeline.h"
 
 bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode);
-bool SkBlendMode_CanOverflow(SkBlendMode);
-bool SkBlendMode_AppendStages(SkBlendMode, SkRasterPipeline* = nullptr);
+bool SkBlendMode_CanOverflow (SkBlendMode);
+bool SkBlendMode_CanUnderflow(SkBlendMode);
+void SkBlendMode_AppendStages(SkBlendMode, SkRasterPipeline*);
 
 #if SK_SUPPORT_GPU
 #include "GrXferProcessor.h"
