@@ -37,6 +37,15 @@ struct SkPM4f {
     float b() const { return fVec[B]; }
     float a() const { return fVec[A]; }
 
+    static SkPM4f FromPremulRGBA(float r, float g, float b, float a) {
+        SkPM4f p;
+        p.fVec[R] = r;
+        p.fVec[G] = g;
+        p.fVec[B] = b;
+        p.fVec[A] = a;
+        return p;
+    }
+
     static SkPM4f From4f(const Sk4f& x) {
         SkPM4f pm;
         x.store(pm.fVec);

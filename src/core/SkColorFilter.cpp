@@ -50,24 +50,6 @@ bool SkColorFilter::onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAllo
     return false;
 }
 
-void SkColorFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const {
-    const int N = 128;
-    SkPMColor tmp[N];
-    while (count > 0) {
-        int n = SkTMin(count, N);
-        for (int i = 0; i < n; ++i) {
-            tmp[i] = src[i].toPMColor();
-        }
-        this->filterSpan(tmp, n, tmp);
-        for (int i = 0; i < n; ++i) {
-            result[i] = SkPM4f::FromPMColor(tmp[i]);
-        }
-        src += n;
-        result += n;
-        count -= n;
-    }
-}
-
 SkColor SkColorFilter::filterColor(SkColor c) const {
     SkPMColor dst, src = SkPreMultiplyColor(c);
     this->filterSpan(&src, 1, &dst);
