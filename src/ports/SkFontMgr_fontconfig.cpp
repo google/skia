@@ -489,12 +489,9 @@ public:
         this->INHERITED::onFilterRec(rec);
     }
 
-    SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(PerGlyphInfo perGlyphInfo,
-                                                            const uint32_t* glyphIDs,
-                                                            uint32_t glyphIDsCount) const override
-    {
-        SkAdvancedTypefaceMetrics* info =
-            this->INHERITED::onGetAdvancedTypefaceMetrics(perGlyphInfo, glyphIDs, glyphIDsCount);
+    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
+        std::unique_ptr<SkAdvancedTypefaceMetrics> info =
+            this->INHERITED::onGetAdvancedMetrics();
 
         // Simulated fonts shouldn't be considered to be of the type of their data.
         if (get_matrix(fPattern, FC_MATRIX) || get_bool(fPattern, FC_EMBOLDEN)) {

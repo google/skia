@@ -146,12 +146,8 @@ void SkTestTypeface::onFilterRec(SkScalerContextRec* rec) const {
     rec->setHinting(SkPaint::kNo_Hinting);
 }
 
-SkAdvancedTypefaceMetrics* SkTestTypeface::onGetAdvancedTypefaceMetrics(
-                                PerGlyphInfo ,
-                                const uint32_t* glyphIDs,
-                                uint32_t glyphIDsCount) const {
-// pdf only
-    SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
+std::unique_ptr<SkAdvancedTypefaceMetrics> SkTestTypeface::onGetAdvancedMetrics() const { // pdf only
+    std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
     info->fFontName.set(fTestFont->fName);
     int glyphCount = this->onCountGlyphs();
 

@@ -7,14 +7,15 @@
 
 #include "SkData.h"
 #include "SkGlyphCache.h"
-#include "SkPaint.h"
+#include "SkMakeUnique.h"
 #include "SkPDFCanon.h"
 #include "SkPDFConvertType1FontStream.h"
 #include "SkPDFDevice.h"
+#include "SkPDFFont.h"
 #include "SkPDFMakeCIDGlyphWidthsArray.h"
 #include "SkPDFMakeToUnicodeCmap.h"
-#include "SkPDFFont.h"
 #include "SkPDFUtils.h"
+#include "SkPaint.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkStream.h"
@@ -142,7 +143,7 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
                                                        SkPDFCanon* canon) {
     SkASSERT(typeface);
     SkFontID id = typeface->uniqueID();
-    if (sk_sp<SkAdvancedTypefaceMetrics>* ptr = canon->fTypefaceMetrics.find(id)) {
+    if (std::unique_ptr<SkAdvancedTypefaceMetrics>* ptr = canon->fTypefaceMetrics.find(id)) {
         return ptr->get();  // canon retains ownership.
     }
     int count = typeface->countGlyphs();
@@ -151,12 +152,9 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
         canon->fTypefaceMetrics.set(id, nullptr);
         return nullptr;
     }
-    sk_sp<SkAdvancedTypefaceMetrics> metrics(
-            typeface->getAdvancedTypefaceMetrics(
-                    SkTypeface::kGlyphNames_PerGlyphInfo | SkTypeface::kToUnicode_PerGlyphInfo,
-                    nullptr, 0));
+    std::unique_ptr<SkAdvancedTypefaceMetrics> metrics = typeface->getAdvancedMetrics();
     if (!metrics) {
-        metrics = sk_make_sp<SkAdvancedTypefaceMetrics>();
+        metrics = skstd::make_unique<SkAdvancedTypefaceMetrics>();
     }
     return canon->fTypefaceMetrics.set(id, std::move(metrics))->get();
 }
