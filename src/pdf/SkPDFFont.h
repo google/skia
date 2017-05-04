@@ -87,8 +87,7 @@ public:
                                             SkTypeface* typeface,
                                             SkGlyphID glyphID);
 
-    /** Uses (kGlyphNames_PerGlyphInfo | kToUnicode_PerGlyphInfo) to get 
-     *  SkAdvancedTypefaceMetrics, and caches the result.
+    /** Gets SkAdvancedTypefaceMetrics, and caches the result.
      *  @param typeface can not be nullptr.
      *  @return nullptr only when typeface is bad.
      */
