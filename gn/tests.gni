@@ -156,7 +156,7 @@ tests_sources = [
   "$_tests/PDFMetadataAttributeTest.cpp",
   "$_tests/PDFOpaqueSrcModeToSrcOverTest.cpp",
   "$_tests/PDFPrimitivesTest.cpp",
-  "$_tests/PreFlushCallbackTest.cpp",
+  "$_tests/OnFlushCallbackTest.cpp",
   "$_tests/PictureBBHTest.cpp",
   "$_tests/PictureShaderTest.cpp",
   "$_tests/PictureTest.cpp",

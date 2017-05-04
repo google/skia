@@ -11,7 +11,7 @@
 #include "GrOpFlushState.h"
 #include "GrPathRenderer.h"
 #include "GrPathRendererChain.h"
-#include "GrPreFlushResourceProvider.h"
+#include "GrOnFlushResourceProvider.h"
 #include "GrRenderTargetOpList.h"
 #include "GrResourceCache.h"
 #include "SkTArray.h"
@@ -71,7 +71,8 @@ public:
 
     void prepareSurfaceForExternalIO(GrSurfaceProxy*);
 
-    void addPreFlushCallbackObject(sk_sp<GrPreFlushCallbackObject> preFlushCBObject);
+    void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
+    void testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
 private:
     GrDrawingManager(GrContext* context,
@@ -99,7 +100,7 @@ private:
 
     friend class GrContext;  // for access to: ctor, abandon, reset & flush
     friend class GrContextPriv; // access to: flush
-    friend class GrPreFlushResourceProvider; // this is just a shallow wrapper around this class
+    friend class GrOnFlushResourceProvider; // this is just a shallow wrapper around this class
 
     static const int kNumPixelGeometries = 5; // The different pixel geometries
     static const int kNumDFTOptions = 2;      // DFT or no DFT
@@ -123,7 +124,7 @@ private:
 
     bool                              fIsImmediateMode;
 
-    SkTArray<sk_sp<GrPreFlushCallbackObject>> fPreFlushCBObjects;
+    SkTArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;
 
     // Lazily allocated
     std::unique_ptr<gr_instanced::OpAllocator> fInstancingAllocator;
