@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26037231_08bebf2c",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-04T18:34:12Z",
+      "side": 1,
+      "message": "alternatively we could just stuff a 1.0f somewhere on the SkLinearGradient object?",
+      "range": {
+        "startLine": 95,
+        "startChar": 5,
+        "endLine": 95,
+        "endChar": 43
+      },
+      "revId": "c94c0ff2f1fea7394516e63c4c3e7ce6dfc58fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
