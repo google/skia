@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "40dfaac4_c09071c0",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-05-04T00:11:23Z",
+      "side": 1,
+      "message": "Makes sense - tried to phrase this more generically.",
+      "parentUuid": "6b4169ff_5ecd55c3",
+      "revId": "1622f0daf809800256adf32e3059f982ecd51ead",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "266ae6de_fa23dcaa",
         "filename": "src/gpu/text/GrAtlasGlyphCache.cpp",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2017-05-03T12:40:11Z",
       "side": 1,
       "message": "This naming confused me a bit since we\u0027re also looking at a different \"maxTextureSize\", the maximum allowed texture size by the 3D API. Maybe just maxTextureBytes?",
+      "range": {
+        "startLine": 39,
+        "startChar": 63,
+        "endLine": 39,
+        "endChar": 82
+      },
+      "revId": "1622f0daf809800256adf32e3059f982ecd51ead",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62ba8644_a4d5b2b5",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-05-04T00:11:23Z",
+      "side": 1,
+      "message": "sgtm.",
+      "parentUuid": "266ae6de_fa23dcaa",
       "range": {
         "startLine": 39,
         "startChar": 63,
