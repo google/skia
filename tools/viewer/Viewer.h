@@ -27,6 +27,7 @@ public:
     void onPaint(SkCanvas* canvas);
     void onIdle() override;
     bool onTouch(intptr_t owner, sk_app::Window::InputState state, float x, float y);
+    bool onMouse(float x, float y, sk_app::Window::InputState state, uint32_t modifiers);
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
     bool onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers);
     bool onChar(SkUnichar c, uint32_t modifiers);
