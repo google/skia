@@ -413,6 +413,112 @@ BLEND_MODE(softlight) {
 }
 #undef BLEND_MODE
 
+SI F max(F r, F g, F b) { return max(r, max(g, b)); }
+SI F min(F r, F g, F b) { return min(r, min(g, b)); }
+
+SI F lum(F r, F g, F b) {
+    // This does not match the web spec, presumably for historical reasons.
+    return r*0.2126f + g*0.7152f + b*0.0722f;
+}
+SI F sat(F r, F g, F b) {
+    return max(r,g,b)
+         - min(r,g,b);
+}
+
+SI void set_sat(F* r, F* g, F* b, F new_sat) {
+    F mn  = min(*r,*g,*b),
+      mx  = max(*r,*g,*b);
+
+    F md = if_then_else((*r > mn) & (*r < mx), *r,
+           if_then_else((*g > mn) & (*g < mx), *g,
+                                               *b));
+
+    // Map min -> 0, max -> new saturation, and scale mid by the relative change in saturation.
+    F old_sat = mx - mn,
+      new_mid = (md - mn) * new_sat / old_sat;
+    *r = if_then_else(*r == mn, 0,
+         if_then_else(*r == mx, new_sat,
+                                new_mid));
+    *g = if_then_else(*g == mn, 0,
+         if_then_else(*g == mx, new_sat,
+                                new_mid));
+    *b = if_then_else(*b == mn, 0,
+         if_then_else(*b == mx, new_sat,
+                                new_mid));
+}
+
+SI void clip_color(F* r, F* g, F* b, F a) {
+    F mn = min(*r, *g, *b),
+      mx = max(*r, *g, *b),
+      l  = lum(*r, *g, *b);
+
+    F scale = if_then_else((mn < 0) & (l - mn != 0),       l / (l - mn),
+              if_then_else((mx > a) & (mx - l != 0), (a - l) / (mx - l),
+                                                                  1.0f));
+    *r *= scale;
+    *g *= scale;
+    *b *= scale;
+}
+
+SI void set_lum(F* r, F* g, F* b, F a, F new_lum) {
+    F diff = new_lum - lum(*r, *g, *b);
+    *r += diff;
+    *g += diff;
+    *b += diff;
+    clip_color(r, g, b, a);
+}
+
+STAGE(hue) {
+    F R = r,
+      G = g,
+      B = b;
+
+    set_sat(&r, &g, &b,       sat(dr,dg,db)*a);
+    set_lum(&r, &g, &b, a*da, lum(dr,dg,db)*a);
+
+    r = r*inv(da) + dr*inv(a) + R;
+    g = g*inv(da) + dg*inv(a) + G;
+    b = b*inv(da) + db*inv(a) + B;
+    a = a + da - a*da;
+}
+STAGE(color) {
+    F R = r,
+      G = g,
+      B = b;
+
+    set_lum(&r, &g, &b, a*da, lum(dr,dg,db)*a);
+
+    r = r*inv(da) + dr*inv(a) + R;
+    g = g*inv(da) + dg*inv(a) + G;
+    b = b*inv(da) + db*inv(a) + B;
+    a = a + da - a*da;
+}
+STAGE(saturation) {
+    F R = dr,
+      G = dg,
+      B = db;
+
+    set_sat(&dr, &dg, &db,       sat( r, g, b)*a);
+    set_lum(&dr, &dg, &db, a*da, lum(dr,dg,db)*a);
+
+    r = r*inv(da) + dr*inv(a) + R;
+    g = g*inv(da) + dg*inv(a) + G;
+    b = b*inv(da) + db*inv(a) + B;
+    a = a + da - a*da;
+}
+STAGE(luminosity) {
+    F R = dr,
+      G = dg,
+      B = db;
+
+    set_lum(&dr, &dg, &db, a*da, lum(r,g,b)*da);
+
+    r = r*inv(da) + dr*inv(a) + R;
+    g = g*inv(da) + dg*inv(a) + G;
+    b = b*inv(da) + db*inv(a) + B;
+    a = a + da - a*da;
+}
+
 STAGE(clamp_0) {
     r = max(r, 0);
     g = max(g, 0);
@@ -890,7 +996,7 @@ STAGE(mirror_x) { r = mirror(r, *(const float*)ctx); }
 STAGE(mirror_y) { g = mirror(g, *(const float*)ctx); }
 
 STAGE(luminance_to_alpha) {
-    a = r*0.2126f + g*0.7152f + b*0.0722f;
+    a = lum(r,g,b);
     r = g = b = 0;
 }
 
