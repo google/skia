@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f39d436d_b65870b1",
+        "filename": "gm/bigrect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-04T16:11:26Z",
+      "side": 1,
+      "message": "We\u0027d usually make this static void draw_big_rect().  As written you\u0027re risking a collision with some other GM also defining a function DrawBigRect().",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 16
+      },
+      "revId": "af4d4c672165dd242d3039e74d011c67da121785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
