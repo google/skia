@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d85fdb01_9af7f105",
+        "filename": "src/gpu/ops/GrSimpleMeshDrawOpHelper.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-04T15:02:32Z",
+      "side": 1,
+      "message": "As discussed in person, add a helper function for this ?",
+      "revId": "04025d12efe283fa0a301aaf53d6bc49acdd4549",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
