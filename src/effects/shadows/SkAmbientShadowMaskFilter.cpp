@@ -219,11 +219,14 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         SkScalar ambientPathOutset = 0.5f*srcSpaceStrokeWidth;
 
         SkRRect ambientRRect;
-        if (rrect.isRect()) {
-            const SkRect temp = rrect.rect().makeOutset(ambientPathOutset, ambientPathOutset);
-            ambientRRect = SkRRect::MakeRectXY(temp, ambientPathOutset, ambientPathOutset);
+        SkRect insetRect = rrect.rect().makeOutset(ambientPathOutset, ambientPathOutset);
+        // If the rrect was an oval then its outset will also be one.
+        // We set it explicitly to avoid errors.
+        if (rrect.isOval()) {
+            ambientRRect = SkRRect::MakeOval(insetRect);
         } else {
-             rrect.outset(ambientPathOutset, ambientPathOutset, &ambientRRect);
+            SkScalar insetRad = rrect.getSimpleRadii().fX + ambientPathOutset;
+            ambientRRect = SkRRect::MakeRectXY(insetRect, insetRad, insetRad);
         }
 
         GrPaint newPaint(paint);
