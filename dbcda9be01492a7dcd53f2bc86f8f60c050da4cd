@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafcf481_498b3137",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-05-04T19:20:55Z",
+      "side": 1,
+      "message": "done. thanks.",
+      "parentUuid": "2e8acfef_852058e0",
+      "range": {
+        "startLine": 293,
+        "startChar": 8,
+        "endLine": 293,
+        "endChar": 102
+      },
+      "revId": "dbcda9be01492a7dcd53f2bc86f8f60c050da4cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c077d98e_c537ad42",
         "filename": "src/gpu/GrClipStackClip.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-04T18:04:00Z",
       "side": 1,
       "message": "I think if you make this:\n(!renderTargetContext-\u003eisStencilBufferMultisampled() \u0026\u0026 reducedClip.requiresAA()) || caps.avoidStencilBuffers())\n\nand return if this failed for some reason rather than continuing on to the stencil code then you can remove the above code at line 286 and will cover all clip cases.",
+      "range": {
+        "startLine": 325,
+        "startChar": 8,
+        "endLine": 325,
+        "endChar": 87
+      },
+      "revId": "dbcda9be01492a7dcd53f2bc86f8f60c050da4cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64633d23_c412279d",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-05-04T19:20:55Z",
+      "side": 1,
+      "message": "Good point - misread this initially. Updated.",
+      "parentUuid": "c077d98e_c537ad42",
       "range": {
         "startLine": 325,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fef082d9_d3a64034",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1431,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-05-04T19:20:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3703eb3c_51f3b3f0",
+      "range": {
+        "startLine": 1430,
+        "startChar": 4,
+        "endLine": 1431,
+        "endChar": 96
+      },
+      "revId": "dbcda9be01492a7dcd53f2bc86f8f60c050da4cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7390d155_57dec4af",
         "filename": "src/gpu/ops/GrMSAAPathRenderer.cpp",
         "patchSetId": 3
@@ -85,6 +157,24 @@
       "revId": "dbcda9be01492a7dcd53f2bc86f8f60c050da4cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42cf0c61_31b31a79",
+        "filename": "src/gpu/ops/GrMSAAPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-05-04T19:20:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7390d155_57dec4af",
+      "revId": "dbcda9be01492a7dcd53f2bc86f8f60c050da4cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
