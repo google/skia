@@ -319,9 +319,12 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
     SkTDArray<SkUnichar>(glyphToUni, maxGlyph + 1).swap(*glyphToUnicode);
 }
 
-std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetrics() const {
+SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
+        PerGlyphInfo perGlyphInfo,
+        const uint32_t* glyphIDs,
+        uint32_t glyphIDsCount) const {
 
-    std::unique_ptr<SkAdvancedTypefaceMetrics> info(nullptr);
+    SkAdvancedTypefaceMetrics* info = nullptr;
 
     HRESULT hr = S_OK;
 
@@ -330,7 +333,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
     DWRITE_FONT_METRICS dwfm;
     fDWriteFontFace->GetMetrics(&dwfm);
 
-    info.reset(new SkAdvancedTypefaceMetrics);
+    info = new SkAdvancedTypefaceMetrics;
 
     info->fAscent = SkToS16(dwfm.ascent);
     info->fDescent = SkToS16(dwfm.descent);
@@ -350,7 +353,9 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
 
     hr = sk_wchar_to_skstring(familyName.get(), familyNameLen, &info->fFontName);
 
-    populate_glyph_to_unicode(fDWriteFontFace.get(), glyphCount, &(info->fGlyphToUnicode));
+    if (perGlyphInfo & kToUnicode_PerGlyphInfo) {
+        populate_glyph_to_unicode(fDWriteFontFace.get(), glyphCount, &(info->fGlyphToUnicode));
+    }
 
     DWRITE_FONT_FACE_TYPE fontType = fDWriteFontFace->GetType();
     if (fontType != DWRITE_FONT_FACE_TYPE_TRUETYPE &&
