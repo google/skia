@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "dbb21562_252c86d2",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-04T13:20:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f69df7b2_76858aee",
+      "revId": "8fd81da1ddb430a013195d7bce87752e186c4ee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ec79de5f_6f37d632",
         "filename": "src/effects/SkLumaColorFilter.cpp",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "b94bb57e_d3a18aeb",
+        "filename": "src/effects/SkLumaColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-04T13:20:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec79de5f_6f37d632",
+      "range": {
+        "startLine": 52,
+        "startChar": 19,
+        "endLine": 52,
+        "endChar": 34
+      },
+      "revId": "8fd81da1ddb430a013195d7bce87752e186c4ee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e2b9ca4a_055e476c",
         "filename": "src/effects/SkOverdrawColorFilter.h",
         "patchSetId": 2
@@ -56,6 +98,24 @@
       "revId": "8fd81da1ddb430a013195d7bce87752e186c4ee5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bc5a32c_8a0e7480",
+        "filename": "src/effects/SkOverdrawColorFilter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-04T13:20:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e2b9ca4a_055e476c",
+      "revId": "8fd81da1ddb430a013195d7bce87752e186c4ee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
