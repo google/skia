@@ -12,6 +12,7 @@
 #include "GrOpFlushState.h"
 #include "GrPipeline.h"
 #include "GrProcessorSet.h"
+#include "GrRect.h"
 #include "GrUserStencilSettings.h"
 
 /**
@@ -38,7 +39,8 @@ public:
                              GrUserStencilSettings* stencilSettings = nullptr)
             : fProcessors(args.fProcessorSet)
             , fPipelineFlags(args.fSRGBFlags)
-            , fAAType((int)aaType) {
+            , fAAType((int)aaType)
+            , fRequiresDstTexture(false) {
         SkASSERT(!stencilSettings);
         if (GrAATypeIsHW(aaType)) {
             fPipelineFlags |= GrPipeline::kHWAntialias_Flag;
@@ -60,12 +62,21 @@ public:
                                               : GrDrawOp::FixedFunctionFlags::kNone;
     }
 
-    bool isCompatible(const GrSimpleMeshDrawOpHelper& that) const {
+    bool isCompatible(const GrSimpleMeshDrawOpHelper& that, const GrCaps& caps,
+                      const SkRect& aBounds, const SkRect& bBounds) const {
         if (SkToBool(fProcessors) != SkToBool(that.fProcessors)) {
             return false;
         }
-        if (SkToBool(fProcessors) && *fProcessors != *that.fProcessors) {
-            return false;
+        if (fProcessors) {
+            if (*fProcessors != *that.fProcessors) {
+                return false;
+            }
+            if (fRequiresDstTexture || (fProcessors->xferProcessor() &&
+                                        fProcessors->xferProcessor()->xferBarrierType(caps))) {
+                if (GrRectsTouchOrOverlap(aBounds, bBounds)) {
+                    return false;
+                }
+            }
         }
         return fPipelineFlags == that.fPipelineFlags && fAAType == that.fAAType;
     }
@@ -82,6 +93,7 @@ public:
             bool isMixedSamples = this->aaType() == GrAAType::kMixedSamples;
             GrProcessorSet::Analysis analysis =
                     fProcessors->finalize(*color, coverage, clip, isMixedSamples, caps, color);
+            fRequiresDstTexture = analysis.requiresDstTexture();
             return analysis.requiresDstTexture();
         } else {
             return GrProcessorSet::EmptySetAnalysis().requiresDstTexture();
@@ -124,6 +136,7 @@ private:
     GrProcessorSet* fProcessors;
     unsigned fPipelineFlags : 8;
     unsigned fAAType : 2;
+    unsigned fRequiresDstTexture : 1;
 };
 
 /**
@@ -158,8 +171,10 @@ public:
 
     using GrSimpleMeshDrawOpHelper::xpRequiresDstTexture;
 
-    bool isCompatible(const GrSimpleMeshDrawOpHelperWithStencil& that) const {
-        return INHERITED::isCompatible(that) && fStencilSettings == that.fStencilSettings;
+    bool isCompatible(const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps& caps,
+                      const SkRect& aBounds, const SkRect& bBounds) const {
+        return INHERITED::isCompatible(that, caps, aBounds, bBounds) &&
+               fStencilSettings == that.fStencilSettings;
     }
 
     GrPipeline* makePipeline(GrMeshDrawOp::Target* target) const {

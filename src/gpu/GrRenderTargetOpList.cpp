@@ -10,12 +10,13 @@
 #include "GrCaps.h"
 #include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
+#include "GrRect.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
+#include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrCopySurfaceOp.h"
-#include "instanced/InstancedRendering.h"
 
 using gr_instanced::InstancedRendering;
 
@@ -263,10 +264,7 @@ bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
     return true;
 }
 
-static inline bool can_reorder(const SkRect& a, const SkRect& b) {
-    return a.fRight <= b.fLeft || a.fBottom <= b.fTop ||
-           b.fRight <= a.fLeft || b.fBottom <= a.fTop;
-}
+static inline bool can_reorder(const SkRect& a, const SkRect& b) { return !GrRectsOverlap(a, b); }
 
 bool GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,
                                              const GrAppliedClip* bClip,
