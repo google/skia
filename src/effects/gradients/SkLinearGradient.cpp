@@ -97,13 +97,13 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
                                       const SkMatrix& ctm,
                                       const SkPaint& paint,
                                       const SkMatrix* localM) const {
-    // Local matrix not supported currently.  Remove once we have a generic RP wrapper.
-    if (localM || !getLocalMatrix().isIdentity()) {
-        return false;
-    }
-
     SkMatrix dstToPts;
-    if (!ctm.invert(&dstToPts)) {
+    if (!this->computeTotalInverse(ContextRec(paint,
+                                              ctm,
+                                              localM,
+                                              ContextRec::kPM4f_DstType, // doesn't matter here
+                                              dstCS),
+                                   &dstToPts)) {
         return false;
     }
 
