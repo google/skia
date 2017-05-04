@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2d6b403_32ddf074",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-04T22:19:51Z",
+      "side": 1,
+      "message": "Sort of seems like we might want a version of this method that takes only ctm and localM, for clarity\u0027s sake.  I until I read the code I was wondering how the paint and dstCS mattered... :)",
+      "range": {
+        "startLine": 356,
+        "startChar": 15,
+        "endLine": 356,
+        "endChar": 34
+      },
+      "revId": "989070f2cd45eced86533dde3b7a0b7384c5422a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
