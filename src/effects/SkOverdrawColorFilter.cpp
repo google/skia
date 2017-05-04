@@ -6,6 +6,7 @@
  */
 
 #include "SkOverdrawColorFilter.h"
+#include "SkPM4f.h"
 
 void SkOverdrawColorFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
     for (int x = 0; x < count; x++) {
@@ -15,6 +16,16 @@ void SkOverdrawColorFilter::filterSpan(const SkPMColor src[], int count, SkPMCol
         }
 
         dst[x] = fColors[alpha];
+    }
+}
+
+void SkOverdrawColorFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {
+    for (int i = 0; i < count; ++i) {
+        uint8_t alpha = (int)(src[i].a() * 255);
+        if (alpha >= kNumColors) {
+            alpha = kNumColors - 1;
+        }
+        dst[i] = SkPM4f::FromPMColor(fColors[alpha]);
     }
 }
 
