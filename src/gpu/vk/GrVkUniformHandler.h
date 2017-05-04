@@ -78,7 +78,16 @@ private:
         return fSamplers[handle.toIndex()].fVisibility;
     }
 
+    TexelBufferHandle addTexelBuffer(uint32_t visibility, GrSLPrecision,
+                                     const char* name) override {
+        SkFAIL("Texel buffers not implemented for Vulkan.");
+        return 0;
+    }
+
     int numTexelBuffers() const { return fTexelBuffers.count(); }
+    const GrShaderVar& texelBufferVariable(TexelBufferHandle handle) const override {
+        return fTexelBuffers[handle.toIndex()].fVariable;
+    }
     uint32_t texelBufferVisibility(SamplerHandle handle) const {
         return fTexelBuffers[handle.toIndex()].fVisibility;
     }
