@@ -1,12 +1,12 @@
 /*
-* Copyright 2015 Google Inc.
-*
-* Use of this source code is governed by a BSD-style license that can be
-* found in the LICENSE file.
-*/
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #include "SkTableColorFilter.h"
-
+#include "SkPM4f.h"
 #include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
@@ -90,6 +90,7 @@ public:
 #endif
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override;
+    void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const override;
 
     SK_TO_STRING_OVERRIDE()
 
@@ -182,6 +183,41 @@ void SkTable_ColorFilter::filterSpan(const SkPMColor src[], int count, SkPMColor
         }
         dst[i] = SkPremultiplyARGBInline(tableA[a], tableR[r],
                                          tableG[g], tableB[b]);
+    }
+}
+
+void SkTable_ColorFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {
+    const uint8_t* table = fStorage;
+    const uint8_t* tableA = gIdentityTable;
+    const uint8_t* tableR = gIdentityTable;
+    const uint8_t* tableG = gIdentityTable;
+    const uint8_t* tableB = gIdentityTable;
+    if (fFlags & kA_Flag) {
+        tableA = table; table += 256;
+    }
+    if (fFlags & kR_Flag) {
+        tableR = table; table += 256;
+    }
+    if (fFlags & kG_Flag) {
+        tableG = table; table += 256;
+    }
+    if (fFlags & kB_Flag) {
+        tableB = table;
+    }
+
+    const float oneOver255 = 1.0f / 255;
+    for (int i = 0; i < count; ++i) {
+        SkColor4f c = src[i].unpremul();
+        int r = (int)(c.fR * 255.999) & 0xFF;
+        int g = (int)(c.fG * 255.999) & 0xFF;
+        int b = (int)(c.fB * 255.999) & 0xFF;
+        int a = (int)(c.fA * 255.999) & 0xFF;
+
+        SkColor4f d {
+            tableR[r] * oneOver255, tableG[g] * oneOver255,
+            tableB[b] * oneOver255, tableA[a] * oneOver255,
+        };
+        dst[i] = d.premul();
     }
 }
 

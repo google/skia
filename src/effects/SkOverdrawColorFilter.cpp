@@ -6,6 +6,7 @@
  */
 
 #include "SkOverdrawColorFilter.h"
+#include "SkPM4f.h"
 
 void SkOverdrawColorFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
     for (int x = 0; x < count; x++) {
@@ -15,6 +16,13 @@ void SkOverdrawColorFilter::filterSpan(const SkPMColor src[], int count, SkPMCol
         }
 
         dst[x] = fColors[alpha];
+    }
+}
+
+void SkOverdrawColorFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const {
+    SkASSERT(false);    // didn't expect to get called on cpu
+    if (src != result) {
+        memcpy(result, src, count * sizeof(SkPM4f));
     }
 }
 
