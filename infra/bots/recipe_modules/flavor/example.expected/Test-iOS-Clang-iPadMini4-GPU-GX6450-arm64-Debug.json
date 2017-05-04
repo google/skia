@@ -546,6 +546,7 @@
   {
     "cmd": [
       "idevice-app-runner",
+      "-d",
       "-s",
       "com.google.dm",
       "--args",
