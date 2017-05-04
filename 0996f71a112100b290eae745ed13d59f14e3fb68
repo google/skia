@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4422f6ec_f7c443e2",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-05-04T21:43:24Z",
+      "side": 1,
+      "message": "nit: target",
+      "range": {
+        "startLine": 436,
+        "startChar": 50,
+        "endLine": 436,
+        "endChar": 71
+      },
+      "revId": "0996f71a112100b290eae745ed13d59f14e3fb68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bb9d48d_48945f64",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-05-04T21:43:24Z",
+      "side": 1,
+      "message": "What about +\u003d, *\u003d, etc.? (Maybe assert we never call this function for those operators?)",
+      "range": {
+        "startLine": 438,
+        "startChar": 8,
+        "endLine": 438,
+        "endChar": 34
+      },
+      "revId": "0996f71a112100b290eae745ed13d59f14e3fb68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
