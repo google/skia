@@ -517,6 +517,9 @@ def dm_flags(bot):
   if ('Win10' in bot and 'Vulkan' in bot
       and ('GTX1070' in bot or 'GTX660' in bot)):
     blacklist('_ test _ SkImage_makeTextureImage') # skia:6554
+  # if 'iOS' in bot:
+  #   match = ['bleed']
+  #      args.append('--status_sec 1')
 
   if blacklisted:
     args.append('--blacklist')
