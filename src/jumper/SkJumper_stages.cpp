@@ -413,6 +413,11 @@ BLEND_MODE(softlight) {
 }
 #undef BLEND_MODE
 
+STAGE(hue) {}
+STAGE(color) {}
+STAGE(saturation) {}
+STAGE(luminosity) {}
+
 STAGE(clamp_0) {
     r = max(r, 0);
     g = max(g, 0);

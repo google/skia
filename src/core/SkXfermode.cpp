@@ -1484,7 +1484,7 @@ const GrXPFactory* SkBlendMode_AsXPFactory(SkBlendMode mode) {
 
 bool SkBlendMode_CanOverflow(SkBlendMode mode) { return mode == SkBlendMode::kPlus; }
 
-bool SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
+void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
     auto stage = SkRasterPipeline::srcover;
     switch (mode) {
         case SkBlendMode::kClear:    stage = SkRasterPipeline::clear; break;
@@ -1514,13 +1514,10 @@ bool SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
         case SkBlendMode::kExclusion:  stage = SkRasterPipeline::exclusion; break;
         case SkBlendMode::kMultiply:   stage = SkRasterPipeline::multiply; break;
 
-        case SkBlendMode::kHue:
-        case SkBlendMode::kSaturation:
-        case SkBlendMode::kColor:
-        case SkBlendMode::kLuminosity: return false;  // TODO
+        case SkBlendMode::kHue:        stage = SkRasterPipeline::hue; break;
+        case SkBlendMode::kSaturation: stage = SkRasterPipeline::saturation; break;
+        case SkBlendMode::kColor:      stage = SkRasterPipeline::color; break;
+        case SkBlendMode::kLuminosity: stage = SkRasterPipeline::luminosity; break;
     }
-    if (p) {
-        p->append(stage);
-    }
-    return true;
+    p->append(stage);
 }
