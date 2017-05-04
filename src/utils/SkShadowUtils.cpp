@@ -10,6 +10,7 @@
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkPath.h"
+#include "SkPM4f.h"
 #include "SkRandom.h"
 #include "SkResourceCache.h"
 #include "SkShadowTessellator.h"
@@ -36,6 +37,7 @@ public:
     }
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override;
+    void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const override;
 
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
@@ -53,15 +55,18 @@ private:
     typedef SkColorFilter INHERITED;
 };
 
+static inline float eval_gaussian(float x) {
+    float factor = 1 - x;
+    return sk_float_exp(-factor * factor * 4) - 0.018f;
+}
+
 static void build_table() {
     SkDebugf("const uint16_t gByteExpU16Table[256] = {");
     for (int i = 0; i <= 255; ++i) {
         if (!(i % 8)) {
             SkDebugf("\n");
         }
-        SkScalar factor = SK_Scalar1 - i / 255.f;
-        factor = SkScalarExp(-factor * factor * 4) - 0.018f;
-        int v = (int)(factor * 65536);
+        int v = (int)(eval_gaussian(i / 255.f) * 65536);
         SkDebugf(" 0x%04X,", v);
     }
     SkDebugf("\n};\n");
@@ -111,6 +116,12 @@ void SkGaussianColorFilter::filterSpan(const SkPMColor src[], int count, SkPMCol
         SkPMColor c = src[i];
         uint8_t a = gByteExpU16Table[SkGetPackedB32(c)] * SkGetPackedG32(c) >> 16;
         dst[i] = SkPackARGB32(a, a, a, a);
+    }
+}
+
+void SkGaussianColorFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {
+    for (int i = 0; i < count; ++i) {
+        dst[i] = SkPM4f::FromPremulRGBA(0, 0, 0, eval_gaussian(src[i].b()) * src[i].g());
     }
 }
 
