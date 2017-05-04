@@ -115,7 +115,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
 
         GrShape shape(path, GrStyle::SimpleFill());
         GrPathRenderer::CanDrawPathArgs canDrawArgs;
-        canDrawArgs.fShaderCaps = context->caps()->shaderCaps();
+        canDrawArgs.fCaps = context->caps();
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;
         if (!element->isAA()) {
@@ -311,7 +311,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     }
 
     // If the stencil buffer is multisampled we can use it to do everything.
-    if (!renderTargetContext->isStencilBufferMultisampled() && reducedClip.requiresAA()) {
+    if ((!renderTargetContext->isStencilBufferMultisampled() && reducedClip.requiresAA()) ||
+        context->caps()->avoidStencilBuffers()) {
         sk_sp<GrTextureProxy> result;
         if (UseSWOnlyPath(context, hasUserStencilSettings, renderTargetContext, reducedClip)) {
             // The clip geometry is complex enough that it will be more efficient to create it
@@ -328,7 +329,15 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
                                                   reducedClip.ibounds()));
             return true;
         }
-        // if alpha clip mask creation fails fall through to the non-AA code paths
+
+        // If alpha or software clip mask creation fails, fall through to the stencil code paths,
+        // unless stencils are disallowed.
+        if (context->caps()->avoidStencilBuffers()) {
+            SkDebugf(
+                    "WARNING: Clip mask requires stencil, but stencil unavailable. Clip will be "
+                    "ignored.\n");
+            return false;
+        }
     }
 
     GrRenderTarget* rt = renderTargetContext->accessRenderTarget();
