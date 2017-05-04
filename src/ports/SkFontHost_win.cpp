@@ -259,7 +259,8 @@ protected:
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                            const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
-    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
+    SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
+                                PerGlyphInfo, const uint32_t*, uint32_t) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     int onCharsToGlyphs(const void* chars, Encoding encoding,
                         uint16_t glyphs[], int glyphCount) const override;
@@ -1724,9 +1725,12 @@ void LogFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     *isLocalStream = this->fSerializeAsStream;
 }
 
-std::unique_ptr<SkAdvancedTypefaceMetrics> LogFontTypeface::onGetAdvancedMetrics() const {
+SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
+        PerGlyphInfo perGlyphInfo,
+        const uint32_t* glyphIDs,
+        uint32_t glyphIDsCount) const {
     LOGFONT lf = fLogFont;
-    std::unique_ptr<SkAdvancedTypefaceMetrics> info(nullptr);
+    SkAdvancedTypefaceMetrics* info = nullptr;
 
     HDC hdc = CreateCompatibleDC(nullptr);
     HFONT font = CreateFontIndirect(&lf);
@@ -1756,7 +1760,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> LogFontTypeface::onGetAdvancedMetrics
     }
     glyphCount = calculateGlyphCount(hdc, fLogFont);
 
-    info.reset(new SkAdvancedTypefaceMetrics);
+    info = new SkAdvancedTypefaceMetrics;
     tchar_to_skstring(lf.lfFaceName, &info->fFontName);
     // If bit 1 is set, the font may not be embedded in a document.
     // If bit 1 is clear, the font can be embedded.
@@ -1765,7 +1769,9 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> LogFontTypeface::onGetAdvancedMetrics
         info->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
     }
 
-    populate_glyph_to_unicode(hdc, glyphCount, &(info->fGlyphToUnicode));
+    if (perGlyphInfo & kToUnicode_PerGlyphInfo) {
+        populate_glyph_to_unicode(hdc, glyphCount, &(info->fGlyphToUnicode));
+    }
 
     if (glyphCount > 0 &&
         (otm.otmTextMetrics.tmPitchAndFamily & TMPF_TRUETYPE)) {

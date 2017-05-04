@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAdvancedTypefaceMetrics.h"
 #include "SkData.h"
 #include "SkFixed.h"
 #include "SkFontMgr.h"
@@ -197,9 +196,9 @@ protected:
         return nullptr;
     }
     void onFilterRec(SkScalerContextRec*) const override { }
-    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
-        return nullptr;
-    }
+    virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
+                                PerGlyphInfo,
+                                const uint32_t*, uint32_t) const override { return nullptr; }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
                                 uint16_t glyphs[], int glyphCount) const override {

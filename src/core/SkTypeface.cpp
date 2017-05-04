@@ -50,9 +50,9 @@ protected:
         return nullptr;
     }
     void onFilterRec(SkScalerContextRec*) const override { }
-    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
-        return nullptr;
-    }
+    virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
+                                PerGlyphInfo,
+                                const uint32_t*, uint32_t) const override { return nullptr; }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
                                 uint16_t glyphs[], int glyphCount) const override {
@@ -296,8 +296,12 @@ void SkTypeface::getFamilyName(SkString* name) const {
     this->onGetFamilyName(name);
 }
 
-std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::getAdvancedMetrics() const {
-    std::unique_ptr<SkAdvancedTypefaceMetrics> result = this->onGetAdvancedMetrics();
+SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
+                                PerGlyphInfo info,
+                                const uint32_t* glyphIDs,
+                                uint32_t glyphIDsCount) const {
+    SkAdvancedTypefaceMetrics* result =
+            this->onGetAdvancedTypefaceMetrics(info, glyphIDs, glyphIDsCount);
     if (result && result->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
         SkOTTableOS2::Version::V2::Type::Field fsType;
         constexpr SkFontTableTag os2Tag = SkTEndian_SwapBE32(SkOTTableOS2::TAG);

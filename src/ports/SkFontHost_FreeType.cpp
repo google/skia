@@ -540,14 +540,17 @@ static void populate_glyph_to_unicode(FT_Face& face, SkTDArray<SkUnichar>* glyph
     }
 }
 
-std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMetrics() const {
+SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
+        PerGlyphInfo perGlyphInfo,
+        const uint32_t* glyphIDs,
+        uint32_t glyphIDsCount) const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
         return nullptr;
     }
 
-    std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
+    SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
     info->fFontName.set(FT_Get_Postscript_Name(face));
 
     if (FT_HAS_MULTIPLE_MASTERS(face)) {
@@ -647,9 +650,13 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
     info->fBBox = SkIRect::MakeLTRB(face->bbox.xMin, face->bbox.yMax,
                                     face->bbox.xMax, face->bbox.yMin);
 
-    bool perGlyphInfo = FT_IS_SCALABLE(face);
+    if (!FT_IS_SCALABLE(face)) {
+        perGlyphInfo = kNo_PerGlyphInfo;
+    }
 
-    if (perGlyphInfo && info->fType == SkAdvancedTypefaceMetrics::kType1_Font) {
+    if (perGlyphInfo & kGlyphNames_PerGlyphInfo &&
+        info->fType == SkAdvancedTypefaceMetrics::kType1_Font)
+    {
         // Postscript fonts may contain more than 255 glyphs, so we end up
         // using multiple font descriptions with a glyph ordering.  Record
         // the name of each glyph.
@@ -661,7 +668,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
         }
     }
 
-    if (perGlyphInfo &&
+    if (perGlyphInfo & kToUnicode_PerGlyphInfo &&
         info->fType != SkAdvancedTypefaceMetrics::kType1_Font &&
         face->num_charmaps)
     {
