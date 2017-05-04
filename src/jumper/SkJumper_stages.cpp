@@ -413,6 +413,29 @@ BLEND_MODE(softlight) {
 }
 #undef BLEND_MODE
 
+SI F lum(F r, F g, F b) {
+    // This does not match the web spec, presumably for historical reasons.
+    return r*0.2126f + g*0.7152f + b*0.0722f;
+}
+
+#if 0
+SI F sat(F r, F g, F b) {
+    return max(r, max(g, b))
+         - min(r, min(g, b));
+}
+
+SI set_sat(F s, F* min, F* mid, F* max) {
+    *mid = if_then_else(*min == *max, 0, (*mid - *min) * s / (*max - *min));
+    *max = if_then_else(*min == *max, 0, s);
+    *min = 0;
+}
+#endif
+
+STAGE(hue) {}
+STAGE(color) {}
+STAGE(saturation) {}
+STAGE(luminosity) {}
+
 STAGE(clamp_0) {
     r = max(r, 0);
     g = max(g, 0);
@@ -890,7 +913,7 @@ STAGE(mirror_x) { r = mirror(r, *(const float*)ctx); }
 STAGE(mirror_y) { g = mirror(g, *(const float*)ctx); }
 
 STAGE(luminance_to_alpha) {
-    a = r*0.2126f + g*0.7152f + b*0.0722f;
+    a = lum(r,g,b);
     r = g = b = 0;
 }
 
