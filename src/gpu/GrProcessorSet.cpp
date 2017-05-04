@@ -11,8 +11,6 @@
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 
-const GrProcessorSet GrProcessorSet::gEmpty{GrProcessorSet::Empty::kEmpty};
-
 GrProcessorSet::GrProcessorSet(GrPaint&& paint) : fXP(paint.getXPFactory()) {
     fFlags = 0;
     if (paint.numColorFragmentProcessors() <= kMaxColorProcessors) {

@@ -79,14 +79,11 @@ public:
      * as such (with linear blending), and sRGB inputs to be filtered and decoded correctly.
      */
     void setGammaCorrect(bool gammaCorrect) {
-        this->setDisableOutputConversionToSRGB(!gammaCorrect);
-        this->setAllowSRGBInputs(gammaCorrect);
+        setDisableOutputConversionToSRGB(!gammaCorrect);
+        setAllowSRGBInputs(gammaCorrect);
     }
 
-    void setXPFactory(const GrXPFactory* xpFactory) {
-        fXPFactory = xpFactory;
-        fTrivial &= !SkToBool(xpFactory);
-    }
+    void setXPFactory(const GrXPFactory* xpFactory) { fXPFactory = xpFactory; }
 
     void setPorterDuffXPFactory(SkBlendMode mode);
 
@@ -99,7 +96,6 @@ public:
         SkASSERT(fp);
         fUsesDistanceVectorField |= fp->usesDistanceVectorField();
         fColorFragmentProcessors.push_back(std::move(fp));
-        fTrivial = false;
     }
 
     /**
@@ -109,7 +105,6 @@ public:
         SkASSERT(fp);
         fUsesDistanceVectorField |= fp->usesDistanceVectorField();
         fCoverageFragmentProcessors.push_back(std::move(fp));
-        fTrivial = false;
     }
 
     /**
@@ -148,12 +143,6 @@ public:
      */
     bool isConstantBlendedColor(GrColor* constantColor) const;
 
-    /**
-     * A trivial paint is one that uses src-over and has no fragment processors.
-     * It may have variable sRGB settings.
-     **/
-    bool isTrivial() const { return fTrivial; }
-
 private:
     template <bool> class MoveOrImpl;
 
@@ -183,7 +172,6 @@ private:
     bool fDisableOutputConversionToSRGB = false;
     bool fAllowSRGBInputs = false;
     bool fUsesDistanceVectorField = false;
-    bool fTrivial = true;
     GrColor4f fColor = GrColor4f::OpaqueWhite();
 };
 
