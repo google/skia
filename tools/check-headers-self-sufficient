@@ -33,6 +33,7 @@ public_header_args = [
     '-Iinclude/utils',
     '-Iinclude/utils/mac',
     '-Iinclude/views',
+    '-Ithird_party/vulkan',
 ]
 
 all_header_args = [
@@ -81,6 +82,7 @@ all_header_args = [
     '-Ithird_party/externals/sfntly/cpp/src',
     '-Ithird_party/externals/zlib',
     '-Ithird_party/gif',
+    '-Ithird_party/vulkan',
 ]
 
 ignore = [
@@ -91,7 +93,6 @@ ignore = [
     'experimental/*',
     'include/config/*',
     'include/core/SkPostConfig.h',
-    'include/gpu/vk/*',
     'include/ports/SkFontMgr_android.h',
     'include/ports/SkFontMgr_fontconfig.h',
     'include/ports/SkTypeface_win.h',
@@ -105,7 +106,6 @@ ignore = [
     'src/core/SkLinearBitmapPipeline.h',
     'src/core/SkLinearBitmapPipeline_*.h',
     'src/core/SkUnPreMultiplyPriv.h',
-    'src/gpu/vk/*.h',
     'src/opts/*_SSE2.h',
     'src/opts/*_SSSE3.h',
     'src/opts/*_neon.h',

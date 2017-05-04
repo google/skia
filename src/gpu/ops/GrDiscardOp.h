@@ -12,6 +12,7 @@
 #include "GrOp.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetContext.h"
 
 class GrDiscardOp final : public GrOp {
 public:

@@ -14,6 +14,7 @@
 #include "GrOp.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetContext.h"
 
 class GrClearStencilClipOp final : public GrOp {
 public:

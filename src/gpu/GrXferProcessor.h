@@ -12,12 +12,13 @@
 #include "GrColor.h"
 #include "GrNonAtomicRef.h"
 #include "GrProcessor.h"
-#include "GrProcessorSet.h"
+#include "GrProcessorAnalysis.h"
 #include "GrTexture.h"
 #include "GrTypes.h"
 
-class GrShaderCaps;
 class GrGLSLXferProcessor;
+class GrProcessorSet;
+class GrShaderCaps;
 
 /**
  * Barriers for blending. When a shader reads the dst directly, an Xfer barrier is sometimes
