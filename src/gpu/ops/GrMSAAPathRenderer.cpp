@@ -611,7 +611,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
                 reverse = true;
                 // fallthrough
             case SkPath::kWinding_FillType:
-                passes[0] = &gWindStencilSeparateWithWrap;
+                passes[0] = &gWindStencilPass;
                 if (!stencilOnly) {
                     passes[1] = reverse ? &gInvWindColorPass : &gWindColorPass;
                 }
