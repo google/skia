@@ -9,10 +9,35 @@
 #include "Test.h"
 
 #include "SkBitmap.h"
+#include "SkEncodedImageFormat.h"
 #include "SkJpegEncoder.h"
+#include "SkPngEncoder.h"
 #include "SkStream.h"
 
-DEF_TEST(Encode_Jpeg, r) {
+static bool encode(SkEncodedImageFormat format, SkWStream* dst, const SkPixmap& src) {
+    switch (format) {
+        case SkEncodedImageFormat::kJPEG:
+            return SkJpegEncoder::Encode(dst, src, SkJpegEncoder::Options());
+        case SkEncodedImageFormat::kPNG:
+            return SkPngEncoder::Encode(dst, src, SkPngEncoder::Options());
+        default:
+            return nullptr;
+    }
+}
+
+static std::unique_ptr<SkEncoder> make(SkEncodedImageFormat format, SkWStream* dst,
+                                       const SkPixmap& src) {
+    switch (format) {
+        case SkEncodedImageFormat::kJPEG:
+            return SkJpegEncoder::Make(dst, src, SkJpegEncoder::Options());
+        case SkEncodedImageFormat::kPNG:
+            return SkPngEncoder::Make(dst, src, SkPngEncoder::Options());
+        default:
+            return nullptr;
+    }
+}
+
+static void test_encode(skiatest::Reporter* r, SkEncodedImageFormat format) {
     SkBitmap bitmap;
     bool success = GetResourceAsBitmap("mandrill_128.png", &bitmap);
     if (!success) {
@@ -27,22 +52,22 @@ DEF_TEST(Encode_Jpeg, r) {
     }
 
     SkDynamicMemoryWStream dst0, dst1, dst2, dst3;
-    success = SkJpegEncoder::Encode(&dst0, src, SkJpegEncoder::Options());
+    success = encode(format, &dst0, src);
     REPORTER_ASSERT(r, success);
 
-    auto encoder1 = SkJpegEncoder::Make(&dst1, src, SkJpegEncoder::Options());
+    auto encoder1 = make(format, &dst1, src);
     for (int i = 0; i < src.height(); i++) {
         success = encoder1->encodeRows(1);
         REPORTER_ASSERT(r, success);
     }
 
-    auto encoder2 = SkJpegEncoder::Make(&dst2, src, SkJpegEncoder::Options());
+    auto encoder2 = make(format, &dst2, src);
     for (int i = 0; i < src.height(); i+=3) {
         success = encoder2->encodeRows(3);
         REPORTER_ASSERT(r, success);
     }
 
-    auto encoder3 = SkJpegEncoder::Make(&dst3, src, SkJpegEncoder::Options());
+    auto encoder3 = make(format, &dst3, src);
     success = encoder3->encodeRows(200);
     REPORTER_ASSERT(r, success);
 
@@ -53,4 +78,9 @@ DEF_TEST(Encode_Jpeg, r) {
     REPORTER_ASSERT(r, data0->equals(data1.get()));
     REPORTER_ASSERT(r, data0->equals(data2.get()));
     REPORTER_ASSERT(r, data0->equals(data3.get()));
+}
+
+DEF_TEST(Encoder, r) {
+    test_encode(r, SkEncodedImageFormat::kJPEG);
+    test_encode(r, SkEncodedImageFormat::kPNG);
 }
