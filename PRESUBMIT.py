@@ -537,6 +537,11 @@ def PostUploadHook(cl, change, output_api):
     if cq_master_to_trybots:
       _AddCQExtraTrybotsToDesc(cq_master_to_trybots, new_description_lines)
 
+    # Ensure that there's an empty line between the title and description.
+    if len(new_description_lines) > 1:
+      if new_description_lines[0] != '':
+        new_description_lines.insert(1, '')
+
     # If the description has changed update it.
     if new_description_lines != original_description_lines:
       cl.UpdateDescriptionFooters(new_description_lines, footers)
