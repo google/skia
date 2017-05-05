@@ -18,10 +18,9 @@
  */
 class SK_API GrDefaultPathRenderer : public GrPathRenderer {
 public:
-    GrDefaultPathRenderer(bool stencilWrapOpsSupport);
+    GrDefaultPathRenderer();
 
 private:
-
     StencilSupport onGetStencilSupport(const GrShape&) const override;
 
     bool onCanDrawPath(const CanDrawPathArgs&) const override;
@@ -38,8 +37,6 @@ private:
                           const SkMatrix& viewMatrix,
                           const GrShape&,
                           bool stencilOnly);
-
-    bool    fStencilWrapOps;
 
     typedef GrPathRenderer INHERITED;
 };
