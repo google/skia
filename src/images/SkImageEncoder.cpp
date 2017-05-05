@@ -7,6 +7,7 @@
 
 #include "SkImageEncoderPriv.h"
 #include "SkJpegEncoder.h"
+#include "SkPngEncoder.h"
 
 bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
                    SkEncodedImageFormat format, int quality) {
@@ -22,12 +23,34 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
                 opts.fQuality = quality;
                 return SkJpegEncoder::Encode(dst, src, opts);
             }
-            case SkEncodedImageFormat::kPNG:
-                return SkEncodeImageAsPNG(dst, src, SkEncodeOptions());
+            case SkEncodedImageFormat::kPNG: {
+                SkPngEncoder::Options opts;
+                opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
+                return SkPngEncoder::Encode(dst, src, opts);
+            }
             case SkEncodedImageFormat::kWEBP:
                 return SkEncodeImageAsWEBP(dst, src, quality);
             default:
                 return false;
         }
     #endif
+}
+
+bool SkEncoder::encodeRows(int numRows) {
+    SkASSERT(numRows > 0 && fCurrRow < fSrc.height());
+    if (numRows <= 0 || fCurrRow >= fSrc.height()) {
+        return false;
+    }
+
+    if (fCurrRow + numRows > fSrc.height()) {
+        numRows = fSrc.height() - fCurrRow;
+    }
+
+    if (!this->onEncodeRows(numRows)) {
+        // If we fail, short circuit any future calls.
+        fCurrRow = fSrc.height();
+        return false;
+    }
+
+    return true;
 }

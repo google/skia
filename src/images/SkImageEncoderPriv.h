@@ -9,16 +9,31 @@
 #define SkImageEncoderPriv_DEFINED
 
 #include "SkImageEncoder.h"
+#include "SkImageInfoPriv.h"
+
+static inline bool SkPixmapIsValid(const SkPixmap& src,
+                                   SkTransferFunctionBehavior unpremulBehavior)
+{
+    if (SkTransferFunctionBehavior::kRespect == unpremulBehavior) {
+        if (!SkImageInfoIsValidRenderingCS(src.info())) {
+            return false;
+        }
+    } else {
+        if (!SkImageInfoIsValidAllowNumericalCS(src.info())) {
+            return false;
+        }
+    }
+
+    if (!src.addr() || src.rowBytes() < src.info().minRowBytes()) {
+        return false;
+    }
+
+    return true;
+}
 
 struct SkEncodeOptions {
     SkTransferFunctionBehavior fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
 };
-
-#ifdef SK_HAS_PNG_LIBRARY
-    bool SkEncodeImageAsPNG(SkWStream*, const SkPixmap&, const SkEncodeOptions&);
-#else
-    #define SkEncodeImageAsPNG(...) false
-#endif
 
 #ifdef SK_HAS_WEBP_LIBRARY
     bool SkEncodeImageAsWEBP(SkWStream*, const SkPixmap&, const SkEncodeOptions&);

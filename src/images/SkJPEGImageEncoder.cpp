@@ -24,12 +24,7 @@ extern "C" {
     #include "jerror.h"
 }
 
-// This warning triggers false postives way too often in here.
-#if defined(__GNUC__) && !defined(__clang__)
-    #pragma GCC diagnostic ignored "-Wclobbered"
-#endif
-
-class SkJpegEncoderMgr : SkNoncopyable {
+class SkJpegEncoderMgr final : SkNoncopyable {
 public:
 
     /*
@@ -128,23 +123,9 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo) {
     return true;
 }
 
-class SkJpegEncoder_Base : public SkJpegEncoder {
-public:
-    SkJpegEncoder_Base(std::unique_ptr<SkJpegEncoderMgr> encoderMgr, const SkPixmap& src);
-
-    bool onEncodeRows(int numRows);
-
-private:
-    std::unique_ptr<SkJpegEncoderMgr> fEncoderMgr;
-    SkPixmap                          fSrc;
-    int                               fCurrRow;
-    SkAutoTMalloc<uint8_t>            fStorage;
-};
-
 std::unique_ptr<SkJpegEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& src,
                                                    const Options& options) {
-    if (!SkImageInfoIsValidAllowNumericalCS(src.info()) || !src.addr() ||
-            src.rowBytes() < src.info().minRowBytes()) {
+    if (!SkPixmapIsValid(src, SkTransferFunctionBehavior::kIgnore)) {
         return nullptr;
     }
 
@@ -178,35 +159,18 @@ std::unique_ptr<SkJpegEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixma
         }
     }
 
-    return std::unique_ptr<SkJpegEncoder>(new SkJpegEncoder_Base(std::move(encoderMgr), src));
+    return std::unique_ptr<SkJpegEncoder>(new SkJpegEncoder(std::move(encoderMgr), src));
 }
 
-
-SkJpegEncoder_Base::SkJpegEncoder_Base(std::unique_ptr<SkJpegEncoderMgr> encoderMgr,
-                                       const SkPixmap& src)
-    : fEncoderMgr(std::move(encoderMgr))
-    , fSrc(src)
-    , fCurrRow(0)
-    , fStorage(fEncoderMgr->proc() ? fEncoderMgr->cinfo()->input_components*src.width() : 0)
+SkJpegEncoder::SkJpegEncoder(std::unique_ptr<SkJpegEncoderMgr> encoderMgr, const SkPixmap& src)
+    : INHERITED(src, encoderMgr->proc() ? encoderMgr->cinfo()->input_components*src.width() : 0)
+    , fEncoderMgr(std::move(encoderMgr))
 {}
 
-bool SkJpegEncoder::encodeRows(int numRows) {
-    return ((SkJpegEncoder_Base*) this)->onEncodeRows(numRows);
-}
+SkJpegEncoder::~SkJpegEncoder() {}
 
-bool SkJpegEncoder_Base::onEncodeRows(int numRows) {
-    SkASSERT(numRows > 0 && fCurrRow < fSrc.height());
-    if (numRows <= 0 || fCurrRow >= fSrc.height()) {
-        return false;
-    }
-
-    if (fCurrRow + numRows > fSrc.height()) {
-        numRows = fSrc.height() - fCurrRow;
-    }
-
+bool SkJpegEncoder::onEncodeRows(int numRows) {
     if (setjmp(fEncoderMgr->jmpBuf())) {
-        // Short circuit any future calls after failing.
-        fCurrRow = fSrc.height();
         return false;
     }
 
