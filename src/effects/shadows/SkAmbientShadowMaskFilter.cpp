@@ -149,32 +149,22 @@ bool SkAmbientShadowMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     SkASSERT(rtContext);
     // TODO: this will not handle local coordinates properly
 
-    if (fAmbientAlpha <= 0.0f) {
-        return true;
-    }
-
-    // only convex paths for now
-    if (!path.isConvex()) {
-        return false;
-    }
-
-    if (strokeRec.getStyle() != SkStrokeRec::kFill_Style) {
-        return false;
-    }
-
-    // if circle
-    if (path.isOval(nullptr) && SkScalarNearlyEqual(path.getBounds().width(),
-                                                    path.getBounds().height())) {
-        SkRRect rrect = SkRRect::MakeOval(path.getBounds());
+    SkRect rect;
+    SkRRect rrect;
+    if (path.isOval(&rect) && SkScalarNearlyEqual(rect.width(),
+                                                  rect.height())) {
+        rrect = SkRRect::MakeOval(rect);
         return this->directFilterRRectMaskGPU(context, rtContext, std::move(paint), clip,
                                               SkMatrix::I(), strokeRec, rrect, rrect);
-    } else if (path.isRect(nullptr)) {
-        SkRRect rrect = SkRRect::MakeRect(path.getBounds());
+    } else if (path.isRect(&rect)) {
+        rrect = SkRRect::MakeRect(rect);
+        return this->directFilterRRectMaskGPU(context, rtContext, std::move(paint), clip,
+                                              SkMatrix::I(), strokeRec, rrect, rrect);
+    } else if (path.isRRect(&rrect) && rrect.isSimpleCircular()) {
         return this->directFilterRRectMaskGPU(context, rtContext, std::move(paint), clip,
                                               SkMatrix::I(), strokeRec, rrect, rrect);
     }
 
-    // TODO
     return false;
 }
 
@@ -186,61 +176,54 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
                                                              const SkStrokeRec& strokeRec,
                                                              const SkRRect& rrect,
                                                              const SkRRect& devRRect) const {
-    // It's likely the caller has already done these checks, but we have to be sure.
-
     // Fast path only supports filled rrects for now.
     // TODO: fill and stroke as well.
     if (SkStrokeRec::kFill_Style != strokeRec.getStyle()) {
         return false;
     }
+    // These should have been checked by the caller.
     // Fast path only supports simple rrects with circular corners.
-    if (!devRRect.isRect() && !devRRect.isCircle() &&
-        (!devRRect.isSimple() || !devRRect.allCornersCircular())) {
-        return false;
-    }
+    SkASSERT(devRRect.isRect() || devRRect.isCircle() ||
+             (devRRect.isSimple() && devRRect.allCornersCircular()));
     // Fast path only supports uniform scale.
-    if (!viewMatrix.isSimilarity()) {
-        return false;
-    }
+    SkASSERT(viewMatrix.isSimilarity());
+    // Assume we have positive alpha
+    SkASSERT(fAmbientAlpha > 0);
+
     // 1/scale
-    SkScalar scaleFactor = viewMatrix.isScaleTranslate() ?
+    SkScalar devToSrcScale = viewMatrix.isScaleTranslate() ?
         SkScalarInvert(viewMatrix[SkMatrix::kMScaleX]) :
         sk_float_rsqrt(viewMatrix[SkMatrix::kMScaleX] * viewMatrix[SkMatrix::kMScaleX] +
                        viewMatrix[SkMatrix::kMSkewX] * viewMatrix[SkMatrix::kMSkewX]);
 
-    if (fAmbientAlpha > 0.0f) {
-        SkScalar devSpaceStrokeWidth = fOccluderHeight * kHeightFactor * kGeomFactor;
-        const float umbraAlpha = (1.0f + SkTMax(fOccluderHeight * kHeightFactor, 0.0f));
-        const SkScalar devSpaceAmbientBlur = devSpaceStrokeWidth * umbraAlpha;
+    SkScalar devSpaceInsetWidth = fOccluderHeight * kHeightFactor * kGeomFactor;
+    const float umbraAlpha = (1.0f + SkTMax(fOccluderHeight * kHeightFactor, 0.0f));
+    const SkScalar devSpaceAmbientBlur = devSpaceInsetWidth * umbraAlpha;
 
-        // For the ambient rrect, we outset the offset rect
-        // by half the strokeWidth to get our stroke shape.
-        SkScalar srcSpaceStrokeWidth = devSpaceStrokeWidth * scaleFactor;
-        SkScalar ambientPathOutset = 0.5f*srcSpaceStrokeWidth;
-
-        SkRRect ambientRRect;
-        SkRect insetRect = rrect.rect().makeOutset(ambientPathOutset, ambientPathOutset);
-        // If the rrect was an oval then its outset will also be one.
-        // We set it explicitly to avoid errors.
-        if (rrect.isOval()) {
-            ambientRRect = SkRRect::MakeOval(insetRect);
-        } else {
-            SkScalar insetRad = rrect.getSimpleRadii().fX + ambientPathOutset;
-            ambientRRect = SkRRect::MakeRectXY(insetRect, insetRad, insetRad);
-        }
-
-        GrPaint newPaint(paint);
-        GrColor4f color = newPaint.getColor4f();
-        color.fRGBA[3] *= fAmbientAlpha;
-        newPaint.setColor4f(color);
-        SkStrokeRec ambientStrokeRec(SkStrokeRec::kFill_InitStyle);
-        bool transparent = SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
-        ambientStrokeRec.setStrokeStyle(srcSpaceStrokeWidth, transparent);
-
-        rtContext->drawShadowRRect(clip, std::move(newPaint), viewMatrix, ambientRRect,
-                                   devSpaceAmbientBlur,
-                                   GrStyle(ambientStrokeRec, nullptr));
+    // Outset the shadow rrect to the border of the penumbra
+    SkScalar ambientPathOutset = devSpaceInsetWidth * devToSrcScale;
+    SkRRect ambientRRect;
+    SkRect outsetRect = rrect.rect().makeOutset(ambientPathOutset, ambientPathOutset);
+    // If the rrect was an oval then its outset will also be one.
+    // We set it explicitly to avoid errors.
+    if (rrect.isOval()) {
+        ambientRRect = SkRRect::MakeOval(outsetRect);
+    } else {
+        SkScalar outsetRad = rrect.getSimpleRadii().fX + ambientPathOutset;
+        ambientRRect = SkRRect::MakeRectXY(outsetRect, outsetRad, outsetRad);
     }
+
+    GrPaint newPaint(paint);
+    GrColor4f color = newPaint.getColor4f();
+    color.fRGBA[3] *= fAmbientAlpha;
+    newPaint.setColor4f(color);
+    if (SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag)) {
+        // set a large inset to force a fill
+        devSpaceInsetWidth = ambientRRect.width();
+    }
+
+    rtContext->drawShadowRRect(clip, std::move(newPaint), viewMatrix, ambientRRect,
+                               devSpaceAmbientBlur, devSpaceInsetWidth);
 
     return true;
 }
