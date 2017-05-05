@@ -56,8 +56,11 @@ private:
 };
 
 static inline float eval_gaussian(float x) {
-    float factor = 1 - x;
-    return sk_float_exp(-factor * factor * 4) - 0.018f;
+    x = 1 - x;
+//    return sk_float_exp(-x * x * 4) - 0.018f;
+    return 1 + x*(-0.209218561649322509765625f +
+                  x*(-4.692357540130615234375f +
+                     x*(6.168495655059814453125f + x*(-2.2666122913360595703125f))));
 }
 
 static void build_table() {
