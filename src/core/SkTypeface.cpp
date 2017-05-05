@@ -366,5 +366,6 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
 }
 
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::onGetAdvancedMetrics() const {
+    SkDEBUGFAIL("Typefaces that need to work with PDF backend must override this.");
     return nullptr;
 }

@@ -343,17 +343,9 @@ protected:
     virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                                    const SkDescriptor*) const = 0;
     virtual void onFilterRec(SkScalerContextRec*) const = 0;
-    virtual std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const;
 
-    enum PerGlyphInfo {
-        kNo_PerGlyphInfo         = 0x0,
-        kGlyphNames_PerGlyphInfo = 0x1,
-        kToUnicode_PerGlyphInfo  = 0x2
-    };
-    virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
-            PerGlyphInfo, const uint32_t*, uint32_t) const {
-        return nullptr;
-    }
+    //  Subclasses *must* override this method to work with the PDF backend.
+    virtual std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const;
 
     virtual SkStreamAsset* onOpenStream(int* ttcIndex) const = 0;
     // TODO: make pure virtual.
