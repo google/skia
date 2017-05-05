@@ -22,6 +22,7 @@
 #include "SkOSPath.h"
 #include "SkJpegEncoder.h"
 #include "SkPngChunkReader.h"
+#include "SkPngEncoder.h"
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
@@ -1525,16 +1526,21 @@ DEF_TEST(Codec_InvalidAnimated, r) {
 }
 
 static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap,
-                          const SkEncodeOptions& opts, SkEncodedImageFormat format) {
+                          SkTransferFunctionBehavior unpremulBehavior,
+                          SkEncodedImageFormat format) {
+    SkPngEncoder::Options pngOptions;
+    SkEncodeOptions options;
+    pngOptions.fUnpremulBehavior = unpremulBehavior;
+    options.fUnpremulBehavior = unpremulBehavior;
     switch (format) {
         case SkEncodedImageFormat::kPNG:
-            SkEncodeImageAsPNG(stream, pixmap, opts);
+            SkPngEncoder::Encode(stream, pixmap, pngOptions);
             break;
         case SkEncodedImageFormat::kJPEG:
             SkJpegEncoder::Encode(stream, pixmap, SkJpegEncoder::Options());
             break;
         case SkEncodedImageFormat::kWEBP:
-            SkEncodeImageAsWEBP(stream, pixmap, opts);
+            SkEncodeImageAsWEBP(stream, pixmap, options);
             break;
         default:
             SkASSERT(false);
@@ -1552,9 +1558,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
     SkPixmap pixmap;
     srgbBitmap.peekPixels(&pixmap);
     SkDynamicMemoryWStream srgbBuf;
-    SkEncodeOptions opts;
-    opts.fUnpremulBehavior = unpremulBehavior;
-    encode_format(&srgbBuf, pixmap, opts, format);
+    encode_format(&srgbBuf, pixmap, unpremulBehavior, format);
     sk_sp<SkData> srgbData = srgbBuf.detachAsData();
     std::unique_ptr<SkCodec> srgbCodec(SkCodec::NewFromData(srgbData));
     REPORTER_ASSERT(r, srgbCodec->getInfo().colorSpace() == SkColorSpace::MakeSRGB().get());
@@ -1564,7 +1568,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
     sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                                    SkColorSpace::kDCIP3_D65_Gamut);
     pixmap.setColorSpace(p3);
-    encode_format(&p3Buf, pixmap, opts, format);
+    encode_format(&p3Buf, pixmap, unpremulBehavior, format);
     sk_sp<SkData> p3Data = p3Buf.detachAsData();
     std::unique_ptr<SkCodec> p3Codec(SkCodec::NewFromData(p3Data));
     REPORTER_ASSERT(r, p3Codec->getInfo().colorSpace()->gammaCloseToSRGB());
