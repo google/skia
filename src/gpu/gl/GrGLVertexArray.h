@@ -44,19 +44,19 @@ public:
              const GrBuffer* vertexBuffer,
              GrVertexAttribType type,
              GrGLsizei stride,
-             size_t offsetInBytes);
+             GrGLvoid* offset);
 
     /**
-     * This function enables the first 'enabledCount' vertex arrays and disables the rest.
+     * This function disables vertex attribs not present in the mask. It is assumed that the
+     * GrGLAttribArrayState is tracking the state of the currently bound vertex array object.
      */
-    void enableVertexArrays(const GrGLGpu*, int enabledCount);
+    void disableUnusedArrays(const GrGLGpu*, uint64_t usedAttribArrayMask);
 
     void invalidate() {
         int count = fAttribArrayStates.count();
         for (int i = 0; i < count; ++i) {
             fAttribArrayStates[i].invalidate();
         }
-        fEnabledCountIsValid = false;
     }
 
     /**
@@ -69,17 +69,20 @@ private:
      * Tracks the state of glVertexAttribArray for an attribute index.
      */
     struct AttribArrayState {
-        void invalidate() { fVertexBufferUniqueID.makeInvalid(); }
+        void invalidate() {
+            fEnableIsValid = false;
+            fVertexBufferUniqueID.makeInvalid();
+        }
 
-        GrGpuResource::UniqueID   fVertexBufferUniqueID;
-        GrVertexAttribType        fType;
-        GrGLsizei                 fStride;
-        size_t                    fOffset;
+        bool                            fEnableIsValid;
+        bool                            fEnabled;
+        GrGpuResource::UniqueID         fVertexBufferUniqueID;
+        GrVertexAttribType              fType;
+        GrGLsizei                       fStride;
+        GrGLvoid*                       fOffset;
     };
 
-    SkSTArray<16, AttribArrayState, true>   fAttribArrayStates;
-    int                                     fNumEnabledArrays;
-    bool                                    fEnabledCountIsValid;
+    SkSTArray<16, AttribArrayState, true> fAttribArrayStates;
 };
 
 /**

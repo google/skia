@@ -53,23 +53,27 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
                                const GrBuffer* vertexBuffer,
                                GrVertexAttribType type,
                                GrGLsizei stride,
-                               size_t offsetInBytes) {
+                               GrGLvoid* offset) {
     SkASSERT(index >= 0 && index < fAttribArrayStates.count());
     AttribArrayState* array = &fAttribArrayStates[index];
+    if (!array->fEnableIsValid || !array->fEnabled) {
+        GR_GL_CALL(gpu->glInterface(), EnableVertexAttribArray(index));
+        array->fEnableIsValid = true;
+        array->fEnabled = true;
+    }
     if (array->fVertexBufferUniqueID != vertexBuffer->uniqueID() ||
         array->fType != type ||
         array->fStride != stride ||
-        array->fOffset != offsetInBytes) {
+        array->fOffset != offset) {
         gpu->bindBuffer(kVertex_GrBufferType, vertexBuffer);
         const AttribLayout& layout = attrib_layout(type);
-        const GrGLvoid* offsetAsPtr = reinterpret_cast<const GrGLvoid*>(offsetInBytes);
         if (!GrVertexAttribTypeIsIntType(type)) {
             GR_GL_CALL(gpu->glInterface(), VertexAttribPointer(index,
                                                                layout.fCount,
                                                                layout.fType,
                                                                layout.fNormalized,
                                                                stride,
-                                                               offsetAsPtr));
+                                                               offset));
         } else {
             SkASSERT(gpu->caps()->shaderCaps()->integerSupport());
             SkASSERT(!layout.fNormalized);
@@ -77,30 +81,30 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
                                                                 layout.fCount,
                                                                 layout.fType,
                                                                 stride,
-                                                                offsetAsPtr));
+                                                                offset));
         }
         array->fVertexBufferUniqueID = vertexBuffer->uniqueID();
         array->fType = type;
         array->fStride = stride;
-        array->fOffset = offsetInBytes;
+        array->fOffset = offset;
     }
 }
 
-void GrGLAttribArrayState::enableVertexArrays(const GrGLGpu* gpu, int enabledCount) {
-    SkASSERT(enabledCount <= fAttribArrayStates.count());
-
-    int firstIdxToEnable = fEnabledCountIsValid ? fNumEnabledArrays : 0;
-    for (int i = firstIdxToEnable; i < enabledCount; ++i) {
-        GR_GL_CALL(gpu->glInterface(), EnableVertexAttribArray(i));
+void GrGLAttribArrayState::disableUnusedArrays(const GrGLGpu* gpu, uint64_t usedMask) {
+    int count = fAttribArrayStates.count();
+    for (int i = 0; i < count; ++i) {
+        if (!(usedMask & 0x1)) {
+            if (!fAttribArrayStates[i].fEnableIsValid || fAttribArrayStates[i].fEnabled) {
+                GR_GL_CALL(gpu->glInterface(), DisableVertexAttribArray(i));
+                fAttribArrayStates[i].fEnableIsValid = true;
+                fAttribArrayStates[i].fEnabled = false;
+            }
+        } else {
+            SkASSERT(fAttribArrayStates[i].fEnableIsValid && fAttribArrayStates[i].fEnabled);
+        }
+        // if the count is greater than 64 then this will become 0 and we will disable arrays 64+.
+        usedMask >>= 1;
     }
-
-    int endIdxToDisable = fEnabledCountIsValid ? fNumEnabledArrays : fAttribArrayStates.count();
-    for (int i = enabledCount; i < endIdxToDisable; ++i) {
-        GR_GL_CALL(gpu->glInterface(), DisableVertexAttribArray(i));
-    }
-
-    fNumEnabledArrays = enabledCount;
-    fEnabledCountIsValid = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

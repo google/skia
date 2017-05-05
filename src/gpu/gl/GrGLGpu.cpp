@@ -1996,23 +1996,34 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
         attribState = fHWVertexArrayState.bindInternalVertexArray(this);
     }
 
-    int vaCount = primProc.numAttribs();
-    attribState->enableVertexArrays(this, vaCount);
+    SkASSERT(vertexBuffer);
+    SkASSERT(!vertexBuffer->isMapped());
 
+    int vaCount = primProc.numAttribs();
     if (vaCount > 0) {
-        SkASSERT(vertexBuffer);
-        SkASSERT(!vertexBuffer->isMapped());
 
         GrGLsizei stride = static_cast<GrGLsizei>(primProc.getVertexStride());
-        size_t vertexBufferOffsetInBytes = stride * baseVertex + vertexBuffer->baseOffset();
-        size_t attribOffset = 0;
+
+        size_t vertexOffsetInBytes = stride * baseVertex;
+
+        vertexOffsetInBytes += vertexBuffer->baseOffset();
+
+        uint32_t usedAttribArraysMask = 0;
+        size_t offset = 0;
 
         for (int attribIndex = 0; attribIndex < vaCount; attribIndex++) {
             const GrGeometryProcessor::Attribute& attrib = primProc.getAttrib(attribIndex);
-            attribState->set(this, attribIndex, vertexBuffer, attrib.fType, stride,
-                             vertexBufferOffsetInBytes + attribOffset);
-            attribOffset += attrib.fOffset;
+            usedAttribArraysMask |= (1 << attribIndex);
+            GrVertexAttribType attribType = attrib.fType;
+            attribState->set(this,
+                             attribIndex,
+                             vertexBuffer,
+                             attribType,
+                             stride,
+                             reinterpret_cast<GrGLvoid*>(vertexOffsetInBytes + offset));
+            offset += attrib.fOffset;
         }
+        attribState->disableUnusedArrays(this, usedAttribArraysMask);
     }
 }
 
@@ -3926,9 +3937,9 @@ void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor
     fHWVertexArrayState.setVertexArrayID(this, 0);
 
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
-    attribs->enableVertexArrays(this, 1);
     attribs->set(this, 0, fWireRectArrayBuffer.get(), kVec2f_GrVertexAttribType,
                  2 * sizeof(GrGLfloat), 0);
+    attribs->disableUnusedArrays(this, 0x1);
 
     GL_CALL(Uniform4fv(fWireRectProgram.fRectUniform, 1, edges));
     GL_CALL(Uniform4fv(fWireRectProgram.fColorUniform, 1, channels));
@@ -3980,9 +3991,9 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     fHWVertexArrayState.setVertexArrayID(this, 0);
 
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
-    attribs->enableVertexArrays(this, 1);
     attribs->set(this, 0, fCopyProgramArrayBuffer.get(), kVec2f_GrVertexAttribType,
                  2 * sizeof(GrGLfloat), 0);
+    attribs->disableUnusedArrays(this, 0x1);
 
     // dst rect edges in NDC (-1 to 1)
     int dw = dst->width();
@@ -4221,9 +4232,9 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
     fHWVertexArrayState.setVertexArrayID(this, 0);
 
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
-    attribs->enableVertexArrays(this, 1);
     attribs->set(this, 0, fMipmapProgramArrayBuffer.get(), kVec2f_GrVertexAttribType,
                  2 * sizeof(GrGLfloat), 0);
+    attribs->disableUnusedArrays(this, 0x1);
 
     // Set "simple" state once:
     GrXferProcessor::BlendInfo blendInfo;
