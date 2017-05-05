@@ -14,7 +14,7 @@
 class GrBackendRenderTarget;
 class GrSemaphore;
 class GrSurfaceProxy;
-class GrPreFlushCallbackObject;
+class GrOnFlushCallbackObject;
 
 /** Class that adds methods to GrContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrContext. It should never have additional
@@ -76,11 +76,15 @@ public:
      */
     void flush(GrSurfaceProxy*);
 
-    /*
-     * A ref will be taken on the preFlushCallbackObject which will be removed when the
-     * context is destroyed.
+    /**
+     * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)
+     *
+     * NOTE: the drawing manager tracks this object as a raw pointer; it is up to the caller to
+     * ensure its lifetime is tied to that of the context.
      */
-    void addPreFlushCallbackObject(sk_sp<GrPreFlushCallbackObject>);
+    void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
+
+    void testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
     /**
      * After this returns any pending writes to the surface will have been issued to the

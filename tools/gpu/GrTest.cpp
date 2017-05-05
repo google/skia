@@ -9,6 +9,7 @@
 
 #include "GrBackendSurface.h"
 #include "GrContextOptions.h"
+#include "GrContextPriv.h"
 #include "GrDrawOpAtlas.h"
 #include "GrDrawingManager.h"
 #include "GrGpuResourceCacheAccess.h"
@@ -25,6 +26,8 @@
 
 #include "text/GrAtlasGlyphCache.h"
 #include "text/GrTextBlobCache.h"
+
+#include <algorithm>
 
 namespace GrTest {
 void SetupAlwaysEvictAtlas(GrContext* context) {
@@ -435,4 +438,16 @@ void GrContext::initMockContext() {
     // these objects are required for any of tests that use this context. TODO: make stop allocating
     // resources in the buffer pools.
     fDrawingManager->abandon();
+}
+
+void GrContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject* cb) {
+    fContext->flush();
+    fContext->fDrawingManager->testingOnly_removeOnFlushCallbackObject(cb);
+}
+
+void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject* cb) {
+    int n = std::find(fOnFlushCBObjects.begin(), fOnFlushCBObjects.end(), cb) -
+            fOnFlushCBObjects.begin();
+    SkASSERT(n < fOnFlushCBObjects.count());
+    fOnFlushCBObjects.removeShuffle(n);
 }

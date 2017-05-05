@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrPreFlushResourceProvider.h"
+#include "GrOnFlushResourceProvider.h"
 
 #include "GrDrawingManager.h"
 #include "GrSurfaceProxy.h"
 
-sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext(
+sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
                                                         const GrSurfaceDesc& desc,
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {
@@ -54,7 +54,7 @@ sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext
 
 // TODO: we only need this entry point as long as we have to pre-allocate the atlas.
 // Remove it ASAP.
-sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext(
+sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
                                                         sk_sp<GrSurfaceProxy> proxy,
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {

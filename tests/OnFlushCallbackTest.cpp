@@ -12,7 +12,7 @@
 #include "GrClip.h"
 #include "GrContextPriv.h"
 #include "GrDefaultGeoProcFactory.h"
-#include "GrPreFlushResourceProvider.h"
+#include "GrOnFlushResourceProvider.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrQuad.h"
@@ -244,7 +244,7 @@ static const int kAtlasTileSize = 2;
 /*
  * This class aggregates the op information required for atlasing
  */
-class AtlasObject final : public GrPreFlushCallbackObject {
+class AtlasObject final : public GrOnFlushCallbackObject {
 public:
     AtlasObject() : fDone(false) { }
 
@@ -299,7 +299,7 @@ public:
     /*
      * This callback back creates the atlas and updates the AtlasedRectOps to read from it
      */
-    void preFlush(GrPreFlushResourceProvider* resourceProvider,
+    void preFlush(GrOnFlushResourceProvider* resourceProvider,
                   const uint32_t* opListIDs, int numOpListIDs,
                   SkTArray<sk_sp<GrRenderTargetContext>>* results) override {
         SkASSERT(!results->count());
@@ -530,7 +530,7 @@ static void test_color(skiatest::Reporter* reporter, const SkBitmap& bm, int x, 
  * Note: until MDB lands, the atlas will actually have width= 9*kAtlasTileSize and look like:
  *           R G B C M Y K Grey White
  */
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(PreFlushCallbackTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     static const int kNumProxies = 3;
 
     GrContext* context = ctxInfo.grContext();
@@ -540,19 +540,19 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(PreFlushCallbackTest, reporter, ctxInfo) {
         return;
     }
 
-    sk_sp<AtlasObject> object = sk_make_sp<AtlasObject>();
+    AtlasObject object;
 
     // For now (until we add a GrSuperDeferredSimpleTextureEffect), we create the final atlas
     // proxy ahead of time.
     sk_sp<GrTextureProxy> atlasDest = pre_create_atlas(context);
 
-    object->setAtlasDest(atlasDest);
+    object.setAtlasDest(atlasDest);
 
-    context->contextPriv().addPreFlushCallbackObject(object);
+    context->contextPriv().addOnFlushCallbackObject(&object);
 
     sk_sp<GrTextureProxy> proxies[kNumProxies];
     for (int i = 0; i < kNumProxies; ++i) {
-        proxies[i] = make_upstream_image(context, object.get(), i*3, atlasDest);
+        proxies[i] = make_upstream_image(context, &object, i*3, atlasDest);
     }
 
     static const int kFinalWidth = 6*kDrawnTileSize;
@@ -592,7 +592,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(PreFlushCallbackTest, reporter, ctxInfo) {
                                                readBack.rowBytes(), 0, 0);
     SkASSERT(result);
 
-    object->markAsDone();
+    context->contextPriv().testingOnly_flushAndRemoveOnFlushCallbackObject(&object);
+
+    object.markAsDone();
 
 #if 0
     save_bm(readBack, "atlas-final-image.png");
