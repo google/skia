@@ -13,7 +13,6 @@
 #include "GrAnalyticRectOp.h"
 #include "GrColor.h"
 #include "GrMeshDrawOp.h"
-#include "GrNonAAFillRectOp.h"
 #include "GrNonAAStrokeRectOp.h"
 #include "GrPaint.h"
 #include "SkMatrix.h"
@@ -26,19 +25,6 @@ class SkStrokeRec;
  * A factory for returning GrDrawOps which can draw rectangles.
  */
 namespace GrRectOpFactory {
-
-inline std::unique_ptr<GrLegacyMeshDrawOp> MakeNonAAFill(GrColor color,
-                                                         const SkMatrix& viewMatrix,
-                                                         const SkRect& rect,
-                                                         const SkRect* localRect,
-                                                         const SkMatrix* localMatrix) {
-    if (viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective())) {
-        return GrNonAAFillRectOp::MakeWithPerspective(color, viewMatrix, rect, localRect,
-                                                      localMatrix);
-    } else {
-        return GrNonAAFillRectOp::Make(color, viewMatrix, rect, localRect, localMatrix);
-    }
-}
 
 inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFill(const GrPaint& paint,
                                                       const SkMatrix& viewMatrix,
