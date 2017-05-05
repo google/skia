@@ -79,6 +79,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fUseDrawInsteadOfPartialRenderTargetWrite = options.fUseDrawInsteadOfPartialRenderTargetWrite;
     fUseDrawInsteadOfAllRenderTargetWrites = false;
     fAvoidInstancedDrawsToFPTargets = false;
+    fAvoidStencilBuffers = false;
 
     fPreferVRAMUseOverFlushes = true;
 }
@@ -97,6 +98,7 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
                  GrWindowRectangles::kMaxWindows, fMaxWindowRectangles);
         fMaxWindowRectangles = GrWindowRectangles::kMaxWindows;
     }
+    fAvoidStencilBuffers = options.fAvoidStencilBuffers;
 }
 
 static SkString map_flags_to_string(uint32_t flags) {

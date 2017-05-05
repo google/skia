@@ -87,7 +87,7 @@ GrSmallPathRenderer::~GrSmallPathRenderer() {
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    if (!args.fShaderCaps->shaderDerivativeSupport()) {
+    if (!args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
         return false;
     }
     // If the shape has no key then we won't get any reuse.
