@@ -1213,4 +1213,21 @@ DEF_TEST(SkSLUnusedVars, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLMultipleAssignments, r) {
+    test(r,
+         "void main() {"
+         "float x;"
+         "float y;"
+         "int z;"
+         "x = y = z = 1;"
+         "sk_FragColor = vec4(z);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(1.0);\n"
+         "}\n");
+}
+
 #endif
