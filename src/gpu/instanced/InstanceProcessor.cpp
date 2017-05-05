@@ -489,7 +489,7 @@ void GLSLInstanceProcessor::Backend::setupSimpleRadii(GrGLSLVertexBuilder* v) {
 void GLSLInstanceProcessor::Backend::setupNinePatchRadii(GrGLSLVertexBuilder* v) {
     v->codeAppend("radii = vec2(p[0][corner.x], p[1][corner.y]);");
     if (fNeedsNeighborRadii) {
-        v->codeAppend("neighborRadii = vec2(p[0][1u - corner.x], p[1][1u - corner.y]);");
+        v->codeAppend("neighborRadii = vec2(p[0][1 - corner.x], p[1][1 - corner.y]);");
     }
 }
 
@@ -513,8 +513,8 @@ void GLSLInstanceProcessor::Backend::setupComplexRadii(GrGLSLVertexBuilder* v) {
     v->codeAppend(";");
     v->codeAppend("radii = vec2(p[corner.x][corner.y], p2[corner.y][corner.x]);");
     if (fNeedsNeighborRadii) {
-        v->codeAppend("neighborRadii = vec2(p[1u - corner.x][corner.y], "
-                                           "p2[1u - corner.y][corner.x]);");
+        v->codeAppend("neighborRadii = vec2(p[1 - corner.x][corner.y], "
+                                           "p2[1 - corner.y][corner.x]);");
     }
 }
 
