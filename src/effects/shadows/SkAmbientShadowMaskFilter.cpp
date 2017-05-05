@@ -231,8 +231,7 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
 
         GrPaint newPaint(paint);
         GrColor4f color = newPaint.getColor4f();
-        color.fRGBA[3] *= fAmbientAlpha;
-        newPaint.setColor4f(color);
+        newPaint.setColor4f(color.mulByScalar(fAmbientAlpha));
         SkStrokeRec ambientStrokeRec(SkStrokeRec::kFill_InitStyle);
         bool transparent = SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
         ambientStrokeRec.setStrokeStyle(srcSpaceStrokeWidth, transparent);

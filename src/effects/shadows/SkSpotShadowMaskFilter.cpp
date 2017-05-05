@@ -303,8 +303,7 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         spotShadowRRect.offset(spotOffset.fX, spotOffset.fY);
 
         GrColor4f color = paint.getColor4f();
-        color.fRGBA[3] *= fSpotAlpha;
-        paint.setColor4f(color);
+        paint.setColor4f(color.mulByScalar(fSpotAlpha));
         rtContext->drawShadowRRect(clip, std::move(paint), viewMatrix, spotShadowRRect,
                                    devSpaceSpotRadius, GrStyle(spotStrokeRec, nullptr));
     }
