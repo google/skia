@@ -8,12 +8,12 @@
 #ifndef SkJpegEncoder_DEFINED
 #define SkJpegEncoder_DEFINED
 
-#include "SkPixmap.h"
-#include "SkTypes.h"
+#include "SkEncoder.h"
 
+class SkJpegEncoderMgr;
 class SkWStream;
 
-class SkJpegEncoder : SkNoncopyable {
+class SkJpegEncoder : public SkEncoder {
 public:
 
     // TODO (skbug.com/1501):
@@ -48,14 +48,16 @@ public:
     static std::unique_ptr<SkJpegEncoder> Make(SkWStream* dst, const SkPixmap& src,
                                                const Options& options);
 
-    /**
-     *  Encode |numRows| rows of input.  If the caller requests more rows than are remaining
-     *  in the src, this will encode all of the remaining rows.  |numRows| must be greater
-     *  than zero.
-     */
-    bool encodeRows(int numRows);
+    ~SkJpegEncoder() override;
 
-    virtual ~SkJpegEncoder() {}
+protected:
+    bool onEncodeRows(int numRows) override;
+
+private:
+    SkJpegEncoder(std::unique_ptr<SkJpegEncoderMgr>, const SkPixmap& src);
+
+    std::unique_ptr<SkJpegEncoderMgr> fEncoderMgr;
+    typedef SkEncoder INHERITED;
 };
 
 #endif
