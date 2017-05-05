@@ -102,6 +102,16 @@ public:
     }
 #endif
 
+    bool onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkArenaAlloc* scratch,
+                        bool shaderIsOpaque) const override {
+        bool innerIsOpaque = shaderIsOpaque;
+        if (!(fInner->getFlags() & kAlphaUnchanged_Flag)) {
+            innerIsOpaque = false;
+        }
+        return fInner->appendStages(p, dst, scratch, shaderIsOpaque) &&
+               fOuter->appendStages(p, dst, scratch, innerIsOpaque);
+    }
+
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext* context,
                                                    SkColorSpace* dstColorSpace) const override {
