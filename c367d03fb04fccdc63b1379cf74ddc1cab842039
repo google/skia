@@ -22,6 +22,30 @@
       "revId": "c367d03fb04fccdc63b1379cf74ddc1cab842039",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6c2ac57_635842f2",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-05T19:08:35Z",
+      "side": 1,
+      "message": "https://skia-review.googlesource.com/c/15637/",
+      "parentUuid": "b883c5fd_8f9339ff",
+      "range": {
+        "startLine": 24,
+        "startChar": 19,
+        "endLine": 24,
+        "endChar": 26
+      },
+      "revId": "c367d03fb04fccdc63b1379cf74ddc1cab842039",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
