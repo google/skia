@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb54fa35_98540fbc",
+        "filename": "src/core/SkModeColorFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-05T16:09:32Z",
+      "side": 1,
+      "message": "accidental?",
+      "range": {
+        "startLine": 160,
+        "startChar": 0,
+        "endLine": 160,
+        "endChar": 4
+      },
+      "revId": "6962b567d8262c11f8c2621e9c56fad240064bdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
