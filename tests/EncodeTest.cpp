@@ -21,7 +21,7 @@ static bool encode(SkEncodedImageFormat format, SkWStream* dst, const SkPixmap& 
         case SkEncodedImageFormat::kPNG:
             return SkPngEncoder::Encode(dst, src, SkPngEncoder::Options());
         default:
-            return nullptr;
+            return false;
     }
 }
 
