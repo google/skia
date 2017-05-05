@@ -188,49 +188,38 @@ class ShadowCircularRRectOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    // A devStrokeWidth <= 0 indicates a fill only. If devStrokeWidth > 0 then strokeOnly indicates
-    // whether the rrect is only stroked or stroked and filled.
+    // An insetWidth > 1/2 rect width or height indicates a simple fill.
     ShadowCircularRRectOp(GrColor color, const SkMatrix& viewMatrix, const SkRect& devRect,
-                          float devRadius, bool isCircle, float blurRadius,
-                          float devStrokeWidth, bool strokeOnly)
+                          float devRadius, bool isCircle, float blurRadius, float insetWidth)
             : INHERITED(ClassID()), fViewMatrixIfUsingLocalCoords(viewMatrix) {
         SkRect bounds = devRect;
-        SkASSERT(devStrokeWidth > 0 || !strokeOnly);
+        SkASSERT(insetWidth > 0);
         SkScalar innerRadius = 0.0f;
         SkScalar outerRadius = devRadius;
         SkScalar umbraInset;
+
+        RRectType type = kFill_RRectType;
         if (isCircle) {
             umbraInset = 0;
+        } else if (insetWidth > 0 && insetWidth <= outerRadius) {
+            // If the client has requested a stroke smaller than the outer radius,
+            // we will assume they want no special umbra inset (this is for ambient shadows).
+            umbraInset = outerRadius;
         } else {
             umbraInset = SkTMax(outerRadius, blurRadius);
         }
 
-        RRectType type = kFill_RRectType;
-        if (devStrokeWidth > 0) {
-            SkScalar halfWidth = SkScalarHalf(devStrokeWidth);
-            outerRadius += halfWidth;
-            bounds.outset(halfWidth, halfWidth);
-
-            // If the client has requested a stroke smaller than the outer radius,
-            // we will assume they want no special umbra inset (this is for ambient shadows).
-            if (devStrokeWidth <= outerRadius) {
-                umbraInset = outerRadius;
-            }
-
-            if (strokeOnly) {
-                // If stroke is greater than width or height, this is still a fill,
-                // otherwise we compute stroke params.
-                if (isCircle) {
-                    innerRadius = devRadius - halfWidth;
-                    type = innerRadius > 0 ? kStroke_RRectType : kFill_RRectType;
-                } else {
-                    if (devStrokeWidth <= devRect.width() && devStrokeWidth <= devRect.height()) {
-                        // We don't worry about a real inner radius, we just need to know if we
-                        // need to create overstroke vertices.
-                        innerRadius = SkTMax(devStrokeWidth - umbraInset, 0.0f);
-                        type = innerRadius > 0 ? kOverstroke_RRectType : kStroke_RRectType;
-                    }
-                }
+        // If stroke is greater than width or height, this is still a fill,
+        // otherwise we compute stroke params.
+        if (isCircle) {
+            innerRadius = devRadius - insetWidth;
+            type = innerRadius > 0 ? kStroke_RRectType : kFill_RRectType;
+        } else {
+            if (insetWidth <= 0.5f*SkTMin(devRect.width(), devRect.height())) {
+                // We don't worry about a real inner radius, we just need to know if we
+                // need to create overstroke vertices.
+                innerRadius = SkTMax(insetWidth - umbraInset, 0.0f);
+                type = innerRadius > 0 ? kOverstroke_RRectType : kStroke_RRectType;
             }
         }
 
@@ -650,45 +639,30 @@ namespace GrShadowRRectOp {
 std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
                                          const SkMatrix& viewMatrix,
                                          const SkRRect& rrect,
-                                         const SkScalar blurRadius,
-                                         const SkStrokeRec& stroke) {
+                                         SkScalar blurWidth,
+                                         SkScalar insetWidth) {
     // Shadow rrect ops only handle simple circular rrects.
     SkASSERT(viewMatrix.isSimilarity() &&
              (rrect.isSimple() || rrect.isRect() || rrect.isOval()));
+    SkASSERT(rrect.getSimpleRadii().fX > SK_ScalarNearlyZero &&
+             SkScalarNearlyEqual(rrect.getSimpleRadii().fX, rrect.getSimpleRadii().fY));
 
     // Do any matrix crunching before we reset the draw state for device coords.
     const SkRect& rrectBounds = rrect.getBounds();
     SkRect bounds;
     viewMatrix.mapRect(&bounds, rrectBounds);
 
-    SkVector radii = rrect.getSimpleRadii();
-    SkScalar xRadius = SkScalarAbs(viewMatrix[SkMatrix::kMScaleX] * radii.fX +
-                                   viewMatrix[SkMatrix::kMSkewX] * radii.fY);
-    SkDEBUGCODE(SkScalar yRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewY] * radii.fX +
-                                               viewMatrix[SkMatrix::kMScaleY] * radii.fY));
-    SkASSERT(SkScalarNearlyEqual(xRadius, yRadius));
-
-    // Hairline style is unexpected and meaningless with this DrawOp.
-    // It will be treated as a fill, which will make it visibly obvious that something's wrong.
-    SkStrokeRec::Style style = stroke.getStyle();
-    SkASSERT(SkStrokeRec::kHairline_Style != style);
-
-    // Do mapping of stroke. Use -1 to indicate fill-only draws.
-    SkScalar scaledStrokeWidth = -1;
-    bool isStrokeOnly = SkStrokeRec::kStroke_Style == style;
-    bool hasStroke = isStrokeOnly || SkStrokeRec::kStrokeAndFill_Style == style;
-    if (hasStroke) {
-        SkScalar strokeWidth = stroke.getWidth();
-        // As the matrix is a similarity matrix, this should be isotropic.
-        scaledStrokeWidth = SkScalarAbs(
-                   strokeWidth * (viewMatrix[SkMatrix::kMScaleX] + viewMatrix[SkMatrix::kMSkewX]));
-    }
+    // Map radius and inset. As the matrix is a similarity matrix, this should be isotropic.
+    SkScalar radius = rrect.getSimpleRadii().fX;
+    SkScalar matrixFactor = viewMatrix[SkMatrix::kMScaleX] + viewMatrix[SkMatrix::kMSkewX];
+    SkScalar scaledRadius = SkScalarAbs(radius*matrixFactor);
+    SkScalar scaledInsetWidth = SkScalarAbs(insetWidth*matrixFactor);
 
     return std::unique_ptr<GrLegacyMeshDrawOp>(new ShadowCircularRRectOp(color, viewMatrix, bounds,
-                                                                         xRadius, rrect.isOval(),
-                                                                         blurRadius,
-                                                                         scaledStrokeWidth,
-                                                                         isStrokeOnly));
+                                                                         scaledRadius,
+                                                                         rrect.isOval(),
+                                                                         blurWidth,
+                                                                         scaledInsetWidth));
 }
 }
 
@@ -707,16 +681,16 @@ DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     viewMatrix.postTranslate(translateX, translateY);
     viewMatrix.postScale(scale, scale);
     GrColor color = GrRandomColor(random);
-    SkStrokeRec stroke = GrTest::TestStrokeRec(random);
-    SkScalar blurRadius = random->nextSScalar1() * 72.f;
+    SkScalar insetWidth = random->nextSScalar1() * 72.f;
+    SkScalar blurWidth = random->nextSScalar1() * 72.f;
     bool isCircle = random->nextBool();
     if (isCircle) {
         SkRect circle = GrTest::TestSquare(random);
         SkRRect rrect = SkRRect::MakeOval(circle);
-        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurRadius, stroke);
+        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth);
     } else {
         const SkRRect& rrect = GrTest::TestRRectSimple(random);
-        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurRadius, stroke);
+        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth);
     }
 }
 

@@ -526,7 +526,8 @@ static bool draw_analytic_shadows(SkCanvas* canvas, const SkPath& path, SkScalar
 
     SkRect rect;
     SkRRect rrect;
-    if (canvas->getTotalMatrix().isSimilarity()) {
+    const SkMatrix& ctm = canvas->getTotalMatrix();
+    if (ctm.rectStaysRect() && ctm.isSimilarity()) {
         if (path.isRect(&rect)) {
             SkPaint newPaint;
             newPaint.setColor(color);

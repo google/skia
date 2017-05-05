@@ -158,15 +158,16 @@ public:
      * @param paint        describes how to color pixels.
      * @param viewMatrix   transformation matrix
      * @param rrect        the roundrect to draw
-     * @param blurRadius   amount of shadow blur to apply (in device space)
-     * @param style        style to apply to the rrect. Currently path effects are not allowed.
+     * @param blurWidth    amount of shadow blur to apply (in device space)
+     * @param insetWidth   minimum amount to inset from the rrect edge (in local space).
+     *                     We may inset more depending on the blur radius and geometry.
      */
     void drawShadowRRect(const GrClip&,
                          GrPaint&&,
                          const SkMatrix& viewMatrix,
                          const SkRRect& rrect,
                          SkScalar blurRadius,
-                         const GrStyle& style);
+                         SkScalar insetWidth);
 
     /**
      * Shortcut for filling a SkPath consisting of nested rrects using a paint. The result is
