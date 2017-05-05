@@ -78,43 +78,6 @@ void SkBitmapProcState::platformProcs() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static const SkBlitRow::Proc16 platform_16_procs[] = {
-    S32_D565_Opaque_SSE2,               // S32_D565_Opaque
-    nullptr,                               // S32_D565_Blend
-    S32A_D565_Opaque_SSE2,              // S32A_D565_Opaque
-    nullptr,                               // S32A_D565_Blend
-    S32_D565_Opaque_Dither_SSE2,        // S32_D565_Opaque_Dither
-    nullptr,                               // S32_D565_Blend_Dither
-    S32A_D565_Opaque_Dither_SSE2,       // S32A_D565_Opaque_Dither
-    nullptr,                               // S32A_D565_Blend_Dither
-};
-
-SkBlitRow::Proc16 SkBlitRow::PlatformFactory565(unsigned flags) {
-    if (SkCpu::Supports(SkCpu::SSE2)) {
-        return platform_16_procs[flags];
-    } else {
-        return nullptr;
-    }
-}
-
-static const SkBlitRow::ColorProc16 platform_565_colorprocs_SSE2[] = {
-    Color32A_D565_SSE2,                 // Color32A_D565,
-    nullptr,                               // Color32A_D565_Dither
-};
-
-SkBlitRow::ColorProc16 SkBlitRow::PlatformColorFactory565(unsigned flags) {
-/* If you're thinking about writing an SSE4 version of this, do check it's
- * actually faster on Atom. Our original SSE4 version was slower than this
- * SSE2 version on Silvermont, and only marginally faster on a Core i7,
- * mainly due to the MULLD timings.
- */
-    if (SkCpu::Supports(SkCpu::SSE2)) {
-        return platform_565_colorprocs_SSE2[flags];
-    } else {
-        return nullptr;
-    }
-}
-
 static const SkBlitRow::Proc32 platform_32_procs_SSE2[] = {
     nullptr,                               // S32_Opaque,
     S32_Blend_BlitRow32_SSE2,           // S32_Blend,
