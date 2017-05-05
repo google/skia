@@ -15,6 +15,7 @@
 #include "SkImage.h"
 #include "SkImageEncoderPriv.h"
 #include "SkJpegEncoder.h"
+#include "SkPngEncoder.h"
 #include "SkPM4f.h"
 #include "SkSRGB.h"
 
@@ -117,14 +118,16 @@ static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat fo
     }
     SkDynamicMemoryWStream buf;
 
+    SkPngEncoder::Options pngOptions;
     SkEncodeOptions options;
     if (bitmap.colorSpace()) {
+        pngOptions.fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
         options.fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
     }
 
     switch (format) {
         case SkEncodedImageFormat::kPNG:
-            SkAssertResult(SkEncodeImageAsPNG(&buf, src, options));
+            SkAssertResult(SkPngEncoder::Encode(&buf, src, pngOptions));
             break;
         case SkEncodedImageFormat::kWEBP:
             SkAssertResult(SkEncodeImageAsWEBP(&buf, src, options));
