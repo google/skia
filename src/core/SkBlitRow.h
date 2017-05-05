@@ -78,9 +78,6 @@ public:
 
     static Proc32 PlatformProcs32(unsigned flags);
 
-    static Proc16 PlatformFactory565(unsigned flags);
-    static ColorProc16 PlatformColorFactory565(unsigned flags);
-
 private:
     enum {
         kFlags16_Mask = 7,
