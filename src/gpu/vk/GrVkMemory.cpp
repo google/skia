@@ -40,14 +40,16 @@ static GrVkGpu::Heap buffer_type_to_heap(GrVkBuffer::Type type) {
         GrVkGpu::kVertexBuffer_Heap,
         GrVkGpu::kIndexBuffer_Heap,
         GrVkGpu::kUniformBuffer_Heap,
+        GrVkGpu::kTexelBuffer_Heap,
         GrVkGpu::kCopyReadBuffer_Heap,
         GrVkGpu::kCopyWriteBuffer_Heap,
     };
     GR_STATIC_ASSERT(0 == GrVkBuffer::kVertex_Type);
     GR_STATIC_ASSERT(1 == GrVkBuffer::kIndex_Type);
     GR_STATIC_ASSERT(2 == GrVkBuffer::kUniform_Type);
-    GR_STATIC_ASSERT(3 == GrVkBuffer::kCopyRead_Type);
-    GR_STATIC_ASSERT(4 == GrVkBuffer::kCopyWrite_Type);
+    GR_STATIC_ASSERT(3 == GrVkBuffer::kTexel_Type);
+    GR_STATIC_ASSERT(4 == GrVkBuffer::kCopyRead_Type);
+    GR_STATIC_ASSERT(5 == GrVkBuffer::kCopyWrite_Type);
 
     return kBufferToHeap[type];
 }

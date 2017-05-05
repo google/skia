@@ -21,7 +21,7 @@ public:
         kStencil_Type
     };
 
-    static const GrVkImageView* Create(const GrVkGpu* gpu, VkImage image, VkFormat format, 
+    static const GrVkImageView* Create(const GrVkGpu* gpu, VkImage image, VkFormat format,
                                        Type viewType, uint32_t miplevels);
 
     VkImageView imageView() const { return fImageView; }

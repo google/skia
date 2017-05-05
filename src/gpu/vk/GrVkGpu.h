@@ -151,6 +151,7 @@ public:
         kVertexBuffer_Heap,
         kIndexBuffer_Heap,
         kUniformBuffer_Heap,
+        kTexelBuffer_Heap,
         kCopyReadBuffer_Heap,
         kCopyWriteBuffer_Heap,
 
