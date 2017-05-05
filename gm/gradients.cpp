@@ -809,7 +809,7 @@ struct GradRun {
     int      fCount;
 };
 
-#define SIZE 121
+#define SIZE 120
 
 static sk_sp<SkShader> make_linear(const GradRun& run, SkShader::TileMode mode) {
     const SkPoint pts[] { { 30, 30 }, { SIZE - 30, SIZE - 30 } };
