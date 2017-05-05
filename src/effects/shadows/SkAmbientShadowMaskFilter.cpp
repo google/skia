@@ -215,8 +215,7 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
 
     GrPaint newPaint(paint);
     GrColor4f color = newPaint.getColor4f();
-    color.fRGBA[3] *= fAmbientAlpha;
-    newPaint.setColor4f(color);
+    newPaint.setColor4f(color.mulByScalar(fAmbientAlpha));
     if (SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag)) {
         // set a large inset to force a fill
         devSpaceInsetWidth = ambientRRect.width();
