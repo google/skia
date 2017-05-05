@@ -446,9 +446,20 @@ DEF_TEST(ColorSpace_Primaries, r) {
 
 DEF_TEST(ColorSpace_InvalidICC, r) {
     // This color space has a matrix that is not D50.
-    sk_sp<SkData> data = SkData::MakeFromFileName(
-            GetResourcePath("icc_profiles/SM2333SW.icc").c_str());
+    sk_sp<SkData> data = GetResourceAsData("icc_profiles/SM2333SW.icc");
+    if (!data) {
+        return;
+    }
     sk_sp<SkColorSpace> cs = SkColorSpace::MakeICC(data->data(), data->size());
+    REPORTER_ASSERT(r, !cs);
+
+    // The color space has a color lut with only one entry in each dimension.
+    data = GetResourceAsData("icc_profiles/invalid_color_lut.icc");
+    if (!data) {
+        return;
+    }
+
+    cs = SkColorSpace::MakeICC(data->data(), data->size());
     REPORTER_ASSERT(r, !cs);
 }
 
