@@ -29,9 +29,7 @@ public:
 
     void resize(int newCount) {
         fAttribArrayStates.resize_back(newCount);
-        for (int i = 0; i < newCount; ++i) {
-            fAttribArrayStates[i].invalidate();
-        }
+        this->invalidate();
     }
 
     /**
@@ -44,19 +42,19 @@ public:
              const GrBuffer* vertexBuffer,
              GrVertexAttribType type,
              GrGLsizei stride,
-             GrGLvoid* offset);
+             size_t offsetInBytes);
 
     /**
-     * This function disables vertex attribs not present in the mask. It is assumed that the
-     * GrGLAttribArrayState is tracking the state of the currently bound vertex array object.
+     * This function enables the first 'enabledCount' vertex arrays and disables the rest.
      */
-    void disableUnusedArrays(const GrGLGpu*, uint64_t usedAttribArrayMask);
+    void enableVertexArrays(const GrGLGpu*, int enabledCount);
 
     void invalidate() {
         int count = fAttribArrayStates.count();
         for (int i = 0; i < count; ++i) {
             fAttribArrayStates[i].invalidate();
         }
+        fEnabledCountIsValid = false;
     }
 
     /**
@@ -69,20 +67,17 @@ private:
      * Tracks the state of glVertexAttribArray for an attribute index.
      */
     struct AttribArrayState {
-        void invalidate() {
-            fEnableIsValid = false;
-            fVertexBufferUniqueID.makeInvalid();
-        }
+        void invalidate() { fVertexBufferUniqueID.makeInvalid(); }
 
-        bool                            fEnableIsValid;
-        bool                            fEnabled;
-        GrGpuResource::UniqueID         fVertexBufferUniqueID;
-        GrVertexAttribType              fType;
-        GrGLsizei                       fStride;
-        GrGLvoid*                       fOffset;
+        GrGpuResource::UniqueID   fVertexBufferUniqueID;
+        GrVertexAttribType        fType;
+        GrGLsizei                 fStride;
+        size_t                    fOffset;
     };
 
-    SkSTArray<16, AttribArrayState, true> fAttribArrayStates;
+    SkSTArray<16, AttribArrayState, true>   fAttribArrayStates;
+    int                                     fNumEnabledArrays;
+    bool                                    fEnabledCountIsValid;
 };
 
 /**
