@@ -16,6 +16,24 @@
       "revId": "87f4f757a953bb28f732910dce3c815a69ecd515",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "507368eb_0a7ed709",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-05T18:39:39Z",
+      "side": 1,
+      "message": "The old code was\n\nstatic inline float eval_gaussian(float x) {\n    float factor \u003d 1 - x;\n    return sk_float_exp(-factor * factor * 4) - 0.018f;\n}",
+      "parentUuid": "70d7a73f_140b92ba",
+      "revId": "87f4f757a953bb28f732910dce3c815a69ecd515",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
