@@ -31,6 +31,7 @@ class GrGLSLProgramBuilder {
 public:
     using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
+    using TexelBufferHandle  = GrGLSLUniformHandler::TexelBufferHandle;
     using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
     virtual ~GrGLSLProgramBuilder() {}
@@ -51,6 +52,10 @@ public:
 
     GrSwizzle samplerSwizzle(SamplerHandle handle) const {
         return this->uniformHandler()->samplerSwizzle(handle);
+    }
+
+    const GrShaderVar& texelBufferVariable(TexelBufferHandle handle) const {
+        return this->uniformHandler()->texelBufferVariable(handle);
     }
 
     const GrShaderVar& imageStorageVariable(ImageStorageHandle handle) const {
@@ -155,13 +160,15 @@ private:
     void emitAndInstallXferProc(const GrGLSLExpr4& colorIn, const GrGLSLExpr4& coverageIn);
     void emitSamplersAndImageStorages(const GrResourceIOProcessor& processor,
                                       SkTArray<SamplerHandle>* outTexSamplerHandles,
-                                      SkTArray<SamplerHandle>* outBufferSamplerHandles,
+                                      SkTArray<TexelBufferHandle>* outTexelBufferHandles,
                                       SkTArray<ImageStorageHandle>* outImageStorageHandles);
     SamplerHandle emitSampler(GrSLType samplerType, GrPixelConfig, const char* name,
                               GrShaderFlags visibility);
+    TexelBufferHandle emitTexelBuffer(GrPixelConfig, const char* name, GrShaderFlags visibility);
     ImageStorageHandle emitImageStorage(const GrResourceIOProcessor::ImageStorageAccess&,
                                         const char* name);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
+    void updateSamplerCounts(GrShaderFlags visibility);
     bool checkSamplerCounts();
     bool checkImageStorageCounts();
 
@@ -171,6 +178,8 @@ private:
     void verify(const GrFragmentProcessor&);
 #endif
 
+    // These are used to check that we don't excede the allowable number of resources in a shader.
+    // The sampler counts include both normal texure samplers as well as texel buffers.
     int                         fNumVertexSamplers;
     int                         fNumGeometrySamplers;
     int                         fNumFragmentSamplers;

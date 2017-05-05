@@ -48,7 +48,7 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
                              fragBuilder->getMangleString().c_str(), childProc.name());
     TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
     TextureSamplers textureSamplers = args.fTexSamplers.childInputs(childIndex);
-    BufferSamplers bufferSamplers = args.fBufferSamplers.childInputs(childIndex);
+    TexelBuffers texelBuffers = args.fTexelBuffers.childInputs(childIndex);
     ImageStorages imageStorages = args.fImageStorages.childInputs(childIndex);
     EmitArgs childArgs(fragBuilder,
                        args.fUniformHandler,
@@ -58,7 +58,7 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
                        inputColor,
                        coordVars,
                        textureSamplers,
-                       bufferSamplers,
+                       texelBuffers,
                        imageStorages,
                        args.fGpImplementsDistanceVector);
     this->childProcessor(childIndex)->emitCode(childArgs);

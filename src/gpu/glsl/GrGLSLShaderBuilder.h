@@ -26,6 +26,7 @@ public:
     virtual ~GrGLSLShaderBuilder() {}
 
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
+    using TexelBufferHandle  = GrGLSLUniformHandler::TexelBufferHandle;
     using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
@@ -68,10 +69,10 @@ public:
     /** Fetches an unfiltered texel from a sampler at integer coordinates. coordExpr must match the
         dimensionality of the sampler and must be within the sampler's range. coordExpr is emitted
         exactly once, so expressions like "idx++" are acceptable. */
-    void appendTexelFetch(SkString* out, SamplerHandle, const char* coordExpr) const;
+    void appendTexelFetch(SkString* out, TexelBufferHandle, const char* coordExpr) const;
 
     /** Version of above that appends the result to the shader code instead.*/
-    void appendTexelFetch(SamplerHandle, const char* coordExpr);
+    void appendTexelFetch(TexelBufferHandle, const char* coordExpr);
 
     /** Creates a string of shader code that performs an image load. */
     void appendImageStorageLoad(SkString* out, ImageStorageHandle, const char* coordExpr);

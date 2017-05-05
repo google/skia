@@ -30,6 +30,7 @@ public:
 
     using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
+    using TexelBufferHandle  = GrGLSLUniformHandler::TexelBufferHandle;
     using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
 private:
@@ -72,7 +73,7 @@ public:
                                                       &GrFragmentProcessor::numCoordTransforms>;
     using TextureSamplers = BuilderInputProvider<SamplerHandle, GrResourceIOProcessor,
                                                  &GrResourceIOProcessor::numTextureSamplers>;
-    using BufferSamplers = BuilderInputProvider<SamplerHandle, GrResourceIOProcessor,
+    using TexelBuffers = BuilderInputProvider<TexelBufferHandle, GrResourceIOProcessor,
                                                 &GrResourceIOProcessor::numBuffers>;
     using ImageStorages = BuilderInputProvider<ImageStorageHandle, GrResourceIOProcessor,
                                                &GrResourceIOProcessor::numImageStorages>;
@@ -117,7 +118,7 @@ public:
                  const char* inputColor,
                  const TransformedCoordVars& transformedCoordVars,
                  const TextureSamplers& textureSamplers,
-                 const BufferSamplers& bufferSamplers,
+                 const TexelBuffers& texelBuffers,
                  const ImageStorages& imageStorages,
                  bool gpImplementsDistanceVector)
             : fFragBuilder(fragBuilder)
@@ -128,7 +129,7 @@ public:
             , fInputColor(inputColor)
             , fTransformedCoords(transformedCoordVars)
             , fTexSamplers(textureSamplers)
-            , fBufferSamplers(bufferSamplers)
+            , fTexelBuffers(texelBuffers)
             , fImageStorages(imageStorages)
             , fGpImplementsDistanceVector(gpImplementsDistanceVector) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
@@ -139,7 +140,7 @@ public:
         const char* fInputColor;
         const TransformedCoordVars& fTransformedCoords;
         const TextureSamplers& fTexSamplers;
-        const BufferSamplers& fBufferSamplers;
+        const TexelBuffers& fTexelBuffers;
         const ImageStorages& fImageStorages;
         bool fGpImplementsDistanceVector;
     };

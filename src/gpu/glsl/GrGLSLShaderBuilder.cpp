@@ -143,19 +143,17 @@ void GrGLSLShaderBuilder::appendColorGamutXform(const char* srcColor,
 }
 
 void GrGLSLShaderBuilder::appendTexelFetch(SkString* out,
-                                           SamplerHandle samplerHandle,
+                                           TexelBufferHandle texelBufferHandle,
                                            const char* coordExpr) const {
-    const GrShaderVar& sampler = fProgramBuilder->samplerVariable(samplerHandle);
+    const GrShaderVar& texelBuffer = fProgramBuilder->texelBufferVariable(texelBufferHandle);
     SkASSERT(fProgramBuilder->shaderCaps()->texelFetchSupport());
-    SkASSERT(GrSLTypeIsCombinedSamplerType(sampler.getType()));
 
-    out->appendf("texelFetch(%s, %s)", sampler.c_str(), coordExpr);
-
-    append_texture_swizzle(out, fProgramBuilder->samplerSwizzle(samplerHandle));
+    out->appendf("texelFetch(%s, %s)", texelBuffer.c_str(), coordExpr);
 }
 
-void GrGLSLShaderBuilder::appendTexelFetch(SamplerHandle samplerHandle, const char* coordExpr) {
-    this->appendTexelFetch(&this->code(), samplerHandle, coordExpr);
+void GrGLSLShaderBuilder::appendTexelFetch(TexelBufferHandle texelBufferHandle,
+                                           const char* coordExpr) {
+    this->appendTexelFetch(&this->code(), texelBufferHandle, coordExpr);
 }
 
 void GrGLSLShaderBuilder::appendImageStorageLoad(SkString* out, ImageStorageHandle handle,
