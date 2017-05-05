@@ -1833,11 +1833,11 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
                                 isLinear, &outerMesh);
     SkPath::FillType fillType = antialias ? SkPath::kWinding_FillType : path.getFillType();
     int count = count_points(polys, fillType);
-    if (0 == count) {
-        return 0;
-    }
     if (antialias) {
         count += count_outer_mesh_points(outerMesh);
+    }
+    if (0 == count) {
+        return 0;
     }
 
     void* verts = vertexAllocator->lock(count);
