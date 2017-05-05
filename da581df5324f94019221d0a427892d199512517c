@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13f1b3f6_79738918",
+        "filename": "src/gpu/glsl/GrGLSLProgramBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-05T14:40:28Z",
+      "side": 1,
+      "message": "is this a texture now? (not emitSampler)",
+      "range": {
+        "startLine": 330,
+        "startChar": 0,
+        "endLine": 330,
+        "endChar": 91
+      },
+      "revId": "da581df5324f94019221d0a427892d199512517c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
