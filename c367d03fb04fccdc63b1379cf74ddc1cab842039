@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b883c5fd_8f9339ff",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-05T18:54:26Z",
+      "side": 1,
+      "message": "The Google3 roll is currently broken because of this implicit conversion to bool",
+      "range": {
+        "startLine": 24,
+        "startChar": 19,
+        "endLine": 24,
+        "endChar": 26
+      },
+      "revId": "c367d03fb04fccdc63b1379cf74ddc1cab842039",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
