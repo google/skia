@@ -84,7 +84,7 @@ private:
 
 /**
  * This class represents an OpenGL vertex array object. It manages the lifetime of the vertex array
- * and is used to track the state of the vertex array to avoid redundant GL calls.
+ * and is used to track the state of the vertex array to avoid redundant GL calls.
  */
 class GrGLVertexArray {
 public:
