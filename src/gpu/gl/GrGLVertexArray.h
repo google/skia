@@ -29,9 +29,7 @@ public:
 
     void resize(int newCount) {
         fAttribArrayStates.resize_back(newCount);
-        for (int i = 0; i < newCount; ++i) {
-            fAttribArrayStates[i].invalidate();
-        }
+        this->invalidate();
     }
 
     /**
