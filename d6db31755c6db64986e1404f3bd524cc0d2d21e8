@@ -22,6 +22,30 @@
       "revId": "d6db31755c6db64986e1404f3bd524cc0d2d21e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0d9414c_88586ca4",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-05T18:55:34Z",
+      "side": 1,
+      "message": "I just need to keep the behavior of the old API the same (until I replace it).  kIgnore is the legacy behavior.  kIgnore is arguably a more appropriate default, but I\u0027m trying to encourage the new behavior.",
+      "parentUuid": "402a6213_9ccaf954",
+      "range": {
+        "startLine": 35,
+        "startChar": 41,
+        "endLine": 35,
+        "endChar": 76
+      },
+      "revId": "d6db31755c6db64986e1404f3bd524cc0d2d21e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
