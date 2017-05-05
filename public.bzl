@@ -610,7 +610,11 @@ COPTS_UNIX = [
     "-Wno-deprecated-declarations",  # Internal use of deprecated methods. :(
 ]
 
-COPTS_ANDROID = ["-mfpu=neon"]
+COPTS_ANDROID = [
+    "-mfpu=neon",
+    "-Wno-error=attributes",  # 'GrResourceCache' declared with greater visibility than the
+                              # type of its field 'GrResourceCache::fPurgeableQueue'... bogus.
+]
 
 COPTS_IOS = []
 
