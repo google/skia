@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b6c822ad_d819e18e",
+        "filename": "src/gpu/gl/GrGLProgram.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-05T14:31:41Z",
+      "side": 1,
+      "message": "Done. And moved ImageStorage back to its own.",
+      "parentUuid": "8bf3dfd3_5559d6a7",
+      "range": {
+        "startLine": 53,
+        "startChar": 24,
+        "endLine": 53,
+        "endChar": 42
+      },
+      "revId": "ff49003f87a0835e4188791257ea8a5e31ee38c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4e78ff46_a7db6b7a",
         "filename": "src/gpu/gl/GrGLProgram.cpp",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "ff49003f87a0835e4188791257ea8a5e31ee38c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ef27f22_6afa5e7f",
+        "filename": "src/gpu/gl/GrGLProgram.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-05T14:31:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e78ff46_a7db6b7a",
+      "range": {
+        "startLine": 80,
+        "startChar": 57,
+        "endLine": 80,
+        "endChar": 65
+      },
+      "revId": "ff49003f87a0835e4188791257ea8a5e31ee38c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "91707f25_c435365f",
+        "filename": "src/gpu/gl/GrGLProgramDataManager.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-05T14:31:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24b4822a_e9d5fe23",
+      "range": {
+        "startLine": 53,
+        "startChar": 29,
+        "endLine": 53,
+        "endChar": 47
+      },
+      "revId": "ff49003f87a0835e4188791257ea8a5e31ee38c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42e731d0_74ce8bc3",
         "filename": "src/gpu/gl/GrGLUniformHandler.h",
         "patchSetId": 5
@@ -82,6 +154,30 @@
       "writtenOn": "2017-05-04T14:21:13Z",
       "side": 1,
       "message": "is there a reason to call this is sampler anymore or can we start calling it a texture?",
+      "range": {
+        "startLine": 44,
+        "startChar": 18,
+        "endLine": 44,
+        "endChar": 28
+      },
+      "revId": "ff49003f87a0835e4188791257ea8a5e31ee38c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6584b8f0_6ae45554",
+        "filename": "src/gpu/gl/GrGLUniformHandler.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-05T14:31:41Z",
+      "side": 1,
+      "message": "To distinguish it from ImageStorages which are not samplers at all I like to keep the name sampler. In a follow up CL (just cause it will be a bunch of name changes I don\u0027t want in this CL), I am actually willing to change all this add/emitSampler calls to be add/emitTextureSampler to make it explicit that what we are adding is the combined texture and sampler.",
+      "parentUuid": "42e731d0_74ce8bc3",
       "range": {
         "startLine": 44,
         "startChar": 18,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "8f9b030a_b80c6bff",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-05T14:31:41Z",
+      "side": 1,
+      "message": "same as above comment",
+      "parentUuid": "3b3d792f_40ba5cc2",
+      "range": {
+        "startLine": 50,
+        "startChar": 20,
+        "endLine": 50,
+        "endChar": 36
+      },
+      "revId": "ff49003f87a0835e4188791257ea8a5e31ee38c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3a7b6f66_99455f7f",
         "filename": "src/gpu/glsl/GrGLSLProgramBuilder.cpp",
         "patchSetId": 5
@@ -128,6 +248,30 @@
       "writtenOn": "2017-05-04T14:21:13Z",
       "side": 1,
       "message": "this counting logic is duplicated three times now. Probably worth putting into its own function",
+      "range": {
+        "startLine": 338,
+        "startChar": 8,
+        "endLine": 338,
+        "endChar": 19
+      },
+      "revId": "ff49003f87a0835e4188791257ea8a5e31ee38c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9168df79_52603463",
+        "filename": "src/gpu/glsl/GrGLSLProgramBuilder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-05T14:31:41Z",
+      "side": 1,
+      "message": "factored out the two for the sampler types, left ImageStorages as its own.",
+      "parentUuid": "3a7b6f66_99455f7f",
       "range": {
         "startLine": 338,
         "startChar": 8,
