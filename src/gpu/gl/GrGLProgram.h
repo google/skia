@@ -111,7 +111,8 @@ protected:
                 const BuiltinUniformHandles&,
                 GrGLuint programID,
                 const UniformInfoArray& uniforms,
-                const UniformInfoArray& samplers,
+                const UniformInfoArray& textureSamplers,
+                const UniformInfoArray& texelBuffers,
                 const UniformInfoArray& imageStorages,
                 const VaryingInfoArray&, // used for NVPR only currently
                 GrGLSLPrimitiveProcessor* geometryProcessor,
@@ -119,13 +120,15 @@ protected:
                 const GrGLSLFragProcs& fragmentProcessors);
 
     // A helper to loop over effects, set the transforms (via subclass) and bind textures
-    void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&, int* nextSamplerIdx);
+    void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&, int* nextTexSamplerIdx,
+                         int* nextTexelBufferIdx, int* nextImageStorageIdx);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
     void setRenderTargetState(const GrPrimitiveProcessor&, const GrRenderTarget*);
 
     // Helper for setData() that binds textures and texel buffers to the appropriate texture units
-    void bindTextures(const GrResourceIOProcessor&, bool allowSRGBInputs, int* nextSamplerIdx);
+    void bindTextures(const GrResourceIOProcessor&, bool allowSRGBInputs, int* nextSamplerIdx,
+                      int* nextTexelBufferIdx, int* nextImageStorageIdx);
 
     // Helper for generateMipmaps() that ensures mipmaps are up to date
     void generateMipmaps(const GrResourceIOProcessor&, bool allowSRGBInputs);
@@ -143,6 +146,10 @@ protected:
     GrProgramDesc fDesc;
     GrGLGpu* fGpu;
     GrGLProgramDataManager fProgramDataManager;
+
+    int fNumTextureSamplers;
+    int fNumTexelBuffers;
+    int fNumImageStorages;
 
     friend class GrGLProgramBuilder;
 

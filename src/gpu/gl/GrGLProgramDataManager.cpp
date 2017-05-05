@@ -50,12 +50,13 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
     }
 }
 
-void GrGLProgramDataManager::setSamplers(const UniformInfoArray& samplers) const {
+void GrGLProgramDataManager::setSamplerUniforms(const UniformInfoArray& samplers,
+                                                int startUnit) const {
     for (int i = 0; i < samplers.count(); ++i) {
         const UniformInfo& sampler = samplers[i];
         SkASSERT(sampler.fVisibility);
         if (kUnusedUniform != sampler.fLocation) {
-            GR_GL_CALL(fGpu->glInterface(), Uniform1i(sampler.fLocation, i));
+            GR_GL_CALL(fGpu->glInterface(), Uniform1i(sampler.fLocation, i + startUnit));
         }
     }
 }
