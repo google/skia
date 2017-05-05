@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea338749_22a4db71",
+        "filename": "src/images/SkPngEncoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-05T21:44:35Z",
+      "side": 1,
+      "message": "Chrome also uses a custom setting for \"zlib compression strategy\".  Reading the comments in Chrome and comparing to zlib documentation, the intended use doesn\u0027t seem to make much sense.\n\nI\u0027m going to try to avoid adding that option...",
+      "range": {
+        "startLine": 27,
+        "startChar": 4,
+        "endLine": 27,
+        "endChar": 20
+      },
+      "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
