@@ -105,7 +105,7 @@ protected:
     }
 
     void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
+        canvas->drawColor(0xFFFFFFFF);
     }
 
     void drawShadowedPath(SkCanvas* canvas, const SkPath& path,

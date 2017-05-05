@@ -170,11 +170,6 @@ bool SkSpotShadowMaskFilterImpl::directFilterMaskGPU(GrContext* context,
         return true;
     }
 
-    // only convex paths for now
-    if (!path.isConvex()) {
-        return false;
-    }
-
     if (strokeRec.getStyle() != SkStrokeRec::kFill_Style) {
         return false;
     }
@@ -202,44 +197,37 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
                                                           const SkStrokeRec& strokeRec,
                                                           const SkRRect& rrect,
                                                           const SkRRect& devRRect) const {
-    // It's likely the caller has already done these checks, but we have to be sure.
-
+    // The caller should have done these checks, but we have to be sure.
     // Fast path only supports filled rrects for now.
     // TODO: fill and stroke as well.
     if (SkStrokeRec::kFill_Style != strokeRec.getStyle()) {
         return false;
     }
     // Fast path only supports simple rrects with circular corners.
-    if (!devRRect.isRect() && !devRRect.isCircle() &&
-        (!devRRect.isSimple() || !devRRect.allCornersCircular())) {
-        return false;
-    }
+    SkASSERT(devRRect.isRect() || devRRect.isCircle() ||
+        (devRRect.isSimple() && devRRect.allCornersCircular()));
     // Fast path only supports uniform scale.
-    if (!viewMatrix.isSimilarity()) {
-        return false;
-    }
-    // 1/scale
-    SkScalar scaleFactor = viewMatrix.isScaleTranslate() ?
-        SkScalarInvert(viewMatrix[SkMatrix::kMScaleX]) :
-        sk_float_rsqrt(viewMatrix[SkMatrix::kMScaleX] * viewMatrix[SkMatrix::kMScaleX] +
-                       viewMatrix[SkMatrix::kMSkewX] * viewMatrix[SkMatrix::kMSkewX]);
+    SkASSERT(viewMatrix.isSimilarity());
 
     if (fSpotAlpha > 0.0f) {
+        // 1/scale
+        SkScalar scaleFactor = viewMatrix.isScaleTranslate() ?
+            SkScalarInvert(viewMatrix[SkMatrix::kMScaleX]) :
+            sk_float_rsqrt(viewMatrix[SkMatrix::kMScaleX] * viewMatrix[SkMatrix::kMScaleX] +
+                           viewMatrix[SkMatrix::kMSkewX] * viewMatrix[SkMatrix::kMSkewX]);
+
         float zRatio = SkTPin(fOccluderHeight / (fLightPos.fZ - fOccluderHeight), 0.0f, 0.95f);
 
-        SkScalar devSpaceSpotRadius = 2.0f * fLightRadius * zRatio;
+        SkScalar devSpaceSpotBlur = 2.0f * fLightRadius * zRatio;
         // handle scale of radius and pad due to CTM
-        const SkScalar srcSpaceSpotRadius = devSpaceSpotRadius * scaleFactor;
+        const SkScalar srcSpaceSpotBlur = devSpaceSpotBlur * scaleFactor;
 
-        SkRRect spotShadowRRect;
         // Compute the scale and translation for the spot shadow.
-        const SkScalar scale = fLightPos.fZ / (fLightPos.fZ - fOccluderHeight);
-        rrect.transform(SkMatrix::MakeScale(scale, scale), &spotShadowRRect);
-
+        const SkScalar spotScale = fLightPos.fZ / (fLightPos.fZ - fOccluderHeight);
         SkPoint spotOffset = SkPoint::Make(zRatio*(-fLightPos.fX), zRatio*(-fLightPos.fY));
-        // Adjust for the effect of the scale.
-        spotOffset.fX += scale*viewMatrix[SkMatrix::kMTransX];
-        spotOffset.fY += scale*viewMatrix[SkMatrix::kMTransY];
+        // Adjust translate for the effect of the scale.
+        spotOffset.fX += spotScale*viewMatrix[SkMatrix::kMTransX];
+        spotOffset.fY += spotScale*viewMatrix[SkMatrix::kMTransY];
         // This offset is in dev space, need to transform it into source space.
         SkMatrix ctmInverse;
         if (!viewMatrix.invert(&ctmInverse)) {
@@ -249,64 +237,58 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         }
         ctmInverse.mapPoints(&spotOffset, 1);
 
-        // We want to extend the stroked area in so that it meets up with the caster
-        // geometry. The stroked geometry will, by definition already be inset half the
-        // stroke width but we also have to account for the scaling and translation when
-        // computing a new stroke shape.
-        //
-        // We begin by transforming the min and max corners -- inset by the radius -- by the scale
-        // and translation. The distance from that to the original inset point plus the difference
-        // between the scaled radius and the original radius gives the distance from the 
-        // transformed shadow shape to the original shape. If the max of the two distances is
-        // greater than the strokeWidth then we need to inset and increase the strokeWidth to cover
-        // the hole. If less, then we can outset and decrease the strokeWidth to reduce our
-        // coverage.
+        // Compute the transformed shadow rrect
+        SkRRect spotShadowRRect;
+        SkMatrix shadowTransform;
+        shadowTransform.setScaleTranslate(spotScale, spotScale, spotOffset.fX, spotOffset.fY);
+        rrect.transform(shadowTransform, &spotShadowRRect);
 
-        // This factor handles both the transform scale and subtracting the original value.
-        SkScalar comboScale = scale - 1;
-        SkScalar r = rrect.getSimpleRadii().fX;
-        SkPoint upperLeftOffset = SkPoint::Make(comboScale*(rrect.rect().fLeft + r),
-                                                comboScale*(rrect.rect().fTop + r));
-        upperLeftOffset += spotOffset;
-        SkPoint lowerRightOffset = SkPoint::Make(comboScale*(rrect.rect().fRight - r),
-                                                 comboScale*(rrect.rect().fBottom - r));
-        lowerRightOffset += spotOffset;
-
-        SkScalar maxOffset = SkTMax(upperLeftOffset.length(), lowerRightOffset.length());
-        maxOffset += comboScale*r;
-        SkScalar insetAmount = maxOffset - (0.5f * srcSpaceSpotRadius);
-        SkScalar strokeWidth = srcSpaceSpotRadius + insetAmount;
-
-        SkScalar strokedDiff = SkTMin(spotShadowRRect.width(), spotShadowRRect.height())
-                             - (insetAmount + strokeWidth);
-
-        SkStrokeRec spotStrokeRec(SkStrokeRec::kFill_InitStyle);
-        // If the caster has too large a stroke or is transparent, just fill it.
-        if (strokedDiff < 0 || fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag) {
-            spotStrokeRec.setStrokeStyle(srcSpaceSpotRadius, true);
+        // Compute the insetWidth
+        SkScalar blurOutset = 0.5f*srcSpaceSpotBlur;
+        SkScalar insetWidth = blurOutset;
+        if (fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag) {
+            // If transparent, just do a fill
+            insetWidth += 0.5f*SkTMin(spotShadowRRect.width(), spotShadowRRect.height());
         } else {
-            // Since we can't have unequal strokes, inset the shadow rect so the inner
-            // and outer edges of the stroke will land where we want.
-            insetAmount *= 0.5f;
-            SkRect insetRect = spotShadowRRect.rect().makeInset(insetAmount, insetAmount);
-            // If the shadowRRect was an oval then its inset will also be one.
-            // We set it explicitly to avoid errors.
-            if (spotShadowRRect.isOval()) {
-                spotShadowRRect = SkRRect::MakeOval(insetRect);
-            } else {
-                SkScalar insetRad = spotShadowRRect.getSimpleRadii().fX - insetAmount;
-                spotShadowRRect = SkRRect::MakeRectXY(insetRect, insetRad, insetRad);
-            }
-            spotStrokeRec.setStrokeStyle(strokeWidth, false);
+            // For shadows, instead of using a stroke we specify an inset from the penumbra
+            // border. We want to extend this inset area so that it meets up with the caster
+            // geometry. The inset geometry will by default already be inset by the blur width.
+            //
+            // We compare the min and max corners inset by the radius between the original
+            // rrect and the shadow rrect. The distance between the two plus the difference
+            // between the scaled radius and the original radius gives the distance from the
+            // transformed shadow shape to the original shape in that corner. The max
+            // of these gives the maximum distance we need to cover.
+            //
+            // Since we are outsetting by 1/2 the blur distance, we just add the maxOffset to
+            // that to get the full insetWidth.
+            SkScalar dr = spotShadowRRect.getSimpleRadii().fX - rrect.getSimpleRadii().fX;
+            SkPoint upperLeftOffset = SkPoint::Make(spotShadowRRect.rect().fLeft -
+                                                    rrect.rect().fLeft + dr,
+                                                    spotShadowRRect.rect().fTop -
+                                                    rrect.rect().fTop + dr);
+            SkPoint lowerRightOffset = SkPoint::Make(spotShadowRRect.rect().fRight -
+                                                     rrect.rect().fRight - dr,
+                                                     spotShadowRRect.rect().fBottom -
+                                                     rrect.rect().fBottom - dr);
+            SkScalar maxOffset = SkTMax(upperLeftOffset.lengthSqd(), lowerRightOffset.lengthSqd());
+            insetWidth += SkScalarSqrt(maxOffset) + dr;
         }
 
-        spotShadowRRect.offset(spotOffset.fX, spotOffset.fY);
+        // Outset the shadow rrect to the border of the penumbra
+        SkRect outsetRect = spotShadowRRect.rect().makeOutset(blurOutset, blurOutset);
+        if (spotShadowRRect.isOval()) {
+            spotShadowRRect = SkRRect::MakeOval(outsetRect);
+        } else {
+            SkScalar outsetRad = spotShadowRRect.getSimpleRadii().fX + blurOutset;
+            spotShadowRRect = SkRRect::MakeRectXY(outsetRect, outsetRad, outsetRad);
+        }
 
         GrColor4f color = paint.getColor4f();
         color.fRGBA[3] *= fSpotAlpha;
         paint.setColor4f(color);
         rtContext->drawShadowRRect(clip, std::move(paint), viewMatrix, spotShadowRRect,
-                                   devSpaceSpotRadius, GrStyle(spotStrokeRec, nullptr));
+                                   devSpaceSpotBlur, insetWidth);
     }
 
     return true;
