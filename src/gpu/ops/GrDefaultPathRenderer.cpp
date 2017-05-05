@@ -579,6 +579,9 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
 }
 
 bool GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    // If we aren't a single_pass_shape, we require stencil buffers.
+    if (!single_pass_shape(*args.fShape) && args.fCaps->avoidStencilBuffers())
+        return false;
     // This can draw any path with any simple fill style but doesn't do coverage-based antialiasing.
     return GrAAType::kCoverage != args.fAAType &&
            (args.fShape->style().isSimpleFill() ||
