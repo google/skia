@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "afc86419_ad923c6f",
+        "filename": "src/images/SkEncoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-05T15:14:00Z",
+      "side": 1,
+      "message": "Oops, now it isn\u0027t.",
+      "parentUuid": "84791867_d31f1f1f",
+      "range": {
+        "startLine": 23,
+        "startChar": 17,
+        "endLine": 23,
+        "endChar": 30
+      },
+      "revId": "da41a22fe144fb4cf717fec9355d9bc361f60ca0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "02f6d9e2_8393ca8f",
         "filename": "src/images/SkPNGImageEncoder.cpp",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-05T14:45:12Z",
       "side": 1,
       "message": "The other methods take an SkImageInfo, and this one takes an SkPixmap. But it looks like it only uses methods from the info. Why not take an info here?",
+      "range": {
+        "startLine": 347,
+        "startChar": 38,
+        "endLine": 347,
+        "endChar": 46
+      },
+      "revId": "da41a22fe144fb4cf717fec9355d9bc361f60ca0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81ed87a5_7005c100",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-05T15:14:00Z",
+      "side": 1,
+      "message": "You\u0027re right, let\u0027s take an info.",
+      "parentUuid": "02f6d9e2_8393ca8f",
       "range": {
         "startLine": 347,
         "startChar": 38,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "65fa991f_c5906556",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-05T15:14:00Z",
+      "side": 1,
+      "message": "Hmm oops, I meant to come back and share this.  Done!",
+      "parentUuid": "c23ad74b_703727ab",
+      "range": {
+        "startLine": 379,
+        "startChar": 4,
+        "endLine": 379,
+        "endChar": 67
+      },
+      "revId": "da41a22fe144fb4cf717fec9355d9bc361f60ca0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4000a6a6_75e2265d",
         "filename": "src/images/SkPNGImageEncoder.cpp",
         "patchSetId": 5
@@ -91,6 +163,30 @@
       "revId": "da41a22fe144fb4cf717fec9355d9bc361f60ca0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1810c05_dd6aebe3",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-05T15:14:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4000a6a6_75e2265d",
+      "range": {
+        "startLine": 418,
+        "startChar": 11,
+        "endLine": 418,
+        "endChar": 55
+      },
+      "revId": "da41a22fe144fb4cf717fec9355d9bc361f60ca0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

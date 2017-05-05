@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5a33b0a8_99ed021d",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-05T15:14:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ef8ffd5_cf3fac66",
+      "range": {
+        "startLine": 58,
+        "startChar": 5,
+        "endLine": 58,
+        "endChar": 20
+      },
+      "revId": "d3af8f19c6ae3149a0112c3d89ddf7aeb77b1850",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "83f3f8c1_4b5d59cf",
         "filename": "src/images/SkPNGImageEncoder.cpp",
         "patchSetId": 3
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "8b97387f_cf52ae79",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-05T15:14:00Z",
+      "side": 1,
+      "message": "Should be more clear now.",
+      "parentUuid": "81f1151c_5b4a9667",
+      "range": {
+        "startLine": 323,
+        "startChar": 40,
+        "endLine": 323,
+        "endChar": 53
+      },
+      "revId": "d3af8f19c6ae3149a0112c3d89ddf7aeb77b1850",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6960f5c4_727cd364",
         "filename": "src/images/SkPNGImageEncoder.cpp",
         "patchSetId": 3
@@ -82,6 +130,30 @@
       "writtenOn": "2017-05-05T14:45:12Z",
       "side": 1,
       "message": "Is there a better name for this? It may set srgb instead.",
+      "range": {
+        "startLine": 328,
+        "startChar": 22,
+        "endLine": 328,
+        "endChar": 28
+      },
+      "revId": "d3af8f19c6ae3149a0112c3d89ddf7aeb77b1850",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba98876d_384eb0d3",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-05T15:14:00Z",
+      "side": 1,
+      "message": "setColorSpace() seems better.",
+      "parentUuid": "6960f5c4_727cd364",
       "range": {
         "startLine": 328,
         "startChar": 22,
