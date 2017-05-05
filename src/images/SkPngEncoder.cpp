@@ -17,6 +17,13 @@
 
 #include "png.h"
 
+static_assert(PNG_FILTER_NONE == SkPngEncoder::kNone_FilterFlag, "Skia and libpng filter error.");
+static_assert(PNG_FILTER_SUB == SkPngEncoder::kSub_FilterFlag, "Skia and libpng filter error.");
+static_assert(PNG_FILTER_UP == SkPngEncoder::kUp_FilterFlag, "Skia and libpng filter error.");
+static_assert(PNG_FILTER_AVG == SkPngEncoder::kAvg_FilterFlag, "Skia and libpng filter error.");
+static_assert(PNG_FILTER_PAETH == SkPngEncoder::kPaeth_FilterFlag, "Skia and libpng filter error.");
+static_assert(PNG_ALL_FILTERS == SkPngEncoder::kAll_FilterFlag, "Skia and libpng filter error.");
+
 static constexpr bool kSuppressPngEncodeWarnings = true;
 
 static void sk_error_fn(png_structp png_ptr, png_const_charp msg) {
@@ -43,7 +50,7 @@ public:
      */
     static std::unique_ptr<SkPngEncoderMgr> Make(SkWStream* stream);
 
-    bool setHeader(const SkImageInfo& srcInfo);
+    bool setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::Options& options);
     bool setPalette(const SkImageInfo& srcInfo, SkColorTable* colorTable,
                     SkTransferFunctionBehavior);
     bool setColorSpace(SkColorSpace* colorSpace);
@@ -89,7 +96,7 @@ std::unique_ptr<SkPngEncoderMgr> SkPngEncoderMgr::Make(SkWStream* stream) {
     return std::unique_ptr<SkPngEncoderMgr>(new SkPngEncoderMgr(pngPtr, infoPtr));
 }
 
-bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo) {
+bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::Options& options) {
     if (setjmp(png_jmpbuf(fPngPtr))) {
         return false;
     }
@@ -161,6 +168,12 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo) {
                  PNG_FILTER_TYPE_BASE);
     png_set_sBIT(fPngPtr, fInfoPtr, &sigBit);
 
+    SkASSERT(SkPngEncoder::kAll_FilterFlag ==
+            (options.fFilterFlags | SkPngEncoder::kAll_FilterFlag));
+    png_set_filter(fPngPtr, PNG_FILTER_TYPE_BASE, options.fFilterFlags);
+
+    SkASSERT(0 <= options.fZLibLevel && options.fZLibLevel <= 9);
+    png_set_compression_level(fPngPtr, options.fZLibLevel);
     return true;
 }
 
@@ -379,7 +392,7 @@ std::unique_ptr<SkPngEncoder> SkPngEncoder::Make(SkWStream* dst, const SkPixmap&
         return nullptr;
     }
 
-    if (!encoderMgr->setHeader(src.info())) {
+    if (!encoderMgr->setHeader(src.info(), options)) {
         return nullptr;
     }
 
