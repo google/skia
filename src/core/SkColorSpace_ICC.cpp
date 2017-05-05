@@ -595,8 +595,8 @@ static bool load_color_lut(sk_sp<SkColorLookUpTable>* colorLUT, uint32_t inputCh
 
     uint32_t numEntries = SkColorLookUpTable::kOutputChannels;
     for (uint32_t i = 0; i < inputChannels; i++) {
-        if (0 == gridPoints[i]) {
-            SkColorSpacePrintf("Each input channel must have at least one grid point.");
+        if (1 >= gridPoints[i]) {
+            SkColorSpacePrintf("Each input channel must have at least two grid points.");
             return false;
         }
 
