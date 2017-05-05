@@ -1,0 +1,585 @@
+fiddles.htm:70 name: SkCanvas_copy_constructor  fiddleHash: bfe0c993619cc8c396085d2adde3dc74
+fiddles.htm:70 name: SkCanvas_int_int_const_SkSurfaceProps_star  fiddleHash: 4f254d15fb124a9df3936ed710ef187e
+fiddles.htm:70 name: SkCanvas_empty_constructor  fiddleHash: 903451d6c93bf69e2833747a3e8cc8f7
+fiddles.htm:70 name: SkCanvas_MakeRasterDirect  fiddleHash: 30839f66c2d267e021d0cabb81ef1123
+fiddles.htm:70 name: SkCanvas_const_SkBitmap_const_SkSurfaceProps  fiddleHash: de34d11e999b526adba3bfc9d8d0c091
+fiddles.htm:70 name: SkCanvas_MakeRasterDirectN32  fiddleHash: 4c81e0b289dddd6c4b02faf43eeafd73
+fiddles.htm:70 name: SkCanvas_getMetaData  fiddleHash: 4c749fca4512a4cce00d3c8a2d998231
+fiddles.htm:70 name: SkCanvas_getProps  fiddleHash: 9506826b8a7641ef6bdffb2b5b32d484
+fiddles.htm:70 name: SkCanvas_imageInfo  fiddleHash: e00eade9f7a0d42efe76171ed5bd2934
+fiddles.htm:70 name: SkCanvas_makeSurface  fiddleHash: 4f4b3988c17044767dff37bf10d2b221
+fiddles.htm:70 name: SkCanvas_getBaseLayerSize  fiddleHash: d22a31211b86d03379fdaaf67eed0190
+fiddles.htm:70 name: SkCanvas_accessTopLayerPixels  fiddleHash: 38d0d6ca9bea146d31bcbec197856359
+fiddles.htm:70 name: SkCanvas_accessTopLayerPixels_a  fiddleHash: 54931d8f85934cef6636d177ab627fba
+fiddles.htm:70 name: SkCanvas_accessTopRasterHandle  fiddleHash: 4486d0c0b22ad2931db130f42da4c80c
+fiddles.htm:70 name: SkCanvas_readPixels  fiddleHash: 52c574f6c98277d6d3d20587b46f49c0
+fiddles.htm:70 name: SkCanvas_peekPixels  fiddleHash: 89b0ce1e3d1a26a5d8ada735f2894ff0
+fiddles.htm:70 name: SkCanvas_getGrContext  fiddleHash: c4ea949e5fa5a0630dcb6b0204bd498f
+fiddles.htm:70 name: SkCanvas_readPixels_2  fiddleHash: 85f199032943b6483722c34a91c4e20f
+fiddles.htm:70 name: SkCanvas_readPixels_3  fiddleHash: af6dec8ef974aa67bf102f29915bcd6a
+fiddles.htm:70 name: SkCanvas_writePixels  fiddleHash: 6bee56104d9cdbb2781f60c5d568ba78
+fiddles.htm:70 name: Canvas_State_Stack  fiddleHash: 3e7c6bf845bb354d1454aaabc83984bb
+fiddles.htm:70 name: SkCanvas_writePixels_2  fiddleHash: 8b128e067881f9251357653692fa28da
+fiddles.htm:70 name: Canvas_State_Stack_a  fiddleHash: 3dbf0e55a7b780a78fb12e323675d770
+fiddles.htm:70 name: SkCanvas_save  fiddleHash: dca66b9665aa690fd72438282222238c
+fiddles.htm:70 name: SkCanvas_saveLayer_2  fiddleHash: a96f24d149d91c77c1674f9c81b5f5bc
+fiddles.htm:70 name: SkCanvas_saveLayerPreserveLCDTextRequests  fiddleHash: 4c160891287abdc6ed81c96c4af56461
+fiddles.htm:70 name: SkCanvas_saveLayer  fiddleHash: 710767400839408102d6a966aa79f513
+fiddles.htm:70 name: SkCanvas_saveLayerAlpha  fiddleHash: e0d4135cf9e3d7ef80649825829d81b9
+fiddles.htm:70 name: SkCanvas_SaveLayerFlags  fiddleHash: 28fab277eb4e4cdda081ebc72398882b
+fiddles.htm:70 name: SkCanvas_SaveLayerRec  fiddleHash: 08a3da3a785ada3379c86c997edff3c1
+fiddles.htm:70 name: SkCanvas_SaveLayerRec_SaveLayerRec  fiddleHash: 9b3af9a956abb6f4dced3088effadf76
+fiddles.htm:70 name: SkCanvas_SaveLayerRec_SaveLayerRec_2  fiddleHash: 71bcc9d6762ca2be4dc9426227f4b23b
+fiddles.htm:70 name: SkCanvas_SaveLayerRec_SaveLayerRec_3  fiddleHash: 8601e86e313457b96962df0f82372441
+fiddles.htm:70 name: SkCanvas_saveLayer_3  fiddleHash: 77547c1418b9a279724310a94324fe0b
+fiddles.htm:70 name: SkCanvas_restore  fiddleHash: e78471212a67f2f4fd39496e17a30d17
+fiddles.htm:70 name: SkCanvas_getSaveCount  fiddleHash: 005f2b207e078baac596681924fe591e
+fiddles.htm:70 name: SkCanvas_restoreToCount  fiddleHash: 9ed0d56436e114c7097fd49eed1aea47
+fiddles.htm:70 name: SkCanvas_scale  fiddleHash: 246cf78ad851527f11b675cc9a701659
+fiddles.htm:70 name: SkCanvas_translate  fiddleHash: 8670079d0d370581ce47797fa6692ee9
+fiddles.htm:70 name: SkCanvas_rotate  fiddleHash: 11f8a8a1328c135cedca9a5685d5503e
+fiddles.htm:70 name: SkCanvas_rotate_2  fiddleHash: 7a4e6beab7ec59090b7c1811ca8d05d7
+fiddles.htm:70 name: SkCanvas_setMatrix  fiddleHash: afc15299fd46a94fbd4df47f9efbb80e
+fiddles.htm:70 name: SkCanvas_skew  fiddleHash: dd353fd4cd35ceff5c84d6d7d89d64a3
+fiddles.htm:70 name: SkCanvas_concat  fiddleHash: 5d927c8daa8429c0e80962149706521c
+fiddles.htm:70 name: SkCanvas_resetMatrix  fiddleHash: 52fc8a297fafc4337b6eaafbf50b20f4
+fiddles.htm:70 name: SkCanvas_getTotalMatrix  fiddleHash: 82f8b3027361b33f05e937ccbddd05c4
+fiddles.htm:70 name: Canvas_Clip  fiddleHash: 1f31cbade2547e290cc9b9744ebd06a7
+fiddles.htm:70 name: SkCanvas_clipRRect  fiddleHash: eec04065575e1e5cd057f1f268f623fa
+fiddles.htm:70 name: SkCanvas_clipRect  fiddleHash: 14f43321b6f1f4b44292bd1ab89d856f
+fiddles.htm:70 name: SkCanvas_clipRect_2  fiddleHash: 5cb436368a13a87fe1be7e06ab28abda
+fiddles.htm:70 name: SkCanvas_clipRect_3  fiddleHash: 518ce6a4bfe6237fdb927c293ae0efb2
+fiddles.htm:70 name: SkCanvas_clipRRect_3  fiddleHash: 43137bbd47f9f3b865f420404a88147b
+fiddles.htm:70 name: SkCanvas_clipRRect_2  fiddleHash: 136c68122656631954ba219a299b0182
+fiddles.htm:70 name: SkCanvas_clipRegion  fiddleHash: 56ca4ef54d4ab4157ab05fedf4e35ab6
+fiddles.htm:70 name: SkCanvas_clipPath  fiddleHash: 486c6c5705e974fe14cf16b157a9d202
+fiddles.htm:70 name: SkCanvas_clipPath_2  fiddleHash: b16be22b7c2d4fec9baa24f87cc43ad6
+fiddles.htm:70 name: SkCanvas_quickReject_2  fiddleHash: 64723a541c40073157abf2ca67907e15
+fiddles.htm:70 name: SkCanvas_quickReject  fiddleHash: c15e39862d5f07b0fed44c71e86f7cc9
+fiddles.htm:70 name: SkCanvas_clipPath_3  fiddleHash: 25b2da28dbbe6ac51b6d5bc92b79f360
+fiddles.htm:70 name: SkCanvas_getLocalClipBounds  fiddleHash: 92c3fd042cacd1f58711d34d906b0623
+fiddles.htm:70 name: SkCanvas_drawColor  fiddleHash: 26197ea1334d567840c8b38a9f86a2f1
+fiddles.htm:70 name: SkCanvas_getDeviceClipBounds  fiddleHash: 5f4c910afa4a5a61702e5119eab2cac9
+fiddles.htm:70 name: SkCanvas_getLocalClipBounds_2  fiddleHash: 85496614e90c66b020f8a70db8d06f4a
+fiddles.htm:70 name: SkCanvas_getDeviceClipBounds_2  fiddleHash: 6abb99f849a1f0e33e1dedc00d1c4f7a
+fiddles.htm:70 name: SkCanvas_clear  fiddleHash: d97750e04989d42dc879406127b22c0b
+fiddles.htm:70 name: SkCanvas_drawPaint  fiddleHash: 1cd076b9b1a7c976cdca72b93c4f42dd
+fiddles.htm:70 name: SkCanvas_drawPoint  fiddleHash: ab848f8dfef4879868e337f2f31abcd5
+fiddles.htm:70 name: SkCanvas_PointMode  fiddleHash: 292b4b2008961b6f612434d3121fc4ce
+fiddles.htm:70 name: SkCanvas_drawPoints  fiddleHash: 7d8901d009f62f1e498c974e6d671fb1
+fiddles.htm:70 name: SkCanvas_drawLine  fiddleHash: 9f399ccb338a72e3ac97284c2479495f
+fiddles.htm:70 name: SkCanvas_drawRect  fiddleHash: b0827e2a0e5f9d17901e9a5d99069191
+fiddles.htm:70 name: SkCanvas_drawRegion  fiddleHash: 898e724cd40b6302d57e87ebb41f72f4
+fiddles.htm:70 name: SkCanvas_drawIRect  fiddleHash: 7275de2ef065430e6e02fb166e76fc61
+fiddles.htm:70 name: SkCanvas_drawRRect  fiddleHash: ec1e554eeb32738f729d44e3c4f4957c
+fiddles.htm:70 name: SkCanvas_drawOval  fiddleHash: 8b6b86f8a022811cd29a9c6ab771df12
+fiddles.htm:70 name: SkCanvas_drawDRRect  fiddleHash: 02e33141f13da2f19aef7feb7117b541
+fiddles.htm:70 name: SkCanvas_drawDRRect_a  fiddleHash: 30823cb4edf884d330285ea161664931
+fiddles.htm:70 name: SkCanvas_drawCircle  fiddleHash: 841229e25ca9dfb68bd0dc4dfff356eb
+fiddles.htm:70 name: SkCanvas_drawArc_a  fiddleHash: c62c81f9a16c1ff719f560cf854003e0
+fiddles.htm:70 name: SkCanvas_drawArc  fiddleHash: 11f0fbe7b30d776913c2e7c92c02ff57
+fiddles.htm:70 name: SkCanvas_drawRoundRect  fiddleHash: 199fe818c09026c114e165bff166a39f
+fiddles.htm:70 name: SkCanvas_drawPath  fiddleHash: add5cc31179ac76aedfb98bd9a5b1866
+fiddles.htm:70 name: SkCanvas_drawImage  fiddleHash: ad1843a343e4165f1e43e3ecdc7336a3
+fiddles.htm:70 name: SkCanvas_drawImage_2  fiddleHash: 75c90393be1d9f446f6c207c667012f4
+fiddles.htm:70 name: SkCanvas_SrcRectConstraint  fiddleHash: 2e34ba5691250156297b1c6b9352d9e1
+fiddles.htm:70 name: SkCanvas_drawImageRect_2  fiddleHash: 302ce594a2b61475398bd0cdf6cbf523
+fiddles.htm:70 name: SkCanvas_drawImageRect  fiddleHash: 6c18f5ccf901dc8803c7f65e7efe3e06
+fiddles.htm:70 name: SkCanvas_drawImageRect_3  fiddleHash: 04311b628fe9828d9ed921a36185db26
+fiddles.htm:70 name: SkCanvas_drawImageRect_4  fiddleHash: 0b018b967b775fecaa902f0fa654f7b1
+fiddles.htm:70 name: SkCanvas_drawImageRect_5  fiddleHash: 22e3840b8ce2a53cc1fc68df546ad490
+fiddles.htm:70 name: SkCanvas_drawImageRect_6  fiddleHash: d989b7c8ff3ea985e716de982f6056ab
+fiddles.htm:70 name: SkCanvas_drawImageNine  fiddleHash: bfd6db106e7c09668d600feed48561a1
+fiddles.htm:70 name: SkCanvas_drawBitmap  fiddleHash: f8613bf9d1dad3bfc21d22cc9b65acb2
+fiddles.htm:70 name: SkCanvas_drawImageNine_2  fiddleHash: 36775b09d7bbd136204e2a1a74492ded
+fiddles.htm:70 name: SkCanvas_drawBitmapRect  fiddleHash: 19d3c5fe79b81e891949a5b71da3ae17
+fiddles.htm:70 name: SkCanvas_drawBitmapNine  fiddleHash: 6b2b38907b0fe021806de0d02797566b
+fiddles.htm:70 name: SkCanvas_drawBitmapRect_2  fiddleHash: 74b8fd3a2c56f0d71356adf74e2e6f78
+fiddles.htm:70 name: SkCanvas_drawBitmapRect_3  fiddleHash: 684b654a73fea9438d5df38cdcdf8363
+fiddles.htm:70 name: SkCanvas_drawBitmapLattice  fiddleHash: c11b5f3c73c75cc862493722d87d8094
+fiddles.htm:70 name: SkCanvas_drawImageLattice  fiddleHash: 4d0d043e53b70d66d139e0490183e01f
+fiddles.htm:70 name: SkCanvas_drawText  fiddleHash: 36ea802391b9f28ee4ae245722a24764
+fiddles.htm:70 name: SkCanvas_drawPosText  fiddleHash: 2af2c08b343375529363e19af3769544
+fiddles.htm:70 name: SkCanvas_drawPosTextH  fiddleHash: 7853269aff94409da22e92cb034bf488
+fiddles.htm:70 name: SkCanvas_drawTextOnPathHV  fiddleHash: 9484f887fdfd114a87de7158b8040b57
+fiddles.htm:70 name: SkCanvas_drawTextRSXform  fiddleHash: 55c84c39890c7516f7c835c46b1b8fc9
+fiddles.htm:70 name: SkCanvas_drawTextOnPath  fiddleHash: 3ebb0f650d04fa5239fba6ca98371ee1
+fiddles.htm:70 name: SkCanvas_drawTextBlob  fiddleHash: 1d8765756182a70a2e537de7f43f6c82
+fiddles.htm:70 name: SkCanvas_drawTextBlob_2  fiddleHash: 2b5fbdad1c6dcabb6152a22a2e7b789e
+fiddles.htm:70 name: SkCanvas_drawPicture_2  fiddleHash: a7373b01354dda73dafe8718f4fd0cfc
+fiddles.htm:70 name: SkCanvas_drawPicture  fiddleHash: fde216281ff93d612768a49f2cf309ae
+fiddles.htm:70 name: SkCanvas_drawPicture_4  fiddleHash: 7295eb14091e98565cec0353661a6a7d
+fiddles.htm:70 name: SkCanvas_drawPicture_3  fiddleHash: 4ec028d8ffa0a6ae1a99ff8d094b02bc
+fiddles.htm:70 name: SkCanvas_drawVertices  fiddleHash: f48b22eaad1bb7adcc3faaa321754af6
+fiddles.htm:70 name: SkCanvas_drawPatch  fiddleHash: accb545d67984ced168f5be6ab824795
+fiddles.htm:70 name: SkCanvas_drawVertices_2  fiddleHash: 94e32538646d5f1299c427e473f9ec87
+fiddles.htm:70 name: SkCanvas_drawAtlas  fiddleHash: 1df575f9b8132306ce0552a2554ed132
+fiddles.htm:70 name: SkCanvas_drawPatch_2  fiddleHash: e80dcf153360fbfafa0b7658f939bd1e
+fiddles.htm:70 name: SkCanvas_drawAtlas_2  fiddleHash: 0e66a8f230a8d531bcef9f5ebdc5aac1
+fiddles.htm:70 name: SkCanvas_drawPatch_2_a  fiddleHash: 3412c2a16cb529af0e04878d264451f2
+fiddles.htm:70 name: SkCanvas_drawAtlas_3  fiddleHash: 8dc0d0fdeab20bbc21cac6874ddbefcd
+fiddles.htm:70 name: SkCanvas_drawAtlas_4  fiddleHash: c093c2b14bd3e6171ede7cd4049d9b57
+fiddles.htm:70 name: SkCanvas_drawDrawable  fiddleHash: 3df530cd5751ca2e25af074500269a74
+fiddles.htm:70 name: SkCanvas_drawDrawable_2  fiddleHash: 437e389501c41a1dd9cb2d8437499927
+fiddles.htm:70 name: SkCanvas_drawAnnotation_2  fiddleHash: d95fc334ec51a2810b374e42a78d6f15
+fiddles.htm:70 name: SkCanvas_drawAnnotation  fiddleHash: d95fc334ec51a2810b374e42a78d6f15
+fiddles.htm:70 name: SkCanvas_isClipEmpty  fiddleHash: f106f146a58c8604308d4d8d7086d2f5
+fiddles.htm:70 name: SkCanvas_isClipRect  fiddleHash: 9894bfb476c78a8f6c8f49fbbca3d50d
+fiddles.htm:70 name: SkPaint_empty_constructor  fiddleHash: 9db1cabd02ad20f6e8654de6d697b1bc
+fiddles.htm:70 name: SkPaint_copy_constructor  fiddleHash: 2de7fa7ce51a8f560b2951f8f5732cca
+fiddles.htm:70 name: SkPaint_reset  fiddleHash: af301c5e19c8f5adab8c23e47413923f
+fiddles.htm:70 name: SkPaint_move_constructor  fiddleHash: e1134ec3127c6793ba0c5841e0e2a35e
+fiddles.htm:70 name: SkPaint_copy_assignment_operator  fiddleHash: a33951d3aac20c13eab365dddb06e8e5
+fiddles.htm:70 name: SkPaint_move_assignment_operator  fiddleHash: b178ef2aaf49b5da6ec78b87873ad0c2
+fiddles.htm:70 name: SkPaint_not_equal_operator  fiddleHash: 96fb444c9a41da32105af262bfa4413d
+fiddles.htm:70 name: SkPaint_equal_operator  fiddleHash: 2ebadcc4709652a1f39981ccfe4f85a6
+fiddles.htm:70 name: SkPaint_getHash  fiddleHash: 008d3bc3dfe20a442a77c0121e9a4c53
+fiddles.htm:70 name: SkPaint_flatten  fiddleHash: c0840d7a4a2992f81082639f6c86f7bd
+fiddles.htm:70 name: SkPaint_setHinting  fiddleHash: 39a0706eaf1135f09657265ea8ad1d37
+fiddles.htm:70 name: SkPaint_getHinting  fiddleHash: c91cfb5a3767889b802c577ebfd73221
+fiddles.htm:70 name: SkPaint_setFlags  fiddleHash: 3c209da57ee0acba480ba05ade14b6d7
+fiddles.htm:70 name: Paint_Anti_alias  fiddleHash: 1bb6f16fe6899fedbd155f862680aad1
+fiddles.htm:70 name: SkPaint_isAntiAlias  fiddleHash: aecda6fe10e4a19b2574f1f2fb80d437
+fiddles.htm:70 name: SkPaint_setAntiAlias  fiddleHash: 231c9631061232096c3d7bd94ddd5c27
+fiddles.htm:70 name: SkPaint_getFlags  fiddleHash: e95d09086fe8a862f78087e5fff070a4
+fiddles.htm:70 name: Paint_Dither  fiddleHash: b28987b65d3be14717e4faaacaf2faa1
+fiddles.htm:70 name: SkPaint_isDither  fiddleHash: 87f9538060779de8a0284d9227bdf91a
+fiddles.htm:70 name: Paint_Device_Text  fiddleHash: 525062c7023c2c5f2f962a09baad75eb
+fiddles.htm:70 name: SkPaint_setDither  fiddleHash: 4c7a25e4a7a314d84147a399763c9773
+fiddles.htm:70 name: SkPaint_isSubpixelText  fiddleHash: fc6e1fa6b9a383e6529211dc773a464d
+fiddles.htm:70 name: SkPaint_isLCDRenderText  fiddleHash: bf834391d2837b242c889c0591e828c8
+fiddles.htm:70 name: SkPaint_setLCDRenderText  fiddleHash: 50f5dc9c5337271fc088aab9f6e73bbf
+fiddles.htm:70 name: SkPaint_isEmbeddedBitmapText  fiddleHash: 3f4c8fd210a7d276871a11a1b330f401
+fiddles.htm:70 name: SkPaint_setEmbeddedBitmapText  fiddleHash: 4d0c99d7d4a6f39d3c51a1be09060e48
+fiddles.htm:70 name: SkPaint_setSubpixelText  fiddleHash: 17270e681eb6931258acdbbbbefcc17c
+fiddles.htm:70 name: Paint_Vertical_Text  fiddleHash: 3c4995e97b7d0d0afeb718e44f9472c0
+fiddles.htm:70 name: SkPaint_isVerticalText  fiddleHash: 8de09d99eebade65c6446d8bfc980fe1
+fiddles.htm:70 name: SkPaint_setVerticalText  fiddleHash: 4bc82860cbf0e9a9d2cc2627879ecc7f
+fiddles.htm:70 name: Paint_Text_Decorations_Fake_Bold  fiddleHash: c68a5108ac9e8945c30bf215549599b2
+fiddles.htm:70 name: SkPaint_isFakeBoldText  fiddleHash: bc4ff096643bd3a132429f68d410492e
+fiddles.htm:70 name: SkPaint_setFakeBoldText  fiddleHash: 6e6982855b1a836762050e6b0bd5f618
+fiddles.htm:70 name: SkPaint_isDevKernText  fiddleHash: 2a0016c5875bf070d18508457143fb16
+fiddles.htm:70 name: SkPaint_setDevKernText  fiddleHash: c00e36f5f3c49317c622e88e97d334a3
+fiddles.htm:70 name: Paint_Filter_Quality_Methods  fiddleHash: 97d214c30dcacf9f13a1487d5d2b377d
+fiddles.htm:70 name: SkPaint_setFilterQuality  fiddleHash: 9385d0ef925a17fd1eb5651b816e496e
+fiddles.htm:70 name: Paint_Color_Methods  fiddleHash: f6eec81567acaca6638d696ad00cfb5d
+fiddles.htm:70 name: SkPaint_getColor  fiddleHash: 896fd0df04c096398b5d5d7d47061cdf
+fiddles.htm:70 name: SkPaint_setColor  fiddleHash: be988544a8f36325c3480cf679ae021a
+fiddles.htm:70 name: SkPaint_getFilterQuality  fiddleHash: ba511d61d6149608616b8dc9af296b23
+fiddles.htm:70 name: SkPaint_getAlpha  fiddleHash: 2b1f43ba1731db56cccd04172c62bb84
+fiddles.htm:70 name: SkPaint_setAlpha  fiddleHash: 4e783d6b70a95b2669f497ad7c4d5243
+fiddles.htm:70 name: SkPaint_setARGB  fiddleHash: 345a684de24090f4c469e15659bd101d
+fiddles.htm:70 name: SkPaint_getStyle  fiddleHash: 3693fce7864fe4094cb3d3948db8cacf
+fiddles.htm:70 name: SkPaint_setStyle  fiddleHash: c7bb6248e4735b8d1a32d02fba40d344
+fiddles.htm:70 name: Paint_Stroke_Width  fiddleHash: 3832b070eefd62afff5fe375baa86445
+fiddles.htm:70 name: SkPaint_setStrokeWidth  fiddleHash: 4387d63c69fb469fb66668cc15719165
+fiddles.htm:70 name: SkPaint_getStrokeWidth  fiddleHash: 983efec8708cec5d0e9bd12d8b950c55
+fiddles.htm:70 name: Paint_Miter_Limit  fiddleHash: 00badb5eeabf35289325f0754c476f40
+fiddles.htm:70 name: SkPaint_getStrokeMiter  fiddleHash: f5715648fe49fe6152ed7753ba41ec1a
+fiddles.htm:70 name: SkPaint_setStrokeMiter  fiddleHash: f8b9bc2c138950c080bed6ad1a820f44
+fiddles.htm:70 name: Paint_Stroke_Cap  fiddleHash: 0cab4c079c48e3c277637647d46ce88a
+fiddles.htm:70 name: SkPaint_getStrokeCap  fiddleHash: 753c12ecfc325c7e860ae13a0f045e60
+fiddles.htm:70 name: SkPaint_setStrokeCap  fiddleHash: 88b79a48aaab2990093c057deffb05c6
+fiddles.htm:70 name: SkPaint_Join  fiddleHash: 93eb98f36614f1159645cf252fe9d3a5
+fiddles.htm:70 name: Paint_Stroke_Join  fiddleHash: 620b563d74734c49cc08e6fe07c01090
+fiddles.htm:70 name: SkPaint_getStrokeJoin  fiddleHash: 841a73f24e10c6678630c179506c0595
+fiddles.htm:70 name: SkPaint_setStrokeJoin  fiddleHash: 693707e991e819a54baa7a3a0404ecee
+fiddles.htm:70 name: SkPaint_getFillPath  fiddleHash: 53da2db22c88f891a990f12de286bce3
+fiddles.htm:70 name: SkPaint_getFillPath_2  fiddleHash: 095d99da76d587b015f7d3b675efc7b8
+fiddles.htm:70 name: Paint_Shader_Methods  fiddleHash: c015dc2010c15e1c00b4f7330232b0f7
+fiddles.htm:70 name: Paint_Shader_Methods_a  fiddleHash: f45b9765dd06d996921ffa1ef8e78d8a
+fiddles.htm:70 name: SkPaint_getShader  fiddleHash: 09f15b9fd88882850da2d235eb86292f
+fiddles.htm:70 name: SkPaint_refShader  fiddleHash: 53da0295972a418cbc9607bbb17feaa8
+fiddles.htm:70 name: SkPaint_setShader  fiddleHash: 92996333200d7c0b2158927f7e8439c5
+fiddles.htm:70 name: Paint_Color_Filter_Methods  fiddleHash: 3343ea21abaf9778d35e9953f0a6be10
+fiddles.htm:70 name: SkPaint_refColorFilter  fiddleHash: be0095f54d59487ef2d2e87457910bc9
+fiddles.htm:70 name: SkPaint_getColorFilter  fiddleHash: 093bdc627d6b59002670fd290931f6c9
+fiddles.htm:70 name: SkPaint_setColorFilter  fiddleHash: 01e7486180e7d3ecf9a6501e6afeb717
+fiddles.htm:70 name: Paint_Blend_Mode_Methods  fiddleHash: 73092d4d06faecea3c204d852a4dd8a8
+fiddles.htm:70 name: SkPaint_getBlendMode  fiddleHash: 4ec1864b8203d52c0810e8605092f45c
+fiddles.htm:70 name: SkPaint_isSrcOver  fiddleHash: 257c9473db7a2b3a0fb2b9e2431e59a6
+fiddles.htm:70 name: SkPaint_setBlendMode  fiddleHash: 257c9473db7a2b3a0fb2b9e2431e59a6
+fiddles.htm:70 name: SkPaint_getPathEffect  fiddleHash: 211a1b14bfa6c4332082c8eab4fbc5fd
+fiddles.htm:70 name: Paint_Path_Effect_Methods  fiddleHash: 5daa7aebf14b7e224d0e1e98798e5e7d
+fiddles.htm:70 name: SkPaint_refPathEffect  fiddleHash: c24ff92a980a5988697f6ae910560e21
+fiddles.htm:70 name: SkPaint_setPathEffect  fiddleHash: 52dd55074ca0b7d520d04e750ca2a0d7
+fiddles.htm:70 name: Paint_Mask_Filter_Methods  fiddleHash: 320b04ea1e1291d49f1e61994a0410fe
+fiddles.htm:70 name: SkPaint_getMaskFilter  fiddleHash: 8cd53ece8fc83e4560599ace094b0f16
+fiddles.htm:70 name: SkPaint_refMaskFilter  fiddleHash: ddb211ed3d5e226b0bb973de5076de26
+fiddles.htm:70 name: SkPaint_setMaskFilter  fiddleHash: 62c5a826692f85c3de3bab65e9e97aa9
+fiddles.htm:70 name: Paint_Typeface_Methods  fiddleHash: bb32c82a23a147f528dfbc2e327a3fa4
+fiddles.htm:70 name: SkPaint_getTypeface  fiddleHash: 4d9ffb5761b62a9e3bc9b0bca8787bce
+fiddles.htm:70 name: SkPaint_refTypeface  fiddleHash: c8edce7b36a3ffda8af4fe89d7187dbc
+fiddles.htm:70 name: SkPaint_setTypeface  fiddleHash: a67efa7096c9b7ff7a4c59aa80310ce9
+fiddles.htm:70 name: SkPaint_getRasterizer  fiddleHash: 0707d407c3a14388b107af8ae5873e55
+fiddles.htm:70 name: Paint_Rasterizer_Methods  fiddleHash: 196bbd3000a2988ccc5460398cb32f5a
+fiddles.htm:70 name: SkPaint_refRasterizer  fiddleHash: c0855ce19a33cb7e5747750ef341b7b3
+fiddles.htm:70 name: SkPaint_setRasterizer  fiddleHash: 181e7a5c63a8652edcdc64b7b957f8ec
+fiddles.htm:70 name: Paint_Image_Filter_Methods  fiddleHash: 4fd19982b82bc27340a507183e39d7d3
+fiddles.htm:70 name: SkPaint_getImageFilter  fiddleHash: 38788d42772641606e08c60d9dd418a2
+fiddles.htm:70 name: SkPaint_refImageFilter  fiddleHash: 0828822500bc17539a248ca16a75ddc7
+fiddles.htm:70 name: SkPaint_setImageFilter  fiddleHash: 7cac26cde809379c561c3af7af9c74db
+fiddles.htm:70 name: Paint_Draw_Looper_Methods  fiddleHash: 8de8294eee43c40e41c4cf5f15bb2b40
+fiddles.htm:70 name: SkPaint_getDrawLooper  fiddleHash: af4c5acc7a91e7f23c2af48018903ad4
+fiddles.htm:70 name: SkPaint_refDrawLooper  fiddleHash: bd18a131b759ef38033b0c8cf916d922
+fiddles.htm:70 name: SkPaint_setDrawLooper  fiddleHash: b16bcd76b629922f476ce4a4e5aa0584
+fiddles.htm:70 name: Paint_Text_Align  fiddleHash: d317346b0bb75ecef4e6d8d94ad08664
+fiddles.htm:70 name: Paint_Text_Align_a  fiddleHash: e003042766521a607dbbaa653a565709
+fiddles.htm:70 name: SkPaint_getTextAlign  fiddleHash: 70a061ac1c0ce260e1f8ec9f10e37285
+fiddles.htm:70 name: SkPaint_setTextAlign  fiddleHash: 02967ca885ff7b481070253c86493244
+fiddles.htm:70 name: Paint_Text_Size  fiddleHash: 03cdf48119c978083f658fc8bf4385b7
+fiddles.htm:70 name: SkPaint_getTextSize  fiddleHash: 5d9555de745276df36e1087187fd7cf4
+fiddles.htm:70 name: SkPaint_setTextSize  fiddleHash: 1cf7805047da9c02d21a447006c3fb09
+fiddles.htm:70 name: Paint_Text_Scale_X  fiddleHash: c7ed964e579009590293249ac9c53b89
+fiddles.htm:70 name: SkPaint_getTextScaleX  fiddleHash: 0afc0838b3e1279b663b7b721b20dfad
+fiddles.htm:70 name: Paint_Text_Skew_X  fiddleHash: b16bfa01960d8d9cd5fa7882fd046ba4
+fiddles.htm:70 name: SkPaint_setTextScaleX  fiddleHash: 60b1221813c58876e7a6922832b371aa
+fiddles.htm:70 name: SkPaint_getTextSkewX  fiddleHash: 3425475634dab75c0e37bdae44d10cf4
+fiddles.htm:70 name: SkPaint_setTextSkewX  fiddleHash: e97458d2757bdfa72868f50d7c79ddcc
+fiddles.htm:70 name: SkPaint_SetTextMatrix  fiddleHash: 46dcc8b7862e89040af77e07f698518e
+fiddles.htm:70 name: SkPaint_setTextMatrix  fiddleHash: 68d6097ab8927bd75d01a1251bf828f1
+fiddles.htm:70 name: SkPaint_getTextEncoding  fiddleHash: f5277b17a3d17517dee0f54af727238c
+fiddles.htm:70 name: SkPaint_setTextEncoding  fiddleHash: 9f34027d218dda8a970ab43484be9c92
+fiddles.htm:70 name: Paint_Text_Encoding  fiddleHash: 8570b90dd0d10749c49cd8ff5f846be1
+fiddles.htm:70 name: Paint_Font_Metrics  fiddleHash: e3e7f0a80becb227b2d4397c5a8771e9
+fiddles.htm:70 name: SkPaint_getFontMetrics  fiddleHash: 68cd6aefd0012ef68e5986569d588343
+fiddles.htm:70 name: SkPaint_getFontBounds  fiddleHash: 6a7b89373d7281a458c275ebb70e8d0e
+fiddles.htm:70 name: SkPaint_countText  fiddleHash: 6e9152c7aa85b69bb25c90122e0f75a7
+fiddles.htm:70 name: SkPaint_textToGlyphs  fiddleHash: bfdd99089bdc3bdd2af67f3b6344b4ef
+fiddles.htm:70 name: SkPaint_getFontSpacing  fiddleHash: a67cc9ac54b30e741f1b6b9334ad2ecc
+fiddles.htm:70 name: SkPaint_containsText  fiddleHash: 0e4177aaf9931893c6c80070a7bf44c2
+fiddles.htm:70 name: SkPaint_containsText_a  fiddleHash: 556776e9b7065168d6640042dde42ab8
+fiddles.htm:70 name: SkPaint_measureText  fiddleHash: ed96dd912a1cbeeabb21b7ce386da003
+fiddles.htm:70 name: SkPaint_measureText_2  fiddleHash: 1db5db3866773f1fe788b8ef38b7dd71
+fiddles.htm:70 name: SkPaint_getTextWidths  fiddleHash: 31f29360964e867e5569291d9b53a2aa
+fiddles.htm:70 name: SkPaint_breakText  fiddleHash: 50698c82c7cc4510564cac15efaeef6e
+fiddles.htm:70 name: SkPaint_getTextPath  fiddleHash: 4419b133092615ede9c32fbc3b567d1c
+fiddles.htm:70 name: SkPaint_getPosTextPath  fiddleHash: f7dc4fad0676d7c6bf0771f406eff51e
+fiddles.htm:70 name: SkPaint_getTextIntercepts  fiddleHash: 31dd0970f3200545427390788636fbe4
+fiddles.htm:70 name: SkPaint_getPosTextHIntercepts  fiddleHash: 8f15e8305035afa24224bdc92a4cfb50
+fiddles.htm:70 name: SkPaint_getPosTextIntercepts  fiddleHash: 5c7ca6a2c8896e4717d1d7f92526f8aa
+fiddles.htm:70 name: SkPaint_getTextBlobIntercepts  fiddleHash: c4e51f1d95f7ab511c47a6ea6d4a3311
+fiddles.htm:70 name: SkPaint_nothingToDraw  fiddleHash: 2fbbed1e035f836728a74673e6977c28
+fiddles.htm:73 SkCanvas_copy_constructor: -----
+---x-
+---x-
+---x-
+---x-
+---x-
+---x-
+-----
+---x-
+---x-
+-----
+
+fiddles.htm:73 SkCanvas_int_int_const_SkSurfaceProps_star: canvas is empty
+
+fiddles.htm:70 name: SkPaint_canComputeFastBounds  fiddleHash: 04311b628fe9828d9ed921a36185db26
+fiddles.htm:73 SkCanvas_empty_constructor: paint draws text left to right
+paint draws text top to bottom
+paint draws text top to bottom
+
+fiddles.htm:73 SkCanvas_MakeRasterDirect: ---
+-x-
+---
+
+fiddles.htm:73 SkCanvas_const_SkBitmap_const_SkSurfaceProps: -----
+---x-
+---x-
+---x-
+---x-
+---x-
+---x-
+-----
+---x-
+---x-
+-----
+
+fiddles.htm:73 SkCanvas_MakeRasterDirectN32: ---
+-x-
+---
+
+fiddles.htm:73 SkCanvas_getProps: isRGB:0
+isRGB:1
+
+fiddles.htm:73 SkCanvas_imageInfo: emptyInfo == canvasInfo
+
+fiddles.htm:73 SkCanvas_getMetaData: before: (null)
+during: Hello!
+after: (null)
+
+fiddles.htm:73 SkCanvas_makeSurface: compatible != nullptr
+size = 3, 4
+
+fiddles.htm:73 SkCanvas_accessTopRasterHandle: context = skia
+
+fiddles.htm:73 SkCanvas_getBaseLayerSize: clip=10,30
+size=20,30
+
+fiddles.htm:73 SkCanvas_peekPixels: width=256 height=256
+
+fiddles.htm:73 SkCanvas_readPixels: pixel = 802b5580
+pixel = 8056a9ff
+
+fiddles.htm:73 SkCanvas_readPixels_3: pixel = 802b5580
+
+fiddles.htm:73 SkCanvas_readPixels_2: pixel = 802b5580
+
+fiddles.htm:73 SkCanvas_SaveLayerRec_SaveLayerRec: rec1 == rec2
+
+fiddles.htm:73 SkCanvas_SaveLayerRec_SaveLayerRec_2: rec1 == rec2
+
+fiddles.htm:73 SkCanvas_restore: depth = 1
+depth = 1
+
+fiddles.htm:73 SkCanvas_SaveLayerRec_SaveLayerRec_3: rec1 == rec2
+
+fiddles.htm:73 SkCanvas_getSaveCount: depth = 1
+depth = 2
+depth = 1
+
+fiddles.htm:73 SkCanvas_restoreToCount: depth = 1
+depth = 3
+depth = 1
+
+fiddles.htm:73 SkCanvas_getTotalMatrix: isIdentity true
+
+fiddles.htm:73 SkCanvas_quickReject_2: quickReject true
+quickReject false
+
+fiddles.htm:73 SkCanvas_quickReject: quickReject true
+quickReject false
+
+fiddles.htm:73 SkCanvas_getDeviceClipBounds: left:0  top:0  right:256  bottom:256
+left:30  top:130  right:120  bottom:230
+left:15  top:65  right:60  bottom:115
+
+fiddles.htm:73 SkCanvas_getLocalClipBounds: left:-1  top:-1  right:257  bottom:257
+left:29  top:129  right:121  bottom:231
+left:14.5  top:64.5  right:60.5  bottom:115.5
+
+fiddles.htm:73 SkCanvas_getDeviceClipBounds_2: device bounds empty = false
+device bounds empty = true
+
+fiddles.htm:70 name: SkPaint_computeFastBounds  fiddleHash: 80634aec853885c120332095e25e1852
+fiddles.htm:73 SkCanvas_getLocalClipBounds_2: local bounds empty = false
+local bounds empty = true
+
+fiddles.htm:73 SkCanvas_isClipRect: clip is rect
+clip is not rect
+
+fiddles.htm:73 SkCanvas_isClipEmpty: clip is not empty
+clip is empty
+
+fiddles.htm:73 SkPaint_copy_constructor: SK_ColorRED == paint1.getColor()
+SK_ColorBLUE == paint2.getColor()
+
+fiddles.htm:73 SkPaint_reset: paint1 == paint2
+fiddles.htm:73 SkPaint_move_constructor: path effect unique: true
+
+fiddles.htm:73 SkPaint_copy_assignment_operator: SK_ColorRED == paint1.getColor()
+SK_ColorRED == paint2.getColor()
+
+fiddles.htm:73 SkPaint_move_assignment_operator: SK_ColorRED == paint2.getColor()
+
+fiddles.htm:73 SkPaint_not_equal_operator: paint1 == paint2
+paint1 == paint2
+
+fiddles.htm:73 SkPaint_equal_operator: paint1 == paint2
+paint1 != paint2
+
+fiddles.htm:73 SkPaint_getHash: paint1 == paint2
+paint1.getHash() == paint2.getHash()
+
+fiddles.htm:73 SkPaint_flatten: color = 0xffff0000
+
+fiddles.htm:73 SkPaint_setHinting: paint1 == paint2
+
+fiddles.htm:73 SkPaint_setFlags: paint.isAntiAlias()
+paint.isDither()
+
+fiddles.htm:73 SkPaint_isAntiAlias: paint.isAntiAlias() == !!(paint.getFlags() & SkPaint::kAntiAlias_Flag)
+paint.isAntiAlias() == !!(paint.getFlags() & SkPaint::kAntiAlias_Flag)
+
+fiddles.htm:73 SkPaint_getHinting: SkPaint::kNormal_Hinting == paint.getHinting()
+
+fiddles.htm:73 SkPaint_getFlags: (SkPaint::kAntiAlias_Flag & paint.getFlags()) != 0
+
+fiddles.htm:73 SkPaint_setAntiAlias: paint1 == paint2
+
+fiddles.htm:73 SkPaint_isDither: paint.isDither() == !!(paint.getFlags() & SkPaint::kDither_Flag)
+paint.isDither() == !!(paint.getFlags() & SkPaint::kDither_Flag)
+
+fiddles.htm:73 SkPaint_setDither: paint1 == paint2
+
+fiddles.htm:73 SkPaint_isLCDRenderText: paint.isLCDRenderText() == !!(paint.getFlags() & SkPaint::kLCDRenderText_Flag)
+paint.isLCDRenderText() == !!(paint.getFlags() & SkPaint::kLCDRenderText_Flag)
+
+fiddles.htm:73 SkPaint_setLCDRenderText: paint1 == paint2
+
+fiddles.htm:73 SkPaint_isSubpixelText: paint.isSubpixelText() == !!(paint.getFlags() & SkPaint::kSubpixelText_Flag)
+paint.isSubpixelText() == !!(paint.getFlags() & SkPaint::kSubpixelText_Flag)
+
+fiddles.htm:73 SkPaint_setEmbeddedBitmapText: paint1 == paint2
+
+fiddles.htm:73 SkPaint_isEmbeddedBitmapText: paint.isEmbeddedBitmapText() == !!(paint.getFlags() & SkPaint::kEmbeddedBitmapText_Flag)
+paint.isEmbeddedBitmapText() == !!(paint.getFlags() & SkPaint::kEmbeddedBitmapText_Flag)
+
+fiddles.htm:73 SkPaint_setSubpixelText: paint1 == paint2
+
+fiddles.htm:73 SkPaint_setVerticalText: paint1 == paint2
+
+fiddles.htm:73 SkPaint_isVerticalText: paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag)
+paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag)
+
+fiddles.htm:73 SkPaint_setFakeBoldText: paint1 == paint2
+
+fiddles.htm:73 SkPaint_isDevKernText: paint.isDevKernText() == !!(paint.getFlags() & SkPaint::kDevKernText_Flag)
+paint.isDevKernText() == !!(paint.getFlags() & SkPaint::kDevKernText_Flag)
+
+fiddles.htm:73 SkPaint_setDevKernText: paint1 == paint2
+
+fiddles.htm:73 SkPaint_isFakeBoldText: paint.isFakeBoldText() == !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag)
+paint.isFakeBoldText() == !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag)
+
+fiddles.htm:73 SkPaint_setColor: green1 == green2
+
+fiddles.htm:73 SkPaint_getColor: Yellow is 100% red, 100% green, and 0% blue.
+
+fiddles.htm:73 SkPaint_getFilterQuality: kNone_SkFilterQuality == paint.getFilterQuality()
+
+fiddles.htm:73 SkPaint_setFilterQuality: kHigh_SkFilterQuality == paint.getFilterQuality()
+
+fiddles.htm:73 SkPaint_setAlpha: 0x44112233 == paint.getColor()
+
+fiddles.htm:70 name: SkPaint_computeFastStrokeBounds  fiddleHash: 04311b628fe9828d9ed921a36185db26
+fiddles.htm:73 SkPaint_setARGB: transRed1 == transRed2
+fiddles.htm:73 SkPaint_getAlpha: 255 == paint.getAlpha()
+
+fiddles.htm:73 SkPaint_getStyle: SkPaint::kFill_Style == paint.getStyle()
+
+fiddles.htm:73 SkPaint_setStrokeWidth: 5 == paint.getStrokeWidth()
+
+fiddles.htm:73 SkPaint_getStrokeWidth: 0 == paint.getStrokeWidth()
+
+fiddles.htm:73 SkPaint_getStrokeMiter: default miter limit == 4
+
+fiddles.htm:73 SkPaint_setStrokeMiter: default miter limit == 8
+
+fiddles.htm:73 SkPaint_getStrokeCap: kButt_Cap == default stroke cap
+
+fiddles.htm:73 SkPaint_setStrokeCap: kRound_Cap == paint.getStrokeCap()
+
+fiddles.htm:73 SkPaint_getStrokeJoin: kMiter_Join == default stroke join
+
+fiddles.htm:73 SkPaint_getShader: nullptr == shader
+nullptr != shader
+
+fiddles.htm:73 SkPaint_refShader: shader unique: true
+shader unique: false
+
+fiddles.htm:73 SkPaint_getColorFilter: nullptr == color filter
+nullptr != color filter
+
+fiddles.htm:73 SkPaint_refColorFilter: color filter unique: true
+color filter unique: false
+
+fiddles.htm:73 SkPaint_isSrcOver: isSrcOver == true
+isSrcOver != true
+
+fiddles.htm:73 SkPaint_getBlendMode: kSrcOver == getBlendMode
+kSrcOver != getBlendMode
+
+fiddles.htm:73 SkPaint_getPathEffect: nullptr == path effect
+nullptr != path effect
+
+fiddles.htm:73 SkPaint_refPathEffect: path effect unique: true
+path effect unique: false
+
+fiddles.htm:73 SkPaint_refMaskFilter: mask filter unique: true
+mask filter unique: false
+
+fiddles.htm:73 SkPaint_getMaskFilter: nullptr == mask filter
+nullptr != mask filter
+
+fiddles.htm:73 SkPaint_setBlendMode: isSrcOver == true
+isSrcOver != true
+
+fiddles.htm:73 SkPaint_refTypeface: typeface1 != typeface2
+typeface1 == typeface2
+
+fiddles.htm:73 SkPaint_getTypeface: nullptr == typeface
+nullptr != typeface
+
+fiddles.htm:73 SkPaint_getRasterizer: nullptr == rasterizer
+nullptr != rasterizer
+
+fiddles.htm:73 SkPaint_refRasterizer: rasterizer unique: true
+rasterizer unique: false
+
+fiddles.htm:73 SkPaint_getImageFilter: nullptr == image filter
+nullptr != image filter
+
+fiddles.htm:70 name: SkPaint_doComputeFastBounds  fiddleHash: 04311b628fe9828d9ed921a36185db26
+fiddles.htm:73 SkPaint_getDrawLooper: nullptr == draw looper
+nullptr != draw looper
+
+fiddles.htm:73 SkPaint_setStrokeJoin: kMiter_Join == paint.getStrokeJoin()
+
+fiddles.htm:73 SkPaint_refDrawLooper: draw looper unique: true
+draw looper unique: false
+
+fiddles.htm:73 SkPaint_getTextAlign: kLeft_Align == default
+
+fiddles.htm:73 SkPaint_getTextSize: 12 == default text size
+
+fiddles.htm:73 SkPaint_setTextSize: 12 == text size
+12 == text size
+
+fiddles.htm:73 SkPaint_refImageFilter: image filter unique: true
+image filter unique: false
+
+fiddles.htm:73 SkPaint_getTextScaleX: 1 == default text scale x
+
+fiddles.htm:73 SkPaint_setTextScaleX: text scale not-a-number
+
+fiddles.htm:73 SkPaint_getTextSkewX: 0 == default text skew x
+
+fiddles.htm:73 SkPaint_setTextSkewX: text scale not-finite
+
+fiddles.htm:73 SkPaint_setTextMatrix: [ 12.0000   0.0000   0.0000][  0.0000  12.0000   0.0000][  0.0000   0.0000   1.0000]
+
+fiddles.htm:73 SkPaint_SetTextMatrix: [ 12.0000   0.0000   0.0000][  0.0000  12.0000   0.0000][  0.0000   0.0000   1.0000]
+
+fiddles.htm:73 SkPaint_getTextEncoding: kUTF8_TextEncoding == text encoding
+kGlyphID_TextEncoding == text encoding
+
+fiddles.htm:73 SkPaint_getFontBounds: metrics bounds = { -12.2461, -14.7891, 21.5215, 5.55469 }
+font bounds    = { -12.2461, -14.7891, 21.5215, 5.55469 }
+
+fiddles.htm:73 SkPaint_countText: count = 4
+
+fiddles.htm:73 SkPaint_containsText: 0x00b0 == has char
+0xd800 != has char
+
+fiddles.htm:73 SkPaint_getFontSpacing: textSize: 12 fontSpacing: 13.9688
+textSize: 18 fontSpacing: 20.9531
+textSize: 24 fontSpacing: 27.9375
+textSize: 32 fontSpacing: 37.25
+
+fiddles.htm:73 SkPaint_setTextEncoding: 4 != text encoding
+
+fiddles.htm:73 SkPaint_measureText_2: default width = 5
+double width = 10
+
+fiddles.htm:73 SkPaint_containsText_a: 0x01ff == has glyph
+0x0000 != has glyph
+0xffff == has glyph
+
+fiddles.htm:73 SkPaint_nothingToDraw: nothing to draw: false
+nothing to draw: true
+nothing to draw: false
+nothing to draw: true
+
+fiddles.htm:70 name: SkPaint_toString  fiddleHash: 072356aee21483fbb454d01ebf31ef28
+fiddles.htm:73 SkPaint_toString: text size = 12
