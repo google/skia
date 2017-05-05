@@ -119,7 +119,6 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath*
     GrGLGpu* gpu = this->gpu();
     SkASSERT(gpu->caps()->shaderCaps()->pathRenderingSupport());
     gpu->flushColorWrite(false);
-    gpu->flushDrawFace(GrDrawFace::kBoth);
 
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(args.fRenderTarget);
     SkISize size = SkISize::Make(rt->width(), rt->height());
