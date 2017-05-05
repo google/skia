@@ -5,19 +5,16 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrPreFlushResourceProvider_DEFINED
-#define GrPreFlushResourceProvider_DEFINED
+#ifndef GrOnFlushResourceProvider_DEFINED
+#define GrOnFlushResourceProvider_DEFINED
 
 #include "GrTypes.h"
-#include "GrNonAtomicRef.h"
-
-// These two are just for GrPreFlushCallbackObject
 #include "SkRefCnt.h"
-#include "SkTDArray.h"
+#include "SkTArray.h"
 
 class GrDrawingManager;
 class GrOpList;
-class GrPreFlushResourceProvider;
+class GrOnFlushResourceProvider;
 class GrRenderTargetOpList;
 class GrRenderTargetContext;
 class GrSurfaceProxy;
@@ -27,21 +24,27 @@ class SkSurfaceProps;
 
 /*
  * This is the base class from which all pre-flush callback objects must be derived. It
- * provides the "preFlush" interface.
+ * provides the "preFlush" / "postFlush" interface.
  */
-class GrPreFlushCallbackObject : public GrNonAtomicRef<GrPreFlushCallbackObject> {
+class GrOnFlushCallbackObject {
 public:
-    virtual ~GrPreFlushCallbackObject() { }
+    virtual ~GrOnFlushCallbackObject() { }
 
     /*
-     * The preFlush callback allows subsystems (e.g., text, path renderers) to create atlases
+     * The onFlush callback allows subsystems (e.g., text, path renderers) to create atlases
      * for a specific flush. All the GrOpList IDs required for the flush are passed into the
      * callback. The callback should return the render target contexts used to render the atlases
      * in 'results'.
      */
-    virtual void preFlush(GrPreFlushResourceProvider*,
+    virtual void preFlush(GrOnFlushResourceProvider*,
                           const uint32_t* opListIDs, int numOpListIDs,
                           SkTArray<sk_sp<GrRenderTargetContext>>* results) = 0;
+
+    /**
+     * Called once flushing is complete and all ops indicated by preFlush have been executed and
+     * released.
+     */
+    virtual void postFlush() {}
 
 private:
     typedef SkRefCnt INHERITED;
@@ -49,10 +52,10 @@ private:
 
 /*
  * This class is a shallow wrapper around the drawing manager. It is passed into the
- * preFlush callbacks and is intended to limit the functionality available to them.
+ * onFlush callbacks and is intended to limit the functionality available to them.
  * It should never have additional data members or virtual methods.
  */
-class GrPreFlushResourceProvider {
+class GrOnFlushResourceProvider {
 public:
     sk_sp<GrRenderTargetContext> makeRenderTargetContext(const GrSurfaceDesc& desc,
                                                          sk_sp<SkColorSpace> colorSpace,
@@ -65,9 +68,9 @@ public:
                                                          const SkSurfaceProps* props);
 
 private:
-    explicit GrPreFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
-    GrPreFlushResourceProvider(const GrPreFlushResourceProvider&); // unimpl
-    GrPreFlushResourceProvider& operator=(const GrPreFlushResourceProvider&); // unimpl
+    explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
+    GrOnFlushResourceProvider(const GrOnFlushResourceProvider&) = delete;
+    GrOnFlushResourceProvider& operator=(const GrOnFlushResourceProvider&) = delete;
 
     GrDrawingManager* fDrawingMgr;
 
