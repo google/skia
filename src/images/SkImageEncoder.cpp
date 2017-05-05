@@ -8,6 +8,7 @@
 #include "SkImageEncoderPriv.h"
 #include "SkJpegEncoder.h"
 #include "SkPngEncoder.h"
+#include "SkWebpEncoder.h"
 
 bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
                    SkEncodedImageFormat format, int quality) {
@@ -28,8 +29,12 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
                 opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
                 return SkPngEncoder::Encode(dst, src, opts);
             }
-            case SkEncodedImageFormat::kWEBP:
-                return SkEncodeImageAsWEBP(dst, src, quality);
+            case SkEncodedImageFormat::kWEBP: {
+                SkWebpEncoder::Options opts;
+                opts.fQuality = quality;
+                opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
+                return SkWebpEncoder::Encode(dst, src, opts);
+            }
             default:
                 return false;
         }

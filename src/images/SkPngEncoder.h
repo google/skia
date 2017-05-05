@@ -20,6 +20,11 @@ public:
     // Add options for png filters and zlib compression.
 
     struct Options {
+        /**
+         *  If the input is premultiplied, this controls the unpremultiplication behavior.
+         *  The encoder can convert to linear before unpremultiplying or ignore the transfer
+         *  function and unpremultiply the input as is.
+         */
         SkTransferFunctionBehavior fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
     };
 
