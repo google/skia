@@ -26,6 +26,7 @@
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
+#include "SkWebpEncoder.h"
 #include "Test.h"
 
 #include "png.h"
@@ -1529,9 +1530,9 @@ static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap
                           SkTransferFunctionBehavior unpremulBehavior,
                           SkEncodedImageFormat format) {
     SkPngEncoder::Options pngOptions;
-    SkEncodeOptions options;
+    SkWebpEncoder::Options webpOptions;
     pngOptions.fUnpremulBehavior = unpremulBehavior;
-    options.fUnpremulBehavior = unpremulBehavior;
+    webpOptions.fUnpremulBehavior = unpremulBehavior;
     switch (format) {
         case SkEncodedImageFormat::kPNG:
             SkPngEncoder::Encode(stream, pixmap, pngOptions);
@@ -1540,7 +1541,7 @@ static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap
             SkJpegEncoder::Encode(stream, pixmap, SkJpegEncoder::Options());
             break;
         case SkEncodedImageFormat::kWEBP:
-            SkEncodeImageAsWEBP(stream, pixmap, options);
+            SkWebpEncoder::Encode(stream, pixmap, webpOptions);
             break;
         default:
             SkASSERT(false);
