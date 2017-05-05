@@ -251,8 +251,9 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addLegacyMeshDrawOp(
     if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
         return SK_InvalidUniqueID;
     }
-    SkDEBUGCODE(fRenderTargetContext->validate();) GR_AUDIT_TRAIL_AUTO_FRAME(
-            fRenderTargetContext->fAuditTrail, "GrRenderTargetContext::testingOnly_addMeshDrawOp");
+    SkDEBUGCODE(fRenderTargetContext->validate();)
+            GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
+                                      "GrRenderTargetContext::testingOnly_addLegacyMeshDrawOp");
 
     GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
     if (uss) {
@@ -262,6 +263,16 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addLegacyMeshDrawOp(
 
     return fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), GrNoClip(),
                                                      std::move(op));
+}
+
+uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(std::unique_ptr<GrDrawOp> op) {
+    ASSERT_SINGLE_OWNER
+    if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
+        return SK_InvalidUniqueID;
+    }
+    SkDEBUGCODE(fRenderTargetContext->validate();) GR_AUDIT_TRAIL_AUTO_FRAME(
+            fRenderTargetContext->fAuditTrail, "GrRenderTargetContext::testingOnly_addDrawOp");
+    return fRenderTargetContext->addDrawOp(GrNoClip(), std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER

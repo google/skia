@@ -13,7 +13,7 @@
 #include "SkRRect.h"
 #include "effects/GrRRectEffect.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrRectOpFactory.h"
+#include "ops/GrNewNonAAFillRectOp.h"
 
 namespace skiagm {
 
@@ -87,10 +87,11 @@ protected:
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
-                    std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
-                            0xff000000, SkMatrix::I(), bounds, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
-                            std::move(grPaint), GrAAType::kNone, std::move(op));
+                    GrPaint paint;
+                    paint.setColor4f(GrColor4f(0, 0, 0, 1.f));
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            GrNewNonAAFillRectOp::Make(std::move(grPaint), SkMatrix::I(), bounds,
+                                                       nullptr, nullptr, GrAAType::kNone));
                 }
             canvas->restore();
             x = x + fTestOffsetX;

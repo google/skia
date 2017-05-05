@@ -22,7 +22,7 @@
 #include "SkTraceEvent.h"
 
 #include "ops/GrMeshDrawOp.h"
-#include "ops/GrRectOpFactory.h"
+#include "ops/GrNewNonAAFillRectOp.h"
 
 GrDefaultPathRenderer::GrDefaultPathRenderer() {
 }
@@ -523,12 +523,10 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
-                    paint.getColor(), viewM, bounds, nullptr, &localMatrix));
-            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            pipelineBuilder.setUserStencil(passes[p]);
-            renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip,
-                                                     std::move(op));
+            renderTargetContext->addDrawOp(
+                    clip,
+                    GrNewNonAAFillRectOp::Make(std::move(paint), viewM, bounds, nullptr,
+                                               &localMatrix, GrAAType::kNone, passes[p]));
         } else {
             std::unique_ptr<GrLegacyMeshDrawOp> op =
                     DefaultPathOp::Make(paint.getColor(), path, srcSpaceTol, newCoverage,

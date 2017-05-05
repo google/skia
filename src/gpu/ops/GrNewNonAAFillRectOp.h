@@ -19,6 +19,7 @@ struct GrUserStencilSettings;
 enum class GrAAType : unsigned;
 
 namespace GrNewNonAAFillRectOp {
+// TODO: NO local params!
 std::unique_ptr<GrDrawOp> Make(GrPaint&&,
                                const SkMatrix& viewMatrix,
                                const SkRect& rect,

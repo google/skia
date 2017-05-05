@@ -34,6 +34,35 @@ static sk_sp<GrGeometryProcessor> make_gp() {
                                          LocalCoords::kHasExplicit_Type, SkMatrix::I());
 }
 
+static sk_sp<GrGeometryProcessor> make_perspective_gp(const SkMatrix& viewMatrix,
+                                                      bool hasExplicitLocalCoords,
+                                                      const SkMatrix* localMatrix) {
+    SkASSERT(viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective()));
+
+    using namespace GrDefaultGeoProcFactory;
+
+    // If we have perspective on the viewMatrix then we won't map on the CPU, nor will we map
+    // the local rect on the cpu (in case the localMatrix also has perspective).
+    // Otherwise, if we have a local rect, then we apply the localMatrix directly to the localRect
+    // to generate vertex local coords
+    if (viewMatrix.hasPerspective()) {
+        LocalCoords localCoords(hasExplicitLocalCoords ? LocalCoords::kHasExplicit_Type
+                                                       : LocalCoords::kUsePosition_Type,
+                                localMatrix);
+        return GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type,
+                                             Coverage::kSolid_Type, localCoords, viewMatrix);
+    } else if (hasExplicitLocalCoords) {
+        LocalCoords localCoords(LocalCoords::kHasExplicit_Type, localMatrix);
+        return GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type,
+                                             Coverage::kSolid_Type, localCoords, SkMatrix::I());
+    } else {
+        LocalCoords localCoords(LocalCoords::kUsePosition_Type, localMatrix);
+        return GrDefaultGeoProcFactory::MakeForDeviceSpace(Color::kPremulGrColorAttribute_Type,
+                                                           Coverage::kSolid_Type, localCoords,
+                                                           viewMatrix);
+    }
+}
+
 static void tesselate(intptr_t vertices,
                       size_t vertexStride,
                       GrColor color,
@@ -67,14 +96,13 @@ static void tesselate(intptr_t vertices,
     }
 }
 
+namespace {
+
 class NewNonAAFillRectOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
 public:
-    DEFINE_OP_CLASS_ID
-    NewNonAAFillRectOp() = delete;
-
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
                                           const SkRect& rect, const SkRect* localRect,
                                           const SkMatrix* localMatrix, GrAAType aaType,
@@ -85,27 +113,7 @@ public:
                                                          stencilSettings);
     }
 
-    const char* name() const override { return "NonAAFillRectOp"; }
-
-    SkString dumpInfo() const override {
-        SkString str;
-        str.append(GrMeshDrawOp::dumpInfo());
-        str.appendf("# combined: %d\n", fRects.count());
-        for (int i = 0; i < fRects.count(); ++i) {
-            const RectInfo& info = fRects[i];
-            str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
-                        info.fColor, info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight,
-                        info.fRect.fBottom);
-        }
-        return str;
-    }
-
-    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
-        GrColor* color = &fRects.front().fColor;
-        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone, color);
-    }
-
-    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
+    NewNonAAFillRectOp() = delete;
 
     NewNonAAFillRectOp(const Helper::MakeArgs& args, GrColor color, const SkMatrix& viewMatrix,
                        const SkRect& rect, const SkRect* localRect, const SkMatrix* localMatrix,
@@ -127,6 +135,30 @@ public:
         }
         this->setTransformedBounds(fRects[0].fRect, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
+
+    const char* name() const override { return "NewNonAAFillRectOp"; }
+
+    SkString dumpInfo() const override {
+        SkString str;
+        str.append(GrMeshDrawOp::dumpInfo());
+        str.appendf("# combined: %d\n", fRects.count());
+        for (int i = 0; i < fRects.count(); ++i) {
+            const RectInfo& info = fRects[i];
+            str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
+                        info.fColor, info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight,
+                        info.fRect.fBottom);
+        }
+        return str;
+    }
+
+    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
+        GrColor* color = &fRects.front().fColor;
+        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone, color);
+    }
+
+    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
+
+    DEFINE_OP_CLASS_ID
 
 private:
     void onPrepareDraws(Target* target) const override {
@@ -181,6 +213,150 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
+// We handle perspective in the local matrix or viewmatrix with special ops.
+class NewNonAAFillRectPerspectiveOp final : public GrMeshDrawOp {
+private:
+    using Helper = GrSimpleMeshDrawOpHelperWithStencil;
+
+public:
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
+                                          const SkRect& rect, const SkRect* localRect,
+                                          const SkMatrix* localMatrix, GrAAType aaType,
+                                          const GrUserStencilSettings* stencilSettings) {
+        SkASSERT(GrAAType::kCoverage != aaType);
+        return Helper::FactoryHelper<NewNonAAFillRectPerspectiveOp>(std::move(paint), viewMatrix,
+                                                                    rect, localRect, localMatrix,
+                                                                    aaType, stencilSettings);
+    }
+
+    NewNonAAFillRectPerspectiveOp() = delete;
+
+    NewNonAAFillRectPerspectiveOp(const Helper::MakeArgs& args, GrColor color,
+                                  const SkMatrix& viewMatrix, const SkRect& rect,
+                                  const SkRect* localRect, const SkMatrix* localMatrix,
+                                  GrAAType aaType, const GrUserStencilSettings* stencilSettings)
+            : INHERITED(ClassID())
+            , fHelper(args, aaType, stencilSettings)
+            , fViewMatrix(viewMatrix) {
+        SkASSERT(viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective()));
+        RectInfo& info = fRects.push_back();
+        info.fColor = color;
+        info.fRect = rect;
+        fHasLocalRect = SkToBool(localRect);
+        fHasLocalMatrix = SkToBool(localMatrix);
+        if (fHasLocalMatrix) {
+            fLocalMatrix = *localMatrix;
+        }
+        if (fHasLocalRect) {
+            info.fLocalRect = *localRect;
+        }
+        this->setTransformedBounds(rect, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
+    }
+
+    const char* name() const override { return "NewNonAAFillRectPerspectiveOp"; }
+
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("# combined: %d\n", fRects.count());
+        for (int i = 0; i < fRects.count(); ++i) {
+            const RectInfo& geo = fRects[0];
+            str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
+                        geo.fColor, geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight,
+                        geo.fRect.fBottom);
+        }
+        str.append(INHERITED::dumpInfo());
+        return str;
+    }
+
+    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
+        GrColor* color = &fRects.front().fColor;
+        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone, color);
+    }
+
+    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
+
+    DEFINE_OP_CLASS_ID
+
+private:
+    void onPrepareDraws(Target* target) const override {
+        sk_sp<GrGeometryProcessor> gp = make_perspective_gp(
+                fViewMatrix, fHasLocalRect, fHasLocalMatrix ? &fLocalMatrix : nullptr);
+        if (!gp) {
+            SkDebugf("Couldn't create GrGeometryProcessor\n");
+            return;
+        }
+        SkASSERT(fHasLocalRect
+                         ? gp->getVertexStride() ==
+                                   sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr)
+                         : gp->getVertexStride() ==
+                                   sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
+
+        size_t vertexStride = gp->getVertexStride();
+        int rectCount = fRects.count();
+
+        sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
+        PatternHelper helper;
+        void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
+                                     indexBuffer.get(), kVertsPerRect, kIndicesPerRect, rectCount);
+        if (!vertices || !indexBuffer) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
+
+        for (int i = 0; i < rectCount; i++) {
+            const RectInfo& info = fRects[i];
+            intptr_t verts =
+                    reinterpret_cast<intptr_t>(vertices) + i * kVertsPerRect * vertexStride;
+            if (fHasLocalRect) {
+                GrQuad quad(info.fLocalRect);
+                tesselate(verts, vertexStride, info.fColor, nullptr, info.fRect, &quad);
+            } else {
+                tesselate(verts, vertexStride, info.fColor, nullptr, info.fRect, nullptr);
+            }
+        }
+        helper.recordDraw(target, gp.get(), fHelper.makePipeline(target));
+    }
+
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+        NewNonAAFillRectPerspectiveOp* that = t->cast<NewNonAAFillRectPerspectiveOp>();
+        if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
+            return false;
+        }
+
+        // We could combine across perspective vm changes if we really wanted to.
+        if (!fViewMatrix.cheapEqualTo(that->fViewMatrix)) {
+            return false;
+        }
+        if (fHasLocalRect != that->fHasLocalRect) {
+            return false;
+        }
+        if (fHasLocalMatrix && !fLocalMatrix.cheapEqualTo(that->fLocalMatrix)) {
+            return false;
+        }
+
+        fRects.push_back_n(that->fRects.count(), that->fRects.begin());
+        this->joinBounds(*that);
+        return true;
+    }
+
+    struct RectInfo {
+        SkRect fRect;
+        GrColor fColor;
+        SkRect fLocalRect;
+    };
+
+    SkSTArray<1, RectInfo, true> fRects;
+    Helper fHelper;
+    bool fHasLocalMatrix;
+    bool fHasLocalRect;
+    SkMatrix fLocalMatrix;
+    SkMatrix fViewMatrix;
+
+    typedef GrMeshDrawOp INHERITED;
+};
+
+}  // anonymous namespace
+
 namespace GrNewNonAAFillRectOp {
 
 std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
@@ -190,9 +366,15 @@ std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
                                const SkMatrix* localMatrix,
                                GrAAType aaType,
                                const GrUserStencilSettings* stencilSettings) {
-    return NewNonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, localRect, localMatrix,
-                                    aaType, stencilSettings);
+    if (!viewMatrix.hasPerspective() && (!localMatrix || !localMatrix->hasPerspective())) {
+        return NewNonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, localRect, localMatrix,
+                                        aaType, stencilSettings);
+    } else {
+        return NewNonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, localRect,
+                                                   localMatrix, aaType, stencilSettings);
+    }
 }
+
 };  // namespace GrNewNonAAFillRectOp
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
