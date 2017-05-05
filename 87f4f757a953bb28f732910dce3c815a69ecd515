@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70d7a73f_140b92ba",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-05T18:37:55Z",
+      "side": 1,
+      "message": "You\u0027re gonna want to keep // x \u003d 1 - x too.",
+      "revId": "87f4f757a953bb28f732910dce3c815a69ecd515",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
