@@ -191,6 +191,9 @@ GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
     if (!glInterface) {
         return nullptr;
     }
+#ifdef USE_NSIGHT
+    const_cast<GrContextOptions&>(options).fSuppressPathRendering = true;
+#endif
     GrGLContext* glContext = GrGLContext::Create(glInterface.get(), options);
     if (glContext) {
         return new GrGLGpu(glContext, context);
