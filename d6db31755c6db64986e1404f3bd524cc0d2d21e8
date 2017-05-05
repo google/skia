@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "402a6213_9ccaf954",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-05T18:52:05Z",
+      "side": 1,
+      "message": "Why does this default to ignore?",
+      "range": {
+        "startLine": 35,
+        "startChar": 41,
+        "endLine": 35,
+        "endChar": 76
+      },
+      "revId": "d6db31755c6db64986e1404f3bd524cc0d2d21e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
