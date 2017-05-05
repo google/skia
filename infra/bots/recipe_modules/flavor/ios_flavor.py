@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Disable warning about setting self.device_dirs in install(); we need to.
+# Disable warning   about setting self.device_dirs in install(); we need to.
 # pylint: disable=W0201
 
 import default_flavor
@@ -47,7 +47,7 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
   def step(self, name, cmd, env=None, **kwargs):
     bundle_id = 'com.google.%s' % cmd[0]
     self.m.run(self.m.step, name,
-               cmd=['idevice-app-runner', '-s', bundle_id, '--args'] +
+               cmd=['idevice-app-runner-ng', '-d', '-s', bundle_id, '--args'] +
                     map(str, cmd[1:]))
 
   def _run_ios_script(self, script, first, *rest):
