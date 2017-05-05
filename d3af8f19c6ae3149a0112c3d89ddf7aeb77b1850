@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83f3f8c1_4b5d59cf",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-05T13:54:24Z",
+      "side": 1,
+      "message": "FYI this is mostly just moved from below.",
+      "range": {
+        "startLine": 92,
+        "startChar": 22,
+        "endLine": 92,
+        "endChar": 31
+      },
+      "revId": "d3af8f19c6ae3149a0112c3d89ddf7aeb77b1850",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
