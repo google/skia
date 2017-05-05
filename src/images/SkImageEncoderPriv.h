@@ -31,17 +31,6 @@ static inline bool SkPixmapIsValid(const SkPixmap& src,
     return true;
 }
 
-struct SkEncodeOptions {
-    SkTransferFunctionBehavior fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
-};
-
-#ifdef SK_HAS_WEBP_LIBRARY
-    bool SkEncodeImageAsWEBP(SkWStream*, const SkPixmap&, const SkEncodeOptions&);
-    bool SkEncodeImageAsWEBP(SkWStream*, const SkPixmap&, int quality);
-#else
-    #define SkEncodeImageAsWEBP(...) false
-#endif
-
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     bool SkEncodeImageWithCG(SkWStream*, const SkPixmap&, SkEncodedImageFormat);
 #else

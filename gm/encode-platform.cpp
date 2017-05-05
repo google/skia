@@ -15,6 +15,7 @@
 #include "SkJpegEncoder.h"
 #include "SkPngEncoder.h"
 #include "SkUnPreMultiply.h"
+#include "SkWebpEncoder.h"
 
 namespace skiagm {
 
@@ -80,8 +81,12 @@ static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitm
                 bool success = SkJpegEncoder::Encode(&buf, src, SkJpegEncoder::Options());
                 return success ? buf.detachAsData() : nullptr;
             }
-            case SkEncodedImageFormat::kWEBP:
-                return SkEncodeImageAsWEBP(&buf, src, 100) ? buf.detachAsData() : nullptr;
+            case SkEncodedImageFormat::kWEBP: {
+                SkWebpEncoder::Options options;
+                options.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
+                bool success = SkWebpEncoder::Encode(&buf, src, options);
+                return success ? buf.detachAsData() : nullptr;
+            }
             default:
                 SkASSERT(false);
                 return nullptr;
