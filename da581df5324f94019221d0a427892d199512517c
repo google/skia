@@ -22,6 +22,30 @@
       "revId": "da581df5324f94019221d0a427892d199512517c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cfd08db_fa7b0c2f",
+        "filename": "src/gpu/glsl/GrGLSLProgramBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-05T14:45:55Z",
+      "side": 1,
+      "message": "Yeah this is what I mentioned in a previous comment. I\u0027d be happy to change this to emitTextureSampler, but it just involves a bunch of search and replacing throughout code so I\u0027d rather do that in a different CL.",
+      "parentUuid": "13f1b3f6_79738918",
+      "range": {
+        "startLine": 330,
+        "startChar": 0,
+        "endLine": 330,
+        "endChar": 91
+      },
+      "revId": "da581df5324f94019221d0a427892d199512517c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
