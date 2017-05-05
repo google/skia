@@ -80,7 +80,42 @@ static void test_encode(skiatest::Reporter* r, SkEncodedImageFormat format) {
     REPORTER_ASSERT(r, data0->equals(data3.get()));
 }
 
-DEF_TEST(Encoder, r) {
+DEF_TEST(Encode, r) {
     test_encode(r, SkEncodedImageFormat::kJPEG);
     test_encode(r, SkEncodedImageFormat::kPNG);
+}
+
+
+DEF_TEST(Encode_PngOptions, r) {
+    SkBitmap bitmap;
+    bool success = GetResourceAsBitmap("mandrill_128.png", &bitmap);
+    if (!success) {
+        return;
+    }
+
+    SkPixmap src;
+    success = bitmap.peekPixels(&src);
+    REPORTER_ASSERT(r, success);
+    if (!success) {
+        return;
+    }
+
+    SkDynamicMemoryWStream dst0, dst1, dst2;
+    SkPngEncoder::Options options;
+    success = SkPngEncoder::Encode(&dst0, src, options);
+    REPORTER_ASSERT(r, success);
+
+    options.fFilterFlags = SkPngEncoder::kUp_FilterFlag;
+    success = SkPngEncoder::Encode(&dst1, src, options);
+    REPORTER_ASSERT(r, success);
+
+    options.fZLibLevel = 3;
+    success = SkPngEncoder::Encode(&dst2, src, options);
+    REPORTER_ASSERT(r, success);
+
+    sk_sp<SkData> data0 = dst0.detachAsData();
+    sk_sp<SkData> data1 = dst1.detachAsData();
+    sk_sp<SkData> data2 = dst2.detachAsData();
+    REPORTER_ASSERT(r, data0->size() < data1->size());
+    REPORTER_ASSERT(r, data1->size() < data2->size());
 }
