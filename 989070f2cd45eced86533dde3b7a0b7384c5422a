@@ -22,6 +22,30 @@
       "revId": "989070f2cd45eced86533dde3b7a0b7384c5422a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30a35ee0_b7fe3920",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-05T12:40:08Z",
+      "side": 1,
+      "message": "Ack.  I was also looking at plumbing ContextRec for appendStages(), since it\u0027s similar to makeContext() and we haul around the same params anyway.  But yeah, computeTotalInverse() doesn\u0027t need all that, will clean up.",
+      "parentUuid": "f2d6b403_32ddf074",
+      "range": {
+        "startLine": 356,
+        "startChar": 15,
+        "endLine": 356,
+        "endChar": 34
+      },
+      "revId": "989070f2cd45eced86533dde3b7a0b7384c5422a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
