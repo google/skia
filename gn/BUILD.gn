@@ -29,6 +29,11 @@ declare_args() {
 
   cc_wrapper = ""
   malloc = ""
+
+  enable_bitcode = false
+  if (is_tvos) {
+    enable_bitcode = true
+  }
 }
 
 if (host_os == "win") {
@@ -235,11 +240,6 @@ config("default") {
       "-arch",
       _target,
     ]
-    if (is_tvos) {
-      cflags += [
-        "-fembed-bitcode"
-      ]
-    }
     cflags_cc += [ "-stdlib=libc++" ]
     ldflags += [
       "-isysroot",
@@ -249,6 +249,12 @@ config("default") {
       "-stdlib=libc++",
     ]
     libs += [ "objc" ]
+  }
+
+  if (enable_bitcode) {
+    cflags += [
+      "-fembed-bitcode"
+    ]
   }
 
   if (is_linux) {
@@ -438,10 +444,14 @@ config("release") {
   } else {
     cflags = [
       "-Os",
-      "-fdata-sections",
-      "-ffunction-sections",
       "-momit-leaf-frame-pointer",
     ]
+    if (!enable_bitcode) {
+      cflags += [
+        "-fdata-sections",
+        "-ffunction-sections",
+      ]
+    }
     if (is_mac || is_ios) {
       ldflags = [ "-dead_strip" ]
     } else {
