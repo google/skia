@@ -32,8 +32,8 @@
 */
 class SK_API SkGaussianColorFilter : public SkColorFilter {
 public:
-    static sk_sp<SkColorFilter> Make() {
-        return sk_sp<SkColorFilter>(new SkGaussianColorFilter);
+    static sk_sp<SkColorFilter> Make(SkColor color) {
+        return sk_sp<SkColorFilter>(new SkGaussianColorFilter(color));
     }
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override;
@@ -50,7 +50,11 @@ protected:
     void flatten(SkWriteBuffer&) const override {}
 
 private:
-    SkGaussianColorFilter() : INHERITED() {}
+    SkPM4f  fPMColor4f;
+
+    SkGaussianColorFilter(SkColor color) {
+        fPMColor4f = SkColor4f::FromColor(color).premul();
+    }
 
     typedef SkColorFilter INHERITED;
 };
@@ -124,14 +128,15 @@ void SkGaussianColorFilter::filterSpan(const SkPMColor src[], int count, SkPMCol
 }
 
 void SkGaussianColorFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {
+    Sk4f c4 = fPMColor4f.to4f();
     for (int i = 0; i < count; ++i) {
         float v = eval_gaussian(src[i].a());
-        dst[i] = SkPM4f::FromPremulRGBA(v, v, v, v);
+        (v * c4).store(dst[i].fVec);
     }
 }
 
 sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
-    return Make();
+    return Make(SK_ColorRED);
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -501,9 +506,7 @@ void draw_shadow(const FACTORY& factory, SkCanvas* canvas, ShadowedPath& path, S
     SkPaint paint;
     // Run the vertex color through a GaussianColorFilter and then modulate the grayscale result of
     // that against our 'color' param.
-    paint.setColorFilter(SkColorFilter::MakeComposeFilter(
-            SkColorFilter::MakeModeFilter(color, SkBlendMode::kModulate),
-            SkGaussianColorFilter::Make()));
+    paint.setColorFilter(SkGaussianColorFilter::Make(color));
     if (translate->fX || translate->fY) {
         canvas->save();
         canvas->translate(translate->fX, translate->fY);
@@ -706,9 +709,7 @@ void SkShadowUtils::DrawUncachedShadow(SkCanvas* canvas, const SkPath& path,
         SkPaint paint;
         // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
         // result of that against our 'color' param.
-        paint.setColorFilter(SkColorFilter::MakeComposeFilter(
-            SkColorFilter::MakeModeFilter(renderColor, SkBlendMode::kModulate),
-            SkGaussianColorFilter::Make()));
+        paint.setColorFilter(SkGaussianColorFilter::Make(renderColor));
         canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
     }
 
@@ -721,9 +722,7 @@ void SkShadowUtils::DrawUncachedShadow(SkCanvas* canvas, const SkPath& path,
         SkPaint paint;
         // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
         // result of that against our 'color' param.
-        paint.setColorFilter(SkColorFilter::MakeComposeFilter(
-            SkColorFilter::MakeModeFilter(renderColor, SkBlendMode::kModulate),
-            SkGaussianColorFilter::Make()));
+        paint.setColorFilter(SkGaussianColorFilter::Make(renderColor));
         canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
     }
 }
