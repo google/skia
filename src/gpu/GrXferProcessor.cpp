@@ -27,14 +27,14 @@ GrXferProcessor::GrXferProcessor(const DstTexture* dstTexture,
         fDstTexture.reset(dstTexture->texture());
         fDstTextureOffset = dstTexture->offset();
         this->addTextureSampler(&fDstTexture);
-        this->setWillReadFragmentPosition();
     }
 }
 
-GrXferProcessor::OptFlags GrXferProcessor::getOptimizations(const GrPipelineAnalysis& analysis,
-                                                            bool doesStencilWrite,
-                                                            GrColor* overrideColor,
-                                                            const GrCaps& caps) const {
+GrXferProcessor::OptFlags GrXferProcessor::getOptimizations(
+        const FragmentProcessorAnalysis& analysis,
+        bool doesStencilWrite,
+        GrColor* overrideColor,
+        const GrCaps& caps) const {
     GrXferProcessor::OptFlags flags =
             this->onGetOptimizations(analysis, doesStencilWrite, overrideColor, caps);
     return flags;
@@ -181,12 +181,41 @@ SkString GrXferProcessor::BlendInfo::dump() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysis& analysis,
+bool GrXPFactory::WillReadDst(const GrXPFactory* factory,
+                              const GrProcessorSet::FragmentProcessorAnalysis& analysis) {
+    if (factory) {
+        return factory->willReadsDst(analysis);
+    }
+    return GrPorterDuffXPFactory::WillSrcOverReadDst(analysis);
+}
+
+bool GrXPFactory::WillNeedDstTexture(const GrXPFactory* factory, const GrCaps& caps,
+                                     const GrProcessorSet::FragmentProcessorAnalysis& analysis) {
+    bool result;
+    if (factory) {
+        result = !analysis.usesPLSDstRead() && !caps.shaderCaps()->dstReadInShaderSupport() &&
+                 factory->willReadDstInShader(caps, analysis);
+    } else {
+        result = GrPorterDuffXPFactory::WillSrcOverNeedDstTexture(caps, analysis);
+    }
+    SkASSERT(!(result && !WillReadDst(factory, analysis)));
+    return result;
+}
+
+bool GrXPFactory::willReadDstInShader(const GrCaps& caps,
+                                      const FragmentProcessorAnalysis& analysis) const {
+    if (analysis.usesPLSDstRead()) {
+        return true;
+    }
+    return this->onWillReadDstInShader(caps, analysis);
+}
+
+GrXferProcessor* GrXPFactory::createXferProcessor(const FragmentProcessorAnalysis& analysis,
                                                   bool hasMixedSamples,
                                                   const DstTexture* dstTexture,
                                                   const GrCaps& caps) const {
 #ifdef SK_DEBUG
-    if (this->willReadDstColor(caps, analysis)) {
+    if (this->willReadDstInShader(caps, analysis)) {
         if (!caps.shaderCaps()->dstReadInShaderSupport()) {
             SkASSERT(dstTexture && dstTexture->texture());
         } else {
@@ -198,12 +227,4 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysis& anal
     SkASSERT(!hasMixedSamples || caps.shaderCaps()->dualSourceBlendingSupport());
 #endif
     return this->onCreateXferProcessor(caps, analysis, hasMixedSamples, dstTexture);
-}
-
-bool GrXPFactory::willNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
-    return (this->willReadDstColor(caps, analysis) && !caps.shaderCaps()->dstReadInShaderSupport());
-}
-
-bool GrXPFactory::willReadDstColor(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
-    return analysis.fUsesPLSDstRead || this->onWillReadDstColor(caps, analysis);
 }

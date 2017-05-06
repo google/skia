@@ -16,9 +16,13 @@
 class GrCaps;
 class GrRenderTargetOpList;
 class GrRenderTargetProxy;
+class GrSurfaceContext;
+class GrSurfaceProxyPriv;
 class GrTextureOpList;
 class GrTextureProvider;
 class GrTextureProxy;
+
+//#define SK_DISABLE_DEFERRED_PROXIES 1
 
 // This class replicates the functionality GrIORef<GrSurface> but tracks the
 // utilitization for later resource allocation (for the deferred case) and
@@ -97,6 +101,14 @@ protected:
         fPendingWrites = 0;
     }
 
+    bool internalHasPendingIO() const {
+        if (fTarget) {
+            return fTarget->internalHasPendingIO();
+        }
+
+        return SkToBool(fPendingWrites | fPendingReads);
+    }
+
     // For deferred proxies this will be null. For wrapped proxies it will point to the
     // wrapped resource.
     GrSurface* fTarget;
@@ -158,15 +170,22 @@ private:
 class GrSurfaceProxy : public GrIORefProxy {
 public:
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>);
+    static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>);
 
-    static sk_sp<GrSurfaceProxy> MakeDeferred(const GrCaps&, const GrSurfaceDesc&,
-                                              SkBackingFit, SkBudgeted);
+    static sk_sp<GrSurfaceProxy> MakeDeferred(GrTextureProvider*, const GrCaps&,
+                                              const GrSurfaceDesc&, SkBackingFit,
+                                              SkBudgeted, uint32_t flags = 0);
 
     // TODO: need to refine ownership semantics of 'srcData' if we're in completely
     // deferred mode
     static sk_sp<GrSurfaceProxy> MakeDeferred(const GrCaps&, GrTextureProvider*,
                                               const GrSurfaceDesc&, SkBudgeted,
                                               const void* srcData, size_t rowBytes);
+
+    static sk_sp<GrSurfaceProxy> MakeWrappedBackend(
+                                            GrContext*,
+                                            GrBackendTextureDesc&,
+                                            GrWrapOwnership ownership = kBorrow_GrWrapOwnership);
 
     const GrSurfaceDesc& desc() const { return fDesc; }
 
@@ -267,29 +286,32 @@ public:
     }
 
     // Helper function that creates a temporary SurfaceContext to perform the copy
-    static sk_sp<GrSurfaceProxy> Copy(GrContext*, GrSurfaceProxy* src,
+    static sk_sp<GrTextureProxy> Copy(GrContext*, GrSurfaceProxy* src,
                                       SkIRect srcRect, SkBudgeted);
 
     // Copy the entire 'src'
-    static sk_sp<GrSurfaceProxy> Copy(GrContext* context, GrSurfaceProxy* src,
-                                      SkBudgeted budgeted) {
-        return Copy(context, src, SkIRect::MakeWH(src->width(), src->height()), budgeted);
-    }
+    static sk_sp<GrTextureProxy> Copy(GrContext* context, GrSurfaceProxy* src,
+                                      SkBudgeted budgeted);
 
     // Test-only entry point - should decrease in use as proxies propagate
-    static sk_sp<GrSurfaceProxy> TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
-                                          GrTexture* srcTexture, SkBudgeted budgeted);
+    static sk_sp<GrSurfaceContext> TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
+                                            GrSurfaceProxy* srcProxy);
 
     bool isWrapped_ForTesting() const;
 
     SkDEBUGCODE(void validate(GrContext*) const;)
 
+    // Provides access to functions that aren't part of the public API.
+    GrSurfaceProxyPriv priv();
+    const GrSurfaceProxyPriv priv() const;
+
 protected:
     // Deferred version
-    GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted)
+    GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
         : fDesc(desc)
         , fFit(fit)
         , fBudgeted(budgeted)
+        , fFlags(flags)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
@@ -300,10 +322,18 @@ protected:
 
     virtual ~GrSurfaceProxy();
 
+    friend class GrSurfaceProxyPriv;
+
+    // Methods made available via GrSurfaceProxyPriv
+    bool hasPendingIO() const {
+        return this->internalHasPendingIO();
+    }
+
     // For wrapped resources, 'fDesc' will always be filled in from the wrapped resource.
     const GrSurfaceDesc  fDesc;
     const SkBackingFit   fFit;      // always exact for wrapped resources
     const SkBudgeted     fBudgeted; // set from the backing resource for wrapped resources
+    const uint32_t       fFlags;
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);

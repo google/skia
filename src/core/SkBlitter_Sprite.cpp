@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkOpts.h"
-#include "SkSmallAllocator.h"
 #include "SkSpriteBlitter.h"
 
 SkSpriteBlitter::SkSpriteBlitter(const SkPixmap& source)
@@ -140,7 +140,7 @@ private:
 // returning null means the caller will call SkBlitter::Choose() and
 // have wrapped the source bitmap inside a shader
 SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
-        const SkPixmap& source, int left, int top, SkTBlitterAllocator* allocator) {
+        const SkPixmap& source, int left, int top, SkArenaAlloc* allocator) {
     /*  We currently ignore antialiasing and filtertype, meaning we will take our
         special blitters regardless of these settings. Ignoring filtertype seems fine
         since by definition there is no scale in the matrix. Ignoring antialiasing is
@@ -161,7 +161,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
     SkSpriteBlitter* blitter = nullptr;
 
     if (SkSpriteBlitter_Src_SrcOver::Supports(dst, source, paint)) {
-        blitter = allocator->createT<SkSpriteBlitter_Src_SrcOver>(source);
+        blitter = allocator->make<SkSpriteBlitter_Src_SrcOver>(source);
     } else {
         switch (dst.colorType()) {
             case kRGB_565_SkColorType:

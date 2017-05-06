@@ -43,9 +43,9 @@ public:
      */
     static const GrBuffer* SK_WARN_UNUSED_RESULT FindOrCreateIndex8Buffer(GrGpu*);
 
-    static IndexRange GetIndexRangeForRect(AntialiasMode);
-    static IndexRange GetIndexRangeForOval(AntialiasMode, const SkRect& devBounds);
-    static IndexRange GetIndexRangeForRRect(AntialiasMode);
+    static IndexRange GetIndexRangeForRect(GrAAType);
+    static IndexRange GetIndexRangeForOval(GrAAType, const SkRect& devBounds);
+    static IndexRange GetIndexRangeForRRect(GrAAType);
 
     static const char* GetNameOfIndexRange(IndexRange);
 

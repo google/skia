@@ -20,19 +20,15 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
                    src.fStages.begin(), src.fStages.end());
 }
 
-void SkRasterPipeline::run(size_t x, size_t y, size_t n) const {
+void SkRasterPipeline::run(size_t x, size_t n) const {
     if (!fStages.empty()) {
-        SkOpts::run_pipeline(x,y,n, fStages.data(), SkToInt(fStages.size()));
+    #if defined(SK_JUMPER)
+        if (this->run_with_jumper(x, n)) {
+            return;
+        }
+    #endif
+        SkOpts::run_pipeline(x,n, fStages.data(), SkToInt(fStages.size()));
     }
-}
-
-std::function<void(size_t, size_t, size_t)> SkRasterPipeline::compile() const {
-#ifdef SK_RASTER_PIPELINE_HAS_JIT
-    if (auto fn = this->jit()) {
-        return fn;
-    }
-#endif
-    return SkOpts::compile_pipeline(fStages.data(), SkToInt(fStages.size()));
 }
 
 void SkRasterPipeline::dump() const {

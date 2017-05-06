@@ -52,15 +52,17 @@ public:
     bool onGammaIsLinear() const override { return false; }
     bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const override { return false; }
 
+    bool onIsCMYK() const override { return kCMYK_ICCTypeFlag == fICCType; }
+
     sk_sp<SkColorSpace> makeLinearGamma() override {
         // TODO: Analyze the extrema of our projection into XYZ and use suitable primaries?
         // For now, just fall back to a default, because we don't have a good answer.
-        return SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+        return SkColorSpace::MakeSRGBLinear();
     }
 
     sk_sp<SkColorSpace> makeSRGBGamma() override {
         // See comment in makeLinearGamma
-        return SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        return SkColorSpace::MakeSRGB();
     }
 
     Type type() const override { return Type::kA2B; }

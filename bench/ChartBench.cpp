@@ -106,8 +106,8 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         bool sizeChanged = false;
-        if (canvas->getDeviceSize() != fSize) {
-            fSize = canvas->getDeviceSize();
+        if (canvas->getBaseLayerSize() != fSize) {
+            fSize = canvas->getBaseLayerSize();
             sizeChanged = true;
         }
 

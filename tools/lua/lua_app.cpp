@@ -27,8 +27,7 @@ static sk_sp<SkData> read_into_data(const char file[]) {
     return data;
 }
 
-int tool_main(int argc, char** argv);
-int tool_main(int argc, char** argv) {
+int main(int argc, char** argv) {
     SkAutoGraphics ag;
     SkLua L;
 
@@ -53,9 +52,3 @@ int tool_main(int argc, char** argv) {
     }
     return 0;
 }
-
-#if !defined SK_BUILD_FOR_IOS
-int main(int argc, char * const argv[]) {
-    return tool_main(argc, (char**) argv);
-}
-#endif

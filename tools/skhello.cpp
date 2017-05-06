@@ -19,8 +19,7 @@ DEFINE_string2(outFile, o, "skhello", "The filename to write the image.");
 DEFINE_string2(text, t, "Hello", "The string to write.");
 
 static void doDraw(SkCanvas* canvas, const SkPaint& paint, const char text[]) {
-    SkRect bounds;
-    canvas->getClipBounds(&bounds);
+    SkRect bounds = canvas->getLocalClipBounds();
 
     canvas->drawColor(SK_ColorWHITE);
     canvas->drawText(text, strlen(text),
@@ -55,8 +54,7 @@ static bool do_document(int w, int h, const char path[], const char text[],
     return false;
 }
 
-int tool_main(int argc, char** argv);
-int tool_main(int argc, char** argv) {
+int main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("");
     SkCommandLineFlags::Parse(argc, argv);
 
@@ -100,9 +98,3 @@ int tool_main(int argc, char** argv) {
     }
     return 0;
 }
-
-#if !defined SK_BUILD_FOR_IOS
-int main(int argc, char * const argv[]) {
-    return tool_main(argc, (char**) argv);
-}
-#endif

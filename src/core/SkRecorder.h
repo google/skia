@@ -164,12 +164,6 @@ private:
     template <typename T>
     T* copy(const T[], size_t count);
 
-    SkIRect devBounds() const {
-        SkIRect devBounds;
-        this->getClipDeviceBounds(&devBounds);
-        return devBounds;
-    }
-
     DrawPictureMode fDrawPictureMode;
     size_t fApproxBytesUsedBySubPictures;
     SkRecord* fRecord;

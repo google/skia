@@ -7,6 +7,8 @@
 
 #include <memory>
 #include "Benchmark.h"
+
+#include "SkArenaAlloc.h"
 #include "SkBitmapProcShader.h"
 #include "SkColor.h"
 #include "SkArenaAlloc.h"
@@ -91,7 +93,7 @@ struct CommonBitmapFPBenchmark : public Benchmark {
         sk_ignore_unused_variable(trash);
 
         fInfo = SkImageInfo::MakeN32Premul(width, height, fIsSRGB ?
-                                      SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named) : nullptr);
+                                      SkColorSpace::MakeSRGB() : nullptr);
     }
 
     bool isSuitableFor(Backend backend) override {
@@ -199,20 +201,17 @@ struct SkBitmapFPOrigShader : public CommonBitmapFPBenchmark {
 
         SkAutoTMalloc<SkPMColor> buffer4b(width*height);
 
-        uint32_t storage[kSkBlitterContextSize];
+        SkArenaAlloc alloc{0};
         const SkShader::ContextRec rec(fPaint, fM, nullptr,
                                        SkShader::ContextRec::kPMColor_DstType,
                                        nullptr);
-        SkASSERT(fPaint.getShader()->contextSize(rec) <= sizeof(storage));
-        SkShader::Context* ctx = fPaint.getShader()->createContext(rec, storage);
+        SkShader::Context* ctx = fPaint.getShader()->makeContext(rec, &alloc);
 
         int count = 100;
 
         for (int n = 0; n < 1000*loops; n++) {
             ctx->shadeSpan(3, 6, buffer4b, count);
         }
-
-        ctx->~Context();
     }
     SkPaint fPaint;
     sk_sp<SkImage> fImage;

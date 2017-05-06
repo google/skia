@@ -106,7 +106,7 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
 
     const auto imageInfo = SkImageInfo::Make(reader->screenWidth(), reader->screenHeight(),
                                              colorType, alphaType,
-                                             SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
+                                             SkColorSpace::MakeSRGB());
     return new SkGifCodec(encodedInfo, imageInfo, reader.release());
 }
 
@@ -240,8 +240,7 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
         return gif_error("frame index out of range!\n", kIncompleteInput);
     }
 
-    auto& localMap = fReader->frameContext(frameIndex)->localColorMap();
-    if (localMap.numColors() && !localMap.isDefined()) {
+    if (!fReader->frameContext(frameIndex)->reachedStartOfData()) {
         // We have parsed enough to know that there is a color map, but cannot
         // parse the map itself yet. Exit now, so we do not build an incorrect
         // table.

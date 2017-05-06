@@ -99,11 +99,10 @@ bool GrDrawPathRangeOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     // numbers, and we only partially account for this by not allowing even/odd paths to be
     // combined. (Glyphs in the same font tend to wind the same direction so it works out OK.)
     if (GrPathRendering::kWinding_FillType != this->fillType() ||
-        GrPathRendering::kWinding_FillType != that->fillType() ||
-        this->blendsWithDst()) {
+        GrPathRendering::kWinding_FillType != that->fillType() || this->xpReadsDst()) {
         return false;
     }
-    SkASSERT(!that->blendsWithDst());
+    SkASSERT(!that->xpReadsDst());
     fTotalPathCount += that->fTotalPathCount;
     while (Draw* head = that->fDraws.head()) {
         Draw* draw = fDraws.addToTail();

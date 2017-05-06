@@ -134,7 +134,10 @@ DEF_TEST(SkSLConstructorArgumentCount, r) {
                  "void main() { vec3 x = vec3(1.0, 2.0); }",
                  "error: 1: invalid arguments to 'vec3' constructor (expected 3 scalars, but "
                  "found 2)\n1 error\n");
-    test_success(r, "void main() { vec3 x = vec3(1.0, 2.0, 3.0, 4.0); }");
+    test_failure(r,
+                 "void main() { vec3 x = vec3(1.0, 2.0, 3.0, 4.0); }",
+                 "error: 1: invalid arguments to 'vec3' constructor (expected 3 scalars, but found "
+                 "4)\n1 error\n");
 }
 
 DEF_TEST(SkSLSwizzleScalar, r) {
@@ -334,6 +337,10 @@ DEF_TEST(SkSLUseWithoutInitialize, r) {
     test_failure(r,
                  "void main() { bool x; if (true && (false || x)) return; }",
                  "error: 1: 'x' has not been assigned\n1 error\n");
+    test_failure(r,
+                 "void main() { int x; switch (3) { case 0: x = 0; case 1: x = 1; }"
+                               "sk_FragColor = vec4(x); }",
+                 "error: 1: 'x' has not been assigned\n1 error\n");
 }
 
 DEF_TEST(SkSLUnreachable, r) {
@@ -363,12 +370,15 @@ DEF_TEST(SkSLNoReturn, r) {
 DEF_TEST(SkSLBreakOutsideLoop, r) {
     test_failure(r,
                  "void foo() { while(true) {} if (true) break; }",
-                 "error: 1: break statement must be inside a loop\n1 error\n");
+                 "error: 1: break statement must be inside a loop or switch\n1 error\n");
 }
 
 DEF_TEST(SkSLContinueOutsideLoop, r) {
     test_failure(r,
                  "void foo() { for(;;); continue; }",
+                 "error: 1: continue statement must be inside a loop\n1 error\n");
+    test_failure(r,
+                 "void foo() { switch (1) { default: continue; } }",
                  "error: 1: continue statement must be inside a loop\n1 error\n");
 }
 
@@ -416,6 +426,36 @@ DEF_TEST(SkSLDivByZero, r) {
     test_failure(r,
                  "float x = -67.0 / (3.0 - 3);",
                  "error: 1: division by zero\n1 error\n");
+}
+
+DEF_TEST(SkSLUnsupportedGLSLIdentifiers, r) {
+    test_failure(r,
+                 "void main() { float x = gl_FragCoord.x; };",
+                 "error: 1: unknown identifier 'gl_FragCoord'\n1 error\n");
+    test_failure(r,
+                 "void main() { float r = gl_FragColor.r; };",
+                 "error: 1: unknown identifier 'gl_FragColor'\n1 error\n");
+}
+
+DEF_TEST(SkSLWrongSwitchTypes, r) {
+    test_failure(r,
+                 "void main() { switch (vec2(1)) { case 1: break; } }",
+                 "error: 1: expected 'int', but found 'vec2'\n1 error\n");
+    test_failure(r,
+                 "void main() { switch (1) { case vec2(1): break; } }",
+                 "error: 1: expected 'int', but found 'vec2'\n1 error\n");
+}
+
+DEF_TEST(SkSLNonConstantCase, r) {
+    test_failure(r,
+                 "void main() { int x = 1; switch (1) { case x: break; } }",
+                 "error: 1: case value must be a constant\n1 error\n");
+}
+
+DEF_TEST(SkSLDuplicateCase, r) {
+    test_failure(r,
+                 "void main() { switch (1) { case 0: case 1: case 0: break; } }",
+                 "error: 1: duplicate case value\n1 error\n");
 }
 
 #endif

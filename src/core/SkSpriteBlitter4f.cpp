@@ -6,6 +6,7 @@
  */
 
 #include "SkSpriteBlitter.h"
+#include "SkArenaAlloc.h"
 #include "SkSpanProcs.h"
 #include "SkTemplates.h"
 #include "SkXfermodePriv.h"
@@ -62,7 +63,7 @@ private:
 
 
 SkSpriteBlitter* SkSpriteBlitter::ChooseF16(const SkPixmap& source, const SkPaint& paint,
-                                            SkTBlitterAllocator* allocator) {
+                                            SkArenaAlloc* allocator) {
     SkASSERT(allocator != nullptr);
 
     if (paint.getMaskFilter() != nullptr) {
@@ -72,7 +73,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseF16(const SkPixmap& source, const SkPain
     switch (source.colorType()) {
         case kN32_SkColorType:
         case kRGBA_F16_SkColorType:
-            return allocator->createT<Sprite_F16>(source, paint);
+            return allocator->make<Sprite_F16>(source, paint);
         default:
             return nullptr;
     }
@@ -112,7 +113,7 @@ private:
 
 
 SkSpriteBlitter* SkSpriteBlitter::ChooseS32(const SkPixmap& source, const SkPaint& paint,
-                                            SkTBlitterAllocator* allocator) {
+                                            SkArenaAlloc* allocator) {
     SkASSERT(allocator != nullptr);
 
     if (paint.getMaskFilter() != nullptr) {
@@ -122,7 +123,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseS32(const SkPixmap& source, const SkPain
     switch (source.colorType()) {
         case kN32_SkColorType:
         case kRGBA_F16_SkColorType:
-            return allocator->createT<Sprite_sRGB>(source, paint);
+            return allocator->make<Sprite_sRGB>(source, paint);
         default:
             return nullptr;
     }

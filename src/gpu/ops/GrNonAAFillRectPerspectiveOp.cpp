@@ -41,16 +41,17 @@ static sk_sp<GrGeometryProcessor> make_persp_gp(const SkMatrix& viewMatrix,
         LocalCoords localCoords(hasExplicitLocalCoords ? LocalCoords::kHasExplicit_Type
                                                        : LocalCoords::kUsePosition_Type,
                                 localMatrix);
-        return GrDefaultGeoProcFactory::Make(Color::kAttribute_Type, Coverage::kSolid_Type,
-                                             localCoords, viewMatrix);
+        return GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type,
+                                             Coverage::kSolid_Type, localCoords, viewMatrix);
     } else if (hasExplicitLocalCoords) {
         LocalCoords localCoords(LocalCoords::kHasExplicit_Type, localMatrix);
-        return GrDefaultGeoProcFactory::Make(Color::kAttribute_Type, Coverage::kSolid_Type,
-                                             localCoords, SkMatrix::I());
+        return GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type,
+                                             Coverage::kSolid_Type, localCoords, SkMatrix::I());
     } else {
         LocalCoords localCoords(LocalCoords::kUsePosition_Type, localMatrix);
-        return GrDefaultGeoProcFactory::MakeForDeviceSpace(
-                Color::kAttribute_Type, Coverage::kSolid_Type, localCoords, viewMatrix);
+        return GrDefaultGeoProcFactory::MakeForDeviceSpace(Color::kPremulGrColorAttribute_Type,
+                                                           Coverage::kSolid_Type, localCoords,
+                                                           viewMatrix);
     }
 }
 
@@ -129,9 +130,9 @@ public:
 private:
     NonAAFillRectPerspectiveOp() : INHERITED(ClassID()) {}
 
-    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fRects[0].fColor);
-        input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
+    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
+        input->colorInput()->setToConstant(fRects[0].fColor);
+        input->coverageInput()->setToSolidCoverage();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
@@ -231,7 +232,7 @@ std::unique_ptr<GrDrawOp> MakeWithPerspective(GrColor color,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 #include "GrDrawOpTest.h"
 

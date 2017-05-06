@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "GrMatrixConvolutionEffect.h"
+#include "GrTextureProxy.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -97,6 +98,7 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     }
     if (mce.convolveAlpha()) {
         fragBuilder->codeAppendf("%s = sum * %s + %s;", args.fOutputColor, gain, bias);
+        fragBuilder->codeAppendf("%s.a = clamp(%s.a, 0, 1);", args.fOutputColor, args.fOutputColor);
         fragBuilder->codeAppendf("%s.rgb = clamp(%s.rgb, 0.0, %s.a);",
                                  args.fOutputColor, args.fOutputColor, args.fOutputColor);
     } else {
@@ -108,7 +110,7 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
                               coords2D,
                               args.fTexSamplers[0]);
         fragBuilder->codeAppendf("%s.a = c.a;", args.fOutputColor);
-        fragBuilder->codeAppendf("%s.rgb = sum.rgb * %s + %s;", args.fOutputColor, gain, bias);
+        fragBuilder->codeAppendf("%s.rgb = clamp(sum.rgb * %s + %s, 0, 1);", args.fOutputColor, gain, bias);
         fragBuilder->codeAppendf("%s.rgb *= %s.a;", args.fOutputColor, args.fOutputColor);
     }
 
@@ -147,7 +149,8 @@ void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdma
     fDomain.setData(pdman, conv.domain(), texture);
 }
 
-GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
+GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrContext* context,
+                                                     sk_sp<GrTextureProxy> proxy,
                                                      const SkIRect& bounds,
                                                      const SkISize& kernelSize,
                                                      const SkScalar* kernel,
@@ -156,12 +159,14 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
                                                      const SkIPoint& kernelOffset,
                                                      GrTextureDomain::Mode tileMode,
                                                      bool convolveAlpha)
-  : INHERITED(texture, nullptr, GrCoordTransform::MakeDivByTextureWHMatrix(texture)),
-    fKernelSize(kernelSize),
-    fGain(SkScalarToFloat(gain)),
-    fBias(SkScalarToFloat(bias) / 255.0f),
-    fConvolveAlpha(convolveAlpha),
-    fDomain(texture, GrTextureDomain::MakeTexelDomainForMode(bounds, tileMode), tileMode) {
+    // To advertise either the modulation or opaqueness optimizations we'd have to examine the
+    // parameters.
+    : INHERITED(context, kNone_OptimizationFlags, proxy, nullptr, SkMatrix::I())
+    , fKernelSize(kernelSize)
+    , fGain(SkScalarToFloat(gain))
+    , fBias(SkScalarToFloat(bias) / 255.0f)
+    , fConvolveAlpha(convolveAlpha)
+    , fDomain(proxy.get(), GrTextureDomain::MakeTexelDomainForMode(bounds, tileMode), tileMode) {
     this->initClassID<GrMatrixConvolutionEffect>();
     for (int i = 0; i < kernelSize.width() * kernelSize.height(); i++) {
         fKernel[i] = SkScalarToFloat(kernel[i]);
@@ -191,54 +196,64 @@ bool GrMatrixConvolutionEffect::onIsEqual(const GrFragmentProcessor& sBase) cons
            fDomain == s.domain();
 }
 
-// Static function to create a 2D convolution
-sk_sp<GrFragmentProcessor>
-GrMatrixConvolutionEffect::MakeGaussian(GrTexture* texture,
-                                        const SkIRect& bounds,
-                                        const SkISize& kernelSize,
-                                        SkScalar gain,
-                                        SkScalar bias,
-                                        const SkIPoint& kernelOffset,
-                                        GrTextureDomain::Mode tileMode,
-                                        bool convolveAlpha,
-                                        SkScalar sigmaX,
-                                        SkScalar sigmaY) {
-    float kernel[MAX_KERNEL_SIZE];
-    int width = kernelSize.width();
-    int height = kernelSize.height();
+static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
+                                       SkScalar sigmaX, SkScalar sigmaY) {
     SkASSERT(width * height <= MAX_KERNEL_SIZE);
+    const float sigmaXDenom = 1.0f / (2.0f * SkScalarToFloat(SkScalarSquare(sigmaX)));
+    const float sigmaYDenom = 1.0f / (2.0f * SkScalarToFloat(SkScalarSquare(sigmaY)));
+    const int xRadius = width / 2;
+    const int yRadius = height / 2;
+
     float sum = 0.0f;
-    float sigmaXDenom = 1.0f / (2.0f * SkScalarToFloat(SkScalarSquare(sigmaX)));
-    float sigmaYDenom = 1.0f / (2.0f * SkScalarToFloat(SkScalarSquare(sigmaY)));
-    int xRadius = width / 2;
-    int yRadius = height / 2;
     for (int x = 0; x < width; x++) {
-      float xTerm = static_cast<float>(x - xRadius);
-      xTerm = xTerm * xTerm * sigmaXDenom;
-      for (int y = 0; y < height; y++) {
-        float yTerm = static_cast<float>(y - yRadius);
-        float xyTerm = sk_float_exp(-(xTerm + yTerm * yTerm * sigmaYDenom));
-        // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
-       // is dropped here, since we renormalize the kernel below.
-        kernel[y * width + x] = xyTerm;
-        sum += xyTerm;
-      }
+        float xTerm = static_cast<float>(x - xRadius);
+        xTerm = xTerm * xTerm * sigmaXDenom;
+        for (int y = 0; y < height; y++) {
+            float yTerm = static_cast<float>(y - yRadius);
+            float xyTerm = sk_float_exp(-(xTerm + yTerm * yTerm * sigmaYDenom));
+            // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
+            // is dropped here, since we renormalize the kernel below.
+            kernel[y * width + x] = xyTerm;
+            sum += xyTerm;
+        }
     }
     // Normalize the kernel
     float scale = 1.0f / sum;
     for (int i = 0; i < width * height; ++i) {
         kernel[i] *= scale;
     }
+}
+
+
+// Static function to create a 2D convolution
+sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(GrContext* context,
+                                                                   sk_sp<GrTextureProxy> proxy,
+                                                                   const SkIRect& bounds,
+                                                                   const SkISize& kernelSize,
+                                                                   SkScalar gain,
+                                                                   SkScalar bias,
+                                                                   const SkIPoint& kernelOffset,
+                                                                   GrTextureDomain::Mode tileMode,
+                                                                   bool convolveAlpha,
+                                                                   SkScalar sigmaX,
+                                                                   SkScalar sigmaY) {
+    float kernel[MAX_KERNEL_SIZE];
+
+    fill_in_2D_gaussian_kernel(kernel, kernelSize.width(), kernelSize.height(), sigmaX, sigmaY);
+
     return sk_sp<GrFragmentProcessor>(
-        new GrMatrixConvolutionEffect(texture, bounds, kernelSize, kernel, gain, bias,
-                                      kernelOffset, tileMode, convolveAlpha));
+        new GrMatrixConvolutionEffect(context, std::move(proxy), bounds, kernelSize, kernel,
+                                      gain, bias, kernelOffset, tileMode, convolveAlpha));
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                          GrProcessorUnitTest::kAlphaTextureIdx;
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
+                                        : GrProcessorUnitTest::kAlphaTextureIdx;
+    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+
     int width = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE);
     int height = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE / width);
     SkISize kernelSize = SkISize::Make(width, height);
@@ -250,14 +265,15 @@ sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTest
     SkScalar bias = d->fRandom->nextSScalar1();
     SkIPoint kernelOffset = SkIPoint::Make(d->fRandom->nextRangeU(0, kernelSize.width()),
                                            d->fRandom->nextRangeU(0, kernelSize.height()));
-    SkIRect bounds = SkIRect::MakeXYWH(d->fRandom->nextRangeU(0, d->fTextures[texIdx]->width()),
-                                       d->fRandom->nextRangeU(0, d->fTextures[texIdx]->height()),
-                                       d->fRandom->nextRangeU(0, d->fTextures[texIdx]->width()),
-                                       d->fRandom->nextRangeU(0, d->fTextures[texIdx]->height()));
+    SkIRect bounds = SkIRect::MakeXYWH(d->fRandom->nextRangeU(0, proxy->width()),
+                                       d->fRandom->nextRangeU(0, proxy->height()),
+                                       d->fRandom->nextRangeU(0, proxy->width()),
+                                       d->fRandom->nextRangeU(0, proxy->height()));
     GrTextureDomain::Mode tileMode =
             static_cast<GrTextureDomain::Mode>(d->fRandom->nextRangeU(0, 2));
     bool convolveAlpha = d->fRandom->nextBool();
-    return GrMatrixConvolutionEffect::Make(d->fTextures[texIdx],
+    return GrMatrixConvolutionEffect::Make(d->context(),
+                                           std::move(proxy),
                                            bounds,
                                            kernelSize,
                                            kernel.get(),
@@ -267,3 +283,4 @@ sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTest
                                            tileMode,
                                            convolveAlpha);
 }
+#endif

@@ -13,24 +13,33 @@
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
-#include "SkPath.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include "SkPath.h"
 #include "SkPicture.h"
+#include "SkRegion.h"
+#include "SkStream.h"
+#include "SkSurface.h"
+
 #if SK_SUPPORT_GPU
 #include "SkSLCompiler.h"
 #endif
-#include "SkStream.h"
 
+#include <iostream>
 #include <signal.h>
-
 #include "sk_tool_utils.h"
 
-DEFINE_string2(bytes, b, "", "A path to a file or a directory. If a file, the contents will be used as the fuzz bytes. If a directory, all files in the directory will be used as fuzz bytes for the fuzzer, one at a time.");
+
+DEFINE_string2(bytes, b, "", "A path to a file or a directory. If a file, the "
+        "contents will be used as the fuzz bytes. If a directory, all files "
+        "in the directory will be used as fuzz bytes for the fuzzer, one at a "
+        "time.");
 DEFINE_string2(name, n, "", "If --type is 'api', fuzz the API with this name.");
 
-DEFINE_string2(type, t, "api", "How to interpret --bytes, either 'image_scale', 'image_mode', 'skp', 'icc', or 'api'.");
-DEFINE_string2(dump, d, "", "If not empty, dump 'image*' or 'skp' types as a PNG with this name.");
+DEFINE_string2(type, t, "api", "How to interpret --bytes, either 'image_scale'"
+        ", 'image_mode', 'skp', 'icc', or 'api'.");
+DEFINE_string2(dump, d, "", "If not empty, dump 'image*' or 'skp' types as a "
+        "PNG with this name.");
 
 static int printUsage() {
     SkDebugf("Usage: fuzz -t <type> -b <path/to/file> [-n api-to-fuzz]\n");
@@ -40,11 +49,12 @@ static int fuzz_file(const char* path);
 static uint8_t calculate_option(SkData*);
 
 static void fuzz_api(sk_sp<SkData>);
-static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
-static void fuzz_skp(sk_sp<SkData>);
-static void fuzz_icc(sk_sp<SkData>);
 static void fuzz_color_deserialize(sk_sp<SkData>);
+static void fuzz_icc(sk_sp<SkData>);
+static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static void fuzz_path_deserialize(sk_sp<SkData>);
+static void fuzz_region_deserialize(sk_sp<SkData>);
+static void fuzz_skp(sk_sp<SkData>);
 #if SK_SUPPORT_GPU
 static void fuzz_sksl2glsl(sk_sp<SkData>);
 #endif
@@ -104,6 +114,10 @@ static int fuzz_file(const char* path) {
             fuzz_path_deserialize(bytes);
             return 0;
         }
+        if (0 == strcmp("region_deserialize", FLAGS_type[0])) {
+            fuzz_region_deserialize(bytes);
+            return 0;
+        }
         if (0 == strcmp("skp", FLAGS_type[0])) {
             fuzz_skp(bytes);
             return 0;
@@ -139,7 +153,7 @@ static void fuzz_api(sk_sp<SkData> bytes) {
         auto fuzzable = r->factory();
         if (0 == strcmp(name, fuzzable.name)) {
             SkDebugf("Fuzzing %s...\n", fuzzable.name);
-            Fuzz fuzz(bytes);
+            Fuzz fuzz(std::move(bytes));
             fuzzable.fn(&fuzz);
             SkDebugf("[terminated] Success!\n");
             return;
@@ -473,7 +487,29 @@ static void fuzz_path_deserialize(sk_sp<SkData> bytes) {
         SkDebugf("[terminated] Couldn't initialize SkPath.\n");
         return;
     }
+    auto s = SkSurface::MakeRasterN32Premul(1024, 1024);
+    s->getCanvas()->drawPath(path, SkPaint());
     SkDebugf("[terminated] Success! Initialized SkPath.\n");
+}
+
+static void fuzz_region_deserialize(sk_sp<SkData> bytes) {
+    SkRegion region;
+    if (!region.readFromMemory(bytes->data(), bytes->size())) {
+        SkDebugf("[terminated] Couldn't initialize SkRegion.\n");
+        return;
+    }
+    region.computeRegionComplexity();
+    region.isComplex();
+    SkRegion r2;
+    if (region == r2) {
+        region.contains(0,0);
+    } else {
+        region.contains(1,1);
+    }
+    auto s = SkSurface::MakeRasterN32Premul(1024, 1024);
+    s->getCanvas()->drawRegion(region, SkPaint());
+    SkDEBUGCODE(region.validate());
+    SkDebugf("[terminated] Success! Initialized SkRegion.\n");
 }
 
 #if SK_SUPPORT_GPU

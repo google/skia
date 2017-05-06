@@ -27,6 +27,8 @@ namespace SkSL {
 struct Program {
     struct Settings {
         const GrShaderCaps* fCaps = nullptr;
+        // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
+        // must be flipped.
         bool fFlipY = false;
     };
 
@@ -34,18 +36,24 @@ struct Program {
         // if true, this program requires the render target height uniform to be defined
         bool fRTHeight;
 
+        // if true, this program must be recompiled if the flipY setting changes. If false, the
+        // program will compile to the same code regardless of the flipY setting.
+        bool fFlipY;
+
         void reset() {
             fRTHeight = false;
+            fFlipY = false;
         }
 
         bool isEmpty() {
-            return !fRTHeight;
+            return !fRTHeight && !fFlipY;
         }
     };
 
     enum Kind {
         kFragment_Kind,
-        kVertex_Kind
+        kVertex_Kind,
+        kGeometry_Kind
     };
 
     Program(Kind kind,
@@ -59,8 +67,8 @@ struct Program {
     , fSettings(settings)
     , fDefaultPrecision(defaultPrecision)
     , fContext(context)
-    , fElements(std::move(elements))
     , fSymbols(symbols)
+    , fElements(std::move(elements))
     , fInputs(inputs) {}
 
     Kind fKind;
@@ -68,8 +76,10 @@ struct Program {
     // FIXME handle different types; currently it assumes this is for floats
     Modifiers::Flag fDefaultPrecision;
     Context* fContext;
-    std::vector<std::unique_ptr<ProgramElement>> fElements;
+    // it's important to keep fElements defined after (and thus destroyed before) fSymbols,
+    // because destroying elements can modify reference counts in symbols
     std::shared_ptr<SymbolTable> fSymbols;
+    std::vector<std::unique_ptr<ProgramElement>> fElements;
     Inputs fInputs;
 };
 

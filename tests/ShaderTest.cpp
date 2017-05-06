@@ -7,7 +7,10 @@
 
 #include "Test.h"
 #include "SkBitmap.h"
+#include "SkCanvas.h"
 #include "SkImage.h"
+#include "SkPerlinNoiseShader.h"
+#include "SkRRect.h"
 #include "SkShader.h"
 #include "SkSurface.h"
 #include "SkData.h"
@@ -57,4 +60,22 @@ DEF_TEST(Shader_isABitmap, reporter) {
 
     check_isabitmap(reporter, shader0.get(), W, H, tmx, tmy, localM);
     check_isabitmap(reporter, shader1.get(), W, H, tmx, tmy, localM);
+}
+
+// Make sure things are ok with just a single leg.
+DEF_TEST(ComposeShaderSingle, reporter) {
+    SkBitmap srcBitmap;
+    srcBitmap.allocN32Pixels(10, 10);
+    srcBitmap.eraseColor(SK_ColorRED);
+    SkCanvas canvas(srcBitmap);
+    SkPaint p;
+    p.setShader(
+        SkShader::MakeComposeShader(
+        SkShader::MakeEmptyShader(),
+        SkPerlinNoiseShader::MakeFractalNoise(1.0f, 1.0f, 2, 0.0f),
+        SkBlendMode::kClear));
+    SkRRect rr;
+    SkVector rd[] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
+    rr.setRectRadii({0, 0, 0, 0}, rd);
+    canvas.drawRRect(rr, p);
 }

@@ -9,6 +9,7 @@
 #include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
+#include "SkColorSpaceXformPriv.h"
 #include "SkEndian.h"
 #include "SkFixed.h"
 #include "SkICC.h"
@@ -39,6 +40,101 @@ bool SkICC::toXYZD50(SkMatrix44* toXYZD50) const {
 
 bool SkICC::isNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const {
     return as_CSB(fColorSpace)->onIsNumericalTransferFn(coeffs);
+}
+
+static const int kDefaultTableSize = 512; // Arbitrary
+
+void fn_to_table(float* tablePtr, const SkColorSpaceTransferFn& fn) {
+    // Y = (aX + b)^g + e  for X >= d
+    // Y = cX + f          otherwise
+    for (int i = 0; i < kDefaultTableSize; i++) {
+        float x = ((float) i) / ((float) (kDefaultTableSize - 1));
+        if (x >= fn.fD) {
+            tablePtr[i] = clamp_0_1(powf(fn.fA * x + fn.fB, fn.fG) + fn.fE);
+        } else {
+            tablePtr[i] = clamp_0_1(fn.fC * x + fn.fF);
+        }
+    }
+}
+
+void copy_to_table(float* tablePtr, const SkGammas* gammas, int index) {
+    SkASSERT(gammas->isTable(index));
+    const float* ptr = gammas->table(index);
+    const size_t bytes = gammas->tableSize(index) * sizeof(float);
+    memcpy(tablePtr, ptr, bytes);
+}
+
+bool SkICC::rawTransferFnData(Tables* tables) const {
+    if (SkColorSpace_Base::Type::kA2B == as_CSB(fColorSpace)->type()) {
+        return false;
+    }
+    SkColorSpace_XYZ* colorSpace = (SkColorSpace_XYZ*) fColorSpace.get();
+
+    SkColorSpaceTransferFn fn;
+    if (this->isNumericalTransferFn(&fn)) {
+        tables->fStorage = SkData::MakeUninitialized(kDefaultTableSize * sizeof(float));
+        fn_to_table((float*) tables->fStorage->writable_data(), fn);
+        tables->fRed.fOffset = tables->fGreen.fOffset = tables->fBlue.fOffset = 0;
+        tables->fRed.fCount = tables->fGreen.fCount = tables->fBlue.fCount = kDefaultTableSize;
+        return true;
+    }
+
+    const SkGammas* gammas = colorSpace->gammas();
+    SkASSERT(gammas);
+    if (gammas->data(0) == gammas->data(1) && gammas->data(0) == gammas->data(2)) {
+        SkASSERT(gammas->isTable(0));
+        tables->fStorage = SkData::MakeUninitialized(gammas->tableSize(0) * sizeof(float));
+        copy_to_table((float*) tables->fStorage->writable_data(), gammas, 0);
+        tables->fRed.fOffset = tables->fGreen.fOffset = tables->fBlue.fOffset = 0;
+        tables->fRed.fCount = tables->fGreen.fCount = tables->fBlue.fCount = gammas->tableSize(0);
+        return true;
+    }
+
+    // Determine the storage size.
+    size_t storageSize = 0;
+    for (int i = 0; i < 3; i++) {
+        if (gammas->isTable(i)) {
+            storageSize += gammas->tableSize(i) * sizeof(float);
+        } else {
+            storageSize += kDefaultTableSize * sizeof(float);
+        }
+    }
+
+    // Fill in the tables.
+    tables->fStorage = SkData::MakeUninitialized(storageSize);
+    float* ptr = (float*) tables->fStorage->writable_data();
+    size_t offset = 0;
+    Channel rgb[3];
+    for (int i = 0; i < 3; i++) {
+        if (gammas->isTable(i)) {
+            copy_to_table(ptr, gammas, i);
+            rgb[i].fOffset = offset;
+            rgb[i].fCount = gammas->tableSize(i);
+            offset += rgb[i].fCount * sizeof(float);
+            ptr += rgb[i].fCount;
+            continue;
+        }
+
+        if (gammas->isNamed(i)) {
+            SkAssertResult(named_to_parametric(&fn, gammas->data(i).fNamed));
+        } else if (gammas->isValue(i)) {
+            value_to_parametric(&fn, gammas->data(i).fValue);
+        } else {
+            SkASSERT(gammas->isParametric(i));
+            fn = gammas->params(i);
+        }
+
+        fn_to_table(ptr, fn);
+        rgb[i].fOffset = offset;
+        rgb[i].fCount = kDefaultTableSize;
+        offset += kDefaultTableSize * sizeof(float);
+        ptr += kDefaultTableSize;
+    }
+
+    tables->fRed = rgb[0];
+    tables->fGreen = rgb[1];
+    tables->fBlue = rgb[2];
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

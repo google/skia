@@ -45,6 +45,9 @@
 
 #if defined(SK_BUILD_FOR_WIN)
     #include "SkAutoCoInitialize.h"
+    #include "SkHRESULT.h"
+    #include "SkTScopedComPtr.h"
+    #include <XpsObjectModel.h>
 #endif
 
 #if defined(SK_XML)
@@ -364,6 +367,18 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
                     kOpaque_SkAlphaType != decodeInfo->alphaType()) {
                 return false;
             }
+
+            if (kRGBA_F16_SkColorType == canvasColorType) {
+                if (kUnpremul_SkAlphaType == dstAlphaType) {
+                    // Testing kPremul is enough for adequate coverage of F16 decoding.
+                    return false;
+                }
+
+                sk_sp<SkColorSpace> linearSpace =
+                        as_CSB(decodeInfo->colorSpace())->makeLinearGamma();
+                *decodeInfo = decodeInfo->makeColorSpace(std::move(linearSpace));
+            }
+
             *decodeInfo = decodeInfo->makeColorType(canvasColorType);
             break;
     }
@@ -397,7 +412,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     SkImageInfo decodeInfo = codec->getInfo();
     if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType,
                          fDstAlphaType)) {
-        return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
+        return Error::Nonfatal("Skipping uninteresting test.");
     }
 
     // Try to scale the image if it is desired
@@ -792,7 +807,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
     SkImageInfo decodeInfo = codec->getInfo();
     if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType,
                          fDstAlphaType)) {
-        return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
+        return Error::Nonfatal("Skipping uninteresting test.");
     }
 
     // Scale the image if it is desired.
@@ -892,7 +907,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     std::unique_ptr<SkImageGenerator> gen(nullptr);
     switch (fMode) {
         case kCodec_Mode:
-            gen.reset(SkCodecImageGenerator::NewFromEncodedCodec(encoded.get()));
+            gen = SkCodecImageGenerator::MakeFromEncodedCodec(encoded);
             if (!gen) {
                 return "Could not create codec image generator.";
             }
@@ -916,7 +931,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
 
     // Test deferred decoding path on GPU
     if (fIsGpu) {
-        sk_sp<SkImage> image(SkImage::MakeFromGenerator(gen.release(), nullptr));
+        sk_sp<SkImage> image(SkImage::MakeFromGenerator(std::move(gen), nullptr));
         if (!image) {
             return "Could not create image from codec image generator.";
         }
@@ -999,7 +1014,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
     sk_sp<SkColorSpace> dstSpace = nullptr;
     if (kDst_sRGB_Mode == fMode) {
-        dstSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        dstSpace = SkColorSpace::MakeSRGB();
     } else if (kDst_HPZR30w_Mode == fMode) {
         dstSpace = SkColorSpace::MakeICC(dstData->data(), dstData->size());
     }
@@ -1208,14 +1223,14 @@ Error NullSink::draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const {
 DEFINE_bool(gpuStats, false, "Append GPU stats to the log for each GPU task?");
 
 GPUSink::GPUSink(GrContextFactory::ContextType ct,
-                 GrContextFactory::ContextOptions options,
+                 GrContextFactory::ContextOverrides overrides,
                  int samples,
                  bool diText,
                  SkColorType colorType,
                  sk_sp<SkColorSpace> colorSpace,
                  bool threaded)
     : fContextType(ct)
-    , fContextOptions(options)
+    , fContextOverrides(overrides)
     , fSampleCount(samples)
     , fUseDIText(diText)
     , fColorType(colorType)
@@ -1242,7 +1257,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
         SkImageInfo::Make(size.width(), size.height(), fColorType,
                           kPremul_SkAlphaType, fColorSpace);
 #if SK_SUPPORT_GPU
-    GrContext* context = factory.getContextInfo(fContextType, fContextOptions).grContext();
+    GrContext* context = factory.getContextInfo(fContextType, fContextOverrides).grContext();
     const int maxDimension = context->caps()->maxTextureSize();
     if (maxDimension < SkTMax(size.width(), size.height())) {
         return Error::Nonfatal("Src too large to create a texture.\n");
@@ -1250,7 +1265,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
 #endif
 
     auto surface(
-            NewGpuSurface(&factory, fContextType, fContextOptions, info, fSampleCount, fUseDIText));
+        NewGpuSurface(&factory, fContextType, fContextOverrides, info, fSampleCount, fUseDIText));
     if (!surface) {
         return "Could not create a surface.";
     }
@@ -1320,13 +1335,36 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 
 XPSSink::XPSSink() {}
 
+#ifdef SK_BUILD_FOR_WIN
+static SkTScopedComPtr<IXpsOMObjectFactory> make_xps_factory() {
+    IXpsOMObjectFactory* factory;
+    HRN(CoCreateInstance(CLSID_XpsOMObjectFactory,
+                         nullptr,
+                         CLSCTX_INPROC_SERVER,
+                         IID_PPV_ARGS(&factory)));
+    return SkTScopedComPtr<IXpsOMObjectFactory>(factory);
+}
+
 Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
-    sk_sp<SkDocument> doc(SkDocument::MakeXPS(dst));
+    SkAutoCoInitialize com;
+    if (!com.succeeded()) {
+        return "Could not initialize COM.";
+    }
+    SkTScopedComPtr<IXpsOMObjectFactory> factory = make_xps_factory();
+    if (!factory) {
+        return "Failed to create XPS Factory.";
+    }
+    sk_sp<SkDocument> doc(SkDocument::MakeXPS(dst, factory.get()));
     if (!doc) {
         return "SkDocument::MakeXPS() returned nullptr";
     }
     return draw_skdocument(src, doc.get(), dst);
 }
+#else
+Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
+    return "XPS not supported on this platform.";
+}
+#endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -1671,6 +1709,33 @@ Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
         return check_against_reference(bitmap, src, fSink.get());
     });
 }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+#ifdef TEST_VIA_SVG
+#include "SkXMLWriter.h"
+#include "SkSVGCanvas.h"
+#include "SkSVGDOM.h"
+
+Error ViaSVG::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    auto size = src.size();
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+        SkDynamicMemoryWStream wstream;
+        SkXMLStreamWriter writer(&wstream);
+        Error err = src.draw(SkSVGCanvas::Make(SkRect::Make(size), &writer).get());
+        if (!err.isEmpty()) {
+            return err;
+        }
+        std::unique_ptr<SkStream> rstream(wstream.detachAsStream());
+        auto dom = SkSVGDOM::MakeFromStream(*rstream);
+        if (dom) {
+            dom->setContainerSize(SkSize::Make(size));
+            dom->render(canvas);
+        }
+        return "";
+    });
+}
+#endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

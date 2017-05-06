@@ -19,6 +19,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fMustDoCopiesFromOrigin = false;
     fSupportsCopiesAsDraws = false;
     fMustSubmitCommandsBeforeCopyOp = false;
+    fMustSleepOnTearDown  = false;
 
     /**************************************************************************
     * GrDrawTargetCaps fields
@@ -36,6 +37,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fUseDrawInsteadOfClear = false;
     fFenceSyncSupport = true;   // always available in Vulkan
+    fCrossContextTextureSupport = false; // TODO: Add thread-safe memory pools so we can enable this
 
     fMapBufferFlags = kNone_MapFlags; //TODO: figure this out
     fBufferMapThreshold = SK_MaxS32;  //TODO: figure this out
@@ -78,6 +80,16 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fSupportsCopiesAsDraws = true;
         fMustSubmitCommandsBeforeCopyOp = true;
     }
+
+#if defined(SK_BUILD_FOR_WIN)
+    if (kNvidia_VkVendor == properties.vendorID) {
+        fMustSleepOnTearDown = true;
+    }
+#elif defined(SK_BUILD_FOR_ANDROID)
+    if (kImagination_VkVendor == properties.vendorID) {
+        fMustSleepOnTearDown = true;
+    }
+#endif
 
     this->applyOptionsOverrides(contextOptions);
     fShaderCaps->applyOptionsOverrides(contextOptions);
@@ -163,6 +175,10 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
         }
     }
 
+    if (kImagination_VkVendor == properties.vendorID) {
+        shaderCaps->fAtan2ImplementedAsAtanYOverX = true;
+    }
+
     // Vulkan is based off ES 3.0 so the following should all be supported
     shaderCaps->fUsesPrecisionModifiers = true;
     shaderCaps->fFlatInterpolationSupport = true;
@@ -240,6 +256,11 @@ void GrVkCaps::initConfigTable(const GrVkInterface* interface, VkPhysicalDevice 
             fConfigTable[i].init(interface, physDev, format);
         }
     }
+
+    // We currently do not support compressed textures in Vulkan
+    const uint16_t kFlagsToRemove = ConfigInfo::kTextureable_Flag|ConfigInfo::kRenderable_Flag;
+    fConfigTable[kETC1_GrPixelConfig].fOptimalFlags &= ~kFlagsToRemove;
+    fConfigTable[kETC1_GrPixelConfig].fLinearFlags &= ~kFlagsToRemove;
 }
 
 void GrVkCaps::ConfigInfo::InitConfigFlags(VkFormatFeatureFlags vkFlags, uint16_t* flags) {

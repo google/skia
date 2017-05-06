@@ -50,6 +50,8 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
+      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
+      "GIT_HTTP_LOW_SPEED_TIME": "300",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -111,7 +113,12 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
+      "GIT_HTTP_LOW_SPEED_TIME": "300",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "fetch-gn"
   },
@@ -124,7 +131,12 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
+      "GIT_HTTP_LOW_SPEED_TIME": "300",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "gn gen"
   },
@@ -136,7 +148,12 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
+      "GIT_HTTP_LOW_SPEED_TIME": "300",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "ninja"
   },
@@ -958,8 +975,6 @@
       "--tag",
       "rietveld:codereview.chromium.org/1499623002/#ps1",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
       "stepname:ct-dm-1 on Ubuntu-14.04",
       "[dummy hash for ct-dm-1]"
     ],
@@ -1029,8 +1044,6 @@
       "os:Ubuntu-14.04",
       "--tag",
       "rietveld:codereview.chromium.org/1499623002/#ps1",
-      "--tag",
-      "slavename:skiabot-linux-swarm-000",
       "--tag",
       "stepname:ct-dm-2 on Ubuntu-14.04",
       "[dummy hash for ct-dm-2]"
@@ -1102,8 +1115,6 @@
       "--tag",
       "rietveld:codereview.chromium.org/1499623002/#ps1",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
       "stepname:ct-dm-3 on Ubuntu-14.04",
       "[dummy hash for ct-dm-3]"
     ],
@@ -1174,8 +1185,6 @@
       "--tag",
       "rietveld:codereview.chromium.org/1499623002/#ps1",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
       "stepname:ct-dm-4 on Ubuntu-14.04",
       "[dummy hash for ct-dm-4]"
     ],
@@ -1245,8 +1254,6 @@
       "os:Ubuntu-14.04",
       "--tag",
       "rietveld:codereview.chromium.org/1499623002/#ps1",
-      "--tag",
-      "slavename:skiabot-linux-swarm-000",
       "--tag",
       "stepname:ct-dm-5 on Ubuntu-14.04",
       "[dummy hash for ct-dm-5]"

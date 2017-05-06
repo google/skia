@@ -104,7 +104,7 @@ protected:
         clearPaint.setColor(0xFF000000);
         clearPaint.setAntiAlias(true);
 
-        SkISize size = canvas->getDeviceSize();
+        SkISize size = canvas->getBaseLayerSize();
 
         SkScalar maxTransX, maxTransY;
 

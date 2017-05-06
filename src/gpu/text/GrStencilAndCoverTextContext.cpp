@@ -351,7 +351,7 @@ GrStencilAndCoverTextContext::TextRun::TextRun(const SkPaint& fontAndStroke)
                                                     kStdFakeBoldInterpKeys,
                                                     kStdFakeBoldInterpValues,
                                                     kStdFakeBoldInterpLength);
-        SkScalar extra = SkScalarMul(fFont.getTextSize(), fakeBoldScale);
+        SkScalar extra = fFont.getTextSize() * fakeBoldScale;
 
         SkStrokeRec strokeRec(SkStrokeRec::kFill_InitStyle);
         strokeRec.setStrokeStyle(stroke.needToApply() ? stroke.getWidth() + extra : extra,

@@ -7,6 +7,7 @@
 
 #include "SkView.h"
 #include "SkCanvas.h"
+#include "SkDOM.h"
 
 static inline uint32_t SkSetClearShift(uint32_t bits, bool cond, unsigned shift) {
     SkASSERT((int)cond == 0 || (int)cond == 1);
@@ -661,19 +662,6 @@ void SkView::onInflate(const SkDOM& dom, const SkDOM::Node* node) {
 
 void SkView::inflate(const SkDOM& dom, const SkDOM::Node* node) {
     this->onInflate(dom, node);
-}
-
-void SkView::onPostInflate(const SkTDict<SkView*>&) {
-    // override in subclass as needed
-}
-
-void SkView::postInflate(const SkTDict<SkView*>& dict) {
-    this->onPostInflate(dict);
-
-    B2FIter    iter(this);
-    SkView*    child;
-    while ((child = iter.next()) != nullptr)
-        child->postInflate(dict);
 }
 
 //////////////////////////////////////////////////////////////////

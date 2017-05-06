@@ -1,4 +1,5 @@
 /*
+
 * Copyright 2016 Google Inc.
 *
 * Use of this source code is governed by a BSD-style license that can be
@@ -53,7 +54,9 @@ int main(int argc, char**argv) {
             XNextEvent(display, &event);
 
             sk_app::Window_unix* win = sk_app::Window_unix::gWindowMap.find(event.xany.window);
-            SkASSERT(win);
+            if (!win) {
+                continue;
+            }
 
             // paint and resize events get collapsed
             switch (event.type) {

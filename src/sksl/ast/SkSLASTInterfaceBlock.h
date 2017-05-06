@@ -25,31 +25,41 @@ struct ASTInterfaceBlock : public ASTDeclaration {
     // valueName is empty when it was not present in the source
     ASTInterfaceBlock(Position position,
                       Modifiers modifiers,
-                      SkString interfaceName,
-                      SkString valueName,
-                      std::vector<std::unique_ptr<ASTVarDeclarations>> declarations)
+                      SkString typeName,
+                      std::vector<std::unique_ptr<ASTVarDeclarations>> declarations,
+                      SkString instanceName,
+                      std::vector<std::unique_ptr<ASTExpression>> sizes)
     : INHERITED(position, kInterfaceBlock_Kind)
     , fModifiers(modifiers)
-    , fInterfaceName(std::move(interfaceName))
-    , fValueName(std::move(valueName))
-    , fDeclarations(std::move(declarations)) {}
+    , fTypeName(std::move(typeName))
+    , fDeclarations(std::move(declarations))
+    , fInstanceName(std::move(instanceName))
+    , fSizes(std::move(sizes)) {}
 
     SkString description() const override {
-        SkString result = fModifiers.description() + fInterfaceName + " {\n";
+        SkString result = fModifiers.description() + fTypeName + " {\n";
         for (size_t i = 0; i < fDeclarations.size(); i++) {
             result += fDeclarations[i]->description() + "\n";
         }
         result += "}";
-        if (fValueName.size()) {
-            result += " " + fValueName;
+        if (fInstanceName.size()) {
+            result += " " + fInstanceName;
+            for (const auto& size : fSizes) {
+                result += "[";
+                if (size) {
+                    result += size->description();
+                }
+                result += "]";
+            }
         }
         return result + ";";
     }
 
     const Modifiers fModifiers;
-    const SkString fInterfaceName;
-    const SkString fValueName;
+    const SkString fTypeName;
     const std::vector<std::unique_ptr<ASTVarDeclarations>> fDeclarations;
+    const SkString fInstanceName;
+    const std::vector<std::unique_ptr<ASTExpression>> fSizes;
 
     typedef ASTDeclaration INHERITED;
 };

@@ -307,7 +307,8 @@ void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstI
     // prevents us from using kIndex8. The below code depends on the output
     // being an SkPMColor.
     SkASSERT(kRGBA_8888_SkColorType == dstInfo.colorType() ||
-            kBGRA_8888_SkColorType == dstInfo.colorType());
+             kBGRA_8888_SkColorType == dstInfo.colorType() ||
+             kRGBA_F16_SkColorType == dstInfo.colorType());
 
     // If we are sampling, make sure that we only mask the sampled pixels.
     // We do not need to worry about sampling in the y-dimension because that
@@ -325,10 +326,19 @@ void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstI
             return;
         }
 
+        auto applyMask = [dstInfo](void* dstRow, int x, uint64_t bit) {
+            if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
+                uint64_t* dst64 = (uint64_t*) dstRow;
+                dst64[x] &= bit - 1;
+            } else {
+                uint32_t* dst32 = (uint32_t*) dstRow;
+                dst32[x] &= bit - 1;
+            }
+        };
+
         int row = this->getDstRow(y, dstInfo.height());
 
-        SkPMColor* dstRow =
-                SkTAddOffset<SkPMColor>(dstPtr, row * dstRowBytes);
+        void* dstRow = SkTAddOffset<SkPMColor>(dstPtr, row * dstRowBytes);
 
         int srcX = srcStartX;
         for (int dstX = 0; dstX < sampledWidth; dstX++) {
@@ -336,8 +346,8 @@ void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstI
             int modulus;
             SkTDivMod(srcX, 8, &quotient, &modulus);
             uint32_t shift = 7 - modulus;
-            uint32_t alphaBit = (fSrcBuffer.get()[quotient] >> shift) & 0x1;
-            dstRow[dstX] &= alphaBit - 1;
+            uint64_t alphaBit = (fSrcBuffer.get()[quotient] >> shift) & 0x1;
+            applyMask(dstRow, dstX, alphaBit);
             srcX += sampleX;
         }
     }
@@ -347,7 +357,7 @@ uint64_t SkBmpStandardCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
     if (colorPtr) {
         return get_color_table_fill_value(dstInfo.colorType(), dstInfo.alphaType(), colorPtr, 0,
-                                          nullptr);
+                                          this->colorXform());
     }
     return INHERITED::onGetFillValue(dstInfo);
 }

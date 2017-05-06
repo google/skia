@@ -18,6 +18,7 @@ class SkEdgeClipper {
 public:
     SkEdgeClipper(bool canCullToTheRight) : fCanCullToTheRight(canCullToTheRight) {}
 
+    bool clipLine(SkPoint p0, SkPoint p1, const SkRect& clip);
     bool clipQuad(const SkPoint pts[3], const SkRect& clip);
     bool clipCubic(const SkPoint pts[4], const SkRect& clip);
 
@@ -39,6 +40,7 @@ private:
 
     void clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip);
     void clipMonoCubic(const SkPoint srcPts[4], const SkRect& clip);
+    void appendLine(SkPoint p0, SkPoint p1);
     void appendVLine(SkScalar x, SkScalar y0, SkScalar y1, bool reverse);
     void appendQuad(const SkPoint pts[3], bool reverse);
     void appendCubic(const SkPoint pts[4], bool reverse);

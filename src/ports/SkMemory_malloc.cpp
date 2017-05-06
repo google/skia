@@ -15,7 +15,11 @@
 static inline void sk_out_of_memory(size_t size) {
     SK_DEBUGFAILF("sk_out_of_memory (asked for " SK_SIZE_T_SPECIFIER " bytes)",
                   size);
+#if defined(IS_FUZZING)
+    exit(1);
+#else
     abort();
+#endif
 }
 
 static inline void* throw_on_failure(size_t size, void* p) {
@@ -33,6 +37,9 @@ void sk_abort_no_print() {
 #endif
 #if defined(SK_DEBUG) && defined(SK_BUILD_FOR_WIN)
     __debugbreak();
+#endif
+#if defined(IS_FUZZING)
+    exit(1);
 #else
     abort();
 #endif
@@ -40,7 +47,11 @@ void sk_abort_no_print() {
 
 void sk_out_of_memory(void) {
     SkDEBUGFAIL("sk_out_of_memory");
+#if defined(IS_FUZZING)
+    exit(1);
+#else
     abort();
+#endif
 }
 
 void* sk_malloc_throw(size_t size) {

@@ -28,8 +28,10 @@ def setupSkiaLibraryBuild(project, appVariants, appName) {
         buildNativeLib.onlyIf { !project.hasProperty("suppressNativeBuild") }
 
         def copyNativeLib = project.task("${variant.name}_CopySkiaLib", type:Copy) {
-            from getVariantOutDir(project, variant).skiaOut
-            into getVariantOutDir(project, variant).androidOut
+            def fromDir = "../../../../" + getVariantOutDir(project, variant).skiaOut
+            def intoDir = getVariantOutDir(project, variant).androidOut
+            from fromDir
+            into intoDir
             include "${appName}.so"
         }
 
@@ -38,7 +40,7 @@ def setupSkiaLibraryBuild(project, appVariants, appName) {
             it.name.toLowerCase().contains("compile" + variant.name.toLowerCase()) &&
                     it.name.toLowerCase().endsWith("ndk")
         }
-        compileTask.getAt(0).dependsOn copyNativeLib
+        compileTask.findAll()*.dependsOn copyNativeLib
         copyNativeLib.dependsOn buildNativeLib
     }
 }

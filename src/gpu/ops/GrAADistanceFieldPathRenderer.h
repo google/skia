@@ -38,6 +38,7 @@ private:
             Key() {}
             Key(const Key& that) { *this = that; }
             Key(const GrShape& shape, uint32_t dim) { this->set(shape, dim); }
+            Key(const GrShape& shape, const SkMatrix& ctm) { this->set(shape, ctm); }
 
             Key& operator=(const Key& that) {
                 fKey.reset(that.fKey.count());
@@ -56,6 +57,37 @@ private:
                 shape.writeUnstyledKey(&fKey[1]);
             }
 
+            void set(const GrShape& shape, const SkMatrix& ctm) {
+                GrUniqueKey maskKey;
+                struct KeyData {
+                    SkScalar fFractionalTranslateX;
+                    SkScalar fFractionalTranslateY;
+                };
+
+                // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
+                // relevant styling information.
+                SkASSERT(shape.style().isSimpleFill());
+                SkASSERT(shape.hasUnstyledKey());
+                // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
+                SkScalar sx = ctm.get(SkMatrix::kMScaleX);
+                SkScalar sy = ctm.get(SkMatrix::kMScaleY);
+                SkScalar kx = ctm.get(SkMatrix::kMSkewX);
+                SkScalar ky = ctm.get(SkMatrix::kMSkewY);
+                SkScalar tx = ctm.get(SkMatrix::kMTransX);
+                SkScalar ty = ctm.get(SkMatrix::kMTransY);
+                // Allow 8 bits each in x and y of subpixel positioning.
+                SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
+                SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
+                int shapeKeySize = shape.unstyledKeySize();
+                fKey.reset(5 + shapeKeySize);
+                fKey[0] = SkFloat2Bits(sx);
+                fKey[1] = SkFloat2Bits(sy);
+                fKey[2] = SkFloat2Bits(kx);
+                fKey[3] = SkFloat2Bits(ky);
+                fKey[4] = fracX | (fracY >> 8);
+                shape.writeUnstyledKey(&fKey[5]);
+            }
+
             bool operator==(const Key& that) const {
                 return fKey.count() == that.fKey.count() &&
                         0 == memcmp(fKey.get(), that.fKey.get(), sizeof(uint32_t) * fKey.count());
@@ -65,8 +97,9 @@ private:
             const uint32_t* data() const { return fKey.get(); }
 
         private:
-            // The key is composed of the dimensions of the DF generated for the path (32x32 max,
-            // 64x64 max, 128x128 max) and the GrShape's key.
+            // The key is composed of the GrShape's key, and either the dimensions of the DF
+            // generated for the path (32x32 max, 64x64 max, 128x128 max) if an SDF image or
+            // the matrix for the path with only fractional translation.
             SkAutoSTArray<24, uint32_t> fKey;
         };
         Key fKey;

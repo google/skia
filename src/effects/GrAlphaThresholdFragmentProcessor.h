@@ -20,12 +20,21 @@
 class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
 
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrTexture* texture,
+    static sk_sp<GrFragmentProcessor> Make(GrContext* context,
+                                           sk_sp<GrTextureProxy> proxy,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           GrTexture* maskTexture,
+                                           sk_sp<GrTextureProxy> maskProxy,
                                            float innerThreshold,
                                            float outerThreshold,
-                                           const SkIRect& bounds);
+                                           const SkIRect& bounds) {
+        return sk_sp<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
+                                                                    context,
+                                                                    std::move(proxy),
+                                                                    std::move(colorSpaceXform),
+                                                                    std::move(maskProxy),
+                                                                    innerThreshold, outerThreshold,
+                                                                    bounds));
+    }
 
     const char* name() const override { return "Alpha Threshold"; }
 
@@ -35,9 +44,12 @@ public:
     GrColorSpaceXform* colorSpaceXform() const { return fColorSpaceXform.get(); }
 
 private:
-    GrAlphaThresholdFragmentProcessor(GrTexture* texture,
+    static OptimizationFlags OptFlags(float outerThreshold);
+
+    GrAlphaThresholdFragmentProcessor(GrContext*,
+                                      sk_sp<GrTextureProxy> proxy,
                                       sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                      GrTexture* maskTexture,
+                                      sk_sp<GrTextureProxy> maskProxy,
                                       float innerThreshold,
                                       float outerThreshold,
                                       const SkIRect& bounds);
@@ -47,8 +59,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 

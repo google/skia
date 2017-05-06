@@ -11,7 +11,7 @@ DEPS = [
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
-  'skia-recipes/perf',
+  'perf',
 ]
 
 

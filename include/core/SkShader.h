@@ -17,9 +17,9 @@
 #include "SkPaint.h"
 #include "../gpu/GrColor.h"
 
+class SkArenaAlloc;
 class SkColorFilter;
 class SkColorSpace;
-class SkArenaAlloc;
 class SkImage;
 class SkPath;
 class SkPicture;
@@ -229,15 +229,11 @@ public:
     };
 
     /**
-     *  Create the actual object that does the shading.
-     *  Size of storage must be >= contextSize.
+     * Make a context using the memory provided by the arena.
+     *
+     * @return pointer to context or nullptr if can't be created
      */
-    Context* createContext(const ContextRec&, void* storage) const;
-
-    /**
-     *  Return the size of a Context returned by createContext.
-     */
-    size_t contextSize(const ContextRec&) const;
+    Context* makeContext(const ContextRec&, SkArenaAlloc*) const;
 
 #ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
     /**
@@ -382,14 +378,6 @@ public:
      */
     bool asLuminanceColor(SkColor*) const;
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    /**
-     *  If the shader is a custom shader which has data the caller might want, call this function
-     *  to get that data.
-     */
-    virtual bool asACustomShader(void** /* customData */) const { return false; }
-#endif
-
     //////////////////////////////////////////////////////////////////////////
     //  Methods to create combinations or variants of shaders
 
@@ -484,16 +472,12 @@ protected:
     bool computeTotalInverse(const ContextRec&, SkMatrix* totalInverse) const;
 
     /**
-     *  Your subclass must also override contextSize() if it overrides onCreateContext().
-     *  Base class impl returns NULL.
+     * Specialize creating a SkShader context using the supplied allocator.
+     * @return pointer to context owned by the arena allocator.
      */
-    virtual Context* onCreateContext(const ContextRec&, void* storage) const;
-
-    /**
-     *  Override this if your subclass overrides createContext, to return the correct size of
-     *  your subclass' context.
-     */
-    virtual size_t onContextSize(const ContextRec&) const;
+    virtual Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const {
+        return nullptr;
+    }
 
     virtual bool onAsLuminanceColor(SkColor*) const {
         return false;
@@ -510,9 +494,8 @@ protected:
     }
 
     virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                                const SkMatrix&, const SkPaint&) const {
-        return false;
-    }
+                                const SkMatrix&, const SkPaint&,
+                                const SkMatrix* /*local matrix*/) const;
 
 private:
     // This is essentially const, but not officially so it can be modified in

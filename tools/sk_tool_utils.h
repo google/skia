@@ -19,6 +19,7 @@
 
 class SkBitmap;
 class SkCanvas;
+class SkColorFilter;
 class SkPaint;
 class SkPath;
 class SkRRect;
@@ -251,6 +252,14 @@ namespace sk_tool_utils {
         };
         return sk_make_sp<EncodeImagePixelSerializer>();
     }
+
+    void copy_to_g8(SkBitmap* dst, const SkBitmap& src);
+
+#if SK_SUPPORT_GPU
+    sk_sp<SkColorFilter> MakeLinearToSRGBColorFilter();
+    sk_sp<SkColorFilter> MakeSRGBToLinearColorFilter();
+#endif
+
 }  // namespace sk_tool_utils
 
 #endif  // sk_tool_utils_DEFINED

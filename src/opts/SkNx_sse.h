@@ -271,6 +271,22 @@ public:
         *b = ba;
         *a = _mm_srli_si128(ba, 8);
     }
+    AI static void Load3(const void* ptr, SkNx* r, SkNx* g, SkNx* b) {
+        // The idea here is to get 4 vectors that are R G B _ _ _ _ _.
+        // The second load is at a funny location to make sure we don't read past
+        // the bounds of memory.  This is fine, we just need to shift it a little bit.
+        const uint8_t* ptr8 = (const uint8_t*) ptr;
+        __m128i rgb0 = _mm_loadu_si128((const __m128i*) (ptr8 + 0));
+        __m128i rgb1 = _mm_srli_si128(rgb0, 3*2);
+        __m128i rgb2 = _mm_srli_si128(_mm_loadu_si128((const __m128i*) (ptr8 + 4*2)), 2*2);
+        __m128i rgb3 = _mm_srli_si128(rgb2, 3*2);
+
+        __m128i rrggbb01 = _mm_unpacklo_epi16(rgb0, rgb1);
+        __m128i rrggbb23 = _mm_unpacklo_epi16(rgb2, rgb3);
+        *r = _mm_unpacklo_epi32(rrggbb01, rrggbb23);
+        *g = _mm_srli_si128(r->fVec, 4*2);
+        *b = _mm_unpackhi_epi32(rrggbb01, rrggbb23);
+    }
     AI static void Store4(void* dst, const SkNx& r, const SkNx& g, const SkNx& b, const SkNx& a) {
         __m128i rg = _mm_unpacklo_epi16(r.fVec, g.fVec);
         __m128i ba = _mm_unpacklo_epi16(b.fVec, a.fVec);
@@ -333,6 +349,32 @@ public:
         *g = _mm_unpackhi_epi64(rg0123, rg4567);
         *b = _mm_unpacklo_epi64(ba0123, ba4567);
         *a = _mm_unpackhi_epi64(ba0123, ba4567);
+    }
+    AI static void Load3(const void* ptr, SkNx* r, SkNx* g, SkNx* b) {
+        // TODO: AVX2 version
+        const uint8_t* ptr8 = (const uint8_t*) ptr;
+        __m128i rgb0 = _mm_loadu_si128((const __m128i*) (ptr8 +  0*2));
+        __m128i rgb1 = _mm_srli_si128(rgb0, 3*2);
+        __m128i rgb2 = _mm_loadu_si128((const __m128i*) (ptr8 +  6*2));
+        __m128i rgb3 = _mm_srli_si128(rgb2, 3*2);
+        __m128i rgb4 = _mm_loadu_si128((const __m128i*) (ptr8 + 12*2));
+        __m128i rgb5 = _mm_srli_si128(rgb4, 3*2);
+        __m128i rgb6 = _mm_srli_si128(_mm_loadu_si128((const __m128i*) (ptr8 + 16*2)), 2*2);
+        __m128i rgb7 = _mm_srli_si128(rgb6, 3*2);
+
+        __m128i rgb01 = _mm_unpacklo_epi16(rgb0, rgb1);
+        __m128i rgb23 = _mm_unpacklo_epi16(rgb2, rgb3);
+        __m128i rgb45 = _mm_unpacklo_epi16(rgb4, rgb5);
+        __m128i rgb67 = _mm_unpacklo_epi16(rgb6, rgb7);
+
+        __m128i rg03 = _mm_unpacklo_epi32(rgb01, rgb23);
+        __m128i bx03 = _mm_unpackhi_epi32(rgb01, rgb23);
+        __m128i rg47 = _mm_unpacklo_epi32(rgb45, rgb67);
+        __m128i bx47 = _mm_unpackhi_epi32(rgb45, rgb67);
+
+        *r = _mm_unpacklo_epi64(rg03, rg47);
+        *g = _mm_unpackhi_epi64(rg03, rg47);
+        *b = _mm_unpacklo_epi64(bx03, bx47);
     }
     AI static void Store4(void* ptr, const SkNx& r, const SkNx& g, const SkNx& b, const SkNx& a) {
         // TODO: AVX2 version
@@ -581,6 +623,16 @@ public:
             _mm256_storeu_ps((float*)ptr + 2*8, _45);
             _mm256_storeu_ps((float*)ptr + 3*8, _67);
         }
+        AI static void Load4(const void* ptr, SkNx* r, SkNx* g, SkNx* b, SkNx* a) {
+            Sk4f rl, gl, bl, al,
+                 rh, gh, bh, ah;
+            Sk4f::Load4((const float*)ptr +  0, &rl, &gl, &bl, &al);
+            Sk4f::Load4((const float*)ptr + 16, &rh, &gh, &bh, &ah);
+            *r = _mm256_setr_m128(rl.fVec, rh.fVec);
+            *g = _mm256_setr_m128(gl.fVec, gh.fVec);
+            *b = _mm256_setr_m128(bl.fVec, bh.fVec);
+            *a = _mm256_setr_m128(al.fVec, ah.fVec);
+        }
 
         AI SkNx operator+(const SkNx& o) const { return _mm256_add_ps(fVec, o.fVec); }
         AI SkNx operator-(const SkNx& o) const { return _mm256_sub_ps(fVec, o.fVec); }
@@ -659,6 +711,11 @@ public:
                 hi = _mm256_extractf128_si256(src.fVec, 1);
         return _mm_packus_epi32(lo, hi);
     }
+
+    template<> AI /*static*/ Sk8h SkNx_cast<uint16_t>(const Sk8f& src) {
+        return SkNx_cast<uint16_t>(SkNx_cast<int>(src));
+    }
+
     template<> AI /*static*/ Sk8b SkNx_cast<uint8_t>(const Sk8i& src) {
         auto _16 = SkNx_cast<uint16_t>(src);
         return _mm_packus_epi16(_16.fVec, _16.fVec);

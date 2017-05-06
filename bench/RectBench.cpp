@@ -29,18 +29,18 @@ public:
         : fShift(shift)
         , fStroke(stroke) {}
 
-    SkString fName;
     const char* computeName(const char root[]) {
-        fName.printf("%s_%d", root, fShift);
+        fBaseName.printf("%s_%d", root, fShift);
         if (fStroke > 0) {
-            fName.appendf("_stroke_%d", fStroke);
+            fBaseName.appendf("_stroke_%d", fStroke);
         }
-        return fName.c_str();
+        return fBaseName.c_str();
     }
 
     bool isVisual() override { return true; }
 
 protected:
+
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawRect(r, p);
     }
@@ -78,7 +78,9 @@ protected:
             this->drawThisRect(canvas, fRects[i % N], paint);
         }
     }
+
 private:
+    SkString fBaseName;
     typedef Benchmark INHERITED;
 };
 
@@ -103,8 +105,8 @@ protected:
     }
 
 private:
-    SkString    fName;
     SkBlendMode fMode;
+    SkString fName;
 
     typedef RectBench INHERITED;
 };
@@ -128,7 +130,6 @@ protected:
 
 private:
     SkString fName;
-
     typedef RectBench INHERITED;
 };
 
@@ -156,7 +157,6 @@ protected:
 class PointsBench : public RectBench {
 public:
     SkCanvas::PointMode fMode;
-    const char* fName;
 
     PointsBench(SkCanvas::PointMode mode, const char* name)
         : RectBench(2)
@@ -188,7 +188,11 @@ protected:
             }
         }
     }
-    const char* onGetName() override { return fName; }
+    const char* onGetName() override { return fName.c_str(); }
+
+private:
+    SkString fName;
+
 };
 
 /*******************************************************************************
@@ -204,7 +208,6 @@ public:
         KMaskShader
     };
     SkCanvas::PointMode fMode;
-    const char* fName;
 
     BlitMaskBench(SkCanvas::PointMode mode,
                   BlitMaskBench::kMaskType type, const char* name) :
@@ -262,10 +265,12 @@ protected:
            }
         }
     }
-    const char* onGetName() override { return fName; }
+    const char* onGetName() override { return fName.c_str(); }
+
 private:
     typedef RectBench INHERITED;
     kMaskType _type;
+    SkString fName;
 };
 
 DEF_BENCH(return new RectBench(1);)

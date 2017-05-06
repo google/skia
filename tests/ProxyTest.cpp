@@ -114,16 +114,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
     const GrGpuResource::UniqueID kInvalidResourceID = GrGpuResource::UniqueID::InvalidID();
 
+    int attempt = 0; // useful for debugging
+
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
-        for (auto widthHeight : { 100, 128 }) {
-            for (auto config : { kAlpha_8_GrPixelConfig, kRGBA_8888_GrPixelConfig }) {
+        for (auto widthHeight : { 100, 128, 1048576 }) {
+            for (auto config : { kAlpha_8_GrPixelConfig, kRGB_565_GrPixelConfig,
+                                 kETC1_GrPixelConfig, kRGBA_8888_GrPixelConfig }) {
                 for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
                     for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
-                        for (auto numSamples : { 0, 4}) {
-                            bool renderable = ctxInfo.grContext()->caps()->isConfigRenderable(
-                                                                      config, numSamples > 0) &&
-                                  numSamples <= ctxInfo.grContext()->caps()->maxColorSampleCount();
-
+                        for (auto numSamples : { 0, 4, 16, 128 }) {
                             GrSurfaceDesc desc;
                             desc.fFlags = kRenderTarget_GrSurfaceFlag;
                             desc.fOrigin = origin;
@@ -132,43 +131,71 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             desc.fConfig = config;
                             desc.fSampleCnt = numSamples;
 
-                            if (renderable) {
-                                sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(
-                                                                                caps, desc, 
-                                                                                fit, budgeted));
-                                // This forces the proxy to compute and cache its pre-instantiation
-                                // size guess. Later, when it is actually instantiated, it checks
-                                // that the instantiated size is <= to the pre-computation. 
-                                // If the proxy never computed its pre-instantiation size then the
-                                // check is skipped.
-                                sProxy->gpuMemorySize();
+                            {
+                                sk_sp<GrTexture> tex;
+                                if (SkBackingFit::kApprox == fit) {
+                                    tex.reset(provider->createApproxTexture(desc));
+                                } else {
+                                    tex.reset(provider->createTexture(desc, budgeted));
+                                }
 
-                                check_surface(reporter, sProxy.get(), origin,
-                                              widthHeight, widthHeight, config,
-                                              kInvalidResourceID, budgeted);
-                                check_rendertarget(reporter, caps, provider,
-                                                   sProxy->asRenderTargetProxy(), numSamples,
-                                                   fit, caps.maxWindowRectangles(), false);
+                                sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(
+                                                                                provider,
+                                                                                caps, desc,
+                                                                                fit, budgeted));
+                                REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(sProxy));
+                                if (sProxy) {
+                                    REPORTER_ASSERT(reporter, sProxy->asRenderTargetProxy());
+                                    // This forces the proxy to compute and cache its
+                                    // pre-instantiation size guess. Later, when it is actually
+                                    // instantiated, it checks that the instantiated size is <= to
+                                    // the pre-computation. If the proxy never computed its
+                                    // pre-instantiation size then the check is skipped.
+                                    sProxy->gpuMemorySize();
+
+                                    check_surface(reporter, sProxy.get(), origin,
+                                                  widthHeight, widthHeight, config,
+                                                  kInvalidResourceID, budgeted);
+                                    check_rendertarget(reporter, caps, provider,
+                                                       sProxy->asRenderTargetProxy(),
+                                                       SkTMin(numSamples, caps.maxSampleCount()),
+                                                       fit, caps.maxWindowRectangles(), false);
+                                }
                             }
 
                             desc.fFlags = kNone_GrSurfaceFlags;
-                            desc.fSampleCnt = 0;
 
-                            sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(caps,
-                                                                                      desc,
-                                                                                      fit,
-                                                                                      budgeted));
-                            // This forces the proxy to compute and cache its pre-instantiation
-                            // size guess. Later, when it is actually instantiated, it checks
-                            // that the instantiated size is <= to the pre-computation. 
-                            // If the proxy never computed its pre-instantiation size then the
-                            // check is skipped.
-                            sProxy->gpuMemorySize();
+                            {
+                                sk_sp<GrTexture> tex;
+                                if (SkBackingFit::kApprox == fit) {
+                                    tex.reset(provider->createApproxTexture(desc));
+                                } else {
+                                    tex.reset(provider->createTexture(desc, budgeted));
+                                }
 
-                            check_surface(reporter, sProxy.get(), origin,
-                                          widthHeight, widthHeight, config,
-                                          kInvalidResourceID, budgeted);
-                            check_texture(reporter, provider, sProxy->asTextureProxy(), fit, false);
+                                sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(provider,
+                                                                                          caps,
+                                                                                          desc,
+                                                                                          fit,
+                                                                                          budgeted));
+                                REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(sProxy));
+                                if (sProxy) {
+                                    // This forces the proxy to compute and cache its pre-instantiation
+                                    // size guess. Later, when it is actually instantiated, it checks
+                                    // that the instantiated size is <= to the pre-computation.
+                                    // If the proxy never computed its pre-instantiation size then the
+                                    // check is skipped.
+                                    sProxy->gpuMemorySize();
+
+                                    check_surface(reporter, sProxy.get(), origin,
+                                                  widthHeight, widthHeight, config,
+                                                  kInvalidResourceID, budgeted);
+                                    check_texture(reporter, provider, sProxy->asTextureProxy(),
+                                                  fit, false);
+                                }
+                            }
+
+                            attempt++;
                         }
                     }
                 }

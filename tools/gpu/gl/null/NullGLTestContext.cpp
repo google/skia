@@ -29,7 +29,10 @@ private:
 }  // anonymous namespace
 
 namespace sk_gpu_test {
-GLTestContext* CreateNullGLTestContext(bool enableNVPR) {
+GLTestContext* CreateNullGLTestContext(bool enableNVPR, GLTestContext* shareContext) {
+    if (shareContext) {
+        return nullptr;
+    }
     GLTestContext* ctx = new NullGLContext(enableNVPR);
     if (ctx->isValid()) {
         return ctx;

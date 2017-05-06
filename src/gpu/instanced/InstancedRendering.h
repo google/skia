@@ -109,18 +109,19 @@ protected:
 
         SkString dumpInfo() const override {
             SkString string;
-            string.printf("AA: %d, ShapeTypes: 0x%02x, IShapeTypes: 0x%02x, Persp %d, "
-                          "NonSquare: %d, PLoad: %0.2f, Tracked: %d, NumDraws: %d, "
-                          "GeomChanges: %d\n",
-                          (int)fInfo.fAntialiasMode,
-                          fInfo.fShapeTypes,
-                          fInfo.fInnerShapeTypes,
-                          fInfo.fHasPerspective,
-                          fInfo.fNonSquare,
-                          fPixelLoad,
-                          fIsTracked,
-                          fNumDraws,
-                          fNumChangesInGeometry);
+            string.printf(
+                    "AA: %d, ShapeTypes: 0x%02x, IShapeTypes: 0x%02x, Persp %d, "
+                    "NonSquare: %d, PLoad: %0.2f, Tracked: %d, NumDraws: %d, "
+                    "GeomChanges: %d\n",
+                    (unsigned)fInfo.fAAType,
+                    fInfo.fShapeTypes,
+                    fInfo.fInnerShapeTypes,
+                    fInfo.fHasPerspective,
+                    fInfo.fNonSquare,
+                    fPixelLoad,
+                    fIsTracked,
+                    fNumDraws,
+                    fNumChangesInGeometry);
             string.append(DumpPipelineInfo(*this->pipeline()));
             string.append(INHERITED::dumpInfo());
             return string;
@@ -154,7 +155,8 @@ protected:
         Draw* fTailDraw;
 
     private:
-        void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override;
+        void getFragmentProcessorAnalysisInputs(
+                FragmentProcessorAnalysisInputs* input) const override;
         void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
         bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
         void onPrepare(GrOpFlushState*) override {}
@@ -191,7 +193,7 @@ private:
                                                           GrAAType*);
 
     bool selectAntialiasMode(const SkMatrix& viewMatrix, GrAA aa, const GrInstancedPipelineInfo&,
-                             GrAAType*, AntialiasMode*);
+                             GrAAType*);
 
     virtual std::unique_ptr<Op> makeOp() = 0;
 

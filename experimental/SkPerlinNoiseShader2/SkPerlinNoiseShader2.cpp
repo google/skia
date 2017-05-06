@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkDither.h"
 #include "SkPerlinNoiseShader2.h"
+
+#include "SkArenaAlloc.h"
+#include "SkDither.h"
 #include "SkColorFilter.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -17,8 +19,8 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrCoordTransform.h"
-#include "GrInvariantOutput.h"
 #include "SkGr.h"
+#include "SkGrPriv.h"
 #include "effects/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -31,34 +33,34 @@ static const int kBlockMask = kBlockSize - 1;
 static const int kPerlinNoise = 4096;
 static const int kRandMaximum = SK_MaxS32; // 2**31 - 1
 
-static uint8_t improved_noise_permutations[] = { 
-    151, 160, 137,  91,  90,  15, 131,  13, 201,  95,  96,  53, 194, 233,   7, 225, 140,  36, 103, 
-     30,  69, 142,   8,  99,  37, 240,  21,  10,  23, 190,   6, 148, 247, 120, 234,  75,   0,  26, 
-    197,  62,  94, 252, 219, 203, 117,  35,  11,  32,  57, 177,  33,  88, 237, 149,  56,  87, 174, 
-     20, 125, 136, 171, 168,  68, 175,  74, 165,  71, 134, 139,  48,  27, 166,  77, 146, 158, 231, 
-     83, 111, 229, 122,  60, 211, 133, 230, 220, 105,  92,  41,  55,  46, 245,  40, 244, 102, 143, 
-     54,  65,  25,  63, 161,   1, 216,  80,  73, 209,  76, 132, 187, 208,  89,  18, 169, 200, 196, 
-    135, 130, 116, 188, 159,  86, 164, 100, 109, 198, 173, 186,   3,  64,  52, 217, 226, 250, 124, 
-    123,   5, 202,  38, 147, 118, 126, 255,  82,  85, 212, 207, 206,  59, 227,  47,  16,  58,  17, 
-    182, 189,  28,  42, 223, 183, 170, 213, 119, 248, 152,   2,  44, 154, 163,  70, 221, 153, 101, 
-    155, 167,  43, 172,   9, 129,  22,  39, 253,  19,  98, 108, 110,  79, 113, 224, 232, 178, 185, 
-    112, 104, 218, 246,  97, 228, 251,  34, 242, 193, 238, 210, 144,  12, 191, 179, 162, 241,  81, 
-     51, 145, 235, 249,  14, 239, 107,  49, 192, 214,  31, 181, 199, 106, 157, 184,  84, 204, 176, 
-    115, 121,  50,  45, 127,   4, 150, 254, 138, 236, 205,  93, 222, 114,  67,  29,  24,  72, 243, 
+static uint8_t improved_noise_permutations[] = {
+    151, 160, 137,  91,  90,  15, 131,  13, 201,  95,  96,  53, 194, 233,   7, 225, 140,  36, 103,
+     30,  69, 142,   8,  99,  37, 240,  21,  10,  23, 190,   6, 148, 247, 120, 234,  75,   0,  26,
+    197,  62,  94, 252, 219, 203, 117,  35,  11,  32,  57, 177,  33,  88, 237, 149,  56,  87, 174,
+     20, 125, 136, 171, 168,  68, 175,  74, 165,  71, 134, 139,  48,  27, 166,  77, 146, 158, 231,
+     83, 111, 229, 122,  60, 211, 133, 230, 220, 105,  92,  41,  55,  46, 245,  40, 244, 102, 143,
+     54,  65,  25,  63, 161,   1, 216,  80,  73, 209,  76, 132, 187, 208,  89,  18, 169, 200, 196,
+    135, 130, 116, 188, 159,  86, 164, 100, 109, 198, 173, 186,   3,  64,  52, 217, 226, 250, 124,
+    123,   5, 202,  38, 147, 118, 126, 255,  82,  85, 212, 207, 206,  59, 227,  47,  16,  58,  17,
+    182, 189,  28,  42, 223, 183, 170, 213, 119, 248, 152,   2,  44, 154, 163,  70, 221, 153, 101,
+    155, 167,  43, 172,   9, 129,  22,  39, 253,  19,  98, 108, 110,  79, 113, 224, 232, 178, 185,
+    112, 104, 218, 246,  97, 228, 251,  34, 242, 193, 238, 210, 144,  12, 191, 179, 162, 241,  81,
+     51, 145, 235, 249,  14, 239, 107,  49, 192, 214,  31, 181, 199, 106, 157, 184,  84, 204, 176,
+    115, 121,  50,  45, 127,   4, 150, 254, 138, 236, 205,  93, 222, 114,  67,  29,  24,  72, 243,
     141, 128, 195,  78,  66, 215,  61, 156, 180,
-    151, 160, 137,  91,  90,  15, 131,  13, 201,  95,  96,  53, 194, 233,   7, 225, 140,  36, 103, 
-     30,  69, 142,   8,  99,  37, 240,  21,  10,  23, 190,   6, 148, 247, 120, 234,  75,   0,  26, 
-    197,  62,  94, 252, 219, 203, 117,  35,  11,  32,  57, 177,  33,  88, 237, 149,  56,  87, 174, 
-     20, 125, 136, 171, 168,  68, 175,  74, 165,  71, 134, 139,  48,  27, 166,  77, 146, 158, 231, 
-     83, 111, 229, 122,  60, 211, 133, 230, 220, 105,  92,  41,  55,  46, 245,  40, 244, 102, 143, 
-     54,  65,  25,  63, 161,   1, 216,  80,  73, 209,  76, 132, 187, 208,  89,  18, 169, 200, 196, 
-    135, 130, 116, 188, 159,  86, 164, 100, 109, 198, 173, 186,   3,  64,  52, 217, 226, 250, 124, 
-    123,   5, 202,  38, 147, 118, 126, 255,  82,  85, 212, 207, 206,  59, 227,  47,  16,  58,  17, 
-    182, 189,  28,  42, 223, 183, 170, 213, 119, 248, 152,   2,  44, 154, 163,  70, 221, 153, 101, 
-    155, 167,  43, 172,   9, 129,  22,  39, 253,  19,  98, 108, 110,  79, 113, 224, 232, 178, 185, 
-    112, 104, 218, 246,  97, 228, 251,  34, 242, 193, 238, 210, 144,  12, 191, 179, 162, 241,  81, 
-     51, 145, 235, 249,  14, 239, 107,  49, 192, 214,  31, 181, 199, 106, 157, 184,  84, 204, 176, 
-    115, 121,  50,  45, 127,   4, 150, 254, 138, 236, 205,  93, 222, 114,  67,  29,  24,  72, 243, 
+    151, 160, 137,  91,  90,  15, 131,  13, 201,  95,  96,  53, 194, 233,   7, 225, 140,  36, 103,
+     30,  69, 142,   8,  99,  37, 240,  21,  10,  23, 190,   6, 148, 247, 120, 234,  75,   0,  26,
+    197,  62,  94, 252, 219, 203, 117,  35,  11,  32,  57, 177,  33,  88, 237, 149,  56,  87, 174,
+     20, 125, 136, 171, 168,  68, 175,  74, 165,  71, 134, 139,  48,  27, 166,  77, 146, 158, 231,
+     83, 111, 229, 122,  60, 211, 133, 230, 220, 105,  92,  41,  55,  46, 245,  40, 244, 102, 143,
+     54,  65,  25,  63, 161,   1, 216,  80,  73, 209,  76, 132, 187, 208,  89,  18, 169, 200, 196,
+    135, 130, 116, 188, 159,  86, 164, 100, 109, 198, 173, 186,   3,  64,  52, 217, 226, 250, 124,
+    123,   5, 202,  38, 147, 118, 126, 255,  82,  85, 212, 207, 206,  59, 227,  47,  16,  58,  17,
+    182, 189,  28,  42, 223, 183, 170, 213, 119, 248, 152,   2,  44, 154, 163,  70, 221, 153, 101,
+    155, 167,  43, 172,   9, 129,  22,  39, 253,  19,  98, 108, 110,  79, 113, 224, 232, 178, 185,
+    112, 104, 218, 246,  97, 228, 251,  34, 242, 193, 238, 210, 144,  12, 191, 179, 162, 241,  81,
+     51, 145, 235, 249,  14, 239, 107,  49, 192, 214,  31, 181, 199, 106, 157, 184,  84, 204, 176,
+    115, 121,  50,  45, 127,   4, 150, 254, 138, 236, 205,  93, 222, 114,  67,  29,  24,  72, 243,
     141, 128, 195,  78,  66, 215,  61, 156, 180
 };
 
@@ -78,10 +80,7 @@ inline int checkNoise(int noiseValue, int limitValue, int newValue) {
 }
 
 inline SkScalar smoothCurve(SkScalar t) {
-    static const SkScalar SK_Scalar3 = 3.0f;
-
-    // returns t * t * (3 - 2 * t)
-    return SkScalarMul(SkScalarSquare(t), SK_Scalar3 - 2 * t);
+    return t * t * (3 - 2 * t);
 }
 
 } // end namespace
@@ -137,20 +136,20 @@ struct SkPerlinNoiseShader2::PaintingData {
 
         fGradientBitmap.setInfo(SkImageInfo::MakeN32Premul(16, 1));
         static uint8_t gradients[] = { 2, 2, 1, 0,
-                                       0, 2, 1, 0, 
-                                       2, 0, 1, 0, 
-                                       0, 0, 1, 0, 
-                                       2, 1, 2, 0, 
-                                       0, 1, 2, 0, 
-                                       2, 1, 0, 0, 
-                                       0, 1, 0, 0, 
-                                       1, 2, 2, 0, 
-                                       1, 0, 2, 0, 
-                                       1, 2, 0, 0, 
-                                       1, 0, 0, 0, 
-                                       2, 2, 1, 0, 
-                                       1, 0, 2, 0, 
-                                       0, 2, 1, 0, 
+                                       0, 2, 1, 0,
+                                       2, 0, 1, 0,
+                                       0, 0, 1, 0,
+                                       2, 1, 2, 0,
+                                       0, 1, 2, 0,
+                                       2, 1, 0, 0,
+                                       0, 1, 0, 0,
+                                       1, 2, 2, 0,
+                                       1, 0, 2, 0,
+                                       1, 2, 0, 0,
+                                       1, 0, 0, 0,
+                                       2, 2, 1, 0,
+                                       1, 0, 2, 0,
+                                       0, 2, 1, 0,
                                        1, 0, 0, 0 };
         fGradientBitmap.setPixels(gradients);
 #endif
@@ -243,16 +242,14 @@ private:
         for (int channel = 0; channel < 4; ++channel) {
             for (int i = 0; i < kBlockSize; ++i) {
                 fGradient[channel][i] = SkPoint::Make(
-                    SkScalarMul(SkIntToScalar(fNoise[channel][i][0] - kBlockSize),
-                                gInvBlockSizef),
-                    SkScalarMul(SkIntToScalar(fNoise[channel][i][1] - kBlockSize),
-                                gInvBlockSizef));
+                    (fNoise[channel][i][0] - kBlockSize) * gInvBlockSizef,
+                    (fNoise[channel][i][1] - kBlockSize) * gInvBlockSizef);
                 fGradient[channel][i].normalize();
                 // Put the normalized gradient back into the noise data
-                fNoise[channel][i][0] = SkScalarRoundToInt(SkScalarMul(
-                    fGradient[channel][i].fX + SK_Scalar1, gHalfMax16bits));
-                fNoise[channel][i][1] = SkScalarRoundToInt(SkScalarMul(
-                    fGradient[channel][i].fY + SK_Scalar1, gHalfMax16bits));
+                fNoise[channel][i][0] = SkScalarRoundToInt(
+                                               (fGradient[channel][i].fX + 1) * gHalfMax16bits);
+                fNoise[channel][i][1] = SkScalarRoundToInt(
+                                               (fGradient[channel][i].fY + 1) * gHalfMax16bits);
             }
         }
     }
@@ -450,8 +447,8 @@ SkScalar SkPerlinNoiseShader2::PerlinNoiseShaderContext::calculateTurbulenceValu
         stitchData = fPaintingData->fStitchDataInit;
     }
     SkScalar turbulenceFunctionResult = 0;
-    SkPoint noiseVector(SkPoint::Make(SkScalarMul(point.x(), fPaintingData->fBaseFrequency.fX),
-                                      SkScalarMul(point.y(), fPaintingData->fBaseFrequency.fY)));
+    SkPoint noiseVector(SkPoint::Make(point.x() * fPaintingData->fBaseFrequency.fX,
+                                      point.y() * fPaintingData->fBaseFrequency.fY));
     SkScalar ratio = SK_Scalar1;
     for (int octave = 0; octave < perlinNoiseShader.fNumOctaves; ++octave) {
         SkScalar noise = noise2D(channel, stitchData, noiseVector);
@@ -473,8 +470,7 @@ SkScalar SkPerlinNoiseShader2::PerlinNoiseShaderContext::calculateTurbulenceValu
     // The value of turbulenceFunctionResult comes from ((turbulenceFunctionResult) + 1) / 2
     // by fractalNoise and (turbulenceFunctionResult) by turbulence.
     if (perlinNoiseShader.fType == kFractalNoise_Type) {
-        turbulenceFunctionResult =
-            SkScalarMul(turbulenceFunctionResult, SK_ScalarHalf) + SK_ScalarHalf;
+        turbulenceFunctionResult = SkScalarHalf(turbulenceFunctionResult + 1);
     }
 
     if (channel == 3) { // Scale alpha by paint value
@@ -487,12 +483,12 @@ SkScalar SkPerlinNoiseShader2::PerlinNoiseShaderContext::calculateTurbulenceValu
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Improved Perlin Noise based on Java implementation found at http://mrl.nyu.edu/~perlin/noise/
-static SkScalar fade(SkScalar t) { 
-    return t * t * t * (t * (t * 6 - 15) + 10); 
+static SkScalar fade(SkScalar t) {
+    return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
-static SkScalar lerp(SkScalar t, SkScalar a, SkScalar b) { 
-    return a + t * (b - a); 
+static SkScalar lerp(SkScalar t, SkScalar a, SkScalar b) {
+    return a + t * (b - a);
 }
 
 static SkScalar grad(int hash, SkScalar x, SkScalar y, SkScalar z) {
@@ -569,13 +565,9 @@ SkPMColor SkPerlinNoiseShader2::PerlinNoiseShaderContext::shade(
     return SkPreMultiplyARGB(rgba[3], rgba[0], rgba[1], rgba[2]);
 }
 
-SkShader::Context* SkPerlinNoiseShader2::onCreateContext(const ContextRec& rec,
-                                                        void* storage) const {
-    return new (storage) PerlinNoiseShaderContext(*this, rec);
-}
-
-size_t SkPerlinNoiseShader2::onContextSize(const ContextRec&) const {
-    return sizeof(PerlinNoiseShaderContext);
+SkShader::Context* SkPerlinNoiseShader2::onMakeContext(const ContextRec& rec,
+                                                       SkArenaAlloc* alloc) const {
+    return alloc->make<PerlinNoiseShaderContext>(*this, rec);
 }
 
 SkPerlinNoiseShader2::PerlinNoiseShaderContext::PerlinNoiseShaderContext(
@@ -630,14 +622,16 @@ private:
 
 class GrPerlinNoise2Effect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(SkPerlinNoiseShader2::Type type,
+    static sk_sp<GrFragmentProcessor> Make(GrTextureProvider* textureProvider,
+                                           SkPerlinNoiseShader2::Type type,
                                            int numOctaves, bool stitchTiles,
                                            SkPerlinNoiseShader2::PaintingData* paintingData,
-                                           GrTexture* permutationsTexture, GrTexture* noiseTexture,
+                                           sk_sp<GrTextureProxy> permutationsProxy,
+                                           sk_sp<GrTextureProxy> noiseProxy,
                                            const SkMatrix& matrix) {
         return sk_sp<GrFragmentProcessor>(
-            new GrPerlinNoise2Effect(type, numOctaves, stitchTiles, paintingData,
-                                     permutationsTexture, noiseTexture, matrix));
+            new GrPerlinNoise2Effect(textureProvider, type, numOctaves, stitchTiles, paintingData,
+                                     std::move(permutationsProxy), std::move(noiseProxy), matrix));
     }
 
     virtual ~GrPerlinNoise2Effect() { delete fPaintingData; }
@@ -671,21 +665,19 @@ private:
                fPaintingData->fStitchDataInit == s.fPaintingData->fStitchDataInit;
     }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown(GrInvariantOutput::kWillNot_ReadInput);
-    }
-
-    GrPerlinNoise2Effect(SkPerlinNoiseShader2::Type type,
-                        int numOctaves, bool stitchTiles,
-                        SkPerlinNoiseShader2::PaintingData* paintingData,
-                        GrTexture* permutationsTexture, GrTexture* noiseTexture,
-                        const SkMatrix& matrix)
-      : fType(type)
-      , fNumOctaves(numOctaves)
-      , fStitchTiles(stitchTiles)
-      , fPermutationsSampler(permutationsTexture)
-      , fNoiseSampler(noiseTexture)
-      , fPaintingData(paintingData) {
+    GrPerlinNoise2Effect(GrTextureProvider* textureProvider,
+                         SkPerlinNoiseShader2::Type type, int numOctaves, bool stitchTiles,
+                         SkPerlinNoiseShader2::PaintingData* paintingData,
+                         sk_sp<GrTextureProxy> permutationsProxy,
+                         sk_sp<GrTextureProxy> noiseProxy,
+                         const SkMatrix& matrix)
+            : INHERITED(kNone_OptimizationFlags)
+            , fType(type)
+            , fNumOctaves(numOctaves)
+            , fStitchTiles(stitchTiles)
+            , fPermutationsSampler(textureProvider, std::move(permutationsProxy))
+            , fNoiseSampler(textureProvider, std::move(noiseProxy))
+            , fPaintingData(paintingData) {
         this->initClassID<GrPerlinNoise2Effect>();
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fNoiseSampler);
@@ -703,13 +695,13 @@ private:
     TextureSampler                      fNoiseSampler;
     SkPerlinNoiseShader2::PaintingData* fPaintingData;
 
-private:
     typedef GrFragmentProcessor INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrPerlinNoise2Effect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcessorTestData* d) {
     int      numOctaves = d->fRandom->nextRangeU(2, 10);
     bool     stitchTiles = d->fRandom->nextBool();
@@ -730,6 +722,7 @@ sk_sp<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcessorTestData*
     GrTest::TestAsFPArgs asFPArgs(d);
     return shader->asFragmentProcessor(asFPArgs.args());
 }
+#endif
 
 void GrGLPerlinNoise2::emitCode(EmitArgs& args) {
     const GrPerlinNoise2Effect& pne = args.fFp.cast<GrPerlinNoise2Effect>();
@@ -1083,19 +1076,16 @@ private:
                fPaintingData->fBaseFrequency == s.fPaintingData->fBaseFrequency;
     }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown(GrInvariantOutput::kWillNot_ReadInput);
-    }
-
-    GrImprovedPerlinNoiseEffect(int octaves, SkScalar z, 
+    GrImprovedPerlinNoiseEffect(int octaves, SkScalar z,
                                 SkPerlinNoiseShader2::PaintingData* paintingData,
                                 GrTexture* permutationsTexture, GrTexture* gradientTexture,
                                 const SkMatrix& matrix)
-      : fOctaves(octaves)
-      , fZ(z)
-      , fPermutationsSampler(permutationsTexture)
-      , fGradientSampler(gradientTexture)
-      , fPaintingData(paintingData) {
+            : INHERITED(kNone_OptimizationFlags)
+            , fOctaves(octaves)
+            , fZ(z)
+            , fPermutationsSampler(permutationsTexture)
+            , fGradientSampler(gradientTexture)
+            , fPaintingData(paintingData) {
         this->initClassID<GrImprovedPerlinNoiseEffect>();
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fGradientSampler);
@@ -1112,13 +1102,13 @@ private:
     TextureSampler                      fGradientSampler;
     SkPerlinNoiseShader2::PaintingData* fPaintingData;
 
-private:
     typedef GrFragmentProcessor INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrImprovedPerlinNoiseEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrImprovedPerlinNoiseEffect::TestCreate(GrProcessorTestData* d) {
     SkScalar baseFrequencyX = d->fRandom->nextRangeScalar(0.01f,
                                                           0.99f);
@@ -1135,6 +1125,7 @@ sk_sp<GrFragmentProcessor> GrImprovedPerlinNoiseEffect::TestCreate(GrProcessorTe
     GrTest::TestAsFPArgs asFPArgs(d);
     return shader->asFragmentProcessor(asFPArgs.args());
 }
+#endif
 
 void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     GrGLSLFragmentBuilder* fsBuilder = args.fFragBuilder;
@@ -1162,8 +1153,8 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     };
     SkString fadeFuncName;
     fsBuilder->emitFunction(kVec3f_GrSLType, "fade", SK_ARRAY_COUNT(fadeArgs),
-                            fadeArgs, 
-                            "return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);", 
+                            fadeArgs,
+                            "return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);",
                             &fadeFuncName);
 
     // perm function
@@ -1172,12 +1163,12 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     };
     SkString permFuncName;
     SkString permCode("return ");
-    // FIXME even though I'm creating these textures with kRepeat_TileMode, they're clamped. Not 
+    // FIXME even though I'm creating these textures with kRepeat_TileMode, they're clamped. Not
     // sure why. Using fract() (here and the next texture lookup) as a workaround.
     fsBuilder->appendTextureLookup(&permCode, args.fTexSamplers[0], "vec2(fract(x / 256.0), 0.0)",
                                    kVec2f_GrSLType);
     permCode.append(".r * 255.0;");
-    fsBuilder->emitFunction(kFloat_GrSLType, "perm", SK_ARRAY_COUNT(permArgs), permArgs, 
+    fsBuilder->emitFunction(kFloat_GrSLType, "perm", SK_ARRAY_COUNT(permArgs), permArgs,
                             permCode.c_str(), &permFuncName);
 
     // grad function
@@ -1190,7 +1181,7 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     fsBuilder->appendTextureLookup(&gradCode, args.fTexSamplers[1], "vec2(fract(x / 16.0), 0.0)",
                                    kVec2f_GrSLType);
     gradCode.append(".rgb * 255.0 - vec3(1.0), p);");
-    fsBuilder->emitFunction(kFloat_GrSLType, "grad", SK_ARRAY_COUNT(gradArgs), gradArgs, 
+    fsBuilder->emitFunction(kFloat_GrSLType, "grad", SK_ARRAY_COUNT(gradArgs), gradArgs,
                             gradCode.c_str(), &gradFuncName);
 
     // lerp function
@@ -1200,7 +1191,7 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
         GrShaderVar("w", kFloat_GrSLType)
     };
     SkString lerpFuncName;
-    fsBuilder->emitFunction(kFloat_GrSLType, "lerp", SK_ARRAY_COUNT(lerpArgs), lerpArgs, 
+    fsBuilder->emitFunction(kFloat_GrSLType, "lerp", SK_ARRAY_COUNT(lerpArgs), lerpArgs,
                             "return a + w * (b - a);", &lerpFuncName);
 
     // noise function
@@ -1219,27 +1210,27 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     noiseCode.appendf("float BA = %s(B) + P.z;", permFuncName.c_str());
     noiseCode.appendf("float BB = %s(B + 1.0) + P.z;", permFuncName.c_str());
     noiseCode.appendf("float result = %s(", lerpFuncName.c_str());
-    noiseCode.appendf("%s(%s(%s(%s(AA), p),", lerpFuncName.c_str(), lerpFuncName.c_str(), 
+    noiseCode.appendf("%s(%s(%s(%s(AA), p),", lerpFuncName.c_str(), lerpFuncName.c_str(),
                       gradFuncName.c_str(), permFuncName.c_str());
-    noiseCode.appendf("%s(%s(BA), p + vec3(-1.0, 0.0, 0.0)), f.x),", gradFuncName.c_str(), 
+    noiseCode.appendf("%s(%s(BA), p + vec3(-1.0, 0.0, 0.0)), f.x),", gradFuncName.c_str(),
                       permFuncName.c_str());
-    noiseCode.appendf("%s(%s(%s(AB), p + vec3(0.0, -1.0, 0.0)),", lerpFuncName.c_str(), 
+    noiseCode.appendf("%s(%s(%s(AB), p + vec3(0.0, -1.0, 0.0)),", lerpFuncName.c_str(),
                       gradFuncName.c_str(), permFuncName.c_str());
-    noiseCode.appendf("%s(%s(BB), p + vec3(-1.0, -1.0, 0.0)), f.x), f.y),", 
+    noiseCode.appendf("%s(%s(BB), p + vec3(-1.0, -1.0, 0.0)), f.x), f.y),",
                       gradFuncName.c_str(), permFuncName.c_str());
-    noiseCode.appendf("%s(%s(%s(%s(AA + 1.0), p + vec3(0.0, 0.0, -1.0)),", 
-                      lerpFuncName.c_str(), lerpFuncName.c_str(), gradFuncName.c_str(), 
+    noiseCode.appendf("%s(%s(%s(%s(AA + 1.0), p + vec3(0.0, 0.0, -1.0)),",
+                      lerpFuncName.c_str(), lerpFuncName.c_str(), gradFuncName.c_str(),
                       permFuncName.c_str());
-    noiseCode.appendf("%s(%s(BA + 1.0), p + vec3(-1.0, 0.0, -1.0)), f.x),", 
+    noiseCode.appendf("%s(%s(BA + 1.0), p + vec3(-1.0, 0.0, -1.0)), f.x),",
                       gradFuncName.c_str(), permFuncName.c_str());
     noiseCode.appendf("%s(%s(%s(AB + 1.0), p + vec3(0.0, -1.0, -1.0)),",
                       lerpFuncName.c_str(), gradFuncName.c_str(), permFuncName.c_str());
-    noiseCode.appendf("%s(%s(BB + 1.0), p + vec3(-1.0, -1.0, -1.0)), f.x), f.y), f.z);", 
+    noiseCode.appendf("%s(%s(BB + 1.0), p + vec3(-1.0, -1.0, -1.0)), f.x), f.y), f.z);",
                       gradFuncName.c_str(), permFuncName.c_str());
     noiseCode.append("return result;");
-    fsBuilder->emitFunction(kFloat_GrSLType, "noise", SK_ARRAY_COUNT(noiseArgs), noiseArgs, 
+    fsBuilder->emitFunction(kFloat_GrSLType, "noise", SK_ARRAY_COUNT(noiseArgs), noiseArgs,
                             noiseCode.c_str(), &noiseFuncName);
-    
+
     // noiseOctaves function
     static const GrShaderVar noiseOctavesArgs[] =  {
         GrShaderVar("p", kVec3f_GrSLType),
@@ -1255,17 +1246,17 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     noiseOctavesCode.append("ratio *= 2.0;");
     noiseOctavesCode.append("}");
     noiseOctavesCode.append("return (result + 1.0) / 2.0;");
-    fsBuilder->emitFunction(kFloat_GrSLType, "noiseOctaves", SK_ARRAY_COUNT(noiseOctavesArgs), 
+    fsBuilder->emitFunction(kFloat_GrSLType, "noiseOctaves", SK_ARRAY_COUNT(noiseOctavesArgs),
                             noiseOctavesArgs, noiseOctavesCode.c_str(), &noiseOctavesFuncName);
 
     fsBuilder->codeAppendf("vec2 coords = %s * %s;", vCoords.c_str(), baseFrequencyUni);
-    fsBuilder->codeAppendf("float r = %s(vec3(coords, %s), %s);", noiseOctavesFuncName.c_str(), 
+    fsBuilder->codeAppendf("float r = %s(vec3(coords, %s), %s);", noiseOctavesFuncName.c_str(),
                            zUni, octavesUni);
-    fsBuilder->codeAppendf("float g = %s(vec3(coords, %s + 0000.0), %s);", 
+    fsBuilder->codeAppendf("float g = %s(vec3(coords, %s + 0000.0), %s);",
                            noiseOctavesFuncName.c_str(), zUni, octavesUni);
-    fsBuilder->codeAppendf("float b = %s(vec3(coords, %s + 0000.0), %s);", 
+    fsBuilder->codeAppendf("float b = %s(vec3(coords, %s + 0000.0), %s);",
                            noiseOctavesFuncName.c_str(), zUni, octavesUni);
-    fsBuilder->codeAppendf("float a = %s(vec3(coords, %s + 0000.0), %s);", 
+    fsBuilder->codeAppendf("float a = %s(vec3(coords, %s + 0000.0), %s);",
                            noiseOctavesFuncName.c_str(), zUni, octavesUni);
     fsBuilder->codeAppendf("%s = vec4(r, g, b, a);", args.fOutputColor);
 
@@ -1323,10 +1314,10 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
                                       GrSamplerParams::FilterMode::kNone_FilterMode);
         sk_sp<GrTexture> permutationsTexture(
             GrRefCachedBitmapTexture(args.fContext, paintingData->getImprovedPermutationsBitmap(),
-                                     textureParams));
+                                     textureParams, nullptr));
         sk_sp<GrTexture> gradientTexture(
             GrRefCachedBitmapTexture(args.fContext, paintingData->getGradientBitmap(),
-                                     textureParams));
+                                     textureParams, nullptr));
         return GrImprovedPerlinNoiseEffect::Make(fNumOctaves, fSeed, paintingData,
                                                  permutationsTexture.get(),
                                                  gradientTexture.get(), m);
@@ -1348,20 +1339,21 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
                                            GrConstColorProcessor::kIgnore_InputMode);
     }
 
-    sk_sp<GrTexture> permutationsTexture(
-        GrRefCachedBitmapTexture(args.fContext, paintingData->getPermutationsBitmap(),
-                                 GrSamplerParams::ClampNoFilter()));
-    sk_sp<GrTexture> noiseTexture(
-        GrRefCachedBitmapTexture(args.fContext, paintingData->getNoiseBitmap(),
-                                 GrSamplerParams::ClampNoFilter()));
+    sk_sp<GrTextureProxy> permutationsProxy = GrMakeCachedBitmapProxy(
+                                                         args.fContext,
+                                                         paintingData->getPermutationsBitmap());
+    sk_sp<GrTextureProxy> noiseProxy = GrMakeCachedBitmapProxy(args.fContext,
+                                                               paintingData->getNoiseBitmap());
 
-    if ((permutationsTexture) && (noiseTexture)) {
+    if (permutationsProxy && noiseProxy) {
         sk_sp<GrFragmentProcessor> inner(
-            GrPerlinNoise2Effect::Make(fType,
+            GrPerlinNoise2Effect::Make(args.fContext->textureProvider(),
+                                       fType,
                                        fNumOctaves,
                                        fStitchTiles,
                                        paintingData,
-                                       permutationsTexture.get(), noiseTexture.get(),
+                                       std::move(permutationsProxy),
+                                       std::move(noiseProxy),
                                        m));
         return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
     }

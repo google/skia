@@ -10,10 +10,10 @@ DEPS = [
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
-  'skia-recipes/core',
-  'skia-recipes/infra',
-  'skia-recipes/run',
-  'skia-recipes/vars',
+  'core',
+  'infra',
+  'run',
+  'vars',
 ]
 
 
@@ -23,12 +23,11 @@ def RunSteps(api):
   api.infra.update_go_deps()
 
   # Run the infra tests.
-  infra_tests = api.vars.skia_dir.join(
-      'infra', 'bots', 'infra_tests.py')
-  api.step('infra_tests',
-           cmd=['python', infra_tests],
-           cwd=api.vars.skia_dir,
-           env=api.infra.go_env)
+  infra_tests = api.vars.skia_dir.join('infra', 'bots', 'infra_tests.py')
+  with api.step.context({'cwd': api.vars.skia_dir}):
+    api.step('infra_tests',
+             cmd=['python', infra_tests],
+             env=api.infra.go_env)
 
 
 def GenTests(api):

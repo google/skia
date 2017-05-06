@@ -9,7 +9,6 @@
 #define GrMatrixConvolutionEffect_DEFINED
 
 #include "GrSingleTextureEffect.h"
-#include "GrInvariantOutput.h"
 #include "GrTextureDomain.h"
 
 // A little bit less than the minimum # uniforms required by DX9SM2 (32).
@@ -18,7 +17,8 @@
 
 class GrMatrixConvolutionEffect : public GrSingleTextureEffect {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrTexture* texture,
+    static sk_sp<GrFragmentProcessor> Make(GrContext* context,
+                                           sk_sp<GrTextureProxy> proxy,
                                            const SkIRect& bounds,
                                            const SkISize& kernelSize,
                                            const SkScalar* kernel,
@@ -28,11 +28,12 @@ public:
                                            GrTextureDomain::Mode tileMode,
                                            bool convolveAlpha) {
         return sk_sp<GrFragmentProcessor>(
-            new GrMatrixConvolutionEffect(texture, bounds, kernelSize, kernel, gain, bias,
-                                          kernelOffset, tileMode, convolveAlpha));
+            new GrMatrixConvolutionEffect(context, std::move(proxy), bounds, kernelSize, kernel,
+                                          gain, bias, kernelOffset, tileMode, convolveAlpha));
     }
 
-    static sk_sp<GrFragmentProcessor> MakeGaussian(GrTexture* texture,
+    static sk_sp<GrFragmentProcessor> MakeGaussian(GrContext* context,
+                                                   sk_sp<GrTextureProxy> proxy,
                                                    const SkIRect& bounds,
                                                    const SkISize& kernelSize,
                                                    SkScalar gain,
@@ -55,7 +56,8 @@ public:
     const char* name() const override { return "MatrixConvolution"; }
 
 private:
-    GrMatrixConvolutionEffect(GrTexture*,
+    GrMatrixConvolutionEffect(GrContext*,
+                              sk_sp<GrTextureProxy> proxy,
                               const SkIRect& bounds,
                               const SkISize& kernelSize,
                               const SkScalar* kernel,
@@ -70,11 +72,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        // TODO: Try to do better?
-        inout->mulByUnknownFourComponents();
-    }
 
     SkIRect         fBounds;
     SkISize         fKernelSize;

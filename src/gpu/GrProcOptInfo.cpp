@@ -11,21 +11,22 @@
 
 void GrProcOptInfo::analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt) {
     for (int i = 0; i < cnt; ++i) {
-        const GrFragmentProcessor* processor = processors[i];
-        fInOut.resetWillUseInputColor();
-        processor->computeInvariantOutput(&fInOut);
-        SkDEBUGCODE(fInOut.validate());
-        if (!fInOut.willUseInputColor()) {
-            fFirstEffectiveProcessorIndex = i;
-            fInputColorIsUsed = false;
+        bool knowCurrentOutput = fProcessorsVisitedWithKnownOutput == fTotalProcessorsVisited;
+        if (!knowCurrentOutput && !fAllProcessorsCompatibleWithCoverageAsAlpha && !fIsOpaque) {
+            fTotalProcessorsVisited += cnt - i;
+            return;
         }
-        if (kRGBA_GrColorComponentFlags == fInOut.validFlags()) {
-            fFirstEffectiveProcessorIndex = i + 1;
-            fInputColor = fInOut.color();
-            fInputColorIsUsed = true;
-            // Since we are clearing all previous color stages we are in a state where we have found
-            // zero stages that don't multiply the inputColor.
-            fInOut.resetNonMulStageFound();
+        const GrFragmentProcessor* fp = processors[i];
+        if (knowCurrentOutput && fp->hasConstantOutputForConstantInput(fLastKnownOutputColor,
+                                                                      &fLastKnownOutputColor)) {
+            ++fProcessorsVisitedWithKnownOutput;
+            fIsOpaque = fLastKnownOutputColor.isOpaque();
+        } else if (fIsOpaque && !fp->preservesOpaqueInput()) {
+            fIsOpaque = false;
         }
+        if (fAllProcessorsCompatibleWithCoverageAsAlpha && !fp->compatibleWithCoverageAsAlpha()) {
+            fAllProcessorsCompatibleWithCoverageAsAlpha = false;
+        }
+        ++fTotalProcessorsVisited;
     }
 }

@@ -36,6 +36,9 @@ public:
     static sk_sp<GrFragmentProcessor> Make(GrTexture*, const GrSwizzle&, PMConversion,
                                            const SkMatrix&);
 
+    static sk_sp<GrFragmentProcessor> Make(GrContext*, sk_sp<GrTextureProxy>,
+                                           const GrSwizzle&, PMConversion, const SkMatrix&);
+
     const char* name() const override { return "Config Conversion"; }
 
     const GrSwizzle& swizzle() const { return fSwizzle; }
@@ -49,11 +52,10 @@ public:
     static void TestForPreservingPMConversions(GrContext* context,
                                                PMConversion* PMToUPMRule,
                                                PMConversion* UPMToPMRule);
-
 private:
-    GrConfigConversionEffect(GrTexture*,
-                             const GrSwizzle&,
-                             PMConversion pmConversion,
+    GrConfigConversionEffect(GrTexture*, const GrSwizzle&, PMConversion, const SkMatrix& matrix);
+
+    GrConfigConversionEffect(GrContext*, sk_sp<GrTextureProxy>, const GrSwizzle&, PMConversion,
                              const SkMatrix& matrix);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -61,8 +63,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     GrSwizzle       fSwizzle;
     PMConversion    fPMConversion;

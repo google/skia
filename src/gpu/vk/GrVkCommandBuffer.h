@@ -10,6 +10,7 @@
 
 #include "GrVkGpu.h"
 #include "GrVkResource.h"
+#include "GrVkSemaphore.h"
 #include "GrVkUtil.h"
 #include "vk/GrVkDefines.h"
 
@@ -210,7 +211,6 @@ public:
     // in the render pass.
     void beginRenderPass(const GrVkGpu* gpu,
                          const GrVkRenderPass* renderPass,
-                         uint32_t clearCount,
                          const VkClearValue* clearValues,
                          const GrVkRenderTarget& target,
                          const SkIRect& bounds,
@@ -299,7 +299,9 @@ public:
                       uint32_t regionCount,
                       const VkImageResolve* regions);
 
-    void submitToQueue(const GrVkGpu* gpu, VkQueue queue, GrVkGpu::SyncQueue sync);
+    void submitToQueue(const GrVkGpu* gpu, VkQueue queue, GrVkGpu::SyncQueue sync,
+                       const GrVkSemaphore::Resource* signalSemaphore,
+                       SkTArray<const GrVkSemaphore::Resource*>& waitSemaphores);
     bool finished(const GrVkGpu* gpu) const;
 
 #ifdef SK_TRACE_VK_RESOURCES

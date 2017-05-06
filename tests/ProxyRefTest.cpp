@@ -15,8 +15,6 @@
 #include "GrRenderTargetPriv.h"
 #include "GrRenderTargetProxy.h"
 
-static const int kWidthHeight = 128;
-
 int32_t GrIORefProxy::getProxyRefCnt_TestOnly() const {
     return fRefCnt;
 }
@@ -47,6 +45,10 @@ int32_t GrIORefProxy::getPendingWriteCnt_TestOnly() const {
     return fPendingWrites;
 }
 
+#ifndef SK_DISABLE_DEFERRED_PROXIES
+
+static const int kWidthHeight = 128;
+
 static void check_refs(skiatest::Reporter* reporter,
                        GrSurfaceProxy* proxy,
                        int32_t expectedProxyRefs,
@@ -71,7 +73,8 @@ static sk_sp<GrSurfaceProxy> make_deferred(const GrCaps& caps, GrTextureProvider
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return GrSurfaceProxy::MakeDeferred(caps, desc, SkBackingFit::kApprox, SkBudgeted::kYes);
+    return GrSurfaceProxy::MakeDeferred(provider, caps, desc,
+                                        SkBackingFit::kApprox, SkBudgeted::kYes);
 }
 
 static sk_sp<GrSurfaceProxy> make_wrapped(const GrCaps& caps, GrTextureProvider* provider) {
@@ -93,6 +96,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
     GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
     const GrCaps& caps = *ctxInfo.grContext()->caps();
 
+    // Currently the op itself takes a pending write and the render target op list does as well.
+    static const int kWritesForDiscard = 2;
     for (auto make : { make_deferred, make_wrapped }) {
         // A single write
         {
@@ -106,7 +111,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
             // extra ref and write
             bool proxyGetsDiscardRef = !sProxy->isWrapped_ForTesting() &&
                                        caps.discardRenderTargetSupport();
-            int expectedWrites = proxyGetsDiscardRef ? 2 : 1;
+            int expectedWrites = 1 + (proxyGetsDiscardRef ? kWritesForDiscard : 0);
 
             sProxy->instantiate(provider);
 
@@ -126,7 +131,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
             // extra ref and write
             bool proxyGetsDiscardRef = !sProxy->isWrapped_ForTesting() &&
                                        caps.discardRenderTargetSupport();
-            int expectedWrites = proxyGetsDiscardRef ? 1 : 0;
+            int expectedWrites = proxyGetsDiscardRef ? kWritesForDiscard : 0;
 
             sProxy->instantiate(provider);
 
@@ -146,7 +151,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
             // extra ref and write
             bool proxyGetsDiscardRef = !sProxy->isWrapped_ForTesting() &&
                                        caps.discardRenderTargetSupport();
-            int expectedWrites = proxyGetsDiscardRef ? 2 : 1;
+            int expectedWrites = 1 + (proxyGetsDiscardRef ? kWritesForDiscard : 0);
 
             sProxy->instantiate(provider);
 
@@ -164,7 +169,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
             bool proxyGetsDiscardRef = !sProxy->isWrapped_ForTesting() &&
                                        caps.discardRenderTargetSupport();
-            int expectedWrites = proxyGetsDiscardRef ? 1 : 0;
+            int expectedWrites = proxyGetsDiscardRef ? kWritesForDiscard : 0;
 
             sProxy->instantiate(provider);
 
@@ -186,7 +191,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
             bool proxyGetsDiscardRef = !sProxy->isWrapped_ForTesting() &&
                                        caps.discardRenderTargetSupport();
-            int expectedWrites = proxyGetsDiscardRef ? 2 : 1;
+            int expectedWrites = 1 + (proxyGetsDiscardRef ? kWritesForDiscard : 0);
 
             sProxy->instantiate(provider);
 
@@ -201,5 +206,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
         }
     }
 }
+#endif
 
 #endif

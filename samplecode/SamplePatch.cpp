@@ -87,24 +87,18 @@ static void eval_sheet(const SkPoint edge[], int nu, int nv, int iu, int iv,
     SkScalar u = SkIntToScalar(iu) / nu;
     SkScalar v = SkIntToScalar(iv) / nv;
 
-    SkScalar uv = SkScalarMul(u, v);
-    SkScalar Uv = SkScalarMul(SK_Scalar1 - u, v);
-    SkScalar uV = SkScalarMul(u, SK_Scalar1 - v);
-    SkScalar UV = SkScalarMul(SK_Scalar1 - u, SK_Scalar1 - v);
+    SkScalar uv = u * v;
+    SkScalar Uv = (1 - u) * v;
+    SkScalar uV = u * (1 - v);
+    SkScalar UV = (1 - u) * (1 - v);
 
-    SkScalar x0 = SkScalarMul(UV, edge[TL].fX) + SkScalarMul(uV, edge[TR].fX) +
-                  SkScalarMul(Uv, edge[BL].fX) + SkScalarMul(uv, edge[BR].fX);
-    SkScalar y0 = SkScalarMul(UV, edge[TL].fY) + SkScalarMul(uV, edge[TR].fY) +
-                  SkScalarMul(Uv, edge[BL].fY) + SkScalarMul(uv, edge[BR].fY);
+    SkScalar x0 = UV * edge[TL].fX + uV * edge[TR].fX + Uv * edge[BL].fX + uv * edge[BR].fX;
+    SkScalar y0 = UV * edge[TL].fY + uV * edge[TR].fY + Uv * edge[BL].fY + uv * edge[BR].fY;
 
-    SkScalar x =    SkScalarMul(SK_Scalar1 - v, edge[TL+iu].fX) +
-                    SkScalarMul(u, edge[TR+iv].fX) +
-                    SkScalarMul(v, edge[BR+nu-iu].fX) +
-                    SkScalarMul(SK_Scalar1 - u, edge[BL+nv-iv].fX) - x0;
-    SkScalar y =    SkScalarMul(SK_Scalar1 - v, edge[TL+iu].fY) +
-                    SkScalarMul(u, edge[TR+iv].fY) +
-                    SkScalarMul(v, edge[BR+nu-iu].fY) +
-                    SkScalarMul(SK_Scalar1 - u, edge[BL+nv-iv].fY) - y0;
+    SkScalar x = (1 - v) * edge[TL+iu].fX + u * edge[TR+iv].fX +
+                 v * edge[BR+nu-iu].fX + (1 - u) * edge[BL+nv-iv].fX - x0;
+    SkScalar y = (1 - v) * edge[TL+iu].fY + u * edge[TR+iv].fY +
+                 v * edge[BR+nu-iu].fY + (1 - u) * edge[BL+nv-iv].fY - y0;
     pt->set(x, y);
 }
 

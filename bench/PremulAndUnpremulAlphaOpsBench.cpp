@@ -7,7 +7,6 @@
 
 #include "Benchmark.h"
 #include "SkCanvas.h"
-#include "SkConfig8888.h"
 #include "SkString.h"
 #include "sk_tool_utils.h"
 

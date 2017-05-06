@@ -1208,7 +1208,10 @@ private:
 }  // anonymous namespace
 
 namespace sk_gpu_test {
-GLTestContext* CreateDebugGLTestContext() {
+GLTestContext* CreateDebugGLTestContext(GLTestContext* shareContext) {
+    if (shareContext) {
+        return nullptr;
+    }
     GLTestContext* ctx = new DebugGLContext();
     if (ctx->isValid()) {
         return ctx;

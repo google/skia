@@ -326,6 +326,18 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
             break;
+        case SK_VERTEXID_BUILTIN:
+            this->write("gl_VertexID");
+            break;
+        case SK_CLIPDISTANCE_BUILTIN:
+            this->write("gl_ClipDistance");
+            break;
+        case SK_IN_BUILTIN:
+            this->write("gl_in");
+            break;
+        case SK_INVOCATIONID_BUILTIN:
+            this->write("gl_InvocationID");
+            break;
         default:
             this->write(ref.fVariable.fName);
     }
@@ -343,7 +355,13 @@ void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
         this->writeExpression(*f.fBase, kPostfix_Precedence);
         this->write(".");
     }
-    this->write(f.fBase->fType.fields()[f.fFieldIndex].fName);
+    switch (f.fBase->fType.fields()[f.fFieldIndex].fModifiers.fLayout.fBuiltin) {
+        case SK_CLIPDISTANCE_BUILTIN:
+            this->write("gl_ClipDistance");
+            break;
+        default:
+            this->write(f.fBase->fType.fields()[f.fFieldIndex].fName);
+    }
 }
 
 void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
@@ -572,19 +590,35 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
 }
 
 void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
-    if (intf.fVariable.fName == "gl_PerVertex") {
+    if (intf.fTypeName == "sk_PerVertex") {
         return;
     }
     this->writeModifiers(intf.fVariable.fModifiers, true);
-    this->writeLine(intf.fVariable.fType.name() + " {");
+    this->writeLine(intf.fTypeName + " {");
     fIndentation++;
-    for (const auto& f : intf.fVariable.fType.fields()) {
+    const Type* structType = &intf.fVariable.fType;
+    while (structType->kind() == Type::kArray_Kind) {
+        structType = &structType->componentType();
+    }
+    for (const auto& f : structType->fields()) {
         this->writeModifiers(f.fModifiers, false);
         this->writeType(*f.fType);
         this->writeLine(" " + f.fName + ";");
     }
     fIndentation--;
-    this->writeLine("};");
+    this->write("}");
+    if (intf.fInstanceName.size()) {
+        this->write(" ");
+        this->write(intf.fInstanceName);
+        for (const auto& size : intf.fSizes) {
+            this->write("[");
+            if (size) {
+                this->writeExpression(*size, kTopLevel_Precedence);
+            }
+            this->write("]");
+        }
+    }
+    this->writeLine(";");
 }
 
 void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {
@@ -646,6 +680,9 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
             break;
         case Statement::kDo_Kind:
             this->writeDoStatement((DoStatement&) s);
+            break;
+        case Statement::kSwitch_Kind:
+            this->writeSwitchStatement((SwitchStatement&) s);
             break;
         case Statement::kBreak_Kind:
             this->write("break;");
@@ -714,6 +751,30 @@ void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
     this->write(" while (");
     this->writeExpression(*d.fTest, kTopLevel_Precedence);
     this->write(");");
+}
+
+void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
+    this->write("switch (");
+    this->writeExpression(*s.fValue, kTopLevel_Precedence);
+    this->writeLine(") {");
+    fIndentation++;
+    for (const auto& c : s.fCases) {
+        if (c->fValue) {
+            this->write("case ");
+            this->writeExpression(*c->fValue, kTopLevel_Precedence);
+            this->writeLine(":");
+        } else {
+            this->writeLine("default:");
+        }
+        fIndentation++;
+        for (const auto& stmt : c->fStatements) {
+            this->writeStatement(*stmt);
+            this->writeLine();
+        }
+        fIndentation--;
+    }
+    fIndentation--;
+    this->write("}");
 }
 
 void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {

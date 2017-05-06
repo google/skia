@@ -12,6 +12,7 @@
 #include "SkLiteDL.h"
 #include "SkMath.h"
 #include "SkPicture.h"
+#include "SkRegion.h"
 #include "SkRSXform.h"
 #include "SkTextBlob.h"
 

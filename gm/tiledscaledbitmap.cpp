@@ -64,7 +64,7 @@ protected:
 
         paint.setShader(SkShader::MakeBitmapShader(fBitmap, SkShader::kRepeat_TileMode,
                                                    SkShader::kRepeat_TileMode, &mat));
-        canvas->drawRectCoords(8,8,1008, 608, paint);
+        canvas->drawRect({ 8, 8, 1008, 608 }, paint);
     }
 
 private:

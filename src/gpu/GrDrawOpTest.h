@@ -11,7 +11,7 @@
 #include "GrTestUtils.h"
 #include "SkRefCnt.h"
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 class GrDrawOp;
 class GrContext;

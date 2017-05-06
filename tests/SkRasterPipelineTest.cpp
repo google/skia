@@ -27,19 +27,9 @@ DEF_TEST(SkRasterPipeline, r) {
     p.append(SkRasterPipeline::swap);
     p.append(SkRasterPipeline::srcover);
     p.append(SkRasterPipeline::store_f16, &store_ctx);
-    p.run(0,0, 1);
+    p.run(0,1);
 
     // We should see half-intensity magenta.
-    REPORTER_ASSERT(r, ((result >>  0) & 0xffff) == 0x3800);
-    REPORTER_ASSERT(r, ((result >> 16) & 0xffff) == 0x0000);
-    REPORTER_ASSERT(r, ((result >> 32) & 0xffff) == 0x3800);
-    REPORTER_ASSERT(r, ((result >> 48) & 0xffff) == 0x3c00);
-
-    // Run again, this time compiling the pipeline.
-    result = 0;
-
-    auto fn = p.compile();
-    fn(0,0, 1);
     REPORTER_ASSERT(r, ((result >>  0) & 0xffff) == 0x3800);
     REPORTER_ASSERT(r, ((result >> 16) & 0xffff) == 0x0000);
     REPORTER_ASSERT(r, ((result >> 32) & 0xffff) == 0x3800);
@@ -49,7 +39,7 @@ DEF_TEST(SkRasterPipeline, r) {
 DEF_TEST(SkRasterPipeline_empty, r) {
     // No asserts... just a test that this is safe to run.
     SkRasterPipeline p;
-    p.run(0,0, 20);
+    p.run(0,20);
 }
 
 DEF_TEST(SkRasterPipeline_nonsense, r) {
@@ -57,7 +47,7 @@ DEF_TEST(SkRasterPipeline_nonsense, r) {
     // srcover() calls st->next(); this makes sure we've always got something there to call.
     SkRasterPipeline p;
     p.append(SkRasterPipeline::srcover);
-    p.run(0,0, 20);
+    p.run(0,20);
 }
 
 DEF_TEST(SkRasterPipeline_JIT, r) {
@@ -79,8 +69,7 @@ DEF_TEST(SkRasterPipeline_JIT, r) {
     SkRasterPipeline p;
     p.append(SkRasterPipeline:: load_8888, &src);
     p.append(SkRasterPipeline::store_8888, &dst);
-    auto fn = p.compile();
-    fn(15, 0, 20);
+    p.run(15, 20);
 
     for (int i = 0; i < 36; i++) {
         if (i < 15 || i == 35) {

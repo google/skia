@@ -20,7 +20,7 @@ const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
 GrGLSLProgramBuilder::GrGLSLProgramBuilder(const GrPipeline& pipeline,
                                            const GrPrimitiveProcessor& primProc,
-                                           const GrProgramDesc& desc)
+                                           GrProgramDesc* desc)
     : fVS(this)
     , fGS(this)
     , fFS(this)
@@ -91,6 +91,18 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
         fFS.codeAppendf("vec4 %s;", distanceVectorName);
     }
 
+    SkASSERT(!fUniformHandles.fRTAdjustmentUni.isValid());
+    GrShaderFlags rtAdjustVisibility = kVertex_GrShaderFlag;
+    if (proc.willUseGeoShader()) {
+        rtAdjustVisibility |= kGeometry_GrShaderFlag;
+    }
+    fUniformHandles.fRTAdjustmentUni = this->uniformHandler()->addUniform(rtAdjustVisibility,
+                                                                          kVec4f_GrSLType,
+                                                                          kHigh_GrSLPrecision,
+                                                                          "rtAdjustment");
+    const char* rtAdjustName =
+        this->uniformHandler()->getUniformCStr(fUniformHandles.fRTAdjustmentUni);
+
     // Enclose custom code in a block to avoid namespace conflicts
     SkString openBrace;
     openBrace.printf("{ // Stage %d, %s\n", fStageIndex, proc.name());
@@ -117,6 +129,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
                                            outputColor->c_str(),
                                            outputCoverage->c_str(),
                                            distanceVectorName,
+                                           rtAdjustName,
                                            texSamplers.begin(),
                                            bufferSamplers.begin(),
                                            imageStorages.begin(),
@@ -348,7 +361,7 @@ void GrGLSLProgramBuilder::emitImageStorage(const GrProcessor::ImageStorageAcces
 void GrGLSLProgramBuilder::emitFSOutputSwizzle(bool hasSecondaryOutput) {
     // Swizzle the fragment shader outputs if necessary.
     GrSwizzle swizzle;
-    swizzle.setFromKey(this->desc().header().fOutputSwizzle);
+    swizzle.setFromKey(this->desc()->header().fOutputSwizzle);
     if (swizzle != GrSwizzle::RGBA()) {
         fFS.codeAppendf("%s = %s.%s;", fFS.getPrimaryColorOutputName(),
                         fFS.getPrimaryColorOutputName(),
@@ -454,18 +467,6 @@ void GrGLSLProgramBuilder::nameExpression(GrGLSLExpr4* output, const char* baseN
 
 void GrGLSLProgramBuilder::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
     this->uniformHandler()->appendUniformDecls(visibility, out);
-}
-
-void GrGLSLProgramBuilder::addRTAdjustmentUniform(GrSLPrecision precision,
-                                                  const char* name,
-                                                  const char** outName) {
-        SkASSERT(!fUniformHandles.fRTAdjustmentUni.isValid());
-        fUniformHandles.fRTAdjustmentUni =
-            this->uniformHandler()->addUniform(kVertex_GrShaderFlag,
-                                               kVec4f_GrSLType,
-                                               precision,
-                                               name,
-                                               outName);
 }
 
 void GrGLSLProgramBuilder::addRTHeightUniform(const char* name) {

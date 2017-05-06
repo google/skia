@@ -17,6 +17,7 @@
 #include "SkFrontBufferedStream.h"
 #include "SkImageEncoder.h"
 #include "SkMD5.h"
+#include "SkOSPath.h"
 #include "SkPngChunkReader.h"
 #include "SkRandom.h"
 #include "SkStream.h"
@@ -436,7 +437,7 @@ static void check(skiatest::Reporter* r,
         std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
         sk_sp<SkData> fullData(SkData::MakeFromStream(stream.get(), stream->getLength()));
         std::unique_ptr<SkImageGenerator> gen(
-                SkCodecImageGenerator::NewFromEncodedCodec(fullData.get()));
+                SkCodecImageGenerator::MakeFromEncodedCodec(fullData));
         SkBitmap bm;
         bm.allocPixels(info);
         SkAutoLockPixels autoLockPixels(bm);
@@ -662,6 +663,8 @@ DEF_TEST(Codec_Empty, r) {
     test_invalid(r, "empty_images/zero-height.wbmp");
     // This image is an ico with an embedded mask-bmp.  This is illegal.
     test_invalid(r, "invalid_images/mask-bmp-ico.ico");
+    // It is illegal for a webp frame to not be fully contained by the canvas.
+    test_invalid(r, "invalid_images/invalid-offset.webp");
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
     test_invalid(r, "empty_images/zero_height.tiff");
 #endif
@@ -1000,11 +1003,13 @@ DEF_TEST(Codec_wbmp_max_size, r) {
 
 DEF_TEST(Codec_jpeg_rewind, r) {
     const char* path = "mandrill_512_q075.jpg";
-    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
-    if (!stream) {
+    sk_sp<SkData> data(GetResourceAsData(path));
+    if (!data) {
         return;
     }
-    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+
+    data = SkData::MakeSubset(data.get(), 0, data->size() / 2);
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(data));
     if (!codec) {
         ERRORF(r, "Unable to create codec '%s'.", path);
         return;
@@ -1018,12 +1023,32 @@ DEF_TEST(Codec_jpeg_rewind, r) {
     // Perform a sampled decode.
     SkAndroidCodec::AndroidOptions opts;
     opts.fSampleSize = 12;
-    codec->getAndroidPixels(codec->getInfo().makeWH(width / 12, height / 12), pixelStorage.get(),
-                            rowBytes, &opts);
+    auto sampledInfo = codec->getInfo().makeWH(width / 12, height / 12);
+    auto result = codec->getAndroidPixels(sampledInfo, pixelStorage.get(), rowBytes, &opts);
+    REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
 
     // Rewind the codec and perform a full image decode.
-    SkCodec::Result result = codec->getPixels(codec->getInfo(), pixelStorage.get(), rowBytes);
-    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+    result = codec->getPixels(codec->getInfo(), pixelStorage.get(), rowBytes);
+    REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
+
+    // Now perform a subset decode.
+    {
+        opts.fSampleSize = 1;
+        SkIRect subset = SkIRect::MakeWH(100, 100);
+        opts.fSubset = &subset;
+        result = codec->getAndroidPixels(codec->getInfo().makeWH(100, 100), pixelStorage.get(),
+                                         rowBytes, &opts);
+        // Though we only have half the data, it is enough to decode this subset.
+        REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+    }
+
+    // Perform another full image decode.  ASAN will detect if we look at the subset when it is
+    // out of scope.  This would happen if we depend on the old state in the codec.
+    // This tests two layers of bugs: both SkJpegCodec::readRows and SkCodec::fillIncompleteImage
+    // used to look at the old subset.
+    opts.fSubset = nullptr;
+    result = codec->getAndroidPixels(codec->getInfo(), pixelStorage.get(), rowBytes, &opts);
+    REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
 }
 
 static void check_color_xform(skiatest::Reporter* r, const char* path) {
@@ -1164,7 +1189,16 @@ static void test_conversion_possible(skiatest::Reporter* r, const char* path,
                                      bool supportsScanlineDecoder,
                                      bool supportsIncrementalDecoder) {
     std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
+    if (!stream) {
+        return;
+    }
+
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    if (!codec) {
+        ERRORF(r, "failed to create a codec for %s", path);
+        return;
+    }
+
     SkImageInfo infoF16 = codec->getInfo().makeColorType(kRGBA_F16_SkColorType);
 
     SkBitmap bm;
@@ -1433,19 +1467,31 @@ DEF_TEST(Codec_InvalidImages, r) {
 }
 
 DEF_TEST(Codec_InvalidBmp, r) {
-    // This file reports a header size that crashes when we try to read this
-    // much directly from a file using SkFILEStream.
-    SkString path = GetResourcePath("invalid_images/b33651913.bmp");
-    std::unique_ptr<SkFILEStream> stream(new SkFILEStream(path.c_str()));
-    if (!stream->isValid()) {
-        ERRORF(r, "no stream");
+    // These files report values that have caused problems with SkFILEStreams.
+    // They are invalid, and should not create SkCodecs.
+    for (auto* bmp : { "b33651913.bmp", "b34778578.bmp" } ) {
+        SkString path = SkOSPath::Join("invalid_images", bmp);
+        path = GetResourcePath(path.c_str());
+        std::unique_ptr<SkFILEStream> stream(new SkFILEStream(path.c_str()));
+        if (!stream->isValid()) {
+            return;
+        }
+
+        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+        REPORTER_ASSERT(r, !codec);
+    }
+}
+
+DEF_TEST(Codec_InvalidRLEBmp, r) {
+    auto* stream = GetResourceAsStream("invalid_images/b33251605.bmp");
+    if (!stream) {
         return;
     }
 
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
-    // This file is invalid, but more importantly, we did not crash before
-    // reaching here.
-    REPORTER_ASSERT(r, !codec);
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream));
+    REPORTER_ASSERT(r, codec);
+
+    test_info(r, codec.get(), codec->getInfo(), SkCodec::kIncompleteInput, nullptr);
 }
 
 DEF_TEST(Codec_InvalidAnimated, r) {

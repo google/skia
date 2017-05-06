@@ -21,7 +21,9 @@ namespace sk_app {
 class WindowContext {
 public:
     WindowContext() : fContext(nullptr)
-                    , fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType) {}
+                    , fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)
+                    , fSampleCount(0)
+                    , fStencilBits(0) {}
 
     virtual ~WindowContext() {}
 
@@ -44,12 +46,13 @@ public:
     virtual GrBackendContext getBackendContext() = 0;
     GrContext* getGrContext() const { return fContext; }
 
-    sk_sp<SkSurface> createOffscreenSurface(bool sRGB);
+    int width() const { return fWidth; }
+    int height() const { return fHeight; }
+    int sampleCount() const { return fSampleCount; }
+    int stencilBits() const { return fStencilBits; }
 
 protected:
     virtual bool isGpuContext() { return true;  }
-
-    sk_sp<SkSurface> createRenderSurface(const GrBackendRenderTargetDesc&, int colorBits);
 
     GrContext*        fContext;
 
@@ -59,9 +62,11 @@ protected:
     GrPixelConfig     fPixelConfig;
     SkSurfaceProps    fSurfaceProps;
 
-private:
-    sk_sp<SkSurface> createSurface(
-            const GrBackendRenderTargetDesc*, int colorBits, bool offscreen, bool forceSRGB);
+    // parameters obtained from the native window
+    // Note that the platform .cpp file is responsible for
+    // initializing fSampleCount and fStencilBits!
+    int               fSampleCount;
+    int               fStencilBits;
 };
 
 }   // namespace sk_app

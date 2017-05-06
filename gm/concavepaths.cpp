@@ -62,6 +62,40 @@ void test_fake_bowtie(SkCanvas* canvas, const SkPaint& paint) {
     canvas->restore();
 }
 
+// Bowtie with a smaller right hand lobe. The outer vertex of the left hand
+// lobe intrudes into the interior of the right hand lobe.
+void test_intruding_vertex(SkCanvas* canvas, const SkPaint& paint) {
+    SkPath path;
+    canvas->save();
+    canvas->translate(400, 0);
+    path.setIsVolatile(true);
+    path.moveTo(20, 20);
+    path.lineTo(50, 50);
+    path.lineTo(68, 20);
+    path.lineTo(68, 80);
+    path.lineTo(50, 50);
+    path.lineTo(20, 80);
+    canvas->drawPath(path, paint);
+    canvas->restore();
+}
+
+// A shape with an edge that becomes inverted on AA stroking and that also contains
+// a repeated start/end vertex.
+void test_inversion_repeat_vertex(SkCanvas* canvas, const SkPaint& paint) {
+    SkPath path;
+    canvas->save();
+    canvas->translate(400, 100);
+    path.setIsVolatile(true);
+    path.moveTo(80,     50);
+    path.lineTo(40,     80);
+    path.lineTo(60,     20);
+    path.lineTo(20,     20);
+    path.lineTo(39.99f, 80);
+    path.lineTo(80,     50);
+    canvas->drawPath(path, paint);
+    canvas->restore();
+}
+
 // Fish test (intersection/concave)
 void test_fish(SkCanvas* canvas, const SkPaint& paint) {
     SkPath path;
@@ -360,7 +394,7 @@ void test_coincident_edges_4(SkCanvas* canvas, const SkPaint& paint) {
 
 };
 
-DEF_SIMPLE_GM(concavepaths, canvas, 400, 600) {
+DEF_SIMPLE_GM(concavepaths, canvas, 500, 600) {
     SkPaint paint;
 
     paint.setAntiAlias(true);
@@ -370,10 +404,12 @@ DEF_SIMPLE_GM(concavepaths, canvas, 400, 600) {
     test_reverse_concave(canvas, paint);
     test_bowtie(canvas, paint);
     test_fake_bowtie(canvas, paint);
+    test_intruding_vertex(canvas, paint);
     test_fish(canvas, paint);
     test_fast_forward(canvas, paint);
     test_hole(canvas, paint);
     test_star(canvas, paint);
+    test_inversion_repeat_vertex(canvas, paint);
     test_stairstep(canvas, paint);
     test_stairstep2(canvas, paint);
     test_overlapping(canvas, paint);

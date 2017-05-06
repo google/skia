@@ -36,14 +36,8 @@ The Skia Directory
 
 *   Mailing Lists
     -   [Discussion Mailing List](https://groups.google.com/group/skia-discuss)
-    -   [Commit Announce
-        List](https://groups.google.com/forum/#!forum/skia-commit)
     -   [Code Review Announce
         List](https://groups.google.com/a/skia.org/forum/#!forum/reviews)
     -   [Bug Announce
         List](https://groups.google.com/a/skia.org/forum/#!forum/bugs)
-
-<!-- TODO: Remove these links once all information is scraped off them. -->
-*   Deprecated
-    -   [Old deprecated documentation](https://sites.google.com/site/skiadocs/)
 

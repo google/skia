@@ -42,16 +42,16 @@
 #include "SkLatticeIter.h"
 #include "SkMatrixPriv.h"
 
-#define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fDrawingManager->getContext())
+#define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
 #define ASSERT_SINGLE_OWNER_PRIV \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->fSingleOwner);)
-#define RETURN_IF_ABANDONED        if (fDrawingManager->wasAbandoned()) { return; }
-#define RETURN_IF_ABANDONED_PRIV   if (fRenderTargetContext->fDrawingManager->wasAbandoned()) { return; }
-#define RETURN_FALSE_IF_ABANDONED  if (fDrawingManager->wasAbandoned()) { return false; }
-#define RETURN_FALSE_IF_ABANDONED_PRIV  if (fRenderTargetContext->fDrawingManager->wasAbandoned()) { return false; }
-#define RETURN_NULL_IF_ABANDONED   if (fDrawingManager->wasAbandoned()) { return nullptr; }
+#define RETURN_IF_ABANDONED        if (this->drawingManager()->wasAbandoned()) { return; }
+#define RETURN_IF_ABANDONED_PRIV   if (fRenderTargetContext->drawingManager()->wasAbandoned()) { return; }
+#define RETURN_FALSE_IF_ABANDONED  if (this->drawingManager()->wasAbandoned()) { return false; }
+#define RETURN_FALSE_IF_ABANDONED_PRIV  if (fRenderTargetContext->drawingManager()->wasAbandoned()) { return false; }
+#define RETURN_NULL_IF_ABANDONED   if (this->drawingManager()->wasAbandoned()) { return nullptr; }
 
 using gr_instanced::InstancedRendering;
 
@@ -67,7 +67,7 @@ private:
 };
 
 bool GrRenderTargetContext::wasAbandoned() const {
-    return fDrawingManager->wasAbandoned();
+    return this->drawingManager()->wasAbandoned();
 }
 
 // In MDB mode the reffing of the 'getLastOpList' call's result allows in-progress
@@ -81,8 +81,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
                                              const SkSurfaceProps* surfaceProps,
                                              GrAuditTrail* auditTrail,
                                              GrSingleOwner* singleOwner)
-    : GrSurfaceContext(context, std::move(colorSpace), auditTrail, singleOwner)
-    , fDrawingManager(drawingMgr)
+    : GrSurfaceContext(context, drawingMgr, std::move(colorSpace), auditTrail, singleOwner)
     , fRenderTargetProxy(std::move(rtp))
     , fOpList(SkSafeRef(fRenderTargetProxy->getLastRenderTargetOpList()))
     , fInstancedPipelineInfo(fRenderTargetProxy.get())
@@ -90,7 +89,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps)) {
     if (fColorSpace) {
         // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation
-        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        auto srgbColorSpace = SkColorSpace::MakeSRGB();
         fColorXformFromSRGB = GrColorSpaceXform::Make(srgbColorSpace.get(), fColorSpace.get());
     }
     SkDEBUGCODE(this->validate();)
@@ -116,8 +115,12 @@ GrRenderTarget* GrRenderTargetContext::instantiate() {
     return fRenderTargetProxy->instantiate(fContext->textureProvider());
 }
 
-GrTextureProxy* GrRenderTargetContext::asDeferredTexture() {
+GrTextureProxy* GrRenderTargetContext::asTextureProxy() {
     return fRenderTargetProxy->asTextureProxy();
+}
+
+sk_sp<GrTextureProxy> GrRenderTargetContext::asTextureProxyRef() {
+    return sk_ref_sp(fRenderTargetProxy->asTextureProxy());
 }
 
 GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
@@ -125,7 +128,7 @@ GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpList || fOpList->isClosed()) {
-        fOpList = fDrawingManager->newOpList(fRenderTargetProxy.get());
+        fOpList = this->drawingManager()->newOpList(fRenderTargetProxy.get());
     }
 
     return fOpList;
@@ -183,15 +186,14 @@ bool GrRenderTargetContext::onReadPixels(const SkImageInfo& dstInfo, void* dstBu
 
 // TODO: move this (and GrTextureContext::onReadPixels) to GrSurfaceContext?
 bool GrRenderTargetContext::onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
-                                          size_t srcRowBytes, int x, int y) {
+                                          size_t srcRowBytes, int x, int y, uint32_t flags) {
     // TODO: teach GrRenderTarget to take ImageInfo directly to specify the src pixels
     GrPixelConfig config = SkImageInfo2GrPixelConfig(srcInfo, *fContext->caps());
     if (kUnknown_GrPixelConfig == config) {
         return false;
     }
-    uint32_t flags = 0;
     if (kUnpremul_SkAlphaType == srcInfo.alphaType()) {
-        flags = GrContext::kUnpremul_PixelOpsFlag;
+        flags |= GrContext::kUnpremul_PixelOpsFlag;
     }
 
     // Deferral of the VRAM resources must end in this instance anyway
@@ -215,7 +217,7 @@ void GrRenderTargetContext::drawText(const GrClip& clip, const SkPaint& skPaint,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawText");
 
-    GrAtlasTextContext* atlasTextContext = fDrawingManager->getAtlasTextContext();
+    GrAtlasTextContext* atlasTextContext = this->drawingManager()->getAtlasTextContext();
     atlasTextContext->drawText(fContext, this, clip, skPaint, viewMatrix, fSurfaceProps, text,
                                byteLength, x, y, clipBounds);
 }
@@ -230,7 +232,7 @@ void GrRenderTargetContext::drawPosText(const GrClip& clip, const SkPaint& paint
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawPosText");
 
-    GrAtlasTextContext* atlasTextContext = fDrawingManager->getAtlasTextContext();
+    GrAtlasTextContext* atlasTextContext = this->drawingManager()->getAtlasTextContext();
     atlasTextContext->drawPosText(fContext, this, clip, paint, viewMatrix, fSurfaceProps, text,
                                   byteLength, pos, scalarsPerPosition, offset, clipBounds);
 }
@@ -244,7 +246,7 @@ void GrRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& pain
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawTextBlob");
 
-    GrAtlasTextContext* atlasTextContext = fDrawingManager->getAtlasTextContext();
+    GrAtlasTextContext* atlasTextContext = this->drawingManager()->getAtlasTextContext();
     atlasTextContext->drawTextBlob(fContext, this, clip, paint, viewMatrix, fSurfaceProps, blob, x,
                                    y, filter, clipBounds);
 }
@@ -255,7 +257,7 @@ void GrRenderTargetContext::discard() {
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::discard");
 
-    AutoCheckFlush acf(fDrawingManager);
+    AutoCheckFlush acf(this->drawingManager());
 
     // TODO: This needs to be fixed up since it ends the deferral of the GrRenderTarget.
     sk_sp<GrRenderTarget> rt(
@@ -275,7 +277,7 @@ void GrRenderTargetContext::clear(const SkIRect* rect,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::clear");
 
-    AutoCheckFlush acf(fDrawingManager);
+    AutoCheckFlush acf(this->drawingManager());
     this->internalClear(rect ? GrFixedClip(*rect) : GrFixedClip::Disabled(), color, canIgnoreRect);
 }
 
@@ -286,7 +288,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
     GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
                               "GrRenderTargetContext::absClear");
 
-    AutoCheckFlush acf(fRenderTargetContext->fDrawingManager);
+    AutoCheckFlush acf(fRenderTargetContext->drawingManager());
 
     SkIRect rtRect = SkIRect::MakeWH(fRenderTargetContext->fRenderTargetProxy->worstCaseWidth(
                                             *fRenderTargetContext->caps()),
@@ -346,7 +348,7 @@ void GrRenderTargetContextPriv::clear(const GrFixedClip& clip,
     GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
                               "GrRenderTargetContextPriv::clear");
 
-    AutoCheckFlush acf(fRenderTargetContext->fDrawingManager);
+    AutoCheckFlush acf(fRenderTargetContext->drawingManager());
     fRenderTargetContext->internalClear(clip, color, canIgnoreClip);
 }
 
@@ -437,7 +439,7 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
             return;
         }
 
-        AutoCheckFlush acf(fDrawingManager);
+        AutoCheckFlush acf(this->drawingManager());
 
         this->drawNonAAFilledRect(clip, std::move(paint), SkMatrix::I(), r, nullptr, &localMatrix,
                                   nullptr, GrAAType::kNone);
@@ -568,7 +570,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
     // Path effects should've been devolved to a path in SkGpuDevice
     SkASSERT(!style->pathEffect());
 
-    AutoCheckFlush acf(fDrawingManager);
+    AutoCheckFlush acf(this->drawingManager());
 
     const SkStrokeRec& stroke = style->strokeRec();
     if (stroke.getStyle() == SkStrokeRec::kFill_Style) {
@@ -660,12 +662,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
 
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-
-            if (snapToPixelCenters) {
-                pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag,
-                                         snapToPixelCenters);
-            }
-
+            pipelineBuilder.setSnapVerticesToPixelCenters(snapToPixelCenters);
             this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return;
         }
@@ -689,7 +686,7 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
     GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
                               "GrRenderTargetContextPriv::clearStencilClip");
 
-    AutoCheckFlush acf(fRenderTargetContext->fDrawingManager);
+    AutoCheckFlush acf(fRenderTargetContext->drawingManager());
     // TODO: This needs to be fixed up since it ends the deferral of the GrRenderTarget.
     if (!fRenderTargetContext->accessRenderTarget()) {
         return;
@@ -718,7 +715,7 @@ void GrRenderTargetContextPriv::stencilRect(const GrClip& clip,
     GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
                               "GrRenderTargetContext::stencilRect");
     SkASSERT(GrAAType::kCoverage != aaType);
-    AutoCheckFlush acf(fRenderTargetContext->fDrawingManager);
+    AutoCheckFlush acf(fRenderTargetContext->drawingManager());
 
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
@@ -740,7 +737,7 @@ bool GrRenderTargetContextPriv::drawAndStencilRect(const GrClip& clip,
     GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
                               "GrRenderTargetContext::drawAndStencilRect");
 
-    AutoCheckFlush acf(fRenderTargetContext->fDrawingManager);
+    AutoCheckFlush acf(fRenderTargetContext->drawingManager());
 
     GrPaint paint;
     paint.setCoverageSetOpXPFactory(op, invert);
@@ -772,7 +769,7 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
         return;
     }
 
-    AutoCheckFlush acf(fDrawingManager);
+    AutoCheckFlush acf(this->drawingManager());
     GrAAType aaType;
 
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
@@ -831,7 +828,7 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
         return;
     }
 
-    AutoCheckFlush acf(fDrawingManager);
+    AutoCheckFlush acf(this->drawingManager());
     GrAAType aaType;
 
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
@@ -882,15 +879,16 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
                                          int vertexCount,
                                          const SkPoint positions[],
                                          const SkPoint texCoords[],
-                                         const GrColor colors[],
+                                         const uint32_t colors[],
                                          const uint16_t indices[],
-                                         int indexCount) {
+                                         int indexCount,
+                                         ColorArrayType colorArrayType) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawVertices");
 
-    AutoCheckFlush acf(fDrawingManager);
+    AutoCheckFlush acf(this->drawingManager());
 
     // TODO clients should give us bounds
     SkRect bounds;
@@ -899,12 +897,34 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
         return;
     }
 
-    viewMatrix.mapRect(&bounds);
+    std::unique_ptr<GrDrawOp> op = GrDrawVerticesOp::Make(
+            paint.getColor(), primitiveType, viewMatrix, positions, vertexCount, indices,
+            indexCount, colors, texCoords, bounds, colorArrayType);
+    if (!op) {
+        return;
+    }
+    GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+}
 
+void GrRenderTargetContext::drawVertices(const GrClip& clip,
+                                         GrPaint&& paint,
+                                         const SkMatrix& viewMatrix,
+                                         sk_sp<SkVertices> vertices,
+                                         uint32_t flags) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawVertices");
+
+    AutoCheckFlush acf(this->drawingManager());
+
+    SkASSERT(vertices);
     std::unique_ptr<GrDrawOp> op =
-            GrDrawVerticesOp::Make(paint.getColor(), primitiveType, viewMatrix, positions,
-                                   vertexCount, indices, indexCount, colors, texCoords, bounds);
-
+            GrDrawVerticesOp::Make(paint.getColor(), std::move(vertices), viewMatrix, flags);
+    if (!op) {
+        return;
+    }
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }
@@ -923,7 +943,7 @@ void GrRenderTargetContext::drawAtlas(const GrClip& clip,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawAtlas");
 
-    AutoCheckFlush acf(fDrawingManager);
+    AutoCheckFlush acf(this->drawingManager());
 
     std::unique_ptr<GrDrawOp> op =
             GrDrawAtlasOp::Make(paint.getColor(), viewMatrix, spriteCount, xform, texRect, colors);
@@ -962,7 +982,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
 #endif
     SkASSERT(!style.pathEffect()); // this should've been devolved to a path in SkGpuDevice
 
-    AutoCheckFlush acf(fDrawingManager);
+    AutoCheckFlush acf(this->drawingManager());
     const SkStrokeRec stroke = style.strokeRec();
     GrAAType aaType;
 
@@ -1018,7 +1038,7 @@ void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
 
     SkASSERT(!style.pathEffect()); // this should've been devolved to a path in SkGpuDevice
 
-    AutoCheckFlush acf(fDrawingManager);
+    AutoCheckFlush acf(this->drawingManager());
     const SkStrokeRec stroke = style.strokeRec();
     // TODO: add instancing support?
 
@@ -1121,7 +1141,7 @@ void GrRenderTargetContext::drawDRRect(const GrClip& clip,
     SkASSERT(!outer.isEmpty());
     SkASSERT(!inner.isEmpty());
 
-    AutoCheckFlush acf(fDrawingManager);
+    AutoCheckFlush acf(this->drawingManager());
 
     if (this->drawFilledDRRect(clip, std::move(paint), aa, viewMatrix, outer, inner)) {
         return;
@@ -1191,7 +1211,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
 
     SkASSERT(!style.pathEffect()); // this should've been devolved to a path in SkGpuDevice
 
-    AutoCheckFlush acf(fDrawingManager);
+    AutoCheckFlush acf(this->drawingManager());
     const SkStrokeRec& stroke = style.strokeRec();
     GrAAType aaType;
 
@@ -1234,6 +1254,13 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
                                     SkScalar sweepAngle,
                                     bool useCenter,
                                     const GrStyle& style) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawArc");
+
+    AutoCheckFlush acf(this->drawingManager());
+
     GrAAType aaType = this->decideAAType(aa);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
@@ -1269,7 +1296,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawImageLattice");
 
-    AutoCheckFlush acf(fDrawingManager);
+    AutoCheckFlush acf(this->drawingManager());
 
     std::unique_ptr<GrDrawOp> op = GrLatticeOp::MakeNonAA(paint.getColor(), viewMatrix, imageWidth,
                                                           imageHeight, std::move(iter), dst);
@@ -1293,7 +1320,7 @@ void GrRenderTargetContext::prepareForExternalIO() {
 
     ASSERT_OWNED_RESOURCE(rt);
 
-    fDrawingManager->prepareSurfaceForExternalIO(rt.get());
+    this->drawingManager()->prepareSurfaceForExternalIO(rt.get());
 }
 
 void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
@@ -1379,7 +1406,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
        return;
     }
 
-    AutoCheckFlush acf(fDrawingManager);
+    AutoCheckFlush acf(this->drawingManager());
 
     GrAAType aaType = this->decideAAType(aa);
     if (GrAAType::kCoverage == aaType && !style.pathEffect()) {
@@ -1440,7 +1467,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
         return true;
     }
 
-    AutoCheckFlush acf(fRenderTargetContext->fDrawingManager);
+    AutoCheckFlush acf(fRenderTargetContext->drawingManager());
 
     // An Assumption here is that path renderer would use some form of tweaking
     // the src color (either the input alpha or in the frag shader) to implement
@@ -1452,14 +1479,14 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
     GrShape shape(path, GrStyle::SimpleFill());
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fShaderCaps =
-        fRenderTargetContext->fDrawingManager->getContext()->caps()->shaderCaps();
+        fRenderTargetContext->drawingManager()->getContext()->caps()->shaderCaps();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fAAType = aaType;
     canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
     // Don't allow the SW renderer
-    GrPathRenderer* pr = fRenderTargetContext->fDrawingManager->getPathRenderer(
+    GrPathRenderer* pr = fRenderTargetContext->drawingManager()->getPathRenderer(
             canDrawArgs, false, GrPathRendererChain::DrawType::kStencilAndColor);
     if (!pr) {
         return false;
@@ -1469,7 +1496,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
     paint.setCoverageSetOpXPFactory(op, invert);
 
     GrPathRenderer::DrawPathArgs args{
-            fRenderTargetContext->fDrawingManager->getContext()->resourceProvider(),
+            fRenderTargetContext->drawingManager()->getContext()->resourceProvider(),
             std::move(paint),
             ss,
             fRenderTargetContext,
@@ -1513,7 +1540,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
         aaType = GrAAType::kCoverage;
     }
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
-    canDrawArgs.fShaderCaps = fDrawingManager->getContext()->caps()->shaderCaps();
+    canDrawArgs.fShaderCaps = this->drawingManager()->getContext()->caps()->shaderCaps();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fHasUserStencilSettings = false;
@@ -1529,7 +1556,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
         canDrawArgs.fAAType = aaType;
 
         // Try a 1st time without applying any of the style to the geometry (and barring sw)
-        pr = fDrawingManager->getPathRenderer(canDrawArgs, false, kType);
+        pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
         SkScalar styleScale =  GrStyle::MatrixToScaleFactor(viewMatrix);
 
         if (!pr && shape.style().pathEffect()) {
@@ -1538,7 +1565,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
             if (shape.isEmpty()) {
                 return;
             }
-            pr = fDrawingManager->getPathRenderer(canDrawArgs, false, kType);
+            pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
         }
         if (!pr) {
             if (shape.style().applies()) {
@@ -1548,7 +1575,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
                 }
             }
             // This time, allow SW renderer
-            pr = fDrawingManager->getPathRenderer(canDrawArgs, true, kType);
+            pr = this->drawingManager()->getPathRenderer(canDrawArgs, true, kType);
         }
         if (!pr && GrAATypeIsHW(aaType)) {
             // There are exceptional cases where we may wind up falling back to coverage based AA
@@ -1566,7 +1593,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
         return;
     }
 
-    GrPathRenderer::DrawPathArgs args{fDrawingManager->getContext()->resourceProvider(),
+    GrPathRenderer::DrawPathArgs args{this->drawingManager()->getContext()->resourceProvider(),
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
                                       this,

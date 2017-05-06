@@ -18,6 +18,7 @@
 
 #include "SkCanvas.h"
 #include "SkImage_Base.h"
+#include "SkMathPriv.h"
 
 namespace sk_app {
 
@@ -26,24 +27,32 @@ GLWindowContext::GLWindowContext(const DisplayParams& params)
     , fBackendContext(nullptr)
     , fSurface(nullptr) {
     fDisplayParams = params;
+    fDisplayParams.fMSAASampleCount = fDisplayParams.fMSAASampleCount ?
+                                      GrNextPow2(fDisplayParams.fMSAASampleCount) :
+                                      0;
 }
 
 void GLWindowContext::initializeContext() {
     this->onInitializeContext();
-    sk_sp<const GrGLInterface> glInterface;
-    glInterface.reset(GrGLCreateNativeInterface());
-    fBackendContext.reset(GrGLInterfaceRemoveNVPR(glInterface.get()));
-
     SkASSERT(nullptr == fContext);
-    fContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)fBackendContext.get());
 
-    // We may not have real sRGB support (ANGLE, in particular), so check for
-    // that, and fall back to L32:
-    //
-    // ... and, if we're using a 10-bit/channel FB0, it doesn't do sRGB conversion on write,
-    // so pretend that it's non-sRGB 8888:
-    fPixelConfig = fContext->caps()->srgbSupport() && fDisplayParams.fColorSpace &&
-                   (fColorBits != 30) ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
+    fBackendContext.reset(GrGLCreateNativeInterface());
+    fContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)fBackendContext.get(),
+                                 fDisplayParams.fGrContextOptions);
+    if (!fContext && fDisplayParams.fMSAASampleCount) {
+        fDisplayParams.fMSAASampleCount /= 2;
+        this->initializeContext();
+        return;
+    }
+
+    if (fContext) {
+        // We may not have real sRGB support (ANGLE, in particular), so check for
+        // that, and fall back to L32:
+        fPixelConfig = fContext->caps()->srgbSupport() && fDisplayParams.fColorSpace
+                       ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
+    } else {
+        fPixelConfig = kUnknown_GrPixelConfig;
+    }
 }
 
 void GLWindowContext::destroyContext() {
@@ -63,8 +72,6 @@ void GLWindowContext::destroyContext() {
 
 sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
     if (nullptr == fSurface) {
-        fActualColorBits = SkTMax(fColorBits, 24);
-
         if (fContext) {
             GrBackendRenderTargetDesc desc;
             desc.fWidth = this->fWidth;
@@ -77,7 +84,9 @@ sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
             GR_GL_CALL(fBackendContext.get(), GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer));
             desc.fRenderTargetHandle = buffer;
 
-            fSurface = this->createRenderSurface(desc, fActualColorBits);
+            fSurface = SkSurface::MakeFromBackendRenderTarget(fContext, desc,
+                                                              fDisplayParams.fColorSpace,
+                                                              &fSurfaceProps);
         }
     }
 

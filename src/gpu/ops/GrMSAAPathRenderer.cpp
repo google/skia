@@ -259,9 +259,9 @@ private:
         this->setBounds(devBounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fPaths[0].fColor);
-        input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
+    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
+        input->colorInput()->setToConstant(fPaths[0].fColor);
+        input->coverageInput()->setToSolidCoverage();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
@@ -401,7 +401,7 @@ private:
             sk_sp<GrGeometryProcessor> lineGP;
             {
                 using namespace GrDefaultGeoProcFactory;
-                lineGP = GrDefaultGeoProcFactory::Make(Color(Color::kAttribute_Type),
+                lineGP = GrDefaultGeoProcFactory::Make(Color(Color::kPremulGrColorAttribute_Type),
                                                        Coverage::kSolid_Type,
                                                        LocalCoords(LocalCoords::kUnused_Type),
                                                        fViewMatrix);
@@ -453,6 +453,10 @@ private:
         MSAAPathOp* that = t->cast<MSAAPathOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                      that->bounds(), caps)) {
+            return false;
+        }
+
+        if (this->bounds().intersects(that->bounds())) {
             return false;
         }
 

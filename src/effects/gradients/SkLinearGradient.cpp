@@ -74,16 +74,83 @@ void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fEnd);
 }
 
-size_t SkLinearGradient::onContextSize(const ContextRec& rec) const {
+SkShader::Context* SkLinearGradient::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const
+{
     return use_4f_context(rec, fGradFlags)
-        ? sizeof(LinearGradient4fContext)
-        : sizeof(LinearGradientContext);
+           ? CheckedMakeContext<LinearGradient4fContext>(alloc, *this, rec)
+           : CheckedMakeContext<  LinearGradientContext>(alloc, *this, rec);
 }
 
-SkShader::Context* SkLinearGradient::onCreateContext(const ContextRec& rec, void* storage) const {
-    return use_4f_context(rec, fGradFlags)
-        ? CheckedCreateContext<LinearGradient4fContext>(storage, *this, rec)
-        : CheckedCreateContext<  LinearGradientContext>(storage, *this, rec);
+// For now, only a 2-stop raster pipeline specialization.
+//
+// Stages:
+//
+//   * matrix (map dst -> grad space)
+//   * clamp/repeat/mirror (tiling)
+//   * linear_gradient_2stops (lerp c0/c1)
+//   * optional premul
+//
+bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
+                                      SkColorSpace* cs,
+                                      SkArenaAlloc* alloc,
+                                      const SkMatrix& ctm,
+                                      const SkPaint&,
+                                      const SkMatrix* localM) const {
+    if (fColorCount > 2) {
+        return false;
+    }
+
+    // Local matrix not supported currently.  Remove once we have a generic RP wrapper.
+    if (localM || !getLocalMatrix().isIdentity()) {
+        return false;
+    }
+
+    SkASSERT(fColorCount == 2);
+    SkASSERT(fOrigPos == nullptr || (fOrigPos[0] == 0 && fOrigPos[1] == 1));
+
+    SkMatrix dstToPts;
+    if (!ctm.invert(&dstToPts)) {
+        return false;
+    }
+
+    const auto dstToUnit = SkMatrix::Concat(fPtsToUnit, dstToPts);
+
+    auto* m = alloc->makeArrayDefault<float>(9);
+    if (dstToUnit.asAffine(m)) {
+        // TODO: mapping y is not needed; split the matrix stages to save some math?
+        p->append(SkRasterPipeline::matrix_2x3, m);
+    } else {
+        dstToUnit.get9(m);
+        p->append(SkRasterPipeline::matrix_perspective, m);
+    }
+
+    // TODO: clamp/repeat/mirror const 1f stages?
+    auto* limit = alloc->make<float>(1.0f);
+
+    switch (fTileMode) {
+        case kClamp_TileMode:  p->append(SkRasterPipeline:: clamp_x, limit); break;
+        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit); break;
+        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit); break;
+    }
+
+    const bool premulGrad = fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag;
+    const SkColor4f c0 = to_colorspace(fOrigColors4f[0], fColorSpace.get(), cs),
+                    c1 = to_colorspace(fOrigColors4f[1], fColorSpace.get(), cs);
+    const SkPM4f  pmc0 = premulGrad ? c0.premul() : SkPM4f::From4f(Sk4f::Load(&c0)),
+                  pmc1 = premulGrad ? c1.premul() : SkPM4f::From4f(Sk4f::Load(&c1));
+
+    auto* c0_and_dc = alloc->makeArrayDefault<SkPM4f>(2);
+    c0_and_dc[0] = pmc0;
+    c0_and_dc[1] = SkPM4f::From4f(pmc1.to4f() - pmc0.to4f());
+
+    p->append(SkRasterPipeline::linear_gradient_2stops, c0_and_dc);
+
+    if (!premulGrad && !this->colorsAreOpaque()) {
+        p->append(SkRasterPipeline::premul);
+    }
+
+    return true;
 }
 
 // This swizzles SkColor into the same component order as SkPMColor, but does not actually
@@ -292,15 +359,15 @@ void SkLinearGradient::LinearGradientContext::shadeSpan(int x, int y, SkPMColor*
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
                              SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-        SkGradFixed dx, fx = SkScalarToGradFixed(srcPt.fX);
+        SkGradFixed dx, fx = SkScalarPinToGradFixed(srcPt.fX);
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
             const auto step = fDstToIndex.fixedStepInX(SkIntToScalar(y));
             // todo: do we need a real/high-precision value for dx here?
-            dx = SkScalarToGradFixed(step.fX);
+            dx = SkScalarPinToGradFixed(step.fX);
         } else {
             SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
-            dx = SkScalarToGradFixed(fDstToIndex.getScaleX());
+            dx = SkScalarPinToGradFixed(fDstToIndex.getScaleX());
         }
 
         LinearShadeProc shadeProc = shadeSpan_linear_repeat;
@@ -359,8 +426,7 @@ public:
     const char* name() const override { return "Linear Gradient"; }
 
 private:
-    GrLinearGradient(const CreateArgs& args)
-        : INHERITED(args) {
+    GrLinearGradient(const CreateArgs& args) : INHERITED(args, args.fShader->colorsAreOpaque()) {
         this->initClassID<GrLinearGradient>();
     }
 
@@ -407,6 +473,7 @@ void GrLinearGradient::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrLinearGradient);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) {
     SkPoint points[] = {{d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()},
                         {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()}};
@@ -422,6 +489,7 @@ sk_sp<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) 
     GrAlwaysAssert(fp);
     return fp;
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////
 

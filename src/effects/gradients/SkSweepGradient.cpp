@@ -45,12 +45,10 @@ void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fCenter);
 }
 
-size_t SkSweepGradient::onContextSize(const ContextRec&) const {
-    return sizeof(SweepGradientContext);
-}
-
-SkShader::Context* SkSweepGradient::onCreateContext(const ContextRec& rec, void* storage) const {
-    return CheckedCreateContext<SweepGradientContext>(storage, *this, rec);
+SkShader::Context* SkSweepGradient::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const
+{
+    return CheckedMakeContext<SweepGradientContext>(alloc, *this, rec);
 }
 
 SkSweepGradient::SweepGradientContext::SweepGradientContext(
@@ -138,8 +136,7 @@ public:
     const char* name() const override { return "Sweep Gradient"; }
 
 private:
-    GrSweepGradient(const CreateArgs& args)
-    : INHERITED(args) {
+    GrSweepGradient(const CreateArgs& args) : INHERITED(args, args.fShader->colorsAreOpaque()) {
         this->initClassID<GrSweepGradient>();
     }
 
@@ -187,6 +184,7 @@ void GrSweepGradient::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSweepGradient);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
     SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
 
@@ -201,6 +199,7 @@ sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
     GrAlwaysAssert(fp);
     return fp;
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////
 
@@ -210,8 +209,18 @@ void GrSweepGradient::GLSLSweepProcessor::emitCode(EmitArgs& args) {
     SkString coords2D = args.fFragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     SkString t;
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
-    t.printf("(atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5)",
-             coords2D.c_str(), coords2D.c_str());
+    if (args.fShaderCaps->atan2ImplementedAsAtanYOverX()) {
+        // On some devices they incorrectly implement atan2(y,x) as atan(y/x). In actuality it is
+        // atan2(y,x) = 2 * atan(y / (sqrt(x^2 + y^2) + x)). So to work around this we pass in
+        // (sqrt(x^2 + y^2) + x) as the second parameter to atan2 in these cases. We let the device
+        // handle the undefined behavior of the second paramenter being 0 instead of doing the
+        // divide ourselves and using atan instead.
+        t.printf("(2.0 * atan(- %s.y, length(%s) - %s.x) * 0.1591549430918 + 0.5)",
+                 coords2D.c_str(), coords2D.c_str(), coords2D.c_str());
+    } else {
+        t.printf("(atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5)",
+                 coords2D.c_str(), coords2D.c_str());
+    }
     this->emitColor(args.fFragBuilder,
                     args.fUniformHandler,
                     args.fShaderCaps,

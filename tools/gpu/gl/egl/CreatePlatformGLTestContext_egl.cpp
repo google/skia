@@ -38,7 +38,7 @@ private:
 
 class EGLGLTestContext : public sk_gpu_test::GLTestContext {
 public:
-    EGLGLTestContext(GrGLStandard forcedGpuAPI);
+    EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* shareContext);
     ~EGLGLTestContext() override;
 
     GrEGLImage texture2DToEGLImage(GrGLuint texID) const override;
@@ -58,10 +58,13 @@ private:
     EGLSurface fSurface;
 };
 
-EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI)
+EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* shareContext)
     : fContext(EGL_NO_CONTEXT)
     , fDisplay(EGL_NO_DISPLAY)
     , fSurface(EGL_NO_SURFACE) {
+
+    EGLContext eglShareContext = shareContext ? shareContext->fContext : nullptr;
+
     static const EGLint kEGLContextAttribsForOpenGL[] = {
         EGL_NONE
     };
@@ -142,7 +145,8 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI)
             continue;
         }
 
-        fContext = eglCreateContext(fDisplay, surfaceConfig, nullptr, kAPIs[api].fContextAttribs);
+        fContext = eglCreateContext(fDisplay, surfaceConfig, eglShareContext,
+                                    kAPIs[api].fContextAttribs);
         if (EGL_NO_CONTEXT == fContext) {
             SkDebugf("eglCreateContext failed.  EGL Error: 0x%08x\n", eglGetError());
             continue;
@@ -256,7 +260,8 @@ GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
 }
 
 std::unique_ptr<sk_gpu_test::GLTestContext> EGLGLTestContext::makeNew() const {
-    std::unique_ptr<sk_gpu_test::GLTestContext> ctx(new EGLGLTestContext(this->gl()->fStandard));
+    std::unique_ptr<sk_gpu_test::GLTestContext> ctx(new EGLGLTestContext(this->gl()->fStandard,
+                                                                         nullptr));
     if (ctx) {
         ctx->makeCurrent();
     }
@@ -327,11 +332,8 @@ GR_STATIC_ASSERT(sizeof(EGLSyncKHR) <= sizeof(sk_gpu_test::PlatformFence));
 namespace sk_gpu_test {
 GLTestContext *CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
                                            GLTestContext *shareContext) {
-    SkASSERT(!shareContext);
-    if (shareContext) {
-        return nullptr;
-    }
-    EGLGLTestContext *ctx = new EGLGLTestContext(forcedGpuAPI);
+    EGLGLTestContext* eglShareContext = reinterpret_cast<EGLGLTestContext*>(shareContext);
+    EGLGLTestContext *ctx = new EGLGLTestContext(forcedGpuAPI, eglShareContext);
     if (!ctx->isValid()) {
         delete ctx;
         return nullptr;

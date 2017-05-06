@@ -7,6 +7,7 @@
 
 #include "SkNormalBevelSource.h"
 
+#include "SkArenaAlloc.h"
 #include "SkNormalSource.h"
 #include "SkNormalSourcePriv.h"
 #include "SkPoint3.h"
@@ -14,7 +15,6 @@
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "SkGr.h"
@@ -30,12 +30,13 @@
 class NormalBevelFP : public GrFragmentProcessor {
 public:
     NormalBevelFP(SkNormalSource::BevelType bevelType, SkScalar bevelWidth, SkScalar bevelHeight)
-        : fBevelType(bevelType)
-        , fBevelWidth(bevelWidth)
-        , fBevelHeight(bevelHeight) {
+            : INHERITED(kNone_OptimizationFlags)
+            , fBevelType(bevelType)
+            , fBevelWidth(bevelWidth)
+            , fBevelHeight(bevelHeight) {
         this->initClassID<NormalBevelFP>();
 
-        fUsesDistanceVectorField = true;
+        this->setWillUseDistanceVectorField();
     }
 
     class GLSLNormalBevelFP : public GLSLNormalFP {
@@ -222,10 +223,6 @@ public:
 
     const char* name() const override { return "NormalBevelFP"; }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown(GrInvariantOutput::ReadInput::kWillNot_ReadInput);
-    }
-
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLNormalBevelFP; }
 
@@ -239,6 +236,8 @@ private:
     SkNormalSource::BevelType fBevelType;
     SkScalar fBevelWidth;
     SkScalar fBevelHeight;
+
+    typedef GrFragmentProcessor INHERITED;
 };
 
 sk_sp<GrFragmentProcessor> SkNormalBevelSourceImpl::asFragmentProcessor(
@@ -260,12 +259,8 @@ SkNormalBevelSourceImpl::Provider::Provider() {}
 SkNormalBevelSourceImpl::Provider::~Provider() {}
 
 SkNormalSource::Provider* SkNormalBevelSourceImpl::asProvider(const SkShader::ContextRec &rec,
-                                                              void *storage) const {
-    return new (storage) Provider();
-}
-
-size_t SkNormalBevelSourceImpl::providerSize(const SkShader::ContextRec&) const {
-    return sizeof(Provider);
+                                                              SkArenaAlloc* alloc) const {
+    return alloc->make<Provider>();
 }
 
 // TODO Implement feature for the CPU pipeline

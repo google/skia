@@ -12,6 +12,7 @@
 #include "SkSLPosition.h"
 #include "SkSLSymbol.h"
 #include "SkSLType.h"
+#include "SkSLVariable.h"
 
 namespace SkSL {
 

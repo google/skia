@@ -57,7 +57,7 @@ static void show_fill(SkCanvas* canvas, bool doAA) {
 
 static SkScalar randRange(SkRandom& rand, SkScalar min, SkScalar max) {
     SkASSERT(min <= max);
-    return min + SkScalarMul(rand.nextUScalar1(), max - min);
+    return min + rand.nextUScalar1() * (max - min);
 }
 
 static void show_stroke(SkCanvas* canvas, bool doAA, SkScalar strokeWidth, int n) {

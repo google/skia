@@ -9,6 +9,7 @@
 #define SkTTCFHeader_DEFINED
 
 #include "SkOTTableTypes.h"
+#include "SkSFNTHeader.h"
 
 #pragma pack(push, 1)
 

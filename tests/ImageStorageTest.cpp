@@ -10,7 +10,6 @@
 #if SK_SUPPORT_GPU
 
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -28,17 +27,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
 
     private:
         TestFP(sk_sp<GrTexture> texture, GrSLMemoryModel mm, GrSLRestrict restrict)
-                : fImageStorageAccess(std::move(texture), kRead_GrIOType, mm, restrict) {
+                : INHERITED(kNone_OptimizationFlags)
+                , fImageStorageAccess(std::move(texture), kRead_GrIOType, mm, restrict) {
             this->initClassID<TestFP>();
-            this->setWillReadFragmentPosition();
             this->addImageStorageAccess(&fImageStorageAccess);
         }
 
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
-
-        void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-            inout->setToUnknown(GrInvariantOutput::kWillNot_ReadInput);
-        }
 
         bool onIsEqual(const GrFragmentProcessor& that) const override { return true; }
 
@@ -50,8 +45,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                     const TestFP& tfp = args.fFp.cast<TestFP>();
                     GrGLSLFPFragmentBuilder* fb = args.fFragBuilder;
                     SkString imageLoadStr;
-                    fb->codeAppendf("highp vec2 coord = %s.xy;",
-                                    args.fFragBuilder->fragmentPosition());
+                    fb->codeAppend("highp vec2 coord = sk_FragCoord.xy;");
                     fb->appendImageStorageLoad(&imageLoadStr, args.fImageStorages[0],
                                                "ivec2(coord)");
                     if (GrPixelConfigIsSint(tfp.fImageStorageAccess.texture()->config())) {
@@ -75,6 +69,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
         }
 
         ImageStorageAccess fImageStorageAccess;
+        typedef GrFragmentProcessor INHERITED;
     };
 
     static constexpr int kS = 256;

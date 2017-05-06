@@ -102,6 +102,8 @@ public:
        this->definitions().append(";\n");
     }
 
+    void declareGlobal(const GrShaderVar&);
+
     /**
     * Called by GrGLSLProcessors to add code to one of the shaders.
     */

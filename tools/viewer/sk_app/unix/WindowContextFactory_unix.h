@@ -24,6 +24,8 @@ struct XlibWindowInfo {
     Display*     fDisplay;
     XWindow      fWindow;
     XVisualInfo* fVisualInfo;
+    int          fWidth;
+    int          fHeight;
 };
 
 WindowContext* NewVulkanForXlib(const XlibWindowInfo&, const DisplayParams&);

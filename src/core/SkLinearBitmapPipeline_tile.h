@@ -143,8 +143,10 @@ private:
     const SkScalar fYMaxPixel;
 };
 
-SkScalar tile_mod(SkScalar x, SkScalar base) {
-    return x - SkScalarFloorToScalar(x / base) * base;
+SkScalar tile_mod(SkScalar x, SkScalar base, SkScalar cap) {
+    // When x is a negative number *very* close to zero, the difference becomes 0 - (-base) = base
+    // which is an out of bound value. The min() corrects these problematic values.
+    return std::min(x - SkScalarFloorToScalar(x / base) * base, cap);
 }
 
 class XRepeatStrategy {
@@ -167,7 +169,7 @@ public:
         SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = originalSpan;
         // Make x and y in range on the tile.
-        SkScalar x = tile_mod(X(start), fXMax);
+        SkScalar x = tile_mod(X(start), fXMax, fXCap);
         SkScalar y = Y(start);
         SkScalar dx = length / (count - 1);
 
@@ -261,7 +263,7 @@ public:
         SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = originalSpan;
         // Make x and y in range on the tile.
-        SkScalar x = tile_mod(X(start), fXMax);
+        SkScalar x = tile_mod(X(start), fXMax, fXCap);
         SkScalar y = Y(start);
 
         // No need trying to go fast because the steps are larger than a tile or there is one point.
@@ -326,23 +328,25 @@ class YRepeatStrategy {
 public:
     YRepeatStrategy(int32_t max)
         : fYMax{SkScalar(max)}
+        , fYCap{SkScalar(nextafterf(SkScalar(max), 0.0f))}
         , fYsInvMax{1.0f / SkScalar(max)} { }
 
     void tileYPoints(Sk4s* ys) {
         Sk4s divY = *ys * fYsInvMax;
         Sk4s modY = *ys - divY.floor() * fYMax;
-        *ys = modY;
+        *ys = Sk4s::Min(fYCap, modY);
         assertTiled(*ys, fYMax);
     }
 
     SkScalar tileY(SkScalar y) {
-        SkScalar answer = tile_mod(y, fYMax);
+        SkScalar answer = tile_mod(y, fYMax, fYCap);
         SkASSERT(0 <= answer && answer < fYMax);
         return answer;
     }
 
 private:
     const SkScalar fYMax;
+    const SkScalar fYCap;
     const SkScalar fYsInvMax;
 };
 // max = 40

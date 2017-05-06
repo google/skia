@@ -155,10 +155,12 @@ private:
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTargetContext*);
 
     struct RecordedOp {
+        RecordedOp(std::unique_ptr<GrOp> op, const SkRect& clippedBounds, GrRenderTarget* rt)
+                : fOp(std::move(op)), fClippedBounds(clippedBounds), fRenderTarget(rt) {}
         std::unique_ptr<GrOp> fOp;
         SkRect fClippedBounds;
-        // TODO: Use proxy ID instead of instantiated render target ID.
-        GrGpuResource::UniqueID fRenderTargetID;
+        // TODO: These ops will all to target the same render target and this won't be needed.
+        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
     };
     SkSTArray<256, RecordedOp, true> fRecordedOps;
 

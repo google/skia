@@ -111,13 +111,13 @@ SkScalar pinFx<SkShader::kMirror_TileMode>(SkScalar fx) {
     return f;
 }
 
-// true when x is in [k1,k2), or [k2, k1) when the interval is reversed.
+// true when x is in [k1,k2], or [k2, k1] when the interval is reversed.
 // TODO(fmalita): hoist the reversed interval check out of this helper.
 bool in_range(SkScalar x, SkScalar k1, SkScalar k2) {
     SkASSERT(k1 != k2);
     return (k1 < k2)
-        ? (x >= k1 && x < k2)
-        : (x >= k2 && x < k1);
+        ? (x >= k1 && x <= k2)
+        : (x >= k2 && x <= k1);
 }
 
 } // anonymous namespace
@@ -295,7 +295,7 @@ public:
                             SkScalar fx,
                             SkScalar dx,
                             bool is_vertical)
-        : fAdvX((i->fP1 - fx) / dx)
+        : fAdvX(is_vertical ? SK_ScalarInfinity : (i->fP1 - fx) / dx)
         , fFirstInterval(firstInterval)
         , fLastInterval(lastInterval)
         , fInterval(i)
@@ -465,7 +465,9 @@ LinearGradient4fContext::mapTs(int x, int y, SkScalar ts[], int count) const {
     } else {
         for (int i = 0; i < count; ++i) {
             fDstToPosProc(fDstToPos, sx, sy, &pt);
-            ts[i] = pt.x();
+            // Perspective may yield NaN values.
+            // Short of a better idea, drop to 0.
+            ts[i] = SkScalarIsNaN(pt.x()) ? 0 : pt.x();
             sx += SK_Scalar1;
         }
     }

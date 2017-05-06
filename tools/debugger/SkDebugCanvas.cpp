@@ -328,10 +328,7 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         this->lastClipStackData(devPath);
     }
     fMatrix = filterCanvas.getTotalMatrix();
-    if (!filterCanvas.getClipDeviceBounds(&fClip)) {
-        fClip.setEmpty();
-    }
-
+    fClip = filterCanvas.getDeviceClipBounds();
     filterCanvas.restoreToCount(saveCount);
 
 #if SK_SUPPORT_GPU

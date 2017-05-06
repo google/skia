@@ -141,7 +141,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         // xform during the filter itself.
         input = ImageToColorSpace(input.get(), ctx.outputProperties());
 
-        sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
+        sk_sp<GrTextureProxy> inputTexture(input->asTextureProxyRef(context));
         if (!inputTexture) {
             return nullptr;
         }
@@ -163,7 +163,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         // have the same gamut, so in this case, we do everything in the input's color space.
         sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(
                                                                 context,
-                                                                inputTexture.get(),
+                                                                std::move(inputTexture),
                                                                 sk_ref_sp(input->getColorSpace()),
                                                                 dstBounds,
                                                                 &inputBounds,
@@ -173,11 +173,13 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
             return nullptr;
         }
 
-        return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
-                                           kNeedNewImageUniqueID_SpecialImage,
-                                           renderTargetContext->asTexture(),
-                                           renderTargetContext->refColorSpace(),
-                                           &source->props());
+        return SkSpecialImage::MakeDeferredFromGpu(context,
+                                                   SkIRect::MakeWH(dstBounds.width(),
+                                                                   dstBounds.height()),
+                                                   kNeedNewImageUniqueID_SpecialImage,
+                                                   renderTargetContext->asTextureProxyRef(),
+                                                   renderTargetContext->refColorSpace(),
+                                                   &source->props());
     }
 #endif
 
@@ -274,16 +276,14 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
 
 SkRect SkBlurImageFilterImpl::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
-    bounds.outset(SkScalarMul(fSigma.width(), SkIntToScalar(3)),
-                  SkScalarMul(fSigma.height(), SkIntToScalar(3)));
+    bounds.outset(fSigma.width() * 3, fSigma.height() * 3);
     return bounds;
 }
 
 SkIRect SkBlurImageFilterImpl::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                               MapDirection) const {
     SkVector sigma = map_sigma(fSigma, ctm);
-    return src.makeOutset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
-                          SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
+    return src.makeOutset(SkScalarCeilToInt(sigma.x() * 3), SkScalarCeilToInt(sigma.y() * 3));
 }
 
 #ifndef SK_IGNORE_TO_STRING

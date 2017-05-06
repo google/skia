@@ -14,6 +14,8 @@
 
 class GrAuditTrail;
 class GrContext;
+class GrDrawingManager;
+class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
 class GrSurface;
@@ -33,6 +35,10 @@ public:
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
     sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
     bool isGammaCorrect() const { return SkToBool(fColorSpace.get()); }
+
+    // TODO: these two calls would be way cooler if this object had a GrSurfaceProxy pointer
+    int width() const { return this->asSurfaceProxy()->width(); }
+    int height() const { return this->asSurfaceProxy()->height(); }
 
     /*
      * Copy 'src' into the proxy backing this context
@@ -85,14 +91,22 @@ public:
      *              unsupported pixel config.
      */
     bool writePixels(const SkImageInfo& srcInfo, const void* srcBuffer, size_t srcRowBytes,
-                     int x, int y) {
-        return this->onWritePixels(srcInfo, srcBuffer, srcRowBytes, x, y);
+                     int x, int y, uint32_t flags = 0) {
+        return this->onWritePixels(srcInfo, srcBuffer, srcRowBytes, x, y, flags);
     }
 
     // TODO: this is virtual b.c. this object doesn't have a pointer to the wrapped GrSurfaceProxy?
-    virtual GrSurfaceProxy* asDeferredSurface() = 0;
-    virtual GrTextureProxy* asDeferredTexture() = 0;
-    virtual GrRenderTargetProxy* asDeferredRenderTarget() = 0;
+    virtual GrSurfaceProxy* asSurfaceProxy() = 0;
+    virtual const GrSurfaceProxy* asSurfaceProxy() const = 0;
+    virtual sk_sp<GrSurfaceProxy> asSurfaceProxyRef() = 0;
+
+    virtual GrTextureProxy* asTextureProxy() = 0;
+    virtual sk_sp<GrTextureProxy> asTextureProxyRef() = 0;
+
+    virtual GrRenderTargetProxy* asRenderTargetProxy() = 0;
+    virtual sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() = 0;
+
+    virtual GrRenderTargetContext* asRenderTargetContext() { return nullptr; }
 
     GrAuditTrail* auditTrail() { return fAuditTrail; }
 
@@ -103,7 +117,11 @@ public:
 protected:
     friend class GrSurfaceContextPriv;
 
-    GrSurfaceContext(GrContext*, sk_sp<SkColorSpace>, GrAuditTrail*, GrSingleOwner*);
+    GrSurfaceContext(GrContext*, GrDrawingManager*,
+                     sk_sp<SkColorSpace>, GrAuditTrail*, GrSingleOwner*);
+
+    GrDrawingManager* drawingManager() { return fDrawingManager; }
+    const GrDrawingManager* drawingManager() const { return fDrawingManager; }
 
     SkDEBUGCODE(GrSingleOwner* singleOwner() { return fSingleOwner; })
 
@@ -121,7 +139,9 @@ private:
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
                               size_t dstRowBytes, int x, int y) = 0;
     virtual bool onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
-                               size_t srcRowBytes, int x, int y) = 0;
+                               size_t srcRowBytes, int x, int y, uint32_t flags) = 0;
+
+    GrDrawingManager*     fDrawingManager;
 
     typedef SkRefCnt INHERITED;
 };

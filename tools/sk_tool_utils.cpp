@@ -22,6 +22,38 @@
 
 DEFINE_bool(portableFonts, false, "Use portable fonts");
 
+#if SK_SUPPORT_GPU
+#include "effects/GrSRGBEffect.h"
+#include "SkColorFilter.h"
+
+// Color filter that just wraps GrSRGBEffect
+class SkSRGBColorFilter : public SkColorFilter {
+public:
+    static sk_sp<SkColorFilter> Make(GrSRGBEffect::Mode mode) {
+        return sk_sp<SkColorFilter>(new SkSRGBColorFilter(mode));
+    }
+
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override {
+        return GrSRGBEffect::Make(fMode);
+    }
+
+    void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override {
+        SK_ABORT("SkSRGBColorFilter is only implemented for GPU");
+    }
+    Factory getFactory() const override { return nullptr; }
+
+#ifndef SK_IGNORE_TO_STRING
+    void toString(SkString* str) const override {}
+#endif
+
+private:
+    SkSRGBColorFilter(GrSRGBEffect::Mode mode) : fMode(mode) {}
+
+    GrSRGBEffect::Mode fMode;
+    typedef SkColorFilter INHERITED;
+};
+#endif
+
 namespace sk_tool_utils {
 
 /* these are the default fonts chosen by Chrome for serif, sans-serif, and monospace */
@@ -169,6 +201,7 @@ const char* colortype_name(SkColorType ct) {
         case kRGB_565_SkColorType:      return "RGB_565";
         case kRGBA_8888_SkColorType:    return "RGBA_8888";
         case kBGRA_8888_SkColorType:    return "BGRA_8888";
+        case kRGBA_F16_SkColorType:     return "RGBA_F16";
         default:
             SkASSERT(false);
             return "unexpected colortype";
@@ -555,5 +588,45 @@ SkRect compute_tallest_occluder(const SkRRect& rr) {
     return SkRect::MakeLTRB(r.fLeft + maxL, r.fTop, r.fRight - maxR, r.fBottom);
 }
 
+void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
+    SkASSERT(kBGRA_8888_SkColorType == src.colorType() ||
+             kRGBA_8888_SkColorType == src.colorType());
+
+    SkImageInfo grayInfo = src.info().makeColorType(kGray_8_SkColorType);
+    dst->allocPixels(grayInfo);
+    uint8_t* dst8 = (uint8_t*)dst->getPixels();
+    const uint32_t* src32 = (const uint32_t*)src.getPixels();
+
+    const int w = src.width();
+    const int h = src.height();
+    const bool isBGRA = (kBGRA_8888_SkColorType == src.colorType());
+    for (int y = 0; y < h; ++y) {
+        if (isBGRA) {
+            // BGRA
+            for (int x = 0; x < w; ++x) {
+                uint32_t s = src32[x];
+                dst8[x] = SkComputeLuminance((s >> 16) & 0xFF, (s >> 8) & 0xFF, s & 0xFF);
+            }
+        } else {
+            // RGBA
+            for (int x = 0; x < w; ++x) {
+                uint32_t s = src32[x];
+                dst8[x] = SkComputeLuminance(s & 0xFF, (s >> 8) & 0xFF, (s >> 16) & 0xFF);
+            }
+        }
+        src32 = (const uint32_t*)((const char*)src32 + src.rowBytes());
+        dst8 += dst->rowBytes();
+    }
+}
+
+#if SK_SUPPORT_GPU
+sk_sp<SkColorFilter> MakeLinearToSRGBColorFilter() {
+    return SkSRGBColorFilter::Make(GrSRGBEffect::Mode::kLinearToSRGB);
+}
+
+sk_sp<SkColorFilter> MakeSRGBToLinearColorFilter() {
+    return SkSRGBColorFilter::Make(GrSRGBEffect::Mode::kSRGBToLinear);
+}
+#endif
 
 }  // namespace sk_tool_utils

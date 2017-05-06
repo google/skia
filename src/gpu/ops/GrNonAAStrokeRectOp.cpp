@@ -12,6 +12,7 @@
 #include "GrDrawOpTest.h"
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
+#include "SkStrokeRec.h"
 #include "SkRandom.h"
 
 /*  create a triangle strip that strokes the specified rect. There are 8
@@ -101,9 +102,9 @@ public:
 private:
     NonAAStrokeRectOp() : INHERITED(ClassID()) {}
 
-    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fColor);
-        input->pipelineCoverageInput()->setKnownSingleComponent(0xFF);
+    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
+        input->colorInput()->setToConstant(fColor);
+        input->coverageInput()->setToSolidCoverage();
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -193,7 +194,7 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
 }
 }
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 DRAW_OP_TEST_DEFINE(NonAAStrokeRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);

@@ -17,6 +17,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "GrImageTextureMaker.h"
 #include "GrResourceKey.h"
@@ -96,13 +97,13 @@ SkImageCacherator::Validator::Validator(sk_sp<SharedGenerator> gen, const SkIRec
     // construct a source-to-dest gamut transformation matrix.
     if (fInfo.colorSpace() &&
         SkColorSpace_Base::Type::kXYZ != as_CSB(fInfo.colorSpace())->type()) {
-        fInfo = fInfo.makeColorSpace(SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named));
+        fInfo = fInfo.makeColorSpace(SkColorSpace::MakeSRGBLinear());
     }
 }
 
-SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen,
+SkImageCacherator* SkImageCacherator::NewFromGenerator(std::unique_ptr<SkImageGenerator> gen,
                                                        const SkIRect* subset) {
-    Validator validator(SharedGenerator::Make(gen), subset);
+    Validator validator(SharedGenerator::Make(std::move(gen)), subset);
 
     return validator ? new SkImageCacherator(&validator) : nullptr;
 }
@@ -175,13 +176,6 @@ bool SkImageCacherator::directGeneratePixels(const SkImageInfo& info, void* pixe
     return generator->getPixels(info, pixels, rb);
 }
 
-bool SkImageCacherator::directAccessScaledImage(const SkRect& srcRect,
-                                                const SkMatrix& totalMatrix,
-                                                SkFilterQuality fq,
-                                                SkImageGenerator::ScaledImageRec* rec) {
-    return ScopedGenerator(fSharedGenerator)->accessScaledImage(srcRect, totalMatrix, fq, rec);
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImageCacherator::lockAsBitmapOnlyIfAlreadyCached(SkBitmap* bitmap, CachedFormat format) {
@@ -245,11 +239,9 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
         return false;
     }
 
-    const uint32_t pixelOpsFlags = 0;
     if (!tex->readPixels(fInfo.colorSpace(), 0, 0, bitmap->width(), bitmap->height(),
                          SkImageInfo2GrPixelConfig(cacheInfo, *tex->getContext()->caps()),
-                         cacheInfo.colorSpace(), bitmap->getPixels(), bitmap->rowBytes(),
-                         pixelOpsFlags)) {
+                         cacheInfo.colorSpace(), bitmap->getPixels(), bitmap->rowBytes())) {
         bitmap->reset();
         return false;
     }
@@ -571,7 +563,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
 #endif
 
     // 4. Ask the generator to return YUV planes, which the GPU can convert
-    {
+    if (!ctx->contextPriv().disableGpuYUVConversion()) {
         ScopedGenerator generator(fSharedGenerator);
         Generator_GrYUVProvider provider(generator);
         sk_sp<GrTexture> tex = provider.refAsTexture(ctx, desc, true);
@@ -608,13 +600,16 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParams& params,
                                             SkColorSpace* dstColorSpace,
                                             sk_sp<SkColorSpace>* texColorSpace,
-                                            const SkImage* client, SkImage::CachingHint chint) {
+                                            const SkImage* client,
+                                            SkScalar scaleAdjust[2],
+                                            SkImage::CachingHint chint) {
     if (!ctx) {
         return nullptr;
     }
 
     return GrImageTextureMaker(ctx, this, client, chint).refTextureForParams(params, dstColorSpace,
-                                                                             texColorSpace);
+                                                                             texColorSpace,
+                                                                             scaleAdjust);
 }
 
 #else
@@ -622,7 +617,8 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParam
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParams&,
                                             SkColorSpace* dstColorSpace,
                                             sk_sp<SkColorSpace>* texColorSpace,
-                                            const SkImage* client, SkImage::CachingHint) {
+                                            const SkImage* client,
+                                            SkScalar scaleAdjust[2], SkImage::CachingHint) {
     return nullptr;
 }
 

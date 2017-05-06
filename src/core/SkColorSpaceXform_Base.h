@@ -74,6 +74,7 @@ private:
 
     SrcGamma             fSrcGamma;
     DstGamma             fDstGamma;
+    bool                 fLinearBlending;
 
     friend class SkColorSpaceXform;
     friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
@@ -86,8 +87,8 @@ struct LoadTablesContext {
     const float* fB;
 };
 
-struct StoreTablesContext {
-    uint32_t*      fDst;
+// Must be kept in sync with "Tables" struct in RasterPipeline_opts byte_tables_rgb.
+struct TablesContext {
     const uint8_t* fR;
     const uint8_t* fG;
     const uint8_t* fB;

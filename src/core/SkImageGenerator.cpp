@@ -86,26 +86,6 @@ GrTexture* SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& 
     return this->onGenerateTexture(ctx, info, origin);
 }
 
-bool SkImageGenerator::computeScaledDimensions(SkScalar scale, SupportedSizes* sizes) {
-    if (scale > 0 && scale <= 1) {
-        return this->onComputeScaledDimensions(scale, sizes);
-    }
-    return false;
-}
-
-bool SkImageGenerator::generateScaledPixels(const SkPixmap& scaledPixels) {
-    if (scaledPixels.width() <= 0 || scaledPixels.height() <= 0) {
-        return false;
-    }
-    return this->onGenerateScaledPixels(scaledPixels);
-}
-
-bool SkImageGenerator::accessScaledImage(const SkRect& src, const SkMatrix& matrix,
-                                         SkFilterQuality fq, ScaledImageRec* rec) {
-    SkASSERT(fInfo.bounds().contains(src));
-    return this->onAccessScaledImage(src, matrix, fq, rec);
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 SkData* SkImageGenerator::onRefEncodedData(GrContext* ctx) {
@@ -194,24 +174,24 @@ bool SkImageGenerator::tryGenerateBitmap(SkBitmap* bitmap, const SkImageInfo& in
 
 #include "SkGraphics.h"
 
-static SkGraphics::ImageGeneratorFromEncodedFactory gFactory;
+static SkGraphics::ImageGeneratorFromEncodedDataFactory gFactory;
 
-SkGraphics::ImageGeneratorFromEncodedFactory
-SkGraphics::SetImageGeneratorFromEncodedFactory(ImageGeneratorFromEncodedFactory factory)
+SkGraphics::ImageGeneratorFromEncodedDataFactory
+SkGraphics::SetImageGeneratorFromEncodedDataFactory(ImageGeneratorFromEncodedDataFactory factory)
 {
-    ImageGeneratorFromEncodedFactory prev = gFactory;
+    ImageGeneratorFromEncodedDataFactory prev = gFactory;
     gFactory = factory;
     return prev;
 }
 
-SkImageGenerator* SkImageGenerator::NewFromEncoded(SkData* data) {
-    if (nullptr == data) {
+std::unique_ptr<SkImageGenerator> SkImageGenerator::MakeFromEncoded(sk_sp<SkData> data) {
+    if (!data) {
         return nullptr;
     }
     if (gFactory) {
-        if (SkImageGenerator* generator = gFactory(data)) {
+        if (std::unique_ptr<SkImageGenerator> generator = gFactory(data)) {
             return generator;
         }
     }
-    return SkImageGenerator::NewFromEncodedImpl(data);
+    return SkImageGenerator::MakeFromEncodedImpl(std::move(data));
 }

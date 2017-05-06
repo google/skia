@@ -14,6 +14,7 @@
 #include "SkTypes.h"
 #include "SkJSONCPP.h"
 
+class GrContext;
 class SkCanvas;
 class SkSurface;
 
@@ -53,7 +54,7 @@ public:
         kBackendTypeCount = kLast_BackendType + 1
     };
 
-    virtual bool attach(BackendType attachType,  const DisplayParams& params) = 0;
+    virtual bool attach(BackendType) = 0;
     void detach();
 
     // input handling
@@ -86,6 +87,22 @@ public:
         kLeft,
         kRight,
 
+        // Keys needed by ImGui
+        kTab,
+        kPageUp,
+        kPageDown,
+        kDelete,
+        kEscape,
+        kShift,
+        kCtrl,
+        kOption, // AKA Alt
+        kA,
+        kC,
+        kV,
+        kX,
+        kY,
+        kZ,
+
         kOK,      //!< the center key
 
         kVolUp,   //!< volume up    - match android
@@ -112,13 +129,20 @@ public:
     };
 
     // return value of 'true' means 'I have handled this event'
+    typedef void(*OnBackendCreatedFunc)(void* userData);
     typedef bool(*OnCharFunc)(SkUnichar c, uint32_t modifiers, void* userData);
     typedef bool(*OnKeyFunc)(Key key, InputState state, uint32_t modifiers, void* userData);
     typedef bool(*OnMouseFunc)(int x, int y, InputState state, uint32_t modifiers, void* userData);
+    typedef bool(*OnMouseWheelFunc)(float delta, uint32_t modifiers, void* userData);
     typedef bool(*OnTouchFunc)(intptr_t owner, InputState state, float x, float y, void* userData);
     typedef void(*OnUIStateChangedFunc)(
             const SkString& stateName, const SkString& stateValue, void* userData);
     typedef void(*OnPaintFunc)(SkCanvas*, void* userData);
+
+    void registerBackendCreatedFunc(OnBackendCreatedFunc func, void* userData) {
+        fBackendCreatedFunc = func;
+        fBackendCreatedUserData = userData;
+    }
 
     void registerCharFunc(OnCharFunc func, void* userData) {
         fCharFunc = func;
@@ -133,6 +157,11 @@ public:
     void registerMouseFunc(OnMouseFunc func, void* userData) {
         fMouseFunc = func;
         fMouseUserData = userData;
+    }
+
+    void registerMouseWheelFunc(OnMouseWheelFunc func, void* userData) {
+        fMouseWheelFunc = func;
+        fMouseWheelUserData = userData;
     }
 
     void registerPaintFunc(OnPaintFunc func, void* userData) {
@@ -150,42 +179,49 @@ public:
         fUIStateChangedUserData = userData;
     }
 
+    void onBackendCreated();
     bool onChar(SkUnichar c, uint32_t modifiers);
     bool onKey(Key key, InputState state, uint32_t modifiers);
     bool onMouse(int x, int y, InputState state, uint32_t modifiers);
+    bool onMouseWheel(float delta, uint32_t modifiers);
     bool onTouch(intptr_t owner, InputState state, float x, float y);  // multi-owner = multi-touch
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
     void onPaint();
     void onResize(int width, int height);
 
-    int width() { return fWidth; }
-    int height() { return fHeight;  }
+    int width();
+    int height();
 
-    virtual const DisplayParams& getDisplayParams();
-    void setDisplayParams(const DisplayParams& params);
+    virtual const DisplayParams& getRequestedDisplayParams() { return fRequestedDisplayParams; }
+    void setRequestedDisplayParams(const DisplayParams&);
 
-    // This is just for the sRGB split screen
-    sk_sp<SkSurface> getOffscreenSurface(bool forceSRGB);
+    // Actual parameters in effect, obtained from the native window.
+    int sampleCount() const;
+    int stencilBits() const;
+
+    // Returns null if there is not a GPU backend or if the backend is not yet created.
+    const GrContext* getGrContext() const;
 
 protected:
     Window();
 
-    int          fWidth;
-    int          fHeight;
-
-    OnCharFunc   fCharFunc;
-    void*        fCharUserData;
-    OnKeyFunc    fKeyFunc;
-    void*        fKeyUserData;
-    OnMouseFunc  fMouseFunc;
-    void*        fMouseUserData;
-    OnTouchFunc  fTouchFunc;
-    void*        fTouchUserData;
-    OnUIStateChangedFunc
-                 fUIStateChangedFunc;
-    void*        fUIStateChangedUserData;
-    OnPaintFunc  fPaintFunc;
-    void*        fPaintUserData;
+    OnBackendCreatedFunc   fBackendCreatedFunc;
+    void*                  fBackendCreatedUserData;
+    OnCharFunc             fCharFunc;
+    void*                  fCharUserData;
+    OnKeyFunc              fKeyFunc;
+    void*                  fKeyUserData;
+    OnMouseFunc            fMouseFunc;
+    void*                  fMouseUserData;
+    OnMouseWheelFunc       fMouseWheelFunc;
+    void*                  fMouseWheelUserData;
+    OnTouchFunc            fTouchFunc;
+    void*                  fTouchUserData;
+    OnUIStateChangedFunc   fUIStateChangedFunc;
+    void*                  fUIStateChangedUserData;
+    OnPaintFunc            fPaintFunc;
+    void*                  fPaintUserData;
+    DisplayParams          fRequestedDisplayParams;
 
     WindowContext* fWindowContext = nullptr;
 

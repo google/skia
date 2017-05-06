@@ -35,6 +35,11 @@ void GrGLSLShaderBuilder::declAppend(const GrShaderVar& var) {
     this->codeAppendf("%s;", tempDecl.c_str());
 }
 
+void GrGLSLShaderBuilder::declareGlobal(const GrShaderVar& v) {
+    v.appendDecl(this->getProgramBuilder()->shaderCaps(), &this->definitions());
+    this->definitions().append(";");
+}
+
 void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
                                        const char* name,
                                        int argCnt,

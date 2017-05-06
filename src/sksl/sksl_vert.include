@@ -2,10 +2,13 @@ STRINGIFY(
 
 // defines built-in interfaces supported by SkiaSL vertex shaders
 
-out gl_PerVertex {
-  	layout(builtin=0) vec4 gl_Position;
-  	layout(builtin=1) float gl_PointSize;
+out sk_PerVertex {
+    layout(builtin=0) vec4 gl_Position;
+    layout(builtin=1) float gl_PointSize;
+    layout(builtin=3) float sk_ClipDistance[1];
 };
+
+layout(builtin=5) int sk_VertexID;
 
 )
 

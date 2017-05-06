@@ -86,8 +86,6 @@ BASE_SRCS_ALL = struct(
         "third_party/etc1/*.h",
         "third_party/gif/*.cpp",
         "third_party/gif/*.h",
-        "third_party/ktx/*.cpp",
-        "third_party/ktx/*.h",
     ],
     # Note: PRIVATE_HDRS_INCLUDE_LIST is excluded from BASE_SRCS_ALL here
     # because they are required to appear in srcs for some rules but hdrs for
@@ -106,9 +104,9 @@ BASE_SRCS_ALL = struct(
         "src/gpu/gl/mac/*",
         "src/gpu/gl/win/*",
         "src/images/*",
+        "src/jumper/*",
         "src/opts/**/*",
         "src/ports/**/*",
-        "src/splicer/*",
         "src/utils/android/**/*",
         "src/utils/mac/**/*",
         "src/utils/SkThreadUtils_win.cpp",  # Windows-only. Move to ports?
@@ -186,6 +184,7 @@ BASE_SRCS_UNIX = struct(
         "src/ports/SkFontMgr_empty_factory.cpp",
         "src/ports/SkFontMgr_fontconfig.cpp",
         "src/ports/SkFontMgr_fontconfig_factory.cpp",
+        "src/ports/SkGlobalInitialization_none.cpp",
         "src/ports/SkImageEncoder_none.cpp",
         "src/ports/SkImageGenerator_none.cpp",
         "src/ports/SkTLS_none.cpp",
@@ -213,6 +212,7 @@ BASE_SRCS_ANDROID = struct(
         "src/opts/*SSE4*",
         "src/opts/*sse4*",
         "src/opts/*avx*",
+        "src/opts/*hsw*",
         "src/opts/*x86*",
         "src/opts/SkBlitMask_opts_none.cpp",
         "src/opts/SkBlitRow_opts_none.cpp",
@@ -230,6 +230,7 @@ BASE_SRCS_ANDROID = struct(
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_custom_empty_factory.cpp",
         "src/ports/SkFontMgr_empty_factory.cpp",
+        "src/ports/SkGlobalInitialization_none.cpp",
         "src/ports/SkImageEncoder_none.cpp",
         "src/ports/SkImageGenerator_none.cpp",
         "src/ports/SkTLS_none.cpp",
@@ -251,7 +252,6 @@ BASE_SRCS_IOS = struct(
     ],
     exclude = [
         "src/codec/*Ico*.cpp",
-        "src/codec/*Jpeg*.cpp",
         "src/codec/*Webp*.cpp",
         "src/codec/*Png*",
         "src/codec/*Raw*.cpp",
@@ -264,6 +264,7 @@ BASE_SRCS_IOS = struct(
         "src/opts/*SSE4*",
         "src/opts/*sse4*",
         "src/opts/*avx*",
+        "src/opts/*hsw*",
         "src/opts/*x86*",
         "src/opts/SkBlitMask_opts_arm*.cpp",
         "src/opts/SkBlitRow_opts_arm*.cpp",
@@ -278,10 +279,14 @@ BASE_SRCS_IOS = struct(
         "src/ports/*nacl*",
         "src/ports/*win*",
         "src/ports/SkFontMgr_custom.cpp",
+        "src/ports/SkFontMgr_custom_directory.cpp",
+        "src/ports/SkFontMgr_custom_embedded.cpp",
+        "src/ports/SkFontMgr_custom_empty.cpp",
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_custom_empty_factory.cpp",
         "src/ports/SkFontMgr_empty_factory.cpp",
+        "src/ports/SkGlobalInitialization_none.cpp",
         "src/ports/SkImageGenerator_none.cpp",
         "src/ports/SkTLS_none.cpp",
     ],
@@ -385,7 +390,6 @@ INCLUDES = [
     "src/utils",
     "third_party/etc1",
     "third_party/gif",
-    "third_party/ktx",
 ]
 
 ################################################################################
@@ -476,7 +480,9 @@ DM_SRCS_IOS = struct(
 DM_INCLUDES = [
     "dm",
     "gm",
+    "experimental/svg/model",
     "src/codec",
+    "src/core",
     "src/effects",
     "src/effects/gradients",
     "src/fonts",
@@ -484,6 +490,7 @@ DM_INCLUDES = [
     "src/pathops",
     "src/pipe/utils",
     "src/ports",
+    "src/xml",
     "tests",
     "tools",
     "tools/debugger",
@@ -522,6 +529,7 @@ def DM_ARGS(asan):
         "~^gradients",
         "~Math",
         "~Matrix",
+        "~PathBigCubic",
         "~PathOpsCubic",
         "~PathOpsFailOp",
         "~PathOpsOpCubicsThreaded",
@@ -575,6 +583,7 @@ DEFINES_ANDROID = [
 DEFINES_IOS = [
     "SK_BUILD_FOR_IOS",
     "SK_BUILD_NO_OPTS",
+    "SK_HAS_JPEG_LIBRARY",
     "SK_IGNORE_ETC1_SUPPORT",
     "SKNX_NO_SIMD",
 ]
@@ -590,7 +599,7 @@ DEFINES_ALL = [
     "SK_NO_ANALYTIC_AA",
     "SK_SUPPORT_LEGACY_BITMAP_SETPIXELREF",
     "SK_SUPPORT_LEGACY_CLIPOP_EXOTIC_NAMES",
-    "SK_SUPPORT_LEGACY_CANVAS_GETCLIPSTACK",
+    "SK_SUPPORT_LEGACY_PATHEFFECT_SUBCLASSES",
 ]
 
 ################################################################################

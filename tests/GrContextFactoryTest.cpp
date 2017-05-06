@@ -23,7 +23,7 @@ DEF_GPUTEST(GrContextFactory_NVPRContextOptionHasPathRenderingSupport, reporter,
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
         GrContext* context = testFactory.get(ctxType,
-                                             GrContextFactory::ContextOptions::kEnableNVPR);
+                                           GrContextFactory::ContextOverrides::kRequireNVPRSupport);
         if (!context) {
             continue;
         }
@@ -33,13 +33,14 @@ DEF_GPUTEST(GrContextFactory_NVPRContextOptionHasPathRenderingSupport, reporter,
     }
 }
 
-DEF_GPUTEST(GrContextFactory_NoPathRenderingUnlessNVPRRequested, reporter, /*factory*/) {
-    // Test that if NVPR is not requested, the context never has path rendering support.
+DEF_GPUTEST(GrContextFactory_NoPathRenderingIfNVPRDisabled, reporter, /*factory*/) {
+    // Test that if NVPR is explicitly disabled, the context has no path rendering support.
 
     GrContextFactory testFactory;
     for (int i = 0; i <= GrContextFactory::kLastContextType; ++i) {
         GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType)i;
-        GrContext* context = testFactory.get(ctxType);
+        GrContext* context =
+            testFactory.get(ctxType, GrContextFactory::ContextOverrides::kDisableNVPR);
         if (context) {
             REPORTER_ASSERT(
                 reporter,
@@ -57,7 +58,7 @@ DEF_GPUTEST(GrContextFactory_RequiredSRGBSupport, reporter, /*factory*/) {
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
         GrContext* context =
-            testFactory.get(ctxType, GrContextFactory::ContextOptions::kRequireSRGBSupport);
+            testFactory.get(ctxType, GrContextFactory::ContextOverrides::kRequireSRGBSupport);
 
         if (context) {
             REPORTER_ASSERT(reporter, context->caps()->srgbSupport());
@@ -92,6 +93,49 @@ DEF_GPUTEST(GrContextFactory_abandon, reporter, /*factory*/) {
         // The GL context should also change, but it also could get the same address.
 
         info1.grContext()->unref();
+    }
+}
+
+DEF_GPUTEST(GrContextFactory_sharedContexts, reporter, /*factory*/) {
+    GrContextFactory testFactory;
+
+    for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
+        GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
+        ContextInfo info1 = testFactory.getContextInfo(ctxType);
+        if (!info1.grContext()) {
+            continue;
+        }
+
+        // Ref for passing in. The API does not explicitly say that this stays alive.
+        info1.grContext()->ref();
+        testFactory.abandonContexts();
+
+        // Test that creating a context in a share group with an abandoned context fails.
+        ContextInfo info2 = testFactory.getSharedContextInfo(info1.grContext());
+        REPORTER_ASSERT(reporter, !info2.grContext());
+        info1.grContext()->unref();
+
+        // Create a new base context
+        ContextInfo info3 = testFactory.getContextInfo(ctxType);
+        if (!info3.grContext()) {
+            // Vulkan NexusPlayer bot fails here. Sigh.
+            continue;
+        }
+
+        // Creating a context in a share group may fail, but should never crash.
+        ContextInfo info4 = testFactory.getSharedContextInfo(info3.grContext());
+        if (!info4.grContext()) {
+            continue;
+        }
+        REPORTER_ASSERT(reporter, info3.grContext() != info4.grContext());
+        REPORTER_ASSERT(reporter, info3.testContext() != info4.testContext());
+
+        // Passing a different index should create a new (unique) context.
+        ContextInfo info5 = testFactory.getSharedContextInfo(info3.grContext(), 1);
+        REPORTER_ASSERT(reporter, info5.grContext());
+        REPORTER_ASSERT(reporter, info5.testContext());
+        REPORTER_ASSERT(reporter, info5.grContext() != info4.grContext());
+        REPORTER_ASSERT(reporter, info5.testContext() != info4.testContext());
     }
 }
 

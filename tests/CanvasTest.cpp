@@ -66,6 +66,35 @@
 #include "SkTDArray.h"
 #include "Test.h"
 
+DEF_TEST(canvas_clipbounds, reporter) {
+    SkCanvas canvas(10, 10);
+    SkIRect irect, irect2;
+    SkRect rect, rect2;
+
+    irect = canvas.getDeviceClipBounds();
+    REPORTER_ASSERT(reporter, irect == SkIRect::MakeWH(10, 10));
+    REPORTER_ASSERT(reporter, canvas.getDeviceClipBounds(&irect2));
+    REPORTER_ASSERT(reporter, irect == irect2);
+
+    // local bounds are always too big today -- can we trim them?
+    rect = canvas.getLocalClipBounds();
+    REPORTER_ASSERT(reporter, rect.contains(SkRect::MakeWH(10, 10)));
+    REPORTER_ASSERT(reporter, canvas.getLocalClipBounds(&rect2));
+    REPORTER_ASSERT(reporter, rect == rect2);
+
+    canvas.clipRect(SkRect::MakeEmpty());
+
+    irect = canvas.getDeviceClipBounds();
+    REPORTER_ASSERT(reporter, irect == SkIRect::MakeEmpty());
+    REPORTER_ASSERT(reporter, !canvas.getDeviceClipBounds(&irect2));
+    REPORTER_ASSERT(reporter, irect == irect2);
+
+    rect = canvas.getLocalClipBounds();
+    REPORTER_ASSERT(reporter, rect == SkRect::MakeEmpty());
+    REPORTER_ASSERT(reporter, !canvas.getLocalClipBounds(&rect2));
+    REPORTER_ASSERT(reporter, rect == rect2);
+}
+
 static const int kWidth = 2, kHeight = 2;
 
 static void createBitmap(SkBitmap* bm, SkColor color) {
@@ -186,20 +215,6 @@ public:
 private:
     SkCanvas* fTarget;
 };
-
-static void test_clipstack(skiatest::Reporter* reporter) {
-#ifdef SK_SUPPORT_LEGACY_CANVAS_GETCLIPSTACK
-    // The clipstack is refcounted, and needs to be able to out-live the canvas if a client has
-    // ref'd it.
-    const SkClipStack* cs = nullptr;
-    {
-        SkCanvas canvas(10, 10);
-        cs = SkRef(canvas.getClipStack());
-    }
-    REPORTER_ASSERT(reporter, cs->unique());
-    cs->unref();
-#endif
-}
 
 // Format strings that describe the test context.  The %s token is where
 // the name of the test step is inserted.  The context is required for
@@ -532,8 +547,6 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter, const Tes
     SkCanvas referenceCanvas(referenceStore);
     testStep->setAssertMessageFormat(kCanvasDrawAssertMessageFormat);
     testStep->draw(&referenceCanvas, d, reporter);
-
-    test_clipstack(reporter);
 }
 
 static void test_newraster(skiatest::Reporter* reporter) {
@@ -685,18 +698,14 @@ DEF_TEST(PaintFilterCanvas_ConsistentState, reporter) {
     canvas.clipRect(SkRect::MakeXYWH(12.7f, 12.7f, 75, 75));
     canvas.scale(0.5f, 0.75f);
 
-    SkRect clip1, clip2;
-
     MockFilterCanvas filterCanvas(&canvas);
     REPORTER_ASSERT(reporter, canvas.getTotalMatrix() == filterCanvas.getTotalMatrix());
-    REPORTER_ASSERT(reporter, canvas.getClipBounds(&clip1) == filterCanvas.getClipBounds(&clip2));
-    REPORTER_ASSERT(reporter, clip1 == clip2);
+    REPORTER_ASSERT(reporter, canvas.getLocalClipBounds() == filterCanvas.getLocalClipBounds());
 
     filterCanvas.clipRect(SkRect::MakeXYWH(30.5f, 30.7f, 100, 100));
     filterCanvas.scale(0.75f, 0.5f);
     REPORTER_ASSERT(reporter, canvas.getTotalMatrix() == filterCanvas.getTotalMatrix());
-    REPORTER_ASSERT(reporter, canvas.getClipBounds(&clip1) == filterCanvas.getClipBounds(&clip2));
-    REPORTER_ASSERT(reporter, clip2.contains(clip1));
+    REPORTER_ASSERT(reporter, filterCanvas.getLocalClipBounds().contains(canvas.getLocalClipBounds()));
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
     SkShadowTestCanvas* tCanvas = new SkShadowTestCanvas(100,100, reporter);

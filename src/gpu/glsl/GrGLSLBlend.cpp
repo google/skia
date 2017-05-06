@@ -422,13 +422,22 @@ void GrGLSLBlend::AppendMode(GrGLSLFragmentBuilder* fsBuilder, const char* srcCo
 
     SkXfermode::Coeff srcCoeff, dstCoeff;
     if (SkXfermode::ModeAsCoeff(mode, &srcCoeff, &dstCoeff)) {
+        // The only coeff mode that can go out of range is plus.
+        bool clamp = mode == SkBlendMode::kPlus;
+
         fsBuilder->codeAppendf("%s = ", outColor);
+        if (clamp) {
+            fsBuilder->codeAppend("clamp(");
+        }
         // append src blend
         bool didAppend = append_porterduff_term(fsBuilder, srcCoeff, srcColor, srcColor, dstColor,
                                                 false);
         // append dst blend
         if(!append_porterduff_term(fsBuilder, dstCoeff, dstColor, srcColor, dstColor, didAppend)) {
             fsBuilder->codeAppend("vec4(0, 0, 0, 0)");
+        }
+        if (clamp) {
+            fsBuilder->codeAppend(", 0, 1);");
         }
         fsBuilder->codeAppend(";");
     } else {

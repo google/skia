@@ -16,6 +16,7 @@
 #include "SkPicture.h"
 #include "SkString.h"
 #include "SkTArray.h"
+#include "SkVertices.h"
 #include "UrlDataManager.h"
 
 class GrAuditTrail;
@@ -175,20 +176,12 @@ public:
 
     bool isClipRect() const override { return true; }
 
-    bool getClipBounds(SkRect *bounds) const override {
-        if (bounds) {
-            bounds->setXYWH(0, 0,
-                            SkIntToScalar(this->imageInfo().width()),
-                            SkIntToScalar(this->imageInfo().height()));
-        }
-        return true;
+    SkRect onGetLocalClipBounds() const override {
+        return SkRect::MakeIWH(this->imageInfo().width(), this->imageInfo().height());
     }
 
-    bool getClipDeviceBounds(SkIRect *bounds) const override {
-        if (bounds) {
-            bounds->setLargest();
-        }
-        return true;
+    SkIRect onGetDeviceClipBounds() const override {
+        return SkIRect::MakeWH(this->imageInfo().width(), this->imageInfo().height());
     }
 
 protected:
@@ -237,6 +230,10 @@ protected:
                         const SkColor colors[], SkBlendMode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) override;
+    void onDrawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint,
+                              uint32_t flags) override {
+        this->onDrawVerticesObjectFallback(std::move(vertices), mode, paint, flags);
+    }
     void onDrawPath(const SkPath&, const SkPaint&) override;
     void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst, const SkPaint*,

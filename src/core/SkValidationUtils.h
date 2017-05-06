@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 #include "SkBlendMode.h"
+#include "SkXfermodePriv.h"
 
 /** Returns true if coeff's value is in the SkXfermode::Coeff enum.
   */

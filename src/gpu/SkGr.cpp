@@ -14,6 +14,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexturePriv.h"
+#include "GrTextureProxy.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 
@@ -21,7 +22,7 @@
 #include "SkBlendModePriv.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
-#include "SkConfig8888.h"
+#include "SkConvertPixels.h"
 #include "SkData.h"
 #include "SkImageInfoPriv.h"
 #include "SkMaskFilter.h"
@@ -38,7 +39,6 @@
 #include "effects/GrXfermodeFragmentProcessor.h"
 
 #ifndef SK_IGNORE_ETC1_SUPPORT
-#  include "ktx.h"
 #  include "etc1.h"
 #endif
 
@@ -85,22 +85,6 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
         }
 
         *outStartOfDataToUpload = bytes + ETC_PKM_HEADER_SIZE;
-        return kETC1_GrPixelConfig;
-    } else if (SkKTXFile::is_ktx(bytes, data->size())) {
-        SkKTXFile ktx(data);
-
-        // Is it actually an ETC1 texture?
-        if (!ktx.isCompressedFormat(SkTextureCompressor::kETC1_Format)) {
-            return kUnknown_GrPixelConfig;
-        }
-
-        // Does the data match the dimensions of the bitmap? If not,
-        // then we don't know how to scale the image to match it...
-        if (ktx.width() != expectedW || ktx.height() != expectedH) {
-            return kUnknown_GrPixelConfig;
-        }
-
-        *outStartOfDataToUpload = ktx.pixelData();
         return kETC1_GrPixelConfig;
     }
 #endif
@@ -279,16 +263,53 @@ GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
 }
 
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
-                                    const GrSamplerParams& params) {
+                                    const GrSamplerParams& params, SkScalar scaleAdjust[2]) {
     // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
-    return GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, nullptr, nullptr);
+    return GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, nullptr,
+                                                                 nullptr, scaleAdjust);
+}
+
+// MDB TODO (caching): For better or for worse, this method currently side-steps the issue of
+// caching an uninstantiated proxy via a key.
+sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap& bitmap) {
+    GrUniqueKey originalKey;
+
+    if (!bitmap.isVolatile()) {
+        SkIPoint origin = bitmap.pixelRefOrigin();
+        SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(), bitmap.height());
+        GrMakeKeyFromImageID(&originalKey, bitmap.pixelRef()->getGenerationID(), subset);
+    }
+
+    sk_sp<GrTexture> tex;
+
+    if (originalKey.isValid()) {
+        tex.reset(context->textureProvider()->findAndRefTextureByUniqueKey(originalKey));
+    }
+    if (!tex) {
+        tex.reset(GrUploadBitmapToTexture(context, bitmap));
+        if (tex && originalKey.isValid()) {
+            tex->resourcePriv().setUniqueKey(originalKey);
+            GrInstallBitmapUniqueKeyInvalidator(originalKey, bitmap.pixelRef());
+        }
+    }
+
+    if (!tex) {
+        return nullptr;
+    }
+
+    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
+    if (!proxy) {
+        return nullptr;
+    }
+
+    return sk_ref_sp(proxy->asTextureProxy());
 }
 
 sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
-                                           const GrSamplerParams& params) {
+                                           const GrSamplerParams& params, SkScalar scaleAdjust[2]) {
     // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
     GrTexture* tex = GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, nullptr,
-                                                                           nullptr);
+                                                                           nullptr, scaleAdjust);
     return sk_sp<GrTexture>(tex);
 }
 
@@ -301,7 +322,7 @@ GrColor4f SkColorToPremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace) {
 
 GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace) {
     if (dstColorSpace) {
-        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        auto srgbColorSpace = SkColorSpace::MakeSRGB();
         auto gamutXform = GrColorSpaceXform::Make(srgbColorSpace.get(), dstColorSpace);
         return SkColorToUnpremulGrColor4f(c, true, gamutXform.get());
     } else {
@@ -645,7 +666,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
             sk_sp<GrFragmentProcessor> fpSeries[] = { std::move(shaderFP), std::move(fp) };
             shaderFP = GrFragmentProcessor::RunInSeries(fpSeries, 2);
         } else {
-            shaderFP = GrFragmentProcessor::MulOutputByInputUnpremulColor(fp);
+            shaderFP = GrFragmentProcessor::MakeInputPremulAndMulByOutput(fp);
         }
     } else {
         shaderFP = GrFragmentProcessor::MulOutputByInputAlpha(fp);

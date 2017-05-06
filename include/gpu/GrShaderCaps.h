@@ -164,14 +164,20 @@ public:
 
     bool usesPrecisionModifiers() const { return fUsesPrecisionModifiers; }
 
-    // Returns whether we can use the glsl funciton any() in our shader code.
+    // Returns whether we can use the glsl function any() in our shader code.
     bool canUseAnyFunctionInShader() const { return fCanUseAnyFunctionInShader; }
 
     bool canUseMinAndAbsTogether() const { return fCanUseMinAndAbsTogether; }
 
     bool mustForceNegatedAtanParamToFloat() const { return fMustForceNegatedAtanParamToFloat; }
 
+    // Returns whether a device incorrectly implements atan(y,x) as atan(y/x)
+    bool atan2ImplementedAsAtanYOverX() const { return fAtan2ImplementedAsAtanYOverX; }
+
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
+
+    // On MacBook, geometry shaders break if they have more than one invocation.
+    bool mustImplementGSInvocationsWithLoop() const { return fMustImplementGSInvocationsWithLoop; }
 
     // Returns the string of an extension that must be enabled in the shader to support
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
@@ -299,7 +305,9 @@ private:
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
     bool fMustForceNegatedAtanParamToFloat : 1;
+    bool fAtan2ImplementedAsAtanYOverX : 1;
     bool fRequiresLocalOutputColorForFBFetch : 1;
+    bool fMustImplementGSInvocationsWithLoop : 1;
 
     PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
     int fPixelLocalStorageSize;

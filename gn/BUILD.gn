@@ -223,6 +223,12 @@ config("default") {
     } else if (target_cpu == "x64") {
       _target = "x86_64"
     }
+    asmflags += [
+      "-isysroot",
+      ios_sysroot,
+      "-arch",
+      _target,
+    ]
     cflags += [
       "-isysroot",
       ios_sysroot,
@@ -243,17 +249,6 @@ config("default") {
       "-stdlib=libc++",
     ]
     libs += [ "objc" ]
-
-    # We used to link all our iOS tools together, so none actually defines main().
-    # Instead they each define their own entry point, which our iOS mega-app called.
-    # If we can we'd like to not do that anymore.  While we're building both ways, here's
-    # our clever hack to give each tool back its own main().
-    cflags += [
-      "-Ddm_main=main",
-      "-Dnanobench_main=main",
-      "-Dtool_main=main",
-      "-Dtest_main=main",
-    ]
   }
 
   if (is_linux) {
@@ -330,8 +325,9 @@ config("warnings") {
         "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
       ]
 
-      if (is_android && target_cpu == "x86") {
-        # Clang seems to think new/malloc will only be 4-byte aligned on x86 Android.
+      if ((target_cpu == "x86" && is_android) ||
+          (target_cpu == "arm" && is_ios)) {
+        # Clang seems to think new/malloc will only be 4-byte aligned on x86 Android and 32-bit iOS.
         # We're pretty sure it's actually 8-byte alignment.
         cflags += [ "-Wno-over-aligned" ]
       }
@@ -442,8 +438,15 @@ config("release") {
   } else {
     cflags = [
       "-Os",
+      "-fdata-sections",
+      "-ffunction-sections",
       "-momit-leaf-frame-pointer",
     ]
+    if (is_mac || is_ios) {
+      ldflags = [ "-dead_strip" ]
+    } else {
+      ldflags = [ "-Wl,--gc-sections" ]
+    }
   }
   defines = [ "NDEBUG" ]
 }
@@ -482,6 +485,14 @@ toolchain("msvc") {
     env_setup_end = "\""
   }
   bin = "$windk/VC/bin/$_target"
+
+  tool("asm") {
+    command = "$env_setup$bin/ml64.exe /nologo /c /Fo {{output}} {{source}}"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
+    ]
+    description = "assemble {{source}}"
+  }
 
   tool("cc") {
     rspfile = "{{output}}.rsp"

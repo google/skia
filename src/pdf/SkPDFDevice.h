@@ -11,8 +11,8 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
+#include "SkClipStackDevice.h"
 #include "SkData.h"
-#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
@@ -37,7 +37,7 @@ class SkRRect;
 
     The drawing context for the PDF backend.
 */
-class SkPDFDevice final : public SkBaseDevice {
+class SkPDFDevice final : public SkClipStackDevice {
 public:
     /** Create a PDF drawing context.  SkPDFDevice applies a
      *  scale-and-translate transform to move the origin from the
@@ -161,7 +161,6 @@ public:
         // we have to fall back to the region.  Treat fClipStack as authoritative.
         // See https://bugs.skia.org/221
         SkClipStack fClipStack;
-        SkRegion fClipRegion;
 
         // When emitting the content entry, we will ensure the graphic state
         // is set to these values first.
@@ -209,7 +208,6 @@ private:
     SkISize fPageSize;
     SkMatrix fInitialTransform;
     SkClipStack fExistingClipStack;
-    SkRegion fExistingClipRegion;
 
     SkTArray<RectWithData> fLinkToURLs;
     SkTArray<RectWithData> fLinkToDestinations;
@@ -245,7 +243,6 @@ private:
     void drawFormXObjectWithMask(int xObjectIndex,
                                  sk_sp<SkPDFObject> mask,
                                  const SkClipStack* clipStack,
-                                 const SkRegion& clipRegion,
                                  SkBlendMode,
                                  bool invertClip);
 
@@ -254,7 +251,6 @@ private:
     // setUpContentEntry and finishContentEntry can be used directly, but
     // the preferred method is to use the ScopedContentEntry helper class.
     ContentEntry* setUpContentEntry(const SkClipStack* clipStack,
-                                    const SkRegion& clipRegion,
                                     const SkMatrix& matrix,
                                     const SkPaint& paint,
                                     bool hasText,
@@ -264,7 +260,6 @@ private:
 
     void populateGraphicStateEntryFromPaint(const SkMatrix& matrix,
                                             const SkClipStack& clipStack,
-                                            const SkRegion& clipRegion,
                                             const SkPaint& paint,
                                             bool hasText,
                                             GraphicStateEntry* entry);
@@ -282,7 +277,6 @@ private:
 
     void internalDrawImage(const SkMatrix& origMatrix,
                            const SkClipStack* clipStack,
-                           const SkRegion& origClipRegion,
                            SkImageSubset imageSubset,
                            const SkPaint& paint);
 
@@ -290,9 +284,9 @@ private:
                            const SkPaint& paint, bool pathIsMutable,
                            const SkMatrix* prePathMatrix = nullptr);
     void handlePointAnnotation(const SkPoint&, const SkMatrix&, const char key[], SkData* value);
-    void handlePathAnnotation(const SkPath&, const SkDraw& d, const char key[], SkData* value);
+    void handleRectAnnotation(const SkRect&, const SkDraw& d, const char key[], SkData* value);
 
-    typedef SkBaseDevice INHERITED;
+    typedef SkClipStackDevice INHERITED;
 
     // TODO(edisonn): Only SkDocument_PDF and SkPDFImageShader should be able to create
     // an SkPDFDevice

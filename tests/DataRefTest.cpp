@@ -85,32 +85,6 @@ static void test_vartable(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_tablebuilder(skiatest::Reporter* reporter) {
-    const char* str[] = {
-        "", "a", "be", "see", "deigh", "ef", "ggggggggggggggggggggggggggg"
-    };
-    int count = SK_ARRAY_COUNT(str);
-
-    SkDataTableBuilder builder(16);
-
-    for (int i = 0; i < count; ++i) {
-        builder.append(str[i], strlen(str[i]) + 1);
-    }
-    sk_sp<SkDataTable> table(builder.detachDataTable());
-
-    REPORTER_ASSERT(reporter, table->count() == count);
-    for (int i = 0; i < count; ++i) {
-        size_t size;
-        REPORTER_ASSERT(reporter, table->atSize(i) == strlen(str[i]) + 1);
-        REPORTER_ASSERT(reporter, !strcmp(table->atT<const char>(i, &size),
-                                          str[i]));
-        REPORTER_ASSERT(reporter, size == strlen(str[i]) + 1);
-
-        const char* s = table->atStr(i);
-        REPORTER_ASSERT(reporter, strlen(s) == strlen(str[i]));
-    }
-}
-
 static void test_globaltable(skiatest::Reporter* reporter) {
     static const int gData[] = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
@@ -133,7 +107,6 @@ DEF_TEST(DataTable, reporter) {
     test_emptytable(reporter);
     test_simpletable(reporter);
     test_vartable(reporter);
-    test_tablebuilder(reporter);
     test_globaltable(reporter);
 }
 

@@ -7,6 +7,7 @@
 
 #include "SkNormalFlatSource.h"
 
+#include "SkArenaAlloc.h"
 #include "SkNormalSource.h"
 #include "SkNormalSourcePriv.h"
 #include "SkPoint3.h"
@@ -14,13 +15,12 @@
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 class NormalFlatFP : public GrFragmentProcessor {
 public:
-    NormalFlatFP() {
+    NormalFlatFP() : INHERITED(kConstantOutputForConstantInput_OptimizationFlag) {
         this->initClassID<NormalFlatFP>();
     }
 
@@ -43,20 +43,21 @@ public:
                            const GrProcessor& proc) override {}
     };
 
+    const char* name() const override { return "NormalFlatFP"; }
+
+private:
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLNormalFlatFP::GenKey(*this, caps, b);
     }
 
-    const char* name() const override { return "NormalFlatFP"; }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown(GrInvariantOutput::ReadInput::kWillNot_ReadInput);
+    GrColor4f constantOutputForConstantInput(GrColor4f) const override {
+        return GrColor4f(0, 0, 1, 0);
     }
-
-private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLNormalFlatFP; }
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
+
+    typedef GrFragmentProcessor INHERITED;
 };
 
 sk_sp<GrFragmentProcessor> SkNormalFlatSourceImpl::asFragmentProcessor(
@@ -74,12 +75,8 @@ SkNormalFlatSourceImpl::Provider::Provider() {}
 SkNormalFlatSourceImpl::Provider::~Provider() {}
 
 SkNormalSource::Provider* SkNormalFlatSourceImpl::asProvider(const SkShader::ContextRec &rec,
-                                                             void *storage) const {
-    return new (storage) Provider();
-}
-
-size_t SkNormalFlatSourceImpl::providerSize(const SkShader::ContextRec&) const {
-    return sizeof(Provider);
+                                                             SkArenaAlloc *alloc) const {
+    return alloc->make<Provider>();
 }
 
 void SkNormalFlatSourceImpl::Provider::fillScanLine(int x, int y, SkPoint3 output[],

@@ -28,6 +28,12 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
             return 0xF;
         case kVec4f_GrSLType:
             return 0xF;
+        case kVec2i_GrSLType:
+            return 0x7;
+        case kVec3i_GrSLType:
+            return 0xF;
+        case kVec4i_GrSLType:
+            return 0xF;
         case kMat22f_GrSLType:
             return 0x7;
         case kMat33f_GrSLType:
@@ -59,9 +65,9 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
 static inline uint32_t grsltype_to_vk_size(GrSLType type) {
     switch(type) {
         case kInt_GrSLType:
-            return 4;
+            return sizeof(int32_t);
         case kUint_GrSLType:
-            return 4;
+            return sizeof(int32_t);
         case kFloat_GrSLType:
             return sizeof(float);
         case kVec2f_GrSLType:
@@ -70,6 +76,12 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
             return 3 * sizeof(float);
         case kVec4f_GrSLType:
             return 4 * sizeof(float);
+        case kVec2i_GrSLType:
+            return 2 * sizeof(int32_t);
+        case kVec3i_GrSLType:
+            return 3 * sizeof(int32_t);
+        case kVec4i_GrSLType:
+            return 4 * sizeof(int32_t);
         case kMat22f_GrSLType:
             //TODO: this will be 4 * szof(float) on std430.
             return 8 * sizeof(float);
@@ -165,6 +177,10 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
                                                                  : &fCurrentFragmentUBOOffset;
     get_ubo_aligned_offset(&uni.fUBOffset, currentOffset, type, arrayCount);
 
+    SkString layoutQualifier;
+    layoutQualifier.appendf("offset=%d", uni.fUBOffset);
+    uni.fVariable.addLayoutQualifier(layoutQualifier.c_str());
+
     if (outName) {
         *outName = uni.fVariable.c_str();
     }
@@ -213,11 +229,20 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         }
     }
 
+    SkDEBUGCODE(bool firstOffsetCheck = false);
     SkString uniformsString;
     for (int i = 0; i < fUniforms.count(); ++i) {
         const UniformInfo& localUniform = fUniforms[i];
         if (visibility == localUniform.fVisibility) {
             if (GrSLTypeIsFloatType(localUniform.fVariable.getType())) {
+#ifdef SK_DEBUG
+                if (!firstOffsetCheck) {
+                    // Check to make sure we are starting our offset at 0 so the offset qualifier we
+                    // set on each variable in the uniform block is valid.
+                    SkASSERT(0 == localUniform.fUBOffset);
+                    firstOffsetCheck = true;
+                }
+#endif
                 localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
                 uniformsString.append(";\n");
             }

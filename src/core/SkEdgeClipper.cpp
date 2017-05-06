@@ -8,6 +8,7 @@
 
 #include "SkEdgeClipper.h"
 #include "SkGeometry.h"
+#include "SkLineClipper.h"
 
 static bool quick_reject(const SkRect& bounds, const SkRect& clip) {
     return bounds.fTop >= clip.fBottom || bounds.fBottom <= clip.fTop;
@@ -40,6 +41,23 @@ static bool sort_increasing_Y(SkPoint dst[], const SkPoint src[], int count) {
         memcpy(dst, src, count * sizeof(SkPoint));
         return false;
     }
+}
+
+bool SkEdgeClipper::clipLine(SkPoint p0, SkPoint p1, const SkRect& clip) {
+    fCurrPoint = fPoints;
+    fCurrVerb = fVerbs;
+
+    SkPoint lines[SkLineClipper::kMaxPoints];
+    const SkPoint pts[] = { p0, p1 };
+    int lineCount = SkLineClipper::ClipLine(pts, clip, lines, fCanCullToTheRight);
+    for (int i = 0; i < lineCount; i++) {
+        this->appendLine(lines[i], lines[i + 1]);
+    }
+
+    *fCurrVerb = SkPath::kDone_Verb;
+    fCurrPoint = fPoints;
+    fCurrVerb = fVerbs;
+    return SkPath::kDone_Verb != fVerbs[0];
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -373,28 +391,49 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
     }
 }
 
-static bool quick_reject_in_y(const SkPoint pts[4], const SkRect& clip) {
-    Sk4s ys(pts[0].fY, pts[1].fY, pts[2].fY, pts[3].fY);
-    Sk4s t(clip.top());
-    Sk4s b(clip.bottom());
+static SkRect compute_cubic_bounds(const SkPoint pts[4]) {
+    SkRect r;
+    r.set(pts, 4);
+    return r;
+}
 
-    return (ys < t).allTrue() || (ys > b).allTrue();
+static bool too_big_for_reliable_float_math(const SkRect& r) {
+    // limit set as the largest float value for which we can still reliably compute things like
+    // - chopping at XY extrema
+    // - chopping at Y or X values for clipping
+    //
+    // Current value chosen just by experiment. Larger (and still succeeds) is always better.
+    //
+    const SkScalar limit = 1 << 22;
+    return r.fLeft < -limit || r.fTop < -limit || r.fRight > limit || r.fBottom > limit;
 }
 
 bool SkEdgeClipper::clipCubic(const SkPoint srcPts[4], const SkRect& clip) {
     fCurrPoint = fPoints;
     fCurrVerb = fVerbs;
 
-    if (!quick_reject_in_y(srcPts, clip)) {
-        SkPoint monoY[10];
-        int countY = SkChopCubicAtYExtrema(srcPts, monoY);
-        for (int y = 0; y <= countY; y++) {
-            SkPoint monoX[10];
-            int countX = SkChopCubicAtXExtrema(&monoY[y * 3], monoX);
-            for (int x = 0; x <= countX; x++) {
-                this->clipMonoCubic(&monoX[x * 3], clip);
-                SkASSERT(fCurrVerb - fVerbs < kMaxVerbs);
-                SkASSERT(fCurrPoint - fPoints <= kMaxPoints);
+    const SkRect bounds = compute_cubic_bounds(srcPts);
+    // check if we're clipped out vertically
+    if (bounds.fBottom > clip.fTop && bounds.fTop < clip.fBottom) {
+        if (too_big_for_reliable_float_math(bounds)) {
+            // can't safely clip the cubic, so we give up and draw a line (which we can safely clip)
+            //
+            // If we rewrote chopcubicat*extrema and chopmonocubic using doubles, we could very
+            // likely always handle the cubic safely, but (it seems) at a big loss in speed, so
+            // we'd only want to take that alternate impl if needed. Perhaps a TODO to try it.
+            //
+            return this->clipLine(srcPts[0], srcPts[3], clip);
+        } else {
+            SkPoint monoY[10];
+            int countY = SkChopCubicAtYExtrema(srcPts, monoY);
+            for (int y = 0; y <= countY; y++) {
+                SkPoint monoX[10];
+                int countX = SkChopCubicAtXExtrema(&monoY[y * 3], monoX);
+                for (int x = 0; x <= countX; x++) {
+                    this->clipMonoCubic(&monoX[x * 3], clip);
+                    SkASSERT(fCurrVerb - fVerbs < kMaxVerbs);
+                    SkASSERT(fCurrPoint - fPoints <= kMaxPoints);
+                }
             }
         }
     }
@@ -406,6 +445,13 @@ bool SkEdgeClipper::clipCubic(const SkPoint srcPts[4], const SkRect& clip) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void SkEdgeClipper::appendLine(SkPoint p0, SkPoint p1) {
+    *fCurrVerb++ = SkPath::kLine_Verb;
+    fCurrPoint[0] = p0;
+    fCurrPoint[1] = p1;
+    fCurrPoint += 2;
+}
 
 void SkEdgeClipper::appendVLine(SkScalar x, SkScalar y0, SkScalar y1,
                                 bool reverse) {

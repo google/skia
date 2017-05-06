@@ -302,7 +302,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
 
     GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                                             VK_ATTACHMENT_STORE_OP_STORE);
-    GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+    GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_LOAD,
                                               VK_ATTACHMENT_STORE_OP_STORE);
     const GrVkRenderPass* renderPass;
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
@@ -320,7 +320,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     SkASSERT(renderPass->isCompatible(*rt->simpleRenderPass()));
 
 
-    cmdBuffer->beginRenderPass(gpu, renderPass, 0, nullptr, *rt, bounds, false);
+    cmdBuffer->beginRenderPass(gpu, renderPass, nullptr, *rt, bounds, false);
     cmdBuffer->bindPipeline(gpu, pipeline);
 
     // Uniform DescriptorSet, Sampler DescriptorSet, and vertex shader uniformBuffer

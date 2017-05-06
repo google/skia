@@ -27,6 +27,121 @@ SkPathEffect::DashType SkPathEffect::asADash(DashInfo* info) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef SK_SUPPORT_LEGACY_PATHEFFECT_SUBCLASSES
+
+/** \class SkPairPathEffect
+
+ Common baseclass for Compose and Sum. This subclass manages two pathEffects,
+ including flattening them. It does nothing in filterPath, and is only useful
+ for managing the lifetimes of its two arguments.
+ */
+class SK_API SkPairPathEffect : public SkPathEffect {
+protected:
+    SkPairPathEffect(sk_sp<SkPathEffect> pe0, sk_sp<SkPathEffect> pe1);
+
+    void flatten(SkWriteBuffer&) const override;
+
+    // these are visible to our subclasses
+    sk_sp<SkPathEffect> fPE0;
+    sk_sp<SkPathEffect> fPE1;
+
+    SK_TO_STRING_OVERRIDE()
+
+private:
+    typedef SkPathEffect INHERITED;
+};
+
+/** \class SkComposePathEffect
+
+ This subclass of SkPathEffect composes its two arguments, to create
+ a compound pathEffect.
+ */
+class SK_API SkComposePathEffect : public SkPairPathEffect {
+public:
+    /** Construct a pathEffect whose effect is to apply first the inner pathEffect
+     and the the outer pathEffect (e.g. outer(inner(path)))
+     The reference counts for outer and inner are both incremented in the constructor,
+     and decremented in the destructor.
+     */
+    static sk_sp<SkPathEffect> Make(sk_sp<SkPathEffect> outer, sk_sp<SkPathEffect> inner) {
+        if (!outer) {
+            return inner;
+        }
+        if (!inner) {
+            return outer;
+        }
+        return sk_sp<SkPathEffect>(new SkComposePathEffect(outer, inner));
+    }
+
+    virtual bool filterPath(SkPath* dst, const SkPath& src,
+                            SkStrokeRec*, const SkRect*) const override;
+
+    SK_TO_STRING_OVERRIDE()
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    bool exposedInAndroidJavaAPI() const override { return true; }
+#endif
+
+protected:
+    SkComposePathEffect(sk_sp<SkPathEffect> outer, sk_sp<SkPathEffect> inner)
+    : INHERITED(outer, inner) {}
+
+private:
+    // illegal
+    SkComposePathEffect(const SkComposePathEffect&);
+    SkComposePathEffect& operator=(const SkComposePathEffect&);
+    friend class SkPathEffect;
+
+    typedef SkPairPathEffect INHERITED;
+};
+
+/** \class SkSumPathEffect
+
+ This subclass of SkPathEffect applies two pathEffects, one after the other.
+ Its filterPath() returns true if either of the effects succeeded.
+ */
+class SK_API SkSumPathEffect : public SkPairPathEffect {
+public:
+    /** Construct a pathEffect whose effect is to apply two effects, in sequence.
+     (e.g. first(path) + second(path))
+     The reference counts for first and second are both incremented in the constructor,
+     and decremented in the destructor.
+     */
+    static sk_sp<SkPathEffect> Make(sk_sp<SkPathEffect> first, sk_sp<SkPathEffect> second) {
+        if (!first) {
+            return second;
+        }
+        if (!second) {
+            return first;
+        }
+        return sk_sp<SkPathEffect>(new SkSumPathEffect(first, second));
+    }
+
+    virtual bool filterPath(SkPath* dst, const SkPath& src,
+                            SkStrokeRec*, const SkRect*) const override;
+
+    SK_TO_STRING_OVERRIDE()
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    bool exposedInAndroidJavaAPI() const override { return true; }
+#endif
+
+protected:
+    SkSumPathEffect(sk_sp<SkPathEffect> first, sk_sp<SkPathEffect> second)
+    : INHERITED(first, second) {}
+
+private:
+    // illegal
+    SkSumPathEffect(const SkSumPathEffect&);
+    SkSumPathEffect& operator=(const SkSumPathEffect&);
+    friend class SkPathEffect;
+
+    typedef SkPairPathEffect INHERITED;
+};
+#endif
+
 SkPairPathEffect::SkPairPathEffect(sk_sp<SkPathEffect> pe0, sk_sp<SkPathEffect> pe1)
     : fPE0(std::move(pe0)), fPE1(std::move(pe1))
 {
@@ -106,3 +221,19 @@ void SkSumPathEffect::toString(SkString* str) const {
     str->appendf(")");
 }
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkPathEffect> SkPathEffect::MakeSum(sk_sp<SkPathEffect> first, sk_sp<SkPathEffect> second) {
+    return SkSumPathEffect::Make(std::move(first), std::move(second));
+}
+
+sk_sp<SkPathEffect> SkPathEffect::MakeCompose(sk_sp<SkPathEffect> outer,
+                                              sk_sp<SkPathEffect> inner) {
+    return SkComposePathEffect::Make(std::move(outer), std::move(inner));
+}
+
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkPathEffect)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposePathEffect)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSumPathEffect)
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END

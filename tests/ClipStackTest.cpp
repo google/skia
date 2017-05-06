@@ -979,8 +979,8 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
             bool doSave = r.nextBool();
 
             SkSize size = SkSize::Make(
-                SkScalarMul(kBounds.width(), r.nextRangeScalar(kMinElemSizeFrac, kMaxElemSizeFrac)),
-                SkScalarMul(kBounds.height(), r.nextRangeScalar(kMinElemSizeFrac, kMaxElemSizeFrac)));
+                kBounds.width()  * r.nextRangeScalar(kMinElemSizeFrac, kMaxElemSizeFrac),
+                kBounds.height() * r.nextRangeScalar(kMinElemSizeFrac, kMaxElemSizeFrac));
 
             SkPoint xy = {r.nextRangeScalar(kBounds.fLeft, kBounds.fRight - size.fWidth),
                           r.nextRangeScalar(kBounds.fTop, kBounds.fBottom - size.fHeight)};
@@ -1413,7 +1413,7 @@ DEF_TEST(ClipStack, reporter) {
 //////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTexture> GrClipStackClip::testingOnly_createClipMask(GrContext* context) const {
+sk_sp<GrTextureProxy> GrClipStackClip::testingOnly_createClipMask(GrContext* context) const {
     const GrReducedClip reducedClip(*fStack, SkRect::MakeWH(512, 512), 0);
     return this->createSoftwareClipMask(context, reducedClip);
 }
@@ -1440,8 +1440,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
         m.setTranslate(0.5, 0.5);
         stack.save();
         stack.clipPath(path, m, SkClipOp::kIntersect, true);
-        auto mask = GrClipStackClip(&stack).testingOnly_createClipMask(context);
-        REPORTER_ASSERT(reporter, 0 == strcmp(mask->getUniqueKey().tag(), kTag));
+        sk_sp<GrTextureProxy> mask = GrClipStackClip(&stack).testingOnly_createClipMask(context);
+        GrTexture* tex = mask->instantiate(context->textureProvider());
+        REPORTER_ASSERT(reporter, 0 == strcmp(tex->getUniqueKey().tag(), kTag));
         // Make sure mask isn't pinned in cache.
         mask.reset(nullptr);
         context->flush();
@@ -1456,4 +1457,33 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
 #endif
 }
 
+#include "SkSurface.h"
+DEF_GPUTEST_FOR_ALL_CONTEXTS(canvas_private_clipRgn, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    const int w = 10;
+    const int h = 10;
+    SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
+    sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
+    SkCanvas* canvas = surf->getCanvas();
+    SkRegion rgn;
+
+    canvas->temporary_internal_getRgnClip(&rgn);
+    REPORTER_ASSERT(reporter, rgn.isRect());
+    REPORTER_ASSERT(reporter, rgn.getBounds() == SkIRect::MakeWH(w, h));
+
+    canvas->save();
+    canvas->clipRect(SkRect::MakeWH(5, 5), kDifference_SkClipOp);
+    canvas->temporary_internal_getRgnClip(&rgn);
+    REPORTER_ASSERT(reporter, rgn.isComplex());
+    REPORTER_ASSERT(reporter, rgn.getBounds() == SkIRect::MakeWH(w, h));
+    canvas->restore();
+
+    canvas->save();
+    canvas->clipRRect(SkRRect::MakeOval(SkRect::MakeLTRB(3, 3, 7, 7)));
+    canvas->temporary_internal_getRgnClip(&rgn);
+    REPORTER_ASSERT(reporter, rgn.isComplex());
+    REPORTER_ASSERT(reporter, rgn.getBounds() == SkIRect::MakeLTRB(3, 3, 7, 7));
+    canvas->restore();
+}
 #endif

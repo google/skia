@@ -27,15 +27,19 @@ class SK_API GrTextureContext : public GrSurfaceContext {
 public:
     ~GrTextureContext() override;
 
-    GrSurfaceProxy* asDeferredSurface() override { return fTextureProxy.get(); }
-    GrTextureProxy* asDeferredTexture() override { return fTextureProxy.get(); }
-    GrRenderTargetProxy* asDeferredRenderTarget() override;
+    GrSurfaceProxy* asSurfaceProxy() override { return fTextureProxy.get(); }
+    const GrSurfaceProxy* asSurfaceProxy() const override { return fTextureProxy.get(); }
+    sk_sp<GrSurfaceProxy> asSurfaceProxyRef() override { return fTextureProxy; }
+
+    GrTextureProxy* asTextureProxy() override { return fTextureProxy.get(); }
+    sk_sp<GrTextureProxy> asTextureProxyRef() override { return fTextureProxy; }
+
+    GrRenderTargetProxy* asRenderTargetProxy() override;
+    sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() override;
 
 protected:
     GrTextureContext(GrContext*, GrDrawingManager*, sk_sp<GrTextureProxy>,
                      sk_sp<SkColorSpace>, GrAuditTrail*, GrSingleOwner*);
-
-    GrDrawingManager* drawingManager() { return fDrawingManager; }
 
     SkDEBUGCODE(void validate() const;)
 
@@ -46,11 +50,10 @@ private:
     bool onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
                       size_t dstRowBytes, int x, int y) override;
     bool onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
-                       size_t srcRowBytes, int x, int y) override;
+                       size_t srcRowBytes, int x, int y, uint32_t flags) override;
 
     GrTextureOpList* getOpList();
 
-    GrDrawingManager*            fDrawingManager;
     sk_sp<GrTextureProxy>        fTextureProxy;
 
     // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked

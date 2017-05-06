@@ -146,9 +146,17 @@ public:
 
     void finishOpList() override;
 
-    GrFence SK_WARN_UNUSED_RESULT insertFence() const override;
-    bool waitFence(GrFence, uint64_t timeout) const override;
+    GrFence SK_WARN_UNUSED_RESULT insertFence() override;
+    bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
+
+    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() override;
+    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override;
+    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
+
+    void deleteSync(GrGLsync) const;
+
+    void flush() override;
 
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);
@@ -187,7 +195,8 @@ private:
                            const SkTArray<GrMipLevel>& texels);
 
     bool onMakeCopyForTextureParams(GrTexture*, const GrSamplerParams&,
-                                    GrTextureProducer::CopyParams*) const override;
+                                    GrTextureProducer::CopyParams*,
+                                    SkScalar scaleAdjust[2]) const override;
 
     // Checks whether glReadPixels can be called to get pixel values in readConfig from the
     // render target.

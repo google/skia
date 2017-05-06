@@ -1,14 +1,21 @@
 /*
+ * Copyright 2017 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
-	This file is IGNORED during the build process!
+/*
 
-	As this file is updated so infrequently and flex is not universally present on build machines,
-	the lex.sksl.c file must be manually regenerated if you make any changes to this file. Just run:
+    This file is IGNORED during the build process!
 
-		flex sksl.flex
+    As this file is updated so infrequently and flex is not universally present on build machines,
+    the lex.sksl.c file must be manually regenerated if you make any changes to this file. Just run:
+
+        flex sksl.flex
 
     You will have to manually add a copyright notice to the top of lex.sksl.c.
-    
+
 */
 
 %option prefix="sksl"
@@ -45,6 +52,12 @@ for { return SkSL::Token::FOR; }
 while { return SkSL::Token::WHILE; }
 
 do { return SkSL::Token::DO; }
+
+switch { return SkSL::Token::SWITCH; }
+
+case { return SkSL::Token::CASE; }
+
+default { return SkSL::Token::DEFAULT; }
 
 break { return SkSL::Token::BREAK; }
 

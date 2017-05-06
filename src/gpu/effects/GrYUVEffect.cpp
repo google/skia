@@ -7,10 +7,11 @@
 
 #include "GrYUVEffect.h"
 
+#include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrProcessor.h"
+#include "GrTextureProxy.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -62,22 +63,23 @@ static const float kRec709InverseConversionMatrix[16] = {
 
 class YUVtoRGBEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrTexture* yTexture, GrTexture* uTexture,
-                                           GrTexture* vTexture, const SkISize sizes[3],
+    static sk_sp<GrFragmentProcessor> Make(GrContext* context,
+                                           sk_sp<GrTextureProxy> yProxy,
+                                           sk_sp<GrTextureProxy> uProxy,
+                                           sk_sp<GrTextureProxy> vProxy, const SkISize sizes[3],
                                            SkYUVColorSpace colorSpace, bool nv12) {
         SkScalar w[3], h[3];
-        w[0] = SkIntToScalar(sizes[0].fWidth)  / SkIntToScalar(yTexture->width());
-        h[0] = SkIntToScalar(sizes[0].fHeight) / SkIntToScalar(yTexture->height());
-        w[1] = SkIntToScalar(sizes[1].fWidth)  / SkIntToScalar(uTexture->width());
-        h[1] = SkIntToScalar(sizes[1].fHeight) / SkIntToScalar(uTexture->height());
-        w[2] = SkIntToScalar(sizes[2].fWidth)  / SkIntToScalar(vTexture->width());
-        h[2] = SkIntToScalar(sizes[2].fHeight) / SkIntToScalar(vTexture->height());
-        SkMatrix yuvMatrix[3];
-        yuvMatrix[0] = GrCoordTransform::MakeDivByTextureWHMatrix(yTexture);
-        yuvMatrix[1] = yuvMatrix[0];
-        yuvMatrix[1].preScale(w[1] / w[0], h[1] / h[0]);
-        yuvMatrix[2] = yuvMatrix[0];
-        yuvMatrix[2].preScale(w[2] / w[0], h[2] / h[0]);
+        w[0] = SkIntToScalar(sizes[0].fWidth);
+        h[0] = SkIntToScalar(sizes[0].fHeight);
+        w[1] = SkIntToScalar(sizes[1].fWidth);
+        h[1] = SkIntToScalar(sizes[1].fHeight);
+        w[2] = SkIntToScalar(sizes[2].fWidth);
+        h[2] = SkIntToScalar(sizes[2].fHeight);
+        const SkMatrix yuvMatrix[3] = {
+            SkMatrix::I(),
+            SkMatrix::MakeScale(w[1] / w[0], h[1] / h[0]),
+            SkMatrix::MakeScale(w[2] / w[0], h[2] / h[0])
+        };
         GrSamplerParams::FilterMode uvFilterMode =
             ((sizes[1].fWidth  != sizes[0].fWidth) ||
              (sizes[1].fHeight != sizes[0].fHeight) ||
@@ -86,7 +88,8 @@ public:
             GrSamplerParams::kBilerp_FilterMode :
             GrSamplerParams::kNone_FilterMode;
         return sk_sp<GrFragmentProcessor>(new YUVtoRGBEffect(
-            yTexture, uTexture, vTexture, yuvMatrix, uvFilterMode, colorSpace, nv12));
+            context, std::move(yProxy), std::move(uProxy), std::move(vProxy),
+            yuvMatrix, uvFilterMode, colorSpace, nv12));
     }
 
     const char* name() const override { return "YUV to RGB"; }
@@ -151,23 +154,24 @@ public:
     };
 
 private:
-    YUVtoRGBEffect(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
-                   const SkMatrix yuvMatrix[3], GrSamplerParams::FilterMode uvFilterMode,
-                   SkYUVColorSpace colorSpace, bool nv12)
-        : fYTransform(yuvMatrix[0], yTexture, GrSamplerParams::kNone_FilterMode)
-        , fYSampler(yTexture)
-        , fUTransform(yuvMatrix[1], uTexture, uvFilterMode)
-        , fUSampler(uTexture, uvFilterMode)
-        , fVSampler(vTexture, uvFilterMode)
-        , fColorSpace(colorSpace)
-        , fNV12(nv12) {
+    YUVtoRGBEffect(GrContext* ctx, sk_sp<GrTextureProxy> yProxy, sk_sp<GrTextureProxy> uProxy,
+                   sk_sp<GrTextureProxy> vProxy, const SkMatrix yuvMatrix[3],
+                   GrSamplerParams::FilterMode uvFilterMode, SkYUVColorSpace colorSpace, bool nv12)
+            : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
+            , fYTransform(ctx, yuvMatrix[0], yProxy.get(), GrSamplerParams::kNone_FilterMode)
+            , fYSampler(ctx->textureProvider(), std::move(yProxy))
+            , fUTransform(ctx, yuvMatrix[1], uProxy.get(), uvFilterMode)
+            , fUSampler(ctx->textureProvider(), std::move(uProxy), uvFilterMode)
+            , fVSampler(ctx->textureProvider(), vProxy, uvFilterMode)
+            , fColorSpace(colorSpace)
+            , fNV12(nv12) {
         this->initClassID<YUVtoRGBEffect>();
         this->addCoordTransform(&fYTransform);
         this->addTextureSampler(&fYSampler);
         this->addCoordTransform(&fUTransform);
         this->addTextureSampler(&fUSampler);
         if (!fNV12) {
-            fVTransform = GrCoordTransform(yuvMatrix[2], vTexture, uvFilterMode);
+            fVTransform = GrCoordTransform(ctx, yuvMatrix[2], vProxy.get(), uvFilterMode);
             this->addCoordTransform(&fVTransform);
             this->addTextureSampler(&fVSampler);
         }
@@ -184,12 +188,6 @@ private:
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const YUVtoRGBEffect& s = sBase.cast<YUVtoRGBEffect>();
         return (fColorSpace == s.getColorSpace()) && (fNV12 == s.isNV12());
-    }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        // YUV is opaque
-        inout->setToOther(kA_GrColorComponentFlag, 0xFF << GrColor_SHIFT_A,
-                          GrInvariantOutput::kWillNot_ReadInput);
     }
 
     GrCoordTransform fYTransform;
@@ -222,8 +220,10 @@ public:
 
     RGBToYUVEffect(sk_sp<GrFragmentProcessor> rgbFP, SkYUVColorSpace colorSpace,
                    OutputChannels output)
-        : fColorSpace(colorSpace)
-        , fOutputChannels(output) {
+            // This could advertise kConstantOutputForConstantInput, but doesn't seem useful.
+            : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
+            , fColorSpace(colorSpace)
+            , fOutputChannels(output) {
         this->initClassID<RGBToYUVEffect>();
         this->registerChildProcessor(std::move(rgbFP));
     }
@@ -348,10 +348,6 @@ private:
         return fColorSpace == s.getColorSpace() && fOutputChannels == s.outputChannels();
     }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown(GrInvariantOutput::kWillNot_ReadInput);
-    }
-
     GrCoordTransform    fTransform;
     TextureSampler      fTextureSampler;
     SkYUVColorSpace     fColorSpace;
@@ -364,11 +360,16 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> GrYUVEffect::MakeYUVToRGB(GrTexture* yTexture, GrTexture* uTexture,
-                                                     GrTexture* vTexture, const SkISize sizes[3],
+sk_sp<GrFragmentProcessor> GrYUVEffect::MakeYUVToRGB(GrContext* context,
+                                                     sk_sp<GrTextureProxy> yProxy,
+                                                     sk_sp<GrTextureProxy> uProxy,
+                                                     sk_sp<GrTextureProxy> vProxy,
+                                                     const SkISize sizes[3],
                                                      SkYUVColorSpace colorSpace, bool nv12) {
-    SkASSERT(yTexture && uTexture && vTexture && sizes);
-    return YUVtoRGBEffect::Make(yTexture, uTexture, vTexture, sizes, colorSpace, nv12);
+    SkASSERT(yProxy && uProxy && vProxy && sizes);
+    return YUVtoRGBEffect::Make(context,
+                                std::move(yProxy), std::move(uProxy), std::move(vProxy),
+                                sizes, colorSpace, nv12);
 }
 
 sk_sp<GrFragmentProcessor>

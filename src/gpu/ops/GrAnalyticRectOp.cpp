@@ -9,7 +9,6 @@
 
 #include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrOpFlushState.h"
 #include "GrProcessor.h"
 #include "GrResourceProvider.h"
@@ -223,9 +222,11 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(RectGeometryProcessor);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> RectGeometryProcessor::TestCreate(GrProcessorTestData* d) {
     return sk_sp<GrGeometryProcessor>(new RectGeometryProcessor(GrTest::TestMatrix(d->fRandom)));
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -268,9 +269,9 @@ public:
     }
 
 private:
-    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
+        input->colorInput()->setToConstant(fGeoData[0].fColor);
+        input->coverageInput()->setToUnknown();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
@@ -385,7 +386,7 @@ std::unique_ptr<GrDrawOp> GrAnalyticRectOp::Make(GrColor color,
             new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds));
 }
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 DRAW_OP_TEST_DEFINE(AnalyticRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);

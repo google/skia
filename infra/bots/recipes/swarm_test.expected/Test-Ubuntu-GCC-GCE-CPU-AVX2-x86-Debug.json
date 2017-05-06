@@ -247,10 +247,6 @@
       "_",
       "_",
       "dstreadshuffle",
-      "f16",
-      "image",
-      "_",
-      "_",
       "gpusrgb",
       "image",
       "_",
@@ -375,6 +371,10 @@
       "gm",
       "_",
       "ImageGeneratorExternal_shader",
+      "serialize-8888",
+      "gm",
+      "_",
+      "shadow_utils",
       "serialize-8888",
       "gm",
       "_",
@@ -517,6 +517,11 @@
       "complexclip4_aa"
     ],
     "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
     "name": "dm"
   },
   {

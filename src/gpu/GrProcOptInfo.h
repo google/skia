@@ -9,7 +9,7 @@
 #define GrProcOptInfo_DEFINED
 
 #include "GrColor.h"
-#include "GrInvariantOutput.h"
+#include "GrPipelineInput.h"
 
 class GrDrawOp;
 class GrFragmentProcessor;
@@ -22,22 +22,19 @@ class GrPrimitiveProcessor;
  */
 class GrProcOptInfo {
 public:
-    GrProcOptInfo() : fInOut(0, static_cast<GrColorComponentFlags>(0)) {}
+    GrProcOptInfo() = default;
 
-    GrProcOptInfo(GrColor color, GrColorComponentFlags colorFlags)
-            : fInOut(color, colorFlags), fInputColor(color) {}
-
-    void resetToLCDCoverage(GrColor color, GrColorComponentFlags colorFlags) {
-        this->internalReset(color, colorFlags, true);
+    GrProcOptInfo(const GrPipelineInput& input) : GrProcOptInfo() {
+        fAllProcessorsCompatibleWithCoverageAsAlpha = !input.isLCDCoverage();
+        fIsOpaque = input.isOpaque();
+        GrColor color;
+        if (input.isConstant(&color)) {
+            fLastKnownOutputColor = GrColor4f::FromGrColor(color);
+            fProcessorsVisitedWithKnownOutput = 0;
+        }
     }
 
-    void reset(GrColor color, GrColorComponentFlags colorFlags) {
-        this->internalReset(color, colorFlags, false);
-    }
-
-    void reset(const GrPipelineInput& input) {
-        this->internalReset(input.fColor, input.fValidFlags, input.fIsLCDCoverage);
-    }
+    void reset(const GrPipelineInput& input) { *this = GrProcOptInfo(input); }
 
     /**
      * Runs through a series of processors and updates calculated values. This can be called
@@ -45,52 +42,49 @@ public:
      */
     void analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt);
 
-    bool isSolidWhite() const { return fInOut.isSolidWhite(); }
-    bool isOpaque() const { return fInOut.isOpaque(); }
-    bool allStagesMultiplyInput() const { return fInOut.allStagesMulInput(); }
-    bool isLCDCoverage() const { return fIsLCDCoverage; }
-    GrColor color() const { return fInOut.color(); }
-    GrColorComponentFlags validFlags() const { return fInOut.validFlags(); }
-
-    /**
-     * Returns the index of the first effective color processor. If an intermediate processor
-     * doesn't read its input or has a known output, then we can ignore all earlier processors
-     * since they will not affect the final output. Thus the first effective processors index is
-     * the index to the first processor that will have an effect on the final output.
-     *
-     * If processors before the firstEffectiveProcessorIndex() are removed, corresponding values
-     * from inputColorIsUsed(), inputColorToEffectiveProcessor(), removeVertexAttribs(), and
-     * readsDst() must be used when setting up the draw to ensure correct drawing.
-     */
-    int firstEffectiveProcessorIndex() const { return fFirstEffectiveProcessorIndex; }
-
-    /**
-     * True if the first effective processor reads its input, false otherwise.
-     */
-    bool inputColorIsUsed() const { return fInputColorIsUsed; }
-
-    /**
-     * If input color is used and per-vertex colors are not used, this is the input color to the
-     * first effective processor.
-     */
-    GrColor inputColorToFirstEffectiveProccesor() const { return fInputColor; }
-
-private:
-    void internalReset(GrColor color, GrColorComponentFlags colorFlags, bool isLCDCoverage) {
-        fInOut.reset(color, colorFlags);
-        fFirstEffectiveProcessorIndex = 0;
-        fInputColorIsUsed = true;
-        fInputColor = color;
-        fIsLCDCoverage = isLCDCoverage;
+    bool isOpaque() const { return fIsOpaque; }
+    bool allProcessorsCompatibleWithCoverageAsAlpha() const {
+        return fAllProcessorsCompatibleWithCoverageAsAlpha;
     }
 
-    void internalCalc(const GrFragmentProcessor* const[], int cnt);
+    /**
+     * If we detected that the result after the first N processors is a known color then we
+     * eliminate those N processors and replace the GrDrawOp's color input to the GrPipeline with
+     * the known output of the Nth processor, so that the Nth+1 fragment processor (or the XP if
+     * there are only N processors) sees its expected input. If this returns 0 then there are no
+     * processors to eliminate.
+     */
+    int initialProcessorsToEliminate(GrColor* newPipelineInputColor) const {
+        if (fProcessorsVisitedWithKnownOutput > 0) {
+            *newPipelineInputColor = fLastKnownOutputColor.toGrColor();
+        }
+        return SkTMax(0, fProcessorsVisitedWithKnownOutput);
+    }
 
-    GrInvariantOutput fInOut;
-    int fFirstEffectiveProcessorIndex = 0;
-    bool fInputColorIsUsed = true;
-    bool fIsLCDCoverage = false;
-    GrColor fInputColor = 0;
+    int initialProcessorsToEliminate(GrColor4f* newPipelineInputColor) const {
+        if (fProcessorsVisitedWithKnownOutput > 0) {
+            *newPipelineInputColor = fLastKnownOutputColor;
+        }
+        return SkTMax(0, fProcessorsVisitedWithKnownOutput);
+    }
+
+    bool hasKnownOutputColor(GrColor* knownOutputColor = nullptr) const {
+        if (fProcessorsVisitedWithKnownOutput != fTotalProcessorsVisited) {
+            return false;
+        }
+        if (knownOutputColor) {
+            *knownOutputColor = fLastKnownOutputColor.toGrColor();
+        }
+        return true;
+    }
+
+private:
+    int fTotalProcessorsVisited = 0;
+    // negative one means even the color is unknown before adding the first processor.
+    int fProcessorsVisitedWithKnownOutput = -1;
+    bool fIsOpaque = false;
+    bool fAllProcessorsCompatibleWithCoverageAsAlpha = true;
+    GrColor4f fLastKnownOutputColor;
 };
 
 #endif

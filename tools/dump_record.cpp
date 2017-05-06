@@ -37,8 +37,7 @@ static void dump(const char* name, int w, int h, const SkRecord& record) {
     DumpRecord(record, &canvas, FLAGS_timeWithCommand);
 }
 
-int tool_main(int argc, char** argv);
-int tool_main(int argc, char** argv) {
+int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
     for (int i = 0; i < FLAGS_skps.count(); i++) {
@@ -95,9 +94,3 @@ int tool_main(int argc, char** argv) {
 
     return 0;
 }
-
-#if !defined SK_BUILD_FOR_IOS
-int main(int argc, char * const argv[]) {
-    return tool_main(argc, (char**) argv);
-}
-#endif

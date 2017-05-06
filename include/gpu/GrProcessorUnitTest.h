@@ -8,9 +8,13 @@
 #ifndef GrProcessorUnitTest_DEFINED
 #define GrProcessorUnitTest_DEFINED
 
+#include "SkTypes.h"
+
+#if GR_TEST_UTILS
+
+#include "../private/GrTextureProxy.h"
 #include "../private/SkTArray.h"
 #include "GrTestUtils.h"
-#include "SkTypes.h"
 
 class SkMatrix;
 class GrCaps;
@@ -44,21 +48,23 @@ sk_sp<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
 struct GrProcessorTestData {
     GrProcessorTestData(SkRandom* random,
                         GrContext* context,
-                        const GrCaps* caps,
                         const GrRenderTargetContext* renderTargetContext,
-                        GrTexture* textures[2])
-        : fRandom(random)
-        , fContext(context)
-        , fCaps(caps)
-        , fRenderTargetContext(renderTargetContext) {
-        fTextures[0] = textures[0];
-        fTextures[1] = textures[1];
+                        GrTexture* const textures[2])
+            : fRandom(random)
+            , fRenderTargetContext(renderTargetContext)
+            , fContext(context) {
+        fProxies[0] = GrSurfaceProxy::MakeWrapped(sk_ref_sp(textures[0]));
+        fProxies[1] = GrSurfaceProxy::MakeWrapped(sk_ref_sp(textures[1]));
     }
     SkRandom* fRandom;
-    GrContext* fContext;
-    const GrCaps* fCaps;
     const GrRenderTargetContext* fRenderTargetContext;
-    GrTexture* fTextures[2];
+
+    GrContext* context() { return fContext; }
+    sk_sp<GrTextureProxy> textureProxy(int index) { return fProxies[index]; }
+
+private:
+    GrContext* fContext;
+    sk_sp<GrTextureProxy> fProxies[2];
 };
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
@@ -175,5 +181,19 @@ private:
     const GrXPFactory* TestGet(GrProcessorTestData*)
 #define GR_DEFINE_XP_FACTORY_TEST(X)
 
-#endif // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-#endif
+#endif  // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+#else   // GR_TEST_UTILS
+    #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST
+    #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST
+    #define GR_DECLARE_XP_FACTORY_TEST
+    #define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(...)
+    #define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(...)
+    #define GR_DEFINE_XP_FACTORY_TEST(...)
+    #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST
+    #define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(...)
+    #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST
+    #define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(...)
+    #define GR_DECLARE_XP_FACTORY_TEST
+    #define GR_DEFINE_XP_FACTORY_TEST(...)
+#endif  // GR_TEST_UTILS
+#endif  // GrProcessorUnitTest_DEFINED

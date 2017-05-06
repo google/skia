@@ -13,7 +13,6 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
@@ -184,7 +183,7 @@ struct DegenerateTestData {
 };
 
 static const SkScalar kClose = (SK_Scalar1 / 16);
-static const SkScalar kCloseSqd = SkScalarMul(kClose, kClose);
+static const SkScalar kCloseSqd = kClose * kClose;
 
 static void update_degenerate_test(DegenerateTestData* data, const SkPoint& pt) {
     switch (data->fStage) {
@@ -219,8 +218,8 @@ static inline bool get_direction(const SkPath& path, const SkMatrix& m,
     }
     // check whether m reverses the orientation
     SkASSERT(!m.hasPerspective());
-    SkScalar det2x2 = SkScalarMul(m.get(SkMatrix::kMScaleX), m.get(SkMatrix::kMScaleY)) -
-                      SkScalarMul(m.get(SkMatrix::kMSkewX), m.get(SkMatrix::kMSkewY));
+    SkScalar det2x2 = m.get(SkMatrix::kMScaleX) * m.get(SkMatrix::kMScaleY) -
+                      m.get(SkMatrix::kMSkewX)  * m.get(SkMatrix::kMSkewY);
     if (det2x2 < 0) {
         *dir = SkPathPriv::OppositeFirstDirection(*dir);
     }
@@ -282,7 +281,7 @@ static bool get_segments(const SkPath& path,
 
     for (;;) {
         SkPoint pts[4];
-        SkPath::Verb verb = iter.next(pts);
+        SkPath::Verb verb = iter.next(pts, true, true);
         switch (verb) {
             case SkPath::kMove_Verb:
                 m.mapPoints(pts, 1);
@@ -654,13 +653,16 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
     // Doesn't work without derivative instructions.
-    return d->fCaps->shaderCaps()->shaderDerivativeSupport() ?
-           QuadEdgeEffect::Make(GrRandomColor(d->fRandom),
-                                GrTest::TestMatrix(d->fRandom),
-                                d->fRandom->nextBool()) : nullptr;
+    return d->context()->caps()->shaderCaps()->shaderDerivativeSupport()
+                   ? QuadEdgeEffect::Make(GrRandomColor(d->fRandom),
+                                          GrTest::TestMatrix(d->fRandom),
+                                          d->fRandom->nextBool())
+                   : nullptr;
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -716,7 +718,8 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
     }
     LocalCoords::Type localCoordsType =
             usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
-    return MakeForDeviceSpace(Color::kAttribute_Type, coverageType, localCoordsType, viewMatrix);
+    return MakeForDeviceSpace(Color::kPremulGrColorAttribute_Type, coverageType, localCoordsType,
+                              viewMatrix);
 }
 
 class AAConvexPathOp final : public GrMeshDrawOp {
@@ -744,9 +747,9 @@ private:
         this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fColor);
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
+        input->colorInput()->setToConstant(fColor);
+        input->coverageInput()->setToUnknown();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
@@ -983,7 +986,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
     GrColor color = GrRandomColor(random);

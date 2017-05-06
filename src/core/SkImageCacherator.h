@@ -24,8 +24,8 @@ class SkImage;
  */
 class SkImageCacherator {
 public:
-    // Takes ownership of the generator
-    static SkImageCacherator* NewFromGenerator(SkImageGenerator*, const SkIRect* subset = nullptr);
+    static SkImageCacherator* NewFromGenerator(std::unique_ptr<SkImageGenerator>,
+                                               const SkIRect* subset = nullptr);
 
     ~SkImageCacherator();
 
@@ -59,9 +59,15 @@ public:
      *  added to the cache on its behalf.
      *
      *  The caller is responsible for calling texture->unref() when they are done.
+     *
+     *  The scaleAdjust in/out parameter will return any scale adjustment that needs
+     *  to be applied to the absolute texture coordinates in the case where the image
+     *  was resized to meet the sampling requirements (e.g., resized out to the next power of 2).
+     *  It can be null if the caller knows resizing will not be required.
      */
     GrTexture* lockAsTexture(GrContext*, const GrSamplerParams&, SkColorSpace* dstColorSpace,
                              sk_sp<SkColorSpace>* texColorSpace, const SkImage* client,
+                             SkScalar scaleAdjust[2],
                              SkImage::CachingHint = SkImage::kAllow_CachingHint);
 
     /**
@@ -79,20 +85,21 @@ public:
     bool directGeneratePixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                               int srcX, int srcY);
 
-    bool directAccessScaledImage(const SkRect& srcRect, const SkMatrix& totalMatrix,
-                                 SkFilterQuality, SkImageGenerator::ScaledImageRec*);
-
 private:
     // Ref-counted tuple(SkImageGenerator, SkMutex) which allows sharing of one generator
     // among several cacherators.
     class SharedGenerator final : public SkNVRefCnt<SharedGenerator> {
     public:
-        static sk_sp<SharedGenerator> Make(SkImageGenerator* gen) {
-            return gen ? sk_sp<SharedGenerator>(new SharedGenerator(gen)) : nullptr;
+        static sk_sp<SharedGenerator> Make(std::unique_ptr<SkImageGenerator> gen) {
+            return gen ? sk_sp<SharedGenerator>(new SharedGenerator(std::move(gen))) : nullptr;
         }
 
     private:
-        explicit SharedGenerator(SkImageGenerator* gen) : fGenerator(gen) { SkASSERT(gen); }
+        explicit SharedGenerator(std::unique_ptr<SkImageGenerator> gen)
+            : fGenerator(std::move(gen))
+        {
+            SkASSERT(fGenerator);
+        }
 
         friend class ScopedGenerator;
         friend class SkImageCacherator;

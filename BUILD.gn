@@ -28,9 +28,10 @@ declare_args() {
   skia_android_serial = ""
   skia_enable_android_framework_defines = false
   skia_enable_discrete_gpu = true
+  skia_enable_effects = true
+  skia_enable_jumper = is_skia_standalone
   skia_enable_gpu = true
   skia_enable_pdf = true
-  skia_enable_splicer = is_skia_standalone && sanitize != "MSAN" && !is_ios
   skia_enable_tools = is_skia_standalone
   skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
@@ -66,7 +67,6 @@ skia_public_includes = [
   "include/svg",
   "include/utils",
   "include/utils/mac",
-  "include/xml",
 ]
 
 # Skia public API, generally provided by :skia.
@@ -99,7 +99,6 @@ config("skia_private") {
     "src/effects",
     "src/effects/gradients",
     "src/fonts",
-    "src/gpu",
     "src/image",
     "src/images",
     "src/lazy",
@@ -111,9 +110,9 @@ config("skia_private") {
     "src/sksl",
     "src/utils",
     "src/utils/win",
+    "src/xml",
     "third_party/etc1",
     "third_party/gif",
-    "third_party/ktx",
   ]
 
   defines = [
@@ -147,6 +146,9 @@ config("skia_private") {
     } else {
       libs += [ "vulkan" ]
     }
+  }
+  if (skia_enable_gpu) {
+    include_dirs += [ "src/gpu" ]
   }
   if (skia_use_angle) {
     defines += [ "SK_ANGLE" ]
@@ -325,12 +327,19 @@ template("optional") {
   }
 }
 
+optional("effects") {
+  enabled = skia_enable_effects
+  sources =
+      skia_effects_sources + [ "src/ports/SkGlobalInitialization_default.cpp" ]
+  sources_when_disabled = [ "src/ports/SkGlobalInitialization_none.cpp" ]
+}
+
 optional("fontmgr_android") {
   enabled = fontmgr_android_enabled
 
   deps = [
+    ":typeface_freetype",
     "//third_party/expat",
-    "//third_party/freetype2",
   ]
   sources = [
     "src/ports/SkFontMgr_android.cpp",
@@ -343,11 +352,15 @@ optional("fontmgr_custom") {
   enabled = is_linux && skia_use_freetype && !skia_use_fontconfig
 
   deps = [
-    "//third_party/freetype2",
+    ":typeface_freetype",
   ]
   sources = [
     "src/ports/SkFontMgr_custom.cpp",
+    "src/ports/SkFontMgr_custom.h",
+    "src/ports/SkFontMgr_custom_directory.cpp",
     "src/ports/SkFontMgr_custom_directory_factory.cpp",
+    "src/ports/SkFontMgr_custom_embedded.cpp",
+    "src/ports/SkFontMgr_custom_empty.cpp",
   ]
 }
 
@@ -355,8 +368,8 @@ optional("fontmgr_fontconfig") {
   enabled = skia_use_freetype && skia_use_fontconfig
 
   deps = [
+    ":typeface_freetype",
     "//third_party:fontconfig",
-    "//third_party/freetype2",
   ]
   sources = [
     "src/ports/SkFontConfigInterface.cpp",
@@ -372,10 +385,11 @@ optional("fontmgr_fuchsia") {
   enabled = is_fuchsia && skia_use_freetype
 
   deps = [
-    "//third_party/freetype2",
+    ":typeface_freetype",
   ]
   sources = [
     "src/ports/SkFontMgr_custom.cpp",
+    "src/ports/SkFontMgr_custom_empty.cpp",
     "src/ports/SkFontMgr_custom_empty_factory.cpp",
   ]
 }
@@ -384,7 +398,8 @@ optional("gpu") {
   enabled = skia_enable_gpu
   public_defines = []
 
-  sources = skia_gpu_sources + [ "src/gpu/gl/GrGLDefaultInterface_native.cpp" ]
+  sources = skia_gpu_sources + skia_sksl_sources +
+            [ "src/gpu/gl/GrGLDefaultInterface_native.cpp" ]
 
   # These paths need to be absolute to match the ones produced by shared_sources.gni.
   sources -= get_path_info([
@@ -397,6 +412,10 @@ optional("gpu") {
     sources += [ "src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp" ]
   } else if (is_linux) {
     sources += [ "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp" ]
+    libs += [
+      "GL",
+      "GLU",
+    ]
   } else if (is_mac) {
     sources += [ "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp" ]
   } else if (is_ios) {
@@ -483,13 +502,18 @@ optional("raw") {
   ]
 }
 
-optional("splicer") {
-  enabled = skia_enable_splicer
-  public_defines = [ "SK_RASTER_PIPELINE_HAS_JIT" ]
-
+optional("jumper") {
+  enabled = skia_enable_jumper
+  public_defines = [ "SK_JUMPER" ]
   sources = [
-    "src/splicer/SkSplicer.cpp",
+    "src/jumper/SkJumper.cpp",
+    "src/jumper/SkJumper_stages.cpp",
   ]
+  if (is_win && target_cpu == "x64") {
+    sources += [ "src/jumper/SkJumper_generated_win.S" ]
+  } else if (!is_win) {
+    sources += [ "src/jumper/SkJumper_generated.S" ]
+  }
 }
 
 optional("typeface_freetype") {
@@ -526,6 +550,8 @@ optional("xml") {
     "//third_party/expat",
   ]
   sources = [
+    "src/svg/SkSVGCanvas.cpp",
+    "src/svg/SkSVGDevice.cpp",
     "src/xml/SkDOM.cpp",
     "src/xml/SkXMLParser.cpp",
     "src/xml/SkXMLWriter.cpp",
@@ -541,6 +567,7 @@ component("skia") {
     ":armv7",
     ":avx",
     ":crc32",
+    ":effects",
     ":fontmgr_android",
     ":fontmgr_custom",
     ":fontmgr_fontconfig",
@@ -548,16 +575,15 @@ component("skia") {
     ":gpu",
     ":hsw",
     ":jpeg",
+    ":jumper",
     ":none",
     ":pdf",
     ":png",
     ":raw",
-    ":splicer",
     ":sse2",
     ":sse41",
     ":sse42",
     ":ssse3",
-    ":typeface_freetype",
     ":webp",
     ":xml",
   ]
@@ -569,8 +595,6 @@ component("skia") {
 
   sources = []
   sources += skia_core_sources
-  sources += skia_effects_sources
-  sources += skia_sksl_sources
   sources += skia_utils_sources
   sources += skia_xps_sources
   sources += [
@@ -593,18 +617,14 @@ component("skia") {
     "src/codec/SkWbmpCodec.cpp",
     "src/images/SkImageEncoder.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
-    "src/ports/SkGlobalInitialization_default.cpp",
     "src/ports/SkImageGenerator_skia.cpp",
     "src/ports/SkMemory_malloc.cpp",
     "src/ports/SkOSFile_stdio.cpp",
     "src/sfnt/SkOTTable_name.cpp",
     "src/sfnt/SkOTUtils.cpp",
-    "src/svg/SkSVGCanvas.cpp",
-    "src/svg/SkSVGDevice.cpp",
     "src/utils/mac/SkStream_mac.cpp",
     "third_party/etc1/etc1.cpp",
     "third_party/gif/SkGifImageReader.cpp",
-    "third_party/ktx/ktx.cpp",
   ]
 
   libs = []
@@ -671,11 +691,6 @@ component("skia") {
   }
 
   if (is_linux) {
-    libs += [
-      "GL",
-      "GLU",
-      "X11",
-    ]
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
   }
 
@@ -854,6 +869,7 @@ if (skia_enable_tools) {
         libs += [ "OpenGLES.framework" ]
       } else if (is_linux) {
         sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
+        libs += [ "X11" ]
       } else if (is_mac) {
         sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
       } else if (is_win) {
@@ -922,6 +938,11 @@ if (skia_enable_tools) {
       "tools/sk_tool_utils_font.cpp",
       "tools/timer/Timer.cpp",
     ]
+    libs = []
+    if (is_ios) {
+      sources += [ "tools/ios_utils.m" ]
+      libs += [ "Foundation.framework" ]
+    }
     deps = [
       ":common_flags",
       ":flags",
@@ -1024,6 +1045,10 @@ if (skia_enable_tools) {
       sources += [
         "src/views/unix/SkOSWindow_Unix.cpp",
         "src/views/unix/keysym2ucs.c",
+      ]
+      libs += [
+        "GL",
+        "X11",
       ]
     } else if (is_mac) {
       sources += [
@@ -1159,6 +1184,16 @@ if (skia_enable_tools) {
     ]
   }
 
+  test_app("skpinfo") {
+    sources = [
+      "tools/skpinfo.cpp",
+    ]
+    deps = [
+      ":flags",
+      ":skia",
+    ]
+  }
+
   if (is_linux || is_win || is_mac) {
     test_app("SampleApp") {
       sources = [
@@ -1283,6 +1318,7 @@ if (skia_enable_tools) {
   test_app("fuzz") {
     sources = [
       "fuzz/FilterFuzz.cpp",
+      "fuzz/FuzzCanvas.cpp",
       "fuzz/FuzzDrawFunctions.cpp",
       "fuzz/FuzzGradients.cpp",
       "fuzz/FuzzParsePath.cpp",
@@ -1357,7 +1393,6 @@ if (skia_enable_tools) {
         "tools/viewer/sk_app/CommandSet.cpp",
         "tools/viewer/sk_app/GLWindowContext.cpp",
         "tools/viewer/sk_app/Window.cpp",
-        "tools/viewer/sk_app/WindowContext.cpp",
       ]
       libs = []
 
@@ -1369,6 +1404,7 @@ if (skia_enable_tools) {
           "tools/viewer/sk_app/android/main_android.cpp",
           "tools/viewer/sk_app/android/surface_glue_android.cpp",
         ]
+        libs += [ "android" ]
       } else if (is_linux) {
         sources += [
           "tools/viewer/sk_app/unix/GLWindowContext_unix.cpp",
@@ -1397,7 +1433,6 @@ if (skia_enable_tools) {
         if (is_android) {
           sources +=
               [ "tools/viewer/sk_app/android/VulkanWindowContext_android.cpp" ]
-          libs += [ "android" ]
         } else if (is_linux) {
           sources += [ "tools/viewer/sk_app/unix/VulkanWindowContext_unix.cpp" ]
           libs += [ "X11-xcb" ]
@@ -1415,6 +1450,7 @@ if (skia_enable_tools) {
         ":skia",
         ":tool_utils",
         ":views",
+        "//third_party/imgui",
         "//third_party/jsoncpp",
       ]
       if (is_android) {

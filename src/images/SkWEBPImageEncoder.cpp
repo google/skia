@@ -24,6 +24,7 @@
 #include "SkTemplates.h"
 #include "SkUnPreMultiply.h"
 #include "SkUtils.h"
+#include "transform_scanline.h"
 
 // A WebP decoder only, on top of (subset of) libwebp
 // For more information on WebP image format, and libwebp library, see:
@@ -38,131 +39,76 @@ extern "C" {
 #include "webp/encode.h"
 }
 
-typedef void (*ScanlineImporter)(const uint8_t* in, uint8_t* out, int width,
-                                 const SkPMColor* SK_RESTRICT ctable);
-
-static void ARGB_8888_To_RGB(const uint8_t* in, uint8_t* rgb, int width,
-                             const SkPMColor*) {
-  const uint32_t* SK_RESTRICT src = (const uint32_t*)in;
-  for (int i = 0; i < width; ++i) {
-      const uint32_t c = *src++;
-      rgb[0] = SkGetPackedR32(c);
-      rgb[1] = SkGetPackedG32(c);
-      rgb[2] = SkGetPackedB32(c);
-      rgb += 3;
-  }
-}
-
-static void ARGB_8888_To_RGBA(const uint8_t* in, uint8_t* rgb, int width,
-                              const SkPMColor*) {
-  const uint32_t* SK_RESTRICT src = (const uint32_t*)in;
-  const SkUnPreMultiply::Scale* SK_RESTRICT table =
-      SkUnPreMultiply::GetScaleTable();
-  for (int i = 0; i < width; ++i) {
-      const uint32_t c = *src++;
-      uint8_t a = SkGetPackedA32(c);
-      uint8_t r = SkGetPackedR32(c);
-      uint8_t g = SkGetPackedG32(c);
-      uint8_t b = SkGetPackedB32(c);
-      if (0 != a && 255 != a) {
-        SkUnPreMultiply::Scale scale = table[a];
-        r = SkUnPreMultiply::ApplyScale(scale, r);
-        g = SkUnPreMultiply::ApplyScale(scale, g);
-        b = SkUnPreMultiply::ApplyScale(scale, b);
-      }
-      rgb[0] = r;
-      rgb[1] = g;
-      rgb[2] = b;
-      rgb[3] = a;
-      rgb += 4;
-  }
-}
-
-static void RGB_565_To_RGB(const uint8_t* in, uint8_t* rgb, int width,
-                           const SkPMColor*) {
-  const uint16_t* SK_RESTRICT src = (const uint16_t*)in;
-  for (int i = 0; i < width; ++i) {
-      const uint16_t c = *src++;
-      rgb[0] = SkPacked16ToR32(c);
-      rgb[1] = SkPacked16ToG32(c);
-      rgb[2] = SkPacked16ToB32(c);
-      rgb += 3;
-  }
-}
-
-static void ARGB_4444_To_RGB(const uint8_t* in, uint8_t* rgb, int width,
-                             const SkPMColor*) {
-  const SkPMColor16* SK_RESTRICT src = (const SkPMColor16*)in;
-  for (int i = 0; i < width; ++i) {
-      const SkPMColor16 c = *src++;
-      rgb[0] = SkPacked4444ToR32(c);
-      rgb[1] = SkPacked4444ToG32(c);
-      rgb[2] = SkPacked4444ToB32(c);
-      rgb += 3;
-  }
-}
-
-static void ARGB_4444_To_RGBA(const uint8_t* in, uint8_t* rgb, int width,
-                              const SkPMColor*) {
-  const SkPMColor16* SK_RESTRICT src = (const SkPMColor16*)in;
-  const SkUnPreMultiply::Scale* SK_RESTRICT table =
-      SkUnPreMultiply::GetScaleTable();
-  for (int i = 0; i < width; ++i) {
-      const SkPMColor16 c = *src++;
-      uint8_t a = SkPacked4444ToA32(c);
-      uint8_t r = SkPacked4444ToR32(c);
-      uint8_t g = SkPacked4444ToG32(c);
-      uint8_t b = SkPacked4444ToB32(c);
-      if (0 != a && 255 != a) {
-        SkUnPreMultiply::Scale scale = table[a];
-        r = SkUnPreMultiply::ApplyScale(scale, r);
-        g = SkUnPreMultiply::ApplyScale(scale, g);
-        b = SkUnPreMultiply::ApplyScale(scale, b);
-      }
-      rgb[0] = r;
-      rgb[1] = g;
-      rgb[2] = b;
-      rgb[3] = a;
-      rgb += 4;
-  }
-}
-
-static void Index8_To_RGB(const uint8_t* in, uint8_t* rgb, int width,
-                          const SkPMColor* SK_RESTRICT ctable) {
-  const uint8_t* SK_RESTRICT src = (const uint8_t*)in;
-  for (int i = 0; i < width; ++i) {
-      const uint32_t c = ctable[*src++];
-      rgb[0] = SkGetPackedR32(c);
-      rgb[1] = SkGetPackedG32(c);
-      rgb[2] = SkGetPackedB32(c);
-      rgb += 3;
-  }
-}
-
-static ScanlineImporter ChooseImporter(SkColorType ct, bool  hasAlpha, int*  bpp) {
-    switch (ct) {
-        case kN32_SkColorType:
-            if (hasAlpha) {
-                *bpp = 4;
-                return ARGB_8888_To_RGBA;
-            } else {
-                *bpp = 3;
-                return ARGB_8888_To_RGB;
+static transform_scanline_proc choose_proc(const SkImageInfo& info) {
+    const bool isGammaEncoded = info.gammaCloseToSRGB();
+    switch (info.colorType()) {
+        case kRGBA_8888_SkColorType:
+            switch (info.alphaType()) {
+                case kOpaque_SkAlphaType:
+                    return transform_scanline_RGBX;
+                case kUnpremul_SkAlphaType:
+                    return transform_scanline_memcpy;
+                case kPremul_SkAlphaType:
+                    return isGammaEncoded ? transform_scanline_srgbA :
+                                            transform_scanline_rgbA;
+                default:
+                    return nullptr;
             }
-        case kARGB_4444_SkColorType:
-            if (hasAlpha) {
-                *bpp = 4;
-                return ARGB_4444_To_RGBA;
-            } else {
-                *bpp = 3;
-                return ARGB_4444_To_RGB;
+        case kBGRA_8888_SkColorType:
+            switch (info.alphaType()) {
+                case kOpaque_SkAlphaType:
+                    return transform_scanline_BGRX;
+                case kUnpremul_SkAlphaType:
+                    return transform_scanline_BGRA;
+                case kPremul_SkAlphaType:
+                    return isGammaEncoded ? transform_scanline_sbgrA :
+                                            transform_scanline_bgrA;
+                default:
+                    return nullptr;
             }
         case kRGB_565_SkColorType:
-            *bpp = 3;
-            return RGB_565_To_RGB;
+            if (!info.isOpaque()) {
+                return nullptr;
+            }
+
+            return transform_scanline_565;
+        case kARGB_4444_SkColorType:
+            switch (info.alphaType()) {
+                case kOpaque_SkAlphaType:
+                    return transform_scanline_444;
+                case kPremul_SkAlphaType:
+                    return transform_scanline_4444;
+                default:
+                    return nullptr;
+            }
         case kIndex_8_SkColorType:
-            *bpp = 3;
-            return Index8_To_RGB;
+            switch (info.alphaType()) {
+                case kOpaque_SkAlphaType:
+                    return transform_scanline_index8_opaque;
+                case kUnpremul_SkAlphaType:
+                case kPremul_SkAlphaType:
+                    // If the color table is premultiplied, we'll fix it before calling the
+                    // scanline proc.
+                    return transform_scanline_index8_unpremul;
+                default:
+                    return nullptr;
+            }
+        case kGray_8_SkColorType:
+            return transform_scanline_gray;
+        case kRGBA_F16_SkColorType:
+            if (!info.colorSpace() || !info.colorSpace()->gammaIsLinear()) {
+                return nullptr;
+            }
+
+            switch (info.alphaType()) {
+                case kOpaque_SkAlphaType:
+                case kUnpremul_SkAlphaType:
+                    return transform_scanline_F16_to_8888;
+                case kPremul_SkAlphaType:
+                    return transform_scanline_F16_premul_to_8888;
+                default:
+                    return nullptr;
+            }
         default:
             return nullptr;
     }
@@ -174,19 +120,51 @@ static int stream_writer(const uint8_t* data, size_t data_size,
   return stream->write(data, data_size) ? 1 : 0;
 }
 
-bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& pixmap, int quality) {
-    const bool hasAlpha = !pixmap.isOpaque();
-    int bpp = -1;
-    const ScanlineImporter scanline_import = ChooseImporter(pixmap.colorType(), hasAlpha, &bpp);
-    if (nullptr == scanline_import) {
+static bool do_encode(SkWStream* stream, const SkPixmap& srcPixmap, const SkEncodeOptions& opts,
+                      int quality) {
+    SkASSERT(!srcPixmap.colorSpace() || srcPixmap.colorSpace()->gammaCloseToSRGB() ||
+            srcPixmap.colorSpace()->gammaIsLinear());
+
+    SkPixmap pixmap = srcPixmap;
+    if (SkEncodeOptions::PremulBehavior::kLegacy == opts.fPremulBehavior) {
+        pixmap.setColorSpace(nullptr);
+    } else {
+        if (!pixmap.colorSpace()) {
+            return false;
+        }
+    }
+
+    const transform_scanline_proc proc = choose_proc(pixmap.info());
+    if (!proc) {
         return false;
     }
-    if (-1 == bpp) {
-        return false;
+
+    int bpp;
+    if (kRGBA_F16_SkColorType == pixmap.colorType()) {
+        bpp = 4;
+    } else {
+        bpp = pixmap.isOpaque() ? 3 : 4;
     }
 
     if (nullptr == pixmap.addr()) {
         return false;
+    }
+
+    const SkPMColor* colors = nullptr;
+    SkPMColor storage[256];
+    if (kIndex_8_SkColorType == pixmap.colorType()) {
+        if (!pixmap.ctable()) {
+            return false;
+        }
+
+        colors = pixmap.ctable()->readColors();
+        if (kPremul_SkAlphaType == pixmap.alphaType()) {
+            // Unpremultiply the colors.
+            const SkImageInfo rgbaInfo = pixmap.info().makeColorType(kRGBA_8888_SkColorType);
+            transform_scanline_proc proc = choose_proc(rgbaInfo);
+            proc((char*) storage, (const char*) colors, pixmap.ctable()->count(), 4, nullptr);
+            colors = storage;
+        }
     }
 
     WebPConfig webp_config;
@@ -201,7 +179,6 @@ bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& pixmap, int quality)
     pic.writer = stream_writer;
     pic.custom_ptr = (void*)stream;
 
-    const SkPMColor* colors = pixmap.ctable() ? pixmap.ctable()->readColors() : nullptr;
     const uint8_t* src = (uint8_t*)pixmap.addr();
     const int rgbStride = pic.width * bpp;
     const size_t rowBytes = pixmap.rowBytes();
@@ -210,14 +187,18 @@ bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& pixmap, int quality)
     // to RGB color space.
     std::unique_ptr<uint8_t[]> rgb(new uint8_t[rgbStride * pic.height]);
     for (int y = 0; y < pic.height; ++y) {
-        scanline_import(src + y * rowBytes, &rgb[y * rgbStride], pic.width, colors);
+        proc((char*) &rgb[y * rgbStride], (const char*) &src[y * rowBytes], pic.width, bpp, colors);
     }
 
     bool ok;
     if (bpp == 3) {
         ok = SkToBool(WebPPictureImportRGB(&pic, &rgb[0], rgbStride));
     } else {
-        ok = SkToBool(WebPPictureImportRGBA(&pic, &rgb[0], rgbStride));
+        if (pixmap.isOpaque()) {
+            ok = SkToBool(WebPPictureImportRGBX(&pic, &rgb[0], rgbStride));
+        } else {
+            ok = SkToBool(WebPPictureImportRGBA(&pic, &rgb[0], rgbStride));
+        }
     }
 
     ok = ok && WebPEncode(&webp_config, &pic);
@@ -225,4 +206,13 @@ bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& pixmap, int quality)
 
     return ok;
 }
+
+bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& src, int quality) {
+    return do_encode(stream, src, SkEncodeOptions(), quality);
+}
+
+bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& src, const SkEncodeOptions& opts) {
+    return do_encode(stream, src, opts, 100);
+}
+
 #endif

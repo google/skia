@@ -12,7 +12,6 @@
 #include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
-#include "SkColorCubeFilter.h"
 #include "SkColorFilter.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkColorMatrixFilter.h"
@@ -425,7 +424,7 @@ static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
         case 1: {
             sk_sp<SkPathEffect> a = make_path_effect(false);
             sk_sp<SkPathEffect> b = make_path_effect(false);
-            pathEffect = SkComposePathEffect::Make(a, b);
+            pathEffect = SkPathEffect::MakeCompose(a, b);
             break;
         }
         case 2: {
@@ -474,7 +473,7 @@ static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
         default: {
             sk_sp<SkPathEffect> a = make_path_effect(false);
             sk_sp<SkPathEffect> b = make_path_effect(false);
-            pathEffect = SkSumPathEffect::Make(a, b);
+            pathEffect = SkPathEffect::MakeCompose(a, b);
             break;
         }
     }
@@ -526,8 +525,6 @@ static SkPaint make_paint() {
     paint.setEmbeddedBitmapText(make_bool());
     paint.setAutohinted(make_bool());
     paint.setVerticalText(make_bool());
-    paint.setUnderlineText(make_bool());
-    paint.setStrikeThruText(make_bool());
     paint.setFakeBoldText(make_bool());
     paint.setDevKernText(make_bool());
     paint.setFilterQuality(make_filter_quality());
@@ -578,7 +575,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
         return filter;
     }
 
-    enum { ALPHA_THRESHOLD, MERGE, COLOR, LUT3D, BLUR, MAGNIFIER,
+    enum { ALPHA_THRESHOLD, MERGE, COLOR, BLUR, MAGNIFIER,
            BLENDMODE, OFFSET, MATRIX, MATRIX_CONVOLUTION, COMPOSE,
            DISTANT_LIGHT, POINT_LIGHT, SPOT_LIGHT, NOISE, DROP_SHADOW,
            MORPHOLOGY, BITMAP, DISPLACE, TILE, PICTURE, PAINT, NUM_FILTERS };
@@ -603,16 +600,6 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     }
     case COLOR: {
         sk_sp<SkColorFilter> cf(make_color_filter());
-        filter = cf ? SkColorFilterImageFilter::Make(std::move(cf), make_image_filter())
-                    : nullptr;
-        break;
-    }
-    case LUT3D: {
-        int cubeDimension;
-        bool a, b, c;
-        fuzz->next(&a, &b, &c);
-        sk_sp<SkData> lut3D(make_3Dlut(&cubeDimension, a, b, c));
-        sk_sp<SkColorFilter> cf(SkColorCubeFilter::Make(std::move(lut3D), cubeDimension));
         filter = cf ? SkColorFilterImageFilter::Make(std::move(cf), make_image_filter())
                     : nullptr;
         break;

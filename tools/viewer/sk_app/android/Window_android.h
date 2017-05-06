@@ -22,11 +22,10 @@ public:
     void initDisplay(ANativeWindow* window);
     void onDisplayDestroyed();
 
-    const DisplayParams& getDisplayParams() override;
     void setTitle(const char*) override;
     void show() override {}
 
-    bool attach(BackendType attachType, const DisplayParams& params) override;
+    bool attach(BackendType) override;
     void onInval() override;
     void setUIState(const Json::Value& state) override;
 
@@ -40,7 +39,6 @@ public:
 private:
     SkiaAndroidApp* fSkiaAndroidApp = nullptr;
     SkRect fContentRect;
-    DisplayParams fDisplayParams;
     BackendType fBackendType;
 };
 

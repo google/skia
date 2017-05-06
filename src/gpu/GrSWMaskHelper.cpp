@@ -107,20 +107,16 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTexture(GrContext* context, SkBackingFit
                                                                                 desc,
                                                                                 fit,
                                                                                 SkBudgeted::kYes);
-    if (!sContext || !sContext->asDeferredTexture()) {
+    if (!sContext || !sContext->asTextureProxy()) {
         return nullptr;
     }
 
-    // TODO: can skip this step when writePixels is moved
-    GrTexture* tex = sContext->asDeferredTexture()->instantiate(context->textureProvider());
-    if (!tex) {
+    SkImageInfo ii = SkImageInfo::MakeA8(desc.fWidth, desc.fHeight);
+    if (!sContext->writePixels(ii, fPixels.addr(), fPixels.rowBytes(), 0, 0)) {
         return nullptr;
     }
 
-    tex->writePixels(0, 0, fPixels.width(), fPixels.height(), kAlpha_8_GrPixelConfig,
-                     fPixels.addr(), fPixels.rowBytes());
-
-    return sk_ref_sp(sContext->asDeferredTexture());
+    return sContext->asTextureProxyRef();
 }
 
 /**
@@ -176,10 +172,8 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
     // We use device coords to compute the texture coordinates. We take the device coords and apply
     // a translation so that the top-left of the device bounds maps to 0,0, and then a scaling
     // matrix to normalized coords.
-    SkMatrix maskMatrix;
-    maskMatrix.setIDiv(texture->width(), texture->height());
-    maskMatrix.preTranslate(SkIntToScalar(-textureOriginInDeviceSpace.fX),
-                            SkIntToScalar(-textureOriginInDeviceSpace.fY));
+    SkMatrix maskMatrix = SkMatrix::MakeTrans(SkIntToScalar(-textureOriginInDeviceSpace.fX),
+                                              SkIntToScalar(-textureOriginInDeviceSpace.fY));
     maskMatrix.preConcat(viewMatrix);
     std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFill(paint.getColor(), SkMatrix::I(),
                                                                   dstRect, nullptr, &invert);

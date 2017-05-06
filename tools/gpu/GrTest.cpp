@@ -15,6 +15,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
+#include "GrSemaphore.h"
 
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
@@ -55,29 +56,12 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
 }
 };
 
-void GrTestTarget::init(GrContext* ctx, sk_sp<GrRenderTargetContext> renderTargetContext) {
-    SkASSERT(!fContext);
-
-    fContext.reset(SkRef(ctx));
-    fRenderTargetContext = renderTargetContext;
-}
-
 bool GrSurfaceProxy::isWrapped_ForTesting() const {
     return SkToBool(fTarget);
 }
 
 bool GrRenderTargetContext::isWrapped_ForTesting() const {
     return fRenderTargetProxy->isWrapped_ForTesting();
-}
-
-void GrContext::getTestTarget(GrTestTarget* tar, sk_sp<GrRenderTargetContext> renderTargetContext) {
-    this->flush();
-    SkASSERT(renderTargetContext);
-    // We could create a proxy GrOpList that passes through to fGpu until ~GrTextTarget() and
-    // then disconnects. This would help prevent test writers from mixing using the returned
-    // GrOpList and regular drawing. We could also assert or fail in GrContext drawing methods
-    // until ~GrTestTarget().
-    tar->init(this, std::move(renderTargetContext));
 }
 
 void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
@@ -138,10 +122,20 @@ void GrContext::printGpuStats() const {
     SkDebugf("%s", out.c_str());
 }
 
-sk_sp<SkImage> GrContext::getFontAtlasImage(GrMaskFormat format) {
+sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format) {
     GrAtlasGlyphCache* cache = this->getAtlasGlyphCache();
 
-    GrTexture* tex = cache->getTexture(format);
+    sk_sp<GrTextureProxy> proxy = cache->getProxy(format);
+    if (!proxy) {
+        return nullptr;
+    }
+
+    GrTexture* tex = proxy->instantiate(this->textureProvider());
+    if (!tex) {
+        return nullptr;
+    }
+
+    // MDB TODO: add proxy-backed SkImage_Gpu's
     sk_sp<SkImage> image(new SkImage_Gpu(tex->width(), tex->height(),
                                          kNeedNewImageUniqueID, kPremul_SkAlphaType,
                                          sk_ref_sp(tex), nullptr, SkBudgeted::kNo));
@@ -239,7 +233,7 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->fSingleOwner);)
-#define RETURN_IF_ABANDONED        if (fRenderTargetContext->fDrawingManager->wasAbandoned()) { return; }
+#define RETURN_IF_ABANDONED if (fRenderTargetContext->drawingManager()->wasAbandoned()) { return; }
 
 void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
                                                       GrAAType aaType,
@@ -257,9 +251,7 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
     if (uss) {
         pipelineBuilder.setUserStencil(uss);
     }
-    if (snapToCenters) {
-        pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag, true);
-    }
+    pipelineBuilder.setSnapVerticesToPixelCenters(snapToCenters);
 
     fRenderTargetContext->getOpList()->addDrawOp(pipelineBuilder, fRenderTargetContext, GrNoClip(),
                                                  std::move(op));
@@ -271,7 +263,7 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
 ///////////////////////////////////////////////////////////////////////////////
 
 GrRenderTarget::Flags GrRenderTargetProxy::testingOnly_getFlags() const {
-    return fFlags;
+    return fRenderTargetFlags;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -329,9 +321,14 @@ public:
 
     void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {}
 
-    GrFence SK_WARN_UNUSED_RESULT insertFence() const override { return 0; }
-    bool waitFence(GrFence, uint64_t) const override { return true; }
+    GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
+    bool waitFence(GrFence, uint64_t) override { return true; }
     void deleteFence(GrFence) const override {}
+    void flush() override {}
+
+    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() override { return nullptr; }
+    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override {}
+    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
 
 private:
     void onResetContext(uint32_t resetBits) override {}

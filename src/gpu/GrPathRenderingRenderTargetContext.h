@@ -8,9 +8,7 @@
 #ifndef GrPathRenderingRenderTargetContext_DEFINED
 #define GrPathRenderingRenderTargetContext_DEFINED
 
-#include "GrRenderTargetContext.h"
-
-class GrStencilAndCoverTextContext;
+#include "text/GrStencilAndCoverTextContext.h"
 
 class GrPathRenderingRenderTargetContext : public GrRenderTargetContext {
 public:

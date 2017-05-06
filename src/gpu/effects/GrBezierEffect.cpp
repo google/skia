@@ -6,7 +6,7 @@
  */
 
 #include "GrBezierEffect.h"
-
+#include "GrContext.h"
 #include "GrShaderCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -258,6 +258,7 @@ GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t 
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrConicEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrConicEffect::TestCreate(GrProcessorTestData* d) {
     sk_sp<GrGeometryProcessor> gp;
     do {
@@ -265,11 +266,12 @@ sk_sp<GrGeometryProcessor> GrConicEffect::TestCreate(GrProcessorTestData* d) {
                 static_cast<GrPrimitiveEdgeType>(
                         d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
         gp = GrConicEffect::Make(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom),
-                                 edgeType, *d->fCaps,
-                                 GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
+                                 edgeType, *d->context()->caps(), GrTest::TestMatrix(d->fRandom),
+                                 d->fRandom->nextBool());
     } while (nullptr == gp);
     return gp;
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // Quad
@@ -459,19 +461,19 @@ GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t co
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrQuadEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrQuadEffect::TestCreate(GrProcessorTestData* d) {
     sk_sp<GrGeometryProcessor> gp;
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
                 d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
-        gp = GrQuadEffect::Make(GrRandomColor(d->fRandom),
-                                GrTest::TestMatrix(d->fRandom),
-                                edgeType, *d->fCaps,
-                                GrTest::TestMatrix(d->fRandom),
+        gp = GrQuadEffect::Make(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom), edgeType,
+                                *d->context()->caps(), GrTest::TestMatrix(d->fRandom),
                                 d->fRandom->nextBool());
     } while (nullptr == gp);
     return gp;
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // Cubic
@@ -681,14 +683,16 @@ GrCubicEffect::GrCubicEffect(GrColor color, const SkMatrix& viewMatrix,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrCubicEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrCubicEffect::TestCreate(GrProcessorTestData* d) {
     sk_sp<GrGeometryProcessor> gp;
     do {
         GrPrimitiveEdgeType edgeType =
                 static_cast<GrPrimitiveEdgeType>(
                         d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
-        gp = GrCubicEffect::Make(GrRandomColor(d->fRandom),
-                                 GrTest::TestMatrix(d->fRandom), edgeType, *d->fCaps);
+        gp = GrCubicEffect::Make(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom),
+                                 edgeType, *d->context()->caps());
     } while (nullptr == gp);
     return gp;
 }
+#endif

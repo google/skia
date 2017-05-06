@@ -19,6 +19,8 @@
 #include "SkPicture.h"
 #include "gm.h"
 
+//#define TEST_VIA_SVG
+
 namespace DM {
 
 // This is just convenience.  It lets you use either return "foo" or return SkStringPrintf(...).
@@ -301,7 +303,7 @@ public:
 class GPUSink : public Sink {
 public:
     GPUSink(sk_gpu_test::GrContextFactory::ContextType,
-            sk_gpu_test::GrContextFactory::ContextOptions,
+            sk_gpu_test::GrContextFactory::ContextOverrides,
             int samples, bool diText, SkColorType colorType, sk_sp<SkColorSpace> colorSpace,
             bool threaded);
 
@@ -310,13 +312,13 @@ public:
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
 private:
-    sk_gpu_test::GrContextFactory::ContextType      fContextType;
-    sk_gpu_test::GrContextFactory::ContextOptions   fContextOptions;
-    int                                             fSampleCount;
-    bool                                            fUseDIText;
-    SkColorType                                     fColorType;
-    sk_sp<SkColorSpace>                             fColorSpace;
-    bool                                            fThreaded;
+    sk_gpu_test::GrContextFactory::ContextType        fContextType;
+    sk_gpu_test::GrContextFactory::ContextOverrides   fContextOverrides;
+    int                                               fSampleCount;
+    bool                                              fUseDIText;
+    SkColorType                                       fColorType;
+    sk_sp<SkColorSpace>                               fColorSpace;
+    bool                                              fThreaded;
 };
 
 class PDFSink : public Sink {
@@ -464,6 +466,12 @@ public:
 class ViaTwice : public Via {
 public:
     explicit ViaTwice(Sink* sink) : Via(sink) {}
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
+class ViaSVG : public Via {
+public:
+    explicit ViaSVG(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 

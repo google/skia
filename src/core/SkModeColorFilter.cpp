@@ -16,6 +16,7 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkUtils.h"
+#include "SkRandom.h"
 #include "SkString.h"
 #include "SkValidationUtils.h"
 #include "SkPM4f.h"
@@ -105,7 +106,6 @@ bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
 ///////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
 #include "GrBlend.h"
-#include "GrInvariantOutput.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 #include "effects/GrConstColorProcessor.h"
 #include "SkGr.h"
@@ -128,10 +128,7 @@ sk_sp<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
     // With a solid color input this should always be able to compute the blended color
     // (at least for coeff modes)
     if ((unsigned)fMode <= (unsigned)SkBlendMode::kLastCoeffMode) {
-        static SkRandom gRand;
-        GrInvariantOutput io(GrPremulColor(gRand.nextU()), kRGBA_GrColorComponentFlags);
-        fp->computeInvariantOutput(&io);
-        SkASSERT(io.validFlags() == kRGBA_GrColorComponentFlags);
+        SkASSERT(fp->hasConstantOutputForConstantInput());
     }
 #endif
     return fp;

@@ -192,7 +192,7 @@ DEF_TEST(Paint_regression_cubic, reporter) {
     SkRect maxR = fillR;
     SkScalar miter = SkMaxScalar(SK_Scalar1, paint.getStrokeMiter());
     SkScalar inset = paint.getStrokeJoin() == SkPaint::kMiter_Join ?
-                            SkScalarMul(paint.getStrokeWidth(), miter) :
+                            paint.getStrokeWidth() * miter :
                             paint.getStrokeWidth();
     maxR.inset(-inset, -inset);
 

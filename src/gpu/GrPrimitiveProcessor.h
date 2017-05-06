@@ -21,10 +21,11 @@
  * functionality.
  *
  * There are two feedback loops between the GrFragmentProcessors, the GrXferProcessor, and the
- * GrPrimitiveProcessor.  These loops run on the CPU and compute any invariant components which
- * might be useful for correctness / optimization decisions.  The GrPrimitiveProcessor seeds these
- * loops, one with initial color and one with initial coverage, in its
- * onComputeInvariantColor / Coverage calls.  These seed values are processed by the subsequent
+ * GrPrimitiveProcessor. These loops run on the CPU and to determine known properties of the final
+ * color and coverage inputs to the GrXferProcessor in order to perform optimizations that preserve
+ * correctness. The GrDrawOp seeds these loops with initial color and coverage, in its
+ * getFragmentProcessorAnalysisInputs implementation. These seed values are processed by the
+ * subsequent
  * stages of the rendering pipeline and the output is then fed back into the GrDrawOp in
  * the applyPipelineOptimizations call, where the op can use the information to inform decisions
  * about GrPrimitiveProcessor creation.
@@ -80,17 +81,9 @@ public:
     }
 
     /**
-     * Returns true if the pipeline's color output will be affected by the existing render target
-     * destination pixel values (meaning we need to be careful with overlapping draws). Note that we
-     * can conflate coverage and color, so the destination color may still bleed into pixels that
-     * have partial coverage, even if this function returns false.
-     *
-     * The above comment seems incorrect for the use case. This function is used to turn two
-     * overlapping draws into a single draw (really to stencil multiple paths and do a single
-     * cover). It seems that what really matters is whether the dst is read for color OR for
-     * coverage.
+     * Returns true if the color written to the output pixel depends on the pixels previous value.
      */
-    bool willColorBlendWithDst() const { return SkToBool(kWillColorBlendWithDst_Flag & fFlags); }
+    bool xpReadsDst() const { return SkToBool(kXPReadsDst_Flag & fFlags); }
 
 private:
     enum {
@@ -105,7 +98,7 @@ private:
         // output color. If not set fOverrideColor is to be ignored.
         kUseOverrideColor_Flag = 0x4,
 
-        kWillColorBlendWithDst_Flag = 0x8,
+        kXPReadsDst_Flag = 0x8,
     };
 
     uint32_t    fFlags;

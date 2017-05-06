@@ -14,26 +14,35 @@
 #include "GrVkRenderTarget.h"
 #include "GrVkUtil.h"
 
-static inline const VkFormat& attrib_type_to_vkformat(GrVertexAttribType type) {
-    SkASSERT(type >= 0 && type < kGrVertexAttribTypeCount);
-    static const VkFormat kFormats[kGrVertexAttribTypeCount] = {
-        VK_FORMAT_R32_SFLOAT,          // kFloat_GrVertexAttribType
-        VK_FORMAT_R32G32_SFLOAT,       // kVec2f_GrVertexAttribType
-        VK_FORMAT_R32G32B32_SFLOAT,    // kVec3f_GrVertexAttribType
-        VK_FORMAT_R32G32B32A32_SFLOAT, // kVec4f_GrVertexAttribType
-        VK_FORMAT_R8_UNORM,            // kUByte_GrVertexAttribType
-        VK_FORMAT_R8G8B8A8_UNORM,      // kVec4ub_GrVertexAttribType
-        VK_FORMAT_R16G16_UNORM,        // kVec2us_GrVertexAttribType
-    };
-    GR_STATIC_ASSERT(0 == kFloat_GrVertexAttribType);
-    GR_STATIC_ASSERT(1 == kVec2f_GrVertexAttribType);
-    GR_STATIC_ASSERT(2 == kVec3f_GrVertexAttribType);
-    GR_STATIC_ASSERT(3 == kVec4f_GrVertexAttribType);
-    GR_STATIC_ASSERT(4 == kUByte_GrVertexAttribType);
-    GR_STATIC_ASSERT(5 == kVec4ub_GrVertexAttribType);
-    GR_STATIC_ASSERT(6 == kVec2us_GrVertexAttribType);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFormats) == kGrVertexAttribTypeCount);
-    return kFormats[type];
+static inline VkFormat attrib_type_to_vkformat(GrVertexAttribType type) {
+    switch (type) {
+        case kFloat_GrVertexAttribType:
+            return VK_FORMAT_R32_SFLOAT;
+        case kVec2f_GrVertexAttribType:
+            return VK_FORMAT_R32G32_SFLOAT;
+        case kVec3f_GrVertexAttribType:
+            return VK_FORMAT_R32G32B32_SFLOAT;
+        case kVec4f_GrVertexAttribType:
+            return VK_FORMAT_R32G32B32A32_SFLOAT;
+        case kVec2i_GrVertexAttribType:
+            return VK_FORMAT_R32G32_SINT;
+        case kVec3i_GrVertexAttribType:
+            return VK_FORMAT_R32G32B32_SINT;
+        case kVec4i_GrVertexAttribType:
+            return VK_FORMAT_R32G32B32A32_SINT;
+        case kUByte_GrVertexAttribType:
+            return VK_FORMAT_R8_UNORM;
+        case kVec4ub_GrVertexAttribType:
+            return VK_FORMAT_R8G8B8A8_UNORM;
+        case kVec2us_GrVertexAttribType:
+            return VK_FORMAT_R16G16_UNORM;
+        case kInt_GrVertexAttribType:
+            return VK_FORMAT_R32_SINT;
+        case kUint_GrVertexAttribType:
+            return VK_FORMAT_R32_UINT;
+    }
+    SkFAIL("Unknown vertex attrib type");
+    return VK_FORMAT_UNDEFINED;
 }
 
 static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,

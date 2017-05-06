@@ -6,7 +6,8 @@
  */
 
 #include "GrBitmapTextGeoProc.h"
-#include "GrInvariantOutput.h"
+
+#include "GrContext.h"
 #include "GrTexture.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -119,13 +120,14 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
+GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrContext* context, GrColor color,
+                                         sk_sp<GrTextureProxy> proxy,
                                          const GrSamplerParams& params, GrMaskFormat format,
                                          const SkMatrix& localMatrix, bool usesLocalCoords)
     : fColor(color)
     , fLocalMatrix(localMatrix)
     , fUsesLocalCoords(usesLocalCoords)
-    , fTextureSampler(texture, params)
+    , fTextureSampler(context->textureProvider(), std::move(proxy), params)
     , fInColor(nullptr)
     , fMaskFormat(format) {
     this->initClassID<GrBitmapTextGeoProc>();
@@ -154,9 +156,12 @@ GrGLSLPrimitiveProcessor* GrBitmapTextGeoProc::createGLSLInstance(const GrShader
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
+    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+
     static const SkShader::TileMode kTileModes[] = {
         SkShader::kClamp_TileMode,
         SkShader::kRepeat_TileMode,
@@ -182,7 +187,8 @@ sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
             break;
     }
 
-    return GrBitmapTextGeoProc::Make(GrRandomColor(d->fRandom), d->fTextures[texIdx], params,
-                                     format, GrTest::TestMatrix(d->fRandom),
+    return GrBitmapTextGeoProc::Make(d->context(), GrRandomColor(d->fRandom), std::move(proxy),
+                                     params, format, GrTest::TestMatrix(d->fRandom),
                                      d->fRandom->nextBool());
 }
+#endif

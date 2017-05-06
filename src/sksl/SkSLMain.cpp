@@ -24,8 +24,10 @@ int main(int argc, const char** argv) {
         kind = SkSL::Program::kVertex_Kind;
     } else if (len > 5 && !strcmp(argv[1] + strlen(argv[1]) - 5, ".frag")) {
         kind = SkSL::Program::kFragment_Kind;
+    } else if (len > 5 && !strcmp(argv[1] + strlen(argv[1]) - 5, ".geom")) {
+        kind = SkSL::Program::kGeometry_Kind;
     } else {
-        printf("input filename must end in '.vert' or '.frag'\n");
+        printf("input filename must end in '.vert', '.frag', or '.geom'\n");
         exit(1);
     }
 

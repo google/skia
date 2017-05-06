@@ -9,9 +9,11 @@
 #include "SkColorPriv.h"
 #include "SkColorShader.h"
 #include "SkGradientShader.h"
+#include "SkLinearGradient.h"
 #include "SkShader.h"
 #include "SkSurface.h"
 #include "SkTemplates.h"
+#include "SkTLazy.h"
 #include "Test.h"
 
 // https://code.google.com/p/chromium/issues/detail?id=448299
@@ -350,7 +352,7 @@ static void test_clamping_overflow(skiatest::Reporter*) {
 }
 
 // http://crbug.com/636194
-static void text_degenerate_linear(skiatest::Reporter*) {
+static void test_degenerate_linear(skiatest::Reporter*) {
     SkPaint p;
     const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN };
     const SkPoint pts[] = {
@@ -365,6 +367,121 @@ static void text_degenerate_linear(skiatest::Reporter*) {
     // Passes if we don't trigger asserts.
 }
 
+// "Interesting" fuzzer values.
+static void test_linear_fuzzer(skiatest::Reporter*) {
+    static const SkColor gColors0[] = { 0x30303030, 0x30303030 };
+    static const SkColor gColors1[] = { 0x30303030, 0x30303030, 0x30303030 };
+
+    static const SkScalar gPos1[]   = { 0, 0, 1 };
+
+    static const SkScalar gMatrix0[9] = {
+        6.40969056e-10f, 0              , 6.40969056e-10f,
+        0              , 4.42539023e-39f, 6.40969056e-10f,
+        0              , 0              , 1
+    };
+    static const SkScalar gMatrix1[9] = {
+        -2.75294113f    , 6.40969056e-10f,  6.40969056e-10f,
+         6.40969056e-10f, 6.40969056e-10f, -3.32810161e+24f,
+         6.40969056e-10f, 6.40969056e-10f,  0
+    };
+    static const SkScalar gMatrix2[9] = {
+        7.93481258e+17f, 6.40969056e-10f, 6.40969056e-10f,
+        6.40969056e-10f, 6.40969056e-10f, 6.40969056e-10f,
+        6.40969056e-10f, 6.40969056e-10f, 0.688235283f
+    };
+    static const SkScalar gMatrix3[9] = {
+        1.89180674e+11f,     6.40969056e-10f, 6.40969056e-10f,
+        6.40969056e-10f,     6.40969056e-10f, 6.40969056e-10f,
+        6.40969056e-10f, 11276.0469f        , 8.12524808e+20f
+    };
+
+    static const struct {
+        SkPoint            fPts[2];
+        const SkColor*     fColors;
+        const SkScalar*    fPos;
+        int                fCount;
+        SkShader::TileMode fTileMode;
+        uint32_t           fFlags;
+        const SkScalar*    fLocalMatrix;
+        const SkScalar*    fGlobalMatrix;
+    } gConfigs[] = {
+        {
+            {{0, -2.752941f}, {0, 0}},
+            gColors0,
+            nullptr,
+            SK_ARRAY_COUNT(gColors0),
+            SkShader::kClamp_TileMode,
+            0,
+            gMatrix0,
+            nullptr
+        },
+        {
+            {{4.42539023e-39f, -4.42539023e-39f}, {9.78041162e-15f, 4.42539023e-39f}},
+            gColors1,
+            gPos1,
+            SK_ARRAY_COUNT(gColors1),
+            SkShader::kClamp_TileMode,
+            0,
+            nullptr,
+            gMatrix1
+        },
+        {
+            {{4.42539023e-39f, 6.40969056e-10f}, {6.40969056e-10f, 1.49237238e-19f}},
+            gColors1,
+            gPos1,
+            SK_ARRAY_COUNT(gColors1),
+            SkShader::kClamp_TileMode,
+            0,
+            nullptr,
+            gMatrix2
+        },
+        {
+            {{6.40969056e-10f, 6.40969056e-10f}, {6.40969056e-10f, -0.688235283f}},
+            gColors0,
+            nullptr,
+            SK_ARRAY_COUNT(gColors0),
+            SkShader::kClamp_TileMode,
+            0,
+            gMatrix3,
+            nullptr
+        },
+    };
+
+    static const uint32_t gForceFlags[] = { 0, SkLinearGradient::kForce4fContext_PrivateFlag };
+
+    sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(100, 100);
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint paint;
+
+    for (auto forceFlags : gForceFlags) {
+        for (const auto& config : gConfigs) {
+            SkAutoCanvasRestore acr(canvas, false);
+            SkTLazy<SkMatrix> localMatrix;
+            if (config.fLocalMatrix) {
+                localMatrix.init();
+                localMatrix.get()->set9(config.fLocalMatrix);
+            }
+
+            paint.setShader(SkGradientShader::MakeLinear(config.fPts,
+                                                         config.fColors,
+                                                         config.fPos,
+                                                         config.fCount,
+                                                         config.fTileMode,
+                                                         config.fFlags | forceFlags,
+                                                         localMatrix.getMaybeNull()));
+            if (config.fGlobalMatrix) {
+                SkMatrix m;
+                m.set9(config.fGlobalMatrix);
+                canvas->save();
+                canvas->concat(m);
+            }
+
+            canvas->drawPaint(paint);
+        }
+    }
+}
+
+
 DEF_TEST(Gradient, reporter) {
     TestGradientShaders(reporter);
     TestGradientOptimization(reporter);
@@ -375,5 +492,6 @@ DEF_TEST(Gradient, reporter) {
     test_linear_fuzz(reporter);
     test_two_point_conical_zero_radius(reporter);
     test_clamping_overflow(reporter);
-    text_degenerate_linear(reporter);
+    test_degenerate_linear(reporter);
+    test_linear_fuzzer(reporter);
 }

@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef DecodeFile_DEFINED
+#define DecodeFile_DEFINED
+
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkData.h"
@@ -36,3 +39,4 @@ static inline sk_sp<SkImage> decode_file(const char filename[]) {
     sk_sp<SkData> data(SkData::MakeFromFileName(filename));
     return data ? SkImage::MakeFromEncoded(data) : nullptr;
 }
+#endif  // DecodeFile_DEFINED

@@ -71,9 +71,7 @@ public:
         LayerInfo();
     };
 
-    SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const override;
-
-    size_t contextSize() const override { return sizeof(LayerDrawLooperContext); }
+    SkDrawLooper::Context* makeContext(SkCanvas*, SkArenaAlloc*) const override;
 
     bool asABlurShadow(BlurShadowRec* rec) const override;
 

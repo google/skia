@@ -13,6 +13,7 @@
 #include "SkWriteBuffer.h"
 
 class GrFragmentProcessor;
+class SkArenaAlloc;
 
 class SkLocalMatrixShader : public SkShader {
 public:
@@ -41,15 +42,15 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    Context* onCreateContext(const ContextRec&, void*) const override;
 
-    size_t onContextSize(const ContextRec& rec) const override {
-        return fProxyShader->contextSize(rec);
-    }
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 
     SkImage* onIsAImage(SkMatrix* matrix, TileMode* mode) const override {
         return fProxyShader->isAImage(matrix, mode);
     }
+
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+                        const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
 
 #ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
     bool onIsABitmap(SkBitmap* bitmap, SkMatrix* matrix, TileMode* mode) const override {

@@ -32,9 +32,7 @@
 #include "SkTypeface_win_dw.h"
 
 #include <dwrite.h>
-#if SK_HAS_DWRITE_1_H
-#  include <dwrite_1.h>
-#endif
+#include <dwrite_1.h>
 
 /* Note:
  * In versions 8 and 8.1 of Windows, some calls in DWrite are not thread safe.
@@ -116,6 +114,45 @@ static void expand_range_if_gridfit_only(DWriteFontTypeface* typeface, int size,
         }
         minPPEM = maxPPEM;
     }
+}
+
+/** If the rendering mode for the specified 'size' sets SymmetricSmoothing, return true. */
+static bool gasp_allows_cleartype_symmetric(DWriteFontTypeface* typeface, int size) {
+#ifdef SK_IGNORE_DIRECTWRITE_GASP_FIX
+    return true;
+#endif
+    AutoTDWriteTable<SkOTTableGridAndScanProcedure> gasp(typeface->fDWriteFontFace.get());
+    if (!gasp.fExists) {
+        return false;
+    }
+    if (gasp.fSize < sizeof(SkOTTableGridAndScanProcedure)) {
+        return false;
+    }
+    if (gasp->version != SkOTTableGridAndScanProcedure::version0 &&
+        gasp->version != SkOTTableGridAndScanProcedure::version1)
+    {
+        return false;
+    }
+
+    uint16_t numRanges = SkEndianSwap16(gasp->numRanges);
+    if (numRanges > 1024 ||
+        gasp.fSize < sizeof(SkOTTableGridAndScanProcedure) +
+                     sizeof(SkOTTableGridAndScanProcedure::GaspRange) * numRanges)
+    {
+        return false;
+    }
+
+    const SkOTTableGridAndScanProcedure::GaspRange* rangeTable =
+        SkTAfter<const SkOTTableGridAndScanProcedure::GaspRange>(gasp.get());
+    int minPPEM = -1;
+    for (uint16_t i = 0; i < numRanges; ++i, ++rangeTable) {
+        int maxPPEM = SkEndianSwap16(rangeTable->maxPPEM);
+        if (minPPEM < size && size <= maxPPEM) {
+            return rangeTable->flags.field.SymmetricSmoothing;
+        }
+        minPPEM = maxPPEM;
+    }
+    return false;
 }
 
 static bool has_bitmap_strike(DWriteFontTypeface* typeface, PPEMRange range) {
@@ -211,13 +248,11 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         , fGlyphCount(-1) {
 
     DWriteFontTypeface* typeface = this->getDWriteTypeface();
-#if SK_HAS_DWRITE_2_H
     typeface->fFactory->QueryInterface<IDWriteFactory2>(&fFactory2);
 
     SkTScopedComPtr<IDWriteFontFace2> fontFace2;
     typeface->fDWriteFontFace->QueryInterface<IDWriteFontFace2>(&fontFace2);
     fIsColorFont = fFactory2.get() && fontFace2.get() && fontFace2->IsColorFont();
-#endif
 
     // In general, all glyphs should use CLEARTYPE_NATURAL_SYMMETRIC
     // except when bi-level rendering is requested or there are embedded
@@ -306,10 +341,12 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
 
-    // The normal case is to use natural symmetric rendering and linear metrics.
+    // The normal case is to use natural symmetric rendering (if permitted) and linear metrics.
     } else {
         fTextSizeRender = realTextSize;
-        fRenderingMode = DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC;
+        fRenderingMode = gasp_allows_cleartype_symmetric(typeface, realTextSize)
+                       ? DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC
+                       : DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL;
         fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
@@ -376,9 +413,7 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
         Shared l(DWriteFactoryMutex);
         this->getDWriteTypeface()->fDWriteFontFace->GetMetrics(&dwfm);
     }
-    SkScalar advanceX = SkScalarMulDiv(fTextSizeMeasure,
-                                       SkIntToScalar(gm.advanceWidth),
-                                       SkIntToScalar(dwfm.designUnitsPerEm));
+    SkScalar advanceX = fTextSizeMeasure * gm.advanceWidth / dwfm.designUnitsPerEm;
 
     SkVector advance = { advanceX, 0 };
     if (DWRITE_MEASURING_MODE_GDI_CLASSIC == fMeasuringMode ||
@@ -460,16 +495,10 @@ static bool glyph_check_and_set_bounds(SkGlyph* glyph, const RECT& bbox) {
 }
 
 bool SkScalerContext_DW::isColorGlyph(const SkGlyph& glyph) {
-#if SK_HAS_DWRITE_2_H
     SkTScopedComPtr<IDWriteColorGlyphRunEnumerator> colorLayer;
-    if (getColorGlyphRun(glyph, &colorLayer)) {
-        return true;
-    }
-#endif
-    return false;
+    return getColorGlyphRun(glyph, &colorLayer);
 }
 
-#if SK_HAS_DWRITE_2_H
 bool SkScalerContext_DW::getColorGlyphRun(const SkGlyph& glyph,
                                           IDWriteColorGlyphRunEnumerator** colorGlyph)
 {
@@ -498,7 +527,6 @@ bool SkScalerContext_DW::getColorGlyphRun(const SkGlyph& glyph,
     HRBM(hr, "Failed to translate color glyph run");
     return true;
 }
-#endif
 
 void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
     glyph->fWidth = 0;
@@ -508,11 +536,9 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
 
     this->generateAdvance(glyph);
 
-#if SK_HAS_DWRITE_2_H
     if (fIsColorFont && isColorGlyph(*glyph)) {
         glyph->fMaskFormat = SkMask::kARGB32_Format;
     }
-#endif
 
     RECT bbox;
     HRVM(this->getBoundingBox(glyph, fRenderingMode, fTextureType, &bbox),
@@ -565,13 +591,13 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
     metrics->fDescent = fTextSizeRender * SkIntToScalar(dwfm.descent) / upem;
     metrics->fLeading = fTextSizeRender * SkIntToScalar(dwfm.lineGap) / upem;
     metrics->fXHeight = fTextSizeRender * SkIntToScalar(dwfm.xHeight) / upem;
+    metrics->fCapHeight = fTextSizeRender * SkIntToScalar(dwfm.capHeight) / upem;
     metrics->fUnderlineThickness = fTextSizeRender * SkIntToScalar(dwfm.underlineThickness) / upem;
     metrics->fUnderlinePosition = -(fTextSizeRender * SkIntToScalar(dwfm.underlinePosition) / upem);
 
     metrics->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
     metrics->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
 
-#if SK_HAS_DWRITE_1_H
     if (this->getDWriteTypeface()->fDWriteFontFace1.get()) {
         DWRITE_FONT_METRICS1 dwfm1;
         this->getDWriteTypeface()->fDWriteFontFace1->GetMetrics(&dwfm1);
@@ -583,9 +609,6 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
         metrics->fMaxCharWidth = metrics->fXMax - metrics->fXMin;
         return;
     }
-#else
-#  pragma message("No dwrite_1.h is available, font metrics may be affected.")
-#endif
 
     AutoTDWriteTable<SkOTTableHead> head(this->getDWriteTypeface()->fDWriteFontFace.get());
     if (head.fExists &&
@@ -758,7 +781,6 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
     return fBits.begin();
 }
 
-#if SK_HAS_DWRITE_2_H
 void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
     SkASSERT(isColorGlyph(glyph));
     SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
@@ -825,7 +847,6 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
         draw.drawPath(path, paint, nullptr, true /* pathIsMutable */);
     }
 }
-#endif
 
 void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     //Create the mask.
@@ -836,12 +857,10 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
         textureType = DWRITE_TEXTURE_ALIASED_1x1;
     }
 
-#if SK_HAS_DWRITE_2_H
     if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
         generateColorGlyphImage(glyph);
         return;
     }
-#endif
 
     const void* bits = this->drawDWMask(glyph, renderingMode, textureType);
     if (!bits) {

@@ -154,7 +154,6 @@ static bool find_by_FontIdentity(SkTypeface* cachedTypeface, void* ctx) {
 
 class SkFontMgr_FCI : public SkFontMgr {
     sk_sp<SkFontConfigInterface> fFCI;
-    sk_sp<SkDataTable> fFamilyNames;
     SkTypeface_FreeType::Scanner fScanner;
 
     mutable SkMutex fMutex;
@@ -168,21 +167,21 @@ class SkFontMgr_FCI : public SkFontMgr {
 public:
     SkFontMgr_FCI(sk_sp<SkFontConfigInterface> fci)
         : fFCI(std::move(fci))
-        , fFamilyNames(fFCI->getFamilyNames())
         , fCache(kMaxSize)
     {}
 
 protected:
     int onCountFamilies() const override {
-        return fFamilyNames->count();
+        return 0;
     }
 
     void onGetFamilyName(int index, SkString* familyName) const override {
-        familyName->set(fFamilyNames->atStr(index));
+        SkFAIL("Not implemented.");
     }
 
     SkFontStyleSet* onCreateStyleSet(int index) const override {
-        return this->onMatchFamily(fFamilyNames->atStr(index));
+        SkFAIL("Not implemented.");
+        return nullptr;
     }
 
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
@@ -212,17 +211,18 @@ protected:
         }
 
         // TODO should the caller give us the style or should we get it from freetype?
+        SkString name;
         SkFontStyle style;
         bool isFixedPitch = false;
-        if (!fScanner.scanFont(stream.get(), 0, nullptr, &style, &isFixedPitch, nullptr)) {
+        if (!fScanner.scanFont(stream.get(), 0, &name, &style, &isFixedPitch, nullptr)) {
             return nullptr;
         }
 
         auto fontData = skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
-        return SkTypeface_FCI::Create(std::move(fontData), style, isFixedPitch);
+        return SkTypeface_FCI::Create(std::move(fontData), std::move(name), style, isFixedPitch);
     }
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
+    SkTypeface* onCreateFromStream(SkStreamAsset* s, const SkFontArguments& args) const override {
         using Scanner = SkTypeface_FreeType::Scanner;
         std::unique_ptr<SkStreamAsset> stream(s);
         const size_t length = stream->getLength();
@@ -237,22 +237,21 @@ protected:
         SkFontStyle style;
         SkString name;
         Scanner::AxisDefinitions axisDefinitions;
-        if (!fScanner.scanFont(stream.get(), params.getCollectionIndex(),
+        if (!fScanner.scanFont(stream.get(), args.getCollectionIndex(),
                                &name, &style, &isFixedPitch, &axisDefinitions))
         {
             return nullptr;
         }
 
-        int paramAxisCount;
-        const FontParameters::Axis* paramAxes = params.getAxes(&paramAxisCount);
         SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
-        Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
+        Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
+                                   axisValues, name);
 
         auto fontData = skstd::make_unique<SkFontData>(std::move(stream),
-                                                       params.getCollectionIndex(),
+                                                       args.getCollectionIndex(),
                                                        axisValues.get(),
                                                        axisDefinitions.count());
-        return SkTypeface_FCI::Create(std::move(fontData), style, isFixedPitch);
+        return SkTypeface_FCI::Create(std::move(fontData), std::move(name), style, isFixedPitch);
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
@@ -285,7 +284,7 @@ protected:
         // Check if a typeface with this FontIdentity is already in the FontIdentity cache.
         face = fTFCache.findByProcAndRef(find_by_FontIdentity, &identity);
         if (!face) {
-            face = SkTypeface_FCI::Create(fFCI, identity, outFamilyName, outStyle);
+            face = SkTypeface_FCI::Create(fFCI, identity, std::move(outFamilyName), outStyle);
             // Add this FontIdentity to the FontIdentity cache.
             fTFCache.add(face);
         }

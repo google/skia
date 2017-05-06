@@ -103,7 +103,8 @@ protected:
 #if SK_SUPPORT_GPU
         GrContext* grContext = canvas->getGrContext();
         if (grContext) {
-            sk_sp<SkImage> image = grContext->getFontAtlasImage(GrMaskFormat::kA8_GrMaskFormat);
+            sk_sp<SkImage> image =
+                        grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat);
             canvas->drawImageRect(image,
                                   SkRect::MakeXYWH(512.0f, 10.0f, 512.0f, 512.0f), &paint);
         }

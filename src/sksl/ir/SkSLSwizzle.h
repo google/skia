@@ -8,6 +8,7 @@
 #ifndef SKSL_SWIZZLE
 #define SKSL_SWIZZLE
 
+#include "SkSLContext.h"
 #include "SkSLExpression.h"
 #include "SkSLUtil.h"
 
@@ -76,7 +77,7 @@ struct Swizzle : public Expression {
         return result;
     }
 
-    const std::unique_ptr<Expression> fBase;
+    std::unique_ptr<Expression> fBase;
     const std::vector<int> fComponents;
 
     typedef Expression INHERITED;

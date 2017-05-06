@@ -7,6 +7,7 @@
 
 #include "SkPictureShader.h"
 
+#include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
@@ -14,6 +15,7 @@
 #include "SkImageShader.h"
 #include "SkMatrixUtils.h"
 #include "SkPicture.h"
+#include "SkPictureImageGenerator.h"
 #include "SkReadBuffer.h"
 #include "SkResourceCache.h"
 
@@ -182,19 +184,19 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
 
     // Clamp the tile size to about 4M pixels
     static const SkScalar kMaxTileArea = 2048 * 2048;
-    SkScalar tileArea = SkScalarMul(scaledSize.width(), scaledSize.height());
+    SkScalar tileArea = scaledSize.width() * scaledSize.height();
     if (tileArea > kMaxTileArea) {
         SkScalar clampScale = SkScalarSqrt(kMaxTileArea / tileArea);
-        scaledSize.set(SkScalarMul(scaledSize.width(), clampScale),
-                       SkScalarMul(scaledSize.height(), clampScale));
+        scaledSize.set(scaledSize.width() * clampScale,
+                       scaledSize.height() * clampScale);
     }
 #if SK_SUPPORT_GPU
     // Scale down the tile size if larger than maxTextureSize for GPU Path or it should fail on create texture
     if (maxTextureSize) {
         if (scaledSize.width() > maxTextureSize || scaledSize.height() > maxTextureSize) {
             SkScalar downScale = maxTextureSize / SkMaxScalar(scaledSize.width(), scaledSize.height());
-            scaledSize.set(SkScalarFloorToScalar(SkScalarMul(scaledSize.width(), downScale)),
-                           SkScalarFloorToScalar(SkScalarMul(scaledSize.height(), downScale)));
+            scaledSize.set(SkScalarFloorToScalar(scaledSize.width() * downScale),
+                           SkScalarFloorToScalar(scaledSize.height() * downScale));
         }
     }
 #endif
@@ -225,9 +227,9 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
         tileMatrix.setRectToRect(fTile, SkRect::MakeIWH(tileSize.width(), tileSize.height()),
                                  SkMatrix::kFill_ScaleToFit);
 
-        sk_sp<SkImage> tileImage(
-            SkImage::MakeFromPicture(fPicture, tileSize, &tileMatrix, nullptr,
-                                     SkImage::BitDepth::kU8, sk_ref_sp(dstColorSpace)));
+        sk_sp<SkImage> tileImage = SkImage::MakeFromGenerator(
+                SkPictureImageGenerator::Make(tileSize, fPicture, &tileMatrix, nullptr,
+                                              SkImage::BitDepth::kU8, sk_ref_sp(dstColorSpace)));
         if (!tileImage) {
             return nullptr;
         }
@@ -242,48 +244,42 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
     return tileShader;
 }
 
-size_t SkPictureShader::onContextSize(const ContextRec&) const {
-    return sizeof(PictureShaderContext);
+bool SkPictureShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
+                                     const SkMatrix& ctm, const SkPaint& paint,
+                                     const SkMatrix* localMatrix) const {
+    // Keep bitmapShader alive by using alloc instead of stack memory
+    auto& bitmapShader = *alloc->make<sk_sp<SkShader>>();
+    bitmapShader = this->refBitmapShader(ctm, localMatrix, cs);
+    return bitmapShader && bitmapShader->appendStages(p, cs, alloc, ctm, paint);
 }
 
-SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void* storage) const {
+/////////////////////////////////////////////////////////////////////////////////////////
+SkShader::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
+const {
     sk_sp<SkShader> bitmapShader(this->refBitmapShader(*rec.fMatrix, rec.fLocalMatrix,
                                                        rec.fDstColorSpace));
     if (!bitmapShader) {
         return nullptr;
     }
-    return PictureShaderContext::Create(storage, *this, rec, bitmapShader);
-}
 
-/////////////////////////////////////////////////////////////////////////////////////////
-
-SkShader::Context* SkPictureShader::PictureShaderContext::Create(void* storage,
-                   const SkPictureShader& shader, const ContextRec& rec,
-                                                                 sk_sp<SkShader> bitmapShader) {
-    PictureShaderContext* ctx = new (storage) PictureShaderContext(shader, rec,
-                                                                   std::move(bitmapShader));
+    PictureShaderContext* ctx =
+        alloc->make<PictureShaderContext>(*this, rec, std::move(bitmapShader), alloc);
     if (nullptr == ctx->fBitmapShaderContext) {
-        ctx->~PictureShaderContext();
         ctx = nullptr;
     }
     return ctx;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
 SkPictureShader::PictureShaderContext::PictureShaderContext(
-        const SkPictureShader& shader, const ContextRec& rec, sk_sp<SkShader> bitmapShader)
+        const SkPictureShader& shader, const ContextRec& rec, sk_sp<SkShader> bitmapShader,
+        SkArenaAlloc* alloc)
     : INHERITED(shader, rec)
     , fBitmapShader(std::move(bitmapShader))
 {
-    fBitmapShaderContextStorage = sk_malloc_throw(fBitmapShader->contextSize(rec));
-    fBitmapShaderContext = fBitmapShader->createContext(rec, fBitmapShaderContextStorage);
+    fBitmapShaderContext = fBitmapShader->makeContext(rec, alloc);
     //if fBitmapShaderContext is null, we are invalid
-}
-
-SkPictureShader::PictureShaderContext::~PictureShaderContext() {
-    if (fBitmapShaderContext) {
-        fBitmapShaderContext->~Context();
-    }
-    sk_free(fBitmapShaderContextStorage);
 }
 
 uint32_t SkPictureShader::PictureShaderContext::getFlags() const {

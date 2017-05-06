@@ -25,12 +25,13 @@
 #include "GrVkPipelineState.h"
 #include "GrVkRenderPass.h"
 #include "GrVkResourceProvider.h"
+#include "GrVkSemaphore.h"
 #include "GrVkTexture.h"
 #include "GrVkTextureRenderTarget.h"
 #include "GrVkTransferBuffer.h"
 #include "GrVkVertexBuffer.h"
 
-#include "SkConfig8888.h"
+#include "SkConvertPixels.h"
 #include "SkMipMap.h"
 
 #include "vk/GrVkInterface.h"
@@ -168,17 +169,23 @@ GrVkGpu::~GrVkGpu() {
     // destroying the command buffers. Currently this ony seems to happen on windows, so we add a
     // sleep to make sure the fence signals.
 #ifdef SK_DEBUG
+    if (this->vkCaps().mustSleepOnTearDown()) {
 #if defined(SK_BUILD_FOR_WIN)
-    Sleep(10); // In milliseconds
+        Sleep(10); // In milliseconds
 #else
-    // Uncomment if above bug happens on non windows build.
-    // sleep(1);        // In seconds
+        sleep(1);  // In seconds
 #endif
+    }
 #endif
 
 #ifdef SK_DEBUG
     SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
 #endif
+
+    for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
+        fSemaphoresToWaitOn[i]->unref(this);
+    }
+    fSemaphoresToWaitOn.reset();
 
     fCopyManager.destroyResources(this);
 
@@ -205,11 +212,18 @@ GrGpuCommandBuffer* GrVkGpu::createCommandBuffer(
     return new GrVkGpuCommandBuffer(this, colorInfo, stencilInfo);
 }
 
-void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
+void GrVkGpu::submitCommandBuffer(SyncQueue sync,
+                                  const GrVkSemaphore::Resource* signalSemaphore) {
     SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->end(this);
 
-    fCurrentCmdBuffer->submitToQueue(this, fQueue, sync);
+    fCurrentCmdBuffer->submitToQueue(this, fQueue, sync, signalSemaphore, fSemaphoresToWaitOn);
+
+    for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
+        fSemaphoresToWaitOn[i]->unref(this);
+    }
+    fSemaphoresToWaitOn.reset();
+
     fResourceProvider.checkCommandBuffers();
 
     // Release old command buffer and create a new one
@@ -404,17 +418,21 @@ void GrVkGpu::resolveImage(GrVkRenderTarget* dst, GrVkRenderTarget* src, const S
     fCurrentCmdBuffer->resolveImage(this, *src->msaaImage(), *dst, 1, &resolveInfo);
 }
 
-void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target) {
+void GrVkGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit) {
     if (target->needsResolve()) {
         SkASSERT(target->numColorSamples() > 1);
         GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
         SkASSERT(rt->msaaImage());
-        
+
         const SkIRect& srcRect = rt->getResolveRect();
 
         this->resolveImage(rt, rt, srcRect, SkIPoint::Make(srcRect.fLeft, srcRect.fTop));
 
         rt->flagAsResolved();
+
+        if (requiresSubmit) {
+            this->submitCommandBuffer(kSkip_SyncQueue);
+        }
     }
 }
 
@@ -476,13 +494,8 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
             dstRow -= layout.rowPitch;
         }
     } else {
-        // If there is no padding on the src (rowBytes) or dst (layout.rowPitch) we can memcpy
-        if (trimRowBytes == rowBytes && trimRowBytes == layout.rowPitch) {
-            memcpy(mapPtr, data, trimRowBytes * height);
-        } else {
-            SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes, trimRowBytes,
-                         height);
-        }
+        SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes, trimRowBytes,
+                     height);
     }
 
     GrVkMemory::FlushMappedAlloc(this, alloc);
@@ -579,8 +592,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
                 src -= rowBytes;
                 dst += trimRowBytes;
             }
-        } else if (trimRowBytes == rowBytes) {
-            memcpy(dst, src, trimRowBytes * currentHeight);
         } else {
             SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
         }
@@ -829,7 +840,7 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) {
     // We may need to resolve the texture first if it is also a render target
     GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(tex->asRenderTarget());
     if (texRT) {
-        this->onResolveRenderTarget(texRT);
+        this->internalResolveRenderTarget(texRT, false);
     }
 
     int width = tex->width();
@@ -965,12 +976,7 @@ bool copy_testing_data(GrVkGpu* gpu, void* srcData, const GrVkAlloc& alloc,
 
     // If there is no padding on dst we can do a single memcopy.
     // This assumes the srcData comes in with no padding.
-    if (srcRowBytes == dstRowBytes) {
-        memcpy(mapPtr, srcData, srcRowBytes * h);
-    } else {
-        SkRectMemcpy(mapPtr, static_cast<size_t>(dstRowBytes), srcData, srcRowBytes,
-                     srcRowBytes, h);
-    }
+    SkRectMemcpy(mapPtr, static_cast<size_t>(dstRowBytes), srcData, srcRowBytes, srcRowBytes, h);
     GrVkMemory::FlushMappedAlloc(gpu, alloc);
     GR_VK_CALL(gpu->vkInterface(), UnmapMemory(gpu->device(), alloc.fMemory));
     return true;
@@ -1663,7 +1669,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
             case GrVkRenderTarget::kAutoResolves_ResolveType:
                 break;
             case GrVkRenderTarget::kCanResolve_ResolveType:
-                this->onResolveRenderTarget(rt);
+                this->internalResolveRenderTarget(rt, false);
                 break;
             default:
                 SkFAIL("Unknown resolve type");
@@ -1755,12 +1761,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
             dstRow -= rowBytes;
         }
     } else {
-        if (transBufferRowBytes == rowBytes) {
-            memcpy(buffer, mappedMemory, rowBytes*height);
-        } else {
-            SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes,
-                         height);
-        }
+        SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes, height);
     }
 
     transferBuffer->unmap();
@@ -1837,41 +1838,57 @@ void GrVkGpu::submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* buffer,
         pBounds = &adjustedBounds;
     }
 
-    // Currently it is fine for us to always pass in 1 for the clear count even if no attachment
-    // uses it. In the current state, we also only use the LOAD_OP_CLEAR for the color attachment
-    // which is always at the first attachment.
-    fCurrentCmdBuffer->beginRenderPass(this, renderPass, 1, colorClear, *target, *pBounds, true);
+    fCurrentCmdBuffer->beginRenderPass(this, renderPass, colorClear, *target, *pBounds, true);
     fCurrentCmdBuffer->executeCommands(this, buffer);
     fCurrentCmdBuffer->endRenderPass(this);
 
     this->didWriteToSurface(target, &bounds);
 }
 
-GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() const {
+GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() {
     VkFenceCreateInfo createInfo;
     memset(&createInfo, 0, sizeof(VkFenceCreateInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     createInfo.pNext = nullptr;
     createInfo.flags = 0;
     VkFence fence = VK_NULL_HANDLE;
-    VkResult result = GR_VK_CALL(this->vkInterface(), CreateFence(this->device(), &createInfo,
-                                                                  nullptr, &fence));
-    // TODO: verify that all QueueSubmits before this will finish before this fence signals
-    if (VK_SUCCESS == result) {
-        GR_VK_CALL(this->vkInterface(), QueueSubmit(this->queue(), 0, nullptr, fence));
-    }
+
+    VK_CALL_ERRCHECK(CreateFence(this->device(), &createInfo, nullptr, &fence));
+    VK_CALL(QueueSubmit(this->queue(), 0, nullptr, fence));
+
+    GR_STATIC_ASSERT(sizeof(GrFence) >= sizeof(VkFence));
     return (GrFence)fence;
 }
 
-bool GrVkGpu::waitFence(GrFence fence, uint64_t timeout) const {
-    VkResult result = GR_VK_CALL(this->vkInterface(), WaitForFences(this->device(), 1,
-                                                                    (VkFence*)&fence,
-                                                                    VK_TRUE,
-                                                                    timeout));
+bool GrVkGpu::waitFence(GrFence fence, uint64_t timeout) {
+    SkASSERT(VK_NULL_HANDLE != (VkFence)fence);
+
+    VkResult result = VK_CALL(WaitForFences(this->device(), 1, (VkFence*)&fence, VK_TRUE, timeout));
     return (VK_SUCCESS == result);
 }
 
 void GrVkGpu::deleteFence(GrFence fence) const {
-    GR_VK_CALL(this->vkInterface(), DestroyFence(this->device(), (VkFence)fence, nullptr));
+    VK_CALL(DestroyFence(this->device(), (VkFence)fence, nullptr));
 }
 
+sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrVkGpu::makeSemaphore() {
+    return GrVkSemaphore::Make(this);
+}
+
+void GrVkGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {
+    GrVkSemaphore* vkSem = static_cast<GrVkSemaphore*>(semaphore.get());
+
+    this->submitCommandBuffer(kSkip_SyncQueue, vkSem->getResource());
+}
+
+void GrVkGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
+    GrVkSemaphore* vkSem = static_cast<GrVkSemaphore*>(semaphore.get());
+
+    const GrVkSemaphore::Resource* resource = vkSem->getResource();
+    resource->ref();
+    fSemaphoresToWaitOn.push_back(resource);
+}
+
+void GrVkGpu::flush() {
+    // We submit the command buffer to the queue whenever Ganesh is flushed, so nothing is needed
+}

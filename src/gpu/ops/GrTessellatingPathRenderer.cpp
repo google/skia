@@ -180,9 +180,9 @@ public:
     }
 
 private:
-    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fColor);
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
+        input->colorInput()->setToConstant(fColor);
+        input->coverageInput()->setToUnknown();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
@@ -280,7 +280,7 @@ private:
                                                         : LocalCoords::kUnused_Type;
             Coverage::Type coverageType;
             if (fAntiAlias) {
-                color = Color(Color::kAttribute_Type);
+                color = Color(Color::kPremulGrColorAttribute_Type);
                 if (fCanTweakAlphaForCoverage) {
                     coverageType = Coverage::kSolid_Type;
                 } else {
@@ -296,6 +296,9 @@ private:
                 gp = GrDefaultGeoProcFactory::Make(color, coverageType, localCoordsType,
                                                    fViewMatrix);
             }
+        }
+        if (!gp.get()) {
+            return;
         }
         if (fAntiAlias) {
             this->drawAA(target, gp.get());
@@ -367,7 +370,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 DRAW_OP_TEST_DEFINE(TesselatingPathOp) {
     GrColor color = GrRandomColor(random);

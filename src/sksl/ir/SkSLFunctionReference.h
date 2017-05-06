@@ -10,6 +10,7 @@
 
 #include "SkSLContext.h"
 #include "SkSLExpression.h"
+#include "SkSLFunctionDeclaration.h"
 
 namespace SkSL {
 

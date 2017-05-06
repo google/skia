@@ -73,7 +73,7 @@ struct FontFileInfo {
     int fIndex;
     int fWeight;
     enum class Style { kAuto, kNormal, kItalic } fStyle;
-    SkTArray<SkFontMgr::FontParameters::Axis, true> fAxes;
+    SkTArray<SkFontArguments::VariationPosition::Coordinate, true> fVariationDesignPosition;
 };
 
 /**

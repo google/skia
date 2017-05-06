@@ -27,8 +27,8 @@ bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
         int numPlotsY = fAtlasConfigs[index].numPlotsY();
 
         fAtlases[index] = fContext->resourceProvider()->makeAtlas(
-                config, width, height, numPlotsX, numPlotsY, &GrAtlasGlyphCache::HandleEviction,
-                (void*)this);
+                fContext, config, width, height, numPlotsX, numPlotsY,
+                &GrAtlasGlyphCache::HandleEviction, (void*)this);
         if (!fAtlases[index]) {
             return false;
         }
@@ -119,26 +119,25 @@ void GrAtlasGlyphCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
   * @param filename      Full path to desired file
   */
 static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* filename) {
+    if (!sProxy) {
+        return false;
+    }
+
+    SkImageInfo ii = SkImageInfo::Make(sProxy->width(), sProxy->height(),
+                                       kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkBitmap bm;
-    if (!bm.tryAllocPixels(SkImageInfo::MakeN32Premul(sProxy->width(), sProxy->height()))) {
+    if (!bm.tryAllocPixels(ii)) {
         return false;
     }
 
     sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
                                                                             sk_ref_sp(sProxy),
                                                                             nullptr));
-    if (!sContext || !sContext->asDeferredTexture()) {
+    if (!sContext || !sContext->asTextureProxy()) {
         return false;
     }
 
-    // TODO: remove this instantiation when readPixels is on SurfaceContext
-    GrTexture* tex = sContext->asDeferredTexture()->instantiate(context->textureProvider());
-    if (!tex) {
-        return false;
-    }
-
-    bool result = tex->readPixels(0, 0, sProxy->width(), sProxy->height(), kSkia8888_GrPixelConfig,
-                                  bm.getPixels(), bm.rowBytes());
+    bool result = sContext->readPixels(ii, bm.getPixels(), bm.rowBytes(), 0, 0);
     if (!result) {
         SkDebugf("------ failed to read pixels for %s\n", filename);
         return false;
@@ -167,8 +166,8 @@ void GrAtlasGlyphCache::dump() const {
     static int gDumpCount = 0;
     for (int i = 0; i < kMaskFormatCount; ++i) {
         if (fAtlases[i]) {
-            GrTexture* texture = fAtlases[i]->getTexture();
-            if (texture) {
+            sk_sp<GrTextureProxy> proxy = fAtlases[i]->getProxy();
+            if (proxy) {
                 SkString filename;
 #ifdef SK_BUILD_FOR_ANDROID
                 filename.printf("/sdcard/fontcache_%d%d.png", gDumpCount, i);
@@ -176,9 +175,7 @@ void GrAtlasGlyphCache::dump() const {
                 filename.printf("fontcache_%d%d.png", gDumpCount, i);
 #endif
 
-                sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(sk_ref_sp(texture)));
-
-                save_pixels(fContext, sProxy.get(), filename.c_str());
+                save_pixels(fContext, proxy.get(), filename.c_str());
             }
         }
     }

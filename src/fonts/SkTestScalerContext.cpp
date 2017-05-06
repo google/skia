@@ -13,6 +13,7 @@
 #include "SkGlyph.h"
 #include "SkMakeUnique.h"
 #include "SkMask.h"
+#include "SkPaintPriv.h"
 #include "SkScalerContext.h"
 #include "SkTestScalerContext.h"
 #include "SkTypefaceCache.h"
@@ -187,7 +188,7 @@ void SkTestTypeface::onGetFamilyName(SkString* familyName) const {
 SkTypeface::LocalizedStrings* SkTestTypeface::onCreateFamilyNameIterator() const {
     SkString familyName(fTestFont->fName);
     SkString language("und"); //undetermined
-SkASSERT(0);  // incomplete
+//SkASSERT(0);  // incomplete
     return nullptr;
 //     return new SkOTUtils::LocalizedStrings_SingleName(familyName, language);
 }
@@ -277,18 +278,7 @@ protected:
 
     void generateFontMetrics(SkPaint::FontMetrics* metrics) override {
         this->getTestTypeface()->getFontMetrics(metrics);
-        if (metrics) {
-            SkScalar scale = fMatrix.getScaleY();
-            metrics->fTop = SkScalarMul(metrics->fTop, scale);
-            metrics->fAscent = SkScalarMul(metrics->fAscent, scale);
-            metrics->fDescent = SkScalarMul(metrics->fDescent, scale);
-            metrics->fBottom = SkScalarMul(metrics->fBottom, scale);
-            metrics->fLeading = SkScalarMul(metrics->fLeading, scale);
-            metrics->fAvgCharWidth = SkScalarMul(metrics->fAvgCharWidth, scale);
-            metrics->fXMin = SkScalarMul(metrics->fXMin, scale);
-            metrics->fXMax = SkScalarMul(metrics->fXMax, scale);
-            metrics->fXHeight = SkScalarMul(metrics->fXHeight, scale);
-        }
+        SkPaintPriv::ScaleFontMetrics(metrics, fMatrix.getScaleY());
     }
 
 private:

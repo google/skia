@@ -71,28 +71,32 @@ static void init_paint(Fuzz* fuzz, SkPaint* p) {
 static void init_bitmap(Fuzz* fuzz, SkBitmap* bmp) {
     uint8_t colorType;
     fuzz->nextRange(&colorType, 0, (int)kLastEnum_SkColorType);
+    // ColorType needs to match what the system configuration is.
+    if (colorType == kRGBA_8888_SkColorType || colorType == kBGRA_8888_SkColorType) {
+        colorType = kN32_SkColorType;
+    }
+    bool b;
+    fuzz->next(&b);
     SkImageInfo info = SkImageInfo::Make(kBmpSize,
                                          kBmpSize,
                                          (SkColorType)colorType,
-                                         kPremul_SkAlphaType);
+                                         b ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
     if (!bmp->tryAllocPixels(info)) {
         SkDebugf("Bitmap not allocated\n");
     }
-    SkCanvas canvas(*bmp);
-    canvas.clear(0);
+    SkColor c;
+    fuzz->next(&c);
+    bmp->eraseColor(c);
 
-    bool b;
     fuzz->next(&b);
     SkPaint p;
     if (b) {
         init_paint(fuzz, &p);
     }
     else {
-        SkColor c;
         fuzz->next(&c);
         p.setColor(c);
     }
-    canvas.drawRect(SkRect::MakeXYWH(0, 0, kBmpSize, kBmpSize), p);
 }
 
 static void init_surface(Fuzz* fuzz, sk_sp<SkSurface>* s) {
@@ -137,8 +141,6 @@ static void fuzz_drawText(Fuzz* fuzz, sk_sp<SkTypeface> font) {
     fuzz->next(&b);
     p.setLinearText(b);
     fuzz->next(&b);
-    p.setStrikeThruText(b);
-    fuzz->next(&b);
     p.setSubpixelText(b);
     fuzz->next(&x);
     p.setTextScaleX(x);
@@ -146,8 +148,6 @@ static void fuzz_drawText(Fuzz* fuzz, sk_sp<SkTypeface> font) {
     p.setTextSkewX(x);
     fuzz->next(&x);
     p.setTextSize(x);
-    fuzz->next(&b);
-    p.setUnderlineText(b);
     fuzz->next(&b);
     p.setVerticalText(b);
 

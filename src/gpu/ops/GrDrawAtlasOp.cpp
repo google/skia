@@ -35,7 +35,7 @@ static sk_sp<GrGeometryProcessor> make_gp(bool hasColors,
     using namespace GrDefaultGeoProcFactory;
     Color gpColor(color);
     if (hasColors) {
-        gpColor.fType = Color::kAttribute_Type;
+        gpColor.fType = Color::kPremulGrColorAttribute_Type;
     }
 
     return GrDefaultGeoProcFactory::Make(gpColor, Coverage::kSolid_Type,
@@ -179,7 +179,7 @@ bool GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     return true;
 }
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 static SkRSXform random_xform(SkRandom* random) {
     static const SkScalar kMinExtent = -100.f;

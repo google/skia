@@ -49,6 +49,7 @@ third_party("harfbuzz") {
     "../externals/harfbuzz/src/hb-ot-shape-normalize.cc",
     "../externals/harfbuzz/src/hb-ot-shape.cc",
     "../externals/harfbuzz/src/hb-ot-tag.cc",
+    "../externals/harfbuzz/src/hb-ot-var.cc",
     "../externals/harfbuzz/src/hb-set.cc",
     "../externals/harfbuzz/src/hb-shape-plan.cc",
     "../externals/harfbuzz/src/hb-shape.cc",

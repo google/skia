@@ -6,11 +6,37 @@
  */
 
 #include "GrSimpleTextureEffect.h"
-#include "GrInvariantOutput.h"
+#include "GrProxyMove.h"
 #include "GrTexture.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+
+GrSimpleTextureEffect::GrSimpleTextureEffect(GrContext* ctx, sk_sp<GrTextureProxy> proxy,
+                                             sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                             const SkMatrix& matrix,
+                                             GrSamplerParams::FilterMode filterMode)
+        : INHERITED{ctx,
+                    ModulationFlags(proxy->config()),
+                    GR_PROXY_MOVE(proxy),
+                    std::move(colorSpaceXform),
+                    matrix,
+                    filterMode} {
+    this->initClassID<GrSimpleTextureEffect>();
+}
+
+GrSimpleTextureEffect::GrSimpleTextureEffect(GrContext* ctx, sk_sp<GrTextureProxy> proxy,
+                                             sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                             const SkMatrix& matrix,
+                                             const GrSamplerParams& params)
+        : INHERITED{ctx,
+                    ModulationFlags(proxy->config()),
+                    GR_PROXY_MOVE(proxy),
+                    std::move(colorSpaceXform),
+                    matrix,
+                    params} {
+    this->initClassID<GrSimpleTextureEffect>();
+}
 
 class GrGLSimpleTextureEffect : public GrGLSLFragmentProcessor {
 public:
@@ -52,10 +78,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrSimpleTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    this->updateInvariantOutputForModulation(inout);
-}
-
 void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
     GrGLSimpleTextureEffect::GenKey(*this, caps, b);
@@ -69,9 +91,10 @@ GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLSLInstance() const  {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSimpleTextureEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                          GrProcessorUnitTest::kAlphaTextureIdx;
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
+                                        : GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
         SkShader::kClamp_TileMode,
         SkShader::kRepeat_TileMode,
@@ -81,10 +104,12 @@ sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode :
-                                                               GrSamplerParams::kNone_FilterMode);
+    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
+                                                             : GrSamplerParams::kNone_FilterMode);
 
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
-    auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    return GrSimpleTextureEffect::Make(d->fTextures[texIdx], colorSpaceXform, matrix);
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(d->fRandom);
+    return GrSimpleTextureEffect::Make(d->context(), d->textureProxy(texIdx),
+                                       std::move(colorSpaceXform), matrix);
 }
+#endif

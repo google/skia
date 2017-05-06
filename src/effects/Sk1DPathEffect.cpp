@@ -205,7 +205,8 @@ void SkPath1DPathEffect::toString(SkString* str) const {
 
 sk_sp<SkPathEffect> SkPath1DPathEffect::Make(const SkPath& path, SkScalar advance, SkScalar phase,
                                              Style style) {
-    if (advance <= 0 || !SkScalarIsFinite(advance) || path.isEmpty()) {
+    if (advance <= 0 || !SkScalarIsFinite(advance) ||
+        !SkScalarIsFinite(phase) || path.isEmpty()) {
         return nullptr;
     }
     return sk_sp<SkPathEffect>(new SkPath1DPathEffect(path, advance, phase, style));

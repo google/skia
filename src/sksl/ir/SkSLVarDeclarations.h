@@ -9,6 +9,7 @@
 #define SKSL_VARDECLARATIONS
 
 #include "SkSLExpression.h"
+#include "SkSLProgramElement.h"
 #include "SkSLStatement.h"
 #include "SkSLVariable.h"
 
@@ -72,7 +73,7 @@ struct VarDeclarations : public ProgramElement {
     }
 
     const Type& fBaseType;
-    const std::vector<VarDeclaration> fVars;
+    std::vector<VarDeclaration> fVars;
 
     typedef ProgramElement INHERITED;
 };

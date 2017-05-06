@@ -39,15 +39,15 @@ protected:
 
         canvas->translate(0, y);
         canvas->rotate(1);
-        canvas->drawRectCoords(20, 20, 200, 200, p);
+        canvas->drawRect({ 20, 20, 200, 200 }, p);
         canvas->restore();
 
         y += 200;
 
         canvas->translate(0, y);
         canvas->rotate(1);
-        canvas->drawRectCoords(20, 20, 20.2f, 200, p);
-        canvas->drawRectCoords(20, 200, 200, 200.1f, p);
+        canvas->drawRect({ 20, 20, 20.2f, 200 }, p);
+        canvas->drawRect({ 20, 200, 200, 200.1f }, p);
         canvas->drawCircle(100, 100, 30, p);
         canvas->restore();
 

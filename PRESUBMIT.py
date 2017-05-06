@@ -31,6 +31,8 @@ PUBLIC_API_OWNERS = (
     'bsalomon@google.com',
     'djsollen@chromium.org',
     'djsollen@google.com',
+    'hcm@chromium.org',
+    'hcm@google.com',
 )
 
 AUTHORS_FILE_NAME = 'AUTHORS'
@@ -205,8 +207,6 @@ def _CommonChecks(input_api, output_api):
   """Presubmit checks common to upload and commit."""
   results = []
   sources = lambda x: (x.LocalPath().endswith('.h') or
-                       x.LocalPath().endswith('.gypi') or
-                       x.LocalPath().endswith('.gyp') or
                        x.LocalPath().endswith('.py') or
                        x.LocalPath().endswith('.sh') or
                        x.LocalPath().endswith('.m') or

@@ -15,7 +15,7 @@
 class SkImageShader : public SkShader {
 public:
     static sk_sp<SkShader> Make(sk_sp<SkImage>, TileMode tx, TileMode ty,
-                                const SkMatrix* localMatrix, SkTBlitterAllocator* = nullptr);
+                                const SkMatrix* localMatrix);
 
     bool isOpaque() const override;
 
@@ -30,15 +30,14 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    size_t onContextSize(const ContextRec&) const override;
-    Context* onCreateContext(const ContextRec&, void* storage) const override;
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc* storage) const override;
 #ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
     bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
 #endif
     SkImage* onIsAImage(SkMatrix*, TileMode*) const override;
 
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                        const SkMatrix& ctm, const SkPaint&) const override;
+                        const SkMatrix& ctm, const SkPaint&, const SkMatrix*) const override;
 
     sk_sp<SkImage>  fImage;
     const TileMode  fTileModeX;

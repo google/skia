@@ -6,7 +6,6 @@
  */
 
 #include "effects/GrConstColorProcessor.h"
-#include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -62,28 +61,17 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrConstColorProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    if (kIgnore_InputMode == fMode) {
-        inout->setToOther(kRGBA_GrColorComponentFlags, fColor.toGrColor(),
-                          GrInvariantOutput::kWillNot_ReadInput);
-    } else {
-        float r = fColor.fRGBA[0];
-        bool colorIsSingleChannel = r == fColor.fRGBA[1] && r == fColor.fRGBA[2] &&
-                                    r == fColor.fRGBA[3];
-        if (kModulateRGBA_InputMode == fMode) {
-            if (colorIsSingleChannel) {
-                inout->mulByKnownSingleComponent(SkToU8(sk_float_round2int(255.0f * r)));
-            } else {
-                inout->mulByKnownFourComponents(fColor.toGrColor());
-            }
-        } else {
-            if (colorIsSingleChannel) {
-                inout->mulAlphaByKnownSingleComponent(SkToU8(sk_float_round2int(255.0f * r)));
-            } else {
-                inout->mulAlphaByKnownFourComponents(fColor.toGrColor());
-            }
-        }
+GrColor4f GrConstColorProcessor::constantOutputForConstantInput(GrColor4f input) const {
+    switch (fMode) {
+        case kIgnore_InputMode:
+            return fColor;
+        case kModulateA_InputMode:
+            return fColor.mulByScalar(input.fRGBA[3]);
+        case kModulateRGBA_InputMode:
+            return fColor.modulate(input);
     }
+    SkFAIL("Unexpected mode");
+    return GrColor4f::TransparentBlack();
 }
 
 void GrConstColorProcessor::onGetGLSLProcessorKey(const GrShaderCaps&,
@@ -104,6 +92,7 @@ bool GrConstColorProcessor::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConstColorProcessor);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcessorTestData* d) {
     GrColor4f color;
     int colorPicker = d->fRandom->nextULessThan(3);
@@ -127,3 +116,4 @@ sk_sp<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcessorTestData
     InputMode mode = static_cast<InputMode>(d->fRandom->nextULessThan(kInputModeCnt));
     return GrConstColorProcessor::Make(color, mode);
 }
+#endif

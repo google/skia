@@ -14,13 +14,13 @@
 #include "GrPendingProgramElement.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrProcOptInfo.h"
+#include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
 #include "GrScissorState.h"
 #include "GrUserStencilSettings.h"
 #include "GrWindowRectsState.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
-
 #include "effects/GrCoverageSetOpXP.h"
 #include "effects/GrDisableColorXP.h"
 #include "effects/GrPorterDuffXferProcessor.h"
@@ -33,34 +33,6 @@ class GrPipelineBuilder;
 class GrRenderTargetContext;
 
 /**
- * This Describes aspects of the GrPrimitiveProcessor produced by a GrDrawOp that are used in
- * pipeline analysis.
- */
-class GrPipelineAnalysisDrawOpInput {
-public:
-    GrPipelineAnalysisDrawOpInput(GrPipelineInput* color, GrPipelineInput* coverage)
-            : fColorInput(color), fCoverageInput(coverage) {}
-    GrPipelineInput* pipelineColorInput() { return fColorInput; }
-    GrPipelineInput* pipelineCoverageInput() { return fCoverageInput; }
-
-    void setUsesPLSDstRead() { fUsesPLSDstRead = true; }
-
-    bool usesPLSDstRead() const { return fUsesPLSDstRead; }
-
-private:
-    GrPipelineInput* fColorInput;
-    GrPipelineInput* fCoverageInput;
-    bool fUsesPLSDstRead = false;
-};
-
-/** This is used to track pipeline analysis through the color and coverage fragment processors. */
-struct GrPipelineAnalysis {
-    GrProcOptInfo fColorPOI;
-    GrProcOptInfo fCoveragePOI;
-    bool fUsesPLSDstRead = false;
-};
-
-/**
  * Class that holds an optimized version of a GrPipelineBuilder. It is meant to be an immutable
  * class, and contains all data needed to set the state for a gpu draw.
  */
@@ -69,17 +41,49 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Creation
 
-    struct CreateArgs {
-        const GrPipelineBuilder* fPipelineBuilder;
-        GrAppliedClip* fAppliedClip;
-        GrRenderTargetContext* fRenderTargetContext;
-        const GrCaps* fCaps;
-        GrPipelineAnalysis fAnalysis;
+    enum Flags {
+        /**
+         * Perform HW anti-aliasing. This means either HW FSAA, if supported by the render target,
+         * or smooth-line rendering if a line primitive is drawn and line smoothing is supported by
+         * the 3D API.
+         */
+        kHWAntialias_Flag = 0x1,
+
+        /**
+         * Modifies the vertex shader so that vertices will be positioned at pixel centers.
+         */
+        kSnapVerticesToPixelCenters_Flag = 0x2,
+    };
+
+    struct InitArgs {
+        uint32_t fFlags = 0;
+        GrDrawFace fDrawFace = GrDrawFace::kBoth;
+        const GrProcessorSet* fProcessors = nullptr;
+        const GrProcessorSet::FragmentProcessorAnalysis* fAnalysis;
+        const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
+        const GrAppliedClip* fAppliedClip = nullptr;
+        GrRenderTarget* fRenderTarget = nullptr;
+        const GrCaps* fCaps = nullptr;
         GrXferProcessor::DstTexture fDstTexture;
     };
 
-    /** Creates a pipeline into a pre-allocated buffer */
-    static GrPipeline* CreateAt(void* memory, const CreateArgs&, GrPipelineOptimizations*);
+    /**
+     * A Default constructed pipeline is unusable until init() is called.
+     **/
+    GrPipeline() = default;
+
+    /**
+     * Creates a simple pipeline with default settings and no processors. The provided blend mode
+     * must be "Porter Duff" (<= kLastCoeffMode). This pipeline is initialized without requiring
+     * a call to init().
+     **/
+    GrPipeline(GrRenderTarget*, SkBlendMode);
+
+    /** (Re)initializes a pipeline. After initialization the pipeline can be used. */
+    GrPipelineOptimizations init(const InitArgs&);
+
+    /** True if the pipeline has been initialized. */
+    bool isInitialized() const { return SkToBool(fRenderTarget.get()); }
 
     /// @}
 
@@ -168,8 +172,10 @@ public:
 
     const GrWindowRectsState& getWindowRectsState() const { return fWindowRectsState; }
 
-    bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
-    bool snapVerticesToPixelCenters() const { return SkToBool(fFlags & kSnapVertices_Flag); }
+    bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAntialias_Flag); }
+    bool snapVerticesToPixelCenters() const {
+        return SkToBool(fFlags & kSnapVerticesToPixelCenters_Flag);
+    }
     bool getDisableOutputConversionToSRGB() const {
         return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag);
     }
@@ -195,28 +201,16 @@ public:
      * or both faces.
      * @return the current draw face(s).
      */
-    GrDrawFace getDrawFace() const { return fDrawFace; }
-
+    GrDrawFace getDrawFace() const { return static_cast<GrDrawFace>(fDrawFace); }
 
 private:
-    GrPipeline() { /** Initialized in factory function*/ }
-
-    /**
-     * Calculates the primary and secondary output types of the shader. For certain output types
-     * the function may adjust the blend coefficients. After this function is called the src and dst
-     * blend coeffs will represent those used by backend API.
-     */
-    void setOutputStateInfo(const GrPipelineBuilder& ds, GrXferProcessor::OptFlags,
-                            const GrCaps&);
-
-    enum Flags {
-        kHWAA_Flag                          = 0x1,
-        kSnapVertices_Flag                  = 0x2,
+    /** This is a continuation of the public "Flags" enum. */
+    enum PrivateFlags {
         kDisableOutputConversionToSRGB_Flag = 0x4,
-        kAllowSRGBInputs_Flag               = 0x8,
-        kUsesDistanceVectorField_Flag       = 0x10,
-        kHasStencilClip_Flag                = 0x20,
-        kStencilEnabled_Flag                = 0x40,
+        kAllowSRGBInputs_Flag = 0x8,
+        kUsesDistanceVectorField_Flag = 0x10,
+        kHasStencilClip_Flag = 0x20,
+        kStencilEnabled_Flag = 0x40,
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
@@ -227,8 +221,8 @@ private:
     GrScissorState                      fScissorState;
     GrWindowRectsState                  fWindowRectsState;
     const GrUserStencilSettings*        fUserStencilSettings;
-    GrDrawFace                          fDrawFace;
-    uint32_t                            fFlags;
+    uint16_t                            fDrawFace;
+    uint16_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;
     FragmentProcessorArray              fFragmentProcessors;
 

@@ -192,6 +192,24 @@ static GrTexture* create_texture(GrContext* context) {
     return context->textureProvider()->createTexture(desc, SkBudgeted::kNo, srcBM.getPixels(), 0);
 }
 
+static sk_sp<GrTextureProxy> create_proxy(GrContext* context) {
+    SkBitmap srcBM = create_bm();
+
+    GrSurfaceDesc desc;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    desc.fFlags  = kNone_GrSurfaceFlags;
+    desc.fWidth  = kFullSize;
+    desc.fHeight = kFullSize;
+
+    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
+                                                               context->textureProvider(),
+                                                               desc, SkBudgeted::kYes,
+                                                               srcBM.getPixels(),
+                                                               srcBM.rowBytes());
+    return sk_ref_sp(proxy->asTextureProxy());
+}
+
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
     sk_sp<GrTexture> srcTexture(create_texture(ctxInfo.grContext()));
     if (!srcTexture) {
@@ -199,38 +217,61 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
     }
 
     GrBackendTextureDesc backendDesc;
-    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backendDesc.fFlags = kNone_GrBackendTextureFlag;
+    backendDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
+    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backendDesc.fWidth = kFullSize;
     backendDesc.fHeight = kFullSize;
     backendDesc.fSampleCnt = 0;
     backendDesc.fTextureHandle = srcTexture->getTextureHandle();
-    sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(ctxInfo.grContext(), backendDesc, kPremul_SkAlphaType));
+    sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(ctxInfo.grContext(),
+                                                     backendDesc,
+                                                     kPremul_SkAlphaType));
     if (!srcImage) {
         return;
     }
+
+    GrSurfaceOrigin readBackOrigin;
+    GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);
+    // TODO: Make it so we can check this (see skbug.com/5019)
+#if 0
+    if (readBackHandle != backendDesc.fTextureHandle) {
+        ERRORF(reporter, "backend mismatch %d %d\n",
+                       (int)readBackHandle, (int)backendDesc.fTextureHandle);
+    }
+    REPORTER_ASSERT(reporter, readBackHandle == backendDesc.fTextureHandle);
+#else
+    REPORTER_ASSERT(reporter, SkToBool(readBackHandle));
+#endif
+    if (readBackOrigin != backendDesc.fOrigin) {
+        ERRORF(reporter, "origin mismatch %d %d\n", readBackOrigin, backendDesc.fOrigin);
+    }
+    REPORTER_ASSERT(reporter, readBackOrigin == backendDesc.fOrigin);
 
     test_image_backed(reporter, srcImage);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTexture> srcTexture(create_texture(ctxInfo.grContext()));
-    if (!srcTexture) {
+    sk_sp<GrTextureProxy> srcProxy(create_proxy(context));
+    if (!srcProxy) {
         return;
     }
 
     const SkIRect& full = SkIRect::MakeWH(kFullSize, kFullSize);
 
-    sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeFromGpu(full,
+    sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeDeferredFromGpu(
+                                                              context, full,
                                                               kNeedNewImageUniqueID_SpecialImage,
-                                                              srcTexture, nullptr));
+                                                              srcProxy, nullptr));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeFromGpu(subset,
+    sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeDeferredFromGpu(
+                                                                context, subset,
                                                                 kNeedNewImageUniqueID_SpecialImage,
-                                                                srcTexture, nullptr));
+                                                                srcProxy, nullptr));
 
     test_find_existing(reporter, fullImg, subsetImg);
     test_dont_find_if_diff_key(reporter, fullImg, subsetImg);

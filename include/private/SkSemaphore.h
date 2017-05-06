@@ -22,8 +22,11 @@ public:
     void signal(int n = 1);
 
     // Decrement the counter by 1,
-    // then if the counter is <= 0, sleep this thread until the counter is > 0.
+    // then if the counter is < 0, sleep this thread until the counter is >= 0.
     void wait();
+
+    // If the counter is positive, decrement it by 1 and return true, otherwise return false.
+    bool try_wait();
 
     // SkBaseSemaphore has no destructor.  Call this to clean it up.
     void cleanup();
@@ -37,7 +40,7 @@ private:
     //
     // We wrap an OS-provided semaphore with a user-space atomic counter that
     // lets us avoid interacting with the OS semaphore unless strictly required:
-    // moving the count from >0 to <=0 or vice-versa, i.e. sleeping or waking threads.
+    // moving the count from >=0 to <0 or vice-versa, i.e. sleeping or waking threads.
     struct OSSemaphore;
 
     void osSignal(int n);
@@ -58,7 +61,7 @@ inline void SkBaseSemaphore::signal(int n) {
     int prev = fCount.fetch_add(n, std::memory_order_release);
 
     // We only want to call the OS semaphore when our logical count crosses
-    // from <= 0 to >0 (when we need to wake sleeping threads).
+    // from <0 to >=0 (when we need to wake sleeping threads).
     //
     // This is easiest to think about with specific examples of prev and n.
     // If n == 5 and prev == -3, there are 3 threads sleeping and we signal

@@ -44,6 +44,8 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
+      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
+      "GIT_HTTP_LOW_SPEED_TIME": "300",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -105,7 +107,12 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
+      "GIT_HTTP_LOW_SPEED_TIME": "300",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "fetch-gn"
   },
@@ -118,7 +125,12 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
+      "GIT_HTTP_LOW_SPEED_TIME": "300",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "gn gen"
   },
@@ -130,7 +142,12 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
+      "GIT_HTTP_LOW_SPEED_TIME": "300",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "ninja"
   },
@@ -952,8 +969,6 @@
       "--tag",
       "revision:abc123",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
       "stepname:ct-get_images_from_skps-1 on Ubuntu-14.04",
       "[dummy hash for ct-get_images_from_skps-1]"
     ],
@@ -1023,8 +1038,6 @@
       "os:Ubuntu-14.04",
       "--tag",
       "revision:abc123",
-      "--tag",
-      "slavename:skiabot-linux-swarm-000",
       "--tag",
       "stepname:ct-get_images_from_skps-2 on Ubuntu-14.04",
       "[dummy hash for ct-get_images_from_skps-2]"
@@ -1096,8 +1109,6 @@
       "--tag",
       "revision:abc123",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
       "stepname:ct-get_images_from_skps-3 on Ubuntu-14.04",
       "[dummy hash for ct-get_images_from_skps-3]"
     ],
@@ -1168,8 +1179,6 @@
       "--tag",
       "revision:abc123",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
       "stepname:ct-get_images_from_skps-4 on Ubuntu-14.04",
       "[dummy hash for ct-get_images_from_skps-4]"
     ],
@@ -1239,8 +1248,6 @@
       "os:Ubuntu-14.04",
       "--tag",
       "revision:abc123",
-      "--tag",
-      "slavename:skiabot-linux-swarm-000",
       "--tag",
       "stepname:ct-get_images_from_skps-5 on Ubuntu-14.04",
       "[dummy hash for ct-get_images_from_skps-5]"

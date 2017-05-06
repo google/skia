@@ -11,7 +11,7 @@
 #include "gl/GLTestContext.h"
 
 namespace sk_gpu_test {
-GLTestContext* CreateDebugGLTestContext();
+GLTestContext* CreateDebugGLTestContext(GLTestContext* shareContext = nullptr);
 }  // namespace sk_gpu_test
 
 #endif

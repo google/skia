@@ -203,15 +203,15 @@ public:
     }
 
 private:
-    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(this->first()->color());
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
+        input->colorInput()->setToConstant(this->first()->color());
+        input->coverageInput()->setToUnknown();
     }
 
     void onPrepareDraws(Target* target) const override {
         using namespace GrDefaultGeoProcFactory;
 
-        Color color(Color::kAttribute_Type);
+        Color color(Color::kPremulGrColorAttribute_Type);
         Coverage::Type coverageType;
         if (fCanTweakAlphaForCoverage) {
             coverageType = Coverage::kSolid_Type;
@@ -383,7 +383,7 @@ std::unique_ptr<GrDrawOp> MakeWithLocalRect(GrColor color,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 #include "GrDrawOpTest.h"
 

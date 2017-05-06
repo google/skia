@@ -280,9 +280,10 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     if (inIco) {
         height /= 2;
     }
-    if (width <= 0 || height <= 0) {
-        // TODO: Decide if we want to disable really large bmps as well.
-        // https://code.google.com/p/skia/issues/detail?id=3617
+
+    // Arbitrary maximum. Matches Chromium.
+    constexpr int kMaxDim = 1 << 16;
+    if (width <= 0 || height <= 0 || width >= kMaxDim || height >= kMaxDim) {
         SkCodecPrintf("Error: invalid bitmap dimensions.\n");
         return false;
     }
@@ -549,7 +550,6 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 SkCodecPrintf("Error: RLE requires valid input size.\n");
                 return false;
             }
-            const size_t RLEBytes = totalBytes - offset;
 
             // Bmp-in-Ico must be standard mode
             // When inIco is true, this line cannot be reached, since we
@@ -565,7 +565,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 const SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kBGRA_Color,
                         SkEncodedInfo::kBinary_Alpha, 8);
                 *codecOut = new SkBmpRLECodec(width, height, info, stream, bitsPerPixel, numColors,
-                        bytesPerColor, offset - bytesRead, rowOrder, RLEBytes);
+                        bytesPerColor, offset - bytesRead, rowOrder);
             }
             return true;
         }
@@ -594,7 +594,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
 
 SkBmpCodec::SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
         uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(width, height, info, stream, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named))
+    : INHERITED(width, height, info, stream, SkColorSpace::MakeSRGB())
     , fBitsPerPixel(bitsPerPixel)
     , fRowOrder(rowOrder)
     , fSrcRowBytes(SkAlign4(compute_row_bytes(width, fBitsPerPixel)))

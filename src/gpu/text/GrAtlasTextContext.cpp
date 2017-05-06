@@ -337,7 +337,7 @@ void GrAtlasTextContext::drawPosText(GrContext* context, GrRenderTargetContext* 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 DRAW_OP_TEST_DEFINE(TextBlobOp) {
     static uint32_t gContextID = SK_InvalidGenID;

@@ -20,13 +20,10 @@ void SkRecordDraw(const SkRecord& record,
     if (bbh) {
         // Draw only ops that affect pixels in the canvas's current clip.
         // The SkRecord and BBH were recorded in identity space.  This canvas
-        // is not necessarily in that same space.  getClipBounds() returns us
+        // is not necessarily in that same space.  getLocalClipBounds() returns us
         // this canvas' clip bounds transformed back into identity space, which
         // lets us query the BBH.
-        SkRect query;
-        if (!canvas->getClipBounds(&query)) {
-            query.setEmpty();
-        }
+        SkRect query = canvas->getLocalClipBounds();
 
         SkTDArray<int> ops;
         bbh->search(query, &ops);

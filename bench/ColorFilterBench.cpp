@@ -16,7 +16,7 @@
 #define FILTER_HEIGHT_LARGE SkIntToScalar(256)
 
 static sk_sp<SkImageFilter> make_brightness(float amount, sk_sp<SkImageFilter> input) {
-    SkScalar amount255 = SkScalarMul(amount, SkIntToScalar(255));
+    SkScalar amount255 = amount * 255;
     SkScalar matrix[20] = { 1, 0, 0, 0, amount255,
                             0, 1, 0, 0, amount255,
                             0, 0, 1, 0, amount255,

@@ -8,15 +8,15 @@
 #include "GrProcessor.h"
 #include "GrContext.h"
 #include "GrGeometryProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrMemoryPool.h"
 #include "GrSamplerParams.h"
 #include "GrTexturePriv.h"
+#include "GrTextureProxy.h"
 #include "GrXferProcessor.h"
 #include "SkSpinlock.h"
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-
+#if GR_TEST_UTILS
 class GrFragmentProcessor;
 class GrGeometryProcessor;
 
@@ -78,6 +78,7 @@ void GrXPFactoryTestFactory::VerifyFactoryCount() {
     }
 }
 
+#endif
 #endif
 
 
@@ -207,6 +208,20 @@ GrProcessor::TextureSampler::TextureSampler(GrTexture* texture,
     this->reset(texture, filterMode, tileXAndY, visibility);
 }
 
+GrProcessor::TextureSampler::TextureSampler(GrTextureProvider* texProvider,
+                                            sk_sp<GrTextureProxy> proxy,
+                                            const GrSamplerParams& params) {
+    this->reset(texProvider, std::move(proxy), params);
+}
+
+GrProcessor::TextureSampler::TextureSampler(GrTextureProvider* texProvider,
+                                            sk_sp<GrTextureProxy> proxy,
+                                            GrSamplerParams::FilterMode filterMode,
+                                            SkShader::TileMode tileXAndY,
+                                            GrShaderFlags visibility) {
+    this->reset(texProvider, std::move(proxy), filterMode, tileXAndY, visibility);
+}
+
 void GrProcessor::TextureSampler::reset(GrTexture* texture,
                                         const GrSamplerParams& params,
                                         GrShaderFlags visibility) {
@@ -221,6 +236,35 @@ void GrProcessor::TextureSampler::reset(GrTexture* texture,
                                         GrSamplerParams::FilterMode filterMode,
                                         SkShader::TileMode tileXAndY,
                                         GrShaderFlags visibility) {
+    SkASSERT(texture);
+    fTexture.set(SkRef(texture), kRead_GrIOType);
+    filterMode = SkTMin(filterMode, texture->texturePriv().highestFilterMode());
+    fParams.reset(tileXAndY, filterMode);
+    fVisibility = visibility;
+}
+
+void GrProcessor::TextureSampler::reset(GrTextureProvider* texProvider,
+                                        sk_sp<GrTextureProxy> proxy,
+                                        const GrSamplerParams& params,
+                                        GrShaderFlags visibility) {
+    // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
+    // to taking a GrSurfaceProxy just use the IORefs on the proxy
+    GrTexture* texture = proxy->instantiate(texProvider);
+    SkASSERT(texture);
+    fTexture.set(SkRef(texture), kRead_GrIOType);
+    fParams = params;
+    fParams.setFilterMode(SkTMin(params.filterMode(), texture->texturePriv().highestFilterMode()));
+    fVisibility = visibility;
+}
+
+void GrProcessor::TextureSampler::reset(GrTextureProvider* texProvider,
+                                        sk_sp<GrTextureProxy> proxy,
+                                        GrSamplerParams::FilterMode filterMode,
+                                        SkShader::TileMode tileXAndY,
+                                        GrShaderFlags visibility) {
+    // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
+    // to taking a GrSurfaceProxy just use the IORefs on the proxy
+    GrTexture* texture = proxy->instantiate(texProvider);
     SkASSERT(texture);
     fTexture.set(SkRef(texture), kRead_GrIOType);
     filterMode = SkTMin(filterMode, texture->texturePriv().highestFilterMode());

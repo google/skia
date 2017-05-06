@@ -109,7 +109,12 @@ private:
 class PointSnapGM : public PixelSnapGM {
 protected:
     SkString onShortName() override { return SkString("pixel_snap_point"); }
-    void drawElement(SkCanvas* canvas) override { canvas->drawPoint(1, 1, SK_ColorBLUE); }
+    void drawElement(SkCanvas* canvas) override {
+        const SkPoint pt = { 1, 1 };
+        SkPaint paint;
+        paint.setColor(SK_ColorBLUE);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, 1, &pt, paint);
+    }
 
 private:
     typedef PixelSnapGM INHERITED;
@@ -154,18 +159,24 @@ protected:
         // order lines (green), points (blue), rect(red).
         SkRect rect = SkRect::MakeXYWH(3, 3, 1, 1);
         paint.setColor(SK_ColorGREEN);
-        canvas->drawLine(3, 3, 0, 3, paint);
-        canvas->drawLine(3, 3, 3, 0, paint);
-        canvas->drawLine(4, 3, 7, 3, paint);
-        canvas->drawLine(4, 3, 4, 0, paint);
-        canvas->drawLine(3, 4, 0, 4, paint);
-        canvas->drawLine(3, 4, 3, 7, paint);
-        canvas->drawLine(4, 4, 7, 4, paint);
-        canvas->drawLine(4, 4, 4, 7, paint);
-        canvas->drawPoint(4, 3, SK_ColorBLUE);
-        canvas->drawPoint(4, 4, SK_ColorBLUE);
-        canvas->drawPoint(3, 3, SK_ColorBLUE);
-        canvas->drawPoint(3, 4, SK_ColorBLUE);
+        const SkPoint lines[] = {
+            { 3, 3 }, { 0, 3 },
+            { 3, 3 }, { 3, 0 },
+            { 4, 3 }, { 7, 3 },
+            { 4, 3 }, { 4, 0 },
+            { 3, 4 }, { 0, 4 },
+            { 3, 4 }, { 3, 7 },
+            { 4, 4 }, { 7, 4 },
+            { 4, 4 }, { 4, 7 },
+        };
+        canvas->drawPoints(SkCanvas::kLines_PointMode, SK_ARRAY_COUNT(lines), lines, paint);
+
+        const SkPoint pts[] = {
+            { 4, 3 }, { 4, 4, }, { 3, 3 }, { 3, 4 },
+        };
+        paint.setColor(SK_ColorBLUE);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, SK_ARRAY_COUNT(pts), pts, paint);
+
         paint.setColor(SK_ColorRED);
         canvas->drawRect(rect, paint);
     }

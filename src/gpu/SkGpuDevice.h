@@ -11,7 +11,7 @@
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #include "SkBitmap.h"
-#include "SkDevice.h"
+#include "SkClipStackDevice.h"
 #include "SkPicture.h"
 #include "SkRegion.h"
 #include "SkSurface.h"
@@ -31,7 +31,7 @@ class SkSpecialImage;
  *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the
  *  canvas.
  */
-class SK_API SkGpuDevice : public SkBaseDevice {
+class SK_API SkGpuDevice : public SkClipStackDevice {
 public:
     enum InitContents {
         kClear_InitContents,
@@ -93,6 +93,8 @@ public:
     void drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount, const SkPoint verts[],
                       const SkPoint texs[], const SkColor colors[], SkBlendMode,
                       const uint16_t indices[], int indexCount, const SkPaint&) override;
+    void drawVerticesObject(const SkDraw&, sk_sp<SkVertices>, SkBlendMode, const SkPaint&,
+                            uint32_t flags) override;
     void drawAtlas(const SkDraw&, const SkImage* atlas, const SkRSXform[], const SkRect[],
                    const SkColor[], int count, SkBlendMode, const SkPaint&) override;
     void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y, const SkPaint&) override;
@@ -244,7 +246,7 @@ private:
 
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps
-    typedef SkBaseDevice INHERITED;
+    typedef SkClipStackDevice INHERITED;
 };
 
 #endif

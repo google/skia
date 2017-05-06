@@ -78,12 +78,10 @@ inline SkFixed SkFDot6Div(SkFDot6 a, SkFDot6 b) {
 #include "SkFDot6Constants.h"
 
 class QuickFDot6Inverse {
-private:
-    static constexpr const SkFDot6* table = gFDot6INVERSE + kInverseTableSize;
 public:
     inline static SkFixed Lookup(SkFDot6 x) {
         SkASSERT(SkAbs32(x) < kInverseTableSize);
-        return table[x];
+        return gFDot6INVERSE[kInverseTableSize + x];
     }
 };
 

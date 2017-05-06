@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+
 #include "SkPath.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrTest.h"
-#include "Test.h"
 #include "ops/GrTessellatingPathRenderer.h"
+#include "SkGradientShader.h"
 
 /*
  * These tests pass by not crashing, hanging or asserting in Debug.
@@ -249,12 +250,39 @@ static SkPath create_path_16() {
     return path;
 }
 
-static void test_path(GrRenderTargetContext* renderTargetContext, GrResourceProvider* rp,
-                      const SkPath& path) {
+// A simple concave path. Test this with a non-invertible matrix.
+static SkPath create_path_17() {
+    SkPath path;
+    path.moveTo(20, 20);
+    path.lineTo(80, 20);
+    path.lineTo(30, 30);
+    path.lineTo(20, 80);
+    return path;
+}
+
+static sk_sp<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
+    SkPoint pts[2] = { {0, 0}, {1, 1} };
+    SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
+    sk_sp<SkShader> shader = SkGradientShader::MakeLinear(
+        pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
+    SkShader::AsFPArgs args(
+        ctx, &SkMatrix::I(), &SkMatrix::I(), SkFilterQuality::kLow_SkFilterQuality, nullptr);
+    return shader->asFragmentProcessor(args);
+}
+
+static void test_path(GrResourceProvider* rp,
+                      GrRenderTargetContext* renderTargetContext,
+                      const SkPath& path,
+                      const SkMatrix& matrix = SkMatrix::I(),
+                      GrAAType aaType = GrAAType::kNone,
+                      sk_sp<GrFragmentProcessor> fp = nullptr) {
     GrTessellatingPathRenderer tess;
 
     GrPaint paint;
     paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+    if (fp) {
+        paint.addColorFragmentProcessor(fp);
+    }
 
     GrNoClip noClip;
     GrStyle style(SkStrokeRec::kFill_InitStyle);
@@ -264,45 +292,47 @@ static void test_path(GrRenderTargetContext* renderTargetContext, GrResourceProv
                                       &GrUserStencilSettings::kUnused,
                                       renderTargetContext,
                                       &noClip,
-                                      &SkMatrix::I(),
+                                      &matrix,
                                       &shape,
-                                      GrAAType::kNone,
+                                      aaType,
                                       false};
     tess.drawPath(args);
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
-    sk_sp<GrRenderTargetContext> rtc(ctxInfo.grContext()->makeRenderTargetContext(
-                                                                         SkBackingFit::kApprox,
-                                                                         800, 800,
-                                                                         kRGBA_8888_GrPixelConfig,
-                                                                         nullptr,
-                                                                         0,
-                                                                         kTopLeft_GrSurfaceOrigin));
+    GrContext* ctx = ctxInfo.grContext();
+    sk_sp<GrRenderTargetContext> rtc(ctx->makeRenderTargetContext(SkBackingFit::kApprox,
+                                                                  800, 800,
+                                                                  kRGBA_8888_GrPixelConfig,
+                                                                  nullptr,
+                                                                  0,
+                                                                  kTopLeft_GrSurfaceOrigin));
     if (!rtc) {
         return;
     }
 
-    GrTestTarget tt;
-    ctxInfo.grContext()->getTestTarget(&tt, rtc);
-    GrResourceProvider* rp = tt.resourceProvider();
+    GrResourceProvider* rp = ctx->resourceProvider();
 
-    test_path(rtc.get(), rp, create_path_0());
-    test_path(rtc.get(), rp, create_path_1());
-    test_path(rtc.get(), rp, create_path_2());
-    test_path(rtc.get(), rp, create_path_3());
-    test_path(rtc.get(), rp, create_path_4());
-    test_path(rtc.get(), rp, create_path_5());
-    test_path(rtc.get(), rp, create_path_6());
-    test_path(rtc.get(), rp, create_path_7());
-    test_path(rtc.get(), rp, create_path_8());
-    test_path(rtc.get(), rp, create_path_9());
-    test_path(rtc.get(), rp, create_path_10());
-    test_path(rtc.get(), rp, create_path_11());
-    test_path(rtc.get(), rp, create_path_12());
-    test_path(rtc.get(), rp, create_path_13());
-    test_path(rtc.get(), rp, create_path_14());
-    test_path(rtc.get(), rp, create_path_15());
-    test_path(rtc.get(), rp, create_path_16());
+    ctx->flush();
+    test_path(rp, rtc.get(), create_path_0());
+    test_path(rp, rtc.get(), create_path_1());
+    test_path(rp, rtc.get(), create_path_2());
+    test_path(rp, rtc.get(), create_path_3());
+    test_path(rp, rtc.get(), create_path_4());
+    test_path(rp, rtc.get(), create_path_5());
+    test_path(rp, rtc.get(), create_path_6());
+    test_path(rp, rtc.get(), create_path_7());
+    test_path(rp, rtc.get(), create_path_8());
+    test_path(rp, rtc.get(), create_path_9());
+    test_path(rp, rtc.get(), create_path_10());
+    test_path(rp, rtc.get(), create_path_11());
+    test_path(rp, rtc.get(), create_path_12());
+    test_path(rp, rtc.get(), create_path_13());
+    test_path(rp, rtc.get(), create_path_14());
+    test_path(rp, rtc.get(), create_path_15());
+    test_path(rp, rtc.get(), create_path_16());
+    SkMatrix nonInvertibleMatrix = SkMatrix::MakeScale(0, 0);
+    sk_sp<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx));
+    test_path(rp, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage, fp);
 }
 #endif

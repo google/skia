@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <memory>
+#include <unordered_map>
 #include <unordered_set>
 #include "SkSLErrorReporter.h"
 #include "SkSLToken.h"
@@ -36,6 +37,8 @@ struct ASTPrecision;
 struct ASTReturnStatement;
 struct ASTStatement;
 struct ASTSuffix;
+struct ASTSwitchCase;
+struct ASTSwitchStatement;
 struct ASTType;
 struct ASTWhileStatement;
 struct ASTVarDeclarations;
@@ -142,6 +145,10 @@ private:
 
     std::unique_ptr<ASTForStatement> forStatement();
 
+    std::unique_ptr<ASTSwitchCase> switchCase();
+
+    std::unique_ptr<ASTStatement> switchStatement();
+
     std::unique_ptr<ASTReturnStatement> returnStatement();
 
     std::unique_ptr<ASTBreakStatement> breakStatement();
@@ -199,6 +206,7 @@ private:
     bool identifier(SkString* dest);
 
     void* fScanner;
+    void* fLayoutScanner;
     YY_BUFFER_STATE fBuffer;
     // current parse depth, used to enforce a recursion limit to try to keep us from overflowing the
     // stack on pathological inputs

@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkPathEffect_DEFINED
 #define SkPathEffect_DEFINED
@@ -28,6 +26,9 @@ class SkStrokeRec;
 */
 class SK_API SkPathEffect : public SkFlattenable {
 public:
+    static sk_sp<SkPathEffect> MakeSum(sk_sp<SkPathEffect> first, sk_sp<SkPathEffect> second);
+    static sk_sp<SkPathEffect> MakeCompose(sk_sp<SkPathEffect> outer, sk_sp<SkPathEffect> inner);
+
     /**
      *  Given a src path (input) and a stroke-rec (input and output), apply
      *  this effect to the src path, returning the new path in dst, and return
@@ -138,6 +139,8 @@ public:
     virtual bool exposedInAndroidJavaAPI() const { return false; }
 #endif
 
+    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
+
 protected:
     SkPathEffect() {}
 
@@ -148,6 +151,8 @@ private:
 
     typedef SkFlattenable INHERITED;
 };
+
+#ifdef SK_SUPPORT_LEGACY_PATHEFFECT_SUBCLASSES
 
 /** \class SkPairPathEffect
 
@@ -211,6 +216,7 @@ private:
     // illegal
     SkComposePathEffect(const SkComposePathEffect&);
     SkComposePathEffect& operator=(const SkComposePathEffect&);
+    friend class SkPathEffect;
 
     typedef SkPairPathEffect INHERITED;
 };
@@ -255,8 +261,10 @@ private:
     // illegal
     SkSumPathEffect(const SkSumPathEffect&);
     SkSumPathEffect& operator=(const SkSumPathEffect&);
+    friend class SkPathEffect;
 
     typedef SkPairPathEffect INHERITED;
 };
+#endif
 
 #endif

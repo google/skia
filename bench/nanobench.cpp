@@ -23,6 +23,7 @@
 #include "SKPAnimationBench.h"
 #include "SKPBench.h"
 #include "Stats.h"
+#include "ios_utils.h"
 
 #include "SkAndroidCodec.h"
 #include "SkAutoMalloc.h"
@@ -32,6 +33,7 @@
 #include "SkCodec.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
+#include "SkCommonFlagsPathRenderer.h"
 #include "SkData.h"
 #include "SkGraphics.h"
 #include "SkLeanWindows.h"
@@ -53,10 +55,6 @@
     #include <unistd.h>
 #endif
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    #include "nanobenchAndroid.h"
-#endif
-
 #if SK_SUPPORT_GPU
     #include "gl/GrGLDefines.h"
     #include "GrCaps.h"
@@ -71,8 +69,12 @@
 
 static const int kAutoTuneLoops = 0;
 
+#if !defined(__has_feature)
+    #define  __has_feature(x) 0
+#endif
+
 static const int kDefaultLoops =
-#ifdef SK_DEBUG
+#if defined(SK_DEBUG) || __has_feature(address_sanitizer)
     1;
 #else
     kAutoTuneLoops;
@@ -126,6 +128,10 @@ DEFINE_string(sourceType, "",
         "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
 DEFINE_string(benchType,  "",
         "Apply usual --match rules to bench type: micro, recording, piping, playback, skcodec, etc.");
+
+#if SK_SUPPORT_GPU
+DEFINE_pathrenderer_flag;
+#endif
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
@@ -188,11 +194,11 @@ struct GPUTarget : public Target {
                                                   0;
         SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
         this->surface = SkSurface::MakeRenderTarget(gGrFactory->get(this->config.ctxType,
-                                                                    this->config.ctxOptions),
+                                                                    this->config.ctxOverrides),
                                                          SkBudgeted::kNo, info,
                                                          this->config.samples, &props);
         this->context = gGrFactory->getContextInfo(this->config.ctxType,
-                                                   this->config.ctxOptions).testContext();
+                                                   this->config.ctxOverrides).testContext();
         if (!this->surface.get()) {
             return false;
         }
@@ -391,10 +397,10 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
 
 #if SK_SUPPORT_GPU
 #define kBogusContextType GrContextFactory::kNativeGL_ContextType
-#define kBogusContextOptions GrContextFactory::ContextOptions::kNone
+#define kBogusContextOverrides GrContextFactory::ContextOverrides::kNone
 #else
 #define kBogusContextType 0
-#define kBogusContextOptions 0
+#define kBogusContextOverrides 0
 #endif
 
 static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* configs) {
@@ -405,10 +411,10 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
             return;
 
         const auto ctxType = gpuConfig->getContextType();
-        const auto ctxOptions = gpuConfig->getContextOptions();
+        const auto ctxOverrides = gpuConfig->getContextOverrides();
         const auto sampleCount = gpuConfig->getSamples();
 
-        if (const GrContext* ctx = gGrFactory->get(ctxType, ctxOptions)) {
+        if (const GrContext* ctx = gGrFactory->get(ctxType, ctxOverrides)) {
             const auto maxSampleCount = ctx->caps()->maxSampleCount();
             if (sampleCount > ctx->caps()->maxSampleCount()) {
                 SkDebugf("Configuration sample count %d exceeds maximum %d.\n",
@@ -428,7 +434,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
             sk_ref_sp(gpuConfig->getColorSpace()),
             sampleCount,
             ctxType,
-            ctxOptions,
+            ctxOverrides,
             gpuConfig->getUseDIText()
         };
 
@@ -441,7 +447,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         if (config->getTag().equals(#name)) {                                  \
             Config config = {                                                  \
                 SkString(#name), Benchmark::backend, color, alpha, colorSpace, \
-                0, kBogusContextType, kBogusContextOptions, false              \
+                0, kBogusContextType, kBogusContextOverrides, false            \
             };                                                                 \
             configs->push_back(config);                                        \
             return;                                                            \
@@ -455,24 +461,15 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
                    kN32_SkColorType, kPremul_SkAlphaType, nullptr)
         CPU_CONFIG(565,  kRaster_Backend,
                    kRGB_565_SkColorType, kOpaque_SkAlphaType, nullptr)
-        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        auto srgbColorSpace = SkColorSpace::MakeSRGB();
         CPU_CONFIG(srgb, kRaster_Backend,
                    kN32_SkColorType,  kPremul_SkAlphaType, srgbColorSpace)
-        auto srgbLinearColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+        auto srgbLinearColorSpace = SkColorSpace::MakeSRGBLinear();
         CPU_CONFIG(f16,  kRaster_Backend,
                    kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgbLinearColorSpace)
     }
 
     #undef CPU_CONFIG
-
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    if (config->getTag().equals("hwui")) {
-        Config config = { SkString("hwui"), Benchmark::kHWUI_Backend,
-                          kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr,
-                          0, kBogusContextType, kBogusContextOptions, false };
-        configs->push_back(config);
-    }
-#endif
 }
 
 // Append all configs that are enabled and supported.
@@ -505,11 +502,6 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
 #if SK_SUPPORT_GPU
     case Benchmark::kGPU_Backend:
         target = new GPUTarget(config);
-        break;
-#endif
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    case Benchmark::kHWUI_Backend:
-        target = new HWUITarget(config, bench);
         break;
 #endif
     default:
@@ -1108,14 +1100,18 @@ static void start_keepalive() {
     intentionallyLeaked->start();
 }
 
-int nanobench_main();
-int nanobench_main() {
+int main(int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
+#if defined(SK_BUILD_FOR_IOS)
+    cd_Documents();
+#endif
     SetupCrashHandler();
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
 #if SK_SUPPORT_GPU
     GrContextOptions grContextOpts;
+    grContextOpts.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
     gGrFactory.reset(new GrContextFactory(grContextOpts));
 #endif
 
@@ -1343,7 +1339,7 @@ int nanobench_main() {
 #if SK_SUPPORT_GPU
             if (FLAGS_gpuStats && Benchmark::kGPU_Backend == configs[i].backend) {
                 GrContext* context = gGrFactory->get(configs[i].ctxType,
-                                                     configs[i].ctxOptions);
+                                                     configs[i].ctxOverrides);
                 context->printCacheStats();
                 context->printGpuStats();
             }
@@ -1360,6 +1356,8 @@ int nanobench_main() {
         }
     }
 
+    SkGraphics::PurgeAllCaches();
+
     log->bench("memory_usage", 0,0);
     log->config("meta");
     log->metric("max_rss_mb", sk_tools::getMaxResidentSetSizeMB());
@@ -1372,10 +1370,3 @@ int nanobench_main() {
 
     return 0;
 }
-
-#if !defined SK_BUILD_FOR_IOS
-int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
-    return nanobench_main();
-}
-#endif

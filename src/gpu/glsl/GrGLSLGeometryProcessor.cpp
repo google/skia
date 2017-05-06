@@ -17,7 +17,7 @@ void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
-    vBuilder->transformToNormalizedDeviceSpace(gpArgs.fPositionVar);
+    vBuilder->transformToNormalizedDeviceSpace(gpArgs.fPositionVar, args.fRTAdjustName);
     if (kVec2f_GrSLType == gpArgs.fPositionVar.getType()) {
         args.fVaryingHandler->setNoPerspective();
     }
@@ -108,7 +108,7 @@ void GrGLSLGeometryProcessor::setupPosition(GrGLSLVertexBuilder* vertBuilder,
                                                         &viewMatrixName);
         if (!mat.hasPerspective()) {
             gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
-            vertBuilder->codeAppendf("vec2 %s = vec2(%s * vec3(%s, 1));",
+            vertBuilder->codeAppendf("vec2 %s = (%s * vec3(%s, 1)).xy;",
                                      gpArgs->fPositionVar.c_str(), viewMatrixName, posName);
         } else {
             gpArgs->fPositionVar.set(kVec3f_GrSLType, "pos3");

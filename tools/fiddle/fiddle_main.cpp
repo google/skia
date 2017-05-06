@@ -5,14 +5,30 @@
  * found in the LICENSE file.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
+#include <sstream>
+#include <string>
 
 #include "fiddle_main.h"
 
 // Globals externed in fiddle_main.h
 SkBitmap source;
 sk_sp<SkImage> image;
+
+// Global used by the local impl of SkDebugf.
+std::ostringstream gTextOutput;
+
+void SkDebugf(const char * fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    char formatbuffer[1024];
+    int n = vsnprintf(formatbuffer, sizeof(formatbuffer), fmt, args);
+    va_end(args);
+    if (n>=0 && n<=int(sizeof(formatbuffer))) {
+        gTextOutput.write(formatbuffer, n);
+    }
+}
 
 static void encode_to_base64(const void* data, size_t size, FILE* out) {
     const uint8_t* input = reinterpret_cast<const uint8_t*>(data);
@@ -47,12 +63,18 @@ static void encode_to_base64(const void* data, size_t size, FILE* out) {
     }
 }
 
+
+static void dump_output(const void* data, size_t size,
+                        const char* name, bool last = true) {
+    printf("\t\"%s\": \"", name);
+    encode_to_base64(data, size, stdout);
+    fputs(last ? "\"\n" : "\",\n", stdout);
+}
+
 static void dump_output(const sk_sp<SkData>& data,
                         const char* name, bool last = true) {
     if (data) {
-        printf("\t\"%s\": \"", name);
-        encode_to_base64(data->data(), data->size(), stdout);
-        fputs(last ? "\"\n" : "\",\n", stdout);
+        dump_output(data->data(), data->size(), name, last);
     }
 }
 
@@ -87,8 +109,18 @@ static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
     static sk_sp<GrContext> create_grcontext() { return nullptr; }
 #endif
 
+
+
 int main() {
-    const DrawOptions options = GetDrawOptions();
+    DrawOptions options = GetDrawOptions();
+    // If textOnly then only do one type of image, otherwise the text
+    // output is duplicated for each type.
+    if (options.textOnly) {
+        options.raster = true;
+        options.gpu = false;
+        options.pdf = false;
+        options.skp = false;
+    }
     if (options.source) {
         sk_sp<SkData> data(SkData::MakeFromFileName(options.source));
         if (!data) {
@@ -110,9 +142,9 @@ int main() {
     if (options.f16) {
         SkASSERT(options.srgb);
         colorType = kRGBA_F16_SkColorType;
-        colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+        colorSpace = SkColorSpace::MakeSRGBLinear();
     } else if (options.srgb) {
-        colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        colorSpace = SkColorSpace::MakeSRGB();
     }
     SkImageInfo info = SkImageInfo::Make(options.size.width(), options.size.height(), colorType,
                                          kPremul_SkAlphaType, colorSpace);
@@ -160,10 +192,15 @@ int main() {
     }
 
     printf("{\n");
-    dump_output(rasterData, "Raster", !gpuData && !pdfData && !skpData);
-    dump_output(gpuData, "Gpu", !pdfData && !skpData);
-    dump_output(pdfData, "Pdf", !skpData);
-    dump_output(skpData, "Skp");
+    if (!options.textOnly) {
+        dump_output(rasterData, "Raster", !gpuData && !pdfData && !skpData);
+        dump_output(gpuData, "Gpu", !pdfData && !skpData);
+        dump_output(pdfData, "Pdf", !skpData);
+        dump_output(skpData, "Skp");
+    } else {
+        std::string textoutput = gTextOutput.str();
+        dump_output(textoutput.c_str(), textoutput.length(), "Text");
+    }
     printf("}\n");
 
     return 0;

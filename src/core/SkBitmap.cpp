@@ -8,10 +8,11 @@
 #include "SkAtomics.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
-#include "SkConfig8888.h"
+#include "SkConvertPixels.h"
 #include "SkData.h"
 #include "SkFilterQuality.h"
 #include "SkHalf.h"
+#include "SkImageInfoPriv.h"
 #include "SkMallocPixelRef.h"
 #include "SkMask.h"
 #include "SkMath.h"
@@ -22,6 +23,7 @@
 #include "SkTemplates.h"
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
+#include "SkWritePixelsRec.h"
 
 #include <string.h>
 
@@ -682,7 +684,6 @@ bool SkBitmap::canCopyTo(SkColorType dstCT) const {
         case kBGRA_8888_SkColorType:
             break;
         case kGray_8_SkColorType:
-        case kIndex_8_SkColorType:
             if (!sameConfigs) {
                 return false;
             }
@@ -714,13 +715,20 @@ bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY) {
         return false;
     }
 
-    SkPixmap subset;
-    if (!dst.pixmap().extractSubset(&subset,
-                                    SkIRect::MakeXYWH(dstX, dstY, src.width(), src.height()))) {
+    if (!SkImageInfoValidConversion(fInfo, src.info())) {
         return false;
     }
 
-    return src.readPixels(subset);
+    SkWritePixelsRec rec(src.info(), src.addr(), src.rowBytes(), dstX, dstY);
+    if (!rec.trim(fInfo.width(), fInfo.height())) {
+        return false;
+    }
+
+    void* dstPixels = this->getAddr(rec.fX, rec.fY);
+    const SkImageInfo dstInfo = fInfo.makeWH(rec.fInfo.width(), rec.fInfo.height());
+    SkConvertPixels(dstInfo, dstPixels, this->rowBytes(), rec.fInfo, rec.fPixels, rec.fRowBytes,
+                    src.ctable());
+    return true;
 }
 
 bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc) const {
@@ -839,8 +847,8 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha, int 
         return false;
     }
     const SkPixmap& pmap = apl.pixmap();
-    SkPixelInfo::CopyPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
-                            pmap.info(), pmap.addr(), pmap.rowBytes(), pmap.ctable());
+    SkConvertPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
+                    pmap.info(), pmap.addr(), pmap.rowBytes(), pmap.ctable());
     return true;
 }
 

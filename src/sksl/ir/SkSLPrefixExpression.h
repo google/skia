@@ -9,6 +9,7 @@
 #define SKSL_PREFIXEXPRESSION
 
 #include "SkSLExpression.h"
+#include "SkSLToken.h"
 
 namespace SkSL {
 
@@ -25,7 +26,7 @@ struct PrefixExpression : public Expression {
         return Token::OperatorName(fOperator) + fOperand->description();
     }
 
-    const std::unique_ptr<Expression> fOperand;
+    std::unique_ptr<Expression> fOperand;
     const Token::Kind fOperator;
 
     typedef Expression INHERITED;

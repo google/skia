@@ -8,6 +8,7 @@
 #include "SampleCode.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
+#include "SkColorFilter.h"
 #include "SkCanvas.h"
 #include "SkGaussianEdgeShader.h"
 #include "SkPath.h"
@@ -25,7 +26,10 @@ class ShadowsView : public SampleView {
     SkPath    fRectPath;
     SkPath    fRRPath;
     SkPath    fCirclePath;
+    SkPath    fFunkyRRPath;
+    SkPath    fCubicPath;
     SkPoint3  fLightPos;
+    SkScalar  fZDelta;
 
     bool      fShowAmbient;
     bool      fShowSpot;
@@ -34,8 +38,9 @@ class ShadowsView : public SampleView {
     bool      fIgnoreShadowAlpha;
 
 public:
-    ShadowsView() 
-        : fShowAmbient(true)
+    ShadowsView()
+        : fZDelta(0.0f)
+        , fShowAmbient(true)
         , fShowSpot(true)
         , fUseAlt(true)
         , fShowObject(true)
@@ -46,6 +51,13 @@ protected:
         fCirclePath.addCircle(0, 0, 50);
         fRectPath.addRect(SkRect::MakeXYWH(-100, -50, 200, 100));
         fRRPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-100, -50, 200, 100), 4, 4));
+        fFunkyRRPath.addRoundRect(SkRect::MakeXYWH(-50, -50, SK_Scalar1 * 100, SK_Scalar1 * 100),
+                                  40 * SK_Scalar1, 20 * SK_Scalar1,
+                                  SkPath::kCW_Direction);
+        fCubicPath.cubicTo(100 * SK_Scalar1, 50 * SK_Scalar1,
+                           20 * SK_Scalar1, 100 * SK_Scalar1,
+                           0 * SK_Scalar1, 0 * SK_Scalar1);
+
         fLightPos = SkPoint3::Make(-700, -700, 2800);
     }
 
@@ -58,32 +70,43 @@ protected:
 
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
+            bool handled = false;
             switch (uni) {
-                case 'B':
+                case 'W':
                     fShowAmbient = !fShowAmbient;
+                    handled = true;
                     break;
                 case 'S':
                     fShowSpot = !fShowSpot;
+                    handled = true;
                     break;
                 case 'T':
                     fUseAlt = !fUseAlt;
+                    handled = true;
                     break;
                 case 'O':
                     fShowObject = !fShowObject;
+                    handled = true;
                     break;
                 case '>':
-                    fLightPos.fZ += 10;
+                    fZDelta += 0.5f;
+                    handled = true;
                     break;
                 case '<':
-                    fLightPos.fZ -= 10;
+                    fZDelta -= 0.5f;
+                    handled = true;
                     break;
                 case '?':
                     fIgnoreShadowAlpha = !fIgnoreShadowAlpha;
+                    handled = true;
                     break;
                 default:
                     break;
             }
-            this->inval(nullptr);
+            if (handled) {
+                this->inval(nullptr);
+                return true;
+            }
         }
         return this->INHERITED::onQuery(evt);
     }
@@ -210,6 +233,7 @@ protected:
                                       iRadius >> 8, iRadius & 0xff,
                                       (unsigned char)(4.0f*pad)));
 
+        paint.setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorBLACK, SkBlendMode::kModulate));
         paint.setShader(SkGaussianEdgeShader::Make());
         canvas->drawRRect(pathRRect, paint);
     }
@@ -346,6 +370,7 @@ protected:
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(strokeWidth);
         }
+        paint.setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorBLACK, SkBlendMode::kModulate));
         paint.setShader(SkGaussianEdgeShader::Make());
         // handle scale of radius due to CTM
         radius *= scaleFactors[0];
@@ -431,26 +456,39 @@ protected:
         canvas->translate(200, 90);
         lightPos.fX += 200;
         lightPos.fY += 90;
-        this->drawShadowedPath(canvas, fRectPath, 2, paint, kAmbientAlpha,
+        this->drawShadowedPath(canvas, fRRPath, SkTMax(1.0f, 2+fZDelta), paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorRED);
         canvas->translate(250, 0);
         lightPos.fX += 250;
-        this->drawShadowedPath(canvas, fRRPath, 4, paint, kAmbientAlpha,
+        this->drawShadowedPath(canvas, fRectPath, SkTMax(1.0f, 4+fZDelta), paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorBLUE);
         canvas->translate(-250, 110);
         lightPos.fX -= 250;
         lightPos.fY += 110;
-        this->drawShadowedPath(canvas, fCirclePath, 8, paint, 0.0f,
+        this->drawShadowedPath(canvas, fCirclePath, SkTMax(1.0f, 8+fZDelta), paint, 0,
                                lightPos, kLightWidth, 0.5f);
 
         paint.setColor(SK_ColorGREEN);
         canvas->translate(250, 0);
         lightPos.fX += 250;
-        this->drawShadowedPath(canvas, fRRPath, 64, paint, kAmbientAlpha,
+        this->drawShadowedPath(canvas, fRRPath, SkTMax(1.0f, 64+fZDelta), paint, kAmbientAlpha,
+                               lightPos, kLightWidth, kSpotAlpha);
+
+        paint.setColor(SK_ColorYELLOW);
+        canvas->translate(-250, 110);
+        lightPos.fX -= 250;
+        lightPos.fY += 110;
+        this->drawShadowedPath(canvas, fFunkyRRPath, SkTMax(1.0f, 8+fZDelta), paint, kAmbientAlpha,
+                               lightPos, kLightWidth, kSpotAlpha);
+
+        paint.setColor(SK_ColorCYAN);
+        canvas->translate(250, 0);
+        lightPos.fX += 250;
+        this->drawShadowedPath(canvas, fCubicPath, 16, paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
     }
 
@@ -476,7 +514,7 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

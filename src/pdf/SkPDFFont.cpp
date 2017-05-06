@@ -79,7 +79,7 @@ SkScalar from_font_units(SkScalar scaled, uint16_t emSize) {
     if (emSize == 1000) {
         return scaled;
     } else {
-        return SkScalarMulDiv(scaled, 1000, emSize);
+        return scaled * 1000 / emSize;
     }
 }
 
@@ -317,8 +317,8 @@ static sk_sp<SkPDFStream> get_subset_font_stream(
 
     unsigned char* subsetFont{nullptr};
     sk_sp<SkData> fontData(stream_to_data(std::move(fontAsset)));
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || defined(GOOGLE3)
-    // TODO(halcanary): update Android Framework to newest version of Sfntly.
+#if defined(GOOGLE3)
+    // TODO(halcanary): update GOOGLE3 to newest version of Sfntly.
     (void)ttcIndex;
     int subsetFontSize = SfntlyWrapper::SubsetFont(fontName,
                                                    fontData->bytes(),

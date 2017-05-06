@@ -285,14 +285,15 @@ private:
                fEnforcePMColor == fp.fEnforcePMColor;
     }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        // TODO: optimize this
-        inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
-    }
-
+    // This could implement the const input -> const output optimization but it's unlikely to help.
     ArithmeticFP(float k1, float k2, float k3, float k4, bool enforcePMColor,
                  sk_sp<GrFragmentProcessor> dst)
-            : fK1(k1), fK2(k2), fK3(k3), fK4(k4), fEnforcePMColor(enforcePMColor) {
+            : INHERITED(kNone_OptimizationFlags)
+            , fK1(k1)
+            , fK2(k2)
+            , fK3(k3)
+            , fK4(k4)
+            , fEnforcePMColor(enforcePMColor) {
         this->initClassID<ArithmeticFP>();
         SkASSERT(dst);
         SkDEBUGCODE(int dstIndex =) this->registerChildProcessor(std::move(dst));
@@ -307,6 +308,7 @@ private:
 };
 }
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> ArithmeticFP::TestCreate(GrProcessorTestData* d) {
     float k1 = d->fRandom->nextF();
     float k2 = d->fRandom->nextF();
@@ -317,6 +319,7 @@ sk_sp<GrFragmentProcessor> ArithmeticFP::TestCreate(GrProcessorTestData* d) {
     sk_sp<GrFragmentProcessor> dst(GrProcessorUnitTest::MakeChildFP(d));
     return ArithmeticFP::Make(k1, k2, k3, k4, enforcePMColor, std::move(dst));
 }
+#endif
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ArithmeticFP);
 
@@ -334,28 +337,26 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
 
     GrContext* context = source->getContext();
 
-    sk_sp<GrTexture> backgroundTex, foregroundTex;
+    sk_sp<GrTextureProxy> backgroundProxy, foregroundProxy;
 
     if (background) {
-        backgroundTex = background->asTextureRef(context);
+        backgroundProxy = background->asTextureProxyRef(context);
     }
 
     if (foreground) {
-        foregroundTex = foreground->asTextureRef(context);
+        foregroundProxy = foreground->asTextureProxyRef(context);
     }
 
     GrPaint paint;
     sk_sp<GrFragmentProcessor> bgFP;
 
-    if (backgroundTex) {
-        SkMatrix backgroundMatrix;
-        backgroundMatrix.setIDiv(backgroundTex->width(), backgroundTex->height());
-        backgroundMatrix.preTranslate(-SkIntToScalar(backgroundOffset.fX),
-                                      -SkIntToScalar(backgroundOffset.fY));
+    if (backgroundProxy) {
+        SkMatrix backgroundMatrix = SkMatrix::MakeTrans(-SkIntToScalar(backgroundOffset.fX),
+                                                        -SkIntToScalar(backgroundOffset.fY));
         sk_sp<GrColorSpaceXform> bgXform =
                 GrColorSpaceXform::Make(background->getColorSpace(), outputProperties.colorSpace());
         bgFP = GrTextureDomainEffect::Make(
-                backgroundTex.get(), std::move(bgXform), backgroundMatrix,
+                context, std::move(backgroundProxy), std::move(bgXform), backgroundMatrix,
                 GrTextureDomain::MakeTexelDomain(background->subset()),
                 GrTextureDomain::kDecal_Mode, GrSamplerParams::kNone_FilterMode);
     } else {
@@ -363,17 +364,15 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                                            GrConstColorProcessor::kIgnore_InputMode);
     }
 
-    if (foregroundTex) {
-        SkMatrix foregroundMatrix;
-        foregroundMatrix.setIDiv(foregroundTex->width(), foregroundTex->height());
-        foregroundMatrix.preTranslate(-SkIntToScalar(foregroundOffset.fX),
-                                      -SkIntToScalar(foregroundOffset.fY));
+    if (foregroundProxy) {
+        SkMatrix foregroundMatrix = SkMatrix::MakeTrans(-SkIntToScalar(foregroundOffset.fX),
+                                                        -SkIntToScalar(foregroundOffset.fY));
         sk_sp<GrColorSpaceXform> fgXform =
                 GrColorSpaceXform::Make(foreground->getColorSpace(), outputProperties.colorSpace());
         sk_sp<GrFragmentProcessor> foregroundFP;
 
         foregroundFP = GrTextureDomainEffect::Make(
-                foregroundTex.get(), std::move(fgXform), foregroundMatrix,
+                context, std::move(foregroundProxy), std::move(fgXform), foregroundMatrix,
                 GrTextureDomain::MakeTexelDomain(foreground->subset()),
                 GrTextureDomain::kDecal_Mode, GrSamplerParams::kNone_FilterMode);
 
@@ -409,7 +408,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     return SkSpecialImage::MakeDeferredFromGpu(context,
                                                SkIRect::MakeWH(bounds.width(), bounds.height()),
                                                kNeedNewImageUniqueID_SpecialImage,
-                                               sk_ref_sp(renderTargetContext->asDeferredTexture()),
+                                               renderTargetContext->asTextureProxyRef(),
                                                renderTargetContext->refColorSpace());
 }
 #endif

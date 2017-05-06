@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkDataTable.h"
 #include "SkFontMgr.h"
 #include "SkFontMgr_indirect.h"
 #include "SkFontStyle.h"
@@ -60,30 +59,17 @@ private:
     sk_sp<SkRemotableFontIdentitySet> fData;
 };
 
-void SkFontMgr_Indirect::set_up_family_names(const SkFontMgr_Indirect* self) {
-    self->fFamilyNames = self->fProxy->getFamilyNames();
-}
-
 int SkFontMgr_Indirect::onCountFamilies() const {
-    fFamilyNamesInitOnce(SkFontMgr_Indirect::set_up_family_names, this);
-    return fFamilyNames->count();
+    return 0;
 }
 
 void SkFontMgr_Indirect::onGetFamilyName(int index, SkString* familyName) const {
-    fFamilyNamesInitOnce(SkFontMgr_Indirect::set_up_family_names, this);
-    if (index >= fFamilyNames->count()) {
-        familyName->reset();
-        return;
-    }
-    familyName->set(fFamilyNames->atStr(index));
+    SkFAIL("Not implemented");
 }
 
 SkFontStyleSet* SkFontMgr_Indirect::onCreateStyleSet(int index) const {
-    SkRemotableFontIdentitySet* set = fProxy->getIndex(index);
-    if (nullptr == set) {
-        return nullptr;
-    }
-    return new SkStyleSet_Indirect(this, index, set);
+    SkFAIL("Not implemented");
+    return nullptr;
 }
 
 SkFontStyleSet* SkFontMgr_Indirect::onMatchFamily(const char familyName[]) const {

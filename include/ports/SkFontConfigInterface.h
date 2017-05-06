@@ -109,9 +109,6 @@ public:
      */
     static SkFontConfigInterface* GetSingletonDirectInterface();
 
-    // New APIS, which have default impls for now (which do nothing)
-
-    virtual sk_sp<SkDataTable> getFamilyNames() { return SkDataTable::MakeEmpty(); }
     typedef SkRefCnt INHERITED;
 };
 

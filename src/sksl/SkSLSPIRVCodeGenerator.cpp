@@ -993,7 +993,7 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
         size_t alignment = memoryLayout.alignment(*type.fields()[i].fType);
         const Layout& fieldLayout = type.fields()[i].fModifiers.fLayout;
         if (fieldLayout.fOffset >= 0) {
-            if (fieldLayout.fOffset <= (int) offset) {
+            if (fieldLayout.fOffset < (int) offset) {
                 fErrors.error(type.fPosition,
                               "offset of field '" + type.fields()[i].fName + "' must be at "
                               "least " + to_string((int) offset));
@@ -1500,6 +1500,37 @@ SpvId SPIRVCodeGenerator::writeIntConstructor(const Constructor& c, SkWStream& o
     return result;
 }
 
+void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const Type& type,
+                                                 SkWStream& out) {
+    FloatLiteral zero(fContext, Position(), 0);
+    SpvId zeroId = this->writeFloatLiteral(zero);
+    std::vector<SpvId> columnIds;
+    for (int column = 0; column < type.columns(); column++) {
+        this->writeOpCode(SpvOpCompositeConstruct, 3 + type.rows(),
+                          out);
+        this->writeWord(this->getType(type.componentType().toCompound(fContext, type.rows(), 1)),
+                        out);
+        SpvId columnId = this->nextId();
+        this->writeWord(columnId, out);
+        columnIds.push_back(columnId);
+        for (int row = 0; row < type.columns(); row++) {
+            this->writeWord(row == column ? diagonal : zeroId, out);
+        }
+    }
+    this->writeOpCode(SpvOpCompositeConstruct, 3 + type.columns(),
+                      out);
+    this->writeWord(this->getType(type), out);
+    this->writeWord(id, out);
+    for (SpvId id : columnIds) {
+        this->writeWord(id, out);
+    }
+}
+
+void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcType,
+                                         const Type& dstType, SkWStream& out) {
+    ABORT("unimplemented");
+}
+
 SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, SkWStream& out) {
     ASSERT(c.fType.kind() == Type::kMatrix_Kind);
     // go ahead and write the arguments so we don't try to write new instructions in the middle of
@@ -1511,33 +1542,10 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, SkWStream
     SpvId result = this->nextId();
     int rows = c.fType.rows();
     int columns = c.fType.columns();
-    // FIXME this won't work to create a matrix from another matrix
-    if (arguments.size() == 1) {
-        // with a single argument, a matrix will have all of its diagonal entries equal to the
-        // argument and its other values equal to zero
-        // FIXME this won't work for int matrices
-        FloatLiteral zero(fContext, Position(), 0);
-        SpvId zeroId = this->writeFloatLiteral(zero);
-        std::vector<SpvId> columnIds;
-        for (int column = 0; column < columns; column++) {
-            this->writeOpCode(SpvOpCompositeConstruct, 3 + c.fType.rows(),
-                              out);
-            this->writeWord(this->getType(c.fType.componentType().toCompound(fContext, rows, 1)),
-                            out);
-            SpvId columnId = this->nextId();
-            this->writeWord(columnId, out);
-            columnIds.push_back(columnId);
-            for (int row = 0; row < c.fType.columns(); row++) {
-                this->writeWord(row == column ? arguments[0] : zeroId, out);
-            }
-        }
-        this->writeOpCode(SpvOpCompositeConstruct, 3 + columns,
-                          out);
-        this->writeWord(this->getType(c.fType), out);
-        this->writeWord(result, out);
-        for (SpvId id : columnIds) {
-            this->writeWord(id, out);
-        }
+    if (arguments.size() == 1 && c.fArguments[0]->fType.kind() == Type::kScalar_Kind) {
+        this->writeUniformScaleMatrix(result, arguments[0], c.fType, out);
+    } else if (arguments.size() == 1 && c.fArguments[0]->fType.kind() == Type::kMatrix_Kind) {
+        this->writeMatrixCopy(result, arguments[0], c.fArguments[0]->fType, c.fType, out);
     } else {
         std::vector<SpvId> columnIds;
         int currentCount = 0;
@@ -1865,10 +1873,11 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, S
             SkString name("sksl_synthetic_uniforms");
             Type intfStruct(Position(), name, fields);
             Layout layout(-1, -1, 1, -1, -1, -1, -1, false, false, false, Layout::Format::kUnspecified,
-                          false);
+                          false, Layout::kUnspecified_Primitive, -1, -1);
             Variable intfVar(Position(), Modifiers(layout, Modifiers::kUniform_Flag), name,
                              intfStruct, Variable::kGlobal_Storage);
-            InterfaceBlock intf(Position(), intfVar, st);
+            InterfaceBlock intf(Position(), intfVar, name, SkString(""),
+                                std::vector<std::unique_ptr<Expression>>(), st);
             fRTHeightStructId = this->writeInterfaceBlock(intf);
             fRTHeightFieldIndex = 0;
         }
@@ -1980,6 +1989,15 @@ bool is_assignment(Token::Kind op) {
     }
 }
 
+SpvId SPIRVCodeGenerator::foldToBool(SpvId id, const Type& operandType, SkWStream& out) {
+    if (operandType.kind() == Type::kVector_Kind) {
+        SpvId result = this->nextId();
+        this->writeInstruction(SpvOpAll, this->getType(*fContext.fBool_Type), result, id, out);
+        return result;
+    }
+    return id;
+}
+
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, SkWStream& out) {
     // handle cases where we don't necessarily evaluate both LHS and RHS
     switch (b.fOperator) {
@@ -2080,15 +2098,20 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, SkWSt
         ASSERT(*operandType == b.fRight->fType);
     }
     switch (b.fOperator) {
-        case Token::EQEQ:
+        case Token::EQEQ: {
             ASSERT(resultType == *fContext.fBool_Type);
-            return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFOrdEqual,
-                                              SpvOpIEqual, SpvOpIEqual, SpvOpLogicalEqual, out);
+            return this->foldToBool(this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
+                                                               SpvOpFOrdEqual, SpvOpIEqual,
+                                                               SpvOpIEqual, SpvOpLogicalEqual, out),
+                                    *operandType, out);
+        }
         case Token::NEQ:
             ASSERT(resultType == *fContext.fBool_Type);
-            return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFOrdNotEqual,
-                                              SpvOpINotEqual, SpvOpINotEqual, SpvOpLogicalNotEqual,
-                                              out);
+            return this->foldToBool(this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
+                                                               SpvOpFOrdNotEqual, SpvOpINotEqual,
+                                                               SpvOpINotEqual, SpvOpLogicalNotEqual,
+                                                               out),
+                                    *operandType, out);
         case Token::GT:
             ASSERT(resultType == *fContext.fBool_Type);
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
@@ -2540,7 +2563,7 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
             kind != Program::kFragment_Kind) {
             continue;
         }
-        if (!var->fIsReadFrom && !var->fIsWrittenTo &&
+        if (!var->fReadCount && !var->fWriteCount &&
                 !(var->fModifiers.fFlags & (Modifiers::kIn_Flag |
                                             Modifiers::kOut_Flag |
                                             Modifiers::kUniform_Flag))) {
@@ -2849,6 +2872,9 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, SkWStream& ou
             break;
         case Program::kFragment_Kind:
             this->writeWord(SpvExecutionModelFragment, out);
+            break;
+        case Program::kGeometry_Kind:
+            this->writeWord(SpvExecutionModelGeometry, out);
             break;
     }
     this->writeWord(fFunctionMap[main], out);

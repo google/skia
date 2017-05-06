@@ -40,14 +40,9 @@ protected:
         paint.setTextSize(SkIntToScalar(72));
         paint.setLooper(fLooper);
 
-        canvas->drawCircle(SkIntToScalar(50), SkIntToScalar(50),
-                           SkIntToScalar(30), paint);
-
-        canvas->drawRectCoords(SkIntToScalar(150), SkIntToScalar(50),
-                               SkIntToScalar(200), SkIntToScalar(100), paint);
-
-        canvas->drawText("Looper", 6, SkIntToScalar(230), SkIntToScalar(100),
-                         paint);
+        canvas->drawCircle(50, 50, 30, paint);
+        canvas->drawRect({ 150, 50, 200, 100 }, paint);
+        canvas->drawText("Looper", 6, 230, 100, paint);
     }
 
 private:

@@ -6,6 +6,8 @@
  */
 
 #include "SkBitmapProcShader.h"
+
+#include "SkArenaAlloc.h"
 #include "SkBitmapProcState.h"
 #include "SkBitmapProvider.h"
 #include "SkXfermodePriv.h"
@@ -31,10 +33,6 @@ public:
         if (1 == fInfo->fPixmap.height() && only_scale_and_translate(this->getTotalInverse())) {
             fFlags |= SkShader::kConstInY32_Flag;
         }
-    }
-
-    ~BitmapProcInfoContext() override {
-        fInfo->~SkBitmapProcInfo();
     }
 
     uint32_t getFlags() const override { return fFlags; }
@@ -201,10 +199,10 @@ size_t SkBitmapProcLegacyShader::ContextSize(const ContextRec& rec, const SkImag
     return s;
 }
 
-SkShader::Context* SkBitmapProcLegacyShader::MakeContext(const SkShader& shader,
-                                                   TileMode tmx, TileMode tmy,
-                                                   const SkBitmapProvider& provider,
-                                                   const ContextRec& rec, void* storage) {
+SkShader::Context* SkBitmapProcLegacyShader::MakeContext(
+    const SkShader& shader, TileMode tmx, TileMode tmy,
+    const SkBitmapProvider& provider, const ContextRec& rec, SkArenaAlloc* alloc)
+{
     SkMatrix totalInverse;
     // Do this first, so we know the matrix can be inverted.
     if (!shader.computeTotalInverse(rec, &totalInverse)) {
@@ -215,21 +213,17 @@ SkShader::Context* SkBitmapProcLegacyShader::MakeContext(const SkShader& shader,
     bool useLinearPipeline = choose_linear_pipeline(rec, provider.info());
 
     if (useLinearPipeline) {
-        void* infoStorage = (char*)storage + sizeof(LinearPipelineContext);
-        SkBitmapProcInfo* info = new (infoStorage) SkBitmapProcInfo(provider, tmx, tmy);
+        SkBitmapProcInfo* info = alloc->make<SkBitmapProcInfo>(provider, tmx, tmy);
         if (!info->init(totalInverse, *rec.fPaint)) {
-            info->~SkBitmapProcInfo();
             return nullptr;
         }
 
-        return new (storage) LinearPipelineContext(shader, rec, info);
+        return alloc->make<LinearPipelineContext>(shader, rec, info);
     } else {
-        void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
-        SkBitmapProcState* state = new (stateStorage) SkBitmapProcState(provider, tmx, tmy);
+        SkBitmapProcState* state = alloc->make<SkBitmapProcState>(provider, tmx, tmy);
         if (!state->setup(totalInverse, *rec.fPaint)) {
-            state->~SkBitmapProcState();
             return nullptr;
         }
-        return new (storage) BitmapProcShaderContext(shader, rec, state);
+        return alloc->make<BitmapProcShaderContext>(shader, rec, state);
     }
 }

@@ -12,13 +12,13 @@
 
 #include "SkEventSink.h"
 #include "SkRect.h"
-#include "SkDOM.h"
-#include "../private/SkTDict.h"
 #include "SkMatrix.h"
 #include "SkMetaData.h"
 
 class SkCanvas;
 class SkLayerView;
+class SkDOM;
+struct SkDOMNode;
 
 /** \class SkView
 
@@ -258,13 +258,13 @@ public:
     */
     class Artist : public SkRefCnt {
     public:
-        
+
 
         void draw(SkView*, SkCanvas*);
-        void inflate(const SkDOM&, const SkDOM::Node*);
+        void inflate(const SkDOM&, const SkDOMNode*);
     protected:
         virtual void onDraw(SkView*, SkCanvas*) = 0;
-        virtual void onInflate(const SkDOM&, const SkDOM::Node*);
+        virtual void onInflate(const SkDOM&, const SkDOMNode*);
     private:
         typedef SkRefCnt INHERITED;
     };
@@ -286,13 +286,13 @@ public:
     */
     class Layout : public SkRefCnt {
     public:
-        
+
 
         void layoutChildren(SkView* parent);
-        void inflate(const SkDOM&, const SkDOM::Node*);
+        void inflate(const SkDOM&, const SkDOMNode*);
     protected:
         virtual void onLayoutChildren(SkView* parent) = 0;
-        virtual void onInflate(const SkDOM&, const SkDOM::Node*);
+        virtual void onInflate(const SkDOM&, const SkDOMNode*);
     private:
         typedef SkRefCnt INHERITED;
     };
@@ -312,15 +312,7 @@ public:
 
     /** Call this to initialize this view based on the specified XML node
     */
-    void    inflate(const SkDOM& dom, const SkDOM::Node* node);
-    /** After a view hierarchy is inflated, this may be called with a dictionary
-        containing pairs of <name, view*>, where the name string was the view's
-        "id" attribute when it was inflated.
-
-        This will call the virtual onPostInflate for this view, and the recursively
-        call postInflate on all of the view's children.
-    */
-    void    postInflate(const SkTDict<SkView*>& ids);
+    void    inflate(const SkDOM& dom, const SkDOMNode* node);
 
     SkDEBUGCODE(void dump(bool recurse) const;)
 
@@ -358,11 +350,10 @@ protected:
     */
     virtual bool    onClick(Click*);
     /** Override this to initialize your subclass from the XML node. Be sure to call the inherited version too */
-    virtual void    onInflate(const SkDOM& dom, const SkDOM::Node* node);
+    virtual void    onInflate(const SkDOM& dom, const SkDOMNode* node);
     /** Override this if you want to perform post initialization work based on the ID dictionary built
         during XML parsing. Be sure to call the inherited version too.
     */
-    virtual void    onPostInflate(const SkTDict<SkView*>&);
 
 public:
 #ifdef SK_DEBUG

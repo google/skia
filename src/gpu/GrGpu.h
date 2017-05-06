@@ -33,6 +33,7 @@ class GrPathRendering;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrRenderTarget;
+class GrSemaphore;
 class GrStencilAttachment;
 class GrStencilSettings;
 class GrSurface;
@@ -378,9 +379,17 @@ public:
     // Provides a hook for post-flush actions (e.g. PLS reset and Vulkan command buffer submits).
     virtual void finishOpList() {}
 
-    virtual GrFence SK_WARN_UNUSED_RESULT insertFence() const = 0;
-    virtual bool waitFence(GrFence, uint64_t timeout = 1000) const = 0;
+    virtual GrFence SK_WARN_UNUSED_RESULT insertFence() = 0;
+    virtual bool waitFence(GrFence, uint64_t timeout = 1000) = 0;
     virtual void deleteFence(GrFence) const = 0;
+
+    virtual sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() = 0;
+    virtual void insertSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
+    virtual void waitSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
+
+    // Ensures that all queued up driver-level commands have been sent to the GPU. For example, on
+    // OpenGL, this calls glFlush.
+    virtual void flush() = 0;
 
     ///////////////////////////////////////////////////////////////////////////
     // Debugging and Stats
@@ -473,19 +482,20 @@ public:
     // GrSamplerParams. This variation is called when the caller will create a new texture using the
     // texture provider from a non-texture src (cpu-backed image, ...).
     bool makeCopyForTextureParams(int width, int height, const GrSamplerParams&,
-                                 GrTextureProducer::CopyParams*) const;
+                                 GrTextureProducer::CopyParams*, SkScalar scaleAdjust[2]) const;
 
     // Like the above but this variation should be called when the caller is not creating the
     // original texture but rather was handed the original texture. It adds additional checks
     // relevant to original textures that were created external to Skia via
     // GrTextureProvider::wrap methods.
     bool makeCopyForTextureParams(GrTexture* texture, const GrSamplerParams& params,
-                                  GrTextureProducer::CopyParams* copyParams) const {
+                                  GrTextureProducer::CopyParams* copyParams,
+                                  SkScalar scaleAdjust[2]) const {
         if (this->makeCopyForTextureParams(texture->width(), texture->height(), params,
-                                           copyParams)) {
+                                           copyParams, scaleAdjust)) {
             return true;
         }
-        return this->onMakeCopyForTextureParams(texture, params, copyParams);
+        return this->onMakeCopyForTextureParams(texture, params, copyParams, scaleAdjust);
     }
 
     // This is only to be used in GL-specific tests.
@@ -549,7 +559,8 @@ private:
     virtual gr_instanced::InstancedRendering* onCreateInstancedRendering() = 0;
 
     virtual bool onMakeCopyForTextureParams(GrTexture* texture, const GrSamplerParams&,
-                                            GrTextureProducer::CopyParams*) const { return false; }
+                                            GrTextureProducer::CopyParams*,
+                                            SkScalar scaleAdjust[2]) const { return false; }
 
     virtual bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight,
                                      size_t rowBytes, GrPixelConfig readConfig, DrawPreference*,

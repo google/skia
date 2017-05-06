@@ -50,7 +50,6 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #if SK_SUPPORT_GPU
 
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
@@ -59,12 +58,10 @@ public:
     static sk_sp<GrFragmentProcessor> Make(const SkPMColor* colors);
 
     const char* name() const override { return "Overdraw"; }
-
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor&) const override;
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     OverdrawFragmentProcessor(const GrColor4f* colors);
 
@@ -105,7 +102,10 @@ sk_sp<GrFragmentProcessor> OverdrawFragmentProcessor::Make(const SkPMColor* colo
     return sk_sp<OverdrawFragmentProcessor>(new OverdrawFragmentProcessor(grColors));
 }
 
-OverdrawFragmentProcessor::OverdrawFragmentProcessor(const GrColor4f* colors) {
+// This could implement the constant input -> constant output optimization, but we don't really
+// care given how this is used.
+OverdrawFragmentProcessor::OverdrawFragmentProcessor(const GrColor4f* colors)
+        : INHERITED(kNone_OptimizationFlags) {
     this->initClassID<OverdrawFragmentProcessor>();
     memcpy(fColors, colors, SkOverdrawColorFilter::kNumColors * sizeof(GrColor4f));
 }
@@ -118,10 +118,6 @@ bool OverdrawFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) cons
     const OverdrawFragmentProcessor& that = other.cast<OverdrawFragmentProcessor>();
     return 0 == memcmp(fColors, that.fColors,
                        sizeof(GrColor4f) * SkOverdrawColorFilter::kNumColors);
-}
-
-void OverdrawFragmentProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->invalidateComponents(kRGBA_GrColorComponentFlags, GrInvariantOutput::kWill_ReadInput);
 }
 
 GLOverdrawFragmentProcessor::GLOverdrawFragmentProcessor(const GrColor4f* colors) {

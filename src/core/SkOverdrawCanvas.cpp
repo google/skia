@@ -8,6 +8,7 @@
 #include "SkColorFilter.h"
 #include "SkDrawable.h"
 #include "SkFindAndPlaceGlyph.h"
+#include "SkImagePriv.h"
 #include "SkLatticeIter.h"
 #include "SkOverdrawCanvas.h"
 #include "SkPatchUtils.h"

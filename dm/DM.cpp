@@ -16,6 +16,7 @@
 #include "SkColorSpace.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
+#include "SkCommonFlagsPathRenderer.h"
 #include "SkData.h"
 #include "SkFontMgr.h"
 #include "SkGraphics.h"
@@ -32,6 +33,7 @@
 #include "SkThreadUtils.h"
 #include "Test.h"
 #include "Timer.h"
+#include "ios_utils.h"
 #include "picture_utils.h"
 #include "sk_tool_utils.h"
 #include "SkScan.h"
@@ -75,6 +77,10 @@ DEFINE_int32(shards, 1, "We're splitting source data into this many shards.");
 DEFINE_int32(shard,  0, "Which shard do I run?");
 
 DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
+
+#if SK_SUPPORT_GPU
+DEFINE_pathrenderer_flag;
+#endif
 
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
@@ -837,19 +843,19 @@ static bool gpu_supported() {
 #endif
 }
 
-static Sink* create_sink(const SkCommandLineConfig* config) {
+static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLineConfig* config) {
 #if SK_SUPPORT_GPU
     if (gpu_supported()) {
         if (const SkCommandLineConfigGpu* gpuConfig = config->asConfigGpu()) {
             GrContextFactory::ContextType contextType = gpuConfig->getContextType();
-            GrContextFactory::ContextOptions contextOptions = gpuConfig->getContextOptions();
-            GrContextFactory testFactory;
-            if (!testFactory.get(contextType, contextOptions)) {
+            GrContextFactory::ContextOverrides contextOverrides = gpuConfig->getContextOverrides();
+            GrContextFactory testFactory(grCtxOptions);
+            if (!testFactory.get(contextType, contextOverrides)) {
                 info("WARNING: can not create GPU context for config '%s'. "
                      "GM tests will be skipped.\n", gpuConfig->getTag().c_str());
                 return nullptr;
             }
-            return new GPUSink(contextType, contextOptions, gpuConfig->getSamples(),
+            return new GPUSink(contextType, contextOverrides, gpuConfig->getSamples(),
                                gpuConfig->getUseDIText(), gpuConfig->getColorType(),
                                sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading);
         }
@@ -859,8 +865,8 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
 #define SINK(t, sink, ...) if (config->getBackend().equals(t)) { return new sink(__VA_ARGS__); }
 
     if (FLAGS_cpu) {
-        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
-        auto srgbLinearColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+        auto srgbColorSpace = SkColorSpace::MakeSRGB();
+        auto srgbLinearColorSpace = SkColorSpace::MakeSRGBLinear();
 
         SINK("565",  RasterSink, kRGB_565_SkColorType);
         SINK("8888", RasterSink, kN32_SkColorType);
@@ -884,6 +890,9 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
     VIA("lite",      ViaLite,              wrapped);
     VIA("pipe",      ViaPipe,              wrapped);
     VIA("twice",     ViaTwice,             wrapped);
+#ifdef TEST_VIA_SVG
+    VIA("svg",       ViaSVG,               wrapped);
+#endif
     VIA("serialize", ViaSerialization,     wrapped);
     VIA("pic",       ViaPicture,           wrapped);
     VIA("2ndpic",    ViaSecondPicture,     wrapped);
@@ -907,12 +916,12 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
     return nullptr;
 }
 
-static bool gather_sinks() {
+static bool gather_sinks(const GrContextOptions& grCtxOptions) {
     SkCommandLineConfigArray configs;
     ParseConfigs(FLAGS_config, &configs);
     for (int i = 0; i < configs.count(); i++) {
         const SkCommandLineConfig& config = *configs[i];
-        Sink* sink = create_sink(&config);
+        Sink* sink = create_sink(grCtxOptions, &config);
         if (sink == nullptr) {
             info("Skipping config %s: Don't understand '%s'.\n", config.getTag().c_str(),
                  config.getTag().c_str());
@@ -1229,7 +1238,7 @@ static void gather_tests() {
     }
 }
 
-static void run_test(skiatest::Test test) {
+static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) {
     struct : public skiatest::Reporter {
         void reportFailed(const skiatest::Failure& failure) override {
             fail(failure.toString());
@@ -1243,7 +1252,7 @@ static void run_test(skiatest::Test test) {
 
     if (!FLAGS_dryRun && !is_blacklisted("_", "tests", "_", test.name)) {
         start("unit", "test", "", test.name);
-        GrContextFactory factory;
+        GrContextFactory factory(grCtxOptions);
         test.proc(&reporter, &factory);
     }
     done("unit", "test", "", test.name);
@@ -1282,8 +1291,11 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle s
 
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
 
-int dm_main();
-int dm_main() {
+int main(int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
+#if defined(SK_BUILD_FOR_IOS)
+    cd_Documents();
+#endif
     setbuf(stdout, nullptr);
     setup_crash_handler();
 
@@ -1299,6 +1311,11 @@ int dm_main() {
         sk_mkdir(FLAGS_writePath[0]);
         gVLog = fopen(SkOSPath::Join(FLAGS_writePath[0], "verbose.log").c_str(), "w");
     }
+
+    GrContextOptions grCtxOptions;
+#if SK_SUPPORT_GPU
+    grCtxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+#endif
 
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
     SkAutoGraphics ag;
@@ -1318,7 +1335,7 @@ int dm_main() {
     if (!gather_srcs()) {
         return 1;
     }
-    if (!gather_sinks()) {
+    if (!gather_sinks(grCtxOptions)) {
         return 1;
     }
     gather_tests();
@@ -1349,12 +1366,12 @@ int dm_main() {
         }
     }
     for (auto test : gParallelTests) {
-        parallel.add([test] { run_test(test); });
+        parallel.add([test, grCtxOptions] { run_test(test, grCtxOptions); });
     }
 
     // With the parallel work running, run serial tasks and tests here on main thread.
     for (auto task : serial) { Task::Run(task); }
-    for (auto test : gSerialTests) { run_test(test); }
+    for (auto test : gSerialTests) { run_test(test, grCtxOptions); }
 
     // Wait for any remaining parallel work to complete (including any spun off of serial tasks).
     parallel.wait();
@@ -1382,6 +1399,7 @@ int dm_main() {
 #endif  // SK_PDF_IMAGE_STATS
 
     print_status();
+    SkGraphics::PurgeAllCaches();
     info("Finished!\n");
     return 0;
 }
@@ -1454,7 +1472,8 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
                 continue;
             }
         }
-        ContextInfo ctxInfo = factory->getContextInfo(contextType);
+        ContextInfo ctxInfo = factory->getContextInfo(contextType,
+                                                  GrContextFactory::ContextOverrides::kDisableNVPR);
         if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
             continue;
         }
@@ -1463,7 +1482,7 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
             (*test)(reporter, ctxInfo);
         }
         ctxInfo = factory->getContextInfo(contextType,
-                                          GrContextFactory::ContextOptions::kEnableNVPR);
+                                          GrContextFactory::ContextOverrides::kRequireNVPRSupport);
         if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
         }
@@ -1471,10 +1490,3 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
 #endif
 }
 } // namespace skiatest
-
-#if !defined(SK_BUILD_FOR_IOS)
-int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
-    return dm_main();
-}
-#endif

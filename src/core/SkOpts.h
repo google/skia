@@ -10,10 +10,8 @@
 
 #include "SkConvolver.h"
 #include "SkRasterPipeline.h"
-#include "SkTextureCompressor.h"
 #include "SkTypes.h"
 #include "SkXfermodePriv.h"
-#include <functional>
 
 struct ProcCoeff;
 
@@ -34,23 +32,9 @@ namespace SkOpts {
     typedef void (*Morph)(const SkPMColor*, SkPMColor*, int, int, int, int, int);
     extern Morph dilate_x, dilate_y, erode_x, erode_y;
 
-    typedef bool (*TextureCompressor)(uint8_t* dst, const uint8_t* src,
-                                      int width, int height, size_t rowBytes);
-    extern TextureCompressor (*texture_compressor)(SkColorType, SkTextureCompressor::Format);
-    extern bool (*fill_block_dimensions)(SkTextureCompressor::Format, int* x, int* y);
-
     extern void (*blit_mask_d32_a8)(SkPMColor*, size_t, const SkAlpha*, size_t, SkColor, int, int);
     extern void (*blit_row_color32)(SkPMColor*, const SkPMColor*, int, SkPMColor);
     extern void (*blit_row_s32a_opaque)(SkPMColor*, const SkPMColor*, int, U8CPU);
-
-    // This function is an optimized version of SkColorCubeFilter::filterSpan
-    extern void (*color_cube_filter_span)(const SkPMColor[],
-                                          int,
-                                          SkPMColor[],
-                                          const int * [2],
-                                          const SkScalar * [2],
-                                          int,
-                                          const SkColor*);
 
     // Swizzle input into some sort of 8888 pixel, {premul,unpremul} x {rgba,bgra}.
     typedef void (*Swizzle_8888)(uint32_t*, const void*, int);
@@ -75,9 +59,7 @@ namespace SkOpts {
         return hash_fn(data, bytes, seed);
     }
 
-    extern void (*run_pipeline)(size_t, size_t, size_t, const SkRasterPipeline::Stage*, int);
-    extern std::function<void(size_t, size_t, size_t)>
-    (*compile_pipeline)(const SkRasterPipeline::Stage*, int);
+    extern void (*run_pipeline)(size_t, size_t, const SkRasterPipeline::Stage*, int);
 
     extern void (*convolve_vertically)(const SkConvolutionFilter1D::ConvolutionFixed* filter_values,
                                        int filter_length, unsigned char* const* source_data_rows,

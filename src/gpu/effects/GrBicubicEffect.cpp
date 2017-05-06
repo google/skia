@@ -6,7 +6,8 @@
  */
 
 #include "GrBicubicEffect.h"
-#include "GrInvariantOutput.h"
+#include "GrProxyMove.h"
+#include "GrTextureProxy.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -132,21 +133,48 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                 const SkMatrix &matrix,
+                                 const SkMatrix& matrix,
                                  const SkShader::TileMode tileModes[2])
-  : INHERITED(texture, std::move(colorSpaceXform), matrix,
-              GrSamplerParams(tileModes, GrSamplerParams::kNone_FilterMode))
-  , fDomain(GrTextureDomain::IgnoredDomain()) {
+        : INHERITED(texture, std::move(colorSpaceXform), matrix,
+                    GrSamplerParams(tileModes, GrSamplerParams::kNone_FilterMode),
+                    ModulationFlags(texture->config()))
+        , fDomain(GrTextureDomain::IgnoredDomain()) {
     this->initClassID<GrBicubicEffect>();
 }
 
 GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                 const SkMatrix& matrix,
+                                 const SkRect& domain)
+        : INHERITED(texture, std::move(colorSpaceXform), matrix,
+                    GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode),
+                    ModulationFlags(texture->config()))
+        , fDomain(texture, domain, GrTextureDomain::kClamp_Mode) {
+    this->initClassID<GrBicubicEffect>();
+}
+
+GrBicubicEffect::GrBicubicEffect(GrContext* context, sk_sp<GrTextureProxy> proxy,
+                                 sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                 const SkMatrix &matrix,
+                                 const SkShader::TileMode tileModes[2])
+  : INHERITED{context,
+              ModulationFlags(proxy->config()),
+              GR_PROXY_MOVE(proxy),
+              std::move(colorSpaceXform),
+              matrix,
+              GrSamplerParams(tileModes, GrSamplerParams::kNone_FilterMode)}
+  , fDomain(GrTextureDomain::IgnoredDomain()) {
+    this->initClassID<GrBicubicEffect>();
+}
+
+GrBicubicEffect::GrBicubicEffect(GrContext* context, sk_sp<GrTextureProxy> proxy,
+                                 sk_sp<GrColorSpaceXform> colorSpaceXform,
                                  const SkMatrix &matrix,
                                  const SkRect& domain)
-  : INHERITED(texture, std::move(colorSpaceXform), matrix,
+  : INHERITED(context, ModulationFlags(proxy->config()), proxy,
+              std::move(colorSpaceXform), matrix,
               GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode))
-  , fDomain(texture, domain, GrTextureDomain::kClamp_Mode) {
+  , fDomain(proxy.get(), domain, GrTextureDomain::kClamp_Mode) {
     this->initClassID<GrBicubicEffect>();
 }
 
@@ -167,23 +195,19 @@ bool GrBicubicEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     return fDomain == s.fDomain;
 }
 
-void GrBicubicEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    // FIXME: Perhaps we can do better.
-    inout->mulByUnknownSingleComponent();
-}
-
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                          GrProcessorUnitTest::kAlphaTextureIdx;
-    auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
+                                        : GrProcessorUnitTest::kAlphaTextureIdx;
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(d->fRandom);
     static const SkShader::TileMode kClampClamp[] =
         { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
-    return GrBicubicEffect::Make(d->fTextures[texIdx], colorSpaceXform,
-                                 GrCoordTransform::MakeDivByTextureWHMatrix(d->fTextures[texIdx]),
-                                 kClampClamp);
+    return GrBicubicEffect::Make(d->context(), d->textureProxy(texIdx), std::move(colorSpaceXform),
+                                 SkMatrix::I(), kClampClamp);
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 

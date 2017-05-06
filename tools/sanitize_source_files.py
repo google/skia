@@ -11,7 +11,7 @@ import os
 import sys
 
 
-_FILE_EXTENSIONS_TO_SANITIZE = ['cpp', 'h', 'c', 'gyp', 'gypi']
+_FILE_EXTENSIONS_TO_SANITIZE = ['cpp', 'h', 'c']
 
 _SUBDIRS_TO_IGNORE = ['.git', '.svn', 'third_party']
 

@@ -132,9 +132,9 @@ private:
                         isHairline ? IsZeroArea::kYes : IsZeroArea::kNo);
     }
 
-    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fColor);
-        input->pipelineCoverageInput()->setKnownSingleComponent(this->coverage());
+    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
+        input->colorInput()->setToConstant(fColor);
+        input->coverageInput()->setToScalar(this->coverage());
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
@@ -298,7 +298,7 @@ private:
                     const SkPath& path,
                     SkScalar srcSpaceTol,
                     bool isIndexed) const {
-            SkScalar srcSpaceTolSqd = SkScalarMul(srcSpaceTol, srcSpaceTol);
+            SkScalar srcSpaceTolSqd = srcSpaceTol * srcSpaceTol;
 
             uint16_t indexOffsetU16 = (uint16_t)indexOffset;
             uint16_t vertexOffsetU16 = (uint16_t)vertexOffset;
@@ -607,7 +607,7 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 DRAW_OP_TEST_DEFINE(DefaultPathOp) {
     GrColor color = GrRandomColor(random);

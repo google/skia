@@ -13,6 +13,7 @@
 #include "SkImage_Base.h"
 #include "SkOverdrawCanvas.h"
 #include "SkPath.h"
+#include "SkRegion.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
@@ -415,20 +416,22 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCRBug263329_Gpu, reporter, ctxInfo) {
 DEF_TEST(SurfaceGetTexture, reporter) {
     auto surface(create_surface());
     sk_sp<SkImage> image(surface->makeImageSnapshot());
-    REPORTER_ASSERT(reporter, as_IB(image)->peekTexture() == nullptr);
+    REPORTER_ASSERT(reporter, !as_IB(image)->isTextureBacked());
     surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
-    REPORTER_ASSERT(reporter, as_IB(image)->peekTexture() == nullptr);
+    REPORTER_ASSERT(reporter, !as_IB(image)->isTextureBacked());
 }
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
         sk_sp<SkImage> image(surface->makeImageSnapshot());
-        GrTexture* texture = as_IB(image)->peekTexture();
-        REPORTER_ASSERT(reporter, texture);
-        REPORTER_ASSERT(reporter, 0 != texture->getTextureHandle());
+
+        REPORTER_ASSERT(reporter, as_IB(image)->isTextureBacked());
+        GrBackendObject textureHandle = image->getTextureHandle(false);
+        REPORTER_ASSERT(reporter, 0 != textureHandle);
         surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
-        REPORTER_ASSERT(reporter, as_IB(image)->peekTexture() == texture);
+        REPORTER_ASSERT(reporter, as_IB(image)->isTextureBacked());
+        REPORTER_ASSERT(reporter, textureHandle == image->getTextureHandle(false));
     }
 }
 #endif
@@ -441,8 +444,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
 
 static SkBudgeted is_budgeted(const sk_sp<SkSurface>& surf) {
     SkSurface_Gpu* gsurf = (SkSurface_Gpu*)surf.get();
-    return gsurf->getDevice()->accessRenderTargetContext()
-        ->accessRenderTarget()->resourcePriv().isBudgeted();
+
+    GrRenderTargetProxy* proxy = gsurf->getDevice()->accessRenderTargetContext()
+                                                                        ->asRenderTargetProxy();
+    return proxy->isBudgeted();
 }
 
 static SkBudgeted is_budgeted(SkImage* image) {
@@ -676,7 +681,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
         [] (SkSurface* s){
             sk_sp<SkImage> i(s->makeImageSnapshot());
             SkImage_Gpu* gpuImage = (SkImage_Gpu *) as_IB(i);
-            sk_sp<GrSurfaceProxy> proxy = gpuImage->refProxy();
+            sk_sp<GrTextureProxy> proxy = gpuImage->asTextureProxyRef();
             GrContext* context = gpuImage->context();
             return context->contextPriv().makeWrappedSurfaceContext(std::move(proxy),
                                                                     gpuImage->refColorSpace());
@@ -803,8 +808,8 @@ static void test_surface_creation_and_snapshot_with_color_space(
     bool f16Support,
     std::function<sk_sp<SkSurface>(const SkImageInfo&)> surfaceMaker) {
 
-    auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
-    auto adobeColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
+    auto srgbColorSpace = SkColorSpace::MakeSRGB();
+    auto adobeColorSpace = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
     const SkMatrix44* srgbMatrix = as_CSB(srgbColorSpace)->toXYZD50();
     SkASSERT(srgbMatrix);
     SkColorSpaceTransferFn oddGamma;
@@ -812,7 +817,7 @@ static void test_surface_creation_and_snapshot_with_color_space(
     oddGamma.fB = oddGamma.fC = oddGamma.fD = oddGamma.fE = oddGamma.fF = 0.0f;
     oddGamma.fG = 4.0f;
     auto oddColorSpace = SkColorSpace::MakeRGB(oddGamma, *srgbMatrix);
-    auto linearColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+    auto linearColorSpace = SkColorSpace::MakeSRGBLinear();
 
     const struct {
         SkColorType         fColorType;

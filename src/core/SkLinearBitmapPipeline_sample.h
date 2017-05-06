@@ -13,7 +13,7 @@
 #include "SkAutoMalloc.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
-#include "SkFixed.h"
+#include "SkFixed.h"  // for SkFixed1 only. Don't use SkFixed in this file.
 #include "SkHalf.h"
 #include "SkLinearBitmapPipeline_core.h"
 #include "SkNx.h"
@@ -388,15 +388,17 @@ private:
         SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = span;
         SkScalar x = X(start);
-        SkFixed fx = SkScalarToFixed(x);
+        // fx is a fixed 48.16 number.
+        int64_t fx = static_cast<int64_t>(x * SK_Fixed1);
         SkScalar dx = length / (count - 1);
-        SkFixed fdx = SkScalarToFixed(dx);
+        // fdx is a fixed 48.16 number.
+        int64_t fdx = static_cast<int64_t>(dx * SK_Fixed1);
 
         const void* row = fAccessor.row((int)std::floor(Y(start)));
         Next* next = fNext;
 
-        int ix = SkFixedFloorToInt(fx);
-        int prevIX = ix;
+        int64_t ix = fx >> 16;
+        int64_t prevIX = ix;
         Sk4f fpixel = fAccessor.getPixelFromRow(row, ix);
 
         // When dx is less than one, each pixel is used more than once. Using the fixed point fx
@@ -408,7 +410,7 @@ private:
                 prevIX = ix;
             }
             fx += fdx;
-            ix = SkFixedFloorToInt(fx);
+            ix = fx >> 16;
             return fpixel;
         };
 

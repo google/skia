@@ -37,6 +37,13 @@ protected:
 
         bool isZeroRamp() const { return fZeroRamp; }
 
+        bool contains(SkScalar p) const {
+            // True if p is in [p0,p1].  Note: this helper assumes a
+            // natural/increasing interval - so it's not usable in Sk4fLinearGradient.
+            SkASSERT(fP0 < fP1);
+            return p >= fP0 && p <= fP1;
+        }
+
         SkPM4f   fC0, fDc;
         SkScalar fP0, fP1;
         bool     fZeroRamp;

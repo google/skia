@@ -8,6 +8,7 @@
 #ifndef SKSL_INTLITERAL
 #define SKSL_INTLITERAL
 
+#include "SkSLContext.h"
 #include "SkSLExpression.h"
 
 namespace SkSL {

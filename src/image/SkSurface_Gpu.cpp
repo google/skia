@@ -90,7 +90,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
 
     GrContext* ctx = fDevice->context();
 
-    GrSurfaceProxy* srcProxy = rtc->asDeferredSurface();
+    GrSurfaceProxy* srcProxy = rtc->asSurfaceProxy();
     sk_sp<GrSurfaceContext> copyCtx;
     // If the original render target is a buffer originally created by the client, then we don't
     // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
@@ -110,7 +110,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
             return nullptr;
         }
 
-        srcProxy = copyCtx->asDeferredSurface();
+        srcProxy = copyCtx->asSurfaceProxy();
     }
 
     // TODO: add proxy-backed SkImage_Gpu
@@ -138,8 +138,11 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     // image because onCopyOnWrite is only called when there is a cached image.
     sk_sp<SkImage> image(this->refCachedImage(SkBudgeted::kNo));
     SkASSERT(image);
-    if (rt->asTexture() == as_IB(image)->peekTexture()) {
-        this->fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);
+    // MDB TODO: this is unfortunate. The snapping of an Image_Gpu from a surface currently
+    // funnels down to a GrTexture. Once Image_Gpus are proxy-backed we should be able to 
+    // compare proxy uniqueIDs.
+    if (rt->asTexture()->getTextureHandle() == image->getTextureHandle(false)) {
+        fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);
         SkTextureImageApplyBudgetedDecision(image.get());
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();

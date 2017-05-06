@@ -52,17 +52,11 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             // converting to ETC2 which is a superset of ETC1
             *format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
             return true;
-        case kLATC_GrPixelConfig:
-            // No current vulkan support for this config
-            return false;
-        case kR11_EAC_GrPixelConfig:
-            *format = VK_FORMAT_EAC_R11_UNORM_BLOCK;
-            return true;
-        case kASTC_12x12_GrPixelConfig:
-            *format = VK_FORMAT_ASTC_12x12_UNORM_BLOCK;
-            return true;
         case kRGBA_float_GrPixelConfig:
             *format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            return true;
+        case kRG_float_GrPixelConfig:
+            *format = VK_FORMAT_R32G32_SFLOAT;
             return true;
         case kRGBA_half_GrPixelConfig:
             *format = VK_FORMAT_R16G16B16A16_SFLOAT;
@@ -109,16 +103,13 @@ bool GrVkFormatToPixelConfig(VkFormat format, GrPixelConfig* config) {
             *config = kAlpha_8_GrPixelConfig;
             break;
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
-            *config = kETC1_GrPixelConfig;
-            break;
-        case VK_FORMAT_EAC_R11_UNORM_BLOCK:
-            *config = kR11_EAC_GrPixelConfig;
-            break;
-        case VK_FORMAT_ASTC_12x12_UNORM_BLOCK:
-            *config = kASTC_12x12_GrPixelConfig;
+            *config = kETC1_GrPixelConfig;      // this conversion seems a bit sketchy
             break;
         case VK_FORMAT_R32G32B32A32_SFLOAT:
             *config = kRGBA_float_GrPixelConfig;
+            break;
+        case VK_FORMAT_R32G32_SFLOAT:
+            *config = kRG_float_GrPixelConfig;
             break;
         case VK_FORMAT_R16G16B16A16_SFLOAT:
             *config = kRGBA_half_GrPixelConfig;

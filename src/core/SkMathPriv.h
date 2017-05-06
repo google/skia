@@ -132,6 +132,16 @@ static inline int SkNextPow2(int value) {
 }
 
 /**
+*  Returns the largest power-of-2 that is <= the specified value. If value
+*  is already a power of 2, then it is returned unchanged. It is undefined
+*  if value is <= 0.
+*/
+static inline int SkPrevPow2(int value) {
+    SkASSERT(value > 0);
+    return 1 << (32 - SkCLZ(value >> 1));
+}
+
+/**
  *  Returns the log2 of the specified value, were that value to be rounded up
  *  to the next power of 2. It is undefined to pass 0. Examples:
  *  SkNextLog2(1) -> 0
@@ -143,6 +153,20 @@ static inline int SkNextPow2(int value) {
 static inline int SkNextLog2(uint32_t value) {
     SkASSERT(value != 0);
     return 32 - SkCLZ(value - 1);
+}
+
+/**
+*  Returns the log2 of the specified value, were that value to be rounded down
+*  to the previous power of 2. It is undefined to pass 0. Examples:
+*  SkPrevLog2(1) -> 0
+*  SkPrevLog2(2) -> 1
+*  SkPrevLog2(3) -> 1
+*  SkPrevLog2(4) -> 2
+*  SkPrevLog2(5) -> 2
+*/
+static inline int SkPrevLog2(uint32_t value) {
+    SkASSERT(value != 0);
+    return 32 - SkCLZ(value >> 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

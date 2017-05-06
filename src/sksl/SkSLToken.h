@@ -82,6 +82,9 @@ struct Token {
         FOR,
         WHILE,
         DO,
+        SWITCH,
+        CASE,
+        DEFAULT,
         RETURN,
         BREAK,
         CONTINUE,
@@ -105,6 +108,26 @@ struct Token {
         LAYOUT,
         DIRECTIVE,
         PRECISION,
+        LOCATION,
+        OFFSET,
+        BINDING,
+        INDEX,
+        SET,
+        BUILTIN,
+        INPUT_ATTACHMENT_INDEX,
+        ORIGIN_UPPER_LEFT,
+        OVERRIDE_COVERAGE,
+        BLEND_SUPPORT_ALL_EQUATIONS,
+        PUSH_CONSTANT,
+        POINTS,
+        LINES,
+        LINE_STRIP,
+        LINES_ADJACENCY,
+        TRIANGLES,
+        TRIANGLE_STRIP,
+        TRIANGLES_ADJACENCY,
+        MAX_VERTICES,
+        INVOCATIONS,
         INVALID_TOKEN
     };
 
@@ -159,6 +182,28 @@ struct Token {
     : fPosition(position)
     , fKind(kind)
     , fText(std::move(text)) {}
+
+    static bool IsAssignment(Token::Kind op) {
+        switch (op) {
+            case Token::EQ:           // fall through
+            case Token::PLUSEQ:       // fall through
+            case Token::MINUSEQ:      // fall through
+            case Token::STAREQ:       // fall through
+            case Token::SLASHEQ:      // fall through
+            case Token::PERCENTEQ:    // fall through
+            case Token::SHLEQ:        // fall through
+            case Token::SHREQ:        // fall through
+            case Token::BITWISEOREQ:  // fall through
+            case Token::BITWISEXOREQ: // fall through
+            case Token::BITWISEANDEQ: // fall through
+            case Token::LOGICALOREQ:  // fall through
+            case Token::LOGICALXOREQ: // fall through
+            case Token::LOGICALANDEQ:
+                return true;
+            default:
+                return false;
+        }
+    }
 
     Position fPosition;
     Kind fKind;

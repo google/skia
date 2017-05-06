@@ -147,7 +147,21 @@ private:
     SpvId writeFloatConstructor(const Constructor& c, SkWStream& out);
 
     SpvId writeIntConstructor(const Constructor& c, SkWStream& out);
-    
+
+    /**
+     * Writes a matrix with the diagonal entries all equal to the provided expression, and all other
+     * entries equal to zero.
+     */
+    void writeUniformScaleMatrix(SpvId id, SpvId diagonal, const Type& type, SkWStream& out);
+
+    /**
+     * Writes a potentially-different-sized copy of a matrix. Entries which do not exist in the
+     * source matrix are filled with zero; entries which do not exist in the destination matrix are
+     * ignored.
+     */
+    void writeMatrixCopy(SpvId id, SpvId src, const Type& srcType, const Type& dstType,
+                         SkWStream& out);
+
     SpvId writeMatrixConstructor(const Constructor& c, SkWStream& out);
 
     SpvId writeVectorConstructor(const Constructor& c, SkWStream& out);
@@ -157,6 +171,14 @@ private:
     SpvId writeFieldAccess(const FieldAccess& f, SkWStream& out);
 
     SpvId writeSwizzle(const Swizzle& swizzle, SkWStream& out);
+
+    /**
+     * Folds the potentially-vector result of a logical operation down to a single bool. If
+     * operandType is a vector type, assumes that the intermediate result in id is a bvec of the
+     * same dimensions, and applys all() to it to fold it down to a single bool value. Otherwise,
+     * returns the original id value.
+     */
+    SpvId foldToBool(SpvId id, const Type& operandType, SkWStream& out);
 
     SpvId writeBinaryOperation(const Type& resultType, const Type& operandType, SpvId lhs,
                                SpvId rhs, SpvOp_ ifFloat, SpvOp_ ifInt, SpvOp_ ifUInt,

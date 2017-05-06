@@ -31,8 +31,8 @@ uint32_t SkColorShader::ColorShaderContext::getFlags() const {
     return fFlags;
 }
 
-SkShader::Context* SkColorShader::onCreateContext(const ContextRec& rec, void* storage) const {
-    return new (storage) ColorShaderContext(*this, rec);
+SkShader::Context* SkColorShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
+    return alloc->make<ColorShaderContext>(*this, rec);
 }
 
 SkColorShader::ColorShaderContext::ColorShaderContext(const SkColorShader& shader,
@@ -149,8 +149,8 @@ uint32_t SkColor4Shader::Color4Context::getFlags() const {
     return fFlags;
 }
 
-SkShader::Context* SkColor4Shader::onCreateContext(const ContextRec& rec, void* storage) const {
-    return new (storage) Color4Context(*this, rec);
+SkShader::Context* SkColor4Shader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
+    return alloc->make<Color4Context>(*this, rec);
 }
 
 SkColor4Shader::Color4Context::Color4Context(const SkColor4Shader& shader,
@@ -211,6 +211,7 @@ SkShader::GradientType SkColor4Shader::asAGradient(GradientInfo* info) const {
 
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
+#include "GrColorSpaceXform.h"
 sk_sp<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(const AsFPArgs& args) const {
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
                                                                        args.fDstColorSpace);
@@ -312,19 +313,21 @@ bool SkColor4Shader::Color4Context::onChooseBlitProcs(const SkImageInfo& info, B
 bool SkColorShader::onAppendStages(SkRasterPipeline* p,
                                    SkColorSpace* dst,
                                    SkArenaAlloc* scratch,
-                                   const SkMatrix& ctm,
-                                   const SkPaint&) const {
+                                   const SkMatrix&,
+                                   const SkPaint&,
+                                   const SkMatrix*) const {
     auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
     p->append(SkRasterPipeline::constant_color, color);
     return append_gamut_transform(p, scratch,
-                                  SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(), dst);
+                                  SkColorSpace::MakeSRGB().get(), dst);
 }
 
 bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
                                     SkColorSpace* dst,
                                     SkArenaAlloc* scratch,
-                                    const SkMatrix& ctm,
-                                    const SkPaint&) const {
+                                    const SkMatrix&,
+                                    const SkPaint&,
+                                    const SkMatrix*) const {
     auto color = scratch->make<SkPM4f>(fColor4.premul());
     p->append(SkRasterPipeline::constant_color, color);
     return append_gamut_transform(p, scratch, fColorSpace.get(), dst);

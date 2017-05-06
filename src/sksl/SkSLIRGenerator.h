@@ -29,6 +29,7 @@
 #include "ast/SkSLASTReturnStatement.h"
 #include "ast/SkSLASTStatement.h"
 #include "ast/SkSLASTSuffixExpression.h"
+#include "ast/SkSLASTSwitchStatement.h"
 #include "ast/SkSLASTTernaryExpression.h"
 #include "ast/SkSLASTVarDeclaration.h"
 #include "ast/SkSLASTVarDeclarationStatement.h"
@@ -88,7 +89,16 @@ public:
     std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(
                                                                   const ASTModifiersDeclaration& m);
 
+    /**
+     * If both operands are compile-time constants and can be folded, returns an expression
+     * representing the folded value. Otherwise, returns null. Note that unlike most other functions
+     * here, null does not represent a compilation error.
+     */
+    std::unique_ptr<Expression> constantFold(const Expression& left,
+                                             Token::Kind op,
+                                             const Expression& right) const;
     Program::Inputs fInputs;
+    const Context& fContext;
 
 private:
     /**
@@ -117,18 +127,22 @@ private:
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
     std::unique_ptr<Block> convertBlock(const ASTBlock& block);
     std::unique_ptr<Statement> convertBreak(const ASTBreakStatement& b);
+    std::unique_ptr<Expression> convertNumberConstructor(
+                                                   Position position,
+                                                   const Type& type,
+                                                   std::vector<std::unique_ptr<Expression>> params);
+    std::unique_ptr<Expression> convertCompoundConstructor(
+                                                   Position position,
+                                                   const Type& type,
+                                                   std::vector<std::unique_ptr<Expression>> params);
     std::unique_ptr<Expression> convertConstructor(Position position,
                                                    const Type& type,
                                                    std::vector<std::unique_ptr<Expression>> params);
     std::unique_ptr<Statement> convertContinue(const ASTContinueStatement& c);
     std::unique_ptr<Statement> convertDiscard(const ASTDiscardStatement& d);
     std::unique_ptr<Statement> convertDo(const ASTDoStatement& d);
+    std::unique_ptr<Statement> convertSwitch(const ASTSwitchStatement& s);
     std::unique_ptr<Expression> convertBinaryExpression(const ASTBinaryExpression& expression);
-    // Returns null if it cannot fold the expression. Note that unlike most other functions here, a
-    // null return does not represent a compilation error.
-    std::unique_ptr<Expression> constantFold(const Expression& left,
-                                             Token::Kind op,
-                                             const Expression& right);
     std::unique_ptr<Extension> convertExtension(const ASTExtension& e);
     std::unique_ptr<Statement> convertExpressionStatement(const ASTExpressionStatement& s);
     std::unique_ptr<Statement> convertFor(const ASTForStatement& f);
@@ -151,19 +165,19 @@ private:
     std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);
 
     void checkValid(const Expression& expr);
-    void markReadFrom(const Variable& var);
-    void markWrittenTo(const Expression& expr);
+    void markWrittenTo(const Expression& expr, bool readWrite);
 
-    const Context& fContext;
     const FunctionDeclaration* fCurrentFunction;
     const Program::Settings* fSettings;
     std::unordered_map<SkString, CapValue> fCapsMap;
     std::shared_ptr<SymbolTable> fSymbolTable;
     int fLoopLevel;
+    int fSwitchLevel;
     ErrorReporter& fErrors;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;
+    friend class AutoSwitchLevel;
     friend class Compiler;
 };
 
