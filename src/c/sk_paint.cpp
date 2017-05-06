@@ -285,22 +285,6 @@ void sk_paint_set_hinting(sk_paint_t* cpaint, sk_paint_hinting_t hintingLevel) {
     AsPaint(cpaint)->setHinting((SkPaint::Hinting)hintingLevel);
 }
 
-bool sk_paint_is_underline_text(const sk_paint_t* cpaint) {
-    return AsPaint(cpaint)->isUnderlineText();
-}
-
-void sk_paint_set_underline_text(sk_paint_t* cpaint, bool underlineText) {
-    AsPaint(cpaint)->setUnderlineText(underlineText);
-}
-
-bool sk_paint_is_strikethru_text(const sk_paint_t* cpaint) {
-    return AsPaint(cpaint)->isStrikeThruText();
-}
-
-void sk_paint_set_strikethru_text(sk_paint_t* cpaint, bool strikeThruText) {
-    AsPaint(cpaint)->setStrikeThruText(strikeThruText);
-}
-
 bool sk_paint_is_fake_bold_text(const sk_paint_t* cpaint) {
     return AsPaint(cpaint)->isFakeBoldText();
 }

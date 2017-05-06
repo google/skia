@@ -215,10 +215,6 @@ SK_C_API void sk_canvas_draw_points(sk_canvas_t*, sk_point_mode_t, size_t, const
 */
 SK_C_API void sk_canvas_draw_point(sk_canvas_t*, float, float, const sk_paint_t*);
 /**
-   Draws a single point with the specified paint
-*/
-SK_C_API void sk_canvas_draw_point_color(sk_canvas_t*, float, float, sk_color_t);
-/**
    Draws a line from x0,y0 to x1,y1
 */
 SK_C_API void sk_canvas_draw_line(sk_canvas_t* ccanvas, float x0, float y0, float x1, float y1, sk_paint_t* cpaint);
@@ -325,13 +321,13 @@ SK_C_API void sk_canvas_clip_path_with_operation(sk_canvas_t* t, const sk_path_t
     in a way similar to quickReject, in that it tells you that drawing
     outside of these bounds will be clipped out.
 */
-SK_C_API bool sk_canvas_get_clip_bounds(sk_canvas_t* t, sk_rect_t* cbounds);
+SK_C_API bool sk_canvas_get_local_clip_bounds(sk_canvas_t* t, sk_rect_t* cbounds);
 /**
     Return the bounds of the current clip, in device coordinates; returns
     true if non-empty. Maybe faster than getting the clip explicitly and
     then taking its bounds.
 */
-SK_C_API bool sk_canvas_get_clip_device_bounds(sk_canvas_t* t, sk_irect_t* cbounds);
+SK_C_API bool sk_canvas_get_device_clip_bounds(sk_canvas_t* t, sk_irect_t* cbounds);
 
 /**
     Trigger the immediate execution of all pending draw operations. For the GPU

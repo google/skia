@@ -5,11 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorCubeFilter.h"
 #include "SkColorMatrixFilter.h"
 #include "SkLumaColorFilter.h"
 #include "SkTableColorFilter.h"
-#include "SkGammaColorFilter.h"
 
 #include "sk_colorfilter.h"
 
@@ -41,14 +39,6 @@ sk_colorfilter_t* sk_colorfilter_new_compose(sk_colorfilter_t* outer, sk_colorfi
     return ToColorFilter(filter.release());
 }
 
-sk_colorfilter_t* sk_colorfilter_new_color_cube(sk_data_t* cubeData, int cubeDimension) {
-
-    sk_sp<SkColorFilter> filter = SkColorCubeFilter::Make(
-        sk_ref_sp(AsData(cubeData)),
-        cubeDimension);
-    return ToColorFilter(filter.release());
-}
-
 sk_colorfilter_t* sk_colorfilter_new_color_matrix(const float array[20]) {
 
     sk_sp<SkColorFilter> filter = SkColorFilter::MakeMatrixFilterRowMajor255(
@@ -59,12 +49,6 @@ sk_colorfilter_t* sk_colorfilter_new_color_matrix(const float array[20]) {
 sk_colorfilter_t* sk_colorfilter_new_luma_color() {
 
     sk_sp<SkColorFilter> filter = SkLumaColorFilter::Make();
-    return ToColorFilter(filter.release());
-}
-
-sk_colorfilter_t* sk_colorfilter_new_gamma(float gamma) {
-
-    sk_sp<SkColorFilter> filter = SkGammaColorFilter::Make(gamma);
     return ToColorFilter(filter.release());
 }
 

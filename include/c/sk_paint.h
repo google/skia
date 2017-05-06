@@ -266,12 +266,6 @@ SK_C_API void sk_paint_set_hinting(sk_paint_t*, sk_paint_hinting_t);
 SK_C_API bool sk_paint_is_autohinted(const sk_paint_t*);
 SK_C_API void sk_paint_set_autohinted(sk_paint_t*, bool);
 
-SK_C_API bool sk_paint_is_underline_text(const sk_paint_t*);
-SK_C_API void sk_paint_set_underline_text(sk_paint_t*, bool);
-
-SK_C_API bool sk_paint_is_strikethru_text(const sk_paint_t*);
-SK_C_API void sk_paint_set_strikethru_text(sk_paint_t*, bool);
-
 SK_C_API bool sk_paint_is_fake_bold_text(const sk_paint_t*);
 SK_C_API void sk_paint_set_fake_bold_text(sk_paint_t*, bool);
 

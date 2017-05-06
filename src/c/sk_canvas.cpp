@@ -46,11 +46,6 @@ void sk_canvas_draw_point(sk_canvas_t* ccanvas, float x, float y, const sk_paint
     AsCanvas(ccanvas)->drawPoint (x, y, *AsPaint(cpaint));
 }
 
-void sk_canvas_draw_point_color(sk_canvas_t* ccanvas, float x, float y, sk_color_t color)
-{
-    AsCanvas(ccanvas)->drawPoint (x, y, color);
-}
-
 void sk_canvas_draw_line(sk_canvas_t* ccanvas, float x0, float y0, float x1, float y1, sk_paint_t* cpaint)
 {
     AsCanvas(ccanvas)->drawLine(x0, y0, x1, y1, *AsPaint(cpaint));
@@ -124,12 +119,12 @@ void sk_canvas_clip_path_with_operation(sk_canvas_t* ccanvas, const sk_path_t* c
     AsCanvas(ccanvas)->clipPath(AsPath(*cpath), (SkClipOp)op, doAA);
 }
 
-bool sk_canvas_get_clip_bounds(sk_canvas_t* ccanvas, sk_rect_t* cbounds) {
-    return AsCanvas(ccanvas)->getClipBounds(AsRect(cbounds));
+bool sk_canvas_get_local_clip_bounds(sk_canvas_t* ccanvas, sk_rect_t* cbounds) {
+    return AsCanvas(ccanvas)->getLocalClipBounds(AsRect(cbounds));
 }
 
-bool sk_canvas_get_clip_device_bounds(sk_canvas_t* ccanvas, sk_irect_t* cbounds) {
-    return AsCanvas(ccanvas)->getClipDeviceBounds(AsIRect(cbounds));
+bool sk_canvas_get_device_clip_bounds(sk_canvas_t* ccanvas, sk_irect_t* cbounds) {
+    return AsCanvas(ccanvas)->getDeviceClipBounds(AsIRect(cbounds));
 }
 
 int sk_canvas_save(sk_canvas_t* ccanvas) {

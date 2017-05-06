@@ -67,7 +67,7 @@ sk_image_t* sk_image_new_from_picture(sk_picture_t* picture, const sk_isize_t* d
     if (cmatrix) {
         from_c(cmatrix, &matrix);
     }
-    return ToImage(SkImage::MakeFromPicture(sk_ref_sp(AsPicture(picture)), AsISize(*dimensions), &matrix, AsPaint(paint)).release());
+    return ToImage(SkImage::MakeFromPicture(sk_ref_sp(AsPicture(picture)), AsISize(*dimensions), &matrix, AsPaint(paint), SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB()).release());
 }
 
 int sk_image_get_width(const sk_image_t* cimage) {

@@ -24,12 +24,12 @@ void sk_path_effect_unref(sk_path_effect_t* effect)
 
 sk_path_effect_t* sk_path_effect_create_compose(sk_path_effect_t* outer, sk_path_effect_t* inner)
 {
-    return ToPathEffect(SkComposePathEffect::Make(sk_ref_sp(AsPathEffect(outer)), sk_ref_sp(AsPathEffect(inner))).release());
+    return ToPathEffect(SkPathEffect::MakeCompose(sk_ref_sp(AsPathEffect(outer)), sk_ref_sp(AsPathEffect(inner))).release());
 }
 
 sk_path_effect_t* sk_path_effect_create_sum(sk_path_effect_t* first, sk_path_effect_t* second)
 {
-    return ToPathEffect(SkSumPathEffect::Make(sk_ref_sp(AsPathEffect(first)), sk_ref_sp(AsPathEffect(second))).release());
+    return ToPathEffect(SkPathEffect::MakeSum(sk_ref_sp(AsPathEffect(first)), sk_ref_sp(AsPathEffect(second))).release());
 }
 
 sk_path_effect_t* sk_path_effect_create_discrete(float segLength, float deviation, uint32_t seedAssist /*0*/)
