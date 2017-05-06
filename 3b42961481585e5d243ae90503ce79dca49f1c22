@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "2b062e56_b4748631",
+        "filename": "src/images/SkPngEncoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-06T14:14:28Z",
+      "side": 1,
+      "message": "This might be a little more idiomatic as an enum, maybe even a full-blown C++ enum class:\n\nenum class FilterFlag : int {\n  Zero  \u003d 0x00,\n  None  \u003d 0x08,\n  Sub   \u003d 0x10,\n  Up    \u003d 0x20,\n  Avg   \u003d 0x40,\n  Paeth \u003d 0x80,\n  All   \u003d None | Sub | Up | Avg | Paeth,\n};\n...\nstatic inline SkPngEncoder::FilterFlag operator|(SkPngEncoder::FilterFlag x, \n                                                 SkPngEncoder::FilterFlag y) {\n    return (SkPngEncoder::FilterFlag)((int)x | (int)y);\n}\n\nI will admit having to define operator| manually and at a global scope is a bit of a bummer.",
+      "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ea338749_22a4db71",
         "filename": "src/images/SkPngEncoder.h",
         "patchSetId": 3
@@ -18,6 +35,53 @@
         "startChar": 4,
         "endLine": 27,
         "endChar": 20
+      },
+      "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33433a0e_a0e8269f",
+        "filename": "src/images/SkPngEncoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-06T14:14:28Z",
+      "side": 1,
+      "message": "Does it make sense for us to internally set Z_FILTERED if we\u0027re using filters and Z_DEFAULT_STRATEGY if not?",
+      "parentUuid": "ea338749_22a4db71",
+      "range": {
+        "startLine": 27,
+        "startChar": 4,
+        "endLine": 27,
+        "endChar": 20
+      },
+      "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46609cd1_e57537a5",
+        "filename": "src/images/SkPngEncoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-06T14:14:28Z",
+      "side": 1,
+      "message": "Might want to mention 0 too?\n\n   ... and 0 is a special case to skip zlib entirely, creating dramatically larger PNGs.\n\nSomething like that?",
+      "range": {
+        "startLine": 43,
+        "startChar": 36,
+        "endLine": 43,
+        "endChar": 72
       },
       "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
