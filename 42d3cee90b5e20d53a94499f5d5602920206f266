@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7802067d_b11520c2",
+        "filename": "src/effects/gradients/SkRadialGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-06T14:31:51Z",
+      "side": 1,
+      "message": "The stage you\u0027ve named xy_to_radial_unit does not produce unit output.  Only this combination of scaling by 1/radius and the stage produces unit output...\n\nlet\u0027s call it xy_to_radius?",
+      "range": {
+        "startLine": 383,
+        "startChar": 4,
+        "endLine": 385,
+        "endChar": 51
+      },
+      "revId": "42d3cee90b5e20d53a94499f5d5602920206f266",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
