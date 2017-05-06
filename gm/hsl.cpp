@@ -72,7 +72,7 @@ static void clip_color_web(float* r, float* g, float* b) {
               mx = max(*r,*g,*b);
         if (mn < 0) { c = l + (c - l) * (    l) / (l - mn); }
         if (mx > 1) { c = l + (c - l) * (1 - l) / (mx - l); }  // <--- notice "1-l"
-        SkASSERT(0 <= c);
+      //SkASSERT(0 <= c);   // This may end up very slightly negative...
         SkASSERT(c <= 1);
         return c;
     };
@@ -87,8 +87,8 @@ static void clip_color_KHR(float* r, float* g, float* b) {
               mx = max(*r,*g,*b);
         if (mn < 0) { c = l + (c - l) * l / (l - mn); }
         if (mx > 1) { c = l + (c - l) * l / (mx - l); }  // <--- notice "l"
-        SkASSERT(0 <= c);
-      //SkASSERT(c <= 1);
+      //SkASSERT(0 <= c);   // This may end up very slightly negative...
+      //SkASSERT(c <= 1);   // I think the mx > 1 logic is incorrect...
         return c;
     };
     *r = clip(*r);
@@ -149,26 +149,39 @@ static void luminosity(float  dr, float  dg, float  db,
 
 static SkColor blend(SkColor dst, SkColor src,
                      void (*mode)(float,float,float, float*,float*,float*),
-                     void (*clip_color)(float*,float*,float*)) {
+                     void (*clip_color)(float*,float*,float*),
+                     bool legacy) {
 
     SkASSERT(SkColorGetA(dst) == 0xff
           && SkColorGetA(src) == 0xff);   // Not fundamental, just simplifying for this GM.
 
-    float dr = SkColorGetR(dst) * (1/255.0f),
-          dg = SkColorGetG(dst) * (1/255.0f),
-          db = SkColorGetB(dst) * (1/255.0f);
-    float sr = SkColorGetR(src) * (1/255.0f),
-          sg = SkColorGetG(src) * (1/255.0f),
-          sb = SkColorGetB(src) * (1/255.0f);
+    auto to_float = [&](SkColor c) {
+        if (legacy) {
+            return SkColor4f{
+                SkColorGetR(c) * (1/255.0f),
+                SkColorGetG(c) * (1/255.0f),
+                SkColorGetB(c) * (1/255.0f),
+                1.0f,
+            };
+        }
+        return SkColor4f::FromColor(c);
+    };
 
-    mode(dr,dg,db, &sr,&sg,&sb);
-    clip_color(&sr,&sg,&sb);
+    SkColor4f d = to_float(dst),
+              s = to_float(src);
 
-    // We need to be a little careful here to show off clip_color_KHR()'s overflow
-    // while avoiding SkASSERTs inside SkColorSetRGB().
-    return SkColorSetRGB((int)(sr * 255.0f + 0.5f) & 0xff,
-                         (int)(sg * 255.0f + 0.5f) & 0xff,
-                         (int)(sb * 255.0f + 0.5f) & 0xff);
+    mode( d.fR,  d.fG,  d.fB,
+         &s.fR, &s.fG, &s.fB);
+    clip_color(&s.fR, &s.fG, &s.fB);
+
+    if (legacy) {
+        // We need to be a little careful here to show off clip_color_KHR()'s overflow
+        // while avoiding SkASSERTs inside SkColorSetRGB().
+        return SkColorSetRGB((int)(s.fR * 255.0f + 0.5f) & 0xff,
+                             (int)(s.fG * 255.0f + 0.5f) & 0xff,
+                             (int)(s.fB * 255.0f + 0.5f) & 0xff);
+    }
+    return s.toSkColor();
 }
 
 DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
@@ -196,6 +209,7 @@ DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
         { SkBlendMode::kColor,      color      },
         { SkBlendMode::kLuminosity, luminosity },
     };
+    bool legacy = !canvas->imageInfo().colorSpace();
     for (auto test : tests) {
         canvas->drawRect({20,20,80,80}, bg);
 
@@ -204,8 +218,10 @@ DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
 
         if (test.reference) {
             SkPaint web,KHR;
-            web.setColor(blend(bg.getColor(), fg.getColor(), test.reference, clip_color_web));
-            KHR.setColor(blend(bg.getColor(), fg.getColor(), test.reference, clip_color_KHR));
+            auto dst = bg.getColor(),
+                 src = fg.getColor();
+            web.setColor(blend(dst, src, test.reference, clip_color_web, legacy));
+            KHR.setColor(blend(dst, src, test.reference, clip_color_KHR, legacy));
             canvas->drawCircle(50,50, 20, web);
             canvas->drawCircle(50,50, 10, KHR);  // This circle may be very wrong.
         }
