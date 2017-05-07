@@ -8,6 +8,7 @@
 #include "SkImage.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
+#include "SkPngEncoder.h"
 #include "ok.h"
 #include <regex>
 
@@ -75,13 +76,23 @@ struct Png : Dst {
             return status;
         }
 
-        auto image = target->image();
-        sk_sp<SkData> png{image->encode()};
+        SkBitmap bm;
+        SkPixmap pm;
+        if (!target->image()->asLegacyBitmap(&bm, SkImage::kRO_LegacyBitmapMode) ||
+            !bm.peekPixels(&pm)) {
+            return Status::Failed;
+        }
 
         sk_mkdir(dir.c_str());
-        SkFILEWStream{(dir + "/" + src->name() + ".png").c_str()}
-            .write(png->data(), png->size());
-        return Status::OK;
+        SkFILEWStream dst{(dir + "/" + src->name() + ".png").c_str()};
+
+        SkPngEncoder::Options options;
+    #if 0
+        options.fFilterFlags = 0;
+        options.fZLibLevel   = 1;
+    #endif
+        return SkPngEncoder::Encode(&dst, pm, options) ? Status::OK
+                                                       : Status::Failed;
     }
 
     sk_sp<SkImage> image() override {
