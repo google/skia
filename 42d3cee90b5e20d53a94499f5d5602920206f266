@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "33e351e3_a41d4e12",
+        "filename": "gm/gradients.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-07T22:24:38Z",
+      "side": 1,
+      "message": "why change the gm?",
+      "range": {
+        "startLine": 812,
+        "startChar": 13,
+        "endLine": 812,
+        "endChar": 16
+      },
+      "revId": "42d3cee90b5e20d53a94499f5d5602920206f266",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7802067d_b11520c2",
         "filename": "src/effects/gradients/SkRadialGradient.cpp",
         "patchSetId": 2
@@ -19,6 +42,23 @@
         "endLine": 385,
         "endChar": 51
       },
+      "revId": "42d3cee90b5e20d53a94499f5d5602920206f266",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb262075_18988ca9",
+        "filename": "src/effects/gradients/SkRadialGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-07T22:24:38Z",
+      "side": 1,
+      "message": "instead of duplicating the switch block, can we move the conditional to the kClamp case instead?",
       "revId": "42d3cee90b5e20d53a94499f5d5602920206f266",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
