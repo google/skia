@@ -62,7 +62,7 @@ void SkXPSDocument::onAbort() {}
 
 sk_sp<SkDocument> SkDocument::MakeXPS(SkWStream* stream,
                                       SkScalar dpi) {
-    SkTScopedComPtr<IXpsOMObjectFactory> factory;
+    IXpsOMObjectFactory* factory = nullptr;
     auto hr = CoCreateInstance(
         CLSID_XpsOMObjectFactory,
         nullptr,
