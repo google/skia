@@ -32,9 +32,8 @@
 //   web: https://www.w3.org/TR/compositing-1/#blendingnonseparable
 //   KHR: https://www.khronos.org/registry/OpenGL/extensions/KHR/KHR_blend_equation_advanced.txt
 // It looks like these are meant to be identical, but they disagree on at least ClipColor().
-// I think the KHR version is just wrong... it produces values >1.
 //
-// We'll draw reference colors according to both specs, testing colors where they differ.
+// I think the KHR version is just wrong... it produces values >1.  So we use the web version.
 
 static float min(float r, float g, float b) { return SkTMin(r, SkTMin(g, b)); }
 static float max(float r, float g, float b) { return SkTMax(r, SkTMax(g, b)); }
@@ -56,44 +55,27 @@ static void set_sat(float* r, float* g, float* b, float s) {
     *g = channel(*g);
     *b = channel(*b);
 }
-
-static void set_lum(float* r, float* g, float* b, float l) {
-    float diff = l - lum(*r,*g,*b);
-    *r += diff;
-    *g += diff;
-    *b += diff;
-    // We do clip_color() here as specified, just moved from set_lum() to blend().
-}
-
-static void clip_color_web(float* r, float* g, float* b) {
+static void clip_color(float* r, float* g, float* b) {
     float l  = lum(*r,*g,*b),
           mn = min(*r,*g,*b),
           mx = max(*r,*g,*b);
     auto clip = [=](float c) {
         if (mn < 0) { c = l + (c - l) * (    l) / (l - mn); }
-        if (mx > 1) { c = l + (c - l) * (1 - l) / (mx - l); }  // <--- notice "1-l"
-      //SkASSERT(0 <= c);   // This may end up very slightly negative...
-        SkASSERT(c <= 1);
+        if (mx > 1) { c = l + (c - l) * (1 - l) / (mx - l); }
+        SkASSERT(-0.0001f <  c);   // This may end up very slightly negative...
+        SkASSERT(       c <= 1);
         return c;
     };
     *r = clip(*r);
     *g = clip(*g);
     *b = clip(*b);
 }
-static void clip_color_KHR(float* r, float* g, float* b) {
-    float l  = lum(*r,*g,*b),
-          mn = min(*r,*g,*b),
-          mx = max(*r,*g,*b);
-    auto clip = [=](float c) {
-        if (mn < 0) { c = l + (c - l) * l / (l - mn); }
-        if (mx > 1) { c = l + (c - l) * l / (mx - l); }  // <--- notice "l"
-      //SkASSERT(0 <= c);   // This may end up very slightly negative...
-      //SkASSERT(c <= 1);   // I think the mx > 1 logic is incorrect...
-        return c;
-    };
-    *r = clip(*r);
-    *g = clip(*g);
-    *b = clip(*b);
+static void set_lum(float* r, float* g, float* b, float l) {
+    float diff = l - lum(*r,*g,*b);
+    *r += diff;
+    *g += diff;
+    *b += diff;
+    clip_color(r,g,b);
 }
 
 
@@ -117,7 +99,7 @@ static void saturation(float  dr, float  dg, float  db,
           G = dg,
           B = db;
     set_sat(&R,&G,&B, sat(*sr,*sg,*sb));
-    set_lum(&R,&G,&B, lum( dr, dg, db));  // This may seem redundant.  TODO: is it?
+    set_lum(&R,&G,&B, lum( dr, dg, db));  // This may seem redundant, but it is not.
     *sr = R;
     *sg = G;
     *sb = B;
@@ -149,7 +131,6 @@ static void luminosity(float  dr, float  dg, float  db,
 
 static SkColor blend(SkColor dst, SkColor src,
                      void (*mode)(float,float,float, float*,float*,float*),
-                     void (*clip_color)(float*,float*,float*),
                      bool legacy) {
 
     SkASSERT(SkColorGetA(dst) == 0xff
@@ -172,14 +153,11 @@ static SkColor blend(SkColor dst, SkColor src,
 
     mode( d.fR,  d.fG,  d.fB,
          &s.fR, &s.fG, &s.fB);
-    clip_color(&s.fR, &s.fG, &s.fB);
 
     if (legacy) {
-        // We need to be a little careful here to show off clip_color_KHR()'s overflow
-        // while avoiding SkASSERTs inside SkColorSetRGB().
-        return SkColorSetRGB((int)(s.fR * 255.0f + 0.5f) & 0xff,
-                             (int)(s.fG * 255.0f + 0.5f) & 0xff,
-                             (int)(s.fB * 255.0f + 0.5f) & 0xff);
+        return SkColorSetRGB(s.fR * 255.0f + 0.5f,
+                             s.fG * 255.0f + 0.5f,
+                             s.fB * 255.0f + 0.5f);
     }
     return s.toSkColor();
 }
@@ -189,8 +167,7 @@ DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
     sk_tool_utils::set_portable_typeface(&label);
     label.setAntiAlias(true);
 
-    const char* comment = "HSL blend modes are correct when you see no circles in the squares. "
-                          "2 circles means the standards disagree.";
+    const char* comment = "HSL blend modes are correct when you see no circles in the squares.";
     canvas->drawText(comment, strlen(comment), 10,10, label);
 
     // Just to keep things reaaaal simple, we'll only use opaque colors.
@@ -217,13 +194,9 @@ DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
         canvas->drawRect({20,20,80,80}, fg);
 
         if (test.reference) {
-            SkPaint web,KHR;
-            auto dst = bg.getColor(),
-                 src = fg.getColor();
-            web.setColor(blend(dst, src, test.reference, clip_color_web, legacy));
-            KHR.setColor(blend(dst, src, test.reference, clip_color_KHR, legacy));
-            canvas->drawCircle(50,50, 20, web);
-            canvas->drawCircle(50,50, 10, KHR);  // This circle may be very wrong.
+            SkPaint ref;
+            ref.setColor(blend(bg.getColor(), fg.getColor(), test.reference, legacy));
+            canvas->drawCircle(50,50, 20, ref);
         }
 
         const char* name = SkBlendMode_Name(test.mode);
