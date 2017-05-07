@@ -1171,7 +1171,11 @@ namespace {
     }
 
     static void run_program(void** program, size_t x, size_t n) {
+#if SK_BUILD_FOR_WINRT
+        SkNf u = SkNf();
+#else
         SkNf u;  // fastest to start uninitialized.
+#endif
 
         auto start = (Fn)load_and_increment(&program);
         while (n >= N) {
