@@ -46,9 +46,9 @@ static float lum(float r, float g, float b) { return r*0.30f + g*0.59f + b*0.11f
 // Both map the minimum channel to 0, maximum to s, and scale the middle proportionately.
 // The KHR version has done a better job at simplifying its math, so we use it here.
 static void set_sat(float* r, float* g, float* b, float s) {
-    auto channel = [&](float c) {
-        float mn = min(*r,*g,*b),
-              mx = max(*r,*g,*b);
+    float mn = min(*r,*g,*b),
+          mx = max(*r,*g,*b);
+    auto channel = [=](float c) {
         return mx == mn ? 0
                         : (c - mn) * s / (mx - mn);
     };
@@ -66,10 +66,10 @@ static void set_lum(float* r, float* g, float* b, float l) {
 }
 
 static void clip_color_web(float* r, float* g, float* b) {
-    auto clip = [&](float c) {
-        float l  = lum(*r,*g,*b),
-              mn = min(*r,*g,*b),
-              mx = max(*r,*g,*b);
+    float l  = lum(*r,*g,*b),
+          mn = min(*r,*g,*b),
+          mx = max(*r,*g,*b);
+    auto clip = [=](float c) {
         if (mn < 0) { c = l + (c - l) * (    l) / (l - mn); }
         if (mx > 1) { c = l + (c - l) * (1 - l) / (mx - l); }  // <--- notice "1-l"
       //SkASSERT(0 <= c);   // This may end up very slightly negative...
@@ -81,10 +81,10 @@ static void clip_color_web(float* r, float* g, float* b) {
     *b = clip(*b);
 }
 static void clip_color_KHR(float* r, float* g, float* b) {
-    auto clip = [&](float c) {
-        float l  = lum(*r,*g,*b),
-              mn = min(*r,*g,*b),
-              mx = max(*r,*g,*b);
+    float l  = lum(*r,*g,*b),
+          mn = min(*r,*g,*b),
+          mx = max(*r,*g,*b);
+    auto clip = [=](float c) {
         if (mn < 0) { c = l + (c - l) * l / (l - mn); }
         if (mx > 1) { c = l + (c - l) * l / (mx - l); }  // <--- notice "l"
       //SkASSERT(0 <= c);   // This may end up very slightly negative...
