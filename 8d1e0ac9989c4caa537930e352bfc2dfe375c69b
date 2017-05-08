@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13549a06_9da7f38c",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-08T11:56:41Z",
+      "side": 1,
+      "message": "did you intend to change this to \u0027blurWidth\u0027 too?",
+      "revId": "8d1e0ac9989c4caa537930e352bfc2dfe375c69b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9c78b47_d7a39e8c",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-08T11:56:41Z",
+      "side": 1,
+      "message": "This isn\u0027t over-specified now ?",
+      "revId": "8d1e0ac9989c4caa537930e352bfc2dfe375c69b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
