@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19bff498_387c91e1",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-08T20:18:12Z",
+      "side": 1,
+      "message": "#ifdef SK_ENABLE_VK_LAYERS",
+      "range": {
+        "startLine": 235,
+        "startChar": 1,
+        "endLine": 235,
+        "endChar": 8
+      },
+      "revId": "8a882e3d35ff08ae8f3af90500bfcfa5915b08ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
