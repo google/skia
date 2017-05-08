@@ -261,6 +261,30 @@
       "revId": "91e3266e614fb4a8f3a11d27a785b7b87b42d64a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68773e3b_3b3bcfa2",
+        "filename": "tools/ok_vias.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T15:43:57Z",
+      "side": 1,
+      "message": "I want to use that enum and I don\u0027t want to add a third value to that enum.",
+      "parentUuid": "40b0c914_f92fd8a3",
+      "range": {
+        "startLine": 89,
+        "startChar": 30,
+        "endLine": 89,
+        "endChar": 37
+      },
+      "revId": "91e3266e614fb4a8f3a11d27a785b7b87b42d64a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
