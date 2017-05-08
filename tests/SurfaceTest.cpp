@@ -781,6 +781,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
     if (!gpu) {
         return;
     }
+    if (gpu->caps()->avoidStencilBuffers()) {
+        return;
+    }
     static const uint32_t kOrigColor = 0xFFAABBCC;
 
     for (auto& surfaceFunc : {&create_gpu_surface_backend_texture,
