@@ -245,8 +245,8 @@ void GrResourceIOProcessor::TextureSampler::reset(GrResourceProvider* resourcePr
     GrTexture* texture = proxy->instantiate(resourceProvider);
     if (texture) {
         fTexture.set(SkRef(texture), kRead_GrIOType);
-        fParams.setFilterMode(SkTMin(params.filterMode(),
-                                     texture->texturePriv().highestFilterMode()));
+        SkASSERT(texture->texturePriv().highestFilterMode() == proxy->highestFilterMode());
+        fParams.setFilterMode(SkTMin(params.filterMode(), proxy->highestFilterMode()));
     }
 
     fVisibility = visibility;
@@ -262,7 +262,8 @@ void GrResourceIOProcessor::TextureSampler::reset(GrResourceProvider* resourcePr
     GrTexture* texture = proxy->instantiate(resourceProvider);
     if (texture) {
         fTexture.set(SkRef(texture), kRead_GrIOType);
-        filterMode = SkTMin(filterMode, texture->texturePriv().highestFilterMode());
+        SkASSERT(texture->texturePriv().highestFilterMode() == proxy->highestFilterMode());
+        filterMode = SkTMin(filterMode, proxy->highestFilterMode());
     }
 
     fParams.reset(tileXAndY, filterMode);
