@@ -82,6 +82,7 @@ public:
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
     bool onIsLazyGenerated() const override { return true; }
+    bool onCanLazyGenerateOnGPU() const override;
     sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
                                     SkTransferFunctionBehavior) const override;
 
@@ -554,6 +555,15 @@ bool SkImage_Lazy::getROPixels(SkBitmap* bitmap, SkColorSpace* dstColorSpace,
 bool SkImage_Lazy::onIsValid(GrContext* context) const {
     ScopedGenerator generator(fSharedGenerator);
     return generator->isValid(context);
+}
+
+bool SkImage_Lazy::onCanLazyGenerateOnGPU() const {
+#if SK_SUPPORT_GPU
+    ScopedGenerator generator(fSharedGenerator);
+    return generator->onCanGenerateTexture();
+#else
+    return false;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
