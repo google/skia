@@ -4476,3 +4476,11 @@ void GrGLGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
 void GrGLGpu::deleteSync(GrGLsync sync) const {
     GL_CALL(DeleteSync(sync));
 }
+
+sk_sp<GrSemaphore> GrGLGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
+    // Set up a semaphore to be signaled once the data is ready, and flush GL
+    sk_sp<GrSemaphore> semaphore = this->makeSemaphore();
+    this->insertSemaphore(semaphore, true);
+
+    return semaphore;
+}
