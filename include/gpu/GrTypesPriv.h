@@ -98,14 +98,6 @@ enum GrShaderFlags {
 };
 GR_MAKE_BITFIELD_OPS(GrShaderFlags);
 
-enum class GrDrawFace {
-    kInvalid = -1,
-
-    kBoth,
-    kCCW,
-    kCW,
-};
-
 /**
  * Precisions of shader language variables. Not all shading languages support precisions or actually
  * vary the internal precision based on the qualifiers. These currently only apply to float types (
