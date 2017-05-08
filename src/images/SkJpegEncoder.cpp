@@ -7,7 +7,7 @@
 
 #include "SkImageEncoderPriv.h"
 
-#ifdef SK_HAS_JPEG_LIBRARY
+#if 1//def SK_HAS_JPEG_LIBRARY
 
 #include "SkColorPriv.h"
 #include "SkImageEncoderFns.h"
@@ -35,7 +35,7 @@ public:
         return std::unique_ptr<SkJpegEncoderMgr>(new SkJpegEncoderMgr(stream));
     }
 
-    bool setParams(const SkImageInfo& srcInfo);
+    bool setParams(const SkImageInfo& srcInfo, const SkJpegEncoder::Options& options);
 
     jpeg_compress_struct* cinfo() { return &fCInfo; }
 
@@ -65,15 +65,32 @@ private:
     transform_scanline_proc fProc;
 };
 
-bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo) {
+bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder::Options& options)
+{
+    auto chooseProc8888 = [=]() {
+        if (srcInfo.isOpaque() || SkJpegEncoder::AlphaOption::kIgnore == options.fAlphaOption) {
+            return (transform_scanline_proc) nullptr;
+        }
+
+        if (SkTransferFunctionBehavior::kRespect == options.fBlendBehavior) {
+            return kPremul_SkAlphaType == srcInfo.alphaType() ?
+                    transform_scanline_blend_linear<true> : transform_scanline_blend_linear<false>;
+        } else {
+            return kPremul_SkAlphaType == srcInfo.alphaType() ?
+                    transform_scanline_blend_legacy<true> : transform_scanline_blend_legacy<false>;
+        }
+    };
+
     J_COLOR_SPACE jpegColorType = JCS_EXT_RGBA;
     int numComponents = 0;
     switch (srcInfo.colorType()) {
         case kRGBA_8888_SkColorType:
+            fProc = chooseProc8888();
             jpegColorType = JCS_EXT_RGBA;
             numComponents = 4;
             break;
         case kBGRA_8888_SkColorType:
+            fProc = chooseProc8888();
             jpegColorType = JCS_EXT_BGRA;
             numComponents = 4;
             break;
@@ -83,11 +100,23 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo) {
             numComponents = 3;
             break;
         case kARGB_4444_SkColorType:
+            if (!srcInfo.isOpaque() &&
+                SkJpegEncoder::AlphaOption::kBlendOnBlack == options.fAlphaOption)
+            {
+                return false;
+            }
+
             fProc = transform_scanline_444;
             jpegColorType = JCS_RGB;
             numComponents = 3;
             break;
         case kIndex_8_SkColorType:
+            if (!srcInfo.isOpaque() &&
+                SkJpegEncoder::AlphaOption::kBlendOnBlack == options.fAlphaOption)
+            {
+                return false;
+            }
+
             fProc = transform_scanline_index8_opaque;
             jpegColorType = JCS_RGB;
             numComponents = 3;
@@ -98,11 +127,17 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo) {
             numComponents = 1;
             break;
         case kRGBA_F16_SkColorType:
-            if (!srcInfo.colorSpace() || !srcInfo.colorSpace()->gammaIsLinear()) {
+            if (!srcInfo.colorSpace() || !srcInfo.colorSpace()->gammaIsLinear() ||
+                    SkTransferFunctionBehavior::kRespect != options.fBlendBehavior) {
                 return false;
             }
 
-            fProc = transform_scanline_F16_to_8888;
+            if (srcInfo.isOpaque() || SkJpegEncoder::AlphaOption::kIgnore == options.fAlphaOption) {
+                fProc = transform_scanline_F16_to_8888;
+            } else {
+                fProc = kPremul_SkAlphaType == srcInfo.alphaType() ?
+                        transform_scanline_F16_blend<true> : transform_scanline_F16_blend<false>;
+            }
             jpegColorType = JCS_EXT_RGBA;
             numComponents = 4;
             break;
@@ -125,7 +160,7 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo) {
 
 std::unique_ptr<SkJpegEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& src,
                                                    const Options& options) {
-    if (!SkPixmapIsValid(src, SkTransferFunctionBehavior::kIgnore)) {
+    if (!SkPixmapIsValid(src, options.fBlendBehavior)) {
         return nullptr;
     }
 
@@ -134,7 +169,7 @@ std::unique_ptr<SkJpegEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixma
         return nullptr;
     }
 
-    if (!encoderMgr->setParams(src.info())) {
+    if (!encoderMgr->setParams(src.info(), options)) {
         return nullptr;
     }
 
