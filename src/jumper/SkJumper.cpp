@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorPriv.h"
 #include "SkCpu.h"
 #include "SkJumper.h"
 #include "SkRasterPipeline.h"
@@ -36,23 +37,35 @@
 // It's fine to rearrange and add new ones if you update SkJumper_constants.
 using K = const SkJumper_constants;
 static K kConstants = {
-    1.0f, 0.5f, 255.0f, 1/255.0f, 0x000000ff,
     {0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f},
-    0.0025f, 0.6975f, 0.3000f, 1/12.92f, 0.055f,       // from_srgb
-    12.46f, 0.411192f, 0.689206f, -0.0988f, 0.0043f,   //   to_srgb
-    0x77800000, 0x07800000, 0x04000400,                // fp16 <-> fp32
-         0x0000f800,      0x000007e0,      0x0000001f, // 565
-    1.0f/0x0000f800, 1.0f/0x000007e0, 1.0f/0x0000001f,
-    31.0f, 63.0f,
 };
 
 #define STAGES(M)         \
     M(seed_shader)        \
     M(constant_color)     \
     M(clear)              \
-    M(plus_)              \
+    M(srcatop)            \
+    M(dstatop)            \
+    M(srcin)              \
+    M(dstin)              \
+    M(srcout)             \
+    M(dstout)             \
     M(srcover)            \
     M(dstover)            \
+    M(modulate)           \
+    M(multiply)           \
+    M(plus_)              \
+    M(screen)             \
+    M(xor_)               \
+    M(darken)             \
+    M(lighten)            \
+    M(difference)         \
+    M(exclusion)          \
+    M(colorburn)          \
+    M(colordodge)         \
+    M(hardlight)          \
+    M(overlay)            \
+    M(softlight)          \
     M(clamp_0)            \
     M(clamp_1)            \
     M(clamp_a)            \
@@ -65,22 +78,44 @@ static K kConstants = {
     M(unpremul)           \
     M(from_srgb)          \
     M(to_srgb)            \
+    M(from_2dot2)         \
+    M(to_2dot2)           \
+    M(rgb_to_hsl)         \
+    M(hsl_to_rgb)         \
     M(scale_1_float)      \
     M(scale_u8)           \
     M(lerp_1_float)       \
     M(lerp_u8)            \
     M(lerp_565)           \
     M(load_tables)        \
+    M(byte_tables)        \
+    M(byte_tables_rgb)    \
     M(load_a8)            \
+    M(gather_a8)          \
     M(store_a8)           \
+    M(load_g8)            \
+    M(gather_g8)          \
+    M(gather_i8)          \
     M(load_565)           \
+    M(gather_565)         \
     M(store_565)          \
+    M(load_4444)          \
+    M(gather_4444)        \
+    M(store_4444)         \
     M(load_8888)          \
+    M(gather_8888)        \
     M(store_8888)         \
     M(load_f16)           \
+    M(gather_f16)         \
     M(store_f16)          \
+    M(load_u16_be)        \
+    M(store_u16_be)       \
+    M(load_f32)           \
+    M(store_f32)          \
+    M(luminance_to_alpha) \
     M(matrix_2x3)         \
     M(matrix_3x4)         \
+    M(matrix_4x5)         \
     M(matrix_perspective) \
     M(clamp_x)            \
     M(clamp_y)            \
@@ -88,6 +123,12 @@ static K kConstants = {
     M(repeat_y)           \
     M(mirror_x)           \
     M(mirror_y)           \
+    M(save_xy)            \
+    M(accumulate)         \
+    M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)  \
+    M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)  \
+    M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)  \
+    M(linear_gradient)    \
     M(linear_gradient_2stops)
 
 // We can't express the real types of most stage functions portably, so we use a stand-in.
@@ -96,7 +137,7 @@ using StageFn = void(void);
 
 // Some platforms expect C "name" maps to asm "_name", others to "name".
 #if defined(__APPLE__)
-    #define ASM(name, suffix) sk_##name##_##suffix
+    #define ASM(name, suffix)  sk_##name##_##suffix
 #else
     #define ASM(name, suffix) _sk_##name##_##suffix
 #endif
@@ -240,7 +281,9 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
     once([] {
         atexit([] {
             for (int i = 0; i < (int)SK_ARRAY_COUNT(gMissing); i++) {
-                SkDebugf("%10d %s\n", gMissing[i].load(), gNames[i]);
+                if (int n = gMissing[i].load()) {
+                    SkDebugf("%10d %s\n", n, gNames[i]);
+                }
             }
         });
     });
@@ -249,11 +292,11 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
     SkAutoSTMalloc<64, void*> program(2*fStages.size() + 1);
     const size_t limit = x+n;
 
-    auto build_and_run = [&](size_t   stride,
+    auto build_and_run = [&](size_t   min_stride,
                              StageFn* (*lookup)(SkRasterPipeline::StockStage),
                              StageFn* just_return,
                              size_t   (*start_pipeline)(size_t, void**, K*, size_t)) {
-        if (x + stride <= limit) {
+        if (x + min_stride <= limit) {
             void** ip = program.get();
             for (auto&& st : fStages) {
                 auto fn = lookup(st.stage);
@@ -261,7 +304,9 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
                     return false;
                 }
                 *ip++ = (void*)fn;
-                *ip++ = st.ctx;
+                if (st.ctx) {
+                    *ip++ = st.ctx;
+                }
             }
             *ip = (void*)just_return;
 
@@ -288,12 +333,12 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
 
 #elif defined(__x86_64__) || defined(_M_X64)
     if (1 && SkCpu::Supports(SkCpu::HSW)) {
-        if (!build_and_run(8, lookup_hsw, ASM(just_return,hsw), ASM(start_pipeline,hsw))) {
+        if (!build_and_run(1, lookup_hsw, ASM(just_return,hsw), ASM(start_pipeline,hsw))) {
             return false;
         }
     }
     if (1 && SkCpu::Supports(SkCpu::AVX)) {
-        if (!build_and_run(8, lookup_avx, ASM(just_return,avx), ASM(start_pipeline,avx))) {
+        if (!build_and_run(1, lookup_avx, ASM(just_return,avx), ASM(start_pipeline,avx))) {
             return false;
         }
     }

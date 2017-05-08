@@ -75,8 +75,6 @@ public:
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override;
 
-    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override;
-
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
     void bindVertexArray(GrGLuint id) {
@@ -144,8 +142,6 @@ public:
 
     void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override;
 
-    void finishOpList() override;
-
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
     bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
@@ -175,8 +171,7 @@ private:
     GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                              const void* data) override;
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override;
-    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
-                                                    GrWrapOwnership) override;
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) override;
     sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override;
 
     gr_instanced::InstancedRendering* onCreateInstancedRendering() override;
@@ -194,9 +189,9 @@ private:
                            bool renderTarget, GrGLTexture::TexParams* initialTexParams,
                            const SkTArray<GrMipLevel>& texels);
 
-    bool onMakeCopyForTextureParams(GrTexture*, const GrSamplerParams&,
-                                    GrTextureProducer::CopyParams*,
-                                    SkScalar scaleAdjust[2]) const override;
+    bool onIsACopyNeededForTextureParams(GrTextureProxy*, const GrSamplerParams&,
+                                         GrTextureProducer::CopyParams*,
+                                         SkScalar scaleAdjust[2]) const override;
 
     // Checks whether glReadPixels can be called to get pixel values in readConfig from the
     // render target.
@@ -272,10 +267,6 @@ private:
                                       const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
     bool generateMipmap(GrGLTexture* texture, bool gammaCorrect);
-
-    void stampPLSSetupRect(const SkRect& bounds);
-
-    void setupPixelLocalStorage(const GrPipeline&, const GrPrimitiveProcessor&);
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
@@ -404,7 +395,6 @@ private:
     bool createCopyProgram(GrTexture* srcTexture);
     bool createMipmapProgram(int progIdx);
     bool createWireRectProgram();
-    bool createPLSSetupProgram();
 
     // GL program-related state
     ProgramCache*               fProgramCache;
@@ -461,7 +451,7 @@ private:
             if (fWindowState.numWindows() && (fRTOrigin != rtOrigin || fViewport != viewport)) {
                 return false;
             }
-            return fWindowState.cheapEqualTo(windowState);
+            return fWindowState == windowState;
         }
 
     private:
@@ -646,15 +636,6 @@ private:
         const bool tall = (height > 1) && SkToBool(height & 0x1);
         return (wide ? 0x2 : 0x0) | (tall ? 0x1 : 0x0);
     }
-
-    struct {
-        GrGLuint          fProgram;
-        GrGLint           fPosXformUniform;
-        sk_sp<GrGLBuffer> fArrayBuffer;
-    }                                       fPLSSetupProgram;
-
-    bool                                    fHWPLSEnabled;
-    bool                                    fPLSHasBeenUsed;
 
     float                                   fHWMinSampleShading;
 

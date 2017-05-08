@@ -11,15 +11,14 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "ops/GrAADistanceFieldPathRenderer.h"
+#include "ops/GrSmallPathRenderer.h"
 
 #if 0
 // This test case including path coords and matrix taken from crbug.com/627443.
 // Because of inaccuracies in large floating point values this causes the
 // the path renderer to attempt to add a path DF to its atlas that is larger
 // than the plot size which used to crash rather than fail gracefully.
-static void test_far_from_origin(GrResourceProvider* rp,
-                                 GrRenderTargetContext* renderTargetContext,
+static void test_far_from_origin(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
                                  GrPathRenderer* pr) {
     SkPath path;
     path.lineTo(49.0255089839f, 0.473541f);
@@ -47,7 +46,7 @@ static void test_far_from_origin(GrResourceProvider* rp,
     paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
     GrNoClip noClip;
-    GrPathRenderer::DrawPathArgs args{rp,
+    GrPathRenderer::DrawPathArgs args{ctx,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
                                       renderTargetContext,
@@ -59,7 +58,7 @@ static void test_far_from_origin(GrResourceProvider* rp,
     pr->drawPath(args);
 }
 
-DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(AADistanceFieldPathRenderer, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(SmallPathRenderer, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
     // The DF PR only works with contexts that support derivatives
     if (!ctx->caps()->shaderCaps()->shaderDerivativeSupport()) {
@@ -75,10 +74,10 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(AADistanceFieldPathRenderer, reporter, ctxInfo) 
         return;
     }
 
-    GrAADistanceFieldPathRenderer dfpr;
+    GrSmallPathRenderer spr;
 
     ctx->flush();
-    test_far_from_origin(ctx->resourceProvider(), rtc.get(), &dfpr);
+    test_far_from_origin(ctx, rtc.get(), &spr);
     ctx->flush();
 }
 #endif

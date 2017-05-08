@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkArithmeticImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"

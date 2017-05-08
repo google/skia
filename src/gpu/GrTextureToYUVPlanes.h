@@ -11,9 +11,11 @@
 #include "SkImageInfo.h"
 #include "SkSize.h"
 
-class GrTexture;
+class GrContext;
+class GrTextureProxy;
 
-bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize[3], void* const planes[3],
+bool GrTextureToYUVPlanes(GrContext*, sk_sp<GrTextureProxy>,
+                          const SkISize[3], void* const planes[3],
                           const size_t rowBytes[3], SkYUVColorSpace);
 
 #endif

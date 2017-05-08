@@ -55,28 +55,61 @@ bool Window_unix::initWindow(Display* display) {
     constexpr int initialHeight = 960;
 
     // Attempt to create a window that supports GL
-    GLint att[] = {
+
+    // We prefer the more recent glXChooseFBConfig but fall back to glXChooseVisual. They have
+    // slight differences in how attributes are specified.
+    static int constexpr kChooseFBConfigAtt[] = {
+        GLX_RENDER_TYPE, GLX_RGBA_BIT,
+        GLX_DOUBLEBUFFER, True,
+        GLX_STENCIL_SIZE, 8,
+        None
+    };
+    // For some reason glXChooseVisual takes a non-const pointer to the attributes.
+    int chooseVisualAtt[] = {
         GLX_RGBA,
-        GLX_DEPTH_SIZE, 24,
         GLX_DOUBLEBUFFER,
         GLX_STENCIL_SIZE, 8,
         None
     };
     SkASSERT(nullptr == fVisualInfo);
     if (fRequestedDisplayParams.fMSAASampleCount > 0) {
-        static const GLint kAttCount = SK_ARRAY_COUNT(att);
-        GLint msaaAtt[kAttCount + 4];
-        memcpy(msaaAtt, att, sizeof(att));
-        SkASSERT(None == msaaAtt[kAttCount - 1]);
-        msaaAtt[kAttCount - 1] = GLX_SAMPLE_BUFFERS_ARB;
-        msaaAtt[kAttCount + 0] = 1;
-        msaaAtt[kAttCount + 1] = GLX_SAMPLES_ARB;
-        msaaAtt[kAttCount + 2] = fRequestedDisplayParams.fMSAASampleCount;
-        msaaAtt[kAttCount + 3] = None;
-        fVisualInfo = glXChooseVisual(display, DefaultScreen(display), msaaAtt);
+        static const GLint kChooseFBConifgAttCnt = SK_ARRAY_COUNT(kChooseFBConfigAtt);
+        GLint msaaChooseFBConfigAtt[kChooseFBConifgAttCnt + 4];
+        memcpy(msaaChooseFBConfigAtt, kChooseFBConfigAtt, sizeof(kChooseFBConfigAtt));
+        SkASSERT(None == msaaChooseFBConfigAtt[kChooseFBConifgAttCnt - 1]);
+        msaaChooseFBConfigAtt[kChooseFBConifgAttCnt - 1] = GLX_SAMPLE_BUFFERS_ARB;
+        msaaChooseFBConfigAtt[kChooseFBConifgAttCnt + 0] = 1;
+        msaaChooseFBConfigAtt[kChooseFBConifgAttCnt + 1] = GLX_SAMPLES_ARB;
+        msaaChooseFBConfigAtt[kChooseFBConifgAttCnt + 2] = fRequestedDisplayParams.fMSAASampleCount;
+        msaaChooseFBConfigAtt[kChooseFBConifgAttCnt + 3] = None;
+        int n;
+        fFBConfig = glXChooseFBConfig(fDisplay, DefaultScreen(fDisplay), msaaChooseFBConfigAtt, &n);
+        if (n > 0) {
+            fVisualInfo = glXGetVisualFromFBConfig(fDisplay, *fFBConfig);
+        } else {
+            static const GLint kChooseVisualAttCnt = SK_ARRAY_COUNT(chooseVisualAtt);
+            GLint msaaChooseVisualAtt[kChooseVisualAttCnt + 4];
+            memcpy(msaaChooseVisualAtt, chooseVisualAtt, sizeof(chooseVisualAtt));
+            SkASSERT(None == msaaChooseVisualAtt[kChooseVisualAttCnt - 1]);
+            msaaChooseFBConfigAtt[kChooseVisualAttCnt - 1] = GLX_SAMPLE_BUFFERS_ARB;
+            msaaChooseFBConfigAtt[kChooseVisualAttCnt + 0] = 1;
+            msaaChooseFBConfigAtt[kChooseVisualAttCnt + 1] = GLX_SAMPLES_ARB;
+            msaaChooseFBConfigAtt[kChooseVisualAttCnt + 2] =
+                    fRequestedDisplayParams.fMSAASampleCount;
+            msaaChooseFBConfigAtt[kChooseVisualAttCnt + 3] = None;
+            fVisualInfo = glXChooseVisual(display, DefaultScreen(display), msaaChooseVisualAtt);
+            fFBConfig = nullptr;
+        }
     }
     if (nullptr == fVisualInfo) {
-        fVisualInfo = glXChooseVisual(display, DefaultScreen(display), att);
+        int n;
+        fFBConfig = glXChooseFBConfig(fDisplay, DefaultScreen(fDisplay), kChooseFBConfigAtt, &n);
+        if (n > 0) {
+            fVisualInfo = glXGetVisualFromFBConfig(fDisplay, *fFBConfig);
+        } else {
+            fVisualInfo = glXChooseVisual(display, DefaultScreen(display), chooseVisualAtt);
+            fFBConfig = nullptr;
+        }
     }
 
     if (fVisualInfo) {
@@ -139,7 +172,14 @@ void Window_unix::closeWindow() {
         gWindowMap.remove(fWindow);
         XDestroyWindow(fDisplay, fWindow);
         fWindow = 0;
-        fVisualInfo = nullptr;
+        if (fFBConfig) {
+            XFree(fFBConfig);
+            fFBConfig = nullptr;
+        }
+        if (fVisualInfo) {
+            XFree(fVisualInfo);
+            fVisualInfo = nullptr;
+        }
         fDisplay = nullptr;
     }
 }
@@ -298,6 +338,7 @@ bool Window_unix::attach(BackendType attachType) {
     window_context_factory::XlibWindowInfo winInfo;
     winInfo.fDisplay = fDisplay;
     winInfo.fWindow = fWindow;
+    winInfo.fFBConfig = fFBConfig;
     winInfo.fVisualInfo = fVisualInfo;
 
     XWindowAttributes attrs;

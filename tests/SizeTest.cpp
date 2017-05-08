@@ -16,7 +16,7 @@ DEF_TEST(ISize, reporter) {
     REPORTER_ASSERT(reporter, a.isEmpty());
     a.set(5, -5);
     REPORTER_ASSERT(reporter, a.isEmpty());
-    a.clampNegToZero();
+    a = SkISize{5, 0};
     REPORTER_ASSERT(reporter, a.isEmpty());
     b.set(5, 0);
     REPORTER_ASSERT(reporter, a == b);
@@ -42,7 +42,7 @@ DEF_TEST(Size, reporter) {
     REPORTER_ASSERT(reporter, a.isEmpty());
     a.set(x, -x);
     REPORTER_ASSERT(reporter, a.isEmpty());
-    a.clampNegToZero();
+    a = SkSize{x, 0};
     REPORTER_ASSERT(reporter, a.isEmpty());
     b.set(x, 0);
     REPORTER_ASSERT(reporter, a == b);

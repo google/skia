@@ -67,10 +67,9 @@ static void make_index8(SkBitmap* bitmap, SkAlphaType alphaType, sk_sp<SkColorSp
         pmColors[i] = toPMColor(colors[i]);
     }
 
-    sk_sp<SkColorTable> colorTable(new SkColorTable(pmColors, SK_ARRAY_COUNT(pmColors)));
     SkImageInfo info = SkImageInfo::Make(imageWidth, imageHeight, kIndex_8_SkColorType,
                                          alphaType, colorSpace);
-    bitmap->allocPixels(info, nullptr, colorTable.get());
+    bitmap->allocPixels(info, SkColorTable::Make(pmColors, SK_ARRAY_COUNT(pmColors)));
     for (int y = 0; y < imageHeight; y++) {
         for (int x = 0; x < imageWidth; x++) {
             *bitmap->getAddr8(x, y) = (x / div_round_up(imageWidth, 2)) +
@@ -119,7 +118,7 @@ static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat fo
 
     SkEncodeOptions options;
     if (bitmap.colorSpace()) {
-        options.fPremulBehavior = SkEncodeOptions::PremulBehavior::kGammaCorrect;
+        options.fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
     }
 
     switch (format) {

@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "sk_tool_utils.h"
 #include "SkBlurImageFilter.h"
 #include "SkColor.h"
 #include "SkDropShadowImageFilter.h"

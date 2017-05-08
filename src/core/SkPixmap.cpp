@@ -98,7 +98,7 @@ const {
     const void* srcPixels = this->addr(rec.fX, rec.fY);
     const SkImageInfo srcInfo = fInfo.makeWH(rec.fInfo.width(), rec.fInfo.height());
     SkConvertPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, srcInfo, srcPixels, this->rowBytes(),
-                    this->ctable());
+                    this->ctable(), SkTransferFunctionBehavior::kRespect);
     return true;
 }
 

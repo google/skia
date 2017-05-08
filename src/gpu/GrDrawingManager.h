@@ -11,9 +11,10 @@
 #include "GrOpFlushState.h"
 #include "GrPathRenderer.h"
 #include "GrPathRendererChain.h"
+#include "GrPreFlushResourceProvider.h"
 #include "GrRenderTargetOpList.h"
 #include "GrResourceCache.h"
-#include "SkTDArray.h"
+#include "SkTArray.h"
 #include "text/GrAtlasTextContext.h"
 
 class GrContext;
@@ -57,15 +58,17 @@ public:
 
     void flushIfNecessary() {
         if (fContext->getResourceCache()->requestsFlush()) {
-            this->internalFlush(GrResourceCache::kCacheRequested);
+            this->internalFlush(nullptr, GrResourceCache::kCacheRequested);
         } else if (fIsImmediateMode) {
-            this->internalFlush(GrResourceCache::kImmediateMode);
+            this->internalFlush(nullptr, GrResourceCache::kImmediateMode);
         }
     }
 
     static bool ProgramUnitTest(GrContext* context, int maxStages);
 
-    void prepareSurfaceForExternalIO(GrSurface*);
+    void prepareSurfaceForExternalIO(GrSurfaceProxy*);
+
+    void addPreFlushCallbackObject(sk_sp<GrPreFlushCallbackObject> preFlushCBObject);
 
 private:
     GrDrawingManager(GrContext* context,
@@ -88,10 +91,14 @@ private:
     void abandon();
     void cleanup();
     void reset();
-    void flush() { this->internalFlush(GrResourceCache::FlushType::kExternal); }
-    void internalFlush(GrResourceCache::FlushType);
+    void flush(GrSurfaceProxy* proxy) {
+        this->internalFlush(proxy, GrResourceCache::FlushType::kExternal);
+    }
+    void internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType);
 
     friend class GrContext;  // for access to: ctor, abandon, reset & flush
+    friend class GrContextPriv; // access to: flush
+    friend class GrPreFlushResourceProvider; // this is just a shallow wrapper around this class
 
     static const int kNumPixelGeometries = 5; // The different pixel geometries
     static const int kNumDFTOptions = 2;      // DFT or no DFT
@@ -115,6 +122,8 @@ private:
     bool                              fFlushing;
 
     bool                              fIsImmediateMode;
+
+    SkTArray<sk_sp<GrPreFlushCallbackObject>> fPreFlushCBObjects;
 };
 
 #endif

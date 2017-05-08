@@ -49,17 +49,19 @@ struct GrProcessorTestData {
     GrProcessorTestData(SkRandom* random,
                         GrContext* context,
                         const GrRenderTargetContext* renderTargetContext,
-                        GrTexture* const textures[2])
+                        sk_sp<GrTextureProxy> proxies[2])
             : fRandom(random)
             , fRenderTargetContext(renderTargetContext)
             , fContext(context) {
-        fProxies[0] = GrSurfaceProxy::MakeWrapped(sk_ref_sp(textures[0]));
-        fProxies[1] = GrSurfaceProxy::MakeWrapped(sk_ref_sp(textures[1]));
+        fProxies[0] = proxies[0];
+        fProxies[1] = proxies[1];
     }
     SkRandom* fRandom;
     const GrRenderTargetContext* fRenderTargetContext;
 
     GrContext* context() { return fContext; }
+    GrResourceProvider* resourceProvider();
+    const GrCaps* caps();
     sk_sp<GrTextureProxy> textureProxy(int index) { return fProxies[index]; }
 
 private:

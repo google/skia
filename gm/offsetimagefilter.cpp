@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "sk_tool_utils.h"
 #include "SkImage.h"
 #include "SkImageSource.h"
 #include "SkOffsetImageFilter.h"
 #include "SkSurface.h"
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #define WIDTH 600
 #define HEIGHT 100

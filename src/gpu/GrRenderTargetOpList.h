@@ -8,19 +8,13 @@
 #ifndef GrRenderTargetOpList_DEFINED
 #define GrRenderTargetOpList_DEFINED
 
-#include "GrClip.h"
-#include "GrContext.h"
+#include "GrAppliedClip.h"
 #include "GrOpList.h"
-#include "GrPathProcessor.h"
-#include "GrPrimitiveProcessor.h"
 #include "GrPathRendering.h"
-#include "GrXferProcessor.h"
-
-#include "ops/GrDrawOp.h"
-
+#include "GrPrimitiveProcessor.h"
+#include "SkArenaAlloc.h"
 #include "SkClipStack.h"
 #include "SkMatrix.h"
-#include "SkPath.h"
 #include "SkStringUtils.h"
 #include "SkStrokeRec.h"
 #include "SkTArray.h"
@@ -29,19 +23,18 @@
 
 class GrAuditTrail;
 class GrClearOp;
-class GrClip;
 class GrCaps;
-class GrPath;
-class GrDrawPathOpBase;
 class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetProxy;
 
 class GrRenderTargetOpList final : public GrOpList {
+private:
+    using DstTexture = GrXferProcessor::DstTexture;
+
 public:
     /** Options for GrRenderTargetOpList behavior. */
     struct Options {
-        bool fClipDrawOpsToBounds = false;
         int fMaxOpCombineLookback = -1;
         int fMaxOpCombineLookahead = -1;
     };
@@ -78,25 +71,16 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
-                   std::unique_ptr<GrDrawOp>);
-
-    void addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
-        this->recordOp(std::move(op), renderTargetContext);
+    uint32_t addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
+        this->recordOp(std::move(op), renderTargetContext, nullptr, nullptr);
+        return this->uniqueID();
     }
-
-    /**
-     * Draws the path into user stencil bits. Upon return, all user stencil values
-     * inside the path will be nonzero. The path's fill must be either even/odd or
-     * winding (notnverse or hairline).It will respect the HW antialias boolean (if
-     * possible in the 3D API).  Note, we will never have an inverse fill with
-     * stencil path.
-     */
-    void stencilPath(GrRenderTargetContext*,
-                     const GrClip&,
-                     GrAAType aa,
-                     const SkMatrix& viewMatrix,
-                     const GrPath*);
+    uint32_t addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext,
+                   GrAppliedClip&& clip, const DstTexture& dstTexture) {
+        this->recordOp(std::move(op), renderTargetContext, clip.doesClip() ? &clip : nullptr,
+                       &dstTexture);
+        return this->uniqueID();
+    }
 
     /** Clears the entire render target */
     void fullClear(GrRenderTargetContext*, GrColor color);
@@ -114,8 +98,9 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    bool copySurface(GrSurface* dst,
-                     GrSurface* src,
+    bool copySurface(GrResourceProvider* resourceProvider,
+                     GrSurfaceProxy* dst,
+                     GrSurfaceProxy* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
@@ -128,59 +113,60 @@ public:
 
     SkDEBUGCODE(void dump() const override;)
 
+    SkDEBUGCODE(void validateTargetsSingleRenderTarget() const;)
+
 private:
-    friend class GrRenderTargetContextPriv; // for clearStencilClip and stencil clip state.
+    friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
+
+    struct RecordedOp {
+        RecordedOp(std::unique_ptr<GrOp> op,
+                   GrRenderTarget* rt,
+                   const GrAppliedClip* appliedClip,
+                   const DstTexture* dstTexture)
+                : fOp(std::move(op))
+                , fRenderTarget(rt)
+                , fAppliedClip(appliedClip) {
+            if (dstTexture) {
+                fDstTexture = *dstTexture;
+            }
+        }
+        std::unique_ptr<GrOp> fOp;
+        // TODO: These ops will all to target the same render target and this won't be needed.
+        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+        DstTexture fDstTexture;
+        const GrAppliedClip* fAppliedClip;
+    };
 
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
     // returns the input op.
-    GrOp* recordOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
-        SkRect bounds = op->bounds();
-        return this->recordOp(std::move(op), renderTargetContext, bounds);
-    }
-
-    // Variant that allows an explicit bounds (computed from the Op's bounds and a clip).
-    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, const SkRect& clippedBounds);
+    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, GrAppliedClip* = nullptr,
+                   const DstTexture* = nullptr);
 
     void forwardCombine();
 
-    // Makes a copy of the dst if it is necessary for the draw and returns the texture that should
-    // be used by GrXferProcessor to access the destination color. If the texture is nullptr then
-    // a texture copy could not be made.
-    void setupDstTexture(GrRenderTarget*,
-                         const GrClip&,
-                         const SkRect& opBounds,
-                         GrXferProcessor::DstTexture*);
-
-    // Used only via GrRenderTargetContextPriv.
-    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTargetContext*);
-
-    struct RecordedOp {
-        RecordedOp(std::unique_ptr<GrOp> op, const SkRect& clippedBounds, GrRenderTarget* rt)
-                : fOp(std::move(op)), fClippedBounds(clippedBounds), fRenderTarget(rt) {}
-        std::unique_ptr<GrOp> fOp;
-        SkRect fClippedBounds;
-        // TODO: These ops will all to target the same render target and this won't be needed.
-        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
-    };
-    SkSTArray<256, RecordedOp, true> fRecordedOps;
+    // If this returns true then b has been merged into a's op.
+    bool combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
+                           const DstTexture* bDstTexture);
 
     GrClearOp* fLastFullClearOp = nullptr;
-    GrGpuResource::UniqueID fLastFullClearRenderTargetID = GrGpuResource::UniqueID::InvalidID();
+    GrGpuResource::UniqueID fLastFullClearResourceID = GrGpuResource::UniqueID::InvalidID();
+    GrSurfaceProxy::UniqueID fLastFullClearProxyID = GrSurfaceProxy::UniqueID::InvalidID();
 
-    // The context is only in service of the GrClip, remove once it doesn't need this.
-    GrContext* fContext;
     GrGpu* fGpu;
     GrResourceProvider* fResourceProvider;
 
-    bool fClipOpToBounds;
     int fMaxOpLookback;
     int fMaxOpLookahead;
 
     std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
 
     int32_t fLastClipStackGenID;
-    SkIRect fLastClipStackRect;
-    SkIPoint fLastClipOrigin;
+    SkIRect fLastDevClipBounds;
+
+    SkSTArray<256, RecordedOp, true> fRecordedOps;
+
+    char fClipAllocatorStorage[4096];
+    SkArenaAlloc fClipAllocator;
 
     typedef GrOpList INHERITED;
 };

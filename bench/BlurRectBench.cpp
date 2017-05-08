@@ -105,7 +105,7 @@ class BlurRectSeparableBench: public BlurRectBench {
 public:
     BlurRectSeparableBench(SkScalar rad) : INHERITED(rad) { }
 
-    ~BlurRectSeparableBench() {
+    ~BlurRectSeparableBench() override {
         SkMask::FreeImage(fSrcMask.fImage);
     }
 

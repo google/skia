@@ -56,7 +56,7 @@ SkISize SkShadowPaintFilterCanvas::ComputeDepthMapSize(const SkLights::Light& li
         // of the point light and the shapes, etc... If we take upper bounds
         // on those metrics, the shadow map will be pretty big in any case.
         // Thus, just using 4x the width and height seems to work for most scenes.
-        return SkISize::Make(width * 4, height * 4);
+        return {width * 4, height * 4};
     }
 
     int dMapWidth = SkMin32(maxDepth * fabs(light.dir().fX) + width,

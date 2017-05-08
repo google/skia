@@ -14,12 +14,16 @@ class MipMapBench: public Benchmark {
     SkString fName;
     const int fW, fH;
     SkDestinationSurfaceColorMode fColorMode;
+    bool fHalfFoat;
 
 public:
-    MipMapBench(int w, int h, SkDestinationSurfaceColorMode colorMode)
-        : fW(w), fH(h), fColorMode(colorMode)
+    MipMapBench(int w, int h, SkDestinationSurfaceColorMode colorMode, bool halfFloat = false)
+        : fW(w), fH(h), fColorMode(colorMode), fHalfFoat(halfFloat)
     {
         fName.printf("mipmap_build_%dx%d_%d_gamma", w, h, static_cast<int>(colorMode));
+        if (halfFloat) {
+            fName.append("_f16");
+        }
     }
 
 protected:
@@ -30,7 +34,10 @@ protected:
     const char* onGetName() override { return fName.c_str(); }
 
     void onDelayedSetup() override {
-        SkImageInfo info = SkImageInfo::MakeS32(fW, fH, kPremul_SkAlphaType);
+        SkImageInfo info = fHalfFoat ? SkImageInfo::Make(fW, fH, kRGBA_F16_SkColorType,
+                                                         kPremul_SkAlphaType,
+                                                         SkColorSpace::MakeSRGBLinear())
+                                     : SkImageInfo::MakeS32(fW, fH, kPremul_SkAlphaType);
         fBitmap.allocPixels(info);
         fBitmap.eraseColor(SK_ColorWHITE);  // so we don't read uninitialized memory
     }
@@ -53,4 +60,20 @@ DEF_BENCH( return new MipMapBench(512, 511, SkDestinationSurfaceColorMode::kLega
 DEF_BENCH( return new MipMapBench(511, 512, SkDestinationSurfaceColorMode::kLegacy); )
 DEF_BENCH( return new MipMapBench(512, 512, SkDestinationSurfaceColorMode::kLegacy); )
 DEF_BENCH( return new MipMapBench(512, 512,
+                                  SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware); )
+DEF_BENCH( return new MipMapBench(511, 511,
+                                  SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware); )
+DEF_BENCH( return new MipMapBench(512, 512, SkDestinationSurfaceColorMode::kLegacy, true); )
+DEF_BENCH( return new MipMapBench(511, 511, SkDestinationSurfaceColorMode::kLegacy, true); )
+DEF_BENCH( return new MipMapBench(2048, 2048, SkDestinationSurfaceColorMode::kLegacy); )
+DEF_BENCH( return new MipMapBench(2048, 2048,
+                                  SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware); )
+DEF_BENCH( return new MipMapBench(2047, 2047, SkDestinationSurfaceColorMode::kLegacy); )
+DEF_BENCH( return new MipMapBench(2047, 2047,
+                                  SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware); )
+DEF_BENCH( return new MipMapBench(2048, 2047, SkDestinationSurfaceColorMode::kLegacy); )
+DEF_BENCH( return new MipMapBench(2048, 2047,
+                                  SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware); )
+DEF_BENCH( return new MipMapBench(2047, 2048, SkDestinationSurfaceColorMode::kLegacy); )
+DEF_BENCH( return new MipMapBench(2047, 2048,
                                   SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware); )

@@ -23,8 +23,10 @@ public:
      *  in order to correct the absolute texture coordinates.
      *  Places the color space of the texture in (*texColorSpace).
      */
-    GrTexture* refTextureForParams(const GrSamplerParams&, SkColorSpace* dstColorSpace,
-                                   sk_sp<SkColorSpace>* texColorSpace, SkScalar scaleAdjust[2]);
+    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerParams&,
+                                                   SkColorSpace* dstColorSpace,
+                                                   sk_sp<SkColorSpace>* texColorSpace,
+                                                   SkScalar scaleAdjust[2]);
 
     sk_sp<GrFragmentProcessor> createFragmentProcessor(
                                 const SkMatrix& textureMatrix,
@@ -43,7 +45,8 @@ protected:
      *  Return the maker's "original" texture. It is the responsibility of the maker to handle any
      *  caching of the original if desired.
      */
-    virtual GrTexture* refOriginalTexture(bool willBeMipped, SkColorSpace* dstColorSpace) = 0;
+    virtual sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
+                                                          SkColorSpace* dstColorSpace) = 0;
 
     /**
      *  Returns the color space of the maker's "original" texture, assuming it was retrieved with
@@ -56,13 +59,14 @@ protected:
      *
      *  The base-class handles general logic for this, and only needs access to the following
      *  method:
-     *  - refOriginalTexture()
+     *  - refOriginalTextureProxy()
      *
      *  Subclass may override this if they can handle creating the texture more directly than
      *  by copying.
      */
-    virtual GrTexture* generateTextureForParams(const CopyParams&, bool willBeMipped,
-                                                SkColorSpace* dstColorSpace);
+    virtual sk_sp<GrTextureProxy> generateTextureProxyForParams(const CopyParams&,
+                                                                bool willBeMipped,
+                                                                SkColorSpace* dstColorSpace);
 
     GrContext* context() const { return fContext; }
 

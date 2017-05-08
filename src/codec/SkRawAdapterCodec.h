@@ -24,7 +24,7 @@ public:
 
     explicit SkRawAdapterCodec(SkRawCodec*);
 
-    virtual ~SkRawAdapterCodec() {}
+    ~SkRawAdapterCodec() override {}
 
 protected:
 

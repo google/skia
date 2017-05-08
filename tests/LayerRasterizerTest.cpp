@@ -26,7 +26,7 @@ public:
         gCount++;
     }
 
-    ~DummyRasterizer() {
+    ~DummyRasterizer() override {
         // Not threadsafe. Only used in one thread.
         gCount--;
     }

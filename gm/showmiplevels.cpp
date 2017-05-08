@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkBitmapScaler.h"
@@ -15,7 +16,6 @@
 #include "SkPaint.h"
 #include "SkMipMap.h"
 #include "Resources.h"
-#include "sk_tool_utils.h"
 
 #define SHOW_MIP_COLOR  0xFF000000
 

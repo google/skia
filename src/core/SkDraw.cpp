@@ -73,7 +73,8 @@ private:
     // Owned by fAlloc, which will handle the delete.
     SkBlitter*          fBlitter;
 
-    SkArenaAlloc fAlloc{kSkBlitterContextSize};
+    char fStorage[kSkBlitterContextSize];
+    SkArenaAlloc fAlloc{fStorage};
 };
 #define SkAutoBlitterChoose(...) SK_REQUIRE_LOCAL_VAR(SkAutoBlitterChoose)
 
@@ -577,11 +578,9 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                         // then path then
                         path.setIsVolatile((count-1) == i);
                         if (device) {
-                            device->drawPath(*this, path, newPaint, &preMatrix,
-                                              (count-1) == i);
+                            device->drawPath(path, newPaint, &preMatrix, (count-1) == i);
                         } else {
-                            this->drawPath(path, newPaint, &preMatrix,
-                                           (count-1) == i);
+                            this->drawPath(path, newPaint, &preMatrix, (count-1) == i);
                         }
                     }
                 } else {
@@ -593,7 +592,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                         r.fRight = r.fLeft + width;
                         r.fBottom = r.fTop + width;
                         if (device) {
-                            device->drawRect(*this, r, newPaint);
+                            device->drawRect(r, newPaint);
                         } else {
                             this->drawRect(r, newPaint);
                         }
@@ -624,7 +623,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
 
                         if (!pointData.fFirst.isEmpty()) {
                             if (device) {
-                                device->drawPath(*this, pointData.fFirst, newP);
+                                device->drawPath(pointData.fFirst, newP);
                             } else {
                                 this->drawPath(pointData.fFirst, newP);
                             }
@@ -632,7 +631,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
 
                         if (!pointData.fLast.isEmpty()) {
                             if (device) {
-                                device->drawPath(*this, pointData.fLast, newP);
+                                device->drawPath(pointData.fLast, newP);
                             } else {
                                 this->drawPath(pointData.fLast, newP);
                             }
@@ -649,11 +648,10 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                             }
 
                             if (device) {
-                                device->drawPoints(*this,
-                                                    SkCanvas::kPoints_PointMode,
-                                                    pointData.fNumPoints,
-                                                    pointData.fPoints,
-                                                    newP);
+                                device->drawPoints(SkCanvas::kPoints_PointMode,
+                                                   pointData.fNumPoints,
+                                                   pointData.fPoints,
+                                                   newP);
                             } else {
                                 this->drawPoints(SkCanvas::kPoints_PointMode,
                                                  pointData.fNumPoints,
@@ -675,7 +673,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                                       pointData.fPoints[i].fX + pointData.fSize.fX,
                                       pointData.fPoints[i].fY + pointData.fSize.fY);
                                 if (device) {
-                                    device->drawRect(*this, r, newP);
+                                    device->drawRect(r, newP);
                                 } else {
                                     this->drawRect(r, newP);
                                 }
@@ -697,7 +695,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                     path.moveTo(pts[i]);
                     path.lineTo(pts[i+1]);
                     if (device) {
-                        device->drawPath(*this, path, p, nullptr, true);
+                        device->drawPath(path, p, nullptr, true);
                     } else {
                         this->drawPath(path, p, nullptr, true);
                     }
@@ -1422,8 +1420,7 @@ void SkDraw::drawText_asPaths(const char text[], size_t byteLength, SkScalar x, 
     while (iter.next(&iterPath, &xpos)) {
         matrix.postTranslate(xpos - prevXPos, 0);
         if (iterPath) {
-            const SkPaint& pnt = iter.getPaint();
-            this->drawPath(*iterPath, pnt, &matrix, false);
+            this->drawPath(*iterPath, iter.getPaint(), &matrix, false);
         }
         prevXPos = xpos;
     }
@@ -1700,7 +1697,7 @@ public:
     class TriColorShaderContext : public SkShader::Context {
     public:
         TriColorShaderContext(const SkTriColorShader& shader, const ContextRec&);
-        virtual ~TriColorShaderContext();
+        ~TriColorShaderContext() override;
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
 
     private:
@@ -1946,7 +1943,7 @@ sk_sp<SkShader> MakeTextureShader(const VertState& state, const SkPoint verts[],
 
 } // anonymous ns
 
-void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
+void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
                           const SkPoint vertices[], const SkPoint textures[],
                           const SkColor colors[], SkBlendMode bmode,
                           const uint16_t indices[], int indexCount,

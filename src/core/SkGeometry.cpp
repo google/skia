@@ -550,8 +550,9 @@ static SkCubicType classify_cubic(const SkPoint p[4], const SkScalar d[3]) {
     } else if (discr < -SK_ScalarNearlyZero) {
         return kLoop_SkCubicType;
     } else {
-        if (0.f == d[0] && 0.f == d[1]) {
-            return (0.f == d[2] ? kLine_SkCubicType : kQuadratic_SkCubicType);
+        if (SkScalarAbs(d[0]) < SK_ScalarNearlyZero && SkScalarAbs(d[1]) < SK_ScalarNearlyZero) {
+            return ((SkScalarAbs(d[2]) < SK_ScalarNearlyZero) ? kLine_SkCubicType
+                                                              : kQuadratic_SkCubicType);
         } else {
             return kCusp_SkCubicType;
         }

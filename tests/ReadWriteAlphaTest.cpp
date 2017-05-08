@@ -12,6 +12,7 @@
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxy.h"
 #include "SkCanvas.h"
@@ -55,17 +56,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         // We are initializing the texture with zeros here
         memset(alphaData, 0, X_SIZE * Y_SIZE);
 
-        sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                                  context->textureProvider(),
-                                                                  desc,
-                                                                  SkBudgeted::kNo,
-                                                                  alphaData, 0));
-        if (!sProxy) {
+        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                                 desc,
+                                                                 SkBudgeted::kNo,
+                                                                 alphaData, 0));
+        if (!proxy) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
         }
         sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
-                                                                  sProxy, nullptr));
+                                                                  std::move(proxy), nullptr));
 
         const SkImageInfo ii = SkImageInfo::MakeA8(X_SIZE, Y_SIZE);
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
@@ -159,9 +159,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                     rgbaData[y * X_SIZE + x] = GrColorPackRGBA(6, 7, 8, alphaData[y * X_SIZE + x]);
                 }
             }
-            sk_sp<GrTexture> texture(
-                context->textureProvider()->createTexture(desc, SkBudgeted::kNo, rgbaData, 0));
-            if (!texture) {
+            sk_sp<GrTextureProxy> proxy =
+                GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kNo,
+                                             rgbaData, 0);
+            if (!proxy) {
                 // We always expect to be able to create a RGBA texture
                 if (!rt  && kRGBA_8888_GrPixelConfig == desc.fConfig) {
                     ERRORF(reporter, "Failed to create RGBA texture.");
@@ -177,8 +178,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
 
                 // read the texture back
-                bool result = texture->readPixels(0, 0, desc.fWidth, desc.fHeight,
-                                                  kAlpha_8_GrPixelConfig,
+                bool result = context->contextPriv().readSurfacePixels(
+                                                  proxy.get(), nullptr,
+                                                  0, 0, desc.fWidth, desc.fHeight,
+                                                  kAlpha_8_GrPixelConfig, nullptr,
                                                   readback.get(), rowBytes);
                 REPORTER_ASSERT_MESSAGE(reporter, result, "8888 readPixels failed");
 

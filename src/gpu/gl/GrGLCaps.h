@@ -359,6 +359,9 @@ public:
         return fRGBAToBGRAReadbackConversionsAreSlow;
     }
 
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+                            bool* rectsMustMatch, bool* disallowSubrect) const override;
+
 private:
     enum ExternalFormatUsage {
         kTexImage_ExternalFormatUsage,

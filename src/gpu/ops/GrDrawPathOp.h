@@ -14,45 +14,54 @@
 #include "GrPath.h"
 #include "GrPathProcessor.h"
 #include "GrPathRendering.h"
+#include "GrProcessorSet.h"
 #include "GrStencilSettings.h"
 
 #include "SkTLList.h"
 
+class GrPaint;
+
 class GrDrawPathOpBase : public GrDrawOp {
 protected:
-    GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix, GrColor initialColor,
-                     GrPathRendering::FillType fill)
-            : INHERITED(classID), fViewMatrix(viewMatrix), fColor(initialColor), fFillType(fill) {}
-
-    const GrStencilSettings& stencilPassSettings() const {
-        SkASSERT(!fStencilPassSettings.isDisabled());  // This shouldn't be called before onPrepare.
-        return fStencilPassSettings;
+    GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix, GrPaint&&,
+                     GrPathRendering::FillType, GrAAType);
+    FixedFunctionFlags fixedFunctionFlags() const override {
+        if (GrAATypeIsHW(fAAType)) {
+            return FixedFunctionFlags::kUsesHWAA | FixedFunctionFlags::kUsesStencil;
+        }
+        return FixedFunctionFlags::kUsesStencil;
+    }
+    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
+        return this->doProcessorAnalysis(caps, clip).requiresDstTexture();
     }
 
 protected:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
-    GrColor color() const { return fColor; }
+    GrColor color() const { return fInputColor; }
     GrPathRendering::FillType fillType() const { return fFillType; }
-    bool xpReadsDst() const { return fXPReadsDst; }
+    const GrProcessorSet& processors() const { return fProcessorSet; }
+    void initPipeline(const GrOpFlushState&, GrPipeline*);
+    const GrProcessorSet::Analysis& doProcessorAnalysis(const GrCaps& caps,
+                                                        const GrAppliedClip* clip) {
+        bool isMixedSamples = GrAAType::kMixedSamples == fAAType;
+        fAnalysis = fProcessorSet.finalize(fInputColor, GrProcessorAnalysisCoverage::kNone, clip,
+                                           isMixedSamples, caps, &fInputColor);
+        return fAnalysis;
+    }
+    const GrProcessorSet::Analysis& processorAnalysis() const {
+        SkASSERT(fAnalysis.isInitialized());
+        return fAnalysis;
+    }
 
 private:
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fColor);
-        input->coverageInput()->setToSolidCoverage();
-    }
-
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
-        optimizations.getOverrideColorIfSet(&fColor);
-        fXPReadsDst = optimizations.xpReadsDst();
-    }
-
-    void onPrepare(GrOpFlushState*) override;  // Initializes fStencilPassSettings.
+    void onPrepare(GrOpFlushState*) final {}
 
     SkMatrix fViewMatrix;
-    GrColor fColor;
+    GrColor fInputColor;
+    GrProcessorSet fProcessorSet;
+    GrProcessorSet::Analysis fAnalysis;
     GrPathRendering::FillType fFillType;
-    GrStencilSettings fStencilPassSettings;
-    bool fXPReadsDst;
+    GrAAType fAAType;
 
     typedef GrDrawOp INHERITED;
 };
@@ -61,9 +70,10 @@ class GrDrawPathOp final : public GrDrawPathOpBase {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(const SkMatrix& viewMatrix, GrColor color,
-                                          const GrPath* path) {
-        return std::unique_ptr<GrDrawOp>(new GrDrawPathOp(viewMatrix, color, path));
+    static std::unique_ptr<GrDrawOp> Make(const SkMatrix& viewMatrix, GrPaint&& paint,
+                                          GrAAType aaType, GrPath* path) {
+        return std::unique_ptr<GrDrawOp>(
+                new GrDrawPathOp(viewMatrix, std::move(paint), aaType, path));
     }
 
     const char* name() const override { return "DrawPath"; }
@@ -71,14 +81,15 @@ public:
     SkString dumpInfo() const override;
 
 private:
-    GrDrawPathOp(const SkMatrix& viewMatrix, GrColor color, const GrPath* path)
-            : GrDrawPathOpBase(ClassID(), viewMatrix, color, path->getFillType()), fPath(path) {
+    GrDrawPathOp(const SkMatrix& viewMatrix, GrPaint&& paint, GrAAType aaType, const GrPath* path)
+            : GrDrawPathOpBase(ClassID(), viewMatrix, std::move(paint), path->getFillType(), aaType)
+            , fPath(path) {
         this->setTransformedBounds(path->getBounds(), viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
 
-    void onExecute(GrOpFlushState* state, const SkRect& bounds) override;
+    void onExecute(GrOpFlushState* state) override;
 
     GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;
 
@@ -152,10 +163,12 @@ public:
     };
 
     static std::unique_ptr<GrDrawOp> Make(const SkMatrix& viewMatrix, SkScalar scale, SkScalar x,
-                                          SkScalar y, GrColor color, GrPathRendering::FillType fill,
+                                          SkScalar y, GrPaint&& paint,
+                                          GrPathRendering::FillType fill, GrAAType aaType,
                                           GrPathRange* range, const InstanceData* instanceData,
                                           const SkRect& bounds) {
-        return std::unique_ptr<GrDrawOp>(new GrDrawPathRangeOp(viewMatrix, scale, x, y, color, fill,
+        return std::unique_ptr<GrDrawOp>(new GrDrawPathRangeOp(viewMatrix, scale, x, y,
+                                                               std::move(paint), fill, aaType,
                                                                range, instanceData, bounds));
     }
 
@@ -165,14 +178,14 @@ public:
 
 private:
     GrDrawPathRangeOp(const SkMatrix& viewMatrix, SkScalar scale, SkScalar x, SkScalar y,
-                      GrColor color, GrPathRendering::FillType fill, GrPathRange* range,
-                      const InstanceData* instanceData, const SkRect& bounds);
+                      GrPaint&& paint, GrPathRendering::FillType fill, GrAAType aaType,
+                      GrPathRange* range, const InstanceData* instanceData, const SkRect& bounds);
 
     TransformType transformType() const { return fDraws.head()->fInstanceData->transformType(); }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
-    void onExecute(GrOpFlushState* state, const SkRect& bounds) override;
+    void onExecute(GrOpFlushState* state) override;
 
     struct Draw {
         void set(const InstanceData* instanceData, SkScalar x, SkScalar y) {

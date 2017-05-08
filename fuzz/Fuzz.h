@@ -10,6 +10,7 @@
 
 #include "SkData.h"
 #include "../tools/Registry.h"
+#include "SkMalloc.h"
 #include "SkTypes.h"
 
 #include <cmath>

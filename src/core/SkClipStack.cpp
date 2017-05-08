@@ -70,6 +70,7 @@ bool SkClipStack::Element::operator== (const Element& element) const {
     }
 }
 
+#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
 void SkClipStack::Element::replay(SkCanvasClipVisitor* visitor) const {
     static const SkRect kEmptyRect = { 0, 0, 0, 0 };
 
@@ -88,6 +89,7 @@ void SkClipStack::Element::replay(SkCanvasClipVisitor* visitor) const {
             break;
     }
 }
+#endif
 
 void SkClipStack::Element::invertShapeFillType() {
     switch (fType) {
@@ -496,6 +498,11 @@ static const int kDefaultElementAllocCnt = 8;
 
 SkClipStack::SkClipStack()
     : fDeque(sizeof(Element), kDefaultElementAllocCnt)
+    , fSaveCount(0) {
+}
+
+SkClipStack::SkClipStack(void* storage, size_t size)
+    : fDeque(sizeof(Element), storage, size, kDefaultElementAllocCnt)
     , fSaveCount(0) {
 }
 

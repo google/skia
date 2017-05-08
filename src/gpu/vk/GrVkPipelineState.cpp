@@ -172,12 +172,13 @@ void GrVkPipelineState::abandonGPUResources() {
     }
 }
 
-static void append_texture_bindings(const GrProcessor& processor,
-                                    SkTArray<const GrProcessor::TextureSampler*>* textureBindings) {
+static void append_texture_bindings(
+        const GrResourceIOProcessor& processor,
+        SkTArray<const GrResourceIOProcessor::TextureSampler*>* textureBindings) {
     // We don't support image storages in VK.
     SkASSERT(!processor.numImageStorages());
     if (int numTextureSamplers = processor.numTextureSamplers()) {
-        const GrProcessor::TextureSampler** bindings =
+        const GrResourceIOProcessor::TextureSampler** bindings =
                 textureBindings->push_back_n(numTextureSamplers);
         int i = 0;
         do {
@@ -193,9 +194,9 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     // freeing the tempData between calls.
     this->freeTempResources(gpu);
 
-    this->setRenderTargetState(pipeline);
+    this->setRenderTargetState(pipeline.getRenderTarget());
 
-    SkSTArray<8, const GrProcessor::TextureSampler*> textureBindings;
+    SkSTArray<8, const GrResourceIOProcessor::TextureSampler*> textureBindings;
 
     fGeometryProcessor->setData(fDataManager, primProc,
                                 GrFragmentProcessor::CoordTransformIter(pipeline));
@@ -214,8 +215,14 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     }
     SkASSERT(!fp && !glslFP);
 
-    fXferProcessor->setData(fDataManager, pipeline.getXferProcessor());
-    append_texture_bindings(pipeline.getXferProcessor(), &textureBindings);
+    SkIPoint offset;
+    GrTexture* dstTexture = pipeline.dstTexture(&offset);
+    fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
+    GrResourceIOProcessor::TextureSampler dstTextureSampler;
+    if (dstTexture) {
+        dstTextureSampler.reset(dstTexture);
+        textureBindings.push_back(&dstTextureSampler);
+    }
 
     // Get new descriptor sets
     if (fNumSamplers) {
@@ -307,7 +314,7 @@ void GrVkPipelineState::writeUniformBuffers(const GrVkGpu* gpu) {
 
 void GrVkPipelineState::writeSamplers(
         GrVkGpu* gpu,
-        const SkTArray<const GrProcessor::TextureSampler*>& textureBindings,
+        const SkTArray<const GrResourceIOProcessor::TextureSampler*>& textureBindings,
         bool allowSRGBInputs) {
     SkASSERT(fNumSamplers == textureBindings.count());
 
@@ -354,16 +361,14 @@ void GrVkPipelineState::writeSamplers(
     }
 }
 
-void GrVkPipelineState::setRenderTargetState(const GrPipeline& pipeline) {
+void GrVkPipelineState::setRenderTargetState(const GrRenderTarget* rt) {
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
-        fRenderTargetState.fRenderTargetSize.fHeight != pipeline.getRenderTarget()->height()) {
-        fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni,
-                                  SkIntToScalar(pipeline.getRenderTarget()->height()));
+        fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
+        fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni, SkIntToScalar(rt->height()));
     }
 
     // set RT adjustment
-    const GrRenderTarget* rt = pipeline.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());

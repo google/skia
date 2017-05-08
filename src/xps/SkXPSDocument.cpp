@@ -36,8 +36,7 @@ SkXPSDocument::~SkXPSDocument() {
 SkCanvas* SkXPSDocument::onBeginPage(SkScalar width,
                                      SkScalar height,
                                      const SkRect& trimBox) {
-    fDevice.beginSheet(fUnitsPerMeter, fPixelsPerMeter,
-                       SkSize::Make(width, height));
+    fDevice.beginSheet(fUnitsPerMeter, fPixelsPerMeter, {width, height});
     fCanvas.reset(new SkCanvas(&fDevice));
     fCanvas->clipRect(trimBox);
     fCanvas->translate(trimBox.x(), trimBox.y());

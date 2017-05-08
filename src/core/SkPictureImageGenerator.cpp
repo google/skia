@@ -94,10 +94,11 @@ SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-#include "GrTexture.h"
+sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(GrContext* ctx,
+                                                                 const SkImageInfo& info,
+                                                                 const SkIPoint& origin) {
+    SkASSERT(ctx);
 
-GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
-                                                      const SkIPoint& origin) {
     //
     // TODO: respect the usage, by possibly creating a different (pow2) surface
     //
@@ -114,6 +115,6 @@ GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkIm
     if (!image) {
         return nullptr;
     }
-    return SkSafeRef(as_IB(image)->peekTexture());
+    return as_IB(image)->asTextureProxyRef();
 }
 #endif

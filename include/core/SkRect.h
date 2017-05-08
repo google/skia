@@ -280,7 +280,7 @@ struct SK_API SkIRect {
         intersection, otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& r) {
+    bool intersect(const SkIRect& r) {
         return this->intersect(r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
 
@@ -327,8 +327,7 @@ struct SK_API SkIRect {
         otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool SK_WARN_UNUSED_RESULT intersect(int32_t left, int32_t top, 
-                                         int32_t right, int32_t bottom) {
+    bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
         if (left < right && top < bottom && !this->isEmpty() &&
                 fLeft < right && left < fRight && fTop < bottom && top < fBottom) {
             if (fLeft < left) fLeft = left;
@@ -676,15 +675,14 @@ struct SK_API SkRect {
         intersection, otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool SK_WARN_UNUSED_RESULT intersect(const SkRect& r);
+    bool intersect(const SkRect& r);
 
     /** If this rectangle intersects the rectangle specified by left, top, right, bottom,
         return true and set this rectangle to that intersection, otherwise return false
         and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool SK_WARN_UNUSED_RESULT intersect(SkScalar left, SkScalar top, 
-                                         SkScalar right, SkScalar bottom);
+    bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
 
     /**
      *  If rectangles a and b intersect, return true and set this rectangle to

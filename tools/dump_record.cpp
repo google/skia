@@ -57,7 +57,8 @@ int main(int argc, char** argv) {
         }
         if (FLAGS_defer) {
             SkPictureRecorder recorder;
-            SkDeferredCanvas deferred(recorder.beginRecording(src->cullRect()));
+            SkDeferredCanvas deferred(recorder.beginRecording(src->cullRect()),
+                                      SkDeferredCanvas::kEager);
             src->playback(&deferred);
             src = recorder.finishRecordingAsPicture();
         }

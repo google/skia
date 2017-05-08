@@ -18,7 +18,8 @@ public:
     GrBitmapTextureMaker(GrContext* context, const SkBitmap& bitmap);
 
 protected:
-    GrTexture* refOriginalTexture(bool willBeMipped, SkColorSpace* dstColorSpace) override;
+    sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
+                                                  SkColorSpace* dstColorSpace) override;
 
     void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey,
                      SkColorSpace* dstColorSpace) override;

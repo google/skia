@@ -39,6 +39,8 @@ static inline uint8_t clamp_normalized_float_to_byte(float v) {
 }
 
 static inline float clamp_0_1(float v) {
+    // The ordering of the logic is a little strange here in order
+    // to make sure we convert NaNs to 0.
     if (v >= 1.0f) {
         return 1.0f;
     } else if (v >= 0.0f) {
@@ -90,12 +92,8 @@ static inline SkColorSpaceXform::ColorFormat select_xform_format(SkColorType col
             return SkColorSpaceXform::kBGRA_8888_ColorFormat;
         case kRGBA_F16_SkColorType:
             return SkColorSpaceXform::kRGBA_F16_ColorFormat;
-        case kIndex_8_SkColorType:
-#ifdef SK_PMCOLOR_IS_RGBA
-            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
-#else
-            return SkColorSpaceXform::kBGRA_8888_ColorFormat;
-#endif
+        case kRGB_565_SkColorType:
+            return SkColorSpaceXform::kBGR_565_ColorFormat;
         default:
             SkASSERT(false);
             return SkColorSpaceXform::kRGBA_8888_ColorFormat;

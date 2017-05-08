@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_SYMBOLTABLE
 #define SKSL_SYMBOLTABLE
 
@@ -24,18 +24,18 @@ struct FunctionDeclaration;
  */
 class SymbolTable {
 public:
-    SymbolTable(ErrorReporter& errorReporter)
-    : fErrorReporter(errorReporter) {}
+    SymbolTable(ErrorReporter* errorReporter)
+    : fErrorReporter(*errorReporter) {}
 
-    SymbolTable(std::shared_ptr<SymbolTable> parent, ErrorReporter& errorReporter)
+    SymbolTable(std::shared_ptr<SymbolTable> parent, ErrorReporter* errorReporter)
     : fParent(parent)
-    , fErrorReporter(errorReporter) {}
+    , fErrorReporter(*errorReporter) {}
 
-    const Symbol* operator[](const SkString& name);
+    const Symbol* operator[](const String& name);
 
-    void add(const SkString& name, std::unique_ptr<Symbol> symbol);
+    void add(const String& name, std::unique_ptr<Symbol> symbol);
 
-    void addWithoutOwnership(const SkString& name, const Symbol* symbol);
+    void addWithoutOwnership(const String& name, const Symbol* symbol);
 
     Symbol* takeOwnership(Symbol* s);
 
@@ -48,7 +48,7 @@ private:
 
     std::vector<std::unique_ptr<Symbol>> fOwnedPointers;
 
-    std::unordered_map<SkString, const Symbol*> fSymbols;
+    std::unordered_map<String, const Symbol*> fSymbols;
 
     ErrorReporter& fErrorReporter;
 };

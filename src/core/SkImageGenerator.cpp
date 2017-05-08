@@ -45,6 +45,15 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     return success;
 }
 
+bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                                 const Options* opts) {
+    Options defaultOpts;
+    if (!opts) {
+        opts = &defaultOpts;
+    }
+    return this->onGetPixels(info, pixels, rowBytes, *opts);
+}
+
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
     SkASSERT(kIndex_8_SkColorType != info.colorType());
     if (kIndex_8_SkColorType == info.colorType()) {
@@ -77,14 +86,23 @@ bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes
     return this->onGetYUV8Planes(sizeInfo, planes);
 }
 
-GrTexture* SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& info,
-                                             const SkIPoint& origin) {
+#if SK_SUPPORT_GPU
+#include "GrTextureProxy.h"
+
+sk_sp<GrTextureProxy> SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& info,
+                                                        const SkIPoint& origin) {
     SkIRect srcRect = SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height());
     if (!SkIRect::MakeWH(fInfo.width(), fInfo.height()).contains(srcRect)) {
         return nullptr;
     }
     return this->onGenerateTexture(ctx, info, origin);
 }
+
+sk_sp<GrTextureProxy> SkImageGenerator::onGenerateTexture(GrContext*, const SkImageInfo&,
+                                                          const SkIPoint&) {
+    return nullptr;
+}
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -101,76 +119,6 @@ bool SkImageGenerator::onGetPixels(const SkImageInfo& info, void* dst, size_t rb
 
 #include "SkBitmap.h"
 #include "SkColorTable.h"
-
-static bool reset_and_return_false(SkBitmap* bitmap) {
-    bitmap->reset();
-    return false;
-}
-
-bool SkImageGenerator::tryGenerateBitmap(SkBitmap* bitmap, const SkImageInfo& info,
-                                         SkBitmap::Allocator* allocator) {
-    if (0 == info.getSafeSize(info.minRowBytes())) {
-        return false;
-    }
-    if (!bitmap->setInfo(info)) {
-        return reset_and_return_false(bitmap);
-    }
-
-    SkPMColor ctStorage[256];
-    memset(ctStorage, 0xFF, sizeof(ctStorage)); // init with opaque-white for the moment
-    sk_sp<SkColorTable> ctable(new SkColorTable(ctStorage, 256));
-    if (!bitmap->tryAllocPixels(allocator, ctable.get())) {
-        // SkResourceCache's custom allcator can'thandle ctables, so it may fail on
-        // kIndex_8_SkColorTable.
-        // https://bug.skia.org/4355
-#if 1
-        // ignore the allocator, and see if we can succeed without it
-        if (!bitmap->tryAllocPixels(nullptr, ctable.get())) {
-            return reset_and_return_false(bitmap);
-        }
-#else
-        // this is the up-scale technique, not fully debugged, but we keep it here at the moment
-        // to remind ourselves that this might be better than ignoring the allocator.
-
-        info = SkImageInfo::MakeN32(info.width(), info.height(), info.alphaType());
-        if (!bitmap->setInfo(info)) {
-            return reset_and_return_false(bitmap);
-        }
-        // we pass nullptr for the ctable arg, since we are now explicitly N32
-        if (!bitmap->tryAllocPixels(allocator, nullptr)) {
-            return reset_and_return_false(bitmap);
-        }
-#endif
-    }
-
-    bitmap->lockPixels();
-    if (!bitmap->getPixels()) {
-        return reset_and_return_false(bitmap);
-    }
-
-    int ctCount = 0;
-    if (!this->getPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(),
-                         ctStorage, &ctCount)) {
-        return reset_and_return_false(bitmap);
-    }
-
-    if (ctCount > 0) {
-        SkASSERT(kIndex_8_SkColorType == bitmap->colorType());
-        // we and bitmap should be owners
-        SkASSERT(!ctable->unique());
-
-        // Now we need to overwrite the ctable we built earlier, with the correct colors.
-        // This does mean that we may have made the table too big, but that cannot be avoided
-        // until we can change SkImageGenerator's API to return us the ctable *before* we have to
-        // allocate space for all the pixels.
-        ctable->dangerous_overwriteColors(ctStorage, ctCount);
-    } else {
-        SkASSERT(kIndex_8_SkColorType != bitmap->colorType());
-        // we should be the only owner
-        SkASSERT(ctable->unique());
-    }
-    return true;
-}
 
 #include "SkGraphics.h"
 

@@ -12,8 +12,6 @@
 #include "GrXferProcessor.h"
 #include "SkRefCnt.h"
 
-class GrProcOptInfo;
-
 // See the comment above GrXPFactory's definition about this warning suppression.
 #if defined(__GNUC__) || defined(__clang)
 #pragma GCC diagnostic push
@@ -24,18 +22,19 @@ public:
     static const GrXPFactory* Get();
 
 private:
-    bool willReadsDst(const FragmentProcessorAnalysis&) const override { return false; }
-
     constexpr GrDisableColorXPFactory() {}
 
-    bool onWillReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override {
-        return false;
+    AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
+                                          const GrProcessorAnalysisCoverage&,
+                                          const GrCaps&) const override {
+        return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
+               AnalysisProperties::kIgnoresInputColor;
     }
 
-    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const FragmentProcessorAnalysis&,
-                                           bool hasMixedSamples,
-                                           const DstTexture* dstTexture) const override;
+    sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                   GrProcessorAnalysisCoverage,
+                                                   bool hasMixedSamples,
+                                                   const GrCaps&) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
 

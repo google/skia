@@ -69,7 +69,7 @@ static void test_filestreams(skiatest::Reporter* reporter, const char* tmpDir) {
 
     {
         FILE* file = ::fopen(path.c_str(), "rb");
-        SkFILEStream stream(file, SkFILEStream::kCallerPasses_Ownership);
+        SkFILEStream stream(file);
         REPORTER_ASSERT(reporter, stream.isValid());
         test_loop_stream(reporter, &stream, s, 26, 100);
 
@@ -407,6 +407,26 @@ static void stream_copy_test(skiatest::Reporter* reporter,
     }
     if (0 != memcmp(data->data(), srcData, N)) {
         ERRORF(reporter, "SkStreamCopy bad copy");
+    }
+}
+
+DEF_TEST(DynamicMemoryWStream_detachAsData, r) {
+    const char az[] = "abcdefghijklmnopqrstuvwxyz";
+    const unsigned N = 40000;
+    SkDynamicMemoryWStream dmws;
+    for (unsigned i = 0; i < N; ++i) {
+        dmws.writeText(az);
+    }
+    REPORTER_ASSERT(r, dmws.bytesWritten() == N * strlen(az));
+    auto data = dmws.detachAsData();
+    REPORTER_ASSERT(r, data->size() == N * strlen(az));
+    const uint8_t* ptr = data->bytes();
+    for (unsigned i = 0; i < N; ++i) {
+        if (0 != memcmp(ptr, az, strlen(az))) {
+            ERRORF(r, "detachAsData() memcmp failed");
+            return;
+        }
+        ptr += strlen(az);
     }
 }
 

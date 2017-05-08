@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_VARIABLE
 #define SKSL_VARIABLE
 
@@ -27,7 +27,7 @@ struct Variable : public Symbol {
         kParameter_Storage
     };
 
-    Variable(Position position, Modifiers modifiers, SkString name, const Type& type,
+    Variable(Position position, Modifiers modifiers, String name, const Type& type,
              Storage storage)
     : INHERITED(position, kVariable_Kind, std::move(name))
     , fModifiers(modifiers)
@@ -36,7 +36,7 @@ struct Variable : public Symbol {
     , fReadCount(0)
     , fWriteCount(0) {}
 
-    virtual SkString description() const override {
+    virtual String description() const override {
         return fModifiers.description() + fType.fName + " " + fName;
     }
 

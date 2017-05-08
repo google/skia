@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
+#include "SkTDArray.h"
 #include "SkUtils.h"
 
 #if SK_SUPPORT_GPU

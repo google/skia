@@ -24,7 +24,7 @@ class GrGLGpuCommandBuffer : public GrGpuCommandBuffer {
 public:
     GrGLGpuCommandBuffer(GrGLGpu* gpu) : fGpu(gpu), fRenderTarget(nullptr) {}
 
-    virtual ~GrGLGpuCommandBuffer() {}
+    ~GrGLGpuCommandBuffer() override {}
 
     void end() override {}
 
@@ -36,7 +36,8 @@ public:
         SkASSERT(target == fRenderTarget);
     }
 
-    void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload) override {
+    void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload,
+                      GrRenderTarget*) override {
         state->doUpload(upload);
     }
 

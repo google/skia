@@ -16,10 +16,10 @@
 class GrCaps;
 class GrRenderTargetOpList;
 class GrRenderTargetProxy;
+class GrResourceProvider;
 class GrSurfaceContext;
 class GrSurfaceProxyPriv;
 class GrTextureOpList;
-class GrTextureProvider;
 class GrTextureProxy;
 
 //#define SK_DISABLE_DEFERRED_PROXIES 1
@@ -109,6 +109,14 @@ protected:
         return SkToBool(fPendingWrites | fPendingReads);
     }
 
+    bool internalHasPendingWrite() const {
+        if (fTarget) {
+            return fTarget->internalHasPendingWrite();
+        }
+
+        return SkToBool(fPendingWrites);
+    }
+
     // For deferred proxies this will be null. For wrapped proxies it will point to the
     // wrapped resource.
     GrSurface* fTarget;
@@ -172,20 +180,17 @@ public:
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>);
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>);
 
-    static sk_sp<GrSurfaceProxy> MakeDeferred(GrTextureProvider*, const GrCaps&,
+    static sk_sp<GrTextureProxy> MakeDeferred(GrResourceProvider*,
                                               const GrSurfaceDesc&, SkBackingFit,
                                               SkBudgeted, uint32_t flags = 0);
 
     // TODO: need to refine ownership semantics of 'srcData' if we're in completely
     // deferred mode
-    static sk_sp<GrSurfaceProxy> MakeDeferred(const GrCaps&, GrTextureProvider*,
+    static sk_sp<GrTextureProxy> MakeDeferred(GrResourceProvider*,
                                               const GrSurfaceDesc&, SkBudgeted,
                                               const void* srcData, size_t rowBytes);
 
-    static sk_sp<GrSurfaceProxy> MakeWrappedBackend(
-                                            GrContext*,
-                                            GrBackendTextureDesc&,
-                                            GrWrapOwnership ownership = kBorrow_GrWrapOwnership);
+    static sk_sp<GrSurfaceProxy> MakeWrappedBackend(GrContext*, GrBackendTextureDesc&);
 
     const GrSurfaceDesc& desc() const { return fDesc; }
 
@@ -200,6 +205,10 @@ public:
 
     class UniqueID {
     public:
+        static UniqueID InvalidID() {
+            return UniqueID(uint32_t(SK_InvalidUniqueID));
+        }
+
         // wrapped
         explicit UniqueID(const GrGpuResource::UniqueID& id) : fID(id.asUInt()) { }
         // deferred
@@ -214,10 +223,13 @@ public:
             return !(*this == other);
         }
 
+        void makeInvalid() { fID = SK_InvalidUniqueID; }
         bool isInvalid() const { return SK_InvalidUniqueID == fID; }
 
     private:
-        const uint32_t fID;
+        explicit UniqueID(uint32_t id) : fID(id) {}
+
+        uint32_t fID;
     };
 
     /*
@@ -237,7 +249,7 @@ public:
      */
     UniqueID uniqueID() const { return fUniqueID; }
 
-    GrSurface* instantiate(GrTextureProvider* texProvider);
+    GrSurface* instantiate(GrResourceProvider* resourceProvider);
 
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.
@@ -286,10 +298,13 @@ public:
     }
 
     // Helper function that creates a temporary SurfaceContext to perform the copy
+    // It always returns a kExact-backed proxy bc it is used when converting an SkSpecialImage
+    // to an SkImage.
     static sk_sp<GrTextureProxy> Copy(GrContext*, GrSurfaceProxy* src,
                                       SkIRect srcRect, SkBudgeted);
 
     // Copy the entire 'src'
+    // It always returns a kExact-backed proxy bc it is used in SkGpuDevice::snapSpecial
     static sk_sp<GrTextureProxy> Copy(GrContext* context, GrSurfaceProxy* src,
                                       SkBudgeted budgeted);
 
@@ -312,6 +327,8 @@ protected:
         , fFit(fit)
         , fBudgeted(budgeted)
         , fFlags(flags)
+        // fMipColorMode is only valid for texturable proxies
+        , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
@@ -329,11 +346,19 @@ protected:
         return this->internalHasPendingIO();
     }
 
+    bool hasPendingWrite() const {
+        return this->internalHasPendingWrite();
+    }
+
     // For wrapped resources, 'fDesc' will always be filled in from the wrapped resource.
-    const GrSurfaceDesc  fDesc;
-    const SkBackingFit   fFit;      // always exact for wrapped resources
-    const SkBudgeted     fBudgeted; // set from the backing resource for wrapped resources
+    GrSurfaceDesc        fDesc;
+    SkBackingFit         fFit;      // always exact for wrapped resources
+    mutable SkBudgeted   fBudgeted; // set from the backing resource for wrapped resources
+                                    // mutable bc of SkSurface/SkImage wishy-washiness
     const uint32_t       fFlags;
+
+    SkDestinationSurfaceColorMode fMipColorMode;
+
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);

@@ -199,8 +199,7 @@ static std::unique_ptr<SkImageGenerator> make_ctable_generator(GrContext*, sk_sp
     SkImageInfo info = SkImageInfo::Make(100, 100, kIndex_8_SkColorType, kPremul_SkAlphaType);
 
     SkBitmap bm2;
-    sk_sp<SkColorTable> ct(new SkColorTable(colors, count));
-    bm2.allocPixels(info, nullptr, ct.get());
+    bm2.allocPixels(info, SkColorTable::Make(colors, count));
     for (int y = 0; y < info.height(); ++y) {
         for (int x = 0; x < info.width(); ++x) {
             *bm2.getAddr8(x, y) = find_closest(*bm.getAddr32(x, y), colors, count);
@@ -231,11 +230,10 @@ public:
         }
     }
 protected:
-    GrTexture* onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
-                                 const SkIPoint& origin) override {
-        if (ctx) {
-            SkASSERT(ctx == fCtx.get());
-        }
+    sk_sp<GrTextureProxy> onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
+                                            const SkIPoint& origin) override {
+        SkASSERT(ctx);
+        SkASSERT(ctx == fCtx.get());
 
         if (!fProxy) {
             return nullptr;
@@ -243,7 +241,7 @@ protected:
 
         if (origin.fX == 0 && origin.fY == 0 &&
             info.width() == fProxy->width() && info.height() == fProxy->height()) {
-            return SkSafeRef(fProxy->instantiate(fCtx->textureProvider())->asTexture());
+            return fProxy;
         }
 
         // need to copy the subset into a new texture
@@ -266,17 +264,14 @@ protected:
             return nullptr;
         }
 
-        GrSurface* dstSurf = dstContext->asSurfaceProxy()->instantiate(fCtx->textureProvider());
-        if (!dstSurf) {
-            return nullptr;
-        }
-
-        return SkRef(dstSurf->asTexture());
+        return dstContext->asTextureProxyRef();
     }
+
 private:
     sk_sp<GrContext>      fCtx;
-    sk_sp<GrSurfaceProxy> fProxy;
+    sk_sp<GrTextureProxy> fProxy;
 };
+
 static std::unique_ptr<SkImageGenerator> make_tex_generator(GrContext* ctx, sk_sp<SkPicture> pic) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
@@ -340,18 +335,19 @@ protected:
 
     static void draw_as_bitmap(SkCanvas* canvas, SkImageCacherator* cache, SkScalar x, SkScalar y) {
         SkBitmap bitmap;
-        cache->lockAsBitmap(&bitmap, nullptr, canvas->imageInfo().colorSpace());
+        cache->lockAsBitmap(canvas->getGrContext(), &bitmap, nullptr,
+                            canvas->imageInfo().colorSpace());
         canvas->drawBitmap(bitmap, x, y);
     }
 
     static void draw_as_tex(SkCanvas* canvas, SkImageCacherator* cache, SkScalar x, SkScalar y) {
 #if SK_SUPPORT_GPU
         sk_sp<SkColorSpace> texColorSpace;
-        sk_sp<GrTexture> texture(
-            cache->lockAsTexture(canvas->getGrContext(), GrSamplerParams::ClampBilerp(),
-                                 canvas->imageInfo().colorSpace(), &texColorSpace,
-                                 nullptr, nullptr));
-        if (!texture) {
+        sk_sp<GrTextureProxy> proxy(
+            cache->lockAsTextureProxy(canvas->getGrContext(), GrSamplerParams::ClampBilerp(),
+                                      canvas->imageInfo().colorSpace(), &texColorSpace,
+                                      nullptr, nullptr));
+        if (!proxy) {
             // show placeholder if we have no texture
             SkPaint paint;
             paint.setStyle(SkPaint::kStroke_Style);
@@ -362,10 +358,11 @@ protected:
             canvas->drawLine(r.left(), r.bottom(), r.right(), r.top(), paint);
             return;
         }
+
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
-        sk_sp<SkImage> image(new SkImage_Gpu(cache->info().width(), cache->info().height(),
+        sk_sp<SkImage> image(new SkImage_Gpu(canvas->getGrContext(),
                                              cache->uniqueID(), kPremul_SkAlphaType,
-                                             std::move(texture), std::move(texColorSpace),
+                                             std::move(proxy), std::move(texColorSpace),
                                              SkBudgeted::kNo));
         canvas->drawImage(image.get(), x, y);
 #endif

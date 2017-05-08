@@ -76,11 +76,17 @@ public:
     SkAlphaType computeOutputAlphaType(bool requestedUnpremul);
 
     /**
-     *  @param outputColorType Color type that the client will decode to
+     *  @param outputColorType Color type that the client will decode to.
+     *  @param prefColorSpace  Preferred color space to decode to.
+     *                         This may not return |prefColorSpace| for a couple reasons.
+     *                         (1) Android Principles: 565 must be sRGB, F16 must be
+     *                             linear sRGB, transfer function must be parametric.
+     *                         (2) Codec Limitations: F16 requires a linear color space.
      *
      *  Returns the appropriate color space to decode to.
      */
-    sk_sp<SkColorSpace> computeOutputColorSpace(SkColorType outputColorType);
+    sk_sp<SkColorSpace> computeOutputColorSpace(SkColorType outputColorType,
+                                                sk_sp<SkColorSpace> prefColorSpace = nullptr);
 
     /**
      *  Returns the dimensions of the scaled output image, for an input

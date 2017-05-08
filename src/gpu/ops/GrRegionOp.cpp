@@ -47,7 +47,7 @@ static void tesselate_region(intptr_t vertices,
     }
 }
 
-class RegionOp final : public GrMeshDrawOp {
+class RegionOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -77,12 +77,13 @@ public:
     }
 
 private:
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fRegions[0].fColor);
-        input->coverageInput()->setToSolidCoverage();
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
+        color->setToConstant(fRegions[0].fColor);
+        *coverage = GrProcessorAnalysisCoverage::kNone;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fRegions[0].fColor);
     }
 
@@ -117,7 +118,7 @@ private:
             int numRectsInRegion = fRegions[i].fRegion.computeRegionComplexity();
             verts += numRectsInRegion * kVertsPerInstance * vertexStride;
         }
-        helper.recordDraw(target, gp.get());
+        helper.recordDraw(target, gp.get(), this->pipeline());
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -144,12 +145,13 @@ private:
     SkMatrix fViewMatrix;
     SkSTArray<1, RegionInfo, true> fRegions;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 namespace GrRegionOp {
 
-std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region) {
-    return std::unique_ptr<GrDrawOp>(new RegionOp(color, viewMatrix, region));
+std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                         const SkRegion& region) {
+    return std::unique_ptr<GrLegacyMeshDrawOp>(new RegionOp(color, viewMatrix, region));
 }
 }

@@ -21,7 +21,9 @@
 #include "GrResourceKey.h"
 #endif
 
+#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
 class SkCanvasClipVisitor;
+#endif
 
 // Because a single save/restore state can have multiple clips, this class
 // stores the stack depth (fSaveCount) and clips (fDeque) separately.
@@ -29,7 +31,7 @@ class SkCanvasClipVisitor;
 // (i.e., the fSaveCount in force when it was added). Restores are thus
 // implemented by removing clips from fDeque that have an fSaveCount larger
 // then the freshly decremented count.
-class SK_API SkClipStack : public SkNVRefCnt<SkClipStack> {
+class SkClipStack {
 public:
     enum BoundsType {
         // The bounding box contains all the pixels that can be written to
@@ -196,10 +198,12 @@ public:
             return kPath_Type == fType && fPath.get()->isInverseFillType();
         }
 
+#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
         /**
         * Replay this clip into the visitor.
         */
         void replay(SkCanvasClipVisitor*) const;
+#endif
 
 #ifdef SK_DEBUG
         /**
@@ -327,6 +331,7 @@ public:
     };
 
     SkClipStack();
+    SkClipStack(void* storage, size_t size);
     SkClipStack(const SkClipStack& b);
     ~SkClipStack();
 
@@ -339,6 +344,27 @@ public:
     int getSaveCount() const { return fSaveCount; }
     void save();
     void restore();
+
+    class AutoRestore {
+    public:
+        AutoRestore(SkClipStack* cs, bool doSave)
+            : fCS(cs), fSaveCount(cs->getSaveCount())
+        {
+            if (doSave) {
+                fCS->save();
+            }
+        }
+        ~AutoRestore() {
+            SkASSERT(fCS->getSaveCount() >= fSaveCount);  // no underflow
+            while (fCS->getSaveCount() > fSaveCount) {
+                fCS->restore();
+            }
+        }
+
+    private:
+        SkClipStack* fCS;
+        const int    fSaveCount;
+    };
 
     /**
      * getBounds places the current finite bound in its first parameter. In its

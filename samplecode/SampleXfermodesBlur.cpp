@@ -107,24 +107,20 @@ protected:
             return;
         }
 
-        const struct {
-            SkBlendMode fMode;
-            const char* fLabel;
-        } gModes[] = {
-            { SkBlendMode::kClear,    "Clear"     },
-            { SkBlendMode::kSrc,      "Src"       },
-            { SkBlendMode::kDst,      "Dst"       },
-            { SkBlendMode::kSrcOver,  "SrcOver"   },
-            { SkBlendMode::kDstOver,  "DstOver"   },
-            { SkBlendMode::kSrcIn,    "SrcIn"     },
-            { SkBlendMode::kDstIn,    "DstIn"     },
-            { SkBlendMode::kSrcOut,   "SrcOut"    },
-            { SkBlendMode::kDstOut,   "DstOut"    },
-            { SkBlendMode::kSrcATop,  "SrcATop"   },
-            { SkBlendMode::kDstATop,  "DstATop"   },
-            { SkBlendMode::kXor,      "Xor"       },
-
-            { SkBlendMode::kPlus,     "Plus"          },
+        const SkBlendMode gModes[] = {
+            SkBlendMode::kClear,
+            SkBlendMode::kSrc,
+            SkBlendMode::kDst,
+            SkBlendMode::kSrcOver,
+            SkBlendMode::kDstOver,
+            SkBlendMode::kSrcIn,
+            SkBlendMode::kDstIn,
+            SkBlendMode::kSrcOut,
+            SkBlendMode::kDstOut,
+            SkBlendMode::kSrcATop,
+            SkBlendMode::kDstATop,
+            SkBlendMode::kXor,
+            SkBlendMode::kPlus,
         };
 
         const SkScalar w = SkIntToScalar(W);
@@ -155,7 +151,7 @@ protected:
                 canvas->drawRect(r, p);
 
                 canvas->saveLayer(&r, nullptr);
-                draw_mode(canvas, gModes[i].fMode, twice ? 0x88 : 0xFF, r.fLeft, r.fTop);
+                draw_mode(canvas, gModes[i], twice ? 0x88 : 0xFF, r.fLeft, r.fTop);
                 canvas->restore();
 
                 r.inset(-SK_ScalarHalf, -SK_ScalarHalf);
@@ -163,7 +159,8 @@ protected:
                 p.setShader(nullptr);
                 canvas->drawRect(r, p);
 
-                canvas->drawText(gModes[i].fLabel, strlen(gModes[i].fLabel),
+                const char* label = SkBlendMode_Name(gModes[i]);
+                canvas->drawText(label, strlen(label),
                                  x + w/2, y - labelP.getTextSize()/2, labelP);
                 x += w + SkIntToScalar(10);
                 if ((i % W) == W - 1) {

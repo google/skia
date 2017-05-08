@@ -153,14 +153,7 @@ protected:
 class GrTextureDomainEffect : public GrSingleTextureEffect {
 
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrTexture*,
-                                           sk_sp<GrColorSpaceXform>,
-                                           const SkMatrix&,
-                                           const SkRect& domain,
-                                           GrTextureDomain::Mode,
-                                           GrSamplerParams::FilterMode filterMode);
-
-    static sk_sp<GrFragmentProcessor> Make(GrContext*,
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider*,
                                            sk_sp<GrTextureProxy>,
                                            sk_sp<GrColorSpaceXform>,
                                            const SkMatrix&,
@@ -182,14 +175,7 @@ public:
 private:
     GrTextureDomain fTextureDomain;
 
-    GrTextureDomainEffect(GrTexture*,
-                          sk_sp<GrColorSpaceXform>,
-                          const SkMatrix&,
-                          const SkRect& domain,
-                          GrTextureDomain::Mode,
-                          GrSamplerParams::FilterMode);
-
-    GrTextureDomainEffect(GrContext*,
+    GrTextureDomainEffect(GrResourceProvider*,
                           sk_sp<GrTextureProxy>,
                           sk_sp<GrColorSpaceXform>,
                           const SkMatrix&,
@@ -212,10 +198,8 @@ private:
 
 class GrDeviceSpaceTextureDecalFragmentProcessor : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrTexture*, const SkIRect& subset,
-                                           const SkIPoint& deviceSpaceOffset);
-
-    static sk_sp<GrFragmentProcessor> Make(GrContext*, sk_sp<GrTextureProxy>, const SkIRect& subset,
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider*, sk_sp<GrTextureProxy>,
+                                           const SkIRect& subset,
                                            const SkIPoint& deviceSpaceOffset);
 
     const char* name() const override { return "GrDeviceSpaceTextureDecalFragmentProcessor"; }
@@ -235,9 +219,7 @@ private:
     GrTextureDomain fTextureDomain;
     SkIPoint fDeviceSpaceOffset;
 
-    GrDeviceSpaceTextureDecalFragmentProcessor(GrTexture*, const SkIRect&, const SkIPoint&);
-
-    GrDeviceSpaceTextureDecalFragmentProcessor(GrContext*, sk_sp<GrTextureProxy>,
+    GrDeviceSpaceTextureDecalFragmentProcessor(GrResourceProvider*, sk_sp<GrTextureProxy>,
                                                const SkIRect&, const SkIPoint&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

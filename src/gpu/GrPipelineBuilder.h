@@ -63,18 +63,12 @@ public:
 
     const GrProcessorSet& processors() const { return fProcessors; }
 
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Blending
-    ////
-
-    /**
-     * Checks whether the xp will need destination in a texture to correctly blend.
-     */
-    bool willXPNeedDstTexture(const GrCaps& caps,
-                              const GrProcessorSet::FragmentProcessorAnalysis& analysis) const {
-        return GrXPFactory::WillNeedDstTexture(fProcessors.xpFactory(), caps, analysis);
+    GrProcessorSet::Analysis finalizeProcessors(const GrProcessorAnalysisColor& colorInput,
+                                                const GrProcessorAnalysisCoverage coverageInput,
+                                                const GrAppliedClip* clip, bool isMixedSamples,
+                                                const GrCaps& caps, GrColor* overrideColor) {
+        return fProcessors.finalize(colorInput, coverageInput, clip, isMixedSamples, caps,
+                                    overrideColor);
     }
 
     /// @}

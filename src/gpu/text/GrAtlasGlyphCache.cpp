@@ -26,7 +26,7 @@ bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
         int numPlotsX = fAtlasConfigs[index].numPlotsX();
         int numPlotsY = fAtlasConfigs[index].numPlotsY();
 
-        fAtlases[index] = fContext->resourceProvider()->makeAtlas(
+        fAtlases[index] = GrDrawOpAtlas::Make(
                 fContext, config, width, height, numPlotsX, numPlotsY,
                 &GrAtlasGlyphCache::HandleEviction, (void*)this);
         if (!fAtlases[index]) {

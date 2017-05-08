@@ -169,40 +169,47 @@ SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {
     return requestedUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
 }
 
-sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputColorType) {
+sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputColorType,
+                                                            sk_sp<SkColorSpace> prefColorSpace) {
     switch (outputColorType) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
         case kIndex_8_SkColorType: {
-            SkColorSpace* encodedSpace = fCodec->getInfo().colorSpace();
+            // If |prefColorSpace| is supported, choose it.
             SkColorSpaceTransferFn fn;
+            if (prefColorSpace && prefColorSpace->isNumericalTransferFn(&fn)) {
+                return prefColorSpace;
+            }
+
+            SkColorSpace* encodedSpace = fCodec->getInfo().colorSpace();
             if (encodedSpace->isNumericalTransferFn(&fn)) {
                 // Leave the pixels in the encoded color space.  Color space conversion
                 // will be handled after decode time.
-                return as_CSB(encodedSpace)->makeWithNonLinearBlending();
+                return sk_ref_sp(encodedSpace);
             }
 
             if (is_wide_gamut(encodedSpace)) {
                 return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                             SkColorSpace::kDCIP3_D65_Gamut,
-                                             SkColorSpace::kNonLinearBlending_ColorSpaceFlag);
+                                             SkColorSpace::kDCIP3_D65_Gamut);
             }
 
-            return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                         SkColorSpace::kSRGB_Gamut,
-                                         SkColorSpace::kNonLinearBlending_ColorSpaceFlag);
+            return SkColorSpace::MakeSRGB();
         }
         case kRGBA_F16_SkColorType:
+            // Note that |prefColorSpace| is ignored, F16 is always linear sRGB.
             return SkColorSpace::MakeSRGBLinear();
+        case kRGB_565_SkColorType:
+            // Note that |prefColorSpace| is ignored, 565 is always sRGB.
+            return SkColorSpace::MakeSRGB();
         default:
-            // Color correction not supported for k565 and kGray.
+            // Color correction not supported for kGray.
             return nullptr;
     }
 }
 
 SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
     if (!is_valid_sample_size(sampleSize)) {
-        return SkISize::Make(0, 0);
+        return {0, 0};
     }
 
     // Fast path for when we are not scaling.
@@ -223,7 +230,7 @@ bool SkAndroidCodec::getSupportedSubset(SkIRect* desiredSubset) const {
 
 SkISize SkAndroidCodec::getSampledSubsetDimensions(int sampleSize, const SkIRect& subset) const {
     if (!is_valid_sample_size(sampleSize)) {
-        return SkISize::Make(0, 0);
+        return {0, 0};
     }
 
     // We require that the input subset is a subset that is supported by SkAndroidCodec.
@@ -231,7 +238,7 @@ SkISize SkAndroidCodec::getSampledSubsetDimensions(int sampleSize, const SkIRect
     // are made to the subset.
     SkIRect copySubset = subset;
     if (!this->getSupportedSubset(&copySubset) || copySubset != subset) {
-        return SkISize::Make(0, 0);
+        return {0, 0};
     }
 
     // If the subset is the entire image, for consistency, use getSampledDimensions().
@@ -241,8 +248,8 @@ SkISize SkAndroidCodec::getSampledSubsetDimensions(int sampleSize, const SkIRect
 
     // This should perhaps call a virtual function, but currently both of our subclasses
     // want the same implementation.
-    return SkISize::Make(get_scaled_dimension(subset.width(), sampleSize),
-                get_scaled_dimension(subset.height(), sampleSize));
+    return {get_scaled_dimension(subset.width(), sampleSize),
+            get_scaled_dimension(subset.height(), sampleSize)};
 }
 
 SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& info, void* pixels,

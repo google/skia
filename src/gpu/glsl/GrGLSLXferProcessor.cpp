@@ -25,8 +25,8 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
 
     bool needsLocalOutColor = false;
 
-    if (args.fXP.getDstTexture()) {
-        bool topDown = kTopLeft_GrSurfaceOrigin == args.fXP.getDstTexture()->origin();
+    if (args.fDstTextureSamplerHandle.isValid()) {
+        bool flipY = kBottomLeft_GrSurfaceOrigin == args.fDstTextureOrigin;
 
         if (args.fInputCoverage) {
             // We don't think any shaders actually output negative coverage, but just as a safety
@@ -54,12 +54,13 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
         fragBuilder->codeAppendf("vec2 _dstTexCoord = (sk_FragCoord.xy - %s) * %s;",
                                  dstTopLeftName, dstCoordScaleName);
 
-        if (!topDown) {
+        if (flipY) {
             fragBuilder->codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;");
         }
 
         fragBuilder->codeAppendf("vec4 %s = ", dstColor);
-        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "_dstTexCoord", kVec2f_GrSLType);
+        fragBuilder->appendTextureLookup(args.fDstTextureSamplerHandle, "_dstTexCoord",
+                                         kVec2f_GrSLType);
         fragBuilder->codeAppend(";");
     } else {
         needsLocalOutColor = args.fShaderCaps->requiresLocalOutputColorForFBFetch();
@@ -85,13 +86,13 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
     }
 }
 
-void GrGLSLXferProcessor::setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp) {
-    if (xp.getDstTexture()) {
+void GrGLSLXferProcessor::setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp,
+                                  const GrTexture* dstTexture, const SkIPoint& dstTextureOffset) {
+    if (dstTexture) {
         if (fDstTopLeftUni.isValid()) {
-            pdm.set2f(fDstTopLeftUni, static_cast<float>(xp.dstTextureOffset().fX),
-                      static_cast<float>(xp.dstTextureOffset().fY));
-            pdm.set2f(fDstScaleUni, 1.f / xp.getDstTexture()->width(),
-                      1.f / xp.getDstTexture()->height());
+            pdm.set2f(fDstTopLeftUni, static_cast<float>(dstTextureOffset.fX),
+                      static_cast<float>(dstTextureOffset.fY));
+            pdm.set2f(fDstScaleUni, 1.f / dstTexture->width(), 1.f / dstTexture->height());
         } else {
             SkASSERT(!fDstScaleUni.isValid());
         }

@@ -124,7 +124,7 @@ public:
      * fGammaCorrect          true if gamma-correct rendering is to be used.
      */
     struct DrawPathArgs {
-        GrResourceProvider*          fResourceProvider;
+        GrContext*                   fContext;
         GrPaint&&                    fPaint;
         const GrUserStencilSettings* fUserStencilSettings;
         GrRenderTargetContext*       fRenderTargetContext;
@@ -135,7 +135,7 @@ public:
         bool                         fGammaCorrect;
 #ifdef SK_DEBUG
         void validate() const {
-            SkASSERT(fResourceProvider);
+            SkASSERT(fContext);
             SkASSERT(fUserStencilSettings);
             SkASSERT(fRenderTargetContext);
             SkASSERT(fClip);
@@ -153,7 +153,7 @@ public:
         SkDEBUGCODE(args.validate();)
 #ifdef SK_DEBUG
         CanDrawPathArgs canArgs;
-        canArgs.fShaderCaps = args.fResourceProvider->caps()->shaderCaps();
+        canArgs.fShaderCaps = args.fContext->caps()->shaderCaps();
         canArgs.fViewMatrix = args.fViewMatrix;
         canArgs.fShape = args.fShape;
         canArgs.fAAType = args.fAAType;
@@ -183,7 +183,7 @@ public:
      * fAAType                The type of AA, cannot be kCoverage.
      */
     struct StencilPathArgs {
-        GrResourceProvider*    fResourceProvider;
+        GrContext*             fContext;
         GrRenderTargetContext* fRenderTargetContext;
         const GrClip*          fClip;
         const SkMatrix*        fViewMatrix;
@@ -192,7 +192,7 @@ public:
 
 #ifdef SK_DEBUG
         void validate() const {
-            SkASSERT(fResourceProvider);
+            SkASSERT(fContext);
             SkASSERT(fRenderTargetContext);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
@@ -277,7 +277,7 @@ private:
 
         GrPaint paint;
 
-        DrawPathArgs drawArgs{args.fResourceProvider,
+        DrawPathArgs drawArgs{args.fContext,
                               std::move(paint),
                               &kIncrementStencil,
                               args.fRenderTargetContext,

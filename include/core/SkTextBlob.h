@@ -9,6 +9,7 @@
 #define SkTextBlob_DEFINED
 
 #include "../private/SkTemplates.h"
+#include "../private/SkAtomics.h"
 #include "SkPaint.h"
 #include "SkString.h"
 #include "SkRefCnt.h"
@@ -60,7 +61,7 @@ private:
     friend class SkNVRefCnt<SkTextBlob>;
     class RunRecord;
 
-    SkTextBlob(int runCount, const SkRect& bounds);
+    explicit SkTextBlob(const SkRect& bounds);
 
     ~SkTextBlob();
 
@@ -75,12 +76,19 @@ private:
 
     static unsigned ScalarsPerGlyph(GlyphPositioning pos);
 
+    // Call when this blob is part of the key to a cache entry. This allows the cache
+    // to know automatically those entries can be purged when this SkTextBlob is deleted.
+    void notifyAddedToCache() const {
+        fAddedToCache.store(true);
+    }
+
+    friend class GrTextBlobCache;
     friend class SkTextBlobBuilder;
     friend class SkTextBlobRunIterator;
 
-    const int        fRunCount;
-    const SkRect     fBounds;
-    const uint32_t fUniqueID;
+    const SkRect           fBounds;
+    const uint32_t         fUniqueID;
+    mutable SkAtomic<bool> fAddedToCache;
 
     SkDEBUGCODE(size_t fStorageSize;)
 
@@ -101,8 +109,10 @@ public:
     ~SkTextBlobBuilder();
 
     /**
-     *  Returns an immutable SkTextBlob for the current runs/glyphs. The builder is reset and
-     *  can be reused.
+     *  Returns an immutable SkTextBlob for the current runs/glyphs,
+     *  or nullptr if no runs were allocated.
+     *
+     *  The builder is reset and can be reused.
      */
     sk_sp<SkTextBlob> make();
 

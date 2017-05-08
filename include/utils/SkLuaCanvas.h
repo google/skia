@@ -19,7 +19,7 @@ public:
     void pushThis();
 
     SkLuaCanvas(int width, int height, lua_State*, const char function[]);
-    virtual ~SkLuaCanvas();
+    ~SkLuaCanvas() override;
 
 protected:
     void willSave() override;
@@ -58,15 +58,7 @@ protected:
                          const SkPaint*, SrcRectConstraint) override;
     void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
                           const SkPaint*) override;
-    void onDrawVertices(VertexMode vmode, int vertexCount,
-                        const SkPoint vertices[], const SkPoint texs[],
-                        const SkColor colors[], SkBlendMode,
-                        const uint16_t indices[], int indexCount,
-                        const SkPaint&) override;
-    void onDrawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint,
-                              uint32_t flags) override {
-        this->onDrawVerticesObjectFallback(std::move(vertices), mode, paint, flags);
-    }
+    void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
 
     void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;

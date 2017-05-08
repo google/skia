@@ -101,7 +101,6 @@ private:
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #include "SkSpecialImage.h"
 #include "SkImage_Base.h"
 #include "GrContext.h"
@@ -462,7 +461,8 @@ public:
         }
 
     protected:
-        void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {
+        void onSetData(const GrGLSLProgramDataManager& pdman,
+                       const GrFragmentProcessor& proc) override {
             const ShadowFP &shadowFP = proc.cast<ShadowFP>();
 
             for (int i = 0; i < shadowFP.numLights(); i++) {

@@ -35,6 +35,7 @@
 #include "sk_tool_utils.h"
 #include "SkScan.h"
 #include "SkClipOpPriv.h"
+#include "SkThreadedBMPDevice.h"
 
 #include "SkReadBuffer.h"
 #include "SkStream.h"
@@ -42,6 +43,9 @@
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 #include "SkCGUtils.h"
 #endif
+
+#define PICTURE_MEANS_PIPE  false
+#define SERIALIZE_PICTURE   true
 
 #if SK_SUPPORT_GPU
 #   include "gl/GrGLInterface.h"
@@ -85,6 +89,17 @@ public:
     PictFileFactory(const SkString& filename) : fFilename(filename) {}
     SkView* operator() () const override {
         return CreateSamplePictFileView(fFilename.c_str());
+    }
+};
+
+extern SampleView* CreateSamplePathFinderView(const char filename[]);
+
+class PathFinderFactory : public SkViewFactory {
+    SkString fFilename;
+public:
+    PathFinderFactory(const SkString& filename) : fFilename(filename) {}
+    SkView* operator() () const override {
+        return CreateSamplePathFinderView(fFilename.c_str());
     }
 };
 
@@ -202,7 +217,7 @@ public:
         fBackend = kNone_BackEndType;
     }
 
-    virtual ~DefaultDeviceManager() {
+    ~DefaultDeviceManager() override {
 #if SK_SUPPORT_GPU
         SkSafeUnref(fCurContext);
         SkSafeUnref(fCurIntf);
@@ -723,6 +738,7 @@ static void restrict_samples(SkTDArray<const SkViewFactory*>& factories, const S
 DEFINE_string(slide, "", "Start on this sample.");
 DEFINE_string(pictureDir, "", "Read pictures from here.");
 DEFINE_string(picture, "", "Path to single picture.");
+DEFINE_string(pathfinder, "", "SKP file with a single path to isolate.");
 DEFINE_string(svg, "", "Path to single SVG file.");
 DEFINE_string(svgDir, "", "Read SVGs from here.");
 DEFINE_string(sequence, "", "Path to file containing the desired samples/gms to show.");
@@ -761,6 +777,11 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         SkString path(FLAGS_picture[0]);
         fCurrIndex = fSamples.count();
         *fSamples.append() = new PictFileFactory(path);
+    }
+    if (!FLAGS_pathfinder.isEmpty()) {
+        SkString path(FLAGS_pathfinder[0]);
+        fCurrIndex = fSamples.count();
+        *fSamples.append() = new PathFinderFactory(path);
     }
     if (!FLAGS_svg.isEmpty()) {
         SkString path(FLAGS_svg[0]);
@@ -1070,6 +1091,14 @@ static void drawText(SkCanvas* canvas, SkString str, SkScalar left, SkScalar top
 #include "SkDumpCanvas.h"
 
 void SampleWindow::draw(SkCanvas* canvas) {
+    std::unique_ptr<SkThreadedBMPDevice> tDev;
+    std::unique_ptr<SkCanvas> tCanvas;
+    if (fThreads > 0) {
+        tDev.reset(new SkThreadedBMPDevice(this->getBitmap(), fThreads));
+        tCanvas.reset(new SkCanvas(tDev.get()));
+        canvas = tCanvas.get();
+    }
+
     gAnimTimer.updateTime();
 
     if (fGesture.isActive()) {
@@ -1085,7 +1114,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
     if (kNo_Tiling == fTilingMode) {
         SkDebugfDumper dumper;
         SkDumpCanvas dump(&dumper);
-        SkDeferredCanvas deferred(canvas);
+        SkDeferredCanvas deferred(canvas, SkDeferredCanvas::kEager);
         SkCanvas* c = fUseDeferredCanvas ? &deferred : canvas;
         this->INHERITED::draw(c); // no looping or surfaces needed
     } else {
@@ -1132,6 +1161,8 @@ void SampleWindow::draw(SkCanvas* canvas) {
     if (this->sendAnimatePulse() || FLAGS_redraw) {
         this->inval(nullptr);
     }
+
+    canvas->flush();
 
     // do this last
     fDevManager->publishCanvas(fDeviceType, canvas, this);
@@ -1362,10 +1393,13 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
     } else if (fSaveToSKP) {
         canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
     } else if (fUsePicture) {
-        fPipeStream.reset(new SkDynamicMemoryWStream);
-        canvas = fPipeSerializer.beginWrite(SkRect::MakeWH(this->width(), this->height()),
-                                            fPipeStream.get());
-//        canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
+        if (PICTURE_MEANS_PIPE) {
+            fPipeStream.reset(new SkDynamicMemoryWStream);
+            canvas = fPipeSerializer.beginWrite(SkRect::MakeWH(this->width(), this->height()),
+                                                fPipeStream.get());
+        } else {
+            canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
+        }
     } else {
         canvas = this->INHERITED::beforeChildren(canvas);
     }
@@ -1427,13 +1461,17 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     }
 
     if (fUsePicture) {
-        if (true) {
+        if (PICTURE_MEANS_PIPE) {
             fPipeSerializer.endWrite();
             sk_sp<SkData> data(fPipeStream->detachAsData());
             fPipeDeserializer.playback(data->data(), data->size(), orig);
             fPipeStream.reset();
         } else {
             sk_sp<SkPicture> picture(fRecorder.finishRecordingAsPicture());
+            if (SERIALIZE_PICTURE) {
+                auto data = picture->serialize();
+                picture = SkPicture::MakeFromData(data.get(), nullptr);
+            }
             orig->drawPicture(picture.get());
         }
     }
@@ -1816,6 +1854,16 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
                 this->inval(nullptr);
             }
             break;
+        case '+':
+            gSampleWindow->setThreads(gSampleWindow->getThreads() + 1);
+            this->inval(nullptr);
+            this->updateTitle();
+            break;
+        case '-':
+            gSampleWindow->setThreads(SkTMax(0, gSampleWindow->getThreads() - 1));
+            this->inval(nullptr);
+            this->updateTitle();
+            break;
         case ' ':
             gAnimTimer.togglePauseResume();
             if (this->sendAnimatePulse()) {
@@ -2180,6 +2228,10 @@ void SampleWindow::updateTitle() {
     }
 
     title.prepend(gDeviceTypePrefix[fDeviceType]);
+
+    if (gSampleWindow->getThreads()) {
+        title.prependf("[T%d] ", gSampleWindow->getThreads());
+    }
 
     if (gSkUseAnalyticAA) {
         if (gSkForceAnalyticAA) {

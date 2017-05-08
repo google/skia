@@ -169,8 +169,8 @@ public:
     void debugValidate() const;
 
 #if DEBUG_COINCIDENCE_ORDER
-    void debugResetCoinT() const; 
-    void debugSetCoinT(int, SkScalar ) const; 
+    void debugResetCoinT() const;
+    void debugSetCoinT(int, SkScalar ) const;
 #endif
 
 #if DEBUG_COIN
@@ -291,7 +291,7 @@ public:
     bool match(const SkOpPtT* span, const SkOpSegment* parent, double t, const SkPoint& pt) const;
     bool missingCoincidence();
     bool moveMultiples();
-    void moveNearby();
+    bool moveNearby();
 
     SkOpSegment* next() const {
         return fNext;
@@ -333,7 +333,7 @@ public:
 
     bool ptsDisjoint(double t1, const SkPoint& pt1, double t2, const SkPoint& pt2) const;
 
-    void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkChunkAlloc*);
+    void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkArenaAlloc*);
     void release(const SkOpSpan* );
 
 #if DEBUG_COIN
@@ -372,7 +372,7 @@ public:
     void setUpWindings(SkOpSpanBase* start, SkOpSpanBase* end, int* sumMiWinding, int* sumSuWinding,
                        int* maxWinding, int* sumWinding, int* oppMaxWinding, int* oppSumWinding);
     bool sortAngles();
-    bool spansNearby(const SkOpSpanBase* ref, const SkOpSpanBase* check) const;
+    bool spansNearby(const SkOpSpanBase* ref, const SkOpSpanBase* check, bool* found) const;
 
     static int SpanSign(const SkOpSpanBase* start, const SkOpSpanBase* end) {
         int result = start->t() < end->t() ? -start->upCast()->windValue()

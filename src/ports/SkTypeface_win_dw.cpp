@@ -18,6 +18,7 @@
 #include "SkDWriteFontFileStream.h"
 #include "SkFontDescriptor.h"
 #include "SkFontStream.h"
+#include "SkOTTable_fvar.h"
 #include "SkOTTable_head.h"
 #include "SkOTTable_hhea.h"
 #include "SkOTTable_OS_2.h"
@@ -253,6 +254,7 @@ SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkScalerContext
 void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
     if (rec->fFlags & SkScalerContext::kLCD_Vertical_Flag) {
         rec->fMaskFormat = SkMask::kA8_Format;
+        rec->fFlags |= SkScalerContext::kGenA8FromLCD_Flag;
     }
 
     unsigned flagsWeDontSupport = SkScalerContext::kVertical_Flag |
@@ -263,8 +265,10 @@ void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
     rec->fFlags &= ~flagsWeDontSupport;
 
     SkPaint::Hinting h = rec->getHinting();
-    // DirectWrite does not provide for hinting hints.
-    h = SkPaint::kSlight_Hinting;
+    // DirectWrite2 allows for hinting to be turned off. Force everything else to normal.
+    if (h != SkPaint::kNo_Hinting || !fFactory2 || !fDWriteFontFace2) {
+        h = SkPaint::kNormal_Hinting;
+    }
     rec->setHinting(h);
 
 #if defined(SK_FONT_HOST_USE_SYSTEM_SETTINGS)
@@ -294,9 +298,11 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
                                       const unsigned glyphCount,
                                       SkTDArray<SkUnichar>* glyphToUnicode) {
     //Do this like free type instead
-    SkAutoTMalloc<SkUnichar> glyphToUni(glyphCount);
+    SkAutoTMalloc<SkUnichar> glyphToUni(
+            (SkUnichar*)sk_calloc_throw(sizeof(SkUnichar) * glyphCount));
     int maxGlyph = -1;
-    for (UINT32 c = 0; c < 0x10FFFF; ++c) {
+    unsigned remainingGlyphCount = glyphCount;
+    for (UINT32 c = 0; c < 0x10FFFF && remainingGlyphCount != 0; ++c) {
         UINT16 glyph = 0;
         HRVM(fontFace->GetGlyphIndices(&c, 1, &glyph),
              "Failed to get glyph index.");
@@ -304,12 +310,12 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
         if (glyph >= glyphCount) {
           return;
         }
-        if (0 < glyph) {
+        if (0 < glyph && glyphToUni[glyph] == 0) {
             maxGlyph = SkTMax(static_cast<int>(glyph), maxGlyph);
-            glyphToUni[glyph] = c;
+            glyphToUni[glyph] = c;  // Always use lowest-index unichar.
+            --remainingGlyphCount;
         }
     }
-
     SkTDArray<SkUnichar>(glyphToUni, maxGlyph + 1).swap(*glyphToUnicode);
 }
 
@@ -328,8 +334,6 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     fDWriteFontFace->GetMetrics(&dwfm);
 
     info = new SkAdvancedTypefaceMetrics;
-    info->fEmSize = dwfm.designUnitsPerEm;
-    info->fLastGlyphID = SkToU16(glyphCount - 1);
 
     info->fAscent = SkToS16(dwfm.ascent);
     info->fDescent = SkToS16(dwfm.descent);
@@ -371,6 +375,13 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     AutoTDWriteTable<SkOTTableOS2> os2Table(fDWriteFontFace.get());
     if (!headTable.fExists || !postTable.fExists || !hheaTable.fExists || !os2Table.fExists) {
         return info;
+    }
+
+    // There are versions of DirectWrite which support named instances for system variation fonts,
+    // but no means to indicate that such a typeface is a variation.
+    AutoTDWriteTable<SkOTTableFontVariations> fvarTable(fDWriteFontFace.get());
+    if (fvarTable.fExists) {
+        info->fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
     }
 
     //There exist CJK fonts which set the IsFixedPitch and Monospace bits,

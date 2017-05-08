@@ -98,13 +98,15 @@ namespace GrPathUtils {
 
     // Input is 3 control points and a weight for a bezier conic. Calculates the
     // three linear functionals (K,L,M) that represent the implicit equation of the
-    // conic, K^2 - LM.
+    // conic, k^2 - lm.
     //
-    // Output:
-    //  K = (klm[0], klm[1], klm[2])
-    //  L = (klm[3], klm[4], klm[5])
-    //  M = (klm[6], klm[7], klm[8])
-    void getConicKLM(const SkPoint p[3], const SkScalar weight, SkScalar klm[9]);
+    // Output: klm holds the linear functionals K,L,M as row vectors:
+    //
+    //     | ..K.. |   | x |      | k |
+    //     | ..L.. | * | y |  ==  | l |
+    //     | ..M.. |   | 1 |      | m |
+    //
+    void getConicKLM(const SkPoint p[3], const SkScalar weight, SkMatrix* klm);
 
     // Converts a cubic into a sequence of quads. If working in device space
     // use tolScale = 1, otherwise set based on stretchiness of the matrix. The
@@ -127,48 +129,39 @@ namespace GrPathUtils {
 
     // Chops the cubic bezier passed in by src, at the double point (intersection point)
     // if the curve is a cubic loop. If it is a loop, there will be two parametric values for
-    // the double point: ls and ms. We chop the cubic at these values if they are between 0 and 1.
+    // the double point: t1 and t2. We chop the cubic at these values if they are between 0 and 1.
     // Return value:
-    // Value of 3: ls and ms are both between (0,1), and dst will contain the three cubics,
+    // Value of 3: t1 and t2 are both between (0,1), and dst will contain the three cubics,
     //             dst[0..3], dst[3..6], and dst[6..9] if dst is not nullptr
-    // Value of 2: Only one of ls and ms are between (0,1), and dst will contain the two cubics,
+    // Value of 2: Only one of t1 and t2 are between (0,1), and dst will contain the two cubics,
     //             dst[0..3] and dst[3..6] if dst is not nullptr
-    // Value of 1: Neither ls or ms are between (0,1), and dst will contain the one original cubic,
+    // Value of 1: Neither t1 nor t2 are between (0,1), and dst will contain the one original cubic,
     //             dst[0..3] if dst is not nullptr
     //
     // Optional KLM Calculation:
-    // The function can also return the KLM linear functionals for the chopped cubic implicit form
-    // of K^3 - LM.
-    // It will calculate a single set of KLM values that can be shared by all sub cubics, except
-    // for the subsection that is "the loop" the K and L values need to be negated.
-    // Output:
-    // klm:     Holds the values for the linear functionals as:
-    //          K = (klm[0], klm[1], klm[2])
-    //          L = (klm[3], klm[4], klm[5])
-    //          M = (klm[6], klm[7], klm[8])
-    // klm_rev: These values are flags for the corresponding sub cubic saying whether or not
-    //          the K and L values need to be flipped. A value of -1.f means flip K and L and
-    //          a value of 1.f means do nothing.
-    //          *****DO NOT FLIP M, JUST K AND L*****
+    // The function can also return the KLM linear functionals for the cubic implicit form of
+    // k^3 - lm. This can be shared by all chopped cubics.
     //
-    // Notice that the klm lines are calculated in the same space as the input control points.
+    // Output:
+    //
+    // klm: Holds the linear functionals K,L,M as row vectors:
+    //
+    //          | ..K.. |   | x |      | k |
+    //          | ..L.. | * | y |  ==  | l |
+    //          | ..M.. |   | 1 |      | m |
+    //
+    // loopIndex: This value will tell the caller which of the chopped sections (if any) are the
+    //            actual loop. A value of -1 means there is no loop section. The caller can then use
+    //            this value to decide how/if they want to flip the orientation of this section.
+    //            The flip should be done by negating the k and l values as follows:
+    //
+    //                KLM.postScale(-1, -1)
+    //
+    // Notice that the KLM lines are calculated in the same space as the input control points.
     // If you transform the points the lines will also need to be transformed. This can be done
     // by mapping the lines with the inverse-transpose of the matrix used to map the points.
     int chopCubicAtLoopIntersection(const SkPoint src[4], SkPoint dst[10] = nullptr,
-                                    SkScalar klm[9] = nullptr, SkScalar klm_rev[3] = nullptr);
-
-    // Input is p which holds the 4 control points of a non-rational cubic Bezier curve.
-    // Output is the coefficients of the three linear functionals K, L, & M which
-    // represent the implicit form of the cubic as f(x,y,w) = K^3 - LM. The w term
-    // will always be 1. The output is stored in the array klm, where the values are:
-    // K = (klm[0], klm[1], klm[2])
-    // L = (klm[3], klm[4], klm[5])
-    // M = (klm[6], klm[7], klm[8])
-    //
-    // Notice that the klm lines are calculated in the same space as the input control points.
-    // If you transform the points the lines will also need to be transformed. This can be done
-    // by mapping the lines with the inverse-transpose of the matrix used to map the points.
-    void getCubicKLM(const SkPoint p[4], SkScalar klm[9]);
+                                    SkMatrix* klm = nullptr, int* loopIndex = nullptr);
 
     // When tessellating curved paths into linear segments, this defines the maximum distance
     // in screen space which a segment may deviate from the mathmatically correct value.

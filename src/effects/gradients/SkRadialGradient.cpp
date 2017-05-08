@@ -249,7 +249,7 @@ public:
         return sk_sp<GrFragmentProcessor>(new GrRadialGradient(args));
     }
 
-    virtual ~GrRadialGradient() { }
+    ~GrRadialGradient() override {}
 
     const char* name() const override { return "Radial Gradient"; }
 
@@ -273,7 +273,7 @@ private:
 class GrRadialGradient::GLSLRadialProcessor : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLRadialProcessor(const GrProcessor&) {}
-    virtual ~GLSLRadialProcessor() { }
+    ~GLSLRadialProcessor() override {}
 
     virtual void emitCode(EmitArgs&) override;
 

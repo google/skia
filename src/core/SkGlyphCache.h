@@ -9,7 +9,6 @@
 
 #include "SkArenaAlloc.h"
 #include "SkBitmap.h"
-#include "SkChunkAlloc.h"
 #include "SkDescriptor.h"
 #include "SkGlyph.h"
 #include "SkPaint.h"

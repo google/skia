@@ -16,7 +16,7 @@
 
 class GrContext;
 class GrContextThreadSafeProxy;
-class GrTexture;
+class GrTextureProxy;
 class GrSamplerParams;
 class SkBitmap;
 class SkData;
@@ -112,6 +112,7 @@ public:
      */
     bool getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]);
 
+#if SK_SUPPORT_GPU
     /**
      *  If the generator can natively/efficiently return its pixels as a GPU image (backed by a
      *  texture) this will return that image. If not, this will return NULL.
@@ -130,16 +131,13 @@ public:
      *
      *  Regarding the GrContext parameter:
      *
-     *  The caller may pass NULL for the context. In that case the generator may assume that its
-     *  internal context is current. If it has no internal context, then it should just return
-     *  null.
-     *
-     *  If the caller passes a non-null context, then the generator should only succeed if:
-     *  - it has no intrinsic context, and will use the caller's
+     *  It must be non-NULL. The generator should only succeed if:
      *  - its internal context is the same
      *  - it can somehow convert its texture into one that is valid for the provided context.
      */
-    GrTexture* generateTexture(GrContext*, const SkImageInfo& info, const SkIPoint& origin);
+    sk_sp<GrTextureProxy> generateTexture(GrContext*, const SkImageInfo& info,
+                                          const SkIPoint& origin);
+#endif
 
     /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
@@ -157,8 +155,6 @@ public:
                                                              const SkMatrix*, const SkPaint*,
                                                              SkImage::BitDepth,
                                                              sk_sp<SkColorSpace>);
-
-    bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo& info, SkBitmap::Allocator* allocator);
 
 protected:
     enum {
@@ -179,13 +175,33 @@ protected:
         return false;
     }
 
-    virtual GrTexture* onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&) {
-        return nullptr;
+    struct Options {
+        Options()
+            : fColorTable(nullptr)
+            , fColorTableCount(nullptr)
+            , fBehavior(SkTransferFunctionBehavior::kRespect)
+        {}
+
+        SkPMColor*                 fColorTable;
+        int*                       fColorTableCount;
+        SkTransferFunctionBehavior fBehavior;
+    };
+    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options* opts);
+    virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                             const Options& opts) {
+        return this->onGetPixels(info, pixels, rowBytes, opts.fColorTable, opts.fColorTableCount);
     }
+
+#if SK_SUPPORT_GPU
+    virtual sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&,
+                                                    const SkIPoint&);
+#endif
 
 private:
     const SkImageInfo fInfo;
     const uint32_t fUniqueID;
+
+    friend class SkImageCacherator;
 
     // This is our default impl, which may be different on different platforms.
     // It is called from NewFromEncoded() after it has checked for any runtime factory.

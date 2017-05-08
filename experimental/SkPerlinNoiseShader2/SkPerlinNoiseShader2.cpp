@@ -20,7 +20,6 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #include "effects/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -609,7 +608,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder* b);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fStitchDataUni;
@@ -622,7 +621,7 @@ private:
 
 class GrPerlinNoise2Effect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrTextureProvider* textureProvider,
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
                                            SkPerlinNoiseShader2::Type type,
                                            int numOctaves, bool stitchTiles,
                                            SkPerlinNoiseShader2::PaintingData* paintingData,
@@ -630,11 +629,11 @@ public:
                                            sk_sp<GrTextureProxy> noiseProxy,
                                            const SkMatrix& matrix) {
         return sk_sp<GrFragmentProcessor>(
-            new GrPerlinNoise2Effect(textureProvider, type, numOctaves, stitchTiles, paintingData,
+            new GrPerlinNoise2Effect(resourceProvider, type, numOctaves, stitchTiles, paintingData,
                                      std::move(permutationsProxy), std::move(noiseProxy), matrix));
     }
 
-    virtual ~GrPerlinNoise2Effect() { delete fPaintingData; }
+    ~GrPerlinNoise2Effect() override { delete fPaintingData; }
 
     const char* name() const override { return "PerlinNoise"; }
 
@@ -665,7 +664,7 @@ private:
                fPaintingData->fStitchDataInit == s.fPaintingData->fStitchDataInit;
     }
 
-    GrPerlinNoise2Effect(GrTextureProvider* textureProvider,
+    GrPerlinNoise2Effect(GrResourceProvider* resourceProvider,
                          SkPerlinNoiseShader2::Type type, int numOctaves, bool stitchTiles,
                          SkPerlinNoiseShader2::PaintingData* paintingData,
                          sk_sp<GrTextureProxy> permutationsProxy,
@@ -675,8 +674,8 @@ private:
             , fType(type)
             , fNumOctaves(numOctaves)
             , fStitchTiles(stitchTiles)
-            , fPermutationsSampler(textureProvider, std::move(permutationsProxy))
-            , fNoiseSampler(textureProvider, std::move(noiseProxy))
+            , fPermutationsSampler(resourceProvider, std::move(permutationsProxy))
+            , fNoiseSampler(resourceProvider, std::move(noiseProxy))
             , fPaintingData(paintingData) {
         this->initClassID<GrPerlinNoise2Effect>();
         this->addTextureSampler(&fPermutationsSampler);
@@ -1004,7 +1003,7 @@ void GrGLPerlinNoise2::GenKey(const GrProcessor& processor, const GrShaderCaps&,
 }
 
 void GrGLPerlinNoise2::onSetData(const GrGLSLProgramDataManager& pdman,
-                                const GrProcessor& processor) {
+                                 const GrFragmentProcessor& processor) {
     INHERITED::onSetData(pdman, processor);
 
     const GrPerlinNoise2Effect& turbulence = processor.cast<GrPerlinNoise2Effect>();
@@ -1028,7 +1027,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fZUni;
@@ -1042,17 +1041,19 @@ private:
 
 class GrImprovedPerlinNoiseEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(int octaves, SkScalar z,
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+                                           int octaves, SkScalar z,
                                            SkPerlinNoiseShader2::PaintingData* paintingData,
-                                           GrTexture* permutationsTexture,
-                                           GrTexture* gradientTexture,
+                                           sk_sp<GrTextureProxy> permutationsProxy,
+                                           sk_sp<GrTextureProxy> gradientProxy,
                                            const SkMatrix& matrix) {
         return sk_sp<GrFragmentProcessor>(
-            new GrImprovedPerlinNoiseEffect(octaves, z, paintingData, permutationsTexture,
-                                            gradientTexture, matrix));
+            new GrImprovedPerlinNoiseEffect(resourceProvider, octaves, z, paintingData,
+                                            std::move(permutationsProxy),
+                                            std::move(gradientProxy), matrix));
     }
 
-    virtual ~GrImprovedPerlinNoiseEffect() { delete fPaintingData; }
+    ~GrImprovedPerlinNoiseEffect() override { delete fPaintingData; }
 
     const char* name() const override { return "ImprovedPerlinNoise"; }
 
@@ -1076,15 +1077,17 @@ private:
                fPaintingData->fBaseFrequency == s.fPaintingData->fBaseFrequency;
     }
 
-    GrImprovedPerlinNoiseEffect(int octaves, SkScalar z,
+    GrImprovedPerlinNoiseEffect(GrResourceProvider* resourceProvider,
+                                int octaves, SkScalar z,
                                 SkPerlinNoiseShader2::PaintingData* paintingData,
-                                GrTexture* permutationsTexture, GrTexture* gradientTexture,
+                                sk_sp<GrTextureProxy> permutationsProxy,
+                                sk_sp<GrTextureProxy> gradientProxy,
                                 const SkMatrix& matrix)
             : INHERITED(kNone_OptimizationFlags)
             , fOctaves(octaves)
             , fZ(z)
-            , fPermutationsSampler(permutationsTexture)
-            , fGradientSampler(gradientTexture)
+            , fPermutationsSampler(resourceProvider, std::move(permutationsProxy))
+            , fGradientSampler(resourceProvider, std::move(gradientProxy))
             , fPaintingData(paintingData) {
         this->initClassID<GrImprovedPerlinNoiseEffect>();
         this->addTextureSampler(&fPermutationsSampler);
@@ -1274,7 +1277,7 @@ void GrGLImprovedPerlinNoise::GenKey(const GrProcessor& processor, const GrShade
 }
 
 void GrGLImprovedPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
-                                const GrProcessor& processor) {
+                                        const GrFragmentProcessor& processor) {
     INHERITED::onSetData(pdman, processor);
 
     const GrImprovedPerlinNoiseEffect& noise = processor.cast<GrImprovedPerlinNoiseEffect>();
@@ -1312,15 +1315,18 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
     if (fType == kImprovedNoise_Type) {
         GrSamplerParams textureParams(SkShader::TileMode::kRepeat_TileMode,
                                       GrSamplerParams::FilterMode::kNone_FilterMode);
-        sk_sp<GrTexture> permutationsTexture(
-            GrRefCachedBitmapTexture(args.fContext, paintingData->getImprovedPermutationsBitmap(),
-                                     textureParams, nullptr));
-        sk_sp<GrTexture> gradientTexture(
-            GrRefCachedBitmapTexture(args.fContext, paintingData->getGradientBitmap(),
-                                     textureParams, nullptr));
-        return GrImprovedPerlinNoiseEffect::Make(fNumOctaves, fSeed, paintingData,
-                                                 permutationsTexture.get(),
-                                                 gradientTexture.get(), m);
+        sk_sp<GrTextureProxy> permutationsTexture(
+            GrRefCachedBitmapTextureProxy(args.fContext,
+                                          paintingData->getImprovedPermutationsBitmap(),
+                                          textureParams, nullptr));
+        sk_sp<GrTextureProxy> gradientTexture(
+            GrRefCachedBitmapTextureProxy(args.fContext,
+                                          paintingData->getGradientBitmap(),
+                                          textureParams, nullptr));
+        return GrImprovedPerlinNoiseEffect::Make(args.fContext->resourceProvider(),
+                                                 fNumOctaves, fSeed, paintingData,
+                                                 std::move(permutationsTexture),
+                                                 std::move(gradientTexture), m);
     }
 
     if (0 == fNumOctaves) {
@@ -1340,14 +1346,14 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
     }
 
     sk_sp<GrTextureProxy> permutationsProxy = GrMakeCachedBitmapProxy(
-                                                         args.fContext,
+                                                         args.fContext->resourceProvider(),
                                                          paintingData->getPermutationsBitmap());
-    sk_sp<GrTextureProxy> noiseProxy = GrMakeCachedBitmapProxy(args.fContext,
+    sk_sp<GrTextureProxy> noiseProxy = GrMakeCachedBitmapProxy(args.fContext->resourceProvider(),
                                                                paintingData->getNoiseBitmap());
 
     if (permutationsProxy && noiseProxy) {
         sk_sp<GrFragmentProcessor> inner(
-            GrPerlinNoise2Effect::Make(args.fContext->textureProvider(),
+            GrPerlinNoise2Effect::Make(args.fContext->resourceProvider(),
                                        fType,
                                        fNumOctaves,
                                        fStitchTiles,

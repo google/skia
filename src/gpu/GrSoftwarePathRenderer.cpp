@@ -10,16 +10,15 @@
 #include "GrClip.h"
 #include "GrGpuResourcePriv.h"
 #include "GrPipelineBuilder.h"
+#include "GrResourceProvider.h"
 #include "GrSWMaskHelper.h"
-#include "GrSurfaceContextPriv.h"
-#include "GrTextureProvider.h"
 #include "ops/GrRectOpFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // Pass on any style that applies. The caller will apply the style if a suitable renderer is
     // not found and try again with the new GrShape.
-    return !args.fShape->style().applies() && SkToBool(fTexProvider) &&
+    return !args.fShape->style().applies() && SkToBool(fResourceProvider) &&
            (args.fAAType == GrAAType::kCoverage || args.fAAType == GrAAType::kNone);
 }
 
@@ -77,12 +76,12 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
-    std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewMatrix, rect,
-                                                                nullptr, &localMatrix));
+    std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+            paint.getColor(), viewMatrix, rect, nullptr, &localMatrix));
 
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     pipelineBuilder.setUserStencil(&userStencilSettings);
-    renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
+    renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
 }
 
 void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,
@@ -129,7 +128,7 @@ void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTarg
 bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrSoftwarePathRenderer::onDrawPath");
-    if (!fTexProvider) {
+    if (!fResourceProvider) {
         return false;
     }
 
@@ -204,22 +203,21 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         // should always be true, though.
     }
 
-    sk_sp<GrTexture> texture;
+    sk_sp<GrTextureProxy> proxy;
     if (useCache) {
-        texture.reset(args.fResourceProvider->findAndRefTextureByUniqueKey(maskKey));
+        proxy = fResourceProvider->findProxyByUniqueKey(maskKey);
     }
-    if (!texture) {
+    if (!proxy) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
         GrAA aa = GrAAType::kCoverage == args.fAAType ? GrAA::kYes : GrAA::kNo;
-        GrContext* context = args.fRenderTargetContext->surfPriv().getContext();
-        texture = GrSWMaskHelper::DrawShapeMaskToTexture(context, *args.fShape,
-                                                         *boundsForMask, aa,
-                                                         fit, args.fViewMatrix);
-        if (!texture) {
+        proxy = GrSWMaskHelper::DrawShapeMaskToTexture(args.fContext, *args.fShape,
+                                                       *boundsForMask, aa,
+                                                       fit, args.fViewMatrix);
+        if (!proxy) {
             return false;
         }
         if (useCache) {
-            texture->resourcePriv().setUniqueKey(maskKey);
+            fResourceProvider->assignUniqueKeyToProxy(maskKey, proxy.get());
         }
     }
     if (inverseFilled) {
@@ -228,7 +226,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                           unclippedDevShapeBounds);
     }
     GrSWMaskHelper::DrawToTargetWithShapeMask(
-            texture.get(), args.fRenderTargetContext, std::move(args.fPaint),
+            std::move(proxy), args.fRenderTargetContext, std::move(args.fPaint),
             *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix,
             SkIPoint{boundsForMask->fLeft, boundsForMask->fTop}, *boundsForMask);
 

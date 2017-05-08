@@ -315,28 +315,30 @@ private:
     void makeUnbudgeted();
 
 #ifdef SK_DEBUG
-    friend class GrGpu; // for assert in GrGpu to access getGpu
+    friend class GrGpu;  // for assert in GrGpu to access getGpu
 #endif
+
     // An index into a heap when this resource is purgeable or an array when not. This is maintained
     // by the cache.
-    int                         fCacheArrayIndex;
+    int fCacheArrayIndex;
     // This value reflects how recently this resource was accessed in the cache. This is maintained
     // by the cache.
-    uint32_t                    fTimestamp;
-    uint32_t                    fExternalFlushCntWhenBecamePurgeable;
+    uint32_t fTimestamp;
+    uint32_t fExternalFlushCntWhenBecamePurgeable;
+    GrStdSteadyClock::time_point fTimeWhenBecamePurgeable;
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
-    GrScratchKey                fScratchKey;
-    GrUniqueKey                 fUniqueKey;
+    GrScratchKey fScratchKey;
+    GrUniqueKey fUniqueKey;
 
     // This is not ref'ed but abandon() or release() will be called before the GrGpu object
     // is destroyed. Those calls set will this to NULL.
-    GrGpu*                      fGpu;
-    mutable size_t              fGpuMemorySize;
+    GrGpu* fGpu;
+    mutable size_t fGpuMemorySize;
 
-    SkBudgeted                  fBudgeted;
-    bool                        fRefsWrappedObjects;
-    const UniqueID              fUniqueID;
+    SkBudgeted fBudgeted;
+    bool fRefsWrappedObjects;
+    const UniqueID fUniqueID;
 
     typedef GrIORef<GrGpuResource> INHERITED;
     friend class GrIORef<GrGpuResource>; // to access notifyAllCntsAreZero and notifyRefCntIsZero.

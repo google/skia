@@ -9,8 +9,9 @@
 
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
+#include "GrResourceProvider.h"
 #include "SkBitmap.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkPixelRef.h"
 
 static bool bmp_is_alpha_only(const SkBitmap& bm) { return kAlpha_8_SkColorType == bm.colorType(); }
@@ -26,27 +27,28 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& b
     }
 }
 
-GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
-                                                    SkColorSpace* dstColorSpace) {
-    GrTexture* tex = nullptr;
+sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeMipped,
+                                                                    SkColorSpace* dstColorSpace) {
+    sk_sp<GrTextureProxy> proxy;
 
     if (fOriginalKey.isValid()) {
-        tex = this->context()->textureProvider()->findAndRefTextureByUniqueKey(fOriginalKey);
-        if (tex) {
-            return tex;
+        proxy = this->context()->resourceProvider()->findProxyByUniqueKey(fOriginalKey);
+        if (proxy) {
+            return proxy;
         }
     }
     if (willBeMipped) {
-        tex = GrGenerateMipMapsAndUploadToTexture(this->context(), fBitmap, dstColorSpace);
+        proxy = GrGenerateMipMapsAndUploadToTextureProxy(this->context(), fBitmap, dstColorSpace);
     }
-    if (!tex) {
-        tex = GrUploadBitmapToTexture(this->context(), fBitmap);
+    if (!proxy) {
+        proxy = GrUploadBitmapToTextureProxy(this->context()->resourceProvider(), fBitmap);
     }
-    if (tex && fOriginalKey.isValid()) {
-        tex->resourcePriv().setUniqueKey(fOriginalKey);
+    if (proxy && fOriginalKey.isValid()) {
+        this->context()->resourceProvider()->assignUniqueKeyToProxy(fOriginalKey, proxy.get());
+        // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
         GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
     }
-    return tex;
+    return proxy;
 }
 
 void GrBitmapTextureMaker::makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey,
@@ -67,5 +69,5 @@ SkAlphaType GrBitmapTextureMaker::alphaType() const {
 
 sk_sp<SkColorSpace> GrBitmapTextureMaker::getColorSpace(SkColorSpace* dstColorSpace) {
     // Color space doesn't depend on destination color space - it's just whatever is in the bitmap
-    return sk_ref_sp(fBitmap.colorSpace());
+    return fBitmap.refColorSpace();
 }

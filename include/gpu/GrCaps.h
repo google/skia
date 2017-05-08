@@ -17,7 +17,7 @@
 #include "SkString.h"
 
 struct GrContextOptions;
-
+class GrRenderTargetProxy;
 
 /**
  * Represents the capabilities of a GrContext.
@@ -184,6 +184,17 @@ public:
 
     bool fenceSyncSupport() const { return fFenceSyncSupport; }
     bool crossContextTextureSupport() const { return fCrossContextTextureSupport; }
+
+    /**
+     * This is can be called before allocating a texture to be a dst for copySurface. This is only
+     * used for doing dst copies needed in blends, thus the src is always a GrRenderTargetProxy. It
+     * will populate the origin, config, and flags fields of the desc such that copySurface can
+     * efficiently succeed. rectsMustMatch will be set to true if the copy operation must ensure
+     * that the src and dest rects are identical. disallowSubrect will be set to true if copy rect
+     * must equal src's bounds.
+     */
+    virtual bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+                                    bool* rectsMustMatch, bool* disallowSubrect) const = 0;
 
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps

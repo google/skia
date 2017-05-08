@@ -8,25 +8,14 @@
 #ifndef SkMultiPictureDocumentPriv_DEFINED
 #define SkMultiPictureDocumentPriv_DEFINED
 
-#include "SkTArray.h"
-#include "SkSize.h"
+#include "SkMultiPictureDocument.h"
 
-namespace SkMultiPictureDocumentProtocol {
-static constexpr char kMagic[] = "Skia Multi-Picture Doc\n\n";
-
-static constexpr char kEndPage[] = "SkMultiPictureEndPage";
-
-const uint32_t kVersion = 2;
-
-inline SkSize Join(const SkTArray<SkSize>& sizes) {
-    SkSize joined = SkSize::Make(0, 0);
-    for (SkSize s : sizes) {
-        joined = SkSize::Make(SkTMax(joined.width(), s.width()),
-                              SkTMax(joined.height(), s.height()));
-    }
-    return joined;
-}
-
-}
+/**
+ *  Additional API allows one to read the array of page-sizes without parsing
+ *  the entire file.  Used by DM.
+ */
+bool SkMultiPictureDocumentReadPageSizes(SkStreamSeekable* src,
+                                         SkDocumentPage* dstArray,
+                                         int dstArrayCount);
 
 #endif  // SkMultiPictureDocumentPriv_DEFINED

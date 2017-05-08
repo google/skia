@@ -32,8 +32,10 @@ static const char* precision_to_string(GrSLPrecision p) {
         return "medium";
     case kHigh_GrSLPrecision:
         return "high";
+    default:
+        SkFAIL("Unexpected precision type.");
+        return "";
     }
-    return "";
 }
 
 GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
@@ -47,7 +49,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fTexelBufferSupport = false;
     fImageLoadStoreSupport = false;
     fShaderPrecisionVaries = false;
-    fPLSPathRenderingSupport = false;
     fDropsTileOnZeroDivide = false;
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
@@ -66,8 +67,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fSampleMaskOverrideCoverageSupport = false;
     fExternalTextureSupport = false;
     fTexelFetchSupport = false;
-
-    fPixelLocalStorageSize = 0;
 
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;
@@ -204,7 +203,7 @@ void GrShaderCaps::initSamplerPrecisionTable() {
         }
 
         uint8_t* table = fSamplerPrecisions[visibility];
-        table[kUnknown_GrPixelConfig]        = kDefault_GrSLPrecision;
+        table[kUnknown_GrPixelConfig]        = lowp;
         table[kAlpha_8_GrPixelConfig]        = lowp;
         table[kGray_8_GrPixelConfig]         = lowp;
         table[kRGB_565_GrPixelConfig]        = lowp;

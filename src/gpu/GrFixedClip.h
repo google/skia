@@ -35,15 +35,15 @@ public:
 
     void disableWindowRectangles() { fWindowRectsState.setDisabled(); }
 
-    void setWindowRectangles(const GrWindowRectangles& windows, const SkIPoint& origin,
-                             GrWindowRectsState::Mode mode) {
-        fWindowRectsState.set(windows, origin, mode);
+    void setWindowRectangles(const GrWindowRectangles& windows, GrWindowRectsState::Mode mode) {
+        fWindowRectsState.set(windows, mode);
     }
 
     bool quickContains(const SkRect&) const override;
     void getConservativeBounds(int w, int h, SkIRect* devResult, bool* iior) const override;
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const override;
-    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out) const override;
+    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip*,
+               SkRect*) const override;
 
     static const GrFixedClip& Disabled();
 

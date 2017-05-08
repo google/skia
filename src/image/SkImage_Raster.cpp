@@ -9,17 +9,20 @@
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
+#include "SkColorSpaceXform_Base.h"
+#include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
 #include "SkData.h"
 #include "SkImagePriv.h"
 #include "SkPixelRef.h"
 #include "SkSurface.h"
+#include "SkTLazy.h"
+#include "SkUnPreMultiplyPriv.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTextureAdjuster.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #endif
 
 // fixes https://bug.skia.org/5096
@@ -74,7 +77,7 @@ public:
     }
 
     SkImage_Raster(const SkImageInfo&, sk_sp<SkData>, size_t rb, SkColorTable*);
-    virtual ~SkImage_Raster();
+    ~SkImage_Raster() override;
 
     SkImageInfo onImageInfo() const override {
         return fBitmap.info();
@@ -87,9 +90,13 @@ public:
     bool onPeekPixels(SkPixmap*) const override;
     const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
 
+#if SK_SUPPORT_GPU
+    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerParams&,
+                                            SkColorSpace*, sk_sp<SkColorSpace>*,
+                                            SkScalar scaleAdjust[2]) const override;
+#endif
+
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
-    GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
-                            sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
@@ -110,12 +117,10 @@ public:
         SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
     }
 
-    bool onIsLazyGenerated() const override {
-        return fBitmap.pixelRef() && fBitmap.pixelRef()->isLazyGenerated();
-    }
+    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override;
+    sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const override;
     bool onPinAsTexture(GrContext*) const override;
     void onUnpinAsTexture(GrContext*) const override;
 #endif
@@ -124,7 +129,7 @@ private:
     SkBitmap fBitmap;
 
 #if SK_SUPPORT_GPU
-    mutable sk_sp<GrTexture> fPinnedTexture;
+    mutable sk_sp<GrTextureProxy> fPinnedProxy;
     mutable int32_t fPinnedCount = 0;
     mutable uint32_t fPinnedUniqueID = 0;
 #endif
@@ -152,7 +157,7 @@ SkImage_Raster::SkImage_Raster(const Info& info, sk_sp<SkData> data, size_t rowB
 
 SkImage_Raster::~SkImage_Raster() {
 #if SK_SUPPORT_GPU
-    SkASSERT(nullptr == fPinnedTexture.get());  // want the caller to have manually unpinned
+    SkASSERT(nullptr == fPinnedProxy.get());  // want the caller to have manually unpinned
 #endif
 }
 
@@ -171,12 +176,13 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace, Cac
     return true;
 }
 
-GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
-                                        SkColorSpace* dstColorSpace,
-                                        sk_sp<SkColorSpace>* texColorSpace,
-                                        SkScalar scaleAdjust[2]) const {
 #if SK_SUPPORT_GPU
-    if (!ctx) {
+sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrContext* context,
+                                                        const GrSamplerParams& params,
+                                                        SkColorSpace* dstColorSpace,
+                                                        sk_sp<SkColorSpace>* texColorSpace,
+                                                        SkScalar scaleAdjust[2]) const {
+    if (!context) {
         return nullptr;
     }
 
@@ -185,42 +191,40 @@ GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrSamplerParams& p
     }
 
     uint32_t uniqueID;
-    sk_sp<GrTexture> tex = this->refPinnedTexture(&uniqueID);
+    sk_sp<GrTextureProxy> tex = this->refPinnedTextureProxy(&uniqueID);
     if (tex) {
-        GrTextureAdjuster adjuster(fPinnedTexture.get(), fBitmap.alphaType(), fBitmap.bounds(),
+        GrTextureAdjuster adjuster(context, fPinnedProxy,
+                                   fBitmap.alphaType(), fBitmap.bounds(),
                                    fPinnedUniqueID, fBitmap.colorSpace());
-        return adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust);
+        return adjuster.refTextureProxySafeForParams(params, nullptr, scaleAdjust);
     }
 
-    return GrRefCachedBitmapTexture(ctx, fBitmap, params, scaleAdjust);
-#endif
-
-    return nullptr;
+    return GrRefCachedBitmapTextureProxy(context, fBitmap, params, scaleAdjust);
 }
+#endif
 
 #if SK_SUPPORT_GPU
 
-sk_sp<GrTexture> SkImage_Raster::refPinnedTexture(uint32_t* uniqueID) const {
-    if (fPinnedTexture) {
+sk_sp<GrTextureProxy> SkImage_Raster::refPinnedTextureProxy(uint32_t* uniqueID) const {
+    if (fPinnedProxy) {
         SkASSERT(fPinnedCount > 0);
         SkASSERT(fPinnedUniqueID != 0);
         *uniqueID = fPinnedUniqueID;
-        return fPinnedTexture;
+        return fPinnedProxy;
     }
     return nullptr;
 }
 
 bool SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
-    if (fPinnedTexture) {
+    if (fPinnedProxy) {
         SkASSERT(fPinnedCount > 0);
         SkASSERT(fPinnedUniqueID != 0);
-        SkASSERT(fPinnedTexture->getContext() == ctx);
     } else {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
-        fPinnedTexture.reset(
-            GrRefCachedBitmapTexture(ctx, fBitmap, GrSamplerParams::ClampNoFilter(), nullptr));
-        if (!fPinnedTexture) {
+        fPinnedProxy = GrRefCachedBitmapTextureProxy(ctx, fBitmap,
+                                                     GrSamplerParams::ClampNoFilter(), nullptr);
+        if (!fPinnedProxy) {
             return false;
         }
         fPinnedUniqueID = fBitmap.getGenerationID();
@@ -234,12 +238,9 @@ void SkImage_Raster::onUnpinAsTexture(GrContext* ctx) const {
     // Note: we always decrement, even if fPinnedTexture is null
     SkASSERT(fPinnedCount > 0);
     SkASSERT(fPinnedUniqueID != 0);
-    if (fPinnedTexture) {
-        SkASSERT(fPinnedTexture->getContext() == ctx);
-    }
 
     if (0 == --fPinnedCount) {
-        fPinnedTexture.reset(nullptr);
+        fPinnedProxy.reset(nullptr);
         fPinnedUniqueID = 0;
     }
 }
@@ -346,4 +347,74 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) c
         }
     }
     return this->INHERITED::onAsLegacyBitmap(bitmap, mode);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+static inline void do_color_xform_non_linear_blending(SkBitmap* dst, const SkPixmap& src) {
+    SkDEBUGCODE(SkColorSpaceTransferFn fn;);
+    SkASSERT(dst->colorSpace()->isNumericalTransferFn(&fn) &&
+             src.colorSpace()->isNumericalTransferFn(&fn));
+
+    void* dstPixels = dst->getPixels();
+    const void* srcPixels = src.addr();
+    size_t dstRowBytes = dst->rowBytes();
+    size_t srcRowBytes = src.rowBytes();
+    if (kN32_SkColorType != src.colorType()) {
+        SkAssertResult(src.readPixels(src.info().makeColorType(kN32_SkColorType), dstPixels,
+                                      dstRowBytes, 0, 0));
+
+        srcPixels = dstPixels;
+        srcRowBytes = dstRowBytes;
+    }
+
+    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform_Base::New(
+            src.colorSpace(), dst->colorSpace(), SkTransferFunctionBehavior::kIgnore);
+
+    void* dstRow = dstPixels;
+    const void* srcRow = srcPixels;
+    for (int y = 0; y < dst->height(); y++) {
+        // This function assumes non-linear blending.  Which means that we must start by
+        // unpremultiplying in the gamma encoded space.
+        const void* tmpRow = srcRow;
+        if (kPremul_SkAlphaType == src.alphaType()) {
+            SkUnpremultiplyRow<false>((uint32_t*) dstRow, (const uint32_t*) srcRow, dst->width());
+            tmpRow = dstRow;
+        }
+
+        SkColorSpaceXform::ColorFormat fmt = select_xform_format(kN32_SkColorType);
+        SkAssertResult(xform->apply(fmt, dstRow, fmt, tmpRow, dst->width(), dst->alphaType()));
+
+        dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
+        srcRow = SkTAddOffset<const void>(srcRow, srcRowBytes);
+    }
+}
+
+sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
+    // Force the color type of the new image to be kN32_SkColorType.
+    // (1) This means we lose precision on F16 images.  This is necessary while this function is
+    //     used to pre-transform inputs to a legacy canvas.  Legacy canvases do not handle F16.
+    // (2) kIndex8 and kGray8 must be expanded in order perform a color space transformation.
+    // (3) Seems reasonable to expand k565 and k4444.  It's nice to avoid these color types for
+    //     clients who opt into color space support.
+    SkImageInfo dstInfo = fBitmap.info().makeColorType(kN32_SkColorType).makeColorSpace(target);
+    SkBitmap dst;
+    dst.allocPixels(dstInfo);
+
+    SkPixmap src;
+    SkTLazy<SkBitmap> tmp;
+    if (!fBitmap.peekPixels(&src)) {
+        tmp.init(fBitmap);
+        tmp.get()->lockPixels();
+        SkAssertResult(tmp.get()->peekPixels(&src));
+    }
+
+    // Treat nullptr srcs as sRGB.
+    if (!src.colorSpace()) {
+        src.setColorSpace(SkColorSpace::MakeSRGB());
+    }
+
+    do_color_xform_non_linear_blending(&dst, src);
+    dst.setImmutable();
+    return SkImage::MakeFromBitmap(dst);
 }

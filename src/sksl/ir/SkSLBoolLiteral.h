@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_BOOLLITERAL
 #define SKSL_BOOLLITERAL
 
@@ -21,8 +21,8 @@ struct BoolLiteral : public Expression {
     : INHERITED(position, kBoolLiteral_Kind, *context.fBool_Type)
     , fValue(value) {}
 
-    SkString description() const override {
-        return SkString(fValue ? "true" : "false");
+    String description() const override {
+        return String(fValue ? "true" : "false");
     }
 
     bool isConstant() const override {

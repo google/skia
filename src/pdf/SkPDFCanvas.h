@@ -14,7 +14,7 @@ class SkPDFDevice;
 class SkPDFCanvas : public SkCanvas {
 public:
     SkPDFCanvas(const sk_sp<SkPDFDevice>&);
-    ~SkPDFCanvas();
+    ~SkPDFCanvas() override;
 
 protected:
     void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;

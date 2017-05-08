@@ -12,12 +12,18 @@
 #include <windowsx.h>
 
 #include "SkUtils.h"
+#include "../WindowContext.h"
 #include "WindowContextFactory_win.h"
 #ifdef SK_VULKAN
 #include "../VulkanWindowContext.h"
 #endif
 
 namespace sk_app {
+
+static int gWindowX = CW_USEDEFAULT;
+static int gWindowY = 0;
+static int gWindowWidth = CW_USEDEFAULT;
+static int gWindowHeight = 0;
 
 Window* Window::CreateNativeWindow(void* platformData) {
     HINSTANCE hInstance = (HINSTANCE)platformData;
@@ -29,6 +35,21 @@ Window* Window::CreateNativeWindow(void* platformData) {
     }
 
     return window;
+}
+
+void Window_win::closeWindow() {
+    RECT r;
+    if (GetWindowRect(fHWnd, &r)) {
+        gWindowX = r.left;
+        gWindowY = r.top;
+        gWindowWidth = r.right - r.left;
+        gWindowHeight = r.bottom - r.top;
+    }
+    DestroyWindow(fHWnd);
+}
+
+Window_win::~Window_win() {
+    this->closeWindow();
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -85,7 +106,8 @@ bool Window_win::init(HINSTANCE hInstance) {
  //   gIsFullscreen = fullscreen;
 
     fHWnd = CreateWindow(gSZWindowClass, nullptr, WS_OVERLAPPEDWINDOW,
-                         CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, fHInstance, nullptr);
+                         gWindowX, gWindowY, gWindowWidth, gWindowHeight,
+                         nullptr, nullptr, fHInstance, nullptr);
     if (!fHWnd)
     {
         return false;
@@ -291,6 +313,8 @@ void Window_win::show() {
 
 
 bool Window_win::attach(BackendType attachType) {
+    fBackend = attachType;
+
     switch (attachType) {
         case kNativeGL_BackendType:
             fWindowContext = window_context_factory::NewGLForWin(fHWnd, fRequestedDisplayParams);
@@ -313,6 +337,21 @@ bool Window_win::attach(BackendType attachType) {
 
 void Window_win::onInval() {
     InvalidateRect(fHWnd, nullptr, false);
+}
+
+void Window_win::setRequestedDisplayParams(const DisplayParams& params) {
+    // GL on Windows doesn't let us change MSAA after the window is created
+    if (params.fMSAASampleCount != this->getRequestedDisplayParams().fMSAASampleCount) {
+        // Need to change these early, so attach() creates the window context correctly
+        fRequestedDisplayParams = params;
+
+        delete fWindowContext;
+        this->closeWindow();
+        this->init(fHInstance);
+        this->attach(fBackend);
+    }
+
+    INHERITED::setRequestedDisplayParams(params);
 }
 
 }   // namespace sk_app

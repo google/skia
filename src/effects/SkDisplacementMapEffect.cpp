@@ -14,13 +14,12 @@
 #include "SkUnPreMultiply.h"
 #include "SkColorPriv.h"
 #if SK_SUPPORT_GPU
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
-
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #include "effects/GrTextureDomain.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -214,20 +213,21 @@ void SkDisplacementMapEffect::flatten(SkWriteBuffer& buffer) const {
 #if SK_SUPPORT_GPU
 class GrDisplacementMapEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrContext* context,
+    static sk_sp<GrFragmentProcessor> Make(
+                GrResourceProvider* resourceProvider,
                 SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                 SkDisplacementMapEffect::ChannelSelectorType yChannelSelector, SkVector scale,
                 sk_sp<GrTextureProxy> displacement, const SkMatrix& offsetMatrix,
                 sk_sp<GrTextureProxy> color,
                 sk_sp<GrColorSpaceXform> colorSpaceXform, const SkISize& colorDimensions) {
         return sk_sp<GrFragmentProcessor>(
-            new GrDisplacementMapEffect(context, xChannelSelector, yChannelSelector, scale,
+            new GrDisplacementMapEffect(resourceProvider, xChannelSelector, yChannelSelector, scale,
                                         std::move(displacement),
                                         offsetMatrix, std::move(color), std::move(colorSpaceXform),
                                         colorDimensions));
     }
 
-    virtual ~GrDisplacementMapEffect();
+    ~GrDisplacementMapEffect() override;
 
     SkDisplacementMapEffect::ChannelSelectorType xChannelSelector() const {
         return fXChannelSelector;
@@ -248,7 +248,7 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    GrDisplacementMapEffect(GrContext*,
+    GrDisplacementMapEffect(GrResourceProvider*,
                             SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
                             const SkVector& scale,
@@ -340,7 +340,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
                                                                            colorSpace);
         GrPaint paint;
         paint.addColorFragmentProcessor(
-            GrDisplacementMapEffect::Make(context,
+            GrDisplacementMapEffect::Make(context->resourceProvider(),
                                           fXChannelSelector,
                                           fYChannelSelector,
                                           scale,
@@ -412,6 +412,23 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
                                           dst);
 }
 
+sk_sp<SkImageFilter> SkDisplacementMapEffect::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkASSERT(2 == this->countInputs());
+    if (!this->getInput(1)) {
+        return sk_ref_sp(const_cast<SkDisplacementMapEffect*>(this));
+    }
+
+    // Intentionally avoid xforming the displacement filter.  The values will be used as
+    // offsets, not as colors.
+    sk_sp<SkImageFilter> displacement = sk_ref_sp(const_cast<SkImageFilter*>(this->getInput(0)));
+    sk_sp<SkImageFilter> color =
+            this->getInput(1) ? this->getInput(1)->makeColorSpace(xformer) : nullptr;
+
+    return SkDisplacementMapEffect::Make(fXChannelSelector, fYChannelSelector, fScale,
+                                         std::move(displacement), std::move(color),
+                                         this->getCropRectIfSet());
+}
+
 SkRect SkDisplacementMapEffect::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getColorInput() ? this->getColorInput()->computeFastBounds(src) : src;
     bounds.outset(SkScalarAbs(fScale) * SK_ScalarHalf, SkScalarAbs(fScale) * SK_ScalarHalf);
@@ -461,13 +478,13 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
     UniformHandle fScaleUni;
-    UniformHandle fColorSpaceXformUni;
+    GrGLSLColorSpaceXformHelper fColorSpaceHelper;
     GrTextureDomain::GLDomain fGLDomain;
 
     typedef GrGLSLFragmentProcessor INHERITED;
@@ -485,7 +502,7 @@ void GrDisplacementMapEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 }
 
 GrDisplacementMapEffect::GrDisplacementMapEffect(
-        GrContext* context,
+        GrResourceProvider* resourceProvider,
         SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
         SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
         const SkVector& scale,
@@ -496,13 +513,12 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
         const SkISize& colorDimensions)
         : INHERITED(GrPixelConfigIsOpaque(color->config()) ? kPreservesOpaqueInput_OptimizationFlag
                                                            : kNone_OptimizationFlags)
-        , fDisplacementTransform(context, offsetMatrix, displacement.get(),
-                                 GrSamplerParams::kNone_FilterMode)
-        , fDisplacementSampler(context->textureProvider(), displacement)
-        , fColorTransform(context, color.get(), GrSamplerParams::kNone_FilterMode)
+        , fDisplacementTransform(resourceProvider, offsetMatrix, displacement.get())
+        , fDisplacementSampler(resourceProvider, displacement)
+        , fColorTransform(resourceProvider, color.get())
         , fDomain(color.get(), GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(colorDimensions)),
                   GrTextureDomain::kDecal_Mode)
-        , fColorSampler(context->textureProvider(), color)
+        , fColorSampler(resourceProvider, color)
         , fColorSpaceXform(std::move(colorSpaceXform))
         , fXChannelSelector(xChannelSelector)
         , fYChannelSelector(yChannelSelector)
@@ -549,7 +565,8 @@ sk_sp<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProcessorTestDa
     colorDimensions.fWidth = d->fRandom->nextRangeU(0, colorProxy->width());
     colorDimensions.fHeight = d->fRandom->nextRangeU(0, colorProxy->height());
     auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    return GrDisplacementMapEffect::Make(d->context(), xChannelSelector, yChannelSelector, scale,
+    return GrDisplacementMapEffect::Make(d->resourceProvider(),
+                                         xChannelSelector, yChannelSelector, scale,
                                          std::move(dispProxy), SkMatrix::I(),
                                          std::move(colorProxy), colorSpaceXform,
                                          colorDimensions);
@@ -571,9 +588,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
                                    // a number smaller than that to approximate 0, but
                                    // leave room for 32-bit float GPU rounding errors.
 
-    GrGLSLColorSpaceXformHelper colorSpaceHelper(args.fUniformHandler,
-                                                 displacementMap.colorSpaceXform(),
-                                                 &fColorSpaceXformUni);
+    fColorSpaceHelper.emitCode(args.fUniformHandler, displacementMap.colorSpaceXform());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     fragBuilder->codeAppendf("\t\tvec4 %s = ", dColor);
@@ -634,12 +649,12 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
                             SkString(cCoords),
                             args.fTexSamplers[1],
                             nullptr,
-                            &colorSpaceHelper);
+                            &fColorSpaceHelper);
     fragBuilder->codeAppend(";\n");
 }
 
 void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                          const GrProcessor& proc) {
+                                          const GrFragmentProcessor& proc) {
     const GrDisplacementMapEffect& displacementMap = proc.cast<GrDisplacementMapEffect>();
     GrTexture* colorTex = displacementMap.textureSampler(1).texture();
     SkScalar scaleX = displacementMap.scale().fX / colorTex->width();
@@ -649,7 +664,7 @@ void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                 SkScalarToFloat(scaleY) : SkScalarToFloat(-scaleY));
     fGLDomain.setData(pdman, displacementMap.domain(), colorTex);
     if (SkToBool(displacementMap.colorSpaceXform())) {
-        pdman.setSkMatrix44(fColorSpaceXformUni, displacementMap.colorSpaceXform()->srcToDst());
+        fColorSpaceHelper.setData(pdman, displacementMap.colorSpaceXform());
     }
 }
 

@@ -50,8 +50,9 @@ public:
     static const int    kDefaultMaxCount            = 2 * (1 << 12);
     // Default maximum number of bytes of gpu memory of budgeted resources in the cache.
     static const size_t kDefaultMaxSize             = 96 * (1 << 20);
-    // Default number of external flushes a budgeted resources can go unused in the cache before it 
-    // is purged. Using a value <= 0 disables this feature.
+    // Default number of external flushes a budgeted resources can go unused in the cache before it
+    // is purged. Using a value <= 0 disables this feature. This will be removed once Chrome
+    // starts using time-based purging.
     static const int    kDefaultMaxUnusedFlushes =
             1  * /* flushes per frame */
             60 * /* fps */
@@ -158,6 +159,9 @@ public:
 
     /** Purges all resources that don't have external owners. */
     void purgeAllUnlocked();
+
+    /** Purge all resources not used since the passed in time. */
+    void purgeResourcesNotUsedSince(GrStdSteadyClock::time_point);
 
     /** Returns true if the cache would like a flush to occur in order to make more resources
         purgeable. */

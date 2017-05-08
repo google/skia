@@ -15,7 +15,7 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
                  const char* expected, SkSL::Program::Inputs* inputs,
                  SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
     SkSL::Compiler compiler;
-    SkString output;
+    SkSL::String output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, SkString(src), settings);
     if (!program) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
@@ -24,7 +24,7 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
     *inputs = program->fInputs;
     REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
     if (program) {
-        SkString skExpected(expected);
+        SkSL::String skExpected(expected);
         if (output != skExpected) {
             SkDebugf("GLSL MISMATCH:\nsource:\n%s\n\nexpected:\n'%s'\n\nreceived:\n'%s'", src,
                      expected, output.c_str());
@@ -93,7 +93,7 @@ DEF_TEST(SkSLFunctions, r) {
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
-         "float foo(in float v[2]) {\n"
+         "float foo(float v[2]) {\n"
          "    return v[0] * v[1];\n"
          "}\n"
          "void bar(inout float x) {\n"

@@ -267,10 +267,10 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo, int* ctableCount) 
         }
     }
 
-    // If we are not decoding to F16, we can color xform now and store the results
-    // in the color table.
-    if (this->colorXform() && kRGBA_F16_SkColorType != dstInfo.colorType()) {
-        const SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
+    if (this->colorXform() &&
+            !apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color())) {
+        const SkColorSpaceXform::ColorFormat dstFormat =
+                select_xform_format_ct(dstInfo.colorType());
         const SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(kXformSrcColorType);
         const SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
                                                               this->getInfo().alphaType());
@@ -1093,7 +1093,7 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     // interlaced scanline decoder may need to rewind.
     fSwizzler.reset(nullptr);
 
-    if (!this->initializeColorXform(dstInfo)) {
+    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
         return false;
     }
 
@@ -1278,7 +1278,7 @@ uint64_t SkPngCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
         SkAlphaType alphaType = select_xform_alpha(dstInfo.alphaType(),
                                                    this->getInfo().alphaType());
         return get_color_table_fill_value(dstInfo.colorType(), alphaType, colorPtr, 0,
-                                          this->colorXform());
+                                          this->colorXform(), true);
     }
     return INHERITED::onGetFillValue(dstInfo);
 }

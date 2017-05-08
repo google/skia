@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkBlurMaskFilter.h"
 #include "SkClipOpPriv.h"
 #include "SkColorFilter.h"

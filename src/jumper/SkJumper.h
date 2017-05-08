@@ -12,51 +12,66 @@
 // and SkJumper_stages.cpp (compiled into Skia _and_ offline into SkJumper_generated.h).
 // Keep it simple!
 
-#include <stdint.h>
+#if defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
+    // To reduce SkJumper's dependency on the Android NDK,
+    // we provide what we need from <string.h>, <stdint.h>, and <stddef.h> ourselves.
+    #define memcpy __builtin_memcpy
 
-// SkJumper Stages can use constant literals only if they end up baked into the instruction,
-// like bit shifts and rounding modes.  Any other constant values must be pulled from this struct
-// (except 0, ~0, and 0.0f, which always end up as some sort of xor or cmpeq instruction).
+    using  int8_t  =   signed char;
+    using uint8_t  = unsigned char;
+    using  int16_t =   signed short;
+    using uint16_t = unsigned short;
+    using  int32_t =   signed int;
+    using uint32_t = unsigned int;
+    #if defined(__aarch64__)
+        using  int64_t =   signed long;
+        using uint64_t = unsigned long;
+        using size_t = uint64_t;
+    #else
+        using  int64_t =   signed long long;
+        using uint64_t = unsigned long long;
+        using size_t = uint32_t;
+    #endif
+
+    // Now pretend we've included <stdint.h> (or it'll be included again by <arm_neon.h>).
+    #define __CLANG_STDINT_H
+    #define _STDINT_H_
+#else
+    #include <string.h>
+    #include <stdint.h>
+#endif
+
+// SkJumper_stages.cpp has some unusual constraints on what constants it can use.
 //
-// This constraint makes it much easier to move and reorder the code for each Stage.
+// If the constant is baked into the instruction, that's ok.
+// If the constant is synthesized through code, that's ok.
+// If the constant is loaded from memory, that's no good.
+//
+// We offer a couple facilities to get at any other constants you need:
+//   - the C() function usually constrains constants to be directly baked into an instruction; or
+//   - the _i and _f user-defined literal operators call C() for you in a prettier way; or
+//   - you can load values from this struct.
+
+static const int SkJumper_kMaxStride = 8;
 
 struct SkJumper_constants {
-    float    _1;           //  1.0f
-    float    _0_5;         //  0.5f
-    float    _255;         //  255.0f
-    float    _1_255;       //  1/255.0f
-    uint32_t _0x000000ff;  //  0x000000ff
+    float iota[SkJumper_kMaxStride];   //  0,1,2,3,4,...
+};
 
-    float    iota[8];      //  0,1,2,3,4,5,6,7
+struct SkJumper_GatherCtx {
+    const void*     pixels;
+    const uint32_t* ctable;
+    int             stride;
+};
 
-    // from_srgb
-    float    _00025;       //  0.0025f
-    float    _06975;       //  0.6975f
-    float    _03000;       //  0.3000f
-    float    _1_1292;      //  1/12.92f
-    float    _0055;        //  0.055f
-
-    // to_srgb
-    float    _1246;        //  12.46f
-    float    _0411192;     //  0.411192f
-    float    _0689206;     //  0.689206f
-    float   n_00988;       // -0.0988f
-    float    _00043;       //  0.0043f
-
-    // fp16 <-> fp32
-    uint32_t _0x77800000;
-    uint32_t _0x07800000;
-    uint32_t _0x04000400;
-
-    // 565
-    uint32_t r_565_mask;
-    uint32_t g_565_mask;
-    uint32_t b_565_mask;
-    float    r_565_scale;
-    float    g_565_scale;
-    float    b_565_scale;
-    float    _31;
-    float    _63;
+// State shared by save_xy, accumulate, and bilinear_* / bicubic_*.
+struct SkJumper_SamplerCtx {
+    float      x[SkJumper_kMaxStride];
+    float      y[SkJumper_kMaxStride];
+    float     fx[SkJumper_kMaxStride];
+    float     fy[SkJumper_kMaxStride];
+    float scalex[SkJumper_kMaxStride];
+    float scaley[SkJumper_kMaxStride];
 };
 
 #endif//SkJumper_DEFINED

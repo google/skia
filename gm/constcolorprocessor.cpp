@@ -8,12 +8,13 @@
 // This test only works with the GPU backend.
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkGradientShader.h"
 #include "effects/GrConstColorProcessor.h"
 #include "ops/GrDrawOp.h"
@@ -109,9 +110,9 @@ protected:
 
                     grPaint.addColorFragmentProcessor(std::move(fp));
 
-                    std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                    std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                             grPaint.getColor(), viewMatrix, renderRect, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_addDrawOp(
+                    renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
                             std::move(grPaint), GrAAType::kNone, std::move(op));
 
                     // Draw labels for the input to the processor and the processor to the right of

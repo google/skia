@@ -10,7 +10,6 @@
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
-#include "SkPictureUtils.h"
 #include "SkRecordedDrawable.h"
 #include "SkRecordDraw.h"
 
@@ -34,7 +33,7 @@ SkPicture* SkRecordedDrawable::onNewPictureSnapshot() {
 
     size_t subPictureBytes = 0;
     for (int i = 0; pictList && i < pictList->count(); i++) {
-        subPictureBytes += SkPictureUtils::ApproximateBytesUsed(pictList->begin()[i]);
+        subPictureBytes += pictList->begin()[i]->approximateBytesUsed();
     }
     // SkBigPicture will take ownership of a ref on both fRecord and fBBH.
     // We're not willing to give up our ownership, so we must ref them for SkPicture.

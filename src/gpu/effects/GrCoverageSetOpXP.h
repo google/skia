@@ -12,8 +12,6 @@
 #include "GrXferProcessor.h"
 #include "SkRegion.h"
 
-class GrProcOptInfo;
-
 // See the comment above GrXPFactory's definition about this warning suppression.
 #if defined(__GNUC__) || defined(__clang)
 #pragma GCC diagnostic push
@@ -32,18 +30,17 @@ public:
 private:
     constexpr GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
 
-    bool willReadsDst(const FragmentProcessorAnalysis&) const override {
-        return fRegionOp != SkRegion::kReplace_Op;
+    sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                   GrProcessorAnalysisCoverage,
+                                                   bool hasMixedSamples,
+                                                   const GrCaps&) const override;
+
+    AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
+                                          const GrProcessorAnalysisCoverage&,
+                                          const GrCaps&) const override {
+        return AnalysisProperties::kIgnoresInputColor;
     }
 
-    GrXferProcessor* onCreateXferProcessor(const GrCaps&,
-                                           const FragmentProcessorAnalysis&,
-                                           bool hasMixedSamples,
-                                           const DstTexture*) const override;
-
-    bool onWillReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override {
-        return false;
-    }
 
     GR_DECLARE_XP_FACTORY_TEST;
 

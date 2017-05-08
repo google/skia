@@ -89,13 +89,10 @@ class VerticesGM : public skiagm::GM {
     sk_sp<SkShader>         fShader1;
     sk_sp<SkShader>         fShader2;
     sk_sp<SkColorFilter>    fColorFilter;
-    sk_sp<SkVertices>       fVertices;
-    bool                    fUseObject;
     SkScalar                fShaderScale;
 
 public:
-    VerticesGM(bool useObject, SkScalar shaderScale = 1)
-        : fUseObject(useObject), fShaderScale(shaderScale) {}
+    VerticesGM(SkScalar shaderScale) : fShaderScale(shaderScale) {}
 
 protected:
 
@@ -104,33 +101,10 @@ protected:
         fShader1 = make_shader1(fShaderScale);
         fShader2 = make_shader2();
         fColorFilter = make_color_filter();
-        if (fUseObject) {
-            std::unique_ptr<SkPoint[]> points(new SkPoint[kMeshVertexCnt]);
-            std::unique_ptr<SkPoint[]> texs(new SkPoint[kMeshVertexCnt]);
-            std::unique_ptr<SkColor[]> colors(new SkColor[kMeshVertexCnt]);
-            std::unique_ptr<uint16_t[]> indices(new uint16_t[kMeshIndexCnt]);
-            memcpy(points.get(), fPts, sizeof(SkPoint) * kMeshVertexCnt);
-            memcpy(colors.get(), fColors, sizeof(SkColor) * kMeshVertexCnt);
-            memcpy(texs.get(), fTexs, sizeof(SkPoint) * kMeshVertexCnt);
-            memcpy(indices.get(), kMeshFan, sizeof(uint16_t) * kMeshIndexCnt);
-            // Older libstdc++ does not allow moving a std::unique_ptr<T[]> into a
-            // std::unique_ptr<const T[]>. Hence the release() calls below.
-            fVertices = SkVertices::MakeIndexed(
-                    SkCanvas::kTriangleFan_VertexMode,
-                    std::unique_ptr<const SkPoint[]>((const SkPoint*)points.release()),
-                    std::unique_ptr<const SkColor[]>((const SkColor*)colors.release()),
-                    std::unique_ptr<const SkPoint[]>((const SkPoint*)texs.release()),
-                    kMeshVertexCnt,
-                    std::unique_ptr<const uint16_t[]>((const uint16_t*)indices.release()),
-                    kMeshIndexCnt);
-        }
     }
 
     SkString onShortName() override {
         SkString name("vertices");
-        if (fUseObject) {
-            name.append("_object");
-        }
         if (fShaderScale != 1) {
             name.append("_scaled_shader");
         }
@@ -191,20 +165,13 @@ protected:
                             paint.setShader(shader);
                             paint.setColorFilter(cf);
                             paint.setAlpha(alpha);
-                            if (fUseObject) {
-                                uint32_t flags = 0;
-                                flags |=
-                                        attrs.fHasColors ? 0 : SkCanvas::kIgnoreColors_VerticesFlag;
-                                flags |= attrs.fHasTexs ? 0
-                                                        : SkCanvas::kIgnoreTexCoords_VerticesFlag;
-                                canvas->drawVertices(fVertices, mode, paint, flags);
-                            } else {
-                                const SkColor* colors = attrs.fHasColors ? fColors : nullptr;
-                                const SkPoint* texs = attrs.fHasTexs ? fTexs : nullptr;
-                                canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode,
-                                                     kMeshVertexCnt, fPts, texs, colors, mode,
-                                                     kMeshFan, kMeshIndexCnt, paint);
-                            }
+
+                            const SkColor* colors = attrs.fHasColors ? fColors : nullptr;
+                            const SkPoint* texs = attrs.fHasTexs ? fTexs : nullptr;
+                            auto v = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode,
+                                                          kMeshVertexCnt, fPts, texs, colors,
+                                                          kMeshIndexCnt, kMeshFan);
+                            canvas->drawVertices(v, mode, paint);
                             canvas->translate(40, 0);
                             ++x;
                         }
@@ -222,15 +189,20 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new VerticesGM(true);)
-DEF_GM(return new VerticesGM(false);)
-DEF_GM(return new VerticesGM(false, 1 / kShaderSize);)
+DEF_GM(return new VerticesGM(1);)
+DEF_GM(return new VerticesGM(1 / kShaderSize);)
 
-static void draw_batching(SkCanvas* canvas, bool useObject) {
-    std::unique_ptr<SkPoint[]> pts(new SkPoint[kMeshVertexCnt]);
-    std::unique_ptr<SkPoint[]> texs(new SkPoint[kMeshVertexCnt]);
-    std::unique_ptr<SkColor[]> colors(new SkColor[kMeshVertexCnt]);
-    fill_mesh(pts.get(), texs.get(), colors.get(), 1);
+static void draw_batching(SkCanvas* canvas) {
+    // Triangle fans can't batch so we convert to regular triangles,
+    static constexpr int kNumTris = kMeshIndexCnt - 2;
+    SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, kMeshVertexCnt, 3 * kNumTris,
+                                SkVertices::kHasColors_BuilderFlag |
+                                SkVertices::kHasTexCoords_BuilderFlag);
+
+    SkPoint* pts = builder.positions();
+    SkPoint* texs = builder.texCoords();
+    SkColor* colors = builder.colors();
+    fill_mesh(pts, texs, colors, 1);
 
     SkTDArray<SkMatrix> matrices;
     matrices.push()->reset();
@@ -242,27 +214,14 @@ static void draw_batching(SkCanvas* canvas, bool useObject) {
 
     auto shader = make_shader1(1);
 
-    // Triangle fans can't batch so we convert to regular triangles,
-    static constexpr int kNumTris = kMeshIndexCnt - 2;
-    std::unique_ptr<uint16_t[]> indices(new uint16_t[3 * kNumTris]);
+    uint16_t* indices = builder.indices();
     for (size_t i = 0; i < kNumTris; ++i) {
         indices[3 * i] = kMeshFan[0];
         indices[3 * i + 1] = kMeshFan[i + 1];
         indices[3 * i + 2] = kMeshFan[i + 2];
+
     }
 
-    sk_sp<SkVertices> vertices;
-    if (useObject) {
-        // Older libstdc++ does not allow moving a std::unique_ptr<T[]> into a
-        // std::unique_ptr<const T[]>. Hence the release() calls below.
-        vertices = SkVertices::MakeIndexed(
-                SkCanvas::kTriangles_VertexMode,
-                std::unique_ptr<const SkPoint[]>((const SkPoint*)pts.release()),
-                std::unique_ptr<const SkColor[]>((const SkColor*)colors.release()),
-                std::unique_ptr<const SkPoint[]>((const SkPoint*)texs.release()), kMeshVertexCnt,
-                std::unique_ptr<const uint16_t[]>((const uint16_t*)indices.release()),
-                3 * kNumTris);
-    }
     canvas->save();
     canvas->translate(10, 10);
     for (bool useShader : {false, true}) {
@@ -272,14 +231,11 @@ static void draw_batching(SkCanvas* canvas, bool useObject) {
                 canvas->concat(m);
                 SkPaint paint;
                 paint.setShader(useShader ? shader : nullptr);
-                if (useObject) {
-                    uint32_t flags = useTex ? 0 : SkCanvas::kIgnoreTexCoords_VerticesFlag;
-                    canvas->drawVertices(vertices, SkBlendMode::kModulate, paint, flags);
-                } else {
-                    const SkPoint* t = useTex ? texs.get() : nullptr;
-                    canvas->drawVertices(SkCanvas::kTriangles_VertexMode, kMeshVertexCnt, pts.get(),
-                                         t, colors.get(), indices.get(), kNumTris * 3, paint);
-                }
+
+                const SkPoint* t = useTex ? texs : nullptr;
+                auto v = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, kMeshVertexCnt,
+                                              pts, t, colors, kNumTris * 3, indices);
+                canvas->drawVertices(v, SkBlendMode::kModulate, paint);
                 canvas->restore();
             }
             canvas->translate(0, 120);
@@ -290,7 +246,7 @@ static void draw_batching(SkCanvas* canvas, bool useObject) {
 
 // This test exists to exercise batching in the gpu backend.
 DEF_SIMPLE_GM(vertices_batching, canvas, 100, 500) {
-    draw_batching(canvas, false);
+    draw_batching(canvas);
     canvas->translate(50, 0);
-    draw_batching(canvas, true);
+    draw_batching(canvas);
 }

@@ -8,8 +8,11 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
+#include "GrClip.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
+#include "GrResourceProvider.h"
 #include "GrTexture.h"
 #include "effects/GrSimpleTextureEffect.h"
 
@@ -62,38 +65,38 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         levels[1].fPixels = testData.get();
         levels[1].fRowBytes = (kS / 2) * sizeof(int32_t);
 
-        sk_sp<GrTexture> temp(context->textureProvider()->createMipMappedTexture(desc,
-                                                                                 SkBudgeted::kYes,
-                                                                                 levels, 2));
+        sk_sp<GrTextureProxy> temp(context->resourceProvider()->createMipMappedTexture(
+                                                                                  desc,
+                                                                                  SkBudgeted::kYes,
+                                                                                  levels, 2));
         REPORTER_ASSERT(reporter, !temp);
     }
 
     // Test that we can create an integer texture.
-    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                                context->textureProvider(),
-                                                                desc, SkBudgeted::kYes,
-                                                                testData.get(),
-                                                                kRowBytes);
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                               desc, SkBudgeted::kYes,
+                                                               testData.get(),
+                                                               kRowBytes);
     REPORTER_ASSERT(reporter, proxy);
-    if (!proxy || !proxy->asTextureProxy()) {
-        return;
-    }
-
-    GrTexture* texture = proxy->asTextureProxy()->instantiate(context->textureProvider());
-    REPORTER_ASSERT(reporter, texture);
-    if (!texture) {
+    if (!proxy) {
         return;
     }
 
     std::unique_ptr<int32_t[]> readData(new int32_t[kS * kS]);
     // Test that reading to a non-integer config fails.
     {
-        bool success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_GrPixelConfig, readData.get());
+        bool success = context->contextPriv().readSurfacePixels(proxy.get(), nullptr,
+                                                                0, 0, kS, kS,
+                                                                kRGBA_8888_GrPixelConfig,
+                                                                nullptr, readData.get());
         REPORTER_ASSERT(reporter, !success);
     }
     {
         std::unique_ptr<uint16_t[]> halfData(new uint16_t[4 * kS * kS]);
-        bool success = texture->readPixels(0, 0, kS, kS, kRGBA_half_GrPixelConfig, halfData.get());
+        bool success = context->contextPriv().readSurfacePixels(proxy.get(), nullptr,
+                                                                0, 0, kS, kS,
+                                                                kRGBA_half_GrPixelConfig,
+                                                                nullptr, halfData.get());
         REPORTER_ASSERT(reporter, !success);
     }
     {
@@ -101,8 +104,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         // we don't support. Right now this test is counting on GR_RGBA_INTEGER/GL_BYTE being the
         // implementation-dependent second format).
         sk_bzero(readData.get(), sizeof(int32_t) * kS * kS);
-        bool success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig,
-                                           readData.get());
+        bool success = context->contextPriv().readSurfacePixels(proxy.get(), nullptr,
+                                                                0, 0, kS, kS,
+                                                                kRGBA_8888_sint_GrPixelConfig,
+                                                                nullptr, readData.get());
         REPORTER_ASSERT(reporter, success);
         if (success) {
             check_pixels(reporter, kS, kS, testData.get(), readData.get(), "readPixels");
@@ -110,8 +115,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     }
     {
         // readPixels should fail if we attempt to use the unpremul flag with an integer texture.
-        bool success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig,
-                                           readData.get(), 0, GrContext::kUnpremul_PixelOpsFlag);
+        bool success = context->contextPriv().readSurfacePixels(
+                                                proxy.get(), nullptr,
+                                                0, 0, kS, kS,
+                                                kRGBA_8888_sint_GrPixelConfig,
+                                                nullptr, readData.get(), 0,
+                                                GrContextPriv::kUnpremul_PixelOpsFlag);
         REPORTER_ASSERT(reporter, !success);
     }
 
@@ -124,16 +133,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
             return;
         }
 
-        GrSurface* copySurface = dstContext->asTextureProxy()->instantiate(
-                                                                    context->textureProvider());
-        REPORTER_ASSERT(reporter, copySurface);
-        if (!copySurface) {
-            return;
-        }
-
         sk_bzero(readData.get(), sizeof(int32_t) * kS * kS);
-        bool success = copySurface->readPixels(0, 0, kS, kS,
-                                               kRGBA_8888_sint_GrPixelConfig, readData.get());
+        bool success = context->contextPriv().readSurfacePixels(dstContext->asSurfaceProxy(),
+                                                                nullptr, 0, 0, kS, kS,
+                                                                kRGBA_8888_sint_GrPixelConfig,
+                                                                nullptr, readData.get());
         REPORTER_ASSERT(reporter, success);
         if (success) {
             check_pixels(reporter, kS, kS, testData.get(), readData.get(), "copyIntegerToInteger");
@@ -167,27 +171,39 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
 
     {
         // Can't write pixels from a non-int config.
-        bool success = texture->writePixels(0, 0, kS/2, kS/2, kRGBA_8888_GrPixelConfig,
-                                            bottomRightQuarter, kRowBytes);
+        bool success = context->contextPriv().writeSurfacePixels(proxy.get(), nullptr,
+                                                                 0, 0, kS/2, kS/2,
+                                                                 kRGBA_8888_GrPixelConfig, nullptr,
+                                                                 bottomRightQuarter, kRowBytes);
         REPORTER_ASSERT(reporter, !success);
     }
     {
         // Can't use unpremul flag.
-        bool success = texture->writePixels(0, 0, kS/2, kS/2, kRGBA_8888_sint_GrPixelConfig,
+        bool success = context->contextPriv().writeSurfacePixels(
+                                            proxy.get(), nullptr,
+                                            0, 0, kS/2, kS/2,
+                                            kRGBA_8888_sint_GrPixelConfig,
+                                            nullptr,
                                             bottomRightQuarter, kRowBytes,
-                                            GrContext::kUnpremul_PixelOpsFlag);
+                                            GrContextPriv::kUnpremul_PixelOpsFlag);
         REPORTER_ASSERT(reporter, !success);
     }
     {
-        bool success = texture->writePixels(0, 0, kS/2, kS/2, kRGBA_8888_sint_GrPixelConfig,
-                                            bottomRightQuarter, kRowBytes);
+        bool success = context->contextPriv().writeSurfacePixels(proxy.get(), nullptr,
+                                                                 0, 0, kS/2, kS/2,
+                                                                 kRGBA_8888_sint_GrPixelConfig,
+                                                                 nullptr,
+                                                                 bottomRightQuarter, kRowBytes);
         REPORTER_ASSERT(reporter, success);
         if (!success) {
             return;
         }
 
         sk_bzero(readData.get(), sizeof(int32_t) * kS * kS);
-        success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, readData.get());
+        success = context->contextPriv().readSurfacePixels(proxy.get(), nullptr,
+                                                           0, 0, kS, kS,
+                                                           kRGBA_8888_sint_GrPixelConfig,
+                                                           nullptr, readData.get(), 0);
         REPORTER_ASSERT(reporter, success);
         if (!success) {
             return;
@@ -218,7 +234,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         expectedData.get()[i] = ((0xFF * a) << 24) | ((0xFF * b) << 16) |
                                 ((0xFF * g) << 8) | (0xFF * r);
     }
-    texture->writePixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, testData.get());
+    context->contextPriv().writeSurfacePixels(proxy.get(), nullptr,
+                                              0, 0, kS, kS,
+                                              kRGBA_8888_sint_GrPixelConfig, nullptr,
+                                              testData.get(), 0);
 
     sk_sp<GrRenderTargetContext> rtContext = context->makeRenderTargetContext(
             SkBackingFit::kExact, kS, kS, kRGBA_8888_GrPixelConfig, nullptr);
@@ -233,7 +252,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     };
 
     for (auto filter : kNamedFilters) {
-        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture, nullptr,
+        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(context->resourceProvider(),
+                                                                  proxy, nullptr,
                                                                   SkMatrix::I(),
                                                                   filter.fMode));
         REPORTER_ASSERT(reporter, fp);
@@ -255,8 +275,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         // No rendering to integer textures.
         GrSurfaceDesc intRTDesc = desc;
         intRTDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-        sk_sp<GrTexture> temp(context->textureProvider()->createTexture(intRTDesc,
-                                                                        SkBudgeted::kYes));
+        sk_sp<GrTexture> temp(context->resourceProvider()->createTexture(intRTDesc,
+                                                                         SkBudgeted::kYes));
         REPORTER_ASSERT(reporter, !temp);
     }
 }

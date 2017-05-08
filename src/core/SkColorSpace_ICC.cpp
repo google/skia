@@ -1185,7 +1185,11 @@ static inline int icf_channels(SkColorSpace_Base::ICCTypeFlag iccType) {
 static bool load_a2b0(std::vector<SkColorSpace_A2B::Element>* elements, const uint8_t* src,
                       size_t len, SkColorSpace_A2B::PCS pcs,
                       SkColorSpace_Base::ICCTypeFlag iccType) {
+    if (len < 4) {
+        return false;
+    }
     const uint32_t type = read_big_endian_u32(src);
+
     switch (type) {
         case kTAG_AtoBType:
             if (len < 32) {
@@ -1410,11 +1414,10 @@ static sk_sp<SkColorSpace> make_xyz(const ICCProfileHeader& header, ICCTag* tags
     if (kNonStandard_SkGammaNamed == gammaNamed) {
         return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(gammaNamed,
                                                         std::move(gammas),
-                                                        mat, std::move(profileData),
-                                                        0 /* flags */));
+                                                        mat, std::move(profileData)));
     }
 
-    return SkColorSpace_Base::MakeRGB(gammaNamed, mat, 0 /* flags */);
+    return SkColorSpace_Base::MakeRGB(gammaNamed, mat);
 }
 
 static sk_sp<SkColorSpace> make_gray(const ICCProfileHeader& header, ICCTag* tags, int tagCount,
@@ -1439,7 +1442,7 @@ static sk_sp<SkColorSpace> make_gray(const ICCProfileHeader& header, ICCTag* tag
     toXYZD50.setFloat(1, 1, kWhitePointD50[1]);
     toXYZD50.setFloat(2, 2, kWhitePointD50[2]);
     if (SkGammas::Type::kNamed_Type == type) {
-        return SkColorSpace_Base::MakeRGB(data.fNamed, toXYZD50, 0 /* flags */);
+        return SkColorSpace_Base::MakeRGB(data.fNamed, toXYZD50);
     }
 
     size_t allocSize = sizeof(SkGammas);
@@ -1456,8 +1459,7 @@ static sk_sp<SkColorSpace> make_gray(const ICCProfileHeader& header, ICCTag* tag
 
     return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(kNonStandard_SkGammaNamed,
                                                     std::move(gammas),
-                                                    toXYZD50, std::move(profileData),
-                                                    0 /* flags */));
+                                                    toXYZD50, std::move(profileData)));
 }
 
 static sk_sp<SkColorSpace> make_a2b(SkColorSpace_Base::ICCTypeFlag iccType,

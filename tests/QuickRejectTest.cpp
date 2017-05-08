@@ -7,6 +7,7 @@
 
 #include "SkArenaAlloc.h"
 #include "SkCanvas.h"
+#include "SkColorSpaceXformer.h"
 #include "SkDrawLooper.h"
 #include "SkLightingImageFilter.h"
 #include "SkTypes.h"
@@ -22,6 +23,10 @@ public:
         return alloc->make<TestDrawLooperContext>();
     }
 
+    sk_sp<SkDrawLooper> onMakeColorSpace(SkColorSpaceXformer*) const override {
+        return nullptr;
+    }
+
 #ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
         str->append("TestLooper:");
@@ -34,7 +39,7 @@ private:
     class TestDrawLooperContext : public SkDrawLooper::Context {
     public:
         TestDrawLooperContext() : fOnce(true) {}
-        virtual ~TestDrawLooperContext() {}
+        ~TestDrawLooperContext() override {}
 
         bool next(SkCanvas* canvas, SkPaint*) override {
             if (fOnce) {
@@ -44,6 +49,7 @@ private:
             }
             return false;
         }
+
     private:
         bool fOnce;
     };

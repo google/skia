@@ -240,7 +240,7 @@ SkCanvas::SaveLayerStrategy SkPipeCanvas::getSaveLayerStrategy(const SaveLayerRe
     if (rec.fBackdrop) {
         extra |= kHasBackdrop_SaveLayerMask;
     }
-    
+
     writer.write32(pack_verb(SkPipeVerb::kSaveLayer, extra));
     if (rec.fBounds) {
         writer.writeRect(*rec.fBounds);
@@ -480,7 +480,7 @@ void SkPipeCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& la
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
 void SkPipeCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
                                const SkPaint* paint) {
     unsigned extra = 0;
@@ -604,9 +604,9 @@ void SkPipeCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, S
 void SkPipeCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
                                  const SkPaint& paint) {
     SkASSERT(byteLength);
-    
+
     bool compact = fits_in(byteLength, 24);
-    
+
     SkPipeWriter writer(this);
     writer.write32(pack_verb(SkPipeVerb::kDrawPosText, compact ? (unsigned)byteLength : 0));
     if (!compact) {
@@ -620,9 +620,9 @@ void SkPipeCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPo
 void SkPipeCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                                   SkScalar constY, const SkPaint& paint) {
     SkASSERT(byteLength);
-    
+
     bool compact = fits_in(byteLength, 24);
-    
+
     SkPipeWriter writer(this);
     writer.write32(pack_verb(SkPipeVerb::kDrawPosTextH, compact ? (unsigned)byteLength : 0));
     if (!compact) {
@@ -661,13 +661,13 @@ void SkPipeCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const S
 void SkPipeCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                                      const SkRect* cull, const SkPaint& paint) {
     SkASSERT(byteLength);
-    
+
     bool compact = fits_in(byteLength, 23);
     unsigned extra = compact ? (byteLength << 1) : 0;
     if (cull) {
         extra |= 1;
     }
-    
+
     SkPipeWriter writer(this);
     writer.write32(pack_verb(SkPipeVerb::kDrawTextRSXform, extra));
     if (!compact) {
@@ -731,47 +731,14 @@ void SkPipeCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
     write_paint(writer, paint, kGeometry_PaintUsage);
 }
 
-void SkPipeCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
-                                  const SkPoint vertices[], const SkPoint texs[],
-                                  const SkColor colors[], SkBlendMode bmode,
-                                  const uint16_t indices[], int indexCount,
-                                  const SkPaint& paint) {
-    SkASSERT(vertexCount > 0);
-
-    unsigned extra = 0;
-    if (vertexCount <= kVCount_DrawVerticesMask) {
-        extra |= vertexCount;
-    }
-    extra |= (unsigned)vmode << kVMode_DrawVerticesShift;
-    extra |= (unsigned)bmode << kXMode_DrawVerticesShift;
-
-    if (texs) {
-        extra |= kHasTex_DrawVerticesMask;
-    }
-    if (colors) {
-        extra |= kHasColors_DrawVerticesMask;
-    }
-    if (indexCount > 0) {
-        extra |= kHasIndices_DrawVerticesMask;
-    }
+void SkPipeCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
+                                        const SkPaint& paint) {
+    unsigned extra = static_cast<unsigned>(bmode);
 
     SkPipeWriter writer(this);
     writer.write32(pack_verb(SkPipeVerb::kDrawVertices, extra));
-    if (vertexCount > kVCount_DrawVerticesMask) {
-        writer.write32(vertexCount);
-    }
-    writer.write(vertices, vertexCount * sizeof(SkPoint));
-    if (texs) {
-        writer.write(texs, vertexCount * sizeof(SkPoint));
-    }
-    if (colors) {
-        writer.write(colors, vertexCount * sizeof(SkColor));
-    }
-    if (indexCount > 0) {
-        writer.write32(indexCount);
-        SkASSERT(SkIsAlign2(indexCount));
-        writer.write(indices, indexCount * sizeof(uint16_t));
-    }
+    // TODO: dedup vertices?
+    writer.writeDataAsByteArray(vertices->encode().get());
     write_paint(writer, paint, kVertices_PaintUsage);
 }
 
@@ -911,8 +878,10 @@ int SkPipeDeduper::findOrDefinePicture(SkPicture* picture) {
     ASSERT_FITS_IN(index, kObjectDefinitionBits);
     fStream->write32(pack_verb(SkPipeVerb::kEndPicture, index));
 
-    SkDebugf("  definePicture(%d) %d\n",
-             index - 1, SkToU32(fStream->bytesWritten() - prevWritten));
+    if (show_deduper_traffic) {
+        SkDebugf("  definePicture(%d) %d\n",
+                 index - 1, SkToU32(fStream->bytesWritten() - prevWritten));
+    }
     return index;
 }
 

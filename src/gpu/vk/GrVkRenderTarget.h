@@ -35,7 +35,6 @@ public:
                                                    const GrVkImage::ImageDesc&);
 
     static sk_sp<GrVkRenderTarget> MakeWrappedRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
-                                                           GrWrapOwnership,
                                                            const GrVkImageInfo*);
 
     ~GrVkRenderTarget() override;
@@ -48,7 +47,7 @@ public:
         }
         return nullptr;
     }
-    GrVkImage* msaaImage() { return fMSAAImage; }
+    GrVkImage* msaaImage() { return fMSAAImage.get(); }
     const GrVkImageView* resolveAttachmentView() const { return fResolveAttachmentView; }
     const GrVkResource* stencilImageResource() const;
     const GrVkImageView* stencilAttachmentView() const;
@@ -107,7 +106,7 @@ protected:
     void createFramebuffer(GrVkGpu* gpu);
 
     const GrVkImageView*       fColorAttachmentView;
-    GrVkImage*                 fMSAAImage;
+    std::unique_ptr<GrVkImage> fMSAAImage;
     const GrVkImageView*       fResolveAttachmentView;
 
 private:

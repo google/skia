@@ -21,6 +21,7 @@
 #include "SkRSXform.h"
 #include "SkString.h"
 #include "SkTextBlob.h"
+#include "SkVertices.h"
 
 // Windows.h, will pull in all of the GDI defines.  GDI #defines
 // DrawText to DrawTextA or DrawTextW, but SkRecord has a struct
@@ -345,14 +346,8 @@ RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkRect> cull);
 RECORD(DrawVertices, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
-        SkCanvas::VertexMode vmode;
-        int vertexCount;
-        PODArray<SkPoint> vertices;
-        PODArray<SkPoint> texs;
-        PODArray<SkColor> colors;
-        SkBlendMode bmode;
-        PODArray<uint16_t> indices;
-        int indexCount);
+        sk_sp<SkVertices> vertices;
+        SkBlendMode bmode);
 RECORD(DrawAnnotation, 0,  // TODO: kDraw_Tag, skia:5548
        SkRect rect;
        SkString key;

@@ -6,7 +6,6 @@
  */
 
 #include "SkCodec.h"
-#include "SkMSAN.h"
 #include "SkJpegCodec.h"
 #include "SkJpegDecoderMgr.h"
 #include "SkCodecPriv.h"
@@ -44,9 +43,7 @@ static uint32_t get_endian_int(const uint8_t* data, bool littleEndian) {
 }
 
 const uint32_t kExifHeaderSize = 14;
-const uint32_t kICCHeaderSize = 14;
 const uint32_t kExifMarker = JPEG_APP0 + 1;
-const uint32_t kICCMarker = JPEG_APP0 + 2;
 
 static bool is_orientation_marker(jpeg_marker_struct* marker, SkCodec::Origin* orientation) {
     if (kExifMarker != marker->marker || marker->data_length < kExifHeaderSize) {
@@ -112,11 +109,10 @@ static SkCodec::Origin get_exif_orientation(jpeg_decompress_struct* dinfo) {
 }
 
 static bool is_icc_marker(jpeg_marker_struct* marker) {
-    if (kICCMarker != marker->marker || marker->data_length < kICCHeaderSize) {
+    if (kICCMarker != marker->marker || marker->data_length < kICCMarkerHeaderSize) {
         return false;
     }
 
-    static const uint8_t kICCSig[] { 'I', 'C', 'C', '_', 'P', 'R', 'O', 'F', 'I', 'L', 'E', '\0' };
     return !memcmp(marker->data, kICCSig, sizeof(kICCSig));
 }
 
@@ -160,8 +156,8 @@ static sk_sp<SkData> get_icc_profile(jpeg_decompress_struct* dinfo) {
                 return nullptr;
             }
             markerSequence[markerIndex] = marker;
-            SkASSERT(marker->data_length >= kICCHeaderSize);
-            totalBytes += marker->data_length - kICCHeaderSize;
+            SkASSERT(marker->data_length >= kICCMarkerHeaderSize);
+            totalBytes += marker->data_length - kICCMarkerHeaderSize;
         }
     }
 
@@ -180,8 +176,8 @@ static sk_sp<SkData> get_icc_profile(jpeg_decompress_struct* dinfo) {
             return nullptr;
         }
 
-        void* src = SkTAddOffset<void>(marker->data, kICCHeaderSize);
-        size_t bytes = marker->data_length - kICCHeaderSize;
+        void* src = SkTAddOffset<void>(marker->data, kICCMarkerHeaderSize);
+        size_t bytes = marker->data_length - kICCMarkerHeaderSize;
         memcpy(dst, src, bytes);
         dst = SkTAddOffset<void>(dst, bytes);
     }
@@ -411,12 +407,10 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
             }
             return true;
         case kRGB_565_SkColorType:
-            if (this->colorXform()) {
-                return false;
-            }
-
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
+            } else if (this->colorXform()) {
+                fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
             } else {
                 fDecoderMgr->dinfo()->dither_mode = JDITHER_NONE;
                 fDecoderMgr->dinfo()->out_color_space = JCS_RGB565;
@@ -526,8 +520,6 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
 
     for (int y = 0; y < count; y++) {
         uint32_t lines = jpeg_read_scanlines(fDecoderMgr->dinfo(), &decodeDst, 1);
-        size_t srcRowBytes = get_row_bytes(fDecoderMgr->dinfo());
-        sk_msan_mark_initialized(decodeDst, decodeDst + srcRowBytes, "skbug.com/4550");
         if (0 == lines) {
             return y;
         }
@@ -586,7 +578,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 
-    if (!this->initializeColorXform(dstInfo)) {
+    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
         return kInvalidConversion;
     }
 
@@ -630,8 +622,8 @@ void SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
     }
 
     size_t xformBytes = 0;
-    if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
-        SkASSERT(this->colorXform());
+    if (this->colorXform() && (kRGBA_F16_SkColorType == dstInfo.colorType() ||
+                               kRGB_565_SkColorType == dstInfo.colorType())) {
         xformBytes = dstWidth * sizeof(uint32_t);
     }
 
@@ -695,7 +687,7 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kInvalidInput;
     }
 
-    if (!this->initializeColorXform(dstInfo)) {
+    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
         return kInvalidConversion;
     }
 

@@ -95,7 +95,7 @@ static inline void safelyAddAlpha(SkAlpha* alpha, SkAlpha delta) {
 
 class AdditiveBlitter : public SkBlitter {
 public:
-    virtual ~AdditiveBlitter() {}
+    ~AdditiveBlitter() override {}
 
     virtual SkBlitter* getRealBlitter(bool forceRealBlitter = false) = 0;
 
@@ -136,7 +136,7 @@ class MaskAdditiveBlitter : public AdditiveBlitter {
 public:
     MaskAdditiveBlitter(SkBlitter* realBlitter, const SkIRect& ir, const SkRegion& clip,
             bool isInverse);
-    ~MaskAdditiveBlitter() {
+    ~MaskAdditiveBlitter() override {
         fRealBlitter->blitMask(fMask, fClipRect);
     }
 
@@ -278,7 +278,7 @@ class RunBasedAdditiveBlitter : public AdditiveBlitter {
 public:
     RunBasedAdditiveBlitter(SkBlitter* realBlitter, const SkIRect& ir, const SkRegion& clip,
             bool isInverse);
-    ~RunBasedAdditiveBlitter();
+    ~RunBasedAdditiveBlitter() override;
 
     SkBlitter* getRealBlitter(bool forceRealBlitter) override;
 
@@ -1232,37 +1232,6 @@ END_WALK:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static inline void remove_edge(SkAnalyticEdge* edge) {
-    edge->fPrev->fNext = edge->fNext;
-    edge->fNext->fPrev = edge->fPrev;
-}
-
-static inline void insert_edge_after(SkAnalyticEdge* edge, SkAnalyticEdge* afterMe) {
-    edge->fPrev = afterMe;
-    edge->fNext = afterMe->fNext;
-    afterMe->fNext->fPrev = edge;
-    afterMe->fNext = edge;
-}
-
-static void backward_insert_edge_based_on_x(SkAnalyticEdge* edge) {
-    SkFixed x = edge->fX;
-    SkAnalyticEdge* prev = edge->fPrev;
-    while (prev->fPrev && prev->fX > x) {
-        prev = prev->fPrev;
-    }
-    if (prev->fNext != edge) {
-        remove_edge(edge);
-        insert_edge_after(edge, prev);
-    }
-}
-
-static SkAnalyticEdge* backward_insert_start(SkAnalyticEdge* prev, SkFixed x) {
-    while (prev->fPrev && prev->fX > x) {
-        prev = prev->fPrev;
-    }
-    return prev;
-}
-
 static inline void updateNextNextY(SkFixed y, SkFixed nextY, SkFixed* nextNextY) {
     *nextNextY = y > nextY && y < *nextNextY ? y : *nextNextY;
 }
@@ -1766,13 +1735,6 @@ void SkScan::AAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
     if (origClip.isEmpty()) {
         return;
     }
-    #ifdef SK_SUPPORT_LEGACY_AAA
-    if (path.isInverseFillType() || !path.isConvex()) {
-        // Fall back as we only implemented the algorithm for convex shapes yet.
-        SkScan::AntiFillPath(path, origClip, blitter, forceRLE);
-        return;
-    }
-    #endif
 
     const bool isInverse = path.isInverseFillType();
     SkIRect ir;

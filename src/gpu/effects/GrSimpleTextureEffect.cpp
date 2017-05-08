@@ -12,11 +12,12 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
-GrSimpleTextureEffect::GrSimpleTextureEffect(GrContext* ctx, sk_sp<GrTextureProxy> proxy,
+GrSimpleTextureEffect::GrSimpleTextureEffect(GrResourceProvider* resourceProvider,
+                                             sk_sp<GrTextureProxy> proxy,
                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
                                              const SkMatrix& matrix,
                                              GrSamplerParams::FilterMode filterMode)
-        : INHERITED{ctx,
+        : INHERITED{resourceProvider,
                     ModulationFlags(proxy->config()),
                     GR_PROXY_MOVE(proxy),
                     std::move(colorSpaceXform),
@@ -25,11 +26,12 @@ GrSimpleTextureEffect::GrSimpleTextureEffect(GrContext* ctx, sk_sp<GrTextureProx
     this->initClassID<GrSimpleTextureEffect>();
 }
 
-GrSimpleTextureEffect::GrSimpleTextureEffect(GrContext* ctx, sk_sp<GrTextureProxy> proxy,
+GrSimpleTextureEffect::GrSimpleTextureEffect(GrResourceProvider* resourceProvider,
+                                             sk_sp<GrTextureProxy> proxy,
                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
                                              const SkMatrix& matrix,
                                              const GrSamplerParams& params)
-        : INHERITED{ctx,
+        : INHERITED{resourceProvider,
                     ModulationFlags(proxy->config()),
                     GR_PROXY_MOVE(proxy),
                     std::move(colorSpaceXform),
@@ -42,9 +44,7 @@ class GrGLSimpleTextureEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs& args) override {
         const GrSimpleTextureEffect& textureEffect = args.fFp.cast<GrSimpleTextureEffect>();
-        GrGLSLColorSpaceXformHelper colorSpaceHelper(args.fUniformHandler,
-                                                     textureEffect.colorSpaceXform(),
-                                                     &fColorSpaceXformUni);
+        fColorSpaceHelper.emitCode(args.fUniformHandler, textureEffect.colorSpaceXform());
 
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         fragBuilder->codeAppendf("%s = ", args.fOutputColor);
@@ -52,7 +52,7 @@ public:
                                                     args.fTexSamplers[0],
                                                     args.fTransformedCoords[0].c_str(),
                                                     args.fTransformedCoords[0].getType(),
-                                                    &colorSpaceHelper);
+                                                    &fColorSpaceHelper);
         fragBuilder->codeAppend(";");
     }
 
@@ -63,17 +63,18 @@ public:
     }
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& processor) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman,
+                   const GrFragmentProcessor& processor) override {
         const GrSimpleTextureEffect& textureEffect = processor.cast<GrSimpleTextureEffect>();
         if (SkToBool(textureEffect.colorSpaceXform())) {
-            pdman.setSkMatrix44(fColorSpaceXformUni, textureEffect.colorSpaceXform()->srcToDst());
+            fColorSpaceHelper.setData(pdman, textureEffect.colorSpaceXform());
         }
     }
 
 private:
     typedef GrGLSLFragmentProcessor INHERITED;
 
-    UniformHandle fColorSpaceXformUni;
+    GrGLSLColorSpaceXformHelper fColorSpaceHelper;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,7 +110,7 @@ sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData
 
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    return GrSimpleTextureEffect::Make(d->context(), d->textureProxy(texIdx),
+    return GrSimpleTextureEffect::Make(d->resourceProvider(), d->textureProxy(texIdx),
                                        std::move(colorSpaceXform), matrix);
 }
 #endif

@@ -194,11 +194,9 @@ bool SkWebpCodec::onGetValidSubset(SkIRect* desiredSubset) const {
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
                                          const Options& options, SkPMColor*, int*,
                                          int* rowsDecodedPtr) {
-    if (!conversion_possible(dstInfo, this->getInfo())) {
-        return kInvalidConversion;
-    }
-
-    if (!this->initializeColorXform(dstInfo)) {
+    if (!conversion_possible(dstInfo, this->getInfo()) ||
+        !this->initializeColorXform(dstInfo, options.fPremulBehavior))
+    {
         return kInvalidConversion;
     }
 
@@ -303,15 +301,17 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     config.output.is_external_memory = 1;
 
     // We will decode the entire image and then perform the color transform.  libwebp
-    // does not provide a row-by-row API.  This is a shame particularly in the F16 case,
-    // where we need to allocate an extra image-sized buffer.
+    // does not provide a row-by-row API.  This is a shame particularly when we do not want
+    // 8888, since we will need to create another image sized buffer.
     SkAutoTMalloc<uint32_t> pixels;
-    bool isF16 = kRGBA_F16_SkColorType == dstInfo.colorType();
-    void* webpDst = isF16 ? pixels.reset(dstInfo.width() * dstInfo.height()) : dst;
-    size_t webpRowBytes = isF16 ? dstInfo.width() * sizeof(uint32_t) : rowBytes;
-    size_t totalBytes = isF16 ? webpRowBytes * dstInfo.height() : dstInfo.getSafeSize(webpRowBytes);
+    bool needsCopy = this->colorXform() && kRGBA_8888_SkColorType != dstInfo.colorType() &&
+                                           kBGRA_8888_SkColorType != dstInfo.colorType();
+    void* webpDst = needsCopy ? pixels.reset(dstInfo.width() * dstInfo.height()) : dst;
+    size_t webpRowBytes = needsCopy ? dstInfo.width() * sizeof(uint32_t) : rowBytes;
+    size_t totalBytes = needsCopy ? webpRowBytes * dstInfo.height()
+                                  : dstInfo.getSafeSize(webpRowBytes);
     size_t dstBpp = SkColorTypeBytesPerPixel(dstInfo.colorType());
-    size_t webpBpp = isF16 ? sizeof(uint32_t) : dstBpp;
+    size_t webpBpp = needsCopy ? sizeof(uint32_t) : dstBpp;
 
     size_t offset = dstX * webpBpp + dstY * webpRowBytes;
     config.output.u.RGBA.rgba = SkTAddOffset<uint8_t>(webpDst, offset);

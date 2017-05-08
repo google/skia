@@ -10,17 +10,18 @@
 #include "effects/GrYUVEffect.h"
 #include "GrClip.h"
 #include "GrContext.h"
-#include "GrRenderTargetContext.h"
 #include "GrPaint.h"
-#include "GrTextureProvider.h"
+#include "GrRenderTargetContext.h"
+#include "GrResourceProvider.h"
 
 namespace {
     using MakeFPProc = sk_sp<GrFragmentProcessor> (*)(sk_sp<GrFragmentProcessor>,
                                                       SkYUVColorSpace colorSpace);
 };
 
-static bool convert_texture(GrTexture* src, GrRenderTargetContext* dst, int dstW, int dstH,
-                            SkYUVColorSpace colorSpace, MakeFPProc proc) {
+static bool convert_proxy(sk_sp<GrTextureProxy> src,
+                          GrRenderTargetContext* dst, int dstW, int dstH,
+                          SkYUVColorSpace colorSpace, MakeFPProc proc) {
 
     SkScalar xScale = SkIntToScalar(src->width()) / dstW;
     SkScalar yScale = SkIntToScalar(src->height()) / dstH;
@@ -31,8 +32,12 @@ static bool convert_texture(GrTexture* src, GrRenderTargetContext* dst, int dstW
         filter = GrSamplerParams::kBilerp_FilterMode;
     }
 
-    sk_sp<GrFragmentProcessor> fp(
-            GrSimpleTextureEffect::Make(src, nullptr, SkMatrix::MakeScale(xScale, yScale), filter));
+    GrResourceProvider* resourceProvider = dst->resourceProvider();
+
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(resourceProvider, std::move(src),
+                                                              nullptr,
+                                                              SkMatrix::MakeScale(xScale, yScale),
+                                                              filter));
     if (!fp) {
         return false;
     }
@@ -48,9 +53,14 @@ static bool convert_texture(GrTexture* src, GrRenderTargetContext* dst, int dstW
     return true;
 }
 
-bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* const planes[3],
+bool GrTextureToYUVPlanes(GrContext* context, sk_sp<GrTextureProxy> proxy,
+                          const SkISize sizes[3], void* const planes[3],
                           const size_t rowBytes[3], SkYUVColorSpace colorSpace) {
-    if (GrContext* context = texture->getContext()) {
+    if (!context) {
+        return false;
+    }
+
+    {
         // Depending on the relative sizes of the y, u, and v planes we may do 1 to 3 draws/
         // readbacks.
         sk_sp<GrRenderTargetContext> yuvRenderTargetContext;
@@ -114,34 +124,34 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
 
         // Do all the draws before any readback.
         if (yuvRenderTargetContext) {
-            if (!convert_texture(texture, yuvRenderTargetContext.get(),
-                                 sizes[0].fWidth, sizes[0].fHeight,
-                                 colorSpace, GrYUVEffect::MakeRGBToYUV)) {
+            if (!convert_proxy(std::move(proxy), yuvRenderTargetContext.get(),
+                               sizes[0].fWidth, sizes[0].fHeight,
+                               colorSpace, GrYUVEffect::MakeRGBToYUV)) {
                 return false;
             }
         } else {
             SkASSERT(yRenderTargetContext);
-            if (!convert_texture(texture, yRenderTargetContext.get(),
-                                 sizes[0].fWidth, sizes[0].fHeight,
-                                 colorSpace, GrYUVEffect::MakeRGBToY)) {
+            if (!convert_proxy(proxy, yRenderTargetContext.get(),
+                               sizes[0].fWidth, sizes[0].fHeight,
+                               colorSpace, GrYUVEffect::MakeRGBToY)) {
                 return false;
             }
             if (uvRenderTargetContext) {
-                if (!convert_texture(texture, uvRenderTargetContext.get(),
-                                     sizes[1].fWidth, sizes[1].fHeight,
-                                     colorSpace,  GrYUVEffect::MakeRGBToUV)) {
+                if (!convert_proxy(std::move(proxy), uvRenderTargetContext.get(),
+                                   sizes[1].fWidth, sizes[1].fHeight,
+                                   colorSpace,  GrYUVEffect::MakeRGBToUV)) {
                     return false;
                 }
             } else {
                 SkASSERT(uRenderTargetContext && vRenderTargetContext);
-                if (!convert_texture(texture, uRenderTargetContext.get(),
-                                     sizes[1].fWidth, sizes[1].fHeight,
-                                     colorSpace, GrYUVEffect::MakeRGBToU)) {
+                if (!convert_proxy(proxy, uRenderTargetContext.get(),
+                                   sizes[1].fWidth, sizes[1].fHeight,
+                                   colorSpace, GrYUVEffect::MakeRGBToU)) {
                     return false;
                 }
-                if (!convert_texture(texture, vRenderTargetContext.get(),
-                                     sizes[2].fWidth, sizes[2].fHeight,
-                                     colorSpace, GrYUVEffect::MakeRGBToV)) {
+                if (!convert_proxy(std::move(proxy), vRenderTargetContext.get(),
+                                   sizes[2].fWidth, sizes[2].fHeight,
+                                   colorSpace, GrYUVEffect::MakeRGBToV)) {
                     return false;
                 }
             }

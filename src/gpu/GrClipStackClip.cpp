@@ -33,16 +33,14 @@ bool GrClipStackClip::quickContains(const SkRect& rect) const {
     if (!fStack || fStack->isWideOpen()) {
         return true;
     }
-    return fStack->quickContains(rect.makeOffset(SkIntToScalar(fOrigin.x()),
-                                                 SkIntToScalar(fOrigin.y())));
+    return fStack->quickContains(rect);
 }
 
 bool GrClipStackClip::quickContains(const SkRRect& rrect) const {
     if (!fStack || fStack->isWideOpen()) {
         return true;
     }
-    return fStack->quickContains(rrect.makeOffset(SkIntToScalar(fOrigin.fX),
-                                                  SkIntToScalar(fOrigin.fY)));
+    return fStack->quickContains(rrect);
 }
 
 bool GrClipStackClip::isRRect(const SkRect& origRTBounds, SkRRect* rr, GrAA* aa) const {
@@ -50,19 +48,9 @@ bool GrClipStackClip::isRRect(const SkRect& origRTBounds, SkRRect* rr, GrAA* aa)
         return false;
     }
     const SkRect* rtBounds = &origRTBounds;
-    SkRect tempRTBounds;
-    bool origin = fOrigin.fX || fOrigin.fY;
-    if (origin) {
-        tempRTBounds = origRTBounds;
-        tempRTBounds.offset(SkIntToScalar(fOrigin.fX), SkIntToScalar(fOrigin.fY));
-        rtBounds = &tempRTBounds;
-    }
     bool isAA;
     if (fStack->isRRect(*rtBounds, rr, &isAA)) {
         *aa = GrBoolToAA(isAA);
-        if (origin) {
-            rr->offset(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
-        }
         return true;
     }
     return false;
@@ -78,18 +66,18 @@ void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devR
         return;
     }
     SkRect devBounds;
-    fStack->getConservativeBounds(-fOrigin.x(), -fOrigin.y(), width, height, &devBounds,
-                                  isIntersectionOfRects);
+    fStack->getConservativeBounds(0, 0, width, height, &devBounds, isIntersectionOfRects);
     devBounds.roundOut(devResult);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // set up the draw state to enable the aa clipping mask.
-static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrContext* context,
+static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrResourceProvider* resourceProvider,
                                                      sk_sp<GrTextureProxy> mask,
                                                      const SkIRect &devBound) {
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
-    return GrDeviceSpaceTextureDecalFragmentProcessor::Make(context, std::move(mask), domainTexels,
+    return GrDeviceSpaceTextureDecalFragmentProcessor::Make(resourceProvider,
+                                                            std::move(mask), domainTexels,
                                                             {devBound.fLeft, devBound.fTop});
 }
 
@@ -187,11 +175,8 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
 
 static bool get_analytic_clip_processor(const ElementList& elements,
                                         bool abortIfAA,
-                                        const SkVector& clipToRTOffset,
-                                        const SkRect& drawBounds,
+                                        const SkRect& drawDevBounds,
                                         sk_sp<GrFragmentProcessor>* resultFP) {
-    SkRect boundsInClipSpace;
-    boundsInClipSpace = drawBounds.makeOffset(-clipToRTOffset.fX, -clipToRTOffset.fY);
     SkASSERT(elements.count() <= kMaxAnalyticElements);
     SkSTArray<kMaxAnalyticElements, sk_sp<GrFragmentProcessor>> fps;
     ElementList::Iter iter(elements);
@@ -205,7 +190,7 @@ static bool get_analytic_clip_processor(const ElementList& elements,
                 // Fallthrough, handled same as intersect.
             case kIntersect_SkClipOp:
                 invert = false;
-                if (iter.get()->contains(boundsInClipSpace)) {
+                if (iter.get()->contains(drawDevBounds)) {
                     skip = true;
                 }
                 break;
@@ -232,19 +217,14 @@ static bool get_analytic_clip_processor(const ElementList& elements,
 
             switch (iter.get()->getType()) {
                 case SkClipStack::Element::kPath_Type:
-                    fps.emplace_back(GrConvexPolyEffect::Make(edgeType, iter.get()->getPath(),
-                                                              &clipToRTOffset));
+                    fps.emplace_back(GrConvexPolyEffect::Make(edgeType, iter.get()->getPath()));
                     break;
                 case SkClipStack::Element::kRRect_Type: {
-                    SkRRect rrect = iter.get()->getRRect();
-                    rrect.offset(clipToRTOffset.fX, clipToRTOffset.fY);
-                    fps.emplace_back(GrRRectEffect::Make(edgeType, rrect));
+                    fps.emplace_back(GrRRectEffect::Make(edgeType, iter.get()->getRRect()));
                     break;
                 }
                 case SkClipStack::Element::kRect_Type: {
-                    SkRect rect = iter.get()->getRect();
-                    rect.offset(clipToRTOffset.fX, clipToRTOffset.fY);
-                    fps.emplace_back(GrConvexPolyEffect::Make(edgeType, rect));
+                    fps.emplace_back(GrConvexPolyEffect::Make(edgeType, iter.get()->getRect()));
                     break;
                 }
                 default:
@@ -268,33 +248,26 @@ static bool get_analytic_clip_processor(const ElementList& elements,
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
 bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                            bool useHWAA, bool hasUserStencilSettings, GrAppliedClip* out) const {
+                            bool useHWAA, bool hasUserStencilSettings, GrAppliedClip* out,
+                            SkRect* bounds) const {
+    SkRect devBounds = SkRect::MakeIWH(renderTargetContext->width(), renderTargetContext->height());
+    if (!devBounds.intersect(*bounds)) {
+        return false;
+    }
+
     if (!fStack || fStack->isWideOpen()) {
         return true;
     }
 
-    SkRect devBounds = SkRect::MakeIWH(renderTargetContext->width(),
-                                       renderTargetContext->height());
-    if (!devBounds.intersect(out->clippedDrawBounds())) {
-        return false;
-    }
-
-    const SkScalar clipX = SkIntToScalar(fOrigin.x()),
-                   clipY = SkIntToScalar(fOrigin.y());
-
-    SkRect clipSpaceDevBounds = devBounds.makeOffset(clipX, clipY);
-    const GrReducedClip reducedClip(*fStack, clipSpaceDevBounds,
+    const GrReducedClip reducedClip(*fStack, devBounds,
                                     renderTargetContext->priv().maxWindowRectangles());
 
-    if (reducedClip.hasIBounds() &&
-        !GrClip::IsInsideClip(reducedClip.ibounds(), clipSpaceDevBounds)) {
-        SkIRect scissorSpaceIBounds(reducedClip.ibounds());
-        scissorSpaceIBounds.offset(-fOrigin);
-        out->addScissor(scissorSpaceIBounds);
+    if (reducedClip.hasIBounds() && !GrClip::IsInsideClip(reducedClip.ibounds(), devBounds)) {
+        out->addScissor(reducedClip.ibounds(), bounds);
     }
 
     if (!reducedClip.windowRectangles().empty()) {
-        out->addWindowRectangles(reducedClip.windowRectangles(), fOrigin,
+        out->addWindowRectangles(reducedClip.windowRectangles(),
                                  GrWindowRectsState::Mode::kExclusive);
     }
 
@@ -306,7 +279,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     SkASSERT(reducedClip.hasIBounds());
     SkIRect rtIBounds = SkIRect::MakeWH(renderTargetContext->width(),
                                         renderTargetContext->height());
-    SkIRect clipIBounds = reducedClip.ibounds().makeOffset(-fOrigin.x(), -fOrigin.y());
+    const SkIRect& clipIBounds = reducedClip.ibounds();
     SkASSERT(rtIBounds.contains(clipIBounds)); // Mask shouldn't be larger than the RT.
 #endif
 
@@ -330,8 +303,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         }
         sk_sp<GrFragmentProcessor> clipFP;
         if (reducedClip.requiresAA() &&
-            get_analytic_clip_processor(reducedClip.elements(), disallowAnalyticAA,
-                                        {-clipX, -clipY}, devBounds, &clipFP)) {
+            get_analytic_clip_processor(reducedClip.elements(), disallowAnalyticAA, devBounds,
+                                        &clipFP)) {
             out->addCoverageFP(std::move(clipFP));
             return true;
         }
@@ -350,10 +323,9 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
 
         if (result) {
             // The mask's top left coord should be pinned to the rounded-out top left corner of
-            // clipSpace bounds. We determine the mask's position WRT to the render target here.
-            SkIRect rtSpaceMaskBounds = reducedClip.ibounds();
-            rtSpaceMaskBounds.offset(-fOrigin);
-            out->addCoverageFP(create_fp_for_mask(context, std::move(result), rtSpaceMaskBounds));
+            // the clip's device space bounds.
+            out->addCoverageFP(create_fp_for_mask(context->resourceProvider(), std::move(result),
+                                                  reducedClip.ibounds()));
             return true;
         }
         // if alpha clip mask creation fails fall through to the non-AA code paths
@@ -374,10 +346,9 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     // relevant window rectangles that were in the last clip. This subtle requirement will go away
     // after clipping is overhauled.
     if (renderTargetContext->priv().mustRenderClip(reducedClip.elementsGenID(),
-                                                   reducedClip.ibounds(), fOrigin)) {
-        reducedClip.drawStencilClipMask(context, renderTargetContext, fOrigin);
-        renderTargetContext->priv().setLastClip(reducedClip.elementsGenID(), reducedClip.ibounds(),
-                                                fOrigin);
+                                                   reducedClip.ibounds())) {
+        reducedClip.drawStencilClipMask(context, renderTargetContext);
+        renderTargetContext->priv().setLastClip(reducedClip.elementsGenID(), reducedClip.ibounds());
     }
     out->addStencilClip();
     return true;
@@ -391,7 +362,7 @@ static void create_clip_mask_key(int32_t clipGenID, const SkIRect& bounds, GrUni
     GrUniqueKey::Builder builder(key, kDomain, 3, GrClipStackClip::kMaskTestTag);
     builder[0] = clipGenID;
     // SkToS16 because image filters outset layers to a size indicated by the filter, which can
-    // sometimes result in negative coordinates from clip space.
+    // sometimes result in negative coordinates from device space.
     builder[1] = SkToS16(bounds.fLeft) | (SkToS16(bounds.fRight) << 16);
     builder[2] = SkToS16(bounds.fTop) | (SkToS16(bounds.fBottom) << 16);
 }
@@ -410,16 +381,15 @@ static void add_invalidate_on_pop_message(const SkClipStack& stack, int32_t clip
     SkDEBUGFAIL("Gen ID was not found in stack.");
 }
 
-// MDB TODO (caching): this side-steps the issue of texture proxies cached by unique ID
 sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
                                                            const GrReducedClip& reducedClip) const {
     GrResourceProvider* resourceProvider = context->resourceProvider();
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
 
-    sk_sp<GrTexture> texture(resourceProvider->findAndRefTextureByUniqueKey(key));
-    if (texture) {
-        return GrSurfaceProxy::MakeWrapped(std::move(texture));
+    sk_sp<GrTextureProxy> proxy(resourceProvider->findProxyByUniqueKey(key));
+    if (proxy) {
+        return proxy;
     }
 
     sk_sp<GrRenderTargetContext> rtc(context->makeRenderTargetContextWithFallback(
@@ -441,31 +411,26 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
         return nullptr;
     }
 
-    GrTexture* tex = result->instantiate(context->textureProvider());
-    if (!tex) {
-        return nullptr;
-    }
-
-    tex->resourcePriv().setUniqueKey(key);
+    resourceProvider->assignUniqueKeyToProxy(key, result.get());
+    // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
     add_invalidate_on_pop_message(*fStack, reducedClip.elementsGenID(), key);
 
     return result;
 }
 
-// MDB TODO (caching): This side-steps the caching of texture proxies by unique ID
 sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
                                                           GrContext* context,
                                                           const GrReducedClip& reducedClip) const {
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
 
-    sk_sp<GrTexture> texture(context->textureProvider()->findAndRefTextureByUniqueKey(key));
-    if (texture) {
-        return GrSurfaceProxy::MakeWrapped(std::move(texture));
+    sk_sp<GrTextureProxy> proxy(context->resourceProvider()->findProxyByUniqueKey(key));
+    if (proxy) {
+        return proxy;
     }
 
-    // The mask texture may be larger than necessary. We round out the clip space bounds and pin
-    // the top left corner of the resulting rect to the top left of the texture.
+    // The mask texture may be larger than necessary. We round out the clip bounds and pin the top
+    // left corner of the resulting rect to the top left of the texture.
     SkIRect maskSpaceIBounds = SkIRect::MakeWH(reducedClip.width(), reducedClip.height());
 
     GrSWMaskHelper helper;
@@ -515,14 +480,10 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         }
     }
 
-    sk_sp<GrTextureProxy> result(helper.toTexture(context, SkBackingFit::kApprox));
+    sk_sp<GrTextureProxy> result(helper.toTextureProxy(context, SkBackingFit::kApprox));
 
-    GrTexture* tex = result->instantiate(context->textureProvider());
-    if (!tex) {
-        return nullptr;
-    }
-
-    tex->resourcePriv().setUniqueKey(key);
+    context->resourceProvider()->assignUniqueKeyToProxy(key, result.get());
+    // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
     add_invalidate_on_pop_message(*fStack, reducedClip.elementsGenID(), key);
     return result;
 }

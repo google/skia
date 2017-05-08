@@ -26,6 +26,8 @@ import (
 )
 
 const (
+	BUNDLE_RECIPES_NAME = "Housekeeper-PerCommit-BundleRecipes"
+
 	DEFAULT_OS       = DEFAULT_OS_LINUX
 	DEFAULT_OS_LINUX = "Ubuntu-14.04"
 
@@ -97,6 +99,12 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 				ec = "Android_Vulkan"
 			}
 			task_os = "Ubuntu"
+		} else if task_os == "Chromecast" {
+			task_os = "Ubuntu"
+			ec = "Chromecast"
+		} else if strings.Contains(task_os, "ChromeOS") {
+			ec = "Chromebook_ARM_GLES"
+			task_os = "Ubuntu"
 		} else if task_os == "iOS" {
 			ec = task_os
 			task_os = "Mac"
@@ -132,15 +140,17 @@ func swarmDimensions(parts map[string]string) []string {
 	}
 	if os, ok := parts["os"]; ok {
 		d["os"] = map[string]string{
-			"Android":  "Android",
-			"Mac":      "Mac-10.11",
-			"Ubuntu":   DEFAULT_OS_LINUX,
-			"Ubuntu16": "Ubuntu-16.10",
-			"Win":      "Windows-2008ServerR2-SP1",
-			"Win10":    "Windows-10-14393",
-			"Win2k8":   "Windows-2008ServerR2-SP1",
-			"Win8":     "Windows-8.1-SP0",
-			"iOS":      "iOS-9.3.1",
+			"Android":    "Android",
+			"Chromecast": "Android",
+			"ChromeOS":   "ChromeOS",
+			"Mac":        "Mac-10.11",
+			"Ubuntu":     DEFAULT_OS_LINUX,
+			"Ubuntu16":   "Ubuntu-16.10",
+			"Win":        "Windows-2008ServerR2-SP1",
+			"Win10":      "Windows-10-14393",
+			"Win2k8":     "Windows-2008ServerR2-SP1",
+			"Win8":       "Windows-8.1-SP0",
+			"iOS":        "iOS-9.3.1",
 		}[os]
 		// Chrome Golo has a different Windows image.
 		if parts["model"] == "Golo" && os == "Win10" {
@@ -150,7 +160,7 @@ func swarmDimensions(parts map[string]string) []string {
 		d["os"] = DEFAULT_OS
 	}
 	if parts["role"] == "Test" || parts["role"] == "Perf" {
-		if strings.Contains(parts["os"], "Android") {
+		if strings.Contains(parts["os"], "Android") || strings.Contains(parts["os"], "Chromecast") {
 			// For Android, the device type is a better dimension
 			// than CPU or GPU.
 			deviceInfo, ok := ANDROID_MAPPING[parts["model"]]
@@ -197,13 +207,45 @@ func swarmDimensions(parts map[string]string) []string {
 		}
 	} else {
 		d["gpu"] = "none"
+		if d["os"] == DEFAULT_OS_LINUX {
+			return linuxGceDimensions()
+		}
 	}
+
 	rv := make([]string, 0, len(d))
 	for k, v := range d {
 		rv = append(rv, fmt.Sprintf("%s:%s", k, v))
 	}
 	sort.Strings(rv)
 	return rv
+}
+
+// bundleRecipes generates the task to bundle and isolate the recipes.
+func bundleRecipes(b *specs.TasksCfgBuilder) string {
+	b.MustAddTask(BUNDLE_RECIPES_NAME, &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{},
+		Dimensions:   linuxGceDimensions(),
+		ExtraArgs: []string{
+			"--workdir", "../../..", "bundle_recipes",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", BUNDLE_RECIPES_NAME),
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:  "bundle_recipes.isolate",
+		Priority: 0.95,
+	})
+	return BUNDLE_RECIPES_NAME
+}
+
+// useBundledRecipes returns true iff the given bot should use bundled recipes
+// instead of syncing recipe DEPS itself.
+func useBundledRecipes(parts map[string]string) bool {
+	// Use bundled recipes for all test/perf tasks.
+	return true
 }
 
 // compile generates a compile task. Returns the name of the last task in the
@@ -223,6 +265,12 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		} else {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("android_ndk_linux"))
 		}
+	} else if strings.Contains(name, "Chromecast") {
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("cast_toolchain"))
+	} else if strings.Contains(name, "Chromebook") {
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("armhf_sysroot"))
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
 	} else if strings.Contains(name, "Ubuntu") {
 		if strings.Contains(name, "Clang") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
@@ -237,18 +285,27 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		}
 	}
 
+	// TODO(stephana): Remove this once all Mac machines are on the same
+	// OS version again. Move the call to swarmDimensions back to the
+	// creation of the TaskSpec struct below.
+	dimensions := swarmDimensions(parts)
+	if strings.Contains(name, "Mac") {
+		for idx, dim := range dimensions {
+			if strings.HasPrefix(dim, "os") {
+				dimensions[idx] = "os:Mac-10.12"
+				break
+			}
+		}
+	}
+
 	// Add the task.
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: pkgs,
-		Dimensions:   swarmDimensions(parts),
+		Dimensions:   dimensions,
 		ExtraArgs: []string{
-			"--workdir", "../../..", "swarm_compile",
+			"--workdir", "../../..", "compile",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			"mastername=fake-master",
-			"buildnumber=2",
-			"slavename=fake-buildslave",
-			"nobuildbot=True",
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -275,13 +332,9 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 		Dimensions:       linuxGceDimensions(),
 		ExecutionTimeout: 4 * time.Hour,
 		ExtraArgs: []string{
-			"--workdir", "../../..", "swarm_RecreateSKPs",
+			"--workdir", "../../..", "recreate_skps",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			"mastername=fake-master",
-			"buildnumber=2",
-			"slavename=fake-buildslave",
-			"nobuildbot=True",
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -303,13 +356,9 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 		Dimensions:       []string{"pool:SkiaCT"},
 		ExecutionTimeout: 24 * time.Hour,
 		ExtraArgs: []string{
-			"--workdir", "../../..", "swarm_ct_skps",
+			"--workdir", "../../..", "ct_skps",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			"mastername=fake-master",
-			"buildnumber=2",
-			"slavename=fake-buildslave",
-			"nobuildbot=True",
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -331,13 +380,9 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 		Dependencies: []string{compileTaskName},
 		Dimensions:   linuxGceDimensions(),
 		ExtraArgs: []string{
-			"--workdir", "../../..", "swarm_housekeeper",
+			"--workdir", "../../..", "housekeeper",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			"mastername=fake-master",
-			"buildnumber=2",
-			"slavename=fake-buildslave",
-			"nobuildbot=True",
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -357,13 +402,9 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 		CipdPackages: []*specs.CipdPackage{},
 		Dimensions:   linuxGceDimensions(),
 		ExtraArgs: []string{
-			"--workdir", "../../..", "swarm_infra",
+			"--workdir", "../../..", "infra",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			"mastername=fake-master",
-			"buildnumber=2",
-			"slavename=fake-buildslave",
-			"nobuildbot=True",
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -400,13 +441,9 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		ExecutionTimeout: 4 * time.Hour,
 		Expiration:       20 * time.Hour,
 		ExtraArgs: []string{
-			"--workdir", "../../..", "swarm_test",
+			"--workdir", "../../..", "test",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			"mastername=fake-master",
-			"buildnumber=2",
-			"slavename=fake-buildslave",
-			"nobuildbot=True",
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -417,6 +454,14 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		Isolate:     "test_skia.isolate",
 		MaxAttempts: 1,
 		Priority:    0.8,
+	}
+	if useBundledRecipes(parts) {
+		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
+		if strings.Contains(parts["os"], "Win") {
+			s.Isolate = "test_skia_bundled_win.isolate"
+		} else {
+			s.Isolate = "test_skia_bundled_unix.isolate"
+		}
 	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		s.ExecutionTimeout = 9 * time.Hour
@@ -437,10 +482,6 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 				"--workdir", "../../..", "upload_dm_results",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 				fmt.Sprintf("buildername=%s", name),
-				"mastername=fake-master",
-				"buildnumber=2",
-				"slavename=fake-buildslave",
-				"nobuildbot=True",
 				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -459,11 +500,24 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 // perf generates a Perf task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
-	recipe := "swarm_perf"
+	recipe := "perf"
 	isolate := "perf_skia.isolate"
 	if strings.Contains(parts["extra_config"], "Skpbench") {
-		recipe = "swarm_skpbench"
+		recipe = "skpbench"
 		isolate = "skpbench_skia.isolate"
+		if useBundledRecipes(parts) {
+			if strings.Contains(parts["os"], "Win") {
+				isolate = "skpbench_skia_bundled_win.isolate"
+			} else {
+				isolate = "skpbench_skia_bundled_unix.isolate"
+			}
+		}
+	} else if useBundledRecipes(parts) {
+		if strings.Contains(parts["os"], "Win") {
+			isolate = "perf_skia_bundled_win.isolate"
+		} else {
+			isolate = "perf_skia_bundled_unix.isolate"
+		}
 	}
 	s := &specs.TaskSpec{
 		CipdPackages:     pkgs,
@@ -475,10 +529,6 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			"--workdir", "../../..", recipe,
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			"mastername=fake-master",
-			"buildnumber=2",
-			"slavename=fake-buildslave",
-			"nobuildbot=True",
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -489,6 +539,9 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		Isolate:     isolate,
 		MaxAttempts: 1,
 		Priority:    0.8,
+	}
+	if useBundledRecipes(parts) {
+		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
 	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		s.ExecutionTimeout = 9 * time.Hour
@@ -509,10 +562,6 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 				"--workdir", "../../..", "upload_nano_results",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 				fmt.Sprintf("buildername=%s", name),
-				"mastername=fake-master",
-				"buildnumber=2",
-				"slavename=fake-buildslave",
-				"nobuildbot=True",
 				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -531,6 +580,11 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 // process generates tasks and jobs for the given job name.
 func process(b *specs.TasksCfgBuilder, name string) {
 	deps := []string{}
+
+	// Bundle Recipes.
+	if name == BUNDLE_RECIPES_NAME {
+		deps = append(deps, bundleRecipes(b))
+	}
 
 	parts, err := jobNameSchema.ParseJobName(name)
 	if err != nil {
@@ -565,6 +619,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 	// These bots do not need a compile task.
 	if parts["role"] != "Build" &&
+		name != "Housekeeper-PerCommit-BundleRecipes" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		!strings.Contains(name, "RecreateSKPs") &&
 		!strings.Contains(name, "-CT_") {
@@ -581,6 +636,13 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		b.MustGetCipdPackageFromAsset("skimage"),
 		b.MustGetCipdPackageFromAsset("skp"),
 		b.MustGetCipdPackageFromAsset("svg"),
+	}
+	if strings.Contains(name, "Chromecast") {
+		// Chromecasts don't have enough disk space to fit all of the content,
+		// so we do a subset of the skps.
+		pkgs = []*specs.CipdPackage{
+			b.MustGetCipdPackageFromAsset("skp"),
+		}
 	}
 	if strings.Contains(name, "Ubuntu") && strings.Contains(name, "SAN") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))

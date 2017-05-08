@@ -611,7 +611,7 @@ public:
             }
         }
 
-        virtual ~Sk3DShaderContext() {
+        ~Sk3DShaderContext() override {
             if (fProxyContext) {
                 fProxyContext->~Context();
             }

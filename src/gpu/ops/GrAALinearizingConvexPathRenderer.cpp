@@ -117,17 +117,17 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
                               viewMatrix);
 }
 
-class AAFlatteningConvexPathOp final : public GrMeshDrawOp {
+class AAFlatteningConvexPathOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrDrawOp> Make(GrColor color,
-                                          const SkMatrix& viewMatrix,
-                                          const SkPath& path,
-                                          SkScalar strokeWidth,
-                                          SkStrokeRec::Style style,
-                                          SkPaint::Join join,
-                                          SkScalar miterLimit) {
-        return std::unique_ptr<GrDrawOp>(new AAFlatteningConvexPathOp(
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                                    const SkMatrix& viewMatrix,
+                                                    const SkPath& path,
+                                                    SkScalar strokeWidth,
+                                                    SkStrokeRec::Style style,
+                                                    SkPaint::Join join,
+                                                    SkScalar miterLimit) {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(new AAFlatteningConvexPathOp(
                 color, viewMatrix, path, strokeWidth, style, join, miterLimit));
     }
 
@@ -172,18 +172,19 @@ private:
         this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fPaths[0].fColor);
-        input->coverageInput()->setToUnknown();
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
+        color->setToConstant(fPaths[0].fColor);
+        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fPaths[0].fColor);
         fUsesLocalCoords = optimizations.readsLocalCoords();
         fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
     }
 
-    void draw(GrMeshDrawOp::Target* target, const GrGeometryProcessor* gp, int vertexCount,
+    void draw(GrLegacyMeshDrawOp::Target* target, const GrGeometryProcessor* gp, int vertexCount,
               size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
             return;
@@ -209,7 +210,7 @@ private:
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
         mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
                          firstIndex, vertexCount, indexCount);
-        target->draw(gp, mesh);
+        target->draw(gp, this->pipeline(), mesh);
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -317,7 +318,7 @@ private:
     bool fCanTweakAlphaForCoverage;
     SkSTArray<1, PathData, true> fPaths;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -335,14 +336,15 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPaint::Join join = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
     SkScalar miterLimit = stroke.getMiter();
 
-    std::unique_ptr<GrDrawOp> op =
+    std::unique_ptr<GrLegacyMeshDrawOp> op =
             AAFlatteningConvexPathOp::Make(args.fPaint.getColor(), *args.fViewMatrix, path,
                                            strokeWidth, stroke.getStyle(), join, miterLimit);
 
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), *args.fClip,
+                                                   std::move(op));
 
     return true;
 }

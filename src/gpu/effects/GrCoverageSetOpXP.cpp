@@ -8,10 +8,9 @@
 #include "effects/GrCoverageSetOpXP.h"
 #include "GrCaps.h"
 #include "GrColor.h"
-#include "GrRenderTargetContext.h"
 #include "GrPipeline.h"
 #include "GrProcessor.h"
-#include "GrProcOptInfo.h"
+#include "GrRenderTargetContext.h"
 #include "glsl/GrGLSLBlend.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLUniformHandler.h"
@@ -19,11 +18,10 @@
 
 class CoverageSetOpXP : public GrXferProcessor {
 public:
-    static GrXferProcessor* Create(SkRegion::Op regionOp, bool invertCoverage) {
-        return new CoverageSetOpXP(regionOp, invertCoverage);
+    CoverageSetOpXP(SkRegion::Op regionOp, bool invertCoverage)
+            : fRegionOp(regionOp), fInvertCoverage(invertCoverage) {
+        this->initClassID<CoverageSetOpXP>();
     }
-
-    ~CoverageSetOpXP() override;
 
     const char* name() const override { return "Coverage Set Op"; }
 
@@ -32,12 +30,6 @@ public:
     bool invertCoverage() const { return fInvertCoverage; }
 
 private:
-    CoverageSetOpXP(SkRegion::Op regionOp, bool fInvertCoverage);
-
-    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis& analysis,
-                                                 bool doesStencilWrite,
-                                                 GrColor* color,
-                                                 const GrCaps& caps) const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -89,15 +81,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-CoverageSetOpXP::CoverageSetOpXP(SkRegion::Op regionOp, bool invertCoverage)
-    : fRegionOp(regionOp)
-    , fInvertCoverage(invertCoverage) {
-    this->initClassID<CoverageSetOpXP>();
-}
-
-CoverageSetOpXP::~CoverageSetOpXP() {
-}
-
 void CoverageSetOpXP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
     GLCoverageSetOpXP::GenKey(*this, caps, b);
@@ -105,15 +88,6 @@ void CoverageSetOpXP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 
 GrGLSLXferProcessor* CoverageSetOpXP::createGLSLInstance() const {
     return new GLCoverageSetOpXP(*this);
-}
-
-GrXferProcessor::OptFlags CoverageSetOpXP::onGetOptimizations(
-        const FragmentProcessorAnalysis& analysis,
-        bool doesStencilWrite,
-        GrColor* color,
-        const GrCaps& caps) const {
-    // We never look at the color input
-    return GrXferProcessor::kIgnoreColor_OptFlag;
 }
 
 void CoverageSetOpXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {
@@ -148,95 +122,6 @@ void CoverageSetOpXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) cons
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class ShaderCSOXferProcessor : public GrXferProcessor {
-public:
-    ShaderCSOXferProcessor(const DstTexture* dstTexture,
-                           bool hasMixedSamples,
-                           SkRegion::Op regionOp,
-                           bool invertCoverage)
-        : INHERITED(dstTexture, true, hasMixedSamples)
-        , fRegionOp(regionOp)
-        , fInvertCoverage(invertCoverage) {
-        this->initClassID<ShaderCSOXferProcessor>();
-    }
-
-    const char* name() const override { return "Coverage Set Op Shader"; }
-
-    GrGLSLXferProcessor* createGLSLInstance() const override;
-
-    SkRegion::Op regionOp() const { return fRegionOp; }
-    bool invertCoverage() const { return fInvertCoverage; }
-
-private:
-    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&, bool, GrColor*,
-                                                 const GrCaps&) const override {
-        // We never look at the color input
-        return GrXferProcessor::kIgnoreColor_OptFlag;
-    }
-
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
-
-    bool onIsEqual(const GrXferProcessor& xpBase) const override {
-        const ShaderCSOXferProcessor& xp = xpBase.cast<ShaderCSOXferProcessor>();
-        return (fRegionOp == xp.fRegionOp &&
-                fInvertCoverage == xp.fInvertCoverage);
-    }
-
-    SkRegion::Op fRegionOp;
-    bool         fInvertCoverage;
-
-    typedef GrXferProcessor INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-class GLShaderCSOXferProcessor : public GrGLSLXferProcessor {
-public:
-    static void GenKey(const GrProcessor& processor, GrProcessorKeyBuilder* b) {
-        const ShaderCSOXferProcessor& xp = processor.cast<ShaderCSOXferProcessor>();
-        b->add32(xp.regionOp());
-        uint32_t key = xp.invertCoverage() ?  0x0 : 0x1;
-        b->add32(key);
-    }
-
-private:
-    void emitBlendCodeForDstRead(GrGLSLXPFragmentBuilder* fragBuilder,
-                                 GrGLSLUniformHandler* uniformHandler,
-                                 const char* srcColor,
-                                 const char* srcCoverage,
-                                 const char* dstColor,
-                                 const char* outColor,
-                                 const char* outColorSecondary,
-                                 const GrXferProcessor& proc) override {
-        const ShaderCSOXferProcessor& xp = proc.cast<ShaderCSOXferProcessor>();
-
-        if (xp.invertCoverage()) {
-            fragBuilder->codeAppendf("%s = 1.0 - %s;", outColor, srcCoverage);
-        } else {
-            fragBuilder->codeAppendf("%s = %s;", outColor, srcCoverage);
-        }
-
-        GrGLSLBlend::AppendRegionOp(fragBuilder, outColor, dstColor, outColor, xp.regionOp());
-    }
-
-    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
-
-    typedef GrGLSLXferProcessor INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-void ShaderCSOXferProcessor::onGetGLSLProcessorKey(const GrShaderCaps&,
-                                                   GrProcessorKeyBuilder* b) const {
-    GLShaderCSOXferProcessor::GenKey(*this, b);
-}
-
-GrGLSLXferProcessor* ShaderCSOXferProcessor::createGLSLInstance() const {
-    return new GLShaderCSOXferProcessor;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
 constexpr GrCoverageSetOpXPFactory::GrCoverageSetOpXPFactory(SkRegion::Op regionOp,
                                                              bool invertCoverage)
         : fRegionOp(regionOp), fInvertCoverage(invertCoverage) {}
@@ -322,11 +207,11 @@ const GrXPFactory* GrCoverageSetOpXPFactory::Get(SkRegion::Op regionOp, bool inv
     return nullptr;
 }
 
-GrXferProcessor* GrCoverageSetOpXPFactory::onCreateXferProcessor(
-        const GrCaps& caps,
-        const FragmentProcessorAnalysis& analysis,
+sk_sp<const GrXferProcessor> GrCoverageSetOpXPFactory::makeXferProcessor(
+        const GrProcessorAnalysisColor&,
+        GrProcessorAnalysisCoverage,
         bool hasMixedSamples,
-        const DstTexture* dst) const {
+        const GrCaps& caps) const {
     // We don't support inverting coverage with mixed samples. We don't expect to ever want this in
     // the future, however we could at some point make this work using an inverted coverage
     // modulation table. Note that an inverted table still won't work if there are coverage procs.
@@ -335,10 +220,7 @@ GrXferProcessor* GrCoverageSetOpXPFactory::onCreateXferProcessor(
         return nullptr;
     }
 
-    if (analysis.usesPLSDstRead()) {
-        return new ShaderCSOXferProcessor(dst, hasMixedSamples, fRegionOp, fInvertCoverage);
-    }
-    return CoverageSetOpXP::Create(fRegionOp, fInvertCoverage);
+    return sk_sp<GrXferProcessor>(new CoverageSetOpXP(fRegionOp, fInvertCoverage));
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrCoverageSetOpXPFactory);

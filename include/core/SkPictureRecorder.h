@@ -38,7 +38,6 @@ public:
     };
 
     enum FinishFlags {
-        kReturnNullForEmpty_FinishFlag  = 1 << 0,   // no draw-ops will return nullptr
     };
 
     /** Returns the canvas that records the drawing commands.

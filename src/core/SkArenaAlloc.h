@@ -52,6 +52,11 @@
 // typical block overhead of 8 bytes. For non-POD objects there is a per item overhead of 4 bytes.
 // For arrays of non-POD objects there is a per array overhead of typically 8 bytes. There is an
 // addition overhead when switching from POD data to non-POD data of typically 8 bytes.
+//
+// If additional blocks are needed they are increased exponentially. This strategy bounds the
+// recursion of the RunDtorsOnBlock to be limited to O(log size-of-memory). Block size grow using
+// the Fibonacci sequence which means that for 2^32 memory there are 48 allocations, and for 2^48
+// there are 71 allocations.
 class SkArenaAlloc {
 public:
     SkArenaAlloc(char* block, size_t size, size_t extraSize = 0);
@@ -192,6 +197,9 @@ private:
     char* const    fFirstBlock;
     const uint32_t fFirstSize;
     const uint32_t fExtraSize;
+    // Use the Fibonacci sequence as the growth factor for block size. The size of the block
+    // allocated is fFib0 * fExtraSize. Using 2 ^ n * fExtraSize had too much slop for Android.
+    uint32_t       fFib0 {1}, fFib1 {1};
 };
 
 #endif//SkFixedAlloc_DEFINED

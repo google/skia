@@ -10,6 +10,7 @@
 #include "SkGradientShaderPriv.h"
 #include "SkHalf.h"
 #include "SkLinearGradient.h"
+#include "SkMallocPixelRef.h"
 #include "SkRadialGradient.h"
 #include "SkTwoPointConicalGradient.h"
 #include "SkSweepGradient.h"
@@ -410,12 +411,9 @@ SkGradientShaderBase::GradientShaderCache::GradientShaderCache(
 {
     // Only initialize the cache in getCache32.
     fCache32 = nullptr;
-    fCache32PixelRef = nullptr;
 }
 
-SkGradientShaderBase::GradientShaderCache::~GradientShaderCache() {
-    SkSafeUnref(fCache32PixelRef);
-}
+SkGradientShaderBase::GradientShaderCache::~GradientShaderCache() {}
 
 /*
  *  r,g,b used to be SkFixed, but on gcc (4.2.1 mac and 4.6.3 goobuntu) in
@@ -584,8 +582,8 @@ void SkGradientShaderBase::GradientShaderCache::initCache32(GradientShaderCache*
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kCache32Count, kNumberOfDitherRows);
 
     SkASSERT(nullptr == cache->fCache32PixelRef);
-    cache->fCache32PixelRef = SkMallocPixelRef::NewAllocate(info, 0, nullptr);
-    cache->fCache32 = (SkPMColor*)cache->fCache32PixelRef->getAddr();
+    cache->fCache32PixelRef = SkMallocPixelRef::MakeAllocate(info, 0, nullptr);
+    cache->fCache32 = (SkPMColor*)cache->fCache32PixelRef->pixels();
     if (cache->fShader.fColorCount == 2) {
         Build32bitCache(cache->fCache32, cache->fShader.fOrigColors[0],
                         cache->fShader.fOrigColors[1], kCache32Count, cache->fCacheAlpha,
@@ -1131,7 +1129,6 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 
 static inline bool close_to_one_half(const SkFixed& val) {
     return SkScalarNearlyEqual(SkFixedToScalar(val), SK_ScalarHalf);
@@ -1304,7 +1301,7 @@ static inline void set_before_interp_color_uni_array(const GrGLSLProgramDataMana
 }
 
 void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& pdman,
-                                                const GrProcessor& processor) {
+                                                const GrFragmentProcessor& processor) {
     const GrGradientEffect& e = processor.cast<GrGradientEffect>();
 
     switch (e.getColorType()) {
@@ -1345,7 +1342,7 @@ void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& 
                 fCachedYCoord = yCoord;
             }
             if (SkToBool(e.fColorSpaceXform)) {
-                pdman.setSkMatrix44(fColorSpaceXformUni, e.fColorSpaceXform->srcToDst());
+                fColorSpaceHelper.setData(pdman, e.fColorSpaceXform.get());
             }
             break;
         }
@@ -1583,15 +1580,14 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
         }
 
         case kTexture_ColorType: {
-            GrGLSLColorSpaceXformHelper colorSpaceHelper(uniformHandler, ge.fColorSpaceXform.get(),
-                                                         &fColorSpaceXformUni);
+            fColorSpaceHelper.emitCode(uniformHandler, ge.fColorSpaceXform.get());
 
             const char* fsyuni = uniformHandler->getUniformCStr(fFSYUni);
 
             fragBuilder->codeAppendf("vec2 coord = vec2(%s, %s);", gradientTValue, fsyuni);
             fragBuilder->codeAppendf("%s = ", outputColor);
             fragBuilder->appendTextureLookupAndModulate(inputColor, texSamplers[0], "coord",
-                                                        kVec2f_GrSLType, &colorSpaceHelper);
+                                                        kVec2f_GrSLType, &fColorSpaceHelper);
             fragBuilder->codeAppend(";");
 
             break;
@@ -1699,10 +1695,9 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
             if (-1 != fRow) {
                 fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
                 // This is 1/2 places where auto-normalization is disabled
-                fCoordTransform.reset(args.fContext, *args.fMatrix,
-                                      fAtlas->asTextureProxyRef().get(),
-                                      params.filterMode(), false);
-                fTextureSampler.reset(args.fContext->textureProvider(),
+                fCoordTransform.reset(args.fContext->resourceProvider(), *args.fMatrix,
+                                      fAtlas->asTextureProxyRef().get(), false);
+                fTextureSampler.reset(args.fContext->resourceProvider(),
                                       fAtlas->asTextureProxyRef(), params);
             } else {
                 // In this instance we know the params are:
@@ -1712,14 +1707,16 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
                 // Only the x-tileMode is unknown. However, given all the other knowns we know
                 // that GrMakeCachedBitmapProxy is sufficient (i.e., it won't need to be
                 // extracted to a subset or mipmapped).
-                sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(args.fContext, bitmap);
+                sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(
+                                                                args.fContext->resourceProvider(),
+                                                                bitmap);
                 if (!proxy) {
                     return;
                 }
                 // This is 2/2 places where auto-normalization is disabled
-                fCoordTransform.reset(args.fContext, *args.fMatrix,
-                                      proxy.get(), params.filterMode(), false);
-                fTextureSampler.reset(args.fContext->textureProvider(),
+                fCoordTransform.reset(args.fContext->resourceProvider(), *args.fMatrix,
+                                      proxy.get(), false);
+                fTextureSampler.reset(args.fContext->resourceProvider(),
                                       std::move(proxy), params);
                 fYCoord = SK_ScalarHalf;
             }

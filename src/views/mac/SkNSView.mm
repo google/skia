@@ -15,8 +15,12 @@ static_assert(SK_SUPPORT_GPU, "not_implemented_for_non_gpu_build");
 
 //#define FORCE_REDRAW
 // Can be dropped when we no longer support 10.6.
-#define RETINA_API_AVAILABLE (defined(MAC_OS_X_VERSION_10_7) && \
-                              MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7)
+#if defined(MAC_OS_X_VERSION_10_7) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
+    #define RETINA_API_AVAILABLE 1
+#else
+    #define RETINA_API_AVAILABLE 0
+#endif
+
 @implementation SkNSView
 @synthesize fWind, fTitle, fOptionsDelegate, fGLContext;
 

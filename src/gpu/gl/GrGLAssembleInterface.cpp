@@ -197,6 +197,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     }
 
     GET_PROC(PixelStorei);
+    GET_PROC(PolygonMode);
     if (extensions.has("GL_EXT_raster_multisample")) {
         GET_PROC_SUFFIX(RasterSamples, EXT);
     }

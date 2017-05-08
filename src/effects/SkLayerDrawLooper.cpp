@@ -5,7 +5,10 @@
  * found in the LICENSE file.
  */
 #include "SkArenaAlloc.h"
+#include "SkBlurDrawLooper.h"
+#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkColorSpaceXformer.h"
 #include "SkColor.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -61,8 +64,15 @@ static SkColor xferColor(SkColor src, SkColor dst, SkBlendMode mode) {
 // text/length parameters of a draw[Pos]Text call.
 void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
         SkPaint* dst, const SkPaint& src, const LayerInfo& info) {
-
-    dst->setColor(xferColor(src.getColor(), dst->getColor(), (SkBlendMode)info.fColorMode));
+    SkColor srcColor = src.getColor();
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // The framework may respect the alpha value on the original paint.
+    // Match this legacy behavior.
+    if (SkColorGetA(srcColor) == 255) {
+        srcColor = SkColorSetA(srcColor, dst->getAlpha());
+    }
+#endif
+    dst->setColor(xferColor(srcColor, dst->getColor(), (SkBlendMode)info.fColorMode));
 
     BitFlags bits = info.fPaintBits;
     SkPaint::TextEncoding encoding = dst->getTextEncoding();
@@ -195,6 +205,37 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
         bsRec->fQuality = maskBlur.fQuality;
     }
     return true;
+}
+
+sk_sp<SkDrawLooper> SkLayerDrawLooper::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    if (!fCount) {
+        return sk_ref_sp(const_cast<SkLayerDrawLooper*>(this));
+    }
+
+    auto looper = sk_sp<SkLayerDrawLooper>(new SkLayerDrawLooper());
+    looper->fCount = fCount;
+
+    Rec* oldRec = fRecs;
+    Rec* newTopRec = new Rec();
+    newTopRec->fInfo = oldRec->fInfo;
+    newTopRec->fPaint = xformer->apply(oldRec->fPaint);
+    newTopRec->fNext = nullptr;
+
+    Rec* prevNewRec = newTopRec;
+    oldRec = oldRec->fNext;
+    while (oldRec) {
+        Rec* newRec = new Rec();
+        newRec->fInfo = oldRec->fInfo;
+        newRec->fPaint = xformer->apply(oldRec->fPaint);
+        newRec->fNext = nullptr;
+        prevNewRec->fNext = newRec;
+
+        prevNewRec = newRec;
+        oldRec = oldRec->fNext;
+    }
+
+    looper->fRecs = newTopRec;
+    return std::move(looper);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -355,4 +396,29 @@ sk_sp<SkDrawLooper> SkLayerDrawLooper::Builder::detach() {
     fTopRec = nullptr;
 
     return sk_sp<SkDrawLooper>(looper);
+}
+
+sk_sp<SkDrawLooper> SkBlurDrawLooper::Make(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy)
+{
+    sk_sp<SkMaskFilter> blur = nullptr;
+    if (sigma > 0.0f) {
+        blur = SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma, SkBlurMaskFilter::kNone_BlurFlag);
+    }
+
+    SkLayerDrawLooper::Builder builder;
+
+    // First layer
+    SkLayerDrawLooper::LayerInfo defaultLayer;
+    builder.addLayer(defaultLayer);
+
+    // Blur layer
+    SkLayerDrawLooper::LayerInfo blurInfo;
+    blurInfo.fColorMode = SkBlendMode::kSrc;
+    blurInfo.fPaintBits = SkLayerDrawLooper::kMaskFilter_Bit;
+    blurInfo.fOffset = SkVector::Make(dx, dy);
+    SkPaint* paint = builder.addLayer(blurInfo);
+    paint->setMaskFilter(std::move(blur));
+    paint->setColor(color);
+
+    return builder.detach();
 }

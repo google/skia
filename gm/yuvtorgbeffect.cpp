@@ -81,7 +81,7 @@ protected:
             return;
         }
 
-        sk_sp<GrSurfaceProxy> proxy[3];
+        sk_sp<GrTextureProxy> proxy[3];
 
         {
             GrSurfaceDesc desc;
@@ -92,8 +92,7 @@ protected:
                 desc.fHeight = fBmp[i].height();
                 desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[i].info(), *context->caps());
 
-                proxy[i] = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                        context->textureProvider(),
+                proxy[i] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                         desc, SkBudgeted::kYes,
                                                         fBmp[i].getPixels(), fBmp[i].rowBytes());
                 if (!proxy[i]) {
@@ -120,10 +119,10 @@ protected:
 
             for (int i = 0; i < 6; ++i) {
                 sk_sp<GrFragmentProcessor> fp(
-                        GrYUVEffect::MakeYUVToRGB(context,
-                                                  sk_ref_sp(proxy[indices[i][0]]->asTextureProxy()),
-                                                  sk_ref_sp(proxy[indices[i][1]]->asTextureProxy()),
-                                                  sk_ref_sp(proxy[indices[i][2]]->asTextureProxy()),
+                        GrYUVEffect::MakeYUVToRGB(context->resourceProvider(),
+                                                  proxy[indices[i][0]],
+                                                  proxy[indices[i][1]],
+                                                  proxy[indices[i][2]],
                                                   sizes,
                                                   static_cast<SkYUVColorSpace>(space),
                                                   false));
@@ -133,9 +132,9 @@ protected:
                     grPaint.addColorFragmentProcessor(std::move(fp));
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
-                    std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                    std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                             GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_addDrawOp(
+                    renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
                             std::move(grPaint), GrAAType::kNone, std::move(op));
                 }
                 x += renderRect.width() + kTestPad;
@@ -212,7 +211,7 @@ protected:
             return;
         }
 
-        sk_sp<GrSurfaceProxy> proxy[3];
+        sk_sp<GrTextureProxy> proxy[3];
 
         {
             GrSurfaceDesc desc;
@@ -225,8 +224,7 @@ protected:
                 desc.fHeight = fBmp[index].height();
                 desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[index].info(), *context->caps());
 
-                proxy[i] = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                        context->textureProvider(),
+                proxy[i] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                         desc, SkBudgeted::kYes,
                                                         fBmp[index].getPixels(),
                                                         fBmp[index].rowBytes());
@@ -252,19 +250,17 @@ protected:
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
             sk_sp<GrFragmentProcessor> fp(
-                GrYUVEffect::MakeYUVToRGB(context,
-                                          sk_ref_sp(proxy[0]->asTextureProxy()),
-                                          sk_ref_sp(proxy[1]->asTextureProxy()),
-                                          sk_ref_sp(proxy[2]->asTextureProxy()),
-                                          sizes, static_cast<SkYUVColorSpace>(space), true));
+                GrYUVEffect::MakeYUVToRGB(context->resourceProvider(),
+                                          proxy[0], proxy[1], proxy[2], sizes,
+                                          static_cast<SkYUVColorSpace>(space), true));
             if (fp) {
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
                 grPaint.addColorFragmentProcessor(fp);
-                std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                         GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
-                renderTargetContext->priv().testingOnly_addDrawOp(std::move(grPaint),
-                                                                  GrAAType::kNone, std::move(op));
+                renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
+                        std::move(grPaint), GrAAType::kNone, std::move(op));
             }
         }
     }

@@ -27,8 +27,6 @@ SkPathEffect::DashType SkPathEffect::asADash(DashInfo* info) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SK_SUPPORT_LEGACY_PATHEFFECT_SUBCLASSES
-
 /** \class SkPairPathEffect
 
  Common baseclass for Compose and Sum. This subclass manages two pathEffects,
@@ -37,9 +35,17 @@ SkPathEffect::DashType SkPathEffect::asADash(DashInfo* info) const {
  */
 class SK_API SkPairPathEffect : public SkPathEffect {
 protected:
-    SkPairPathEffect(sk_sp<SkPathEffect> pe0, sk_sp<SkPathEffect> pe1);
+    SkPairPathEffect(sk_sp<SkPathEffect> pe0, sk_sp<SkPathEffect> pe1)
+        : fPE0(std::move(pe0)), fPE1(std::move(pe1))
+    {
+        SkASSERT(fPE0.get());
+        SkASSERT(fPE1.get());
+    }
 
-    void flatten(SkWriteBuffer&) const override;
+    void flatten(SkWriteBuffer& buffer) const override {
+        buffer.writeFlattenable(fPE0.get());
+        buffer.writeFlattenable(fPE1.get());
+    }
 
     // these are visible to our subclasses
     sk_sp<SkPathEffect> fPE0;
@@ -50,6 +56,21 @@ protected:
 private:
     typedef SkPathEffect INHERITED;
 };
+
+#ifndef SK_IGNORE_TO_STRING
+void SkPairPathEffect::toString(SkString* str) const {
+    str->appendf("first: ");
+    if (fPE0) {
+        fPE0->toString(str);
+    }
+    str->appendf(" second: ");
+    if (fPE1) {
+        fPE1->toString(str);
+    }
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** \class SkComposePathEffect
 
@@ -73,8 +94,17 @@ public:
         return sk_sp<SkPathEffect>(new SkComposePathEffect(outer, inner));
     }
 
-    virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*, const SkRect*) const override;
+    bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                    const SkRect* cullRect) const override {
+        SkPath          tmp;
+        const SkPath*   ptr = &src;
+
+        if (fPE1->filterPath(&tmp, src, rec, cullRect)) {
+            ptr = &tmp;
+        }
+        return fPE0->filterPath(dst, *ptr, rec, cullRect);
+    }
+    
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
@@ -85,7 +115,7 @@ public:
 
 protected:
     SkComposePathEffect(sk_sp<SkPathEffect> outer, sk_sp<SkPathEffect> inner)
-    : INHERITED(outer, inner) {}
+        : INHERITED(outer, inner) {}
 
 private:
     // illegal
@@ -95,6 +125,22 @@ private:
 
     typedef SkPairPathEffect INHERITED;
 };
+
+sk_sp<SkFlattenable> SkComposePathEffect::CreateProc(SkReadBuffer& buffer) {
+    sk_sp<SkPathEffect> pe0(buffer.readPathEffect());
+    sk_sp<SkPathEffect> pe1(buffer.readPathEffect());
+    return SkComposePathEffect::Make(std::move(pe0), std::move(pe1));
+}
+
+#ifndef SK_IGNORE_TO_STRING
+void SkComposePathEffect::toString(SkString* str) const {
+    str->appendf("SkComposePathEffect: (");
+    this->INHERITED::toString(str);
+    str->appendf(")");
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
 
 /** \class SkSumPathEffect
 
@@ -118,8 +164,13 @@ public:
         return sk_sp<SkPathEffect>(new SkSumPathEffect(first, second));
     }
 
-    virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*, const SkRect*) const override;
+    bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                    const SkRect* cullRect) const override {
+        // use bit-or so that we always call both, even if the first one succeeds
+        return fPE0->filterPath(dst, src, rec, cullRect) |
+               fPE1->filterPath(dst, src, rec, cullRect);
+    }
+    
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)
@@ -140,79 +191,12 @@ private:
 
     typedef SkPairPathEffect INHERITED;
 };
-#endif
-
-SkPairPathEffect::SkPairPathEffect(sk_sp<SkPathEffect> pe0, sk_sp<SkPathEffect> pe1)
-    : fPE0(std::move(pe0)), fPE1(std::move(pe1))
-{
-    SkASSERT(fPE0.get());
-    SkASSERT(fPE1.get());
-}
-
-/*
-    Format: [oe0-factory][pe1-factory][pe0-size][pe0-data][pe1-data]
-*/
-void SkPairPathEffect::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeFlattenable(fPE0.get());
-    buffer.writeFlattenable(fPE1.get());
-}
-
-#ifndef SK_IGNORE_TO_STRING
-void SkPairPathEffect::toString(SkString* str) const {
-    str->appendf("first: ");
-    if (fPE0) {
-        fPE0->toString(str);
-    }
-    str->appendf(" second: ");
-    if (fPE1) {
-        fPE1->toString(str);
-    }
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkFlattenable> SkComposePathEffect::CreateProc(SkReadBuffer& buffer) {
-    sk_sp<SkPathEffect> pe0(buffer.readPathEffect());
-    sk_sp<SkPathEffect> pe1(buffer.readPathEffect());
-    return SkComposePathEffect::Make(std::move(pe0), std::move(pe1));
-}
-
-bool SkComposePathEffect::filterPath(SkPath* dst, const SkPath& src,
-                             SkStrokeRec* rec, const SkRect* cullRect) const {
-    SkPath          tmp;
-    const SkPath*   ptr = &src;
-
-    if (fPE1->filterPath(&tmp, src, rec, cullRect)) {
-        ptr = &tmp;
-    }
-    return fPE0->filterPath(dst, *ptr, rec, cullRect);
-}
-
-
-#ifndef SK_IGNORE_TO_STRING
-void SkComposePathEffect::toString(SkString* str) const {
-    str->appendf("SkComposePathEffect: (");
-    this->INHERITED::toString(str);
-    str->appendf(")");
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkSumPathEffect::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkPathEffect> pe0(buffer.readPathEffect());
     sk_sp<SkPathEffect> pe1(buffer.readPathEffect());
     return SkSumPathEffect::Make(pe0, pe1);
 }
-
-bool SkSumPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                             SkStrokeRec* rec, const SkRect* cullRect) const {
-    // use bit-or so that we always call both, even if the first one succeeds
-    return fPE0->filterPath(dst, src, rec, cullRect) |
-           fPE1->filterPath(dst, src, rec, cullRect);
-}
-
 
 #ifndef SK_IGNORE_TO_STRING
 void SkSumPathEffect::toString(SkString* str) const {

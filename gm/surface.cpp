@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkGradientShader.h"
 #include "SkSurface.h"
 #include "SkSurfaceProps.h"
@@ -146,3 +147,51 @@ private:
     typedef GM INHERITED;
 };
 DEF_GM( return new NewSurfaceGM )
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DEF_SIMPLE_GM(copy_on_write_retain, canvas, 256, 256) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
+    sk_sp<SkSurface> surf = canvas->makeSurface(info, nullptr);
+    if (!surf) {
+        surf = SkSurface::MakeRaster(info, nullptr);
+    }
+
+    surf->getCanvas()->clear(SK_ColorRED);
+    // its important that image survives longer than the next draw, so the surface will see
+    // an outstanding image, and have to decide if it should retain or discard those pixels
+    sk_sp<SkImage> image = surf->makeImageSnapshot();
+
+    // normally a clear+opaque should trigger the discard optimization, but since we have a clip
+    // it should not (we need the previous red pixels).
+    surf->getCanvas()->clipRect(SkRect::MakeWH(128, 256));
+    surf->getCanvas()->clear(SK_ColorBLUE);
+
+    // expect to see two rects: blue | red
+    canvas->drawImage(surf->makeImageSnapshot(), 0, 0, nullptr);
+}
+
+DEF_SIMPLE_GM(copy_on_write_savelayer, canvas, 256, 256) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
+    sk_sp<SkSurface> surf = canvas->makeSurface(info, nullptr);
+    if (!surf) {
+        surf = SkSurface::MakeRaster(info, nullptr);
+    }
+
+    surf->getCanvas()->clear(SK_ColorRED);
+    // its important that image survives longer than the next draw, so the surface will see
+    // an outstanding image, and have to decide if it should retain or discard those pixels
+    sk_sp<SkImage> image = surf->makeImageSnapshot();
+
+    // now draw into a full-screen layer. This should (a) trigger a copy-on-write, but it should
+    // not trigger discard, even tho its alpha (SK_ColorBLUE) is opaque, since it is in a layer
+    // with a non-opaque paint.
+    SkPaint paint;
+    paint.setAlpha(0x40);
+    surf->getCanvas()->saveLayer({0, 0, 256, 256}, &paint);
+    surf->getCanvas()->clear(SK_ColorBLUE);
+    surf->getCanvas()->restore();
+
+    // expect to see two rects: blue blended on red
+    canvas->drawImage(surf->makeImageSnapshot(), 0, 0, nullptr);
+}

@@ -15,7 +15,7 @@
 #include "SkBitmapRegionDecoder.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkMultiPictureDocumentReader.h"
+#include "SkMultiPictureDocument.h"
 #include "SkPicture.h"
 #include "gm.h"
 
@@ -57,8 +57,11 @@ private:
 };
 
 struct SinkFlags {
-    enum { kNull, kGPU, kVector, kRaster } type;
-    enum { kDirect, kIndirect } approach;
+    enum Type { kNull, kGPU, kVector, kRaster } type;
+    enum Approach { kDirect, kIndirect } approach;
+    enum Multisampled { kNotMultisampled, kMultisampled } multisampled;
+    SinkFlags(Type t, Approach a, Multisampled ms = kNotMultisampled)
+            : type(t), approach(a), multisampled(ms) {}
 };
 
 struct Src {
@@ -285,7 +288,7 @@ public:
 
 private:
     Path fPath;
-    SkMultiPictureDocumentReader fReader;
+    mutable SkTArray<SkDocumentPage> fPages;
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -310,7 +313,11 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     bool serial() const override { return !fThreaded; }
     const char* fileExtension() const override { return "png"; }
-    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
+    SinkFlags flags() const override {
+        SinkFlags::Multisampled ms = fSampleCount > 0 ? SinkFlags::kMultisampled
+                                                      : SinkFlags::kNotMultisampled;
+        return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect, ms };
+    }
 private:
     sk_gpu_test::GrContextFactory::ContextType        fContextType;
     sk_gpu_test::GrContextFactory::ContextOverrides   fContextOverrides;
@@ -342,7 +349,7 @@ public:
 class PipeSink : public Sink {
 public:
     PipeSink();
-    
+
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "skpipe"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
@@ -485,6 +492,15 @@ class ViaLite : public Via {
 public:
     explicit ViaLite(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
+class ViaCSXform : public Via {
+public:
+    explicit ViaCSXform(Sink*, sk_sp<SkColorSpace>, bool colorSpin);
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+private:
+    sk_sp<SkColorSpace> fCS;
+    bool                fColorSpin;
 };
 
 }  // namespace DM

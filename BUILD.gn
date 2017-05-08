@@ -9,9 +9,11 @@ import("gn/shared_sources.gni")
 if (!defined(is_skia_standalone)) {
   is_skia_standalone = false
 }
+is_skia_dev_build = is_skia_standalone && !is_official_build
 
 declare_args() {
   skia_use_angle = false
+  skia_use_egl = false
   skia_use_expat = true
   skia_use_fontconfig = is_linux
   skia_use_freetype = is_android || is_fuchsia || is_linux
@@ -29,22 +31,27 @@ declare_args() {
   skia_enable_android_framework_defines = false
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
-  skia_enable_jumper = false
   skia_enable_gpu = true
   skia_enable_pdf = true
-  skia_enable_tools = is_skia_standalone
-  skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
+  skia_enable_spirv_validation = is_skia_dev_build && is_debug
+  skia_enable_tools = is_skia_dev_build
+  skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
+  skia_link_with_vulkan = true
 }
 declare_args() {
-  skia_use_dng_sdk =
-      !is_fuchsia && !is_win && skia_use_libjpeg_turbo && skia_use_zlib
+  skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
   skia_use_sfntly = skia_use_icu
 
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
   } else {
     skia_use_vulkan = skia_vulkan_sdk != ""
+  }
+  if (is_win) {
+    skia_vulkan_headers_path = "$skia_vulkan_sdk/Include"
+  } else {
+    skia_vulkan_headers_path = "$skia_vulkan_sdk/include"
   }
 }
 
@@ -67,6 +74,7 @@ skia_public_includes = [
   "include/svg",
   "include/utils",
   "include/utils/mac",
+  skia_vulkan_headers_path,
 ]
 
 # Skia public API, generally provided by :skia.
@@ -134,17 +142,22 @@ config("skia_private") {
   if (skia_use_vulkan) {
     if (skia_vulkan_sdk != "" && !is_android) {
       if (is_win) {
-        include_dirs += [ "$skia_vulkan_sdk/Include/" ]
-        lib_dirs += [ "$skia_vulkan_sdk/Bin" ]
+        lib_dirs += [
+          "$skia_vulkan_sdk/Bin",
+          "$skia_vulkan_sdk/Lib",
+        ]
       } else {
-        include_dirs += [ "$skia_vulkan_sdk/include/" ]
         lib_dirs += [ "$skia_vulkan_sdk/lib/" ]
       }
     }
-    if (is_win) {
-      libs += [ "vulkan-1.lib" ]
-    } else {
-      libs += [ "vulkan" ]
+
+    if (skia_link_with_vulkan) {
+      defines += [ "SK_LINK_WITH_VULKAN" ]
+      if (is_win) {
+        libs += [ "vulkan-1.lib" ]
+      } else {
+        libs += [ "vulkan" ]
+      }
     }
   }
   if (skia_enable_gpu) {
@@ -410,6 +423,9 @@ optional("gpu") {
   libs = []
   if (is_android) {
     sources += [ "src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp" ]
+  } else if (skia_use_egl) {
+    sources += [ "src/gpu/gl/egl/GrGLCreateNativeInterface_egl.cpp" ]
+    libs += [ "EGL" ]
   } else if (is_linux) {
     sources += [ "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp" ]
     libs += [
@@ -433,6 +449,12 @@ optional("gpu") {
     if (skia_enable_vulkan_debug_layers) {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
+  }
+  if (skia_enable_spirv_validation) {
+    deps = [
+      "//third_party/spirv-tools",
+    ]
+    public_defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
   }
 }
 
@@ -502,20 +524,6 @@ optional("raw") {
   ]
 }
 
-optional("jumper") {
-  enabled = skia_enable_jumper
-  public_defines = [ "SK_JUMPER" ]
-  sources = [
-    "src/jumper/SkJumper.cpp",
-    "src/jumper/SkJumper_stages.cpp",
-  ]
-  if (is_win && target_cpu == "x64") {
-    sources += [ "src/jumper/SkJumper_generated_win.S" ]
-  } else if (!is_win) {
-    sources += [ "src/jumper/SkJumper_generated.S" ]
-  }
-}
-
 optional("typeface_freetype") {
   enabled = skia_use_freetype
 
@@ -575,7 +583,6 @@ component("skia") {
     ":gpu",
     ":hsw",
     ":jpeg",
-    ":jumper",
     ":none",
     ":pdf",
     ":png",
@@ -679,7 +686,7 @@ component("skia") {
 
   if (is_android) {
     deps += [ "//third_party/expat" ]
-    if (is_skia_standalone && ndk != "") {
+    if (defined(ndk) && ndk != "") {
       deps += [ "//third_party/cpu-features" ]
     }
     sources += [ "src/ports/SkDebug_android.cpp" ]
@@ -702,6 +709,8 @@ component("skia") {
       "src/ports/SkImageGeneratorCG.cpp",
     ]
     libs += [
+      # AppKit symbols NSFontWeightXXX may be dlsym'ed.
+      "AppKit.framework",
       "ApplicationServices.framework",
       "OpenGL.framework",
     ]
@@ -720,6 +729,9 @@ component("skia") {
       "CoreText.framework",
       "ImageIO.framework",
       "MobileCoreServices.framework",
+
+      # UIKit symbols UIFontWeightXXX may be dlsym'ed.
+      "UIKit.framework",
     ]
   }
 
@@ -742,8 +754,15 @@ if (skia_enable_tools) {
     public_configs = [ ":skia.h_config" ]
     skia_h = "$target_gen_dir/skia.h"
     script = "gn/find_headers.py"
-    args = [ rebase_path(skia_h, root_build_dir) ] +
-           rebase_path(skia_public_includes)
+    if (skia_use_vulkan) {
+      use_vulkan_string = "True"
+    } else {
+      use_vulkan_string = "False"
+    }
+    args = [
+             rebase_path(skia_h, root_build_dir),
+             use_vulkan_string,
+           ] + rebase_path(skia_public_includes - [ skia_vulkan_headers_path ])
     depfile = "$skia_h.deps"
     outputs = [
       skia_h,
@@ -862,7 +881,7 @@ if (skia_enable_tools) {
       ]
       libs = []
 
-      if (is_android) {
+      if (is_android || skia_use_egl) {
         sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
       } else if (is_ios) {
         sources += [ "tools/gpu/gl/iOS/CreatePlatformGLTestContext_iOS.mm" ]
@@ -920,7 +939,6 @@ if (skia_enable_tools) {
       "tools/timer",
     ]
     sources = [
-      "src/utils/SkMultiPictureDocumentReader.cpp",  # TODO(halcanary): move to tools?
       "tools/AndroidSkDebugToStdOut.cpp",
       "tools/CrashHandler.cpp",
       "tools/LsanSuppressions.cpp",
@@ -975,11 +993,13 @@ if (skia_enable_tools) {
     deps = [
       ":experimental_svg_model",
       ":flags",
-      ":gpu_tool_utils",
       ":skia",
       ":tool_utils",
       "//third_party/libpng",
       "//third_party/zlib",
+    ]
+    public_deps = [
+      ":gpu_tool_utils",  # Test.h #includes headers from this target.
     ]
   }
 
@@ -1119,6 +1139,7 @@ if (skia_enable_tools) {
               ]
     deps = [
       ":experimental_svg_model",
+      ":flags",
       ":gm",
       ":tool_utils",
       ":views",
@@ -1152,6 +1173,21 @@ if (skia_enable_tools) {
       ":tool_utils",
       "//third_party/jsoncpp",
       "//third_party/libpng",
+    ]
+  }
+
+  test_app("ok") {
+    sources = [
+      "tools/ok.cpp",
+      "tools/ok_dsts.cpp",
+      "tools/ok_srcs.cpp",
+      "tools/ok_test.cpp",
+      "tools/ok_vias.cpp",
+    ]
+    deps = [
+      ":gm",
+      ":skia",
+      ":tests",
     ]
   }
 
@@ -1328,6 +1364,7 @@ if (skia_enable_tools) {
     ]
     deps = [
       ":flags",
+      ":gpu_tool_utils",
       ":skia",
       ":tool_utils",
     ]
@@ -1461,7 +1498,7 @@ if (skia_enable_tools) {
     }
   }
 
-  if (is_android && is_skia_standalone && ndk != "") {
+  if (is_android && defined(ndk) && ndk != "") {
     copy("gdbserver") {
       sources = [
         "$ndk/$ndk_gdbserver",
@@ -1470,28 +1507,16 @@ if (skia_enable_tools) {
         "$root_out_dir/gdbserver",
       ]
     }
-    if (ndk_simpleperf != "") {
-      copy("simpleperf") {
-        sources = [
-          "$ndk/$ndk_simpleperf",
-          "$ndk/simpleperf/simpleperf_report.py",
-        ]
-        outputs = [
-          "$root_out_dir/{{source_file_part}}",
-        ]
-      }
-    }
   }
 
   if (skia_enable_gpu) {
     test_app("skslc") {
+      defines = [ "SKSL_STANDALONE" ]
       sources = [
         "src/sksl/SkSLMain.cpp",
       ]
-      deps = [
-        ":flags",
-        ":skia",
-      ]
+      sources += skia_sksl_sources
+      include_dirs = [ "src/sksl" ]
     }
   }
 }

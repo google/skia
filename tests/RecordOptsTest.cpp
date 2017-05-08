@@ -8,6 +8,7 @@
 #include "Test.h"
 #include "RecordTestUtils.h"
 
+#include "SkBlurImageFilter.h"
 #include "SkColorFilter.h"
 #include "SkRecord.h"
 #include "SkRecordOpts.h"
@@ -100,6 +101,7 @@ DEF_TEST(RecordOpts_SaveSaveLayerRestoreRestore, r) {
     }
 }
 
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
 static void assert_savelayer_restore(skiatest::Reporter* r,
                                      SkRecord* record,
                                      int i,
@@ -128,7 +130,6 @@ static void assert_savelayer_draw_restore(skiatest::Reporter* r,
     }
 }
 
-#include "SkBlurImageFilter.h"
 DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     SkRecord record;
     SkRecorder recorder(&record, W, H);
@@ -194,6 +195,7 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     recorder.restore();
     assert_savelayer_draw_restore(r, &record, 18, false);
 }
+#endif
 
 static void assert_merge_svg_opacity_and_filter_layers(skiatest::Reporter* r,
                                                        SkRecord* record,
@@ -272,7 +274,9 @@ DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
                                 recorder.restore();
                                 assert_merge_svg_opacity_and_filter_layers(r, &record, index,
                                                                            outerNoOped);
+                            #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
                                 assert_savelayer_restore(r, &record, index + 3, innerNoOped);
+                            #endif
                                 index += 7;
                             }
                         }

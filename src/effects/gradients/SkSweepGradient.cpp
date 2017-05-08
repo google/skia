@@ -131,7 +131,7 @@ public:
     static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args) {
         return sk_sp<GrFragmentProcessor>(new GrSweepGradient(args));
     }
-    virtual ~GrSweepGradient() { }
+    ~GrSweepGradient() override {}
 
     const char* name() const override { return "Sweep Gradient"; }
 
@@ -155,7 +155,7 @@ private:
 class GrSweepGradient::GLSLSweepProcessor : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLSweepProcessor(const GrProcessor&) {}
-    virtual ~GLSLSweepProcessor() { }
+    ~GLSLSweepProcessor() override {}
 
     virtual void emitCode(EmitArgs&) override;
 

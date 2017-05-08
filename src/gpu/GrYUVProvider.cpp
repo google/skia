@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
+#include "GrYUVProvider.h"
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
-#include "GrYUVProvider.h"
-#include "effects/GrSRGBEffect.h"
-#include "effects/GrYUVEffect.h"
-
 #include "SkAutoMalloc.h"
 #include "SkCachedData.h"
 #include "SkRefCnt.h"
 #include "SkResourceCache.h"
 #include "SkYUVPlanesCache.h"
+#include "effects/GrSRGBEffect.h"
+#include "effects/GrYUVEffect.h"
 
 namespace {
 /**
@@ -84,9 +84,9 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
     return true;
 }
 
-sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
-                                             const GrSurfaceDesc& desc,
-                                             bool useCache) {
+sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx,
+                                                       const GrSurfaceDesc& desc,
+                                                       bool useCache) {
     SkYUVPlanesCache::Info yuvInfo;
     void* planes[3];
     YUVScoper scoper;
@@ -132,7 +132,7 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
 
     GrPaint paint;
     sk_sp<GrFragmentProcessor> yuvToRgbProcessor(
-        GrYUVEffect::MakeYUVToRGB(ctx,
+        GrYUVEffect::MakeYUVToRGB(ctx->resourceProvider(),
                                   yuvTextureContexts[0]->asTextureProxyRef(),
                                   yuvTextureContexts[1]->asTextureProxyRef(),
                                   yuvTextureContexts[2]->asTextureProxyRef(),
@@ -159,5 +159,5 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
 
     renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), r);
 
-    return renderTargetContext->asTexture();
+    return renderTargetContext->asTextureProxyRef();
 }

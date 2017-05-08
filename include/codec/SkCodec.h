@@ -249,9 +249,10 @@ public:
             , fSubset(nullptr)
             , fFrameIndex(0)
             , fHasPriorFrame(false)
+            , fPremulBehavior(SkTransferFunctionBehavior::kRespect)
         {}
 
-        ZeroInitialized             fZeroInitialized;
+        ZeroInitialized            fZeroInitialized;
         /**
          *  If not NULL, represents a subset of the original image to decode.
          *  Must be within the bounds returned by getInfo().
@@ -269,14 +270,14 @@ public:
          *  subset left and subset width to decode partial scanlines on calls
          *  to getScanlines().
          */
-        const SkIRect*              fSubset;
+        const SkIRect*             fSubset;
 
         /**
          *  The frame to decode.
          *
          *  Only meaningful for multi-frame images.
          */
-        size_t fFrameIndex;
+        size_t                     fFrameIndex;
 
         /**
          *  If true, the dst already contains the prior frame.
@@ -295,7 +296,15 @@ public:
          *  codec needs to first decode the prior frame (which in turn may need
          *  to decode its prior frame).
          */
-        bool   fHasPriorFrame;
+        bool                       fHasPriorFrame;
+
+        /**
+         *  Indicates whether we should do a linear premultiply or a legacy premultiply.
+         *
+         *  In the case where the dst SkColorSpace is nullptr, this flag is ignored and
+         *  we will always do a legacy premultiply.
+         */
+        SkTransferFunctionBehavior fPremulBehavior;
     };
 
     /**
@@ -584,6 +593,15 @@ public:
      */
     int outputScanline(int inputScanline) const;
 
+    /**
+     *  Return the number of frames in the image.
+     *
+     *  May require reading through the stream.
+     */
+    size_t getFrameCount() {
+        return this->onGetFrameCount();
+    }
+
     // The required frame for an independent frame is marked as
     // kNone.
     static constexpr size_t kNone = static_cast<size_t>(-1);
@@ -610,10 +628,27 @@ public:
          *  There could be an error in the stream.
          */
         bool fFullyReceived;
+
+        /**
+         *  This is conservative; it will still return non-opaque if e.g. a
+         *  color index-based frame has a color with alpha but does not use it.
+         */
+        SkAlphaType fAlphaType;
     };
 
     /**
-     *  Return info about the frames in the image.
+     *  Return info about a single frame.
+     *
+     *  Only supported by multi-frame images. Does not read through the stream,
+     *  so it should be called after getFrameCount() to parse any frames that
+     *  have not already been parsed.
+     */
+    bool getFrameInfo(size_t index, FrameInfo* info) const {
+        return this->onGetFrameInfo(index, info);
+    }
+
+    /**
+     *  Return info about all the frames in the image.
      *
      *  May require reading through the stream to determine info about the
      *  frames (including the count).
@@ -622,9 +657,7 @@ public:
      *
      *  For single-frame images, this will return an empty vector.
      */
-    std::vector<FrameInfo> getFrameInfo() {
-        return this->onGetFrameInfo();
-    }
+    std::vector<FrameInfo> getFrameInfo();
 
     static constexpr int kRepetitionCountInfinite = -1;
 
@@ -781,12 +814,16 @@ protected:
 
     virtual int onOutputScanline(int inputScanline) const;
 
-    bool initializeColorXform(const SkImageInfo& dstInfo);
+    bool initializeColorXform(const SkImageInfo& dstInfo,
+                              SkTransferFunctionBehavior premulBehavior);
     SkColorSpaceXform* colorXform() const { return fColorXform.get(); }
 
-    virtual std::vector<FrameInfo> onGetFrameInfo() {
-        // empty vector - this is not animated.
-        return std::vector<FrameInfo>{};
+    virtual size_t onGetFrameCount() {
+        return 1;
+    }
+
+    virtual bool onGetFrameInfo(size_t, FrameInfo*) const {
+        return false;
     }
 
     virtual int onGetRepetitionCount() {

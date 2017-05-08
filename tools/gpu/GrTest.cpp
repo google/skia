@@ -17,7 +17,7 @@
 #include "GrResourceCache.h"
 #include "GrSemaphore.h"
 
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkImage_Gpu.h"
 #include "SkMathPriv.h"
 #include "SkString.h"
@@ -130,15 +130,9 @@ sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format) {
         return nullptr;
     }
 
-    GrTexture* tex = proxy->instantiate(this->textureProvider());
-    if (!tex) {
-        return nullptr;
-    }
-
-    // MDB TODO: add proxy-backed SkImage_Gpu's
-    sk_sp<SkImage> image(new SkImage_Gpu(tex->width(), tex->height(),
-                                         kNeedNewImageUniqueID, kPremul_SkAlphaType,
-                                         sk_ref_sp(tex), nullptr, SkBudgeted::kNo));
+    SkASSERT(proxy->priv().isExact());
+    sk_sp<SkImage> image(new SkImage_Gpu(this, kNeedNewImageUniqueID, kPremul_SkAlphaType,
+                                         std::move(proxy), nullptr, SkBudgeted::kNo));
     return image;
 }
 
@@ -232,20 +226,20 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 #define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->fSingleOwner);)
-#define RETURN_IF_ABANDONED if (fRenderTargetContext->drawingManager()->wasAbandoned()) { return; }
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->singleOwner());)
 
-void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
-                                                      GrAAType aaType,
-                                                      std::unique_ptr<GrDrawOp>
-                                                              op,
-                                                      const GrUserStencilSettings* uss,
-                                                      bool snapToCenters) {
+uint32_t GrRenderTargetContextPriv::testingOnly_addLegacyMeshDrawOp(
+        GrPaint&& paint,
+        GrAAType aaType,
+        std::unique_ptr<GrLegacyMeshDrawOp> op,
+        const GrUserStencilSettings* uss,
+        bool snapToCenters) {
     ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(fRenderTargetContext->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
-                              "GrRenderTargetContext::testingOnly_addDrawOp");
+    if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
+        return SK_InvalidUniqueID;
+    }
+    SkDEBUGCODE(fRenderTargetContext->validate();) GR_AUDIT_TRAIL_AUTO_FRAME(
+            fRenderTargetContext->fAuditTrail, "GrRenderTargetContext::testingOnly_addMeshDrawOp");
 
     GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
     if (uss) {
@@ -253,12 +247,11 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
     }
     pipelineBuilder.setSnapVerticesToPixelCenters(snapToCenters);
 
-    fRenderTargetContext->getOpList()->addDrawOp(pipelineBuilder, fRenderTargetContext, GrNoClip(),
-                                                 std::move(op));
+    return fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), GrNoClip(),
+                                                     std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER
-#undef RETURN_IF_ABANDONED
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -280,6 +273,10 @@ public:
     bool isConfigTexturable(GrPixelConfig config) const override { return false; }
     bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override { return false; }
     bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+                            bool* rectsMustMatch, bool* disallowSubrect) const override {
+        return false;
+    }
 
 private:
     typedef GrCaps INHERITED;
@@ -308,10 +305,6 @@ public:
     void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override {
         *effectiveSampleCnt = rt->desc().fSampleCnt;
-    }
-
-    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override {
-        return false;
     }
 
     GrGpuCommandBuffer* createCommandBuffer(const GrGpuCommandBuffer::LoadAndStoreInfo&,
@@ -349,8 +342,7 @@ private:
         return nullptr;
     }
 
-    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
-                                                    GrWrapOwnership) override {
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) override {
         return nullptr;
     }
 

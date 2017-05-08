@@ -32,8 +32,8 @@ private:
     const bool      fCanCullToTheRight;
 
     enum {
-        kMaxVerbs = 13,
-        kMaxPoints = 32
+        kMaxVerbs = 18,  // max curvature in X and Y split cubic into 9 pieces, * (line + cubic)
+        kMaxPoints = 54  // 2 lines + 1 cubic require 6 points; times 9 pieces
     };
     SkPoint         fPoints[kMaxPoints];
     SkPath::Verb    fVerbs[kMaxVerbs];

@@ -9,21 +9,263 @@
 
 #include "GrBuffer.h"
 #include "GrCaps.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrPathRendering.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
+#include "GrSemaphore.h"
 #include "GrStencilAttachment.h"
+#include "GrSurfaceProxyPriv.h"
+#include "GrTexturePriv.h"
+#include "../private/GrSingleOwner.h"
 #include "SkMathPriv.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
 
+const int GrResourceProvider::kMinScratchTextureSize = 16;
+
+#define ASSERT_SINGLE_OWNER \
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
+
 GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* owner)
-    : INHERITED(gpu, cache, owner) {
+        : fCache(cache)
+        , fGpu(gpu)
+#ifdef SK_DEBUG
+        , fSingleOwner(owner)
+#endif
+        {
+    fCaps = sk_ref_sp(fGpu->caps());
+
     GR_DEFINE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
     fQuadIndexBufferKey = gQuadIndexBufferKey;
+}
+
+bool GrResourceProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
+    return proxy->priv().isExact() || (SkIsPow2(proxy->width()) && SkIsPow2(proxy->height()));
+}
+
+// MDB TODO: this should probably be a factory on GrSurfaceProxy
+sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
+                                                      const GrSurfaceDesc& desc,
+                                                      SkBudgeted budgeted,
+                                                      const GrMipLevel* texels,
+                                                      int mipLevelCount,
+                                                      uint32_t flags,
+                                                      SkDestinationSurfaceColorMode mipColorMode) {
+    ASSERT_SINGLE_OWNER
+
+    if (!mipLevelCount) {
+        if (texels) {
+            return nullptr;
+        }
+        return GrSurfaceProxy::MakeDeferred(this, desc, budgeted, nullptr, 0);
+    }
+
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
+    for (int i = 0; i < mipLevelCount; ++i) {
+        if (!texels[i].fPixels) {
+            return nullptr;
+        }
+    }
+    if (mipLevelCount > 1 && GrPixelConfigIsSint(desc.fConfig)) {
+        return nullptr;
+    }
+    if ((desc.fFlags & kRenderTarget_GrSurfaceFlag) &&
+        !fGpu->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        return nullptr;
+    }
+    if (!GrPixelConfigIsCompressed(desc.fConfig)) {
+        if (mipLevelCount < 2) {
+            flags |= kExact_Flag | kNoCreate_Flag;
+            sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
+            if (tex) {
+                sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(tex);
+
+                if (fGpu->getContext()->contextPriv().writeSurfacePixels(
+                                proxy.get(), nullptr, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                                nullptr, texels[0].fPixels, texels[0].fRowBytes)) {
+                    if (SkBudgeted::kNo == budgeted) {
+                        tex->resourcePriv().makeUnbudgeted();
+                    }
+                    tex->texturePriv().setMipColorMode(mipColorMode);
+                    return proxy;
+                }
+            }
+        }
+    }
+
+    SkTArray<GrMipLevel> texelsShallowCopy(mipLevelCount);
+    for (int i = 0; i < mipLevelCount; ++i) {
+        texelsShallowCopy.push_back(texels[i]);
+    }
+    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texelsShallowCopy));
+    if (tex) {
+        tex->texturePriv().setMipColorMode(mipColorMode);
+    }
+
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+}
+
+sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                   uint32_t flags) {
+    ASSERT_SINGLE_OWNER
+
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
+    if ((desc.fFlags & kRenderTarget_GrSurfaceFlag) &&
+        !fGpu->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        return nullptr;
+    }
+
+    if (!GrPixelConfigIsCompressed(desc.fConfig)) {
+        flags |= kExact_Flag | kNoCreate_Flag;
+        sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
+        if (tex) {
+            if (SkBudgeted::kNo == budgeted) {
+                tex->resourcePriv().makeUnbudgeted();
+            }
+            return tex;
+        }
+    }
+
+    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted));
+    return tex;
+}
+
+GrTexture* GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc, uint32_t flags) {
+    ASSERT_SINGLE_OWNER
+    SkASSERT(0 == flags || kNoPendingIO_Flag == flags);
+
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
+    // Currently we don't recycle compressed textures as scratch.
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
+        return nullptr;
+    }
+
+    return this->refScratchTexture(desc, flags);
+}
+
+GrTexture* GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
+                                                 uint32_t flags) {
+    ASSERT_SINGLE_OWNER
+    SkASSERT(!this->isAbandoned());
+    SkASSERT(!GrPixelConfigIsCompressed(inDesc.fConfig));
+
+    SkTCopyOnFirstWrite<GrSurfaceDesc> desc(inDesc);
+
+    if (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
+        if (!(kExact_Flag & flags)) {
+            // bin by pow2 with a reasonable min
+            GrSurfaceDesc* wdesc = desc.writable();
+            wdesc->fWidth  = SkTMax(kMinScratchTextureSize, GrNextPow2(desc->fWidth));
+            wdesc->fHeight = SkTMax(kMinScratchTextureSize, GrNextPow2(desc->fHeight));
+        }
+
+        GrScratchKey key;
+        GrTexturePriv::ComputeScratchKey(*desc, &key);
+        uint32_t scratchFlags = 0;
+        if (kNoPendingIO_Flag & flags) {
+            scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
+        } else  if (!(desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
+            // If it is not a render target then it will most likely be populated by
+            // writePixels() which will trigger a flush if the texture has pending IO.
+            scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
+        }
+        GrGpuResource* resource = fCache->findAndRefScratchResource(key,
+                                                                   GrSurface::WorstCaseSize(*desc),
+                                                                   scratchFlags);
+        if (resource) {
+            GrSurface* surface = static_cast<GrSurface*>(resource);
+            return surface->asTexture();
+        }
+    }
+
+    if (!(kNoCreate_Flag & flags)) {
+        return fGpu->createTexture(*desc, SkBudgeted::kYes);
+    }
+
+    return nullptr;
+}
+
+sk_sp<GrTexture> GrResourceProvider::wrapBackendTexture(const GrBackendTextureDesc& desc,
+                                                        GrWrapOwnership ownership) {
+    ASSERT_SINGLE_OWNER
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+    return fGpu->wrapBackendTexture(desc, ownership);
+}
+
+sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendRenderTarget(
+        const GrBackendRenderTargetDesc& desc)
+{
+    ASSERT_SINGLE_OWNER
+    return this->isAbandoned() ? nullptr : fGpu->wrapBackendRenderTarget(desc);
+}
+
+void GrResourceProvider::assignUniqueKeyToResource(const GrUniqueKey& key,
+                                                   GrGpuResource* resource) {
+    ASSERT_SINGLE_OWNER
+    if (this->isAbandoned() || !resource) {
+        return;
+    }
+    resource->resourcePriv().setUniqueKey(key);
+}
+
+GrGpuResource* GrResourceProvider::findAndRefResourceByUniqueKey(const GrUniqueKey& key) {
+    ASSERT_SINGLE_OWNER
+    return this->isAbandoned() ? nullptr : fCache->findAndRefUniqueResource(key);
+}
+
+GrTexture* GrResourceProvider::findAndRefTextureByUniqueKey(const GrUniqueKey& key) {
+    ASSERT_SINGLE_OWNER
+    GrGpuResource* resource = this->findAndRefResourceByUniqueKey(key);
+    if (resource) {
+        GrTexture* texture = static_cast<GrSurface*>(resource)->asTexture();
+        SkASSERT(texture);
+        return texture;
+    }
+    return NULL;
+}
+
+// MDB TODO (caching): this side-steps the issue of texture proxies with unique IDs
+void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
+    ASSERT_SINGLE_OWNER
+    SkASSERT(key.isValid());
+    if (this->isAbandoned() || !proxy) {
+        return;
+    }
+
+    GrTexture* texture = proxy->instantiate(this);
+    if (!texture) {
+        return;
+    }
+
+    this->assignUniqueKeyToResource(key, texture);
+}
+
+// MDB TODO (caching): this side-steps the issue of texture proxies with unique IDs
+sk_sp<GrTextureProxy> GrResourceProvider::findProxyByUniqueKey(const GrUniqueKey& key) {
+    ASSERT_SINGLE_OWNER
+
+    sk_sp<GrTexture> texture(this->findAndRefTextureByUniqueKey(key));
+    if (!texture) {
+        return nullptr;
+    }
+
+    return GrSurfaceProxy::MakeWrapped(std::move(texture));
 }
 
 const GrBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16_t* pattern,
@@ -135,42 +377,6 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     return buffer;
 }
 
-std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrContext* context,
-                                                             GrPixelConfig config, int width,
-                                                             int height, int numPlotsX,
-                                                             int numPlotsY,
-                                                             GrDrawOpAtlas::EvictionFunc func,
-                                                             void* data) {
-    GrSurfaceDesc desc;
-    desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fConfig = config;
-
-    // We don't want to flush the context so we claim we're in the middle of flushing so as to
-    // guarantee we do not recieve a texture with pending IO
-    // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
-    static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    sk_sp<GrTexture> texture(this->createApproxTexture(desc, kFlags));
-    if (!texture) {
-        return nullptr;
-    }
-    // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
-    // possess the correct properties (e.g., no pendingIO) should fall out of the system but
-    // should receive special attention.
-    // Note: When switching over to the deferred proxy, use the kExact flag to create
-    // the atlas.
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(texture));
-    if (!proxy) {
-        return nullptr;
-    }
-
-    std::unique_ptr<GrDrawOpAtlas> atlas(
-            new GrDrawOpAtlas(context, std::move(proxy), numPlotsX, numPlotsY));
-    atlas->registerEvictionCallback(func, data);
-    return atlas;
-}
-
 GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
     SkASSERT(rt);
     if (rt->renderTargetPriv().getStencilAttachment()) {
@@ -197,7 +403,7 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
             // Need to try and create a new stencil
             stencil = this->gpu()->createStencilAttachmentForRenderTarget(rt, width, height);
             if (stencil) {
-                stencil->resourcePriv().setUniqueKey(sbKey);
+                this->assignUniqueKeyToResource(sbKey, stencil);
                 newStencil = true;
             }
         }
@@ -225,4 +431,16 @@ sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
         return nullptr;
     }
     return this->gpu()->wrapBackendTextureAsRenderTarget(desc);
+}
+
+sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore() {
+    return fGpu->makeSemaphore();
+}
+
+void GrResourceProvider::takeOwnershipOfSemaphore(sk_sp<GrSemaphore> semaphore) {
+    semaphore->resetGpu(fGpu);
+}
+
+void GrResourceProvider::releaseOwnershipOfSemaphore(sk_sp<GrSemaphore> semaphore) {
+    semaphore->resetGpu(nullptr);
 }

@@ -9,12 +9,34 @@
 #if defined(SK_BUILD_FOR_WIN32)
 
 #include "SkLeanWindows.h"
+#include "SkMalloc.h"
 #include "SkOSFile.h"
 #include "SkTFitsIn.h"
 
 #include <io.h>
 #include <stdio.h>
 #include <sys/stat.h>
+
+size_t sk_fgetsize(FILE* f) {
+    int fileno = sk_fileno(f);
+    if (fileno < 0) {
+        return 0;
+    }
+
+    HANDLE file = (HANDLE)_get_osfhandle(fileno);
+    if (INVALID_HANDLE_VALUE == file) {
+        return 0;
+    }
+
+    LARGE_INTEGER fileSize;
+    if (0 == GetFileSizeEx(file, &fileSize)) {
+        return 0;
+    }
+    if (!SkTFitsIn<size_t>(fileSize.QuadPart)) {
+        return 0;
+    }
+    return static_cast<size_t>(fileSize.QuadPart);
+}
 
 bool sk_exists(const char *path, SkFILE_Flags flags) {
     int mode = 0; // existence
@@ -155,6 +177,33 @@ void* sk_fmmap(FILE* f, size_t* length) {
     }
 
     return sk_fdmmap(fileno, length);
+}
+
+size_t sk_qread(FILE* file, void* buffer, size_t count, size_t offset) {
+    int fileno = sk_fileno(file);
+    HANDLE fileHandle = (HANDLE)_get_osfhandle(fileno);
+    if (INVALID_HANDLE_VALUE == file) {
+        return SIZE_MAX;
+    }
+
+    OVERLAPPED overlapped = {0};
+    ULARGE_INTEGER winOffset;
+    winOffset.QuadPart = offset;
+    overlapped.Offset = winOffset.LowPart;
+    overlapped.OffsetHigh = winOffset.HighPart;
+
+    if (!SkTFitsIn<DWORD>(count)) {
+        count = std::numeric_limits<DWORD>::max();
+    }
+
+    DWORD bytesRead;
+    if (ReadFile(fileHandle, buffer, static_cast<DWORD>(count), &bytesRead, &overlapped)) {
+        return bytesRead;
+    }
+    if (GetLastError() == ERROR_HANDLE_EOF) {
+        return 0;
+    }
+    return SIZE_MAX;
 }
 
 ////////////////////////////////////////////////////////////////////////////

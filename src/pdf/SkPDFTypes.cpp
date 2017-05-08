@@ -568,7 +568,7 @@ void SkPDFStream::setData(std::unique_ptr<SkStreamAsset> stream) {
         fDict.insertInt("Length", originalLength);
         return;
     }
-    fCompressedData.reset(compressedData.detachAsStream());
+    fCompressedData = compressedData.detachAsStream();
     fDict.insertName("Filter", "FlateDecode");
     fDict.insertInt("Length", compressedLength);
     #endif

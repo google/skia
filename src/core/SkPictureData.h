@@ -68,6 +68,7 @@ public:
 #define SK_PICT_PAINT_BUFFER_TAG    SkSetFourByteTag('p', 'n', 't', ' ')
 #define SK_PICT_PATH_BUFFER_TAG     SkSetFourByteTag('p', 't', 'h', ' ')
 #define SK_PICT_TEXTBLOB_BUFFER_TAG SkSetFourByteTag('b', 'l', 'o', 'b')
+#define SK_PICT_VERTICES_BUFFER_TAG SkSetFourByteTag('v', 'e', 'r', 't')
 #define SK_PICT_IMAGE_BUFFER_TAG    SkSetFourByteTag('i', 'm', 'a', 'g')
 
 // Always write this guy last (with no length field afterwards)
@@ -143,6 +144,11 @@ public:
         return reader->validateIndex(index, fTextBlobCount) ? fTextBlobRefs[index] : nullptr;
     }
 
+    const SkVertices* getVertices(SkReadBuffer* reader) const {
+        const int index = reader->readInt() - 1;
+        return reader->validateIndex(index, fVerticesCount) ? fVerticesRefs[index] : nullptr;
+    }
+
 #if SK_SUPPORT_GPU
     /**
      * sampleCount is the number of samples-per-pixel or zero if non-MSAA.
@@ -185,6 +191,8 @@ private:
     int fDrawableCount;
     const SkTextBlob** fTextBlobRefs;
     int fTextBlobCount;
+    const SkVertices** fVerticesRefs;
+    int fVerticesCount;
     const SkImage** fImageRefs;
     int fImageCount;
     const SkImage** fBitmapImageRefs;

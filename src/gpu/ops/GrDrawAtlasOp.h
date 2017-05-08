@@ -12,14 +12,14 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
 
-class GrDrawAtlasOp final : public GrMeshDrawOp {
+class GrDrawAtlasOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
-                                          int spriteCount, const SkRSXform* xforms,
-                                          const SkRect* rects, const SkColor* colors) {
-        return std::unique_ptr<GrDrawOp>(
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                                    int spriteCount, const SkRSXform* xforms,
+                                                    const SkRect* rects, const SkColor* colors) {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(
                 new GrDrawAtlasOp(color, viewMatrix, spriteCount, xforms, rects, colors));
     }
 
@@ -39,18 +39,19 @@ private:
     GrDrawAtlasOp(GrColor color, const SkMatrix& viewMatrix, int spriteCount,
                   const SkRSXform* xforms, const SkRect* rects, const SkColor* colors);
 
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
         if (this->hasColors()) {
-            input->colorInput()->setToUnknown();
+            color->setToUnknown();
         } else {
-            input->colorInput()->setToConstant(fGeoData[0].fColor);
+            color->setToConstant(fGeoData[0].fColor);
         }
-        input->coverageInput()->setToSolidCoverage();
+        *coverage = GrProcessorAnalysisCoverage::kNone;
     }
 
     void onPrepareDraws(Target*) const override;
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
+    void applyPipelineOptimizations(const PipelineOptimizations&) override;
 
     GrColor color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
@@ -71,7 +72,7 @@ private:
     int fQuadCount;
     bool fHasColors;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 #endif

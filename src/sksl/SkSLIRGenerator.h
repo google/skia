@@ -154,12 +154,12 @@ private:
     Modifiers convertModifiers(const Modifiers& m);
     std::unique_ptr<Expression> convertPrefixExpression(const ASTPrefixExpression& expression);
     std::unique_ptr<Statement> convertReturn(const ASTReturnStatement& r);
-    std::unique_ptr<Expression> getCap(Position position, SkString name);
+    std::unique_ptr<Expression> getCap(Position position, String name);
     std::unique_ptr<Expression> convertSuffixExpression(const ASTSuffixExpression& expression);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
-                                             const SkString& field);
+                                             const String& field);
     std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base,
-                                               const SkString& fields);
+                                               const String& fields);
     std::unique_ptr<Expression> convertTernaryExpression(const ASTTernaryExpression& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTVarDeclarationStatement& s);
     std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);
@@ -169,7 +169,7 @@ private:
 
     const FunctionDeclaration* fCurrentFunction;
     const Program::Settings* fSettings;
-    std::unordered_map<SkString, CapValue> fCapsMap;
+    std::unordered_map<String, CapValue> fCapsMap;
     std::shared_ptr<SymbolTable> fSymbolTable;
     int fLoopLevel;
     int fSwitchLevel;

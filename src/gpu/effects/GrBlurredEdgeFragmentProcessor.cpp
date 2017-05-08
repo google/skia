@@ -48,7 +48,8 @@ public:
     }
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {}
+    void onSetData(const GrGLSLProgramDataManager& pdman,
+                   const GrFragmentProcessor& proc) override {}
 
     GrBlurredEdgeFP::Mode fMode;
 };

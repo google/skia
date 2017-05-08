@@ -56,19 +56,19 @@
 // the Stage*.  This mostly matters on 64-bit Windows where every register is precious.
 
 #define SK_RASTER_PIPELINE_STAGES(M)                             \
-    M(trace) M(registers)                                        \
     M(move_src_dst) M(move_dst_src) M(swap)                      \
     M(clamp_0) M(clamp_1) M(clamp_a)                             \
     M(unpremul) M(premul)                                        \
     M(set_rgb) M(swap_rb)                                        \
     M(from_srgb) M(to_srgb)                                      \
     M(from_2dot2) M(to_2dot2)                                    \
-    M(constant_color) M(seed_shader) M(store_f32)                \
+    M(constant_color) M(seed_shader)                             \
     M(load_a8)   M(store_a8)                                     \
     M(load_g8)                                                   \
     M(load_565)  M(store_565)                                    \
     M(load_4444) M(store_4444)                                   \
     M(load_f16)  M(store_f16)                                    \
+    M(load_f32)  M(store_f32)                                    \
     M(load_8888) M(store_8888)                                   \
     M(load_u16_be) M(load_rgb_u16_be) M(store_u16_be)            \
     M(load_tables_u16_be) M(load_tables_rgb_u16_be)              \
@@ -95,6 +95,7 @@
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)  \
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)  \
     M(save_xy) M(accumulate)                                     \
+    M(linear_gradient)                                           \
     M(linear_gradient_2stops)                                    \
     M(byte_tables) M(byte_tables_rgb)                            \
     M(shader_adapter)                                            \

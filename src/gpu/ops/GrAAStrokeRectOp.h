@@ -11,22 +11,22 @@
 #include "GrColor.h"
 #include "SkRefCnt.h"
 
-class GrDrawOp;
+class GrLegacyMeshDrawOp;
 class SkMatrix;
 struct SkRect;
 class SkStrokeRec;
 
 namespace GrAAStrokeRectOp {
 
-std::unique_ptr<GrDrawOp> MakeFillBetweenRects(GrColor color,
-                                               const SkMatrix& viewMatrix,
-                                               const SkRect& devOutside,
-                                               const SkRect& devInside);
+std::unique_ptr<GrLegacyMeshDrawOp> MakeFillBetweenRects(GrColor color,
+                                                         const SkMatrix& viewMatrix,
+                                                         const SkRect& devOutside,
+                                                         const SkRect& devInside);
 
-std::unique_ptr<GrDrawOp> Make(GrColor color,
-                               const SkMatrix& viewMatrix,
-                               const SkRect& rect,
-                               const SkStrokeRec& stroke);
+std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                         const SkMatrix& viewMatrix,
+                                         const SkRect& rect,
+                                         const SkStrokeRec& stroke);
 }
 
 #endif

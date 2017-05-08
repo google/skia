@@ -22,7 +22,7 @@ enum SkPathOpsMask {
     kEvenOdd_PathOpsMask = 1
 };
 
-class SkChunkAlloc;
+class SkArenaAlloc;
 class SkOpCoincidence;
 class SkOpContour;
 class SkOpContourHead;
@@ -39,7 +39,7 @@ enum class SkOpPhase : char {
 class SkOpGlobalState {
 public:
     SkOpGlobalState(SkOpContourHead* head,
-                    SkChunkAlloc* allocator  SkDEBUGPARAMS(bool debugSkipAssert)
+                    SkArenaAlloc* allocator SkDEBUGPARAMS(bool debugSkipAssert)
                     SkDEBUGPARAMS(const char* testName));
 
     enum {
@@ -50,7 +50,7 @@ public:
         return fAllocatedOpSpan;
     }
 
-    SkChunkAlloc* allocator() {
+    SkArenaAlloc* allocator() {
         return fAllocator;
     }
 
@@ -181,7 +181,7 @@ public:
     }
 
 private:
-    SkChunkAlloc* fAllocator;
+    SkArenaAlloc* fAllocator;
     SkOpCoincidence* fCoincidence;
     SkOpContourHead* fContourHead;
     int fNested;

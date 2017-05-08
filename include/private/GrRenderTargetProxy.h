@@ -12,7 +12,7 @@
 #include "GrSurfaceProxy.h"
 #include "GrTypes.h"
 
-class GrTextureProvider;
+class GrResourceProvider;
 
 // This class delays the acquisition of RenderTargets until they are actually
 // required
@@ -24,7 +24,7 @@ public:
     const GrRenderTargetProxy* asRenderTargetProxy() const override { return this; }
 
     // Actually instantiate the backing rendertarget, if necessary.
-    GrRenderTarget* instantiate(GrTextureProvider* texProvider);
+    GrRenderTarget* instantiate(GrResourceProvider* resourceProvider);
 
     bool isStencilBufferMultisampled() const { return fDesc.fSampleCnt > 0; }
 

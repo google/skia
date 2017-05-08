@@ -11,7 +11,7 @@
 #include "SkPathOpsTypes.h"
 #include "SkPoint.h"
 
-class SkChunkAlloc;
+class SkArenaAlloc;
 class SkOpAngle;
 class SkOpContour;
 class SkOpGlobalState;

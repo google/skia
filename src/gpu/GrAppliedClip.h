@@ -16,12 +16,11 @@
  * Produced by GrClip. It provides a set of modifications to the drawing state that are used to
  * create the final GrPipeline for a GrOp.
  */
-class GrAppliedClip : public SkNoncopyable {
+class GrAppliedClip {
 public:
-    GrAppliedClip(const SkRect& drawBounds)
-        : fHasStencilClip(false)
-        , fClippedDrawBounds(drawBounds) {
-    }
+    GrAppliedClip() = default;
+    GrAppliedClip(GrAppliedClip&& that) = default;
+    GrAppliedClip(const GrAppliedClip&) = delete;
 
     const GrScissorState& scissorState() const { return fScissorState; }
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
@@ -30,9 +29,11 @@ public:
 
     /**
      * Intersects the applied clip with the provided rect. Returns false if the draw became empty.
+     * 'clippedDrawBounds' will be intersected with 'irect'. This returns false if the clip becomes
+     * empty or the draw no longer intersects the clip. In either case the draw can be skipped.
      */
-    bool addScissor(const SkIRect& irect) {
-        return fScissorState.intersect(irect) && fClippedDrawBounds.intersect(SkRect::Make(irect));
+    bool addScissor(const SkIRect& irect, SkRect* clippedDrawBounds) {
+        return fScissorState.intersect(irect) && clippedDrawBounds->intersect(SkRect::Make(irect));
     }
 
     void addWindowRectangles(const GrWindowRectsState& windowState) {
@@ -40,10 +41,9 @@ public:
         fWindowRectsState = windowState;
     }
 
-    void addWindowRectangles(const GrWindowRectangles& windows, const SkIPoint& origin,
-                             GrWindowRectsState::Mode mode) {
+    void addWindowRectangles(const GrWindowRectangles& windows, GrWindowRectsState::Mode mode) {
         SkASSERT(!fWindowRectsState.enabled());
-        fWindowRectsState.set(windows, origin, mode);
+        fWindowRectsState.set(windows, mode);
     }
 
     void addCoverageFP(sk_sp<GrFragmentProcessor> fp) {
@@ -56,19 +56,32 @@ public:
         fHasStencilClip = true;
     }
 
-    /**
-     * Returns the device bounds of the draw after clip has been applied. TODO: Ideally this would
-     * consider the combined effect of all clipping techniques in play (scissor, stencil, fp, etc.).
-     */
-    const SkRect& clippedDrawBounds() const { return fClippedDrawBounds; }
+    bool doesClip() const {
+        return fScissorState.enabled() || fClipCoverageFP || fHasStencilClip ||
+               fWindowRectsState.enabled();
+    }
+
+    bool operator==(const GrAppliedClip& that) const {
+        if (fScissorState != that.fScissorState || fHasStencilClip != that.fHasStencilClip) {
+            return false;
+        }
+        if (SkToBool(fClipCoverageFP)) {
+            if (!SkToBool(that.fClipCoverageFP) ||
+                !that.fClipCoverageFP->isEqual(*fClipCoverageFP)) {
+                return false;
+            }
+        } else if (SkToBool(that.fClipCoverageFP)) {
+            return false;
+        }
+        return fWindowRectsState == that.fWindowRectsState;
+    }
+    bool operator!=(const GrAppliedClip& that) const { return !(*this == that); }
 
 private:
     GrScissorState             fScissorState;
     GrWindowRectsState         fWindowRectsState;
     sk_sp<GrFragmentProcessor> fClipCoverageFP;
-    bool                       fHasStencilClip;
-    SkRect                     fClippedDrawBounds;
-    typedef SkNoncopyable INHERITED;
+    bool                       fHasStencilClip = false;
 };
 
 #endif

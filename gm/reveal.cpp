@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkAnimTimer.h"
 #include "SkBlurMaskFilter.h"
 #include "SkGaussianEdgeShader.h"

@@ -6,9 +6,9 @@
  */
 
 #include "GrAAHairLinePathRenderer.h"
-
 #include "GrBuffer.h"
 #include "GrCaps.h"
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
@@ -20,10 +20,8 @@
 #include "SkGeometry.h"
 #include "SkStroke.h"
 #include "SkTemplates.h"
-
-#include "ops/GrMeshDrawOp.h"
-
 #include "effects/GrBezierEffect.h"
+#include "ops/GrMeshDrawOp.h"
 
 #define PREALLOC_PTARRAY(N) SkSTArray<(N),SkPoint, true>
 
@@ -411,9 +409,7 @@ struct BezierVertex {
     SkPoint fPos;
     union {
         struct {
-            SkScalar fK;
-            SkScalar fL;
-            SkScalar fM;
+            SkScalar fKLM[3];
         } fConic;
         SkVector   fQuadCoord;
         struct {
@@ -528,15 +524,13 @@ static void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
 // k, l, m are calculated in function GrPathUtils::getConicKLM
 static void set_conic_coeffs(const SkPoint p[3], BezierVertex verts[kQuadNumVertices],
                              const SkScalar weight) {
-    SkScalar klm[9];
+    SkMatrix klm;
 
-    GrPathUtils::getConicKLM(p, weight, klm);
+    GrPathUtils::getConicKLM(p, weight, &klm);
 
     for (int i = 0; i < kQuadNumVertices; ++i) {
-        const SkPoint pnt = verts[i].fPos;
-        verts[i].fConic.fK = pnt.fX * klm[0] + pnt.fY * klm[1] + klm[2];
-        verts[i].fConic.fL = pnt.fX * klm[3] + pnt.fY * klm[4] + klm[5];
-        verts[i].fConic.fM = pnt.fX * klm[6] + pnt.fY * klm[7] + klm[8];
+        const SkScalar pt3[3] = {verts[i].fPos.x(), verts[i].fPos.y(), 1.f};
+        klm.mapHomogeneousPoints(verts[i].fConic.fKLM, pt3, 1);
     }
 }
 
@@ -674,22 +668,22 @@ bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* ver
     return true;
 }
 
-class AAHairlineOp final : public GrMeshDrawOp {
+class AAHairlineOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrColor color,
-                                          const SkMatrix& viewMatrix,
-                                          const SkPath& path,
-                                          const GrStyle& style,
-                                          const SkIRect& devClipBounds) {
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                                    const SkMatrix& viewMatrix,
+                                                    const SkPath& path,
+                                                    const GrStyle& style,
+                                                    const SkIRect& devClipBounds) {
         SkScalar hairlineCoverage;
         uint8_t newCoverage = 0xff;
         if (GrPathRenderer::IsStrokeHairlineOrEquivalent(style, viewMatrix, &hairlineCoverage)) {
             newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
         }
 
-        return std::unique_ptr<GrDrawOp>(
+        return std::unique_ptr<GrLegacyMeshDrawOp>(
                 new AAHairlineOp(color, newCoverage, viewMatrix, path, devClipBounds));
     }
 
@@ -716,12 +710,13 @@ private:
                                    IsZeroArea::kYes);
     }
 
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fColor);
-        input->coverageInput()->setToUnknown();
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
+        color->setToConstant(fColor);
+        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fColor);
         fUsesLocalCoords = optimizations.readsLocalCoords();
     }
@@ -788,7 +783,7 @@ private:
 
     SkSTArray<1, PathData, true> fPaths;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 void AAHairlineOp::onPrepareDraws(Target* target) const {
@@ -869,7 +864,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
         mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, linesIndexBuffer.get(),
                            firstVertex, kLineSegNumVertices, kIdxsPerLineSeg, lineCount,
                            kLineSegsNumInIdxBuffer);
-        target->draw(lineGP.get(), mesh);
+        target->draw(lineGP.get(), this->pipeline(), mesh);
     }
 
     if (quadCount || conicCount) {
@@ -926,7 +921,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
             mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer.get(),
                                firstVertex, kQuadNumVertices, kIdxsPerQuad, quadCount,
                                kQuadsNumInIdxBuffer);
-            target->draw(quadGP.get(), mesh);
+            target->draw(quadGP.get(), this->pipeline(), mesh);
             firstVertex += quadCount * kQuadNumVertices;
         }
 
@@ -935,7 +930,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
             mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer.get(),
                                firstVertex, kQuadNumVertices, kIdxsPerQuad, conicCount,
                                kQuadsNumInIdxBuffer);
-            target->draw(conicGP.get(), mesh);
+            target->draw(conicGP.get(), this->pipeline(), mesh);
         }
     }
 }
@@ -951,11 +946,12 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
                                       &devClipBounds);
     SkPath path;
     args.fShape->asPath(&path);
-    std::unique_ptr<GrDrawOp> op = AAHairlineOp::Make(args.fPaint.getColor(), *args.fViewMatrix,
-                                                      path, args.fShape->style(), devClipBounds);
+    std::unique_ptr<GrLegacyMeshDrawOp> op = AAHairlineOp::Make(
+            args.fPaint.getColor(), *args.fViewMatrix, path, args.fShape->style(), devClipBounds);
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), *args.fClip,
+                                                   std::move(op));
     return true;
 }
 

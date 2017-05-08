@@ -16,7 +16,6 @@
 #include "SkClampRange.h"
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
-#include "SkMallocPixelRef.h"
 #include "SkOnce.h"
 #include "SkReadBuffer.h"
 #include "SkShader.h"
@@ -119,7 +118,7 @@ public:
     };
 
     SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit);
-    virtual ~SkGradientShaderBase();
+    ~SkGradientShaderBase() override;
 
     // The cache is initialized on-demand when getCache32 is called.
     class GradientShaderCache : public SkRefCnt {
@@ -129,7 +128,7 @@ public:
 
         const SkPMColor*    getCache32();
 
-        SkMallocPixelRef* getCache32PixelRef() const { return fCache32PixelRef; }
+        SkPixelRef* getCache32PixelRef() const { return fCache32PixelRef.get(); }
 
         unsigned getAlpha() const { return fCacheAlpha; }
         bool getDither() const { return fCacheDither; }
@@ -138,7 +137,7 @@ public:
         // Working pointer. If it's nullptr, we need to recompute the cache values.
         SkPMColor*  fCache32;
 
-        SkMallocPixelRef* fCache32PixelRef;
+        sk_sp<SkPixelRef> fCache32PixelRef;
         const unsigned    fCacheAlpha;        // The alpha value we used when we computed the cache.
                                               // Larger than 8bits so we can store uninitialized
                                               // value.
@@ -295,6 +294,7 @@ static inline int next_dither_toggle(int toggle) {
 #include "GrColorSpaceXform.h"
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
+#include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
@@ -352,7 +352,7 @@ public:
 
     class GLSLProcessor;
 
-    virtual ~GrGradientEffect();
+    ~GrGradientEffect() override;
 
     bool useAtlas() const { return SkToBool(-1 != fRow); }
     SkScalar getYCoord() const { return fYCoord; }
@@ -465,7 +465,7 @@ public:
     }
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 protected:
     /**
@@ -520,7 +520,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fColorsUni;
     GrGLSLProgramDataManager::UniformHandle fHardStopT;
     GrGLSLProgramDataManager::UniformHandle fFSYUni;
-    GrGLSLProgramDataManager::UniformHandle fColorSpaceXformUni;
+    GrGLSLColorSpaceXformHelper             fColorSpaceHelper;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };

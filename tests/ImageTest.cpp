@@ -12,6 +12,7 @@
 #include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColorSpacePriv.h"
 #include "SkData.h"
 #include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
@@ -27,6 +28,7 @@
 #include "SkUtils.h"
 #include "Test.h"
 
+#include "Resources.h"
 #include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
@@ -99,13 +101,6 @@ static sk_sp<SkImage> create_data_image() {
     return SkImage::MakeRasterData(info, std::move(data), info.minRowBytes());
 }
 #if SK_SUPPORT_GPU // not gpu-specific but currently only used in GPU tests
-static sk_sp<SkImage> create_image_565() {
-    const SkImageInfo info = SkImageInfo::Make(20, 20, kRGB_565_SkColorType, kOpaque_SkAlphaType);
-    auto surface(SkSurface::MakeRaster(info));
-    draw_image_test_pattern(surface->getCanvas());
-    return surface->makeImageSnapshot();
-}
-
 static sk_sp<SkImage> create_image_large(int maxTextureSize) {
     const SkImageInfo info = SkImageInfo::MakeN32(maxTextureSize + 1, 32, kOpaque_SkAlphaType);
     auto surface(SkSurface::MakeRaster(info));
@@ -114,23 +109,6 @@ static sk_sp<SkImage> create_image_large(int maxTextureSize) {
     paint.setColor(SK_ColorBLACK);
     surface->getCanvas()->drawRect(SkRect::MakeXYWH(4000, 2, 28000, 30), paint);
     return surface->makeImageSnapshot();
-}
-static sk_sp<SkImage> create_image_ct() {
-    SkPMColor colors[] = {
-        SkPreMultiplyARGB(0xFF, 0xFF, 0xFF, 0x00),
-        SkPreMultiplyARGB(0x80, 0x00, 0xA0, 0xFF),
-        SkPreMultiplyARGB(0xFF, 0xBB, 0x00, 0xBB)
-    };
-    sk_sp<SkColorTable> colorTable(new SkColorTable(colors, SK_ARRAY_COUNT(colors)));
-    uint8_t data[] = {
-        0, 0, 0, 0, 0,
-        0, 1, 1, 1, 0,
-        0, 1, 2, 1, 0,
-        0, 1, 1, 1, 0,
-        0, 0, 0, 0, 0
-    };
-    SkImageInfo info = SkImageInfo::Make(5, 5, kIndex_8_SkColorType, kPremul_SkAlphaType);
-    return SkImage::MakeRasterCopy(SkPixmap(info, data, 5, colorTable.get()));
 }
 static sk_sp<SkImage> create_picture_image() {
     SkPictureRecorder recorder;
@@ -433,6 +411,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(c, reporter, ctxInfo) {
     SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
     const uint32_t uniqueID = image->uniqueID();
+    const auto desc = SkBitmapCacheDesc::Make(image.get());
 
     auto surface(SkSurface::MakeRaster(info));
 
@@ -440,13 +419,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(c, reporter, ctxInfo) {
 
     {
         SkBitmap cachedBitmap;
-        REPORTER_ASSERT(reporter, !SkBitmapCache::Find(uniqueID, &cachedBitmap));
+        REPORTER_ASSERT(reporter, !SkBitmapCache::Find(desc, &cachedBitmap));
     }
 
     surface->getCanvas()->drawImage(image, 0, 0);
     {
         SkBitmap cachedBitmap;
-        if (SkBitmapCache::Find(uniqueID, &cachedBitmap)) {
+        if (SkBitmapCache::Find(desc, &cachedBitmap)) {
             REPORTER_ASSERT(reporter, cachedBitmap.getGenerationID() == uniqueID);
             REPORTER_ASSERT(reporter, cachedBitmap.isImmutable());
             REPORTER_ASSERT(reporter, cachedBitmap.getPixels());
@@ -460,17 +439,30 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(c, reporter, ctxInfo) {
     image.reset(nullptr);
     {
         SkBitmap cachedBitmap;
-        REPORTER_ASSERT(reporter, !SkBitmapCache::Find(uniqueID, &cachedBitmap));
+        REPORTER_ASSERT(reporter, !SkBitmapCache::Find(desc, &cachedBitmap));
     }
+}
+
+GrContextFactory::ContextType pick_second_context_type(const sk_gpu_test::ContextInfo& info) {
+    switch (info.backend()) {
+        case kOpenGL_GrBackend:
+#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_UNIX) || defined (SK_BUILD_FOR_MAC)
+            return GrContextFactory::kGL_ContextType;
+#else
+            return GrContextFactory::kGLES_ContextType;
+#endif
+        case kVulkan_GrBackend:
+            return GrContextFactory::kVulkan_ContextType;
+    }
+    SkFAIL("Unknown backend type.");
+    return GrContextFactory::kGL_ContextType;
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextInfo) {
     GrContext* context = contextInfo.grContext();
     sk_gpu_test::TestContext* testContext = contextInfo.testContext();
-
     GrContextFactory otherFactory;
-    GrContextFactory::ContextType otherContextType =
-            GrContextFactory::NativeContextTypeForBackend(testContext->backend());
+    GrContextFactory::ContextType otherContextType = pick_second_context_type(contextInfo);
     ContextInfo otherContextInfo = otherFactory.getContextInfo(otherContextType);
     testContext->makeCurrent();
 
@@ -507,7 +499,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
 
             sk_sp<SkImage> texImage(image->makeTextureImage(context, dstColorSpace.get()));
             if (!texImage) {
-                // We execpt to fail if image comes from a different GrContext.
+                // We expect to fail if image comes from a different GrContext.
                 if (!origTexture || origTexture->getContext() == context) {
                     ERRORF(reporter, "makeTextureImage failed.");
                 }
@@ -576,10 +568,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, c
 DEF_TEST(ImageFromIndex8Bitmap, r) {
     SkPMColor pmColors[1] = {SkPreMultiplyColor(SK_ColorWHITE)};
     SkBitmap bm;
-    sk_sp<SkColorTable> ctable( new SkColorTable(pmColors, SK_ARRAY_COUNT(pmColors)));
     SkImageInfo info = SkImageInfo::Make(1, 1, kIndex_8_SkColorType, kPremul_SkAlphaType);
-    bm.allocPixels(info, nullptr, ctable.get());
-    SkAutoLockPixels autoLockPixels(bm);
+    bm.allocPixels(info, SkColorTable::Make(pmColors, SK_ARRAY_COUNT(pmColors)));
     *bm.getAddr8(0, 0) = 0;
     sk_sp<SkImage> img(SkImage::MakeFromBitmap(bm));
     REPORTER_ASSERT(r, img != nullptr);
@@ -898,31 +888,6 @@ static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, co
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, ctxInfo) {
-    for (auto create : {&create_image,
-                        &create_image_565,
-                        &create_image_ct}) {
-        sk_sp<SkImage> image((*create)());
-        if (!image) {
-            ERRORF(reporter, "Could not create image");
-            return;
-        }
-
-        SkPixmap pixmap;
-        if (!image->peekPixels(&pixmap)) {
-            ERRORF(reporter, "peek failed");
-        } else {
-            sk_sp<SkImage> texImage(SkImage::MakeTextureFromPixmap(ctxInfo.grContext(), pixmap,
-                                                                   SkBudgeted::kNo));
-            if (!texImage) {
-                ERRORF(reporter, "NewTextureFromPixmap failed.");
-            } else {
-                check_images_same(reporter, image.get(), texImage.get());
-            }
-        }
-    }
-}
-
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
@@ -930,7 +895,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
 
     GrContextFactory otherFactory;
     ContextInfo otherContextInfo =
-        otherFactory.getContextInfo(GrContextFactory::kNativeGL_ContextType);
+        otherFactory.getContextInfo(pick_second_context_type(ctxInfo));
 
     testContext->makeCurrent();
     REPORTER_ASSERT(reporter, proxy);
@@ -962,7 +927,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
             testContext->makeCurrent();
             return otherContextImage;
           }, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-        kNone_SkFilterQuality, 1, false },
+          kNone_SkFilterQuality, 1, false },
         // Create an image that is too large to upload.
         { createLarge, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
           kNone_SkFilterQuality, 1, false },
@@ -1037,6 +1002,93 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
     }
 }
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static sk_sp<SkImage> create_picture_image(sk_sp<SkColorSpace> space) {
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(10, 10);
+    canvas->clear(SK_ColorCYAN);
+    return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(), SkISize::Make(10, 10),
+                                    nullptr, nullptr, SkImage::BitDepth::kU8, std::move(space));
+};
+
+static inline bool almost_equal(int a, int b) {
+    return SkTAbs(a - b) <= 1;
+}
+
+DEF_TEST(Image_ColorSpace, r) {
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
+    sk_sp<SkImage> image = GetResourceAsImage("mandrill_512_q075.jpg");
+    REPORTER_ASSERT(r, srgb.get() == image->colorSpace());
+
+    image = GetResourceAsImage("webp-color-profile-lossy.webp");
+    SkColorSpaceTransferFn fn;
+    bool success = image->colorSpace()->isNumericalTransferFn(&fn);
+    REPORTER_ASSERT(r, success);
+    REPORTER_ASSERT(r, color_space_almost_equal(1.8f, fn.fG));
+
+    sk_sp<SkColorSpace> rec2020 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                        SkColorSpace::kRec2020_Gamut);
+    image = create_picture_image(rec2020);
+    REPORTER_ASSERT(r, SkColorSpace::Equals(rec2020.get(), image->colorSpace()));
+
+    SkBitmap bitmap;
+    SkImageInfo info = SkImageInfo::MakeN32(10, 10, kPremul_SkAlphaType, rec2020);
+    bitmap.allocPixels(info);
+    image = SkImage::MakeFromBitmap(bitmap);
+    REPORTER_ASSERT(r, SkColorSpace::Equals(rec2020.get(), image->colorSpace()));
+
+    sk_sp<SkSurface> surface = SkSurface::MakeRaster(
+            SkImageInfo::MakeN32Premul(SkISize::Make(10, 10)));
+    image = surface->makeImageSnapshot();
+    REPORTER_ASSERT(r, nullptr == image->colorSpace());
+
+    surface = SkSurface::MakeRaster(info);
+    image = surface->makeImageSnapshot();
+    REPORTER_ASSERT(r, SkColorSpace::Equals(rec2020.get(), image->colorSpace()));
+}
+
+DEF_TEST(Image_makeColorSpace, r) {
+    sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                   SkColorSpace::kDCIP3_D65_Gamut);
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.f; fn.fB = 0.f; fn.fC = 0.f; fn.fD = 0.f; fn.fE = 0.f; fn.fF = 0.f; fn.fG = 1.8f;
+    sk_sp<SkColorSpace> adobeGamut = SkColorSpace::MakeRGB(fn, SkColorSpace::kAdobeRGB_Gamut);
+
+    SkBitmap srgbBitmap;
+    srgbBitmap.allocPixels(SkImageInfo::MakeS32(1, 1, kOpaque_SkAlphaType));
+    *srgbBitmap.getAddr32(0, 0) = SkSwizzle_RGBA_to_PMColor(0xFF604020);
+    srgbBitmap.setImmutable();
+    sk_sp<SkImage> srgbImage = SkImage::MakeFromBitmap(srgbBitmap);
+    sk_sp<SkImage> p3Image = srgbImage->makeColorSpace(p3, SkTransferFunctionBehavior::kIgnore);
+    SkBitmap p3Bitmap;
+    bool success = p3Image->asLegacyBitmap(&p3Bitmap, SkImage::kRO_LegacyBitmapMode);
+    REPORTER_ASSERT(r, success);
+    p3Bitmap.lockPixels();
+    REPORTER_ASSERT(r, almost_equal(0x28, SkGetPackedR32(*p3Bitmap.getAddr32(0, 0))));
+    REPORTER_ASSERT(r, almost_equal(0x40, SkGetPackedG32(*p3Bitmap.getAddr32(0, 0))));
+    REPORTER_ASSERT(r, almost_equal(0x5E, SkGetPackedB32(*p3Bitmap.getAddr32(0, 0))));
+
+    sk_sp<SkImage> adobeImage = srgbImage->makeColorSpace(adobeGamut,
+                                                          SkTransferFunctionBehavior::kIgnore);
+    SkBitmap adobeBitmap;
+    success = adobeImage->asLegacyBitmap(&adobeBitmap, SkImage::kRO_LegacyBitmapMode);
+    REPORTER_ASSERT(r, success);
+    adobeBitmap.lockPixels();
+    REPORTER_ASSERT(r, almost_equal(0x21, SkGetPackedR32(*adobeBitmap.getAddr32(0, 0))));
+    REPORTER_ASSERT(r, almost_equal(0x31, SkGetPackedG32(*adobeBitmap.getAddr32(0, 0))));
+    REPORTER_ASSERT(r, almost_equal(0x4C, SkGetPackedB32(*adobeBitmap.getAddr32(0, 0))));
+
+    srgbImage = GetResourceAsImage("1x1.png");
+    p3Image = srgbImage->makeColorSpace(p3, SkTransferFunctionBehavior::kIgnore);
+    success = p3Image->asLegacyBitmap(&p3Bitmap, SkImage::kRO_LegacyBitmapMode);
+    REPORTER_ASSERT(r, success);
+    p3Bitmap.lockPixels();
+    REPORTER_ASSERT(r, almost_equal(0x8B, SkGetPackedR32(*p3Bitmap.getAddr32(0, 0))));
+    REPORTER_ASSERT(r, almost_equal(0x82, SkGetPackedG32(*p3Bitmap.getAddr32(0, 0))));
+    REPORTER_ASSERT(r, almost_equal(0x77, SkGetPackedB32(*p3Bitmap.getAddr32(0, 0))));
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

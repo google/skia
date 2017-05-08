@@ -11,6 +11,8 @@ from recipe_engine import recipe_api
 from . import default_flavor
 from . import flutter_flavor
 from . import gn_android_flavor
+from . import gn_chromebook_flavor
+from . import gn_chromecast_flavor
 from . import gn_flavor
 from . import ios_flavor
 from . import pdfium_flavor
@@ -30,11 +32,20 @@ VERSION_NONE = -1
 def is_android(builder_cfg):
   return 'Android' in builder_cfg.get('extra_config', '')
 
+def is_chromecast(builder_cfg):
+  return ('Chromecast' in builder_cfg.get('extra_config', '') or
+          'Chromecast' in builder_cfg.get('os', ''))
+
+def is_chromebook(builder_cfg):
+  return ('Chromebook' in builder_cfg.get('extra_config', '') or
+          'ChromeOS' in builder_cfg.get('os', ''))
+
 def is_flutter(builder_cfg):
   return 'Flutter' in builder_cfg.get('extra_config', '')
 
 def is_ios(builder_cfg):
-  return 'iOS' == builder_cfg.get('os', '')
+  return ('iOS' in builder_cfg.get('extra_config', '') or
+          'iOS' == builder_cfg.get('os', ''))
 
 def is_pdfium(builder_cfg):
   return 'PDFium' in builder_cfg.get('extra_config', '')
@@ -47,17 +58,21 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, builder_cfg):
     """Return a flavor utils object specific to the given builder."""
     if is_flutter(builder_cfg):
-      return flutter_flavor.FlutterFlavorUtils(self.m)
+      return flutter_flavor.FlutterFlavorUtils(self)
+    if is_chromecast(builder_cfg):
+      return gn_chromecast_flavor.GNChromecastFlavorUtils(self)
+    if is_chromebook(builder_cfg):
+      return gn_chromebook_flavor.GNChromebookFlavorUtils(self)
     if is_android(builder_cfg):
-      return gn_android_flavor.GNAndroidFlavorUtils(self.m)
+      return gn_android_flavor.GNAndroidFlavorUtils(self)
     elif is_ios(builder_cfg):
-      return ios_flavor.iOSFlavorUtils(self.m)
+      return ios_flavor.iOSFlavorUtils(self)
     elif is_pdfium(builder_cfg):
-      return pdfium_flavor.PDFiumFlavorUtils(self.m)
+      return pdfium_flavor.PDFiumFlavorUtils(self)
     elif is_valgrind(builder_cfg):
-      return valgrind_flavor.ValgrindFlavorUtils(self.m)
+      return valgrind_flavor.ValgrindFlavorUtils(self)
     else:
-      return gn_flavor.GNFlavorUtils(self.m)
+      return gn_flavor.GNFlavorUtils(self)
 
   def setup(self):
     self._f = self.get_flavor(self.m.vars.builder_cfg)
@@ -65,8 +80,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
   def step(self, name, cmd, **kwargs):
     return self._f.step(name, cmd, **kwargs)
 
-  def compile(self, target, **kwargs):
-    return self._f.compile(target, **kwargs)
+  def compile(self, target):
+    return self._f.compile(target)
 
   def copy_extra_build_products(self, swarming_out_dir):
     return self._f.copy_extra_build_products(swarming_out_dir)

@@ -14,6 +14,7 @@
 #include "SkCodec.h"
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
+#include "SkColorSpacePriv.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
 #include "SkCommonFlagsPathRenderer.h"
@@ -328,8 +329,12 @@ static void gather_uninteresting_hashes() {
                  FLAGS_uninterestingHashesFile[0]);
             return;
         }
+
+        // Copy to a string to make sure SkStrSplit has a terminating \0 to find.
+        SkString contents((const char*)data->data(), data->size());
+
         SkTArray<SkString> hashes;
-        SkStrSplit((const char*)data->data(), kNewline, &hashes);
+        SkStrSplit(contents.c_str(), kNewline, &hashes);
         for (const SkString& hash : hashes) {
             gUninterestingHashes.add(hash);
         }
@@ -868,25 +873,48 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         auto srgbColorSpace = SkColorSpace::MakeSRGB();
         auto srgbLinearColorSpace = SkColorSpace::MakeSRGBLinear();
 
-        SINK("565",  RasterSink, kRGB_565_SkColorType);
-        SINK("8888", RasterSink, kN32_SkColorType);
-        SINK("srgb", RasterSink, kN32_SkColorType, srgbColorSpace);
-        SINK("f16",  RasterSink, kRGBA_F16_SkColorType, srgbLinearColorSpace);
-        SINK("pdf",  PDFSink);
-        SINK("skp",  SKPSink);
-        SINK("pipe", PipeSink);
-        SINK("svg",  SVGSink);
-        SINK("null", NullSink);
-        SINK("xps",  XPSSink);
-        SINK("pdfa", PDFSink, true);
+        SINK("565",     RasterSink, kRGB_565_SkColorType);
+        SINK("8888",    RasterSink, kN32_SkColorType);
+        SINK("srgb",    RasterSink, kN32_SkColorType, srgbColorSpace);
+        SINK("f16",     RasterSink, kRGBA_F16_SkColorType, srgbLinearColorSpace);
+        SINK("pdf",     PDFSink);
+        SINK("skp",     SKPSink);
+        SINK("pipe",    PipeSink);
+        SINK("svg",     SVGSink);
+        SINK("null",    NullSink);
+        SINK("xps",     XPSSink);
+        SINK("pdfa",    PDFSink, true);
         SINK("jsdebug", DebugSink);
     }
 #undef SINK
     return nullptr;
 }
 
+static sk_sp<SkColorSpace> adobe_rgb() {
+    return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                 SkColorSpace::kAdobeRGB_Gamut);
+}
+
+static sk_sp<SkColorSpace> rgb_to_gbr() {
+    float gbr[9];
+    gbr[0] = gSRGB_toXYZD50[1];
+    gbr[1] = gSRGB_toXYZD50[2];
+    gbr[2] = gSRGB_toXYZD50[0];
+    gbr[3] = gSRGB_toXYZD50[4];
+    gbr[4] = gSRGB_toXYZD50[5];
+    gbr[5] = gSRGB_toXYZD50[3];
+    gbr[6] = gSRGB_toXYZD50[7];
+    gbr[7] = gSRGB_toXYZD50[8];
+    gbr[8] = gSRGB_toXYZD50[6];
+    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+    toXYZD50.set3x3RowMajorf(gbr);
+    return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, toXYZD50);
+}
+
 static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (tag.equals(t)) { return new via(__VA_ARGS__); }
+    VIA("adobe",     ViaCSXform,           wrapped, adobe_rgb(), false);
+    VIA("gbr",       ViaCSXform,           wrapped, rgb_to_gbr(), true);
     VIA("lite",      ViaLite,              wrapped);
     VIA("pipe",      ViaPipe,              wrapped);
     VIA("twice",     ViaTwice,             wrapped);
@@ -1078,7 +1106,7 @@ struct Task {
             }
 
             // We're likely switching threads here, so we must capture by value, [=] or [foo,bar].
-            SkStreamAsset* data = stream.detachAsStream();
+            SkStreamAsset* data = stream.detachAsStream().release();
             gDefinitelyThreadSafeWork.add([task,name,bitmap,data]{
                 std::unique_ptr<SkStreamAsset> ownedData(data);
 
@@ -1462,13 +1490,19 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
                             Reporter* reporter, GrContextFactory* factory) {
 #if SK_SUPPORT_GPU
 
+#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
+    static constexpr auto kNativeGLType = GrContextFactory::kGL_ContextType;
+#else
+    static constexpr auto kNativeGLType = GrContextFactory::kGLES_ContextType;
+#endif
+
     for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
         GrContextFactory::ContextType contextType = (GrContextFactory::ContextType) typeInt;
         // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on
         // desktop since tests do not account for not fixing http://skbug.com/2809
         if (contextType == GrContextFactory::kGL_ContextType ||
             contextType == GrContextFactory::kGLES_ContextType) {
-            if (contextType != GrContextFactory::kNativeGL_ContextType) {
+            if (contextType != kNativeGLType) {
                 continue;
             }
         }

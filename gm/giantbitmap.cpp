@@ -66,7 +66,7 @@ public:
         fDoRotate = doRotate;
     }
 
-    virtual ~GiantBitmapGM() { delete fBM; }
+    ~GiantBitmapGM() override { delete fBM; }
 
 protected:
 

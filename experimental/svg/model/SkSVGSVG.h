@@ -16,7 +16,7 @@ class SkSVGLengthContext;
 
 class SkSVGSVG : public SkSVGContainer {
 public:
-    virtual ~SkSVGSVG() = default;
+    ~SkSVGSVG() override = default;
 
     static sk_sp<SkSVGSVG> Make() { return sk_sp<SkSVGSVG>(new SkSVGSVG()); }
 

@@ -12,7 +12,9 @@
 #include "GrResourceKey.h"
 
 class GrColorSpaceXform;
+class GrResourceProvider;
 class GrTexture;
+class GrTextureProxy;
 
 /**
  * Different GPUs and API extensions have different requirements with respect to what texture
@@ -71,6 +73,8 @@ public:
     virtual SkAlphaType alphaType() const = 0;
 
 protected:
+    friend class GrTextureProducer_TestAccess;
+
     GrTextureProducer(int width, int height, bool isAlphaOnly)
         : fWidth(width)
         , fHeight(height)
@@ -115,23 +119,24 @@ protected:
         kTightCopy_DomainMode
     };
 
-    static GrTexture* CopyOnGpu(GrTexture* inputTexture, const SkIRect* subset,
-                                const CopyParams& copyParams);
+    static sk_sp<GrTextureProxy> CopyOnGpu(GrContext*, sk_sp<GrTextureProxy> inputProxy,
+                                           const SkIRect* subset, const CopyParams& copyParams);
 
     static DomainMode DetermineDomainMode(
         const SkRect& constraintRect,
         FilterConstraint filterConstraint,
         bool coordsLimitedToConstraintRect,
-        int texW, int texH,
+        GrTextureProxy*,
         const SkIRect* textureContentArea,
         const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
         SkRect* domainRect);
 
     static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
-        GrTexture* texture,
-        sk_sp<GrColorSpaceXform> colorSpaceXform,
+        GrResourceProvider*,
+        sk_sp<GrTextureProxy> proxy,
+        sk_sp<GrColorSpaceXform>,
         const SkMatrix& textureMatrix,
-        DomainMode domainMode,
+        DomainMode,
         const SkRect& domain,
         const GrSamplerParams::FilterMode* filterOrNullForBicubic);
 

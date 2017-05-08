@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SkMatrix.h"
+#include "SkMalloc.h"
 
 // FIXME: needs to be in a header
 bool SkSetPoly3To3_D(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3]);

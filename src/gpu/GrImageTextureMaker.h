@@ -24,8 +24,9 @@ protected:
     // TODO: consider overriding this, for the case where the underlying generator might be
     //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
     //          GrTexture* generateTextureForParams(const CopyParams&) override;
+    sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
+                                                  SkColorSpace* dstColorSpace) override;
 
-    GrTexture* refOriginalTexture(bool willBeMipped, SkColorSpace* dstColorSpace) override;
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey,
                      SkColorSpace* dstColorSpace) override;
     void didCacheCopy(const GrUniqueKey& copyKey) override;

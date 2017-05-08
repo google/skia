@@ -81,7 +81,7 @@ public:
         fAlpha = paint.getAlpha();
     }
 
-    virtual ~Sprite_D32_XferFilter() {
+    ~Sprite_D32_XferFilter() override {
         delete[] fBuffer;
         SkSafeUnref(fColorFilter);
     }

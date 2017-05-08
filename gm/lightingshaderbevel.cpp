@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkLightingShader.h"
 #include "SkNormalSource.h"
 #include "SkPath.h"

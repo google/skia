@@ -89,7 +89,7 @@ static void tesselate(intptr_t vertices,
 }
 
 // We handle perspective in the local matrix or viewmatrix with special ops.
-class NonAAFillRectPerspectiveOp final : public GrMeshDrawOp {
+class NonAAFillRectPerspectiveOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -130,12 +130,13 @@ public:
 private:
     NonAAFillRectPerspectiveOp() : INHERITED(ClassID()) {}
 
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fRects[0].fColor);
-        input->coverageInput()->setToSolidCoverage();
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
+        color->setToConstant(fRects[0].fColor);
+        *coverage = GrProcessorAnalysisCoverage::kNone;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fRects[0].fColor);
     }
 
@@ -177,7 +178,7 @@ private:
                 tesselate(verts, vertexStride, info.fColor, nullptr, info.fRect, nullptr);
             }
         }
-        helper.recordDraw(target, gp.get());
+        helper.recordDraw(target, gp.get(), this->pipeline());
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -215,17 +216,17 @@ private:
     SkMatrix fLocalMatrix;
     SkMatrix fViewMatrix;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 namespace GrNonAAFillRectOp {
 
-std::unique_ptr<GrDrawOp> MakeWithPerspective(GrColor color,
-                                              const SkMatrix& viewMatrix,
-                                              const SkRect& rect,
-                                              const SkRect* localRect,
-                                              const SkMatrix* localMatrix) {
-    return std::unique_ptr<GrDrawOp>(
+std::unique_ptr<GrLegacyMeshDrawOp> MakeWithPerspective(GrColor color,
+                                                        const SkMatrix& viewMatrix,
+                                                        const SkRect& rect,
+                                                        const SkRect* localRect,
+                                                        const SkMatrix* localMatrix) {
+    return std::unique_ptr<GrLegacyMeshDrawOp>(
             new NonAAFillRectPerspectiveOp(color, viewMatrix, rect, localRect, localMatrix));
 }
 };

@@ -122,7 +122,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& bitmap) {
 
         if (nullptr == row) {
             // force a flush, which should unlock all the rows; then try again
-            fDesc.fContext->flush();
+            fDesc.fContext->contextPriv().flush(nullptr); // tighten this up?
             row = this->getLRU();
             if (nullptr == row) {
                 --fLockedRows;
@@ -162,7 +162,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& bitmap) {
         // that is not currently in use
         fTexContext->writePixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(),
                                  0, rowNumber * fDesc.fRowHeight,
-                                 GrContext::kDontFlush_PixelOpsFlag);
+                                 GrContextPriv::kDontFlush_PixelOpsFlag);
     }
 
     SkASSERT(rowNumber >= 0);
@@ -196,10 +196,10 @@ GrTextureStripAtlas::AtlasRow* GrTextureStripAtlas::getLRU() {
 
 void GrTextureStripAtlas::lockTexture() {
     GrSurfaceDesc texDesc;
+    texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
     texDesc.fWidth = fDesc.fWidth;
     texDesc.fHeight = fDesc.fHeight;
     texDesc.fConfig = fDesc.fConfig;
-    texDesc.fIsMipMapped = false;
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
@@ -207,24 +207,24 @@ void GrTextureStripAtlas::lockTexture() {
     builder[0] = static_cast<uint32_t>(fCacheKey);
     builder.finish();
 
-    // MDB TODO (caching): this side-steps the issue of proxies with unique IDs
-    sk_sp<GrTexture> texture(fDesc.fContext->textureProvider()->findAndRefTextureByUniqueKey(key));
-    if (!texture) {
-        texture.reset(fDesc.fContext->textureProvider()->createTexture(
-                                                        texDesc, SkBudgeted::kYes,
-                                                        nullptr, 0,
-                                                        GrResourceProvider::kNoPendingIO_Flag));
-        if (!texture) {
+    sk_sp<GrTextureProxy> proxy = fDesc.fContext->resourceProvider()->findProxyByUniqueKey(key);
+    if (!proxy) {
+        proxy = GrSurfaceProxy::MakeDeferred(fDesc.fContext->resourceProvider(),
+                                             texDesc, SkBackingFit::kExact,
+                                             SkBudgeted::kYes,
+                                             GrResourceProvider::kNoPendingIO_Flag);
+        if (!proxy) {
             return;
         }
 
-        fDesc.fContext->textureProvider()->assignUniqueKeyToTexture(key, texture.get());
+        fDesc.fContext->resourceProvider()->assignUniqueKeyToProxy(key, proxy.get());
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();
         fKeyTable.rewind();
     }
-    SkASSERT(texture);
-    fTexContext = fDesc.fContext->contextPriv().makeWrappedSurfaceContext(std::move(texture));
+    SkASSERT(proxy);
+    fTexContext = fDesc.fContext->contextPriv().makeWrappedSurfaceContext(std::move(proxy),
+                                                                          nullptr);
 }
 
 void GrTextureStripAtlas::unlockTexture() {

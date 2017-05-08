@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
 #include "SkCanvas.h"
+#include "SkColorSpace_Base.h"
 #include "SkCrossContextImageData.h"
 #include "SkData.h"
 #include "SkImageEncoder.h"
@@ -21,6 +22,7 @@
 #include "SkPicture.h"
 #include "SkPixelRef.h"
 #include "SkPixelSerializer.h"
+#include "SkRGBAToYUV.h"
 #include "SkReadPixelsRec.h"
 #include "SkSpecialImage.h"
 #include "SkStream.h"
@@ -80,6 +82,14 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
 
 SkAlphaType SkImage::alphaType() const {
     return as_IB(this)->onAlphaType();
+}
+
+SkColorSpace* SkImage::colorSpace() const {
+    return as_IB(this)->onImageInfo().colorSpace();
+}
+
+sk_sp<SkColorSpace> SkImage::refColorSpace() const {
+    return as_IB(this)->onImageInfo().refColorSpace();
 }
 
 sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
@@ -159,25 +169,14 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
 #if SK_SUPPORT_GPU
 
 GrTexture* SkImage::getTexture() const {
-    return as_IB(this)->peekTexture();
+    return as_IB(this)->onGetTexture();
 }
 
-bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->peekTexture()); }
+bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->peekProxy()); }
 
 GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO,
                                           GrSurfaceOrigin* origin) const {
-    GrTexture* texture = as_IB(this)->peekTexture();
-    if (texture) {
-        GrContext* context = texture->getContext();
-        if (context && flushPendingGrContextIO) {
-            context->prepareSurfaceForExternalIO(texture);
-        }
-        if (origin) {
-            *origin = texture->origin();
-        }
-        return texture->getTextureHandle();
-    }
-    return 0;
+    return as_IB(this)->onGetTextureHandle(flushPendingGrContextIO, origin);
 }
 
 #else
@@ -203,28 +202,20 @@ SkImage_Base::~SkImage_Base() {
     }
 }
 
+bool SkImage_Base::onReadYUV8Planes(const SkISize sizes[3], void* const planes[3],
+                                    const size_t rowBytes[3], SkYUVColorSpace colorSpace) const {
+    return SkRGBAToYUV(this, sizes, planes, rowBytes, colorSpace);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY, CachingHint chint) const {
     return this->readPixels(pmap.info(), pmap.writable_addr(), pmap.rowBytes(), srcX, srcY, chint);
 }
 
-#if SK_SUPPORT_GPU
-#include "GrTextureToYUVPlanes.h"
-#endif
-
-#include "SkRGBAToYUV.h"
-
 bool SkImage::readYUV8Planes(const SkISize sizes[3], void* const planes[3],
                              const size_t rowBytes[3], SkYUVColorSpace colorSpace) const {
-#if SK_SUPPORT_GPU
-    if (GrTexture* texture = as_IB(this)->peekTexture()) {
-        if (GrTextureToYUVPlanes(texture, sizes, planes, rowBytes, colorSpace)) {
-            return true;
-        }
-    }
-#endif
-    return SkRGBAToYUV(this, sizes, planes, rowBytes, colorSpace);
+    return as_IB(this)->onReadYUV8Planes(sizes, planes, rowBytes, colorSpace);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -311,13 +302,34 @@ bool SkImage::isAlphaOnly() const {
     return as_IB(this)->onImageInfo().colorType() == kAlpha_8_SkColorType;
 }
 
+sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target,
+                                       SkTransferFunctionBehavior premulBehavior) const {
+    if (SkTransferFunctionBehavior::kRespect == premulBehavior) {
+        // TODO (msarett, brianosman): Implement this.
+        return nullptr;
+    }
+
+    SkColorSpaceTransferFn fn;
+    if (!target || !target->isNumericalTransferFn(&fn)) {
+        return nullptr;
+    }
+
+    // No need to create a new image if:
+    // (1) The color spaces are equal (nullptr is considered to be sRGB).
+    // (2) The color type is kAlpha8.
+    if ((!this->colorSpace() && target->isSRGB()) ||
+            SkColorSpace::Equals(this->colorSpace(), target.get()) ||
+            kAlpha_8_SkColorType == as_IB(this)->onImageInfo().colorType()) {
+        return sk_ref_sp(const_cast<SkImage*>(this));
+    }
+
+    // TODO: We might consider making this a deferred conversion?
+    return as_IB(this)->onMakeColorSpace(std::move(target));
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU
-
-sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext*, const SkPixmap&, SkBudgeted budgeted) {
-    return nullptr;
-}
 
 sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
                                      int mipLevelCount, SkBudgeted, SkDestinationSurfaceColorMode) {

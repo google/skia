@@ -35,7 +35,11 @@ class SkDiscardableMemory;
 */
 class SK_API SkPixelRef : public SkRefCnt {
 public:
+#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
     explicit SkPixelRef(const SkImageInfo&);
+#endif
+    explicit SkPixelRef(const SkImageInfo&, void* addr, size_t rowBytes,
+                        sk_sp<SkColorTable> = nullptr);
     virtual ~SkPixelRef();
 
     const SkImageInfo& info() const {
@@ -94,14 +98,6 @@ public:
     */
     void unlockPixels();
 
-    /**
-     *  Some bitmaps can return a copy of their pixels for lockPixels(), but
-     *  that copy, if modified, will not be pushed back. These bitmaps should
-     *  not be used as targets for a raster device/canvas (since all pixels
-     *  modifications will be lost when unlockPixels() is called.)
-     */
-    bool lockPixelsAreWritable() const;
-
     /** Returns a non-zero, unique value corresponding to the pixels in this
         pixelref. Each time the pixels are changed (and notifyPixelsChanged is
         called), a different generation ID will be returned.
@@ -145,27 +141,6 @@ public:
     */
     void setImmutable();
 
-    /** Return the optional URI string associated with this pixelref. May be
-        null.
-    */
-    const char* getURI() const { return fURI.size() ? fURI.c_str() : NULL; }
-
-    /** Copy a URI string to this pixelref, or clear the URI if the uri is null
-     */
-    void setURI(const char uri[]) {
-        fURI.set(uri);
-    }
-
-    /** Copy a URI string to this pixelref
-     */
-    void setURI(const char uri[], size_t len) {
-        fURI.set(uri, len);
-    }
-
-    /** Assign a URI string to this pixelref.
-    */
-    void setURI(const SkString& uri) { fURI = uri; }
-
     struct LockRequest {
         SkISize         fSize;
         SkFilterQuality fQuality;
@@ -192,9 +167,6 @@ public:
 
     bool requestLock(const LockRequest&, LockResult*);
 
-    /** Populates dst with the pixels of this pixelRef, converting them to colorType. */
-    bool readPixels(SkBitmap* dst, SkColorType colorType, const SkIRect* subset = NULL);
-
     // Register a listener that may be called the next time our generation ID changes.
     //
     // We'll only call the listener if we're confident that we are the only SkPixelRef with this
@@ -219,12 +191,10 @@ public:
 
     virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return NULL; }
 
-    /**
-     *  Returns true if the pixels are generated on-the-fly (when required).
-     */
-    bool isLazyGenerated() const { return this->onIsLazyGenerated(); }
-
 protected:
+#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
+    virtual
+#endif
     /**
      *  On success, returns true and fills out the LockRec for the pixels. On
      *  failure returns false and ignores the LockRec parameter.
@@ -232,8 +202,14 @@ protected:
      *  The caller will have already acquired a mutex for thread safety, so this
      *  method need not do that.
      */
-    virtual bool onNewLockPixels(LockRec*) = 0;
+    bool onNewLockPixels(LockRec*) {
+        SkASSERT(false);    // should never be called
+        return true;
+    }
 
+#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
+    virtual
+#endif
     /**
      *  Balancing the previous successful call to onNewLockPixels. The locked
      *  pixel address will no longer be referenced, so the subclass is free to
@@ -242,18 +218,9 @@ protected:
      *  The caller will have already acquired a mutex for thread safety, so this
      *  method need not do that.
      */
-    virtual void onUnlockPixels() = 0;
-
-    /** Default impl returns true */
-    virtual bool onLockPixelsAreWritable() const;
-
-    /**
-     *  For pixelrefs that don't have access to their raw pixels, they may be
-     *  able to make a copy of them (e.g. if the pixels are on the GPU).
-     *
-     *  The base class implementation returns false;
-     */
-    virtual bool onReadPixels(SkBitmap* dst, SkColorType colorType, const SkIRect* subsetOrNull);
+    void onUnlockPixels() {
+        SkASSERT(false);    // should never be called
+    }
 
     // default impl does nothing.
     virtual void onNotifyPixelsChanged();
@@ -268,31 +235,36 @@ protected:
      */
     virtual size_t getAllocatedSizeInBytes() const;
 
-    virtual bool onRequestLock(const LockRequest&, LockResult*);
-
-    virtual bool onIsLazyGenerated() const { return false; }
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // This is undefined if there are clients in-flight trying to use us
+    void android_only_reset(const SkImageInfo&, size_t rowBytes, sk_sp<SkColorTable>);
+#endif
 
     /** Return the mutex associated with this pixelref. This value is assigned
         in the constructor, and cannot change during the lifetime of the object.
     */
     SkBaseMutex* mutex() const { return &fMutex; }
 
+#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
     // only call from constructor. Flags this to always be locked, removing
     // the need to grab the mutex and call onLockPixels/onUnlockPixels.
     // Performance tweak to avoid those calls (esp. in multi-thread use case).
     void setPreLocked(void*, size_t rowBytes, SkColorTable*);
+#endif
 
 private:
     mutable SkMutex fMutex;
 
     // mostly const. fInfo.fAlpahType can be changed at runtime.
     const SkImageInfo fInfo;
+    sk_sp<SkColorTable> fCTable;    // duplicated in LockRec, will unify later
 
     // LockRec is only valid if we're in a locked state (isLocked())
     LockRec         fRec;
     int             fLockCount;
 
     bool lockPixelsInsideMutex();
+    bool internalRequestLock(const LockRequest&, LockResult*);
 
     // Bottom bit indicates the Gen ID is unique.
     bool genIDIsUnique() const { return SkToBool(fTaggedGenID.load() & 1); }
@@ -303,8 +275,6 @@ private:
 #endif
 
     SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are owned
-
-    SkString    fURI;
 
     // Set true by caches when they cache content that's derived from the current pixels.
     SkAtomic<bool> fAddedToCache;
@@ -338,19 +308,9 @@ private:
     friend class SkImage_Gpu;
     friend class SkImageCacherator;
     friend class SkSpecialImage_Gpu;
+    friend void SkBitmapCache_setImmutableWithID(SkPixelRef*, uint32_t);
 
     typedef SkRefCnt INHERITED;
-};
-
-class SkPixelRefFactory : public SkRefCnt {
-public:
-    /**
-     *  Allocate a new pixelref matching the specified ImageInfo, allocating
-     *  the memory for the pixels. If the ImageInfo requires a ColorTable,
-     *  the pixelref will ref() the colortable.
-     *  On failure return NULL.
-     */
-    virtual SkPixelRef* create(const SkImageInfo&, size_t rowBytes, SkColorTable*) = 0;
 };
 
 #endif

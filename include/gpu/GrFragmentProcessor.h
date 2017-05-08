@@ -16,13 +16,14 @@ class GrInvariantOutput;
 class GrPipeline;
 class GrProcessorKeyBuilder;
 class GrShaderCaps;
+class GrSwizzle;
 
 /** Provides custom fragment shader code. Fragment processors receive an input color (vec4f) and
     produce an output color. They may reference textures and uniforms. They may use
     GrCoordTransforms to receive a transformation of the local coordinates that map from local space
     to the fragment being processed.
  */
-class GrFragmentProcessor : public GrProcessor {
+class GrFragmentProcessor : public GrResourceIOProcessor, public GrProgramElement {
 public:
     /**
     *  In many instances (e.g. SkShader::asFragmentProcessor() implementations) it is desirable to
@@ -54,6 +55,24 @@ public:
      *  processor.
      */
     static sk_sp<GrFragmentProcessor> PremulInput(sk_sp<GrFragmentProcessor>);
+
+    /**
+     *  Returns a fragment processor that calls the passed in fragment processor, and then premuls
+     *  the output.
+     */
+    static sk_sp<GrFragmentProcessor> PremulOutput(sk_sp<GrFragmentProcessor>);
+
+    /**
+     *  Returns a fragment processor that calls the passed in fragment processor, and then unpremuls
+     *  the output.
+     */
+    static sk_sp<GrFragmentProcessor> UnpremulOutput(sk_sp<GrFragmentProcessor>);
+
+    /**
+     *  Returns a fragment processor that calls the passed in fragment processor, and then swizzles
+     *  the output.
+     */
+    static sk_sp<GrFragmentProcessor> SwizzleOutput(sk_sp<GrFragmentProcessor>, const GrSwizzle&);
 
     /**
      * Returns a fragment processor that runs the passed in array of fragment processors in a
@@ -209,9 +228,9 @@ public:
                                           &GrFragmentProcessor::coordTransform>;
 
     using TextureAccessIter = FPItemIter<TextureSampler,
-                                         GrProcessor,
-                                         &GrProcessor::numTextureSamplers,
-                                         &GrProcessor::textureSampler>;
+                                         GrResourceIOProcessor,
+                                         &GrResourceIOProcessor::numTextureSamplers,
+                                         &GrResourceIOProcessor::textureSampler>;
 
 protected:
     enum OptimizationFlags : uint32_t {
@@ -281,6 +300,10 @@ protected:
     void setWillUseDistanceVectorField() { fFlags |= kUsesDistanceVectorField_Flag; }
 
 private:
+    void addPendingIOs() const override { GrResourceIOProcessor::addPendingIOs(); }
+    void removeRefs() const override { GrResourceIOProcessor::removeRefs(); }
+    void pendingIOComplete() const override { GrResourceIOProcessor::pendingIOComplete(); }
+
     void notifyRefCntIsZero() const final;
 
     virtual GrColor4f constantOutputForConstantInput(GrColor4f /* inputColor */) const {

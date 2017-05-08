@@ -6,6 +6,7 @@
  */
 
 #include "SkColorLookUpTable.h"
+#include "SkColorSpaceXformPriv.h"
 #include "SkFloatingPoint.h"
 
 void SkColorLookUpTable::interp(float* dst, const float* src) const {
@@ -114,11 +115,7 @@ void SkColorLookUpTable::interp3D(float* dst, const float* src) const {
         // look up tables, we don't check for it.
         // And for arbitrary, non-increasing tables, it is easy to see how
         // the output might not be 0-1.  So we clamp here.
-        if (dst[i] > 1.f) {
-            dst[i] = 1.f;
-        } else if (dst[i] < 0.f) {
-            dst[i] = 0.f;
-        }
+        dst[i] = clamp_0_1(dst[i]);
 
         // Increment the table ptr in order to handle the next component.
         // Note that this is the how table is designed: all of nXXX
@@ -158,5 +155,5 @@ float SkColorLookUpTable::interpDimension(const float* src, int inputDimension,
     // and recursively LERP all sub-dimensions with the current dimension fixed to the high point
     const float hi = interpDimension(src, inputDimension - 1, outputDimension, index);
     // then LERP the results based on the current dimension
-    return (1 - diff) * lo + diff * hi;
+    return clamp_0_1((1 - diff) * lo + diff * hi);
 }

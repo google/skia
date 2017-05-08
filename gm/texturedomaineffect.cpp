@@ -90,12 +90,11 @@ protected:
         desc.fHeight = fBmp.height();
         desc.fConfig = SkImageInfo2GrPixelConfig(fBmp.info(), *context->caps());
 
-        sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                                 context->textureProvider(),
+        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                                  desc, SkBudgeted::kYes,
                                                                  fBmp.getPixels(),
                                                                  fBmp.rowBytes()));
-        if (!proxy || !proxy->asTextureProxy()) {
+        if (!proxy) {
             return;
         }
 
@@ -124,7 +123,7 @@ protected:
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                     sk_sp<GrFragmentProcessor> fp(
                         GrTextureDomainEffect::Make(
-                                   context, sk_ref_sp(proxy->asTextureProxy()),
+                                   context->resourceProvider(), proxy,
                                    nullptr, textureMatrices[tm],
                                    GrTextureDomain::MakeTexelDomainForMode(texelDomains[d], mode),
                                    mode, GrSamplerParams::kNone_FilterMode));
@@ -135,9 +134,9 @@ protected:
                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
                     grPaint.addColorFragmentProcessor(std::move(fp));
 
-                    std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                    std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                             GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_addDrawOp(
+                    renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
                             std::move(grPaint), GrAAType::kNone, std::move(op));
                     x += renderRect.width() + kTestPad;
                 }

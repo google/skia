@@ -12,8 +12,6 @@
 #include "GrFragmentProcessor.h"
 #include "GrNonAtomicRef.h"
 #include "GrPendingProgramElement.h"
-#include "GrPrimitiveProcessor.h"
-#include "GrProcOptInfo.h"
 #include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
 #include "GrScissorState.h"
@@ -58,8 +56,7 @@ public:
     struct InitArgs {
         uint32_t fFlags = 0;
         GrDrawFace fDrawFace = GrDrawFace::kBoth;
-        const GrProcessorSet* fProcessors = nullptr;
-        const GrProcessorSet::FragmentProcessorAnalysis* fAnalysis;
+        const GrProcessorSet* fProcessors = nullptr;  // Must be finalized
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTarget* fRenderTarget = nullptr;
@@ -80,7 +77,7 @@ public:
     GrPipeline(GrRenderTarget*, SkBlendMode);
 
     /** (Re)initializes a pipeline. After initialization the pipeline can be used. */
-    GrPipelineOptimizations init(const InitArgs&);
+    void init(const InitArgs&);
 
     /** True if the pipeline has been initialized. */
     bool isInitialized() const { return SkToBool(fRenderTarget.get()); }
@@ -134,13 +131,24 @@ public:
     int numFragmentProcessors() const { return fFragmentProcessors.count(); }
 
     const GrXferProcessor& getXferProcessor() const {
-        if (fXferProcessor.get()) {
+        if (fXferProcessor) {
             return *fXferProcessor.get();
         } else {
             // A null xp member means the common src-over case. GrXferProcessor's ref'ing
             // mechanism is not thread safe so we do not hold a ref on this global.
             return GrPorterDuffXPFactory::SimpleSrcOverXP();
         }
+    }
+
+    /**
+     * If the GrXferProcessor uses a texture to access the dst color, then this returns that
+     * texture and the offset to the dst contents within that texture.
+     */
+    GrTexture* dstTexture(SkIPoint* offset = nullptr) const {
+        if (offset) {
+            *offset = fDstTextureOffset;
+        }
+        return fDstTexture.get();
     }
 
     const GrFragmentProcessor& getColorFragmentProcessor(int idx) const {
@@ -193,7 +201,10 @@ public:
     }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
-        return this->getXferProcessor().xferBarrierType(fRenderTarget.get(), caps);
+        if (fDstTexture.get() && fDstTexture.get() == fRenderTarget.get()->asTexture()) {
+            return kTexture_GrXferBarrierType;
+        }
+        return this->getXferProcessor().xferBarrierType(caps);
     }
 
     /**
@@ -213,21 +224,24 @@ private:
         kStencilEnabled_Flag = 0x40,
     };
 
-    typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
-    typedef GrPendingProgramElement<const GrFragmentProcessor> PendingFragmentProcessor;
-    typedef SkAutoSTArray<8, PendingFragmentProcessor> FragmentProcessorArray;
-    typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
-    RenderTarget                        fRenderTarget;
-    GrScissorState                      fScissorState;
-    GrWindowRectsState                  fWindowRectsState;
-    const GrUserStencilSettings*        fUserStencilSettings;
-    uint16_t                            fDrawFace;
-    uint16_t                            fFlags;
-    ProgramXferProcessor                fXferProcessor;
-    FragmentProcessorArray              fFragmentProcessors;
+    using RenderTarget = GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>;
+    using DstTexture = GrPendingIOResource<GrTexture, kRead_GrIOType>;
+    using PendingFragmentProcessor = GrPendingProgramElement<const GrFragmentProcessor>;
+    using FragmentProcessorArray = SkAutoSTArray<8, PendingFragmentProcessor>;
+
+    DstTexture fDstTexture;
+    SkIPoint fDstTextureOffset;
+    RenderTarget fRenderTarget;
+    GrScissorState fScissorState;
+    GrWindowRectsState fWindowRectsState;
+    const GrUserStencilSettings* fUserStencilSettings;
+    uint16_t fDrawFace;
+    uint16_t fFlags;
+    sk_sp<const GrXferProcessor> fXferProcessor;
+    FragmentProcessorArray fFragmentProcessors;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
-    int                                 fNumColorProcessors;
+    int fNumColorProcessors;
 
     typedef SkRefCnt INHERITED;
 };

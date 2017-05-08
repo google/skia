@@ -48,6 +48,12 @@ struct SK_API SkColorSpaceTransferFn {
     float fD;
     float fE;
     float fF;
+
+    /**
+     * Produces a new parametric transfer function equation that is the mathematical inverse of
+     * this one.
+     */
+    SkColorSpaceTransferFn invert() const;
 };
 
 class SK_API SkColorSpace : public SkRefCnt {
@@ -81,23 +87,17 @@ public:
         kRec2020_Gamut,
     };
 
-    enum ColorSpaceFlags {
-        kNonLinearBlending_ColorSpaceFlag = 0x1,
-    };
-
     /**
      *  Create an SkColorSpace from a transfer function and a color gamut.
      *
      *  Transfer function can be specified as an enum or as the coefficients to an equation.
      *  Gamut can be specified as an enum or as the matrix transformation to XYZ D50.
      */
-    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, Gamut gamut, uint32_t flags = 0);
-    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50,
-                                       uint32_t flags = 0);
-    static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs, Gamut gamut,
-                                       uint32_t flags = 0);
+    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, Gamut gamut);
+    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs, Gamut gamut);
     static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs,
-                                       const SkMatrix44& toXYZD50, uint32_t flags = 0);
+                                       const SkMatrix44& toXYZD50);
 
     /**
      *  Create an SkColorSpace from an ICC profile.
@@ -106,6 +106,8 @@ public:
 
     /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.
+     *  This includes the canonical sRGB transfer function as well as a 2.2f exponential
+     *  transfer function.
      */
     bool gammaCloseToSRGB() const;
 
@@ -129,6 +131,20 @@ public:
     bool toXYZD50(SkMatrix44* toXYZD50) const;
 
     /**
+     *  Returns true if the color space is sRGB.
+     *  Returns false otherwise.
+     *
+     *  This allows a little bit of tolerance, given that we might see small numerical error
+     *  in some cases: converting ICC fixed point to float, converting white point to D50,
+     *  rounding decisions on transfer function and matrix.
+     *
+     *  This does not consider a 2.2f exponential transfer function to be sRGB.  While these
+     *  functions are similar (and it is sometimes useful to consider them together), this
+     *  function checks for logical equality.
+     */
+    bool isSRGB() const;
+
+    /**
      *  Returns nullptr on failure.  Fails when we fallback to serializing ICC data and
      *  the data is too large to serialize.
      */
@@ -150,6 +166,19 @@ public:
 
 protected:
     SkColorSpace() {}
+};
+
+enum class SkTransferFunctionBehavior {
+    /**
+     *  Converts to a linear space before premultiplying, unpremultiplying, or blending.
+     */
+    kRespect,
+
+    /**
+     *  Premultiplies, unpremultiplies, and blends ignoring the transfer function.  Pixels are
+     *  treated as if they are linear, regardless of their transfer function encoding.
+     */
+    kIgnore,
 };
 
 #endif

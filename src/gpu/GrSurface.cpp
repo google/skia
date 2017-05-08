@@ -9,8 +9,9 @@
 #include "GrContext.h"
 #include "GrOpList.h"
 #include "GrSurfacePriv.h"
+#include "GrTexture.h"
 
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkMathPriv.h"
 
 GrSurface::~GrSurface() {
@@ -137,36 +138,6 @@ bool GrSurfacePriv::AdjustWritePixelParams(int surfaceWidth,
 
 
 //////////////////////////////////////////////////////////////////////////////
-
-bool GrSurface::writePixels(SkColorSpace* dstColorSpace, int left, int top, int width, int height,
-                            GrPixelConfig config, SkColorSpace* srcColorSpace, const void* buffer,
-                            size_t rowBytes, uint32_t pixelOpsFlags) {
-    // go through context so that all necessary flushing occurs
-    GrContext* context = this->getContext();
-    if (nullptr == context) {
-        return false;
-    }
-    return context->writeSurfacePixels(this, dstColorSpace, left, top, width, height, config,
-                                       srcColorSpace, buffer, rowBytes, pixelOpsFlags);
-}
-
-bool GrSurface::readPixels(SkColorSpace* srcColorSpace, int left, int top, int width, int height,
-                           GrPixelConfig config, SkColorSpace* dstColorSpace, void* buffer,
-                           size_t rowBytes, uint32_t pixelOpsFlags) {
-    // go through context so that all necessary flushing occurs
-    GrContext* context = this->getContext();
-    if (nullptr == context) {
-        return false;
-    }
-    return context->readSurfacePixels(this, srcColorSpace, left, top, width, height, config,
-                                      dstColorSpace, buffer, rowBytes, pixelOpsFlags);
-}
-
-void GrSurface::flushWrites() {
-    if (!this->wasDestroyed()) {
-        this->getContext()->flushSurfaceWrites(this);
-    }
-}
 
 bool GrSurface::hasPendingRead() const {
     const GrTexture* thisTex = this->asTexture();

@@ -13,9 +13,11 @@
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkColorSpace_XYZ.h"
+#include "SkColorSpacePriv.h"
 #include "SkData.h"
 #include "SkFrontBufferedStream.h"
 #include "SkImageEncoder.h"
+#include "SkImageEncoderPriv.h"
 #include "SkMD5.h"
 #include "SkOSPath.h"
 #include "SkPngChunkReader.h"
@@ -698,8 +700,7 @@ static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
     } else if (SkCodec::kUnimplemented == result) {
         // New method should be supported:
         SkBitmap bm;
-        sk_sp<SkColorTable> colorTable(new SkColorTable(colorStorage, 256));
-        bm.allocPixels(info, nullptr, colorTable.get());
+        bm.allocPixels(info, SkColorTable::Make(colorStorage, 256));
         result = decoder->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes(), nullptr,
                                                  colorStorage, &colorCount);
         REPORTER_ASSERT(r, SkCodec::kSuccess == result);
@@ -1106,8 +1107,8 @@ static bool alpha_type_match(SkAlphaType origAlphaType, SkAlphaType codecAlphaTy
 static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const SkImageInfo& info) {
     SkBitmap bm1;
     SkPMColor colors[256];
-    sk_sp<SkColorTable> colorTable1(new SkColorTable(colors, 256));
-    bm1.allocPixels(info, nullptr, colorTable1.get());
+    sk_sp<SkColorTable> colorTable1 = SkColorTable::Make(colors, 256);
+    bm1.allocPixels(info, colorTable1);
     int numColors;
     SkCodec::Result result = origCodec->getPixels(info, bm1.getPixels(), bm1.rowBytes(), nullptr,
                                                   const_cast<SkPMColor*>(colorTable1->readColors()),
@@ -1124,8 +1125,8 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
     REPORTER_ASSERT(r, alpha_type_match(info.alphaType(), codec->getInfo().alphaType()));
 
     SkBitmap bm2;
-    sk_sp<SkColorTable> colorTable2(new SkColorTable(colors, 256));
-    bm2.allocPixels(info, nullptr, colorTable2.get());
+    sk_sp<SkColorTable> colorTable2 = SkColorTable::Make(colors, 256);
+    bm2.allocPixels(info, colorTable2);
     result = codec->getPixels(info, bm2.getPixels(), bm2.rowBytes(), nullptr,
                               const_cast<SkPMColor*>(colorTable2->readColors()), &numColors);
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
@@ -1526,4 +1527,71 @@ DEF_TEST(Codec_InvalidAnimated, r) {
 
         codec->incrementalDecode();
     }
+}
+
+static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap,
+                          const SkEncodeOptions& opts, SkEncodedImageFormat format) {
+    switch (format) {
+        case SkEncodedImageFormat::kPNG:
+            SkEncodeImageAsPNG(stream, pixmap, opts);
+            break;
+        case SkEncodedImageFormat::kJPEG:
+            SkEncodeImageAsJPEG(stream, pixmap, opts);
+            break;
+        case SkEncodedImageFormat::kWEBP:
+            SkEncodeImageAsWEBP(stream, pixmap, opts);
+            break;
+        default:
+            SkASSERT(false);
+            break;
+    }
+}
+
+static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
+                            SkTransferFunctionBehavior unpremulBehavior) {
+    // Test with sRGB color space.
+    SkBitmap srgbBitmap;
+    SkImageInfo srgbInfo = SkImageInfo::MakeS32(1, 1, kOpaque_SkAlphaType);
+    srgbBitmap.allocPixels(srgbInfo);
+    *srgbBitmap.getAddr32(0, 0) = 0;
+    SkPixmap pixmap;
+    srgbBitmap.peekPixels(&pixmap);
+    SkDynamicMemoryWStream srgbBuf;
+    SkEncodeOptions opts;
+    opts.fUnpremulBehavior = unpremulBehavior;
+    encode_format(&srgbBuf, pixmap, opts, format);
+    sk_sp<SkData> srgbData = srgbBuf.detachAsData();
+    std::unique_ptr<SkCodec> srgbCodec(SkCodec::NewFromData(srgbData));
+    REPORTER_ASSERT(r, srgbCodec->getInfo().colorSpace() == SkColorSpace::MakeSRGB().get());
+
+    // Test with P3 color space.
+    SkDynamicMemoryWStream p3Buf;
+    sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                   SkColorSpace::kDCIP3_D65_Gamut);
+    pixmap.setColorSpace(p3);
+    encode_format(&p3Buf, pixmap, opts, format);
+    sk_sp<SkData> p3Data = p3Buf.detachAsData();
+    std::unique_ptr<SkCodec> p3Codec(SkCodec::NewFromData(p3Data));
+    REPORTER_ASSERT(r, p3Codec->getInfo().colorSpace()->gammaCloseToSRGB());
+    SkMatrix44 mat0(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 mat1(SkMatrix44::kUninitialized_Constructor);
+    bool success = p3->toXYZD50(&mat0);
+    REPORTER_ASSERT(r, success);
+    success = p3Codec->getInfo().colorSpace()->toXYZD50(&mat1);
+    REPORTER_ASSERT(r, success);
+
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            REPORTER_ASSERT(r, color_space_almost_equal(mat0.get(i, j), mat1.get(i, j)));
+        }
+    }
+}
+
+DEF_TEST(Codec_EncodeICC, r) {
+    test_encode_icc(r, SkEncodedImageFormat::kPNG, SkTransferFunctionBehavior::kRespect);
+    test_encode_icc(r, SkEncodedImageFormat::kJPEG, SkTransferFunctionBehavior::kRespect);
+    test_encode_icc(r, SkEncodedImageFormat::kWEBP, SkTransferFunctionBehavior::kRespect);
+    test_encode_icc(r, SkEncodedImageFormat::kPNG, SkTransferFunctionBehavior::kIgnore);
+    test_encode_icc(r, SkEncodedImageFormat::kJPEG, SkTransferFunctionBehavior::kIgnore);
+    test_encode_icc(r, SkEncodedImageFormat::kWEBP, SkTransferFunctionBehavior::kIgnore);
 }

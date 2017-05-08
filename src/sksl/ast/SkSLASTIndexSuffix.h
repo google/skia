@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTINDEXSUFFIX
 #define SKSL_ASTINDEXSUFFIX
 
@@ -18,19 +18,19 @@ namespace SkSL {
  * 'float[](5, 6)' are represented with a null fExpression.
  */
 struct ASTIndexSuffix : public ASTSuffix {
-    ASTIndexSuffix(Position position) 
+    ASTIndexSuffix(Position position)
     : INHERITED(position, ASTSuffix::kIndex_Kind)
     , fExpression(nullptr) {}
 
-    ASTIndexSuffix(std::unique_ptr<ASTExpression> expression) 
+    ASTIndexSuffix(std::unique_ptr<ASTExpression> expression)
     : INHERITED(expression ? expression->fPosition : Position(), ASTSuffix::kIndex_Kind)
     , fExpression(std::move(expression)) {}
 
-    SkString description() const override {
+    String description() const override {
         if (fExpression) {
             return "[" + fExpression->description() + "]";
         } else {
-            return SkString("[]");
+            return String("[]");
         }
     }
 

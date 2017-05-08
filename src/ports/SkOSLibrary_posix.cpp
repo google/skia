@@ -12,11 +12,7 @@
 #include <dlfcn.h>
 
 void* DynamicLoadLibrary(const char* libraryName) {
-    void* result = dlopen(libraryName, RTLD_LAZY);
-    if (!result) {
-        SkDebugf("Error loading %s {\n %s\n}\n", libraryName, dlerror());
-    }
-    return result;
+    return dlopen(libraryName, RTLD_LAZY);
 }
 
 void* GetProcedureAddress(void* library, const char* functionName) {

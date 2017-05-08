@@ -48,7 +48,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     }
 #endif
 
-    SkString glsl;
+    SkSL::String glsl;
     if (type == GR_GL_VERTEX_SHADER || type == GR_GL_FRAGMENT_SHADER) {
         SkSL::Compiler& compiler = *glCtx.compiler();
         std::unique_ptr<SkSL::Program> program;

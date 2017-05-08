@@ -17,6 +17,11 @@ PER-REPO CONFIGURATION section to look like this one.
 
 import os
 
+# IMPORTANT: Do not alter the header or footer line for the
+# "PER-REPO CONFIGURATION" section below, or the autoroller will not be able
+# to automatically update this file! All lines between the header and footer
+# lines will be retained verbatim by the autoroller.
+
 #### PER-REPO CONFIGURATION (editable) ####
 # The root of the repository relative to the directory of this file.
 REPO_ROOT = os.path.join(os.pardir, os.pardir)
@@ -26,91 +31,91 @@ RECIPES_CFG = os.path.join('infra', 'config', 'recipes.cfg')
 
 BOOTSTRAP_VERSION = 1
 
-import ast
+import argparse
+import json
 import logging
 import random
-import re
 import subprocess
 import sys
 import time
-import traceback
+import urlparse
+
+from cStringIO import StringIO
 
 
-def parse_protobuf(fh):
-  """Parse the protobuf text format just well enough to understand recipes.cfg.
-
-  We don't use the protobuf library because we want to be as self-contained
-  as possible in this bootstrap, so it can be simply vendored into a client
-  repo.
-
-  We assume all fields are repeated since we don't have a proto spec to work
-  with.
+def parse(repo_root, recipes_cfg_path):
+  """Parse is transitional code which parses a recipes.cfg file as either jsonpb
+  or as textpb.
 
   Args:
-    fh: a filehandle containing the text format protobuf.
-  Returns:
-    A recursive dictionary of lists.
+    repo_root (str) - native path to the root of the repo we're trying to run
+      recipes for.
+    recipes_cfg_path (str) - native path to the recipes.cfg file to process.
+
+  Returns (as tuple):
+    engine_url (str) - the url to the engine repo we want to use.
+    engine_revision (str) - the git revision for the engine to get.
+    engine_subpath (str) - the subdirectory in the engine repo we should use to
+      find it's recipes.py entrypoint. This is here for completeness, but will
+      essentially always be empty. It would be used if the recipes-py repo was
+      merged as a subdirectory of some other repo and you depended on that
+      subdirectory.
+    recipes_path (str) - native path to where the recipes live inside of the
+      current repo (i.e. the folder containing `recipes/` and/or
+      `recipe_modules`)
   """
-  def parse_atom(field, text):
-    if text == 'true':
-      return True
-    if text == 'false':
-      return False
+  with open(recipes_cfg_path, 'rU') as fh:
+    pb = json.load(fh)
 
-    # repo_type is an enum. Since it does not have quotes,
-    # invoking literal_eval would fail.
-    if field == 'repo_type':
-      return text
+  engine = next(
+    (d for d in pb['deps'] if d['project_id'] == 'recipe_engine'), None)
+  if engine is None:
+    raise ValueError('could not find recipe_engine dep in %r'
+                     % recipes_cfg_path)
+  engine_url = engine['url']
+  engine_revision = engine.get('revision', '')
+  engine_subpath = engine.get('path_override', '')
+  recipes_path = pb.get('recipes_path', '')
 
-    return ast.literal_eval(text)
-
-  ret = {}
-  for line in fh:
-    line = line.strip()
-    m = re.match(r'(\w+)\s*:\s*(.*)', line)
-    if m:
-      ret.setdefault(m.group(1), []).append(parse_atom(m.group(1), m.group(2)))
-      continue
-
-    m = re.match(r'(\w+)\s*{', line)
-    if m:
-      subparse = parse_protobuf(fh)
-      ret.setdefault(m.group(1), []).append(subparse)
-      continue
-
-    if line == '}':
-      return ret
-    if line == '':
-      continue
-
-    raise ValueError('Could not understand line: <%s>' % line)
-
-  return ret
-
-
-def get_unique(things):
-  if len(things) == 1:
-    return things[0]
-  elif len(things) == 0:
-    raise ValueError("Expected to get one thing, but dinna get none.")
-  else:
-    logging.warn('Expected to get one thing, but got a bunch: %s\n%s' %
-                 (things, traceback.format_stack()))
-    return things[0]
+  recipes_path = os.path.join(repo_root, recipes_path.replace('/', os.path.sep))
+  return engine_url, engine_revision, engine_subpath, recipes_path
 
 
 def _subprocess_call(argv, **kwargs):
   logging.info('Running %r', argv)
   return subprocess.call(argv, **kwargs)
 
+
 def _subprocess_check_call(argv, **kwargs):
   logging.info('Running %r', argv)
   subprocess.check_call(argv, **kwargs)
 
 
+def find_engine_override(argv):
+  """Since the bootstrap process attempts to defer all logic to the recipes-py
+  repo, we need to be aware if the user is overriding the recipe_engine
+  dependency. This looks for and returns the overridden recipe_engine path, if
+  any, or None if the user didn't override it."""
+  PREFIX = 'recipe_engine='
+
+  p = argparse.ArgumentParser()
+  p.add_argument('-O', '--project-override', action='append')
+  args, _ = p.parse_known_args(argv)
+  for override in args.project_override or ():
+    if override.startswith(PREFIX):
+      return override[len(PREFIX):]
+  return None
+
+
 def main():
   if '--verbose' in sys.argv:
     logging.getLogger().setLevel(logging.INFO)
+
+  if REPO_ROOT is None or RECIPES_CFG is None:
+    logging.error(
+      'In order to use this script, please copy it to your repo and '
+      'replace the REPO_ROOT and RECIPES_CFG values with approprite paths.')
+    sys.exit(1)
 
   if sys.platform.startswith(('win', 'cygwin')):
     git = 'git.bat'
@@ -122,49 +127,45 @@ def main():
       os.path.join(os.path.dirname(__file__), REPO_ROOT))
   recipes_cfg_path = os.path.join(repo_root, RECIPES_CFG)
 
-  with open(recipes_cfg_path, 'rU') as fh:
-    protobuf = parse_protobuf(fh)
+  engine_url, engine_revision, engine_subpath, recipes_path = parse(
+    repo_root, recipes_cfg_path)
 
-  engine_buf = get_unique([
-      b for b in protobuf['deps'] if b.get('project_id') == ['recipe_engine'] ])
-  engine_url = get_unique(engine_buf['url'])
-  engine_revision = get_unique(engine_buf['revision'])
-  engine_subpath = (get_unique(engine_buf.get('path_override', ['']))
-                    .replace('/', os.path.sep))
+  engine_path = find_engine_override(sys.argv[1:])
+  if not engine_path and engine_url.startswith('file://'):
+    engine_path = urlparse.urlparse(engine_url).path
 
-  recipes_path = os.path.join(repo_root,
-      get_unique(protobuf['recipes_path']).replace('/', os.path.sep))
-  deps_path = os.path.join(recipes_path, '.recipe_deps')
-  engine_path = os.path.join(deps_path, 'recipe_engine')
+  if not engine_path:
+    deps_path = os.path.join(recipes_path, '.recipe_deps')
+    # Ensure that we have the recipe engine cloned.
+    engine_root_path = os.path.join(deps_path, 'recipe_engine')
+    engine_path = os.path.join(engine_root_path, engine_subpath)
+    def ensure_engine():
+      if not os.path.exists(deps_path):
+        os.makedirs(deps_path)
+      if not os.path.exists(engine_root_path):
+        _subprocess_check_call([git, 'clone', engine_url, engine_root_path])
 
-  # Ensure that we have the recipe engine cloned.
-  def ensure_engine():
-    if not os.path.exists(deps_path):
-      os.makedirs(deps_path)
-    if not os.path.exists(engine_path):
-      _subprocess_check_call([git, 'clone', engine_url, engine_path])
+      needs_fetch = _subprocess_call(
+          [git, 'rev-parse', '--verify', '%s^{commit}' % engine_revision],
+          cwd=engine_root_path, stdout=open(os.devnull, 'w'))
+      if needs_fetch:
+        _subprocess_check_call([git, 'fetch'], cwd=engine_root_path)
+      _subprocess_check_call(
+          [git, 'checkout', '--quiet', engine_revision], cwd=engine_root_path)
 
-    needs_fetch = _subprocess_call(
-        [git, 'rev-parse', '--verify', '%s^{commit}' % engine_revision],
-        cwd=engine_path, stdout=open(os.devnull, 'w'))
-    if needs_fetch:
-      _subprocess_check_call([git, 'fetch'], cwd=engine_path)
-    _subprocess_check_call(
-        [git, 'checkout', '--quiet', engine_revision], cwd=engine_path)
+    try:
+      ensure_engine()
+    except subprocess.CalledProcessError:
+      logging.exception('ensure_engine failed')
 
-  try:
-    ensure_engine()
-  except subprocess.CalledProcessError:
-    logging.exception('ensure_engine failed')
-
-    # Retry errors.
-    time.sleep(random.uniform(2,5))
-    ensure_engine()
+      # Retry errors.
+      time.sleep(random.uniform(2,5))
+      ensure_engine()
 
   args = ['--package', recipes_cfg_path] + sys.argv[1:]
   return _subprocess_call([
       sys.executable, '-u',
-      os.path.join(engine_path, engine_subpath, 'recipes.py')] + args)
+      os.path.join(engine_path, 'recipes.py')] + args)
 
 if __name__ == '__main__':
   sys.exit(main())

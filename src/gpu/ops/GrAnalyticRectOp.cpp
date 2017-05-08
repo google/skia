@@ -69,7 +69,7 @@ public:
 
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
-    virtual ~RectGeometryProcessor() {}
+    ~RectGeometryProcessor() override {}
 
     const char* name() const override { return "RectEdge"; }
 
@@ -230,7 +230,7 @@ sk_sp<GrGeometryProcessor> RectGeometryProcessor::TestCreate(GrProcessorTestData
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class AnalyticRectOp final : public GrMeshDrawOp {
+class AnalyticRectOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -269,12 +269,13 @@ public:
     }
 
 private:
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fGeoData[0].fColor);
-        input->coverageInput()->setToUnknown();
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
+        color->setToConstant(fGeoData[0].fColor);
+        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fGeoData[0].fColor);
         if (!optimizations.readsLocalCoords()) {
             fViewMatrixIfUsingLocalCoords.reset();
@@ -343,7 +344,7 @@ private:
 
             verts += kVerticesPerQuad;
         }
-        helper.recordDraw(target, gp.get());
+        helper.recordDraw(target, gp.get(), this->pipeline());
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -374,15 +375,15 @@ private:
     SkMatrix fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
-std::unique_ptr<GrDrawOp> GrAnalyticRectOp::Make(GrColor color,
-                                                 const SkMatrix& viewMatrix,
-                                                 const SkRect& rect,
-                                                 const SkRect& croppedRect,
-                                                 const SkRect& bounds) {
-    return std::unique_ptr<GrDrawOp>(
+std::unique_ptr<GrLegacyMeshDrawOp> GrAnalyticRectOp::Make(GrColor color,
+                                                           const SkMatrix& viewMatrix,
+                                                           const SkRect& rect,
+                                                           const SkRect& croppedRect,
+                                                           const SkRect& bounds) {
+    return std::unique_ptr<GrLegacyMeshDrawOp>(
             new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds));
 }
 
@@ -394,7 +395,7 @@ DRAW_OP_TEST_DEFINE(AnalyticRectOp) {
     SkRect rect = GrTest::TestSquare(random);
     SkRect croppedRect = GrTest::TestSquare(random);
     SkRect bounds = GrTest::TestSquare(random);
-    return std::unique_ptr<GrDrawOp>(
+    return std::unique_ptr<GrLegacyMeshDrawOp>(
             new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds));
 }
 

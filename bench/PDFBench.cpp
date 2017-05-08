@@ -17,16 +17,9 @@
 #include "SkStream.h"
 
 namespace {
-struct NullWStream : public SkWStream {
-    NullWStream() : fN(0) {}
-    bool write(const void*, size_t n) override { fN += n; return true; }
-    size_t bytesWritten() const override { return fN; }
-    size_t fN;
-};
-
 struct WStreamWriteTextBenchmark : public Benchmark {
     std::unique_ptr<SkWStream> fWStream;
-    WStreamWriteTextBenchmark() : fWStream(new NullWStream) {}
+    WStreamWriteTextBenchmark() : fWStream(new SkNullWStream) {}
     const char* onGetName() override { return "WStreamWriteText"; }
     bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
@@ -53,7 +46,7 @@ DEF_BENCH(return new WStreamWriteTextBenchmark;)
 namespace {
 static void test_pdf_object_serialization(const sk_sp<SkPDFObject> object) {
     // SkDebugWStream wStream;
-    NullWStream wStream;
+    SkNullWStream wStream;
     SkPDFObjNumMap objNumMap;
     objNumMap.addObjectRecursively(object.get());
     for (int i = 0; i < objNumMap.objects().count(); ++i) {
@@ -68,7 +61,7 @@ static void test_pdf_object_serialization(const sk_sp<SkPDFObject> object) {
 class PDFImageBench : public Benchmark {
 public:
     PDFImageBench() {}
-    virtual ~PDFImageBench() {}
+    ~PDFImageBench() override {}
 
 protected:
     const char* onGetName() override { return "PDFImage"; }
@@ -107,7 +100,7 @@ private:
 class PDFJpegImageBench : public Benchmark {
 public:
     PDFJpegImageBench() {}
-    virtual ~PDFJpegImageBench() {}
+    ~PDFJpegImageBench() override {}
 
 protected:
     const char* onGetName() override { return "PDFJpegImage"; }
@@ -146,7 +139,7 @@ private:
 class PDFCompressionBench : public Benchmark {
 public:
     PDFCompressionBench() {}
-    virtual ~PDFCompressionBench() {}
+    ~PDFCompressionBench() override {}
 
 protected:
     const char* onGetName() override { return "PDFCompression"; }
@@ -220,7 +213,7 @@ struct PDFShaderBench : public Benchmark {
     void onDraw(int loops, SkCanvas*) final {
         SkASSERT(fShader);
         while (loops-- > 0) {
-            NullWStream nullStream;
+            SkNullWStream nullStream;
             SkPDFDocument doc(&nullStream, nullptr, 72,
                               SkDocument::PDFMetadata(), nullptr, false);
             sk_sp<SkPDFObject> shader(
@@ -233,7 +226,7 @@ struct PDFShaderBench : public Benchmark {
 
 struct WritePDFTextBenchmark : public Benchmark {
     std::unique_ptr<SkWStream> fWStream;
-    WritePDFTextBenchmark() : fWStream(new NullWStream) {}
+    WritePDFTextBenchmark() : fWStream(new SkNullWStream) {}
     const char* onGetName() override { return "WritePDFText"; }
     bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;

@@ -122,17 +122,17 @@ public:
     }
 
     /**
-     * Implements GrTextureProvider::wrapBackendTexture
+     * Implements GrResourceProvider::wrapBackendTexture
      */
     sk_sp<GrTexture> wrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership);
 
     /**
-     * Implements GrTextureProvider::wrapBackendRenderTarget
+     * Implements GrResourceProvider::wrapBackendRenderTarget
      */
-    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc&,GrWrapOwnership);
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc&);
 
     /**
-     * Implements GrTextureProvider::wrapBackendTextureAsRenderTarget
+     * Implements GrResourceProvider::wrapBackendTextureAsRenderTarget
      */
     sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&);
 
@@ -307,14 +307,6 @@ public:
                         GrPixelConfig config, GrBuffer* transferBuffer,
                         size_t offset, size_t rowBytes, GrFence* fence);
 
-    /**
-     * This is can be called before allocating a texture to be a dst for copySurface. This is only
-     * used for doing dst copies needed in blends, thus the src is always a GrRenderTarget. It will
-     * populate the origin, config, and flags fields of the desc such that copySurface can
-     * efficiently succeed.
-     */
-    virtual bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const = 0;
-
     // After the client interacts directly with the 3D context state the GrGpu
     // must resync its internal state and assumptions about 3D context state.
     // Each time this occurs the GrGpu bumps a timestamp.
@@ -376,7 +368,7 @@ public:
             const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) = 0;
 
     // Called by GrOpList when flushing.
-    // Provides a hook for post-flush actions (e.g. PLS reset and Vulkan command buffer submits).
+    // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits).
     virtual void finishOpList() {}
 
     virtual GrFence SK_WARN_UNUSED_RESULT insertFence() = 0;
@@ -480,22 +472,23 @@ public:
 
     // Determines whether a texture will need to be rescaled in order to be used with the
     // GrSamplerParams. This variation is called when the caller will create a new texture using the
-    // texture provider from a non-texture src (cpu-backed image, ...).
-    bool makeCopyForTextureParams(int width, int height, const GrSamplerParams&,
-                                 GrTextureProducer::CopyParams*, SkScalar scaleAdjust[2]) const;
+    // resource provider from a non-texture src (cpu-backed image, ...).
+    bool isACopyNeededForTextureParams(int width, int height, const GrSamplerParams&,
+                                       GrTextureProducer::CopyParams*,
+                                       SkScalar scaleAdjust[2]) const;
 
     // Like the above but this variation should be called when the caller is not creating the
     // original texture but rather was handed the original texture. It adds additional checks
     // relevant to original textures that were created external to Skia via
-    // GrTextureProvider::wrap methods.
-    bool makeCopyForTextureParams(GrTexture* texture, const GrSamplerParams& params,
-                                  GrTextureProducer::CopyParams* copyParams,
-                                  SkScalar scaleAdjust[2]) const {
-        if (this->makeCopyForTextureParams(texture->width(), texture->height(), params,
-                                           copyParams, scaleAdjust)) {
+    // GrResourceProvider::wrap methods.
+    bool isACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerParams& params,
+                                       GrTextureProducer::CopyParams* copyParams,
+                                       SkScalar scaleAdjust[2]) const {
+        if (this->isACopyNeededForTextureParams(proxy->width(), proxy->height(), params,
+                                                copyParams, scaleAdjust)) {
             return true;
         }
-        return this->onMakeCopyForTextureParams(texture, params, copyParams, scaleAdjust);
+        return this->onIsACopyNeededForTextureParams(proxy, params, copyParams, scaleAdjust);
     }
 
     // This is only to be used in GL-specific tests.
@@ -550,17 +543,18 @@ private:
                                                  const SkTArray<GrMipLevel>& texels) = 0;
 
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) = 0;
-    virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
-                                                            GrWrapOwnership) = 0;
+    virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) = 0;
     virtual sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&)=0;
     virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                                      const void* data) = 0;
 
     virtual gr_instanced::InstancedRendering* onCreateInstancedRendering() = 0;
 
-    virtual bool onMakeCopyForTextureParams(GrTexture* texture, const GrSamplerParams&,
-                                            GrTextureProducer::CopyParams*,
-                                            SkScalar scaleAdjust[2]) const { return false; }
+    virtual bool onIsACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerParams&,
+                                                 GrTextureProducer::CopyParams*,
+                                                 SkScalar scaleAdjust[2]) const {
+        return false;
+    }
 
     virtual bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight,
                                      size_t rowBytes, GrPixelConfig readConfig, DrawPreference*,

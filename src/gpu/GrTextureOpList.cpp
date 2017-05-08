@@ -45,15 +45,12 @@ void GrTextureOpList::dump() const {
 #endif
 
 void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
-    // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
-    // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
-    // but need to be flushed anyway. Closing such GrOpLists here will mean new
-    // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
-    this->makeClosed();
+    // MDB TODO: add SkASSERT(this->isClosed());
 
     // Loop over the ops that haven't yet generated their geometry
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (fRecordedOps[i]) {
+            // We do not call flushState->setDrawOpArgs as this op list does not support GrDrawOps.
             fRecordedOps[i]->prepare(flushState);
         }
     }
@@ -65,7 +62,8 @@ bool GrTextureOpList::executeOps(GrOpFlushState* flushState) {
     }
 
     for (int i = 0; i < fRecordedOps.count(); ++i) {
-        fRecordedOps[i]->execute(flushState, fRecordedOps[i]->bounds());
+        // We do not call flushState->setDrawOpArgs as this op list does not support GrDrawOps.
+        fRecordedOps[i]->execute(flushState);
     }
 
     fGpu->finishOpList();
@@ -78,11 +76,12 @@ void GrTextureOpList::reset() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrTextureOpList::copySurface(GrSurface* dst,
-                                  GrSurface* src,
+bool GrTextureOpList::copySurface(GrResourceProvider* resourceProvider,
+                                  GrSurfaceProxy* dst,
+                                  GrSurfaceProxy* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(resourceProvider, dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
@@ -91,15 +90,19 @@ bool GrTextureOpList::copySurface(GrSurface* dst,
 #endif
 
     // See the comment in GrRenderTargetOpList about why we pass the invalid ID here.
-    this->recordOp(std::move(op), GrGpuResource::UniqueID::InvalidID());
+    this->recordOp(std::move(op),
+                   GrGpuResource::UniqueID::InvalidID(),
+                   GrSurfaceProxy::UniqueID::InvalidID());
     return true;
 }
 
-void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op, GrGpuResource::UniqueID renderTargetID) {
+void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op,
+                               GrGpuResource::UniqueID resourceUniqueID,
+                               GrSurfaceProxy::UniqueID proxyUniqueID) {
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
 
-    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), renderTargetID);
+    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), resourceUniqueID, proxyUniqueID);
     GrOP_INFO("Re-Recording (%s, B%u)\n"
         "\tBounds LRTB (%f, %f, %f, %f)\n",
         op->name(),

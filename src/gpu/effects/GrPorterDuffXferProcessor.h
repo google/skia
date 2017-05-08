@@ -12,8 +12,6 @@
 #include "GrXferProcessor.h"
 #include "SkBlendMode.h"
 
-class GrProcOptInfo;
-
 // See the comment above GrXPFactory's definition about this warning suppression.
 #if defined(__GNUC__) || defined(__clang)
 #pragma GCC diagnostic push
@@ -25,34 +23,33 @@ public:
 
     /** Because src-over is so common we special case it for performance reasons. If this returns
         null then the SimpleSrcOverXP() below should be used. */
-    static GrXferProcessor* CreateSrcOverXferProcessor(const GrCaps& caps,
-                                                       const FragmentProcessorAnalysis&,
-                                                       bool hasMixedSamples,
-                                                       const GrXferProcessor::DstTexture*);
+    static sk_sp<const GrXferProcessor> MakeSrcOverXferProcessor(const GrProcessorAnalysisColor&,
+                                                                 GrProcessorAnalysisCoverage,
+                                                                 bool hasMixedSamples,
+                                                                 const GrCaps&);
 
     /** Returns a simple non-LCD porter duff blend XP with no optimizations or coverage. */
-    static sk_sp<GrXferProcessor> CreateNoCoverageXP(SkBlendMode);
+    static sk_sp<const GrXferProcessor> MakeNoCoverageXP(SkBlendMode);
 
     /** This XP implements non-LCD src-over using hw blend with no optimizations. It is returned
         by reference because it is global and its ref-cnting methods are not thread safe. */
     static const GrXferProcessor& SimpleSrcOverXP();
 
-    static bool WillSrcOverReadDst(const FragmentProcessorAnalysis& analysis);
-    static bool IsSrcOverPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
-                                                         GrColor* color);
-    static bool WillSrcOverNeedDstTexture(const GrCaps&, const FragmentProcessorAnalysis&);
+    static AnalysisProperties SrcOverAnalysisProperties(const GrProcessorAnalysisColor&,
+                                                        const GrProcessorAnalysisCoverage&,
+                                                        const GrCaps&);
 
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
-    bool willReadsDst(const FragmentProcessorAnalysis&) const override;
+    sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                   GrProcessorAnalysisCoverage,
+                                                   bool hasMixedSamples,
+                                                   const GrCaps&) const override;
 
-    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const FragmentProcessorAnalysis&,
-                                           bool hasMixedSamples,
-                                           const DstTexture*) const override;
-
-    bool onWillReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override;
+    AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
+                                          const GrProcessorAnalysisCoverage&,
+                                          const GrCaps&) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
     static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);

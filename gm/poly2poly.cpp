@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "Resources.h"
 #include "SkPath.h"
 #include "SkTypeface.h"

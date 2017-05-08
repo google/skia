@@ -9,6 +9,8 @@
 #define SkTLList_DEFINED
 
 #include "SkTInternalLList.h"
+
+#include "SkMalloc.h"
 #include "SkTypes.h"
 #include <utility>
 

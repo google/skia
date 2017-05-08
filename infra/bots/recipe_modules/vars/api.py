@@ -25,27 +25,17 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     """Prepare the variables."""
     # Setup
     self.builder_name = self.m.properties['buildername']
-    self.master_name = self.m.properties['mastername']
-    self.slave_name = self.m.properties['slavename']
-    self.build_number = self.m.properties['buildnumber']
 
     self.slave_dir = self.m.path['start_dir']
     self.checkout_root = self.slave_dir
-    self.default_env = {}
+    self.default_env = self.m.step.get_from_context('env', {})
+    self.default_env['CHROME_HEADLESS'] = '1'
+    self.default_env['PATH'] = self.m.path.pathsep.join([
+        self.default_env.get('PATH', '%(PATH)s'),
+        str(self.m.bot_update._module.PACKAGE_REPO_ROOT),
+    ])
     self.gclient_env = {}
     self.is_compile_bot = self.builder_name.startswith('Build-')
-    self.no_buildbot = self.m.properties.get('nobuildbot', '') == 'True'
-    self.skia_task_id = self.m.properties.get('skia_task_id', None)
-
-    self.default_env['CHROME_HEADLESS'] = '1'
-    # The 'depot_tools' directory comes from recipe DEPS and isn't provided by
-    # default. We have to set it manually.
-    self.m.path.c.base_paths['depot_tools'] = (
-        self.m.path.c.base_paths['start_dir'] +
-        ('skia', 'infra', 'bots', '.recipe_deps', 'depot_tools'))
-    if 'Win' in self.builder_name:
-      self.m.path.c.base_paths['depot_tools'] = (
-          'c:\\', 'Users', 'chrome-bot', 'depot_tools')
 
     # Compile bots keep a persistent checkout.
     self.persistent_checkout = (self.is_compile_bot or
@@ -53,6 +43,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
                                 '-CT_' in self.builder_name or
                                 'Presubmit' in self.builder_name or
                                 'InfraTests' in self.builder_name or
+                                'BundleRecipes' in self.builder_name or
                                 self.builder_name == "Housekeeper-PerCommit")
     if self.persistent_checkout:
       if 'Win' in self.builder_name:
@@ -122,30 +113,15 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.default_env.update({'SKIA_OUT': self.skia_out,
                              'BUILDTYPE': self.configuration})
 
-    self.patch_storage = self.m.properties.get('patch_storage', 'rietveld')
+    self.patch_storage = self.m.properties.get('patch_storage', 'gerrit')
     self.issue = None
     self.patchset = None
-    if self.no_buildbot:
-      self.is_trybot = False
-      if (self.m.properties.get('issue', '') and
-          self.m.properties.get('patchset', '')):
-        self.is_trybot = True
-        self.issue = self.m.properties['issue']
-        self.patchset = self.m.properties['patchset']
-      elif (self.m.properties.get('patch_issue', '') and
-            self.m.properties.get('patch_set', '')):
-        self.is_trybot = True
-        self.issue = self.m.properties['patch_issue']
-        self.patchset = self.m.properties['patch_set']
-    else:
-      self.is_trybot = self.builder_cfg['is_trybot']
-      if self.is_trybot:
-        if self.patch_storage == 'gerrit':
-          self.issue = self.m.properties['patch_issue']
-          self.patchset = self.m.properties['patch_set']
-        else:
-          self.issue = self.m.properties['issue']
-          self.patchset = self.m.properties['patchset']
+    self.is_trybot = False
+    if (self.m.properties.get('patch_issue', '') and
+        self.m.properties.get('patch_set', '')):
+      self.is_trybot = True
+      self.issue = self.m.properties['patch_issue']
+      self.patchset = self.m.properties['patch_set']
 
     self.dm_dir = self.m.path.join(
         self.swarming_out_dir, 'dm')
@@ -158,6 +134,13 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.android_data_dir = '/sdcard/revenge_of_the_skiabot/'
     # Executables go under _bin_dir, which, well, allows executable files.
     self.android_bin_dir  = '/data/local/tmp/'
+
+    if self.builder_cfg.get('os', '') == 'Chromecast':
+      # On the Chromecast, everything goes in the (~110M) /cache/skia
+      self.android_bin_dir  = '/cache/skia/'
+      self.android_data_dir = '/cache/skia/'
+
+    self.chromeos_homedir = '/home/chronos/user/'
 
   @property
   def upload_dm_results(self):

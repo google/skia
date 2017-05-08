@@ -96,22 +96,30 @@ public:
         fIndexPool.reset();
     }
 
+    /** Additional data required on a per-op basis when executing GrDrawOps. */
+    struct DrawOpArgs {
+        GrRenderTarget* fRenderTarget;
+        const GrAppliedClip* fAppliedClip;
+        GrXferProcessor::DstTexture fDstTexture;
+    };
+
+    void setDrawOpArgs(DrawOpArgs* opArgs) { fOpArgs = opArgs; }
+
+    const DrawOpArgs& drawOpArgs() const {
+        SkASSERT(fOpArgs);
+        return *fOpArgs;
+    }
+
 private:
-
     GrGpu*                                      fGpu;
-
     GrResourceProvider*                         fResourceProvider;
-
     GrGpuCommandBuffer*                         fCommandBuffer;
-
     GrVertexBufferAllocPool                     fVertexPool;
     GrIndexBufferAllocPool                      fIndexPool;
-
     SkSTArray<4, GrDrawOp::DeferredUploadFn>    fAsapUploads;
-
     GrDrawOpUploadToken                         fLastIssuedToken;
-
     GrDrawOpUploadToken                         fLastFlushedToken;
+    DrawOpArgs*                                 fOpArgs;
 };
 
 /**
@@ -186,7 +194,7 @@ class GrMeshDrawOp::Target : public GrDrawOp::Target {
 public:
     Target(GrOpFlushState* state, GrMeshDrawOp* op) : INHERITED(state, op) {}
 
-    void draw(const GrGeometryProcessor* gp, const GrMesh& mesh);
+    void draw(const GrGeometryProcessor* gp, const GrPipeline* pipeline, const GrMesh& mesh);
 
     void* makeVertexSpace(size_t vertexSize, int vertexCount,
                           const GrBuffer** buffer, int* startVertex) {

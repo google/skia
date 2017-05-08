@@ -114,11 +114,6 @@ public:
         // with a bit-width and you'll have to expand it.
 
         kAllFlags = 0xFFFF,
-
-#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION
-        kUnderlineText_Flag   = 0x08,
-        kStrikeThruText_Flag  = 0x10,
-#endif
     };
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -237,20 +232,6 @@ public:
      *  horizontally.
      */
     void setVerticalText(bool);
-
-    /** Helper for getFlags(), returning true if kUnderlineText_Flag bit is set
-        @return true if the underlineText bit is set in the paint's flags.
-    */
-#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION
-    bool isUnderlineText() const { return false; }
-#endif
-
-    /** Helper for getFlags(), returns true if kStrikeThruText_Flag bit is set
-        @return true if the strikeThruText bit is set in the paint's flags.
-    */
-#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION
-    bool isStrikeThruText() const { return false; }
-#endif
 
     /** Helper for getFlags(), returns true if kFakeBoldText_Flag bit is set
         @return true if the kFakeBoldText_Flag bit is set in the paint's flags.
@@ -707,7 +688,7 @@ public:
             A set flag indicates that the metric may be trusted.
         */
         enum FontMetricsFlags {
-            kUnderlineThinknessIsValid_Flag = 1 << 0,
+            kUnderlineThicknessIsValid_Flag = 1 << 0,
             kUnderlinePositionIsValid_Flag = 1 << 1,
         };
 
@@ -733,21 +714,21 @@ public:
          */
         SkScalar    fUnderlinePosition; //!< underline position, or 0 if cannot be determined
 
-        /**  If the fontmetrics has a valid underlinethickness, return true, and set the
+        /**  If the fontmetrics has a valid underline thickness, return true, and set the
                 thickness param to that value. If it doesn't return false and ignore the
                 thickness param.
         */
         bool hasUnderlineThickness(SkScalar* thickness) const {
-            if (SkToBool(fFlags & kUnderlineThinknessIsValid_Flag)) {
+            if (SkToBool(fFlags & kUnderlineThicknessIsValid_Flag)) {
                 *thickness = fUnderlineThickness;
                 return true;
             }
             return false;
         }
 
-        /**  If the fontmetrics has a valid underlineposition, return true, and set the
-                thickness param to that value. If it doesn't return false and ignore the
-                thickness param.
+        /**  If the fontmetrics has a valid underline position, return true, and set the
+                position param to that value. If it doesn't return false and ignore the
+                position param.
         */
         bool hasUnderlinePosition(SkScalar* position) const {
             if (SkToBool(fFlags & kUnderlinePositionIsValid_Flag)) {

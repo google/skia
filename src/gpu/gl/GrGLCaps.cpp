@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrGLCaps.h"
-
 #include "GrContextOptions.h"
 #include "GrGLContext.h"
 #include "GrGLRenderTarget.h"
+#include "GrGLTexture.h"
 #include "GrShaderCaps.h"
-#include "instanced/GLInstancedRendering.h"
+#include "GrSurfaceProxyPriv.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
+#include "instanced/GLInstancedRendering.h"
 
 GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
                    const GrGLContextInfo& ctxInfo,
@@ -290,17 +290,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // We use this value for GLSL ES 3.0.
     }
 
-    if (ctxInfo.hasExtension("GL_EXT_shader_pixel_local_storage")) {
-        #define GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_FAST_SIZE_EXT 0x8F63
-        GR_GL_GetIntegerv(gli, GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_FAST_SIZE_EXT,
-                          &shaderCaps->fPixelLocalStorageSize);
-        shaderCaps->fPLSPathRenderingSupport = shaderCaps->fFBFetchSupport;
-    }
-    else {
-        shaderCaps->fPixelLocalStorageSize = 0;
-        shaderCaps->fPLSPathRenderingSupport = false;
-    }
-
     // Protect ourselves against tracking huge amounts of texture state.
     static const uint8_t kMaxSaneSamplers = 32;
     GrGLint maxSamplers;
@@ -511,7 +500,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer() ||
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
-        kAdreno3xx_GrGLRenderer == ctxInfo.renderer()) {
+        (kAdreno3xx_GrGLRenderer == ctxInfo.renderer() &&
+         ctxInfo.driver() != kChromium_GrGLDriver)) {
         fUseDrawInsteadOfClear = true;
     }
 
@@ -1029,6 +1019,7 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         // is available.
         if (ctxInfo.version() >= GR_GL_VER(3, 0)) {
             fBlitFramebufferFlags = kNoFormatConversionForMSAASrc_BlitFramebufferFlag |
+                                    kNoMSAADst_BlitFramebufferFlag |
                                     kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
         } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample") ||
                    ctxInfo.hasExtension("GL_ANGLE_framebuffer_blit")) {
@@ -1037,7 +1028,8 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fBlitFramebufferFlags = kNoScalingOrMirroring_BlitFramebufferFlag |
                                     kResolveMustBeFull_BlitFrambufferFlag |
                                     kNoMSAADst_BlitFramebufferFlag |
-                                    kNoFormatConversion_BlitFramebufferFlag;
+                                    kNoFormatConversion_BlitFramebufferFlag |
+                                    kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
         }
     } else {
         if (fUsesMixedSamples) {
@@ -1266,9 +1258,10 @@ static GrGLenum precision_to_gl_float_type(GrSLPrecision p) {
         return GR_GL_MEDIUM_FLOAT;
     case kHigh_GrSLPrecision:
         return GR_GL_HIGH_FLOAT;
+    default:
+        SkFAIL("Unexpected precision type.");
+        return -1;
     }
-    SkFAIL("Unknown precision.");
-    return -1;
 }
 
 static GrGLenum shader_type_to_gl_shader(GrShaderType type) {
@@ -2077,6 +2070,93 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         SkASSERT(defaultEntry.fFormats.fExternalType != fConfigTable[i].fFormats.fExternalType);
     }
 #endif
+}
+
+bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+                                  bool* rectsMustMatch, bool* disallowSubrect) const {
+    // By default, we don't require rects to match.
+    *rectsMustMatch = false;
+
+    // By default, we allow subrects.
+    *disallowSubrect = false;
+
+    // If the src is a texture, we can implement the blit as a draw assuming the config is
+    // renderable.
+    if (src->asTextureProxy() && this->isConfigRenderable(src->config(), false)) {
+        desc->fOrigin = kBottomLeft_GrSurfaceOrigin;
+        desc->fFlags = kRenderTarget_GrSurfaceFlag;
+        desc->fConfig = src->config();
+        return true;
+    }
+
+    {
+        // The only way we could see a non-GR_GL_TEXTURE_2D texture would be if it were
+        // wrapped. In that case the proxy would already be instantiated.
+        const GrTexture* srcTexture = src->priv().peekTexture();
+        const GrGLTexture* glSrcTexture = static_cast<const GrGLTexture*>(srcTexture);
+        if (glSrcTexture && glSrcTexture->target() != GR_GL_TEXTURE_2D) {
+            // Not supported for FBO blit or CopyTexSubImage
+            return false;
+        }
+    }
+
+    // We look for opportunities to use CopyTexSubImage, or fbo blit. If neither are
+    // possible and we return false to fallback to creating a render target dst for render-to-
+    // texture. This code prefers CopyTexSubImage to fbo blit and avoids triggering temporary fbo
+    // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
+    GrSurfaceOrigin originForBlitFramebuffer = kDefault_GrSurfaceOrigin;
+    bool rectsMustMatchForBlitFramebuffer = false;
+    bool disallowSubrectForBlitFramebuffer = false;
+    if (src->numColorSamples() &&
+        (this->blitFramebufferSupportFlags() & kResolveMustBeFull_BlitFrambufferFlag)) {
+        rectsMustMatchForBlitFramebuffer = true;
+        disallowSubrectForBlitFramebuffer = true;
+        // Mirroring causes rects to mismatch later, don't allow it.
+        originForBlitFramebuffer = src->origin();
+    } else if (src->numColorSamples() && (this->blitFramebufferSupportFlags() &
+                                          kRectsMustMatchForMSAASrc_BlitFramebufferFlag)) {
+        rectsMustMatchForBlitFramebuffer = true;
+        // Mirroring causes rects to mismatch later, don't allow it.
+        originForBlitFramebuffer = src->origin();
+    } else if (this->blitFramebufferSupportFlags() & kNoScalingOrMirroring_BlitFramebufferFlag) {
+        originForBlitFramebuffer = src->origin();
+    }
+
+    // Check for format issues with glCopyTexSubImage2D
+    if (this->bgraIsInternalFormat() && kBGRA_8888_GrPixelConfig == src->config()) {
+        // glCopyTexSubImage2D doesn't work with this config. If the bgra can be used with fbo blit
+        // then we set up for that, otherwise fail.
+        if (this->canConfigBeFBOColorAttachment(kBGRA_8888_GrPixelConfig)) {
+            desc->fOrigin = originForBlitFramebuffer;
+            desc->fConfig = kBGRA_8888_GrPixelConfig;
+            *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
+            *disallowSubrect = disallowSubrectForBlitFramebuffer;
+            return true;
+        }
+        return false;
+    }
+
+    {
+        bool srcIsMSAARenderbuffer = src->desc().fSampleCnt > 0 && this->usesMSAARenderBuffers();
+        if (srcIsMSAARenderbuffer) {
+            // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO
+            // blit or fail.
+            if (this->canConfigBeFBOColorAttachment(src->config())) {
+                desc->fOrigin = originForBlitFramebuffer;
+                desc->fConfig = src->config();
+                *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
+                *disallowSubrect = disallowSubrectForBlitFramebuffer;
+                return true;
+            }
+            return false;
+        }
+    }
+
+    // We'll do a CopyTexSubImage. Make the dst a plain old texture.
+    desc->fConfig = src->config();
+    desc->fOrigin = src->origin();
+    desc->fFlags = kNone_GrSurfaceFlags;
+    return true;
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {

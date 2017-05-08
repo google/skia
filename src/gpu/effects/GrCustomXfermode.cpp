@@ -7,8 +7,8 @@
 
 #include "effects/GrCustomXfermode.h"
 
+#include "GrCaps.h"
 #include "GrCoordTransform.h"
-#include "GrContext.h"
 #include "GrFragmentProcessor.h"
 #include "GrPipeline.h"
 #include "GrProcessor.h"
@@ -53,16 +53,11 @@ static constexpr GrBlendEquation hw_blend_equation(SkBlendMode mode) {
 }
 
 static bool can_use_hw_blend_equation(GrBlendEquation equation,
-                                      bool usePLSRead,
-                                      bool isLCDCoverage,
-                                      const GrCaps& caps) {
+                                      GrProcessorAnalysisCoverage coverage, const GrCaps& caps) {
     if (!caps.advancedBlendEquationSupport()) {
         return false;
     }
-    if (usePLSRead) {
-        return false;
-    }
-    if (isLCDCoverage) {
+    if (GrProcessorAnalysisCoverage::kLCD == coverage) {
         return false; // LCD coverage must be applied after the blend equation.
     }
     if (caps.canUseAdvancedBlendEquation(equation)) {
@@ -83,10 +78,10 @@ public:
         this->initClassID<CustomXP>();
     }
 
-    CustomXP(const DstTexture* dstTexture, bool hasMixedSamples, SkBlendMode mode)
-        : INHERITED(dstTexture, true, hasMixedSamples),
-          fMode(mode),
-          fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
+    CustomXP(bool hasMixedSamples, SkBlendMode mode)
+            : INHERITED(true, hasMixedSamples)
+            , fMode(mode)
+            , fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
         this->initClassID<CustomXP>();
     }
 
@@ -102,15 +97,10 @@ public:
         return fHWBlendEquation;
     }
 
+    GrXferBarrierType xferBarrierType(const GrCaps&) const override;
+
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&,
-                                                 bool doesStencilWrite,
-                                                 GrColor* overrideColor,
-                                                 const GrCaps& caps) const override;
-
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
-
-    GrXferBarrierType onXferBarrier(const GrRenderTarget*, const GrCaps&) const override;
 
     void onGetBlendInfo(BlendInfo*) const override;
 
@@ -197,13 +187,68 @@ bool CustomXP::onIsEqual(const GrXferProcessor& other) const {
     return fMode == s.fMode && fHWBlendEquation == s.fHWBlendEquation;
 }
 
-GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const FragmentProcessorAnalysis& analysis,
-                                                       bool doesStencilWrite,
-                                                       GrColor* overrideColor,
-                                                       const GrCaps& caps) const {
-    /*
-      Most the optimizations we do here are based on tweaking alpha for coverage.
+GrXferBarrierType CustomXP::xferBarrierType(const GrCaps& caps) const {
+    if (this->hasHWBlendEquation() && !caps.advancedCoherentBlendEquationSupport()) {
+        return kBlend_GrXferBarrierType;
+    }
+    return kNone_GrXferBarrierType;
+}
 
+void CustomXP::onGetBlendInfo(BlendInfo* blendInfo) const {
+    if (this->hasHWBlendEquation()) {
+        blendInfo->fEquation = this->hwBlendEquation();
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+// See the comment above GrXPFactory's definition about this warning suppression.
+#if defined(__GNUC__) || defined(__clang)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
+#endif
+class CustomXPFactory : public GrXPFactory {
+public:
+    constexpr CustomXPFactory(SkBlendMode mode)
+            : fMode(mode), fHWBlendEquation(hw_blend_equation(mode)) {}
+
+private:
+    sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                   GrProcessorAnalysisCoverage,
+                                                   bool hasMixedSamples,
+                                                   const GrCaps&) const override;
+
+    AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
+                                          const GrProcessorAnalysisCoverage&,
+                                          const GrCaps&) const override;
+
+    GR_DECLARE_XP_FACTORY_TEST;
+
+    SkBlendMode fMode;
+    GrBlendEquation fHWBlendEquation;
+
+    typedef GrXPFactory INHERITED;
+};
+#if defined(__GNUC__) || defined(__clang)
+#pragma GCC diagnostic pop
+#endif
+
+sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
+        const GrProcessorAnalysisColor&,
+        GrProcessorAnalysisCoverage coverage,
+        bool hasMixedSamples,
+        const GrCaps& caps) const {
+    SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
+    if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
+        return sk_sp<GrXferProcessor>(new CustomXP(fMode, fHWBlendEquation));
+    }
+    return sk_sp<GrXferProcessor>(new CustomXP(hasMixedSamples, fMode));
+}
+
+GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
+        const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage& coverage,
+        const GrCaps& caps) const {
+    /*
       The general SVG blend equation is defined in the spec as follows:
 
         Dca' = B(Sc, Dc) * Sa * Da + Y * Sca * (1-Da) + Z * Dca * (1-Sa)
@@ -297,80 +342,17 @@ GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const FragmentProcessorAn
           = f*Sa - f*Sa * Da + Da
           = f*Sa + Da - f*Sa * Da
           = blend(f*Sa, Da)
-     */
-
-    OptFlags flags = kNone_OptFlags;
-    if (analysis.isCompatibleWithCoverageAsAlpha()) {
-        flags |= kCanTweakAlphaForCoverage_OptFlag;
+    */
+    if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
+        if (caps.blendEquationSupport() == GrCaps::kAdvancedCoherent_BlendEquationSupport) {
+            return AnalysisProperties::kCompatibleWithAlphaAsCoverage;
+        } else {
+            return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
+                   AnalysisProperties::kRequiresBarrierBetweenOverlappingDraws;
+        }
     }
-    return flags;
-}
-
-GrXferBarrierType CustomXP::onXferBarrier(const GrRenderTarget* rt, const GrCaps& caps) const {
-    if (this->hasHWBlendEquation() && !caps.advancedCoherentBlendEquationSupport()) {
-        return kBlend_GrXferBarrierType;
-    }
-    return kNone_GrXferBarrierType;
-}
-
-void CustomXP::onGetBlendInfo(BlendInfo* blendInfo) const {
-    if (this->hasHWBlendEquation()) {
-        blendInfo->fEquation = this->hwBlendEquation();
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-// See the comment above GrXPFactory's definition about this warning suppression.
-#if defined(__GNUC__) || defined(__clang)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
-#endif
-class CustomXPFactory : public GrXPFactory {
-public:
-    constexpr CustomXPFactory(SkBlendMode mode)
-            : fMode(mode), fHWBlendEquation(hw_blend_equation(mode)) {}
-
-private:
-    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const FragmentProcessorAnalysis&,
-                                           bool hasMixedSamples,
-                                           const DstTexture*) const override;
-
-    bool willReadsDst(const FragmentProcessorAnalysis&) const override { return true; }
-
-    bool onWillReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override;
-
-    GR_DECLARE_XP_FACTORY_TEST;
-
-    SkBlendMode     fMode;
-    GrBlendEquation fHWBlendEquation;
-
-    typedef GrXPFactory INHERITED;
-};
-#if defined(__GNUC__) || defined(__clang)
-#pragma GCC diagnostic pop
-#endif
-
-GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                        const FragmentProcessorAnalysis& analysis,
-                                                        bool hasMixedSamples,
-                                                        const DstTexture* dstTexture) const {
-    SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
-    if (can_use_hw_blend_equation(fHWBlendEquation, analysis.usesPLSDstRead(),
-                                  analysis.hasLCDCoverage(), caps)) {
-        SkASSERT(!dstTexture || !dstTexture->texture());
-        return new CustomXP(fMode, fHWBlendEquation);
-    }
-    return new CustomXP(dstTexture, hasMixedSamples, fMode);
-}
-
-bool CustomXPFactory::onWillReadDstInShader(const GrCaps& caps,
-                                            const FragmentProcessorAnalysis& analysis) const {
-    // This should not be called if we're using PLS dst read.
-    static constexpr bool kUsesPLSRead = false;
-    return !can_use_hw_blend_equation(fHWBlendEquation, kUsesPLSRead, analysis.hasLCDCoverage(),
-                                      caps);
+    return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
+           AnalysisProperties::kReadsDstInShader;
 }
 
 GR_DEFINE_XP_FACTORY_TEST(CustomXPFactory);

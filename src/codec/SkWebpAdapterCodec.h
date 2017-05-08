@@ -19,7 +19,7 @@ public:
 
     explicit SkWebpAdapterCodec(SkWebpCodec*);
 
-    virtual ~SkWebpAdapterCodec() {}
+    ~SkWebpAdapterCodec() override {}
 
 protected:
 

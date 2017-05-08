@@ -23,6 +23,8 @@ class SkWStream;
 
     The SkPath class encapsulates compound (multiple contour) geometric paths
     consisting of straight line segments, quadratic curves, and cubic curves.
+
+    SkPath is not thread safe unless you've first called SkPath::updateBoundsCache().
 */
 class SK_API SkPath {
 public:

@@ -53,7 +53,7 @@ private:
     std::forward_list<std::vector<float>>        fTableStorage;
     std::vector<sk_sp<const SkGammas>>           fGammaRefs;
 
-    friend class SkColorSpaceXform;
+    friend class SkColorSpaceXform_Base;
 };
 
 #endif

@@ -27,7 +27,7 @@ inline GrFragmentProcessor::OptimizationFlags GrAlphaThresholdFragmentProcessor:
 }
 
 GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
-                                                           GrContext* context,
+                                                           GrResourceProvider* resourceProvider,
                                                            sk_sp<GrTextureProxy> proxy,
                                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                            sk_sp<GrTextureProxy> maskProxy,
@@ -37,16 +37,14 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         : INHERITED(OptFlags(outerThreshold))
         , fInnerThreshold(innerThreshold)
         , fOuterThreshold(outerThreshold)
-        , fImageCoordTransform(context, SkMatrix::I(), proxy.get(),
-                               GrSamplerParams::kNone_FilterMode)
-        , fImageTextureSampler(context->textureProvider(), std::move(proxy))
+        , fImageCoordTransform(resourceProvider, SkMatrix::I(), proxy.get())
+        , fImageTextureSampler(resourceProvider, std::move(proxy))
         , fColorSpaceXform(std::move(colorSpaceXform))
         , fMaskCoordTransform(
-                  context,
+                  resourceProvider,
                   SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
-                  maskProxy.get(),
-                  GrSamplerParams::kNone_FilterMode)
-        , fMaskTextureSampler(context->textureProvider(), maskProxy) {
+                  maskProxy.get())
+        , fMaskTextureSampler(resourceProvider, maskProxy) {
     this->initClassID<GrAlphaThresholdFragmentProcessor>();
     this->addCoordTransform(&fImageCoordTransform);
     this->addTextureSampler(&fImageTextureSampler);
@@ -74,12 +72,12 @@ public:
     }
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fInnerThresholdVar;
     GrGLSLProgramDataManager::UniformHandle fOuterThresholdVar;
-    GrGLSLProgramDataManager::UniformHandle fColorSpaceXformVar;
+    GrGLSLColorSpaceXformHelper fColorSpaceHelper;
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
@@ -94,8 +92,7 @@ void GrGLAlphaThresholdFragmentProcessor::emitCode(EmitArgs& args) {
 
     const GrAlphaThresholdFragmentProcessor& atfp =
         args.fFp.cast<GrAlphaThresholdFragmentProcessor>();
-    GrGLSLColorSpaceXformHelper colorSpaceHelper(uniformHandler, atfp.colorSpaceXform(),
-                                                 &fColorSpaceXformVar);
+    fColorSpaceHelper.emitCode(uniformHandler, atfp.colorSpaceXform());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
@@ -105,7 +102,7 @@ void GrGLAlphaThresholdFragmentProcessor::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("vec2 mask_coord = %s;", maskCoords2D.c_str());
     fragBuilder->codeAppend("vec4 input_color = ");
     fragBuilder->appendTextureLookup(args.fTexSamplers[0], "coord", kVec2f_GrSLType,
-                                     &colorSpaceHelper);
+                                     &fColorSpaceHelper);
     fragBuilder->codeAppend(";");
     fragBuilder->codeAppend("vec4 mask_color = ");
     fragBuilder->appendTextureLookup(args.fTexSamplers[1], "mask_coord");
@@ -135,12 +132,12 @@ void GrGLAlphaThresholdFragmentProcessor::emitCode(EmitArgs& args) {
 }
 
 void GrGLAlphaThresholdFragmentProcessor::onSetData(const GrGLSLProgramDataManager& pdman,
-                                                    const GrProcessor& proc) {
+                                                    const GrFragmentProcessor& proc) {
     const GrAlphaThresholdFragmentProcessor& atfp = proc.cast<GrAlphaThresholdFragmentProcessor>();
     pdman.set1f(fInnerThresholdVar, atfp.innerThreshold());
     pdman.set1f(fOuterThresholdVar, atfp.outerThreshold());
     if (SkToBool(atfp.colorSpaceXform())) {
-        pdman.setSkMatrix44(fColorSpaceXformVar, atfp.colorSpaceXform()->srcToDst());
+        fColorSpaceHelper.setData(pdman, atfp.colorSpaceXform());
     }
 }
 
@@ -163,7 +160,7 @@ sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(GrProce
     uint32_t y = d->fRandom->nextULessThan(kMaxHeight - height);
     SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    return GrAlphaThresholdFragmentProcessor::Make(d->context(),
+    return GrAlphaThresholdFragmentProcessor::Make(d->resourceProvider(),
                                                    std::move(bmpProxy),
                                                    std::move(colorSpaceXform),
                                                    std::move(maskProxy),

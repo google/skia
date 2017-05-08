@@ -12,6 +12,8 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 
+#include <memory.h>
+
 class SkStream;
 class SkStreamRewindable;
 class SkStreamSeekable;
@@ -230,9 +232,20 @@ public:
     static int SizeOfPackedUInt(size_t value);
 };
 
+class SK_API SkNullWStream : public SkWStream {
+public:
+    SkNullWStream() : fBytesWritten(0) {}
+
+    bool write(const void*, size_t n) override { fBytesWritten += n; return true; }
+    void flush() override {}
+    size_t bytesWritten() const override { return fBytesWritten; }
+
+private:
+    size_t fBytesWritten;
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkString.h"
 #include <stdio.h>
 
 /** A stream that wraps a C FILE* file stream. */
@@ -241,28 +254,20 @@ public:
     /** Initialize the stream by calling sk_fopen on the specified path.
      *  This internal stream will be closed in the destructor.
      */
-    explicit SkFILEStream(const char path[] = NULL);
+    explicit SkFILEStream(const char path[] = nullptr);
 
-    enum Ownership {
-        kCallerPasses_Ownership,
-        kCallerRetains_Ownership
-    };
     /** Initialize the stream with an existing C file stream.
-     *  While this stream exists, it assumes exclusive access to the C file stream.
-     *  The C file stream will be closed in the destructor unless the caller specifies
-     *  kCallerRetains_Ownership.
+     *  The C file stream will be closed in the destructor.
      */
-    explicit SkFILEStream(FILE* file, Ownership ownership = kCallerPasses_Ownership);
+    explicit SkFILEStream(FILE* file);
 
-    virtual ~SkFILEStream();
+    ~SkFILEStream() override;
 
     /** Returns true if the current path could be opened. */
-    bool isValid() const { return fFILE != NULL; }
+    bool isValid() const { return fFILE != nullptr; }
 
-    /** Close the current file, and open a new file with the specified path.
-     *  If path is NULL, just close the current file.
-     */
-    void setPath(const char path[]);
+    /** Close this SkFILEStream. */
+    void close();
 
     size_t read(void* buffer, size_t size) override;
     bool isAtEnd() const override;
@@ -280,11 +285,14 @@ public:
     const void* getMemoryBase() override;
 
 private:
-    FILE*       fFILE;
-    SkString    fName;
-    Ownership   fOwnership;
-    // fData is lazilly initialized when needed.
-    mutable sk_sp<SkData> fData;
+    explicit SkFILEStream(std::shared_ptr<FILE>, size_t size, size_t offset);
+    explicit SkFILEStream(std::shared_ptr<FILE>, size_t size, size_t offset, size_t originalOffset);
+
+    std::shared_ptr<FILE> fFILE;
+    // My own council will I keep on sizes and offsets.
+    size_t fSize;
+    size_t fOffset;
+    size_t fOriginalOffset;
 
     typedef SkStreamAsset INHERITED;
 };
@@ -349,7 +357,7 @@ private:
 class SK_API SkFILEWStream : public SkWStream {
 public:
     SkFILEWStream(const char path[]);
-    virtual ~SkFILEWStream();
+    ~SkFILEWStream() override;
 
     /** Returns true if the current path could be opened.
     */
@@ -369,7 +377,7 @@ private:
 class SK_API SkDynamicMemoryWStream : public SkWStream {
 public:
     SkDynamicMemoryWStream();
-    virtual ~SkDynamicMemoryWStream();
+    ~SkDynamicMemoryWStream() override;
 
     bool write(const void* buffer, size_t size) override;
     size_t bytesWritten() const override;
@@ -380,11 +388,14 @@ public:
     void copyTo(void* dst) const;
     void writeToStream(SkWStream* dst) const;
 
+    /** Equivalent to copyTo() followed by reset(), but may save memory use. */
+    void copyToAndReset(void* dst);
+
     /** Return the contents as SkData, and then reset the stream. */
     sk_sp<SkData> detachAsData();
 
     /** Reset, returning a reader stream with the current content. */
-    SkStreamAsset* detachAsStream();
+    std::unique_ptr<SkStreamAsset> detachAsStream();
 
     /** Reset the stream to its original, empty, state. */
     void reset();

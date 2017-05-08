@@ -530,7 +530,7 @@ public:
         return sk_sp<GrGeometryProcessor>(new QuadEdgeEffect(color, localMatrix, usesLocalCoords));
     }
 
-    virtual ~QuadEdgeEffect() {}
+    ~QuadEdgeEffect() override {}
 
     const char* name() const override { return "QuadEdge"; }
 
@@ -656,7 +656,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
 #if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
     // Doesn't work without derivative instructions.
-    return d->context()->caps()->shaderCaps()->shaderDerivativeSupport()
+    return d->caps()->shaderCaps()->shaderDerivativeSupport()
                    ? QuadEdgeEffect::Make(GrRandomColor(d->fRandom),
                                           GrTest::TestMatrix(d->fRandom),
                                           d->fRandom->nextBool())
@@ -722,12 +722,12 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
                               viewMatrix);
 }
 
-class AAConvexPathOp final : public GrMeshDrawOp {
+class AAConvexPathOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
-                                          const SkPath& path) {
-        return std::unique_ptr<GrDrawOp>(new AAConvexPathOp(color, viewMatrix, path));
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                                    const SkPath& path) {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(new AAConvexPathOp(color, viewMatrix, path));
     }
 
     const char* name() const override { return "AAConvexPathOp"; }
@@ -747,12 +747,13 @@ private:
         this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fColor);
-        input->coverageInput()->setToUnknown();
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
+        color->setToConstant(fColor);
+        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fColor);
 
         fUsesLocalCoords = optimizations.readsLocalCoords();
@@ -816,7 +817,7 @@ private:
                              vertexBuffer, indexBuffer,
                              firstVertex, firstIndex,
                              tess.numPts(), tess.numIndices());
-            target->draw(gp.get(), mesh);
+            target->draw(gp.get(), this->pipeline(), mesh);
         }
     }
 
@@ -904,7 +905,7 @@ private:
                 const Draw& draw = draws[j];
                 mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer,
                                  firstVertex, firstIndex, draw.fVertexCnt, draw.fIndexCnt);
-                target->draw(quadProcessor.get(), mesh);
+                target->draw(quadProcessor.get(), this->pipeline(), mesh);
                 firstVertex += draw.fVertexCnt;
                 firstIndex += draw.fIndexCnt;
             }
@@ -960,7 +961,7 @@ private:
 
     SkSTArray<1, PathData, true> fPaths;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -972,13 +973,14 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    std::unique_ptr<GrDrawOp> op =
+    std::unique_ptr<GrLegacyMeshDrawOp> op =
             AAConvexPathOp::Make(args.fPaint.getColor(), *args.fViewMatrix, path);
 
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), *args.fClip,
+                                                   std::move(op));
 
     return true;
 

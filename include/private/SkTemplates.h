@@ -11,6 +11,7 @@
 #define SkTemplates_DEFINED
 
 #include "SkMath.h"
+#include "SkMalloc.h"
 #include "SkTLogic.h"
 #include "SkTypes.h"
 #include <limits.h>
@@ -293,8 +294,10 @@ public:
     }
 
     SkAutoTMalloc& operator=(SkAutoTMalloc<T>&& that) {
-        sk_free(fPtr);
-        fPtr = that.release();
+        if (this != &that) {
+            sk_free(fPtr);
+            fPtr = that.release();
+        }
         return *this;
     }
 

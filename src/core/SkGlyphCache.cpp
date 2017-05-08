@@ -269,7 +269,7 @@ void SkGlyphCache::AddLine(const SkPoint pts[2], SkScalar axis, bool yAxis,
     }
 }
 
-void SkGlyphCache::AddQuad(const SkPoint pts[2], SkScalar axis, bool yAxis,
+void SkGlyphCache::AddQuad(const SkPoint pts[3], SkScalar axis, bool yAxis,
                      SkGlyph::Intercept* intercept) {
     SkDQuad quad;
     quad.set(pts);
@@ -282,7 +282,7 @@ void SkGlyphCache::AddQuad(const SkPoint pts[2], SkScalar axis, bool yAxis,
     }
 }
 
-void SkGlyphCache::AddCubic(const SkPoint pts[3], SkScalar axis, bool yAxis,
+void SkGlyphCache::AddCubic(const SkPoint pts[4], SkScalar axis, bool yAxis,
                       SkGlyph::Intercept* intercept) {
     SkDCubic cubic;
     cubic.set(pts);

@@ -10,6 +10,7 @@
 
 #include "GrGpuResource.h"
 #include "GrOpList.h"
+#include "GrSurfaceProxy.h"
 
 #include "SkTArray.h"
 
@@ -51,8 +52,9 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    bool copySurface(GrSurface* dst,
-                     GrSurface* src,
+    bool copySurface(GrResourceProvider* resourceProvider,
+                     GrSurfaceProxy* dst,
+                     GrSurfaceProxy* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
@@ -61,8 +63,11 @@ public:
     SkDEBUGCODE(void dump() const override;)
 
 private:
-    // The unique ID is only needed for the audit trail. This should be removed with MDB.
-    void recordOp(std::unique_ptr<GrOp>, GrGpuResource::UniqueID renderTargetID);
+    // MDB TODO: The unique IDs are only needed for the audit trail. There should only be one
+    // on the opList itself.
+    void recordOp(std::unique_ptr<GrOp>,
+                  GrGpuResource::UniqueID resourceUniqueID,
+                  GrSurfaceProxy::UniqueID proxyUniqueID);
 
     SkSTArray<2, std::unique_ptr<GrOp>, true> fRecordedOps;
     GrGpu*                          fGpu;

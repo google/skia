@@ -34,9 +34,10 @@ bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
         return false;
     }
     SkPMColor ctStorage[256];
-    sk_sp<SkColorTable> ctable(new SkColorTable(ctStorage, 256));
+    auto ctable = SkColorTable::Make(ctStorage, 256);
     int count = ctable->count();
-    return dst->tryAllocPixels(gen->getInfo(), nullptr, ctable.get()) &&
+    // ICK -- gotta clean up this pattern of writing to the ctable
+    return dst->tryAllocPixels(gen->getInfo(), ctable) &&
         gen->getPixels(gen->getInfo().makeColorSpace(nullptr), dst->getPixels(), dst->rowBytes(),
                        const_cast<SkPMColor*>(ctable->readColors()), &count);
 }
@@ -59,15 +60,7 @@ SkStreamAsset* GetResourceAsStream(const char* resource) {
 
 sk_sp<SkData> GetResourceAsData(const char* resource) {
     SkString resourcePath = GetResourcePath(resource);
-    std::unique_ptr<SkFILEStream> stream(new SkFILEStream(resourcePath.c_str()));
-    if (!stream->isValid()) {
-        SkDebugf("Resource %s not found.\n", resource);
-        return nullptr;
-    }
-    size_t bytes = stream->getLength();
-    sk_sp<SkData> data = SkData::MakeUninitialized(bytes);
-    stream->read(data->writable_data(), bytes);
-    return data;
+    return SkData::MakeFromFileName(resourcePath.c_str());
 }
 
 sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource) {

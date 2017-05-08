@@ -8,6 +8,8 @@
 #include "GrContext.h"
 #include "GrGLTexture.h"
 #include "GrGLGpu.h"
+#include "GrResourceProvider.h"
+#include "GrSemaphore.h"
 #include "GrShaderCaps.h"
 #include "SkMakeUnique.h"
 #include "SkTraceMemoryDump.h"
@@ -114,11 +116,16 @@ GrBackendObject GrGLTexture::getTextureHandle() const {
 }
 
 std::unique_ptr<GrExternalTextureData> GrGLTexture::detachBackendTexture() {
-    // Flush any pending writes to this texture, as well GL itself
-    GrFence fence = this->getContext()->prepareSurfaceForExternalIOAndFlush(this);
+    SkASSERT(!this->hasPendingIO());
+
+    // Set up a semaphore to be signaled once the data is ready, and flush GL
+    sk_sp<GrSemaphore> semaphore = this->getContext()->resourceProvider()->makeSemaphore();
+    this->getGpu()->insertSemaphore(semaphore);
+    this->getGpu()->flush();
 
     // Make a copy of our GL-specific information
-    auto data = skstd::make_unique<GrGLExternalTextureData>(fInfo, fence);
+    auto data = skstd::make_unique<GrGLExternalTextureData>(fInfo, std::move(semaphore),
+                                                            this->getContext());
 
     // Ensure the cache can't reach this texture anymore
     this->detachFromCache();

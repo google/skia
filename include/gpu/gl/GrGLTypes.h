@@ -11,6 +11,7 @@
 
 #include "GrExternalTextureData.h"
 #include "GrGLConfig.h"
+#include "SkRefCnt.h"
 
 /**
  * Classifies GL contexts by which standard they implement (currently as OpenGL vs. OpenGL ES).
@@ -59,7 +60,7 @@ typedef signed long int GrGLintptr;
 typedef signed long int GrGLsizeiptr;
 #endif
 typedef void* GrGLeglImage;
-typedef void* GrGLsync;
+typedef struct __GLsync* GrGLsync;
 
 struct GrGLDrawArraysIndirectCommand {
     GrGLuint fCount;
@@ -113,19 +114,21 @@ struct GrGLTextureInfo {
     GrGLuint fID;
 };
 
+class GrSemaphore;
+
 class GrGLExternalTextureData : public GrExternalTextureData {
 public:
-    GrGLExternalTextureData(const GrGLTextureInfo& info, GrFence fence)
-            : INHERITED(fence)
-            , fInfo(info) {}
+    GrGLExternalTextureData(const GrGLTextureInfo& info, sk_sp<GrSemaphore> semaphore, GrContext*);
     GrBackend getBackend() const override { return kOpenGL_GrBackend; }
 
 protected:
     GrBackendObject getBackendObject() const override {
         return reinterpret_cast<GrBackendObject>(&fInfo);
     }
+    void attachToContext(GrContext*) override;
 
     GrGLTextureInfo fInfo;
+    sk_sp<GrSemaphore> fSemaphore;
 
     typedef GrExternalTextureData INHERITED;
 };

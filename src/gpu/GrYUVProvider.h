@@ -14,6 +14,7 @@
 
 class GrContext;
 class GrTexture;
+class GrTextureProxy;
 
 /**
  *  There are at least 2 different ways to extract/retrieve YUV planar data...
@@ -28,14 +29,14 @@ public:
     virtual ~GrYUVProvider() {}
 
     /**
-     *  On success, this returns a texture that has converted the YUV data from the provider
+     *  On success, this returns a texture proxy that has converted the YUV data from the provider
      *  into a form that is supported by the GPU (typically transformed into RGB). If useCache
      *  is true, then the texture will automatically have a key added, so it can be retrieved
      *  from the cache (assuming it is requested by a provider w/ the same genID).
      *
      *  On failure (e.g. the provider had no data), this returns NULL.
      */
-    sk_sp<GrTexture> refAsTexture(GrContext*, const GrSurfaceDesc&, bool useCache);
+    sk_sp<GrTextureProxy> refAsTextureProxy(GrContext*, const GrSurfaceDesc&, bool useCache);
 
     virtual uint32_t onGetID() = 0;
 

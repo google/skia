@@ -8,6 +8,7 @@
 #ifndef SkAutoPixmapStorage_DEFINED
 #define SkAutoPixmapStorage_DEFINED
 
+#include "SkMalloc.h"
 #include "SkPixmap.h"
 
 class SK_API SkAutoPixmapStorage : public SkPixmap {

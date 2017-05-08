@@ -318,7 +318,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         offset->fY = bounds.top();
         bounds.offset(-inputOffset);
 
-        sk_sp<GrFragmentProcessor> fp(GrMatrixConvolutionEffect::Make(context,
+        sk_sp<GrFragmentProcessor> fp(GrMatrixConvolutionEffect::Make(context->resourceProvider(),
                                                                       std::move(inputProxy),
                                                                       bounds,
                                                                       fKernelSize,
@@ -386,6 +386,19 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
     this->filterBorderPixels(inputBM, &dst, bottom, bounds);
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                           dst);
+}
+
+sk_sp<SkImageFilter> SkMatrixConvolutionImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer)
+const {
+    SkASSERT(1 == this->countInputs());
+    if (!this->getInput(0)) {
+        return sk_ref_sp(const_cast<SkMatrixConvolutionImageFilter*>(this));
+    }
+
+    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
+    return SkMatrixConvolutionImageFilter::Make(fKernelSize, fKernel, fGain, fBias, fKernelOffset,
+                                                fTileMode, fConvolveAlpha, std::move(input),
+                                                this->getCropRectIfSet());
 }
 
 SkIRect SkMatrixConvolutionImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,

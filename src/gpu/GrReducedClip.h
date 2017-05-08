@@ -71,7 +71,7 @@ public:
     InitialState initialState() const { return fInitialState; }
 
     bool drawAlphaClipMask(GrRenderTargetContext*) const;
-    bool drawStencilClipMask(GrContext*, GrRenderTargetContext*, const SkIPoint& clipOrigin) const;
+    bool drawStencilClipMask(GrContext*, GrRenderTargetContext*) const;
 
 private:
     void walkStack(const SkClipStack&, const SkRect& queryBounds, int maxWindowRectangles);

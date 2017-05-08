@@ -20,8 +20,9 @@ declare_args() {
     }
   }
 
-  windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
+  msvc = 2015
 
+  extra_asmflags = []
   extra_cflags = []
   extra_cflags_c = []
   extra_cflags_cc = []
@@ -33,6 +34,13 @@ declare_args() {
   enable_bitcode = false
   if (is_tvos) {
     enable_bitcode = true
+  }
+}
+declare_args() {
+  if (msvc == 2015) {
+    windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
+  } else {
+    windk = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional"
   }
 }
 
@@ -60,14 +68,13 @@ if (is_ios) {
     if (target_cpu == "x86" || target_cpu == "x64") {
       sdk = "appletvsimulator"
     }
-    ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
   } else {
     sdk = "iphoneos"
     if (target_cpu == "x86" || target_cpu == "x64") {
       sdk = "iphonesimulator"
     }
-    ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
   }
+  ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
 }
 
 config("default") {
@@ -160,8 +167,8 @@ config("default") {
     ]
   } else if (current_cpu == "mipsel" && !is_win) {
     cflags += [
+      "-no-integrated-as",  # Clang <4.0 doesn't understand 'usw' mnemonic.
       "-march=mips32r2",
-      "-mdspr2",
     ]
   } else if (current_cpu == "x86" && !is_win) {
     asmflags += [ "-m32" ]
@@ -401,6 +408,7 @@ config("warnings_except_public_headers") {
 }
 
 config("extra_flags") {
+  asmflags = extra_asmflags
   cflags = extra_cflags
   cflags_c = extra_cflags_c
   cflags_cc = extra_cflags_cc
@@ -444,7 +452,6 @@ config("release") {
   } else {
     cflags = [
       "-Os",
-      "-momit-leaf-frame-pointer",
     ]
     if (!enable_bitcode) {
       cflags += [
@@ -497,7 +504,11 @@ toolchain("msvc") {
   bin = "$windk/VC/bin/$_target"
 
   tool("asm") {
-    command = "$env_setup$bin/ml64.exe /nologo /c /Fo {{output}} {{source}}"
+    _ml = "ml"
+    if (target_cpu == "x64") {
+      _ml += "64"
+    }
+    command = "$env_setup$bin/$_ml.exe /nologo /c /Fo {{output}} {{source}}"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]

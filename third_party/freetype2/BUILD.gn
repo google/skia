@@ -4,8 +4,9 @@
 # found in the LICENSE file.
 
 declare_args() {
-  # TODO: false?  i.e. build from source all the time for testing?
-  skia_use_system_freetype2 = !(is_android || sanitize == "MSAN")
+  # TODO: build from source all the time for testing?
+  skia_use_system_freetype2 =
+      is_official_build || !(is_android || sanitize == "MSAN")
 }
 
 import("../third_party.gni")

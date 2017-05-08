@@ -35,7 +35,7 @@ public:
 #endif
 
 protected:
-    virtual ~SkCornerPathEffect();
+    ~SkCornerPathEffect() override;
 
     explicit SkCornerPathEffect(SkScalar radius);
     void flatten(SkWriteBuffer&) const override;

@@ -94,15 +94,16 @@ static inline void add_quad(SkPoint** vert, const SkPoint* base, const SkPoint p
     }
 }
 
-class DefaultPathOp final : public GrMeshDrawOp {
+class DefaultPathOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkPath& path, SkScalar tolerance,
-                                          uint8_t coverage, const SkMatrix& viewMatrix,
-                                          bool isHairline, const SkRect& devBounds) {
-        return std::unique_ptr<GrDrawOp>(new DefaultPathOp(color, path, tolerance, coverage,
-                                                           viewMatrix, isHairline, devBounds));
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkPath& path,
+                                                    SkScalar tolerance, uint8_t coverage,
+                                                    const SkMatrix& viewMatrix, bool isHairline,
+                                                    const SkRect& devBounds) {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(new DefaultPathOp(
+                color, path, tolerance, coverage, viewMatrix, isHairline, devBounds));
     }
 
     const char* name() const override { return "DefaultPathOp"; }
@@ -132,12 +133,14 @@ private:
                         isHairline ? IsZeroArea::kYes : IsZeroArea::kNo);
     }
 
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fColor);
-        input->coverageInput()->setToScalar(this->coverage());
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
+        color->setToConstant(fColor);
+        *coverage = this->coverage() == 0xff ? GrProcessorAnalysisCoverage::kNone
+                                             : GrProcessorAnalysisCoverage::kSingleChannel;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fColor);
         fUsesLocalCoords = optimizations.readsLocalCoords();
     }
@@ -254,7 +257,7 @@ private:
         } else {
             mesh.init(primitiveType, vertexBuffer, firstVertex, vertexOffset);
         }
-        target->draw(gp.get(), mesh);
+        target->draw(gp.get(), this->pipeline(), mesh);
 
         // put back reserves
         target->putBackIndices((size_t)(maxIndices - indexOffset));
@@ -264,7 +267,7 @@ private:
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         DefaultPathOp* that = t->cast<DefaultPathOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                     that->bounds(), caps)) {
+                                    that->bounds(), caps)) {
             return false;
         }
 
@@ -341,9 +344,7 @@ private:
                     case SkPath::kConic_Verb: {
                         SkScalar weight = iter.conicWeight();
                         SkAutoConicToQuads converter;
-                        // Converting in src-space, hance the finer tolerance (0.25)
-                        // TODO: find a way to do this in dev-space so the tolerance means something
-                        const SkPoint* quadPts = converter.computeQuads(pts, weight, 0.25f);
+                        const SkPoint* quadPts = converter.computeQuads(pts, weight, srcSpaceTol);
                         for (int i = 0; i < converter.countQuads(); ++i) {
                             add_quad(&vert, base, quadPts + i*2, srcSpaceTolSqd, srcSpaceTol,
                                      isIndexed, this->isHairline(), subpathIdxStart,
@@ -401,7 +402,7 @@ private:
     bool fIsHairline;
     SkSTArray<1, PathData, true> fPaths;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,
@@ -546,16 +547,17 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+            std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                     paint.getColor(), viewM, bounds, nullptr, &localMatrix));
 
             SkASSERT(GrDrawFace::kBoth == drawFace[p]);
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
-            renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
+            renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip,
+                                                     std::move(op));
         } else {
-            std::unique_ptr<GrDrawOp> op =
+            std::unique_ptr<GrLegacyMeshDrawOp> op =
                     DefaultPathOp::Make(paint.getColor(), path, srcSpaceTol, newCoverage,
                                         viewMatrix, isHairline, devBounds);
             bool stencilPass = stencilOnly || passCount > 1;
@@ -566,7 +568,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             GrPipelineBuilder pipelineBuilder(std::move(passPaint), aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
-            renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
+            renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip,
+                                                     std::move(op));
         }
     }
     return true;

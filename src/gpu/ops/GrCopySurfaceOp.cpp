@@ -8,12 +8,12 @@
 #include "GrCopySurfaceOp.h"
 
 // returns true if the read/written rect intersects the src/dst and false if not.
-bool GrCopySurfaceOp::ClipSrcRectAndDstPoint(const GrSurface* dst,
-                                             const GrSurface* src,
-                                             const SkIRect& srcRect,
-                                             const SkIPoint& dstPoint,
-                                             SkIRect* clippedSrcRect,
-                                             SkIPoint* clippedDstPoint) {
+static bool clip_src_rect_and_dst_point(const GrSurfaceProxy* dst,
+                                        const GrSurfaceProxy* src,
+                                        const SkIRect& srcRect,
+                                        const SkIPoint& dstPoint,
+                                        SkIRect* clippedSrcRect,
+                                        SkIPoint* clippedDstPoint) {
     *clippedSrcRect = srcRect;
     *clippedDstPoint = dstPoint;
 
@@ -58,21 +58,37 @@ bool GrCopySurfaceOp::ClipSrcRectAndDstPoint(const GrSurface* dst,
     return !clippedSrcRect->isEmpty();
 }
 
-std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrResourceProvider* resourceProvider,
+                                            GrSurfaceProxy* dstProxy, GrSurfaceProxy* srcProxy,
+                                            const SkIRect& srcRect,
                                             const SkIPoint& dstPoint) {
-    SkASSERT(dst);
-    SkASSERT(src);
-    if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
+    SkASSERT(dstProxy);
+    SkASSERT(srcProxy);
+    if (GrPixelConfigIsSint(dstProxy->config()) != GrPixelConfigIsSint(srcProxy->config())) {
         return nullptr;
     }
-    if (GrPixelConfigIsCompressed(dst->config())) {
+    if (GrPixelConfigIsCompressed(dstProxy->config())) {
         return nullptr;
     }
     SkIRect clippedSrcRect;
     SkIPoint clippedDstPoint;
-    // If the rect is outside the src or dst then we've already succeeded.
-    if (!ClipSrcRectAndDstPoint(dst, src, srcRect, dstPoint, &clippedSrcRect, &clippedDstPoint)) {
+    // If the rect is outside the srcProxy or dstProxy then we've already succeeded.
+    if (!clip_src_rect_and_dst_point(dstProxy, srcProxy, srcRect, dstPoint,
+                                     &clippedSrcRect, &clippedDstPoint)) {
         return nullptr;
     }
-    return std::unique_ptr<GrOp>(new GrCopySurfaceOp(dst, src, clippedSrcRect, clippedDstPoint));
+
+    // MDB TODO: remove this instantiation
+    GrSurface* dstTex = dstProxy->instantiate(resourceProvider);
+    if (!dstTex) {
+        return nullptr;
+    }
+    GrSurface* srcTex = srcProxy->instantiate(resourceProvider);
+    if (!srcTex) {
+        return nullptr;
+    }
+
+    return std::unique_ptr<GrOp>(new GrCopySurfaceOp(dstTex, srcTex,
+                                                     dstProxy->uniqueID(), srcProxy->uniqueID(),
+                                                     clippedSrcRect, clippedDstPoint));
 }

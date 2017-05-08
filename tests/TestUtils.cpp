@@ -11,8 +11,9 @@
 
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxy.h"
+#include "GrTextureProxy.h"
 
-void test_read_pixels(skiatest::Reporter* reporter, GrContext* context,
+void test_read_pixels(skiatest::Reporter* reporter,
                       GrSurfaceContext* srcContext, uint32_t expectedPixelValues[],
                       const char* testName) {
     int pixelCnt = srcContext->width() * srcContext->height();
@@ -35,7 +36,7 @@ void test_read_pixels(skiatest::Reporter* reporter, GrContext* context,
     }
 }
 
-void test_write_pixels(skiatest::Reporter* reporter, GrContext* context,
+void test_write_pixels(skiatest::Reporter* reporter,
                        GrSurfaceContext* dstContext, bool expectedToWork,
                        const char* testName) {
     int pixelCnt = dstContext->width() * dstContext->height();
@@ -62,7 +63,7 @@ void test_write_pixels(skiatest::Reporter* reporter, GrContext* context,
         return;
     }
 
-    test_read_pixels(reporter, context, dstContext, pixels.get(), testName);
+    test_read_pixels(reporter, dstContext, pixels.get(), testName);
 }
 
 void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
@@ -79,14 +80,16 @@ void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
         }
 
         copyDstDesc.fFlags = flags;
+        copyDstDesc.fOrigin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
+                                                              : kBottomLeft_GrSurfaceOrigin;
 
         sk_sp<GrSurfaceContext> dstContext(GrSurfaceProxy::TestCopy(context, copyDstDesc, proxy));
 
-        test_read_pixels(reporter, context, dstContext.get(), expectedPixelValues, testName);
+        test_read_pixels(reporter, dstContext.get(), expectedPixelValues, testName);
     }
 }
 
-void test_copy_to_surface(skiatest::Reporter* reporter, GrContext* context,
+void test_copy_to_surface(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider,
                           GrSurfaceContext* dstContext, const char* testName) {
 
     int pixelCnt = dstContext->width() * dstContext->height();
@@ -105,14 +108,15 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrContext* context,
 
     for (auto flags : { kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag }) {
         copySrcDesc.fFlags = flags;
+        copySrcDesc.fOrigin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
+                                                              : kBottomLeft_GrSurfaceOrigin;
 
-        sk_sp<GrSurfaceProxy> src(GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                               context->textureProvider(),
+        sk_sp<GrTextureProxy> src(GrSurfaceProxy::MakeDeferred(resourceProvider,
                                                                copySrcDesc,
                                                                SkBudgeted::kYes, pixels.get(), 0));
         dstContext->copy(src.get());
 
-        test_read_pixels(reporter, context, dstContext, pixels.get(), testName);
+        test_read_pixels(reporter, dstContext, pixels.get(), testName);
     }
 }
 

@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkRandom.h"
 
 #if SK_SUPPORT_GPU
@@ -79,20 +80,18 @@ protected:
         desc.fWidth = kTexWidth;
         desc.fHeight = kTexHeight;
 
-        sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                                   context->textureProvider(),
+        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                                    desc, SkBudgeted::kYes,
                                                                    fETC1Data.get(), 0);
-        if (!proxy || !proxy->asTextureProxy()) {
+        if (!proxy) {
             return;
         }
 
         const SkMatrix trans = SkMatrix::MakeTrans(-kPad, -kPad);
 
-        sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(
-                                                                context,
-                                                                sk_ref_sp(proxy->asTextureProxy()),
-                                                                nullptr, trans);
+        sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(context->resourceProvider(),
+                                                                    std::move(proxy),
+                                                                    nullptr, trans);
 
         GrPaint grPaint;
         grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
@@ -100,9 +99,9 @@ protected:
 
         SkRect rect = SkRect::MakeXYWH(kPad, kPad, kTexWidth, kTexHeight);
 
-        std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+        std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                 GrColor_WHITE, SkMatrix::I(), rect, nullptr, nullptr));
-        renderTargetContext->priv().testingOnly_addDrawOp(
+        renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
                 std::move(grPaint), GrAAType::kNone, std::move(op));
     }
 

@@ -31,7 +31,7 @@ private:
     public:
         Provider();
 
-        virtual ~Provider();
+        ~Provider() override;
 
         void fillScanLine(int x, int y, SkPoint3 output[], int count) const override;
 

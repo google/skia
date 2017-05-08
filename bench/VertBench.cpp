@@ -11,6 +11,7 @@
 #include "SkRandom.h"
 #include "SkShader.h"
 #include "SkString.h"
+#include "SkVertices.h"
 
 enum VertFlags {
     kColors_VertFlag,
@@ -76,14 +77,15 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() { return fName.c_str(); }
-    virtual void onDraw(int loops, SkCanvas* canvas) {
+    const char* onGetName() override { return fName.c_str(); }
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
         this->setupPaint(&paint);
 
+        auto verts = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, PTS,
+                                          fPts, nullptr, fColors, IDX, fIdx);
         for (int i = 0; i < loops; i++) {
-            canvas->drawVertices(SkCanvas::kTriangles_VertexMode, PTS,
-                                 fPts, nullptr, fColors, fIdx, IDX, paint);
+            canvas->drawVertices(verts, SkBlendMode::kModulate, paint);
         }
     }
 private:

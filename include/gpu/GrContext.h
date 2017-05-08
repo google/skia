@@ -9,11 +9,8 @@
 #define GrContext_DEFINED
 
 #include "GrCaps.h"
-#include "GrClip.h"
 #include "GrColor.h"
-#include "GrPaint.h"
 #include "GrRenderTarget.h"
-#include "GrTextureProvider.h"
 #include "SkMatrix.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"
@@ -36,12 +33,17 @@ class GrPipelineBuilder;
 class GrResourceEntry;
 class GrResourceCache;
 class GrResourceProvider;
+class GrSamplerParams;
+class GrSurfaceProxy;
 class GrTextBlobCache;
 class GrTextContext;
-class GrSamplerParams;
+class GrTextureProxy;
 class GrVertexBuffer;
 class GrSwizzle;
 class SkTraceMemoryDump;
+
+class SkImage;
+class SkSurfaceProps;
 
 class SK_API GrContext : public SkRefCnt {
 public:
@@ -146,9 +148,6 @@ public:
      */
     void setResourceCacheLimits(int maxResources, size_t maxResourceBytes);
 
-    GrTextureProvider* textureProvider() { return fTextureProvider; }
-    const GrTextureProvider* textureProvider() const { return fTextureProvider; }
-
     /**
      * Frees GPU created by the context. Can be called to reduce GPU memory
      * pressure.
@@ -161,6 +160,12 @@ public:
      * and is not defined in normal builds of Skia.
      */
     void purgeAllUnlockedResources();
+
+    /**
+     * Purge GPU resources that haven't been used in the past 'ms' milliseconds, regardless of
+     * whether the context is currently under budget.
+     */
+    void purgeResourcesNotUsedInMs(std::chrono::milliseconds ms);
 
     /** Access the context capabilities */
     const GrCaps* caps() const { return fCaps; }
@@ -241,95 +246,6 @@ public:
      */
     void flush();
 
-   /**
-    * These flags can be used with the read/write pixels functions below.
-    */
-    enum PixelOpsFlags {
-        /** The GrContext will not be flushed before the surface read or write. This means that
-            the read or write may occur before previous draws have executed. */
-        kDontFlush_PixelOpsFlag = 0x1,
-        /** Any surface writes should be flushed to the backend 3D API after the surface operation
-            is complete */
-        kFlushWrites_PixelOp = 0x2,
-        /** The src for write or dst read is unpremultiplied. This is only respected if both the
-            config src and dst configs are an RGBA/BGRA 8888 format. */
-        kUnpremul_PixelOpsFlag  = 0x4,
-    };
-
-    /**
-     * Reads a rectangle of pixels from a surface.
-     * @param surface       the surface to read from.
-     * @param srcColorSpace color space of the surface
-     * @param left          left edge of the rectangle to read (inclusive)
-     * @param top           top edge of the rectangle to read (inclusive)
-     * @param width         width of rectangle to read in pixels.
-     * @param height        height of rectangle to read in pixels.
-     * @param config        the pixel config of the destination buffer
-     * @param dstColorSpace color space of the destination buffer
-     * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
-     *                      packed.
-     * @param pixelOpsFlags see PixelOpsFlags enum above.
-     *
-     * @return true if the read succeeded, false if not. The read can fail because of an unsupported
-     *         pixel configs
-     */
-    bool readSurfacePixels(GrSurface* surface, SkColorSpace* srcColorSpace,
-                           int left, int top, int width, int height,
-                           GrPixelConfig config, SkColorSpace* dstColorSpace, void* buffer,
-                           size_t rowBytes = 0,
-                           uint32_t pixelOpsFlags = 0);
-
-    /**
-     * Writes a rectangle of pixels to a surface.
-     * @param surface       the surface to write to.
-     * @param dstColorSpace color space of the surface
-     * @param left          left edge of the rectangle to write (inclusive)
-     * @param top           top edge of the rectangle to write (inclusive)
-     * @param width         width of rectangle to write in pixels.
-     * @param height        height of rectangle to write in pixels.
-     * @param config        the pixel config of the source buffer
-     * @param srcColorSpace color space of the source buffer
-     * @param buffer        memory to read pixels from
-     * @param rowBytes      number of bytes between consecutive rows. Zero
-     *                      means rows are tightly packed.
-     * @param pixelOpsFlags see PixelOpsFlags enum above.
-     * @return true if the write succeeded, false if not. The write can fail because of an
-     *         unsupported combination of surface and src configs.
-     */
-    bool writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpace,
-                            int left, int top, int width, int height,
-                            GrPixelConfig config, SkColorSpace* srcColorSpace, const void* buffer,
-                            size_t rowBytes,
-                            uint32_t pixelOpsFlags = 0);
-
-    /**
-     * After this returns any pending writes to the surface will have been issued to the backend 3D API.
-     */
-    void flushSurfaceWrites(GrSurface* surface);
-
-    /**
-     * After this returns any pending reads or writes to the surface will have been issued to the
-     * backend 3D API.
-     */
-    void flushSurfaceIO(GrSurface* surface);
-
-    /**
-     * Finalizes all pending reads and writes to the surface and also performs an MSAA resolve
-     * if necessary.
-     *
-     * It is not necessary to call this before reading the render target via Skia/GrContext.
-     * GrContext will detect when it must perform a resolve before reading pixels back from the
-     * surface or using it as a texture.
-     */
-    void prepareSurfaceForExternalIO(GrSurface*);
-
-    /**
-     * As above, but additionally flushes the backend API (eg calls glFlush), and returns a fence
-     * that can be used to determine if the surface is safe to use on another context or thread.
-     */
-    GrFence SK_WARN_UNUSED_RESULT prepareSurfaceForExternalIOAndFlush(GrSurface*);
-
     /**
      * An ID associated with this context, guaranteed to be unique.
      */
@@ -388,12 +304,7 @@ private:
     GrGpu*                                  fGpu;
     const GrCaps*                           fCaps;
     GrResourceCache*                        fResourceCache;
-    // this union exists because the inheritance of GrTextureProvider->GrResourceProvider
-    // is in a private header.
-    union {
-        GrResourceProvider*                 fResourceProvider;
-        GrTextureProvider*                  fTextureProvider;
-    };
+    GrResourceProvider*                     fResourceProvider;
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
@@ -407,7 +318,7 @@ private:
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the GrDrawingManager and, from there to all the
-    // GrRenderTargetContexts.  It is also passed to the GrTextureProvider and SkGpuDevice.
+    // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
     mutable GrSingleOwner                   fSingleOwner;
 
     struct CleanUpData {
@@ -437,17 +348,14 @@ private:
      * of effects that make a readToUPM->writeToPM->readToUPM cycle invariant. Otherwise, they
      * return NULL. They also can perform a swizzle as part of the draw.
      */
-    sk_sp<GrFragmentProcessor> createPMToUPMEffect(GrTexture*, const GrSwizzle&, const SkMatrix&);
-    sk_sp<GrFragmentProcessor> createPMToUPMEffect(sk_sp<GrTextureProxy>, const GrSwizzle&,
-                                                   const SkMatrix&);
-    sk_sp<GrFragmentProcessor> createUPMToPMEffect(sk_sp<GrTextureProxy>, const GrSwizzle&,
-                                                   const SkMatrix&);
+    sk_sp<GrFragmentProcessor> createPMToUPMEffect(sk_sp<GrFragmentProcessor>, GrPixelConfig);
+    sk_sp<GrFragmentProcessor> createUPMToPMEffect(sk_sp<GrFragmentProcessor>, GrPixelConfig);
     /** Called before either of the above two functions to determine the appropriate fragment
         processors for conversions. */
     void testPMConversionsIfNecessary(uint32_t flags);
-    /** Returns true if we've already determined that createPMtoUPMEffect and createUPMToPMEffect
-        will fail. In such cases fall back to SW conversion. */
-    bool didFailPMUPMConversionTest() const;
+    /** Returns true if we've determined that createPMtoUPMEffect and createUPMToPMEffect will
+        succeed for the passed in config. Otherwise we fall back to SW conversion. */
+    bool validPMUPMConversionExists(GrPixelConfig) const;
 
     /**
      * A callback similar to the above for use by the TextBlobCache

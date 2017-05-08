@@ -17,19 +17,16 @@
 #include "SkSurface.h"
 #include "SkGradientShader.h"
 
-const struct {
-    SkBlendMode fMode;
-    const char* fName;
-} gModes[] = {
-    { SkBlendMode::kSrcOver, "src-over" },
-    { SkBlendMode::kSrc,     "src" },
-    { SkBlendMode::kSrcIn,   "src-in" },
-    { SkBlendMode::kSrcOut,  "src-out" },
-    { SkBlendMode::kSrcATop, "src-atop" },
-    { SkBlendMode::kDstOver, "dst-over" },
-    { SkBlendMode::kDstIn,   "dst-in" },
-    { SkBlendMode::kDstOut,  "dst-out" },
-    { SkBlendMode::kDstATop, "dst-atop" },
+const SkBlendMode gModes[] = {
+    SkBlendMode::kSrcOver,
+    SkBlendMode::kSrc,
+    SkBlendMode::kSrcIn,
+    SkBlendMode::kSrcOut,
+    SkBlendMode::kSrcATop,
+    SkBlendMode::kDstOver,
+    SkBlendMode::kDstIn,
+    SkBlendMode::kDstOut,
+    SkBlendMode::kDstATop,
 };
 const int N_Modes = SK_ARRAY_COUNT(gModes);
 
@@ -160,7 +157,7 @@ class XferDemo : public SampleView {
         SkScalar x = 10;
         SkScalar y = 10;
         for (int i = 0; i < N_Modes; ++i) {
-            sk_sp<SkView> v(new PushButtonWig(gModes[i].fName, (int)gModes[i].fMode));
+            sk_sp<SkView> v(new PushButtonWig(SkBlendMode_Name(gModes[i]), (int)gModes[i]));
             v->setSize(70, 25);
             v->setLoc(x, y);
             v->setVisibleP(true);
@@ -209,7 +206,7 @@ protected:
         SkPaint paint;
         if (fSelected) {
             for (int i = 0; i < N_Modes; ++i) {
-                if (fSelected->fMode == gModes[i].fMode) {
+                if (fSelected->fMode == gModes[i]) {
                     canvas->drawRect(fModeRect[i], paint);
                     break;
                 }

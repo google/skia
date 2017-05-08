@@ -285,27 +285,29 @@ bool GrDrawingManager::ProgramUnitTest(GrContext*, int) { return true; }
 bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     GrDrawingManager* drawingManager = context->contextPriv().drawingManager();
 
+    sk_sp<GrTextureProxy> proxies[2];
+
     // setup dummy textures
     GrSurfaceDesc dummyDesc;
     dummyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    dummyDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;
-    sk_sp<GrTexture> dummyTexture1(
-        context->textureProvider()->createTexture(dummyDesc, SkBudgeted::kNo, nullptr, 0));
+    proxies[0] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                              dummyDesc, SkBudgeted::kNo, nullptr, 0);
     dummyDesc.fFlags = kNone_GrSurfaceFlags;
+    dummyDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
     dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
     dummyDesc.fWidth = 16;
     dummyDesc.fHeight = 22;
-    sk_sp<GrTexture> dummyTexture2(
-        context->textureProvider()->createTexture(dummyDesc, SkBudgeted::kNo, nullptr, 0));
+    proxies[1] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                              dummyDesc, SkBudgeted::kNo, nullptr, 0);
 
-    if (!dummyTexture1 || ! dummyTexture2) {
+    if (!proxies[0] || !proxies[1]) {
         SkDebugf("Could not allocate dummy textures");
         return false;
     }
-
-    GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
 
     // dummy scissor state
     GrScissorState scissor;
@@ -323,10 +325,10 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 
         GrPaint grPaint;
 
-        std::unique_ptr<GrDrawOp> op(GrRandomDrawOp(&random, context));
+        std::unique_ptr<GrLegacyMeshDrawOp> op(GrRandomDrawOp(&random, context));
         SkASSERT(op);
 
-        GrProcessorTestData ptd(&random, context, renderTargetContext.get(), dummyTextures);
+        GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies);
         set_random_color_coverage_stages(&grPaint, &ptd, maxStages);
         set_random_xpf(&grPaint, &ptd);
         bool snapToCenters = set_random_state(&grPaint, &random);
@@ -336,11 +338,11 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         static constexpr GrAAType kAATypes[] = {GrAAType::kNone, GrAAType::kCoverage};
         GrAAType aaType = kAATypes[random.nextULessThan(SK_ARRAY_COUNT(kAATypes))];
 
-        renderTargetContext->priv().testingOnly_addDrawOp(std::move(grPaint), aaType, std::move(op),
-                                                          uss, snapToCenters);
+        renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
+                std::move(grPaint), aaType, std::move(op), uss, snapToCenters);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
-    drawingManager->flush();
+    drawingManager->flush(nullptr);
 
     // Validate that GrFPs work correctly without an input.
     sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
@@ -358,9 +360,9 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
-            std::unique_ptr<GrDrawOp> op(GrRandomDrawOp(&random, context));
+            std::unique_ptr<GrLegacyMeshDrawOp> op(GrRandomDrawOp(&random, context));
             SkASSERT(op);
-            GrProcessorTestData ptd(&random, context, renderTargetContext.get(), dummyTextures);
+            GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies);
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
@@ -370,9 +372,9 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                 BlockInputFragmentProcessor::Make(std::move(fp)));
             grPaint.addColorFragmentProcessor(std::move(blockFP));
 
-            renderTargetContext->priv().testingOnly_addDrawOp(std::move(grPaint), GrAAType::kNone,
-                                                              std::move(op));
-            drawingManager->flush();
+            renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
+                    std::move(grPaint), GrAAType::kNone, std::move(op));
+            drawingManager->flush(nullptr);
         }
     }
 
@@ -422,7 +424,8 @@ static void test_glprograms_other_contexts(
 }
 
 static bool is_native_gl_context_type(sk_gpu_test::GrContextFactory::ContextType type) {
-    return type == sk_gpu_test::GrContextFactory::kNativeGL_ContextType;
+    return type == sk_gpu_test::GrContextFactory::kGL_ContextType ||
+           type == sk_gpu_test::GrContextFactory::kGLES_ContextType;
 }
 
 static bool is_other_rendering_gl_context_type(sk_gpu_test::GrContextFactory::ContextType type) {

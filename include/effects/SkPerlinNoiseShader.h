@@ -65,7 +65,7 @@ public:
     class PerlinNoiseShaderContext : public SkShader::Context {
     public:
         PerlinNoiseShaderContext(const SkPerlinNoiseShader& shader, const ContextRec&);
-        virtual ~PerlinNoiseShaderContext();
+        ~PerlinNoiseShaderContext() override;
 
         void shadeSpan(int x, int y, SkPMColor[], int count) override;
 
@@ -98,7 +98,7 @@ private:
     SkPerlinNoiseShader(SkPerlinNoiseShader::Type type, SkScalar baseFrequencyX,
                         SkScalar baseFrequencyY, int numOctaves, SkScalar seed,
                         const SkISize* tileSize);
-    virtual ~SkPerlinNoiseShader();
+    ~SkPerlinNoiseShader() override;
 
     const SkPerlinNoiseShader::Type fType;
     const SkScalar                  fBaseFrequencyX;

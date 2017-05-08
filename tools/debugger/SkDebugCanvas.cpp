@@ -149,6 +149,7 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
     return layer;
 }
 
+#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
 class SkDebugClipVisitor : public SkCanvas::ClipVisitor {
 public:
     SkDebugClipVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
@@ -181,6 +182,7 @@ protected:
 private:
     typedef SkCanvas::ClipVisitor INHERITED;
 };
+#endif
 
 // set up the saveLayer commands so that the active ones
 // return true in their 'active' method
@@ -288,6 +290,7 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         filterCanvas.restore();
     }
 
+#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
     if (fMegaVizMode) {
         filterCanvas.save();
         // nuke the CTM
@@ -305,9 +308,10 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 
         filterCanvas.restore();
     }
+#endif
     if (pathOpsMode) {
         this->resetClipStackData();
-        const SkClipStack* clipStack = filterCanvas.getClipStack();
+        const SkClipStack* clipStack = nullptr;//HACK filterCanvas.getClipStack();
         SkClipStack::Iter iter(*clipStack, SkClipStack::Iter::kBottom_IterStart);
         const SkClipStack::Element* element;
         SkPath devPath;
@@ -362,7 +366,8 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(1);
         for (int i = 0; i < childrenBounds.count(); i++) {
-            if (childrenBounds[i].fRenderTargetUniqueID != rtID) {
+            SkASSERT(childrenBounds[i].sameDecision(rtID, rtc->asSurfaceProxy()->uniqueID()));
+            if (childrenBounds[i].fResourceUniqueID != rtID) {
                 // offscreen draw, ignore for now
                 continue;
             }
@@ -663,12 +668,10 @@ void SkDebugCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4
     this->addDrawCommand(new SkDrawPatchCommand(cubics, colors, texCoords, bmode, paint));
 }
 
-void SkDebugCanvas::onDrawVertices(VertexMode vmode, int vertexCount, const SkPoint vertices[],
-                                   const SkPoint texs[], const SkColor colors[],
-                                   SkBlendMode bmode, const uint16_t indices[], int indexCount,
-                                   const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawVerticesCommand(vmode, vertexCount, vertices,
-                         texs, colors, bmode, indices, indexCount, paint));
+void SkDebugCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
+                                         const SkPaint& paint) {
+    this->addDrawCommand(new SkDrawVerticesCommand(sk_ref_sp(const_cast<SkVertices*>(vertices)),
+                                                   bmode, paint));
 }
 
 void SkDebugCanvas::willRestore() {

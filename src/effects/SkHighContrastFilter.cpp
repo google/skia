@@ -158,7 +158,7 @@ public:
                                         1.0f - FLT_EPSILON);
     }
 
-    virtual ~SkHighContrast_Filter() { }
+    ~SkHighContrast_Filter() override {}
 
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
@@ -318,7 +318,7 @@ public:
     GLHighContrastFilterEffect(const SkHighContrastConfig& config);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
     void emitCode(EmitArgs& args) override;
 
 private:
@@ -337,7 +337,8 @@ void HighContrastFilterEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     GLHighContrastFilterEffect::GenKey(*this, caps, b);
 }
 
-void GLHighContrastFilterEffect::onSetData(const GrGLSLProgramDataManager& pdm, const GrProcessor& proc) {
+void GLHighContrastFilterEffect::onSetData(const GrGLSLProgramDataManager& pdm,
+                                           const GrFragmentProcessor& proc) {
     const HighContrastFilterEffect& hcfe = proc.cast<HighContrastFilterEffect>();
     pdm.set1f(fContrastUni, hcfe.config().fContrast);
 }

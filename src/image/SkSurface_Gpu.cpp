@@ -8,13 +8,15 @@
 #include "SkSurface_Gpu.h"
 
 #include "GrContextPriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
+
 #include "SkCanvas.h"
+#include "SkColorSpace_Base.h"
 #include "SkGpuDevice.h"
 #include "SkImage_Base.h"
 #include "SkImage_Gpu.h"
 #include "SkImagePriv.h"
-#include "GrRenderTargetContextPriv.h"
 #include "SkSurface_Base.h"
 
 #if SK_SUPPORT_GPU
@@ -22,6 +24,7 @@
 SkSurface_Gpu::SkSurface_Gpu(sk_sp<SkGpuDevice> device)
     : INHERITED(device->width(), device->height(), &device->surfaceProps())
     , fDevice(std::move(device)) {
+    SkASSERT(fDevice->accessRenderTargetContext()->asSurfaceProxy()->priv().isExact());
 }
 
 SkSurface_Gpu::~SkSurface_Gpu() {
@@ -82,7 +85,7 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
                                        origin, &this->props());
 }
 
-sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
+sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     if (!rtc) {
         return nullptr;
@@ -90,38 +93,45 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
 
     GrContext* ctx = fDevice->context();
 
-    GrSurfaceProxy* srcProxy = rtc->asSurfaceProxy();
-    sk_sp<GrSurfaceContext> copyCtx;
+    if (!rtc->asSurfaceProxy()) {
+        return nullptr;
+    }
+
+    SkBudgeted budgeted = rtc->asSurfaceProxy()->isBudgeted();
+
+    sk_sp<GrTextureProxy> srcProxy = rtc->asTextureProxyRef();
     // If the original render target is a buffer originally created by the client, then we don't
     // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
     // copy-on-write.
     if (!srcProxy || rtc->priv().refsWrappedObjects()) {
+        // MDB TODO: replace this with GrSurfaceProxy::Copy?
         GrSurfaceDesc desc = rtc->desc();
         desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;
 
-        copyCtx = ctx->contextPriv().makeDeferredSurfaceContext(desc,
+        sk_sp<GrSurfaceContext> copyCtx = ctx->contextPriv().makeDeferredSurfaceContext(
+                                                                desc,
                                                                 SkBackingFit::kExact,
                                                                 budgeted);
         if (!copyCtx) {
             return nullptr;
         }
 
-        if (!copyCtx->copy(srcProxy)) {
+        if (!copyCtx->copy(rtc->asSurfaceProxy())) {
             return nullptr;
         }
 
-        srcProxy = copyCtx->asSurfaceProxy();
+        srcProxy = copyCtx->asTextureProxyRef();
     }
-
-    // TODO: add proxy-backed SkImage_Gpu
-    GrTexture* tex = srcProxy->instantiate(ctx->textureProvider())->asTexture();
 
     const SkImageInfo info = fDevice->imageInfo();
     sk_sp<SkImage> image;
-    if (tex) {
-        image = sk_make_sp<SkImage_Gpu>(info.width(), info.height(), kNeedNewImageUniqueID,
-                                        info.alphaType(), sk_ref_sp(tex),
-                                        sk_ref_sp(info.colorSpace()), budgeted);
+    if (srcProxy) {
+        // The renderTargetContext coming out of SkGpuDevice should always be exact and the
+        // above copy creates a kExact surfaceContext.
+        SkASSERT(srcProxy->priv().isExact());
+        image = sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
+                                        info.alphaType(), std::move(srcProxy),
+                                        info.refColorSpace(), budgeted);
     }
     return image;
 }
@@ -136,14 +146,13 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     }
     // are we sharing our render target with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
-    sk_sp<SkImage> image(this->refCachedImage(SkBudgeted::kNo));
+    sk_sp<SkImage> image(this->refCachedImage());
     SkASSERT(image);
     // MDB TODO: this is unfortunate. The snapping of an Image_Gpu from a surface currently
-    // funnels down to a GrTexture. Once Image_Gpus are proxy-backed we should be able to 
+    // funnels down to a GrTexture. Once Image_Gpus are proxy-backed we should be able to
     // compare proxy uniqueIDs.
     if (rt->asTexture()->getTextureHandle() == image->getTextureHandle(false)) {
         fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);
-        SkTextureImageApplyBudgetedDecision(image.get());
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();
     }
@@ -183,7 +192,7 @@ bool SkSurface_Gpu::Valid(GrContext* context, GrPixelConfig config, SkColorSpace
             // If we don't have sRGB support, we may get here with a color space. It still needs
             // to be sRGB-like (so that the application will work correctly on sRGB devices.)
             return !colorSpace ||
-                (!context->caps()->srgbSupport() && colorSpace->gammaCloseToSRGB());
+                (colorSpace->gammaCloseToSRGB() && !context->caps()->srgbSupport());
         default:
             return !colorSpace;
     }
@@ -221,8 +230,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
     sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeBackendTextureRenderTargetContext(
                                                                     desc,
                                                                     std::move(colorSpace),
-                                                                    props,
-                                                                    kBorrow_GrWrapOwnership));
+                                                                    props));
     if (!rtc) {
         return nullptr;
     }

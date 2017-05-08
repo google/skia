@@ -64,7 +64,7 @@ private:
 class SkXMLStreamWriter : public SkXMLWriter {
 public:
     SkXMLStreamWriter(SkWStream*);
-    virtual ~SkXMLStreamWriter();
+    ~SkXMLStreamWriter() override;
     void writeHeader() override;
 
 protected:
@@ -80,7 +80,7 @@ private:
 class SkXMLParserWriter : public SkXMLWriter {
 public:
     SkXMLParserWriter(SkXMLParser*);
-    virtual ~SkXMLParserWriter();
+    ~SkXMLParserWriter() override;
 protected:
     void onStartElementLen(const char elem[], size_t length) override;
     void onEndElement() override;

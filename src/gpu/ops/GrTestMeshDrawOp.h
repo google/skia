@@ -14,12 +14,12 @@
 #include "ops/GrMeshDrawOp.h"
 
 /*
- * A simple solid color GrMeshDrawOp for testing purposes which doesn't ever combine. Subclassing
- * this in tests saves having to fill out some boiler plate methods.
+ * A simple solid color GrLegacyMeshDrawOp for testing purposes which doesn't ever combine.
+ * Subclassing this in tests saves having to fill out some boiler plate methods.
  */
-class GrTestMeshDrawOp : public GrMeshDrawOp {
+class GrTestMeshDrawOp : public GrLegacyMeshDrawOp {
 public:
-    virtual const char* name() const override = 0;
+    const char* name() const override = 0;
 
 protected:
     GrTestMeshDrawOp(uint32_t classID, const SkRect& bounds, GrColor color)
@@ -33,12 +33,13 @@ protected:
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
 private:
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fColor);
-        input->coverageInput()->setToUnknown();
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
+        color->setToConstant(fColor);
+        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fColor);
         fUsesLocalCoords = optimizations.readsLocalCoords();
     }
@@ -48,7 +49,7 @@ private:
     GrColor fColor;
     bool fUsesLocalCoords = false;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 #endif

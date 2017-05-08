@@ -11,7 +11,7 @@
 #include "GrColor.h"
 #include "SkRefCnt.h"
 
-class GrDrawOp;
+class GrLegacyMeshDrawOp;
 class GrShaderCaps;
 class SkMatrix;
 class SkRRect;
@@ -19,9 +19,9 @@ class SkStrokeRec;
 
 namespace GrShadowRRectOp {
 
-std::unique_ptr<GrDrawOp> Make(GrColor, const SkMatrix& viewMatrix, const SkRRect& rrect,
-                               const SkScalar blurRadius, const SkStrokeRec& stroke,
-                               const GrShaderCaps* shaderCaps);
+std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor, const SkMatrix& viewMatrix, const SkRRect& rrect,
+                                         const SkScalar blurRadius, const SkStrokeRec& stroke,
+                                         const GrShaderCaps* shaderCaps);
 }
 
 #endif

@@ -10,10 +10,10 @@
 #ifdef SK_HAS_JPEG_LIBRARY
 
 #include "SkColorPriv.h"
+#include "SkImageEncoderFns.h"
 #include "SkJPEGWriteUtility.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
-#include "transform_scanline.h"
 
 #include <stdio.h>
 
@@ -82,22 +82,17 @@ static bool set_encode_config(J_COLOR_SPACE* jpegColorType, int* numComponents,
 }
 
 bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, const SkEncodeOptions& opts) {
-    SkASSERT(!pixmap.colorSpace() || pixmap.colorSpace()->gammaCloseToSRGB() ||
-            pixmap.colorSpace()->gammaIsLinear());
-
-    SkPixmap src = pixmap;
-    if (SkEncodeOptions::PremulBehavior::kLegacy == opts.fPremulBehavior) {
-        src.setColorSpace(nullptr);
-    } else {
-        // kGammaCorrect behavior requires a color space.  It's not actually critical in the
-        // jpeg case (since jpegs are opaque), but Skia color correct behavior generally
+    if (SkTransferFunctionBehavior::kRespect == opts.fUnpremulBehavior) {
+        // Respecting the transfer function requries a color space.  It's not actually critical
+        // in the jpeg case (since jpegs are opaque), but Skia color correct behavior generally
         // requires pixels to be tagged with color spaces.
-        if (!src.colorSpace()) {
+        if (!pixmap.colorSpace() || (!pixmap.colorSpace()->gammaCloseToSRGB() &&
+                                     !pixmap.colorSpace()->gammaIsLinear())) {
             return false;
         }
     }
 
-    return SkEncodeImageAsJPEG(stream, src, 100);
+    return SkEncodeImageAsJPEG(stream, pixmap, 100);
 }
 
 bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality) {
@@ -140,6 +135,23 @@ bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality)
     jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
 
     jpeg_start_compress(&cinfo, TRUE);
+
+    if (pixmap.colorSpace()) {
+        sk_sp<SkData> icc = icc_from_color_space(*pixmap.colorSpace());
+        if (icc) {
+            // Create a contiguous block of memory with the icc signature followed by the profile.
+            sk_sp<SkData> markerData =
+                    SkData::MakeUninitialized(kICCMarkerHeaderSize + icc->size());
+            uint8_t* ptr = (uint8_t*) markerData->writable_data();
+            memcpy(ptr, kICCSig, sizeof(kICCSig));
+            ptr += sizeof(kICCSig);
+            *ptr++ = 1; // This is the first marker.
+            *ptr++ = 1; // Out of one total markers.
+            memcpy(ptr, icc->data(), icc->size());
+
+            jpeg_write_marker(&cinfo, kICCMarker, markerData->bytes(), markerData->size());
+        }
+    }
 
     if (proc) {
         storage.reset(numComponents * pixmap.width());
