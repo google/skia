@@ -539,8 +539,11 @@ def PostUploadHook(cl, change, output_api):
 
     # Ensure that there's an empty line between the title and description.
     if len(new_description_lines) > 1:
+      print 'HERE HERE'
+      print new_description_lines
       if new_description_lines[0] != '':
         new_description_lines.insert(1, '')
+      import pdb; pdb.set_trace();
 
     # If the description has changed update it.
     if new_description_lines != original_description_lines:
