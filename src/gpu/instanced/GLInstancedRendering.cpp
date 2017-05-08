@@ -206,7 +206,7 @@ void GLInstancedRendering::onDraw(const GrPipeline& pipeline, const InstanceProc
     if (!fDrawIndirectBuffer && !fGLDrawCmdsInfo) {
         return; // beginFlush was not successful.
     }
-    if (!this->glGpu()->flushGLState(pipeline, instProc, false)) {
+    if (!this->glGpu()->flushGLState(pipeline, pipeline.getRenderTargetProxy()->instantiate(nullptr), instProc, false)) {
         return;
     }
 

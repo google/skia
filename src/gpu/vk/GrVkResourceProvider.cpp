@@ -178,10 +178,11 @@ GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrSampler
 
 sk_sp<GrVkPipelineState> GrVkResourceProvider::findOrCreateCompatiblePipelineState(
                                                                  const GrPipeline& pipeline,
+                                                                 GrRenderTarget* rt,
                                                                  const GrPrimitiveProcessor& proc,
                                                                  GrPrimitiveType primitiveType,
                                                                  const GrVkRenderPass& renderPass) {
-    return fPipelineStateCache->refPipelineState(pipeline, proc, primitiveType, renderPass);
+    return fPipelineStateCache->refPipelineState(pipeline, rt, proc, primitiveType, renderPass);
 }
 
 void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,

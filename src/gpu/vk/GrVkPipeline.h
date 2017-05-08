@@ -16,6 +16,7 @@
 
 class GrPipeline;
 class GrPrimitiveProcessor;
+class GrRenderTarget;
 class GrStencilSettings;
 class GrVkCommandBuffer;
 class GrVkGpu;
@@ -36,7 +37,7 @@ public:
 
     VkPipeline pipeline() const { return fPipeline; }
 
-    static void SetDynamicState(GrVkGpu*, GrVkCommandBuffer*, const GrPipeline&);
+    static void SetDynamicState(GrVkGpu*, GrVkCommandBuffer*, const GrPipeline&, GrRenderTarget*);
 
 #ifdef SK_TRACE_VK_RESOURCES
     void dumpInfo() const override {

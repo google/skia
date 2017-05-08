@@ -54,7 +54,7 @@ void GrGLSLGeometryBuilder::configure(InputType inputType, OutputType outputType
                              kOut_InterfaceQualifier);
 }
 
-void GrGLSLGeometryBuilder::onFinalize() {
+void GrGLSLGeometryBuilder::onFinalize(GrRenderTarget* rt) {
     SkASSERT(this->isConfigured());
     fProgramBuilder->varyingHandler()->getGeomDecls(&this->inputs(), &this->outputs());
     GrShaderVar sk_InvocationID("sk_InvocationID", kInt_GrSLType);
