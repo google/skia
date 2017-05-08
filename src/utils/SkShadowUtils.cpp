@@ -56,6 +56,7 @@ private:
 };
 
 static inline float eval_gaussian(float x) {
+    // x = 1 - x;
     // return sk_float_exp(-x * x * 4) - 0.018f;
 
     return 0.00030726194381713867f +
