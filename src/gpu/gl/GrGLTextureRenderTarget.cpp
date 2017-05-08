@@ -7,6 +7,7 @@
 
 #include "GrGLTextureRenderTarget.h"
 
+#include "GrContext.h"
 #include "SkTraceMemoryDump.h"
 
 // GrGLTextureRenderTarget must dump both of its superclasses.
@@ -40,8 +41,8 @@ void GrGLTextureRenderTarget::dumpMemoryStatistics(
 
 bool GrGLTextureRenderTarget::canAttemptStencilAttachment() const {
     // The RT FBO of GrGLTextureRenderTarget is never created from a
-    // wrapped FBO.
-    return true;
+    // wrapped FBO, so we only care about the flag.
+    return !this->getGpu()->getContext()->caps()->avoidStencilBuffers();
 }
 
 sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(

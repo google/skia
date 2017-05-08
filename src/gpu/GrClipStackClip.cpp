@@ -115,7 +115,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
 
         GrShape shape(path, GrStyle::SimpleFill());
         GrPathRenderer::CanDrawPathArgs canDrawArgs;
-        canDrawArgs.fShaderCaps = context->caps()->shaderCaps();
+        canDrawArgs.fCaps = context->caps();
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;
         if (!element->isAA()) {
@@ -151,6 +151,10 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
     // TODO: generalize this function so that when
     // a clip gets complex enough it can just be done in SW regardless
     // of whether it would invoke the GrSoftwarePathRenderer.
+
+    // If we're avoiding stencils, always use SW:
+    if (context->caps()->avoidStencilBuffers())
+        return true;
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip
     // space.
@@ -283,6 +287,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     SkASSERT(rtIBounds.contains(clipIBounds)); // Mask shouldn't be larger than the RT.
 #endif
 
+    bool avoidStencilBuffers = context->caps()->avoidStencilBuffers();
+
     // An element count of 4 was chosen because of the common pattern in Blink of:
     //   isect RR
     //   diff  RR
@@ -294,7 +300,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     if (reducedClip.elements().count() <= kMaxAnalyticElements) {
         // When there are multiple samples we want to do per-sample clipping, not compute a
         // fractional pixel coverage.
-        bool disallowAnalyticAA = renderTargetContext->isStencilBufferMultisampled();
+        bool disallowAnalyticAA = renderTargetContext->isStencilBufferMultisampled() &&
+                                  !avoidStencilBuffers;
         if (disallowAnalyticAA && !renderTargetContext->numColorSamples()) {
             // With a single color sample, any coverage info is lost from color once it hits the
             // color buffer anyway, so we may as well use coverage AA if nothing else in the pipe
@@ -302,7 +309,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
             disallowAnalyticAA = useHWAA || hasUserStencilSettings;
         }
         sk_sp<GrFragmentProcessor> clipFP;
-        if (reducedClip.requiresAA() &&
+        if ((reducedClip.requiresAA() || avoidStencilBuffers) &&
             get_analytic_clip_processor(reducedClip.elements(), disallowAnalyticAA, devBounds,
                                         &clipFP)) {
             out->addCoverageFP(std::move(clipFP));
@@ -311,7 +318,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     }
 
     // If the stencil buffer is multisampled we can use it to do everything.
-    if (!renderTargetContext->isStencilBufferMultisampled() && reducedClip.requiresAA()) {
+    if ((!renderTargetContext->isStencilBufferMultisampled() && reducedClip.requiresAA()) ||
+        avoidStencilBuffers) {
         sk_sp<GrTextureProxy> result;
         if (UseSWOnlyPath(context, hasUserStencilSettings, renderTargetContext, reducedClip)) {
             // The clip geometry is complex enough that it will be more efficient to create it
@@ -328,7 +336,13 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
                                                   reducedClip.ibounds()));
             return true;
         }
-        // if alpha clip mask creation fails fall through to the non-AA code paths
+
+        // If alpha or software clip mask creation fails, fall through to the stencil code paths,
+        // unless stencils are disallowed.
+        if (context->caps()->avoidStencilBuffers()) {
+            SkDebugf("WARNING: Clip mask requires stencil, but stencil unavailable. Clip will be ignored.\n");
+            return false;
+        }
     }
 
     GrRenderTarget* rt = renderTargetContext->accessRenderTarget();

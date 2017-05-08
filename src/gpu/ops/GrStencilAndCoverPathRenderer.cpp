@@ -22,7 +22,7 @@
 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
                                                       const GrCaps& caps) {
-    if (caps.shaderCaps()->pathRenderingSupport()) {
+    if (caps.shaderCaps()->pathRenderingSupport() && !caps.avoidStencilBuffers()) {
         return new GrStencilAndCoverPathRenderer(resourceProvider);
     } else {
         return nullptr;

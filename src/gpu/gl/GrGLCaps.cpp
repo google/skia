@@ -344,23 +344,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
      * GrCaps fields
      **************************************************************************/
 
-    // We need dual source blending and the ability to disable multisample in order to support mixed
-    // samples in every corner case. We only use mixed samples if the stencil-and-cover path
-    // renderer is available and enabled; no other path renderers support this feature.
-    if (fMultisampleDisableSupport &&
-        shaderCaps->dualSourceBlendingSupport() &&
-        fShaderCaps->pathRenderingSupport() &&
-        (contextOptions.fGpuPathRenderers & GrContextOptions::GpuPathRenderers::kStencilAndCover)) {
-        fUsesMixedSamples = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
-                ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
-        // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
-        if (fUsesMixedSamples && (kNVIDIA_GrGLDriver == ctxInfo.driver() ||
-                                  kChromium_GrGLDriver == ctxInfo.driver())) {
-            fDiscardRenderTargetSupport = false;
-            fInvalidateFBType = kNone_InvalidateFBType;
-        }
-    }
-
     // SGX and Mali GPUs that are based on a tiled-deferred architecture that have trouble with
     // frequently changing VBOs. We've measured a performance increase using non-VBO vertex
     // data for dynamic content on these GPUs. Perhaps we should read the renderer string and
@@ -373,11 +356,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fPreferClientSideDynamicBuffers = true;
     }
 
-    // fUsesMixedSamples must be set before calling initFSAASupport.
-    this->initFSAASupport(ctxInfo, gli);
+    if (!contextOptions.fAvoidStencilBuffers) {
+        // To reduce surface area, if we avoid stencil buffers, we also disable MSAA.
+        this->initFSAASupport(contextOptions, ctxInfo, gli);
+        this->initStencilSupport(ctxInfo);
+    }
     this->initBlendEqationSupport(ctxInfo);
-    this->initStencilFormats(ctxInfo);
-
 
     if (kGL_GrGLStandard == standard) {
         fMapBufferFlags = kCanMap_MapFlag; // we require VBO support and the desktop VBO
@@ -463,21 +447,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fReuseScratchBuffers = kARM_GrGLVendor != ctxInfo.vendor() &&
                            kQualcomm_GrGLVendor != ctxInfo.vendor();
 #endif
-
-    // initFSAASupport() must have been called before this point
-    if (GrGLCaps::kES_IMG_MsToTexture_MSFBOType == fMSFBOType) {
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &fMaxStencilSampleCount);
-    } else if (GrGLCaps::kNone_MSFBOType != fMSFBOType) {
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &fMaxStencilSampleCount);
-    }
-    // We only have a use for raster multisample if there is coverage modulation from mixed samples.
-    if (fUsesMixedSamples && ctxInfo.hasExtension("GL_EXT_raster_multisample")) {
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_RASTER_SAMPLES, &fMaxRasterSamples);
-        // This is to guard against platforms that may not support as many samples for
-        // glRasterSamples as they do for framebuffers.
-        fMaxStencilSampleCount = SkTMin(fMaxStencilSampleCount, fMaxRasterSamples);
-    }
-    fMaxColorSampleCount = fMaxStencilSampleCount;
 
     if (ctxInfo.hasExtension("GL_EXT_window_rectangles")) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_WINDOW_RECTANGLES, &fMaxWindowRectangles);
@@ -982,7 +951,25 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
            fConfigTable[surfaceConfig].fSecondReadPixelsFormat.fType == readType;
 }
 
-void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
+void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
+                               const GrGLInterface* gli) {
+    // We need dual source blending and the ability to disable multisample in order to support mixed
+    // samples in every corner case. We only use mixed samples if the stencil-and-cover path
+    // renderer is available and enabled; no other path renderers support this feature.
+    if (fMultisampleDisableSupport &&
+        this->shaderCaps()->dualSourceBlendingSupport() &&
+        this->shaderCaps()->pathRenderingSupport() &&
+        (contextOptions.fGpuPathRenderers & GrContextOptions::GpuPathRenderers::kStencilAndCover)) {
+        fUsesMixedSamples = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
+                ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
+        // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
+        if (fUsesMixedSamples && (kNVIDIA_GrGLDriver == ctxInfo.driver() ||
+                                  kChromium_GrGLDriver == ctxInfo.driver())) {
+            fDiscardRenderTargetSupport = false;
+            fInvalidateFBType = kNone_InvalidateFBType;
+        }
+    }
+
     if (kGL_GrGLStandard != ctxInfo.standard()) {
         // We prefer the EXT/IMG extension over ES3 MSAA because we've observed
         // ES3 driver bugs on at least one device with a tiled GPU (N10).
@@ -1030,6 +1017,20 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fBlitFramebufferFlags = 0;
         }
     }
+
+    if (GrGLCaps::kES_IMG_MsToTexture_MSFBOType == fMSFBOType) {
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &fMaxStencilSampleCount);
+    } else if (GrGLCaps::kNone_MSFBOType != fMSFBOType) {
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &fMaxStencilSampleCount);
+    }
+    // We only have a use for raster multisample if there is coverage modulation from mixed samples.
+    if (fUsesMixedSamples && ctxInfo.hasExtension("GL_EXT_raster_multisample")) {
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_RASTER_SAMPLES, &fMaxRasterSamples);
+        // This is to guard against platforms that may not support as many samples for
+        // glRasterSamples as they do for framebuffers.
+        fMaxStencilSampleCount = SkTMin(fMaxStencilSampleCount, fMaxRasterSamples);
+    }
+    fMaxColorSampleCount = fMaxStencilSampleCount;
 }
 
 void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
@@ -1084,7 +1085,7 @@ namespace {
 const GrGLuint kUnknownBitCount = GrGLStencilAttachment::kUnknownBitCount;
 }
 
-void GrGLCaps::initStencilFormats(const GrGLContextInfo& ctxInfo) {
+void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
 
     // Build up list of legal stencil formats (though perhaps not supported on
     // the particular gpu/driver) from most preferred to least.

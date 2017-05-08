@@ -101,6 +101,9 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     smallDesc.fHeight = 4;
     smallDesc.fSampleCnt = 0;
 
+    if (context->caps()->avoidStencilBuffers()) {
+        return;
+    }
     GrResourceProvider* resourceProvider = context->resourceProvider();
     // Test that two budgeted RTs with the same desc share a stencil buffer.
     sk_sp<GrTexture> smallRT0(resourceProvider->createTexture(smallDesc, SkBudgeted::kYes));
