@@ -9,7 +9,7 @@
 #define SkEncoder_DEFINED
 
 #include "SkPixmap.h"
-#include "SkTemplates.h"
+#include "../private/SkTemplates.h"
 
 class SkEncoder : SkNoncopyable {
 public:
