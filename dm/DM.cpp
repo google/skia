@@ -1033,6 +1033,8 @@ static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
     png_set_IHDR(png, info, (png_uint_32)w, (png_uint_32)h, 8,
                  PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+    png_set_filter(png,  PNG_FILTER_TYPE_BASE, PNG_FILTER_NONE);
+    png_set_compression_level(png, 1);
     png_write_info(png, info);
     for (int j = 0; j < h; j++) {
         png_bytep row = (png_bytep)(rgba + w*j);
