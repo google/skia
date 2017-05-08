@@ -16,6 +16,15 @@
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
+// This method parallels GrTextureProxy::highestFilterMode
+static inline GrSamplerParams::FilterMode highest_filter_mode(GrPixelConfig config) {
+    if (GrPixelConfigIsSint(config)) {
+        // We only ever want to nearest-neighbor sample signed int textures.
+        return GrSamplerParams::kNone_FilterMode;
+    }
+    return GrSamplerParams::kMipMap_FilterMode;
+}
+
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          SkBudgeted budgeted,
@@ -24,7 +33,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageView* view)
     : GrSurface(gpu, desc)
     , GrVkImage(info, GrVkImage::kNot_Wrapped)
-    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, GrSamplerParams::kMipMap_FilterMode,
+    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
                 desc.fIsMipMapped)
     , fTextureView(view)
     , fLinearTextureView(nullptr) {
@@ -39,7 +48,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
     , GrVkImage(info, wrapped)
-    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, GrSamplerParams::kMipMap_FilterMode,
+    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
                 desc.fIsMipMapped)
     , fTextureView(view)
     , fLinearTextureView(nullptr) {
@@ -54,7 +63,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
     , GrVkImage(info, wrapped)
-    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, GrSamplerParams::kMipMap_FilterMode,
+    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
                 desc.fIsMipMapped)
     , fTextureView(view)
     , fLinearTextureView(nullptr) {
