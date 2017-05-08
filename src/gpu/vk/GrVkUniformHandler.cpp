@@ -225,6 +225,30 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(uint32_t visi
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }
 
+GrGLSLUniformHandler::TexelBufferHandle GrVkUniformHandler::addTexelBuffer(uint32_t visibility,
+                                                                           GrSLPrecision precision,
+                                                                           const char* name) {
+    SkASSERT(name && strlen(name));
+    SkDEBUGCODE(static const uint32_t kVisMask = kVertex_GrShaderFlag | kFragment_GrShaderFlag);
+    SkASSERT(0 == (~kVisMask & visibility));
+    SkASSERT(0 != visibility);
+    SkString mangleName;
+    char prefix = 'u';
+    fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
+
+    UniformInfo& info = fTexelBuffers.push_back();
+    info.fVariable.setType(kBufferSampler_GrSLType);
+    info.fVariable.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
+    info.fVariable.setPrecision(precision);
+    info.fVariable.setName(mangleName);
+    SkString layoutQualifier;
+    layoutQualifier.appendf("set=%d, binding=%d", kTexelBufferDescSet, fTexelBuffers.count()- 1);
+    info.fVariable.addLayoutQualifier(layoutQualifier.c_str());
+    info.fVisibility = visibility;
+    info.fUBOffset = 0;
+    return GrGLSLUniformHandler::TexelBufferHandle(fTexelBuffers.count() - 1);
+}
+
 void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
     SkASSERT(kVertex_GrShaderFlag == visibility ||
              kGeometry_GrShaderFlag == visibility ||
@@ -235,6 +259,14 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         SkASSERT(sampler.fVariable.getType() == kTexture2DSampler_GrSLType);
         if (visibility == sampler.fVisibility) {
             sampler.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
+            out->append(";\n");
+        }
+    }
+
+    for (int i = 0; i < fTexelBuffers.count(); ++i) {
+        const UniformInfo& texelBuffer = fTexelBuffers[i];
+        if (visibility == texelBuffer.fVisibility) {
+            texelBuffer.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";\n");
         }
     }

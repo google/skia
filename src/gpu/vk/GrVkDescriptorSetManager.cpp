@@ -116,7 +116,7 @@ bool GrVkDescriptorSetManager::isCompatible(VkDescriptorType type,
         if (fBindingVisibilities.count() != uniHandler->numTexelBuffers()) {
             return false;
         }
-        for (int i = 0; i < uniHandler->numSamplers(); ++i) {
+        for (int i = 0; i < uniHandler->numTexelBuffers(); ++i) {
             if (uniHandler->texelBufferVisibility(i) != fBindingVisibilities[i]) {
                 return false;
             }

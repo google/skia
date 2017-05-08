@@ -93,7 +93,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                                       GrPrimitiveType primitiveType,
                                                       const GrVkRenderPass& renderPass,
                                                       GrVkPipelineState::Desc* desc) {
-    VkDescriptorSetLayout dsLayout[2];
+    VkDescriptorSetLayout dsLayout[3];
     VkPipelineLayout pipelineLayout;
     VkShaderModule vertShaderModule;
     VkShaderModule fragShaderModule;
@@ -108,13 +108,19 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     dsLayout[GrVkUniformHandler::kSamplerDescSet] =
             resourceProvider.getSamplerDSLayout(samplerDSHandle);
 
+    GrVkDescriptorSetManager::Handle texelBufferDSHandle;
+    resourceProvider.getSamplerDescriptorSetHandle(VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,
+                                                   fUniformHandler, &texelBufferDSHandle);
+    dsLayout[GrVkUniformHandler::kTexelBufferDescSet] =
+            resourceProvider.getSamplerDSLayout(texelBufferDSHandle);
+
     // Create the VkPipelineLayout
     VkPipelineLayoutCreateInfo layoutCreateInfo;
     memset(&layoutCreateInfo, 0, sizeof(VkPipelineLayoutCreateFlags));
     layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     layoutCreateInfo.pNext = 0;
     layoutCreateInfo.flags = 0;
-    layoutCreateInfo.setLayoutCount = 2;
+    layoutCreateInfo.setLayoutCount = 3;
     layoutCreateInfo.pSetLayouts = dsLayout;
     layoutCreateInfo.pushConstantRangeCount = 0;
     layoutCreateInfo.pPushConstantRanges = nullptr;
@@ -178,11 +184,13 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                  pipeline,
                                  pipelineLayout,
                                  samplerDSHandle,
+                                 texelBufferDSHandle,
                                  fUniformHandles,
                                  fUniformHandler.fUniforms,
                                  fUniformHandler.fCurrentGeometryUBOOffset,
                                  fUniformHandler.fCurrentFragmentUBOOffset,
                                  (uint32_t)fUniformHandler.numSamplers(),
+                                 (uint32_t)fUniformHandler.numTexelBuffers(),
                                  fGeometryProcessor,
                                  fXferProcessor,
                                  fFragmentProcessors);
