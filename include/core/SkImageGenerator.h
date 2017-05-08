@@ -201,8 +201,9 @@ protected:
     }
 
 #if SK_SUPPORT_GPU
+    virtual bool onCanGenerateTexture() const { return false; }
     virtual sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&,
-                                                    const SkIPoint&);
+                                                    const SkIPoint&);   // returns nullptr
 #endif
 
 private:
