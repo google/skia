@@ -16,10 +16,42 @@ class SkWStream;
 class SkPngEncoder : public SkEncoder {
 public:
 
-    // TODO (skbug.com/6409):
-    // Add options for png filters and zlib compression.
+    enum class FilterFlag : int {
+        kZero  = 0x00,
+        kNone  = 0x08,
+        kSub   = 0x10,
+        kUp    = 0x20,
+        kAvg   = 0x40,
+        kPaeth = 0x80,
+        kAll   = kNone | kSub | kUp | kAvg | kPaeth,
+    };
 
     struct Options {
+        /**
+         *  Selects which filtering strategies to use.
+         *
+         *  If a single filter is chosen, libpng will use that filter for every row.
+         *
+         *  If multiple filters are chosen, libpng will use a heuristic to guess which filter
+         *  will encode smallest, then apply that filter.  This happens on a per row basis,
+         *  different rows can use different filters.
+         *
+         *  Using a single filter (or less filters) is typically faster.  Trying all of the
+         *  filters may help minimize the output file size.
+         *
+         *  Our default value matches libpng's default.
+         */
+        FilterFlag fFilterFlags = FilterFlag::kAll;
+
+        /**
+         *  Must be in [0, 9] where 9 corresponds to maximal compression.  This value is passed
+         *  directly to zlib.  0 is a special case to skip zlib entirely, creating dramatically
+         *  larger pngs.
+         *
+         *  Our default value matches libpng's default.
+         */
+        int fZLibLevel = 6;
+
         /**
          *  If the input is premultiplied, this controls the unpremultiplication behavior.
          *  The encoder can convert to linear before unpremultiplying or ignore the transfer
@@ -57,5 +89,10 @@ protected:
     std::unique_ptr<SkPngEncoderMgr> fEncoderMgr;
     typedef SkEncoder INHERITED;
 };
+
+static inline SkPngEncoder::FilterFlag operator|(SkPngEncoder::FilterFlag x,
+                                                 SkPngEncoder::FilterFlag y) {
+    return (SkPngEncoder::FilterFlag)((int)x | (int)y);
+}
 
 #endif
