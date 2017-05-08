@@ -18,7 +18,7 @@
  */
 class SK_API GrDefaultPathRenderer : public GrPathRenderer {
 public:
-    GrDefaultPathRenderer(bool separateStencilSupport, bool stencilWrapOpsSupport);
+    GrDefaultPathRenderer(bool stencilWrapOpsSupport);
 
 private:
 
@@ -39,7 +39,6 @@ private:
                           const GrShape&,
                           bool stencilOnly);
 
-    bool    fSeparateStencil;
     bool    fStencilWrapOps;
 
     typedef GrPathRenderer INHERITED;
