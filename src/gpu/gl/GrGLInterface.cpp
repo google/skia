@@ -117,8 +117,11 @@ bool GrGLInterface::validate() const {
         nullptr == fFunctions.fScissor ||
         nullptr == fFunctions.fShaderSource ||
         nullptr == fFunctions.fStencilFunc ||
+        nullptr == fFunctions.fStencilFuncSeparate ||
         nullptr == fFunctions.fStencilMask ||
+        nullptr == fFunctions.fStencilMaskSeparate ||
         nullptr == fFunctions.fStencilOp ||
+        nullptr == fFunctions.fStencilOpSeparate ||
         nullptr == fFunctions.fTexImage2D ||
         nullptr == fFunctions.fTexParameteri ||
         nullptr == fFunctions.fTexParameteriv ||
@@ -178,19 +181,9 @@ bool GrGLInterface::validate() const {
     // these functions are part of ES2, we assume they are available
     // On the desktop we assume they are available if the extension
     // is present or GL version is high enough.
-    if (kGLES_GrGLStandard == fStandard) {
-        if (nullptr == fFunctions.fStencilFuncSeparate ||
-            nullptr == fFunctions.fStencilMaskSeparate ||
-            nullptr == fFunctions.fStencilOpSeparate) {
-            RETURN_FALSE_INTERFACE
-        }
-    } else if (kGL_GrGLStandard == fStandard) {
-
+    if (kGL_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(2,0)) {
-            if (nullptr == fFunctions.fStencilFuncSeparate ||
-                nullptr == fFunctions.fStencilMaskSeparate ||
-                nullptr == fFunctions.fStencilOpSeparate ||
-                nullptr == fFunctions.fPolygonMode) {
+            if (nullptr == fFunctions.fPolygonMode) {
                 RETURN_FALSE_INTERFACE
             }
         }

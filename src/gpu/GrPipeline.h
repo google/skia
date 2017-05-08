@@ -70,7 +70,6 @@ public:
 
     struct InitArgs {
         uint32_t fFlags = 0;
-        GrDrawFace fDrawFace = GrDrawFace::kBoth;
         const GrProcessorSet* fProcessors = nullptr;  // Must be finalized
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrAppliedClip* fAppliedClip = nullptr;
@@ -221,13 +220,6 @@ public:
         }
         return this->getXferProcessor().xferBarrierType(caps);
     }
-
-    /**
-     * Gets whether the target is drawing clockwise, counterclockwise,
-     * or both faces.
-     * @return the current draw face(s).
-     */
-    GrDrawFace getDrawFace() const { return static_cast<GrDrawFace>(fDrawFace); }
 
 private:
     void markAsBad() { fFlags |= kIsBad_Flag; }

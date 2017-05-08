@@ -517,9 +517,6 @@ bool GrVkPipelineState::Desc::Build(Desc* desc,
 
     stencil.genKey(&b);
 
-    SkASSERT(sizeof(GrDrawFace) <= sizeof(uint32_t));
-    b.add32((int32_t)pipeline.getDrawFace());
-
     b.add32(get_blend_info_key(pipeline));
 
     b.add32(primitiveType);

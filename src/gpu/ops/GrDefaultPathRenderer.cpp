@@ -24,10 +24,8 @@
 #include "ops/GrMeshDrawOp.h"
 #include "ops/GrRectOpFactory.h"
 
-GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
-                                             bool stencilWrapOpsSupport)
-    : fSeparateStencil(separateStencilSupport)
-    , fStencilWrapOps(stencilWrapOpsSupport) {
+GrDefaultPathRenderer::GrDefaultPathRenderer(bool stencilWrapOpsSupport)
+    : fStencilWrapOps(stencilWrapOpsSupport) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -431,8 +429,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
     }
 
     int                          passCount = 0;
-    const GrUserStencilSettings* passes[3];
-    GrDrawFace                   drawFace[3];
+    const GrUserStencilSettings* passes[2];
     bool                         reverse = false;
     bool                         lastPassIsBounds;
 
@@ -444,7 +441,6 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             passes[0] = &userStencilSettings;
         }
         lastPassIsBounds = false;
-        drawFace[0] = GrDrawFace::kBoth;
     } else {
         if (single_pass_shape(shape)) {
             passCount = 1;
@@ -453,7 +449,6 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             } else {
                 passes[0] = &userStencilSettings;
             }
-            drawFace[0] = GrDrawFace::kBoth;
             lastPassIsBounds = false;
         } else {
             switch (path.getFillType()) {
@@ -474,40 +469,23 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                             passes[1] = &gEOColorPass;
                         }
                     }
-                    drawFace[0] = drawFace[1] = GrDrawFace::kBoth;
                     break;
 
                 case SkPath::kInverseWinding_FillType:
                     reverse = true;
                     // fallthrough
                 case SkPath::kWinding_FillType:
-                    if (fSeparateStencil) {
-                        if (fStencilWrapOps) {
-                            passes[0] = &gWindStencilSeparateWithWrap;
-                        } else {
-                            passes[0] = &gWindStencilSeparateNoWrap;
-                        }
-                        passCount = 2;
-                        drawFace[0] = GrDrawFace::kBoth;
+                    if (fStencilWrapOps) {
+                        passes[0] = &gWindStencilSeparateWithWrap;
                     } else {
-                        if (fStencilWrapOps) {
-                            passes[0] = &gWindSingleStencilWithWrapInc;
-                            passes[1] = &gWindSingleStencilWithWrapDec;
-                        } else {
-                            passes[0] = &gWindSingleStencilNoWrapInc;
-                            passes[1] = &gWindSingleStencilNoWrapDec;
-                        }
-                        // which is cw and which is ccw is arbitrary.
-                        drawFace[0] = GrDrawFace::kCW;
-                        drawFace[1] = GrDrawFace::kCCW;
-                        passCount = 3;
+                        passes[0] = &gWindStencilSeparateNoWrap;
                     }
+                    passCount = 2;
                     if (stencilOnly) {
                         lastPassIsBounds = false;
                         --passCount;
                     } else {
                         lastPassIsBounds = true;
-                        drawFace[passCount-1] = GrDrawFace::kBoth;
                         if (reverse) {
                             passes[passCount-1] = &gInvWindColorPass;
                         } else {
@@ -552,10 +530,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                                                                                viewMatrix;
             std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                     paint.getColor(), viewM, bounds, nullptr, &localMatrix));
-
-            SkASSERT(GrDrawFace::kBoth == drawFace[p]);
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
             renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip,
                                                      std::move(op));
@@ -569,7 +544,6 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                 passPaint.paint().setXPFactory(GrDisableColorXPFactory::Get());
             }
             GrPipelineBuilder pipelineBuilder(std::move(passPaint), aaType);
-            pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
             renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip,
                                                      std::move(op));
