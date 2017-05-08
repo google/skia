@@ -22,7 +22,7 @@
  */
 class SkBaseShadowTessellator {
 public:
-    SkBaseShadowTessellator(SkShadowTessellator::HeightFunc, bool transparent);
+    SkBaseShadowTessellator(const SkPoint3& zPlaneParams, bool transparent);
     virtual ~SkBaseShadowTessellator() {}
 
     sk_sp<SkVertices> releaseVertices() {
@@ -56,11 +56,15 @@ protected:
 
     bool addArc(const SkVector& nextNormal, bool finishArc);
 
-    SkShadowTessellator::HeightFunc         fHeightFunc;
+    SkScalar heightFunc(SkScalar x, SkScalar y) {
+        return fZPlaneParams.fX*x + fZPlaneParams.fY*y + fZPlaneParams.fZ;
+    }
+
+    SkPoint3                                fZPlaneParams;
     std::function<SkScalar(const SkPoint&)> fTransformedHeightFunc;
     SkScalar                                fZOffset;
     // members for perspective height function
-    SkScalar                                fZParams[3];
+    SkPoint3                                fPerspZParams;
     SkScalar                                fPartialDeterminants[3];
 
     // first two points
@@ -118,9 +122,8 @@ static void compute_radial_steps(const SkVector& v1, const SkVector& v2, SkScala
     *n = steps;
 }
 
-SkBaseShadowTessellator::SkBaseShadowTessellator(SkShadowTessellator::HeightFunc heightFunc,
-                                                 bool transparent)
-        : fHeightFunc(heightFunc)
+SkBaseShadowTessellator::SkBaseShadowTessellator(const SkPoint3& zPlaneParams, bool transparent)
+        : fZPlaneParams(zPlaneParams)
         , fZOffset(0)
         , fFirstVertex(-1)
         , fSucceeded(false)
@@ -133,17 +136,17 @@ SkBaseShadowTessellator::SkBaseShadowTessellator(SkShadowTessellator::HeightFunc
 }
 
 bool SkBaseShadowTessellator::setZOffset(const SkRect& bounds, bool perspective) {
-    SkScalar minZ = fHeightFunc(bounds.fLeft, bounds.fTop);
+    SkScalar minZ = this->heightFunc(bounds.fLeft, bounds.fTop);
     if (perspective) {
-        SkScalar z = fHeightFunc(bounds.fLeft, bounds.fBottom);
+        SkScalar z = this->heightFunc(bounds.fLeft, bounds.fBottom);
         if (z < minZ) {
             minZ = z;
         }
-        z = fHeightFunc(bounds.fRight, bounds.fTop);
+        z = this->heightFunc(bounds.fRight, bounds.fTop);
         if (z < minZ) {
             minZ = z;
         }
-        z = fHeightFunc(bounds.fRight, bounds.fBottom);
+        z = this->heightFunc(bounds.fRight, bounds.fBottom);
         if (z < minZ) {
             minZ = z;
         }
@@ -267,27 +270,28 @@ bool SkBaseShadowTessellator::addArc(const SkVector& nextNormal, bool finishArc)
 bool SkBaseShadowTessellator::setTransformedHeightFunc(const SkMatrix& ctm) {
     if (!ctm.hasPerspective()) {
         fTransformedHeightFunc = [this](const SkPoint& p) {
-            return this->fHeightFunc(0, 0);
+            return fZPlaneParams.fZ;
         };
     } else {
         SkMatrix ctmInverse;
         if (!ctm.invert(&ctmInverse)) {
             return false;
         }
-        SkScalar C = fHeightFunc(0, 0);
-        SkScalar A = fHeightFunc(1, 0) - C;
-        SkScalar B = fHeightFunc(0, 1) - C;
 
         // multiply by transpose
-        fZParams[0] = ctmInverse[SkMatrix::kMScaleX] * A +
-                      ctmInverse[SkMatrix::kMSkewY] * B +
-                      ctmInverse[SkMatrix::kMPersp0] * C;
-        fZParams[1] = ctmInverse[SkMatrix::kMSkewX] * A +
-                      ctmInverse[SkMatrix::kMScaleY] * B +
-                      ctmInverse[SkMatrix::kMPersp1] * C;
-        fZParams[2] = ctmInverse[SkMatrix::kMTransX] * A +
-                      ctmInverse[SkMatrix::kMTransY] * B +
-                      ctmInverse[SkMatrix::kMPersp2] * C;
+        fPerspZParams = SkPoint3::Make(
+            ctmInverse[SkMatrix::kMScaleX] * fZPlaneParams.fX +
+            ctmInverse[SkMatrix::kMSkewY] * fZPlaneParams.fY +
+            ctmInverse[SkMatrix::kMPersp0] * fZPlaneParams.fZ,
+
+            ctmInverse[SkMatrix::kMSkewX] * fZPlaneParams.fX +
+            ctmInverse[SkMatrix::kMScaleY] * fZPlaneParams.fY +
+            ctmInverse[SkMatrix::kMPersp1] * fZPlaneParams.fZ,
+
+            ctmInverse[SkMatrix::kMTransX] * fZPlaneParams.fX +
+            ctmInverse[SkMatrix::kMTransY] * fZPlaneParams.fY +
+            ctmInverse[SkMatrix::kMPersp2] * fZPlaneParams.fZ
+        );
 
         // We use Cramer's rule to solve for the W value for a given post-divide X and Y,
         // so pre-compute those values that are independent of X and Y.
@@ -304,17 +308,17 @@ bool SkBaseShadowTessellator::setTransformedHeightFunc(const SkMatrix& ctm) {
 
         // Pre-bake the numerator of Cramer's rule into the zParams to avoid another multiply.
         // TODO: this may introduce numerical instability, but I haven't seen any issues yet.
-        fZParams[0] *= ctmDeterminant;
-        fZParams[1] *= ctmDeterminant;
-        fZParams[2] *= ctmDeterminant;
+        fPerspZParams.fX *= ctmDeterminant;
+        fPerspZParams.fY *= ctmDeterminant;
+        fPerspZParams.fZ *= ctmDeterminant;
 
         fTransformedHeightFunc = [this](const SkPoint& p) {
-            SkScalar denom = p.fX * this->fPartialDeterminants[0] +
-                             p.fY * this->fPartialDeterminants[1] +
-                             this->fPartialDeterminants[2];
+            SkScalar denom = p.fX * fPartialDeterminants[0] +
+                             p.fY * fPartialDeterminants[1] +
+                             fPartialDeterminants[2];
             SkScalar w = SkScalarFastInvert(denom);
-            return (this->fZParams[0] * p.fX + this->fZParams[1] * p.fY + this->fZParams[2])*w +
-                   this->fZOffset;
+            return (fPerspZParams.fX * p.fX + fPerspZParams.fY * p.fY + fPerspZParams.fZ)*w +
+                   fZOffset;
         };
     }
 
@@ -327,7 +331,7 @@ bool SkBaseShadowTessellator::setTransformedHeightFunc(const SkMatrix& ctm) {
 class SkAmbientShadowTessellator : public SkBaseShadowTessellator {
 public:
     SkAmbientShadowTessellator(const SkPath& path, const SkMatrix& ctm,
-                               SkShadowTessellator::HeightFunc heightFunc, bool transparent);
+                               const SkPoint3& zPlaneParams, bool transparent);
 
 private:
     void handleLine(const SkPoint& p) override;
@@ -352,9 +356,9 @@ private:
 
 SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
                                                        const SkMatrix& ctm,
-                                                       SkShadowTessellator::HeightFunc heightFunc,
+                                                       const SkPoint3& zPlaneParams,
                                                        bool transparent)
-        : INHERITED(heightFunc, transparent) {
+        : INHERITED(zPlaneParams, transparent) {
     // Set base colors
     SkScalar occluderHeight = heightFunc(0, 0);
     SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(occluderHeight*kHeightFactor, 0.0f)));
@@ -650,7 +654,7 @@ void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVecto
 class SkSpotShadowTessellator : public SkBaseShadowTessellator {
 public:
     SkSpotShadowTessellator(const SkPath& path, const SkMatrix& ctm,
-                            SkShadowTessellator::HeightFunc heightFunc, const SkPoint3& lightPos,
+                            const SkPoint3& zPlaneParams, const SkPoint3& lightPos,
                             SkScalar lightRadius, bool transparent);
 
 private:
@@ -693,10 +697,10 @@ private:
 };
 
 SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMatrix& ctm,
-                                                 SkShadowTessellator::HeightFunc heightFunc,
+                                                 const SkPoint3& zPlaneParams,
                                                  const SkPoint3& lightPos, SkScalar lightRadius,
                                                  bool transparent)
-    : INHERITED(heightFunc, transparent)
+    : INHERITED(zPlaneParams, transparent)
     , fLightZ(lightPos.fZ)
     , fLightRadius(lightRadius)
     , fOffsetAdjust(0)
@@ -714,7 +718,7 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
 
     // Set radius and colors
     SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
-    SkScalar occluderHeight = heightFunc(center.fX, center.fY) + fZOffset;
+    SkScalar occluderHeight = this->heightFunc(center.fX, center.fY) + fZOffset;
     float zRatio = SkTPin(occluderHeight / (fLightZ - occluderHeight), 0.0f, 0.95f);
     SkScalar radius = lightRadius * zRatio;
     fRadius = radius;
@@ -1287,14 +1291,14 @@ void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkVertices> SkShadowTessellator::MakeAmbient(const SkPath& path, const SkMatrix& ctm,
-                                                   HeightFunc heightFunc, bool transparent) {
-    SkAmbientShadowTessellator ambientTess(path, ctm, heightFunc, transparent);
+                                                   const SkPoint3& zPlane, bool transparent) {
+    SkAmbientShadowTessellator ambientTess(path, ctm, zPlane, transparent);
     return ambientTess.releaseVertices();
 }
 
 sk_sp<SkVertices> SkShadowTessellator::MakeSpot(const SkPath& path, const SkMatrix& ctm,
-                                                HeightFunc heightFunc, const SkPoint3& lightPos,
+                                                const SkPoint3& zPlane, const SkPoint3& lightPos,
                                                 SkScalar lightRadius,  bool transparent) {
-    SkSpotShadowTessellator spotTess(path, ctm, heightFunc, lightPos, lightRadius, transparent);
+    SkSpotShadowTessellator spotTess(path, ctm, zPlane, lightPos, lightRadius, transparent);
     return spotTess.releaseVertices();
 }

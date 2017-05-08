@@ -15,24 +15,24 @@
 void tessellate_shadow(skiatest::Reporter* reporter, const SkPath& path, const SkMatrix& ctm,
                        bool expectSuccess) {
 
-    auto heightFunc = [] (SkScalar, SkScalar) { return 4; };
+    auto heightParams = SkPoint3::Make(0, 0, 4);
 
-    auto verts = SkShadowTessellator::MakeAmbient(path, ctm, heightFunc, true);
+    auto verts = SkShadowTessellator::MakeAmbient(path, ctm, heightParams, true);
     if (expectSuccess != SkToBool(verts)) {
         ERRORF(reporter, "Expected shadow tessellation to %s but it did not.",
                expectSuccess ? "succeed" : "fail");
     }
-    verts = SkShadowTessellator::MakeAmbient(path, ctm, heightFunc, false);
+    verts = SkShadowTessellator::MakeAmbient(path, ctm, heightParams, false);
     if (expectSuccess != SkToBool(verts)) {
         ERRORF(reporter, "Expected shadow tessellation to %s but it did not.",
                expectSuccess ? "succeed" : "fail");
     }
-    verts = SkShadowTessellator::MakeSpot(path, ctm, heightFunc, {0, 0, 128}, 128.f, false);
+    verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, false);
     if (expectSuccess != SkToBool(verts)) {
         ERRORF(reporter, "Expected shadow tessellation to %s but it did not.",
                expectSuccess ? "succeed" : "fail");
     }
-    verts = SkShadowTessellator::MakeSpot(path, ctm, heightFunc, {0, 0, 128}, 128.f, false);
+    verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, false);
     if (expectSuccess != SkToBool(verts)) {
         ERRORF(reporter, "Expected shadow tessellation to %s but it did not.",
                expectSuccess ? "succeed" : "fail");
