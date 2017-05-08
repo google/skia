@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d484f2f_7313dc87",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-08T14:23:21Z",
+      "side": 1,
+      "message": "It looks like the text in the actual GL spec agress with w3c:\nhttps://www.khronos.org/registry/OpenGL/specs/es/3.2/es_spec_3.2.pdf (pg 390).",
+      "range": {
+        "startLine": 11,
+        "startChar": 60,
+        "endLine": 11,
+        "endChar": 68
+      },
+      "revId": "876b65dcfcf3c8a15b440cd21482f375947143d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
