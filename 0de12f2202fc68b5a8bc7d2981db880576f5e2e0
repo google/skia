@@ -16,6 +16,24 @@
       "revId": "0de12f2202fc68b5a8bc7d2981db880576f5e2e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efa496a2_292078a1",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-05-08T15:10:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1c3d968_caf43faf",
+      "revId": "0de12f2202fc68b5a8bc7d2981db880576f5e2e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
