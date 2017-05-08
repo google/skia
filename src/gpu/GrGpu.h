@@ -388,13 +388,6 @@ public:
     virtual void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush = false) = 0;
     virtual void waitSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
 
-    /**
-     *  Put this texture in a safe and known state for use across multiple GrContexts. Depending on
-     *  the backend, this may return a GrSemaphore. If so, other contexts should wait on that
-     *  semaphore before using this texture.
-     */
-    virtual sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) = 0;
-
     ///////////////////////////////////////////////////////////////////////////
     // Debugging and Stats
 

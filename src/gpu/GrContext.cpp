@@ -97,7 +97,7 @@ void GrContext::initCommon(const GrContextOptions& options) {
     ASSERT_SINGLE_OWNER
 
     fCaps = SkRef(fGpu->caps());
-    fResourceCache = new GrResourceCache(fCaps, fUniqueID);
+    fResourceCache = new GrResourceCache(fCaps);
     fResourceProvider = new GrResourceProvider(fGpu, fResourceCache, &fSingleOwner);
 
     fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
