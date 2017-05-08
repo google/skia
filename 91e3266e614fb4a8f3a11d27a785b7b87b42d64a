@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00b43dc9_654bdf30",
+        "filename": "tools/ok_vias.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T13:07:17Z",
+      "side": 1,
+      "message": "I believe that this will drop the color space, is that ok?",
+      "range": {
+        "startLine": 81,
+        "startChar": 30,
+        "endLine": 81,
+        "endChar": 44
+      },
+      "revId": "91e3266e614fb4a8f3a11d27a785b7b87b42d64a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "295d2129_7161b553",
+        "filename": "tools/ok_vias.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T13:07:17Z",
+      "side": 1,
+      "message": "Might need/want to explicitly set the SkTransferFunctionBehavior based on the SkColorSpace?",
+      "range": {
+        "startLine": 89,
+        "startChar": 30,
+        "endLine": 89,
+        "endChar": 37
+      },
+      "revId": "91e3266e614fb4a8f3a11d27a785b7b87b42d64a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
