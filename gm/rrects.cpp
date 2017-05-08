@@ -12,7 +12,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "effects/GrRRectEffect.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrRectOpFactory.h"
+#include "ops/GrNonAAFillRectOp.h"
 #endif
 #include "SkRRect.h"
 
@@ -111,14 +111,18 @@ protected:
                             GrPaint grPaint;
                             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                             grPaint.addCoverageFragmentProcessor(std::move(fp));
+                            grPaint.setColor4f(GrColor4f(0, 0, 0, 1.f));
 
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
-                                    0xff000000, SkMatrix::I(), bounds, nullptr, nullptr));
-                            renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
-                                    std::move(grPaint), GrAAType::kNone, std::move(op));
+                            renderTargetContext->priv().testingOnly_addDrawOp(
+                                    GrNonAAFillRectOp::Make(std::move(grPaint),
+                                                            SkMatrix::I(),
+                                                            bounds,
+                                                            nullptr,
+                                                            nullptr,
+                                                            GrAAType::kNone));
                         } else {
                             drew = false;
                         }
