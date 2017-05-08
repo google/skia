@@ -43,6 +43,8 @@ public:
 
     ~GrVkGpu() override;
 
+    void disconnect(DisconnectType) override;
+
     const GrVkInterface* vkInterface() const { return fBackendContext->fInterface.get(); }
     const GrVkCaps& vkCaps() const { return *fVkCaps; }
 
@@ -167,6 +169,8 @@ private:
 
     void onResetContext(uint32_t resetBits) override {}
 
+    void destroyResources();
+
     GrTexture* onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                const SkTArray<GrMipLevel>&) override;
 
@@ -281,6 +285,10 @@ private:
     // compiler used for compiling sksl into spirv. We only want to create the compiler once since
     // there is significant overhead to the first compile of any compiler.
     SkSL::Compiler* fCompiler;
+
+    // We need a bool to track whether or not we've already disconnected all the gpu resources from
+    // vulkan context.
+    bool fDisconnected;
 
     typedef GrGpu INHERITED;
 };
