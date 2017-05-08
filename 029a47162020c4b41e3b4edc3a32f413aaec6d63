@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2b771fbb_e910e69d",
+        "filename": "experimental/go-skia/ctypes.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-08T21:40:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9fcb50d_31f68eee",
+      "range": {
+        "startLine": 12,
+        "startChar": 42,
+        "endLine": 12,
+        "endChar": 74
+      },
+      "revId": "029a47162020c4b41e3b4edc3a32f413aaec6d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bfd5780e_e38689b8",
         "filename": "experimental/go-skia/types.go",
         "patchSetId": 10
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9f109dc3_b6060416",
+        "filename": "experimental/go-skia/types.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-08T21:40:20Z",
+      "side": 1,
+      "message": "No, uint32 was produced by the go tool, that part is unchanged. \nThe go tool does not fill in the Go types correctly when enums are used in structs. \ni.e. you get \n\n\ntype ImageInfo struct {\n\tWidth\t\tint32\n\tHeight\t\tint32\n\tColorType\tuint32\n\tAlphaType\tuint32\n}\n\ninstead of \n\t\ntype ImageInfo struct {\n\tWidth     int32\n\tHeight    int32\n\tColorType ColorType\n\tAlphaType AlphaType\n}\n\nWhich undermines type safety in Go.",
+      "parentUuid": "bfd5780e_e38689b8",
+      "range": {
+        "startLine": 8,
+        "startChar": 26,
+        "endLine": 8,
+        "endChar": 69
+      },
+      "revId": "029a47162020c4b41e3b4edc3a32f413aaec6d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ef876990_89f731f6",
         "filename": "experimental/go-skia/types.go",
         "patchSetId": 10
@@ -59,6 +107,30 @@
       "writtenOn": "2017-05-08T16:33:49Z",
       "side": 1,
       "message": "?  Don\u0027t we just need to automate the cgo run?",
+      "range": {
+        "startLine": 16,
+        "startChar": 18,
+        "endLine": 16,
+        "endChar": 52
+      },
+      "revId": "029a47162020c4b41e3b4edc3a32f413aaec6d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f01a0ee_a03c6a75",
+        "filename": "experimental/go-skia/types.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-08T21:40:20Z",
+      "side": 1,
+      "message": "Yes, that\u0027s the goal, but currently not ideal because of the issue described above.\n\nThis TODO means to capture that we need a more reliable strategy to detect changes in the C code or \nto detect when a platform does have a different memory layout in C than encoded here.",
+      "parentUuid": "ef876990_89f731f6",
       "range": {
         "startLine": 16,
         "startChar": 18,
