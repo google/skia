@@ -28,6 +28,18 @@ struct SkAdvancedTypefaceMetrics {
 
     SkString fFontName;
 
+    // These enum values match the values used in the PDF file format.
+    enum StyleFlags : uint32_t {
+        kFixedPitch_Style  = 0x00000001,
+        kSerif_Style       = 0x00000002,
+        kScript_Style      = 0x00000008,
+        kItalic_Style      = 0x00000040,
+        kAllCaps_Style     = 0x00010000,
+        kSmallCaps_Style   = 0x00020000,
+        kForceBold_Style   = 0x00040000
+    };
+    StyleFlags fStyle = (StyleFlags)0;        // Font style characteristics.
+
     enum FontType : uint8_t {
         kType1_Font,
         kType1CID_Font,
@@ -46,18 +58,6 @@ struct SkAdvancedTypefaceMetrics {
         kNotSubsettable_FontFlag = 0x04,  //!<May not be subset.
     };
     FontFlags fFlags = (FontFlags)0;  // Global font flags.
-
-    // These enum values match the values used in the PDF file format.
-    enum StyleFlags : uint32_t {
-        kFixedPitch_Style  = 0x00000001,
-        kSerif_Style       = 0x00000002,
-        kScript_Style      = 0x00000008,
-        kItalic_Style      = 0x00000040,
-        kAllCaps_Style     = 0x00010000,
-        kSmallCaps_Style   = 0x00020000,
-        kForceBold_Style   = 0x00040000
-    };
-    StyleFlags fStyle = (StyleFlags)0;        // Font style characteristics.
 
     int16_t fItalicAngle = 0;  // Counterclockwise degrees from vertical of the
                                // dominant vertical stroke for an Italic face.
