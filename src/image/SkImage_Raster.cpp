@@ -115,6 +115,8 @@ public:
     sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
                                     SkTransferFunctionBehavior) const override;
 
+    bool onIsValid(GrContext* context) const override { return true; }
+
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const override;
     bool onPinAsTexture(GrContext*) const override;
