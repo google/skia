@@ -32,9 +32,9 @@ public:
         GrGLTextureInfo             fInfo;
         GrBackendObjectOwnership    fOwnership;
     };
-    GrGLTexture(GrGLGpu*, SkBudgeted, const GrSurfaceDesc&, const IDDesc&);
+    GrGLTexture(GrGLGpu*, SkBudgeted, const GrSurfaceDesc&, const IDDesc&, bool foo);
     GrGLTexture(GrGLGpu*, SkBudgeted, const GrSurfaceDesc&, const IDDesc&,
-                bool wasMipMapDataProvided);
+                bool wasMipMapDataProvided, bool foo);
 
     ~GrGLTexture() override {
         // check that invokeReleaseProc has been called (if needed)
@@ -69,11 +69,11 @@ public:
     static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
 protected:
     // Constructor for subclasses.
-    GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, bool wasMipMapDataProvided);
+    GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, bool wasMipMapDataProvided, bool foo);
 
     enum Wrapped { kWrapped };
     // Constructor for instances wrapping backend objects.
-    GrGLTexture(GrGLGpu*, Wrapped, const GrSurfaceDesc&, const IDDesc&);
+    GrGLTexture(GrGLGpu*, Wrapped, const GrSurfaceDesc&, const IDDesc&, bool foo);
 
     void init(const GrSurfaceDesc&, const IDDesc&);
 

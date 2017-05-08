@@ -53,7 +53,7 @@ public:
 
 protected:
     GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType samplerType,
-              GrSamplerParams::FilterMode highestFilterMode, bool wasMipMapDataProvided);
+              GrSamplerParams::FilterMode highestFilterMode, bool wasMipMapDataProvided, bool foo);
 
     void validateDesc() const;
     virtual std::unique_ptr<GrExternalTextureData> detachBackendTexture() = 0;
@@ -69,8 +69,8 @@ private:
         kValid_MipMapsStatus
     };
 
-    GrSLType                      fSamplerType;
-    GrSamplerParams::FilterMode   fHighestFilterMode;
+    GrSLType                      fSamplerType1;
+    GrSamplerParams::FilterMode   fHighestFilterMode1;
     MipMapsStatus                 fMipMapsStatus;
     int                           fMaxMipMapLevel;
     SkDestinationSurfaceColorMode fMipColorMode;

@@ -70,10 +70,10 @@ GrSurfaceOrigin resolve_origin(const GrSurfaceDesc& desc) {
 
 //////////////////////////////////////////////////////////////////////////////
 GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType,
-                     GrSamplerParams::FilterMode highestFilterMode, bool wasMipMapDataProvided)
+                     GrSamplerParams::FilterMode highestFilterMode, bool wasMipMapDataProvided, bool foo)
     : INHERITED(gpu, desc)
-    , fSamplerType(samplerType)
-    , fHighestFilterMode(highestFilterMode)
+    , fSamplerType1(samplerType)
+    , fHighestFilterMode1(highestFilterMode)
     // Mip color mode is explicitly set after creation via GrTexturePriv
     , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy) {
     if (wasMipMapDataProvided) {

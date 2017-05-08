@@ -51,39 +51,39 @@ static inline GrSamplerParams::FilterMode highest_filter_mode(const GrGLTexture:
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
-                         const IDDesc& idDesc)
+                         const IDDesc& idDesc, bool foo)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig), false) {
+                highest_filter_mode(idDesc, desc.fConfig), false, foo) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
                          const IDDesc& idDesc,
-                         bool wasMipMapDataProvided)
+                         bool wasMipMapDataProvided, bool foo)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
                 highest_filter_mode(idDesc, desc.fConfig),
-                wasMipMapDataProvided) {
+                wasMipMapDataProvided, foo) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
 
-GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc, const IDDesc& idDesc)
+GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc, const IDDesc& idDesc, bool foo)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig), false) {
+                highest_filter_mode(idDesc, desc.fConfig), false, foo) {
     this->init(desc, idDesc);
     this->registerWithCacheWrapped();
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
-                         bool wasMipMapDataProvided)
+                         bool wasMipMapDataProvided, bool foo)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
                 highest_filter_mode(idDesc, desc.fConfig),
-                wasMipMapDataProvided) {
+                wasMipMapDataProvided, foo) {
     this->init(desc, idDesc);
 }
 

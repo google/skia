@@ -3525,7 +3525,7 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
 bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     int progIdx = TextureToCopyProgramIdx(srcTex);
     const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
-    GrSLType samplerType = srcTex->texturePriv().samplerType();
+    GrSLType samplerType = srcTex->texturePriv().samplerType1();
 
     if (!fCopyProgramArrayBuffer) {
         static const GrGLfloat vdata[] = {
