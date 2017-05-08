@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5071c357_f908b4cb",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1154,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-08T18:46:10Z",
+      "side": 1,
+      "message": "I deleted these caps today,",
+      "range": {
+        "startLine": 1140,
+        "startChar": 0,
+        "endLine": 1154,
+        "endChar": 5
+      },
+      "revId": "0f021d18f2dff068cf21bd41e33c46392efad295",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9082f1a0_db2d4df9",
+        "filename": "src/gpu/gl/GrGLRenderTarget.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-08T18:46:10Z",
+      "side": 1,
+      "message": "{\n}",
+      "revId": "0f021d18f2dff068cf21bd41e33c46392efad295",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21aca3ff_90b68203",
+        "filename": "src/gpu/ops/GrDefaultPathRenderer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-08T18:46:10Z",
+      "side": 1,
+      "message": "{\n}",
+      "revId": "0f021d18f2dff068cf21bd41e33c46392efad295",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92697c7d_62670d71",
+        "filename": "src/gpu/ops/GrMSAAPathRenderer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-08T18:46:10Z",
+      "side": 1,
+      "message": "{\n}",
+      "revId": "0f021d18f2dff068cf21bd41e33c46392efad295",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
