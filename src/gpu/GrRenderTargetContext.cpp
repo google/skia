@@ -32,7 +32,7 @@
 #include "ops/GrDrawOp.h"
 #include "ops/GrDrawVerticesOp.h"
 #include "ops/GrLatticeOp.h"
-#include "ops/GrNewNonAAFillRectOp.h"
+#include "ops/GrNonAAFillRectOp.h"
 #include "ops/GrOp.h"
 #include "ops/GrOvalOpFactory.h"
 #include "ops/GrRectOpFactory.h"
@@ -1274,19 +1274,9 @@ void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
                                                 GrAAType hwOrNoneAAType) {
     SkASSERT(GrAAType::kCoverage != hwOrNoneAAType);
     SkASSERT(GrAAType::kNone == hwOrNoneAAType || this->isStencilBufferMultisampled());
-    if (!viewMatrix.hasPerspective() && (!localMatrix || !localMatrix->hasPerspective())) {
-        std::unique_ptr<GrDrawOp> op = GrNewNonAAFillRectOp::Make(
-                std::move(paint), viewMatrix, rect, localRect, localMatrix, hwOrNoneAAType, ss);
-        this->addDrawOp(clip, std::move(op));
-        return;
-    }
-    std::unique_ptr<GrLegacyMeshDrawOp> op = GrRectOpFactory::MakeNonAAFill(
-            paint.getColor(), viewMatrix, rect, localRect, localMatrix);
-    GrPipelineBuilder pipelineBuilder(std::move(paint), hwOrNoneAAType);
-    if (ss) {
-        pipelineBuilder.setUserStencil(ss);
-    }
-    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+    std::unique_ptr<GrDrawOp> op = GrNonAAFillRectOp::Make(
+            std::move(paint), viewMatrix, rect, localRect, localMatrix, hwOrNoneAAType, ss);
+    this->addDrawOp(clip, std::move(op));
 }
 
 // Can 'path' be drawn as a pair of filled nested rectangles?

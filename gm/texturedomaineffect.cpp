@@ -18,7 +18,7 @@
 #include "SkGradientShader.h"
 #include "effects/GrTextureDomain.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrRectOpFactory.h"
+#include "ops/GrNonAAFillRectOp.h"
 
 namespace skiagm {
 /**
@@ -133,11 +133,9 @@ protected:
                     }
                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
                     grPaint.addColorFragmentProcessor(std::move(fp));
-
-                    std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
-                            GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
-                            std::move(grPaint), GrAAType::kNone, std::move(op));
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            GrNonAAFillRectOp::Make(std::move(grPaint), viewMatrix, renderRect,
+                                                    nullptr, nullptr, GrAAType::kNone));
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;
