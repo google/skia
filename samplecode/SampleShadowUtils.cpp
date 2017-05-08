@@ -109,7 +109,7 @@ protected:
     }
 
     void drawShadowedPath(SkCanvas* canvas, const SkPath& path,
-                          std::function<SkScalar(SkScalar, SkScalar)> zFunc,
+                          const SkPoint3& zPlaneParams,
                           const SkPaint& paint, SkScalar ambientAlpha,
                           const SkPoint3& lightPos, SkScalar lightWidth, SkScalar spotAlpha,
                           uint32_t flags) {
@@ -130,10 +130,10 @@ protected:
         //                          zValue,
         //                          lightPos, lightWidth,
         //                          ambientAlpha, spotAlpha, SK_ColorBLACK, flags);
-        SkShadowUtils::DrawUncachedShadow(canvas, path, zFunc,
+        SkShadowUtils::DrawUncachedShadow(canvas, path, zPlaneParams,
                                           lightPos, lightWidth,
                                           ambientAlpha, 0, SK_ColorRED, flags);
-        SkShadowUtils::DrawUncachedShadow(canvas, path, zFunc,
+        SkShadowUtils::DrawUncachedShadow(canvas, path, zPlaneParams,
                                           lightPos, lightWidth,
                                           0, spotAlpha, SK_ColorBLUE, flags);
 
@@ -172,9 +172,7 @@ protected:
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
         paint.setAntiAlias(true);
-        SkScalar zValue = SkTMax(1.0f, kHeight + fZDelta);
-        std::function<SkScalar(SkScalar, SkScalar)> zFunc =
-            [zValue](SkScalar, SkScalar) { return zValue; };
+        SkPoint3 zPlaneParams = SkPoint3::Make(0, 0, SkTMax(1.0f, kHeight + fZDelta));
         for (auto& m : matrices) {
             for (auto flags : { kNone_ShadowFlag, kTransparentOccluder_ShadowFlag }) {
                 for (const auto& path : fPaths) {
@@ -192,8 +190,8 @@ protected:
 
                     canvas->save();
                     canvas->concat(m);
-                    drawShadowedPath(canvas, path, zFunc, paint, kAmbientAlpha, kLightPos, kLightR,
-                                     kSpotAlpha, flags);
+                    drawShadowedPath(canvas, path, zPlaneParams, paint, kAmbientAlpha, kLightPos,
+                                     kLightR, kSpotAlpha, flags);
                     canvas->restore();
 
                     canvas->translate(dx, 0);
