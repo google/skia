@@ -45,7 +45,7 @@ public:
      */
     SkBudgeted isBudgeted() const {
         bool ret = SkBudgeted::kYes == fResource->fBudgeted;
-        SkASSERT(ret || !fResource->getUniqueKey().isValid());
+        SkASSERT(ret || !fResource->getUniqueKey().isValid() || fResource->fRefsWrappedObjects);
         return SkBudgeted(ret);
     }
 

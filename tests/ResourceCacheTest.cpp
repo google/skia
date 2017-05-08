@@ -471,11 +471,15 @@ static void test_budgeting(skiatest::Reporter* reporter) {
             new TestResource(context->getGpu(), SkBudgeted::kNo);
     unbudgeted->setSize(13);
 
-    // Make sure we can't add a unique key to the wrapped resource
+    // Make sure we can add a unique key to the wrapped resource
     GrUniqueKey uniqueKey2;
     make_unique_key<0>(&uniqueKey2, 1);
     wrapped->resourcePriv().setUniqueKey(uniqueKey2);
-    REPORTER_ASSERT(reporter, nullptr == cache->findAndRefUniqueResource(uniqueKey2));
+    GrGpuResource* wrappedViaKey = cache->findAndRefUniqueResource(uniqueKey2);
+    REPORTER_ASSERT(reporter, wrappedViaKey != nullptr);
+
+    // Remove the extra ref we just added.
+    wrappedViaKey->unref();
 
     // Make sure sizes are as we expect
     REPORTER_ASSERT(reporter, 4 == cache->getResourceCount());
