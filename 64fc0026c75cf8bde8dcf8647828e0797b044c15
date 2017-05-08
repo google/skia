@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d8f4e4b_5e5ea020",
+        "filename": "src/gpu/vk/GrVkPipelineStateBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-05-08T15:43:40Z",
+      "side": 1,
+      "message": "Nit: I\u0027d feel better with ++numShaderStages here, just so the default number of shader stages is encoded in only one place rather than two.",
+      "range": {
+        "startLine": 168,
+        "startChar": 8,
+        "endLine": 168,
+        "endChar": 23
+      },
+      "revId": "64fc0026c75cf8bde8dcf8647828e0797b044c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b749ec7_68c47757",
+        "filename": "src/gpu/vk/GrVkPipelineStateBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-05-08T15:43:40Z",
+      "side": 1,
+      "message": "Nit: \"a crashing\" -\u003e \"a crash\"",
+      "range": {
+        "startLine": 184,
+        "startChar": 33,
+        "endLine": 184,
+        "endChar": 41
+      },
+      "revId": "64fc0026c75cf8bde8dcf8647828e0797b044c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
