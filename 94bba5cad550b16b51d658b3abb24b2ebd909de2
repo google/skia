@@ -16,6 +16,24 @@
       "revId": "94bba5cad550b16b51d658b3abb24b2ebd909de2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3862c81_7e10737f",
+        "filename": "src/core/SkImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-05-08T14:58:58Z",
+      "side": 1,
+      "message": "Done in SkImage::isValid(), and also fail if any context is passed in without SK_SUPPORT_GPU",
+      "parentUuid": "c8ee2ebb_23a38963",
+      "revId": "94bba5cad550b16b51d658b3abb24b2ebd909de2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
