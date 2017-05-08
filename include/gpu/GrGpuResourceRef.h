@@ -95,6 +95,10 @@ class GrTextureProxyRef : SkNoncopyable {
 public:
     virtual ~GrTextureProxyRef();
 
+    /** ioType expresses what type of IO operations will be marked as
+        pending on the resource when markPendingIO is called. */
+    void setProxy(sk_sp<GrTextureProxy>, GrIOType);
+
     GrTextureProxy* getProxy() const { return fProxy; }
 
     /** Does this object own a pending read or write on the resource it is wrapping. */
@@ -114,10 +118,6 @@ protected:
     /** ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
     GrTextureProxyRef(sk_sp<GrTextureProxy>, GrIOType);
-
-    /** ioType expresses what type of IO operations will be marked as
-        pending on the resource when markPendingIO is called. */
-    void setProxy(sk_sp<GrTextureProxy>, GrIOType);
 
 private:
     /** Called by owning GrProgramElement when the program element is first scheduled for

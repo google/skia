@@ -58,10 +58,10 @@ public:
         }
     }
 
-    GrSLType samplerType() const { return fTexture->fSamplerType; }
+    GrSLType samplerType() const { return fTexture->fSamplerType1; }
 
     /** The filter used is clamped to this value in GrProcessor::TextureSampler. */
-    GrSamplerParams::FilterMode highestFilterMode() const { return fTexture->fHighestFilterMode; }
+    GrSamplerParams::FilterMode highestFilterMode() const { return fTexture->fHighestFilterMode1; }
 
     void setMipColorMode(SkDestinationSurfaceColorMode colorMode) const {
         fTexture->fMipColorMode = colorMode;
