@@ -180,6 +180,17 @@ Token Parser::peek() {
     return fPushback;
 }
 
+bool Parser::checkNext(Token::Kind kind, Token* result) {
+    Token next = this->nextToken();
+    if (next.fKind == kind) {
+        if (result) {
+            *result = next;
+        }
+        return true;
+    }
+    this->pushback(next);
+    return false;
+}
 
 bool Parser::expect(Token::Kind kind, const char* expected, Token* result) {
     return this->expect(kind, String(expected), result);
@@ -301,16 +312,14 @@ std::unique_ptr<ASTDeclaration> Parser::declaration() {
     if (!type) {
         return nullptr;
     }
-    if (type->fKind == ASTType::kStruct_Kind && peek().fKind == Token::SEMICOLON) {
-        this->nextToken();
+    if (type->fKind == ASTType::kStruct_Kind && this->checkNext(Token::SEMICOLON)) {
         return nullptr;
     }
     Token name;
     if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
         return nullptr;
     }
-    if (this->peek().fKind == Token::LPAREN) {
-        this->nextToken();
+    if (this->checkNext(Token::LPAREN)) {
         std::vector<std::unique_ptr<ASTParameter>> parameters;
         while (this->peek().fKind != Token::RPAREN) {
             if (parameters.size() > 0) {
@@ -326,9 +335,7 @@ std::unique_ptr<ASTDeclaration> Parser::declaration() {
         }
         this->nextToken();
         std::unique_ptr<ASTBlock> body;
-        if (this->peek().fKind == Token::SEMICOLON) {
-            this->nextToken();
-        } else {
+        if (!this->checkNext(Token::SEMICOLON)) {
             body = this->block();
             if (!body) {
                 return nullptr;
@@ -409,8 +416,8 @@ std::unique_ptr<ASTVarDeclarations> Parser::structVarDeclaration(Modifiers modif
     if (!type) {
         return nullptr;
     }
-    if (peek().fKind == Token::IDENTIFIER) {
-        Token name = this->nextToken();
+    Token name;
+    if (this->checkNext(Token::IDENTIFIER, &name)) {
         std::unique_ptr<ASTVarDeclarations> result = this->varDeclarationEnd(modifiers,
                                                                              std::move(type),
                                                                              std::move(name.fText));
@@ -435,10 +442,8 @@ std::unique_ptr<ASTVarDeclarations> Parser::varDeclarationEnd(Modifiers mods,
                                                               String name) {
     std::vector<ASTVarDeclaration> vars;
     std::vector<std::unique_ptr<ASTExpression>> currentVarSizes;
-    while (this->peek().fKind == Token::LBRACKET) {
-        this->nextToken();
-        if (this->peek().fKind == Token::RBRACKET) {
-            this->nextToken();
+    while (this->checkNext(Token::LBRACKET)) {
+        if (this->checkNext(Token::RBRACKET)) {
             currentVarSizes.push_back(nullptr);
         } else {
             std::unique_ptr<ASTExpression> size(this->expression());
@@ -452,26 +457,22 @@ std::unique_ptr<ASTVarDeclarations> Parser::varDeclarationEnd(Modifiers mods,
         }
     }
     std::unique_ptr<ASTExpression> value;
-    if (this->peek().fKind == Token::EQ) {
-        this->nextToken();
+    if (this->checkNext(Token::EQ)) {
         value = this->expression();
         if (!value) {
             return nullptr;
         }
     }
     vars.emplace_back(std::move(name), std::move(currentVarSizes), std::move(value));
-    while (this->peek().fKind == Token::COMMA) {
-        this->nextToken();
+    while (this->checkNext(Token::COMMA)) {
         Token name;
         if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
             return nullptr;
         }
         currentVarSizes.clear();
         value.reset();
-        while (this->peek().fKind == Token::LBRACKET) {
-            this->nextToken();
-            if (this->peek().fKind == Token::RBRACKET) {
-                this->nextToken();
+        while (this->checkNext(Token::LBRACKET)) {
+            if (this->checkNext(Token::RBRACKET)) {
                 currentVarSizes.push_back(nullptr);
             } else {
                 std::unique_ptr<ASTExpression> size(this->expression());
@@ -484,8 +485,7 @@ std::unique_ptr<ASTVarDeclarations> Parser::varDeclarationEnd(Modifiers mods,
                 }
             }
         }
-        if (this->peek().fKind == Token::EQ) {
-            this->nextToken();
+        if (this->checkNext(Token::EQ)) {
             value = this->expression();
             if (!value) {
                 return nullptr;
@@ -513,8 +513,7 @@ std::unique_ptr<ASTParameter> Parser::parameter() {
         return nullptr;
     }
     std::vector<int> sizes;
-    while (this->peek().fKind == Token::LBRACKET) {
-        this->nextToken();
+    while (this->checkNext(Token::LBRACKET)) {
         Token sizeToken;
         if (!this->expect(Token::INT_LITERAL, "a positive integer", &sizeToken)) {
             return nullptr;
@@ -558,8 +557,7 @@ Layout Parser::layout() {
     Layout::Primitive primitive = Layout::kUnspecified_Primitive;
     int maxVertices = -1;
     int invocations = -1;
-    if (this->peek().fKind == Token::LAYOUT) {
-        this->nextToken();
+    if (this->checkNext(Token::LAYOUT)) {
         if (!this->expect(Token::LPAREN, "'('")) {
             return Layout(location, offset, binding, index, set, builtin, inputAttachmentIndex,
                           originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
@@ -640,8 +638,7 @@ Layout Parser::layout() {
                 this->error(t.fPosition, ("'" + t.fText +
                                           "' is not a valid layout qualifier").c_str());
             }
-            if (this->peek().fKind == Token::RPAREN) {
-                this->nextToken();
+            if (this->checkNext(Token::RPAREN)) {
                 break;
             }
             if (!this->expect(Token::COMMA, "','")) {
@@ -809,8 +806,7 @@ std::unique_ptr<ASTType> Parser::type() {
         return nullptr;
     }
     std::vector<int> sizes;
-    while (this->peek().fKind == Token::LBRACKET) {
-        this->expect(Token::LBRACKET, "'['");
+    while (this->checkNext(Token::LBRACKET)) {
         if (this->peek().fKind != Token::RBRACKET) {
             int64_t i;
             if (this->intLiteral(&i)) {
@@ -850,12 +846,10 @@ std::unique_ptr<ASTDeclaration> Parser::interfaceBlock(Modifiers mods) {
         decls.push_back(std::move(decl));
     }
     this->nextToken();
-    String instanceName;
     std::vector<std::unique_ptr<ASTExpression>> sizes;
-    if (this->peek().fKind == Token::IDENTIFIER) {
-        instanceName = this->nextToken().fText;
-        while (this->peek().fKind == Token::LBRACKET) {
-            this->expect(Token::LBRACKET, "'['");
+    Token instanceName;
+    if (this->checkNext(Token::IDENTIFIER, &instanceName)) {
+        while (this->checkNext(Token::LBRACKET)) {
             if (this->peek().fKind != Token::RBRACKET) {
                 std::unique_ptr<ASTExpression> size = this->expression();
                 if (!size) {
@@ -871,7 +865,7 @@ std::unique_ptr<ASTDeclaration> Parser::interfaceBlock(Modifiers mods) {
     this->expect(Token::SEMICOLON, "';'");
     return std::unique_ptr<ASTDeclaration>(new ASTInterfaceBlock(name.fPosition, mods,
                                                                  name.fText, std::move(decls),
-                                                                 std::move(instanceName),
+                                                                 std::move(instanceName.fText),
                                                                  std::move(sizes)));
 }
 
@@ -896,8 +890,7 @@ std::unique_ptr<ASTIfStatement> Parser::ifStatement() {
         return nullptr;
     }
     std::unique_ptr<ASTStatement> ifFalse;
-    if (this->peek().fKind == Token::ELSE) {
-        this->nextToken();
+    if (this->checkNext(Token::ELSE)) {
         ifFalse = this->statement();
         if (!ifFalse) {
             return nullptr;
@@ -1267,8 +1260,7 @@ std::unique_ptr<ASTExpression> Parser::ternaryExpression() {
     if (!result) {
         return nullptr;
     }
-    if (this->peek().fKind == Token::QUESTION) {
-        Token question = this->nextToken();
+    if (this->checkNext(Token::QUESTION)) {
         std::unique_ptr<ASTExpression> trueExpr = this->expression();
         if (!trueExpr) {
             return nullptr;
@@ -1290,8 +1282,8 @@ std::unique_ptr<ASTExpression> Parser::logicalOrExpression() {
     if (!result) {
         return nullptr;
     }
-    while (this->peek().fKind == Token::LOGICALOR) {
-        Token t = this->nextToken();
+    Token t;
+    while (this->checkNext(Token::LOGICALOR, &t)) {
         std::unique_ptr<ASTExpression> right = this->logicalXorExpression();
         if (!right) {
             return nullptr;
@@ -1307,8 +1299,8 @@ std::unique_ptr<ASTExpression> Parser::logicalXorExpression() {
     if (!result) {
         return nullptr;
     }
-    while (this->peek().fKind == Token::LOGICALXOR) {
-        Token t = this->nextToken();
+    Token t;
+    while (this->checkNext(Token::LOGICALXOR, &t)) {
         std::unique_ptr<ASTExpression> right = this->logicalAndExpression();
         if (!right) {
             return nullptr;
@@ -1324,8 +1316,8 @@ std::unique_ptr<ASTExpression> Parser::logicalAndExpression() {
     if (!result) {
         return nullptr;
     }
-    while (this->peek().fKind == Token::LOGICALAND) {
-        Token t = this->nextToken();
+    Token t;
+    while (this->checkNext(Token::LOGICALAND, &t)) {
         std::unique_ptr<ASTExpression> right = this->bitwiseOrExpression();
         if (!right) {
             return nullptr;
@@ -1341,8 +1333,8 @@ std::unique_ptr<ASTExpression> Parser::bitwiseOrExpression() {
     if (!result) {
         return nullptr;
     }
-    while (this->peek().fKind == Token::BITWISEOR) {
-        Token t = this->nextToken();
+    Token t;
+    while (this->checkNext(Token::BITWISEOR, &t)) {
         std::unique_ptr<ASTExpression> right = this->bitwiseXorExpression();
         if (!right) {
             return nullptr;
@@ -1358,8 +1350,8 @@ std::unique_ptr<ASTExpression> Parser::bitwiseXorExpression() {
     if (!result) {
         return nullptr;
     }
-    while (this->peek().fKind == Token::BITWISEXOR) {
-        Token t = this->nextToken();
+    Token t;
+    while (this->checkNext(Token::BITWISEXOR, &t)) {
         std::unique_ptr<ASTExpression> right = this->bitwiseAndExpression();
         if (!right) {
             return nullptr;
@@ -1375,8 +1367,8 @@ std::unique_ptr<ASTExpression> Parser::bitwiseAndExpression() {
     if (!result) {
         return nullptr;
     }
-    while (this->peek().fKind == Token::BITWISEAND) {
-        Token t = this->nextToken();
+    Token t;
+    while (this->checkNext(Token::BITWISEAND, &t)) {
         std::unique_ptr<ASTExpression> right = this->equalityExpression();
         if (!right) {
             return nullptr;
@@ -1562,8 +1554,7 @@ std::unique_ptr<ASTSuffix> Parser::suffix() {
     Token next = this->nextToken();
     switch (next.fKind) {
         case Token::LBRACKET: {
-            if (this->peek().fKind == Token::RBRACKET) {
-                this->nextToken();
+            if (this->checkNext(Token::RBRACKET)) {
                 return std::unique_ptr<ASTSuffix>(new ASTIndexSuffix(next.fPosition));
             }
             std::unique_ptr<ASTExpression> e = this->expression();
