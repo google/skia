@@ -598,6 +598,11 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
                                             const DeferredTextureImageUsageParams params[],
                                             int paramCnt, void* buffer,
                                             SkColorSpace* dstColorSpace) const {
+    // do nothing if we're already texture-backed
+    if (this->peekTexture()) {
+        return 0;
+    }
+
     // Extract relevant min/max values from the params array.
     int lowestPreScaleMipLevel = params[0].fPreScaleMipLevel;
     SkFilterQuality highestFilterQuality = params[0].fQuality;
@@ -650,13 +655,6 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
             info = info.makeColorSpace(nullptr);
         }
     } else {
-        // Here we're just using presence of data to know whether there is a codec behind the image.
-        // In the future we will access the cacherator and get the exact data that we want to (e.g.
-        // yuv planes) upload.
-        sk_sp<SkData> data(this->refEncoded());
-        if (!data && !this->peekPixels(nullptr)) {
-            return 0;
-        }
         if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
             // Generator backed image. Tweak info to trigger correct kind of decode.
             SkImageCacherator::CachedFormat cacheFormat = cacher->chooseCacheFormat(
