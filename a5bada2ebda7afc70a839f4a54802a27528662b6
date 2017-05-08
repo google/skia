@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2c7fdce_a8f41534",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 14
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T20:26:43Z",
+      "side": 1,
+      "message": "Specify what the option does?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 24
+      },
+      "revId": "a5bada2ebda7afc70a839f4a54802a27528662b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8380c45_224712db",
+        "filename": "gm/encode-alpha-jpeg.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T20:26:43Z",
+      "side": 1,
+      "message": "I find this name confusing. Maybe it should be read_into_pixmap?",
+      "range": {
+        "startLine": 16,
+        "startChar": 19,
+        "endLine": 16,
+        "endChar": 29
+      },
+      "revId": "a5bada2ebda7afc70a839f4a54802a27528662b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fea644d_8325c972",
+        "filename": "gm/encode-alpha-jpeg.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T20:26:43Z",
+      "side": 1,
+      "message": "Naming is hard... I don\u0027t like this name, but I haven\u0027t come up with one I like better.",
+      "range": {
+        "startLine": 22,
+        "startChar": 29,
+        "endLine": 22,
+        "endChar": 42
+      },
+      "revId": "a5bada2ebda7afc70a839f4a54802a27528662b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71f6b5d3_0d2b623e",
+        "filename": "gm/encode-alpha-jpeg.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T20:26:43Z",
+      "side": 1,
+      "message": "Does this image exhibit have some property that the ones already in resources do not?",
+      "range": {
+        "startLine": 46,
+        "startChar": 52,
+        "endLine": 46,
+        "endChar": 72
+      },
+      "revId": "a5bada2ebda7afc70a839f4a54802a27528662b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

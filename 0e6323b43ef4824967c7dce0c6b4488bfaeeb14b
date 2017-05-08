@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b6c067a_ee0d2711",
+        "filename": "src/images/SkImageEncoderFns.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T20:26:43Z",
+      "side": 1,
+      "message": "It looks like we premultiply, and then premultiply again?",
+      "range": {
+        "startLine": 178,
+        "startChar": 16,
+        "endLine": 178,
+        "endChar": 28
+      },
+      "revId": "0e6323b43ef4824967c7dce0c6b4488bfaeeb14b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
