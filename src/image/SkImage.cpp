@@ -175,6 +175,13 @@ GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO,
     return as_IB(this)->onGetTextureHandle(flushPendingGrContextIO, origin);
 }
 
+bool SkImage::isValid(GrContext* context) const {
+    if (context && context->abandoned()) {
+        return false;
+    }
+    return as_IB(this)->onIsValid(context);
+}
+
 #else
 
 GrTexture* SkImage::getTexture() const { return nullptr; }
@@ -182,6 +189,13 @@ GrTexture* SkImage::getTexture() const { return nullptr; }
 bool SkImage::isTextureBacked() const { return false; }
 
 GrBackendObject SkImage::getTextureHandle(bool, GrSurfaceOrigin*) const { return 0; }
+
+bool SkImage::isValid(GrContext* context) const {
+    if (context) {
+        return false;
+    }
+    return as_IB(this)->onIsValid(context);
+}
 
 #endif
 

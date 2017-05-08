@@ -943,3 +943,16 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> colorSpace, SkC
                                    std::move(colorSpace), fBudgeted);
 
 }
+
+bool SkImage_Gpu::onIsValid(GrContext* context) const {
+    // The base class has already checked that context isn't abandoned (if it's not nullptr)
+    if (fContext->abandoned()) {
+        return false;
+    }
+
+    if (context && context != fContext) {
+        return false;
+    }
+
+    return true;
+}

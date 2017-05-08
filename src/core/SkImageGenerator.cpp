@@ -115,6 +115,10 @@ bool SkImageGenerator::onGetPixels(const SkImageInfo& info, void* dst, size_t rb
     return false;
 }
 
+bool SkImageGenerator::onIsValid(GrContext*) const {
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "SkBitmap.h"

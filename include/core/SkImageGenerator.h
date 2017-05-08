@@ -51,6 +51,14 @@ public:
     const SkImageInfo& getInfo() const { return fInfo; }
 
     /**
+     *  Can this generator be used to produce images that will be drawable to the specified context
+     *  (or to CPU, if context is nullptr)?
+     */
+    bool isValid(GrContext* context) const {
+        return this->onIsValid(context);
+    }
+
+    /**
      *  Decode into the given pixels, a block of memory of size at
      *  least (info.fHeight - 1) * rowBytes + (info.fWidth *
      *  bytesPerPixel)
@@ -165,6 +173,8 @@ protected:
 
     virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                              SkPMColor ctable[], int* ctableCount);
+
+    virtual bool onIsValid(GrContext*) const;
 
     virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const {
         return false;
