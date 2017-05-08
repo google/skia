@@ -185,6 +185,10 @@ GrBackendObject SkImage::getTextureHandle(bool, GrSurfaceOrigin*) const { return
 
 #endif
 
+bool SkImage::isValid(GrContext* context) const {
+    return as_IB(this)->onIsValid(context);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImage_Base::SkImage_Base(int width, int height, uint32_t uniqueID)

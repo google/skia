@@ -270,6 +270,16 @@ public:
     bool isTextureBacked() const;
 
     /**
+     *  Returns true if the image is able to be drawn to a particular type of device. If context
+     *  is nullptr, tests for drawability to CPU devices. Otherwise, tests for drawability to a GPU
+     *  device backed by context.
+     *
+     *  Texture-backed images may become invalid if their underlying GrContext is abandoned. Some
+     *  generator-backed images may be invalid for CPU and/or GPU.
+     */
+    bool isValid(GrContext* context) const;
+
+    /**
      *  Retrieves the backend API handle of the texture. If flushPendingGrContextIO then the
      *  GrContext will issue to the backend API any deferred IO operations on the texture before
      *  returning.
