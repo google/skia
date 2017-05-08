@@ -549,21 +549,21 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
-        for (GrMesh::PatternBatch batch : mesh) {
-            if (mesh.fPrimitiveType != primitiveType) {
-                // Technically we don't have to call this here (since there is a safety check in
-                // pipelineState:setData but this will allow for quicker freeing of resources if the
-                // pipelineState sits in a cache for a while.
-                pipelineState->freeTempResources(fGpu);
-                SkDEBUGCODE(pipelineState = nullptr);
-                primitiveType = mesh.fPrimitiveType;
-                pipelineState = this->prepareDrawState(pipeline,
-                                                       primProc,
-                                                       primitiveType);
-                if (!pipelineState) {
-                    return;
-                }
+        if (mesh.fPrimitiveType != primitiveType) {
+            // Technically we don't have to call this here (since there is a safety check in
+            // pipelineState:setData but this will allow for quicker freeing of resources if the
+            // pipelineState sits in a cache for a while.
+            pipelineState->freeTempResources(fGpu);
+            SkDEBUGCODE(pipelineState = nullptr);
+            primitiveType = mesh.fPrimitiveType;
+            pipelineState = this->prepareDrawState(pipeline,
+                                                   primProc,
+                                                   primitiveType);
+            if (!pipelineState) {
+                return;
             }
+        }
+        for (GrMesh::PatternBatch batch : mesh) {
             SkASSERT(pipelineState);
             this->bindGeometry(primProc, mesh.fIndexBuffer.get(), mesh.fVertexBuffer.get());
 
