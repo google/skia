@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "06396c82_857b9906",
+        "filename": "tools/ok_vias.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-08T13:33:32Z",
+      "side": 1,
+      "message": "This seems to preserve an sRGB color space just fine for me.\n\nI think legacy is an older \"we think images are better\" here, not today\u0027s \"no color space consideration\".",
+      "parentUuid": "00b43dc9_654bdf30",
+      "range": {
+        "startLine": 81,
+        "startChar": 30,
+        "endLine": 81,
+        "endChar": 44
+      },
+      "revId": "91e3266e614fb4a8f3a11d27a785b7b87b42d64a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "295d2129_7161b553",
         "filename": "tools/ok_vias.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-08T13:07:17Z",
       "side": 1,
       "message": "Might need/want to explicitly set the SkTransferFunctionBehavior based on the SkColorSpace?",
+      "range": {
+        "startLine": 89,
+        "startChar": 30,
+        "endLine": 89,
+        "endChar": 37
+      },
+      "revId": "91e3266e614fb4a8f3a11d27a785b7b87b42d64a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "364aa724_1385564b",
+        "filename": "tools/ok_vias.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-08T13:33:32Z",
+      "side": 1,
+      "message": "I was wondering about this. I\u0027d have expected SkPngEncoder to set this based on SkColorSpace for me.  When would I want to change it?",
+      "parentUuid": "295d2129_7161b553",
       "range": {
         "startLine": 89,
         "startChar": 30,
