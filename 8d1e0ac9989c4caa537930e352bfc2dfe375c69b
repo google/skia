@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e4b9dcd1_e2992602",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-08T16:51:20Z",
+      "side": 1,
+      "message": "Yes. It\u0027s the full diameter of the blur.",
+      "parentUuid": "13549a06_9da7f38c",
+      "revId": "8d1e0ac9989c4caa537930e352bfc2dfe375c69b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e9c78b47_d7a39e8c",
         "filename": "src/utils/SkShadowUtils.cpp",
         "patchSetId": 12
@@ -33,6 +51,24 @@
       "revId": "8d1e0ac9989c4caa537930e352bfc2dfe375c69b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32b41213_e8419ff6",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-08T16:51:20Z",
+      "side": 1,
+      "message": "rectStaysRect is a requirement for the fast path for the MaskFilter. isSimilarity is a requirement for the analytic approach. rectStaysRect can have non-uniform scale, and isSimilarity can have non-90-degree rotations.",
+      "parentUuid": "e9c78b47_d7a39e8c",
+      "revId": "8d1e0ac9989c4caa537930e352bfc2dfe375c69b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
