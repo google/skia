@@ -39,6 +39,25 @@ void GrTextureProxy::setMipColorMode(SkDestinationSurfaceColorMode colorMode) {
     fMipColorMode = colorMode;
 }
 
+// For GL, this method parallels highest_filter_mode.
+// Vulkan always just returns kMipMap_FilterMode.
+GrSamplerParams::FilterMode GrTextureProxy::highestFilterMode() const {
+    if (fTarget) {
+        return fTarget->asTexture()->texturePriv().highestFilterMode1();
+    }
+
+    if (GrPixelConfigIsSint(this->config())) {
+        // Integer textures in GL can use GL_NEAREST_MIPMAP_NEAREST. This is a mode
+        // we don't support and don't currently have a use for.
+        return GrSamplerParams::kNone_FilterMode;
+    }
+
+    // GR_GL_TEXTURE_RECTANGLE and GR_GL_TEXTURE_EXTERNAL (which have a highest filter mode
+    // of bilerp) can only be created via wrapping.
+
+    return GrSamplerParams::kMipMap_FilterMode;
+}
+
 size_t GrTextureProxy::onGpuMemorySize() const {
     if (fTarget) {
         return fTarget->gpuMemorySize();

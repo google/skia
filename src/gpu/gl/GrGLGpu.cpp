@@ -581,7 +581,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     }
 
     if (kAdoptAndCache_GrWrapOwnership == ownership) {
-        return sk_sp<GrTexture>(new GrGLTexture(this, SkBudgeted::kYes, surfDesc, idDesc));
+        return sk_sp<GrTexture>(new GrGLTexture(this, SkBudgeted::kYes, surfDesc, idDesc, false));
     } else {
         return GrGLTexture::MakeWrapped(this, surfDesc, idDesc);
     }
@@ -1602,7 +1602,7 @@ GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& desc,
     }
 
     GrGLTexture* tex;
-    tex = new GrGLTexture(this, budgeted, desc, idDesc);
+    tex = new GrGLTexture(this, budgeted, desc, idDesc, false);
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
 #ifdef TRACE_TEXTURE_CREATION
     SkDebugf("--- new compressed texture [%d] size=(%d %d) config=%d\n",
@@ -3525,7 +3525,7 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
 bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     int progIdx = TextureToCopyProgramIdx(srcTex);
     const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
-    GrSLType samplerType = srcTex->texturePriv().samplerType();
+    GrSLType samplerType = srcTex->texturePriv().samplerType1();
 
     if (!fCopyProgramArrayBuffer) {
         static const GrGLfloat vdata[] = {

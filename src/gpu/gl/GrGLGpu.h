@@ -623,7 +623,7 @@ private:
     sk_sp<GrGLBuffer>                       fWireRectArrayBuffer;
 
     static int TextureToCopyProgramIdx(GrTexture* texture) {
-        switch (texture->texturePriv().samplerType()) {
+        switch (texture->texturePriv().samplerType1()) {
             case kTexture2DSampler_GrSLType:
                 return 0;
             case kITexture2DSampler_GrSLType:

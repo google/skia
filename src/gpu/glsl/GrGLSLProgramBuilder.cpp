@@ -239,10 +239,10 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrGLSLExpr4& colorIn,
         // GrProcessor::TextureSampler sampler(dstTexture);
         SkString name("DstTextureSampler");
         dstTextureSamplerHandle =
-                this->emitSampler(dstTexture->texturePriv().samplerType(), dstTexture->config(),
+                this->emitSampler(dstTexture->texturePriv().samplerType1(), dstTexture->config(),
                                   "DstTextureSampler", kFragment_GrShaderFlag);
         dstTextureOrigin = dstTexture->origin();
-        SkASSERT(kTextureExternalSampler_GrSLType != dstTexture->texturePriv().samplerType());
+        SkASSERT(kTextureExternalSampler_GrSLType != dstTexture->texturePriv().samplerType1());
     }
 
     GrGLSLXferProcessor::EmitArgs args(&fFS,
@@ -273,7 +273,7 @@ void GrGLSLProgramBuilder::emitSamplersAndImageStorages(
     for (int t = 0; t < numTextureSamplers; ++t) {
         const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(t);
         name.printf("TextureSampler_%d", outTexSamplerHandles->count());
-        GrSLType samplerType = sampler.texture()->texturePriv().samplerType();
+        GrSLType samplerType = sampler.texture()->texturePriv().samplerType1();
         if (kTextureExternalSampler_GrSLType == samplerType) {
             const char* externalFeatureString =
                     this->shaderCaps()->externalTextureExtensionString();
