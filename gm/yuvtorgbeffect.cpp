@@ -19,7 +19,7 @@
 #include "SkGradientShader.h"
 #include "effects/GrYUVEffect.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrRectOpFactory.h"
+#include "ops/GrNonAAFillRectOp.h"
 
 #define YSIZE 8
 #define USIZE 4
@@ -132,10 +132,9 @@ protected:
                     grPaint.addColorFragmentProcessor(std::move(fp));
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
-                    std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
-                            GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
-                            std::move(grPaint), GrAAType::kNone, std::move(op));
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            GrNonAAFillRectOp::Make(std::move(grPaint), viewMatrix, renderRect,
+                                                    nullptr, nullptr, GrAAType::kNone));
                 }
                 x += renderRect.width() + kTestPad;
             }
@@ -257,10 +256,9 @@ protected:
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
                 grPaint.addColorFragmentProcessor(fp);
-                std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
-                        GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
-                renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
-                        std::move(grPaint), GrAAType::kNone, std::move(op));
+                renderTargetContext->priv().testingOnly_addDrawOp(
+                        GrNonAAFillRectOp::Make(std::move(grPaint), viewMatrix, renderRect, nullptr,
+                                                nullptr, GrAAType::kNone));
             }
         }
     }

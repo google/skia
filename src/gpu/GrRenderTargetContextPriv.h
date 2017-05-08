@@ -107,6 +107,8 @@ public:
                                              const GrUserStencilSettings* = nullptr,
                                              bool snapToCenters = false);
 
+    uint32_t testingOnly_addDrawOp(std::unique_ptr<GrDrawOp>);
+
     bool refsWrappedObjects() const {
         return fRenderTargetContext->fRenderTargetProxy->refsWrappedObjects();
     }

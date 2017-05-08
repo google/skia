@@ -26,7 +26,7 @@
 #include "glsl/GrGLSLUtil.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
 #include "ops/GrMeshDrawOp.h"
-#include "ops/GrRectOpFactory.h"
+#include "ops/GrNonAAFillRectOp.h"
 
 static const float kTolerance = 0.5f;
 
@@ -668,13 +668,10 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
         }
         const SkMatrix& viewM =
                 (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() : viewMatrix;
-        std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
-                paint.getColor(), viewM, bounds, nullptr, &localMatrix));
-
-        GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-        pipelineBuilder.setUserStencil(passes[1]);
-
-        renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+        renderTargetContext->addDrawOp(
+                clip,
+                GrNonAAFillRectOp::Make(std::move(paint), viewM, bounds, nullptr, &localMatrix,
+                                        aaType, passes[1]));
     }
     return true;
 }

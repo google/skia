@@ -9,6 +9,7 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
+#include <random>
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrGpuResource.h"
@@ -20,7 +21,6 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "ops/GrNonAAFillRectOp.h"
 #include "ops/GrTestMeshDrawOp.h"
-#include <random>
 
 namespace {
 class TestOp : public GrTestMeshDrawOp {
@@ -266,11 +266,11 @@ void test_draw_op(GrRenderTargetContext* rtc, sk_sp<GrFragmentProcessor> fp,
                                    nullptr, SkMatrix::I());
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    GrPipelineBuilder pb(std::move(paint), GrAAType::kNone);
-    auto op =
-            GrNonAAFillRectOp::Make(GrColor_WHITE, SkMatrix::I(),
-                                    SkRect::MakeWH(rtc->width(), rtc->height()), nullptr, nullptr);
-    rtc->addLegacyMeshDrawOp(std::move(pb), GrNoClip(), std::move(op));
+
+    auto op = GrNonAAFillRectOp::Make(std::move(paint), SkMatrix::I(),
+                                      SkRect::MakeWH(rtc->width(), rtc->height()), nullptr, nullptr,
+                                      GrAAType::kNone);
+    rtc->addDrawOp(GrNoClip(), std::move(op));
 }
 
 #include "SkCommandLineFlags.h"
