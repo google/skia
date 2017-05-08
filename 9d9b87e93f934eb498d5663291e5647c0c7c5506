@@ -34,6 +34,24 @@
       "revId": "9d9b87e93f934eb498d5663291e5647c0c7c5506",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "854d443f_27fd3c68",
+        "filename": "experimental/go-skia/types_linux.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-08T14:31:17Z",
+      "side": 1,
+      "message": "Yeah, let\u0027s go with one file.  If there\u0027s a platform that does not match the others in layout, I\u0027d be surprised, and I\u0027d be inclined to tweak the struct or drop the platform entirely to keep them consistent.  C struct layout is usually very consistent.",
+      "parentUuid": "12c5c66a_0f7671a8",
+      "revId": "9d9b87e93f934eb498d5663291e5647c0c7c5506",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
