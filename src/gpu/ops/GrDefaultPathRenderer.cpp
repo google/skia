@@ -24,8 +24,7 @@
 #include "ops/GrMeshDrawOp.h"
 #include "ops/GrRectOpFactory.h"
 
-GrDefaultPathRenderer::GrDefaultPathRenderer(bool stencilWrapOpsSupport)
-    : fStencilWrapOps(stencilWrapOpsSupport) {
+GrDefaultPathRenderer::GrDefaultPathRenderer() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -475,11 +474,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                     reverse = true;
                     // fallthrough
                 case SkPath::kWinding_FillType:
-                    if (fStencilWrapOps) {
-                        passes[0] = &gWindStencilSeparateWithWrap;
-                    } else {
-                        passes[0] = &gWindStencilSeparateNoWrap;
-                    }
+                    passes[0] = &gWindStencilPass;
                     passCount = 2;
                     if (stencilOnly) {
                         lastPassIsBounds = false;

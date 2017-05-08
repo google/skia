@@ -64,8 +64,8 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     const char* versionString = (const char*) GetString(GR_GL_VERSION);
     GrGLVersion glVer = GrGLGetVersionFromString(versionString);
 
-    if (glVer < GR_GL_VER(1,5) || GR_GL_INVALID_VER == glVer) {
-        // We must have array and element_array buffer objects.
+    if (glVer < GR_GL_VER(2,0) || GR_GL_INVALID_VER == glVer) {
+        // This is our minimum for non-ES GL.
         return nullptr;
     }
 
@@ -97,20 +97,8 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(BlendBarrier, NV);
     }
 
-    if (glVer >= GR_GL_VER(1,4) ||
-        extensions.has("GL_ARB_imaging")) {
-        GET_PROC(BlendColor);
-    } else if (extensions.has("GL_EXT_blend_color")) {
-        GET_PROC_SUFFIX(BlendColor, EXT);
-    }
-
-    if (glVer >= GR_GL_VER(1,4) ||
-        extensions.has("GL_ARB_imaging")) {
-        GET_PROC(BlendEquation);
-    } else if (extensions.has("GL_EXT_blend_subtract")) {
-        GET_PROC_SUFFIX(BlendEquation, EXT);
-    }
-
+    GET_PROC(BlendColor);
+    GET_PROC(BlendEquation);
     GET_PROC(BlendFunc);
     GET_PROC(BufferData);
     GET_PROC(BufferSubData);
@@ -148,9 +136,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(DrawArraysIndirect);
         GET_PROC(DrawElementsIndirect);
     }
-    if (glVer >= GR_GL_VER(2,0)) {
-        GET_PROC(DrawRangeElements);
-    }
+    GET_PROC(DrawRangeElements);
     GET_PROC(Enable);
     GET_PROC(EnableVertexAttribArray);
     GET_PROC(EndQuery);
@@ -406,11 +392,37 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(CopyTextureImage2D, EXT);
         GET_PROC_SUFFIX(CopyTextureSubImage1D, EXT);
         GET_PROC_SUFFIX(CopyTextureSubImage2D, EXT);
+        GET_PROC_SUFFIX(GetNamedBufferParameteriv, EXT);
+        GET_PROC_SUFFIX(GetNamedBufferPointerv, EXT);
+        GET_PROC_SUFFIX(GetNamedBufferSubData, EXT);
         GET_PROC_SUFFIX(GetTextureImage, EXT);
         GET_PROC_SUFFIX(GetTextureParameterfv, EXT);
         GET_PROC_SUFFIX(GetTextureParameteriv, EXT);
         GET_PROC_SUFFIX(GetTextureLevelParameterfv, EXT);
         GET_PROC_SUFFIX(GetTextureLevelParameteriv, EXT);
+        GET_PROC_SUFFIX(MapNamedBuffer, EXT);
+        GET_PROC_SUFFIX(NamedBufferData, EXT);
+        GET_PROC_SUFFIX(NamedBufferSubData, EXT);
+        GET_PROC_SUFFIX(ProgramUniform1f, EXT);
+        GET_PROC_SUFFIX(ProgramUniform2f, EXT);
+        GET_PROC_SUFFIX(ProgramUniform3f, EXT);
+        GET_PROC_SUFFIX(ProgramUniform4f, EXT);
+        GET_PROC_SUFFIX(ProgramUniform1i, EXT);
+        GET_PROC_SUFFIX(ProgramUniform2i, EXT);
+        GET_PROC_SUFFIX(ProgramUniform3i, EXT);
+        GET_PROC_SUFFIX(ProgramUniform4i, EXT);
+        GET_PROC_SUFFIX(ProgramUniform1fv, EXT);
+        GET_PROC_SUFFIX(ProgramUniform2fv, EXT);
+        GET_PROC_SUFFIX(ProgramUniform3fv, EXT);
+        GET_PROC_SUFFIX(ProgramUniform4fv, EXT);
+        GET_PROC_SUFFIX(ProgramUniform1iv, EXT);
+        GET_PROC_SUFFIX(ProgramUniform2iv, EXT);
+        GET_PROC_SUFFIX(ProgramUniform3iv, EXT);
+        GET_PROC_SUFFIX(ProgramUniform4iv, EXT);
+        GET_PROC_SUFFIX(ProgramUniformMatrix2fv, EXT);
+        GET_PROC_SUFFIX(ProgramUniformMatrix3fv, EXT);
+        GET_PROC_SUFFIX(ProgramUniformMatrix4fv, EXT);
+        GET_PROC_SUFFIX(UnmapNamedBuffer, EXT);
         if (glVer >= GR_GL_VER(1,2)) {
             GET_PROC_SUFFIX(TextureImage3D, EXT);
             GET_PROC_SUFFIX(TextureSubImage3D, EXT);
@@ -422,36 +434,6 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
             GET_PROC_SUFFIX(CompressedTextureSubImage2D, EXT);
             GET_PROC_SUFFIX(CompressedTextureSubImage1D, EXT);
             GET_PROC_SUFFIX(GetCompressedTextureImage, EXT);
-        }
-        if (glVer >= GR_GL_VER(1,5)) {
-            GET_PROC_SUFFIX(NamedBufferData, EXT);
-            GET_PROC_SUFFIX(NamedBufferSubData, EXT);
-            GET_PROC_SUFFIX(MapNamedBuffer, EXT);
-            GET_PROC_SUFFIX(UnmapNamedBuffer, EXT);
-            GET_PROC_SUFFIX(GetNamedBufferParameteriv, EXT);
-            GET_PROC_SUFFIX(GetNamedBufferPointerv, EXT);
-            GET_PROC_SUFFIX(GetNamedBufferSubData, EXT);
-        }
-        if (glVer >= GR_GL_VER(2,0)) {
-            GET_PROC_SUFFIX(ProgramUniform1f, EXT);
-            GET_PROC_SUFFIX(ProgramUniform2f, EXT);
-            GET_PROC_SUFFIX(ProgramUniform3f, EXT);
-            GET_PROC_SUFFIX(ProgramUniform4f, EXT);
-            GET_PROC_SUFFIX(ProgramUniform1i, EXT);
-            GET_PROC_SUFFIX(ProgramUniform2i, EXT);
-            GET_PROC_SUFFIX(ProgramUniform3i, EXT);
-            GET_PROC_SUFFIX(ProgramUniform4i, EXT);
-            GET_PROC_SUFFIX(ProgramUniform1fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform2fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform3fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform4fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform1iv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform2iv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform3iv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform4iv, EXT);
-            GET_PROC_SUFFIX(ProgramUniformMatrix2fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniformMatrix3fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniformMatrix4fv, EXT);
         }
         if (glVer >= GR_GL_VER(2,1)) {
             GET_PROC_SUFFIX(ProgramUniformMatrix2x3fv, EXT);
@@ -622,6 +604,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
 
     if (version >= GR_GL_VER(3,0)) {
         GET_PROC(DrawArraysInstanced);
+        GET_PROC(DrawBuffers);
         GET_PROC(DrawElementsInstanced);
     } else if (extensions.has("GL_EXT_draw_instanced")) {
         GET_PROC_SUFFIX(DrawArraysInstanced, EXT);
@@ -661,6 +644,9 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(GetShaderiv);
     GET_PROC(GetString);
     GET_PROC(GetStringi);
+    if (version >= GR_GL_VER(3,1)) {
+        GET_PROC(GetTexLevelParameteriv);
+    }
     GET_PROC(GetUniformLocation);
     GET_PROC(IsTexture);
     GET_PROC(LineWidth);
@@ -677,6 +663,9 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(RasterSamples, EXT);
     }
 
+    if (version >= GR_GL_VER(3,0)) {
+        GET_PROC(ReadBuffer);
+    }
     GET_PROC(ReadPixels);
     GET_PROC(Scissor);
     GET_PROC(ShaderSource);
