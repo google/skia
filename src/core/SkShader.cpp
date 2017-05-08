@@ -70,10 +70,12 @@ void SkShader::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-bool SkShader::computeTotalInverse(const ContextRec& rec, SkMatrix* totalInverse) const {
-    SkMatrix total = SkMatrix::Concat(*rec.fMatrix, fLocalMatrix);
-    if (rec.fLocalMatrix) {
-        total.preConcat(*rec.fLocalMatrix);
+bool SkShader::computeTotalInverse(const SkMatrix& ctm,
+                                   const SkMatrix* outerLocalMatrix,
+                                   SkMatrix* totalInverse) const {
+    SkMatrix total = SkMatrix::Concat(ctm, fLocalMatrix);
+    if (outerLocalMatrix) {
+        total.preConcat(*outerLocalMatrix);
     }
 
     return total.invert(totalInverse);
@@ -92,7 +94,7 @@ bool SkShader::asLuminanceColor(SkColor* colorPtr) const {
 }
 
 SkShader::Context* SkShader::makeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
-    if (!this->computeTotalInverse(rec, nullptr)) {
+    if (!this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)) {
         return nullptr;
     }
     return this->onMakeContext(rec, alloc);
@@ -103,7 +105,7 @@ SkShader::Context::Context(const SkShader& shader, const ContextRec& rec)
 {
     // Because the context parameters must be valid at this point, we know that the matrix is
     // invertible.
-    SkAssertResult(fShader.computeTotalInverse(rec, &fTotalInverse));
+    SkAssertResult(fShader.computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, &fTotalInverse));
     fTotalInverseClass = (uint8_t)ComputeMatrixClass(fTotalInverse);
 
     fPaintAlpha = rec.fPaint->getAlpha();
