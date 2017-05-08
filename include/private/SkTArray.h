@@ -293,7 +293,9 @@ public:
         if (fOwnMemory && that->fOwnMemory) {
             SkTSwap(fItemArray, that->fItemArray);
             SkTSwap(fCount, that->fCount);
-            SkTSwap(fAllocCount, that->fAllocCount);
+            uint32_t tmp = fAllocCount;
+            fAllocCount = that->fAllocCount;
+            that->fAllocCount = tmp;
         } else {
             // This could be more optimal...
             SkTArray copy(std::move(*that));
@@ -534,8 +536,8 @@ private:
     }
 
     int fCount;
-    int fAllocCount;
-    bool fOwnMemory;
+    uint32_t fAllocCount : 31;
+    uint8_t fOwnMemory   :  1;
     union {
         T*       fItemArray;
         void*    fMemArray;
