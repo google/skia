@@ -1659,6 +1659,11 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
         srcImage = static_cast<GrVkTexture*>(src->asTexture());
     }
 
+    // For borrowed textures, we *only* want to copy using draws (to avoid layout changes)
+    if (srcImage->isBorrowed()) {
+        return false;
+    }
+
     if (can_copy_image(dst, src, this)) {
         this->copySurfaceAsCopyImage(dst, src, dstImage, srcImage, srcRect, dstPoint);
         return true;
@@ -1953,4 +1958,18 @@ void GrVkGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
     const GrVkSemaphore::Resource* resource = vkSem->getResource();
     resource->ref();
     fSemaphoresToWaitOn.push_back(resource);
+}
+
+sk_sp<GrSemaphore> GrVkGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
+    SkASSERT(texture);
+    GrVkTexture* vkTexture = static_cast<GrVkTexture*>(texture);
+    vkTexture->setImageLayout(this,
+                              VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                              VK_ACCESS_SHADER_READ_BIT,
+                              VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                              false);
+    this->submitCommandBuffer(kSkip_SyncQueue);
+
+    // The image layout change serves as a barrier, so no semaphore is needed
+    return nullptr;
 }

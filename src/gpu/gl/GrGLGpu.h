@@ -149,6 +149,8 @@ public:
     void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override;
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
 
+    sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
+
     void deleteSync(GrGLsync) const;
 
 private:
