@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ec85b4c_477ede8a",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-08T15:06:14Z",
+      "side": 0,
+      "message": "can we either explicitly set this value here (safer in case order of enum ever changes) or add a comment that we want to use the default 0 value here?",
+      "range": {
+        "startLine": 388,
+        "startChar": 4,
+        "endLine": 388,
+        "endChar": 77
+      },
+      "revId": "e7705780c9450bb190abddc47a78b8b89784ed79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
