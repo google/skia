@@ -359,21 +359,6 @@ static void setup_color_blend_state(const GrPipeline& pipeline,
     // colorBlendInfo->blendConstants is set dynamically
 }
 
-static VkCullModeFlags draw_face_to_vk_cull_mode(GrDrawFace drawFace) {
-    // Assumes that we've set the front face to be ccw
-    static const VkCullModeFlags gTable[] = {
-        VK_CULL_MODE_NONE,              // kBoth_DrawFace
-        VK_CULL_MODE_BACK_BIT,          // kCCW_DrawFace, cull back face
-        VK_CULL_MODE_FRONT_BIT,         // kCW_DrawFace, cull front face
-    };
-    GR_STATIC_ASSERT(0 == (int)GrDrawFace::kBoth);
-    GR_STATIC_ASSERT(1 == (int)GrDrawFace::kCCW);
-    GR_STATIC_ASSERT(2 == (int)GrDrawFace::kCW);
-    SkASSERT(-1 < (int)drawFace && (int)drawFace <= 2);
-
-    return gTable[(int)drawFace];
-}
-
 static void setup_raster_state(const GrPipeline& pipeline,
                                const GrCaps* caps,
                                VkPipelineRasterizationStateCreateInfo* rasterInfo) {
@@ -385,7 +370,7 @@ static void setup_raster_state(const GrPipeline& pipeline,
     rasterInfo->rasterizerDiscardEnable = VK_FALSE;
     rasterInfo->polygonMode = caps->wireframeMode() ? VK_POLYGON_MODE_LINE
                                                     : VK_POLYGON_MODE_FILL;
-    rasterInfo->cullMode = draw_face_to_vk_cull_mode(pipeline.getDrawFace());
+    rasterInfo->cullMode = VK_CULL_MODE_NONE;
     rasterInfo->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterInfo->depthBiasEnable = VK_FALSE;
     rasterInfo->depthBiasConstantFactor = 0.0f;

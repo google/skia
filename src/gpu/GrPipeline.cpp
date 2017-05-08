@@ -42,8 +42,6 @@ void GrPipeline::init(const InitArgs& args) {
 
     fUserStencilSettings = args.fUserStencil;
 
-    fDrawFace = static_cast<int16_t>(args.fDrawFace);
-
     fXferProcessor = args.fProcessors->refXferProcessor();
 
     if (args.fDstTexture.texture()) {
@@ -118,7 +116,6 @@ GrPipeline::GrPipeline(GrRenderTarget* rt, SkBlendMode blendmode)
         , fScissorState()
         , fWindowRectsState()
         , fUserStencilSettings(&GrUserStencilSettings::kUnused)
-        , fDrawFace(static_cast<uint16_t>(GrDrawFace::kBoth))
         , fFlags()
         , fXferProcessor(GrPorterDuffXPFactory::MakeNoCoverageXP(blendmode))
         , fFragmentProcessors()
