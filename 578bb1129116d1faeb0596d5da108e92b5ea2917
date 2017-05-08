@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58ef65c5_99dee313",
+        "filename": "src/gpu/ops/GrNonAAFillRectOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-08T17:38:02Z",
+      "side": 0,
+      "message": "I\u0027m preparing a separate CL to allow non-legacy GrMeshDrawOps to participate in the tests.",
+      "range": {
+        "startLine": 196,
+        "startChar": 0,
+        "endLine": 196,
+        "endChar": 38
+      },
+      "revId": "578bb1129116d1faeb0596d5da108e92b5ea2917",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
