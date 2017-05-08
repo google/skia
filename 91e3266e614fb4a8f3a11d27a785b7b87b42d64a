@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "262bd7e4_764d5534",
+        "filename": "tools/ok_vias.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T15:13:39Z",
+      "side": 1,
+      "message": "Would prefer that this uses peekPixels() / readPixels(), but it\u0027s fine given that I don\u0027t think color spaces matter here (everything is opaque?).",
+      "parentUuid": "402aa5d6_cc931ca9",
+      "range": {
+        "startLine": 81,
+        "startChar": 30,
+        "endLine": 81,
+        "endChar": 44
+      },
+      "revId": "91e3266e614fb4a8f3a11d27a785b7b87b42d64a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "295d2129_7161b553",
         "filename": "tools/ok_vias.cpp",
         "patchSetId": 2
@@ -156,6 +180,30 @@
       "side": 1,
       "message": "So is respect not a good default?  Shouldn\u0027t the default be respect when you have a color space and not if not?\n\nDoes PS3 look like what you expect?  I\u0027m not able to find a GM that ends up differently with or without PS3, whether 565, 8888, or sRGB.",
       "parentUuid": "a870466f_4c9ed62e",
+      "range": {
+        "startLine": 89,
+        "startChar": 30,
+        "endLine": 89,
+        "endChar": 37
+      },
+      "revId": "91e3266e614fb4a8f3a11d27a785b7b87b42d64a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50f9e793_691c22eb",
+        "filename": "tools/ok_vias.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T15:13:39Z",
+      "side": 1,
+      "message": "Must be that they are all already opaque.  I guess none of this color space really matters.  Feel free to land whichever version you prefer.\n\nWe could potentially change the default based on the color space...  The problem is that I would then need a third value for that field: Respect, Ignore, Default.",
+      "parentUuid": "cc40317a_c6c7953d",
       "range": {
         "startLine": 89,
         "startChar": 30,
