@@ -176,7 +176,7 @@ public:
      * Return the GPU context of the device that is associated with the canvas.
      * For a canvas with non-GPU device, NULL is returned.
      */
-    GrContext* getGrContext();
+    virtual GrContext* getGrContext();
 
     ///////////////////////////////////////////////////////////////////////////
 
