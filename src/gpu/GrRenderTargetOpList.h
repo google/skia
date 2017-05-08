@@ -106,6 +106,9 @@ public:
 
     SkDEBUGCODE(void validateTargetsSingleRenderTarget() const override;)
 
+    SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
+    SkDEBUGCODE(int numClips() const override { return fNumClips; })
+
 private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
 
@@ -153,6 +156,7 @@ private:
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.
     SkArenaAlloc fClipAllocator{4096};
+    SkDEBUGCODE(int          fNumClips;)
 
     typedef GrOpList INHERITED;
 };

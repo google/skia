@@ -68,14 +68,14 @@ GrTextureOpList* GrTextureContext::getOpList() {
     return fOpList.get();
 }
 
-// TODO: move this (and GrRenderTargetContext::copy) to GrSurfaceContext?
+// MDB TODO: move this (and GrRenderTargetContext::copy) to GrSurfaceContext?
 bool GrTextureContext::onCopy(GrSurfaceProxy* srcProxy,
                               const SkIRect& srcRect,
                               const SkIPoint& dstPoint) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrTextureContext::copy");
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrTextureContext::onCopy");
 
 #ifndef ENABLE_MDB
     // We can't yet fully defer copies to textures, so GrTextureContext::copySurface will

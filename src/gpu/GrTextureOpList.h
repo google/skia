@@ -64,6 +64,8 @@ public:
 
     SkDEBUGCODE(virtual void validateTargetsSingleRenderTarget() const override;)
 
+    SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
+
 private:
     // MDB TODO: The unique IDs are only needed for the audit trail. There should only be one
     // on the opList itself.
