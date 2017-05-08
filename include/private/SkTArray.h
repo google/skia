@@ -293,7 +293,9 @@ public:
         if (fOwnMemory && that->fOwnMemory) {
             SkTSwap(fItemArray, that->fItemArray);
             SkTSwap(fCount, that->fCount);
-            SkTSwap(fAllocCount, that->fAllocCount);
+            uint32_t tmp = fAllocCount;
+            fAllocCount = that->fAllocCount;
+            that->fAllocCount = tmp;
         } else {
             // This could be more optimal...
             SkTArray copy(std::move(*that));
@@ -432,7 +434,7 @@ private:
             fMemArray = nullptr;
             fOwnMemory = false;
         } else {
-            fAllocCount = SkTMax(count, SkTMax(kMinHeapAllocCount, reserveCount));
+            fAllocCount = SkToU32(SkTMax(count, SkTMax(kMinHeapAllocCount, reserveCount)));
             fMemArray = sk_malloc_throw(fAllocCount * sizeof(T));
             fOwnMemory = true;
         }
@@ -445,11 +447,11 @@ private:
         fCount = count;
         fMemArray = nullptr;
         if (count > preallocCount) {
-            fAllocCount = SkTMax(count, kMinHeapAllocCount);
+            fAllocCount = SkToU32(SkTMax(count, kMinHeapAllocCount));
             fMemArray = sk_malloc_throw(fAllocCount * sizeof(T));
             fOwnMemory = true;
         } else {
-            fAllocCount = preallocCount;
+            fAllocCount = SkToU32(preallocCount);
             fMemArray = preallocStorage;
             fOwnMemory = false;
         }
@@ -499,7 +501,6 @@ private:
 
     void checkRealloc(int delta) {
         SkASSERT(fCount >= 0);
-        SkASSERT(fAllocCount >= 0);
         SkASSERT(-delta <= fCount);
 
         int newCount = fCount + delta;
@@ -507,8 +508,8 @@ private:
         // We allow fAllocCount to be in the range [newCount, 3*newCount]. We also never shrink
         // when we're currently using preallocated memory or would allocate less than
         // kMinHeapAllocCount.
-        bool mustGrow = newCount > fAllocCount;
-        bool shouldShrink = fAllocCount > 3 * newCount && fOwnMemory;
+        bool mustGrow = newCount > SkToInt(fAllocCount);
+        bool shouldShrink = SkToInt(fAllocCount > 3 * newCount && fOwnMemory);
         if (!mustGrow && !shouldShrink) {
             return;
         }
@@ -519,10 +520,11 @@ private:
         static_assert(SkIsPow2(kMinHeapAllocCount), "min alloc count not power of two.");
         newAllocCount = (newAllocCount + (kMinHeapAllocCount - 1)) & ~(kMinHeapAllocCount - 1);
         // At small sizes the old and new alloc count can both be kMinHeapAllocCount.
-        if (newAllocCount == fAllocCount) {
+        if (newAllocCount == SkToInt(fAllocCount)) {
             return;
         }
-        fAllocCount = newAllocCount;
+        SkASSERT(newAllocCount >= 0);
+        fAllocCount = SkToU32(newAllocCount);
         void* newMemArray = sk_malloc_throw(fAllocCount * sizeof(T));
         this->move(newMemArray);
         if (fOwnMemory) {
@@ -534,8 +536,8 @@ private:
     }
 
     int fCount;
-    int fAllocCount;
-    bool fOwnMemory;
+    uint32_t fAllocCount : 31;
+    uint8_t fOwnMemory   :  1;
     union {
         T*       fItemArray;
         void*    fMemArray;
