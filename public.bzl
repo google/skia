@@ -583,6 +583,7 @@ def DM_ARGS(asan):
     # The ASAN we use with Bazel has some strict checks, so omit tests that
     # trigger them.
     match += [
+        "~bigrect",
         "~clippedcubic2",
         "~conicpaths",
         "~^gradients",
