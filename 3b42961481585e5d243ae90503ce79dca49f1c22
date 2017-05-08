@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2bce81ab_3751cab8",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T15:46:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b47165b_254d3b1a",
+      "range": {
+        "startLine": 21,
+        "startChar": 32,
+        "endLine": 21,
+        "endChar": 61
+      },
+      "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9fe3b497_aaaf9cad",
         "filename": "src/images/SkPngEncoder.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-08T12:51:07Z",
       "side": 1,
       "message": "Since this is (/will be) a public API, should we be more forgiving of input? i.e. mask to SkPngEncoder::kAll_FilterFlag, rather than (or in addition to) asserting. That way, if a dumb client passes a bad value (and maybe doesn\u0027t have assertions turned on, as on Android), we\u0027ll still do something reasonable.",
+      "range": {
+        "startLine": 171,
+        "startChar": 4,
+        "endLine": 171,
+        "endChar": 12
+      },
+      "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d36a163_ba6e1abc",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T15:46:41Z",
+      "side": 1,
+      "message": "Done, sgtm.",
+      "parentUuid": "9fe3b497_aaaf9cad",
       "range": {
         "startLine": 171,
         "startChar": 4,
@@ -77,6 +125,24 @@
       "side": 1,
       "message": "Actually, if you do this, better leave out Zero.  Don\u0027t know what it actually means... seems like perhaps \"default\".",
       "parentUuid": "2b062e56_b4748631",
+      "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd0f2fde_de91f87e",
+        "filename": "src/images/SkPngEncoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T15:46:41Z",
+      "side": 1,
+      "message": "Done.\n\nI also find it strange that there is a non-zero value for none.  I believe it is so you can specify things like \"I want to try the None filter and the Sub filter\".",
+      "parentUuid": "38d46e64_c29bbb94",
       "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -153,6 +219,30 @@
     },
     {
       "key": {
+        "uuid": "765511ec_516acc3b",
+        "filename": "src/images/SkPngEncoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T15:46:41Z",
+      "side": 1,
+      "message": "Yes, they do.  So they also match our old behavior.  I think we should say so.  Done.",
+      "parentUuid": "32a37e20_277f0b59",
+      "range": {
+        "startLine": 40,
+        "startChar": 27,
+        "endLine": 40,
+        "endChar": 42
+      },
+      "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "46609cd1_e57537a5",
         "filename": "src/images/SkPngEncoder.h",
         "patchSetId": 3
@@ -173,6 +263,30 @@
       "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d05469ac_b32ac2b5",
+        "filename": "src/images/SkPngEncoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T15:46:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "46609cd1_e57537a5",
+      "range": {
+        "startLine": 43,
+        "startChar": 36,
+        "endLine": 43,
+        "endChar": 72
+      },
+      "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
