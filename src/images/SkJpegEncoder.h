@@ -16,17 +16,27 @@ class SkWStream;
 class SkJpegEncoder : public SkEncoder {
 public:
 
-    // TODO (skbug.com/1501):
-    // Since jpegs are always opaque, this encoder ignores the alpha channel and treats the
-    // pixels as opaque.
-    // Another possible behavior is to blend the pixels onto opaque black.  We'll need to add
-    // an option for this - and an SkTransferFunctionBehavior.
+    enum class AlphaOption {
+        kIgnore,
+        kBlendOnBlack,
+    };
 
     struct Options {
         /**
-         * |fQuality| must be in [0, 100] where 0 corresponds to the lowest quality.
+         *  |fQuality| must be in [0, 100] where 0 corresponds to the lowest quality.
          */
         int fQuality = 100;
+
+        /**
+         *  Jpegs must be opaque.  This instructs the encoder on how to handle input
+         *  images with alpha.
+         *
+         *  The default is to ignore the alpha channel and treat the image as opaque.
+         *  Another option is to blend the pixels onto a black background before encoding.
+         *  In the second case, the encoder supports linear or legacy blending.
+         */
+        AlphaOption fAlphaOption = AlphaOption::kIgnore;
+        SkTransferFunctionBehavior fBlendBehavior = SkTransferFunctionBehavior::kRespect;
     };
 
     /**
