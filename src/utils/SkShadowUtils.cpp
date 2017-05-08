@@ -57,11 +57,12 @@ private:
 
 static inline float eval_gaussian(float x) {
     // return sk_float_exp(-x * x * 4) - 0.018f;
-
-    return 0.00030726194381713867f +
-             x*(0.15489584207534790039f +
-               x*(0.21345567703247070312f +
-                 (2.89795351028442382812f - 2.26661229133605957031f*x)*x));
+    float c0 =  0.00030726194381713867f;
+    float c1 =  0.15489584207534790039f;
+    float c2 =  0.21345567703247070312f;
+    float c3 =  2.89795351028442382812f;
+    float c4 = -2.26661229133605957031f;
+    return c0 + x*(c1 + x*(c2 + x*(c3 + x*c4)));
 }
 
 static void build_table() {
