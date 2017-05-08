@@ -22,6 +22,30 @@
       "revId": "876b65dcfcf3c8a15b440cd21482f375947143d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e79a2a6_38588479",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-08T14:28:28Z",
+      "side": 1,
+      "message": "That\u0027s a relief... I should mention that I did not see any GPU bots broken when triaging the GM.  As a group they\u0027re the best, often bit perfect.",
+      "parentUuid": "0d484f2f_7313dc87",
+      "range": {
+        "startLine": 11,
+        "startChar": 60,
+        "endLine": 11,
+        "endChar": 68
+      },
+      "revId": "876b65dcfcf3c8a15b440cd21482f375947143d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
