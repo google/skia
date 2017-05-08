@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff9e0d62_fcc6ac5d",
+        "filename": "src/gpu/vk/GrVkPipelineState.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-08T14:32:51Z",
+      "side": 0,
+      "message": "these section were all dead code not being used.",
+      "range": {
+        "startLine": 424,
+        "startChar": 1,
+        "endLine": 424,
+        "endChar": 73
+      },
+      "revId": "c2dd5ed93753dc54619fb713ebcf38bd1af08592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
