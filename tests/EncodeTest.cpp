@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 #include "SkEncodedImageFormat.h"
+#include "SkImage.h"
 #include "SkJpegEncoder.h"
 #include "SkPngEncoder.h"
 #include "SkStream.h"
@@ -80,7 +81,65 @@ static void test_encode(skiatest::Reporter* r, SkEncodedImageFormat format) {
     REPORTER_ASSERT(r, data0->equals(data3.get()));
 }
 
-DEF_TEST(Encoder, r) {
+DEF_TEST(Encode, r) {
     test_encode(r, SkEncodedImageFormat::kJPEG);
     test_encode(r, SkEncodedImageFormat::kPNG);
+}
+
+static inline bool equals(const SkBitmap& a, const SkBitmap& b) {
+    if (a.info() != b.info()) {
+        return false;
+    }
+
+    SkASSERT(kN32_SkColorType == a.colorType());
+    for (int y = 0; y < a.height(); y++) {
+        for (int x = 0; x < a.width(); x++) {
+            if (*a.getAddr32(x, y) != *b.getAddr32(x, y)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+DEF_TEST(Encode_PngOptions, r) {
+    SkBitmap bitmap;
+    bool success = GetResourceAsBitmap("mandrill_128.png", &bitmap);
+    if (!success) {
+        return;
+    }
+
+    SkPixmap src;
+    success = bitmap.peekPixels(&src);
+    REPORTER_ASSERT(r, success);
+    if (!success) {
+        return;
+    }
+
+    SkDynamicMemoryWStream dst0, dst1, dst2;
+    SkPngEncoder::Options options;
+    success = SkPngEncoder::Encode(&dst0, src, options);
+    REPORTER_ASSERT(r, success);
+
+    options.fFilterFlags = SkPngEncoder::FilterFlag::kUp;
+    success = SkPngEncoder::Encode(&dst1, src, options);
+    REPORTER_ASSERT(r, success);
+
+    options.fZLibLevel = 3;
+    success = SkPngEncoder::Encode(&dst2, src, options);
+    REPORTER_ASSERT(r, success);
+
+    sk_sp<SkData> data0 = dst0.detachAsData();
+    sk_sp<SkData> data1 = dst1.detachAsData();
+    sk_sp<SkData> data2 = dst2.detachAsData();
+    REPORTER_ASSERT(r, data0->size() < data1->size());
+    REPORTER_ASSERT(r, data1->size() < data2->size());
+
+    SkBitmap bm0, bm1, bm2;
+    SkImage::MakeFromEncoded(data0)->asLegacyBitmap(&bm0, SkImage::kRO_LegacyBitmapMode);
+    SkImage::MakeFromEncoded(data1)->asLegacyBitmap(&bm1, SkImage::kRO_LegacyBitmapMode);
+    SkImage::MakeFromEncoded(data2)->asLegacyBitmap(&bm2, SkImage::kRO_LegacyBitmapMode);
+    REPORTER_ASSERT(r, equals(bm0, bm1));
+    REPORTER_ASSERT(r, equals(bm0, bm2));
 }
