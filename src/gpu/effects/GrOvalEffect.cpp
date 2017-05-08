@@ -140,8 +140,7 @@ void GLCircleEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppend("d = d > 0.5 ? 1.0 : 0.0;");
     }
 
-    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor,
-                             (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("d")).c_str());
+    fragBuilder->codeAppendf("%s = %s * d;", args.fOutputColor, args.fInputColor);
 }
 
 void GLCircleEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
@@ -333,8 +332,7 @@ void GLEllipseEffect::emitCode(EmitArgs& args) {
             SkFAIL("Hairline not expected here.");
     }
 
-    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor,
-                             (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
+    fragBuilder->codeAppendf("%s = %s * alpha;", args.fOutputColor, args.fInputColor);
 }
 
 void GLEllipseEffect::GenKey(const GrProcessor& effect, const GrShaderCaps&,

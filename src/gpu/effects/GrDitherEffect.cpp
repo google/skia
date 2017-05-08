@@ -74,7 +74,7 @@ void GLDitherEffect::emitCode(EmitArgs& args) {
                              "fract(sin(dot(sk_FragCoord.xy, vec2(12.9898,78.233))) * "
                                                             "43758.5453);\n");
     fragBuilder->codeAppendf("\t\t%s = clamp((1.0/255.0) * vec4(r, r, r, r) + %s, 0, 1);\n",
-                             args.fOutputColor, GrGLSLExpr4(args.fInputColor).c_str());
+                             args.fOutputColor, args.fInputColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////

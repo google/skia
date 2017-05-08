@@ -287,7 +287,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulByOutput(
             public:
                 void emitCode(EmitArgs& args) override {
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-                    this->emitChild(0, nullptr, args);
+                    this->emitChild(0, args);
                     fragBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
                                                                 args.fInputColor);
                     fragBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);

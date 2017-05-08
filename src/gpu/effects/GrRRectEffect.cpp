@@ -279,8 +279,7 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppend("alpha = 1.0 - alpha;");
     }
 
-    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor,
-                             (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
+    fragBuilder->codeAppendf("%s = %s * alpha;", args.fOutputColor, args.fInputColor);
 }
 
 void GLCircularRRectEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
@@ -590,8 +589,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppend("float alpha = clamp(0.5 + approx_dist, 0.0, 1.0);");
     }
 
-    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor,
-                             (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
+    fragBuilder->codeAppendf("%s = %s * alpha;", args.fOutputColor, args.fInputColor);
 }
 
 void GLEllipticalRRectEffect::GenKey(const GrProcessor& effect, const GrShaderCaps&,

@@ -101,9 +101,17 @@ void GrGLSLShaderBuilder::appendTextureLookupAndModulate(
     if (colorXformHelper && colorXformHelper->isValid()) {
         SkString xform;
         this->appendColorGamutXform(&xform, lookup.c_str(), colorXformHelper);
-        this->codeAppend((GrGLSLExpr4(modulation) * GrGLSLExpr4(xform)).c_str());
+        if (modulation) {
+            this->codeAppendf("%s * %s", modulation, xform.c_str());
+        } else {
+            this->codeAppendf("%s", xform.c_str());
+        }
     } else {
-        this->codeAppend((GrGLSLExpr4(modulation) * GrGLSLExpr4(lookup)).c_str());
+        if (modulation) {
+            this->codeAppendf("%s * %s", modulation, lookup.c_str());
+        } else {
+            this->codeAppendf("%s", lookup.c_str());
+        }
     }
 }
 

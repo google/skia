@@ -112,9 +112,8 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
         fragBuilder->appendColorGamutXform(&xformedColor, bicubicColor.c_str(), &fColorSpaceHelper);
         bicubicColor.swap(xformedColor);
     }
-    fragBuilder->codeAppendf("%s = %s;",
-                             args.fOutputColor, (GrGLSLExpr4(bicubicColor.c_str()) *
-                                                 GrGLSLExpr4(args.fInputColor)).c_str());
+    fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputColor, bicubicColor.c_str(),
+                             args.fInputColor);
 }
 
 void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,

@@ -168,7 +168,7 @@ public:
             fragBuilder->codeAppendf("vec4 diffuseColor = %s;", args.fInputColor);
 
             SkString dstNormalName("dstNormal");
-            this->emitChild(0, nullptr, &dstNormalName, args);
+            this->emitChild(0, &dstNormalName, args);
 
             fragBuilder->codeAppendf("vec3 normal = %s.xyz;", dstNormalName.c_str());
 
