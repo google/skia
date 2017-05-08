@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b5511a2a_f117d970",
+        "filename": "gm/gradients.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-08T19:11:00Z",
+      "side": 1,
+      "message": "Reverted. It just made sweep nice and smooth.",
+      "parentUuid": "33e351e3_a41d4e12",
+      "range": {
+        "startLine": 812,
+        "startChar": 13,
+        "endLine": 812,
+        "endChar": 16
+      },
+      "revId": "42d3cee90b5e20d53a94499f5d5602920206f266",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7802067d_b11520c2",
         "filename": "src/effects/gradients/SkRadialGradient.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "42d3cee90b5e20d53a94499f5d5602920206f266",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7770deb_c53cb9b5",
+        "filename": "src/effects/gradients/SkRadialGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-08T19:11:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7802067d_b11520c2",
+      "range": {
+        "startLine": 383,
+        "startChar": 4,
+        "endLine": 385,
+        "endChar": 51
+      },
+      "revId": "42d3cee90b5e20d53a94499f5d5602920206f266",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -80,6 +128,24 @@
       "revId": "42d3cee90b5e20d53a94499f5d5602920206f266",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e418c7e3_d531cdb4",
+        "filename": "src/effects/gradients/SkRadialGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-08T19:11:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9afba8f9_be59ba45",
+      "revId": "42d3cee90b5e20d53a94499f5d5602920206f266",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
