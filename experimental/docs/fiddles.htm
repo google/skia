@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <script>
+        function getFiddleText(url, success) {
+            var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+            xhr.open('GET', url);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState > 3 && xhr.status == 200) success(xhr.responseText);
+            };
+            xhr.send();
+            return xhr;
+        }
+
+        function runFiddle(dataObj) {
+            var url = "https://fiddle.skia.org/_/run";
+            var data = JSON.stringify(dataObj);
+            var params = typeof data == 'string' ? data : Object.keys(data).map(
+                    function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]) }
+                ).join('&');
+
+            var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+            xhr.open('POST', url);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState > 3 && xhr.status == 200) {
+                    fiddleResult(xhr.responseText, dataObj.name, dataObj.options.textOnly);
+                }
+            };
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(params);
+            return xhr;
+        }
+
+        function fiddleResult(data, name, textOnly) {
+            var obj = JSON.parse(data);
+            if (obj.compile_errors && obj.compile_errors.length > 0) {
+                console.log("compile_errors:");
+                for (var errIndex in obj.compile_errors) {
+                    var errStr = obj.compile_errors[errIndex].text;
+                    if (errStr.startsWith("ninja:")) {
+                        continue;
+                    }
+                    if (errStr.startsWith("[") && errStr.endsWith("draw.cpp")) {
+                        continue;
+                    }
+                    if (errStr.startsWith("FAILED: ") && errStr.endsWith("draw.o ")) {
+                        continue;
+                    }
+                    if (errStr.startsWith("c++ ") && errStr.endsWith("draw.o")) {
+                        continue;
+                    }
+                    if ("../../tools/fiddle/draw.cpp: In function 'void draw(SkCanvas*)':" == errStr) {
+                        continue;
+                    }
+                    if (errStr.startsWith("   return DrawOptions(")) {
+                        continue;
+                    }
+                    console.log(errStr);
+                }
+            }
+            if (obj.runtime_error) {
+                console.log("runtime_error:");
+                console.log(obj.runtime_error);
+            }
+            if (obj.fiddleHash) {
+                console.log("name: " + name + "  fiddleHash: " + obj.fiddleHash);
+                if (textOnly) {
+                    getFiddleText("https://fiddle.skia.org/i/" + obj.fiddleHash
+                            + ".txt", function (data) { console.log(name + ": " + data); });
+                }
+            }
+        }
+    </script>
+
+    <script src="oneFiddle.js"></script>
+
+</head>
+<body onload="testFiddles();">
+
+</body>
+</html>
