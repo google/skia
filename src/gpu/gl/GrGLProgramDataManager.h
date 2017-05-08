@@ -70,6 +70,10 @@ public:
     void setMatrix3fv(UniformHandle, int arrayCount, const float matrices[]) const override;
     void setMatrix4fv(UniformHandle, int arrayCount, const float matrices[]) const override;
 
+    bool isUsed(UniformHandle handle) const override {
+        return fUniforms[handle.toIndex()].fLocation != -1;
+    }
+
     // for nvpr only
     void setPathFragmentInputTransform(VaryingHandle u, int components,
                                        const SkMatrix& matrix) const override;

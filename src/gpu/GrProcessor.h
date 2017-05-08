@@ -19,6 +19,8 @@
 #include "SkString.h"
 #include "../private/SkAtomics.h"
 
+#include <unordered_map>
+
 class GrContext;
 class GrCoordTransform;
 class GrInvariantOutput;

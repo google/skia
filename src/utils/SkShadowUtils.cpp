@@ -19,7 +19,7 @@
 #include "SkVertices.h"
 #if SK_SUPPORT_GPU
 #include "GrShape.h"
-#include "effects/GrBlurredEdgeFragmentProcessor.h"
+#include "GrBlurredEdgeFragmentProcessor.h"
 #endif
 #include "../../src/effects/shadows/SkAmbientShadowMaskFilter.h"
 #include "../../src/effects/shadows/SkSpotShadowMaskFilter.h"
@@ -144,7 +144,7 @@ void SkGaussianColorFilter::toString(SkString* str) const {
 
 sk_sp<GrFragmentProcessor> SkGaussianColorFilter::asFragmentProcessor(GrContext*,
                                                                       SkColorSpace*) const {
-    return GrBlurredEdgeFP::Make(GrBlurredEdgeFP::kGaussian_Mode);
+    return GrBlurredEdgeFragmentProcessor::Make(GrBlurredEdgeFragmentProcessor::kGaussian_Mode);
 }
 #endif
 
