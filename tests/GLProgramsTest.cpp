@@ -251,7 +251,11 @@ static bool set_random_state(GrPaint* paint, SkRandom* random) {
 }
 
 // right now, the only thing we seem to care about in drawState's stencil is 'doesWrite()'
-static const GrUserStencilSettings* get_random_stencil(SkRandom* random) {
+static const GrUserStencilSettings* get_random_stencil(SkRandom* random, GrContext* context) {
+    if (context->caps()->avoidStencilBuffers()) {
+        return &GrUserStencilSettings::kUnused;
+    }
+
     static constexpr GrUserStencilSettings kDoesWriteStencil(
         GrUserStencilSettings::StaticInit<
             0xffff,
@@ -332,7 +336,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         set_random_color_coverage_stages(&grPaint, &ptd, maxStages);
         set_random_xpf(&grPaint, &ptd);
         bool snapToCenters = set_random_state(&grPaint, &random);
-        const GrUserStencilSettings* uss = get_random_stencil(&random);
+        const GrUserStencilSettings* uss = get_random_stencil(&random, context);
         // We don't use kHW because we will hit an assertion if the render target is not
         // multisampled
         static constexpr GrAAType kAATypes[] = {GrAAType::kNone, GrAAType::kCoverage};

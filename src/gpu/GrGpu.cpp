@@ -197,10 +197,13 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
     if (!tex) {
         return nullptr;
     }
-    // TODO: defer this and attach dynamically
-    GrRenderTarget* tgt = tex->asRenderTarget();
-    if (tgt && !fContext->resourceProvider()->attachStencilAttachment(tgt)) {
-        return nullptr;
+
+    if (!this->caps()->avoidStencilBuffers()) {
+        // TODO: defer this and attach dynamically
+        GrRenderTarget* tgt = tex->asRenderTarget();
+        if (tgt && !fContext->resourceProvider()->attachStencilAttachment(tgt)) {
+            return nullptr;
+        }
     }
     return tex;
 }

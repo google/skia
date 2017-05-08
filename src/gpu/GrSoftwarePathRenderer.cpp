@@ -136,7 +136,9 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     bool inverseFilled = false;
     SkTLazy<GrShape> tmpShape;
     SkASSERT(!args.fShape->style().applies());
-    inverseFilled = args.fShape->inverseFilled();
+    // If the path is hairline, ignore inverse fill.
+    inverseFilled = args.fShape->inverseFilled() &&
+                    !IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr);
 
     SkIRect unclippedDevShapeBounds, clippedDevShapeBounds, devClipBounds;
     // To prevent overloading the cache with entries during animations we limit the cache of masks

@@ -380,9 +380,10 @@ private:
 
     void onApplyOptionsOverrides(const GrContextOptions& options) override;
 
-    void initFSAASupport(const GrGLContextInfo&, const GrGLInterface*);
+    void initFSAASupport(const GrContextOptions& contextOptions, const GrGLContextInfo&,
+                         const GrGLInterface*);
     void initBlendEqationSupport(const GrGLContextInfo&);
-    void initStencilFormats(const GrGLContextInfo&);
+    void initStencilSupport(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
     void initConfigTable(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*,
                          GrShaderCaps*);
