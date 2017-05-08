@@ -26,6 +26,8 @@ public:
 
     void setMipColorMode(SkDestinationSurfaceColorMode colorMode);
 
+    GrSamplerParams::FilterMode highestFilterMode() const;
+
 protected:
     friend class GrSurfaceProxy; // for ctors
 
