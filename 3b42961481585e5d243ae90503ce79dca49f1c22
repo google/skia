@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "4b47165b_254d3b1a",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T12:51:07Z",
+      "side": 1,
+      "message": "nit: Maybe line these up?  e.g.\n\nstatic_assert(PNG_FILTER_NONE \u003d\u003d SkPngEncoder::kNone_FilterFlag, \"Skia and libpng filter error.\");\nstatic_assert(PNG_FILTER_SUB    \u003d\u003d SkPngEncoder::kSub_FilterFlag,   \"Skia and libpng filter error.\");",
+      "range": {
+        "startLine": 21,
+        "startChar": 32,
+        "endLine": 21,
+        "endChar": 61
+      },
+      "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fe3b497_aaaf9cad",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T12:51:07Z",
+      "side": 1,
+      "message": "Since this is (/will be) a public API, should we be more forgiving of input? i.e. mask to SkPngEncoder::kAll_FilterFlag, rather than (or in addition to) asserting. That way, if a dumb client passes a bad value (and maybe doesn\u0027t have assertions turned on, as on Android), we\u0027ll still do something reasonable.",
+      "range": {
+        "startLine": 171,
+        "startChar": 4,
+        "endLine": 171,
+        "endChar": 12
+      },
+      "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2b062e56_b4748631",
         "filename": "src/images/SkPngEncoder.h",
         "patchSetId": 3
@@ -59,6 +105,29 @@
         "startChar": 4,
         "endLine": 27,
         "endChar": 20
+      },
+      "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32a37e20_277f0b59",
+        "filename": "src/images/SkPngEncoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T12:51:07Z",
+      "side": 1,
+      "message": "How did you choose these defaults? Do they match libpng\u0027s defaults? (Should we say so?)",
+      "range": {
+        "startLine": 40,
+        "startChar": 27,
+        "endLine": 40,
+        "endChar": 42
       },
       "revId": "3b42961481585e5d243ae90503ce79dca49f1c22",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
