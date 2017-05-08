@@ -76,16 +76,6 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     return SkRasterPipelineBlitter::Create(dst, paint, ctm, alloc);
 }
 
-static bool supported(const SkImageInfo& info) {
-    switch (info.colorType()) {
-        case kAlpha_8_SkColorType:  return true;
-        case kRGB_565_SkColorType:  return true;
-        case kN32_SkColorType:      return info.gammaCloseToSRGB();
-        case kRGBA_F16_SkColorType: return true;
-        default:                    return false;
-    }
-}
-
 SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkPaint& paint,
                                            const SkMatrix& ctm,
@@ -102,11 +92,6 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     SkShader*      shader      = paint.getShader();
     SkColorFilter* colorFilter = paint.getColorFilter();
-
-    // TODO: all temporary
-    if (!supported(dst.info())) {
-        return nullptr;
-    }
 
     // TODO: Think more about under what conditions we dither:
     //   - if we're drawing anything into 565 and the user has asked us to dither, or
@@ -174,8 +159,6 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 }
 
 void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p) const {
-    SkASSERT(supported(fDst.info()));
-
     p->append(SkRasterPipeline::move_src_dst);
     switch (fDst.info().colorType()) {
         case kAlpha_8_SkColorType:   p->append(SkRasterPipeline::load_a8,   &fDstPtr); break;
@@ -207,7 +190,6 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
     if (fDst.info().colorType() == kBGRA_8888_SkColorType) {
         p->append(SkRasterPipeline::swap_rb);
     }
-    SkASSERT(supported(fDst.info()));
     switch (fDst.info().colorType()) {
         case kAlpha_8_SkColorType:   p->append(SkRasterPipeline::store_a8,   &fDstPtr); break;
         case kRGB_565_SkColorType:   p->append(SkRasterPipeline::store_565,  &fDstPtr); break;
