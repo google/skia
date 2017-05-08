@@ -13,7 +13,7 @@
 class SkPngEncoderMgr;
 class SkWStream;
 
-class SkPngEncoder : public SkEncoder {
+class SK_API SkPngEncoder : public SkEncoder {
 public:
 
     enum class FilterFlag : int {
