@@ -376,6 +376,28 @@ sk_sp<SkShader> SkRadialGradient::onMakeColorSpace(SkColorSpaceXformer* xformer)
                                         &this->getLocalMatrix());
 }
 
+bool SkRadialGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
+                                 SkMatrix* matrix,
+                                 SkRasterPipeline* p) const {
+    matrix->postTranslate(-fCenter.fX, -fCenter.fY);
+    matrix->postScale(1/fRadius, 1/fRadius);
+
+    p->append(SkRasterPipeline::xy_to_radius);
+
+    switch(fTileMode) {
+        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, alloc->make<float>(1)); break;
+        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, alloc->make<float>(1)); break;
+        case kClamp_TileMode:
+            if (fColorCount == 2 && fOrigPos == nullptr) {
+                // The general strategy does not need clamping due to implicit hard stops at 0 and 1,
+                // but the 2-point specialization must be clamped.
+                p->append(SkRasterPipeline::clamp_x, alloc->make<float>(1));
+            }
+    }
+
+    return true;
+}
+
 #ifndef SK_IGNORE_TO_STRING
 void SkRadialGradient::toString(SkString* str) const {
     str->append("SkRadialGradient: (");
@@ -393,12 +415,3 @@ void SkRadialGradient::toString(SkString* str) const {
     str->append(")");
 }
 #endif
-
-bool SkRadialGradient::onAppendStages(SkRasterPipeline* p,
-                                      SkColorSpace* dstCS,
-                                      SkArenaAlloc* alloc,
-                                      const SkMatrix& ctm,
-                                      const SkPaint& paint,
-                                      const SkMatrix* localM) const {
-    return SkShader::onAppendStages(p, dstCS, alloc, ctm, paint, localM);
-}
