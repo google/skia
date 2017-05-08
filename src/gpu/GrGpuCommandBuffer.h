@@ -67,6 +67,7 @@ public:
     // GrPrimitiveProcessor. This may fail if the draw would exceed any resource limits (e.g.
     // number of vertex attributes is too large).
     bool draw(const GrPipeline&,
+              GrRenderTarget* rt,
               const GrPrimitiveProcessor&,
               const GrMesh*,
               int meshCount,
@@ -98,6 +99,7 @@ private:
 
     // overridden by backend-specific derived class to perform the draw call.
     virtual void onDraw(const GrPipeline&,
+                        GrRenderTarget* rt,
                         const GrPrimitiveProcessor&,
                         const GrMesh*,
                         int meshCount,
