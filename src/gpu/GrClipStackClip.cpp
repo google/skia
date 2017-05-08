@@ -331,7 +331,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         // if alpha clip mask creation fails fall through to the non-AA code paths
     }
 
-    GrRenderTarget* rt = renderTargetContext->accessRenderTarget();
+    // TODO: remove?
+    GrRenderTarget* rt = renderTargetContext->accessRenderTarget2();
     if (!rt) {
         return true;
     }

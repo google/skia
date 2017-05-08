@@ -1670,6 +1670,7 @@ void GLSLInstanceProcessor::BackendMultisample::acceptCoverageMask(GrGLSLPPFragm
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: is this after the flush
 GLSLInstanceProcessor::Backend* GLSLInstanceProcessor::Backend::Create(const GrPipeline& pipeline,
                                                                        OpInfo opInfo,
                                                                        const VertexInputs& inputs) {
@@ -1682,8 +1683,9 @@ GLSLInstanceProcessor::Backend* GLSLInstanceProcessor::Backend::Create(const GrP
             return new BackendCoverage(opInfo, inputs);
         case GrAAType::kMSAA:
         case GrAAType::kMixedSamples: {
-            const GrRenderTargetPriv& rtp = pipeline.getRenderTarget()->renderTargetPriv();
-            const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline);
+            GrRenderTarget* rt = pipeline.getRenderTargetProxy()->instantiate(nullptr);
+
+            const GrGpu::MultisampleSpecs& specs = rt->renderTargetPriv().getMultisampleSpecs(pipeline);
             return new BackendMultisample(opInfo, inputs, specs.fEffectiveSampleCnt);
         }
     }

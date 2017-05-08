@@ -75,6 +75,7 @@ void GrVkResourceProvider::PipelineStateCache::release() {
 
 sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineState(
                                                                const GrPipeline& pipeline,
+                                                               GrRenderTarget* rt,
                                                                const GrPrimitiveProcessor& primProc,
                                                                GrPrimitiveType primitiveType,
                                                                const GrVkRenderPass& renderPass) {
@@ -83,7 +84,7 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
 #endif
     GrStencilSettings stencil;
     if (pipeline.isStencilEnabled()) {
-        GrRenderTarget* rt = pipeline.getRenderTarget();
+//        GrRenderTarget* rt = pipeline.getRenderTarget();
         // TODO: attach stencil and create settings during render target flush.
         SkASSERT(rt->renderTargetPriv().getStencilAttachment());
         stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
@@ -92,7 +93,7 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
 
     // Get GrVkProgramDesc
     GrVkPipelineState::Desc desc;
-    if (!GrVkPipelineState::Desc::Build(&desc, primProc, pipeline, stencil,
+    if (!GrVkPipelineState::Desc::Build(&desc, primProc, pipeline, rt, stencil,
                                         primitiveType, *fGpu->caps()->shaderCaps())) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
@@ -102,7 +103,7 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
         // Didn't find an origin-independent version, check with the specific origin
-        GrSurfaceOrigin origin = pipeline.getRenderTarget()->origin();
+        GrSurfaceOrigin origin = pipeline.getRenderTargetProxy()->origin();
         desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
         desc.finalize();
         entry = fMap.find(desc);

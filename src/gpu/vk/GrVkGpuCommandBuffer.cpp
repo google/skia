@@ -449,13 +449,14 @@ void GrVkGpuCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
 
 sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
                                                                const GrPipeline& pipeline,
+                                                               GrRenderTarget* rt,
                                                                const GrPrimitiveProcessor& primProc,
                                                                GrPrimitiveType primitiveType) {
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
     SkASSERT(cbInfo.fRenderPass);
 
     sk_sp<GrVkPipelineState> pipelineState =
-        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(pipeline,
+        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(pipeline, rt,
                                                                      primProc,
                                                                      primitiveType,
                                                                      *cbInfo.fRenderPass);
@@ -470,11 +471,11 @@ sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
     }
     fLastPipelineState = pipelineState.get();
 
-    pipelineState->setData(fGpu, primProc, pipeline);
+    pipelineState->setData(fGpu, primProc, pipeline, rt);
 
     pipelineState->bind(fGpu, cbInfo.currentCmdBuf());
 
-    GrVkPipeline::SetDynamicState(fGpu, cbInfo.currentCmdBuf(), pipeline);
+    GrVkPipeline::SetDynamicState(fGpu, cbInfo.currentCmdBuf(), pipeline, rt);
 
     return pipelineState;
 }
@@ -514,12 +515,12 @@ static void prepare_sampled_images(const GrResourceIOProcessor& processor, GrVkG
     }
 }
 
-void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
+void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline, GrRenderTarget* rt,
                                   const GrPrimitiveProcessor& primProc,
                                   const GrMesh* meshes,
                                   int meshCount,
                                   const SkRect& bounds) {
-    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(pipeline.getRenderTarget());
+    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(rt);
     if (!fRenderTarget) {
         this->init(target);
     }
@@ -539,6 +540,7 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
 
     GrPrimitiveType primitiveType = meshes[0].fPrimitiveType;
     sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,
+                                                                    pipeline.getRenderTargetProxy()->instantiate(nullptr),
                                                                     primProc,
                                                                     primitiveType);
     if (!pipelineState) {
@@ -558,6 +560,7 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
                 SkDEBUGCODE(pipelineState = nullptr);
                 primitiveType = mesh.fPrimitiveType;
                 pipelineState = this->prepareDrawState(pipeline,
+                                                       pipeline.getRenderTargetProxy()->instantiate(nullptr),
                                                        primProc,
                                                        primitiveType);
                 if (!pipelineState) {

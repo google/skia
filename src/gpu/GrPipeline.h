@@ -74,7 +74,7 @@ public:
         const GrProcessorSet* fProcessors = nullptr;  // Must be finalized
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrAppliedClip* fAppliedClip = nullptr;
-        GrRenderTarget* fRenderTarget = nullptr;
+        GrRenderTargetProxy* fRenderTargetProxy = nullptr;
         const GrCaps* fCaps = nullptr;
         GrXferProcessor::DstTexture fDstTexture;
     };
@@ -89,7 +89,7 @@ public:
      * must be "Porter Duff" (<= kLastCoeffMode). This pipeline is initialized without requiring
      * a call to init().
      **/
-    GrPipeline(GrRenderTarget*, SkBlendMode);
+    GrPipeline(GrRenderTargetProxy*, SkBlendMode);
 
     GrPipeline(const InitArgs& args) { this->init(args); }
 
@@ -97,7 +97,7 @@ public:
     void init(const InitArgs&);
 
     /** True if the pipeline has been initialized. */
-    bool isInitialized() const { return SkToBool(fRenderTarget.get()); }
+    bool isInitialized() const { return SkToBool(fRenderTargetProxy.get()); }
 
     /// @}
 
@@ -186,7 +186,7 @@ public:
      *
      * @return    The currently set render target.
      */
-    GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
+    GrRenderTargetProxy* getRenderTargetProxy() const { return fRenderTargetProxy.get(); }
 
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
@@ -216,7 +216,7 @@ public:
     bool isBad() const { return SkToBool(fFlags & kIsBad_Flag); }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
-        if (fDstTexture.get() && fDstTexture.get() == fRenderTarget.get()->asTexture()) {
+        if (fDstTexture.get()) { // && fDstTexture.get() == fRenderTargetProxy.get()->asTextureProxy()) {
             return kTexture_GrXferBarrierType;
         }
         return this->getXferProcessor().xferBarrierType(caps);
@@ -240,21 +240,21 @@ private:
         kIsBad_Flag = 0x80,
     };
 
-    using RenderTarget = GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>;
+    using RenderTargetProxy = GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType>;
     using DstTexture = GrPendingIOResource<GrTexture, kRead_GrIOType>;
     using PendingFragmentProcessor = GrPendingProgramElement<const GrFragmentProcessor>;
     using FragmentProcessorArray = SkAutoSTArray<8, PendingFragmentProcessor>;
 
-    DstTexture fDstTexture;
-    SkIPoint fDstTextureOffset;
-    RenderTarget fRenderTarget;
-    GrScissorState fScissorState;
-    GrWindowRectsState fWindowRectsState;
+    DstTexture                   fDstTexture;
+    SkIPoint                     fDstTextureOffset;
+    RenderTargetProxy            fRenderTargetProxy;
+    GrScissorState               fScissorState;
+    GrWindowRectsState           fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;
-    uint16_t fDrawFace;
-    uint16_t fFlags;
+    uint16_t                     fDrawFace;
+    uint16_t                     fFlags;
     sk_sp<const GrXferProcessor> fXferProcessor;
-    FragmentProcessorArray fFragmentProcessors;
+    FragmentProcessorArray       fFragmentProcessors;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
     int fNumColorProcessors;
