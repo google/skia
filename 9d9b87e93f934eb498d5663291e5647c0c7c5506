@@ -52,6 +52,24 @@
       "revId": "9d9b87e93f934eb498d5663291e5647c0c7c5506",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1e86dbf_5691ac46",
+        "filename": "experimental/go-skia/types_linux.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-08T16:20:01Z",
+      "side": 1,
+      "message": "Done\nMoved to types.go for all platforms. Added TODO to make sure we have tests or some other mechanism down the road to ensure  the C and Go structs line up correctly.",
+      "parentUuid": "854d443f_27fd3c68",
+      "revId": "9d9b87e93f934eb498d5663291e5647c0c7c5506",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
