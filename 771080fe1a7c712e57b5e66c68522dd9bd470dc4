@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3eff50fc_8c339efc",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-05-08T17:06:40Z",
+      "side": 1,
+      "message": "s/is/it/",
+      "revId": "771080fe1a7c712e57b5e66c68522dd9bd470dc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
