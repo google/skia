@@ -62,6 +62,24 @@
       "revId": "42d3cee90b5e20d53a94499f5d5602920206f266",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9afba8f9_be59ba45",
+        "filename": "src/effects/gradients/SkRadialGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-08T13:22:10Z",
+      "side": 1,
+      "message": "I had that same thought...  https://skia-review.googlesource.com/c/15653/",
+      "parentUuid": "eb262075_18988ca9",
+      "revId": "42d3cee90b5e20d53a94499f5d5602920206f266",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
