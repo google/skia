@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fccd2c19_48897b25",
+        "filename": "experimental/go-skia/types_linux.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-08T13:57:19Z",
+      "side": 1,
+      "message": "How many more of these types_ files will there be, and where will they differ?  So far everything I see below looks true across all platforms.",
+      "revId": "9d9b87e93f934eb498d5663291e5647c0c7c5506",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
