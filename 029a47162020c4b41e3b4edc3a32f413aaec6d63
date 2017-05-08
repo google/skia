@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9fcb50d_31f68eee",
+        "filename": "experimental/go-skia/ctypes.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-08T16:33:49Z",
+      "side": 1,
+      "message": "... generate types.go ... ?",
+      "range": {
+        "startLine": 12,
+        "startChar": 42,
+        "endLine": 12,
+        "endChar": 74
+      },
+      "revId": "029a47162020c4b41e3b4edc3a32f413aaec6d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfd5780e_e38689b8",
+        "filename": "experimental/go-skia/types.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-08T16:33:49Z",
+      "side": 1,
+      "message": "How do we fix them?  Did you change them from int32 to uint32?  That seems incorrect.... int32 is fine.",
+      "range": {
+        "startLine": 8,
+        "startChar": 26,
+        "endLine": 8,
+        "endChar": 69
+      },
+      "revId": "029a47162020c4b41e3b4edc3a32f413aaec6d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef876990_89f731f6",
+        "filename": "experimental/go-skia/types.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-08T16:33:49Z",
+      "side": 1,
+      "message": "?  Don\u0027t we just need to automate the cgo run?",
+      "range": {
+        "startLine": 16,
+        "startChar": 18,
+        "endLine": 16,
+        "endChar": 52
+      },
+      "revId": "029a47162020c4b41e3b4edc3a32f413aaec6d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
