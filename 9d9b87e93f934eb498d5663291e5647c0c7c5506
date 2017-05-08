@@ -16,6 +16,24 @@
       "revId": "9d9b87e93f934eb498d5663291e5647c0c7c5506",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12c5c66a_0f7671a8",
+        "filename": "experimental/go-skia/types_linux.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-08T14:27:34Z",
+      "side": 1,
+      "message": "Agreed, I  think the memory layout will be the same across all/many platforms. For now I have limited it to linux, because I haven\u0027t tried it on any other platform. It\u0027s not a big problem IMO, but I wanted to capture that it\u0027s something we need to be aware of. \n\nThe cgo tool has what I would think is a bug, in that it doesn\u0027t insert types generated from enums when they are used \nin Go structs, i.e. below PixelGeometry (the type) in SurfaceProps was no added correctly, but set to int32. \n\nGoing forward we could get that fixed and just automatically generate this file for different platforms. Alternative we could \nuse one file and add a test that verifies that the layout of the Go types and C types match.",
+      "parentUuid": "fccd2c19_48897b25",
+      "revId": "9d9b87e93f934eb498d5663291e5647c0c7c5506",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
