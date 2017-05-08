@@ -285,6 +285,30 @@
       "revId": "91e3266e614fb4a8f3a11d27a785b7b87b42d64a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2091cab1_34060f76",
+        "filename": "tools/ok_vias.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-08T15:49:59Z",
+      "side": 1,
+      "message": "The problem is wanting to use that particular enum.  We\u0027ve just demonstrated and agreed it\u0027s not quite a good fit here.  Here\u0027s one that is...\n\nenum {\n  kRespect \u003d (int)SkTransferFunctionBehavior::kRespect,\n  kIgnore  \u003d (int)SkTransferFunctionBehavior::kIgnore,\n  kRespectIfColorCorrect,\n} fUnpremulBehavior \u003d kRespectIfColorCorrect;",
+      "parentUuid": "68773e3b_3b3bcfa2",
+      "range": {
+        "startLine": 89,
+        "startChar": 30,
+        "endLine": 89,
+        "endChar": 37
+      },
+      "revId": "91e3266e614fb4a8f3a11d27a785b7b87b42d64a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
