@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ecbf2d5_2110090d",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-08T18:00:29Z",
+      "side": 1,
+      "message": "rm this-\u003e ?",
+      "revId": "370a1f28bb15b2f0884e2f5179d560c1e3b6d212",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7d62039_8762b830",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-08T18:00:29Z",
+      "side": 1,
+      "message": "rm this-\u003es ?",
+      "revId": "370a1f28bb15b2f0884e2f5179d560c1e3b6d212",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e6b80f6_3bdd7be3",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-08T18:00:29Z",
+      "side": 1,
+      "message": "rm this-\u003e\u0027s ?",
+      "revId": "370a1f28bb15b2f0884e2f5179d560c1e3b6d212",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e3f96ea_97901f31",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-08T18:00:29Z",
+      "side": 1,
+      "message": "add \u0027 \u0027 ?",
+      "revId": "370a1f28bb15b2f0884e2f5179d560c1e3b6d212",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
