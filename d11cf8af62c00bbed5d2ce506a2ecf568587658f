@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3997f4a_3b3c7540",
+        "filename": "src/gpu/ops/GrNonAAFillRectOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-08T15:00:16Z",
+      "side": 1,
+      "message": "It looks like this class changed but that is because git is basing this diff on the old version of GrNonAAFillRectOp.cpp rather than GrNewNonAAFillRectOp.cpp (which I renamed to GrNonAAFillRectOp.cpp, pasted the perspective op into and then modified to use the helper like this class). The only real change to this class was to move the Helper using declaration up to the top and to use \"Helper::MakeArgs\" rather than \"GrSimpleMeshDrawOpHelperWithStencil::MakeArgs\" on line 117.",
+      "range": {
+        "startLine": 101,
+        "startChar": 5,
+        "endLine": 101,
+        "endChar": 21
+      },
+      "revId": "d11cf8af62c00bbed5d2ce506a2ecf568587658f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
