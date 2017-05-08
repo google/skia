@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1c3d968_caf43faf",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-08T15:02:31Z",
+      "side": 1,
+      "message": "Maybe add a comment that the base class had already checked that the context param is not abandoned if not null?",
+      "revId": "0de12f2202fc68b5a8bc7d2981db880576f5e2e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
