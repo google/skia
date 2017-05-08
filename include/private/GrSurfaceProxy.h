@@ -24,6 +24,8 @@ class GrSurfaceProxyPriv;
 class GrTextureOpList;
 class GrTextureProxy;
 
+//#define SK_DISABLE_DEFERRED_PROXIES 1
+
 // This class replicates the functionality GrIORef<GrSurface> but tracks the
 // utilitization for later resource allocation (for the deferred case) and
 // forwards on the utilization in the wrapped case
