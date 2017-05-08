@@ -159,6 +159,21 @@ public:
                                           SkAlphaType, sk_sp<SkColorSpace>,
                                           TextureReleaseProc, ReleaseContext);
 
+    /**
+     *  Decodes and uploads the encoded data to a GPU backed image using the supplied GrContext.
+     *  That image can be safely used by other GrContexts, across thread boundaries. The GrContext
+     *  used here, and the ones used to draw this image later must be in the same GL share group,
+     *  or otherwise be able to share resources.
+     *
+     *  When the image's ref count reaches zero, the original GrContext will destroy the texture,
+     *  asynchronously.
+     *
+     *  The texture will be decoded and uploaded to be suitable for use with surfaces that have the
+     *  supplied destination color space. The color space of the image itself will be determined
+     *  from the encoded data.
+     */
+    static sk_sp<SkImage> MakeCrossContextFromEncoded(GrContext*, sk_sp<SkData>, bool buildMips,
+                                                      SkColorSpace* dstColorSpace);
 
     /**
      *  Create a new image from the specified descriptor. Note - Skia will delete or recycle the
