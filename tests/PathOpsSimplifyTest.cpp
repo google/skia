@@ -7679,11 +7679,28 @@ static void joel_16x(skiatest::Reporter* reporter, const char* filename) {
 testSimplify(reporter, path, filename);
 }
 
+static void ci20_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+path.setFillType(SkPath::kWinding_FillType);
+path.moveTo(0, 0);
+path.lineTo(0, 0);
+path.lineTo(0, 3);
+path.lineTo(0, 0);
+path.close();
+path.moveTo(0, 1);
+path.lineTo(0, 3);
+path.lineTo(1, 2);
+path.lineTo(0, 1);
+path.close();
+testSimplify(reporter, path, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*stopTest)(skiatest::Reporter* , const char* filename) = joel_16x;
 
 static TestDesc tests[] = {
+    TEST(ci20_1),
     TEST(joel_16x),
     TEST(joel_16),
     TEST(joel_15x),
