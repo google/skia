@@ -488,12 +488,12 @@ void GrGLSLProgramBuilder::cleanupFragmentProcessors() {
     }
 }
 
-void GrGLSLProgramBuilder::finalizeShaders() {
+void GrGLSLProgramBuilder::finalizeShaders(GrRenderTarget* rt) {
     this->varyingHandler()->finalize();
-    fVS.finalize(kVertex_GrShaderFlag);
+    fVS.finalize(rt, kVertex_GrShaderFlag);
     if (this->primitiveProcessor().willUseGeoShader()) {
         SkASSERT(this->shaderCaps()->geometryShaderSupport());
-        fGS.finalize(kGeometry_GrShaderFlag);
+        fGS.finalize(rt, kGeometry_GrShaderFlag);
     }
-    fFS.finalize(kFragment_GrShaderFlag);
+    fFS.finalize(rt, kFragment_GrShaderFlag);
 }

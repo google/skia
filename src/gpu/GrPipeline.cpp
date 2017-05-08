@@ -19,11 +19,11 @@
 #include "ops/GrOp.h"
 
 void GrPipeline::init(const InitArgs& args) {
-    SkASSERT(args.fRenderTarget);
+    SkASSERT(args.fRenderTargetProxy);
     SkASSERT(args.fProcessors);
     SkASSERT(args.fProcessors->isFinalized());
 
-    fRenderTarget.reset(args.fRenderTarget);
+    fRenderTargetProxy.reset(args.fRenderTargetProxy);
 
     fFlags = args.fFlags;
     if (args.fAppliedClip) {
@@ -113,8 +113,8 @@ void GrPipeline::addDependenciesTo(GrRenderTargetProxy* rtp) const {
     }
 }
 
-GrPipeline::GrPipeline(GrRenderTarget* rt, SkBlendMode blendmode)
-        : fRenderTarget(rt)
+GrPipeline::GrPipeline(GrRenderTargetProxy* rtp, SkBlendMode blendmode)
+        : fRenderTargetProxy(rtp)
         , fScissorState()
         , fWindowRectsState()
         , fUserStencilSettings(&GrUserStencilSettings::kUnused)
@@ -129,7 +129,7 @@ GrPipeline::GrPipeline(GrRenderTarget* rt, SkBlendMode blendmode)
 bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
     SkASSERT(&a != &b);
 
-    if (a.getRenderTarget() != b.getRenderTarget() ||
+    if (a.getRenderTargetProxy() != b.getRenderTargetProxy() ||
         a.fFragmentProcessors.count() != b.fFragmentProcessors.count() ||
         a.fNumColorProcessors != b.fNumColorProcessors ||
         a.fScissorState != b.fScissorState ||

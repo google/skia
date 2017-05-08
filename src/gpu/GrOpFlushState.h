@@ -100,7 +100,7 @@ public:
 
     /** Additional data required on a per-op basis when executing GrDrawOps. */
     struct DrawOpArgs {
-        GrRenderTarget* fRenderTarget;
+        GrRenderTargetProxy* fRenderTargetProxy;
         const GrAppliedClip* fAppliedClip;
         GrXferProcessor::DstTexture fDstTexture;
     };
@@ -220,7 +220,9 @@ public:
         this->state()->putBackVertexSpace(vertices * vertexStride);
     }
 
-    GrRenderTarget* renderTarget() const { return this->state()->drawOpArgs().fRenderTarget; }
+    GrRenderTargetProxy* renderTargetProxy() const {
+        return this->state()->drawOpArgs().fRenderTargetProxy;
+    }
 
     const GrAppliedClip* clip() const { return this->state()->drawOpArgs().fAppliedClip; }
 

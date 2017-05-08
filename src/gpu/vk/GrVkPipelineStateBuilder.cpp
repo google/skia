@@ -83,7 +83,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
     }
     if (inputs.fFlipY) {
         desc->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
-                                                     this->pipeline().getRenderTarget()->origin()));
+                                                     this->pipeline().getRenderTargetProxy()->origin()));
         desc->finalize();
     }
     return result;
@@ -131,11 +131,11 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     fVS.extensions().appendf("#extension GL_ARB_shading_language_420pack : enable\n");
     fFS.extensions().appendf("#extension GL_ARB_shading_language_420pack : enable\n");
 
-    this->finalizeShaders();
+    this->finalizeShaders(nullptr);
 
     VkPipelineShaderStageCreateInfo shaderStageInfo[2];
     SkSL::Program::Settings settings;
-    settings.fFlipY = this->pipeline().getRenderTarget()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFlipY = this->pipeline().getRenderTargetProxy()->origin() != kTopLeft_GrSurfaceOrigin;
     SkAssertResult(this->createVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                               fVS,
                                               &vertShaderModule,

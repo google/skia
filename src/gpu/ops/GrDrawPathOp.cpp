@@ -46,7 +46,7 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
     }
     args.fUserStencil = &kCoverPass;
     args.fAppliedClip = state.drawOpArgs().fAppliedClip;
-    args.fRenderTarget = state.drawOpArgs().fRenderTarget;
+    args.fRenderTargetProxy = state.drawOpArgs().fRenderTargetProxy;
     args.fCaps = &state.caps();
     args.fDstTexture = state.drawOpArgs().fDstTexture;
 
@@ -55,24 +55,32 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
 
 //////////////////////////////////////////////////////////////////////////////
 
+// This is after the flush!
 void init_stencil_pass_settings(const GrOpFlushState& flushState,
-                                GrPathRendering::FillType fillType, GrStencilSettings* stencil) {
+                                GrPathRendering::FillType fillType,
+                                GrRenderTarget* rt,
+                                GrStencilSettings* stencil) {
     const GrAppliedClip* appliedClip = flushState.drawOpArgs().fAppliedClip;
     bool stencilClip = appliedClip && appliedClip->hasStencilClip();
     stencil->reset(GrPathRendering::GetStencilPassSettings(fillType), stencilClip,
-                   flushState.drawOpArgs().fRenderTarget->renderTargetPriv().numStencilBits());
+                   rt->renderTargetPriv().numStencilBits());
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void GrDrawPathOp::onExecute(GrOpFlushState* state) {
+    GrRenderTarget* rt = nullptr; // fRenderTargetProxy.get()->instantiate(nullptr);
+    if (!rt) {
+        return;
+    }
+
     GrPipeline pipeline;
     this->initPipeline(*state, &pipeline);
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
 
     GrStencilSettings stencil;
-    init_stencil_pass_settings(*state, this->fillType(), &stencil);
-    state->gpu()->pathRendering()->drawPath(pipeline, *pathProc, stencil, fPath.get());
+    init_stencil_pass_settings(*state, this->fillType(), rt, &stencil);
+    state->gpu()->pathRendering()->drawPath1(pipeline, rt, *pathProc, stencil, fPath.get());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -166,6 +174,11 @@ bool GrDrawPathRangeOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 }
 
 void GrDrawPathRangeOp::onExecute(GrOpFlushState* state) {
+    GrRenderTarget* rt = nullptr; // fRenderTargetProxy.get()->instantiate(nullptr);
+    if (!rt) {
+        return;
+    }
+
     const Draw& head = *fDraws.head();
 
     SkMatrix drawMatrix(this->viewMatrix());
@@ -182,10 +195,10 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state) {
     GrPipeline pipeline;
     this->initPipeline(*state, &pipeline);
     GrStencilSettings stencil;
-    init_stencil_pass_settings(*state, this->fillType(), &stencil);
+    init_stencil_pass_settings(*state, this->fillType(), rt, &stencil);
     if (fDraws.count() == 1) {
         const InstanceData& instances = *head.fInstanceData;
-        state->gpu()->pathRendering()->drawPaths(pipeline,
+        state->gpu()->pathRendering()->drawPaths1(pipeline, rt,
                                                  *pathProc,
                                                  stencil,
                                                  fPathRange.get(),
@@ -213,7 +226,7 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state) {
         }
         SkASSERT(idx == fTotalPathCount);
 
-        state->gpu()->pathRendering()->drawPaths(pipeline,
+        state->gpu()->pathRendering()->drawPaths1(pipeline, rt,
                                                  *pathProc,
                                                  stencil,
                                                  fPathRange.get(),

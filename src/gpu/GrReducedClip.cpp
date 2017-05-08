@@ -673,9 +673,9 @@ private:
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const override {
         return false;
     }
-    bool apply(GrContext* context, GrRenderTargetContext* renderTargetContext, bool useHWAA,
+    bool apply1(GrContext* context, GrRenderTargetContext* renderTargetContext, bool useHWAA,
                bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
-        if (!fFixedClip.apply(context, renderTargetContext, useHWAA, hasUserStencilSettings, out,
+        if (!fFixedClip.apply1(context, renderTargetContext, useHWAA, hasUserStencilSettings, out,
                               bounds)) {
             return false;
         }

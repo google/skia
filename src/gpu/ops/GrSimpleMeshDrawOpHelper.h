@@ -125,7 +125,7 @@ protected:
         GrPipeline::InitArgs args;
         args.fFlags = this->pipelineFlags();
         args.fProcessors = &this->processors();
-        args.fRenderTarget = target->renderTarget();
+        args.fRenderTargetProxy = target->renderTargetProxy();
         args.fAppliedClip = target->clip();
         args.fDstTexture = target->dstTexture();
         args.fCaps = &target->caps();
