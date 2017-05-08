@@ -81,6 +81,12 @@ private:
     Token peek();
 
     /**
+     * Checks to see if the next token is of the specified type. If so, stores it in result (if
+     * result is non-null) and returns true. Otherwise, pushes it back and returns false.
+     */
+    bool checkNext(Token::Kind kind, Token* result = nullptr);
+
+    /**
      * Reads the next token and generates an error if it is not the expected type. The 'expected'
      * string is part of the error message, which reads:
      *
