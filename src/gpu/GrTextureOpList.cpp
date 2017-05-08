@@ -81,6 +81,7 @@ void GrTextureOpList::reset() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// MDB TODO: fuse with GrRenderTargetOpList::copySurface
 bool GrTextureOpList::copySurface(GrResourceProvider* resourceProvider,
                                   GrSurfaceProxy* dst,
                                   GrSurfaceProxy* src,

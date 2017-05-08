@@ -82,6 +82,9 @@ public:
 
     SkDEBUGCODE(virtual void validateTargetsSingleRenderTarget() const = 0;)
 
+    SkDEBUGCODE(virtual int numOps() const = 0;)
+    SkDEBUGCODE(virtual int numClips() const { return 0; })
+
 protected:
     GrSurfaceProxy*      fTarget;
     GrAuditTrail*        fAuditTrail;

@@ -29,7 +29,9 @@ static const int kMaxOpLookahead = 10;
 GrRenderTargetOpList::GrRenderTargetOpList(sk_sp<GrRenderTargetProxy> proxy, GrGpu* gpu,
                                            GrAuditTrail* auditTrail)
         : INHERITED(std::move(proxy), auditTrail)
-        , fLastClipStackGenID(SK_InvalidUniqueID) {
+        , fLastClipStackGenID(SK_InvalidUniqueID)
+        SkDEBUGCODE(, fNumClips(0))
+{
     if (GrCaps::InstancedSupport::kNone != gpu->caps()->instancedSupport()) {
         fInstancedRendering.reset(gpu->createInstancedRendering());
     }
@@ -246,6 +248,7 @@ void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext,
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// MDB TODO: fuse with GrTextureOpList::copySurface
 bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
                                        GrRenderTargetContext* dst,
                                        GrSurfaceProxy* src,
@@ -359,6 +362,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     GR_AUDIT_TRAIL_OP_RESULT_NEW(fAuditTrail, op);
     if (clip) {
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
+        SkDEBUGCODE(fNumClips++;)
     }
     fRecordedOps.emplace_back(std::move(op), renderTarget, clip, dstTexture);
     fRecordedOps.back().fOp->wasRecorded(this);
@@ -398,7 +402,7 @@ void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
                 fRecordedOps[j].fOp = std::move(fRecordedOps[i].fOp);
                 break;
             }
-            // Stop going traversing if we would cause a painter's order violation.
+            // Stop traversing if we would cause a painter's order violation.
             if (!can_reorder(fRecordedOps[j].fOp->bounds(), op->bounds())) {
                 GrOP_INFO("\t\tForward: Intersects with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
