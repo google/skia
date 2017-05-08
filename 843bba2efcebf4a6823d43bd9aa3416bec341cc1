@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb8bab26_d47a9f98",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1263,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-05-08T20:07:16Z",
+      "side": 1,
+      "message": "nit: unused",
+      "range": {
+        "startLine": 1263,
+        "startChar": 10,
+        "endLine": 1263,
+        "endChar": 18
+      },
+      "revId": "843bba2efcebf4a6823d43bd9aa3416bec341cc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
