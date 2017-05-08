@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8ee2ebb_23a38963",
+        "filename": "src/core/SkImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-08T14:52:32Z",
+      "side": 1,
+      "message": "Check that passed in context isn\u0027t abandoned? Or maybe SkImage::isValid can do that for everyone?",
+      "revId": "94bba5cad550b16b51d658b3abb24b2ebd909de2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
