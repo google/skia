@@ -62,6 +62,8 @@ public:
     sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
                                     SkTransferFunctionBehavior) const override;
 
+    bool onIsValid(GrContext*) const override;
+
 private:
     GrContext*             fContext;
     sk_sp<GrTextureProxy>  fProxy;
