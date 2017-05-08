@@ -120,8 +120,7 @@ void addMirrorIntervals(const SkColor colors[],
 Sk4fGradientInterval::Sk4fGradientInterval(const Sk4f& c0, SkScalar t0,
                                            const Sk4f& c1, SkScalar t1)
     : fT0(t0)
-    , fT1(t1)
-    , fZeroRamp((c0 == c1).allTrue()) {
+    , fT1(t1) {
     SkASSERT(t0 != t1);
     // Either p0 or p1 can be (-)inf for synthetic clamp edge intervals.
     SkASSERT(SkScalarIsFinite(t0) || SkScalarIsFinite(t1));
@@ -129,8 +128,8 @@ Sk4fGradientInterval::Sk4fGradientInterval(const Sk4f& c0, SkScalar t0,
     const auto dt = t1 - t0;
 
     // Clamp edge intervals are always zero-ramp.
-    SkASSERT(SkScalarIsFinite(dt) || fZeroRamp);
-    SkASSERT(SkScalarIsFinite(t0) || fZeroRamp);
+    SkASSERT(SkScalarIsFinite(dt) || (c0 == c1).allTrue());
+    SkASSERT(SkScalarIsFinite(t0) || (c0 == c1).allTrue());
     const Sk4f   dc = SkScalarIsFinite(dt) ? (c1 - c0) / dt : 0;
     const Sk4f bias = c0 - (SkScalarIsFinite(t0) ? t0 * dc : 0);
 
