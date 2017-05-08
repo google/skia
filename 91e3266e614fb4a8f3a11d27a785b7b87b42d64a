@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "58aaf9fc_a0d4c017",
+        "filename": "tools/ok_vias.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-08T15:39:07Z",
+      "side": 1,
+      "message": "readPixels() is not a user-friendly API.  You have to allocate the pixels, for one thing, and know how to do that.  :(",
+      "parentUuid": "262bd7e4_764d5534",
+      "range": {
+        "startLine": 81,
+        "startChar": 30,
+        "endLine": 81,
+        "endChar": 44
+      },
+      "revId": "91e3266e614fb4a8f3a11d27a785b7b87b42d64a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "295d2129_7161b553",
         "filename": "tools/ok_vias.cpp",
         "patchSetId": 2
@@ -204,6 +228,30 @@
       "side": 1,
       "message": "Must be that they are all already opaque.  I guess none of this color space really matters.  Feel free to land whichever version you prefer.\n\nWe could potentially change the default based on the color space...  The problem is that I would then need a third value for that field: Respect, Ignore, Default.",
       "parentUuid": "cc40317a_c6c7953d",
+      "range": {
+        "startLine": 89,
+        "startChar": 30,
+        "endLine": 89,
+        "endChar": 37
+      },
+      "revId": "91e3266e614fb4a8f3a11d27a785b7b87b42d64a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40b0c914_f92fd8a3",
+        "filename": "tools/ok_vias.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-08T15:39:07Z",
+      "side": 1,
+      "message": "How is that a problem?",
+      "parentUuid": "50f9e793_691c22eb",
       "range": {
         "startLine": 89,
         "startChar": 30,
