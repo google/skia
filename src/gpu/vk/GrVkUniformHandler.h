@@ -49,8 +49,7 @@ private:
         , fSamplers(kUniformsPerBlock)
         , fTexelBuffers(kUniformsPerBlock)
         , fCurrentGeometryUBOOffset(0)
-        , fCurrentFragmentUBOOffset(0)
-        , fCurrentSamplerBinding(0) {
+        , fCurrentFragmentUBOOffset(0) {
     }
 
     UniformHandle internalAddUniformArray(uint32_t visibility,
@@ -79,16 +78,13 @@ private:
     }
 
     TexelBufferHandle addTexelBuffer(uint32_t visibility, GrSLPrecision,
-                                     const char* name) override {
-        SkFAIL("Texel buffers not implemented for Vulkan.");
-        return 0;
-    }
+                                     const char* name) override;
 
     int numTexelBuffers() const { return fTexelBuffers.count(); }
     const GrShaderVar& texelBufferVariable(TexelBufferHandle handle) const override {
         return fTexelBuffers[handle.toIndex()].fVariable;
     }
-    uint32_t texelBufferVisibility(SamplerHandle handle) const {
+    uint32_t texelBufferVisibility(TexelBufferHandle handle) const {
         return fTexelBuffers[handle.toIndex()].fVisibility;
     }
 
@@ -123,7 +119,6 @@ private:
 
     uint32_t            fCurrentGeometryUBOOffset;
     uint32_t            fCurrentFragmentUBOOffset;
-    uint32_t            fCurrentSamplerBinding;
 
     friend class GrVkPipelineStateBuilder;
     friend class GrVkDescriptorSetManager;
