@@ -127,8 +127,7 @@ void GrGLAlphaThresholdFragmentProcessor::emitCode(EmitArgs& args) {
                             "color.a = inner_thresh;"
                             "}");
 
-    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor,
-                             (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr4("color")).c_str());
+    fragBuilder->codeAppendf("%s = %s * color;", args.fOutputColor, args.fInputColor);
 }
 
 void GrGLAlphaThresholdFragmentProcessor::onSetData(const GrGLSLProgramDataManager& pdman,
