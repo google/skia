@@ -11,44 +11,27 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/shutil',
   'recipe_engine/step',
-  'core',
-  'run',
-  'vars',
 ]
 
 
 def RunSteps(api):
-  api.core.setup()
-
-  bundle_dir = api.vars.swarming_out_dir.join('recipe_bundle')
-  with api.step.context({'cwd': api.vars.skia_dir}):
-    if api.vars.is_trybot:
-      # Recipe bundling requires that any changes be committed.
-      api.run(api.step, 'Commit Patch', infra_step=True,
-              cmd=['git', 'commit', '-a', '-m', 'Commit Patch'])
-    recipes_py = api.vars.infrabots_dir.join('recipes.py')
-    api.run(api.step, 'Bundle Recipes', infra_step=True,
-            cmd=['python', recipes_py, 'bundle', '--destination', bundle_dir])
-
-  api.run.check_failure()
+  bundle_dir = api.properties['swarm_out_dir'] + '/recipe_bundle'
+  skia_dir = api.path['start_dir'].join('skia')
+  recipes_py = api.path['start_dir'].join('skia', 'infra', 'bots', 'recipes.py')
+  with api.step.context({'cwd': skia_dir}):
+    api.step('git init', infra_step=True,
+             cmd=['git', 'init'])
+    api.step('git add', infra_step=True,
+             cmd=['git', 'add', '.'])
+    api.step('git commit', infra_step=True,
+             cmd=['git', 'commit', '-m', 'commit recipes'])
+    api.step('Bundle Recipes', infra_step=True,
+             cmd=['python', recipes_py, 'bundle', '--destination', bundle_dir])
 
 
 def GenTests(api):
   yield (
     api.test('BundleRecipes') +
     api.properties(buildername='Housekeeper-PerCommit-BundleRecipes',
-                   repository='https://skia.googlesource.com/skia.git',
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]',
-                   patch_issue=500,
-                   patch_set=1,
-                   patch_storage='gerrit') +
-    api.properties.tryserver(
-        buildername='Housekeeper-PerCommit-BundleRecipes',
-        gerrit_project='skia',
-        gerrit_url='https://skia-review.googlesource.com/') +
-    api.path.exists(
-        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-    )
+                   swarm_out_dir='[SWARM_OUT_DIR]')
   )

@@ -4381,14 +4381,8 @@
         "--workdir",
         "../../..",
         "bundle_recipes",
-        "repository=<(REPO)",
         "buildername=Housekeeper-PerCommit-BundleRecipes",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "swarm_out_dir=${ISOLATED_OUTDIR}"
       ],
       "isolate": "bundle_recipes.isolate",
       "priority": 0.95
