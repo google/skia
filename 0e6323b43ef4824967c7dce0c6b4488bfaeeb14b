@@ -22,6 +22,30 @@
       "revId": "0e6323b43ef4824967c7dce0c6b4488bfaeeb14b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "853c5f5a_e724dddd",
+        "filename": "src/images/SkImageEncoderFns.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T21:11:46Z",
+      "side": 1,
+      "message": "Yes.  If the image is already premul, we just premul once (to blend onto black).\n\nIf the image is unpremul, we premultiply, and then we premultiply again to blend onto black.",
+      "parentUuid": "8b6c067a_ee0d2711",
+      "range": {
+        "startLine": 178,
+        "startChar": 16,
+        "endLine": 178,
+        "endChar": 28
+      },
+      "revId": "0e6323b43ef4824967c7dce0c6b4488bfaeeb14b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

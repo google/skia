@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "24946310_19af93ea",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 14
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T21:11:46Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "c2c7fdce_a8f41534",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 24
+      },
+      "revId": "a5bada2ebda7afc70a839f4a54802a27528662b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c8380c45_224712db",
         "filename": "gm/encode-alpha-jpeg.cpp",
         "patchSetId": 14
@@ -45,6 +69,30 @@
       "revId": "a5bada2ebda7afc70a839f4a54802a27528662b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f98e4bab_6b2b896d",
+        "filename": "gm/encode-alpha-jpeg.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T21:11:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c8380c45_224712db",
+      "range": {
+        "startLine": 16,
+        "startChar": 19,
+        "endLine": 16,
+        "endChar": 29
+      },
+      "revId": "a5bada2ebda7afc70a839f4a54802a27528662b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "97c935ed_398cee61",
+        "filename": "gm/encode-alpha-jpeg.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T21:11:46Z",
+      "side": 1,
+      "message": "Going with encode_pixmap_and_make_image()",
+      "parentUuid": "8fea644d_8325c972",
+      "range": {
+        "startLine": 22,
+        "startChar": 29,
+        "endLine": 22,
+        "endChar": 42
+      },
+      "revId": "a5bada2ebda7afc70a839f4a54802a27528662b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "71f6b5d3_0d2b623e",
         "filename": "gm/encode-alpha-jpeg.cpp",
         "patchSetId": 14
@@ -82,6 +154,30 @@
       "writtenOn": "2017-05-08T20:26:43Z",
       "side": 1,
       "message": "Does this image exhibit have some property that the ones already in resources do not?",
+      "range": {
+        "startLine": 46,
+        "startChar": 52,
+        "endLine": 46,
+        "endChar": 72
+      },
+      "revId": "a5bada2ebda7afc70a839f4a54802a27528662b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c162d7f_cbe9e835",
+        "filename": "gm/encode-alpha-jpeg.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T21:11:46Z",
+      "side": 1,
+      "message": "Yes...  we really don\u0027t have images in resources with interesting transparency.  Arguably I could have drawn something rather than relying on a source image...",
+      "parentUuid": "71f6b5d3_0d2b623e",
       "range": {
         "startLine": 46,
         "startChar": 52,
