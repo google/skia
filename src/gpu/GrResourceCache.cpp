@@ -697,8 +697,8 @@ void GrResourceCache::validate() const {
             if (uniqueKey.isValid()) {
                 ++fContent;
                 SkASSERT(fUniqueHash->find(uniqueKey) == resource);
-                SkASSERT(!resource->resourcePriv().refsWrappedObjects());
-                SkASSERT(SkBudgeted::kYes == resource->resourcePriv().isBudgeted());
+                SkASSERT(SkBudgeted::kYes == resource->resourcePriv().isBudgeted() ||
+                         resource->resourcePriv().refsWrappedObjects());
 
                 if (scratchKey.isValid()) {
                     SkASSERT(!fScratchMap->has(resource, scratchKey));
