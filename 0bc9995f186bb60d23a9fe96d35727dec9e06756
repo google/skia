@@ -1,0 +1,228 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "990972b9_0aa4cda2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T13:16:11Z",
+      "side": 1,
+      "message": "I think we should separate the changes for using a memory stream directly and using an adaptive size. Using the memory stream directly seems pretty straightforward, whereas it\u0027s less obvious what to do for other streams. (It also means we can evaluate the impacts separately, as they may have different results.)",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 60
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72ff0245_d81ec6da",
+        "filename": "src/codec/SkJpegDecoderMgr.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T13:16:11Z",
+      "side": 1,
+      "message": "Who is responsible for deleting this?",
+      "range": {
+        "startLine": 69,
+        "startChar": 27,
+        "endLine": 69,
+        "endChar": 34
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0979d382_eb0eea3d",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T13:16:11Z",
+      "side": 1,
+      "message": "nit: Put the asterisk next to the type:\n\nskjpeg_mem_source_mgr* src \u003d ...\n\nAlso, no need for \"struct\" on this line.\n\nLastly, we\u0027re inconsistent about this, but please C++ style casts. (I think this can be a static_cast.)",
+      "range": {
+        "startLine": 121,
+        "startChar": 33,
+        "endLine": 121,
+        "endChar": 37
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "403ca191_bf833dd4",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T13:16:11Z",
+      "side": 1,
+      "message": "I don\u0027t understand this comment. The entire stream is in memory, so I don\u0027t see how fseek or pipes are relevant here.",
+      "range": {
+        "startLine": 123,
+        "startChar": 54,
+        "endLine": 123,
+        "endChar": 59
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc9ebd80_82935200",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T13:16:11Z",
+      "side": 1,
+      "message": "Why is this loop necessary? Since we\u0027ll never be able to fill the buffer, if jpeg tries to skip too many bytes can\u0027t we just set next_input_byte to nullptr and bytes_in_buffer to zero?",
+      "range": {
+        "startLine": 128,
+        "startChar": 8,
+        "endLine": 128,
+        "endChar": 49
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdd6f922_326d377a",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T13:16:11Z",
+      "side": 1,
+      "message": "All this seems unnecessary to me. What would happen if we just return false here?",
+      "range": {
+        "startLine": 146,
+        "startChar": 7,
+        "endLine": 146,
+        "endChar": 71
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bab76019_3a120720",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T13:16:11Z",
+      "side": 1,
+      "message": "Please add\n\n  SkASSERT(stream-\u003ehasLength());\n  SkASSERT(stream-\u003egetMemoryBase());\n\nif those asserts fail, we have a bug in our calling code.",
+      "range": {
+        "startLine": 165,
+        "startChar": 31,
+        "endLine": 165,
+        "endChar": 37
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8735f9f7_7d1d54c7",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T13:16:11Z",
+      "side": 1,
+      "message": "Please use C++ casts, and put * next to the type:\n\n  reinterpret_cast\u003cconst JOCTET*\u003e(stream-\u003egetMemoryBase());",
+      "range": {
+        "startLine": 166,
+        "startChar": 29,
+        "endLine": 166,
+        "endChar": 35
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4f44eb7_71b8d456",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T13:16:11Z",
+      "side": 1,
+      "message": "Please remove this comment.",
+      "range": {
+        "startLine": 167,
+        "startChar": 6,
+        "endLine": 167,
+        "endChar": 14
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f6ba665_80f0c05f",
+        "filename": "src/codec/SkJpegUtility.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-08T13:16:11Z",
+      "side": 1,
+      "message": "nit: No need to add this extra line.",
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
