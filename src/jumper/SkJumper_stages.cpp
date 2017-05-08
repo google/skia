@@ -1037,6 +1037,31 @@ STAGE(matrix_perspective) {
     g = G * rcp(Z);
 }
 
+STAGE(evenly_spaced_linear_gradient) {
+    struct Ctx {
+        size_t n;
+        float* fs[4];
+        float* bs[4];
+    };
+
+    auto c = (const Ctx*)ctx;
+    auto t = r;
+    auto i = trunc_(t*c->n);
+    auto fr = gather(c->fs[0], i);
+    auto br = gather(c->bs[0], i);
+    auto fg = gather(c->fs[1], i);
+    auto bg = gather(c->bs[1], i);
+    auto fb = gather(c->fs[2], i);
+    auto bb = gather(c->bs[2], i);
+    auto fa = gather(c->fs[3], i);
+    auto ba = gather(c->bs[3], i);
+
+    r = mad(t, fr, br);
+    g = mad(t, fg, bg);
+    b = mad(t, fb, bb);
+    a = mad(t, fa, ba);
+}
+
 STAGE(linear_gradient) {
     struct Stop { float pos; float f[4], b[4]; };
     struct Ctx { size_t n; Stop *stops; float start[4]; };
