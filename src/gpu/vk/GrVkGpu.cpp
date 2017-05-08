@@ -97,7 +97,8 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     : INHERITED(context)
     , fDevice(backendCtx->fDevice)
     , fQueue(backendCtx->fQueue)
-    , fResourceProvider(this) {
+    , fResourceProvider(this)
+    , fDisconnected(false) {
     fBackendContext.reset(backendCtx);
 
 #ifdef SK_ENABLE_VK_LAYERS
@@ -157,9 +158,11 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     fHeaps[kCopyWriteBuffer_Heap].reset(new GrVkHeap(this, GrVkHeap::kSubAlloc_Strategy, 16*1024*1024));
 }
 
-GrVkGpu::~GrVkGpu() {
-    fCurrentCmdBuffer->end(this);
-    fCurrentCmdBuffer->unref(this);
+void GrVkGpu::destroyResources() {
+    if (fCurrentCmdBuffer) {
+        fCurrentCmdBuffer->end(this);
+        fCurrentCmdBuffer->unref(this);
+    }
 
     // wait for all commands to finish
     fResourceProvider.checkCommandBuffers();
@@ -193,16 +196,49 @@ GrVkGpu::~GrVkGpu() {
     // must call this just before we destroy the command pool and VkDevice
     fResourceProvider.destroyResources(VK_ERROR_DEVICE_LOST == res);
 
-    VK_CALL(DestroyCommandPool(fDevice, fCmdPool, nullptr));
-
-    delete fCompiler;
+    if (fCmdPool != VK_NULL_HANDLE) {
+        VK_CALL(DestroyCommandPool(fDevice, fCmdPool, nullptr));
+    }
 
 #ifdef SK_ENABLE_VK_LAYERS
     if (fCallback) {
         VK_CALL(DestroyDebugReportCallbackEXT(fBackendContext->fInstance, fCallback, nullptr));
-        fCallback = VK_NULL_HANDLE;
     }
 #endif
+
+}
+
+GrVkGpu::~GrVkGpu() {
+    if (!fDisconnected) {
+        this->destroyResources();
+    }
+    delete fCompiler;
+}
+
+
+void GrVkGpu::disconnect(DisconnectType type) {
+    INHERITED::disconnect(type);
+    if (!fDisconnected) {
+        if (DisconnectType::kCleanup == type) {
+            this->destroyResources();
+        } else {
+            fCurrentCmdBuffer->unrefAndAbandon();
+            for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
+                fSemaphoresToWaitOn[i]->unrefAndAbandon();
+            }
+            fCopyManager.abandonResources();
+
+            // must call this just before we destroy the command pool and VkDevice
+            fResourceProvider.abandonResources();
+        }
+        fSemaphoresToWaitOn.reset();
+#ifdef SK_ENABLE_VK_LAYERS
+        fCallback = VK_NULL_HANDLE;
+#endif
+        fCurrentCmdBuffer = nullptr;
+        fCmdPool = VK_NULL_HANDLE;
+        fDisconnected = true;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
