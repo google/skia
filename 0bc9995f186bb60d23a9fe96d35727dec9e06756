@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "be3c08f8_a6267309",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T13:27:54Z",
+      "side": 1,
+      "message": "Yes, I agree.",
+      "parentUuid": "990972b9_0aa4cda2",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 60
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "72ff0245_d81ec6da",
         "filename": "src/codec/SkJpegDecoderMgr.h",
         "patchSetId": 3
@@ -40,6 +64,53 @@
         "startLine": 69,
         "startChar": 27,
         "endLine": 69,
+        "endChar": 34
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6580c306_f76424eb",
+        "filename": "src/codec/SkJpegDecoderMgr.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T13:27:54Z",
+      "side": 1,
+      "message": "Maybe use std::unique_ptr?",
+      "parentUuid": "72ff0245_d81ec6da",
+      "range": {
+        "startLine": 69,
+        "startChar": 27,
+        "endLine": 69,
+        "endChar": 34
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8895e7e0_fc7c50e3",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T13:27:54Z",
+      "side": 1,
+      "message": "Can we just error exit if we are asked to skip more bytes than are left in the buffer?",
+      "range": {
+        "startLine": 119,
+        "startChar": 12,
+        "endLine": 119,
         "endChar": 34
       },
       "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
@@ -128,6 +199,30 @@
       "writtenOn": "2017-05-08T13:16:11Z",
       "side": 1,
       "message": "All this seems unnecessary to me. What would happen if we just return false here?",
+      "range": {
+        "startLine": 146,
+        "startChar": 7,
+        "endLine": 146,
+        "endChar": 71
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15ea2261_f7ea5d52",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-08T13:27:54Z",
+      "side": 1,
+      "message": "We\u0027d probably just conclude that the decode was incomplete, which I think would be fine and correct behavior.\n\nI agree that returning false is nicer, but, FWIW, this matches what libjpeg-turbo does in their test code.\nhttps://github.com/libjpeg-turbo/libjpeg-turbo/blob/master/jdatasrc.c",
+      "parentUuid": "fdd6f922_326d377a",
       "range": {
         "startLine": 146,
         "startChar": 7,
