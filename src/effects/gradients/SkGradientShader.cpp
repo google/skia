@@ -353,12 +353,7 @@ bool SkGradientShaderBase::onAppendStages(
     const SkMatrix* localM) const
 {
     SkMatrix matrix;
-    if (!this->computeTotalInverse(ContextRec(paint,
-                                              ctm,
-                                              localM,
-                                              ContextRec::kPM4f_DstType, // doesn't matter here
-                                              dstCS),
-                                   &matrix)) {
+    if (!this->computeTotalInverse(ctm, localM, &matrix)) {
         return false;
     }
 

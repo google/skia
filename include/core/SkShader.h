@@ -470,7 +470,9 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
 
-    bool computeTotalInverse(const ContextRec&, SkMatrix* totalInverse) const;
+    bool computeTotalInverse(const SkMatrix& ctm,
+                             const SkMatrix* outerLocalMatrix,
+                             SkMatrix* totalInverse) const;
 
     /**
      * Specialize creating a SkShader context using the supplied allocator.
