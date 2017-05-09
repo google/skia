@@ -48,6 +48,7 @@ public:
     bool isLinearTiled() const {
         return SkToBool(VK_IMAGE_TILING_LINEAR == fInfo.fImageTiling);
     }
+    bool isBorrowed() const { return fIsBorrowed; }
 
     VkImageLayout currentLayout() const { return fInfo.fImageLayout; }
 

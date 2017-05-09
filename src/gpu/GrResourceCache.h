@@ -24,6 +24,11 @@ class GrCaps;
 class SkString;
 class SkTraceMemoryDump;
 
+struct GrGpuResourceFreedMessage {
+    GrGpuResource* fResource;
+    uint32_t fOwningUniqueID;
+};
+
 /**
  * Manages the lifetime of all GrGpuResource instances.
  *
@@ -43,7 +48,7 @@ class SkTraceMemoryDump;
  */
 class GrResourceCache {
 public:
-    GrResourceCache(const GrCaps* caps);
+    GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID);
     ~GrResourceCache();
 
     // Default maximum number of budgeted resources in the cache.
@@ -174,6 +179,9 @@ public:
     };
     void notifyFlushOccurred(FlushType);
 
+    /** Maintain a ref to this resource until we receive a GrGpuResourceFreedMessage. */
+    void insertCrossContextGpuResource(GrGpuResource* resource);
+
 #if GR_CACHE_STATS
     struct Stats {
         int fTotal;
@@ -241,6 +249,7 @@ private:
     /// @}
 
     void processInvalidUniqueKeys(const SkTArray<GrUniqueKeyInvalidatedMessage>&);
+    void processFreedGpuResources();
     void addToNonpurgeableArray(GrGpuResource*);
     void removeFromNonpurgeableArray(GrGpuResource*);
     bool overBudget() const { return fBudgetedBytes > fMaxBytes || fBudgetedCount > fMaxCount; }
@@ -287,6 +296,7 @@ private:
     }
 
     typedef SkMessageBus<GrUniqueKeyInvalidatedMessage>::Inbox InvalidUniqueKeyInbox;
+    typedef SkMessageBus<GrGpuResourceFreedMessage>::Inbox FreedGpuResourceInbox;
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
     typedef SkTDArray<GrGpuResource*> ResourceArray;
 
@@ -326,6 +336,9 @@ private:
     uint32_t                            fExternalFlushCnt;
 
     InvalidUniqueKeyInbox               fInvalidUniqueKeyInbox;
+    FreedGpuResourceInbox               fFreedGpuResourceInbox;
+
+    uint32_t                            fContextUniqueID;
 
     // This resource is allowed to be in the nonpurgeable array for the sake of validate() because
     // we're in the midst of converting it to purgeable status.
