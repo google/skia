@@ -100,17 +100,23 @@ static inline void analyze_3x4_matrix(const float matrix[12],
 
 
 // N.B. scratch_matrix_3x4 must live at least as long as p.
-static inline bool append_gamut_transform(SkRasterPipeline* p, float scratch_matrix_3x4[12],
+static inline void append_gamut_transform(SkRasterPipeline* p, float scratch_matrix_3x4[12],
                                           SkColorSpace* src, SkColorSpace* dst) {
-    if (src == dst) { return true; }
-    if (!dst)       { return true; }   // Legacy modes intentionally ignore color gamut.
-    if (!src)       { return true; }   // A null src color space means linear gamma, dst gamut.
+    if (src == dst) { return; }   // That was easy.
+    if (!dst)       { return; }   // Legacy modes intentionally ignore color gamut.
+    if (!src)       { return; }   // A null src color space means linear gamma, dst gamut.
 
     auto toXYZ = as_CSB(src)->  toXYZD50(),
        fromXYZ = as_CSB(dst)->fromXYZD50();
-    if (!toXYZ || !fromXYZ) { return false; }  // Unsupported color space type.
+    if (!toXYZ || !fromXYZ) {
+        SkASSERT(false);  // We really don't want to get here with a weird colorspace.
+        return;
+    }
 
-    if (as_CSB(src)->toXYZD50Hash() == as_CSB(dst)->toXYZD50Hash()) { return true; }
+    // Slightly more sophisticated version of if (src == dst)
+    if (as_CSB(src)->toXYZD50Hash() == as_CSB(dst)->toXYZD50Hash()) {
+        return;
+    }
 
     SkMatrix44 m44(*fromXYZ, *toXYZ);
 
@@ -127,12 +133,11 @@ static inline bool append_gamut_transform(SkRasterPipeline* p, float scratch_mat
     p->append(SkRasterPipeline::matrix_3x4, scratch_matrix_3x4);
     if (needs_clamp_0) { p->append(SkRasterPipeline::clamp_0); }
     if (needs_clamp_a) { p->append(SkRasterPipeline::clamp_a); }
-    return true;
 }
 
-static inline bool append_gamut_transform(SkRasterPipeline* p, SkArenaAlloc* scratch,
+static inline void append_gamut_transform(SkRasterPipeline* p, SkArenaAlloc* scratch,
                                           SkColorSpace* src, SkColorSpace* dst) {
-    return append_gamut_transform(p, scratch->makeArrayDefault<float>(12), src, dst);
+    append_gamut_transform(p, scratch->makeArrayDefault<float>(12), src, dst);
 }
 
 static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
