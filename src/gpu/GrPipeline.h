@@ -243,7 +243,6 @@ private:
     GrScissorState fScissorState;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;
-    uint16_t fDrawFace;
     uint16_t fFlags;
     sk_sp<const GrXferProcessor> fXferProcessor;
     FragmentProcessorArray fFragmentProcessors;
