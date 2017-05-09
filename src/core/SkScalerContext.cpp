@@ -17,6 +17,7 @@
 #include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
+#include "SkPaintPriv.h"
 #include "SkPathEffect.h"
 #include "SkRasterClip.h"
 #include "SkRasterizer.h"
@@ -678,7 +679,7 @@ void SkScalerContextRec::getMatrixFrom2x2(SkMatrix* dst) const {
 }
 
 void SkScalerContextRec::getLocalMatrix(SkMatrix* m) const {
-    SkPaint::SetTextMatrix(m, fTextSize, fPreScaleX, fPreSkewX);
+    SkPaintPriv::MakeTextMatrix(m, fTextSize, fPreScaleX, fPreSkewX);
 }
 
 void SkScalerContextRec::getSingleMatrix(SkMatrix* m) const {
