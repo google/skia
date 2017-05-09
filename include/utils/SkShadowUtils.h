@@ -40,8 +40,7 @@ public:
     static void DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar occluderHeight,
                            const SkPoint3& lightPos, SkScalar lightRadius, SkScalar ambientAlpha,
                            SkScalar spotAlpha, SkColor color,
-                           uint32_t flags = SkShadowFlags::kNone_ShadowFlag,
-                           SkResourceCache* cache = nullptr);
+                           uint32_t flags = SkShadowFlags::kNone_ShadowFlag);
 
     /**
      * Draw an offset spot shadow and outlining ambient shadow for the given path using a disc

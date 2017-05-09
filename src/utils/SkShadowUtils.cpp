@@ -441,8 +441,7 @@ static void* kNamespace;
  * they are first found in SkResourceCache.
  */
 template <typename FACTORY>
-void draw_shadow(const FACTORY& factory, SkCanvas* canvas, ShadowedPath& path, SkColor color,
-                 SkResourceCache* cache) {
+void draw_shadow(const FACTORY& factory, SkCanvas* canvas, ShadowedPath& path, SkColor color) {
     FindContext<FACTORY> context(&path.viewMatrix(), &factory);
 
     SkResourceCache::Key* key = nullptr;
@@ -453,11 +452,7 @@ void draw_shadow(const FACTORY& factory, SkCanvas* canvas, ShadowedPath& path, S
         key = new (keyStorage.begin()) SkResourceCache::Key();
         path.writeKey((uint32_t*)(keyStorage.begin() + sizeof(*key)));
         key->init(&kNamespace, resource_cache_shared_id(), keyDataBytes);
-        if (cache) {
-            cache->find(*key, FindVisitor<FACTORY>, &context);
-        } else {
-            SkResourceCache::Find(*key, FindVisitor<FACTORY>, &context);
-        }
+        SkResourceCache::Find(*key, FindVisitor<FACTORY>, &context);
     }
 
     sk_sp<SkVertices> vertices;
@@ -482,11 +477,7 @@ void draw_shadow(const FACTORY& factory, SkCanvas* canvas, ShadowedPath& path, S
                 return;
             }
             auto rec = new CachedTessellationsRec(*key, std::move(tessellations));
-            if (cache) {
-                cache->add(rec);
-            } else {
-                SkResourceCache::Add(rec);
-            }
+            SkResourceCache::Add(rec);
         } else {
             vertices = factory.makeVertices(path.path(), path.viewMatrix());
             if (!vertices) {
@@ -588,7 +579,7 @@ static SkColor compute_render_color(SkColor color, float alpha) {
 void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar occluderHeight,
                                const SkPoint3& devLightPos, SkScalar lightRadius,
                                SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
-                               uint32_t flags, SkResourceCache* cache) {
+                               uint32_t flags) {
     // try fast paths
     bool skipAnalytic = SkToBool(flags & SkShadowFlags::kGeometricOnly_ShadowFlag);
     if (!skipAnalytic && draw_analytic_shadows(canvas, path, occluderHeight, devLightPos,
@@ -612,7 +603,7 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
         factory.fTransparent = transparent;
 
         SkColor renderColor = compute_render_color(color, ambientAlpha);
-        draw_shadow(factory, canvas, shadowedPath, renderColor, cache);
+        draw_shadow(factory, canvas, shadowedPath, renderColor);
     }
 
     if (spotAlpha > 0) {
@@ -671,7 +662,7 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
         }
 
         SkColor renderColor = compute_render_color(color, spotAlpha);
-        draw_shadow(factory, canvas, shadowedPath, renderColor, cache);
+        draw_shadow(factory, canvas, shadowedPath, renderColor);
     }
 }
 
