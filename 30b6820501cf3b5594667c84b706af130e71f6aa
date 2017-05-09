@@ -22,6 +22,30 @@
       "revId": "30b6820501cf3b5594667c84b706af130e71f6aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6a2d9f4_4a2bf939",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-05-09T16:17:10Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s true. I was thinking about the steady state, but it is a real leak at shutdown. I\u0027ll fix it.",
+      "parentUuid": "23182a5b_ed0406c2",
+      "range": {
+        "startLine": 989,
+        "startChar": 13,
+        "endLine": 989,
+        "endChar": 51
+      },
+      "revId": "30b6820501cf3b5594667c84b706af130e71f6aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
