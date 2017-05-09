@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2546c35b_5748cd16",
+        "filename": "src/images/SkJpegEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-09T13:00:25Z",
+      "side": 1,
+      "message": "I think you meant to remove this?",
+      "range": {
+        "startLine": 10,
+        "startChar": 1,
+        "endLine": 10,
+        "endChar": 30
+      },
+      "revId": "b4a69ecae1be61cd8204bde58bce546d614f0312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eddbcad2_5b66b629",
+        "filename": "src/images/SkJpegEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-09T13:00:25Z",
+      "side": 1,
+      "message": "I think we could leave this blank and just let libjpeg-turbo do the default?",
+      "range": {
+        "startLine": 152,
+        "startChar": 17,
+        "endLine": 152,
+        "endChar": 48
+      },
+      "revId": "b4a69ecae1be61cd8204bde58bce546d614f0312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01d99617_8c7e8861",
+        "filename": "src/images/SkJpegEncoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-09T13:00:25Z",
+      "side": 1,
+      "message": "Only meaningful if the src is not gray?\n\n(I think it\u0027s because gray doesn\u0027t have U and V components?)",
+      "range": {
+        "startLine": 48,
+        "startChar": 12,
+        "endLine": 48,
+        "endChar": 70
+      },
+      "revId": "b4a69ecae1be61cd8204bde58bce546d614f0312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
