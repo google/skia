@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f40d002e_f26ca274",
+        "filename": "gm/shadowutils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-09T17:49:06Z",
+      "side": 1,
+      "message": "It\u0027s using this cache -- not sure why. Adding bsalomon@.",
+      "range": {
+        "startLine": 31,
+        "startChar": 20,
+        "endLine": 31,
+        "endChar": 25
+      },
+      "revId": "726a966cbdeb5fa5a78eed4ecc9371fbeec49635",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
