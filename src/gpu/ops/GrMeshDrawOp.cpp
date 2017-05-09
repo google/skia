@@ -96,6 +96,7 @@ void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
 
 void GrMeshDrawOp::Target::draw(const GrGeometryProcessor* gp, const GrPipeline* pipeline,
                                 const GrMesh& mesh) {
+    SkDEBUGCODE(mesh.validate());
     GrMeshDrawOp* op = this->meshDrawOp();
     op->fMeshes.push_back(mesh);
     if (!op->fQueuedDraws.empty()) {
