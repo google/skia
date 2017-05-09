@@ -9,6 +9,7 @@
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkPngEncoder.h"
+#include "Timer.h"
 #include "ok.h"
 #include <regex>
 
@@ -129,3 +130,31 @@ struct Filter : Dst {
 struct Register filter{"filter",
                        "run only srcs matching match=.* exactly and search=.* somewhere",
                        Filter::Create};
+
+struct Time : Dst {
+    std::unique_ptr<Dst> target;
+
+    static std::unique_ptr<Dst> Create(Options options, std::unique_ptr<Dst> dst) {
+        Time via;
+        via.target = std::move(dst);
+        return move_unique(via);
+    }
+
+    Status draw(Src* src) override {
+        auto start = std::chrono::steady_clock::now();
+            Status status = target->draw(src);
+        std::chrono::duration<double, std::milli> elapsed = std::chrono::steady_clock::now()
+                                                          - start;
+
+        auto msg = HumanizeMs(elapsed.count());
+        ok_log(msg.c_str());
+        return status;
+    }
+
+    sk_sp<SkImage> image() override {
+        return target->image();
+    }
+};
+struct Register _time{"time",
+                      "print wall run time",
+                      Time::Create};
