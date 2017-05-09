@@ -1182,6 +1182,7 @@ if (skia_enable_tools) {
       ":gm",
       ":skia",
       ":tests",
+      ":tool_utils",
     ]
   }
 
