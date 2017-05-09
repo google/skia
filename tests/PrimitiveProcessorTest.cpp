@@ -69,7 +69,7 @@ private:
                     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
                         const GP& gp = args.fGP.cast<GP>();
                         args.fVaryingHandler->emitAttributes(gp);
-                        this->setupPosition(args.fVertBuilder, gpArgs, gp.fAttribs[0].fName);
+                        this->setupPosition(args.fVertBuilder, gpArgs, gp.getAttrib(0).fName);
                         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
                         fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputColor);
                         fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);

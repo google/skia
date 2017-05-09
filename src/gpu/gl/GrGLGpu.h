@@ -255,7 +255,9 @@ private:
     void setupGeometry(const GrPrimitiveProcessor&,
                        const GrBuffer* indexBuffer,
                        const GrBuffer* vertexBuffer,
-                       int baseVertex);
+                       int baseVertex,
+                       const GrBuffer* instanceBuffer,
+                       int baseInstance);
 
     void flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 

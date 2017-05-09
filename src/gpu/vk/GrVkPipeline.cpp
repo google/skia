@@ -59,17 +59,14 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
     // setup attribute descriptions
     int vaCount = primProc.numAttribs();
     if (vaCount > 0) {
-        size_t offset = 0;
         for (int attribIndex = 0; attribIndex < vaCount; attribIndex++) {
             const GrGeometryProcessor::Attribute& attrib = primProc.getAttrib(attribIndex);
-            GrVertexAttribType attribType = attrib.fType;
-
+            SkASSERT(GrPrimitiveProcessor::Attribute::InputRate::kPerVertex == attrib.fInputRate);
             VkVertexInputAttributeDescription& vkAttrib = attributeDesc[attribIndex];
             vkAttrib.location = attribIndex; // for now assume location = attribIndex
             vkAttrib.binding = 0; // for now only one vertex buffer & binding
-            vkAttrib.format = attrib_type_to_vkformat(attribType);
-            vkAttrib.offset = static_cast<uint32_t>(offset);
-            offset += attrib.fOffset;
+            vkAttrib.format = attrib_type_to_vkformat(attrib.fType);
+            vkAttrib.offset = attrib.fOffsetInRecord;
         }
     }
 
