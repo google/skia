@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2cedc371_89ad9fd6",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 15469,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-09T14:02:39Z",
+      "side": 1,
+      "message": "I think you\u0027re going to need to build a package of these with MSAN.\n\nAlternatively, you could build the driver as part of the main build with GN as if they were normal third_party code.  That should MSAN them \"for free\" at the low cost of writing a GN file for the drivers, similar to how we build ANGLE.",
+      "range": {
+        "startLine": 15469,
+        "startChar": 19,
+        "endLine": 15469,
+        "endChar": 62
+      },
+      "revId": "4ae5f75d4e1906ad2695daaa93108dbfcb05319f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
