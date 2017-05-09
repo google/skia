@@ -26,15 +26,19 @@ The easiest way to satisfy these contraints is to get your hands on a Mac and
 install [Homebrew](https://brew.sh).  Once you have `brew` installed, run this
 to get the tools you need:
 
-   $ brew install llvm binutils ccache
+<!--?prettify lang=sh?-->
+
+    brew install llvm binutils ccache
 
 Running `build_stages.py`
 -------------------------
 
 With your tools installed, try a no-op run of `build_stages.py`:
 
-   $ python src/jumper/build_stages.py path/to/clang-4.0 path/to/gobjdump path/to/ccache
-   $ git status
+<!--?prettify lang=sh?-->
+
+    python src/jumper/build_stages.py path/to/clang-4.0 path/to/gobjdump path/to/ccache
+    git status
 
 When you run `git status` you should see a bunch of untracked `.o` files
 sitting in skia/, and no changes to `src/jumper/SkJumper_generated*.S`.
@@ -42,7 +46,9 @@ That's good.  Those object files are the intermediates we parse to produce
 the assembly files.  We just leave them around in case you want to look at
 them yourself.  If you don't like them, it's safe to just
 
-   $ rm \*.o
+<!--?prettify lang=sh?-->
+
+    rm *.o
 
 If `clang-4.0`, `gobjdump`, and `ccache` are on your path, `build_stages.py`
 should find them without you needing to pass them on the command line.
@@ -56,11 +62,15 @@ quality for speed, approximating the existing implementation with a simple squar
 
 Open up `SkJumper_stages.cpp` and find the `from_srgb` stage.  It'll look like
 
+<!--?prettify lang=cc?-->
+
     STAGE(from_srgb) {
         ...
     }
 
 Let's replace whatever's there with our fast approximation:
+
+<!--?prettify lang=cc?-->
 
     STAGE(from_srgb) {
         r *= r;
