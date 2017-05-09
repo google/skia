@@ -45,12 +45,13 @@ void SkColorFilter::appendStages(SkRasterPipeline* p,
                                  SkColorSpace* dstCS,
                                  SkArenaAlloc* alloc,
                                  bool shaderIsOpaque) const {
-    SkRasterPipeline subclass;
-    if (this->onAppendStages(&subclass, dstCS, alloc, shaderIsOpaque)) {
-        p->extend(subclass);
-        return;
-    }
+    this->onAppendStages(p, dstCS, alloc, shaderIsOpaque);
+}
 
+void SkColorFilter::onAppendStages(SkRasterPipeline* p,
+                                   SkColorSpace* dstCS,
+                                   SkArenaAlloc* alloc,
+                                   bool) const {
     struct Ctx : SkJumper_CallbackCtx {
         sk_sp<SkColorFilter> cf;
     };
@@ -63,10 +64,6 @@ void SkColorFilter::appendStages(SkRasterPipeline* p,
         ctx->cf->filterSpan4f(buf, active_pixels, buf);
     };
     p->append(SkRasterPipeline::callback, ctx);
-}
-
-bool SkColorFilter::onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*, bool) const {
-    return false;
 }
 
 SkColor SkColorFilter::filterColor(SkColor c) const {
@@ -121,7 +118,7 @@ public:
     }
 #endif
 
-    bool onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkArenaAlloc* scratch,
+    void onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkArenaAlloc* scratch,
                         bool shaderIsOpaque) const override {
         bool innerIsOpaque = shaderIsOpaque;
         if (!(fInner->getFlags() & kAlphaUnchanged_Flag)) {
@@ -129,7 +126,6 @@ public:
         }
         fInner->appendStages(p, dst, scratch, shaderIsOpaque);
         fOuter->appendStages(p, dst, scratch, innerIsOpaque);
-        return true;
     }
 
 #if SK_SUPPORT_GPU

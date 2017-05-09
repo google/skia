@@ -185,7 +185,7 @@ private:
         return false;
     }
 
-    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+    virtual void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                                 bool shaderIsOpaque) const;
 
 
