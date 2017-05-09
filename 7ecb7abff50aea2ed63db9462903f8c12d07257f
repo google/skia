@@ -22,6 +22,30 @@
       "revId": "7ecb7abff50aea2ed63db9462903f8c12d07257f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43161d86_98d2be90",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 706,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-09T14:18:30Z",
+      "side": 1,
+      "message": "That\u0027s a really good point.  I think it\u0027s time to go pull in Greg and get him to show you where they do this on the GPU.  I\u0027d suggest we land whatever they do, however wrong, and then if there\u0027s a problem with that, fix up both in lock step.\n\nOvernight I realized there are two other easy ways to guarantee we\u0027re creating premul colors.\n\nFirst, set a \u003d max(r,g,b).  This is cheap and really really bad looking (think, black text \u003d\u003e transparent black text).  We can rule this one out.  Just wanted to note it.\n\nSecond, unpremultiply, lerp r,g,b as we do today, lerp the alphas _any way we feel like_, then re-premul.\n\nWe might want to start looking at what we\u0027re doing in terms of that second approach, if not literally unpremultiplying, working out equivalent math while keeping the inputs premul.",
+      "parentUuid": "ef29ab85_80557667",
+      "range": {
+        "startLine": 706,
+        "startChar": 8,
+        "endLine": 706,
+        "endChar": 36
+      },
+      "revId": "7ecb7abff50aea2ed63db9462903f8c12d07257f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
