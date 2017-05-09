@@ -322,8 +322,8 @@ bool SkColorShader::onAppendStages(SkRasterPipeline* p,
                                    const SkMatrix*) const {
     auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
     p->append(SkRasterPipeline::constant_color, color);
-    return append_gamut_transform(p, scratch,
-                                  SkColorSpace::MakeSRGB().get(), dst);
+    append_gamut_transform(p, scratch, SkColorSpace::MakeSRGB().get(), dst);
+    return true;
 }
 
 bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
@@ -334,5 +334,6 @@ bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
                                     const SkMatrix*) const {
     auto color = scratch->make<SkPM4f>(fColor4.premul());
     p->append(SkRasterPipeline::constant_color, color);
-    return append_gamut_transform(p, scratch, fColorSpace.get(), dst);
+    append_gamut_transform(p, scratch, fColorSpace.get(), dst);
+    return true;
 }
