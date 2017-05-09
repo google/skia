@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
+#include "SkDrawShadowRec.h"
 #include "SkPath.h"
 #include "SkPM4f.h"
 #include "SkRandom.h"
@@ -589,6 +590,10 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
                                const SkPoint3& devLightPos, SkScalar lightRadius,
                                SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
                                uint32_t flags, SkResourceCache* cache) {
+    DrawUncachedShadow(canvas, path, {0, 0, occluderHeight}, devLightPos, lightRadius,
+                       ambientAlpha, spotAlpha, color, flags);
+    return;
+
     // try fast paths
     bool skipAnalytic = SkToBool(flags & SkShadowFlags::kGeometricOnly_ShadowFlag);
     if (!skipAnalytic && draw_analytic_shadows(canvas, path, occluderHeight, devLightPos,
@@ -682,46 +687,53 @@ void SkShadowUtils::DrawUncachedShadow(SkCanvas* canvas, const SkPath& path,
                                        const SkPoint3& lightPos, SkScalar lightRadius,
                                        SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
                                        uint32_t flags) {
-    // try fast paths
-    bool skipAnalytic = SkToBool(flags & SkShadowFlags::kGeometricOnly_ShadowFlag);
-    if (!skipAnalytic && draw_analytic_shadows(canvas, path, zPlaneParams.fZ, lightPos,
-                                               lightRadius, ambientAlpha, spotAlpha, color,
-                                               flags)) {
-        return;
-    }
+    SkDrawShadowRec rec;
+    rec.fPath = &path;
+    rec.fZPlaneParams = zPlaneParams;
+    rec.fLightPos       = lightPos;
+    rec.fLightRadius    = lightRadius;
+    rec.fAmbientAlpha   = SkScalarToFloat(ambientAlpha);
+    rec.fSpotAlpha      = SkScalarToFloat(spotAlpha);
+    rec.fColor          = color;
+    rec.fFlags          = flags;
 
-    SkAutoCanvasRestore acr(canvas, true);
-    SkMatrix viewMatrix = canvas->getTotalMatrix();
-    canvas->resetMatrix();
+    canvas->private_draw_shadow_rec(rec);
+}
 
-    bool transparent = SkToBool(flags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
+#include "SkDevice.h"
+void SkBaseDevice::drawShadow(const SkDrawShadowRec& rec) {
+    SkMatrix viewMatrix = this->ctm();
+    SkAutoDeviceCTMRestore adr(this, SkMatrix::I());
 
+    bool transparent = SkToBool(rec.fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
+    float ambientAlpha = rec.fAmbientAlpha;
     if (ambientAlpha > 0) {
         ambientAlpha = SkTMin(ambientAlpha, 1.f);
-        sk_sp<SkVertices> vertices = SkShadowTessellator::MakeAmbient(path, viewMatrix,
-                                                                      zPlaneParams, transparent);
-        SkColor renderColor = compute_render_color(color, ambientAlpha);
+        sk_sp<SkVertices> vertices = SkShadowTessellator::MakeAmbient(*rec.fPath, viewMatrix,
+                                                                      rec.fZPlaneParams, transparent);
+        SkColor renderColor = compute_render_color(rec.fColor, ambientAlpha);
         SkPaint paint;
         // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
         // result of that against our 'color' param.
         paint.setColorFilter(SkColorFilter::MakeComposeFilter(
             SkColorFilter::MakeModeFilter(renderColor, SkBlendMode::kModulate),
             SkGaussianColorFilter::Make()));
-        canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
+        this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
     }
 
+    float spotAlpha = rec.fSpotAlpha;
     if (spotAlpha > 0) {
         spotAlpha = SkTMin(spotAlpha, 1.f);
-        sk_sp<SkVertices> vertices = SkShadowTessellator::MakeSpot(path, viewMatrix, zPlaneParams,
-                                                                   lightPos, lightRadius,
+        sk_sp<SkVertices> vertices = SkShadowTessellator::MakeSpot(*rec.fPath, viewMatrix, rec.fZPlaneParams,
+                                                                   rec.fLightPos, rec.fLightRadius,
                                                                    transparent);
-        SkColor renderColor = compute_render_color(color, spotAlpha);
+        SkColor renderColor = compute_render_color(rec.fColor, spotAlpha);
         SkPaint paint;
         // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
         // result of that against our 'color' param.
         paint.setColorFilter(SkColorFilter::MakeComposeFilter(
             SkColorFilter::MakeModeFilter(renderColor, SkBlendMode::kModulate),
             SkGaussianColorFilter::Make()));
-        canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
+        this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
     }
 }

@@ -1909,6 +1909,22 @@ void SkCanvas::legacy_drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, 
     }
 }
 
+#include "SkDrawShadowRec.h"
+void SkCanvas::private_draw_shadow_rec(const SkDrawShadowRec& rec) {
+    if (!rec.fPath) {
+        return;
+    }
+
+    SkPaint paint;
+    const SkRect& pathBounds = rec.fPath->getBounds();
+
+    LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, &pathBounds)
+    while (iter.next()) {
+        iter.fDevice->drawShadow(rec);
+    }
+    LOOPER_END
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //  These are the virtual drawing methods
 //////////////////////////////////////////////////////////////////////////////
