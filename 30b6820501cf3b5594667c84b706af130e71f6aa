@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23182a5b_ed0406c2",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-09T15:16:51Z",
+      "side": 1,
+      "message": "Is it not a leak? Should we check the message box in the resource cache\u0027s destructor?",
+      "range": {
+        "startLine": 989,
+        "startChar": 13,
+        "endLine": 989,
+        "endChar": 51
+      },
+      "revId": "30b6820501cf3b5594667c84b706af130e71f6aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
