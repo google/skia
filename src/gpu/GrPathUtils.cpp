@@ -11,13 +11,15 @@
 #include "SkGeometry.h"
 #include "SkMathPriv.h"
 
+static const int MAX_POINTS_PER_CURVE = 1 << 10;
+static const SkScalar gMinCurveTol = 0.0001f;
+
 SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
                                           const SkMatrix& viewM,
                                           const SkRect& pathBounds) {
     // In order to tesselate the path we get a bound on how much the matrix can
     // scale when mapping to screen coordinates.
     SkScalar stretch = viewM.getMaxScale();
-    SkScalar srcTol = devTol;
 
     if (stretch < 0) {
         // take worst case mapRadius amoung four corners.
@@ -30,17 +32,16 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
             stretch = SkMaxScalar(stretch, mat.mapRadius(SK_Scalar1));
         }
     }
-    return srcTol / stretch;
+    SkScalar srcTol = devTol / stretch;
+    if (srcTol < gMinCurveTol) {
+        srcTol = gMinCurveTol;
+    }
+    return srcTol;
 }
 
-static const int MAX_POINTS_PER_CURVE = 1 << 10;
-static const SkScalar gMinCurveTol = 0.0001f;
-
 uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[], SkScalar tol) {
-    if (tol < gMinCurveTol) {
-        tol = gMinCurveTol;
-    }
-    SkASSERT(tol > 0);
+    // You should have called scaleToleranceToSrc, which guarantees this
+    SkASSERT(tol >= gMinCurveTol);
 
     SkScalar d = points[1].distanceToLineSegmentBetween(points[0], points[2]);
     if (!SkScalarIsFinite(d)) {
@@ -96,10 +97,8 @@ uint32_t GrPathUtils::generateQuadraticPoints(const SkPoint& p0,
 
 uint32_t GrPathUtils::cubicPointCount(const SkPoint points[],
                                            SkScalar tol) {
-    if (tol < gMinCurveTol) {
-        tol = gMinCurveTol;
-    }
-    SkASSERT(tol > 0);
+    // You should have called scaleToleranceToSrc, which guarantees this
+    SkASSERT(tol >= gMinCurveTol);
 
     SkScalar d = SkTMax(
         points[1].distanceToLineSegmentBetweenSqd(points[0], points[3]),
@@ -158,10 +157,8 @@ uint32_t GrPathUtils::generateCubicPoints(const SkPoint& p0,
 }
 
 int GrPathUtils::worstCasePointCount(const SkPath& path, int* subpaths, SkScalar tol) {
-    if (tol < gMinCurveTol) {
-        tol = gMinCurveTol;
-    }
-    SkASSERT(tol > 0);
+    // You should have called scaleToleranceToSrc, which guarantees this
+    SkASSERT(tol >= gMinCurveTol);
 
     int pointCount = 0;
     *subpaths = 1;
