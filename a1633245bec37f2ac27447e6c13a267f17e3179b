@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "00d7c5fd_b8272a2b",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-09T21:21:09Z",
+      "side": 1,
+      "message": "No, it\u0027s used above in the Canvas() function above that\u0027s part of Surface. \nIt ensures that the Surface is not garbage collected while the Canvas is in use.\nRename to \u0027keepParentAlive\u0027.",
+      "parentUuid": "d9574d38_e0be85bf",
+      "range": {
+        "startLine": 87,
+        "startChar": 1,
+        "endLine": 87,
+        "endChar": 7
+      },
+      "revId": "a1633245bec37f2ac27447e6c13a267f17e3179b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9dcccd4d_f6014be5",
         "filename": "experimental/go-skia/skia.go",
         "patchSetId": 12
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "7eb34bde_82173137",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-09T21:21:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9dcccd4d_f6014be5",
+      "range": {
+        "startLine": 91,
+        "startChar": 31,
+        "endLine": 91,
+        "endChar": 72
+      },
+      "revId": "a1633245bec37f2ac27447e6c13a267f17e3179b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "682aeb85_c246620d",
         "filename": "experimental/go-skia/skia.go",
         "patchSetId": 12
@@ -59,6 +107,30 @@
       "writtenOn": "2017-05-09T14:52:09Z",
       "side": 1,
       "message": "I think Rect is probably small enough that it\u0027d make sense to pass them around by value if you like.",
+      "range": {
+        "startLine": 172,
+        "startChar": 47,
+        "endLine": 172,
+        "endChar": 52
+      },
+      "revId": "a1633245bec37f2ac27447e6c13a267f17e3179b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93d8db21_49166bf9",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-09T21:21:09Z",
+      "side": 1,
+      "message": "Kept it a pointer for now, but I\u0027ll keep it in mind as this becomes more complete.",
+      "parentUuid": "682aeb85_c246620d",
       "range": {
         "startLine": 172,
         "startChar": 47,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "2e499a17_c26361ca",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-09T21:21:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d9ab2ab_1ecafc3e",
+      "range": {
+        "startLine": 187,
+        "startChar": 1,
+        "endLine": 187,
+        "endChar": 25
+      },
+      "revId": "a1633245bec37f2ac27447e6c13a267f17e3179b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eec57818_234e9300",
         "filename": "experimental/go-skia/skia.go",
         "patchSetId": 12
@@ -105,6 +201,30 @@
       "writtenOn": "2017-05-09T14:52:09Z",
       "side": 1,
       "message": "unused?",
+      "range": {
+        "startLine": 188,
+        "startChar": 1,
+        "endLine": 188,
+        "endChar": 22
+      },
+      "revId": "a1633245bec37f2ac27447e6c13a267f17e3179b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "663d61a0_7be86a32",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-09T21:21:09Z",
+      "side": 1,
+      "message": "This was only used in Image to make sure the backing Surface sticks around. \nI\u0027m not sure it\u0027s necessary, but I kept it and renamed it to \u0027keepParentAlive\u0027 in the Image type.",
+      "parentUuid": "eec57818_234e9300",
       "range": {
         "startLine": 188,
         "startChar": 1,
