@@ -86,7 +86,27 @@ DEF_TEST(Encode, r) {
     test_encode(r, SkEncodedImageFormat::kPNG);
 }
 
-static inline bool equals(const SkBitmap& a, const SkBitmap& b) {
+static inline bool almost_equals(SkPMColor a, SkPMColor b, int tolerance) {
+    if (SkTAbs((int)SkGetPackedR32(a) - (int)SkGetPackedR32(b)) > tolerance) {
+        return false;
+    }
+
+    if (SkTAbs((int)SkGetPackedG32(a) - (int)SkGetPackedG32(b)) > tolerance) {
+        return false;
+    }
+
+    if (SkTAbs((int)SkGetPackedB32(a) - (int)SkGetPackedB32(b)) > tolerance) {
+        return false;
+    }
+
+    if (SkTAbs((int)SkGetPackedA32(a) - (int)SkGetPackedA32(b)) > tolerance) {
+        return false;
+    }
+
+    return true;
+}
+
+static inline bool almost_equals(const SkBitmap& a, const SkBitmap& b, int tolerance) {
     if (a.info() != b.info()) {
         return false;
     }
@@ -94,13 +114,54 @@ static inline bool equals(const SkBitmap& a, const SkBitmap& b) {
     SkASSERT(kN32_SkColorType == a.colorType());
     for (int y = 0; y < a.height(); y++) {
         for (int x = 0; x < a.width(); x++) {
-            if (*a.getAddr32(x, y) != *b.getAddr32(x, y)) {
+            if (!almost_equals(*a.getAddr32(x, y), *b.getAddr32(x, y), tolerance)) {
                 return false;
             }
         }
     }
 
     return true;
+}
+
+DEF_TEST(Encode_JpegDownsample, r) {
+    SkBitmap bitmap;
+    bool success = GetResourceAsBitmap("mandrill_128.png", &bitmap);
+    if (!success) {
+        return;
+    }
+
+    SkPixmap src;
+    success = bitmap.peekPixels(&src);
+    REPORTER_ASSERT(r, success);
+    if (!success) {
+        return;
+    }
+
+    SkDynamicMemoryWStream dst0, dst1, dst2;
+    SkJpegEncoder::Options options;
+    success = SkJpegEncoder::Encode(&dst0, src, options);
+    REPORTER_ASSERT(r, success);
+
+    options.fDownsample = SkJpegEncoder::Downsample::k422;
+    success = SkJpegEncoder::Encode(&dst1, src, options);
+    REPORTER_ASSERT(r, success);
+
+    options.fDownsample = SkJpegEncoder::Downsample::k444;
+    success = SkJpegEncoder::Encode(&dst2, src, options);
+    REPORTER_ASSERT(r, success);
+
+    sk_sp<SkData> data0 = dst0.detachAsData();
+    sk_sp<SkData> data1 = dst1.detachAsData();
+    sk_sp<SkData> data2 = dst2.detachAsData();
+    REPORTER_ASSERT(r, data0->size() < data1->size());
+    REPORTER_ASSERT(r, data1->size() < data2->size());
+
+    SkBitmap bm0, bm1, bm2;
+    SkImage::MakeFromEncoded(data0)->asLegacyBitmap(&bm0, SkImage::kRO_LegacyBitmapMode);
+    SkImage::MakeFromEncoded(data1)->asLegacyBitmap(&bm1, SkImage::kRO_LegacyBitmapMode);
+    SkImage::MakeFromEncoded(data2)->asLegacyBitmap(&bm2, SkImage::kRO_LegacyBitmapMode);
+    REPORTER_ASSERT(r, almost_equals(bm0, bm1, 60));
+    REPORTER_ASSERT(r, almost_equals(bm1, bm2, 60));
 }
 
 DEF_TEST(Encode_PngOptions, r) {
@@ -140,6 +201,6 @@ DEF_TEST(Encode_PngOptions, r) {
     SkImage::MakeFromEncoded(data0)->asLegacyBitmap(&bm0, SkImage::kRO_LegacyBitmapMode);
     SkImage::MakeFromEncoded(data1)->asLegacyBitmap(&bm1, SkImage::kRO_LegacyBitmapMode);
     SkImage::MakeFromEncoded(data2)->asLegacyBitmap(&bm2, SkImage::kRO_LegacyBitmapMode);
-    REPORTER_ASSERT(r, equals(bm0, bm1));
-    REPORTER_ASSERT(r, equals(bm0, bm2));
+    REPORTER_ASSERT(r, almost_equals(bm0, bm1, 0));
+    REPORTER_ASSERT(r, almost_equals(bm0, bm2, 0));
 }
