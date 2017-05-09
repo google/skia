@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8271372_50c89ee0",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-09T17:43:33Z",
+      "side": 1,
+      "message": "(Only for fixed-point formats.... F16 doesn\u0027t dither.)",
+      "range": {
+        "startLine": 161,
+        "startChar": 8,
+        "endLine": 161,
+        "endChar": 62
+      },
+      "revId": "42cc9e152e471c1e6dc82a790d2c44b63d31a0e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
