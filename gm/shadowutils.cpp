@@ -16,7 +16,7 @@ void draw_shadow(SkCanvas* canvas, const SkPath& path, int height, SkColor color
     SkScalar ambientAlpha = isAmbient ? .5f : 0.f;
     SkScalar spotAlpha = isAmbient ? 0.f : .5f;
     SkShadowUtils::DrawShadow(canvas, path, height, lightPos, lightR, ambientAlpha, spotAlpha,
-                              color, flags, cache);
+                              color, flags);
 }
 
 static constexpr int kW = 800;
