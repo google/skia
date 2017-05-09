@@ -128,7 +128,7 @@ struct Filter : Dst {
         return target->image();
     }
 };
-struct Register filter{"filter",
+static Register filter{"filter",
                        "run only srcs matching match=.* exactly and search=.* somewhere",
                        Filter::Create};
 
@@ -156,6 +156,6 @@ struct Time : Dst {
         return target->image();
     }
 };
-struct Register _time{"time",
+static Register _time{"time",
                       "print wall run time",
                       Time::Create};
