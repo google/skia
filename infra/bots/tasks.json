@@ -216,6 +216,12 @@
         "Build-Ubuntu-Clang-x86_64-Release-Fast"
       ]
     },
+    "Build-Ubuntu-Clang-x86_64-Release-MSAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-x86_64-Release-MSAN"
+      ]
+    },
     "Build-Ubuntu-Clang-x86_64-Release-Mini": {
       "priority": 0.8,
       "tasks": [
@@ -1851,6 +1857,12 @@
         "Upload-Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release"
       ]
     },
+    "Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release-MSAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release-MSAN"
+      ]
+    },
     "Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -3277,6 +3289,36 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Release-Fast",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-Clang-x86_64-Release-MSAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:8"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-x86_64-Release-MSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15389,6 +15431,63 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release-MSAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:24"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:51"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:8"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_release",
+          "path": "linux_vulkan_intel_driver_release",
+          "version": "version:6"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Release-MSAN",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:0f31",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release-MSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
