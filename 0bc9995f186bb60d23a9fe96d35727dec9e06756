@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "1f3f3909_a453c67c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-05-09T07:51:19Z",
+      "side": 1,
+      "message": "Thus I\u0027ll seperate it into two patches. thanks!",
+      "parentUuid": "be3c08f8_a6267309",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 60
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "72ff0245_d81ec6da",
         "filename": "src/codec/SkJpegDecoderMgr.h",
         "patchSetId": 3
