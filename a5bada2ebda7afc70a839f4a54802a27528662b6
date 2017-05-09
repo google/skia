@@ -187,6 +187,30 @@
       "revId": "a5bada2ebda7afc70a839f4a54802a27528662b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b60f8465_9bf91b9d",
+        "filename": "gm/encode-alpha-jpeg.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-09T14:59:56Z",
+      "side": 1,
+      "message": "After I thought about it it occurred to me that might be the case. Using a source image is fine with me.",
+      "parentUuid": "5c162d7f_cbe9e835",
+      "range": {
+        "startLine": 46,
+        "startChar": 52,
+        "endLine": 46,
+        "endChar": 72
+      },
+      "revId": "a5bada2ebda7afc70a839f4a54802a27528662b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
