@@ -21,11 +21,36 @@ public:
         kBlendOnBlack,
     };
 
+    enum class Downsample {
+        /**
+         *  Reduction by a factor of two in both the horizontal and vertical directions.
+         */
+        k420,
+
+        /**
+         *  Reduction by a factor of two in the horizontal direction.
+         */
+        k422,
+
+        /**
+         *  No downsampling.
+         */
+        k444,
+    };
+
     struct Options {
         /**
          *  |fQuality| must be in [0, 100] where 0 corresponds to the lowest quality.
          */
         int fQuality = 100;
+
+        /**
+         *  Choose the downsampling factor for the U and V components.  This is only
+         *  meaningful if the |src| is not kGray, since kGray will not be encoded as YUV.
+         *
+         *  Our default value matches the libjpeg-turbo default.
+         */
+        Downsample fDownsample = Downsample::k420;
 
         /**
          *  Jpegs must be opaque.  This instructs the encoder on how to handle input
