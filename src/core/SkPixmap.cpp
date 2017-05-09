@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkPixmap::reset() {
+  printf("cba1\n");
     fPixels = nullptr;
     fCTable = nullptr;
     fRowBytes = 0;
@@ -30,13 +31,20 @@ void SkPixmap::reset() {
 }
 
 void SkPixmap::reset(const SkImageInfo& info, const void* addr, size_t rowBytes, SkColorTable* ct) {
+  printf("abc1\n");
     if (addr) {
+      printf("it's here\n");
         SkASSERT(info.validRowBytes(rowBytes));
     }
+  printf("abc2\n");
     fPixels = addr;
+    printf("abc3\n");
     fCTable = ct;
+    printf("abc4\n");
     fRowBytes = rowBytes;
+    printf("abc5\n");
     fInfo = info;
+    printf("abc6\n");
 }
 
 bool SkPixmap::reset(const SkMask& src) {

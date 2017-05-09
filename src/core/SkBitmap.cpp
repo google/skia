@@ -124,6 +124,9 @@ void SkBitmap::getBounds(SkIRect* bounds) const {
 }
 
 SkColorTable* SkBitmap::getColorTable() const {
+  if (fPixelRef) {
+    printf("pixelref\n");
+  }
     return fPixelRef ? fPixelRef->colorTable() : nullptr;
 }
 
@@ -832,12 +835,23 @@ void SkBitmap::toString(SkString* str) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkBitmap::peekPixels(SkPixmap* pmap) const {
+  printf("boo1\n");
     if (fPixels) {
+      printf("boo2\n");
         if (pmap) {
+          printf("boo3\n");
+          auto foo = this->getColorTable();
+          printf("boo3.5 %d\n", fRowBytes);
+          if (fPixels == nullptr) {
+            printf("boo3.6\n");
+          }
             pmap->reset(fInfo, fPixels, fRowBytes, this->getColorTable());
+            printf("boo4\n");;
         }
+        printf("boo5\n");
         return true;
     }
+    printf("boo6\n");
     return false;
 }
 

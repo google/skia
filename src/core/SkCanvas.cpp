@@ -1815,9 +1815,12 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
 }
 
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
+  printf("1\n");
     if (bitmap.drawsNothing()) {
+      printf("2\n");
         return;
     }
+    printf("3\n");
     this->onDrawBitmap(bitmap, dx, dy, paint);
 }
 
@@ -2236,15 +2239,19 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
 }
 
 void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, const SkPaint* paint) {
+  printf("4\n");
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmap()");
     SkDEBUGCODE(bitmap.validate();)
 
+        printf("5\n");
     if (bitmap.drawsNothing()) {
+      printf("6\n");
         return;
     }
 
     SkLazyPaint lazy;
     if (nullptr == paint) {
+      printf("7\n");
         paint = lazy.init();
     }
 
@@ -2252,13 +2259,17 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
     bitmap.getBounds(&bounds);
     bounds.offset(x, y);
     bool canFastBounds = paint->canComputeFastBounds();
+    printf("8\n");
     if (canFastBounds) {
+      printf("9\n");
         SkRect storage;
         if (this->quickReject(paint->computeFastBounds(bounds, &storage))) {
+          printf("10\n");
             return;
         }
     }
 
+    printf("11\n");
     sk_sp<SkSpecialImage> special;
     bool drawAsSprite = canFastBounds && this->canDrawBitmapAsSprite(x, y, bitmap.width(),
                                                                      bitmap.height(), *paint);
@@ -2271,21 +2282,27 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
 
     const SkMatrix matrix = SkMatrix::MakeTrans(x, y);
 
+    printf("12\n");
     LOOPER_BEGIN_DRAWBITMAP(*paint, drawAsSprite, &bounds)
 
     while (iter.next()) {
+      printf("13\n");
         const SkPaint& pnt = looper.paint();
         if (special) {
+          printf("14\n");
             SkPoint pt;
             iter.fDevice->ctm().mapXY(x, y, &pt);
+            printf("15\n");
             iter.fDevice->drawSpecial(special.get(),
                                       SkScalarRoundToInt(pt.fX),
                                       SkScalarRoundToInt(pt.fY), pnt,
                                       nullptr, SkMatrix::I());
         } else {
+          printf("16\n");
             iter.fDevice->drawBitmap(bitmap, matrix, looper.paint());
         }
     }
+    printf("17\n");
 
     LOOPER_END
 }

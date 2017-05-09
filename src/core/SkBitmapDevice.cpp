@@ -235,8 +235,11 @@ void SkBitmapDevice::drawPath(const SkPath& path,
 
 void SkBitmapDevice::drawBitmap(const SkBitmap& bitmap,
                                 const SkMatrix& matrix, const SkPaint& paint) {
+  printf("yay1\n");
     LogDrawScaleFactor(SkMatrix::Concat(this->ctm(), matrix), paint.getFilterQuality());
+    printf("yay2\n");
     BDDraw(this).drawBitmap(bitmap, matrix, nullptr, paint);
+    printf("yay3\n");
 }
 
 static inline bool CanApplyDstMatrixAsCTM(const SkMatrix& m, const SkPaint& paint) {

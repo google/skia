@@ -1275,10 +1275,8 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     if (origPaint.getStyle() != SkPaint::kFill_Style) {
         paint.writable()->setStyle(SkPaint::kFill_Style);
     }
-
     SkMatrix matrix;
     matrix.setConcat(*fMatrix, prematrix);
-
     if (clipped_out(matrix, *fRC, bitmap.width(), bitmap.height())) {
         return;
     }
@@ -1290,7 +1288,9 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         // (more or less) identity.
         //
         SkPixmap pmap;
+printf("wut1\n");
         if (!bitmap.peekPixels(&pmap)) {
+printf("wut2\n");
             return;
         }
         int ix = SkScalarRoundToInt(matrix.getTranslateX());
@@ -1308,7 +1308,6 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
             // if !blitter, then we fall-through to the slower case
         }
     }
-
     // now make a temp draw on the stack, and use it
     //
     SkDraw draw(*this);
