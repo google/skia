@@ -132,7 +132,8 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
         a.fScissorState != b.fScissorState ||
         a.fWindowRectsState != b.fWindowRectsState ||
         a.fFlags != b.fFlags ||
-        a.fUserStencilSettings != b.fUserStencilSettings) {
+        a.fUserStencilSettings != b.fUserStencilSettings ||
+        a.fDrawFace != b.fDrawFace) {
         return false;
     }
 
