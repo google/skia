@@ -144,7 +144,7 @@ public:
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override;
     void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const override;
-    bool onAppendStages(SkRasterPipeline* p,
+    void onAppendStages(SkRasterPipeline* p,
                         SkColorSpace* dst,
                         SkArenaAlloc* scratch,
                         bool shaderIsOpaque) const override;
@@ -184,7 +184,7 @@ void SkHighContrast_Filter::filterSpan4f(const SkPM4f src[], int count, SkPM4f d
     }
 }
 
-bool SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
+void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
                                            SkColorSpace* dst,
                                            SkArenaAlloc* scratch,
                                            bool shaderIsOpaque) const {
@@ -233,8 +233,6 @@ bool SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
     if (!shaderIsOpaque) {
         p->append(SkRasterPipeline::premul);
     }
-
-    return true;
 }
 
 void SkHighContrast_Filter::flatten(SkWriteBuffer& buffer) const {

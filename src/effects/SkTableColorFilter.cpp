@@ -103,7 +103,7 @@ public:
         kB_Flag = 1 << 3,
     };
 
-    bool onAppendStages(SkRasterPipeline* p, SkColorSpace*, SkArenaAlloc* alloc,
+    void onAppendStages(SkRasterPipeline* p, SkColorSpace*, SkArenaAlloc* alloc,
                         bool shaderIsOpaque) const override {
         const uint8_t *r = gIdentityTable,
                       *g = gIdentityTable,
@@ -126,7 +126,6 @@ public:
         if (!definitelyOpaque) {
             p->append(SkRasterPipeline::premul);
         }
-        return true;
     }
 
 protected:
