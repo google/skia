@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e47cb6a_ac35aaed",
+        "filename": "src/gpu/GrPathUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-09T19:56:25Z",
+      "side": 1,
+      "message": "While we\u0027re at it maybe we should just say \"a minimum threshold value\"  or something since it isn\u0027t obvious here gMinCurveTol is",
+      "range": {
+        "startLine": 21,
+        "startChar": 50,
+        "endLine": 21,
+        "endChar": 62
+      },
+      "revId": "ebd21985630ae82b34ed8cd3ce80959f05abfafe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
