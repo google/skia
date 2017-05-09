@@ -1381,6 +1381,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "SkPaintPriv.h"
 #include "SkScalerContext.h"
 #include "SkGlyphCache.h"
 #include "SkTextToPathIter.h"
@@ -1398,7 +1399,8 @@ bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm) {
     }
 
     SkMatrix textM;
-    return SkPaint::TooBigToUseCache(ctm, *paint.setTextMatrix(&textM));
+    SkPaintPriv::MakeTextMatrix(&textM, paint);
+    return SkPaint::TooBigToUseCache(ctm, textM);
 }
 
 void SkDraw::drawText_asPaths(const char text[], size_t byteLength, SkScalar x, SkScalar y,

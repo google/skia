@@ -1008,22 +1008,6 @@ public:
     const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
                                       Style) const;
 
-    /**
-     *  Return a matrix that applies the paint's text values: size, scale, skew
-     */
-    static SkMatrix* SetTextMatrix(SkMatrix* matrix, SkScalar size,
-                                   SkScalar scaleX, SkScalar skewX) {
-        matrix->setScale(size * scaleX, size);
-        if (skewX) {
-            matrix->postSkew(skewX, 0);
-        }
-        return matrix;
-    }
-
-    SkMatrix* setTextMatrix(SkMatrix* matrix) const {
-        return SetTextMatrix(matrix, fTextSize, fTextScaleX, fTextSkewX);
-    }
-
     typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**);
 
     SK_TO_STRING_NONVIRT()
