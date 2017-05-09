@@ -977,6 +977,7 @@
       "revision:abc123",
       "--tag",
       "stepname:ct-nanobench-1",
+      "--isolated",
       "[dummy hash for ct-nanobench-1]"
     ],
     "infra_step": true,
@@ -1044,6 +1045,7 @@
       "revision:abc123",
       "--tag",
       "stepname:ct-nanobench-2",
+      "--isolated",
       "[dummy hash for ct-nanobench-2]"
     ],
     "infra_step": true,
@@ -1111,6 +1113,7 @@
       "revision:abc123",
       "--tag",
       "stepname:ct-nanobench-3",
+      "--isolated",
       "[dummy hash for ct-nanobench-3]"
     ],
     "infra_step": true,
@@ -1178,6 +1181,7 @@
       "revision:abc123",
       "--tag",
       "stepname:ct-nanobench-4",
+      "--isolated",
       "[dummy hash for ct-nanobench-4]"
     ],
     "infra_step": true,
@@ -1245,6 +1249,7 @@
       "revision:abc123",
       "--tag",
       "stepname:ct-nanobench-5",
+      "--isolated",
       "[dummy hash for ct-nanobench-5]"
     ],
     "infra_step": true,

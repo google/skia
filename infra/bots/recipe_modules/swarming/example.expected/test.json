@@ -273,6 +273,7 @@
       "revision:abc123",
       "--tag",
       "stepname:task-4",
+      "--isolated",
       "[dummy hash for task-4]",
       "--",
       "--extra"
@@ -334,6 +335,7 @@
       "revision:abc123",
       "--tag",
       "stepname:task-2",
+      "--isolated",
       "[dummy hash for task-2]",
       "--",
       "--extra"
@@ -395,6 +397,7 @@
       "revision:abc123",
       "--tag",
       "stepname:task-3",
+      "--isolated",
       "[dummy hash for task-3]",
       "--",
       "--extra"
@@ -456,6 +459,7 @@
       "revision:abc123",
       "--tag",
       "stepname:task-0",
+      "--isolated",
       "[dummy hash for task-0]",
       "--",
       "--extra"
@@ -517,6 +521,7 @@
       "revision:abc123",
       "--tag",
       "stepname:task-1",
+      "--isolated",
       "[dummy hash for task-1]",
       "--",
       "--extra"
