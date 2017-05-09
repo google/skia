@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ddc438c_d40d440a",
+        "filename": "src/gpu/GrGpuCommandBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-09T21:14:42Z",
+      "side": 1,
+      "message": "Can we keep GrMesh::validate and have it take a prim proc (maybe optional_? I just worked on a bug where having these types of assertions occur early made it very quick to identify where the problematic GrMesh was coming from.",
+      "revId": "8fa72ec762b203e375184da4bb08a946bcb19229",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
