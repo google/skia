@@ -89,7 +89,7 @@ sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
     return SkColorFilter::MakeModeFilter(color, mode);
 }
 
-bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
+void SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
                                        SkColorSpace* dst,
                                        SkArenaAlloc* scratch,
                                        bool shaderIsOpaque) const {
@@ -102,7 +102,6 @@ bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
     if (SkBlendMode_CanOverflow(mode)) {
         p->append(SkRasterPipeline::clamp_a);
     }
-    return true;
 }
 
 sk_sp<SkColorFilter> SkModeColorFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {

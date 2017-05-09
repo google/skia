@@ -231,7 +231,7 @@ static void set_concat(SkScalar result[20], const SkScalar outer[20], const SkSc
 //  End duplication
 //////
 
-bool SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
+void SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
                                                     SkColorSpace* dst,
                                                     SkArenaAlloc* scratch,
                                                     bool shaderIsOpaque) const {
@@ -254,7 +254,6 @@ bool SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
     if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
     if (    needsClamp0) { p->append(SkRasterPipeline::clamp_0); }
     if (    needsClamp1) { p->append(SkRasterPipeline::clamp_a); }
-    return true;
 }
 
 sk_sp<SkColorFilter>
