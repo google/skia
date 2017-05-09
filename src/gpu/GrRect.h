@@ -57,16 +57,18 @@ struct GrIRect16 {
 /** Returns true if the rectangles have a nonzero area of overlap. It assumed that rects can be
     infinitely small but not "inverted". */
 static inline bool GrRectsOverlap(const SkRect& a, const SkRect& b) {
-    SkASSERT(a.fLeft <= a.fRight && a.fTop <= a.fBottom);
-    SkASSERT(b.fLeft <= b.fRight && b.fTop <= b.fBottom);
+    // See skbug.com/6607 about the isFinite() checks.
+    SkASSERT(!a.isFinite() || (a.fLeft <= a.fRight && a.fTop <= a.fBottom));
+    SkASSERT(!b.isFinite() || (b.fLeft <= b.fRight && b.fTop <= b.fBottom));
     return a.fRight > b.fLeft && a.fBottom > b.fTop && b.fRight > a.fLeft && b.fBottom > a.fTop;
 }
 
 /** Returns true if the rectangles overlap or share an edge or corner. It assumed that rects can be
     infinitely small but not "inverted". */
 static inline bool GrRectsTouchOrOverlap(const SkRect& a, const SkRect& b) {
-    SkASSERT(a.fLeft <= a.fRight && a.fTop <= a.fBottom);
-    SkASSERT(b.fLeft <= b.fRight && b.fTop <= b.fBottom);
+    // See skbug.com/6607 about the isFinite() checks.
+    SkASSERT(!a.isFinite() || (a.fLeft <= a.fRight && a.fTop <= a.fBottom));
+    SkASSERT(!b.isFinite() || (b.fLeft <= b.fRight && b.fTop <= b.fBottom));
     return a.fRight >= b.fLeft && a.fBottom >= b.fTop && b.fRight >= a.fLeft && b.fBottom >= a.fTop;
 }
 #endif
