@@ -18,18 +18,16 @@ class SkMatrix;
  *  Utilities for evaluating paths.
  */
 namespace GrPathUtils {
+    // Very small tolerances will be increased to a minimum threshold value, to avoid division
+    // problems in subsequent math.
     SkScalar scaleToleranceToSrc(SkScalar devTol,
                                  const SkMatrix& viewM,
                                  const SkRect& pathBounds);
 
-    /// Since we divide by tol if we're computing exact worst-case bounds,
-    /// very small tolerances will be increased to gMinCurveTol.
     int worstCasePointCount(const SkPath&,
                             int* subpaths,
                             SkScalar tol);
 
-    /// Since we divide by tol if we're computing exact worst-case bounds,
-    /// very small tolerances will be increased to gMinCurveTol.
     uint32_t quadraticPointCount(const SkPoint points[], SkScalar tol);
 
     uint32_t generateQuadraticPoints(const SkPoint& p0,
@@ -39,8 +37,6 @@ namespace GrPathUtils {
                                      SkPoint** points,
                                      uint32_t pointsLeft);
 
-    /// Since we divide by tol if we're computing exact worst-case bounds,
-    /// very small tolerances will be increased to gMinCurveTol.
     uint32_t cubicPointCount(const SkPoint points[], SkScalar tol);
 
     uint32_t generateCubicPoints(const SkPoint& p0,
