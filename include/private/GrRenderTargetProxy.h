@@ -26,28 +26,38 @@ public:
     // Actually instantiate the backing rendertarget, if necessary.
     GrRenderTarget* instantiate(GrResourceProvider* resourceProvider);
 
-    bool isStencilBufferMultisampled() const { return fDesc.fSampleCnt > 0; }
+    //bool isStencilBufferMultisampled() const { return fDesc.fSampleCnt > 0; }
 
     /**
      * For our purposes, "Mixed Sampled" means the stencil buffer is multisampled but the color
      * buffer is not.
      */
-    bool isMixedSampled() const { return fRenderTargetFlags & GrRenderTarget::Flags::kMixedSampled; }
+    //bool isMixedSampled() const { return fRenderTargetFlags & GrRenderTarget::Flags::kMixedSampled; }
 
     /**
      * "Unified Sampled" means the stencil and color buffers are both multisampled.
      */
-    bool isUnifiedMultisampled() const { return fDesc.fSampleCnt > 0 && !this->isMixedSampled(); }
+    //bool isUnifiedMultisampled() const { return fDesc.fSampleCnt > 0 && !this->isMixedSampled(); }
 
     /**
      * Returns the number of samples/pixel in the stencil buffer (Zero if non-MSAA).
      */
     int numStencilSamples() const { return fDesc.fSampleCnt; }
 
+    GrFSAAType fsaaType() const {
+        if (!fDesc.fSampleCnt) {
+            return GrFSAAType::kNone;
+        }
+        return (fRenderTargetFlags & GrRenderTarget::Flags::kMixedSampled)
+                ? GrFSAAType::kMixedSamples
+                : GrFSAAType::kNone;
+    }
     /**
      * Returns the number of samples/pixel in the color buffer (Zero if non-MSAA or mixed sampled).
      */
-    int numColorSamples() const { return this->isMixedSampled() ? 0 : fDesc.fSampleCnt; }
+    int numColorSamples() const {
+        return GrFSAAType::kMixedSamples == this->fsaaType() ? 0 : fDesc.fSampleCnt;
+    }
 
     int maxWindowRectangles(const GrCaps& caps) const;
 
