@@ -7,7 +7,7 @@
 
 #include "SkImageEncoderPriv.h"
 
-#ifdef SK_HAS_JPEG_LIBRARY
+#if 1//def SK_HAS_JPEG_LIBRARY
 
 #include "SkColorPriv.h"
 #include "SkImageEncoderFns.h"
@@ -151,6 +151,35 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder
     fCInfo.in_color_space = jpegColorType;
     fCInfo.input_components = numComponents;
     jpeg_set_defaults(&fCInfo);
+
+    if (kGray_8_SkColorType != srcInfo.colorType()) {
+        switch (options.fDownsample) {
+            case SkJpegEncoder::Downsample::k420:
+                fCInfo.comp_info[0].h_samp_factor = 2;
+                fCInfo.comp_info[0].v_samp_factor = 2;
+                fCInfo.comp_info[1].h_samp_factor = 1;
+                fCInfo.comp_info[1].v_samp_factor = 1;
+                fCInfo.comp_info[2].h_samp_factor = 1;
+                fCInfo.comp_info[2].v_samp_factor = 1;
+                break;
+            case SkJpegEncoder::Downsample::k422:
+                fCInfo.comp_info[0].h_samp_factor = 2;
+                fCInfo.comp_info[0].v_samp_factor = 1;
+                fCInfo.comp_info[1].h_samp_factor = 1;
+                fCInfo.comp_info[1].v_samp_factor = 1;
+                fCInfo.comp_info[2].h_samp_factor = 1;
+                fCInfo.comp_info[2].v_samp_factor = 1;
+                break;
+            case SkJpegEncoder::Downsample::k444:
+                fCInfo.comp_info[0].h_samp_factor = 1;
+                fCInfo.comp_info[0].v_samp_factor = 1;
+                fCInfo.comp_info[1].h_samp_factor = 1;
+                fCInfo.comp_info[1].v_samp_factor = 1;
+                fCInfo.comp_info[2].h_samp_factor = 1;
+                fCInfo.comp_info[2].v_samp_factor = 1;
+                break;
+        }
+    }
 
     // Tells libjpeg-turbo to compute optimal Huffman coding tables
     // for the image.  This improves compression at the cost of
