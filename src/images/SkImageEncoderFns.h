@@ -16,6 +16,7 @@
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkICC.h"
+#include "SkOpts.h"
 #include "SkPreConfig.h"
 #include "SkRasterPipeline.h"
 #include "SkUnPreMultiply.h"
@@ -165,6 +166,30 @@ static inline void transform_scanline_unpremultiply_sRGB(void* dst, const void* 
 }
 
 /**
+ * Premultiply RGBA to rgbA.
+ */
+static inline void transform_scanline_to_premul_legacy(char* SK_RESTRICT dst,
+                                                       const char* SK_RESTRICT src,
+                                                       int width, int, const SkPMColor*) {
+    SkOpts::RGBA_to_rgbA((uint32_t*)dst, (const uint32_t*)src, width);
+}
+
+/**
+ * Premultiply RGBA to rgbA linearly.
+ */
+static inline void transform_scanline_to_premul_linear(char* SK_RESTRICT dst,
+                                                       const char* SK_RESTRICT src,
+                                                       int width, int, const SkPMColor*) {
+    SkRasterPipeline p;
+    p.append(SkRasterPipeline::load_8888, (const void**) &src);
+    p.append_from_srgb(kUnpremul_SkAlphaType);
+    p.append(SkRasterPipeline::premul);
+    p.append(SkRasterPipeline::to_srgb);
+    p.append(SkRasterPipeline::store_8888, (void**) &dst);
+    p.run(0, width);
+}
+
+/**
  * Transform from kPremul, kRGBA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
  */
 static inline void transform_scanline_srgbA(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
@@ -271,6 +296,19 @@ static inline void transform_scanline_F16_premul_to_8888(char* SK_RESTRICT dst,
     SkRasterPipeline p;
     p.append(SkRasterPipeline::load_f16, (const void**) &src);
     p.append(SkRasterPipeline::unpremul);
+    p.append(SkRasterPipeline::to_srgb);
+    p.append(SkRasterPipeline::store_8888, (void**) &dst);
+    p.run(0, width);
+}
+
+/**
+ * Transform from kUnpremul, kRGBA_F16 to premultiplied rgbA 8888.
+ */
+static inline void transform_scanline_F16_to_premul_8888(char* SK_RESTRICT dst,
+        const char* SK_RESTRICT src, int width, int, const SkPMColor*) {
+    SkRasterPipeline p;
+    p.append(SkRasterPipeline::load_f16, (const void**) &src);
+    p.append(SkRasterPipeline::premul);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_8888, (void**) &dst);
     p.run(0, width);
