@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "49348c33_b2d9c1a0",
+        "filename": "src/images/SkJpegEncoder.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-09T16:47:22Z",
+      "side": 1,
+      "message": "Oops, reference seems much better...  Thanks.",
+      "parentUuid": "772c35c3_6687c351",
+      "range": {
+        "startLine": 70,
+        "startChar": 27,
+        "endLine": 70,
+        "endChar": 28
+      },
+      "revId": "e62c0d16095926ba3263da620a25c739650b49a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aa6a79dc_d3b86341",
         "filename": "src/images/SkJpegEncoder.cpp",
         "patchSetId": 22
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "7e586bfe_1b5f6bad",
+        "filename": "src/images/SkJpegEncoder.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-09T16:47:22Z",
+      "side": 1,
+      "message": "Yes, that\u0027s exactly why.",
+      "parentUuid": "aa6a79dc_d3b86341",
+      "range": {
+        "startLine": 104,
+        "startChar": 16,
+        "endLine": 104,
+        "endChar": 28
+      },
+      "revId": "e62c0d16095926ba3263da620a25c739650b49a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7d9d73f9_a5bd26ff",
         "filename": "src/images/SkJpegEncoder.cpp",
         "patchSetId": 22
@@ -59,6 +107,30 @@
       "writtenOn": "2017-05-09T14:59:56Z",
       "side": 1,
       "message": "Similarly, it seems like this could be easy to support, at least if it\u0027s premul. But I guess we don\u0027t want to add features to a dying format?",
+      "range": {
+        "startLine": 113,
+        "startChar": 16,
+        "endLine": 113,
+        "endChar": 29
+      },
+      "revId": "e62c0d16095926ba3263da620a25c739650b49a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ece1ea7_f09037a4",
+        "filename": "src/images/SkJpegEncoder.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-09T16:47:22Z",
+      "side": 1,
+      "message": "Yes, same reason.",
+      "parentUuid": "7d9d73f9_a5bd26ff",
       "range": {
         "startLine": 113,
         "startChar": 16,

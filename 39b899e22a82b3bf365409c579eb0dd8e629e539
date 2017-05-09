@@ -22,6 +22,30 @@
       "revId": "39b899e22a82b3bf365409c579eb0dd8e629e539",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b570dd2f_643e7259",
+        "filename": "src/images/SkJpegEncoder.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-09T16:47:22Z",
+      "side": 1,
+      "message": "Yes, good catch.  We only need worry about the sRGB and linear cases (since that\u0027s all that we allow).  But the linear case is handled incorrectly here.",
+      "parentUuid": "ae59c0e2_1e0aa343",
+      "range": {
+        "startLine": 78,
+        "startChar": 19,
+        "endLine": 78,
+        "endChar": 54
+      },
+      "revId": "39b899e22a82b3bf365409c579eb0dd8e629e539",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
