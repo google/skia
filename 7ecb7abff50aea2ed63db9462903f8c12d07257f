@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef29ab85_80557667",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 706,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-05-09T14:01:50Z",
+      "side": 1,
+      "message": "or should this be max(lerp(da, a, cr), lerp(da, a, cg), lerp(da, a, cb)) ? These two give the same answer when a \u003e\u003d da, but when a \u003c da these are different (in that case lerp(da, a, min(cr, cg, cb) would be equal to the max of the lerps).\n\nFor example, consider the case where a \u003d 0.5, da \u003d 1.0, cr \u003d 0.75, cg \u003d 0.5, cb \u003d 0.4. Then\n\n\u003e lerp(da, a, max(cr, cg, cb))\n\u003e \u003d (a - da)*max(cr, cg, cb) + da\n\u003e \u003d (0.5 - 1.0)*0.75 + 1.0\n\u003e \u003d 0.625\n\n\u003e max(lerp(da, a, cr), lerp(da, a, cg), lerp(da, a, cb))\n\u003e \u003d max((a - da)*cr + da, (a - da)*cg + da, (a - da)*cb + da)\n\u003e \u003d max((0.5 - 1.0)*0.75 + 1.0, (0.5 - 1.0)*0.5 + 1.0, (0.5 - 1.0)*0.4 + 1.0)\n\u003e \u003d max(0.625, 0.75, 0.8)\n\u003e \u003d 0.8\n\nFor example, the largest possible value of b is\n\n\u003e lerp(db, b, cb)\n\u003e \u003d (b - db)*cb + db\n\u003e \u003d (0.5 - 1.0)*0.4 + 1.0\n\u003e \u003d 0.8\n\nso lerping the max gives a value too small (no longer pre-multiplied) but the max lerp should give a pre-multiplied answer. I have no idea if this makes any physical sense, but middle pre-multiplied stages seem difficult to reason about.",
+      "range": {
+        "startLine": 706,
+        "startChar": 8,
+        "endLine": 706,
+        "endChar": 36
+      },
+      "revId": "7ecb7abff50aea2ed63db9462903f8c12d07257f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
