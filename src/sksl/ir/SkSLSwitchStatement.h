@@ -17,14 +17,19 @@ namespace SkSL {
  * A 'switch' statement.
  */
 struct SwitchStatement : public Statement {
-    SwitchStatement(Position position, std::unique_ptr<Expression> value,
+    SwitchStatement(Position position, bool isStatic, std::unique_ptr<Expression> value,
                     std::vector<std::unique_ptr<SwitchCase>> cases)
     : INHERITED(position, kSwitch_Kind)
+    , fIsStatic(isStatic)
     , fValue(std::move(value))
     , fCases(std::move(cases)) {}
 
     String description() const override {
-        String result = String::printf("switch (%s) {\n", + fValue->description().c_str());
+        String result;
+        if (fIsStatic) {
+            result += "@";
+        }
+        result += String::printf("switch (%s) {\n", fValue->description().c_str());
         for (const auto& c : fCases) {
             result += c->description();
         }
@@ -32,6 +37,7 @@ struct SwitchStatement : public Statement {
         return result;
     }
 
+    bool fIsStatic;
     std::unique_ptr<Expression> fValue;
     std::vector<std::unique_ptr<SwitchCase>> fCases;
 
