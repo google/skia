@@ -74,8 +74,7 @@ public:
 
     virtual void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const = 0;
 
-    bool appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                      bool shaderIsOpaque) const;
+    void appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*, bool shaderIsOpaque) const;
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.
@@ -161,9 +160,6 @@ public:
 protected:
     SkColorFilter() {}
 
-    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                                bool shaderIsOpaque) const;
-
     sk_sp<SkColorFilter> makeColorSpace(SkColorSpaceXformer* xformer) const {
         return this->onMakeColorSpace(xformer);
     }
@@ -188,6 +184,10 @@ private:
     virtual bool asACompose(SkColorFilter** /*outer*/, SkColorFilter** /*inner*/) const {
         return false;
     }
+
+    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+                                bool shaderIsOpaque) const;
+
 
     friend class SkColorSpaceXformer;
     friend class SkComposeColorFilter;
