@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9574d38_e0be85bf",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-09T14:52:09Z",
+      "side": 1,
+      "message": "unused?",
+      "range": {
+        "startLine": 87,
+        "startChar": 1,
+        "endLine": 87,
+        "endChar": 7
+      },
+      "revId": "a1633245bec37f2ac27447e6c13a267f17e3179b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dcccd4d_f6014be5",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-09T14:52:09Z",
+      "side": 1,
+      "message": "Think it makes sense in here to have private functions that cast each Go type to the correct C type?  unsafe.Pointer seems to make it pretty easy to typo the wrong cast.\n\nAnd, isn\u0027t this unsafe.Pointer() redundant here?  I think paint.ptr already is an unsafe.Pointer, right?",
+      "range": {
+        "startLine": 91,
+        "startChar": 31,
+        "endLine": 91,
+        "endChar": 72
+      },
+      "revId": "a1633245bec37f2ac27447e6c13a267f17e3179b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "682aeb85_c246620d",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-09T14:52:09Z",
+      "side": 1,
+      "message": "I think Rect is probably small enough that it\u0027d make sense to pass them around by value if you like.",
+      "range": {
+        "startLine": 172,
+        "startChar": 47,
+        "endLine": 172,
+        "endChar": 52
+      },
+      "revId": "a1633245bec37f2ac27447e6c13a267f17e3179b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d9ab2ab_1ecafc3e",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-09T14:52:09Z",
+      "side": 1,
+      "message": "Is there a technical reason we need to store these all as unsafe.Pointers?  Is the alternative just repetition?  Seems a lot more pleasant to use the real types?\n\ntype Surface struct {\n    cptr *C.sk_surface_t\n}\n\nfunc NewRasterSurface(imgInfo *ImageInfo) (*Surface, error) {\n\tcptr :\u003d C.sk_surface_new_raster(imgInfo.cptr, nil)\n\tif cptr \u003d\u003d nil {\n\t\treturn nil, fmt.Errorf(\"Unable to create raster surface.\")\n\t}\n        surface :\u003d \u0026Surface {\n            cptr: cptr\n        }\n        runtime.SetFinalizer(surface, func (s *Surface) {\n            C.sk_surface_unref(s.cptr);\n        })\n\treturn surface, nil\n}\n\nSomething like that?",
+      "range": {
+        "startLine": 187,
+        "startChar": 1,
+        "endLine": 187,
+        "endChar": 25
+      },
+      "revId": "a1633245bec37f2ac27447e6c13a267f17e3179b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eec57818_234e9300",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-09T14:52:09Z",
+      "side": 1,
+      "message": "unused?",
+      "range": {
+        "startLine": 188,
+        "startChar": 1,
+        "endLine": 188,
+        "endChar": 22
+      },
+      "revId": "a1633245bec37f2ac27447e6c13a267f17e3179b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
