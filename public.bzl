@@ -421,6 +421,7 @@ INCLUDES = [
     "include/config",
     "include/core",
     "include/effects",
+    "include/encode",
     "include/gpu",
     "include/images",
     "include/pathops",
