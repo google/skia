@@ -85,6 +85,7 @@ gm_sources = [
   "$_gm/copyTo4444.cpp",
   "$_gm/crbug_691386.cpp",
   "$_gm/croppedrects.cpp",
+  "$_gm/crosscontextimage.cpp",
   "$_gm/cubicpaths.cpp",
   "$_gm/dashcircle.cpp",
   "$_gm/dashcubics.cpp",
