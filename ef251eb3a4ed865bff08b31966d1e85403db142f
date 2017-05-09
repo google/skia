@@ -22,6 +22,30 @@
       "revId": "ef251eb3a4ed865bff08b31966d1e85403db142f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcdf04fc_2bb9cdb4",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-09T17:32:30Z",
+      "side": 1,
+      "message": "Yes, we\u0027d fall out of the pipeline entirely and draw *without* color correction.\n\nThis is medium-term.  It\u0027s mostly for SkColorFilters that have not implemented onAppendStages()... after this CL and one or two more in flight all land, there won\u0027t be any SkColorFilter onAppendStage() that actually return false except for SkColorFilter\u0027s virtual default.\n\nAt that point I\u0027ll move this fallback implementation into the default onAppendStages() and make onAppendStages() void too.",
+      "parentUuid": "827582bd_8ed10157",
+      "range": {
+        "startLine": 58,
+        "startChar": 4,
+        "endLine": 58,
+        "endChar": 71
+      },
+      "revId": "ef251eb3a4ed865bff08b31966d1e85403db142f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
