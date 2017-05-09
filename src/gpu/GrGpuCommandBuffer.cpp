@@ -10,6 +10,7 @@
 #include "GrCaps.h"
 #include "GrFixedClip.h"
 #include "GrGpu.h"
+#include "GrMesh.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrRenderTarget.h"
 #include "SkRect.h"
@@ -39,6 +40,7 @@ bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
                               const GrMesh* mesh,
                               int meshCount,
                               const SkRect& bounds) {
+    SkDEBUGCODE(mesh->validate());
     if (pipeline.isBad() || primProc.isBad()) {
         return false;
     }
