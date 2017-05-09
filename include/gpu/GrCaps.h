@@ -50,6 +50,7 @@ public:
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
     bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
     bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
+    bool instancedDrawingSupport() const { return fInstancedDrawingSupport; }
     bool usesMixedSamples() const { return fUsesMixedSamples; }
     bool preferClientSideDynamicBuffers() const { return fPreferClientSideDynamicBuffers; }
 
@@ -215,6 +216,7 @@ protected:
     bool fTextureBarrierSupport                      : 1;
     bool fSampleLocationsSupport                     : 1;
     bool fMultisampleDisableSupport                  : 1;
+    bool fInstancedDrawingSupport                    : 1;
     bool fUsesMixedSamples                           : 1;
     bool fPreferClientSideDynamicBuffers             : 1;
     bool fFullClearIsFree                            : 1;

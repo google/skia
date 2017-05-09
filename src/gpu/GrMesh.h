@@ -30,17 +30,20 @@ struct GrMesh {
     int               fVertexCount = 0;
     int               fBaseVertex = 0;
 
+    PendingBuffer     fInstanceBuffer;
+    int               fInstanceCount = 0;
+    int               fBaseInstance = 0;
+
     int               fPatternRepeatCount = 1;
     int               fMaxPatternRepetitionsInIndexBuffer = 1;
 
     struct PatternBatch;
     class PatternIterator;
-
-    SkDEBUGCODE(void validate() const;)
 };
 
 struct GrMesh::PatternBatch {
     int   fBaseVertex;
+    int   fBaseInstance;
     int   fRepeatCount;
 };
 
@@ -48,9 +51,7 @@ class GrMesh::PatternIterator {
 public:
     PatternIterator(const GrMesh& mesh, int repetitionIdx)
         : fMesh(mesh)
-        , fRepetitionIdx(repetitionIdx) {
-        SkDEBUGCODE(mesh.validate());
-    }
+        , fRepetitionIdx(repetitionIdx) {}
 
     bool operator!=(const PatternIterator& that) {
         SkASSERT(&fMesh == &that.fMesh);
@@ -60,6 +61,7 @@ public:
     const PatternBatch operator*() {
         PatternBatch batch;
         batch.fBaseVertex = fMesh.fBaseVertex + fRepetitionIdx * fMesh.fVertexCount;
+        batch.fBaseInstance = fMesh.fBaseInstance + fRepetitionIdx * fMesh.fInstanceCount;
         batch.fRepeatCount = SkTMin(fMesh.fPatternRepeatCount - fRepetitionIdx,
                                     fMesh.fMaxPatternRepetitionsInIndexBuffer);
         return batch;
@@ -82,19 +84,5 @@ inline GrMesh::PatternIterator begin(const GrMesh& mesh) {
 inline GrMesh::PatternIterator end(const GrMesh& mesh) {
     return GrMesh::PatternIterator(mesh, mesh.fPatternRepeatCount);
 }
-
-#ifdef SK_DEBUG
-inline void GrMesh::validate() const {
-    SkASSERT(!fIndexBuffer || fIndexCount > 0);
-    SkASSERT(fBaseIndex >= 0);
-
-    SkASSERT(fVertexBuffer);
-    SkASSERT(fVertexCount);
-    SkASSERT(fBaseVertex >= 0);
-
-    SkASSERT(fPatternRepeatCount > 0);
-    SkASSERT(fMaxPatternRepetitionsInIndexBuffer > 0);
-}
-#endif
 
 #endif
