@@ -20,7 +20,7 @@
       "[START_DIR]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/clang_linux/msan\"] is_debug=false sanitize=\"MSAN\" skia_enable_gpu=false skia_use_fontconfig=false"
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/clang_linux/msan\"] is_debug=false sanitize=\"MSAN\" skia_use_fontconfig=false skia_use_vulkan=false"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
