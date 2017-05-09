@@ -38,7 +38,6 @@ SkBitmap::SkBitmap()
     , fRowBytes      (0)
     , fFlags         (0) {}
 
-// copy pixelref, but don't copy lock.
 SkBitmap::SkBitmap(const SkBitmap& src)
     : fPixelRef      (src.fPixelRef)
     , fPixels        (src.fPixels)
@@ -51,7 +50,6 @@ SkBitmap::SkBitmap(const SkBitmap& src)
     SkDEBUGCODE(this->validate();)
 }
 
-// take lock and lockcount from other.
 SkBitmap::SkBitmap(SkBitmap&& other)
     : fPixelRef      (std::move(other.fPixelRef))
     , fPixels                  (other.fPixels)
