@@ -31,7 +31,7 @@ class GrTextureProxy;
 // forwards on the utilization in the wrapped case
 class GrIORefProxy : public SkNoncopyable {
 public:
-    void ref() const {
+    virtual void ref() const {
         this->validate();
 
         ++fRefCnt;
@@ -40,7 +40,7 @@ public:
         }
     }
 
-    void unref() const {
+    virtual void unref() const {
         this->validate();
 
         if (fTarget) {
@@ -125,7 +125,7 @@ protected:
 
 private:
     // This class is used to manage conversion of refs to pending reads/writes.
-    friend class GrGpuResourceRef;
+    friend class GrSurfaceProxyRef;
     template <typename, GrIOType> friend class GrPendingIOResource;
 
     void addPendingRead() const {
@@ -179,6 +179,14 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    void ref() const override { 
+        INHERITED::ref();
+    }
+    void unref() const override {
+        INHERITED::unref();
+    }
+
+
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>);
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>);
 
@@ -381,8 +389,8 @@ private:
     // This back-pointer is required so that we can add a dependancy between
     // the opList used to create the current contents of this surface
     // and the opList of a destination surface to which this one is being drawn or copied.
+    // This pointer is unreffed. OpLists own a ref on their surface proxies.
     GrOpList* fLastOpList;
-
 
     typedef GrIORefProxy INHERITED;
 };

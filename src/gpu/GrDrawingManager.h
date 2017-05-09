@@ -87,10 +87,11 @@ private:
         , fFlushState(context->getGpu(), context->resourceProvider())
         , fFlushing(false)
         , fIsImmediateMode(isImmediateMode) {
+        SkDebugf("rtop %d\n", sizeof(GrRenderTargetOpList));
     }
 
     void abandon();
-    void cleanup();
+    void cleanup1();
     void reset();
     void flush(GrSurfaceProxy* proxy) {
         this->internalFlush(proxy, GrResourceCache::FlushType::kExternal);
