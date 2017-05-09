@@ -55,7 +55,8 @@ void SkColorFilter::appendStages(SkRasterPipeline* p,
         sk_sp<SkColorFilter> cf;
     };
     auto ctx = alloc->make<Ctx>();
-    ctx->cf = SkColorSpaceXformer::Make(sk_ref_sp(dstCS))->apply(this);
+    ctx->cf = dstCS ? SkColorSpaceXformer::Make(sk_ref_sp(dstCS))->apply(this)
+                    : sk_ref_sp(const_cast<SkColorFilter*>(this));
     ctx->fn = [](SkJumper_CallbackCtx* arg, int active_pixels) {
         auto ctx = (Ctx*)arg;
         auto buf = (SkPM4f*)ctx->rgba;
