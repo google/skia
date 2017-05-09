@@ -13,7 +13,7 @@
 class SkJpegEncoderMgr;
 class SkWStream;
 
-class SkJpegEncoder : public SkEncoder {
+class SK_API SkJpegEncoder : public SkEncoder {
 public:
 
     enum class AlphaOption {
