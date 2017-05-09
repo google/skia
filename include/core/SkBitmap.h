@@ -429,7 +429,7 @@ public:
     }
 
     /** Return the bitmap's colortable, if it uses one (i.e. colorType is
-        Index_8) and the pixels are locked.
+        Index_8).
         Otherwise returns NULL. Does not affect the colortable's
         reference count.
     */
@@ -490,8 +490,7 @@ public:
      *  lower precision data than is actually in the pixel. Alpha only
      *  colortypes (e.g. kAlpha_8_SkColorType) return black with the appropriate
      *  alpha set.  The value is undefined for kUnknown_SkColorType or if x or y
-     *  are out of bounds, or if the bitmap does not have any pixels (or has not
-     *  be locked with lockPixels())..
+     *  are out of bounds, or if the bitmap does not have any pixels.
      */
     SkColor getColor(int x, int y) const {
         SkPixmap pixmap;
@@ -511,21 +510,21 @@ public:
     void* getAddr(int x, int y) const;
 
     /** Returns the address of the pixel specified by x,y for 32bit pixels.
-     *  In debug build, this asserts that the pixels are allocated and locked,
-     *  and that the colortype is 32-bit, however none of these checks are performed
+     *  In debug build, this asserts that the pixels are allocated and that the
+     *  colortype is 32-bit, however none of these checks are performed
      *  in the release build.
      */
     inline uint32_t* getAddr32(int x, int y) const;
 
     /** Returns the address of the pixel specified by x,y for 16bit pixels.
-     *  In debug build, this asserts that the pixels are allocated and locked,
+     *  In debug build, this asserts that the pixels are allocated
      *  and that the colortype is 16-bit, however none of these checks are performed
      *  in the release build.
      */
     inline uint16_t* getAddr16(int x, int y) const;
 
     /** Returns the address of the pixel specified by x,y for 8bit pixels.
-     *  In debug build, this asserts that the pixels are allocated and locked,
+     *  In debug build, this asserts that the pixels are allocated
      *  and that the colortype is 8-bit, however none of these checks are performed
      *  in the release build.
      */
@@ -533,7 +532,7 @@ public:
 
     /** Returns the color corresponding to the pixel specified by x,y for
      *  colortable based bitmaps.
-     *  In debug build, this asserts that the pixels are allocated and locked,
+     *  In debug build, this asserts that the pixels are allocated,
      *  that the colortype is indexed, and that the colortable is allocated,
      *  however none of these checks are performed in the release build.
      */
@@ -631,13 +630,12 @@ public:
                       SkIPoint* offset) const;
 
     /**
-     *  If the pixels are available from this bitmap (w/o locking) return true, and fill out the
-     *  specified pixmap (if not null). If the pixels are not available (either because there are
-     *  none, or becuase accessing them would require locking or other machinary) return false and
+     *  If the pixels are available from this bitmap return true, and fill out the
+     *  specified pixmap (if not null). If there are no pixels, return false and
      *  ignore the pixmap parameter.
      *
      *  Note: if this returns true, the results (in the pixmap) are only valid until the bitmap
-     *  is changed in anyway, in which case the results are invalid.
+     *  is changed in any way, in which case the results are invalid.
      */
     bool peekPixels(SkPixmap*) const;
 
@@ -647,10 +645,9 @@ public:
     public:
         /** Allocate the pixel memory for the bitmap, given its dimensions and
             colortype. Return true on success, where success means either setPixels
-            or setPixelRef was called. The pixels need not be locked when this
-            returns. If the colortype requires a colortable, it also must be
-            installed via setColorTable. If false is returned, the bitmap and
-            colortable should be left unchanged.
+            or setPixelRef was called. If the colortype requires a colortable,
+            it also must be installed via setColorTable. If false is returned,
+            the bitmap and colortable should be left unchanged.
         */
         virtual bool allocPixelRef(SkBitmap*, SkColorTable*) = 0;
     private:
