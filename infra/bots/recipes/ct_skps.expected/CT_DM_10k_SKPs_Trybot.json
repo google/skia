@@ -985,6 +985,7 @@
       "slavename:test_bot",
       "--tag",
       "stepname:ct-dm-1",
+      "--isolated",
       "[dummy hash for ct-dm-1]"
     ],
     "infra_step": true,
@@ -1056,6 +1057,7 @@
       "slavename:test_bot",
       "--tag",
       "stepname:ct-dm-2",
+      "--isolated",
       "[dummy hash for ct-dm-2]"
     ],
     "infra_step": true,
@@ -1127,6 +1129,7 @@
       "slavename:test_bot",
       "--tag",
       "stepname:ct-dm-3",
+      "--isolated",
       "[dummy hash for ct-dm-3]"
     ],
     "infra_step": true,
@@ -1198,6 +1201,7 @@
       "slavename:test_bot",
       "--tag",
       "stepname:ct-dm-4",
+      "--isolated",
       "[dummy hash for ct-dm-4]"
     ],
     "infra_step": true,
@@ -1269,6 +1273,7 @@
       "slavename:test_bot",
       "--tag",
       "stepname:ct-dm-5",
+      "--isolated",
       "[dummy hash for ct-dm-5]"
     ],
     "infra_step": true,

@@ -987,6 +987,7 @@
       "slavename:test_bot",
       "--tag",
       "stepname:ct-get_images_from_skps-1",
+      "--isolated",
       "[dummy hash for ct-get_images_from_skps-1]"
     ],
     "infra_step": true,
@@ -1060,6 +1061,7 @@
       "slavename:test_bot",
       "--tag",
       "stepname:ct-get_images_from_skps-2",
+      "--isolated",
       "[dummy hash for ct-get_images_from_skps-2]"
     ],
     "infra_step": true,
@@ -1133,6 +1135,7 @@
       "slavename:test_bot",
       "--tag",
       "stepname:ct-get_images_from_skps-3",
+      "--isolated",
       "[dummy hash for ct-get_images_from_skps-3]"
     ],
     "infra_step": true,
@@ -1206,6 +1209,7 @@
       "slavename:test_bot",
       "--tag",
       "stepname:ct-get_images_from_skps-4",
+      "--isolated",
       "[dummy hash for ct-get_images_from_skps-4]"
     ],
     "infra_step": true,
@@ -1279,6 +1283,7 @@
       "slavename:test_bot",
       "--tag",
       "stepname:ct-get_images_from_skps-5",
+      "--isolated",
       "[dummy hash for ct-get_images_from_skps-5]"
     ],
     "infra_step": true,
