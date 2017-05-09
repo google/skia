@@ -26,10 +26,11 @@ using gr_instanced::InstancedRendering;
 static const int kMaxOpLookback = 10;
 static const int kMaxOpLookahead = 10;
 
-GrRenderTargetOpList::GrRenderTargetOpList(sk_sp<GrRenderTargetProxy> proxy, GrGpu* gpu,
+GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* proxy, GrGpu* gpu,
                                            GrAuditTrail* auditTrail)
-        : INHERITED(std::move(proxy), auditTrail)
-        , fLastClipStackGenID(SK_InvalidUniqueID) {
+        : INHERITED(proxy, auditTrail)
+        , fLastClipStackGenID(SK_InvalidUniqueID)
+        , fNumClips(0) {
     if (GrCaps::InstancedSupport::kNone != gpu->caps()->instancedSupport()) {
         fInstancedRendering.reset(gpu->createInstancedRendering());
     }
@@ -77,7 +78,7 @@ void GrRenderTargetOpList::validateTargetsSingleRenderTarget() const {
 #endif
 
 void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
-    // MDB TODO: add SkASSERT(this->isClosed());
+    SkASSERT(this->isClosed());
 
     // Loop over the ops that haven't yet been prepared.
     for (int i = 0; i < fRecordedOps.count(); ++i) {
@@ -130,33 +131,33 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
     if (0 == fRecordedOps.count()) {
         return false;
     }
-    // Draw all the generated geometry.
-    const GrRenderTarget* currentRenderTarget = fRecordedOps[0].fRenderTarget.get();
-    SkASSERT(currentRenderTarget);
-    std::unique_ptr<GrGpuCommandBuffer> commandBuffer;
 
+#ifdef SK_DEBUG
+    GrSurface* target = fTarget.get()->instantiate(flushState->resourceProvider());
+    if (!target) {
+        return false;
+    }
+    const GrRenderTarget* currentRenderTarget = target->asRenderTarget();
+    SkASSERT(currentRenderTarget);
+#endif
+
+    std::unique_ptr<GrGpuCommandBuffer> commandBuffer = create_command_buffer(flushState->gpu());
+    flushState->setCommandBuffer(commandBuffer.get());
+
+    // Draw all the generated geometry.
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (!fRecordedOps[i].fOp) {
             continue;
         }
 
-        SkASSERT(fRecordedOps[i].fRenderTarget.get());
+        SkASSERT(fRecordedOps[i].fRenderTarget.get() == currentRenderTarget);
 
         if (fRecordedOps[i].fOp->needsCommandBufferIsolation()) {
             // This op is a special snowflake and must occur between command buffers
             // TODO: make this go through the command buffer
             finish_command_buffer(commandBuffer.get());
-            currentRenderTarget = fRecordedOps[i].fRenderTarget.get();
 
             commandBuffer.reset();
-            flushState->setCommandBuffer(commandBuffer.get());
-        } else if (fRecordedOps[i].fRenderTarget.get() != currentRenderTarget) {
-            // Changing renderTarget
-            // MDB TODO: this code path goes away
-            finish_command_buffer(commandBuffer.get());
-            currentRenderTarget = fRecordedOps[i].fRenderTarget.get();
-
-            commandBuffer = create_command_buffer(flushState->gpu());
             flushState->setCommandBuffer(commandBuffer.get());
         } else if (!commandBuffer) {
             commandBuffer = create_command_buffer(flushState->gpu());
@@ -185,10 +186,14 @@ void GrRenderTargetOpList::reset() {
     fLastFullClearOp = nullptr;
     fLastFullClearResourceID.makeInvalid();
     fLastFullClearProxyID.makeInvalid();
+    fLastClipStackGenID = SK_InvalidUniqueID;
     fRecordedOps.reset();
     if (fInstancedRendering) {
         fInstancedRendering->endFlush();
+        fInstancedRendering = nullptr;
     }
+
+    INHERITED::reset();
 }
 
 void GrRenderTargetOpList::abandonGpuResources() {
@@ -246,6 +251,7 @@ void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext,
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// MDB TODO: fuse with GrTextureOpList::copySurface
 bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
                                        GrRenderTargetContext* dst,
                                        GrSurfaceProxy* src,
@@ -301,6 +307,13 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     }
 
     const GrCaps* caps = renderTargetContext->caps();
+
+#ifdef SK_DEBUG
+    if (!fRecordedOps.empty()) {
+        GrRenderTargetOpList::RecordedOp& back = fRecordedOps.back();
+        SkASSERT(back.fRenderTarget == renderTarget);
+    }
+#endif
 
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
@@ -359,6 +372,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     GR_AUDIT_TRAIL_OP_RESULT_NEW(fAuditTrail, op);
     if (clip) {
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
+        fNumClips++;
     }
     fRecordedOps.emplace_back(std::move(op), renderTarget, clip, dstTexture);
     fRecordedOps.back().fOp->wasRecorded(this);
@@ -398,7 +412,7 @@ void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
                 fRecordedOps[j].fOp = std::move(fRecordedOps[i].fOp);
                 break;
             }
-            // Stop going traversing if we would cause a painter's order violation.
+            // Stop traversing if we would cause a painter's order violation.
             if (!can_reorder(fRecordedOps[j].fOp->bounds(), op->bounds())) {
                 GrOP_INFO("\t\tForward: Intersects with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());

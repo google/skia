@@ -20,6 +20,13 @@ class GrTexture;
 
 class SK_API GrSurface : public GrGpuResource {
 public:
+    void ref() const override { 
+        INHERITED::ref();
+    }
+    void unref() const override {
+        INHERITED::unref();
+    }
+
     /**
      * Retrieves the width of the surface.
      */
