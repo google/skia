@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "827582bd_8ed10157",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-09T16:30:45Z",
+      "side": 1,
+      "message": "Before this case, we would fall out of the pipeline entirely?  And therefore,we would draw with color correction?  Now we won\u0027t fall out of the pipeline, and this just \"works\"...\n\nIs this intended to be a long term solution?  If not, it seems kind of ugly...  Could we do without it?",
+      "range": {
+        "startLine": 58,
+        "startChar": 4,
+        "endLine": 58,
+        "endChar": 71
+      },
+      "revId": "ef251eb3a4ed865bff08b31966d1e85403db142f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
