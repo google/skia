@@ -13,9 +13,9 @@
 const SkClipOp kDifference_SkClipOp         = SkClipOp::kDifference;
 const SkClipOp kIntersect_SkClipOp          = SkClipOp::kIntersect;
 
-const SkClipOp kUnion_SkClipOp              = SkClipOp::kUnion_deprecated;
-const SkClipOp kXOR_SkClipOp                = SkClipOp::kXOR_deprecated;
-const SkClipOp kReverseDifference_SkClipOp  = SkClipOp::kReverseDifference_deprecated;
-const SkClipOp kReplace_SkClipOp            = SkClipOp::kReplace_deprecated;
+const SkClipOp kUnion_SkClipOp              = (SkClipOp)2;
+const SkClipOp kXOR_SkClipOp                = (SkClipOp)3;
+const SkClipOp kReverseDifference_SkClipOp  = (SkClipOp)4;
+const SkClipOp kReplace_SkClipOp            = (SkClipOp)5;
 
 #endif

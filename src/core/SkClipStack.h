@@ -10,6 +10,7 @@
 
 #include "../private/SkMessageBus.h"
 #include "SkCanvas.h"
+#include "SkClipOpPriv.h"
 #include "SkDeque.h"
 #include "SkPath.h"
 #include "SkRRect.h"
@@ -57,7 +58,7 @@ public:
         static const int kTypeCnt = kLastType + 1;
 
         Element() {
-            this->initCommon(0, SkClipOp::kReplace_deprecated, false);
+            this->initCommon(0, kReplace_SkClipOp, false);
             this->setEmpty();
         }
 
@@ -245,7 +246,7 @@ public:
         mutable SkTArray<std::unique_ptr<GrUniqueKeyInvalidatedMessage>> fMessages;
 #endif
         Element(int saveCount) {
-            this->initCommon(saveCount, SkClipOp::kReplace_deprecated, false);
+            this->initCommon(saveCount, kReplace_SkClipOp, false);
             this->setEmpty();
         }
 
@@ -560,7 +561,7 @@ private:
     void restoreTo(int saveCount);
 
     inline bool hasClipRestriction(SkClipOp op) {
-        return op >= SkClipOp::kUnion_deprecated && !fClipRestrictionRect.isEmpty();
+        return op >= kUnion_SkClipOp && !fClipRestrictionRect.isEmpty();
     }
 
     /**
