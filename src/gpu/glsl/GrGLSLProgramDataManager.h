@@ -57,6 +57,9 @@ public:
     virtual void setPathFragmentInputTransform(VaryingHandle u, int components,
                                                const SkMatrix& matrix) const = 0;
 
+    virtual bool isUsed(UniformHandle handle) const = 0;
+
+
 protected:
     GrGLSLProgramDataManager() {}
 

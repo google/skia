@@ -27,6 +27,7 @@
 #include "ast/SkSLASTModifiersDeclaration.h"
 #include "ast/SkSLASTPrefixExpression.h"
 #include "ast/SkSLASTReturnStatement.h"
+#include "ast/SkSLASTSection.h"
 #include "ast/SkSLASTStatement.h"
 #include "ast/SkSLASTSuffixExpression.h"
 #include "ast/SkSLASTSwitchStatement.h"
@@ -42,6 +43,7 @@
 #include "ir/SkSLModifiers.h"
 #include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLProgram.h"
+#include "ir/SkSLSection.h"
 #include "ir/SkSLSymbolTable.h"
 #include "ir/SkSLStatement.h"
 #include "ir/SkSLType.h"
@@ -98,6 +100,7 @@ public:
                                              Token::Kind op,
                                              const Expression& right) const;
     Program::Inputs fInputs;
+    const Program::Settings* fSettings;
     const Context& fContext;
 
 private:
@@ -125,6 +128,7 @@ private:
     std::unique_ptr<Expression> call(Position position, std::unique_ptr<Expression> function,
                                      std::vector<std::unique_ptr<Expression>> arguments);
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
+    bool compareConstants(const Expression& e1, const Expression& e2) const;
     std::unique_ptr<Block> convertBlock(const ASTBlock& block);
     std::unique_ptr<Statement> convertBreak(const ASTBreakStatement& b);
     std::unique_ptr<Expression> convertNumberConstructor(
@@ -154,7 +158,9 @@ private:
     Modifiers convertModifiers(const Modifiers& m);
     std::unique_ptr<Expression> convertPrefixExpression(const ASTPrefixExpression& expression);
     std::unique_ptr<Statement> convertReturn(const ASTReturnStatement& r);
+    std::unique_ptr<Section> convertSection(const ASTSection& e);
     std::unique_ptr<Expression> getCap(Position position, String name);
+    std::unique_ptr<Expression> getArg(Position position, String name);
     std::unique_ptr<Expression> convertSuffixExpression(const ASTSuffixExpression& expression);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
                                              const String& field);
@@ -169,7 +175,6 @@ private:
     void markWrittenTo(const Expression& expr, bool readWrite);
 
     const FunctionDeclaration* fCurrentFunction;
-    const Program::Settings* fSettings;
     std::unordered_map<String, CapValue> fCapsMap;
     std::shared_ptr<SymbolTable> fSymbolTable;
     int fLoopLevel;

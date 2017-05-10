@@ -48,7 +48,8 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
     if (outName) {
         *outName = uni.fVariable.c_str();
     }
-    return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
+    auto result = GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
+    return result;
 }
 
 GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(uint32_t visibility,

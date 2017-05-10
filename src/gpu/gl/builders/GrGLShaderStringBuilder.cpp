@@ -39,7 +39,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
         return 0;
     }
 
-    SkString sksl;
+    SkSL::String sksl;
 #ifdef SK_DEBUG
     sksl = GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, false);
 #else

@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "SkSLErrorReporter.h"
+#include "ir/SkSLLayout.h"
 #include "SkSLToken.h"
 
 struct yy_buffer_state;
@@ -42,7 +43,6 @@ struct ASTSwitchStatement;
 struct ASTType;
 struct ASTWhileStatement;
 struct ASTVarDeclarations;
-struct Layout;
 struct Modifiers;
 class SymbolTable;
 
@@ -64,7 +64,12 @@ public:
 
 private:
     /**
-     * Return the next token from the parse stream.
+     * Return the next token, including whitespace tokens, from the parse stream.
+     */
+    Token nextRawToken();
+
+    /**
+     * Return the next non-whitespace token from the parse stream.
      */
     Token nextToken();
 
@@ -76,7 +81,7 @@ private:
     void pushback(Token t);
 
     /**
-     * Returns the next token without consuming it from the stream.
+     * Returns the next non-whitespace token without consuming it from the stream.
      */
     Token peek();
 
@@ -87,8 +92,8 @@ private:
     bool checkNext(Token::Kind kind, Token* result = nullptr);
 
     /**
-     * Reads the next token and generates an error if it is not the expected type. The 'expected'
-     * string is part of the error message, which reads:
+     * Reads the next non-whitespace token and generates an error if it is not the expected type.
+     * The 'expected' string is part of the error message, which reads:
      *
      * "expected <expected>, but found '<actual text>'"
      *
@@ -115,6 +120,8 @@ private:
 
     std::unique_ptr<ASTDeclaration> directive();
 
+    std::unique_ptr<ASTDeclaration> section();
+
     std::unique_ptr<ASTDeclaration> declaration();
 
     std::unique_ptr<ASTVarDeclarations> varDeclarations();
@@ -130,6 +137,10 @@ private:
     std::unique_ptr<ASTParameter> parameter();
 
     int layoutInt();
+
+    String layoutCode();
+
+    Layout::Key layoutKey();
 
     Layout layout();
 
