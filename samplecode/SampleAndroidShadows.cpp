@@ -145,13 +145,9 @@ protected:
         if (fUseAlt) {
             flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
         }
-        //SkShadowUtils::DrawShadow(canvas, path,
-        //                          zValue,
-        //                          lightPos, lightWidth,
-        //                          ambientAlpha, spotAlpha, SK_ColorBLACK, flags);
-        SkShadowUtils::DrawUncachedShadow(canvas, path, zPlaneParams,
-                                          lightPos, lightWidth,
-                                          ambientAlpha, spotAlpha, SK_ColorBLACK, flags);
+        SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
+                                  lightPos, lightWidth,
+                                  ambientAlpha, spotAlpha, SK_ColorBLACK, flags);
 
         if (fShowObject) {
             canvas->drawPath(path, paint);
