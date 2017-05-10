@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39903473_335b1ee6",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-10T19:52:19Z",
+      "side": 1,
+      "message": "I wonder if we should limit to translate-scale only.  The way it\u0027s written it seems we would skip drawing some areas if rotated on this branch, but not on the other.",
+      "revId": "9d15a42774039b5f37c6807d43b56a4f55e28cd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
