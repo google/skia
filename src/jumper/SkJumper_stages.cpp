@@ -969,27 +969,26 @@ STAGE(store_f32) {
     store4(ptr,tail, r,g,b,a);
 }
 
-SI F ulp_before(F v) {
-    return bit_cast<F>(bit_cast<U32>(v) + U32(0xffffffff));
-}
-SI F clamp(F v, float limit) {
+SI F clamp(F v, const SkJumper_TilingCtx* ctx) {
     v = max(0, v);
-    return min(v, ulp_before(limit));
+    return min(v, ctx->ulp_before_limit);
 }
-SI F repeat(F v, float limit) {
+SI F repeat(F v, const SkJumper_TilingCtx* ctx) {
+    F limit = ctx->limit;
     v = v - floor_(v/limit)*limit;
-    return min(v, ulp_before(limit));
+    return min(v, ctx->ulp_before_limit);
 }
-SI F mirror(F v, float limit) {
+SI F mirror(F v, const SkJumper_TilingCtx* ctx) {
+    F limit = ctx->limit;
     v = abs_( (v-limit) - (limit+limit)*floor_((v-limit)/(limit+limit)) - limit );
-    return min(v, ulp_before(limit));
+    return min(v, ctx->ulp_before_limit);
 }
-STAGE(clamp_x)  { r = clamp (r, *(const float*)ctx); }
-STAGE(clamp_y)  { g = clamp (g, *(const float*)ctx); }
-STAGE(repeat_x) { r = repeat(r, *(const float*)ctx); }
-STAGE(repeat_y) { g = repeat(g, *(const float*)ctx); }
-STAGE(mirror_x) { r = mirror(r, *(const float*)ctx); }
-STAGE(mirror_y) { g = mirror(g, *(const float*)ctx); }
+STAGE(clamp_x)  { r = clamp (r, ctx); }
+STAGE(clamp_y)  { g = clamp (g, ctx); }
+STAGE(repeat_x) { r = repeat(r, ctx); }
+STAGE(repeat_y) { g = repeat(g, ctx); }
+STAGE(mirror_x) { r = mirror(r, ctx); }
+STAGE(mirror_y) { g = mirror(g, ctx); }
 
 STAGE(luminance_to_alpha) {
     a = r*0.2126f + g*0.7152f + b*0.0722f;

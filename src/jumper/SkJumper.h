@@ -99,4 +99,8 @@ struct SkJumper_DitherCtx {
     float rate;
 };
 
+struct SkJumper_TilingCtx {
+    float limit, ulp_before_limit;
+};
+
 #endif//SkJumper_DEFINED
