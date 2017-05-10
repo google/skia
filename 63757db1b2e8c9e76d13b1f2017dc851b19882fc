@@ -22,6 +22,30 @@
       "revId": "63757db1b2e8c9e76d13b1f2017dc851b19882fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1b68e17_6d207115",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1937,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-10T20:55:58Z",
+      "side": 1,
+      "message": "Wouldn\u0027t you rather just not do it?",
+      "parentUuid": "77e7dc57_e3fed7cf",
+      "range": {
+        "startLine": 1937,
+        "startChar": 30,
+        "endLine": 1937,
+        "endChar": 35
+      },
+      "revId": "63757db1b2e8c9e76d13b1f2017dc851b19882fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
