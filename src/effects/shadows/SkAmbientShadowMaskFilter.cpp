@@ -222,7 +222,7 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
     }
 
     rtContext->drawShadowRRect(clip, std::move(newPaint), viewMatrix, ambientRRect,
-                               devSpaceAmbientBlur, devSpaceInsetWidth);
+                               devSpaceAmbientBlur, devSpaceInsetWidth, 1/umbraAlpha);
 
     return true;
 }

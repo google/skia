@@ -986,7 +986,8 @@ void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
                                             const SkMatrix& viewMatrix,
                                             const SkRRect& rrect,
                                             SkScalar blurWidth,
-                                            SkScalar insetWidth) {
+                                            SkScalar insetWidth,
+                                            SkScalar blurClamp) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -999,7 +1000,8 @@ void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
     // TODO: add instancing support?
 
     std::unique_ptr<GrLegacyMeshDrawOp> op = GrShadowRRectOp::Make(paint.getColor(), viewMatrix,
-                                                                   rrect, blurWidth, insetWidth);
+                                                                   rrect, blurWidth, insetWidth,
+                                                                   blurClamp);
     if (op) {
         GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
         this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
