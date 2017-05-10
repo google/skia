@@ -259,6 +259,30 @@
       "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba555638_f5661160",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-10T19:18:14Z",
+      "side": 1,
+      "message": "Yes, it\u0027s on my todo list to see if they can make some improvements to the cgo tool. \n@Ben Wagner: right, everything in here assumes that Skia does not retain copies of pointers. And Go guarantees that a pointer remains valid within a single statement.",
+      "parentUuid": "b9367b86_2bb39a5b",
+      "range": {
+        "startLine": 200,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 1
+      },
+      "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
