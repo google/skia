@@ -27,6 +27,7 @@ struct SwitchCase : public Statement {
         String result;
         if (fValue) {
             result.appendf("case %s:\n", fValue->description().c_str());
+            printf("description: %s\n", fValue->description().c_str());
         } else {
             result += "default:\n";
         }

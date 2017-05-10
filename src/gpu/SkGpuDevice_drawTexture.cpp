@@ -16,7 +16,7 @@
 #include "SkGr.h"
 #include "SkMaskFilter.h"
 #include "effects/GrBicubicEffect.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
 
 static inline bool use_shader(bool textureIsAlphaOnly, const SkPaint& paint) {

@@ -23,7 +23,7 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
                  SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
     SkSL::Compiler compiler;
     SkSL::String output;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, SkString(src), settings);
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, src, settings);
     if (!program) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
     }
@@ -1086,18 +1086,7 @@ DEF_TEST(SkSLSwitch, r) {
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    float x;\n"
-         "    switch (1) {\n"
-         "        case 0:\n"
-         "            x = 0.0;\n"
-         "            break;\n"
-         "        case 1:\n"
-         "            x = 1.0;\n"
-         "            break;\n"
-         "        default:\n"
-         "            x = 2.0;\n"
-         "    }\n"
-         "    sk_FragColor = vec4(x);\n"
+         "    sk_FragColor = vec4(1.0);\n"
          "}\n");
     test(r,
          "void main() {"

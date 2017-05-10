@@ -20,7 +20,7 @@ namespace SkSL {
  */
 struct ASTFunction : public ASTDeclaration {
     ASTFunction(Position position, Modifiers modifiers,  std::unique_ptr<ASTType> returnType,
-                String name, std::vector<std::unique_ptr<ASTParameter>> parameters, 
+                String name, std::vector<std::unique_ptr<ASTParameter>> parameters,
                 std::unique_ptr<ASTBlock> body)
     : INHERITED(position, kFunction_Kind)
     , fModifiers(modifiers)
