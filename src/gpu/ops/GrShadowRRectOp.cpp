@@ -643,9 +643,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
                                          SkScalar insetWidth) {
     // Shadow rrect ops only handle simple circular rrects.
     SkASSERT(viewMatrix.isSimilarity() &&
-             (rrect.isSimple() || rrect.isRect() || rrect.isOval()));
-    SkASSERT(rrect.getSimpleRadii().fX > SK_ScalarNearlyZero &&
-             SkScalarNearlyEqual(rrect.getSimpleRadii().fX, rrect.getSimpleRadii().fY));
+             (rrect.isSimpleCircular() || rrect.isRect() || rrect.isCircle()));
 
     // Do any matrix crunching before we reset the draw state for device coords.
     const SkRect& rrectBounds = rrect.getBounds();
