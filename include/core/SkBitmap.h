@@ -688,6 +688,7 @@ private:
     uint8_t             fFlags;
 
     friend class SkImage_Raster;
+    friend void write_pixels_with_id(SkBitmap*, const SkPixmap&, uint32_t);
     bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior behavior);
 
     /*  Unreference any pixelrefs or colortables
