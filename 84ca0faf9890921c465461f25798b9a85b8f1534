@@ -22,6 +22,98 @@
       "revId": "84ca0faf9890921c465461f25798b9a85b8f1534",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fc92c1c_0d66412f",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-10T14:52:57Z",
+      "side": 1,
+      "message": "Have you thought about using this layout (plus one more t array) for all the gradient stages?   It seems best if we can make them all work with the same data types.",
+      "range": {
+        "startLine": 399,
+        "startChar": 12,
+        "endLine": 403,
+        "endChar": 14
+      },
+      "revId": "84ca0faf9890921c465461f25798b9a85b8f1534",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cb20072_6a603c30",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-10T14:52:57Z",
+      "side": 1,
+      "message": "This line would be clearer after the comment on 409.",
+      "range": {
+        "startLine": 406,
+        "startChar": 12,
+        "endLine": 406,
+        "endChar": 39
+      },
+      "revId": "84ca0faf9890921c465461f25798b9a85b8f1534",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c13a3e9c_5eab3a1c",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-10T14:52:57Z",
+      "side": 1,
+      "message": "You just wrote that there are fColorCount - 1 FBs, and now you\u0027re allocating space for fColorCount - 1 + 1... it\u0027s probably best to explain the extra one here too.\n\nLet\u0027s explicitly pad the allocations up to 8 to be safe for your AVX2 code?",
+      "range": {
+        "startLine": 411,
+        "startChar": 53,
+        "endLine": 411,
+        "endChar": 56
+      },
+      "revId": "84ca0faf9890921c465461f25798b9a85b8f1534",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce27a0ff_f9f186f1",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-10T14:52:57Z",
+      "side": 1,
+      "message": "Isn\u0027t this also just init_stop(n, c_l, c_l)?  This code might be easier to follow if we can eliminate one of init_stop() or add_stop().",
+      "range": {
+        "startLine": 438,
+        "startChar": 12,
+        "endLine": 438,
+        "endChar": 62
+      },
+      "revId": "84ca0faf9890921c465461f25798b9a85b8f1534",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
