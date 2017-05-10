@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "6cb6cc49_a6338e7d",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-10T16:42:15Z",
+      "side": 1,
+      "message": "I think we\u0027ve agreed to not expose Skia\u0027s image encoders or decoders at all long term, or if we have to, make them compatible with the standard image package.",
+      "parentUuid": "519ef2fa_72b17819",
+      "range": {
+        "startLine": 79,
+        "startChar": 16,
+        "endLine": 79,
+        "endChar": 24
+      },
+      "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dca7721a_5bf60f78",
         "filename": "experimental/go-skia/skia.go",
         "patchSetId": 20
