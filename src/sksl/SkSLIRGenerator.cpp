@@ -311,7 +311,7 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTIfStatement& s) {
                                                         fSymbolTable));
         }
     }
-    return std::unique_ptr<Statement>(new IfStatement(s.fPosition, std::move(test),
+    return std::unique_ptr<Statement>(new IfStatement(s.fPosition, s.fIsStatic, std::move(test),
                                                       std::move(ifTrue), std::move(ifFalse)));
 }
 
@@ -429,8 +429,8 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTSwitchStatement& 
         cases.emplace_back(new SwitchCase(c->fPosition, std::move(caseValue),
                                           std::move(statements)));
     }
-    return std::unique_ptr<Statement>(new SwitchStatement(s.fPosition, std::move(value),
-                                                          std::move(cases)));
+    return std::unique_ptr<Statement>(new SwitchStatement(s.fPosition, s.fIsStatic,
+                                                          std::move(value), std::move(cases)));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertExpressionStatement(

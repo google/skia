@@ -17,14 +17,19 @@ namespace SkSL {
  * A 'switch' statement.
  */
 struct ASTSwitchStatement : public ASTStatement {
-    ASTSwitchStatement(Position position, std::unique_ptr<ASTExpression> value,
+    ASTSwitchStatement(Position position, bool isStatic, std::unique_ptr<ASTExpression> value,
                        std::vector<std::unique_ptr<ASTSwitchCase>> cases)
     : INHERITED(position, kSwitch_Kind)
+    , fIsStatic(isStatic)
     , fValue(std::move(value))
     , fCases(std::move(cases)) {}
 
     String description() const override {
-        String result = String::printf("switch (%s) {\n", + fValue->description().c_str());
+        String result;
+        if (fIsStatic) {
+            result += "@";
+        }
+        result += String::printf("switch (%s) {\n", fValue->description().c_str());
         for (const auto& c : fCases) {
             result += c->description();
         }
@@ -32,6 +37,7 @@ struct ASTSwitchStatement : public ASTStatement {
         return result;
     }
 
+    bool fIsStatic;
     const std::unique_ptr<ASTExpression> fValue;
     const std::vector<std::unique_ptr<ASTSwitchCase>> fCases;
 
