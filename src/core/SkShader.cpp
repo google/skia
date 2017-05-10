@@ -255,22 +255,21 @@ void SkShader::toString(SkString* str) const {
 }
 #endif
 
-bool SkShader::appendStages(SkRasterPipeline* pipeline,
-                            SkColorSpace* dst,
-                            SkArenaAlloc* scratch,
+bool SkShader::appendStages(SkRasterPipeline* p,
+                            SkColorSpace* dstCS,
+                            SkArenaAlloc* alloc,
                             const SkMatrix& ctm,
-                            const SkPaint& paint) const {
-    return this->onAppendStages(pipeline, dst, scratch, ctm, paint, nullptr);
-}
+                            const SkPaint& paint,
+                            const SkMatrix* localM) const {
+    SkRasterPipeline subclass;
+    if (this->onAppendStages(&subclass, dstCS, alloc, ctm, paint, localM)) {
+        p->extend(subclass);
+        return true;
+    }
 
-bool SkShader::onAppendStages(SkRasterPipeline* p,
-                              SkColorSpace* dstCS,
-                              SkArenaAlloc* alloc,
-                              const SkMatrix& ctm,
-                              const SkPaint& paint,
-                              const SkMatrix* localM) const {
-    // Legacy shaders handle the paint opacity internally,
-    // but RP applies it as a separate stage.
+    // SkShader::Context::shadeSpan4f() handles the paint opacity internally,
+    // but SkRasterPipelineBlitter applies it as a separate stage.
+    // We skip the internal shadeSpan4f() step by forcing the paint opaque.
     SkTCopyOnFirstWrite<SkPaint> opaquePaint(paint);
     if (paint.getAlpha() != SK_AlphaOPAQUE) {
         opaquePaint.writable()->setAlpha(SK_AlphaOPAQUE);
@@ -297,6 +296,15 @@ bool SkShader::onAppendStages(SkRasterPipeline* p,
         p->append(SkRasterPipeline::callback, cb);
         return true;
     }
+    return false;
+}
+
+bool SkShader::onAppendStages(SkRasterPipeline* p,
+                              SkColorSpace* dstCS,
+                              SkArenaAlloc* alloc,
+                              const SkMatrix& ctm,
+                              const SkPaint& paint,
+                              const SkMatrix* localM) const {
     return false;
 }
 
