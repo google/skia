@@ -9,6 +9,7 @@
 #include "SkColorSpaceXformer.h"
 #include "SkLinearGradient.h"
 #include "SkRefCnt.h"
+#include "../jumper/SkJumper.h"
 
 // define to test the 4f gradient path
 // #define FORCE_4F_CONTEXT
@@ -92,14 +93,18 @@ bool SkLinearGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
     SkVector dx = matrix->mapVector(1, 0);
     if (dx.fX >= 4) { return false; }
 
+    auto ctx = alloc->make<SkJumper_TilingCtx>();
+    ctx->limit            = 1.0f;
+    ctx->ulp_before_limit = 0.9999999403953552f;
+
     switch(fTileMode) {
-        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, alloc->make<float>(1)); break;
-        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, alloc->make<float>(1)); break;
+        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, ctx); break;
+        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, ctx); break;
         case kClamp_TileMode:
            if (fColorCount == 2 && fOrigPos == nullptr) {
                // The general strategy does not need clamping due to implicit hard stops at 0 and 1,
                // but the 2-point specialization must be clamped.
-               p->append(SkRasterPipeline::clamp_x, alloc->make<float>(1));
+               p->append(SkRasterPipeline::clamp_x, ctx);
            }
     }
     return true;
