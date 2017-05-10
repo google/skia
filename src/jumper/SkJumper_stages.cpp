@@ -703,7 +703,7 @@ STAGE(lerp_565) {
     r = lerp(dr, r, cr);
     g = lerp(dg, g, cg);
     b = lerp(db, b, cb);
-    a = 1.0f;
+    a = max(lerp(da, a, cr), lerp(da, a, cg), lerp(da, a, cb));
 }
 
 STAGE(load_tables) {
