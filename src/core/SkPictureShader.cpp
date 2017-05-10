@@ -277,7 +277,11 @@ bool SkPictureShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkAr
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *alloc->make<sk_sp<SkShader>>();
     bitmapShader = this->refBitmapShader(ctm, localMatrix, cs);
-    return bitmapShader && bitmapShader->appendStages(p, cs, alloc, ctm, paint);
+    if (bitmapShader) {
+        bitmapShader->appendStages(p, cs, alloc, ctm, paint);
+        return true;
+    }
+    return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

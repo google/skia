@@ -464,8 +464,8 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
-    bool appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                      const SkMatrix& ctm, const SkPaint&) const;
+    bool appendStages(SkRasterPipeline*, SkColorSpace* dstCS, SkArenaAlloc*,
+                      const SkMatrix& ctm, const SkPaint&, const SkMatrix* localM=nullptr) const;
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -496,10 +496,6 @@ protected:
         return nullptr;
     }
 
-    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                                const SkMatrix&, const SkPaint&,
-                                const SkMatrix* /*local matrix*/) const;
-
     /**
      *  Returns a shader transformed into a new color space via the |xformer|.
      */
@@ -511,6 +507,9 @@ protected:
     }
 
 private:
+    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace* dstCS, SkArenaAlloc*,
+                                const SkMatrix&, const SkPaint&, const SkMatrix* localM) const;
+
     // This is essentially const, but not officially so it can be modified in constructors.
     SkMatrix fLocalMatrix;
 
