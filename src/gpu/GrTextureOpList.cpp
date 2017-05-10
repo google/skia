@@ -15,8 +15,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTextureOpList::GrTextureOpList(sk_sp<GrTextureProxy> proxy, GrGpu* gpu, GrAuditTrail* auditTrail)
-    : INHERITED(std::move(proxy), auditTrail)
+GrTextureOpList::GrTextureOpList(GrTextureProxy* proxy, GrGpu* gpu, GrAuditTrail* auditTrail)
+    : INHERITED(proxy, auditTrail)
     , fGpu(SkRef(gpu)) {
 }
 
@@ -50,7 +50,7 @@ void GrTextureOpList::validateTargetsSingleRenderTarget() const {
 #endif
 
 void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
-    // MDB TODO: add SkASSERT(this->isClosed());
+    SkASSERT(this->isClosed());
 
     // Loop over the ops that haven't yet generated their geometry
     for (int i = 0; i < fRecordedOps.count(); ++i) {
@@ -77,6 +77,7 @@ bool GrTextureOpList::executeOps(GrOpFlushState* flushState) {
 
 void GrTextureOpList::reset() {
     fRecordedOps.reset();
+    INHERITED::reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

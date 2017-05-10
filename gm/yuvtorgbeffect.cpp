@@ -261,6 +261,8 @@ protected:
                                                 nullptr, GrAAType::kNone));
             }
         }
+
+        canvas->flush();
     }
 
 private:

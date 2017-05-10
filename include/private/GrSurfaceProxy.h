@@ -45,27 +45,24 @@ public:
             fTarget->unref();
         }
 
-        if (!(--fRefCnt)) {
-            delete this;
-            return;
-        }
-
-        this->validate();
+        --fRefCnt;
+        this->didRemoveRefOrPendingIO();
     }
 
     void validate() const {
 #ifdef SK_DEBUG    
-        SkASSERT(fRefCnt >= 1);
+        SkASSERT(fRefCnt >= 0);
         SkASSERT(fPendingReads >= 0);
         SkASSERT(fPendingWrites >= 0);
         SkASSERT(fRefCnt + fPendingReads + fPendingWrites >= 1);
 
         if (fTarget) {
-            SkASSERT(!fPendingReads && !fPendingWrites);
             // The backing GrSurface can have more refs than the proxy if the proxy
             // started off wrapping an external resource (that came in with refs).
             // The GrSurface should never have fewer refs than the proxy however.
             SkASSERT(fTarget->fRefCnt >= fRefCnt);
+            SkASSERT(fTarget->fPendingReads >= fPendingReads);
+            SkASSERT(fTarget->fPendingWrites >= fPendingWrites);
         }
 #endif
     }
@@ -87,6 +84,12 @@ protected:
         // have forwarded on the unref call that got use here.
     }
 
+    enum CntType {
+        kRef_CntType,
+        kPendingRead_CntType,
+        kPendingWrite_CntType,
+    };
+
     // This GrIORefProxy was deferred before but has just been instantiated. To
     // make all the reffing & unreffing work out we now need to transfer any deferred
     // refs & unrefs to the new GrSurface
@@ -96,9 +99,6 @@ protected:
         fTarget->fRefCnt += (fRefCnt-1); // don't xfer the proxy's creation ref
         fTarget->fPendingReads += fPendingReads;
         fTarget->fPendingWrites += fPendingWrites;
-
-        fPendingReads = 0;
-        fPendingWrites = 0;
     }
 
     bool internalHasPendingIO() const {
@@ -120,21 +120,20 @@ protected:
     // For deferred proxies this will be null. For wrapped proxies it will point to the
     // wrapped resource.
     GrSurface* fTarget;
+    SkDEBUGCODE(bool       fSoftReleased = false;)
 
 private:
     // This class is used to manage conversion of refs to pending reads/writes.
-    friend class GrTextureProxyRef;
+    friend class GrSurfaceProxyRef;
     template <typename, GrIOType> friend class GrPendingIOResource;
 
     void addPendingRead() const {
         this->validate();
 
+        ++fPendingReads;
         if (fTarget) {
             fTarget->addPendingRead();
-            return;
         }
-
-        ++fPendingReads;
     }
 
     void completedRead() const {
@@ -142,21 +141,19 @@ private:
 
         if (fTarget) {
             fTarget->completedRead();
-            return;
         }
     
-        SkFAIL("How was the read completed if the Proxy hasn't been instantiated?");
+        --fPendingReads;
+        this->didRemoveRefOrPendingIO();
     }
 
     void addPendingWrite() const {
         this->validate();
 
+        ++fPendingWrites;
         if (fTarget) {
             fTarget->addPendingWrite();
-            return;
         }
-
-        ++fPendingWrites;
     }
 
     void completedWrite() const {
@@ -164,10 +161,16 @@ private:
 
         if (fTarget) {
             fTarget->completedWrite();
-            return;
         }
     
-        SkFAIL("How was the write completed if the Proxy hasn't been instantiated?");
+        --fPendingWrites;
+        this->didRemoveRefOrPendingIO();
+    }
+
+    void didRemoveRefOrPendingIO() const {
+        if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
+            delete this;
+        }
     }
 
     mutable int32_t fRefCnt;
@@ -177,6 +180,14 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    void softRelease() {
+        if (fTarget) {
+            SkSafeUnref(fTarget);
+            fTarget = nullptr;
+            SkDEBUGCODE(fSoftReleased = true;)
+        }
+    }
+
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>);
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>);
 
@@ -374,13 +385,13 @@ private:
     mutable size_t      fGpuMemorySize;
 
     // The last opList that wrote to or is currently going to write to this surface
-    // The opList can be closed (e.g., no render target context is currently bound
-    // to this renderTarget).
+    // The opList can be closed (e.g., no surface context is currently bound
+    // to this proxy).
     // This back-pointer is required so that we can add a dependancy between
     // the opList used to create the current contents of this surface
     // and the opList of a destination surface to which this one is being drawn or copied.
+    // This pointer is unreffed. OpLists own a ref on their surface proxies.
     GrOpList* fLastOpList;
-
 
     typedef GrIORefProxy INHERITED;
 };
