@@ -211,6 +211,30 @@
       "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8617ef64_bae0805a",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-10T18:08:36Z",
+      "side": 1,
+      "message": "I think we\u0027re just saying that this would be a convenient thing for cgo to also auto-generate.  A feature request, not something you missed.",
+      "parentUuid": "41a4d2a2_82144da0",
+      "range": {
+        "startLine": 200,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 1
+      },
+      "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
