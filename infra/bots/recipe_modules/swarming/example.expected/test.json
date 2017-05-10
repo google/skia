@@ -576,7 +576,6 @@
       "--task-summary-json",
       "/path/to/tmp/json"
     ],
-    "cwd": "[START_DIR]",
     "name": "task-4",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Linux'<br>swarming pending 71s@@@",
@@ -658,7 +657,6 @@
       "--task-summary-json",
       "/path/to/tmp/json"
     ],
-    "cwd": "[START_DIR]",
     "name": "task-2",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Linux'<br>swarming pending 71s@@@",
@@ -740,7 +738,6 @@
       "--task-summary-json",
       "/path/to/tmp/json"
     ],
-    "cwd": "[START_DIR]",
     "name": "task-3",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Linux'<br>swarming pending 71s@@@",
@@ -822,7 +819,6 @@
       "--task-summary-json",
       "/path/to/tmp/json"
     ],
-    "cwd": "[START_DIR]",
     "name": "task-0",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Linux'<br>swarming pending 71s@@@",
@@ -904,7 +900,6 @@
       "--task-summary-json",
       "/path/to/tmp/json"
     ],
-    "cwd": "[START_DIR]",
     "name": "task-1",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Linux'<br>swarming pending 71s@@@",
