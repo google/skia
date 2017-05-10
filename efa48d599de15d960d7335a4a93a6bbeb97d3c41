@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1a1b97b_f8291a35",
+        "filename": "experimental/go-demo/main.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-05-10T16:40:07Z",
+      "side": 1,
+      "message": "nit: It doesn\u0027t seem like this can ever be true.\n\n(If it\u0027s possible for surface.Image() to fail, I think idiomatic Go would return an error rather than a nil Image.)",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 16
+      },
+      "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f667eaee_06470125",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-05-10T16:40:07Z",
+      "side": 1,
+      "message": "nit: I think it\u0027s worth adding a comment here that the Surface retains ownership of the Canvas, so we don\u0027t add a finalizer.",
+      "range": {
+        "startLine": 54,
+        "startChar": 1,
+        "endLine": 54,
+        "endChar": 16
+      },
+      "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "519ef2fa_72b17819",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-05-10T16:40:07Z",
+      "side": 1,
+      "message": "nit: IMO, we should just expose \u0027func (i *Image) EncodePNG() ([]byte, error)\u0027 and let the caller choose what to do with the result.",
+      "range": {
+        "startLine": 79,
+        "startChar": 16,
+        "endLine": 79,
+        "endChar": 24
+      },
+      "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dca7721a_5bf60f78",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-05-10T16:40:07Z",
+      "side": 1,
+      "message": "It seems like cgo ought to have an option to automatically define these.",
+      "range": {
+        "startLine": 200,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 1
+      },
+      "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
