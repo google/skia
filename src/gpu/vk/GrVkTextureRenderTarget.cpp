@@ -143,7 +143,6 @@ GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(GrVkGpu* gpu,
     SkASSERT(info);
     // Wrapped textures require both image and allocation (because they can be mapped)
     SkASSERT(VK_NULL_HANDLE != info->fImage && VK_NULL_HANDLE != info->fAlloc.fMemory);
-    SkASSERT(kAdoptAndCache_GrWrapOwnership != ownership);  // Not supported
 
     GrVkImage::Wrapped wrapped = kBorrow_GrWrapOwnership == ownership ? GrVkImage::kBorrowed_Wrapped
                                                                       : GrVkImage::kAdopted_Wrapped;

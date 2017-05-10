@@ -851,7 +851,6 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     surfDesc.fConfig = backendTex.config();
     surfDesc.fSampleCnt = SkTMin(sampleCnt, this->caps()->maxSampleCount());
     bool renderTarget = SkToBool(flags & kRenderTarget_GrBackendTextureFlag);
-    SkASSERT(!renderTarget || kAdoptAndCache_GrWrapOwnership != ownership);  // Not supported
     // In GL, Chrome assumes all textures are BottomLeft
     // In VK, we don't have this restriction
     surfDesc.fOrigin = resolve_origin(origin);

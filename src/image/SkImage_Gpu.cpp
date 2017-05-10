@@ -27,7 +27,6 @@
 #include "effects/GrNonlinearColorSpaceXformEffect.h"
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
-#include "SkCrossContextImageData.h"
 #include "SkBitmapCache.h"
 #include "SkGr.h"
 #include "SkImage_Gpu.h"
@@ -268,8 +267,7 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
         tex->setRelease(releaseProc, releaseCtx);
     }
 
-    const SkBudgeted budgeted = (kAdoptAndCache_GrWrapOwnership == ownership)
-            ? SkBudgeted::kYes : SkBudgeted::kNo;
+    const SkBudgeted budgeted = SkBudgeted::kNo;
     sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(tex)));
     return sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
                                    at, std::move(proxy), std::move(colorSpace), budgeted);
@@ -500,64 +498,6 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
                                                     codecImage->alphaType(),
                                                     std::move(texColorSpace));
     return SkImage::MakeFromGenerator(std::move(gen));
-}
-
-std::unique_ptr<SkCrossContextImageData> SkCrossContextImageData::MakeFromEncoded(
-        GrContext* context, sk_sp<SkData> encoded, SkColorSpace* dstColorSpace) {
-    sk_sp<SkImage> codecImage = SkImage::MakeFromEncoded(std::move(encoded));
-    if (!codecImage) {
-        return nullptr;
-    }
-
-    // Some backends or drivers don't support (safely) moving resources between contexts
-    if (!context->caps()->crossContextTextureSupport()) {
-        return std::unique_ptr<SkCrossContextImageData>(
-            new SkCCIDImage(std::move(codecImage)));
-    }
-
-    sk_sp<SkImage> textureImage = codecImage->makeTextureImage(context, dstColorSpace);
-    if (!textureImage) {
-        // TODO: Force decode to raster here? Do mip-mapping, like getDeferredTextureImageData?
-        return std::unique_ptr<SkCrossContextImageData>(
-            new SkCCIDImage(std::move(codecImage)));
-    }
-
-    // Crack open the gpu image, extract the backend data, stick it in the SkCCID
-    GrTexture* texture = as_IB(textureImage)->peekTexture();
-    SkASSERT(texture);
-
-    context->contextPriv().prepareSurfaceForExternalIO(as_IB(textureImage)->peekProxy());
-    auto textureData = texture->texturePriv().detachBackendTexture();
-    SkASSERT(textureData);
-
-    GrBackend backend = context->contextPriv().getBackend();
-    GrBackendTexture backendTex = make_backend_texture_from_handle(backend,
-                                                                   texture->width(),
-                                                                   texture->height(),
-                                                                   texture->config(),
-                                                                   textureData->getBackendObject());
-
-    SkImageInfo info = as_IB(textureImage)->onImageInfo();
-    return std::unique_ptr<SkCrossContextImageData>(new SkCCIDBackendTexture(
-        backendTex, texture->origin(), std::move(textureData),
-        info.alphaType(), info.refColorSpace()));
-}
-
-sk_sp<SkImage> SkCCIDBackendTexture::makeImage(GrContext* context) {
-    if (fTextureData) {
-        fTextureData->attachToContext(context);
-    }
-
-    // This texture was created by Ganesh on another thread (see MakeFromEncoded, above).
-    // Thus, we can import it back into our cache and treat it as our own (again).
-    GrWrapOwnership ownership = kAdoptAndCache_GrWrapOwnership;
-    return new_wrapped_texture_common(context, fBackendTex, fOrigin, fAlphaType,
-                                      std::move(fColorSpace), ownership, nullptr, nullptr);
-}
-
-sk_sp<SkImage> SkImage::MakeFromCrossContextImageData(
-        GrContext* context, std::unique_ptr<SkCrossContextImageData> ccid) {
-    return ccid->makeImage(context);
 }
 
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {
