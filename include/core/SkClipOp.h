@@ -10,20 +10,20 @@
 
 #include "SkTypes.h"
 
-// SkClipOp enum values always match the corresponding values in SkRegion::Op
-
 enum class SkClipOp {
     kDifference    = 0,
     kIntersect     = 1,
 
-    // Goal: remove these, since they can grow the current clip
-
+#ifdef SK_SUPPORT_DEPRECATED_CLIPOPS
     kUnion_deprecated             = 2,
     kXOR_deprecated               = 3,
     kReverseDifference_deprecated = 4,
     kReplace_deprecated           = 5,
 
     kMax_EnumValue = kReplace_deprecated,
+#else
+    kMax_EnumValue = kIntersect,
+#endif
 };
 
 #endif
