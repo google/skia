@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77e7dc57_e3fed7cf",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1937,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-10T20:47:33Z",
+      "side": 1,
+      "message": "I think SkRasterPipelineBlitter always adds a paint alpha stage after the shader - then this is probably incorrect?\n\n(would be nice to communicate back that the shader handles paint alpha, and skip that stage for some shaders)",
+      "range": {
+        "startLine": 1937,
+        "startChar": 30,
+        "endLine": 1937,
+        "endChar": 35
+      },
+      "revId": "63757db1b2e8c9e76d13b1f2017dc851b19882fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
