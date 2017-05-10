@@ -110,9 +110,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
          is_constant = blitter->fDitherCtx.rate == 0.0f;
     if (shader) {
         pipeline->append(SkRasterPipeline::seed_shader, &blitter->fCurrentY);
-        if (!shader->appendStages(pipeline, dst.colorSpace(), alloc, ctm, paint)) {
-            return nullptr;
-        }
+        shader->appendStages(pipeline, dst.colorSpace(), alloc, ctm, paint);
         if (!is_opaque) {
             pipeline->append(SkRasterPipeline::scale_1_float,
                              &paintColor->fVec[SkPM4f::A]);

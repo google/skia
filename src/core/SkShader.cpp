@@ -255,20 +255,18 @@ void SkShader::toString(SkString* str) const {
 }
 #endif
 
-bool SkShader::appendStages(SkRasterPipeline* pipeline,
-                            SkColorSpace* dst,
-                            SkArenaAlloc* scratch,
+void SkShader::appendStages(SkRasterPipeline* p,
+                            SkColorSpace* dstCS,
+                            SkArenaAlloc* alloc,
                             const SkMatrix& ctm,
-                            const SkPaint& paint) const {
-    return this->onAppendStages(pipeline, dst, scratch, ctm, paint, nullptr);
-}
+                            const SkPaint& paint,
+                            const SkMatrix* localM) const {
+    SkRasterPipeline subclass;
+    if (this->onAppendStages(&subclass, dstCS, alloc, ctm, paint, localM)) {
+        p->extend(subclass);
+        return;
+    }
 
-bool SkShader::onAppendStages(SkRasterPipeline* p,
-                              SkColorSpace* cs,
-                              SkArenaAlloc* alloc,
-                              const SkMatrix& ctm,
-                              const SkPaint& paint,
-                              const SkMatrix* localM) const {
     // Legacy shaders handle the paint opacity internally,
     // but RP applies it as a separate stage.
     SkTCopyOnFirstWrite<SkPaint> opaquePaint(paint);
@@ -276,27 +274,36 @@ bool SkShader::onAppendStages(SkRasterPipeline* p,
         opaquePaint.writable()->setAlpha(SK_AlphaOPAQUE);
     }
 
-    ContextRec rec(*opaquePaint, ctm, localM, ContextRec::kPM4f_DstType, cs);
-    if (Context* ctx = this->makeContext(rec, alloc)) {
-        struct CallbackCtx : SkJumper_CallbackCtx {
-            Context* ctx;
-        };
+    ContextRec rec(*opaquePaint, ctm, localM, ContextRec::kPM4f_DstType, dstCS);
 
-        auto cb = alloc->make<CallbackCtx>();
-        cb->ctx = ctx;
-        cb->fn  = [](SkJumper_CallbackCtx* self, int active_pixels) {
-            auto c = (CallbackCtx*)self;
-            int x = (int)c->rgba[0],
-                y = (int)c->rgba[1];
-            c->ctx->shadeSpan4f(x,y, (SkPM4f*)c->rgba, active_pixels);
-        };
-        p->append(SkRasterPipeline::callback, cb);
+    struct CallbackCtx : SkJumper_CallbackCtx {
+        sk_sp<SkShader> shader;
+        Context*        ctx;
+    };
+    auto cb = alloc->make<CallbackCtx>();
+    cb->shader = dstCS ? SkColorSpaceXformer::Make(sk_ref_sp(dstCS))->apply(this)
+                       : sk_ref_sp(const_cast<SkShader*>(this));
+    cb->ctx = cb->shader->makeContext(rec, alloc);
+    SkASSERT(cb->ctx);
+    cb->fn  = [](SkJumper_CallbackCtx* self, int active_pixels) {
+        auto c = (CallbackCtx*)self;
+        int x = (int)c->rgba[0],
+            y = (int)c->rgba[1];
+        c->ctx->shadeSpan4f(x,y, (SkPM4f*)c->rgba, active_pixels);
+    };
+    p->append(SkRasterPipeline::callback, cb);
 
-        // Legacy shaders aren't aware of color spaces. We can pretty
-        // safely assume they're in sRGB gamut.
-        append_gamut_transform(p, alloc, SkColorSpace::MakeSRGB().get(), cs);
-        return true;
-    }
+    // Legacy shaders aren't aware of color spaces. We can pretty
+    // safely assume they're in sRGB gamut.
+    append_gamut_transform(p, alloc, SkColorSpace::MakeSRGB().get(), dstCS);
+}
+
+bool SkShader::onAppendStages(SkRasterPipeline* p,
+                              SkColorSpace* dstCS,
+                              SkArenaAlloc* alloc,
+                              const SkMatrix& ctm,
+                              const SkPaint& paint,
+                              const SkMatrix* localM) const {
     return false;
 }
 
