@@ -50,7 +50,7 @@ void GrTextureOpList::validateTargetsSingleRenderTarget() const {
 #endif
 
 void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
-    // MDB TODO: add SkASSERT(this->isClosed());
+    SkASSERT(this->isClosed());
 
     // Loop over the ops that haven't yet generated their geometry
     for (int i = 0; i < fRecordedOps.count(); ++i) {
@@ -77,10 +77,12 @@ bool GrTextureOpList::executeOps(GrOpFlushState* flushState) {
 
 void GrTextureOpList::reset() {
     fRecordedOps.reset();
+    INHERITED::reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// MDB TODO: fuse with GrRenderTargetOpList::copySurface
 bool GrTextureOpList::copySurface(GrResourceProvider* resourceProvider,
                                   GrSurfaceProxy* dst,
                                   GrSurfaceProxy* src,

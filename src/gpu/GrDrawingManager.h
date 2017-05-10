@@ -88,6 +88,7 @@ private:
         , fFlushState(context->getGpu(), context->resourceProvider())
         , fFlushing(false)
         , fIsImmediateMode(isImmediateMode) {
+        SkDebugf("sizeof(rtop): %d\n", sizeof(GrRenderTargetOpList));
     }
 
     void abandon();
