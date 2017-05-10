@@ -560,6 +560,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         case Statement::kSwitch_Kind: {
             SwitchStatement& ss = (SwitchStatement&) **s;
             this->addExpression(cfg, &ss.fValue, true);
+            cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind, false,
+                                                         nullptr, s });
             BlockId start = cfg.fCurrent;
             BlockId switchExit = cfg.newIsolatedBlock();
             fLoopExits.push(switchExit);
