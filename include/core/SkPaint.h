@@ -49,8 +49,8 @@ public:
     SkPaint(SkPaint&& paint);
     ~SkPaint();
 
-    SkPaint& operator=(const SkPaint&);
-    SkPaint& operator=(SkPaint&&);
+    SkPaint& operator=(const SkPaint& paint);
+    SkPaint& operator=(SkPaint&& paint);
 
     /** operator== may give false negatives: two paints that draw equivalently
         may return false.  It will never give false positives: two paints that
@@ -66,8 +66,8 @@ public:
      */
     uint32_t getHash() const;
 
-    void flatten(SkWriteBuffer&) const;
-    void unflatten(SkReadBuffer&);
+    void flatten(SkWriteBuffer& buffer) const;
+    void unflatten(SkReadBuffer& buffer);
 
     /** Restores the paint to its initial settings.
     */
@@ -234,7 +234,7 @@ public:
      *  X values, and drawText will places its glyphs vertically rather than
      *  horizontally.
      */
-    void setVerticalText(bool);
+    void setVerticalText(bool verticalText);
 
     /** Helper for getFlags(), returns true if kFakeBoldText_Flag bit is set
         @return true if the kFakeBoldText_Flag bit is set in the paint's flags.
@@ -485,7 +485,7 @@ public:
      *  If shader is not NULL, its reference count is incremented.
      *  @param shader   May be NULL. The shader to be installed in the paint
      */
-    void setShader(sk_sp<SkShader>);
+    void setShader(sk_sp<SkShader> shader);
 
     /** Get the paint's colorfilter. If there is a colorfilter, its reference
         count is not changed.
@@ -500,7 +500,7 @@ public:
         If filter is not NULL, its reference count is incremented.
         @param filter   May be NULL. The filter to be installed in the paint
     */
-    void setColorFilter(sk_sp<SkColorFilter>);
+    void setColorFilter(sk_sp<SkColorFilter> colorFilter);
 
     SkBlendMode getBlendMode() const { return (SkBlendMode)fBlendMode; }
     bool isSrcOver() const { return (SkBlendMode)fBlendMode == SkBlendMode::kSrcOver; }
@@ -524,7 +524,7 @@ public:
                         paint
         @return         effect
     */
-    void setPathEffect(sk_sp<SkPathEffect>);
+    void setPathEffect(sk_sp<SkPathEffect> pathEffect);
 
     /** Get the paint's maskfilter object.
         <p />
@@ -544,7 +544,7 @@ public:
                             the paint
         @return             maskfilter
     */
-    void setMaskFilter(sk_sp<SkMaskFilter>);
+    void setMaskFilter(sk_sp<SkMaskFilter> maskFilter);
 
     // These attributes are for text/fonts
 
@@ -567,7 +567,7 @@ public:
                         paint
         @return         typeface
     */
-    void setTypeface(sk_sp<SkTypeface>);
+    void setTypeface(sk_sp<SkTypeface> typeface);
 
     /** Get the paint's rasterizer (or NULL).
         <p />
@@ -588,11 +588,11 @@ public:
                           the paint.
         @return           rasterizer
     */
-    void setRasterizer(sk_sp<SkRasterizer>);
+    void setRasterizer(sk_sp<SkRasterizer> rasterizer);
 
     SkImageFilter* getImageFilter() const { return fImageFilter.get(); }
     sk_sp<SkImageFilter> refImageFilter() const;
-    void setImageFilter(sk_sp<SkImageFilter>);
+    void setImageFilter(sk_sp<SkImageFilter> imageFilter);
 
     /**
      *  Return the paint's SkDrawLooper (if any). Does not affect the looper's
@@ -611,9 +611,9 @@ public:
      *  incremented.
      *  @param looper May be NULL. The new looper to be installed in the paint.
      */
-    void setDrawLooper(sk_sp<SkDrawLooper>);
+    void setDrawLooper(sk_sp<SkDrawLooper> drawLooper);
 
-    void setLooper(sk_sp<SkDrawLooper>);
+    void setLooper(sk_sp<SkDrawLooper> drawLooper);
 
     enum Align {
         kLeft_Align,
@@ -1009,13 +1009,15 @@ public:
     // Take the style explicitly, so the caller can force us to be stroked
     // without having to make a copy of the paint just to change that field.
     const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
-                                      Style) const;
+                                      Style style) const;
 
-    typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**);
+
 
     SK_TO_STRING_NONVIRT()
 
 private:
+    typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**);
+
     sk_sp<SkTypeface>     fTypeface;
     sk_sp<SkPathEffect>   fPathEffect;
     sk_sp<SkShader>       fShader;
