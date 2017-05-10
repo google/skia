@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad81db80_31eb4a03",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1153,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-05-10T18:50:35Z",
+      "side": 1,
+      "message": "nit: might want to add a comment that this tests fallthrough",
+      "range": {
+        "startLine": 1153,
+        "startChar": 4,
+        "endLine": 1153,
+        "endChar": 11
+      },
+      "revId": "2422965fb37a71fea44141a74e57eae8e3ecf8c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
