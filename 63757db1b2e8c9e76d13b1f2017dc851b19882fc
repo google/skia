@@ -70,6 +70,30 @@
       "revId": "63757db1b2e8c9e76d13b1f2017dc851b19882fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4382371_fc9f2e6d",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1937,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-10T21:00:48Z",
+      "side": 1,
+      "message": "Sure, but not importantly so.",
+      "parentUuid": "7643169b_e6207ebb",
+      "range": {
+        "startLine": 1937,
+        "startChar": 30,
+        "endLine": 1937,
+        "endChar": 35
+      },
+      "revId": "63757db1b2e8c9e76d13b1f2017dc851b19882fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
