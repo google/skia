@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4bd119df_5084b550",
+        "filename": "src/gpu/GrPathUtils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-10T11:31:20Z",
+      "side": 1,
+      "message": "// \u0027tol\u0027 should\u0027ve been computed using \u0027scaleToleranceToSrc\u0027 \n\nhere and elsewhere?",
+      "revId": "25294d76b1c5ca34ba6cc7033ee42af6484b046b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
