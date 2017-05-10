@@ -388,6 +388,30 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
 
 ///////////////////////////////////////////////////////////////////////////////
 
+namespace {
+
+class SkAutoDeviceClipRestore {
+public:
+    SkAutoDeviceClipRestore(SkBaseDevice* device, const SkIRect& clip)
+        : fDevice(device)
+        , fPrevCTM(device->ctm()) {
+        fDevice->save();
+        fDevice->setCTM(SkMatrix::I());
+        fDevice->clipRect(SkRect::Make(clip), SkClipOp::kIntersect, false);
+        fDevice->setCTM(fPrevCTM);
+    }
+
+    ~SkAutoDeviceClipRestore() {
+        fDevice->restore(fPrevCTM);
+    }
+
+private:
+    SkBaseDevice*  fDevice;
+    const SkMatrix fPrevCTM;
+};
+
+}  // anonymous ns
+
 void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPaint& origPaint,
                                  SkImage* clipImage, const SkMatrix& clipMatrix) {
     SkASSERT(!src->isTextureBacked());
@@ -430,7 +454,6 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
     }
 
     const SkMatrix totalMatrix = SkMatrix::Concat(this->ctm(), clipMatrix);
-
     SkRect clipBounds;
     totalMatrix.mapRect(&clipBounds, SkRect::Make(clipImage->bounds()));
     const SkIRect srcBounds = srcImage->bounds().makeOffset(x, y);
@@ -440,18 +463,40 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
         return;
     }
 
-    sk_sp<SkSurface> surf = SkSurface::MakeRaster(SkImageInfo::MakeA8(maskBounds.width(),
-                                                                      maskBounds.height()));
-    SkCanvas* canvas = surf->getCanvas();
-    canvas->translate(-maskBounds.x(), -maskBounds.y());
-    canvas->concat(totalMatrix);
-    canvas->drawImage(clipImage, 0, 0);
-    sk_sp<SkImage> mask = surf->makeImageSnapshot();
+    sk_sp<SkImage> mask;
+    SkMatrix maskMatrix, shaderMatrix;
+    SkTLazy<SkAutoDeviceClipRestore> autoClipRestore;
 
-    const SkMatrix m = SkMatrix::MakeTrans(x - maskBounds.x(), y - maskBounds.y());
-    paint.writable()->setShader(srcImage->makeShader(&m));
+    SkMatrix totalInverse;
+    if (clipImage->isAlphaOnly() && totalMatrix.invert(&totalInverse)) {
+        // If the mask is already in A8 format, we can draw it directly
+        // (while compensating in the shader matrix).
+        mask = sk_ref_sp(clipImage);
+        maskMatrix = totalMatrix;
+        shaderMatrix = SkMatrix::Concat(totalInverse, SkMatrix::MakeTrans(x, y));
 
-    SkAutoDeviceCTMRestore adctmr(this, SkMatrix::I());
+        // If the mask is not fully contained within the src layer, we must clip.
+        if (!srcBounds.contains(clipBounds)) {
+            autoClipRestore.init(this, srcBounds);
+        }
+
+        maskBounds.offsetTo(0, 0);
+    } else {
+        // Otherwise, we convert the mask to A8 explicitly.
+        sk_sp<SkSurface> surf = SkSurface::MakeRaster(SkImageInfo::MakeA8(maskBounds.width(),
+                                                                          maskBounds.height()));
+        SkCanvas* canvas = surf->getCanvas();
+        canvas->translate(-maskBounds.x(), -maskBounds.y());
+        canvas->concat(totalMatrix);
+        canvas->drawImage(clipImage, 0, 0);
+
+        mask = surf->makeImageSnapshot();
+        maskMatrix = SkMatrix::I();
+        shaderMatrix = SkMatrix::MakeTrans(x - maskBounds.x(), y - maskBounds.y());
+    }
+
+    SkAutoDeviceCTMRestore adctmr(this, maskMatrix);
+    paint.writable()->setShader(srcImage->makeShader(&shaderMatrix));
     this->drawImage(mask.get(), maskBounds.x(), maskBounds.y(), *paint);
 }
 
