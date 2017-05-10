@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "de90f726_c4ae48c2",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 792,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-05-10T18:34:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9f4fbd5_f0c6b21b",
+      "range": {
+        "startLine": 792,
+        "startChar": 15,
+        "endLine": 792,
+        "endChar": 16
+      },
+      "revId": "ce1a1daeda35f66b1654b4957dbd262f48c3476d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa54788a_95c40707",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ce2cfae1_aece76a6",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-05-10T18:34:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa54788a_95c40707",
+      "range": {
+        "startLine": 809,
+        "startChar": 37,
+        "endLine": 809,
+        "endChar": 47
+      },
+      "revId": "ce1a1daeda35f66b1654b4957dbd262f48c3476d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f79e4087_55a164b6",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2017-05-09T17:48:12Z",
       "side": 1,
       "message": "nit: found \u003d c-\u003efValue-\u003ecompareConstant(fContext, *s.fValue);",
+      "range": {
+        "startLine": 903,
+        "startChar": 20,
+        "endLine": 914,
+        "endChar": 21
+      },
+      "revId": "ce1a1daeda35f66b1654b4957dbd262f48c3476d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ecb6670_abf4adeb",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-05-10T18:34:13Z",
+      "side": 1,
+      "message": "Good catch.",
+      "parentUuid": "f79e4087_55a164b6",
       "range": {
         "startLine": 903,
         "startChar": 20,
@@ -91,6 +163,30 @@
       "revId": "ce1a1daeda35f66b1654b4957dbd262f48c3476d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee80f7d6_4d5d8fc0",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1030,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-05-10T18:34:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3f40f0b1_ad3159f7",
+      "range": {
+        "startLine": 1030,
+        "startChar": 87,
+        "endLine": 1030,
+        "endChar": 88
+      },
+      "revId": "ce1a1daeda35f66b1654b4957dbd262f48c3476d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
