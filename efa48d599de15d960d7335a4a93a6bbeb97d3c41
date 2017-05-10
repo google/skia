@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3bd29620_f68ecc4a",
+        "filename": "experimental/go-demo/main.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-10T17:08:23Z",
+      "side": 1,
+      "message": "Agreed. That\u0027s one of the cases where the binding is not idiomatic Go yet.  There seem to be a lot of calls in Skia that will just return NULL without telling why. In follow up iterations I\u0027ll add catching these cases and handling them.",
+      "parentUuid": "c1a1b97b_f8291a35",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 16
+      },
+      "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f667eaee_06470125",
         "filename": "experimental/go-skia/skia.go",
         "patchSetId": 20
@@ -45,6 +69,30 @@
       "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c65678ea_56054ef9",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-10T17:08:23Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f667eaee_06470125",
+      "range": {
+        "startLine": 54,
+        "startChar": 1,
+        "endLine": 54,
+        "endChar": 16
+      },
+      "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -95,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "fa156ed4_6a21f88c",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-10T17:08:23Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6cb6cc49_a6338e7d",
+      "range": {
+        "startLine": 79,
+        "startChar": 16,
+        "endLine": 79,
+        "endChar": 24
+      },
+      "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dca7721a_5bf60f78",
         "filename": "experimental/go-skia/skia.go",
         "patchSetId": 20
@@ -106,6 +178,30 @@
       "writtenOn": "2017-05-10T16:40:07Z",
       "side": 1,
       "message": "It seems like cgo ought to have an option to automatically define these.",
+      "range": {
+        "startLine": 200,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 1
+      },
+      "revId": "efa48d599de15d960d7335a4a93a6bbeb97d3c41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41a4d2a2_82144da0",
+        "filename": "experimental/go-skia/skia.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-05-10T17:08:23Z",
+      "side": 1,
+      "message": "I don\u0027t understand what you mean. \nBy generating types.go from ctypes.go (via \u0027go tool cgo -godefs\u0027) we get a definition of a Go struct where the memory layout matches the corresponding C struct.  This is just a convenience function todo the casting. \nMaybe there is a better way to define it, but I don\u0027t think there is a substantially better way to accomplish this.\nPlease clarify if I misunderstand.",
+      "parentUuid": "dca7721a_5bf60f78",
       "range": {
         "startLine": 200,
         "startChar": 0,
