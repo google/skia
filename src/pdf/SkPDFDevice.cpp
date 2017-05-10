@@ -209,6 +209,7 @@ bool apply_clip(SkClipOp op, const SkPath& u, const SkPath& v, SkPath* r)  {
             return Op(u, v, kDifference_SkPathOp, r);
         case SkClipOp::kIntersect:
             return Op(u, v, kIntersect_SkPathOp, r);
+#ifdef SK_SUPPORT_DEPRECATED_CLIPOPS
         case SkClipOp::kUnion_deprecated:
             return Op(u, v, kUnion_SkPathOp, r);
         case SkClipOp::kXOR_deprecated:
@@ -218,6 +219,7 @@ bool apply_clip(SkClipOp op, const SkPath& u, const SkPath& v, SkPath* r)  {
         case SkClipOp::kReplace_deprecated:
             *r = v;
             return true;
+#endif
         default:
             return false;
     }
