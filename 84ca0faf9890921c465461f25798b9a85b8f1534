@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e6ca6b8_af193303",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-10T12:14:41Z",
+      "side": 1,
+      "message": "I find this kind of surprising, even without avx2: is it not supposed to be ~ const-time, vs linear in nr of stops before?  Are the hicolor bench numbers close to the other ones on that box?",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 51
+      },
+      "revId": "84ca0faf9890921c465461f25798b9a85b8f1534",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
