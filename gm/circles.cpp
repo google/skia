@@ -205,3 +205,241 @@ static GM* MyFactory(void*) { return new CircleGM; }
 static GMRegistry reg(MyFactory);
 
 }
+
+DEF_SIMPLE_GM(readpixels, canvas, 256,256) {
+    canvas->clear(0x8055aaff);
+    for (SkAlphaType alphaType : { kPremul_SkAlphaType, kUnpremul_SkAlphaType } ) {
+        uint32_t pixel = 0;
+        SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType, alphaType);
+        if (canvas->readPixels(info, &pixel, 4, 0, 0)) {
+            SkDebugf("pixel = %08x\n", pixel);
+        }
+    }
+}
+
+DEF_SIMPLE_GM(readpixels2, canvas, 256,256) {
+    canvas->clear(0x8055aaff);
+    SkBitmap bitmap;
+    bitmap.setInfo(canvas->imageInfo());
+    canvas->readPixels(bitmap, 1, 1);
+    SkDebugf("pixel = %08x\n", bitmap.getAddr32(0, 0)[0]);
+ }
+
+DEF_SIMPLE_GM(writepixels, canvas, 256,256) {
+    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(2, 2);
+    SkBitmap bitmap;
+    bitmap.setInfo(imageInfo);
+    uint32_t pixels[] = {0x3399dd33, 0x6699dd33, 0x9999dd33, 0xCC99dd33}; 
+    bitmap.setPixels(pixels);
+    for (int y = 0; y < 256; y += 2) {
+    for (int x = 0; x < 256;  x += 2) {
+
+    canvas->writePixels(bitmap, x, y);
+}
+}
+    canvas->drawColor(0x80eebb99);
+}
+
+DEF_SIMPLE_GM(savelcd, canvas, 256,256) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setLCDRenderText(true);
+    paint.setTextSize(20);
+    canvas->clear(SK_ColorWHITE);
+    for (auto preserve : { false, true } ) {
+        preserve ? canvas->saveLayerPreserveLCDTextRequests(nullptr, nullptr)
+                 : canvas->saveLayer(nullptr, nullptr);
+            canvas->drawText("Hamburgefons", 12, 30, 60, paint);
+
+        SkPaint p;
+        p.setColor(0xFFCCCCCC);
+        canvas->drawRect(SkRect::MakeLTRB(25, 70, 200, 100), p);
+        canvas->drawText("Hamburgefons", 12, 30, 90, paint);
+
+        canvas->restore();
+        canvas->translate(0, 80);
+    }
+}
+
+DEF_SIMPLE_GM(accessTopLayerPixels, canvas, 256,256) {
+  SkPaint paint;
+  paint.setTextSize(100);
+  canvas->clear(SK_ColorWHITE);
+  canvas->drawText("ABC", 3, 20, 160, paint);
+  SkRect layerBounds = SkRect::MakeXYWH(96, 96, 64, 64);
+  canvas->saveLayerAlpha(&layerBounds, 160);
+  canvas->clear(SK_ColorWHITE);
+  canvas->drawText("DEF", 3, 20, 160, paint);
+  SkImageInfo imageInfo;
+  size_t rowBytes;
+  SkIPoint origin;
+  uint32_t* access = (uint32_t*) canvas->accessTopLayerPixels(&imageInfo, &rowBytes, &origin);
+  if (access) {
+    int h = imageInfo.height();
+    int v = imageInfo.width();
+    int rowWords = rowBytes / sizeof(uint32_t);
+    for (int y = 0; y < h; ++y) {
+        int newY = (y - h / 2) * 2 + h / 2;
+        if (newY < 0 || newY >= h) {
+            continue;
+        }
+        for (int x = 0; x < v; ++x) {
+            int newX = (x - v / 2) * 2 + v / 2;
+            if (newX < 0 || newX >= v) {
+                continue;
+            }
+            if (access[y * rowWords + x] == SK_ColorBLACK) {
+                access[newY * rowWords + newX] = SK_ColorGRAY;
+            }
+        }
+    }
+
+  }
+  canvas->restore();
+}
+
+#include "SkColorMatrixFilter.h"
+#include "SkImageFilter.h"
+#include "SkLayerDrawLooper.h"
+#include "SkLayerRasterizer.h"
+#include "SkRegion.h"
+
+DEF_SIMPLE_GM(everydarnthing, canvas, 256, 256) {
+    SkLayerDrawLooper::LayerInfo info;
+    info.fPaintBits = (SkLayerDrawLooper::BitFlags) SkLayerDrawLooper::kColorFilter_Bit;
+    info.fColorMode = SkBlendMode::kSrc;
+    SkLayerDrawLooper::Builder looperBuilder;
+    SkPaint* loopPaint = looperBuilder.addLayer(info);
+    loopPaint->setColor(SK_ColorRED);
+    info.fOffset.set(20, 20);
+    loopPaint = looperBuilder.addLayer(info);
+    loopPaint->setColor(SK_ColorBLUE);
+    SkPaint paint;
+    paint.setDrawLooper(looperBuilder.detach());
+    loopPaint->setMaskFilter(SkBlurMaskFilter::Make(kSolid_SkBlurStyle, 3));
+    loopPaint->setColorFilter(SkColorMatrixFilter::MakeLightingFilter(0xFFFFFF, 0xFF0000));
+    canvas->drawCircle(50, 50, 50, paint);
+    canvas->translate(0, 120);
+}
+
+DEF_SIMPLE_GM(colorfilter, canvas, 256, 256) {
+    SkPaint paint;
+    paint.setColorFilter(SkColorMatrixFilter::MakeLightingFilter(0xFFFFFF, 0xFF0000));
+    for (SkColor c : { SK_ColorBLACK, SK_ColorGREEN } ) {
+        paint.setColor(c);
+        canvas->drawRect(SkRect::MakeXYWH(50, 50, 50, 50), paint);
+        paint.setAlpha(0x80);
+        canvas->drawRect(SkRect::MakeXYWH(100, 100, 50, 50), paint);
+        canvas->translate(100, 0);
+    }
+}
+
+DEF_SIMPLE_GM(rastermask, canvas, 256, 256) {
+        SkLayerRasterizer::Builder layerBuilder;
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(2);
+        layerBuilder.addLayer(paint);
+        paint.reset();
+        paint.setAntiAlias(true);
+        paint.setTextSize(50);
+        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 3));
+        paint.setRasterizer(layerBuilder.detach());
+        canvas->clear(SK_ColorWHITE);
+        canvas->drawText("blurry out", 10, 0, 50, paint);
+}
+
+DEF_SIMPLE_GM(rastermask2, canvas, 256, 256) {
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(2);
+        SkRegion region;
+        region.op( 10, 10, 50, 50, SkRegion::kUnion_Op);
+        region.op( 10, 50, 90, 90, SkRegion::kUnion_Op);
+        canvas->clear(SK_ColorWHITE);
+        paint.setImageFilter(SkImageFilter::MakeBlur(5.0f, 5.0f, nullptr));
+        canvas->drawRegion(region, paint);
+        paint.setImageFilter(nullptr);
+        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 5));
+        canvas->translate(100, 100);
+        canvas->drawRegion(region, paint);
+}
+
+DEF_SIMPLE_GM(lottafilters, canvas, 256, 256) {
+        SkPaint paint;
+     paint.setColorFilter(SkColorMatrixFilter::MakeLightingFilter(0x0000FF, 0xFF0000));
+   SkPoint center = { 50, 50 };
+   SkScalar radius = 50;
+   const SkColor colors[] = { 0xFF00FFFF, 0xFFFFFF00 };
+    paint.setShader(SkGradientShader::MakeRadial(center, radius, colors,
+        nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(2);
+        SkRegion region;
+        region.op( 10, 10, 50, 50, SkRegion::kUnion_Op);
+        region.op( 10, 50, 90, 90, SkRegion::kUnion_Op);
+        canvas->clear(SK_ColorWHITE);
+        paint.setImageFilter(SkImageFilter::MakeBlur(5.0f, 5.0f, nullptr));
+        canvas->drawRegion(region, paint);
+        paint.setImageFilter(nullptr);
+        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 5));
+        canvas->translate(0, 110);
+        canvas->drawRegion(region, paint);
+        canvas->translate(110, 0);
+        paint.setImageFilter(SkImageFilter::MakeBlur(5.0f, 5.0f, nullptr));
+        canvas->drawRegion(region, paint);
+}
+
+
+DEF_SIMPLE_GM(restoreloop, canvas, 256, 256) {
+    canvas->clear(SK_ColorWHITE);
+    SkPaint redPaint, bluePaint;
+    redPaint.setAntiAlias(true);
+    redPaint.setColor(SK_ColorRED);
+    bluePaint.setColor(SK_ColorBLUE);
+    for (int i = 0; i < 2; ++i) {
+    canvas->drawCircle(21, 21, 8, redPaint);
+    canvas->drawCircle(31, 21, 8, bluePaint);
+    SkMatrix matrix;
+    matrix.setScale(4, 4);
+    auto scaler = SkImageFilter::MakeMatrixFilter(matrix, kNone_SkFilterQuality, nullptr);
+        SkLayerDrawLooper::LayerInfo info;
+        info.fPaintBits = (SkLayerDrawLooper::BitFlags) SkLayerDrawLooper::kColorFilter_Bit;
+        info.fColorMode = SkBlendMode::kSrc;
+        info.fOffset.set(10, 0);
+        SkLayerDrawLooper::Builder looperBuilder;
+        SkPaint* loopPaint = looperBuilder.addLayer(info);
+        loopPaint->setAlpha(64);
+        if (i == 0) {
+        info.fOffset.set(0, -10);
+        loopPaint = looperBuilder.addLayer(info);
+        loopPaint->setAlpha(64);
+        }
+        SkPaint paint;
+        paint.setDrawLooper(looperBuilder.detach());
+        SkRect bounds = { 0, 0, 250, 250 };
+    SkCanvas::SaveLayerRec saveLayerRec(&bounds, &paint, scaler.get(), 0); 
+    canvas->saveLayer(saveLayerRec);
+    canvas->drawCircle(125, 85, 8, redPaint);
+    canvas->restore();
+    canvas->translate(250, 0);
+    }
+}
+
+#include "SkPath.h"
+
+DEF_SIMPLE_GM(localbounds, canvas, 256, 256) {
+    SkCanvas local(256, 256);
+  //  canvas = &local;
+    SkRect bounds = canvas->getLocalClipBounds();
+    SkDebugf("left:%g  top:%g  right:%g  bottom:%g\n",
+            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
+    SkPoint clipPoints[]  = {{30, 130}, {120, 130}, {120, 230} }; 
+    SkPath clipPath;
+    clipPath.addPoly(clipPoints, SK_ARRAY_COUNT(clipPoints), true);
+    canvas->clipPath(clipPath);
+    bounds = canvas->getLocalClipBounds();
+    SkDebugf("left:%g  top:%g  right:%g  bottom:%g\n",
+            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
+}
