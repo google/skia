@@ -831,7 +831,7 @@ DEF_TEST(SkSLMatFolding, r) {
          "}\n");
 }
 
-DEF_TEST(SkSLStaticIf, r) {
+DEF_TEST(SkSLConstantIf, r) {
     test(r,
          "void main() {"
          "int x;"
@@ -1067,10 +1067,11 @@ DEF_TEST(SkSLGeometry, r) {
 }
 
 DEF_TEST(SkSLSwitch, r) {
+    // basic "does a switch even work" test
     test(r,
          "void main() {"
          "    float x;"
-         "    switch (1) {"
+         "    switch (int(sqrt(1))) {"
          "        case 0:"
          "            x = 0.0;"
          "            break;"
@@ -1087,7 +1088,7 @@ DEF_TEST(SkSLSwitch, r) {
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    float x;\n"
-         "    switch (1) {\n"
+         "    switch (int(sqrt(1.0))) {\n"
          "        case 0:\n"
          "            x = 0.0;\n"
          "            break;\n"
@@ -1099,10 +1100,11 @@ DEF_TEST(SkSLSwitch, r) {
          "    }\n"
          "    sk_FragColor = vec4(x);\n"
          "}\n");
+    // dead code inside of switch
     test(r,
          "void main() {"
          "    float x;"
-         "    switch (2) {"
+         "    switch (int(sqrt(2))) {"
          "        case 0:"
          "            x = 0.0;"
          "        case 1:"
@@ -1116,7 +1118,7 @@ DEF_TEST(SkSLSwitch, r) {
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    switch (2) {\n"
+         "    switch (int(sqrt(2.0))) {\n"
          "        case 0:\n"
          "            ;\n"
          "        case 1:\n"
@@ -1126,10 +1128,11 @@ DEF_TEST(SkSLSwitch, r) {
          "    }\n"
          "    sk_FragColor = vec4(2.0);\n"
          "}\n");
+    // non-static test w/ fallthrough
     test(r,
          "void main() {"
          "    float x = 0.0;"
-         "    switch (3) {"
+         "    switch (int(sqrt(3))) {"
          "        case 0:"
          "            x = 0.0;"
          "        case 1:"
@@ -1142,9 +1145,110 @@ DEF_TEST(SkSLSwitch, r) {
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    float x = 0.0;\n"
-         "    switch (3) {\n"
+         "    switch (int(sqrt(3.0))) {\n"
          "        case 0:\n"
          "            x = 0.0;\n"
+         "        case 1:\n"
+         "            x = 1.0;\n"
+         "    }\n"
+         "    sk_FragColor = vec4(x);\n"
+         "}\n");
+    // static test w/ fallthrough
+    test(r,
+         "void main() {"
+         "    float x = 0.0;"
+         "    switch (0) {"
+         "        case 0:"
+         "            x = 0.0;"
+         "        case 1:"
+         "            x = 1.0;"
+         "    }"
+         "    sk_FragColor = vec4(x);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(1.0);\n"
+         "}\n");
+    // static test w/ fallthrough, different entry point
+    test(r,
+         "void main() {"
+         "    float x = 0.0;"
+         "    switch (1) {"
+         "        case 0:"
+         "            x = 0.0;"
+         "        case 1:"
+         "            x = 1.0;"
+         "    }"
+         "    sk_FragColor = vec4(x);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(1.0);\n"
+         "}\n");
+    // static test w/ break
+    test(r,
+         "void main() {"
+         "    float x = 0.0;"
+         "    switch (0) {"
+         "        case 0:"
+         "            x = 0.0;"
+         "            break;"
+         "        case 1:"
+         "            x = 1.0;"
+         "    }"
+         "    sk_FragColor = vec4(x);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(0.0);\n"
+         "}\n");
+    // static test w/ static conditional break
+    test(r,
+         "void main() {"
+         "    float x = 0.0;"
+         "    switch (0) {"
+         "        case 0:"
+         "            x = 0.0;"
+         "            if (x < 1) break;"
+         "        case 1:"
+         "            x = 1.0;"
+         "    }"
+         "    sk_FragColor = vec4(x);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(0.0);\n"
+         "}\n");
+    // static test w/ non-static conditional break
+    test(r,
+         "void main() {"
+         "    float x = 0.0;"
+         "    switch (0) {"
+         "        case 0:"
+         "            x = 0.0;"
+         "            if (x < sqrt(1)) break;"
+         "        case 1:"
+         "            x = 1.0;"
+         "    }"
+         "    sk_FragColor = vec4(x);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float x = 0.0;\n"
+         "    switch (0) {\n"
+         "        case 0:\n"
+         "            x = 0.0;\n"
+         "            if (0.0 < sqrt(1.0)) break;\n"
          "        case 1:\n"
          "            x = 1.0;\n"
          "    }\n"

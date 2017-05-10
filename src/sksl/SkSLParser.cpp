@@ -167,7 +167,11 @@ Token Parser::nextToken() {
 #endif
             break;
     }
-    return Token(Position(skslget_lineno(fScanner), -1), (Token::Kind) token, text);
+    Position p = Position(skslget_lineno(fScanner), -1);
+    if (token == Token::INVALID_TOKEN) {
+        this->error(p, "invalid token: '" + text + "'");
+    }
+    return Token(p, (Token::Kind) token, text);
 }
 
 void Parser::pushback(Token t) {
@@ -746,7 +750,8 @@ Modifiers Parser::modifiersWithDefaults(int defaultFlags) {
 std::unique_ptr<ASTStatement> Parser::statement() {
     Token start = this->peek();
     switch (start.fKind) {
-        case Token::IF:
+        case Token::IF: // fall through
+        case Token::STATIC_IF:
             return this->ifStatement();
         case Token::FOR:
             return this->forStatement();
@@ -754,7 +759,8 @@ std::unique_ptr<ASTStatement> Parser::statement() {
             return this->doStatement();
         case Token::WHILE:
             return this->whileStatement();
-        case Token::SWITCH:
+        case Token::SWITCH: // fall through
+        case Token::STATIC_SWITCH:
             return this->switchStatement();
         case Token::RETURN:
             return this->returnStatement();
@@ -872,7 +878,8 @@ std::unique_ptr<ASTDeclaration> Parser::interfaceBlock(Modifiers mods) {
 /* IF LPAREN expression RPAREN statement (ELSE statement)? */
 std::unique_ptr<ASTIfStatement> Parser::ifStatement() {
     Token start;
-    if (!this->expect(Token::IF, "'if'", &start)) {
+    bool isStatic = this->checkNext(Token::STATIC_IF, &start);
+    if (!isStatic && !this->expect(Token::IF, "'if'", &start)) {
         return nullptr;
     }
     if (!this->expect(Token::LPAREN, "'('")) {
@@ -896,7 +903,9 @@ std::unique_ptr<ASTIfStatement> Parser::ifStatement() {
             return nullptr;
         }
     }
-    return std::unique_ptr<ASTIfStatement>(new ASTIfStatement(start.fPosition, std::move(test),
+    return std::unique_ptr<ASTIfStatement>(new ASTIfStatement(start.fPosition,
+                                                              isStatic,
+                                                              std::move(test),
                                                               std::move(ifTrue),
                                                               std::move(ifFalse)));
 }
@@ -986,7 +995,8 @@ std::unique_ptr<ASTSwitchCase> Parser::switchCase() {
 /* SWITCH LPAREN expression RPAREN LBRACE switchCase* (DEFAULT COLON statement*)? RBRACE */
 std::unique_ptr<ASTStatement> Parser::switchStatement() {
     Token start;
-    if (!this->expect(Token::SWITCH, "'switch'", &start)) {
+    bool isStatic = this->checkNext(Token::STATIC_SWITCH, &start);
+    if (!isStatic && !this->expect(Token::SWITCH, "'switch'", &start)) {
         return nullptr;
     }
     if (!this->expect(Token::LPAREN, "'('")) {
@@ -1033,6 +1043,7 @@ std::unique_ptr<ASTStatement> Parser::switchStatement() {
         return nullptr;
     }
     return std::unique_ptr<ASTStatement>(new ASTSwitchStatement(start.fPosition,
+                                                                isStatic,
                                                                 std::move(value),
                                                                 std::move(cases)));
 }
