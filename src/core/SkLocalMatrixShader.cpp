@@ -72,9 +72,8 @@ bool SkLocalMatrixShader::onAppendStages(SkRasterPipeline* p,
     if (localM) {
         tmp.setConcat(*localM, this->getLocalMatrix());
     }
-
-    return fProxyShader->onAppendStages(p, dst, scratch, ctm, paint,
-                                        localM ? &tmp : &this->getLocalMatrix());
+    return fProxyShader->appendStages(p, dst, scratch, ctm, paint,
+                                      localM ? &tmp : &this->getLocalMatrix());
 }
 
 #ifndef SK_IGNORE_TO_STRING

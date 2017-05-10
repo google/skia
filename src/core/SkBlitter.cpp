@@ -849,9 +849,9 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
     // By policy we choose not to handle legacy 8888 with SkRasterPipelineBlitter.
     if (device.colorSpace() || device.colorType() != kN32_SkColorType) {
-        if (SkBlitter* blitter = SkCreateRasterPipelineBlitter(device, *paint, matrix, alloc)) {
-            return blitter;
-        }
+        auto blitter = SkCreateRasterPipelineBlitter(device, *paint, matrix, alloc);
+        SkASSERT(blitter);
+        return blitter;
     }
 
     if (nullptr == shader) {
