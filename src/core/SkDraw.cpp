@@ -1737,6 +1737,10 @@ protected:
         return alloc->make<TriColorShaderContext>(*this, rec);
     }
 
+    bool onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkArenaAlloc* scratch,
+                        const SkMatrix& ctm, const SkPaint& paint,
+                        const SkMatrix* localM) const override;
+
 private:
     TriColorShaderData *fSetupData;
 
@@ -1873,6 +1877,81 @@ void SkTriColorShader::TriColorShaderContext::shadeSpan4f(int x, int y, SkPM4f d
         c.store(dstC[i].fVec);
         c += dc;
     }
+}
+
+#include "SkPM4fPriv.h"
+
+bool SkTriColorShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
+                                      SkArenaAlloc* alloc, const SkMatrix& ctm,
+                                      const SkPaint& paint, const SkMatrix* localM) const {
+    const TriColorShaderData* set = fSetupData;
+    if (!set) {
+        return false;   // how can this happen?
+    }
+
+    const SkPoint* pts      = set->pts;
+    const SkColor* colors   = set->colors;
+    const int index0        = set->state->f0;
+    const int index1        = set->state->f1;
+    const int index2        = set->state->f2;
+
+    // construct our matrix stage (dst xy -> src xy)
+
+    SkMatrix dstToUnit;
+    {
+        SkMatrix m, im;
+        m.reset();
+        m.set(0, pts[index1].fX - pts[index0].fX);
+        m.set(1, pts[index2].fX - pts[index0].fX);
+        m.set(2, pts[index0].fX);
+        m.set(3, pts[index1].fY - pts[index0].fY);
+        m.set(4, pts[index2].fY - pts[index0].fY);
+        m.set(5, pts[index0].fY);
+        if (!m.invert(&im)) {
+            return false;
+        }
+        // We can't call getTotalInverse(), because we explicitly don't want to look at the localmatrix
+        // as our interators are intrinsically tied to the vertices, and nothing else.
+        SkMatrix ctmInv;
+        if (!ctm.invert(&ctmInv)) {
+            return false;
+        }
+        // TODO replace INV(m) * INV(ctm) with INV(ctm * m)
+        dstToUnit.setConcat(im, ctmInv);
+    }
+    auto* m = alloc->makeArrayDefault<float>(9);
+    if (dstToUnit.asAffine(m)) {
+        pipeline->append(SkRasterPipeline::matrix_2x3, m);
+    } else {
+        dstToUnit.get9(m);
+        pipeline->append(SkRasterPipeline::matrix_perspective, m);
+    }
+
+    // construct our color 4x3 matrix
+
+    SkPM4f color0 = SkPM4f_from_SkColor(colors[index0], dstCS);
+    SkPM4f color1 = SkPM4f_from_SkColor(colors[index1], dstCS);
+    SkPM4f color2 = SkPM4f_from_SkColor(colors[index2], dstCS);
+
+    Sk4f alpha(paint.getAlpha() * (1.0f / 255)),
+         c0 = color0.to4f() * alpha,
+         c1 = color1.to4f() * alpha,
+         c2 = color2.to4f() * alpha;
+
+    // result = sx * cx + sy * cy + cz
+    struct RGBA4x3 {
+        SkPM4f  cx;
+        SkPM4f  cy;
+        SkPM4f  cz;
+    };
+    auto cmx = alloc->make<RGBA4x3>();
+    (c1 - c0).store(cmx->cx.fVec);
+    (c2 - c0).store(cmx->cy.fVec);
+    c0.store(cmx->cz.fVec);
+#if 0   // need this new stage
+    pipeline->append(SkRasterPipeline::rgba_4x3, cmx);
+#endif
+    return true;
 }
 
 #ifndef SK_IGNORE_TO_STRING
