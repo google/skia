@@ -47,9 +47,8 @@ public:
     public:
         explicit Paint(const SkPaint* paint) : fPaint(paint) { this->initFilteredColor(); }
 
-        // These expose the paint's color run through its color filter (if any). This is only valid
+        // This exposes the paint's color run through its color filter (if any). This is only valid
         // when drawing grayscale/lcd glyph masks and not when drawing color glyphs.
-        SkColor filteredSkColor() const { return fFilteredSkColor; }
         GrColor filteredPremulGrColor() const { return fFilteredGrColor; }
 
         const SkPaint& skPaint() const { return *fPaint; }
@@ -60,19 +59,18 @@ public:
 
     protected:
         void initFilteredColor() {
-            fFilteredSkColor = fPaint->getColor();
+            SkColor filteredSkColor = fPaint->getColor();
             if (fPaint->getColorFilter()) {
-                fFilteredSkColor = fPaint->getColorFilter()->filterColor(fFilteredSkColor);
+                filteredSkColor = fPaint->getColorFilter()->filterColor(filteredSkColor);
             }
-            fFilteredGrColor = SkColorToPremulGrColor(fFilteredSkColor);
+            fFilteredGrColor = SkColorToPremulGrColor(filteredSkColor);
         }
         Paint() = default;
         const SkPaint* fPaint;
         // This is the paint's color run through its color filter, if present. This color should
         // be used except when rendering bitmap text, in which case the bitmap must be filtered in
         // the fragment shader.
-        SkColor fFilteredSkColor;
-        SkColor fFilteredGrColor;
+        GrColor fFilteredGrColor;
     };
 
     /**
@@ -86,7 +84,6 @@ public:
                 : fOriginalPaint(paint), fFilter(filter), fProps(props) {
             // Initially we represent the original paint.
             fPaint = &fOriginalPaint->skPaint();
-            fFilteredSkColor = fOriginalPaint->filteredSkColor();
             fFilteredGrColor = fOriginalPaint->filteredPremulGrColor();
         }
 

@@ -20,11 +20,11 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
-    unsigned r = SkColorGetR(c);
-    unsigned g = SkColorGetG(c);
-    unsigned b = SkColorGetB(c);
-    return GrColorPackRGBA(r, g, b, 0xff);
+static inline SkColor premultiplied_grcolor_to_skcolor(GrColor c) {
+    unsigned r = GrColorUnpackR(c);
+    unsigned g = GrColorUnpackG(c);
+    unsigned b = GrColorUnpackB(c);
+    return SkColorSetRGB(r, g, b);
 }
 
 static const int kDistanceAdjustLumShift = 5;
@@ -227,7 +227,7 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 // TODO trying to figure out why lcd is so whack
 sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(GrResourceProvider* resourceProvider,
                                                            const SkMatrix& viewMatrix,
-                                                           SkColor filteredColor,
+                                                           GrColor filteredColor,
                                                            GrColor color,
                                                            sk_sp<GrTextureProxy> proxy) const {
     GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
@@ -242,16 +242,14 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(GrResourceProvider* r
         flags |= kUseLCD_DistanceFieldEffectFlag;
         flags |= fUseBGR ? kBGR_DistanceFieldEffectFlag : 0;
 
-        GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
-
         float redCorrection = fDistanceAdjustTable->getAdjustment(
-                GrColorUnpackR(colorNoPreMul) >> kDistanceAdjustLumShift,
+                GrColorUnpackR(filteredColor) >> kDistanceAdjustLumShift,
                 fUseGammaCorrectDistanceTable);
         float greenCorrection = fDistanceAdjustTable->getAdjustment(
-                GrColorUnpackG(colorNoPreMul) >> kDistanceAdjustLumShift,
+                GrColorUnpackG(filteredColor) >> kDistanceAdjustLumShift,
                 fUseGammaCorrectDistanceTable);
         float blueCorrection = fDistanceAdjustTable->getAdjustment(
-                GrColorUnpackB(colorNoPreMul) >> kDistanceAdjustLumShift,
+                GrColorUnpackB(filteredColor) >> kDistanceAdjustLumShift,
                 fUseGammaCorrectDistanceTable);
         GrDistanceFieldLCDTextGeoProc::DistanceAdjust widthAdjust =
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
@@ -263,7 +261,9 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(GrResourceProvider* r
                                                    this->usesLocalCoords());
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
-        U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT, filteredColor);
+        SkColor skColor = premultiplied_grcolor_to_skcolor(filteredColor);
+
+        U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT, skColor);
         float correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
                                                                fUseGammaCorrectDistanceTable);
         return GrDistanceFieldA8TextGeoProc::Make(resourceProvider, color,
