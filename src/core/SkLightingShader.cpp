@@ -9,6 +9,7 @@
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProcState.h"
 #include "SkColor.h"
+#include "SkColorSpaceXformer.h"
 #include "SkEmptyShader.h"
 #include "SkLightingShader.h"
 #include "SkMathPriv.h"
@@ -458,7 +459,7 @@ SkShader::Context* SkLightingShaderImpl::onMakeContext(
 
 sk_sp<SkShader> SkLightingShaderImpl::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     sk_sp<SkShader> xformedDiffuseShader =
-            fDiffuseShader ? fDiffuseShader->makeColorSpace(xformer) : nullptr;
+            fDiffuseShader ? xformer->apply(fDiffuseShader.get()) : nullptr;
     return SkLightingShader::Make(std::move(xformedDiffuseShader), fNormalSource,
                                   fLights->makeColorSpace(xformer));
 }
