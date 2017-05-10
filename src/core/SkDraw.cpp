@@ -1925,7 +1925,8 @@ protected:
         SkASSERT(!localM);
 
         SkMatrix adjustedCTM = SkMatrix::Concat(ctm, this->getLocalMatrix());
-        return fProxyShader->appendStages(p, cs, alloc, adjustedCTM, paint);
+        fProxyShader->appendStages(p, cs, alloc, adjustedCTM, paint);
+        return true;
     }
 
 private:
