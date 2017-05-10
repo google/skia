@@ -264,7 +264,7 @@ bool SkShader::appendStages(SkRasterPipeline* pipeline,
 }
 
 bool SkShader::onAppendStages(SkRasterPipeline* p,
-                              SkColorSpace* cs,
+                              SkColorSpace* dstCS,
                               SkArenaAlloc* alloc,
                               const SkMatrix& ctm,
                               const SkPaint& paint,
@@ -276,25 +276,25 @@ bool SkShader::onAppendStages(SkRasterPipeline* p,
         opaquePaint.writable()->setAlpha(SK_AlphaOPAQUE);
     }
 
-    ContextRec rec(*opaquePaint, ctm, localM, ContextRec::kPM4f_DstType, cs);
-    if (Context* ctx = this->makeContext(rec, alloc)) {
-        struct CallbackCtx : SkJumper_CallbackCtx {
-            Context* ctx;
-        };
+    ContextRec rec(*opaquePaint, ctm, localM, ContextRec::kPM4f_DstType, dstCS);
 
-        auto cb = alloc->make<CallbackCtx>();
-        cb->ctx = ctx;
-        cb->fn  = [](SkJumper_CallbackCtx* self, int active_pixels) {
-            auto c = (CallbackCtx*)self;
-            int x = (int)c->rgba[0],
-                y = (int)c->rgba[1];
-            c->ctx->shadeSpan4f(x,y, (SkPM4f*)c->rgba, active_pixels);
-        };
+    struct CallbackCtx : SkJumper_CallbackCtx {
+        sk_sp<SkShader> shader;
+        Context*        ctx;
+    };
+    auto cb = alloc->make<CallbackCtx>();
+    cb->shader = dstCS ? SkColorSpaceXformer::Make(sk_ref_sp(dstCS))->apply(this)
+                       : sk_ref_sp(const_cast<SkShader*>(this));
+    cb->ctx = cb->shader->makeContext(rec, alloc);
+    cb->fn  = [](SkJumper_CallbackCtx* self, int active_pixels) {
+        auto c = (CallbackCtx*)self;
+        int x = (int)c->rgba[0],
+            y = (int)c->rgba[1];
+        c->ctx->shadeSpan4f(x,y, (SkPM4f*)c->rgba, active_pixels);
+    };
+
+    if (cb->ctx) {
         p->append(SkRasterPipeline::callback, cb);
-
-        // Legacy shaders aren't aware of color spaces. We can pretty
-        // safely assume they're in sRGB gamut.
-        append_gamut_transform(p, alloc, SkColorSpace::MakeSRGB().get(), cs);
         return true;
     }
     return false;
