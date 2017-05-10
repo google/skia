@@ -782,6 +782,18 @@ SkShader::ContextRec::DstType SkBlitter::PreferredShaderDest(const SkImageInfo& 
 #endif
 }
 
+static bool use_raster_pipeline_blitter(const SkPixmap& device, const SkPaint& paint) {
+#if defined(SK_FORCE_RASTER_PIPELINE_BLITTER)
+    return true;
+#else
+    // By policy we choose not to handle legacy 8888 with SkRasterPipelineBlitter.
+    if (device.colorSpace()) {
+        return true;
+    }
+    return device.colorType() != kN32_SkColorType;
+#endif
+}
+
 SkBlitter* SkBlitter::Choose(const SkPixmap& device,
                              const SkMatrix& matrix,
                              const SkPaint& origPaint,
@@ -847,8 +859,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         return alloc->make<SkA8_Coverage_Blitter>(device, *paint);
     }
 
-    // By policy we choose not to handle legacy 8888 with SkRasterPipelineBlitter.
-    if (device.colorSpace() || device.colorType() != kN32_SkColorType) {
+    if (use_raster_pipeline_blitter(device, *paint)) {
         auto blitter = SkCreateRasterPipelineBlitter(device, *paint, matrix, alloc);
         SkASSERT(blitter);
         return blitter;
