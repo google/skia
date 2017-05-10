@@ -416,11 +416,8 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     // Calculate the number of bytes read so far
     const uint32_t bytesRead = kBmpHeaderBytes + infoBytes + maskBytes;
     if (!inIco && offset < bytesRead) {
-        // TODO (msarett): Do we really want to fail if the offset in the header is invalid?
-        //                 Seems like we can just assume that the offset is zero and try to decode?
-        //                 Maybe we don't want to try to decode corrupt images?
-        SkCodecPrintf("Error: pixel data offset less than header size.\n");
-        return false;
+        // Assume the image immediately follows the header information.
+        offset = bytesRead;
     }
 
 
