@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcff5485_fabdf3fa",
+        "filename": "include/core/SkClipOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-10T15:21:46Z",
+      "side": 1,
+      "message": "I think you could also make the switch cast the op to an int.",
+      "revId": "4f800a62a8bfa83988535061bc006c64882671df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
