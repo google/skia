@@ -130,6 +130,7 @@ static void test_restriction(skiatest::Reporter* reporter, SkCanvas* canvas) {
     canvas->clipRect(SkRect::Make(clipR), SkClipOp::kIntersect);
     REPORTER_ASSERT(reporter, canvas->getDeviceClipBounds() == clipR);
 
+#ifdef SK_SUPPORT_DEPRECATED_CLIPOPS
     // now test that expanding clipops can't exceed the restriction
     const SkClipOp expanders[] = {
         SkClipOp::kUnion_deprecated,
@@ -147,6 +148,7 @@ static void test_restriction(skiatest::Reporter* reporter, SkCanvas* canvas) {
         REPORTER_ASSERT(reporter, gBaseRestrictedR.contains(canvas->getDeviceClipBounds()));
         canvas->restore();
     }
+#endif
 }
 
 /**
