@@ -46,6 +46,30 @@
       "revId": "63757db1b2e8c9e76d13b1f2017dc851b19882fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7643169b_e6207ebb",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1937,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-10T20:58:16Z",
+      "side": 1,
+      "message": "Folding the computation in the color (stop) setup is presumably more efficient than a multiply stage per pixel, no?",
+      "parentUuid": "a1b68e17_6d207115",
+      "range": {
+        "startLine": 1937,
+        "startChar": 30,
+        "endLine": 1937,
+        "endChar": 35
+      },
+      "revId": "63757db1b2e8c9e76d13b1f2017dc851b19882fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
