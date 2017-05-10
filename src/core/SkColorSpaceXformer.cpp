@@ -52,6 +52,10 @@ sk_sp<SkImageFilter> SkColorSpaceXformer::apply(const SkImageFilter* imageFilter
     return imageFilter->makeColorSpace(this);
 }
 
+sk_sp<SkShader> SkColorSpaceXformer::apply(const SkShader* shader) {
+    return shader->makeColorSpace(this);
+}
+
 void SkColorSpaceXformer::apply(SkColor* xformed, const SkColor* srgb, int n) {
     SkAssertResult(fFromSRGB->apply(SkColorSpaceXform::kBGRA_8888_ColorFormat, xformed,
                                     SkColorSpaceXform::kBGRA_8888_ColorFormat, srgb,
@@ -73,7 +77,7 @@ SkPaint SkColorSpaceXformer::apply(const SkPaint& src) {
     }
 
     if (auto shader = src.getShader()) {
-        dst.setShader(shader->makeColorSpace(this));
+        dst.setShader(this->apply(shader));
     }
 
     if (auto cf = src.getColorFilter()) {

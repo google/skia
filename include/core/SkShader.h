@@ -511,17 +511,12 @@ protected:
     }
 
 private:
-    // This is essentially const, but not officially so it can be modified in
-    // constructors.
+    // This is essentially const, but not officially so it can be modified in constructors.
     SkMatrix fLocalMatrix;
 
-    // So the SkLocalMatrixShader can whack fLocalMatrix in its SkReadBuffer constructor.
-    friend class SkLocalMatrixShader;
-    friend class SkBitmapProcLegacyShader;    // for computeTotalInverse()
-    friend class SkComposeShader;
-    friend class SkColorFilterShader;
-    friend class SkColorSpaceXformer;
-    friend class SkLightingShaderImpl;
+    friend class SkLocalMatrixShader;         // sets fLocalMatrix in SkReadBuffer constructor
+    friend class SkBitmapProcLegacyShader;    // calls computeTotalInverse()
+    friend class SkColorSpaceXformer;         // calls makeColorSpace()
 
     typedef SkFlattenable INHERITED;
 };

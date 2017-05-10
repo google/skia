@@ -64,7 +64,7 @@ SkShader::Context* SkColorFilterShader::onMakeContext(const ContextRec& rec,
 }
 
 sk_sp<SkShader> SkColorFilterShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    return fShader->makeColorSpace(xformer)->makeWithColorFilter(xformer->apply(fFilter.get()));
+    return xformer->apply(fShader.get())->makeWithColorFilter(xformer->apply(fFilter.get()));
 }
 
 SkColorFilterShader::FilterShaderContext::FilterShaderContext(

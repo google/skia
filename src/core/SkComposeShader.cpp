@@ -96,6 +96,11 @@ SkShader::Context* SkComposeShader::onMakeContext(
     return alloc->make<ComposeShaderContext>(*this, rec, contextA, contextB);
 }
 
+sk_sp<SkShader> SkComposeShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    return SkShader::MakeComposeShader(xformer->apply(fShaderA.get()),
+                                       xformer->apply(fShaderB.get()), fMode);
+}
+
 SkComposeShader::ComposeShaderContext::ComposeShaderContext(
         const SkComposeShader& shader, const ContextRec& rec,
         SkShader::Context* contextA, SkShader::Context* contextB)
