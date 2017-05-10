@@ -1037,26 +1037,73 @@ STAGE(matrix_perspective) {
     g = G * rcp(Z);
 }
 
-STAGE(linear_gradient) {
-    struct Stop { float pos; float f[4], b[4]; };
-    struct Ctx { size_t n; Stop *stops; float start[4]; };
-
-    auto c = (const Ctx*)ctx;
-    F fr = 0, fg = 0, fb = 0, fa = 0;
-    F br = c->start[0],
-      bg = c->start[1],
-      bb = c->start[2],
-      ba = c->start[3];
+STAGE(evenly_spaced_linear_gradient) {
+    auto c = (const SkJumper_GradientCtx*)ctx;
     auto t = r;
-    for (size_t i = 0; i < c->n; i++) {
-        fr = if_then_else(t < c->stops[i].pos, fr, c->stops[i].f[0]);
-        fg = if_then_else(t < c->stops[i].pos, fg, c->stops[i].f[1]);
-        fb = if_then_else(t < c->stops[i].pos, fb, c->stops[i].f[2]);
-        fa = if_then_else(t < c->stops[i].pos, fa, c->stops[i].f[3]);
-        br = if_then_else(t < c->stops[i].pos, br, c->stops[i].b[0]);
-        bg = if_then_else(t < c->stops[i].pos, bg, c->stops[i].b[1]);
-        bb = if_then_else(t < c->stops[i].pos, bb, c->stops[i].b[2]);
-        ba = if_then_else(t < c->stops[i].pos, ba, c->stops[i].b[3]);
+    auto idx = trunc_(t * (c->stopCount-1));
+
+    F fr, br, fg, bg, fb, bb, fa, ba;
+#if 0 && defined(__AVX2__)
+    if (c->stopCount <=8) {
+        fr = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[0]), idx);
+        br = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[0]), idx);
+        fg = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[1]), idx);
+        bg = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[1]), idx);
+        fb = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[2]), idx);
+        bb = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[2]), idx);
+        fa = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[3]), idx);
+        ba = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[3]), idx);
+    } else
+#endif
+    {
+        fr = gather(c->fs[0], idx);
+        br = gather(c->bs[0], idx);
+        fg = gather(c->fs[1], idx);
+        bg = gather(c->bs[1], idx);
+        fb = gather(c->fs[2], idx);
+        bb = gather(c->bs[2], idx);
+        fa = gather(c->fs[3], idx);
+        ba = gather(c->bs[3], idx);
+    }
+
+    r = mad(t, fr, br);
+    g = mad(t, fg, bg);
+    b = mad(t, fb, bb);
+    a = mad(t, fa, ba);
+}
+
+STAGE(linear_gradient) {
+    auto c = (const SkJumper_GradientCtx*)ctx;
+    auto t = r;
+    U32 idx = 0;
+
+    for (size_t i = 0; i < c->stopCount; i++) {
+        idx -= (t <= c->ts[i]);
+    }
+
+
+    F fr, br, fg, bg, fb, bb, fa, ba;
+#if 0 && defined(__AVX2__)
+    if (c->stopCount <=8) {
+        fr = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[0]), idx);
+        br = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[0]), idx);
+        fg = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[1]), idx);
+        bg = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[1]), idx);
+        fb = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[2]), idx);
+        bb = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[2]), idx);
+        fa = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[3]), idx);
+        ba = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[3]), idx);
+    } else
+#endif
+    {
+        fr = gather(c->fs[0], idx);
+        br = gather(c->bs[0], idx);
+        fg = gather(c->fs[1], idx);
+        bg = gather(c->bs[1], idx);
+        fb = gather(c->fs[2], idx);
+        bb = gather(c->bs[2], idx);
+        fa = gather(c->fs[3], idx);
+        ba = gather(c->bs[3], idx);
     }
 
     r = mad(t, fr, br);
