@@ -5,13 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
 #include "GrGLTexture.h"
 #include "GrGLGpu.h"
 #include "GrResourceProvider.h"
 #include "GrSemaphore.h"
 #include "GrShaderCaps.h"
-#include "SkMakeUnique.h"
 #include "SkTraceMemoryDump.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
@@ -115,27 +113,6 @@ void GrGLTexture::onAbandon() {
 
 GrBackendObject GrGLTexture::getTextureHandle() const {
     return reinterpret_cast<GrBackendObject>(&fInfo);
-}
-
-std::unique_ptr<GrExternalTextureData> GrGLTexture::detachBackendTexture() {
-    SkASSERT(!this->hasPendingIO());
-
-    // Set up a semaphore to be signaled once the data is ready, and flush GL
-    sk_sp<GrSemaphore> semaphore = this->getContext()->resourceProvider()->makeSemaphore();
-    this->getGpu()->insertSemaphore(semaphore, true);
-
-    // Make a copy of our GL-specific information
-    auto data = skstd::make_unique<GrGLExternalTextureData>(fInfo, std::move(semaphore),
-                                                            this->getContext());
-
-    // Ensure the cache can't reach this texture anymore
-    this->detachFromCache();
-
-    // Detach from the GL object, so we don't use it (or try to delete it when we're freed)
-    fInfo.fTarget = 0;
-    fInfo.fID = 0;
-
-    return std::move(data);
 }
 
 void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,

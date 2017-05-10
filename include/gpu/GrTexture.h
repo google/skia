@@ -14,7 +14,6 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
-class GrExternalTextureData;
 class GrTexturePriv;
 
 class GrTexture : virtual public GrSurface {
@@ -56,7 +55,6 @@ protected:
               GrSamplerParams::FilterMode highestFilterMode, bool wasMipMapDataProvided);
 
     void validateDesc() const;
-    virtual std::unique_ptr<GrExternalTextureData> detachBackendTexture() = 0;
 
 private:
     void computeScratchKey(GrScratchKey*) const override;

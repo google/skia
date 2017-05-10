@@ -9,7 +9,6 @@
 #include "SkBitmapCache.h"
 #include "SkCanvas.h"
 #include "SkColorSpace_Base.h"
-#include "SkCrossContextImageData.h"
 #include "SkData.h"
 #include "SkImageEncoder.h"
 #include "SkImageFilter.h"
@@ -379,21 +378,6 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrContext*, SkColorSpace* dstColorSpace) const {
     return nullptr;
-}
-
-std::unique_ptr<SkCrossContextImageData> SkCrossContextImageData::MakeFromEncoded(
-        GrContext*, sk_sp<SkData> encoded, SkColorSpace* dstColorSpace) {
-    sk_sp<SkImage> image = SkImage::MakeFromEncoded(std::move(encoded));
-    if (!image) {
-        return nullptr;
-    }
-    // TODO: Force decode to raster here?
-    return std::unique_ptr<SkCrossContextImageData>(new SkCCIDImage(std::move(image)));
-}
-
-sk_sp<SkImage> SkImage::MakeFromCrossContextImageData(
-        GrContext*, std::unique_ptr<SkCrossContextImageData> ccid) {
-    return ccid->makeImage(nullptr);
 }
 
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {

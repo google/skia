@@ -18,7 +18,6 @@
 class SkData;
 class SkCanvas;
 class SkColorTable;
-class SkCrossContextImageData;
 class SkImageGenerator;
 class SkPaint;
 class SkPicture;
@@ -404,14 +403,6 @@ public:
      *  different GrContext, this will fail.
      */
     sk_sp<SkImage> makeTextureImage(GrContext*, SkColorSpace* dstColorSpace) const;
-
-    /**
-     *  Constructs a texture backed image from data that was previously uploaded on another thread
-     *  and GrContext. The GrContext used to upload the data must be in the same GL share group as
-     *  the one passed in here, or otherwise be able to share resources with the passed in context.
-     */
-    static sk_sp<SkImage> MakeFromCrossContextImageData(GrContext*,
-                                                        std::unique_ptr<SkCrossContextImageData>);
 
     /**
      * If the image is texture-backed this will make a raster copy of it (or nullptr if reading back
