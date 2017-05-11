@@ -96,9 +96,9 @@
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)  \
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)  \
     M(save_xy) M(accumulate)                                     \
-    M(linear_gradient)                                           \
-    M(linear_gradient_2stops)                                    \
-    M(xy_to_polar_unit)                                          \
+    M(gradient)                                                  \
+    M(evenly_spaced_2_stop_gradient)                             \
+    M(xy_to_unit_angle)                                          \
     M(xy_to_radius)                                              \
     M(byte_tables) M(byte_tables_rgb)                            \
     M(rgb_to_hsl)                                                \
