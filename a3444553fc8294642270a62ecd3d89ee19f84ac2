@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc0862d1_e7b7cd8b",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 782,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-05-11T17:29:09Z",
+      "side": 1,
+      "message": "uber-nit: alignment",
+      "range": {
+        "startLine": 782,
+        "startChar": 0,
+        "endLine": 782,
+        "endChar": 2
+      },
+      "revId": "a3444553fc8294642270a62ecd3d89ee19f84ac2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
