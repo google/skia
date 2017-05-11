@@ -463,6 +463,24 @@
         "Housekeeper-PerCommit-InfraTests"
       ]
     },
+    "Housekeeper-PerCommit-IsolateSKP": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-PerCommit-IsolateSKP"
+      ]
+    },
+    "Housekeeper-PerCommit-IsolateSVG": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-PerCommit-IsolateSVG"
+      ]
+    },
+    "Housekeeper-PerCommit-IsolateSkImage": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ]
+    },
     "Housekeeper-Weekly-RecreateSKPs": {
       "priority": 0.8,
       "tasks": [
@@ -4385,7 +4403,7 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}"
       ],
       "isolate": "bundle_recipes.isolate",
-      "priority": 0.95
+      "priority": 0.7
     },
     "Housekeeper-PerCommit-InfraTests": {
       "cipd_packages": [
@@ -4416,6 +4434,57 @@
       ],
       "isolate": "infra_skia.isolate",
       "priority": 0.8
+    },
+    "Housekeeper-PerCommit-IsolateSKP": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:56"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "isolate": "isolate_skp.isolate",
+      "priority": 0.7
+    },
+    "Housekeeper-PerCommit-IsolateSVG": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "isolate": "isolate_svg.isolate",
+      "priority": 0.7
+    },
+    "Housekeeper-PerCommit-IsolateSkImage": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:24"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "isolate": "isolate_skimage.isolate",
+      "priority": 0.7
     },
     "Housekeeper-Weekly-RecreateSKPs": {
       "cipd_packages": [
@@ -4450,23 +4519,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -4498,23 +4550,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -4546,23 +4581,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -4594,23 +4612,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -4642,23 +4643,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -4690,23 +4674,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -4738,23 +4705,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -4786,23 +4736,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -4834,23 +4767,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -4882,23 +4798,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -4930,23 +4829,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -4978,23 +4860,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5026,23 +4891,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5074,23 +4922,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5122,23 +4953,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5170,23 +4984,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5218,23 +5015,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5266,23 +5046,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5314,23 +5077,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5362,23 +5108,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5410,23 +5139,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5458,23 +5170,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5506,23 +5201,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5554,23 +5232,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5602,23 +5263,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5650,23 +5294,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5698,23 +5325,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-x86-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5746,23 +5356,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-x86-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5794,23 +5387,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-x86-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5842,23 +5418,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5890,23 +5449,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5938,23 +5480,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -5986,23 +5511,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -6034,23 +5542,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -6082,23 +5573,6 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -6206,23 +5680,6 @@
       "priority": 0.8
     },
     "Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -6253,23 +5710,6 @@
       "priority": 0.8
     },
     "Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -6300,23 +5740,6 @@
       "priority": 0.8
     },
     "Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -6347,23 +5770,6 @@
       "priority": 0.8
     },
     "Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -6394,23 +5800,6 @@
       "priority": 0.8
     },
     "Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -6441,23 +5830,6 @@
       "priority": 0.8
     },
     "Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -6488,23 +5860,6 @@
       "priority": 0.8
     },
     "Perf-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -6535,23 +5890,6 @@
       "priority": 0.8
     },
     "Perf-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -10765,23 +10103,6 @@
       "priority": 0.8
     },
     "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -10812,23 +10133,6 @@
       "priority": 0.8
     },
     "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Release-iOS",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -10859,23 +10163,6 @@
       "priority": 0.8
     },
     "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-RaspberryPi": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -10907,23 +10194,6 @@
       "priority": 0.8
     },
     "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-RaspberryPi": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Release-iOS",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -10955,23 +10225,6 @@
       "priority": 0.8
     },
     "Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-RaspberryPi": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -11003,23 +10256,6 @@
       "priority": 0.8
     },
     "Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Release-iOS",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -11051,23 +10287,6 @@
       "priority": 0.8
     },
     "Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-RaspberryPi": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -11099,23 +10318,6 @@
       "priority": 0.8
     },
     "Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-RaspberryPi": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Release-iOS",
         "Housekeeper-PerCommit-BundleRecipes"
@@ -11147,26 +10349,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -11195,26 +10383,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -11243,26 +10417,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-mipsel-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -11291,26 +10451,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-mipsel-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -11339,26 +10485,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:MMB29K",
@@ -11387,26 +10519,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:MMB29K",
@@ -11435,26 +10553,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M_G930AUCS4BQC2",
@@ -11483,26 +10587,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M_G930AUCS4BQC2",
@@ -11531,26 +10621,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M_G930FXXU1DQAS",
@@ -11579,26 +10655,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M_G930FXXU1DQAS",
@@ -11627,26 +10689,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NPJ25.93-14",
@@ -11675,26 +10723,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NPJ25.93-14",
@@ -11723,26 +10757,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -11771,26 +10791,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -11819,26 +10825,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -11867,26 +10859,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -11915,26 +10893,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -11963,26 +10927,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -12011,26 +10961,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -12059,26 +10995,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -12107,26 +11029,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:M4B30Z",
@@ -12155,26 +11063,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:M4B30Z",
@@ -12203,26 +11097,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -12251,26 +11131,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -12299,26 +11165,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -12347,26 +11199,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -12395,26 +11233,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:LMY47V",
@@ -12443,26 +11267,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:LMY47V",
@@ -12491,26 +11301,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-x86-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -12539,26 +11335,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-x86-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -12587,26 +11369,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-x86-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -12635,26 +11403,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-x86-Debug-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -12683,26 +11437,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-x86-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -12731,26 +11471,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-x86-Release-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -12779,26 +11505,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:N2G47D",
@@ -12827,26 +11539,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:N2G47D",
@@ -12875,26 +11573,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -12923,26 +11607,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -12971,26 +11641,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -13019,26 +11675,12 @@
       "priority": 0.8
     },
     "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -13067,26 +11709,12 @@
       "priority": 0.8
     },
     "Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:MaliT604",
@@ -13114,26 +11742,12 @@
       "priority": 0.8
     },
     "Test-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:MaliT604",
@@ -13161,26 +11775,12 @@
       "priority": 0.8
     },
     "Test-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:MaliT860",
@@ -13208,26 +11808,12 @@
       "priority": 0.8
     },
     "Test-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:MaliT860",
@@ -13255,26 +11841,12 @@
       "priority": 0.8
     },
     "Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:MaliT764",
@@ -13302,26 +11874,12 @@
       "priority": 0.8
     },
     "Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:MaliT764",
@@ -13349,26 +11907,12 @@
       "priority": 0.8
     },
     "Test-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:TegraK1",
@@ -13396,26 +11940,12 @@
       "priority": 0.8
     },
     "Test-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:TegraK1",
@@ -18203,26 +16733,12 @@
       "priority": 0.8
     },
     "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPad5,1",
@@ -18250,26 +16766,12 @@
       "priority": 0.8
     },
     "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Release-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPad5,1",
@@ -18297,26 +16799,12 @@
       "priority": 0.8
     },
     "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-RaspberryPi": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPad6,3",
@@ -18345,26 +16833,12 @@
       "priority": 0.8
     },
     "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-RaspberryPi": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Release-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPad6,3",
@@ -18393,26 +16867,12 @@
       "priority": 0.8
     },
     "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-RaspberryPi": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPhone7,2",
@@ -18441,26 +16901,12 @@
       "priority": 0.8
     },
     "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Release-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPhone7,2",
@@ -18489,26 +16935,12 @@
       "priority": 0.8
     },
     "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-RaspberryPi": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPhone9,1",
@@ -18537,26 +16969,12 @@
       "priority": 0.8
     },
     "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-RaspberryPi": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:24"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:56"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
       "dependencies": [
         "Build-Mac-Clang-arm64-Release-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPhone9,1",

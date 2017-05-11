@@ -1,0 +1,7 @@
+{
+  'variables': {
+    'command': [
+      'cp', 'svg', '${ISOLATED_OUTDIR}'
+    ],
+  },
+}
