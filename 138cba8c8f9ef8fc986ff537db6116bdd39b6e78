@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "350dabbd_809bbb91",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-11T15:24:17Z",
+      "side": 1,
+      "message": "Might be nice to fold this together into one \n\nif ( 2 \u0026\u0026 even) {...} \nelse if (even) {...} \nelse {...}",
+      "range": {
+        "startLine": 396,
+        "startChar": 6,
+        "endLine": 397,
+        "endChar": 34
+      },
+      "revId": "138cba8c8f9ef8fc986ff537db6116bdd39b6e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21320c2a_b2219027",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-11T15:24:17Z",
+      "side": 1,
+      "message": "// Pad up to 8 in case we hit the AVX2 special case.",
+      "revId": "138cba8c8f9ef8fc986ff537db6116bdd39b6e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
