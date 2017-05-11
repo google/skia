@@ -105,6 +105,9 @@ void GrRenderTargetContext::validate() const {
 #endif
 
 GrRenderTargetContext::~GrRenderTargetContext() {
+//    if (fOpList) {
+//        fOpList->makeClosed(*this->caps());
+//    }
     ASSERT_SINGLE_OWNER
 }
 
@@ -121,7 +124,7 @@ GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy);
+        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy.get());
     }
 
     return fOpList.get();

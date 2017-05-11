@@ -129,20 +129,20 @@ void GrGpuResourceRef::removeRef() const {
 ///////////////////////////////////////////////////////////////////////////////
 #include "GrTextureProxy.h"
 
-GrTextureProxyRef::GrTextureProxyRef() {
+GrSurfaceProxyRef::GrSurfaceProxyRef() {
     fProxy = nullptr;
     fOwnRef = false;
     fPendingIO = false;
 }
 
-GrTextureProxyRef::GrTextureProxyRef(sk_sp<GrTextureProxy> proxy, GrIOType ioType) {
+GrSurfaceProxyRef::GrSurfaceProxyRef(sk_sp<GrSurfaceProxy> proxy, GrIOType ioType) {
     fProxy = nullptr;
     fOwnRef = false;
     fPendingIO = false;
-    this->setProxy(proxy, ioType);
+    this->setProxy(std::move(proxy), ioType);
 }
 
-GrTextureProxyRef::~GrTextureProxyRef() {
+GrSurfaceProxyRef::~GrSurfaceProxyRef() {
     if (fOwnRef) {
         SkASSERT(fProxy);
         fProxy->unref();
@@ -163,7 +163,7 @@ GrTextureProxyRef::~GrTextureProxyRef() {
     }
 }
 
-void GrTextureProxyRef::reset() {
+void GrSurfaceProxyRef::reset() {
     SkASSERT(!fPendingIO);
     SkASSERT(SkToBool(fProxy) == fOwnRef);
     if (fOwnRef) {
@@ -173,7 +173,7 @@ void GrTextureProxyRef::reset() {
     }
 }
 
-void GrTextureProxyRef::setProxy(sk_sp<GrTextureProxy> proxy, GrIOType ioType) {
+void GrSurfaceProxyRef::setProxy(sk_sp<GrSurfaceProxy> proxy, GrIOType ioType) {
     SkASSERT(!fPendingIO);
     SkASSERT(SkToBool(fProxy) == fOwnRef);
     SkSafeUnref(fProxy);
@@ -187,7 +187,7 @@ void GrTextureProxyRef::setProxy(sk_sp<GrTextureProxy> proxy, GrIOType ioType) {
     }
 }
 
-void GrTextureProxyRef::markPendingIO() const {
+void GrSurfaceProxyRef::markPendingIO() const {
     // This should only be called when the owning GrProgramElement gets its first
     // pendingExecution ref.
     SkASSERT(!fPendingIO);
@@ -207,7 +207,7 @@ void GrTextureProxyRef::markPendingIO() const {
     }
 }
 
-void GrTextureProxyRef::pendingIOComplete() const {
+void GrSurfaceProxyRef::pendingIOComplete() const {
     // This should only be called when the owner's pending executions have ocurred but it is still
     // reffed.
     SkASSERT(fOwnRef);
@@ -228,7 +228,7 @@ void GrTextureProxyRef::pendingIOComplete() const {
     fPendingIO = false;
 }
 
-void GrTextureProxyRef::removeRef() const {
+void GrSurfaceProxyRef::removeRef() const {
     // This should only be called once, when the owners last ref goes away and
     // there is a pending execution.
     SkASSERT(fOwnRef);
