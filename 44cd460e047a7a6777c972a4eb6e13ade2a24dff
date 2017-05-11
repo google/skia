@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d40ece05_21a04a88",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-11T13:35:10Z",
+      "side": 1,
+      "message": "Maybe a comment about why this is the inverse of the umbra Alpha?",
+      "revId": "44cd460e047a7a6777c972a4eb6e13ade2a24dff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17c3dc28_735ce4f7",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-11T13:35:10Z",
+      "side": 1,
+      "message": "nit: percentage -\u003e fraction ?",
+      "revId": "44cd460e047a7a6777c972a4eb6e13ade2a24dff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
