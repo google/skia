@@ -526,7 +526,11 @@ static void set_dynamic_blend_constant_state(GrVkGpu* gpu,
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
     float floatColors[4];
     if (blend_coeff_refs_constant(srcCoeff) || blend_coeff_refs_constant(dstCoeff)) {
-        GrColorToRGBAFloat(blendInfo.fBlendConstant, floatColors);
+        // Swizzle the blend to match what the shader will output.
+        const GrSwizzle& swizzle = gpu->caps()->shaderCaps()->configOutputSwizzle(
+                pipeline.getRenderTarget()->config());
+        GrColor blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
+        GrColorToRGBAFloat(blendConst, floatColors);
     } else {
         memset(floatColors, 0, 4 * sizeof(float));
     }
