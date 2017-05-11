@@ -26,7 +26,7 @@ public:
 
         // emit attributes
         varyingHandler->emitAttributes(rsgp);
-        fragBuilder->codeAppend("vec3 shadowParams;");
+        fragBuilder->codeAppend("vec4 shadowParams;");
         varyingHandler->addPassThroughAttribute(rsgp.inShadowParams(), "shadowParams");
 
         // setup pass through color
@@ -47,7 +47,7 @@ public:
         fragBuilder->codeAppend("float d = length(shadowParams.xy);");
         fragBuilder->codeAppend("float distance = shadowParams.z * (1.0 - d);");
 
-        fragBuilder->codeAppend("float factor = 1.0 - clamp(distance, 0.0, 1.0);");
+        fragBuilder->codeAppend("float factor = 1.0 - clamp(distance, 0.0, shadowParams.w);");
         fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
         fragBuilder->codeAppendf("%s = vec4(factor);",
                                  args.fOutputCoverage);
@@ -81,7 +81,7 @@ GrRRectShadowGeoProc::GrRRectShadowGeoProc(const SkMatrix& localMatrix)
     fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
                                          kHigh_GrSLPrecision);
     fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-    fInShadowParams = &this->addVertexAttrib("inShadowParams", kVec3f_GrVertexAttribType);
+    fInShadowParams = &this->addVertexAttrib("inShadowParams", kVec4f_GrVertexAttribType);
 }
 
 void GrRRectShadowGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,

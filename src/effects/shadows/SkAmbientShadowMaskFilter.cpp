@@ -221,8 +221,12 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         devSpaceInsetWidth = ambientRRect.width();
     }
 
+    // the fraction of the blur we want to apply is devSpaceInsetWidth/devSpaceAmbientBlur,
+    // which is just 1/umbraAlpha.
+    SkScalar blurClamp = SkScalarInvert(umbraAlpha);
     rtContext->drawShadowRRect(clip, std::move(newPaint), viewMatrix, ambientRRect,
-                               devSpaceAmbientBlur, devSpaceInsetWidth);
+                               devSpaceAmbientBlur, devSpaceInsetWidth,
+                               blurClamp);
 
     return true;
 }
