@@ -70,6 +70,30 @@
       "revId": "da7036895c9563db09cce1d2f5b0d1f5affdb432",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "996b023a_63431811",
+        "filename": "src/gpu/text/GrTextUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-11T17:57:00Z",
+      "side": 1,
+      "message": "I meant with the skpaint_to_grpaint_impl code. I\u0027m guessing not, though since this is doing quite a bit less.",
+      "parentUuid": "aa6771ab_9578a1b2",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 25
+      },
+      "revId": "da7036895c9563db09cce1d2f5b0d1f5affdb432",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
