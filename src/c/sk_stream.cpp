@@ -157,7 +157,7 @@ sk_wstream_dynamicmemorystream_t* sk_dynamicmemorywstream_new()
 
 sk_stream_asset_t* sk_dynamicmemorywstream_detach_as_stream(sk_wstream_dynamicmemorystream_t* cstream)
 {
-    return ToStreamAsset(AsDynamicMemoryWStream(cstream)->detachAsStream());
+    return ToStreamAsset(AsDynamicMemoryWStream(cstream)->detachAsStream().release());
 }
 
 sk_data_t* sk_dynamicmemorywstream_detach_as_data(sk_wstream_dynamicmemorystream_t* cstream)

@@ -234,11 +234,6 @@ bool sk_bitmap_ready_to_draw(sk_bitmap_t* cbitmap)
     return AsBitmap(cbitmap)->readyToDraw();
 }
 
-bool sk_bitmap_copy_pixels_to(sk_bitmap_t* cbitmap, void* const dst, size_t dstSize, size_t dstRowBytes, bool preserveDstPad)
-{
-    return AsBitmap(cbitmap)->copyPixelsTo(dst, dstSize, dstRowBytes, preserveDstPad);
-}
-
 bool sk_bitmap_copy(sk_bitmap_t* cbitmap, sk_bitmap_t* dst, sk_colortype_t ct)
 {
     return AsBitmap(cbitmap)->copyTo(AsBitmap(dst), (SkColorType)ct);
@@ -352,14 +347,14 @@ bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requ
     return bmp->tryAllocPixels(info, rowBytes);
 }
 
-bool sk_bitmap_try_alloc_pixels_with_color_table(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, sk_pixelref_factory_t* factory, sk_colortable_t* ctable)
+bool sk_bitmap_try_alloc_pixels_with_color_table(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, sk_colortable_t* ctable, uint32_t flags)
 {
     SkBitmap* bmp = AsBitmap(cbitmap);
 
     SkImageInfo info;
     from_c(*requestedInfo, &info);
 
-    return bmp->tryAllocPixels(info, AsPixelRefFactory(factory), AsColorTable(ctable));
+    return bmp->tryAllocPixels(info, sk_ref_sp(AsColorTable(ctable)), flags);
 }
 
 sk_colortable_t* sk_bitmap_get_colortable(sk_bitmap_t* cbitmap)

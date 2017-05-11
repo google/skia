@@ -144,7 +144,7 @@ using StageFn = void(void);
 
 extern "C" {
 
-#if __has_feature(memory_sanitizer)
+#if __has_feature(memory_sanitizer) || defined(SK_BUILD_FOR_TVOS)
     // We'll just run portable code.
 
 #elif defined(__aarch64__)
@@ -196,7 +196,7 @@ extern "C" {
 
 // Translate SkRasterPipeline's StockStage enum to StageFn function pointers.
 
-#if __has_feature(memory_sanitizer)
+#if __has_feature(memory_sanitizer) || defined(SK_BUILD_FOR_TVOS)
     // We'll just run portable code.
 
 #elif defined(__aarch64__)
@@ -316,7 +316,7 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
     };
 
     // While possible, build and run at full vector stride.
-#if __has_feature(memory_sanitizer)
+#if __has_feature(memory_sanitizer) || defined(SK_BUILD_FOR_TVOS)
     // We'll just run portable code.
 
 #elif defined(__aarch64__)

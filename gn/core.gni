@@ -34,6 +34,7 @@ skia_core_sources = [
   "$_include/c/sk_types.h",
   "$_include/c/sk_xml.h",
   "$_include/c/sk_svg.h",
+  "$_include/c/sk_vertices.h",
   "$_include/c/gr_context.h",
   "$_src/c/sk_bitmap.cpp",
   "$_src/c/sk_canvas.cpp",
@@ -61,6 +62,7 @@ skia_core_sources = [
   "$_src/c/sk_typeface.cpp",
   "$_src/c/sk_xml.cpp",
   "$_src/c/sk_svg.cpp",
+  "$_src/c/sk_vertices.cpp",
   "$_src/c/sk_types_priv.h",
   "$_src/c/gr_context.cpp",
 
@@ -601,6 +603,6 @@ skia_core_sources += [
 ]
 if (is_win) {
   skia_core_sources += [ "$_src/jumper/SkJumper_generated_win.S" ]
-} else {
+} else if (!is_tvos) {
   skia_core_sources += [ "$_src/jumper/SkJumper_generated.S" ]
 }

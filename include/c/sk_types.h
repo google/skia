@@ -775,6 +775,10 @@ typedef enum {
     DISALLOW_SK_IMAGE_CACHING_HINT,
 } sk_image_caching_hint_t;
 
+typedef enum {
+    ZERO_PIXELS_SK_BITMAP_ALLOC_FLAGS = 1 << 0,
+} sk_bitmap_allocflags_t;
+
 typedef struct {
     int16_t  fTimeZoneMinutes;
     uint16_t fYear;
@@ -838,10 +842,12 @@ typedef struct sk_svgcanvas_t sk_svgcanvas_t;
 typedef struct sk_3dview_t sk_3dview_t;
 
 typedef enum {
-    TRIANGLES_SK_VERTEX_MODE,
-    TRIANGLE_STRIP_SK_VERTEX_MODE,
-    TRIANGLE_FAN_SK_VERTEX_MODE,
-} sk_vertex_mode_t;
+    TRIANGLES_SK_VERTICES_VERTEX_MODE,
+    TRIANGLE_STRIP_SK_VERTICES_VERTEX_MODE,
+    TRIANGLE_FAN_SK_VERTICES_VERTEX_MODE,
+} sk_vertices_vertex_mode_t;
+
+typedef struct sk_vertices_t sk_vertices_t;
 
 SK_C_PLUS_PLUS_END_GUARD
 

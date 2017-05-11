@@ -37,7 +37,6 @@ SK_C_API sk_color_t sk_bitmap_get_pixel_color(sk_bitmap_t* cbitmap, int x, int y
 SK_C_API sk_pmcolor_t sk_bitmap_get_index8_color(sk_bitmap_t* cbitmap, int x, int y);
 SK_C_API void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t color);
 SK_C_API bool sk_bitmap_ready_to_draw(sk_bitmap_t* cbitmap);
-SK_C_API bool sk_bitmap_copy_pixels_to(sk_bitmap_t* cbitmap, void* const dst, size_t dstSize, size_t dstRowBytes, bool preserveDstPad);
 SK_C_API bool sk_bitmap_copy(sk_bitmap_t* cbitmap, sk_bitmap_t* dst, sk_colortype_t ct);
 SK_C_API bool sk_bitmap_can_copy_to(sk_bitmap_t* cbitmap, sk_colortype_t ct);
 SK_C_API void sk_bitmap_lock_pixels(sk_bitmap_t* cbitmap);
@@ -48,7 +47,7 @@ SK_C_API bool sk_bitmap_install_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_
 SK_C_API bool sk_bitmap_install_pixels_with_pixmap(sk_bitmap_t* cbitmap, const sk_pixmap_t* cpixmap);
 SK_C_API bool sk_bitmap_install_mask_pixels(sk_bitmap_t* cbitmap, const sk_mask_t* cmask);
 SK_C_API bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, size_t rowBytes);
-SK_C_API bool sk_bitmap_try_alloc_pixels_with_color_table(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, sk_pixelref_factory_t* factory, sk_colortable_t* ctable);
+SK_C_API bool sk_bitmap_try_alloc_pixels_with_color_table(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, sk_colortable_t* ctable, uint32_t flags);
 SK_C_API sk_colortable_t* sk_bitmap_get_colortable(sk_bitmap_t* cbitmap);
 SK_C_API void sk_bitmap_set_pixels(sk_bitmap_t* cbitmap, void* pixels, sk_colortable_t* ctable);
 SK_C_API bool sk_bitmap_peek_pixels(sk_bitmap_t* cbitmap, sk_pixmap_t* cpixmap);

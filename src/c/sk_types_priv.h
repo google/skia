@@ -530,22 +530,6 @@ static inline const sk_colortable_t* ToColorTable(const SkColorTable* p) {
     return reinterpret_cast<const sk_colortable_t*>(p);
 }
 
-static inline const SkPixelRefFactory* AsPixelRefFactory(const sk_pixelref_factory_t* p) {
-    return reinterpret_cast<const SkPixelRefFactory*>(p);
-}
-
-static inline SkPixelRefFactory* AsPixelRefFactory(sk_pixelref_factory_t* p) {
-    return reinterpret_cast<SkPixelRefFactory*>(p);
-}
-
-static inline sk_pixelref_factory_t* ToColorTable(SkPixelRefFactory* p) {
-    return reinterpret_cast<sk_pixelref_factory_t*>(p);
-}
-
-static inline const sk_pixelref_factory_t* ToColorTable(const SkPixelRefFactory* p) {
-    return reinterpret_cast<const sk_pixelref_factory_t*>(p);
-}
-
 static inline sk_surface_t* ToSurface(SkSurface* p) {
     return reinterpret_cast<sk_surface_t*>(p);
 }
@@ -720,6 +704,22 @@ static inline sk_matrix44_t* ToMatrix44(SkMatrix44* p) {
 
 static inline const sk_matrix44_t* ToMatrix44(const SkMatrix44* p) {
     return reinterpret_cast<const sk_matrix44_t*>(p);
+}
+
+static inline const SkVertices* AsVertices(const sk_vertices_t* p) {
+    return reinterpret_cast<const SkVertices*>(p);
+}
+
+static inline SkVertices* AsVertices(sk_vertices_t* p) {
+    return reinterpret_cast<SkVertices*>(p);
+}
+
+static inline sk_vertices_t* ToVertices(SkVertices* p) {
+    return reinterpret_cast<sk_vertices_t*>(p);
+}
+
+static inline const sk_vertices_t* ToVertices(const SkVertices* p) {
+    return reinterpret_cast<const sk_vertices_t*>(p);
 }
 
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {

@@ -358,13 +358,16 @@ static_assert ((int)SkMatrix44::TypeMask::kScale_Mask         == (int)SCALE_SK_M
 static_assert ((int)SkMatrix44::TypeMask::kAffine_Mask        == (int)AFFINE_SK_MATRIX44_TYPE_MASK,        ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
 static_assert ((int)SkMatrix44::TypeMask::kPerspective_Mask   == (int)PERSPECTIVE_SK_MATRIX44_TYPE_MASK,   ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
 
-// sk_vertex_mode_t
-static_assert ((int)SkCanvas::VertexMode::kTriangles_VertexMode       == (int)TRIANGLES_SK_VERTEX_MODE,        ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
-static_assert ((int)SkCanvas::VertexMode::kTriangleStrip_VertexMode   == (int)TRIANGLE_STRIP_SK_VERTEX_MODE,   ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
-static_assert ((int)SkCanvas::VertexMode::kTriangleFan_VertexMode     == (int)TRIANGLE_FAN_SK_VERTEX_MODE,     ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
+// sk_vertices_vertex_mode_t
+static_assert ((int)SkVertices::VertexMode::kTriangles_VertexMode       == (int)TRIANGLES_SK_VERTICES_VERTEX_MODE,        ASSERT_MSG(SkVertices::VertexMode, sk_vertices_vertex_mode_t));
+static_assert ((int)SkVertices::VertexMode::kTriangleStrip_VertexMode   == (int)TRIANGLE_STRIP_SK_VERTICES_VERTEX_MODE,   ASSERT_MSG(SkVertices::VertexMode, sk_vertices_vertex_mode_t));
+static_assert ((int)SkVertices::VertexMode::kTriangleFan_VertexMode     == (int)TRIANGLE_FAN_SK_VERTICES_VERTEX_MODE,     ASSERT_MSG(SkVertices::VertexMode, sk_vertices_vertex_mode_t));
 
 // sk_image_caching_hint_t
 static_assert ((int)SkImage::CachingHint::kAllow_CachingHint      == (int)ALLOW_SK_IMAGE_CACHING_HINT,      ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
 static_assert ((int)SkImage::CachingHint::kDisallow_CachingHint   == (int)DISALLOW_SK_IMAGE_CACHING_HINT,   ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
+
+// sk_bitmap_allocflags_t
+static_assert ((int)SkBitmap::AllocFlags::kZeroPixels_AllocFlag   == (int)ZERO_PIXELS_SK_BITMAP_ALLOC_FLAGS,   ASSERT_MSG(SkBitmap::AllocFlags, sk_bitmap_allocflags_t));
 
 #endif

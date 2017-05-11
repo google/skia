@@ -35,6 +35,8 @@ SK_C_API void sk_color_get_bit_shift(int* a, int* r, int* g, int* b);
 
 SK_C_API bool sk_pixmap_encode_image(sk_wstream_t* dst, const sk_pixmap_t* src, sk_encoded_image_format_t encoder, int quality);
 
+SK_C_API bool sk_pixmap_read_pixels(const sk_pixmap_t* cpixmap, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
