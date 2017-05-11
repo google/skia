@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fcaf8fd5_41d5c26a",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1017,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-11T14:47:53Z",
+      "side": 1,
+      "message": "This looks great.\n\nIf we rewrite it a little it\u0027ll be more obvious that it\u0027s no different from any of the other matrix_NxM stages, except of course for shape:\n\nSTAGE(matrix_4x3) {\n    auto m \u003d (const float*)ctx;\n\n    auto R \u003d mad(r,m[0], mad(g,m[4], m[ 8])),\n         G \u003d mad(r,m[1], mad(g,m[5], m[ 9])),\n         B \u003d mad(r,m[2], mad(g,m[6], m[10])),\n         A \u003d mad(r,m[3], mad(g,m[7], m[11]));\n    r \u003d R;\n    g \u003d G;\n    b \u003d B;\n    a \u003d A;\n}",
+      "revId": "2735db69c638f0f86b00a90e864499f3e37db3b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
