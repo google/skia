@@ -12,6 +12,10 @@ Here is an example of a set of drawing commands to draw a filled
 heptagram.  This function can be cut and pasted into
 [fiddle.skia.org](https://fiddle.skia.org/).
 
+<fiddle-embed name='@pong' gpu></fiddle-embed>
+
+<fiddle-embed name='@pong'></fiddle-embed>
+
 <fiddle-embed name='@skcanvas_star'></fiddle-embed>
 
 Details
