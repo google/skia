@@ -144,6 +144,13 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
                                         GrSurface* src,
                                         const SkIRect& srcRect,
                                         const SkIPoint& dstPoint) {
+    // None of our copy methods can handle a swizzle. TODO: Make copySurfaceAsDraw handle the
+    // swizzle.
+    if (gpu->caps()->shaderCaps()->configOutputSwizzle(src->config()) !=
+        gpu->caps()->shaderCaps()->configOutputSwizzle(dst->config())) {
+        return false;
+    }
+
     if (!gpu->vkCaps().supportsCopiesAsDraws()) {
         return false;
     }
