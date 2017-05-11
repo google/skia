@@ -71,10 +71,8 @@ struct Swizzle : public Expression {
         ASSERT(fComponents.size() >= 1 && fComponents.size() <= 4);
     }
 
-    virtual std::unique_ptr<Expression> constantPropagate(
-                                                        const IRGenerator& irGenerator,
-                                                        const DefinitionMap& definitions) override {
-
+    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
+                                                  const DefinitionMap& definitions) override {
         if (fBase->fKind == Expression::kConstructor_Kind && fBase->isConstant()) {
             // we're swizzling a constant vector, e.g. vec4(1).x. Simplify it.
             ASSERT(fBase->fKind == Expression::kConstructor_Kind);

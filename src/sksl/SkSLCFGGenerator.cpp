@@ -93,8 +93,7 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
         Expression* old = (*iter)->expression()->get();
         do {
             if ((*iter) == fNodes.begin()) {
-                ABORT("couldn't find %s before %s\n", e->description().c_str(),
-                                                      old->description().c_str());
+                return false;
             }
             --(*iter);
         } while ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
@@ -109,8 +108,7 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
         Statement* old = (*iter)->statement()->get();
         do {
             if ((*iter) == fNodes.begin()) {
-                ABORT("couldn't find %s before %s\n", e->description().c_str(),
-                                                      old->description().c_str());
+                return false;
             }
             --(*iter);
         } while ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
@@ -233,6 +231,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
         case Expression::kBoolLiteral_Kind:  // fall through
         case Expression::kFloatLiteral_Kind: // fall through
         case Expression::kIntLiteral_Kind:   // fall through
+        case Expression::kSetting_Kind:      // fall through
         case Expression::kVariableReference_Kind:
             *iter = fNodes.erase(*iter);
             return true;
@@ -300,6 +299,12 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
                     this->addExpression(cfg, &b->fRight, constantPropagate);
                     cfg.newBlock();
                     cfg.addExit(start, cfg.fCurrent);
+                    cfg.fBlocks[cfg.fCurrent].fNodes.push_back({
+                        BasicBlock::Node::kExpression_Kind,
+                        constantPropagate,
+                        e,
+                        nullptr
+                    });
                     break;
                 }
                 case Token::EQ: {
@@ -376,6 +381,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         case Expression::kBoolLiteral_Kind:  // fall through
         case Expression::kFloatLiteral_Kind: // fall through
         case Expression::kIntLiteral_Kind:   // fall through
+        case Expression::kSetting_Kind:      // fall through
         case Expression::kVariableReference_Kind:
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kExpression_Kind,
                                                          constantPropagate, e, nullptr });
