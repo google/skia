@@ -131,11 +131,20 @@
 #  define SK_DUMP_GOOGLE3_STACK()
 #endif
 
+#ifdef SK_BUILD_FOR_WIN
+// permits visual studio to follow error back to source
+#define SK_DUMP_LINE_FORMAT(message) \
+    SkDebugf("%s(%d): fatal error: \"%s\"\n", __FILE__, __LINE__, message)
+#else
+#define SK_DUMP_LINE_FORMAT(message) \
+    SkDebugf("%s:%d: fatal error: \"%s\"\n", __FILE__, __LINE__, message)
+#endif
+
 #ifndef SK_ABORT
 #  define SK_ABORT(message) \
     do { \
        SkNO_RETURN_HINT(); \
-       SkDebugf("%s:%d: fatal error: \"%s\"\n", __FILE__, __LINE__, message); \
+       SK_DUMP_LINE_FORMAT(message); \
        SK_DUMP_GOOGLE3_STACK(); \
        sk_abort_no_print(); \
     } while (false)
