@@ -49,8 +49,8 @@ public:
 
         // These expose the paint's color run through its color filter (if any). This is only valid
         // when drawing grayscale/lcd glyph masks and not when drawing color glyphs.
-        SkColor filteredSkColor() const { return fFilteredSkColor; }
-        GrColor filteredPremulGrColor() const { return fFilteredGrColor; }
+        GrColor filteredPremulColor() const { return fFilteredPremulColor; }
+        GrColor filteredUnpremulColor() const { return fFilteredUnpremulColor; }
 
         const SkPaint& skPaint() const { return *fPaint; }
         operator const SkPaint&() const { return this->skPaint(); }
@@ -60,19 +60,20 @@ public:
 
     protected:
         void initFilteredColor() {
-            fFilteredSkColor = fPaint->getColor();
+            SkColor filteredSkColor = fPaint->getColor();
             if (fPaint->getColorFilter()) {
-                fFilteredSkColor = fPaint->getColorFilter()->filterColor(fFilteredSkColor);
+                filteredSkColor = fPaint->getColorFilter()->filterColor(filteredSkColor);
             }
-            fFilteredGrColor = SkColorToPremulGrColor(fFilteredSkColor);
+            fFilteredPremulColor = SkColorToPremulGrColor(filteredSkColor);
+            fFilteredUnpremulColor = SkColorToUnpremulGrColor(filteredSkColor);
         }
         Paint() = default;
         const SkPaint* fPaint;
         // This is the paint's color run through its color filter, if present. This color should
         // be used except when rendering bitmap text, in which case the bitmap must be filtered in
         // the fragment shader.
-        SkColor fFilteredSkColor;
-        SkColor fFilteredGrColor;
+        GrColor fFilteredUnpremulColor;
+        GrColor fFilteredPremulColor;
     };
 
     /**
@@ -86,8 +87,8 @@ public:
                 : fOriginalPaint(paint), fFilter(filter), fProps(props) {
             // Initially we represent the original paint.
             fPaint = &fOriginalPaint->skPaint();
-            fFilteredSkColor = fOriginalPaint->filteredSkColor();
-            fFilteredGrColor = fOriginalPaint->filteredPremulGrColor();
+            fFilteredPremulColor = fOriginalPaint->filteredPremulColor();
+            fFilteredUnpremulColor = fOriginalPaint->filteredUnpremulColor();
         }
 
         bool modifyForRun(const SkTextBlobRunIterator&);
