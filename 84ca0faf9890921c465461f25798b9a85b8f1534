@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "5d968818_825c7987",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-11T17:45:50Z",
+      "side": 1,
+      "message": "Yes. This is me being thick. What I meant by the trashcan comment was that the search version and the evenly version had the same times for 3 stops, the hi color was much slower in the search code.",
+      "parentUuid": "f0a5a8d0_05a63ebd",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 51
+      },
+      "revId": "84ca0faf9890921c465461f25798b9a85b8f1534",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0fc92c1c_0d66412f",
         "filename": "src/effects/gradients/SkGradientShader.cpp",
         "patchSetId": 4
