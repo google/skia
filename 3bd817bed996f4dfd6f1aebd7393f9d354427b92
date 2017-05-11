@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "685d47b1_78b5a213",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-05-11T17:39:48Z",
+      "side": 1,
+      "message": "I guess I meant doing this on all test/perf bots.  I\u0027m not sure we\u0027d want to do it for compile bots.  Do we know what the CIPD time is for, eg. Windows desktop machines?  Anyway, not necessary for this CL, but if it saves a few seconds and lets us be consistent I think it\u0027s worth doing in the long run.",
+      "parentUuid": "e718b2b2_e629ac00",
+      "range": {
+        "startLine": 304,
+        "startChar": 0,
+        "endLine": 305,
+        "endChar": 35
+      },
+      "revId": "3bd817bed996f4dfd6f1aebd7393f9d354427b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "70f3de95_6153eb28",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 10
