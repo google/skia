@@ -969,20 +969,17 @@ STAGE(store_f32) {
     store4(ptr,tail, r,g,b,a);
 }
 
-SI F ulp_before(F v) {
-    return bit_cast<F>(bit_cast<U32>(v) + U32(0xffffffff));
-}
 SI F clamp(F v, float limit) {
     v = max(0, v);
-    return min(v, ulp_before(limit));
+    return min(v, limit);
 }
 SI F repeat(F v, float limit) {
     v = v - floor_(v/limit)*limit;
-    return min(v, ulp_before(limit));
+    return min(v, limit);
 }
 SI F mirror(F v, float limit) {
     v = abs_( (v-limit) - (limit+limit)*floor_((v-limit)/(limit+limit)) - limit );
-    return min(v, ulp_before(limit));
+    return min(v, limit);
 }
 STAGE(clamp_x)  { r = clamp (r, *(const float*)ctx); }
 STAGE(clamp_y)  { g = clamp (g, *(const float*)ctx); }

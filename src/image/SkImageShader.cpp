@@ -210,7 +210,7 @@ SkFlattenable::Register("SkBitmapProcShader", SkBitmapProcShader_CreateProc, kSk
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 
-bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkArenaAlloc* scratch,
+bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkArenaAlloc* alloc,
                                    const SkMatrix& ctm, const SkPaint& paint,
                                    const SkMatrix* localM) const {
     auto matrix = SkMatrix::Concat(ctm, this->getLocalMatrix());
@@ -223,7 +223,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkAre
     }
     auto quality = paint.getFilterQuality();
 
-    SkBitmapProvider provider(fImage.get(), dst);
+    SkBitmapProvider provider(fImage.get(), dstCS);
     SkDefaultBitmapController controller(SkDefaultBitmapController::CanShadeHQ::kYes);
     std::unique_ptr<SkBitmapController::State> state {
         controller.requestBitmap(provider, matrix, quality)
@@ -261,15 +261,11 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkAre
     struct MiscCtx {
         std::unique_ptr<SkBitmapController::State> state;
         SkColor4f paint_color;
-        float     width;
-        float     height;
         float     matrix[9];
     };
-    auto misc = scratch->make<MiscCtx>();
+    auto misc = alloc->make<MiscCtx>();
     misc->state       = std::move(state);  // Extend lifetime to match the pipeline's.
-    misc->paint_color = SkColor4f_from_SkColor(paint.getColor(), dst);
-    misc->width       = (float)pm.width();
-    misc->height      = (float)pm.height();
+    misc->paint_color = SkColor4f_from_SkColor(paint.getColor(), dstCS);
     if (matrix.asAffine(misc->matrix)) {
         p->append(SkRasterPipeline::matrix_2x3, misc->matrix);
     } else {
@@ -277,21 +273,33 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkAre
         p->append(SkRasterPipeline::matrix_perspective, misc->matrix);
     }
 
-    auto gather = scratch->make<SkJumper_GatherCtx>();
+    auto gather = alloc->make<SkJumper_GatherCtx>();
     gather->pixels  = pm.addr();
     gather->ctable  = pm.ctable() ? pm.ctable()->readColors() : nullptr;
     gather->stride  = pm.rowBytesAsPixels();
 
+    // Tiling stages (clamp_x, mirror_y, etc.) are inclusive of their limit,
+    // so we tick down our width and height by one float to make them exclusive.
+    auto ulp_before = [](float f) {
+        uint32_t bits;
+        memcpy(&bits, &f, 4);
+        bits--;
+        memcpy(&f, &bits, 4);
+        return f;
+    };
+    auto limit_x = alloc->make<float>(ulp_before((float)pm. width())),
+         limit_y = alloc->make<float>(ulp_before((float)pm.height()));
+
     auto append_tiling_and_gather = [&] {
         switch (fTileModeX) {
-            case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x,  &misc->width); break;
-            case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, &misc->width); break;
-            case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, &misc->width); break;
+            case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x,  limit_x); break;
+            case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit_x); break;
+            case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit_x); break;
         }
         switch (fTileModeY) {
-            case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_y,  &misc->height); break;
-            case kMirror_TileMode: p->append(SkRasterPipeline::mirror_y, &misc->height); break;
-            case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, &misc->height); break;
+            case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_y,  limit_y); break;
+            case kMirror_TileMode: p->append(SkRasterPipeline::mirror_y, limit_y); break;
+            case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, limit_y); break;
         }
         switch (info.colorType()) {
             case kAlpha_8_SkColorType:   p->append(SkRasterPipeline::gather_a8,   gather); break;
@@ -304,14 +312,14 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkAre
             case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::gather_f16,  gather); break;
             default: SkASSERT(false);
         }
-        if (info.gammaCloseToSRGB() && dst != nullptr) {
+        if (info.gammaCloseToSRGB() && dstCS != nullptr) {
             p->append_from_srgb(info.alphaType());
         }
     };
 
     SkJumper_SamplerCtx* sampler = nullptr;
     if (quality != kNone_SkFilterQuality) {
-        sampler = scratch->make<SkJumper_SamplerCtx>();
+        sampler = alloc->make<SkJumper_SamplerCtx>();
     }
 
     auto sample = [&](SkRasterPipeline::StockStage setup_x,
@@ -377,6 +385,6 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkAre
         p->append(SkRasterPipeline::clamp_0);
         p->append(SkRasterPipeline::clamp_a);
     }
-    append_gamut_transform(p, scratch, info.colorSpace(), dst);
+    append_gamut_transform(p, alloc, info.colorSpace(), dstCS);
     return true;
 }
