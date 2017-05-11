@@ -29,6 +29,7 @@ int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
     return fRefCnt;
 }
 
+#if 0
 int32_t GrIORefProxy::getPendingReadCnt_TestOnly() const {
     if (fTarget) {
         SkASSERT(!fPendingReads);
@@ -46,6 +47,7 @@ int32_t GrIORefProxy::getPendingWriteCnt_TestOnly() const {
 
     return fPendingWrites;
 }
+#endif
 
 static const int kWidthHeight = 128;
 

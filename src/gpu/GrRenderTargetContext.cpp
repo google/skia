@@ -85,6 +85,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
     , fInstancedPipelineInfo(fRenderTargetProxy.get())
     , fColorXformFromSRGB(nullptr)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps)) {
+    //SkASSERT(!fOpList || fOpList->isClosed());
     if (fColorSpace) {
         // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation
         auto srgbColorSpace = SkColorSpace::MakeSRGB();
@@ -105,6 +106,9 @@ void GrRenderTargetContext::validate() const {
 #endif
 
 GrRenderTargetContext::~GrRenderTargetContext() {
+    if (fOpList) {
+        fOpList->makeClosed(*this->caps());
+    }
     ASSERT_SINGLE_OWNER
 }
 
@@ -121,7 +125,7 @@ GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy);
+        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy.get());
     }
 
     return fOpList.get();
@@ -1744,6 +1748,8 @@ bool GrRenderTargetContext::setupDstTexture(GrRenderTargetProxy* rtProxy, const 
                                                                                 desc,
                                                                                 fit,
                                                                                 SkBudgeted::kYes);
+    GrTextureProxy* copyProxy = sContext->asTextureProxy();
+
     if (!sContext) {
         SkDebugf("setupDstTexture: surfaceContext creation failed.\n");
         return false;
@@ -1754,7 +1760,6 @@ bool GrRenderTargetContext::setupDstTexture(GrRenderTargetProxy* rtProxy, const 
         return false;
     }
 
-    GrTextureProxy* copyProxy = sContext->asTextureProxy();
     // MDB TODO: remove this instantiation once DstTexture is proxy-backed
     sk_sp<GrTexture> copy(sk_ref_sp(copyProxy->instantiate(fContext->resourceProvider())));
     if (!copy) {
@@ -1764,5 +1769,6 @@ bool GrRenderTargetContext::setupDstTexture(GrRenderTargetProxy* rtProxy, const 
 
     dstTexture->setTexture(std::move(copy));
     dstTexture->setOffset(dstOffset);
+    sContext = nullptr;
     return true;
 }
