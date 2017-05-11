@@ -12,9 +12,9 @@
 
 class SkWStream;
 
-namespace SK_API SkWebpEncoder {
+namespace SkWebpEncoder {
 
-    struct Options {
+    struct SK_API Options {
         /**
          *  |fQuality| must be in [0.0f, 100.0f] where 0.0f corresponds to the lowest quality.
          */
@@ -34,7 +34,7 @@ namespace SK_API SkWebpEncoder {
      *
      *  Returns true on success.  Returns false on an invalid or unsupported |src|.
      */
-    bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options);
+    SK_API bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options);
 };
 
 #endif
