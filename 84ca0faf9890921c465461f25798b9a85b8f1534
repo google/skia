@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "c3a1a87a_22135d71",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-11T17:58:49Z",
+      "side": 1,
+      "message": "Ah, gotcha.  Yeah, AVX 3color was the one spot where I saw a little loss, but it was pretty minor, and if your trashcan says it\u0027s even that feels even better.",
+      "parentUuid": "5d968818_825c7987",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 51
+      },
+      "revId": "84ca0faf9890921c465461f25798b9a85b8f1534",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0fc92c1c_0d66412f",
         "filename": "src/effects/gradients/SkGradientShader.cpp",
         "patchSetId": 4
