@@ -10,6 +10,10 @@
 #include "SkBitmapScaler.h"
 #include "SkBlurMaskFilter.h"
 
+#if SK_SUPPORT_GPU
+#include "GrContextOptions.h"
+#endif
+
 #if __cplusplus >= 199711L
 
 #define STRINGIFY(x) #x
@@ -264,35 +268,6 @@ static_assert ((int)SkCanvas::PointMode::kPolygon_PointMode   == (int)POLYGON_SK
 // sk_surfaceprops_flags_t
 static_assert ((int)SkSurfaceProps::Flags::kUseDeviceIndependentFonts_Flag   == (int)USE_DEVICE_INDEPENDENT_FONTS_GR_SURFACE_PROPS_FLAGS,   ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
 
-// gr_surfaceorigin_t
-static_assert ((int)GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin   == (int)BOTTOM_LEFT_GR_SURFACE_ORIGIN,   ASSERT_MSG(GrSurfaceOrigin, gr_surfaceorigin_t));
-static_assert ((int)GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin      == (int)TOP_LEFT_GR_SURFACE_ORIGIN,      ASSERT_MSG(GrSurfaceOrigin, gr_surfaceorigin_t));
-
-// gr_pixelconfig_t
-static_assert ((int)GrPixelConfig::kUnknown_GrPixelConfig          == (int)UNKNOWN_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kAlpha_8_GrPixelConfig          == (int)ALPHA_8_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kGray_8_GrPixelConfig           == (int)GRAY_8_GR_PIXEL_CONFIG,           ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kRGB_565_GrPixelConfig          == (int)RGB_565_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kRGBA_4444_GrPixelConfig        == (int)RGBA_4444_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kRGBA_8888_GrPixelConfig        == (int)RGBA_8888_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kBGRA_8888_GrPixelConfig        == (int)BGRA_8888_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kSRGBA_8888_GrPixelConfig       == (int)SRGBA_8888_GR_PIXEL_CONFIG,       ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kSBGRA_8888_GrPixelConfig       == (int)SBGRA_8888_GR_PIXEL_CONFIG,       ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kRGBA_8888_sint_GrPixelConfig   == (int)RGBA_8888_SINT_GR_PIXEL_CONFIG,   ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kETC1_GrPixelConfig             == (int)ETC1_GR_PIXEL_CONFIG,             ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kRGBA_float_GrPixelConfig       == (int)RGBA_FLOAT_GR_PIXEL_CONFIG,       ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kRG_float_GrPixelConfig         == (int)RG_FLOAT_GR_PIXEL_CONFIG,         ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kAlpha_half_GrPixelConfig       == (int)ALPHA_HALF_GR_PIXEL_CONFIG,       ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kRGBA_half_GrPixelConfig        == (int)RGBA_HALF_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-
-// gr_backendtexture_flags_t
-static_assert ((int)GrBackendTextureFlags::kNone_GrBackendTextureFlag           == (int)NONE_GR_BACKEND_TEXTURE_FLAGS,            ASSERT_MSG(GrBackendTextureFlags, gr_backendtexture_flags_t));
-static_assert ((int)GrBackendTextureFlags::kRenderTarget_GrBackendTextureFlag   == (int)RENDER_TARGET_GR_BACKEND_TEXTURE_FLAGS,   ASSERT_MSG(GrBackendTextureFlags, gr_backendtexture_flags_t));
-
-// gr_backend_t
-static_assert ((int)GrBackend::kOpenGL_GrBackend   == (int)OPENGL_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
-static_assert ((int)GrBackend::kVulkan_GrBackend   == (int)VULKAN_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
-
 // sk_bitmapscaler_resizemethod_t
 static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_BOX        == (int)BOX_SK_BITMAP_SCALER_RESIZE_METHOD,        ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
 static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_TRIANGLE   == (int)TRIANGLE_SK_BITMAP_SCALER_RESIZE_METHOD,   ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
@@ -366,5 +341,52 @@ static_assert ((int)SkCanvas::VertexMode::kTriangleFan_VertexMode     == (int)TR
 // sk_image_caching_hint_t
 static_assert ((int)SkImage::CachingHint::kAllow_CachingHint      == (int)ALLOW_SK_IMAGE_CACHING_HINT,      ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
 static_assert ((int)SkImage::CachingHint::kDisallow_CachingHint   == (int)DISALLOW_SK_IMAGE_CACHING_HINT,   ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
+
+#if SK_SUPPORT_GPU
+
+// gr_surfaceorigin_t
+static_assert ((int)GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin   == (int)BOTTOM_LEFT_GR_SURFACE_ORIGIN,   ASSERT_MSG(GrSurfaceOrigin, gr_surfaceorigin_t));
+static_assert ((int)GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin      == (int)TOP_LEFT_GR_SURFACE_ORIGIN,      ASSERT_MSG(GrSurfaceOrigin, gr_surfaceorigin_t));
+
+// gr_pixelconfig_t
+static_assert ((int)GrPixelConfig::kUnknown_GrPixelConfig          == (int)UNKNOWN_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kAlpha_8_GrPixelConfig          == (int)ALPHA_8_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kGray_8_GrPixelConfig           == (int)GRAY_8_GR_PIXEL_CONFIG,           ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRGB_565_GrPixelConfig          == (int)RGB_565_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRGBA_4444_GrPixelConfig        == (int)RGBA_4444_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRGBA_8888_GrPixelConfig        == (int)RGBA_8888_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kBGRA_8888_GrPixelConfig        == (int)BGRA_8888_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kSRGBA_8888_GrPixelConfig       == (int)SRGBA_8888_GR_PIXEL_CONFIG,       ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kSBGRA_8888_GrPixelConfig       == (int)SBGRA_8888_GR_PIXEL_CONFIG,       ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRGBA_8888_sint_GrPixelConfig   == (int)RGBA_8888_SINT_GR_PIXEL_CONFIG,   ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kETC1_GrPixelConfig             == (int)ETC1_GR_PIXEL_CONFIG,             ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRGBA_float_GrPixelConfig       == (int)RGBA_FLOAT_GR_PIXEL_CONFIG,       ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRG_float_GrPixelConfig         == (int)RG_FLOAT_GR_PIXEL_CONFIG,         ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kAlpha_half_GrPixelConfig       == (int)ALPHA_HALF_GR_PIXEL_CONFIG,       ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRGBA_half_GrPixelConfig        == (int)RGBA_HALF_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+
+// gr_backendtexture_flags_t
+static_assert ((int)GrBackendTextureFlags::kNone_GrBackendTextureFlag           == (int)NONE_GR_BACKEND_TEXTURE_FLAGS,            ASSERT_MSG(GrBackendTextureFlags, gr_backendtexture_flags_t));
+static_assert ((int)GrBackendTextureFlags::kRenderTarget_GrBackendTextureFlag   == (int)RENDER_TARGET_GR_BACKEND_TEXTURE_FLAGS,   ASSERT_MSG(GrBackendTextureFlags, gr_backendtexture_flags_t));
+
+// gr_backend_t
+static_assert ((int)GrBackend::kOpenGL_GrBackend   == (int)OPENGL_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
+static_assert ((int)GrBackend::kVulkan_GrBackend   == (int)VULKAN_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
+
+// gr_contextoptions_gpupathrenderers_t
+static_assert ((int)GrContextOptions::GpuPathRenderers::kNone              == (int)NONE_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,                ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
+static_assert ((int)GrContextOptions::GpuPathRenderers::kDashLine          == (int)DASHLINE_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,            ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
+static_assert ((int)GrContextOptions::GpuPathRenderers::kStencilAndCover   == (int)STENCIL_AND_COVER_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,   ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
+static_assert ((int)GrContextOptions::GpuPathRenderers::kMSAA              == (int)MSAA_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,                ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
+static_assert ((int)GrContextOptions::GpuPathRenderers::kAAHairline        == (int)AA_HAIRLINE_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,         ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
+static_assert ((int)GrContextOptions::GpuPathRenderers::kAAConvex          == (int)AA_CONVEX_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,           ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
+static_assert ((int)GrContextOptions::GpuPathRenderers::kAALinearizing     == (int)AA_LINEARIZING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,      ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
+static_assert ((int)GrContextOptions::GpuPathRenderers::kPLS               == (int)PLS_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,                 ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
+static_assert ((int)GrContextOptions::GpuPathRenderers::kDistanceField     == (int)DISTANCE_FIELD_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,      ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
+static_assert ((int)GrContextOptions::GpuPathRenderers::kTessellating      == (int)TESSELLATING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,        ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
+static_assert ((int)GrContextOptions::GpuPathRenderers::kDefault           == (int)DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,             ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
+static_assert ((int)GrContextOptions::GpuPathRenderers::kAll               == (int)ALL_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,                 ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
+
+#endif
 
 #endif

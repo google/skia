@@ -63,6 +63,7 @@ skia_core_sources = [
   "$_src/c/sk_svg.cpp",
   "$_src/c/sk_types_priv.h",
   "$_src/c/gr_context.cpp",
+  "$_src/c/sk_structs.cpp",
 
   "$_src/core/Sk4px.h",
   "$_src/core/SkAAClip.cpp",
