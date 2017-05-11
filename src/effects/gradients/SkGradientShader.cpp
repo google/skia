@@ -404,7 +404,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
         f_and_b[0] = SkPM4f::From4f(c_r.to4f() - c_l.to4f());
         f_and_b[1] = c_l;
 
-        p->append(SkRasterPipeline::linear_gradient_2stops, f_and_b);
+        p->append(SkRasterPipeline::evenly_spaced_2_stop_gradient, f_and_b);
     } else {
 
         struct Stop { float t; SkPM4f f, b; };
@@ -493,7 +493,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
             ctx->stops = stopsArray;
         }
 
-        p->append(SkRasterPipeline::linear_gradient, ctx);
+        p->append(SkRasterPipeline::gradient, ctx);
     }
 
     if (!premulGrad && !this->colorsAreOpaque()) {
