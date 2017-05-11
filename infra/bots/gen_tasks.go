@@ -337,6 +337,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 	return name
 }
 
+// rmistry
 // recreateSKPs generates a RecreateSKPs task. Returns the name of the last
 // task in the generated chain of tasks, which the Job should add as a
 // dependency.
@@ -613,6 +614,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		glog.Fatal(err)
 	}
 
+	// rmistry
 	// RecreateSKPs.
 	if strings.Contains(name, "RecreateSKPs") {
 		deps = append(deps, recreateSKPs(b, name))
@@ -644,6 +646,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		name != "Housekeeper-PerCommit-BundleRecipes" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		!strings.Contains(name, "RecreateSKPs") &&
+		// rmistry
 		!strings.Contains(name, "-CT_") {
 		compile(b, compileTaskName, compileTaskParts)
 	}
@@ -707,6 +710,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if name == "Housekeeper-Weekly-RecreateSKPs" {
 		j.Trigger = "weekly"
 	}
+	// rmistry
 	if name == "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs" {
 		j.Trigger = "weekly"
 	}
