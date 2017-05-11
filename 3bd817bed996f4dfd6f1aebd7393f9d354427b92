@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e718b2b2_e629ac00",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-05-11T17:35:46Z",
+      "side": 1,
+      "message": "It was less work to just focus on the 3 cipd packages used by these devices.  The only reason I can think of to not do it for other places is that it\u0027s unnecessary complications for almost no gain on other devices.  If it proves popular on other devices we can do it in a follow on CL",
+      "parentUuid": "5a256788_30f4942d",
+      "range": {
+        "startLine": 304,
+        "startChar": 0,
+        "endLine": 305,
+        "endChar": 35
+      },
+      "revId": "3bd817bed996f4dfd6f1aebd7393f9d354427b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "70f3de95_6153eb28",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 10
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-11T17:27:32Z",
       "side": 1,
       "message": "Not really necessary for this CL, but we should probably move pkgs out of this function and into test/perf/compile/etc.",
+      "range": {
+        "startLine": 713,
+        "startChar": 1,
+        "endLine": 713,
+        "endChar": 31
+      },
+      "revId": "3bd817bed996f4dfd6f1aebd7393f9d354427b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4874c6b_3bd5b3ad",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-05-11T17:35:46Z",
+      "side": 1,
+      "message": "Agreed.",
+      "parentUuid": "70f3de95_6153eb28",
       "range": {
         "startLine": 713,
         "startChar": 1,
