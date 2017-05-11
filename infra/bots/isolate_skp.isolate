@@ -1,0 +1,7 @@
+{
+  'variables': {
+    'command': [
+      '/bin/cp', '-r', skp', '${ISOLATED_OUTDIR}'
+    ],
+  },
+}
