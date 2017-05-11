@@ -3497,10 +3497,10 @@ _sk_matrix_perspective_aarch64:
   .long  0x6e32de80                          // fmul          v0.4s, v20.4s, v18.4s
   .long  0xd61f0060                          // br            x3
 
-HIDDEN _sk_linear_gradient_aarch64
-.globl _sk_linear_gradient_aarch64
-FUNCTION(_sk_linear_gradient_aarch64)
-_sk_linear_gradient_aarch64:
+HIDDEN _sk_gradient_aarch64
+.globl _sk_gradient_aarch64
+FUNCTION(_sk_gradient_aarch64)
+_sk_gradient_aarch64:
   .long  0xf9400029                          // ldr           x9, [x1]
   .long  0x91004128                          // add           x8, x9, #0x10
   .long  0x9100512a                          // add           x10, x9, #0x14
@@ -3511,7 +3511,7 @@ _sk_linear_gradient_aarch64:
   .long  0x4d40c902                          // ld1r          {v2.4s}, [x8]
   .long  0xf9400128                          // ldr           x8, [x9]
   .long  0x4d40c943                          // ld1r          {v3.4s}, [x10]
-  .long  0xb40006c8                          // cbz           x8, 2f88 <sk_linear_gradient_aarch64+0x100>
+  .long  0xb40006c8                          // cbz           x8, 2f88 <sk_gradient_aarch64+0x100>
   .long  0x6dbf23e9                          // stp           d9, d8, [sp, #-16]!
   .long  0xf9400529                          // ldr           x9, [x9, #8]
   .long  0x6f00e413                          // movi          v19.2d, #0x0
@@ -3562,9 +3562,9 @@ _sk_linear_gradient_aarch64:
   .long  0xd1000508                          // sub           x8, x8, #0x1
   .long  0x6e771fd0                          // bsl           v16.16b, v30.16b, v23.16b
   .long  0x91009129                          // add           x9, x9, #0x24
-  .long  0xb5fffaa8                          // cbnz          x8, 2ed0 <sk_linear_gradient_aarch64+0x48>
+  .long  0xb5fffaa8                          // cbnz          x8, 2ed0 <sk_gradient_aarch64+0x48>
   .long  0x6cc123e9                          // ldp           d9, d8, [sp], #16
-  .long  0x14000005                          // b             2f98 <sk_linear_gradient_aarch64+0x110>
+  .long  0x14000005                          // b             2f98 <sk_gradient_aarch64+0x110>
   .long  0x6f00e414                          // movi          v20.2d, #0x0
   .long  0x6f00e412                          // movi          v18.2d, #0x0
   .long  0x6f00e411                          // movi          v17.2d, #0x0
@@ -3578,10 +3578,10 @@ _sk_linear_gradient_aarch64:
   .long  0x4eb01e00                          // mov           v0.16b, v16.16b
   .long  0xd61f0060                          // br            x3
 
-HIDDEN _sk_linear_gradient_2stops_aarch64
-.globl _sk_linear_gradient_2stops_aarch64
-FUNCTION(_sk_linear_gradient_2stops_aarch64)
-_sk_linear_gradient_2stops_aarch64:
+HIDDEN _sk_evenly_spaced_2_stop_gradient_aarch64
+.globl _sk_evenly_spaced_2_stop_gradient_aarch64
+FUNCTION(_sk_evenly_spaced_2_stop_gradient_aarch64)
+_sk_evenly_spaced_2_stop_gradient_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
   .long  0xaa0803e9                          // mov           x9, x8
   .long  0x9100410a                          // add           x10, x8, #0x10
@@ -3602,10 +3602,10 @@ _sk_linear_gradient_2stops_aarch64:
   .long  0x4eb01e00                          // mov           v0.16b, v16.16b
   .long  0xd61f0060                          // br            x3
 
-HIDDEN _sk_xy_to_polar_unit_aarch64
-.globl _sk_xy_to_polar_unit_aarch64
-FUNCTION(_sk_xy_to_polar_unit_aarch64)
-_sk_xy_to_polar_unit_aarch64:
+HIDDEN _sk_xy_to_unit_angle_aarch64
+.globl _sk_xy_to_unit_angle_aarch64
+FUNCTION(_sk_xy_to_unit_angle_aarch64)
+_sk_xy_to_unit_angle_aarch64:
   .long  0x52b77ce8                          // mov           w8, #0xbbe70000
   .long  0x72856de8                          // movk          w8, #0x2b6f
   .long  0x4ea0f810                          // fabs          v16.4s, v0.4s
@@ -7840,10 +7840,10 @@ _sk_matrix_perspective_vfp4:
   .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
 
-HIDDEN _sk_linear_gradient_vfp4
-.globl _sk_linear_gradient_vfp4
-FUNCTION(_sk_linear_gradient_vfp4)
-_sk_linear_gradient_vfp4:
+HIDDEN _sk_gradient_vfp4
+.globl _sk_gradient_vfp4
+FUNCTION(_sk_gradient_vfp4)
+_sk_gradient_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xe28e3014                          // add           r3, lr, #20
@@ -7856,7 +7856,7 @@ _sk_linear_gradient_vfp4:
   .long  0xe494c00c                          // ldr           ip, [r4], #12
   .long  0xf4a41c9f                          // vld1.32       {d1[]}, [r4 :32]
   .long  0xe35c0000                          // cmp           ip, #0
-  .long  0x0a000036                          // beq           3578 <sk_linear_gradient_vfp4+0x110>
+  .long  0x0a000036                          // beq           3578 <sk_gradient_vfp4+0x110>
   .long  0xe59e3004                          // ldr           r3, [lr, #4]
   .long  0xf2c01010                          // vmov.i32      d17, #0
   .long  0xf2c07010                          // vmov.i32      d23, #0
@@ -7906,12 +7906,12 @@ _sk_linear_gradient_vfp4:
   .long  0xf26371b3                          // vorr          d23, d19, d19
   .long  0xf26481b4                          // vorr          d24, d20, d20
   .long  0xf26561b5                          // vorr          d22, d21, d21
-  .long  0x1affffd3                          // bne           34b4 <sk_linear_gradient_vfp4+0x4c>
+  .long  0x1affffd3                          // bne           34b4 <sk_gradient_vfp4+0x4c>
   .long  0xf26c01bc                          // vorr          d16, d28, d28
   .long  0xf22b11bb                          // vorr          d1, d27, d27
   .long  0xf22a21ba                          // vorr          d2, d26, d26
   .long  0xf22931b9                          // vorr          d3, d25, d25
-  .long  0xea000003                          // b             3588 <sk_linear_gradient_vfp4+0x120>
+  .long  0xea000003                          // b             3588 <sk_gradient_vfp4+0x120>
   .long  0xf2c05010                          // vmov.i32      d21, #0
   .long  0xf2c04010                          // vmov.i32      d20, #0
   .long  0xf2c03010                          // vmov.i32      d19, #0
@@ -7926,10 +7926,10 @@ _sk_linear_gradient_vfp4:
   .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff13                          // bx            r3
 
-HIDDEN _sk_linear_gradient_2stops_vfp4
-.globl _sk_linear_gradient_2stops_vfp4
-FUNCTION(_sk_linear_gradient_2stops_vfp4)
-_sk_linear_gradient_2stops_vfp4:
+HIDDEN _sk_evenly_spaced_2_stop_gradient_vfp4
+.globl _sk_evenly_spaced_2_stop_gradient_vfp4
+FUNCTION(_sk_evenly_spaced_2_stop_gradient_vfp4)
+_sk_evenly_spaced_2_stop_gradient_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xe2811008                          // add           r1, r1, #8
@@ -7956,10 +7956,10 @@ _sk_linear_gradient_2stops_vfp4:
   .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
 
-HIDDEN _sk_xy_to_polar_unit_vfp4
-.globl _sk_xy_to_polar_unit_vfp4
-FUNCTION(_sk_xy_to_polar_unit_vfp4)
-_sk_xy_to_polar_unit_vfp4:
+HIDDEN _sk_xy_to_unit_angle_vfp4
+.globl _sk_xy_to_unit_angle_vfp4
+FUNCTION(_sk_xy_to_unit_angle_vfp4)
+_sk_xy_to_unit_angle_vfp4:
   .long  0xed2d8b06                          // vpush         {d8-d10}
   .long  0xf3f90701                          // vabs.f32      d16, d1
   .long  0xeddf3b24                          // vldr          d19, [pc, #144]
@@ -12386,10 +12386,10 @@ _sk_matrix_perspective_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
-HIDDEN _sk_linear_gradient_hsw
-.globl _sk_linear_gradient_hsw
-FUNCTION(_sk_linear_gradient_hsw)
-_sk_linear_gradient_hsw:
+HIDDEN _sk_gradient_hsw
+.globl _sk_gradient_hsw
+FUNCTION(_sk_gradient_hsw)
+_sk_gradient_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,64,16                 // vbroadcastss  0x10(%rax),%ymm8
   .byte  196,98,125,24,88,20                 // vbroadcastss  0x14(%rax),%ymm11
@@ -12397,7 +12397,7 @@ _sk_linear_gradient_hsw:
   .byte  196,98,125,24,72,28                 // vbroadcastss  0x1c(%rax),%ymm9
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  15,132,143,0,0,0                    // je            3f37 <_sk_linear_gradient_hsw+0xb5>
+  .byte  15,132,143,0,0,0                    // je            3f37 <_sk_gradient_hsw+0xb5>
   .byte  72,139,64,8                         // mov           0x8(%rax),%rax
   .byte  72,131,192,32                       // add           $0x20,%rax
   .byte  196,65,28,87,228                    // vxorps        %ymm12,%ymm12,%ymm12
@@ -12424,8 +12424,8 @@ _sk_linear_gradient_hsw:
   .byte  196,67,13,74,201,208                // vblendvps     %ymm13,%ymm9,%ymm14,%ymm9
   .byte  72,131,192,36                       // add           $0x24,%rax
   .byte  73,255,200                          // dec           %r8
-  .byte  117,140                             // jne           3ec1 <_sk_linear_gradient_hsw+0x3f>
-  .byte  235,17                              // jmp           3f48 <_sk_linear_gradient_hsw+0xc6>
+  .byte  117,140                             // jne           3ec1 <_sk_gradient_hsw+0x3f>
+  .byte  235,17                              // jmp           3f48 <_sk_gradient_hsw+0xc6>
   .byte  197,244,87,201                      // vxorps        %ymm1,%ymm1,%ymm1
   .byte  197,236,87,210                      // vxorps        %ymm2,%ymm2,%ymm2
   .byte  197,228,87,219                      // vxorps        %ymm3,%ymm3,%ymm3
@@ -12438,10 +12438,10 @@ _sk_linear_gradient_hsw:
   .byte  197,124,41,192                      // vmovaps       %ymm8,%ymm0
   .byte  255,224                             // jmpq          *%rax
 
-HIDDEN _sk_linear_gradient_2stops_hsw
-.globl _sk_linear_gradient_2stops_hsw
-FUNCTION(_sk_linear_gradient_2stops_hsw)
-_sk_linear_gradient_2stops_hsw:
+HIDDEN _sk_evenly_spaced_2_stop_gradient_hsw
+.globl _sk_evenly_spaced_2_stop_gradient_hsw
+FUNCTION(_sk_evenly_spaced_2_stop_gradient_hsw)
+_sk_evenly_spaced_2_stop_gradient_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,226,125,24,8                    // vbroadcastss  (%rax),%ymm1
   .byte  196,98,125,24,64,16                 // vbroadcastss  0x10(%rax),%ymm8
@@ -12459,10 +12459,10 @@ _sk_linear_gradient_2stops_hsw:
   .byte  197,124,41,192                      // vmovaps       %ymm8,%ymm0
   .byte  255,224                             // jmpq          *%rax
 
-HIDDEN _sk_xy_to_polar_unit_hsw
-.globl _sk_xy_to_polar_unit_hsw
-FUNCTION(_sk_xy_to_polar_unit_hsw)
-_sk_xy_to_polar_unit_hsw:
+HIDDEN _sk_xy_to_unit_angle_hsw
+.globl _sk_xy_to_unit_angle_hsw
+FUNCTION(_sk_xy_to_unit_angle_hsw)
+_sk_xy_to_unit_angle_hsw:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  197,60,92,200                       // vsubps        %ymm0,%ymm8,%ymm9
   .byte  197,52,84,200                       // vandps        %ymm0,%ymm9,%ymm9
@@ -18645,10 +18645,10 @@ _sk_matrix_perspective_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
-HIDDEN _sk_linear_gradient_avx
-.globl _sk_linear_gradient_avx
-FUNCTION(_sk_linear_gradient_avx)
-_sk_linear_gradient_avx:
+HIDDEN _sk_gradient_avx
+.globl _sk_gradient_avx
+FUNCTION(_sk_gradient_avx)
+_sk_gradient_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,98,125,24,64,16                 // vbroadcastss  0x10(%rax),%ymm8
   .byte  196,226,125,24,72,20                // vbroadcastss  0x14(%rax),%ymm1
@@ -18656,7 +18656,7 @@ _sk_linear_gradient_avx:
   .byte  196,226,125,24,88,28                // vbroadcastss  0x1c(%rax),%ymm3
   .byte  76,139,0                            // mov           (%rax),%r8
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  15,132,146,0,0,0                    // je            565d <_sk_linear_gradient_avx+0xb8>
+  .byte  15,132,146,0,0,0                    // je            565d <_sk_gradient_avx+0xb8>
   .byte  72,139,64,8                         // mov           0x8(%rax),%rax
   .byte  72,131,192,32                       // add           $0x20,%rax
   .byte  196,65,28,87,228                    // vxorps        %ymm12,%ymm12,%ymm12
@@ -18683,8 +18683,8 @@ _sk_linear_gradient_avx:
   .byte  196,227,13,74,219,208               // vblendvps     %ymm13,%ymm3,%ymm14,%ymm3
   .byte  72,131,192,36                       // add           $0x24,%rax
   .byte  73,255,200                          // dec           %r8
-  .byte  117,140                             // jne           55e7 <_sk_linear_gradient_avx+0x42>
-  .byte  235,20                              // jmp           5671 <_sk_linear_gradient_avx+0xcc>
+  .byte  117,140                             // jne           55e7 <_sk_gradient_avx+0x42>
+  .byte  235,20                              // jmp           5671 <_sk_gradient_avx+0xcc>
   .byte  196,65,36,87,219                    // vxorps        %ymm11,%ymm11,%ymm11
   .byte  196,65,44,87,210                    // vxorps        %ymm10,%ymm10,%ymm10
   .byte  196,65,52,87,201                    // vxorps        %ymm9,%ymm9,%ymm9
@@ -18701,10 +18701,10 @@ _sk_linear_gradient_avx:
   .byte  197,124,41,192                      // vmovaps       %ymm8,%ymm0
   .byte  255,224                             // jmpq          *%rax
 
-HIDDEN _sk_linear_gradient_2stops_avx
-.globl _sk_linear_gradient_2stops_avx
-FUNCTION(_sk_linear_gradient_2stops_avx)
-_sk_linear_gradient_2stops_avx:
+HIDDEN _sk_evenly_spaced_2_stop_gradient_avx
+.globl _sk_evenly_spaced_2_stop_gradient_avx
+FUNCTION(_sk_evenly_spaced_2_stop_gradient_avx)
+_sk_evenly_spaced_2_stop_gradient_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  196,226,125,24,8                    // vbroadcastss  (%rax),%ymm1
   .byte  196,226,125,24,80,16                // vbroadcastss  0x10(%rax),%ymm2
@@ -18726,10 +18726,10 @@ _sk_linear_gradient_2stops_avx:
   .byte  197,124,41,192                      // vmovaps       %ymm8,%ymm0
   .byte  255,224                             // jmpq          *%rax
 
-HIDDEN _sk_xy_to_polar_unit_avx
-.globl _sk_xy_to_polar_unit_avx
-FUNCTION(_sk_xy_to_polar_unit_avx)
-_sk_xy_to_polar_unit_avx:
+HIDDEN _sk_xy_to_unit_angle_avx
+.globl _sk_xy_to_unit_angle_avx
+FUNCTION(_sk_xy_to_unit_angle_avx)
+_sk_xy_to_unit_angle_avx:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  197,60,92,200                       // vsubps        %ymm0,%ymm8,%ymm9
   .byte  197,52,84,200                       // vandps        %ymm0,%ymm9,%ymm9
@@ -23627,10 +23627,10 @@ _sk_matrix_perspective_sse41:
   .byte  65,15,40,201                        // movaps        %xmm9,%xmm1
   .byte  255,224                             // jmpq          *%rax
 
-HIDDEN _sk_linear_gradient_sse41
-.globl _sk_linear_gradient_sse41
-FUNCTION(_sk_linear_gradient_sse41)
-_sk_linear_gradient_sse41:
+HIDDEN _sk_gradient_sse41
+.globl _sk_gradient_sse41
+FUNCTION(_sk_gradient_sse41)
+_sk_gradient_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,80,16                  // movss         0x10(%rax),%xmm10
   .byte  69,15,198,210,0                     // shufps        $0x0,%xmm10,%xmm10
@@ -23642,7 +23642,7 @@ _sk_linear_gradient_sse41:
   .byte  69,15,198,237,0                     // shufps        $0x0,%xmm13,%xmm13
   .byte  72,139,8                            // mov           (%rax),%rcx
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,132,254,0,0,0                    // je            3db9 <_sk_linear_gradient_sse41+0x138>
+  .byte  15,132,254,0,0,0                    // je            3db9 <_sk_gradient_sse41+0x138>
   .byte  15,41,100,36,168                    // movaps        %xmm4,-0x58(%rsp)
   .byte  15,41,108,36,184                    // movaps        %xmm5,-0x48(%rsp)
   .byte  15,41,116,36,200                    // movaps        %xmm6,-0x38(%rsp)
@@ -23692,12 +23692,12 @@ _sk_linear_gradient_sse41:
   .byte  15,40,196                           // movaps        %xmm4,%xmm0
   .byte  72,131,192,36                       // add           $0x24,%rax
   .byte  72,255,201                          // dec           %rcx
-  .byte  15,133,65,255,255,255               // jne           3ce4 <_sk_linear_gradient_sse41+0x63>
+  .byte  15,133,65,255,255,255               // jne           3ce4 <_sk_gradient_sse41+0x63>
   .byte  15,40,124,36,216                    // movaps        -0x28(%rsp),%xmm7
   .byte  15,40,116,36,200                    // movaps        -0x38(%rsp),%xmm6
   .byte  15,40,108,36,184                    // movaps        -0x48(%rsp),%xmm5
   .byte  15,40,100,36,168                    // movaps        -0x58(%rsp),%xmm4
-  .byte  235,13                              // jmp           3dc6 <_sk_linear_gradient_sse41+0x145>
+  .byte  235,13                              // jmp           3dc6 <_sk_gradient_sse41+0x145>
   .byte  15,87,201                           // xorps         %xmm1,%xmm1
   .byte  15,87,210                           // xorps         %xmm2,%xmm2
   .byte  15,87,219                           // xorps         %xmm3,%xmm3
@@ -23714,10 +23714,10 @@ _sk_linear_gradient_sse41:
   .byte  65,15,40,193                        // movaps        %xmm9,%xmm0
   .byte  255,224                             // jmpq          *%rax
 
-HIDDEN _sk_linear_gradient_2stops_sse41
-.globl _sk_linear_gradient_2stops_sse41
-FUNCTION(_sk_linear_gradient_2stops_sse41)
-_sk_linear_gradient_2stops_sse41:
+HIDDEN _sk_evenly_spaced_2_stop_gradient_sse41
+.globl _sk_evenly_spaced_2_stop_gradient_sse41
+FUNCTION(_sk_evenly_spaced_2_stop_gradient_sse41)
+_sk_evenly_spaced_2_stop_gradient_sse41:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,15,16,0                         // movss         (%rax),%xmm0
@@ -23747,10 +23747,10 @@ _sk_linear_gradient_2stops_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
-HIDDEN _sk_xy_to_polar_unit_sse41
-.globl _sk_xy_to_polar_unit_sse41
-FUNCTION(_sk_xy_to_polar_unit_sse41)
-_sk_xy_to_polar_unit_sse41:
+HIDDEN _sk_xy_to_unit_angle_sse41
+.globl _sk_xy_to_unit_angle_sse41
+FUNCTION(_sk_xy_to_unit_angle_sse41)
+_sk_xy_to_unit_angle_sse41:
   .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
@@ -30361,10 +30361,10 @@ _sk_matrix_perspective_sse2:
   .byte  65,15,40,201                        // movaps        %xmm9,%xmm1
   .byte  255,224                             // jmpq          *%rax
 
-HIDDEN _sk_linear_gradient_sse2
-.globl _sk_linear_gradient_sse2
-FUNCTION(_sk_linear_gradient_sse2)
-_sk_linear_gradient_sse2:
+HIDDEN _sk_gradient_sse2
+.globl _sk_gradient_sse2
+FUNCTION(_sk_gradient_sse2)
+_sk_gradient_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,72,16                  // movss         0x10(%rax),%xmm9
   .byte  69,15,198,201,0                     // shufps        $0x0,%xmm9,%xmm9
@@ -30376,7 +30376,7 @@ _sk_linear_gradient_sse2:
   .byte  69,15,198,228,0                     // shufps        $0x0,%xmm12,%xmm12
   .byte  72,139,8                            // mov           (%rax),%rcx
   .byte  72,133,201                          // test          %rcx,%rcx
-  .byte  15,132,15,1,0,0                     // je            4261 <_sk_linear_gradient_sse2+0x149>
+  .byte  15,132,15,1,0,0                     // je            4261 <_sk_gradient_sse2+0x149>
   .byte  72,139,64,8                         // mov           0x8(%rax),%rax
   .byte  72,131,192,32                       // add           $0x20,%rax
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
@@ -30437,8 +30437,8 @@ _sk_linear_gradient_sse2:
   .byte  69,15,86,231                        // orps          %xmm15,%xmm12
   .byte  72,131,192,36                       // add           $0x24,%rax
   .byte  72,255,201                          // dec           %rcx
-  .byte  15,133,8,255,255,255                // jne           4167 <_sk_linear_gradient_sse2+0x4f>
-  .byte  235,13                              // jmp           426e <_sk_linear_gradient_sse2+0x156>
+  .byte  15,133,8,255,255,255                // jne           4167 <_sk_gradient_sse2+0x4f>
+  .byte  235,13                              // jmp           426e <_sk_gradient_sse2+0x156>
   .byte  15,87,201                           // xorps         %xmm1,%xmm1
   .byte  15,87,210                           // xorps         %xmm2,%xmm2
   .byte  15,87,219                           // xorps         %xmm3,%xmm3
@@ -30455,10 +30455,10 @@ _sk_linear_gradient_sse2:
   .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
   .byte  255,224                             // jmpq          *%rax
 
-HIDDEN _sk_linear_gradient_2stops_sse2
-.globl _sk_linear_gradient_2stops_sse2
-FUNCTION(_sk_linear_gradient_2stops_sse2)
-_sk_linear_gradient_2stops_sse2:
+HIDDEN _sk_evenly_spaced_2_stop_gradient_sse2
+.globl _sk_evenly_spaced_2_stop_gradient_sse2
+FUNCTION(_sk_evenly_spaced_2_stop_gradient_sse2)
+_sk_evenly_spaced_2_stop_gradient_sse2:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,15,16,0                         // movss         (%rax),%xmm0
@@ -30488,10 +30488,10 @@ _sk_linear_gradient_2stops_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
-HIDDEN _sk_xy_to_polar_unit_sse2
-.globl _sk_xy_to_polar_unit_sse2
-FUNCTION(_sk_xy_to_polar_unit_sse2)
-_sk_xy_to_polar_unit_sse2:
+HIDDEN _sk_xy_to_unit_angle_sse2
+.globl _sk_xy_to_unit_angle_sse2
+FUNCTION(_sk_xy_to_unit_angle_sse2)
+_sk_xy_to_unit_angle_sse2:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  15,87,192                           // xorps         %xmm0,%xmm0
   .byte  69,15,87,201                        // xorps         %xmm9,%xmm9

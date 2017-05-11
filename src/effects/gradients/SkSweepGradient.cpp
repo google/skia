@@ -315,7 +315,7 @@ bool SkSweepGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                                   SkMatrix* matrix,
                                                   SkRasterPipeline* p) const {
     matrix->postTranslate(-fCenter.fX, -fCenter.fY);
-    p->append(SkRasterPipeline::xy_to_polar_unit);
+    p->append(SkRasterPipeline::xy_to_unit_angle);
 
     return true;
 }
