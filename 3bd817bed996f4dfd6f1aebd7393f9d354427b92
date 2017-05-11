@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "0a6634d6_1c8edccc",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-05-11T18:10:58Z",
+      "side": 1,
+      "message": "Windows desktops seem to have ~20s of overhead on Test/Perf at the moment.  Linux bots have about 30s of overhead, most of which is downloading inputs from isolate.",
+      "parentUuid": "685d47b1_78b5a213",
+      "range": {
+        "startLine": 304,
+        "startChar": 0,
+        "endLine": 305,
+        "endChar": 35
+      },
+      "revId": "3bd817bed996f4dfd6f1aebd7393f9d354427b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "70f3de95_6153eb28",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 10
