@@ -90,17 +90,8 @@ bool SkLinearGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
     // If the gradient is less than a quarter of a pixel, this falls into the
     // subpixel gradient code handled on a different path.
     SkVector dx = matrix->mapVector(1, 0);
-    if (dx.fX >= 4) { return false; }
-
-    switch(fTileMode) {
-        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, alloc->make<float>(1)); break;
-        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, alloc->make<float>(1)); break;
-        case kClamp_TileMode:
-           if (fColorCount == 2 && fOrigPos == nullptr) {
-               // The general strategy does not need clamping due to implicit hard stops at 0 and 1,
-               // but the 2-point specialization must be clamped.
-               p->append(SkRasterPipeline::clamp_x, alloc->make<float>(1));
-           }
+    if (dx.fX >= 4) {
+        return false;
     }
     return true;
 }
