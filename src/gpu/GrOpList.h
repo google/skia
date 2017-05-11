@@ -8,6 +8,8 @@
 #ifndef GrOpList_DEFINED
 #define GrOpList_DEFINED
 
+#include "GrGpuResourceRef.h"
+
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
 
@@ -30,23 +32,15 @@ public:
     virtual bool executeOps(GrOpFlushState* flushState) = 0;
 
     virtual void makeClosed(const GrCaps&) {
-        // We only close GrOpLists when MDB is enabled. When MDB is disabled there is only
-        // ever one GrOpLists and all calls will be funnelled into it.
-#ifdef ENABLE_MDB
         this->setFlag(kClosed_Flag);
-#endif
     }
 
-    virtual void reset() = 0;
+    virtual void reset();
 
     // TODO: in an MDB world, where the OpLists don't allocate GPU resources, it seems like
     // these could go away
     virtual void abandonGpuResources() = 0;
     virtual void freeGpuResources() = 0;
-
-    // TODO: this entry point is only needed in the non-MDB world. Remove when
-    // we make the switch to MDB
-    void clearTarget() { fTarget = nullptr; }
 
     bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
 
@@ -85,8 +79,8 @@ public:
     SkDEBUGCODE(virtual int numClips() const { return 0; })
 
 protected:
-    GrSurfaceProxy*      fTarget;
-    GrAuditTrail*        fAuditTrail;
+    GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fTarget;
+    GrAuditTrail*                                        fAuditTrail;
 
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
@@ -138,11 +132,11 @@ private:
 
     void addDependency(GrOpList* dependedOn);
 
-    uint32_t             fUniqueID;
-    uint32_t             fFlags;
+    uint32_t              fUniqueID;
+    uint32_t              fFlags;
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
-    SkTDArray<GrOpList*> fDependencies;
+    SkTDArray<GrOpList*>  fDependencies;
 
     typedef SkRefCnt INHERITED;
 };
