@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e7fcbcb_19619c69",
+        "filename": "include/encode/SkJpegEncoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-11T13:12:59Z",
+      "side": 0,
+      "message": "return base-class",
+      "range": {
+        "startLine": 83,
+        "startChar": 27,
+        "endLine": 83,
+        "endChar": 40
+      },
+      "revId": "ab8ce1a5ae0a0c87cb127634b9bdb94f3a17cec8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
