@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff426f93_89d51330",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1048,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-11T20:51:19Z",
+      "side": 1,
+      "message": "This may need to be \n\n   defined(JUMPER) \u0026\u0026 defined(__AVX2__) \n\nor the portable path on the -Fast bot might get real confused.",
+      "revId": "da567f92effb5d8fb39845396c18fddc0278eb9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
