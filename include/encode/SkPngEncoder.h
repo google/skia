@@ -76,8 +76,8 @@ public:
      *
      *  This returns nullptr on an invalid or unsupported |src|.
      */
-    static std::unique_ptr<SkPngEncoder> Make(SkWStream* dst, const SkPixmap& src,
-                                               const Options& options);
+    static std::unique_ptr<SkEncoder> Make(SkWStream* dst, const SkPixmap& src,
+                                           const Options& options);
 
     ~SkPngEncoder() override;
 
