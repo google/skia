@@ -33,11 +33,11 @@ protected:
         space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
     class PatternHelper {
     public:
-        PatternHelper() {}
+        PatternHelper(GrPrimitiveType primitiveType) : fMesh(primitiveType) {}
         /** Returns the allocated storage for the vertices. The caller should populate the vertices
             before calling recordDraws(). */
-        void* init(Target*, GrPrimitiveType, size_t vertexStride, const GrBuffer*,
-                   int verticesPerRepetition, int indicesPerRepetition, int repeatCount);
+        void* init(Target*, size_t vertexStride, const GrBuffer*, int verticesPerRepetition,
+                   int indicesPerRepetition, int repeatCount);
 
         /** Call after init() to issue draws to the GrMeshDrawOp::Target.*/
         void recordDraw(Target*, const GrGeometryProcessor*, const GrPipeline*);
@@ -52,7 +52,7 @@ protected:
     /** A specialization of InstanceHelper for quad rendering. */
     class QuadHelper : private PatternHelper {
     public:
-        QuadHelper() : INHERITED() {}
+        QuadHelper() : INHERITED(kTriangles_GrPrimitiveType) {}
         /** Finds the cached quad index buffer and reserves vertex space. Returns nullptr on failure
             and on success a pointer to the vertex data that the caller should populate before
             calling recordDraws(). */
