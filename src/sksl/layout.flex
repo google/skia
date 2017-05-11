@@ -51,6 +51,8 @@
 "triangles_adjacency"         { return SkSL::Token::TRIANGLES_ADJACENCY; }
 "max_vertices"                { return SkSL::Token::MAX_VERTICES; }
 "invocations"                 { return SkSL::Token::INVOCATIONS; }
+"when"                        { return SkSL::Token::WHEN; }
+"key"                         { return SkSL::Token::KEY; }
 
 . { return SkSL::Token::INVALID_TOKEN; }
 

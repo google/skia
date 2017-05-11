@@ -49,12 +49,12 @@ private:
 
 #if SK_SUPPORT_GPU
 
-#include "effects/GrBlurredEdgeFragmentProcessor.h"
+#include "GrBlurredEdgeFragmentProcessor.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrFragmentProcessor> SkGaussianEdgeShaderImpl::asFragmentProcessor(const AsFPArgs&) const {
-    return GrBlurredEdgeFP::Make(GrBlurredEdgeFP::kGaussian_Mode);
+    return GrBlurredEdgeFragmentProcessor::Make(GrBlurredEdgeFragmentProcessor::kGaussian_Mode);
 }
 
 #endif

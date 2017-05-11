@@ -31,7 +31,7 @@ static void test_success(skiatest::Reporter* r, const char* src) {
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
-                                                                     SkString(src), settings);
+                                                                     src, settings);
     REPORTER_ASSERT(r, program);
 }
 
