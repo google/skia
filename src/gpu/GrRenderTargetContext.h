@@ -161,13 +161,15 @@ public:
      * @param blurWidth    amount of shadow blur to apply (in device space)
      * @param insetWidth   minimum amount to inset from the rrect edge (in local space).
      *                     We may inset more depending on the blur radius and geometry.
+     * @param blurClamp    Optional parameter used to indicate fraction of blur to actually apply
      */
     void drawShadowRRect(const GrClip&,
                          GrPaint&&,
                          const SkMatrix& viewMatrix,
                          const SkRRect& rrect,
                          SkScalar blurRadius,
-                         SkScalar insetWidth);
+                         SkScalar insetWidth,
+                         SkScalar blurClamp = 1);
 
     /**
      * Shortcut for filling a SkPath consisting of nested rrects using a paint. The result is
