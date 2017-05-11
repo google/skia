@@ -26,7 +26,10 @@ import (
 )
 
 const (
-	BUNDLE_RECIPES_NAME = "Housekeeper-PerCommit-BundleRecipes"
+	BUNDLE_RECIPES_NAME  = "Housekeeper-PerCommit-BundleRecipes"
+	ISOLATE_SKIMAGE_NAME = "Housekeeper-PerCommit-IsolateSkImage"
+	ISOLATE_SKP_NAME     = "Housekeeper-PerCommit-IsolateSKP"
+	ISOLATE_SVG_NAME     = "Housekeeper-PerCommit-IsolateSVG"
 
 	DEFAULT_OS       = DEFAULT_OS_LINUX
 	DEFAULT_OS_LINUX = "Ubuntu-14.04"
@@ -249,7 +252,7 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 		},
 		Isolate:  "bundle_recipes.isolate",
-		Priority: 0.95,
+		Priority: 0.7,
 	})
 	return BUNDLE_RECIPES_NAME
 }
@@ -259,6 +262,48 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 func useBundledRecipes(parts map[string]string) bool {
 	// Use bundled recipes for all test/perf tasks.
 	return true
+}
+
+type isolateAssetCfg struct {
+	isolateFile string
+	cipdPkg     string
+}
+
+var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
+	ISOLATE_SKIMAGE_NAME: {
+		isolateFile: "isolate_skimage.isolate",
+		cipdPkg:     "skimage",
+	},
+	ISOLATE_SKP_NAME: {
+		isolateFile: "isolate_skp.isolate",
+		cipdPkg:     "skp",
+	},
+	ISOLATE_SVG_NAME: {
+		isolateFile: "isolate_svg.isolate",
+		cipdPkg:     "svg",
+	},
+}
+
+// bundleRecipes generates the task to bundle and isolate the recipes.
+func isolateCIPDAsset(b *specs.TasksCfgBuilder, name string) string {
+	b.MustAddTask(name, &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{
+			b.MustGetCipdPackageFromAsset(ISOLATE_ASSET_MAPPING[name].cipdPkg),
+		},
+		Dimensions: linuxGceDimensions(),
+		Isolate:    ISOLATE_ASSET_MAPPING[name].isolateFile,
+		Priority:   0.7,
+	})
+	return name
+}
+
+// useIsolatedCIPD returns true iff the given bot should isolate the CIPD assets
+// to save time on I/O bound bots, like the RPIs
+func useIsolatedCIPD(parts map[string]string) bool {
+	// Only do this on the RPIs for now. Other, faster machines shouldn't see much
+	// benefit and we don't need the extra complexity, for now
+	rpiOS := []string{"Android", "Chromecast", "ChromeOS", "iOS"}
+	return util.In(parts["os"], rpiOS)
 }
 
 // compile generates a compile task. Returns the name of the last task in the
@@ -482,6 +527,11 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			s.Isolate = "test_skia_bundled_unix.isolate"
 		}
 	}
+	if useIsolatedCIPD(parts) {
+		s.Dependencies = append(s.Dependencies, ISOLATE_SKP_NAME)
+		s.Dependencies = append(s.Dependencies, ISOLATE_SVG_NAME)
+		s.Dependencies = append(s.Dependencies, ISOLATE_SKIMAGE_NAME)
+	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		s.ExecutionTimeout = 9 * time.Hour
 		s.Expiration = 48 * time.Hour
@@ -608,6 +658,12 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		deps = append(deps, bundleRecipes(b))
 	}
 
+	// Isolate CIPD assets.
+	fmt.Println(name)
+	if _, ok := ISOLATE_ASSET_MAPPING[name]; ok {
+		deps = append(deps, isolateCIPDAsset(b, name))
+	}
+
 	parts, err := jobNameSchema.ParseJobName(name)
 	if err != nil {
 		glog.Fatal(err)
@@ -654,10 +710,15 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 
 	// Common assets needed by the remaining bots.
-	pkgs := []*specs.CipdPackage{
-		b.MustGetCipdPackageFromAsset("skimage"),
-		b.MustGetCipdPackageFromAsset("skp"),
-		b.MustGetCipdPackageFromAsset("svg"),
+
+	pkgs := []*specs.CipdPackage{}
+
+	if !useIsolatedCIPD(parts) {
+		pkgs = []*specs.CipdPackage{
+			b.MustGetCipdPackageFromAsset("skimage"),
+			b.MustGetCipdPackageFromAsset("skp"),
+			b.MustGetCipdPackageFromAsset("svg"),
+		}
 	}
 	if strings.Contains(name, "Chromecast") {
 		// Chromecasts don't have enough disk space to fit all of the content,
