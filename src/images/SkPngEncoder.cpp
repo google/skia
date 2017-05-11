@@ -382,8 +382,8 @@ void SkPngEncoderMgr::chooseProc(const SkImageInfo& srcInfo,
     fProc = choose_proc(srcInfo, unpremulBehavior);
 }
 
-std::unique_ptr<SkPngEncoder> SkPngEncoder::Make(SkWStream* dst, const SkPixmap& src,
-                                                 const Options& options) {
+std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream* dst, const SkPixmap& src,
+                                              const Options& options) {
     if (!SkPixmapIsValid(src, options.fUnpremulBehavior)) {
         return nullptr;
     }

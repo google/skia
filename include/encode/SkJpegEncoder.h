@@ -13,7 +13,7 @@
 class SkJpegEncoderMgr;
 class SkWStream;
 
-class SkJpegEncoder : public SkEncoder {
+class SK_API SkJpegEncoder : public SkEncoder {
 public:
 
     enum class AlphaOption {
@@ -80,8 +80,8 @@ public:
      *
      *  This returns nullptr on an invalid or unsupported |src|.
      */
-    static std::unique_ptr<SkJpegEncoder> Make(SkWStream* dst, const SkPixmap& src,
-                                               const Options& options);
+    static std::unique_ptr<SkEncoder> Make(SkWStream* dst, const SkPixmap& src,
+                                           const Options& options);
 
     ~SkJpegEncoder() override;
 

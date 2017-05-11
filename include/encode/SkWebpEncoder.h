@@ -12,7 +12,7 @@
 
 class SkWStream;
 
-namespace SkWebpEncoder {
+namespace SK_API SkWebpEncoder {
 
     struct Options {
         /**
