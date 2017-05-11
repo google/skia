@@ -235,6 +235,13 @@ bool sk_path_get_bounds(const sk_path_t* cpath, sk_rect_t* crect) {
     return true;
 }
 
+void sk_path_compute_tight_bounds(const sk_path_t* cpath, sk_rect_t* crect) {
+    if (crect) {
+        const SkPath& path = AsPath(*cpath);
+        *crect = ToRect(path.computeTightBounds());
+    }
+}
+
 int sk_path_count_points(const sk_path_t* cpath) {
     const SkPath& path = AsPath(*cpath);
     return path.countPoints();

@@ -697,6 +697,22 @@ typedef struct {
 
 typedef struct gr_context_t gr_context_t;
 
+typedef enum {
+    NONE_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS              = 0,
+    DASHLINE_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS          = 1 << 0,
+    STENCIL_AND_COVER_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS = 1 << 1,
+    MSAA_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS              = 1 << 2,
+    AA_HAIRLINE_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS       = 1 << 3,
+    AA_CONVEX_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS         = 1 << 4,
+    AA_LINEARIZING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS    = 1 << 5,
+    PLS_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS               = 1 << 6,
+    DISTANCE_FIELD_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS    = 1 << 7,
+    TESSELLATING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS      = 1 << 8,
+    DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS           = 1 << 9,
+
+    ALL_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS               = DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS | (DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS - 1)
+} gr_contextoptions_gpupathrenderers_t;
+
 typedef struct {
     bool fSuppressPrints;
     int  fMaxTextureSizeOverride;
@@ -705,12 +721,17 @@ typedef struct {
     int  fBufferMapThreshold;
     bool fUseDrawInsteadOfPartialRenderTargetWrite;
     bool fImmediateMode;
-    bool fClipBatchToBounds;
-    bool fDrawBatchBounds;
-    int fMaxBatchLookback;
-    int fMaxBatchLookahead;
+    bool fClipDrawOpsToBounds;
+    int fMaxOpCombineLookback;
+    int fMaxOpCombineLookahead;
     bool fUseShaderSwizzling;
     bool fDoManualMipmapping;
+    bool fEnableInstancedRendering;
+    bool fAllowPathMaskCaching;
+    bool fRequireDecodeDisableForSRGB;
+    bool fDisableGpuYUVConversion;
+    bool fSuppressPathRendering;
+    gr_contextoptions_gpupathrenderers_t fGpuPathRenderers;
 } gr_context_options_t;
 
 typedef enum {

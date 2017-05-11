@@ -99,6 +99,8 @@ SK_C_API void sk_path_add_circle(sk_path_t*, float x, float y, float radius, sk_
  */
 SK_C_API bool sk_path_get_bounds(const sk_path_t*, sk_rect_t*);
 
+SK_C_API void sk_path_compute_tight_bounds(const sk_path_t*, sk_rect_t*);
+
 /** Set the beginning of the next contour relative to the last point on the
         previous contour. If there is no previous contour, this is treated the
         same as sk_path_move_to. 
