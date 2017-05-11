@@ -359,6 +359,7 @@ public:
         return fRGBAToBGRAReadbackConversionsAreSlow;
     }
 
+    bool clearToOpaqueBlackIsBroken() const { return fClearToOpaqueBlackIsBroken; }
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
@@ -430,6 +431,7 @@ private:
     bool fDoManualMipmapping : 1;
     bool fSRGBDecodeDisableSupport : 1;
     bool fSRGBDecodeDisableAffectsMipmaps : 1;
+    bool fClearToOpaqueBlackIsBroken : 1;
 
     uint32_t fBlitFramebufferFlags;
 

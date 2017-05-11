@@ -7,6 +7,7 @@
 
 #include "GrGLGpu.h"
 
+#include <cmath>
 #include "../private/GrGLSL.h"
 #include "GrBackendSurface.h"
 #include "GrFixedClip.h"
@@ -2104,6 +2105,16 @@ void GrGLGpu::clear(const GrFixedClip& clip, GrColor color, GrRenderTarget* targ
 
     GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
     fHWWriteToColor = kYes_TriState;
+
+    if (this->glCaps().clearToOpaqueBlackIsBroken() && 0 == r && 0 == g && 0 == b && 1 == a) {
+#ifdef SK_BUILD_FOR_ANDROID
+        // Android doesn't have std::nextafter but has nextafter.
+        static const GrGLfloat safeAlpha = nextafter(1.f, 2.f);
+#else
+        static const GrGLfloat safeAlpha = std::nextafter(1.f, 2.f);
+#endif
+        a = safeAlpha;
+    }
     GL_CALL(ClearColor(r, g, b, a));
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
 }

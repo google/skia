@@ -313,6 +313,16 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
                 }
             }
         }
+        int intelNumber;
+        n = sscanf(rendererString, "Intel(R) Iris(TM) Graphics %d", &intelNumber);
+        if (1 != n) {
+            n = sscanf(rendererString, "Intel(R) HD Graphics %d", &intelNumber);
+        }
+        if (1 == n) {
+            if (intelNumber >= 6000 && intelNumber < 7000) {
+                return kIntel6xxx_GrGLRenderer;
+            }
+        }
         if (0 == strcmp("Mesa Offscreen", rendererString)) {
             return kOSMesa_GrGLRenderer;
         }

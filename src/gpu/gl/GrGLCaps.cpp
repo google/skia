@@ -53,6 +53,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDoManualMipmapping = false;
     fSRGBDecodeDisableSupport = false;
     fSRGBDecodeDisableAffectsMipmaps = false;
+    fClearToOpaqueBlackIsBroken = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
 
@@ -571,6 +572,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fSRGBDecodeDisableSupport = ctxInfo.hasExtension("GL_EXT_texture_sRGB_decode");
     fSRGBDecodeDisableAffectsMipmaps = fSRGBDecodeDisableSupport &&
         kChromium_GrGLDriver != ctxInfo.driver();
+
+    // See http://crbug.com/710443
+#ifdef SK_BUILD_FOR_MAC
+    if (kIntel6xxx_GrGLRenderer == ctxInfo.renderer()) {
+        fClearToOpaqueBlackIsBroken = true;
+    }
+#endif
 
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
     // already been detected.
