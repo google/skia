@@ -344,11 +344,12 @@ public:
      */
     void prepareForExternalIO();
 
-    bool isStencilBufferMultisampled() const {
-        return fRenderTargetProxy->isStencilBufferMultisampled();
-    }
-    bool isUnifiedMultisampled() const { return fRenderTargetProxy->isUnifiedMultisampled(); }
-    bool hasMixedSamples() const { return fRenderTargetProxy->isMixedSampled(); }
+    //bool isStencilBufferMultisampled() const {
+    //    return fRenderTargetProxy->isStencilBufferMultisampled();
+    //}
+    //bool isUnifiedMultisampled() const { return fRenderTargetProxy->isUnifiedMultisampled(); }
+    //bool hasMixedSamples() const { return fRenderTargetProxy->isMixedSampled(); }
+    GrFSAAType fsaaType() const { return fRenderTargetProxy->fsaaType(); }
 
     const GrCaps* caps() const { return fContext->caps(); }
     const GrSurfaceDesc& desc() const { return fRenderTargetProxy->desc(); }
@@ -395,15 +396,15 @@ protected:
 
 private:
     inline GrAAType decideAAType(GrAA aa, bool allowMixedSamples = false) {
-        if (GrAA::kNo == aa) {
-            return GrAAType::kNone;
+        switch (this->fsaaType()) {
+            case GrFSAAType::kNone:
+                return GrAAType::kCoverage;
+            case GrFSAAType::kUnifiedMSAA:
+                return GrAAType::kMSAA;
+            case GrFSAAType::kMixedSamples:
+                return allowMixedSamples ? GrAAType::kMixedSamples : GrAAType::kCoverage;
         }
-        if (this->isUnifiedMultisampled()) {
-            return GrAAType::kMSAA;
-        }
-        if (allowMixedSamples && this->isStencilBufferMultisampled()) {
-            return GrAAType::kMixedSamples;
-        }
+        SkFAIL("Unexpected FSAA Type.");
         return GrAAType::kCoverage;
     }
 

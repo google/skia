@@ -51,6 +51,16 @@ static inline bool GrAATypeIsHW(GrAAType type) {
     return false;
 }
 
+/** The type of full scene antialiasing supported by a render target. */
+enum class GrFSAAType {
+    /** No FSAA */
+    kNone,
+    /** Regular MSAA where each attachment has the same sample count. */
+    kUnifiedMSAA,
+    /** One color sample, N stencil samples. */
+    kMixedSamples,
+};
+
 /**
  * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
  * but should be applicable to other shader languages.)
