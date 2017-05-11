@@ -17,16 +17,21 @@ std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk
     return std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(codec, data));
 }
 
-static SkImageInfo make_premul(const SkImageInfo& info) {
+static SkImageInfo adjust_info(const SkImageInfo& info) {
+    SkImageInfo newInfo = info;
     if (kUnpremul_SkAlphaType == info.alphaType()) {
-        return info.makeAlphaType(kPremul_SkAlphaType);
+        newInfo = newInfo.makeAlphaType(kPremul_SkAlphaType);
     }
 
-    return info;
+    if (kIndex_8_SkColorType == info.colorType()) {
+        newInfo = newInfo.makeColorType(kN32_SkColorType);
+    }
+
+    return newInfo;
 }
 
 SkCodecImageGenerator::SkCodecImageGenerator(SkCodec* codec, sk_sp<SkData> data)
-    : INHERITED(make_premul(codec->getInfo()))
+    : INHERITED(adjust_info(codec->getInfo()))
     , fCodec(codec)
     , fData(std::move(data))
 {}
@@ -36,20 +41,11 @@ SkData* SkCodecImageGenerator::onRefEncodedData() {
 }
 
 bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-        SkPMColor ctable[], int* ctableCount) {
-    Options opts;
-    opts.fColorTable = ctable;
-    opts.fColorTableCount = ctableCount;
-    opts.fBehavior = SkTransferFunctionBehavior::kRespect;
-    return this->onGetPixels(info, pixels, rowBytes, opts);
-}
-
-bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                         const Options& opts) {
     SkCodec::Options codecOpts;
     codecOpts.fPremulBehavior = opts.fBehavior;
-    SkCodec::Result result = fCodec->getPixels(info, pixels, rowBytes, &codecOpts, opts.fColorTable,
-                                               opts.fColorTableCount);
+    SkCodec::Result result = fCodec->getPixels(info, pixels, rowBytes, &codecOpts, nullptr,
+                                               nullptr);
     switch (result) {
         case SkCodec::kSuccess:
         case SkCodec::kIncompleteInput:

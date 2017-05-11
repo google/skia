@@ -28,12 +28,8 @@ class MaskGenerator final : public SkImageGenerator {
 public:
     MaskGenerator(const SkImageInfo& info) : INHERITED(info) {}
 
-    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor*,
-                     int*) override {
-        if (info.colorType() == kIndex_8_SkColorType) {
-            return false;
-        }
-
+    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options&)
+    override {
         SkImageInfo surfaceInfo = info;
         if (kAlpha_8_SkColorType == info.colorType()) {
             surfaceInfo = surfaceInfo.makeColorSpace(nullptr);
