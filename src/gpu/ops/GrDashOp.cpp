@@ -1195,7 +1195,7 @@ static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor color,
 
 #if GR_TEST_UTILS
 
-DRAW_OP_TEST_DEFINE(DashOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(DashOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     AAMode aaMode = static_cast<AAMode>(random->nextULessThan(GrDashOp::kAAModeCnt));
