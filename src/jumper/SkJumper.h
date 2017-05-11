@@ -99,4 +99,11 @@ struct SkJumper_DitherCtx {
     float rate;
 };
 
+struct SkJumper_GradientCtx {
+    size_t stopCount;
+    float* fs[4];
+    float* bs[4];
+    float* ts;
+};
+
 #endif//SkJumper_DEFINED
