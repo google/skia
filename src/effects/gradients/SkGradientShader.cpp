@@ -364,7 +364,6 @@ bool SkGradientShaderBase::onAppendStages(
 
     auto* m = alloc->makeArrayDefault<float>(9);
     if (matrix.asAffine(m)) {
-        // TODO: mapping y is not needed; split the matrix stages to save some math?
         pipeline->append(SkRasterPipeline::matrix_2x3, m);
     } else {
         matrix.get9(m);
