@@ -412,17 +412,11 @@ private:
             }
             SkASSERT(lineVertexStride == lineGP->getVertexStride());
 
-            GrMesh lineMeshes;
-            lineMeshes.fPrimitiveType = primitiveType;
+            GrMesh lineMeshes(primitiveType);
             if (fIsIndexed) {
-                lineMeshes.fIndexBuffer.reset(lineIndexBuffer);
-                lineMeshes.fIndexCount = lineIndexOffset;
-                lineMeshes.fBaseIndex = firstLineIndex;
+                lineMeshes.setIndexed(lineIndexBuffer, lineIndexOffset, firstLineIndex);
             }
-            lineMeshes.fVertexBuffer.reset(lineVertexBuffer);
-            lineMeshes.fVertexCount = lineVertexOffset;
-            lineMeshes.fBaseVertex = firstLineVertex;
-
+            lineMeshes.setVertices(lineVertexBuffer, lineVertexOffset, firstLineVertex);
             target->draw(lineGP.get(), this->pipeline(), lineMeshes);
         }
 
@@ -436,21 +430,17 @@ private:
                     target->makeVertexSpace(quadVertexStride, quadVertexOffset, &quadVertexBuffer,
                                             &firstQuadVertex);
             memcpy(quadVertices, quads.vertices, quadVertexStride * quadVertexOffset);
-            GrMesh quadMeshes;
-            quadMeshes.fPrimitiveType = kTriangles_GrPrimitiveType;
+            GrMesh quadMeshes(kTriangles_GrPrimitiveType);
             if (fIsIndexed) {
                 const GrBuffer* quadIndexBuffer;
+                int firstQuadIndex;
                 uint16_t* quadIndices = (uint16_t*) target->makeIndexSpace(quadIndexOffset,
                                                                            &quadIndexBuffer,
-                                                                           &quadMeshes.fBaseIndex);
-                quadMeshes.fIndexBuffer.reset(quadIndexBuffer);
-                quadMeshes.fIndexCount = quadIndexOffset;
+                                                                           &firstQuadIndex);
                 memcpy(quadIndices, quads.indices, sizeof(uint16_t) * quadIndexOffset);
+                quadMeshes.setIndexed(quadIndexBuffer, quadIndexOffset, firstQuadIndex);
             }
-            quadMeshes.fVertexBuffer.reset(quadVertexBuffer);
-            quadMeshes.fVertexCount = quadVertexOffset;
-            quadMeshes.fBaseVertex = firstQuadVertex;
-
+            quadMeshes.setVertices(quadVertexBuffer, quadVertexOffset, firstQuadVertex);
             target->draw(quadGP.get(), this->pipeline(), quadMeshes);
         }
     }
