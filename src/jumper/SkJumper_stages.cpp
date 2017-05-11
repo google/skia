@@ -1014,6 +1014,16 @@ STAGE(matrix_3x4) {
     g = G;
     b = B;
 }
+STAGE(xy_rgba_4x3) {
+    auto m = (const float*)ctx;
+
+    auto x = r,
+         y = g;
+    r = mad(x, m[0], mad(y, m[4], m[8]));
+    g = mad(x, m[1], mad(y, m[5], m[9]));
+    b = mad(x, m[2], mad(y, m[6], m[10]));
+    a = mad(x, m[3], mad(y, m[7], m[11]));
+}
 STAGE(matrix_4x5) {
     auto m = (const float*)ctx;
 
