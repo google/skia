@@ -640,6 +640,9 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, const SkPoi
             SpotVerticesFactory factory;
             SkScalar occluderHeight = zPlaneParams.fZ;
             float zRatio = SkTPin(occluderHeight / (devLightPos.fZ - occluderHeight), 0.0f, 0.95f);
+            SkScalar radius = lightRadius * zRatio;
+
+            // Compute the translation for the spot shadow.
             SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
             viewMatrix.mapPoints(&center, 1);
             factory.fOffset = SkVector::Make(zRatio * (center.fX - devLightPos.fX),
@@ -647,9 +650,34 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, const SkPoi
             factory.fOccluderHeight = occluderHeight;
             factory.fDevLightPos = devLightPos;
             factory.fLightRadius = lightRadius;
-            // the only valid choice we have right now
-            factory.fOccluderType = SpotVerticesFactory::OccluderType::kTransparent;
+            SkRect devBounds;
+            viewMatrix.mapRect(&devBounds, path.getBounds());
+            if (transparent ||
+                // if the translation of the shadow is big enough we're going to end up
+                // filling the entire umbra, so we can treat this as transparent
+                SkTAbs(factory.fOffset.fX) > 0.5f*devBounds.width() ||
+                SkTAbs(factory.fOffset.fY) > 0.5f*devBounds.height()) {
+                factory.fOccluderType = SpotVerticesFactory::OccluderType::kTransparent;
+            } else if (factory.fOffset.length() < radius) {
+                // if we don't translate more than the blur distance, can assume umbra is covered
+                factory.fOccluderType = SpotVerticesFactory::OccluderType::kOpaqueCoversUmbra;
+            } else {
+                factory.fOccluderType = SpotVerticesFactory::OccluderType::kOpaque;
+            }
 
+#ifdef DEBUG_SHADOW_CHECKS
+            switch (factory.fOccluderType) {
+                case SpotVerticesFactory::OccluderType::kTransparent:
+                    color = 0xFFD2B48C;  // tan for transparent
+                    break;
+                case SpotVerticesFactory::OccluderType::kOpaque:
+                    color = 0xFFFFA500;   // orange for opaque
+                    break;
+                case SpotVerticesFactory::OccluderType::kOpaqueCoversUmbra:
+                    color = SK_ColorYELLOW;  // corn yellow for covered
+                    break;
+            }
+#endif
             SkColor renderColor = compute_render_color(color, spotAlpha);
             draw_shadow(factory, canvas, shadowedPath, renderColor);
         }
