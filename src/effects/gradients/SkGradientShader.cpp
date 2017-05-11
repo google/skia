@@ -380,7 +380,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
             if (!fOrigPos) {
                 // We clamp only when the stops are evenly spaced.
                 // If not, there may be hard stops, and clamping ruins hard stops at 0 and/or 1.
-                // In that case, we must make sure we're using the general linear_gradient stage,
+                // In that case, we must make sure we're using the general "gradient" stage,
                 // which is the only stage that will correctly handle unclamped t.
                 p->append(SkRasterPipeline::clamp_x,  alloc->make<float>(1));
             }
@@ -404,7 +404,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
         f_and_b[0] = SkPM4f::From4f(c_r.to4f() - c_l.to4f());
         f_and_b[1] = c_l;
 
-        p->append(SkRasterPipeline::linear_gradient_2stops, f_and_b);
+        p->append(SkRasterPipeline::evenly_spaced_2_stop_gradient, f_and_b);
     } else {
 
         struct Stop { float t; SkPM4f f, b; };
@@ -493,7 +493,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
             ctx->stops = stopsArray;
         }
 
-        p->append(SkRasterPipeline::linear_gradient, ctx);
+        p->append(SkRasterPipeline::gradient, ctx);
     }
 
     if (!premulGrad && !this->colorsAreOpaque()) {

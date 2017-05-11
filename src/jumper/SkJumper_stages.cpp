@@ -1034,7 +1034,7 @@ STAGE(matrix_perspective) {
     g = G * rcp(Z);
 }
 
-STAGE(linear_gradient) {
+STAGE(gradient) {
     struct Stop { float pos; float f[4], b[4]; };
     struct Ctx { size_t n; Stop *stops; float start[4]; };
 
@@ -1062,7 +1062,7 @@ STAGE(linear_gradient) {
     a = mad(t, fa, ba);
 }
 
-STAGE(linear_gradient_2stops) {
+STAGE(evenly_spaced_2_stop_gradient) {
     struct Ctx { float f[4], b[4]; };
     auto c = (const Ctx*)ctx;
 
@@ -1073,7 +1073,7 @@ STAGE(linear_gradient_2stops) {
     a = mad(t, c->f[3], c->b[3]);
 }
 
-STAGE(xy_to_polar_unit) {
+STAGE(xy_to_unit_angle) {
     F X = r,
       Y = g;
     F xabs = abs_(X),
