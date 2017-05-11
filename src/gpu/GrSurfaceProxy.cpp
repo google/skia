@@ -32,10 +32,9 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
-    if (fLastOpList) {
-        fLastOpList->clearTarget();
-    }
-    SkSafeUnref(fLastOpList);
+    // For this to be deleted the opList that held a ref on it (if there was one) must have been
+    // deleted. Which would have cleared out this back pointer.
+    SkASSERT(!fLastOpList);
 }
 
 GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
@@ -97,15 +96,14 @@ int GrSurfaceProxy::worstCaseHeight(const GrCaps& caps) const {
 }
 
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
+#ifdef SK_DEBUG
     if (fLastOpList) {
-        // The non-MDB world never closes so we can't check this condition
-#ifdef ENABLE_MDB
         SkASSERT(fLastOpList->isClosed());
-#endif
-        fLastOpList->clearTarget();
     }
+#endif
 
-    SkRefCnt_SafeAssign(fLastOpList, opList);
+    // Un-reffed
+    fLastOpList = opList;
 }
 
 GrRenderTargetOpList* GrSurfaceProxy::getLastRenderTargetOpList() {
@@ -312,7 +310,7 @@ void GrSurfaceProxyPriv::exactify() {
     // It could mess things up if prior decisions were based on the approximate size.
     fProxy->fFit = SkBackingFit::kExact;
     // If fGpuMemorySize is used when caching specialImages for the image filter DAG. If it has
-    // already been computed we want to leave it alone so that amount will be removed when 
+    // already been computed we want to leave it alone so that amount will be removed when
     // the special image goes away. If it hasn't been computed yet it might as well compute the
     // exact amount.
 }
