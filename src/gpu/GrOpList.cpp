@@ -20,20 +20,37 @@ uint32_t GrOpList::CreateUniqueID() {
     return id;
 }
 
-GrOpList::GrOpList(sk_sp<GrSurfaceProxy> surfaceProxy, GrAuditTrail* auditTrail)
-    // MDB TODO: in the future opLists will own the GrSurfaceProxy they target.
-    // For now, preserve the status quo.
-    : fTarget(surfaceProxy.get())
-    , fAuditTrail(auditTrail)
+GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
+//    : fTarget4(std::move(surfaceProxy))
+    : fAuditTrail(auditTrail)
     , fUniqueID(CreateUniqueID())
     , fFlags(0) {
-    surfaceProxy->setLastOpList(this);
+    fTarget.reset(surfaceProxy);
+    fTarget.get()->setLastOpList(this);
 }
 
 GrOpList::~GrOpList() {
-    if (fTarget && this == fTarget->getLastOpList()) {
-        fTarget->setLastOpList(nullptr);
+    if (fTarget.get() && this == fTarget.get()->getLastOpList()) {
+        fTarget.get()->setLastOpList(nullptr);
     }
+}
+
+void GrOpList::makeClosed(const GrCaps&) {
+    this->setFlag(kClosed_Flag);
+
+    if (fTarget.get()) {
+        SkASSERT(fTarget.get()->getPendingReadCnt_TestOnly() || fTarget.get()->getPendingWriteCnt_TestOnly());
+//        fTarget4->softRelease();        
+    }
+}
+
+void GrOpList::reset() {
+    if (fTarget.get() && this == fTarget.get()->getLastOpList()) {
+        fTarget.get()->setLastOpList(nullptr);
+    }
+
+    fTarget.reset(nullptr);
+    fAuditTrail = nullptr;
 }
 
 // Add a GrOpList-based dependency
@@ -68,7 +85,8 @@ void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
 #ifdef SK_DEBUG
 void GrOpList::dump() const {
     SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("node: %d -> RT: %d\n", fUniqueID, fTarget ? fTarget->uniqueID().asUInt() : -1);
+    SkDebugf("node: %d -> RT: %d\n", fUniqueID, fTarget.get() ? fTarget.get()->uniqueID().asUInt()
+                                                              : -1);
     SkDebugf("relies On (%d): ", fDependencies.count());
     for (int i = 0; i < fDependencies.count(); ++i) {
         SkDebugf("%d, ", fDependencies[i]->fUniqueID);
