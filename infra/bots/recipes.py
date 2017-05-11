@@ -14,18 +14,10 @@ This is a copy of https://github.com/luci/recipes-py/blob/master/doc/recipes.py.
 To fix bugs, fix in the github repo then run the autoroller.
 """
 
-import os
-
-#### PER-REPO CONFIGURATION (editable) ####
-# The root of the repository relative to the directory of this file.
-REPO_ROOT = os.path.join(os.pardir, os.pardir)
-# The path of the recipes.cfg file relative to the root of the repository.
-RECIPES_CFG = os.path.join('infra', 'config', 'recipes.cfg')
-#### END PER-REPO CONFIGURATION ####
-
 import argparse
 import json
 import logging
+import os
 import random
 import subprocess
 import sys
