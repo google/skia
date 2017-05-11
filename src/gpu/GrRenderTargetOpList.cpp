@@ -26,12 +26,11 @@ using gr_instanced::InstancedRendering;
 static const int kMaxOpLookback = 10;
 static const int kMaxOpLookahead = 10;
 
-GrRenderTargetOpList::GrRenderTargetOpList(sk_sp<GrRenderTargetProxy> proxy, GrGpu* gpu,
+GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* proxy, GrGpu* gpu,
                                            GrAuditTrail* auditTrail)
-        : INHERITED(std::move(proxy), auditTrail)
+        : INHERITED(proxy, auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
-        SkDEBUGCODE(, fNumClips(0))
-{
+        SkDEBUGCODE(, fNumClips(0)) {
     if (GrCaps::InstancedSupport::kNone != gpu->caps()->instancedSupport()) {
         fInstancedRendering.reset(gpu->createInstancedRendering());
     }
@@ -187,6 +186,7 @@ void GrRenderTargetOpList::reset() {
     fLastFullClearOp = nullptr;
     fLastFullClearResourceID.makeInvalid();
     fLastFullClearProxyID.makeInvalid();
+    fLastClipStackGenID = SK_InvalidUniqueID;
     fRecordedOps.reset();
     if (fInstancedRendering) {
         fInstancedRendering->endFlush();

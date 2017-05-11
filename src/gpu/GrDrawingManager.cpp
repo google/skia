@@ -125,6 +125,7 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
                 if (!opList) {
                     continue;   // Odd - but not a big deal
                 }
+                opList->makeClosed(*fContext->caps());
                 SkDEBUGCODE(opList->validateTargetsSingleRenderTarget());
                 opList->prepareOps(&fFlushState);
                 if (!opList->executeOps(&fFlushState)) {
@@ -208,7 +209,7 @@ void GrDrawingManager::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlush
     fOnFlushCBObjects.push_back(onFlushCBObject);
 }
 
-sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetProxy> rtp) {
+sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* rtp) {
     SkASSERT(fContext);
 
 #ifndef ENABLE_MDB
@@ -235,10 +236,10 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetPr
     return opList;
 }
 
-sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(sk_sp<GrTextureProxy> textureProxy) {
+sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textureProxy) {
     SkASSERT(fContext);
 
-    sk_sp<GrTextureOpList> opList(new GrTextureOpList(std::move(textureProxy), fContext->getGpu(),
+    sk_sp<GrTextureOpList> opList(new GrTextureOpList(textureProxy, fContext->getGpu(),
                                                       fContext->getAuditTrail()));
 
 #ifndef ENABLE_MDB
