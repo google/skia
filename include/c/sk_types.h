@@ -512,11 +512,17 @@ typedef enum {
     NO_SK_CODEC_ZERO_INITIALIZED,
 } sk_codec_zero_initialized_t;
 
+typedef enum {
+    RESPECT_SK_TRANSFER_FUNCTION_BEHAVIOR,
+    IGNORE_SK_TRANSFER_FUNCTION_BEHAVIOR,
+} sk_transfer_function_behavior_t;
+
 typedef struct {
     sk_codec_zero_initialized_t fZeroInitialized;
     sk_irect_t* fSubset;
     size_t fFrameIndex;
     bool fHasPriorFrame;
+    sk_transfer_function_behavior_t fPremulBehavior;
 } sk_codec_options_t;
 
 typedef enum {
@@ -705,10 +711,9 @@ typedef enum {
     AA_HAIRLINE_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS       = 1 << 3,
     AA_CONVEX_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS         = 1 << 4,
     AA_LINEARIZING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS    = 1 << 5,
-    PLS_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS               = 1 << 6,
-    DISTANCE_FIELD_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS    = 1 << 7,
-    TESSELLATING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS      = 1 << 8,
-    DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS           = 1 << 9,
+    SMALL_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS             = 1 << 6,
+    TESSELLATING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS      = 1 << 7,
+    DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS           = 1 << 8,
 
     ALL_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS               = DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS | (DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS - 1)
 } gr_contextoptions_gpupathrenderers_t;
@@ -852,7 +857,8 @@ typedef struct {
 typedef struct {
     size_t fRequiredFrame;
     size_t fDuration;
-    bool fullyRecieved;
+    bool fFullyReceived;
+    sk_alphatype_t fAlphaType;
 } sk_codec_frameinfo_t;
 
 typedef struct sk_xmlstreamwriter_t sk_xmlstreamwriter_t;
