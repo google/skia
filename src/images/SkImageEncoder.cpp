@@ -12,14 +12,14 @@
 
 #ifndef SK_HAS_JPEG_LIBRARY
 bool SkJpegEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }
-std::unique_ptr<SkJpegEncoder> SkJpegEncoder::Make(SkWStream*, const SkPixmap&, const Options&) {
+std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream*, const SkPixmap&, const Options&) {
     return nullptr;
 }
 #endif
 
 #ifndef SK_HAS_PNG_LIBRARY
 bool SkPngEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }
-std::unique_ptr<SkPngEncoder> SkPngEncoder::Make(SkWStream*, const SkPixmap&, const Options&) {
+std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream*, const SkPixmap&, const Options&) {
     return nullptr;
 }
 #endif
