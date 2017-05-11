@@ -260,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "2dd26693_b7c7f908",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-11T13:31:51Z",
+      "side": 1,
+      "message": "As I commented there, incomplete images decode already without the fake marker, so I don\u0027t see any reason to add it.",
+      "parentUuid": "afc9cbc6_bc1b578a",
+      "range": {
+        "startLine": 128,
+        "startChar": 8,
+        "endLine": 128,
+        "endChar": 49
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fdd6f922_326d377a",
         "filename": "src/codec/SkJpegUtility.cpp",
         "patchSetId": 3
@@ -319,6 +343,30 @@
       "side": 1,
       "message": "This is to make any incomplete jpg bits still partially decodable instead of completely fail.  IMHO this is important to support, what do you think?",
       "parentUuid": "15ea2261_f7ea5d52",
+      "range": {
+        "startLine": 146,
+        "startChar": 7,
+        "endLine": 146,
+        "endChar": 71
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "788ec475_16561ca2",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-11T13:31:51Z",
+      "side": 1,
+      "message": "Yes, I do think it\u0027s important to support partial jpgs. In fact, we run tests that verify that we will successfully decode them, and these tests pass without inserting fake EOI markers. So this can be dropped, and we can just return false.",
+      "parentUuid": "6ea63243_8ba27d65",
       "range": {
         "startLine": 146,
         "startChar": 7,
