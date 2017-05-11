@@ -144,6 +144,10 @@ def dm_flags(bot):
     # This bot is really slow, cut it down to just 8888.
     configs = ['8888']
 
+  # This bot only differs from vanilla CPU bots in 8888 config.
+  if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
+    configs = ['8888']
+
   args.append('--config')
   args.extend(configs)
 
@@ -152,6 +156,10 @@ def dm_flags(bot):
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     args.remove('svg')
     args.remove('image')
+
+  # Eventually I'd like these to pass, but for now just skip 'em.
+  if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
+    args.remove('tests')
 
   blacklisted = []
   def blacklist(quad):
@@ -770,6 +778,8 @@ TEST_BUILDERS = [
   'Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE',
   'Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan',
   'Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release',
+  ('Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-'
+   'SK_FORCE_RASTER_PIPELINE_BLITTER'),
 ]
 
 
