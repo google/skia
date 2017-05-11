@@ -161,8 +161,7 @@ bool GrGpuResource::notifyRefCountIsZero() const {
     }
 
     GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
-    uint32_t flags =
-        GrResourceCache::ResourceAccess::kRefCntReachedZero_RefNotificationFlag;
+    uint32_t flags = GrResourceCache::ResourceAccess::kRefCntReachedZero_RefNotificationFlag;
     if (!this->internalHasPendingIO()) {
         flags |= GrResourceCache::ResourceAccess::kAllCntsReachedZero_RefNotificationFlag;
     }

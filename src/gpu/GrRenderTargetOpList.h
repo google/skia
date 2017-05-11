@@ -33,7 +33,7 @@ private:
     using DstTexture = GrXferProcessor::DstTexture;
 
 public:
-    GrRenderTargetOpList(sk_sp<GrRenderTargetProxy>, GrGpu*, GrAuditTrail*);
+    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrAuditTrail*);
 
     ~GrRenderTargetOpList() override;
 

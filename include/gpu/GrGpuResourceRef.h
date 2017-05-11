@@ -89,13 +89,13 @@ private:
     typedef SkNoncopyable INHERITED;
 };
 
-class GrTextureProxy;
+class GrSurfaceProxy;
 
-class GrTextureProxyRef : SkNoncopyable {
+class GrSurfaceProxyRef : SkNoncopyable {
 public:
-    virtual ~GrTextureProxyRef();
+    virtual ~GrSurfaceProxyRef();
 
-    GrTextureProxy* getProxy() const { return fProxy; }
+    GrSurfaceProxy* getProxy() const { return fProxy; }
 
     /** Does this object own a pending read or write on the resource it is wrapping. */
     bool ownsPendingIO() const { return fPendingIO; }
@@ -109,15 +109,15 @@ public:
     void reset();
 
 protected:
-    GrTextureProxyRef();
+    GrSurfaceProxyRef();
 
     /** ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
-    GrTextureProxyRef(sk_sp<GrTextureProxy>, GrIOType);
+    GrSurfaceProxyRef(sk_sp<GrSurfaceProxy>, GrIOType);
 
     /** ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
-    void setProxy(sk_sp<GrTextureProxy>, GrIOType);
+    void setProxy(sk_sp<GrSurfaceProxy>, GrIOType);
 
 private:
     /** Called by owning GrProgramElement when the program element is first scheduled for
@@ -137,8 +137,9 @@ private:
     void pendingIOComplete() const;
 
     friend class GrResourceIOProcessor;
+    friend class GrOpList;                 // for setProxy
 
-    GrTextureProxy* fProxy;
+    GrSurfaceProxy* fProxy;
     mutable bool    fOwnRef;
     mutable bool    fPendingIO;
     GrIOType        fIOType;

@@ -33,7 +33,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     // MDB TODO: This explicit resource creation is required in the pre-MDB world so that the
     // pre-Flush ops are placed in their own opList.
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
-                                                    sk_ref_sp(proxy->asRenderTargetProxy()),
+                                                    proxy->asRenderTargetProxy(),
                                                     fDrawingMgr->fContext->getGpu(),
                                                     fDrawingMgr->fContext->getAuditTrail()));
     proxy->setLastOpList(opList.get());
@@ -61,7 +61,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     // MDB TODO: This explicit resource creation is required in the pre-MDB world so that the
     // pre-Flush ops are placed in their own opList.
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
-                                                    sk_ref_sp(proxy->asRenderTargetProxy()),
+                                                    proxy->asRenderTargetProxy(),
                                                     fDrawingMgr->fContext->getGpu(),
                                                     fDrawingMgr->fContext->getAuditTrail()));
     proxy->setLastOpList(opList.get());

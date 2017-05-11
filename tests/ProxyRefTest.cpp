@@ -31,7 +31,6 @@ int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
 
 int32_t GrIORefProxy::getPendingReadCnt_TestOnly() const {
     if (fTarget) {
-        SkASSERT(!fPendingReads);
         return fTarget->fPendingReads;
     }
 
@@ -40,7 +39,6 @@ int32_t GrIORefProxy::getPendingReadCnt_TestOnly() const {
 
 int32_t GrIORefProxy::getPendingWriteCnt_TestOnly() const {
     if (fTarget) {
-        SkASSERT(!fPendingWrites);
         return fTarget->fPendingWrites;
     }
 
