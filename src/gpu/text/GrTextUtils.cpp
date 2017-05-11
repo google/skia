@@ -50,6 +50,27 @@ bool GrTextUtils::Paint::toGrPaint(GrMaskFormat maskFormat, GrRenderTargetContex
     }
 }
 
+void GrTextUtils::Paint::initFilteredColor() {
+    // This mirrors the logic in skpaint_to_grpaint_impl for handling paint colors
+    if (fDstColorSpace) {
+        GrColor4f filteredColor = SkColorToUnpremulGrColor4f(fPaint->getColor(), fDstColorSpace,
+                                                             fColorXformFromSRGB);
+        if (fPaint->getColorFilter()) {
+            filteredColor = GrColor4f::FromSkColor4f(
+                fPaint->getColorFilter()->filterColor4f(filteredColor.toSkColor4f()));
+        }
+        fFilteredPremulColor = filteredColor.premul().toGrColor();
+        fFilteredUnpremulColor = filteredColor.toGrColor();
+    } else {
+        SkColor filteredSkColor = fPaint->getColor();
+        if (fPaint->getColorFilter()) {
+            filteredSkColor = fPaint->getColorFilter()->filterColor(filteredSkColor);
+        }
+        fFilteredPremulColor = SkColorToPremulGrColor(filteredSkColor);
+        fFilteredUnpremulColor = SkColorToUnpremulGrColor(filteredSkColor);
+    }
+}
+
 bool GrTextUtils::RunPaint::modifyForRun(const SkTextBlobRunIterator& run) {
     if (!fModifiedPaint.isValid()) {
         fModifiedPaint.init(fOriginalPaint->skPaint());
@@ -99,7 +120,7 @@ void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex, GrAtlasGlyphC
              BmpAppendGlyph(
                  blob, runIndex, fontCache, &currStrike, glyph,
                  SkScalarFloorToInt(position.fX), SkScalarFloorToInt(position.fY),
-                 paint.filteredPremulGrColor(), cache);
+                 paint.filteredPremulColor(), cache);
         }
     );
 
@@ -135,7 +156,7 @@ void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex, GrAtlasGly
             BmpAppendGlyph(
                 blob, runIndex, fontCache, &currStrike, glyph,
                 SkScalarFloorToInt(position.fX), SkScalarFloorToInt(position.fY),
-                paint.filteredPremulGrColor(), cache);
+                paint.filteredPremulColor(), cache);
         }
     );
 
@@ -390,7 +411,7 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex, GrAtlasGlyp
                 SkScalar y = offset.y() + (2 == scalarsPerPosition ? pos[1] : 0);
 
                 if (!DfAppendGlyph(blob, runIndex, fontCache, &currStrike, glyph, x, y,
-                                   paint.filteredPremulGrColor(), cache, textRatio, viewMatrix)) {
+                                   paint.filteredPremulColor(), cache, textRatio, viewMatrix)) {
                     // couldn't append, send to fallback
                     fallbackTxt.append(SkToInt(text-lastText), lastText);
                     *fallbackPos.append() = pos[0];
@@ -417,7 +438,7 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex, GrAtlasGlyp
                 SkScalar advanceY = SkFloatToScalar(glyph.fAdvanceY) * alignMul * textRatio;
 
                 if (!DfAppendGlyph(blob, runIndex, fontCache, &currStrike, glyph, x - advanceX,
-                                   y - advanceY, paint.filteredPremulGrColor(), cache, textRatio,
+                                   y - advanceY, paint.filteredPremulColor(), cache, textRatio,
                                    viewMatrix)) {
                     // couldn't append, send to fallback
                     fallbackTxt.append(SkToInt(text-lastText), lastText);
