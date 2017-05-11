@@ -449,6 +449,16 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
             *fIndices.push() = fPositions.count() - 1;
             *fIndices.push() = fPositions.count() - 2;
 
+            // if transparent, add point to first one in array and add to center fan
+            if (fTransparent) {
+                fPositions[0] += centerPoint;
+                ++fCentroidCount;
+
+                *fIndices.push() = 0;
+                *fIndices.push() = fPrevUmbraIndex;
+                *fIndices.push() = fPositions.count() - 2;
+            }
+
             fPrevUmbraIndex = fPositions.count() - 2;
         }
 
@@ -479,6 +489,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     // finalize centroid
     if (fTransparent) {
         fPositions[0] *= SkScalarFastInvert(fCentroidCount);
+        fColors[0] = this->umbraColor(fTransformedHeightFunc(fPositions[0]));
 
         *fIndices.push() = 0;
         *fIndices.push() = fPrevUmbraIndex;
@@ -604,6 +615,16 @@ void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVecto
             *fIndices.push() = fPrevUmbraIndex;
             *fIndices.push() = fPositions.count() - 1;
             *fIndices.push() = fPositions.count() - 3;
+        }
+
+        // if transparent, add point to first one in array and add to center fan
+        if (fTransparent) {
+            fPositions[0] += centerPoint;
+            ++fCentroidCount;
+
+            *fIndices.push() = 0;
+            *fIndices.push() = fPrevUmbraIndex;
+            *fIndices.push() = fPositions.count() - 2;
         }
 
         fPrevUmbraIndex = fPositions.count() - 2;
