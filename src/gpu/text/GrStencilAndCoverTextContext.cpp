@@ -604,14 +604,8 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                               renderTargetContext->height());
 
         // The run's "font" overrides the anti-aliasing of the passed in SkPaint!
-        GrAAType aaType;
-        if (this->aa() == GrAA::kYes) {
-            SkASSERT(renderTargetContext->isStencilBufferMultisampled());
-            aaType = renderTargetContext->isUnifiedMultisampled() ? GrAAType::kMSAA
-                                                                  : GrAAType::kMixedSamples;
-        } else {
-            aaType = GrAAType::kNone;
-        }
+        GrAAType aaType = GrChooseAAType(this->aa(), renderTargetContext->fsaaType(),
+                                         GrAllowMixedSamples::kYes);
 
         std::unique_ptr<GrDrawOp> op = GrDrawPathRangeOp::Make(
                 viewMatrix, fTextRatio, fTextInverseRatio * x, fTextInverseRatio * y,

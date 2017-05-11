@@ -862,12 +862,12 @@ void SkGpuDevice::drawBitmap(const SkBitmap& bitmap,
 
     // The tile code path doesn't currently support AA, so if the paint asked for aa and we could
     // draw untiled, then we bypass checking for tiling purely for optimization reasons.
-    bool drawAA = !fRenderTargetContext->isUnifiedMultisampled() &&
+    bool useCoverageAA = GrFSAAType::kUnifiedMSAA != fRenderTargetContext->fsaaType() &&
                   paint.isAntiAlias() &&
                   bitmap.width() <= maxTileSize &&
                   bitmap.height() <= maxTileSize;
 
-    bool skipTileCheck = drawAA || paint.getMaskFilter();
+    bool skipTileCheck = useCoverageAA || paint.getMaskFilter();
 
     if (!skipTileCheck) {
         SkRect srcRect = SkRect::MakeIWH(bitmap.width(), bitmap.height());
@@ -959,7 +959,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
 
     const SkPaint* paint = &origPaint;
     SkPaint tempPaint;
-    if (origPaint.isAntiAlias() && !fRenderTargetContext->isUnifiedMultisampled()) {
+    if (origPaint.isAntiAlias() && GrFSAAType::kUnifiedMSAA == fRenderTargetContext->fsaaType()) {
         // Drop antialiasing to avoid seams at tile boundaries.
         tempPaint = origPaint;
         tempPaint.setAntiAlias(false);
@@ -1106,7 +1106,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
 
     // Coverage-based AA would cause seams between tiles.
     GrAA aa = GrBoolToAA(paint.isAntiAlias() &&
-                         fRenderTargetContext->isStencilBufferMultisampled());
+                         GrFSAAType::kUnifiedMSAA == fRenderTargetContext->fsaaType());
     fRenderTargetContext->drawRect(this->clip(), std::move(grPaint), aa, viewMatrix, dstRect);
 }
 
@@ -1231,12 +1231,12 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
 
     // The tile code path doesn't currently support AA, so if the paint asked for aa and we could
     // draw untiled, then we bypass checking for tiling purely for optimization reasons.
-    bool drawAA = !fRenderTargetContext->isUnifiedMultisampled() &&
+    bool useCoverageAA = GrFSAAType::kUnifiedMSAA != fRenderTargetContext->fsaaType() &&
         paint.isAntiAlias() &&
         bitmap.width() <= maxTileSize &&
         bitmap.height() <= maxTileSize;
 
-    bool skipTileCheck = drawAA || paint.getMaskFilter();
+    bool skipTileCheck = useCoverageAA || paint.getMaskFilter();
 
     if (!skipTileCheck) {
         int tileSize;
@@ -1434,7 +1434,7 @@ void SkGpuDevice::drawProducerNine(GrTextureProducer* producer,
     CHECK_SHOULD_DRAW();
 
     bool useFallback = paint.getMaskFilter() || paint.isAntiAlias() ||
-                       fRenderTargetContext->isUnifiedMultisampled();
+                       GrFSAAType::kUnifiedMSAA == fRenderTargetContext->fsaaType();
     bool doBicubic;
     GrSamplerParams::FilterMode textureFilterMode =
         GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), this->ctm(), SkMatrix::I(),
