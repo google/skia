@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7dc956f9_44d14f55",
+        "filename": "src/gpu/text/GrTextUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-05-11T15:06:22Z",
+      "side": 1,
+      "message": "This is the real meat of this change. (This function was previously in the header, and was just the \u0027else\u0027 block).",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 25
+      },
+      "revId": "da7036895c9563db09cce1d2f5b0d1f5affdb432",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
