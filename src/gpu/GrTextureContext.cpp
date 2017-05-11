@@ -77,23 +77,7 @@ bool GrTextureContext::onCopy(GrSurfaceProxy* srcProxy,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrTextureContext::onCopy");
 
-#ifndef ENABLE_MDB
-    // We can't yet fully defer copies to textures, so GrTextureContext::copySurface will
-    // execute the copy immediately. Ensure the data is ready.
-    fContext->contextPriv().flushSurfaceWrites(srcProxy);
-#endif
-
-    GrTextureOpList* opList = this->getOpList();
-    bool result = opList->copySurface(fContext->resourceProvider(),
-                                      fTextureProxy.get(), srcProxy, srcRect, dstPoint);
-
-#ifndef ENABLE_MDB
-    GrOpFlushState flushState(fContext->getGpu(), nullptr);
-    opList->prepareOps(&flushState);
-    opList->executeOps(&flushState);
-    opList->reset();
-#endif
-
-    return result;
+    return this->getOpList()->copySurface(fContext->resourceProvider(),
+                                          fTextureProxy.get(), srcProxy, srcRect, dstPoint);
 }
 

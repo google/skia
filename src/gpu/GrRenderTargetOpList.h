@@ -151,7 +151,8 @@ private:
     int32_t fLastClipStackGenID;
     SkIRect fLastDevClipBounds;
 
-    SkSTArray<256, RecordedOp, true> fRecordedOps;
+    // For ops/opList we have mean: 5 stdDev: 28
+    SkSTArray<5, RecordedOp, true> fRecordedOps;
 
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.

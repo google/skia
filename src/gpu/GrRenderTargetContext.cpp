@@ -105,6 +105,9 @@ void GrRenderTargetContext::validate() const {
 #endif
 
 GrRenderTargetContext::~GrRenderTargetContext() {
+    if (fOpList) {
+        fOpList->makeClosed(*this->caps());
+    }
     ASSERT_SINGLE_OWNER
 }
 
