@@ -202,7 +202,7 @@ GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
     return nullptr;
 }
 
-static bool gPrintStartupSpew;
+static bool gPrintStartupSpew = true;
 
 GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     : GrGpu(context)
