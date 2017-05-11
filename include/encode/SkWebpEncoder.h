@@ -12,7 +12,7 @@
 
 class SkWStream;
 
-namespace SK_API SkWebpEncoder {
+namespace SkWebpEncoder {
 
     struct Options {
         /**
@@ -34,7 +34,7 @@ namespace SK_API SkWebpEncoder {
      *
      *  Returns true on success.  Returns false on an invalid or unsupported |src|.
      */
-    bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options);
+    SK_API bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options);
 };
 
 #endif
