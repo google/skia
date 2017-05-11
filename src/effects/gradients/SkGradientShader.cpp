@@ -347,30 +347,44 @@ void SkGradientShaderBase::FlipGradientColors(SkColor* colorDst, Rec* recDst,
     memcpy(colorDst, colorsTemp.get(), count * sizeof(SkColor));
 }
 
-bool SkGradientShaderBase::onAppendStages(
-    SkRasterPipeline* pipeline, SkColorSpace* dstCS, SkArenaAlloc* alloc,
-    const SkMatrix& ctm, const SkPaint& paint,
-    const SkMatrix* localM) const
-{
+bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
+                                          SkColorSpace* dstCS,
+                                          SkArenaAlloc* alloc,
+                                          const SkMatrix& ctm,
+                                          const SkPaint& paint,
+                                          const SkMatrix* localM) const {
     SkMatrix matrix;
     if (!this->computeTotalInverse(ctm, localM, &matrix)) {
         return false;
     }
 
-    SkRasterPipeline p;
-    if (!this->adjustMatrixAndAppendStages(alloc, &matrix, &p)) {
+    SkRasterPipeline subclass;
+    if (!this->adjustMatrixAndAppendStages(alloc, &matrix, &subclass)) {
         return false;
     }
 
     auto* m = alloc->makeArrayDefault<float>(9);
     if (matrix.asAffine(m)) {
-        pipeline->append(SkRasterPipeline::matrix_2x3, m);
+        p->append(SkRasterPipeline::matrix_2x3, m);
     } else {
         matrix.get9(m);
-        pipeline->append(SkRasterPipeline::matrix_perspective, m);
+        p->append(SkRasterPipeline::matrix_perspective, m);
     }
 
-    pipeline->extend(p);
+    p->extend(subclass);
+
+    switch(fTileMode) {
+        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, alloc->make<float>(1)); break;
+        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, alloc->make<float>(1)); break;
+        case kClamp_TileMode:
+            if (!fOrigPos) {
+                // We clamp only when the stops are evenly spaced.
+                // If not, there may be hard stops, and clamping ruins hard stops at 0 and/or 1.
+                // In that case, we must make sure we're using the general linear_gradient stage,
+                // which is the only stage that will correctly handle unclamped t.
+                p->append(SkRasterPipeline::clamp_x,  alloc->make<float>(1));
+            }
+    }
 
     const bool premulGrad = fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag;
     auto prepareColor = [premulGrad, dstCS, this](int i) {
@@ -390,7 +404,7 @@ bool SkGradientShaderBase::onAppendStages(
         f_and_b[0] = SkPM4f::From4f(c_r.to4f() - c_l.to4f());
         f_and_b[1] = c_l;
 
-        pipeline->append(SkRasterPipeline::linear_gradient_2stops, f_and_b);
+        p->append(SkRasterPipeline::linear_gradient_2stops, f_and_b);
     } else {
 
         struct Stop { float t; SkPM4f f, b; };
@@ -479,11 +493,11 @@ bool SkGradientShaderBase::onAppendStages(
             ctx->stops = stopsArray;
         }
 
-        pipeline->append(SkRasterPipeline::linear_gradient, ctx);
+        p->append(SkRasterPipeline::linear_gradient, ctx);
     }
 
     if (!premulGrad && !this->colorsAreOpaque()) {
-        pipeline->append(SkRasterPipeline::premul);
+        p->append(SkRasterPipeline::premul);
     }
 
     return true;
