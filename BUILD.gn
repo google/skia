@@ -1115,6 +1115,20 @@ if (skia_enable_tools) {
     }
   }
 
+  test_app("bookmaker") {
+    sources = [
+      "experimental/docs/bookmaker.cpp",
+      "experimental/docs/fiddleParser.cpp",
+      "experimental/docs/includeParser.cpp",
+      "experimental/docs/mdOut.cpp",
+    ]
+    deps = [
+      ":flags",
+      ":skia",
+      ":tool_utils",
+    ]
+  }
+
   import("gn/samples.gni")
   test_lib("samples") {
     public_include_dirs = [ "samplecode" ]
