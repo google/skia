@@ -1,0 +1,10 @@
+{
+  'variables': {
+    'command': [
+      '/bin/cp', '-rL', skp', '${ISOLATED_OUTDIR}',
+    ],
+    'files': [
+      '../../../.gclient',
+    ],
+  },
+}
