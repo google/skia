@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd79526b_cc836125",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-11T20:47:48Z",
+      "side": 1,
+      "message": "Maybe this should be a SkPixmap?",
+      "range": {
+        "startLine": 92,
+        "startChar": 19,
+        "endLine": 92,
+        "endChar": 73
+      },
+      "revId": "6b5cfa7b67974f52917ea1af1d917bf248a043c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
