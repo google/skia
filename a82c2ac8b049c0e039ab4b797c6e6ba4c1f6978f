@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5deb34c_523114c9",
+        "filename": "src/core/SkImagePriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-05-11T17:05:38Z",
+      "side": 1,
+      "message": "Just curious: why do we need extern for these functions in a header file?",
+      "revId": "a82c2ac8b049c0e039ab4b797c6e6ba4c1f6978f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a31c375_671dbc48",
+        "filename": "src/core/SkImagePriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-05-11T17:05:38Z",
+      "side": 1,
+      "message": "Is this function going to be defined in some other CLs?",
+      "revId": "a82c2ac8b049c0e039ab4b797c6e6ba4c1f6978f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3532b34_295759e6",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-05-11T17:05:38Z",
+      "side": 1,
+      "message": "At a first glance, kIgnore seems to completely turn off the colorspace transformation (treat it as linear). Is this going to be changed as we should do some transformation based on dst and src colorspace?",
+      "revId": "a82c2ac8b049c0e039ab4b797c6e6ba4c1f6978f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
