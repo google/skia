@@ -22,7 +22,7 @@ class GrTextureOpList;
 
 class GrOpList : public SkRefCnt {
 public:
-    GrOpList(sk_sp<GrSurfaceProxy> surfaceProxy, GrAuditTrail* auditTrail);
+    GrOpList(GrSurfaceProxy*, GrAuditTrail*);
     ~GrOpList() override;
 
     // These two methods are invoked as flush time
@@ -37,8 +37,7 @@ public:
 #endif    
     }
 
-    // TODO: it seems a bit odd that GrOpList has nothing to clear on reset
-    virtual void reset() = 0;
+    virtual void reset();
 
     // TODO: in an MDB world, where the OpLists don't allocate GPU resources, it seems like
     // these could go away

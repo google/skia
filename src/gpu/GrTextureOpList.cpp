@@ -15,8 +15,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTextureOpList::GrTextureOpList(sk_sp<GrTextureProxy> proxy, GrGpu* gpu, GrAuditTrail* auditTrail)
-    : INHERITED(std::move(proxy), auditTrail)
+GrTextureOpList::GrTextureOpList(GrTextureProxy* proxy, GrGpu* gpu, GrAuditTrail* auditTrail)
+    : INHERITED(proxy, auditTrail)
     , fGpu(SkRef(gpu)) {
 }
 
@@ -77,6 +77,7 @@ bool GrTextureOpList::executeOps(GrOpFlushState* flushState) {
 
 void GrTextureOpList::reset() {
     fRecordedOps.reset();
+    INHERITED::reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

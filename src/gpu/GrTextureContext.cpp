@@ -62,7 +62,7 @@ GrTextureOpList* GrTextureContext::getOpList() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newTextureOpList(fTextureProxy);
+        fOpList = this->drawingManager()->newTextureOpList(fTextureProxy.get());
     }
 
     return fOpList.get();
