@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04550ea7_c3dc2a19",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-05-12T15:23:10Z",
+      "side": 1,
+      "message": "Just moved this inline to be consistent with the SkRect version.",
+      "revId": "0f6b40e488e0d756bc22f8fdf38597ff050ac3f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
