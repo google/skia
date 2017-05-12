@@ -324,7 +324,7 @@ private:
  */
 class GrResourceIOProcessor::ImageStorageAccess : public SkNoncopyable {
 public:
-    ImageStorageAccess(sk_sp<GrTexture> texture, GrIOType ioType, GrSLMemoryModel, GrSLRestrict,
+    ImageStorageAccess(sk_sp<GrTextureProxy>, GrIOType, GrSLMemoryModel, GrSLRestrict,
                        GrShaderFlags visibility = kFragment_GrShaderFlag);
 
     bool operator==(const ImageStorageAccess& that) const {

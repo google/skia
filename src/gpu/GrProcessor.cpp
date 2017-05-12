@@ -272,19 +272,22 @@ void GrResourceIOProcessor::TextureSampler::reset(GrResourceProvider* resourcePr
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrResourceIOProcessor::ImageStorageAccess::ImageStorageAccess(sk_sp<GrTexture> texture,
+GrResourceIOProcessor::ImageStorageAccess::ImageStorageAccess(sk_sp<GrTextureProxy> proxy,
                                                               GrIOType ioType,
                                                               GrSLMemoryModel memoryModel,
                                                               GrSLRestrict restrict,
                                                               GrShaderFlags visibility) {
-    SkASSERT(texture);
-    fTexture.set(texture.release(), ioType);
+    SkASSERT(proxy);
+
+    GrPixelConfig config = proxy->config();
+
+    //fTexture.set(texture.release(), ioType);
     fMemoryModel = memoryModel;
     fRestrict = restrict;
     fVisibility = visibility;
     // We currently infer this from the config. However, we could allow the client to specify
     // a format that is different but compatible with the config.
-    switch (fTexture.get()->config()) {
+    switch (config) {
         case kRGBA_8888_GrPixelConfig:
             fFormat = GrImageStorageFormat::kRGBA8;
             break;
