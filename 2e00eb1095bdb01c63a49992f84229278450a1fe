@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8a7c26e_6167d1cd",
+        "filename": "src/utils/SkEventTracer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-12T15:23:01Z",
+      "side": 1,
+      "message": "Probably easiest to just leave off the memory orders?  Both will default safely to seq_cst.",
+      "range": {
+        "startLine": 54,
+        "startChar": 68,
+        "endLine": 55,
+        "endChar": 59
+      },
+      "revId": "2e00eb1095bdb01c63a49992f84229278450a1fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d17c2a2d_2a65b0e5",
+        "filename": "src/utils/SkEventTracer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-12T15:23:01Z",
+      "side": 1,
+      "message": "Same here.  I\u0027m not really sure why I wrote any of these with such careful memory orders... they only happen once.",
+      "range": {
+        "startLine": 59,
+        "startChar": 54,
+        "endLine": 59,
+        "endChar": 77
+      },
+      "revId": "2e00eb1095bdb01c63a49992f84229278450a1fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
