@@ -118,15 +118,9 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
         canDrawArgs.fCaps = context->caps();
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;
-        if (!element->isAA()) {
-            canDrawArgs.fAAType = GrAAType::kNone;
-        } else if (renderTargetContext->isUnifiedMultisampled()) {
-            canDrawArgs.fAAType = GrAAType::kMSAA;
-        } else if (renderTargetContext->isStencilBufferMultisampled()){
-            canDrawArgs.fAAType = GrAAType::kMixedSamples;
-        } else {
-            canDrawArgs.fAAType = GrAAType::kCoverage;
-        }
+        canDrawArgs.fAAType = GrChooseAAType(GrBoolToAA(element->isAA()),
+                                             renderTargetContext->fsaaType(),
+                                             GrAllowMixedSamples::kYes);
         canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
         // the 'false' parameter disallows use of the SW path renderer
@@ -300,8 +294,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     if (reducedClip.elements().count() <= kMaxAnalyticElements) {
         // When there are multiple samples we want to do per-sample clipping, not compute a
         // fractional pixel coverage.
-        bool disallowAnalyticAA = renderTargetContext->isStencilBufferMultisampled() &&
-                                  !avoidStencilBuffers;
+        bool disallowAnalyticAA =
+                GrFSAAType::kNone != renderTargetContext->fsaaType() && !avoidStencilBuffers;
         if (disallowAnalyticAA && !renderTargetContext->numColorSamples()) {
             // With a single color sample, any coverage info is lost from color once it hits the
             // color buffer anyway, so we may as well use coverage AA if nothing else in the pipe
@@ -318,7 +312,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     }
 
     // If the stencil buffer is multisampled we can use it to do everything.
-    if ((!renderTargetContext->isStencilBufferMultisampled() && reducedClip.requiresAA()) ||
+    if ((GrFSAAType::kNone == renderTargetContext->fsaaType() && reducedClip.requiresAA()) ||
         avoidStencilBuffers) {
         sk_sp<GrTextureProxy> result;
         if (UseSWOnlyPath(context, hasUserStencilSettings, renderTargetContext, reducedClip)) {

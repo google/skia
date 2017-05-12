@@ -8,15 +8,16 @@
 #ifndef GrRenderTargetContext_DEFINED
 #define GrRenderTargetContext_DEFINED
 
+#include "../private/GrInstancedPipelineInfo.h"
+#include "../private/GrRenderTargetProxy.h"
 #include "GrColor.h"
 #include "GrContext.h"
 #include "GrPaint.h"
 #include "GrSurfaceContext.h"
+#include "GrTypesPriv.h"
 #include "GrXferProcessor.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
-#include "../private/GrInstancedPipelineInfo.h"
-#include "../private/GrRenderTargetProxy.h"
 
 class GrClip;
 class GrDrawingManager;
@@ -344,12 +345,7 @@ public:
      */
     void prepareForExternalIO();
 
-    bool isStencilBufferMultisampled() const {
-        return fRenderTargetProxy->isStencilBufferMultisampled();
-    }
-    bool isUnifiedMultisampled() const { return fRenderTargetProxy->isUnifiedMultisampled(); }
-    bool hasMixedSamples() const { return fRenderTargetProxy->isMixedSampled(); }
-
+    GrFSAAType fsaaType() const { return fRenderTargetProxy->fsaaType(); }
     const GrCaps* caps() const { return fContext->caps(); }
     const GrSurfaceDesc& desc() const { return fRenderTargetProxy->desc(); }
     int width() const { return fRenderTargetProxy->width(); }
@@ -394,17 +390,8 @@ protected:
     SkDEBUGCODE(void validate() const;)
 
 private:
-    inline GrAAType decideAAType(GrAA aa, bool allowMixedSamples = false) {
-        if (GrAA::kNo == aa) {
-            return GrAAType::kNone;
-        }
-        if (this->isUnifiedMultisampled()) {
-            return GrAAType::kMSAA;
-        }
-        if (allowMixedSamples && this->isStencilBufferMultisampled()) {
-            return GrAAType::kMixedSamples;
-        }
-        return GrAAType::kCoverage;
+    inline GrAAType chooseAAType(GrAA aa, GrAllowMixedSamples allowMixedSamples) {
+        return GrChooseAAType(aa, this->fsaaType(), allowMixedSamples);
     }
 
     friend class GrAtlasTextBlob;               // for access to add[Mesh]DrawOp

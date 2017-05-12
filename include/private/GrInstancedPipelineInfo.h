@@ -16,9 +16,9 @@
  */
 struct GrInstancedPipelineInfo {
     GrInstancedPipelineInfo(const GrRenderTargetProxy* rtp)
-        : fIsMultisampled(rtp->isStencilBufferMultisampled())
-        , fIsMixedSampled(rtp->isMixedSampled())
-        , fIsRenderingToFloat(GrPixelConfigIsFloatingPoint(rtp->desc().fConfig)) {}
+            : fIsMultisampled(GrFSAAType::kNone != rtp->fsaaType())
+            , fIsMixedSampled(GrFSAAType::kMixedSamples == rtp->fsaaType())
+            , fIsRenderingToFloat(GrPixelConfigIsFloatingPoint(rtp->desc().fConfig)) {}
 
     bool canUseCoverageAA() const { return !fIsMultisampled || fIsMixedSampled; }
 

@@ -2861,7 +2861,7 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool stencilEnabl
     }
 
     if (0 != this->caps()->maxRasterSamples()) {
-        if (useHWAA && rt->isMixedSampled() && !stencilEnabled) {
+        if (useHWAA && GrFSAAType::kMixedSamples == rt->fsaaType() && !stencilEnabled) {
             // Since stencil is disabled and we want more samples than are in the color buffer, we
             // need to tell the rasterizer explicitly how many to run.
             if (kYes_TriState != fHWRasterMultisampleEnabled) {
@@ -2880,7 +2880,7 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool stencilEnabl
             }
         }
     } else {
-        SkASSERT(!useHWAA || !rt->isMixedSampled() || stencilEnabled);
+        SkASSERT(!useHWAA || GrFSAAType::kMixedSamples != rt->fsaaType() || stencilEnabled);
     }
 }
 
@@ -4273,8 +4273,8 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
 
 void GrGLGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings& stencil,
                                       int* effectiveSampleCnt, SamplePattern* samplePattern) {
-    SkASSERT(!rt->isMixedSampled() || rt->renderTargetPriv().getStencilAttachment() ||
-             stencil.isDisabled());
+    SkASSERT(GrFSAAType::kMixedSamples != rt->fsaaType() ||
+             rt->renderTargetPriv().getStencilAttachment() || stencil.isDisabled());
 
     this->flushStencil(stencil);
     this->flushHWAAState(rt, true, !stencil.isDisabled());
