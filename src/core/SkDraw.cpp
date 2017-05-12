@@ -1891,10 +1891,14 @@ void SkTriColorShader::TriColorShaderContext::shadeSpan4f(int x, int y, SkPM4f d
     }
 
     Sk4f c  = fM43.map(SkIntToScalar(x) + 0.5, SkIntToScalar(y) + 0.5),
-         dc = Sk4f::Load(&fM43.fMat[0]);
+         dc = Sk4f::Load(&fM43.fMat[0]),
+         zero(0.0f),
+         one(1.0f);
 
     for (int i = 0; i < count; i++) {
-        c.store(dstC[i].fVec);
+        // We don't expect to be wildly out of 0...1, but we pin just because of minor
+        // numerical imprecision.
+        Sk4f::Min(Sk4f::Max(c, zero), Sk4f::Min(c[3], one)).store(dstC + i);
         c += dc;
     }
 }
