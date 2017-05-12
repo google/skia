@@ -62,7 +62,8 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
 
 //////////////////////////////////////////////////////////////////////////////
 sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider* resourceProvider,
-                                                   const SkBitmap& bitmap) {
+                                                   const SkBitmap& bitmap,
+                                                   SkColorSpace* dstColorSpace) {
     if (!bitmap.readyToDraw()) {
         return nullptr;
     }
@@ -70,7 +71,7 @@ sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider* resourceP
     if (!bitmap.peekPixels(&pixmap)) {
         return nullptr;
     }
-    return GrUploadPixmapToTextureProxy(resourceProvider, pixmap, SkBudgeted::kYes);
+    return GrUploadPixmapToTextureProxy(resourceProvider, pixmap, SkBudgeted::kYes, dstColorSpace);
 }
 
 static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
@@ -127,9 +128,18 @@ static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
     return pmap;
 }
 
-sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxyNoCheck(GrResourceProvider* resourceProvider,
-                                                          const SkPixmap& pixmap,
-                                                          SkBudgeted budgeted) {
+sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceProvider,
+                                                   const SkPixmap& pixmap,
+                                                   SkBudgeted budgeted,
+                                                   SkColorSpace* dstColorSpace) {
+    SkDestinationSurfaceColorMode colorMode = dstColorSpace
+        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+        : SkDestinationSurfaceColorMode::kLegacy;
+
+    if (!SkImageInfoIsValid(pixmap.info(), colorMode)) {
+        return nullptr;
+    }
+
     SkBitmap tmpBitmap;
     SkPixmap tmpPixmap;
     GrSurfaceDesc desc;
@@ -141,16 +151,6 @@ sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxyNoCheck(GrResourceProvider* re
     }
 
     return nullptr;
-}
-
-sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceProvider,
-                                                   const SkPixmap& pixmap,
-                                                   SkBudgeted budgeted) {
-    if (!SkImageInfoIsValidRenderingCS(pixmap.info())) {
-        return nullptr;
-    }
-
-    return GrUploadPixmapToTextureProxyNoCheck(resourceProvider, pixmap, budgeted);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +175,7 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
         ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
         : SkDestinationSurfaceColorMode::kLegacy;
 
-    if (!SkImageInfoIsValidRenderingCS(bitmap.info())) {
+    if (!SkImageInfoIsValid(bitmap.info(), colorMode)) {
         return nullptr;
     }
 
@@ -222,7 +222,7 @@ sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext* ctx, const SkImage
                                                    const GrMipLevel* texels,
                                                    int mipLevelCount,
                                                    SkDestinationSurfaceColorMode colorMode) {
-    if (!SkImageInfoIsValidRenderingCS(info)) {
+    if (!SkImageInfoIsValid(info, colorMode)) {
         return nullptr;
     }
 
@@ -257,7 +257,10 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvid
         proxy = resourceProvider->findProxyByUniqueKey(originalKey);
     }
     if (!proxy) {
-        proxy = GrUploadBitmapToTextureProxy(resourceProvider, bitmap);
+        // Pass nullptr for |dstColorSpace|.  This is lenient - we allow a wider range of
+        // color spaces in legacy mode.  Unfortunately, we have to be lenient here, since
+        // we can't necessarily know the |dstColorSpace| at this time.
+        proxy = GrUploadBitmapToTextureProxy(resourceProvider, bitmap, nullptr);
         if (proxy && originalKey.isValid()) {
             resourceProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
             // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
