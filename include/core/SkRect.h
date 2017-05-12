@@ -376,7 +376,22 @@ struct SK_API SkIRect {
         and may have crossed over each other.
         When this returns, left <= right && top <= bottom
     */
-    void sort();
+    void sort() {
+        if (fLeft > fRight) {
+            SkTSwap<int32_t>(fLeft, fRight);
+        }
+        if (fTop > fBottom) {
+            SkTSwap<int32_t>(fTop, fBottom);
+        }
+    }
+
+    /**
+     *  Return a new Rect that is the sorted version of this rect (left <= right, top <= bottom).
+     */
+    SkIRect makeSorted() const {
+        return MakeLTRB(SkMin32(fLeft, fRight), SkMin32(fTop, fBottom),
+                        SkMax32(fLeft, fRight), SkMax32(fTop, fBottom));
+    }
 
     static const SkIRect& SK_WARN_UNUSED_RESULT EmptyIRect() {
         static const SkIRect gEmpty = { 0, 0, 0, 0 };
@@ -455,6 +470,11 @@ struct SK_API SkRect {
      *  Return true if the rectangle's width or height are <= 0
      */
     bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
+
+    /**
+     *  Return true if the rectangle's width and height are >= 0
+     */
+    bool isSorted() const { return fLeft <= fRight && fTop <= fBottom; }
 
     bool isLargest() const { return SK_ScalarMin == fLeft &&
                                     SK_ScalarMin == fTop &&
@@ -885,6 +905,14 @@ public:
         if (fTop > fBottom) {
             SkTSwap<SkScalar>(fTop, fBottom);
         }
+    }
+
+    /**
+     *  Return a new Rect that is the sorted version of this rect (left <= right, top <= bottom).
+     */
+    SkRect makeSorted() const {
+        return MakeLTRB(SkMinScalar(fLeft, fRight), SkMinScalar(fTop, fBottom),
+                        SkMaxScalar(fLeft, fRight), SkMaxScalar(fTop, fBottom));
     }
 
     /**
