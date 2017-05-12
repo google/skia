@@ -702,7 +702,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
 
 #if GR_TEST_UTILS
 
-DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     // create a similarity matrix
     SkScalar rotate = random->nextSScalar1() * 360.f;
     SkScalar translateX = random->nextSScalar1() * 1000.f;

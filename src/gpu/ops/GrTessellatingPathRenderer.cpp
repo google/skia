@@ -381,7 +381,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #if GR_TEST_UTILS
 
-DRAW_OP_TEST_DEFINE(TesselatingPathOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(TesselatingPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPath(random);

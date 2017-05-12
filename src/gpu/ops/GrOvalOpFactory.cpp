@@ -2438,7 +2438,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> GrOvalOpFactory::MakeArcOp(
 
 #if GR_TEST_UTILS
 
-DRAW_OP_TEST_DEFINE(CircleOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(CircleOp) {
     do {
         SkScalar rotate = random->nextSScalar1() * 360.f;
         SkScalar translateX = random->nextSScalar1() * 1000.f;
@@ -2469,21 +2469,21 @@ DRAW_OP_TEST_DEFINE(CircleOp) {
     } while (true);
 }
 
-DRAW_OP_TEST_DEFINE(EllipseOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(EllipseOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     GrColor color = GrRandomColor(random);
     SkRect ellipse = GrTest::TestSquare(random);
     return EllipseOp::Make(color, viewMatrix, ellipse, GrTest::TestStrokeRec(random));
 }
 
-DRAW_OP_TEST_DEFINE(DIEllipseOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(DIEllipseOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     SkRect ellipse = GrTest::TestSquare(random);
     return DIEllipseOp::Make(color, viewMatrix, ellipse, GrTest::TestStrokeRec(random));
 }
 
-DRAW_OP_TEST_DEFINE(RRectOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(RRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     GrColor color = GrRandomColor(random);
     const SkRRect& rrect = GrTest::TestRRectSimple(random);

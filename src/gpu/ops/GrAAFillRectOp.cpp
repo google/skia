@@ -389,7 +389,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> MakeWithLocalRect(GrColor color,
 
 #include "GrDrawOpTest.h"
 
-DRAW_OP_TEST_DEFINE(AAFillRectOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(AAFillRectOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkRect rect = GrTest::TestRect(random);
@@ -397,7 +397,7 @@ DRAW_OP_TEST_DEFINE(AAFillRectOp) {
     return GrAAFillRectOp::Make(color, viewMatrix, rect, devRect);
 }
 
-DRAW_OP_TEST_DEFINE(AAFillRectOpLocalMatrix) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(AAFillRectOpLocalMatrix) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkMatrix localMatrix = GrTest::TestMatrix(random);

@@ -823,7 +823,7 @@ struct PathTestStruct {
     ShapeDataList fShapeList;
 };
 
-DRAW_OP_TEST_DEFINE(SmallPathOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(SmallPathOp) {
     static PathTestStruct gTestStruct;
 
     if (context->uniqueID() != gTestStruct.fContextID) {

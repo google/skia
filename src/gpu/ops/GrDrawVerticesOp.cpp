@@ -358,7 +358,7 @@ static void randomize_params(size_t count, size_t maxVertex, SkScalar min, SkSca
     }
 }
 
-DRAW_OP_TEST_DEFINE(VerticesOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(VerticesOp) {
     GrPrimitiveType type = GrPrimitiveType(random->nextULessThan(kLast_GrPrimitiveType + 1));
     uint32_t primitiveCount = random->nextRangeU(1, 100);
 

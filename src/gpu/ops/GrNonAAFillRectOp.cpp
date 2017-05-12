@@ -9,6 +9,7 @@
 #include "GrAppliedClip.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrDrawOpTest.h"
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
 #include "GrPrimitiveProcessor.h"
@@ -377,3 +378,20 @@ std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
 };  // namespace GrNonAAFillRectOp
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+GR_DRAW_OP_TEST_DEFINE(NonAAFillRectOp) {
+    SkRect rect = GrTest::TestRect(random);
+    SkRect localRect = GrTest::TestRect(random);
+    SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
+    SkMatrix localMatrix = GrTest::TestMatrix(random);
+    bool hasLocalRect = random->nextBool();
+    bool hasLocalMatrix = random->nextBool();
+    const GrUserStencilSettings* stencil = GrGetRandomStencil(random, context);
+    GrAAType aaType = GrAAType::kNone;
+    if (fsaaType == GrFSAAType::kUnifiedMSAA) {
+        aaType = random->nextBool() ? GrAAType::kMSAA : GrAAType::kNone;
+    }
+    return GrNonAAFillRectOp::Make(std::move(paint), viewMatrix, rect,
+                                   hasLocalRect ? &localRect : nullptr,
+                                   hasLocalMatrix ? &localMatrix : nullptr, aaType, stencil);
+}
