@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d04967b_266c0b86",
+        "filename": "src/gpu/GrGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-12T11:07:05Z",
+      "side": 1,
+      "message": "Should we assert or check here whether setVertices was called on the mesh?",
+      "revId": "aeacb4293e9d8a5772f36735bf3d99ea9f3b50be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
