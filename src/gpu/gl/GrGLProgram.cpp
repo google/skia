@@ -180,7 +180,7 @@ void GrGLProgram::bindTextures(const GrResourceIOProcessor& processor,
     for (int i = 0; i < processor.numImageStorages(); ++i) {
         const GrResourceIOProcessor::ImageStorageAccess& access = processor.imageStorageAccess(i);
         fGpu->bindImageStorage((*nextImageStorageIdx)++, access.ioType(),
-                               static_cast<GrGLTexture *>(access.texture()));
+                               static_cast<GrGLTexture *>(access.texture2()));
     }
 }
 
