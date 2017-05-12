@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "324aabcb_d5aa60d7",
+        "filename": "src/core/SkComposeShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-12T15:49:34Z",
+      "side": 1,
+      "message": "or just, \n\n   .store(result + i);",
+      "range": {
+        "startLine": 206,
+        "startChar": 63,
+        "endLine": 206,
+        "endChar": 77
+      },
+      "revId": "4b9119d338c0998c5f704563245d668779fce984",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d024872_8053f994",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1877,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-12T15:49:34Z",
+      "side": 1,
+      "message": "not c.fA?",
+      "range": {
+        "startLine": 1877,
+        "startChar": 38,
+        "endLine": 1877,
+        "endChar": 41
+      },
+      "revId": "4b9119d338c0998c5f704563245d668779fce984",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
