@@ -66,7 +66,7 @@ public:
      *  Repeated calls to this function should give the same results,
      *  allowing the PixelRef to be immutable.
      *
-     *  @param info A description of the format (config, size)
+     *  @param info A description of the format
      *         expected by the caller.  This can simply be identical
      *         to the info returned by getInfo().
      *
@@ -76,25 +76,30 @@ public:
      *
      *         A size that does not match getInfo() implies a request
      *         to scale. If the generator cannot perform this scale,
-     *         it will return kInvalidScale.
+     *         it will return false.
      *
-     *  If info is kIndex8_SkColorType, then the caller must provide storage for up to 256
-     *  SkPMColor values in ctable. On success the generator must copy N colors into that storage,
-     *  (where N is the logical number of table entries) and set ctableCount to N.
-     *
-     *  If info is not kIndex8_SkColorType, then the last two parameters may be NULL. If ctableCount
-     *  is not null, it will be set to 0.
+     *         kIndex_8_SkColorType is not supported.
      *
      *  @return true on success.
      */
-    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                   SkPMColor ctable[], int* ctableCount);
+    struct Options {
+        Options()
+            : fBehavior(SkTransferFunctionBehavior::kIgnore)
+        {}
+
+        SkTransferFunctionBehavior fBehavior;
+    };
+    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options* options);
 
     /**
-     *  Simplified version of getPixels() that asserts that info is NOT kIndex8_SkColorType and
-     *  uses the default Options.
+     *  Simplified version of getPixels() that uses the default Options.
      */
     bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
+
+#ifdef SK_SUPPORT_LEGACY_IMGEN_API
+    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
+            int* ctableCount);
+#endif
 
     /**
      *  If decoding to YUV is supported, this returns true.  Otherwise, this
@@ -171,29 +176,28 @@ protected:
 
     virtual SkData* onRefEncodedData() { return nullptr; }
 
-    virtual bool onGetPixels(const SkImageInfo&, void*, size_t, SkPMColor[], int*) { return false; }
+#ifdef SK_SUPPORT_LEGACY_IMGEN_API
+    virtual bool onGetPixels(const SkImageInfo&, void*, size_t, SkPMColor*, int*) {
+        return false;
+    }
+#endif
+
+#ifdef SK_SUPPORT_LEGACY_IMGEN_API
+    virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                             const Options&) {
+
+        return this->onGetPixels(info, pixels, rowBytes, nullptr, nullptr);
+    }
+#else
+    virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) {
+        return false;
+    }
+#endif
 
     virtual bool onIsValid(GrContext*) const { return true; }
 
     virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const { return false; }
     virtual bool onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) { return false; }
-
-    struct Options {
-        Options()
-            : fColorTable(nullptr)
-            , fColorTableCount(nullptr)
-            , fBehavior(SkTransferFunctionBehavior::kRespect)
-        {}
-
-        SkPMColor*                 fColorTable;
-        int*                       fColorTableCount;
-        SkTransferFunctionBehavior fBehavior;
-    };
-    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options* opts);
-    virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                             const Options& opts) {
-        return this->onGetPixels(info, pixels, rowBytes, opts.fColorTable, opts.fColorTableCount);
-    }
 
 #if SK_SUPPORT_GPU
     virtual bool onCanGenerateTexture() const { return false; }

@@ -80,7 +80,7 @@ SkData* SkImageGeneratorCG::onRefEncodedData() {
 }
 
 bool SkImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-        SkPMColor ctable[], int* ctableCount) {
+        const Options&) {
     if (kN32_SkColorType != info.colorType()) {
         // FIXME: Support other colorTypes.
         return false;

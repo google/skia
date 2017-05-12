@@ -951,10 +951,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
     size_t rowBytes = decodeInfo.width() * bpp;
     SkAutoMalloc pixels(decodeInfo.height() * rowBytes);
-    SkPMColor colorPtr[256];
-    int colorCount = 256;
-
-    if (!gen->getPixels(decodeInfo, pixels.get(), rowBytes, colorPtr, &colorCount)) {
+    if (!gen->getPixels(decodeInfo, pixels.get(), rowBytes)) {
         SkString err =
                 SkStringPrintf("Image generator could not getPixels() for %s\n", fPath.c_str());
 
@@ -968,6 +965,8 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
         return err;
     }
 
+    SkPMColor colorPtr[256];
+    int colorCount = 256;
     draw_to_canvas(canvas, decodeInfo, pixels.get(), rowBytes, colorPtr, colorCount,
                    CodecSrc::kGetFromCanvas_DstColorType);
     return "";

@@ -46,7 +46,7 @@ protected:
     }
 
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                     SkPMColor ctable[], int* ctableCount) override {
+                     const Options& options) override {
         REPORTER_ASSERT(fReporter, pixels != nullptr);
         REPORTER_ASSERT(fReporter, rowBytes >= info.minRowBytes());
         if (fType != kSucceedGetPixels_TestType) {
@@ -61,14 +61,6 @@ protected:
                 for (int y = 0; y < info.height(); ++y) {
                     sk_memset32((uint32_t*)bytePtr,
                                 TestImageGenerator::PMColor(), info.width());
-                    bytePtr += rowBytes;
-                }
-                break;
-            case kIndex_8_SkColorType:
-                *ctableCount = 1;
-                ctable[0] = TestImageGenerator::PMColor();
-                for (int y = 0; y < info.height(); ++y) {
-                    memset(bytePtr, 0, info.width());
                     bytePtr += rowBytes;
                 }
                 break;
@@ -101,7 +93,6 @@ DEF_TEST(Image_NewFromGenerator, r) {
     };
     const SkColorType testColorTypes[] = {
         kN32_SkColorType,
-        kIndex_8_SkColorType,
         kRGB_565_SkColorType
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(testTypes); ++i) {

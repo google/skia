@@ -33,13 +33,9 @@ bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
     if (!gen) {
         return false;
     }
-    SkPMColor ctStorage[256];
-    auto ctable = SkColorTable::Make(ctStorage, 256);
-    int count = ctable->count();
-    // ICK -- gotta clean up this pattern of writing to the ctable
-    return dst->tryAllocPixels(gen->getInfo(), ctable) &&
+    return dst->tryAllocPixels(gen->getInfo()) &&
         gen->getPixels(gen->getInfo().makeColorSpace(nullptr), dst->getPixels(), dst->rowBytes(),
-                       const_cast<SkPMColor*>(ctable->readColors()), &count);
+                       nullptr);
 }
 
 sk_sp<SkImage> GetResourceAsImage(const char* resource) {
