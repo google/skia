@@ -118,6 +118,7 @@ config("skia_private") {
 
   include_dirs = [
     "include/private",
+    "src/android/",
     "src/c",
     "src/codec",
     "src/core",
