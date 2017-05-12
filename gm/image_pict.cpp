@@ -124,30 +124,10 @@ public:
 
 protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                     SkPMColor* ctable, int* ctableCount) override {
+                     const Options&) override {
         SkASSERT(fBM.width() == info.width());
         SkASSERT(fBM.height() == info.height());
-
-        if (info.colorType() == kIndex_8_SkColorType) {
-            if (SkColorTable* ct = fBM.getColorTable()) {
-                if (ctable) {
-                    memcpy(ctable, ct->readColors(), ct->count() * sizeof(SkPMColor));
-                }
-                if (ctableCount) {
-                    *ctableCount = ct->count();
-                }
-
-                for (int y = 0; y < info.height(); ++y) {
-                    memcpy(pixels, fBM.getAddr8(0, y), fBM.width());
-                    pixels = (char*)pixels + rowBytes;
-                }
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return fBM.readPixels(info, pixels, rowBytes, 0, 0);
-        }
+        return fBM.readPixels(info, pixels, rowBytes, 0, 0);
     }
 private:
     SkBitmap fBM;
@@ -160,53 +140,6 @@ static std::unique_ptr<SkImageGenerator> make_ras_generator(GrContext*, sk_sp<Sk
     canvas.translate(-100, -100);
     canvas.drawPicture(pic);
     return skstd::make_unique<RasterGenerator>(bm);
-}
-
-// so we can create a color-table
-static int find_closest(SkPMColor c, const SkPMColor table[], int count) {
-    const int cr = SkGetPackedR32(c);
-    const int cg = SkGetPackedG32(c);
-    const int cb = SkGetPackedB32(c);
-
-    int minDist = 999999999;
-    int index = 0;
-    for (int i = 0; i < count; ++i) {
-        int dr = SkAbs32((int)SkGetPackedR32(table[i]) - cr);
-        int dg = SkAbs32((int)SkGetPackedG32(table[i]) - cg);
-        int db = SkAbs32((int)SkGetPackedB32(table[i]) - cb);
-        int dist = dr + dg + db;
-        if (dist < minDist) {
-            minDist = dist;
-            index = i;
-        }
-    }
-    return index;
-}
-
-static std::unique_ptr<SkImageGenerator> make_ctable_generator(GrContext*, sk_sp<SkPicture> pic) {
-    SkBitmap bm;
-    bm.allocN32Pixels(100, 100);
-    SkCanvas canvas(bm);
-    canvas.clear(0);
-    canvas.translate(-100, -100);
-    canvas.drawPicture(pic);
-
-    const SkPMColor colors[] = {
-        SkPreMultiplyColor(SK_ColorRED),
-        SkPreMultiplyColor(0),
-        SkPreMultiplyColor(SK_ColorBLUE),
-    };
-    const int count = SK_ARRAY_COUNT(colors);
-    SkImageInfo info = SkImageInfo::Make(100, 100, kIndex_8_SkColorType, kPremul_SkAlphaType);
-
-    SkBitmap bm2;
-    bm2.allocPixels(info, SkColorTable::Make(colors, count));
-    for (int y = 0; y < info.height(); ++y) {
-        for (int x = 0; x < info.width(); ++x) {
-            *bm2.getAddr8(x, y) = find_closest(*bm.getAddr32(x, y), colors, count);
-        }
-    }
-    return skstd::make_unique<RasterGenerator>(bm2);
 }
 
 class EmptyGenerator : public SkImageGenerator {
@@ -399,7 +332,6 @@ private:
 };
 DEF_GM( return new ImageCacheratorGM("picture", make_pic_generator); )
 DEF_GM( return new ImageCacheratorGM("raster", make_ras_generator); )
-DEF_GM( return new ImageCacheratorGM("ctable", make_ctable_generator); )
 #if SK_SUPPORT_GPU
     DEF_GM( return new ImageCacheratorGM("texture", make_tex_generator); )
 #endif
