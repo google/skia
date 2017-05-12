@@ -11,7 +11,7 @@
 #include "SkPixmap.h"
 #include "../private/SkTemplates.h"
 
-class SkEncoder : SkNoncopyable {
+class SK_API SkEncoder : SkNoncopyable {
 public:
 
     /**
