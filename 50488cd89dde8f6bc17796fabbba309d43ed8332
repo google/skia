@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "70dcb203_39fe35cd",
+        "filename": "include/utils/SkEventTracer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-12T16:05:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37e1f561_8d56e8ac",
+      "range": {
+        "startLine": 33,
+        "startChar": 44,
+        "endLine": 33,
+        "endChar": 49
+      },
+      "revId": "50488cd89dde8f6bc17796fabbba309d43ed8332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d96f8166_90109be8",
         "filename": "src/utils/SkEventTracer.cpp",
         "patchSetId": 4
@@ -72,6 +96,24 @@
       "side": 1,
       "message": "gotcha",
       "parentUuid": "9ba68ed7_d4c2174e",
+      "revId": "50488cd89dde8f6bc17796fabbba309d43ed8332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84833c86_5db6e5b8",
+        "filename": "src/utils/SkEventTracer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-12T16:05:49Z",
+      "side": 1,
+      "message": "I changed the contract to always take ownership and the implementation to delete immediately on failure.",
+      "parentUuid": "11f7a26e_341e1b9d",
       "revId": "50488cd89dde8f6bc17796fabbba309d43ed8332",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
