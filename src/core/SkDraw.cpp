@@ -1672,6 +1672,36 @@ void SkDraw::drawPosText(const char text[], size_t byteLength, const SkScalar po
 
 ///////////////////////////////////////////////////////////////////////////////
 
+struct Matrix43 {
+    float fMat[12];    // column major
+
+    Sk4f map(float x, float y) const {
+        return Sk4f::Load(&fMat[0]) * x + Sk4f::Load(&fMat[4]) * y + Sk4f::Load(&fMat[8]);
+    }
+
+    void setConcat(const Matrix43& a, const SkMatrix& b) {
+        fMat[ 0] = a.dot(0, b.getScaleX(), b.getSkewY());
+        fMat[ 1] = a.dot(1, b.getScaleX(), b.getSkewY());
+        fMat[ 2] = a.dot(2, b.getScaleX(), b.getSkewY());
+        fMat[ 3] = a.dot(3, b.getScaleX(), b.getSkewY());
+
+        fMat[ 4] = a.dot(0, b.getSkewX(), b.getScaleY());
+        fMat[ 5] = a.dot(1, b.getSkewX(), b.getScaleY());
+        fMat[ 6] = a.dot(2, b.getSkewX(), b.getScaleY());
+        fMat[ 7] = a.dot(3, b.getSkewX(), b.getScaleY());
+
+        fMat[ 8] = a.dot(0, b.getTranslateX(), b.getTranslateY()) + a.fMat[ 8];
+        fMat[ 9] = a.dot(1, b.getTranslateX(), b.getTranslateY()) + a.fMat[ 9];
+        fMat[10] = a.dot(2, b.getTranslateX(), b.getTranslateY()) + a.fMat[10];
+        fMat[11] = a.dot(3, b.getTranslateX(), b.getTranslateY()) + a.fMat[11];
+    }
+
+private:
+    float dot(int index, float x, float y) const {
+        return fMat[index + 0] * x + fMat[index + 4] * y;
+    }
+};
+
 static SkScan::HairRCProc ChooseHairProc(bool doAntiAlias) {
     return doAntiAlias ? SkScan::AntiHairLine : SkScan::HairLine;
 }
@@ -1707,7 +1737,8 @@ public:
         SkPMColor   fColors[3];
         bool fSetup;
 
-        SkPM4f  fC0, fC10, fC20, fDC;
+        Matrix43 fM43;
+
         typedef SkShader::Context INHERITED;
     };
 
@@ -1770,21 +1801,17 @@ bool SkTriColorShader::TriColorShaderContext::setup(const SkPoint pts[], const S
     // TODO replace INV(m) * INV(ctm) with INV(ctm * m)
     fDstToUnit.setConcat(im, ctmInv);
 
-    fC0 = SkPM4f::FromPMColor(fColors[0]);
-
     Sk4f alpha(this->getPaintAlpha() * (1.0f / 255)),
-         c0 = fC0.to4f() * alpha,
+         c0 = SkPM4f::FromPMColor(fColors[0]).to4f() * alpha,
          c1 = SkPM4f::FromPMColor(fColors[1]).to4f() * alpha,
-         c2 = SkPM4f::FromPMColor(fColors[2]).to4f() * alpha,
-         dx(fDstToUnit.getScaleX()),
-         dy(fDstToUnit.getSkewY());
+         c2 = SkPM4f::FromPMColor(fColors[2]).to4f() * alpha;
 
-    Sk4f c10 = c1 - c0,
-         c20 = c2 - c0;
+    Matrix43 colorm;
+    (c1 - c0).store(&colorm.fMat[0]);
+    (c2 - c0).store(&colorm.fMat[4]);
+    c0.store(&colorm.fMat[8]);
+    fM43.setConcat(colorm, fDstToUnit);
 
-    fDC  = SkPM4f::From4f(dx * c10 + dy * c20);
-    fC10 = SkPM4f::From4f(c10);
-    fC20 = SkPM4f::From4f(c20);
     return true;
 }
 
@@ -1863,11 +1890,8 @@ void SkTriColorShader::TriColorShaderContext::shadeSpan4f(int x, int y, SkPM4f d
         return;
     }
 
-    SkPoint src;
-    fDstToUnit.mapXY(SkIntToScalar(x) + 0.5, SkIntToScalar(y) + 0.5, &src);
-
-    Sk4f c  = fC0.to4f() + src.fX * fC10.to4f() + src.fY * fC20.to4f(),
-         dc = fDC.to4f();
+    Sk4f c  = fM43.map(SkIntToScalar(x) + 0.5, SkIntToScalar(y) + 0.5),
+         dc = Sk4f::Load(&fM43.fMat[0]);
 
     for (int i = 0; i < count; i++) {
         c.store(dstC[i].fVec);
