@@ -200,7 +200,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
 
 #if GR_TEST_UTILS
 
-DRAW_OP_TEST_DEFINE(NonAAStrokeRectOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(NonAAStrokeRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     SkRect rect = GrTest::TestRect(random);

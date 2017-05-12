@@ -240,47 +240,15 @@ static void set_random_color_coverage_stages(GrPaint* paint,
     }
 }
 
-static bool set_random_state(GrPaint* paint, SkRandom* random) {
+static void set_random_state(GrPaint* paint, SkRandom* random) {
     if (random->nextBool()) {
         paint->setDisableOutputConversionToSRGB(true);
     }
     if (random->nextBool()) {
         paint->setAllowSRGBInputs(true);
     }
-    return random->nextBool();
 }
 
-// right now, the only thing we seem to care about in drawState's stencil is 'doesWrite()'
-static const GrUserStencilSettings* get_random_stencil(SkRandom* random, GrContext* context) {
-    if (context->caps()->avoidStencilBuffers()) {
-        return &GrUserStencilSettings::kUnused;
-    }
-
-    static constexpr GrUserStencilSettings kDoesWriteStencil(
-        GrUserStencilSettings::StaticInit<
-            0xffff,
-            GrUserStencilTest::kAlways,
-            0xffff,
-            GrUserStencilOp::kReplace,
-            GrUserStencilOp::kReplace,
-            0xffff>()
-    );
-    static constexpr GrUserStencilSettings kDoesNotWriteStencil(
-        GrUserStencilSettings::StaticInit<
-            0xffff,
-            GrUserStencilTest::kNever,
-            0xffff,
-            GrUserStencilOp::kKeep,
-            GrUserStencilOp::kKeep,
-            0xffff>()
-    );
-
-    if (random->nextBool()) {
-        return &kDoesWriteStencil;
-    } else {
-        return &kDoesNotWriteStencil;
-    }
-}
 #endif
 
 #if !GR_TEST_UTILS
@@ -327,23 +295,12 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
             return false;
         }
 
-        GrPaint grPaint;
-
-        std::unique_ptr<GrLegacyMeshDrawOp> op(GrRandomDrawOp(&random, context));
-        SkASSERT(op);
-
+        GrPaint paint;
         GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies);
-        set_random_color_coverage_stages(&grPaint, &ptd, maxStages);
-        set_random_xpf(&grPaint, &ptd);
-        bool snapToCenters = set_random_state(&grPaint, &random);
-        const GrUserStencilSettings* uss = get_random_stencil(&random, context);
-        // We don't use kHW because we will hit an assertion if the render target is not
-        // multisampled
-        static constexpr GrAAType kAATypes[] = {GrAAType::kNone, GrAAType::kCoverage};
-        GrAAType aaType = kAATypes[random.nextULessThan(SK_ARRAY_COUNT(kAATypes))];
-
-        renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
-                std::move(grPaint), aaType, std::move(op), uss, snapToCenters);
+        set_random_color_coverage_stages(&paint, &ptd, maxStages);
+        set_random_xpf(&paint, &ptd);
+        set_random_state(&paint, &random);
+        GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush(nullptr);
@@ -364,20 +321,16 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
-            std::unique_ptr<GrLegacyMeshDrawOp> op(GrRandomDrawOp(&random, context));
-            SkASSERT(op);
             GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies);
-            GrPaint grPaint;
-            grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
+            GrPaint paint;
+            paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
             sk_sp<GrFragmentProcessor> fp(
                 GrProcessorTestFactory<GrFragmentProcessor>::MakeIdx(i, &ptd));
             sk_sp<GrFragmentProcessor> blockFP(
                 BlockInputFragmentProcessor::Make(std::move(fp)));
-            grPaint.addColorFragmentProcessor(std::move(blockFP));
-
-            renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
-                    std::move(grPaint), GrAAType::kNone, std::move(op));
+            paint.addColorFragmentProcessor(std::move(blockFP));
+            GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
             drawingManager->flush(nullptr);
         }
     }
