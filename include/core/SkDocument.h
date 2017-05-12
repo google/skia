@@ -174,10 +174,7 @@ public:
                                      SkScalar dpi = SK_ScalarDefaultRasterDPI);
 #else
     // DEPRECATED; TODO(mattleibow): we should remove this function.
-    static sk_sp<SkDocument> MakeXPS(SkWStream* stream,
-                                     SkScalar dpi = SK_ScalarDefaultRasterDPI) {
-        return nullptr;
-    }
+    static sk_sp<SkDocument> MakeXPS(SkWStream*, SkScalar) { return nullptr; }
 #endif
     // DEPRECATED; TODO(halcanary): remove this function after Chromium switches to new API.
     static sk_sp<SkDocument> MakeXPS(SkWStream*) { return nullptr; }

@@ -30,7 +30,7 @@ sk_document_t* sk_document_create_pdf_from_filename(const char* path, float dpi)
 }
 
 sk_document_t* sk_document_create_xps_from_stream(sk_wstream_t* stream, float dpi) {
-   return ToDocument(SkDocument::MakeXPS(AsWStream(stream), dpi).release());
+    return ToDocument(SkDocument::MakeXPS(AsWStream(stream), dpi).release());
 }
 
 sk_canvas_t* sk_document_begin_page(sk_document_t* document, float width, float height, const sk_rect_t* content) {
