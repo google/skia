@@ -322,12 +322,43 @@ STAGE(dither) {
     b += c->rate*dither;
 }
 
+// load 4 floats from memory, and splat them into r,g,b,a
 STAGE(constant_color) {
     auto rgba = (const float*)ctx;
     r = rgba[0];
     g = rgba[1];
     b = rgba[2];
     a = rgba[3];
+}
+
+// load registers r,g,b,a from context (mirrors store_rgba)
+STAGE(load_rgba) {
+#if 1
+    auto ptr = (const F*)ctx;
+    r = ptr[0];
+    g = ptr[1];
+    b = ptr[2];
+    a = ptr[3];
+#else
+    // don't care about the memory layout, so if a non-interleave version is faster
+    // we can switch to that.
+    load4(ctx,0, &r,&g,&b,&a);
+#endif
+}
+
+// store registers r,g,b,a into context (mirrors load_rgba)
+STAGE(store_rgba) {
+#if 1
+    auto ptr = (F*)ctx;
+    ptr[0] = r;
+    ptr[1] = g;
+    ptr[2] = b;
+    ptr[3] = a;
+#else
+    // don't care about the memory layout, so if a non-interleave version is faster
+    // we can switch to that.
+    store4(ctx,0, r,g,b,a);
+#endif
 }
 
 // Most blend modes apply the same logic to each channel.
