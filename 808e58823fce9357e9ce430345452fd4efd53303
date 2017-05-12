@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d8ee2ba_3c7edb51",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-12T14:17:02Z",
+      "side": 1,
+      "message": "Uh oh, this is where I get stuck.  Does this seem like a reasonable approach?  How do we know what to pass here?",
+      "range": {
+        "startLine": 260,
+        "startChar": 71,
+        "endLine": 260,
+        "endChar": 78
+      },
+      "revId": "808e58823fce9357e9ce430345452fd4efd53303",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
