@@ -436,20 +436,27 @@ void delete_left(BasicBlock* b,
     BinaryExpression& bin = (BinaryExpression&) **target;
     bool result;
     if (bin.fOperator == Token::EQ) {
-        result = !b->tryRemoveLValueBefore(iter, bin.fLeft.get());
+        result = b->tryRemoveLValueBefore(iter, bin.fLeft.get());
     } else {
-        result = !b->tryRemoveExpressionBefore(iter, bin.fLeft.get());
+        result = b->tryRemoveExpressionBefore(iter, bin.fLeft.get());
     }
+    *target = std::move(bin.fRight);
     if (!result) {
-        *target = std::move(bin.fRight);
+        *outNeedsRescan = true;
+        return;
+    }
+    if (*iter == b->fNodes.begin()) {
         *outNeedsRescan = true;
         return;
     }
     --(*iter);
-    ASSERT((*iter)->expression() == &bin.fRight);
+    if (((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
+        (*iter)->expression() != &bin.fRight)) {
+        *outNeedsRescan = true;
+        return;
+    }
     *iter = b->fNodes.erase(*iter);
     ASSERT((*iter)->expression() == target);
-    *target = std::move(bin.fRight);
 }
 
 /**
@@ -469,11 +476,19 @@ void delete_right(BasicBlock* b,
         *outNeedsRescan = true;
         return;
     }
+    *target = std::move(bin.fLeft);
+    if (*iter == b->fNodes.begin()) {
+        *outNeedsRescan = true;
+        return;
+    }
     --(*iter);
-    ASSERT((*iter)->expression() == &bin.fLeft);
+    if (((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
+        (*iter)->expression() != &bin.fLeft)) {
+        *outNeedsRescan = true;
+        return;
+    }
     *iter = b->fNodes.erase(*iter);
     ASSERT((*iter)->expression() == target);
-    *target = std::move(bin.fLeft);
 }
 
 /**

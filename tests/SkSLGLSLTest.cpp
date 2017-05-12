@@ -1334,4 +1334,14 @@ DEF_TEST(SkSLMultipleAssignments, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLComplexDelete, r) {
+    test(r,
+         "void main() { int x = sqrt(1) > 0 ? 1 : 2; }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "}\n");
+}
+
 #endif
