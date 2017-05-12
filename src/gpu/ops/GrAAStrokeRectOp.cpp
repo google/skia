@@ -593,7 +593,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
 
 #include "GrDrawOpTest.h"
 
-DRAW_OP_TEST_DEFINE(AAStrokeRectOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(AAStrokeRectOp) {
     bool miterStroke = random->nextBool();
 
     // Create either a empty rect or a non-empty rect.
