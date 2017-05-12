@@ -169,19 +169,17 @@ protected:
 
     SkImageGenerator(const SkImageInfo& info, uint32_t uniqueId = kNeedNewImageUniqueID);
 
-    virtual SkData* onRefEncodedData();
+    virtual SkData* onRefEncodedData() { return nullptr; }
 
     virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                             SkPMColor ctable[], int* ctableCount);
-
-    virtual bool onIsValid(GrContext*) const;
-
-    virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const {
+                             SkPMColor ctable[], int* ctableCount) {
         return false;
     }
-    virtual bool onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) {
-        return false;
-    }
+
+    virtual bool onIsValid(GrContext*) const { return true; }
+
+    virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const { return false; }
+    virtual bool onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) { return false; }
 
     struct Options {
         Options()
