@@ -986,6 +986,8 @@ public:
      }
      */
     const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const {
+        // Things like stroking, etc... will do math on the bounds rect, assuming that it's sorted.
+        SkASSERT(orig.isSorted());
         SkPaint::Style style = this->getStyle();
         // ultra fast-case: filling with no effects that affect geometry
         if (kFill_Style == style) {
