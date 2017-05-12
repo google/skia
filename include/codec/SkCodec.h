@@ -817,6 +817,7 @@ protected:
     bool initializeColorXform(const SkImageInfo& dstInfo,
                               SkTransferFunctionBehavior premulBehavior);
     SkColorSpaceXform* colorXform() const { return fColorXform.get(); }
+    void resetColorXform();
 
     virtual int onGetFrameCount() {
         return 1;

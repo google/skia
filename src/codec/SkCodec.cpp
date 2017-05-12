@@ -490,6 +490,10 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo,
     return true;
 }
 
+void SkCodec::resetColorXform() {
+    fColorXform.reset();
+}
+
 std::vector<SkCodec::FrameInfo> SkCodec::getFrameInfo() {
     const int frameCount = this->getFrameCount();
     SkASSERT(frameCount >= 0);

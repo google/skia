@@ -148,7 +148,7 @@ bool SkGifCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
     }
 
     if (frameInfo) {
-        frameInfo->fDuration = frameContext->delayTime();
+        frameInfo->fDuration = frameContext->getDuration();
         frameInfo->fRequiredFrame = frameContext->getRequiredFrame();
         frameInfo->fFullyReceived = frameContext->isComplete();
         frameInfo->fAlphaType = frameContext->hasAlpha() ? kUnpremul_SkAlphaType
@@ -282,8 +282,7 @@ void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, int frameIndex) 
     SkASSERT(frame);
 
     const int xBegin = frame->xOffset();
-    const int xEnd = std::min(static_cast<int>(frame->xOffset() + frame->width()),
-                              static_cast<int>(fReader->screenWidth()));
+    const int xEnd = std::min(frame->frameRect().right(), fReader->screenWidth());
 
     // CreateSwizzler only reads left and right of the frame. We cannot use the frame's raw
     // frameRect, since it might extend beyond the edge of the frame.
