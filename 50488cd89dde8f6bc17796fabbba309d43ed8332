@@ -16,6 +16,24 @@
       "revId": "50488cd89dde8f6bc17796fabbba309d43ed8332",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ba68ed7_d4c2174e",
+        "filename": "src/utils/SkEventTracer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-12T15:49:23Z",
+      "side": 1,
+      "message": "I suppose we can though I might favor always taking ownership (and deleting on failure) but still informing the client of success even it is just for the client to assert that their tracer was installed.",
+      "parentUuid": "d96f8166_90109be8",
+      "revId": "50488cd89dde8f6bc17796fabbba309d43ed8332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
