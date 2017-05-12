@@ -22,7 +22,7 @@ void draw_shadow(SkCanvas* canvas, const SkPath& path, int height, SkColor color
 static constexpr int kW = 800;
 static constexpr int kH = 800;
 
-void draw_paths(SkCanvas* canvas, bool hideOccluders) {
+DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
     SkTArray<SkPath> paths;
     paths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
     SkRRect oddRRect;
@@ -34,7 +34,7 @@ void draw_paths(SkCanvas* canvas, bool hideOccluders) {
     paths.push_back().addOval(SkRect::MakeWH(20, 60));
 
     static constexpr SkScalar kPad = 15.f;
-    static constexpr SkPoint3 kLightPos = { 250, 400, 500 };
+    static constexpr SkPoint3 kLightPos = {250, 400, 500};
     static constexpr SkScalar kLightR = 100.f;
     static constexpr SkScalar kHeight = 50.f;
     canvas->translate(3 * kPad, 3 * kPad);
@@ -47,7 +47,7 @@ void draw_paths(SkCanvas* canvas, bool hideOccluders) {
     m->setRotate(33.f, 25.f, 25.f);
     m->postScale(1.2f, 0.8f, 25.f, 25.f);
     for (auto& m : matrices) {
-        for (auto flags : { kNone_ShadowFlag, kTransparentOccluder_ShadowFlag }) {
+        for (auto flags : {kNone_ShadowFlag, kTransparentOccluder_ShadowFlag}) {
             for (const auto& path : paths) {
                 SkRect postMBounds = path.getBounds();
                 m.mapRect(&postMBounds);
@@ -68,22 +68,10 @@ void draw_paths(SkCanvas* canvas, bool hideOccluders) {
 
                 // Draw the path outline in green on top of the ambient and spot shadows.
                 SkPaint paint;
+                paint.setColor(SK_ColorGREEN);
                 paint.setAntiAlias(true);
-                if (hideOccluders) {
-                    if (SkToBool(flags & kTransparentOccluder_ShadowFlag)) {
-                        paint.setColor(SK_ColorCYAN);
-                    } else {
-                        paint.setColor(SK_ColorGREEN);
-                    }
-                    paint.setStyle(SkPaint::kStroke_Style);
-                    paint.setStrokeWidth(0);
-                } else {
-                    paint.setColor(SK_ColorLTGRAY);
-                    if (SkToBool(flags & kTransparentOccluder_ShadowFlag)) {
-                        paint.setAlpha(128);
-                    }
-                    paint.setStyle(SkPaint::kFill_Style);
-                }
+                paint.setStyle(SkPaint::kStroke_Style);
+                paint.setStrokeWidth(0);
                 canvas->drawPath(path, paint);
                 canvas->restore();
 
@@ -104,12 +92,4 @@ void draw_paths(SkCanvas* canvas, bool hideOccluders) {
         canvas->drawCircle(kLightPos.fX, kLightPos.fY, kLightR / 10.f, paint);
         canvas->restore();
     }
-}
-
-DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
-    draw_paths(canvas, true);
-}
-
-DEF_SIMPLE_GM(shadow_utils_occl, canvas, kW, kH) {
-    draw_paths(canvas, false);
 }
