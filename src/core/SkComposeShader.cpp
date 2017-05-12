@@ -182,6 +182,36 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
     }
 }
 
+void SkComposeShader::ComposeShaderContext::shadeSpan4f(int x, int y, SkPM4f result[], int count) {
+    SkShader::Context* shaderContextA = fShaderContextA;
+    SkShader::Context* shaderContextB = fShaderContextB;
+    SkBlendMode        mode = static_cast<const SkComposeShader&>(fShader).fMode;
+    unsigned           alpha = this->getPaintAlpha();
+    Sk4f               scale(alpha * (1.0f / 255));
+
+    SkPM4f  tmp[TMP_COLOR_COUNT];
+
+    SkXfermodeProc4f xfer = SkXfermode::GetProc4f(mode);
+    do {
+        int n = SkTMin(count, TMP_COLOR_COUNT);
+
+        shaderContextA->shadeSpan4f(x, y, result, n);
+        shaderContextB->shadeSpan4f(x, y, tmp, n);
+        if (255 == alpha) {
+            for (int i = 0; i < n; ++i) {
+                result[i] = xfer(tmp[i], result[i]);
+            }
+        } else {
+            for (int i = 0; i < n; ++i) {
+                (xfer(tmp[i], result[i]).to4f() * scale).store(result + i);
+            }
+        }
+        result += n;
+        x += n;
+        count -= n;
+    } while (count > 0);
+}
+
 #if SK_SUPPORT_GPU
 
 #include "effects/GrConstColorProcessor.h"

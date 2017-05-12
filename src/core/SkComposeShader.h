@@ -48,6 +48,7 @@ public:
                              SkShader::Context* contextA, SkShader::Context* contextB);
 
         void shadeSpan(int x, int y, SkPMColor[], int count) override;
+        void shadeSpan4f(int x, int y, SkPM4f[], int count) override;
 
     private:
         SkShader::Context* fShaderContextA;
