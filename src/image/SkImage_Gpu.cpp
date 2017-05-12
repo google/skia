@@ -847,13 +847,11 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
         SkPixmap pixmap;
         pixmap.reset(info, dti->fMipMapLevelData[0].fPixelData, dti->fMipMapLevelData[0].fRowBytes);
 
-        // Use the NoCheck version because we have already validated the SkImage.  The |data|
-        // used to be an SkImage before calling getDeferredTextureImageData().  In legacy mode,
-        // getDeferredTextureImageData() will allow parametric transfer functions for images
-        // generated from codecs - which is slightly more lenient than typical SkImage
-        // constructors.
-        sk_sp<GrTextureProxy> proxy(GrUploadPixmapToTextureProxyNoCheck(
-                context->resourceProvider(), pixmap, budgeted));
+        // Pass nullptr for the |dstColorSpace|.  This opts in to more lenient color space
+        // verification.  This is ok because we've already verified the color space in
+        // getDeferredTextureImageData().
+        sk_sp<GrTextureProxy> proxy(GrUploadPixmapToTextureProxy(
+                context->resourceProvider(), pixmap, budgeted, nullptr));
         if (!proxy) {
             return nullptr;
         }
