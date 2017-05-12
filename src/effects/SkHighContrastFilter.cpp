@@ -12,6 +12,7 @@
 #include "SkReadBuffer.h"
 #include "SkString.h"
 #include "SkWriteBuffer.h"
+#include "../jumper/SkJumper.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -185,18 +186,30 @@ void SkHighContrast_Filter::filterSpan4f(const SkPM4f src[], int count, SkPM4f d
 }
 
 void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
-                                           SkColorSpace* dst,
-                                           SkArenaAlloc* scratch,
+                                           SkColorSpace* dstCS,
+                                           SkArenaAlloc* alloc,
                                            bool shaderIsOpaque) const {
     if (!shaderIsOpaque) {
         p->append(SkRasterPipeline::unpremul);
+    }
+
+    if (!dstCS) {
+        // In legacy draws this effect approximately linearizes by squaring.
+        // When non-legacy, we're already (better) linearized.
+        auto square = alloc->make<SkJumper_ParametricTransferFunction>();
+        square->G = 2.0f; square->A = 1.0f;
+        square->B = square->C = square->D = square->E = square->F = 0;
+
+        p->append(SkRasterPipeline::parametric_r, square);
+        p->append(SkRasterPipeline::parametric_g, square);
+        p->append(SkRasterPipeline::parametric_b, square);
     }
 
     if (fConfig.fGrayscale) {
         float r = SK_LUM_COEFF_R;
         float g = SK_LUM_COEFF_G;
         float b = SK_LUM_COEFF_B;
-        float* matrix = scratch->makeArray<float>(12);
+        float* matrix = alloc->makeArray<float>(12);
         matrix[0] = matrix[1] = matrix[2] = r;
         matrix[3] = matrix[4] = matrix[5] = g;
         matrix[6] = matrix[7] = matrix[8] = b;
@@ -204,13 +217,13 @@ void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
     }
 
     if (fConfig.fInvertStyle == InvertStyle::kInvertBrightness) {
-        float* matrix = scratch->makeArray<float>(12);
+        float* matrix = alloc->makeArray<float>(12);
         matrix[0] = matrix[4] = matrix[8] = -1;
         matrix[9] = matrix[10] = matrix[11] = 1;
         p->append(SkRasterPipeline::matrix_3x4, matrix);
     } else if (fConfig.fInvertStyle == InvertStyle::kInvertLightness) {
         p->append(SkRasterPipeline::rgb_to_hsl);
-        float* matrix = scratch->makeArray<float>(12);
+        float* matrix = alloc->makeArray<float>(12);
         matrix[0] = matrix[4] = matrix[11] = 1;
         matrix[8] = -1;
         p->append(SkRasterPipeline::matrix_3x4, matrix);
@@ -218,7 +231,7 @@ void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
     }
 
     if (fConfig.fContrast != 0.0) {
-        float* matrix = scratch->makeArray<float>(12);
+        float* matrix = alloc->makeArray<float>(12);
         float c = fConfig.fContrast;
         float m = (1 + c) / (1 - c);
         float b = (-0.5f * m + 0.5f);
@@ -229,6 +242,17 @@ void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
 
     p->append(SkRasterPipeline::clamp_0);
     p->append(SkRasterPipeline::clamp_1);
+
+    if (!dstCS) {
+        // See the previous if(!dstCS) { ... }
+        auto sqrt = alloc->make<SkJumper_ParametricTransferFunction>();
+        sqrt->G = 0.5f; sqrt->A = 1.0f;
+        sqrt->B = sqrt->C = sqrt->D = sqrt->E = sqrt->F = 0;
+
+        p->append(SkRasterPipeline::parametric_r, sqrt);
+        p->append(SkRasterPipeline::parametric_g, sqrt);
+        p->append(SkRasterPipeline::parametric_b, sqrt);
+    }
 
     if (!shaderIsOpaque) {
         p->append(SkRasterPipeline::premul);
