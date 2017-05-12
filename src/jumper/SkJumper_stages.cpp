@@ -418,6 +418,8 @@ BLEND_MODE(softlight) {
 // and
 //   https://www.khronos.org/registry/OpenGL/specs/es/3.2/es_spec_3.2.pdf
 // They're equivalent, but ES' math has been better simplified.
+//
+// Anything extra we add beyond that is to make the math work with premul inputs.
 
 SI F max(F r, F g, F b) { return max(r, max(g, b)); }
 SI F min(F r, F g, F b) { return min(r, min(g, b)); }
@@ -438,14 +440,20 @@ SI void set_sat(F* r, F* g, F* b, F s) {
     *g = scale(*g);
     *b = scale(*b);
 }
-SI void clip_color(F* r, F* g, F* b) {
+SI void set_lum(F* r, F* g, F* b, F l) {
+    F diff = l - lum(*r, *g, *b);
+    *r += diff;
+    *g += diff;
+    *b += diff;
+}
+SI void clip_color(F* r, F* g, F* b, F a) {
     F mn = min(*r, *g, *b),
       mx = max(*r, *g, *b),
       l  = lum(*r, *g, *b);
 
     auto clip = [=](F c) {
         c = if_then_else(mn >= 0, c, l + (c - l) * (    l) / (l - mn)   );
-        c = if_then_else(mx >  1,    l + (c - l) * (1 - l) / (mx - l), c);
+        c = if_then_else(mx >  a,    l + (c - l) * (a - l) / (mx - l), c);
         c = max(c, 0);  // Sometimes without this we may dip just a little negative.
         return c;
     };
@@ -453,67 +461,60 @@ SI void clip_color(F* r, F* g, F* b) {
     *g = clip(*g);
     *b = clip(*b);
 }
-SI void set_lum(F* r, F* g, F* b, F l) {
-    F diff = l - lum(*r, *g, *b);
-    *r += diff;
-    *g += diff;
-    *b += diff;
-    clip_color(r, g, b);
-}
-
-SI F unpremultiply(F c, F a) {
-    return c * if_then_else(a == 0, 0, 1.0f / a);
-}
 
 STAGE(hue) {
-    F R = unpremultiply(r,a),
-      G = unpremultiply(g,a),
-      B = unpremultiply(b,a);
+    F R = r*a,
+      G = g*a,
+      B = b*a;
 
-    set_sat(&R, &G, &B, sat(dr,dg,db));
-    set_lum(&R, &G, &B, lum(dr,dg,db));
+    set_sat(&R, &G, &B, sat(dr,dg,db)*a);
+    set_lum(&R, &G, &B, lum(dr,dg,db)*a);
+    clip_color(&R,&G,&B, a*da);
 
+    r = r*inv(da) + dr*inv(a) + R;
+    g = g*inv(da) + dg*inv(a) + G;
+    b = b*inv(da) + db*inv(a) + B;
     a = a + da - a*da;
-    r = R * a;
-    g = G * a;
-    b = B * a;
 }
 STAGE(saturation) {
-    F R = unpremultiply(dr,da),
-      G = unpremultiply(dg,da),
-      B = unpremultiply(db,da);
+    F R = dr*a,
+      G = dg*a,
+      B = db*a;
 
-    set_sat(&R, &G, &B, sat( r, g, b));
-    set_lum(&R, &G, &B, lum(dr,dg,db));  // (This is not redundant.)
+    set_sat(&R, &G, &B, sat( r, g, b)*da);
+    set_lum(&R, &G, &B, lum(dr,dg,db)* a);  // (This is not redundant.)
+    clip_color(&R,&G,&B, a*da);
 
+    r = r*inv(da) + dr*inv(a) + R;
+    g = g*inv(da) + dg*inv(a) + G;
+    b = b*inv(da) + db*inv(a) + B;
     a = a + da - a*da;
-    r = R * a;
-    g = G * a;
-    b = B * a;
 }
 STAGE(color) {
-    F R = unpremultiply(r,a),
-      G = unpremultiply(g,a),
-      B = unpremultiply(b,a);
+    F R = r*da,
+      G = g*da,
+      B = b*da;
 
-    set_lum(&R, &G, &B, lum(dr,dg,db));
+    set_lum(&R, &G, &B, lum(dr,dg,db)*a);
+    clip_color(&R,&G,&B, a*da);
 
+    r = r*inv(da) + dr*inv(a) + R;
+    g = g*inv(da) + dg*inv(a) + G;
+    b = b*inv(da) + db*inv(a) + B;
     a = a + da - a*da;
-    r = R * a;
-    g = G * a;
-    b = B * a;
 }
 STAGE(luminosity) {
-    F R = unpremultiply(dr,da),
-      G = unpremultiply(dg,da),
-      B = unpremultiply(db,da);
+    F R = dr*a,
+      G = dg*a,
+      B = db*a;
 
-    set_lum(&R, &G, &B, lum(r,g,b));
+    set_lum(&R, &G, &B, lum(r,g,b)*da);
+    clip_color(&R,&G,&B, a*da);
 
+    r = r*inv(da) + dr*inv(a) + R;
+    g = g*inv(da) + dg*inv(a) + G;
+    b = b*inv(da) + db*inv(a) + B;
     a = a + da - a*da;
-    r = R * a;
-    g = G * a;
-    b = B * a;
 }
 
 STAGE(clamp_0) {
@@ -579,9 +580,10 @@ STAGE(premul) {
     b = b * a;
 }
 STAGE(unpremul) {
-    r = unpremultiply(r,a);
-    g = unpremultiply(g,a);
-    b = unpremultiply(b,a);
+    auto scale = if_then_else(a == 0, 0, 1.0f / a);
+    r *= scale;
+    g *= scale;
+    b *= scale;
 }
 
 STAGE(from_srgb) {
