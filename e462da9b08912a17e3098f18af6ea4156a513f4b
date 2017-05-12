@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c52e30e_7bd139ce",
+        "filename": "include/gpu/GrTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-12T15:26:54Z",
+      "side": 1,
+      "message": "nit: yoda speak here ?",
+      "revId": "e462da9b08912a17e3098f18af6ea4156a513f4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4e03938_99079b4c",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1472,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-12T15:26:54Z",
+      "side": 1,
+      "message": "Not yours but: \"will would\" ?",
+      "revId": "e462da9b08912a17e3098f18af6ea4156a513f4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
