@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65d6911a_d1d82419",
+        "filename": "gm/shadowutils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-12T11:20:37Z",
+      "side": 1,
+      "message": "we might want to make this color depend on whether the \"occluder\" is transparent or not. But this lgtm.",
+      "range": {
+        "startLine": 73,
+        "startChar": 35,
+        "endLine": 73,
+        "endChar": 48
+      },
+      "revId": "3deb946e6139d995dc44eb8eb2e52d68cc83b88e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
