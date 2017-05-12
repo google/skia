@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3e8ad80_650e288e",
+        "filename": "src/core/SkComposeShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-12T21:27:22Z",
+      "side": 1,
+      "message": "Probably best as 4 * SkJumper_kMaxStride (#include \"../jumper/SkJumper.h\").",
+      "range": {
+        "startLine": 129,
+        "startChar": 20,
+        "endLine": 129,
+        "endChar": 22
+      },
+      "revId": "75c64f5ea475b2e5e5490aac8577c9d785853227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f133a0dd_07ab84f1",
+        "filename": "src/core/SkComposeShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-12T21:27:22Z",
+      "side": 1,
+      "message": "Time for an update?",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 138,
+        "endChar": 78
+      },
+      "revId": "75c64f5ea475b2e5e5490aac8577c9d785853227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "484e3ec5_b298f75a",
+        "filename": "src/core/SkComposeShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-12T21:27:22Z",
+      "side": 1,
+      "message": "update?",
+      "range": {
+        "startLine": 152,
+        "startChar": 63,
+        "endLine": 152,
+        "endChar": 80
+      },
+      "revId": "75c64f5ea475b2e5e5490aac8577c9d785853227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d8d7f4d_495a7100",
+        "filename": "src/core/SkComposeShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-12T21:27:22Z",
+      "side": 1,
+      "message": "You can drop all this and the forced-opaque paint.  The blitter adds this stage if needed after the shader\u0027s done.  Shaders don\u0027t need to do anything with paint alpha unless it\u0027s something unusual.",
+      "range": {
+        "startLine": 157,
+        "startChar": 2,
+        "endLine": 160,
+        "endChar": 5
+      },
+      "revId": "75c64f5ea475b2e5e5490aac8577c9d785853227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce300bf9_5231c045",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-12T21:27:22Z",
+      "side": 1,
+      "message": "If you write it this way the compiler may assume the memory is aligned for F, up to 32-byte.\n\nOddly in the code generation, the AVX and HSW code requires 4 byte alignment, the ARMv7 code 8 byte, and the sse2,sse41, and ARMv8 16 byte.  Looks like Clang finally got the message that unaligned loads have no downside with AVX+, but it definitely didn\u0027t do the same for the other instruction sets.\n\nProbably easier to stick to float and 4-byte alignment?\n\n  auto ptr \u003d (const float*)ctx;\n  r \u003d unaligned_load\u003cF\u003e(ptr + 0*kStride);\n  g \u003d unaligned_load\u003cF\u003e(ptr + 1*kStride);\n  b \u003d unaligned_load\u003cF\u003e(ptr + 2*kStride);\n  a \u003d unaligned_load\u003cF\u003e(ptr + 3*kStride);\n\nkStride is just sizeof(F) / sizeof(float), defined at the top of the file.",
+      "range": {
+        "startLine": 337,
+        "startChar": 4,
+        "endLine": 341,
+        "endChar": 15
+      },
+      "revId": "75c64f5ea475b2e5e5490aac8577c9d785853227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bf4a5fe_89370593",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-12T21:27:22Z",
+      "side": 1,
+      "message": "Your non-interlacing versions will always be faster.  No need to keep these sides of the #ifs around.",
+      "range": {
+        "startLine": 343,
+        "startChar": 46,
+        "endLine": 343,
+        "endChar": 83
+      },
+      "revId": "75c64f5ea475b2e5e5490aac8577c9d785853227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f07c16e_315884ec",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-12T21:27:22Z",
+      "side": 1,
+      "message": "Same deal here.  I usually just use memcpy... not sure why I\u0027ve never written unaligned_store():\n\n  auto ptr \u003d (float*)ctx;\n  memcpy(ptr + 0*kStride, \u0026r, sizeof(F));\n  memcpy(ptr + 1*kStride, \u0026g, sizeof(F));\n  ...",
+      "range": {
+        "startLine": 352,
+        "startChar": 4,
+        "endLine": 353,
+        "endChar": 15
+      },
+      "revId": "75c64f5ea475b2e5e5490aac8577c9d785853227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
