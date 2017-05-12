@@ -285,7 +285,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #endif
 
     if (FLAGS_atrace) {
-        SkEventTracer::SetInstance(new SkATrace());
+        SkAssertResult(SkEventTracer::SetInstance(new SkATrace()));
     }
 
     fBackendType = get_backend_type(FLAGS_backend[0]);
