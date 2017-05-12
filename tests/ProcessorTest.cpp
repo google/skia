@@ -47,8 +47,8 @@ private:
 class TestFP : public GrFragmentProcessor {
 public:
     struct Image {
-        Image(sk_sp<GrTexture> texture, GrIOType ioType) : fTexture(texture), fIOType(ioType) {}
-        sk_sp<GrTexture> fTexture;
+        Image(sk_sp<GrTextureProxy> proxy, GrIOType ioType) : fProxy(proxy), fIOType(ioType) {}
+        sk_sp<GrTextureProxy> fProxy;
         GrIOType fIOType;
     };
     static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> child) {
@@ -82,8 +82,9 @@ private:
             this->addBufferAccess(&fBuffers.emplace_back(kRGBA_8888_GrPixelConfig, buffer.get()));
         }
         for (const Image& image : images) {
-            this->addImageStorageAccess(&fImages.emplace_back(
-                    image.fTexture, image.fIOType, GrSLMemoryModel::kNone, GrSLRestrict::kNo));
+            fImages.emplace_back(image.fProxy, image.fIOType,
+                                 GrSLMemoryModel::kNone, GrSLRestrict::kNo);
+            this->addImageStorageAccess(context->resourceProvider(), &fImages.back());
         }
     }
 
@@ -143,15 +144,17 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
             bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
             bool imageLoadStoreSupport = context->caps()->shaderCaps()->imageLoadStoreSupport();
             sk_sp<GrTextureProxy> proxy1(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                      desc,
-                                                                      SkBackingFit::kExact,
+                                                                      desc, SkBackingFit::kExact,
                                                                       SkBudgeted::kYes));
-            sk_sp<GrTexture> texture2 =
-                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes);
-            sk_sp<GrTexture> texture3 =
-                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes);
-            sk_sp<GrTexture> texture4 =
-                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes);
+            sk_sp<GrTextureProxy> proxy2(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                                      desc, SkBackingFit::kExact,
+                                                                      SkBudgeted::kYes));
+            sk_sp<GrTextureProxy> proxy3(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                                      desc, SkBackingFit::kExact,
+                                                                      SkBudgeted::kYes));
+            sk_sp<GrTextureProxy> proxy4(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                                      desc, SkBackingFit::kExact,
+                                                                      SkBudgeted::kYes));
             sk_sp<GrBuffer> buffer(texelBufferSupport
                                            ? context->resourceProvider()->createBuffer(
                                                      1024, GrBufferType::kTexel_GrBufferType,
@@ -166,9 +169,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     buffers.push_back(buffer);
                 }
                 if (imageLoadStoreSupport) {
-                    images.emplace_back(texture2, GrIOType::kRead_GrIOType);
-                    images.emplace_back(texture3, GrIOType::kWrite_GrIOType);
-                    images.emplace_back(texture4, GrIOType::kRW_GrIOType);
+                    images.emplace_back(proxy2, GrIOType::kRead_GrIOType);
+                    images.emplace_back(proxy3, GrIOType::kWrite_GrIOType);
+                    images.emplace_back(proxy4, GrIOType::kRW_GrIOType);
                 }
                 std::unique_ptr<GrLegacyMeshDrawOp> op(TestOp::Make());
                 GrPaint paint;
@@ -196,17 +199,17 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
             }
 
             if (imageLoadStoreSupport) {
-                testingOnly_getIORefCnts(texture2.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(proxy2.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 1 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);
 
-                testingOnly_getIORefCnts(texture3.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(proxy3.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 0 == readCnt);
                 REPORTER_ASSERT(reporter, 1 == writeCnt);
 
-                testingOnly_getIORefCnts(texture4.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(proxy4.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 1 == readCnt);
                 REPORTER_ASSERT(reporter, 1 == writeCnt);
@@ -227,17 +230,17 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
             }
 
             if (texelBufferSupport) {
-                testingOnly_getIORefCnts(texture2.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(proxy2.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 0 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);
 
-                testingOnly_getIORefCnts(texture3.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(proxy3.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 0 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);
 
-                testingOnly_getIORefCnts(texture4.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(proxy4.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 0 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);

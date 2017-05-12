@@ -24,23 +24,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                                                sk_sp<GrTextureProxy> proxy,
                                                GrSLMemoryModel mm,
                                                GrSLRestrict restrict) {
-            // MDB TODO: remove this once ImageStorageAccess is converted to GrTextureProxy
-            sk_sp<GrTexture> tex(sk_ref_sp(proxy->instantiate(resourceProvider)));
-            if (!tex) {
-                return nullptr;
-            }
-
-            return sk_sp<GrFragmentProcessor>(new TestFP(std::move(tex), mm, restrict));
+            return sk_sp<GrFragmentProcessor>(new TestFP(resourceProvider,
+                                                         std::move(proxy), mm, restrict));
         }
 
         const char* name() const override { return "Image Load Test FP"; }
 
     private:
-        TestFP(sk_sp<GrTexture> texture, GrSLMemoryModel mm, GrSLRestrict restrict)
+        TestFP(GrResourceProvider* resourceProvider,
+               sk_sp<GrTextureProxy> proxy, GrSLMemoryModel mm, GrSLRestrict restrict)
                 : INHERITED(kNone_OptimizationFlags)
-                , fImageStorageAccess(std::move(texture), kRead_GrIOType, mm, restrict) {
+                , fImageStorageAccess(std::move(proxy), kRead_GrIOType, mm, restrict) {
             this->initClassID<TestFP>();
-            this->addImageStorageAccess(&fImageStorageAccess);
+            this->addImageStorageAccess(resourceProvider, &fImageStorageAccess);
         }
 
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}

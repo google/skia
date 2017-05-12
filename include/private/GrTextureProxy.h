@@ -28,6 +28,14 @@ public:
 
     GrSamplerParams::FilterMode highestFilterMode() const;
 
+    GrSLType imageStorageType() const {
+        if (GrPixelConfigIsSint(this->config())) {
+            return kIImageStorage2D_GrSLType;
+        } else {
+            return kImageStorage2D_GrSLType;
+        }
+    }
+
 protected:
     friend class GrSurfaceProxy; // for ctors
 

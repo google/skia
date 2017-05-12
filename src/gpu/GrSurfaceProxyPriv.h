@@ -17,7 +17,7 @@ class GrSurfaceProxyPriv {
 public:
     // If the proxy is already instantiated, return its backing GrTexture; if not,
     // return null
-    const GrTexture* peekTexture() const {
+    GrTexture* peekTexture() const {
         return fProxy->fTarget ? fProxy->fTarget->asTexture() : nullptr;
     }
 

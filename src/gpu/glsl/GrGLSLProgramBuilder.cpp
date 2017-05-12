@@ -358,7 +358,7 @@ GrGLSLProgramBuilder::ImageStorageHandle GrGLSLProgramBuilder::emitImageStorage(
     if (access.visibility() & kFragment_GrShaderFlag) {
         ++fNumFragmentImageStorages;
     }
-    GrSLType uniformType = access.texture()->texturePriv().imageStorageType();
+    GrSLType uniformType = access.proxy()->imageStorageType();
     return this->uniformHandler()->addImageStorage(access.visibility(), uniformType,
                                                    access.format(), access.memoryModel(),
                                                    access.restrict(), access.ioType(), name);

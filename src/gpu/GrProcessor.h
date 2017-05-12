@@ -15,6 +15,7 @@
 #include "GrProgramElement.h"
 #include "GrSamplerParams.h"
 #include "GrShaderVar.h"
+#include "GrSurfaceProxyPriv.h"
 #include "SkMath.h"
 #include "SkString.h"
 #include "../private/SkAtomics.h"
@@ -189,7 +190,7 @@ protected:
      */
     void addTextureSampler(const TextureSampler*);
     void addBufferAccess(const BufferAccess*);
-    void addImageStorageAccess(const ImageStorageAccess*);
+    void addImageStorageAccess(GrResourceProvider* resourceProvider, const ImageStorageAccess*);
 
     bool hasSameSamplersAndAccesses(const GrResourceIOProcessor&) const;
 
@@ -324,33 +325,39 @@ private:
  */
 class GrResourceIOProcessor::ImageStorageAccess : public SkNoncopyable {
 public:
-    ImageStorageAccess(sk_sp<GrTexture> texture, GrIOType ioType, GrSLMemoryModel, GrSLRestrict,
+    ImageStorageAccess(sk_sp<GrTextureProxy>, GrIOType, GrSLMemoryModel, GrSLRestrict,
                        GrShaderFlags visibility = kFragment_GrShaderFlag);
 
     bool operator==(const ImageStorageAccess& that) const {
-        return this->texture() == that.texture() && fVisibility == that.fVisibility;
+        return this->proxy() == that.proxy() && fVisibility == that.fVisibility;
     }
 
     bool operator!=(const ImageStorageAccess& that) const { return !(*this == that); }
 
-    GrTexture* texture() const { return fTexture.get(); }
+    GrTexture* texture() const { return fProxyRef.getProxy()->priv().peekTexture(); }
+    GrTextureProxy* proxy() const { return fProxyRef.getProxy()->asTextureProxy(); }
     GrShaderFlags visibility() const { return fVisibility; }
-    GrIOType ioType() const { return fTexture.ioType(); }
+    GrIOType ioType() const { return fProxyRef.ioType(); }
     GrImageStorageFormat format() const { return fFormat; }
     GrSLMemoryModel memoryModel() const { return fMemoryModel; }
     GrSLRestrict restrict() const { return fRestrict; }
 
+    // MDB: In the future this should be renamed instantiate
+    bool isBad(GrResourceProvider* resourceProvider) const {
+        return SkToBool(!fProxyRef.getProxy()->instantiate(resourceProvider));
+    }
+
     /**
      * For internal use by GrProcessor.
      */
-    const GrGpuResourceRef* programTexture() const { return &fTexture; }
+    const GrSurfaceProxyRef* programProxy() const { return &fProxyRef; }
 
 private:
-    GrTGpuResourceRef<GrTexture> fTexture;
-    GrShaderFlags fVisibility;
+    GrSurfaceProxyRef    fProxyRef;
+    GrShaderFlags        fVisibility;
     GrImageStorageFormat fFormat;
-    GrSLMemoryModel fMemoryModel;
-    GrSLRestrict fRestrict;
+    GrSLMemoryModel      fMemoryModel;
+    GrSLRestrict         fRestrict;
     typedef SkNoncopyable INHERITED;
 };
 
