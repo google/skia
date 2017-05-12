@@ -117,6 +117,47 @@ bool SkComposeShader::asACompose(ComposeRec* rec) const {
     return true;
 }
 
+#include "SkBlendModePriv.h"
+#include "SkRasterPipeline.h"
+bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
+                                     SkArenaAlloc* alloc, const SkMatrix& ctm,
+                                     const SkPaint& origPaint, const SkMatrix* localM) const {
+    SkPaint paint(origPaint);
+    paint.setAlpha(0xFF);
+
+    struct Storage {
+        float   fXY[8];
+        float   fFirstShader[8];
+    };
+    auto storage = alloc->make<Storage>();
+
+    // We need to save off device x,y (inputs to shader), since after calling fShaderA they
+    // will be smashed, and I'll need them again for fShaderB.
+    // 'store_f32' stores more than we need (r,g,b,a full_width) when we only really need x,y.
+    // However, until we write a specialty stage, we just use the general one.
+    pipeline->append(SkRasterPipeline::store_f32, storage->fXY);
+    if (!fShaderB->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) { // SRC
+        return false;
+    }
+    // This outputs r,g,b,a, which we'll need later when we apply the mode, but we save it off now
+    // since fShaderB will overwrite them.
+    pipeline->append(SkRasterPipeline::store_f32, storage->fFirstShader);
+    // Now we restore the device x,y for the next shader
+    pipeline->append(SkRasterPipeline::load_f32, storage->fXY);
+    if (!fShaderA->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {  // DST
+        return false;
+    }
+    // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode
+    // so we have to shuttle them. If we had a stage the would load_f32_into_dst, then we could
+    // reverse the two shader invocations, and avoid this move...
+    pipeline->append(SkRasterPipeline::move_src_dst);
+    pipeline->append(SkRasterPipeline::load_f32, storage->fFirstShader);
+    SkBlendMode_AppendStages(fMode, pipeline);
+    if (origPaint.getAlpha()) {
+        // append apply_alpha stage?
+    }
+    return true;
+}
 
 // larger is better (fewer times we have to loop), but we shouldn't
 // take up too much stack-space (each element is 4 bytes)
