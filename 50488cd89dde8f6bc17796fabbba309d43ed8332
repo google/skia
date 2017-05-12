@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d96f8166_90109be8",
+        "filename": "src/utils/SkEventTracer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-12T15:44:17Z",
+      "side": 1,
+      "message": "Can\u0027t we even just keep this a void function?  Something like\n\n  if (!exchange) {\n    delete tracer;\n    return;\n  }\n\n?",
+      "revId": "50488cd89dde8f6bc17796fabbba309d43ed8332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
