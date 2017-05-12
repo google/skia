@@ -16,6 +16,24 @@
       "revId": "a43e1cb43271f249e79a8f3d984c3cde9edfc9a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c1753f1_3b6a30dc",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1809,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-12T15:00:07Z",
+      "side": 1,
+      "message": "In follow-ons, it is likely we will want to share this guy. If/when that happens, I\u0027m sure we\u0027ll look for common usage patterns and refine it.",
+      "parentUuid": "5679d33e_06b9bde0",
+      "revId": "a43e1cb43271f249e79a8f3d984c3cde9edfc9a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
