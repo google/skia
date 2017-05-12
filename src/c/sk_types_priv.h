@@ -15,6 +15,7 @@
 #include "SkPath.h"
 #include "SkPathMeasure.h"
 #include "SkCodec.h"
+#include "SkColorSpace.h"
 #include "SkPicture.h"
 #include "SkPixmap.h"
 #include "SkPictureRecorder.h"
@@ -296,6 +297,10 @@ static inline sk_colorspace_t* ToColorSpace(SkColorSpace* colorspace) {
 
 static inline SkColorSpace* AsColorSpace(sk_colorspace_t* colorspace) {
     return reinterpret_cast<SkColorSpace*>(colorspace);
+}
+
+static inline const SkColorSpace* AsColorSpace(const sk_colorspace_t* colorspace) {
+    return reinterpret_cast<const SkColorSpace*>(colorspace);
 }
 
 static inline sk_shader_t* ToShader(SkShader* shader) {
@@ -630,6 +635,70 @@ static inline const sk_encodedinfo_t& ToEncodedInfo(const SkEncodedInfo &p) {
     return reinterpret_cast<const sk_encodedinfo_t&>(p);
 }
 
+static inline const SkColorSpacePrimaries* AsColorSpacePrimaries(const sk_colorspaceprimaries_t* p) {
+    return reinterpret_cast<const SkColorSpacePrimaries*>(p);
+}
+
+static inline const SkColorSpacePrimaries& AsColorSpacePrimaries(const sk_colorspaceprimaries_t& p) {
+    return reinterpret_cast<const SkColorSpacePrimaries&>(p);
+}
+
+static inline SkColorSpacePrimaries* AsColorSpacePrimaries(sk_colorspaceprimaries_t* p) {
+    return reinterpret_cast<SkColorSpacePrimaries*>(p);
+}
+
+static inline SkColorSpacePrimaries& AsColorSpacePrimaries(sk_colorspaceprimaries_t& p) {
+    return reinterpret_cast<SkColorSpacePrimaries&>(p);
+}
+
+static inline sk_colorspaceprimaries_t* ToColorSpacePrimaries(SkColorSpacePrimaries *p) {
+    return reinterpret_cast<sk_colorspaceprimaries_t*>(p);
+}
+
+static inline sk_colorspaceprimaries_t& ToColorSpacePrimaries(SkColorSpacePrimaries &p) {
+    return reinterpret_cast<sk_colorspaceprimaries_t&>(p);
+}
+
+static inline const sk_colorspaceprimaries_t* ToColorSpacePrimaries(const SkColorSpacePrimaries *p) {
+    return reinterpret_cast<const sk_colorspaceprimaries_t*>(p);
+}
+
+static inline const sk_colorspaceprimaries_t& ToColorSpacePrimaries(const SkColorSpacePrimaries &p) {
+    return reinterpret_cast<const sk_colorspaceprimaries_t&>(p);
+}
+
+static inline const SkColorSpaceTransferFn* AsColorSpaceTransferFn(const sk_colorspace_transfer_fn_t* p) {
+    return reinterpret_cast<const SkColorSpaceTransferFn*>(p);
+}
+
+static inline const SkColorSpaceTransferFn& AsColorSpaceTransferFn(const sk_colorspace_transfer_fn_t& p) {
+    return reinterpret_cast<const SkColorSpaceTransferFn&>(p);
+}
+
+static inline SkColorSpaceTransferFn* AsColorSpaceTransferFn(sk_colorspace_transfer_fn_t* p) {
+    return reinterpret_cast<SkColorSpaceTransferFn*>(p);
+}
+
+static inline SkColorSpaceTransferFn& AsColorSpaceTransferFn(sk_colorspace_transfer_fn_t& p) {
+    return reinterpret_cast<SkColorSpaceTransferFn&>(p);
+}
+
+static inline sk_colorspace_transfer_fn_t* ToColorSpaceTransferFn(SkColorSpaceTransferFn *p) {
+    return reinterpret_cast<sk_colorspace_transfer_fn_t*>(p);
+}
+
+static inline sk_colorspace_transfer_fn_t& ToColorSpaceTransferFn(SkColorSpaceTransferFn &p) {
+    return reinterpret_cast<sk_colorspace_transfer_fn_t&>(p);
+}
+
+static inline const sk_colorspace_transfer_fn_t* ToColorSpaceTransferFn(const SkColorSpaceTransferFn *p) {
+    return reinterpret_cast<const sk_colorspace_transfer_fn_t*>(p);
+}
+
+static inline const sk_colorspace_transfer_fn_t& ToColorSpaceTransferFn(const SkColorSpaceTransferFn &p) {
+    return reinterpret_cast<const sk_colorspace_transfer_fn_t&>(p);
+}
+
 static inline SkCodec::FrameInfo* AsFrameInfo(sk_codec_frameinfo_t *p) {
     return reinterpret_cast<SkCodec::FrameInfo*>(p);
 }
@@ -733,27 +802,27 @@ static inline void from_sk(const SkMatrix* matrix, sk_matrix_t* cmatrix) {
     matrix->get9(cmatrix->mat);
 }
 
-static inline bool from_c(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
+static inline void from_c(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
     if (info) { 
         *info = SkImageInfo::Make(
             cinfo.width,
             cinfo.height,
             (SkColorType)cinfo.colorType,
-            (SkAlphaType)cinfo.alphaType); 
+            (SkAlphaType)cinfo.alphaType,
+            sk_ref_sp(AsColorSpace(cinfo.colorspace))); 
     } 
-    return true; 
 } 
 
-static inline bool from_sk(const SkImageInfo& info, sk_imageinfo_t* cinfo) {
+static inline void from_sk(const SkImageInfo& info, sk_imageinfo_t* cinfo) {
     if (cinfo) { 
         *cinfo = {
+            ToColorSpace(info.refColorSpace().release()),
             info.width(),
             info.height(),
             (sk_colortype_t)info.colorType(),
-            (sk_alphatype_t)info.alphaType()
+            (sk_alphatype_t)info.alphaType(),
         }; 
     } 
-    return true; 
 } 
 
 static inline void from_c(const sk_document_pdf_metadata_t& cmetadata, SkDocument::PDFMetadata* metadata) {

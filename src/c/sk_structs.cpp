@@ -52,6 +52,7 @@ static_assert (sizeof (sk_lattice_t) == sizeof (SkCanvas::Lattice), ASSERT_MSG(S
 static_assert (sizeof (sk_time_datetime_t) == sizeof (SkTime::DateTime), ASSERT_MSG(SkTime::DateTime, sk_time_datetime_t));
 static_assert (sizeof (sk_encodedinfo_t) == sizeof (SkEncodedInfo), ASSERT_MSG(SkEncodedInfo, sk_encodedinfo_t));
 static_assert (sizeof (sk_codec_frameinfo_t) == sizeof (SkCodec::FrameInfo), ASSERT_MSG(SkCodec::FrameInfo, sk_codec_frameinfo_t));
+static_assert (sizeof (sk_colorspace_transfer_fn_t) == sizeof (SkColorSpaceTransferFn), ASSERT_MSG(SkColorSpaceTransferFn, sk_colorspace_transfer_fn_t));
 
 #if SK_SUPPORT_GPU
 static_assert (sizeof (gr_backend_rendertarget_desc_t) == sizeof (GrBackendRenderTargetDesc), ASSERT_MSG(GrBackendRenderTargetDesc, gr_backend_rendertarget_desc_t));

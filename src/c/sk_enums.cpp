@@ -11,6 +11,7 @@
 #include "SkBlurMaskFilter.h"
 
 #if SK_SUPPORT_GPU
+#include "GrTypes.h"
 #include "GrContextOptions.h"
 #endif
 
@@ -266,7 +267,7 @@ static_assert ((int)SkCanvas::PointMode::kLines_PointMode     == (int)LINES_SK_P
 static_assert ((int)SkCanvas::PointMode::kPolygon_PointMode   == (int)POLYGON_SK_POINT_MODE,   ASSERT_MSG(SkCanvas::PointMode, sk_point_mode_t));
 
 // sk_surfaceprops_flags_t
-static_assert ((int)SkSurfaceProps::Flags::kUseDeviceIndependentFonts_Flag   == (int)USE_DEVICE_INDEPENDENT_FONTS_GR_SURFACE_PROPS_FLAGS,   ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
+static_assert ((int)SkSurfaceProps::Flags::kUseDeviceIndependentFonts_Flag   == (int)USE_DEVICE_INDEPENDENT_FONTS_SK_SURFACE_PROPS_FLAGS,   ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
 
 // sk_bitmapscaler_resizemethod_t
 static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_BOX        == (int)BOX_SK_BITMAP_SCALER_RESIZE_METHOD,        ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
@@ -291,7 +292,7 @@ static_assert ((int)SkPath::Convexity::kUnknown_Convexity   == (int)UNKNOWN_SK_P
 static_assert ((int)SkPath::Convexity::kConvex_Convexity    == (int)CONVEX_SK_PATH_CONVEXITY,    ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
 static_assert ((int)SkPath::Convexity::kConcave_Convexity   == (int)CONCAVE_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
 
-// gr_backendtexture_flags_t
+// sk_lattice_flags_t
 static_assert ((int)0                                              == (int)DEFAULT_SK_LATTICE_FLAGS,       ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_flags_t));
 static_assert ((int)SkCanvas::Lattice::Flags::kTransparent_Flags   == (int)TRANSPARENT_SK_LATTICE_FLAGS,   ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_flags_t));
 
@@ -319,6 +320,11 @@ static_assert ((int)SkEncodedInfo::Color::kYUVA_Color           == (int)YUVA_SK_
 static_assert ((int)SkEncodedInfo::Color::kInvertedCMYK_Color   == (int)INVERTED_CMYK_SK_ENCODEDINFO_COLOR,   ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
 static_assert ((int)SkEncodedInfo::Color::kYCCK_Color           == (int)YCCK_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
 
+// sk_colorspace_named_t
+static_assert ((int)SkColorSpace::Named::kSRGB_Named         == (int)SRGB_SK_COLORSPACE_NAMED,          ASSERT_MSG(SkColorSpace::Named, sk_colorspace_named_t));
+static_assert ((int)SkColorSpace::Named::kAdobeRGB_Named     == (int)ADOBE_RGB_SK_COLORSPACE_NAMED,     ASSERT_MSG(SkColorSpace::Named, sk_colorspace_named_t));
+static_assert ((int)SkColorSpace::Named::kSRGBLinear_Named   == (int)SRGB_LINEAR_SK_COLORSPACE_NAMED,   ASSERT_MSG(SkColorSpace::Named, sk_colorspace_named_t));
+
 // sk_mask_format_t
 static_assert ((int)SkMask::Format::kBW_Format       == (int)BW_SK_MASK_FORMAT,        ASSERT_MSG(SkMask::Format, sk_mask_format_t));
 static_assert ((int)SkMask::Format::kA8_Format       == (int)A8_SK_MASK_FORMAT,        ASSERT_MSG(SkMask::Format, sk_mask_format_t));
@@ -341,6 +347,10 @@ static_assert ((int)SkCanvas::VertexMode::kTriangleFan_VertexMode     == (int)TR
 // sk_image_caching_hint_t
 static_assert ((int)SkImage::CachingHint::kAllow_CachingHint      == (int)ALLOW_SK_IMAGE_CACHING_HINT,      ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
 static_assert ((int)SkImage::CachingHint::kDisallow_CachingHint   == (int)DISALLOW_SK_IMAGE_CACHING_HINT,   ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
+
+// sk_colorspace_render_target_gamma_t
+static_assert ((int)SkColorSpace::RenderTargetGamma::kLinear_RenderTargetGamma   == (int)LINEAR_SK_COLORSPACE_RENDER_TARGET_GAMMA,   ASSERT_MSG(SkColorSpace::RenderTargetGamma, sk_colorspace_render_target_gamma_t));
+static_assert ((int)SkColorSpace::RenderTargetGamma::kSRGB_RenderTargetGamma     == (int)SRGB_SK_COLORSPACE_RENDER_TARGET_GAMMA,     ASSERT_MSG(SkColorSpace::RenderTargetGamma, sk_colorspace_render_target_gamma_t));
 
 #if SK_SUPPORT_GPU
 
