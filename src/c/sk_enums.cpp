@@ -10,6 +10,10 @@
 #include "SkBitmapScaler.h"
 #include "SkBlurMaskFilter.h"
 
+#if SK_SUPPORT_GPU
+#include "GrTypes.h"
+#endif
+
 #if __cplusplus >= 199711L
 
 #define STRINGIFY(x) #x
@@ -262,7 +266,92 @@ static_assert ((int)SkCanvas::PointMode::kLines_PointMode     == (int)LINES_SK_P
 static_assert ((int)SkCanvas::PointMode::kPolygon_PointMode   == (int)POLYGON_SK_POINT_MODE,   ASSERT_MSG(SkCanvas::PointMode, sk_point_mode_t));
 
 // sk_surfaceprops_flags_t
-static_assert ((int)SkSurfaceProps::Flags::kUseDeviceIndependentFonts_Flag   == (int)USE_DEVICE_INDEPENDENT_FONTS_GR_SURFACE_PROPS_FLAGS,   ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
+static_assert ((int)SkSurfaceProps::Flags::kUseDeviceIndependentFonts_Flag   == (int)USE_DEVICE_INDEPENDENT_FONTS_SK_SURFACE_PROPS_FLAGS,   ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
+
+// sk_bitmapscaler_resizemethod_t
+static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_BOX        == (int)BOX_SK_BITMAP_SCALER_RESIZE_METHOD,        ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
+static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_TRIANGLE   == (int)TRIANGLE_SK_BITMAP_SCALER_RESIZE_METHOD,   ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
+static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_LANCZOS3   == (int)LANCZOS3_SK_BITMAP_SCALER_RESIZE_METHOD,   ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
+static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_HAMMING    == (int)HAMMING_SK_BITMAP_SCALER_RESIZE_METHOD,    ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
+static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_MITCHELL   == (int)MITCHELL_SK_BITMAP_SCALER_RESIZE_METHOD,   ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
+
+// SkBudgeted
+static_assert ((bool)SkBudgeted::kNo    == (bool)false,   ASSERT_MSG(SkBudgeted, bool));
+static_assert ((bool)SkBudgeted::kYes   == (bool)true,    ASSERT_MSG(SkBudgeted, bool));
+
+// sk_pathop_t
+static_assert ((int)SkPathOp::kDifference_SkPathOp          == (int)DIFFERENCE_SK_PATHOP,           ASSERT_MSG(SkPathOp, sk_pathop_t));
+static_assert ((int)SkPathOp::kIntersect_SkPathOp           == (int)INTERSECT_SK_PATHOP,            ASSERT_MSG(SkPathOp, sk_pathop_t));
+static_assert ((int)SkPathOp::kUnion_SkPathOp               == (int)UNION_SK_PATHOP,                ASSERT_MSG(SkPathOp, sk_pathop_t));
+static_assert ((int)SkPathOp::kXOR_SkPathOp                 == (int)XOR_SK_PATHOP,                  ASSERT_MSG(SkPathOp, sk_pathop_t));
+static_assert ((int)SkPathOp::kReverseDifference_SkPathOp   == (int)REVERSE_DIFFERENCE_SK_PATHOP,   ASSERT_MSG(SkPathOp, sk_pathop_t));
+
+// sk_path_convexity_t
+static_assert ((int)SkPath::Convexity::kUnknown_Convexity   == (int)UNKNOWN_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
+static_assert ((int)SkPath::Convexity::kConvex_Convexity    == (int)CONVEX_SK_PATH_CONVEXITY,    ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
+static_assert ((int)SkPath::Convexity::kConcave_Convexity   == (int)CONCAVE_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
+
+// sk_lattice_flags_t
+static_assert ((int)0                                              == (int)DEFAULT_SK_LATTICE_FLAGS,       ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_flags_t));
+static_assert ((int)SkCanvas::Lattice::Flags::kTransparent_Flags   == (int)TRANSPARENT_SK_LATTICE_FLAGS,   ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_flags_t));
+
+// sk_pathmeasure_matrixflags_t
+static_assert ((int)SkPathMeasure::MatrixFlags::kGetPosition_MatrixFlag    == (int)GET_POSITION_SK_PATHMEASURE_MATRIXFLAGS,      ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
+static_assert ((int)SkPathMeasure::MatrixFlags::kGetTangent_MatrixFlag     == (int)GET_TANGENT_SK_PATHMEASURE_MATRIXFLAGS,       ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
+static_assert ((int)SkPathMeasure::MatrixFlags::kGetPosAndTan_MatrixFlag   == (int)GET_POS_AND_TAN_SK_PATHMEASURE_MATRIXFLAGS,   ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
+
+// sk_encodedinfo_alpha_t
+static_assert ((int)SkEncodedInfo::Alpha::kOpaque_Alpha     == (int)OPAQUE_SK_ENCODEDINFO_ALPHA,     ASSERT_MSG(SkEncodedInfo::Alpha, sk_encodedinfo_alpha_t));
+static_assert ((int)SkEncodedInfo::Alpha::kUnpremul_Alpha   == (int)UNPREMUL_SK_ENCODEDINFO_ALPHA,   ASSERT_MSG(SkEncodedInfo::Alpha, sk_encodedinfo_alpha_t));
+static_assert ((int)SkEncodedInfo::Alpha::kBinary_Alpha     == (int)BINARY_SK_ENCODEDINFO_ALPHA,     ASSERT_MSG(SkEncodedInfo::Alpha, sk_encodedinfo_alpha_t));
+
+// sk_encodedinfo_color_t
+static_assert ((int)SkEncodedInfo::Color::kGray_Color           == (int)GRAY_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kGrayAlpha_Color      == (int)GRAY_ALPHA_SK_ENCODEDINFO_COLOR,      ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kPalette_Color        == (int)PALETTE_SK_ENCODEDINFO_COLOR,         ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kRGB_Color            == (int)RGB_SK_ENCODEDINFO_COLOR,             ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kRGBA_Color           == (int)RGBA_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kBGR_Color            == (int)BGR_SK_ENCODEDINFO_COLOR,             ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kBGRX_Color           == (int)BGRX_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kBGRA_Color           == (int)BGRA_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kYUV_Color            == (int)YUV_SK_ENCODEDINFO_COLOR,             ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kYUVA_Color           == (int)YUVA_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kInvertedCMYK_Color   == (int)INVERTED_CMYK_SK_ENCODEDINFO_COLOR,   ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kYCCK_Color           == (int)YCCK_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+
+// sk_colorspace_named_t
+static_assert ((int)SkColorSpace::Named::kSRGB_Named         == (int)SRGB_SK_COLORSPACE_NAMED,          ASSERT_MSG(SkColorSpace::Named, sk_colorspace_named_t));
+static_assert ((int)SkColorSpace::Named::kAdobeRGB_Named     == (int)ADOBE_RGB_SK_COLORSPACE_NAMED,     ASSERT_MSG(SkColorSpace::Named, sk_colorspace_named_t));
+static_assert ((int)SkColorSpace::Named::kSRGBLinear_Named   == (int)SRGB_LINEAR_SK_COLORSPACE_NAMED,   ASSERT_MSG(SkColorSpace::Named, sk_colorspace_named_t));
+
+// sk_mask_format_t
+static_assert ((int)SkMask::Format::kBW_Format       == (int)BW_SK_MASK_FORMAT,        ASSERT_MSG(SkMask::Format, sk_mask_format_t));
+static_assert ((int)SkMask::Format::kA8_Format       == (int)A8_SK_MASK_FORMAT,        ASSERT_MSG(SkMask::Format, sk_mask_format_t));
+static_assert ((int)SkMask::Format::k3D_Format       == (int)THREE_D_SK_MASK_FORMAT,   ASSERT_MSG(SkMask::Format, sk_mask_format_t));
+static_assert ((int)SkMask::Format::kARGB32_Format   == (int)ARGB32_SK_MASK_FORMAT,    ASSERT_MSG(SkMask::Format, sk_mask_format_t));
+static_assert ((int)SkMask::Format::kLCD16_Format    == (int)LCD16_SK_MASK_FORMAT,     ASSERT_MSG(SkMask::Format, sk_mask_format_t));
+
+// sk_matrix44_type_mask_t
+static_assert ((int)SkMatrix44::TypeMask::kIdentity_Mask      == (int)IDENTITY_SK_MATRIX44_TYPE_MASK,      ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
+static_assert ((int)SkMatrix44::TypeMask::kTranslate_Mask     == (int)TRANSLATE_SK_MATRIX44_TYPE_MASK,     ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
+static_assert ((int)SkMatrix44::TypeMask::kScale_Mask         == (int)SCALE_SK_MATRIX44_TYPE_MASK,         ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
+static_assert ((int)SkMatrix44::TypeMask::kAffine_Mask        == (int)AFFINE_SK_MATRIX44_TYPE_MASK,        ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
+static_assert ((int)SkMatrix44::TypeMask::kPerspective_Mask   == (int)PERSPECTIVE_SK_MATRIX44_TYPE_MASK,   ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
+
+// sk_vertex_mode_t
+static_assert ((int)SkCanvas::VertexMode::kTriangles_VertexMode       == (int)TRIANGLES_SK_VERTEX_MODE,        ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
+static_assert ((int)SkCanvas::VertexMode::kTriangleStrip_VertexMode   == (int)TRIANGLE_STRIP_SK_VERTEX_MODE,   ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
+static_assert ((int)SkCanvas::VertexMode::kTriangleFan_VertexMode     == (int)TRIANGLE_FAN_SK_VERTEX_MODE,     ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
+
+// sk_image_caching_hint_t
+static_assert ((int)SkImage::CachingHint::kAllow_CachingHint      == (int)ALLOW_SK_IMAGE_CACHING_HINT,      ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
+static_assert ((int)SkImage::CachingHint::kDisallow_CachingHint   == (int)DISALLOW_SK_IMAGE_CACHING_HINT,   ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
+
+// sk_colorspace_render_target_gamma_t
+static_assert ((int)SkColorSpace::RenderTargetGamma::kLinear_RenderTargetGamma   == (int)LINEAR_SK_COLORSPACE_RENDER_TARGET_GAMMA,   ASSERT_MSG(SkColorSpace::RenderTargetGamma, sk_colorspace_render_target_gamma_t));
+static_assert ((int)SkColorSpace::RenderTargetGamma::kSRGB_RenderTargetGamma     == (int)SRGB_SK_COLORSPACE_RENDER_TARGET_GAMMA,     ASSERT_MSG(SkColorSpace::RenderTargetGamma, sk_colorspace_render_target_gamma_t));
+
+#if SK_SUPPORT_GPU
 
 // gr_surfaceorigin_t
 static_assert ((int)GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin   == (int)BOTTOM_LEFT_GR_SURFACE_ORIGIN,   ASSERT_MSG(GrSurfaceOrigin, gr_surfaceorigin_t));
@@ -295,78 +384,6 @@ static_assert ((int)GrBackendTextureFlags::kRenderTarget_GrBackendTextureFlag   
 static_assert ((int)GrBackend::kOpenGL_GrBackend   == (int)OPENGL_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
 static_assert ((int)GrBackend::kVulkan_GrBackend   == (int)VULKAN_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
 
-// sk_bitmapscaler_resizemethod_t
-static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_BOX        == (int)BOX_SK_BITMAP_SCALER_RESIZE_METHOD,        ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
-static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_TRIANGLE   == (int)TRIANGLE_SK_BITMAP_SCALER_RESIZE_METHOD,   ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
-static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_LANCZOS3   == (int)LANCZOS3_SK_BITMAP_SCALER_RESIZE_METHOD,   ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
-static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_HAMMING    == (int)HAMMING_SK_BITMAP_SCALER_RESIZE_METHOD,    ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
-static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_MITCHELL   == (int)MITCHELL_SK_BITMAP_SCALER_RESIZE_METHOD,   ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
-
-// SkBudgeted
-static_assert ((bool)SkBudgeted::kNo    == (bool)false,   ASSERT_MSG(SkBudgeted, bool));
-static_assert ((bool)SkBudgeted::kYes   == (bool)true,    ASSERT_MSG(SkBudgeted, bool));
-
-// sk_pathop_t
-static_assert ((int)SkPathOp::kDifference_SkPathOp          == (int)DIFFERENCE_SK_PATHOP,           ASSERT_MSG(SkPathOp, sk_pathop_t));
-static_assert ((int)SkPathOp::kIntersect_SkPathOp           == (int)INTERSECT_SK_PATHOP,            ASSERT_MSG(SkPathOp, sk_pathop_t));
-static_assert ((int)SkPathOp::kUnion_SkPathOp               == (int)UNION_SK_PATHOP,                ASSERT_MSG(SkPathOp, sk_pathop_t));
-static_assert ((int)SkPathOp::kXOR_SkPathOp                 == (int)XOR_SK_PATHOP,                  ASSERT_MSG(SkPathOp, sk_pathop_t));
-static_assert ((int)SkPathOp::kReverseDifference_SkPathOp   == (int)REVERSE_DIFFERENCE_SK_PATHOP,   ASSERT_MSG(SkPathOp, sk_pathop_t));
-
-// sk_path_convexity_t
-static_assert ((int)SkPath::Convexity::kUnknown_Convexity   == (int)UNKNOWN_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
-static_assert ((int)SkPath::Convexity::kConvex_Convexity    == (int)CONVEX_SK_PATH_CONVEXITY,    ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
-static_assert ((int)SkPath::Convexity::kConcave_Convexity   == (int)CONCAVE_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
-
-// gr_backendtexture_flags_t
-static_assert ((int)0                                              == (int)DEFAULT_SK_LATTICE_FLAGS,       ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_flags_t));
-static_assert ((int)SkCanvas::Lattice::Flags::kTransparent_Flags   == (int)TRANSPARENT_SK_LATTICE_FLAGS,   ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_flags_t));
-
-// sk_pathmeasure_matrixflags_t
-static_assert ((int)SkPathMeasure::MatrixFlags::kGetPosition_MatrixFlag    == (int)GET_POSITION_SK_PATHMEASURE_MATRIXFLAGS,      ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
-static_assert ((int)SkPathMeasure::MatrixFlags::kGetTangent_MatrixFlag     == (int)GET_TANGENT_SK_PATHMEASURE_MATRIXFLAGS,       ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
-static_assert ((int)SkPathMeasure::MatrixFlags::kGetPosAndTan_MatrixFlag   == (int)GET_POS_AND_TAN_SK_PATHMEASURE_MATRIXFLAGS,   ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
-
-// sk_encodedinfo_alpha_t
-static_assert ((int)SkEncodedInfo::Alpha::kOpaque_Alpha     == (int)OPAQUE_SK_ENCODEDINFO_ALPHA,     ASSERT_MSG(SkEncodedInfo::Alpha, sk_encodedinfo_alpha_t));
-static_assert ((int)SkEncodedInfo::Alpha::kUnpremul_Alpha   == (int)UNPREMUL_SK_ENCODEDINFO_ALPHA,   ASSERT_MSG(SkEncodedInfo::Alpha, sk_encodedinfo_alpha_t));
-static_assert ((int)SkEncodedInfo::Alpha::kBinary_Alpha     == (int)BINARY_SK_ENCODEDINFO_ALPHA,     ASSERT_MSG(SkEncodedInfo::Alpha, sk_encodedinfo_alpha_t));
-
-// sk_encodedinfo_color_t
-static_assert ((int)SkEncodedInfo::Color::kGray_Color           == (int)GRAY_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kGrayAlpha_Color      == (int)GRAY_ALPHA_SK_ENCODEDINFO_COLOR,      ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kPalette_Color        == (int)PALETTE_SK_ENCODEDINFO_COLOR,         ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kRGB_Color            == (int)RGB_SK_ENCODEDINFO_COLOR,             ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kRGBA_Color           == (int)RGBA_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kBGR_Color            == (int)BGR_SK_ENCODEDINFO_COLOR,             ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kBGRX_Color           == (int)BGRX_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kBGRA_Color           == (int)BGRA_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kYUV_Color            == (int)YUV_SK_ENCODEDINFO_COLOR,             ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kYUVA_Color           == (int)YUVA_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kInvertedCMYK_Color   == (int)INVERTED_CMYK_SK_ENCODEDINFO_COLOR,   ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kYCCK_Color           == (int)YCCK_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-
-// sk_mask_format_t
-static_assert ((int)SkMask::Format::kBW_Format       == (int)BW_SK_MASK_FORMAT,        ASSERT_MSG(SkMask::Format, sk_mask_format_t));
-static_assert ((int)SkMask::Format::kA8_Format       == (int)A8_SK_MASK_FORMAT,        ASSERT_MSG(SkMask::Format, sk_mask_format_t));
-static_assert ((int)SkMask::Format::k3D_Format       == (int)THREE_D_SK_MASK_FORMAT,   ASSERT_MSG(SkMask::Format, sk_mask_format_t));
-static_assert ((int)SkMask::Format::kARGB32_Format   == (int)ARGB32_SK_MASK_FORMAT,    ASSERT_MSG(SkMask::Format, sk_mask_format_t));
-static_assert ((int)SkMask::Format::kLCD16_Format    == (int)LCD16_SK_MASK_FORMAT,     ASSERT_MSG(SkMask::Format, sk_mask_format_t));
-
-// sk_matrix44_type_mask_t
-static_assert ((int)SkMatrix44::TypeMask::kIdentity_Mask      == (int)IDENTITY_SK_MATRIX44_TYPE_MASK,      ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
-static_assert ((int)SkMatrix44::TypeMask::kTranslate_Mask     == (int)TRANSLATE_SK_MATRIX44_TYPE_MASK,     ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
-static_assert ((int)SkMatrix44::TypeMask::kScale_Mask         == (int)SCALE_SK_MATRIX44_TYPE_MASK,         ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
-static_assert ((int)SkMatrix44::TypeMask::kAffine_Mask        == (int)AFFINE_SK_MATRIX44_TYPE_MASK,        ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
-static_assert ((int)SkMatrix44::TypeMask::kPerspective_Mask   == (int)PERSPECTIVE_SK_MATRIX44_TYPE_MASK,   ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
-
-// sk_vertex_mode_t
-static_assert ((int)SkCanvas::VertexMode::kTriangles_VertexMode       == (int)TRIANGLES_SK_VERTEX_MODE,        ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
-static_assert ((int)SkCanvas::VertexMode::kTriangleStrip_VertexMode   == (int)TRIANGLE_STRIP_SK_VERTEX_MODE,   ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
-static_assert ((int)SkCanvas::VertexMode::kTriangleFan_VertexMode     == (int)TRIANGLE_FAN_SK_VERTEX_MODE,     ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
-
-// sk_image_caching_hint_t
-static_assert ((int)SkImage::CachingHint::kAllow_CachingHint      == (int)ALLOW_SK_IMAGE_CACHING_HINT,      ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
-static_assert ((int)SkImage::CachingHint::kDisallow_CachingHint   == (int)DISALLOW_SK_IMAGE_CACHING_HINT,   ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
+#endif
 
 #endif
