@@ -22,6 +22,30 @@
       "revId": "808e58823fce9357e9ce430345452fd4efd53303",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c9ecc63_c4192cbc",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-05-12T14:28:55Z",
+      "side": 1,
+      "message": "I think this is the only thing we can do. Some of the callers to this could tell us the correct mode, but there are some uses in SkSpecialImage that don\u0027t have enough context. I think we need to be lenient.",
+      "parentUuid": "5d8ee2ba_3c7edb51",
+      "range": {
+        "startLine": 260,
+        "startChar": 71,
+        "endLine": 260,
+        "endChar": 78
+      },
+      "revId": "808e58823fce9357e9ce430345452fd4efd53303",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
