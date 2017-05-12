@@ -137,7 +137,7 @@ SkData* SkImageGeneratorWIC::onRefEncodedData() {
 }
 
 bool SkImageGeneratorWIC::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-        SkPMColor ctable[], int* ctableCount) {
+        const Options&) {
     if (kN32_SkColorType != info.colorType()) {
         return false;
     }

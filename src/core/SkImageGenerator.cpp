@@ -14,6 +14,7 @@ SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
     , fUniqueID(kNeedNewImageUniqueID == uniqueID ? SkNextID::ImageID() : uniqueID)
 {}
 
+#ifdef SK_SUPPORT_LEGACY_IMGEN_API
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                  SkPMColor ctable[], int* ctableCount) {
     if (kUnknown_SkColorType == info.colorType()) {
@@ -44,9 +45,20 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     }
     return success;
 }
+#endif
 
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                  const Options* opts) {
+    if (kUnknown_SkColorType == info.colorType() || kIndex_8_SkColorType == info.colorType()) {
+        return false;
+    }
+    if (nullptr == pixels) {
+        return false;
+    }
+    if (rowBytes < info.minRowBytes()) {
+        return false;
+    }
+
     Options defaultOpts;
     if (!opts) {
         opts = &defaultOpts;
@@ -55,11 +67,7 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
 }
 
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
-    SkASSERT(kIndex_8_SkColorType != info.colorType());
-    if (kIndex_8_SkColorType == info.colorType()) {
-        return false;
-    }
-    return this->getPixels(info, pixels, rowBytes, nullptr, nullptr);
+    return this->getPixels(info, pixels, rowBytes, nullptr);
 }
 
 bool SkImageGenerator::queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
