@@ -62,7 +62,7 @@ static uint16_t sampler_key(GrSLType samplerType, GrPixelConfig config, GrShader
 }
 
 static uint16_t storage_image_key(const GrResourceIOProcessor::ImageStorageAccess& imageAccess) {
-    GrSLType type = imageAccess.texture()->texturePriv().imageStorageType();
+    GrSLType type = imageAccess.proxy()->imageStorageType();
     return image_storage_or_sampler_uniform_type_key(type) |
            (int)imageAccess.format() << kSamplerOrImageTypeKeyBits;
 }
