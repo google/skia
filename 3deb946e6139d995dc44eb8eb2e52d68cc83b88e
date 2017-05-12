@@ -22,6 +22,30 @@
       "revId": "3deb946e6139d995dc44eb8eb2e52d68cc83b88e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "646baa31_84e72e94",
+        "filename": "gm/shadowutils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-12T14:42:33Z",
+      "side": 1,
+      "message": "Done. I also set the occluder alpha to 128 in the _occl transparent case.",
+      "parentUuid": "65d6911a_d1d82419",
+      "range": {
+        "startLine": 73,
+        "startChar": 35,
+        "endLine": 73,
+        "endChar": 48
+      },
+      "revId": "3deb946e6139d995dc44eb8eb2e52d68cc83b88e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
