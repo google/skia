@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de50f42a_a0c63bcb",
+        "filename": "src/core/SkPM4fPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-12T11:08:42Z",
+      "side": 1,
+      "message": "This might read more clearly now if we rewrite this to needs_clamp_1?  clamp_a is kind of the subtler special version of the general idea clamp_1.",
+      "range": {
+        "startLine": 131,
+        "startChar": 24,
+        "endLine": 131,
+        "endChar": 37
+      },
+      "revId": "ad36da23e58cb8311a56ca52e967e0afbe802c58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
