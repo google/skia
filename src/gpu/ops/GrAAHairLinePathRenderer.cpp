@@ -974,7 +974,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #if GR_TEST_UTILS
 
-DRAW_OP_TEST_DEFINE(AAHairlineOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(AAHairlineOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     SkPath path = GrTest::TestPath(random);

@@ -339,7 +339,7 @@ void GrAtlasTextContext::drawPosText(GrContext* context, GrRenderTargetContext* 
 
 #if GR_TEST_UTILS
 
-DRAW_OP_TEST_DEFINE(TextBlobOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(TextBlobOp) {
     static uint32_t gContextID = SK_InvalidGenID;
     static GrAtlasTextContext* gTextContext = nullptr;
     static SkSurfaceProps gSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);

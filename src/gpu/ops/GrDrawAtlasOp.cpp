@@ -222,7 +222,7 @@ static void randomize_params(uint32_t count, SkRandom* random, SkTArray<SkRSXfor
     }
 }
 
-DRAW_OP_TEST_DEFINE(GrDrawAtlasOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(GrDrawAtlasOp) {
     uint32_t spriteCount = random->nextRangeU(1, 100);
 
     SkTArray<SkRSXform> xforms(spriteCount);

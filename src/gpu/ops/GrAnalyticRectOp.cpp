@@ -389,7 +389,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> GrAnalyticRectOp::Make(GrColor color,
 
 #if GR_TEST_UTILS
 
-DRAW_OP_TEST_DEFINE(AnalyticRectOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(AnalyticRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     SkRect rect = GrTest::TestSquare(random);
