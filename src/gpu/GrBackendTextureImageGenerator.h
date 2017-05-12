@@ -22,12 +22,12 @@ public:
     ~GrBackendTextureImageGenerator();
 
 protected:
-    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
-                     int* ctableCount) override;
-    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options& opts)
-                     override;
+    // NOTE: We would like to validate that the owning context hasn't been abandoned, but we can't
+    // do that safely (we might be on another thread). So assume everything is fine.
+    bool onIsValid(GrContext*) const override { return true; }
 
 #if SK_SUPPORT_GPU
+    bool onCanGenerateTexture() const override { return true; }
     sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&,
                                             const SkIPoint&) override;
 #endif

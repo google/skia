@@ -89,20 +89,6 @@ GrBackendTextureImageGenerator::~GrBackendTextureImageGenerator() {
     fRefHelper->unref();
 }
 
-bool GrBackendTextureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
-                                                 size_t rowBytes, SkPMColor ctable[],
-                                                 int* ctableCount) {
-    // TODO: Is there any way to implement this? I don't think so.
-    return false;
-}
-
-bool GrBackendTextureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
-                                                 size_t rowBytes, const Options& opts) {
-
-    // TODO: Is there any way to implement this? I don't think so.
-    return false;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
