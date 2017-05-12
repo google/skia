@@ -320,10 +320,11 @@ static_assert ((int)SkEncodedInfo::Color::kYUVA_Color           == (int)YUVA_SK_
 static_assert ((int)SkEncodedInfo::Color::kInvertedCMYK_Color   == (int)INVERTED_CMYK_SK_ENCODEDINFO_COLOR,   ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
 static_assert ((int)SkEncodedInfo::Color::kYCCK_Color           == (int)YCCK_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
 
-// sk_colorspace_named_t
-static_assert ((int)SkColorSpace::Named::kSRGB_Named         == (int)SRGB_SK_COLORSPACE_NAMED,          ASSERT_MSG(SkColorSpace::Named, sk_colorspace_named_t));
-static_assert ((int)SkColorSpace::Named::kAdobeRGB_Named     == (int)ADOBE_RGB_SK_COLORSPACE_NAMED,     ASSERT_MSG(SkColorSpace::Named, sk_colorspace_named_t));
-static_assert ((int)SkColorSpace::Named::kSRGBLinear_Named   == (int)SRGB_LINEAR_SK_COLORSPACE_NAMED,   ASSERT_MSG(SkColorSpace::Named, sk_colorspace_named_t));
+// sk_colorspace_gamut_t
+static_assert ((int)SkColorSpace::Gamut::kSRGB_Gamut        == (int)SRGB_SK_COLORSPACE_GAMUT,        ASSERT_MSG(SkColorSpace::Gamut, sk_colorspace_gamut_t));
+static_assert ((int)SkColorSpace::Gamut::kAdobeRGB_Gamut    == (int)ADOBE_RGB_SK_COLORSPACE_GAMUT,   ASSERT_MSG(SkColorSpace::Gamut, sk_colorspace_gamut_t));
+static_assert ((int)SkColorSpace::Gamut::kDCIP3_D65_Gamut   == (int)DCIP3_D65_SK_COLORSPACE_GAMUT,   ASSERT_MSG(SkColorSpace::Gamut, sk_colorspace_gamut_t));
+static_assert ((int)SkColorSpace::Gamut::kRec2020_Gamut     == (int)REC2020_SK_COLORSPACE_GAMUT,     ASSERT_MSG(SkColorSpace::Gamut, sk_colorspace_gamut_t));
 
 // sk_mask_format_t
 static_assert ((int)SkMask::Format::kBW_Format       == (int)BW_SK_MASK_FORMAT,        ASSERT_MSG(SkMask::Format, sk_mask_format_t));
@@ -347,6 +348,9 @@ static_assert ((int)SkCanvas::VertexMode::kTriangleFan_VertexMode     == (int)TR
 // sk_image_caching_hint_t
 static_assert ((int)SkImage::CachingHint::kAllow_CachingHint      == (int)ALLOW_SK_IMAGE_CACHING_HINT,      ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
 static_assert ((int)SkImage::CachingHint::kDisallow_CachingHint   == (int)DISALLOW_SK_IMAGE_CACHING_HINT,   ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
+
+// sk_colorspace_flags_t
+static_assert ((int)SkColorSpace::ColorSpaceFlags::kNonLinearBlending_ColorSpaceFlag   == (int)NON_LINEAR_BLENDING_SK_COLORSPACE_FLAGS,   ASSERT_MSG(SkColorSpace::RenderTargetGamma, sk_colorspace_render_target_gamma_t));
 
 // sk_colorspace_render_target_gamma_t
 static_assert ((int)SkColorSpace::RenderTargetGamma::kLinear_RenderTargetGamma   == (int)LINEAR_SK_COLORSPACE_RENDER_TARGET_GAMMA,   ASSERT_MSG(SkColorSpace::RenderTargetGamma, sk_colorspace_render_target_gamma_t));

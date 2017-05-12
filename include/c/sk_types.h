@@ -823,6 +823,17 @@ typedef enum {
     SRGB_SK_COLORSPACE_RENDER_TARGET_GAMMA,
 } sk_colorspace_render_target_gamma_t;
 
+typedef enum {
+    SRGB_SK_COLORSPACE_GAMUT,
+    ADOBE_RGB_SK_COLORSPACE_GAMUT,
+    DCIP3_D65_SK_COLORSPACE_GAMUT,
+    REC2020_SK_COLORSPACE_GAMUT,
+} sk_colorspace_gamut_t;
+
+typedef enum {
+    NON_LINEAR_BLENDING_SK_COLORSPACE_FLAGS = 0x1,
+} sk_colorspace_flags_t;
+
 typedef struct {
     float fG;
     float fA;
