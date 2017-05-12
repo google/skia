@@ -56,6 +56,15 @@ GrSamplerParams::FilterMode GrTextureProxy::highestFilterMode() const {
     return GrSamplerParams::kMipMap_FilterMode;
 }
 
+bool  GrTextureProxy::wasMipMapDataProvided() const {
+    if (fTarget) {
+        //return fTarget->wasMipMapDataProvided();
+    }
+
+    // The only way we get pre-fab mipmap data is via a wrapped GrTexture
+    return false;
+}
+
 size_t GrTextureProxy::onGpuMemorySize() const {
     if (fTarget) {
         return fTarget->gpuMemorySize();

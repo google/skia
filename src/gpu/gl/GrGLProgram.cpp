@@ -91,6 +91,7 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
                           &nextImageStorageIdx);
 
     const GrXferProcessor& xp = pipeline.getXferProcessor();
+#if 0
     SkIPoint offset;
     GrTexture* dstTexture = pipeline.dstTexture(&offset);
     fXferProcessor->setData(fProgramDataManager, xp, dstTexture, offset);
@@ -100,6 +101,7 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
     }
     SkASSERT(nextTexSamplerIdx == fNumTextureSamplers);
     SkASSERT(nextTexelBufferIdx == fNumTextureSamplers + fNumTexelBuffers);
+#endif
 }
 
 void GrGLProgram::generateMipmaps(const GrPrimitiveProcessor& primProc,
@@ -170,7 +172,7 @@ void GrGLProgram::bindTextures(const GrResourceIOProcessor& processor,
     for (int i = 0; i < processor.numTextureSamplers(); ++i) {
         const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(i);
         fGpu->bindTexture((*nextTexSamplerIdx)++, sampler.params(),
-                          allowSRGBInputs, static_cast<GrGLTexture*>(sampler.texture()));
+                          allowSRGBInputs, static_cast<GrGLTexture*>(sampler.texture2()));
     }
     for (int i = 0; i < processor.numBuffers(); ++i) {
         const GrResourceIOProcessor::BufferAccess& access = processor.bufferAccess(i);
@@ -180,7 +182,7 @@ void GrGLProgram::bindTextures(const GrResourceIOProcessor& processor,
     for (int i = 0; i < processor.numImageStorages(); ++i) {
         const GrResourceIOProcessor::ImageStorageAccess& access = processor.imageStorageAccess(i);
         fGpu->bindImageStorage((*nextImageStorageIdx)++, access.ioType(),
-                               static_cast<GrGLTexture *>(access.texture()));
+                               static_cast<GrGLTexture *>(access.texture2()));
     }
 }
 
@@ -188,6 +190,6 @@ void GrGLProgram::generateMipmaps(const GrResourceIOProcessor& processor, bool a
     for (int i = 0; i < processor.numTextureSamplers(); ++i) {
         const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(i);
         fGpu->generateMipmaps(sampler.params(), allowSRGBInputs,
-                              static_cast<GrGLTexture*>(sampler.texture()));
+                              static_cast<GrGLTexture*>(sampler.texture2()));
     }
 }

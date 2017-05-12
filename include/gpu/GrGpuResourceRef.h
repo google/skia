@@ -115,7 +115,8 @@ protected:
         pending on the resource when markPendingIO is called. */
     GrSurfaceProxyRef(sk_sp<GrSurfaceProxy>, GrIOType);
 
-    /** ioType expresses what type of IO operations will be marked as
+    /** ioType expresses what type of IO operations wi
+    ll be marked as
         pending on the resource when markPendingIO is called. */
     void setProxy(sk_sp<GrSurfaceProxy>, GrIOType);
 

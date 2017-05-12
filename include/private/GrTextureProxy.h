@@ -28,6 +28,8 @@ public:
 
     GrSamplerParams::FilterMode highestFilterMode() const;
 
+    bool wasMipMapDataProvided() const;
+
 protected:
     friend class GrSurfaceProxy; // for ctors
 
