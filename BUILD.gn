@@ -75,7 +75,6 @@ skia_enable_tools = skia_enable_tools && !is_component_build
 fontmgr_android_enabled = skia_use_expat && skia_use_freetype
 
 skia_public_includes = [
-  "include/android",
   "include/c",
   "include/codec",
   "include/config",
@@ -118,6 +117,7 @@ config("skia_private") {
 
   include_dirs = [
     "include/private",
+    "src/android/",
     "src/c",
     "src/codec",
     "src/core",
