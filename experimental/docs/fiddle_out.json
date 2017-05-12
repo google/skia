@@ -1,0 +1,1592 @@
+{
+  "Canvas_Clip": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "525e0463edc04899c1bddb8d3a640b3b",
+    "text": ""
+  },
+  "Canvas_State_Stack": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "3e7c6bf845bb354d1454aaabc83984bb",
+    "text": ""
+  },
+  "Canvas_State_Stack_a": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "3dbf0e55a7b780a78fb12e323675d770",
+    "text": ""
+  },
+  "Paint_Anti_alias": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "1bb6f16fe6899fedbd155f862680aad1",
+    "text": ""
+  },
+  "Paint_Blend_Mode_Methods": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "73092d4d06faecea3c204d852a4dd8a8",
+    "text": ""
+  },
+  "Paint_Color_Filter_Methods": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "3343ea21abaf9778d35e9953f0a6be10",
+    "text": ""
+  },
+  "Paint_Color_Methods": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "f6eec81567acaca6638d696ad00cfb5d",
+    "text": ""
+  },
+  "Paint_Device_Text": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "550dd55fe25564f5e6a960f89075e2f1",
+    "text": ""
+  },
+  "Paint_Dither": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "b28987b65d3be14717e4faaacaf2faa1",
+    "text": ""
+  },
+  "Paint_Draw_Looper_Methods": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "8de8294eee43c40e41c4cf5f15bb2b40",
+    "text": ""
+  },
+  "Paint_Filter_Quality_Methods": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "ee77f83f7291e07ae0d89f1380c7d67c",
+    "text": ""
+  },
+  "Paint_Font_Metrics": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "45644215fc2f33f2e5cd20d08d0e1527",
+    "text": ""
+  },
+  "Paint_Image_Filter_Methods": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "4fd19982b82bc27340a507183e39d7d3",
+    "text": ""
+  },
+  "Paint_Mask_Filter_Methods": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "320b04ea1e1291d49f1e61994a0410fe",
+    "text": ""
+  },
+  "Paint_Miter_Limit": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "00badb5eeabf35289325f0754c476f40",
+    "text": ""
+  },
+  "Paint_Path_Effect_Methods": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "5daa7aebf14b7e224d0e1e98798e5e7d",
+    "text": ""
+  },
+  "Paint_Rasterizer_Methods": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "41ca95c7e910f1ec504a663d7fe4da37",
+    "text": ""
+  },
+  "Paint_Shader_Methods": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "c015dc2010c15e1c00b4f7330232b0f7",
+    "text": ""
+  },
+  "Paint_Shader_Methods_a": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "f45b9765dd06d996921ffa1ef8e78d8a",
+    "text": ""
+  },
+  "Paint_Stroke_Cap": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "3d92b449b298b4ce4004cfca6b91cee7",
+    "text": ""
+  },
+  "Paint_Stroke_Join": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "4a4e41ed89a57d47eab5d1600c33b0e8",
+    "text": ""
+  },
+  "Paint_Stroke_Width": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "3832b070eefd62afff5fe375baa86445",
+    "text": ""
+  },
+  "Paint_Text_Align": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "d317346b0bb75ecef4e6d8d94ad08664",
+    "text": ""
+  },
+  "Paint_Text_Align_a": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "f550c7bad94785bf9020bfc7b0336fc3",
+    "text": ""
+  },
+  "Paint_Text_Decorations_Fake_Bold": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "24e4e8bbd7fdf5c23a7cbc485aa03a43",
+    "text": ""
+  },
+  "Paint_Text_Encoding": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "8570b90dd0d10749c49cd8ff5f846be1",
+    "text": ""
+  },
+  "Paint_Text_Scale_X": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "4e68bce726907f7d35da90e5dd8db11d",
+    "text": ""
+  },
+  "Paint_Text_Size": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "a018a62bc7e09d93c0d7e75f0aa86ccb",
+    "text": ""
+  },
+  "Paint_Text_Skew_X": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "82439b7df12d618bfddacaa9631c0166",
+    "text": ""
+  },
+  "Paint_Typeface_Methods": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "70b9b860df7447fe1c60062647aaf85d",
+    "text": ""
+  },
+  "Paint_Vertical_Text": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "8df5800819311b71373d9abb669b49b8",
+    "text": ""
+  },
+  "SkCanvas_MakeRasterDirect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "30839f66c2d267e021d0cabb81ef1123",
+    "text": "---\n-x-\n---\n"
+  },
+  "SkCanvas_MakeRasterDirectN32": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "4c81e0b289dddd6c4b02faf43eeafd73",
+    "text": "---\n-x-\n---\n"
+  },
+  "SkCanvas_PointMode": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "292b4b2008961b6f612434d3121fc4ce",
+    "text": ""
+  },
+  "SkCanvas_SaveLayerFlags": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "d86ac898af33280ef8f65f5ce96ed453",
+    "text": ""
+  },
+  "SkCanvas_SaveLayerRec": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "08a3da3a785ada3379c86c997edff3c1",
+    "text": ""
+  },
+  "SkCanvas_SaveLayerRec_SaveLayerRec": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "ac7c834dce2eac6ef49c15e820e94003",
+    "text": "rec1 == rec2\n"
+  },
+  "SkCanvas_SaveLayerRec_SaveLayerRec_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "027f920259888fc19591ea9a90d92873",
+    "text": "rec1 == rec2\n"
+  },
+  "SkCanvas_SaveLayerRec_SaveLayerRec_3": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "9b7fa2fe855642ffff6538829db15328",
+    "text": "rec1 == rec2\n"
+  },
+  "SkCanvas_SrcRectConstraint": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "5df49d1f4da37275a1f10ef7f1a749f0",
+    "text": ""
+  },
+  "SkCanvas_accessTopLayerPixels": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "38d0d6ca9bea146d31bcbec197856359",
+    "text": ""
+  },
+  "SkCanvas_accessTopLayerPixels_a": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "187a86e140c8bb46c04f0bcb486ca029",
+    "text": ""
+  },
+  "SkCanvas_accessTopRasterHandle": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "4486d0c0b22ad2931db130f42da4c80c",
+    "text": "context = skia\n"
+  },
+  "SkCanvas_clear": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "d97750e04989d42dc879406127b22c0b",
+    "text": ""
+  },
+  "SkCanvas_clipPath": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "486c6c5705e974fe14cf16b157a9d202",
+    "text": ""
+  },
+  "SkCanvas_clipPath_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "b16be22b7c2d4fec9baa24f87cc43ad6",
+    "text": ""
+  },
+  "SkCanvas_clipPath_3": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "69c9bb85a79366280f462495237830af",
+    "text": ""
+  },
+  "SkCanvas_clipRRect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "eec04065575e1e5cd057f1f268f623fa",
+    "text": ""
+  },
+  "SkCanvas_clipRRect_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "136c68122656631954ba219a299b0182",
+    "text": ""
+  },
+  "SkCanvas_clipRRect_3": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "43137bbd47f9f3b865f420404a88147b",
+    "text": ""
+  },
+  "SkCanvas_clipRect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "14f43321b6f1f4b44292bd1ab89d856f",
+    "text": ""
+  },
+  "SkCanvas_clipRect_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "5cb436368a13a87fe1be7e06ab28abda",
+    "text": ""
+  },
+  "SkCanvas_clipRect_3": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "518ce6a4bfe6237fdb927c293ae0efb2",
+    "text": ""
+  },
+  "SkCanvas_clipRegion": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "56ca4ef54d4ab4157ab05fedf4e35ab6",
+    "text": ""
+  },
+  "SkCanvas_concat": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "8f6818b25a92a88638ad99b2dd293f61",
+    "text": ""
+  },
+  "SkCanvas_const_SkBitmap_const_SkSurfaceProps": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "5ddec03684bb09f94b016dc205cb173b",
+    "text": "-----\n---x-\n---x-\n---x-\n---x-\n---x-\n---x-\n-----\n---x-\n---x-\n-----\n"
+  },
+  "SkCanvas_copy_constructor": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "cc6d6fd6d9aa98b12984e11ef52172ec",
+    "text": "-----\n---x-\n---x-\n---x-\n---x-\n---x-\n---x-\n-----\n---x-\n---x-\n-----\n"
+  },
+  "SkCanvas_drawAnnotation": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "00b430bd80d740e19c6d020a940f56d5",
+    "text": ""
+  },
+  "SkCanvas_drawAnnotation_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "00b430bd80d740e19c6d020a940f56d5",
+    "text": ""
+  },
+  "SkCanvas_drawArc": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "11f0fbe7b30d776913c2e7c92c02ff57",
+    "text": ""
+  },
+  "SkCanvas_drawArc_a": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "e91dbe45974489b8962c815017b7914f",
+    "text": ""
+  },
+  "SkCanvas_drawAtlas": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "1df575f9b8132306ce0552a2554ed132",
+    "text": ""
+  },
+  "SkCanvas_drawAtlas_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "0e66a8f230a8d531bcef9f5ebdc5aac1",
+    "text": ""
+  },
+  "SkCanvas_drawAtlas_3": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "8dc0d0fdeab20bbc21cac6874ddbefcd",
+    "text": ""
+  },
+  "SkCanvas_drawAtlas_4": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "c093c2b14bd3e6171ede7cd4049d9b57",
+    "text": ""
+  },
+  "SkCanvas_drawBitmap": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "70d7fbf7de82264dd66a526d98d31def",
+    "text": ""
+  },
+  "SkCanvas_drawBitmapLattice": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "773134f4fe127f9c9caa110c24c988dc",
+    "text": ""
+  },
+  "SkCanvas_drawBitmapNine": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "a4a30aa10e566a85fe6f6cad2ff9935b",
+    "text": ""
+  },
+  "SkCanvas_drawBitmapRect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "de449106e78ec558d9921b9f076de164",
+    "text": ""
+  },
+  "SkCanvas_drawBitmapRect_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "69b028ef1f95c355672fbdcbf47550f2",
+    "text": ""
+  },
+  "SkCanvas_drawBitmapRect_3": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "76b74b826e43b4a595d18115564e88c7",
+    "text": ""
+  },
+  "SkCanvas_drawCircle": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "841229e25ca9dfb68bd0dc4dfff356eb",
+    "text": ""
+  },
+  "SkCanvas_drawColor": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "9cf94fead1e6b17d836c704b4eac269a",
+    "text": ""
+  },
+  "SkCanvas_drawDRRect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "02e33141f13da2f19aef7feb7117b541",
+    "text": ""
+  },
+  "SkCanvas_drawDRRect_a": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "30823cb4edf884d330285ea161664931",
+    "text": ""
+  },
+  "SkCanvas_drawDrawable": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "3a4dfcd08838866b5cfc0d82489195ba",
+    "text": ""
+  },
+  "SkCanvas_drawDrawable_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "1bdc07ad3b154c89b771722c2fcaee3f",
+    "text": ""
+  },
+  "SkCanvas_drawIRect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "6cdbd78b715715d15b4e6972039d568c",
+    "text": ""
+  },
+  "SkCanvas_drawImage": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "185746dc0faa6f1df30c4afe098646ff",
+    "text": ""
+  },
+  "SkCanvas_drawImageLattice": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "c52ee1d4c69363c6b109539c1da3ce83",
+    "text": ""
+  },
+  "SkCanvas_drawImageNine": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "47f78f3f70ccd9e6c40ee3203a5c71dd",
+    "text": ""
+  },
+  "SkCanvas_drawImageNine_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "e941e553970569d1ffb03a42f7fcd6d9",
+    "text": ""
+  },
+  "SkCanvas_drawImageRect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "2b01c707ef8b5ce3023b7a1d55fce059",
+    "text": ""
+  },
+  "SkCanvas_drawImageRect_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "b63b8f9f587b8d918973dc065ce4a593",
+    "text": ""
+  },
+  "SkCanvas_drawImageRect_3": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "3cf8fb639fef99993cafc064d550c739",
+    "text": ""
+  },
+  "SkCanvas_drawImageRect_4": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "589999454db90c573f7facfb007253a7",
+    "text": ""
+  },
+  "SkCanvas_drawImageRect_5": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "249fadde5d0d0fc515e9f53f188af48b",
+    "text": ""
+  },
+  "SkCanvas_drawImageRect_6": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "37a85bd2247487c7af584e42c1cabe4a",
+    "text": ""
+  },
+  "SkCanvas_drawImage_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "a4e877e891b1be5faa2b7fd07f673a10",
+    "text": ""
+  },
+  "SkCanvas_drawLine": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "ff9bbbbdf96167eb5fc66b219beb161c",
+    "text": ""
+  },
+  "SkCanvas_drawOval": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "8b6b86f8a022811cd29a9c6ab771df12",
+    "text": ""
+  },
+  "SkCanvas_drawPaint": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "1cd076b9b1a7c976cdca72b93c4f42dd",
+    "text": ""
+  },
+  "SkCanvas_drawPatch": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "accb545d67984ced168f5be6ab824795",
+    "text": ""
+  },
+  "SkCanvas_drawPatch_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "4cf70f8d194867d053d7e177e5088445",
+    "text": ""
+  },
+  "SkCanvas_drawPatch_2_a": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "3412c2a16cb529af0e04878d264451f2",
+    "text": ""
+  },
+  "SkCanvas_drawPath": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "d489555a878cb2ab08eea5faf516f54e",
+    "text": ""
+  },
+  "SkCanvas_drawPicture": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "fde216281ff93d612768a49f2cf309ae",
+    "text": ""
+  },
+  "SkCanvas_drawPicture_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "a7373b01354dda73dafe8718f4fd0cfc",
+    "text": ""
+  },
+  "SkCanvas_drawPicture_3": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "4ec028d8ffa0a6ae1a99ff8d094b02bc",
+    "text": ""
+  },
+  "SkCanvas_drawPicture_4": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "7295eb14091e98565cec0353661a6a7d",
+    "text": ""
+  },
+  "SkCanvas_drawPoint": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "ab848f8dfef4879868e337f2f31abcd5",
+    "text": ""
+  },
+  "SkCanvas_drawPoints": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "89aed05d7f4c55bb2b20cc89f5a5c292",
+    "text": ""
+  },
+  "SkCanvas_drawPosText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "bf0b2402533a23b6392e0676b7a8414c",
+    "text": ""
+  },
+  "SkCanvas_drawPosTextH": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "186446a0293aec79d8d774a9b0d607f0",
+    "text": ""
+  },
+  "SkCanvas_drawRRect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "369cdbfb2a200d5bb8ae40f7cc1025c3",
+    "text": ""
+  },
+  "SkCanvas_drawRect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "b0827e2a0e5f9d17901e9a5d99069191",
+    "text": ""
+  },
+  "SkCanvas_drawRegion": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "898e724cd40b6302d57e87ebb41f72f4",
+    "text": ""
+  },
+  "SkCanvas_drawRoundRect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "199fe818c09026c114e165bff166a39f",
+    "text": ""
+  },
+  "SkCanvas_drawText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "c80c09eec39963afaffff59a63411832",
+    "text": ""
+  },
+  "SkCanvas_drawTextBlob": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "b8c0a748ed5c328f38e00f5f3d12e5e6",
+    "text": ""
+  },
+  "SkCanvas_drawTextBlob_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "d313ad4726518f5d44f6433887bb7ce9",
+    "text": ""
+  },
+  "SkCanvas_drawTextOnPath": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "3ebb0f650d04fa5239fba6ca98371ee1",
+    "text": ""
+  },
+  "SkCanvas_drawTextOnPathHV": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "9484f887fdfd114a87de7158b8040b57",
+    "text": ""
+  },
+  "SkCanvas_drawTextRSXform": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "55c84c39890c7516f7c835c46b1b8fc9",
+    "text": ""
+  },
+  "SkCanvas_drawVertices": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "f48b22eaad1bb7adcc3faaa321754af6",
+    "text": ""
+  },
+  "SkCanvas_drawVertices_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "94e32538646d5f1299c427e473f9ec87",
+    "text": ""
+  },
+  "SkCanvas_empty_constructor": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "903451d6c93bf69e2833747a3e8cc8f7",
+    "text": "paint draws text left to right\npaint draws text top to bottom\npaint draws text top to bottom\n"
+  },
+  "SkCanvas_getBaseLayerSize": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "374e245d91cd729eca48fd20e631fdf3",
+    "text": "clip=10,30\nsize=20,30\n"
+  },
+  "SkCanvas_getDeviceClipBounds": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "5f4c910afa4a5a61702e5119eab2cac9",
+    "text": "left:0  top:0  right:256  bottom:256\nleft:30  top:130  right:120  bottom:230\nleft:15  top:65  right:60  bottom:115\n"
+  },
+  "SkCanvas_getDeviceClipBounds_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "6abb99f849a1f0e33e1dedc00d1c4f7a",
+    "text": "device bounds empty = false\ndevice bounds empty = true\n"
+  },
+  "SkCanvas_getGrContext": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "c4ea949e5fa5a0630dcb6b0204bd498f",
+    "text": ""
+  },
+  "SkCanvas_getLocalClipBounds": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "0b36ff64daf88c046b4ae6ed4ee64db9",
+    "text": "left:-1  top:-1  right:257  bottom:257\nleft:29  top:129  right:121  bottom:231\nleft:14.5  top:64.5  right:60.5  bottom:115.5\n"
+  },
+  "SkCanvas_getLocalClipBounds_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "85496614e90c66b020f8a70db8d06f4a",
+    "text": "local bounds empty = false\nlocal bounds empty = true\n"
+  },
+  "SkCanvas_getMetaData": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "1598396056045e8d0c583b748293d652",
+    "text": "before: (null)\nduring: Hello!\nafter: (null)\n"
+  },
+  "SkCanvas_getProps": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "0fbf2dedc2619bbfbf173c9e3bc1a508",
+    "text": "isRGB:0\nisRGB:1\n"
+  },
+  "SkCanvas_getSaveCount": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "005f2b207e078baac596681924fe591e",
+    "text": "depth = 1\ndepth = 2\ndepth = 1\n"
+  },
+  "SkCanvas_getTotalMatrix": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "c0d5fa544759704768f47cac91ae3832",
+    "text": "isIdentity true\n"
+  },
+  "SkCanvas_imageInfo": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "9d2ec54aff38728be1cb44e06a2252ef",
+    "text": "emptyInfo == canvasInfo\n"
+  },
+  "SkCanvas_int_int_const_SkSurfaceProps_star": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "ce6a5ef2df447970b4453489d9d67930",
+    "text": "canvas is empty\n"
+  },
+  "SkCanvas_isClipEmpty": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "f106f146a58c8604308d4d8d7086d2f5",
+    "text": "clip is not empty\nclip is empty\n"
+  },
+  "SkCanvas_isClipRect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "9894bfb476c78a8f6c8f49fbbca3d50d",
+    "text": "clip is rect\nclip is not rect\n"
+  },
+  "SkCanvas_makeSurface": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "1ce28351444b41ab2b8e3128a4b9b9c2",
+    "text": "compatible != nullptr\nsize = 3, 4\n"
+  },
+  "SkCanvas_peekPixels": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "e9411d676d1fa13b46331abe9e14ad3e",
+    "text": "width=256 height=256\n"
+  },
+  "SkCanvas_quickReject": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "c15e39862d5f07b0fed44c71e86f7cc9",
+    "text": "quickReject true\nquickReject false\n"
+  },
+  "SkCanvas_quickReject_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "64723a541c40073157abf2ca67907e15",
+    "text": "quickReject true\nquickReject false\n"
+  },
+  "SkCanvas_readPixels": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "481e990e923a0ed34654f4361b94f096",
+    "text": "pixel = 802b5580\npixel = 8056a9ff\n"
+  },
+  "SkCanvas_readPixels_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "85f199032943b6483722c34a91c4e20f",
+    "text": "pixel = 802b5580\n"
+  },
+  "SkCanvas_readPixels_3": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "af6dec8ef974aa67bf102f29915bcd6a",
+    "text": "pixel = 802b5580\n"
+  },
+  "SkCanvas_resetMatrix": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "e27fab4a872fbd8db2851ef0146f3c6b",
+    "text": ""
+  },
+  "SkCanvas_restore": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "e78471212a67f2f4fd39496e17a30d17",
+    "text": "depth = 1\ndepth = 1\n"
+  },
+  "SkCanvas_restoreToCount": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "9ed0d56436e114c7097fd49eed1aea47",
+    "text": "depth = 1\ndepth = 3\ndepth = 1\n"
+  },
+  "SkCanvas_rotate": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "caafb205771b714948e00dcd58ccaf1f",
+    "text": ""
+  },
+  "SkCanvas_rotate_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "59a9c78edabe8176fabaeddbde9b5f0c",
+    "text": ""
+  },
+  "SkCanvas_save": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "dca66b9665aa690fd72438282222238c",
+    "text": ""
+  },
+  "SkCanvas_saveLayer": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "710767400839408102d6a966aa79f513",
+    "text": ""
+  },
+  "SkCanvas_saveLayerAlpha": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "e86d0af195961f25ad435aa8a8e8f1c4",
+    "text": ""
+  },
+  "SkCanvas_saveLayerPreserveLCDTextRequests": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "48de3a7474730a16bb8ffbd3f71d464c",
+    "text": ""
+  },
+  "SkCanvas_saveLayer_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "a96f24d149d91c77c1674f9c81b5f5bc",
+    "text": ""
+  },
+  "SkCanvas_saveLayer_3": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "0da8c199f1d9ec4d1b9c5d1114d6cbd6",
+    "text": ""
+  },
+  "SkCanvas_scale": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "246cf78ad851527f11b675cc9a701659",
+    "text": ""
+  },
+  "SkCanvas_setMatrix": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "676195d6fdb988f48625df48c043b39c",
+    "text": ""
+  },
+  "SkCanvas_skew": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "2e2acc21d7774df7e0940a30ad2ca99e",
+    "text": ""
+  },
+  "SkCanvas_translate": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "8670079d0d370581ce47797fa6692ee9",
+    "text": ""
+  },
+  "SkCanvas_writePixels": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "29b98ebf58aa9fd1edfaabf9f4490b3a",
+    "text": ""
+  },
+  "SkCanvas_writePixels_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "8b128e067881f9251357653692fa28da",
+    "text": ""
+  },
+  "SkPaint_Join": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "93eb98f36614f1159645cf252fe9d3a5",
+    "text": ""
+  },
+  "SkPaint_breakText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "50698c82c7cc4510564cac15efaeef6e",
+    "text": ""
+  },
+  "SkPaint_canComputeFastBounds": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "08293376ae295e685d165a5c2d625957",
+    "text": ""
+  },
+  "SkPaint_computeFastBounds": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "55ed683c2d12c0a10a6b6d470abc9e59",
+    "text": ""
+  },
+  "SkPaint_computeFastStrokeBounds": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "08293376ae295e685d165a5c2d625957",
+    "text": ""
+  },
+  "SkPaint_containsText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "9202369019552f09cd4bec7f3046fee4",
+    "text": "0x00b0 == has char\n0xd800 != has char\n"
+  },
+  "SkPaint_containsText_a": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "904227febfd1c2e264955da0ef66da73",
+    "text": "0x01ff == has glyph\n0x0000 != has glyph\n0xffff == has glyph\n"
+  },
+  "SkPaint_copy_assignment_operator": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "b476a9088f80dece176ed577807d3992",
+    "text": "SK_ColorRED == paint1.getColor()\nSK_ColorRED == paint2.getColor()\n"
+  },
+  "SkPaint_copy_constructor": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "b99971ad0ef243d617925289d963b62d",
+    "text": "SK_ColorRED == paint1.getColor()\n\nSK_ColorBLUE == paint2.getColor()\n\n"
+  },
+  "SkPaint_countText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "efbd2a85618ea2d0e5c410faba84d709",
+    "text": "count = 4\n"
+  },
+  "SkPaint_doComputeFastBounds": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "08293376ae295e685d165a5c2d625957",
+    "text": ""
+  },
+  "SkPaint_empty_constructor": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "7802ca6b24bdb623d3d0a8f8d8072bf1",
+    "text": ""
+  },
+  "SkPaint_equal_operator": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "7481a948e34672720337a631830586dd",
+    "text": "paint1 == paint2\npaint1 != paint2\n"
+  },
+  "SkPaint_flatten": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "670672b146b50eced4d3dd10c701e0a7",
+    "text": "color = 0xffff0000\n"
+  },
+  "SkPaint_getAlpha": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "9a85bb62fe3d877b18fb7f952c4fa7f7",
+    "text": "255 == paint.getAlpha()\n"
+  },
+  "SkPaint_getBlendMode": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "4ec1864b8203d52c0810e8605092f45c",
+    "text": "kSrcOver == getBlendMode\nkSrcOver != getBlendMode\n"
+  },
+  "SkPaint_getColor": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "72d41f890203109a41f589a7403acae9",
+    "text": "Yellow is 100% red, 100% green, and 0% blue.\n"
+  },
+  "SkPaint_getColorFilter": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "093bdc627d6b59002670fd290931f6c9",
+    "text": "nullptr == color filter\nnullptr != color filter\n"
+  },
+  "SkPaint_getDrawLooper": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "af4c5acc7a91e7f23c2af48018903ad4",
+    "text": "nullptr == draw looper\nnullptr != draw looper\n"
+  },
+  "SkPaint_getFillPath": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "53da2db22c88f891a990f12de286bce3",
+    "text": ""
+  },
+  "SkPaint_getFillPath_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "095d99da76d587b015f7d3b675efc7b8",
+    "text": ""
+  },
+  "SkPaint_getFilterQuality": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "d4ca1f23809b6835c4ba46ea98a86900",
+    "text": "kNone_SkFilterQuality == paint.getFilterQuality()\n"
+  },
+  "SkPaint_getFlags": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "8a3f8c309533388b01aa66e1267f322d",
+    "text": "(SkPaint::kAntiAlias_Flag \u0026 paint.getFlags()) != 0\n"
+  },
+  "SkPaint_getFontBounds": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "facaddeec7943bc491988e345e27e65f",
+    "text": "metrics bounds = { -12.2461, -14.7891, 21.5215, 5.55469 }\nfont bounds    = { -12.2461, -14.7891, 21.5215, 5.55469 }\n"
+  },
+  "SkPaint_getFontMetrics": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "d7fdbe5ba91e7c5b35f2096613ff899e",
+    "text": ""
+  },
+  "SkPaint_getFontSpacing": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "424741e26e1b174e43087d67422ce14f",
+    "text": "textSize: 12 fontSpacing: 13.9688\ntextSize: 18 fontSpacing: 20.9531\ntextSize: 24 fontSpacing: 27.9375\ntextSize: 32 fontSpacing: 37.25\n"
+  },
+  "SkPaint_getHash": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "7f7e1b701361912b344f90ae6b530393",
+    "text": "paint1 == paint2\npaint1.getHash() == paint2.getHash()\n"
+  },
+  "SkPaint_getHinting": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "329e2e5a5919ac431e1c58878a5b99e0",
+    "text": "SkPaint::kNormal_Hinting == paint.getHinting()\n"
+  },
+  "SkPaint_getImageFilter": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "38788d42772641606e08c60d9dd418a2",
+    "text": "nullptr == image filter\nnullptr != image filter\n"
+  },
+  "SkPaint_getMaskFilter": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "8cd53ece8fc83e4560599ace094b0f16",
+    "text": "nullptr == mask filter\nnullptr != mask filter\n"
+  },
+  "SkPaint_getPathEffect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "211a1b14bfa6c4332082c8eab4fbc5fd",
+    "text": "nullptr == path effect\nnullptr != path effect\n"
+  },
+  "SkPaint_getPosTextHIntercepts": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "8f15e8305035afa24224bdc92a4cfb50",
+    "text": ""
+  },
+  "SkPaint_getPosTextIntercepts": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "5c7ca6a2c8896e4717d1d7f92526f8aa",
+    "text": ""
+  },
+  "SkPaint_getPosTextPath": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "f7dc4fad0676d7c6bf0771f406eff51e",
+    "text": ""
+  },
+  "SkPaint_getRasterizer": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "0707d407c3a14388b107af8ae5873e55",
+    "text": "nullptr == rasterizer\nnullptr != rasterizer\n"
+  },
+  "SkPaint_getShader": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "09f15b9fd88882850da2d235eb86292f",
+    "text": "nullptr == shader\nnullptr != shader\n"
+  },
+  "SkPaint_getStrokeCap": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "aabf9baee8e026fae36fca30e955512b",
+    "text": "kButt_Cap == default stroke cap\n"
+  },
+  "SkPaint_getStrokeJoin": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "31bf751d0a8ddf176b871810820d8199",
+    "text": "kMiter_Join == default stroke join\n"
+  },
+  "SkPaint_getStrokeMiter": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "50da74a43b725f07a914df588c867d36",
+    "text": "default miter limit == 4\n"
+  },
+  "SkPaint_getStrokeWidth": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "99aa73f64df8bbf06e656cd891a81b9e",
+    "text": "0 == paint.getStrokeWidth()\n"
+  },
+  "SkPaint_getStyle": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "1c5e18c3c0102d2dac86a78ba8c8ce01",
+    "text": "SkPaint::kFill_Style == paint.getStyle()\n"
+  },
+  "SkPaint_getTextAlign": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "2df932f526e810f74c89d30ec3f4c947",
+    "text": "kLeft_Align == default\n"
+  },
+  "SkPaint_getTextBlobIntercepts": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "c4e51f1d95f7ab511c47a6ea6d4a3311",
+    "text": ""
+  },
+  "SkPaint_getTextEncoding": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "70ad28bbf7668b38474d7f225e3540bc",
+    "text": "kUTF8_TextEncoding == text encoding\nkGlyphID_TextEncoding == text encoding\n"
+  },
+  "SkPaint_getTextIntercepts": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "833ae760ae6b883bbb6ba3e616e123b6",
+    "text": ""
+  },
+  "SkPaint_getTextPath": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "4419b133092615ede9c32fbc3b567d1c",
+    "text": ""
+  },
+  "SkPaint_getTextScaleX": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "5dc8e58f6910cb8e4de9ed60f888188b",
+    "text": "1 == default text scale x\n"
+  },
+  "SkPaint_getTextSize": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "983e2a71ba72d4ba8c945420040b8f1c",
+    "text": "12 == default text size\n"
+  },
+  "SkPaint_getTextSkewX": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "11c10f466dae0d1639dbb9f6a0040218",
+    "text": "0 == default text skew x\n"
+  },
+  "SkPaint_getTextWidths": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "31f29360964e867e5569291d9b53a2aa",
+    "text": ""
+  },
+  "SkPaint_getTypeface": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "4d9ffb5761b62a9e3bc9b0bca8787bce",
+    "text": "nullptr == typeface\nnullptr != typeface\n"
+  },
+  "SkPaint_isAntiAlias": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "d7d5f4f7da7acd5104a652f490c6f7b8",
+    "text": "paint.isAntiAlias() == !!(paint.getFlags() \u0026 SkPaint::kAntiAlias_Flag)\npaint.isAntiAlias() == !!(paint.getFlags() \u0026 SkPaint::kAntiAlias_Flag)\n"
+  },
+  "SkPaint_isDevKernText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "4f69a84b2505b12809c30b0cc09c5157",
+    "text": "paint.isDevKernText() == !!(paint.getFlags() \u0026 SkPaint::kDevKernText_Flag)\npaint.isDevKernText() == !!(paint.getFlags() \u0026 SkPaint::kDevKernText_Flag)\n"
+  },
+  "SkPaint_isDither": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "f4ce93f6c5e7335436a985377fd980c0",
+    "text": "paint.isDither() == !!(paint.getFlags() \u0026 SkPaint::kDither_Flag)\npaint.isDither() == !!(paint.getFlags() \u0026 SkPaint::kDither_Flag)\n"
+  },
+  "SkPaint_isEmbeddedBitmapText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "eba10b27b790e87183ae451b3fc5c4b1",
+    "text": "paint.isEmbeddedBitmapText() == !!(paint.getFlags() \u0026 SkPaint::kEmbeddedBitmapText_Flag)\npaint.isEmbeddedBitmapText() == !!(paint.getFlags() \u0026 SkPaint::kEmbeddedBitmapText_Flag)\n"
+  },
+  "SkPaint_isFakeBoldText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "f54d1f85b16073b80b9eef2e1a1d151d",
+    "text": "paint.isFakeBoldText() == !!(paint.getFlags() \u0026 SkPaint::kFakeBoldText_Flag)\npaint.isFakeBoldText() == !!(paint.getFlags() \u0026 SkPaint::kFakeBoldText_Flag)\n"
+  },
+  "SkPaint_isLCDRenderText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "68e1fd95dd2fd06a333899d2bd2396b9",
+    "text": "paint.isLCDRenderText() == !!(paint.getFlags() \u0026 SkPaint::kLCDRenderText_Flag)\npaint.isLCDRenderText() == !!(paint.getFlags() \u0026 SkPaint::kLCDRenderText_Flag)\n"
+  },
+  "SkPaint_isSrcOver": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "257c9473db7a2b3a0fb2b9e2431e59a6",
+    "text": "isSrcOver == true\nisSrcOver != true\n"
+  },
+  "SkPaint_isSubpixelText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "abe9afc0932e2199324ae6cbb396e67c",
+    "text": "paint.isSubpixelText() == !!(paint.getFlags() \u0026 SkPaint::kSubpixelText_Flag)\npaint.isSubpixelText() == !!(paint.getFlags() \u0026 SkPaint::kSubpixelText_Flag)\n"
+  },
+  "SkPaint_isVerticalText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "4a269b16e644d473870ffa873396f139",
+    "text": "paint.isVerticalText() == !!(paint.getFlags() \u0026 SkPaint::kVerticalText_Flag)\npaint.isVerticalText() == !!(paint.getFlags() \u0026 SkPaint::kVerticalText_Flag)\n"
+  },
+  "SkPaint_measureText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "e074a437c0d8a23df39ff32ca889a83e",
+    "text": ""
+  },
+  "SkPaint_measureText_2": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "f1139a5ddd17fd47c2f45f6e642cac76",
+    "text": "default width = 5\ndouble width = 10\n"
+  },
+  "SkPaint_move_assignment_operator": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "9fb7459b097d713f5f1fe5675afe14f5",
+    "text": "SK_ColorRED == paint2.getColor()\n"
+  },
+  "SkPaint_move_constructor": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "f359b75252397f25f1d92c3704d8916e",
+    "text": "path effect unique: true\n"
+  },
+  "SkPaint_not_equal_operator": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "b6c8484b1187f555b435ad5369833be4",
+    "text": "paint1 == paint2\npaint1 == paint2\n"
+  },
+  "SkPaint_nothingToDraw": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "2fbbed1e035f836728a74673e6977c28",
+    "text": "nothing to draw: false\nnothing to draw: true\nnothing to draw: false\nnothing to draw: true\n"
+  },
+  "SkPaint_refColorFilter": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "b588c95fa4c86ddbc4b0546762f08297",
+    "text": "color filter unique: true\ncolor filter unique: false\n"
+  },
+  "SkPaint_refDrawLooper": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "2a3782c33f04ed17a725d0e449c6f7c3",
+    "text": "draw looper unique: true\ndraw looper unique: false\n"
+  },
+  "SkPaint_refImageFilter": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "13f09088b569251547107d14ae989dc1",
+    "text": "image filter unique: true\nimage filter unique: false\n"
+  },
+  "SkPaint_refMaskFilter": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "35a397dce5d44658ee4e9e9dfb9fee22",
+    "text": "mask filter unique: true\nmask filter unique: false\n"
+  },
+  "SkPaint_refPathEffect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "c55c74f8f581870bd2c18f2f99765579",
+    "text": "path effect unique: true\npath effect unique: false\n"
+  },
+  "SkPaint_refRasterizer": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "c0855ce19a33cb7e5747750ef341b7b3",
+    "text": "rasterizer unique: true\nrasterizer unique: false\n"
+  },
+  "SkPaint_refShader": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "53da0295972a418cbc9607bbb17feaa8",
+    "text": "shader unique: true\nshader unique: false\n"
+  },
+  "SkPaint_refTypeface": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "c8edce7b36a3ffda8af4fe89d7187dbc",
+    "text": "typeface1 != typeface2\ntypeface1 == typeface2\n"
+  },
+  "SkPaint_reset": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "ef269937ade7e7353635121d9a64f9f7",
+    "text": "paint1 == paint2"
+  },
+  "SkPaint_setARGB": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "cb62e4755789ed32f7120dc55984959d",
+    "text": "transRed1 == transRed2"
+  },
+  "SkPaint_setAlpha": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "6ddc0360512dfb9947e75c17e6a8103d",
+    "text": "0x44112233 == paint.getColor()\n"
+  },
+  "SkPaint_setAntiAlias": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "c2ff148374d01cbef845b223e725905c",
+    "text": "paint1 == paint2\n"
+  },
+  "SkPaint_setBlendMode": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "257c9473db7a2b3a0fb2b9e2431e59a6",
+    "text": "isSrcOver == true\nisSrcOver != true\n"
+  },
+  "SkPaint_setColor": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "6e70f18300bd676a3c056ceb6b62f8df",
+    "text": "green1 == green2\n"
+  },
+  "SkPaint_setColorFilter": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "01e7486180e7d3ecf9a6501e6afeb717",
+    "text": ""
+  },
+  "SkPaint_setDevKernText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "2b718a059072908bf68942503f264797",
+    "text": "paint1 == paint2\n"
+  },
+  "SkPaint_setDither": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "69b7162e8324d9239dd02dd9ada2bdff",
+    "text": "paint1 == paint2\n"
+  },
+  "SkPaint_setDrawLooper": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "b16bcd76b629922f476ce4a4e5aa0584",
+    "text": ""
+  },
+  "SkPaint_setEmbeddedBitmapText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "246dffdd93a484ba4ad7ecf71198a5d4",
+    "text": "paint1 == paint2\n"
+  },
+  "SkPaint_setFakeBoldText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "594d47858eb11028cb626515a520910a",
+    "text": "paint1 == paint2\n"
+  },
+  "SkPaint_setFilterQuality": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "e4288fabf24ee60b645e8bb6ea0afadf",
+    "text": "kHigh_SkFilterQuality == paint.getFilterQuality()\n"
+  },
+  "SkPaint_setFlags": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "54baed3f6bc4b9c31ba664e27767fdc7",
+    "text": "paint.isAntiAlias()\npaint.isDither()\n"
+  },
+  "SkPaint_setHinting": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "78153fbd3f1000cb33b97bbe831ed34e",
+    "text": "paint1 == paint2\n"
+  },
+  "SkPaint_setImageFilter": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "4a490a5dc13135b614359c2727d9d14f",
+    "text": ""
+  },
+  "SkPaint_setLCDRenderText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "50dedf8450159571a3edaf4f0050defe",
+    "text": "paint1 == paint2\n"
+  },
+  "SkPaint_setMaskFilter": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "62c5a826692f85c3de3bab65e9e97aa9",
+    "text": ""
+  },
+  "SkPaint_setPathEffect": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "52dd55074ca0b7d520d04e750ca2a0d7",
+    "text": ""
+  },
+  "SkPaint_setRasterizer": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "e06ea81e2bc2dde0c7c1dc97d151d621",
+    "text": ""
+  },
+  "SkPaint_setShader": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "92996333200d7c0b2158927f7e8439c5",
+    "text": ""
+  },
+  "SkPaint_setStrokeCap": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "de83fbd848a4625345b4b87a6e55d98a",
+    "text": "kRound_Cap == paint.getStrokeCap()\n"
+  },
+  "SkPaint_setStrokeJoin": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "48d963ad4286eddf680f9c511eb6da91",
+    "text": "kMiter_Join == paint.getStrokeJoin()\n"
+  },
+  "SkPaint_setStrokeMiter": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "700b284dbc97785c6a9c9636088713ad",
+    "text": "default miter limit == 8\n"
+  },
+  "SkPaint_setStrokeWidth": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "0c4446c0870b5c7b5a2efe77ff92afb8",
+    "text": "5 == paint.getStrokeWidth()\n"
+  },
+  "SkPaint_setStyle": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "c7bb6248e4735b8d1a32d02fba40d344",
+    "text": ""
+  },
+  "SkPaint_setSubpixelText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "a77bbc1a4e3be9a8ab0f842f877c5ee4",
+    "text": "paint1 == paint2\n"
+  },
+  "SkPaint_setTextAlign": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "742a3f43af556f3b1e88dca0b5dbdf73",
+    "text": ""
+  },
+  "SkPaint_setTextEncoding": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "329b92fbc35151dee9aa0c0e70107665",
+    "text": "4 != text encoding\n"
+  },
+  "SkPaint_setTextScaleX": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "a75bbdb8bb866b125c4c1dd5e967d470",
+    "text": "text scale not-a-number\n"
+  },
+  "SkPaint_setTextSize": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "6510c9e2f57b83c47e67829e7a68d493",
+    "text": "12 == text size\n12 == text size\n"
+  },
+  "SkPaint_setTextSkewX": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "6bd705a6e0c5f8ee24f302fe531bfabc",
+    "text": "text scale not-finite\n"
+  },
+  "SkPaint_setTypeface": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "196aefd2fb2ca97c677bd167b8e59908",
+    "text": ""
+  },
+  "SkPaint_setVerticalText": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "6fbd7e9e1a346cb8d7f537786009c736",
+    "text": "paint1 == paint2\n"
+  },
+  "SkPaint_textToGlyphs": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "bfdd99089bdc3bdd2af67f3b6344b4ef",
+    "text": ""
+  },
+  "SkPaint_toString": {
+    "compile_errors": [],
+    "runtime_error": "",
+    "fiddleHash": "5670c04b4562908169a776c48c92d104",
+    "text": "text size = 12\n"
+  }
+}
