@@ -302,7 +302,7 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
     }
 
     if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
-        rtp->isStencilBufferMultisampled()) {
+        GrFSAAType::kNone != rtp->fsaaType()) {
         // TODO: defer stencil buffer attachment for PathRenderingDrawContext
         sk_sp<GrRenderTarget> rt(sk_ref_sp(rtp->instantiate(fContext->resourceProvider())));
         if (!rt) {

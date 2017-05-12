@@ -48,9 +48,8 @@ public:
 
     // override of GrRenderTarget
     ResolveType getResolveType() const override {
-        if (!this->isUnifiedMultisampled() ||
-            fRTFBOID == fTexFBOID) {
-            // catches FBO 0 and non MSAA case
+        if (GrFSAAType::kUnifiedMSAA != this->fsaaType() || fRTFBOID == fTexFBOID) {
+            // catches FBO 0 and non unified-MSAA case
             return kAutoResolves_ResolveType;
         } else if (kUnresolvableFBOID == fTexFBOID) {
             return kCantResolve_ResolveType;

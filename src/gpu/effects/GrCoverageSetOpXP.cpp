@@ -228,7 +228,8 @@ GR_DEFINE_XP_FACTORY_TEST(GrCoverageSetOpXPFactory);
 #if GR_TEST_UTILS
 const GrXPFactory* GrCoverageSetOpXPFactory::TestGet(GrProcessorTestData* d) {
     SkRegion::Op regionOp = SkRegion::Op(d->fRandom->nextULessThan(SkRegion::kLastOp + 1));
-    bool invertCoverage = !d->fRenderTargetContext->hasMixedSamples() && d->fRandom->nextBool();
+    bool isMixedSamples = GrFSAAType::kMixedSamples == d->fRenderTargetContext->fsaaType();
+    bool invertCoverage = !isMixedSamples && d->fRandom->nextBool();
     return GrCoverageSetOpXPFactory::Get(regionOp, invertCoverage);
 }
 #endif
