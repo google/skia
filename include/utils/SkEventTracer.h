@@ -27,9 +27,18 @@ public:
 
     typedef uint64_t Handle;
 
-    static SkEventTracer* GetInstance();
+    /**
+     * If this is the first call to SetInstance or GetInstance then the passed instance is
+     * installed and true is returned. Otherwise, false is returned. In either case ownership of the
+     * tracer is transferred and it will be deleted when no longer needed.
+     */
+    static bool SetInstance(SkEventTracer*);
 
-    static void SetInstance(SkEventTracer*);
+    /**
+     * Gets the event tracer. If this is the first call to SetInstance or GetIntance then a default
+     * event tracer is installed and returned.
+     */
+    static SkEventTracer* GetInstance();
 
     virtual ~SkEventTracer() { }
 
