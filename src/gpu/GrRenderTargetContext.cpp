@@ -194,7 +194,7 @@ void GrRenderTargetContext::discard() {
     // Currently this just inserts a discard op. However, once in MDB this can remove all the
     // previously recorded ops and change the load op to discard.
     if (this->caps()->discardRenderTargetSupport()) {
-        std::unique_ptr<GrOp> op(GrDiscardOp::Make(this));
+        std::unique_ptr<GrOp> op(GrDiscardOp::Make(fRenderTargetProxy.get()));
         if (!op) {
             return;
         }
