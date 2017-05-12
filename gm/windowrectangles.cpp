@@ -188,7 +188,7 @@ void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas
     const GrReducedClip reducedClip(stack, SkRect::Make(kCoverRect), kNumWindows);
 
     GrPaint paint;
-    if (!rtc->isStencilBufferMultisampled()) {
+    if (GrFSAAType::kNone == rtc->fsaaType()) {
         paint.setColor4f(GrColor4f(0, 0.25f, 1, 1));
         this->visualizeAlphaMask(ctx, rtc, reducedClip, std::move(paint));
     } else {

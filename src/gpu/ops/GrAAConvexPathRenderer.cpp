@@ -969,7 +969,7 @@ private:
 bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrAAConvexPathRenderer::onDrawPath");
-    SkASSERT(!args.fRenderTargetContext->isUnifiedMultisampled());
+    SkASSERT(GrFSAAType::kUnifiedMSAA != args.fRenderTargetContext->fsaaType());
     SkASSERT(!args.fShape->isEmpty());
 
     SkPath path;
