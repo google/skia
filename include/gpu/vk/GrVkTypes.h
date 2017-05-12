@@ -106,8 +106,9 @@ protected:
  *
  * In the second mode, the client must use the passed in secondary command buffer to submit draws to
  * VkImage. The passed in VkRenderPass is compatible to the one that will be used so that the client
- * can generate VkPipeline objects. The semaphores will be VK_NULL_HANDLEs since no synchronization
- * is needed as the draw calls will be added directly into our stream of draws.
+ * can generate VkPipeline objects. The attachment index is also passed in. The semaphores will be
+ * VK_NULL_HANDLEs since no synchronization is needed as the draw calls will be added directly into
+ * our stream of draws.
  *
  * The caller additionally can set fBounds to the bounds of the VkImage they drew to. If the client
  * does not do this we will assume the entire VkImage is dirty which could be a perfomance hit.
@@ -123,8 +124,9 @@ struct GrVkClientDrawableInfo {
     VkSemaphore     fSignalSemaphore;
     // RenderPass and CommandBuffer are only valid if using the second mode described above, will be
     // VK_NULL_HANDLE otherswise.
-    VkRenderPass    fRenderPass;
     VkCommandBuffer fCommandBuffer;
+    VkRenderPass    fRenderPass;
+    uint32_t        fImageAttachmentIndex;
     SkRect*         fBounds;
 };
 
