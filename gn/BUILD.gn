@@ -60,14 +60,13 @@ if (is_ios) {
     if (target_cpu == "x86" || target_cpu == "x64") {
       sdk = "appletvsimulator"
     }
-    ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
   } else {
     sdk = "iphoneos"
     if (target_cpu == "x86" || target_cpu == "x64") {
       sdk = "iphonesimulator"
     }
-    ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
   }
+  ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
 }
 
 config("default") {
