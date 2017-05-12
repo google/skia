@@ -49,6 +49,17 @@ void SkEventTracer::SetInstance(SkEventTracer* tracer) {
     atexit([]() { delete sk_atomic_load(&gUserTracer, sk_memory_order_acquire); });
 }
 
+bool SkEventTracer::TrySetInstance(SkEventTracer* tracer) {
+    SkEventTracer* expected = nullptr;
+    if (!sk_atomic_compare_exchange(&gUserTracer, &expected, tracer, sk_memory_order_seq_cst,
+                                    sk_memory_order_relaxed)) {
+        return false;
+    }
+    // An atomic load during process shutdown is probably overkill, but safe overkill.
+    atexit([]() { delete sk_atomic_load(&gUserTracer, sk_memory_order_acquire); });
+    return true;
+}
+
 SkEventTracer* SkEventTracer::GetInstance() {
     if (SkEventTracer* tracer = sk_atomic_load(&gUserTracer, sk_memory_order_acquire)) {
         return tracer;

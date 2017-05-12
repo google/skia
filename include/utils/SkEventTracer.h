@@ -27,9 +27,16 @@ public:
 
     typedef uint64_t Handle;
 
-    static SkEventTracer* GetInstance();
-
+    /** Sets the event tracer. Must only be called once per process. */
     static void SetInstance(SkEventTracer*);
+
+    /** Returns true if this is the first call in the process to SetInstance or
+        TrySetInstance. Othewise, returns false and does not set the instance. */
+    static bool TrySetInstance(SkEventTracer*);
+
+    /** Gets the event tracer. This sets the instance to a default if neither
+        of SetInstance or TrySetInstance has been called. */
+    static SkEventTracer* GetInstance();
 
     virtual ~SkEventTracer() { }
 
