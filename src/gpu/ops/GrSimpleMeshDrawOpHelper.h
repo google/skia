@@ -35,13 +35,11 @@ public:
     template <typename Op, typename... OpArgs>
     static std::unique_ptr<GrDrawOp> FactoryHelper(GrPaint&& paint, OpArgs... opArgs);
 
-    GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAAType aaType,
-                             GrUserStencilSettings* stencilSettings = nullptr)
+    GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAAType aaType)
             : fProcessors(args.fProcessorSet)
             , fPipelineFlags(args.fSRGBFlags)
             , fAAType((int)aaType)
             , fRequiresDstTexture(false) {
-        SkASSERT(!stencilSettings);
         if (GrAATypeIsHW(aaType)) {
             fPipelineFlags |= GrPipeline::kHWAntialias_Flag;
         }
