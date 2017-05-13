@@ -39,6 +39,30 @@
       "revId": "0f6b40e488e0d756bc22f8fdf38597ff050ac3f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b10ebae_a75a0cd8",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-05-13T22:36:06Z",
+      "side": 1,
+      "message": "No. A rect with fLeft \u003d\u003d fRight and fTop \u003d\u003d fBottom is both empty and sorted.",
+      "parentUuid": "e60dfc9d_c30cdec3",
+      "range": {
+        "startLine": 477,
+        "startChar": 9,
+        "endLine": 477,
+        "endChar": 17
+      },
+      "revId": "0f6b40e488e0d756bc22f8fdf38597ff050ac3f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
