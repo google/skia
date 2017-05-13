@@ -322,12 +322,31 @@ STAGE(dither) {
     b += c->rate*dither;
 }
 
+// load 4 floats from memory, and splat them into r,g,b,a
 STAGE(constant_color) {
     auto rgba = (const float*)ctx;
     r = rgba[0];
     g = rgba[1];
     b = rgba[2];
     a = rgba[3];
+}
+
+// load registers r,g,b,a from context (mirrors store_rgba)
+STAGE(load_rgba) {
+    auto ptr = (const float*)ctx;
+    r = unaligned_load<F>(ptr + 0*kStride);
+    g = unaligned_load<F>(ptr + 1*kStride);
+    b = unaligned_load<F>(ptr + 2*kStride);
+    a = unaligned_load<F>(ptr + 3*kStride);
+}
+
+// store registers r,g,b,a into context (mirrors load_rgba)
+STAGE(store_rgba) {
+    auto ptr = (float*)ctx;
+    memcpy(ptr + 0*kStride, &r, sizeof(F));
+    memcpy(ptr + 1*kStride, &g, sizeof(F));
+    memcpy(ptr + 2*kStride, &b, sizeof(F));
+    memcpy(ptr + 3*kStride, &a, sizeof(F));
 }
 
 // Most blend modes apply the same logic to each channel.
