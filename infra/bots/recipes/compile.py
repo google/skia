@@ -8,6 +8,7 @@
 
 DEPS = [
   'core',
+  'recipe_engine/context',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
@@ -49,7 +50,7 @@ def RunSteps(api):
 
   try:
     for target in build_targets:
-      with api.step.context({'env': env}):
+      with api.context(env=env):
         api.flavor.compile(target)
     api.run.copy_build_products(
         api.flavor.out_dir,

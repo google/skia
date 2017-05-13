@@ -12,6 +12,7 @@ import calendar
 DEPS = [
   'build/file',
   'core',
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
@@ -25,7 +26,7 @@ DEPS = [
 
 
 def _run(api, title, *cmd, **kwargs):
-  with api.step.context({'cwd': api.vars.skia_dir}):
+  with api.context(cwd=api.vars.skia_dir):
     return api.run(api.step, title, cmd=list(cmd), **kwargs)
 
 

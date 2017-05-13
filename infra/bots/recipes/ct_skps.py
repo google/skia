@@ -9,6 +9,7 @@ import math
 DEPS = [
   'build/file',
   'depot_tools/gsutil',
+  'recipe_engine/context',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
@@ -213,7 +214,7 @@ def RunSteps(api):
         gs_dest_dir = 'ct/%s/%d/%02d/%02d/%02d/' % (
             ct_page_type, utc.year, utc.month, utc.day, utc.hour)
         for json_output in api.file.listdir('output dir', output_dir):
-          with api.step.context({'env': env}):
+          with api.context(env=env):
             api.gsutil.upload(
                 name='upload json output',
                 source=output_dir.join(json_output),

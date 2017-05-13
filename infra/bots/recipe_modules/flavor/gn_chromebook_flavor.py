@@ -135,13 +135,8 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     ninja = 'ninja.exe' if 'Win' in os else 'ninja'
     gn = self.m.vars.skia_dir.join('bin', gn)
 
-    context = {
-      'cwd': self.m.vars.skia_dir,
-      'env': {
-          'LD_LIBRARY_PATH': sysroot_dir.join('lib'),
-      }
-    }
-    with self.m.step.context(context):
+    with self.m.context(cwd=self.m.vars.skia_dir,
+                        env={'LD_LIBRARY_PATH': sysroot_dir.join('lib')}):
       self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
       self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
       self._run('ninja', [ninja, '-C', self.out_dir, 'nanobench', 'dm'])

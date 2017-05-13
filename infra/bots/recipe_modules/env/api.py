@@ -8,7 +8,7 @@ from recipe_engine import recipe_api
 
 class EnvApi(recipe_api.RecipeApi):
   def __call__(self, env_dict):
-    env = self.m.step.get_from_context('env', {})
+    env = self.m.context.env
     # If PATH is defined in both, merge them together, merging default_env into
     # path by replacing %(PATH)s
     upstream_path = env.get('PATH', '')
@@ -17,4 +17,4 @@ class EnvApi(recipe_api.RecipeApi):
     if upstream_path and my_path and upstream_path != my_path:
       env['PATH'] = upstream_path.replace(r'%(PATH)s', my_path)
 
-    return self.m.step.context({'env': env})
+    return self.m.context(env=env)
