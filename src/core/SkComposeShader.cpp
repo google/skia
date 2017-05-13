@@ -13,6 +13,7 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkString.h"
+#include "../jumper/SkJumper.h"
 
 sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
                                             SkBlendMode mode) {
@@ -117,6 +118,62 @@ bool SkComposeShader::asACompose(ComposeRec* rec) const {
     return true;
 }
 
+static bool blendmode_needs_clamp(SkBlendMode mode) {
+    switch (mode) {
+        case SkBlendMode::kPlus:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+#include "SkBlendModePriv.h"
+#include "SkRasterPipeline.h"
+bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
+                                     SkArenaAlloc* alloc, const SkMatrix& ctm,
+                                     const SkPaint& paint, const SkMatrix* localM) const {
+    struct Storage {
+        float   fXY[4 * SkJumper_kMaxStride];
+        float   fRGBA[4 * SkJumper_kMaxStride];
+        float   fAlpha;
+    };
+    auto storage = alloc->make<Storage>();
+
+    // We need to save off device x,y (inputs to shader), since after calling fShaderA they
+    // will be smashed, and I'll need them again for fShaderB. store_rgba saves off 4 registers
+    // even though we only need to save r,g.
+    pipeline->append(SkRasterPipeline::store_rgba, storage->fXY);
+    if (!fShaderB->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) { // SRC
+        return false;
+    }
+    // This outputs r,g,b,a, which we'll need later when we apply the mode, but we save it off now
+    // since fShaderB will overwrite them.
+    pipeline->append(SkRasterPipeline::store_rgba, storage->fRGBA);
+    // Now we restore the device x,y for the next shader
+    pipeline->append(SkRasterPipeline::load_rgba, storage->fXY);
+    if (!fShaderA->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {  // DST
+        return false;
+    }
+    // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode
+    // so we have to shuttle them. If we had a stage the would load_into_dst, then we could
+    // reverse the two shader invocations, and avoid this move...
+    pipeline->append(SkRasterPipeline::move_src_dst);
+    pipeline->append(SkRasterPipeline::load_rgba, storage->fRGBA);
+
+    SkBlendMode_AppendStages(fMode, pipeline);
+    // Some blend modes explicitly need clamping, but they don't do it themselves. In the actual
+    // blits the "store" stage takes care of this, but we have to do it manually since there may
+    // be other stages following us beside the final store.
+    //
+    // Seems inefficient to have to have 2 stages, when (generally) modes are simple. Perhaps we
+    // could have an alternate form of SkBlendMode_AppendStages that chose special modes that
+    // ensured that they were clamped. Might only be a couple of new stages (e.g. plus_clamp).
+    if (blendmode_needs_clamp(fMode)) {
+        pipeline->append(SkRasterPipeline::clamp_a);
+    }
+    return true;
+}
 
 // larger is better (fewer times we have to loop), but we shouldn't
 // take up too much stack-space (each element is 4 bytes)
