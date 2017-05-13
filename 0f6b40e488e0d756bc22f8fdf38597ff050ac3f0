@@ -16,6 +16,29 @@
       "revId": "0f6b40e488e0d756bc22f8fdf38597ff050ac3f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e60dfc9d_c30cdec3",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-13T12:46:48Z",
+      "side": 1,
+      "message": "is this the same as !empty() ?",
+      "range": {
+        "startLine": 477,
+        "startChar": 9,
+        "endLine": 477,
+        "endChar": 17
+      },
+      "revId": "0f6b40e488e0d756bc22f8fdf38597ff050ac3f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
