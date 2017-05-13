@@ -7,6 +7,7 @@
 
 
 DEPS = [
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
@@ -23,7 +24,7 @@ def RunSteps(api):
   api.infra.update_go_deps()
 
   # Run the infra tests.
-  with api.step.context({'cwd': api.vars.skia_dir, 'env': api.infra.go_env}):
+  with api.context(cwd=api.vars.skia_dir, env=api.infra.go_env):
     api.step('infra_tests', cmd=['make', '-C', 'infra/bots', 'test'])
 
 

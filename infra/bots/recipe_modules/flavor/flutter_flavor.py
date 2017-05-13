@@ -20,7 +20,7 @@ class FlutterFlavorUtils(default_flavor.DefaultFlavorUtils):
     extra_config = self.m.vars.builder_cfg.get('extra_config', '')
     out_dir = configuration
 
-    with self.m.step.context({'cwd': flutter_dir}):
+    with self.m.context(cwd=flutter_dir):
       # Runhook to generate the gn binary in buildtools.
       self.m.run(
           self.m.step,

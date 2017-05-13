@@ -7,6 +7,7 @@
 
 
 DEPS = [
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/shutil',
@@ -18,7 +19,7 @@ def RunSteps(api):
   bundle_dir = api.properties['swarm_out_dir'] + '/recipe_bundle'
   skia_dir = api.path['start_dir'].join('skia')
   recipes_py = api.path['start_dir'].join('skia', 'infra', 'bots', 'recipes.py')
-  with api.step.context({'cwd': skia_dir}):
+  with api.context(cwd=skia_dir):
     api.step('git init', infra_step=True,
              cmd=['git', 'init'])
     api.step('git add', infra_step=True,

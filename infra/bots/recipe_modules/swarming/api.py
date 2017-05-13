@@ -44,7 +44,7 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
     depot_tools_path = self.m.depot_tools.package_repo_resource()
     env = {'PATH': self.m.path.pathsep.join([
                        str(depot_tools_path), '%(PATH)s'])}
-    with self.m.step.context({'env': env}):
+    with self.m.context(env=env):
       self.m.step('download luci-go linux',
                   ['download_from_google_storage', '--no_resume',
                    '--platform=linux*', '--no_auth',

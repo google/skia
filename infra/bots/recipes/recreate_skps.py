@@ -9,6 +9,7 @@
 DEPS = [
   'build/file',
   'depot_tools/gclient',
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
@@ -89,13 +90,13 @@ def RunSteps(api):
   src_dir = api.vars.checkout_root.join('src')
   out_dir = src_dir.join('out', 'Release')
 
-  with api.step.context({'cwd': src_dir}):
+  with api.context(cwd=src_dir):
     # Call GN.
     platform = 'linux64'  # This bot only runs on linux; don't bother checking.
     gn = src_dir.join('buildtools', platform, 'gn')
     gn_env = {'CPPFLAGS': '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1',
               'GYP_GENERATORS': 'ninja'}
-    with api.step.context({'env': gn_env}):
+    with api.context(env=gn_env):
       api.run(api.step, 'GN', cmd=[gn, 'gen', out_dir])
 
     # Build Chrome.
@@ -115,7 +116,7 @@ def RunSteps(api):
          '--target_dir', output_dir]
   if 'Canary' not in api.properties['buildername']:
     cmd.append('--upload_to_partner_bucket')
-  with api.step.context({'cwd': api.vars.skia_dir}):
+  with api.context(cwd=api.vars.skia_dir):
     api.run(api.step, 'Recreate SKPs', cmd=cmd)
 
   # Upload the SKPs.
@@ -128,8 +129,7 @@ def RunSteps(api):
            '--target_dir', output_dir,
            '--gitcookies', str(update_skps_gitcookies)]
     with gitcookies_auth(api, UPDATE_SKPS_KEY):
-      with api.step.context({'cwd': api.vars.skia_dir,
-                             'env': api.infra.go_env}):
+      with api.context(cwd=api.vars.skia_dir, env=api.infra.go_env):
         api.run(api.step, 'Upload SKPs', cmd=cmd)
 
 

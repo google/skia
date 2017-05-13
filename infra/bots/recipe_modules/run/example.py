@@ -4,6 +4,7 @@
 
 
 DEPS = [
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
@@ -36,7 +37,7 @@ def RunSteps(api):
   api.run.rmtree('mydir')
 
   # Merge PATHs.
-  with api.step.context({'env': {'PATH': 'mydir:%(PATH)s'}}):
+  with api.context(env={'PATH': 'mydir:%(PATH)s'}):
     api.run(api.step, 'env', cmd=['env'])
 
   # Copy build products.

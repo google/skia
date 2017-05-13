@@ -24,11 +24,11 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
         tmp_dir       = self.m.vars.android_data_dir)
 
   def _run(self, title, *cmd, **kwargs):
-    with self.m.step.context({'cwd': self.m.vars.skia_dir}):
+    with self.m.context(cwd=self.m.vars.skia_dir):
       return self.m.run(self.m.step, title, cmd=list(cmd), **kwargs)
 
   def _py(self, title, script, infra_step=True):
-    with self.m.step.context({'cwd': self.m.vars.skia_dir}):
+    with self.m.context(cwd=self.m.vars.skia_dir):
       return self.m.run(self.m.python, title, script=script,
                         infra_step=infra_step)
 

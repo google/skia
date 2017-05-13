@@ -8,6 +8,7 @@ DEPS = [
   'depot_tools/gclient',
   'depot_tools/tryserver',
   'flavor',
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',

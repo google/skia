@@ -8,6 +8,7 @@
 
 DEPS = [
   'build/file',
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
@@ -22,7 +23,7 @@ def RunSteps(api):
   now = api.time.utcnow()
   src_path = api.path['start_dir'].join(
       'perfdata', builder_name, 'data')
-  with api.step.context({'cwd': src_path}):
+  with api.context(cwd=src_path):
     results = api.file.glob(
         'find results',
         src_path.join('*.json'),

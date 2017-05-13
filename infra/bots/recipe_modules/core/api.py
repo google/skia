@@ -41,7 +41,7 @@ class SkiaApi(recipe_api.RecipeApi):
         git = 'git.bat'
       else:
         git = 'git'
-      with self.m.step.context({'cwd': repo_path}):
+      with self.m.context(cwd=repo_path):
         self.m.step('git remote set-url',
                     cmd=[git, 'remote', 'set-url', 'origin', repo.url],
                     infra_step=True)
@@ -159,13 +159,13 @@ class SkiaApi(recipe_api.RecipeApi):
       self.m.bot_update._repository = patch_repo
 
     self.m.gclient.c = gclient_cfg
-    with self.m.step.context({'cwd': self.m.vars.checkout_root}):
+    with self.m.context(cwd=self.m.vars.checkout_root):
       update_step = self.m.bot_update.ensure_checkout(patch_root=patch_root)
 
     self.m.vars.got_revision = (
         update_step.presentation.properties['got_revision'])
 
     if self.m.vars.need_chromium_checkout:
-      with self.m.step.context({'cwd': self.m.vars.checkout_root,
-                                'env': self.m.vars.gclient_env}):
+      with self.m.context(cwd=self.m.vars.checkout_root,
+                          env=self.m.vars.gclient_env):
         self.m.gclient.runhooks()
