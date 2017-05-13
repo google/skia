@@ -31,7 +31,7 @@ sk_colorspace_t* sk_colorspace_new_rgb_with_gamma(sk_colorspace_render_target_ga
     return ToColorSpace(SkColorSpace::MakeRGB((SkColorSpace::RenderTargetGamma)gamma, AsMatrix44(*toXYZD50), flags).release());
 }
 
-sk_colorspace_t* sk_colorspace_new_rgb_with_gamma(sk_colorspace_render_target_gamma_t gamma, sk_colorspace_gamut_t gamut, uint32_t flags) {
+sk_colorspace_t* sk_colorspace_new_rgb_with_gamma_and_gamut(sk_colorspace_render_target_gamma_t gamma, sk_colorspace_gamut_t gamut, uint32_t flags) {
     return ToColorSpace(SkColorSpace::MakeRGB((SkColorSpace::RenderTargetGamma)gamma, (SkColorSpace::Gamut)gamut, flags).release());
 }
 
@@ -39,7 +39,7 @@ sk_colorspace_t* sk_colorspace_new_rgb_with_coeffs(const sk_colorspace_transfer_
     return ToColorSpace(SkColorSpace::MakeRGB(AsColorSpaceTransferFn(*coeffs), AsMatrix44(*toXYZD50), flags).release());
 }
 
-sk_colorspace_t* sk_colorspace_new_rgb_with_coeffs(const sk_colorspace_transfer_fn_t* coeffs, sk_colorspace_gamut_t gamut, uint32_t flags) {
+sk_colorspace_t* sk_colorspace_new_rgb_with_coeffs_and_gamut(const sk_colorspace_transfer_fn_t* coeffs, sk_colorspace_gamut_t gamut, uint32_t flags) {
     return ToColorSpace(SkColorSpace::MakeRGB(AsColorSpaceTransferFn(*coeffs), (SkColorSpace::Gamut)gamut, flags).release());
 }
 
