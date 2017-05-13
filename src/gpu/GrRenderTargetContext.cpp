@@ -962,16 +962,14 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        std::unique_ptr<GrLegacyMeshDrawOp> op =
-                GrOvalOpFactory::MakeRRectOp(paint.getColor(),
-                                             paint.usesDistanceVectorField(),
-                                             viewMatrix,
-                                             rrect,
-                                             stroke,
-                                             shaderCaps);
+        std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeRRectOp(std::move(paint),
+                                                                    paint.usesDistanceVectorField(),
+                                                                    viewMatrix,
+                                                                    rrect,
+                                                                    stroke,
+                                                                    shaderCaps);
         if (op) {
-            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->addLegacyMeshDrawOp(std::move(pipelineBuilder), *clip, std::move(op));
+            this->addDrawOp(*clip, std::move(op));
             return;
         }
     }
@@ -1185,11 +1183,10 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        std::unique_ptr<GrLegacyMeshDrawOp> op =
-                GrOvalOpFactory::MakeOvalOp(paint.getColor(), viewMatrix, oval, stroke, shaderCaps);
+        std::unique_ptr<GrDrawOp> op =
+                GrOvalOpFactory::MakeOvalOp(std::move(paint), viewMatrix, oval, stroke, shaderCaps);
         if (op) {
-            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+            this->addDrawOp(clip, std::move(op));
             return;
         }
     }
@@ -1219,17 +1216,16 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        std::unique_ptr<GrLegacyMeshDrawOp> op = GrOvalOpFactory::MakeArcOp(paint.getColor(),
-                                                                            viewMatrix,
-                                                                            oval,
-                                                                            startAngle,
-                                                                            sweepAngle,
-                                                                            useCenter,
-                                                                            style,
-                                                                            shaderCaps);
+        std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeArcOp(std::move(paint),
+                                                                  viewMatrix,
+                                                                  oval,
+                                                                  startAngle,
+                                                                  sweepAngle,
+                                                                  useCenter,
+                                                                  style,
+                                                                  shaderCaps);
         if (op) {
-            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+            this->addDrawOp(clip, std::move(op));
             return;
         }
     }
@@ -1371,11 +1367,10 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
 
         if (isOval && !path.isInverseFillType()) {
             const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-            std::unique_ptr<GrLegacyMeshDrawOp> op = GrOvalOpFactory::MakeOvalOp(
-                    paint.getColor(), viewMatrix, ovalRect, style.strokeRec(), shaderCaps);
+            std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeOvalOp(
+                    std::move(paint), viewMatrix, ovalRect, style.strokeRec(), shaderCaps);
             if (op) {
-                GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-                this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+                this->addDrawOp(clip, std::move(op));
                 return;
             }
         }
