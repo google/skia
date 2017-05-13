@@ -119,7 +119,7 @@ public:
      *  Allows the creation of a legacy SkCanvas even though the |bitmap|
      *  and its pixel ref may have an SkColorSpace.
      */
-    SkCanvas(const SkBitmap& bitmap, ColorBehavior);
+    SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior);
 #endif
 
     /** Construct a canvas with the specified bitmap to draw into.
@@ -171,7 +171,7 @@ public:
      *  inherits the properties of the surface that owns this canvas. If this canvas has no parent
      *  surface, then the new surface is created with default properties.
      */
-    sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps* props = nullptr);
+    sk_sp<SkSurface> makeSurface(const SkImageInfo& info, const SkSurfaceProps* props = nullptr);
 
     /**
      * Return the GPU context of the device that is associated with the canvas.
@@ -231,7 +231,7 @@ public:
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY);
     bool readPixels(const SkPixmap& pixmap, int srcX, int srcY);
-    bool readPixels(const SkBitmap& pixmap, int srcX, int srcY);
+    bool readPixels(const SkBitmap& bitmap, int srcX, int srcY);
 
     /**
      *  This method affects the pixels in the base-layer, and operates in pixel coordinates,
@@ -655,7 +655,7 @@ public:
         @param oval     The rectangle bounds of the oval to be drawn
         @param paint    The paint used to draw the oval
     */
-    void drawOval(const SkRect& oval, const SkPaint&);
+    void drawOval(const SkRect& oval, const SkPaint& paint);
 
     /**
      *  Draw the specified RRect using the specified paint The rrect will be filled or stroked
@@ -670,7 +670,7 @@ public:
      *  Draw the annulus formed by the outer and inner rrects. The results
      *  are undefined if the outer does not contain the inner.
      */
-    void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint&);
+    void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint);
 
     /** Draw the specified circle using the specified paint. If radius is <= 0,
         then nothing will be drawn. The circle will be filled
