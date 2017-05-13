@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e424a38f_a285b833",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-13T12:53:47Z",
+      "side": 1,
+      "message": "nit: move virtual to protected:",
+      "range": {
+        "startLine": 44,
+        "startChar": 17,
+        "endLine": 44,
+        "endChar": 27
+      },
+      "revId": "1e2aef71391d7e6c63485cdec95a8d2fd81320c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
