@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd4abac1_29e8bc9a",
+        "filename": "src/core/SkComposeShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-14T23:15:51Z",
+      "side": 1,
+      "message": "This is SkBlendMode_CanOverflow() in SkBlendModePriv.h",
+      "revId": "9e35626ec20d9a25e358771a0b489cb8ac84d7f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9425232_7cf80bb3",
+        "filename": "src/core/SkComposeShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-14T23:15:51Z",
+      "side": 1,
+      "message": "In generally, they don\u0027t do it themselves because, they can\u0027t do it themselves.  In the case of Plus (the only clamp we need so far) the clamp needs to happen after any mask lerp.\n\n  blend -\u003e lerp with some mask -\u003e clamp",
+      "range": {
+        "startLine": 165,
+        "startChar": 50,
+        "endLine": 165,
+        "endChar": 81
+      },
+      "revId": "9e35626ec20d9a25e358771a0b489cb8ac84d7f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa496b2a_d9d11747",
+        "filename": "src/core/SkComposeShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-14T23:15:51Z",
+      "side": 1,
+      "message": "It is always slightly inefficient to have separate stages, but orthogonality and having fewer special cases are the most productive default for code that has not been proven to be too slow.  The instinct to fuse up a special case is natural and one that everyone including me has grown through when learning to use this framework... you\u0027re going to need to actively suppress this feeling for a while.",
+      "range": {
+        "startLine": 169,
+        "startChar": 4,
+        "endLine": 169,
+        "endChar": 84
+      },
+      "revId": "9e35626ec20d9a25e358771a0b489cb8ac84d7f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
