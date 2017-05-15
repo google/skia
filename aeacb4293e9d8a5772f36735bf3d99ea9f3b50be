@@ -88,6 +88,24 @@
       "revId": "aeacb4293e9d8a5772f36735bf3d99ea9f3b50be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25f40ebd_257f65ce",
+        "filename": "src/gpu/GrGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-15T17:10:32Z",
+      "side": 1,
+      "message": "sgtm. My main concern is that it something checks before this function returns and not when playing back the command buffer (in vulkan) so that it is trivial to find the offending op in a debugger.",
+      "parentUuid": "78f40e9b_bea01df3",
+      "revId": "aeacb4293e9d8a5772f36735bf3d99ea9f3b50be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
