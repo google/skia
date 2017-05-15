@@ -43,25 +43,26 @@ class GitBranch(object):
   """Class to manage git branches.
 
   This class allows one to create a new branch in a repository to make changes,
-  then it commits the changes, switches to master branch, and deletes the
-  created temporary branch upon exit.
+  then it commits the changes, switches to the specified remote branch, and
+  deletes the created temporary branch upon exit.
   """
   def __init__(self, branch_name, commit_msg, upload=True, commit_queue=False,
-               delete_when_finished=True):
+               delete_when_finished=True, remote_branch='master'):
     self._branch_name = branch_name
     self._commit_msg = commit_msg
     self._upload = upload
     self._commit_queue = commit_queue
     self._patch_set = 0
     self._delete_when_finished = delete_when_finished
+    self._remote_branch = remote_branch
 
   def __enter__(self):
     subprocess.check_call(['git', 'reset', '--hard', 'HEAD'])
-    subprocess.check_call(['git', 'checkout', 'master'])
+    subprocess.check_call(['git', 'checkout', self._remote_branch])
     if self._branch_name in subprocess.check_output(['git', 'branch']).split():
       subprocess.check_call(['git', 'branch', '-D', self._branch_name])
     subprocess.check_call(['git', 'checkout', '-b', self._branch_name,
-                           '-t', 'origin/master'])
+                           '-t', 'origin/' + self._remote_branch])
     return self
 
   def commit_and_upload(self, use_commit_queue=False):
@@ -80,15 +81,15 @@ class GitBranch(object):
                     output).group('issue_url')
 
   def __exit__(self, exc_type, _value, _traceback):
-    if self._upload:
-      # Only upload if no error occurred.
-      try:
+    try:
+      if self._upload:
+        # Only upload if no error occurred.
         if exc_type is None:
           self.commit_and_upload(use_commit_queue=self._commit_queue)
-      finally:
-        subprocess.check_call(['git', 'checkout', 'master'])
-        if self._delete_when_finished:
-          subprocess.check_call(['git', 'branch', '-D', self._branch_name])
+    finally:
+      subprocess.check_call(['git', 'checkout', self._remote_branch])
+      if self._delete_when_finished:
+        subprocess.check_call(['git', 'branch', '-D', self._branch_name])
 
 
 class NewGitCheckout(utils.tmp_dir):
@@ -121,6 +122,8 @@ class NewGitCheckout(utils.tmp_dir):
   @property
   def root(self):
     """Returns the root directory containing the checked-out files."""
+    print 'HERE HERE'
+    print self.name
     return self.name
 
   def __enter__(self):
