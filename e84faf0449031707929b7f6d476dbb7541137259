@@ -137,6 +137,24 @@
       "revId": "e84faf0449031707929b7f6d476dbb7541137259",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c65b7695_49170ed7",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1088,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-15T12:01:43Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s it.\n\n     for (size_t i \u003d 1; i \u003c c-\u003estopCount; i++) {\n-        idx -\u003d (t \u003e\u003d c-\u003ets[i]);\n+        idx +\u003d if_then_else(t \u003e\u003d c-\u003ets[i], U32(1), U32(0));\n     }",
+      "parentUuid": "e83aba9b_26672f5b",
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
