@@ -155,13 +155,10 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
         if (fOpLists[i]->executeOps(&fFlushState)) {
             flushed = true;
         }
+        fOpLists[i]->reset();
     }
 
     SkASSERT(fFlushState.nextDrawToken() == fFlushState.nextTokenToFlush());
-
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->reset();
-    }
 
     fOpLists.reset();
 
