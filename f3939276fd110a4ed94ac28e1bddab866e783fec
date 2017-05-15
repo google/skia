@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bec700c1_f1f39132",
+        "filename": "src/core/SkPictureCommon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-15T17:19:59Z",
+      "side": 1,
+      "message": "I think this file is really just looking for paints, not draws.  You might just try switching the existing logic over to kHasPaint_Tag",
+      "revId": "f3939276fd110a4ed94ac28e1bddab866e783fec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

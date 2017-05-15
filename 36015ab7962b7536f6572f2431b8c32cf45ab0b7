@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52b0caf4_3912b6fa",
+        "filename": "src/core/SkRecordPattern.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-15T17:19:59Z",
+      "side": 0,
+      "message": "You need to keep this case to return false when the thing is not a draw.  I think you need 3 cases:\n\n  \u0026 kDrawWithPaint  \u003d\u003d kDrawWithPaint -\u003e fPaint \u003d AsPtr(draw-\u003epaint), return true\n  \u0026 kDrawWithPaint  \u003d\u003d kDraw          -\u003e fPaint \u003d nullptr, return true\n  \u0026 kDraw           \u003d\u003d 0              -\u003e fPaint \u003d nullptr, return false",
+      "range": {
+        "startLine": 66,
+        "startChar": 8,
+        "endLine": 66,
+        "endChar": 21
+      },
+      "revId": "36015ab7962b7536f6572f2431b8c32cf45ab0b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
