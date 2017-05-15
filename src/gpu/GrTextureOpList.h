@@ -23,7 +23,7 @@ struct SkIRect;
 
 class GrTextureOpList final : public GrOpList {
 public:
-    GrTextureOpList(GrTextureProxy*, GrGpu*, GrAuditTrail*);
+    GrTextureOpList(GrTextureProxy*, GrAuditTrail*);
 
     ~GrTextureOpList() override;
 
@@ -74,7 +74,6 @@ private:
                   GrSurfaceProxy::UniqueID proxyUniqueID);
 
     SkSTArray<2, std::unique_ptr<GrOp>, true> fRecordedOps;
-    GrGpu*                          fGpu;
 
     typedef GrOpList INHERITED;
 };

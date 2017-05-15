@@ -155,15 +155,13 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
         if (fOpLists[i]->executeOps(&fFlushState)) {
             flushed = true;
         }
+        fOpLists[i]->reset();
     }
+    fOpLists.reset();
 
     SkASSERT(fFlushState.nextDrawToken() == fFlushState.nextTokenToFlush());
 
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->reset();
-    }
-
-    fOpLists.reset();
+    fContext->getGpu()->finishFlush();
 
     fFlushState.reset();
     // We always have to notify the cache when it requested a flush so it can reset its state.
@@ -230,8 +228,7 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
         fOpLists.back()->makeClosed(*fContext->caps());
     }
 
-    sk_sp<GrTextureOpList> opList(new GrTextureOpList(textureProxy, fContext->getGpu(),
-                                                      fContext->getAuditTrail()));
+    sk_sp<GrTextureOpList> opList(new GrTextureOpList(textureProxy, fContext->getAuditTrail()));
 
     SkASSERT(textureProxy->getLastOpList() == opList.get());
 
