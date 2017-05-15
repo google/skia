@@ -119,6 +119,24 @@
       "revId": "e84faf0449031707929b7f6d476dbb7541137259",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e83aba9b_26672f5b",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1088,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-15T11:51:51Z",
+      "side": 1,
+      "message": "Come to think of it, that may be your bug.  Only vector comparisons return 0 or -1.  The scalar fallback code returns a bool.   It\u0027s always safe to use a comparison as the argument to if_then_else.  \n\nLet\u0027s start off with the if_then_else() version and later think about making using that return value directly less error prone?\n\nYou should also be able to reproduce this problem with a SK_CPU_LIMIT_SSE41 build.",
+      "parentUuid": "5efc1aa3_3eb49b3d",
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
