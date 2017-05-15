@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1781809c_42b4dc35",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-15T11:46:04Z",
+      "side": 1,
+      "message": "Let\u0027s mention why we allocate at least 8?",
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aad3d48b_89d6cd7c",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-15T11:46:04Z",
+      "side": 1,
+      "message": "Let\u0027s explain how this one works like we do for the other path at 474-475?",
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81f194ff_cbe6cff8",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1041,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-15T11:46:04Z",
+      "side": 1,
+      "message": "Let\u0027s fold this into SI?",
+      "range": {
+        "startLine": 1039,
+        "startChar": 0,
+        "endLine": 1041,
+        "endChar": 6
+      },
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbbeec0a_5c5a8d70",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1043,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-15T11:46:04Z",
+      "side": 1,
+      "message": "This little helper function would probably be just as clear if it took F* r, F* g, etc.",
+      "range": {
+        "startLine": 1043,
+        "startChar": 24,
+        "endLine": 1043,
+        "endChar": 46
+      },
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c46e01c4_a8e84287",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-15T11:46:04Z",
+      "side": 1,
+      "message": "The loop?",
+      "range": {
+        "startLine": 1086,
+        "startChar": 12,
+        "endLine": 1086,
+        "endChar": 17
+      },
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5efc1aa3_3eb49b3d",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1088,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-15T11:46:04Z",
+      "side": 1,
+      "message": "// Remember, comparisons return 0 or -1... this is  if (t \u003e\u003d c-\u003ets[i]) { idx++; }\n\nThough you might just want to write this as \n\n   idx +\u003d if_then_else(t \u003e\u003d c-\u003ets[i], 1, 0);\n\nIt may be possible for the compiler to work this one out.",
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
