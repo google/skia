@@ -4,18 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gl/GrGLSLPrettyPrint.h"
+#include "GrSKSLPrettyPrint.h"
 
-namespace GrGLSLPrettyPrint {
+namespace GrSKSLPrettyPrint {
 
 class GLSLPrettyPrint {
 public:
     GLSLPrettyPrint() {}
 
-    SkString prettify(const char** strings,
-                      int* lengths,
-                      int count,
-                      bool countlines) {
+    SkString prettify(const char** strings, int* lengths, int count, bool countlines) {
         fCountlines = countlines;
         fTabs = 0;
         fLinecount = 1;
@@ -60,7 +57,8 @@ public:
                  * existing shader code and we also have a special case for handling whitespace
                  * at the beginning of fresh lines.
                  *
-                 * Otherwise just add the new character to the pretty string, indenting if necessary.
+                 * Otherwise just add the new character to the pretty string, indenting if
+                 * necessary.
                  */
                 if (fInParseUntilNewline) {
                     this->parseUntilNewline();
@@ -87,7 +85,7 @@ public:
                 } else if (!parensDepth && this->hasToken(";")) {
                     this->newline();
                 } else if ('\t' == fInput[fIndex] || '\n' == fInput[fIndex] ||
-                        (fFreshline && ' ' == fInput[fIndex])) {
+                           (fFreshline && ' ' == fInput[fIndex])) {
                     fIndex++;
                 } else {
                     this->appendChar(fInput[fIndex]);
@@ -96,6 +94,7 @@ public:
         }
         return fPretty;
     }
+
 private:
     void appendChar(char c) {
         this->tabString();
@@ -193,12 +192,9 @@ private:
     const char* fInParseUntilToken;
 };
 
-SkString PrettyPrintGLSL(const char** strings,
-                         int* lengths,
-                         int count,
-                         bool countlines) {
+SkString PrettyPrint(const char** strings, int* lengths, int count, bool countlines) {
     GLSLPrettyPrint pp;
     return pp.prettify(strings, lengths, count, countlines);
 }
 
-} // end namespace
+}  // namespace GrSKSLPrettyPrint
