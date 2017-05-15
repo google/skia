@@ -125,3 +125,21 @@ public:
     }
 };
 DEF_BENCH( return (new SkRasterPipeline_2dot2); )
+
+class SkRasterPipelineToSRGB : public Benchmark {
+public:
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    const char* onGetName() override {
+        return "SkRasterPipeline_to_srgb";
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        SkRasterPipeline p;
+        p.append(SkRasterPipeline::to_srgb);
+
+        while (loops --> 0) {
+            p.run(0,N);
+        }
+    }
+};
+DEF_BENCH( return (new SkRasterPipelineToSRGB); )
