@@ -1147,7 +1147,7 @@ STAGE(xy_to_unit_angle) {
 STAGE(xy_to_radius) {
     F X2 = r * r,
       Y2 = g * g;
-    r = rcp(rsqrt(X2 + Y2));
+    r = sqrt_(X2 + Y2);
 }
 
 STAGE(save_xy) {
