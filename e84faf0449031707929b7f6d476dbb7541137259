@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f60bb2d9_579fa32a",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-15T13:24:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1781809c_42b4dc35",
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aad3d48b_89d6cd7c",
         "filename": "src/effects/gradients/SkGradientShader.cpp",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "e84faf0449031707929b7f6d476dbb7541137259",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b01fc1f9_6e4d4e22",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-15T13:24:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aad3d48b_89d6cd7c",
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "6a25878c_fa8125e7",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1041,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-15T13:24:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81f194ff_cbe6cff8",
+      "range": {
+        "startLine": 1039,
+        "startChar": 0,
+        "endLine": 1041,
+        "endChar": 6
+      },
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bbbeec0a_5c5a8d70",
         "filename": "src/jumper/SkJumper_stages.cpp",
         "patchSetId": 4
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "57362f91_4c3ed338",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1043,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-15T13:24:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbbeec0a_5c5a8d70",
+      "range": {
+        "startLine": 1043,
+        "startChar": 24,
+        "endLine": 1043,
+        "endChar": 46
+      },
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c46e01c4_a8e84287",
         "filename": "src/jumper/SkJumper_stages.cpp",
         "patchSetId": 4
@@ -102,6 +186,30 @@
       "revId": "e84faf0449031707929b7f6d476dbb7541137259",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc386a24_395fc8e8",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-15T13:24:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c46e01c4_a8e84287",
+      "range": {
+        "startLine": 1086,
+        "startChar": 12,
+        "endLine": 1086,
+        "endChar": 17
+      },
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -155,6 +263,24 @@
       "revId": "e84faf0449031707929b7f6d476dbb7541137259",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24dfd93d_d6602674",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1088,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-15T13:24:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c65b7695_49170ed7",
+      "revId": "e84faf0449031707929b7f6d476dbb7541137259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
