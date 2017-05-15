@@ -604,7 +604,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
 
     GrSurfaceDesc desc;
     desc.fConfig = backendRT.config();
-    desc.fFlags = kCheckAllocation_GrSurfaceFlag | kRenderTarget_GrSurfaceFlag;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = backendRT.width();
     desc.fHeight = backendRT.height();
     desc.fSampleCnt = SkTMin(backendRT.sampleCnt(), this->caps()->maxSampleCount());
@@ -841,9 +841,22 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
     return 0;
 }
 
-static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
-                                         const GrGLInterface* interface) {
-    if (SkToBool(desc.fFlags & kCheckAllocation_GrSurfaceFlag)) {
+enum class CheckForAllocationError { kNo, kYes };
+
+CheckForAllocationError should_check_allocation_error(GrGLGpu* gpu) {
+    // Currently we don't check for allocation errors in Chrome because glGetError is too slow over
+    // the command buffer even for debug builds.
+#ifdef SK_DEBUG
+    return gpu->glContext().driver() == kChromium_GrGLDriver ? CheckForAllocationError::kNo
+                                                             : CheckForAllocationError::kYes;
+#else
+    return CheckForAllocationError::kNo;
+#endif
+}
+
+static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc, const GrGLInterface* interface,
+                                         CheckForAllocationError check) {
+    if (CheckForAllocationError::kYes == check) {
         return GR_GL_GET_ERROR(interface);
     } else {
         return CHECK_ALLOC_ERROR(interface);
@@ -856,6 +869,7 @@ static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
  * @param desc           The surface descriptor for the texture being created.
  * @param interface      The GL interface in use.
  * @param caps           The capabilities of the GL device.
+ * @param checkForAllocationError Should allocation error be checked for using glGetError.
  * @param internalFormat The data format used for the internal storage of the texture. May be sized.
  * @param internalFormatForTexStorage The data format used for the TexStorage API. Must be sized.
  * @param externalFormat The data format used for the external storage of the texture.
@@ -869,6 +883,7 @@ static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
 static bool allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc,
                                                        const GrGLInterface& interface,
                                                        const GrGLCaps& caps,
+                                                       CheckForAllocationError checkAllocationError,
                                                        GrGLenum target,
                                                        GrGLenum internalFormat,
                                                        GrGLenum internalFormatForTexStorage,
@@ -893,7 +908,7 @@ static bool allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc
                                    SkTMax(texels.count(), 1),
                                    internalFormatForTexStorage,
                                    desc.fWidth, desc.fHeight));
-        GrGLenum error = check_alloc_error(desc, &interface);
+        GrGLenum error = check_alloc_error(desc, &interface, checkAllocationError);
         if (error != GR_GL_NO_ERROR) {
             return  false;
         } else {
@@ -929,7 +944,7 @@ static bool allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc
                                      0, // border
                                      externalFormat, externalType,
                                      nullptr));
-            GrGLenum error = check_alloc_error(desc, &interface);
+            GrGLenum error = check_alloc_error(desc, &interface, checkAllocationError);
             if (error != GR_GL_NO_ERROR) {
                 return false;
             }
@@ -950,7 +965,7 @@ static bool allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc
                                          0, // border
                                          externalFormat, externalType,
                                          currentMipData));
-                GrGLenum error = check_alloc_error(desc, &interface);
+                GrGLenum error = check_alloc_error(desc, &interface, checkAllocationError);
                 if (error != GR_GL_NO_ERROR) {
                     return false;
                 }
@@ -966,12 +981,14 @@ static bool allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc
  * @param desc           The surface descriptor for the texture being created.
  * @param interface      The GL interface in use.
  * @param caps           The capabilities of the GL device.
+ * @param checkForAllocationError Should allocation error be checked for using glGetError.
  * @param internalFormat The data format used for the internal storage of the texture.
  * @param texels         The texel data of the texture being created.
  */
 static bool allocate_and_populate_compressed_texture(const GrSurfaceDesc& desc,
                                                      const GrGLInterface& interface,
                                                      const GrGLCaps& caps,
+                                                     CheckForAllocationError checkAllocationError,
                                                      GrGLenum target, GrGLenum internalFormat,
                                                      const SkTArray<GrMipLevel>& texels,
                                                      int baseWidth, int baseHeight) {
@@ -992,7 +1009,7 @@ static bool allocate_and_populate_compressed_texture(const GrSurfaceDesc& desc,
                                    texels.count(),
                                    internalFormat,
                                    baseWidth, baseHeight));
-        GrGLenum error = check_alloc_error(desc, &interface);
+        GrGLenum error = check_alloc_error(desc, &interface, checkAllocationError);
         if (error != GR_GL_NO_ERROR) {
             return false;
         } else {
@@ -1041,7 +1058,7 @@ static bool allocate_and_populate_compressed_texture(const GrSurfaceDesc& desc,
                                                SkToInt(dataSize),
                                                texels[currentMipLevel].fPixels));
 
-            GrGLenum error = check_alloc_error(desc, &interface);
+            GrGLenum error = check_alloc_error(desc, &interface, checkAllocationError);
             if (error != GR_GL_NO_ERROR) {
                 return false;
             }
@@ -1237,8 +1254,9 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     if (kNewTexture_UploadType == uploadType &&
         0 == left && 0 == top &&
         desc.fWidth == width && desc.fHeight == height) {
-        succeeded = allocate_and_populate_uncompressed_texture(desc, *interface, caps, target,
-                                                               internalFormat,
+        CheckForAllocationError check = should_check_allocation_error(this);
+        succeeded = allocate_and_populate_uncompressed_texture(desc, *interface, caps, check,
+                                                               target, internalFormat,
                                                                internalFormatForTexStorage,
                                                                externalFormat, externalType,
                                                                texelsShallowCopy, width, height);
@@ -1310,7 +1328,8 @@ bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
     }
 
     if (kNewTexture_UploadType == uploadType) {
-        return allocate_and_populate_compressed_texture(desc, *interface, caps, target,
+        CheckForAllocationError check = should_check_allocation_error(this);
+        return allocate_and_populate_compressed_texture(desc, *interface, caps, check, target,
                                                         internalFormat, texels, width, height);
     } else {
         for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
@@ -1435,7 +1454,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
                                         GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_RENDERBUFFER,
                                         idDesc->fMSColorRenderbufferID));
-        if ((desc.fFlags & kCheckAllocation_GrSurfaceFlag) ||
+        if (should_check_allocation_error(this) == CheckForAllocationError::kYes ||
             !this->glCaps().isConfigVerifiedColorAttachment(desc.fConfig)) {
             GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
@@ -1458,7 +1477,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
                                      texInfo.fTarget,
                                      texInfo.fID, 0));
     }
-    if ((desc.fFlags & kCheckAllocation_GrSurfaceFlag) ||
+    if (should_check_allocation_error(this) == CheckForAllocationError::kYes ||
         !this->glCaps().isConfigVerifiedColorAttachment(desc.fConfig)) {
         GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
@@ -1816,7 +1835,8 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
         GL_ALLOC_CALL(this->glInterface(), RenderbufferStorage(GR_GL_RENDERBUFFER,
                                                                sFmt.fInternalFormat,
                                                                width, height));
-        SkASSERT(GR_GL_NO_ERROR == check_alloc_error(rt->desc(), this->glInterface()));
+        SkASSERT(GR_GL_NO_ERROR == check_alloc_error(rt->desc(), this->glInterface(),
+                                                     should_check_allocation_error(this)));
     }
     fStats.incStencilAttachmentCreates();
     // After sized formats we attempt an unsized format and take
