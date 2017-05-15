@@ -8,6 +8,7 @@
 #include "Benchmark.h"
 #include "OverwriteLine.h"
 #include "SkGraphics.h"
+#include "SkSurface.h"
 #include "SkTaskGroup.h"
 #include <algorithm>
 #include <chrono>
@@ -48,7 +49,8 @@ int main(int argc, char** argv) {
 
         std::string name = bench->getName();
         if (std::regex_search(name, pattern) &&
-                bench->isSuitableFor(Benchmark::kNonRendering_Backend)) {
+                (bench->isSuitableFor(Benchmark::kNonRendering_Backend) ||
+                 bench->isSuitableFor(Benchmark::      kRaster_Backend))) {
             bench->delayedSetup();
             benches.emplace_back(Bench{std::move(bench), name,
                                        ns{std::numeric_limits<double>::infinity()}});
@@ -96,12 +98,22 @@ int main(int argc, char** argv) {
     while (samples < limit) {
         std::random_shuffle(benches.begin(), benches.end());
         for (auto& bench : benches) {
+            sk_sp<SkSurface> dst;
+            SkCanvas* canvas = nullptr;
+            if (!bench.b->isSuitableFor(Benchmark::kNonRendering_Backend)) {
+                dst = SkSurface::MakeRaster(SkImageInfo::MakeS32(bench.b->getSize().x(),
+                                                                 bench.b->getSize().y(),
+                                                                 kPremul_SkAlphaType));
+                canvas = dst->getCanvas();
+                bench.b->perCanvasPreDraw(canvas);
+            }
             for (int loops = 1; loops < 1000000000;) {
-                bench.b->preDraw(nullptr);
+
+                bench.b->preDraw(canvas);
                 auto start = clock::now();
-                    bench.b->draw(loops, nullptr);
+                    bench.b->draw(loops, canvas);
                 ns elapsed = clock::now() - start;
-                bench.b->postDraw(nullptr);
+                bench.b->postDraw(canvas);
 
                 if (elapsed < std::chrono::milliseconds{10}) {
                     loops *= 2;
@@ -130,6 +142,9 @@ int main(int argc, char** argv) {
                     }
                 }
                 break;
+            }
+            if (canvas) {
+                bench.b->perCanvasPostDraw(canvas);
             }
         }
     }
