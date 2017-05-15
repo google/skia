@@ -102,7 +102,7 @@ public:
     struct DrawOpArgs {
         GrRenderTarget* fRenderTarget;
         const GrAppliedClip* fAppliedClip;
-        GrXferProcessor::DstTexture fDstTexture;
+        GrXferProcessor::DstProxy fDstProxy;
     };
 
     void setDrawOpArgs(DrawOpArgs* opArgs) { fOpArgs = opArgs; }
@@ -224,8 +224,8 @@ public:
 
     const GrAppliedClip* clip() const { return this->state()->drawOpArgs().fAppliedClip; }
 
-    const GrXferProcessor::DstTexture& dstTexture() const {
-        return this->state()->drawOpArgs().fDstTexture;
+    const GrXferProcessor::DstProxy& dstProxy() const {
+        return this->state()->drawOpArgs().fDstProxy;
     }
 
     template <typename... Args>
