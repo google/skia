@@ -311,8 +311,7 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     SkASSERT(dstSurface);
     SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
 
-    if (GrPixelConfigIsCompressed(dstSurface->desc().fConfig) &&
-        dstSurface->desc().fConfig != srcConfig) {
+    if (GrPixelConfigIsCompressed(dstSurface->config()) && dstSurface->config() != srcConfig) {
         return false;
     }
 
@@ -464,7 +463,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_
 
 const GrGpu::MultisampleSpecs& GrGpu::queryMultisampleSpecs(const GrPipeline& pipeline) {
     GrRenderTarget* rt = pipeline.getRenderTarget();
-    SkASSERT(rt->desc().fSampleCnt > 1);
+    SkASSERT(rt->numStencilSamples() > 1);
 
     GrStencilSettings stencil;
     if (pipeline.isStencilEnabled()) {
@@ -477,7 +476,7 @@ const GrGpu::MultisampleSpecs& GrGpu::queryMultisampleSpecs(const GrPipeline& pi
     int effectiveSampleCnt;
     SkSTArray<16, SkPoint, true> pattern;
     this->onQueryMultisampleSpecs(rt, stencil, &effectiveSampleCnt, &pattern);
-    SkASSERT(effectiveSampleCnt >= rt->desc().fSampleCnt);
+    SkASSERT(effectiveSampleCnt >= rt->numStencilSamples());
 
     uint8_t id;
     if (this->caps()->sampleLocationsSupport()) {

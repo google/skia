@@ -2101,14 +2101,14 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     GrSurfaceOrigin originForBlitFramebuffer = kDefault_GrSurfaceOrigin;
     bool rectsMustMatchForBlitFramebuffer = false;
     bool disallowSubrectForBlitFramebuffer = false;
-    if (src->numColorSamples() &&
+    if (src->fsaaType() == GrFSAAType::kUnifiedMSAA &&
         (this->blitFramebufferSupportFlags() & kResolveMustBeFull_BlitFrambufferFlag)) {
         rectsMustMatchForBlitFramebuffer = true;
         disallowSubrectForBlitFramebuffer = true;
         // Mirroring causes rects to mismatch later, don't allow it.
         originForBlitFramebuffer = src->origin();
-    } else if (src->numColorSamples() && (this->blitFramebufferSupportFlags() &
-                                          kRectsMustMatchForMSAASrc_BlitFramebufferFlag)) {
+    } else if (src->fsaaType() == GrFSAAType::kUnifiedMSAA &&
+            (this->blitFramebufferSupportFlags() & kRectsMustMatchForMSAASrc_BlitFramebufferFlag)) {
         rectsMustMatchForBlitFramebuffer = true;
         // Mirroring causes rects to mismatch later, don't allow it.
         originForBlitFramebuffer = src->origin();

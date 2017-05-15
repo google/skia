@@ -361,12 +361,33 @@ private:
         kWrite_UploadType,         // we are using TexSubImage2D to copy data to an existing texture
         kTransfer_UploadType,      // we are using a transfer buffer to copy data
     };
-    bool uploadTexData(const GrSurfaceDesc& desc,
+    bool uploadTexData(GrPixelConfig texConfig,
+                       int texWidth, int texHeight,
+                       GrSurfaceOrigin texOrigin,
                        GrGLenum target,
                        UploadType uploadType,
                        int left, int top, int width, int height,
                        GrPixelConfig dataConfig,
                        const SkTArray<GrMipLevel>& texels);
+    bool uploadTexData(GrGLTexture* texture,
+                       UploadType uploadType,
+                       int left, int top, int width, int height,
+                       GrPixelConfig dataConfig,
+                       const SkTArray<GrMipLevel>& texels) {
+        return this->uploadTexData(texture->config(), texture->width(), texture->height(),
+                                   texture->origin(), texture->target(), uploadType, left, top,
+                                   width, height, dataConfig, texels);
+    }
+    bool uploadTexData(const GrSurfaceDesc& desc,
+                       GrGLenum target,
+                       UploadType uploadType,
+                       int left, int top, int width, int height,
+                       GrPixelConfig dataConfig,
+                       const SkTArray<GrMipLevel>& texels) {
+        return this->uploadTexData(desc.fConfig, desc.fWidth, desc.fHeight,
+                                   desc.fOrigin, target, uploadType, left, top,
+                                   width, height, dataConfig, texels);
+    }
 
     // helper for onCreateCompressedTexture. If width and height are
     // set to -1, then this function will use desc.fWidth and desc.fHeight
@@ -374,12 +395,32 @@ private:
     // whenever a new texture needs to be created. Otherwise, we assume that
     // the texture is already in GPU memory and that it's going to be updated
     // with new data.
-    bool uploadCompressedTexData(const GrSurfaceDesc& desc,
+    bool uploadCompressedTexData(GrPixelConfig texAndDataConfig,
+                                 int texWidth, int texHeight,
+                                 GrSurfaceOrigin texOrigin,
                                  GrGLenum target,
                                  const SkTArray<GrMipLevel>& texels,
                                  UploadType uploadType = kNewTexture_UploadType,
                                  int left = 0, int top = 0,
                                  int width = -1, int height = -1);
+
+    bool uploadCompressedTexData(GrGLTexture* texture,
+                                 const SkTArray<GrMipLevel>& texels,
+                                 UploadType uploadType = kNewTexture_UploadType,
+                                 int left = 0, int top = 0,
+                                 int width = -1, int height = -1) {
+        return this->uploadCompressedTexData(texture->config(), texture->width(), texture->height(),
+                                             texture->origin(), texture->target(), texels,
+                                             uploadType, left, top, width, height);
+    }
+    bool uploadCompressedTexData(const GrSurfaceDesc& desc, GrGLenum target,
+                                 const SkTArray<GrMipLevel>& texels,
+                                 UploadType uploadType = kNewTexture_UploadType,
+                                 int left = 0, int top = 0,
+                                 int width = -1, int height = -1) {
+        return this->uploadCompressedTexData(desc.fConfig, desc.fWidth, desc.fHeight, desc.fOrigin,
+                                             target, texels, uploadType, left, top, width, height);
+    }
 
     bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
                                    GrGLRenderTarget::IDDesc*);

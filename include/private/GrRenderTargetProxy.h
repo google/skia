@@ -29,10 +29,10 @@ public:
     /**
      * Returns the number of samples/pixel in the stencil buffer (Zero if non-MSAA).
      */
-    int numStencilSamples() const { return fDesc.fSampleCnt; }
+    //int numStencilSamples() const { return fDesc.fSampleCnt; }
 
     GrFSAAType fsaaType() const {
-        if (!fDesc.fSampleCnt) {
+        if (!fSampleCnt) {
             SkASSERT(!(fRenderTargetFlags & GrRenderTarget::Flags::kMixedSampled));
             return GrFSAAType::kNone;
         }
@@ -43,9 +43,9 @@ public:
     /**
      * Returns the number of samples/pixel in the color buffer (Zero if non-MSAA or mixed sampled).
      */
-    int numColorSamples() const {
-        return GrFSAAType::kMixedSamples == this->fsaaType() ? 0 : fDesc.fSampleCnt;
-    }
+    //int numColorSamples() const {
+//        return GrFSAAType::kMixedSamples == this->fsaaType() ? 0 : fDesc.fSampleCnt;
+//    }
 
     int maxWindowRectangles(const GrCaps& caps) const;
 
@@ -64,6 +64,8 @@ protected:
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrSurface>);
 
+    int sampleCount() const { return fSampleCnt; }
+
 private:
     size_t onGpuMemorySize() const override;
 
@@ -77,6 +79,7 @@ private:
     // flags will ultimately end up being. In the wrapped case we just copy the wrapped
     // rendertarget's info here.
     GrRenderTarget::Flags   fRenderTargetFlags;
+    int fSampleCnt;
 
     typedef GrSurfaceProxy INHERITED;
 };

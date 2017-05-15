@@ -379,9 +379,9 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
     }
 
     bool success = false;
-    if (GrPixelConfigIsCompressed(vkTex->desc().fConfig)) {
+    if (GrPixelConfigIsCompressed(vkTex->config())) {
         // We check that config == desc.fConfig in GrGpu::getWritePixelsInfo()
-        SkASSERT(config == vkTex->desc().fConfig);
+        SkASSERT(config == vkTex->config());
         // TODO: add compressed texture support
         // delete the following two lines and uncomment the two after that when ready
         vkTex->unref();
@@ -503,9 +503,9 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
 
     size_t bpp = GrBytesPerPixel(dataConfig);
 
-    const GrSurfaceDesc& desc = tex->desc();
+    //const GrSurfaceDesc& desc = tex->desc();
 
-    if (!GrSurfacePriv::AdjustWritePixelParams(desc.fWidth, desc.fHeight, bpp, &left, &top,
+    if (!GrSurfacePriv::AdjustWritePixelParams(tex->width(), tex->height(), bpp, &left, &top,
                                                &width, &height, &data, &rowBytes)) {
         return false;
     }
@@ -528,7 +528,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
                                                     &subres,
                                                     &layout));
 
-    int texTop = kBottomLeft_GrSurfaceOrigin == desc.fOrigin ? tex->height() - top - height : top;
+    int texTop = kBottomLeft_GrSurfaceOrigin == tex->origin() ? tex->height() - top - height : top;
     const GrVkAlloc& alloc = tex->alloc();
     VkDeviceSize offset = alloc.fOffset + texTop*layout.rowPitch + left*bpp;
     VkDeviceSize size = height*layout.rowPitch;
@@ -538,7 +538,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
         return false;
     }
 
-    if (kBottomLeft_GrSurfaceOrigin == desc.fOrigin) {
+    if (kBottomLeft_GrSurfaceOrigin == tex->origin()) {
         // copy into buffer by rows
         const char* srcRow = reinterpret_cast<const char*>(data);
         char* dstRow = reinterpret_cast<char*>(mapPtr)+(height - 1)*layout.rowPitch;
@@ -578,8 +578,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
         return false;
     }
 
-    const GrSurfaceDesc& desc = tex->desc();
-    SkASSERT(this->caps()->isConfigTexturable(desc.fConfig));
+    SkASSERT(this->caps()->isConfigTexturable(tex->config()));
     size_t bpp = GrBytesPerPixel(dataConfig);
 
     // texels is const.
@@ -593,14 +592,14 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     }
 
     // Determine whether we need to flip when we copy into the buffer
-    bool flipY = (kBottomLeft_GrSurfaceOrigin == desc.fOrigin && !texelsShallowCopy.empty());
+    bool flipY = (kBottomLeft_GrSurfaceOrigin == tex->origin() && !texelsShallowCopy.empty());
 
     // adjust any params (left, top, currentWidth, currentHeight
     // find the combined size of all the mip levels and the relative offset of
     // each into the collective buffer
     // Do the first level separately because we may need to adjust width and height
     // (for the non-mipped case).
-    if (!GrSurfacePriv::AdjustWritePixelParams(desc.fWidth, desc.fHeight, bpp, &left, &top,
+    if (!GrSurfacePriv::AdjustWritePixelParams(tex->width(), tex->height(), bpp, &left, &top,
                                                &width,
                                                &height,
                                                &texelsShallowCopy[0].fPixels,
@@ -619,7 +618,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     for (int currentMipLevel = 1; currentMipLevel < texelsShallowCopy.count(); currentMipLevel++) {
         currentWidth = SkTMax(1, currentWidth/2);
         currentHeight = SkTMax(1, currentHeight/2);
-        if (!GrSurfacePriv::AdjustWritePixelParams(desc.fWidth, desc.fHeight, bpp, &left, &top,
+        if (!GrSurfacePriv::AdjustWritePixelParams(tex->width(), tex->height(), bpp, &left, &top,
                                                    &currentWidth,
                                                    &currentHeight,
                                                    &texelsShallowCopy[currentMipLevel].fPixels,
@@ -1716,7 +1715,7 @@ void GrVkGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSetting
                                       int* effectiveSampleCnt, SamplePattern*) {
     // TODO: stub.
     SkASSERT(!this->caps()->sampleLocationsSupport());
-    *effectiveSampleCnt = rt->desc().fSampleCnt;
+    *effectiveSampleCnt = rt->numStencilSamples();
 }
 
 bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, size_t rowBytes,

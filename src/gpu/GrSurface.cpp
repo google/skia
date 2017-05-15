@@ -14,23 +14,24 @@
 #include "SkGr.h"
 #include "SkMathPriv.h"
 
-size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
+size_t GrSurface::WorstCaseSize(GrPixelConfig config, int width, int height, int sampleCnt,
+                                bool useNextPow2) {
     size_t size;
 
-    int width = useNextPow2 ? GrNextPow2(desc.fWidth) : desc.fWidth;
-    int height = useNextPow2 ? GrNextPow2(desc.fHeight) : desc.fHeight;
+    width = useNextPow2 ? GrNextPow2(width) : width;
+    height = useNextPow2 ? GrNextPow2(height) : height;
 
-    bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
+    bool isRenderTarget /*= SkToBool(flags & kRenderTarget_GrSurfaceFlag)*/;
     if (isRenderTarget) {
         // We own one color value for each MSAA sample.
-        int colorValuesPerPixel = SkTMax(1, desc.fSampleCnt);
-        if (desc.fSampleCnt) {
+        int colorValuesPerPixel = SkTMax(1, sampleCnt);
+        if (sampleCnt) {
             // Worse case, we own the resolve buffer so that is one more sample per pixel.
             colorValuesPerPixel += 1;
         }
-        SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
-        SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
-        size_t colorBytes = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
+        SkASSERT(kUnknown_GrPixelConfig != config);
+        SkASSERT(!GrPixelConfigIsCompressed(config));
+        size_t colorBytes = (size_t) width * height * GrBytesPerPixel(config);
 
         // This would be a nice assert to have (i.e., we aren't creating 0 width/height surfaces).
         // Unfortunately Chromium seems to want to do this.
@@ -39,10 +40,10 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
         size = colorValuesPerPixel * colorBytes;
         size += colorBytes/3; // in case we have to mipmap
     } else {
-        if (GrPixelConfigIsCompressed(desc.fConfig)) {
-            size = GrCompressedFormatDataSize(desc.fConfig, width, height);
+        if (GrPixelConfigIsCompressed(config)) {
+            size = GrCompressedFormatDataSize(config, width, height);
         } else {
-            size = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
+            size = (size_t) width * height * GrBytesPerPixel(config);
         }
 
         size += size/3;  // in case we have to mipmap
@@ -51,20 +52,21 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
     return size;
 }
 
-size_t GrSurface::ComputeSize(const GrSurfaceDesc& desc,
+size_t GrSurface::ComputeSize(GrPixelConfig config,
+                              int width, int height,
                               int colorSamplesPerPixel,
                               bool hasMIPMaps,
                               bool useNextPow2) {
     size_t colorSize;
+    
+    width = useNextPow2 ? GrNextPow2(width) : width;
+    height = useNextPow2 ? GrNextPow2(height) : height;
 
-    int width = useNextPow2 ? GrNextPow2(desc.fWidth) : desc.fWidth;
-    int height = useNextPow2 ? GrNextPow2(desc.fHeight) : desc.fHeight;
-
-    SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
-    if (GrPixelConfigIsCompressed(desc.fConfig)) {
-        colorSize = GrCompressedFormatDataSize(desc.fConfig, width, height);
+    SkASSERT(kUnknown_GrPixelConfig != config);
+    if (GrPixelConfigIsCompressed(config)) {
+        colorSize = GrCompressedFormatDataSize(config, width, height);
     } else {
-        colorSize = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
+        colorSize = (size_t) width * height * GrBytesPerPixel(config);
     }
     SkASSERT(colorSize > 0);
 
@@ -76,7 +78,7 @@ size_t GrSurface::ComputeSize(const GrSurfaceDesc& desc,
         finalSize += colorSize/3;
     }
 
-    SkASSERT(finalSize <= WorstCaseSize(desc, useNextPow2));
+    SkASSERT(finalSize <= WorstCaseSize(config, width, height, useNextPow2));
     return finalSize;
 }
 

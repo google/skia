@@ -20,10 +20,11 @@
 GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc& desc,
                                          SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
     : INHERITED(desc, fit, budgeted, flags)
+    , fSampleCnt(desc.fSampleCnt)
     , fRenderTargetFlags(GrRenderTarget::Flags::kNone) {
     // Since we know the newly created render target will be internal, we are able to precompute
     // what the flags will ultimately end up being.
-    if (caps.usesMixedSamples() && fDesc.fSampleCnt > 0) {
+    if (caps.usesMixedSamples() && desc.fSampleCnt > 0) {
         fRenderTargetFlags |= GrRenderTarget::Flags::kMixedSampled;
     }
     if (caps.maxWindowRectangles() > 0) {
@@ -44,8 +45,6 @@ int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
 }
 
 GrRenderTarget* GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
-    SkASSERT(fDesc.fFlags & GrSurfaceFlags::kRenderTarget_GrSurfaceFlag);
-
     GrSurface* surf = INHERITED::instantiate(resourceProvider);
     if (!surf || !surf->asRenderTarget()) {
         return nullptr;
@@ -61,9 +60,13 @@ size_t GrRenderTargetProxy::onGpuMemorySize() const {
     if (fTarget) {
         return fTarget->gpuMemorySize();
     }
-
+    int colorSamplesPerPixel = 1;
+    if (GrFSAAType::kUnifiedMSAA == this->fsaaType()) {
+        colorSamplesPerPixel += this->sampleCount();
+    }
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, false, SkBackingFit::kApprox == fFit);
+    return GrSurface::ComputeSize(fWidth, fHeight, colorSamplesPerPixel, false,
+                                  SkBackingFit::kApprox == fFit);
 }
 
 bool GrRenderTargetProxy::refsWrappedObjects() const {

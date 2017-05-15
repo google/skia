@@ -36,8 +36,12 @@ size_t GrTextureRenderTargetProxy::onGpuMemorySize() const {
     if (fTarget) {
         return fTarget->gpuMemorySize();
     }
-
+    int colorSamplesPerPixel = 1;
+    if (GrFSAAType::kUnifiedMSAA == this->fsaaType()) {
+        colorSamplesPerPixel += this->sampleCount();
+    }
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, true, SkBackingFit::kApprox == fFit);
+    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, colorSamplesPerPixel,
+                                  SkBackingFit::kApprox == fFit);
 }
 

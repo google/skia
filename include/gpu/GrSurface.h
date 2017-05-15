@@ -52,7 +52,7 @@ public:
     /**
      * Return the descriptor describing the surface
      */
-    const GrSurfaceDesc& desc() const { return fDesc; }
+    //const GrSurfaceDesc& desc() const { return fDesc; }
 
     /**
      * @return the texture associated with the surface, may be null.
@@ -70,8 +70,9 @@ public:
     inline GrSurfacePriv surfacePriv();
     inline const GrSurfacePriv surfacePriv() const;
 
-    static size_t WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2 = false);
-    static size_t ComputeSize(const GrSurfaceDesc& desc, int colorSamplesPerPixel,
+    static size_t WorstCaseSize(GrPixelConfig config, int width, int height, int sampleCnt,
+                                bool useNextPow2 = false);
+    static size_t ComputeSize(GrPixelConfig config, int width, int height, int colorSamplesPerPixel,
                               bool hasMIPMaps, bool useNextPow2 = false);
 
 protected:

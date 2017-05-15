@@ -22,7 +22,10 @@
 
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
     : INHERITED(std::move(surface))
-    , fDesc(fTarget->desc())
+    , fConfig(fTarget->config())
+    , fWidth(fTarget->width())
+    , fHeight(fTarget->height())
+    , fOrigin(fTarget->origin())
     , fFit(fit)
     , fBudgeted(fTarget->resourcePriv().isBudgeted())
     , fFlags(0)

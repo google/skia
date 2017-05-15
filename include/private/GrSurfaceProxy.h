@@ -188,16 +188,15 @@ public:
 
     static sk_sp<GrTextureProxy> MakeWrappedBackend(GrContext*, GrBackendTexture&, GrSurfaceOrigin);
 
-    const GrSurfaceDesc& desc() const { return fDesc; }
+    //const GrSurfaceDesc& desc() const { return fDesc; }
 
     GrSurfaceOrigin origin() const {
-        SkASSERT(kTopLeft_GrSurfaceOrigin == fDesc.fOrigin ||
-                 kBottomLeft_GrSurfaceOrigin == fDesc.fOrigin);
-        return fDesc.fOrigin;
+        SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
+        return fOrigin;
     }
-    int width() const { return fDesc.fWidth; }
-    int height() const { return fDesc.fHeight; }
-    GrPixelConfig config() const { return fDesc.fConfig; }
+    int width() const { return fWidth; }
+    int height() const { return fHeight; }
+    GrPixelConfig config() const { return fConfig; }
 
     class UniqueID {
     public:
@@ -319,7 +318,10 @@ public:
 protected:
     // Deferred version
     GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
-        : fDesc(desc)
+        : fConfig(desc.fConfig)
+        , fWidth(desc.fWidth)
+        , fHeight(desc.fHeight)
+        , fOrigin(desc.fOrigin)
         , fFit(fit)
         , fBudgeted(budgeted)
         , fFlags(flags)
@@ -346,8 +348,12 @@ protected:
         return this->internalHasPendingWrite();
     }
 
-    // For wrapped resources, 'fDesc' will always be filled in from the wrapped resource.
-    GrSurfaceDesc        fDesc;
+    // For wrapped resources, 'fConfig', 'fWidth', 'fHeight', and 'fOrigin' will always be filled in
+    // from the wrapped resource.
+    GrPixelConfig        fConfig;
+    int                  fWidth;
+    int                  fHeight;
+    GrSurfaceOrigin      fOrigin;
     SkBackingFit         fFit;      // always exact for wrapped resources
     mutable SkBudgeted   fBudgeted; // set from the backing resource for wrapped resources
                                     // mutable bc of SkSurface/SkImage wishy-washiness

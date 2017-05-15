@@ -163,7 +163,9 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(GrContex
     } else {
         // Otherwise, make a copy of the requested subset. Make sure our temporary is renderable,
         // because Vulkan will want to do the copy as a draw.
-        GrSurfaceDesc desc = proxy->desc();
+        GrSurfaceDesc desc;
+        desc.fConfig = proxy->config();
+        desc.fOrigin = proxy->origin();
         desc.fWidth = info.width();
         desc.fHeight = info.height();
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
