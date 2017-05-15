@@ -77,6 +77,7 @@ public:
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&);
     void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
                    SkBlendMode, const SkRect*, const SkPaint*);
+    void drawShadowRec(const SkPath&, const SkDrawShadowRec&);
 
 private:
     template <typename T, typename... Args>
