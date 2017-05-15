@@ -1298,18 +1298,6 @@
         "Upload-Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Release"
       ]
     },
-    "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug"
-      ]
-    },
-    "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
-      ]
-    },
     "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-RaspberryPi": {
       "priority": 0.8,
       "tasks": [
@@ -2239,18 +2227,6 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release-GDI"
-      ]
-    },
-    "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug"
-      ]
-    },
-    "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
       ]
     },
     "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-RaspberryPi": {
@@ -10303,72 +10279,6 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
-      "dependencies": [
-        "Build-Mac-Clang-arm64-Debug-iOS",
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG",
-        "Housekeeper-PerCommit-IsolateSkImage"
-      ],
-      "dimensions": [
-        "device:iPad5,1",
-        "os:iOS-9.3.1",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
-      "dependencies": [
-        "Build-Mac-Clang-arm64-Release-iOS",
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG",
-        "Housekeeper-PerCommit-IsolateSkImage"
-      ],
-      "dimensions": [
-        "device:iPad5,1",
-        "os:iOS-9.3.1",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
     "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-RaspberryPi": {
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
@@ -17005,72 +16915,6 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
-      "dependencies": [
-        "Build-Mac-Clang-arm64-Debug-iOS",
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG",
-        "Housekeeper-PerCommit-IsolateSkImage"
-      ],
-      "dimensions": [
-        "device:iPad5,1",
-        "os:iOS-9.3.1",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
-      "dependencies": [
-        "Build-Mac-Clang-arm64-Release-iOS",
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG",
-        "Housekeeper-PerCommit-IsolateSkImage"
-      ],
-      "dimensions": [
-        "device:iPad5,1",
-        "os:iOS-9.3.1",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
     "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-RaspberryPi": {
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
@@ -18911,33 +18755,6 @@
         "upload_nano_results",
         "repository=<(REPO)",
         "buildername=Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-perf"
-      ],
-      "isolate": "upload_nano_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
-      "dependencies": [
-        "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_nano_results",
-        "repository=<(REPO)",
-        "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22637,60 +22454,6 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release-GDI",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
-      "dependencies": [
-        "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
-      "dependencies": [
-        "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
