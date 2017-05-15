@@ -13,7 +13,12 @@
 // Miscellany used by SkJumper_stages.cpp and SkJumper_vectors.h.
 
 // Every function in this file should be marked static and inline using SI.
-#define SI static inline
+#if defined(JUMPER)
+    #define SI __attribute__((always_inline)) static inline
+#else
+    #define SI static inline
+#endif
+
 
 template <typename T, typename P>
 SI T unaligned_load(const P* p) {  // const void* would work too, but const P* helps ARMv7 codegen.
