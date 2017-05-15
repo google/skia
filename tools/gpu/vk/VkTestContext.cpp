@@ -108,9 +108,14 @@ GR_STATIC_ASSERT(sizeof(VkFence) <= sizeof(sk_gpu_test::PlatformFence));
 // TODO: Implement swap buffers and finish
 class VkTestContextImpl : public sk_gpu_test::VkTestContext {
 public:
-    static VkTestContext* Create() {
-        sk_sp<const GrVkBackendContext> backendContext(
-                GrVkBackendContext::Create(vkGetInstanceProcAddr, vkGetDeviceProcAddr));
+    static VkTestContext* Create(VkTestContext* sharedContext) {
+        sk_sp<const GrVkBackendContext> backendContext;
+        if (sharedContext) {
+            backendContext = sharedContext->getVkBackendContext();
+        } else {
+            backendContext.reset(GrVkBackendContext::Create(vkGetInstanceProcAddr,
+                                                            vkGetDeviceProcAddr));
+        }
         if (!backendContext) {
             return nullptr;
         }
@@ -147,7 +152,9 @@ private:
 }  // anonymous namespace
 
 namespace sk_gpu_test {
-VkTestContext* CreatePlatformVkTestContext() { return VkTestContextImpl::Create(); }
+VkTestContext* CreatePlatformVkTestContext(VkTestContext* sharedContext) {
+    return VkTestContextImpl::Create(sharedContext);
+}
 }  // namespace sk_gpu_test
 
 #endif
