@@ -34,6 +34,7 @@
     SI F   floor_(F v)          { return floorf(v); }
     SI F   rcp   (F v)          { return 1.0f / v; }
     SI F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
+    SI F    sqrt_(F v)          { return sqrtf(v); }
     SI U32 round (F v, F scale) { return (uint32_t)lrintf(v*scale); }
     SI U16 pack(U32 v)          { return (U16)v; }
     SI U8  pack(U16 v)          { return  (U8)v; }
@@ -94,6 +95,7 @@
     SI F   floor_(F v)                           { return vrndmq_f32(v);           }
     SI F   rcp   (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
     SI F   rsqrt (F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
+    SI F    sqrt_(F v)                           { return vsqrtq_f32(v); }
     SI U32 round (F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
     SI U16 pack(U32 v)                           { return __builtin_convertvector(v, U16); }
     SI U8  pack(U16 v)                           { return __builtin_convertvector(v,  U8); }
@@ -157,6 +159,13 @@
     SI U32 round(F v, F scale)                 { return vcvt_u32_f32(mad(v,scale,0.5f)); }
     SI U16 pack(U32 v)                         { return __builtin_convertvector(v, U16); }
     SI U8  pack(U16 v)                         { return __builtin_convertvector(v,  U8); }
+
+    SI F sqrt_(F v) {
+        auto e = vrsqrte_f32(v);  // Estimate and two refinement steps for e = rsqrt(v).
+        e *= vrsqrts_f32(v,e*e);
+        e *= vrsqrts_f32(v,e*e);
+        return v*e;               // sqrt(v) == v*rsqrt(v).
+    }
 
     SI F if_then_else(I32 c, F t, F e) { return vbsl_f32((U32)c,t,e); }
 
@@ -236,6 +245,7 @@
     SI F   floor_(F v)          { return _mm256_floor_ps(v);    }
     SI F   rcp   (F v)          { return _mm256_rcp_ps  (v);    }
     SI F   rsqrt (F v)          { return _mm256_rsqrt_ps(v);    }
+    SI F    sqrt_(F v)          { return _mm256_sqrt_ps (v);    }
     SI U32 round (F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
 
     SI U16 pack(U32 v) {
@@ -438,8 +448,9 @@
     SI F   min(F a, F b)       { return _mm_min_ps(a,b);    }
     SI F   max(F a, F b)       { return _mm_max_ps(a,b);    }
     SI F   abs_(F v)           { return _mm_and_ps(v, 0-v); }
-    SI F   rcp  (F v)          { return _mm_rcp_ps  (v);    }
-    SI F   rsqrt(F v)          { return _mm_rsqrt_ps(v);    }
+    SI F   rcp   (F v)         { return _mm_rcp_ps  (v);    }
+    SI F   rsqrt (F v)         { return _mm_rsqrt_ps(v);    }
+    SI F    sqrt_(F v)         { return _mm_sqrt_ps (v);    }
     SI U32 round(F v, F scale) { return _mm_cvtps_epi32(v*scale); }
 
     SI U16 pack(U32 v) {
