@@ -16,6 +16,24 @@
       "revId": "aeacb4293e9d8a5772f36735bf3d99ea9f3b50be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d566e1ec_cff4b6be",
+        "filename": "src/gpu/GrGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-15T16:54:49Z",
+      "side": 1,
+      "message": "I put the assert in GrMesh on the getters for vertexCount and baseVertex. That should only get triggered a couple steps further down the stack from here, and I like that it keeps the validation all contained within the class itself. If we want sooner asserts that setVertices has been called we can always put the validate method back..",
+      "parentUuid": "5d04967b_266c0b86",
+      "revId": "aeacb4293e9d8a5772f36735bf3d99ea9f3b50be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
