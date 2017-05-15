@@ -178,7 +178,6 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
     finish_command_buffer(commandBuffer.get());
     flushState->setCommandBuffer(nullptr);
 
-    flushState->gpu()->finishOpList();
     return true;
 }
 

@@ -15,13 +15,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTextureOpList::GrTextureOpList(GrTextureProxy* proxy, GrGpu* gpu, GrAuditTrail* auditTrail)
-    : INHERITED(proxy, auditTrail)
-    , fGpu(SkRef(gpu)) {
+GrTextureOpList::GrTextureOpList(GrTextureProxy* proxy, GrAuditTrail* auditTrail)
+    : INHERITED(proxy, auditTrail) {
 }
 
 GrTextureOpList::~GrTextureOpList() {
-    fGpu->unref();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +69,6 @@ bool GrTextureOpList::executeOps(GrOpFlushState* flushState) {
         fRecordedOps[i]->execute(flushState);
     }
 
-    fGpu->finishOpList();
     return true;
 }
 
