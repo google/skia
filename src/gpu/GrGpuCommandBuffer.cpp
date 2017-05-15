@@ -40,7 +40,6 @@ bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
                               const GrMesh* mesh,
                               int meshCount,
                               const SkRect& bounds) {
-    SkDEBUGCODE(mesh->validate());
     if (pipeline.isBad() || primProc.isBad()) {
         return false;
     }
