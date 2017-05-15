@@ -34,6 +34,24 @@
       "revId": "aeacb4293e9d8a5772f36735bf3d99ea9f3b50be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01ceaf5b_a0495de8",
+        "filename": "src/gpu/GrGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-15T16:57:34Z",
+      "side": 1,
+      "message": "I guess it could also be validated against the Primitive processor: vertex buffer should be non-null if the vertex attrib count is non-zero, etc.",
+      "parentUuid": "d566e1ec_cff4b6be",
+      "revId": "aeacb4293e9d8a5772f36735bf3d99ea9f3b50be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
