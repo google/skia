@@ -24,6 +24,7 @@ class SkData;
 class SkDraw;
 class SkDrawable;
 class SkDrawFilter;
+struct SkDrawShadowRec;
 class SkImage;
 class SkImageFilter;
 class SkLights;
@@ -1227,6 +1228,8 @@ public:
      *  of the clip may be returned.
      */
     void temporary_internal_getRgnClip(SkRegion* region);
+
+    void private_draw_shadow_rec(const SkPath&, const SkDrawShadowRec&);
 
 protected:
     // default impl defers to getDevice()->newSurface(info)
