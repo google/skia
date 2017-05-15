@@ -28,7 +28,6 @@ public:
      * @param path  The occluder used to generate the shadows.
      * @param zPlaneParams  Values for the plane function which returns the Z offset of the
      *  occluder from the canvas based on local x and y values (the current matrix is not applied).
-     *  If the canvas matrix is not perspective, then only zPlaneParams.fZ is used.
      * @param lightPos  The 3D position of the light relative to the canvas plane. This is
      *  independent of the canvas's current matrix.
      * @param lightRadius  The radius of the disc light.
