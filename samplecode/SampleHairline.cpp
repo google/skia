@@ -77,7 +77,7 @@ static void line_proc(SkCanvas* canvas, const SkPaint& paint,
     for (int i = 0; i < 400; i++) {
         generate_pts(pts, N, WIDTH, HEIGHT);
 
-        canvas->drawLine(pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, paint);
+        canvas->drawLine(pts[0], pts[1], paint);
         if (!check_bitmap_margin(bm, MARGIN)) {
             SkDebugf("---- hairline failure (%g %g) (%g %g)\n",
                      pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY);

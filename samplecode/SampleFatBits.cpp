@@ -261,7 +261,7 @@ void FatBits::drawLine(SkCanvas* canvas, SkPoint pts[]) {
         r.inset(SK_Scalar1/3, SK_Scalar1/3);
         fMinSurface->getCanvas()->clipRect(r, kIntersect_SkClipOp, true);
     }
-    fMinSurface->getCanvas()->drawLine(pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, paint);
+    fMinSurface->getCanvas()->drawLine(pts[0], pts[1], paint);
     if (fUseClip) {
         fMinSurface->getCanvas()->restore();
     }
