@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f1c5bad_f1a98bc8",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-15T17:03:37Z",
+      "side": 1,
+      "message": "This seems reasonable -- I\u0027ll probably optimize it further since I can skip the mask filters and avoid a number of duplicate checks at this level.",
+      "range": {
+        "startLine": 507,
+        "startChar": 18,
+        "endLine": 507,
+        "endChar": 28
+      },
+      "revId": "911b2425015e3a95f8f0429e76b73cd7a4d69b71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1895aea7_8ee90d03",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-15T17:03:37Z",
+      "side": 1,
+      "message": "You should get my latest CL -- this code has changed somewhat.",
+      "range": {
+        "startLine": 658,
+        "startChar": 11,
+        "endLine": 664,
+        "endChar": 57
+      },
+      "revId": "911b2425015e3a95f8f0429e76b73cd7a4d69b71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
