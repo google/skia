@@ -959,7 +959,7 @@ public:
             fCurrentMatrixOrigin.set(0.0f, 0.0f);
             fInitialized = true;
         }
-#ifdef SK_BUILD_FOR_WIN
+#if 1
         const bool kAlwaysPosition = true;
 #else
         const bool kAlwaysPosition = false;
