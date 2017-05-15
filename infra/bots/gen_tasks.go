@@ -614,6 +614,11 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	if useBundledRecipes(parts) {
 		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
 	}
+	if useIsolatedCIPD(parts) {
+		s.Dependencies = append(s.Dependencies, ISOLATE_SKP_NAME)
+		s.Dependencies = append(s.Dependencies, ISOLATE_SVG_NAME)
+		s.Dependencies = append(s.Dependencies, ISOLATE_SKIMAGE_NAME)
+	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		s.ExecutionTimeout = 9 * time.Hour
 		s.Expiration = 48 * time.Hour
@@ -659,7 +664,6 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 
 	// Isolate CIPD assets.
-	fmt.Println(name)
 	if _, ok := ISOLATE_ASSET_MAPPING[name]; ok {
 		deps = append(deps, isolateCIPDAsset(b, name))
 	}
@@ -720,13 +724,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 			b.MustGetCipdPackageFromAsset("svg"),
 		}
 	}
-	if strings.Contains(name, "Chromecast") {
-		// Chromecasts don't have enough disk space to fit all of the content,
-		// so we do a subset of the skps.
-		pkgs = []*specs.CipdPackage{
-			b.MustGetCipdPackageFromAsset("skp"),
-		}
-	}
+
 	if strings.Contains(name, "Ubuntu") && strings.Contains(name, "SAN") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
 	}
@@ -738,12 +736,6 @@ func process(b *specs.TasksCfgBuilder, name string) {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_release"))
 		} else {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_debug"))
-		}
-	}
-	// Skpbench only needs skps
-	if strings.Contains(name, "Skpbench") {
-		pkgs = []*specs.CipdPackage{
-			b.MustGetCipdPackageFromAsset("skp"),
 		}
 	}
 
