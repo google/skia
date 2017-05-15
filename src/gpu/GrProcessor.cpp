@@ -230,18 +230,6 @@ GrResourceIOProcessor::TextureSampler::TextureSampler(GrResourceProvider* resour
     this->reset(resourceProvider, std::move(proxy), filterMode, tileXAndY, visibility);
 }
 
-// MDB TODO: remove this!
-void GrResourceIOProcessor::TextureSampler::reset(GrTexture* texture,
-                                                  GrSamplerParams::FilterMode filterMode,
-                                                  SkShader::TileMode tileXAndY,
-                                                  GrShaderFlags visibility) {
-    SkASSERT(texture);
-    fTexture.set(SkRef(texture), kRead_GrIOType);
-    filterMode = SkTMin(filterMode, texture->texturePriv().highestFilterMode());
-    fParams.reset(tileXAndY, filterMode);
-    fVisibility = visibility;
-}
-
 void GrResourceIOProcessor::TextureSampler::reset(GrResourceProvider* resourceProvider,
                                                   sk_sp<GrTextureProxy> proxy,
                                                   const GrSamplerParams& params,
