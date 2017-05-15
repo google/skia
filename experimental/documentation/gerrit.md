@@ -122,4 +122,18 @@ These shell scripts can be turned into Git aliases with a little hack:
 
     git config alias.gerrit-push-message '!f(){ git push origin @:refs/for/master%m=$(echo $*|sed "s/[^A-Za-z0-9]/_/g");};f'
 
+If your branch's upstream branch (set with `git branch --set-upstream-to=...`)
+is set, you can use that to automatically push to that branch:
+
+    gerrit_push_upstream() {
+        local UPSTREAM="$(git rev-parse --abbrev-ref --symbolic-full-name @{u})"
+        local REMOTE="${UPSTREAM%%/*}"
+        local REMOTE_BRANCH="${UPSTREAM#*/}"
+        local MESSAGE="$(echo $*|sed 's/[^A-Za-z0-9]/_/g')"
+        git push "$REMOTE" "@:refs/for/${REMOTE_BRANCH}%m=${MESSAGE}"
+    }
+
+As a Git alias:
+
+    git config alias.gerrit-push-upstream '!f()(U="$(git rev-parse --abbrev-ref --symbolic-full-name @{u})";R="${U%%/*}";B="${U#*/}";M="$(echo $*|sed 's/[^A-Za-z0-9]/_/g')";git push "$R" "@:refs/for/${B}%m=$M");f'
 
