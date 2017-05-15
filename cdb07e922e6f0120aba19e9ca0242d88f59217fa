@@ -22,6 +22,30 @@
       "revId": "cdb07e922e6f0120aba19e9ca0242d88f59217fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5014e717_fea3ba66",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-15T21:30:43Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m not crazy about the new friends, but otoh this is absolutely not interesting (and possibly confusing) for external clients.  So I\u0027m torn, I\u0027ll leave it to you and Mike to decide :)\n\n(maybe this is a signal we should split SkShader the same way as SkImage to hide the internal base class details)",
+      "parentUuid": "55b35dec_df82a694",
+      "range": {
+        "startLine": 509,
+        "startChar": 17,
+        "endLine": 509,
+        "endChar": 39
+      },
+      "revId": "cdb07e922e6f0120aba19e9ca0242d88f59217fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
