@@ -237,7 +237,10 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
 
     SamplerHandle dstTextureSamplerHandle;
     GrSurfaceOrigin dstTextureOrigin = kTopLeft_GrSurfaceOrigin;
-    if (GrTexture* dstTexture = fPipeline.dstTexture()) {
+
+    if (GrTextureProxy* dstTextureProxy = fPipeline.dstTextureProxy()) {
+        GrTexture* dstTexture = dstTextureProxy->priv().peekTexture();
+
         // GrProcessor::TextureSampler sampler(dstTexture);
         SkString name("DstTextureSampler");
         dstTextureSamplerHandle =
