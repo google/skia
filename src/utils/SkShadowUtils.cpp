@@ -583,8 +583,11 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, const SkPoi
                                const SkPoint3& devLightPos, SkScalar lightRadius,
                                SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
                                uint32_t flags) {
+    // check z plane
+    bool tiltZPlane = !SkScalarNearlyZero(zPlaneParams.fX) || !SkScalarNearlyZero(zPlaneParams.fY);
+
     // try fast paths
-    bool skipAnalytic = SkToBool(flags & SkShadowFlags::kGeometricOnly_ShadowFlag);
+    bool skipAnalytic = SkToBool(flags & SkShadowFlags::kGeometricOnly_ShadowFlag) || tiltZPlane;
     if (!skipAnalytic && draw_analytic_shadows(canvas, path, zPlaneParams.fZ, devLightPos,
                                                lightRadius, ambientAlpha, spotAlpha, color,
                                                flags)) {
@@ -598,7 +601,7 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, const SkPoi
     ShadowedPath shadowedPath(&path, &viewMatrix);
 
     bool transparent = SkToBool(flags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
-    bool uncached = viewMatrix.hasPerspective() || path.isVolatile();
+    bool uncached = tiltZPlane || path.isVolatile();
 
     if (ambientAlpha > 0) {
         ambientAlpha = SkTMin(ambientAlpha, 1.f);
