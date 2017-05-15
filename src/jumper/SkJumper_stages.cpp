@@ -195,7 +195,7 @@ SI void store(T* dst, V v, size_t tail) {
         return;
     }
 #endif
-    memcpy(dst, &v, sizeof(v));
+    unaligned_store(dst, v);
 }
 
 // This doesn't look strictly necessary, but without it Clang would generate load() using
@@ -245,7 +245,7 @@ SI void store(T* dst, V v, size_t tail) {
         if (__builtin_expect(tail, 0)) {
             return _mm256_maskstore_epi32((int*)dst, mask(tail), v);
         }
-        memcpy(dst, &v, sizeof(v));
+        unaligned_store(dst, v);
     }
 #endif
 
@@ -343,10 +343,10 @@ STAGE(load_rgba) {
 // store registers r,g,b,a into context (mirrors load_rgba)
 STAGE(store_rgba) {
     auto ptr = (float*)ctx;
-    memcpy(ptr + 0*kStride, &r, sizeof(F));
-    memcpy(ptr + 1*kStride, &g, sizeof(F));
-    memcpy(ptr + 2*kStride, &b, sizeof(F));
-    memcpy(ptr + 3*kStride, &a, sizeof(F));
+    unaligned_store(ptr + 0*kStride, r);
+    unaligned_store(ptr + 1*kStride, g);
+    unaligned_store(ptr + 2*kStride, b);
+    unaligned_store(ptr + 3*kStride, a);
 }
 
 // Most blend modes apply the same logic to each channel.
@@ -1160,10 +1160,10 @@ STAGE(save_xy) {
       fy = fract(g + 0.5f);
 
     // Samplers will need to load x and fx, or y and fy.
-    memcpy(c->x,  &r,  sizeof(F));
-    memcpy(c->y,  &g,  sizeof(F));
-    memcpy(c->fx, &fx, sizeof(F));
-    memcpy(c->fy, &fy, sizeof(F));
+    unaligned_store(c->x,  r);
+    unaligned_store(c->y,  g);
+    unaligned_store(c->fx, fx);
+    unaligned_store(c->fy, fy);
 }
 
 STAGE(accumulate) {
@@ -1192,7 +1192,7 @@ SI void bilinear_x(SkJumper_SamplerCtx* ctx, F* x) {
     F scalex;
     if (kScale == -1) { scalex = 1.0f - fx; }
     if (kScale == +1) { scalex =        fx; }
-    memcpy(ctx->scalex, &scalex, sizeof(F));
+    unaligned_store(ctx->scalex, scalex);
 }
 template <int kScale>
 SI void bilinear_y(SkJumper_SamplerCtx* ctx, F* y) {
@@ -1202,7 +1202,7 @@ SI void bilinear_y(SkJumper_SamplerCtx* ctx, F* y) {
     F scaley;
     if (kScale == -1) { scaley = 1.0f - fy; }
     if (kScale == +1) { scaley =        fy; }
-    memcpy(ctx->scaley, &scaley, sizeof(F));
+    unaligned_store(ctx->scaley, scaley);
 }
 
 STAGE(bilinear_nx) { bilinear_x<-1>(ctx, &r); }
@@ -1236,7 +1236,7 @@ SI void bicubic_x(SkJumper_SamplerCtx* ctx, F* x) {
     if (kScale == -1) { scalex = bicubic_near(1.0f - fx); }
     if (kScale == +1) { scalex = bicubic_near(       fx); }
     if (kScale == +3) { scalex = bicubic_far (       fx); }
-    memcpy(ctx->scalex, &scalex, sizeof(F));
+    unaligned_store(ctx->scalex, scalex);
 }
 template <int kScale>
 SI void bicubic_y(SkJumper_SamplerCtx* ctx, F* y) {
@@ -1248,7 +1248,7 @@ SI void bicubic_y(SkJumper_SamplerCtx* ctx, F* y) {
     if (kScale == -1) { scaley = bicubic_near(1.0f - fy); }
     if (kScale == +1) { scaley = bicubic_near(       fy); }
     if (kScale == +3) { scaley = bicubic_far (       fy); }
-    memcpy(ctx->scaley, &scaley, sizeof(F));
+    unaligned_store(ctx->scaley, scaley);
 }
 
 STAGE(bicubic_n3x) { bicubic_x<-3>(ctx, &r); }

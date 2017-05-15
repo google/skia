@@ -27,6 +27,11 @@ SI T unaligned_load(const P* p) {  // const void* would work too, but const P* h
     return v;
 }
 
+template <typename T, typename P>
+SI void unaligned_store(P* p, T v) {
+    memcpy(p, &v, sizeof(v));
+}
+
 template <typename Dst, typename Src>
 SI Dst bit_cast(const Src& src) {
     static_assert(sizeof(Dst) == sizeof(Src), "");
