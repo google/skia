@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b30bb3d_98d2e0a0",
+        "filename": "experimental/docs/usingBookmaker.bmh",
+        "patchSetId": 110
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-05-15T18:25:07Z",
+      "side": 1,
+      "message": "I always disliked that convention.  It makes it hard to cut-and-paste comments out of headers.",
+      "revId": "fb225de5cf45437723c3457b0dd5349881963e4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
