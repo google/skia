@@ -160,9 +160,9 @@ protected:
 
                 SkPaint ctrlPtPaint;
                 ctrlPtPaint.setColor(rand.nextU() | 0xFF000000);
-                canvas->drawCircle(controlPts[0].fX, controlPts[0].fY, 8.f, ctrlPtPaint);
+                canvas->drawCircle(controlPts[0], 8.f, ctrlPtPaint);
                 for (int i = 1; i < 4; ++i) {
-                    canvas->drawCircle(controlPts[i].fX, controlPts[i].fY, 6.f, ctrlPtPaint);
+                    canvas->drawCircle(controlPts[i], 6.f, ctrlPtPaint);
                 }
 
                 SkPaint polyPaint;
@@ -178,7 +178,7 @@ protected:
                     SkPoint* pts = chopped + 3 * c;
 
                     for (int i = 0; i < 4; ++i) {
-                        canvas->drawCircle(pts[i].fX, pts[i].fY, 3.f, choppedPtPaint);
+                        canvas->drawCircle(pts[i], 3.f, choppedPtPaint);
                     }
 
                     SkRect bounds;
@@ -299,7 +299,7 @@ protected:
                 SkPaint ctrlPtPaint;
                 ctrlPtPaint.setColor(rand.nextU() | 0xFF000000);
                 for (int i = 0; i < 3; ++i) {
-                    canvas->drawCircle(controlPts[i].fX, controlPts[i].fY, 6.f, ctrlPtPaint);
+                    canvas->drawCircle(controlPts[i], 6.f, ctrlPtPaint);
                 }
 
                 SkPaint polyPaint;
@@ -314,7 +314,7 @@ protected:
                 for (int c = 0; c < cnt; ++c) {
                     SkPoint* pts = dst[c].fPts;
                     for (int i = 0; i < 3; ++i) {
-                        canvas->drawCircle(pts[i].fX, pts[i].fY, 3.f, choppedPtPaint);
+                        canvas->drawCircle(pts[i], 3.f, choppedPtPaint);
                     }
 
                     SkRect bounds;
@@ -516,7 +516,7 @@ protected:
                 SkPaint ctrlPtPaint;
                 ctrlPtPaint.setColor(rand.nextU() | 0xFF000000);
                 for (int i = 0; i < 3; ++i) {
-                    canvas->drawCircle(controlPts[i].fX, controlPts[i].fY, 6.f, ctrlPtPaint);
+                    canvas->drawCircle(controlPts[i], 6.f, ctrlPtPaint);
                 }
 
                 SkPaint polyPaint;
@@ -532,7 +532,7 @@ protected:
                     SkPoint* pts = chopped + 2 * c;
 
                     for (int i = 0; i < 3; ++i) {
-                        canvas->drawCircle(pts[i].fX, pts[i].fY, 3.f, choppedPtPaint);
+                        canvas->drawCircle(pts[i], 3.f, choppedPtPaint);
                     }
 
                     SkRect bounds;

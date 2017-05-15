@@ -202,7 +202,7 @@ protected:
             const int j = (i + 1) % N;
             p.setColor(fEdgeColor[i]);
             p.setAlpha(0x88);
-            canvas->drawLine(fPoly[i].x(), fPoly[i].y(), fPoly[j].x(), fPoly[j].y(), p);
+            canvas->drawLine(fPoly[i], fPoly[j], p);
         }
         p.setStyle(SkPaint::kFill_Style);
 

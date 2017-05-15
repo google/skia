@@ -84,7 +84,7 @@ private:
         surface->getCanvas()->drawRect(border, paint);
 
         paint.setColor(SK_ColorBLACK);
-        surface->getCanvas()->drawLine(start.x(), start.y(), end.x(), end.y(), paint);
+        surface->getCanvas()->drawLine(start, end, paint);
 
         paint.reset();
         paint.setColor(color);

@@ -1056,15 +1056,15 @@ public:
         SkVector bisect = { (lastV.fX + nextV.fX) / 2, (lastV.fY + nextV.fY) / 2 };
         bisect.setLength(fWidthControl.fValLo * 2);
         if (fBisectButton.enabled()) {
-            canvas->drawLine(pt.fX, pt.fY, pt.fX + bisect.fX, pt.fY + bisect.fY, fSkeletonPaint);
+            canvas->drawLine(pt, pt + bisect, fSkeletonPaint);
         }
         lastV.setLength(fWidthControl.fValLo);
         if (fBisectButton.enabled()) {
-            canvas->drawLine(pt.fX, pt.fY, pt.fX - lastV.fY, pt.fY + lastV.fX, fSkeletonPaint);
+            canvas->drawLine(pt, {pt.fX - lastV.fY, pt.fY + lastV.fX}, fSkeletonPaint);
         }
         nextV.setLength(fWidthControl.fValLo);
         if (fBisectButton.enabled()) {
-            canvas->drawLine(pt.fX, pt.fY, pt.fX + nextV.fY, pt.fY - nextV.fX, fSkeletonPaint);
+            canvas->drawLine(pt, {pt.fX + nextV.fY, pt.fY - nextV.fX}, fSkeletonPaint);
         }
         if (fJoinButton.enabled()) {
             SkScalar r = fWidthControl.fValLo;
@@ -1117,8 +1117,8 @@ public:
                         SkPoint maxPt = SkEvalQuadAt(pts, t);
                         SkVector tangent = SkEvalQuadTangentAt(pts, t);
                         tangent.setLength(fWidthControl.fValLo * 2);
-                        canvas->drawLine(maxPt.fX, maxPt.fY,
-                                maxPt.fX + tangent.fY, maxPt.fY - tangent.fX, fSkeletonPaint);
+                        canvas->drawLine(maxPt, {maxPt.fX + tangent.fY, maxPt.fY - tangent.fX},
+                                         fSkeletonPaint);
                     }
                     } break;
                 case SkPath::kConic_Verb:
@@ -1163,8 +1163,8 @@ public:
                         SkVector tangent;
                         SkEvalCubicAt(pts, tMax[tIndex], &maxPt, &tangent, NULL);
                         tangent.setLength(fWidthControl.fValLo * 2);
-                        canvas->drawLine(maxPt.fX, maxPt.fY,
-                                maxPt.fX + tangent.fY, maxPt.fY - tangent.fX, fSkeletonPaint);
+                        canvas->drawLine(maxPt, {maxPt.fX + tangent.fY, maxPt.fY - tangent.fX},
+                                         fSkeletonPaint);
                     }
                     } break;
                 case SkPath::kClose_Verb:

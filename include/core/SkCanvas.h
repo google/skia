@@ -614,6 +614,9 @@ public:
     /** Helper method for drawing a single point. See drawPoints() for more details.
      */
     void drawPoint(SkScalar x, SkScalar y, const SkPaint& paint);
+    void drawPoint(SkPoint p, const SkPaint& paint) {
+        this->drawPoint(p.x(), p.y(), paint);
+    }
 
     /** Draw a line segment with the specified start and stop x,y coordinates,
         using the specified paint. NOTE: since a line is always "framed", the
@@ -625,6 +628,9 @@ public:
         @param paint The paint used to draw the line
     */
     void drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint);
+    void drawLine(SkPoint p0, SkPoint p1, const SkPaint& paint) {
+        this->drawLine(p0.x(), p0.y(), p1.x(), p1.y(), paint);
+    }
 
     /** Draw the specified rectangle using the specified paint. The rectangle
         will be filled or stroked based on the Style in the paint.
@@ -681,6 +687,9 @@ public:
         @param paint    The paint used to draw the circle
     */
     void drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint);
+    void drawCircle(SkPoint center, SkScalar radius, const SkPaint& paint) {
+        this->drawCircle(center.x(), center.y(), radius, paint);
+    }
 
     /** Draw the specified arc, which will be scaled to fit inside the
         specified oval. Sweep angles are not treated as modulo 360 and thus can

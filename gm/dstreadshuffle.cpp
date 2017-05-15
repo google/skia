@@ -115,7 +115,7 @@ protected:
         rot.postTranslate(3.f, 0);
         for (int i = 0; i < 12; ++i) {
             hairPaint.setColor(GetColor(&colorRandom));
-            canvas->drawLine(pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, hairPaint);
+            canvas->drawLine(pts[0], pts[1], hairPaint);
             rot.mapPoints(pts, 2);
         }
     }
