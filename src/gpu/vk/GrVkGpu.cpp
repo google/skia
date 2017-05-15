@@ -881,7 +881,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
 
     GrSurfaceDesc desc;
     desc.fConfig = backendRT.config();
-    desc.fFlags = kCheckAllocation_GrSurfaceFlag | kRenderTarget_GrSurfaceFlag;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = backendRT.width();
     desc.fHeight = backendRT.height();
     desc.fSampleCnt = 0;
