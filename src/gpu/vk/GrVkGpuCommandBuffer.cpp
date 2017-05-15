@@ -537,7 +537,7 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
         set_texture_layout(dstTexture, fGpu);
     }
 
-    GrPrimitiveType primitiveType = meshes[0].fPrimitiveType;
+    GrPrimitiveType primitiveType = meshes[0].primitiveType();
     sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,
                                                                     primProc,
                                                                     primitiveType);
@@ -549,13 +549,13 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
-        if (mesh.fPrimitiveType != primitiveType) {
+        if (mesh.primitiveType() != primitiveType) {
             // Technically we don't have to call this here (since there is a safety check in
             // pipelineState:setData but this will allow for quicker freeing of resources if the
             // pipelineState sits in a cache for a while.
             pipelineState->freeTempResources(fGpu);
             SkDEBUGCODE(pipelineState = nullptr);
-            primitiveType = mesh.fPrimitiveType;
+            primitiveType = mesh.primitiveType();
             pipelineState = this->prepareDrawState(pipeline,
                                                    primProc,
                                                    primitiveType);
@@ -563,26 +563,28 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
                 return;
             }
         }
-        for (GrMesh::PatternBatch batch : mesh) {
-            SkASSERT(pipelineState);
-            this->bindGeometry(primProc, mesh.fIndexBuffer.get(), mesh.fVertexBuffer.get());
 
-            if (mesh.fIndexBuffer) {
+        SkASSERT(pipelineState);
+        this->bindGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer());
+
+        if (mesh.isIndexed()) {
+            for (const GrMesh::PatternBatch batch : mesh) {
                 cbInfo.currentCmdBuf()->drawIndexed(fGpu,
-                                                    mesh.fIndexCount * batch.fRepeatCount,
+                                                    mesh.indexCount() * batch.fRepeatCount,
                                                     1,
-                                                    mesh.fBaseIndex,
+                                                    mesh.baseIndex(),
                                                     batch.fBaseVertex,
                                                     0);
-            } else {
-                cbInfo.currentCmdBuf()->draw(fGpu,
-                                             mesh.fVertexCount * batch.fRepeatCount,
-                                             1,
-                                             batch.fBaseVertex,
-                                             0);
+                cbInfo.fIsEmpty = false;
+                fGpu->stats()->incNumDraws();
             }
+        } else {
+            cbInfo.currentCmdBuf()->draw(fGpu,
+                                         mesh.vertexCount(),
+                                         1,
+                                         mesh.baseVertex(),
+                                         0);
             cbInfo.fIsEmpty = false;
-
             fGpu->stats()->incNumDraws();
         }
     }

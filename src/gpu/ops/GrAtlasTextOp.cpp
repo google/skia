@@ -148,17 +148,12 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) const {
 }
 
 void GrAtlasTextOp::flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
-    GrMesh mesh;
+    GrMesh mesh(kTriangles_GrPrimitiveType);
     int maxGlyphsPerDraw =
             static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
-    mesh.fPrimitiveType = kTriangles_GrPrimitiveType;
-    mesh.fIndexBuffer.reset(flushInfo->fIndexBuffer.get());
-    mesh.fIndexCount = kIndicesPerGlyph;
-    mesh.fVertexBuffer.reset(flushInfo->fVertexBuffer.get());
-    mesh.fVertexCount = kVerticesPerGlyph;
-    mesh.fBaseVertex = flushInfo->fVertexOffset;
-    mesh.fPatternRepeatCount = flushInfo->fGlyphsToFlush;
-    mesh.fMaxPatternRepetitionsInIndexBuffer = maxGlyphsPerDraw;
+    mesh.setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerGlyph,
+                             flushInfo->fGlyphsToFlush, maxGlyphsPerDraw);
+    mesh.setVertices(flushInfo->fVertexBuffer.get(), kVerticesPerGlyph, flushInfo->fVertexOffset);
     target->draw(flushInfo->fGeometryProcessor.get(), this->pipeline(), mesh);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;

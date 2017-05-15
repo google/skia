@@ -37,10 +37,15 @@ void GrGpuCommandBuffer::clearStencilClip(GrRenderTarget* rt, const GrFixedClip&
 
 bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
                               const GrPrimitiveProcessor& primProc,
-                              const GrMesh* mesh,
+                              const GrMesh meshes[],
                               int meshCount,
                               const SkRect& bounds) {
-    SkDEBUGCODE(mesh->validate());
+#ifdef SK_DEBUG
+    for (int i = 0; i < meshCount; ++i) {
+        SkASSERT(SkToBool(primProc.numAttribs()) == SkToBool(meshes[i].vertexBuffer()));
+    }
+#endif
+
     if (pipeline.isBad() || primProc.isBad()) {
         return false;
     }
@@ -50,7 +55,7 @@ bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
         this->gpu()->stats()->incNumFailedDraws();
         return false;
     }
-    this->onDraw(pipeline, primProc, mesh, meshCount, bounds);
+    this->onDraw(pipeline, primProc, meshes, meshCount, bounds);
     return true;
 }
 

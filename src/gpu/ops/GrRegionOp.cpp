@@ -103,10 +103,10 @@ private:
 
         size_t vertexStride = gp->getVertexStride();
         sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
-        PatternHelper helper;
+        PatternHelper helper(kTriangles_GrPrimitiveType);
         void* vertices =
-                helper.init(target, kTriangles_GrPrimitiveType, vertexStride, indexBuffer.get(),
-                            kVertsPerInstance, kIndicesPerInstance, numRects);
+                helper.init(target, vertexStride, indexBuffer.get(), kVertsPerInstance,
+                            kIndicesPerInstance, numRects);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;

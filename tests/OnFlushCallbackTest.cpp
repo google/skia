@@ -144,14 +144,9 @@ private:
             }
         }
 
-        GrMesh mesh;
-        mesh.fPrimitiveType = kTriangles_GrPrimitiveType;
-        mesh.fIndexBuffer.reset(indexBuffer);
-        mesh.fIndexCount = 6;
-        mesh.fBaseIndex = firstIndex;
-        mesh.fVertexBuffer.reset(vertexBuffer);
-        mesh.fVertexCount = 4;
-        mesh.fBaseVertex = firstVertex;
+        GrMesh mesh(kTriangles_GrPrimitiveType);
+        mesh.setIndexed(indexBuffer, 6, firstIndex);
+        mesh.setVertices(vertexBuffer, 4, firstVertex);
 
         target->draw(gp.get(), this->pipeline(), mesh);
     }
