@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkRasterPipeline.h"
 #include "SkSRGB.h"
 #include "SkTypes.h"
 #include "Test.h"
@@ -35,5 +36,28 @@ DEF_TEST(sk_linear_to_srgb, r) {
         pun.bits++;
         SkDEBUGCODE(pun.bits += 127);
         f = pun.flt;
+    }
+}
+
+DEF_TEST(sk_pipeline_srgb_roundtrip, r) {
+    uint32_t reds[256];
+    for (int i = 0; i < 256; i++) {
+        reds[i] = i;
+    }
+
+    auto ptr = (void*)reds;
+
+    SkRasterPipeline p;
+    p.append(SkRasterPipeline::load_8888,  &ptr);
+    p.append_from_srgb(kUnpremul_SkAlphaType);
+    p.append(SkRasterPipeline::to_srgb);
+    p.append(SkRasterPipeline::store_8888, &ptr);
+
+    p.run(0,256);
+
+    for (int i = 0; i < 256; i++) {
+        if (reds[i] != (uint32_t)i) {
+            ERRORF(r, "%d doesn't round trip, %d", i, reds[i]);
+        }
     }
 }
