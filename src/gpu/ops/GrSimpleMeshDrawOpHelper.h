@@ -40,8 +40,10 @@ public:
             : fProcessors(args.fProcessorSet)
             , fPipelineFlags(args.fSRGBFlags)
             , fAAType((int)aaType)
-            , fRequiresDstTexture(false) {
+            , fRequiresDstTexture(false)
+            , fUsesLocalCoords(false) {
         SkASSERT(!stencilSettings);
+        SkDEBUGCODE(fDidAnalysis = false);
         if (GrAATypeIsHW(aaType)) {
             fPipelineFlags |= GrPipeline::kHWAntialias_Flag;
         }
@@ -83,6 +85,7 @@ public:
 
     bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip,
                               GrProcessorAnalysisCoverage geometryCoverage, GrColor* color) {
+        SkDEBUGCODE(fDidAnalysis = true);
         if (fProcessors) {
             GrProcessorAnalysisCoverage coverage = geometryCoverage;
             if (GrProcessorAnalysisCoverage::kNone == coverage) {
@@ -94,10 +97,17 @@ public:
             GrProcessorSet::Analysis analysis =
                     fProcessors->finalize(*color, coverage, clip, isMixedSamples, caps, color);
             fRequiresDstTexture = analysis.requiresDstTexture();
+            fUsesLocalCoords = analysis.usesLocalCoords();
             return analysis.requiresDstTexture();
         } else {
+            fUsesLocalCoords = GrProcessorSet::EmptySetAnalysis().usesLocalCoords();
             return GrProcessorSet::EmptySetAnalysis().requiresDstTexture();
         }
+    }
+
+    bool usesLocalCoords() const {
+        SkASSERT(fDidAnalysis);
+        return fUsesLocalCoords;
     }
 
     GrPipeline* makePipeline(GrMeshDrawOp::Target* target) const {
@@ -137,6 +147,8 @@ private:
     unsigned fPipelineFlags : 8;
     unsigned fAAType : 2;
     unsigned fRequiresDstTexture : 1;
+    unsigned fUsesLocalCoords : 1;
+    SkDEBUGCODE(unsigned fDidAnalysis : 1;)
 };
 
 /**
@@ -170,6 +182,7 @@ public:
     }
 
     using GrSimpleMeshDrawOpHelper::xpRequiresDstTexture;
+    using GrSimpleMeshDrawOpHelper::usesLocalCoords;
 
     bool isCompatible(const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps& caps,
                       const SkRect& aBounds, const SkRect& bBounds) const {

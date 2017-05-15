@@ -483,20 +483,20 @@ LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAFlatteningConvexPathOp)
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAHairlineOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAStrokeRectOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(AnalyticRectOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(CircleOp)
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(DashOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(DefaultPathOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(DIEllipseOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(EllipseOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(GrDrawAtlasOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(NonAAStrokeRectOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(RRectOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(SmallPathOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(TesselatingPathOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(TextBlobOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(VerticesOp);
 
+DRAW_OP_TEST_EXTERN(CircleOp)
+DRAW_OP_TEST_EXTERN(DIEllipseOp);
+DRAW_OP_TEST_EXTERN(EllipseOp);
 DRAW_OP_TEST_EXTERN(NonAAFillRectOp)
+DRAW_OP_TEST_EXTERN(RRectOp);
 
 void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext, GrPaint&& paint) {
     GrContext* context = renderTargetContext->surfPriv().getContext();
@@ -509,14 +509,10 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
         DRAW_OP_TEST_ENTRY(AAHairlineOp),
         DRAW_OP_TEST_ENTRY(AAStrokeRectOp),
         DRAW_OP_TEST_ENTRY(AnalyticRectOp),
-        DRAW_OP_TEST_ENTRY(CircleOp),
         DRAW_OP_TEST_ENTRY(DashOp),
         DRAW_OP_TEST_ENTRY(DefaultPathOp),
-        DRAW_OP_TEST_ENTRY(DIEllipseOp),
-        DRAW_OP_TEST_ENTRY(EllipseOp),
         DRAW_OP_TEST_ENTRY(GrDrawAtlasOp),
         DRAW_OP_TEST_ENTRY(NonAAStrokeRectOp),
-        DRAW_OP_TEST_ENTRY(RRectOp),
         DRAW_OP_TEST_ENTRY(SmallPathOp),
         DRAW_OP_TEST_ENTRY(TesselatingPathOp),
         DRAW_OP_TEST_ENTRY(TextBlobOp),
@@ -525,7 +521,11 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
 
     using MakeDrawOpFn = std::unique_ptr<GrDrawOp>(GrPaint&&, SkRandom*, GrContext*, GrFSAAType);
     static constexpr MakeDrawOpFn* gFactories[] = {
+        DRAW_OP_TEST_ENTRY(CircleOp),
+        DRAW_OP_TEST_ENTRY(DIEllipseOp),
+        DRAW_OP_TEST_ENTRY(EllipseOp),
         DRAW_OP_TEST_ENTRY(NonAAFillRectOp),
+        DRAW_OP_TEST_ENTRY(RRectOp),
     };
 
     static constexpr size_t kTotal = SK_ARRAY_COUNT(gLegacyFactories) + SK_ARRAY_COUNT(gFactories);
