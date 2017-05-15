@@ -49,21 +49,15 @@ public:
     type* get() { return fPaint; }
 
     template <typename T>
-    SK_WHEN(T::kTags & kDraw_Tag, bool) operator()(T* draw) {
+    SK_WHEN((T::kTags & kDrawWithPaint_Tag) == kDrawWithPaint_Tag, bool) operator()(T* draw) {
         fPaint = AsPtr(draw->paint);
         return true;
     }
 
-    bool operator()(DrawDrawable*) {
-        static_assert(DrawDrawable::kTags & kDraw_Tag, "");
+    template <typename T>
+    SK_WHEN((T::kTags & kDrawWithPaint_Tag) != kDrawWithPaint_Tag, bool) operator()(T* draw) {
         fPaint = nullptr;
         return true;
-    }
-
-    template <typename T>
-    SK_WHEN(!(T::kTags & kDraw_Tag), bool) operator()(T* draw) {
-        fPaint = nullptr;
-        return false;
     }
 
 private:
