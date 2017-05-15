@@ -2047,11 +2047,9 @@ void SkCanvas::onDrawArc(const SkRect& oval, SkScalar startAngle,
                          const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawArc()");
     if (paint.canComputeFastBounds()) {
-        // Skia will draw an inverted rect, because it explicitly "sorts" it downstream.
-        // To prevent accidental rejecting at this stage, we have to sort it before we check.
         SkRect storage;
         // Note we're using the entire oval as the bounds.
-        if (this->quickReject(paint.computeFastBounds(oval.makeSorted(), &storage))) {
+        if (this->quickReject(paint.computeFastBounds(oval, &storage))) {
             return;
         }
     }
