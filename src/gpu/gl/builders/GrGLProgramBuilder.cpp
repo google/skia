@@ -158,7 +158,24 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     checkLinked = true;
 #endif
     if (checkLinked) {
-        checkLinkStatus(programID);
+        if (!this->checkLinkStatus(programID)) {
+            SkDebugf("VS:\n");
+            GrGLPrintShader(fGpu->glContext(), GR_GL_VERTEX_SHADER, fVS.fCompilerStrings.begin(),
+                            fVS.fCompilerStringLengths.begin(), fVS.fCompilerStrings.count(),
+                            settings);
+            if (primProc.willUseGeoShader()) {
+                SkDebugf("\nGS:\n");
+                GrGLPrintShader(fGpu->glContext(), GR_GL_GEOMETRY_SHADER,
+                                fGS.fCompilerStrings.begin(), fGS.fCompilerStringLengths.begin(),
+                                fGS.fCompilerStrings.count(), settings);
+            }
+            SkDebugf("\nFS:\n");
+            GrGLPrintShader(fGpu->glContext(), GR_GL_FRAGMENT_SHADER, fFS.fCompilerStrings.begin(),
+                            fFS.fCompilerStringLengths.begin(), fFS.fCompilerStrings.count(),
+                            settings);
+            SkDEBUGFAIL("");
+            return nullptr;
+        }
     }
     this->resolveProgramResourceLocations(programID);
 
@@ -210,7 +227,6 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID) {
                                       (char*)log.get()));
             SkDebugf("%s", (char*)log.get());
         }
-        SkDEBUGFAIL("Error linking program");
         GL_CALL(DeleteProgram(programID));
         programID = 0;
     }
