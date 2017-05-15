@@ -1,0 +1,395 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce9be98d_559e65c4",
+        "filename": "src/codec/SkCodecAnimation.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "Can this be enum class?",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 16
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1307ec8_07a6a689",
+        "filename": "src/codec/SkCodecAnimation.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "Should this be kPriorFrame?",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 18
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f06aef66_6bcd1362",
+        "filename": "src/codec/SkFrameHolder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "This confused me for a second.  I think you mean \"finished frame\" not \"last frame\".",
+      "range": {
+        "startLine": 58,
+        "startChar": 26,
+        "endLine": 58,
+        "endChar": 31
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7daf6cf_aaec0a71",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "Delete this comment?  Now that we support animated webp, this is a case that we should expect to see?",
+      "range": {
+        "startLine": 119,
+        "startChar": 12,
+        "endLine": 119,
+        "endChar": 50
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba0a2f80_42272aff",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "IIUC the lossless format is already BGRA which means it always might \"have alpha\".  But I actually like this change - seems reasonable to trust the hint.",
+      "range": {
+        "startLine": 127,
+        "startChar": 16,
+        "endLine": 127,
+        "endChar": 24
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a6cf995_cf6f5995",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "I think fFrameHolder.size() makes sense but \"size\" and \"oldSize\" are odd variable names.  Maybe frameCount and oldFrameCount?",
+      "range": {
+        "startLine": 229,
+        "startChar": 19,
+        "endLine": 229,
+        "endChar": 23
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "881a9ec8_f85228fa",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "Yeah, I think it would be good to just fail once.",
+      "range": {
+        "startLine": 243,
+        "startChar": 15,
+        "endLine": 243,
+        "endChar": 20
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "119b64ab_b8aa0402",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "Put this on previous line?",
+      "range": {
+        "startLine": 256,
+        "startChar": 16,
+        "endLine": 256,
+        "endChar": 18
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c12855d_6e50a1c1",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "Is it useful to also SkASSERT this?",
+      "range": {
+        "startLine": 273,
+        "startChar": 7,
+        "endLine": 273,
+        "endChar": 35
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ed8d190_a128c2ea",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "Do we need this special case?  Will frame0-\u003egetRequiredFrame() return kNone?",
+      "range": {
+        "startLine": 364,
+        "startChar": 30,
+        "endLine": 364,
+        "endChar": 50
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8317e93_e201007a",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "Can we also skip blending if the disposal method if RestoreBGColor?",
+      "range": {
+        "startLine": 403,
+        "startChar": 15,
+        "endLine": 403,
+        "endChar": 33
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7de6b3c_09f5f160",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "If the color space is non-null and fPremulBehavior is kRespect, I think we need to decode to unpremul here.  I believe that libwebp has implemented a kIgnore style premultiply.\n\nI know we typically can\u0027t draw unpremul, but for some reason I think the SW color correct drawing impl does support unpremul.  mtklein@ would know for sure.",
+      "range": {
+        "startLine": 517,
+        "startChar": 8,
+        "endLine": 517,
+        "endChar": 60
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db6c56a1_657f8ddc",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "This is a nice simplification.",
+      "range": {
+        "startLine": 539,
+        "startChar": 0,
+        "endLine": 541,
+        "endChar": 54
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e0eeb73_1829a842",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "Other than the incomplete case, when will frameRect be a subset of what we decode?",
+      "range": {
+        "startLine": 572,
+        "startChar": 8,
+        "endLine": 572,
+        "endChar": 70
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15dabea2_8f63cdd0",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "This needs a bit of color space logic:\n\nif (!dstInfo.colorSpace()):\n  // What you wrote works perfect.  We will do a legacy draw, which is all we can do without a color space\nelse if (dstInfo.colorSpace() \u0026\u0026 kRespect \u003d\u003d options.fPremulBehavior):\n  // What you wrote works perfect.  We will do a color correct draw because the canvas has a color space\nelse:   // dstInfo.colorSpace() \u0026\u0026 kIgnore\n  // We want a legacy draw that preconverts to the dst color space\n  auto xformCanvas \u003d SkCreateColorSpaceXformCanvas(legacyCanvas, dstInfo.colorSpace());\n  // Draw to the xform canvas",
+      "range": {
+        "startLine": 577,
+        "startChar": 8,
+        "endLine": 577,
+        "endChar": 73
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a29fe658_5ee2b14a",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "I am now realizing that SkCanvas will not support all of the dst color spaces that are supported by SkColorSpaceXform.  I think this is fine (you mentioned Chrome just skips color spaces on animated images).  But we should make sure to fail explicitly rather than draw wrongly...\n\nI would suggest adding a SkImageInfoIsValid(info, SkTransferFunctionBehavior).  I believe that the logic used by the image encoders is that same logic that you\u0027ll need here.",
+      "range": {
+        "startLine": 579,
+        "startChar": 8,
+        "endLine": 579,
+        "endChar": 71
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fac7035c_16fd9604",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 759,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-15T19:59:38Z",
+      "side": 1,
+      "message": "I\u0027m having a hard time understanding this file.  Are there any behavior changes or is this just part of the refactor?",
+      "range": {
+        "startLine": 759,
+        "startChar": 16,
+        "endLine": 759,
+        "endChar": 80
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
