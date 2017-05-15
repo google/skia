@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b4c945b_749e4924",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-15T17:02:01Z",
+      "side": 1,
+      "message": "update comment",
+      "range": {
+        "startLine": 379,
+        "startChar": 4,
+        "endLine": 379,
+        "endChar": 40
+      },
+      "revId": "32c6756f9ec0be3e115f762b29dc4199bcb8d42e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
