@@ -2643,7 +2643,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
 
     bool hasPoints = false;
     for (int i = 0; i < meshCount; ++i) {
-        if (meshes[i].fPrimitiveType == kPoints_GrPrimitiveType) {
+        if (meshes[i].primitiveType() == kPoints_GrPrimitiveType) {
             hasPoints = true;
             break;
         }
@@ -2658,36 +2658,32 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
         }
 
         const GrMesh& mesh = meshes[i];
-        for (GrMesh::PatternBatch batch : mesh) {
-            this->setupGeometry(primProc, mesh.fIndexBuffer.get(), mesh.fVertexBuffer.get(),
-                                batch.fBaseVertex);
-            if (const GrBuffer* indexBuffer = mesh.fIndexBuffer.get()) {
-                GrGLvoid* indices = reinterpret_cast<void*>(indexBuffer->baseOffset() +
-                                                            sizeof(uint16_t) * mesh.fBaseIndex);
-                // mesh.fBaseVertex was accounted for by setupGeometry.
+        const GrGLenum primType = gPrimitiveType2GLMode[mesh.primitiveType()];
+
+        if (mesh.isIndexed()) {
+            GrGLvoid* indices = reinterpret_cast<void*>(mesh.indexBuffer()->baseOffset() +
+                                                        sizeof(uint16_t) * mesh.baseIndex());
+            for (const GrMesh::PatternBatch batch : mesh) {
+                this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(),
+                                    batch.fBaseVertex);
+                // mesh.baseVertex() was accounted for by setupGeometry.
                 if (this->glCaps().drawRangeElementsSupport()) {
                     // We assume here that the GrMeshDrawOps that generated the mesh used the full
                     // 0..vertexCount()-1 range.
                     int start = 0;
-                    int end = mesh.fVertexCount * batch.fRepeatCount - 1;
-                    GL_CALL(DrawRangeElements(gPrimitiveType2GLMode[mesh.fPrimitiveType],
-                                              start, end,
-                                              mesh.fIndexCount * batch.fRepeatCount,
-                                              GR_GL_UNSIGNED_SHORT,
-                                              indices));
+                    int end = mesh.vertexCount() * batch.fRepeatCount - 1;
+                    GL_CALL(DrawRangeElements(primType, start, end,
+                                              mesh.indexCount() * batch.fRepeatCount,
+                                              GR_GL_UNSIGNED_SHORT, indices));
                 } else {
-                    GL_CALL(DrawElements(gPrimitiveType2GLMode[mesh.fPrimitiveType],
-                                         mesh.fIndexCount * batch.fRepeatCount,
-                                         GR_GL_UNSIGNED_SHORT,
-                                         indices));
+                    GL_CALL(DrawElements(primType, mesh.indexCount() * batch.fRepeatCount,
+                                         GR_GL_UNSIGNED_SHORT, indices));
                 }
-            } else {
-                // Pass 0 for parameter first. We have to adjust glVertexAttribPointer() to account
-                // for mesh.fBaseVertex in the DrawElements case. So we always rely on setupGeometry
-                // to have accounted for mesh.fBaseVertex.
-                GL_CALL(DrawArrays(gPrimitiveType2GLMode[mesh.fPrimitiveType], 0,
-                                   mesh.fVertexCount * batch.fRepeatCount));
+                fStats.incNumDraws();
             }
+        } else {
+            this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(), 0);
+            GL_CALL(DrawArrays(primType, mesh.baseVertex(), mesh.vertexCount()));
             fStats.incNumDraws();
         }
     }
