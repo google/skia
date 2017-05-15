@@ -4569,7 +4569,10 @@
     "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -4600,7 +4603,10 @@
     "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -4631,7 +4637,10 @@
     "Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:MMB29K",
@@ -4662,7 +4671,10 @@
     "Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:MMB29K",
@@ -4693,7 +4705,10 @@
     "Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M_G930AUCS4BQC2",
@@ -4724,7 +4739,10 @@
     "Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M_G930AUCS4BQC2",
@@ -4755,7 +4773,10 @@
     "Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M_G930FXXU1DQAS",
@@ -4786,7 +4807,10 @@
     "Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M_G930FXXU1DQAS",
@@ -4817,7 +4841,10 @@
     "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NPJ25.93-14",
@@ -4848,7 +4875,10 @@
     "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NPJ25.93-14",
@@ -4879,7 +4909,10 @@
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -4910,7 +4943,10 @@
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -4941,7 +4977,10 @@
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -4972,7 +5011,10 @@
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -5003,7 +5045,10 @@
     "Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -5034,7 +5079,10 @@
     "Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -5065,7 +5113,10 @@
     "Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -5096,7 +5147,10 @@
     "Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -5127,7 +5181,10 @@
     "Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:M4B30Z",
@@ -5158,7 +5215,10 @@
     "Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:M4B30Z",
@@ -5189,7 +5249,10 @@
     "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -5220,7 +5283,10 @@
     "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -5251,7 +5317,10 @@
     "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -5282,7 +5351,10 @@
     "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -5313,7 +5385,10 @@
     "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:LMY47V",
@@ -5344,7 +5419,10 @@
     "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:LMY47V",
@@ -5375,7 +5453,10 @@
     "Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-x86-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -5406,7 +5487,10 @@
     "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-x86-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -5437,7 +5521,10 @@
     "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-x86-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:OPP1.170223.012",
@@ -5468,7 +5555,10 @@
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -5499,7 +5589,10 @@
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android_Vulkan": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -5530,7 +5623,10 @@
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -5561,7 +5657,10 @@
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -5592,7 +5691,10 @@
     "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:N2G47D",
@@ -5623,7 +5725,10 @@
     "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device_os:N2G47D",
@@ -5652,16 +5757,10 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:57"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP"
       ],
       "dimensions": [
         "device_os:N2G47D",
@@ -5690,16 +5789,10 @@
       "priority": 0.8
     },
     "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:57"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP"
       ],
       "dimensions": [
         "device_os:N2G47D",
@@ -5730,7 +5823,10 @@
     "Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:MaliT604",
@@ -5760,7 +5856,10 @@
     "Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:MaliT604",
@@ -5790,7 +5889,10 @@
     "Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Debug": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:MaliT860",
@@ -5820,7 +5922,10 @@
     "Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:MaliT860",
@@ -5850,7 +5955,10 @@
     "Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:MaliT764",
@@ -5880,7 +5988,10 @@
     "Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:MaliT764",
@@ -5910,7 +6021,10 @@
     "Perf-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Debug": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:TegraK1",
@@ -5940,7 +6054,10 @@
     "Perf-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Release": {
       "dependencies": [
         "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "gpu:TegraK1",
@@ -5968,16 +6085,10 @@
       "priority": 0.8
     },
     "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:57"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-GCC-arm-Debug-Chromecast",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP"
       ],
       "dimensions": [
         "device_os:1.24_82923",
@@ -6006,16 +6117,10 @@
       "priority": 0.8
     },
     "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:57"
-        }
-      ],
       "dependencies": [
         "Build-Ubuntu-GCC-arm-Release-Chromecast",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP"
       ],
       "dimensions": [
         "device_os:1.24_82923",
@@ -10201,7 +10306,10 @@
     "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPad5,1",
@@ -10231,7 +10339,10 @@
     "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
       "dependencies": [
         "Build-Mac-Clang-arm64-Release-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPad5,1",
@@ -10261,7 +10372,10 @@
     "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-RaspberryPi": {
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPad6,3",
@@ -10292,7 +10406,10 @@
     "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-RaspberryPi": {
       "dependencies": [
         "Build-Mac-Clang-arm64-Release-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPad6,3",
@@ -10323,7 +10440,10 @@
     "Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-RaspberryPi": {
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPhone7,2",
@@ -10354,7 +10474,10 @@
     "Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi": {
       "dependencies": [
         "Build-Mac-Clang-arm64-Release-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPhone7,2",
@@ -10385,7 +10508,10 @@
     "Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-RaspberryPi": {
       "dependencies": [
         "Build-Mac-Clang-arm64-Debug-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPhone9,1",
@@ -10416,7 +10542,10 @@
     "Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-RaspberryPi": {
       "dependencies": [
         "Build-Mac-Clang-arm64-Release-iOS",
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
         "device:iPhone9,1",
