@@ -42,6 +42,8 @@ protected:
                                      SkMatrix* matrix,
                                      SkRasterPipeline* p) const final;
 
+    bool isRasterPipelineOnly() const final;
+
 private:
     const SkPoint fCenter;
 
