@@ -13,7 +13,7 @@
 #include "SkTArray.h"
 #include "SkThreadUtils.h"
 
-#if defined(_MSC_VER)
+#if defined(SK_BUILD_FOR_WIN32)
     #include <windows.h>
     static int num_cores() {
         SYSTEM_INFO sysinfo;
