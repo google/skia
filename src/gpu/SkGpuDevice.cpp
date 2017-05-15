@@ -1762,7 +1762,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
                                                    cinfo.fInfo.width(), cinfo.fInfo.height(),
                                                    fRenderTargetContext->config(),
                                                    fRenderTargetContext->refColorSpace(),
-                                                   fRenderTargetContext->desc().fSampleCnt,
+                                                   fRenderTargetContext->numStencilSamples(),
                                                    kBottomLeft_GrSurfaceOrigin,
                                                    &props));
     if (!rtc) {
@@ -1781,7 +1781,7 @@ sk_sp<SkSurface> SkGpuDevice::makeSurface(const SkImageInfo& info, const SkSurfa
     // TODO: Change the signature of newSurface to take a budgeted parameter.
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
     return SkSurface::MakeRenderTarget(fContext.get(), kBudgeted, info,
-                                       fRenderTargetContext->desc().fSampleCnt,
+                                       fRenderTargetContext->numStencilSamples(),
                                        fRenderTargetContext->origin(), &props);
 }
 
