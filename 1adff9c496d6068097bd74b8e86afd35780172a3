@@ -46,6 +46,30 @@
       "revId": "1adff9c496d6068097bd74b8e86afd35780172a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b66619a_0714eccc",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-15T15:28:53Z",
+      "side": 1,
+      "message": "oh! I get it now.",
+      "parentUuid": "f4e160eb_fba3b583",
+      "range": {
+        "startLine": 679,
+        "startChar": 57,
+        "endLine": 679,
+        "endChar": 58
+      },
+      "revId": "1adff9c496d6068097bd74b8e86afd35780172a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
