@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2338833_a9be9576",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 5766,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-05-15T12:14:15Z",
+      "side": 1,
+      "message": "SkpBench should only depend on IsolateSKP",
+      "range": {
+        "startLine": 5763,
+        "startChar": 43,
+        "endLine": 5766,
+        "endChar": 8
+      },
+      "revId": "e9d23bc0ec7e816af4f970817beb37c6d0c1b7e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89083fa3_38906385",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 6097,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-05-15T12:14:15Z",
+      "side": 1,
+      "message": "Chromecast should only depend on SKPs, right?",
+      "range": {
+        "startLine": 6096,
+        "startChar": 0,
+        "endLine": 6097,
+        "endChar": 46
+      },
+      "revId": "e9d23bc0ec7e816af4f970817beb37c6d0c1b7e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
