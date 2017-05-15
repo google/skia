@@ -81,7 +81,6 @@ struct SkPathCounter {
     void operator()(const SkRecords::DrawPicture& op) {
         fNumSlowPathsAndDashEffects += op.picture->numSlowPaths();
     }
-    void operator()(const SkRecords::DrawDrawable&) { /* TODO */ }
 
     void checkPaint(const SkPaint* paint) {
         if (paint && paint->getPathEffect()) {
@@ -132,12 +131,13 @@ struct SkPathCounter {
     }
 
     template <typename T>
-    SK_WHEN(T::kTags & SkRecords::kDraw_Tag, void) operator()(const T& op) {
+    SK_WHEN(T::kTags & SkRecords::kHasPaint_Tag, void) operator()(const T& op) {
         this->checkPaint(AsPtr(op.paint));
     }
 
     template <typename T>
-    SK_WHEN(!(T::kTags & SkRecords::kDraw_Tag), void) operator()(const T& op) { /* do nothing */ }
+    SK_WHEN(!(T::kTags & SkRecords::kHasPaint_Tag), void)
+      operator()(const T& op) { /* do nothing */ }
 
     int fNumSlowPathsAndDashEffects;
 };

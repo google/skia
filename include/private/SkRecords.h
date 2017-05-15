@@ -159,6 +159,8 @@ enum Tags {
     kHasImage_Tag  = 2,   // Contains an SkImage or SkBitmap.
     kHasText_Tag   = 4,   // Contains text.
     kHasPaint_Tag  = 8,   // May have an SkPaint field, at least optionally.
+
+    kDrawWithPaint_Tag = kDraw_Tag | kHasPaint_Tag,
 };
 
 // A macro to make it a little easier to define a struct that can be stored in SkRecord.
