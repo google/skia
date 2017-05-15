@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e9af2df7_10e273c8",
+        "filename": "src/core/SkComposeShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-15T12:31:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fd4abac1_29e8bc9a",
+      "revId": "9e35626ec20d9a25e358771a0b489cb8ac84d7f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b9425232_7cf80bb3",
         "filename": "src/core/SkComposeShader.cpp",
         "patchSetId": 8
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "d8263ca4_01588805",
+        "filename": "src/core/SkComposeShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-15T12:31:37Z",
+      "side": 1,
+      "message": "Ack. I was not complaining that they don\u0027t already clamp.",
+      "parentUuid": "b9425232_7cf80bb3",
+      "range": {
+        "startLine": 165,
+        "startChar": 50,
+        "endLine": 165,
+        "endChar": 81
+      },
+      "revId": "9e35626ec20d9a25e358771a0b489cb8ac84d7f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa496b2a_d9d11747",
         "filename": "src/core/SkComposeShader.cpp",
         "patchSetId": 8
@@ -53,6 +95,30 @@
       "writtenOn": "2017-05-14T23:15:51Z",
       "side": 1,
       "message": "It is always slightly inefficient to have separate stages, but orthogonality and having fewer special cases are the most productive default for code that has not been proven to be too slow.  The instinct to fuse up a special case is natural and one that everyone including me has grown through when learning to use this framework... you\u0027re going to need to actively suppress this feeling for a while.",
+      "range": {
+        "startLine": 169,
+        "startChar": 4,
+        "endLine": 169,
+        "endChar": 84
+      },
+      "revId": "9e35626ec20d9a25e358771a0b489cb8ac84d7f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dd9a953_18a9689a",
+        "filename": "src/core/SkComposeShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-15T12:31:37Z",
+      "side": 1,
+      "message": "I recognize the tension that optimizations often make it harder to refactor code that is in flux.",
+      "parentUuid": "aa496b2a_d9d11747",
       "range": {
         "startLine": 169,
         "startChar": 4,
