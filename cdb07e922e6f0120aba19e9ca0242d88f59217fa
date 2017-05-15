@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55b35dec_df82a694",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-15T20:46:32Z",
+      "side": 1,
+      "message": "I\u0027d kinda rather this were public rather than have to add more friends to SkShader...",
+      "range": {
+        "startLine": 509,
+        "startChar": 17,
+        "endLine": 509,
+        "endChar": 39
+      },
+      "revId": "cdb07e922e6f0120aba19e9ca0242d88f59217fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
