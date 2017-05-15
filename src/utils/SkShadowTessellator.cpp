@@ -64,7 +64,7 @@ protected:
     std::function<SkScalar(const SkPoint&)> fTransformedHeightFunc;
     SkScalar                                fZOffset;
     // members for perspective height function
-    SkPoint3                                fPerspZParams;
+    SkPoint3                                fTransformedZParams;
     SkScalar                                fPartialDeterminants[3];
 
     // first two points
@@ -268,7 +268,7 @@ bool SkBaseShadowTessellator::addArc(const SkVector& nextNormal, bool finishArc)
 }
 
 bool SkBaseShadowTessellator::setTransformedHeightFunc(const SkMatrix& ctm) {
-    if (!ctm.hasPerspective()) {
+    if (SkScalarNearlyZero(fZPlaneParams.fX) && SkScalarNearlyZero(fZPlaneParams.fY)) {
         fTransformedHeightFunc = [this](const SkPoint& p) {
             return fZPlaneParams.fZ;
         };
@@ -277,9 +277,8 @@ bool SkBaseShadowTessellator::setTransformedHeightFunc(const SkMatrix& ctm) {
         if (!ctm.invert(&ctmInverse)) {
             return false;
         }
-
         // multiply by transpose
-        fPerspZParams = SkPoint3::Make(
+        fTransformedZParams = SkPoint3::Make(
             ctmInverse[SkMatrix::kMScaleX] * fZPlaneParams.fX +
             ctmInverse[SkMatrix::kMSkewY] * fZPlaneParams.fY +
             ctmInverse[SkMatrix::kMPersp0] * fZPlaneParams.fZ,
@@ -293,33 +292,41 @@ bool SkBaseShadowTessellator::setTransformedHeightFunc(const SkMatrix& ctm) {
             ctmInverse[SkMatrix::kMPersp2] * fZPlaneParams.fZ
         );
 
-        // We use Cramer's rule to solve for the W value for a given post-divide X and Y,
-        // so pre-compute those values that are independent of X and Y.
-        // W is det(ctmInverse)/(PD[0]*X + PD[1]*Y + PD[2])
-        fPartialDeterminants[0] = ctm[SkMatrix::kMSkewY] * ctm[SkMatrix::kMPersp1] -
-                                  ctm[SkMatrix::kMScaleY] * ctm[SkMatrix::kMPersp0];
-        fPartialDeterminants[1] = ctm[SkMatrix::kMPersp0] * ctm[SkMatrix::kMSkewX] -
-                                  ctm[SkMatrix::kMPersp1] * ctm[SkMatrix::kMScaleX];
-        fPartialDeterminants[2] = ctm[SkMatrix::kMScaleX] * ctm[SkMatrix::kMScaleY] -
-                                  ctm[SkMatrix::kMSkewX] * ctm[SkMatrix::kMSkewY];
-        SkScalar ctmDeterminant = ctm[SkMatrix::kMTransX] * fPartialDeterminants[0] +
-                                  ctm[SkMatrix::kMTransY] * fPartialDeterminants[1] +
-                                  ctm[SkMatrix::kMPersp2] * fPartialDeterminants[2];
+        if (ctm.hasPerspective()) {
+            // We use Cramer's rule to solve for the W value for a given post-divide X and Y,
+            // so pre-compute those values that are independent of X and Y.
+            // W is det(ctmInverse)/(PD[0]*X + PD[1]*Y + PD[2])
+            fPartialDeterminants[0] = ctm[SkMatrix::kMSkewY] * ctm[SkMatrix::kMPersp1] -
+                                      ctm[SkMatrix::kMScaleY] * ctm[SkMatrix::kMPersp0];
+            fPartialDeterminants[1] = ctm[SkMatrix::kMPersp0] * ctm[SkMatrix::kMSkewX] -
+                                      ctm[SkMatrix::kMPersp1] * ctm[SkMatrix::kMScaleX];
+            fPartialDeterminants[2] = ctm[SkMatrix::kMScaleX] * ctm[SkMatrix::kMScaleY] -
+                                      ctm[SkMatrix::kMSkewX] * ctm[SkMatrix::kMSkewY];
+            SkScalar ctmDeterminant = ctm[SkMatrix::kMTransX] * fPartialDeterminants[0] +
+                                      ctm[SkMatrix::kMTransY] * fPartialDeterminants[1] +
+                                      ctm[SkMatrix::kMPersp2] * fPartialDeterminants[2];
 
-        // Pre-bake the numerator of Cramer's rule into the zParams to avoid another multiply.
-        // TODO: this may introduce numerical instability, but I haven't seen any issues yet.
-        fPerspZParams.fX *= ctmDeterminant;
-        fPerspZParams.fY *= ctmDeterminant;
-        fPerspZParams.fZ *= ctmDeterminant;
+            // Pre-bake the numerator of Cramer's rule into the zParams to avoid another multiply.
+            // TODO: this may introduce numerical instability, but I haven't seen any issues yet.
+            fTransformedZParams.fX *= ctmDeterminant;
+            fTransformedZParams.fY *= ctmDeterminant;
+            fTransformedZParams.fZ *= ctmDeterminant;
 
-        fTransformedHeightFunc = [this](const SkPoint& p) {
-            SkScalar denom = p.fX * fPartialDeterminants[0] +
-                             p.fY * fPartialDeterminants[1] +
-                             fPartialDeterminants[2];
-            SkScalar w = SkScalarFastInvert(denom);
-            return (fPerspZParams.fX * p.fX + fPerspZParams.fY * p.fY + fPerspZParams.fZ)*w +
-                   fZOffset;
-        };
+            fTransformedHeightFunc = [this](const SkPoint& p) {
+                SkScalar denom = p.fX * fPartialDeterminants[0] +
+                                 p.fY * fPartialDeterminants[1] +
+                                 fPartialDeterminants[2];
+                SkScalar w = SkScalarFastInvert(denom);
+                return fZOffset + w*(fTransformedZParams.fX * p.fX +
+                                     fTransformedZParams.fY * p.fY +
+                                     fTransformedZParams.fZ);
+            };
+        } else {
+            fTransformedHeightFunc = [this](const SkPoint& p) {
+                return fZOffset + fTransformedZParams.fX * p.fX +
+                       fTransformedZParams.fY * p.fY + fTransformedZParams.fZ;
+            };
+        }
     }
 
     return true;
