@@ -106,8 +106,11 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
     // copy-on-write.
     if (!srcProxy || rtc->priv().refsWrappedObjects()) {
         // MDB TODO: replace this with GrSurfaceProxy::Copy?
-        GrSurfaceDesc desc = rtc->desc();
-        desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;
+        GrSurfaceDesc desc;
+        desc.fConfig = rtc->config();
+        desc.fWidth = rtc->width();
+        desc.fHeight = rtc->height();
+        desc.fOrigin = rtc->origin();
 
         sk_sp<GrSurfaceContext> copyCtx = ctx->contextPriv().makeDeferredSurfaceContext(
                                                                 desc,
