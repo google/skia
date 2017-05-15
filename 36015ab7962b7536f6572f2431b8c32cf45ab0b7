@@ -33,6 +33,24 @@
       "revId": "36015ab7962b7536f6572f2431b8c32cf45ab0b7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a31db008_d4403a9c",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1301,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-15T16:53:19Z",
+      "side": 0,
+      "message": "No good reason. I can put back the locals.",
+      "parentUuid": "bc0802fe_fe1dbce2",
+      "revId": "36015ab7962b7536f6572f2431b8c32cf45ab0b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
