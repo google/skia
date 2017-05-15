@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "Test.h"
 
 #if SK_SUPPORT_GPU
-#include "Test.h"
-#include "gl/GrGLSLPrettyPrint.h"
+#include "GrSKSLPrettyPrint.h"
 
 #define ASSERT(x) REPORTER_ASSERT(r, x)
 
@@ -88,7 +87,7 @@ const SkString neg2("###\n##\n#####(((((((((((((unbalanced verything;;;");
 const SkString neg3("}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}"
         ";;;;;;/////");
 
-DEF_TEST(GrGLSLPrettyPrint, r) {
+DEF_TEST(GrSKSLPrettyPrint, r) {
     SkTArray<const char*> testStr;
     SkTArray<int> lengths;
     testStr.push_back(input1.c_str());
@@ -104,8 +103,8 @@ DEF_TEST(GrGLSLPrettyPrint, r) {
     testStr.push_back(input6.c_str());
     lengths.push_back((int)input6.size());
 
-    SkString test = GrGLSLPrettyPrint::PrettyPrintGLSL(testStr.begin(), lengths.begin(),
-                                                       testStr.count(), true);
+    SkString test = GrSKSLPrettyPrint::PrettyPrint(testStr.begin(), lengths.begin(),
+                                                   testStr.count(), true);
     ASSERT(output1 == test);
 
     testStr.reset();
@@ -118,8 +117,8 @@ DEF_TEST(GrGLSLPrettyPrint, r) {
     lengths.push_back((int)neg3.size());
 
     // Just test we don't crash with garbage input
-    ASSERT(GrGLSLPrettyPrint::PrettyPrintGLSL(testStr.begin(), lengths.begin(), 1,
-                                              true).c_str() != nullptr);
+    ASSERT(GrSKSLPrettyPrint::PrettyPrint(testStr.begin(), lengths.begin(), 1,
+                                          true).c_str() != nullptr);
 }
 
 #endif

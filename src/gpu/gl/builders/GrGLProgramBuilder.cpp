@@ -19,7 +19,6 @@
 #include "SkTraceEvent.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLProgram.h"
-#include "gl/GrGLSLPrettyPrint.h"
 #include "gl/builders/GrGLShaderStringBuilder.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -158,7 +157,24 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     checkLinked = true;
 #endif
     if (checkLinked) {
-        checkLinkStatus(programID);
+        if (!this->checkLinkStatus(programID)) {
+            SkDebugf("VS:\n");
+            GrGLPrintShader(fGpu->glContext(), GR_GL_VERTEX_SHADER, fVS.fCompilerStrings.begin(),
+                            fVS.fCompilerStringLengths.begin(), fVS.fCompilerStrings.count(),
+                            settings);
+            if (primProc.willUseGeoShader()) {
+                SkDebugf("\nGS:\n");
+                GrGLPrintShader(fGpu->glContext(), GR_GL_GEOMETRY_SHADER,
+                                fGS.fCompilerStrings.begin(), fGS.fCompilerStringLengths.begin(),
+                                fGS.fCompilerStrings.count(), settings);
+            }
+            SkDebugf("\nFS:\n");
+            GrGLPrintShader(fGpu->glContext(), GR_GL_FRAGMENT_SHADER, fFS.fCompilerStrings.begin(),
+                            fFS.fCompilerStringLengths.begin(), fFS.fCompilerStrings.count(),
+                            settings);
+            SkDEBUGFAIL("");
+            return nullptr;
+        }
     }
     this->resolveProgramResourceLocations(programID);
 
@@ -197,6 +213,7 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID) {
     GrGLint linked = GR_GL_INIT_ZERO;
     GL_CALL(GetProgramiv(programID, GR_GL_LINK_STATUS, &linked));
     if (!linked) {
+        SkDebugf("Program linking failed.\n");
         GrGLint infoLen = GR_GL_INIT_ZERO;
         GL_CALL(GetProgramiv(programID, GR_GL_INFO_LOG_LENGTH, &infoLen));
         SkAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
@@ -210,7 +227,6 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID) {
                                       (char*)log.get()));
             SkDebugf("%s", (char*)log.get());
         }
-        SkDEBUGFAIL("Error linking program");
         GL_CALL(DeleteProgram(programID));
         programID = 0;
     }

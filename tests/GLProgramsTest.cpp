@@ -341,54 +341,30 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 
 static int get_glprograms_max_stages(GrContext* context) {
     GrGLGpu* gpu = static_cast<GrGLGpu*>(context->getGpu());
-    /*
-     * For the time being, we only support the test with desktop GL or for android on
-     * ARM platforms
-     * TODO When we run ES 3.00 GLSL in more places, test again
-     */
-    if (kGL_GrGLStandard == gpu->glStandard() ||
-        kARM_GrGLVendor == gpu->ctxInfo().vendor()) {
-        return 6;
-    } else if (kTegra3_GrGLRenderer == gpu->ctxInfo().renderer() ||
-               kOther_GrGLRenderer == gpu->ctxInfo().renderer()) {
-        return 1;
-    }
-    return 0;
-}
-
-static void test_glprograms_native(skiatest::Reporter* reporter,
-                                   const sk_gpu_test::ContextInfo& ctxInfo) {
-    int maxStages = get_glprograms_max_stages(ctxInfo.grContext());
-    if (maxStages == 0) {
-        return;
-    }
-    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.grContext(), maxStages));
-}
-
-static void test_glprograms_other_contexts(
-            skiatest::Reporter* reporter,
-            const sk_gpu_test::ContextInfo& ctxInfo) {
-    int maxStages = get_glprograms_max_stages(ctxInfo.grContext());
-#ifdef SK_BUILD_FOR_WIN
-    // Some long shaders run out of temporary registers in the D3D compiler on ANGLE and
-    // command buffer.
-    maxStages = SkTMin(maxStages, 2);
+    int maxStages = 6;
+    if (kGLES_GrGLStandard == gpu->glStandard()) {
+    // We've had issues with driver crashes and HW limits being exceeded with many effects on
+    // Android devices. We have passes on ARM devices with the default number of stages.
+    // TODO When we run ES 3.00 GLSL in more places, test again
+#ifdef SK_BUILD_FOR_ANDROID
+        if (kARM_GrGLVendor != gpu->ctxInfo().vendor()) {
+            maxStages = 1;
+        }
 #endif
+    // On iOS we can exceed the maximum number of varyings. http://skbug.com/6627.
+#ifdef SK_BUILDF_FOR_IOS
+        maxStages = 3;
+#endif
+    }
+    return maxStages;
+}
+
+static void test_glprograms(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& ctxInfo) {
+    int maxStages = get_glprograms_max_stages(ctxInfo.grContext());
     if (maxStages == 0) {
         return;
     }
     REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.grContext(), maxStages));
-}
-
-static bool is_native_gl_context_type(sk_gpu_test::GrContextFactory::ContextType type) {
-    return type == sk_gpu_test::GrContextFactory::kGL_ContextType ||
-           type == sk_gpu_test::GrContextFactory::kGLES_ContextType;
-}
-
-static bool is_other_rendering_gl_context_type(sk_gpu_test::GrContextFactory::ContextType type) {
-    return !is_native_gl_context_type(type) &&
-           kOpenGL_GrBackend == sk_gpu_test::GrContextFactory::ContextTypeBackend(type) &&
-           sk_gpu_test::GrContextFactory::IsRenderingContext(type);
 }
 
 DEF_GPUTEST(GLPrograms, reporter, /*factory*/) {
@@ -404,10 +380,8 @@ DEF_GPUTEST(GLPrograms, reporter, /*factory*/) {
     GrContextOptions opts;
     opts.fSuppressPrints = true;
     sk_gpu_test::GrContextFactory debugFactory(opts);
-    skiatest::RunWithGPUTestContexts(test_glprograms_native, &is_native_gl_context_type,
-                                     reporter, &debugFactory);
-    skiatest::RunWithGPUTestContexts(test_glprograms_other_contexts,
-                                     &is_other_rendering_gl_context_type, reporter, &debugFactory);
+    skiatest::RunWithGPUTestContexts(test_glprograms, &skiatest::IsRenderingGLContextType, reporter,
+                                     &debugFactory);
 }
 
 #endif
