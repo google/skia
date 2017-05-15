@@ -120,6 +120,10 @@ bool SkComposeShader::asACompose(ComposeRec* rec) const {
     return true;
 }
 
+bool SkComposeShader::isRasterPipelineOnly() const {
+    return fShaderA->isRasterPipelineOnly() || fShaderB->isRasterPipelineOnly();
+}
+
 bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
                                      SkArenaAlloc* alloc, const SkMatrix& ctm,
                                      const SkPaint& paint, const SkMatrix* localM) const {

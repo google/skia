@@ -103,6 +103,9 @@ SkShader::Context* SkShader::makeContext(const ContextRec& rec, SkArenaAlloc* al
 SkShader::Context::Context(const SkShader& shader, const ContextRec& rec)
     : fShader(shader), fCTM(*rec.fMatrix)
 {
+    // We should never use a context for RP-only shaders.
+    SkASSERT(!shader.isRasterPipelineOnly());
+
     // Because the context parameters must be valid at this point, we know that the matrix is
     // invertible.
     SkAssertResult(fShader.computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, &fTotalInverse));

@@ -61,6 +61,10 @@ protected:
     }
 #endif
 
+    bool isRasterPipelineOnly() const final {
+        return fProxyShader->isRasterPipelineOnly();
+    }
+
 private:
     sk_sp<SkShader> fProxyShader;
 

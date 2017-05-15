@@ -506,6 +506,8 @@ protected:
         return sk_ref_sp(const_cast<SkShader*>(this));
     }
 
+    virtual bool isRasterPipelineOnly() const { return false; }
+
 private:
     virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace* dstCS, SkArenaAlloc*,
                                 const SkMatrix&, const SkPaint&, const SkMatrix* localM) const;
@@ -516,6 +518,8 @@ private:
     friend class SkLocalMatrixShader;         // sets fLocalMatrix in SkReadBuffer constructor
     friend class SkBitmapProcLegacyShader;    // calls computeTotalInverse()
     friend class SkColorSpaceXformer;         // calls makeColorSpace()
+    friend class SkBlitter;                   // calls isRasterPipelineOnly()
+    friend class SkComposeShader;             // calls isRasterPipelineOnly()
 
     typedef SkFlattenable INHERITED;
 };
