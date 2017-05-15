@@ -617,11 +617,11 @@ STAGE(from_srgb) {
 }
 STAGE(to_srgb) {
     auto fn = [&](F l) {
-        F sqrt = rcp  (rsqrt(l)),
-          ftrt = rsqrt(rsqrt(l));
-        auto lo = l * 12.46f;
-        auto hi = min(1.0f, mad(0.411192f, ftrt,
-                            mad(0.689206f, sqrt, -0.0988f)));
+        F t = rsqrt(l);
+
+        auto lo = l * 12.92f;
+        auto hi = mad(t, mad(t, -0.001600212f, 0.002473837f), 1.166322f)
+                * rcp(0.1689973f + t);
         return if_then_else(l < 0.0043f, lo, hi);
     };
     r = fn(r);
