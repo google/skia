@@ -12,6 +12,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #endif
+#include "SkCanvas.h"
 #include "SkColorSpace_Base.h"
 #include "SkImage.h"
 #include "SkSurface.h"

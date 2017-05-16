@@ -6,6 +6,7 @@
  */
 
 #include "SkData.h"
+#include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkImageGenerator.h"
 #include "Test.h"

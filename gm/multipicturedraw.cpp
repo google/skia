@@ -10,6 +10,7 @@
 
 #include "SkColorFilter.h"
 #include "SkMultiPictureDraw.h"
+#include "SkPath.h"
 #include "SkPictureRecorder.h"
 #include "SkSurface.h"
 
