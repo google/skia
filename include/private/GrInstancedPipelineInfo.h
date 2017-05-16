@@ -18,7 +18,7 @@ struct GrInstancedPipelineInfo {
     GrInstancedPipelineInfo(const GrRenderTargetProxy* rtp)
             : fIsMultisampled(GrFSAAType::kNone != rtp->fsaaType())
             , fIsMixedSampled(GrFSAAType::kMixedSamples == rtp->fsaaType())
-            , fIsRenderingToFloat(GrPixelConfigIsFloatingPoint(rtp->desc().fConfig)) {}
+            , fIsRenderingToFloat(GrPixelConfigIsFloatingPoint(rtp->config())) {}
 
     bool canUseCoverageAA() const { return !fIsMultisampled || fIsMixedSampled; }
 
