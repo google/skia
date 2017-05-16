@@ -70,6 +70,24 @@
       "revId": "c9ff7cd49d9ea13c2da4788d63dbfb94f8bc5702",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a555dd3_e88bff50",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-16T16:25:21Z",
+      "side": 1,
+      "message": "\u003e Yeah, that clamp is basically only for plus blend mode.\n\nAh good point.\n\n\u003e Now that I\u0027m looking at this a bit more, I think it makes sense to bake these clamps into dither, and clamp_0 too.  What do you think?\n\nSGTM",
+      "parentUuid": "ec9a6e99_f26a93e4",
+      "revId": "c9ff7cd49d9ea13c2da4788d63dbfb94f8bc5702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
