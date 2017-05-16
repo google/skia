@@ -97,8 +97,11 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     }
 
     if (kNvidia_VkVendor == properties.vendorID) {
-        fSupportsCopiesAsDraws = true;
         fMustSubmitCommandsBeforeCopyOp = true;
+    }
+
+    if (kQualcomm_VkVendor != properties.vendorID) {
+        fSupportsCopiesAsDraws = true;
     }
 
     if (fSupportsCopiesAsDraws) {
