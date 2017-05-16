@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5bcebd7e_8a7300af",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-16T16:04:00Z",
+      "side": 1,
+      "message": "Do we need to copy the mipmap setting here ?",
+      "revId": "1d274aa410060368ba8d8185eb92a14672a34e54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
