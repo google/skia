@@ -190,6 +190,11 @@ private:
 DEF_GPUTEST(GLSampleLocations, reporter, /*factory*/) {
     GLTestSampleLocationsInterface testInterface;
     sk_sp<GrContext> ctx(GrContext::Create(kOpenGL_GrBackend, testInterface));
+
+    // This test relies on at least 2 samples.
+    if (ctx->caps()->maxSampleCount() < 2) {
+        return;
+    }
     test_sampleLocations(reporter, &testInterface, ctx.get());
 }
 

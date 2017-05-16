@@ -1416,8 +1416,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
 
     GrShape shape(path, GrStyle::SimpleFill());
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
-    canDrawArgs.fShaderCaps =
-        fRenderTargetContext->drawingManager()->getContext()->caps()->shaderCaps();
+    canDrawArgs.fCaps = fRenderTargetContext->drawingManager()->getContext()->caps();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fAAType = aaType;
@@ -1478,7 +1477,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
         aaType = GrAAType::kCoverage;
     }
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
-    canDrawArgs.fShaderCaps = this->drawingManager()->getContext()->caps()->shaderCaps();
+    canDrawArgs.fCaps = this->drawingManager()->getContext()->caps();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fHasUserStencilSettings = false;
