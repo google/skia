@@ -471,7 +471,7 @@ static void SkGMRegistyToSampleRegistry() {
 
     if (!gOnce) {
         const skiagm::GMRegistry* gmreg = skiagm::GMRegistry::Head();
-        while (gmreg) {
+        while (gmreg && false) {
             fRegisters.push_back() = new SkViewRegister(gmreg->factory());
             gmreg = gmreg->next();
         }
