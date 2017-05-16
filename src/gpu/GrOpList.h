@@ -73,8 +73,6 @@ public:
      */
     SkDEBUGCODE(virtual void dump() const;)
 
-    SkDEBUGCODE(virtual void validateTargetsSingleRenderTarget() const = 0;)
-
     SkDEBUGCODE(virtual int numOps() const = 0;)
     SkDEBUGCODE(virtual int numClips() const { return 0; })
 

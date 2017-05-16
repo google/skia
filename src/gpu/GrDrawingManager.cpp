@@ -93,7 +93,6 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
         // but need to be flushed anyway. Closing such GrOpLists here will mean new
         // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
         fOpLists[i]->makeClosed(*fContext->caps());
-        SkDEBUGCODE(fOpLists[i]->validateTargetsSingleRenderTarget());
     }
 
 #ifdef ENABLE_MDB
@@ -127,7 +126,6 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
                     continue;   // Odd - but not a big deal
                 }
                 opList->makeClosed(*fContext->caps());
-                SkDEBUGCODE(opList->validateTargetsSingleRenderTarget());
                 opList->prepareOps(&fFlushState);
                 if (!opList->executeOps(&fFlushState)) {
                     continue;         // This is bad
