@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6c614bdd_c0970979",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-16T12:38:42Z",
+      "side": 1,
+      "message": "Definitely! I hope this code looks 100% gpu-only in the future.",
+      "parentUuid": "5f1c5bad_f1a98bc8",
+      "range": {
+        "startLine": 507,
+        "startChar": 18,
+        "endLine": 507,
+        "endChar": 28
+      },
+      "revId": "911b2425015e3a95f8f0429e76b73cd7a4d69b71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1895aea7_8ee90d03",
         "filename": "src/utils/SkShadowUtils.cpp",
         "patchSetId": 8
