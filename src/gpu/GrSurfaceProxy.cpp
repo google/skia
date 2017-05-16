@@ -246,9 +246,11 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
         return nullptr;
     }
 
-    GrSurfaceDesc dstDesc = src->desc();
+    GrSurfaceDesc dstDesc;
+    dstDesc.fConfig = src->config();
     dstDesc.fWidth = srcRect.width();
     dstDesc.fHeight = srcRect.height();
+    dstDesc.fOrigin = src->origin();
 
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
                                                                             dstDesc,
