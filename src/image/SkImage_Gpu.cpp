@@ -219,9 +219,11 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
 }
 
 sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
-    GrSurfaceDesc desc = fProxy->desc();
+    GrSurfaceDesc desc;
+    desc.fConfig = fProxy->config();
     desc.fWidth = subset.width();
     desc.fHeight = subset.height();
+    desc.fOrigin = fProxy->origin();
 
     sk_sp<GrSurfaceContext> sContext(fContext->contextPriv().makeDeferredSurfaceContext(
                                                                         desc,

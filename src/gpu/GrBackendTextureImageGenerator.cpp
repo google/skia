@@ -163,10 +163,14 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(GrContex
     } else {
         // Otherwise, make a copy of the requested subset. Make sure our temporary is renderable,
         // because Vulkan will want to do the copy as a draw.
-        GrSurfaceDesc desc = proxy->desc();
+        GrSurfaceDesc desc;
+        desc.fConfig = proxy->config();
         desc.fWidth = info.width();
         desc.fHeight = info.height();
+        desc.fOrigin = proxy->origin();
+        desc.fIsMipMapped = proxy->isMipMapped();
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
+
         sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeDeferredSurfaceContext(
             desc, SkBackingFit::kExact, SkBudgeted::kYes));
         if (!sContext) {
