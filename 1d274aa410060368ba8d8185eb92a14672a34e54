@@ -16,6 +16,24 @@
       "revId": "1d274aa410060368ba8d8185eb92a14672a34e54",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "617166f4_285f9ed0",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-16T16:10:12Z",
+      "side": 1,
+      "message": "I think so. It is used to initialize the mip map status in GrTexture to kValid rather than kNotAllocated. I did check with Brian about whether \u0027proxy\u0027 here can have mip levels and it can.",
+      "parentUuid": "5bcebd7e_8a7300af",
+      "revId": "1d274aa410060368ba8d8185eb92a14672a34e54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
