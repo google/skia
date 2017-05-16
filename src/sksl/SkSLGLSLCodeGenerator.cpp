@@ -406,6 +406,7 @@ static GLSLCodeGenerator::Precedence get_binary_precedence(Token::Kind op) {
         case Token::BITWISEANDEQ: // fall through
         case Token::BITWISEXOREQ: // fall through
         case Token::BITWISEOREQ:  return GLSLCodeGenerator::kAssignment_Precedence;
+        case Token::COMMA:        return GLSLCodeGenerator::kSequence_Precedence;
         default: ABORT("unsupported binary operator");
     }
 }

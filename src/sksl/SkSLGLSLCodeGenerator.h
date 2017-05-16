@@ -68,7 +68,7 @@ public:
         kTernary_Precedence        = 15,
         kAssignment_Precedence     = 16,
         kSequence_Precedence       = 17,
-        kTopLevel_Precedence       = 18
+        kTopLevel_Precedence       = kSequence_Precedence
     };
 
     GLSLCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
