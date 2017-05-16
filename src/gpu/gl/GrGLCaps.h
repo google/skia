@@ -360,6 +360,8 @@ public:
     }
 
     bool clearToOpaqueBlackIsBroken() const { return fClearToOpaqueBlackIsBroken; }
+    bool drawArraysBaseVertexIsBroken() const { return fDrawArraysBaseVertexIsBroken; }
+
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
@@ -432,6 +434,7 @@ private:
     bool fSRGBDecodeDisableSupport : 1;
     bool fSRGBDecodeDisableAffectsMipmaps : 1;
     bool fClearToOpaqueBlackIsBroken : 1;
+    bool fDrawArraysBaseVertexIsBroken : 1;
 
     uint32_t fBlitFramebufferFlags;
 
