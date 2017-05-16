@@ -11,6 +11,7 @@
 #include "SkDropShadowImageFilter.h"
 #include "SkImageSource.h"
 #include "SkOffsetImageFilter.h"
+#include "SkPath.h"
 #include "SkPictureImageFilter.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"

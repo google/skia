@@ -8,6 +8,7 @@
 #include "SkBigPicture.h"
 #include "SkData.h"
 #include "SkDrawable.h"
+#include "SkMiniRecorder.h"
 #include "SkPictureRecorder.h"
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
@@ -18,7 +19,8 @@
 
 SkPictureRecorder::SkPictureRecorder() {
     fActivelyRecording = false;
-    fRecorder.reset(new SkRecorder(nullptr, SkRect::MakeEmpty(), &fMiniRecorder));
+    fMiniRecorder.reset(new SkMiniRecorder);
+    fRecorder.reset(new SkRecorder(nullptr, SkRect::MakeEmpty(), fMiniRecorder.get()));
 }
 
 SkPictureRecorder::~SkPictureRecorder() {}
@@ -42,7 +44,7 @@ SkCanvas* SkPictureRecorder::beginRecording(const SkRect& userCullRect,
     SkRecorder::DrawPictureMode dpm = (recordFlags & kPlaybackDrawPicture_RecordFlag)
         ? SkRecorder::Playback_DrawPictureMode
         : SkRecorder::Record_DrawPictureMode;
-    fRecorder->reset(fRecord.get(), cullRect, dpm, &fMiniRecorder);
+    fRecorder->reset(fRecord.get(), cullRect, dpm, fMiniRecorder.get());
     fActivelyRecording = true;
     return this->getRecordingCanvas();
 }
@@ -56,7 +58,7 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
     fRecorder->restoreToCount(1);  // If we were missing any restores, add them now.
 
     if (fRecord->count() == 0) {
-        auto pic = fMiniRecorder.detachAsPicture(fBBH ? nullptr : &fCullRect);
+        auto pic = fMiniRecorder->detachAsPicture(fBBH ? nullptr : &fCullRect);
         fBBH.reset(nullptr);
         return pic;
     }
