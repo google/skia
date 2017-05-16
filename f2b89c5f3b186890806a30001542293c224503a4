@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbf5d80e_4638f1a2",
+        "filename": "src/core/SkRecordDraw.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-16T16:51:48Z",
+      "side": 1,
+      "message": "I think you meant to delete this line?",
+      "range": {
+        "startLine": 460,
+        "startChar": 4,
+        "endLine": 460,
+        "endChar": 34
+      },
+      "revId": "f2b89c5f3b186890806a30001542293c224503a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
