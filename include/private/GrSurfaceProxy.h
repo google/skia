@@ -188,8 +188,6 @@ public:
 
     static sk_sp<GrTextureProxy> MakeWrappedBackend(GrContext*, GrBackendTexture&, GrSurfaceOrigin);
 
-    const GrSurfaceDesc& desc() const { return fDesc; }
-
     GrSurfaceOrigin origin() const {
         SkASSERT(kTopLeft_GrSurfaceOrigin == fDesc.fOrigin ||
                  kBottomLeft_GrSurfaceOrigin == fDesc.fOrigin);
@@ -198,6 +196,7 @@ public:
     int width() const { return fDesc.fWidth; }
     int height() const { return fDesc.fHeight; }
     GrPixelConfig config() const { return fDesc.fConfig; }
+    bool isMipMapped() const { return fDesc.fIsMipMapped; }
 
     class UniqueID {
     public:
@@ -295,7 +294,7 @@ public:
 
     // Helper function that creates a temporary SurfaceContext to perform the copy
     // It always returns a kExact-backed proxy bc it is used when converting an SkSpecialImage
-    // to an SkImage.
+    // to an SkImage. The copy is is not a render target and not multisampled.
     static sk_sp<GrTextureProxy> Copy(GrContext*, GrSurfaceProxy* src,
                                       SkIRect srcRect, SkBudgeted);
 
