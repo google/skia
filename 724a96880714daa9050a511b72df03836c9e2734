@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7b7af4a2_f2b25b41",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-16T20:55:19Z",
+      "side": 1,
+      "message": "Yes, lossy webp came first and this parameter has always been consistent with jpeg.  I think this behavior makes sense.  I\u0027ll add a comment to the header specifying that this is lossy webp.",
+      "parentUuid": "62ac5832_114a10b2",
+      "range": {
+        "startLine": 52,
+        "startChar": 16,
+        "endLine": 52,
+        "endChar": 70
+      },
+      "revId": "724a96880714daa9050a511b72df03836c9e2734",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b4d28e01_61cffe72",
         "filename": "src/images/SkWebpEncoder.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-16T18:13:21Z",
       "side": 1,
       "message": "I think you mean to remove this change.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 30
+      },
+      "revId": "724a96880714daa9050a511b72df03836c9e2734",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d3b1bd4_58a101eb",
+        "filename": "src/images/SkWebpEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-16T20:55:19Z",
+      "side": 1,
+      "message": "Sorry I always do this.",
+      "parentUuid": "b4d28e01_61cffe72",
       "range": {
         "startLine": 19,
         "startChar": 0,
@@ -92,6 +140,30 @@
       "revId": "724a96880714daa9050a511b72df03836c9e2734",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b47aa11_6d0dbd38",
+        "filename": "src/images/SkWebpEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-16T20:55:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "be6f78b1_d63b43f9",
+      "range": {
+        "startLine": 172,
+        "startChar": 8,
+        "endLine": 172,
+        "endChar": 31
+      },
+      "revId": "724a96880714daa9050a511b72df03836c9e2734",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
