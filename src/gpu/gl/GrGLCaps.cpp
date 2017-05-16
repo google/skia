@@ -548,14 +548,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fFenceSyncSupport = true;
     }
 
-    // Safely moving textures between contexts requires fences. The Windows Intel driver has a
-    // bug with deleting and reusing texture IDs across contexts, so disallow this feature.
+    // Safely moving textures between contexts requires fences.
     fCrossContextTextureSupport = fFenceSyncSupport;
-#ifdef SK_BUILD_FOR_WIN
-    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
-        fCrossContextTextureSupport = false;
-    }
-#endif
 
     // We support manual mip-map generation (via iterative downsampling draw calls). This fixes
     // bugs on some cards/drivers that produce incorrect mip-maps for sRGB textures when using
