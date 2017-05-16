@@ -42,6 +42,8 @@
 
 using namespace sk_app;
 
+void drawTurtle(SkCanvas* canvas);
+
 using GpuPathRenderers = GrContextOptions::GpuPathRenderers;
 static std::map<GpuPathRenderers, std::string> gPathRendererNames;
 
@@ -845,6 +847,8 @@ void Viewer::onPaint(SkCanvas* canvas) {
     }
     fCommands.drawHelp(canvas);
 
+    drawTurtle(canvas);
+
     drawImGui(canvas);
 
     // Update the FPS
@@ -1472,4 +1476,96 @@ bool Viewer::onChar(SkUnichar c, uint32_t modifiers) {
     }
 
     return fCommands.onChar(c, modifiers);
+}
+
+// ! TURTLE !
+
+struct Turtle {
+    Turtle(SkScalar x, SkScalar y, SkScalar distance = 0)
+            : fX(x), fY(y), fH(0), fPen(true), fDistance(distance) {
+        fPaint.setAntiAlias(true);
+        fPaint.setStyle(SkPaint::kStroke_Style);
+    }
+
+    SkScalar fX;
+    SkScalar fY;
+    SkScalar fH;
+    bool fPen;
+    SkPaint fPaint;
+
+    SkScalar fDistance;
+};
+
+// Simple turtle based graphics. The turtle starts out at 128, 128, looking North, pen down.
+// The input string is read left to right (but see 'r' below). Commands are a single character,
+// sometimes followed by additional arguments:
+//
+// u : Raises the pen
+// d : Lowers the pen
+// + : Reads integer N, rotates turtle N degrees clockwise
+// - : Reads integer N, rotates turtle N degrees counterclockwise
+// f : Reads integer N, moves turtle forwards N units
+// r : Reads integer N, then separator character C. C should be some non-digit, non-command
+//     character. Repeats all commands after C until the next instance of C, N times. Can be
+//     nested.
+//const char* input = "r2[r3(f50+90f50+90f50+90f50(+45uf50d[";
+//const char* input = "r360|f1+1|";
+const char* input = "uf100+91dr180|f3+2|+89uf60+90r2$f20-90dr60|f1+6|u-90f20$-90f50-90f30d+180f60uf1000";
+
+const char* eval(SkCanvas* canvas, Turtle& t, const char* s, char e, bool measure) {
+    while (*s != e) {
+        switch (*s++) {
+            case 'u': t.fPen = false; break;
+            case 'd': t.fPen = true; break;
+            case '+': t.fH += atoi(s); break;
+            case '-': t.fH -= atoi(s); break;
+            case 'f':
+            {
+                float d = atoi(s);
+                if (measure) {
+                    t.fDistance += d;
+                } else {
+                    d = SkTMin(t.fDistance, d);
+                    t.fDistance -= d;
+                }
+                float r = t.fH * 0.01745329f;
+                auto s = sinf(r), c = cosf(r);
+                float nx = t.fX + s * d, ny = t.fY - c * d;
+                if (!measure && t.fPen) {
+                    canvas->drawLine(t.fX, t.fY, nx, ny, t.fPaint);
+                }
+                t.fX = nx; t.fY = ny;
+                break;
+            }
+            case 'r':
+            {
+                int c = atoi(s);
+                while (*s >= '0' && *s <= '9') { ++s; }
+                auto n = s + 1;
+                for (int i = 0; i < c; ++i) {
+                    n = eval(canvas, t, s + 1, *s, measure);
+                }
+                s = n;
+            }
+        }
+    }
+    return s + 1;
+}
+
+void drawTurtle(SkCanvas* canvas) {
+    canvas->clear(SK_ColorWHITE);
+
+    bool showTurtleWindow = true;
+    if (ImGui::Begin("Turtle", &showTurtleWindow, ImVec2(200, 200))) {
+        const int kTurtleCmdsLength = 1024;
+        static char turtleCmds[kTurtleCmdsLength] = "";
+        ImGui::InputTextMultiline("Cmds", turtleCmds, kTurtleCmdsLength);
+
+        Turtle t(200, 200);
+        eval(canvas, t, turtleCmds, 0, true);
+        t = Turtle(200, 200, t.fDistance);
+        eval(canvas, t, turtleCmds, 0, false);
+    }
+
+    ImGui::End();
 }
