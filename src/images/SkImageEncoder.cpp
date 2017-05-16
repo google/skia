@@ -49,6 +49,7 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
             }
             case SkEncodedImageFormat::kWEBP: {
                 SkWebpEncoder::Options opts;
+                opts.fCompression = SkWebpEncoder::Compression::kLossy;
                 opts.fQuality = quality;
                 opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
                 return SkWebpEncoder::Encode(dst, src, opts);
