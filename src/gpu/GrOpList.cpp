@@ -34,6 +34,10 @@ GrOpList::~GrOpList() {
     }
 }
 
+bool GrOpList::instantiate(GrResourceProvider* resourceProvider) {
+    return SkToBool(fTarget.get()->instantiate(resourceProvider));
+}
+
 void GrOpList::reset() {
     if (fTarget.get() && this == fTarget.get()->getLastOpList()) {
         fTarget.get()->setLastOpList(nullptr);
