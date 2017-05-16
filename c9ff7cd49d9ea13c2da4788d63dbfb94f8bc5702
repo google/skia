@@ -34,6 +34,24 @@
       "revId": "c9ff7cd49d9ea13c2da4788d63dbfb94f8bc5702",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e80ff323_aac3b9c5",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-16T16:14:50Z",
+      "side": 1,
+      "message": "Yeah, I was thinking of moving that after dither.  Do we have to clamp before to_srgb (i have no idea)?",
+      "parentUuid": "dd5c4bae_9b4fb11d",
+      "revId": "c9ff7cd49d9ea13c2da4788d63dbfb94f8bc5702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
