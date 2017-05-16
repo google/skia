@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5479b84c_7f4bd234",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-16T21:03:05Z",
+      "side": 1,
+      "message": "nit: Specify what quality means, now that it sometimes means something different (not from this entry point, but from the webp specific one)?",
+      "range": {
+        "startLine": 21,
+        "startChar": 3,
+        "endLine": 21,
+        "endChar": 69
+      },
+      "revId": "b3f80f1ef69df0cbe2a746fac93fbfe8ac956276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
