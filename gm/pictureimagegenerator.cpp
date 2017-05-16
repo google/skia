@@ -12,6 +12,7 @@
 #include "SkGradientShader.h"
 #include "SkImageGenerator.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"

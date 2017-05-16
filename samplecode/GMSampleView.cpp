@@ -6,6 +6,7 @@
  */
 
 #include "GMSampleView.h"
+#include "SkData.h"
 
 GMSampleView::GMSampleView(GM* gm) : fShowSize(false), fGM(gm) {}
 

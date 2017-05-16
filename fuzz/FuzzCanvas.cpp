@@ -54,6 +54,7 @@
 #include "SkPictureImageFilter.h"
 #include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkTableColorFilter.h"
+#include "SkTextBlob.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 

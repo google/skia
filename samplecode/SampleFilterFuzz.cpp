@@ -39,6 +39,7 @@
 #include "SkPictureRecorder.h"
 #include "SkPoint3.h"
 #include "SkRandom.h"
+#include "SkRegion.h"
 #include "SkTableColorFilter.h"
 #include "SkTileImageFilter.h"
 #include "SkTypeface.h"
