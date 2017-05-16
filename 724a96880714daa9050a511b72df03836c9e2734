@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "62ac5832_114a10b2",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-16T18:13:21Z",
+      "side": 1,
+      "message": "It seems somewhat arbitrary that this was the default we chose. (I guess this is the one we supported previously?) Should we document that on SkImageEncoder?\n\nRelated - this determines what the quality parameter means. SkImageEncoder\u0027s quality doesn\u0027t specify what it means. I think in this case it\u0027s consistent with JPEG though.",
+      "range": {
+        "startLine": 52,
+        "startChar": 16,
+        "endLine": 52,
+        "endChar": 70
+      },
+      "revId": "724a96880714daa9050a511b72df03836c9e2734",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4d28e01_61cffe72",
+        "filename": "src/images/SkWebpEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-16T18:13:21Z",
+      "side": 1,
+      "message": "I think you mean to remove this change.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 30
+      },
+      "revId": "724a96880714daa9050a511b72df03836c9e2734",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "80fc659b_e7434c47",
         "filename": "src/images/SkWebpEncoder.cpp",
         "patchSetId": 1
@@ -13,6 +59,30 @@
       "writtenOn": "2017-05-16T16:27:23Z",
       "side": 1,
       "message": "Could be another option...  For now we\u0027ll just match Chrome\u0027s defaults.",
+      "range": {
+        "startLine": 172,
+        "startChar": 8,
+        "endLine": 172,
+        "endChar": 31
+      },
+      "revId": "724a96880714daa9050a511b72df03836c9e2734",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be6f78b1_d63b43f9",
+        "filename": "src/images/SkWebpEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-16T18:13:21Z",
+      "side": 1,
+      "message": "Add a comment that this matches Chromium\u0027s default?",
+      "parentUuid": "80fc659b_e7434c47",
       "range": {
         "startLine": 172,
         "startChar": 8,
