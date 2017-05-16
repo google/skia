@@ -17,6 +17,8 @@
 #include "SkSurface.h"
 #include "SkGradientShader.h"
 
+#include "sk_tool_utils.h"
+
 const SkBlendMode gModes[] = {
     SkBlendMode::kSrcOver,
     SkBlendMode::kSrc,
@@ -242,7 +244,168 @@ protected:
 private:
     typedef SampleView INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
 DEF_SAMPLE( return new XferDemo; )
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class CircDrawable2 : public SkDrawable {
+    SkPaint             fPaint;
+    SkRect              fBounds;
+    const SkBlendMode*  fModePtr;
+    const int*          fAlphaPtr;
+
+public:
+    CircDrawable2(SkRect r, SkColor c, const SkBlendMode* modePtr, const int* alphaPtr)
+        : fModePtr(modePtr)
+        , fAlphaPtr(alphaPtr)
+    {
+        fPaint.setAntiAlias(true);
+        fPaint.setColor(c);
+        fBounds = r;
+    }
+
+    bool hitTest(SkScalar x, SkScalar y) {
+        SkScalar dx = x - fBounds.centerX();
+        SkScalar dy = y - fBounds.centerY();
+        return dx*dx + dy*dy <= fBounds.width()*fBounds.height()/4;
+    }
+
+    void offset(SkVector delta) {
+        fBounds.offset(delta.fX, delta.fY);
+    }
+
+protected:
+    SkRect onGetBounds() override {
+        return fBounds;
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        fPaint.setBlendMode(*fModePtr);
+        fPaint.setAlpha(*fAlphaPtr);
+        canvas->drawOval(fBounds, fPaint);
+    }
+};
+
+const SkBlendMode gModes2[] = {
+    SkBlendMode::kPlus,
+    SkBlendMode::kSrcOver,
+    SkBlendMode::kSrc,
+    SkBlendMode::kDstATop,
+};
+const int N_Modes2 = (int)SK_ARRAY_COUNT(gModes2);
+
+
+class XferDemo2 : public SampleView {
+    enum {
+        N = 3
+    };
+
+    SkRect        fModeRect[N_Modes2];
+    sk_sp<CircDrawable2> fDrs[N];
+    SkBlendMode     fMode = gModes2[0];
+    int             fAlpha = 0xFF;
+
+    void addButtons() {
+        SkScalar x = 10;
+        SkScalar y = 10;
+        for (int i = 0; i < N_Modes2; ++i) {
+            sk_sp<SkView> v(new PushButtonWig(SkBlendMode_Name(gModes2[i]), (int)gModes2[i]));
+            v->setSize(70, 25);
+            v->setLoc(x, y);
+            v->setVisibleP(true);
+            v->setEnabledP(true);
+            v->addListenerID(this->getSinkID());
+            this->attachChildToFront(v.get());
+            fModeRect[i] = SkRect::MakeXYWH(x, y + 28, 70, 2);
+            x += 80;
+        }
+    }
+
+public:
+    XferDemo2() {
+        const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
+        for (int i = 0; i < N; ++i) {
+            fDrs[i].reset(new CircDrawable2(SkRect::MakeXYWH(100 + i * 100.f, 100 + i * 100.f,
+                                                             200, 200),
+                                            colors[i], &fMode, &fAlpha));
+        }
+        this->addButtons();
+    }
+
+protected:
+    bool onEvent(const SkEvent& evt) override {
+        if (evt.isType("push-button")) {
+            fMode = (SkBlendMode)evt.getFast32();
+            this->inval(nullptr);
+            return true;
+        }
+        return this->INHERITED::onEvent(evt);
+    }
+
+    bool onQuery(SkEvent* evt) override {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "XferDemo2");
+            return true;
+        }
+        SkUnichar uni;
+        if (SampleCode::CharQ(*evt, &uni)) {
+            switch (uni) {
+                case '-': fAlpha = SkMax32(fAlpha - 0xF, 0); break;
+                case '=': fAlpha = SkMin32(fAlpha + 0xF, 0xFF); break;
+                default:
+                    return false;
+            }
+            this->inval(nullptr);
+            return true;
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        sk_tool_utils::draw_checkerboard(canvas, 0xFFFFFFFF, 0xFFDDDDDD, 16);
+
+        for (int i = 0; i < N_Modes2; ++i) {
+            if (fMode == gModes2[i]) {
+                SkPaint paint;
+                canvas->drawOval(fModeRect[i], paint);
+                break;
+            }
+        }
+
+        canvas->saveLayer(nullptr, nullptr);
+        for (int i = 0; i < N; ++i) {
+            fDrs[i]->draw(canvas);
+        }
+        canvas->restore();
+    }
+
+    class MyClick : public Click {
+    public:
+        CircDrawable2* fDr;
+        MyClick(SkView* view, CircDrawable2* dr) : Click(view), fDr(dr) {}
+    };
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+        Click* click = nullptr;
+        for (int i = N - 1; i >= 0; --i) {
+            if (fDrs[i]->hitTest(x, y)) {
+                click = new MyClick(this, fDrs[i].get());
+                break;
+            }
+        }
+        this->inval(nullptr);
+        return click;
+    }
+        
+    bool onClick(Click* click) override {
+        MyClick* mc = (MyClick*)click;
+        CircDrawable2* dr = mc->fDr;
+        dr->offset(click->fCurr - click->fPrev);
+        this->inval(nullptr);
+        return true;
+    }
+        
+private:
+    typedef SampleView INHERITED;
+};
+DEF_SAMPLE( return new XferDemo2; )
+    

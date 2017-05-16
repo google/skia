@@ -143,8 +143,7 @@ public:
     void setZoomCenter(float x, float y);
     void changeZoomLevel(float delta);
     void changeOffset(SkVector delta);
-    bool nextSample();
-    bool previousSample();
+    bool nextSample(int add);   // +1 or -1
     bool goToSample(int i);
     SkString getSampleTitle(int i);
     int  sampleCount();
