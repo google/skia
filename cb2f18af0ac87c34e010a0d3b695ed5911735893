@@ -65,6 +65,24 @@
     },
     {
       "key": {
+        "uuid": "e6ecc2fa_f335b41f",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 6936
+      },
+      "writtenOn": "2017-05-16T19:26:21Z",
+      "side": 1,
+      "message": "The problem here is keeping the rounding consistent with SkPMSrcOver().  If they\u0027re not consistent then you risk getting a vertical edge on what\u0027s meant to be a flat surface as you transition from the main loop to the tail.  Then if you fix SkPMSrcOver() you have to come back and fix SSE2, and SSE4 versions to match.\n\nIt\u0027s a rare condition and a small error, but I know from experience just how frustrating it can be when it comes up and you don\u0027t know in advance what\u0027s happening.\n\nThat, and the the performance penalty.\n\nIs changing everything (all architectures) going to interfere with testing?",
+      "parentUuid": "8ac24f0e_3c1776ed",
+      "revId": "cb2f18af0ac87c34e010a0d3b695ed5911735893",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9566f714_e8b46f3f",
         "filename": "src/opts/SkBlitRow_opts.h",
         "patchSetId": 2
