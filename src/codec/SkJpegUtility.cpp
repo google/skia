@@ -14,7 +14,7 @@
  */
 static void sk_init_source(j_decompress_ptr dinfo) {
     skjpeg_source_mgr* src = (skjpeg_source_mgr*) dinfo->src;
-    src->next_input_byte = (const JOCTET*) src->fBuffer;
+    src->next_input_byte = (const JOCTET*) src->fBuffer.get();
     src->bytes_in_buffer = 0;
 }
 
@@ -23,14 +23,14 @@ static void sk_init_source(j_decompress_ptr dinfo) {
  */
 static boolean sk_fill_input_buffer(j_decompress_ptr dinfo) {
     skjpeg_source_mgr* src = (skjpeg_source_mgr*) dinfo->src;
-    size_t bytes = src->fStream->read(src->fBuffer, skjpeg_source_mgr::kBufferSize);
+    size_t bytes = src->fStream->read(src->fBuffer.get(), src->fBufferSize);
 
     // libjpeg is still happy with a less than full read, as long as the result is non-zero
     if (bytes == 0) {
         return false;
     }
 
-    src->next_input_byte = (const JOCTET*) src->fBuffer;
+    src->next_input_byte = (const JOCTET*) src->fBuffer.get();
     src->bytes_in_buffer = bytes;
     return true;
 }
@@ -50,7 +50,7 @@ static void sk_skip_input_data(j_decompress_ptr dinfo, long numBytes) {
             return;
         }
 
-        src->next_input_byte = (const JOCTET*) src->fBuffer;
+        src->next_input_byte = (const JOCTET*) src->fBuffer.get();
         src->bytes_in_buffer = 0;
     } else {
         src->next_input_byte += numBytes;
@@ -76,6 +76,20 @@ static void sk_term_source(j_decompress_ptr dinfo)
 skjpeg_source_mgr::skjpeg_source_mgr(SkStream* stream)
     : fStream(stream)
 {
+    /*  make the buffer size long enough to for libjpeg-turbo huffman
+        decoding to by-pass costly end of bitstream check.
+        Currently set maximum as 512KB.
+        stream without a length will get 4KB by default as well.
+    */
+    fBufferSize = stream->getLength();
+    if(fBufferSize == 0) {
+        fBufferSize = kDefaultJpegBufferSize;
+    } else if (fBufferSize > kMaxJpegBufferSize) {
+        fBufferSize = kMaxJpegBufferSize;
+    }
+
+    fBuffer.reset(new char[fBufferSize]);
+
     init_source = sk_init_source;
     fill_input_buffer = sk_fill_input_buffer;
     skip_input_data = sk_skip_input_data;
