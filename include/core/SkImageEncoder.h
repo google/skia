@@ -18,12 +18,15 @@
  * @param  dst     results are written to this stream.
  * @param  src     source pixels.
  * @param  format  image format, not all formats are supported.
- * @param  quality range from 0-100, not all formats respect quality.
+ * @param  quality range from 0-100, this is supported by jpeg and webp.
+ *                 higher values correspond to improved visual quality, but less compression.
  *
  * @return false iff input is bad or format is unsupported.
  *
  * Will always return false if Skia is compiled without image
  * encoders.
+ *
+ * Note that webp encodes will use webp lossy compression.
  *
  * For examples of encoding an image to a file or to a block of memory,
  * see tools/sk_tool_utils.h.
