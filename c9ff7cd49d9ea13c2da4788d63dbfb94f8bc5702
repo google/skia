@@ -16,6 +16,24 @@
       "revId": "c9ff7cd49d9ea13c2da4788d63dbfb94f8bc5702",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd5c4bae_9b4fb11d",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-16T16:13:11Z",
+      "side": 1,
+      "message": "maybe_clamp happens too early, on the way into to_srgb and/or dither.  :/",
+      "parentUuid": "3febe214_0b0c1dca",
+      "revId": "c9ff7cd49d9ea13c2da4788d63dbfb94f8bc5702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
