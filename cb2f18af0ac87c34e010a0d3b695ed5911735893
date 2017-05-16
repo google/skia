@@ -83,6 +83,24 @@
     },
     {
       "key": {
+        "uuid": "a43b3c8e_94d8fc4c",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-16T20:03:02Z",
+      "side": 1,
+      "message": "Let\u0027s stick to just the NEON version for now.  It\u0027ll be harder to land any changes to the x86 code, as that\u0027s covered by more projects\u0027 tests.  We can usually update them, but it\u0027s kind of a pain.\n\nHow about we handle the final \u003c\u003d 7 pixels with a slew of vld4_lane_u8 and vst4_lane_u8, using the same math?  No need to fall through to the SkPMSrcOver code at all.",
+      "parentUuid": "e6ecc2fa_f335b41f",
+      "revId": "cb2f18af0ac87c34e010a0d3b695ed5911735893",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9566f714_e8b46f3f",
         "filename": "src/opts/SkBlitRow_opts.h",
         "patchSetId": 2
