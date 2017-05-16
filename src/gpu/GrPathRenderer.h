@@ -74,14 +74,14 @@ public:
 
     /** Args to canDrawPath()
      *
-     * fShaderCaps       The shader caps
+     * fCaps             The context caps
      * fPipelineBuilder  The pipelineBuilder
      * fViewMatrix       The viewMatrix
      * fShape            The shape to draw
      * fAntiAlias        The type of anti aliasing required.
      */
     struct CanDrawPathArgs {
-        const GrShaderCaps*         fShaderCaps;
+        const GrCaps*               fCaps;
         const SkMatrix*             fViewMatrix;
         const GrShape*              fShape;
         GrAAType                    fAAType;
@@ -91,7 +91,7 @@ public:
 
 #ifdef SK_DEBUG
         void validate() const {
-            SkASSERT(fShaderCaps);
+            SkASSERT(fCaps);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
         }
@@ -153,7 +153,7 @@ public:
         SkDEBUGCODE(args.validate();)
 #ifdef SK_DEBUG
         CanDrawPathArgs canArgs;
-        canArgs.fShaderCaps = args.fContext->caps()->shaderCaps();
+        canArgs.fCaps = args.fContext->caps();
         canArgs.fViewMatrix = args.fViewMatrix;
         canArgs.fShape = args.fShape;
         canArgs.fAAType = args.fAAType;

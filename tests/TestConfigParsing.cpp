@@ -80,7 +80,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
         "pdf", "skp", "svg", "xps", "angle_d3d11_es2", "angle_gl_es2", "commandbuffer", "mesa",
         "hwui", "glf16", "glessrgb", "gl", "glnvpr4", "glnvprdit4", "glsrgb", "glmsaa4", "vk",
         "glinst", "glinst4", "glinstdit4", "glinst8", "glinstdit8", "glesinst", "glesinst4",
-        "glesinstdit4", "glwide", "glnarrow"
+        "glesinstdit4", "glwide", "glnarrow", "glnostencils"
     });
 
     SkCommandLineConfigArray configs;

@@ -64,6 +64,7 @@ static const struct {
     { "glsrgb",                "gpu", "api=gl,color=srgb" },
     { "glwide",                "gpu", "api=gl,color=f16_wide" },
     { "glnarrow",              "gpu", "api=gl,color=f16_narrow" },
+    { "glnostencils",          "gpu", "api=gl,stencils=false" },
     { "glessrgb",              "gpu", "api=gles,color=srgb" },
     { "gleswide",              "gpu", "api=gles,color=f16_wide" },
     { "glesnarrow",            "gpu", "api=gles,color=f16_narrow" },
@@ -151,6 +152,8 @@ static const char configExtendedHelp[] =
     "\t    Use NV_path_rendering OpenGL and OpenGL ES extension.\n"
     "\tsamples\ttype: int\tdefault: 0.\n"
     "\t    Use multisampling with N samples.\n"
+    "\tstencils\ttype: bool\tdefault: true.\n"
+    "\t    Allow the use of stencil buffers.\n"
     "\n"
     "Predefined configs:\n\n"
     // Help text for pre-defined configs is auto-generated from gPredefinedConfigs
@@ -181,7 +184,7 @@ SkCommandLineConfig::~SkCommandLineConfig() {
 SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     const SkString& tag, const SkTArray<SkString>& viaParts, ContextType contextType, bool useNVPR,
     bool useInstanced, bool useDIText, int samples, SkColorType colorType,
-    sk_sp<SkColorSpace> colorSpace)
+    sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
         , fContextOverrides(ContextOverrides::kNone)
@@ -209,6 +212,9 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     if (fColorSpace) {
         fContextOverrides |= ContextOverrides::kRequireSRGBSupport;
         fContextOverrides |= ContextOverrides::kAllowSRGBWithoutDecodeControl;
+    }
+    if (!useStencilBuffers) {
+        fContextOverrides |= ContextOverrides::kAvoidStencilBuffers;
     }
 }
 static bool parse_option_int(const SkString& value, int* outInt) {
@@ -370,6 +376,8 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     bool seenColor = false;
     SkColorType colorType = kRGBA_8888_SkColorType;
     sk_sp<SkColorSpace> colorSpace = nullptr;
+    bool seenUseStencils = false;
+    bool useStencils = true;
 
     SkTArray<SkString> optionParts;
     SkStrSplit(options.c_str(), ",", kStrict_SkStrSplitMode, &optionParts);
@@ -400,6 +408,9 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
         } else if (key.equals("color") && !seenColor) {
             valueOk = parse_option_gpu_color(value, &colorType, &colorSpace);
             seenColor = true;
+        } else if (key.equals("stencils") && !seenUseStencils) {
+            valueOk = parse_option_bool(value, &useStencils);
+            seenUseStencils = true;
         }
         if (!valueOk) {
             return nullptr;
@@ -409,7 +420,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
         return nullptr;
     }
     return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useInstanced, useDIText,
-                                      samples, colorType, colorSpace);
+                                      samples, colorType, colorSpace, useStencils);
 }
 #endif
 
