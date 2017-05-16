@@ -350,6 +350,40 @@ void SkGradientShaderBase::FlipGradientColors(SkColor* colorDst, Rec* recDst,
     memcpy(colorDst, colorsTemp.get(), count * sizeof(SkColor));
 }
 
+static void add_stop_color(SkJumper_GradientCtx* ctx, size_t stop, SkPM4f Fs, SkPM4f Bs) {
+    (ctx->fs[0])[stop] = Fs.r();
+    (ctx->fs[1])[stop] = Fs.g();
+    (ctx->fs[2])[stop] = Fs.b();
+    (ctx->fs[3])[stop] = Fs.a();
+    (ctx->bs[0])[stop] = Bs.r();
+    (ctx->bs[1])[stop] = Bs.g();
+    (ctx->bs[2])[stop] = Bs.b();
+    (ctx->bs[3])[stop] = Bs.a();
+};
+
+static void add_const_color(SkJumper_GradientCtx* ctx, size_t stop, SkPM4f color) {
+    add_stop_color(ctx, stop, SkPM4f::FromPremulRGBA(0,0,0,0), color);
+};
+
+// Calculate a factor F and a bias B so that color = F*t + B when t is in range of
+// the stop. Assume that the distance between stops is 1/gapCount.
+static void init_stop_evenly(
+    SkJumper_GradientCtx* ctx, float gapCount, size_t stop, SkPM4f c_l, SkPM4f c_r) {
+    auto Fs = SkPM4f::From4f((c_r.to4f() - c_l.to4f()) * gapCount);
+    auto Bs = SkPM4f::From4f(c_l.to4f() - (Fs.to4f() * (stop/gapCount)));
+    add_stop_color(ctx, stop, Fs, Bs);
+};
+
+// For each stop we calculate a bias B and a scale factor F, such that
+// for any t between stops n and n+1, the color we want is B[n] + F[n]*t.
+static void init_stop_pos(
+    SkJumper_GradientCtx* ctx, size_t stop, float t_l, float t_r, SkPM4f c_l, SkPM4f c_r) {
+    auto Fs = SkPM4f::From4f((c_r.to4f() - c_l.to4f()) / (t_r - t_l));
+    auto Bs = SkPM4f::From4f(c_l.to4f() - (Fs.to4f() * t_l));
+    ctx->ts[stop] = t_l;
+    add_stop_color(ctx, stop, Fs, Bs);
+};
+
 bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
                                           SkColorSpace* dstCS,
                                           SkArenaAlloc* alloc,
@@ -410,20 +444,6 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
         p->append(SkRasterPipeline::evenly_spaced_2_stop_gradient, f_and_b);
     } else {
         auto* ctx = alloc->make<SkJumper_GradientCtx>();
-        auto add_stop_color = [&](size_t stop, SkPM4f Fs, SkPM4f Bs) {
-            (ctx->fs[0])[stop] = Fs.r();
-            (ctx->fs[1])[stop] = Fs.g();
-            (ctx->fs[2])[stop] = Fs.b();
-            (ctx->fs[3])[stop] = Fs.a();
-            (ctx->bs[0])[stop] = Bs.r();
-            (ctx->bs[1])[stop] = Bs.g();
-            (ctx->bs[2])[stop] = Bs.b();
-            (ctx->bs[3])[stop] = Bs.a();
-        };
-
-        auto add_const_color = [&](size_t stop, SkPM4f color) {
-            add_stop_color(stop, SkPM4f::FromPremulRGBA(0,0,0,0), color);
-        };
 
         // Note: In order to handle clamps in search, the search assumes a stop conceptully placed
         // at -inf. Therefore, the max number of stops is fColorCount+1.
@@ -438,21 +458,14 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
 
             size_t stopCount = fColorCount;
             float gapCount = stopCount - 1;
-            // Calculate a factor F and a bias B so that color = F*t + B when t is in range of
-            // the stop. Assume that the distance between stops is 1/gapCount.
-            auto init_stop = [&](size_t stop, SkPM4f c_l, SkPM4f c_r) {
-                auto Fs = SkPM4f::From4f((c_r.to4f() - c_l.to4f()) * gapCount);
-                auto Bs = SkPM4f::From4f(c_l.to4f() - (Fs.to4f() * (stop/gapCount)));
-                add_stop_color(stop, Fs, Bs);
-            };
 
             SkPM4f c_l = prepareColor(0);
             for (size_t i = 0; i < stopCount - 1; i++) {
                 SkPM4f c_r = prepareColor(i + 1);
-                init_stop(i, c_l, c_r);
+                init_stop_evenly(ctx, gapCount, i, c_l, c_r);
                 c_l = c_r;
             }
-            add_const_color(stopCount - 1, c_l);
+            add_const_color(ctx, stopCount - 1, c_l);
 
             ctx->stopCount = stopCount;
             p->append(SkRasterPipeline::evenly_spaced_gradient, ctx);
@@ -474,25 +487,16 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
                 lastStop = 1;
             }
 
-            // For each stop we calculate a bias B and a scale factor F, such that
-            // for any t between stops n and n+1, the color we want is B[n] + F[n]*t.
-            auto init_stop = [&](size_t stop, float t_l, float t_r, SkPM4f c_l, SkPM4f c_r) {
-                auto Fs = SkPM4f::From4f((c_r.to4f() - c_l.to4f()) / (t_r - t_l));
-                auto Bs = SkPM4f::From4f(c_l.to4f() - (Fs.to4f() * t_l));
-                ctx->ts[stop] = t_l;
-                add_stop_color(stop, Fs, Bs);
-            };
-
             size_t stopCount = 0;
             float  t_l = fOrigPos[firstStop];
             SkPM4f c_l = prepareColor(firstStop);
-            add_const_color(stopCount++, c_l);
+            add_const_color(ctx, stopCount++, c_l);
             // N.B. lastStop is the index of the last stop, not one after.
             for (int i = firstStop; i < lastStop; i++) {
                 float  t_r = fOrigPos[i + 1];
                 SkPM4f c_r = prepareColor(i + 1);
                 if (t_l < t_r) {
-                    init_stop(stopCount, t_l, t_r, c_l, c_r);
+                    init_stop_pos(ctx, stopCount, t_l, t_r, c_l, c_r);
                     stopCount += 1;
                 }
                 t_l = t_r;
@@ -500,7 +504,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
             }
 
             ctx->ts[stopCount] = t_l;
-            add_const_color(stopCount++, c_l);
+            add_const_color(ctx, stopCount++, c_l);
 
             ctx->stopCount = stopCount;
             p->append(SkRasterPipeline::gradient, ctx);
