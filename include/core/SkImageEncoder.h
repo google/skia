@@ -25,6 +25,8 @@
  * Will always return false if Skia is compiled without image
  * encoders.
  *
+ * Note that webp encodes will use webp lossy compression.
+ *
  * For examples of encoding an image to a file or to a block of memory,
  * see tools/sk_tool_utils.h.
  */
