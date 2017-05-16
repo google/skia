@@ -16,7 +16,7 @@
 
 #include "SkImageEncoderPriv.h"
 
-#ifdef SK_HAS_WEBP_LIBRARY
+#if 1//def SK_HAS_WEBP_LIBRARY
 
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
@@ -124,8 +124,7 @@ static int stream_writer(const uint8_t* data, size_t data_size,
   return stream->write(data, data_size) ? 1 : 0;
 }
 
-static bool do_encode(SkWStream* stream, const SkPixmap& pixmap, const SkWebpEncoder::Options& opts)
-{
+bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Options& opts) {
     if (!SkPixmapIsValid(pixmap, opts.fUnpremulBehavior)) {
         return false;
     }
@@ -166,6 +165,14 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap, const SkWebpEnc
     WebPConfig webp_config;
     if (!WebPConfigPreset(&webp_config, WEBP_PRESET_DEFAULT, opts.fQuality)) {
         return false;
+    }
+
+    if (Compression::kLossy == opts.fCompression) {
+        webp_config.lossless = 0;
+        webp_config.method = 3;
+    } else {
+        webp_config.lossless = 1;
+        webp_config.method = 0;
     }
 
     WebPPicture pic;
@@ -234,10 +241,6 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap, const SkWebpEnc
     }
 
     return true;
-}
-
-bool SkWebpEncoder::Encode(SkWStream* dst, const SkPixmap& src, const Options& opts) {
-    return do_encode(dst, src, opts);
 }
 
 #endif

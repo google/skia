@@ -14,6 +14,7 @@
 #include "SkJpegEncoder.h"
 #include "SkPngEncoder.h"
 #include "SkStream.h"
+#include "SkWebpEncoder.h"
 
 static bool encode(SkEncodedImageFormat format, SkWStream* dst, const SkPixmap& src) {
     switch (format) {
@@ -203,4 +204,57 @@ DEF_TEST(Encode_PngOptions, r) {
     SkImage::MakeFromEncoded(data2)->asLegacyBitmap(&bm2, SkImage::kRO_LegacyBitmapMode);
     REPORTER_ASSERT(r, almost_equals(bm0, bm1, 0));
     REPORTER_ASSERT(r, almost_equals(bm0, bm2, 0));
+}
+
+DEF_TEST(Encode_WebpOptions, r) {
+    SkBitmap bitmap;
+    bool success = GetResourceAsBitmap("google_chrome.ico", &bitmap);
+    if (!success) {
+        return;
+    }
+
+    SkPixmap src;
+    success = bitmap.peekPixels(&src);
+    REPORTER_ASSERT(r, success);
+    if (!success) {
+        return;
+    }
+
+    SkDynamicMemoryWStream dst0, dst1, dst2, dst3;
+    SkWebpEncoder::Options options;
+    options.fCompression = SkWebpEncoder::Compression::kLossless;
+    options.fQuality = 0.0f;
+    success = SkWebpEncoder::Encode(&dst0, src, options);
+    REPORTER_ASSERT(r, success);
+
+    options.fQuality = 100.0f;
+    success = SkWebpEncoder::Encode(&dst1, src, options);
+    REPORTER_ASSERT(r, success);
+
+    options.fCompression = SkWebpEncoder::Compression::kLossy;
+    options.fQuality = 100.0f;
+    success = SkWebpEncoder::Encode(&dst2, src, options);
+    REPORTER_ASSERT(r, success);
+
+    options.fCompression = SkWebpEncoder::Compression::kLossy;
+    options.fQuality = 50.0f;
+    success = SkWebpEncoder::Encode(&dst3, src, options);
+    REPORTER_ASSERT(r, success);
+
+    sk_sp<SkData> data0 = dst0.detachAsData();
+    sk_sp<SkData> data1 = dst1.detachAsData();
+    sk_sp<SkData> data2 = dst2.detachAsData();
+    sk_sp<SkData> data3 = dst3.detachAsData();
+    REPORTER_ASSERT(r, data0->size() > data1->size());
+    REPORTER_ASSERT(r, data1->size() > data2->size());
+    REPORTER_ASSERT(r, data2->size() > data3->size());
+
+    SkBitmap bm0, bm1, bm2, bm3;
+    SkImage::MakeFromEncoded(data0)->asLegacyBitmap(&bm0, SkImage::kRO_LegacyBitmapMode);
+    SkImage::MakeFromEncoded(data1)->asLegacyBitmap(&bm1, SkImage::kRO_LegacyBitmapMode);
+    SkImage::MakeFromEncoded(data2)->asLegacyBitmap(&bm2, SkImage::kRO_LegacyBitmapMode);
+    SkImage::MakeFromEncoded(data3)->asLegacyBitmap(&bm3, SkImage::kRO_LegacyBitmapMode);
+    REPORTER_ASSERT(r, almost_equals(bm0, bm1, 0));
+    REPORTER_ASSERT(r, almost_equals(bm0, bm2, 6));
+    REPORTER_ASSERT(r, almost_equals(bm2, bm3, 45));
 }
