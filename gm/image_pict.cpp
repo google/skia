@@ -179,9 +179,11 @@ protected:
         }
 
         // need to copy the subset into a new texture
-        GrSurfaceDesc desc = fProxy->desc();
+        GrSurfaceDesc desc;
+        desc.fConfig = fProxy->config();
         desc.fWidth = info.width();
         desc.fHeight = info.height();
+        desc.fOrigin = fProxy->origin();
 
         sk_sp<GrSurfaceContext> dstContext(fCtx->contextPriv().makeDeferredSurfaceContext(
                                                                             desc,

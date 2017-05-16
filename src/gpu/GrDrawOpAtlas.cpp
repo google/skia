@@ -173,7 +173,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, sk_sp<GrTextureProxy> proxy,
     SkDEBUGCODE(fNumPlots = numPlotsX * numPlotsY;)
 
     // We currently do not support compressed atlases...
-    SkASSERT(!GrPixelConfigIsCompressed(fProxy->desc().fConfig));
+    SkASSERT(!GrPixelConfigIsCompressed(fProxy->config()));
 
     // set up allocated plots
     fPlotArray.reset(new sk_sp<Plot>[ numPlotsX * numPlotsY ]);
@@ -183,7 +183,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, sk_sp<GrTextureProxy> proxy,
         for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
             uint32_t index = r * numPlotsX + c;
             currPlot->reset(
-                    new Plot(index, 1, x, y, fPlotWidth, fPlotHeight, fProxy->desc().fConfig));
+                    new Plot(index, 1, x, y, fPlotWidth, fPlotHeight, fProxy->config()));
 
             // build LRU list
             fPlotList.addToHead(currPlot->get());
@@ -239,7 +239,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     plotIter.init(fPlotList, PlotList::Iter::kHead_IterStart);
     Plot* plot;
     while ((plot = plotIter.get())) {
-        SkASSERT(GrBytesPerPixel(fProxy->desc().fConfig) == plot->bpp());
+        SkASSERT(GrBytesPerPixel(fProxy->config()) == plot->bpp());
         if (plot->addSubImage(width, height, image, loc)) {
             return this->updatePlot(target, id, plot);
         }
@@ -253,7 +253,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     if (target->hasDrawBeenFlushed(plot->lastUseToken())) {
         this->processEviction(plot->id());
         plot->resetRects();
-        SkASSERT(GrBytesPerPixel(fProxy->desc().fConfig) == plot->bpp());
+        SkASSERT(GrBytesPerPixel(fProxy->config()) == plot->bpp());
         SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc);
         SkASSERT(verify);
         if (!this->updatePlot(target, id, plot)) {
@@ -279,7 +279,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     newPlot.reset(plot->clone());
 
     fPlotList.addToHead(newPlot.get());
-    SkASSERT(GrBytesPerPixel(fProxy->desc().fConfig) == newPlot->bpp());
+    SkASSERT(GrBytesPerPixel(fProxy->config()) == newPlot->bpp());
     SkDEBUGCODE(bool verify = )newPlot->addSubImage(width, height, image, loc);
     SkASSERT(verify);
 
