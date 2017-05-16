@@ -320,6 +320,10 @@ STAGE(dither) {
     r += c->rate*dither;
     g += c->rate*dither;
     b += c->rate*dither;
+
+    r = max(0, min(r, a));
+    g = max(0, min(g, a));
+    b = max(0, min(b, a));
 }
 
 // load 4 floats from memory, and splat them into r,g,b,a
