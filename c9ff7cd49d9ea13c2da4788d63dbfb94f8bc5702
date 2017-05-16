@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3febe214_0b0c1dca",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-16T16:08:06Z",
+      "side": 1,
+      "message": "would be nice to fold this into maybe_clamp, but i suspect there\u0027s an ordering issue so not sure it\u0027s feasible.",
+      "revId": "c9ff7cd49d9ea13c2da4788d63dbfb94f8bc5702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
