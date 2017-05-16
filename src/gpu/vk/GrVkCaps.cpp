@@ -36,7 +36,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fUseDrawInsteadOfClear = false;
     fFenceSyncSupport = true;   // always available in Vulkan
-    fCrossContextTextureSupport = true;
+    fCrossContextTextureSupport = false;
 
     fMapBufferFlags = kNone_MapFlags; //TODO: figure this out
     fBufferMapThreshold = SK_MaxS32;  //TODO: figure this out
@@ -99,6 +99,10 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     if (kNvidia_VkVendor == properties.vendorID) {
         fSupportsCopiesAsDraws = true;
         fMustSubmitCommandsBeforeCopyOp = true;
+    }
+
+    if (fSupportsCopiesAsDraws) {
+        fCrossContextTextureSupport = true;
     }
 
 #if defined(SK_BUILD_FOR_WIN)
