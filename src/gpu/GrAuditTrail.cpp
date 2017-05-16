@@ -10,9 +10,7 @@
 
 const int GrAuditTrail::kGrAuditTrailInvalidID = -1;
 
-void GrAuditTrail::addOp(const GrOp* op,
-                         GrGpuResource::UniqueID resourceID,
-                         GrRenderTargetProxy::UniqueID proxyID) {
+void GrAuditTrail::addOp(const GrOp* op, GrRenderTargetProxy::UniqueID proxyID) {
     SkASSERT(fEnabled);
     Op* auditOp = new Op;
     fOpPool.emplace_back(auditOp);
@@ -46,7 +44,7 @@ void GrAuditTrail::addOp(const GrOp* op,
 
     // We use the op pointer as a key to find the OpNode we are 'glomming' ops onto
     fIDLookup.set(op->uniqueID(), auditOp->fOpListID);
-    OpNode* opNode = new OpNode(resourceID, proxyID);
+    OpNode* opNode = new OpNode(proxyID);
     opNode->fBounds = op->bounds();
     opNode->fChildren.push_back(auditOp);
     fOpList.emplace_back(opNode);
@@ -91,7 +89,6 @@ void GrAuditTrail::copyOutFromOpList(OpInfo* outOpInfo, int opListID) {
     const OpNode* bn = fOpList[opListID].get();
     SkASSERT(bn);
     outOpInfo->fBounds = bn->fBounds;
-    outOpInfo->fResourceUniqueID = bn->fResourceUniqueID;
     outOpInfo->fProxyUniqueID    = bn->fProxyUniqueID;
     for (int j = 0; j < bn->fChildren.count(); j++) {
         OpInfo::Op& outOp = outOpInfo->fOps.push_back();
@@ -289,7 +286,6 @@ SkString GrAuditTrail::Op::toJson() const {
 SkString GrAuditTrail::OpNode::toJson() const {
     SkString json;
     json.append("{");
-    json.appendf("\"ResourceID\": \"%u\",", fResourceUniqueID.asUInt());
     json.appendf("\"ProxyID\": \"%u\",", fProxyUniqueID.asUInt());
     skrect_to_json(&json, "Bounds", fBounds);
     JsonifyTArray(&json, "Ops", fChildren, true);
