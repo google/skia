@@ -34,9 +34,13 @@ void draw_paths(SkCanvas* canvas, bool hideOccluders) {
     paths.push_back().addOval(SkRect::MakeWH(20, 60));
 
     static constexpr SkScalar kPad = 15.f;
-    static constexpr SkPoint3 kLightPos = { 250, 400, 500 };
     static constexpr SkScalar kLightR = 100.f;
     static constexpr SkScalar kHeight = 50.f;
+
+    // transform light position relative to canvas to handle tiling
+    SkPoint lightXY = canvas->getTotalMatrix().mapXY(250, 400);
+    SkPoint3 lightPos = { lightXY.fX, lightXY.fY, 500 };
+
     canvas->translate(3 * kPad, 3 * kPad);
     canvas->save();
     SkScalar x = 0;
@@ -63,8 +67,8 @@ void draw_paths(SkCanvas* canvas, bool hideOccluders) {
 
                 canvas->save();
                 canvas->concat(m);
-                draw_shadow(canvas, path, kHeight, SK_ColorRED, kLightPos, kLightR, true, flags);
-                draw_shadow(canvas, path, kHeight, SK_ColorBLUE, kLightPos, kLightR, false, flags);
+                draw_shadow(canvas, path, kHeight, SK_ColorRED, lightPos, kLightR, true, flags);
+                draw_shadow(canvas, path, kHeight, SK_ColorBLUE, lightPos, kLightR, false, flags);
 
                 // Draw the path outline in green on top of the ambient and spot shadows.
                 SkPaint paint;
@@ -101,7 +105,7 @@ void draw_paths(SkCanvas* canvas, bool hideOccluders) {
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         paint.setAntiAlias(true);
-        canvas->drawCircle(kLightPos.fX, kLightPos.fY, kLightR / 10.f, paint);
+        canvas->drawCircle(lightPos.fX, lightPos.fY, kLightR / 10.f, paint);
         canvas->restore();
     }
 }
