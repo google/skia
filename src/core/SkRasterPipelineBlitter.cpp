@@ -184,6 +184,7 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
         // We dither after any sRGB transfer function to make sure our 1/255.0f is sensible
         // over the whole range.  If we did it before, 1/255.0f is too big a rate near zero.
         p->append(SkRasterPipeline::dither, &fDitherCtx);
+        p->append(SkRasterPipeline::clamp_a);
     }
 
     if (fDst.info().colorType() == kBGRA_8888_SkColorType) {
