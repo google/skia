@@ -115,7 +115,7 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
         EGLint minorVersion;
         eglInitialize(fDisplay, &majorVersion, &minorVersion);
 
-#if 0
+#if 1
         SkDebugf("VENDOR: %s\n", eglQueryString(fDisplay, EGL_VENDOR));
         SkDebugf("APIS: %s\n", eglQueryString(fDisplay, EGL_CLIENT_APIS));
         SkDebugf("VERSION: %s\n", eglQueryString(fDisplay, EGL_VERSION));
@@ -190,6 +190,8 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
         this->init(gl.release(), EGLFenceSync::MakeIfSupported(fDisplay));
         break;
     }
+
+    SK_ABORT("Printed info. Done!");
 }
 
 EGLGLTestContext::~EGLGLTestContext() {
