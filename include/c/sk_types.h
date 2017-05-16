@@ -851,6 +851,18 @@ typedef struct {
     float fWX, fWY;
 } sk_colorspaceprimaries_t;
 
+typedef enum {
+    NO_INVERT_SK_HIGH_CONTRAST_CONFIG_INVERT_STYLE,
+    INVERT_BRIGHTNESS_SK_HIGH_CONTRAST_CONFIG_INVERT_STYLE,
+    INVERT_LIGHTNESS_SK_HIGH_CONTRAST_CONFIG_INVERT_STYLE,
+} sk_highcontrastconfig_invertstyle_t;
+
+typedef struct {
+    bool fGrayscale;
+    sk_highcontrastconfig_invertstyle_t fInvertStyle;
+    float fContrast;
+} sk_highcontrastconfig_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

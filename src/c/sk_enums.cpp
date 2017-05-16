@@ -356,6 +356,11 @@ static_assert ((int)SkColorSpace::ColorSpaceFlags::kNonLinearBlending_ColorSpace
 static_assert ((int)SkColorSpace::RenderTargetGamma::kLinear_RenderTargetGamma   == (int)LINEAR_SK_COLORSPACE_RENDER_TARGET_GAMMA,   ASSERT_MSG(SkColorSpace::RenderTargetGamma, sk_colorspace_render_target_gamma_t));
 static_assert ((int)SkColorSpace::RenderTargetGamma::kSRGB_RenderTargetGamma     == (int)SRGB_SK_COLORSPACE_RENDER_TARGET_GAMMA,     ASSERT_MSG(SkColorSpace::RenderTargetGamma, sk_colorspace_render_target_gamma_t));
 
+// sk_highcontrastconfig_invertstyle_t
+static_assert ((int)SkHighContrastConfig::InvertStyle::kNoInvert           == (int)NO_INVERT_SK_HIGH_CONTRAST_CONFIG_INVERT_STYLE,           ASSERT_MSG(SkHighContrastConfig::InvertStyle, sk_highcontrastconfig_invertstyle_t));
+static_assert ((int)SkHighContrastConfig::InvertStyle::kInvertBrightness   == (int)INVERT_BRIGHTNESS_SK_HIGH_CONTRAST_CONFIG_INVERT_STYLE,   ASSERT_MSG(SkHighContrastConfig::InvertStyle, sk_highcontrastconfig_invertstyle_t));
+static_assert ((int)SkHighContrastConfig::InvertStyle::kInvertLightness    == (int)INVERT_LIGHTNESS_SK_HIGH_CONTRAST_CONFIG_INVERT_STYLE,    ASSERT_MSG(SkHighContrastConfig::InvertStyle, sk_highcontrastconfig_invertstyle_t));
+
 #if SK_SUPPORT_GPU
 
 // gr_surfaceorigin_t

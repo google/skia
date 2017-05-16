@@ -11,6 +11,7 @@
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
 #include "SkDashPathEffect.h"
+#include "SkArcToPathEffect.h"
 #include "SkPath.h"
 
 #include "sk_patheffect.h"
@@ -40,6 +41,11 @@ sk_path_effect_t* sk_path_effect_create_discrete(float segLength, float deviatio
 sk_path_effect_t* sk_path_effect_create_corner(float radius)
 {
     return ToPathEffect(SkCornerPathEffect::Make(radius).release());
+}
+
+sk_path_effect_t* sk_path_effect_create_arc_to(float radius)
+{
+    return ToPathEffect(SkArcToPathEffect::Make(radius).release());
 }
 
 sk_path_effect_t* sk_path_effect_create_1d_path(const sk_path_t* path, float advance, float phase, sk_path_effect_1d_style_t style)

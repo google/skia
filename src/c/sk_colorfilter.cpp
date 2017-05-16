@@ -52,6 +52,12 @@ sk_colorfilter_t* sk_colorfilter_new_luma_color() {
     return ToColorFilter(filter.release());
 }
 
+sk_colorfilter_t* sk_colorfilter_new_high_contrast(const sk_highcontrastconfig_t* config) {
+
+    sk_sp<SkColorFilter> filter = SkHighContrastFilter::Make(AsHighContrastConfig(*config));
+    return ToColorFilter(filter.release());
+}
+
 sk_colorfilter_t* sk_colorfilter_new_table(const uint8_t table[256]) {
 
     sk_sp<SkColorFilter> filter = SkTableColorFilter::Make(table);

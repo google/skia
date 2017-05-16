@@ -36,6 +36,7 @@
 #include "SkEncodedInfo.h"
 #include "SkTime.h"
 #include "SkCamera.h"
+#include "SkHighContrastFilter.h"
 
 #include "sk_path.h"
 #include "sk_paint.h"
@@ -197,6 +198,10 @@ static inline const SkPath* AsPath(const sk_path_t* cpath) {
 
 static inline const SkImage* AsImage(const sk_image_t* cimage) {
     return reinterpret_cast<const SkImage*>(cimage);
+}
+
+static inline SkImage* AsImage(sk_image_t* cimage) {
+    return reinterpret_cast<SkImage*>(cimage);
 }
 
 static inline sk_image_t* ToImage(SkImage* cimage) {
@@ -789,6 +794,38 @@ static inline sk_matrix44_t* ToMatrix44(SkMatrix44* p) {
 
 static inline const sk_matrix44_t* ToMatrix44(const SkMatrix44* p) {
     return reinterpret_cast<const sk_matrix44_t*>(p);
+}
+
+static inline const SkHighContrastConfig* AsHighContrastConfig(const sk_highcontrastconfig_t* p) {
+    return reinterpret_cast<const SkHighContrastConfig*>(p);
+}
+
+static inline const SkHighContrastConfig& AsHighContrastConfig(const sk_highcontrastconfig_t& p) {
+    return reinterpret_cast<const SkHighContrastConfig&>(p);
+}
+
+static inline SkHighContrastConfig* AsHighContrastConfig(sk_highcontrastconfig_t* p) {
+    return reinterpret_cast<SkHighContrastConfig*>(p);
+}
+
+static inline SkHighContrastConfig& AsHighContrastConfig(sk_highcontrastconfig_t& p) {
+    return reinterpret_cast<SkHighContrastConfig&>(p);
+}
+
+static inline sk_highcontrastconfig_t* ToHighContrastConfig(SkHighContrastConfig *p) {
+    return reinterpret_cast<sk_highcontrastconfig_t*>(p);
+}
+
+static inline sk_highcontrastconfig_t& ToHighContrastConfig(SkHighContrastConfig &p) {
+    return reinterpret_cast<sk_highcontrastconfig_t&>(p);
+}
+
+static inline const sk_highcontrastconfig_t* ToHighContrastConfig(const SkHighContrastConfig *p) {
+    return reinterpret_cast<const sk_highcontrastconfig_t*>(p);
+}
+
+static inline const sk_highcontrastconfig_t& ToHighContrastConfig(const SkHighContrastConfig &p) {
+    return reinterpret_cast<const sk_highcontrastconfig_t&>(p);
 }
 
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
