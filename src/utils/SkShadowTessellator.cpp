@@ -76,8 +76,8 @@ protected:
     SkTDArray<SkColor>  fColors;
     SkTDArray<uint16_t> fIndices;
 
-    int                 fFirstVertex;
-    SkVector            fFirstNormal;
+    int                 fFirstVertexIndex;
+    SkVector            fFirstOutset;
     SkPoint             fFirstPoint;
 
     bool                fSucceeded;
@@ -89,7 +89,7 @@ protected:
     SkScalar            fRadius;
     SkScalar            fDirection;
     int                 fPrevUmbraIndex;
-    SkVector            fPrevNormal;
+    SkVector            fPrevOutset;
     SkPoint             fPrevPoint;
 };
 
@@ -125,7 +125,7 @@ static void compute_radial_steps(const SkVector& v1, const SkVector& v2, SkScala
 SkBaseShadowTessellator::SkBaseShadowTessellator(const SkPoint3& zPlaneParams, bool transparent)
         : fZPlaneParams(zPlaneParams)
         , fZOffset(0)
-        , fFirstVertex(-1)
+        , fFirstVertexIndex(-1)
         , fSucceeded(false)
         , fTransparent(transparent)
         , fDirection(1)
@@ -241,8 +241,8 @@ bool SkBaseShadowTessellator::addArc(const SkVector& nextNormal, bool finishArc)
     // fill in fan from previous quad
     SkScalar rotSin, rotCos;
     int numSteps;
-    compute_radial_steps(fPrevNormal, nextNormal, fRadius, &rotSin, &rotCos, &numSteps);
-    SkVector prevNormal = fPrevNormal;
+    compute_radial_steps(fPrevOutset, nextNormal, fRadius, &rotSin, &rotCos, &numSteps);
+    SkVector prevNormal = fPrevOutset;
     for (int i = 0; i < numSteps-1; ++i) {
         SkVector currNormal;
         currNormal.fX = prevNormal.fX*rotCos - prevNormal.fY*rotSin;
@@ -262,7 +262,7 @@ bool SkBaseShadowTessellator::addArc(const SkVector& nextNormal, bool finishArc)
         *fIndices.push() = fPositions.count() - 1;
         *fIndices.push() = fPositions.count() - 2;
     }
-    fPrevNormal = nextNormal;
+    fPrevOutset = nextNormal;
 
     return (numSteps > 0);
 }
@@ -347,6 +347,7 @@ private:
     static constexpr auto kHeightFactor = 1.0f / 128.0f;
     static constexpr auto kGeomFactor = 64.0f;
     static constexpr auto kMaxEdgeLenSqr = 20 * 20;
+    static constexpr auto kInsetFactor = -0.5f;
 
     SkScalar offset(SkScalar z) {
         return z * kHeightFactor * kGeomFactor;
@@ -357,6 +358,8 @@ private:
     }
 
     int                 fCentroidCount;
+    bool                fSplitFirstEdge;
+    bool                fSplitPreviousEdge;
 
     typedef SkBaseShadowTessellator INHERITED;
 };
@@ -365,7 +368,9 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
                                                        const SkMatrix& ctm,
                                                        const SkPoint3& zPlaneParams,
                                                        bool transparent)
-        : INHERITED(zPlaneParams, transparent) {
+        : INHERITED(zPlaneParams, transparent)
+        , fSplitFirstEdge(false)
+        , fSplitPreviousEdge(false) {
     // Set base colors
     SkScalar occluderHeight = heightFunc(0, 0);
     SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(occluderHeight*kHeightFactor, 0.0f)));
@@ -424,6 +429,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
         return;
     }
 
+    // Finish up
     SkVector normal;
     if (compute_normal(fPrevPoint, fFirstPoint, fDirection, &normal)) {
         SkScalar z = fTransformedHeightFunc(fPrevPoint);
@@ -432,29 +438,54 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
         scaledNormal *= fRadius;
         this->addArc(scaledNormal, true);
 
+        // fix-up the last and first umbra points
+        SkVector inset = normal;
+        // adding to an average, so multiply by an additional half
+        inset *= 0.5f*kInsetFactor;
+        fPositions[fPrevUmbraIndex] += inset;
+        fPositions[fFirstVertexIndex] += inset;
+        // we multiply by another half because now we're adding to an average of an average
+        inset *= 0.5f;
+        if (fSplitPreviousEdge) {
+            fPositions[fPrevUmbraIndex - 2] += inset;
+        }
+        if (fSplitFirstEdge) {
+            fPositions[fFirstVertexIndex + 2] += inset;
+        }
+
         // set up for final edge
         z = fTransformedHeightFunc(fFirstPoint);
         normal *= this->offset(z);
 
         // make sure we don't end up with a sharp alpha edge along the quad diagonal
-        if (fColors[fPrevUmbraIndex] != fColors[fFirstVertex] &&
+        if (fColors[fPrevUmbraIndex] != fColors[fFirstVertexIndex] &&
             fFirstPoint.distanceToSqd(fPositions[fPrevUmbraIndex]) > kMaxEdgeLenSqr) {
-            SkPoint centerPoint = fPositions[fPrevUmbraIndex] + fFirstPoint;
+            SkPoint centerPoint = fPositions[fPrevUmbraIndex] + fPositions[fFirstVertexIndex];
             centerPoint *= 0.5f;
             *fPositions.push() = centerPoint;
-            *fColors.push() = SkPMLerp(fColors[fFirstVertex], fColors[fPrevUmbraIndex], 128);
-            SkVector midNormal = fPrevNormal + normal;
-            midNormal *= 0.5f;
-            *fPositions.push() = centerPoint + midNormal;
+            *fColors.push() = SkPMLerp(fColors[fFirstVertexIndex], fColors[fPrevUmbraIndex], 128);
+            centerPoint = fPositions[fPositions.count()-2] + fPositions[fFirstVertexIndex+1];
+            centerPoint *= 0.5f;
+            *fPositions.push() = centerPoint;
             *fColors.push() = fPenumbraColor;
 
-            *fIndices.push() = fPrevUmbraIndex;
-            *fIndices.push() = fPositions.count() - 3;
-            *fIndices.push() = fPositions.count() - 2;
+            if (fColors[fPrevUmbraIndex] > fColors[fPositions.count() - 2]) {
+                *fIndices.push() = fPrevUmbraIndex;
+                *fIndices.push() = fPositions.count() - 3;
+                *fIndices.push() = fPositions.count() - 2;
 
-            *fIndices.push() = fPositions.count() - 3;
-            *fIndices.push() = fPositions.count() - 1;
-            *fIndices.push() = fPositions.count() - 2;
+                *fIndices.push() = fPositions.count() - 3;
+                *fIndices.push() = fPositions.count() - 1;
+                *fIndices.push() = fPositions.count() - 2;
+            } else {
+                *fIndices.push() = fPrevUmbraIndex;
+                *fIndices.push() = fPositions.count() - 2;
+                *fIndices.push() = fPositions.count() - 1;
+
+                *fIndices.push() = fPrevUmbraIndex;
+                *fIndices.push() = fPositions.count() - 1;
+                *fIndices.push() = fPositions.count() - 3;
+            }
 
             // if transparent, add point to first one in array and add to center fan
             if (fTransparent) {
@@ -473,14 +504,14 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
         *fPositions.push() = fFirstPoint + normal;
         *fColors.push() = fPenumbraColor;
 
-        if (fColors[fPrevUmbraIndex] > fColors[fFirstVertex]) {
+        if (fColors[fPrevUmbraIndex] > fColors[fFirstVertexIndex]) {
             *fIndices.push() = fPrevUmbraIndex;
             *fIndices.push() = fPositions.count() - 2;
-            *fIndices.push() = fFirstVertex;
+            *fIndices.push() = fFirstVertexIndex;
 
             *fIndices.push() = fPositions.count() - 2;
             *fIndices.push() = fPositions.count() - 1;
-            *fIndices.push() = fFirstVertex;
+            *fIndices.push() = fFirstVertexIndex;
         } else {
             *fIndices.push() = fPrevUmbraIndex;
             *fIndices.push() = fPositions.count() - 2;
@@ -488,9 +519,9 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
 
             *fIndices.push() = fPrevUmbraIndex;
             *fIndices.push() = fPositions.count() - 1;
-            *fIndices.push() = fFirstVertex;
+            *fIndices.push() = fFirstVertexIndex;
         }
-        fPrevNormal = normal;
+        fPrevOutset = normal;
     }
 
     // finalize centroid
@@ -500,22 +531,22 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
 
         *fIndices.push() = 0;
         *fIndices.push() = fPrevUmbraIndex;
-        *fIndices.push() = fFirstVertex;
+        *fIndices.push() = fFirstVertexIndex;
     }
 
     // final fan
     if (fPositions.count() >= 3) {
-        fPrevUmbraIndex = fFirstVertex;
+        fPrevUmbraIndex = fFirstVertexIndex;
         fPrevPoint = fFirstPoint;
         fRadius = this->offset(fTransformedHeightFunc(fPrevPoint));
-        if (this->addArc(fFirstNormal, false)) {
-            *fIndices.push() = fFirstVertex;
+        if (this->addArc(fFirstOutset, false)) {
+            *fIndices.push() = fFirstVertexIndex;
             *fIndices.push() = fPositions.count() - 1;
-            *fIndices.push() = fFirstVertex + 1;
+            *fIndices.push() = fFirstVertexIndex + 1;
         } else {
             // arc is too small, set the first penumbra point to be the same position
             // as the last one
-            fPositions[fFirstVertex + 1] = fPositions[fPositions.count() - 1];
+            fPositions[fFirstVertexIndex + 1] = fPositions[fPositions.count() - 1];
         }
     }
     fSucceeded = true;
@@ -550,18 +581,18 @@ void SkAmbientShadowTessellator::handleLine(const SkPoint& p)  {
         }
 
         fFirstPoint = fInitPoints[0];
-        fFirstVertex = fPositions.count();
+        fFirstVertexIndex = fPositions.count();
         SkScalar z = fTransformedHeightFunc(fFirstPoint);
-        fFirstNormal = normal;
-        fFirstNormal *= this->offset(z);
+        fFirstOutset = normal;
+        fFirstOutset *= this->offset(z);
 
-        fPrevNormal = fFirstNormal;
+        fPrevOutset = fFirstOutset;
         fPrevPoint = fFirstPoint;
-        fPrevUmbraIndex = fFirstVertex;
+        fPrevUmbraIndex = fFirstVertexIndex;
 
         *fPositions.push() = fFirstPoint;
         *fColors.push() = this->umbraColor(z);
-        *fPositions.push() = fFirstPoint + fFirstNormal;
+        *fPositions.push() = fFirstPoint + fFirstOutset;
         *fColors.push() = fPenumbraColor;
         if (fTransparent) {
             fPositions[0] += fFirstPoint;
@@ -572,7 +603,6 @@ void SkAmbientShadowTessellator::handleLine(const SkPoint& p)  {
         z = fTransformedHeightFunc(fInitPoints[1]);
         fRadius = this->offset(z);
         fUmbraColor = this->umbraColor(z);
-        normal *= fRadius;
         this->addEdge(fInitPoints[1], normal);
 
         // to ensure we skip this block next time
@@ -580,29 +610,49 @@ void SkAmbientShadowTessellator::handleLine(const SkPoint& p)  {
     }
 
     SkVector normal;
-    if (compute_normal(fPositions[fPrevUmbraIndex], p, fDirection, &normal)) {
+    if (compute_normal(fPrevPoint, p, fDirection, &normal)) {
         SkVector scaledNormal = normal;
         scaledNormal *= fRadius;
         this->addArc(scaledNormal, true);
         SkScalar z = fTransformedHeightFunc(p);
         fRadius = this->offset(z);
         fUmbraColor = this->umbraColor(z);
-        normal *= fRadius;
         this->addEdge(p, normal);
     }
 }
 
 void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& nextNormal) {
-    // make sure we don't end up with a sharp alpha edge along the quad diagonal
+    // We compute the inset in two stages: first we inset by half the current normal,
+    // then on the next addEdge() we add half of the next normal to get an average of the two
+    SkVector insetNormal = nextNormal;
+    insetNormal *= 0.5f*kInsetFactor;
+
+    // Adding the other half of the average for the previous edge
+    fPositions[fPrevUmbraIndex] += insetNormal;
+
+    SkPoint umbraPoint = nextPoint + insetNormal;
+    SkVector outsetNormal = nextNormal;
+    outsetNormal *= fRadius;
+    SkPoint penumbraPoint = nextPoint + outsetNormal;
+
+    // For split edges, we're adding an average of two averages, so we multiply by another half
+    if (fSplitPreviousEdge) {
+        insetNormal *= 0.5f;
+        fPositions[fPrevUmbraIndex - 2] += insetNormal;
+    }
+
+    // Split the edge to make sure we don't end up with a sharp alpha edge along the quad diagonal
     if (fColors[fPrevUmbraIndex] != fUmbraColor &&
         nextPoint.distanceToSqd(fPositions[fPrevUmbraIndex]) > kMaxEdgeLenSqr) {
-        SkPoint centerPoint = fPositions[fPrevUmbraIndex] + nextPoint;
+
+        // This is lacking 1/4 of the next inset -- we'll add it the next time we call addEdge()
+        SkPoint centerPoint = fPositions[fPrevUmbraIndex] + umbraPoint;
         centerPoint *= 0.5f;
         *fPositions.push() = centerPoint;
         *fColors.push() = SkPMLerp(fUmbraColor, fColors[fPrevUmbraIndex], 128);
-        SkVector midNormal = fPrevNormal + nextNormal;
-        midNormal *= 0.5f;
-        *fPositions.push() = centerPoint + midNormal;
+        centerPoint = fPositions[fPositions.count()-2] + penumbraPoint;
+        centerPoint *= 0.5f;
+        *fPositions.push() = centerPoint;
         *fColors.push() = fPenumbraColor;
 
         // set triangularization to get best interpolation of color
@@ -634,13 +684,19 @@ void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVecto
             *fIndices.push() = fPositions.count() - 2;
         }
 
+        fSplitPreviousEdge = true;
+        if (fPrevUmbraIndex == fFirstVertexIndex) {
+            fSplitFirstEdge = true;
+        }
         fPrevUmbraIndex = fPositions.count() - 2;
+    } else {
+        fSplitPreviousEdge = false;
     }
 
     // add next quad
-    *fPositions.push() = nextPoint;
+    *fPositions.push() = umbraPoint;
     *fColors.push() = fUmbraColor;
-    *fPositions.push() = nextPoint + nextNormal;
+    *fPositions.push() = penumbraPoint;
     *fColors.push() = fPenumbraColor;
 
     // set triangularization to get best interpolation of color
@@ -673,8 +729,8 @@ void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVecto
     }
 
     fPrevUmbraIndex = fPositions.count() - 2;
-    fPrevNormal = nextNormal;
     fPrevPoint = nextPoint;
+    fPrevOutset = outsetNormal;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -851,23 +907,23 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
         if (fTransparent) {
             *fIndices.push() = 0;
             *fIndices.push() = fPrevUmbraIndex;
-            *fIndices.push() = fFirstVertex;
+            *fIndices.push() = fFirstVertexIndex;
             // or to clip ring
         } else {
             if (fFirstUmbraOutside) {
                 *fIndices.push() = fPrevUmbraIndex;
-                *fIndices.push() = fFirstVertex;
-                *fIndices.push() = fFirstVertex + 1;
+                *fIndices.push() = fFirstVertexIndex;
+                *fIndices.push() = fFirstVertexIndex + 1;
                 if (fPrevUmbraOutside) {
                     // fill out quad
                     *fIndices.push() = fPrevUmbraIndex;
-                    *fIndices.push() = fFirstVertex + 1;
+                    *fIndices.push() = fFirstVertexIndex + 1;
                     *fIndices.push() = fPrevUmbraIndex + 1;
                 }
             } else if (fPrevUmbraOutside) {
                 // add tri
                 *fIndices.push() = fPrevUmbraIndex;
-                *fIndices.push() = fFirstVertex;
+                *fIndices.push() = fFirstVertexIndex;
                 *fIndices.push() = fPrevUmbraIndex + 1;
             }
         }
@@ -878,33 +934,33 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
 
         *fIndices.push() = fPrevUmbraIndex;
         *fIndices.push() = fPositions.count() - 2;
-        *fIndices.push() = fFirstVertex;
+        *fIndices.push() = fFirstVertexIndex;
 
         *fIndices.push() = fPositions.count() - 2;
         *fIndices.push() = fPositions.count() - 1;
-        *fIndices.push() = fFirstVertex;
+        *fIndices.push() = fFirstVertexIndex;
 
-        fPrevNormal = normal;
+        fPrevOutset = normal;
     }
 
     // final fan
     if (fPositions.count() >= 3) {
-        fPrevUmbraIndex = fFirstVertex;
+        fPrevUmbraIndex = fFirstVertexIndex;
         fPrevPoint = fFirstPoint;
-        if (this->addArc(fFirstNormal, false)) {
-            *fIndices.push() = fFirstVertex;
+        if (this->addArc(fFirstOutset, false)) {
+            *fIndices.push() = fFirstVertexIndex;
             *fIndices.push() = fPositions.count() - 1;
             if (fFirstUmbraOutside) {
-                *fIndices.push() = fFirstVertex + 2;
+                *fIndices.push() = fFirstVertexIndex + 2;
             } else {
-                *fIndices.push() = fFirstVertex + 1;
+                *fIndices.push() = fFirstVertexIndex + 1;
             }
         } else {
             // no arc added, fix up by setting first penumbra point position to last one
             if (fFirstUmbraOutside) {
-                fPositions[fFirstVertex + 2] = fPositions[fPositions.count() - 1];
+                fPositions[fFirstVertexIndex + 2] = fPositions[fPositions.count() - 1];
             } else {
-                fPositions[fFirstVertex + 1] = fPositions[fPositions.count() - 1];
+                fPositions[fFirstVertexIndex + 1] = fPositions[fPositions.count() - 1];
             }
         }
     }
@@ -1189,25 +1245,25 @@ void SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
         fDirection = (perpDot > 0) ? -1 : 1;
 
         // add first quad
-        if (!compute_normal(fInitPoints[0], fInitPoints[1], fDirection, &fFirstNormal)) {
+        if (!compute_normal(fInitPoints[0], fInitPoints[1], fDirection, &fFirstOutset)) {
             // first two points are incident, make the third point the second and continue
             fInitPoints[1] = p;
             return;
         }
 
-        fFirstNormal *= fRadius;
+        fFirstOutset *= fRadius;
         fFirstPoint = fInitPoints[0];
-        fFirstVertex = fPositions.count();
-        fPrevNormal = fFirstNormal;
+        fFirstVertexIndex = fPositions.count();
+        fPrevOutset = fFirstOutset;
         fPrevPoint = fFirstPoint;
         fPrevUmbraIndex = -1;
 
         this->addInnerPoint(fFirstPoint);
-        fPrevUmbraIndex = fFirstVertex;
+        fPrevUmbraIndex = fFirstVertexIndex;
 
         if (!fTransparent) {
             SkPoint clipPoint;
-            bool isOutside = this->clipUmbraPoint(fPositions[fFirstVertex], fCentroid, &clipPoint);
+            bool isOutside = this->clipUmbraPoint(fPositions[fFirstVertexIndex], fCentroid, &clipPoint);
             if (isOutside) {
                 *fPositions.push() = clipPoint;
                 *fColors.push() = fUmbraColor;
@@ -1216,10 +1272,10 @@ void SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
             fFirstUmbraOutside = isOutside;
         }
 
-        SkPoint newPoint = fFirstPoint + fFirstNormal;
+        SkPoint newPoint = fFirstPoint + fFirstOutset;
         *fPositions.push() = newPoint;
         *fColors.push() = fPenumbraColor;
-        this->addEdge(fInitPoints[1], fFirstNormal);
+        this->addEdge(fInitPoints[1], fFirstOutset);
 
         // to ensure we skip this block next time
         *fInitPoints.push() = p;
@@ -1313,7 +1369,7 @@ void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& 
     *fIndices.push() = currUmbraIndex;
 
     fPrevUmbraIndex = currUmbraIndex;
-    fPrevNormal = nextNormal;
+    fPrevOutset = nextNormal;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
