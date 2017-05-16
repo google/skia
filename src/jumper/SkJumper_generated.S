@@ -1449,7 +1449,7 @@ _sk_to_srgb_aarch64:
   .long  0x4e34ce58                          // fmla          v24.4s, v18.4s, v20.4s
   .long  0x4e35ce53                          // fmla          v19.4s, v18.4s, v21.4s
   .long  0x4eb61ed2                          // mov           v18.16b, v22.16b
-  .long  0x7293d1a8                          // movk          w8, #0x9e8d
+  .long  0x7288e0e8                          // movk          w8, #0x4707
   .long  0x4e30cef2                          // fmla          v18.4s, v23.4s, v16.4s
   .long  0x4eb61ed7                          // mov           v23.16b, v22.16b
   .long  0x4e35ce76                          // fmla          v22.4s, v19.4s, v21.4s
@@ -5758,8 +5758,8 @@ _sk_to_srgb_vfp4:
   .long  0xf22221b2                          // vorr          d2, d18, d18
   .long  0xe12fff13                          // bx            r3
   .long  0xe320f000                          // nop           {0}
-  .long  0x3e149e8d                          // .word         0x3e149e8d
-  .long  0x3e149e8d                          // .word         0x3e149e8d
+  .long  0x3e144707                          // .word         0x3e144707
+  .long  0x3e144707                          // .word         0x3e144707
   .long  0xbb20d739                          // .word         0xbb20d739
   .long  0xbb20d739                          // .word         0xbb20d739
   .long  0x3c629fba                          // .word         0x3c629fba
@@ -13313,7 +13313,9 @@ BALIGN4
   .byte  186,159,98,60,57                    // mov           $0x393c629f,%edx
   .byte  215                                 // xlat          %ds:(%rbx)
   .byte  32,187,13,20,145,63                 // and           %bh,0x3f91140d(%rbx)
-  .byte  141,158,20,62,168,177               // lea           -0x4e57c1ec(%rsi),%ebx
+  .byte  7                                   // (bad)
+  .byte  71,20,62                            // rex.RXB       adc $0x3e,%al
+  .byte  168,177                             // test          $0xb1,%al
   .byte  152                                 // cwtl
   .byte  59,0                                // cmp           (%rax),%eax
   .byte  0,128,63,0,0,192                    // add           %al,-0x3fffffc1(%rax)
@@ -19944,9 +19946,8 @@ BALIGN4
   .byte  61,82,184,78,65                     // cmp           $0x414eb852,%eax
   .byte  57,215                              // cmp           %edx,%edi
   .byte  32,187,186,159,98,60                // and           %bh,0x3c629fba(%rbx)
-  .byte  13,20,145,63,141                    // or            $0x8d3f9114,%eax
-  .byte  158                                 // sahf
-  .byte  20,62                               // adc           $0x3e,%al
+  .byte  13,20,145,63,7                      // or            $0x73f9114,%eax
+  .byte  71,20,62                            // rex.RXB       adc $0x3e,%al
   .byte  168,177                             // test          $0xb1,%al
   .byte  152                                 // cwtl
   .byte  59,0                                // cmp           (%rax),%eax
@@ -25457,12 +25458,15 @@ BALIGN16
   .byte  13,20,145,63,13                     // or            $0xd3f9114,%eax
   .byte  20,145                              // adc           $0x91,%al
   .byte  63                                  // (bad)
-  .byte  13,20,145,63,141                    // or            $0x8d3f9114,%eax
-  .byte  158                                 // sahf
-  .byte  20,62                               // adc           $0x3e,%al
-  .byte  141,158,20,62,141,158               // lea           -0x6172c1ec(%rsi),%ebx
-  .byte  20,62                               // adc           $0x3e,%al
-  .byte  141,158,20,62,168,177               // lea           -0x4e57c1ec(%rsi),%ebx
+  .byte  13,20,145,63,7                      // or            $0x73f9114,%eax
+  .byte  71,20,62                            // rex.RXB       adc $0x3e,%al
+  .byte  7                                   // (bad)
+  .byte  71,20,62                            // rex.RXB       adc $0x3e,%al
+  .byte  7                                   // (bad)
+  .byte  71,20,62                            // rex.RXB       adc $0x3e,%al
+  .byte  7                                   // (bad)
+  .byte  71,20,62                            // rex.RXB       adc $0x3e,%al
+  .byte  168,177                             // test          $0xb1,%al
   .byte  152                                 // cwtl
   .byte  59,168,177,152,59,168               // cmp           -0x57c4674f(%rax),%ebp
   .byte  177,152                             // mov           $0x98,%cl
@@ -32440,12 +32444,15 @@ BALIGN16
   .byte  13,20,145,63,13                     // or            $0xd3f9114,%eax
   .byte  20,145                              // adc           $0x91,%al
   .byte  63                                  // (bad)
-  .byte  13,20,145,63,141                    // or            $0x8d3f9114,%eax
-  .byte  158                                 // sahf
-  .byte  20,62                               // adc           $0x3e,%al
-  .byte  141,158,20,62,141,158               // lea           -0x6172c1ec(%rsi),%ebx
-  .byte  20,62                               // adc           $0x3e,%al
-  .byte  141,158,20,62,168,177               // lea           -0x4e57c1ec(%rsi),%ebx
+  .byte  13,20,145,63,7                      // or            $0x73f9114,%eax
+  .byte  71,20,62                            // rex.RXB       adc $0x3e,%al
+  .byte  7                                   // (bad)
+  .byte  71,20,62                            // rex.RXB       adc $0x3e,%al
+  .byte  7                                   // (bad)
+  .byte  71,20,62                            // rex.RXB       adc $0x3e,%al
+  .byte  7                                   // (bad)
+  .byte  71,20,62                            // rex.RXB       adc $0x3e,%al
+  .byte  168,177                             // test          $0xb1,%al
   .byte  152                                 // cwtl
   .byte  59,168,177,152,59,168               // cmp           -0x57c4674f(%rax),%ebp
   .byte  177,152                             // mov           $0x98,%cl

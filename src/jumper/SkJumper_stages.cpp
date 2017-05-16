@@ -624,7 +624,7 @@ STAGE(to_srgb) {
         F t = rsqrt(l);
         auto lo = l * 12.92f;
         auto hi = mad(t, mad(t, -0.0024542345f, 0.013832027f), 1.1334244f)
-                * rcp(0.14513608f + t);
+                * rcp(0.1448021925f + t);
         return if_then_else(l < 0.00465985f, lo, hi);
     };
     r = fn(r);
