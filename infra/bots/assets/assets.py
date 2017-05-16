@@ -44,8 +44,12 @@ def download(args):
 
 def upload(args):
   """Upload a new version of the asset."""
+  compression = 0
+  if args.compression:
+    compression = args.compression
   asset = asset_utils.Asset(args.asset_name,
-                            asset_utils.MultiStore(gsutil=args.gsutil))
+                            asset_utils.MultiStore(gsutil=args.gsutil,
+                                                   compression=compression))
   asset.upload_new_version(args.target_dir, commit=args.commit)
 
 
@@ -77,6 +81,7 @@ def main(argv):
   prs_upload.add_argument('--target_dir', '-t', required=True)
   prs_upload.add_argument('--gsutil')
   prs_upload.add_argument('--commit', action='store_true')
+  prs_upload.add_argument('--compression')
 
   args = parser.parse_args(argv)
   args.func(args)
