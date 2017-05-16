@@ -624,7 +624,7 @@ bool GrAAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
     }
 
     if (SkPath::kLine_SegmentMask == args.fShape->segmentMask() ||
-        args.fShaderCaps->shaderDerivativeSupport()) {
+        args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
         return true;
     }
 

@@ -730,7 +730,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
 
             GrShape shape(clipPath, GrStyle::SimpleFill());
             GrPathRenderer::CanDrawPathArgs canDrawArgs;
-            canDrawArgs.fShaderCaps = context->caps()->shaderCaps();
+            canDrawArgs.fCaps = context->caps();
             canDrawArgs.fViewMatrix = &SkMatrix::I();
             canDrawArgs.fShape = &shape;
             canDrawArgs.fAAType = aaType;
