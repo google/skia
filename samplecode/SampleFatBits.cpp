@@ -167,11 +167,11 @@ private:
         paint.setBlendMode(SkBlendMode::kClear);
         for (int iy = 1; iy < fH; ++iy) {
             SkScalar y = SkIntToScalar(iy * fZoom);
-            canvas->drawLine(0, y - SK_ScalarHalf, 999, y - SK_ScalarHalf, paint);
+            canvas->drawLine(0, y - SK_ScalarHalf, 9999, y - SK_ScalarHalf, paint);
         }
         for (int ix = 1; ix < fW; ++ix) {
             SkScalar x = SkIntToScalar(ix * fZoom);
-            canvas->drawLine(x - SK_ScalarHalf, 0, x - SK_ScalarHalf, 999, paint);
+            canvas->drawLine(x - SK_ScalarHalf, 0, x - SK_ScalarHalf, 9999, paint);
         }
     }
 };

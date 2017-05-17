@@ -736,6 +736,7 @@ static void restrict_samples(SkTDArray<const SkViewFactory*>& factories, const S
 }
 
 DEFINE_string(slide, "", "Start on this sample.");
+DEFINE_string(cycle, "", "list of slides to cycle through.");
 DEFINE_string(pictureDir, "", "Read pictures from here.");
 DEFINE_string(picture, "", "Path to single picture.");
 DEFINE_string(pathfinder, "", "SKP file with a single path to isolate.");
@@ -756,6 +757,8 @@ DEFINE_bool(deepColor, false, "Request deep color (10-bit/channel or more) displ
 #endif
 
 #include "SkTaskGroup.h"
+
+static SkTDArray<const char*> gCycle;
 
 SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager)
     : INHERITED(hwnd)
@@ -840,12 +843,23 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         SkTQSort(fSamples.begin(), fSamples.end() ? fSamples.end() - 1 : nullptr, compareSampleTitle);
     }
 
+    if (!FLAGS_cycle.isEmpty()) {
+        for (int i = 0; i < FLAGS_cycle.count(); ++i) {
+            SkDebugf("cycle[%d] %s\n", i, FLAGS_cycle[i]);
+            *gCycle.append() = FLAGS_cycle[i];
+        }
+    }
+
     if (!FLAGS_slide.isEmpty()) {
         fCurrIndex = findByTitle(FLAGS_slide[0]);
         if (fCurrIndex < 0) {
             fprintf(stderr, "Unknown sample \"%s\"\n", FLAGS_slide[0]);
             listTitles();
         }
+    }
+
+    if (gCycle.count()) {
+        fCurrIndex = findByTitle(gCycle[0]);
     }
 
 #if SK_SUPPORT_GPU
@@ -1581,24 +1595,37 @@ void SampleWindow::updateMatrix(){
     this->updateTitle();
     this->inval(nullptr);
 }
-bool SampleWindow::previousSample() {
-    fCurrIndex = (fCurrIndex - 1 + fSamples.count()) % fSamples.count();
-    this->loadView((*fSamples[fCurrIndex])());
-    return true;
+
+static const char* find_cycle_name(const char* curr, int add) {
+    int index = gCycle.select([curr](const char* s) {
+        return !strcmp(s, curr);
+    });
+    if (index >= 0) {
+        index = (index + add + gCycle.count()) % gCycle.count();
+        return gCycle[index];
+    }
+    return nullptr;
 }
 
-#include "SkResourceCache.h"
-#include "SkGlyphCache.h"
-bool SampleWindow::nextSample() {
-    fCurrIndex = (fCurrIndex + 1) % fSamples.count();
-    this->loadView((*fSamples[fCurrIndex])());
-
-    if (false) {
-        SkResourceCache::TestDumpMemoryStatistics();
-        SkGlyphCache::Dump();
-        SkDebugf("\n");
+bool SampleWindow::nextSample(int add) {
+    if (gCycle.count()) {
+        SkString str;
+        this->getRawTitle(&str);
+        const char* name = find_cycle_name(str.c_str(), add);
+        if (name) {
+            int index = this->findByTitle(name);
+            if (index >= 0) {
+                fCurrIndex = index;
+                goto LOAD_VIEW;
+            } else {
+                SkDebugf("*** failed to find %s from cycle\n", name);
+            }
+        }
     }
+    fCurrIndex = (fCurrIndex + add + fSamples.count()) % fSamples.count();
 
+LOAD_VIEW:
+    this->loadView((*fSamples[fCurrIndex])());
     return true;
 }
 
@@ -1677,7 +1704,7 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
     }
     if (evt.isType(ANIMATING_EVENTTYPE)) {
         if (fAnimating) {
-            this->nextSample();
+            this->nextSample(1);
             this->postAnimatingEvent();
         }
         return true;
@@ -2050,12 +2077,12 @@ bool SampleWindow::onHandleKey(SkKey key) {
 
     switch (key) {
         case kRight_SkKey:
-            if (this->nextSample()) {
+            if (this->nextSample(1)) {
                 return true;
             }
             break;
         case kLeft_SkKey:
-            if (this->previousSample()) {
+            if (this->nextSample(-1)) {
                 return true;
             }
             return true;
