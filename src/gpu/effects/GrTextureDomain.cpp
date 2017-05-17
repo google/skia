@@ -168,9 +168,9 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                 builder->codeAppend("float blend = step(1.0, max(x, y));");
                 builder->codeAppendf("%s = mix(inside, outside, blend);", outColor);
             } else {
-                builder->codeAppend("bvec4 outside;\n");
-                builder->codeAppendf("outside.xy = lessThan(%s, %s.xy);", inCoords.c_str(),
-                                       domain);
+                builder->codeAppend("bvec4 outside = bvec4(true);\n");
+/*                builder->codeAppendf("outside.xy = lessThan(%s, %s.xy);", inCoords.c_str(),
+                                       domain);*/
                 builder->codeAppendf("outside.zw = greaterThan(%s, %s.zw);", inCoords.c_str(),
                                        domain);
                 builder->codeAppendf("%s = any(outside) ? vec4(0.0, 0.0, 0.0, 0.0) : ",
