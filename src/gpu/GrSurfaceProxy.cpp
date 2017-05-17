@@ -21,15 +21,17 @@
 #include "SkMathPriv.h"
 
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
-    : INHERITED(std::move(surface))
-    , fDesc(fTarget->desc())
-    , fFit(fit)
-    , fBudgeted(fTarget->resourcePriv().isBudgeted())
-    , fFlags(0)
-    , fUniqueID(fTarget->uniqueID()) // Note: converting from unique resource ID to a proxy ID!
-    , fGpuMemorySize(kInvalidGpuMemorySize)
-    , fLastOpList(nullptr) {
-}
+        : INHERITED(std::move(surface))
+        , fConfig(fTarget->config())
+        , fWidth(fTarget->width())
+        , fHeight(fTarget->height())
+        , fOrigin(fTarget->origin())
+        , fFit(fit)
+        , fBudgeted(fTarget->resourcePriv().isBudgeted())
+        , fFlags(0)
+        , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
+        , fGpuMemorySize(kInvalidGpuMemorySize)
+        , fLastOpList(nullptr) {}
 
 GrSurfaceProxy::~GrSurfaceProxy() {
     // For this to be deleted the opList that held a ref on it (if there was one) must have been
@@ -37,15 +39,24 @@ GrSurfaceProxy::~GrSurfaceProxy() {
     SkASSERT(!fLastOpList);
 }
 
-GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
+GrSurface* GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
+                                           GrSurfaceFlags flags, bool isMipMapped) {
     if (fTarget) {
         return fTarget;
     }
+    GrSurfaceDesc desc;
+    desc.fConfig = fConfig;
+    desc.fWidth = fWidth;
+    desc.fHeight = fHeight;
+    desc.fOrigin = fOrigin;
+    desc.fSampleCnt = sampleCnt;
+    desc.fIsMipMapped = isMipMapped;
+    desc.fFlags = flags;
 
     if (SkBackingFit::kApprox == fFit) {
-        fTarget = resourceProvider->createApproxTexture(fDesc, fFlags);
+        fTarget = resourceProvider->createApproxTexture(desc, fFlags);
     } else {
-        fTarget = resourceProvider->createTexture(fDesc, fBudgeted, fFlags).release();
+        fTarget = resourceProvider->createTexture(desc, fBudgeted, fFlags).release();
     }
     if (!fTarget) {
         return nullptr;
@@ -61,38 +72,6 @@ GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
 #endif
 
     return fTarget;
-}
-
-int GrSurfaceProxy::worstCaseWidth(const GrCaps& caps) const {
-    if (fTarget) {
-        return fTarget->width();
-    }
-
-    if (SkBackingFit::kExact == fFit) {
-        return fDesc.fWidth;
-    }
-
-    if (caps.reuseScratchTextures() || fDesc.fFlags & kRenderTarget_GrSurfaceFlag) {
-        return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(fDesc.fWidth));
-    }
-
-    return fDesc.fWidth;
-}
-
-int GrSurfaceProxy::worstCaseHeight(const GrCaps& caps) const {
-    if (fTarget) {
-        return fTarget->height();
-    }
-
-    if (SkBackingFit::kExact == fFit) {
-        return fDesc.fHeight;
-    }
-
-    if (caps.reuseScratchTextures() || fDesc.fFlags & kRenderTarget_GrSurfaceFlag) {
-        return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(fDesc.fHeight));
-    }
-
-    return fDesc.fHeight;
 }
 
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
@@ -303,8 +282,8 @@ void GrSurfaceProxyPriv::exactify() {
         // obliterating the area of interest information. This call (exactify) only used 
         // when converting an SkSpecialImage to an SkImage so the proxy shouldn't be
         // used for additional draws.
-        fProxy->fDesc.fWidth = fProxy->fTarget->width();
-        fProxy->fDesc.fHeight = fProxy->fTarget->height();
+        fProxy->fWidth = fProxy->fTarget->width();
+        fProxy->fHeight = fProxy->fTarget->height();
         return;
     }
 

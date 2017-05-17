@@ -18,7 +18,7 @@ void GrCoordTransform::reset(GrResourceProvider* resourceProvider, const SkMatri
     // MDB TODO: just GrCaps is needed for this method
     // MDB TODO: once all the coord transforms take a proxy just store it here and
     // instantiate later
-    fTexture = proxy->instantiate(resourceProvider);
+    fTexture = proxy->instantiateTexture(resourceProvider);
     fNormalize = normalize;
     fReverseY = kBottomLeft_GrSurfaceOrigin == proxy->origin();
 }
