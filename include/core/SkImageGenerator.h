@@ -96,11 +96,6 @@ public:
      */
     bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
-#ifdef SK_SUPPORT_LEGACY_IMGEN_API
-    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
-            int* ctableCount);
-#endif
-
     /**
      *  If decoding to YUV is supported, this returns true.  Otherwise, this
      *  returns false and does not modify any of the parameters.
@@ -175,27 +170,8 @@ protected:
     SkImageGenerator(const SkImageInfo& info, uint32_t uniqueId = kNeedNewImageUniqueID);
 
     virtual SkData* onRefEncodedData() { return nullptr; }
-
-#ifdef SK_SUPPORT_LEGACY_IMGEN_API
-    virtual bool onGetPixels(const SkImageInfo&, void*, size_t, SkPMColor*, int*) {
-        return false;
-    }
-#endif
-
-#ifdef SK_SUPPORT_LEGACY_IMGEN_API
-    virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                             const Options&) {
-
-        return this->onGetPixels(info, pixels, rowBytes, nullptr, nullptr);
-    }
-#else
-    virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) {
-        return false;
-    }
-#endif
-
+    virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
     virtual bool onIsValid(GrContext*) const { return true; }
-
     virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const { return false; }
     virtual bool onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) { return false; }
 

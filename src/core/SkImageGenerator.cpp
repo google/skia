@@ -14,39 +14,6 @@ SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
     , fUniqueID(kNeedNewImageUniqueID == uniqueID ? SkNextID::ImageID() : uniqueID)
 {}
 
-#ifdef SK_SUPPORT_LEGACY_IMGEN_API
-bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                                 SkPMColor ctable[], int* ctableCount) {
-    if (kUnknown_SkColorType == info.colorType()) {
-        return false;
-    }
-    if (nullptr == pixels) {
-        return false;
-    }
-    if (rowBytes < info.minRowBytes()) {
-        return false;
-    }
-
-    if (kIndex_8_SkColorType == info.colorType()) {
-        if (nullptr == ctable || nullptr == ctableCount) {
-            return false;
-        }
-    } else {
-        if (ctableCount) {
-            *ctableCount = 0;
-        }
-        ctableCount = nullptr;
-        ctable = nullptr;
-    }
-
-    const bool success = this->onGetPixels(info, pixels, rowBytes, ctable, ctableCount);
-    if (success && ctableCount) {
-        SkASSERT(*ctableCount >= 0 && *ctableCount <= 256);
-    }
-    return success;
-}
-#endif
-
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                  const Options* opts) {
     if (kUnknown_SkColorType == info.colorType() || kIndex_8_SkColorType == info.colorType()) {
