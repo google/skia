@@ -1,5 +1,0 @@
-CMake Error at AppendNotOutput.cmake:1 \(add_custom_command\):
-  add_custom_command given APPEND option with output.*
-  which is not already a custom command output.
-Call Stack \(most recent call first\):
-  CMakeLists.txt:3 \(include\)

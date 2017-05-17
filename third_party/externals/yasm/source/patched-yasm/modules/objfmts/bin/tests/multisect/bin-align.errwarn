@@ -1,3 +1,0 @@
--: warning: section `.foo' internal align of 8 is greater than `align' of 4; using `align'
--: warning: section `.bar' internal align of 8 is greater than `valign' of 4; using `valign'
--:1: warning: map file already specified

@@ -1,2 +1,0 @@
-.text
-es pushl %ebp

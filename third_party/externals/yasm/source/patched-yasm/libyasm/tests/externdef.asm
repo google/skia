@@ -1,2 +1,0 @@
-extern foo
-foo:

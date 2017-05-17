@@ -1,8 +1,0 @@
--:20: error: macho: sorry, cannot apply 32 bit absolute relocations in 64 bit mode, consider "[_symbol wrt rip]" for mem access, "qword" and "dq _foo" for pointers.
--:21: error: macho: sorry, cannot apply 32 bit absolute relocations in 64 bit mode, consider "[_symbol wrt rip]" for mem access, "qword" and "dq _foo" for pointers.
--:23: error: macho: sorry, cannot apply 32 bit absolute relocations in 64 bit mode, consider "[_symbol wrt rip]" for mem access, "qword" and "dq _foo" for pointers.
--:24: error: macho: sorry, cannot apply 32 bit absolute relocations in 64 bit mode, consider "[_symbol wrt rip]" for mem access, "qword" and "dq _foo" for pointers.
--:25: error: macho: sorry, cannot apply 32 bit absolute relocations in 64 bit mode, consider "[_symbol wrt rip]" for mem access, "qword" and "dq _foo" for pointers.
--:26: error: macho: sorry, cannot apply 32 bit absolute relocations in 64 bit mode, consider "[_symbol wrt rip]" for mem access, "qword" and "dq _foo" for pointers.
--:27: error: macho: sorry, cannot apply 32 bit absolute relocations in 64 bit mode, consider "[_symbol wrt rip]" for mem access, "qword" and "dq _foo" for pointers.
--:29: error: macho: invalid WRT

@@ -1,8 +1,0 @@
--:9: error: ended procedure without ending prologue
--:1: error: procedure started here
--:20: error: nested procedures not supported (didn't use [ENDPROC_FRAME]?)
--:11: error: previous procedure started here
--:27: error: [SAVEREG] after end of prologue
--:26: error: prologue ended here
--:31: error: [ENDPROLOG] without preceding [PROC_FRAME]
--:32: error: [SAVEREG] without preceding [PROC_FRAME]

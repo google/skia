@@ -1,9 +1,0 @@
-[hooks]
-	url = http://cmake.org/cmake.git
-[ssh]
-	host = cmake.org
-	key = id_git_cmake
-	request-url = https://www.kitware.com/Admin/SendPassword.cgi
-[stage]
-        url = git://cmake.org/stage/cmake.git
-        pushurl = git@cmake.org:stage/cmake.git

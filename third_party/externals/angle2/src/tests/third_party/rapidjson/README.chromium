@@ -1,8 +1,0 @@
-Name: RapidJSON
-URL: https://github.com/miloyip/rapidjson
-Version: 24dd7ef839b79941d129e833368e913aa9c045da
-License: Custom
-License File: LICENSE
-
-Description:
-RapidJSON is a JSON parser and generator for C++.

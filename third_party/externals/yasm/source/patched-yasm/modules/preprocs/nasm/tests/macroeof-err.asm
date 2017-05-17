@@ -1,1 +1,0 @@
-%macro foo 0

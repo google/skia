@@ -1,9 +1,0 @@
--:2: error: frame offset of -4 bytes, must be between 0 and 240
--:3: error: negative offset not allowed
--:5: error: negative offset not allowed
--:6: error: negative offset not allowed
--:11: error: frame offset of 248 bytes, must be between 0 and 240
--:17: error: frame offset of 236 is not a multiple of 16
--:18: error: offset of 124 is not a multiple of 8
--:20: error: offset of 1032 is not a multiple of 16
--:21: error: offset of 1028 is not a multiple of 8

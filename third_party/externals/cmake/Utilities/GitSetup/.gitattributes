@@ -1,7 +1,0 @@
-.git*            export-ignore
-
-# Exclude from source archives files specific to Git work tree.
-*                export-ignore
-
-tips             eol=lf         whitespace=indent-with-non-tab
-setup-*          eol=lf         whitespace=indent-with-non-tab

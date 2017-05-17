@@ -1,3 +1,0 @@
-.text
-movsd
-movsl

@@ -1,3 +1,0 @@
-This directory contains the utilities. Utilities are general-purpose components
-that may be used by the core library as well as by individual transports and
-scalability protocols.

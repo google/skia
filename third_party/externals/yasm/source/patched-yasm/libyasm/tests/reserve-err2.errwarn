@@ -1,6 +1,0 @@
--:3: error: multiple is negative
--:4: error: expression must not contain floating point value
--:5: error: expression must not contain floating point value
--:10: error: multiple is negative
--:11: error: expression must not contain floating point value
--:12: error: expression must not contain floating point value

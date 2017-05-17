@@ -1,1 +1,0 @@
-void mymodule_(void) {}
