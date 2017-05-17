@@ -137,9 +137,8 @@ protected:
         args.fProcessors = &this->processors();
         args.fRenderTarget = target->renderTarget();
         args.fAppliedClip = target->clip();
-        args.fDstProxy = target->dstProxy();
+        args.fDstTexture = target->dstTexture();
         args.fCaps = &target->caps();
-        args.fResourceProvider = target->resourceProvider();
         return args;
     }
 

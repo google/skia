@@ -75,8 +75,7 @@ public:
         const GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTarget* fRenderTarget = nullptr;
         const GrCaps* fCaps = nullptr;
-        GrResourceProvider* fResourceProvider = nullptr;
-        GrXferProcessor::DstProxy fDstProxy;
+        GrXferProcessor::DstTexture fDstTexture;
     };
 
     /**
@@ -158,11 +157,11 @@ public:
      * If the GrXferProcessor uses a texture to access the dst color, then this returns that
      * texture and the offset to the dst contents within that texture.
      */
-    GrTextureProxy* dstTextureProxy(SkIPoint* offset = nullptr) const {
+    GrTexture* dstTexture(SkIPoint* offset = nullptr) const {
         if (offset) {
             *offset = fDstTextureOffset;
         }
-        return fDstTextureProxy.get();
+        return fDstTexture.get();
     }
 
     const GrFragmentProcessor& getColorFragmentProcessor(int idx) const {
@@ -216,8 +215,7 @@ public:
     bool isBad() const { return SkToBool(fFlags & kIsBad_Flag); }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
-        if (fDstTextureProxy.get() &&
-            fDstTextureProxy.get()->priv().peekTexture() == fRenderTarget.get()->asTexture()) {
+        if (fDstTexture.get() && fDstTexture.get() == fRenderTarget.get()->asTexture()) {
             return kTexture_GrXferBarrierType;
         }
         return this->getXferProcessor().xferBarrierType(caps);
@@ -235,11 +233,11 @@ private:
     };
 
     using RenderTarget = GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>;
-    using DstTextureProxy = GrPendingIOResource<GrTextureProxy, kRead_GrIOType>;
+    using DstTexture = GrPendingIOResource<GrTexture, kRead_GrIOType>;
     using PendingFragmentProcessor = GrPendingProgramElement<const GrFragmentProcessor>;
     using FragmentProcessorArray = SkAutoSTArray<8, PendingFragmentProcessor>;
 
-    DstTextureProxy fDstTextureProxy;
+    DstTexture fDstTexture;
     SkIPoint fDstTextureOffset;
     RenderTarget fRenderTarget;
     GrScissorState fScissorState;
