@@ -7,7 +7,6 @@
 
 #include "GrVkPipelineState.h"
 
-#include "GrContext.h"
 #include "GrPipeline.h"
 #include "GrTexturePriv.h"
 #include "GrVkBufferView.h"
@@ -259,17 +258,12 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     SkASSERT(!fp && !glslFP);
 
     SkIPoint offset;
-    GrTextureProxy* dstTextureProxy = nullptr;
-    GrTexture* dstTexture = nullptr;
-    if (dstTextureProxy = pipeline.dstTextureProxy(&offset)) {
-        dstTexture = dstTextureProxy->priv().peekTexture();
-    }
-
+    GrTexture* dstTexture = pipeline.dstTexture(&offset);
     fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
     GrResourceIOProcessor::TextureSampler dstTextureSampler;
-    if (dstTextureProxy) {
+    if (dstTexture) {
         // MDB TODO: this is the last usage of a GrTexture-based TextureSampler reset method
-        dstTextureSampler.reset(gpu->getContext()->resourceProvider(), sk_ref_sp(dstTextureProxy));
+        dstTextureSampler.reset(dstTexture);
         textureBindings.push_back(&dstTextureSampler);
     }
 

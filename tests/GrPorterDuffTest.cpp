@@ -1044,12 +1044,11 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
                                                                kRGBA_8888_GrPixelConfig,
                                                                backendTexHandle);
 
-    GrXferProcessor::DstProxy fakeDstProxy;
-    {
-        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrappedBackend(ctx, backendTex,
-                                                                         kTopLeft_GrSurfaceOrigin);
-        fakeDstProxy.setProxy(std::move(proxy));
-    }
+    GrXferProcessor::DstTexture fakeDstTexture;
+    fakeDstTexture.setTexture(
+        ctx->resourceProvider()->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
+                                                    kNone_GrBackendTextureFlag, 0,
+                                                    kBorrow_GrWrapOwnership));
 
     static const GrProcessorAnalysisColor colorInputs[] = {
             GrProcessorAnalysisColor::Opaque::kNo, GrProcessorAnalysisColor::Opaque::kYes,

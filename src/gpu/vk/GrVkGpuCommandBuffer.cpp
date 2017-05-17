@@ -533,8 +533,7 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     while (const GrFragmentProcessor* fp = iter.next()) {
         prepare_sampled_images(*fp, fGpu);
     }
-    if (GrTextureProxy* dstTextureProxy = pipeline.dstTextureProxy()) {
-        GrVkTexture* dstTexture = static_cast<GrVkTexture*>(dstTextureProxy->priv().peekTexture());
+    if (GrVkTexture* dstTexture = static_cast<GrVkTexture*>(pipeline.dstTexture())) {
         set_texture_layout(dstTexture, fGpu);
     }
 

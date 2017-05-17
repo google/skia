@@ -1598,15 +1598,15 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
         }
     }
 
-    GrXferProcessor::DstProxy dstProxy;
+    GrXferProcessor::DstTexture dstTexture;
     if (op->xpRequiresDstTexture(*this->caps(), &appliedClip)) {
-        if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, op->bounds(), &dstProxy)) {
+        if (!this->setupDstTexture(fRenderTargetProxy.get(), clip, op->bounds(), &dstTexture)) {
             return SK_InvalidUniqueID;
         }
     }
 
     op->setClippedBounds(bounds);
-    return this->getOpList()->addOp(std::move(op), this, std::move(appliedClip), dstProxy);
+    return this->getOpList()->addOp(std::move(op), this, std::move(appliedClip), dstTexture);
 }
 
 uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipelineBuilder,
@@ -1656,10 +1656,9 @@ uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipeline
     args.fAppliedClip = &appliedClip;
     args.fRenderTarget = rt;
     args.fCaps = this->caps();
-    args.fResourceProvider = fContext->resourceProvider();
 
     if (analysis.requiresDstTexture()) {
-        if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, bounds, &args.fDstProxy)) {
+        if (!this->setupDstTexture(fRenderTargetProxy.get(), clip, bounds, &args.fDstTexture)) {
             return SK_InvalidUniqueID;
         }
     }
@@ -1672,15 +1671,22 @@ uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipeline
     return this->getOpList()->addOp(std::move(op), this);
 }
 
-bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const GrClip& clip,
+bool GrRenderTargetContext::setupDstTexture(GrRenderTargetProxy* rtProxy, const GrClip& clip,
                                             const SkRect& opBounds,
-                                            GrXferProcessor::DstProxy* dstProxy) {
+                                            GrXferProcessor::DstTexture* dstTexture) {
     if (this->caps()->textureBarrierSupport()) {
         if (GrTextureProxy* texProxy = rtProxy->asTextureProxy()) {
+            // MDB TODO: remove this instantiation. Blocked on making DstTexture be proxy-based
+            sk_sp<GrTexture> tex(sk_ref_sp(texProxy->instantiate(fContext->resourceProvider())));
+            if (!tex) {
+                SkDebugf("setupDstTexture: instantiation of src texture failed.\n");
+                return false;  // We have bigger problems now
+            }
+
             // The render target is a texture, so we can read from it directly in the shader. The XP
             // will be responsible to detect this situation and request a texture barrier.
-            dstProxy->setProxy(sk_ref_sp(texProxy));
-            dstProxy->setOffset(0, 0);
+            dstTexture->setTexture(std::move(tex));
+            dstTexture->setOffset(0, 0);
             return true;
         }
     }
@@ -1746,7 +1752,15 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
         return false;
     }
 
-    dstProxy->setProxy(sContext->asTextureProxyRef());
-    dstProxy->setOffset(dstOffset);
+    GrTextureProxy* copyProxy = sContext->asTextureProxy();
+    // MDB TODO: remove this instantiation once DstTexture is proxy-backed
+    sk_sp<GrTexture> copy(sk_ref_sp(copyProxy->instantiate(fContext->resourceProvider())));
+    if (!copy) {
+        SkDebugf("setupDstTexture: instantiation of copied texture failed.\n");
+        return false;
+    }
+
+    dstTexture->setTexture(std::move(copy));
+    dstTexture->setOffset(dstOffset);
     return true;
 }

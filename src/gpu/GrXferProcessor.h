@@ -55,55 +55,45 @@ public:
      * to the space of the texture. Depending on GPU capabilities a DstTexture may be used by a
      * GrXferProcessor for blending in the fragment shader.
      */
-    class DstProxy {
+    class DstTexture {
     public:
-        DstProxy() { fOffset.set(0, 0); }
+        DstTexture() { fOffset.set(0, 0); }
 
-        DstProxy(const DstProxy& other) {
+        DstTexture(const DstTexture& other) {
             *this = other;
         }
 
-        DstProxy(sk_sp<GrTextureProxy> proxy, const SkIPoint& offset)
-            : fProxy(std::move(proxy)) {
-            if (fProxy) {
-                fOffset = offset;
-            } else {
-                fOffset.set(0, 0);
-            }
-        }
+        DstTexture(GrTexture* texture, const SkIPoint& offset)
+                : fTexture(SkSafeRef(texture)), fOffset(texture ? offset : SkIPoint{0, 0}) {}
 
-        DstProxy& operator=(const DstProxy& other) {
-            fProxy = other.fProxy;
+        DstTexture& operator=(const DstTexture& other) {
+            fTexture = other.fTexture;
             fOffset = other.fOffset;
             return *this;
         }
 
-        bool operator==(const DstProxy& that) const {
-            return fProxy == that.fProxy && fOffset == that.fOffset;
+        bool operator==(const DstTexture& that) const {
+            return fTexture == that.fTexture && fOffset == that.fOffset;
         }
-        bool operator!=(const DstProxy& that) const { return !(*this == that); }
+        bool operator!=(const DstTexture& that) const { return !(*this == that); }
 
         const SkIPoint& offset() const { return fOffset; }
 
         void setOffset(const SkIPoint& offset) { fOffset = offset; }
         void setOffset(int ox, int oy) { fOffset.set(ox, oy); }
 
-        GrTextureProxy* proxy() const { return fProxy.get(); }
+        GrTexture* texture() const { return fTexture.get(); }
 
-        void setProxy(sk_sp<GrTextureProxy> proxy) {
-            fProxy = std::move(proxy);
-            if (!fProxy) {
+        void setTexture(sk_sp<GrTexture> texture) {
+            fTexture = std::move(texture);
+            if (!fTexture) {
                 fOffset = {0, 0};
             }
         }
 
-        bool instantiate(GrResourceProvider* resourceProvider) {
-            return SkToBool(fProxy->instantiate(resourceProvider));
-        }
-
     private:
-        sk_sp<GrTextureProxy> fProxy;
-        SkIPoint              fOffset;
+        sk_sp<GrTexture> fTexture;
+        SkIPoint         fOffset;
     };
 
     /**
@@ -244,7 +234,7 @@ private:
 #endif
 class GrXPFactory {
 public:
-    typedef GrXferProcessor::DstProxy DstProxy;
+    typedef GrXferProcessor::DstTexture DstTexture;
 
     enum class AnalysisProperties : unsigned {
         kNone = 0x0,

@@ -92,12 +92,7 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
 
     const GrXferProcessor& xp = pipeline.getXferProcessor();
     SkIPoint offset;
-    GrTextureProxy* dstProxy = pipeline.dstTextureProxy(&offset);
-    GrTexture* dstTexture = nullptr;
-    if (dstProxy) {
-        dstTexture = dstProxy->priv().peekTexture();
-    }
-
+    GrTexture* dstTexture = pipeline.dstTexture(&offset);
     fXferProcessor->setData(fProgramDataManager, xp, dstTexture, offset);
     if (dstTexture) {
         fGpu->bindTexture(nextTexSamplerIdx++, GrSamplerParams::ClampNoFilter(), true,
