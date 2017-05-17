@@ -32,6 +32,7 @@
 		1F1B6F771BD057EE0074F7FD /* SkBlitRow_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE0C1BCF0B2900623F0F /* SkBlitRow_opts_none.cpp */; };
 		1F8920F208E92315828BD3DE /* SkBitmapProcState_matrixProcs_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF68108D22CEEF53D7934553 /* SkBitmapProcState_matrixProcs_neon.cpp */; };
 <<<<<<< HEAD
+<<<<<<< HEAD
 		1FDEEE091BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE081BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp */; settings = {ASSET_TAGS = (); }; };
 		1FDEEE0B1BCF0A8B00623F0F /* opts_check_x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE0A1BCF0A8B00623F0F /* opts_check_x86.cpp */; settings = {ASSET_TAGS = (); }; };
 		1FDEEE1F1BCF0D0200623F0F /* opts_configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE0E1BCF0CBE00623F0F /* opts_configuration.cpp */; settings = {ASSET_TAGS = (); }; };
@@ -39,6 +40,10 @@
 		1FDEEE091BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE081BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp */; };
 		1FDEEE0B1BCF0A8B00623F0F /* opts_check_x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE0A1BCF0A8B00623F0F /* opts_check_x86.cpp */; };
 >>>>>>> turned on flags to make us use SSE42
+=======
+		1FDEEE091BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE081BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp */; };
+		1FDEEE0B1BCF0A8B00623F0F /* opts_check_x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE0A1BCF0A8B00623F0F /* opts_check_x86.cpp */; };
+>>>>>>> 0c288e4d97768f57a79545987d42a208f1a77f59
 		9E0A7C1C69BF0DBD211637D0 /* SkForceCPlusPlusLinking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C66EA89C4CBF5D977F1160F4 /* SkForceCPlusPlusLinking.cpp */; };
 		AB66668CCC0CFBCF082F222A /* SkBitmapProcState_arm_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5686780AE579C1B43E602FDD /* SkBitmapProcState_arm_neon.cpp */; };
 		ACDD227C13AFF6E82329C0CE /* SkBlitMask_opts_arm_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BFCB5B6F55513B7E3523AC7 /* SkBlitMask_opts_arm_neon.cpp */; };
@@ -111,6 +116,7 @@
 		};
 /* End PBXContainerItemProxy section */
 
+<<<<<<< HEAD
 /* Begin PBXCopyFilesBuildPhase section */
 		1FDEEE121BCF0CE600623F0F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -123,6 +129,8 @@
 		};
 /* End PBXCopyFilesBuildPhase section */
 
+=======
+>>>>>>> 0c288e4d97768f57a79545987d42a208f1a77f59
 /* Begin PBXFileReference section */
 		03A1C281FEB016408DA04D8E /* libskia_opts_ssse3.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_opts_ssse3.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D4A4F0AE8AB1836EB683972 /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
@@ -131,8 +139,11 @@
 		1FDEEE081BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitMask_opts_none.cpp; sourceTree = "<group>"; };
 		1FDEEE0A1BCF0A8B00623F0F /* opts_check_x86.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opts_check_x86.cpp; sourceTree = "<group>"; };
 		1FDEEE0C1BCF0B2900623F0F /* SkBlitRow_opts_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitRow_opts_none.cpp; sourceTree = "<group>"; };
+<<<<<<< HEAD
 		1FDEEE0E1BCF0CBE00623F0F /* opts_configuration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opts_configuration.cpp; sourceTree = "<group>"; };
 		1FDEEE141BCF0CE600623F0F /* libopts_dynamic.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libopts_dynamic.a; sourceTree = BUILT_PRODUCTS_DIR; };
+=======
+>>>>>>> 0c288e4d97768f57a79545987d42a208f1a77f59
 		1FDEEE201BCF0F5600623F0F /* SkBitmapProcState_opts_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_opts_none.cpp; sourceTree = "<group>"; };
 		1FDEEE621BD04B0200623F0F /* SkBlitRow_opts_SSE2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitRow_opts_SSE2.cpp; sourceTree = "<group>"; };
 		2F9F6435F7A79B5F2353658E /* libskia_opts_avx2.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_opts_avx2.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -178,6 +189,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+<<<<<<< HEAD
 		1FDEEE111BCF0CE600623F0F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -185,6 +197,8 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+=======
+>>>>>>> 0c288e4d97768f57a79545987d42a208f1a77f59
 		5DECC3DDB68E6E7CE2F6CEA7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -244,7 +258,10 @@
 			isa = PBXGroup;
 			children = (
 				1FDEEE0A1BCF0A8B00623F0F /* opts_check_x86.cpp */,
+<<<<<<< HEAD
 				1FDEEE0E1BCF0CBE00623F0F /* opts_configuration.cpp */,
+=======
+>>>>>>> 0c288e4d97768f57a79545987d42a208f1a77f59
 				DE70A9FC1BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.cpp */,
 				DE70A9FD1BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.h */,
 				5686780AE579C1B43E602FDD /* SkBitmapProcState_arm_neon.cpp */,
@@ -307,7 +324,10 @@
 				19C6A65284A050EDC662FB44 /* libskia_opts_avx.a */,
 				2F9F6435F7A79B5F2353658E /* libskia_opts_avx2.a */,
 				182DD1C8F36FC5D01DF29ED2 /* libskia_opts_neon.a */,
+<<<<<<< HEAD
 				1FDEEE141BCF0CE600623F0F /* libopts_dynamic.a */,
+=======
+>>>>>>> 0c288e4d97768f57a79545987d42a208f1a77f59
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -324,6 +344,7 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+<<<<<<< HEAD
 		1FDEEE131BCF0CE600623F0F /* opts_dynamic */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1FDEEE1A1BCF0CE600623F0F /* Build configuration list for PBXNativeTarget "opts_dynamic" */;
@@ -341,6 +362,8 @@
 			productReference = 1FDEEE141BCF0CE600623F0F /* libopts_dynamic.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+=======
+>>>>>>> 0c288e4d97768f57a79545987d42a208f1a77f59
 		3BB48783573B89593BC2E26C /* opts_neon */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = EB6573B3997A16BD70776BC0 /* Build configuration list for PBXNativeTarget "opts_neon" */;
@@ -460,11 +483,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
+<<<<<<< HEAD
 				TargetAttributes = {
 					1FDEEE131BCF0CE600623F0F = {
 						CreatedOnToolsVersion = 7.0;
 					};
 				};
+=======
+>>>>>>> 0c288e4d97768f57a79545987d42a208f1a77f59
 			};
 			buildConfigurationList = 107DBE63E0A0A46CD9EB1DDB /* Build configuration list for PBXProject "opts" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -485,12 +511,16 @@
 				61766364CEA74CD0B2337CBC /* opts_avx */,
 				58BBC50A64E975660B389B87 /* opts_avx2 */,
 				3BB48783573B89593BC2E26C /* opts_neon */,
+<<<<<<< HEAD
 				1FDEEE131BCF0CE600623F0F /* opts_dynamic */,
+=======
+>>>>>>> 0c288e4d97768f57a79545987d42a208f1a77f59
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+<<<<<<< HEAD
 		1FDEEE101BCF0CE600623F0F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -499,6 +529,8 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+=======
+>>>>>>> 0c288e4d97768f57a79545987d42a208f1a77f59
 		50CF02F9CEE4E8F2BFF36CD3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -787,6 +819,7 @@
 			};
 			name = Debug;
 		};
+<<<<<<< HEAD
 		1FDEEE1B1BCF0CE600623F0F /* Coverage */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1007,6 +1040,8 @@
 			};
 			name = Release_Developer;
 		};
+=======
+>>>>>>> 0c288e4d97768f57a79545987d42a208f1a77f59
 		2A97A152BF7989F81ED1B34A /* Coverage */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2461,6 +2496,7 @@
 			defaultConfigurationIsVisible = 1;
 			defaultConfigurationName = Coverage;
 		};
+<<<<<<< HEAD
 		1FDEEE1A1BCF0CE600623F0F /* Build configuration list for PBXNativeTarget "opts_dynamic" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -2472,6 +2508,8 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Coverage;
 		};
+=======
+>>>>>>> 0c288e4d97768f57a79545987d42a208f1a77f59
 		272E93DA5B8B4A984A8EFB41 /* Build configuration list for PBXNativeTarget "opts" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
