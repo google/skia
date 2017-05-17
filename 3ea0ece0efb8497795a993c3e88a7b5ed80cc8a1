@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cc11e7d_6450d893",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-17T13:39:45Z",
+      "side": 1,
+      "message": "This will run its destructor at the end of the program.  That ok with you?\n\nAnd this function is now a pretty weird thing to inline...",
+      "revId": "3ea0ece0efb8497795a993c3e88a7b5ed80cc8a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
