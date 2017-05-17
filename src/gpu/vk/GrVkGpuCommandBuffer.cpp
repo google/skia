@@ -426,17 +426,31 @@ void GrVkGpuCommandBuffer::inlineUpload(GrOpFlushState* state, GrDrawOp::Deferre
 
 void GrVkGpuCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
                                         const GrBuffer* indexBuffer,
-                                        const GrBuffer* vertexBuffer) {
+                                        const GrBuffer* vertexBuffer,
+                                        const GrBuffer* instanceBuffer) {
     GrVkSecondaryCommandBuffer* currCmdBuf = fCommandBufferInfos[fCurrentCmdInfo].currentCmdBuf();
     // There is no need to put any memory barriers to make sure host writes have finished here.
     // When a command buffer is submitted to a queue, there is an implicit memory barrier that
     // occurs for all host writes. Additionally, BufferMemoryBarriers are not allowed inside of
     // an active RenderPass.
-    SkASSERT(vertexBuffer);
-    SkASSERT(!vertexBuffer->isCPUBacked());
-    SkASSERT(!vertexBuffer->isMapped());
 
-    currCmdBuf->bindVertexBuffer(fGpu, static_cast<const GrVkVertexBuffer*>(vertexBuffer));
+    if (primProc.hasVertexAttribs()) {
+        SkASSERT(vertexBuffer);
+        SkASSERT(!vertexBuffer->isCPUBacked());
+        SkASSERT(!vertexBuffer->isMapped());
+
+        currCmdBuf->bindInputBuffer(fGpu, GrVkAttribBinding::kVertex,
+                                    static_cast<const GrVkVertexBuffer*>(vertexBuffer));
+    }
+
+    if (primProc.hasInstanceAttribs()) {
+        SkASSERT(instanceBuffer);
+        SkASSERT(!instanceBuffer->isCPUBacked());
+        SkASSERT(!instanceBuffer->isMapped());
+
+        currCmdBuf->bindInputBuffer(fGpu, GrVkAttribBinding::kInstance,
+                                    static_cast<const GrVkVertexBuffer*>(instanceBuffer));
+    }
 
     if (indexBuffer) {
         SkASSERT(indexBuffer);
@@ -565,25 +579,37 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
         }
 
         SkASSERT(pipelineState);
-        this->bindGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer());
+        this->bindGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(),
+                           mesh.instanceBuffer());
 
         if (mesh.isIndexed()) {
-            for (const GrMesh::PatternBatch batch : mesh) {
+            if (mesh.isInstanced()) {
                 cbInfo.currentCmdBuf()->drawIndexed(fGpu,
-                                                    mesh.indexCount() * batch.fRepeatCount,
-                                                    1,
+                                                    mesh.indexCount(),
+                                                    mesh.instanceCount(),
                                                     mesh.baseIndex(),
-                                                    batch.fBaseVertex,
-                                                    0);
+                                                    mesh.baseVertex(),
+                                                    mesh.baseInstance());
                 cbInfo.fIsEmpty = false;
                 fGpu->stats()->incNumDraws();
+            } else {
+                for (const GrMesh::PatternBatch batch : mesh) {
+                    cbInfo.currentCmdBuf()->drawIndexed(fGpu,
+                                                        mesh.indexCount() * batch.fRepeatCount,
+                                                        1,
+                                                        mesh.baseIndex(),
+                                                        batch.fBaseVertex,
+                                                        0);
+                    cbInfo.fIsEmpty = false;
+                    fGpu->stats()->incNumDraws();
+                }
             }
         } else {
             cbInfo.currentCmdBuf()->draw(fGpu,
                                          mesh.vertexCount(),
-                                         1,
+                                         mesh.isInstanced() ? mesh.instanceCount() : 1,
                                          mesh.baseVertex(),
-                                         0);
+                                         mesh.isInstanced() ? mesh.baseInstance() : 0);
             cbInfo.fIsEmpty = false;
             fGpu->stats()->incNumDraws();
         }
