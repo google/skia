@@ -766,9 +766,9 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
     GL_CALL(BindTexture(glTex->target(), glTex->textureID()));
 
     bool success = false;
-    if (GrPixelConfigIsCompressed(glTex->desc().fConfig)) {
+    if (GrPixelConfigIsCompressed(glTex->config())) {
         // We check that config == desc.fConfig in GrGLGpu::canWriteTexturePixels()
-        SkASSERT(config == glTex->desc().fConfig);
+        SkASSERT(config == glTex->config());
         success = this->uploadCompressedTexData(glTex->desc(), glTex->target(), texels,
                                                 kWrite_UploadType, left, top, width, height);
     } else {
@@ -790,7 +790,7 @@ bool GrGLGpu::onTransferPixels(GrSurface* surface,
     }
 
     // For the moment, can't transfer compressed data
-    if (GrPixelConfigIsCompressed(glTex->desc().fConfig)) {
+    if (GrPixelConfigIsCompressed(glTex->config())) {
         return false;
     }
 
@@ -4271,7 +4271,7 @@ void GrGLGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSetting
         GR_GL_GetIntegerv(this->glInterface(), GR_GL_SAMPLES, effectiveSampleCnt);
     }
 
-    SkASSERT(*effectiveSampleCnt >= rt->desc().fSampleCnt);
+    SkASSERT(*effectiveSampleCnt >= rt->numStencilSamples());
 
     if (this->caps()->sampleLocationsSupport()) {
         samplePattern->reset(*effectiveSampleCnt);

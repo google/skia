@@ -50,7 +50,7 @@ public:
     GrPixelConfig config() const { return fDesc.fConfig; }
 
     /**
-     * Return the descriptor describing the surface
+     * Return the descriptor describing the surface.
      */
     const GrSurfaceDesc& desc() const { return fDesc; }
 

@@ -331,7 +331,7 @@ public:
 
     void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override {
-        *effectiveSampleCnt = rt->desc().fSampleCnt;
+        *effectiveSampleCnt = rt->numStencilSamples();
     }
 
     GrGpuCommandBuffer* createCommandBuffer(const GrGpuCommandBuffer::LoadAndStoreInfo&,
