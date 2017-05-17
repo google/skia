@@ -141,10 +141,7 @@ private:
 template <int kCountRequested, typename T> class SkAutoSTArray : SkNoncopyable {
 public:
     /** Initialize with no objects */
-    SkAutoSTArray() {
-        fArray = NULL;
-        fCount = 0;
-    }
+    constexpr SkAutoSTArray() : fCount(0), fArray(nullptr) {}
 
     /** Allocate count number of T elements
      */

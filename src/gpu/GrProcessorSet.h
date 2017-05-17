@@ -138,7 +138,8 @@ public:
     static constexpr const Analysis EmptySetAnalysis() { return Analysis(Empty::kEmpty); }
 
 private:
-    GrProcessorSet(Empty) : fXP((const GrXferProcessor*)nullptr), fFlags(kFinalized_Flag) {}
+    constexpr GrProcessorSet(Empty)
+            : fXP((const GrXferProcessor*)nullptr), fFlags(kFinalized_Flag) {}
     static const GrProcessorSet gEmpty;
 
     // This absurdly large limit allows Analysis and this to pack fields together.
@@ -148,7 +149,7 @@ private:
 
     union XP {
         XP(const GrXPFactory* factory) : fFactory(factory) {}
-        XP(const GrXferProcessor* processor) : fProcessor(processor) {}
+        constexpr XP(const GrXferProcessor* processor) : fProcessor(processor) {}
         const GrXPFactory* fFactory;
         const GrXferProcessor* fProcessor;
     };
