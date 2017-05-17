@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "43d288e3_c86c809f",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-05-17T17:21:55Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "862a04ca_973eeda4",
+      "range": {
+        "startLine": 385,
+        "startChar": 13,
+        "endLine": 385,
+        "endChar": 35
+      },
+      "revId": "88229ee9395f3bc04f11fa5f3fb5f09d7bca2aed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b0f8459_71bce604",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 13
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "c9ddf1af_abefeee2",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 13
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-05-17T17:21:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b0f8459_71bce604",
+      "range": {
+        "startLine": 76,
+        "startChar": 23,
+        "endLine": 76,
+        "endChar": 41
+      },
+      "revId": "88229ee9395f3bc04f11fa5f3fb5f09d7bca2aed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "abb4dc6c_72a76941",
         "filename": "infra/bots/recipes/update_meta_config.py",
         "patchSetId": 13
@@ -59,6 +107,30 @@
       "writtenOn": "2017-05-16T18:40:53Z",
       "side": 1,
       "message": "Don\u0027t we already have something like this elsewhere?",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 30
+      },
+      "revId": "88229ee9395f3bc04f11fa5f3fb5f09d7bca2aed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e985ef7_ae92be87",
+        "filename": "infra/bots/recipes/update_meta_config.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-05-17T17:21:55Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "abb4dc6c_72a76941",
       "range": {
         "startLine": 37,
         "startChar": 0,
@@ -91,6 +163,30 @@
       "revId": "88229ee9395f3bc04f11fa5f3fb5f09d7bca2aed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed045954_7f67f652",
+        "filename": "infra/bots/update_meta_config.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-05-17T17:21:55Z",
+      "side": 1,
+      "message": "Agreed but I do not think there is a proto. The format came from https://chromium.googlesource.com/infra/gerrit-plugins/buildbucket/+/master/README.md",
+      "parentUuid": "7d3fdd83_d454cc96",
+      "range": {
+        "startLine": 57,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 44
+      },
+      "revId": "88229ee9395f3bc04f11fa5f3fb5f09d7bca2aed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
