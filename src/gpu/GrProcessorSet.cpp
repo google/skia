@@ -11,7 +11,10 @@
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 
-const GrProcessorSet GrProcessorSet::gEmpty{GrProcessorSet::Empty::kEmpty};
+const GrProcessorSet& GrProcessorSet::EmptySet() {
+    static const GrProcessorSet gEmpty(GrProcessorSet::Empty::kEmpty);
+    return gEmpty;
+}
 
 GrProcessorSet::GrProcessorSet(GrPaint&& paint) : fXP(paint.getXPFactory()) {
     fFlags = 0;
