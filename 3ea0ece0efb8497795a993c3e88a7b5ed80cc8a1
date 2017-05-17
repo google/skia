@@ -52,6 +52,24 @@
       "revId": "3ea0ece0efb8497795a993c3e88a7b5ed80cc8a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75843930_f7b2db79",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-17T13:57:14Z",
+      "side": 1,
+      "message": "AFAIK. We have had similar code in Ganesh for types with non-trivial destructors and never had a complaint.",
+      "parentUuid": "8e611abe_1c95ed3b",
+      "revId": "3ea0ece0efb8497795a993c3e88a7b5ed80cc8a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
