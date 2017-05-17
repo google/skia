@@ -361,7 +361,9 @@ private:
         kWrite_UploadType,         // we are using TexSubImage2D to copy data to an existing texture
         kTransfer_UploadType,      // we are using a transfer buffer to copy data
     };
-    bool uploadTexData(const GrSurfaceDesc& desc,
+    bool uploadTexData(GrPixelConfig texConfig,
+                       int texWidth, int texHeight,
+                       GrSurfaceOrigin texOrigin,
                        GrGLenum target,
                        UploadType uploadType,
                        int left, int top, int width, int height,
@@ -374,7 +376,9 @@ private:
     // whenever a new texture needs to be created. Otherwise, we assume that
     // the texture is already in GPU memory and that it's going to be updated
     // with new data.
-    bool uploadCompressedTexData(const GrSurfaceDesc& desc,
+    bool uploadCompressedTexData(GrPixelConfig texAndDataConfig,
+                                 int texWidth, int texHeight,
+                                 GrSurfaceOrigin texOrigin,
                                  GrGLenum target,
                                  const SkTArray<GrMipLevel>& texels,
                                  UploadType uploadType = kNewTexture_UploadType,
