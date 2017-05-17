@@ -1290,6 +1290,16 @@ if (skia_enable_tools) {
     ]
   }
 
+  test_app("create_flutter_test_images") {
+    sources = [
+      "tools/create_flutter_test_images.cpp",
+    ]
+    deps = [
+      ":skia",
+      ":tool_utils",
+    ]
+  }
+
   test_app("get_images_from_skps") {
     sources = [
       "tools/get_images_from_skps.cpp",
