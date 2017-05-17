@@ -338,6 +338,10 @@ void SkRecorder::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], cons
            this->copy(cull));
 }
 
+void SkRecorder::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
+    APPEND(DrawShadowRec, path, rec);
+}
+
 void SkRecorder::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
     APPEND(DrawAnnotation, rect, SkString(key), sk_ref_sp(value));
 }

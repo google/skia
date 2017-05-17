@@ -8,6 +8,7 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDrawFilter.h"
+#include "SkDrawShadowRec.h"
 #include "SkImage.h"
 #include "SkImageFilter.h"
 #include "SkLiteDL.h"
@@ -55,7 +56,7 @@ namespace {
     M(DrawImage) M(DrawImageNine) M(DrawImageRect) M(DrawImageLattice)          \
     M(DrawText) M(DrawPosText) M(DrawPosTextH)                                  \
     M(DrawTextOnPath) M(DrawTextRSXform) M(DrawTextBlob)                        \
-    M(DrawPatch) M(DrawPoints) M(DrawVertices) M(DrawAtlas)
+    M(DrawPatch) M(DrawPoints) M(DrawVertices) M(DrawAtlas) M(DrawShadowRec)
 
 #define M(T) T,
     enum class Type : uint8_t { TYPES(M) };
@@ -477,6 +478,17 @@ namespace {
                          maybe_unset(cull), &paint);
         }
     };
+    struct DrawShadowRec final : Op {
+        static const auto kType = Type::DrawShadowRec;
+        DrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec)
+            : fPath(path), fRec(rec)
+        {}
+        SkPath          fPath;
+        SkDrawShadowRec fRec;
+        void draw(SkCanvas* c, const SkMatrix&) const {
+            c->private_draw_shadow_rec(fPath, fRec);
+        }
+    };
 }
 
 template <typename T, typename... Args>
@@ -661,6 +673,9 @@ void SkLiteDL::drawAtlas(const SkImage* atlas, const SkRSXform xforms[], const S
     copy_v(pod, xforms, count,
                   texs, count,
                 colors, colors ? count : 0);
+}
+void SkLiteDL::drawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
+    this->push<DrawShadowRec>(0, path, rec);
 }
 
 typedef void(*draw_fn)(const void*,  SkCanvas*, const SkMatrix&);
