@@ -2188,6 +2188,9 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
         case Token::SLASH:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFDiv,
                                               SpvOpSDiv, SpvOpUDiv, SpvOpUndef, out);
+        case Token::PERCENT:
+            return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFMod,
+                                              SpvOpSMod, SpvOpUMod, SpvOpUndef, out);
         case Token::PLUSEQ: {
             SpvId result = this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFAdd,
                                                       SpvOpIAdd, SpvOpIAdd, SpvOpUndef, out);
@@ -2222,6 +2225,13 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
         case Token::SLASHEQ: {
             SpvId result = this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFDiv,
                                                       SpvOpSDiv, SpvOpUDiv, SpvOpUndef, out);
+            ASSERT(lvalue);
+            lvalue->store(result, out);
+            return result;
+        }
+        case Token::PERCENTEQ: {
+            SpvId result = this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFMod,
+                                                      SpvOpSMod, SpvOpUMod, SpvOpUndef, out);
             ASSERT(lvalue);
             lvalue->store(result, out);
             return result;
