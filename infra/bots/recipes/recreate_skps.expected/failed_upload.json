@@ -359,7 +359,7 @@
       "-u",
       "\nimport os\nimport urllib2\n\nTOKEN_FILE = 'update_skps.git_cookies'\nTOKEN_URL = 'http://metadata/computeMetadata/v1/project/attributes/update_skps_git_cookies'\n\nreq = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})\ncontents = urllib2.urlopen(req).read()\n\nhome = os.path.expanduser('~')\ntoken_file = os.path.join(home, TOKEN_FILE)\n\nwith open(token_file, 'w') as f:\n  f.write(contents)\n"
     ],
-    "name": "download update-skps.gitcookies",
+    "name": "download update_skps.git_cookies",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
@@ -409,7 +409,7 @@
       "-u",
       "\nimport os\n\n\nTOKEN_FILE = 'update_skps.git_cookies'\n\n\nhome = os.path.expanduser('~')\ntoken_file = os.path.join(home, TOKEN_FILE)\nif os.path.isfile(token_file):\n  os.remove(token_file)\n"
     ],
-    "name": "cleanup update-skps.gitcookies",
+    "name": "cleanup update_skps.git_cookies",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
