@@ -71,7 +71,7 @@ public:
     inline const GrSurfacePriv surfacePriv() const;
 
     static size_t WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2 = false);
-    static size_t ComputeSize(const GrSurfaceDesc& desc, int colorSamplesPerPixel,
+    static size_t ComputeSize(GrPixelConfig config, int width, int height, int colorSamplesPerPixel,
                               bool hasMIPMaps, bool useNextPow2 = false);
 
 protected:

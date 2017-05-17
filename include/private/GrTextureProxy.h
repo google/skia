@@ -22,7 +22,10 @@ public:
     const GrTextureProxy* asTextureProxy() const override { return this; }
 
     // Actually instantiate the backing texture, if necessary
-    GrTexture* instantiate(GrResourceProvider*);
+    GrSurface* instantiate(GrResourceProvider*) override;
+    GrTexture* instantiateTexture(GrResourceProvider* resourceProvider) {
+        return this->instantiate(resourceProvider)->asTexture();
+    }
 
     void setMipColorMode(SkDestinationSurfaceColorMode colorMode);
 
@@ -36,6 +39,8 @@ public:
         }
     }
 
+    bool isMipMapped() const { return fIsMipMapped; }
+
 protected:
     friend class GrSurfaceProxy; // for ctors
 
@@ -46,7 +51,9 @@ protected:
     GrTextureProxy(sk_sp<GrSurface>);
 
 private:
-    size_t onGpuMemorySize() const override;
+    bool fIsMipMapped;
+
+    size_t onUninstantiatedGpuMemorySize() const override;
 
     // For wrapped proxies the GrTexture pointer is stored in GrIORefProxy.
     // For deferred proxies that pointer will be filled in when we need to instantiate

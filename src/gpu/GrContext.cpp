@@ -380,7 +380,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
         if (tempProxy->priv().hasPendingIO()) {
             this->flush(tempProxy.get());
         }
-        GrTexture* texture = tempProxy->instantiate(fContext->resourceProvider());
+        GrTexture* texture = tempProxy->instantiateTexture(fContext->resourceProvider());
         if (!texture) {
             return false;
         }

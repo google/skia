@@ -36,7 +36,8 @@ void GrTexture::dirtyMipMaps(bool mipMapsDirty) {
 }
 
 size_t GrTexture::onGpuMemorySize() const {
-    return GrSurface::ComputeSize(fDesc, 1, this->texturePriv().hasMipMaps());
+    return GrSurface::ComputeSize(this->config(), this->width(), this->height(), 1,
+                                  this->texturePriv().hasMipMaps(), false);
 }
 
 void GrTexture::validateDesc() const {
