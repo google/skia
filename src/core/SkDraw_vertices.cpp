@@ -13,7 +13,7 @@
 #include "SkPM4f.h"
 #include "SkRasterClip.h"
 #include "SkScan.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkString.h"
 #include "SkVertState.h"
 
@@ -64,11 +64,11 @@ static bool texture_to_matrix(const VertState& state, const SkPoint verts[],
     return matrix->setPolyToPoly(src, dst, 3);
 }
 
-class SkTriColorShader : public SkShader {
+class SkTriColorShader : public SkShaderBase {
 public:
     SkTriColorShader();
 
-    class TriColorShaderContext : public SkShader::Context {
+    class TriColorShaderContext : public Context {
     public:
         TriColorShaderContext(const SkTriColorShader& shader, const ContextRec&);
         ~TriColorShaderContext() override;
@@ -84,7 +84,7 @@ public:
 
         Matrix43 fM43;
 
-        typedef SkShader::Context INHERITED;
+        typedef Context INHERITED;
     };
 
     struct TriColorShaderData {
@@ -116,7 +116,7 @@ protected:
 private:
     TriColorShaderData *fSetupData;
 
-    typedef SkShader INHERITED;
+    typedef SkShaderBase INHERITED;
 };
 
 bool SkTriColorShader::TriColorShaderContext::setup(const SkPoint pts[], const SkColor colors[],
@@ -179,7 +179,7 @@ SkTriColorShader::TriColorShaderContext::TriColorShaderContext(const SkTriColorS
 SkTriColorShader::TriColorShaderContext::~TriColorShaderContext() {}
 
 void SkTriColorShader::TriColorShaderContext::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
-    SkTriColorShader* parent = static_cast<SkTriColorShader*>(const_cast<SkShader*>(&fShader));
+    SkTriColorShader* parent = static_cast<SkTriColorShader*>(const_cast<SkShaderBase*>(&fShader));
     TriColorShaderData* set = parent->takeSetupData();
     if (set) {
         fSetup = setup(set->pts, set->colors, set->state->f0, set->state->f1, set->state->f2);
@@ -224,7 +224,7 @@ void SkTriColorShader::TriColorShaderContext::shadeSpan(int x, int y, SkPMColor 
 }
 
 void SkTriColorShader::TriColorShaderContext::shadeSpan4f(int x, int y, SkPM4f dstC[], int count) {
-    SkTriColorShader* parent = static_cast<SkTriColorShader*>(const_cast<SkShader*>(&fShader));
+    SkTriColorShader* parent = static_cast<SkTriColorShader*>(const_cast<SkShaderBase*>(&fShader));
     TriColorShaderData* set = parent->takeSetupData();
     if (set) {
         fSetup = setup(set->pts, set->colors, set->state->f0, set->state->f1, set->state->f2);
@@ -268,7 +268,7 @@ namespace {
     //
     // (as opposed to rec' = {rec.ctm, rec.localMatrix x localMatrix})
     //
-    class SkLocalInnerMatrixShader final : public SkShader {
+    class SkLocalInnerMatrixShader final : public SkShaderBase {
     public:
         SkLocalInnerMatrixShader(sk_sp<SkShader> proxy, const SkMatrix& localMatrix)
         : INHERITED(&localMatrix)
@@ -288,7 +288,7 @@ namespace {
             SkMatrix adjustedCTM = SkMatrix::Concat(*rec.fMatrix, this->getLocalMatrix());
             ContextRec newRec(rec);
             newRec.fMatrix = &adjustedCTM;
-            return fProxyShader->makeContext(newRec, alloc);
+            return as_SB(fProxyShader)->makeContext(newRec, alloc);
         }
 
         bool onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
@@ -299,13 +299,13 @@ namespace {
             SkASSERT(!localM);
 
             SkMatrix adjustedCTM = SkMatrix::Concat(ctm, this->getLocalMatrix());
-            return fProxyShader->appendStages(p, cs, alloc, adjustedCTM, paint);
+            return as_SB(fProxyShader)->appendStages(p, cs, alloc, adjustedCTM, paint);
         }
 
     private:
         sk_sp<SkShader> fProxyShader;
 
-        typedef SkShader INHERITED;
+        typedef SkShaderBase INHERITED;
     };
 
     sk_sp<SkShader> MakeTextureShader(const VertState& state, const SkPoint verts[],
@@ -341,9 +341,9 @@ namespace {
         const auto localMatrix  = SkMatrix::MakeTrans(mappedSample.x() - mappedPoint.x(),
                                                       mappedSample.y() - mappedPoint.y());
 
-        SkShader::ContextRec rec(paint, SkMatrix::I(), &localMatrix,
-                                 SkShader::ContextRec::kPMColor_DstType, dstColorSpace);
-        auto* ctx = paint.getShader()->makeContext(rec, alloc);
+        SkShaderBase::ContextRec rec(paint, SkMatrix::I(), &localMatrix,
+                                     SkShaderBase::ContextRec::kPMColor_DstType, dstColorSpace);
+        auto* ctx = as_SB(paint.getShader())->makeContext(rec, alloc);
         if (!ctx) {
             return nullptr;
         }

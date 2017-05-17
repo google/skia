@@ -8,7 +8,8 @@
 #ifndef SkPerlinNoiseShader_DEFINED
 #define SkPerlinNoiseShader_DEFINED
 
-#include "SkShader.h"
+// TODO: ugh
+#include "../../src/shader/SkShaderBase.h"
 
 /** \class SkPerlinNoiseShader
 
@@ -22,7 +23,7 @@
     The algorithm used is described here :
     http://www.w3.org/TR/SVG/filters.html#feTurbulenceElement
 */
-class SK_API SkPerlinNoiseShader : public SkShader {
+class SK_API SkPerlinNoiseShader : public SkShaderBase {
 public:
     struct StitchData;
     struct PaintingData;
@@ -62,7 +63,7 @@ public:
                                           int numOctaves, SkScalar seed,
                                           const SkISize* tileSize = nullptr);
 
-    class PerlinNoiseShaderContext : public SkShader::Context {
+    class PerlinNoiseShaderContext : public Context {
     public:
         PerlinNoiseShaderContext(const SkPerlinNoiseShader& shader, const ContextRec&);
         ~PerlinNoiseShaderContext() override;
@@ -80,7 +81,7 @@ public:
         SkMatrix fMatrix;
         PaintingData* fPaintingData;
 
-        typedef SkShader::Context INHERITED;
+        typedef Context INHERITED;
     };
 
 #if SK_SUPPORT_GPU
@@ -108,7 +109,7 @@ private:
     const SkISize                   fTileSize;
     const bool                      fStitchTiles;
 
-    typedef SkShader INHERITED;
+    typedef SkShaderBase INHERITED;
 };
 
 #endif

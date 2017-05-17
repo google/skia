@@ -210,7 +210,7 @@ bool SkTwoPointConicalGradient::isOpaque() const {
     return false;
 }
 
-SkShader::Context* SkTwoPointConicalGradient::onMakeContext(
+SkShaderBase::Context* SkTwoPointConicalGradient::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const {
     return CheckedMakeContext<TwoPointConicalGradientContext>(alloc, *this, rec);
 }

@@ -432,7 +432,7 @@ SkPMColor SkPerlinNoiseShader::PerlinNoiseShaderContext::shade(
     return SkPreMultiplyARGB(rgba[3], rgba[0], rgba[1], rgba[2]);
 }
 
-SkShader::Context* SkPerlinNoiseShader::onMakeContext(
+SkShaderBase::Context* SkPerlinNoiseShader::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const {
     return alloc->make<PerlinNoiseShaderContext>(*this, rec);
 }
@@ -585,7 +585,7 @@ sk_sp<GrFragmentProcessor> GrPerlinNoiseEffect::TestCreate(GrProcessorTestData* 
                                             stitchTiles ? &tileSize : nullptr));
 
     GrTest::TestAsFPArgs asFPArgs(d);
-    return shader->asFragmentProcessor(asFPArgs.args());
+    return as_SB(shader)->asFragmentProcessor(asFPArgs.args());
 }
 #endif
 
