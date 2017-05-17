@@ -323,8 +323,6 @@ protected:
             , fFit(fit)
             , fBudgeted(budgeted)
             , fFlags(flags)
-            // fMipColorMode is only valid for texturable proxies
-            , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
             , fGpuMemorySize(kInvalidGpuMemorySize)
             , fLastOpList(nullptr) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
@@ -347,7 +345,8 @@ protected:
     }
 
     GrSurface* instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
-                               GrSurfaceFlags flags, bool isMipMapped);
+                               GrSurfaceFlags flags, bool isMipMapped,
+                               SkDestinationSurfaceColorMode mipColorMode);
 
     // For wrapped resources, 'fConfig', 'fWidth', 'fHeight', and 'fOrigin; will always be filled in
     // from the wrapped resource.
@@ -360,7 +359,6 @@ protected:
                                     // mutable bc of SkSurface/SkImage wishy-washiness
     const uint32_t       fFlags;
 
-    SkDestinationSurfaceColorMode fMipColorMode;
 
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 

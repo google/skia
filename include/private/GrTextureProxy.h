@@ -53,8 +53,11 @@ protected:
     // Wrapped version
     GrTextureProxy(sk_sp<GrSurface>);
 
+    SkDestinationSurfaceColorMode mipColorMode() const { return fMipColorMode;  }
+
 private:
     bool fIsMipMapped;
+    SkDestinationSurfaceColorMode fMipColorMode;
 
     size_t onUninstantiatedGpuMemorySize() const override;
 

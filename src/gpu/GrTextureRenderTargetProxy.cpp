@@ -48,7 +48,7 @@ GrSurface* GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceP
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
     GrSurface* surf = this->instantiateImpl(resourceProvider, this->numStencilSamples(), kFlags,
-                                            this->isMipMapped());
+                                            this->isMipMapped(), this->mipColorMode());
     if (!surf) {
         return nullptr;
     }
