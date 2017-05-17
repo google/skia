@@ -369,8 +369,19 @@ static void add_const_color(SkJumper_GradientCtx* ctx, size_t stop, SkPM4f color
 // the stop. Assume that the distance between stops is 1/gapCount.
 static void init_stop_evenly(
     SkJumper_GradientCtx* ctx, float gapCount, size_t stop, SkPM4f c_l, SkPM4f c_r) {
-    auto Fs = SkPM4f::From4f((c_r.to4f() - c_l.to4f()) * gapCount);
-    auto Bs = SkPM4f::From4f(c_l.to4f() - (Fs.to4f() * (stop/gapCount)));
+    // Clankium's GCC 4.9 targeting ARMv7 is barfing when we use Sk4f math here, so go scalar...
+    SkPM4f Fs = {{
+        (c_r.r() - c_l.r()) * gapCount,
+        (c_r.g() - c_l.g()) * gapCount,
+        (c_r.b() - c_l.b()) * gapCount,
+        (c_r.a() - c_l.a()) * gapCount,
+    }};
+    SkPM4f Bs = {{
+        c_l.r() - Fs.r()*(stop/gapCount),
+        c_l.g() - Fs.g()*(stop/gapCount),
+        c_l.b() - Fs.b()*(stop/gapCount),
+        c_l.a() - Fs.a()*(stop/gapCount),
+    }};
     add_stop_color(ctx, stop, Fs, Bs);
 }
 
@@ -378,8 +389,19 @@ static void init_stop_evenly(
 // for any t between stops n and n+1, the color we want is B[n] + F[n]*t.
 static void init_stop_pos(
     SkJumper_GradientCtx* ctx, size_t stop, float t_l, float t_r, SkPM4f c_l, SkPM4f c_r) {
-    auto Fs = SkPM4f::From4f((c_r.to4f() - c_l.to4f()) / (t_r - t_l));
-    auto Bs = SkPM4f::From4f(c_l.to4f() - (Fs.to4f() * t_l));
+    // See note about Clankium's old compiler in init_stop_evenly().
+    SkPM4f Fs = {{
+        (c_r.r() - c_l.r()) / (t_r - t_l),
+        (c_r.g() - c_l.g()) / (t_r - t_l),
+        (c_r.b() - c_l.b()) / (t_r - t_l),
+        (c_r.a() - c_l.a()) / (t_r - t_l),
+    }};
+    SkPM4f Bs = {{
+        c_l.r() - Fs.r()*t_l,
+        c_l.g() - Fs.g()*t_l,
+        c_l.b() - Fs.b()*t_l,
+        c_l.a() - Fs.a()*t_l,
+    }};
     ctx->ts[stop] = t_l;
     add_stop_color(ctx, stop, Fs, Bs);
 }
