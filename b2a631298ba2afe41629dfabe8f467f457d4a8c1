@@ -16,6 +16,47 @@
       "revId": "b2a631298ba2afe41629dfabe8f467f457d4a8c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa6019f8_cfde3080",
+        "filename": "infra/bots/recipe_modules/infra/api.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-05-17T17:41:47Z",
+      "side": 1,
+      "message": "Yeah, either here or in a new \"metadata\" recipe module?",
+      "parentUuid": "5d22125b_c646353a",
+      "revId": "b2a631298ba2afe41629dfabe8f467f457d4a8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7a648b0_ba4e5ce6",
+        "filename": "infra/bots/recipes/recreate_skps.expected/failed_upload.json",
+        "patchSetId": 15
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-05-17T17:41:47Z",
+      "side": 1,
+      "message": "Is this diff intentional?",
+      "range": {
+        "startLine": 362,
+        "startChar": 22,
+        "endLine": 362,
+        "endChar": 45
+      },
+      "revId": "b2a631298ba2afe41629dfabe8f467f457d4a8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
