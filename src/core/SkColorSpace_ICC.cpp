@@ -327,6 +327,16 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkColorSpaceTransferF
                 return set_gamma_value(outData, value);
             }
 
+            // This optimization is especially important for A2B profiles, where we do
+            // not resize tables or interpolate lookups.
+            if (2 == count) {
+                if (0 == read_big_endian_u16((const uint8_t*) &table[0]) &&
+                        65535 == read_big_endian_u16((const uint8_t*) &table[1])) {
+                    outData->fNamed = kLinear_SkGammaNamed;
+                    return SkGammas::Type::kNamed_Type;
+                }
+            }
+
             // Check for frequently occurring sRGB curves.
             // We do this by sampling a few values and see if they match our expectation.
             // A more robust solution would be to compare each value in this curve against
