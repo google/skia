@@ -1334,4 +1334,26 @@ DEF_TEST(SkSLMultipleAssignments, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLComplexDelete, r) {
+    test(r,
+        "uniform mat4 colorXform;"
+        "uniform sampler2D sampler;"
+        "void main() {"
+        "vec4 tmpColor;"
+        "sk_FragColor = vec4(1.0) * (tmpColor = texture(sampler, vec2(1)) , "
+        "colorXform != mat4(1.0) ? vec4(clamp((mat4(colorXform) * vec4(tmpColor.xyz, 1.0)).xyz, "
+        "0.0, tmpColor.w), tmpColor.w) : tmpColor);"
+        "}",
+        *SkSL::ShaderCapsFactory::Default(),
+        "#version 400\n"
+        "out vec4 sk_FragColor;\n"
+        "uniform mat4 colorXform;\n"
+        "uniform sampler2D sampler;\n"
+        "void main() {\n"
+        "    vec4 tmpColor;\n"
+        "    sk_FragColor = (tmpColor = texture(sampler, vec2(1.0)) , colorXform != mat4(1.0) ? "
+        "vec4(clamp((colorXform * vec4(tmpColor.xyz, 1.0)).xyz, 0.0, tmpColor.w), tmpColor.w) : "
+        "tmpColor);\n"
+        "}\n");
+}
 #endif
