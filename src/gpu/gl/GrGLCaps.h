@@ -360,6 +360,12 @@ public:
     }
 
     bool clearToOpaqueBlackIsBroken() const { return fClearToOpaqueBlackIsBroken; }
+
+    // Adreno/MSAA drops a draw on the imagefiltersbase GM if the base vertex param to
+    // glDrawArrays is nonzero.
+    // https://bugs.chromium.org/p/skia/issues/detail?id=6650
+    bool drawArraysBaseVertexIsBroken() const { return fDrawArraysBaseVertexIsBroken; }
+
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
@@ -432,6 +438,7 @@ private:
     bool fSRGBDecodeDisableSupport : 1;
     bool fSRGBDecodeDisableAffectsMipmaps : 1;
     bool fClearToOpaqueBlackIsBroken : 1;
+    bool fDrawArraysBaseVertexIsBroken : 1;
 
     uint32_t fBlitFramebufferFlags;
 
