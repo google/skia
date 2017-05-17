@@ -50,11 +50,6 @@ public:
     GrPixelConfig config() const { return fDesc.fConfig; }
 
     /**
-     * Return the descriptor describing the surface.
-     */
-    const GrSurfaceDesc& desc() const { return fDesc; }
-
-    /**
      * @return the texture associated with the surface, may be null.
      */
     virtual GrTexture* asTexture() { return nullptr; }
