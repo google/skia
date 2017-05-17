@@ -1115,6 +1115,7 @@ void Compiler::internalConvertProgram(String text,
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
                                                   const Program::Settings& settings) {
+    printf("START:%s/END\n", text);
     fErrorText = "";
     fErrorCount = 0;
     fIRGenerator->start(&settings);
