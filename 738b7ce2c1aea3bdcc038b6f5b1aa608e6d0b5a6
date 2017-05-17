@@ -16,6 +16,24 @@
       "revId": "738b7ce2c1aea3bdcc038b6f5b1aa608e6d0b5a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bcdec21_2cac69a0",
+        "filename": "src/gpu/vk/GrVkCopyManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-17T15:22:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d22279f_d4153935",
+      "revId": "738b7ce2c1aea3bdcc038b6f5b1aa608e6d0b5a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
