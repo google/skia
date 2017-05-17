@@ -670,7 +670,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
                                          SkScalar insetWidth,
                                          SkScalar blurClamp) {
     // Shadow rrect ops only handle simple circular rrects.
-    SkASSERT(viewMatrix.isSimilarity() &&
+    SkASSERT(viewMatrix.rectStaysRect() && viewMatrix.isSimilarity() &&
              (rrect.isSimpleCircular() || rrect.isRect() || rrect.isCircle()));
 
     // Do any matrix crunching before we reset the draw state for device coords.
