@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cdebbe4e_8f76e456",
+        "filename": "src/gpu/GrProcessorSet.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6605
+      },
+      "writtenOn": "2017-05-17T08:01:40Z",
+      "side": 1,
+      "message": "This adds a static initializer. See https://luci-logdog.appspot.com/v/?s\u003dchromium%2Fbb%2Fchromium%2FLinux_x64%2F39814%2F%2B%2Frecipes%2Fsteps%2Fsizes%2F0%2Fstdout for instance.\n\nI think you can avoid it by being consistent with EmptySetAnalysis().",
+      "revId": "6d4b65e9dad972a09aa1928d28a1739ab6c77d4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
