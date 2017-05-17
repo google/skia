@@ -465,7 +465,7 @@ sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
 
     if (!cbInfo.fIsEmpty &&
         fLastPipelineState && fLastPipelineState != pipelineState.get() &&
-        fGpu->vkCaps().newSecondaryCBOnPipelineChange()) {
+        fGpu->vkCaps().newCBOnPipelineChange()) {
         this->addAdditionalCommandBuffer();
     }
     fLastPipelineState = pipelineState.get();

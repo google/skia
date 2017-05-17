@@ -20,7 +20,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fSupportsCopiesAsDraws = false;
     fMustSubmitCommandsBeforeCopyOp = false;
     fMustSleepOnTearDown  = false;
-    fNewSecondaryCBOnPipelineChange = false;
+    fNewCBOnPipelineChange = false;
 
     /**************************************************************************
     * GrDrawTargetCaps fields
@@ -189,7 +189,7 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     // AMD seems to have issues binding new VkPipelines inside a secondary command buffer.
     // Current workaround is to use a different secondary command buffer for each new VkPipeline.
     if (kAMD_VkVendor == properties.vendorID) {
-        fNewSecondaryCBOnPipelineChange = true;
+        fNewCBOnPipelineChange = true;
     }
 }
 
