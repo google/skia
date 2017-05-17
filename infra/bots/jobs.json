@@ -74,6 +74,7 @@
   "Build-Win-MSVC-x86_64-Release-GDI",
   "Build-Win-MSVC-x86_64-Release-Vulkan",
   "Housekeeper-Nightly-RecreateSKPs_Canary",
+  "Housekeeper-Nightly-UpdateMetaConfig",
   "Housekeeper-PerCommit",
   "Housekeeper-PerCommit-BundleRecipes",
   "Housekeeper-PerCommit-InfraTests",
