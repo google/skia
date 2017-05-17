@@ -19,53 +19,39 @@ public:
         const GrNonlinearColorSpaceXformEffect& csxe =
                 args.fFp.cast<GrNonlinearColorSpaceXformEffect>();
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+        const SkColorSpaceTransferFn& srcTransferFn = csxe.srcTransferFn();
+        const SkColorSpaceTransferFn& dstTransferFn = csxe.dstTransferFn();
+        const SkMatrix44& gamutXform = csxe.gamutXform();
 
-        const char* srcCoeffsName = nullptr;
+        // Helper function to apply the src to linear transfer function to a single value
+        SkString srcTfFuncName;
         if (SkToBool(csxe.ops() & GrNonlinearColorSpaceXformEffect::kSrcTransfer_Op)) {
-            fSrcTransferFnUni = uniformHandler->addUniformArray(
-                    kFragment_GrShaderFlag, kFloat_GrSLType, kDefault_GrSLPrecision,
-                    "SrcTransferFn", GrNonlinearColorSpaceXformEffect::kNumTransferFnCoeffs,
-                    &srcCoeffsName);
+          static const GrShaderVar gTransferFnFuncArgs[] = {
+              GrShaderVar("x", kFloat_GrSLType),
+          };
+          SkString transferFnBody;
+          transferFnBody.printf("return (x < %f) ? (%f * x) + %f : pow(%f * x + %f, %f) + %f;",
+              srcTransferFn.fD, srcTransferFn.fC, srcTransferFn.fF, srcTransferFn.fA,
+              srcTransferFn.fB, srcTransferFn.fG, srcTransferFn.fE);
+          fragBuilder->emitFunction(kFloat_GrSLType, "src_transfer_fn",
+                                    SK_ARRAY_COUNT(gTransferFnFuncArgs), gTransferFnFuncArgs,
+                                    transferFnBody.c_str(), &srcTfFuncName);
         }
 
-        const char* dstCoeffsName = nullptr;
+        // Likewise for linear to dst
+        SkString dstTfFuncName;
         if (SkToBool(csxe.ops() & GrNonlinearColorSpaceXformEffect::kDstTransfer_Op)) {
-            fDstTransferFnUni = uniformHandler->addUniformArray(
-                    kFragment_GrShaderFlag, kFloat_GrSLType, kDefault_GrSLPrecision,
-                    "DstTransferFn", GrNonlinearColorSpaceXformEffect::kNumTransferFnCoeffs,
-                    &dstCoeffsName);
+          static const GrShaderVar gTransferFnFuncArgs[] = {
+              GrShaderVar("x", kFloat_GrSLType),
+          };
+          SkString transferFnBody;
+          transferFnBody.printf("return (x < %f) ? (%f * x) + %f : pow(%f * x + %f, %f) + %f;",
+              dstTransferFn.fD, dstTransferFn.fC, dstTransferFn.fF, dstTransferFn.fA,
+              dstTransferFn.fB, dstTransferFn.fG, dstTransferFn.fE);
+          fragBuilder->emitFunction(kFloat_GrSLType, "dst_transfer_fn",
+                                    SK_ARRAY_COUNT(gTransferFnFuncArgs), gTransferFnFuncArgs,
+                                    transferFnBody.c_str(), &dstTfFuncName);
         }
-
-        const char* gamutXformName = nullptr;
-        if (SkToBool(csxe.ops() & GrNonlinearColorSpaceXformEffect::kGamutXform_Op)) {
-            fGamutXformUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kMat44f_GrSLType,
-                                                        kDefault_GrSLPrecision, "GamutXform",
-                                                        &gamutXformName);
-        }
-
-        // Helper function to apply a transfer function to a single value
-        SkString tfFuncNameString;
-        static const GrShaderVar gTransferFnFuncArgs[] = {
-            GrShaderVar("x", kFloat_GrSLType),
-            GrShaderVar("coeffs", kFloat_GrSLType,
-                        GrNonlinearColorSpaceXformEffect::kNumTransferFnCoeffs),
-        };
-        SkString transferFnBody;
-        // Temporaries to make evaluation line readable
-        transferFnBody.printf("float A = coeffs[0];");
-        transferFnBody.append("float B = coeffs[1];");
-        transferFnBody.append("float C = coeffs[2];");
-        transferFnBody.append("float D = coeffs[3];");
-        transferFnBody.append("float E = coeffs[4];");
-        transferFnBody.append("float F = coeffs[5];");
-        transferFnBody.append("float G = coeffs[6];");
-        transferFnBody.appendf("return (x < D) ? (C * x) + F : pow(A * x + B, G) + E;");
-        fragBuilder->emitFunction(kFloat_GrSLType, "transfer_fn",
-                                  SK_ARRAY_COUNT(gTransferFnFuncArgs), gTransferFnFuncArgs,
-                                  transferFnBody.c_str(), &tfFuncNameString);
-        const char* tfFuncName = tfFuncNameString.c_str();
-
         if (nullptr == args.fInputColor) {
             args.fInputColor = "vec4(1)";
         }
@@ -76,24 +62,29 @@ public:
         fragBuilder->codeAppendf("color = vec4(color.rgb / nonZeroAlpha, nonZeroAlpha);");
 
         // 2: Apply src transfer function (to get to linear RGB)
-        if (srcCoeffsName) {
-            fragBuilder->codeAppendf("color.r = %s(color.r, %s);", tfFuncName, srcCoeffsName);
-            fragBuilder->codeAppendf("color.g = %s(color.g, %s);", tfFuncName, srcCoeffsName);
-            fragBuilder->codeAppendf("color.b = %s(color.b, %s);", tfFuncName, srcCoeffsName);
+        if (!srcTfFuncName.isEmpty()) {
+            fragBuilder->codeAppendf("color.r = %s(color.r);", srcTfFuncName.c_str());
+            fragBuilder->codeAppendf("color.g = %s(color.g);", srcTfFuncName.c_str());
+            fragBuilder->codeAppendf("color.b = %s(color.b);", srcTfFuncName.c_str());
         }
 
         // 3: Apply gamut matrix
-        if (gamutXformName) {
+        if (SkToBool(csxe.ops() & GrNonlinearColorSpaceXformEffect::kGamutXform_Op)) {
             // Color is unpremultiplied at this point, so clamp to [0, 1]
+            fragBuilder->codeAppendf("mat4 gamutXform = mat4(%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f);",
+                gamutXform.get(0, 0), gamutXform.get(1, 0), gamutXform.get(2, 0), gamutXform.get(3, 0),
+                gamutXform.get(0, 1), gamutXform.get(1, 1), gamutXform.get(2, 1), gamutXform.get(3, 1),
+                gamutXform.get(0, 2), gamutXform.get(1, 2), gamutXform.get(2, 2), gamutXform.get(3, 2),
+                gamutXform.get(0, 3), gamutXform.get(1, 3), gamutXform.get(2, 3), gamutXform.get(3, 3));
             fragBuilder->codeAppendf(
-                "color.rgb = clamp((%s * vec4(color.rgb, 1.0)).rgb, 0.0, 1.0);", gamutXformName);
+                "color.rgb = clamp((gamutXform * vec4(color.rgb, 1.0)).rgb, 0.0, 1.0);");
         }
 
         // 4: Apply dst transfer fn
-        if (dstCoeffsName) {
-            fragBuilder->codeAppendf("color.r = %s(color.r, %s);", tfFuncName, dstCoeffsName);
-            fragBuilder->codeAppendf("color.g = %s(color.g, %s);", tfFuncName, dstCoeffsName);
-            fragBuilder->codeAppendf("color.b = %s(color.b, %s);", tfFuncName, dstCoeffsName);
+        if (!dstTfFuncName.isEmpty()) {
+            fragBuilder->codeAppendf("color.r = %s(color.r);", dstTfFuncName.c_str());
+            fragBuilder->codeAppendf("color.g = %s(color.g);", dstTfFuncName.c_str());
+            fragBuilder->codeAppendf("color.b = %s(color.b);", dstTfFuncName.c_str());
         }
 
         // 5: Premultiply again
@@ -110,26 +101,9 @@ public:
 protected:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& processor) override {
-        const GrNonlinearColorSpaceXformEffect& csxe =
-                processor.cast<GrNonlinearColorSpaceXformEffect>();
-        if (SkToBool(csxe.ops() & GrNonlinearColorSpaceXformEffect::kSrcTransfer_Op)) {
-            pdman.set1fv(fSrcTransferFnUni, GrNonlinearColorSpaceXformEffect::kNumTransferFnCoeffs,
-                         csxe.srcTransferFnCoeffs());
-        }
-        if (SkToBool(csxe.ops() & GrNonlinearColorSpaceXformEffect::kDstTransfer_Op)) {
-            pdman.set1fv(fDstTransferFnUni, GrNonlinearColorSpaceXformEffect::kNumTransferFnCoeffs,
-                         csxe.dstTransferFnCoeffs());
-        }
-        if (SkToBool(csxe.ops() & GrNonlinearColorSpaceXformEffect::kGamutXform_Op)) {
-            pdman.setSkMatrix44(fGamutXformUni, csxe.gamutXform());
-        }
     }
 
 private:
-    GrGLSLProgramDataManager::UniformHandle fSrcTransferFnUni;
-    GrGLSLProgramDataManager::UniformHandle fDstTransferFnUni;
-    GrGLSLProgramDataManager::UniformHandle fGamutXformUni;
-
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
@@ -142,22 +116,8 @@ GrNonlinearColorSpaceXformEffect::GrNonlinearColorSpaceXformEffect(
         , fGamutXform(gamutXform)
         , fOps(ops) {
     this->initClassID<GrNonlinearColorSpaceXformEffect>();
-
-    fSrcTransferFnCoeffs[0] = srcTransferFn.fA;
-    fSrcTransferFnCoeffs[1] = srcTransferFn.fB;
-    fSrcTransferFnCoeffs[2] = srcTransferFn.fC;
-    fSrcTransferFnCoeffs[3] = srcTransferFn.fD;
-    fSrcTransferFnCoeffs[4] = srcTransferFn.fE;
-    fSrcTransferFnCoeffs[5] = srcTransferFn.fF;
-    fSrcTransferFnCoeffs[6] = srcTransferFn.fG;
-
-    fDstTransferFnCoeffs[0] = dstTransferFn.fA;
-    fDstTransferFnCoeffs[1] = dstTransferFn.fB;
-    fDstTransferFnCoeffs[2] = dstTransferFn.fC;
-    fDstTransferFnCoeffs[3] = dstTransferFn.fD;
-    fDstTransferFnCoeffs[4] = dstTransferFn.fE;
-    fDstTransferFnCoeffs[5] = dstTransferFn.fF;
-    fDstTransferFnCoeffs[6] = dstTransferFn.fG;
+    fSrcTransferFn = srcTransferFn;
+    fDstTransferFn = dstTransferFn;
 }
 
 bool GrNonlinearColorSpaceXformEffect::onIsEqual(const GrFragmentProcessor& s) const {
@@ -166,11 +126,11 @@ bool GrNonlinearColorSpaceXformEffect::onIsEqual(const GrFragmentProcessor& s) c
         return false;
     }
     if (SkToBool(fOps & kSrcTransfer_Op) &&
-        memcmp(&other.fSrcTransferFnCoeffs, &fSrcTransferFnCoeffs, sizeof(fSrcTransferFnCoeffs))) {
+        memcmp(&other.fSrcTransferFn, &fSrcTransferFn, sizeof(fSrcTransferFn))) {
         return false;
     }
     if (SkToBool(fOps & kDstTransfer_Op) &&
-        memcmp(&other.fDstTransferFnCoeffs, &fDstTransferFnCoeffs, sizeof(fDstTransferFnCoeffs))) {
+        memcmp(&other.fDstTransferFn, &fDstTransferFn, sizeof(fDstTransferFn))) {
         return false;
     }
     if (SkToBool(fOps & kGamutXform_Op) && other.fGamutXform != fGamutXform) {

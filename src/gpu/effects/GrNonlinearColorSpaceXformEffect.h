@@ -31,8 +31,6 @@ public:
 
     const char* name() const override { return "NonlinearColorSpaceXform"; }
 
-    static const int kNumTransferFnCoeffs = 7;
-
     /**
      * Flags that specify which operations are performed for one particular conversion.
      * Some color space pairs may not need all operations, if one or both transfer functions
@@ -45,8 +43,8 @@ public:
     };
 
     uint32_t ops() const { return fOps; }
-    const float* srcTransferFnCoeffs() const { return fSrcTransferFnCoeffs; }
-    const float* dstTransferFnCoeffs() const { return fDstTransferFnCoeffs; }
+    const SkColorSpaceTransferFn& srcTransferFn() const { return fSrcTransferFn; }
+    const SkColorSpaceTransferFn& dstTransferFn() const { return fDstTransferFn; }
     const SkMatrix44& gamutXform() const { return fGamutXform; }
 
 private:
@@ -59,8 +57,8 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    float fSrcTransferFnCoeffs[kNumTransferFnCoeffs];
-    float fDstTransferFnCoeffs[kNumTransferFnCoeffs];
+    SkColorSpaceTransferFn fSrcTransferFn;
+    SkColorSpaceTransferFn fDstTransferFn;
     SkMatrix44 fGamutXform;
     uint32_t fOps;
 
