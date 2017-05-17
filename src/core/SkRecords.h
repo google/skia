@@ -348,7 +348,7 @@ RECORD(DrawVertices, kDraw_Tag|kHasPaint_Tag,
         sk_sp<SkVertices> vertices;
         SkBlendMode bmode);
 RECORD(DrawShadowRec, kDraw_Tag,
-       SkPath path;
+       PreCachedPath path;
        SkDrawShadowRec rec);
 RECORD(DrawAnnotation, 0,  // TODO: kDraw_Tag, skia:5548
        SkRect rect;
