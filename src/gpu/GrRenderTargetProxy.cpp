@@ -49,7 +49,8 @@ GrSurface* GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
     GrSurface* surf = this->instantiateImpl(resourceProvider, fSampleCnt, kFlags,
-                                            /* isMipped = */ false);
+                                            /* isMipped = */ false,
+                                            SkDestinationSurfaceColorMode::kLegacy);
     if (!surf) {
         return nullptr;
     }

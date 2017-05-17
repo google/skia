@@ -40,7 +40,8 @@ GrSurfaceProxy::~GrSurfaceProxy() {
 }
 
 GrSurface* GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
-                                           GrSurfaceFlags flags, bool isMipMapped) {
+                                           GrSurfaceFlags flags, bool isMipMapped,
+                                           SkDestinationSurfaceColorMode mipColorMode) {
     if (fTarget) {
         return fTarget;
     }
@@ -62,7 +63,7 @@ GrSurface* GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider,
         return nullptr;
     }
 
-    fTarget->asTexture()->texturePriv().setMipColorMode(fMipColorMode);
+    fTarget->asTexture()->texturePriv().setMipColorMode(mipColorMode);
     this->INHERITED::transferRefs();
 
 #ifdef SK_DEBUG
