@@ -1711,9 +1711,7 @@ void SkCanvas::drawPaint(const SkPaint& paint) {
 }
 
 void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
-    // To avoid redundant logic in our culling code and various backends, we always sort rects
-    // before passing them along.
-    this->onDrawRect(r.makeSorted(), paint);
+    this->onDrawRect(r, paint);
 }
 
 void SkCanvas::drawRegion(const SkRegion& region, const SkPaint& paint) {
@@ -1729,9 +1727,7 @@ void SkCanvas::drawRegion(const SkRegion& region, const SkPaint& paint) {
 }
 
 void SkCanvas::drawOval(const SkRect& r, const SkPaint& paint) {
-    // To avoid redundant logic in our culling code and various backends, we always sort rects
-    // before passing them along.
-    this->onDrawOval(r.makeSorted(), paint);
+    this->onDrawOval(r, paint);
 }
 
 void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
@@ -1997,10 +1993,11 @@ static bool needs_autodrawlooper(SkCanvas* canvas, const SkPaint& paint) {
 
 void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRect()");
-    SkASSERT(r.isSorted());
     if (paint.canComputeFastBounds()) {
+        // Skia will draw an inverted rect, because it explicitly "sorts" it downstream.
+        // To prevent accidental rejecting at this stage, we have to sort it before we check.
         SkRect storage;
-        if (this->quickReject(paint.computeFastBounds(r, &storage))) {
+        if (this->quickReject(paint.computeFastBounds(r.makeSorted(), &storage))) {
             return;
         }
     }
@@ -2042,10 +2039,11 @@ void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
 
 void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawOval()");
-    SkASSERT(oval.isSorted());
     if (paint.canComputeFastBounds()) {
+        // Skia will draw an inverted rect, because it explicitly "sorts" it downstream.
+        // To prevent accidental rejecting at this stage, we have to sort it before we check.
         SkRect storage;
-        if (this->quickReject(paint.computeFastBounds(oval, &storage))) {
+        if (this->quickReject(paint.computeFastBounds(oval.makeSorted(), &storage))) {
             return;
         }
     }
@@ -2063,11 +2061,12 @@ void SkCanvas::onDrawArc(const SkRect& oval, SkScalar startAngle,
                          SkScalar sweepAngle, bool useCenter,
                          const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawArc()");
-    SkASSERT(oval.isSorted());
     if (paint.canComputeFastBounds()) {
+        // Skia will draw an inverted rect, because it explicitly "sorts" it downstream.
+        // To prevent accidental rejecting at this stage, we have to sort it before we check.
         SkRect storage;
         // Note we're using the entire oval as the bounds.
-        if (this->quickReject(paint.computeFastBounds(oval, &storage))) {
+        if (this->quickReject(paint.computeFastBounds(oval.makeSorted(), &storage))) {
             return;
         }
     }
