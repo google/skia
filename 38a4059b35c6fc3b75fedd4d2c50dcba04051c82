@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12029645_adc5ddfd",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-17T21:27:25Z",
+      "side": 1,
+      "message": "I\u0027m assuming this is still true for instance buffers?",
+      "range": {
+        "startLine": 48,
+        "startChar": 22,
+        "endLine": 48,
+        "endChar": 66
+      },
+      "revId": "38a4059b35c6fc3b75fedd4d2c50dcba04051c82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9babeb2_18e5cca9",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-17T21:27:25Z",
+      "side": 1,
+      "message": "looks like this could be pulled out of the if blocks here. Same with that for the normal indexed and draw calls. Unless its possible for the mesh to have no patternbatch in the indexed case.",
+      "range": {
+        "startLine": 593,
+        "startChar": 16,
+        "endLine": 593,
+        "endChar": 40
+      },
+      "revId": "38a4059b35c6fc3b75fedd4d2c50dcba04051c82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "844b5e48_96d09549",
+        "filename": "src/gpu/vk/GrVkTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-17T21:27:25Z",
+      "side": 1,
+      "message": "does this class need to be added to some gn file somewhere?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 2
+      },
+      "revId": "38a4059b35c6fc3b75fedd4d2c50dcba04051c82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
