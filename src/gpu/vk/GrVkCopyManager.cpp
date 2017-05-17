@@ -155,6 +155,11 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
         return false;
     }
 
+    if (gpu->vkCaps().newSecondaryCBOnPipelineChange()) {
+        // This bug can still exists on non secondary CBs as well.
+        gpu->finishFlush();
+    }
+
     GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(dst->asRenderTarget());
     if (!rt) {
         return false;
