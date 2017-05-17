@@ -100,7 +100,9 @@ protected:
     size_t onGpuMemorySize() const override {
         // The plus 1 is to account for the resolve texture.
         // TODO: is this still correct?
-        return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, false);
+        int numColorSamples = this->numColorSamples() + 1;
+        return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
+                                      numColorSamples, false);
     }
 
     void createFramebuffer(GrVkGpu* gpu);
