@@ -22,6 +22,30 @@
       "revId": "28d2dd04ef21c33130d1599a88ad6afd28546b86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4da076e5_ee962cc3",
+        "filename": "gm/shapes_as_paths.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-05-17T17:33:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e672491f_d367530b",
+      "range": {
+        "startLine": 39,
+        "startChar": 8,
+        "endLine": 39,
+        "endChar": 22
+      },
+      "revId": "28d2dd04ef21c33130d1599a88ad6afd28546b86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
