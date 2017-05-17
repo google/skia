@@ -11,6 +11,7 @@ DEPS = [
   'infra',
   'recipe_engine/path',
   'recipe_engine/properties',
+  'recipe_engine/python',
   'recipe_engine/step',
   'run',
   'vars',
@@ -20,6 +21,8 @@ DEPS = [
 def RunSteps(api):
   api.vars.setup()
   api.infra.update_go_deps()
+  with api.infra.MetadataFetch(api, 'key', 'file'):
+    pass
 
 
 def GenTests(api):

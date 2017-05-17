@@ -423,6 +423,32 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	return name
 }
 
+
+// updateMetaConfig generates a UpdateMetaConfig task. Returns the name of the
+// last task in the generated chain of tasks, which the Job should add as a
+// dependency.
+func updateMetaConfig(b *specs.TasksCfgBuilder, name string) string {
+	b.MustAddTask(name, &specs.TaskSpec{
+		CipdPackages:     []*specs.CipdPackage{},
+		Dimensions:       linuxGceDimensions(),
+		ExtraArgs: []string{
+			"--workdir", "../../..", "update_meta_config",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", name),
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:   "meta_config.isolate",
+		Priority:  0.8,
+	})
+	return name
+}
+
+
 // ctSKPs generates a CT SKPs task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
@@ -690,6 +716,11 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		deps = append(deps, recreateSKPs(b, name))
 	}
 
+	// UpdateMetaConfig bot.
+	if strings.Contains(name, "UpdateMetaConfig") {
+		deps = append(deps, updateMetaConfig(b, name))
+	}
+
 	// CT bots.
 	if strings.Contains(name, "-CT_") {
 		deps = append(deps, ctSKPs(b, name))
@@ -716,6 +747,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		name != "Housekeeper-PerCommit-BundleRecipes" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		!strings.Contains(name, "RecreateSKPs") &&
+		!strings.Contains(name, "UpdateMetaConfig") &&
 		!strings.Contains(name, "-CT_") {
 		compile(b, compileTaskName, compileTaskParts)
 	}
@@ -767,6 +799,9 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		TaskSpecs: deps,
 	}
 	if name == "Housekeeper-Nightly-RecreateSKPs_Canary" {
+		j.Trigger = "nightly"
+	}
+	if name == "Housekeeper-Nightly-UpdateMetaConfig" {
 		j.Trigger = "nightly"
 	}
 	if name == "Housekeeper-Weekly-RecreateSKPs" {

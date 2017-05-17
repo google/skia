@@ -36,53 +36,6 @@ UPDATE_SKPS_GITCOOKIES_FILE = 'update_skps.git_cookies'
 UPDATE_SKPS_KEY = 'update_skps_git_cookies'
 
 
-class gitcookies_auth(object):
-  """Download update-skps@skia.org's .gitcookies."""
-  def __init__(self, api, metadata_key):
-    self.m = api
-    self._key = metadata_key
-
-  def __enter__(self):
-    return self.m.python.inline(
-        'download update-skps.gitcookies',
-        """
-import os
-import urllib2
-
-TOKEN_FILE = '%s'
-TOKEN_URL = 'http://metadata/computeMetadata/v1/project/attributes/%s'
-
-req = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})
-contents = urllib2.urlopen(req).read()
-
-home = os.path.expanduser('~')
-token_file = os.path.join(home, TOKEN_FILE)
-
-with open(token_file, 'w') as f:
-  f.write(contents)
-        """ % (UPDATE_SKPS_GITCOOKIES_FILE,
-               self._key),
-    )
-
-  def __exit__(self, t, v, tb):
-    self.m.python.inline(
-        'cleanup update-skps.gitcookies',
-        """
-import os
-
-
-TOKEN_FILE = '%s'
-
-
-home = os.path.expanduser('~')
-token_file = os.path.join(home, TOKEN_FILE)
-if os.path.isfile(token_file):
-  os.remove(token_file)
-        """ % (UPDATE_SKPS_GITCOOKIES_FILE),
-    )
-    return v is None
-
-
 def RunSteps(api):
   # Check out Chrome.
   api.core.setup()
@@ -128,7 +81,8 @@ def RunSteps(api):
            api.vars.skia_dir.join('infra', 'bots', 'upload_skps.py'),
            '--target_dir', output_dir,
            '--gitcookies', str(update_skps_gitcookies)]
-    with gitcookies_auth(api, UPDATE_SKPS_KEY):
+    with api.infra.MetadataFetch(
+        api, UPDATE_SKPS_KEY, UPDATE_SKPS_GITCOOKIES_FILE):
       with api.context(cwd=api.vars.skia_dir, env=api.infra.go_env):
         api.run(api.step, 'Upload SKPs', cmd=cmd)
 

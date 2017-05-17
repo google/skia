@@ -1,0 +1,98 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[START_DIR]/tmp",
+      "511"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport urllib2\n\nTOKEN_FILE = 'update_meta_config.git_cookies'\nTOKEN_URL = 'http://metadata/computeMetadata/v1/project/attributes/update_meta_config_git_cookies'\n\nreq = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})\ncontents = urllib2.urlopen(req).read()\n\nhome = os.path.expanduser('~')\ntoken_file = os.path.join(home, TOKEN_FILE)\n\nwith open(token_file, 'w') as f:\n  f.write(contents)\n"
+    ],
+    "name": "download update_meta_config.git_cookies",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import urllib2@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@TOKEN_FILE = 'update_meta_config.git_cookies'@@@",
+      "@@@STEP_LOG_LINE@python.inline@TOKEN_URL = 'http://metadata/computeMetadata/v1/project/attributes/update_meta_config_git_cookies'@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@req = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})@@@",
+      "@@@STEP_LOG_LINE@python.inline@contents = urllib2.urlopen(req).read()@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@home = os.path.expanduser('~')@@@",
+      "@@@STEP_LOG_LINE@python.inline@token_file = os.path.join(home, TOKEN_FILE)@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(token_file, 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  f.write(contents)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "[START_DIR]/skia/infra/bots/update_meta_config.py",
+      "--repo_name",
+      "skia",
+      "--tasks_json",
+      "[START_DIR]/skia/infra/bots/tasks.json",
+      "--gitcookies",
+      "[HOME]/update_meta_config.git_cookies"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "Update meta/config"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\n\n\nTOKEN_FILE = 'update_meta_config.git_cookies'\n\n\nhome = os.path.expanduser('~')\ntoken_file = os.path.join(home, TOKEN_FILE)\nif os.path.isfile(token_file):\n  os.remove(token_file)\n"
+    ],
+    "name": "cleanup update_meta_config.git_cookies",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@TOKEN_FILE = 'update_meta_config.git_cookies'@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@home = os.path.expanduser('~')@@@",
+      "@@@STEP_LOG_LINE@python.inline@token_file = os.path.join(home, TOKEN_FILE)@@@",
+      "@@@STEP_LOG_LINE@python.inline@if os.path.isfile(token_file):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.remove(token_file)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
