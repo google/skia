@@ -16,7 +16,7 @@
 #include "GrColorSpaceXform.h"
 #include "SkPathEffect.h"
 #include "SkRandom.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkStrokeRec.h"
 #include "../private/SkTemplates.h"
 
@@ -50,10 +50,10 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom*);
 class TestAsFPArgs {
 public:
     TestAsFPArgs(GrProcessorTestData*);
-    const SkShader::AsFPArgs& args() const { return fArgs; }
+    const SkShaderBase::AsFPArgs& args() const { return fArgs; }
 
 private:
-    SkShader::AsFPArgs fArgs;
+    SkShaderBase::AsFPArgs fArgs;
     SkMatrix fViewMatrixStorage;
     sk_sp<SkColorSpace> fColorSpaceStorage;
 };
