@@ -24,6 +24,7 @@ class SkData;
 class SkDraw;
 class SkDrawable;
 class SkDrawFilter;
+struct SkDrawShadowRec;
 class SkImage;
 class SkImageFilter;
 class SkLights;
@@ -1237,6 +1238,8 @@ public:
      */
     void temporary_internal_getRgnClip(SkRegion* region);
 
+    void private_draw_shadow_rec(const SkPath&, const SkDrawShadowRec&);
+
 protected:
     // default impl defers to getDevice()->newSurface(info)
     virtual sk_sp<SkSurface> onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props);
@@ -1331,6 +1334,7 @@ protected:
                                   const SkPaint* paint);
     virtual void onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
                                      const SkRect& dst, const SkPaint* paint);
+    virtual void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&);
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,

@@ -15,6 +15,7 @@
 
 class SkBitmap;
 class SkDrawFilter;
+struct SkDrawShadowRec;
 class SkImageFilterCache;
 struct SkIRect;
 class SkMatrix;
@@ -234,6 +235,8 @@ protected:
                              const SkScalar pos[], int scalarsPerPos,
                              const SkPoint& offset, const SkPaint& paint) = 0;
     virtual void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) = 0;
+    virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
+
     // default implementation unrolls the blob runs.
     virtual void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
                               const SkPaint& paint, SkDrawFilter* drawFilter);

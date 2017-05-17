@@ -8,6 +8,7 @@
 #include "SkColorFilter.h"
 #include "SkColorSpaceXformCanvas.h"
 #include "SkColorSpaceXformer.h"
+#include "SkDrawShadowRec.h"
 #include "SkGradientShader.h"
 #include "SkImageFilter.h"
 #include "SkImagePriv.h"
@@ -217,7 +218,11 @@ public:
         fTarget->drawImageLattice(fXformer->apply(bitmap).get(), lattice, dst,
                                   MaybePaint(paint, fXformer.get()));
     }
-
+    void onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) override {
+        SkDrawShadowRec newRec(rec);
+        newRec.fColor = fXformer->apply(rec.fColor);
+        fTarget->private_draw_shadow_rec(path, newRec);
+    }
     void onDrawPicture(const SkPicture* pic,
                        const SkMatrix* matrix,
                        const SkPaint* paint) override {

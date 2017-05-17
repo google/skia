@@ -299,6 +299,13 @@ void SkNWayCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4]
     }
 }
 
+void SkNWayCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->private_draw_shadow_rec(path, rec);
+    }
+}
+
 void SkNWayCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* data) {
     Iter iter(fList);
     while (iter.next()) {
