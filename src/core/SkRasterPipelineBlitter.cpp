@@ -15,6 +15,7 @@
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkUtils.h"
 #include "../jumper/SkJumper.h"
 
@@ -90,7 +91,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     SkPM4f*           paintColor  = &blitter->fPaintColor;
     SkRasterPipeline* pipeline    = &blitter->fShader;
 
-    SkShader*      shader      = paint.getShader();
+    const auto*    shader      = as_SB(paint.getShader());
     SkColorFilter* colorFilter = paint.getColorFilter();
 
     // TODO: Think more about under what conditions we dither:
