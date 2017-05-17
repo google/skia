@@ -12,6 +12,12 @@
 #include "SkPicture.h"
 #include "SkRefCnt.h"
 
+#ifdef SK_SUPPORT_PICTURERECORDER_INCLUDES
+// these are not strictly necessary, but can't remove them until we update clients
+#include "SkRSXform.h"
+#include "SkImage.h"
+#endif
+
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 namespace android {
     class Picture;

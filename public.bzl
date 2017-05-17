@@ -661,6 +661,7 @@ DEFINES_ALL = [
     # Staging flags for API changes
     # Temporarily Disable analytic AA for Google3
     "SK_NO_ANALYTIC_AA",
+    "SK_SUPPORT_PICTURERECORDER_INCLUDES",
 ]
 
 ################################################################################
