@@ -48,7 +48,8 @@ bool SkImageShader::isOpaque() const {
     return fImage->isOpaque();
 }
 
-SkShader::Context* SkImageShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
+SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
+                                                    SkArenaAlloc* alloc) const {
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
                                                  SkBitmapProvider(fImage.get(), rec.fDstColorSpace),
                                                  rec, alloc);
