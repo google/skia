@@ -259,9 +259,9 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     SkASSERT(!fp && !glslFP);
 
     SkIPoint offset;
-    GrTextureProxy* dstTextureProxy = nullptr;
     GrTexture* dstTexture = nullptr;
-    if (dstTextureProxy = pipeline.dstTextureProxy(&offset)) {
+    GrTextureProxy* dstTextureProxy = pipeline.dstTextureProxy(&offset);
+    if (dstTextureProxy) {
         dstTexture = dstTextureProxy->priv().peekTexture();
     }
 
