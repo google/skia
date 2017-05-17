@@ -439,8 +439,8 @@ std::unique_ptr<ASTVarDeclarations> Parser::structVarDeclaration(Modifiers modif
     return nullptr;
 }
 
-/* (LBRACKET expression? RBRACKET)* (EQ expression)? (COMMA IDENTIFER
-   (LBRACKET expression? RBRACKET)* (EQ expression)?)* SEMICOLON */
+/* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
+   (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
 std::unique_ptr<ASTVarDeclarations> Parser::varDeclarationEnd(Modifiers mods,
                                                               std::unique_ptr<ASTType> type,
                                                               String name) {
@@ -462,7 +462,7 @@ std::unique_ptr<ASTVarDeclarations> Parser::varDeclarationEnd(Modifiers mods,
     }
     std::unique_ptr<ASTExpression> value;
     if (this->checkNext(Token::EQ)) {
-        value = this->expression();
+        value = this->assignmentExpression();
         if (!value) {
             return nullptr;
         }
@@ -490,7 +490,7 @@ std::unique_ptr<ASTVarDeclarations> Parser::varDeclarationEnd(Modifiers mods,
             }
         }
         if (this->checkNext(Token::EQ)) {
-            value = this->expression();
+            value = this->assignmentExpression();
             if (!value) {
                 return nullptr;
             }
@@ -1222,7 +1222,24 @@ std::unique_ptr<ASTExpression> Parser::expression() {
     if (!depth.checkValid()) {
         return nullptr;
     }
-    return this->assignmentExpression();
+    return this->commaExpression();
+}
+
+/* assignmentExpression (COMMA assignmentExpression)* */
+std::unique_ptr<ASTExpression> Parser::commaExpression() {
+    std::unique_ptr<ASTExpression> result = this->assignmentExpression();
+    if (!result) {
+        return nullptr;
+    }
+    Token t;
+    while (this->checkNext(Token::COMMA, &t)) {
+        std::unique_ptr<ASTExpression> right = this->commaExpression();
+        if (!right) {
+            return nullptr;
+        }
+        result.reset(new ASTBinaryExpression(std::move(result), t, std::move(right)));
+    }
+    return result;
 }
 
 /* ternaryExpression ((EQEQ | STAREQ | SLASHEQ | PERCENTEQ | PLUSEQ | MINUSEQ | SHLEQ | SHREQ |
@@ -1587,15 +1604,14 @@ std::unique_ptr<ASTSuffix> Parser::suffix() {
             std::vector<std::unique_ptr<ASTExpression>> parameters;
             if (this->peek().fKind != Token::RPAREN) {
                 for (;;) {
-                    std::unique_ptr<ASTExpression> expr = this->expression();
+                    std::unique_ptr<ASTExpression> expr = this->assignmentExpression();
                     if (!expr) {
                         return nullptr;
                     }
                     parameters.push_back(std::move(expr));
-                    if (this->peek().fKind != Token::COMMA) {
+                    if (!this->checkNext(Token::COMMA)) {
                         break;
                     }
-                    this->nextToken();
                 }
             }
             this->expect(Token::RPAREN, "')' to complete function parameters");

@@ -174,6 +174,7 @@ struct Token {
             case Token::BITWISEXOREQ: return String("^=");
             case Token::PLUSPLUS:     return String("++");
             case Token::MINUSMINUS:   return String("--");
+            case Token::COMMA:        return String(",");
             default:
                 ABORT("unsupported operator: %d\n", kind);
         }
