@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e672491f_d367530b",
+        "filename": "gm/shapes_as_paths.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-17T17:26:30Z",
+      "side": 1,
+      "message": "Maybe maxDiffX and maxDiffY?  dX and dY kind of read like ∆X and ∆Y.",
+      "range": {
+        "startLine": 39,
+        "startChar": 8,
+        "endLine": 39,
+        "endChar": 22
+      },
+      "revId": "28d2dd04ef21c33130d1599a88ad6afd28546b86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
