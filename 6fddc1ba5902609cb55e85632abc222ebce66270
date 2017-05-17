@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "513d4d39_bc9b091f",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-17T13:05:51Z",
+      "side": 1,
+      "message": "Comment on how you chose, default \u003d 4kb.  This seems fine to me, I just think it is good to document.\n\nComment on how you chose, max \u003d 512kb.  Unless you have some data supporting why this is a good choice of max buffer size, this still feels a little bit big for me.  What do you think about 128kb?",
+      "range": {
+        "startLine": 81,
+        "startChar": 8,
+        "endLine": 82,
+        "endChar": 64
+      },
+      "revId": "6fddc1ba5902609cb55e85632abc222ebce66270",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
