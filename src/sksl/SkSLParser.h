@@ -169,6 +169,8 @@ private:
 
     std::unique_ptr<ASTExpression> expression();
 
+    std::unique_ptr<ASTExpression> commaExpression();
+
     std::unique_ptr<ASTExpression> assignmentExpression();
 
     std::unique_ptr<ASTExpression> ternaryExpression();

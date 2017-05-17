@@ -917,10 +917,15 @@ static bool determine_binary_type(const Context& context,
         case Token::MINUS:   // fall through
         case Token::MINUSEQ: // fall through
         case Token::SLASH:   // fall through
-        case Token::SLASHEQ:
+        case Token::SLASHEQ: // fall through
             isLogical = false;
             validMatrixOrVectorOp = true;
             break;
+        case Token::COMMA:
+            *outLeftType = &left;
+            *outRightType = &right;
+            *outResultType = &right;
+            return true;
         default:
             isLogical = false;
             validMatrixOrVectorOp = false;
