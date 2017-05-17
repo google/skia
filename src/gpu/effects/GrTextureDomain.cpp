@@ -145,7 +145,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
             GrGLSLShaderBuilder::ShaderBlock block(builder);
 
             const char* domain = fDomainName.c_str();
-            if (!shaderCaps->canUseAnyFunctionInShader()) {
+            if (true || !shaderCaps->canUseAnyFunctionInShader()) {
                 // On the NexusS and GalaxyNexus, the other path (with the 'any'
                 // call) causes the compilation error "Calls to any function that
                 // may require a gradient calculation inside a conditional block
