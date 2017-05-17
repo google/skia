@@ -1,9 +1,0 @@
-build obj/gyp/tools.actions_depends.stamp: stamp $
-    obj/gyp/libandroid_output.a skia_launcher lib/libchrome_fuzz.so.TOC $
-    lib/libdump_record.so.TOC lib/libget_images_from_skps.so.TOC $
-    lib/libgpuveto.so.TOC lib/libimgblur.so.TOC lib/libimgslice.so.TOC $
-    lib/liblua_app.so.TOC lib/liblua_pictures.so.TOC lib/libpinspect.so.TOC $
-    lib/libskdiff.so.TOC lib/libskhello.so.TOC lib/libskpinfo.so.TOC $
-    lib/libskpmaker.so.TOC obj/gyp/libtest_public_includes.a $
-    lib/libwhitelist_typefaces.so.TOC skia.so.TOC obj/gyp/libandroid_utils.a
-

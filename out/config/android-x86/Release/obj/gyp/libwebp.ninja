@@ -1,4 +1,0 @@
-build obj/gyp/libwebp.actions_depends.stamp: stamp obj/gyp/libwebp_dec.a $
-    obj/gyp/libwebp_demux.a obj/gyp/libwebp_dsp.a obj/gyp/libwebp_enc.a $
-    obj/gyp/libwebp_utils.a
-

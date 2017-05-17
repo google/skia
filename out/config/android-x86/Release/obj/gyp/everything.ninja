@@ -1,3 +1,0 @@
-build obj/gyp/everything.actions_depends.stamp: stamp $
-    obj/gyp/most.actions_depends.stamp lib/libskiaserve.so.TOC
-
