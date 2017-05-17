@@ -21,7 +21,7 @@
 class SkRasterPipelineBlitter : public SkBlitter {
 public:
     static SkBlitter* Create(const SkPixmap&, const SkPaint&, const SkMatrix& ctm,
-                             SkArenaAlloc*);
+                             SkArenaAlloc*, const SkRasterPipeline* = nullptr);
 
     SkRasterPipelineBlitter(SkPixmap dst, SkBlendMode blend, SkPM4f paintColor)
         : fDst(dst)
@@ -72,14 +72,16 @@ private:
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkPaint& paint,
                                          const SkMatrix& ctm,
-                                         SkArenaAlloc* alloc) {
-    return SkRasterPipelineBlitter::Create(dst, paint, ctm, alloc);
+                                         SkArenaAlloc* alloc,
+                                         const SkRasterPipeline* shaderPipeline) {
+    return SkRasterPipelineBlitter::Create(dst, paint, ctm, alloc, shaderPipeline);
 }
 
 SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkPaint& paint,
                                            const SkMatrix& ctm,
-                                           SkArenaAlloc* alloc) {
+                                           SkArenaAlloc* alloc,
+                                           const SkRasterPipeline* shaderPipeline) {
     auto blitter = alloc->make<SkRasterPipelineBlitter>(
             dst,
             paint.getBlendMode(),
@@ -92,6 +94,10 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     SkShader*      shader      = paint.getShader();
     SkColorFilter* colorFilter = paint.getColorFilter();
+
+    if (shaderPipeline) {
+        shader = nullptr;
+    }
 
     // TODO: Think more about under what conditions we dither:
     //   - if we're drawing anything into 565 and the user has asked us to dither, or
@@ -121,6 +127,10 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
         is_opaque   = is_opaque   && shader->isOpaque();
         is_constant = is_constant && shader->isConstant();
+    } else if (shaderPipeline) {
+        pipeline->extend(*shaderPipeline);
+        is_opaque = false;  // hint from caller?
+        is_constant = false;
     } else {
         pipeline->append(SkRasterPipeline::constant_color, paintColor);
     }
