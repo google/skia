@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6e64fb93_9847c198",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 6920
+      },
+      "writtenOn": "2017-05-17T18:35:17Z",
+      "side": 1,
+      "message": "I have been testing on Chromebooks (ARM Cortex A15, A17, A72 and A53). Initially, I extracted the blit_row_s32a_opaque function and compiled it independently (outside Skia) with different compilers (gcc 6.2.1 and clang 4.0) for various ARM Chromebooks. Later, I integrated the NEON version in Skia and compiled it again for ARM Chromebooks. I ran the unit tests (dm) and nanobench benchmarks (repeating 3 times with and without patch with --samples 100) to ensure I could provide numbers that were meaningful to you.",
+      "parentUuid": "119c5542_a4c7f218",
+      "range": {
+        "startLine": 16,
+        "startChar": 24,
+        "endLine": 17,
+        "endChar": 44
+      },
+      "revId": "cb2f18af0ac87c34e010a0d3b695ed5911735893",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "07540894_723e7930",
         "filename": "/COMMIT_MSG",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-15T13:20:51Z",
       "side": 1,
       "message": "This sounds like a fine compromise.  For what it\u0027s worth our rough model of how transparency shows up in practice is long runs of all-opaque or all-transparent pixels, with a short span of partial transparency between.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 67
+      },
+      "revId": "cb2f18af0ac87c34e010a0d3b695ed5911735893",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20ad53f8_b167b42a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 6920
+      },
+      "writtenOn": "2017-05-17T18:35:17Z",
+      "side": 1,
+      "message": "Thanks for giving more details. The pattern you describe is naively what one would expect to be the most frequently occurring. But I haven\u0027t done a proper statistical analysis over real images, so it is encouraging you are confirming this.",
+      "parentUuid": "07540894_723e7930",
       "range": {
         "startLine": 29,
         "startChar": 0,
@@ -101,6 +149,24 @@
     },
     {
       "key": {
+        "uuid": "60e96d27_9280b030",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 6920
+      },
+      "writtenOn": "2017-05-17T18:35:17Z",
+      "side": 1,
+      "message": "Thanks for the derivation and the detailed explanation. However, I am not sure I follow you. What you describe seems to be exactly MulDiv255Round. At the same time, you say at the beginning of your comment \"I don\u0027t think any of SkPMSrcOver, SkMulDiv255Round, or the previous code are really correct.\"\n\nWhen I put SkMulDiv255Round in your driver it just works fine and gives a nice \"ok\". I both used my definition \n\n  result_i \u003d src_i + rint(g(src_alpha, dst_i))\n\nwith g(x, y) \u003d ((255 - x) * y) / 255 (which is the one given in the comment I wrote below) and the one used in Skia:\n\nhttps://cs.chromium.org/chromium/src/third_party/skia/include/core/SkMath.h?l\u003d115\u0026rcl\u003da281dd37e2b409db22f982ec9fee883e99e07daa\n\nWhich also seems to be algebraically equivalent to the one you propose above. Maybe the confusion arises from how I wrote the formula in my comment (which is more how a mathematician would write it, rather than a programmer)? As a C programmer I would write the same like this:\n\n  uint8_t srcover_muldiv255round(uint8_t src, uint8_t src_alpha, uint8_t dst) {\n    double g \u003d ((255.0 - (double)src_alpha) * (double)dst) / 255.0;\n    return src + (int)rint(g);\n  }\n\nThis is fundamentally what we are trying to achieve... the Skia version only uses some tricks to avoid doubles and make the thing faster.\n\nAnyway, if it is MulDiv255Round you are after, then I already wrote a version of it using NEON. As I said in the commit message, it is slower than the one I propose here. But if it is correctness you are after, then I guess this is the right way to go. I can re-run the benchmarks on it, if you confirm there is no misunderstanding.",
+      "parentUuid": "a43b3c8e_94d8fc4c",
+      "revId": "cb2f18af0ac87c34e010a0d3b695ed5911735893",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9566f714_e8b46f3f",
         "filename": "src/opts/SkBlitRow_opts.h",
         "patchSetId": 2
@@ -112,6 +178,30 @@
       "writtenOn": "2017-05-15T13:20:51Z",
       "side": 1,
       "message": "We\u0027ve always heard that this sort of readback from NEON incurs a big delay penalty.  Is that no longer true with ARMv8?  Or is it just that we\u0027re saving enough work to make it worth it?",
+      "range": {
+        "startLine": 176,
+        "startChar": 0,
+        "endLine": 177,
+        "endChar": 30
+      },
+      "revId": "cb2f18af0ac87c34e010a0d3b695ed5911735893",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02cd71d0_ae404322",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 6920
+      },
+      "writtenOn": "2017-05-17T18:35:17Z",
+      "side": 1,
+      "message": "Well, the runs I carried out revealed that this branch in the middle of the loop is not cheap for sure. Concerning the readback from NEON I think you are referring to\n\n  http://infocenter.arm.com/help/index.jsp?topic\u003d/com.arm.doc.ddi0344k/ch16s05s02.html\n\nThis doesn\u0027t affect newer cores, but the readback has a non-negligible performance hit if compared to moving between registers of the same type. For newer cores you can look into the Software Optimisation Guides. For ARM Cortex A72 this would be:\n\n  http://infocenter.arm.com/help/topic/com.arm.doc.uan0016a/cortex_a72_software_optimization_guide_external.pdf\n\n\"VMOV\" is at section 3.11 \"FP Miscellaneous Instructions\", page 18.",
+      "parentUuid": "9566f714_e8b46f3f",
       "range": {
         "startLine": 176,
         "startChar": 0,
