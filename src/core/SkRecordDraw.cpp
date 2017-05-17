@@ -125,6 +125,7 @@ DRAW(DrawTextRSXform, drawTextRSXform(r.text, r.byteLength, r.xforms, r.cull, r.
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
                           r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
 DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint));
+DRAW(DrawShadowRec, private_draw_shadow_rec(r.path, r.rec));
 DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()));
 #undef DRAW
 
@@ -453,6 +454,10 @@ private:
         } else {
             return fCurrentClipBounds;
         }
+    }
+
+    Bounds bounds(const DrawShadowRec& op) const {
+        return this->adjustAndMap(op.path.getBounds(), nullptr);
     }
 
     Bounds bounds(const DrawPicture& op) const {

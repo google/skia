@@ -194,3 +194,6 @@ void SkLiteRecorder::onDrawAtlas(const SkImage* atlas,
                                  const SkPaint* paint) {
     fDL->drawAtlas(atlas, xforms, texs, colors, count, bmode, cull, paint);
 }
+void SkLiteRecorder::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
+    fDL->drawShadowRec(path, rec);
+}

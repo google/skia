@@ -11,6 +11,7 @@
 #include "SkData.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
+#include "SkDrawShadowRec.h"
 #include "SkImage.h"
 #include "SkImageFilter.h"
 #include "SkMatrix.h"
@@ -80,6 +81,7 @@ namespace SkRecords {
     M(DrawTextBlob)                                                 \
     M(DrawAtlas)                                                    \
     M(DrawVertices)                                                 \
+    M(DrawShadowRec)                                                \
     M(DrawAnnotation)
 
 // Defines SkRecords::Type, an enum of all record types.
@@ -345,6 +347,9 @@ RECORD(DrawVertices, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         sk_sp<SkVertices> vertices;
         SkBlendMode bmode);
+RECORD(DrawShadowRec, kDraw_Tag,
+       SkPath path;
+       SkDrawShadowRec rec);
 RECORD(DrawAnnotation, 0,  // TODO: kDraw_Tag, skia:5548
        SkRect rect;
        SkString key;
