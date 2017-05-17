@@ -54,6 +54,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fSRGBDecodeDisableSupport = false;
     fSRGBDecodeDisableAffectsMipmaps = false;
     fClearToOpaqueBlackIsBroken = false;
+    fDrawArraysBaseVertexIsBroken = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
 
@@ -573,6 +574,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fClearToOpaqueBlackIsBroken = true;
     }
 #endif
+    if (kQualcomm_GrGLVendor == ctxInfo.vendor()) {
+        fDrawArraysBaseVertexIsBroken = true;
+    }
 
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
     // already been detected.

@@ -2649,7 +2649,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
             for (const GrMesh::PatternBatch batch : mesh) {
                 this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(),
                                     batch.fBaseVertex);
-                // mesh.baseVertex() was accounted for by setupGeometry.
+                // batch.fBaseVertex was accounted for by setupGeometry.
                 if (this->glCaps().drawRangeElementsSupport()) {
                     // We assume here that the GrMeshDrawOps that generated the mesh used the full
                     // 0..vertexCount()-1 range.
@@ -2665,8 +2665,14 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
                 fStats.incNumDraws();
             }
         } else {
-            this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(), 0);
-            GL_CALL(DrawArrays(primType, mesh.baseVertex(), mesh.vertexCount()));
+            if (this->glCaps().drawArraysBaseVertexIsBroken()) {
+                this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(),
+                                    mesh.baseVertex());
+                GL_CALL(DrawArrays(primType, 0, mesh.vertexCount()));
+            } else {
+                this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(), 0);
+                GL_CALL(DrawArrays(primType, mesh.baseVertex(), mesh.vertexCount()));
+            }
             fStats.incNumDraws();
         }
     }
