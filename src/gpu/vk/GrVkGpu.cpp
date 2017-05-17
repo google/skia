@@ -379,9 +379,9 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
     }
 
     bool success = false;
-    if (GrPixelConfigIsCompressed(vkTex->desc().fConfig)) {
+    if (GrPixelConfigIsCompressed(vkTex->config())) {
         // We check that config == desc.fConfig in GrGpu::getWritePixelsInfo()
-        SkASSERT(config == vkTex->desc().fConfig);
+        SkASSERT(config == vkTex->config());
         // TODO: add compressed texture support
         // delete the following two lines and uncomment the two after that when ready
         vkTex->unref();
@@ -1716,7 +1716,7 @@ void GrVkGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSetting
                                       int* effectiveSampleCnt, SamplePattern*) {
     // TODO: stub.
     SkASSERT(!this->caps()->sampleLocationsSupport());
-    *effectiveSampleCnt = rt->desc().fSampleCnt;
+    *effectiveSampleCnt = rt->numStencilSamples();
 }
 
 bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, size_t rowBytes,
