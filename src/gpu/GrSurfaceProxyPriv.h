@@ -21,6 +21,10 @@ public:
         return fProxy->fTarget ? fProxy->fTarget->asTexture() : nullptr;
     }
 
+    GrRenderTarget* peekRenderTarget() const {
+        return fProxy->fTarget ? fProxy->fTarget->asRenderTarget() : nullptr;
+    }
+
     // Beware! This call is only guaranteed to tell you if the proxy in question has
     // any pending IO in its current state. It won't tell you about the IO state in the
     // future when the proxy is actually used/instantiated.

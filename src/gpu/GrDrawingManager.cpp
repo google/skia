@@ -93,7 +93,6 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
         // but need to be flushed anyway. Closing such GrOpLists here will mean new
         // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
         fOpLists[i]->makeClosed(*fContext->caps());
-        SkDEBUGCODE(fOpLists[i]->validateTargetsSingleRenderTarget());
     }
 
 #ifdef ENABLE_MDB
@@ -127,7 +126,6 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
                     continue;   // Odd - but not a big deal
                 }
                 opList->makeClosed(*fContext->caps());
-                SkDEBUGCODE(opList->validateTargetsSingleRenderTarget());
                 opList->prepareOps(&fFlushState);
                 if (!opList->executeOps(&fFlushState)) {
                     continue;         // This is bad
@@ -137,10 +135,6 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
         }
     }
 
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->prepareOps(&fFlushState);
-    }
-
 #if 0
     // Enable this to print out verbose GrOp information
     for (int i = 0; i < fOpLists.count(); ++i) {
@@ -148,10 +142,23 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
     }
 #endif
 
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        if (!fOpLists[i]->instantiate(fContext->resourceProvider())) {
+            fOpLists[i] = nullptr;
+            continue;
+        }
+
+        fOpLists[i]->prepareOps(&fFlushState);
+    }
+
     // Upload all data to the GPU
     fFlushState.preIssueDraws();
 
     for (int i = 0; i < fOpLists.count(); ++i) {
+        if (!fOpLists[i]) {
+            continue;
+        }
+
         if (fOpLists[i]->executeOps(&fFlushState)) {
             flushed = true;
         }

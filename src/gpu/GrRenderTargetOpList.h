@@ -104,8 +104,6 @@ public:
 
     SkDEBUGCODE(void dump() const override;)
 
-    SkDEBUGCODE(void validateTargetsSingleRenderTarget() const override;)
-
     SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
 
@@ -114,19 +112,15 @@ private:
 
     struct RecordedOp {
         RecordedOp(std::unique_ptr<GrOp> op,
-                   GrRenderTarget* rt,
                    const GrAppliedClip* appliedClip,
                    const DstTexture* dstTexture)
                 : fOp(std::move(op))
-                , fRenderTarget(rt)
                 , fAppliedClip(appliedClip) {
             if (dstTexture) {
                 fDstTexture = *dstTexture;
             }
         }
         std::unique_ptr<GrOp> fOp;
-        // TODO: These ops will all to target the same render target and this won't be needed.
-        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
         DstTexture fDstTexture;
         const GrAppliedClip* fAppliedClip;
     };

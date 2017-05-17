@@ -41,10 +41,6 @@ void GrTextureOpList::dump() const {
     }
 }
 
-void GrTextureOpList::validateTargetsSingleRenderTarget() const {
-    SkASSERT(1 == fRecordedOps.count() || 0 == fRecordedOps.count());
-}
-
 #endif
 
 void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
@@ -93,20 +89,16 @@ bool GrTextureOpList::copySurface(GrResourceProvider* resourceProvider,
     this->addDependency(src);
 #endif
 
-    // See the comment in GrRenderTargetOpList about why we pass the invalid ID here.
-    this->recordOp(std::move(op),
-                   GrGpuResource::UniqueID::InvalidID(),
-                   GrSurfaceProxy::UniqueID::InvalidID());
+    this->recordOp(std::move(op));
     return true;
 }
 
-void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op,
-                               GrGpuResource::UniqueID resourceUniqueID,
-                               GrSurfaceProxy::UniqueID proxyUniqueID) {
+void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op) {
+    SkASSERT(fTarget.get());
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
 
-    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), resourceUniqueID, proxyUniqueID);
+    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), fTarget.get()->uniqueID());
     GrOP_INFO("Re-Recording (%s, opID: %u)\n"
         "\tBounds LRTB (%f, %f, %f, %f)\n",
         op->name(),
