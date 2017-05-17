@@ -152,8 +152,8 @@ GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(GrVkGpu* gpu,
 
 bool GrVkTextureRenderTarget::updateForMipmap(GrVkGpu* gpu, const GrVkImageInfo& newInfo) {
     VkFormat pixelFormat;
-    GrPixelConfigToVkFormat(fDesc.fConfig, &pixelFormat);
-    if (fDesc.fSampleCnt) {
+    GrPixelConfigToVkFormat(this->config(), &pixelFormat);
+    if (this->numStencilSamples()) {
         const GrVkImageView* resolveAttachmentView =
                 GrVkImageView::Create(gpu,
                                       newInfo.fImage,
