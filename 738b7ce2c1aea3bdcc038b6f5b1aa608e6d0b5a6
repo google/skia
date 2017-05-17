@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d22279f_d4153935",
+        "filename": "src/gpu/vk/GrVkCopyManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-05-17T14:50:58Z",
+      "side": 1,
+      "message": "\"can still exist\" or \"still exists\" ?\nAlso: Should we rename the caps flag at this point?",
+      "revId": "738b7ce2c1aea3bdcc038b6f5b1aa608e6d0b5a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
