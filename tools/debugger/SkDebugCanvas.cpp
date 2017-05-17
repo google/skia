@@ -287,7 +287,7 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         // drawn offscreen
         GrRenderTargetContext* rtc =
                 originalCanvas->internal_private_accessTopLayerRenderTargetContext();
-        GrGpuResource::UniqueID rtID = rtc->accessRenderTarget()->uniqueID();
+        GrSurfaceProxy::UniqueID proxyID = rtc->asSurfaceProxy()->uniqueID();
 
         // get the bounding boxes to draw
         SkTArray<GrAuditTrail::OpInfo> childrenBounds;
@@ -301,8 +301,7 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(1);
         for (int i = 0; i < childrenBounds.count(); i++) {
-            SkASSERT(childrenBounds[i].sameDecision(rtID, rtc->asSurfaceProxy()->uniqueID()));
-            if (childrenBounds[i].fResourceUniqueID != rtID) {
+            if (childrenBounds[i].fProxyUniqueID != proxyID) {
                 // offscreen draw, ignore for now
                 continue;
             }

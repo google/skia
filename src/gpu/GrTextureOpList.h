@@ -62,16 +62,10 @@ public:
 
     SkDEBUGCODE(void dump() const override;)
 
-    SkDEBUGCODE(virtual void validateTargetsSingleRenderTarget() const override;)
-
     SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
 
 private:
-    // MDB TODO: The unique IDs are only needed for the audit trail. There should only be one
-    // on the opList itself.
-    void recordOp(std::unique_ptr<GrOp>,
-                  GrGpuResource::UniqueID resourceUniqueID,
-                  GrSurfaceProxy::UniqueID proxyUniqueID);
+    void recordOp(std::unique_ptr<GrOp>);
 
     SkSTArray<2, std::unique_ptr<GrOp>, true> fRecordedOps;
 

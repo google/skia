@@ -19,6 +19,7 @@ class GrAuditTrail;
 class GrCaps;
 class GrOpFlushState;
 class GrRenderTargetOpList;
+class GrResourceProvider;
 class GrSurfaceProxy;
 class GrTextureOpList;
 
@@ -27,7 +28,8 @@ public:
     GrOpList(GrSurfaceProxy*, GrAuditTrail*);
     ~GrOpList() override;
 
-    // These two methods are invoked as flush time
+    // These three methods are invoked at flush time
+    bool instantiate(GrResourceProvider* resourceProvider);
     virtual void prepareOps(GrOpFlushState* flushState) = 0;
     virtual bool executeOps(GrOpFlushState* flushState) = 0;
 
@@ -72,8 +74,6 @@ public:
      * Dump out the GrOpList dependency DAG
      */
     SkDEBUGCODE(virtual void dump() const;)
-
-    SkDEBUGCODE(virtual void validateTargetsSingleRenderTarget() const = 0;)
 
     SkDEBUGCODE(virtual int numOps() const = 0;)
     SkDEBUGCODE(virtual int numClips() const { return 0; })
