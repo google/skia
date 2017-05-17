@@ -703,6 +703,18 @@ public:
             startPoint.fY = SkScalarSinCos(arcParams->fStartAngleRadians, &startPoint.fX);
             SkScalar endAngle = arcParams->fStartAngleRadians + arcParams->fSweepAngleRadians;
             stopPoint.fY = SkScalarSinCos(endAngle, &stopPoint.fX);
+
+            // Adjust the start and end points based on the view matrix (to handle rotated arcs)
+            startPoint = viewMatrix.mapVector(startPoint.fX, startPoint.fY);
+            stopPoint = viewMatrix.mapVector(stopPoint.fX, stopPoint.fY);
+            startPoint.normalize();
+            stopPoint.normalize();
+
+            // If the matrix included scale (on one axis) we need to swap our start and end points
+            if ((viewMatrix.getScaleX() < 0) != (viewMatrix.getScaleY() < 0)) {
+                SkTSwap(startPoint, stopPoint);
+            }
+
             // Like a fill without useCenter, butt-cap stroke can be implemented by clipping against
             // radial lines. However, in both cases we have to be careful about the half-circle.
             // case. In that case the two radial lines are equal and so that edge gets clipped
