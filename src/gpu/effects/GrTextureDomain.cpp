@@ -168,7 +168,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                 builder->codeAppend("float blend = step(1.0, max(x, y));");
                 builder->codeAppendf("%s = mix(inside, outside, blend);", outColor);
             } else {
-                builder->codeAppend("bvec4 outside;\n");
+/*                builder->codeAppend("bvec4 outside;\n");
                 builder->codeAppendf("outside.xy = lessThan(%s, %s.xy);", inCoords.c_str(),
                                        domain);
                 builder->codeAppendf("outside.zw = greaterThan(%s, %s.zw);", inCoords.c_str(),
@@ -177,7 +177,8 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                                        outColor);
                 builder->appendTextureLookupAndModulate(inModulateColor, sampler, inCoords.c_str(),
                                                         kVec2f_GrSLType, colorXformHelper);
-                builder->codeAppend(";");
+                builder->codeAppend(";");*/
+                builder->codeAppendf("%s = vec4(1, 0, 0, 1);", outColor);
             }
             break;
         }

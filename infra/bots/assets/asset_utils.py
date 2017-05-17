@@ -46,11 +46,12 @@ ZIP_BLACKLIST = ['.git', '.svn', '*.pyc', '.DS_STORE']
 
 class CIPDStore(object):
   """Wrapper object for CIPD."""
-  def __init__(self, cipd_url=DEFAULT_CIPD_SERVICE_URL):
+  def __init__(self, cipd_url=DEFAULT_CIPD_SERVICE_URL, compression=0):
     self._cipd = 'cipd'
     if sys.platform == 'win32':
       self._cipd = 'cipd.bat'
     self._cipd_url = cipd_url
+    self._compression_level = compression
     self._check_setup()
 
   def _check_setup(self):
@@ -122,7 +123,7 @@ class CIPDStore(object):
         '--in', target_dir,
         '--tag', TAG_PROJECT_SKIA,
         '--tag', TAG_VERSION_TMPL % version,
-        '--compression-level', '0',
+        '--compression-level', self._compression_level,
     ])
 
   def download(self, name, version, target_dir):
@@ -213,8 +214,9 @@ class GSStore(object):
 class MultiStore(object):
   """Wrapper object which uses CIPD as the primary store and GS for backup."""
   def __init__(self, cipd_url=DEFAULT_CIPD_SERVICE_URL,
-               gsutil=None, gs_bucket=DEFAULT_GS_BUCKET):
-    self._cipd = CIPDStore(cipd_url=cipd_url)
+               gsutil=None, gs_bucket=DEFAULT_GS_BUCKET,
+               compression=0):
+    self._cipd = CIPDStore(cipd_url=cipd_url, compression=compression)
     self._gs = GSStore(gsutil=gsutil, bucket=gs_bucket)
 
   def get_available_versions(self, name):
