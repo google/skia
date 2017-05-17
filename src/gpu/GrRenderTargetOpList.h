@@ -30,7 +30,7 @@ class GrRenderTargetProxy;
 
 class GrRenderTargetOpList final : public GrOpList {
 private:
-    using DstTexture = GrXferProcessor::DstTexture;
+    using DstProxy = GrXferProcessor::DstProxy;
 
 public:
     GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrAuditTrail*);
@@ -70,9 +70,9 @@ public:
         return this->uniqueID();
     }
     uint32_t addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext,
-                   GrAppliedClip&& clip, const DstTexture& dstTexture) {
+                   GrAppliedClip&& clip, const DstProxy& dstProxy) {
         this->recordOp(std::move(op), renderTargetContext, clip.doesClip() ? &clip : nullptr,
-                       &dstTexture);
+                       &dstProxy);
         return this->uniqueID();
     }
 
@@ -116,31 +116,31 @@ private:
         RecordedOp(std::unique_ptr<GrOp> op,
                    GrRenderTarget* rt,
                    const GrAppliedClip* appliedClip,
-                   const DstTexture* dstTexture)
+                   const DstProxy* dstProxy)
                 : fOp(std::move(op))
                 , fRenderTarget(rt)
                 , fAppliedClip(appliedClip) {
-            if (dstTexture) {
-                fDstTexture = *dstTexture;
+            if (dstProxy) {
+                fDstProxy = *dstProxy;
             }
         }
         std::unique_ptr<GrOp> fOp;
         // TODO: These ops will all to target the same render target and this won't be needed.
         GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
-        DstTexture fDstTexture;
+        DstProxy fDstProxy;
         const GrAppliedClip* fAppliedClip;
     };
 
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
     // returns the input op.
     GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, GrAppliedClip* = nullptr,
-                   const DstTexture* = nullptr);
+                   const DstProxy* = nullptr);
 
     void forwardCombine(const GrCaps&);
 
     // If this returns true then b has been merged into a's op.
     bool combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
-                           const DstTexture* bDstTexture, const GrCaps&);
+                           const DstProxy* bDstTexture, const GrCaps&);
 
     GrClearOp* fLastFullClearOp = nullptr;
     GrGpuResource::UniqueID fLastFullClearResourceID = GrGpuResource::UniqueID::InvalidID();
