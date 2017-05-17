@@ -16,6 +16,24 @@
       "revId": "3ea0ece0efb8497795a993c3e88a7b5ed80cc8a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e4cba75_837cbc1a",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-17T13:44:27Z",
+      "side": 1,
+      "message": "Destructor at end is fine. It will check whether anything owned by this object needs to be freed and find that it doesn\u0027t own anything, effectively a no-op.\n\nMoved impl to cpp.",
+      "parentUuid": "8cc11e7d_6450d893",
+      "revId": "3ea0ece0efb8497795a993c3e88a7b5ed80cc8a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
