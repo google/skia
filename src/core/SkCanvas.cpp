@@ -1711,7 +1711,9 @@ void SkCanvas::drawPaint(const SkPaint& paint) {
 }
 
 void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
-    this->onDrawRect(r, paint);
+    // To avoid redundant logic in our culling code and various backends, we always sort rects
+    // before passing them along.
+    this->onDrawRect(r.makeSorted(), paint);
 }
 
 void SkCanvas::drawRegion(const SkRegion& region, const SkPaint& paint) {
@@ -1978,11 +1980,10 @@ static bool needs_autodrawlooper(SkCanvas* canvas, const SkPaint& paint) {
 
 void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRect()");
+    SkASSERT(r.isSorted());
     if (paint.canComputeFastBounds()) {
-        // Skia will draw an inverted rect, because it explicitly "sorts" it downstream.
-        // To prevent accidental rejecting at this stage, we have to sort it before we check.
         SkRect storage;
-        if (this->quickReject(paint.computeFastBounds(r.makeSorted(), &storage))) {
+        if (this->quickReject(paint.computeFastBounds(r, &storage))) {
             return;
         }
     }
