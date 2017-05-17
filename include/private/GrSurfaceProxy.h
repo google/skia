@@ -189,14 +189,12 @@ public:
     static sk_sp<GrTextureProxy> MakeWrappedBackend(GrContext*, GrBackendTexture&, GrSurfaceOrigin);
 
     GrSurfaceOrigin origin() const {
-        SkASSERT(kTopLeft_GrSurfaceOrigin == fDesc.fOrigin ||
-                 kBottomLeft_GrSurfaceOrigin == fDesc.fOrigin);
-        return fDesc.fOrigin;
+        SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
+        return fOrigin;
     }
-    int width() const { return fDesc.fWidth; }
-    int height() const { return fDesc.fHeight; }
-    GrPixelConfig config() const { return fDesc.fConfig; }
-    bool isMipMapped() const { return fDesc.fIsMipMapped; }
+    int width() const { return fWidth; }
+    int height() const { return fHeight; }
+    GrPixelConfig config() const { return fConfig; }
 
     class UniqueID {
     public:
@@ -244,15 +242,12 @@ public:
      */
     UniqueID uniqueID() const { return fUniqueID; }
 
-    GrSurface* instantiate(GrResourceProvider* resourceProvider);
+    virtual GrSurface* instantiate(GrResourceProvider* resourceProvider) = 0;
 
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.
      */
     SkRect getBoundsRect() const { return SkRect::MakeIWH(this->width(), this->height()); }
-
-    int worstCaseWidth(const GrCaps& caps) const;
-    int worstCaseHeight(const GrCaps& caps) const;
 
     /**
      * @return the texture proxy associated with the surface proxy, may be NULL.
@@ -285,8 +280,11 @@ public:
      * @return the amount of GPU memory used in bytes
      */
     size_t gpuMemorySize() const {
+        if (fTarget) {
+            return fTarget->gpuMemorySize();
+        }
         if (kInvalidGpuMemorySize == fGpuMemorySize) {
-            fGpuMemorySize = this->onGpuMemorySize();
+            fGpuMemorySize = this->onUninstantiatedGpuMemorySize();
             SkASSERT(kInvalidGpuMemorySize != fGpuMemorySize);
         }
         return fGpuMemorySize;
@@ -318,14 +316,17 @@ public:
 protected:
     // Deferred version
     GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
-        : fDesc(desc)
-        , fFit(fit)
-        , fBudgeted(budgeted)
-        , fFlags(flags)
-        // fMipColorMode is only valid for texturable proxies
-        , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
-        , fGpuMemorySize(kInvalidGpuMemorySize)
-        , fLastOpList(nullptr) {
+            : fConfig(desc.fConfig)
+            , fWidth(desc.fWidth)
+            , fHeight(desc.fHeight)
+            , fOrigin(desc.fOrigin)
+            , fFit(fit)
+            , fBudgeted(budgeted)
+            , fFlags(flags)
+            // fMipColorMode is only valid for texturable proxies
+            , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
+            , fGpuMemorySize(kInvalidGpuMemorySize)
+            , fLastOpList(nullptr) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
@@ -345,8 +346,15 @@ protected:
         return this->internalHasPendingWrite();
     }
 
-    // For wrapped resources, 'fDesc' will always be filled in from the wrapped resource.
-    GrSurfaceDesc        fDesc;
+    GrSurface* instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
+                               GrSurfaceFlags flags, bool isMipMapped);
+
+    // For wrapped resources, 'fConfig', 'fWidth', 'fHeight', and 'fOrigin; will always be filled in
+    // from the wrapped resource.
+    GrPixelConfig        fConfig;
+    int                  fWidth;
+    int                  fHeight;
+    GrSurfaceOrigin      fOrigin;
     SkBackingFit         fFit;      // always exact for wrapped resources
     mutable SkBudgeted   fBudgeted; // set from the backing resource for wrapped resources
                                     // mutable bc of SkSurface/SkImage wishy-washiness
@@ -360,7 +368,7 @@ protected:
     SkDEBUGCODE(size_t getRawGpuMemorySize_debugOnly() const { return fGpuMemorySize; })
 
 private:
-    virtual size_t onGpuMemorySize() const = 0;
+    virtual size_t onUninstantiatedGpuMemorySize() const = 0;
 
     // This entry is lazily evaluated so, when the proxy wraps a resource, the resource
     // will be called but, when the proxy is deferred, it will compute the answer itself.

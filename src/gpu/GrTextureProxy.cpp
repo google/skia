@@ -12,21 +12,23 @@
 
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
                                const void* srcData, size_t /*rowBytes*/, uint32_t flags)
-    : INHERITED(srcDesc, fit, budgeted, flags) {
-    SkASSERT(!srcData);   // currently handled in Make()
+        : INHERITED(srcDesc, fit, budgeted, flags)
+        , fIsMipMapped(srcDesc.fIsMipMapped) {
+    SkASSERT(!srcData);  // currently handled in Make()
 }
 
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf)
-    : INHERITED(std::move(surf), SkBackingFit::kExact) {
-}
+        : INHERITED(std::move(surf), SkBackingFit::kExact)
+        , fIsMipMapped(fTarget->asTexture()->texturePriv().hasMipMaps()) {}
 
-GrTexture* GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
-    GrSurface* surf = this->INHERITED::instantiate(resourceProvider);
+GrSurface* GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
+    GrSurface* surf =
+            this->instantiateImpl(resourceProvider, 0, kNone_GrSurfaceFlags, fIsMipMapped);
     if (!surf) {
         return nullptr;
     }
-
-    return fTarget->asTexture();
+    SkASSERT(surf->asTexture());
+    return surf;
 }
 
 void GrTextureProxy::setMipColorMode(SkDestinationSurfaceColorMode colorMode) {
@@ -56,12 +58,10 @@ GrSamplerParams::FilterMode GrTextureProxy::highestFilterMode() const {
     return GrSamplerParams::kMipMap_FilterMode;
 }
 
-size_t GrTextureProxy::onGpuMemorySize() const {
-    if (fTarget) {
-        return fTarget->gpuMemorySize();
-    }
-
+size_t GrTextureProxy::onUninstantiatedGpuMemorySize() const {
     static const bool kHasMipMaps = true;
-    // TODO: add tracking of mipmap state to improve the estimate
-    return GrSurface::ComputeSize(fDesc, 1, kHasMipMaps, SkBackingFit::kApprox == fFit);
+    // TODO: add tracking of mipmap state to improve the estimate. We track whether we are created
+    // with mip maps but not whether a texture read from the proxy will lazily generate mip maps.
+    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, 1, kHasMipMaps,
+                                  SkBackingFit::kApprox == fFit);
 }

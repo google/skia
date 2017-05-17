@@ -293,7 +293,7 @@ void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextur
         return;
     }
 
-    GrTexture* texture = proxy->instantiate(this);
+    GrTexture* texture = proxy->instantiateTexture(this);
     if (!texture) {
         return;
     }

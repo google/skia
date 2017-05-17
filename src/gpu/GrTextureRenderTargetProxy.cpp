@@ -32,12 +32,28 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf)
     SkASSERT(surf->asRenderTarget());
 }
 
-size_t GrTextureRenderTargetProxy::onGpuMemorySize() const {
-    if (fTarget) {
-        return fTarget->gpuMemorySize();
-    }
+size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
+    int colorSamplesPerPixel = this->numColorSamples() + 1;
+
+    static const bool kHasMipMaps = true;
+    // TODO: add tracking of mipmap state to improve the estimate. We track whether we are created
+    // with mip maps but not whether a texture read from the proxy will lazily generate mip maps.
 
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, true, SkBackingFit::kApprox == fFit);
+    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, colorSamplesPerPixel, kHasMipMaps,
+                                  SkBackingFit::kApprox == fFit);
 }
 
+GrSurface* GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
+    static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
+
+    GrSurface* surf = this->instantiateImpl(resourceProvider, this->numStencilSamples(), kFlags,
+                                            this->isMipMapped());
+    if (!surf) {
+        return nullptr;
+    }
+    SkASSERT(surf->asRenderTarget());
+    SkASSERT(surf->asTexture());
+
+    return surf;
+}

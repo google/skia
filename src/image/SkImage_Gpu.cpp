@@ -171,7 +171,7 @@ GrTexture* SkImage_Gpu::onGetTexture() const {
         return nullptr;
     }
 
-    return proxy->instantiate(fContext->resourceProvider());
+    return proxy->instantiateTexture(fContext->resourceProvider());
 }
 
 bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
@@ -486,7 +486,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
         return codecImage;
     }
 
-    sk_sp<GrTexture> texture(sk_ref_sp(proxy->instantiate(context->resourceProvider())));
+    sk_sp<GrTexture> texture(sk_ref_sp(proxy->instantiateTexture(context->resourceProvider())));
     if (!texture) {
         return codecImage;
     }

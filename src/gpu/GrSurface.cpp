@@ -51,20 +51,22 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
     return size;
 }
 
-size_t GrSurface::ComputeSize(const GrSurfaceDesc& desc,
+size_t GrSurface::ComputeSize(GrPixelConfig config,
+                              int width,
+                              int height,
                               int colorSamplesPerPixel,
                               bool hasMIPMaps,
                               bool useNextPow2) {
     size_t colorSize;
 
-    int width = useNextPow2 ? GrNextPow2(desc.fWidth) : desc.fWidth;
-    int height = useNextPow2 ? GrNextPow2(desc.fHeight) : desc.fHeight;
+    width = useNextPow2 ? GrNextPow2(width) : width;
+    height = useNextPow2 ? GrNextPow2(height) : height;
 
-    SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
-    if (GrPixelConfigIsCompressed(desc.fConfig)) {
-        colorSize = GrCompressedFormatDataSize(desc.fConfig, width, height);
+    SkASSERT(kUnknown_GrPixelConfig != config);
+    if (GrPixelConfigIsCompressed(config)) {
+        colorSize = GrCompressedFormatDataSize(config, width, height);
     } else {
-        colorSize = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
+        colorSize = (size_t)width * height * GrBytesPerPixel(config);
     }
     SkASSERT(colorSize > 0);
 
@@ -75,8 +77,6 @@ size_t GrSurface::ComputeSize(const GrSurfaceDesc& desc,
         // we'd expect because we never change fDesc.fWidth/fHeight.
         finalSize += colorSize/3;
     }
-
-    SkASSERT(finalSize <= WorstCaseSize(desc, useNextPow2));
     return finalSize;
 }
 

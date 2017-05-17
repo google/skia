@@ -70,7 +70,7 @@ private:
     }
 
     size_t onGpuMemorySize() const override {
-        return GrSurface::ComputeSize(fDesc,
+        return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
                                       this->numSamplesOwnedPerPixel(),
                                       this->texturePriv().hasMipMaps());
     }

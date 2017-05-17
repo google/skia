@@ -250,7 +250,7 @@ void GrResourceIOProcessor::TextureSampler::reset(GrResourceProvider* resourcePr
 
     // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
     // to taking a GrSurfaceProxy just use the IORefs on the proxy
-    GrTexture* texture = proxy->instantiate(resourceProvider);
+    GrTexture* texture = proxy->instantiateTexture(resourceProvider);
     if (texture) {
         fTexture.set(SkRef(texture), kRead_GrIOType);
         SkASSERT(texture->texturePriv().highestFilterMode() == proxy->highestFilterMode());
@@ -267,7 +267,7 @@ void GrResourceIOProcessor::TextureSampler::reset(GrResourceProvider* resourcePr
                                                   GrShaderFlags visibility) {
     // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
     // to taking a GrSurfaceProxy just use the IORefs on the proxy
-    GrTexture* texture = proxy->instantiate(resourceProvider);
+    GrTexture* texture = proxy->instantiateTexture(resourceProvider);
     if (texture) {
         fTexture.set(SkRef(texture), kRead_GrIOType);
         SkASSERT(texture->texturePriv().highestFilterMode() == proxy->highestFilterMode());
