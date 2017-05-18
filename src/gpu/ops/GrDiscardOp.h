@@ -26,14 +26,11 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         string.append(INHERITED::dumpInfo());
-        string.printf("proxyID: %d\n", fRenderTargetProxy.get()->uniqueID().asUInt());
         return string;
     }
 
 private:
-    GrDiscardOp(GrRenderTargetProxy* proxy)
-        : INHERITED(ClassID())
-        , fRenderTargetProxy(proxy) {
+    GrDiscardOp(GrRenderTargetProxy* proxy) : INHERITED(ClassID()) {
         this->setBounds(SkRect::MakeIWH(proxy->width(), proxy->height()),
                         HasAABloat::kNo, IsZeroArea::kNo);
     }
@@ -43,16 +40,10 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override {
-        GrRenderTarget* rt = fRenderTargetProxy.get()->instantiateRenderTarget(
-                                                                    state->resourceProvider());
-        if (!rt) {
-            return;
-        }
+        SkASSERT(state->drawOpArgs().fRenderTarget);
 
-        state->commandBuffer()->discard(rt);
+        state->commandBuffer()->discard(state->drawOpArgs().fRenderTarget);
     }
-
-    GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
 
     typedef GrOp INHERITED;
 };
