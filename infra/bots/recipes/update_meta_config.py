@@ -38,8 +38,8 @@ UPDATE_META_CONFIG_KEY = 'update_meta_config_git_cookies'
 def RunSteps(api):
   api.core.setup()
 
-  if api.vars.is_trybot:
-    raise Exception('Cannot run update_meta_config recipe as a trybot')
+  # if api.vars.is_trybot:
+  #   raise Exception('Cannot run update_meta_config recipe as a trybot')
   update_meta_config_gitcookies = api.path.join(
       api.path.expanduser('~'), UPDATE_META_CONFIG_GITCOOKIES_FILE)
   repo_name = api.properties.get('repository').split('/')[-1].rstrip('.git')
