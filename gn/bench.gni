@@ -103,6 +103,7 @@ bench_sources = [
   "$_bench/RTreeBench.cpp",
   "$_bench/ScalarBench.cpp",
   "$_bench/ShaderMaskBench.cpp",
+  "$_bench/ShadowBench.cpp",
   "$_bench/ShapesBench.cpp",
   "$_bench/Sk4fBench.cpp",
   "$_bench/SkBlend_optsBench.cpp",
