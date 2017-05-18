@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cfb0196_7ecd65fe",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-18T21:08:05Z",
+      "side": 0,
+      "message": "We lost this.  :(",
+      "range": {
+        "startLine": 110,
+        "startChar": 23,
+        "endLine": 110,
+        "endChar": 55
+      },
+      "revId": "c96da1e51e1ca72d54dda49f32891bd41530ad31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

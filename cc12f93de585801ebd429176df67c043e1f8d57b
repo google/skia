@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "8ded69e4_9303aa89",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-18T21:08:05Z",
+      "side": 1,
+      "message": "If you like reading the paint alpha this way, we should probably switch all of them over from paintColor-\u003ea()?  Until now we only use this long form when we need a pointer to the float.",
+      "range": {
+        "startLine": 114,
+        "startChar": 12,
+        "endLine": 114,
+        "endChar": 39
+      },
+      "revId": "cc12f93de585801ebd429176df67c043e1f8d57b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e098147d_73a47e3e",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-18T21:08:05Z",
+      "side": 1,
+      "message": "As written I think this is a no-op.  You can\u0027t get into this block if is_opaque is true.\n\nIt might be clearer if you move the bit updates down below this block, so that this block is\n\n\n   if (!is_opaque) {\n      pipeline-\u003eappend(SkRasterPipeline::scale_1_float, \u0026paintColor-\u003efVec[SkPM4f::A]);\n   }\n   is_opaque \u003d is_opaque \u0026\u0026 shader-\u003eisOpaque();\n   is_constant \u003d shader-\u003eisConstant();\n   wants_dither \u003d shader-\u003easAGradient(nullptr) \u003e\u003d SkShader::kLinear_GradientType;",
+      "range": {
+        "startLine": 116,
+        "startChar": 12,
+        "endLine": 116,
+        "endChar": 30
+      },
+      "revId": "cc12f93de585801ebd429176df67c043e1f8d57b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0b65843_976eac01",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-18T21:08:05Z",
+      "side": 1,
+      "message": "(What would be the point?)",
+      "range": {
+        "startLine": 147,
+        "startChar": 48,
+        "endLine": 147,
+        "endChar": 97
+      },
+      "revId": "cc12f93de585801ebd429176df67c043e1f8d57b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4878272a_df6ebbb7",
         "filename": "src/core/SkRasterPipelineBlitter.cpp",
         "patchSetId": 9
@@ -19,6 +88,23 @@
         "endLine": 163,
         "endChar": 11
       },
+      "revId": "cc12f93de585801ebd429176df67c043e1f8d57b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47c9bf55_f2f72575",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-18T21:08:05Z",
+      "side": 1,
+      "message": "I think we probably want to add something like\n\n  if (fDitherCtx.rate) {\n      is_constant \u003d false;\n  }\n\nThere aren\u0027t any shaders that both wants_dither and is_constant will be set, of course.  But if we are is_constant on the way in and we turn on dither not because of wants_dither but because it\u0027s 565 and the paint asked us to, we\u0027re no longer constant.",
       "revId": "cc12f93de585801ebd429176df67c043e1f8d57b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
