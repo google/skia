@@ -46,7 +46,7 @@ public:
     * Draw an offset spot shadow and outlining ambient shadow for the given path using a disc
     * light.
     *
-    * Deprecated version with height value (to be removed when Android and Flutter are updated).
+    * Deprecated version with height value (to be removed when Flutter is updated).
     *
     * @param canvas  The canvas on which to draw the shadows.
     * @param path  The occluder used to generate the shadows.
@@ -69,42 +69,6 @@ public:
         DrawShadow(canvas, path, zPlane, lightPos, lightRadius, ambientAlpha, spotAlpha,
                    color, flags);
     }
-
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    /**
-     * Draw an offset spot shadow and outlining ambient shadow for the given path using a disc
-     * light. Takes a function to vary the z value based on the local x and y position.
-     * This shadow will not be cached, as the assumption is that this will be used for animation.
-     *
-     * Deprecated (to be removed when Android is updated).
-     *
-     * @param canvas  The canvas on which to draw the shadows.
-     * @param path  The occluder used to generate the shadows.
-     * @param heightFunc  A function which returns the vertical offset of the occluder from the
-     *  canvas based on local x and y values (the current matrix is not applied).
-     * @param lightPos  The 3D position of the light relative to the canvas plane. This is
-     *  independent of the canvas's current matrix.
-     * @param lightRadius  The radius of the disc light.
-     * @param ambientAlpha  The maximum alpha of the ambient shadow.
-     * @param spotAlpha  The maxium alpha of the spot shadow.
-     * @param color  The shadow color.
-     * @param flags  Options controlling opaque occluder optimizations and shadow appearance. See
-     *               SkShadowFlags.
-     */
-    static void DrawUncachedShadow(SkCanvas* canvas, const SkPath& path,
-                                   std::function<SkScalar(SkScalar, SkScalar)> heightFunc,
-                                   const SkPoint3& lightPos, SkScalar lightRadius,
-                                   SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
-                                   uint32_t flags = SkShadowFlags::kNone_ShadowFlag) {
-        SkPoint3 zPlane;
-        zPlane.fZ = heightFunc(0, 0);
-        zPlane.fX = heightFunc(1, 0) - zPlane.fZ;
-        zPlane.fY = heightFunc(0, 1) - zPlane.fZ;
-
-        DrawShadow(canvas, path, zPlane, lightPos, lightRadius, ambientAlpha, spotAlpha,
-                   color, flags);
-    }
-#endif
 };
 
 #endif
