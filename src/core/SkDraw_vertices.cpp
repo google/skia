@@ -17,6 +17,10 @@
 #include "SkString.h"
 #include "SkVertState.h"
 
+#include "SkRasterPipeline.h"
+#include "SkArenaAlloc.h"
+#include "SkCoreBlitters.h"
+
 struct Matrix43 {
     float fMat[12];    // column major
 
@@ -356,8 +360,41 @@ namespace {
 
         return alloc->makeSkSp<SkColorShader>(SkUnPreMultiply::PMColorToColor(pmColor));
     }
-
 } // anonymous ns
+
+static bool update_tricolor_matrix(const SkMatrix& ctmInv,
+                                   const SkPoint pts[], const SkColor colors[],
+                                   int index0, int index1, int index2, Matrix43* result) {
+    SkPMColor color0 = SkPreMultiplyColor(colors[index0]);
+    SkPMColor color1 = SkPreMultiplyColor(colors[index1]);
+    SkPMColor color2 = SkPreMultiplyColor(colors[index2]);
+
+    SkMatrix m, im;
+    m.reset();
+    m.set(0, pts[index1].fX - pts[index0].fX);
+    m.set(1, pts[index2].fX - pts[index0].fX);
+    m.set(2, pts[index0].fX);
+    m.set(3, pts[index1].fY - pts[index0].fY);
+    m.set(4, pts[index2].fY - pts[index0].fY);
+    m.set(5, pts[index0].fY);
+    if (!m.invert(&im)) {
+        return false;
+    }
+
+    SkMatrix dstToUnit;
+    dstToUnit.setConcat(im, ctmInv);
+
+    Sk4f c0 = SkPM4f::FromPMColor(color0).to4f(),
+         c1 = SkPM4f::FromPMColor(color1).to4f(),
+         c2 = SkPM4f::FromPMColor(color2).to4f();
+
+    Matrix43 colorm;
+    (c1 - c0).store(&colorm.fMat[0]);
+    (c2 - c0).store(&colorm.fMat[4]);
+    c0.store(&colorm.fMat[8]);
+    result->setConcat(colorm, dstToUnit);
+    return true;
+}
 
 void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
                           const SkPoint vertices[], const SkPoint textures[],
@@ -368,6 +405,10 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
 
     // abort early if there is nothing to draw
     if (count < 3 || (indices && indexCount < 3) || fRC->isEmpty()) {
+        return;
+    }
+    SkMatrix ctmInv;
+    if (!fMatrix->invert(&ctmInv)) {
         return;
     }
 
@@ -386,6 +427,37 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
 
      Thus for texture drawing, we need both texture[] and a shader.
      */
+
+    if (colors && !textures) {
+        char             arenaStorage[4096];
+        SkArenaAlloc     alloc(arenaStorage, sizeof(storage));
+        Matrix43         matrix43;
+        SkRasterPipeline shaderPipeline;
+
+        shaderPipeline.append(SkRasterPipeline::matrix_4x3, &matrix43);
+        if (false) {
+            shaderPipeline.append(SkRasterPipeline::clamp_0);
+            shaderPipeline.append(SkRasterPipeline::clamp_a);
+        }
+
+        auto blitter = SkCreateRasterPipelineBlitter(fDst, paint, *fMatrix, &alloc, &shaderPipeline);
+        SkASSERT(!blitter->isNullBlitter());
+
+        // setup our state and function pointer for iterating triangles
+        VertState       state(count, indices, indexCount);
+        VertState::Proc vertProc = state.chooseProc(vmode);
+
+        while (vertProc(&state)) {
+            SkPoint tmp[] = {
+                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
+            };
+            if (update_tricolor_matrix(ctmInv, vertices, colors, state.f0, state.f1, state.f2,
+                                       &matrix43)) {
+                SkScan::FillTriangle(tmp, *fRC, blitter);
+            }
+        }
+        return;
+    }
 
     auto triShader = sk_make_sp<SkTriColorShader>();
     SkPaint p(paint);
