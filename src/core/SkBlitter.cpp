@@ -973,21 +973,6 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkZeroShaderContext : public SkShader::Context {
-public:
-    SkZeroShaderContext(const SkShader& shader, const SkShader::ContextRec& rec)
-        // Override rec with the identity matrix, so it is guaranteed to be invertible.
-        : INHERITED(shader, SkShader::ContextRec(*rec.fPaint, SkMatrix::I(), nullptr,
-                                                 rec.fPreferredDstType, rec.fDstColorSpace)) {}
-
-    void shadeSpan(int x, int y, SkPMColor colors[], int count) override {
-        sk_bzero(colors, count * sizeof(SkPMColor));
-    }
-
-private:
-    typedef SkShader::Context INHERITED;
-};
-
 SkShaderBlitter::SkShaderBlitter(const SkPixmap& device, const SkPaint& paint,
                                  SkShader::Context* shaderContext)
         : INHERITED(device)
