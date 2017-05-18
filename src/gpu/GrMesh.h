@@ -25,12 +25,17 @@ public:
         SkDEBUGCODE(fBaseVertex = -1;)
     }
 
-    void setNonIndexed();
-    void setIndexed(const GrBuffer* indexBuffer, int indexCount, int baseIndex = 0);
+    void setNonIndexedNonInstanced();
+
+    void setIndexed(const GrBuffer* indexBuffer, int indexCount, int baseIndex=0);
     void setIndexedPatterned(const GrBuffer* indexBuffer, int indexCount,
                              int patternRepeatCount, int maxPatternRepetitionsInIndexBuffer);
 
-    void setVertices(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex = 0);
+    void setInstanced(const GrBuffer* instanceBuffer, int instanceCount, int baseInstance=0);
+    void setIndexedInstanced(const GrBuffer* indexBuffer, int indexCount,
+                             const GrBuffer* instanceBuffer, int instanceCount, int baseInstance=0);
+
+    void setVertices(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex=0);
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
 
@@ -38,6 +43,11 @@ public:
     const GrBuffer* indexBuffer() const { return fIndexBuffer.get(); }
     int indexCount() const { SkASSERT(this->isIndexed()); return fIndexCount; }
     int baseIndex() const { SkASSERT(this->isIndexed()); return fBaseIndex; }
+
+    bool isInstanced() const { return SkToBool(fInstanceBuffer.get()); }
+    const GrBuffer* instanceBuffer() const { return fInstanceBuffer.get(); }
+    int instanceCount() const { SkASSERT(this->isInstanced()); return fInstanceCount; }
+    int baseInstance() const { SkASSERT(this->isInstanced()); return fBaseInstance; }
 
     const GrBuffer* vertexBuffer() const { return fVertexBuffer.get(); }
     int vertexCount() const { SkASSERT(fVertexCount >= 1); return fVertexCount; }
@@ -53,8 +63,18 @@ private:
     PendingBuffer     fIndexBuffer;
     int               fIndexCount;
     int               fBaseIndex;
-    int               fPatternRepeatCount;
-    int               fMaxPatternRepetitionsInIndexBuffer;
+
+    PendingBuffer     fInstanceBuffer;
+    union {
+        struct { // If fInstanceBuffer is non-null.
+            int       fInstanceCount;
+            int       fBaseInstance;
+        };
+        struct { // If fInstanceBuffer is null (and fIndexBuffer is non-null).
+            int       fPatternRepeatCount;
+            int       fMaxPatternRepetitionsInIndexBuffer;
+        };
+    };
 
     PendingBuffer     fVertexBuffer;
     int               fVertexCount;
@@ -65,8 +85,9 @@ private:
     friend GrMesh::PatternIterator end(const GrMesh&);
 };
 
-inline void GrMesh::setNonIndexed() {
+inline void GrMesh::setNonIndexedNonInstanced() {
     fIndexBuffer.reset(nullptr);
+    fInstanceBuffer.reset(nullptr);
 }
 
 inline void GrMesh::setIndexed(const GrBuffer* indexBuffer, int indexCount, int baseIndex) {
@@ -77,6 +98,7 @@ inline void GrMesh::setIndexed(const GrBuffer* indexBuffer, int indexCount, int 
     fIndexCount = indexCount;
     fBaseIndex = baseIndex;
     fPatternRepeatCount = fMaxPatternRepetitionsInIndexBuffer = 1;
+    fInstanceBuffer.reset(nullptr);
 }
 
 inline void GrMesh::setIndexedPatterned(const GrBuffer* indexBuffer, int indexCount,
@@ -91,9 +113,40 @@ inline void GrMesh::setIndexedPatterned(const GrBuffer* indexBuffer, int indexCo
     fBaseIndex = 0;
     fPatternRepeatCount = patternRepeatCount;
     fMaxPatternRepetitionsInIndexBuffer = maxPatternRepetitionsInIndexBuffer;
+    fInstanceBuffer.reset(nullptr);
+}
+
+inline void GrMesh::setInstanced(const GrBuffer* instanceBuffer, int instanceCount,
+                                 int baseInstance) {
+    SkASSERT(instanceBuffer);
+    SkASSERT(instanceCount >= 1);
+    SkASSERT(baseInstance >= 0);
+    fIndexBuffer.reset(nullptr);
+    fInstanceBuffer.reset(instanceBuffer);
+    fInstanceCount = instanceCount;
+    fBaseInstance = baseInstance;
+}
+
+inline void GrMesh::setIndexedInstanced(const GrBuffer* indexBuffer, int indexCount,
+                                        const GrBuffer* instanceBuffer, int instanceCount,
+                                        int baseInstance) {
+    SkASSERT(indexBuffer);
+    SkASSERT(indexCount >= 1);
+    SkASSERT(instanceBuffer);
+    SkASSERT(instanceCount >= 1);
+    SkASSERT(baseInstance >= 0);
+    fIndexBuffer.reset(indexBuffer);
+    fIndexCount = indexCount;
+    fBaseIndex = 0;
+    fInstanceBuffer.reset(instanceBuffer);
+    fInstanceCount = instanceCount;
+    fBaseInstance = baseInstance;
 }
 
 inline void GrMesh::setVertices(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) {
+    SkASSERT(vertexBuffer || 0 == baseVertex);
+    SkASSERT(vertexCount >= 1);
+    SkASSERT(baseVertex >= 0);
     fVertexBuffer.reset(vertexBuffer);
     fVertexCount = vertexCount;
     fBaseVertex = baseVertex;
@@ -109,7 +162,7 @@ public:
     PatternIterator(const GrMesh& mesh, int repetitionIdx)
         : fMesh(mesh)
         , fRepetitionIdx(repetitionIdx) {
-        SkASSERT(fMesh.isIndexed());
+        SkASSERT(!fMesh.isInstanced());
     }
 
     bool operator!=(const PatternIterator& that) {
