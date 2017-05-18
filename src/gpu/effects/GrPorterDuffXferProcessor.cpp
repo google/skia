@@ -392,7 +392,9 @@ static BlendFormula get_lcd_blend_formula(SkBlendMode xfermode) {
 
 class PorterDuffXferProcessor : public GrXferProcessor {
 public:
-    PorterDuffXferProcessor(BlendFormula blendFormula) : fBlendFormula(blendFormula) {
+    PorterDuffXferProcessor(BlendFormula blendFormula, bool isLCD)
+            : INHERITED(false, false, isLCD)
+            , fBlendFormula(blendFormula) {
         this->initClassID<PorterDuffXferProcessor>();
     }
 
@@ -501,8 +503,8 @@ GrGLSLXferProcessor* PorterDuffXferProcessor::createGLSLInstance() const {
 
 class ShaderPDXferProcessor : public GrXferProcessor {
 public:
-    ShaderPDXferProcessor(bool hasMixedSamples, SkBlendMode xfermode)
-            : INHERITED(true, hasMixedSamples), fXfermode(xfermode) {
+    ShaderPDXferProcessor(bool hasMixedSamples, SkBlendMode xfermode, bool isLCD)
+            : INHERITED(true, hasMixedSamples, isLCD), fXfermode(xfermode) {
         this->initClassID<ShaderPDXferProcessor>();
     }
 
@@ -649,7 +651,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 PDLCDXferProcessor::PDLCDXferProcessor(GrColor blendConstant, uint8_t alpha)
-    : fBlendConstant(blendConstant)
+    : INHERITED(false, false, true)
+    , fBlendConstant(blendConstant)
     , fAlpha(alpha) {
     this->initClassID<PDLCDXferProcessor>();
 }
@@ -754,7 +757,8 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
         const GrProcessorAnalysisColor& color, GrProcessorAnalysisCoverage coverage,
         bool hasMixedSamples, const GrCaps& caps) const {
     BlendFormula blendFormula;
-    if (coverage == GrProcessorAnalysisCoverage::kLCD) {
+    bool isLCD = coverage == GrProcessorAnalysisCoverage::kLCD;
+    if (isLCD) {
         if (SkBlendMode::kSrcOver == fBlendMode && color.isConstant() &&
             !caps.shaderCaps()->dualSourceBlendingSupport() &&
             !caps.shaderCaps()->dstReadInShaderSupport()) {
@@ -770,9 +774,10 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
     }
 
     if (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) {
-        return sk_sp<const GrXferProcessor>(new ShaderPDXferProcessor(hasMixedSamples, fBlendMode));
+        return sk_sp<const GrXferProcessor>(new ShaderPDXferProcessor(hasMixedSamples, fBlendMode,
+                                                                      isLCD));
     }
-    return sk_sp<const GrXferProcessor>(new PorterDuffXferProcessor(blendFormula));
+    return sk_sp<const GrXferProcessor>(new PorterDuffXferProcessor(blendFormula, isLCD));
 }
 
 static inline GrXPFactory::AnalysisProperties analysis_properties(
@@ -851,7 +856,7 @@ void GrPorterDuffXPFactory::TestGetXPOutputTypes(const GrXferProcessor* xp,
 const GrXferProcessor& GrPorterDuffXPFactory::SimpleSrcOverXP() {
     static BlendFormula gSrcOverBlendFormula =
             MakeCoeffFormula(kOne_GrBlendCoeff, kISA_GrBlendCoeff);
-    static PorterDuffXferProcessor gSrcOverXP(gSrcOverBlendFormula);
+    static PorterDuffXferProcessor gSrcOverXP(gSrcOverBlendFormula, false);
     return gSrcOverXP;
 }
 
@@ -882,14 +887,14 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::MakeSrcOverXferProcessor(
     blendFormula = get_lcd_blend_formula(SkBlendMode::kSrcOver);
     if (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) {
         return sk_sp<GrXferProcessor>(
-                new ShaderPDXferProcessor(hasMixedSamples, SkBlendMode::kSrcOver));
+                new ShaderPDXferProcessor(hasMixedSamples, SkBlendMode::kSrcOver, true));
     }
-    return sk_sp<GrXferProcessor>(new PorterDuffXferProcessor(blendFormula));
+    return sk_sp<GrXferProcessor>(new PorterDuffXferProcessor(blendFormula, true));
 }
 
 sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::MakeNoCoverageXP(SkBlendMode blendmode) {
     BlendFormula formula = get_blend_formula(false, false, false, blendmode);
-    return sk_make_sp<PorterDuffXferProcessor>(formula);
+    return sk_make_sp<PorterDuffXferProcessor>(formula, false);
 }
 
 GrXPFactory::AnalysisProperties GrPorterDuffXPFactory::SrcOverAnalysisProperties(

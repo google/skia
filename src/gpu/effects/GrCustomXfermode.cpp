@@ -72,14 +72,15 @@ static bool can_use_hw_blend_equation(GrBlendEquation equation,
 
 class CustomXP : public GrXferProcessor {
 public:
-    CustomXP(SkBlendMode mode, GrBlendEquation hwBlendEquation)
-        : fMode(mode),
-          fHWBlendEquation(hwBlendEquation) {
+    CustomXP(SkBlendMode mode, GrBlendEquation hwBlendEquation, bool isLCD)
+        : INHERITED(false, false, isLCD)
+        , fMode(mode)
+        , fHWBlendEquation(hwBlendEquation) {
         this->initClassID<CustomXP>();
     }
 
-    CustomXP(bool hasMixedSamples, SkBlendMode mode)
-            : INHERITED(true, hasMixedSamples)
+    CustomXP(bool hasMixedSamples, SkBlendMode mode, bool isLCD)
+            : INHERITED(true, hasMixedSamples, isLCD)
             , fMode(mode)
             , fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
         this->initClassID<CustomXP>();
@@ -239,10 +240,11 @@ sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
         bool hasMixedSamples,
         const GrCaps& caps) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
+    bool isLCD = coverage == GrProcessorAnalysisCoverage::kLCD;
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
-        return sk_sp<GrXferProcessor>(new CustomXP(fMode, fHWBlendEquation));
+        return sk_sp<GrXferProcessor>(new CustomXP(fMode, fHWBlendEquation, isLCD));
     }
-    return sk_sp<GrXferProcessor>(new CustomXP(hasMixedSamples, fMode));
+    return sk_sp<GrXferProcessor>(new CustomXP(hasMixedSamples, fMode, isLCD));
 }
 
 GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
