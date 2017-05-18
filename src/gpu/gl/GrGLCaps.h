@@ -359,7 +359,8 @@ public:
         return fRGBAToBGRAReadbackConversionsAreSlow;
     }
 
-    bool clearToOpaqueBlackIsBroken() const { return fClearToOpaqueBlackIsBroken; }
+    // Certain Intel GPUs on Mac fail to clear if the glClearColor is made up of only 1s and 0s.
+    bool clearToBoundaryValuesIsBroken() const { return fClearToBoundaryValuesIsBroken; }
 
     // Adreno/MSAA drops a draw on the imagefiltersbase GM if the base vertex param to
     // glDrawArrays is nonzero.
@@ -437,7 +438,7 @@ private:
     bool fDoManualMipmapping : 1;
     bool fSRGBDecodeDisableSupport : 1;
     bool fSRGBDecodeDisableAffectsMipmaps : 1;
-    bool fClearToOpaqueBlackIsBroken : 1;
+    bool fClearToBoundaryValuesIsBroken : 1;
     bool fDrawArraysBaseVertexIsBroken : 1;
 
     uint32_t fBlitFramebufferFlags;
