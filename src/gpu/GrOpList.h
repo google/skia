@@ -33,7 +33,7 @@ public:
     virtual void prepareOps(GrOpFlushState* flushState) = 0;
     virtual bool executeOps(GrOpFlushState* flushState) = 0;
 
-    virtual void makeClosed(const GrCaps&) {
+    virtual void makeClosed() {
         this->setFlag(kClosed_Flag);
     }
 
@@ -49,7 +49,7 @@ public:
     /*
      * Notify this GrOpList that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps);
+    void addDependency(GrSurfaceProxy* dependedOn);
 
     /*
      * Does this opList depend on 'dependedOn'?

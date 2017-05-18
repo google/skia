@@ -29,6 +29,7 @@ static const int kMaxOpLookahead = 10;
 GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* proxy, GrGpu* gpu,
                                            GrAuditTrail* auditTrail)
         : INHERITED(proxy, auditTrail)
+        , fCaps(sk_ref_sp(gpu->caps()))
         , fLastClipStackGenID(SK_InvalidUniqueID)
         SkDEBUGCODE(, fNumClips(0)) {
     if (GrCaps::InstancedSupport::kNone != gpu->caps()->instancedSupport()) {
@@ -158,8 +159,6 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
 
 void GrRenderTargetOpList::reset() {
     fLastFullClearOp = nullptr;
-    fLastFullClearResourceID.makeInvalid();
-    fLastFullClearProxyID.makeInvalid();
     fLastClipStackGenID = SK_InvalidUniqueID;
     fRecordedOps.reset();
     if (fInstancedRendering) {
@@ -182,24 +181,11 @@ void GrRenderTargetOpList::freeGpuResources() {
     }
 }
 
-void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext, GrColor color) {
-    // MDB TODO: remove this. Right now we need the renderTargetContext for the
-    // accessRenderTarget call. This method should just take the renderTargetProxy.
-    GrRenderTarget* renderTarget = renderTargetContext->accessRenderTarget();
-    if (!renderTarget) {
-        return;
-    }
-
+void GrRenderTargetOpList::fullClear(GrColor color) {
     // Currently this just inserts or updates the last clear op. However, once in MDB this can
     // remove all the previously recorded ops and change the load op to clear with supplied
     // color.
-    // TODO: this needs to be updated to use GrSurfaceProxy::UniqueID
-    // MDB TODO: re-enable once opLists are divided. This assertion fails when a rendering is
-    // aborted but the same RT is reused for the next draw. The clears really shouldn't be
-    // fused in that case.
-    //SkASSERT((fLastFullClearResourceID == renderTarget->uniqueID()) ==
-    //         (fLastFullClearProxyID == renderTargetContext->asRenderTargetProxy()->uniqueID()));
-    if (fLastFullClearResourceID == renderTarget->uniqueID()) {
+    if (fLastFullClearOp) {
         // As currently implemented, fLastFullClearOp should be the last op because we would
         // have cleared it when another op was recorded.
         SkASSERT(fRecordedOps.back().fOp.get() == fLastFullClearOp);
@@ -210,16 +196,13 @@ void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext,
         fLastFullClearOp->setColor(color);
         return;
     }
-    std::unique_ptr<GrClearOp> op(GrClearOp::Make(GrFixedClip::Disabled(), color,
-                                                  renderTargetContext));
+    std::unique_ptr<GrClearOp> op(GrClearOp::Make(GrFixedClip::Disabled(), color, fTarget.get()));
     if (!op) {
         return;
     }
-    if (GrOp* clearOp = this->recordOp(std::move(op), renderTargetContext)) {
+    if (GrOp* clearOp = this->recordOp(std::move(op))) {
         // This is either the clear op we just created or another one that it combined with.
         fLastFullClearOp = static_cast<GrClearOp*>(clearOp);
-        fLastFullClearResourceID = renderTarget->uniqueID();
-        fLastFullClearProxyID = renderTargetContext->asRenderTargetProxy()->uniqueID();
     }
 }
 
@@ -231,6 +214,8 @@ bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
                                        GrSurfaceProxy* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
+    SkASSERT(dst->asRenderTargetProxy() == fTarget.get());
+
     std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(resourceProvider, dst->asSurfaceProxy(),
                                                      src, srcRect, dstPoint);
     if (!op) {
@@ -240,7 +225,7 @@ bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
     this->addDependency(src);
 #endif
 
-    this->recordOp(std::move(op), dst);
+    this->recordOp(std::move(op));
     return true;
 }
 
@@ -271,11 +256,9 @@ bool GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,
 }
 
 GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
-                                     GrRenderTargetContext* renderTargetContext,
                                      GrAppliedClip* clip,
                                      const DstTexture* dstTexture) {
     SkASSERT(fTarget.get());
-    const GrCaps* caps = renderTargetContext->caps();
 
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
@@ -284,8 +267,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     // 1) check every op
     // 2) intersect with something
     // 3) find a 'blocker'
-    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(),
-                          renderTargetContext->asRenderTargetProxy()->uniqueID());
+    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), fTarget.get()->uniqueID());
     GrOP_INFO("opList: %d Recording (%s, opID: %u)\n"
               "\tBounds [L: %.2f, T: %.2f R: %.2f B: %.2f]\n",
                this->uniqueID(),
@@ -302,7 +284,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         while (true) {
             const RecordedOp& candidate = fRecordedOps.fromBack(i);
 
-            if (this->combineIfPossible(candidate, op.get(), clip, dstTexture, *caps)) {
+            if (this->combineIfPossible(candidate, op.get(), clip, dstTexture, *fCaps)) {
                 GrOP_INFO("\t\tBackward: Combining with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 GrOP_INFO("\t\t\tBackward: Combined op info:\n");
@@ -333,12 +315,10 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     fRecordedOps.emplace_back(std::move(op), clip, dstTexture);
     fRecordedOps.back().fOp->wasRecorded(this);
     fLastFullClearOp = nullptr;
-    fLastFullClearResourceID.makeInvalid();
-    fLastFullClearProxyID.makeInvalid();
     return fRecordedOps.back().fOp.get();
 }
 
-void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
+void GrRenderTargetOpList::forwardCombine() {
     SkASSERT(!this->isClosed());
 
     for (int i = 0; i < fRecordedOps.count() - 1; ++i) {
@@ -350,7 +330,7 @@ void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
             const RecordedOp& candidate = fRecordedOps[j];
 
             if (this->combineIfPossible(fRecordedOps[i], candidate.fOp.get(),
-                                        candidate.fAppliedClip, &candidate.fDstTexture, caps)) {
+                                        candidate.fAppliedClip, &candidate.fDstTexture, *fCaps)) {
                 GrOP_INFO("\t\tForward: Combining with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, op, candidate.fOp.get());

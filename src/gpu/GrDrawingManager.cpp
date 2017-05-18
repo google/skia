@@ -26,7 +26,7 @@
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fOpLists.count(); ++i) {
         // no opList should receive a new command after this
-        fOpLists[i]->makeClosed(*fContext->caps());
+        fOpLists[i]->makeClosed();
 
         // We shouldn't need to do this, but it turns out some clients still hold onto opLists
         // after a cleanup.
@@ -92,7 +92,7 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
         // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
         // but need to be flushed anyway. Closing such GrOpLists here will mean new
         // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
-        fOpLists[i]->makeClosed(*fContext->caps());
+        fOpLists[i]->makeClosed();
     }
 
 #ifdef ENABLE_MDB
@@ -125,7 +125,7 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
                 if (!opList) {
                     continue;   // Odd - but not a big deal
                 }
-                opList->makeClosed(*fContext->caps());
+                opList->makeClosed();
                 opList->prepareOps(&fFlushState);
                 if (!opList->executeOps(&fFlushState)) {
                     continue;         // This is bad
@@ -212,7 +212,7 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
     // so ops that (in the single opList world) would've just glommed onto the end of the single
     // opList but referred to a far earlier RT need to appear in their own opList.
     if (!fOpLists.empty()) {
-        fOpLists.back()->makeClosed(*fContext->caps());
+        fOpLists.back()->makeClosed();
     }
 
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(rtp,
@@ -232,7 +232,7 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
     // so ops that (in the single opList world) would've just glommed onto the end of the single
     // opList but referred to a far earlier RT need to appear in their own opList.
     if (!fOpLists.empty()) {
-        fOpLists.back()->makeClosed(*fContext->caps());
+        fOpLists.back()->makeClosed();
     }
 
     sk_sp<GrTextureOpList> opList(new GrTextureOpList(textureProxy, fContext->getAuditTrail()));
