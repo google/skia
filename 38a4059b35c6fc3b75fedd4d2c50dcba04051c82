@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "89734d11_4a1f2013",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-18T17:44:03Z",
+      "side": 1,
+      "message": "I\u0027m not sure how vbuffer-\u003eoffset() is used, but various draws could easily share instance data in the same buffer, thus requiring an offset.",
+      "parentUuid": "12029645_adc5ddfd",
+      "range": {
+        "startLine": 48,
+        "startChar": 22,
+        "endLine": 48,
+        "endChar": 66
+      },
+      "revId": "38a4059b35c6fc3b75fedd4d2c50dcba04051c82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a9babeb2_18e5cca9",
         "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9bd005c9_de9156d8",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-18T17:44:03Z",
+      "side": 1,
+      "message": "Done (I think?)",
+      "parentUuid": "a9babeb2_18e5cca9",
+      "range": {
+        "startLine": 593,
+        "startChar": 16,
+        "endLine": 593,
+        "endChar": 40
+      },
+      "revId": "38a4059b35c6fc3b75fedd4d2c50dcba04051c82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "844b5e48_96d09549",
         "filename": "src/gpu/vk/GrVkTypesPriv.h",
         "patchSetId": 3
@@ -68,6 +116,30 @@
       "revId": "38a4059b35c6fc3b75fedd4d2c50dcba04051c82",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3b73d67_471d8236",
+        "filename": "src/gpu/vk/GrVkTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-18T17:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "844b5e48_96d09549",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 2
+      },
+      "revId": "38a4059b35c6fc3b75fedd4d2c50dcba04051c82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
