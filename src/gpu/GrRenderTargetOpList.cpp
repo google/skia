@@ -208,15 +208,14 @@ void GrRenderTargetOpList::fullClear(const GrCaps& caps, GrColor color) {
 ////////////////////////////////////////////////////////////////////////////////
 
 // MDB TODO: fuse with GrTextureOpList::copySurface
-bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
-                                       GrRenderTargetContext* dst,
+bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
+                                       GrSurfaceProxy* dst,
                                        GrSurfaceProxy* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
-    SkASSERT(dst->asRenderTargetProxy() == fTarget.get());
+    SkASSERT(dst == fTarget.get());
 
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(resourceProvider, dst->asSurfaceProxy(),
-                                                     src, srcRect, dstPoint);
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
@@ -224,7 +223,7 @@ bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
     this->addDependency(src);
 #endif
 
-    this->recordOp(std::move(op), *resourceProvider->caps());
+    this->recordOp(std::move(op), caps);
     return true;
 }
 
