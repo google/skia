@@ -2763,10 +2763,11 @@ void SkCanvas::drawArc(const SkRect& oval, SkScalar startAngle,
                        SkScalar sweepAngle, bool useCenter,
                        const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawArc()");
-    if (oval.isEmpty() || !sweepAngle) {
+    SkRect sorted = oval.makeSorted();
+    if (sorted.isEmpty() || !sweepAngle) {
         return;
     }
-    this->onDrawArc(oval, startAngle, sweepAngle, useCenter, paint);
+    this->onDrawArc(sorted, startAngle, sweepAngle, useCenter, paint);
 }
 
 void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,

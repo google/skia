@@ -1437,7 +1437,8 @@ void SkPath::rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, SkPath::ArcS
 }
 
 void SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle) {
-    if (oval.isEmpty() || 0 == sweepAngle) {
+    SkRect sorted = oval.makeSorted();
+    if (sorted.isEmpty() || 0 == sweepAngle) {
         return;
     }
 
@@ -1453,12 +1454,12 @@ void SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle
             // Index 1 is at startAngle == 0.
             SkScalar startIndex = std::fmod(startOver90I + 1.f, 4.f);
             startIndex = startIndex < 0 ? startIndex + 4.f : startIndex;
-            this->addOval(oval, sweepAngle > 0 ? kCW_Direction : kCCW_Direction,
+            this->addOval(sorted, sweepAngle > 0 ? kCW_Direction : kCCW_Direction,
                           (unsigned) startIndex);
             return;
         }
     }
-    this->arcTo(oval, startAngle, sweepAngle, true);
+    this->arcTo(sorted, startAngle, sweepAngle, true);
 }
 
 /*
