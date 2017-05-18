@@ -216,6 +216,7 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID) {
         SkDebugf("Program linking failed.\n");
         GrGLint infoLen = GR_GL_INIT_ZERO;
         GL_CALL(GetProgramiv(programID, GR_GL_INFO_LOG_LENGTH, &infoLen));
+        printf("infoLen: %d\n", infoLen);
         SkAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
         if (infoLen > 0) {
             // retrieve length even though we don't need it to workaround
