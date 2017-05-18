@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ea3d995_4be7c7fc",
+        "filename": "bench/ShadowBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-18T18:08:06Z",
+      "side": 1,
+      "message": "Need this ?",
+      "revId": "f5368a14c3048a9be59463faa91036d758307632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bce9b24c_3465dab5",
+        "filename": "bench/ShadowBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-18T18:08:06Z",
+      "side": 1,
+      "message": "Do we need this ?",
+      "revId": "f5368a14c3048a9be59463faa91036d758307632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6114395d_80509361",
+        "filename": "bench/ShadowBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-18T18:08:06Z",
+      "side": 1,
+      "message": "Do we still need this ?",
+      "revId": "f5368a14c3048a9be59463faa91036d758307632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26a318c4_d8b29faf",
+        "filename": "bench/ShadowBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-18T18:08:06Z",
+      "side": 1,
+      "message": "N -\u003e kNumVariants, kNumDistinctRRects ?",
+      "revId": "f5368a14c3048a9be59463faa91036d758307632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "666e8836_e0b4aebf",
+        "filename": "bench/ShadowBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-18T18:08:06Z",
+      "side": 1,
+      "message": "low priority nit: Make the member variables private?",
+      "revId": "f5368a14c3048a9be59463faa91036d758307632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "404ec0cf_889f6242",
+        "filename": "bench/ShadowBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-18T18:08:06Z",
+      "side": 1,
+      "message": "Move these two (kGeomChars too) into \u0027computeName\u0027 as statics ?",
+      "revId": "f5368a14c3048a9be59463faa91036d758307632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93f61282_166351bb",
+        "filename": "bench/ShadowBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-18T18:08:06Z",
+      "side": 1,
+      "message": "Make this private ? Also shouldn\u0027t we just do this once in the ctor and just return fBaseName from onGetName ?",
+      "revId": "f5368a14c3048a9be59463faa91036d758307632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fb16eef_ffcbc44a",
+        "filename": "bench/ShadowBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-18T18:08:06Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "revId": "f5368a14c3048a9be59463faa91036d758307632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4254f3e5_7d789103",
+        "filename": "bench/ShadowBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-18T18:08:06Z",
+      "side": 1,
+      "message": "Do we want to time the drawing of the original rrect ?",
+      "revId": "f5368a14c3048a9be59463faa91036d758307632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "290579be_a0b020c0",
+        "filename": "bench/ShadowBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-18T18:08:06Z",
+      "side": 1,
+      "message": "very low priority nit: 0,1 -\u003e false,true ?",
+      "revId": "f5368a14c3048a9be59463faa91036d758307632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
