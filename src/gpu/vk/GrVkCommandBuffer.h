@@ -11,6 +11,7 @@
 #include "GrVkGpu.h"
 #include "GrVkResource.h"
 #include "GrVkSemaphore.h"
+#include "GrVkTypesPriv.h"
 #include "GrVkUtil.h"
 #include "vk/GrVkDefines.h"
 
@@ -40,33 +41,34 @@ public:
                          BarrierType barrierType,
                          void* barrier) const;
 
-    void bindVertexBuffer(GrVkGpu* gpu, const GrVkVertexBuffer* vbuffer) {
+    void bindInputBuffer(GrVkGpu* gpu, GrVkAttribBinding binding, const GrVkVertexBuffer* vbuffer) {
+        int bindingIdx = (int) binding;
         VkBuffer vkBuffer = vbuffer->buffer();
+        SkASSERT(VK_NULL_HANDLE != vkBuffer);
         // TODO: once vbuffer->offset() no longer always returns 0, we will need to track the offset
         // to know if we can skip binding or not.
-        if (!fBoundVertexBufferIsValid || vkBuffer != fBoundVertexBuffer) {
+        if (vkBuffer != fBoundInputBuffers[bindingIdx]) {
             VkDeviceSize offset = vbuffer->offset();
             GR_VK_CALL(gpu->vkInterface(), CmdBindVertexBuffers(fCmdBuffer,
-                                                                0,
+                                                                bindingIdx,
                                                                 1,
                                                                 &vkBuffer,
                                                                 &offset));
-            fBoundVertexBufferIsValid = true;
-            fBoundVertexBuffer = vkBuffer;
+            fBoundInputBuffers[bindingIdx] = vkBuffer;
             addResource(vbuffer->resource());
         }
     }
 
     void bindIndexBuffer(GrVkGpu* gpu, const GrVkIndexBuffer* ibuffer) {
         VkBuffer vkBuffer = ibuffer->buffer();
+        SkASSERT(VK_NULL_HANDLE != vkBuffer);
         // TODO: once ibuffer->offset() no longer always returns 0, we will need to track the offset
         // to know if we can skip binding or not.
-        if (!fBoundIndexBufferIsValid || vkBuffer != fBoundIndexBuffer) {
+        if (vkBuffer != fBoundIndexBuffer) {
             GR_VK_CALL(gpu->vkInterface(), CmdBindIndexBuffer(fCmdBuffer,
                                                               vkBuffer,
                                                               ibuffer->offset(),
                                                               VK_INDEX_TYPE_UINT16));
-            fBoundIndexBufferIsValid = true;
             fBoundIndexBuffer = vkBuffer;
             addResource(ibuffer->resource());
         }
@@ -146,8 +148,6 @@ protected:
             : fIsActive(false)
             , fActiveRenderPass(rp)
             , fCmdBuffer(cmdBuffer)
-            , fBoundVertexBufferIsValid(false)
-            , fBoundIndexBufferIsValid(false)
             , fNumResets(0) {
             fTrackedResources.setReserve(kInitialTrackedResourcesCount);
             fTrackedRecycledResources.setReserve(kInitialTrackedResourcesCount);
@@ -177,11 +177,8 @@ private:
 
     virtual void onReset(GrVkGpu* gpu) {}
 
-    VkBuffer                                fBoundVertexBuffer;
-    bool                                    fBoundVertexBufferIsValid;
-
-    VkBuffer                                fBoundIndexBuffer;
-    bool                                    fBoundIndexBufferIsValid;
+    VkBuffer fBoundInputBuffers[kNumGrVkAttribBindings];
+    VkBuffer fBoundIndexBuffer;
 
     // When resetting the command buffer, we remove the tracked resources from their arrays, and
     // we prefer to not free all the memory every time so usually we just rewind. However, to avoid
