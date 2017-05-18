@@ -621,6 +621,7 @@ public:
         return 0 == memcmp(fMat, m.fMat, sizeof(fMat));
     }
 
+    // mac chromium dbg requires SK_API to make operator== visible
     friend SK_API bool operator==(const SkMatrix& a, const SkMatrix& b);
     friend SK_API bool operator!=(const SkMatrix& a, const SkMatrix& b) {
         return !(a == b);

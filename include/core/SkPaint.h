@@ -56,6 +56,7 @@ public:
         may return false.  It will never give false positives: two paints that
         are not equivalent always return false.
     */
+    // cc_unittests requires SK_API to make operator== visible
     SK_API friend bool operator==(const SkPaint& a, const SkPaint& b);
     friend bool operator!=(const SkPaint& a, const SkPaint& b) {
         return !(a == b);
