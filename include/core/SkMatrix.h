@@ -621,8 +621,8 @@ public:
         return 0 == memcmp(fMat, m.fMat, sizeof(fMat));
     }
 
-    friend SK_API bool operator==(const SkMatrix& a, const SkMatrix& b);
-    friend SK_API bool operator!=(const SkMatrix& a, const SkMatrix& b) {
+    friend bool operator==(const SkMatrix& a, const SkMatrix& b);
+    friend bool operator!=(const SkMatrix& a, const SkMatrix& b) {
         return !(a == b);
     }
 

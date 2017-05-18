@@ -36,11 +36,11 @@ public:
     };
 
     SkPath();
-    SkPath(const SkPath&);
+    SkPath(const SkPath& path);
     ~SkPath();
 
-    SkPath& operator=(const SkPath&);
-    friend  SK_API bool operator==(const SkPath&, const SkPath&);
+    SkPath& operator=(const SkPath& path);
+    friend bool operator==(const SkPath& a, const SkPath& b);
     friend bool operator!=(const SkPath& a, const SkPath& b) {
         return !(a == b);
     }
@@ -150,7 +150,7 @@ public:
      *  changed (e.g. lineTo(), addRect(), etc.) then the cached value will be
      *  reset to kUnknown_Convexity.
      */
-    void setConvexity(Convexity);
+    void setConvexity(Convexity convexity);
 
     /**
      *  Returns true if the path is flagged as being convex. This is not a
