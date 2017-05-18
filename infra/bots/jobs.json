@@ -371,10 +371,10 @@
   "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI",
   "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release",
   "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release-GDI",
-  "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-RaspberryPi",
-  "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-RaspberryPi",
-  "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-RaspberryPi",
-  "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-RaspberryPi",
-  "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-RaspberryPi",
-  "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-RaspberryPi"
+  "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug",
+  "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release",
+  "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug",
+  "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release",
+  "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug",
+  "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release"
 ]
