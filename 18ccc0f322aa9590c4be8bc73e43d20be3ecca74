@@ -16,6 +16,24 @@
       "revId": "18ccc0f322aa9590c4be8bc73e43d20be3ecca74",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf9b3231_bdf66fcc",
+        "filename": "src/gpu/vk/GrVkTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-18T16:30:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "599c8e4c_651b3ee3",
+      "revId": "18ccc0f322aa9590c4be8bc73e43d20be3ecca74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
