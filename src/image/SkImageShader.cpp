@@ -124,9 +124,8 @@ void SkImageShader::toString(SkString* str) const {
 
 #include "SkGr.h"
 #include "GrContext.h"
-#include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrBicubicEffect.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "GrSimpleTextureEffect.h"
 
 sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& args) const {
 

@@ -21,7 +21,8 @@ struct ProgramElement : public IRNode {
         kFunction_Kind,
         kInterfaceBlock_Kind,
         kExtension_Kind,
-        kModifiers_Kind
+        kModifiers_Kind,
+        kSection_Kind
     };
 
     ProgramElement(Position position, Kind kind)
