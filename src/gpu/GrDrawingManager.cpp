@@ -95,6 +95,23 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
         fOpLists[i]->makeClosed(*fContext->caps());
     }
 
+#ifdef SK_DEBUG
+    // This block checks for any unnecessary splits in the opLists. If two sequential opLists
+    // share the same backing GrSurfaceProxy it means the opList was artificially split.
+    if (fOpLists.count()) {
+        GrRenderTargetOpList* prevOpList = fOpLists[0]->asRenderTargetOpList();
+        for (int i = 1; i < fOpLists.count(); ++i) {
+            GrRenderTargetOpList* curOpList = fOpLists[i]->asRenderTargetOpList();
+
+            if (prevOpList && curOpList) {
+                SkASSERT(prevOpList->fTarget.get() != curOpList->fTarget.get());
+            }
+
+            prevOpList = curOpList;
+        }
+    }
+#endif
+
 #ifdef ENABLE_MDB
     SkDEBUGCODE(bool result =)
                         SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
