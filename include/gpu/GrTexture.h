@@ -36,6 +36,7 @@ public:
 #ifdef SK_DEBUG
     void validate() const {
         this->INHERITED::validate();
+        this->validateDesc();
     }
 #endif
 
@@ -52,6 +53,8 @@ public:
 protected:
     GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType samplerType,
               GrSamplerParams::FilterMode highestFilterMode, bool wasMipMapDataProvided);
+
+    void validateDesc() const;
 
 private:
     void computeScratchKey(GrScratchKey*) const override;

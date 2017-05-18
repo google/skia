@@ -23,12 +23,12 @@ public:
     /**
      * Retrieves the width of the surface.
      */
-    int width() const { return fWidth; }
+    int width() const { return fDesc.fWidth; }
 
     /**
      * Retrieves the height of the surface.
      */
-    int height() const { return fHeight; }
+    int height() const { return fDesc.fHeight; }
 
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.
@@ -36,8 +36,9 @@ public:
     SkRect getBoundsRect() const { return SkRect::MakeIWH(this->width(), this->height()); }
 
     GrSurfaceOrigin origin() const {
-        SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
-        return fOrigin;
+        SkASSERT(kTopLeft_GrSurfaceOrigin == fDesc.fOrigin ||
+                 kBottomLeft_GrSurfaceOrigin == fDesc.fOrigin);
+        return fDesc.fOrigin;
     }
 
     /**
@@ -46,7 +47,7 @@ public:
      * if client asked us to render to a target that has a pixel
      * config that isn't equivalent with one of our configs.
      */
-    GrPixelConfig config() const { return fConfig; }
+    GrPixelConfig config() const { return fDesc.fConfig; }
 
     /**
      * @return the texture associated with the surface, may be null.
@@ -78,23 +79,17 @@ protected:
     friend class GrSurfacePriv;
 
     GrSurface(GrGpu* gpu, const GrSurfaceDesc& desc)
-            : INHERITED(gpu)
-            , fConfig(desc.fConfig)
-            , fWidth(desc.fWidth)
-            , fHeight(desc.fHeight)
-            , fOrigin(desc.fOrigin) {}
+        : INHERITED(gpu)
+        , fDesc(desc) {
+    }
     ~GrSurface() override {}
 
+    GrSurfaceDesc fDesc;
 
     void onRelease() override;
     void onAbandon() override;
 
 private:
-    GrPixelConfig        fConfig;
-    int                  fWidth;
-    int                  fHeight;
-    GrSurfaceOrigin      fOrigin;
-
     typedef GrGpuResource INHERITED;
 };
 
