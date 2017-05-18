@@ -82,7 +82,7 @@ def GenTests(api):
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]',
-                     patch_issue='123',
-                     patch_set='3') +
+                     patch_issue=123,
+                     patch_set=3) +
       api.expect_exception('Exception')
   )
