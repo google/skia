@@ -25,13 +25,20 @@ static constexpr int kH = 800;
 void draw_paths(SkCanvas* canvas, bool hideOccluders) {
     SkTArray<SkPath> paths;
     paths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
+    // disable cache for now until we can figure out how to make it more stable
+    paths.back().setIsVolatile(true);
     SkRRect oddRRect;
     oddRRect.setNinePatch(SkRect::MakeWH(50, 50), 9, 13, 6, 16);
     paths.push_back().addRRect(oddRRect);
+    paths.back().setIsVolatile(true);
     paths.push_back().addRect(SkRect::MakeWH(50, 50));
+    paths.back().setIsVolatile(true);
     paths.push_back().addCircle(25, 25, 25);
+    paths.back().setIsVolatile(true);
     paths.push_back().cubicTo(100, 50, 20, 100, 0, 0);
+    paths.back().setIsVolatile(true);
     paths.push_back().addOval(SkRect::MakeWH(20, 60));
+    paths.back().setIsVolatile(true);
 
     static constexpr SkScalar kPad = 15.f;
     static constexpr SkScalar kLightR = 100.f;
