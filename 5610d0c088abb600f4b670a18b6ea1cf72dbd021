@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12f48ba6_9cd17976",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-18T14:33:44Z",
+      "side": 1,
+      "message": "nit: is -\u003e are",
+      "range": {
+        "startLine": 9,
+        "startChar": 17,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8601bb51_a612609c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-18T14:33:44Z",
+      "side": 1,
+      "message": ", which is unchanged from the old skjpeg_source_mgr (besides the name).",
+      "range": {
+        "startLine": 13,
+        "startChar": 12,
+        "endLine": 13,
+        "endChar": 38
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74cb710e_aa077f89",
+        "filename": "src/codec/SkJpegDecoderMgr.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-18T14:33:44Z",
+      "side": 1,
+      "message": "Nit: Please realign the other member names so they line up with fSrcMgr (notice how they were all lined up before).",
+      "range": {
+        "startLine": 69,
+        "startChar": 37,
+        "endLine": 69,
+        "endChar": 44
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19fdc1ce_3c2c2ca9",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-18T14:33:44Z",
+      "side": 1,
+      "message": "If we cannot set this to null, please update the comment to specify that no initialization is necessary, since it was already done in the constructor.",
+      "range": {
+        "startLine": 101,
+        "startChar": 12,
+        "endLine": 101,
+        "endChar": 30
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59ea2deb_ddd5e753",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-18T14:33:44Z",
+      "side": 1,
+      "message": "I don\u0027t think this cast is necessary. Everything you access on src is a member variable of the base class, so you can use cinfo-\u003esrc directly. (I\u0027m not opposed to using a local variable so you can remove \"cinfo-\u003e\" from each access, though.)",
+      "range": {
+        "startLine": 105,
+        "startChar": 4,
+        "endLine": 105,
+        "endChar": 81
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6422930b_031dccd0",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-18T14:33:44Z",
+      "side": 1,
+      "message": "nit: \"*\" next to the type, i.e.\n\nSkStream* stream",
+      "range": {
+        "startLine": 124,
+        "startChar": 45,
+        "endLine": 124,
+        "endChar": 61
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ed41fed_f5672824",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-18T14:33:44Z",
+      "side": 1,
+      "message": "Does it make any difference to move this into sk_init_mem_source? (It will definitely add some more code though; you\u0027ll need a pointer to the SkStream, in order to access it in sk_init_mem_source.)\n\nIf not, can init_source be null? Or does libjpeg-turbo not check for that?",
+      "range": {
+        "startLine": 134,
+        "startChar": 4,
+        "endLine": 134,
+        "endChar": 19
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "719f48ad_62bc0f35",
+        "filename": "src/codec/SkJpegUtility.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-18T14:33:44Z",
+      "side": 1,
+      "message": "Really this does not need to be a subclass, since it does not have any (additional) members (besides a constructor). You could just use a plain jpeg_source_mgr, and if you want use a function to do all the work that is currently done in the constructor.",
+      "range": {
+        "startLine": 47,
+        "startChar": 7,
+        "endLine": 47,
+        "endChar": 28
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
