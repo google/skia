@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "950c5cec_71b37119",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-18T18:01:36Z",
+      "side": 1,
+      "message": "nit, in most of our files we sort these at the top (after #include \u003c...\u003e)",
+      "range": {
+        "startLine": 26,
+        "startChar": 9,
+        "endLine": 26,
+        "endChar": 37
+      },
+      "revId": "ed4cda2037d4df8ac1560672911160a0d8891e18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0054418a_5d15c9b2",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1707,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-18T18:01:36Z",
+      "side": 1,
+      "message": "Should we do all this in GrRenderTargetContext?",
+      "range": {
+        "startLine": 1679,
+        "startChar": 3,
+        "endLine": 1707,
+        "endChar": 5
+      },
+      "revId": "ed4cda2037d4df8ac1560672911160a0d8891e18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
