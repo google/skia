@@ -47,6 +47,7 @@
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
+#include "../private/SkShadowFlags.h"
 #include "text/GrTextUtils.h"
 
 #if SK_SUPPORT_GPU
@@ -1657,6 +1658,56 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode,
     }
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), this->ctm(),
                                        sk_ref_sp(const_cast<SkVertices*>(vertices)));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void SkGpuDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
+
+    ASSERT_SINGLE_OWNER
+    CHECK_SHOULD_DRAW();
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawShadow", fContext.get());
+
+    SkPaint p;
+    p.setColor(rec.fColor);
+    GrPaint grPaint;
+    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext.get(), p, this->ctm(),
+                          &grPaint)) {
+        return;
+    }
+
+    // check z plane
+    bool tiltZPlane = SkToBool(!SkScalarNearlyZero(rec.fZPlaneParams.fX) ||
+                               !SkScalarNearlyZero(rec.fZPlaneParams.fY));
+    bool skipAnalytic = SkToBool(rec.fFlags & SkShadowFlags::kGeometricOnly_ShadowFlag);
+
+    const SkMatrix& ctm = this->ctm();
+    if (!tiltZPlane && !skipAnalytic && ctm.rectStaysRect() && ctm.isSimilarity()) {
+        SkRect rect;
+        SkRRect rrect;
+        // we can only handle rects, circles, and rrects with circular corners
+        bool isRRect = path.isRRect(&rrect) && rrect.isSimpleCircular() &&
+                       rrect.radii(SkRRect::kUpperLeft_Corner).fX > SK_ScalarNearlyZero;
+        if (!isRRect &&
+            path.isOval(&rect) && SkScalarNearlyEqual(rect.width(), rect.height()) &&
+            rect.width() > SK_ScalarNearlyZero) {
+            rrect.setOval(rect);
+            isRRect = true;
+        }
+        if (!isRRect && path.isRect(&rect)) {
+            rrect.setRect(rect);
+            isRRect = true;
+        }
+
+        if (isRRect) {
+            fRenderTargetContext->drawShadowRRect(this->clip(), std::move(grPaint), this->ctm(),
+                                                  rrect, rec);
+            return;
+        }
+    }
+
+    // failed to find an accelerated case
+    this->INHERITED::drawShadow(path, rec);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
