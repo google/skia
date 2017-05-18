@@ -40,20 +40,21 @@ void String::vappendf(const char* fmt, va_list args) {
 #endif
     #define BUFFER_SIZE 256
     char buffer[BUFFER_SIZE];
+    va_list reuse;
+    va_copy(reuse, args);
     size_t size = VSNPRINTF(buffer, BUFFER_SIZE, fmt, args);
     if (BUFFER_SIZE >= size) {
         this->append(buffer, size);
     } else {
-        auto newBuffer = std::unique_ptr<char[]>(new char[size]);
-        VSNPRINTF(newBuffer.get(), size, fmt, args);
+        auto newBuffer = std::unique_ptr<char[]>(new char[size + 1]);
+        VSNPRINTF(newBuffer.get(), size + 1, fmt, reuse);
         this->append(newBuffer.get(), size);
     }
-    va_end(args);
 }
 
 
 bool String::startsWith(const char* s) const {
-    return strncmp(c_str(), s, strlen(s));
+    return !strncmp(c_str(), s, strlen(s));
 }
 
 bool String::endsWith(const char* s) const {
@@ -61,7 +62,7 @@ bool String::endsWith(const char* s) const {
     if (size() < len) {
         return false;
     }
-    return strncmp(c_str() + size() - len, s, len);
+    return !strncmp(c_str() + size() - len, s, len);
 }
 
 String String::operator+(const char* s) const {

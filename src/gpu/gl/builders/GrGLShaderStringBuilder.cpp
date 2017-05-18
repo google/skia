@@ -46,7 +46,7 @@ std::unique_ptr<SkSL::Program> translate_to_glsl(const GrGLContext& context, GrG
                                                  const char** skslStrings, int* lengths, int count,
                                                  const SkSL::Program::Settings& settings,
                                                  SkSL::String* glsl) {
-    SkString sksl;
+    SkSL::String sksl;
 #ifdef SK_DEBUG
     sksl = GrSKSLPrettyPrint::PrettyPrint(skslStrings, lengths, count, false);
 #else

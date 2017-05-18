@@ -26,7 +26,7 @@
 #include "GrStyle.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "GrSimpleTextureEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

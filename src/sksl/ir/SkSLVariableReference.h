@@ -14,6 +14,7 @@
 #include "SkSLFloatLiteral.h"
 #include "SkSLIRGenerator.h"
 #include "SkSLIntLiteral.h"
+#include "SkSLSetting.h"
 
 namespace SkSL {
 
@@ -103,6 +104,12 @@ struct VariableReference : public Expression {
                 }
                 return std::unique_ptr<Expression>(new Constructor(Position(), c->fType,
                                                                    std::move(args)));
+            }
+            case Expression::kSetting_Kind: {
+                const Setting* s = (const Setting*) expr;
+                return std::unique_ptr<Expression>(new Setting(Position(), s->fName,
+                                                               copy_constant(irGenerator,
+                                                                             s->fValue.get())));
             }
             default:
                 ABORT("unsupported constant\n");

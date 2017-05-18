@@ -18,7 +18,7 @@
 #include "SkColorPriv.h"
 #include "SkGr.h"
 #include "effects/GrPorterDuffXferProcessor.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "GrSimpleTextureEffect.h"
 
 constexpr int S = 200;
 constexpr int kStride = 2 * S;
