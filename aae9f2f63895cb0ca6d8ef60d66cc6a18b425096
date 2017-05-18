@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "640fd87d_19608134",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-18T18:03:44Z",
+      "side": 1,
+      "message": "I copied over the clamping from the shadeSpan4f version -- which added them after some blendmodes were asserting in debug-mode that components were outside of [0..1]. When I looked, they were only ever out by a tiny amount, so my guess is its either imprecision in building our matrices, or in the scan-converter itself, which might give us a pixel-center that is slightly outside of the actual domain of the 3 colors. I can take them out and see if we find a problem.\n\nHad not thought about color-correctness, but your suggestion sure sounds right : transform the inputs into dst-space and then I don\u0027t have to modify the matrix.",
+      "parentUuid": "470da80f_d450538c",
+      "range": {
+        "startLine": 443,
+        "startChar": 0,
+        "endLine": 444,
+        "endChar": 53
+      },
+      "revId": "aae9f2f63895cb0ca6d8ef60d66cc6a18b425096",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "143b8b74_60b88879",
         "filename": "src/core/SkDraw_vertices.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "aae9f2f63895cb0ca6d8ef60d66cc6a18b425096",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5124037_e99af282",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-18T18:03:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "143b8b74_60b88879",
+      "range": {
+        "startLine": 452,
+        "startChar": 0,
+        "endLine": 455,
+        "endChar": 5
+      },
+      "revId": "aae9f2f63895cb0ca6d8ef60d66cc6a18b425096",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
