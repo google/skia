@@ -21,9 +21,23 @@ SKIA_REPO_TEMPLATE = 'https://skia.googlesource.com/%s.git'
 
 CQ_INCLUDE_CHROMIUM_TRYBOTS = (
     'master.tryserver.blink:linux_trusty_blink_rel,linux_trusty_blink_dbg;'
+    'master.tryserver.chromium.linux:linux_chromium_compile_dbg_ng;'
+    'master.tryserver.chromium.linux:linux_chromium_compile_rel_ng;'
+    'master.tryserver.chromium.linux:linux_chromium_dbg_ng;'
+    'master.tryserver.chromium.linux:linux_chromium_rel_ng;'
     'master.tryserver.chromium.linux:linux_optional_gpu_tests_rel;'
+    'master.tryserver.chromium.mac:mac_chromium_compile_dbg_ng;'
+    'master.tryserver.chromium.mac:mac_chromium_compile_rel_ng;'
+    'master.tryserver.chromium.mac:mac_chromium_dbg_ng;'
+    'master.tryserver.chromium.mac:mac_chromium_rel_ng;'
     'master.tryserver.chromium.mac:mac_optional_gpu_tests_rel;'
+    'master.tryserver.chromium.win:win_chromium_compile_dbg_ng;'
+    'master.tryserver.chromium.win:win_chromium_compile_rel_ng;'
+    'master.tryserver.chromium.win:win_chromium_dbg_ng;'
+    'master.tryserver.chromium.win:win_chromium_rel_ng;'
     'master.tryserver.chromium.win:win_optional_gpu_tests_rel;'
+    'master.tryserver.chromium.android:android_compile_dbg;'
+    'master.tryserver.chromium.android:android_compile_rel;'
     'master.tryserver.chromium.android:android_optional_gpu_tests_rel'
 )
 
