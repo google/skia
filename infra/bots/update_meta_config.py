@@ -19,20 +19,44 @@ SKIA_COMMITTER_EMAIL = 'update-meta-config@skia.org'
 SKIA_COMMITTER_NAME = 'Update Meta Config'
 SKIA_REPO_TEMPLATE = 'https://skia.googlesource.com/%s.git'
 
-CQ_INCLUDE_CHROMIUM_TRYBOTS = (
-    'master.tryserver.blink:linux_trusty_blink_rel,linux_trusty_blink_dbg;'
-    'master.tryserver.chromium.linux:linux_optional_gpu_tests_rel;'
-    'master.tryserver.chromium.mac:mac_optional_gpu_tests_rel;'
-    'master.tryserver.chromium.win:win_optional_gpu_tests_rel;'
-    'master.tryserver.chromium.android:android_optional_gpu_tests_rel'
-)
+CQ_INCLUDE_CHROMIUM_TRYBOTS = [
+    ('master.tryserver.blink', [
+        'linux_trusty_blink_rel',
+        'linux_trusty_blink_dbg',
+    ]),
+    ('master.tryserver.chromium.linux', [
+        'linux_chromium_compile_dbg_ng',
+        'linux_chromium_compile_rel_ng',
+        'linux_chromium_dbg_ng',
+        'linux_chromium_rel_ng',
+        'linux_optional_gpu_tests_rel',
+    ]),
+    ('master.tryserver.chromium.mac', [
+        'mac_chromium_compile_dbg_ng',
+        'mac_chromium_compile_rel_ng',
+        'mac_chromium_dbg_ng',
+        'mac_chromium_rel_ng',
+        'mac_optional_gpu_tests_rel',
+    ]),
+    ('master.tryserver.chromium.win', [
+        'win_chromium_compile_dbg_ng',
+        'win_chromium_compile_rel_ng',
+        'win_chromium_dbg_ng',
+        'win_chromium_rel_ng',
+        'win_optional_gpu_tests_rel',
+    ]),
+    ('master.tryserver.chromium.android', [
+        'android_compile_dbg',
+        'android_compile_rel',
+        'android_optional_gpu_tests_rel',
+    ])
+]
 
 
 def addChromiumTrybots(f):
-  for master_section in CQ_INCLUDE_CHROMIUM_TRYBOTS.split(';'):
-    master, bots = master_section.split(':')
+  for master, bots in CQ_INCLUDE_CHROMIUM_TRYBOTS:
     f.write('[bucket "%s"]\n' % master)
-    for bot in bots.split(','):
+    for bot in bots:
       f.write('\tbuilder = %s\n' % bot)
 
 
