@@ -47,6 +47,7 @@
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
+#include "../private/SkShadowFlags.h"
 #include "text/GrTextUtils.h"
 
 #if SK_SUPPORT_GPU
@@ -1657,6 +1658,29 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode,
     }
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), this->ctm(),
                                        sk_ref_sp(const_cast<SkVertices*>(vertices)));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void SkGpuDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
+
+    ASSERT_SINGLE_OWNER
+    CHECK_SHOULD_DRAW();
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawShadow", fContext.get());
+
+    SkPaint p;
+    p.setColor(rec.fColor);
+    GrPaint grPaint;
+    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext.get(), p, this->ctm(),
+                          &grPaint)) {
+        return;
+    }
+
+    if (!fRenderTargetContext->drawFastShadow(this->clip(), std::move(grPaint),
+                                              this->ctm(), path, rec)) {
+        // failed to find an accelerated case
+        this->INHERITED::drawShadow(path, rec);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

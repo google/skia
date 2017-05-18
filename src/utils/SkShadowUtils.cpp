@@ -22,8 +22,6 @@
 #if SK_SUPPORT_GPU
 #include "GrShape.h"
 #include "effects/GrBlurredEdgeFragmentProcessor.h"
-#include "../../src/effects/shadows/SkAmbientShadowMaskFilter.h"
-#include "../../src/effects/shadows/SkSpotShadowMaskFilter.h"
 #endif
 
 /**
@@ -515,68 +513,6 @@ static SkPoint3 map(const SkMatrix& m, const SkPoint3& pt) {
     result.fZ = pt.fZ;
     return result;
 }
-
-#if SK_SUPPORT_GPU
-#include "SkGpuDevice.h"
-void SkGpuDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
-    // check z plane
-    bool tiltZPlane = tilted(rec.fZPlaneParams);
-    bool skipAnalytic = SkToBool(rec.fFlags & SkShadowFlags::kGeometricOnly_ShadowFlag);
-
-    const SkMatrix& ctm = this->ctm();
-
-    if (!tiltZPlane && !skipAnalytic && ctm.rectStaysRect() && ctm.isSimilarity()) {
-        SkPoint3 devLightPos = map(ctm, rec.fLightPos);
-
-        const SkScalar occluderZ = rec.fZPlaneParams.fZ;
-        SkPaint ambientPaint, spotPaint;
-        ambientPaint.setColor(rec.fColor);
-        spotPaint.setColor(rec.fColor);
-        if (rec.fAmbientAlpha > 0) {
-            ambientPaint.setMaskFilter(SkAmbientShadowMaskFilter::Make(occluderZ, rec.fAmbientAlpha,
-                                                                       rec.fFlags));
-        }
-        if (rec.fSpotAlpha > 0) {
-            spotPaint.setMaskFilter(SkSpotShadowMaskFilter::Make(occluderZ, devLightPos,
-                                                                 rec.fLightRadius, rec.fSpotAlpha,
-                                                                 rec.fFlags));
-        }
-
-        SkRect rect;
-        SkRRect rrect;
-        if (path.isRect(&rect)) {
-            if (rec.fAmbientAlpha > 0) {
-                this->drawRect(rect, ambientPaint);
-            }
-            if (rec.fSpotAlpha > 0) {
-                this->drawRect(rect, spotPaint);
-            }
-            return;
-        } else if (path.isRRect(&rrect) && rrect.isSimpleCircular() &&
-                   rrect.radii(SkRRect::kUpperLeft_Corner).fX > SK_ScalarNearlyZero) {
-            if (rec.fAmbientAlpha > 0) {
-                this->drawRRect(rrect, ambientPaint);
-            }
-            if (rec.fSpotAlpha > 0) {
-                this->drawRRect(rrect, spotPaint);
-            }
-            return;
-        } else if (path.isOval(&rect) && SkScalarNearlyEqual(rect.width(), rect.height()) &&
-                   rect.width() > SK_ScalarNearlyZero) {
-            if (rec.fAmbientAlpha > 0) {
-                this->drawOval(rect, ambientPaint);
-            }
-            if (rec.fSpotAlpha > 0) {
-                this->drawOval(rect, spotPaint);
-            }
-            return;
-        }
-    }
-
-    // failed to find an accelerated case
-    this->INHERITED::drawShadow(path, rec);
-}
-#endif
 
 static SkColor compute_render_color(SkColor color, float alpha) {
     return SkColorSetARGB(alpha*SkColorGetA(color), SkColorGetR(color),
