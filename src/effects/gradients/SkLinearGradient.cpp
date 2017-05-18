@@ -39,11 +39,11 @@ static SkMatrix pts_to_unit_matrix(const SkPoint pts[2]) {
     return matrix;
 }
 
-static bool use_4f_context(const SkShader::ContextRec& rec, uint32_t flags) {
+static bool use_4f_context(const SkShaderBase::ContextRec& rec, uint32_t flags) {
 #ifdef FORCE_4F_CONTEXT
     return true;
 #else
-    return rec.fPreferredDstType == SkShader::ContextRec::kPM4f_DstType
+    return rec.fPreferredDstType == SkShaderBase::ContextRec::kPM4f_DstType
         || SkToBool(flags & SkLinearGradient::kForce4fContext_PrivateFlag);
 #endif
 }
@@ -75,7 +75,7 @@ void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fEnd);
 }
 
-SkShader::Context* SkLinearGradient::onMakeContext(
+SkShaderBase::Context* SkLinearGradient::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
     return use_4f_context(rec, fGradFlags)
@@ -436,7 +436,7 @@ sk_sp<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) 
         SkGradientShader::MakeLinear(points, params.fColors, params.fStops,
                                      params.fColorCount, params.fTileMode);
     GrTest::TestAsFPArgs asFPArgs(d);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(asFPArgs.args());
+    sk_sp<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
     GrAlwaysAssert(fp);
     return fp;
 }
