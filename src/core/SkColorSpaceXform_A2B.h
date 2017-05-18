@@ -33,6 +33,7 @@ private:
 
     void addTransferFn(const SkColorSpaceTransferFn& fn, int channelIndex);
 
+    bool buildTableFn(SkTableTransferFn* table);
     void addTableFn(const SkTableTransferFn& table, int channelIndex);
 
     void addMatrix(const SkMatrix44& matrix);

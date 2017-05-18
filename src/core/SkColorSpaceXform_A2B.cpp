@@ -171,8 +171,8 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                                 gammas.data(channel).fTable.fSize,
                         };
 
+                        gammaNeedsRef |= !this->buildTableFn(&table);
                         this->addTableFn(table, channel);
-                        gammaNeedsRef = true;
                     } else {
                         SkColorSpaceTransferFn fn;
                         SkAssertResult(gamma_to_parametric(&fn, gammas, channel));
@@ -295,6 +295,33 @@ void SkColorSpaceXform_A2B::addTransferFn(const SkColorSpaceTransferFn& fn, int 
         default:
             SkASSERT(false);
     }
+}
+
+/**
+ *  |fn| is an in-out parameter.  If the table is too small to perform reasonable table-lookups
+ *  without interpolation, we will build a bigger table.
+ *
+ *  This returns false if we use the original table, meaning we do nothing here but need to keep
+ *  a reference to the original table.  This returns true if we build a new table and the original
+ *  table can be discarded.
+ */
+bool SkColorSpaceXform_A2B::buildTableFn(SkTableTransferFn* fn) {
+    // Arbitrary, but seems like a reasonable guess.
+    static constexpr int kMinTableSize = 256;
+
+    if (fn->fSize >= kMinTableSize) {
+        return false;
+    }
+
+    float* outTable = fAlloc.makeArray<float>(kMinTableSize);
+    float step = 1.0f / (kMinTableSize - 1);
+    for (int i = 0; i < kMinTableSize; i++) {
+        outTable[i] = interp_lut(i * step, fn->fData, fn->fSize);
+    }
+
+    fn->fData = outTable;
+    fn->fSize = kMinTableSize;
+    return true;
 }
 
 void SkColorSpaceXform_A2B::addTableFn(const SkTableTransferFn& fn, int channelIndex) {
