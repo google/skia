@@ -36,6 +36,9 @@ public:
         return gen ? sk_sp<SharedGenerator>(new SharedGenerator(std::move(gen))) : nullptr;
     }
 
+    // This is thread safe.  It is a const field set in the constructor.
+    const SkImageInfo& getInfo() { return fGenerator->getInfo(); }
+
 private:
     explicit SharedGenerator(std::unique_ptr<SkImageGenerator> gen)
             : fGenerator(std::move(gen)) {
@@ -596,7 +599,8 @@ sk_sp<SkImage> SkImage_Lazy::onMakeColorSpace(sk_sp<SkColorSpace> target,
                                               SkColorType targetColorType,
                                               SkTransferFunctionBehavior premulBehavior) const {
     SkBitmap dst;
-    SkImageInfo dstInfo = fInfo.makeColorType(targetColorType).makeColorSpace(target);
+    const SkImageInfo& genInfo = fSharedGenerator->getInfo();
+    SkImageInfo dstInfo = genInfo.makeColorType(targetColorType).makeColorSpace(target);
     dst.allocPixels(dstInfo);
     if (!this->directGeneratePixels(dstInfo, dst.getPixels(), dst.rowBytes(), 0, 0,
                                     premulBehavior)) {
@@ -604,7 +608,15 @@ sk_sp<SkImage> SkImage_Lazy::onMakeColorSpace(sk_sp<SkColorSpace> target,
     }
 
     dst.setImmutable();
-    return SkImage::MakeFromBitmap(dst);
+    sk_sp<SkImage> image = SkImage::MakeFromBitmap(dst);
+
+    if (genInfo.dimensions() != fInfo.dimensions()) {
+        // This image must be a subset.
+        image = image->makeSubset(SkIRect::MakeXYWH(fOrigin.fX, fOrigin.fY,
+                                                    fInfo.width(), fInfo.height()));
+    }
+
+    return image;
 }
 
 sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> generator,
