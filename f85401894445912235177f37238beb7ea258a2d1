@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a416bb4_202eed71",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-05-18T18:51:27Z",
+      "side": 1,
+      "message": "SkPM4f_from_SkColor(src[i], deviceCS) and SkColor4f_from_SkColor(src[i], deviceCS) would both do the right thing here, depending on whether you wanted  premul or unpremul out of this function.\n\nWe just suspect that using SkColorSpaceXform to transform them in one batch is faster.\n\nIt may be that using SkColorSpaceXform is a nice path to use for the !deviceCS case too, but the for-loop around SkPM4f_from_SkColor() is probably fine when !deviceCS.",
+      "parentUuid": "df57fbe2_c8b9ac78",
+      "range": {
+        "startLine": 406,
+        "startChar": 41,
+        "endLine": 406,
+        "endChar": 61
+      },
+      "revId": "f85401894445912235177f37238beb7ea258a2d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af5bad3a_7a15e54f",
         "filename": "src/core/SkDraw_vertices.cpp",
         "patchSetId": 7
