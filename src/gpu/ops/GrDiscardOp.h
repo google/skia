@@ -8,28 +8,17 @@
 #ifndef GrDiscardOp_DEFINED
 #define GrDiscardOp_DEFINED
 
-#include "GrGpu.h"
 #include "GrOp.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTarget.h"
-#include "GrRenderTargetContext.h"
+#include "GrRenderTargetProxy.h"
 
 class GrDiscardOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    // MDB TODO: replace the renderTargetContext with just the renderTargetProxy.
-    // For now, we need the renderTargetContext for its accessRenderTarget powers.
-    static std::unique_ptr<GrOp> Make(GrRenderTargetContext* rtc) {
-
-        // MDB TODO: remove this. In this hybrid state we need to be sure the RT is instantiable
-        // so it can carry the IO refs. In the future we will just get the proxy and
-        // it carry the IO refs.
-        if (!rtc->accessRenderTarget()) {
-            return nullptr;
-        }
-
-        return std::unique_ptr<GrOp>(new GrDiscardOp(rtc));
+    static std::unique_ptr<GrOp> Make(GrRenderTargetProxy* proxy) {
+        return std::unique_ptr<GrOp>(new GrDiscardOp(proxy));
     }
 
     const char* name() const override { return "Discard"; }
@@ -37,35 +26,33 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         string.append(INHERITED::dumpInfo());
-        string.printf("rtID: %d proxyID: %d\n", fRenderTarget.get()->uniqueID().asUInt(),
-                                                fProxyUniqueID.asUInt());
+        string.printf("proxyID: %d\n", fRenderTargetProxy.get()->uniqueID().asUInt());
         return string;
     }
 
 private:
-    GrDiscardOp(GrRenderTargetContext* rtc)
+    GrDiscardOp(GrRenderTargetProxy* proxy)
         : INHERITED(ClassID())
-        , fProxyUniqueID(rtc->asSurfaceProxy()->uniqueID()) {
-        this->setBounds(SkRect::MakeIWH(rtc->width(), rtc->height()), HasAABloat::kNo,
-                        IsZeroArea::kNo);
-
-        fRenderTarget.reset(rtc->accessRenderTarget());
+        , fRenderTargetProxy(proxy) {
+        this->setBounds(SkRect::MakeIWH(proxy->width(), proxy->height()),
+                        HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
-        return fRenderTarget.get() == that->cast<GrDiscardOp>()->fRenderTarget.get();
-    }
+    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override { return false; }
 
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override {
-        // MDB TODO: instantiate the renderTarget from the proxy in here
-        state->commandBuffer()->discard(fRenderTarget.get());
+        GrRenderTarget* rt = fRenderTargetProxy.get()->instantiateRenderTarget(
+                                                                    state->resourceProvider());
+        if (!rt) {
+            return;
+        }
+
+        state->commandBuffer()->discard(rt);
     }
 
-    // MDB TODO: remove this. When the renderTargetProxy carries the refs this will be redundant.
-    GrSurfaceProxy::UniqueID                             fProxyUniqueID;
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+    GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
 
     typedef GrOp INHERITED;
 };
