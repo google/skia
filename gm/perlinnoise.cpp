@@ -7,6 +7,16 @@
 
 #include "gm.h"
 #include "SkPerlinNoiseShader.h"
+#include "SkShader.h"
+
+namespace {
+
+enum class Type {
+    kFractalNoise,
+    kTurbulence,
+};
+
+} // anonymous ns
 
 class PerlinNoiseGM : public skiagm::GM {
 public:
@@ -33,11 +43,11 @@ protected:
         canvas->restore();
     }
 
-    void test(SkCanvas* canvas, int x, int y, SkPerlinNoiseShader::Type type,
+    void test(SkCanvas* canvas, int x, int y, Type type,
               float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed,
               bool stitchTiles) {
         SkISize tileSize = SkISize::Make(fSize.width() / 2, fSize.height() / 2);
-        sk_sp<SkShader> shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
+        sk_sp<SkShader> shader = (type == Type::kFractalNoise) ?
             SkPerlinNoiseShader::MakeFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
                                                   seed, stitchTiles ? &tileSize : nullptr) :
             SkPerlinNoiseShader::MakeTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
@@ -59,31 +69,31 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         canvas->clear(SK_ColorBLACK);
-        test(canvas,   0,   0, SkPerlinNoiseShader::kFractalNoise_Type,
+        test(canvas,   0,   0, Type::kFractalNoise,
              0.1f, 0.1f, 0, 0, false);
-        test(canvas, 100,   0, SkPerlinNoiseShader::kTurbulence_Type,
+        test(canvas, 100,   0, Type::kTurbulence,
              0.1f, 0.1f, 0, 0, false);
 
-        test(canvas,   0, 100, SkPerlinNoiseShader::kFractalNoise_Type,
+        test(canvas,   0, 100, Type::kFractalNoise,
              0.1f, 0.1f, 2, 0, false);
-        test(canvas, 100, 100, SkPerlinNoiseShader::kFractalNoise_Type,
+        test(canvas, 100, 100, Type::kFractalNoise,
              0.05f, 0.1f, 1, 0, true);
 
-        test(canvas,   0, 200, SkPerlinNoiseShader::kTurbulence_Type,
+        test(canvas,   0, 200, Type::kTurbulence,
              0.1f, 0.1f, 1, 0, true);
-        test(canvas, 100, 200, SkPerlinNoiseShader::kTurbulence_Type,
+        test(canvas, 100, 200, Type::kTurbulence,
              0.2f, 0.4f, 5, 0, false);
 
-        test(canvas,   0, 300, SkPerlinNoiseShader::kFractalNoise_Type,
+        test(canvas,   0, 300, Type::kFractalNoise,
              0.1f, 0.1f, 3, 1, false);
-        test(canvas, 100, 300, SkPerlinNoiseShader::kFractalNoise_Type,
+        test(canvas, 100, 300, Type::kFractalNoise,
              0.1f, 0.1f, 3, 4, false);
 
         canvas->scale(0.75f, 1.0f);
 
-        test(canvas,   0, 400, SkPerlinNoiseShader::kFractalNoise_Type,
+        test(canvas,   0, 400, Type::kFractalNoise,
              0.1f, 0.1f, 2, 0, false);
-        test(canvas, 100, 400, SkPerlinNoiseShader::kFractalNoise_Type,
+        test(canvas, 100, 400, Type::kFractalNoise,
              0.1f, 0.05f, 1, 0, true);
     }
 
@@ -107,10 +117,10 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    void install(SkPaint* paint, SkPerlinNoiseShader::Type type,
+    void install(SkPaint* paint, Type type,
               float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed,
               bool stitchTiles) {
-        sk_sp<SkShader> shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
+        sk_sp<SkShader> shader = (type == Type::kFractalNoise) ?
             SkPerlinNoiseShader::MakeFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
                                                   seed, stitchTiles ? &fSize : nullptr) :
             SkPerlinNoiseShader::MakeTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
@@ -122,7 +132,7 @@ protected:
         canvas->translate(10, 10);
 
         SkPaint paint;
-        install(&paint, SkPerlinNoiseShader::kFractalNoise_Type, 0.1f, 0.1f, 2, 0, false);
+        install(&paint, Type::kFractalNoise, 0.1f, 0.1f, 2, 0, false);
 
         const SkScalar w = SkIntToScalar(fSize.width());
         const SkScalar h = SkIntToScalar(fSize.height());

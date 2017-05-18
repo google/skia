@@ -88,7 +88,7 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SkHighContrastFilter::InitializeFlattenables();
 
     // Shader
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPerlinNoiseShader)
+    SkPerlinNoiseShader::InitializeFlattenables();
     SkGradientShader::InitializeFlattenables();
     SkLightingShader::InitializeFlattenables();
     SkNormalSource::InitializeFlattenables();
