@@ -2084,14 +2084,17 @@ void GrGLGpu::clear(const GrFixedClip& clip, GrColor color, GrRenderTarget* targ
     GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
     fHWWriteToColor = kYes_TriState;
 
-    if (this->glCaps().clearToOpaqueBlackIsBroken() && 0 == r && 0 == g && 0 == b && 1 == a) {
+    if (this->glCaps().clearToBoundaryValuesIsBroken() &&
+        (1 == r || 0 == r) && (1 == g || 0 == g) && (1 == b || 0 == b) && (1 == a || 0 == a)) {
 #ifdef SK_BUILD_FOR_ANDROID
         // Android doesn't have std::nextafter but has nextafter.
-        static const GrGLfloat safeAlpha = nextafter(1.f, 2.f);
+        static const GrGLfloat safeAlpha1 = nextafter(1.f, 2.f);
+        static const GrGLfloat safeAlpha0 = nextafter(0.f, -1.f);
 #else
-        static const GrGLfloat safeAlpha = std::nextafter(1.f, 2.f);
+        static const GrGLfloat safeAlpha1 = std::nextafter(1.f, 2.f);
+        static const GrGLfloat safeAlpha0 = std::nextafter(0.f, -1.f);
 #endif
-        a = safeAlpha;
+        a = (1 == a) ? safeAlpha1 : safeAlpha0;
     }
     GL_CALL(ClearColor(r, g, b, a));
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
