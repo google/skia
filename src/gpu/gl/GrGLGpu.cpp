@@ -769,12 +769,10 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
     if (GrPixelConfigIsCompressed(glTex->config())) {
         // We check that config == desc.fConfig in GrGLGpu::canWriteTexturePixels()
         SkASSERT(config == glTex->config());
-        success = this->uploadCompressedTexData(glTex->config(), glTex->width(), glTex->height(),
-                                                glTex->origin(), glTex->target(), texels,
+        success = this->uploadCompressedTexData(glTex->desc(), glTex->target(), texels,
                                                 kWrite_UploadType, left, top, width, height);
     } else {
-        success = this->uploadTexData(glTex->config(), glTex->width(), glTex->height(),
-                                      glTex->origin(), glTex->target(), kWrite_UploadType,
+        success = this->uploadTexData(glTex->desc(), glTex->target(), kWrite_UploadType,
                                       left, top, width, height, config, texels);
     }
 
@@ -810,9 +808,8 @@ bool GrGLGpu::onTransferPixels(GrSurface* surface,
     mipLevel.fRowBytes = rowBytes;
     SkSTArray<1, GrMipLevel> texels;
     texels.push_back(mipLevel);
-    success = this->uploadTexData(glTex->config(), glTex->width(), glTex->height(), glTex->origin(),
-                                  glTex->target(), kTransfer_UploadType, left, top, width, height,
-                                  config, texels);
+    success = this->uploadTexData(glTex->desc(), glTex->target(), kTransfer_UploadType,
+                                  left, top, width, height, config, texels);
     return success;
 }
 
@@ -847,7 +844,7 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
 /**
  * Creates storage space for the texture and fills it with texels.
  *
- * @param config         Pixel config of the texture.
+ * @param desc           The surface descriptor for the texture being created.
  * @param interface      The GL interface in use.
  * @param caps           The capabilities of the GL device.
  * @param internalFormat The data format used for the internal storage of the texture. May be sized.
@@ -857,8 +854,10 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
  * @param texels         The texel data of the texture being created.
  * @param baseWidth      The width of the texture's base mipmap level
  * @param baseHeight     The height of the texture's base mipmap level
+ * @param succeeded      Set to true if allocating and populating the texture completed
+ *                       without error.
  */
-static bool allocate_and_populate_uncompressed_texture(GrPixelConfig config,
+static bool allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc,
                                                        const GrGLInterface& interface,
                                                        const GrGLCaps& caps,
                                                        GrGLenum target,
@@ -870,19 +869,21 @@ static bool allocate_and_populate_uncompressed_texture(GrPixelConfig config,
                                                        int baseWidth, int baseHeight) {
     CLEAR_ERROR_BEFORE_ALLOC(&interface);
 
-    bool useTexStorage = caps.isConfigTexSupportEnabled(config);
+    bool useTexStorage = caps.isConfigTexSupportEnabled(desc.fConfig);
     // We can only use TexStorage if we know we will not later change the storage requirements.
     // This means if we may later want to add mipmaps, we cannot use TexStorage.
     // Right now, we cannot know if we will later add mipmaps or not.
     // The only time we can use TexStorage is when we already have the
     // mipmaps or are using a format incompatible with MIP maps.
-    useTexStorage &= texels.count() > 1 || GrPixelConfigIsSint(config);
+    useTexStorage &= texels.count() > 1 || GrPixelConfigIsSint(desc.fConfig);
 
     if (useTexStorage) {
         // We never resize or change formats of textures.
         GL_ALLOC_CALL(&interface,
-                      TexStorage2D(target, SkTMax(texels.count(), 1), internalFormatForTexStorage,
-                                   baseWidth, baseHeight));
+                      TexStorage2D(target,
+                                   SkTMax(texels.count(), 1),
+                                   internalFormatForTexStorage,
+                                   desc.fWidth, desc.fHeight));
         GrGLenum error = CHECK_ALLOC_ERROR(&interface);
         if (error != GR_GL_NO_ERROR) {
             return  false;
@@ -893,8 +894,8 @@ static bool allocate_and_populate_uncompressed_texture(GrPixelConfig config,
                     continue;
                 }
                 int twoToTheMipLevel = 1 << currentMipLevel;
-                int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
-                int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
+                int currentWidth = SkTMax(1, desc.fWidth / twoToTheMipLevel);
+                int currentHeight = SkTMax(1, desc.fHeight / twoToTheMipLevel);
 
                 GR_GL_CALL(&interface,
                            TexSubImage2D(target,
@@ -953,14 +954,13 @@ static bool allocate_and_populate_uncompressed_texture(GrPixelConfig config,
 /**
  * Creates storage space for the texture and fills it with texels.
  *
- * @param config         Compressed pixel config of the texture.
  * @param desc           The surface descriptor for the texture being created.
  * @param interface      The GL interface in use.
  * @param caps           The capabilities of the GL device.
  * @param internalFormat The data format used for the internal storage of the texture.
  * @param texels         The texel data of the texture being created.
  */
-static bool allocate_and_populate_compressed_texture(GrPixelConfig config,
+static bool allocate_and_populate_compressed_texture(const GrSurfaceDesc& desc,
                                                      const GrGLInterface& interface,
                                                      const GrGLCaps& caps,
                                                      GrGLenum target, GrGLenum internalFormat,
@@ -968,7 +968,7 @@ static bool allocate_and_populate_compressed_texture(GrPixelConfig config,
                                                      int baseWidth, int baseHeight) {
     CLEAR_ERROR_BEFORE_ALLOC(&interface);
 
-    bool useTexStorage = caps.isConfigTexSupportEnabled(config);
+    bool useTexStorage = caps.isConfigTexSupportEnabled(desc.fConfig);
     // We can only use TexStorage if we know we will not later change the storage requirements.
     // This means if we may later want to add mipmaps, we cannot use TexStorage.
     // Right now, we cannot know if we will later add mipmaps or not.
@@ -999,7 +999,8 @@ static bool allocate_and_populate_compressed_texture(GrPixelConfig config,
 
                 // Make sure that the width and height that we pass to OpenGL
                 // is a multiple of the block size.
-                size_t dataSize = GrCompressedFormatDataSize(config, currentWidth, currentHeight);
+                size_t dataSize = GrCompressedFormatDataSize(desc.fConfig, currentWidth,
+                                                             currentHeight);
                 GR_GL_CALL(&interface, CompressedTexSubImage2D(target,
                                                                currentMipLevel,
                                                                0, // left
@@ -1019,7 +1020,7 @@ static bool allocate_and_populate_compressed_texture(GrPixelConfig config,
 
             // Make sure that the width and height that we pass to OpenGL
             // is a multiple of the block size.
-            size_t dataSize = GrCompressedFormatDataSize(config, baseWidth, baseHeight);
+            size_t dataSize = GrCompressedFormatDataSize(desc.fConfig, baseWidth, baseHeight);
 
             GL_ALLOC_CALL(&interface,
                           CompressedTexImage2D(target,
@@ -1061,14 +1062,16 @@ static void restore_pixelstore_state(const GrGLInterface& interface, const GrGLC
     }
 }
 
-bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
-                            GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType,
-                            int left, int top, int width, int height, GrPixelConfig dataConfig,
+bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
+                            GrGLenum target,
+                            UploadType uploadType,
+                            int left, int top, int width, int height,
+                            GrPixelConfig dataConfig,
                             const SkTArray<GrMipLevel>& texels) {
     // If we're uploading compressed data then we should be using uploadCompressedTexData
     SkASSERT(!GrPixelConfigIsCompressed(dataConfig));
 
-    SkASSERT(this->caps()->isConfigTexturable(texConfig));
+    SkASSERT(this->caps()->isConfigTexturable(desc.fConfig));
 
     // texels is const.
     // But we may need to flip the texture vertically to prepare it.
@@ -1100,10 +1103,11 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
             currentWidth > SK_MaxS32) {
             return false;
         }
-        if (!GrSurfacePriv::AdjustWritePixelParams(texWidth, texHeight, bpp, &left, &top,
-                                                   &currentWidth, &currentHeight,
-                                                   &texelsShallowCopy[currentMipLevel].fPixels,
-                                                   &texelsShallowCopy[currentMipLevel].fRowBytes)) {
+        if (!GrSurfacePriv::AdjustWritePixelParams(desc.fWidth, desc.fHeight, bpp, &left, &top,
+                                               &currentWidth,
+                                               &currentHeight,
+                                               &texelsShallowCopy[currentMipLevel].fPixels,
+                                               &texelsShallowCopy[currentMipLevel].fRowBytes)) {
             return false;
         }
         if (currentWidth < 0 || currentHeight < 0) {
@@ -1116,12 +1120,12 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     // External format and type come from the upload data.
     GrGLenum externalFormat;
     GrGLenum externalType;
-    if (!this->glCaps().getTexImageFormats(texConfig, dataConfig, &internalFormat, &externalFormat,
-                                           &externalType)) {
+    if (!this->glCaps().getTexImageFormats(desc.fConfig, dataConfig, &internalFormat,
+                                           &externalFormat, &externalType)) {
         return false;
     }
     // TexStorage requires a sized format, and internalFormat may or may not be
-    GrGLenum internalFormatForTexStorage = this->glCaps().configSizedInternalFormat(texConfig);
+    GrGLenum internalFormatForTexStorage = this->glCaps().configSizedInternalFormat(desc.fConfig);
 
     /*
      *  Check whether to allocate a temporary buffer for flipping y or
@@ -1133,7 +1137,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     bool swFlipY = false;
     bool glFlipY = false;
 
-    if (kBottomLeft_GrSurfaceOrigin == texOrigin && !texelsShallowCopy.empty()) {
+    if (kBottomLeft_GrSurfaceOrigin == desc.fOrigin && !texelsShallowCopy.empty()) {
         if (caps.unpackFlipYSupport()) {
             glFlipY = true;
         } else {
@@ -1216,22 +1220,22 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         if (glFlipY) {
             GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_TRUE));
         }
-        GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_ALIGNMENT, config_alignment(texConfig)));
+        GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_ALIGNMENT,
+                                          config_alignment(desc.fConfig)));
     }
 
     bool succeeded = true;
-    if (kNewTexture_UploadType == uploadType) {
-        if (0 == left && 0 == top && texWidth == width && texHeight == height) {
-            allocate_and_populate_uncompressed_texture(texConfig, *interface, caps, target,
-                                                       internalFormat, internalFormatForTexStorage,
-                                                       externalFormat, externalType,
-                                                       texelsShallowCopy, width, height);
-        } else {
-            succeeded = false;
-        }
+    if (kNewTexture_UploadType == uploadType &&
+        0 == left && 0 == top &&
+        desc.fWidth == width && desc.fHeight == height) {
+        succeeded = allocate_and_populate_uncompressed_texture(desc, *interface, caps, target,
+                                                               internalFormat,
+                                                               internalFormatForTexStorage,
+                                                               externalFormat, externalType,
+                                                               texelsShallowCopy, width, height);
     } else {
         if (swFlipY || glFlipY) {
-            top = texHeight - (top + height);
+            top = desc.fHeight - (top + height);
         }
         for (int currentMipLevel = 0; currentMipLevel < texelsShallowCopy.count();
              currentMipLevel++) {
@@ -1259,44 +1263,45 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
 // create a CompressedTexData struct that takes a desc/ptr and figures out
 // the proper upload semantics. Then users can construct this function how they
 // see fit if they want to go against the "standard" way to do it.
-bool GrGLGpu::uploadCompressedTexData(GrPixelConfig config, int texWidth, int texHeight,
-                                      GrSurfaceOrigin texOrigin, GrGLenum target,
-                                      const SkTArray<GrMipLevel>& texels, UploadType uploadType,
+bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
+                                      GrGLenum target,
+                                      const SkTArray<GrMipLevel>& texels,
+                                      UploadType uploadType,
                                       int left, int top, int width, int height) {
-    SkASSERT(this->caps()->isConfigTexturable(config));
+    SkASSERT(this->caps()->isConfigTexturable(desc.fConfig));
 
     // No support for software flip y, yet...
-    SkASSERT(kBottomLeft_GrSurfaceOrigin != texOrigin);
+    SkASSERT(kBottomLeft_GrSurfaceOrigin != desc.fOrigin);
 
     const GrGLInterface* interface = this->glInterface();
     const GrGLCaps& caps = this->glCaps();
 
     if (-1 == width) {
-        width = texWidth;
+        width = desc.fWidth;
     }
 #ifdef SK_DEBUG
     else {
-        SkASSERT(width <= texWidth);
+        SkASSERT(width <= desc.fWidth);
     }
 #endif
 
     if (-1 == height) {
-        height = texHeight;
+        height = desc.fHeight;
     }
 #ifdef SK_DEBUG
     else {
-        SkASSERT(height <= texHeight);
+        SkASSERT(height <= desc.fHeight);
     }
 #endif
 
     // We only need the internal format for compressed 2D textures.
     GrGLenum internalFormat;
-    if (!caps.getCompressedTexImageFormats(config, &internalFormat)) {
+    if (!caps.getCompressedTexImageFormats(desc.fConfig, &internalFormat)) {
         return false;
     }
 
     if (kNewTexture_UploadType == uploadType) {
-        return allocate_and_populate_compressed_texture(config, *interface, caps, target,
+        return allocate_and_populate_compressed_texture(desc, *interface, caps, target,
                                                         internalFormat, texels, width, height);
     } else {
         for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
@@ -1308,7 +1313,8 @@ bool GrGLGpu::uploadCompressedTexData(GrPixelConfig config, int texWidth, int te
 
             // Make sure that the width and height that we pass to OpenGL
             // is a multiple of the block size.
-            size_t dataSize = GrCompressedFormatDataSize(config, currentWidth, currentHeight);
+            size_t dataSize = GrCompressedFormatDataSize(desc.fConfig, currentWidth,
+                                                         currentHeight);
             GL_CALL(CompressedTexSubImage2D(target,
                                             currentMipLevel,
                                             left, top,
@@ -1580,8 +1586,7 @@ GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& desc,
     GrGLTexture::TexParams initialTexParams;
     set_initial_texture_params(this->glInterface(), idDesc.fInfo, &initialTexParams);
 
-    if (!this->uploadCompressedTexData(desc.fConfig, desc.fWidth, desc.fHeight, desc.fOrigin,
-                                       idDesc.fInfo.fTarget, texels)) {
+    if (!this->uploadCompressedTexData(desc, idDesc.fInfo.fTarget, texels)) {
         GL_CALL(DeleteTextures(1, &idDesc.fInfo.fID));
         return return_null_texture();
     }
@@ -1757,9 +1762,9 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
     if (info) {
         set_initial_texture_params(this->glInterface(), *info, initialTexParams);
     }
-    if (!this->uploadTexData(desc.fConfig, desc.fWidth, desc.fHeight, desc.fOrigin, info->fTarget,
-                             kNewTexture_UploadType, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                             texels)) {
+    if (!this->uploadTexData(desc, info->fTarget, kNewTexture_UploadType, 0, 0,
+                             desc.fWidth, desc.fHeight,
+                             desc.fConfig, texels)) {
         GL_CALL(DeleteTextures(1, &(info->fID)));
         return false;
     }
@@ -1767,7 +1772,8 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
 }
 
 GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                     int width, int height) {
+                                                                     int width,
+                                                                     int height) {
     SkASSERT(width >= rt->width());
     SkASSERT(height >= rt->height());
 
