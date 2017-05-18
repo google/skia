@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "169e32d9_af022e67",
+        "filename": "src/gpu/glsl/GrGLSLXferProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-18T20:32:30Z",
+      "side": 1,
+      "message": "greater?",
+      "range": {
+        "startLine": 18,
+        "startChar": 43,
+        "endLine": 18,
+        "endChar": 47
+      },
+      "revId": "1a4da0cc2bae154a7a9f642eb6b1804d01992c1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
