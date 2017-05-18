@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e52bee4_95deb605",
+        "filename": "infra/bots/update_meta_config.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-05-18T16:04:32Z",
+      "side": 1,
+      "message": "The format of this is: master1:bot1,bot2;master2:bot3,bot4\n\nCould you combine the lines from the same master?\nEg:\nmaster.tryserver.chromium.linux:linux_optional_gpu_tests_rel,linux_chromium_compile_dbg_ng,linux_chromium_compile_rel_ng,linux_chromium_dbg_ng,linux_chromium_rel_ng; (I think that\u0027s right for chromium.linux)",
+      "revId": "3981312052f041a0dd950ac130248d345f726cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
