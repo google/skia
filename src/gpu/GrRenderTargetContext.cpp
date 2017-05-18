@@ -198,7 +198,7 @@ void GrRenderTargetContext::discard() {
         if (!op) {
             return;
         }
-        this->getOpList()->addOp(std::move(op), *this->caps());
+        this->getOpList()->addOp(std::move(op), this);
     }
 }
 
@@ -257,11 +257,11 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
         // This path doesn't handle coalescing of full screen clears b.c. it
         // has to clear the entire render target - not just the content area.
         // It could be done but will take more finagling.
-        std::unique_ptr<GrOp> op(GrClearOp::Make(rtRect, color, !clearRect));
+        std::unique_ptr<GrOp> op(GrClearOp::Make(rtRect, color, fRenderTargetContext, !clearRect));
         if (!op) {
             return;
         }
-        fRenderTargetContext->getOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
+        fRenderTargetContext->getOpList()->addOp(std::move(op), fRenderTargetContext);
     }
 }
 
@@ -305,13 +305,13 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
 
         this->drawRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), SkRect::Make(clearRect));
     } else if (isFull) {
-        this->getOpList()->fullClear(*this->caps(), color);
+        this->getOpList()->fullClear(this, color);
     } else {
-        std::unique_ptr<GrOp> op(GrClearOp::Make(clip, color, fRenderTargetProxy.get()));
+        std::unique_ptr<GrOp> op(GrClearOp::Make(clip, color, this));
         if (!op) {
             return;
         }
-        this->getOpList()->addOp(std::move(op), *this->caps());
+        this->getOpList()->addOp(std::move(op), this);
     }
 }
 
@@ -608,7 +608,7 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
     if (!op) {
         return;
     }
-    fRenderTargetContext->getOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
+    fRenderTargetContext->getOpList()->addOp(std::move(op), fRenderTargetContext);
 }
 
 void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
@@ -666,7 +666,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
         return;
     }
     op->setClippedBounds(bounds);
-    fRenderTargetContext->getOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
+    fRenderTargetContext->getOpList()->addOp(std::move(op), fRenderTargetContext);
 }
 
 void GrRenderTargetContextPriv::stencilRect(const GrClip& clip,
@@ -1601,8 +1601,7 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     }
 
     op->setClippedBounds(bounds);
-    return this->getOpList()->addOp(std::move(op), *this->caps(),
-                                    std::move(appliedClip), dstTexture);
+    return this->getOpList()->addOp(std::move(op), this, std::move(appliedClip), dstTexture);
 }
 
 uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipelineBuilder,
@@ -1664,7 +1663,7 @@ uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipeline
     op->addDependenciesTo(fRenderTargetProxy.get());
 
     op->setClippedBounds(bounds);
-    return this->getOpList()->addOp(std::move(op), *this->caps());
+    return this->getOpList()->addOp(std::move(op), this);
 }
 
 bool GrRenderTargetContext::setupDstTexture(GrRenderTargetProxy* rtProxy, const GrClip& clip,
