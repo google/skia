@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "599c8e4c_651b3ee3",
+        "filename": "src/gpu/vk/GrVkTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-18T13:57:11Z",
+      "side": 1,
+      "message": "very low priority: isRenderTarget ?",
+      "revId": "18ccc0f322aa9590c4be8bc73e43d20be3ecca74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
