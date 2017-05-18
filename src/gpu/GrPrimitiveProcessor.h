@@ -40,33 +40,51 @@ class GrGLSLPrimitiveProcessor;
  */
 class GrPrimitiveProcessor : public GrResourceIOProcessor, public GrProgramElement {
 public:
-    // Only the GrGeometryProcessor subclass actually has a geo shader or vertex attributes, but
-    // we put these calls on the base class to prevent having to cast
-    virtual bool willUseGeoShader() const = 0;
-
     struct Attribute {
-        Attribute()
-            : fName(nullptr)
-            , fType(kFloat_GrVertexAttribType)
-            , fOffset(0) {}
-        Attribute(const char* name, GrVertexAttribType type, GrSLPrecision precision)
-            : fName(name)
-            , fType(type)
-            , fOffset(SkAlign4(GrVertexAttribTypeSize(type)))
-            , fPrecision(precision) {}
-        const char* fName;
-        GrVertexAttribType fType;
-        size_t fOffset;
-        GrSLPrecision fPrecision;
+        enum class InputRate : bool {
+            kPerVertex,
+            kPerInstance
+        };
+
+        const char*          fName;
+        GrVertexAttribType   fType;
+        int                  fOffsetInRecord;
+        GrSLPrecision        fPrecision;
+        InputRate            fInputRate;
     };
 
     int numAttribs() const { return fAttribs.count(); }
     const Attribute& getAttrib(int index) const { return fAttribs[index]; }
 
-    // Returns the vertex stride of the GP.  A common use case is to request geometry from a
-    // GrOpList based off of the stride, and to populate this memory using an implicit array of
-    // structs.  In this case, it is best to assert the vertexstride == sizeof(VertexStruct).
-    size_t getVertexStride() const { return fVertexStride; }
+    bool hasVertexAttribs() const { return SkToBool(fVertexStride); }
+    bool hasInstanceAttribs() const { return SkToBool(fInstanceStride); }
+
+    /**
+     * These return the strides of the vertex and instance buffers. Attributes are expected to be
+     * laid out interleaved in their corresponding buffer (vertex or instance). fOffsetInRecord
+     * indicates an attribute's location in bytes relative to the first attribute. (These are padded
+     * to the nearest 4 bytes for performance reasons.)
+     *
+     * A common practice is to populate the buffer's memory using an implicit array of structs. In
+     * this case, it is best to assert:
+     *
+     *     stride == sizeof(struct) and
+     *     offsetof(struct, field[i]) == attrib[i].fOffsetInRecord
+     *
+     * NOTE: for instanced draws the vertex buffer has a single record that each instance reuses.
+     *
+     * TODO: After deferred geometry, we should do all of this inline in GenerateGeometry alongside
+     * the struct used to actually populate the attributes. This is all extremely fragile, vertex
+     * attributes have to be added in the order they will appear in the struct which maps memory.
+     * The processor key should reflect the vertex attributes, or there lack thereof in the
+     * GrGeometryProcessor.
+     */
+    int getVertexStride() const { return fVertexStride; }
+    int getInstanceStride() const { return fInstanceStride; }
+
+    // Only the GrGeometryProcessor subclass actually has a geo shader or vertex attributes, but
+    // we put these calls on the base class to prevent having to cast
+    virtual bool willUseGeoShader() const = 0;
 
     /**
      * Computes a transformKey from an array of coord transforms. Will only look at the first
@@ -107,11 +125,19 @@ public:
     virtual bool implementsDistanceVector() const { return false; }
 
 protected:
-    GrPrimitiveProcessor() : fVertexStride(0) {}
-
-    enum { kPreallocAttribCnt = 8 };
-    SkSTArray<kPreallocAttribCnt, Attribute> fAttribs;
-    size_t fVertexStride;
+    /**
+     * Subclasses call these from their constructor to register vertex and instance attributes.
+     */
+    const Attribute& addVertexAttrib(const char* name, GrVertexAttribType type,
+                                     GrSLPrecision precision = kDefault_GrSLPrecision) {
+        return this->addAttrib(name, type, precision, Attribute::InputRate::kPerVertex,
+                               &GrPrimitiveProcessor::fVertexStride);
+    }
+    const Attribute& addInstanceAttrib(const char* name, GrVertexAttribType type,
+                                       GrSLPrecision precision = kDefault_GrSLPrecision) {
+        return this->addAttrib(name, type, precision, Attribute::InputRate::kPerInstance,
+                               &GrPrimitiveProcessor::fInstanceStride);
+    }
 
 private:
     void addPendingIOs() const override { GrResourceIOProcessor::addPendingIOs(); }
@@ -119,6 +145,19 @@ private:
     void pendingIOComplete() const override { GrResourceIOProcessor::pendingIOComplete(); }
     void notifyRefCntIsZero() const final {}
     virtual bool hasExplicitLocalCoords() const = 0;
+
+    inline const Attribute& addAttrib(const char* name, GrVertexAttribType type,
+                                      GrSLPrecision precision, Attribute::InputRate rate,
+                                      int GrPrimitiveProcessor::* stride) {
+        precision = (kDefault_GrSLPrecision == precision) ? kMedium_GrSLPrecision : precision;
+        const Attribute& attr = fAttribs.push_back() = {name, type, this->*stride, precision, rate};
+        this->*stride += static_cast<int>(SkAlign4(GrVertexAttribTypeSize(type)));
+        return attr;
+    }
+
+    SkSTArray<8, Attribute>   fAttribs;
+    int                       fVertexStride = 0;
+    int                       fInstanceStride = 0;
 
     typedef GrProcessor INHERITED;
 };

@@ -251,13 +251,16 @@ private:
     // willDrawPoints must be true if point primitives will be rendered after setting the GL state.
     bool flushGLState(const GrPipeline&, const GrPrimitiveProcessor&, bool willDrawPoints);
 
-    // Sets up vertex attribute pointers and strides. On return indexOffsetInBytes gives the offset
-    // an into the index buffer. It does not account for vertices.startIndex() but rather the start
-    // index is relative to the returned offset.
+    // Sets up vertex/instance attribute pointers and strides.
     void setupGeometry(const GrPrimitiveProcessor&,
                        const GrBuffer* indexBuffer,
                        const GrBuffer* vertexBuffer,
-                       int baseVertex);
+                       int baseVertex,
+                       const GrBuffer* instanceBuffer,
+                       int baseInstance);
+
+    // Issues setupGeometry and GL draw calls for the given mesh.
+    void drawMesh(const GrPrimitiveProcessor&, const GrMesh&);
 
     void flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 

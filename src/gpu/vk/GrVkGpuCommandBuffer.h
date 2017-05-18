@@ -47,7 +47,8 @@ private:
     // Bind vertex and index buffers
     void bindGeometry(const GrPrimitiveProcessor&,
                       const GrBuffer* indexBuffer,
-                      const GrBuffer* vertexBuffer);
+                      const GrBuffer* vertexBuffer,
+                      const GrBuffer* instanceBuffer);
 
     sk_sp<GrVkPipelineState> prepareDrawState(const GrPipeline&,
                                               const GrPrimitiveProcessor&,
