@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0c5eff6_e1599eeb",
+        "filename": "src/core/SkColorSpaceXform_A2B.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-18T14:24:32Z",
+      "side": 1,
+      "message": "If we invert this, it\u0027ll maybe read a bit more naturally even if the caller\u0027s not cross-referencing the call with this comment.   buildTableFn() would return \u0027true\u0027 if it did something, \u0027false\u0027 if it didn\u0027t change anything.",
+      "range": {
+        "startLine": 304,
+        "startChar": 4,
+        "endLine": 305,
+        "endChar": 79
+      },
+      "revId": "54d949b12a2521afa3adb049c8da56f0d24ba84e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9596f12e_b8924a4c",
+        "filename": "src/core/SkColorSpaceXform_A2B.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-18T14:24:32Z",
+      "side": 1,
+      "message": "I don\u0027t mind this, and aI think at one point I may have even suggested it, but it doesn\u0027t seem too much more to write the more reassuring version:\n\n  float step \u003d 1.0f / (kMinTableSize - 1);\n  for (int i \u003d 0; i \u003c kMinTableSize; i++) {\n    outTablePtr[i] \u003d interp_lut(i * step, fn-\u003efData, fn-\u003efSize);\n  }",
+      "revId": "54d949b12a2521afa3adb049c8da56f0d24ba84e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
