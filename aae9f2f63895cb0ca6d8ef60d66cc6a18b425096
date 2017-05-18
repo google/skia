@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "470da80f_d450538c",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-18T02:14:00Z",
+      "side": 1,
+      "message": "What sort of situations make clamping necessary here?\n\nOn a related note, what\u0027s is your plan to put the colors into the dst gamut?  Which color space do you want the matrix to interpolate the colors in?  Either way I think you can work the gamut transform matrix into this 4x3, but it\u0027ll work in differently depending on whether you want to interpolate in src or dst gamut.  Gradients transform their inputs and so interpolate in dst gamut.\n\nThere\u0027s also a helper append_gamut_transform() which you could call somewhere here.  It requires that its inputs are in range in the src gamut, and will clamp as needed if the transform can take any color out of range of the dst gamut.",
+      "range": {
+        "startLine": 443,
+        "startChar": 0,
+        "endLine": 444,
+        "endChar": 53
+      },
+      "revId": "aae9f2f63895cb0ca6d8ef60d66cc6a18b425096",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "143b8b74_60b88879",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-18T02:14:00Z",
+      "side": 1,
+      "message": "I don\u0027t think this is possible.  You should be able to assert we have a blitter here, even as you\u0027ve written it now.  The only way SkCreateRasterPipelineBlitter() returns a null blitter is when there\u0027s a shader and it can neither append stages nor create a shader context.  You don\u0027t have a shader.",
+      "range": {
+        "startLine": 452,
+        "startChar": 0,
+        "endLine": 455,
+        "endChar": 5
+      },
+      "revId": "aae9f2f63895cb0ca6d8ef60d66cc6a18b425096",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df87aeb4_85530f65",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-18T02:14:00Z",
+      "side": 1,
+      "message": "I think this file might be easier to follow and debug with this new flow as a separate factory.  By weaving it in here we\u0027re creating a bunch of new code paths but exercising only one, and I think that\u0027s setting ourselves up for unintentional interactions between the two flows.  Why don\u0027t we write up a new entry point tailored for this use case?\n\nSkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap\u0026 dst,\n                                           const SkPaint\u0026 paint,\n                                           SkArenaAlloc* alloc,\n                                           const SkRasterPipeline\u0026 shader,\n                                           bool shader_is_opaque) {\n    // We actively ignore the paint color in this method, acting as if it were opaque.\n    auto blitter \u003d alloc-\u003emake\u003cSkRasterPipelineBlitter\u003e(dst,\n                                                        paint.getBlendMode(),\n                                                        SkPM4f{0,0,0,1});\n\n    blitter-\u003efShader.append(SkRasterPipeline::seed_shader, \u0026blitter-\u003efCurrentY);\n    blitter-\u003efShader.extend(shader);\n    // We\u0027d normally modulate the shader by paint alpha here, but we\u0027re treating it as 1.\n    if (auto colorFilter \u003d paint.getColorFilter()) {\n        colorFilter-\u003eappendStages(\u0026blitter-\u003efShader, dst.colorSpace(), alloc, shader_is_opaque);\n    }\n    return blitter;\n}",
+      "revId": "aae9f2f63895cb0ca6d8ef60d66cc6a18b425096",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
