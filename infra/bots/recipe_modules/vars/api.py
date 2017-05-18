@@ -40,6 +40,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     # Compile bots keep a persistent checkout.
     self.persistent_checkout = (self.is_compile_bot or
                                 'RecreateSKPs' in self.builder_name or
+                                'UpdateMetaConfig' in self.builder_name or
                                 '-CT_' in self.builder_name or
                                 'Presubmit' in self.builder_name or
                                 'InfraTests' in self.builder_name or
