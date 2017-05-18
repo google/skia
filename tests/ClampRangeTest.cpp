@@ -82,8 +82,7 @@ DEF_TEST(ClampRange, reporter) {
     test_range(ff(1),  ff(16384),  100);
     test_range(ff(-1), ff(-16384), 100);
     test_range(ff(1)/2, ff(16384), 100);
-    // TODO(reed): skia:2481, fix whatever bug this is, then uncomment
-    //test_range(ff(1)/2, ff(-16384), 100);
+    test_range(ff(1)/2, ff(-16384), 100);
 
     SkRandom rand;
 

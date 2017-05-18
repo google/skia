@@ -9,6 +9,9 @@
 #define GrRenderTargetPriv_DEFINED
 
 #include "GrRenderTarget.h"
+#include "GrGpu.h"
+
+class GrStencilSettings;
 
 /** Class that adds methods to GrRenderTarget that are only intended for use internal to Skia.
     This class is purely a privileged window into GrRenderTarget. It should never have additional
@@ -27,6 +30,17 @@ public:
      */
     bool attachStencilAttachment(GrStencilAttachment* stencil);
 
+    int numStencilBits() const;
+
+    // Finds a render target's multisample specs. The pipeline is only needed in case the info isn't
+    // cached and we need to flush the draw state in order to query it. The pipeline is not expected
+    // to affect the multisample information itself.
+    const GrGpu::MultisampleSpecs& getMultisampleSpecs(const GrPipeline&) const;
+
+    typedef GrRenderTarget::Flags Flags;
+
+    Flags flags() const { return fRenderTarget->fFlags; }
+
 private:
     explicit GrRenderTargetPriv(GrRenderTarget* renderTarget) : fRenderTarget(renderTarget) {}
     GrRenderTargetPriv(const GrRenderTargetPriv&) {} // unimpl
@@ -37,7 +51,7 @@ private:
     GrRenderTargetPriv* operator&();
 
     GrRenderTarget* fRenderTarget;
-        
+
     friend class GrRenderTarget; // to construct/copy this type.
 };
 

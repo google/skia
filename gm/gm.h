@@ -13,8 +13,8 @@
 #include "SkPaint.h"
 #include "SkSize.h"
 #include "SkString.h"
-#include "SkTRegistry.h"
-#include "sk_tool_utils.h"
+#include "../tools/Registry.h"
+#include "SkClipOpPriv.h"
 
 class SkAnimTimer;
 struct GrContextOptions;
@@ -100,6 +100,9 @@ namespace skiagm {
         }
 
         bool animate(const SkAnimTimer&);
+        bool handleKey(SkUnichar uni) {
+            return this->onHandleKey(uni);
+        }
 
         virtual void modifyGrContextOptions(GrContextOptions* options) {}
 
@@ -114,6 +117,7 @@ namespace skiagm {
         virtual SkString onShortName() = 0;
 
         virtual bool onAnimate(const SkAnimTimer&) { return false; }
+        virtual bool onHandleKey(SkUnichar uni) { return false; }
         virtual SkMatrix onGetInitialTransform() const { return SkMatrix::I(); }
 
     private:
@@ -125,7 +129,7 @@ namespace skiagm {
         SkMatrix fStarterMatrix;
     };
 
-    typedef SkTRegistry<GM*(*)(void*)> GMRegistry;
+    typedef sk_tools::Registry<GM*(*)(void*)> GMRegistry;
 
     class SimpleGM : public skiagm::GM {
     public:

@@ -6,14 +6,15 @@
  */
 
 #include "SkTypes.h"
+#if defined(SK_BUILD_FOR_ANDROID)
+
 #include <stdio.h>
 
 #define LOG_TAG "skia"
 #include <android/log.h>
 
 // Print debug output to stdout as well.  This is useful for command line
-// applications (e.g. skia_launcher). To enable, include android_output as a
-// gyp dependency.
+// applications (e.g. skia_launcher).
 bool gSkDebugToStdOut = false;
 
 void SkDebugf(const char format[], ...) {
@@ -30,3 +31,5 @@ void SkDebugf(const char format[], ...) {
 
     va_end(args1);
 }
+
+#endif//defined(SK_BUILD_FOR_ANDROID)

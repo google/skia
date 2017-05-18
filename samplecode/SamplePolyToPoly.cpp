@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -99,7 +98,7 @@ protected:
         paint->setColor(SK_ColorGRAY);
         paint->setStyle(SkPaint::kStroke_Style);
         const SkScalar D = SkIntToScalar(64);
-        canvas->drawRectCoords(0, 0, D, D, *paint);
+        canvas->drawRect(SkRect::MakeWH(D, D), *paint);
         canvas->drawLine(0, 0, D, D, *paint);
         canvas->drawLine(0, D, D, 0, *paint);
 
@@ -111,7 +110,7 @@ protected:
         float y = D/2 - (fm.fAscent + fm.fDescent)/2;
         SkString str;
         str.appendS32(count);
-        canvas->drawText(str.c_str(), str.size(),
+        canvas->drawString(str,
                          x, y,
                          *paint);
 

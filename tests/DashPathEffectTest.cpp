@@ -10,22 +10,19 @@
 #include "SkDashPathEffect.h"
 #include "SkWriteBuffer.h"
 #include "SkStrokeRec.h"
+#include "SkCanvas.h"
+#include "SkSurface.h"
 
 // crbug.com/348821 was rooted in SkDashPathEffect refusing to flatten and unflatten itself when
-// fInitialDashLength < 0 (a signal the effect is nonsense).  Here we test that it flattens.
+// the effect is nonsense.  Here we test that it fails when passed nonsense parameters.
 
 DEF_TEST(DashPathEffectTest_crbug_348821, r) {
     SkScalar intervals[] = { 1.76934361e+36f, 2.80259693e-45f };  // Values from bug.
     const int count = 2;
-    SkScalar phase = SK_ScalarInfinity;  // Used to force the bad fInitialDashLength = -1 path.
-    SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, count, phase));
+    SkScalar phase = SK_ScalarInfinity;  // Used to force a nonsense effect.
+    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, count, phase));
 
-    // nullptr -> refuses to work with flattening framework.
-    REPORTER_ASSERT(r, dash->getFactory() != nullptr);
-
-    SkWriteBuffer buffer;
-    buffer.writeFlattenable(dash);
-    REPORTER_ASSERT(r, buffer.bytesWritten() > 12);  // We'd write 12 if broken, >=40 if not.
+    REPORTER_ASSERT(r, dash == nullptr);
 }
 
 // Test out the asPoint culling behavior.
@@ -33,7 +30,7 @@ DEF_TEST(DashPathEffectTest_asPoints, r) {
 
     const SkScalar intervals[] = { 1.0f, 1.0f };
     const int count = 2;
-    SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, count, 0.0f));
+    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, count, 0.0f));
 
     SkRect cull = SkRect::MakeWH(1.0f, 1.0f);
 
@@ -86,4 +83,35 @@ DEF_TEST(DashPathEffectTest_asPoints, r) {
             }
         }
     }
+}
+
+DEF_TEST(DashPath_bug4871, r) {
+    SkPath path;
+    path.moveTo(30, 24);
+    path.cubicTo(30.002f, 24, 30, 24, 30, 24);
+    path.close();
+
+    SkScalar intervals[2] = { 1, 1 };
+    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 2, 0));
+
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setPathEffect(dash);
+
+    SkPath fill;
+    paint.getFillPath(path, &fill);
+}
+
+// Verify that long lines with many dashes don't cause overflows/OOMs.
+DEF_TEST(DashPathEffectTest_asPoints_limit, r) {
+    sk_sp<SkSurface> surface(SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(256, 256)));
+    SkCanvas* canvas = surface->getCanvas();
+
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    // force the bounds to outset by a large amount
+    p.setStrokeWidth(5.0e10f);
+    const SkScalar intervals[] = { 1, 1 };
+    p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
+    canvas->drawLine(1, 1, 1, 5.0e10f, p);
 }

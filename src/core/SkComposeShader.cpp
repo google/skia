@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,35 +5,33 @@
  * found in the LICENSE file.
  */
 
-
+#include "SkArenaAlloc.h"
+#include "SkBlendModePriv.h"
 #include "SkComposeShader.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkColorShader.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
-#include "SkXfermode.h"
 #include "SkString.h"
+#include "../jumper/SkJumper.h"
+
+sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                            SkBlendMode mode) {
+    if (!src || !dst) {
+        return nullptr;
+    }
+    if (SkBlendMode::kSrc == mode) {
+        return src;
+    }
+    if (SkBlendMode::kDst == mode) {
+        return dst;
+    }
+    return sk_sp<SkShader>(new SkComposeShader(std::move(dst), std::move(src), mode));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
-
-SkComposeShader::SkComposeShader(SkShader* sA, SkShader* sB, SkXfermode* mode) {
-    fShaderA = sA;  sA->ref();
-    fShaderB = sB;  sB->ref();
-    // mode may be null
-    fMode = mode;
-    SkSafeRef(mode);
-}
-
-SkComposeShader::~SkComposeShader() {
-    SkSafeUnref(fMode);
-    fShaderB->unref();
-    fShaderA->unref();
-}
-
-size_t SkComposeShader::contextSize() const {
-    return sizeof(ComposeShaderContext) + fShaderA->contextSize() + fShaderB->contextSize();
-}
 
 class SkAutoAlphaRestore {
 public:
@@ -53,32 +50,31 @@ private:
 };
 #define SkAutoAlphaRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoAlphaRestore)
 
-SkFlattenable* SkComposeShader::CreateProc(SkReadBuffer& buffer) {
-    SkAutoTUnref<SkShader> shaderA(buffer.readShader());
-    SkAutoTUnref<SkShader> shaderB(buffer.readShader());
-    SkAutoTUnref<SkXfermode> mode(buffer.readXfermode());
-    if (!shaderA.get() || !shaderB.get()) {
+sk_sp<SkFlattenable> SkComposeShader::CreateProc(SkReadBuffer& buffer) {
+    sk_sp<SkShader> shaderA(buffer.readShader());
+    sk_sp<SkShader> shaderB(buffer.readShader());
+    SkBlendMode mode;
+    if (buffer.isVersionLT(SkReadBuffer::kXfermodeToBlendMode2_Version)) {
+        sk_sp<SkXfermode> xfer = buffer.readXfermode();
+        mode = xfer ? xfer->blend() : SkBlendMode::kSrcOver;
+    } else {
+        mode = (SkBlendMode)buffer.read32();
+    }
+    if (!shaderA || !shaderB) {
         return nullptr;
     }
-    return new SkComposeShader(shaderA, shaderB, mode);
+    return sk_make_sp<SkComposeShader>(std::move(shaderA), std::move(shaderB), mode);
 }
 
 void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeFlattenable(fShaderA);
-    buffer.writeFlattenable(fShaderB);
-    buffer.writeFlattenable(fMode);
+    buffer.writeFlattenable(fShaderA.get());
+    buffer.writeFlattenable(fShaderB.get());
+    buffer.write32((int)fMode);
 }
 
-template <typename T> void safe_call_destructor(T* obj) {
-    if (obj) {
-        obj->~T();
-    }
-}
-
-SkShader::Context* SkComposeShader::onCreateContext(const ContextRec& rec, void* storage) const {
-    char* aStorage = (char*) storage + sizeof(ComposeShaderContext);
-    char* bStorage = aStorage + fShaderA->contextSize();
-
+SkShader::Context* SkComposeShader::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const
+{
     // we preconcat our localMatrix (if any) with the device matrix
     // before calling our sub-shaders
     SkMatrix tmpM;
@@ -94,15 +90,18 @@ SkShader::Context* SkComposeShader::onCreateContext(const ContextRec& rec, void*
     newRec.fMatrix = &tmpM;
     newRec.fPaint = &opaquePaint;
 
-    SkShader::Context* contextA = fShaderA->createContext(newRec, aStorage);
-    SkShader::Context* contextB = fShaderB->createContext(newRec, bStorage);
+    SkShader::Context* contextA = fShaderA->makeContext(newRec, alloc);
+    SkShader::Context* contextB = fShaderB->makeContext(newRec, alloc);
     if (!contextA || !contextB) {
-        safe_call_destructor(contextA);
-        safe_call_destructor(contextB);
         return nullptr;
     }
 
-    return new (storage) ComposeShaderContext(*this, rec, contextA, contextB);
+    return alloc->make<ComposeShaderContext>(*this, rec, contextA, contextB);
+}
+
+sk_sp<SkShader> SkComposeShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    return SkShader::MakeComposeShader(xformer->apply(fShaderA.get()),
+                                       xformer->apply(fShaderB.get()), fMode);
 }
 
 SkComposeShader::ComposeShaderContext::ComposeShaderContext(
@@ -112,20 +111,58 @@ SkComposeShader::ComposeShaderContext::ComposeShaderContext(
     , fShaderContextA(contextA)
     , fShaderContextB(contextB) {}
 
-SkComposeShader::ComposeShaderContext::~ComposeShaderContext() {
-    fShaderContextA->~Context();
-    fShaderContextB->~Context();
-}
-
 bool SkComposeShader::asACompose(ComposeRec* rec) const {
     if (rec) {
-        rec->fShaderA = fShaderA;
-        rec->fShaderB = fShaderB;
-        rec->fMode = fMode;
+        rec->fShaderA   = fShaderA.get();
+        rec->fShaderB   = fShaderB.get();
+        rec->fBlendMode = fMode;
     }
     return true;
 }
 
+bool SkComposeShader::isRasterPipelineOnly() const {
+    return fShaderA->isRasterPipelineOnly() || fShaderB->isRasterPipelineOnly();
+}
+
+bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
+                                     SkArenaAlloc* alloc, const SkMatrix& ctm,
+                                     const SkPaint& paint, const SkMatrix* localM) const {
+    struct Storage {
+        float   fXY[4 * SkJumper_kMaxStride];
+        float   fRGBA[4 * SkJumper_kMaxStride];
+        float   fAlpha;
+    };
+    auto storage = alloc->make<Storage>();
+
+    // We need to save off device x,y (inputs to shader), since after calling fShaderA they
+    // will be smashed, and I'll need them again for fShaderB. store_rgba saves off 4 registers
+    // even though we only need to save r,g.
+    pipeline->append(SkRasterPipeline::store_rgba, storage->fXY);
+    if (!fShaderB->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) { // SRC
+        return false;
+    }
+    // This outputs r,g,b,a, which we'll need later when we apply the mode, but we save it off now
+    // since fShaderB will overwrite them.
+    pipeline->append(SkRasterPipeline::store_rgba, storage->fRGBA);
+    // Now we restore the device x,y for the next shader
+    pipeline->append(SkRasterPipeline::load_rgba, storage->fXY);
+    if (!fShaderA->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {  // DST
+        return false;
+    }
+    // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode
+    // so we have to shuttle them. If we had a stage the would load_into_dst, then we could
+    // reverse the two shader invocations, and avoid this move...
+    pipeline->append(SkRasterPipeline::move_src_dst);
+    pipeline->append(SkRasterPipeline::load_rgba, storage->fRGBA);
+
+    // Idea: should time this, and see if it helps to have custom versions of the overflow modes
+    //       that do their own clamping, avoiding the overhead of an extra stage.
+    SkBlendMode_AppendStages(fMode, pipeline);
+    if (SkBlendMode_CanOverflow(fMode)) {
+        pipeline->append(SkRasterPipeline::clamp_a);
+    }
+    return true;
+}
 
 // larger is better (fewer times we have to loop), but we shouldn't
 // take up too much stack-space (each element is 4 bytes)
@@ -134,16 +171,13 @@ bool SkComposeShader::asACompose(ComposeRec* rec) const {
 void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor result[], int count) {
     SkShader::Context* shaderContextA = fShaderContextA;
     SkShader::Context* shaderContextB = fShaderContextB;
-    SkXfermode*        mode = static_cast<const SkComposeShader&>(fShader).fMode;
+    SkBlendMode        mode = static_cast<const SkComposeShader&>(fShader).fMode;
     unsigned           scale = SkAlpha255To256(this->getPaintAlpha());
-
-#ifdef SK_BUILD_FOR_ANDROID
-    scale = 256;    // ugh -- maintain old bug/behavior for now
-#endif
 
     SkPMColor   tmp[TMP_COLOR_COUNT];
 
-    if (nullptr == mode) {   // implied SRC_OVER
+    SkXfermode* xfer = SkXfermode::Peek(mode);
+    if (nullptr == xfer) {   // implied SRC_OVER
         // TODO: when we have a good test-case, should use SkBlitRow::Proc32
         // for these loops
         do {
@@ -179,7 +213,7 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
 
             shaderContextA->shadeSpan(x, y, result, n);
             shaderContextB->shadeSpan(x, y, tmp, n);
-            mode->xfer32(result, tmp, n, nullptr);
+            xfer->xfer32(result, tmp, n, nullptr);
 
             if (256 != scale) {
                 for (int i = 0; i < n; i++) {
@@ -194,6 +228,36 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
     }
 }
 
+void SkComposeShader::ComposeShaderContext::shadeSpan4f(int x, int y, SkPM4f result[], int count) {
+    SkShader::Context* shaderContextA = fShaderContextA;
+    SkShader::Context* shaderContextB = fShaderContextB;
+    SkBlendMode        mode = static_cast<const SkComposeShader&>(fShader).fMode;
+    unsigned           alpha = this->getPaintAlpha();
+    Sk4f               scale(alpha * (1.0f / 255));
+
+    SkPM4f  tmp[TMP_COLOR_COUNT];
+
+    SkXfermodeProc4f xfer = SkXfermode::GetProc4f(mode);
+    do {
+        int n = SkTMin(count, TMP_COLOR_COUNT);
+
+        shaderContextA->shadeSpan4f(x, y, result, n);
+        shaderContextB->shadeSpan4f(x, y, tmp, n);
+        if (255 == alpha) {
+            for (int i = 0; i < n; ++i) {
+                result[i] = xfer(tmp[i], result[i]);
+            }
+        } else {
+            for (int i = 0; i < n; ++i) {
+                (xfer(tmp[i], result[i]).to4f() * scale).store(result + i);
+            }
+        }
+        result += n;
+        x += n;
+        count -= n;
+    } while (count > 0);
+}
+
 #if SK_SUPPORT_GPU
 
 #include "effects/GrConstColorProcessor.h"
@@ -201,39 +265,29 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
 
 /////////////////////////////////////////////////////////////////////
 
-const GrFragmentProcessor* SkComposeShader::asFragmentProcessor(GrContext* context,
-                                                            const SkMatrix& viewM,
-                                                            const SkMatrix* localMatrix,
-                                                            SkFilterQuality fq) const {
-    // Fragment processor will only support SkXfermode::Mode modes currently.
-    SkXfermode::Mode mode;
-    if (!(SkXfermode::AsMode(fMode, &mode))) {
-        return nullptr;
-    }
-
-    switch (mode) {
-        case SkXfermode::kClear_Mode:
-            return GrConstColorProcessor::Create(GrColor_TRANSPARENT_BLACK,
-                                                 GrConstColorProcessor::kIgnore_InputMode);
+sk_sp<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(const AsFPArgs& args) const {
+    switch (fMode) {
+        case SkBlendMode::kClear:
+            return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
+                                               GrConstColorProcessor::kIgnore_InputMode);
             break;
-        case SkXfermode::kSrc_Mode:
-            return fShaderB->asFragmentProcessor(context, viewM, localMatrix, fq);
+        case SkBlendMode::kSrc:
+            return fShaderB->asFragmentProcessor(args);
             break;
-        case SkXfermode::kDst_Mode:
-            return fShaderA->asFragmentProcessor(context, viewM, localMatrix, fq);
+        case SkBlendMode::kDst:
+            return fShaderA->asFragmentProcessor(args);
             break;
         default:
-            SkAutoTUnref<const GrFragmentProcessor> fpA(fShaderA->asFragmentProcessor(context,
-                                                        viewM, localMatrix, fq));
-            if (!fpA.get()) {
+            sk_sp<GrFragmentProcessor> fpA(fShaderA->asFragmentProcessor(args));
+            if (!fpA) {
                 return nullptr;
             }
-            SkAutoTUnref<const GrFragmentProcessor> fpB(fShaderB->asFragmentProcessor(context,
-                                                        viewM, localMatrix, fq));
-            if (!fpB.get()) {
+            sk_sp<GrFragmentProcessor> fpB(fShaderB->asFragmentProcessor(args));
+            if (!fpB) {
                 return nullptr;
             }
-            return GrXfermodeFragmentProcessor::CreateFromTwoProcessors(fpB, fpA, mode);
+            return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fpB),
+                                                                      std::move(fpA), fMode);
     }
 }
 #endif
@@ -246,9 +300,8 @@ void SkComposeShader::toString(SkString* str) const {
     fShaderA->toString(str);
     str->append(" ShaderB: ");
     fShaderB->toString(str);
-    if (fMode) {
-        str->append(" Xfermode: ");
-        fMode->toString(str);
+    if (SkBlendMode::kSrcOver != fMode) {
+        str->appendf(" Xfermode: %s", SkXfermode::ModeName(fMode));
     }
 
     this->INHERITED::toString(str);

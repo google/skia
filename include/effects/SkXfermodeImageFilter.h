@@ -8,50 +8,42 @@
 #ifndef SkXfermodeImageFilter_DEFINED
 #define SkXfermodeImageFilter_DEFINED
 
+#include "SkArithmeticImageFilter.h"
+#include "SkBlendMode.h"
 #include "SkImageFilter.h"
 
-class SkBitmap;
-class SkXfermode;
-
-class SK_API SkXfermodeImageFilter : public SkImageFilter {
-    /**
-     * This filter takes an xfermode, and uses it to composite the foreground
-     * over the background.  If foreground or background is NULL, the input
-     * bitmap (src) is used instead.
-      */
-
+/**
+ * This filter takes a SkBlendMode, and uses it to composite the foreground over the background.
+ * If foreground or background is NULL, the input bitmap (src) is used instead.
+ */
+class SK_API SkXfermodeImageFilter {
 public:
-    virtual ~SkXfermodeImageFilter();
-
-    static SkXfermodeImageFilter* Create(SkXfermode* mode, SkImageFilter* background,
-                                         SkImageFilter* foreground = NULL,
-                                         const CropRect* cropRect = NULL) {
-        SkImageFilter* inputs[2] = { background, foreground };
-        return new SkXfermodeImageFilter(mode, inputs, cropRect);
+    static sk_sp<SkImageFilter> Make(SkBlendMode, sk_sp<SkImageFilter> background,
+                                     sk_sp<SkImageFilter> foreground,
+                                     const SkImageFilter::CropRect* cropRect);
+    static sk_sp<SkImageFilter> Make(SkBlendMode mode, sk_sp<SkImageFilter> background) {
+        return Make(mode, std::move(background), nullptr, nullptr);
     }
 
-    SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkXfermodeImageFilter)
+    // Arithmetic image filtering used to be implemented using SkXfermode. Some clients still rely
+    // on these factories existing in this class.
+    static sk_sp<SkImageFilter> MakeArithmetic(float k1, float k2, float k3, float k4,
+                                               bool enforcePMColor, sk_sp<SkImageFilter> background,
+                                               sk_sp<SkImageFilter> foreground,
+                                               const SkImageFilter::CropRect* cropRect) {
+        return SkArithmeticImageFilter::Make(k1, k2, k3, k4, enforcePMColor, std::move(background),
+                                             std::move(foreground), cropRect);
+    }
+    static sk_sp<SkImageFilter> MakeArithmetic(float k1, float k2, float k3, float k4,
+                                               bool enforcePMColor,
+                                               sk_sp<SkImageFilter> background) {
+        return SkArithmeticImageFilter::Make(k1, k2, k3, k4, enforcePMColor, std::move(background));
+    }
 
-    bool onFilterImage(Proxy* proxy,
-                       const SkBitmap& src,
-                       const Context& ctx,
-                       SkBitmap* dst,
-                       SkIPoint* offset) const override;
-#if SK_SUPPORT_GPU
-    bool canFilterImageGPU() const override;
-    bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                        SkBitmap* result, SkIPoint* offset) const override;
-#endif
-
-protected:
-    SkXfermodeImageFilter(SkXfermode* mode, SkImageFilter* inputs[2],
-                          const CropRect* cropRect);
-    void flatten(SkWriteBuffer&) const override;
+    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP();
 
 private:
-    SkXfermode* fMode;
-    typedef SkImageFilter INHERITED;
+    SkXfermodeImageFilter();    // can't instantiate
 };
 
 #endif

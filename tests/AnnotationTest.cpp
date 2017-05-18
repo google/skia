@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -32,7 +31,7 @@ DEF_TEST(Annotation_NoDraw, reporter) {
     SkCanvas canvas(bm);
     SkRect r = SkRect::MakeWH(SkIntToScalar(10), SkIntToScalar(10));
 
-    SkAutoDataUnref data(SkData::NewWithCString("http://www.gooogle.com"));
+    sk_sp<SkData> data(SkData::MakeWithCString("http://www.gooogle.com"));
 
     REPORTER_ASSERT(reporter, 0 == *bm.getAddr32(0, 0));
     SkAnnotateRectWithURL(&canvas, r, data.get());
@@ -42,17 +41,17 @@ DEF_TEST(Annotation_NoDraw, reporter) {
 DEF_TEST(Annotation_PdfLink, reporter) {
     REQUIRE_PDF_DOCUMENT(Annotation_PdfLink, reporter);
     SkDynamicMemoryWStream outStream;
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&outStream));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(&outStream));
     SkCanvas* canvas = doc->beginPage(612.0f, 792.0f);
     REPORTER_ASSERT(reporter, canvas);
 
     SkRect r = SkRect::MakeXYWH(SkIntToScalar(72), SkIntToScalar(72),
                                 SkIntToScalar(288), SkIntToScalar(72));
-    SkAutoDataUnref data(SkData::NewWithCString("http://www.gooogle.com"));
+    sk_sp<SkData> data(SkData::MakeWithCString("http://www.gooogle.com"));
     SkAnnotateRectWithURL(canvas, r, data.get());
 
-    REPORTER_ASSERT(reporter, doc->close());
-    SkAutoDataUnref out(outStream.copyToData());
+    doc->close();
+    sk_sp<SkData> out = outStream.detachAsData();
     const char* rawOutput = (const char*)out->data();
 
     REPORTER_ASSERT(reporter, ContainsString(rawOutput, out->size(), "/Annots "));
@@ -61,16 +60,16 @@ DEF_TEST(Annotation_PdfLink, reporter) {
 DEF_TEST(Annotation_NamedDestination, reporter) {
     REQUIRE_PDF_DOCUMENT(Annotation_NamedDestination, reporter);
     SkDynamicMemoryWStream outStream;
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&outStream));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(&outStream));
     SkCanvas* canvas = doc->beginPage(612.0f, 792.0f);
     REPORTER_ASSERT(reporter, canvas);
 
     SkPoint p = SkPoint::Make(SkIntToScalar(72), SkIntToScalar(72));
-    SkAutoDataUnref data(SkData::NewWithCString("example"));
+    sk_sp<SkData> data(SkData::MakeWithCString("example"));
     SkAnnotateNamedDestination(canvas, p, data.get());
 
-    REPORTER_ASSERT(reporter, doc->close());
-    SkAutoDataUnref out(outStream.copyToData());
+    doc->close();
+    sk_sp<SkData> out = outStream.detachAsData();
     const char* rawOutput = (const char*)out->data();
 
     REPORTER_ASSERT(reporter,

@@ -5,88 +5,117 @@
  * found in the LICENSE file.
  */
 
+#include "SkCpu.h"
+#include "SkHalf.h"
 #include "SkOnce.h"
 #include "SkOpts.h"
 
-#define SK_OPTS_NS sk_default
+#if defined(SK_ARM_HAS_NEON)
+    #if defined(SK_ARM_HAS_CRC32)
+        #define SK_OPTS_NS neon_and_crc32
+    #else
+        #define SK_OPTS_NS neon
+    #endif
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+    #define SK_OPTS_NS avx2
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
+    #define SK_OPTS_NS avx
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE42
+    #define SK_OPTS_NS sse42
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+    #define SK_OPTS_NS sse41
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+    #define SK_OPTS_NS ssse3
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE3
+    #define SK_OPTS_NS sse3
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    #define SK_OPTS_NS sse2
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+    #define SK_OPTS_NS sse
+#else
+    #define SK_OPTS_NS portable
+#endif
+
+#include "SkBitmapFilter_opts.h"
+#include "SkBlend_opts.h"
 #include "SkBlitMask_opts.h"
 #include "SkBlitRow_opts.h"
 #include "SkBlurImageFilter_opts.h"
-#include "SkColorCubeFilter_opts.h"
-#include "SkFloatingPoint_opts.h"
-#include "SkMatrix_opts.h"
+#include "SkChecksum_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
-#include "SkTextureCompressor_opts.h"
-#include "SkUtils_opts.h"
+#include "SkSwizzler_opts.h"
 #include "SkXfermode_opts.h"
-
-#if defined(SK_CPU_X86)
-    #if defined(SK_BUILD_FOR_WIN32)
-        #include <intrin.h>
-        static void cpuid(uint32_t abcd[4]) { __cpuid((int*)abcd, 1); }
-    #else
-        #include <cpuid.h>
-        static void cpuid(uint32_t abcd[4]) { __get_cpuid(1, abcd+0, abcd+1, abcd+2, abcd+3); }
-    #endif
-#elif !defined(SK_ARM_HAS_NEON) && defined(SK_CPU_ARM32) && defined(SK_BUILD_FOR_ANDROID)
-    #include <cpu-features.h>
-#endif
 
 namespace SkOpts {
     // Define default function pointer values here...
     // If our global compile options are set high enough, these defaults might even be
     // CPU-specialized, e.g. a typical x86-64 machine might start with SSE2 defaults.
     // They'll still get a chance to be replaced with even better ones, e.g. using SSE4.1.
-    decltype(rsqrt)                     rsqrt = sk_default::rsqrt;
-    decltype(memset16)               memset16 = sk_default::memset16;
-    decltype(memset32)               memset32 = sk_default::memset32;
-    decltype(create_xfermode) create_xfermode = sk_default::create_xfermode;
-    decltype(color_cube_filter_span) color_cube_filter_span = sk_default::color_cube_filter_span;
+#define DEFINE_DEFAULT(name) decltype(name) name = SK_OPTS_NS::name
+    DEFINE_DEFAULT(create_xfermode);
 
-    decltype(box_blur_xx) box_blur_xx = sk_default::box_blur_xx;
-    decltype(box_blur_xy) box_blur_xy = sk_default::box_blur_xy;
-    decltype(box_blur_yx) box_blur_yx = sk_default::box_blur_yx;
+    DEFINE_DEFAULT(box_blur_xx);
+    DEFINE_DEFAULT(box_blur_xy);
+    DEFINE_DEFAULT(box_blur_yx);
 
-    decltype(dilate_x) dilate_x = sk_default::dilate_x;
-    decltype(dilate_y) dilate_y = sk_default::dilate_y;
-    decltype( erode_x)  erode_x = sk_default::erode_x;
-    decltype( erode_y)  erode_y = sk_default::erode_y;
+    DEFINE_DEFAULT(dilate_x);
+    DEFINE_DEFAULT(dilate_y);
+    DEFINE_DEFAULT( erode_x);
+    DEFINE_DEFAULT( erode_y);
 
-    decltype(texture_compressor)       texture_compressor = sk_default::texture_compressor;
-    decltype(fill_block_dimensions) fill_block_dimensions = sk_default::fill_block_dimensions;
+    DEFINE_DEFAULT(blit_mask_d32_a8);
 
-    decltype(blit_mask_d32_a8) blit_mask_d32_a8 = sk_default::blit_mask_d32_a8;
+    DEFINE_DEFAULT(blit_row_color32);
+    DEFINE_DEFAULT(blit_row_s32a_opaque);
 
-    decltype(blit_row_color32) blit_row_color32 = sk_default::blit_row_color32;
+    DEFINE_DEFAULT(RGBA_to_BGRA);
+    DEFINE_DEFAULT(RGBA_to_rgbA);
+    DEFINE_DEFAULT(RGBA_to_bgrA);
+    DEFINE_DEFAULT(RGB_to_RGB1);
+    DEFINE_DEFAULT(RGB_to_BGR1);
+    DEFINE_DEFAULT(gray_to_RGB1);
+    DEFINE_DEFAULT(grayA_to_RGBA);
+    DEFINE_DEFAULT(grayA_to_rgbA);
+    DEFINE_DEFAULT(inverted_CMYK_to_RGB1);
+    DEFINE_DEFAULT(inverted_CMYK_to_BGR1);
 
-    decltype(matrix_translate)       matrix_translate       = sk_default::matrix_translate;
-    decltype(matrix_scale_translate) matrix_scale_translate = sk_default::matrix_scale_translate;
-    decltype(matrix_affine)          matrix_affine          = sk_default::matrix_affine;
+    DEFINE_DEFAULT(srcover_srgb_srgb);
+
+    DEFINE_DEFAULT(hash_fn);
+
+    DEFINE_DEFAULT(convolve_vertically);
+    DEFINE_DEFAULT(convolve_horizontally);
+    DEFINE_DEFAULT(convolve_4_rows_horizontally);
+
+#undef DEFINE_DEFAULT
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
     void Init_sse41();
-    void Init_neon();
-    //TODO: _dsp2, _armv7, _armv8, _x86, _x86_64, _sse42, _avx, avx2, ... ?
+    void Init_sse42();
+    void Init_avx();
+    void Init_hsw();
+    void Init_crc32();
 
     static void init() {
-        // TODO: Chrome's not linking _sse* opts on iOS simulator builds.  Bug or feature?
-    #if defined(SK_CPU_X86) /*&& !defined(SK_BUILD_FOR_IOS) */
-        uint32_t abcd[] = {0,0,0,0};
-        cpuid(abcd);
-        if (abcd[2] & (1<< 9)) { Init_ssse3(); }
-        if (abcd[2] & (1<<19)) { Init_sse41(); }
+#if !defined(SK_BUILD_NO_OPTS)
+    #if defined(SK_CPU_X86)
+        if (SkCpu::Supports(SkCpu::SSSE3)) { Init_ssse3(); }
+        if (SkCpu::Supports(SkCpu::SSE41)) { Init_sse41(); }
+        if (SkCpu::Supports(SkCpu::SSE42)) { Init_sse42(); }
+        if (SkCpu::Supports(SkCpu::AVX  )) { Init_avx();   }
+        if (SkCpu::Supports(SkCpu::HSW  )) { Init_hsw();   }
     #elif !defined(SK_ARM_HAS_NEON) && defined(SK_CPU_ARM32) && defined(SK_BUILD_FOR_ANDROID)
         if (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON) { Init_neon(); }
+    #elif defined(SK_CPU_ARM64)
+        if (SkCpu::Supports(SkCpu::CRC32)) { Init_crc32(); }
+
     #endif
+#endif
     }
 
-    SK_DECLARE_STATIC_ONCE(gInitOnce);
-    void Init() { SkOnce(&gInitOnce, init); }
-
-#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-    static struct AutoInit {
-        AutoInit() { Init(); }
-    } gAutoInit;
-#endif
-}
+    void Init() {
+        static SkOnce once;
+        once(init);
+    }
+}  // namespace SkOpts

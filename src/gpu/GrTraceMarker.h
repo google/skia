@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -68,7 +67,7 @@ private:
 
 class GrTraceMarkerSet::Iter {
 public:
-    Iter() {};
+    Iter() {}
     Iter& operator=(const Iter& i) {
         fCurrentIndex = i.fCurrentIndex;
         fMarkers = i.fMarkers;

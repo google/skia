@@ -2,29 +2,37 @@ How to submit a patch
 =====================
 
 
+Configure git
+-------------
+
+<!--?prettify lang=sh?-->
+
+    git config --global user.name "Your Name"
+    git config --global user.email you@example.com
+
 Making changes
 --------------
 
 First create a branch for your changes:
 
-~~~~
-$ git checkout -b my_feature origin/master
-~~~~
+<!--?prettify lang=sh?-->
+
+    git config branch.autosetuprebase always
+    git checkout -b my_feature origin/master
 
 After making your changes, create a commit
 
-~~~~
-$ git add [file1] [file2] ...
-$ git commit
-~~~~
+<!--?prettify lang=sh?-->
+
+    git add [file1] [file2] ...
+    git commit
 
 If your branch gets out of date, you will need to update it:
 
-~~~~
-$ git pull --rebase
-$ gclient sync
-~~~~
+<!--?prettify lang=sh?-->
 
+    git pull
+    python tools/git-sync-deps
 
 Adding a unit test
 ------------------
@@ -34,7 +42,7 @@ time. Skia has a simple unittest framework so you can add a case to it.
 
 Test code is located under the 'tests' directory.
 
-See [Writing Unit and Rendering Tests](tests) for details.
+See [Writing Unit and Rendering Tests](../testing/tests) for details.
 
 Unit tests are best, but if your change touches rendering and you can't think of
 an automated way to verify the results, consider writing a GM test or a new page
@@ -49,24 +57,17 @@ For your code to be accepted into the codebase, you must complete the
 [Individual Contributor License
 Agreement](http://code.google.com/legal/individual-cla-v1.0.html). You can do
 this online, and it only takes a minute. If you are contributing on behalf of a
-corporation, you must fill out the [Corporate Contributor License Agreement](http://code.google.com/legal/corporate-cla-v1.0.html) 
-and send it to us as described on that page. Add your (or your organization's) 
+corporation, you must fill out the [Corporate Contributor License
+Agreement](http://code.google.com/legal/corporate-cla-v1.0.html)
+and send it to us as described on that page. Add your (or your organization's)
 name and contact info to the AUTHORS file as a part of your CL.
 
 Now that you've made a change and written a test for it, it's ready for the code
 review! Submit a patch and getting it reviewed is fairly easy with depot tools.
 
-Use git-cl, which comes with [depot tools](http://sites.google.com/a/chromium.org/dev/developers/how-tos/install-depot-tools).
+Use git-cl, which comes with [depot
+tools](http://sites.google.com/a/chromium.org/dev/developers/how-tos/install-depot-tools).
 For help, run git-cl help.
-
-### Configuring git-cl
-
-Before using any git-cl commands you will need to configure it to point at the
-correct code review server. This is accomplished with the following command:
-
-~~~~
-git cl config https://skia.googlesource.com/skia/+/master/codereview.settings
-~~~~
 
 ### Find a reviewer
 
@@ -76,34 +77,34 @@ has been editing it.
 
 ### Uploading changes for review
 
-Skia uses Chromium's code review [site](http://codereview.chromium.org) and the 
-Rietveld open source code review tool.  
+Skia uses the Gerrit code review tool. Skia's instance is [skia-review](http://skia-review.googlesource.com).
 Use git cl to upload your change:
-~~~~
-$ git cl upload 
-~~~~
+
+<!--?prettify lang=sh?-->
+
+    git cl upload
 
 You may have to enter a Google Account username and password to authenticate
-yourself to codereview.chromium.org. A free gmail account will do fine, or any
+yourself to Gerrit. A free gmail account will do fine, or any
 other type of Google account.  It does not have to match the email address you
-configured using git config --global user.email above, but it can.
+configured using `git config --global user.email` above, but it can.
 
 The command output should include a URL, similar to
-(https://codereview.chromium.org/111893004/), indicating where your changelist
+(https://skia-review.googlesource.com/c/4559/), indicating where your changelist
 can be reviewed.
 
 ### Request review
 
-Go to the supplied URL or go to the code review page and click **Issues created
-by me**. Select the change you want to submit for review and click **Edit
-Issue**. Enter at least one reviewer's email address and click **Update Issue**.
-Now click on **Publish+Mail Comments**, add any optional notes, and send your
-change off for review. Unless you publish your change, no one will know to look
+Go to the supplied URL or go to the code review page and select the **Your**
+dropdown and click on **Changes**. Select the change you want to submit for
+review and click **Reply**. Enter at least one reviewer's email address. Now
+add any optional notes, and send your change off for review by clicking on
+**Send**. Unless you send your change to reviewers, no one will know to look
 at it.
 
-_Note_: If you don't see editing commands on the review page, click **Log In**
+_Note_: If you don't see editing commands on the review page, click **Sign in**
 in the upper right. _Hint_: You can add -r reviewer@example.com --send-mail to
-send the email directly when uploading a change in both gcl and git-cl.
+send the email directly when uploading a change using git-cl.
 
 
 The review process
@@ -111,9 +112,6 @@ The review process
 
 If you submit a giant patch, or do a bunch of work without discussing it with
 the relevant people, you may have a hard time convincing anyone to review it!
-
-Please follow the guidelines on how to conduct a code review detailed here:
-https://code.google.com/p/rietveld/wiki/CodeReviewHelp
 
 Code reviews are an important part of the engineering process. The reviewer will
 almost always have suggestions or style fixes for you, and it's important not to
@@ -130,28 +128,26 @@ update.
 If you need to update code the code on an already uploaded CL, simply edit the
 code, commit it again locally, and then run git cl upload again e.g.
 
-~~~~
-echo "" > GOATS
-git add GOATS
-git commit -m 'add newline fix to GOATS'
-git cl upload
-~~~~
+    echo "GOATS" > whitespace.txt
+    git add whitespace.txt
+    git commit -m 'add GOATS fix to whitespace.txt'
+    git cl upload
 
-Once you're ready for another review, use **Publish+Mail Comments** again to
-send another notification (it is helpful to tell the review what you did with
-respect to each of their comments). When the reviewer is happy with your patch,
-they will say "LGTM" ("Looks Good To Me").
+Once you're ready for another review, use **Reply** again to send another
+notification (it is helpful to tell the review what you did with respect to each
+of their comments). When the reviewer is happy with your patch, they will
+approve your change by setting the Code-Review label to "+1".
 
 _Note_: As you work through the review process, both you and your reviewers
-should converse using the code review interface, and send notes using
-**Publish+Mail Comments**.
+should converse using the code review interface, and send notes.
+
+Once your change has received an approval, you can click the "Submit to CQ"
+button on the codereview page and it will be committed on your behalf.
 
 Once your commit has gone in, you should delete the branch containing your change:
 
-~~~~
-$ git checkout master
-$ git branch -D my_feature
-~~~~
+    git checkout -q origin/master
+    git branch -D my_feature
 
 
 Final Testing
@@ -189,27 +185,27 @@ commit your change directly to Skia's repository.
 
 If you don't have committer rights in https://skia.googlesource.com/skia.git ...
 first of all, thanks for submitting your patch!  We really appreciate these
-submissions.  Unfortunately, we don't yet have a way for Skia committers to mark
-a patch as "approved" and thus allow non-committers to commit them.  So instead,
-please ask a Skia committer to land your patch for you or land using the commit
-queue.
+submissions.  After receiving an approval from a committer, you will be able to
+click the "Submit to CQ" button and submit your patch via the commit queue.  
 
-As part of this process, the Skia committer may create a new codereview
-containing your patch (perhaps with some small adjustments at her discretion).
-If so, you can mark your codereview as "Closed", and update it with a link to
-the new codereview.
+In special instances, a Skia committer may assist you in landing the change
+by uploading a new codereview containing your patch (perhaps with some small
+adjustments at his/her discretion).  If so, you can mark your change as
+"Abandoned", and update it with a link to the new codereview.
 
-### Skia committers: 
-  *  tips on how to apply the externally provided patch are [here](./patch)
-  *  when landing externally contributed patches, please note the original 
+### Skia committers 
+  *  tips on how to apply an externally provided patch are [here](./patch)
+  *  when landing externally contributed patches, please note the original
      contributor's identity (and provide a link to the original codereview) in the commit message
 
-git-cl will squash all your commits into a single one with the description you used when you uploaded your change.
+    git-cl will squash all your commits into a single one with the description you used when you uploaded your change.
 
-~~~~
-git cl land
-~~~~
-or
-~~~~
-git cl land -c 'Contributor Name <email@example.com>'
-~~~~
+    ~~~~
+    git cl land
+    ~~~~
+    
+    or
+    
+    ~~~~
+    git cl land -c 'Contributor Name <email@example.com>'
+    ~~~~

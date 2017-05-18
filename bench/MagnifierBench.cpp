@@ -6,6 +6,7 @@
  */
 
 #include "Benchmark.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkRandom.h"
@@ -38,11 +39,11 @@ protected:
         const int h = fIsSmall ? FILTER_HEIGHT_SMALL : FILTER_HEIGHT_LARGE;
         SkPaint paint;
         paint.setImageFilter(
-            SkMagnifierImageFilter::Create(
+            SkMagnifierImageFilter::Make(
                 SkRect::MakeXYWH(SkIntToScalar(w / 4),
                                  SkIntToScalar(h / 4),
                                  SkIntToScalar(w / 2),
-                                 SkIntToScalar(h / 2)), 100))->unref();
+                                 SkIntToScalar(h / 2)), 100, nullptr));
 
         for (int i = 0; i < loops; i++) {
             canvas->drawBitmap(fCheckerboard, 0, 0, &paint);

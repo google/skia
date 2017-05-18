@@ -34,18 +34,18 @@ SkHalf SkFloatToHalf(float f) {
     static const uint32_t sign_mask = 0x80000000u;
     static const uint32_t round_mask = ~0xfffu;
     SkHalf o = 0;
-    
+
     FloatUIntUnion floatUnion;
     floatUnion.fFloat = f;
-    
+
     uint32_t sign = floatUnion.fUInt & sign_mask;
     floatUnion.fUInt ^= sign;
-    
+
     // NOTE all the integer compares in this function can be safely
     // compiled into signed compares since all operands are below
     // 0x80000000. Important if you want fast straight SSE2 code
     // (since there's no unsigned PCMPGTD).
-    
+
     // Inf or NaN (all exponent bits set)
     if (floatUnion.fUInt >= f32infty)
         // NaN->qNaN and Inf->Inf
@@ -59,10 +59,10 @@ SkHalf SkFloatToHalf(float f) {
         if (floatUnion.fUInt > f16infty) {
             floatUnion.fUInt = f16infty;
         }
-        
+
         o = floatUnion.fUInt >> 13; // Take the bits!
     }
-    
+
     o |= sign >> 16;
     return o;
 }
@@ -72,7 +72,7 @@ SkHalf SkFloatToHalf(float f) {
 float SkHalfToFloat(SkHalf h) {
     static const FloatUIntUnion magic = { 126 << 23 };
     FloatUIntUnion o;
-    
+
     if (halfExponent(h) == 0)
     {
         // Zero / Denormal
@@ -90,7 +90,7 @@ float SkHalfToFloat(SkHalf h) {
         else
             o.fUInt |= ((127 - 15 + halfExponent(h)) << 23);
     }
-    
+
     // Set sign
     o.fUInt |= (halfSign(h) << 31);
     return o.fFloat;

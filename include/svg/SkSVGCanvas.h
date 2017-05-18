@@ -25,7 +25,7 @@ public:
      *  The 'bounds' parameter defines an initial SVG viewport (viewBox attribute on the root
      *  SVG element).
      */
-    static SkCanvas* Create(const SkRect& bounds, SkXMLWriter*);
+    static std::unique_ptr<SkCanvas> Make(const SkRect& bounds, SkXMLWriter*);
 };
 
 #endif

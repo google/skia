@@ -6,59 +6,19 @@
  */
 
 #include "GrCoordTransform.h"
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrGpu.h"
+#include "GrResourceProvider.h"
+#include "GrTextureProxy.h"
 
-void GrCoordTransform::reset(GrCoordSet sourceCoords, const SkMatrix& m, const GrTexture* texture,
-                             GrTextureParams::FilterMode filter) {
-    SkASSERT(texture);
+void GrCoordTransform::reset(GrResourceProvider* resourceProvider, const SkMatrix& m,
+                             GrTextureProxy* proxy, bool normalize) {
+    SkASSERT(proxy);
     SkASSERT(!fInProcessor);
 
-    fSourceCoords = sourceCoords;
     fMatrix = m;
-    fReverseY = kBottomLeft_GrSurfaceOrigin == texture->origin();
-
-    // Always start at kDefault. Then if precisions differ we see if the precision needs to be
-    // increased. Our rule is that we want at least 4 subpixel values in the representation for
-    // coords between 0 to 1 when bi- or tri-lerping and 1 value when nearest filtering. Note that
-    // this still might not be enough when drawing with repeat or mirror-repeat modes but that case
-    // can be arbitrarily bad.
-    int subPixelThresh = filter > GrTextureParams::kNone_FilterMode ? 4 : 1;
-    fPrecision = kDefault_GrSLPrecision;
-    if (texture->getContext()) {
-        const GrShaderCaps* caps = texture->getContext()->caps()->shaderCaps();
-        if (caps->floatPrecisionVaries()) {
-            int maxD = SkTMax(texture->width(), texture->height());
-            const GrShaderCaps::PrecisionInfo* info;
-            info = &caps->getFloatShaderPrecisionInfo(kFragment_GrShaderType, fPrecision);
-            do {
-                SkASSERT(info->supported());
-                // Make sure there is at least 2 bits of subpixel precision in the range of
-                // texture coords from 0.5 to 1.0.
-                if ((2 << info->fBits) / maxD > subPixelThresh) {
-                    break;
-                }
-                if (kHigh_GrSLPrecision == fPrecision) {
-                    break;
-                }
-                GrSLPrecision nextP = static_cast<GrSLPrecision>(fPrecision + 1);
-                info = &caps->getFloatShaderPrecisionInfo(kFragment_GrShaderType, nextP);
-                if (!info->supported()) {
-                    break;
-                }
-                fPrecision = nextP;
-            } while (true);
-        }
-    }
-}
-
-void GrCoordTransform::reset(GrCoordSet sourceCoords,
-                             const SkMatrix& m,
-                             GrSLPrecision precision) {
-    SkASSERT(!fInProcessor);
-    fSourceCoords = sourceCoords;
-    fMatrix = m;
-    fReverseY = false;
-    fPrecision = precision;
+    // MDB TODO: just GrCaps is needed for this method
+    // MDB TODO: once all the coord transforms take a proxy just store it here and
+    // instantiate later
+    fTexture = proxy->instantiateTexture(resourceProvider);
+    fNormalize = normalize;
+    fReverseY = kBottomLeft_GrSurfaceOrigin == proxy->origin();
 }

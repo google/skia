@@ -7,10 +7,25 @@
 #ifndef PathOpsTestCommon_DEFINED
 #define PathOpsTestCommon_DEFINED
 
-#include "SkPathOpsConic.h"
+#include "SkPathOpsQuad.h"
 #include "SkTArray.h"
 
 struct SkPathOpsBounds;
+
+struct QuadPts {
+    static const int kPointCount = 3;
+    SkDPoint fPts[kPointCount];
+};
+
+struct ConicPts {
+    QuadPts fPts;
+    SkScalar fWeight;
+};
+
+struct CubicPts {
+    static const int kPointCount = 4;
+    SkDPoint fPts[kPointCount];
+};
 
 void CubicPathToQuads(const SkPath& cubicPath, SkPath* quadPath);
 void CubicPathToSimple(const SkPath& cubicPath, SkPath* simplePath);

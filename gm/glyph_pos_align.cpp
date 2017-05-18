@@ -12,10 +12,10 @@
 /**
  * This test exercises drawPosTextH and drawPosText with every text align.
  */
-static const int kWidth = 480;
-static const int kHeight = 600;
-static const SkScalar kTextHeight = 64.0f;
-static const int kMaxStringLength = 12;
+constexpr int kWidth = 480;
+constexpr int kHeight = 600;
+constexpr SkScalar kTextHeight = 64.0f;
+constexpr int kMaxStringLength = 12;
 
 static void drawTestCase(SkCanvas*, const char*, SkScalar, const SkPaint&);
 
@@ -25,12 +25,8 @@ DEF_SIMPLE_GM_BG(glyph_pos_align, canvas, kWidth, kHeight, SK_ColorBLACK) {
         paint.setFakeBoldText(true);
         const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
         const SkPoint pts[] = {{0, 0}, {kWidth, kHeight}};
-        SkAutoTUnref<SkShader> grad(SkGradientShader::CreateLinear(pts, colors, nullptr,
-                                                                   SK_ARRAY_COUNT(colors),
-                                                                   SkShader::kMirror_TileMode));
-        paint.setShader(grad);
-
-
+        paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                                     SkShader::kMirror_TileMode));
         paint.setTextAlign(SkPaint::kRight_Align);
         drawTestCase(canvas, "Right Align", kTextHeight, paint);
 

@@ -1,0 +1,47 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+import("../third_party.gni")
+
+third_party("libmicrohttpd") {
+  public_include_dirs = [ "../externals/microhttpd/src/include" ]
+
+  include_dirs = [ "." ]
+  sources = [
+    "../externals/microhttpd/src/microhttpd/base64.c",
+    "../externals/microhttpd/src/microhttpd/connection.c",
+    "../externals/microhttpd/src/microhttpd/daemon.c",
+    "../externals/microhttpd/src/microhttpd/internal.c",
+    "../externals/microhttpd/src/microhttpd/memorypool.c",
+    "../externals/microhttpd/src/microhttpd/postprocessor.c",
+    "../externals/microhttpd/src/microhttpd/reason_phrase.c",
+    "../externals/microhttpd/src/microhttpd/response.c",
+    "../externals/microhttpd/src/microhttpd/tsearch.c",
+  ]
+
+  defines = [ "DAUTH_SUPPORT=1" ]
+  libs = []
+
+  if (is_win) {
+    sources += [ "../externals/microhttpd/src/platform/w32functions.c" ]
+    defines += [
+      "HAVE_SYS_TYPES_H=1",
+      "HAVE_TIME_H=1",
+      "MHD_USE_W32_THREADS=1",
+      "WINDOWS",
+    ]
+    libs += [ "Ws2_32.lib" ]
+  } else {
+    defines += [
+      "HAVE_NETINET_IN_H=1",
+      "HAVE_PTHREAD_H=1",
+      "HAVE_SYS_SOCKET_H=1",
+      "MHD_USE_POSIX_THREADS=1",
+    ]
+  }
+}

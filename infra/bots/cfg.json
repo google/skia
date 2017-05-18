@@ -1,0 +1,14 @@
+{
+  "gs_bucket_gm": "skia-infra-gm",
+  "gs_bucket_nano": "skia-perf",
+  "pool": "Skia",
+  "no_upload": [
+    "ASAN",
+    "Coverage",
+    "MSAN",
+    "TSAN",
+    "UBSAN",
+    "Valgrind",
+    "AbandonGpuContext"
+  ]
+}

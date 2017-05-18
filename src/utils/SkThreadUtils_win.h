@@ -8,8 +8,7 @@
 #ifndef SkThreadUtils_WinData_DEFINED
 #define SkThreadUtils_WinData_DEFINED
 
-#include "SkTypes.h"
-
+#include "SkLeanWindows.h"
 #include "SkThreadUtils.h"
 
 class SkThread_WinData : SkNoncopyable {

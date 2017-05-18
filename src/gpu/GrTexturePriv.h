@@ -29,7 +29,9 @@ public:
         return 0 != (fTexture->fDesc.fFlags & flags);
     }
 
-    void dirtyMipMaps(bool mipMapsDirty) { fTexture->dirtyMipMaps(mipMapsDirty); }
+    void dirtyMipMaps(bool mipMapsDirty) {
+        fTexture->dirtyMipMaps(mipMapsDirty);
+    }
 
     bool mipMapsAreDirty() const {
         return GrTexture::kValid_MipMapsStatus != fTexture->fMipMapsStatus;
@@ -39,18 +41,33 @@ public:
         return GrTexture::kNotAllocated_MipMapsStatus != fTexture->fMipMapsStatus;
     }
 
+    void setMaxMipMapLevel(int maxMipMapLevel) const {
+        fTexture->fMaxMipMapLevel = maxMipMapLevel;
+    }
+
+    int maxMipMapLevel() const {
+        return fTexture->fMaxMipMapLevel;
+    }
+
+    GrSLType imageStorageType() const {
+        if (GrPixelConfigIsSint(fTexture->config())) {
+            return kIImageStorage2D_GrSLType;
+        } else {
+            return kImageStorage2D_GrSLType;
+        }
+    }
+
+    GrSLType samplerType() const { return fTexture->fSamplerType; }
+
+    /** The filter used is clamped to this value in GrProcessor::TextureSampler. */
+    GrSamplerParams::FilterMode highestFilterMode() const { return fTexture->fHighestFilterMode; }
+
+    void setMipColorMode(SkDestinationSurfaceColorMode colorMode) const {
+        fTexture->fMipColorMode = colorMode;
+    }
+    SkDestinationSurfaceColorMode mipColorMode() const { return fTexture->fMipColorMode; }
+
     static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
-
-    // TODO: Move this logic and the shift values out of here and to the callers.
-    SkFixed normalizeFixedX(SkFixed x) const {
-        SkASSERT(SkIsPow2(fTexture->fDesc.fWidth));
-        return x >> fTexture->fShiftFixedX;
-    }
-
-    SkFixed normalizeFixedY(SkFixed y) const {
-        SkASSERT(SkIsPow2(fTexture->fDesc.fHeight));
-        return y >> fTexture->fShiftFixedY;
-    }
 
 private:
     GrTexturePriv(GrTexture* texture) : fTexture(texture) { }
@@ -62,7 +79,7 @@ private:
     GrTexturePriv* operator&();
 
     GrTexture* fTexture;
-        
+
     friend class GrTexture; // to construct/copy this type.
 };
 

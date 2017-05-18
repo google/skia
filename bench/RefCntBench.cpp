@@ -38,30 +38,6 @@ private:
     typedef Benchmark INHERITED;
 };
 
-class AtomicInc64 : public Benchmark {
-public:
-    AtomicInc64() : fX(0) {}
-
-    bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
-    }
-
-protected:
-    const char* onGetName() override {
-        return "atomic_inc_64";
-    }
-
-    void onDraw(int loops, SkCanvas*) override {
-        for (int i = 0; i < loops; ++i) {
-            sk_atomic_inc(&fX);
-        }
-    }
-
-private:
-    int64_t fX;
-    typedef Benchmark INHERITED;
-};
-
 class RefCntBench_Stack : public Benchmark {
 public:
     bool isSuitableFor(Backend backend) override {
@@ -238,7 +214,6 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_BENCH( return new AtomicInc32(); )
-DEF_BENCH( return new AtomicInc64(); )
 
 DEF_BENCH( return new RefCntBench_Stack(); )
 DEF_BENCH( return new RefCntBench_Heap(); )

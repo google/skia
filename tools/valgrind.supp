@@ -1,15 +1,15 @@
 # Pass this file to Valgrind with "--suppressions=tools/valgrind.supp"
 
-# Intentional thread / memory leak in DM.
+# Intentional thread / memory leak in DM and nanbench.
 {
-   dm_keepalive_thread_leak
+   nanobench_and_dm_keepalive_thread_leak
    Memcheck:Leak
-   match-leak-kinds: possible
+   match-leak-kinds: possible,definite
    ...
    fun:_ZN8SkThreadC1EPFvPvES0_
    ...
-   fun:_Z7dm_mainv
    fun:main
+   ...
 }
 
 # Third party lib, driver issues.
@@ -235,4 +235,22 @@
     gpu_issue_15
     Memcheck:Addr2
     fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK6SkPathRK11SkStrokeRecP12GrDrawTargetb
+}
+{
+    libjpeg_turbo_bug4550_1
+    Memcheck:Cond
+    fun:_Z26S32A_Opaque_BlitRow32_SSE4PjPKjij
+    fun:_ZN14Sprite_D32_S328blitRectEiiii
+}
+{
+    libjpeg_turbo_bug4550_2
+    Memcheck:Cond
+    fun:_ZL15S32A_D565_BlendPtPKjijii
+    fun:_ZN26Sprite_D16_S32_BlitRowProc8blitRectEiiii
+}
+{
+    libjpeg_turbo_bug4550_3
+    Memcheck:Cond
+    fun:_ZN12_GLOBAL__N_120ConvolveHorizontallyILb0EEEvPKhRK21SkConvolutionFilter1DPh
+    fun:_Z14BGRAConvolve2DPKhibRK21SkConvolutionFilter1DS3_iPhRK18SkConvolutionProcsb
 }

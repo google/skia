@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkTypeface.h"
 
 namespace skiagm {
@@ -13,9 +14,6 @@ class FontScalerGM : public GM {
 public:
     FontScalerGM() {
         this->setBGColor(0xFFFFFFFF);
-    }
-
-    virtual ~FontScalerGM() {
     }
 
 protected:
@@ -28,14 +26,6 @@ protected:
 
     SkISize onISize() override {
         return SkISize::Make(1450, 750);
-    }
-
-    static void rotate_about(SkCanvas* canvas,
-                             SkScalar degrees,
-                             SkScalar px, SkScalar py) {
-        canvas->translate(px, py);
-        canvas->rotate(degrees);
-        canvas->translate(-px, -py);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -59,7 +49,7 @@ protected:
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(SkIntToScalar(50 + i * 230),
                                   SkIntToScalar(20));
-                rotate_about(canvas, SkIntToScalar(i * 5), x, y * 10);
+                canvas->rotate(SkIntToScalar(i * 5), x, y * 10);
 
                 {
                     SkPaint p;

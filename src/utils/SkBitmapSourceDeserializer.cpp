@@ -13,7 +13,7 @@
 #include "SkImageSource.h"
 #include "SkReadBuffer.h"
 
-SkFlattenable* SkBitmapSourceDeserializer::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkBitmapSourceDeserializer::CreateProc(SkReadBuffer& buffer) {
     SkFilterQuality filterQuality;
     if (buffer.isVersionLT(SkReadBuffer::kBitmapSourceFilterQuality_Version)) {
         filterQuality = kHigh_SkFilterQuality;
@@ -23,12 +23,9 @@ SkFlattenable* SkBitmapSourceDeserializer::CreateProc(SkReadBuffer& buffer) {
     SkRect src, dst;
     buffer.readRect(&src);
     buffer.readRect(&dst);
-    SkBitmap bitmap;
-    if (!buffer.readBitmap(&bitmap)) {
-        return nullptr;
+    sk_sp<SkImage> image = buffer.readBitmapAsImage();
+    if (image) {
+        return SkImageSource::Make(std::move(image), src, dst, filterQuality);
     }
-    bitmap.setImmutable();
-
-    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
-    return SkImageSource::Create(image, src, dst, filterQuality);
+    return nullptr;
 }

@@ -17,7 +17,7 @@ class SkDescriptor;
 class SkTypeface;
 class GrPath;
 class GrStencilSettings;
-class GrStrokeInfo;
+class GrStyle;
 
 /**
  * Abstract class wrapping HW path rendering API.
@@ -77,25 +77,29 @@ public:
         kEvenOdd_FillType,
     };
 
+    static const GrUserStencilSettings& GetStencilPassSettings(FillType);
+
     /**
      * Creates a new gpu path, based on the specified path and stroke and returns it.
      * The caller owns a ref on the returned path which must be balanced by a call to unref.
      *
-     * @param skPath the path geometry.
-     * @param stroke the path stroke.
-     * @return a new path.
+     * @param SkPath    the geometry.
+     * @param GrStyle   the style applied to the path. Styles with non-dash path effects are not
+     *                  allowed.
+     * @return a new GPU path object.
      */
-    virtual GrPath* createPath(const SkPath&, const GrStrokeInfo&) = 0;
+    virtual GrPath* createPath(const SkPath&, const GrStyle&) = 0;
 
     /**
-     * Creates a range of gpu paths with a common stroke. The caller owns a ref on the
+     * Creates a range of gpu paths with a common style. The caller owns a ref on the
      * returned path range which must be balanced by a call to unref.
      *
      * @param PathGenerator class that generates SkPath objects for each path in the range.
-     * @param GrStrokeInfo   the common stroke applied to each path in the range.
+     * @param GrStyle   the common style applied to each path in the range. Styles with non-dash
+     *                  path effects are not allowed.
      * @return a new path range.
      */
-    virtual GrPathRange* createPathRange(GrPathRange::PathGenerator*, const GrStrokeInfo&) = 0;
+    virtual GrPathRange* createPathRange(GrPathRange::PathGenerator*, const GrStyle&) = 0;
 
     /**
      * Creates a range of glyph paths, indexed by glyph id. The glyphs will have an
@@ -118,14 +122,15 @@ public:
      *                     including with the stroke information baked directly into
      *                     the outlines.
      *
-     * @param GrStrokeInfo Common stroke that the GPU will apply to every path. Note that
-     *                     if the glyph outlines contain baked-in strokes from the font
-     *                     descriptor, the GPU stroke will be applied on top of those
+     * @param GrStyle      Common style that the GPU will apply to every path. Note that
+     *                     if the glyph outlines contain baked-in styles from the font
+     *                     descriptor, the GPU style will be applied on top of those
      *                     outlines.
      *
      * @return a new path range populated with glyphs.
      */
-    GrPathRange* createGlyphs(const SkTypeface*, const SkDescriptor*, const GrStrokeInfo&);
+    GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
+                              const SkDescriptor*, const GrStyle&);
 
     /** None of these params are optional, pointers used just to avoid making copies. */
     struct StencilPathArgs {
@@ -152,38 +157,35 @@ public:
         this->onStencilPath(args, path);
     }
 
-    struct DrawPathArgs : public GrGpu::DrawArgs {
-        DrawPathArgs(const GrPrimitiveProcessor* primProc,
-                     const GrPipeline* pipeline,
-                     const GrProgramDesc* desc,
-                     const GrStencilSettings* stencil)
-            : DrawArgs(primProc, pipeline, desc)
-            , fStencil(stencil) {
-        }
-
-        const GrStencilSettings* fStencil;
-    };
-
-    void drawPath(const DrawPathArgs& args, const GrPath* path) {
+    void drawPath(const GrPipeline& pipeline,
+                  const GrPrimitiveProcessor& primProc,
+                  const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
+                  const GrPath* path) {
         fGpu->handleDirtyContext();
-        if (GrXferBarrierType barrierType = args.fPipeline->xferBarrierType(*fGpu->caps())) {
-            fGpu->xferBarrier(args.fPipeline->getRenderTarget(), barrierType);
+        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
+            fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
         }
-        this->onDrawPath(args, path);
+        this->onDrawPath(pipeline, primProc, stencilPassSettings, path);
     }
 
-    void drawPaths(const DrawPathArgs& args, const GrPathRange* pathRange, const void* indices,
-                   PathIndexType indexType, const float transformValues[],
-                   PathTransformType transformType, int count) {
+    void drawPaths(const GrPipeline& pipeline,
+                   const GrPrimitiveProcessor& primProc,
+                   const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
+                   const GrPathRange* pathRange,
+                   const void* indices,
+                   PathIndexType indexType,
+                   const float transformValues[],
+                   PathTransformType transformType,
+                   int count) {
         fGpu->handleDirtyContext();
-        if (GrXferBarrierType barrierType = args.fPipeline->xferBarrierType(*fGpu->caps())) {
-            fGpu->xferBarrier(args.fPipeline->getRenderTarget(), barrierType);
+        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
+            fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
         }
 #ifdef SK_DEBUG
         pathRange->assertPathsLoaded(indices, indexType, count);
 #endif
-        this->onDrawPaths(args, pathRange, indices, indexType, transformValues, transformType,
-                          count);
+        this->onDrawPaths(pipeline, primProc, stencilPassSettings, pathRange, indices, indexType,
+                          transformValues, transformType, count);
     }
 
 protected:
@@ -191,9 +193,19 @@ protected:
         : fGpu(gpu) {
     }
     virtual void onStencilPath(const StencilPathArgs&, const GrPath*) = 0;
-    virtual void onDrawPath(const DrawPathArgs&, const GrPath*) = 0;
-    virtual void onDrawPaths(const DrawPathArgs&, const GrPathRange*, const void*, PathIndexType,
-                             const float[], PathTransformType, int) = 0;
+    virtual void onDrawPath(const GrPipeline&,
+                            const GrPrimitiveProcessor&,
+                            const GrStencilSettings&,
+                            const GrPath*) = 0;
+    virtual void onDrawPaths(const GrPipeline&,
+                             const GrPrimitiveProcessor&,
+                             const GrStencilSettings&,
+                             const GrPathRange*,
+                             const void* indices,
+                             PathIndexType,
+                             const float transformValues[],
+                             PathTransformType,
+                             int count) = 0;
 
     GrGpu* fGpu;
 private:

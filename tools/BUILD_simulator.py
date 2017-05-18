@@ -11,26 +11,80 @@
 # We start by adding some symbols to our namespace that BUILD.public calls.
 
 import glob
+import os
 import pprint
+import re
 
 def noop(*args, **kwargs):
   pass
+
+def select_simulator(d):
+  result = []
+  for k in d:
+    result.append("*** BEGIN %s ***" % k)
+    result.extend(d[k])
+    result.append("*** END %s ***" % k)
+  return result
+
+DOUBLE_STAR_RE = re.compile(r'/\*\*/')
+STAR_RE = re.compile(r'\*')
+DOUBLE_STAR_PLACEHOLDER = "xxxdoublestarxxx"
+STAR_PLACEHOLDER = "xxxstarxxx"
+
+# Returns a set of files that match pattern.
+def BUILD_glob_single(pattern):
+  if pattern.find('**') < 0:
+    # If pattern doesn't include **, glob.glob more-or-less does the right
+    # thing.
+    return glob.glob(pattern)
+  # First transform pattern into a regexp.
+  # Temporarily remove ** and *.
+  pattern2 = DOUBLE_STAR_RE.sub(DOUBLE_STAR_PLACEHOLDER, pattern)
+  pattern3 = STAR_RE.sub(STAR_PLACEHOLDER, pattern2)
+  # Replace any regexp special characters.
+  pattern4 = re.escape(pattern3)
+  # Replace * with [^/]* and ** with .*.
+  pattern5 = pattern4.replace(STAR_PLACEHOLDER, '[^/]*')
+  pattern6 = pattern5.replace(DOUBLE_STAR_PLACEHOLDER, '.*/')
+  # Anchor the match at the beginning and end.
+  pattern7 = "^" + pattern6 + "$"
+  pattern_re = re.compile(pattern7)
+  matches = set()
+  for root, _, files in os.walk('.'):
+    for fname in files:
+      # Remove initial "./".
+      path = os.path.join(root, fname)[2:]
+      if pattern_re.match(path):
+        matches.add(path)
+  return matches
 
 # Simulates BUILD file glob().
 def BUILD_glob(include, exclude=()):
   files = set()
   for pattern in include:
-    files.update(glob.glob(pattern))
+    files.update(BUILD_glob_single(pattern))
   for pattern in exclude:
-    files.difference_update(glob.glob(pattern))
+    files.difference_update(BUILD_glob_single(pattern))
   return list(sorted(files))
 
 # With these namespaces, we can treat BUILD.public as if it were
 # Python code.  This pulls its variable definitions (SRCS, HDRS,
 # DEFINES, etc.) into local_names.
 global_names = {
+  'cc_library': noop,
+  'cc_test': noop,
   'exports_files': noop,
   'glob': BUILD_glob,
+  'select': select_simulator,
+  'BASE_DIR': '',
+  'BASE_EXTERNAL_DEPS_ANDROID': [],
+  'BASE_EXTERNAL_DEPS_IOS': [],
+  'BASE_EXTERNAL_DEPS_UNIX': [],
+  'CONDITION_ANDROID': 'CONDITION_ANDROID',
+  'CONDITION_IOS': 'CONDITION_IOS',
+  'DM_EXTERNAL_DEPS': [],
+  'EXTERNAL_DEPS_ALL': [],
+  'EXTERNAL_INCLUDES': [],
 }
 local_names = {}
 execfile('BUILD.public', global_names, local_names)

@@ -67,11 +67,9 @@ int main(int argc, const char** argv) {
         return -1;
     }
 
-    void* skiaLibrary;
-
 #if defined(SKIA_DLL)
     // load the local skia shared library
-    skiaLibrary = load_library(appLocation, "skia_android");
+    void* skiaLibrary = load_library(appLocation, "skia_android");
     if (NULL == skiaLibrary)
     {
         return -1;
@@ -83,10 +81,6 @@ int main(int argc, const char** argv) {
     if (NULL == appLibrary) {
         return -1;
     }
-
-#if !defined(SKIA_DLL)
-    skiaLibrary = appLibrary;
-#endif
 
     // find the address of the main function
     int (*app_main)(int, const char**);

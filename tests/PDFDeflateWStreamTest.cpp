@@ -5,17 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+
+#ifdef SK_SUPPORT_PDF
+
 #include "SkDeflate.h"
 #include "SkRandom.h"
-#include "Test.h"
 
 namespace {
 
-#ifdef ZLIB_INCLUDE
-    #include ZLIB_INCLUDE
-#else
-    #include "zlib.h"
-#endif
+#include "zlib.h"
 
 // Different zlib implementations use different T.
 // We've seen size_t and unsigned.
@@ -29,7 +28,7 @@ void skia_free_func(void*, void* address) { sk_free(address); }
  *  Use the un-deflate compression algorithm to decompress the data in src,
  *  returning the result.  Returns nullptr if an error occurs.
  */
-SkStreamAsset* stream_inflate(SkStream* src) {
+std::unique_ptr<SkStreamAsset> stream_inflate(skiatest::Reporter* reporter, SkStream* src) {
     SkDynamicMemoryWStream decompressedDynamicMemoryWStream;
     SkWStream* dst = &decompressedDynamicMemoryWStream;
 
@@ -46,9 +45,10 @@ SkStreamAsset* stream_inflate(SkStream* src) {
     flateData.avail_out = kBufferSize;
     int rc;
     rc = inflateInit(&flateData);
-    if (rc != Z_OK)
+    if (rc != Z_OK) {
+        ERRORF(reporter, "Zlib: inflateInit failed");
         return nullptr;
-
+    }
     uint8_t* input = (uint8_t*)src->getMemoryBase();
     size_t inputLength = src->getLength();
     if (input == nullptr || inputLength == 0) {
@@ -86,8 +86,10 @@ SkStreamAsset* stream_inflate(SkStream* src) {
     while (rc == Z_OK) {
         rc = inflate(&flateData, Z_FINISH);
         if (flateData.avail_out < kBufferSize) {
-            if (!dst->write(outputBuffer, kBufferSize - flateData.avail_out))
+            if (!dst->write(outputBuffer, kBufferSize - flateData.avail_out)) {
+                ERRORF(reporter, "write failed");
                 return nullptr;
+            }
             flateData.next_out = outputBuffer;
             flateData.avail_out = kBufferSize;
         }
@@ -95,13 +97,14 @@ SkStreamAsset* stream_inflate(SkStream* src) {
 
     inflateEnd(&flateData);
     if (rc != Z_STREAM_END) {
+        ERRORF(reporter, "Zlib: inflateEnd failed");
         return nullptr;
     }
     return decompressedDynamicMemoryWStream.detachAsStream();
 }
 }  // namespace
 
-DEF_TEST(SkDeflateWStream, r) {
+DEF_TEST(SkPDF_DeflateWStream, r) {
     SkRandom random(123456);
     for (int i = 0; i < 50; ++i) {
         uint32_t size = random.nextULessThan(10000);
@@ -123,11 +126,15 @@ DEF_TEST(SkDeflateWStream, r) {
                 }
                 j += writeSize;
             }
+            REPORTER_ASSERT(r, deflateWStream.bytesWritten() == size);
         }
-        SkAutoTDelete<SkStreamAsset> compressed(
-                dynamicMemoryWStream.detachAsStream());
-        SkAutoTDelete<SkStreamAsset> decompressed(stream_inflate(compressed));
+        std::unique_ptr<SkStreamAsset> compressed(dynamicMemoryWStream.detachAsStream());
+        std::unique_ptr<SkStreamAsset> decompressed(stream_inflate(r, compressed.get()));
 
+        if (!decompressed) {
+            ERRORF(r, "Decompression failed.");
+            return;
+        }
         if (decompressed->getLength() != size) {
             ERRORF(r, "Decompression failed to get right size [%d]."
                    " %u != %u", i,  (unsigned)(decompressed->getLength()),
@@ -155,4 +162,8 @@ DEF_TEST(SkDeflateWStream, r) {
             }
         }
     }
+    SkDeflateWStream emptyDeflateWStream(nullptr);
+    REPORTER_ASSERT(r, !emptyDeflateWStream.writeText("FOO"));
 }
+
+#endif

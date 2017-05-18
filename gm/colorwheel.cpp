@@ -12,7 +12,7 @@
 #include "sk_tool_utils.h"
 
 static void draw_image(SkCanvas* canvas, const char* resource, int x, int y) {
-    SkAutoTUnref<SkImage> image(GetResourceAsImage(resource));
+    sk_sp<SkImage> image(GetResourceAsImage(resource));
     if (image) {
         canvas->drawImage(image, SkIntToScalar(x), SkIntToScalar(y));
     } else {
@@ -40,22 +40,23 @@ DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
 
 DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
     SkPaint paint;
-    sk_tool_utils::set_portable_typeface(&paint, nullptr, SkTypeface::kBold);
+    sk_tool_utils::set_portable_typeface(&paint, "sans-serif",
+                                         SkFontStyle::FromOldStyle(SkTypeface::kBold));
     paint.setTextSize(18.0f);
 
     canvas->clear(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
     paint.setColor(SK_ColorRED);
-    canvas->drawText("R", 1, 8.0f, 20.0f, paint);
+    canvas->drawString("R", 8.0f, 20.0f, paint);
     paint.setColor(SK_ColorGREEN);
-    canvas->drawText("G", 1, 24.0f, 20.0f, paint);
+    canvas->drawString("G", 24.0f, 20.0f, paint);
     paint.setColor(SK_ColorBLUE);
-    canvas->drawText("B", 1, 40.0f, 20.0f, paint);
+    canvas->drawString("B", 40.0f, 20.0f, paint);
     paint.setColor(SK_ColorCYAN);
-    canvas->drawText("C", 1, 56.0f, 20.0f, paint);
+    canvas->drawString("C", 56.0f, 20.0f, paint);
     paint.setColor(SK_ColorMAGENTA);
-    canvas->drawText("M", 1, 72.0f, 20.0f, paint);
+    canvas->drawString("M", 72.0f, 20.0f, paint);
     paint.setColor(SK_ColorYELLOW);
-    canvas->drawText("Y", 1, 88.0f, 20.0f, paint);
+    canvas->drawString("Y", 88.0f, 20.0f, paint);
     paint.setColor(SK_ColorBLACK);
-    canvas->drawText("K", 1, 104.0f, 20.0f, paint);
+    canvas->drawString("K", 104.0f, 20.0f, paint);
 }

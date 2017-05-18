@@ -6,7 +6,8 @@
  */
 #include "Test.h"
 #include "SkTemplates.h"
-#include "SkFunction.h"
+#include "SkScopeExit.h"
+#include <utility>
 
 namespace {
 class Moveable {
@@ -25,75 +26,42 @@ template <typename T> struct Deleter {
 } // namespace
 
 DEF_TEST(CPlusPlusEleven_RvalueAndMove, r) {
-    Moveable src1; Moveable dst1(skstd::move(src1));
-    Moveable src2, dst2; dst2 = skstd::move(src2);
+    Moveable src1; Moveable dst1(std::move(src1));
+    Moveable src2, dst2; dst2 = std::move(src2);
 }
 
-#define TOO_BIG "The unique_ptr was bigger than expected."
-#define WEIRD_SIZE "The unique_ptr was a different size than expected."
+DEF_TEST(CPlusPlusEleven_constexpr, r) {
+    static constexpr int x = Sk32ToBool(50);
+    REPORTER_ASSERT(r, x == 1);
+    static constexpr int y = SkTPin<int>(100, 0, 10);
+    REPORTER_ASSERT(r, y == 10);
+}
 
-DEF_TEST(CPlusPlusEleven_UniquePtr, r) {
-    struct SmallUniquePtr {
-        Moveable* p;
-    };
-    struct BigUniquePtr {
-        void(*d)(Moveable*);
-        Moveable* p;
-    };
+namespace {
+struct MoveableCopyable {
+    bool fCopied;
+    MoveableCopyable() : fCopied(false) {}
+    MoveableCopyable(const MoveableCopyable &o) : fCopied(true) {}
+    MoveableCopyable(MoveableCopyable &&o) : fCopied(o.fCopied) {}
+};
+struct TestClass {
+    MoveableCopyable fFoo;
+};
+}  // namespace
 
-    static_assert(sizeof(skstd::unique_ptr<Moveable>) == sizeof(SmallUniquePtr), TOO_BIG);
-    static_assert(sizeof(skstd::unique_ptr<Moveable[]>) == sizeof(SmallUniquePtr), TOO_BIG);
+DEF_TEST(CPlusPlusEleven_default_move, r) {
+    TestClass a;
+    TestClass b(a);
+    TestClass c(std::move(a));
+    REPORTER_ASSERT(r, b.fFoo.fCopied);
+    REPORTER_ASSERT(r, !c.fFoo.fCopied);
+}
 
-    using proc = void(*)(Moveable*);
-    static_assert(sizeof(skstd::unique_ptr<Moveable, proc>) == sizeof(BigUniquePtr), WEIRD_SIZE);
-    static_assert(sizeof(skstd::unique_ptr<Moveable[], proc>) == sizeof(BigUniquePtr), WEIRD_SIZE);
-
+DEF_TEST(SkAtScopeExit, r) {
+    int x = 5;
     {
-        skstd::unique_ptr<Moveable, void(*)(Moveable*)> u(nullptr, deleter<Moveable>);
-        static_assert(sizeof(u) == sizeof(BigUniquePtr), WEIRD_SIZE);
-
-        auto u2 = skstd::move(u);
-        static_assert(sizeof(u2) == sizeof(BigUniquePtr), WEIRD_SIZE);
+        SK_AT_SCOPE_EXIT(x--);
+        REPORTER_ASSERT(r, x == 5);
     }
-
-    {
-        skstd::unique_ptr<Moveable, void(*)(Moveable*)> u(nullptr, [](Moveable* m){ deleter(m); });
-        static_assert(sizeof(u) == sizeof(BigUniquePtr), WEIRD_SIZE);
-
-        auto u2 = skstd::move(u);
-        static_assert(sizeof(u2) == sizeof(BigUniquePtr), WEIRD_SIZE);
-    }
-
-    {
-        auto d = [](Moveable* m){ deleter(m); };
-        skstd::unique_ptr<Moveable, decltype(d)> u(nullptr, d);
-        static_assert(sizeof(u) == sizeof(SmallUniquePtr), TOO_BIG);
-
-        auto u2 = skstd::move(u);
-        static_assert(sizeof(u2) == sizeof(SmallUniquePtr), TOO_BIG);
-    }
-
-    {
-        skstd::unique_ptr<Moveable, Deleter<Moveable>> u(nullptr, Deleter<Moveable>());
-        static_assert(sizeof(u) == sizeof(SmallUniquePtr), TOO_BIG);
-
-        auto u2 = skstd::move(u);
-        static_assert(sizeof(u2) == sizeof(SmallUniquePtr), TOO_BIG);
-    }
-
-    {
-        skstd::unique_ptr<Moveable, Deleter<Moveable>> u(new Moveable(), Deleter<Moveable>());
-        static_assert(sizeof(u) == sizeof(SmallUniquePtr), TOO_BIG);
-
-        auto u2 = skstd::move(u);
-        static_assert(sizeof(u2) == sizeof(SmallUniquePtr), TOO_BIG);
-    }
-
-    {
-        skstd::unique_ptr<const void, Deleter<const void>> u(new Moveable(), Deleter<const void>());
-        static_assert(sizeof(u) == sizeof(SmallUniquePtr), TOO_BIG);
-
-        auto u2 = skstd::move(u);
-        static_assert(sizeof(u2) == sizeof(SmallUniquePtr), TOO_BIG);
-    }
+    REPORTER_ASSERT(r, x == 4);
 }

@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkDrawLooper.h"
 #include "SkCanvas.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkRect.h"
-#include "SkSmallAllocator.h"
 
 bool SkDrawLooper::canComputeFastBounds(const SkPaint& paint) const {
     SkCanvas canvas;
-    SkSmallAllocator<1, 32> allocator;
-    void* buffer = allocator.reserveT<SkDrawLooper::Context>(this->contextSize());
+    char storage[48];
+    SkArenaAlloc alloc {storage};
 
-    SkDrawLooper::Context* context = this->createContext(&canvas, buffer);
+    SkDrawLooper::Context* context = this->makeContext(&canvas, &alloc);
     for (;;) {
         SkPaint p(paint);
         if (context->next(&canvas, &p)) {
@@ -38,11 +38,12 @@ void SkDrawLooper::computeFastBounds(const SkPaint& paint, const SkRect& s,
     const SkRect src = s;
 
     SkCanvas canvas;
-    SkSmallAllocator<1, 32> allocator;
-    void* buffer = allocator.reserveT<SkDrawLooper::Context>(this->contextSize());
+    char storage[48];
+    SkArenaAlloc alloc {storage};
 
     *dst = src;   // catch case where there are no loops
-    SkDrawLooper::Context* context = this->createContext(&canvas, buffer);
+    SkDrawLooper::Context* context = this->makeContext(&canvas, &alloc);
+
     for (bool firstTime = true;; firstTime = false) {
         SkPaint p(paint);
         if (context->next(&canvas, &p)) {

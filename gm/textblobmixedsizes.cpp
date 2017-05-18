@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkBlurMask.h"
@@ -27,7 +28,6 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        SkAutoTUnref<SkTypeface> typeface(GetResourceAsTypeface("/fonts/HangingS.ttf"));
         SkTextBlobBuilder builder;
 
         // make textblob.  To stress distance fields, we choose sizes appropriately
@@ -35,7 +35,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
         paint.setLCDRenderText(true);
-        paint.setTypeface(typeface);
+        paint.setTypeface(MakeResourceAsTypeface("/fonts/HangingS.ttf"));
 
         const char* text = "Skia";
 
@@ -73,8 +73,15 @@ protected:
 
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset);
 
+        // Zero size.
+        paint.measureText(text, strlen(text), &bounds);
+        yOffset += bounds.height();
+        paint.setTextSize(0);
+
+        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset);
+
         // build
-        fBlob.reset(builder.build());
+        fBlob = builder.make();
     }
 
     SkString onShortName() override {
@@ -91,16 +98,18 @@ protected:
 
     void onDraw(SkCanvas* inputCanvas) override {
         SkCanvas* canvas = inputCanvas;
-        SkAutoTUnref<SkSurface> surface;
+        sk_sp<SkSurface> surface;
         if (fUseDFT) {
 #if SK_SUPPORT_GPU
             // Create a new Canvas to enable DFT
             GrContext* ctx = inputCanvas->getGrContext();
-            SkImageInfo info = SkImageInfo::MakeN32Premul(onISize());
+            SkISize size = onISize();
+            sk_sp<SkColorSpace> colorSpace = inputCanvas->imageInfo().refColorSpace();
+            SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(),
+                                                    kPremul_SkAlphaType, colorSpace);
             SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
                                  SkSurfaceProps::kLegacyFontHost_InitType);
-            surface.reset(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info, 0,
-                                                     &props));
+            surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props);
             canvas = surface.get() ? surface->getCanvas() : inputCanvas;
             // init our new canvas with the old canvas's matrix
             canvas->setMatrix(inputCanvas->getTotalMatrix());
@@ -110,8 +119,8 @@ protected:
 
         SkRect bounds = fBlob->bounds();
 
-        static const int kPadX = SkScalarFloorToInt(bounds.width() / 3);
-        static const int kPadY = SkScalarFloorToInt(bounds.height() / 3);
+        const int kPadX = SkScalarFloorToInt(bounds.width() / 3);
+        const int kPadY = SkScalarFloorToInt(bounds.height() / 3);
 
         int rowCount = 0;
         canvas->translate(SkIntToScalar(kPadX), SkIntToScalar(kPadY));
@@ -124,13 +133,12 @@ protected:
         }
         paint.setAntiAlias(false);
 
-        static const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(8));
+        const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(8));
 
         // setup blur paint
         SkPaint blurPaint(paint);
         blurPaint.setColor(sk_tool_utils::color_to_565(SK_ColorBLACK));
-        SkAutoTUnref<SkMaskFilter> mf(SkBlurMaskFilter::Create(kNormal_SkBlurStyle, kSigma));
-        blurPaint.setMaskFilter(mf);
+        blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kSigma));
 
         for (int i = 0; i < 4; i++) {
             canvas->save();
@@ -164,18 +172,16 @@ protected:
             SkAutoCanvasRestore acr(inputCanvas, true);
             // since we prepended this matrix already, we blit using identity
             inputCanvas->resetMatrix();
-            SkImage* image = surface->newImageSnapshot();
-            inputCanvas->drawImage(image, 0, 0, nullptr);
-            image->unref();
+            inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, nullptr);
         }
 #endif
     }
 
 private:
-    SkAutoTUnref<const SkTextBlob> fBlob;
+    sk_sp<SkTextBlob> fBlob;
 
-    static const int kWidth = 2000;
-    static const int kHeight = 2000;
+    static constexpr int kWidth = 2100;
+    static constexpr int kHeight = 1900;
 
     bool fUseDFT;
 

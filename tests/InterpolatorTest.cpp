@@ -58,4 +58,34 @@ DEF_TEST(Interpolator, reporter) {
     result = inter.timeToValues(175, v);
     REPORTER_ASSERT(reporter, result == SkInterpolator::kNormal_Result);
 
+    for (SkScalar val = -0.1f; val <= 1.1f; val += 0.1f) {
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkTPin(0.f, val, 1.f),
+                        SkUnitCubicInterp(val, 1.f/3, 1.f/3, 2.f/3, 2.f/3)));
+    }
+
+    // These numbers come from
+    // http://www.w3.org/TR/css3-transitions/#transition-timing-function_tag.
+    const SkScalar testTransitions[][4] = {
+        { 0.25f, 0.1f, 0.25f, 1 }, // ease
+        { 0.42f, 0,    1,     1 }, // ease in
+        { 0,     0,    0.58f, 1 }, // ease out
+        { 0.42f, 0,    0.58f, 1 }, // ease in out
+    };
+
+    const SkScalar expectedOutput[][5] = {
+        { 0.0947876f, 0.513367f, 0.80249f,  0.940796f, 0.994263f }, // ease
+        { 0.0170288f, 0.129639f, 0.31543f,  0.554749f, 0.839417f }, // ease in
+        { 0.160583f,  0.445251f, 0.684692f, 0.870361f, 0.982971f }, // ease out
+        { 0.0197144f, 0.187439f, 0.500122f, 0.812561f, 0.980286f }, // ease in out
+    };
+
+    int i = 0;
+    for (const SkScalar* t : testTransitions) {
+        int j = 0;
+        for (SkScalar val = 0.1f; val < 1; val += 0.2f) {
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(expectedOutput[i][j++],
+                            SkUnitCubicInterp(val, t[0], t[1], t[2], t[3])));
+        }
+        ++i;
+    }
 }

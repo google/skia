@@ -8,40 +8,22 @@
 #include "BitmapRegionDecoderBench.h"
 #include "CodecBenchPriv.h"
 #include "SkBitmap.h"
-#include "SkCodecTools.h"
 #include "SkOSFile.h"
 
 BitmapRegionDecoderBench::BitmapRegionDecoderBench(const char* baseName, SkData* encoded,
-        SkBitmapRegionDecoderInterface::Strategy strategy, SkColorType colorType,
-        uint32_t sampleSize, const SkIRect& subset)
+        SkColorType colorType, uint32_t sampleSize, const SkIRect& subset)
     : fBRD(nullptr)
     , fData(SkRef(encoded))
-    , fStrategy(strategy)
     , fColorType(colorType)
     , fSampleSize(sampleSize)
     , fSubset(subset)
 {
-    // Choose a useful name for the region decoding strategy
-    const char* strategyName;
-    switch (strategy) {
-        case SkBitmapRegionDecoderInterface::kOriginal_Strategy:
-            strategyName = "Original";
-            break;
-        case SkBitmapRegionDecoderInterface::kCanvas_Strategy:
-            strategyName = "Canvas";
-            break;
-        default:
-            SkASSERT(false);
-            strategyName = "";
-            break;
-    }
-
     // Choose a useful name for the color type
     const char* colorName = color_type_to_str(colorType);
 
-    fName.printf("BRD_%s_%s_%s", baseName, strategyName, colorName);
+    fName.printf("BRD_%s_%s", baseName, colorName);
     if (1 != sampleSize) {
-        fName.appendf("_%.3f", get_scale_from_sample_size(sampleSize));
+        fName.appendf("_%.3f", 1.0f / (float) sampleSize);
     }
 }
 
@@ -54,15 +36,12 @@ bool BitmapRegionDecoderBench::isSuitableFor(Backend backend) {
 }
 
 void BitmapRegionDecoderBench::onDelayedSetup() {
-    SkStreamRewindable* stream = new SkMemoryStream(fData);
-    fBRD.reset(SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(stream, fStrategy));
+    fBRD.reset(SkBitmapRegionDecoder::Create(fData, SkBitmapRegionDecoder::kAndroidCodec_Strategy));
 }
 
 void BitmapRegionDecoderBench::onDraw(int n, SkCanvas* canvas) {
-    SkAutoTDelete<SkBitmap> bitmap;
     for (int i = 0; i < n; i++) {
-        bitmap.reset(fBRD->decodeRegion(fSubset.left(), fSubset.top(), fSubset.width(),
-                fSubset.height(), fSampleSize, fColorType));
-        SkASSERT(nullptr != bitmap.get());
+        SkBitmap bm;
+        SkAssertResult(fBRD->decodeRegion(&bm, nullptr, fSubset, fSampleSize, fColorType, false));
     }
 }

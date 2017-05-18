@@ -31,20 +31,42 @@ Below is a brief summary of what the sheriff does for each task:
 ### Skia tree
 * Understand the [buildbots infrastructure](https://skia.org/dev/testing/buildbot).
 * Start watching the [status page](https://status.skia.org) for bot breakages.
-* Track down people responsible for breakages and revert broken changes if there is no easy fix.
+* Track down people responsible for breakages and revert broken changes if there is no easy fix. You can use [blamer](#blamer) to help track down such changes.
 * Close and open the [tree](http://skia-tree-status.appspot.com).
 * Keep the builder comments on the [status page](https://status.skia.org) up to date.
-* File or follow up with [BreakingTheBuildbots bugs](https://code.google.com/p/skia/issues/list?q=label:BreakingTheBuildbots). See the tip on [when to file bugs](#when_to_file_bugs).
+* File or follow up with [BreakingTheBuildbots bugs](https://bug.skia.org/?q=label:BreakingTheBuildbots). See the tip on [when to file bugs](#when_to_file_bugs).
+
+<a name="blamer"></a>
+### Blamer
+If you have Go installed, a command-line tool is available to search through
+git history and do text searches on the full patch text and the commit
+message. To install blamer run:
+
+    go get go.skia.org/infra/blamer/go/blamer
+
+Then run blamer from within a Skia checkout. For example, to search if the
+string "SkDevice" has appeared in the last 10 commits:
+
+    $ $GOPATH/bin/blamer --match SkDevice --num 10
+
+    commit ea70c4bb22394c8dcc29a369d3422a2b8f3b3e80
+    Author: robertphillips <robertphillips@google.com>
+    Date:   Wed Jul 20 08:54:31 2016 -0700
+
+        Remove SkDevice::accessRenderTarget virtual
+        GOLD_TRYBOT_URL= https://gold.skia.org/search?issue=2167723002
+
+        Review-Url: https://codereview.chromium.org/2167723002
 
 <a name="deps_rolls"></a>
 ### DEPS rolls
-* Ensure that [AutoRoll Bot](https://skia-tree-status.appspot.com/set_arb_action)'s DEPS rolls land successfully.
+* Ensure that [AutoRoll Bot](https://autoroll.skia.org)'s DEPS rolls land successfully.
 
 <a name="gold_and_perf"></a>
 ### Gold and Perf
 * Pay attention for new [Perf](https://perf.skia.org/) and [Gold](https://gold.skia.org/) alerts (by clicking on the bell at the top right of the [status page](https://status.skia.org)).
 * The sheriff's duty here is to make sure that when developers introduce new images or new perf regressions, that they are aware of what happened, and they use these tools to take appropriate action.
- 
+
 <a name="sheriff_doc"></a>
 ### Documentation
 * Improve/update this documentation page for future sheriffs, especially the [Tips section](#tips).
@@ -75,7 +97,7 @@ Tips for sheriffs
 ### When to file bugs
 
 Pay close attention to the "Failures" view in the [status page](https://status.skia.org).
-Look at all existing [BreakingTheBuildbots bugs](https://code.google.com/p/skia/issues/list?q=label:BreakingTheBuildbots). If the list is kept up to date then it should accurately represent everything that is causing failures. If it does not, then please file/update bugs accordingly.
+Look at all existing [BreakingTheBuildbots bugs](https://bug.skia.org/?q=label:BreakingTheBuildbots). If the list is kept up to date then it should accurately represent everything that is causing failures. If it does not, then please file/update bugs accordingly.
 
 
 <a name="how_close_tree"></a>
@@ -98,7 +120,7 @@ Look at all existing [BreakingTheBuildbots bugs](https://code.google.com/p/skia/
 <a name="tree_closers"></a>
 ### Compile bot failures automatically close the tree
 
-A failure of the build steps in all compile bots automatically closes the tree. Sheriffs will have to manually reopen the tree manually when they deem the problem fixed.
+A failure of the build steps in all compile bots automatically closes the tree. Sheriffs will have to manually reopen the tree when they deem the problem fixed.
 
 Note: The tree is not closed automatically if the last run of the failed compile builder had the same failing step. The tree is also not closed if the tree was automatically closed less than 10 mins ago. If the tree is already closed then no action is taken.
 
@@ -127,7 +149,7 @@ If a Skia CL changes layout tests, but the new images look good, the tests need 
   * Description:
       * DEPS roll #,
       * Helpful message about what went wrong (e.g., “Changes to how lighting is scaled in Skia r#### changed the following images:”)
-      * Layout tests effected
+      * Layout tests affected
       * You should copy the list of affected from stdio of the failing bot
   * Status: Assigned
   * Owner: yourself
@@ -149,7 +171,7 @@ If a Skia CL changes layout tests, but the new images look good, the tests need 
 
 * Retry the DEPS roll (for the 1st/dispreferred option this usually means just retrying the layout bots)
 * Make a Blink patch by editing LayoutTests/TestExpectations
-  * Add # comment about what has changed 
+  * Add # comment about what has changed
   * Add line(s) like the following after the comment:
       * crbug.com/<bug#youjustcreated> foo/bar/test-name.html [ NeedsRebaseline ]
         * (if you took the second option above you can just edit the existing line(s))

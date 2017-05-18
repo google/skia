@@ -8,25 +8,28 @@
 #ifndef SkBitmapProvider_DEFINED
 #define SkBitmapProvider_DEFINED
 
-#include "SkBitmap.h"
 #include "SkImage.h"
 #include "SkBitmapCache.h"
 
 class SkBitmapProvider {
 public:
-    explicit SkBitmapProvider(const SkBitmap& bm) : fBitmap(bm) {}
-    explicit SkBitmapProvider(const SkImage* img) : fImage(SkSafeRef(img)) {}
+    explicit SkBitmapProvider(const SkImage* img, SkColorSpace* dstColorSpace)
+        : fImage(img)
+        , fDstColorSpace(dstColorSpace) {
+        SkASSERT(img);
+    }
     SkBitmapProvider(const SkBitmapProvider& other)
-        : fBitmap(other.fBitmap)
-        , fImage(SkSafeRef(other.fImage.get()))
+        : fImage(other.fImage)
+        , fDstColorSpace(other.fDstColorSpace)
     {}
 
     int width() const;
     int height() const;
     uint32_t getID() const;
+    SkColorSpace* dstColorSpace() const { return fDstColorSpace; }
 
-    bool validForDrawing() const;
     SkImageInfo info() const;
+    bool isVolatile() const;
 
     SkBitmapCacheDesc makeCacheDesc(int w, int h) const;
     SkBitmapCacheDesc makeCacheDesc() const;
@@ -37,8 +40,14 @@ public:
     bool asBitmap(SkBitmap*) const;
 
 private:
-    SkBitmap fBitmap;
-    SkAutoTUnref<const SkImage> fImage;
+    // Stack-allocated only.
+    void* operator new(size_t) = delete;
+    void* operator new(size_t, void*) = delete;
+
+    // SkBitmapProvider is always short-lived/stack allocated, and the source image and destination
+    // color space are guaranteed to outlive its scope => we can store raw ptrs to avoid ref churn.
+    const SkImage* fImage;
+    SkColorSpace*  fDstColorSpace;
 };
 
 #endif

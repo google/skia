@@ -10,7 +10,6 @@
 
 #include "SkEndian.h"
 #include "SkOTTableTypes.h"
-#include "SkTypedEnum.h"
 
 #pragma pack(push, 1)
 
@@ -116,27 +115,24 @@ struct SkOTTableHead {
     } macStyle;
     SK_OT_USHORT lowestRecPPEM;
     struct FontDirectionHint {
-        SK_TYPED_ENUM(Value, SK_OT_SHORT,
-            ((FullyMixedDirectionalGlyphs, SkTEndian_SwapBE16(0)))
-            ((OnlyStronglyLTR, SkTEndian_SwapBE16(1)))
-            ((StronglyLTR, SkTEndian_SwapBE16(2)))
-            ((OnlyStronglyRTL, static_cast<SK_OT_SHORT>(SkTEndian_SwapBE16((uint16_t)-1))))
-            ((StronglyRTL, static_cast<SK_OT_SHORT>(SkTEndian_SwapBE16((uint16_t)-2))))
-            SK_SEQ_END,
-        (value)SK_SEQ_END)
+        enum Value : SK_OT_SHORT {
+            FullyMixedDirectionalGlyphs = SkTEndian_SwapBE16(0),
+            OnlyStronglyLTR = SkTEndian_SwapBE16(1),
+            StronglyLTR = SkTEndian_SwapBE16(2),
+            OnlyStronglyRTL = static_cast<SK_OT_SHORT>(SkTEndian_SwapBE16((uint16_t)-1)),
+            StronglyRTL = static_cast<SK_OT_SHORT>(SkTEndian_SwapBE16((uint16_t)-2)),
+        } value;
     } fontDirectionHint;
     struct IndexToLocFormat {
-        SK_TYPED_ENUM(Value, SK_OT_SHORT,
-            ((ShortOffsets, SkTEndian_SwapBE16(0)))
-            ((LongOffsets, SkTEndian_SwapBE16(1)))
-            SK_SEQ_END,
-        (value)SK_SEQ_END)
+        enum Value : SK_OT_SHORT {
+            ShortOffsets = SkTEndian_SwapBE16(0),
+            LongOffsets = SkTEndian_SwapBE16(1),
+        } value;
     } indexToLocFormat;
     struct GlyphDataFormat {
-        SK_TYPED_ENUM(Value, SK_OT_SHORT,
-            ((CurrentFormat, SkTEndian_SwapBE16(0)))
-            SK_SEQ_END,
-        (value)SK_SEQ_END)
+        enum Value : SK_OT_SHORT {
+            CurrentFormat = SkTEndian_SwapBE16(0),
+        } value;
     } glyphDataFormat;
 };
 

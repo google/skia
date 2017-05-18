@@ -1,3 +1,9 @@
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 #import "SkUIView.h"
 #include "SkCanvas.h"
 #include "SkCGUtils.h"
@@ -29,8 +35,7 @@
 - (void)setUpWindow {
     if (NULL != fWind) {
         fWind->setVisibleP(true);
-        fWind->resize(self.frame.size.width, self.frame.size.height,
-                      kN32_SkColorType);
+        fWind->resize(self.frame.size.width, self.frame.size.height);
     }
 }
 
@@ -103,7 +108,7 @@
 - (void)onAddMenu:(const SkOSMenu*)menu {
     [self.fOptionsDelegate view:self didAddMenu:menu];
 }
-- (void)onUpdateMenu:(SkOSMenu*)menu {
+- (void)onUpdateMenu:(const SkOSMenu*)menu {
     [self.fOptionsDelegate view:self didUpdateMenu:menu];
 }
 

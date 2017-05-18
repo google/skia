@@ -29,7 +29,7 @@ public:
      */
     static FirstDirection OppositeFirstDirection(FirstDirection dir) {
         static const FirstDirection gOppositeDir[] = {
-            kCCW_FirstDirection, kCW_FirstDirection, kUnknown_FirstDirection, 
+            kCCW_FirstDirection, kCW_FirstDirection, kUnknown_FirstDirection,
         };
         return gOppositeDir[dir];
     }
@@ -55,13 +55,71 @@ public:
         return computedDir == dir;
     }
 
-    static bool LastVerbIsClose(const SkPath& path) {
-        int count = path.countVerbs();
-        return count >= 1 && path.fPathRef->verbs()[~(count - 1)] == SkPath::Verb::kClose_Verb;
+    static bool IsClosedSingleContour(const SkPath& path) {
+        int verbCount = path.countVerbs();
+        if (verbCount == 0)
+            return false;
+        int moveCount = 0;
+        auto verbs = path.fPathRef->verbs();
+        for (int i = 0; i < verbCount; i++) {
+            switch (verbs[~i]) { // verbs are stored backwards; we use [~i] to get the i'th verb
+                case SkPath::Verb::kMove_Verb:
+                    moveCount += 1;
+                    if (moveCount > 1) {
+                        return false;
+                    }
+                    break;
+                case SkPath::Verb::kClose_Verb:
+                    if (i == verbCount - 1) {
+                        return true;
+                    }
+                    return false;
+                default: break;
+            }
+        }
+        return false;
     }
 
     static void AddGenIDChangeListener(const SkPath& path, SkPathRef::GenIDChangeListener* listener) {
         path.fPathRef->addGenIDChangeListener(listener);
+    }
+
+    /**
+     * This returns true for a rect that begins and ends at the same corner and has either a move
+     * followed by four lines or a move followed by 3 lines and a close. None of the parameters are
+     * optional. This does not permit degenerate line or point rectangles.
+     */
+    static bool IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPath::Direction* direction,
+                                   unsigned* start);
+
+    /**
+     * Creates a path from arc params using the semantics of SkCanvas::drawArc. This function
+     * assumes empty ovals and zero sweeps have already been filtered out.
+     */
+    static void CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar startAngle,
+                                  SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect);
+
+    /**
+     * Returns a pointer to the verb data. Note that the verbs are stored backwards in memory and
+     * thus the returned pointer is the last verb.
+     */
+    static const uint8_t* VerbData(const SkPath& path) {
+        return path.fPathRef->verbsMemBegin();
+    }
+
+    /** Returns a raw pointer to the path points */
+    static const SkPoint* PointData(const SkPath& path) {
+        return path.fPathRef->points();
+    }
+
+    /** Returns the number of conic weights in the path */
+    static int ConicWeightCnt(const SkPath& path) {
+        return path.fPathRef->countWeights();
+    }
+
+    /** Returns a raw pointer to the path conic weights. */
+    static const SkScalar* ConicWeightData(const SkPath& path) {
+        return path.fPathRef->conicWeights();
     }
 };
 

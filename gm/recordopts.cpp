@@ -13,8 +13,8 @@
 #include "SkColorFilterImageFilter.h"
 #include "SkPictureImageFilter.h"
 
-static const int kTestRectSize = 50;
-static const int kDetectorGreenValue = 50;
+constexpr int kTestRectSize = 50;
+constexpr int kDetectorGreenValue = 50;
 
 // Below are few functions to install "detector" color filters. The filter is there to assert that
 // the color value it sees is the expected. It will trigger only with kDetectorGreenValue, and
@@ -22,27 +22,25 @@ static const int kDetectorGreenValue = 50;
 // kDetectorGreenValue and then the incorrect value is observable by some part of the drawing
 // pipeline, that pixel will remain empty.
 
-static SkColorFilter* make_detector_color_filter() {
+static sk_sp<SkColorFilter> make_detector_color_filter() {
     uint8_t tableA[256] = { 0, };
     uint8_t tableR[256] = { 0, };
     uint8_t tableG[256] = { 0, };
     uint8_t tableB[256] = { 0, };
     tableA[255] = 255;
     tableG[kDetectorGreenValue] = 255;
-    return SkTableColorFilter::CreateARGB(tableA, tableR, tableG, tableB);
+    return SkTableColorFilter::MakeARGB(tableA, tableR, tableG, tableB);
 }
 
 // This detector detects that color filter phase of the pixel pipeline receives the correct value.
 static void install_detector_color_filter(SkPaint* drawPaint) {
-    drawPaint->setColorFilter(make_detector_color_filter())->unref();
+    drawPaint->setColorFilter(make_detector_color_filter());
 }
 
 // This detector detects that image filter phase of the pixel pipeline receives the correct value.
 static void install_detector_image_filter(SkPaint* drawPaint) {
-    SkAutoTUnref<SkColorFilter> colorFilter(make_detector_color_filter());
-    SkImageFilter* imageFilter =
-            SkColorFilterImageFilter::Create(colorFilter, drawPaint->getImageFilter());
-    drawPaint->setImageFilter(imageFilter)->unref();
+    drawPaint->setImageFilter(SkColorFilterImageFilter::Make(make_detector_color_filter(),
+                                                             drawPaint->refImageFilter()));
 }
 
 static void no_detector_install(SkPaint*) {
@@ -100,7 +98,7 @@ static void draw_svg_opacity_and_filter_layer_sequence(SkCanvas* canvas, SkColor
                                                        InstallDetectorFunc installDetector) {
 
     SkRect targetRect(SkRect::MakeWH(SkIntToScalar(kTestRectSize), SkIntToScalar(kTestRectSize)));
-    SkAutoTUnref<SkPicture> shape;
+    sk_sp<SkPicture> shape;
     {
         SkPictureRecorder recorder;
         SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kTestRectSize + 2),
@@ -108,7 +106,7 @@ static void draw_svg_opacity_and_filter_layer_sequence(SkCanvas* canvas, SkColor
         SkPaint shapePaint;
         shapePaint.setColor(shapeColor);
         canvas->drawRect(targetRect, shapePaint);
-        shape.reset(recorder.endRecordingAsPicture());
+        shape = recorder.finishRecordingAsPicture();
     }
 
     SkPaint layerPaint;
@@ -117,7 +115,7 @@ static void draw_svg_opacity_and_filter_layer_sequence(SkCanvas* canvas, SkColor
         canvas->save();
             canvas->clipRect(targetRect);
             SkPaint drawPaint;
-            drawPaint.setImageFilter(SkPictureImageFilter::Create(shape))->unref();
+            drawPaint.setImageFilter(SkPictureImageFilter::Make(shape));
             installDetector(&drawPaint);
             canvas->saveLayer(&targetRect, &drawPaint);
             canvas->restore();
@@ -161,8 +159,7 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
             drawTestSequence(recorder.beginRecording(SkIntToScalar(kTestRectSize),
                                                      SkIntToScalar(kTestRectSize)),
                              shapeColor, no_detector_install);
-            SkAutoTUnref<SkPicture> optimizedPicture(recorder.endRecordingAsPicture());
-            optimizedPicture->playback(canvas);
+            recorder.finishRecordingAsPicture()->playback(canvas);
             canvas->flush();
         }
         canvas->restore();
@@ -190,7 +187,7 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(shapeColors); ++i) {
         shapeColor = shapeColors[i];
-        for (size_t j = 0; j < SK_ARRAY_COUNT(shapeColors); ++j) {
+        for (size_t j = 0; j < SK_ARRAY_COUNT(detectorInstallFuncs); ++j) {
             InstallDetectorFunc detectorInstallFunc = detectorInstallFuncs[j];
             for (size_t k = 0; k < SK_ARRAY_COUNT(funcs); ++k) {
                 TestVariantSequence drawTestSequence = funcs[k];
@@ -203,8 +200,7 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
                     drawTestSequence(recorder.beginRecording(SkIntToScalar(kTestRectSize),
                                                              SkIntToScalar(kTestRectSize)),
                                      shapeColor, detectorInstallFunc);
-                    SkAutoTUnref<SkPicture> optimizedPicture(recorder.endRecordingAsPicture());
-                    optimizedPicture->playback(canvas);
+                    recorder.finishRecordingAsPicture()->playback(canvas);
                     canvas->flush();
                 }
 
@@ -215,4 +211,3 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
         }
     }
 }
-

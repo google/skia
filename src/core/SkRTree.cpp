@@ -7,7 +7,8 @@
 
 #include "SkRTree.h"
 
-SkRTree::SkRTree(SkScalar aspectRatio) : fCount(0), fAspectRatio(aspectRatio) {}
+SkRTree::SkRTree(SkScalar aspectRatio)
+    : fCount(0), fAspectRatio(isfinite(aspectRatio) ? aspectRatio : 1) {}
 
 SkRect SkRTree::getRootBound() const {
     if (fCount) {

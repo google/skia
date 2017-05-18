@@ -9,14 +9,14 @@
 #include "SkStream.h"
 #include "Test.h"
 
-static void run_test(SkWStream* out, SkXfermode::Mode mode, U8CPU alpha) {
-    SkAutoTUnref<SkDocument> pdfDoc(SkDocument::CreatePDF(out));
+static void run_test(SkWStream* out, SkBlendMode mode, U8CPU alpha) {
+    sk_sp<SkDocument> pdfDoc(SkDocument::MakePDF(out));
     SkCanvas* c = pdfDoc->beginPage(612.0f, 792.0f);
     SkPaint black;
     SkPaint background;
     background.setColor(SK_ColorWHITE);
     background.setAlpha(alpha);
-    background.setXfermodeMode(mode);
+    background.setBlendMode(mode);
     c->drawRect(SkRect::MakeWH(612.0f, 792.0f), background);
     c->drawRect(SkRect::MakeXYWH(36.0f, 36.0f, 9.0f, 9.0f), black);
     c->drawRect(SkRect::MakeXYWH(72.0f, 72.0f, 468.0f, 648.0f), background);
@@ -31,17 +31,17 @@ DEF_TEST(SkPDF_OpaqueSrcModeToSrcOver, r) {
     SkDynamicMemoryWStream srcOverMode;
 
     U8CPU alpha = SK_AlphaOPAQUE;
-    run_test(&srcMode, SkXfermode::kSrc_Mode, alpha);
-    run_test(&srcOverMode, SkXfermode::kSrcOver_Mode, alpha);
-    REPORTER_ASSERT(r, srcMode.getOffset() == srcOverMode.getOffset());
+    run_test(&srcMode, SkBlendMode::kSrc, alpha);
+    run_test(&srcOverMode, SkBlendMode::kSrcOver, alpha);
+    REPORTER_ASSERT(r, srcMode.bytesWritten() == srcOverMode.bytesWritten());
     // The two PDFs should be equal because they have an opaque alpha.
 
     srcMode.reset();
     srcOverMode.reset();
 
     alpha = 0x80;
-    run_test(&srcMode, SkXfermode::kSrc_Mode, alpha);
-    run_test(&srcOverMode, SkXfermode::kSrcOver_Mode, alpha);
-    REPORTER_ASSERT(r, srcMode.getOffset() > srcOverMode.getOffset());
+    run_test(&srcMode, SkBlendMode::kSrc, alpha);
+    run_test(&srcOverMode, SkBlendMode::kSrcOver, alpha);
+    REPORTER_ASSERT(r, srcMode.bytesWritten() > srcOverMode.bytesWritten());
     // The two PDFs should not be equal because they have a non-opaque alpha.
 }

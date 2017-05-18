@@ -39,9 +39,6 @@ static bool compare(const SkBitmap& ref, const SkIRect& iref,
     const int xOff = itest.fLeft - iref.fLeft;
     const int yOff = itest.fTop - iref.fTop;
 
-    SkAutoLockPixels alpRef(ref);
-    SkAutoLockPixels alpTest(test);
-
     for (int y = 0; y < test.height(); ++y) {
         for (int x = 0; x < test.width(); ++x) {
             SkColor testColor = test.getColor(x, y);
@@ -69,9 +66,7 @@ DEF_TEST(FontHostStream, reporter) {
         paint.setColor(SK_ColorGRAY);
         paint.setTextSize(SkIntToScalar(30));
 
-        SkTypeface* fTypeface = SkTypeface::CreateFromName("Georgia",
-                                                           SkTypeface::kNormal);
-        SkSafeUnref(paint.setTypeface(fTypeface));
+        paint.setTypeface(SkTypeface::MakeFromName("Georgia", SkFontStyle()));
 
         SkIRect origRect = SkIRect::MakeWH(64, 64);
         SkBitmap origBitmap;
@@ -87,25 +82,20 @@ DEF_TEST(FontHostStream, reporter) {
 
         // Test: origTypeface and streamTypeface from orig data draw the same
         drawBG(&origCanvas);
-        origCanvas.drawText("A", 1, point.fX, point.fY, paint);
+        origCanvas.drawString("A", point.fX, point.fY, paint);
 
-        SkTypeface* origTypeface = paint.getTypeface();
-        SkAutoTUnref<SkTypeface> aur;
-        if (nullptr == origTypeface) {
-            aur.reset(SkTypeface::RefDefault());
-            origTypeface = aur.get();
-        }
-
+        sk_sp<SkTypeface> typeface(paint.getTypeface() ? paint.refTypeface()
+                                                       : SkTypeface::MakeDefault());
         int ttcIndex;
-        SkAutoTDelete<SkStreamAsset> fontData(origTypeface->openStream(&ttcIndex));
-        SkTypeface* streamTypeface = SkTypeface::CreateFromStream(fontData.detach());
+        std::unique_ptr<SkStreamAsset> fontData(typeface->openStream(&ttcIndex));
+        sk_sp<SkTypeface> streamTypeface(SkTypeface::MakeFromStream(fontData.release()));
 
         SkFontDescriptor desc;
         bool isLocalStream = false;
         streamTypeface->getFontDescriptor(&desc, &isLocalStream);
         REPORTER_ASSERT(reporter, isLocalStream);
 
-        SkSafeUnref(paint.setTypeface(streamTypeface));
+        paint.setTypeface(streamTypeface);
         drawBG(&streamCanvas);
         streamCanvas.drawPosText("A", 1, &point, paint);
 

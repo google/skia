@@ -6,6 +6,7 @@
  */
 
 #include "Resources.h"
+#include "SkAutoMalloc.h"
 #include "SkEndian.h"
 #include "SkFontStream.h"
 #include "SkOSFile.h"
@@ -31,7 +32,7 @@ static const struct TagSize {
 
 // Test that getUnitsPerEm() agrees with a direct lookup in the 'head' table
 // (if that table is available).
-static void test_unitsPerEm(skiatest::Reporter* reporter, SkTypeface* face) {
+static void test_unitsPerEm(skiatest::Reporter* reporter, const sk_sp<SkTypeface>& face) {
     int nativeUPEM = face->getUnitsPerEm();
 
     int tableUPEM = -1;
@@ -50,7 +51,7 @@ static void test_unitsPerEm(skiatest::Reporter* reporter, SkTypeface* face) {
 
 // Test that countGlyphs() agrees with a direct lookup in the 'maxp' table
 // (if that table is available).
-static void test_countGlyphs(skiatest::Reporter* reporter, SkTypeface* face) {
+static void test_countGlyphs(skiatest::Reporter* reporter, const sk_sp<SkTypeface>& face) {
     int nativeGlyphs = face->countGlyphs();
 
     int tableGlyphs = -1;
@@ -86,7 +87,7 @@ struct CharsToGlyphs_TestData {
 };
 
 // Test that SkPaint::textToGlyphs agrees with SkTypeface::charsToGlyphs.
-static void test_charsToGlyphs(skiatest::Reporter* reporter, SkTypeface* face) {
+static void test_charsToGlyphs(skiatest::Reporter* reporter, const sk_sp<SkTypeface>& face) {
     uint16_t paintGlyphIds[256];
     uint16_t faceGlyphIds[256];
 
@@ -138,38 +139,38 @@ static void test_fontstream(skiatest::Reporter* reporter, SkStream* stream, int 
 }
 
 static void test_fontstream(skiatest::Reporter* reporter) {
-    SkAutoTDelete<SkStreamAsset> stream(GetResourceAsStream("/fonts/test.ttc"));
+    std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream("/fonts/test.ttc"));
     if (!stream) {
         SkDebugf("Skipping FontHostTest::test_fontstream\n");
         return;
     }
 
-    int count = SkFontStream::CountTTCEntries(stream);
+    int count = SkFontStream::CountTTCEntries(stream.get());
 #ifdef DUMP_TTC_TABLES
     SkDebugf("CountTTCEntries %d\n", count);
 #endif
     for (int i = 0; i < count; ++i) {
-        test_fontstream(reporter, stream, i);
+        test_fontstream(reporter, stream.get(), i);
     }
 }
 
 static void test_symbolfont(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkTypeface> typeface(GetResourceAsTypeface("/fonts/SpiderSymbol.ttf"));
-    if (!typeface) {
+    SkUnichar c = 0xf021;
+    uint16_t g;
+    SkPaint paint;
+    paint.setTypeface(MakeResourceAsTypeface("/fonts/SpiderSymbol.ttf"));
+    paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+    paint.textToGlyphs(&c, 4, &g);
+
+    if (!paint.getTypeface()) {
         SkDebugf("Skipping FontHostTest::test_symbolfont\n");
         return;
     }
 
-    SkUnichar c = 0xf021;
-    uint16_t g;
-    SkPaint paint;
-    paint.setTypeface(typeface);
-    paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
-    paint.textToGlyphs(&c, 4, &g);
     REPORTER_ASSERT(reporter, g == 3);
 }
 
-static void test_tables(skiatest::Reporter* reporter, SkTypeface* face) {
+static void test_tables(skiatest::Reporter* reporter, const sk_sp<SkTypeface>& face) {
     if (false) { // avoid bit rot, suppress warning
         SkFontID fontID = face->uniqueID();
         REPORTER_ASSERT(reporter, fontID);
@@ -223,7 +224,7 @@ static void test_tables(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); ++i) {
-        SkAutoTUnref<SkTypeface> face(SkTypeface::CreateFromName(gNames[i], SkTypeface::kNormal));
+        sk_sp<SkTypeface> face(SkTypeface::MakeFromName(gNames[i], SkFontStyle()));
         if (face) {
 #ifdef DUMP_TABLES
             SkDebugf("%s\n", gNames[i]);
@@ -277,8 +278,7 @@ static void test_advances(skiatest::Reporter* reporter) {
     char txt[] = "long.text.with.lots.of.dots.";
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(faces); i++) {
-        SkAutoTUnref<SkTypeface> face(SkTypeface::CreateFromName(faces[i], SkTypeface::kNormal));
-        paint.setTypeface(face);
+        paint.setTypeface(SkTypeface::MakeFromName(faces[i], SkFontStyle()));
 
         for (size_t j = 0; j  < SK_ARRAY_COUNT(settings); j++) {
             paint.setHinting(settings[j].hinting);

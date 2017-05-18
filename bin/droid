@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Run a GN-built Android binary on the connected device.
+#
+# Example usage:
+#  $ ninja -C out dm
+#  $ droid out/dm --src gm --config gpu
+#
+# See https://skia.org/user/quick/gn for build instructions.
+
+path=$1
+name=$(basename $1)
+shift
+args=$@
+
+set -e
+set -x
+
+adb push $path //data/local/tmp/
+adb push resources //data/local/tmp/
+adb shell "chmod +x //data/local/tmp/$name"
+adb shell "cd //data/local/tmp; ./$name $args"

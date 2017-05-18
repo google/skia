@@ -58,7 +58,7 @@ static void test_evalquadat(skiatest::Reporter* reporter) {
             SkEvalQuadAt(pts, t, &r0);
             SkPoint r1 = SkEvalQuadAt(pts, t);
             check_pairs(reporter, i, t, "quad-pos", r0.fX, r0.fY, r1.fX, r1.fY);
-            
+
             SkVector v0;
             SkEvalQuadAt(pts, t, nullptr, &v0);
             SkVector v1 = SkEvalQuadTangentAt(pts, t);
@@ -145,6 +145,45 @@ static void test_conic_tangents(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_this_conic_to_quad(skiatest::Reporter* r, const SkPoint pts[3], SkScalar w) {
+    SkAutoConicToQuads quadder;
+    const SkPoint* qpts = quadder.computeQuads(pts, w, 0.25);
+    const int qcount = quadder.countQuads();
+    const int pcount = qcount * 2 + 1;
+
+    REPORTER_ASSERT(r, SkPointsAreFinite(qpts, pcount));
+}
+
+/**
+ *  We need to ensure that when a conic is approximated by quads, that we always return finite
+ *  values in the quads.
+ *
+ *  Inspired by crbug_627414
+ */
+static void test_conic_to_quads(skiatest::Reporter* reporter) {
+    const SkPoint triples[] = {
+        { 0, 0 }, { 1, 0 }, { 1, 1 },
+        { 0, 0 }, { 3.58732e-43f, 2.72084f }, { 3.00392f, 3.00392f },
+        { 0, 0 }, { 100000, 0 }, { 100000, 100000 },
+        { 0, 0 }, { 1e30f, 0 }, { 1e30f, 1e30f },
+    };
+    const int N = sizeof(triples) / sizeof(SkPoint);
+
+    for (int i = 0; i < N; i += 3) {
+        const SkPoint* pts = &triples[i];
+
+        SkRect bounds;
+        bounds.set(pts, 3);
+
+        SkScalar w = 1e30f;
+        do {
+            w *= 2;
+            test_this_conic_to_quad(reporter, pts, w);
+        } while (SkScalarIsFinite(w));
+        test_this_conic_to_quad(reporter, pts, SK_ScalarNaN);
+    }
+}
+
 static void test_cubic_tangents(skiatest::Reporter* reporter) {
     SkPoint pts[] = {
         { 10, 20}, {10, 20}, {20, 30}, {30, 40},
@@ -193,4 +232,5 @@ DEF_TEST(Geometry, reporter) {
     test_cubic_tangents(reporter);
     test_quad_tangents(reporter);
     test_conic_tangents(reporter);
+    test_conic_to_quads(reporter);
 }

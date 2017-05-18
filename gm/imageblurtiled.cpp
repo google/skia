@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkBlurImageFilter.h"
 #include "SkRandom.h"
 
@@ -21,26 +22,23 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() {
+    SkString onShortName() override {
         return SkString("imageblurtiled");
     }
 
-    virtual SkISize onISize() {
+    SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setImageFilter(SkBlurImageFilter::Create(fSigmaX, fSigmaY))->unref();
-        const SkScalar tile_size = SkIntToScalar(128);
-        SkRect bounds;
-        if (!canvas->getClipBounds(&bounds)) {
-            bounds.setEmpty();
-        }
-        for (SkScalar y = bounds.top(); y < bounds.bottom(); y += tile_size) {
-            for (SkScalar x = bounds.left(); x < bounds.right(); x += tile_size) {
+        paint.setImageFilter(SkBlurImageFilter::Make(fSigmaX, fSigmaY, nullptr));
+        const SkScalar tileSize = SkIntToScalar(128);
+        SkRect bounds = canvas->getLocalClipBounds();
+        for (SkScalar y = bounds.top(); y < bounds.bottom(); y += tileSize) {
+            for (SkScalar x = bounds.left(); x < bounds.right(); x += tileSize) {
                 canvas->save();
-                canvas->clipRect(SkRect::MakeXYWH(x, y, tile_size, tile_size));
+                canvas->clipRect(SkRect::MakeXYWH(x, y, tileSize, tileSize));
                 canvas->saveLayer(nullptr, &paint);
                 const char* str[] = {
                     "The quick",
@@ -55,7 +53,7 @@ protected:
                 int posY = 0;
                 for (unsigned i = 0; i < SK_ARRAY_COUNT(str); i++) {
                     posY += 100;
-                    canvas->drawText(str[i], strlen(str[i]), SkIntToScalar(0),
+                    canvas->drawString(str[i], SkIntToScalar(0),
                                      SkIntToScalar(posY), textPaint);
                 }
                 canvas->restore();
@@ -73,7 +71,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory1(void*) { return new ImageBlurTiledGM(3.0f, 3.0f); }
-static GMRegistry reg1(MyFactory1);
+DEF_GM(return new  ImageBlurTiledGM(3.0f, 3.0f);)
 
 }

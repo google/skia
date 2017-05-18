@@ -8,6 +8,7 @@
 #define SkBmpCodec_DEFINED
 
 #include "SkCodec.h"
+#include "SkColorSpace.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkStream.h"
@@ -20,11 +21,7 @@
  */
 class SkBmpCodec : public SkCodec {
 public:
-
-    /*
-     * Checks the start of the stream to see if the image is a bmp
-     */
-    static bool IsBmp(SkStream*);
+    static bool IsBmp(const void*, size_t);
 
     /*
      * Assumes IsBmp was called and returned true
@@ -41,10 +38,10 @@ public:
 
 protected:
 
-    SkBmpCodec(const SkImageInfo& info, SkStream* stream, uint16_t bitsPerPixel,
-            SkCodec::SkScanlineOrder rowOrder);
+    SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+            uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder);
 
-    SkEncodedFormat onGetEncodedFormat() const override { return kBMP_SkEncodedFormat; }
+    SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kBMP; }
 
     /*
      * Read enough of the stream to initialize the SkBmpCodec. Returns a bool
@@ -81,24 +78,11 @@ protected:
     int32_t getDstRow(int32_t y, int32_t height) const;
 
     /*
-     * Get the destination row to start filling from
-     * Used to fill the remainder of the image on incomplete input for bmps
-     * This is tricky since bmps may be kTopDown or kBottomUp.  For kTopDown,
-     * we start filling from where we left off, but for kBottomUp we start
-     * filling at the top of the image.
-     */
-    void* getDstStartRow(void* dst, size_t dstRowBytes, int32_t y) const;
-
-    /*
-     * Compute the number of colors in the color table
-     */
-    uint32_t computeNumColors(uint32_t numColors);
-
-    /*
      * Accessors used by subclasses
      */
     uint16_t bitsPerPixel() const { return fBitsPerPixel; }
     SkScanlineOrder onGetScanlineOrder() const override { return fRowOrder; }
+    size_t srcRowBytes() const { return fSrcRowBytes; }
 
     /*
      * To be overriden by bmp subclasses, which provide unique implementations.
@@ -115,9 +99,22 @@ protected:
      *                        will be set to the number of colors in the
      *                        color table.
      */
-    virtual SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
+    virtual SkCodec::Result onPrepareToDecode(const SkImageInfo& dstInfo,
             const SkCodec::Options& options, SkPMColor inputColorPtr[],
             int* inputColorCount) = 0;
+    SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
+            const SkCodec::Options& options, SkPMColor inputColorPtr[],
+            int* inputColorCount);
+
+    void applyColorXform(const SkImageInfo& dstInfo, void* dst, void* src) const;
+    uint32_t* xformBuffer() const { return fXformBuffer.get(); }
+    void resetXformBuffer(int count) { fXformBuffer.reset(new uint32_t[count]); }
+
+    /*
+     * BMPs are typically encoded as BGRA/BGR so this is a more efficient choice
+     * than RGBA.
+     */
+    static const SkColorType kXformSrcColorType = kBGRA_8888_SkColorType;
 
 private:
 
@@ -140,21 +137,24 @@ private:
      *                    number of rows to decode at this time.
      * @param dst         Memory location to store output pixels
      * @param dstRowBytes Bytes in a row of the destination
+     * @return            Number of rows successfully decoded
      */
-    virtual Result decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
+    virtual int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
             const Options& opts) = 0;
+
+    virtual bool skipRows(int count);
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const SkCodec::Options&,
             SkPMColor inputColorPtr[], int* inputColorCount) override;
 
-    Result onGetScanlines(void* dst, int count, size_t rowBytes) override;
+    int onGetScanlines(void* dst, int count, size_t rowBytes) override;
 
-    int onNextScanline() const override;
+    bool onSkipScanlines(int count) override;
 
-    // TODO(msarett): Override default skipping with something more clever.
-
-    const uint16_t          fBitsPerPixel;
-    const SkScanlineOrder   fRowOrder;
+    const uint16_t              fBitsPerPixel;
+    const SkScanlineOrder       fRowOrder;
+    const size_t                fSrcRowBytes;
+    std::unique_ptr<uint32_t[]> fXformBuffer;
 
     typedef SkCodec INHERITED;
 };

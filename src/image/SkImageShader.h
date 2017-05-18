@@ -8,34 +8,49 @@
 #ifndef SkImageShader_DEFINED
 #define SkImageShader_DEFINED
 
+#include "SkBitmapProcShader.h"
+#include "SkColorSpaceXformer.h"
 #include "SkImage.h"
 #include "SkShader.h"
 
 class SkImageShader : public SkShader {
 public:
-    static SkShader* Create(const SkImage*, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
+    static sk_sp<SkShader> Make(sk_sp<SkImage>, TileMode tx, TileMode ty,
+                                const SkMatrix* localMatrix);
 
     bool isOpaque() const override;
-    size_t contextSize() const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageShader)
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*, const SkMatrix& viewM,
-                                                   const SkMatrix*, SkFilterQuality) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
+
+    SkImageShader(sk_sp<SkImage>, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    Context* onCreateContext(const ContextRec&, void* storage) const override;
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc* storage) const override;
+#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
+    bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
+#endif
+    SkImage* onIsAImage(SkMatrix*, TileMode*) const override;
 
-    SkAutoTUnref<const SkImage> fImage;
-    const TileMode              fTileModeX;
-    const TileMode              fTileModeY;
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+                        const SkMatrix& ctm, const SkPaint&, const SkMatrix*) const override;
+
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
+        return xformer->apply(fImage.get())->makeShader(fTileModeX, fTileModeY,
+                                                        &this->getLocalMatrix());
+    }
+
+    sk_sp<SkImage>  fImage;
+    const TileMode  fTileModeX;
+    const TileMode  fTileModeY;
 
 private:
-    SkImageShader(const SkImage*, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
+    friend class SkShader;
 
     typedef SkShader INHERITED;
 };

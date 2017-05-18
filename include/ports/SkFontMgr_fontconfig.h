@@ -8,7 +8,7 @@
 #ifndef SkFontMgr_fontconfig_DEFINED
 #define SkFontMgr_fontconfig_DEFINED
 
-#include "SkTypes.h"
+#include "SkRefCnt.h"
 #include <fontconfig/fontconfig.h>
 
 class SkFontMgr;
@@ -17,6 +17,6 @@ class SkFontMgr;
  *  If 'fc' is NULL, will use a new default config.
  *  Takes ownership of 'fc' and will call FcConfigDestroy on it.
  */
-SK_API SkFontMgr* SkFontMgr_New_FontConfig(FcConfig* fc);
+SK_API sk_sp<SkFontMgr> SkFontMgr_New_FontConfig(FcConfig* fc);
 
 #endif // #ifndef SkFontMgr_fontconfig_DEFINED

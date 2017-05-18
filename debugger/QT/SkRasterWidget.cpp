@@ -22,10 +22,10 @@ void SkRasterWidget::resizeEvent(QResizeEvent* event) {
 
     QRect r = this->contentsRect();
     if (r.width() == 0 || r.height() == 0) {
-        fSurface.reset(nullptr);
+        fSurface = nullptr;
     } else {
         SkImageInfo info = SkImageInfo::MakeN32Premul(r.width(), r.height());
-        fSurface.reset(SkSurface::NewRaster(info));
+        fSurface = SkSurface::MakeRaster(info);
     }
     this->updateImage();
 }
@@ -45,16 +45,16 @@ void SkRasterWidget::paintEvent(QPaintEvent* event) {
         fDebugger->draw(fSurface->getCanvas());
         fSurface->getCanvas()->flush();
         fNeedImageUpdate = false;
-        emit drawComplete();
+        Q_EMIT drawComplete();
     }
 
-    SkImageInfo info;
-    size_t rowBytes;
-    if (const void* pixels = fSurface->peekPixels(&info, &rowBytes)) {
-        QImage image(reinterpret_cast<const uchar*>(pixels),
-                     info.width(),
-                     info.height(),
-                     rowBytes,
+    SkPixmap pixmap;
+
+    if (fSurface->peekPixels(&pixmap)) {
+        QImage image(reinterpret_cast<const uchar*>(pixmap.addr()),
+                     pixmap.width(),
+                     pixmap.height(),
+                     pixmap.rowBytes(),
                      QImage::Format_ARGB32_Premultiplied);
 #if SK_R32_SHIFT == 0
         painter.drawImage(this->contentsRect(), image.rgbSwapped());

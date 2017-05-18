@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -48,7 +47,7 @@ class TextBench : public Benchmark {
     FontQuality fFQ;
     bool        fDoPos;
     bool        fDoColorEmoji;
-    SkAutoTUnref<SkTypeface> fColorEmojiTypeface;
+    sk_sp<SkTypeface> fColorEmojiTypeface;
     SkPoint*    fPos;
 public:
     TextBench(const char text[], int ps,
@@ -64,7 +63,7 @@ public:
         fPaint.setColor(color);
     }
 
-    virtual ~TextBench() {
+    ~TextBench() override {
         delete[] fPos;
     }
 
@@ -72,7 +71,7 @@ protected:
     void onDelayedSetup() override {
         if (fDoColorEmoji) {
             SkASSERT(kBW == fFQ);
-            fColorEmojiTypeface.reset(GetResourceAsTypeface("/fonts/Funkster.ttf"));
+            fColorEmojiTypeface = MakeResourceAsTypeface("/fonts/Funkster.ttf");
         }
 
         if (fDoPos) {
@@ -141,7 +140,7 @@ protected:
             } else {
                 SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
                 SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
-                canvas->drawText(fText.c_str(), fText.size(), x, y, paint);
+                canvas->drawString(fText, x, y, paint);
             }
         }
     }

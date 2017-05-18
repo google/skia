@@ -180,7 +180,7 @@ static void S32A_D565_Blend_Dither(uint16_t* SK_RESTRICT dst,
             {
                 unsigned d = *dst;
                 int sa = SkGetPackedA32(c);
-                int dst_scale = SkAlpha255To256(255 - SkAlphaMul(sa, src_scale));
+                int dst_scale = SkAlphaMulInv256(sa, src_scale);
                 int dither = DITHER_VALUE(x);
 
                 int sr = SkGetPackedR32(c);
@@ -245,11 +245,7 @@ SkBlitRow::Proc16 SkBlitRow::Factory16(unsigned flags) {
     // just so we don't crash
     flags &= kFlags16_Mask;
 
-    SkBlitRow::Proc16 proc = PlatformFactory565(flags);
-    if (nullptr == proc) {
-        proc = gDefault_565_Procs[flags];
-    }
-    return proc;
+    return gDefault_565_Procs[flags];
 }
 
 static const SkBlitRow::ColorProc16 gDefault_565_ColorProcs[] = {
@@ -273,9 +269,5 @@ SkBlitRow::ColorProc16 SkBlitRow::ColorFactory16(unsigned flags) {
 
     SkASSERT(flags < SK_ARRAY_COUNT(gDefault_565_ColorProcs));
 
-    SkBlitRow::ColorProc16 proc = PlatformColorFactory565(flags);
-    if (nullptr == proc) {
-        proc = gDefault_565_ColorProcs[flags];
-    }
-    return proc;
+    return gDefault_565_ColorProcs[flags];
 }

@@ -7,7 +7,7 @@ Here some ways you can get involved and help us improve Skia.
 Report Bugs
 -----------
 
-Find bugs to fix or report new bugs in the [Skia issue tracker](http://code.google.com/p/skia/issues/list).  
+Find bugs to fix or report new bugs in the [Skia issue tracker](http://bug.skia.org/).  
 You can also search the [Chromium issue tracker](http://code.google.com/p/chromium/issues/list) for bugs related to graphics or Skia.
 
 Test
@@ -28,7 +28,7 @@ can speed up the review process:
 Keep your code submissions small and targeted.  
 When possible, have a fellow contributor review your change in advance of submission.  
 Propose new features to the project leads by opening a feature bug or posting to 
-skia-discuss ahead of development.  For more information, see [How to submit a patch](./submit).
+skia-discuss ahead of development.  For more information, see [How to submit a patch](./contrib/submit).
 
 For background on the project and an outline of the types of roles interested parties 
 can take on, see [Project Roles](../../roles).

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 The Android Open Source Project
  *
@@ -9,15 +8,12 @@
 
 #include "SkData.h"
 #include "SkDeflate.h"
-#include "SkStream.h"
+#include "SkMakeUnique.h"
+#include "SkMalloc.h"
+
+#include "zlib.h"
 
 namespace {
-
-#ifdef ZLIB_INCLUDE
-    #include ZLIB_INCLUDE
-#else
-    #include "zlib.h"
-#endif
 
 // Different zlib implementations use different T.
 // We've seen size_t and unsigned.
@@ -65,16 +61,23 @@ struct SkDeflateWStream::Impl {
     z_stream fZStream;
 };
 
-SkDeflateWStream::SkDeflateWStream(SkWStream* out) : fImpl(new SkDeflateWStream::Impl) {
+SkDeflateWStream::SkDeflateWStream(SkWStream* out,
+                                   int compressionLevel,
+                                   bool gzip)
+    : fImpl(skstd::make_unique<SkDeflateWStream::Impl>()) {
     fImpl->fOut = out;
     fImpl->fInBufferIndex = 0;
     if (!fImpl->fOut) {
         return;
     }
+    fImpl->fZStream.next_in = nullptr;
     fImpl->fZStream.zalloc = &skia_alloc_func;
     fImpl->fZStream.zfree = &skia_free_func;
     fImpl->fZStream.opaque = nullptr;
-    SkDEBUGCODE(int r =) deflateInit(&fImpl->fZStream, Z_DEFAULT_COMPRESSION);
+    SkASSERT(compressionLevel <= 9 && compressionLevel >= -1);
+    SkDEBUGCODE(int r =) deflateInit2(&fImpl->fZStream, compressionLevel,
+                                      Z_DEFLATED, gzip ? 0x1F : 0x0F,
+                                      8, Z_DEFAULT_STRATEGY);
     SkASSERT(Z_OK == r);
 }
 

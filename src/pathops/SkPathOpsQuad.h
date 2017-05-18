@@ -40,17 +40,21 @@ struct SkDQuad {
         sk_bzero(fPts, sizeof(fPts));
     }
 
+    void debugSet(const SkDPoint* pts);
+
     SkDQuad flip() const {
-        SkDQuad result = {{fPts[2], fPts[1], fPts[0]}};
+        SkDQuad result = {{fPts[2], fPts[1], fPts[0]}  SkDEBUGPARAMS(fDebugGlobalState) };
         return result;
     }
 
-    static bool IsCubic() { return false; }
+    static bool IsConic() { return false; }
 
-    const SkDQuad& set(const SkPoint pts[kPointCount]) {
+    const SkDQuad& set(const SkPoint pts[kPointCount]
+            SkDEBUGPARAMS(SkOpGlobalState* state = nullptr)) {
         fPts[0] = pts[0];
         fPts[1] = pts[1];
         fPts[2] = pts[2];
+        SkDEBUGCODE(fDebugGlobalState = state);
         return *this;
     }
 
@@ -62,6 +66,17 @@ struct SkDQuad {
     SkDQuadPair chopAt(double t) const;
     SkDVector dxdyAtT(double t) const;
     static int FindExtrema(const double src[], double tValue[1]);
+
+#ifdef SK_DEBUG
+    SkOpGlobalState* globalState() const { return fDebugGlobalState; }
+#endif
+
+    /**
+     *  Return the number of valid roots (0 < root < 1) for this cubic intersecting the
+     *  specified horizontal line.
+     */
+    int horizontalIntersect(double yIntercept, double roots[2]) const;
+
     bool hullIntersects(const SkDQuad& , bool* isLinear) const;
     bool hullIntersects(const SkDConic& , bool* isLinear) const;
     bool hullIntersects(const SkDCubic& , bool* isLinear) const;
@@ -87,14 +102,19 @@ struct SkDQuad {
         return quad.subDivide(a, c, t1, t2);
     }
 
+    /**
+     *  Return the number of valid roots (0 < root < 1) for this cubic intersecting the
+     *  specified vertical line.
+     */
+    int verticalIntersect(double xIntercept, double roots[2]) const;
+
     SkDCubic debugToCubic() const;
     // utilities callable by the user from the debugger when the implementation code is linked in
     void dump() const;
     void dumpID(int id) const;
     void dumpInner() const;
 
-private:
-//  static double Tangent(const double* quadratic, double t);  // uncalled
+    SkDEBUGCODE(SkOpGlobalState* fDebugGlobalState);
 };
 
 #endif

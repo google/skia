@@ -12,16 +12,21 @@
 #include "SkWriteBuffer.h"
 
 SkData* SkValidatingSerializeFlattenable(SkFlattenable* flattenable) {
-    SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);
+    SkBinaryWriteBuffer writer;
     writer.writeFlattenable(flattenable);
     size_t size = writer.bytesWritten();
-    SkData* data = SkData::NewUninitialized(size);
+    auto data = SkData::MakeUninitialized(size);
     writer.writeToMemory(data->writable_data());
-    return data;
+    return data.release();
 }
 
 SkFlattenable* SkValidatingDeserializeFlattenable(const void* data, size_t size,
                                                   SkFlattenable::Type type) {
     SkValidatingReadBuffer buffer(data, size);
     return buffer.readFlattenable(type);
+}
+
+sk_sp<SkImageFilter> SkValidatingDeserializeImageFilter(const void* data, size_t size) {
+    return sk_sp<SkImageFilter>((SkImageFilter*)SkValidatingDeserializeFlattenable(
+                                data, size, SkImageFilter::GetFlattenableType()));
 }

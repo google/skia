@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -10,6 +9,7 @@
 #ifndef SkPerspIter_DEFINED
 #define SkPerspIter_DEFINED
 
+#include "SkFixed.h"
 #include "SkMatrix.h"
 
 class SkPerspIter {

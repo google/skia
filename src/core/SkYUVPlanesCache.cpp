@@ -39,7 +39,7 @@ struct YUVPlanesRec : public SkResourceCache::Rec {
         fValue.fInfo = *info;
         fValue.fData->attachToCacheAndRef();
     }
-    ~YUVPlanesRec() {
+    ~YUVPlanesRec() override {
         fValue.fData->detachFromCacheAndUnref();
     }
 
@@ -77,7 +77,7 @@ SkCachedData* SkYUVPlanesCache::FindAndRef(uint32_t genID, Info* info,
     if (!CHECK_LOCAL(localCache, find, Find, key, YUVPlanesRec::Visitor, &result)) {
         return nullptr;
     }
-    
+
     *info = result.fInfo;
     return result.fData;
 }

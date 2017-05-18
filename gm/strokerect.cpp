@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
 
@@ -52,7 +53,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(1024, 740);
+        return SkISize::Make(1400, 740);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -63,13 +64,13 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(STROKE_WIDTH);
 
-        static const SkPaint::Join gJoins[] = {
+        constexpr SkPaint::Join gJoins[] = {
             SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join
         };
 
-        static const SkScalar W = 80;
-        static const SkScalar H = 80;
-        static const SkRect gRects[] = {
+        constexpr SkScalar W = 80;
+        constexpr SkScalar H = 80;
+        constexpr SkRect gRects[] = {
             { 0, 0, W, H },
             { W, 0, 0, H },
             { 0, H, W, 0 },
@@ -79,6 +80,9 @@ protected:
             { 0, 0, W, 0 },
             { 0, 0, 0, H },
             { 0, 0, 0, 0 },
+            { 0, 0, W, FLT_EPSILON },
+            { 0, 0, FLT_EPSILON, H },
+            { 0, 0, FLT_EPSILON, FLT_EPSILON },
         };
 
         for (int doFill = 0; doFill <= 1; ++doFill) {
@@ -107,7 +111,20 @@ protected:
 private:
     typedef GM INHERITED;
 };
+DEF_GM(return new StrokeRectGM;)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new StrokeRectGM;)
+/*
+ *  Exercise rect-stroking (which is specialized from paths) when the resulting stroke-width is
+ *  non-square. See https://bugs.chromium.org/p/skia/issues/detail?id=5408
+ */
+DEF_SIMPLE_GM(strokerect_anisotropic_5408, canvas, 200, 50) {
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(6);
+
+    canvas->scale(10, 1);
+    SkRect r = SkRect::MakeXYWH(5, 20, 10, 10);
+    canvas->drawRect(r, p);
+}

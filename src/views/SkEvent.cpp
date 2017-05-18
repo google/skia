@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -7,6 +6,7 @@
  */
 
 
+#include "SkDOM.h"
 #include "SkEvent.h"
 
 void SkEvent::initialize(const char* type, size_t typeLen,
@@ -298,7 +298,7 @@ void SkEvent::postDelay(SkMSec delay) {
     }
 
     if (delay) {
-        this->postTime(SkTime::GetMSecs() + delay);
+        this->postTime(GetMSecsSinceStartup() + delay);
         return;
     }
 
@@ -404,7 +404,7 @@ SkMSec SkEvent::EnqueueTime(SkEvent* evt, SkMSec time) {
         prev->fNextEvent = evt;
     }
 
-    SkMSec delay = globals.fDelayQHead->fTime - SkTime::GetMSecs();
+    SkMSec delay = globals.fDelayQHead->fTime - GetMSecsSinceStartup();
     if ((int32_t)delay <= 0) {
         delay = 1;
     }
@@ -416,9 +416,8 @@ SkMSec SkEvent::EnqueueTime(SkEvent* evt, SkMSec time) {
 #include "SkEventSink.h"
 
 bool SkEvent::ProcessEvent() {
-    SkEvent*                evt = SkEvent::Dequeue();
-    SkAutoTDelete<SkEvent>  autoDelete(evt);
-    bool                    again = false;
+    std::unique_ptr<SkEvent> evt(SkEvent::Dequeue());
+    bool                     again = false;
 
     EVENT_LOGN("ProcessEvent", (int32_t)evt);
 
@@ -436,7 +435,7 @@ void SkEvent::ServiceQueueTimer()
     globals.fEventMutex.acquire();
 
     bool        wasEmpty = false;
-    SkMSec      now = SkTime::GetMSecs();
+    SkMSec      now = GetMSecsSinceStartup();
     SkEvent*    evt = globals.fDelayQHead;
 
     while (evt)
@@ -483,6 +482,11 @@ int SkEvent::CountEventsOnQueue() {
     globals.fEventMutex.release();
 
     return count;
+}
+
+SkMSec SkEvent::GetMSecsSinceStartup() {
+    static const double kEpoch = SkTime::GetMSecs();
+    return static_cast<SkMSec>(SkTime::GetMSecs() - kEpoch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

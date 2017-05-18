@@ -1,0 +1,178 @@
+#!/usr/bin/env python
+
+# Copyright 2017 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import fnmatch
+import multiprocessing
+import os
+import subprocess
+import sys
+
+'''
+If called with arguments, this script will verify that those headers are
+self-sufficient and idempotent.
+
+Otherwise, test all checked-in headers except for those in the ignore list.
+'''
+
+public_header_args = [
+    '-Iinclude/core',
+    '-Iinclude/config',
+    '-Iinclude/android',
+    '-Iinclude/codec',
+    '-Iinclude/effects',
+    '-Iinclude/gpu',
+    '-Iinclude/gpu/gl',
+    '-Iinclude/pathops',
+    '-Iinclude/ports',
+    '-Iinclude/private',
+    '-Iinclude/svg',
+    '-Iinclude/utils',
+    '-Iinclude/utils/mac',
+    '-Iinclude/views',
+    '-Ithird_party/vulkan',
+]
+
+all_header_args = [
+    '-Iinclude/core',
+    '-Iinclude/config',
+    '-Iinclude/android',
+    '-Iinclude/c',
+    '-Iinclude/codec',
+    '-Iinclude/effects',
+    '-Iinclude/gpu',
+    '-Iinclude/gpu/gl',
+    '-Iinclude/pathops',
+    '-Iinclude/ports',
+    '-Iinclude/private',
+    '-Iinclude/svg',
+    '-Iinclude/utils',
+    '-Iinclude/utils/mac',
+    '-Iinclude/views',
+    '-Isrc/codec',
+    '-Isrc/core',
+    '-Isrc/effects',
+    '-Isrc/effects/gradients',
+    '-Isrc/fonts',
+    '-Isrc/gpu',
+    '-Isrc/image',
+    '-Isrc/images',
+    '-Isrc/lazy',
+    '-Isrc/opts',
+    '-Isrc/pathops',
+    '-Isrc/ports',
+    '-Isrc/sfnt',
+    '-Isrc/sksl',
+    '-Isrc/utils',
+    '-Isrc/utils/win',
+    '-Isrc/xml',
+    '-Igm',
+    '-Itests',
+    '-Itools',
+    '-Itools/debugger',
+    '-Itools/flags',
+    '-Itools/gpu',
+    '-Itools/timer',
+    '-Ithird_party/etc1',
+    '-Ithird_party/externals/jsoncpp/include',
+    '-Ithird_party/externals/libjpeg-turbo',
+    '-Ithird_party/externals/sfntly/cpp/src',
+    '-Ithird_party/externals/zlib',
+    '-Ithird_party/gif',
+    '-Ithird_party/vulkan',
+]
+
+ignore = [
+    '*/lex.*.h',
+    '*/osmesa_wrapper.h',
+    'debugger/QT/*',
+    'example/*',
+    'experimental/*',
+    'include/config/*',
+    'include/core/SkPostConfig.h',
+    'include/ports/SkFontMgr_android.h',
+    'include/ports/SkFontMgr_fontconfig.h',
+    'include/ports/SkTypeface_win.h',
+    'include/private/*_impl.h',
+    'include/utils/mac/SkCGUtils.h',
+    'include/views/SkOSWindow_*.h',
+    'src/c/sk_c_from_to.h',
+    'src/core/*Template.h',
+    'src/core/SkBitmapProcState_*.h',
+    'src/core/SkFDot6Constants.h',
+    'src/core/SkLinearBitmapPipeline.h',
+    'src/core/SkLinearBitmapPipeline_*.h',
+    'src/core/SkUnPreMultiplyPriv.h',
+    'src/opts/*_SSE2.h',
+    'src/opts/*_SSSE3.h',
+    'src/opts/*_neon.h',
+    'src/opts/*_sse.h',
+    'src/opts/Sk4px_*.h',
+    'src/ports/*',
+    'src/utils/*_win.h',
+    'src/utils/win/*',
+    'src/views/*',
+    'third_party/*',
+    'tools/fiddle/*',
+    'tools/viewer/*',
+]
+
+# test header for self-sufficiency and idempotency.
+# Returns a string containing errors, or None iff there are no errors.
+def compile_header(header):
+    args = ([]                 if fnmatch.fnmatch(header, 'include/c/*') else
+            public_header_args if fnmatch.fnmatch(header, 'include/*')   else
+            all_header_args)
+    cmd = ['c++', '--std=c++11'] + args + [ '-o', '/dev/null', '-c', '-x', 'c++', '-']
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    proc.stdin.write('#include "%s"\n#include "%s"\n' % (header, header))
+    proc.stdin.close()
+    errors = proc.stdout.read().strip()
+    if proc.wait() != 0 or len(errors) > 0:
+        return '\n\033[7m ERROR: %s \033[0m\n%s\n\n' % (header, errors)
+    return None
+
+#     for h in headers:
+#         compile_header(h)
+# ...Except use a multiprocessing pool.
+# Exit at first error.
+def compile_headers(headers):
+    class N: good = True
+    # N.good is a global scoped to this function to make a print_and_exit_if() a closure
+    pool = multiprocessing.Pool()
+    def print_and_exit_if(r):
+        if r is not None:
+            sys.stdout.write(r)
+            N.good = False
+            pool.terminate()
+    for path in headers:
+        assert os.path.exists(path)
+        pool.apply_async(compile_header, args=(path, ), callback=print_and_exit_if)
+    pool.close()
+    pool.join()
+    if N.good:
+        sys.stdout.write('all good :)\n')
+    else:
+        exit(1)
+
+
+def main(argv):
+    skia_dir = os.path.join(os.path.dirname(__file__), os.pardir)
+    if len(argv) > 1:
+        paths = [os.path.relpath(os.path.abspath(arg), skia_dir) for arg in argv[1:]]
+        os.chdir(skia_dir)
+    else:
+        os.chdir(skia_dir)
+        paths = [path for path in subprocess.check_output(['git', 'ls-files']).splitlines()
+                 if path.endswith('.h')
+                 and not any(fnmatch.fnmatch(path, pattern) for pattern in ignore)]
+    compile_headers(paths)
+
+
+if __name__ == '__main__':
+    main(sys.argv)
+

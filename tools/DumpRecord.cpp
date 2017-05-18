@@ -11,7 +11,7 @@
 #include "SkRecordDraw.h"
 
 #include "DumpRecord.h"
-#include "Timer.h"
+#include "SkTime.h"
 
 namespace {
 
@@ -31,12 +31,9 @@ public:
 
     template <typename T>
     void operator()(const T& command) {
-        Timer timer;
-        timer.start();
-            fDraw(command);
-        timer.end();
-
-        this->print(command, timer.fCpu);
+        auto start = SkTime::GetNSecs();
+        fDraw(command);
+        this->print(command, SkTime::GetNSecs() - start);
     }
 
     void operator()(const SkRecords::NoOp&) {
@@ -44,37 +41,72 @@ public:
     }
 
     template <typename T>
-    void print(const T& command, double time) {
-        this->printNameAndTime(command, time);
+    void print(const T& command, double ns) {
+        this->printNameAndTime(command, ns);
     }
 
-    void print(const SkRecords::Restore& command, double time) {
+    void print(const SkRecords::Restore& command, double ns) {
         --fIndent;
-        this->printNameAndTime(command, time);
+        this->printNameAndTime(command, ns);
     }
 
-    void print(const SkRecords::Save& command, double time) {
-        this->printNameAndTime(command, time);
+    void print(const SkRecords::Save& command, double ns) {
+        this->printNameAndTime(command, ns);
         ++fIndent;
     }
 
-    void print(const SkRecords::SaveLayer& command, double time) {
-        this->printNameAndTime(command, time);
+    void print(const SkRecords::SaveLayer& command, double ns) {
+        this->printNameAndTime(command, ns);
         ++fIndent;
     }
 
-private:
-    template <typename T>
-    void printNameAndTime(const T& command, double time) {
+    void print(const SkRecords::DrawPicture& command, double ns) {
+        this->printNameAndTime(command, ns);
+
+        if (auto bp = command.picture->asSkBigPicture()) {
+            ++fIndent;
+
+            const SkRecord& record = *bp->record();
+            for (int i = 0; i < record.count(); i++) {
+                record.visit(i, *this);
+            }
+
+            --fIndent;
+        }
+    }
+
+#if 1
+    void print(const SkRecords::DrawAnnotation& command, double ns) {
+        int us = (int)(ns * 1e-3);
         if (!fTimeWithCommand) {
-            printf("%6.1f ", time * 1000);
+            printf("%6dus  ", us);
         }
         printf("%*d ", fDigits, fIndex++);
         for (int i = 0; i < fIndent; i++) {
-            putchar('\t');
+            printf("    ");
         }
         if (fTimeWithCommand) {
-            printf("%6.1f ", time * 1000);
+            printf("%6dus  ", us);
+        }
+        printf("DrawAnnotation [%g %g %g %g] %s\n",
+               command.rect.left(), command.rect.top(), command.rect.right(), command.rect.bottom(),
+               command.key.c_str());
+    }
+#endif
+
+private:
+    template <typename T>
+    void printNameAndTime(const T& command, double ns) {
+        int us = (int)(ns * 1e-3);
+        if (!fTimeWithCommand) {
+            printf("%6dus  ", us);
+        }
+        printf("%*d ", fDigits, fIndex++);
+        for (int i = 0; i < fIndent; i++) {
+            printf("    ");
+        }
+        if (fTimeWithCommand) {
+            printf("%6dus  ", us);
         }
         puts(NameOf(command));
     }
@@ -106,6 +138,6 @@ void DumpRecord(const SkRecord& record,
                   bool timeWithCommand) {
     Dumper dumper(canvas, record.count(), timeWithCommand);
     for (int i = 0; i < record.count(); i++) {
-        record.visit<void>(i, dumper);
+        record.visit(i, dumper);
     }
 }

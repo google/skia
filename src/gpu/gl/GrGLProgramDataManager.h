@@ -8,91 +8,71 @@
 #ifndef GrGLProgramDataManager_DEFINED
 #define GrGLProgramDataManager_DEFINED
 
-#include "gl/GrGLShaderVar.h"
 #include "GrAllocator.h"
+#include "GrShaderVar.h"
+#include "gl/GrGLTypes.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 #include "SkTArray.h"
 
 class GrGLGpu;
 class SkMatrix;
 class GrGLProgram;
-class GrGLProgramBuilder;
 
 /** Manages the resources used by a shader program.
  * The resources are objects the program uses to communicate with the
  * application code.
  */
-class GrGLProgramDataManager : SkNoncopyable {
+class GrGLProgramDataManager : public GrGLSLProgramDataManager {
 public:
-    // Opaque handle to a resource
-    class ShaderResourceHandle {
-    public:
-        ShaderResourceHandle(int value)
-            : fValue(value) {
-            SkASSERT(this->isValid());
-        }
-
-        ShaderResourceHandle()
-            : fValue(kInvalid_ShaderResourceHandle) {
-        }
-
-        bool operator==(const ShaderResourceHandle& other) const { return other.fValue == fValue; }
-        bool isValid() const { return kInvalid_ShaderResourceHandle != fValue; }
-        int toIndex() const { SkASSERT(this->isValid()); return fValue; }
-
-    private:
-        static const int kInvalid_ShaderResourceHandle = -1;
-        int fValue;
-    };
-
-    typedef ShaderResourceHandle UniformHandle;
-
     struct UniformInfo {
-        GrGLShaderVar fVariable;
-        uint32_t      fVisibility;
-        GrGLint       fLocation;
+        GrShaderVar fVariable;
+        uint32_t        fVisibility;
+        GrGLint         fLocation;
     };
 
-    struct SeparableVaryingInfo {
-        GrGLShaderVar fVariable;
-        GrGLint       fLocation;
+    struct VaryingInfo {
+        GrShaderVar fVariable;
+        GrGLint         fLocation;
     };
 
-    // This uses an allocator rather than array so that the GrGLShaderVars don't move in memory
+    // This uses an allocator rather than array so that the GrShaderVars don't move in memory
     // after they are inserted. Users of GrGLShaderBuilder get refs to the vars and ptrs to their
     // name strings. Otherwise, we'd have to hand out copies.
     typedef GrTAllocator<UniformInfo> UniformInfoArray;
-    typedef GrTAllocator<SeparableVaryingInfo> SeparableVaryingInfoArray;
+    typedef GrTAllocator<VaryingInfo> VaryingInfoArray;
 
     GrGLProgramDataManager(GrGLGpu*, GrGLuint programID, const UniformInfoArray&,
-                           const SeparableVaryingInfoArray&);
+                           const VaryingInfoArray&);
+
+    void setSamplerUniforms(const UniformInfoArray& samplers, int startUnit) const;
+    void setImageStorages(const UniformInfoArray& images) const;
 
     /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
-     *  array of uniforms. arrayCount must be <= the array count of the uniform.
-     */
-    void setSampler(UniformHandle, GrGLint texUnit) const;
-    void set1f(UniformHandle, GrGLfloat v0) const;
-    void set1fv(UniformHandle, int arrayCount, const GrGLfloat v[]) const;
-    void set2f(UniformHandle, GrGLfloat, GrGLfloat) const;
-    void set2fv(UniformHandle, int arrayCount, const GrGLfloat v[]) const;
-    void set3f(UniformHandle, GrGLfloat, GrGLfloat, GrGLfloat) const;
-    void set3fv(UniformHandle, int arrayCount, const GrGLfloat v[]) const;
-    void set4f(UniformHandle, GrGLfloat, GrGLfloat, GrGLfloat, GrGLfloat) const;
-    void set4fv(UniformHandle, int arrayCount, const GrGLfloat v[]) const;
+    *  array of uniforms. arrayCount must be <= the array count of the uniform.
+    */
+    void set1i(UniformHandle, int32_t) const override;
+    void set1iv(UniformHandle, int arrayCount, const int v[]) const override;
+    void set1f(UniformHandle, float v0) const override;
+    void set1fv(UniformHandle, int arrayCount, const float v[]) const override;
+    void set2f(UniformHandle, float, float) const override;
+    void set2fv(UniformHandle, int arrayCount, const float v[]) const override;
+    void set3f(UniformHandle, float, float, float) const override;
+    void set3fv(UniformHandle, int arrayCount, const float v[]) const override;
+    void set4f(UniformHandle, float, float, float, float) const override;
+    void set4fv(UniformHandle, int arrayCount, const float v[]) const override;
     // matrices are column-major, the first three upload a single matrix, the latter three upload
     // arrayCount matrices into a uniform array.
-    void setMatrix3f(UniformHandle, const GrGLfloat matrix[]) const;
-    void setMatrix4f(UniformHandle, const GrGLfloat matrix[]) const;
-    void setMatrix3fv(UniformHandle, int arrayCount, const GrGLfloat matrices[]) const;
-    void setMatrix4fv(UniformHandle, int arrayCount, const GrGLfloat matrices[]) const;
-
-    // convenience method for uploading a SkMatrix to a 3x3 matrix uniform
-    void setSkMatrix(UniformHandle, const SkMatrix&) const;
+    void setMatrix2f(UniformHandle, const float matrix[]) const override;
+    void setMatrix3f(UniformHandle, const float matrix[]) const override;
+    void setMatrix4f(UniformHandle, const float matrix[]) const override;
+    void setMatrix2fv(UniformHandle, int arrayCount, const float matrices[]) const override;
+    void setMatrix3fv(UniformHandle, int arrayCount, const float matrices[]) const override;
+    void setMatrix4fv(UniformHandle, int arrayCount, const float matrices[]) const override;
 
     // for nvpr only
-    typedef GrGLProgramDataManager::ShaderResourceHandle SeparableVaryingHandle;
-    void setPathFragmentInputTransform(SeparableVaryingHandle u, int components,
-                                       const SkMatrix& matrix) const;
+    void setPathFragmentInputTransform(VaryingHandle u, int components,
+                                       const SkMatrix& matrix) const override;
 
 private:
     enum {
@@ -100,18 +80,17 @@ private:
     };
 
     struct Uniform {
-        GrGLint     fVSLocation;
-        GrGLint     fFSLocation;
-        SkDEBUGCODE(
-            GrSLType    fType;
-            int         fArrayCount;
-        );
+        GrGLint     fLocation;
+#ifdef SK_DEBUG
+        GrSLType    fType;
+        int         fArrayCount;
+#endif
     };
 
     enum {
-        kUnusedSeparableVarying = -1,
+        kUnusedPathProcVarying = -1,
     };
-    struct SeparableVarying {
+    struct PathProcVarying {
         GrGLint     fLocation;
         SkDEBUGCODE(
             GrSLType    fType;
@@ -119,14 +98,15 @@ private:
         );
     };
 
-    SkDEBUGCODE(void printUnused(const Uniform&) const;)
+    template<int N> inline void setMatrices(UniformHandle, int arrayCount,
+                                            const float matrices[]) const;
 
     SkTArray<Uniform, true> fUniforms;
-    SkTArray<SeparableVarying, true> fSeparableVaryings;
+    SkTArray<PathProcVarying, true> fPathProcVaryings;
     GrGLGpu* fGpu;
     GrGLuint fProgramID;
 
-    typedef SkNoncopyable INHERITED;
+    typedef GrGLSLProgramDataManager INHERITED;
 };
 
 #endif

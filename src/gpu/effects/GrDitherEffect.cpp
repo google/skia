@@ -7,73 +7,60 @@
 
 #include "GrDitherEffect.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "SkRect.h"
-#include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../private/GrGLSL.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
 class DitherEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create() {
-        static DitherEffect gDitherEffect;
-        return SkRef(&gDitherEffect);
+    static sk_sp<GrFragmentProcessor> Make() {
+        return sk_sp<GrFragmentProcessor>(new DitherEffect);
     }
 
-    virtual ~DitherEffect() {};
+    ~DitherEffect() override {}
 
     const char* name() const override { return "Dither"; }
 
 private:
-    DitherEffect() {
-        this->initClassID<DitherEffect>();
-        this->setWillReadFragmentPosition();
-    }
+    DitherEffect() : INHERITED(kNone_OptimizationFlags) { this->initClassID<DitherEffect>(); }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     // All dither effects are equal
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrFragmentProcessor INHERITED;
 };
 
-void DitherEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(DitherEffect);
 
-const GrFragmentProcessor* DitherEffect::TestCreate(GrProcessorTestData*) {
-    return DitherEffect::Create();
+#if GR_TEST_UTILS
+sk_sp<GrFragmentProcessor> DitherEffect::TestCreate(GrProcessorTestData*) {
+    return DitherEffect::Make();
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLDitherEffect : public GrGLFragmentProcessor {
+class GLDitherEffect : public GrGLSLFragmentProcessor {
 public:
-    GLDitherEffect(const GrProcessor&);
-
-    virtual void emitCode(EmitArgs& args) override;
+    void emitCode(EmitArgs& args) override;
 
 private:
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
-GLDitherEffect::GLDitherEffect(const GrProcessor&) {
-}
-
 void GLDitherEffect::emitCode(EmitArgs& args) {
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Generate a random number based on the fragment position. For this
     // random number generator, we use the "GLSL rand" function
     // that seems to be floating around on the internet. It works under
@@ -83,22 +70,22 @@ void GLDitherEffect::emitCode(EmitArgs& args) {
 
     // For each channel c, add the random offset to the pixel to either bump
     // it up or let it remain constant during quantization.
-    fsBuilder->codeAppendf("\t\tfloat r = "
-                           "fract(sin(dot(%s.xy ,vec2(12.9898,78.233))) * 43758.5453);\n",
-                           fsBuilder->fragmentPosition());
-    fsBuilder->codeAppendf("\t\t%s = (1.0/255.0) * vec4(r, r, r, r) + %s;\n",
-                           args.fOutputColor, GrGLSLExpr4(args.fInputColor).c_str());
+    fragBuilder->codeAppendf("\t\tfloat r = "
+                             "fract(sin(dot(sk_FragCoord.xy, vec2(12.9898,78.233))) * "
+                                                            "43758.5453);\n");
+    fragBuilder->codeAppendf("\t\t%s = clamp((1.0/255.0) * vec4(r, r, r, r) + %s, 0, 1);\n",
+                             args.fOutputColor, args.fInputColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void DitherEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                     GrProcessorKeyBuilder* b) const {
+void DitherEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+                                         GrProcessorKeyBuilder* b) const {
     GLDitherEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* DitherEffect::onCreateGLInstance() const  {
-    return new GLDitherEffect(*this);
+GrGLSLFragmentProcessor* DitherEffect::onCreateGLSLInstance() const  {
+    return new GLDitherEffect;
 }
 
-GrFragmentProcessor* GrDitherEffect::Create() { return DitherEffect::Create(); }
+sk_sp<GrFragmentProcessor> GrDitherEffect::Make() { return DitherEffect::Make(); }

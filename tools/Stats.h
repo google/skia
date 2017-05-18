@@ -62,7 +62,7 @@ struct Stats {
             s /= (max - min);
             s *= (SK_ARRAY_COUNT(kBars) - 1);
             const size_t bar = (size_t)(s + 0.5);
-            SK_ALWAYSBREAK(bar < SK_ARRAY_COUNT(kBars));
+            SkASSERT_RELEASE(bar < SK_ARRAY_COUNT(kBars));
             plot.append(kBars[bar]);
         }
     }

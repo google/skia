@@ -18,8 +18,7 @@ namespace Gr2PtConicalGradientEffect {
      * Creates an effect that produces a two point conical gradient based on the
      * shader passed in.
      */
-    GrFragmentProcessor* Create(GrContext* ctx,  const SkTwoPointConicalGradient& shader,
-                                SkShader::TileMode tm, const SkMatrix* localMatrix);
+    sk_sp<GrFragmentProcessor> Make(const GrGradientEffect::CreateArgs& args);
 };
 
 #endif

@@ -10,7 +10,6 @@
 
 #include "SkEndian.h"
 #include "SkOTTableTypes.h"
-#include "SkTypedEnum.h"
 
 #pragma pack(push, 1)
 
@@ -24,11 +23,10 @@ struct SkOTTableMaximumProfile_TT {
     SK_OT_USHORT maxCompositePoints;
     SK_OT_USHORT maxCompositeContours;
     struct MaxZones {
-        SK_TYPED_ENUM(Value, SK_OT_USHORT,
-            ((DoesNotUseTwilightZone, SkTEndian_SwapBE16(1)))
-            ((UsesTwilightZone, SkTEndian_SwapBE16(2)))
-            SK_SEQ_END,
-        (value)SK_SEQ_END)
+        enum Value : SK_OT_USHORT {
+            DoesNotUseTwilightZone = SkTEndian_SwapBE16(1),
+            UsesTwilightZone = SkTEndian_SwapBE16(2),
+        } value;
     } maxZones;
     SK_OT_USHORT maxTwilightPoints;
     SK_OT_USHORT maxStorage;

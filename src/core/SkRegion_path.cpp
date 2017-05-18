@@ -26,7 +26,7 @@ static bool sk_memeq32(const int32_t* SK_RESTRICT a, const int32_t* SK_RESTRICT 
 class SkRgnBuilder : public SkBlitter {
 public:
     SkRgnBuilder();
-    virtual ~SkRgnBuilder();
+    ~SkRgnBuilder() override;
 
     // returns true if it could allocate the working storage needed
     bool init(int maxHeight, int maxTransitions, bool pathIsInverse);
@@ -45,6 +45,9 @@ public:
     void    copyToRgn(SkRegion::RunType runs[]) const;
 
     void blitH(int x, int y, int width) override;
+    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override {
+        SkDEBUGFAIL("blitAntiH not implemented");
+    }
 
 #ifdef SK_DEBUG
     void dump() const {

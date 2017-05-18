@@ -1,0 +1,12 @@
+{
+  'includes': [
+    'assets.isolate',
+  ],
+  'variables': {
+    'files': [
+      '../../../.gclient',
+      '../../tools/valgrind.supp',
+      '../../tools/skpbench/',
+    ],
+  },
+}

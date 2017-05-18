@@ -17,10 +17,9 @@
 class GrPathProcessor : public GrPrimitiveProcessor {
 public:
     static GrPathProcessor* Create(GrColor color,
-                                   const GrPipelineOptimizations& opts,
                                    const SkMatrix& viewMatrix = SkMatrix::I(),
                                    const SkMatrix& localMatrix = SkMatrix::I()) {
-        return new GrPathProcessor(color, opts, viewMatrix, localMatrix);
+        return new GrPathProcessor(color, viewMatrix, localMatrix);
     }
 
     const char* name() const override { return "PathProcessor"; }
@@ -31,25 +30,21 @@ public:
 
     bool willUseGeoShader() const override { return false; }
 
-    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override;
+    virtual void getGLSLProcessorKey(const GrShaderCaps& caps,
+                                     GrProcessorKeyBuilder* b) const override;
 
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps& caps) const override;
+    virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 
-    bool hasTransformedLocalCoords() const override { return false; }
-
-    const GrPipelineOptimizations& opts() const { return fOpts; }
+    virtual bool isPathRendering() const override { return true; }
 
 private:
-    GrPathProcessor(GrColor color, const GrPipelineOptimizations& opts,
-                    const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
+    GrPathProcessor(GrColor, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
 
     bool hasExplicitLocalCoords() const override { return false; }
 
     GrColor fColor;
     const SkMatrix fViewMatrix;
     const SkMatrix fLocalMatrix;
-    GrPipelineOptimizations fOpts;
 
     typedef GrPrimitiveProcessor INHERITED;
 };

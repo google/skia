@@ -1,0 +1,62 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  skia_use_system_zlib = is_official_build
+}
+
+import("../third_party.gni")
+
+if (skia_use_system_zlib) {
+  system("zlib") {
+    libs = [ "z" ]
+  }
+} else {
+  third_party("zlib") {
+    public_include_dirs = [ "../externals/zlib" ]
+
+    deps = [
+      ":zlib_x86",
+    ]
+    sources = [
+      "../externals/zlib/adler32.c",
+      "../externals/zlib/compress.c",
+      "../externals/zlib/crc32.c",
+      "../externals/zlib/deflate.c",
+      "../externals/zlib/gzclose.c",
+      "../externals/zlib/gzlib.c",
+      "../externals/zlib/gzread.c",
+      "../externals/zlib/gzwrite.c",
+      "../externals/zlib/infback.c",
+      "../externals/zlib/inffast.c",
+      "../externals/zlib/inflate.c",
+      "../externals/zlib/inftrees.c",
+      "../externals/zlib/trees.c",
+      "../externals/zlib/uncompr.c",
+      "../externals/zlib/zutil.c",
+    ]
+  }
+}
+
+third_party("zlib_x86") {
+  public_include_dirs = []
+  if (target_cpu == "x86" || target_cpu == "x64") {
+    sources = [
+      "../externals/zlib/crc_folding.c",
+      "../externals/zlib/fill_window_sse.c",
+      "../externals/zlib/x86.c",
+    ]
+    if (!is_win) {
+      cflags_c = [
+        "-msse4.2",
+        "-mpclmul",
+      ]
+    }
+  } else {
+    sources = [
+      "../externals/zlib/simd_stub.c",
+    ]
+  }
+}

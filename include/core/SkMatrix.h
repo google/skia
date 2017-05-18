@@ -21,7 +21,10 @@ class SkString;
     SkMatrix does not have a constructor, so it must be explicitly initialized
     using either reset() - to construct an identity matrix, or one of the set
     functions (e.g. setTranslate, setRotate, etc.).
+
+    SkMatrix is not thread safe unless you've first called SkMatrix::getType().
 */
+SK_BEGIN_REQUIRE_DENSE
 class SK_API SkMatrix {
 public:
     static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy) {
@@ -29,13 +32,13 @@ public:
         m.setScale(sx, sy);
         return m;
     }
-    
+
     static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar scale) {
         SkMatrix m;
         m.setScale(scale, scale);
         return m;
     }
-    
+
     static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy) {
         SkMatrix m;
         m.setTranslate(dx, dy);
@@ -79,7 +82,7 @@ public:
 
     /** Returns true if will map a rectangle to another rectangle. This can be
         true if the matrix is identity, scale-only, or rotates a multiple of
-        90 degrees.
+        90 degrees, or mirrors in x or y.
     */
     bool rectStaysRect() const {
         if (fTypeMask & kUnknown_Mask) {
@@ -460,8 +463,7 @@ public:
 
     /** Like mapPoints but with custom byte stride between the points.
     */
-    void mapPointsWithStride(SkPoint dst[], SkPoint src[],
-                             size_t stride, int count) const {
+    void mapPointsWithStride(SkPoint dst[], const SkPoint src[], size_t stride, int count) const {
         SkASSERT(stride >= sizeof(SkPoint));
         SkASSERT(0 == stride % sizeof(SkScalar));
         for (int i = 0; i < count; ++i) {
@@ -560,6 +562,12 @@ public:
         this->mapPoints(dst, 4);
     }
 
+    /**
+     *  Maps a rect to another rect, asserting (in debug mode) that the matrix only contains
+     *  scale and translate elements. If it contains other elements, the results are undefined.
+     */
+    void mapRectScaleTranslate(SkRect* dst, const SkRect& src) const;
+    
     /** Return the mean radius of a circle after it has been mapped by
         this matrix. NOTE: in perspective this value assumes the circle
         has its center at the origin.
@@ -590,11 +598,16 @@ public:
         return GetMapPtsProc(this->getType());
     }
 
-    /** If the matrix can be stepped in X (not complex perspective)
-        then return true and if step[XY] is not null, return the step[XY] value.
-        If it cannot, return false and ignore step.
+    /** Returns true if the matrix can be stepped in X (not complex
+        perspective).
     */
-    bool fixedStepInX(SkScalar y, SkFixed* stepX, SkFixed* stepY) const;
+    bool isFixedStepInX() const;
+
+    /** If the matrix can be stepped in X (not complex perspective)
+        then return the step value.
+        If it cannot, behavior is undefined.
+    */
+    SkVector fixedStepInX(SkScalar y) const;
 
     /** Efficient comparison of two matrices. It distinguishes between zero and
      *  negative zero. It will return false when the sign of zero values is the
@@ -634,15 +647,17 @@ public:
 
     /**
      * Calculates the minimum scaling factor of the matrix as computed from the SVD of the upper
-     * left 2x2. If the matrix has perspective -1 is returned.
+     * left 2x2. If the max scale factor cannot be computed (for example overflow or perspective)
+     * -1 is returned.
      *
-     * @return minumum scale factor
+     * @return minimum scale factor
      */
     SkScalar getMinScale() const;
 
     /**
      * Calculates the maximum scaling factor of the matrix as computed from the SVD of the upper
-     * left 2x2. If the matrix has perspective -1 is returned.
+     * left 2x2. If the max scale factor cannot be computed (for example overflow or perspective)
+     * -1 is returned.
      *
      * @return maximum scale factor
      */
@@ -650,10 +665,10 @@ public:
 
     /**
      * Gets both the min and max scale factors. The min scale factor is scaleFactors[0] and the max
-     * is scaleFactors[1]. If the matrix has perspective false will be returned and scaleFactors
-     * will be unchanged.
+     * is scaleFactors[1]. If the min/max scale factors cannot be computed false is returned and the
+     * values of scaleFactors[] are undefined.
      */
-    bool getMinMaxScales(SkScalar scaleFactors[2]) const;
+    bool SK_WARN_UNUSED_RESULT getMinMaxScales(SkScalar scaleFactors[2]) const;
 
     /**
      *  Attempt to decompose this matrix into a scale-only component and whatever remains, where
@@ -696,6 +711,37 @@ public:
         this->setTypeMask(kUnknown_Mask);
     }
 
+    /**
+     *  Initialize the matrix to be scale + post-translate.
+     */
+    void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty) {
+        fMat[kMScaleX] = sx;
+        fMat[kMSkewX]  = 0;
+        fMat[kMTransX] = tx;
+        
+        fMat[kMSkewY]  = 0;
+        fMat[kMScaleY] = sy;
+        fMat[kMTransY] = ty;
+        
+        fMat[kMPersp0] = 0;
+        fMat[kMPersp1] = 0;
+        fMat[kMPersp2] = 1;
+        
+        unsigned mask = 0;
+        if (sx != 1 || sy != 1) {
+            mask |= kScale_Mask;
+        }
+        if (tx || ty) {
+            mask |= kTranslate_Mask;
+        }
+        this->setTypeMask(mask | kRectStaysRect_Mask);
+    }
+    
+    /**
+     *  Are all elements of the matrix finite?
+     */
+    bool isFinite() const { return SkScalarsAreFinite(fMat, 9); }
+
 private:
     enum {
         /** Set if the matrix will map a rectangle to another rectangle. This
@@ -728,34 +774,7 @@ private:
     SkScalar         fMat[9];
     mutable uint32_t fTypeMask;
 
-    /** Are all elements of the matrix finite?
-     */
-    bool isFinite() const { return SkScalarsAreFinite(fMat, 9); }
-
     static void ComputeInv(SkScalar dst[9], const SkScalar src[9], double invDet, bool isPersp);
-
-    void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty) {
-        fMat[kMScaleX] = sx;
-        fMat[kMSkewX]  = 0;
-        fMat[kMTransX] = tx;
-
-        fMat[kMSkewY]  = 0;
-        fMat[kMScaleY] = sy;
-        fMat[kMTransY] = ty;
-
-        fMat[kMPersp0] = 0;
-        fMat[kMPersp1] = 0;
-        fMat[kMPersp2] = 1;
-
-        unsigned mask = 0;
-        if (sx != 1 || sy != 1) {
-            mask |= kScale_Mask;
-        }
-        if (tx || ty) {
-            mask |= kTranslate_Mask;
-        }
-        this->setTypeMask(mask | kRectStaysRect_Mask);
-    }
 
     uint8_t computeTypeMask() const;
     uint8_t computePerspectiveTypeMask() const;
@@ -797,6 +816,14 @@ private:
         return ((fTypeMask & 0xF) == 0);
     }
 
+    inline void updateTranslateMask() {
+        if ((fMat[kMTransX] != 0) | (fMat[kMTransY] != 0)) {
+            fTypeMask |= kTranslate_Mask;
+        } else {
+            fTypeMask &= ~kTranslate_Mask;
+        }
+    }
+
     bool SK_WARN_UNUSED_RESULT invertNonIdentity(SkMatrix* inverse) const;
 
     static bool Poly2Proc(const SkPoint[], SkMatrix*, const SkPoint& scale);
@@ -825,6 +852,8 @@ private:
     static const MapPtsProc gMapPtsProcs[];
 
     friend class SkPerspIter;
+    friend class SkMatrixPriv;
 };
+SK_END_REQUIRE_DENSE
 
 #endif

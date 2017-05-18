@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -31,6 +30,35 @@ SkKey XKeyToSkKey(KeySym keysym) {
             return kDown_SkKey;
         case XK_Up:
             return kUp_SkKey;
+        case XK_KP_0:
+        case XK_KP_Insert:
+            return k0_SkKey;
+        case XK_KP_1:
+        case XK_KP_End:
+            return k1_SkKey;
+        case XK_KP_2:
+        case XK_KP_Down:
+            return k2_SkKey;
+        case XK_KP_3:
+        case XK_KP_Page_Down:
+            return k3_SkKey;
+        case XK_KP_4:
+        case XK_KP_Left:
+            return k4_SkKey;
+        case XK_KP_5:
+            return k5_SkKey;
+        case XK_KP_6:
+        case XK_KP_Right:
+            return k6_SkKey;
+        case XK_KP_7:
+        case XK_KP_Home:
+            return k7_SkKey;
+        case XK_KP_8:
+        case XK_KP_Up:
+            return k8_SkKey;
+        case XK_KP_9:
+        case XK_KP_Page_Up:
+            return k9_SkKey;
         default:
             return kNONE_SkKey;
     }

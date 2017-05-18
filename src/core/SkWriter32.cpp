@@ -76,6 +76,6 @@ void SkWriter32::growToAtLeast(size_t size) {
     }
 }
 
-SkData* SkWriter32::snapshotAsData() const {
-    return SkData::NewWithCopy(fData, fUsed);
+sk_sp<SkData> SkWriter32::snapshotAsData() const {
+    return SkData::MakeWithCopy(fData, fUsed);
 }

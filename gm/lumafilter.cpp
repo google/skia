@@ -6,6 +6,8 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
+#include "SkBlendModePriv.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkLumaColorFilter.h"
@@ -26,9 +28,8 @@ static void draw_label(SkCanvas* canvas, const char* label,
                      paint);
 }
 
-static void draw_scene(SkCanvas* canvas, SkColorFilter* filter,
-                       SkXfermode::Mode mode, SkShader* s1,
-                       SkShader* s2) {
+static void draw_scene(SkCanvas* canvas, const sk_sp<SkColorFilter>& filter, SkBlendMode mode,
+                       const sk_sp<SkShader>& s1, const sk_sp<SkShader>& s2) {
     SkPaint paint;
     paint.setAntiAlias(true);
     SkRect r, c, bounds = SkRect::MakeWH(kSize, kSize);
@@ -54,7 +55,7 @@ static void draw_scene(SkCanvas* canvas, SkColorFilter* filter,
     }
 
     SkPaint xferPaint;
-    xferPaint.setXfermodeMode(mode);
+    xferPaint.setBlendMode(mode);
     canvas->saveLayer(&bounds, &xferPaint);
 
     r = bounds;
@@ -84,17 +85,11 @@ public:
         SkPoint  g2Points[] = { { 0, 0 }, { kSize, 0   } };
         SkScalar pos[] = { 0.2f, 1.0f };
 
-        fFilter.reset(SkLumaColorFilter::Create());
-        fGr1.reset(SkGradientShader::CreateLinear(g1Points,
-                                                  g1Colors,
-                                                  pos,
-                                                  SK_ARRAY_COUNT(g1Colors),
-                                                  SkShader::kClamp_TileMode));
-        fGr2.reset(SkGradientShader::CreateLinear(g2Points,
-                                                  g2Colors,
-                                                  pos,
-                                                  SK_ARRAY_COUNT(g2Colors),
-                                                  SkShader::kClamp_TileMode));
+        fFilter = SkLumaColorFilter::Make();
+        fGr1 = SkGradientShader::MakeLinear(g1Points, g1Colors, pos, SK_ARRAY_COUNT(g1Colors),
+                                            SkShader::kClamp_TileMode);
+        fGr2 = SkGradientShader::MakeLinear(g2Points, g2Colors, pos, SK_ARRAY_COUNT(g2Colors),
+                                            SkShader::kClamp_TileMode);
     }
 
 protected:
@@ -108,16 +103,17 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkXfermode::Mode modes[] = { SkXfermode::kSrcOver_Mode,
-                                     SkXfermode::kDstOver_Mode,
-                                     SkXfermode::kSrcATop_Mode,
-                                     SkXfermode::kDstATop_Mode,
-                                     SkXfermode::kSrcIn_Mode,
-                                     SkXfermode::kDstIn_Mode,
-                                   };
+        SkBlendMode modes[] = {
+            SkBlendMode::kSrcOver,
+            SkBlendMode::kDstOver,
+            SkBlendMode::kSrcATop,
+            SkBlendMode::kDstATop,
+            SkBlendMode::kSrcIn,
+            SkBlendMode::kDstIn,
+        };
         struct {
-            SkShader*   fShader1;
-            SkShader*   fShader2;
+            const sk_sp<SkShader>& fShader1;
+            const sk_sp<SkShader>& fShader2;
         } shaders[] = {
             { nullptr, nullptr },
             { nullptr, fGr2 },
@@ -127,7 +123,7 @@ protected:
 
         SkScalar gridStep = kSize + 2 * kInset;
         for (size_t i = 0; i < SK_ARRAY_COUNT(modes); ++i) {
-            draw_label(canvas, SkXfermode::ModeName(modes[i]),
+            draw_label(canvas, SkBlendMode_Name(modes[i]),
                        SkPoint::Make(gridStep * (0.5f + i), 20));
         }
 
@@ -144,8 +140,8 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkColorFilter> fFilter;
-    SkAutoTUnref<SkShader>      fGr1, fGr2;
+    sk_sp<SkColorFilter>    fFilter;
+    sk_sp<SkShader>         fGr1, fGr2;
 
     typedef skiagm::GM INHERITED;
 };

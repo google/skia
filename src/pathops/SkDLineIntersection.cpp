@@ -108,7 +108,7 @@ int SkIntersections::intersect(const SkDLine& a, const SkDLine& b) {
     double ayBxLen = ayLen * bxLen;
     // detect parallel lines the same way here and in SkOpAngle operator <
     // so that non-parallel means they are also sortable
-    bool unparallel = fAllowNear ? NotAlmostEqualUlps(axByLen, ayBxLen)
+    bool unparallel = fAllowNear ? NotAlmostEqualUlps_Pin(axByLen, ayBxLen)
             : NotAlmostDequalUlps(axByLen, ayBxLen);
     if (unparallel && fUsed == 0) {
         double ab0y = a[0].fY - b[0].fY;
@@ -152,7 +152,7 @@ int SkIntersections::intersect(const SkDLine& a, const SkDLine& b) {
                         continue;
                     }
                     SkASSERT(a[iA] != b[nearer]);
-                    SkASSERT(iA == (bNearA[nearer] > 0.5));
+                    SkOPASSERT(iA == (bNearA[nearer] > 0.5));
                     insertNear(iA, nearer, a[iA], b[nearer]);
                     aNearB[iA] = -1;
                     bNearA[nearer] = -1;

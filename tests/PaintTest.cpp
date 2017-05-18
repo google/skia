@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAutoMalloc.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkLayerDrawLooper.h"
@@ -15,7 +16,6 @@
 #include "SkTypeface.h"
 #include "SkUtils.h"
 #include "SkWriteBuffer.h"
-#include "SkXfermode.h"
 #include "Test.h"
 
 static size_t uni_to_utf8(const SkUnichar src[], void* dst, int count) {
@@ -80,7 +80,7 @@ DEF_TEST(Paint_cmap, reporter) {
 
     SkRandom rand;
     SkPaint paint;
-    paint.setTypeface(SkTypeface::RefDefault())->unref();
+    paint.setTypeface(SkTypeface::MakeDefault());
     SkTypeface* face = paint.getTypeface();
 
     for (int i = 0; i < 1000; ++i) {
@@ -146,11 +146,9 @@ DEF_TEST(Paint_copy, reporter) {
     paint.setStrokeWidth(SkIntToScalar(2));
     // set a few pointers
     SkLayerDrawLooper::Builder looperBuilder;
-    SkLayerDrawLooper* looper = looperBuilder.detachLooper();
-    paint.setLooper(looper)->unref();
-    SkMaskFilter* mask = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)));
-    paint.setMaskFilter(mask)->unref();
+    paint.setLooper(looperBuilder.detach());
+    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                               SkBlurMask::ConvertRadiusToSigma(1)));
 
     // copy the paint using the copy constructor and check they are the same
     SkPaint copiedPaint = paint;
@@ -194,7 +192,7 @@ DEF_TEST(Paint_regression_cubic, reporter) {
     SkRect maxR = fillR;
     SkScalar miter = SkMaxScalar(SK_Scalar1, paint.getStrokeMiter());
     SkScalar inset = paint.getStrokeJoin() == SkPaint::kMiter_Join ?
-                            SkScalarMul(paint.getStrokeWidth(), miter) :
+                            paint.getStrokeWidth() * miter :
                             paint.getStrokeWidth();
     maxR.inset(-inset, -inset);
 
@@ -257,11 +255,12 @@ DEF_TEST(Paint_flattening, reporter) {
     FOR_SETUP(n, encodings, setTextEncoding)
     FOR_SETUP(p, styles, setStyle)
 
-    SkWriteBuffer writer;
+    SkBinaryWriteBuffer writer;
     paint.flatten(writer);
 
-    const uint32_t* written = writer.getWriter32()->contiguousArray();
-    SkReadBuffer reader(written, writer.bytesWritten());
+    SkAutoMalloc buf(writer.bytesWritten());
+    writer.writeToMemory(buf.get());
+    SkReadBuffer reader(buf.get(), writer.bytesWritten());
 
     SkPaint paint2;
     paint2.unflatten(reader);
@@ -293,13 +292,16 @@ DEF_TEST(Paint_MoreFlattening, r) {
     paint.setColor(0x00AABBCC);
     paint.setTextScaleX(1.0f);  // Default value, ignored.
     paint.setTextSize(19);
-    paint.setXfermode(SkXfermode::Create(SkXfermode::kModulate_Mode))->unref();
+    paint.setBlendMode(SkBlendMode::kModulate);
     paint.setLooper(nullptr);  // Default value, ignored.
 
-    SkWriteBuffer writer;
+    SkBinaryWriteBuffer writer;
     paint.flatten(writer);
 
-    SkReadBuffer reader(writer.getWriter32()->contiguousArray(), writer.bytesWritten());
+    SkAutoMalloc buf(writer.bytesWritten());
+    writer.writeToMemory(buf.get());
+    SkReadBuffer reader(buf.get(), writer.bytesWritten());
+
     SkPaint other;
     other.unflatten(reader);
     ASSERT(reader.offset() == writer.bytesWritten());
@@ -309,12 +311,7 @@ DEF_TEST(Paint_MoreFlattening, r) {
     ASSERT(other.getTextScaleX() == paint.getTextScaleX());
     ASSERT(other.getTextSize()   == paint.getTextSize());
     ASSERT(other.getLooper()     == paint.getLooper());
-
-    // We have to be a little looser and compare just the modes.  Pointers might not be the same.
-    SkXfermode::Mode otherMode, paintMode;
-    ASSERT(other.getXfermode()->asMode(&otherMode));
-    ASSERT(paint.getXfermode()->asMode(&paintMode));
-    ASSERT(otherMode == paintMode);
+    ASSERT(other.getBlendMode()  == paint.getBlendMode());
 }
 
 DEF_TEST(Paint_getHash, r) {
@@ -331,7 +328,7 @@ DEF_TEST(Paint_getHash, r) {
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 
     // SkTypeface is the first field we hash, so test it specially.
-    paint.setTypeface(SkTypeface::RefDefault())->unref();
+    paint.setTypeface(SkTypeface::MakeDefault());
     REPORTER_ASSERT(r, paint.getHash() != defaultHash);
     paint.setTypeface(nullptr);
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
@@ -353,19 +350,18 @@ DEF_TEST(Paint_nothingToDraw, r) {
     REPORTER_ASSERT(r, paint.nothingToDraw());
 
     paint.setAlpha(0xFF);
-    paint.setXfermodeMode(SkXfermode::kDst_Mode);
+    paint.setBlendMode(SkBlendMode::kDst);
     REPORTER_ASSERT(r, paint.nothingToDraw());
 
     paint.setAlpha(0);
-    paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
+    paint.setBlendMode(SkBlendMode::kSrcOver);
 
     SkColorMatrix cm;
     cm.setIdentity();   // does not change alpha
-    paint.setColorFilter(SkColorMatrixFilter::Create(cm))->unref();
+    paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
     REPORTER_ASSERT(r, paint.nothingToDraw());
 
     cm.postTranslate(0, 0, 0, 1);    // wacks alpha
-    paint.setColorFilter(SkColorMatrixFilter::Create(cm))->unref();
+    paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
     REPORTER_ASSERT(r, !paint.nothingToDraw());
 }
-

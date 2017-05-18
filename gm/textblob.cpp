@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #include "SkCanvas.h"
 #include "SkPoint.h"
@@ -72,7 +73,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fTypeface.reset(sk_tool_utils::create_portable_typeface("serif", SkTypeface::kNormal));
+        fTypeface = sk_tool_utils::create_portable_typeface("serif", SkFontStyle());
         SkPaint p;
         p.setTypeface(fTypeface);
         size_t txtLen = strlen(fText);
@@ -92,7 +93,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         for (unsigned b = 0; b < SK_ARRAY_COUNT(blobConfigs); ++b) {
-            SkAutoTUnref<const SkTextBlob> blob(this->makeBlob(b));
+            sk_sp<SkTextBlob> blob(this->makeBlob(b));
 
             SkPaint p;
             SkPoint offset = SkPoint::Make(SkIntToScalar(10 + 300 * (b % 2)),
@@ -110,7 +111,7 @@ protected:
     }
 
 private:
-    const SkTextBlob* makeBlob(unsigned blobIndex) {
+    sk_sp<SkTextBlob> makeBlob(unsigned blobIndex) {
         SkTextBlobBuilder builder;
 
         SkPaint font;
@@ -170,19 +171,19 @@ private:
                     memcpy(buf.pos, pos.begin(), count * sizeof(SkScalar) * 2);
                 } break;
                 default:
-                    SkFAIL("unhandled pos value");
+                    SK_ABORT("unhandled pos value");
                 }
 
                 currentGlyph += count;
             }
         }
 
-        return builder.build();
+        return builder.make();
     }
 
-    SkTDArray<uint16_t>      fGlyphs;
-    SkAutoTUnref<SkTypeface> fTypeface;
-    const char*              fText;
+    SkTDArray<uint16_t> fGlyphs;
+    sk_sp<SkTypeface>   fTypeface;
+    const char*         fText;
     typedef skiagm::GM INHERITED;
 };
 

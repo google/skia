@@ -11,11 +11,12 @@
 
 #if SK_SUPPORT_GPU
 #include "GLBench.h"
-#include "gl/GrGLGLSL.h"
+#include "GrShaderCaps.h"
+#include "GrShaderVar.h"
+#include "gl/GrGLContext.h"
 #include "gl/GrGLInterface.h"
-#include "gl/GrGLShaderVar.h"
 #include "gl/GrGLUtil.h"
-#include "glsl/GrGLSLCaps.h"
+#include "../private/GrGLSL.h"
 
 #include <stdio.h>
 
@@ -92,26 +93,27 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
-    const char* version = GrGLGetGLSLVersionDecl(*ctx);
+    const GrShaderCaps* shaderCaps = ctx->caps()->shaderCaps();
+    const char* version = shaderCaps->versionDeclString();
 
     // this shader draws fNumStages overlapping circles of increasing opacity (coverage) and
     // decreasing size, with the center of each subsequent circle closer to the bottom-right
     // corner of the screen than the previous circle.
 
     // set up vertex shader; this is a trivial vertex shader that passes through position and color
-    GrGLShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-    GrGLShaderVar oPosition("o_position", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
-    GrGLShaderVar aColor("a_color", kVec3f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-    GrGLShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
+    GrShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrShaderVar oPosition("o_position", kVec2f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrShaderVar aColor("a_color", kVec3f_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kOut_TypeModifier);
 
     SkString vshaderTxt(version);
-    aPosition.appendDecl(*ctx, &vshaderTxt);
+    aPosition.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";\n");
-    aColor.appendDecl(*ctx, &vshaderTxt);
+    aColor.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";\n");
-    oPosition.appendDecl(*ctx, &vshaderTxt);
+    oPosition.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";\n");
-    oColor.appendDecl(*ctx, &vshaderTxt);
+    oColor.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";\n");
 
     vshaderTxt.append(
@@ -122,31 +124,28 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
             "    o_color = a_color;\n"
             "}\n");
 
-    const GrGLInterface* gl = ctx->interface();
-
     // set up fragment shader; this fragment shader will have fNumStages coverage stages plus an
     // XP stage at the end.  Each coverage stage computes the pixel's distance from some hard-
     // coded center and compare that to some hard-coded circle radius to compute a coverage.
     // Then, this coverage is mixed with the coverage from the previous stage and passed to the
     // next stage.
-    GrGLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
-    GrGLAppendGLSLDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, gl->fStandard,
-                                                   &fshaderTxt);
-    oPosition.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
-    oPosition.appendDecl(*ctx, &fshaderTxt);
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kMedium_GrSLPrecision, *shaderCaps, &fshaderTxt);
+    oPosition.setTypeModifier(GrShaderVar::kIn_TypeModifier);
+    oPosition.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";\n");
-    oColor.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
-    oColor.appendDecl(*ctx, &fshaderTxt);
+    oColor.setTypeModifier(GrShaderVar::kIn_TypeModifier);
+    oColor.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";\n");
 
     const char* fsOutName;
-    if (ctx->caps()->glslCaps()->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(*ctx, &fshaderTxt);
+    if (shaderCaps->mustDeclareFragmentShaderOutput()) {
+        oFragColor.appendDecl(shaderCaps, &fshaderTxt);
         fshaderTxt.append(";\n");
         fsOutName = oFragColor.c_str();
     } else {
-        fsOutName = "gl_FragColor";
+        fsOutName = "sk_FragColor";
     }
 
 
@@ -185,7 +184,7 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
             "}\n",
             fsOutName);
 
-    return CreateProgram(gl, vshaderTxt.c_str(), fshaderTxt.c_str());
+    return CreateProgram(ctx, vshaderTxt.c_str(), fshaderTxt.c_str());
 }
 
 template<typename Func>

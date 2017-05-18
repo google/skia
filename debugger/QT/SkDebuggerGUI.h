@@ -19,6 +19,7 @@
 #include "SkRasterWidget.h"
 #include "SkDrawCommandGeometryWidget.h"
 #include "SkSettingsWidget.h"
+#include <QtCore/QFileSystemWatcher>
 #include <QtCore/QSignalMapper>
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -37,11 +38,6 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <vector>
-
-class SkTimedPicture;
-namespace sk_tools {
-    class PictureRenderer;
-}
 
 /** \class SkDebuggerGUI
 
@@ -68,19 +64,14 @@ public:
     */
     void openFile(const QString& filename);
 
-signals:
+Q_SIGNALS:
     void commandChanged(int command);
 
-private slots:
+private Q_SLOTS:
     /**
         Toggles breakpoint view in the list widget.
      */
     void actionBreakpoints();
-
-    /**
-        Profile the commands
-     */
-    void actionProfile();
 
     /**
         Cancels the command filter in the list widget.
@@ -223,6 +214,12 @@ private slots:
     void toggleDirectory();
 
     /**
+        Populates the contents of the directory widget with the skp files in the
+        current directory pointed to by fFile.
+     */
+    void populateDirectoryWidget();
+
+    /**
         Filters the list widgets command visibility based on the currently
         active selection.
      */
@@ -238,7 +235,6 @@ private:
 
     QAction fActionOpen;
     QAction fActionBreakpoint;
-    QAction fActionProfile;
     QAction fActionCancel;
     QAction fActionClearBreakpoints;
     QAction fActionClearDeletes;
@@ -273,6 +269,8 @@ private:
     QListWidget fListWidget;
     QListWidget fDirectoryWidget;
 
+    QFileSystemWatcher fDirectoryWatcher;
+
     SkDebugger fDebugger;
     SkCanvasWidget fCanvasWidget;
 
@@ -291,7 +289,6 @@ private:
     QString fPath;
     SkString fFileName;
     SkTDArray<bool> fSkipCommands; // has a specific command been deleted?
-    bool fDirectoryWidgetActive;
 
     QMenuBar fMenuBar;
     QMenu fMenuFile;
@@ -333,15 +330,6 @@ private:
         Fills in the overview pane with text
      */
     void setupOverviewText(const SkTDArray<double>* typeTimes, double totTime, int numRuns);
-
-
-    /**
-        Render the supplied picture several times tracking the time consumed
-        by each command.
-     */
-    void run(const SkPicture* pict,
-             sk_tools::PictureRenderer* renderer,
-             int repeats);
 
     bool isPaused() const {
         return fActionPause.isChecked();

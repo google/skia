@@ -12,6 +12,7 @@
 #include "SkBitmapController.h"
 #include "SkBitmapFilter.h"
 #include "SkBitmapProvider.h"
+#include "SkFloatBits.h"
 #include "SkMatrix.h"
 #include "SkMipMap.h"
 #include "SkPaint.h"
@@ -26,16 +27,43 @@ typedef SkFixed3232    SkFractionalInt;
 
 class SkPaint;
 
-struct SkBitmapProcState {
-    SkBitmapProcState(const SkBitmapProvider&, SkShader::TileMode tmx, SkShader::TileMode tmy);
-    SkBitmapProcState(const SkBitmap&, SkShader::TileMode tmx, SkShader::TileMode tmy);
-    ~SkBitmapProcState();
+struct SkBitmapProcInfo {
+    SkBitmapProcInfo(const SkBitmapProvider&, SkShader::TileMode tmx, SkShader::TileMode tmy);
+    ~SkBitmapProcInfo();
 
-    typedef void (*ShaderProc32)(const SkBitmapProcState&, int x, int y,
-                                 SkPMColor[], int count);
+    const SkBitmapProvider        fProvider;
 
-    typedef void (*ShaderProc16)(const SkBitmapProcState&, int x, int y,
-                                 uint16_t[], int count);
+    SkPixmap                      fPixmap;
+    SkMatrix                      fInvMatrix;         // This changes based on tile mode.
+    // TODO: combine fInvMatrix and fRealInvMatrix.
+    SkMatrix                      fRealInvMatrix;     // The actual inverse matrix.
+    SkColor                       fPaintColor;
+    SkShader::TileMode            fTileModeX;
+    SkShader::TileMode            fTileModeY;
+    SkFilterQuality               fFilterQuality;
+    SkMatrix::TypeMask            fInvType;
+
+    bool init(const SkMatrix& inverse, const SkPaint&);
+
+private:
+    enum {
+        kBMStateSize = 136  // found by inspection. if too small, we will call new/delete
+    };
+    SkAlignedSStorage<kBMStateSize> fBMStateStorage;
+    SkBitmapController::State* fBMState;
+};
+
+struct SkBitmapProcState : public SkBitmapProcInfo {
+    SkBitmapProcState(const SkBitmapProvider& prov, SkShader::TileMode tmx, SkShader::TileMode tmy)
+        : SkBitmapProcInfo(prov, tmx, tmy) {}
+
+    bool setup(const SkMatrix& inv, const SkPaint& paint) {
+        return this->init(inv, paint) && this->chooseProcs();
+    }
+
+    typedef void (*ShaderProc32)(const void* ctx, int x, int y, SkPMColor[], int count);
+
+    typedef void (*ShaderProc16)(const void* ctx, int x, int y, uint16_t[], int count);
 
     typedef void (*MatrixProc)(const SkBitmapProcState&,
                                uint32_t bitmapXY[],
@@ -47,39 +75,23 @@ struct SkBitmapProcState {
                                  int count,
                                  SkPMColor colors[]);
 
-    typedef void (*SampleProc16)(const SkBitmapProcState&,
-                                 const uint32_t[],
-                                 int count,
-                                 uint16_t colors[]);
-
     typedef U16CPU (*FixedTileProc)(SkFixed);   // returns 0..0xFFFF
-    typedef U16CPU (*FixedTileLowBitsProc)(SkFixed, int);   // returns 0..0xF
     typedef U16CPU (*IntTileProc)(int value, int count);   // returns 0..count-1
 
-    SkPixmap            fPixmap;
-    SkMatrix            fInvMatrix;         // copy of what is in fBMState, can we remove the dup?
-
     SkMatrix::MapXYProc fInvProc;           // chooseProcs
-
     SkFractionalInt     fInvSxFractionalInt;
     SkFractionalInt     fInvKyFractionalInt;
 
     FixedTileProc       fTileProcX;         // chooseProcs
     FixedTileProc       fTileProcY;         // chooseProcs
-    FixedTileLowBitsProc fTileLowBitsProcX; // chooseProcs
-    FixedTileLowBitsProc fTileLowBitsProcY; // chooseProcs
     IntTileProc         fIntTileProcY;      // chooseProcs
     SkFixed             fFilterOneX;
     SkFixed             fFilterOneY;
 
-    SkPMColor           fPaintPMColor;      // chooseProcs - A8 config
     SkFixed             fInvSx;             // chooseProcs
     SkFixed             fInvKy;             // chooseProcs
+    SkPMColor           fPaintPMColor;      // chooseProcs - A8 config
     uint16_t            fAlphaScale;        // chooseProcs
-    uint8_t             fInvType;           // chooseProcs
-    uint8_t             fTileModeX;         // CONSTRUCTOR
-    uint8_t             fTileModeY;         // CONSTRUCTOR
-    uint8_t             fFilterLevel;       // chooseProcs
 
     /** Platforms implement this, and can optionally overwrite only the
         following fields:
@@ -118,30 +130,17 @@ struct SkBitmapProcState {
     MatrixProc getMatrixProc() const { return fMatrixProc; }
 #endif
     SampleProc32 getSampleProc32() const { return fSampleProc32; }
-    SampleProc16 getSampleProc16() const { return fSampleProc16; }
 
 private:
-    friend class SkBitmapProcShader;
-    friend class SkLightingShaderImpl;
-
     ShaderProc32        fShaderProc32;      // chooseProcs
     ShaderProc16        fShaderProc16;      // chooseProcs
     // These are used if the shaderproc is nullptr
     MatrixProc          fMatrixProc;        // chooseProcs
     SampleProc32        fSampleProc32;      // chooseProcs
-    SampleProc16        fSampleProc16;      // chooseProcs
-
-    const SkBitmapProvider fProvider;
-
-    enum {
-        kBMStateSize = 136  // found by inspection. if too small, we will call new/delete
-    };
-    SkAlignedSStorage<kBMStateSize> fBMStateStorage;
-    SkBitmapController::State* fBMState;
 
     MatrixProc chooseMatrixProc(bool trivial_matrix);
-    bool chooseProcs(const SkMatrix& inv, const SkPaint&);
-    bool chooseScanlineProcs(bool trivialMatrix, bool clampClamp, const SkPaint& paint);
+    bool chooseProcs(); // caller must have called init() first (on our base-class)
+    bool chooseScanlineProcs(bool trivialMatrix, bool clampClamp);
     ShaderProc32 chooseShaderProc32();
 
     // Return false if we failed to setup for fast translate (e.g. overflow)
@@ -195,9 +194,68 @@ void ClampX_ClampY_filter_affine(const SkBitmapProcState& s,
                                  uint32_t xy[], int count, int x, int y);
 void ClampX_ClampY_nofilter_affine(const SkBitmapProcState& s,
                                    uint32_t xy[], int count, int x, int y);
-void S32_D16_filter_DX(const SkBitmapProcState& s,
-                       const uint32_t* xy, int count, uint16_t* colors);
-void S32_D16_filter_DXDY(const SkBitmapProcState& s,
-                         const uint32_t* xy, int count, uint16_t* colors);
+
+// Helper class for mapping the middle of pixel (x, y) into SkFractionalInt bitmap space.
+// Discussion:
+// Overall, this code takes a point in destination space, and uses the center of the pixel
+// at (x, y) to determine the sample point in source space. It then adjusts the pixel by different
+// amounts based in filtering and tiling.
+// This code can be broken into two main cases based on filtering:
+// * no filtering (nearest neighbor) - when using nearest neighbor filtering all tile modes reduce
+// the sampled by one ulp. If a simple point pt lies precisely on XXX.1/2 then it forced down
+// when positive making 1/2 + 1/2 = .999999 instead of 1.0.
+// * filtering - in the filtering case, the code calculates the -1/2 shift for starting the
+// bilerp kernel. There is a twist; there is a big difference between clamp and the other tile
+// modes. In tile and repeat the matrix has been reduced by an additional 1/width and 1/height
+// factor. This maps from destination space to [0, 1) (instead of source space) to allow easy
+// modulo arithmetic. This means that the -1/2 needed by bilerp is actually 1/2 * 1/width for x
+// and 1/2 * 1/height for y. This is what happens when the poorly named fFilterOne{X|Y} is
+// divided by two.
+class SkBitmapProcStateAutoMapper {
+public:
+    SkBitmapProcStateAutoMapper(const SkBitmapProcState& s, int x, int y,
+                                SkPoint* scalarPoint = nullptr) {
+        SkPoint pt;
+        s.fInvProc(s.fInvMatrix,
+                   SkIntToScalar(x) + SK_ScalarHalf,
+                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
+
+        SkFixed biasX, biasY;
+        if (s.fFilterQuality == kNone_SkFilterQuality) {
+            // SkFixed epsilon bias to ensure inverse-mapped bitmap coordinates are rounded
+            // consistently WRT geometry.  Note that we only need the bias for positive scales:
+            // for negative scales, the rounding is intrinsically correct.
+            // We scale it to persist SkFractionalInt -> SkFixed conversions.
+            biasX = (s.fInvMatrix.getScaleX() > 0);
+            biasY = (s.fInvMatrix.getScaleY() > 0);
+        } else {
+            biasX = s.fFilterOneX >> 1;
+            biasY = s.fFilterOneY >> 1;
+        }
+
+        // punt to unsigned for defined underflow behavior
+        fX = (SkFractionalInt)((uint64_t)SkScalarToFractionalInt(pt.x()) -
+                               (uint64_t)SkFixedToFractionalInt(biasX));
+        fY = (SkFractionalInt)((uint64_t)SkScalarToFractionalInt(pt.y()) -
+                               (uint64_t)SkFixedToFractionalInt(biasY));
+
+        if (scalarPoint) {
+            scalarPoint->set(pt.x() - SkFixedToScalar(biasX),
+                             pt.y() - SkFixedToScalar(biasY));
+        }
+    }
+
+    SkFractionalInt fractionalIntX() const { return fX; }
+    SkFractionalInt fractionalIntY() const { return fY; }
+
+    SkFixed fixedX() const { return SkFractionalIntToFixed(fX); }
+    SkFixed fixedY() const { return SkFractionalIntToFixed(fY); }
+
+    int intX() const { return SkFractionalIntToInt(fX); }
+    int intY() const { return SkFractionalIntToInt(fY); }
+
+private:
+    SkFractionalInt fX, fY;
+};
 
 #endif

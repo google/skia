@@ -5,13 +5,19 @@
  * found in the LICENSE file.
  */
 
+// Despite the name and location, this is portable code.
+
+#include "SkFixed.h"
+#include "SkFontMgr.h"
 #include "SkFontMgr_android_parser.h"
+#include "SkMalloc.h"
+#include "SkOSFile.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
 #include "SkTSearch.h"
 #include "SkTemplates.h"
+#include "SkTLogic.h"
 
-#include <dirent.h>
 #include <expat.h>
 
 #include <stdlib.h>
@@ -93,20 +99,20 @@ struct FamilyData {
         , fDepth(1)
         , fSkip(0)
         , fHandler(&topLevelHandler, 1)
-    { };
+    { }
 
-    XML_Parser fParser;                       // The expat parser doing the work, owned by caller
-    SkTDArray<FontFamily*>& fFamilies;        // The array to append families, owned by caller
-    SkAutoTDelete<FontFamily> fCurrentFamily; // The family being created, owned by this
-    FontFileInfo* fCurrentFontInfo;           // The fontInfo being created, owned by fCurrentFamily
-    int fVersion;                             // The version of the file parsed.
-    const SkString& fBasePath;                // The current base path.
-    const bool fIsFallback;                   // Indicates the file being parsed is a fallback file
-    const char* fFilename;                    // The name of the file currently being parsed.
+    XML_Parser fParser;                         // The expat parser doing the work, owned by caller
+    SkTDArray<FontFamily*>& fFamilies;          // The array to append families, owned by caller
+    std::unique_ptr<FontFamily> fCurrentFamily; // The family being created, owned by this
+    FontFileInfo* fCurrentFontInfo;             // The info being created, owned by fCurrentFamily
+    int fVersion;                               // The version of the file parsed.
+    const SkString& fBasePath;                  // The current base path.
+    const bool fIsFallback;                     // The file being parsed is a fallback file
+    const char* fFilename;                      // The name of the file currently being parsed.
 
-    int fDepth;                               // The current element depth of the parse.
-    int fSkip;                                // The depth to stop skipping, 0 if not skipping.
-    SkTDArray<const TagHandler*> fHandler;    // The stack of current tag handlers.
+    int fDepth;                                 // The current element depth of the parse.
+    int fSkip;                                  // The depth to stop skipping, 0 if not skipping.
+    SkTDArray<const TagHandler*> fHandler;      // The stack of current tag handlers.
 };
 
 static bool memeq(const char* s1, const char* s2, size_t n1, size_t n2) {
@@ -149,7 +155,10 @@ namespace lmpParser {
 static const TagHandler axisHandler = {
     /*start*/[](FamilyData* self, const char* tag, const char** attributes) {
         FontFileInfo& file = *self->fCurrentFontInfo;
-        FontFileInfo::Axis& axis = file.fAxes.push_back();
+        SkFourByteTag axisTag = SkSetFourByteTag('\0','\0','\0','\0');
+        SkFixed axisStyleValue = 0;
+        bool axisTagIsValid = false;
+        bool axisStyleValueIsValid = false;
         for (size_t i = 0; ATTS_NON_NULL(attributes, i); i += 2) {
             const char* name = attributes[i];
             const char* value = attributes[i+1];
@@ -157,25 +166,33 @@ static const TagHandler axisHandler = {
             if (MEMEQ("tag", name, nameLen)) {
                 size_t valueLen = strlen(value);
                 if (valueLen == 4) {
-                    SkFourByteTag tag = SkSetFourByteTag(value[0], value[1], value[2], value[3]);
-                    for (int j = 0; j < file.fAxes.count() - 1; ++j) {
-                        if (file.fAxes[j].fTag == tag) {
+                    axisTag = SkSetFourByteTag(value[0], value[1], value[2], value[3]);
+                    axisTagIsValid = true;
+                    for (int j = 0; j < file.fVariationDesignPosition.count() - 1; ++j) {
+                        if (file.fVariationDesignPosition[j].axis == axisTag) {
+                            axisTagIsValid = false;
                             SK_FONTCONFIGPARSER_WARNING("'%c%c%c%c' axis specified more than once",
-                                                        (tag >> 24) & 0xFF,
-                                                        (tag >> 16) & 0xFF,
-                                                        (tag >>  8) & 0xFF,
-                                                        (tag      ) & 0xFF);
+                                                        (axisTag >> 24) & 0xFF,
+                                                        (axisTag >> 16) & 0xFF,
+                                                        (axisTag >>  8) & 0xFF,
+                                                        (axisTag      ) & 0xFF);
                         }
                     }
-                    axis.fTag = SkSetFourByteTag(value[0], value[1], value[2], value[3]);
                 } else {
                     SK_FONTCONFIGPARSER_WARNING("'%s' is an invalid axis tag", value);
                 }
             } else if (MEMEQ("stylevalue", name, nameLen)) {
-                if (!parse_fixed<16>(value, &axis.fValue)) {
+                if (parse_fixed<16>(value, &axisStyleValue)) {
+                    axisStyleValueIsValid = true;
+                } else {
                     SK_FONTCONFIGPARSER_WARNING("'%s' is an invalid axis stylevalue", value);
                 }
             }
+        }
+        if (axisTagIsValid && axisStyleValueIsValid) {
+            auto& coordinate = file.fVariationDesignPosition.push_back();
+            coordinate.axis = axisTag;
+            coordinate.value = SkFixedToScalar(axisStyleValue);
         }
     },
     /*end*/nullptr,
@@ -258,7 +275,7 @@ static const TagHandler familyHandler = {
         }
     },
     /*end*/[](FamilyData* self, const char* tag) {
-        *self->fFamilies.append() = self->fCurrentFamily.detach();
+        *self->fFamilies.append() = self->fCurrentFamily.release();
     },
     /*tag*/[](FamilyData* self, const char* tag, const char** attributes) -> const TagHandler* {
         size_t len = strlen(tag);
@@ -458,7 +475,7 @@ static const TagHandler familyHandler = {
         }
     },
     /*end*/[](FamilyData* self, const char* tag) {
-        *self->fFamilies.append() = self->fCurrentFamily.detach();
+        *self->fFamilies.append() = self->fCurrentFamily.release();
     },
     /*tag*/[](FamilyData* self, const char* tag, const char** attributes) -> const TagHandler* {
         size_t len = strlen(tag);
@@ -577,9 +594,6 @@ static const XML_Memory_Handling_Suite sk_XML_alloc = {
     sk_free
 };
 
-template<typename T> struct remove_ptr {typedef T type;};
-template<typename T> struct remove_ptr<T*> {typedef T type;};
-
 /**
  * This function parses the given filename and stores the results in the given
  * families array. Returns the version of the file, negative if the file does not exist.
@@ -596,7 +610,7 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
         return -1;
     }
 
-    SkAutoTCallVProc<remove_ptr<XML_Parser>::type, XML_ParserFree> parser(
+    SkAutoTCallVProc<skstd::remove_pointer_t<XML_Parser>, XML_ParserFree> parser(
         XML_ParserCreate_MM(nullptr, &sk_XML_alloc, nullptr));
     if (!parser) {
         SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "could not create XML parser\n");
@@ -663,17 +677,9 @@ static void append_fallback_font_families_for_locale(SkTDArray<FontFamily*>& fal
                                                      const char* dir,
                                                      const SkString& basePath)
 {
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-    // The framework is beyond Android 4.2 and can therefore skip this function
-    return;
-#endif
-
-    SkAutoTCallIProc<DIR, closedir> fontDirectory(opendir(dir));
-    if (nullptr == fontDirectory) {
-        return;
-    }
-
-    for (struct dirent* dirEntry; (dirEntry = readdir(fontDirectory));) {
+    SkOSFile::Iter iter(dir, nullptr);
+    SkString fileName;
+    while (iter.next(&fileName, false)) {
         // The size of the prefix and suffix.
         static const size_t fixedLen = sizeof(LOCALE_FALLBACK_FONTS_PREFIX) - 1
                                      + sizeof(LOCALE_FALLBACK_FONTS_SUFFIX) - 1;
@@ -681,7 +687,6 @@ static void append_fallback_font_families_for_locale(SkTDArray<FontFamily*>& fal
         // The size of the prefix, suffix, and a minimum valid language code
         static const size_t minSize = fixedLen + 2;
 
-        SkString fileName(dirEntry->d_name);
         if (fileName.size() < minSize ||
             !fileName.startsWith(LOCALE_FALLBACK_FONTS_PREFIX) ||
             !fileName.endsWith(LOCALE_FALLBACK_FONTS_SUFFIX))

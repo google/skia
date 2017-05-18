@@ -7,14 +7,29 @@
 
 #include "SkLocalMatrixShader.h"
 
-SkFlattenable* SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer) {
+#if SK_SUPPORT_GPU
+#include "GrFragmentProcessor.h"
+#endif
+
+#if SK_SUPPORT_GPU
+sk_sp<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(const AsFPArgs& args) const {
+    SkMatrix tmp = this->getLocalMatrix();
+    if (args.fLocalMatrix) {
+        tmp.preConcat(*args.fLocalMatrix);
+    }
+    return fProxyShader->asFragmentProcessor(AsFPArgs(
+        args.fContext, args.fViewMatrix, &tmp, args.fFilterQuality, args.fDstColorSpace));
+}
+#endif
+
+sk_sp<SkFlattenable> SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;
     buffer.readMatrix(&lm);
-    SkAutoTUnref<SkShader> shader(buffer.readShader());
-    if (!shader.get()) {
+    auto baseShader(buffer.readShader());
+    if (!baseShader) {
         return nullptr;
     }
-    return SkShader::CreateLocalMatrixShader(shader, lm);
+    return baseShader->makeWithLocalMatrix(lm);
 }
 
 void SkLocalMatrixShader::flatten(SkWriteBuffer& buffer) const {
@@ -22,8 +37,9 @@ void SkLocalMatrixShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fProxyShader.get());
 }
 
-SkShader::Context* SkLocalMatrixShader::onCreateContext(const ContextRec& rec,
-                                                        void* storage) const {
+SkShader::Context* SkLocalMatrixShader::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const
+{
     ContextRec newRec(rec);
     SkMatrix tmp;
     if (rec.fLocalMatrix) {
@@ -32,7 +48,32 @@ SkShader::Context* SkLocalMatrixShader::onCreateContext(const ContextRec& rec,
     } else {
         newRec.fLocalMatrix = &this->getLocalMatrix();
     }
-    return fProxyShader->createContext(newRec, storage);
+    return fProxyShader->makeContext(newRec, alloc);
+}
+
+SkImage* SkLocalMatrixShader::onIsAImage(SkMatrix* outMatrix, enum TileMode* mode) const {
+    SkMatrix imageMatrix;
+    SkImage* image = fProxyShader->isAImage(&imageMatrix, mode);
+    if (image && outMatrix) {
+        // Local matrix must be applied first so it is on the right side of the concat.
+        *outMatrix = SkMatrix::Concat(imageMatrix, this->getLocalMatrix());
+    }
+
+    return image;
+}
+
+bool SkLocalMatrixShader::onAppendStages(SkRasterPipeline* p,
+                                         SkColorSpace* dst,
+                                         SkArenaAlloc* scratch,
+                                         const SkMatrix& ctm,
+                                         const SkPaint& paint,
+                                         const SkMatrix* localM) const {
+    SkMatrix tmp;
+    if (localM) {
+        tmp.setConcat(*localM, this->getLocalMatrix());
+    }
+    return fProxyShader->appendStages(p, dst, scratch, ctm, paint,
+                                      localM ? &tmp : &this->getLocalMatrix());
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -47,24 +88,23 @@ void SkLocalMatrixShader::toString(SkString* str) const {
 }
 #endif
 
-SkShader* SkShader::CreateLocalMatrixShader(SkShader* proxy, const SkMatrix& localMatrix) {
-    if (nullptr == proxy) {
-        return nullptr;
-    }
-
+sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const {
     if (localMatrix.isIdentity()) {
-        return SkRef(proxy);
+        return sk_ref_sp(const_cast<SkShader*>(this));
     }
 
     const SkMatrix* lm = &localMatrix;
 
+    sk_sp<SkShader> baseShader;
     SkMatrix otherLocalMatrix;
-    SkAutoTUnref<SkShader> otherProxy(proxy->refAsALocalMatrixShader(&otherLocalMatrix));
-    if (otherProxy.get()) {
+    sk_sp<SkShader> proxy(this->makeAsALocalMatrixShader(&otherLocalMatrix));
+    if (proxy) {
         otherLocalMatrix.preConcat(localMatrix);
         lm = &otherLocalMatrix;
-        proxy = otherProxy.get();
+        baseShader = proxy;
+    } else {
+        baseShader = sk_ref_sp(const_cast<SkShader*>(this));
     }
 
-    return new SkLocalMatrixShader(proxy, *lm);
+    return sk_make_sp<SkLocalMatrixShader>(std::move(baseShader), *lm);
 }

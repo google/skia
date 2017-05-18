@@ -11,9 +11,12 @@
 #include "SkFlattenable.h"
 
 class SkData;
+class SkImageFilter;
 
 SK_API SkData* SkValidatingSerializeFlattenable(SkFlattenable*);
 SK_API SkFlattenable* SkValidatingDeserializeFlattenable(const void* data, size_t size,
                                                          SkFlattenable::Type type);
+
+SK_API sk_sp<SkImageFilter> SkValidatingDeserializeImageFilter(const void* data, size_t size);
 
 #endif

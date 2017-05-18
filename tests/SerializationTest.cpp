@@ -6,12 +6,16 @@
  */
 
 #include "Resources.h"
+#include "SkAnnotationKeys.h"
 #include "SkCanvas.h"
 #include "SkFixed.h"
 #include "SkFontDescriptor.h"
 #include "SkImage.h"
 #include "SkImageSource.h"
+#include "SkLightingShader.h"
+#include "SkMakeUnique.h"
 #include "SkMallocPixelRef.h"
+#include "SkNormalSource.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkTableColorFilter.h"
@@ -20,6 +24,7 @@
 #include "SkWriteBuffer.h"
 #include "SkValidatingReadBuffer.h"
 #include "SkXfermodeImageFilter.h"
+#include "sk_tool_utils.h"
 #include "Test.h"
 
 static const uint32_t kArraySize = 64;
@@ -99,6 +104,15 @@ template<> struct SerializationUtils<SkColor> {
     }
 };
 
+template<> struct SerializationUtils<SkColor4f> {
+    static void Write(SkWriteBuffer& writer, SkColor4f* data, uint32_t arraySize) {
+        writer.writeColor4fArray(data, arraySize);
+    }
+    static bool Read(SkValidatingReadBuffer& reader, SkColor4f* data, uint32_t arraySize) {
+        return reader.readColor4fArray(data, arraySize);
+    }
+};
+
 template<> struct SerializationUtils<int32_t> {
     static void Write(SkWriteBuffer& writer, int32_t* data, uint32_t arraySize) {
         writer.writeIntArray(data, arraySize);
@@ -138,7 +152,7 @@ template<> struct SerializationTestUtils<SkString, true> {
 
 template<typename T, bool testInvalid>
 static void TestObjectSerializationNoAlign(T* testObj, skiatest::Reporter* reporter) {
-    SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);
+    SkBinaryWriteBuffer writer;
     SerializationUtils<T>::Write(writer, testObj);
     size_t bytesWritten = writer.bytesWritten();
     REPORTER_ASSERT(reporter, SkAlign4(bytesWritten) == bytesWritten);
@@ -156,15 +170,15 @@ static void TestObjectSerializationNoAlign(T* testObj, skiatest::Reporter* repor
 
     // Make sure this succeeds when it should
     SkValidatingReadBuffer buffer2(dataWritten, bytesWritten);
-    const unsigned char* peekBefore = static_cast<const unsigned char*>(buffer2.skip(0));
+    size_t offsetBefore = buffer2.offset();
     T obj2;
     SerializationUtils<T>::Read(buffer2, &obj2);
-    const unsigned char* peekAfter = static_cast<const unsigned char*>(buffer2.skip(0));
+    size_t offsetAfter = buffer2.offset();
     // This should have succeeded, since there are enough bytes to read this
     REPORTER_ASSERT(reporter, buffer2.isValid() == !testInvalid);
     // Note: This following test should always succeed, regardless of whether the buffer is valid,
     // since if it is invalid, it will simply skip to the end, as if it had read the whole buffer.
-    REPORTER_ASSERT(reporter, static_cast<size_t>(peekAfter - peekBefore) == bytesWritten);
+    REPORTER_ASSERT(reporter, offsetAfter - offsetBefore == bytesWritten);
 }
 
 template<typename T>
@@ -176,13 +190,13 @@ static void TestObjectSerialization(T* testObj, skiatest::Reporter* reporter) {
 template<typename T>
 static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
                                        skiatest::Reporter* reporter) {
-    SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);
+    SkBinaryWriteBuffer writer;
     SerializationUtils<T>::Write(writer, testObj);
     size_t bytesWritten = writer.bytesWritten();
     REPORTER_ASSERT(reporter, SkAlign4(bytesWritten) == bytesWritten);
 
+    SkASSERT(bytesWritten <= 4096);
     unsigned char dataWritten[4096];
-    SkASSERT(bytesWritten <= sizeof(dataWritten));
     writer.writeToMemory(dataWritten);
 
     // Make sure this fails when it should (test with smaller size, but still multiple of 4)
@@ -214,13 +228,13 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
 
 template<typename T>
 static void TestArraySerialization(T* data, skiatest::Reporter* reporter) {
-    SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);
+    SkBinaryWriteBuffer writer;
     SerializationUtils<T>::Write(writer, data, kArraySize);
     size_t bytesWritten = writer.bytesWritten();
     // This should write the length (in 4 bytes) and the array
     REPORTER_ASSERT(reporter, (4 + kArraySize * sizeof(T)) == bytesWritten);
 
-    unsigned char dataWritten[1024];
+    unsigned char dataWritten[2048];
     writer.writeToMemory(dataWritten);
 
     // Make sure this fails when it should
@@ -241,17 +255,18 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
                                     const SkBitmap& invalidBitmap,
                                     bool shouldSucceed,
                                     skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkImage> validImage(SkImage::NewFromBitmap(validBitmap));
-    SkAutoTUnref<SkImageFilter> validBitmapSource(SkImageSource::Create(validImage));
-    SkAutoTUnref<SkImage> invalidImage(SkImage::NewFromBitmap(invalidBitmap));
-    SkAutoTUnref<SkImageFilter> invalidBitmapSource(SkImageSource::Create(invalidImage));
-    SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
-    SkAutoTUnref<SkXfermodeImageFilter> xfermodeImageFilter(
-        SkXfermodeImageFilter::Create(mode, invalidBitmapSource, validBitmapSource));
+    sk_sp<SkImage> validImage(SkImage::MakeFromBitmap(validBitmap));
+    sk_sp<SkImageFilter> validBitmapSource(SkImageSource::Make(std::move(validImage)));
+    sk_sp<SkImage> invalidImage(SkImage::MakeFromBitmap(invalidBitmap));
+    sk_sp<SkImageFilter> invalidBitmapSource(SkImageSource::Make(std::move(invalidImage)));
+    sk_sp<SkImageFilter> xfermodeImageFilter(
+        SkXfermodeImageFilter::Make(SkBlendMode::kSrcOver,
+                                    std::move(invalidBitmapSource),
+                                    std::move(validBitmapSource), nullptr));
 
-    SkAutoTUnref<SkImageFilter> deserializedFilter(
+    sk_sp<SkImageFilter> deserializedFilter(
         TestFlattenableSerialization<SkImageFilter>(
-            xfermodeImageFilter, shouldSucceed, reporter));
+            xfermodeImageFilter.get(), shouldSucceed, reporter));
 
     // Try to render a small bitmap using the invalid deserialized filter
     // to make sure we don't crash while trying to render it
@@ -273,9 +288,9 @@ static void TestXfermodeSerialization(skiatest::Reporter* reporter) {
             // skip SrcOver, as it is allowed to return nullptr from Create()
             continue;
         }
-        SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(static_cast<SkXfermode::Mode>(i)));
-        REPORTER_ASSERT(reporter, mode.get());
-        SkAutoTUnref<SkXfermode> copy(
+        auto mode(SkXfermode::Make(static_cast<SkXfermode::Mode>(i)));
+        REPORTER_ASSERT(reporter, mode);
+        sk_sp<SkXfermode> copy(
             TestFlattenableSerialization<SkXfermode>(mode.get(), true, reporter));
     }
 }
@@ -285,14 +300,14 @@ static void TestColorFilterSerialization(skiatest::Reporter* reporter) {
     for (int i = 0; i < 256; ++i) {
         table[i] = (i * 41) % 256;
     }
-    SkAutoTUnref<SkColorFilter> colorFilter(SkTableColorFilter::Create(table));
-    SkAutoTUnref<SkColorFilter> copy(
+    auto colorFilter(SkTableColorFilter::Make(table));
+    sk_sp<SkColorFilter> copy(
         TestFlattenableSerialization<SkColorFilter>(colorFilter.get(), true, reporter));
 }
 
 static SkBitmap draw_picture(SkPicture& picture) {
      SkBitmap bitmap;
-     bitmap.allocN32Pixels(SkScalarCeilToInt(picture.cullRect().width()), 
+     bitmap.allocN32Pixels(SkScalarCeilToInt(picture.cullRect().width()),
                            SkScalarCeilToInt(picture.cullRect().height()));
      SkCanvas canvas(bitmap);
      picture.playback(&canvas);
@@ -303,8 +318,6 @@ static void compare_bitmaps(skiatest::Reporter* reporter,
                             const SkBitmap& b1, const SkBitmap& b2) {
     REPORTER_ASSERT(reporter, b1.width() == b2.width());
     REPORTER_ASSERT(reporter, b1.height() == b2.height());
-    SkAutoLockPixels autoLockPixels1(b1);
-    SkAutoLockPixels autoLockPixels2(b2);
 
     if ((b1.width() != b2.width()) ||
         (b1.height() != b2.height())) {
@@ -320,30 +333,30 @@ static void compare_bitmaps(skiatest::Reporter* reporter,
     }
     REPORTER_ASSERT(reporter, 0 == pixelErrors);
 }
-static void serialize_and_compare_typeface(SkTypeface* typeface, const char* text,
+static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface, const char* text,
                                            skiatest::Reporter* reporter)
 {
     // Create a paint with the typeface.
     SkPaint paint;
     paint.setColor(SK_ColorGRAY);
     paint.setTextSize(SkIntToScalar(30));
-    paint.setTypeface(typeface);
+    paint.setTypeface(std::move(typeface));
 
     // Paint some text.
     SkPictureRecorder recorder;
     SkIRect canvasRect = SkIRect::MakeWH(kBitmapSize, kBitmapSize);
-    SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(canvasRect.width()), 
-                                               SkIntToScalar(canvasRect.height()), 
+    SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(canvasRect.width()),
+                                               SkIntToScalar(canvasRect.height()),
                                                nullptr, 0);
     canvas->drawColor(SK_ColorWHITE);
     canvas->drawText(text, 2, 24, 32, paint);
-    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
     // Serlialize picture and create its clone from stream.
     SkDynamicMemoryWStream stream;
     picture->serialize(&stream);
-    SkAutoTDelete<SkStream> inputStream(stream.detachAsStream());
-    SkAutoTUnref<SkPicture> loadedPicture(SkPicture::CreateFromStream(inputStream.get()));
+    std::unique_ptr<SkStream> inputStream(stream.detachAsStream());
+    sk_sp<SkPicture> loadedPicture(SkPicture::MakeFromStream(inputStream.get()));
 
     // Draw both original and clone picture and compare bitmaps -- they should be identical.
     SkBitmap origBitmap = draw_picture(*picture);
@@ -355,27 +368,27 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
     {
         // Load typeface from file to test CreateFromFile with index.
         SkString filename = GetResourcePath("/fonts/test.ttc");
-        SkAutoTUnref<SkTypeface> typeface(SkTypeface::CreateFromFile(filename.c_str(), 1));
+        sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFile(filename.c_str(), 1));
         if (!typeface) {
-            SkDebugf("Could not run fontstream test because test.ttc not found.");
+            INFOF(reporter, "Could not run fontstream test because test.ttc not found.");
         } else {
-            serialize_and_compare_typeface(typeface, "A!", reporter);
+            serialize_and_compare_typeface(std::move(typeface), "A!", reporter);
         }
     }
 
     {
         // Load typeface as stream to create with axis settings.
-        SkAutoTDelete<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
         if (!distortable) {
-            SkDebugf("Could not run fontstream test because Distortable.ttf not found.");
+            INFOF(reporter, "Could not run fontstream test because Distortable.ttf not found.");
         } else {
             SkFixed axis = SK_FixedSqrt2;
-            SkAutoTUnref<SkTypeface> typeface(SkTypeface::CreateFromFontData(
-                new SkFontData(distortable.detach(), 0, &axis, 1)));
+            sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(
+                skstd::make_unique<SkFontData>(std::move(distortable), 0, &axis, 1)));
             if (!typeface) {
-                SkDebugf("Could not run fontstream test because Distortable.ttf not created.");
+                INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
             } else {
-                serialize_and_compare_typeface(typeface, "abc", reporter);
+                serialize_and_compare_typeface(std::move(typeface), "abc", reporter);
             }
         }
     }
@@ -425,7 +438,7 @@ static void draw_something(SkCanvas* canvas) {
     canvas->drawCircle(SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/3), paint);
     paint.setColor(SK_ColorBLACK);
     paint.setTextSize(SkIntToScalar(kBitmapSize/3));
-    canvas->drawText("Picture", 7, SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/4), paint);
+    canvas->drawString("Picture", SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/4), paint);
 }
 
 DEF_TEST(Serialization, reporter) {
@@ -488,6 +501,17 @@ DEF_TEST(Serialization, reporter) {
         TestArraySerialization(data, reporter);
     }
 
+    // Test readColor4fArray
+    {
+        SkColor4f data[kArraySize] = {
+            SkColor4f::FromColor(SK_ColorBLACK),
+            SkColor4f::FromColor(SK_ColorWHITE),
+            SkColor4f::FromColor(SK_ColorRED),
+            { 1.f, 2.f, 4.f, 8.f }
+        };
+        TestArraySerialization(data, reporter);
+    }
+
     // Test readIntArray
     {
         int32_t data[kArraySize] = { 1, 2, 4, 8 };
@@ -528,10 +552,10 @@ DEF_TEST(Serialization, reporter) {
         draw_something(recorder.beginRecording(SkIntToScalar(kBitmapSize),
                                                SkIntToScalar(kBitmapSize),
                                                nullptr, 0));
-        SkAutoTUnref<SkPicture> pict(recorder.endRecording());
+        sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
 
         // Serialize picture
-        SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);
+        SkBinaryWriteBuffer writer;
         pict->flatten(writer);
         size_t size = writer.bytesWritten();
         SkAutoTMalloc<unsigned char> data(size);
@@ -539,10 +563,159 @@ DEF_TEST(Serialization, reporter) {
 
         // Deserialize picture
         SkValidatingReadBuffer reader(static_cast<void*>(data.get()), size);
-        SkAutoTUnref<SkPicture> readPict(
-            SkPicture::CreateFromBuffer(reader));
+        sk_sp<SkPicture> readPict(SkPicture::MakeFromBuffer(reader));
+        REPORTER_ASSERT(reporter, reader.isValid());
         REPORTER_ASSERT(reporter, readPict.get());
     }
 
     TestPictureTypefaceSerialization(reporter);
+
+    // Test SkLightingShader/NormalMapSource serialization
+    {
+        const int kTexSize = 2;
+
+        SkLights::Builder builder;
+
+        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(1.0f, 1.0f, 1.0f),
+                                                     SkVector3::Make(1.0f, 0.0f, 0.0f)));
+        builder.setAmbientLightColor(SkColor3f::Make(0.2f, 0.2f, 0.2f));
+
+        sk_sp<SkLights> fLights = builder.finish();
+
+        SkBitmap diffuse = sk_tool_utils::create_checkerboard_bitmap(
+                kTexSize, kTexSize,
+                sk_tool_utils::color_to_565(0x0),
+                sk_tool_utils::color_to_565(0xFF804020),
+                8);
+
+        SkRect bitmapBounds = SkRect::MakeIWH(diffuse.width(), diffuse.height());
+
+        SkMatrix matrix;
+        SkRect r = SkRect::MakeWH(SkIntToScalar(kTexSize), SkIntToScalar(kTexSize));
+        matrix.setRectToRect(bitmapBounds, r, SkMatrix::kFill_ScaleToFit);
+
+        SkMatrix ctm;
+        ctm.setRotate(45);
+        SkBitmap normals;
+        normals.allocN32Pixels(kTexSize, kTexSize);
+
+        sk_tool_utils::create_frustum_normal_map(&normals, SkIRect::MakeWH(kTexSize, kTexSize));
+        sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(normals, SkShader::kClamp_TileMode,
+                SkShader::kClamp_TileMode, &matrix);
+        sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap),
+                                                                               ctm);
+        sk_sp<SkShader> diffuseShader = SkShader::MakeBitmapShader(diffuse,
+                SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &matrix);
+
+        sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuseShader,
+                                                                normalSource,
+                                                                fLights);
+        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+
+        lightingShader = SkLightingShader::Make(std::move(diffuseShader),
+                                                nullptr,
+                                                fLights);
+        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+
+        lightingShader = SkLightingShader::Make(nullptr,
+                                                std::move(normalSource),
+                                                fLights);
+        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+
+        lightingShader = SkLightingShader::Make(nullptr,
+                                                nullptr,
+                                                fLights);
+        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+    }
+
+    // Test NormalBevelSource serialization
+    {
+        sk_sp<SkNormalSource> bevelSource = SkNormalSource::MakeBevel(
+                SkNormalSource::BevelType::kLinear, 2.0f, 5.0f);
+
+        sk_sp<SkNormalSource>(TestFlattenableSerialization(bevelSource.get(), true, reporter));
+        // TODO test equality?
+
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkAnnotation.h"
+
+static sk_sp<SkPicture> copy_picture_via_serialization(SkPicture* src) {
+    SkDynamicMemoryWStream wstream;
+    src->serialize(&wstream);
+    std::unique_ptr<SkStreamAsset> rstream(wstream.detachAsStream());
+    return SkPicture::MakeFromStream(rstream.get());
+}
+
+struct AnnotationRec {
+    const SkRect    fRect;
+    const char*     fKey;
+    sk_sp<SkData>   fValue;
+};
+
+class TestAnnotationCanvas : public SkCanvas {
+    skiatest::Reporter*     fReporter;
+    const AnnotationRec*    fRec;
+    int                     fCount;
+    int                     fCurrIndex;
+
+public:
+    TestAnnotationCanvas(skiatest::Reporter* reporter, const AnnotationRec rec[], int count)
+        : SkCanvas(100, 100)
+        , fReporter(reporter)
+        , fRec(rec)
+        , fCount(count)
+        , fCurrIndex(0)
+    {}
+
+    ~TestAnnotationCanvas() {
+        REPORTER_ASSERT(fReporter, fCount == fCurrIndex);
+    }
+
+protected:
+    void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
+        REPORTER_ASSERT(fReporter, fCurrIndex < fCount);
+        REPORTER_ASSERT(fReporter, rect == fRec[fCurrIndex].fRect);
+        REPORTER_ASSERT(fReporter, !strcmp(key, fRec[fCurrIndex].fKey));
+        REPORTER_ASSERT(fReporter, value->equals(fRec[fCurrIndex].fValue.get()));
+        fCurrIndex += 1;
+    }
+};
+
+/*
+ *  Test the 3 annotation types by recording them into a picture, serializing, and then playing
+ *  them back into another canvas.
+ */
+DEF_TEST(Annotations, reporter) {
+    SkPictureRecorder recorder;
+    SkCanvas* recordingCanvas = recorder.beginRecording(SkRect::MakeWH(100, 100));
+
+    const char* str0 = "rect-with-url";
+    const SkRect r0 = SkRect::MakeWH(10, 10);
+    sk_sp<SkData> d0(SkData::MakeWithCString(str0));
+    SkAnnotateRectWithURL(recordingCanvas, r0, d0.get());
+
+    const char* str1 = "named-destination";
+    const SkRect r1 = SkRect::MakeXYWH(5, 5, 0, 0); // collapsed to a point
+    sk_sp<SkData> d1(SkData::MakeWithCString(str1));
+    SkAnnotateNamedDestination(recordingCanvas, {r1.x(), r1.y()}, d1.get());
+
+    const char* str2 = "link-to-destination";
+    const SkRect r2 = SkRect::MakeXYWH(20, 20, 5, 6);
+    sk_sp<SkData> d2(SkData::MakeWithCString(str2));
+    SkAnnotateLinkToDestination(recordingCanvas, r2, d2.get());
+
+    const AnnotationRec recs[] = {
+        { r0, SkAnnotationKeys::URL_Key(),                  std::move(d0) },
+        { r1, SkAnnotationKeys::Define_Named_Dest_Key(),    std::move(d1) },
+        { r2, SkAnnotationKeys::Link_Named_Dest_Key(),      std::move(d2) },
+    };
+
+    sk_sp<SkPicture> pict0(recorder.finishRecordingAsPicture());
+    sk_sp<SkPicture> pict1(copy_picture_via_serialization(pict0.get()));
+
+    TestAnnotationCanvas canvas(reporter, recs, SK_ARRAY_COUNT(recs));
+    canvas.drawPicture(pict1);
 }

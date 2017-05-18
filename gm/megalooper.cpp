@@ -68,11 +68,11 @@ protected:
     }
 
 private:
-    static const int kWidth = 800;
-    static const int kHeight = 800;
-    static const int kHalfOuterClipSize = 100;
-    static const int kHalfSquareSize = 50;
-    static const int kOffsetToOutsideClip = kHalfSquareSize + kHalfOuterClipSize + 1;
+    static constexpr int kWidth = 800;
+    static constexpr int kHeight = 800;
+    static constexpr int kHalfOuterClipSize = 100;
+    static constexpr int kHalfSquareSize = 50;
+    static constexpr int kOffsetToOutsideClip = kHalfSquareSize + kHalfOuterClipSize + 1;
 
     static const SkPoint gBlurOffsets[4];
     static const SkColor gColors[4];
@@ -91,12 +91,12 @@ private:
         outerClip.offset(x, y);
 
         canvas->save();
-        canvas->clipRect(outerClip, SkRegion::kIntersect_Op);
-        canvas->clipRect(innerClip, SkRegion::kDifference_Op);
+        canvas->clipRect(outerClip, kIntersect_SkClipOp);
+        canvas->clipRect(innerClip, kDifference_SkClipOp);
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setMaskFilter(createBlur())->unref();
+        paint.setMaskFilter(MakeBlur());
 
         for (int i = 0; i < 4; ++i) {
             paint.setColor(gColors[i]);
@@ -110,11 +110,11 @@ private:
         canvas->restore();
     }
 
-    SkMaskFilter* createBlur() {
-        static const SkScalar kBlurSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(25));
+    static sk_sp<SkMaskFilter> MakeBlur() {
+        const SkScalar kBlurSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(25));
 
-        return SkBlurMaskFilter::Create(kNormal_SkBlurStyle, kBlurSigma,
-                                        SkBlurMaskFilter::kHighQuality_BlurFlag);
+        return SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kBlurSigma,
+                                      SkBlurMaskFilter::kHighQuality_BlurFlag);
     }
 
     // This draws 4 blurred shadows around a single square (centered at x, y).
@@ -131,7 +131,7 @@ private:
         for (int i = 0; i < 4; ++i) {
             SkPaint loopPaint;
 
-            loopPaint.setLooper(create1Looper(-kOffsetToOutsideClip, 0, gColors[i]))->unref();
+            loopPaint.setLooper(create1Looper(-kOffsetToOutsideClip, 0, gColors[i]));
             loopPaint.setAntiAlias(true);
 
             SkRect outerClip = {
@@ -146,8 +146,8 @@ private:
             rect.offset(x, y);
 
             canvas->save();
-                canvas->clipRect(outerClip, SkRegion::kIntersect_Op);
-                canvas->clipRect(rect, SkRegion::kDifference_Op);
+                canvas->clipRect(outerClip, kIntersect_SkClipOp);
+                canvas->clipRect(rect, kDifference_SkClipOp);
 
                 // move the rect to where we want the blur to appear
                 rect.offset(gBlurOffsets[i]);
@@ -161,24 +161,23 @@ private:
     }
 
     // Create a 1-tier drawlooper
-    SkLayerDrawLooper* create1Looper(SkScalar xOff, SkScalar yOff, SkColor color) {
+    sk_sp<SkDrawLooper> create1Looper(SkScalar xOff, SkScalar yOff, SkColor color) {
         SkLayerDrawLooper::Builder looperBuilder;
         SkLayerDrawLooper::LayerInfo info;
 
         info.fPaintBits = SkLayerDrawLooper::kColorFilter_Bit |
                           SkLayerDrawLooper::kMaskFilter_Bit;
-        info.fColorMode = SkXfermode::kSrc_Mode;
+        info.fColorMode = SkBlendMode::kSrc;
         info.fOffset.set(xOff, yOff);
         info.fPostTranslate = false;
 
         SkPaint* paint = looperBuilder.addLayer(info);
 
-        paint->setMaskFilter(this->createBlur())->unref();
+        paint->setMaskFilter(MakeBlur());
 
-        SkColorFilter* cf = SkColorFilter::CreateModeFilter(color, SkXfermode::kSrcIn_Mode);
-        paint->setColorFilter(cf)->unref();
+        paint->setColorFilter(SkColorFilter::MakeModeFilter(color, SkBlendMode::kSrcIn));
 
-        return looperBuilder.detachLooper();
+        return looperBuilder.detach();
     }
 
     void draw1x4(SkCanvas* canvas, SkScalar x, SkScalar y) {
@@ -193,11 +192,11 @@ private:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setLooper(create4Looper(-kOffsetToOutsideClip-kHalfSquareSize, 0))->unref();
+        paint.setLooper(create4Looper(-kOffsetToOutsideClip-kHalfSquareSize, 0));
 
         canvas->save();
-            canvas->clipRect(outerClip, SkRegion::kIntersect_Op);
-            canvas->clipRect(rect, SkRegion::kDifference_Op);
+            canvas->clipRect(outerClip, kIntersect_SkClipOp);
+            canvas->clipRect(rect, kDifference_SkClipOp);
 
             rect.offset(SkIntToScalar(kOffsetToOutsideClip+kHalfSquareSize), 0);
             canvas->drawRect(rect, paint);
@@ -205,13 +204,13 @@ private:
     }
 
     // Create a 4-tier draw looper
-    SkLayerDrawLooper* create4Looper(SkScalar xOff, SkScalar yOff) {
+    sk_sp<SkDrawLooper> create4Looper(SkScalar xOff, SkScalar yOff) {
         SkLayerDrawLooper::Builder looperBuilder;
         SkLayerDrawLooper::LayerInfo info;
 
         info.fPaintBits = SkLayerDrawLooper::kColorFilter_Bit |
                           SkLayerDrawLooper::kMaskFilter_Bit;
-        info.fColorMode = SkXfermode::kSrc_Mode;
+        info.fColorMode = SkBlendMode::kSrc;
         info.fPostTranslate = false;
 
         SkPaint* paint;
@@ -220,13 +219,12 @@ private:
             info.fOffset.set(xOff+gBlurOffsets[i].fX, yOff+gBlurOffsets[i].fY);
             paint = looperBuilder.addLayer(info);
 
-            paint->setMaskFilter(this->createBlur())->unref();
+            paint->setMaskFilter(MakeBlur());
 
-            SkColorFilter* cf = SkColorFilter::CreateModeFilter(gColors[i], SkXfermode::kSrcIn_Mode);
-            paint->setColorFilter(cf)->unref();
+            paint->setColorFilter(SkColorFilter::MakeModeFilter(gColors[i], SkBlendMode::kSrcIn));
         }
 
-        return looperBuilder.detachLooper();
+        return looperBuilder.detach();
     }
 
     typedef GM INHERITED;

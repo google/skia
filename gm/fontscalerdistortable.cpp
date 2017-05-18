@@ -19,8 +19,6 @@ public:
         this->setBGColor(0xFFFFFFFF);
     }
 
-    virtual ~FontScalerDistortableGM() { }
-
 protected:
 
     SkString onShortName() override {
@@ -31,18 +29,13 @@ protected:
         return SkISize::Make(550, 700);
     }
 
-    static void rotate_about(SkCanvas* canvas, SkScalar degrees, SkScalar px, SkScalar py) {
-        canvas->translate(px, py);
-        canvas->rotate(degrees);
-        canvas->translate(-px, -py);
-    }
-
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
+        sk_sp<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
 
-        SkAutoTDelete<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
         if (!distortable) {
             return;
         }
@@ -54,14 +47,18 @@ protected:
                 SkScalar x = SkIntToScalar(10);
                 SkScalar y = SkIntToScalar(20);
 
-                SkFixed axis = SkDoubleToFixed(0.5 + (5*j + i) * ((2.0 - 0.5) / (2 * 5)));
-                SkAutoTUnref<SkTypeface> typeface(SkTypeface::CreateFromFontData(
-                    new SkFontData(distortable->duplicate(), 0, &axis, 1)));
-                paint.setTypeface(typeface);
+                SkFourByteTag tag = SkSetFourByteTag('w','g','h','t');
+                SkScalar styleValue = SkDoubleToScalar(0.5 + (5*j + i) * ((2.0 - 0.5) / (2 * 5)));
+                SkFontArguments::VariationPosition::Coordinate coordinates[] = {{tag, styleValue}};
+                SkFontArguments::VariationPosition position =
+                        { coordinates, SK_ARRAY_COUNT(coordinates) };
+                paint.setTypeface(sk_sp<SkTypeface>(fontMgr->createFromStream(
+                        distortable->duplicate(),
+                        SkFontArguments().setVariationDesignPosition(position))));
 
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(SkIntToScalar(30 + i * 100), SkIntToScalar(20));
-                rotate_about(canvas, SkIntToScalar(i * 5), x, y * 10);
+                canvas->rotate(SkIntToScalar(i * 5), x, y * 10);
 
                 {
                     SkPaint p;

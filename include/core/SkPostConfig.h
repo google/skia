@@ -14,6 +14,14 @@
 #  define SK_BUILD_FOR_WIN
 #endif
 
+#if !defined(SK_DEBUG) && !defined(SK_RELEASE)
+    #ifdef NDEBUG
+        #define SK_RELEASE
+    #else
+        #define SK_DEBUG
+    #endif
+#endif
+
 #if defined(SK_DEBUG) && defined(SK_RELEASE)
 #  error "cannot define both SK_DEBUG and SK_RELEASE"
 #elif !defined(SK_DEBUG) && !defined(SK_RELEASE)
@@ -69,13 +77,12 @@
 #  endif
 #endif
 
-// As usual, there are two ways to increase alignment... the MSVC way and the everyone-else way.
-#ifndef SK_STRUCT_ALIGN
-    #ifdef _MSC_VER
-        #define SK_STRUCT_ALIGN(N) __declspec(align(N))
-    #else
-        #define SK_STRUCT_ALIGN(N) __attribute__((aligned(N)))
-    #endif
+#if defined(_MSC_VER) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    #define SK_VECTORCALL __vectorcall
+#elif defined(SK_CPU_ARM32) && defined(SK_ARM_HAS_NEON)
+    #define SK_VECTORCALL __attribute__((pcs("aapcs-vfp")))
+#else
+    #define SK_VECTORCALL
 #endif
 
 #if !defined(SK_SUPPORT_GPU)
@@ -103,41 +110,10 @@
 // TODO(mdempsky): Move elsewhere as appropriate.
 #include <new>
 
-#ifndef SK_CRASH
-#  ifdef SK_BUILD_FOR_WIN
-#    define SK_CRASH() __debugbreak()
-#  else
-#    if 1   // set to 0 for infinite loop, which can help connecting gdb
-#      define SK_CRASH() do { SkNO_RETURN_HINT(); *(int *)(uintptr_t)0xbbadbeef = 0; } while (false)
-#    else
-#      define SK_CRASH() do { SkNO_RETURN_HINT(); } while (true)
-#    endif
-#  endif
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_BUILD_FOR_WIN
-#  ifndef WIN32_LEAN_AND_MEAN
-#    define WIN32_LEAN_AND_MEAN
-#    define WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
-#  endif
-#  ifndef NOMINMAX
-#    define NOMINMAX
-#    define NOMINMAX_WAS_LOCALLY_DEFINED
-#  endif
-#
-#  include <windows.h>
-#
-#  ifdef WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
-#    undef WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
-#    undef WIN32_LEAN_AND_MEAN
-#  endif
-#  ifdef NOMINMAX_WAS_LOCALLY_DEFINED
-#    undef NOMINMAX_WAS_LOCALLY_DEFINED
-#    undef NOMINMAX
-#  endif
-#
 #  ifndef SK_A32_SHIFT
 #    define SK_A32_SHIFT 24
 #    define SK_R32_SHIFT 16
@@ -147,17 +123,31 @@
 #
 #endif
 
-#ifndef SK_ALWAYSBREAK
-#  ifdef SK_DEBUG
-#    define SK_ALWAYSBREAK(cond) do { \
-              if (cond) break; \
-              SkNO_RETURN_HINT(); \
-              SkDebugf("%s:%d: failed assertion \"%s\"\n", __FILE__, __LINE__, #cond); \
-              SK_CRASH(); \
-        } while (false)
-#  else
-#    define SK_ALWAYSBREAK(cond) do { if (cond) break; SK_CRASH(); } while (false)
-#  endif
+#if defined(GOOGLE3)
+    void SkDebugfForDumpStackTrace(const char* data, void* unused);
+    void DumpStackTrace(int skip_count, void w(const char*, void*), void* arg);
+#  define SK_DUMP_GOOGLE3_STACK() DumpStackTrace(0, SkDebugfForDumpStackTrace, nullptr)
+#else
+#  define SK_DUMP_GOOGLE3_STACK()
+#endif
+
+#ifdef SK_BUILD_FOR_WIN
+// permits visual studio to follow error back to source
+#define SK_DUMP_LINE_FORMAT(message) \
+    SkDebugf("%s(%d): fatal error: \"%s\"\n", __FILE__, __LINE__, message)
+#else
+#define SK_DUMP_LINE_FORMAT(message) \
+    SkDebugf("%s:%d: fatal error: \"%s\"\n", __FILE__, __LINE__, message)
+#endif
+
+#ifndef SK_ABORT
+#  define SK_ABORT(message) \
+    do { \
+       SkNO_RETURN_HINT(); \
+       SK_DUMP_LINE_FORMAT(message); \
+       SK_DUMP_GOOGLE3_STACK(); \
+       sk_abort_no_print(); \
+    } while (false)
 #endif
 
 /**
@@ -255,20 +245,16 @@
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(SK_UNUSED)
-#  define SK_UNUSED SK_ATTRIBUTE(unused)
+#  if defined(_MSC_VER)
+#    define SK_UNUSED __pragma(warning(suppress:4189))
+#  else
+#    define SK_UNUSED SK_ATTRIBUTE(unused)
+#  endif
 #endif
 
 #if !defined(SK_ATTR_DEPRECATED)
    // FIXME: we ignore msg for now...
 #  define SK_ATTR_DEPRECATED(msg) SK_ATTRIBUTE(deprecated)
-#endif
-
-#if !defined(SK_ATTR_EXTERNALLY_DEPRECATED)
-#  if !defined(SK_INTERNAL)
-#    define SK_ATTR_EXTERNALLY_DEPRECATED(msg) SK_ATTR_DEPRECATED(msg)
-#  else
-#    define SK_ATTR_EXTERNALLY_DEPRECATED(msg)
-#  endif
 #endif
 
 /**
@@ -285,22 +271,29 @@
 #  endif
 #endif
 
-#if defined(SK_BUILD_FOR_WIN)
-    #define SK_VECTORCALL __vectorcall
-#elif defined(SK_CPU_ARM32)
-    #define SK_VECTORCALL __attribute__((pcs("aapcs-vfp")))
-#else
-    #define SK_VECTORCALL
+/**
+ * If your judgment is better than the compiler's (i.e. you've profiled it),
+ * you can use SK_NEVER_INLINE to prevent inlining.
+ */
+#if !defined(SK_NEVER_INLINE)
+#  if defined(SK_BUILD_FOR_WIN)
+#    define SK_NEVER_INLINE __declspec(noinline)
+#  else
+#    define SK_NEVER_INLINE SK_ATTRIBUTE(noinline)
+#  endif
 #endif
 
 //////////////////////////////////////////////////////////////////////
 
-#if defined(__clang__) || defined(__GNUC__)
-#  define SK_PREFETCH(ptr) __builtin_prefetch(ptr)
-#  define SK_WRITE_PREFETCH(ptr) __builtin_prefetch(ptr, 1)
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+    #define SK_PREFETCH(ptr)       _mm_prefetch(reinterpret_cast<const char*>(ptr), _MM_HINT_T0)
+    #define SK_WRITE_PREFETCH(ptr) _mm_prefetch(reinterpret_cast<const char*>(ptr), _MM_HINT_T0)
+#elif defined(__GNUC__)
+    #define SK_PREFETCH(ptr)       __builtin_prefetch(ptr)
+    #define SK_WRITE_PREFETCH(ptr) __builtin_prefetch(ptr, 1)
 #else
-#  define SK_PREFETCH(ptr)
-#  define SK_WRITE_PREFETCH(ptr)
+    #define SK_PREFETCH(ptr)
+    #define SK_WRITE_PREFETCH(ptr)
 #endif
 
 //////////////////////////////////////////////////////////////////////
@@ -341,18 +334,30 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#if defined(SK_GAMMA_EXPONENT) && defined(SK_GAMMA_SRGB)
-#  error "cannot define both SK_GAMMA_EXPONENT and SK_GAMMA_SRGB"
-#elif defined(SK_GAMMA_SRGB)
-#  define SK_GAMMA_EXPONENT (0.0f)
-#elif !defined(SK_GAMMA_EXPONENT)
-#  define SK_GAMMA_EXPONENT (2.2f)
+#if !defined(SK_GAMMA_EXPONENT)
+    #define SK_GAMMA_EXPONENT (0.0f)  // SRGB
 #endif
 
 //////////////////////////////////////////////////////////////////////
 
 #ifndef GR_TEST_UTILS
 #  define GR_TEST_UTILS 1
+#endif
+
+//////////////////////////////////////////////////////////////////////
+
+#if defined(SK_HISTOGRAM_ENUMERATION) && defined(SK_HISTOGRAM_BOOLEAN)
+#  define SK_HISTOGRAMS_ENABLED 1
+#else
+#  define SK_HISTOGRAMS_ENABLED 0
+#endif
+
+#ifndef SK_HISTOGRAM_BOOLEAN
+#  define SK_HISTOGRAM_BOOLEAN(name, value)
+#endif
+
+#ifndef SK_HISTOGRAM_ENUMERATION
+#  define SK_HISTOGRAM_ENUMERATION(name, value, boundary_value)
 #endif
 
 #endif // SkPostConfig_DEFINED

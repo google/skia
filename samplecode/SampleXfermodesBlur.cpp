@@ -12,7 +12,6 @@
 #include "SkCornerPathEffect.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
@@ -22,18 +21,13 @@
 #include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
-#include "SkXfermode.h"
 
 #include "SkStream.h"
-#include "SkXMLParser.h"
 #include "SkColorPriv.h"
-#include "SkImageDecoder.h"
 #include "SkBlurMaskFilter.h"
 
 static void setNamedTypeface(SkPaint* paint, const char name[]) {
-    SkTypeface* face = SkTypeface::CreateFromName(name, SkTypeface::kNormal);
-    paint->setTypeface(face);
-    SkSafeUnref(face);
+    paint->setTypeface(SkTypeface::MakeFromName(name, SkFontStyle()));
 }
 
 static uint16_t gBG[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
@@ -42,13 +36,11 @@ class XfermodesBlurView : public SampleView {
     SkBitmap    fBG;
     SkBitmap    fSrcB, fDstB;
 
-    void draw_mode(SkCanvas* canvas, SkXfermode* mode, int alpha,
-                   SkScalar x, SkScalar y) {
+    void draw_mode(SkCanvas* canvas, SkBlendMode mode, int alpha, SkScalar x, SkScalar y) {
         SkPaint p;
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                       SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
-                                       SkBlurMaskFilter::kNone_BlurFlag);
-        p.setMaskFilter(mf)->unref();
+        p.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                               SkBlurMask::ConvertRadiusToSigma(5),
+                                               SkBlurMaskFilter::kNone_BlurFlag));
 
         SkScalar ww = SkIntToScalar(W);
         SkScalar hh = SkIntToScalar(H);
@@ -61,7 +53,7 @@ class XfermodesBlurView : public SampleView {
         r.offset(x, y);
         canvas->drawOval(r, p);
 
-        p.setXfermode(mode);
+        p.setBlendMode(mode);
 
         // draw a square overlapping the circle
         // in the lower right of the canvas
@@ -96,8 +88,7 @@ protected:
             SkPaint paint;
             paint.setAntiAlias(true);
             paint.setTextSize(50);
-            paint.setTypeface(SkTypeface::CreateFromName("Arial Unicode MS", SkTypeface::kNormal));
-            SkSafeUnref(paint.getTypeface());
+            paint.setTypeface(SkTypeface::MakeFromName("Arial Unicode MS", SkFontStyle()));
             char buffer[10];
             size_t len = SkUTF8_FromUnichar(0x8500, buffer);
             canvas->drawText(buffer, len, 40, 40, paint);
@@ -116,45 +107,28 @@ protected:
             return;
         }
 
-        const struct {
-            SkXfermode::Mode  fMode;
-            const char*         fLabel;
-        } gModes[] = {
-            { SkXfermode::kClear_Mode,    "Clear"     },
-            { SkXfermode::kSrc_Mode,      "Src"       },
-            { SkXfermode::kDst_Mode,      "Dst"       },
-            { SkXfermode::kSrcOver_Mode,  "SrcOver"   },
-            { SkXfermode::kDstOver_Mode,  "DstOver"   },
-            { SkXfermode::kSrcIn_Mode,    "SrcIn"     },
-            { SkXfermode::kDstIn_Mode,    "DstIn"     },
-            { SkXfermode::kSrcOut_Mode,   "SrcOut"    },
-            { SkXfermode::kDstOut_Mode,   "DstOut"    },
-            { SkXfermode::kSrcATop_Mode,  "SrcATop"   },
-            { SkXfermode::kDstATop_Mode,  "DstATop"   },
-            { SkXfermode::kXor_Mode,      "Xor"       },
-
-            { SkXfermode::kPlus_Mode,         "Plus"          },
-            /*{ SkXfermode::kModulate_Mode,     "Modulate"      },
-            { SkXfermode::kScreen_Mode,       "Screen"        },
-            { SkXfermode::kOverlay_Mode,      "Overlay"       },
-            { SkXfermode::kDarken_Mode,       "Darken"        },
-            { SkXfermode::kLighten_Mode,      "Lighten"       },
-            { SkXfermode::kColorDodge_Mode,   "ColorDodge"    },
-            { SkXfermode::kColorBurn_Mode,    "ColorBurn"     },
-            { SkXfermode::kHardLight_Mode,    "HardLight"     },
-            { SkXfermode::kSoftLight_Mode,    "SoftLight"     },
-            { SkXfermode::kDifference_Mode,   "Difference"    },
-            { SkXfermode::kExclusion_Mode,    "Exclusion"     },*/
+        const SkBlendMode gModes[] = {
+            SkBlendMode::kClear,
+            SkBlendMode::kSrc,
+            SkBlendMode::kDst,
+            SkBlendMode::kSrcOver,
+            SkBlendMode::kDstOver,
+            SkBlendMode::kSrcIn,
+            SkBlendMode::kDstIn,
+            SkBlendMode::kSrcOut,
+            SkBlendMode::kDstOut,
+            SkBlendMode::kSrcATop,
+            SkBlendMode::kDstATop,
+            SkBlendMode::kXor,
+            SkBlendMode::kPlus,
         };
 
         const SkScalar w = SkIntToScalar(W);
         const SkScalar h = SkIntToScalar(H);
         SkMatrix m;
         m.setScale(SkIntToScalar(6), SkIntToScalar(6));
-        SkShader* s = SkShader::CreateBitmapShader(fBG,
-                                                   SkShader::kRepeat_TileMode,
-                                                   SkShader::kRepeat_TileMode,
-                                                   &m);
+        auto s = SkShader::MakeBitmapShader(fBG, SkShader::kRepeat_TileMode,
+                                            SkShader::kRepeat_TileMode, &m);
 
         SkPaint labelP;
         labelP.setAntiAlias(true);
@@ -168,8 +142,6 @@ protected:
         for (int twice = 0; twice < 2; twice++) {
             SkScalar x = x0, y = 0;
             for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
-                SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
-                SkAutoUnref aur(mode);
                 SkRect r;
                 r.set(x, y, x+w, y+h);
 
@@ -179,7 +151,7 @@ protected:
                 canvas->drawRect(r, p);
 
                 canvas->saveLayer(&r, nullptr);
-                draw_mode(canvas, mode, twice ? 0x88 : 0xFF, r.fLeft, r.fTop);
+                draw_mode(canvas, gModes[i], twice ? 0x88 : 0xFF, r.fLeft, r.fTop);
                 canvas->restore();
 
                 r.inset(-SK_ScalarHalf, -SK_ScalarHalf);
@@ -187,7 +159,8 @@ protected:
                 p.setShader(nullptr);
                 canvas->drawRect(r, p);
 
-                canvas->drawText(gModes[i].fLabel, strlen(gModes[i].fLabel),
+                const char* label = SkBlendMode_Name(gModes[i]);
+                canvas->drawString(label,
                                  x + w/2, y - labelP.getTextSize()/2, labelP);
                 x += w + SkIntToScalar(10);
                 if ((i % W) == W - 1) {
@@ -197,7 +170,6 @@ protected:
             }
             x0 += SkIntToScalar(400);
         }
-        s->unref();
     }
 
 private:

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,11 +5,14 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+#include "sk_tool_utils.h"
+#include "SkColorFilter.h"
+#include "SkMaskFilter.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-#include "SkColorFilter.h"
+
 
 // effects
 #include "SkGradientShader.h"
@@ -27,19 +29,18 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     SkPaint     paint;
 
     paint.setDither(true);
-    paint.setShader(SkGradientShader::CreateLinear(pts, colors, pos,
-                SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos, SK_ARRAY_COUNT(colors),
+                                                 SkShader::kClamp_TileMode));
     canvas.drawPaint(paint);
 }
 
 static void setup(SkPaint* paint, const SkBitmap& bm, bool filter,
                   SkShader::TileMode tmx, SkShader::TileMode tmy) {
-    SkShader* shader = SkShader::CreateBitmapShader(bm, tmx, tmy);
-    paint->setShader(shader)->unref();
+    paint->setShader(SkShader::MakeBitmapShader(bm, tmx, tmy));
     paint->setFilterQuality(filter ? kLow_SkFilterQuality : kNone_SkFilterQuality);
 }
 
-static const SkColorType gColorTypes[] = {
+constexpr SkColorType gColorTypes[] = {
     kN32_SkColorType,
     kRGB_565_SkColorType,
 };
@@ -82,13 +83,14 @@ protected:
 
         SkRect r = { 0, 0, SkIntToScalar(size*2), SkIntToScalar(size*2) };
 
-        static const char* gConfigNames[] = { "8888", "565", "4444" };
+        const char* gConfigNames[] = { "8888", "565", "4444" };
 
-        static const bool           gFilters[] = { false, true };
-        static const char*          gFilterNames[] = {     "point",                     "bilinear" };
+        constexpr bool gFilters[] = { false, true };
+        static const char* gFilterNames[] = { "point", "bilinear" };
 
-        static const SkShader::TileMode gModes[] = { SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode };
-        static const char*          gModeNames[] = {    "C",                    "R",                   "M" };
+        constexpr SkShader::TileMode gModes[] = {
+            SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode };
+        static const char* gModeNames[] = { "C", "R", "M" };
 
         SkScalar y = SkIntToScalar(24);
         SkScalar x = SkIntToScalar(10);
@@ -103,7 +105,7 @@ protected:
                 str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
                 p.setTextAlign(SkPaint::kCenter_Align);
-                canvas->drawText(str.c_str(), str.size(), x + r.width()/2, y, p);
+                canvas->drawString(str, x + r.width()/2, y, p);
 
                 x += r.width() * 4 / 3;
             }
@@ -140,7 +142,7 @@ protected:
                     p.setAntiAlias(true);
                     sk_tool_utils::set_portable_typeface(&p);
                     str.printf("%s, %s", gConfigNames[i], gFilterNames[j]);
-                    canvas->drawText(str.c_str(), str.size(), x, y + r.height() * 2 / 3, p);
+                    canvas->drawString(str, x, y + r.height() * 2 / 3, p);
                 }
 
                 y += r.height() * 4 / 3;
@@ -153,16 +155,16 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-static const int gWidth = 32;
-static const int gHeight = 32;
+constexpr int gWidth = 32;
+constexpr int gHeight = 32;
 
-static SkShader* make_bm(SkShader::TileMode tx, SkShader::TileMode ty) {
+static sk_sp<SkShader> make_bm(SkShader::TileMode tx, SkShader::TileMode ty) {
     SkBitmap bm;
     makebm(&bm, kN32_SkColorType, gWidth, gHeight);
-    return SkShader::CreateBitmapShader(bm, tx, ty);
+    return SkShader::MakeBitmapShader(bm, tx, ty);
 }
 
-static SkShader* make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
+static sk_sp<SkShader> make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
     SkPoint pts[] = { { 0, 0 }, { SkIntToScalar(gWidth), SkIntToScalar(gHeight)} };
     SkPoint center = { SkIntToScalar(gWidth)/2, SkIntToScalar(gHeight)/2 };
     SkScalar rad = SkIntToScalar(gWidth)/2;
@@ -171,17 +173,16 @@ static SkShader* make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
     int index = (int)ty;
     switch (index % 3) {
         case 0:
-            return SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
+            return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
         case 1:
-            return SkGradientShader::CreateRadial(center, rad, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
+            return SkGradientShader::MakeRadial(center, rad, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
         case 2:
-            return SkGradientShader::CreateSweep(center.fX, center.fY, colors, nullptr, SK_ARRAY_COUNT(colors));
+            return SkGradientShader::MakeSweep(center.fX, center.fY, colors, nullptr, SK_ARRAY_COUNT(colors));
     }
-
     return nullptr;
 }
 
-typedef SkShader* (*ShaderProc)(SkShader::TileMode, SkShader::TileMode);
+typedef sk_sp<SkShader> (*ShaderProc)(SkShader::TileMode, SkShader::TileMode);
 
 class Tiling2GM : public skiagm::GM {
     ShaderProc fProc;
@@ -197,7 +198,7 @@ protected:
         return fName;
     }
 
-    SkISize onISize() override { return SkISize::Make(880, 560); }
+    SkISize onISize() override { return SkISize::Make(650, 610); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(SkIntToScalar(3)/2, SkIntToScalar(3)/2);
@@ -206,10 +207,10 @@ protected:
         const SkScalar h = SkIntToScalar(gHeight);
         SkRect r = { -w, -h, w*2, h*2 };
 
-        static const SkShader::TileMode gModes[] = {
+        constexpr SkShader::TileMode gModes[] = {
             SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode
         };
-        static const char* gModeNames[] = {
+        const char* gModeNames[] = {
             "Clamp", "Repeat", "Mirror"
         };
 
@@ -223,7 +224,7 @@ protected:
 
         for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
             SkString str(gModeNames[kx]);
-            canvas->drawText(str.c_str(), str.size(), x + r.width()/2, y, p);
+            canvas->drawString(str, x + r.width()/2, y, p);
             x += r.width() * 4 / 3;
         }
 
@@ -234,12 +235,12 @@ protected:
             x = SkIntToScalar(16) + w;
 
             SkString str(gModeNames[ky]);
-            canvas->drawText(str.c_str(), str.size(), x, y + h/2, p);
+            canvas->drawString(str, x, y + h/2, p);
 
             x += SkIntToScalar(50);
             for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
                 SkPaint paint;
-                paint.setShader(fProc(gModes[kx], gModes[ky]))->unref();
+                paint.setShader(fProc(gModes[kx], gModes[ky]));
 
                 canvas->save();
                 canvas->translate(x, y);

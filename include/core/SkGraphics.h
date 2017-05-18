@@ -8,7 +8,7 @@
 #ifndef SkGraphics_DEFINED
 #define SkGraphics_DEFINED
 
-#include "SkTypes.h"
+#include "SkRefCnt.h"
 
 class SkData;
 class SkImageGenerator;
@@ -120,6 +120,14 @@ public:
     static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
 
     /**
+     *  Free as much globally cached memory as possible. This will purge all private caches in Skia,
+     *  including font and image caches.
+     *
+     *  If there are caches associated with GPU context, those will not be affected by this call.
+     */
+    static void PurgeAllCaches();
+
+    /**
      *  Applications with command line options may pass optional state, such
      *  as cache sizes, here, for instance:
      *  font-cache-limit=12345678
@@ -149,7 +157,8 @@ public:
      */
     static void SetTLSFontCacheLimit(size_t bytes);
 
-    typedef SkImageGenerator* (*ImageGeneratorFromEncodedFactory)(SkData*);
+    typedef std::unique_ptr<SkImageGenerator>
+                                            (*ImageGeneratorFromEncodedDataFactory)(sk_sp<SkData>);
 
     /**
      *  To instantiate images from encoded data, first looks at this runtime function-ptr. If it
@@ -158,8 +167,8 @@ public:
      *
      *  Returns the previous factory (which could be NULL).
      */
-    static ImageGeneratorFromEncodedFactory
-           SetImageGeneratorFromEncodedFactory(ImageGeneratorFromEncodedFactory);
+    static ImageGeneratorFromEncodedDataFactory
+                    SetImageGeneratorFromEncodedDataFactory(ImageGeneratorFromEncodedDataFactory);
 };
 
 class SkAutoGraphics {

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -8,6 +7,9 @@
 
 
 #include "SkTSearch.h"
+
+#include "SkMalloc.h"
+
 #include <ctype.h>
 
 static inline const char* index_into_base(const char*const* base, int index,

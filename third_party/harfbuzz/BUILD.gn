@@ -1,0 +1,65 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+import("../third_party.gni")
+
+third_party("harfbuzz") {
+  public_include_dirs = [
+    ".",
+    "../externals/harfbuzz/src",
+  ]
+  defines = [
+    "HAVE_ICU",
+    "HAVE_ICU_BUILTIN",
+    "HAVE_OT",
+    "HB_NO_MT",
+  ]
+  deps = [
+    "//third_party/icu",
+  ]
+  sources = [
+    "../externals/harfbuzz/src/hb-blob.cc",
+    "../externals/harfbuzz/src/hb-buffer-serialize.cc",
+    "../externals/harfbuzz/src/hb-buffer.cc",
+    "../externals/harfbuzz/src/hb-common.cc",
+    "../externals/harfbuzz/src/hb-face.cc",
+    "../externals/harfbuzz/src/hb-fallback-shape.cc",
+    "../externals/harfbuzz/src/hb-font.cc",
+    "../externals/harfbuzz/src/hb-icu.cc",
+    "../externals/harfbuzz/src/hb-ot-font.cc",
+    "../externals/harfbuzz/src/hb-ot-layout.cc",
+    "../externals/harfbuzz/src/hb-ot-map.cc",
+    "../externals/harfbuzz/src/hb-ot-shape-complex-arabic.cc",
+    "../externals/harfbuzz/src/hb-ot-shape-complex-default.cc",
+    "../externals/harfbuzz/src/hb-ot-shape-complex-hangul.cc",
+    "../externals/harfbuzz/src/hb-ot-shape-complex-hebrew.cc",
+    "../externals/harfbuzz/src/hb-ot-shape-complex-indic-table.cc",
+    "../externals/harfbuzz/src/hb-ot-shape-complex-indic.cc",
+    "../externals/harfbuzz/src/hb-ot-shape-complex-myanmar.cc",
+    "../externals/harfbuzz/src/hb-ot-shape-complex-thai.cc",
+    "../externals/harfbuzz/src/hb-ot-shape-complex-tibetan.cc",
+    "../externals/harfbuzz/src/hb-ot-shape-complex-use-table.cc",
+    "../externals/harfbuzz/src/hb-ot-shape-complex-use.cc",
+    "../externals/harfbuzz/src/hb-ot-shape-fallback.cc",
+    "../externals/harfbuzz/src/hb-ot-shape-normalize.cc",
+    "../externals/harfbuzz/src/hb-ot-shape.cc",
+    "../externals/harfbuzz/src/hb-ot-tag.cc",
+    "../externals/harfbuzz/src/hb-ot-var.cc",
+    "../externals/harfbuzz/src/hb-set.cc",
+    "../externals/harfbuzz/src/hb-shape-plan.cc",
+    "../externals/harfbuzz/src/hb-shape.cc",
+    "../externals/harfbuzz/src/hb-shaper.cc",
+    "../externals/harfbuzz/src/hb-unicode.cc",
+    "../externals/harfbuzz/src/hb-warning.cc",
+  ]
+  if (is_mac) {
+    sources += [ "../externals/harfbuzz/src/hb-coretext.cc" ]
+    defines += [ "HAVE_CORETEXT" ]
+  }
+  testonly = true
+}

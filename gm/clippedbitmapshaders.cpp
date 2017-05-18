@@ -37,8 +37,8 @@ static SkBitmap create_bitmap() {
     return bmp;
 }
 
-static const SkScalar RECT_SIZE = 64;
-static const SkScalar SLIDE_SIZE = 300;
+constexpr SkScalar RECT_SIZE = 64;
+constexpr SkScalar SLIDE_SIZE = 300;
 
 class ClippedBitmapShadersGM : public GM {
 public:
@@ -82,11 +82,8 @@ protected:
         s.reset();
         s.setScale(8, 8);
         s.postTranslate(SLIDE_SIZE / 2, SLIDE_SIZE / 2);
-        SkShader* shader = SkShader::CreateBitmapShader(
-                bmp, fMode, fMode, &s);
-
         SkPaint paint;
-        paint.setShader(shader)->unref();
+        paint.setShader(SkShader::MakeBitmapShader(bmp, fMode, fMode, &s));
 
         if (fHQ) {
             paint.setFilterQuality(kHigh_SkFilterQuality);

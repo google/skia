@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkBlurImageFilter.h"
 #include "SkRandom.h"
 
@@ -14,7 +15,7 @@
 
 void imageblurgm_draw(SkScalar fSigmaX, SkScalar fSigmaY, SkCanvas* canvas) {
         SkPaint paint;
-        paint.setImageFilter(SkBlurImageFilter::Create(fSigmaX, fSigmaY))->unref();
+        paint.setImageFilter(SkBlurImageFilter::Make(fSigmaX, fSigmaY, nullptr));
         canvas->saveLayer(nullptr, &paint);
         const char* str = "The quick brown fox jumped over the lazy dog.";
 
@@ -27,7 +28,7 @@ void imageblurgm_draw(SkScalar fSigmaX, SkScalar fSigmaY, SkCanvas* canvas) {
             int y = rand.nextULessThan(HEIGHT);
             textPaint.setColor(sk_tool_utils::color_to_565(rand.nextBits(24) | 0xFF000000));
             textPaint.setTextSize(rand.nextRangeScalar(0, 300));
-            canvas->drawText(str, strlen(str), SkIntToScalar(x),
+            canvas->drawString(str, SkIntToScalar(x),
                              SkIntToScalar(y), textPaint);
         }
         canvas->restore();

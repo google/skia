@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkColorPriv.h"
 #include "SkShader.h"
 #include "SkCanvas.h"
@@ -15,17 +15,13 @@ namespace skiagm {
 
 static SkBitmap make_bitmap() {
     const SkPMColor c[] = { SkPackARGB32(0x80, 0x80, 0, 0) };
-    SkColorTable* ctable = new SkColorTable(c, SK_ARRAY_COUNT(c));
 
     SkBitmap bm;
     bm.allocPixels(SkImageInfo::Make(1, 1, kIndex_8_SkColorType,
                                      kPremul_SkAlphaType),
-                   nullptr, ctable);
-    ctable->unref();
+                   SkColorTable::Make(c, SK_ARRAY_COUNT(c)));
 
-    bm.lockPixels();
     *bm.getAddr8(0, 0) = 0;
-    bm.unlockPixels();
     return bm;
 }
 
@@ -44,12 +40,10 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap bm = make_bitmap();
-        SkShader* s =
-            SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
-                                         SkShader::kMirror_TileMode);
         SkPaint paint;
         paint.setAlpha(0x80);
-        paint.setShader(s)->unref();
+        paint.setShader(SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode,
+                                                   SkShader::kMirror_TileMode));
         canvas->drawPaint(paint);
     }
 

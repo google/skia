@@ -1,5 +1,4 @@
 
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -9,6 +8,7 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
+#include "SkPath.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 
@@ -27,8 +27,8 @@ protected:
     SkISize onISize() { return SkISize::Make(100, 100); }
 
     virtual void onDraw(SkCanvas* canvas) {
-        static const SkScalar kOffset = 35000.0f;
-        static const SkScalar kExtents = 1000.0f;
+        constexpr SkScalar kOffset = 35000.0f;
+        constexpr SkScalar kExtents = 1000.0f;
 
         SkPictureRecorder recorder;
         // We record a picture of huge vertical extents in which we clear the canvas to red, create
@@ -40,16 +40,16 @@ protected:
         SkRect r = SkRect::MakeXYWH(-kExtents, kOffset - kExtents, 2 * kExtents, 2 * kExtents);
         SkPath p;
         p.addRoundRect(r, 5, 5);
-        rec->clipPath(p, SkRegion::kIntersect_Op, true);
+        rec->clipPath(p, true);
         rec->drawColor(SK_ColorGREEN);
         rec->restore();
-        SkAutoTUnref<SkPicture> pict(recorder.endRecording());
+        sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
 
         // Next we play that picture into another picture of the same size.
-        pict->playback(recorder.beginRecording(pict->cullRect().width(), 
-                                               pict->cullRect().height(), 
+        pict->playback(recorder.beginRecording(pict->cullRect().width(),
+                                               pict->cullRect().height(),
                                                nullptr, 0));
-        SkAutoTUnref<SkPicture> pict2(recorder.endRecording());
+        sk_sp<SkPicture> pict2(recorder.finishRecordingAsPicture());
 
         // Finally we play the part of that second picture that should be green into the canvas.
         canvas->save();

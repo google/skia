@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkImageFilter.h"
 #include "SkRandom.h"
 
@@ -18,12 +19,10 @@ DEF_SIMPLE_GM(imageresizetiled, canvas, WIDTH, HEIGHT) {
         SkPaint paint;
         SkMatrix matrix;
         matrix.setScale(RESIZE_FACTOR, RESIZE_FACTOR);
-        SkAutoTUnref<SkImageFilter> imageFilter(
-            SkImageFilter::CreateMatrixFilter(matrix, kNone_SkFilterQuality));
-        paint.setImageFilter(imageFilter.get());
+        paint.setImageFilter(SkImageFilter::MakeMatrixFilter(matrix,
+                                                             kNone_SkFilterQuality,
+                                                             nullptr));
         const SkScalar tile_size = SkIntToScalar(100);
-        SkRect bounds;
-        canvas->getClipBounds(&bounds);
         for (SkScalar y = 0; y < HEIGHT; y += tile_size) {
             for (SkScalar x = 0; x < WIDTH; x += tile_size) {
                 canvas->save();
@@ -44,7 +43,7 @@ DEF_SIMPLE_GM(imageresizetiled, canvas, WIDTH, HEIGHT) {
                 int posY = 0;
                 for (unsigned i = 0; i < SK_ARRAY_COUNT(str); i++) {
                     posY += 100;
-                    canvas->drawText(str[i], strlen(str[i]), SkIntToScalar(0),
+                    canvas->drawString(str[i], SkIntToScalar(0),
                                      SkIntToScalar(posY), textPaint);
                 }
                 canvas->restore();

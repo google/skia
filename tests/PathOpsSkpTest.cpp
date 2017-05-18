@@ -1087,9 +1087,6 @@ static void skpcyclist_friends_gr52(skiatest::Reporter* reporter, const char* fi
     pathB.cubicTo(52.238575f, 207, 50, 204.761429f, 50, 202);
     pathB.lineTo(50, 183);
     pathB.close();
-    // FIXME: this generates quads and cubics that are (correctly) not coincident unlike the old code
-    // however, somewhere the angles are sorted incorrectly and the winding is computed to be -1/-2
-    // but I can't find the error
     testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
@@ -3768,11 +3765,885 @@ pathB.cubicTo(980.018494f, 1481.22131f, 979.602478f, 1478.38831f, 984.546021f, 1
 
 }
 
+static void skpwww_woothemes_com_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 1);
+path.moveTo(SkBits2Float(0x44472795), SkBits2Float(0x455cdb8d));  // 796.618f, 3533.72f
+path.lineTo(SkBits2Float(0x44467c27), SkBits2Float(0x455cdb8d));  // 793.94f, 3533.72f
+path.lineTo(SkBits2Float(0x44467c27), SkBits2Float(0x455d055d));  // 793.94f, 3536.34f
+path.lineTo(SkBits2Float(0x44472795), SkBits2Float(0x455d055d));  // 796.618f, 3536.34f
+path.lineTo(SkBits2Float(0x44472795), SkBits2Float(0x455cdb8d));  // 796.618f, 3533.72f
+    SkPath path1(path);
+    path.reset();
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(SkBits2Float(0x4446861c), SkBits2Float(0x455cdb8d));  // 794.095f, 3533.72f
+path.cubicTo(SkBits2Float(0x4446a0d8), SkBits2Float(0x455cefbb), SkBits2Float(0x444727a5), SkBits2Float(0x455d055d), SkBits2Float(0x444727a5), SkBits2Float(0x455d055d));  // 794.513f, 3534.98f, 796.619f, 3536.34f, 796.619f, 3536.34f
+path.cubicTo(SkBits2Float(0x4446c5b0), SkBits2Float(0x455cf8a4), SkBits2Float(0x444693af), SkBits2Float(0x455cedad), SkBits2Float(0x44467c1b), SkBits2Float(0x455ce4b8));  // 795.089f, 3535.54f, 794.308f, 3534.85f, 793.939f, 3534.29f
+path.lineTo(SkBits2Float(0x44467d70), SkBits2Float(0x455ce016));  // 793.96f, 3534.01f
+path.cubicTo(SkBits2Float(0x44467fa9), SkBits2Float(0x455cde82), SkBits2Float(0x444682b5), SkBits2Float(0x455cdd03), SkBits2Float(0x4446861c), SkBits2Float(0x455cdb8d));  // 793.995f, 3533.91f, 794.042f, 3533.81f, 794.095f, 3533.72f
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, (SkPathOp) 1, filename);
+}
+
+static void skpwww_gorcraft_ru_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 1);
+path.moveTo(SkBits2Float(0x44924000), SkBits2Float(0x458e7800));  // 1170, 4559
+path.conicTo(SkBits2Float(0x44930000), SkBits2Float(0x458e7800), SkBits2Float(0x44930000), SkBits2Float(0x458ea800), SkBits2Float(0x3f3504f3));  // 1176, 4559, 1176, 4565, 0.707107f
+path.lineTo(SkBits2Float(0x44930000), SkBits2Float(0x458f7000));  // 1176, 4590
+path.conicTo(SkBits2Float(0x44930000), SkBits2Float(0x458f9800), SkBits2Float(0x44926000), SkBits2Float(0x458f9800), SkBits2Float(0x3f3504f3));  // 1176, 4595, 1171, 4595, 0.707107f
+path.lineTo(SkBits2Float(0x42a60000), SkBits2Float(0x458f9800));  // 83, 4595
+path.conicTo(SkBits2Float(0x429c0471), SkBits2Float(0x458f9800), SkBits2Float(0x429c0000), SkBits2Float(0x458f700c), SkBits2Float(0x3f352d2d));  // 78.0087f, 4595, 78, 4590.01f, 0.707721f
+path.lineTo(SkBits2Float(0x429c0000), SkBits2Float(0x458ea800));  // 78, 4565
+path.conicTo(SkBits2Float(0x429c0000), SkBits2Float(0x458e7800), SkBits2Float(0x42a80000), SkBits2Float(0x458e7800), SkBits2Float(0x3f3504f3));  // 78, 4559, 84, 4559, 0.707107f
+path.lineTo(SkBits2Float(0x44924000), SkBits2Float(0x458e7800));  // 1170, 4559
+path.close();
+    SkPath path1(path);
+    path.reset();
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(SkBits2Float(0x429c0000), SkBits2Float(0x458f7000));  // 78, 4590
+path.lineTo(SkBits2Float(0x429c0000), SkBits2Float(0x458ea800));  // 78, 4565
+path.conicTo(SkBits2Float(0x429c0000), SkBits2Float(0x458e7800), SkBits2Float(0x42a80000), SkBits2Float(0x458e7800), SkBits2Float(0x3f3504f3));  // 78, 4559, 84, 4559, 0.707107f
+path.lineTo(SkBits2Float(0x431e0000), SkBits2Float(0x458e7800));  // 158, 4559
+path.conicTo(SkBits2Float(0x431e0000), SkBits2Float(0x458e7800), SkBits2Float(0x431e0000), SkBits2Float(0x458e7800), SkBits2Float(0x3f3504f3));  // 158, 4559, 158, 4559, 0.707107f
+path.lineTo(SkBits2Float(0x431e0000), SkBits2Float(0x458fa000));  // 158, 4596
+path.conicTo(SkBits2Float(0x431e0000), SkBits2Float(0x458fa000), SkBits2Float(0x431e0000), SkBits2Float(0x458fa000), SkBits2Float(0x3f3504f3));  // 158, 4596, 158, 4596, 0.707107f
+path.lineTo(SkBits2Float(0x42a80000), SkBits2Float(0x458fa000));  // 84, 4596
+path.conicTo(SkBits2Float(0x429c0000), SkBits2Float(0x458fa000), SkBits2Float(0x429c0000), SkBits2Float(0x458f7000), SkBits2Float(0x3f3504f3));  // 78, 4596, 78, 4590, 0.707107f
+path.close();
+
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+}
+
+static void skpwww_neda_net_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 1);
+path.moveTo(SkBits2Float(0x447a0000), SkBits2Float(0x00000000));  // 1000, 0
+path.lineTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
+path.lineTo(SkBits2Float(0x00000000), SkBits2Float(0x44b6e000));  // 0, 1463
+path.lineTo(SkBits2Float(0x447a0000), SkBits2Float(0x44b6e000));  // 1000, 1463
+path.lineTo(SkBits2Float(0x447a0000), SkBits2Float(0x00000000));  // 1000, 0
+path.close();
+    SkPath path1(path);
+    path.reset();
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(SkBits2Float(0x366a410f), SkBits2Float(0x43a38000));  // 3.49066e-06f, 327
+path.lineTo(SkBits2Float(0x447a0000), SkBits2Float(0x43a38001));  // 1000, 327
+path.lineTo(SkBits2Float(0x447a0000), SkBits2Float(0x4435c000));  // 1000, 727
+path.lineTo(SkBits2Float(0xb66a410d), SkBits2Float(0x4435c000));  // -3.49066e-06f, 727
+path.lineTo(SkBits2Float(0x366a410f), SkBits2Float(0x43a38000));  // 3.49066e-06f, 327
+path.close();
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, (SkPathOp) 1, filename);
+}
+
+// "http___www_neda_net.skp" dir=87
+static void skpwww_neda_net_2(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 1);
+path.moveTo(SkBits2Float(0x442fc000), SkBits2Float(0x4546a000));  // 703, 3178
+path.lineTo(SkBits2Float(0x441f4000), SkBits2Float(0x4546a000));  // 637, 3178
+path.lineTo(SkBits2Float(0x441f4000), SkBits2Float(0x454ab000));  // 637, 3243
+path.lineTo(SkBits2Float(0x442fc000), SkBits2Float(0x454ab000));  // 703, 3243
+path.lineTo(SkBits2Float(0x442fc000), SkBits2Float(0x4546a000));  // 703, 3178
+path.close();
+    SkPath path1(path);
+    path.reset();
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(SkBits2Float(0x44220e6e), SkBits2Float(0x45469c4c));  // 648.225f, 3177.77f
+path.lineTo(SkBits2Float(0x442fc01c), SkBits2Float(0x45475696));  // 703.002f, 3189.41f
+path.lineTo(SkBits2Float(0x442cf191), SkBits2Float(0x454aa3b5));  // 691.774f, 3242.23f
+path.lineTo(SkBits2Float(0x441f3fe3), SkBits2Float(0x4549e96b));  // 636.998f, 3230.59f
+path.lineTo(SkBits2Float(0x44220e6e), SkBits2Float(0x45469c4c));  // 648.225f, 3177.77f
+path.close();
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, (SkPathOp) 1, filename);
+}
+
+static void skpwww_mybuilder_com_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+path.setFillType(SkPath::kEvenOdd_FillType);
+path.moveTo(1000, 659);
+path.lineTo(1000, 377);
+path.lineTo(455, 377);
+path.lineTo(455, 659);
+path.lineTo(1000, 659);
+path.close();
+    SkPath path1(path);
+    path.reset();
+    path.setFillType(SkPath::kEvenOdd_FillType);
+path.moveTo(921.472f, 414.086f);
+path.lineTo(968.815f, 386.754f);
+path.lineTo(993.069f, 428.761f);
+path.lineTo(945.726f, 456.096f);
+path.lineTo(921.471f, 414.086f);
+path.lineTo(921.472f, 414.086f);
+path.close();
+path.moveTo(971.151f, 422.889f);
+path.cubicTo(966.509f, 414.848f, 957.649f, 411.727f, 950.181f, 416.038f);
+path.lineTo(947.224f, 417.746f);
+path.lineTo(946.979f, 417.887f);
+path.lineTo(947.838f, 419.371f);
+path.lineTo(947.844f, 419.367f);
+path.lineTo(947.868f, 419.353f);
+path.lineTo(947.945f, 419.309f);
+path.cubicTo(947.988f, 419.285f, 947.988f, 419.285f, 948.023f, 419.263f);
+path.cubicTo(948.039f, 419.255f, 948.039f, 419.255f, 948.047f, 419.25f);
+path.lineTo(948.052f, 419.247f);
+path.lineTo(947.196f, 417.762f);
+path.lineTo(947.195f, 417.762f);
+path.lineTo(946.888f, 417.939f);
+path.lineTo(943.39f, 419.959f);
+path.lineTo(944.249f, 421.443f);
+path.lineTo(947.745f, 419.424f);
+path.lineTo(948.05f, 419.247f);
+path.lineTo(948.052f, 419.247f);
+path.lineTo(947.195f, 417.763f);
+path.cubicTo(947.193f, 417.763f, 947.193f, 417.763f, 947.19f, 417.766f);
+path.lineTo(947.166f, 417.779f);
+path.lineTo(947.087f, 417.825f);
+path.lineTo(947.011f, 417.868f);
+path.lineTo(946.987f, 417.883f);
+path.lineTo(946.982f, 417.886f);
+path.lineTo(946.98f, 417.886f);
+path.lineTo(947.839f, 419.37f);
+path.lineTo(948.083f, 419.229f);
+path.lineTo(951.039f, 417.522f);
+path.cubicTo(957.631f, 413.716f, 965.471f, 416.477f, 969.669f, 423.746f);
+path.lineTo(971.153f, 422.889f);
+path.lineTo(971.151f, 422.889f);
+path.close();
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, kIntersect_SkPathOp, filename);
+}
+
+static void skpwww_nimble_com_au_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+path.setFillType(SkPath::kEvenOdd_FillType);
+path.moveTo(188.6f, 1988.8f);
+path.lineTo(188.6f, 2041.6f);
+path.cubicTo(188.6f, 2065.4f, 208, 2084.8f, 231.8f, 2084.8f);
+path.cubicTo(255.6f, 2084.8f, 275, 2065.4f, 275, 2041.6f);
+path.lineTo(275.2f, 2041.6f);
+path.lineTo(275.2f, 1988.8f);
+path.lineTo(188.6f, 1988.8f);
+path.close();
+    SkPath path1(path);
+    path.reset();
+path.setFillType(SkPath::kWinding_FillType);
+path.moveTo(275, 2041.6f);
+path.conicTo(275, 2084.8f, 231.8f, 2084.8f, 0.707107f);
+path.conicTo(188.6f, 2084.8f, 188.6f, 2041.6f, 0.707107f);
+path.conicTo(188.6f, 1998.4f, 231.8f, 1998.4f, 0.707107f);
+path.conicTo(275, 1998.4f, 275, 2041.6f, 0.707107f);
+path.close();
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, kIntersect_SkPathOp, filename);
+}
+
+static void skpwww_tinytots_com_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+path.setFillType(SkPath::kEvenOdd_FillType);
+path.moveTo(75.96f, 26.318f);
+path.lineTo(70.337f, 26.318f);
+path.lineTo(70.337f, 32.376f);
+path.lineTo(75.96f, 32.376f);
+path.lineTo(75.96f, 26.318f);
+path.close();
+    SkPath path1(path);
+    path.reset();
+path.setFillType(SkPath::kWinding_FillType);
+path.moveTo(75.88f, 27.873f);
+path.cubicTo(75.929f, 28.138f, 75.956f, 29.196f, 75.96f, 31.046f);
+path.lineTo(72.766f, 32.376f);
+path.cubicTo(72.763f, 30.525f, 72.735f, 29.468f, 72.686f, 29.203f);
+path.cubicTo(72.636f, 28.94f, 72.519f, 28.722f, 72.335f, 28.552f);
+path.cubicTo(72.248f, 28.472f, 72.058f, 28.364f, 71.763f, 28.228f);
+path.cubicTo(72.425f, 27.933f, 72.425f, 27.933f, 73.395f, 27.498f);
+path.cubicTo(72.425f, 27.933f, 72.425f, 27.933f, 71.763f, 28.228f);
+path.cubicTo(71.425f, 28.072f, 70.95f, 27.878f, 70.337f, 27.647f);
+path.lineTo(73.531f, 26.317f);
+path.cubicTo(74.144f, 26.547f, 74.619f, 26.741f, 74.957f, 26.898f);
+path.cubicTo(74.475f, 27.113f, 73.993f, 27.329f, 73.511f, 27.544f);
+path.cubicTo(73.993f, 27.329f, 74.475f, 27.114f, 74.957f, 26.898f);
+path.cubicTo(75.252f, 27.034f, 75.442f, 27.142f, 75.529f, 27.222f);
+path.cubicTo(75.713f, 27.393f, 75.83f, 27.61f, 75.88f, 27.873f);
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, kIntersect_SkPathOp, filename);
+}
+
+static void http___www_emuleteca_cl_26(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 1);
+path.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x44370000));  // 1, 732
+path.conicTo(SkBits2Float(0x3f800000), SkBits2Float(0x4428c000), SkBits2Float(0x42680000), SkBits2Float(0x4428c000), SkBits2Float(0x3f3504f3));  // 1, 675, 58, 675, 0.707107f
+path.conicTo(SkBits2Float(0x40400000), SkBits2Float(0x4428c000), SkBits2Float(0x40400000), SkBits2Float(0x44370000), SkBits2Float(0x3f3504f3));  // 3, 675, 3, 732, 0.707107f
+path.conicTo(SkBits2Float(0x40400000), SkBits2Float(0x44444000), SkBits2Float(0x42680000), SkBits2Float(0x44444000), SkBits2Float(0x3f3504f3));  // 3, 785, 58, 785, 0.707107f
+path.lineTo(SkBits2Float(0x446d0000), SkBits2Float(0x44444000));  // 948, 785
+path.conicTo(SkBits2Float(0x447ac000), SkBits2Float(0x44444000), SkBits2Float(0x447ac000), SkBits2Float(0x44370000), SkBits2Float(0x3f3504f3));  // 1003, 785, 1003, 732, 0.707107f
+path.conicTo(SkBits2Float(0x447ac000), SkBits2Float(0x4428c000), SkBits2Float(0x446d0000), SkBits2Float(0x4428c000), SkBits2Float(0x3f3504f3));  // 1003, 675, 948, 675, 0.707107f
+path.conicTo(SkBits2Float(0x447b4000), SkBits2Float(0x4428c000), SkBits2Float(0x447b4000), SkBits2Float(0x44370000), SkBits2Float(0x3f3504f3));  // 1005, 675, 1005, 732, 0.707107f
+path.conicTo(SkBits2Float(0x447b4000), SkBits2Float(0x44454000), SkBits2Float(0x446d0000), SkBits2Float(0x44454000), SkBits2Float(0x3f3504f3));  // 1005, 789, 948, 789, 0.707107f
+path.lineTo(SkBits2Float(0x42680000), SkBits2Float(0x44454000));  // 58, 789
+path.conicTo(SkBits2Float(0x3f800000), SkBits2Float(0x44454000), SkBits2Float(0x3f800000), SkBits2Float(0x44370000), SkBits2Float(0x3f3504f3));  // 1, 789, 1, 732, 0.707107f
+path.close();
+
+    SkPath path1(path);
+    path.reset();
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x4428c000));  // 1, 675
+path.lineTo(SkBits2Float(0x42680000), SkBits2Float(0x4428c000));  // 58, 675
+path.lineTo(SkBits2Float(0x3fc8f676), SkBits2Float(0x44454000));  // 1.57002f, 789
+path.lineTo(SkBits2Float(0x3f800000), SkBits2Float(0x44454000));  // 1, 789
+
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, (SkPathOp) 1, filename);
+}
+
+static void http___www_emuleteca_cl_27(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 1);
+path.moveTo(SkBits2Float(0x42680000), SkBits2Float(0x4428c000));  // 58, 675
+path.conicTo(SkBits2Float(0x3f800000), SkBits2Float(0x4428c000), SkBits2Float(0x3f800000), SkBits2Float(0x44370000), SkBits2Float(0x3f3504f3));  // 1, 675, 1, 732, 0.707107f
+path.conicTo(SkBits2Float(0x3f800000), SkBits2Float(0x443bd045), SkBits2Float(0x414acf56), SkBits2Float(0x443fa420), SkBits2Float(0x3f778612));  // 1, 751.254f, 12.6756f, 766.564f, 0.96689f
+path.lineTo(SkBits2Float(0x41606e3d), SkBits2Float(0x443ef569));  // 14.0269f, 763.835f
+path.conicTo(SkBits2Float(0x40400000), SkBits2Float(0x443b6c34), SkBits2Float(0x40400000), SkBits2Float(0x44370000), SkBits2Float(0x3f77ac46));  // 3, 749.691f, 3, 732, 0.967472f
+path.conicTo(SkBits2Float(0x40400000), SkBits2Float(0x4428c000), SkBits2Float(0x42680000), SkBits2Float(0x4428c000), SkBits2Float(0x3f3504f3));  // 3, 675, 58, 675, 0.707107f
+path.close();
+
+    SkPath path1(path);
+    path.reset();
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x4428c000));  // 1, 675
+path.lineTo(SkBits2Float(0x4c4a3de6), SkBits2Float(0xccca3d89));  // 5.30165e+07f, -1.06032e+08f
+path.lineTo(SkBits2Float(0x41a71147), SkBits2Float(0x443b4eec));  // 20.8834f, 749.233f
+path.lineTo(SkBits2Float(0x3f800000), SkBits2Float(0x44454000));  // 1, 789
+
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, (SkPathOp) 1, filename);
+}
+
+static void http___www_emuleteca_cl_28(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+
+    SkPath path1(path);
+    path.reset();
+    path.setFillType(SkPath::kWinding_FillType);
+path.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x4428c000));  // 1, 675
+path.lineTo(SkBits2Float(0x4c4a3de6), SkBits2Float(0xccca3d89));  // 5.30165e+07f, -1.06032e+08f
+path.lineTo(SkBits2Float(0x41a71147), SkBits2Float(0x443b4eec));  // 20.8834f, 749.233f
+path.lineTo(SkBits2Float(0x3f800000), SkBits2Float(0x44454000));  // 1, 789
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, kIntersect_SkPathOp, filename);
+}
+
+static void http___www_project2061_org(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+path.moveTo(751, 62);
+path.lineTo(497, 62);
+path.lineTo(497, 138);
+path.lineTo(751, 138);
+path.lineTo(751, 62);
+path.close();
+    SkPath path1(path);
+    path.reset();
+    path.setFillType(SkPath::kWinding_FillType);
+path.moveTo(699.889f, 115.29f);
+path.cubicTo(699.889f, 114.913f, 699.627f, 114.723f, 699.111f, 114.723f);
+path.cubicTo(698.604f, 114.723f, 697.843f, 114.671f, 697.096f, 114.423f);
+path.cubicTo(695.94f, 114.094f, 694.53f, 113.168f, 692.746f, 108.775f);
+path.cubicTo(690.469f, 103.12f, 685.644f, 90.563f, 682.761f, 83.061f);
+path.lineTo(680.541f, 77.301f);
+path.cubicTo(679.927f, 75.721f, 679.67f, 75.261f, 679.151f, 75.261f);
+path.cubicTo(678.636f, 75.261f, 678.392f, 75.73f, 677.759f, 77.464f);
+path.lineTo(665.868f, 109.881f);
+path.cubicTo(664.861f, 112.669f, 663.852f, 114.339f, 661.675f, 114.622f);
+path.cubicTo(661.675f, 114.622f, 661.551f, 114.631f, 661.378f, 114.642f);
+path.cubicTo(661.072f, 114.597f, 660.75f, 114.531f, 660.427f, 114.424f);
+path.cubicTo(659.272f, 114.095f, 657.861f, 113.169f, 656.078f, 108.776f);
+path.cubicTo(653.797f, 103.112f, 648.967f, 90.541f, 646.08f, 83.029f);
+path.lineTo(643.873f, 77.302f);
+path.cubicTo(643.259f, 75.722f, 643.002f, 75.262f, 642.484f, 75.262f);
+path.cubicTo(641.968f, 75.262f, 641.724f, 75.731f, 641.092f, 77.465f);
+path.lineTo(629.2f, 109.879f);
+path.cubicTo(628.193f, 112.667f, 627.184f, 114.337f, 625.007f, 114.62f);
+path.cubicTo(625.007f, 114.62f, 624.884f, 114.629f, 624.71f, 114.64f);
+path.cubicTo(624.404f, 114.595f, 624.081f, 114.529f, 623.759f, 114.422f);
+path.cubicTo(622.603f, 114.093f, 621.193f, 113.167f, 619.409f, 108.774f);
+path.cubicTo(617.132f, 103.119f, 612.307f, 90.562f, 609.424f, 83.06f);
+path.lineTo(607.204f, 77.3f);
+path.cubicTo(606.59f, 75.72f, 606.333f, 75.26f, 605.815f, 75.26f);
+path.cubicTo(605.3f, 75.26f, 605.055f, 75.729f, 604.423f, 77.463f);
+path.lineTo(592.531f, 109.879f);
+path.cubicTo(591.524f, 112.667f, 590.514f, 114.337f, 588.338f, 114.62f);
+path.cubicTo(588.337f, 114.62f, 586.852f, 114.722f, 586.852f, 114.722f);
+path.cubicTo(586.418f, 114.722f, 586.126f, 114.95f, 586.126f, 115.289f);
+path.cubicTo(586.126f, 115.96f, 586.97f, 115.96f, 587.376f, 115.96f);
+path.lineTo(592.101f, 115.843f);
+path.lineTo(593.295f, 115.804f);
+path.lineTo(594.624f, 115.86f);
+path.lineTo(597.381f, 115.961f);
+path.cubicTo(598.241f, 115.961f, 598.422f, 115.596f, 598.422f, 115.29f);
+path.cubicTo(598.422f, 115.078f, 598.321f, 114.723f, 597.643f, 114.723f);
+path.lineTo(597.119f, 114.723f);
+path.cubicTo(596.448f, 114.723f, 595.383f, 114.381f, 595.383f, 113.463f);
+path.cubicTo(595.383f, 112.545f, 595.638f, 111.334f, 596.101f, 110.052f);
+path.cubicTo(596.103f, 110.048f, 599.246f, 100.809f, 599.246f, 100.809f);
+path.cubicTo(599.337f, 100.583f, 599.435f, 100.564f, 599.528f, 100.564f);
+path.lineTo(610.791f, 100.564f);
+path.cubicTo(610.929f, 100.564f, 610.958f, 100.585f, 611.035f, 100.737f);
+path.cubicTo(611.035f, 100.741f, 615.896f, 113.554f, 615.896f, 113.554f);
+path.cubicTo(615.972f, 113.754f, 616.01f, 113.942f, 616.01f, 114.105f);
+path.cubicTo(616.01f, 114.228f, 615.988f, 114.338f, 615.945f, 114.429f);
+path.cubicTo(615.876f, 114.573f, 615.779f, 114.619f, 615.741f, 114.631f);
+path.cubicTo(615.272f, 114.748f, 615.2f, 115.061f, 615.2f, 115.237f);
+path.cubicTo(615.2f, 115.766f, 615.792f, 115.796f, 616.772f, 115.844f);
+path.lineTo(617.012f, 115.857f);
+path.cubicTo(618.978f, 115.913f, 621.359f, 115.948f, 623.835f, 115.958f);
+path.cubicTo(623.912f, 115.961f, 623.984f, 115.961f, 624.045f, 115.961f);
+path.lineTo(624.118f, 115.959f);
+path.cubicTo(624.494f, 115.961f, 624.871f, 115.961f, 625.25f, 115.961f);
+path.cubicTo(625.47f, 115.961f, 625.662f, 115.946f, 625.827f, 115.917f);
+path.lineTo(628.77f, 115.844f);
+path.lineTo(629.965f, 115.805f);
+path.lineTo(631.293f, 115.861f);
+path.lineTo(634.051f, 115.962f);
+path.cubicTo(634.911f, 115.962f, 635.092f, 115.597f, 635.092f, 115.291f);
+path.cubicTo(635.092f, 115.079f, 634.991f, 114.724f, 634.313f, 114.724f);
+path.lineTo(633.789f, 114.724f);
+path.cubicTo(633.118f, 114.724f, 632.053f, 114.382f, 632.053f, 113.464f);
+path.cubicTo(632.053f, 112.546f, 632.308f, 111.335f, 632.771f, 110.053f);
+path.cubicTo(632.773f, 110.049f, 635.916f, 100.81f, 635.916f, 100.81f);
+path.cubicTo(636.007f, 100.584f, 636.105f, 100.565f, 636.198f, 100.565f);
+path.lineTo(647.46f, 100.565f);
+path.cubicTo(647.598f, 100.565f, 647.627f, 100.586f, 647.704f, 100.737f);
+path.cubicTo(647.704f, 100.741f, 652.565f, 113.554f, 652.565f, 113.554f);
+path.cubicTo(652.641f, 113.754f, 652.679f, 113.942f, 652.679f, 114.105f);
+path.cubicTo(652.679f, 114.228f, 652.657f, 114.338f, 652.613f, 114.43f);
+path.cubicTo(652.544f, 114.574f, 652.447f, 114.619f, 652.409f, 114.632f);
+path.cubicTo(651.94f, 114.749f, 651.868f, 115.062f, 651.868f, 115.238f);
+path.cubicTo(651.868f, 115.767f, 652.46f, 115.797f, 653.44f, 115.845f);
+path.lineTo(653.681f, 115.858f);
+path.cubicTo(655.647f, 115.914f, 658.028f, 115.949f, 660.503f, 115.959f);
+path.cubicTo(660.58f, 115.962f, 660.652f, 115.962f, 660.713f, 115.962f);
+path.lineTo(660.787f, 115.96f);
+path.cubicTo(661.162f, 115.962f, 661.54f, 115.962f, 661.918f, 115.962f);
+path.cubicTo(662.139f, 115.962f, 662.33f, 115.947f, 662.496f, 115.918f);
+path.lineTo(665.439f, 115.845f);
+path.lineTo(666.633f, 115.806f);
+path.lineTo(667.962f, 115.862f);
+path.lineTo(670.719f, 115.963f);
+path.cubicTo(671.579f, 115.963f, 671.76f, 115.598f, 671.76f, 115.292f);
+path.cubicTo(671.76f, 115.08f, 671.659f, 114.725f, 670.981f, 114.725f);
+path.lineTo(670.457f, 114.725f);
+path.cubicTo(669.786f, 114.725f, 668.721f, 114.383f, 668.721f, 113.465f);
+path.cubicTo(668.721f, 112.547f, 668.976f, 111.336f, 669.439f, 110.054f);
+path.cubicTo(669.441f, 110.05f, 672.584f, 100.811f, 672.584f, 100.811f);
+path.cubicTo(672.675f, 100.585f, 672.773f, 100.566f, 672.866f, 100.566f);
+path.lineTo(684.128f, 100.566f);
+path.cubicTo(684.266f, 100.566f, 684.295f, 100.587f, 684.372f, 100.739f);
+path.cubicTo(684.372f, 100.743f, 689.233f, 113.556f, 689.233f, 113.556f);
+path.cubicTo(689.309f, 113.756f, 689.347f, 113.944f, 689.347f, 114.107f);
+path.cubicTo(689.347f, 114.23f, 689.325f, 114.34f, 689.281f, 114.431f);
+path.cubicTo(689.212f, 114.575f, 689.115f, 114.621f, 689.077f, 114.633f);
+path.cubicTo(688.608f, 114.75f, 688.536f, 115.063f, 688.536f, 115.239f);
+path.cubicTo(688.536f, 115.768f, 689.128f, 115.798f, 690.108f, 115.846f);
+path.lineTo(690.348f, 115.859f);
+path.cubicTo(692.687f, 115.926f, 695.611f, 115.963f, 698.586f, 115.963f);
+path.cubicTo(699.451f, 115.961f, 699.889f, 115.735f, 699.889f, 115.29f);
+path.close();
+path.moveTo(600.18f, 98.176f);
+path.cubicTo(600.181f, 98.171f, 600.185f, 98.158f, 600.185f, 98.158f);
+path.cubicTo(600.191f, 98.142f, 604.801f, 84.049f, 604.801f, 84.049f);
+path.cubicTo(604.865f, 83.857f, 604.915f, 83.756f, 604.951f, 83.697f);
+path.cubicTo(604.987f, 83.756f, 605.037f, 83.858f, 605.102f, 84.051f);
+path.cubicTo(605.103f, 84.054f, 610.08f, 98.149f, 610.08f, 98.149f);
+path.cubicTo(610.079f, 98.145f, 610.079f, 98.145f, 610.079f, 98.147f);
+path.cubicTo(610.079f, 98.149f, 610.081f, 98.164f, 610.083f, 98.176f);
+path.lineTo(600.18f, 98.176f);
+path.close();
+path.moveTo(636.849f, 98.176f);
+path.cubicTo(636.851f, 98.171f, 636.854f, 98.158f, 636.854f, 98.158f);
+path.cubicTo(636.859f, 98.142f, 641.469f, 84.049f, 641.469f, 84.049f);
+path.cubicTo(641.533f, 83.857f, 641.584f, 83.756f, 641.62f, 83.697f);
+path.cubicTo(641.656f, 83.756f, 641.706f, 83.857f, 641.771f, 84.051f);
+path.cubicTo(641.773f, 84.054f, 646.749f, 98.149f, 646.749f, 98.149f);
+path.cubicTo(646.749f, 98.145f, 646.748f, 98.145f, 646.748f, 98.147f);
+path.cubicTo(646.748f, 98.15f, 646.75f, 98.165f, 646.751f, 98.176f);
+path.lineTo(636.849f, 98.176f);
+path.close();
+path.moveTo(673.517f, 98.176f);
+path.cubicTo(673.519f, 98.171f, 673.522f, 98.158f, 673.522f, 98.158f);
+path.cubicTo(673.528f, 98.142f, 678.138f, 84.049f, 678.138f, 84.049f);
+path.cubicTo(678.202f, 83.857f, 678.252f, 83.756f, 678.288f, 83.697f);
+path.cubicTo(678.324f, 83.756f, 678.375f, 83.858f, 678.439f, 84.051f);
+path.cubicTo(678.44f, 84.054f, 683.417f, 98.149f, 683.417f, 98.149f);
+path.cubicTo(683.416f, 98.145f, 683.416f, 98.145f, 683.416f, 98.147f);
+path.cubicTo(683.416f, 98.149f, 683.418f, 98.164f, 683.42f, 98.176f);
+path.lineTo(673.517f, 98.176f);
+path.close();
+path.moveTo(702.086f, 115.256f);
+path.lineTo(702.089f, 115.257f);
+path.cubicTo(704.075f, 116.223f, 706.408f, 116.692f, 709.22f, 116.692f);
+path.cubicTo(712.384f, 116.692f, 715.17f, 115.918f, 717.275f, 114.454f);
+path.cubicTo(720.639f, 112.074f, 721.837f, 108.31f, 721.837f, 105.581f);
+path.cubicTo(721.837f, 101.538f, 720.57f, 98.203f, 714.092f, 93.115f);
+path.lineTo(712.625f, 91.966f);
+path.cubicTo(707.567f, 87.838f, 706.331f, 86.155f, 706.331f, 83.396f);
+path.cubicTo(706.331f, 79.927f, 708.819f, 77.595f, 712.519f, 77.595f);
+path.cubicTo(716.925f, 77.595f, 718.41f, 79.437f, 718.843f, 80.229f);
+path.cubicTo(719.131f, 80.754f, 719.442f, 82.122f, 719.494f, 82.739f);
+path.cubicTo(719.543f, 83.13f, 719.608f, 83.65f, 720.167f, 83.65f);
+path.cubicTo(720.789f, 83.65f, 720.789f, 82.704f, 720.789f, 82.195f);
+path.cubicTo(720.789f, 79.413f, 720.918f, 77.758f, 720.973f, 77.052f);
+path.lineTo(720.998f, 76.662f);
+path.cubicTo(720.998f, 76.113f, 720.581f, 76.043f, 720.219f, 76.043f);
+path.cubicTo(719.847f, 76.043f, 719.469f, 76.003f, 718.438f, 75.788f);
+path.cubicTo(716.936f, 75.428f, 715.369f, 75.26f, 713.514f, 75.26f);
+path.cubicTo(706.771f, 75.26f, 702.415f, 79.048f, 702.415f, 84.91f);
+path.cubicTo(702.415f, 88.438f, 703.589f, 91.748f, 709.319f, 96.434f);
+path.lineTo(711.676f, 98.365f);
+path.cubicTo(716.332f, 102.196f, 717.607f, 104.172f, 717.607f, 107.564f);
+path.cubicTo(717.607f, 110.888f, 715.121f, 114.253f, 710.371f, 114.253f);
+path.cubicTo(708.428f, 114.253f, 703.808f, 113.754f, 702.868f, 109.132f);
+path.cubicTo(702.716f, 108.424f, 702.716f, 107.718f, 702.716f, 107.25f);
+path.cubicTo(702.716f, 106.94f, 702.716f, 106.422f, 702.094f, 106.422f);
+path.cubicTo(701.519f, 106.422f, 701.455f, 107.116f, 701.421f, 107.488f);
+path.cubicTo(701.421f, 107.495f, 701.375f, 108.117f, 701.375f, 108.117f);
+path.cubicTo(701.293f, 109.171f, 701.158f, 110.933f, 701.158f, 113.044f);
+path.cubicTo(701.16f, 114.432f, 701.197f, 114.813f, 702.086f, 115.256f);
+path.close();
+path.moveTo(501.274f, 129.973f);
+path.lineTo(498.058f, 136.963f);
+path.lineTo(498.62f, 136.963f);
+path.lineTo(499.723f, 134.561f);
+path.lineTo(503.124f, 134.561f);
+path.lineTo(504.227f, 136.963f);
+path.lineTo(504.788f, 136.963f);
+path.lineTo(501.571f, 129.973f);
+path.lineTo(501.274f, 129.973f);
+path.close();
+path.moveTo(499.926f, 134.114f);
+path.lineTo(501.417f, 130.848f);
+path.lineTo(502.918f, 134.114f);
+path.lineTo(499.926f, 134.114f);
+path.close();
+path.moveTo(510.117f, 130.023f);
+path.lineTo(507.677f, 130.023f);
+path.lineTo(507.677f, 136.963f);
+path.lineTo(510.209f, 136.963f);
+path.cubicTo(512.966f, 136.963f, 513.916f, 135.101f, 513.916f, 133.493f);
+path.cubicTo(513.916f, 131.967f, 513.078f, 130.023f, 510.117f, 130.023f);
+path.close();
+path.moveTo(510.178f, 136.515f);
+path.lineTo(508.217f, 136.515f);
+path.lineTo(508.217f, 130.471f);
+path.lineTo(510.147f, 130.471f);
+path.cubicTo(512.036f, 130.471f, 513.333f, 131.712f, 513.333f, 133.493f);
+path.cubicTo(513.333f, 135.447f, 511.853f, 136.515f, 510.178f, 136.515f);
+path.close();
+path.moveTo(519.105f, 135.894f);
+path.lineTo(516.634f, 130.023f);
+path.lineTo(516.093f, 130.023f);
+path.lineTo(519.024f, 137.034f);
+path.lineTo(519.177f, 137.034f);
+path.lineTo(522.098f, 130.023f);
+path.lineTo(521.557f, 130.023f);
+path.lineTo(519.105f, 135.894f);
+path.close();
+path.moveTo(526.817f, 129.973f);
+path.lineTo(523.601f, 136.963f);
+path.lineTo(524.162f, 136.963f);
+path.lineTo(525.265f, 134.561f);
+path.lineTo(528.665f, 134.561f);
+path.lineTo(529.768f, 136.963f);
+path.lineTo(530.33f, 136.963f);
+path.lineTo(527.113f, 129.973f);
+path.lineTo(526.817f, 129.973f);
+path.close();
+path.moveTo(525.469f, 134.114f);
+path.lineTo(526.96f, 130.848f);
+path.lineTo(528.461f, 134.114f);
+path.lineTo(525.469f, 134.114f);
+path.close();
+path.moveTo(538.947f, 136.088f);
+path.lineTo(533.668f, 130.024f);
+path.lineTo(533.208f, 130.024f);
+path.lineTo(533.208f, 136.964f);
+path.lineTo(533.749f, 136.964f);
+path.lineTo(533.749f, 130.899f);
+path.lineTo(539.038f, 136.964f);
+path.lineTo(539.487f, 136.964f);
+path.lineTo(539.487f, 130.024f);
+path.lineTo(538.946f, 130.024f);
+path.lineTo(538.946f, 136.088f);
+path.lineTo(538.947f, 136.088f);
+path.close();
+path.moveTo(543.41f, 133.503f);
+path.cubicTo(543.41f, 131.743f, 544.717f, 130.43f, 546.453f, 130.43f);
+path.cubicTo(547.28f, 130.43f, 548.067f, 130.644f, 548.934f, 131.102f);
+path.lineTo(548.934f, 130.512f);
+path.cubicTo(548.087f, 130.125f, 547.26f, 129.932f, 546.483f, 129.932f);
+path.cubicTo(544.574f, 129.932f, 542.828f, 131.377f, 542.828f, 133.503f);
+path.cubicTo(542.828f, 135.538f, 544.411f, 137.054f, 546.534f, 137.054f);
+path.cubicTo(547.341f, 137.054f, 548.198f, 136.83f, 549.005f, 136.402f);
+path.lineTo(549.005f, 135.843f);
+path.cubicTo(548.055f, 136.341f, 547.31f, 136.555f, 546.523f, 136.555f);
+path.cubicTo(544.707f, 136.556f, 543.41f, 135.294f, 543.41f, 133.503f);
+path.close();
+path.moveTo(552.079f, 136.963f);
+path.lineTo(552.62f, 136.963f);
+path.lineTo(552.62f, 130.023f);
+path.lineTo(552.079f, 130.023f);
+path.lineTo(552.079f, 136.963f);
+path.close();
+path.moveTo(561.984f, 136.088f);
+path.lineTo(556.705f, 130.024f);
+path.lineTo(556.245f, 130.024f);
+path.lineTo(556.245f, 136.964f);
+path.lineTo(556.786f, 136.964f);
+path.lineTo(556.786f, 130.899f);
+path.lineTo(562.075f, 136.964f);
+path.lineTo(562.524f, 136.964f);
+path.lineTo(562.524f, 130.024f);
+path.lineTo(561.983f, 130.024f);
+path.lineTo(561.983f, 136.088f);
+path.lineTo(561.984f, 136.088f);
+path.close();
+path.moveTo(570.122f, 134.257f);
+path.lineTo(571.592f, 134.257f);
+path.lineTo(571.592f, 136.129f);
+path.cubicTo(571.041f, 136.403f, 570.489f, 136.556f, 569.683f, 136.556f);
+path.cubicTo(567.488f, 136.556f, 566.456f, 135.05f, 566.456f, 133.493f);
+path.cubicTo(566.456f, 131.733f, 567.763f, 130.43f, 569.529f, 130.43f);
+path.cubicTo(570.366f, 130.43f, 571.153f, 130.654f, 572, 131.132f);
+path.lineTo(572, 130.522f);
+path.cubicTo(571.02f, 130.084f, 570.397f, 129.932f, 569.61f, 129.932f);
+path.cubicTo(567.455f, 129.932f, 565.873f, 131.438f, 565.873f, 133.473f);
+path.cubicTo(565.873f, 135.529f, 567.496f, 137.055f, 569.661f, 137.055f);
+path.cubicTo(570.468f, 137.055f, 571.305f, 136.862f, 572.132f, 136.465f);
+path.lineTo(572.132f, 133.809f);
+path.lineTo(570.121f, 133.809f);
+path.lineTo(570.121f, 134.257f);
+path.lineTo(570.122f, 134.257f);
+path.close();
+path.moveTo(580.681f, 131.753f);
+path.cubicTo(580.681f, 131.001f, 581.314f, 130.43f, 582.151f, 130.43f);
+path.cubicTo(582.631f, 130.43f, 582.998f, 130.552f, 583.713f, 130.959f);
+path.lineTo(583.713f, 130.37f);
+path.cubicTo(583.172f, 130.075f, 582.641f, 129.933f, 582.099f, 129.933f);
+path.cubicTo(580.996f, 129.933f, 580.098f, 130.747f, 580.098f, 131.775f);
+path.cubicTo(580.098f, 134.065f, 583.417f, 133.2f, 583.417f, 135.173f);
+path.cubicTo(583.417f, 135.956f, 582.774f, 136.557f, 581.947f, 136.557f);
+path.cubicTo(581.406f, 136.557f, 580.966f, 136.374f, 580.191f, 135.814f);
+path.lineTo(580.191f, 136.445f);
+path.cubicTo(580.804f, 136.852f, 581.406f, 137.055f, 581.978f, 137.055f);
+path.cubicTo(583.111f, 137.055f, 584, 136.221f, 584, 135.152f);
+path.cubicTo(584, 132.72f, 580.681f, 133.605f, 580.681f, 131.753f);
+path.close();
+path.moveTo(587.543f, 133.503f);
+path.cubicTo(587.543f, 131.743f, 588.85f, 130.43f, 590.586f, 130.43f);
+path.cubicTo(591.413f, 130.43f, 592.199f, 130.644f, 593.067f, 131.102f);
+path.lineTo(593.067f, 130.512f);
+path.cubicTo(592.22f, 130.125f, 591.393f, 129.932f, 590.616f, 129.932f);
+path.cubicTo(588.707f, 129.932f, 586.96f, 131.377f, 586.96f, 133.503f);
+path.cubicTo(586.96f, 135.538f, 588.543f, 137.054f, 590.667f, 137.054f);
+path.cubicTo(591.473f, 137.054f, 592.331f, 136.83f, 593.138f, 136.402f);
+path.lineTo(593.138f, 135.843f);
+path.cubicTo(592.188f, 136.341f, 591.443f, 136.555f, 590.657f, 136.555f);
+path.cubicTo(588.84f, 136.556f, 587.543f, 135.294f, 587.543f, 133.503f);
+path.close();
+path.moveTo(596.212f, 136.963f);
+path.lineTo(596.753f, 136.963f);
+path.lineTo(596.753f, 130.023f);
+path.lineTo(596.212f, 130.023f);
+path.lineTo(596.212f, 136.963f);
+path.close();
+path.moveTo(600.94f, 133.697f);
+path.lineTo(604.116f, 133.697f);
+path.lineTo(604.116f, 133.25f);
+path.lineTo(600.94f, 133.25f);
+path.lineTo(600.94f, 130.472f);
+path.lineTo(604.198f, 130.472f);
+path.lineTo(604.198f, 130.024f);
+path.lineTo(600.399f, 130.024f);
+path.lineTo(600.399f, 136.964f);
+path.lineTo(604.279f, 136.964f);
+path.lineTo(604.279f, 136.516f);
+path.lineTo(600.94f, 136.516f);
+path.lineTo(600.94f, 133.697f);
+path.close();
+path.moveTo(613.163f, 136.088f);
+path.lineTo(607.884f, 130.024f);
+path.lineTo(607.424f, 130.024f);
+path.lineTo(607.424f, 136.964f);
+path.lineTo(607.965f, 136.964f);
+path.lineTo(607.965f, 130.899f);
+path.lineTo(613.254f, 136.964f);
+path.lineTo(613.703f, 136.964f);
+path.lineTo(613.703f, 130.024f);
+path.lineTo(613.162f, 130.024f);
+path.lineTo(613.162f, 136.088f);
+path.lineTo(613.163f, 136.088f);
+path.close();
+path.moveTo(617.625f, 133.503f);
+path.cubicTo(617.625f, 131.743f, 618.932f, 130.43f, 620.668f, 130.43f);
+path.cubicTo(621.495f, 130.43f, 622.281f, 130.644f, 623.149f, 131.102f);
+path.lineTo(623.149f, 130.512f);
+path.cubicTo(622.301f, 130.125f, 621.474f, 129.932f, 620.698f, 129.932f);
+path.cubicTo(618.789f, 129.932f, 617.042f, 131.377f, 617.042f, 133.503f);
+path.cubicTo(617.042f, 135.538f, 618.625f, 137.054f, 620.749f, 137.054f);
+path.cubicTo(621.556f, 137.054f, 622.413f, 136.83f, 623.22f, 136.402f);
+path.lineTo(623.22f, 135.843f);
+path.cubicTo(622.27f, 136.341f, 621.525f, 136.555f, 620.739f, 136.555f);
+path.cubicTo(618.922f, 136.556f, 617.625f, 135.294f, 617.625f, 133.503f);
+path.close();
+path.moveTo(626.856f, 133.697f);
+path.lineTo(630.032f, 133.697f);
+path.lineTo(630.032f, 133.25f);
+path.lineTo(626.856f, 133.25f);
+path.lineTo(626.856f, 130.472f);
+path.lineTo(630.114f, 130.472f);
+path.lineTo(630.114f, 130.024f);
+path.lineTo(626.316f, 130.024f);
+path.lineTo(626.316f, 136.964f);
+path.lineTo(630.196f, 136.964f);
+path.lineTo(630.196f, 136.516f);
+path.lineTo(626.857f, 136.516f);
+path.lineTo(626.857f, 133.697f);
+path.lineTo(626.856f, 133.697f);
+path.close();
+path.moveTo(633.115f, 136.963f);
+path.lineTo(633.33f, 136.963f);
+path.cubicTo(633.33f, 137.309f, 633.299f, 137.523f, 633.115f, 137.797f);
+path.lineTo(633.115f, 138.154f);
+path.cubicTo(633.565f, 137.828f, 633.779f, 137.269f, 633.779f, 136.75f);
+path.lineTo(633.779f, 135.976f);
+path.lineTo(633.115f, 135.976f);
+path.lineTo(633.115f, 136.963f);
+path.close();
+path.moveTo(641.511f, 131.753f);
+path.cubicTo(641.511f, 131.001f, 642.144f, 130.43f, 642.981f, 130.43f);
+path.cubicTo(643.461f, 130.43f, 643.828f, 130.552f, 644.544f, 130.959f);
+path.lineTo(644.544f, 130.37f);
+path.cubicTo(644.003f, 130.075f, 643.472f, 129.933f, 642.931f, 129.933f);
+path.cubicTo(641.828f, 129.933f, 640.929f, 130.747f, 640.929f, 131.775f);
+path.cubicTo(640.929f, 134.065f, 644.247f, 133.2f, 644.247f, 135.173f);
+path.cubicTo(644.247f, 135.956f, 643.604f, 136.557f, 642.777f, 136.557f);
+path.cubicTo(642.236f, 136.557f, 641.797f, 136.374f, 641.02f, 135.814f);
+path.lineTo(641.02f, 136.445f);
+path.cubicTo(641.633f, 136.852f, 642.235f, 137.055f, 642.807f, 137.055f);
+path.cubicTo(643.941f, 137.055f, 644.829f, 136.221f, 644.829f, 135.152f);
+path.cubicTo(644.829f, 132.72f, 641.511f, 133.605f, 641.511f, 131.753f);
+path.close();
+path.moveTo(648.649f, 133.697f);
+path.lineTo(651.824f, 133.697f);
+path.lineTo(651.824f, 133.25f);
+path.lineTo(648.649f, 133.25f);
+path.lineTo(648.649f, 130.472f);
+path.lineTo(651.906f, 130.472f);
+path.lineTo(651.906f, 130.024f);
+path.lineTo(648.107f, 130.024f);
+path.lineTo(648.107f, 136.964f);
+path.lineTo(651.988f, 136.964f);
+path.lineTo(651.988f, 136.516f);
+path.lineTo(648.649f, 136.516f);
+path.lineTo(648.649f, 133.697f);
+path.close();
+path.moveTo(657.91f, 133.503f);
+path.cubicTo(658.799f, 133.177f, 659.237f, 132.618f, 659.237f, 131.814f);
+path.cubicTo(659.237f, 130.888f, 658.635f, 130.023f, 656.929f, 130.023f);
+path.lineTo(655.142f, 130.023f);
+path.lineTo(655.142f, 136.963f);
+path.lineTo(655.683f, 136.963f);
+path.lineTo(655.683f, 133.635f);
+path.lineTo(656.623f, 133.635f);
+path.cubicTo(657.46f, 133.635f, 657.726f, 133.747f, 658.563f, 135.06f);
+path.lineTo(659.778f, 136.963f);
+path.lineTo(660.411f, 136.963f);
+path.lineTo(658.838f, 134.561f);
+path.cubicTo(658.513f, 134.073f, 658.237f, 133.676f, 657.91f, 133.503f);
+path.close();
+path.moveTo(656.838f, 133.188f);
+path.lineTo(655.684f, 133.188f);
+path.lineTo(655.684f, 130.472f);
+path.lineTo(656.817f, 130.472f);
+path.cubicTo(658.094f, 130.472f, 658.655f, 131.041f, 658.655f, 131.825f);
+path.cubicTo(658.655f, 132.659f, 658.063f, 133.188f, 656.838f, 133.188f);
+path.close();
+path.moveTo(664.968f, 135.894f);
+path.lineTo(662.497f, 130.023f);
+path.lineTo(661.956f, 130.023f);
+path.lineTo(664.887f, 137.034f);
+path.lineTo(665.04f, 137.034f);
+path.lineTo(667.961f, 130.023f);
+path.lineTo(667.42f, 130.023f);
+path.lineTo(664.968f, 135.894f);
+path.close();
+path.moveTo(670.829f, 136.963f);
+path.lineTo(671.37f, 136.963f);
+path.lineTo(671.37f, 130.023f);
+path.lineTo(670.829f, 130.023f);
+path.lineTo(670.829f, 136.963f);
+path.close();
+path.moveTo(680.734f, 136.088f);
+path.lineTo(675.455f, 130.024f);
+path.lineTo(674.995f, 130.024f);
+path.lineTo(674.995f, 136.964f);
+path.lineTo(675.536f, 136.964f);
+path.lineTo(675.536f, 130.899f);
+path.lineTo(680.826f, 136.964f);
+path.lineTo(681.275f, 136.964f);
+path.lineTo(681.275f, 130.024f);
+path.lineTo(680.733f, 130.024f);
+path.lineTo(680.733f, 136.088f);
+path.lineTo(680.734f, 136.088f);
+path.close();
+path.moveTo(688.873f, 134.257f);
+path.lineTo(690.343f, 134.257f);
+path.lineTo(690.343f, 136.129f);
+path.cubicTo(689.791f, 136.403f, 689.24f, 136.556f, 688.433f, 136.556f);
+path.cubicTo(686.238f, 136.556f, 685.206f, 135.05f, 685.206f, 133.493f);
+path.cubicTo(685.206f, 131.733f, 686.514f, 130.43f, 688.28f, 130.43f);
+path.cubicTo(689.117f, 130.43f, 689.903f, 130.654f, 690.751f, 131.132f);
+path.lineTo(690.751f, 130.522f);
+path.cubicTo(689.771f, 130.084f, 689.148f, 129.932f, 688.362f, 129.932f);
+path.cubicTo(686.207f, 129.932f, 684.624f, 131.438f, 684.624f, 133.473f);
+path.cubicTo(684.624f, 135.529f, 686.247f, 137.055f, 688.413f, 137.055f);
+path.cubicTo(689.219f, 137.055f, 690.057f, 136.862f, 690.884f, 136.465f);
+path.lineTo(690.884f, 133.809f);
+path.lineTo(688.873f, 133.809f);
+path.lineTo(688.873f, 134.257f);
+path.close();
+path.moveTo(699.432f, 131.753f);
+path.cubicTo(699.432f, 131.001f, 700.065f, 130.43f, 700.902f, 130.43f);
+path.cubicTo(701.381f, 130.43f, 701.749f, 130.552f, 702.464f, 130.959f);
+path.lineTo(702.464f, 130.37f);
+path.cubicTo(701.923f, 130.075f, 701.391f, 129.933f, 700.85f, 129.933f);
+path.cubicTo(699.747f, 129.933f, 698.849f, 130.747f, 698.849f, 131.775f);
+path.cubicTo(698.849f, 134.065f, 702.168f, 133.2f, 702.168f, 135.173f);
+path.cubicTo(702.168f, 135.956f, 701.525f, 136.557f, 700.698f, 136.557f);
+path.cubicTo(700.156f, 136.557f, 699.718f, 136.374f, 698.941f, 135.814f);
+path.lineTo(698.941f, 136.445f);
+path.cubicTo(699.553f, 136.852f, 700.156f, 137.055f, 700.728f, 137.055f);
+path.cubicTo(701.862f, 137.055f, 702.75f, 136.221f, 702.75f, 135.152f);
+path.cubicTo(702.75f, 132.72f, 699.432f, 133.605f, 699.432f, 131.753f);
+path.close();
+path.moveTo(709.407f, 129.932f);
+path.cubicTo(707.345f, 129.932f, 705.731f, 131.499f, 705.731f, 133.493f);
+path.cubicTo(705.731f, 135.488f, 707.345f, 137.054f, 709.407f, 137.054f);
+path.cubicTo(711.48f, 137.054f, 713.104f, 135.487f, 713.104f, 133.493f);
+path.cubicTo(713.104f, 131.499f, 711.481f, 129.932f, 709.407f, 129.932f);
+path.close();
+path.moveTo(709.428f, 136.556f);
+path.cubicTo(707.683f, 136.556f, 706.314f, 135.223f, 706.314f, 133.493f);
+path.cubicTo(706.314f, 131.763f, 707.682f, 130.43f, 709.428f, 130.43f);
+path.cubicTo(711.175f, 130.43f, 712.523f, 131.763f, 712.523f, 133.493f);
+path.cubicTo(712.522f, 135.223f, 711.175f, 136.556f, 709.428f, 136.556f);
+path.close();
+path.moveTo(716.739f, 133.503f);
+path.cubicTo(716.739f, 131.743f, 718.046f, 130.43f, 719.782f, 130.43f);
+path.cubicTo(720.609f, 130.43f, 721.395f, 130.644f, 722.264f, 131.102f);
+path.lineTo(722.264f, 130.512f);
+path.cubicTo(721.416f, 130.125f, 720.589f, 129.932f, 719.813f, 129.932f);
+path.cubicTo(717.903f, 129.932f, 716.157f, 131.377f, 716.157f, 133.503f);
+path.cubicTo(716.157f, 135.538f, 717.74f, 137.054f, 719.863f, 137.054f);
+path.cubicTo(720.67f, 137.054f, 721.528f, 136.83f, 722.335f, 136.402f);
+path.lineTo(722.335f, 135.843f);
+path.cubicTo(721.385f, 136.341f, 720.64f, 136.555f, 719.854f, 136.555f);
+path.cubicTo(718.037f, 136.556f, 716.739f, 135.294f, 716.739f, 133.503f);
+path.close();
+path.moveTo(725.409f, 136.963f);
+path.lineTo(725.95f, 136.963f);
+path.lineTo(725.95f, 130.023f);
+path.lineTo(725.409f, 130.023f);
+path.lineTo(725.409f, 136.963f);
+path.close();
+path.moveTo(730.136f, 133.697f);
+path.lineTo(733.312f, 133.697f);
+path.lineTo(733.312f, 133.25f);
+path.lineTo(730.136f, 133.25f);
+path.lineTo(730.136f, 130.472f);
+path.lineTo(733.393f, 130.472f);
+path.lineTo(733.393f, 130.024f);
+path.lineTo(729.595f, 130.024f);
+path.lineTo(729.595f, 136.964f);
+path.lineTo(733.475f, 136.964f);
+path.lineTo(733.475f, 136.516f);
+path.lineTo(730.136f, 136.516f);
+path.lineTo(730.136f, 133.697f);
+path.close();
+path.moveTo(735.865f, 130.472f);
+path.lineTo(738.479f, 130.472f);
+path.lineTo(738.479f, 136.964f);
+path.lineTo(739.02f, 136.964f);
+path.lineTo(739.02f, 130.472f);
+path.lineTo(741.634f, 130.472f);
+path.lineTo(741.634f, 130.024f);
+path.lineTo(735.865f, 130.024f);
+path.lineTo(735.865f, 130.472f);
+path.close();
+path.moveTo(749.017f, 130.023f);
+path.lineTo(746.699f, 132.771f);
+path.lineTo(744.371f, 130.023f);
+path.lineTo(743.717f, 130.023f);
+path.lineTo(746.423f, 133.239f);
+path.lineTo(746.423f, 136.963f);
+path.lineTo(746.964f, 136.963f);
+path.lineTo(746.964f, 133.239f);
+path.lineTo(749.67f, 130.023f);
+path.lineTo(749.017f, 130.023f);
+path.close();
+path.moveTo(578.773f, 115.549f);
+path.lineTo(578.773f, 62.773f);
+path.lineTo(557.571f, 62.773f);
+path.cubicTo(562.752f, 67.658f, 575.797f, 106.652f, 578.773f, 115.549f);
+path.close();
+path.moveTo(544.754f, 62.861f);
+path.lineTo(524.496f, 62.861f);
+path.lineTo(524.496f, 115.55f);
+path.lineTo(524.934f, 115.55f);
+path.lineTo(544.544f, 64.169f);
+path.lineTo(528.157f, 115.549f);
+path.lineTo(528.682f, 115.549f);
+path.lineTo(546.557f, 67.658f);
+path.lineTo(531.675f, 115.548f);
+path.lineTo(532.376f, 115.548f);
+path.lineTo(548.57f, 71.846f);
+path.lineTo(535.293f, 115.507f);
+path.lineTo(535.906f, 115.507f);
+path.lineTo(544.281f, 97.58f);
+path.lineTo(542.267f, 97.58f);
+path.lineTo(550.409f, 76.033f);
+path.lineTo(544.281f, 97.578f);
+path.lineTo(546.119f, 97.578f);
+path.lineTo(538.678f, 115.551f);
+path.lineTo(565.029f, 115.551f);
+path.cubicTo(562.052f, 106.477f, 550.759f, 67.92f, 544.754f, 62.861f);
+path.close();
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, kIntersect_SkPathOp, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = skpwww_cooksnaps_com_32;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(skpwww_gorcraft_ru_1),
+    TEST(http___www_project2061_org),
+    TEST(http___www_emuleteca_cl_27),
+    TEST(http___www_emuleteca_cl_26),
+    TEST(http___www_emuleteca_cl_28),
+    TEST(skpwww_nimble_com_au_1),
+    TEST(skpwww_mybuilder_com_1),
+    TEST(skpwww_neda_net_2),
+    TEST(skpwww_woothemes_com_1),
+    TEST(skpwww_neda_net_1),
+    TEST(skpwww_tinytots_com_1),
     TEST(skpwww_educationalcraft_com_4a),
     TEST(skpwww_lptemp_com_3),
     TEST(skpwww_shinydemos_com_5),

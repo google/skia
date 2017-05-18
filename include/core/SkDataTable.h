@@ -8,10 +8,9 @@
 #ifndef SkDataTable_DEFINED
 #define SkDataTable_DEFINED
 
-#include "SkChunkAlloc.h"
+#include "../private/SkTDArray.h"
 #include "SkData.h"
 #include "SkString.h"
-#include "SkTDArray.h"
 
 /**
  *  Like SkData, SkDataTable holds an immutable data buffer. The data buffer is
@@ -63,7 +62,7 @@ public:
 
     typedef void (*FreeProc)(void* context);
 
-    static SkDataTable* NewEmpty();
+    static sk_sp<SkDataTable> MakeEmpty();
 
     /**
      *  Return a new DataTable that contains a copy of the data stored in each
@@ -74,8 +73,8 @@ public:
      *               ptrs[] array.
      *  @param count the number of array elements in ptrs[] and sizes[] to copy.
      */
-    static SkDataTable* NewCopyArrays(const void * const * ptrs,
-                                      const size_t sizes[], int count);
+    static sk_sp<SkDataTable> MakeCopyArrays(const void * const * ptrs,
+                                             const size_t sizes[], int count);
 
     /**
      *  Return a new table that contains a copy of the data in array.
@@ -85,11 +84,10 @@ public:
      *  @param count the number of entries to be copied out of array. The number
      *               of bytes that will be copied is count * elemSize.
      */
-    static SkDataTable* NewCopyArray(const void* array, size_t elemSize,
-                                     int count);
+    static sk_sp<SkDataTable> MakeCopyArray(const void* array, size_t elemSize, int count);
 
-    static SkDataTable* NewArrayProc(const void* array, size_t elemSize,
-                                     int count, FreeProc proc, void* context);
+    static sk_sp<SkDataTable> MakeArrayProc(const void* array, size_t elemSize, int count,
+                                            FreeProc proc, void* context);
 
 private:
     struct Dir {
@@ -116,60 +114,6 @@ private:
     friend class SkDataTableBuilder;    // access to Dir
 
     typedef SkRefCnt INHERITED;
-};
-
-/**
- *  Helper class that allows for incrementally building up the data needed to
- *  create a SkDataTable.
- */
-class SK_API SkDataTableBuilder : SkNoncopyable {
-public:
-    SkDataTableBuilder(size_t minChunkSize);
-    ~SkDataTableBuilder();
-
-    int  count() const { return fDir.count(); }
-    size_t minChunkSize() const { return fMinChunkSize; }
-
-    /**
-     *  Forget any previously appended entries, setting count() back to 0.
-     */
-    void reset(size_t minChunkSize);
-    void reset() {
-        this->reset(fMinChunkSize);
-    }
-
-    /**
-     *  Copy size-bytes from data, and append it to the growing SkDataTable.
-     */
-    void append(const void* data, size_t size);
-
-    /**
-     *  Helper version of append() passes strlen() + 1 for the size,
-     *  so the trailing-zero will be copied as well.
-     */
-    void appendStr(const char str[]) {
-        this->append(str, strlen(str) + 1);
-    }
-
-    /**
-     *  Helper version of append() passes string.size() + 1 for the size,
-     *  so the trailing-zero will be copied as well.
-     */
-    void appendString(const SkString& string) {
-        this->append(string.c_str(), string.size() + 1);
-    }
-
-    /**
-     *  Return an SkDataTable from the accumulated entries that were added by
-     *  calls to append(). This call also clears any accumluated entries from
-     *  this builder, so its count() will be 0 after this call.
-     */
-    SkDataTable* detachDataTable();
-
-private:
-    SkTDArray<SkDataTable::Dir> fDir;
-    SkChunkAlloc*               fHeap;
-    size_t                      fMinChunkSize;
 };
 
 #endif

@@ -14,7 +14,7 @@
 
 #ifdef SK_DEBUG
     #include "SkMutex.h"
-    #include "SkUniquePtr.h"
+    #include <memory>
 #endif  // SK_DEBUG
 
 // There are two shared lock implementations one debug the other is high performance. They implement
@@ -50,9 +50,9 @@ public:
 private:
 #ifdef SK_DEBUG
     class ThreadIDSet;
-    skstd::unique_ptr<ThreadIDSet> fCurrentShared;
-    skstd::unique_ptr<ThreadIDSet> fWaitingExclusive;
-    skstd::unique_ptr<ThreadIDSet> fWaitingShared;
+    std::unique_ptr<ThreadIDSet> fCurrentShared;
+    std::unique_ptr<ThreadIDSet> fWaitingExclusive;
+    std::unique_ptr<ThreadIDSet> fWaitingShared;
     int fSharedQueueSelect{0};
     mutable SkMutex fMu;
     SkSemaphore fSharedQueue[2];
@@ -68,5 +68,15 @@ private:
 inline void SkSharedMutex::assertHeld() const {};
 inline void SkSharedMutex::assertHeldShared() const {};
 #endif  // SK_DEBUG
+
+class SkAutoSharedMutexShared {
+public:
+    SkAutoSharedMutexShared(SkSharedMutex& lock) : fLock(lock) { lock.acquireShared(); }
+    ~SkAutoSharedMutexShared() { fLock.releaseShared(); }
+private:
+    SkSharedMutex& fLock;
+};
+
+#define SkAutoSharedMutexShared(...) SK_REQUIRE_LOCAL_VAR(SkAutoSharedMutexShared)
 
 #endif // SkSharedLock_DEFINED

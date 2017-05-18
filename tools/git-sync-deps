@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # Copyright 2014 Google Inc.
 #
 # Use of this source code is governed by a BSD-style license that can be
@@ -63,12 +63,12 @@ DEFAULT_DEPS_PATH = os.path.normpath(
 def usage(deps_file_path = None):
   sys.stderr.write(
     'Usage: run to grab dependencies, with optional platform support:\n')
-  sys.stderr.write('  python %s' % __file__)
+  sys.stderr.write('  %s %s' % (sys.executable, __file__))
   if deps_file_path:
-    for deps_os in parse_file_to_dict(deps_file_path)['deps_os']:
-      sys.stderr.write(' [%s]' % deps_os)
-  else:
-    sys.stderr.write(' [DEPS_OS...]')
+    parsed_deps = parse_file_to_dict(deps_file_path)
+    if 'deps_os' in parsed_deps:
+      for deps_os in parsed_deps['deps_os']:
+        sys.stderr.write(' [%s]' % deps_os)
   sys.stderr.write('\n\n')
   sys.stderr.write(__doc__)
 
@@ -97,6 +97,15 @@ def is_git_toplevel(git, directory):
     return os.path.realpath(directory) == os.path.realpath(toplevel)
   except subprocess.CalledProcessError:
     return False
+
+
+def status(directory, checkoutable):
+  def truncate(s, length):
+    return s if len(s) <= length else s[:(length - 3)] + '...'
+  dlen = 36
+  directory = truncate(directory, dlen)
+  checkoutable = truncate(checkoutable, 40)
+  sys.stdout.write('%-*s @ %s\n' % (dlen, directory, checkoutable))
 
 
 def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
@@ -133,13 +142,27 @@ def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
     sys.stdout.write('%s\n  SYNC IS DISABLED.\n' % directory)
     return
 
+  with open(os.devnull, 'w') as devnull:
+    # If this fails, we will fetch before trying again.  Don't spam user
+    # with error infomation.
+    if 0 == subprocess.call([git, 'checkout', '--quiet', checkoutable],
+                            cwd=directory, stderr=devnull):
+      # if this succeeds, skip slow `git fetch`.
+      if verbose:
+        status(directory, checkoutable)  # Success.
+      return
+
+  # If the repo has changed, always force use of the correct repo.
+  # If origin already points to repo, this is a quick no-op.
+  subprocess.check_call(
+      [git, 'remote', 'set-url', 'origin', repo], cwd=directory)
+
   subprocess.check_call([git, 'fetch', '--quiet'], cwd=directory)
 
-  subprocess.check_call(
-    [git, 'checkout', '--quiet', checkoutable], cwd=directory)
+  subprocess.check_call([git, 'checkout', '--quiet', checkoutable], cwd=directory)
 
   if verbose:
-    sys.stdout.write('%s\n  @ %s\n' % (directory, checkoutable))  # Success.
+    status(directory, checkoutable)  # Success.
 
 
 def parse_file_to_dict(path):
@@ -166,17 +189,25 @@ def git_sync_deps(deps_file_path, command_line_os_requests, verbose):
   deps_file_directory = os.path.dirname(deps_file_path)
   deps_file = parse_file_to_dict(deps_file_path)
   dependencies = deps_file['deps'].copy()
-  os_specific_dependencies = deps_file.get('deps_os', [])
-  for os_name in command_line_os_requests:
-    # Add OS-specific dependencies
-    if os_name in os_specific_dependencies:
-      dependencies.update(os_specific_dependencies[os_name])
-  list_of_arg_lists = []
+  os_specific_dependencies = deps_file.get('deps_os', dict())
+  if 'all' in command_line_os_requests:
+    for value in os_specific_dependencies.itervalues():
+      dependencies.update(value)
+  else:
+    for os_name in command_line_os_requests:
+      # Add OS-specific dependencies
+      if os_name in os_specific_dependencies:
+        dependencies.update(os_specific_dependencies[os_name])
   for directory in dependencies:
+    for other_dir in dependencies:
+      if directory.startswith(other_dir + '/'):
+        raise Exception('%r is parent of %r' % (other_dir, directory))
+  list_of_arg_lists = []
+  for directory in sorted(dependencies):
     if '@' in dependencies[directory]:
       repo, checkoutable = dependencies[directory].split('@', 1)
     else:
-      repo, checkoutable = dependencies[directory], 'origin/master'
+      raise Exception("please specify commit or tag")
 
     relative_directory = os.path.join(deps_file_directory, directory)
 
@@ -212,6 +243,9 @@ def main(argv):
     return 1
 
   git_sync_deps(deps_file_path, argv, verbose)
+  subprocess.check_call(
+      [sys.executable,
+       os.path.join(os.path.dirname(deps_file_path), 'bin', 'fetch-gn')])
   return 0
 
 

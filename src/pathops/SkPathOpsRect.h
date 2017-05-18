@@ -24,6 +24,8 @@ struct SkDRect {
                 && approximately_between(fTop, pt.fY, fBottom);
     }
 
+    void debugInit();
+
     bool intersects(const SkDRect& r) const {
         SkASSERT(fLeft <= fRight);
         SkASSERT(fTop <= fBottom);
@@ -62,6 +64,10 @@ struct SkDRect {
     }
 
     void setBounds(const SkDQuad& curve, const SkDQuad& sub, double tStart, double tEnd);
+
+    bool valid() const {
+        return fLeft <= fRight && fTop <= fBottom;
+    }
 };
 
 #endif

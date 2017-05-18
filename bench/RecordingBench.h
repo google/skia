@@ -10,23 +10,47 @@
 
 #include "Benchmark.h"
 #include "SkPicture.h"
+#include "SkLiteDL.h"
 
-class RecordingBench : public Benchmark {
+class PictureCentricBench : public Benchmark {
 public:
-    RecordingBench(const char* name, const SkPicture*, bool useBBH);
+    PictureCentricBench(const char* name, const SkPicture*);
 
 protected:
     const char* onGetName() override;
     bool isSuitableFor(Backend) override;
-    void onDraw(int loops, SkCanvas*) override;
     SkIPoint onGetSize() override;
 
-private:
-    SkAutoTUnref<const SkPicture> fSrc;
+protected:
+    sk_sp<const SkPicture> fSrc;
     SkString fName;
-    bool fUseBBH;
 
     typedef Benchmark INHERITED;
+};
+
+class RecordingBench : public PictureCentricBench {
+public:
+    RecordingBench(const char* name, const SkPicture*, bool useBBH, bool lite);
+
+protected:
+    void onDraw(int loops, SkCanvas*) override;
+
+private:
+    std::unique_ptr<SkLiteDL> fDL;
+    bool fUseBBH;
+
+    typedef PictureCentricBench INHERITED;
+};
+
+class PipingBench : public PictureCentricBench {
+public:
+    PipingBench(const char* name, const SkPicture*);
+
+protected:
+    void onDraw(int loops, SkCanvas*) override;
+
+private:
+    typedef PictureCentricBench INHERITED;
 };
 
 #endif//RecordingBench_DEFINED

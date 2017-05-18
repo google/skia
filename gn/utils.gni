@@ -1,0 +1,98 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("../src", "abspath")
+_include = get_path_info("../include", "abspath")
+
+skia_utils_sources = [
+  "$_include/utils/SkFrontBufferedStream.h",
+  "$_include/utils/SkCamera.h",
+  "$_include/utils/SkCanvasStateUtils.h",
+  "$_include/utils/SkDumpCanvas.h",
+  "$_include/utils/SkEventTracer.h",
+  "$_include/utils/SkInterpolator.h",
+  "$_include/utils/SkNoDrawCanvas.h",
+  "$_include/utils/SkNWayCanvas.h",
+  "$_include/utils/SkNullCanvas.h",
+  "$_include/utils/SkPaintFilterCanvas.h",
+  "$_include/utils/SkParse.h",
+  "$_include/utils/SkParsePath.h",
+  "$_include/utils/SkRandom.h",
+  "$_include/utils/SkShadowUtils.h",
+  "$_include/utils/SkTextBox.h",
+
+  "$_src/utils/SkBase64.cpp",
+  "$_src/utils/SkBase64.h",
+  "$_src/utils/SkBitmapSourceDeserializer.cpp",
+  "$_src/utils/SkBitmapSourceDeserializer.h",
+  "$_src/utils/SkBitSet.h",
+  "$_src/utils/SkFrontBufferedStream.cpp",
+  "$_src/utils/SkCamera.cpp",
+  "$_src/utils/SkCanvasStack.h",
+  "$_src/utils/SkCanvasStack.cpp",
+  "$_src/utils/SkCanvasStateUtils.cpp",
+  "$_src/utils/SkCurveMeasure.cpp",
+  "$_src/utils/SkCurveMeasure.h",
+  "$_src/utils/SkDashPath.cpp",
+  "$_src/utils/SkDashPathPriv.h",
+  "$_src/utils/SkDeferredCanvas.cpp",
+  "$_src/utils/SkDumpCanvas.cpp",
+  "$_src/utils/SkEventTracer.cpp",
+  "$_src/utils/SkFloatUtils.h",
+  "$_src/utils/SkInsetConvexPolygon.cpp",
+  "$_src/utils/SkInsetConvexPolygon.h",
+  "$_src/utils/SkInterpolator.cpp",
+  "$_src/utils/SkMatrix22.cpp",
+  "$_src/utils/SkMatrix22.h",
+  "$_src/utils/SkMultiPictureDocument.cpp",
+  "$_src/utils/SkNWayCanvas.cpp",
+  "$_src/utils/SkNullCanvas.cpp",
+  "$_src/utils/SkOSPath.cpp",
+  "$_src/utils/SkOSPath.h",
+  "$_src/utils/SkPaintFilterCanvas.cpp",
+  "$_src/utils/SkParse.cpp",
+  "$_src/utils/SkParseColor.cpp",
+  "$_src/utils/SkParsePath.cpp",
+  "$_src/utils/SkPatchUtils.cpp",
+  "$_src/utils/SkPatchUtils.h",
+  "$_src/utils/SkShadowTessellator.cpp",
+  "$_src/utils/SkShadowTessellator.h",
+  "$_src/utils/SkShadowUtils.cpp",
+  "$_src/utils/SkTextBox.cpp",
+  "$_src/utils/SkThreadUtils.h",
+  "$_src/utils/SkThreadUtils_pthread.cpp",
+  "$_src/utils/SkThreadUtils_pthread.h",
+  "$_src/utils/SkThreadUtils_win.cpp",
+  "$_src/utils/SkThreadUtils_win.h",
+  "$_src/utils/SkWhitelistTypefaces.cpp",
+
+  #mac
+  "$_include/utils/mac/SkCGUtils.h",
+  "$_src/utils/mac/SkCreateCGImageRef.cpp",
+
+  #windows
+  "$_src/utils/win/SkAutoCoInitialize.h",
+  "$_src/utils/win/SkAutoCoInitialize.cpp",
+  "$_src/utils/win/SkDWrite.h",
+  "$_src/utils/win/SkDWrite.cpp",
+  "$_src/utils/win/SkDWriteFontFileStream.cpp",
+  "$_src/utils/win/SkDWriteFontFileStream.h",
+  "$_src/utils/win/SkDWriteGeometrySink.cpp",
+  "$_src/utils/win/SkDWriteGeometrySink.h",
+  "$_src/utils/win/SkHRESULT.h",
+  "$_src/utils/win/SkHRESULT.cpp",
+  "$_src/utils/win/SkIStream.h",
+  "$_src/utils/win/SkIStream.cpp",
+  "$_src/utils/win/SkTScopedComPtr.h",
+  "$_src/utils/win/SkWGL.h",
+  "$_src/utils/win/SkWGL_win.cpp",
+
+  #testing
+  "$_src/fonts/SkRandomScalerContext.cpp",
+  "$_src/fonts/SkRandomScalerContext.h",
+  "$_src/fonts/SkTestScalerContext.cpp",
+  "$_src/fonts/SkTestScalerContext.h",
+]

@@ -18,19 +18,16 @@
 
 class SkRandomTypeface : public SkTypeface {
 public:
-    SkRandomTypeface(SkTypeface* proxy, const SkPaint&, bool fakeit);
-    virtual ~SkRandomTypeface();
+    SkRandomTypeface(sk_sp<SkTypeface> proxy, const SkPaint&, bool fakeit);
 
-    SkTypeface* proxy() const { return fProxy; }
+    SkTypeface* proxy() const { return fProxy.get(); }
     const SkPaint& paint() const { return fPaint; }
 
 protected:
-    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override;
+    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                           const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
-    SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
-        PerGlyphInfo,
-        const uint32_t* glyphIDs,
-        uint32_t glyphIDsCount) const override;
+    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const override;
 
@@ -42,14 +39,16 @@ protected:
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
 
+    int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
+                                     int coordinateCount) const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset,
                           size_t length, void* data) const override;
 
 private:
-    SkTypeface* fProxy;
-    SkPaint     fPaint;
-    bool        fFakeIt;
+    sk_sp<SkTypeface>   fProxy;
+    SkPaint             fPaint;
+    bool                fFakeIt;
 };
 
 #endif

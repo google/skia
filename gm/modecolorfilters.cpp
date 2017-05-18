@@ -6,7 +6,7 @@
  */
 
 #include "gm.h"
-#include "SkBitmapProcShader.h"
+#include "sk_tool_utils.h"
 #include "SkColorFilter.h"
 #include "SkGradientShader.h"
 
@@ -16,27 +16,27 @@
 namespace skiagm {
 
 // Using gradients because GPU doesn't currently have an implementation of SkColorShader (duh!)
-static SkShader* make_color_shader(SkColor color) {
-    static const SkPoint kPts[] = {{0, 0}, {1, 1}};
+static sk_sp<SkShader> make_color_shader(SkColor color) {
+    constexpr SkPoint kPts[] = {{0, 0}, {1, 1}};
     SkColor colors[] = {color, color};
 
-    return SkGradientShader::CreateLinear(kPts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(kPts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
-static SkShader* make_solid_shader() {
+static sk_sp<SkShader> make_solid_shader() {
     return make_color_shader(SkColorSetARGB(0xFF, 0x42, 0x82, 0x21));
 }
 
-static SkShader* make_transparent_shader() {
+static sk_sp<SkShader> make_transparent_shader() {
     return make_color_shader(SkColorSetARGB(0x80, 0x10, 0x70, 0x20));
 }
 
-static SkShader* make_trans_black_shader() {
+static sk_sp<SkShader> make_trans_black_shader() {
     return make_color_shader(0x0);
 }
 
 // draws a background behind each test rect to see transparency
-static SkShader* make_bg_shader(int checkSize) {
+static sk_sp<SkShader> make_bg_shader(int checkSize) {
     SkBitmap bmp;
     bmp.allocN32Pixels(2 * checkSize, 2 * checkSize);
     SkCanvas canvas(bmp);
@@ -49,7 +49,7 @@ static SkShader* make_bg_shader(int checkSize) {
                                     SkIntToScalar(checkSize), SkIntToScalar(checkSize));
     canvas.drawRect(rect1, paint);
     canvas.drawRect(rect0, paint);
-    return new SkBitmapProcShader(bmp, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
+    return SkShader::MakeBitmapShader(bmp, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
 }
 
 class ModeColorFilterGM : public GM {
@@ -59,29 +59,29 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() {
+    SkString onShortName() override  {
         return SkString("modecolorfilters");
     }
 
-    virtual SkISize onISize() {
+    SkISize onISize() override  {
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         // size of rect for each test case
-        static const int kRectWidth  = 20;
-        static const int kRectHeight = 20;
+        constexpr int kRectWidth  = 20;
+        constexpr int kRectHeight = 20;
 
-        static const int kCheckSize  = 10;
+        constexpr int kCheckSize  = 10;
 
         if (!fBmpShader) {
-            fBmpShader.reset(make_bg_shader(kCheckSize));
+            fBmpShader = make_bg_shader(kCheckSize);
         }
         SkPaint bgPaint;
         bgPaint.setShader(fBmpShader);
-        bgPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
+        bgPaint.setBlendMode(SkBlendMode::kSrc);
 
-        SkShader* shaders[] = {
+        sk_sp<SkShader> shaders[] = {
             nullptr,                                   // use a paint color instead of a shader
             make_solid_shader(),
             make_transparent_shader(),
@@ -100,31 +100,29 @@ protected:
         // used with shaders
         SkColor alphas[] = {0xFFFFFFFF, 0x80808080};
 
-        SkXfermode::Mode modes[]  = { // currently just doing the Modes expressible as Coeffs
-            SkXfermode::kClear_Mode,
-            SkXfermode::kSrc_Mode,
-            SkXfermode::kDst_Mode,
-            SkXfermode::kSrcOver_Mode,
-            SkXfermode::kDstOver_Mode,
-            SkXfermode::kSrcIn_Mode,
-            SkXfermode::kDstIn_Mode,
-            SkXfermode::kSrcOut_Mode,
-            SkXfermode::kDstOut_Mode,
-            SkXfermode::kSrcATop_Mode,
-            SkXfermode::kDstATop_Mode,
-            SkXfermode::kXor_Mode,
-            SkXfermode::kPlus_Mode,
-            SkXfermode::kModulate_Mode,
+        const SkBlendMode modes[]  = { // currently just doing the Modes expressible as Coeffs
+            SkBlendMode::kClear,
+            SkBlendMode::kSrc,
+            SkBlendMode::kDst,
+            SkBlendMode::kSrcOver,
+            SkBlendMode::kDstOver,
+            SkBlendMode::kSrcIn,
+            SkBlendMode::kDstIn,
+            SkBlendMode::kSrcOut,
+            SkBlendMode::kDstOut,
+            SkBlendMode::kSrcATop,
+            SkBlendMode::kDstATop,
+            SkBlendMode::kXor,
+            SkBlendMode::kPlus,
+            SkBlendMode::kModulate,
         };
 
         SkPaint paint;
         int idx = 0;
-        static const int kRectsPerRow = SkMax32(this->getISize().fWidth / kRectWidth, 1);
+        const int kRectsPerRow = SkMax32(this->getISize().fWidth / kRectWidth, 1);
         for (size_t cfm = 0; cfm < SK_ARRAY_COUNT(modes); ++cfm) {
             for (size_t cfc = 0; cfc < SK_ARRAY_COUNT(colors); ++cfc) {
-                SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(colors[cfc],
-                                                                               modes[cfm]));
-                paint.setColorFilter(cf);
+                paint.setColorFilter(SkColorFilter::MakeModeFilter(colors[cfc], modes[cfm]));
                 for (size_t s = 0; s < SK_ARRAY_COUNT(shaders); ++s) {
                     paint.setShader(shaders[s]);
                     bool hasShader = nullptr == paint.getShader();
@@ -146,14 +144,10 @@ protected:
                 }
             }
         }
-
-        for (size_t i = 0; i < SK_ARRAY_COUNT(shaders); ++i) {
-            SkSafeUnref(shaders[i]);
-        }
     }
 
 private:
-    SkAutoTUnref<SkShader> fBmpShader;
+    sk_sp<SkShader> fBmpShader;
     typedef GM INHERITED;
 };
 

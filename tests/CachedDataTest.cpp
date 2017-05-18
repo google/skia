@@ -30,7 +30,7 @@ static SkCachedData* make_data(size_t size, SkDiscardableMemoryPool* pool) {
     if (pool) {
         SkDiscardableMemory* dm = pool->create(size);
         // the pool "can" return null, but it shouldn't in these controlled conditions
-        SK_ALWAYSBREAK(dm);
+        SkASSERT_RELEASE(dm);
         return new SkCachedData(size, dm);
     } else {
         return new SkCachedData(sk_malloc_throw(size), size);
@@ -41,22 +41,22 @@ static SkCachedData* make_data(size_t size, SkDiscardableMemoryPool* pool) {
 static SkCachedData* test_locking(skiatest::Reporter* reporter,
                                   size_t size, SkDiscardableMemoryPool* pool) {
     SkCachedData* data = make_data(size, pool);
-    
+
     memset(data->writable_data(), 0x80, size);  // just to use writable_data()
 
     check_data(reporter, data, 1, kNotInCache, kLocked);
-    
+
     data->ref();
     check_data(reporter, data, 2, kNotInCache, kLocked);
     data->unref();
     check_data(reporter, data, 1, kNotInCache, kLocked);
-    
+
     data->attachToCacheAndRef();
     check_data(reporter, data, 2, kInCache, kLocked);
-    
+
     data->unref();
     check_data(reporter, data, 1, kInCache, kUnlocked);
-    
+
     data->ref();
     check_data(reporter, data, 2, kInCache, kLocked);
 
@@ -72,7 +72,7 @@ static SkCachedData* test_locking(skiatest::Reporter* reporter,
  *  and when the cache is.
  */
 DEF_TEST(CachedData, reporter) {
-    SkAutoTUnref<SkDiscardableMemoryPool> pool(SkDiscardableMemoryPool::Create(1000));
+    sk_sp<SkDiscardableMemoryPool> pool(SkDiscardableMemoryPool::Make(1000));
 
     for (int useDiscardable = 0; useDiscardable <= 1; ++useDiscardable) {
         const size_t size = 100;
@@ -92,4 +92,3 @@ DEF_TEST(CachedData, reporter) {
         data->detachFromCacheAndUnref();
     }
 }
-

@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkAAClip.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
@@ -26,7 +27,7 @@ static void paint_rgn(SkCanvas* canvas, const SkAAClip& clip,
     // need to copy for deferred drawing test to work
     SkBitmap bm2;
 
-    bm.deepCopyTo(&bm2);
+    sk_tool_utils::copy_to(&bm2, bm.colorType(), bm);
 
     canvas->drawBitmap(bm2,
                        SK_Scalar1 * mask.fBounds.fLeft,
@@ -67,12 +68,12 @@ protected:
         INHERITED::setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
-    void buildRgn(SkAAClip* clip, SkRegion::Op op) {
+    void buildRgn(SkAAClip* clip, SkClipOp op) {
         clip->setPath(fBasePath, nullptr, true);
 
         SkAAClip clip2;
         clip2.setPath(fRectPath, nullptr, true);
-        clip->op(clip2, op);
+        clip->op(clip2, (SkRegion::Op)op);
     }
 
     void drawOrig(SkCanvas* canvas) {
@@ -85,7 +86,7 @@ protected:
         canvas->drawRect(fRect, paint);
     }
 
-    void drawRgnOped(SkCanvas* canvas, SkRegion::Op op, SkColor color) {
+    void drawRgnOped(SkCanvas* canvas, SkClipOp op, SkColor color) {
 
         SkAAClip clip;
 
@@ -97,7 +98,7 @@ protected:
         paint_rgn(canvas, clip, paint);
     }
 
-    void drawPathsOped(SkCanvas* canvas, SkRegion::Op op, SkColor color) {
+    void drawPathsOped(SkCanvas* canvas, SkClipOp op, SkColor color) {
 
         this->drawOrig(canvas);
 
@@ -106,11 +107,11 @@ protected:
         // create the clip mask with the supplied boolean op
         if (kPath_GeomType == fGeomType) {
             // path-based case
-            canvas->clipPath(fBasePath, SkRegion::kReplace_Op, true);
+            canvas->clipPath(fBasePath, true);
             canvas->clipPath(fRectPath, op, true);
         } else {
             // rect-based case
-            canvas->clipRect(fBase, SkRegion::kReplace_Op, true);
+            canvas->clipRect(fBase, true);
             canvas->clipRect(fRect, op, true);
         }
 
@@ -141,17 +142,17 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
 
-        static const struct {
+        const struct {
             SkColor         fColor;
             const char*     fName;
-            SkRegion::Op    fOp;
+            SkClipOp        fOp;
         } gOps[] = {
-            { SK_ColorBLACK,    "Difference", SkRegion::kDifference_Op    },
-            { SK_ColorRED,      "Intersect",  SkRegion::kIntersect_Op     },
-            { sk_tool_utils::color_to_565(0xFF008800), "Union", SkRegion::kUnion_Op },
-            { SK_ColorGREEN,    "Rev Diff",   SkRegion::kReverseDifference_Op },
-            { SK_ColorYELLOW,   "Replace",    SkRegion::kReplace_Op       },
-            { SK_ColorBLUE,     "XOR",        SkRegion::kXOR_Op           },
+            { SK_ColorBLACK,    "Difference", kDifference_SkClipOp    },
+            { SK_ColorRED,      "Intersect",  kIntersect_SkClipOp     },
+            { sk_tool_utils::color_to_565(0xFF008800), "Union", kUnion_SkClipOp },
+            { SK_ColorGREEN,    "Rev Diff",   kReverseDifference_SkClipOp },
+            { SK_ColorYELLOW,   "Replace",    kReplace_SkClipOp       },
+            { SK_ColorBLUE,     "XOR",        kXOR_SkClipOp           },
         };
 
         SkPaint textPaint;
@@ -161,7 +162,7 @@ protected:
         int xOff = 0;
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
-            canvas->drawText(gOps[op].fName, strlen(gOps[op].fName),
+            canvas->drawString(gOps[op].fName,
                              SkIntToScalar(75), SkIntToScalar(50),
                              textPaint);
 

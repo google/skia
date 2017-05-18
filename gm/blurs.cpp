@@ -6,13 +6,14 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkPath.h"
 
 DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, sk_tool_utils::color_to_565(0xFFDDDDDD)) {
         SkBlurStyle NONE = SkBlurStyle(-999);
-        static const struct {
+        const struct {
             SkBlurStyle fStyle;
             int         fCx, fCy;
         } gRecs[] = {
@@ -35,10 +36,9 @@ DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, sk_tool_utils::color_to_565(0xFFDDDDDD
             paint.setColor(SK_ColorBLUE);
             for (size_t i = 0; i < SK_ARRAY_COUNT(gRecs); i++) {
                 if (gRecs[i].fStyle != NONE) {
-                    SkMaskFilter* mf = SkBlurMaskFilter::Create(gRecs[i].fStyle,
+                    paint.setMaskFilter(SkBlurMaskFilter::Make(gRecs[i].fStyle,
                                            SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(20)),
-                                           flags);
-                    paint.setMaskFilter(mf)->unref();
+                                           flags));
                 } else {
                     paint.setMaskFilter(nullptr);
                 }
@@ -49,21 +49,20 @@ DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, sk_tool_utils::color_to_565(0xFFDDDDDD
             }
             // draw text
             {
-                SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
+                paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
                                            SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4)),
-                                           flags);
-                paint.setMaskFilter(mf)->unref();
+                                           flags));
                 SkScalar x = SkIntToScalar(70);
                 SkScalar y = SkIntToScalar(400);
                 paint.setColor(SK_ColorBLACK);
-                canvas->drawText("Hamburgefons Style", 18, x, y, paint);
-                canvas->drawText("Hamburgefons Style", 18,
+                canvas->drawString("Hamburgefons Style", x, y, paint);
+                canvas->drawString("Hamburgefons Style",
                                  x, y + SkIntToScalar(50), paint);
                 paint.setMaskFilter(nullptr);
                 paint.setColor(SK_ColorWHITE);
                 x -= SkIntToScalar(2);
                 y -= SkIntToScalar(2);
-                canvas->drawText("Hamburgefons Style", 18, x, y, paint);
+                canvas->drawString("Hamburgefons Style", x, y, paint);
             }
             canvas->restore();
             flags = SkBlurMaskFilter::kHighQuality_BlurFlag;
@@ -82,8 +81,7 @@ DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, sk_tool_utils::color_to_565(0xFFDDDDDD
 DEF_SIMPLE_GM(blur2rects, canvas, 700, 500) {
         SkPaint paint;
 
-        paint.setMaskFilter(SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                                     2.3f))->unref();
+        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 2.3f));
 
         SkRect outer = SkRect::MakeXYWH(10.125f, 10.125f, 100.125f, 100);
         SkRect inner = SkRect::MakeXYWH(20.25f, 20.125f, 80, 80);
@@ -101,8 +99,7 @@ DEF_SIMPLE_GM(blur2rects, canvas, 700, 500) {
 
 DEF_SIMPLE_GM(blur2rectsnonninepatch, canvas, 700, 500) {
         SkPaint paint;
-        paint.setMaskFilter(SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                                     4.3f))->unref();
+        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 4.3f));
 
         SkRect outer = SkRect::MakeXYWH(10, 110, 100, 100);
         SkRect inner = SkRect::MakeXYWH(50, 150, 10, 10);

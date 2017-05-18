@@ -23,7 +23,8 @@ const char* SKPAnimationBench::onGetUniqueName() {
 
 void SKPAnimationBench::onPerCanvasPreDraw(SkCanvas* canvas) {
     INHERITED::onPerCanvasPreDraw(canvas);
-    SkAssertResult(canvas->getClipDeviceBounds(&fDevBounds));
+    fDevBounds = canvas->getDeviceClipBounds();
+    SkAssertResult(!fDevBounds.isEmpty());
     fAnimationTimer.start();
 }
 

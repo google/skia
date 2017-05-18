@@ -42,13 +42,13 @@ public:
         }
     }
 
-    SkSpinlock     fLock;
+    mutable SkSpinlock     fLock;
 
     SkGlyphCache* internalGetHead() const { return fHead; }
     SkGlyphCache* internalGetTail() const;
 
-    size_t getTotalMemoryUsed() const { return fTotalMemoryUsed; }
-    int getCacheCountUsed() const { return fCacheCount; }
+    size_t getTotalMemoryUsed() const;
+    int getCacheCountUsed() const;
 
 #ifdef SK_DEBUG
     void validate() const;
@@ -56,18 +56,11 @@ public:
     void validate() const {}
 #endif
 
-    int getCacheCountLimit() const { return fCacheCountLimit; }
+    int getCacheCountLimit() const;
     int setCacheCountLimit(int limit);
 
-    size_t  getCacheSizeLimit() const { return fCacheSizeLimit; }
+    size_t  getCacheSizeLimit() const;
     size_t  setCacheSizeLimit(size_t limit);
-
-    // returns true if this cache is over-budget either due to size limit
-    // or count limit.
-    bool isOverBudget() const {
-        return fCacheCount > fCacheCountLimit ||
-               fTotalMemoryUsed > fCacheSizeLimit;
-    }
 
     void purgeAll(); // does not change budget
 

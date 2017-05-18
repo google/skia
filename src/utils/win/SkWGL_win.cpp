@@ -1,10 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
 
 #include "SkWGL.h"
 
@@ -123,6 +125,9 @@ int SkWGLExtensions::selectFormat(const int formats[],
                                   int formatCount,
                                   HDC dc,
                                   int desiredSampleCount) const {
+    if (formatCount <= 0) {
+        return -1;
+    }
     PixelFormat desiredFormat = {
         0,
         desiredSampleCount,
@@ -283,38 +288,41 @@ SkWGLExtensions::SkWGLExtensions()
 ///////////////////////////////////////////////////////////////////////////////
 
 static void get_pixel_formats_to_try(HDC dc, const SkWGLExtensions& extensions,
-                                     bool doubleBuffered, int msaaSampleCount,
+                                     bool doubleBuffered, int msaaSampleCount, bool deepColor,
                                      int formatsToTry[2]) {
-    int iAttrs[] = {
-        SK_WGL_DRAW_TO_WINDOW, TRUE,
-        SK_WGL_DOUBLE_BUFFER, (doubleBuffered ? TRUE : FALSE),
-        SK_WGL_ACCELERATION, SK_WGL_FULL_ACCELERATION,
-        SK_WGL_SUPPORT_OPENGL, TRUE,
-        SK_WGL_COLOR_BITS, 24,
-        SK_WGL_ALPHA_BITS, 8,
-        SK_WGL_STENCIL_BITS, 8,
-        0, 0
+    auto appendAttr = [](SkTDArray<int>& attrs, int attr, int value) {
+        attrs.push(attr);
+        attrs.push(value);
     };
+
+    SkTDArray<int> iAttrs;
+    appendAttr(iAttrs, SK_WGL_DRAW_TO_WINDOW, TRUE);
+    appendAttr(iAttrs, SK_WGL_DOUBLE_BUFFER, (doubleBuffered ? TRUE : FALSE));
+    appendAttr(iAttrs, SK_WGL_ACCELERATION, SK_WGL_FULL_ACCELERATION);
+    appendAttr(iAttrs, SK_WGL_SUPPORT_OPENGL, TRUE);
+    if (deepColor) {
+        appendAttr(iAttrs, SK_WGL_RED_BITS, 10);
+        appendAttr(iAttrs, SK_WGL_GREEN_BITS, 10);
+        appendAttr(iAttrs, SK_WGL_BLUE_BITS, 10);
+        appendAttr(iAttrs, SK_WGL_ALPHA_BITS, 2);
+    } else {
+        appendAttr(iAttrs, SK_WGL_COLOR_BITS, 24);
+        appendAttr(iAttrs, SK_WGL_ALPHA_BITS, 8);
+    }
+    appendAttr(iAttrs, SK_WGL_STENCIL_BITS, 8);
 
     float fAttrs[] = {0, 0};
 
     // Get a MSAA format if requested and possible.
     if (msaaSampleCount > 0 &&
         extensions.hasExtension(dc, "WGL_ARB_multisample")) {
-        static const int kIAttrsCount = SK_ARRAY_COUNT(iAttrs);
-        int msaaIAttrs[kIAttrsCount + 4];
-        memcpy(msaaIAttrs, iAttrs, sizeof(int) * kIAttrsCount);
-        SkASSERT(0 == msaaIAttrs[kIAttrsCount - 2] &&
-                 0 == msaaIAttrs[kIAttrsCount - 1]);
-        msaaIAttrs[kIAttrsCount - 2] = SK_WGL_SAMPLE_BUFFERS;
-        msaaIAttrs[kIAttrsCount - 1] = TRUE;
-        msaaIAttrs[kIAttrsCount + 0] = SK_WGL_SAMPLES;
-        msaaIAttrs[kIAttrsCount + 1] = msaaSampleCount;
-        msaaIAttrs[kIAttrsCount + 2] = 0;
-        msaaIAttrs[kIAttrsCount + 3] = 0;
+        SkTDArray<int> msaaIAttrs = iAttrs;
+        appendAttr(msaaIAttrs, SK_WGL_SAMPLE_BUFFERS, TRUE);
+        appendAttr(msaaIAttrs, SK_WGL_SAMPLES, msaaSampleCount);
+        appendAttr(msaaIAttrs, 0, 0);
         unsigned int num;
         int formats[64];
-        extensions.choosePixelFormat(dc, msaaIAttrs, fAttrs, 64, formats, &num);
+        extensions.choosePixelFormat(dc, msaaIAttrs.begin(), fAttrs, 64, formats, &num);
         num = SkTMin(num, 64U);
         formatsToTry[0] = extensions.selectFormat(formats, num, dc, msaaSampleCount);
     }
@@ -322,10 +330,12 @@ static void get_pixel_formats_to_try(HDC dc, const SkWGLExtensions& extensions,
     // Get a non-MSAA format
     int* format = -1 == formatsToTry[0] ? &formatsToTry[0] : &formatsToTry[1];
     unsigned int num;
-    extensions.choosePixelFormat(dc, iAttrs, fAttrs, 1, format, &num);
+    appendAttr(iAttrs, 0, 0);
+    extensions.choosePixelFormat(dc, iAttrs.begin(), fAttrs, 1, format, &num);
 }
 
-static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextRequest contextType) {
+static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextRequest contextType,
+                               HGLRC shareContext) {
     HDC prevDC = wglGetCurrentDC();
     HGLRC prevGLRC = wglGetCurrentContext();
 
@@ -341,7 +351,7 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
             SK_WGL_CONTEXT_PROFILE_MASK,  SK_WGL_CONTEXT_ES2_PROFILE_BIT,
             0,
         };
-        glrc = extensions.createContextAttribs(dc, nullptr, glesAttribs);
+        glrc = extensions.createContextAttribs(dc, shareContext, glesAttribs);
         if (nullptr == glrc) {
             wglMakeCurrent(prevDC, prevGLRC);
             return nullptr;
@@ -366,7 +376,7 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
             for (int v = 0; v < SK_ARRAY_COUNT(kCoreGLVersions) / 2; ++v) {
                 coreProfileAttribs[1] = kCoreGLVersions[2 * v];
                 coreProfileAttribs[3] = kCoreGLVersions[2 * v + 1];
-                glrc = extensions.createContextAttribs(dc, nullptr, coreProfileAttribs);
+                glrc = extensions.createContextAttribs(dc, shareContext, coreProfileAttribs);
                 if (glrc) {
                     break;
                 }
@@ -376,6 +386,12 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
 
     if (nullptr == glrc) {
         glrc = wglCreateContext(dc);
+        if (shareContext) {
+            if (!wglShareLists(shareContext, glrc)) {
+                wglDeleteContext(glrc);
+                return nullptr;
+            }
+        }
     }
     SkASSERT(glrc);
 
@@ -388,7 +404,8 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
     return glrc;
 }
 
-HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, SkWGLContextRequest contextType) {
+HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor,
+                         SkWGLContextRequest contextType, HGLRC shareContext) {
     SkWGLExtensions extensions;
     if (!extensions.hasExtension(dc, "WGL_ARB_pixel_format")) {
         return nullptr;
@@ -397,7 +414,7 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, SkWGLContextRequest contex
     BOOL set = FALSE;
 
     int pixelFormatsToTry[] = { -1, -1 };
-    get_pixel_formats_to_try(dc, extensions, true, msaaSampleCount, pixelFormatsToTry);
+    get_pixel_formats_to_try(dc, extensions, true, msaaSampleCount, deepColor, pixelFormatsToTry);
     for (int f = 0;
          !set && -1 != pixelFormatsToTry[f] && f < SK_ARRAY_COUNT(pixelFormatsToTry);
          ++f) {
@@ -410,10 +427,12 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, SkWGLContextRequest contex
         return nullptr;
     }
 
-    return create_gl_context(dc, extensions, contextType);}
+    return create_gl_context(dc, extensions, contextType, shareContext);
+}
 
 SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, int msaaSampleCount,
-                                                 SkWGLContextRequest contextType) {
+                                                 SkWGLContextRequest contextType,
+                                                 HGLRC shareContext) {
     SkWGLExtensions extensions;
     if (!extensions.hasExtension(parentDC, "WGL_ARB_pixel_format") ||
         !extensions.hasExtension(parentDC, "WGL_ARB_pbuffer")) {
@@ -424,13 +443,13 @@ SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, int msaaSampleCou
     for (int dblBuffer = 0; dblBuffer < 2; ++dblBuffer) {
         int pixelFormatsToTry[] = { -1, -1 };
         get_pixel_formats_to_try(parentDC, extensions, (0 != dblBuffer), msaaSampleCount,
-                                 pixelFormatsToTry);
+                                 false, pixelFormatsToTry);
         for (int f = 0; -1 != pixelFormatsToTry[f] && f < SK_ARRAY_COUNT(pixelFormatsToTry); ++f) {
             HPBUFFER pbuf = extensions.createPbuffer(parentDC, pixelFormatsToTry[f], 1, 1, nullptr);
             if (0 != pbuf) {
                 HDC dc = extensions.getPbufferDC(pbuf);
                 if (dc) {
-                    HGLRC glrc = create_gl_context(dc, extensions, contextType);
+                    HGLRC glrc = create_gl_context(dc, extensions, contextType, shareContext);
                     if (glrc) {
                         return new SkWGLPbufferContext(pbuf, dc, glrc);
                     }
@@ -455,3 +474,5 @@ SkWGLPbufferContext::SkWGLPbufferContext(HPBUFFER pbuffer, HDC dc, HGLRC glrc)
     , fDC(dc)
     , fGLRC(glrc) {
 }
+
+#endif//defined(SK_BUILD_FOR_WIN32)

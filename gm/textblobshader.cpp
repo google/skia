@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -56,7 +57,7 @@ protected:
             run->pos[i * 2 + 1] = 150 + 5 * sinf((float)i * 8 / glyphCount);
         }
 
-        fBlob.reset(builder.build());
+        fBlob = builder.make();
 
         SkColor  colors[2];
         colors[0] = SK_ColorRED;
@@ -68,11 +69,11 @@ protected:
         }
 
         SkISize sz = this->onISize();
-        fShader.reset(SkGradientShader::CreateRadial(SkPoint::Make(SkIntToScalar(sz.width() / 2),
-                                                                   SkIntToScalar(sz.height() / 2)),
-                                                     sz.width() * .66f, colors, pos,
-                                                     SK_ARRAY_COUNT(colors),
-                                                     SkShader::kRepeat_TileMode));
+        fShader = SkGradientShader::MakeRadial(SkPoint::Make(SkIntToScalar(sz.width() / 2),
+                                               SkIntToScalar(sz.height() / 2)),
+                                               sz.width() * .66f, colors, pos,
+                                               SK_ARRAY_COUNT(colors),
+                                               SkShader::kRepeat_TileMode);
     }
 
     SkString onShortName() override {
@@ -89,8 +90,8 @@ protected:
         p.setShader(fShader);
 
         SkISize sz = this->onISize();
-        static const int kXCount = 4;
-        static const int kYCount = 3;
+        constexpr int kXCount = 4;
+        constexpr int kYCount = 3;
         for (int i = 0; i < kXCount; ++i) {
             for (int j = 0; j < kYCount; ++j) {
                 canvas->drawTextBlob(fBlob,
@@ -102,9 +103,9 @@ protected:
     }
 
 private:
-    SkTDArray<uint16_t>            fGlyphs;
-    SkAutoTUnref<const SkTextBlob> fBlob;
-    SkAutoTUnref<SkShader>         fShader;
+    SkTDArray<uint16_t> fGlyphs;
+    sk_sp<SkTextBlob>   fBlob;
+    sk_sp<SkShader>     fShader;
 
     typedef skiagm::GM INHERITED;
 };

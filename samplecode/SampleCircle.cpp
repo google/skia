@@ -7,7 +7,6 @@
 
 #include "SampleCode.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkView.h"
@@ -88,17 +87,10 @@ protected:
         path->close();
     }
 
-    static void rotate(SkCanvas* canvas, SkScalar angle, SkScalar px, SkScalar py) {
-        canvas->translate(-px, -py);
-        canvas->rotate(angle);
-        canvas->translate(px, py);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
-//        canvas->drawCircle(250, 250, 220, paint);
         SkMatrix matrix;
         matrix.setScale(SkIntToScalar(100), SkIntToScalar(100));
         matrix.postTranslate(SkIntToScalar(200), SkIntToScalar(200));

@@ -32,7 +32,7 @@ struct TestingRec : public SkResourceCache::Rec {
     static bool Visitor(const SkResourceCache::Rec& baseRec, void* context) {
         const TestingRec& rec = static_cast<const TestingRec&>(baseRec);
         intptr_t* result = (intptr_t*)context;
-        
+
         *result = rec.fValue;
         return true;
     }
@@ -121,8 +121,7 @@ DEF_TEST(ImageCache, reporter) {
         test_cache(reporter, cache, true);
     }
     {
-        SkAutoTUnref<SkDiscardableMemoryPool> pool(
-                SkDiscardableMemoryPool::Create(defLimit, nullptr));
+        sk_sp<SkDiscardableMemoryPool> pool(SkDiscardableMemoryPool::Make(defLimit));
         gPool = pool.get();
         SkResourceCache cache(pool_factory);
         test_cache(reporter, cache, true);

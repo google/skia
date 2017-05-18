@@ -9,7 +9,7 @@
 #include "SkColorPriv.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 #include "SkBlitMask.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ const SkPixmap* SkARGB32_Blitter::justAnOpaqueColor(uint32_t* value) {
     return nullptr;
 }
 
-#if defined _WIN32 && _MSC_VER >= 1300  // disable warning : local variable used without having been initialized
+#if defined _WIN32  // disable warning : local variable used without having been initialized
 #pragma warning ( push )
 #pragma warning ( disable : 4701 )
 #endif
@@ -174,10 +174,15 @@ void SkARGB32_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         return;
     }
 
-    if (mask.fFormat == SkMask::kBW_Format) {
-        SkARGB32_BlendBW(fDevice, mask, clip, fPMColor, SkAlpha255To256(255 - fSrcA));
-    } else if (SkMask::kARGB32_Format == mask.fFormat) {
-        SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
+    switch (mask.fFormat) {
+        case SkMask::kBW_Format:
+            SkARGB32_BlendBW(fDevice, mask, clip, fPMColor, SkAlpha255To256(255 - fSrcA));
+            break;
+        case SkMask::kARGB32_Format:
+            SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
+            break;
+        default:
+            SkFAIL("Mask format not handled.");
     }
 }
 
@@ -189,10 +194,15 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
         return;
     }
 
-    if (mask.fFormat == SkMask::kBW_Format) {
-        SkARGB32_BlitBW(fDevice, mask, clip, fPMColor);
-    } else if (SkMask::kARGB32_Format == mask.fFormat) {
-        SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
+    switch (mask.fFormat) {
+        case SkMask::kBW_Format:
+            SkARGB32_BlitBW(fDevice, mask, clip, fPMColor);
+            break;
+        case SkMask::kARGB32_Format:
+            SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
+            break;
+        default:
+            SkFAIL("Mask format not handled.");
     }
 }
 
@@ -227,7 +237,7 @@ void SkARGB32_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
         color = SkAlphaMulQ(color, SkAlpha255To256(alpha));
     }
 
-    unsigned dst_scale = 255 - SkGetPackedA32(color);
+    unsigned dst_scale = SkAlpha255To256(255 - SkGetPackedA32(color));
     size_t rowBytes = fDevice.rowBytes();
     while (--height >= 0) {
         device[0] = color + SkAlphaMulQ(device[0], dst_scale);
@@ -252,7 +262,7 @@ void SkARGB32_Blitter::blitRect(int x, int y, int width, int height) {
     }
 }
 
-#if defined _WIN32 && _MSC_VER >= 1300
+#if defined _WIN32
 #pragma warning ( pop )
 #endif
 
@@ -325,8 +335,7 @@ SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkPixmap& device,
 {
     fBuffer = (SkPMColor*)sk_malloc_throw(device.width() * (sizeof(SkPMColor)));
 
-    fXfermode = paint.getXfermode();
-    SkSafeRef(fXfermode);
+    fXfermode = SkXfermode::Peek(paint.getBlendMode());
 
     int flags = 0;
     if (!(shaderContext->getFlags() & SkShader::kOpaqueAlpha_Flag)) {
@@ -356,7 +365,6 @@ SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkPixmap& device,
 }
 
 SkARGB32_Shader_Blitter::~SkARGB32_Shader_Blitter() {
-    SkSafeUnref(fXfermode);
     sk_free(fBuffer);
 }
 
@@ -570,7 +578,7 @@ void SkARGB32_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         SkXfermode* xfer = fXfermode;
         do {
             shaderContext->shadeSpan(x, y, span, width);
-            xfer->xfer32((SkPMColor*)dstRow, span, width, maskRow);
+            xfer->xfer32(reinterpret_cast<SkPMColor*>(dstRow), span, width, maskRow);
             dstRow += dstRB;
             maskRow += maskRB;
             y += 1;
@@ -578,7 +586,7 @@ void SkARGB32_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     } else {
         do {
             shaderContext->shadeSpan(x, y, span, width);
-            proc(dstRow, maskRow, span, width);
+            proc(reinterpret_cast<SkPMColor*>(dstRow), maskRow, span, width);
             dstRow += dstRB;
             maskRow += maskRB;
             y += 1;

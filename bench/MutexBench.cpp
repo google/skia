@@ -65,4 +65,3 @@ DEF_BENCH( return new MutexBench<SkSharedMutex>(SkString("SkSharedMutex")); )
 DEF_BENCH( return new MutexBench<SkMutex>(SkString("SkMutex")); )
 DEF_BENCH( return new MutexBench<SkSpinlock>(SkString("SkSpinlock")); )
 DEF_BENCH( return new SharedBench; )
-

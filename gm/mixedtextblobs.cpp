@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkCanvas.h"
@@ -39,9 +40,9 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        sk_tool_utils::emoji_typeface(&fEmojiTypeface);
+        fEmojiTypeface = sk_tool_utils::emoji_typeface();
         fEmojiText = sk_tool_utils::emoji_sample_text();
-        fReallyBigATypeface.reset(GetResourceAsTypeface("/fonts/ReallyBigA.ttf"));
+        fReallyBigATypeface = MakeResourceAsTypeface("/fonts/ReallyBigA.ttf");
 
         SkTextBlobBuilder builder;
 
@@ -94,7 +95,7 @@ protected:
         text = "aA";
         paint.setTypeface(fReallyBigATypeface);
         sk_tool_utils::add_to_text_blob(&builder, text, paint, corruptedAx, corruptedAy);
-        fBlob.reset(builder.build());
+        fBlob = builder.make();
     }
 
     SkString onShortName() override {
@@ -138,7 +139,7 @@ protected:
 
         size_t count = sizeof(clipRects) / sizeof(SkRect);
         for (size_t x = 0; x < count; ++x) {
-            draw_blob(canvas, fBlob, paint, clipRects[x]);
+            draw_blob(canvas, fBlob.get(), paint, clipRects[x]);
             if (x == (count >> 1) - 1) {
                 canvas->translate(SkScalarFloorToScalar(bounds.width() + SkIntToScalar(25)),
                                   -(x * SkScalarFloorToScalar(bounds.height() +
@@ -150,13 +151,13 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkTypeface> fEmojiTypeface;
-    SkAutoTUnref<SkTypeface> fReallyBigATypeface;
+    sk_sp<SkTypeface> fEmojiTypeface;
+    sk_sp<SkTypeface> fReallyBigATypeface;
     const char* fEmojiText;
-    SkAutoTUnref<const SkTextBlob> fBlob;
+    sk_sp<SkTextBlob> fBlob;
 
-    static const int kWidth = 1250;
-    static const int kHeight = 700;
+    static constexpr int kWidth = 1250;
+    static constexpr int kHeight = 700;
 
     typedef GM INHERITED;
 };

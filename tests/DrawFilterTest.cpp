@@ -10,6 +10,8 @@
 #include "SkSurface.h"
 #include "Test.h"
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+
 namespace {
 class TestFilter : public SkDrawFilter {
 public:
@@ -25,15 +27,15 @@ public:
  *  it was before the save.
  */
 static void test_saverestore(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
+    auto surface(SkSurface::MakeRasterN32Premul(10, 10));
     SkCanvas* canvas = surface->getCanvas();
 
-    SkAutoTUnref<TestFilter> df(new TestFilter);
+    sk_sp<TestFilter> df(new TestFilter);
 
     REPORTER_ASSERT(reporter, nullptr == canvas->getDrawFilter());
 
     canvas->save();
-    canvas->setDrawFilter(df);
+    canvas->setDrawFilter(df.get());
     REPORTER_ASSERT(reporter, nullptr != canvas->getDrawFilter());
     canvas->restore();
 
@@ -43,3 +45,5 @@ static void test_saverestore(skiatest::Reporter* reporter) {
 DEF_TEST(DrawFilter, reporter) {
     test_saverestore(reporter);
 }
+
+#endif

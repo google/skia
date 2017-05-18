@@ -5,16 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "GrStrokeInfo.h"
 #include "GrTestUtils.h"
+#include "GrProcessorUnitTest.h"
+#include "GrStyle.h"
+#include "SkColorSpace_Base.h"
+#include "SkDashPathPriv.h"
 #include "SkMatrix.h"
-#include "SkPathEffect.h"
 #include "SkPath.h"
 #include "SkRRect.h"
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
-static const SkMatrix& test_matrix(SkRandom* random, bool includePerspective) {
+static const SkMatrix& test_matrix(SkRandom* random,
+                                   bool includeNonPerspective,
+                                   bool includePerspective) {
     static SkMatrix gMatrices[5];
     static const int kPerspectiveCount = 1;
     static bool gOnce;
@@ -34,15 +38,18 @@ static const SkMatrix& test_matrix(SkRandom* random, bool includePerspective) {
     }
 
     uint32_t count = static_cast<uint32_t>(SK_ARRAY_COUNT(gMatrices));
-    if (includePerspective) {
+    if (includeNonPerspective && includePerspective) {
         return gMatrices[random->nextULessThan(count)];
+    } else if (!includeNonPerspective) {
+        return gMatrices[count - 1 - random->nextULessThan(kPerspectiveCount)];
     } else {
+        SkASSERT(includeNonPerspective && !includePerspective);
         return gMatrices[random->nextULessThan(count - kPerspectiveCount)];
     }
 }
 
 namespace GrTest {
-const SkMatrix& TestMatrix(SkRandom* random) { return test_matrix(random, true); }
+const SkMatrix& TestMatrix(SkRandom* random) { return test_matrix(random, true, true); }
 
 const SkMatrix& TestMatrixPreservesRightAngles(SkRandom* random) {
     static SkMatrix gMatrices[5];
@@ -96,7 +103,8 @@ const SkMatrix& TestMatrixRectStaysRect(SkRandom* random) {
     return gMatrices[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gMatrices)))];
 }
 
-const SkMatrix& TestMatrixInvertible(SkRandom* random) { return test_matrix(random, false); }
+const SkMatrix& TestMatrixInvertible(SkRandom* random) { return test_matrix(random, true, false); }
+const SkMatrix& TestMatrixPerspective(SkRandom* random) { return test_matrix(random, false, true); }
 
 const SkRect& TestRect(SkRandom* random) {
     static SkRect gRects[7];
@@ -237,26 +245,94 @@ SkStrokeRec TestStrokeRec(SkRandom* random) {
     return rec;
 }
 
-GrStrokeInfo TestStrokeInfo(SkRandom* random) {
-    SkStrokeRec::InitStyle style =
+void TestStyle(SkRandom* random, GrStyle* style) {
+    SkStrokeRec::InitStyle initStyle =
             SkStrokeRec::InitStyle(random->nextULessThan(SkStrokeRec::kFill_InitStyle + 1));
-    GrStrokeInfo strokeInfo(style);
-    randomize_stroke_rec(&strokeInfo, random);
-    SkPathEffect::DashInfo dashInfo;
-    dashInfo.fCount = random->nextRangeU(1, 50) * 2;
-    dashInfo.fIntervals = new SkScalar[dashInfo.fCount];
-    SkScalar sum = 0;
-    for (int i = 0; i < dashInfo.fCount; i++) {
-        dashInfo.fIntervals[i] = random->nextRangeScalar(SkDoubleToScalar(0.01),
-                                                         SkDoubleToScalar(10.0));
-        sum += dashInfo.fIntervals[i];
+    SkStrokeRec stroke(initStyle);
+    randomize_stroke_rec(&stroke, random);
+    sk_sp<SkPathEffect> pe;
+    if (random->nextBool()) {
+        int cnt = random->nextRangeU(1, 50) * 2;
+        std::unique_ptr<SkScalar[]> intervals(new SkScalar[cnt]);
+        SkScalar sum = 0;
+        for (int i = 0; i < cnt; i++) {
+            intervals[i] = random->nextRangeScalar(SkDoubleToScalar(0.01),
+                                                   SkDoubleToScalar(10.0));
+            sum += intervals[i];
+        }
+        SkScalar phase = random->nextRangeScalar(0, sum);
+        pe = TestDashPathEffect::Make(intervals.get(), cnt, phase);
     }
-    dashInfo.fPhase = random->nextRangeScalar(0, sum);
-    strokeInfo.setDashInfo(dashInfo);
-    delete[] dashInfo.fIntervals;
-    return strokeInfo;
+    *style = GrStyle(stroke, std::move(pe));
 }
 
-};
+TestDashPathEffect::TestDashPathEffect(const SkScalar* intervals, int count, SkScalar phase) {
+    fCount = count;
+    fIntervals.reset(count);
+    memcpy(fIntervals.get(), intervals, count * sizeof(SkScalar));
+    SkDashPath::CalcDashParameters(phase, intervals, count, &fInitialDashLength,
+                                   &fInitialDashIndex, &fIntervalLength, &fPhase);
+}
+
+    bool TestDashPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                                     const SkRect* cullRect) const {
+    return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals.get(), fCount,
+                                      fInitialDashLength, fInitialDashIndex, fIntervalLength);
+}
+
+SkPathEffect::DashType TestDashPathEffect::asADash(DashInfo* info) const {
+    if (info) {
+        if (info->fCount >= fCount && info->fIntervals) {
+            memcpy(info->fIntervals, fIntervals.get(), fCount * sizeof(SkScalar));
+        }
+        info->fCount = fCount;
+        info->fPhase = fPhase;
+    }
+    return kDash_DashType;
+}
+
+sk_sp<SkColorSpace> TestColorSpace(SkRandom* random) {
+    static sk_sp<SkColorSpace> gColorSpaces[3];
+    static bool gOnce;
+    if (!gOnce) {
+        gOnce = true;
+        // No color space (legacy mode)
+        gColorSpaces[0] = nullptr;
+        // sRGB or Adobe
+        gColorSpaces[1] = SkColorSpace::MakeSRGB();
+        gColorSpaces[2] = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
+    }
+    return gColorSpaces[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gColorSpaces)))];
+}
+
+sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
+    static sk_sp<GrColorSpaceXform> gXforms[3];
+    static bool gOnce;
+    if (!gOnce) {
+        gOnce = true;
+        sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
+        sk_sp<SkColorSpace> adobe = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
+        // No gamut change
+        gXforms[0] = nullptr;
+        // To larger gamut
+        gXforms[1] = GrColorSpaceXform::Make(srgb.get(), adobe.get());
+        // To smaller gamut
+        gXforms[2] = GrColorSpaceXform::Make(adobe.get(), srgb.get());
+    }
+    return gXforms[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gXforms)))];
+}
+
+TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d) {
+    fViewMatrixStorage = TestMatrix(d->fRandom);
+    fColorSpaceStorage = TestColorSpace(d->fRandom);
+
+    fArgs.fContext = d->context();
+    fArgs.fViewMatrix = &fViewMatrixStorage;
+    fArgs.fLocalMatrix = nullptr;
+    fArgs.fFilterQuality = kNone_SkFilterQuality;
+    fArgs.fDstColorSpace = fColorSpaceStorage.get();
+}
+
+}  // namespace GrTest
 
 #endif

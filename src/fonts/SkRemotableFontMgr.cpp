@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkOncePtr.h"
+#include "SkOnce.h"
 #include "SkRemotableFontMgr.h"
 
 SkRemotableFontIdentitySet::SkRemotableFontIdentitySet(int count, SkFontIdentity** data)
@@ -15,7 +15,9 @@ SkRemotableFontIdentitySet::SkRemotableFontIdentitySet(int count, SkFontIdentity
     *data = fData;
 }
 
-SK_DECLARE_STATIC_ONCE_PTR(SkRemotableFontIdentitySet, empty);
 SkRemotableFontIdentitySet* SkRemotableFontIdentitySet::NewEmpty() {
-    return SkRef(empty.get([]{ return new SkRemotableFontIdentitySet; }));
+    static SkOnce once;
+    static SkRemotableFontIdentitySet* empty;
+    once([]{ empty = new SkRemotableFontIdentitySet; });
+    return SkRef(empty);
 }

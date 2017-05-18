@@ -1,0 +1,64 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  # TODO: build from source all the time for testing?
+  skia_use_system_freetype2 =
+      is_official_build || !(is_android || sanitize == "MSAN")
+}
+
+import("../third_party.gni")
+
+if (skia_use_system_freetype2) {
+  system("freetype2") {
+    include_dirs = [ "/usr/include/freetype2" ]
+    libs = [ "freetype" ]
+  }
+} else {
+  third_party("freetype2") {
+    public_defines = [ "SK_FREETYPE_MINIMUM_RUNTIME_VERSION=(((FREETYPE_MAJOR) << 24) | ((FREETYPE_MINOR) << 16) | ((FREETYPE_PATCH) << 8))" ]
+    public_include_dirs = [ "../externals/freetype/include" ]
+
+    deps = [
+      "//third_party/libpng",
+    ]
+
+    include_dirs = [ "../freetype" ]
+    defines = [
+      "FT2_BUILD_LIBRARY",
+      "FT_CONFIG_MODULES_H=<include/freetype-android/ftmodule.h>",
+      "FT_CONFIG_OPTIONS_H=<include/freetype-android/ftoption.h>",
+    ]
+
+    sources = [
+      "../externals/freetype/src/autofit/autofit.c",
+      "../externals/freetype/src/base/ftbase.c",
+      "../externals/freetype/src/base/ftbbox.c",
+      "../externals/freetype/src/base/ftbitmap.c",
+      "../externals/freetype/src/base/ftdebug.c",
+      "../externals/freetype/src/base/ftfntfmt.c",
+      "../externals/freetype/src/base/ftfstype.c",
+      "../externals/freetype/src/base/ftgasp.c",
+      "../externals/freetype/src/base/ftglyph.c",
+      "../externals/freetype/src/base/ftinit.c",
+      "../externals/freetype/src/base/ftlcdfil.c",
+      "../externals/freetype/src/base/ftmm.c",
+      "../externals/freetype/src/base/ftpatent.c",
+      "../externals/freetype/src/base/ftstroke.c",
+      "../externals/freetype/src/base/ftsynth.c",
+      "../externals/freetype/src/base/ftsystem.c",
+      "../externals/freetype/src/base/fttype1.c",
+      "../externals/freetype/src/base/ftwinfnt.c",
+      "../externals/freetype/src/cff/cff.c",
+      "../externals/freetype/src/gzip/ftgzip.c",
+      "../externals/freetype/src/pshinter/pshinter.c",
+      "../externals/freetype/src/psnames/psnames.c",
+      "../externals/freetype/src/raster/raster.c",
+      "../externals/freetype/src/sfnt/sfnt.c",
+      "../externals/freetype/src/smooth/smooth.c",
+      "../externals/freetype/src/truetype/truetype.c",
+    ]
+  }
+}

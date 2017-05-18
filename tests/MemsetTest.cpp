@@ -5,80 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkChunkAlloc.h"
+#include "SkRandom.h"
 #include "SkUtils.h"
 #include "Test.h"
-
-static void check_alloc(skiatest::Reporter* reporter, const SkChunkAlloc& alloc,
-                        size_t capacity, size_t used, int numBlocks) {
-    REPORTER_ASSERT(reporter, alloc.totalCapacity() >= capacity);
-    REPORTER_ASSERT(reporter, alloc.totalUsed() == used);
-    SkDEBUGCODE(REPORTER_ASSERT(reporter, alloc.blockCount() == numBlocks);)
-}
-
-static void* simple_alloc(skiatest::Reporter* reporter, SkChunkAlloc* alloc, size_t size) {
-    void* ptr = alloc->allocThrow(size);
-    check_alloc(reporter, *alloc, size, size, 1);
-    REPORTER_ASSERT(reporter, alloc->contains(ptr));
-    return ptr;
-}
-                        
-static void test_chunkalloc(skiatest::Reporter* reporter) {
-    static const size_t kMin = 1024;
-    SkChunkAlloc alloc(kMin);
-
-    //------------------------------------------------------------------------
-    // check empty
-    check_alloc(reporter, alloc, 0, 0, 0);
-    REPORTER_ASSERT(reporter, !alloc.contains(nullptr));
-    REPORTER_ASSERT(reporter, !alloc.contains(reporter));
-
-    // reset on empty allocator
-    alloc.reset();
-    check_alloc(reporter, alloc, 0, 0, 0);
-
-    // rewind on empty allocator
-    alloc.rewind();
-    check_alloc(reporter, alloc, 0, 0, 0);
-
-    //------------------------------------------------------------------------
-    // test reset when something is allocated
-    size_t size = kMin >> 1;
-    void* ptr = simple_alloc(reporter, &alloc, size);
-
-    alloc.reset();
-    check_alloc(reporter, alloc, 0, 0, 0);
-    REPORTER_ASSERT(reporter, !alloc.contains(ptr));
-
-    //------------------------------------------------------------------------
-    // test rewind when something is allocated
-    ptr = simple_alloc(reporter, &alloc, size);
-
-    alloc.rewind();
-    check_alloc(reporter, alloc, size, 0, 1);
-    REPORTER_ASSERT(reporter, !alloc.contains(ptr));
-
-    // use the available block
-    ptr = simple_alloc(reporter, &alloc, size);
-    alloc.reset();
-
-    //------------------------------------------------------------------------
-    // test out allocating a second block
-    ptr = simple_alloc(reporter, &alloc, size);
-
-    ptr = alloc.allocThrow(kMin);
-    check_alloc(reporter, alloc, 2*kMin, size+kMin, 2);
-    REPORTER_ASSERT(reporter, alloc.contains(ptr));
-
-    //------------------------------------------------------------------------
-    // test out unalloc
-    size_t freed = alloc.unalloc(ptr);
-    REPORTER_ASSERT(reporter, freed == kMin);
-    check_alloc(reporter, alloc, 2*kMin, size, 2);
-    REPORTER_ASSERT(reporter, !alloc.contains(ptr));
-}
-
-///////////////////////////////////////////////////////////////////////////////
 
 static void set_zero(void* dst, size_t bytes) {
     char* ptr = (char*)dst;
@@ -95,24 +24,24 @@ static void set_zero(void* dst, size_t bytes) {
 #define VALUE16         0x1234
 #define VALUE32         0x12345678
 
-static bool compare16(const uint16_t base[], uint16_t value, int count) {
+static void compare16(skiatest::Reporter* r, const uint16_t base[],
+                      uint16_t value, int count) {
     for (int i = 0; i < count; ++i) {
         if (base[i] != value) {
-            SkDebugf("[%d] expected %x found %x\n", i, value, base[i]);
-            return false;
+            ERRORF(r, "[%d] expected %x found %x\n", i, value, base[i]);
+            return;
         }
     }
-    return true;
 }
 
-static bool compare32(const uint32_t base[], uint32_t value, int count) {
+static void compare32(skiatest::Reporter* r, const uint32_t base[],
+                      uint32_t value, int count) {
     for (int i = 0; i < count; ++i) {
         if (base[i] != value) {
-            SkDebugf("[%d] expected %x found %x\n", i, value, base[i]);
-            return false;
+            ERRORF(r, "[%d] expected %x found %x\n", i, value, base[i]);
+            return;
         }
     }
-    return true;
 }
 
 static void test_16(skiatest::Reporter* reporter) {
@@ -125,10 +54,9 @@ static void test_16(skiatest::Reporter* reporter) {
             uint16_t* base = &buffer[PAD + alignment];
             sk_memset16(base, VALUE16, count);
 
-            REPORTER_ASSERT(reporter,
-                compare16(buffer,       0,       PAD + alignment) &&
-                compare16(base,         VALUE16, count) &&
-                compare16(base + count, 0,       TOTAL - count - PAD - alignment));
+            compare16(reporter, buffer,       0,       PAD + alignment);
+            compare16(reporter, base,         VALUE16, count);
+            compare16(reporter, base + count, 0,       TOTAL - count - PAD - alignment);
         }
     }
 }
@@ -143,10 +71,9 @@ static void test_32(skiatest::Reporter* reporter) {
             uint32_t* base = &buffer[PAD + alignment];
             sk_memset32(base, VALUE32, count);
 
-            REPORTER_ASSERT(reporter,
-                compare32(buffer,       0,       PAD + alignment) &&
-                compare32(base,         VALUE32, count) &&
-                compare32(base + count, 0,       TOTAL - count - PAD - alignment));
+            compare32(reporter, buffer,       0,       PAD + alignment);
+            compare32(reporter, base,         VALUE32, count);
+            compare32(reporter, base + count, 0,       TOTAL - count - PAD - alignment);
         }
     }
 }
@@ -159,6 +86,4 @@ static void test_32(skiatest::Reporter* reporter) {
 DEF_TEST(Memset, reporter) {
     test_16(reporter);
     test_32(reporter);
-
-    test_chunkalloc(reporter);
 }

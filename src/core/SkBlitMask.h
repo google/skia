@@ -44,7 +44,7 @@ public:
      *  onto a row of dst colors. The RowFactory that returns this function ptr
      *  will have been told the formats for the mask and the dst.
      */
-    typedef void (*RowProc)(void* dst, const void* mask,
+    typedef void (*RowProc)(SkPMColor* dst, const void* mask,
                             const SkPMColor* src, int width);
 
     /**

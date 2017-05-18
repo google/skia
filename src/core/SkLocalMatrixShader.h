@@ -12,38 +12,30 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
+class GrFragmentProcessor;
+class SkArenaAlloc;
+class SkColorSpaceXformer;
+
 class SkLocalMatrixShader : public SkShader {
 public:
-    SkLocalMatrixShader(SkShader* proxy, const SkMatrix& localMatrix)
+    SkLocalMatrixShader(sk_sp<SkShader> proxy, const SkMatrix& localMatrix)
     : INHERITED(&localMatrix)
-    , fProxyShader(SkRef(proxy))
+    , fProxyShader(std::move(proxy))
     {}
-
-    size_t contextSize() const override {
-        return fProxyShader->contextSize();
-    }
 
     GradientType asAGradient(GradientInfo* info) const override {
         return fProxyShader->asAGradient(info);
     }
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext* context, const SkMatrix& viewM,
-                                                   const SkMatrix* localMatrix,
-                                                   SkFilterQuality fq) const override {
-        SkMatrix tmp = this->getLocalMatrix();
-        if (localMatrix) {
-            tmp.preConcat(*localMatrix);
-        }
-        return fProxyShader->asFragmentProcessor(context, viewM, &tmp, fq);
-    }
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
-    SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const override {
+    sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const override {
         if (localMatrix) {
             *localMatrix = this->getLocalMatrix();
         }
-        return SkRef(fProxyShader.get());
+        return fProxyShader;
     }
 
     SK_TO_STRING_OVERRIDE()
@@ -51,14 +43,30 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    Context* onCreateContext(const ContextRec&, void*) const override;
 
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+
+    SkImage* onIsAImage(SkMatrix* matrix, TileMode* mode) const override;
+
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+                        const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
+
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
+        return fProxyShader->makeColorSpace(xformer)->makeWithLocalMatrix(this->getLocalMatrix());
+    }
+
+#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
     bool onIsABitmap(SkBitmap* bitmap, SkMatrix* matrix, TileMode* mode) const override {
         return fProxyShader->isABitmap(bitmap, matrix, mode);
     }
+#endif
+
+    bool isRasterPipelineOnly() const final {
+        return fProxyShader->isRasterPipelineOnly();
+    }
 
 private:
-    SkAutoTUnref<SkShader> fProxyShader;
+    sk_sp<SkShader> fProxyShader;
 
     typedef SkShader INHERITED;
 };

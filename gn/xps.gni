@@ -1,0 +1,14 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("../src", "abspath")
+
+skia_xps_sources = [
+  "$_src/xps/SkXPSDocument.cpp",
+  "$_src/xps/SkXPSDocument.h",
+  "$_src/xps/SkXPSDevice.cpp",
+  "$_src/xps/SkXPSDevice.h",
+]

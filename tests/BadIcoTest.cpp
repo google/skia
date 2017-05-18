@@ -7,9 +7,12 @@
 
 #include "Resources.h"
 #include "Test.h"
+
 #include "SkBitmap.h"
-#include "SkImageDecoder.h"
+#include "SkCodec.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
+#include "SkStream.h"
 
 DEF_TEST(BadImage, reporter) {
     const char* const badImages [] = {
@@ -25,14 +28,18 @@ DEF_TEST(BadImage, reporter) {
 
     const char* badImagesFolder = "invalid_images";
 
-    SkString resourcePath = GetResourcePath(badImagesFolder);
-
-    SkBitmap bm;
     for (size_t i = 0; i < SK_ARRAY_COUNT(badImages); ++i) {
-        SkString fullPath = SkOSPath::Join(resourcePath.c_str(), badImages[i]);
-        bool success = SkImageDecoder::DecodeFile(fullPath.c_str(), &bm);
-        // These files are invalid, and should not decode. More importantly,
-        // though, we reached here without crashing.
-        REPORTER_ASSERT(reporter, !success);
+        SkString resourcePath = SkOSPath::Join(badImagesFolder, badImages[i]);
+        std::unique_ptr<SkStream> stream(GetResourceAsStream(resourcePath.c_str()));
+        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+
+        // These images are corrupt.  It's not important whether we succeed/fail in codec
+        // creation or decoding.  We just want to make sure that we don't crash.
+        if (codec) {
+            SkBitmap bm;
+            bm.allocPixels(codec->getInfo());
+            codec->getPixels(codec->getInfo(), bm.getPixels(),
+                    bm.rowBytes());
+        }
     }
 }

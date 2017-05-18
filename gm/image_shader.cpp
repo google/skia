@@ -24,40 +24,44 @@ static void draw_something(SkCanvas* canvas, const SkRect& bounds) {
     canvas->drawOval(bounds, paint);
 }
 
-typedef SkImage* (*ImageMakerProc)(GrContext*, const SkPicture*, const SkImageInfo&);
+typedef sk_sp<SkImage> (*ImageMakerProc)(GrContext*, SkPicture*, const SkImageInfo&);
 
-static SkImage* make_raster(GrContext*, const SkPicture* pic, const SkImageInfo& info) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+static sk_sp<SkImage> make_raster(GrContext*, SkPicture* pic, const SkImageInfo& info) {
+    auto surface(SkSurface::MakeRaster(info));
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawPicture(pic);
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
-static SkImage* make_texture(GrContext* ctx, const SkPicture* pic, const SkImageInfo& info) {
+static sk_sp<SkImage> make_texture(GrContext* ctx, SkPicture* pic, const SkImageInfo& info) {
     if (!ctx) {
         return nullptr;
     }
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted,
-                                                               info, 0));
+    auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
+    if (!surface) {
+        return nullptr;
+    }
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawPicture(pic);
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
-static SkImage* make_pict_gen(GrContext*, const SkPicture* pic, const SkImageInfo& info) {
-    return SkImage::NewFromPicture(pic, info.dimensions(), nullptr, nullptr);
+static sk_sp<SkImage> make_pict_gen(GrContext*, SkPicture* pic, const SkImageInfo& info) {
+    return SkImage::MakeFromPicture(sk_ref_sp(pic), info.dimensions(), nullptr, nullptr,
+                                    SkImage::BitDepth::kU8,
+                                    SkColorSpace::MakeSRGB());
 }
 
-static SkImage* make_encode_gen(GrContext* ctx, const SkPicture* pic, const SkImageInfo& info) {
-    SkAutoTUnref<SkImage> src(make_raster(ctx, pic, info));
+static sk_sp<SkImage> make_encode_gen(GrContext* ctx, SkPicture* pic, const SkImageInfo& info) {
+    sk_sp<SkImage> src(make_raster(ctx, pic, info));
     if (!src) {
         return nullptr;
     }
-    SkAutoTUnref<SkData> encoded(src->encode(SkImageEncoder::kPNG_Type, 100));
+    sk_sp<SkData> encoded(src->encode(SkEncodedImageFormat::kPNG, 100));
     if (!encoded) {
         return nullptr;
     }
-    return SkImage::NewFromEncoded(encoded);
+    return SkImage::MakeFromEncoded(std::move(encoded));
 }
 
 const ImageMakerProc gProcs[] = {
@@ -72,7 +76,7 @@ const ImageMakerProc gProcs[] = {
  *  (correctly) when it is inside an image.
  */
 class ImageShaderGM : public skiagm::GM {
-    SkAutoTUnref<SkPicture> fPicture;
+    sk_sp<SkPicture> fPicture;
 
 public:
     ImageShaderGM() {}
@@ -90,7 +94,7 @@ protected:
         const SkRect bounds = SkRect::MakeWH(100, 100);
         SkPictureRecorder recorder;
         draw_something(recorder.beginRecording(bounds), bounds);
-        fPicture.reset(recorder.endRecording());
+        fPicture = recorder.finishRecordingAsPicture();
     }
 
     void testImage(SkCanvas* canvas, SkImage* image) {
@@ -101,10 +105,9 @@ protected:
 
         const SkShader::TileMode tile = SkShader::kRepeat_TileMode;
         const SkMatrix localM = SkMatrix::MakeTrans(-50, -50);
-        SkAutoTUnref<SkShader> shader(image->newShader(tile, tile, &localM));
         SkPaint paint;
+        paint.setShader(image->makeShader(tile, tile, &localM));
         paint.setAntiAlias(true);
-        paint.setShader(shader);
         canvas->drawCircle(50, 50, 50, paint);
     }
 
@@ -114,9 +117,9 @@ protected:
         const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gProcs); ++i) {
-            SkAutoTUnref<SkImage> image(gProcs[i](canvas->getGrContext(), fPicture, info));
+            sk_sp<SkImage> image(gProcs[i](canvas->getGrContext(), fPicture.get(), info));
             if (image) {
-                this->testImage(canvas, image);
+                this->testImage(canvas, image.get());
             }
             canvas->translate(120, 0);
         }
@@ -126,4 +129,3 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new ImageShaderGM; )
-

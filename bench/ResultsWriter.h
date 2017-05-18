@@ -13,9 +13,9 @@
 #include "BenchLogger.h"
 #include "SkJSONCPP.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "SkTArray.h"
 #include "SkTypes.h"
 
 /**
@@ -46,6 +46,9 @@ public:
 
     // Record a single test metric.
     virtual void metric(const char name[], double ms) {}
+
+    // Record a list of test metrics.
+    virtual void metrics(const char name[], const SkTArray<double>& array) {}
 
     // Flush to storage now please.
     virtual void flush() {}
@@ -82,31 +85,31 @@ public:
         , fBench(nullptr)
         , fConfig(nullptr) {}
 
-    ~NanoJSONResultsWriter() {
+    ~NanoJSONResultsWriter() override {
         this->flush();
     }
 
     // Added under "key".
-    virtual void key(const char name[], const char value[]) {
+    void key(const char name[], const char value[]) override {
         fRoot["key"][name] = value;
     }
     // Inserted directly into the root.
-    virtual void property(const char name[], const char value[]) {
+    void property(const char name[], const char value[]) override {
         fRoot[name] = value;
     }
-    virtual void bench(const char name[], int32_t x, int32_t y) {
+    void bench(const char name[], int32_t x, int32_t y) override {
         SkString id = SkStringPrintf( "%s_%d_%d", name, x, y);
         fResults[id.c_str()] = Json::Value(Json::objectValue);
         fBench = &fResults[id.c_str()];
     }
-    virtual void config(const char name[]) {
+    void config(const char name[]) override {
         SkASSERT(fBench);
         fConfig = &(*fBench)[name];
     }
-    virtual void configOption(const char name[], const char* value) {
+    void configOption(const char name[], const char* value) override {
         (*fConfig)["options"][name] = value;
     }
-    virtual void metric(const char name[], double ms) {
+    void metric(const char name[], double ms) override {
         // Don't record if nan, or -nan.
         if (sk_double_isnan(ms)) {
             return;
@@ -114,9 +117,19 @@ public:
         SkASSERT(fConfig);
         (*fConfig)[name] = ms;
     }
+    void metrics(const char name[], const SkTArray<double>& array) override {
+        SkASSERT(fConfig);
+        Json::Value value = Json::Value(Json::arrayValue);
+        value.resize(array.count());
+        for (int i = 0; i < array.count(); i++) {
+            // Don't care about nan-ness.
+            value[i] = array[i];
+        }
+        (*fConfig)[name] = std::move(value);
+    }
 
     // Flush to storage now please.
-    virtual void flush() {
+    void flush() override {
         SkString dirname = SkOSPath::Dirname(fFilename.c_str());
         if (!sk_exists(dirname.c_str(), kWrite_SkFILE_Flag)) {
             if (!sk_mkdir(dirname.c_str())) {

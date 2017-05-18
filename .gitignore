@@ -6,27 +6,52 @@ out/*
 *.iml
 .DS_Store
 .android_config
+.deps_sha1
 .gclient*
 .gm-actuals
 .gradle
 .idea
 .cproject
 .project
+.recipe_deps/
 .settings/
 TAGS
 bower_components
 common
-gyp/build
+imgui.ini
+infra/bots/tools/luci-go/linux64/cipd
+infra/bots/tools/luci-go/linux64/isolate
+infra/bots/tools/luci-go/mac64/cipd
+infra/bots/tools/luci-go/mac64/isolate
+infra/bots/tools/luci-go/win64/cipd.exe
+infra/bots/tools/luci-go/win64/isolate.exe
+out
 
 platform_tools/android/apps/build
 platform_tools/android/apps/*.properties
 platform_tools/android/apps/*/build
 platform_tools/android/apps/*/src/main/libs
+<<<<<<< HEAD
 platform_tools/chromeos/toolchain
+=======
+sampleapp_prefs.txt
 /skps
 
 tools/skp/page_sets/data/*.json
 tools/skp/page_sets/data/*.wpr
 xcodebuild
 
+
 **/xcuserdata
+
+build
+buildtools
+tools/clang
+third_party/llvm-build
+bin/gn
+bin/gn.exe
+bin/clang-format
+bin/clang-format.exe
+
+vulkan-out
+gl-out

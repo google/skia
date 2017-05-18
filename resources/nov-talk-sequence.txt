@@ -1,0 +1,8 @@
+DrawAtlasSim
+DrawAtlas
+PerlinPatch
+FilterQuality
+GM:xfermodes2
+GM:aaxfermodes
+GM:colortype
+AnimatedText

@@ -9,11 +9,13 @@
 #ifndef SkPathRef_DEFINED
 #define SkPathRef_DEFINED
 
+#include "../private/SkAtomics.h"
+#include "../private/SkTDArray.h"
 #include "SkMatrix.h"
 #include "SkPoint.h"
+#include "SkRRect.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
-#include "SkTDArray.h"
 #include <stddef.h> // ptrdiff_t
 
 class SkRBuffer;
@@ -24,8 +26,8 @@ class SkWBuffer;
  * modify the contents. To modify or append to the verbs/points wrap the SkPathRef in an
  * SkPathRef::Editor object. Installing the editor resets the generation ID. It also performs
  * copy-on-write if the SkPathRef is shared by multiple SkPaths. The caller passes the Editor's
- * constructor a SkAutoTUnref, which may be updated to point to a new SkPathRef after the editor's
- * constructor returns.
+ * constructor a pointer to a sk_sp<SkPathRef>, which may be updated to point to a new SkPathRef
+ * after the editor's constructor returns.
  *
  * The points and verbs are stored in a single allocation. The points are at the begining of the
  * allocation while the verbs are stored at end of the allocation, in reverse order. Thus the points
@@ -34,11 +36,11 @@ class SkWBuffer;
  * logical verb or the last verb in memory).
  */
 
-class SK_API SkPathRef : public ::SkRefCnt {
+class SK_API SkPathRef final : public SkNVRefCnt<SkPathRef> {
 public:
     class Editor {
     public:
-        Editor(SkAutoTUnref<SkPathRef>* pathRef,
+        Editor(sk_sp<SkPathRef>* pathRef,
                int incReserveVerbs = 0,
                int incReservePoints = 0);
 
@@ -56,11 +58,11 @@ public:
         SkPoint* atPoint(int i) {
             SkASSERT((unsigned) i < (unsigned) fPathRef->fPointCnt);
             return this->points() + i;
-        };
+        }
         const SkPoint* atPoint(int i) const {
             SkASSERT((unsigned) i < (unsigned) fPathRef->fPointCnt);
             return this->points() + i;
-        };
+        }
 
         /**
          * Adds the verb and allocates space for the number of points indicated by the verb. The
@@ -98,12 +100,44 @@ public:
          */
         SkPathRef* pathRef() { return fPathRef; }
 
-        void setIsOval(bool isOval) { fPathRef->setIsOval(isOval); }
+        void setIsOval(bool isOval, bool isCCW, unsigned start) {
+            fPathRef->setIsOval(isOval, isCCW, start);
+        }
+
+        void setIsRRect(bool isRRect, bool isCCW, unsigned start) {
+            fPathRef->setIsRRect(isRRect, isCCW, start);
+        }
 
         void setBounds(const SkRect& rect) { fPathRef->setBounds(rect); }
 
     private:
         SkPathRef* fPathRef;
+    };
+
+    class SK_API Iter {
+    public:
+        Iter();
+        Iter(const SkPathRef&);
+
+        void setPathRef(const SkPathRef&);
+
+        /** Return the next verb in this iteration of the path. When all
+            segments have been visited, return kDone_Verb.
+
+            @param  pts The points representing the current verb and/or segment
+                        This must not be NULL.
+            @return The verb for the current segment
+        */
+        uint8_t next(SkPoint pts[4]);
+        uint8_t peek() const;
+
+        SkScalar conicWeight() const { return *fConicWeights; }
+
+    private:
+        const SkPoint*  fPts;
+        const uint8_t*  fVerbs;
+        const uint8_t*  fVerbStop;
+        const SkScalar* fConicWeights;
     };
 
 public:
@@ -134,19 +168,46 @@ public:
      *
      * @param rect      returns the bounding rect of this oval. It's a circle
      *                  if the height and width are the same.
+     * @param isCCW     is the oval CCW (or CW if false).
+     * @param start     indicates where the contour starts on the oval (see
+     *                  SkPath::addOval for intepretation of the index).
      *
      * @return true if this path is an oval.
      *              Tracking whether a path is an oval is considered an
      *              optimization for performance and so some paths that are in
      *              fact ovals can report false.
      */
-    bool isOval(SkRect* rect) const {
-        if (fIsOval && rect) {
-            *rect = getBounds();
+    bool isOval(SkRect* rect, bool* isCCW, unsigned* start) const {
+        if (fIsOval) {
+            if (rect) {
+                *rect = this->getBounds();
+            }
+            if (isCCW) {
+                *isCCW = SkToBool(fRRectOrOvalIsCCW);
+            }
+            if (start) {
+                *start = fRRectOrOvalStartIdx;
+            }
         }
 
         return SkToBool(fIsOval);
     }
+
+    bool isRRect(SkRRect* rrect, bool* isCCW, unsigned* start) const {
+        if (fIsRRect) {
+            if (rrect) {
+                *rrect = this->getRRect();
+            }
+            if (isCCW) {
+                *isCCW = SkToBool(fRRectOrOvalIsCCW);
+            }
+            if (start) {
+                *start = fRRectOrOvalStartIdx;
+            }
+        }
+        return SkToBool(fIsRRect);
+    }
+
 
     bool hasComputedBounds() const {
         return !fBoundsIsDirty;
@@ -164,10 +225,12 @@ public:
         return fBounds;
     }
 
+    SkRRect getRRect() const;
+
     /**
      * Transforms a path ref by a matrix, allocating a new one only if necessary.
      */
-    static void CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
+    static void CreateTransformedCopy(sk_sp<SkPathRef>* dst,
                                       const SkPathRef& src,
                                       const SkMatrix& matrix);
 
@@ -178,9 +241,9 @@ public:
      * repopulated with approximately the same number of verbs and points. A new path ref is created
      * only if necessary.
      */
-    static void Rewind(SkAutoTUnref<SkPathRef>* pathRef);
+    static void Rewind(sk_sp<SkPathRef>* pathRef);
 
-    virtual ~SkPathRef();
+    ~SkPathRef();
     int countPoints() const { SkDEBUGCODE(this->validate();) return fPointCnt; }
     int countVerbs() const { SkDEBUGCODE(this->validate();) return fVerbCnt; }
     int countWeights() const { SkDEBUGCODE(this->validate();) return fConicWeights.count(); }
@@ -232,6 +295,8 @@ public:
      */
     uint32_t writeSize() const;
 
+    void interpolate(const SkPathRef& ending, SkScalar weight, SkPathRef* out) const;
+
     /**
      * Gets an ID that uniquely identifies the contents of the path ref. If two path refs have the
      * same ID then they have the same verbs and points. However, two path refs may have the same
@@ -250,9 +315,12 @@ public:
 
 private:
     enum SerializationOffsets {
-        kIsFinite_SerializationShift = 25,  // requires 1 bit
-        kIsOval_SerializationShift = 24,    // requires 1 bit
-        kSegmentMask_SerializationShift = 0 // requires 4 bits
+        kRRectOrOvalStartIdx_SerializationShift = 28,  // requires 3 bits
+        kRRectOrOvalIsCCW_SerializationShift = 27,     // requires 1 bit
+        kIsRRect_SerializationShift = 26,              // requires 1 bit
+        kIsFinite_SerializationShift = 25,             // requires 1 bit
+        kIsOval_SerializationShift = 24,               // requires 1 bit
+        kSegmentMask_SerializationShift = 0            // requires 4 bits
     };
 
     SkPathRef() {
@@ -265,6 +333,10 @@ private:
         fGenerationID = kEmptyGenID;
         fSegmentMask = 0;
         fIsOval = false;
+        fIsRRect = false;
+        // The next two values don't matter unless fIsOval or fIsRRect are true.
+        fRRectOrOvalIsCCW = false;
+        fRRectOrOvalStartIdx = 0xAC;
         SkDEBUGCODE(fEditorsAttached = 0;)
         SkDEBUGCODE(this->validate();)
     }
@@ -312,6 +384,7 @@ private:
 
         fSegmentMask = 0;
         fIsOval = false;
+        fIsRRect = false;
 
         size_t newSize = sizeof(uint8_t) * verbCount + sizeof(SkPoint) * pointCount;
         size_t newReserve = sizeof(uint8_t) * reserveVerbs + sizeof(SkPoint) * reservePoints;
@@ -409,11 +482,28 @@ private:
      */
     friend SkPathRef* sk_create_empty_pathref();
 
-    void setIsOval(bool isOval) { fIsOval = isOval; }
+    void setIsOval(bool isOval, bool isCCW, unsigned start) {
+        fIsOval = isOval;
+        fRRectOrOvalIsCCW = isCCW;
+        fRRectOrOvalStartIdx = start;
+    }
 
+    void setIsRRect(bool isRRect, bool isCCW, unsigned start) {
+        fIsRRect = isRRect;
+        fRRectOrOvalIsCCW = isCCW;
+        fRRectOrOvalStartIdx = start;
+    }
+
+    // called only by the editor. Note that this is not a const function.
     SkPoint* getPoints() {
         SkDEBUGCODE(this->validate();)
         fIsOval = false;
+        fIsRRect = false;
+        return fPoints;
+    }
+
+    const SkPoint* getPoints() const {
+        SkDEBUGCODE(this->validate();)
         return fPoints;
     }
 
@@ -424,11 +514,6 @@ private:
     };
 
     mutable SkRect   fBounds;
-    mutable uint8_t  fBoundsIsDirty;
-    mutable SkBool8  fIsFinite;    // only meaningful if bounds are valid
-
-    SkBool8  fIsOval;
-    uint8_t  fSegmentMask;
 
     SkPoint*            fPoints; // points to begining of the allocation
     uint8_t*            fVerbs; // points just past the end of the allocation (verbs grow backwards)
@@ -445,8 +530,19 @@ private:
 
     SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are owned
 
+    mutable uint8_t  fBoundsIsDirty;
+    mutable SkBool8  fIsFinite;    // only meaningful if bounds are valid
+
+    SkBool8  fIsOval;
+    SkBool8  fIsRRect;
+    // Both the circle and rrect special cases have a notion of direction and starting point
+    // The next two variables store that information for either.
+    SkBool8  fRRectOrOvalIsCCW;
+    uint8_t  fRRectOrOvalStartIdx;
+    uint8_t  fSegmentMask;
+
     friend class PathRefTest_Private;
-    typedef SkRefCnt INHERITED;
+    friend class ForceIsRRect_Private; // unit test isRRect
 };
 
 #endif

@@ -13,9 +13,9 @@
 #include "SkRecords.h"
 
 using namespace SkRecords;
-typedef Pattern3<Is<Save>,
-                 Is<ClipRect>,
-                 Is<Restore> >
+typedef Pattern<Is<Save>,
+                Is<ClipRect>,
+                Is<Restore>>
     SaveClipRectRestore;
 
 DEF_TEST(RecordPattern_Simple, r) {
@@ -77,8 +77,8 @@ DEF_TEST(RecordPattern_DontMatchSubsequences, r) {
     REPORTER_ASSERT(r, !pattern.match(&record, 0));
 }
 
-DEF_TEST(RecordPattern_Star, r) {
-    Pattern3<Is<Save>, Star<Is<ClipRect> >, Is<Restore> > pattern;
+DEF_TEST(RecordPattern_Greedy, r) {
+    Pattern<Is<Save>, Greedy<Is<ClipRect>>, Is<Restore>> pattern;
 
     SkRecord record;
     SkRecorder recorder(&record, 1920, 1200);
@@ -98,11 +98,11 @@ DEF_TEST(RecordPattern_Star, r) {
 }
 
 DEF_TEST(RecordPattern_Complex, r) {
-    Pattern3<Is<Save>,
-             Star<Not<Or3<Is<Save>,
+    Pattern<Is<Save>,
+            Greedy<Not<Or<Is<Save>,
                           Is<Restore>,
-                          IsDraw> > >,
-             Is<Restore> > pattern;
+                          IsDraw>>>,
+            Is<Restore>> pattern;
 
     SkRecord record;
     SkRecorder recorder(&record, 1920, 1200);
@@ -142,7 +142,7 @@ DEF_TEST(RecordPattern_Complex, r) {
 }
 
 DEF_TEST(RecordPattern_SaveLayerIsNotADraw, r) {
-    Pattern1<IsDraw> pattern;
+    Pattern<IsDraw> pattern;
 
     SkRecord record;
     SkRecorder recorder(&record, 1920, 1200);

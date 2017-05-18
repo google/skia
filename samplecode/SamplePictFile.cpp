@@ -5,14 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "DecodeFile.h"
 #include "SampleCode.h"
 #include "SkDumpCanvas.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPath.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
@@ -24,25 +25,10 @@
 #include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
-#include "SkXfermode.h"
-
 #include "SkStream.h"
 #include "SkSurface.h"
-#include "SkXMLParser.h"
 
 #include "SkGlyphCache.h"
-
-#include "SkDrawFilter.h"
-class SkCounterDrawFilter : public SkDrawFilter {
-public:
-    SkCounterDrawFilter(int count) : fCount(count) {}
-
-    bool filter(SkPaint*, Type t) override {
-        return --fCount >= 0;
-    }
-
-    int fCount;
-};
 
 class PictFileView : public SampleView {
 public:
@@ -56,9 +42,14 @@ public:
         fCount = 0;
     }
 
-    virtual ~PictFileView() {
+    ~PictFileView() override {
+        this->freePictures();
+    }
+    
+    void freePictures() {
         for (int i = 0; i < kBBoxTypeCount; ++i) {
             SkSafeUnref(fPictures[i]);
+            fPictures[i] = nullptr;
         }
     }
 
@@ -73,7 +64,7 @@ protected:
     bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SkString name("P:");
-            const char* basename = strrchr(fFilename.c_str(), SkPATH_SEPARATOR);
+            const char* basename = strrchr(fFilename.c_str(), SkOSPath::SEPARATOR);
             name.append(basename ? basename+1: fFilename.c_str());
             switch (fBBox) {
             case kNo_BBoxType:
@@ -95,6 +86,12 @@ protected:
                 case 'n': fCount += 1; this->inval(nullptr); return true;
                 case 'p': fCount -= 1; this->inval(nullptr); return true;
                 case 's': fCount =  0; this->inval(nullptr); return true;
+                case 'F':
+                    fFilterQuality = (kNone_SkFilterQuality == fFilterQuality) ?
+                                     kHigh_SkFilterQuality : kNone_SkFilterQuality;
+                    this->freePictures();
+                    this->inval(nullptr);
+                    return true;
                 default: break;
             }
         }
@@ -118,15 +115,7 @@ protected:
 #endif
 
         if (!*picture) {
-            *picture = LoadPicture(fFilename.c_str(), fBBox);
-        }
-        if (*picture) {
-            SkCounterDrawFilter filter(fCount);
-            if (fCount > 0) {
-                canvas->setDrawFilter(&filter);
-            }
-            canvas->drawPicture(*picture);
-            canvas->setDrawFilter(nullptr);
+            *picture = LoadPicture(fFilename.c_str(), fBBox).release();
         }
 
 #ifdef SK_GLYPHCACHE_TRACK_HASH_STATS
@@ -149,23 +138,24 @@ private:
     BBoxType    fBBox;
     SkSize      fTileSize;
     int         fCount;
+    SkFilterQuality fFilterQuality = kNone_SkFilterQuality;
 
-    SkPicture* LoadPicture(const char path[], BBoxType bbox) {
-        SkAutoTUnref<SkPicture> pic;
+    sk_sp<SkPicture> LoadPicture(const char path[], BBoxType bbox) {
+        sk_sp<SkPicture> pic;
 
-        SkBitmap bm;
-        if (SkImageDecoder::DecodeFile(path, &bm)) {
-            bm.setImmutable();
+        if (sk_sp<SkImage> img = decode_file(path)) {
             SkPictureRecorder recorder;
-            SkCanvas* can = recorder.beginRecording(SkIntToScalar(bm.width()),
-                                                    SkIntToScalar(bm.height()),
+            SkCanvas* can = recorder.beginRecording(SkIntToScalar(img->width()),
+                                                    SkIntToScalar(img->height()),
                                                     nullptr, 0);
-            can->drawBitmap(bm, 0, 0, nullptr);
-            pic.reset(recorder.endRecording());
+            SkPaint paint;
+            paint.setFilterQuality(fFilterQuality);
+            can->drawImage(img, 0, 0, &paint);
+            pic = recorder.finishRecordingAsPicture();
         } else {
             SkFILEStream stream(path);
             if (stream.isValid()) {
-                pic.reset(SkPicture::CreateFromStream(&stream));
+                pic = SkPicture::MakeFromStream(&stream);
             } else {
                 SkDebugf("coun't load picture at \"path\"\n", path);
             }
@@ -175,7 +165,7 @@ private:
                 pic->playback(recorder.beginRecording(pic->cullRect().width(),
                                                       pic->cullRect().height(),
                                                       nullptr, 0));
-                SkAutoTUnref<SkPicture> p2(recorder.endRecording());
+                sk_sp<SkPicture> p2(recorder.finishRecordingAsPicture());
 
                 SkString path2(path);
                 path2.append(".new.skp");
@@ -188,11 +178,11 @@ private:
             return nullptr;
         }
 
-        SkAutoTDelete<SkBBHFactory> factory;
+        std::unique_ptr<SkBBHFactory> factory;
         switch (bbox) {
         case kNo_BBoxType:
             // no bbox playback necessary
-            return pic.detach();
+            return pic;
         case kRTree_BBoxType:
             factory.reset(new SkRTreeFactory);
             break;
@@ -204,7 +194,7 @@ private:
         pic->playback(recorder.beginRecording(pic->cullRect().width(),
                                               pic->cullRect().height(),
                                               factory.get(), 0));
-        return recorder.endRecording();
+        return recorder.finishRecordingAsPicture();
     }
 
     typedef SampleView INHERITED;

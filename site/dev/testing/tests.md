@@ -1,5 +1,19 @@
-Writing Unit and Rendering Tests
-================================
+Writing Skia Tests
+==================
+
++   [Unit Tests](#test)
++   [Rendering Tests](#gm)
++   [Benchmark Tests](#bench)
+
+We assume you have already synced Skia's dependecies and set up Skia's build system.
+
+<!--?prettify lang=sh?-->
+
+    python tools/git-sync-deps
+    bin/gn gen out/Debug
+    bin/gn gen out/Release --args='is_debug=false'
+
+<span id="test"></span>
 
 Writing a Unit Test
 -------------------
@@ -23,11 +37,16 @@ Writing a Unit Test
             REPORTER_ASSERT(reporter, lifeIsGood);
         }
 
-2.  Recompile and run test:
+2.  Add `NewUnitTest.cpp` to `gn/tests.gni`.
 
-        ./gyp_skia
+3.  Recompile and run test:
+
+    <!--?prettify lang=sh?-->
+
         ninja -C out/Debug dm
         out/Debug/dm --match NewUnitTest
+
+<span id="gm"></span>
 
 Writing a Rendering Test
 ------------------------
@@ -50,18 +69,61 @@ Writing a Rendering Test
             canvas->drawLine(16, 16, 112, 112, p);
         }
 
-2.  Recompile and run test:
+2.  Add `newgmtest.cpp` to `gn/gm.gni`.
 
-        ./gyp_skia
+3.  Recompile and run test:
+
+    <!--?prettify lang=sh?-->
+
         ninja -C out/Debug dm
         out/Debug/dm --match newgmtest
 
-3.  Run the GM inside SampleApp:
+4.  Run the GM inside SampleApp:
 
-        ./gyp_skia
+    <!--?prettify lang=sh?-->
+
         ninja -C out/Debug SampleApp
         out/Debug/SampleApp --slide GM:newgmtest
 
-    On MacOS, try this:
+<span id="bench"></span>
 
-        out/Debug/SampleApp.app/Contents/MacOS/SampleApp --slide GM:newgmtest
+Writing a Benchmark Test
+------------------------
+
+1.  Add a file `bench/FooBench.cpp`:
+
+    <!--?prettify lang=cc?-->
+
+        /*
+         * Copyright ........
+         *
+         * Use of this source code is governed by a BSD-style license
+         * that can be found in the LICENSE file.
+         */
+        #include "Benchmark.h"
+        #include "SkCanvas.h"
+        namespace {
+        class FooBench : public Benchmark {
+        public:
+            FooBench() {}
+            virtual ~FooBench() {}
+        protected:
+            const char* onGetName() override { return "Foo"; }
+            SkIPoint onGetSize() override { return SkIPoint{100, 100}; }
+            void onDraw(int loops, SkCanvas* canvas) override {
+                while (loops-- > 0) {
+                    canvas->drawLine(0.0f, 0.0f, 100.0f, 100.0f, SkPaint());
+                }
+            }
+        };
+        }  // namespace
+        DEF_BENCH(return new FooBench;)
+
+2.  Add `FooBench.cpp` to `gn/bench.gni`.
+
+3.  Recompile and run nanobench:
+
+    <!--?prettify lang=sh?-->
+
+        ninja -C out/Release nanobench
+        out/Release/nanobench --match Foo

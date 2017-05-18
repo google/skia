@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -8,6 +7,8 @@
 
 
 #include "SkMetaData.h"
+
+#include "SkMalloc.h"
 #include "SkRefCnt.h"
 
 struct PtrPair {

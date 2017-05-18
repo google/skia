@@ -229,7 +229,7 @@ template <typename T> void* operator new(size_t, GrTAllocator<T>*);
 
 template <typename T> class GrTAllocator : SkNoncopyable {
 public:
-    virtual ~GrTAllocator() { this->reset(); };
+    virtual ~GrTAllocator() { this->reset(); }
 
     /**
      * Create an allocator
@@ -255,6 +255,13 @@ public:
         void* item = fAllocator.push_back();
         SkASSERT(item);
         new (item) T(t);
+        return *(T*)item;
+    }
+
+    template <typename... Args> T& emplace_back(Args&&... args) {
+        void* item = fAllocator.push_back();
+        SkASSERT(item);
+        new (item) T(std::forward<Args>(args)...);
         return *(T*)item;
     }
 
@@ -389,7 +396,7 @@ template <typename T> void* operator new(size_t size, GrTAllocator<T>* allocator
 // to match the op new silences warnings about missing op delete when a constructor throws an
 // exception.
 template <typename T> void operator delete(void*, GrTAllocator<T>*) {
-    SK_CRASH();
+    SK_ABORT("Invalid Operation");
 }
 
 #define GrNEW_APPEND_TO_ALLOCATOR(allocator_ptr, type_name, args) \

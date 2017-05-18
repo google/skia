@@ -14,29 +14,27 @@
 /*
  *  Inspired by http://code.google.com/p/chromium/issues/detail?id=112145
  */
-static void flower(SkCanvas* canvas, const SkPath& path,
-                   SkScalar intervals[2], SkPaint::Join join) {
-        SkPathEffect* pe = SkDashPathEffect::Create(intervals, 2, 0);
+static void flower(SkCanvas* canvas, const SkPath& path, SkScalar intervals[2],
+                   SkPaint::Join join) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeJoin(join);
+    paint.setStrokeWidth(42);
+    canvas->drawPath(path, paint);
 
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setStrokeJoin(join);
-        paint.setStrokeWidth(42);
-        canvas->drawPath(path, paint);
+    paint.setColor(SK_ColorRED);
+    paint.setStrokeWidth(21);
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 0));
+    canvas->drawPath(path, paint);
 
-        paint.setColor(SK_ColorRED);
-        paint.setStrokeWidth(21);
-        paint.setPathEffect(pe)->unref();
-        canvas->drawPath(path, paint);
-
-        paint.setColor(SK_ColorGREEN);
-        paint.setPathEffect(nullptr);
-        paint.setStrokeWidth(0);
-        canvas->drawPath(path, paint);
+    paint.setColor(SK_ColorGREEN);
+    paint.setPathEffect(nullptr);
+    paint.setStrokeWidth(0);
+    canvas->drawPath(path, paint);
 }
 
-DEF_SIMPLE_GM(dashcubics, canvas, 860, 700) {
+DEF_SIMPLE_GM(dashcubics, canvas, 865, 750) {
         SkPath path;
         const char* d = "M 337,98 C 250,141 250,212 250,212 C 250,212 250,212 250,212"
         "C 250,212 250,212 250,212 C 250,212 250,141 163,98 C 156,195 217,231 217,231"

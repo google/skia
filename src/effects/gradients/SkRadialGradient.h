@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -15,14 +14,11 @@ class SkRadialGradient : public SkGradientShaderBase {
 public:
     SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor&);
 
-    size_t contextSize() const override;
-
     class RadialGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
         RadialGradientContext(const SkRadialGradient&, const ContextRec&);
 
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
-        void shadeSpan16(int x, int y, uint16_t dstC[], int count) override;
 
     private:
         typedef SkGradientShaderBase::GradientShaderBaseContext INHERITED;
@@ -30,10 +26,7 @@ public:
 
     GradientType asAGradient(GradientInfo* info) const override;
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*,
-                                                   const SkMatrix& viewM,
-                                                   const SkMatrix*,
-                                                   SkFilterQuality) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
@@ -42,7 +35,12 @@ public:
 protected:
     SkRadialGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
-    Context* onCreateContext(const ContextRec&, void* storage) const override;
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
+    
+    bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
+                                     SkMatrix* matrix,
+                                     SkRasterPipeline* p) const final;
 
 private:
     const SkPoint fCenter;

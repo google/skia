@@ -8,26 +8,22 @@
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkColorPriv.h"
 #include "SkShader.h"
 
-static const struct {
-    SkXfermode::Mode  fMode;
-    const char*         fLabel;
-} gModes[] = {
-    { SkXfermode::kClear_Mode,    "Clear"     },
-    { SkXfermode::kSrc_Mode,      "Src"       },
-    { SkXfermode::kDst_Mode,      "Dst"       },
-    { SkXfermode::kSrcOver_Mode,  "SrcOver"   },
-    { SkXfermode::kDstOver_Mode,  "DstOver"   },
-    { SkXfermode::kSrcIn_Mode,    "SrcIn"     },
-    { SkXfermode::kDstIn_Mode,    "DstIn"     },
-    { SkXfermode::kSrcOut_Mode,   "SrcOut"    },
-    { SkXfermode::kDstOut_Mode,   "DstOut"    },
-    { SkXfermode::kSrcATop_Mode,  "SrcATop"   },
-    { SkXfermode::kDstATop_Mode,  "DstATop"   },
-    { SkXfermode::kXor_Mode,      "Xor"       },
+static const SkBlendMode gModes[] = {
+    SkBlendMode::kClear,
+    SkBlendMode::kSrc,
+    SkBlendMode::kDst,
+    SkBlendMode::kSrcOver,
+    SkBlendMode::kDstOver,
+    SkBlendMode::kSrcIn,
+    SkBlendMode::kDstIn,
+    SkBlendMode::kSrcOut,
+    SkBlendMode::kDstOut,
+    SkBlendMode::kSrcATop,
+    SkBlendMode::kDstATop,
+    SkBlendMode::kXor,
 };
 
 const int gWidth = 64;
@@ -35,9 +31,7 @@ const int gHeight = 64;
 const SkScalar W = SkIntToScalar(gWidth);
 const SkScalar H = SkIntToScalar(gHeight);
 
-static SkScalar drawCell(SkCanvas* canvas, SkXfermode* mode,
-                         SkAlpha a0, SkAlpha a1) {
-
+static SkScalar drawCell(SkCanvas* canvas, SkBlendMode mode, SkAlpha a0, SkAlpha a1) {
     SkPaint paint;
     paint.setAntiAlias(true);
 
@@ -50,7 +44,7 @@ static SkScalar drawCell(SkCanvas* canvas, SkXfermode* mode,
 
     paint.setColor(SK_ColorRED);
     paint.setAlpha(a1);
-    paint.setXfermode(mode);
+    paint.setBlendMode(mode);
 
     SkScalar offset = SK_Scalar1 / 3;
     SkRect rect = SkRect::MakeXYWH(W / 4 + offset,
@@ -61,7 +55,7 @@ static SkScalar drawCell(SkCanvas* canvas, SkXfermode* mode,
     return H;
 }
 
-static SkShader* make_bg_shader() {
+static sk_sp<SkShader> make_bg_shader() {
     SkBitmap bm;
     bm.allocN32Pixels(2, 2);
     *bm.getAddr32(0, 0) = *bm.getAddr32(1, 1) = 0xFFFFFFFF;
@@ -71,17 +65,17 @@ static SkShader* make_bg_shader() {
     SkMatrix m;
     m.setScale(SkIntToScalar(6), SkIntToScalar(6));
 
-    return SkShader::CreateBitmapShader(bm,
-                                        SkShader::kRepeat_TileMode,
-                                        SkShader::kRepeat_TileMode,
-                                        &m);
+    return SkShader::MakeBitmapShader(bm,
+                                      SkShader::kRepeat_TileMode,
+                                      SkShader::kRepeat_TileMode,
+                                      &m);
 }
 
 class AARectsModesView : public SampleView {
     SkPaint fBGPaint;
 public:
     AARectsModesView () {
-        fBGPaint.setShader(make_bg_shader())->unref();
+        fBGPaint.setShader(make_bg_shader());
     }
 
 protected:
@@ -109,17 +103,14 @@ protected:
                     canvas->translate(W * 5, 0);
                     canvas->save();
                 }
-                SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
 
                 canvas->drawRect(bounds, fBGPaint);
                 canvas->saveLayer(&bounds, nullptr);
-                SkScalar dy = drawCell(canvas, mode,
-                                       gAlphaValue[alpha & 1],
+                SkScalar dy = drawCell(canvas, gModes[i], gAlphaValue[alpha & 1],
                                        gAlphaValue[alpha & 2]);
                 canvas->restore();
 
                 canvas->translate(0, dy * 5 / 4);
-                SkSafeUnref(mode);
             }
             canvas->restore();
             canvas->restore();

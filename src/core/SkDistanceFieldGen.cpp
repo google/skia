@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkAutoMalloc.h"
 #include "SkDistanceFieldGen.h"
 #include "SkPoint.h"
+#include "SkTemplates.h"
 
 struct DFData {
     float   fAlpha;      // alpha value of source texel
@@ -242,9 +244,8 @@ static void F1(DFData* curr, int width) {
 static void F2(DFData* curr, int width) {
     // right
     DFData* check = curr + 1;
-    float distSq = check->fDistSq;
     SkPoint distVec = check->fDistVector;
-    distSq = check->fDistSq + 2.0f*distVec.fX + 1.0f;
+    float distSq = check->fDistSq + 2.0f*distVec.fX + 1.0f;
     if (distSq < curr->fDistSq) {
         distVec.fX += 1.0f;
         curr->fDistSq = distSq;
@@ -316,14 +317,20 @@ static void B2(DFData* curr, int width) {
 #define DUMP_EDGE 0
 
 #if !DUMP_EDGE
-static unsigned char pack_distance_field_val(float dist, float distanceMagnitude) {
-    if (dist <= -distanceMagnitude) {
-        return 255;
-    } else if (dist > distanceMagnitude) {
-        return 0;
-    } else {
-        return (unsigned char)((distanceMagnitude-dist)*128.0f/distanceMagnitude);
-    }
+template <int distanceMagnitude>
+static unsigned char pack_distance_field_val(float dist) {
+    // The distance field is constructed as unsigned char values, so that the zero value is at 128,
+    // Beside 128, we have 128 values in range [0, 128), but only 127 values in range (128, 255].
+    // So we multiply distanceMagnitude by 127/128 at the latter range to avoid overflow.
+    dist = SkScalarPin(-dist, -distanceMagnitude, distanceMagnitude * 127.0f / 128.0f);
+
+    // Scale into the positive range for unsigned distance.
+    dist += distanceMagnitude;
+
+    // Scale into unsigned char range.
+    // Round to place negative and positive values as equally as possible around 128
+    // (which represents zero).
+    return (unsigned char)SkScalarRoundToInt(dist / (2 * distanceMagnitude) * 256.0f);
 }
 #endif
 
@@ -343,15 +350,10 @@ static bool generate_distance_field_from_image(unsigned char* distanceField,
     int dataWidth = width + 2*pad;
     int dataHeight = height + 2*pad;
 
-    // create temp data
-    size_t dataSize = dataWidth*dataHeight*sizeof(DFData);
-    SkAutoSMalloc<1024> dfStorage(dataSize);
-    DFData* dataPtr = (DFData*) dfStorage.get();
-    sk_bzero(dataPtr, dataSize);
-
-    SkAutoSMalloc<1024> edgeStorage(dataWidth*dataHeight*sizeof(char));
-    unsigned char* edgePtr = (unsigned char*) edgeStorage.get();
-    sk_bzero(edgePtr, dataWidth*dataHeight*sizeof(char));
+    // create zeroed temp DFData+edge storage
+    SkAutoFree storage(sk_calloc_throw(dataWidth*dataHeight*(sizeof(DFData) + 1)));
+    DFData*        dataPtr = (DFData*)storage.get();
+    unsigned char* edgePtr = (unsigned char*)storage.get() + dataWidth*dataHeight*sizeof(DFData);
 
     // copy glyph into distance field storage
     init_glyph_data(dataPtr, edgePtr, copyPtr,
@@ -446,7 +448,7 @@ static bool generate_distance_field_from_image(unsigned char* distanceField,
             } else {
                 dist = SkScalarSqrt(currData->fDistSq);
             }
-            *dfPtr++ = pack_distance_field_val(dist, (float)SK_DistanceFieldMagnitude);
+            *dfPtr++ = pack_distance_field_val<SK_DistanceFieldMagnitude>(dist);
 #endif
             ++currData;
             ++currEdge;

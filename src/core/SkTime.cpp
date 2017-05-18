@@ -5,8 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "SkLeanWindows.h"
 #include "SkString.h"
 #include "SkTime.h"
+#include "SkTypes.h"
+#include <chrono>
 
 void SkTime::DateTime::toISO8601(SkString* dst) const {
     if (dst) {
@@ -21,4 +24,59 @@ void SkTime::DateTime::toISO8601(SkString* dst) const {
                     static_cast<unsigned>(fSecond), timezoneSign, timeZoneHours,
                     timeZoneMinutes);
     }
+}
+
+#ifdef SK_BUILD_FOR_WIN32
+
+void SkTime::GetDateTime(DateTime* dt) {
+    if (dt) {
+        SYSTEMTIME st;
+        GetSystemTime(&st);
+        dt->fTimeZoneMinutes = 0;
+        dt->fYear       = st.wYear;
+        dt->fMonth      = SkToU8(st.wMonth);
+        dt->fDayOfWeek  = SkToU8(st.wDayOfWeek);
+        dt->fDay        = SkToU8(st.wDay);
+        dt->fHour       = SkToU8(st.wHour);
+        dt->fMinute     = SkToU8(st.wMinute);
+        dt->fSecond     = SkToU8(st.wSecond);
+    }
+}
+
+#else // SK_BUILD_FOR_WIN32
+
+#include <time.h>
+void SkTime::GetDateTime(DateTime* dt) {
+    if (dt) {
+        time_t m_time;
+        time(&m_time);
+        struct tm tstruct;
+        gmtime_r(&m_time, &tstruct);
+        dt->fTimeZoneMinutes = 0;
+        dt->fYear       = tstruct.tm_year + 1900;
+        dt->fMonth      = SkToU8(tstruct.tm_mon + 1);
+        dt->fDayOfWeek  = SkToU8(tstruct.tm_wday);
+        dt->fDay        = SkToU8(tstruct.tm_mday);
+        dt->fHour       = SkToU8(tstruct.tm_hour);
+        dt->fMinute     = SkToU8(tstruct.tm_min);
+        dt->fSecond     = SkToU8(tstruct.tm_sec);
+    }
+}
+#endif // SK_BUILD_FOR_WIN32
+
+#if !defined(__has_feature)
+    #define  __has_feature(x) 0
+#endif
+
+double SkTime::GetNSecs() {
+#if __has_feature(memory_sanitizer)
+    // See skia:6504
+    struct timespec tp;
+    clock_gettime(CLOCK_MONOTONIC, &tp);
+    return tp.tv_sec * 1e9 + tp.tv_nsec;
+#else
+    auto now = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::nano> ns = now.time_since_epoch();
+    return ns.count();
+#endif
 }

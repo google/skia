@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -30,18 +29,18 @@ public:
         : fShift(shift)
         , fStroke(stroke) {}
 
-    SkString fName;
     const char* computeName(const char root[]) {
-        fName.printf("%s_%d", root, fShift);
+        fBaseName.printf("%s_%d", root, fShift);
         if (fStroke > 0) {
-            fName.appendf("_stroke_%d", fStroke);
+            fBaseName.appendf("_stroke_%d", fStroke);
         }
-        return fName.c_str();
+        return fBaseName.c_str();
     }
 
     bool isVisual() override { return true; }
 
 protected:
+
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawRect(r, p);
     }
@@ -79,18 +78,16 @@ protected:
             this->drawThisRect(canvas, fRects[i % N], paint);
         }
     }
+
 private:
+    SkString fBaseName;
     typedef Benchmark INHERITED;
 };
 
 class SrcModeRectBench : public RectBench {
 public:
     SrcModeRectBench() : INHERITED(1, 0) {
-        fMode = SkXfermode::Create(SkXfermode::kSrc_Mode);
-    }
-
-    virtual ~SrcModeRectBench() {
-        SkSafeUnref(fMode);
+        fMode = SkBlendMode::kSrc;
     }
 
 protected:
@@ -98,7 +95,7 @@ protected:
         this->INHERITED::setupPaint(paint);
         // srcmode is most interesting when we're not opaque
         paint->setAlpha(0x80);
-        paint->setXfermode(fMode);
+        paint->setBlendMode(fMode);
     }
 
     const char* onGetName() override {
@@ -108,8 +105,8 @@ protected:
     }
 
 private:
+    SkBlendMode fMode;
     SkString fName;
-    SkXfermode* fMode;
 
     typedef RectBench INHERITED;
 };
@@ -133,7 +130,6 @@ protected:
 
 private:
     SkString fName;
-
     typedef RectBench INHERITED;
 };
 
@@ -161,7 +157,6 @@ protected:
 class PointsBench : public RectBench {
 public:
     SkCanvas::PointMode fMode;
-    const char* fName;
 
     PointsBench(SkCanvas::PointMode mode, const char* name)
         : RectBench(2)
@@ -193,7 +188,11 @@ protected:
             }
         }
     }
-    const char* onGetName() override { return fName; }
+    const char* onGetName() override { return fName.c_str(); }
+
+private:
+    SkString fName;
+
 };
 
 /*******************************************************************************
@@ -209,7 +208,6 @@ public:
         KMaskShader
     };
     SkCanvas::PointMode fMode;
-    const char* fName;
 
     BlitMaskBench(SkCanvas::PointMode mode,
                   BlitMaskBench::kMaskType type, const char* name) :
@@ -238,10 +236,8 @@ protected:
             srcBM.allocN32Pixels(10, 1);
             srcBM.eraseColor(0xFF00FF00);
 
-            SkShader* s;
-            s  = SkShader::CreateBitmapShader(srcBM, SkShader::kClamp_TileMode,
-                                              SkShader::kClamp_TileMode);
-            paint.setShader(s)->unref();
+            paint.setShader(SkShader::MakeBitmapShader(srcBM, SkShader::kClamp_TileMode,
+                                                       SkShader::kClamp_TileMode));
         }
         for (int loop = 0; loop < loops; loop++) {
             for (size_t i = 0; i < sizes; i++) {
@@ -269,10 +265,12 @@ protected:
            }
         }
     }
-    const char* onGetName() override { return fName; }
+    const char* onGetName() override { return fName.c_str(); }
+
 private:
     typedef RectBench INHERITED;
     kMaskType _type;
+    SkString fName;
 };
 
 DEF_BENCH(return new RectBench(1);)

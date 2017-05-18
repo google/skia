@@ -10,6 +10,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkPicture.h"
 #include "SkPictureImageFilter.h"
@@ -23,19 +24,19 @@ public:
         const int pointSize = 36;
         textHeight = SkIntToScalar(pointSize);
     }
-    
+
 protected:
-    
+
     SkString onShortName() {
         SkString name("lcdtext");
         name.append(sk_tool_utils::major_platform_os_name());
         return name;
     }
-    
+
     SkISize onISize() { return SkISize::Make(640, 480); }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
-        
+
         y = textHeight;
         drawText(canvas, SkString("TEXT: SubpixelTrue LCDRenderTrue"),
                  true,  true);
@@ -46,7 +47,7 @@ protected:
         drawText(canvas, SkString("TEXT: SubpixelFalse LCDRenderFalse"),
                  false, false);
     }
-    
+
     void drawText(SkCanvas* canvas, const SkString& string,
                   bool subpixelTextEnabled, bool lcdRenderTextEnabled) {
         SkPaint paint;
@@ -56,11 +57,11 @@ protected:
         paint.setSubpixelText(subpixelTextEnabled);
         paint.setLCDRenderText(lcdRenderTextEnabled);
         paint.setTextSize(textHeight);
-        
-        canvas->drawText(string.c_str(), string.size(), 0, y, paint);
+
+        canvas->drawString(string, 0, y, paint);
         y += textHeight;
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
     SkScalar y, textHeight;
@@ -85,14 +86,14 @@ class LcdTextSizeGM : public skiagm::GM {
 
 public:
     LcdTextSizeGM() {}
-    
+
 protected:
     SkString onShortName() {
         return SkString("lcdtextsize");
     }
-    
+
     SkISize onISize() { return SkISize::Make(320, 120); }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         const char* lcd_text = "LCD";
         const char* gray_text = "GRAY";
@@ -119,13 +120,41 @@ protected:
 
             paint.setTextSize(rec[i].fTextSize);
             ScaleAbout(canvas, rec[i].fScale, rec[i].fScale, loc.x(), loc.y());
-            canvas->drawText(rec[i].fText, strlen(rec[i].fText), loc.x(), loc.y(), paint);
+            canvas->drawString(rec[i].fText, loc.x(), loc.y(), paint);
         }
     }
 
 private:
     typedef skiagm::GM INHERITED;
 };
-
 DEF_GM( return new LcdTextGM; )
 DEF_GM( return new LcdTextSizeGM; )
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DEF_SIMPLE_GM(savelayer_lcdtext, canvas, 620, 260) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setLCDRenderText(true);
+    paint.setTextSize(20);
+
+    canvas->drawString("Hamburgefons", 30, 30, paint);
+
+    const bool gPreserveLCDText[] = { false, true };
+
+    canvas->translate(0, 20);
+    for (auto preserve : gPreserveLCDText) {
+        preserve ? canvas->saveLayerPreserveLCDTextRequests(nullptr, nullptr)
+                 : canvas->saveLayer(nullptr, nullptr);
+
+        canvas->drawString("Hamburgefons", 30, 60, paint);
+
+        SkPaint p;
+        p.setColor(0xFFCCCCCC);
+        canvas->drawRect(SkRect::MakeLTRB(25, 70, 200, 100), p);
+        canvas->drawString("Hamburgefons", 30, 90, paint);
+
+        canvas->restore();
+        canvas->translate(0, 80);
+    }
+}

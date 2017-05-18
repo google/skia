@@ -10,7 +10,7 @@
 #include "SkReduceOrder.h"
 #include "Test.h"
 
-static const SkDQuad testSet[] = {
+static const QuadPts testSet[] = {
     {{{1, 1}, {2, 2}, {1, 1.000003}}},
     {{{1, 0}, {2, 6}, {3, 0}}}
 };
@@ -19,7 +19,9 @@ static const size_t testSetCount = SK_ARRAY_COUNT(testSet);
 
 static void oneOffTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < testSetCount; ++index) {
-        const SkDQuad& quad = testSet[index];
+        const QuadPts& q = testSet[index];
+        SkDQuad quad;
+        quad.debugSet(q.fPts);
         SkReduceOrder reducer;
         SkDEBUGCODE(int result = ) reducer.reduce(quad);
         SkASSERT(result == 3);
@@ -47,14 +49,18 @@ static void standardTestCases(skiatest::Reporter* reporter) {
             : SK_MaxS32;
 
     for (index = firstQuadraticLineTest; index < quadraticLines_count; ++index) {
-        const SkDQuad& quad = quadraticLines[index];
+        const QuadPts& q = quadraticLines[index];
+        SkDQuad quad;
+        quad.debugSet(q.fPts);
         order = reducer.reduce(quad);
         if (order != 2) {
             SkDebugf("[%d] line quad order=%d\n", (int) index, order);
         }
     }
     for (index = firstQuadraticModLineTest; index < quadraticModEpsilonLines_count; ++index) {
-        const SkDQuad& quad = quadraticModEpsilonLines[index];
+        const QuadPts& q = quadraticModEpsilonLines[index];
+        SkDQuad quad;
+        quad.debugSet(q.fPts);
         order = reducer.reduce(quad);
         if (order != 2 && order != 3) {  // FIXME: data probably is not good
             SkDebugf("[%d] line mod quad order=%d\n", (int) index, order);

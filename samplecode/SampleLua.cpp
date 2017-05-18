@@ -60,10 +60,9 @@ public:
             fLua = new SkLua;
 
             SkString str = GetResourcePath(LUA_FILENAME);
-            SkData* data = SkData::NewFromFileName(str.c_str());
+            sk_sp<SkData> data(SkData::MakeFromFileName(str.c_str()));
             if (data) {
                 fLua->runCode(data->data(), data->size());
-                data->unref();
                 this->setImageFilename(fLua->get());
             } else {
                 fLua->runCode(gMissingCode);

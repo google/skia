@@ -17,12 +17,9 @@ static void make_bm(SkBitmap* bm) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(colors); ++i) {
         colorsPM[i] = SkPreMultiplyColor(colors[i]);
     }
-    SkColorTable* ctable = new SkColorTable(colorsPM, 4);
-
     bm->allocPixels(SkImageInfo::Make(2, 2, kIndex_8_SkColorType,
-                                      kPremul_SkAlphaType),
-                    nullptr, ctable);
-    ctable->unref();
+                                      kOpaque_SkAlphaType),
+                    SkColorTable::Make(colorsPM, 4));
 
     *bm->getAddr8(0, 0) = 0;
     *bm->getAddr8(1, 0) = 1;
@@ -55,7 +52,7 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
     paint.setAntiAlias(true);
     sk_tool_utils::set_portable_typeface(&paint);
     const char* name = sk_tool_utils::colortype_name(bm.colorType());
-    canvas->drawText(name, strlen(name), x, SkIntToScalar(bm.height())*scale*5/8,
+    canvas->drawString(name, x, SkIntToScalar(bm.height())*scale*5/8,
                      paint);
     canvas->translate(SkIntToScalar(48), 0);
 
@@ -71,9 +68,9 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
 class FilterGM : public skiagm::GM {
     void onOnceBeforeDraw() override {
         make_bm(&fBM8);
-        fBM8.copyTo(&fBM4444, kARGB_4444_SkColorType);
-        fBM8.copyTo(&fBM16, kRGB_565_SkColorType);
-        fBM8.copyTo(&fBM32, kN32_SkColorType);
+        sk_tool_utils::copy_to(&fBM4444, kARGB_4444_SkColorType, fBM8);
+        sk_tool_utils::copy_to(&fBM16, kRGB_565_SkColorType, fBM8);
+        sk_tool_utils::copy_to(&fBM32, kN32_SkColorType, fBM8);
     }
 
 public:
@@ -131,19 +128,19 @@ class TestExtractAlphaGM : public skiagm::GM {
 
         fBitmap.extractAlpha(&fAlpha);
     }
-    
+
 public:
     SkBitmap fBitmap, fAlpha;
-    
+
 protected:
     SkString onShortName() override {
         return SkString("extractalpha");
     }
-    
+
     SkISize onISize() override {
         return SkISize::Make(540, 330);
     }
-    
+
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -153,9 +150,8 @@ protected:
         canvas->drawBitmap(fBitmap, 10, 10, &paint);    // should stay blue (ignore paint's color)
         canvas->drawBitmap(fAlpha, 120, 10, &paint);    // should draw red
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new TestExtractAlphaGM; )
-

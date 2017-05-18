@@ -8,12 +8,12 @@
 #define SkPathOpsTypes_DEFINED
 
 #include <float.h>  // for FLT_EPSILON
-#include <math.h>   // for fabs, sqrt
 
 #include "SkFloatingPoint.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkPathOpsDebug.h"
+#include "SkSafe_math.h"  // for fabs, sqrt
 #include "SkScalar.h"
 
 enum SkPathOpsMask {
@@ -22,27 +22,36 @@ enum SkPathOpsMask {
     kEvenOdd_PathOpsMask = 1
 };
 
+class SkArenaAlloc;
 class SkOpCoincidence;
 class SkOpContour;
 class SkOpContourHead;
+class SkIntersections;
+class SkIntersectionHelper;
+
+enum class SkOpPhase : char {
+    kNoChange,
+    kIntersecting,
+    kWalking,
+    kFixWinding,
+};
 
 class SkOpGlobalState {
 public:
-    SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* head
+    SkOpGlobalState(SkOpContourHead* head,
+                    SkArenaAlloc* allocator SkDEBUGPARAMS(bool debugSkipAssert)
                     SkDEBUGPARAMS(const char* testName));
-
-    enum Phase {
-        kIntersecting,
-        kWalking,
-        kFixWinding,
-    };
 
     enum {
         kMaxWindingTries = 10
     };
 
-    bool angleCoincidence() {
-        return fAngleCoincidence;
+    bool allocatedOpSpan() const {
+        return fAllocatedOpSpan;
+    }
+
+    SkArenaAlloc* allocator() {
+        return fAllocator;
     }
 
     void bumpNested() {
@@ -62,14 +71,47 @@ public:
     }
 
 #ifdef SK_DEBUG
-    const struct SkOpAngle* debugAngle(int id) const;
-    SkOpContour* debugContour(int id);
+    const class SkOpAngle* debugAngle(int id) const;
+    const SkOpCoincidence* debugCoincidence() const;
+    SkOpContour* debugContour(int id) const;
     const class SkOpPtT* debugPtT(int id) const;
-    bool debugRunFail() const;
+#endif
+
+    static bool DebugRunFail();
+
+#ifdef SK_DEBUG
     const class SkOpSegment* debugSegment(int id) const;
+    bool debugSkipAssert() const { return fDebugSkipAssert; }
     const class SkOpSpanBase* debugSpan(int id) const;
     const char* debugTestName() const { return fDebugTestName; }
 #endif
+
+#if DEBUG_T_SECT_LOOP_COUNT
+    void debugAddLoopCount(SkIntersections* , const SkIntersectionHelper& ,
+        const SkIntersectionHelper& );
+    void debugDoYourWorst(SkOpGlobalState* );
+    void debugLoopReport();
+    void debugResetLoopCounts();
+#endif
+
+#if DEBUG_COINCIDENCE
+    void debugSetCheckHealth(bool check) { fDebugCheckHealth = check; }
+    bool debugCheckHealth() const { return fDebugCheckHealth; }
+#endif
+
+#if DEBUG_VALIDATE || DEBUG_COIN
+    void debugSetPhase(const char* funcName  DEBUG_COIN_DECLARE_PARAMS()) const;
+#endif
+
+#if DEBUG_COIN
+    void debugAddToCoinChangedDict();
+    void debugAddToGlobalCoinDicts();
+    SkPathOpsDebug::CoinDict* debugCoinChangedDict() { return &fCoinChangedDict; }
+    const SkPathOpsDebug::CoinDictEntry& debugCoinDictEntry() const { return fCoinDictEntry; }
+
+    static void DumpCoinDict();
+#endif
+
 
     int nested() const {
         return fNested;
@@ -80,9 +122,14 @@ public:
         return ++fAngleID;
     }
 
+    int nextCoinID() {
+        return ++fCoinID;
+    }
+
     int nextContourID() {
         return ++fContourID;
     }
+
     int nextPtTID() {
         return ++fPtTID;
     }
@@ -96,19 +143,30 @@ public:
     }
 #endif
 
-    Phase phase() const {
+    SkOpPhase phase() const {
         return fPhase;
     }
 
-    void setAngleCoincidence() {
-        fAngleCoincidence = true;
+    void resetAllocatedOpSpan() {
+        fAllocatedOpSpan = false;
     }
-    
+
+    void setAllocatedOpSpan() {
+        fAllocatedOpSpan = true;
+    }
+
+    void setCoincidence(SkOpCoincidence* coincidence) {
+        fCoincidence = coincidence;
+    }
+
     void setContourHead(SkOpContourHead* contourHead) {
         fContourHead = contourHead;
     }
 
-    void setPhase(Phase phase) {
+    void setPhase(SkOpPhase phase) {
+        if (SkOpPhase::kNoChange == phase) {
+            return;
+        }
         SkASSERT(fPhase != phase);
         fPhase = phase;
     }
@@ -123,26 +181,71 @@ public:
     }
 
 private:
+    SkArenaAlloc* fAllocator;
     SkOpCoincidence* fCoincidence;
     SkOpContourHead* fContourHead;
     int fNested;
+    bool fAllocatedOpSpan;
     bool fWindingFailed;
-    bool fAngleCoincidence;
-    Phase fPhase;
+    SkOpPhase fPhase;
 #ifdef SK_DEBUG
     const char* fDebugTestName;
+    void* fDebugReporter;
     int fAngleID;
+    int fCoinID;
     int fContourID;
     int fPtTID;
     int fSegmentID;
     int fSpanID;
+    bool fDebugSkipAssert;
+#endif
+#if DEBUG_T_SECT_LOOP_COUNT
+    int fDebugLoopCount[3];
+    SkPath::Verb fDebugWorstVerb[6];
+    SkPoint fDebugWorstPts[24];
+    float fDebugWorstWeight[6];
+#endif
+#if DEBUG_COIN
+    SkPathOpsDebug::CoinDict fCoinChangedDict;
+    SkPathOpsDebug::CoinDict fCoinVisitedDict;
+    SkPathOpsDebug::CoinDictEntry fCoinDictEntry;
+    const char* fPreviousFuncName;
+#endif
+#if DEBUG_COINCIDENCE
+    bool fDebugCheckHealth;
 #endif
 };
+
+#ifdef SK_DEBUG
+#if DEBUG_COINCIDENCE
+#define SkOPASSERT(cond) SkASSERT((this->globalState() && \
+        (this->globalState()->debugCheckHealth() || \
+        this->globalState()->debugSkipAssert())) || (cond))
+#else
+#define SkOPASSERT(cond) SkASSERT((this->globalState() && \
+        this->globalState()->debugSkipAssert()) || (cond))
+#endif
+#define SkOPOBJASSERT(obj, cond) SkASSERT((obj->globalState() && \
+        obj->globalState()->debugSkipAssert()) || (cond))
+#else
+#define SkOPASSERT(cond)
+#define SkOPOBJASSERT(obj, cond)
+#endif
 
 // Use Almost Equal when comparing coordinates. Use epsilon to compare T values.
 bool AlmostEqualUlps(float a, float b);
 inline bool AlmostEqualUlps(double a, double b) {
     return AlmostEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+}
+
+bool AlmostEqualUlpsNoNormalCheck(float a, float b);
+inline bool AlmostEqualUlpsNoNormalCheck(double a, double b) {
+    return AlmostEqualUlpsNoNormalCheck(SkDoubleToScalar(a), SkDoubleToScalar(b));
+}
+
+bool AlmostEqualUlps_Pin(float a, float b);
+inline bool AlmostEqualUlps_Pin(double a, double b) {
+    return AlmostEqualUlps_Pin(SkDoubleToScalar(a), SkDoubleToScalar(b));
 }
 
 // Use Almost Dequal when comparing should not special case denormalized values.
@@ -152,6 +255,11 @@ bool AlmostDequalUlps(double a, double b);
 bool NotAlmostEqualUlps(float a, float b);
 inline bool NotAlmostEqualUlps(double a, double b) {
     return NotAlmostEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+}
+
+bool NotAlmostEqualUlps_Pin(float a, float b);
+inline bool NotAlmostEqualUlps_Pin(double a, double b) {
+    return NotAlmostEqualUlps_Pin(SkDoubleToScalar(a), SkDoubleToScalar(b));
 }
 
 bool NotAlmostDequalUlps(float a, float b);
@@ -202,7 +310,9 @@ const double FLT_EPSILON_HALF = FLT_EPSILON / 2;
 const double FLT_EPSILON_DOUBLE = FLT_EPSILON * 2;
 const double FLT_EPSILON_ORDERABLE_ERR = FLT_EPSILON * 16;
 const double FLT_EPSILON_SQUARED = FLT_EPSILON * FLT_EPSILON;
-const double FLT_EPSILON_SQRT = sqrt(FLT_EPSILON);
+// Use a compile-time constant for FLT_EPSILON_SQRT to avoid initializers.
+// A 17 digit constant guarantees exact results.
+const double FLT_EPSILON_SQRT = 0.00034526697709225118; // sqrt(FLT_EPSILON);
 const double FLT_EPSILON_INVERSE = 1 / FLT_EPSILON;
 const double DBL_EPSILON_ERR = DBL_EPSILON * 4;  // FIXME: tune -- allow a few bits of error
 const double DBL_EPSILON_SUBDIVIDE_ERR = DBL_EPSILON * 16;
@@ -210,6 +320,8 @@ const double ROUGH_EPSILON = FLT_EPSILON * 64;
 const double MORE_ROUGH_EPSILON = FLT_EPSILON * 256;
 const double WAY_ROUGH_EPSILON = FLT_EPSILON * 2048;
 const double BUMP_EPSILON = FLT_EPSILON * 4096;
+
+const SkScalar INVERSE_NUMBER_RANGE = FLT_EPSILON_ORDERABLE_ERR;
 
 inline bool zero_or_one(double x) {
     return x == 0 || x == 1;
@@ -263,13 +375,16 @@ inline bool approximately_zero_inverse(double x) {
     return fabs(x) > FLT_EPSILON_INVERSE;
 }
 
-// OPTIMIZATION: if called multiple times with the same denom, we want to pass 1/y instead
 inline bool approximately_zero_when_compared_to(double x, double y) {
     return x == 0 || fabs(x) < fabs(y * FLT_EPSILON);
 }
 
 inline bool precisely_zero_when_compared_to(double x, double y) {
     return x == 0 || fabs(x) < fabs(y * DBL_EPSILON);
+}
+
+inline bool roughly_zero_when_compared_to(double x, double y) {
+    return x == 0 || fabs(x) < fabs(y * ROUGH_EPSILON);
 }
 
 // Use this for comparing Ts in the range of 0 to 1. For general numbers (larger and smaller) use
@@ -440,10 +555,6 @@ inline bool roughly_between(double a, double b, double c) {
 
 inline bool more_roughly_equal(double x, double y) {
     return fabs(x - y) < MORE_ROUGH_EPSILON;
-}
-
-inline bool way_roughly_equal(double x, double y) {
-    return fabs(x - y) < WAY_ROUGH_EPSILON;
 }
 
 struct SkDPoint;

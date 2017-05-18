@@ -1,7 +1,7 @@
 # Configuration used by
 # https://chromium.googlesource.com/chromium/tools/build/+/0f611b202b0e/scripts/slave/recipe_modules/skia/resources/generate_and_upload_doxygen.py
 # to generate our Doxygen docs, which are then uploaded to
-# http://chromium-skia-gm.commondatastorage.googleapis.com/doxygen/doxygen/html/index.html
+# http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/index.html
 
 
 PROJECT_NAME = Skia

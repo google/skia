@@ -10,23 +10,14 @@
 #include "GrCoordTransform.h"
 
 /**
- * The key for an individual coord transform is made up of a matrix type, a precision, and a bit
- * that indicates the source of the input coords.
+ * The key for an individual coord transform is made up of a matrix type, and a bit that indicates
+ * the source of the input coords.
  */
 enum {
     kMatrixTypeKeyBits   = 1,
-    kMatrixTypeKeyMask   = (1 << kMatrixTypeKeyBits) - 1,
-
-    kPrecisionBits       = 2,
-    kPrecisionShift      = kMatrixTypeKeyBits,
-
-    kPositionCoords_Flag = (1 << (kPrecisionShift + kPrecisionBits)),
-    kDeviceCoords_Flag   = kPositionCoords_Flag + kPositionCoords_Flag,
-
-    kTransformKeyBits    = kMatrixTypeKeyBits + kPrecisionBits + 2,
+    kPositionCoords_Flag = 1 << kMatrixTypeKeyBits,
+    kTransformKeyBits    = kMatrixTypeKeyBits + 1,
 };
-
-GR_STATIC_ASSERT(kHigh_GrSLPrecision < (1 << kPrecisionBits));
 
 /**
  * We specialize the vertex code for each of these matrix types.
@@ -49,15 +40,9 @@ GrPrimitiveProcessor::getTransformKey(const SkTArray<const GrCoordTransform*, tr
             key |= kNoPersp_MatrixType;
         }
 
-        if (kLocal_GrCoordSet == coordTransform->sourceCoords() &&
-            !this->hasExplicitLocalCoords()) {
+        if (!this->hasExplicitLocalCoords()) {
             key |= kPositionCoords_Flag;
-        } else if (kDevice_GrCoordSet == coordTransform->sourceCoords()) {
-            key |= kDeviceCoords_Flag;
         }
-
-        GR_STATIC_ASSERT(kGrSLPrecisionCount <= (1 << kPrecisionBits));
-        key |= (coordTransform->precision() << kPrecisionShift);
 
         key <<= kTransformKeyBits * t;
 

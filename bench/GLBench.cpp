@@ -8,8 +8,14 @@
 #include "GLBench.h"
 
 #if SK_SUPPORT_GPU
+#include "GrGpu.h"
 #include "GrTest.h"
+#include "gl/GrGLContext.h"
+#include "gl/builders/GrGLShaderStringBuilder.h"
+#include "SkSLCompiler.h"
 #include <stdio.h>
+
+#include "sk_tool_utils.h"
 
 const GrGLContext* GLBench::getGLContext(SkCanvas* canvas) {
     // This bench exclusively tests GL calls directly
@@ -56,15 +62,30 @@ void GLBench::onDraw(int loops, SkCanvas* canvas) {
         return;
     }
     this->glDraw(loops, ctx);
+    canvas->getGrContext()->resetContext();
 }
 
-GrGLuint GLBench::CompileShader(const GrGLInterface* gl, const char* shaderSrc, GrGLenum type) {
+GrGLuint GLBench::CompileShader(const GrGLContext* context, const char* sksl, GrGLenum type) {
+    const GrGLInterface* gl = context->interface();
+    SkSL::String glsl;
+    SkSL::Program::Settings settings;
+    settings.fCaps = context->caps()->shaderCaps();
+    std::unique_ptr<SkSL::Program> program = context->compiler()->convertProgram(
+                                        type == GR_GL_VERTEX_SHADER ? SkSL::Program::kVertex_Kind
+                                                                    : SkSL::Program::kFragment_Kind,
+                                        SkString(sksl),
+                                        settings);
+    if (!program || !context->compiler()->toGLSL(*program, &glsl)) {
+        SkDebugf("SkSL compilation failed:\n%s\n%s\n", sksl,
+                 context->compiler()->errorText().c_str());
+    }
     GrGLuint shader;
     // Create the shader object
     GR_GL_CALL_RET(gl, shader, CreateShader(type));
 
     // Load the shader source
-    GR_GL_CALL(gl, ShaderSource(shader, 1, &shaderSrc, nullptr));
+    const char* glslPtr = glsl.c_str();
+    GR_GL_CALL(gl, ShaderSource(shader, 1, (const char**) &glslPtr, nullptr));
 
     // Compile the shader
     GR_GL_CALL(gl, CompileShader(shader));
@@ -81,10 +102,11 @@ GrGLuint GLBench::CompileShader(const GrGLInterface* gl, const char* shaderSrc, 
     return shader;
 }
 
-GrGLuint GLBench::CreateProgram(const GrGLInterface* gl, const char* vshader, const char* fshader) {
-
-    GrGLuint vertexShader = CompileShader(gl, vshader, GR_GL_VERTEX_SHADER);
-    GrGLuint fragmentShader = CompileShader(gl, fshader, GR_GL_FRAGMENT_SHADER);
+GrGLuint GLBench::CreateProgram(const GrGLContext* context, const char* vshader, 
+                                const char* fshader) {
+    const GrGLInterface* gl = context->interface();
+    GrGLuint vertexShader = CompileShader(context, vshader, GR_GL_VERTEX_SHADER);
+    GrGLuint fragmentShader = CompileShader(context, fshader, GR_GL_FRAGMENT_SHADER);
 
     GrGLuint shaderProgram;
     GR_GL_CALL_RET(gl, shaderProgram, CreateProgram());
@@ -162,7 +184,7 @@ void GLBench::DumpImage(const GrGLInterface* gl, uint32_t screenWidth, uint32_t 
 
     bm.setPixels(readback.get());
 
-    if (!SkImageEncoder::EncodeFile(filename, bm, SkImageEncoder::kPNG_Type, 100)) {
+    if (!sk_tool_utils::EncodeImageToFile(filename, bm, SkEncodedImageFormat::kPNG, 100)) {
         SkDebugf("------ failed to encode %s\n", filename);
         remove(filename);   // remove any partial file
         return;

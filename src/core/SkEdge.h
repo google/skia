@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -15,7 +14,7 @@
 #include "SkMath.h"
 
 // This correctly favors the lower-pixel when y0 is on a 1/2 pixel boundary
-#define SkEdge_Compute_DY(top, y0)  ((top << 6) + 32 - (y0))
+#define SkEdge_Compute_DY(top, y0)  (SkLeftShift(top, 6) + 32 - (y0))
 
 struct SkEdge {
     enum Type {
@@ -69,6 +68,7 @@ struct SkQuadraticEdge : public SkEdge {
     SkFixed fQDDx, fQDDy;
     SkFixed fQLastX, fQLastY;
 
+    bool setQuadraticWithoutUpdate(const SkPoint pts[3], int shiftUp);
     int setQuadratic(const SkPoint pts[3], int shiftUp);
     int updateQuadratic();
 };
@@ -80,6 +80,7 @@ struct SkCubicEdge : public SkEdge {
     SkFixed fCDDDx, fCDDDy;
     SkFixed fCLastX, fCLastY;
 
+    bool setCubicWithoutUpdate(const SkPoint pts[4], int shiftUp);
     int setCubic(const SkPoint pts[4], int shiftUp);
     int updateCubic();
 };
@@ -130,6 +131,5 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, int shift) {
     fCurveShift = 0;
     return 1;
 }
-
 
 #endif

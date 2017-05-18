@@ -5,58 +5,76 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageEncoder.h"
-#include "SkBitmap.h"
-#include "SkStream.h"
-#include "SkTemplates.h"
+#include "SkImageEncoderPriv.h"
+#include "SkJpegEncoder.h"
+#include "SkPngEncoder.h"
+#include "SkWebpEncoder.h"
 
-SkImageEncoder::~SkImageEncoder() {}
-
-bool SkImageEncoder::encodeStream(SkWStream* stream, const SkBitmap& bm,
-                                  int quality) {
-    quality = SkMin32(100, SkMax32(0, quality));
-    return this->onEncode(stream, bm, quality);
-}
-
-bool SkImageEncoder::encodeFile(const char file[], const SkBitmap& bm,
-                                int quality) {
-    quality = SkMin32(100, SkMax32(0, quality));
-    SkFILEWStream   stream(file);
-    return this->onEncode(&stream, bm, quality);
-}
-
-SkData* SkImageEncoder::encodeData(const SkBitmap& bm, int quality) {
-    SkDynamicMemoryWStream stream;
-    quality = SkMin32(100, SkMax32(0, quality));
-    if (this->onEncode(&stream, bm, quality)) {
-        return stream.copyToData();
-    }
+#ifndef SK_HAS_JPEG_LIBRARY
+bool SkJpegEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }
+std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream*, const SkPixmap&, const Options&) {
     return nullptr;
 }
+#endif
 
-bool SkImageEncoder::EncodeFile(const char file[], const SkBitmap& bm, Type t,
-                                int quality) {
-    SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
-    return enc.get() && enc.get()->encodeFile(file, bm, quality);
+#ifndef SK_HAS_PNG_LIBRARY
+bool SkPngEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }
+std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream*, const SkPixmap&, const Options&) {
+    return nullptr;
+}
+#endif
+
+#ifndef SK_HAS_WEBP_LIBRARY
+bool SkWebpEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }
+#endif
+
+bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
+                   SkEncodedImageFormat format, int quality) {
+    #ifdef SK_USE_CG_ENCODER
+        (void)quality;
+        return SkEncodeImageWithCG(dst, src, format);
+    #elif SK_USE_WIC_ENCODER
+        return SkEncodeImageWithWIC(dst, src, format, quality);
+    #else
+        switch(format) {
+            case SkEncodedImageFormat::kJPEG: {
+                SkJpegEncoder::Options opts;
+                opts.fQuality = quality;
+                return SkJpegEncoder::Encode(dst, src, opts);
+            }
+            case SkEncodedImageFormat::kPNG: {
+                SkPngEncoder::Options opts;
+                opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
+                return SkPngEncoder::Encode(dst, src, opts);
+            }
+            case SkEncodedImageFormat::kWEBP: {
+                SkWebpEncoder::Options opts;
+                opts.fCompression = SkWebpEncoder::Compression::kLossy;
+                opts.fQuality = quality;
+                opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
+                return SkWebpEncoder::Encode(dst, src, opts);
+            }
+            default:
+                return false;
+        }
+    #endif
 }
 
-bool SkImageEncoder::EncodeStream(SkWStream* stream, const SkBitmap& bm, Type t,
-                                  int quality) {
-    SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
-    return enc.get() && enc.get()->encodeStream(stream, bm, quality);
-}
-
-SkData* SkImageEncoder::EncodeData(const SkBitmap& bm, Type t, int quality) {
-    SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
-    return enc.get() ? enc.get()->encodeData(bm, quality) : nullptr;
-}
-
-SkData* SkImageEncoder::EncodeData(const SkImageInfo& info, const void* pixels, size_t rowBytes,
-                                   Type t, int quality) {
-    SkBitmap bm;
-    if (!bm.installPixels(info, const_cast<void*>(pixels), rowBytes)) {
-        return nullptr;
+bool SkEncoder::encodeRows(int numRows) {
+    SkASSERT(numRows > 0 && fCurrRow < fSrc.height());
+    if (numRows <= 0 || fCurrRow >= fSrc.height()) {
+        return false;
     }
-    SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
-    return enc.get() ? enc.get()->encodeData(bm, quality) : nullptr;
+
+    if (fCurrRow + numRows > fSrc.height()) {
+        numRows = fSrc.height() - fCurrRow;
+    }
+
+    if (!this->onEncodeRows(numRows)) {
+        // If we fail, short circuit any future calls.
+        fCurrRow = fSrc.height();
+        return false;
+    }
+
+    return true;
 }

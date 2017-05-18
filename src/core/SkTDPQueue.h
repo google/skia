@@ -24,9 +24,15 @@
 template <typename T,
           bool (*LESS)(const T&, const T&),
           int* (*INDEX)(const T&) = (int* (*)(const T&))nullptr>
-class SkTDPQueue : public SkNoncopyable {
+class SkTDPQueue {
 public:
     SkTDPQueue() {}
+
+    SkTDPQueue(SkTDPQueue&&) = default;
+    SkTDPQueue& operator =(SkTDPQueue&&) = default;
+
+    SkTDPQueue(const SkTDPQueue&) = delete;
+    SkTDPQueue& operator=(const SkTDPQueue&) = delete;
 
     /** Number of items in the queue. */
     int count() const { return fArray.count(); }
@@ -34,7 +40,7 @@ public:
     /** Gets the next item in the queue without popping it. */
     const T& peek() const { return fArray[0]; }
     T& peek() { return fArray[0]; }
-    
+
     /** Removes the next item. */
     void pop() {
         this->validate();
@@ -134,7 +140,7 @@ private:
         SkASSERT(index >= 0);
         do {
             int child = LeftOf(index);
-            
+
             if (child >= fArray.count()) {
                 // We're a leaf.
                 this->setIndex(index);
@@ -188,8 +194,6 @@ private:
     }
 
     SkTDArray<T> fArray;
-    
-    typedef SkNoncopyable INHERITED;
 };
 
 #endif

@@ -10,7 +10,7 @@
 #ifndef SkColorTable_DEFINED
 #define SkColorTable_DEFINED
 
-#include "../private/SkOncePtr.h"
+#include "../private/SkOnce.h"
 #include "SkColor.h"
 #include "SkFlattenable.h"
 #include "SkImageInfo.h"
@@ -24,10 +24,12 @@
 */
 class SK_API SkColorTable : public SkRefCnt {
 public:
+    static sk_sp<SkColorTable> Make(const SkPMColor colors[], int count);
+
     /** Copy up to 256 colors into a new SkColorTable.
      */
     SkColorTable(const SkPMColor colors[], int count);
-    virtual ~SkColorTable();
+    ~SkColorTable() override;
 
     /** Returns the number of colors in the table.
      */
@@ -52,7 +54,7 @@ public:
     void writeToBuffer(SkWriteBuffer&) const;
 
     // may return null
-    static SkColorTable* Create(SkReadBuffer&);
+    static sk_sp<SkColorTable> Create(SkReadBuffer&);
 
 private:
     enum AllocatedWithMalloc {
@@ -62,12 +64,14 @@ private:
     SkColorTable(SkPMColor* colors, int count, AllocatedWithMalloc);
 
     SkPMColor*            fColors;
-    SkOncePtr<uint16_t[]> f16BitCache;
+    mutable uint16_t*     f16BitCache = nullptr;
+    mutable SkOnce        f16BitCacheOnce;
     int                   fCount;
 
     void init(const SkPMColor* colors, int count);
 
     friend class SkImageGenerator;
+    friend class SkBitmapRegionCodec;
     // Only call if no other thread or cache has seen this table.
     void dangerous_overwriteColors(const SkPMColor newColors[], int count) {
         if (count < 0 || count > fCount) {

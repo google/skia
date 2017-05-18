@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -8,70 +8,72 @@
 #ifndef GrTextureMaker_DEFINED
 #define GrTextureMaker_DEFINED
 
-#include "SkGrPriv.h"
+#include "GrTextureProducer.h"
 
-class GrContext;
-class GrTexture;
-class GrTextureParams;
-class GrUniqueKey;
-class SkBitmap;
-
-class GrTextureMaker {
+/**
+ * Base class for sources that start out as something other than a texture (encoded image,
+ * picture, ...).
+ */
+class GrTextureMaker : public GrTextureProducer {
 public:
-    GrTextureMaker(int width, int height) : fWidth(width), fHeight(height) {}
-    virtual ~GrTextureMaker() {}
+    /**
+     *  Returns a texture that is safe for use with the params. If the size of the returned texture
+     *  does not match width()/height() then the contents of the original must be scaled to fit
+     *  the texture. Additionally, the 'scaleAdjust' must be applied to the texture matrix
+     *  in order to correct the absolute texture coordinates.
+     *  Places the color space of the texture in (*texColorSpace).
+     */
+    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerParams&,
+                                                   SkColorSpace* dstColorSpace,
+                                                   sk_sp<SkColorSpace>* texColorSpace,
+                                                   SkScalar scaleAdjust[2]);
 
-    int width() const { return fWidth; }
-    int height() const { return fHeight; }
-
-    GrTexture* refCachedTexture(GrContext*, SkImageUsageType);
-    GrTexture* refCachedTexture(GrContext*, const GrTextureParams*);
+    sk_sp<GrFragmentProcessor> createFragmentProcessor(
+                                const SkMatrix& textureMatrix,
+                                const SkRect& constraintRect,
+                                FilterConstraint filterConstraint,
+                                bool coordsLimitedToConstraintRect,
+                                const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+                                SkColorSpace* dstColorSpace) override;
 
 protected:
-    /**
-     *  Return the maker's "original" unstretched texture. It is the responsibility of the maker
-     *  to make this efficient ... if the texture is being generated, the maker must handle
-     *  caching it.
-     */
-    virtual GrTexture* onRefUnstretchedTexture(GrContext*) = 0;
+    GrTextureMaker(GrContext* context, int width, int height, bool isAlphaOnly)
+        : INHERITED(width, height, isAlphaOnly)
+        , fContext(context) {}
 
     /**
-     *  If we need to stretch the maker's original texture, the maker is asked to return a key
-     *  that identifies its origianl + the stretch parameter. If the maker does not want to cache
-     *  the stretched version (e.g. the maker is volatile), this should ignore the key parameter
-     *  and return false.
+     *  Return the maker's "original" texture. It is the responsibility of the maker to handle any
+     *  caching of the original if desired.
      */
-    virtual bool onMakeStretchedKey(const SkGrStretch&, GrUniqueKey* stretchedKey) = 0;
+    virtual sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
+                                                          SkColorSpace* dstColorSpace) = 0;
+
+    /**
+     *  Returns the color space of the maker's "original" texture, assuming it was retrieved with
+     *  the same destination color space.
+     */
+    virtual sk_sp<SkColorSpace> getColorSpace(SkColorSpace* dstColorSpace) = 0;
 
     /**
      *  Return a new (uncached) texture that is the stretch of the maker's original.
      *
      *  The base-class handles general logic for this, and only needs access to the following
-     *  methods:
-     *  - onRefUnstretchedTexture()
-     *  - onGetROBitmap()
+     *  method:
+     *  - refOriginalTextureProxy()
      *
-     *  Subclass may override this if they can handle stretching more efficiently.
+     *  Subclass may override this if they can handle creating the texture more directly than
+     *  by copying.
      */
-    virtual GrTexture* onGenerateStretchedTexture(GrContext*, const SkGrStretch&);
+    virtual sk_sp<GrTextureProxy> generateTextureProxyForParams(const CopyParams&,
+                                                                bool willBeMipped,
+                                                                SkColorSpace* dstColorSpace);
 
-    /**
-     *  If a stretched version of the texture is generated, it may be cached (assuming that
-     *  onMakeStretchedKey() returns true). In that case, the maker is notified in case it
-     *  wants to note that for when the maker is destroyed.
-     */
-    virtual void onNotifyStretchCached(const GrUniqueKey& stretchedKey) = 0;
-
-    /**
-     *  Some GPUs are unreliable w/ very small texture sizes. If we run into that case, this
-     *  method will be called (in service of onGenerateStretchedTexture) to return a raster version
-     *  of the original texture.
-     */
-    virtual bool onGetROBitmap(SkBitmap*) = 0;
+    GrContext* context() const { return fContext; }
 
 private:
-    const int fWidth;
-    const int fHeight;
+    GrContext*  fContext;
+
+    typedef GrTextureProducer INHERITED;
 };
 
 #endif

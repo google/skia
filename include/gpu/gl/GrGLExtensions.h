@@ -8,16 +8,17 @@
 #ifndef GrGLExtensions_DEFINED
 #define GrGLExtensions_DEFINED
 
+#include "../../private/SkTArray.h"
 #include "GrGLFunctions.h"
 #include "SkString.h"
-#include "SkTArray.h"
 
 struct GrGLInterface;
 
 /**
  * This helper queries the current GL context for its extensions, remembers them, and can be
  * queried. It supports both glGetString- and glGetStringi-style extension string APIs and will
- * use the latter if it is available.
+ * use the latter if it is available. It also will query for EGL extensions if a eglQueryString
+ * implementation is provided.
  */
 class SK_API GrGLExtensions {
 public:
@@ -38,9 +39,11 @@ public:
      * NULL if on desktop GL with version 3.0 or higher. Otherwise it will fail.
      */
     bool init(GrGLStandard standard,
-              GrGLGetStringProc getString,
-              GrGLGetStringiProc getStringi,
-              GrGLGetIntegervProc getIntegerv);
+              GrGLFunction<GrGLGetStringProc> getString,
+              GrGLFunction<GrGLGetStringiProc> getStringi,
+              GrGLFunction<GrGLGetIntegervProc> getIntegerv,
+              GrGLFunction<GrEGLQueryStringProc> queryString = nullptr,
+              GrEGLDisplay eglDisplay = nullptr);
 
     bool isInitialized() const { return fInitialized; }
 
@@ -65,7 +68,7 @@ public:
 
 private:
     bool                                fInitialized;
-    SkAutoTDelete<SkTArray<SkString> >  fStrings;
+    std::unique_ptr<SkTArray<SkString>> fStrings;
 };
 
 #endif

@@ -1,0 +1,47 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("../src", "abspath")
+
+skia_pdf_sources = [
+  "$_src/pdf/SkBitmapKey.h",
+  "$_src/pdf/SkDeflate.cpp",
+  "$_src/pdf/SkDeflate.h",
+  "$_src/pdf/SkJpegInfo.cpp",
+  "$_src/pdf/SkJpegInfo.h",
+  "$_src/pdf/SkPDFBitmap.cpp",
+  "$_src/pdf/SkPDFBitmap.h",
+  "$_src/pdf/SkPDFCanon.cpp",
+  "$_src/pdf/SkPDFCanon.h",
+  "$_src/pdf/SkPDFCanvas.cpp",
+  "$_src/pdf/SkPDFCanvas.h",
+  "$_src/pdf/SkPDFConvertType1FontStream.cpp",
+  "$_src/pdf/SkPDFConvertType1FontStream.h",
+  "$_src/pdf/SkPDFDevice.cpp",
+  "$_src/pdf/SkPDFDevice.h",
+  "$_src/pdf/SkPDFDocument.cpp",
+  "$_src/pdf/SkPDFDocument.h",
+  "$_src/pdf/SkPDFFont.cpp",
+  "$_src/pdf/SkPDFFont.h",
+  "$_src/pdf/SkPDFFormXObject.cpp",
+  "$_src/pdf/SkPDFFormXObject.h",
+  "$_src/pdf/SkPDFGraphicState.cpp",
+  "$_src/pdf/SkPDFGraphicState.h",
+  "$_src/pdf/SkPDFMakeCIDGlyphWidthsArray.cpp",
+  "$_src/pdf/SkPDFMakeCIDGlyphWidthsArray.h",
+  "$_src/pdf/SkPDFMakeToUnicodeCmap.cpp",
+  "$_src/pdf/SkPDFMakeToUnicodeCmap.h",
+  "$_src/pdf/SkPDFMetadata.cpp",
+  "$_src/pdf/SkPDFMetadata.h",
+  "$_src/pdf/SkPDFResourceDict.cpp",
+  "$_src/pdf/SkPDFResourceDict.h",
+  "$_src/pdf/SkPDFShader.cpp",
+  "$_src/pdf/SkPDFShader.h",
+  "$_src/pdf/SkPDFTypes.cpp",
+  "$_src/pdf/SkPDFTypes.h",
+  "$_src/pdf/SkPDFUtils.cpp",
+  "$_src/pdf/SkPDFUtils.h",
+]

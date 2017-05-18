@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
 
 #include "SkTypes.h"
 #include "SkDWriteFontFileStream.h"
@@ -103,9 +105,9 @@ bool SkDWriteFontFileStream::move(long offset) {
 }
 
 SkDWriteFontFileStream* SkDWriteFontFileStream::fork() const {
-    SkAutoTDelete<SkDWriteFontFileStream> that(this->duplicate());
+    std::unique_ptr<SkDWriteFontFileStream> that(this->duplicate());
     that->seek(fPos);
-    return that.detach();
+    return that.release();
 }
 
 size_t SkDWriteFontFileStream::getLength() const {
@@ -137,7 +139,7 @@ HRESULT SkDWriteFontFileStreamWrapper::Create(SkStreamAsset* stream,
                                               SkDWriteFontFileStreamWrapper** streamFontFileStream)
 {
     *streamFontFileStream = new SkDWriteFontFileStreamWrapper(stream);
-    if (nullptr == streamFontFileStream) {
+    if (nullptr == *streamFontFileStream) {
         return E_OUTOFMEMORY;
     }
     return S_OK;
@@ -210,7 +212,7 @@ HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::ReadFileFragment(
         }
 
         *fragmentStart = streamData.get();
-        *fragmentContext = streamData.detach();
+        *fragmentContext = streamData.release();
     }
     return S_OK;
 }
@@ -229,3 +231,5 @@ HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::GetLastWriteTime(UINT64
     *lastWriteTime = 0;
     return E_NOTIMPL;
 }
+
+#endif//defined(SK_BUILD_FOR_WIN32)

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -7,10 +6,12 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkTArray.h"
 #include "SkRandom.h"
 #include "SkMatrix.h"
 #include "SkBlurMaskFilter.h"
+#include "SkColorFilter.h"
 #include "SkGradientShader.h"
 #include "SkBlurDrawLooper.h"
 #include "SkRect.h"
@@ -246,12 +247,8 @@ protected:
         SkPoint center = SkPoint::Make(SkIntToScalar(0), SkIntToScalar(0));
         SkColor colors[] = { SK_ColorBLUE, SK_ColorRED, SK_ColorGREEN };
         SkScalar pos[] = { 0, SK_ScalarHalf, SK_Scalar1 };
-        SkAutoTUnref<SkShader> shader(SkGradientShader::CreateRadial(center,
-                                                     SkIntToScalar(20),
-                                                     colors,
-                                                     pos,
-                                                     SK_ARRAY_COUNT(colors),
-                                                     SkShader::kClamp_TileMode));
+        auto shader = SkGradientShader::MakeRadial(center, 20, colors, pos, SK_ARRAY_COUNT(colors),
+                                                   SkShader::kClamp_TileMode);
 
         for (int i = 0; i < fPaints.count(); ++i) {
             canvas->save();
@@ -269,6 +266,26 @@ protected:
 
             fPaints[i].setShader(nullptr);
 
+            canvas->restore();
+        }
+
+        // reflected oval
+        for (int i = 0; i < fPaints.count(); ++i) {
+            SkRect oval = SkRect::MakeLTRB(-30, -30, 30, 30);
+            canvas->save();
+            // position the oval, and make it at off-integer coords.
+            canvas->translate(kXStart + SK_Scalar1 * kXStep * 5 + SK_Scalar1 / 4,
+                              kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4 +
+                              SK_ScalarHalf * kYStep);
+            canvas->rotate(90);
+            canvas->scale(1, -1);
+            canvas->scale(1, 0.66f);
+
+            SkColor color = genColor(&rand);
+            fPaints[i].setColor(color);
+
+            canvas->drawRect(oval, rectPaint);
+            canvas->drawOval(oval, fPaints[i]);
             canvas->restore();
         }
     }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -299,3 +298,36 @@ DEF_BENCH( return new MapPointsMatrixBench("mappoints_trans", make_trans()); )
 DEF_BENCH( return new MapPointsMatrixBench("mappoints_scale", make_scale()); )
 DEF_BENCH( return new MapPointsMatrixBench("mappoints_affine", make_afine()); )
 
+///////////////////////////////////////////////////////////////////////////////
+
+class MapRectMatrixBench : public MatrixBench {
+    SkMatrix fM;
+    SkRect   fR;
+    bool     fScaleTrans;
+
+    enum { MEGA_LOOP = 1000 * 1000 };
+public:
+    MapRectMatrixBench(const char name[], bool scale_trans)
+        : MatrixBench(name), fScaleTrans(scale_trans)
+    {
+        fM.setScale(2, 3);
+        fM.postTranslate(1, 2);
+
+        fR.set(10, 10, 100, 200);
+    }
+
+    void performTest() override {
+        SkRect dst;
+        if (fScaleTrans) {
+            for (int i = 0; i < MEGA_LOOP; ++i) {
+                fM.mapRectScaleTranslate(&dst, fR);
+            }
+        } else {
+            for (int i = 0; i < MEGA_LOOP; ++i) {
+                fM.mapRect(&dst, fR);
+            }
+        }
+    }
+};
+DEF_BENCH( return new MapRectMatrixBench("maprect", false); )
+DEF_BENCH( return new MapRectMatrixBench("maprectscaletrans", true); )

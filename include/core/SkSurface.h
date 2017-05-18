@@ -14,16 +14,16 @@
 
 class SkCanvas;
 class SkPaint;
+class GrBackendRenderTarget;
 class GrContext;
 class GrRenderTarget;
 
 /**
- *  SkSurface represents the backend/results of drawing to a canvas. For raster
- *  drawing, the surface will be pixels, but (for example) when drawing into
- *  a PDF or Picture canvas, the surface stores the recorded commands.
+ *  SkSurface is responsible for managing the pixels that a canvas draws into. The pixels can be
+ *  allocated either in CPU memory (a Raster surface) or on the GPU (a RenderTarget surface).
  *
- *  To draw into a canvas, first create the appropriate type of Surface, and
- *  then request the canvas from the surface.
+ *  SkSurface takes care of allocating a SkCanvas that will draw into the surface. Call
+ *  surface->getCanvas() to use that canvas (but don't delete it, it is owned by the surface).
  *
  *  SkSurface always has non-zero dimensions. If there is a request for a new surface, and either
  *  of the requested dimensions are zero, then NULL will be returned.
@@ -31,60 +31,52 @@ class GrRenderTarget;
 class SK_API SkSurface : public SkRefCnt {
 public:
     /**
-     *  Indicates whether a new surface or image should count against a cache budget. Currently this
-     *  is only used by the GPU backend (sw-raster surfaces and images are never counted against the
-     *  resource cache budget.)
-     */
-    enum Budgeted {
-        /** The surface or image does not count against the cache budget. */
-        kNo_Budgeted,
-        /** The surface or image counts against the cache budget. */
-        kYes_Budgeted
-    };
-
-    /**
      *  Create a new surface, using the specified pixels/rowbytes as its
      *  backend.
      *
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, NULL will be returned.
+     *
+     *  Callers are responsible for initialiazing the surface pixels.
      */
-    static SkSurface* NewRasterDirect(const SkImageInfo&, void* pixels, size_t rowBytes,
-                                      const SkSurfaceProps* = NULL);
+    static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo&, void* pixels, size_t rowBytes,
+                                             const SkSurfaceProps* = nullptr);
 
     /**
      *  The same as NewRasterDirect, but also accepts a call-back routine, which is invoked
      *  when the surface is deleted, and is passed the pixel memory and the specified context.
      */
-    static SkSurface* NewRasterDirectReleaseProc(const SkImageInfo&, void* pixels, size_t rowBytes,
+    static sk_sp<SkSurface> MakeRasterDirectReleaseProc(const SkImageInfo&, void* pixels, size_t rowBytes,
                                                  void (*releaseProc)(void* pixels, void* context),
-                                                 void* context, const SkSurfaceProps* = NULL);
+                                                 void* context, const SkSurfaceProps* = nullptr);
 
     /**
-     *  Return a new surface, with the memory for the pixels automatically
-     *  allocated.
+     *  Return a new surface, with the memory for the pixels automatically allocated and
+     *  zero-initialized, but respecting the specified rowBytes. If rowBytes==0, then a default
+     *  value will be chosen. If a non-zero rowBytes is specified, then any images snapped off of
+     *  this surface (via makeImageSnapshot()) are guaranteed to have the same rowBytes.
      *
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, NULL will be returned.
      */
-    static SkSurface* NewRaster(const SkImageInfo&, const SkSurfaceProps* = NULL);
+    static sk_sp<SkSurface> MakeRaster(const SkImageInfo&, size_t rowBytes, const SkSurfaceProps*);
+
+    /**
+     *  Allocate a new surface, automatically computing the rowBytes.
+     */
+    static sk_sp<SkSurface> MakeRaster(const SkImageInfo& info,
+                                       const SkSurfaceProps* props = nullptr) {
+        return MakeRaster(info, 0, props);
+    }
 
     /**
      *  Helper version of NewRaster. It creates a SkImageInfo with the
      *  specified width and height, and populates the rest of info to match
      *  pixels in SkPMColor format.
      */
-    static SkSurface* NewRasterN32Premul(int width, int height, const SkSurfaceProps* props = NULL) {
-        return NewRaster(SkImageInfo::MakeN32Premul(width, height), props);
-    }
-
-    /**
-     *  Return a new surface using the specified render target.
-     */
-    static SkSurface* NewRenderTargetDirect(GrRenderTarget*, const SkSurfaceProps*);
-
-    static SkSurface* NewRenderTargetDirect(GrRenderTarget* target) {
-        return NewRenderTargetDirect(target, NULL);
+    static sk_sp<SkSurface> MakeRasterN32Premul(int width, int height,
+                                                const SkSurfaceProps* props = nullptr) {
+        return MakeRaster(SkImageInfo::MakeN32Premul(width, height), props);
     }
 
     /**
@@ -93,32 +85,94 @@ public:
      *  of the texture and the client must ensure the texture is valid for the lifetime of the
      *  SkSurface.
      */
-    static SkSurface* NewFromBackendTexture(GrContext*, const GrBackendTextureDesc&,
-                                            const SkSurfaceProps*);
-    // Legacy alias
-    static SkSurface* NewWrappedRenderTarget(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                             const SkSurfaceProps* props) {
-        return NewFromBackendTexture(ctx, desc, props);
-    }
+    static sk_sp<SkSurface> MakeFromBackendTexture(GrContext*, const GrBackendTextureDesc&,
+                                                   sk_sp<SkColorSpace>, const SkSurfaceProps*);
 
+    /**
+     *  Used to wrap a pre-existing backend 3D API texture as a SkSurface. Skia will not assume
+     *  ownership of the texture and the client must ensure the texture is valid for the lifetime
+     *  of the SkSurface. If sampleCnt > 0, then we will create an intermediate mssa surface which
+     *  we will use for rendering. We then resolve into the passed in texture.
+     */
+    static sk_sp<SkSurface> MakeFromBackendTexture(GrContext*, const GrBackendTexture&,
+                                                   GrSurfaceOrigin origin, int sampleCnt,
+                                                   sk_sp<SkColorSpace>, const SkSurfaceProps*);
 
     /**
      *  Used to wrap a pre-existing 3D API rendering target as a SkSurface. Skia will not assume
      *  ownership of the render target and the client must ensure the render target is valid for the
      *  lifetime of the SkSurface.
      */
-    static SkSurface* NewFromBackendRenderTarget(GrContext*, const GrBackendRenderTargetDesc&,
-                                                 const SkSurfaceProps*);
+    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext*,
+                                                        const GrBackendRenderTargetDesc&,
+                                                        sk_sp<SkColorSpace>,
+                                                        const SkSurfaceProps*);
+
+    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext*,
+                                                        const GrBackendRenderTarget&,
+                                                        GrSurfaceOrigin origin,
+                                                        sk_sp<SkColorSpace>,
+                                                        const SkSurfaceProps*);
+
+    /**
+     *  Used to wrap a pre-existing 3D API texture as a SkSurface. Skia will treat the texture as
+     *  a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
+     *  the associated render target objects (but not the provided texture). The kRenderTarget flag
+     *  must be set on GrBackendTextureDesc for this to succeed. Skia will not assume ownership
+     *  of the texture and the client must ensure the texture is valid for the lifetime of the
+     *  SkSurface.
+     */
+    static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(
+        GrContext*, const GrBackendTextureDesc&, sk_sp<SkColorSpace>, const SkSurfaceProps*);
+
+    static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext*,
+                                                                 const GrBackendTexture&,
+                                                                 GrSurfaceOrigin origin,
+                                                                 int sampleCnt,
+                                                                 sk_sp<SkColorSpace>,
+                                                                 const SkSurfaceProps*);
+
+    /**
+     * Legacy versions of the above factories, without color space support. These create "legacy"
+     * surfaces that operate without gamma correction or color management.
+     */
+    static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
+                                                   const SkSurfaceProps* props) {
+        return MakeFromBackendTexture(ctx, desc, nullptr, props);
+    }
+
+    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* ctx,
+                                                        const GrBackendRenderTargetDesc& desc,
+                                                        const SkSurfaceProps* props) {
+        return MakeFromBackendRenderTarget(ctx, desc, nullptr, props);
+    }
+
+    static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(
+            GrContext* ctx, const GrBackendTextureDesc& desc, const SkSurfaceProps* props) {
+        return MakeFromBackendTextureAsRenderTarget(ctx, desc, nullptr, props);
+    }
+
 
     /**
      *  Return a new surface whose contents will be drawn to an offscreen
      *  render target, allocated by the surface.
      */
-    static SkSurface* NewRenderTarget(GrContext*, Budgeted, const SkImageInfo&, int sampleCount,
-                                      const SkSurfaceProps* = NULL);
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&,
+                                             int sampleCount, GrSurfaceOrigin,
+                                             const SkSurfaceProps*);
 
-    static SkSurface* NewRenderTarget(GrContext* gr, Budgeted b, const SkImageInfo& info) {
-        return NewRenderTarget(gr, b, info, 0, NULL);
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+                                             const SkImageInfo& info, int sampleCount,
+                                             const SkSurfaceProps* props) {
+        return MakeRenderTarget(context, budgeted, info, sampleCount,
+                                kBottomLeft_GrSurfaceOrigin, props);
+    }
+
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* gr, SkBudgeted b, const SkImageInfo& info) {
+        if (!info.width() || !info.height()) {
+            return nullptr;
+        }
+        return MakeRenderTarget(gr, b, info, 0, kBottomLeft_GrSurfaceOrigin, nullptr);
     }
 
     int width() const { return fWidth; }
@@ -214,16 +268,15 @@ public:
      *  ... // draw using canvasB
      *  canvasA->drawSurface(surfaceB); // <--- this will always be optimal!
      */
-    SkSurface* newSurface(const SkImageInfo&);
+    sk_sp<SkSurface> makeSurface(const SkImageInfo&);
 
     /**
      *  Returns an image of the current state of the surface pixels up to this
      *  point. Subsequent changes to the surface (by drawing into its canvas)
-     *  will not be reflected in this image. If a copy must be made the Budgeted
-     *  parameter controls whether it counts against the resource budget
-     *  (currently for the gpu backend only).
+     *  will not be reflected in this image. For the GPU-backend, the budgeting
+     *  decision for the snapped image will match that of the surface.
      */
-    SkImage* newImageSnapshot(Budgeted = kYes_Budgeted);
+    sk_sp<SkImage> makeImageSnapshot();
 
     /**
      *  Though the caller could get a snapshot image explicitly, and draw that,
@@ -236,15 +289,14 @@ public:
 
     /**
      *  If the surface has direct access to its pixels (i.e. they are in local
-     *  RAM) return the const-address of those pixels, and if not null, return
-     *  the ImageInfo and rowBytes. The returned address is only valid while
+     *  RAM) return true, and if not null, set the pixmap parameter to point to the information
+     *  about the surface's pixels. The pixel address in the pixmap is only valid while
      *  the surface object is in scope, and no API call is made on the surface
      *  or its canvas.
      *
-     *  On failure, returns NULL and the info and rowBytes parameters are
-     *  ignored.
+     *  On failure, returns false and the pixmap parameter is ignored.
      */
-    const void* peekPixels(SkImageInfo* info, size_t* rowBytes);
+    bool peekPixels(SkPixmap*);
 
     /**
      *  Copy the pixels from the surface into the specified buffer (pixels + rowBytes),
@@ -268,6 +320,11 @@ public:
                     int srcX, int srcY);
 
     const SkSurfaceProps& props() const { return fProps; }
+
+    /**
+     * Issue any pending surface IO to the current backend 3D API and resolve any surface MSAA.
+     */
+    void prepareForExternalIO();
 
 protected:
     SkSurface(int width, int height, const SkSurfaceProps*);

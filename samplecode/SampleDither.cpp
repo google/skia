@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -20,6 +19,7 @@
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkDither.h"
+#include "sk_tool_utils.h"
 
 static void draw_sweep(SkCanvas* c, int width, int height, SkScalar angle) {
     SkRect  r;
@@ -34,15 +34,11 @@ static void draw_sweep(SkCanvas* c, int width, int height, SkScalar angle) {
 
     //    SkColor colors[] = { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN, SK_ColorCYAN };
     SkColor colors[] = { 0x4c737373, 0x4c737373, 0xffffd300 };
-    SkShader* s = SkGradientShader::CreateSweep(r.centerX(), r.centerY(),
-                                                colors, nullptr, SK_ARRAY_COUNT(colors));
-    p.setShader(s)->unref();
+    p.setShader(SkGradientShader::MakeSweep(r.centerX(), r.centerY(),
+                                            colors, nullptr, SK_ARRAY_COUNT(colors)));
 
     SkAutoCanvasRestore acr(c, true);
-
-    c->translate(r.centerX(), r.centerY());
-    c->rotate(angle);
-    c->translate(-r.centerX(), -r.centerY());
+    c->rotate(angle, r.centerX(), r.centerY());
 
     SkRect bounds = r;
     r.inset(p.getStrokeWidth(), p.getStrokeWidth());
@@ -78,8 +74,6 @@ static void make_bm(SkBitmap* bm) {
 }
 
 static void pre_dither(const SkBitmap& bm) {
-    SkAutoLockPixels alp(bm);
-
     for (int y = 0; y < bm.height(); y++) {
         DITHER_4444_SCAN(y);
 
@@ -118,7 +112,7 @@ public:
         make_bm(&fBM);
         make_bm(&fBMPreDither);
         pre_dither(fBMPreDither);
-        fBM.copyTo(&fBM16, kARGB_4444_SkColorType);
+        sk_tool_utils::copy_to(&fBM16, kARGB_4444_SkColorType, fBM);
 
         fAngle = 0;
 

@@ -6,11 +6,11 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkGradientShader.h"
 #include "SkTypeface.h"
-#include "SkImageDecoder.h"
 #include "SkStream.h"
 #include "SkPaint.h"
 
@@ -30,7 +30,7 @@ static void make_checker(SkBitmap* bm, int size, int numChecks) {
     }
 }
 
-static void setTypeface(SkPaint* paint, const char name[], SkTypeface::Style style) {
+static void setTypeface(SkPaint* paint, const char name[], SkFontStyle style) {
     sk_tool_utils::set_portable_typeface(paint, name, style);
 }
 
@@ -126,14 +126,14 @@ class DownsampleBitmapTextGM: public DownsampleBitmapGM {
           paint.setSubpixelText(true);
           paint.setTextSize(fTextSize);
 
-          setTypeface(&paint, "serif", SkTypeface::kNormal);
-          canvas.drawText("Hamburgefons", 12, fTextSize/2, 1.2f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkTypeface::kBold);
-          canvas.drawText("Hamburgefons", 12, fTextSize/2, 2.4f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkTypeface::kItalic);
-          canvas.drawText("Hamburgefons", 12, fTextSize/2, 3.6f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkTypeface::kBoldItalic);
-          canvas.drawText("Hamburgefons", 12, fTextSize/2, 4.8f*fTextSize, paint);
+          setTypeface(&paint, "serif", SkFontStyle());
+          canvas.drawString("Hamburgefons", fTextSize/2, 1.2f*fTextSize, paint);
+          setTypeface(&paint, "serif", SkFontStyle::FromOldStyle(SkTypeface::kBold));
+          canvas.drawString("Hamburgefons", fTextSize/2, 2.4f*fTextSize, paint);
+          setTypeface(&paint, "serif", SkFontStyle::FromOldStyle(SkTypeface::kItalic));
+          canvas.drawString("Hamburgefons", fTextSize/2, 3.6f*fTextSize, paint);
+          setTypeface(&paint, "serif", SkFontStyle::FromOldStyle(SkTypeface::kBoldItalic));
+          canvas.drawString("Hamburgefons", fTextSize/2, 4.8f*fTextSize, paint);
       }
   private:
       typedef DownsampleBitmapGM INHERITED;
@@ -171,103 +171,28 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
       int fSize;
 
       void make_bitmap() override {
-          SkImageDecoder* codec = nullptr;
-          SkString resourcePath = GetResourcePath(fFilename.c_str());
-          SkFILEStream stream(resourcePath.c_str());
-          if (stream.isValid()) {
-              codec = SkImageDecoder::Factory(&stream);
-          }
-          if (codec) {
-              stream.rewind();
-              codec->decode(&stream, &fBM, kN32_SkColorType, SkImageDecoder::kDecodePixels_Mode);
-              delete codec;
-          } else {
-              fBM.allocN32Pixels(1, 1);
-              *(fBM.getAddr32(0,0)) = 0xFF0000FF; // red == bad
-          }
-          fSize = fBM.height();
+        if (!GetResourceAsBitmap(fFilename.c_str(), &fBM)) {
+            fBM.allocN32Pixels(1, 1);
+            fBM.eraseARGB(255, 255, 0 , 0); // red == bad
+        }
+        fSize = fBM.height();
       }
   private:
       typedef DownsampleBitmapGM INHERITED;
 };
 
-#include "SkMipMap.h"
-
-static void release_mipmap(void*, void* context) {
-    ((SkMipMap*)context)->unref();
-}
-
-class ShowMipLevels : public skiagm::GM {
-public:
-    SkBitmap    fBM;
-
-    ShowMipLevels() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
-        make_checker(&fBM, 512, 256);
-    }
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("showmiplevels");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(fBM.width() + 8, 2 * fBM.height() + 80);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
-        SkScalar x = 4;
-        SkScalar y = 4;
-        canvas->drawBitmap(fBM, x, y, nullptr);
-        y += fBM.height() + 4;
-
-        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(fBM, nullptr));
-
-        SkMipMap::Level level;
-        SkScalar scale = 0.5f;
-        while (mm->extractLevel(scale, &level)) {
-            SkImageInfo info = SkImageInfo::MakeN32Premul(level.fWidth, level.fHeight);
-            SkBitmap bm;
-            bm.installPixels(info, level.fPixels, level.fRowBytes, nullptr,
-                             &release_mipmap, (void*)(SkRef(mm.get())));
-            bm.setImmutable();
-            canvas->drawBitmap(bm, x, y, nullptr);
-            y += bm.height() + 4;
-            scale /= 2;
-            if (info.width() == 1 || info.height() == 1) {
-                break;
-            }
-        }
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-DEF_GM( return new ShowMipLevels; )
-
-//////////////////////////////////////////////////////////////////////////////
-
 DEF_GM( return new DownsampleBitmapTextGM(72, kHigh_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kHigh_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kHigh_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
-                                            kHigh_SkFilterQuality); )
 
 DEF_GM( return new DownsampleBitmapTextGM(72, kMedium_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kMedium_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kMedium_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
-                                           kMedium_SkFilterQuality); )
 
 DEF_GM( return new DownsampleBitmapTextGM(72, kLow_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kLow_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kLow_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
-                                           kLow_SkFilterQuality); )
 
 DEF_GM( return new DownsampleBitmapTextGM(72, kNone_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kNone_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kNone_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
-                                           kNone_SkFilterQuality); )

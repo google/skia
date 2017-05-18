@@ -1,0 +1,2 @@
+# Suppress third_party/externals.  We mostly care about our own code.
+src:*third_party/externals*

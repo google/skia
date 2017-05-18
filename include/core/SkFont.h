@@ -117,17 +117,21 @@ public:
         kLCD_MaskType,
     };
 
-    static SkFont* Create(SkTypeface*, SkScalar size, MaskType, uint32_t flags);
-    static SkFont* Create(SkTypeface*, SkScalar size, SkScalar scaleX, SkScalar skewX,
-                          MaskType, uint32_t flags);
+    static sk_sp<SkFont> Make(sk_sp<SkTypeface>, SkScalar size, MaskType, uint32_t flags);
+    static sk_sp<SkFont> Make(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX,
+                              MaskType, uint32_t flags);
 
     /**
      *  Return a font with the same attributes of this font, but with the specified size.
      *  If size is not supported (e.g. <= 0 or non-finite) NULL will be returned.
      */
-    SkFont* cloneWithSize(SkScalar size) const;
+    sk_sp<SkFont> makeWithSize(SkScalar size) const;
+    /**
+     *  Return a font with the same attributes of this font, but with the flags.
+     */
+    sk_sp<SkFont> makeWithFlags(uint32_t newFlags) const;
 
-    SkTypeface* getTypeface() const { return fTypeface; }
+    SkTypeface* getTypeface() const { return fTypeface.get(); }
     SkScalar    getSize() const { return fSize; }
     SkScalar    getScaleX() const { return fScaleX; }
     SkScalar    getSkewX() const { return fSkewX; }
@@ -139,23 +143,28 @@ public:
     bool isEnableAutoHints() const { return SkToBool(fFlags & kEnableAutoHints_Flag); }
     bool isEnableByteCodeHints() const { return SkToBool(fFlags & kEnableByteCodeHints_Flag); }
     bool isUseNonLinearMetrics() const { return SkToBool(fFlags & kUseNonlinearMetrics_Flag); }
+    bool isDevKern() const { return SkToBool(fFlags & kDevKern_Flag); }
 
     int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding,
-                     uint16_t glyphs[], int maxGlyphCount) const;
+                     SkGlyphID glyphs[], int maxGlyphCount) const;
+
+    int countText(const void* text, size_t byteLength, SkTextEncoding encoding) {
+        return this->textToGlyphs(text, byteLength, encoding, nullptr, 0);
+    }
 
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding) const;
 
-    static SkFont* Testing_CreateFromPaint(const SkPaint&);
+    static sk_sp<SkFont> Testing_CreateFromPaint(const SkPaint&);
 
 private:
     enum {
         kAllFlags = 0xFF,
     };
 
-    SkFont(SkTypeface*, SkScalar size, SkScalar scaleX, SkScalar skewX, MaskType, uint32_t flags);
-    virtual ~SkFont();
+    SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX, MaskType,
+           uint32_t flags);
 
-    SkTypeface* fTypeface;
+    sk_sp<SkTypeface> fTypeface;
     SkScalar    fSize;
     SkScalar    fScaleX;
     SkScalar    fSkewX;

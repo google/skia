@@ -31,7 +31,7 @@ public:
 
     void apply(const SkRecord& record) {
         for (int i = 0; i < record.count(); i++) {
-            record.visit<void>(i, *this);
+            record.visit(i, *this);
         }
     }
 
@@ -58,7 +58,7 @@ DEF_TEST(Recorder_RefLeaking, r) {
 
     SkRect bounds = SkRect::MakeWH(320, 240);
     SkPaint paint;
-    paint.setShader(SkShader::CreateEmptyShader())->unref();
+    paint.setShader(SkShader::MakeEmptyShader());
 
     REPORTER_ASSERT(r, paint.getShader()->unique());
     {
@@ -72,18 +72,18 @@ DEF_TEST(Recorder_RefLeaking, r) {
 
 DEF_TEST(Recorder_drawImage_takeReference, reporter) {
 
-    SkAutoTUnref<SkImage> image;
+    sk_sp<SkImage> image;
     {
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(100, 100));
+        auto surface(SkSurface::MakeRasterN32Premul(100, 100));
         surface->getCanvas()->clear(SK_ColorGREEN);
-        image.reset(surface->newImageSnapshot());
+        image = surface->makeImageSnapshot();
     }
     {
         SkRecord record;
         SkRecorder recorder(&record, 100, 100);
 
         // DrawImage is supposed to take a reference
-        recorder.drawImage(image.get(), 0, 0);
+        recorder.drawImage(image, 0, 0);
         REPORTER_ASSERT(reporter, !image->unique());
 
         Tally tally;
@@ -98,7 +98,7 @@ DEF_TEST(Recorder_drawImage_takeReference, reporter) {
         SkRecorder recorder(&record, 100, 100);
 
         // DrawImageRect is supposed to take a reference
-        recorder.drawImageRect(image.get(), SkRect::MakeWH(100, 100), nullptr);
+        recorder.drawImageRect(image, SkRect::MakeWH(100, 100), nullptr);
         REPORTER_ASSERT(reporter, !image->unique());
 
         Tally tally;

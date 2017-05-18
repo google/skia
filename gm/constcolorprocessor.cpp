@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -9,14 +8,17 @@
 // This test only works with the GPU backend.
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrTest.h"
-#include "effects/GrConstColorProcessor.h"
-#include "SkGrPriv.h"
+#include "GrRenderTargetContextPriv.h"
+#include "SkGr.h"
 #include "SkGradientShader.h"
+#include "effects/GrConstColorProcessor.h"
+#include "ops/GrDrawOp.h"
+#include "ops/GrNonAAFillRectOp.h"
 
 namespace skiagm {
 /**
@@ -40,36 +42,38 @@ protected:
     void onOnceBeforeDraw() override {
         SkColor colors[] = { 0xFFFF0000, 0x2000FF00, 0xFF0000FF};
         SkPoint pts[] = { SkPoint::Make(0, 0), SkPoint::Make(kRectSize, kRectSize) };
-        fShader.reset(SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                       SkShader::kClamp_TileMode));
+        fShader = SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                               SkShader::kClamp_TileMode);
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (nullptr == rt) {
-            return;
-        }
-        GrContext* context = rt->getContext();
-        if (nullptr == context) {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
 
-        static const GrColor kColors[] = {
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
+            return;
+        }
+
+        constexpr GrColor kColors[] = {
             0xFFFFFFFF,
             0xFFFF00FF,
             0x80000000,
             0x00000000,
         };
 
-        static const SkColor kPaintColors[] = {
+        constexpr SkColor kPaintColors[] = {
             0xFFFFFFFF,
             0xFFFF0000,
             0x80FF0000,
             0x00000000,
         };
 
-        static const char* kModeStrs[] {
+        const char* kModeStrs[] {
             "kIgnore",
             "kModulateRGBA",
             "kModulateA",
@@ -90,13 +94,6 @@ protected:
                     // rect to draw
                     SkRect renderRect = SkRect::MakeXYWH(0, 0, kRectSize, kRectSize);
 
-                    GrTestTarget tt;
-                    context->getTestTarget(&tt);
-                    if (nullptr == tt.target()) {
-                        SkDEBUGFAIL("Couldn't get Gr test target.");
-                        return;
-                    }
-
                     GrPaint grPaint;
                     SkPaint skPaint;
                     if (paintType >= SK_ARRAY_COUNT(kPaintColors)) {
@@ -104,20 +101,17 @@ protected:
                     } else {
                         skPaint.setColor(kPaintColors[paintType]);
                     }
-                    SkAssertResult(SkPaintToGrPaint(context, skPaint, viewMatrix, &grPaint));
+                    SkAssertResult(SkPaintToGrPaint(context, renderTargetContext, skPaint,
+                                                    viewMatrix, &grPaint));
 
                     GrConstColorProcessor::InputMode mode = (GrConstColorProcessor::InputMode) m;
-                    GrColor color = kColors[procColor];
-                    SkAutoTUnref<GrFragmentProcessor> fp(GrConstColorProcessor::Create(color, mode));
+                    GrColor4f color = GrColor4f::FromGrColor(kColors[procColor]);
+                    sk_sp<GrFragmentProcessor> fp(GrConstColorProcessor::Make(color, mode));
 
-                    GrClip clip;
-                    GrPipelineBuilder pipelineBuilder(grPaint, rt, clip);
-                    pipelineBuilder.addColorFragmentProcessor(fp);
-
-                    tt.target()->drawNonAARect(pipelineBuilder,
-                                               grPaint.getColor(),
-                                               viewMatrix,
-                                               renderRect);
+                    grPaint.addColorFragmentProcessor(std::move(fp));
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            GrNonAAFillRectOp::Make(std::move(grPaint), viewMatrix, renderRect,
+                                                    nullptr, nullptr, GrAAType::kNone));
 
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.
@@ -139,7 +133,7 @@ protected:
                     // get the bounds of the text in order to position it
                     labelPaint.measureText(inputLabel.c_str(), inputLabel.size(),
                                            &inputLabelBounds);
-                    canvas->drawText(inputLabel.c_str(), inputLabel.size(),
+                    canvas->drawString(inputLabel,
                                      renderRect.fRight + kPad,
                                      -inputLabelBounds.fTop, labelPaint);
                     // update the bounds to reflect the offset we used to draw it.
@@ -148,7 +142,7 @@ protected:
                     SkRect procLabelBounds;
                     labelPaint.measureText(procLabel.c_str(), procLabel.size(),
                                            &procLabelBounds);
-                    canvas->drawText(procLabel.c_str(), procLabel.size(),
+                    canvas->drawString(procLabel,
                                      renderRect.fRight + kPad,
                                      inputLabelBounds.fBottom + 2.f - procLabelBounds.fTop,
                                      labelPaint);
@@ -178,18 +172,15 @@ protected:
 
 private:
     // Use this as a way of generating and input FP
-    SkAutoTUnref<SkShader>      fShader;
+    sk_sp<SkShader> fShader;
 
-    static const SkScalar       kPad;
-    static const SkScalar       kRectSize;
-    static const int            kWidth  = 820;
-    static const int            kHeight = 500;
+    static constexpr SkScalar       kPad = 10.f;
+    static constexpr SkScalar       kRectSize = 20.f;
+    static constexpr int            kWidth  = 820;
+    static constexpr int            kHeight = 500;
 
     typedef GM INHERITED;
 };
-
-const SkScalar ConstColorProcessor::kPad = 10.f;
-const SkScalar ConstColorProcessor::kRectSize = 20.f;
 
 DEF_GM(return new ConstColorProcessor;)
 }

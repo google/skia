@@ -7,7 +7,13 @@
 
 #include "SkSurface_Gpu.h"
 
+#include "GrBackendSurface.h"
+#include "GrContextPriv.h"
+#include "GrRenderTargetContextPriv.h"
+#include "GrResourceProvider.h"
+
 #include "SkCanvas.h"
+#include "SkColorSpace_Base.h"
 #include "SkGpuDevice.h"
 #include "SkImage_Base.h"
 #include "SkImage_Gpu.h"
@@ -16,13 +22,13 @@
 
 #if SK_SUPPORT_GPU
 
-SkSurface_Gpu::SkSurface_Gpu(SkGpuDevice* device)
+SkSurface_Gpu::SkSurface_Gpu(sk_sp<SkGpuDevice> device)
     : INHERITED(device->width(), device->height(), &device->surfaceProps())
-    , fDevice(SkRef(device)) {
+    , fDevice(std::move(device)) {
+    SkASSERT(fDevice->accessRenderTargetContext()->asSurfaceProxy()->priv().isExact());
 }
 
 SkSurface_Gpu::~SkSurface_Gpu() {
-    fDevice->unref();
 }
 
 static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
@@ -34,19 +40,20 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
         case SkSurface::kDiscardWrite_BackendHandleAccess:
             // for now we don't special-case on Discard, but we may in the future.
             surface->notifyContentWillChange(SkSurface::kRetain_ContentChangeMode);
-            // legacy: need to dirty the bitmap's genID in our device (curse it)
-            surface->getDevice()->accessBitmap(false).notifyPixelsChanged();
             break;
     }
 
     // Grab the render target *after* firing notifications, as it may get switched if CoW kicks in.
-    GrRenderTarget* rt = surface->getDevice()->accessRenderTarget();
-    rt->prepareForExternalIO();
-    return rt;
+    surface->getDevice()->flush();
+    GrRenderTargetContext* rtc = surface->getDevice()->accessRenderTargetContext();
+    return rtc->accessRenderTarget();
 }
 
 GrBackendObject SkSurface_Gpu::onGetTextureHandle(BackendHandleAccess access) {
     GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
+    if (!rt) {
+        return 0;
+    }
     GrTexture* texture = rt->asTexture();
     if (texture) {
         return texture->getTextureHandle();
@@ -56,34 +63,79 @@ GrBackendObject SkSurface_Gpu::onGetTextureHandle(BackendHandleAccess access) {
 
 bool SkSurface_Gpu::onGetRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess access) {
     GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
+    if (!rt) {
+        return false;
+    }
     *obj = rt->getRenderTargetHandle();
     return true;
 }
 
 SkCanvas* SkSurface_Gpu::onNewCanvas() {
     SkCanvas::InitFlags flags = SkCanvas::kDefault_InitFlags;
-    // When we think this works...
-//    flags |= SkCanvas::kConservativeRasterClip_InitFlag;
+    flags = static_cast<SkCanvas::InitFlags>(flags | SkCanvas::kConservativeRasterClip_InitFlag);
 
-    return new SkCanvas(fDevice, flags);
+    return new SkCanvas(fDevice.get(), flags);
 }
 
-SkSurface* SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
-    GrRenderTarget* rt = fDevice->accessRenderTarget();
-    int sampleCount = rt->numColorSamples();
+sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
+    int sampleCount = fDevice->accessRenderTargetContext()->numColorSamples();
+    GrSurfaceOrigin origin = fDevice->accessRenderTargetContext()->origin();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
-    static const Budgeted kBudgeted = kNo_Budgeted;
-    return SkSurface::NewRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
-                                      &this->props());
+    static const SkBudgeted kBudgeted = SkBudgeted::kNo;
+    return SkSurface::MakeRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
+                                       origin, &this->props());
 }
 
-SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted) {
+sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
+    GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
+    if (!rtc) {
+        return nullptr;
+    }
+
+    GrContext* ctx = fDevice->context();
+
+    if (!rtc->asSurfaceProxy()) {
+        return nullptr;
+    }
+
+    SkBudgeted budgeted = rtc->asSurfaceProxy()->isBudgeted();
+
+    sk_sp<GrTextureProxy> srcProxy = rtc->asTextureProxyRef();
+    // If the original render target is a buffer originally created by the client, then we don't
+    // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
+    // copy-on-write.
+    if (!srcProxy || rtc->priv().refsWrappedObjects()) {
+        // MDB TODO: replace this with GrSurfaceProxy::Copy?
+        GrSurfaceDesc desc;
+        desc.fConfig = rtc->config();
+        desc.fWidth = rtc->width();
+        desc.fHeight = rtc->height();
+        desc.fOrigin = rtc->origin();
+
+        sk_sp<GrSurfaceContext> copyCtx = ctx->contextPriv().makeDeferredSurfaceContext(
+                                                                desc,
+                                                                SkBackingFit::kExact,
+                                                                budgeted);
+        if (!copyCtx) {
+            return nullptr;
+        }
+
+        if (!copyCtx->copy(rtc->asSurfaceProxy())) {
+            return nullptr;
+        }
+
+        srcProxy = copyCtx->asTextureProxyRef();
+    }
+
     const SkImageInfo info = fDevice->imageInfo();
-    SkImage* image = nullptr;
-    GrTexture* tex = fDevice->accessRenderTarget()->asTexture();
-    if (tex) {
-        image = new SkImage_Gpu(info.width(), info.height(), kNeedNewImageUniqueID,
-                                info.alphaType(), tex, budgeted);
+    sk_sp<SkImage> image;
+    if (srcProxy) {
+        // The renderTargetContext coming out of SkGpuDevice should always be exact and the
+        // above copy creates a kExact surfaceContext.
+        SkASSERT(srcProxy->priv().isExact());
+        image = sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
+                                        info.alphaType(), std::move(srcProxy),
+                                        info.refColorSpace(), budgeted);
     }
     return image;
 }
@@ -92,81 +144,206 @@ SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted) {
 // render target into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.
 void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
-    GrRenderTarget* rt = fDevice->accessRenderTarget();
+    GrRenderTarget* rt = fDevice->accessRenderTargetContext()->accessRenderTarget();
+    if (!rt) {
+        return;
+    }
     // are we sharing our render target with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
-    SkImage* image = this->getCachedImage(kNo_Budgeted);
+    sk_sp<SkImage> image(this->refCachedImage());
     SkASSERT(image);
-    if (rt->asTexture() == as_IB(image)->getTexture()) {
-        this->fDevice->replaceRenderTarget(SkSurface::kRetain_ContentChangeMode == mode);
-        SkTextureImageApplyBudgetedDecision(image);
+    // MDB TODO: this is unfortunate. The snapping of an Image_Gpu from a surface currently
+    // funnels down to a GrTexture. Once Image_Gpus are proxy-backed we should be able to
+    // compare proxy uniqueIDs.
+    if (rt->asTexture()->getTextureHandle() == image->getTextureHandle(false)) {
+        fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();
     }
 }
 
 void SkSurface_Gpu::onDiscard() {
-    fDevice->accessRenderTarget()->discard();
+    fDevice->accessRenderTargetContext()->discard();
+}
+
+void SkSurface_Gpu::onPrepareForExternalIO() {
+    fDevice->flush();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target, const SkSurfaceProps* props) {
-    SkAutoTUnref<SkGpuDevice> device(
-        SkGpuDevice::Create(target, props, SkGpuDevice::kUninit_InitContents));
-    if (!device) {
-        return nullptr;
+bool SkSurface_Gpu::Valid(const SkImageInfo& info) {
+    switch (info.colorType()) {
+        case kRGBA_F16_SkColorType:
+            return !info.colorSpace() || info.colorSpace()->gammaIsLinear();
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            return !info.colorSpace() || info.colorSpace()->gammaCloseToSRGB();
+        default:
+            return !info.colorSpace();
     }
-    return new SkSurface_Gpu(device);
 }
 
-SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, Budgeted budgeted, const SkImageInfo& info,
-                                      int sampleCount, const SkSurfaceProps* props) {
-    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(ctx, budgeted, info, sampleCount, props,
-                                                         SkGpuDevice::kClear_InitContents));
-    if (!device) {
-        return nullptr;
+bool SkSurface_Gpu::Valid(GrContext* context, GrPixelConfig config, SkColorSpace* colorSpace) {
+    switch (config) {
+        case kRGBA_half_GrPixelConfig:
+            return !colorSpace || colorSpace->gammaIsLinear();
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+            return context->caps()->srgbSupport() && colorSpace && colorSpace->gammaCloseToSRGB();
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+            // If we don't have sRGB support, we may get here with a color space. It still needs
+            // to be sRGB-like (so that the application will work correctly on sRGB devices.)
+            return !colorSpace ||
+                (colorSpace->gammaCloseToSRGB() && !context->caps()->srgbSupport());
+        default:
+            return !colorSpace;
     }
-    return new SkSurface_Gpu(device);
 }
 
-SkSurface* SkSurface::NewFromBackendTexture(GrContext* context, const GrBackendTextureDesc& desc,
-                                            const SkSurfaceProps* props) {
-    if (nullptr == context) {
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
+                                             const SkImageInfo& info, int sampleCount,
+                                             GrSurfaceOrigin origin, const SkSurfaceProps* props) {
+    if (!SkSurface_Gpu::Valid(info)) {
         return nullptr;
     }
-    if (!SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag)) {
-        return nullptr;
-    }
-    SkAutoTUnref<GrSurface> surface(context->textureProvider()->wrapBackendTexture(desc,
-                                    kBorrow_GrWrapOwnership));
-    if (!surface) {
-        return nullptr;
-    }
-    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(surface->asRenderTarget(), props,
-                                                         SkGpuDevice::kUninit_InitContents));
+
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(
+            ctx, budgeted, info, sampleCount, origin, props, SkGpuDevice::kClear_InitContents));
     if (!device) {
         return nullptr;
     }
-    return new SkSurface_Gpu(device);
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
-SkSurface* SkSurface::NewFromBackendRenderTarget(GrContext* context,
-                                                 const GrBackendRenderTargetDesc& desc,
-                                                 const SkSurfaceProps* props) {
-    if (nullptr == context) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
+                                                   const GrBackendTextureDesc& desc,
+                                                   sk_sp<SkColorSpace> colorSpace,
+                                                   const SkSurfaceProps* props) {
+    if (!context) {
         return nullptr;
     }
-    SkAutoTUnref<GrRenderTarget> rt(context->textureProvider()->wrapBackendRenderTarget(desc));
-    if (!rt) {
+    GrBackendTexture tex(desc, context->contextPriv().getBackend());
+    return MakeFromBackendTexture(context, tex, desc.fOrigin, desc.fSampleCnt, colorSpace, props);
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrBackendTexture& tex,
+                                                   GrSurfaceOrigin origin, int sampleCnt,
+                                                   sk_sp<SkColorSpace> colorSpace,
+                                                   const SkSurfaceProps* props) {
+    if (!context) {
         return nullptr;
     }
-    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(rt, props,
-                                                         SkGpuDevice::kUninit_InitContents));
+    if (!SkSurface_Gpu::Valid(context, tex.config(), colorSpace.get())) {
+        return nullptr;
+    }
+
+    sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeBackendTextureRenderTargetContext(
+                                                                    tex,
+                                                                    origin,
+                                                                    sampleCnt,
+                                                                    std::move(colorSpace),
+                                                                    props));
+    if (!rtc) {
+        return nullptr;
+    }
+
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc), tex.width(), tex.height(),
+                                                SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
     }
-    return new SkSurface_Gpu(device);
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
+                                                        const GrBackendRenderTargetDesc& desc,
+                                                        sk_sp<SkColorSpace> colorSpace,
+                                                        const SkSurfaceProps* props) {
+    if (!context) {
+        return nullptr;
+    }
+
+    GrBackendRenderTarget backendRT(desc, context->contextPriv().getBackend());
+    return MakeFromBackendRenderTarget(context, backendRT, desc.fOrigin,
+                                       std::move(colorSpace), props);
+
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
+                                                        const GrBackendRenderTarget& backendRT,
+                                                        GrSurfaceOrigin origin,
+                                                        sk_sp<SkColorSpace> colorSpace,
+                                                        const SkSurfaceProps* props) {
+    if (!context) {
+        return nullptr;
+    }
+    if (!SkSurface_Gpu::Valid(context, backendRT.config(), colorSpace.get())) {
+        return nullptr;
+    }
+
+    sk_sp<GrRenderTargetContext> rtc(
+        context->contextPriv().makeBackendRenderTargetRenderTargetContext(backendRT,
+                                                                          origin,
+                                                                          std::move(colorSpace),
+                                                                          props));
+    if (!rtc) {
+        return nullptr;
+    }
+
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc),
+                                                backendRT.width(), backendRT.height(),
+                                                SkGpuDevice::kUninit_InitContents));
+    if (!device) {
+        return nullptr;
+    }
+
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
+                                                                 const GrBackendTextureDesc& desc,
+                                                                 sk_sp<SkColorSpace> colorSpace,
+                                                                 const SkSurfaceProps* props) {
+    if (!context) {
+        return nullptr;
+    }
+    GrBackendTexture tex(desc, context->contextPriv().getBackend());
+    return MakeFromBackendTextureAsRenderTarget(context, tex, desc.fOrigin, desc.fSampleCnt,
+                                                std::move(colorSpace), props);
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
+                                                                 const GrBackendTexture& tex,
+                                                                 GrSurfaceOrigin origin,
+                                                                 int sampleCnt,
+                                                                 sk_sp<SkColorSpace> colorSpace,
+                                                                 const SkSurfaceProps* props) {
+    if (!context) {
+        return nullptr;
+    }
+    if (!SkSurface_Gpu::Valid(context, tex.config(), colorSpace.get())) {
+        return nullptr;
+    }
+
+    sk_sp<GrRenderTargetContext> rtc(
+        context->contextPriv().makeBackendTextureAsRenderTargetRenderTargetContext(
+                                                                              tex,
+                                                                              origin,
+                                                                              sampleCnt,
+                                                                              std::move(colorSpace),
+                                                                              props));
+    if (!rtc) {
+        return nullptr;
+    }
+
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc), tex.width(), tex.height(),
+                                                SkGpuDevice::kUninit_InitContents));
+    if (!device) {
+        return nullptr;
+    }
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
 #endif

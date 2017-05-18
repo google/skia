@@ -45,6 +45,15 @@ inline Sk4px Sk4px::Wide::addNarrowHi(const Sk16h& other) const {
     return Sk4px(_mm_packus_epi16(r.fLo.fVec, r.fHi.fVec));
 }
 
+inline Sk4px Sk4px::Wide::div255() const {
+    // (x + 127) / 255 == ((x+128) * 257)>>16,
+    // and _mm_mulhi_epu16 makes the (_ * 257)>>16 part very convenient.
+    const __m128i _128 = _mm_set1_epi16(128),
+                  _257 = _mm_set1_epi16(257);
+    return Sk4px(_mm_packus_epi16(_mm_mulhi_epu16(_mm_add_epi16(fLo.fVec, _128), _257),
+                                  _mm_mulhi_epu16(_mm_add_epi16(fHi.fVec, _128), _257)));
+}
+
 // Load4Alphas and Load2Alphas use possibly-unaligned loads (SkAlpha[] -> uint16_t or uint32_t).
 // These are safe on x86, often with no speed penalty.
 
@@ -63,18 +72,17 @@ inline Sk4px Sk4px::Wide::addNarrowHi(const Sk16h& other) const {
 #else
     inline Sk4px Sk4px::alphas() const {
         static_assert(SK_A32_SHIFT == 24, "Intel's always little-endian.");
-        __m128i as = _mm_srli_epi32(this->fVec, 24);   // ___3 ___2 ___1 ___0
-        as = _mm_or_si128(as, _mm_slli_si128(as, 1));  // __33 __22 __11 __00
-        as = _mm_or_si128(as, _mm_slli_si128(as, 2));  // 3333 2222 1111 0000
+        // We exploit that A >= rgb for any premul pixel.
+        __m128i as = fVec;                             // 3xxx 2xxx 1xxx 0xxx
+        as = _mm_max_epu8(as, _mm_srli_epi32(as,  8)); // 33xx 22xx 11xx 00xx
+        as = _mm_max_epu8(as, _mm_srli_epi32(as, 16)); // 3333 2222 1111 0000
         return Sk16b(as);
     }
 
     inline Sk4px Sk4px::Load4Alphas(const SkAlpha a[4]) {
         __m128i as = _mm_cvtsi32_si128(*(const uint32_t*)a);  // ____ ____ ____ 3210
-        as = _mm_unpacklo_epi8 (as, _mm_setzero_si128());     // ____ ____ _3_2 _1_0
-        as = _mm_unpacklo_epi16(as, _mm_setzero_si128());     // ___3 ___2 ___1 ___0
-        as = _mm_or_si128(as, _mm_slli_si128(as, 1));         // __33 __22 __11 __00
-        as = _mm_or_si128(as, _mm_slli_si128(as, 2));         // 3333 2222 1111 0000
+        as = _mm_unpacklo_epi8 (as, as);                      // ____ ____ 3322 1100
+        as = _mm_unpacklo_epi16(as, as);                      // 3333 2222 1111 0000
         return Sk16b(as);
     }
 #endif
@@ -91,81 +99,6 @@ inline Sk4px Sk4px::zeroColors() const {
 inline Sk4px Sk4px::zeroAlphas() const {
     // andnot(a,b) == ~a & b
     return Sk16b(_mm_andnot_si128(_mm_set1_epi32(0xFF << SK_A32_SHIFT), this->fVec));
-}
-
-static inline __m128i widen_low_half_to_8888(__m128i v) {
-    // RGB565 format:   |R....|G.....|B....|
-    //           Bit:  16    11      5     0
-
-    // First get each pixel into its own 32-bit lane.
-    //      v == ____ ____  ____ ____  rgb3 rgb2  rgb1 rgb0
-    // spread == 0000 rgb3  0000 rgb2  0000 rgb1  0000 rgb0
-    auto spread = _mm_unpacklo_epi16(v, _mm_setzero_si128());
-
-    // Get each color independently, still in 565 precison but down at bit 0.
-    auto r5 = _mm_srli_epi32(spread, 11),
-         g6 = _mm_and_si128(_mm_set1_epi32(63), _mm_srli_epi32(spread,  5)),
-         b5 = _mm_and_si128(_mm_set1_epi32(31), spread);
-
-    // Scale 565 precision up to 8-bit each, filling low 323 bits with high bits of each component.
-    auto r8 = _mm_or_si128(_mm_slli_epi32(r5, 3), _mm_srli_epi32(r5, 2)),
-         g8 = _mm_or_si128(_mm_slli_epi32(g6, 2), _mm_srli_epi32(g6, 4)),
-         b8 = _mm_or_si128(_mm_slli_epi32(b5, 3), _mm_srli_epi32(b5, 2));
-
-    // Now put all the 8-bit components into SkPMColor order.
-    return _mm_or_si128(_mm_slli_epi32(r8, SK_R32_SHIFT),   // TODO: one of these shifts is zero...
-           _mm_or_si128(_mm_slli_epi32(g8, SK_G32_SHIFT),
-           _mm_or_si128(_mm_slli_epi32(b8, SK_B32_SHIFT),
-                        _mm_set1_epi32(0xFF << SK_A32_SHIFT))));
-}
-
-static inline __m128i narrow_to_565(__m128i w) {
-    // Extract out top RGB 565 bits of each pixel, with no rounding.
-    auto r5 = _mm_and_si128(_mm_set1_epi32(31), _mm_srli_epi32(w, SK_R32_SHIFT + 3)),
-         g6 = _mm_and_si128(_mm_set1_epi32(63), _mm_srli_epi32(w, SK_G32_SHIFT + 2)),
-         b5 = _mm_and_si128(_mm_set1_epi32(31), _mm_srli_epi32(w, SK_B32_SHIFT + 3));
-
-    // Now put the bits in place in the low 16-bits of each 32-bit lane.
-    auto spread = _mm_or_si128(_mm_slli_epi32(r5, 11),
-                  _mm_or_si128(_mm_slli_epi32(g6,  5),
-                               b5));
-
-    // We want to pack the bottom 16-bits of spread down into the low half of the register, v.
-    // spread == 0000 rgb3  0000 rgb2  0000 rgb1  0000 rgb0
-    //      v == ____ ____  ____ ____  rgb3 rgb2  rgb1 rgb0
-
-    // Ideally now we'd use _mm_packus_epi32(spread, <anything>) to pack v.  But that's from SSE4.
-    // With only SSE2, we need to use _mm_packs_epi32.  That does signed saturation, and
-    // we need to preserve all 16 bits.  So we pretend our data is signed by sign-extending first.
-    // TODO: is it faster to just _mm_shuffle_epi8 this when we have SSSE3?
-    auto signExtended = _mm_srai_epi32(_mm_slli_epi32(spread, 16), 16);
-    auto v = _mm_packs_epi32(signExtended, signExtended);
-    return v;
-}
-
-inline Sk4px Sk4px::Load4(const SkPMColor16 src[4]) {
-    return Sk16b(widen_low_half_to_8888(_mm_loadl_epi64((const __m128i*)src)));
-}
-inline Sk4px Sk4px::Load2(const SkPMColor16 src[2]) {
-    auto src2 = ((uint32_t)src[0]      )
-              | ((uint32_t)src[1] << 16);
-    return Sk16b(widen_low_half_to_8888(_mm_cvtsi32_si128(src2)));
-}
-inline Sk4px Sk4px::Load1(const SkPMColor16 src[1]) {
-    return Sk16b(widen_low_half_to_8888(_mm_insert_epi16(_mm_setzero_si128(), src[0], 0)));
-}
-
-inline void Sk4px::store4(SkPMColor16 dst[4]) const {
-    _mm_storel_epi64((__m128i*)dst, narrow_to_565(this->fVec));
-}
-inline void Sk4px::store2(SkPMColor16 dst[2]) const {
-    uint32_t dst2 = _mm_cvtsi128_si32(narrow_to_565(this->fVec));
-    dst[0] = dst2;
-    dst[1] = dst2 >> 16;
-}
-inline void Sk4px::store1(SkPMColor16 dst[1]) const {
-    uint32_t dst2 = _mm_cvtsi128_si32(narrow_to_565(this->fVec));
-    dst[0] = dst2;
 }
 
 }  // namespace

@@ -103,6 +103,11 @@ SK_API void sk_canvas_draw_paint(sk_canvas_t*, const sk_paint_t*);
 */
 SK_API void sk_canvas_draw_rect(sk_canvas_t*, const sk_rect_t*, const sk_paint_t*);
 /**
+ *  Draw the circle centered at (cx, cy) with radius rad using the specified paint.
+ *  The circle will be filled or framed based on the style in the paint
+ */
+SK_API void sk_canvas_draw_circle(sk_canvas_t*, float cx, float cy, float rad, const sk_paint_t*);
+/**
     Draw the specified oval using the specified paint. The oval will be
     filled or framed based on the style in the paint
 */

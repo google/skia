@@ -28,14 +28,14 @@ public:
         kY_Direction,
     };
 
-    Gr1DKernelEffect(GrTexture* texture,
-                     Direction direction,
-                     int radius)
-        : INHERITED(texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
+    Gr1DKernelEffect(GrResourceProvider* resourceProvider, OptimizationFlags optFlags,
+                     sk_sp<GrTextureProxy> proxy, Direction direction, int radius)
+        : INHERITED(resourceProvider, optFlags, std::move(proxy), nullptr, SkMatrix::I())
         , fDirection(direction)
-        , fRadius(radius) {}
+        , fRadius(radius) {
+    }
 
-    virtual ~Gr1DKernelEffect() {};
+    ~Gr1DKernelEffect() override {}
 
     static int WidthFromRadius(int radius) { return 2 * radius + 1; }
 
@@ -43,8 +43,14 @@ public:
     int width() const { return WidthFromRadius(fRadius); }
     Direction direction() const { return fDirection; }
 
-private:
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("Direction: %s, Radius: %d ", kX_Direction == fDirection ? "X" : "Y", fRadius);
+        str.append(INHERITED::dumpInfo());
+        return str;
+    }
 
+private:
     Direction       fDirection;
     int             fRadius;
 

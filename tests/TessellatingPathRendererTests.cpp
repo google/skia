@@ -5,13 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+
 #include "SkPath.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
-#include "GrTest.h"
-#include "Test.h"
-#include "batches/GrTessellatingPathRenderer.h"
+#include "GrClip.h"
+#include "GrContext.h"
+#include "SkGradientShader.h"
+#include "ops/GrTessellatingPathRenderer.h"
 
 /*
  * These tests pass by not crashing, hanging or asserting in Debug.
@@ -232,57 +234,120 @@ static SkPath create_path_15() {
     return path;
 }
 
-static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, GrResourceProvider* rp,
-                      const SkPath& path) {
+// Reduction of Nebraska-StateSeal.svg. Floating point error causes the
+// same edge to be added to more than one poly on the same side.
+static SkPath create_path_16() {
+    SkPath path;
+    path.moveTo(170.8199920654296875,   491.86700439453125);
+    path.lineTo(173.7649993896484375,    489.7340087890625);
+    path.lineTo(174.1450958251953125,  498.545989990234375);
+    path.lineTo( 171.998992919921875,   500.88201904296875);
+    path.moveTo(168.2922515869140625,   498.66265869140625);
+    path.lineTo(169.8589935302734375,   497.94500732421875);
+    path.lineTo(                 172,   500.88299560546875);
+    path.moveTo( 169.555267333984375,   490.70111083984375);
+    path.lineTo(173.7649993896484375,    489.7340087890625);
+    path.lineTo(  170.82000732421875,   491.86700439453125);
+    return path;
+}
+
+// A simple concave path. Test this with a non-invertible matrix.
+static SkPath create_path_17() {
+    SkPath path;
+    path.moveTo(20, 20);
+    path.lineTo(80, 20);
+    path.lineTo(30, 30);
+    path.lineTo(20, 80);
+    return path;
+}
+
+// A shape with a vertex collinear to the right hand edge.
+// This messes up find_enclosing_edges.
+static SkPath create_path_18() {
+    SkPath path;
+    path.moveTo(80, 20);
+    path.lineTo(80, 60);
+    path.lineTo(20, 60);
+    path.moveTo(80, 50);
+    path.lineTo(80, 80);
+    path.lineTo(20, 80);
+    return path;
+}
+
+static sk_sp<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
+    SkPoint pts[2] = { {0, 0}, {1, 1} };
+    SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
+    sk_sp<SkShader> shader = SkGradientShader::MakeLinear(
+        pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
+    SkShader::AsFPArgs args(
+        ctx, &SkMatrix::I(), &SkMatrix::I(), SkFilterQuality::kLow_SkFilterQuality, nullptr);
+    return shader->asFragmentProcessor(args);
+}
+
+static void test_path(GrContext* ctx,
+                      GrRenderTargetContext* renderTargetContext,
+                      const SkPath& path,
+                      const SkMatrix& matrix = SkMatrix::I(),
+                      GrAAType aaType = GrAAType::kNone,
+                      sk_sp<GrFragmentProcessor> fp = nullptr) {
     GrTessellatingPathRenderer tess;
-    GrPipelineBuilder pipelineBuilder;
-    pipelineBuilder.setRenderTarget(rt);
-    GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
-    GrPathRenderer::DrawPathArgs args;
-    args.fTarget = dt;
-    args.fPipelineBuilder = &pipelineBuilder;
-    args.fResourceProvider = rp;
-    args.fColor = GrColor_WHITE;
-    args.fViewMatrix = &SkMatrix::I();
-    args.fPath = &path;
-    args.fStroke = &stroke;
-    args.fAntiAlias = false;
+
+    GrPaint paint;
+    paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+    if (fp) {
+        paint.addColorFragmentProcessor(fp);
+    }
+
+    GrNoClip noClip;
+    GrStyle style(SkStrokeRec::kFill_InitStyle);
+    GrShape shape(path, style);
+    GrPathRenderer::DrawPathArgs args{ctx,
+                                      std::move(paint),
+                                      &GrUserStencilSettings::kUnused,
+                                      renderTargetContext,
+                                      &noClip,
+                                      &matrix,
+                                      &shape,
+                                      aaType,
+                                      false};
     tess.drawPath(args);
 }
 
-DEF_GPUTEST(TessellatingPathRendererTests, reporter, factory) {
-    GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
-    if (nullptr == context) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
+    GrContext* ctx = ctxInfo.grContext();
+
+    sk_sp<GrRenderTargetContext> rtc(ctx->makeDeferredRenderTargetContext(
+                                                                  SkBackingFit::kApprox,
+                                                                  800, 800,
+                                                                  kRGBA_8888_GrPixelConfig,
+                                                                  nullptr,
+                                                                  0,
+                                                                  kTopLeft_GrSurfaceOrigin));
+    if (!rtc) {
         return;
     }
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = 800;
-    desc.fHeight = 800;
-    desc.fConfig = kSkia8888_GrPixelConfig;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    SkAutoTUnref<GrTexture> texture(context->textureProvider()->createApproxTexture(desc));
-    GrTestTarget tt;
-    context->getTestTarget(&tt);
-    GrRenderTarget* rt = texture->asRenderTarget();
-    GrDrawTarget* dt = tt.target();
-    GrResourceProvider* rp = tt.resourceProvider();
 
-    test_path(dt, rt, rp, create_path_0());
-    test_path(dt, rt, rp, create_path_1());
-    test_path(dt, rt, rp, create_path_2());
-    test_path(dt, rt, rp, create_path_3());
-    test_path(dt, rt, rp, create_path_4());
-    test_path(dt, rt, rp, create_path_5());
-    test_path(dt, rt, rp, create_path_6());
-    test_path(dt, rt, rp, create_path_7());
-    test_path(dt, rt, rp, create_path_8());
-    test_path(dt, rt, rp, create_path_9());
-    test_path(dt, rt, rp, create_path_10());
-    test_path(dt, rt, rp, create_path_11());
-    test_path(dt, rt, rp, create_path_12());
-    test_path(dt, rt, rp, create_path_13());
-    test_path(dt, rt, rp, create_path_14());
-    test_path(dt, rt, rp, create_path_15());
+    ctx->flush();
+    test_path(ctx, rtc.get(), create_path_0());
+    test_path(ctx, rtc.get(), create_path_1());
+    test_path(ctx, rtc.get(), create_path_2());
+    test_path(ctx, rtc.get(), create_path_3());
+    test_path(ctx, rtc.get(), create_path_4());
+    test_path(ctx, rtc.get(), create_path_5());
+    test_path(ctx, rtc.get(), create_path_6());
+    test_path(ctx, rtc.get(), create_path_7());
+    test_path(ctx, rtc.get(), create_path_8());
+    test_path(ctx, rtc.get(), create_path_9());
+    test_path(ctx, rtc.get(), create_path_10());
+    test_path(ctx, rtc.get(), create_path_11());
+    test_path(ctx, rtc.get(), create_path_12());
+    test_path(ctx, rtc.get(), create_path_13());
+    test_path(ctx, rtc.get(), create_path_14());
+    test_path(ctx, rtc.get(), create_path_15());
+    test_path(ctx, rtc.get(), create_path_16());
+    SkMatrix nonInvertibleMatrix = SkMatrix::MakeScale(0, 0);
+    sk_sp<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx));
+    test_path(ctx, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage, fp);
+    test_path(ctx, rtc.get(), create_path_18());
 }
 #endif

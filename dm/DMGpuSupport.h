@@ -13,6 +13,10 @@
 
 #include "SkSurface.h"
 
+// This should be safe to include even in no-gpu builds. Include by relative path so it
+// can be found in non-gpu builds.
+#include "../include/gpu/GrContextOptions.h"
+
 #if SK_SUPPORT_GPU
 
 // Ganesh is available.  Yippee!
@@ -24,16 +28,17 @@ namespace DM {
 
 static const bool kGPUDisabled = false;
 
-static inline SkSurface* NewGpuSurface(GrContextFactory* grFactory,
-                                       GrContextFactory::GLContextType type,
-                                       GrGLStandard gpuAPI,
-                                       SkImageInfo info,
-                                       int samples,
-                                       bool useDIText) {
+static inline sk_sp<SkSurface> NewGpuSurface(
+        sk_gpu_test::GrContextFactory* grFactory,
+        sk_gpu_test::GrContextFactory::ContextType type,
+        sk_gpu_test::GrContextFactory::ContextOverrides overrides,
+        SkImageInfo info,
+        int samples,
+        bool useDIText) {
     uint32_t flags = useDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-    return SkSurface::NewRenderTarget(grFactory->get(type, gpuAPI), SkSurface::kNo_Budgeted,
-                                      info, samples, &props);
+    return SkSurface::MakeRenderTarget(grFactory->get(type, overrides), SkBudgeted::kNo,
+                                       info, samples, &props);
 }
 
 }  // namespace DM
@@ -55,36 +60,42 @@ public:
     void dumpGpuStats(SkString*) const {}
 };
 
-struct GrContextOptions {};
-
+namespace sk_gpu_test {
 class GrContextFactory {
 public:
-    GrContextFactory() {};
+    GrContextFactory() {}
     explicit GrContextFactory(const GrContextOptions&) {}
 
-    typedef int GLContextType;
+    typedef int ContextType;
 
-    static const GLContextType kANGLE_GLContextType         = 0,
-                               kANGLE_GL_GLContextType      = 0,
-                               kCommandBuffer_GLContextType = 0,
-                               kDebug_GLContextType         = 0,
-                               kMESA_GLContextType          = 0,
-                               kNVPR_GLContextType          = 0,
-                               kNative_GLContextType        = 0,
-                               kNull_GLContextType          = 0;
-    static const int kGLContextTypeCnt = 1;
+    static const ContextType kANGLE_ContextType         = 0,
+                             kANGLE_GL_ContextType      = 0,
+                             kCommandBuffer_ContextType = 0,
+                             kDebugGL_ContextType       = 0,
+                             kMESA_ContextType          = 0,
+                             kNVPR_ContextType          = 0,
+                             kNativeGL_ContextType      = 0,
+                             kGL_ContextType            = 0,
+                             kGLES_ContextType          = 0,
+                             kNullGL_ContextType        = 0,
+                             kVulkan_ContextType        = 0;
+    static const int kContextTypeCnt = 1;
+    enum class ContextOverrides {};
     void destroyContexts() {}
 
     void abandonContexts() {}
+
+    void releaseResourcesAndAbandonContexts() {}
 };
+}  // namespace sk_gpu_test
 
 namespace DM {
 
 static const bool kGPUDisabled = true;
 
-static inline SkSurface* NewGpuSurface(GrContextFactory*,
-                                       GrContextFactory::GLContextType,
-                                       GrGLStandard,
+static inline SkSurface* NewGpuSurface(sk_gpu_test::GrContextFactory*,
+                                       sk_gpu_test::GrContextFactory::ContextType,
+                                       sk_gpu_test::GrContextFactory::ContextOverrides,
                                        SkImageInfo,
                                        int,
                                        bool) {

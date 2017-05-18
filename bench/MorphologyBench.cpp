@@ -46,11 +46,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
-    virtual void onDraw(int loops, SkCanvas* canvas) {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
         this->setupPaint(&paint);
 
@@ -63,18 +63,20 @@ protected:
             r.offset(fRadius, fRadius);
 
             if (fRadius > 0) {
-                SkImageFilter* mf = nullptr;
+                sk_sp<SkImageFilter> mf;
                 switch (fStyle) {
                 case kDilate_MT:
-                    mf = SkDilateImageFilter::Create(SkScalarFloorToInt(fRadius),
-                                                    SkScalarFloorToInt(fRadius));
+                    mf = SkDilateImageFilter::Make(SkScalarFloorToInt(fRadius),
+                                                   SkScalarFloorToInt(fRadius),
+                                                   nullptr);
                     break;
                 case kErode_MT:
-                    mf = SkErodeImageFilter::Create(SkScalarFloorToInt(fRadius),
-                                                    SkScalarFloorToInt(fRadius));
+                    mf = SkErodeImageFilter::Make(SkScalarFloorToInt(fRadius),
+                                                  SkScalarFloorToInt(fRadius),
+                                                  nullptr);
                     break;
                 }
-                paint.setImageFilter(mf)->unref();
+                paint.setImageFilter(std::move(mf));
             }
             canvas->drawOval(r, paint);
         }

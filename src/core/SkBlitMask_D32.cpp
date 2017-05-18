@@ -76,9 +76,9 @@ bool SkBlitMask::BlitColor(const SkPixmap& device, const SkMask& mask,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-static void BW_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
-                             const uint8_t* SK_RESTRICT mask,
-                             const SkPMColor* SK_RESTRICT src, int count) {
+static void BW_RowProc_Blend(
+        SkPMColor* SK_RESTRICT dst, const void* maskIn, const SkPMColor* SK_RESTRICT src, int count) {
+    const uint8_t* SK_RESTRICT mask = static_cast<const uint8_t*>(maskIn);
     int i, octuple = (count + 7) >> 3;
     for (i = 0; i < octuple; ++i) {
         int m = *mask++;
@@ -105,9 +105,9 @@ static void BW_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
     }
 }
 
-static void BW_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
-                              const uint8_t* SK_RESTRICT mask,
-                              const SkPMColor* SK_RESTRICT src, int count) {
+static void BW_RowProc_Opaque(
+        SkPMColor* SK_RESTRICT dst, const void* maskIn, const SkPMColor* SK_RESTRICT src, int count) {
+    const uint8_t* SK_RESTRICT mask = static_cast<const uint8_t*>(maskIn);
     int i, octuple = (count + 7) >> 3;
     for (i = 0; i < octuple; ++i) {
         int m = *mask++;
@@ -134,9 +134,9 @@ static void BW_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
     }
 }
 
-static void A8_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
-                             const uint8_t* SK_RESTRICT mask,
-                             const SkPMColor* SK_RESTRICT src, int count) {
+static void A8_RowProc_Blend(
+        SkPMColor* SK_RESTRICT dst, const void* maskIn, const SkPMColor* SK_RESTRICT src, int count) {
+    const uint8_t* SK_RESTRICT mask = static_cast<const uint8_t*>(maskIn);
     for (int i = 0; i < count; ++i) {
         if (mask[i]) {
             dst[i] = SkBlendARGB32(src[i], dst[i], mask[i]);
@@ -153,9 +153,9 @@ static void A8_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
 #define EXPAND1(v, m, s)    (((v) >> 8) & (m)) * (s)
 #define COMBINE(e0, e1, m)  ((((e0) >> 8) & (m)) | ((e1) & ~(m)))
 
-static void A8_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
-                              const uint8_t* SK_RESTRICT mask,
-                              const SkPMColor* SK_RESTRICT src, int count) {
+static void A8_RowProc_Opaque(
+        SkPMColor* SK_RESTRICT dst, const void* maskIn, const SkPMColor* SK_RESTRICT src, int count) {
+    const uint8_t* SK_RESTRICT mask = static_cast<const uint8_t*>(maskIn);
     for (int i = 0; i < count; ++i) {
         int m = mask[i];
         if (m) {
@@ -188,9 +188,9 @@ static int src_alpha_blend(int src, int dst, int srcA, int mask) {
     return dst + SkAlphaMul(src - SkAlphaMul(srcA, dst), mask);
 }
 
-static void LCD16_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
-                                const uint16_t* SK_RESTRICT mask,
-                                const SkPMColor* SK_RESTRICT src, int count) {
+static void LCD16_RowProc_Blend(
+        SkPMColor* SK_RESTRICT dst, const void* maskIn, const SkPMColor* SK_RESTRICT src, int count) {
+    const uint16_t* SK_RESTRICT mask = static_cast<const uint16_t*>(maskIn);
     for (int i = 0; i < count; ++i) {
         uint16_t m = mask[i];
         if (0 == m) {
@@ -231,9 +231,9 @@ static void LCD16_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
     }
 }
 
-static void LCD16_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
-                                 const uint16_t* SK_RESTRICT mask,
-                                 const SkPMColor* SK_RESTRICT src, int count) {
+static void LCD16_RowProc_Opaque(
+        SkPMColor* SK_RESTRICT dst, const void* maskIn, const SkPMColor* SK_RESTRICT src, int count) {
+    const uint16_t* SK_RESTRICT mask = static_cast<const uint16_t*>(maskIn);
     for (int i = 0; i < count; ++i) {
         uint16_t m = mask[i];
         if (0 == m) {

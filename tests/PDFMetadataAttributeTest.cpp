@@ -9,38 +9,44 @@
 #include "SkData.h"
 #include "Test.h"
 
-DEF_TEST(SkPDF_MetadataAttribute, r) {
-    REQUIRE_PDF_DOCUMENT(SkPDF_MetadataAttribute, r);
-    SkDynamicMemoryWStream pdf;
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&pdf));
-    SkTArray<SkDocument::Attribute> info;
-    info.emplace_back(SkString("Title"), SkString("A1"));
-    info.emplace_back(SkString("Author"), SkString("A2"));
-    info.emplace_back(SkString("Subject"), SkString("A3"));
-    info.emplace_back(SkString("Keywords"), SkString("A4"));
-    info.emplace_back(SkString("Creator"), SkString("A5"));
+DEF_TEST(SkPDF_Metadata, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_Metadata, r);
     SkTime::DateTime now;
     SkTime::GetDateTime(&now);
-    doc->setMetadata(info, &now, &now);
+    SkDocument::PDFMetadata metadata;
+    metadata.fTitle = "A1";
+    metadata.fAuthor = "A2";
+    metadata.fSubject = "A3";
+    metadata.fKeywords = "A4";
+    metadata.fCreator = "A5";
+    metadata.fCreation.fEnabled = true;
+    metadata.fCreation.fDateTime = now;
+    metadata.fModified.fEnabled = true;
+    metadata.fModified.fDateTime = now;
+
+    SkDynamicMemoryWStream pdf;
+    sk_sp<SkDocument> doc = SkDocument::MakePDF(&pdf, SK_ScalarDefaultRasterDPI,
+                                                metadata, nullptr, false);
     doc->beginPage(612.0f, 792.0f);
     doc->close();
-    SkAutoTUnref<SkData> data(pdf.copyToData());
+    sk_sp<SkData> data = pdf.detachAsData();
     static const char* expectations[] = {
         "/Title (A1)",
         "/Author (A2)",
         "/Subject (A3)",
         "/Keywords (A4)",
         "/Creator (A5)",
-        "/Producer (Skia/PDF)",
+        "/Producer (Skia/PDF ",
         "/CreationDate (D:",
         "/ModDate (D:"
     };
+    const uint8_t* bytes = data->bytes();
     for (const char* expectation : expectations) {
+        size_t len = strlen(expectation);
         bool found = false;
-        size_t N = 1 + data->size() - strlen(expectation);
+        size_t N = 1 + data->size() - len;
         for (size_t i = 0; i < N; ++i) {
-            if (0 == memcmp(data->bytes() + i,
-                             expectation, strlen(expectation))) {
+            if (0 == memcmp(bytes + i, expectation, len)) {
                 found = true;
                 break;
             }

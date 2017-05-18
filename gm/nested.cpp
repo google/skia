@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRRect.h"
@@ -123,8 +124,8 @@ protected:
     }
 
 private:
-    static const int kImageWidth = 269;
-    static const int kImageHeight = 134;
+    static constexpr int kImageWidth = 269;
+    static constexpr int kImageHeight = 134;
 
     bool fDoAA;
     bool fFlipped;

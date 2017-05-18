@@ -1,46 +1,26 @@
 use_relative_paths = True
 
-# Dependencies on outside packages.
-#
 deps = {
-  "common": "https://skia.googlesource.com/common.git@c282fe0b6e392b14f88d647cbd86e1a3ef5498e0",
-
-  # There is some duplication here that might be worth cleaning up:
-  #   - can use use our existing t_p/e/libjpeg instead of pulling it for Android?
-
-  "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@7258e30c8b4dd42b779f26f94eea91fc0ff3a118",
-  "third_party/externals/cmake"   : "https://cmake.googlesource.com/cmake.git@v3.3.1",
-  "third_party/externals/freetype": "https://skia.googlesource.com/third_party/freetype2.git@VER-2-5-0-1",
-  "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@08429da7955a98ef764fafa223dd7de73f654b2d",
-  "third_party/externals/harfbuzz": "https://skia.googlesource.com/third_party/harfbuzz.git@0.9.35",
-  "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/jsoncpp/jsoncpp.git@1afff032c83e26ddf7f2776e8b43de5ad666c1fa",
-  # Slightly ahead of v 0.4.3, to include the fix for skbug.com/4038
-  "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@5ff0079ece626f122bfb8e33a5f92b5a68484176",
-  "third_party/externals/nanomsg" : "https://skia.googlesource.com/third_party/nanomsg.git@0.4-beta",
-  "third_party/externals/zlib"    : "https://chromium.googlesource.com/chromium/src/third_party/zlib@4ba7cdd0e7bf49d671645264f839838fc56e1492",
-  # NOTE: If we update libpng, we may need to update the generated file at third_party/libpng/pnglibconf.h
-  "third_party/externals/libpng"  : "https://skia.googlesource.com/third_party/libpng.git@070a616b8275277e18ef8ee91e2ca23f7bdc67d5",
-  "third_party/externals/giflib"  : "https://android.googlesource.com/platform/external/giflib.git@ab10e256df4f684260ca239905b1cec727181f6c",
-
-  "third_party/externals/libjpeg-turbo"             : "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git@631e2dd119d49794e3572b6ca3f16ee39d59f372",
-  # libjpeg-turbo depends on yasm to compile .asm files
-  "third_party/externals/yasm/source/patched-yasm/" : "https://chromium.googlesource.com/chromium/deps/yasm/patched-yasm.git@4671120cd8558ce62ee8672ebf3eb6f5216f909b",
-  "third_party/externals/yasm/binaries"             : "https://chromium.googlesource.com/chromium/deps/yasm/binaries.git@52f9b3f4b0aa06da24ef8b123058bb61ee468881",
-
-  "platform_tools/android/third_party/externals/expat" : "https://android.googlesource.com/platform/external/expat.git@android-5.1.0_r3",
-  "platform_tools/android/third_party/externals/jpeg" : "https://android.googlesource.com/platform/external/jpeg.git@android-5.1.0_r3",
-  "platform_tools/android/third_party/externals/png" : "https://android.googlesource.com/platform/external/libpng.git@android-4.2.2_r1.2",
-
-  "platform_tools/chromeos/toolchain/src/third_party/chromite": "https://chromium.googlesource.com/chromiumos/chromite.git@d6a4c7e0ee4d53ddc5238dbddfc0417796a70e54",
-  "platform_tools/chromeos/toolchain/src/third_party/pyelftools": "https://chromium.googlesource.com/chromiumos/third_party/pyelftools.git@bdc1d380acd88d4bfaf47265008091483b0d614e",
-
-  # The line below is needed for compiling SkV8Example. Do not delete.
-  #"third_party/externals/v8": "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
-
-  # sfntly is used by the PDF backend for font subsetting
-  "third_party/externals/sfntly" : "https://chromium.googlesource.com/external/sfntly/cpp/src.git@1bdaae8fc788a5ac8936d68bf24f37d977a13dac",
-  # ICU is needed for sfntly.
-  "third_party/externals/icu" : "https://chromium.googlesource.com/chromium/deps/icu.git@ce41627e388fb46ab49671bd16a5db81dcd75a71",
+  "buildtools"                          : "https://chromium.googlesource.com/chromium/buildtools.git@e6b510a9daf822bbe9f922c200c58150803d2fd8",
+  "common"                              : "https://skia.googlesource.com/common.git@9737551d7a52c3db3262db5856e6bcd62c462b92",
+  "third_party/externals/angle2"        : "https://chromium.googlesource.com/angle/angle.git@57f17473791703ac82add77c3d77d13d8e2dfbc4",
+  "third_party/externals/dng_sdk"       : "https://android.googlesource.com/platform/external/dng_sdk.git@96443b262250c390b0caefbf3eed8463ba35ecae",
+  "third_party/externals/expat"         : "https://android.googlesource.com/platform/external/expat.git@android-6.0.1_r55",
+  "third_party/externals/freetype"      : "https://skia.googlesource.com/third_party/freetype2.git@447a0b62634802d8acdb56008cff5ff4e50be244",
+  "third_party/externals/harfbuzz"      : "https://skia.googlesource.com/third_party/harfbuzz.git@1.4.2",
+  "third_party/externals/icu"           : "https://chromium.googlesource.com/chromium/deps/icu.git@ec9c1133693148470ffe2e5e53576998e3650c1d",
+  "third_party/externals/imgui"         : "https://github.com/ocornut/imgui.git@6384eee34f08cb7eab8d835043e1738e4adcdf75",
+  "third_party/externals/jsoncpp"       : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@1.0.0",
+  "third_party/externals/libjpeg-turbo" : "https://skia.googlesource.com/third_party/libjpeg-turbo.git@6de58e0d28014caf2fc1370145f22fd6d65f63e3",
+  "third_party/externals/libwebp"       : "https://chromium.googlesource.com/webm/libwebp.git@v0.6.0",
+  "third_party/externals/microhttpd"    : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
+  "third_party/externals/piex"          : "https://android.googlesource.com/platform/external/piex.git@8f540f64b6c170a16fb7e6e52d61819705c1522a",
+  "third_party/externals/sdl"           : "https://skia.googlesource.com/third_party/sdl@9b526d28cb2d7f0ccff0613c94bb52abc8f53b6f",
+  "third_party/externals/sfntly"        : "https://chromium.googlesource.com/external/github.com/googlei18n/sfntly.git@b18b09b6114b9b7fe6fc2f96d8b15e8a72f66916",
+  "third_party/externals/spirv-headers" : "https://github.com/KhronosGroup/SPIRV-Headers.git@2d6ba39368a781edd82eff5df2b6bc614e892329",
+  "third_party/externals/spirv-tools"   : "https://github.com/KhronosGroup/SPIRV-Tools.git@1fb8c37b5718118b49eec59dc383cfa3f98643c0",
+ #"third_party/externals/v8"            : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
+  "third_party/externals/zlib"          : "https://chromium.googlesource.com/chromium/src/third_party/zlib@4576304a4b9835aa8646c9735b079e1d96858633",
 }
 
 recursedeps = [ "common" ]

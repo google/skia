@@ -29,14 +29,18 @@ class SkTraceMemoryDump;
 class SkResourceCache {
 public:
     struct Key {
-        // Call this to access your private contents. Must not use the address after calling init()
-        void* writableContents() { return this + 1; }
+        /** Key subclasses must call this after their own fields and data are initialized.
+         *  All fields and data must be tightly packed.
+         *  @param nameSpace must be unique per Key subclass.
+         *  @param sharedID == 0 means ignore this field, does not support group purging.
+         *  @param dataSize is size of fields and data of the subclass, must be a multiple of 4.
+         */
+        void init(void* nameSpace, uint64_t sharedID, size_t dataSize);
 
-        // must call this after your private data has been written.
-        // nameSpace must be unique per Key subclass.
-        // sharedID == 0 means ignore this field : does not support group purging.
-        // length must be a multiple of 4
-        void init(void* nameSpace, uint64_t sharedID, size_t length);
+        /** Returns the size of this key. */
+        size_t size() const {
+            return fCount32 << 2;
+        }
 
         void* getNamespace() const { return fNamespace; }
         uint64_t getSharedID() const { return ((uint64_t)fSharedID_hi << 32) | fSharedID_lo; }
@@ -78,13 +82,25 @@ public:
         virtual const Key& getKey() const = 0;
         virtual size_t bytesUsed() const = 0;
 
+        // Called if the cache needs to purge/remove/delete the Rec. Default returns true.
+        // Subclass may return false if there are outstanding references to it (e.g. bitmaps).
+        // Will only be deleted/removed-from-the-cache when this returns true.
+        virtual bool canBePurged() { return true; }
+
+        // A rec is first created/initialized, and then added to the cache. As part of the add(),
+        // the cache will callback into the rec with postAddInstall, passing in whatever payload
+        // was passed to add/Add.
+        //
+        // This late-install callback exists because the process of add-ing might end up deleting
+        // the new rec (if an existing rec in the cache has the same key and cannot be purged).
+        // If the new rec will be deleted during add, the pre-existing one (with the same key)
+        // will have postAddInstall() called on it instead, so that either way an "install" will
+        // happen during the add.
+        virtual void postAddInstall(void*) {}
+
         // for memory usage diagnostics
         virtual const char* getCategory() const = 0;
         virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return nullptr; }
-
-        // for SkTDynamicHash::Traits
-        static uint32_t Hash(const Key& key) { return key.hash(); }
-        static const Key& GetKey(const Rec& rec) { return rec.getKey(); }
 
     private:
         Rec*    fNext;
@@ -135,7 +151,7 @@ public:
      *      false : Rec is "stale" -- the cache will purge it.
      */
     static bool Find(const Key& key, FindVisitor, void* context);
-    static void Add(Rec*);
+    static void Add(Rec*, void* payload = nullptr);
 
     typedef void (*Visitor)(const Rec&, void* context);
     // Call the visitor for every Rec in the cache.
@@ -162,12 +178,6 @@ public:
      *  Returns the DiscardableFactory used by the global cache, or nullptr.
      */
     static DiscardableFactory GetDiscardableFactory();
-
-    /**
-     * Use this allocator for bitmaps, so they can use ashmem when available.
-     * Returns nullptr if the ResourceCache has not been initialized with a DiscardableFactory.
-     */
-    static SkBitmap::Allocator* GetAllocator();
 
     static SkCachedData* NewCachedData(size_t bytes);
 
@@ -208,7 +218,7 @@ public:
      *      false : Rec is "stale" -- the cache will purge it.
      */
     bool find(const Key&, FindVisitor, void* context);
-    void add(Rec*);
+    void add(Rec*, void* payload = nullptr);
     void visitAll(Visitor, void* context);
 
     size_t getTotalBytesUsed() const { return fTotalBytesUsed; }
@@ -239,7 +249,6 @@ public:
     }
 
     DiscardableFactory discardableFactory() const { return fDiscardableFactory; }
-    SkBitmap::Allocator* allocator() const { return fAllocator; };
 
     SkCachedData* newCachedData(size_t bytes);
 
@@ -256,8 +265,6 @@ private:
     Hash*   fHash;
 
     DiscardableFactory  fDiscardableFactory;
-    // the allocator is nullptr or one that matches discardables
-    SkBitmap::Allocator* fAllocator;
 
     size_t  fTotalBytesUsed;
     size_t  fTotalByteLimit;
@@ -272,7 +279,7 @@ private:
     // linklist management
     void moveToHead(Rec*);
     void addToHead(Rec*);
-    void detach(Rec*);
+    void release(Rec*);
     void remove(Rec*);
 
     void init();    // called by constructors

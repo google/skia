@@ -6,6 +6,7 @@
  */
 
 #include "SampleCode.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -44,13 +45,13 @@ protected:
             bounds.offset(-bounds.fLeft, -bounds.fTop);
             c.drawOval(bounds, paint);
 
-            paint.setXfermodeMode(SkXfermode::kDstIn_Mode);
+            paint.setBlendMode(SkBlendMode::kDstIn);
             canvas->drawBitmap(mask, r.fLeft, r.fTop, &paint);
         } else {
             SkPath p;
             p.addOval(r);
             p.setFillType(SkPath::kInverseWinding_FillType);
-            paint.setXfermodeMode(SkXfermode::kDstOut_Mode);
+            paint.setBlendMode(SkBlendMode::kDstOut);
             canvas->drawPath(p, paint);
         }
     }

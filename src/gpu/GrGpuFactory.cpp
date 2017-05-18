@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -12,13 +11,14 @@
 #include "GrGpu.h"
 #include "gl/GrGLConfig.h"
 #include "gl/GrGLGpu.h"
+#ifdef SK_VULKAN
+#include "vk/GrVkGpu.h"
+#endif
 
 static CreateGpuProc gGpuFactories[kBackendCount] = { GrGLGpu::Create, nullptr };
 
 #ifdef SK_VULKAN
-extern GrGpu* vk_gpu_create(GrBackendContext backendContext, const GrContextOptions& options,
-                            GrContext* context);
-GrGpuFactoryRegistrar gVkGpuFactoryProc(kVulkan_GrBackend, vk_gpu_create);
+GrGpuFactoryRegistrar gVkGpuFactoryProc(kVulkan_GrBackend, GrVkGpu::Create);
 #endif
 
 GrGpuFactoryRegistrar::GrGpuFactoryRegistrar(int i, CreateGpuProc proc) {

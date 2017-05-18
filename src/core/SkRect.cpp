@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -7,6 +6,8 @@
  */
 
 #include "SkRect.h"
+
+#include "SkMalloc.h"
 
 void SkIRect::join(int32_t left, int32_t top, int32_t right, int32_t bottom) {
     // do nothing if the params are empty
@@ -22,15 +23,6 @@ void SkIRect::join(int32_t left, int32_t top, int32_t right, int32_t bottom) {
         if (top < fTop) fTop = top;
         if (right > fRight) fRight = right;
         if (bottom > fBottom) fBottom = bottom;
-    }
-}
-
-void SkIRect::sort() {
-    if (fLeft > fRight) {
-        SkTSwap<int32_t>(fLeft, fRight);
-    }
-    if (fTop > fBottom) {
-        SkTSwap<int32_t>(fTop, fBottom);
     }
 }
 
@@ -67,7 +59,7 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
             pts += 1;
             count -= 1;
         } else {
-            min = Sk4s::Load(&pts[0].fX);
+            min = Sk4s::Load(pts);
             pts += 2;
             count -= 2;
         }
@@ -76,7 +68,7 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
 
         count >>= 1;
         for (int i = 0; i < count; ++i) {
-            Sk4s xy = Sk4s::Load(&pts->fX);
+            Sk4s xy = Sk4s::Load(pts);
             accum = accum * xy;
             min = Sk4s::Min(min, xy);
             max = Sk4s::Max(max, xy);

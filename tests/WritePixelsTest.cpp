@@ -8,18 +8,16 @@
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkMathPriv.h"
-#include "SkRegion.h"
 #include "SkSurface.h"
 #include "Test.h"
 #include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
-#include "SkGpuDevice.h"
-#else
-class GrContext;
-class GrContextFactory;
+#include "GrContext.h"
+#include "GrGpu.h"
 #endif
+
+#include <initializer_list>
 
 static const int DEV_W = 100, DEV_H = 100;
 static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
@@ -123,9 +121,9 @@ static void fill_canvas(SkCanvas* canvas) {
     }
     canvas->save();
     canvas->setMatrix(SkMatrix::I());
-    canvas->clipRect(DEV_RECT_S, SkRegion::kReplace_Op);
+    canvas->clipRect(DEV_RECT_S, kReplace_SkClipOp);
     SkPaint paint;
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     canvas->drawBitmap(bmp, 0, 0, &paint);
     canvas->restore();
 }
@@ -194,9 +192,11 @@ static bool check_write(skiatest::Reporter* reporter, SkCanvas* canvas, const Sk
     // At some point this will be unsupported, as we won't allow accessBitmap() to magically call
     // readPixels for the client.
     SkBitmap secretDevBitmap;
-    canvas->readPixels(canvasInfo.bounds(), &secretDevBitmap);
+    secretDevBitmap.allocN32Pixels(canvasInfo.width(), canvasInfo.height());
+    if (!canvas->readPixels(secretDevBitmap, 0, 0)) {
+        return false;
+    }
 
-    SkAutoLockPixels alp(secretDevBitmap);
     canvasRowBytes = secretDevBitmap.rowBytes();
     canvasPixels = static_cast<const uint32_t*>(secretDevBitmap.getPixels());
 
@@ -254,28 +254,6 @@ static bool check_write(skiatest::Reporter* reporter, SkCanvas* canvas, const Sk
     return true;
 }
 
-enum DevType {
-    kRaster_DevType,
-#if SK_SUPPORT_GPU
-    kGpu_BottomLeft_DevType,
-    kGpu_TopLeft_DevType,
-#endif
-};
-
-struct CanvasConfig {
-    DevType fDevType;
-    bool fTightRowBytes;
-};
-
-static const CanvasConfig gCanvasConfigs[] = {
-    {kRaster_DevType, true},
-    {kRaster_DevType, false},
-#if SK_SUPPORT_GPU
-    {kGpu_BottomLeft_DevType, true}, // row bytes has no meaning on gpu devices
-    {kGpu_TopLeft_DevType, true}, // row bytes has no meaning on gpu devices
-#endif
-};
-
 #include "SkMallocPixelRef.h"
 
 // This is a tricky pattern, because we have to setConfig+rowBytes AND specify
@@ -286,43 +264,13 @@ static bool alloc_row_bytes(SkBitmap* bm, const SkImageInfo& info, size_t rowByt
     if (!bm->setInfo(info, rowBytes)) {
         return false;
     }
-    SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, rowBytes, nullptr);
-    bm->setPixelRef(pr)->unref();
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(info, rowBytes, nullptr);
+    bm->setPixelRef(std::move(pr), 0, 0);
     return true;
 }
 
 static void free_pixels(void* pixels, void* ctx) {
     sk_free(pixels);
-}
-
-static SkSurface* create_surface(const CanvasConfig& c, GrContext* grCtx) {
-    SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
-    switch (c.fDevType) {
-        case kRaster_DevType: {
-            const size_t rowBytes = c.fTightRowBytes ? info.minRowBytes() : 4 * DEV_W + 100;
-            const size_t size = info.getSafeSize(rowBytes);
-            void* pixels = sk_malloc_throw(size);
-            // if rowBytes isn't tight then set the padding to a known value
-            if (!c.fTightRowBytes) {
-                memset(pixels, DEV_PAD, size);
-            }
-            return SkSurface::NewRasterDirectReleaseProc(info, pixels, rowBytes, free_pixels, nullptr);
-        }
-#if SK_SUPPORT_GPU
-        case kGpu_BottomLeft_DevType:
-        case kGpu_TopLeft_DevType:
-            GrSurfaceDesc desc;
-            desc.fFlags = kRenderTarget_GrSurfaceFlag;
-            desc.fWidth = DEV_W;
-            desc.fHeight = DEV_H;
-            desc.fConfig = kSkia8888_GrPixelConfig;
-            desc.fOrigin = kGpu_TopLeft_DevType == c.fDevType ?
-                kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
-            SkAutoTUnref<GrTexture> texture(grCtx->textureProvider()->createTexture(desc, false));
-            return SkSurface::NewRenderTargetDirect(texture->asRenderTarget());
-#endif
-    }
-    return nullptr;
 }
 
 static bool setup_bitmap(SkBitmap* bm, SkColorType ct, SkAlphaType at, int w, int h, int tightRB) {
@@ -331,7 +279,6 @@ static bool setup_bitmap(SkBitmap* bm, SkColorType ct, SkAlphaType at, int w, in
     if (!alloc_row_bytes(bm, info, rowBytes)) {
         return false;
     }
-    SkAutoLockPixels alp(*bm);
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             *bm->getAddr32(x, y) = get_bitmap_color(x, y, w, ct, at);
@@ -346,20 +293,16 @@ static void call_writepixels(SkCanvas* canvas) {
     canvas->writePixels(info, &pixel, sizeof(SkPMColor), 0, 0);
 }
 
-static void test_surface_genid(skiatest::Reporter* reporter) {
+DEF_TEST(WritePixelsSurfaceGenID, reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     uint32_t genID1 = surface->generationID();
     call_writepixels(surface->getCanvas());
     uint32_t genID2 = surface->generationID();
     REPORTER_ASSERT(reporter, genID1 != genID2);
 }
 
-DEF_GPUTEST(WritePixels, reporter, factory) {
-    test_surface_genid(reporter);
-
-    SkCanvas canvas;
-
+static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface) {
     const SkIRect testRects[] = {
         // entire thing
         DEV_RECT,
@@ -407,72 +350,106 @@ DEF_GPUTEST(WritePixels, reporter, factory) {
         SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W + 10, DEV_H + 10),
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gCanvasConfigs); ++i) {
-        int glCtxTypeCnt = 1;
-#if SK_SUPPORT_GPU
-        bool isGPUDevice = kGpu_TopLeft_DevType == gCanvasConfigs[i].fDevType ||
-                           kGpu_BottomLeft_DevType == gCanvasConfigs[i].fDevType;
-        if (isGPUDevice) {
-            glCtxTypeCnt = GrContextFactory::kGLContextTypeCnt;
-        }
-#endif
-        for (int glCtxType = 0; glCtxType < glCtxTypeCnt; ++glCtxType) {
-            GrContext* context = nullptr;
-#if SK_SUPPORT_GPU
-            if (isGPUDevice) {
-                GrContextFactory::GLContextType type =
-                    static_cast<GrContextFactory::GLContextType>(glCtxType);
-                if (!GrContextFactory::IsRenderingGLContext(type)) {
-                    continue;
-                }
-                context = factory->get(type);
-                if (nullptr == context) {
-                    continue;
-                }
-            }
-#endif
+    SkCanvas& canvas = *surface->getCanvas();
 
-            SkAutoTUnref<SkSurface> surface(create_surface(gCanvasConfigs[i], context));
-            SkCanvas& canvas = *surface->getCanvas();
+    static const struct {
+        SkColorType fColorType;
+        SkAlphaType fAlphaType;
+    } gSrcConfigs[] = {
+        { kRGBA_8888_SkColorType, kPremul_SkAlphaType },
+        { kRGBA_8888_SkColorType, kUnpremul_SkAlphaType },
+        { kBGRA_8888_SkColorType, kPremul_SkAlphaType },
+        { kBGRA_8888_SkColorType, kUnpremul_SkAlphaType },
+    };
+    for (size_t r = 0; r < SK_ARRAY_COUNT(testRects); ++r) {
+        const SkIRect& rect = testRects[r];
+        for (int tightBmp = 0; tightBmp < 2; ++tightBmp) {
+            for (size_t c = 0; c < SK_ARRAY_COUNT(gSrcConfigs); ++c) {
+                const SkColorType ct = gSrcConfigs[c].fColorType;
+                const SkAlphaType at = gSrcConfigs[c].fAlphaType;
 
-            static const struct {
-                SkColorType fColorType;
-                SkAlphaType fAlphaType;
-            } gSrcConfigs[] = {
-                { kRGBA_8888_SkColorType, kPremul_SkAlphaType },
-                { kRGBA_8888_SkColorType, kUnpremul_SkAlphaType },
-                { kBGRA_8888_SkColorType, kPremul_SkAlphaType },
-                { kBGRA_8888_SkColorType, kUnpremul_SkAlphaType },
-            };
-            for (size_t r = 0; r < SK_ARRAY_COUNT(testRects); ++r) {
-                const SkIRect& rect = testRects[r];
-                for (int tightBmp = 0; tightBmp < 2; ++tightBmp) {
-                    for (size_t c = 0; c < SK_ARRAY_COUNT(gSrcConfigs); ++c) {
-                        const SkColorType ct = gSrcConfigs[c].fColorType;
-                        const SkAlphaType at = gSrcConfigs[c].fAlphaType;
+                fill_canvas(&canvas);
+                SkBitmap bmp;
+                REPORTER_ASSERT(reporter, setup_bitmap(&bmp, ct, at, rect.width(),
+                                                       rect.height(), SkToBool(tightBmp)));
+                uint32_t idBefore = surface->generationID();
 
-                        fill_canvas(&canvas);
-                        SkBitmap bmp;
-                        REPORTER_ASSERT(reporter, setup_bitmap(&bmp, ct, at, rect.width(),
-                                                               rect.height(), SkToBool(tightBmp)));
-                        uint32_t idBefore = surface->generationID();
+                // sk_tool_utils::write_pixels(&canvas, bmp, rect.fLeft, rect.fTop, ct, at);
+                canvas.writePixels(bmp, rect.fLeft, rect.fTop);
 
-                       // sk_tool_utils::write_pixels(&canvas, bmp, rect.fLeft, rect.fTop, ct, at);
-                        canvas.writePixels(bmp, rect.fLeft, rect.fTop);
+                uint32_t idAfter = surface->generationID();
+                REPORTER_ASSERT(reporter, check_write(reporter, &canvas, bmp,
+                                                      rect.fLeft, rect.fTop));
 
-                        uint32_t idAfter = surface->generationID();
-                        REPORTER_ASSERT(reporter, check_write(reporter, &canvas, bmp,
-                                                              rect.fLeft, rect.fTop));
-
-                        // we should change the genID iff pixels were actually written.
-                        SkIRect canvasRect = SkIRect::MakeSize(canvas.getDeviceSize());
-                        SkIRect writeRect = SkIRect::MakeXYWH(rect.fLeft, rect.fTop,
-                                                              bmp.width(), bmp.height());
-                        bool intersects = SkIRect::Intersects(canvasRect, writeRect) ;
-                        REPORTER_ASSERT(reporter, intersects == (idBefore != idAfter));
-                    }
-                }
+                // we should change the genID iff pixels were actually written.
+                SkIRect canvasRect = SkIRect::MakeSize(canvas.getBaseLayerSize());
+                SkIRect writeRect = SkIRect::MakeXYWH(rect.fLeft, rect.fTop,
+                                                      bmp.width(), bmp.height());
+                bool intersects = SkIRect::Intersects(canvasRect, writeRect) ;
+                REPORTER_ASSERT(reporter, intersects == (idBefore != idAfter));
             }
         }
     }
 }
+DEF_TEST(WritePixels, reporter) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
+    for (auto& tightRowBytes : { true, false }) {
+        const size_t rowBytes = tightRowBytes ? info.minRowBytes() : 4 * DEV_W + 100;
+        const size_t size = info.getSafeSize(rowBytes);
+        void* pixels = sk_malloc_throw(size);
+        // if rowBytes isn't tight then set the padding to a known value
+        if (!tightRowBytes) {
+            memset(pixels, DEV_PAD, size);
+        }
+        auto surface(SkSurface::MakeRasterDirectReleaseProc(info, pixels, rowBytes,
+                                                            free_pixels, nullptr));
+        test_write_pixels(reporter, surface.get());
+    }
+}
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, ctxInfo) {
+    const SkImageInfo ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
+
+    for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
+        for (int sampleCnt : {0, 4}) {
+            sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(),
+                                                                 SkBudgeted::kNo, ii, sampleCnt,
+                                                                 origin, nullptr));
+            if (!surface && sampleCnt > 0) {
+                // Some platforms don't support MSAA
+                continue;
+            }
+            test_write_pixels(reporter, surface.get());
+        }
+    }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
+        for (int sampleCnt : {0, 4}) {
+            GrBackendTextureDesc desc;
+            desc.fConfig = kSkia8888_GrPixelConfig;
+            desc.fWidth = DEV_W;
+            desc.fHeight = DEV_H;
+            desc.fFlags = kRenderTarget_GrBackendTextureFlag;
+            desc.fSampleCnt = sampleCnt;
+            desc.fOrigin = origin;
+            desc.fTextureHandle = context->getGpu()->createTestingOnlyBackendTexture(
+                nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true);
+            sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(context, desc,
+                                                                                     nullptr));
+            if (!surface) {
+                context->getGpu()->deleteTestingOnlyBackendTexture(desc.fTextureHandle);
+                continue;
+            }
+
+            test_write_pixels(reporter, surface.get());
+
+            surface.reset();
+            context->getGpu()->deleteTestingOnlyBackendTexture(desc.fTextureHandle);
+        }
+    }
+}
+#endif

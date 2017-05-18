@@ -1,15 +1,16 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include <windows.h>
-#include <tchar.h>
 
 #include "SkTypes.h"
+
+#include <tchar.h>
+
 #include "SkApplication.h"
+#include "SkGraphics.h"
 #include "SkOSWindow_Win.h"
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -22,7 +23,7 @@ static const TCHAR* register_class(HINSTANCE hInstance) {
 
     wcex.cbSize = sizeof(WNDCLASSEX);
 
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
+    wcex.style          = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     wcex.lpfnWndProc    = WndProc;
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
@@ -79,6 +80,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 }
 
 int main(int argc, char**argv) {
+    SkGraphics::Init();
     return main_common(GetModuleHandle(NULL), SW_SHOW, argc, argv);
 }
 
@@ -131,4 +133,3 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     }
     return 0;
 }
-

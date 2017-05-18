@@ -23,8 +23,20 @@
     #define SK_C_PLUS_PLUS_END_GUARD
 #endif
 
-#ifndef SK_API
-#define SK_API
+#if !defined(SK_API)
+    #if defined(SKIA_DLL)
+        #if defined(_MSC_VER)
+            #if SKIA_IMPLEMENTATION
+                #define SK_API __declspec(dllexport)
+            #else
+                #define SK_API __declspec(dllimport)
+            #endif
+        #else
+            #define SK_API __attribute__((visibility("default")))
+        #endif
+    #else
+        #define SK_API
+    #endif
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +81,7 @@ typedef enum {
 /**
     Return the default sk_colortype_t; this is operating-system dependent.
 */
-SK_API sk_colortype_t sk_colortype_get_default_8888();
+SK_API sk_colortype_t sk_colortype_get_default_8888(void);
 
 typedef struct {
     int32_t         width;
@@ -101,6 +113,59 @@ typedef struct {
     float   bottom;
 } sk_rect_t;
 
+/**
+    The sk_matrix_t struct holds a 3x3 perspective matrix for
+    transforming coordinates:
+
+        (X,Y) = T[M]((x,y))
+        X = (M[0] * x + M[1] * y + M[2]) / (M[6] * x + M[7] * y + M[8]);
+        Y = (M[3] * x + M[4] * y + M[5]) / (M[6] * x + M[7] * y + M[8]);
+
+    Therefore, the identity matrix is
+
+        sk_matrix_t identity = {{1, 0, 0,
+                                 0, 1, 0,
+                                 0, 0, 1}};
+
+    A matrix that scales by sx and sy is:
+
+        sk_matrix_t scale = {{sx, 0,  0,
+                              0,  sy, 0,
+                              0,  0,  1}};
+
+    A matrix that translates by tx and ty is:
+
+        sk_matrix_t translate = {{1, 0, tx,
+                                  0, 1, ty,
+                                  0, 0, 1}};
+
+    A matrix that rotates around the origin by A radians:
+
+        sk_matrix_t rotate = {{cos(A), -sin(A), 0,
+                               sin(A),  cos(A), 0,
+                               0,       0,      1}};
+
+    Two matrixes can be concatinated by:
+
+         void concat_matrices(sk_matrix_t* dst,
+                             const sk_matrix_t* matrixU,
+                             const sk_matrix_t* matrixV) {
+            const float* u = matrixU->mat;
+            const float* v = matrixV->mat;
+            sk_matrix_t result = {{
+                    u[0] * v[0] + u[1] * v[3] + u[2] * v[6],
+                    u[0] * v[1] + u[1] * v[4] + u[2] * v[7],
+                    u[0] * v[2] + u[1] * v[5] + u[2] * v[8],
+                    u[3] * v[0] + u[4] * v[3] + u[5] * v[6],
+                    u[3] * v[1] + u[4] * v[4] + u[5] * v[7],
+                    u[3] * v[2] + u[4] * v[5] + u[5] * v[8],
+                    u[6] * v[0] + u[7] * v[3] + u[8] * v[6],
+                    u[6] * v[1] + u[7] * v[4] + u[8] * v[7],
+                    u[6] * v[2] + u[7] * v[5] + u[8] * v[8]
+            }};
+            *dst = result;
+        }
+*/
 typedef struct {
     float   mat[9];
 } sk_matrix_t;

@@ -8,12 +8,12 @@
 #ifndef SkXfermode_proccoeff_DEFINED
 #define SkXfermode_proccoeff_DEFINED
 
-#include "SkXfermode.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
 struct ProcCoeff {
     SkXfermodeProc      fProc;
+    SkXfermodeProc4f    fProc4f;
     SkXfermode::Coeff   fSC;
     SkXfermode::Coeff   fDC;
 };
@@ -22,7 +22,7 @@ struct ProcCoeff {
 
 class SK_API SkProcCoeffXfermode : public SkXfermode {
 public:
-    SkProcCoeffXfermode(const ProcCoeff& rec, Mode mode) {
+    SkProcCoeffXfermode(const ProcCoeff& rec, SkBlendMode mode) {
         fMode = mode;
         fProc = rec.fProc;
         // these may be valid, or may be CANNOT_USE_COEFF
@@ -44,10 +44,9 @@ public:
     bool isOpaque(SkXfermode::SrcColorOpacity opacityType) const override;
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessor(const GrFragmentProcessor**,
-                             const GrFragmentProcessor*) const override;
-
-    bool asXPFactory(GrXPFactory**) const override;
+    sk_sp<GrFragmentProcessor> makeFragmentProcessorForImageFilter(
+                                                        sk_sp<GrFragmentProcessor>) const override;
+    const GrXPFactory* asXPFactory() const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
@@ -56,13 +55,13 @@ public:
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
 
-    Mode getMode() const { return fMode; }
+    SkBlendMode getMode() const { return fMode; }
 
     SkXfermodeProc getProc() const { return fProc; }
 
 private:
     SkXfermodeProc  fProc;
-    Mode            fMode;
+    SkBlendMode     fMode;
     Coeff           fSrcCoeff, fDstCoeff;
 
     friend class SkXfermode;

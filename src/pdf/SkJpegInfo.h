@@ -19,7 +19,7 @@ struct SkJFIFInfo {
     } fType;
 };
 
-/** Returns true iff the data seems to be a valid JFIF JPEG image.  
+/** Returns true iff the data seems to be a valid JFIF JPEG image.
     If so and if info is not nullptr, populate info.
 
     JPEG/JFIF References:

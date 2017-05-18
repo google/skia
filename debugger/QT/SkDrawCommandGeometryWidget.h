@@ -29,7 +29,7 @@ private:
     void updateImage();
 
     SkDebugger* fDebugger;
-    SkAutoTUnref<SkSurface> fSurface;
+    sk_sp<SkSurface> fSurface;
     int fCommandIndex;
 };
 

@@ -224,12 +224,12 @@ sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t* cinfo, const void* pi
     if (!from_c_info(*cinfo, &info)) {
         return NULL;
     }
-    return (sk_image_t*)SkImage::NewRasterCopy(info, pixels, rowBytes);
+    return (sk_image_t*)SkImage::MakeRasterCopy(SkPixmap(info, pixels, rowBytes)).release();
 }
 
 sk_image_t* sk_image_new_from_encoded(const sk_data_t* cdata, const sk_irect_t* subset) {
-    return ToImage(SkImage::NewFromEncoded(AsData(cdata),
-                                           reinterpret_cast<const SkIRect*>(subset)));
+    return ToImage(SkImage::MakeFromEncoded(sk_ref_sp(AsData(cdata)),
+                                           reinterpret_cast<const SkIRect*>(subset)).release());
 }
 
 sk_data_t* sk_image_encode(const sk_image_t* cimage) {
@@ -375,6 +375,11 @@ void sk_canvas_draw_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_
     AsCanvas(ccanvas)->drawRect(AsRect(*crect), AsPaint(*cpaint));
 }
 
+void sk_canvas_draw_circle(sk_canvas_t* ccanvas, float cx, float cy, float rad,
+                           const sk_paint_t* cpaint) {
+    AsCanvas(ccanvas)->drawCircle(cx, cy, rad, AsPaint(*cpaint));
+}
+
 void sk_canvas_draw_oval(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawOval(AsRect(*crect), AsPaint(*cpaint));
 }
@@ -428,7 +433,7 @@ sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo,
     }
 
     SkSurfaceProps surfProps(0, geo);
-    return (sk_surface_t*)SkSurface::NewRaster(info, &surfProps);
+    return (sk_surface_t*)SkSurface::MakeRaster(info, &surfProps).release();
 }
 
 sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pixels,
@@ -444,7 +449,7 @@ sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pi
     }
 
     SkSurfaceProps surfProps(0, geo);
-    return (sk_surface_t*)SkSurface::NewRasterDirect(info, pixels, rowBytes, &surfProps);
+    return (sk_surface_t*)SkSurface::MakeRasterDirect(info, pixels, rowBytes, &surfProps).release();
 }
 
 void sk_surface_unref(sk_surface_t* csurf) {
@@ -458,7 +463,7 @@ sk_canvas_t* sk_surface_get_canvas(sk_surface_t* csurf) {
 
 sk_image_t* sk_surface_new_image_snapshot(sk_surface_t* csurf) {
     SkSurface* surf = (SkSurface*)csurf;
-    return (sk_image_t*)surf->newImageSnapshot();
+    return (sk_image_t*)surf->makeImageSnapshot().release();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -477,7 +482,7 @@ sk_canvas_t* sk_picture_recorder_begin_recording(sk_picture_recorder_t* crec,
 }
 
 sk_picture_t* sk_picture_recorder_end_recording(sk_picture_recorder_t* crec) {
-    return ToPicture(AsPictureRecorder(crec)->endRecording());
+    return ToPicture(AsPictureRecorder(crec)->finishRecordingAsPicture().release());
 }
 
 void sk_picture_ref(sk_picture_t* cpic) {
@@ -498,195 +503,16 @@ sk_rect_t sk_picture_get_bounds(sk_picture_t* cpic) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../include/effects/SkGradientShader.h"
-#include "sk_shader.h"
-
-const struct {
-    sk_shader_tilemode_t    fC;
-    SkShader::TileMode      fSK;
-} gTileModeMap[] = {
-    { CLAMP_SK_SHADER_TILEMODE,     SkShader::kClamp_TileMode },
-    { REPEAT_SK_SHADER_TILEMODE,    SkShader::kRepeat_TileMode },
-    { MIRROR_SK_SHADER_TILEMODE,    SkShader::kMirror_TileMode  },
-};
-
-static bool from_c_tilemode(sk_shader_tilemode_t cMode, SkShader::TileMode* skMode) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gTileModeMap); ++i) {
-        if (cMode == gTileModeMap[i].fC) {
-            if (skMode) {
-                *skMode = gTileModeMap[i].fSK;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-void sk_shader_ref(sk_shader_t* cshader) {
-    SkSafeRef(AsShader(cshader));
-}
-
-void sk_shader_unref(sk_shader_t* cshader) {
-    SkSafeUnref(AsShader(cshader));
-}
-
-sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2],
-                                           const sk_color_t colors[],
-                                           const float colorPos[],
-                                           int colorCount,
-                                           sk_shader_tilemode_t cmode,
-                                           const sk_matrix_t* cmatrix) {
-    SkShader::TileMode mode;
-    if (!from_c_tilemode(cmode, &mode)) {
-        return NULL;
-    }
-    SkMatrix matrix;
-    if (cmatrix) {
-        from_c_matrix(cmatrix, &matrix);
-    } else {
-        matrix.setIdentity();
-    }
-    SkShader* s = SkGradientShader::CreateLinear(reinterpret_cast<const SkPoint*>(pts),
-                                                 reinterpret_cast<const SkColor*>(colors),
-                                                 colorPos, colorCount, mode, 0, &matrix);
-    return (sk_shader_t*)s;
-}
-
-static const SkPoint& to_skpoint(const sk_point_t& p) {
-    return reinterpret_cast<const SkPoint&>(p);
-}
-
-sk_shader_t* sk_shader_new_radial_gradient(const sk_point_t* ccenter,
-                                           float radius,
-                                           const sk_color_t colors[],
-                                           const float colorPos[],
-                                           int colorCount,
-                                           sk_shader_tilemode_t cmode,
-                                           const sk_matrix_t* cmatrix) {
-    SkShader::TileMode mode;
-    if (!from_c_tilemode(cmode, &mode)) {
-        return NULL;
-    }
-    SkMatrix matrix;
-    if (cmatrix) {
-        from_c_matrix(cmatrix, &matrix);
-    } else {
-        matrix.setIdentity();
-    }
-    SkPoint center = to_skpoint(*ccenter);
-    SkShader* s = SkGradientShader::CreateRadial(
-            center, (SkScalar)radius,
-            reinterpret_cast<const SkColor*>(colors),
-            reinterpret_cast<const SkScalar*>(colorPos),
-            colorCount, mode, 0, &matrix);
-    return (sk_shader_t*)s;
-}
-
-sk_shader_t* sk_shader_new_sweep_gradient(const sk_point_t* ccenter,
-                                          const sk_color_t colors[],
-                                          const float colorPos[],
-                                          int colorCount,
-                                          const sk_matrix_t* cmatrix) {
-    SkMatrix matrix;
-    if (cmatrix) {
-        from_c_matrix(cmatrix, &matrix);
-    } else {
-        matrix.setIdentity();
-    }
-    SkShader* s = SkGradientShader::CreateSweep(
-            (SkScalar)(ccenter->x),
-            (SkScalar)(ccenter->y),
-            reinterpret_cast<const SkColor*>(colors),
-            reinterpret_cast<const SkScalar*>(colorPos),
-            colorCount, 0, &matrix);
-    return (sk_shader_t*)s;
-}
-
-sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
-                                                      float startRadius,
-                                                      const sk_point_t* end,
-                                                      float endRadius,
-                                                      const sk_color_t colors[],
-                                                      const float colorPos[],
-                                                      int colorCount,
-                                                      sk_shader_tilemode_t cmode,
-                                                      const sk_matrix_t* cmatrix) {
-    SkShader::TileMode mode;
-    if (!from_c_tilemode(cmode, &mode)) {
-        return NULL;
-    }
-    SkMatrix matrix;
-    if (cmatrix) {
-        from_c_matrix(cmatrix, &matrix);
-    } else {
-        matrix.setIdentity();
-    }
-    SkPoint skstart = to_skpoint(*start);
-    SkPoint skend = to_skpoint(*end);
-    SkShader* s = SkGradientShader::CreateTwoPointConical(
-            skstart, (SkScalar)startRadius,
-            skend, (SkScalar)endRadius,
-            reinterpret_cast<const SkColor*>(colors),
-            reinterpret_cast<const SkScalar*>(colorPos),
-            colorCount, mode, 0, &matrix);
-    return (sk_shader_t*)s;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
-
-#include "../../include/effects/SkBlurMaskFilter.h"
-#include "sk_maskfilter.h"
-
-const struct {
-    sk_blurstyle_t  fC;
-    SkBlurStyle     fSk;
-} gBlurStylePairs[] = {
-    { NORMAL_SK_BLUR_STYLE, kNormal_SkBlurStyle },
-    { SOLID_SK_BLUR_STYLE,  kSolid_SkBlurStyle },
-    { OUTER_SK_BLUR_STYLE,  kOuter_SkBlurStyle },
-    { INNER_SK_BLUR_STYLE,  kInner_SkBlurStyle },
-};
-
-static bool find_blurstyle(sk_blurstyle_t csrc, SkBlurStyle* dst) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gBlurStylePairs); ++i) {
-        if (gBlurStylePairs[i].fC == csrc) {
-            if (dst) {
-                *dst = gBlurStylePairs[i].fSk;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-void sk_maskfilter_ref(sk_maskfilter_t* cfilter) {
-    SkSafeRef(AsMaskFilter(cfilter));
-}
-
-void sk_maskfilter_unref(sk_maskfilter_t* cfilter) {
-    SkSafeUnref(AsMaskFilter(cfilter));
-}
-
-sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
-    SkBlurStyle style;
-    if (!find_blurstyle(cstyle, &style)) {
-        return NULL;
-    }
-    return ToMaskFilter(SkBlurMaskFilter::Create(style, sigma));
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
-
 sk_data_t* sk_data_new_with_copy(const void* src, size_t length) {
-    return ToData(SkData::NewWithCopy(src, length));
+    return ToData(SkData::MakeWithCopy(src, length).release());
 }
 
 sk_data_t* sk_data_new_from_malloc(const void* memory, size_t length) {
-    return ToData(SkData::NewFromMalloc(memory, length));
+    return ToData(SkData::MakeFromMalloc(memory, length).release());
 }
 
 sk_data_t* sk_data_new_subset(const sk_data_t* csrc, size_t offset, size_t length) {
-    return ToData(SkData::NewSubset(AsData(csrc), offset, length));
+    return ToData(SkData::MakeSubset(AsData(csrc), offset, length).release());
 }
 
 void sk_data_ref(const sk_data_t* cdata) {

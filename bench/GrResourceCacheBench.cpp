@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -24,8 +23,8 @@ enum {
 class BenchResource : public GrGpuResource {
 public:
     BenchResource (GrGpu* gpu)
-        : INHERITED(gpu, kCached_LifeCycle) {
-        this->registerWithCache();
+        : INHERITED(gpu) {
+        this->registerWithCache(SkBudgeted::kYes);
     }
 
     static void ComputeKey(int i, int keyData32Count, GrUniqueKey* key) {
@@ -70,7 +69,7 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkAutoTUnref<GrContext> context(GrContext::CreateMockContext());
+        sk_sp<GrContext> context(GrContext::CreateMockContext());
         if (nullptr == context) {
             return;
         }
@@ -144,14 +143,14 @@ protected:
             for (int k = 0; k < CACHE_SIZE_COUNT; ++k) {
                 GrUniqueKey key;
                 BenchResource::ComputeKey(k, fKeyData32Count, &key);
-                SkAutoTUnref<GrGpuResource> resource(cache->findAndRefUniqueResource(key));
+                sk_sp<GrGpuResource> resource(cache->findAndRefUniqueResource(key));
                 SkASSERT(resource);
             }
         }
     }
 
 private:
-    SkAutoTUnref<GrContext> fContext;
+    sk_sp<GrContext> fContext;
     SkString fFullName;
     int fKeyData32Count;
     typedef Benchmark INHERITED;

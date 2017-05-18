@@ -8,7 +8,7 @@
 #include "SkCanvas.h"
 #include "SkTLazy.h"
 #include "SkMiniRecorder.h"
-#include "SkOncePtr.h"
+#include "SkOnce.h"
 #include "SkPicture.h"
 #include "SkPictureCommon.h"
 #include "SkRecordDraw.h"
@@ -23,16 +23,31 @@ public:
     size_t approximateBytesUsed() const override { return sizeof(*this); }
     int    approximateOpCount()   const override { return 0; }
     SkRect cullRect()             const override { return SkRect::MakeEmpty(); }
-    bool   hasText()              const override { return false; }
     int    numSlowPaths()         const override { return 0; }
     bool   willPlayBackBitmaps()  const override { return false; }
 };
-SK_DECLARE_STATIC_ONCE_PTR(SkEmptyPicture, gEmptyPicture);
+
+// Calculate conservative bounds for each type of draw op that can be its own mini picture.
+// These are fairly easy because we know they can't be affected by any matrix or saveLayers.
+static SkRect adjust_for_paint(SkRect bounds, const SkPaint& paint) {
+    return paint.canComputeFastBounds() ? paint.computeFastBounds(bounds, &bounds)
+                                        : SkRect::MakeLargest();
+}
+static SkRect bounds(const DrawRect& op) {
+    return adjust_for_paint(op.rect, op.paint);
+}
+static SkRect bounds(const DrawPath& op) {
+    return op.path.isInverseFillType() ? SkRect::MakeLargest()
+                                       : adjust_for_paint(op.path.getBounds(), op.paint);
+}
+static SkRect bounds(const DrawTextBlob& op) {
+    return adjust_for_paint(op.blob->bounds().makeOffset(op.x, op.y), op.paint);
+}
 
 template <typename T>
 class SkMiniPicture final : public SkPicture {
 public:
-    SkMiniPicture(SkRect cull, T* op) : fCull(cull) {
+    SkMiniPicture(const SkRect* cull, T* op) : fCull(cull ? *cull : bounds(*op)) {
         memcpy(&fOp, op, sizeof(fOp));  // We take ownership of op's guts.
     }
 
@@ -43,7 +58,6 @@ public:
     size_t approximateBytesUsed() const override { return sizeof(*this); }
     int    approximateOpCount()   const override { return 1; }
     SkRect cullRect()             const override { return fCull; }
-    bool   hasText()              const override { return SkTextHunter()(fOp); }
     bool   willPlayBackBitmaps()  const override { return SkBitmapHunter()(fOp); }
     int    numSlowPaths()         const override {
         SkPathCounter counter;
@@ -62,7 +76,7 @@ SkMiniRecorder::~SkMiniRecorder() {
     if (fState != State::kEmpty) {
         // We have internal state pending.
         // Detaching then deleting a picture is an easy way to clean up.
-        delete this->detachAsPicture(SkRect::MakeEmpty());
+        (void)this->detachAsPicture(nullptr);
     }
     SkASSERT(fState == State::kEmpty);
 }
@@ -73,20 +87,6 @@ SkMiniRecorder::~SkMiniRecorder() {
     new (fBuffer.get()) Type{__VA_ARGS__};         \
     return true
 
-bool SkMiniRecorder::drawBitmapRect(const SkBitmap& bm, const SkRect* src, const SkRect& dst,
-                                    const SkPaint* p, SkCanvas::SrcRectConstraint constraint) {
-    SkRect bounds;
-    if (!src) {
-        bm.getBounds(&bounds);
-        src = &bounds;
-    }
-    SkTLazy<SkPaint> defaultPaint;
-    if (!p) {
-        p = defaultPaint.init();
-    }
-    TRY_TO_STORE(DrawBitmapRectFixedSize, *p, bm, *src, dst, constraint);
-}
-
 bool SkMiniRecorder::drawRect(const SkRect& rect, const SkPaint& paint) {
     TRY_TO_STORE(DrawRect, paint, rect);
 }
@@ -96,20 +96,24 @@ bool SkMiniRecorder::drawPath(const SkPath& path, const SkPaint& paint) {
 }
 
 bool SkMiniRecorder::drawTextBlob(const SkTextBlob* b, SkScalar x, SkScalar y, const SkPaint& p) {
-    TRY_TO_STORE(DrawTextBlob, p, b, x, y);
+    TRY_TO_STORE(DrawTextBlob, p, sk_ref_sp(b), x, y);
 }
 #undef TRY_TO_STORE
 
 
-SkPicture* SkMiniRecorder::detachAsPicture(const SkRect& cull) {
+sk_sp<SkPicture> SkMiniRecorder::detachAsPicture(const SkRect* cull) {
 #define CASE(Type)              \
     case State::k##Type:        \
         fState = State::kEmpty; \
-        return new SkMiniPicture<Type>(cull, reinterpret_cast<Type*>(fBuffer.get()))
+        return sk_make_sp<SkMiniPicture<Type>>(cull, reinterpret_cast<Type*>(fBuffer.get()))
+
+    static SkOnce once;
+    static SkPicture* empty;
 
     switch (fState) {
-        case State::kEmpty: return SkRef(gEmptyPicture.get([]{ return new SkEmptyPicture; }));
-        CASE(DrawBitmapRectFixedSize);
+        case State::kEmpty:
+            once([]{ empty = new SkEmptyPicture; });
+            return sk_ref_sp(empty);
         CASE(DrawPath);
         CASE(DrawRect);
         CASE(DrawTextBlob);
@@ -130,7 +134,6 @@ void SkMiniRecorder::flushAndReset(SkCanvas* canvas) {
 
     switch (fState) {
         case State::kEmpty: return;
-        CASE(DrawBitmapRectFixedSize);
         CASE(DrawPath);
         CASE(DrawRect);
         CASE(DrawTextBlob);

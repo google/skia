@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkStream.h"
@@ -19,7 +20,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        sk_tool_utils::emoji_typeface(&fEmojiTypeface);
+        fEmojiTypeface = sk_tool_utils::emoji_typeface();
         fEmojiText = sk_tool_utils::emoji_sample_text();
     }
 
@@ -33,14 +34,6 @@ protected:
         return SkISize::Make(1024, 768);
     }
 
-    static void rotate_about(SkCanvas* canvas,
-        SkScalar degrees,
-        SkScalar px, SkScalar py) {
-        canvas->translate(px, py);
-        canvas->rotate(degrees);
-        canvas->translate(-px, -py);
-    }
-
     virtual void onDraw(SkCanvas* inputCanvas) override {
         SkScalar textSizes[] = { 9.0f, 9.0f*2.0f, 9.0f*5.0f, 9.0f*2.0f*5.0f };
         SkScalar scales[] = { 2.0f*5.0f, 5.0f, 2.0f, 1.0f };
@@ -48,12 +41,13 @@ protected:
         // set up offscreen rendering with distance field text
 #if SK_SUPPORT_GPU
         GrContext* ctx = inputCanvas->getGrContext();
-        SkImageInfo info = SkImageInfo::MakeN32Premul(onISize());
+        SkISize size = onISize();
+        SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(), kPremul_SkAlphaType,
+                                                inputCanvas->imageInfo().refColorSpace());
         SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
                              SkSurfaceProps::kLegacyFontHost_InitType);
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted,
-                                                                   info, 0, &props));
-        SkCanvas* canvas = surface.get() ? surface->getCanvas() : inputCanvas;
+        auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props));
+        SkCanvas* canvas = surface ? surface->getCanvas() : inputCanvas;
         // init our new canvas with the old canvas's matrix
         canvas->setMatrix(inputCanvas->getTotalMatrix());
 #else
@@ -67,7 +61,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
 
-        sk_tool_utils::set_portable_typeface(&paint, "serif", SkTypeface::kNormal);
+        sk_tool_utils::set_portable_typeface(&paint, "serif");
 
         const char* text = "Hamburgefons";
         const size_t textLen = strlen(text);
@@ -91,7 +85,7 @@ protected:
 
             SkAutoCanvasRestore acr(canvas, true);
             canvas->translate(SkIntToScalar(10 + i * 200), -80);
-            rotate_about(canvas, SkIntToScalar(i * 5), rotX, rotY);
+            canvas->rotate(SkIntToScalar(i * 5), rotX, rotY);
             for (int ps = 6; ps <= 32; ps += 3) {
                 paint.setTextSize(SkIntToScalar(ps));
                 canvas->drawText(text, textLen, rotX, rotY, paint);
@@ -193,7 +187,7 @@ protected:
         if (fEmojiTypeface) {
             paint.setTypeface(fEmojiTypeface);
             paint.setTextSize(SkIntToScalar(19));
-            canvas->drawText(fEmojiText, strlen(fEmojiText), 670, 90, paint);
+            canvas->drawString(fEmojiText, 670, 90, paint);
         }
 #if SK_SUPPORT_GPU
         // render offscreen buffer
@@ -201,15 +195,13 @@ protected:
             SkAutoCanvasRestore acr(inputCanvas, true);
             // since we prepended this matrix already, we blit using identity
             inputCanvas->resetMatrix();
-            SkImage* image = surface->newImageSnapshot();
-            inputCanvas->drawImage(image, 0, 0, nullptr);
-            image->unref();
+            inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, nullptr);
         }
 #endif
     }
 
 private:
-    SkAutoTUnref<SkTypeface> fEmojiTypeface;
+    sk_sp<SkTypeface> fEmojiTypeface;
     const char* fEmojiText;
 
     typedef skiagm::GM INHERITED;

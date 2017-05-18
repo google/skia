@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkMatrix.h"
 #include "SkOpEdgeBuilder.h"
 #include "SkPathPriv.h"
@@ -12,10 +13,10 @@
 #include "SkPathOpsCommon.h"
 
 static bool one_contour(const SkPath& path) {
-    SkChunkAlloc allocator(256);
+    char storage[256];
+    SkArenaAlloc allocator(storage);
     int verbCount = path.countVerbs();
-    uint8_t* verbs = (uint8_t*) allocator.alloc(sizeof(uint8_t) * verbCount,
-            SkChunkAlloc::kThrow_AllocFailType);
+    uint8_t* verbs = (uint8_t*) allocator.makeArrayDefault<uint8_t>(verbCount);
     (void) path.getVerbs(verbs, verbCount);
     for (int index = 1; index < verbCount; ++index) {
         if (verbs[index] == SkPath::kMove_Verb) {
@@ -25,7 +26,17 @@ static bool one_contour(const SkPath& path) {
     return true;
 }
 
-void FixWinding(SkPath* path) {
+void SkOpBuilder::ReversePath(SkPath* path) {
+    SkPath temp;
+    SkPoint lastPt;
+    SkAssertResult(path->getLastPt(&lastPt));
+    temp.moveTo(lastPt);
+    temp.reversePathTo(*path);
+    temp.close();
+    *path = temp;
+}
+
+bool SkOpBuilder::FixWinding(SkPath* path) {
     SkPath::FillType fillType = path->getFillType();
     if (fillType == SkPath::kInverseEvenOdd_FillType) {
         fillType = SkPath::kInverseWinding_FillType;
@@ -35,23 +46,31 @@ void FixWinding(SkPath* path) {
     SkPathPriv::FirstDirection dir;
     if (one_contour(*path) && SkPathPriv::CheapComputeFirstDirection(*path, &dir)) {
         if (dir != SkPathPriv::kCCW_FirstDirection) {
-            SkPath temp;
-            temp.reverseAddPath(*path);
-            *path = temp;
+            ReversePath(path);
         }
         path->setFillType(fillType);
-        return;
+        return true;
     }
-    SkChunkAlloc allocator(4096);
+    char storage[4096];
+    SkArenaAlloc allocator(storage);
     SkOpContourHead contourHead;
-    SkOpGlobalState globalState(nullptr, &contourHead  SkDEBUGPARAMS(nullptr));
-    SkOpEdgeBuilder builder(*path, &contourHead, &allocator, &globalState);
-    builder.finish(&allocator);
-    SkASSERT(contourHead.next());
+    SkOpGlobalState globalState(&contourHead, &allocator  SkDEBUGPARAMS(false)
+            SkDEBUGPARAMS(nullptr));
+    SkOpEdgeBuilder builder(*path, &contourHead, &globalState);
+    if (builder.unparseable() || !builder.finish()) {
+        return false;
+    }
+    if (!contourHead.count()) {
+        return true;
+    }
+    if (!contourHead.next()) {
+        return false;
+    }
+    contourHead.joinAllSegments();
     contourHead.resetReverse();
     bool writePath = false;
     SkOpSpan* topSpan;
-    globalState.setPhase(SkOpGlobalState::kFixWinding);
+    globalState.setPhase(SkOpPhase::kFixWinding);
     while ((topSpan = FindSortableTop(&contourHead))) {
         SkOpSegment* topSegment = topSpan->segment();
         SkOpContour* topContour = topSegment->contour();
@@ -64,17 +83,20 @@ void FixWinding(SkPath* path) {
             topContour->setReverse();
             writePath = true;
         }
-        topContour->markDone();
+        topContour->markAllDone();
         globalState.clearNested();
     }
     if (!writePath) {
         path->setFillType(fillType);
-        return;
+        return true;
     }
     SkPath empty;
     SkPathWriter woundPath(empty);
     SkOpContour* test = &contourHead;
     do {
+        if (!test->count()) {
+            continue;
+        }
         if (test->reversed()) {
             test->toReversePath(&woundPath);
         } else {
@@ -83,6 +105,7 @@ void FixWinding(SkPath* path) {
     } while ((test = test->next()));
     *path = *woundPath.nativePath();
     path->setFillType(fillType);
+    return true;
 }
 
 void SkOpBuilder::add(const SkPath& path, SkPathOp op) {
@@ -123,9 +146,7 @@ bool SkOpBuilder::resolve(SkPath* result) {
             if (firstDir == SkPathPriv::kUnknown_FirstDirection) {
                 firstDir = dir;
             } else if (firstDir != dir) {
-                SkPath temp;
-                temp.reverseAddPath(*test);
-                *test = temp;
+                ReversePath(test);
             }
             continue;
         }
@@ -160,7 +181,10 @@ bool SkOpBuilder::resolve(SkPath* result) {
         }
         if (!fPathRefs[index].isEmpty()) {
             // convert the even odd result back to winding form before accumulating it
-            FixWinding(&fPathRefs[index]);
+            if (!FixWinding(&fPathRefs[index])) {
+                *result = original;
+                return false;
+            }
             sum.addPath(fPathRefs[index]);
         }
     }

@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#if defined(SK_BUILD_FOR_MAC)
-
 #import  <Cocoa/Cocoa.h>
 #include "SkOSWindow_Mac.h"
 #include "SkOSMenu.h"
@@ -65,11 +63,12 @@ void SkOSWindow::onUpdateMenu(const SkOSMenu* menu) {
     [(SkNSView*)fHWND onUpdateMenu:menu];
 }
 
-bool SkOSWindow::attach(SkBackEndTypes attachType, int sampleCount, AttachmentInfo* info) {
+bool SkOSWindow::attach(SkBackEndTypes attachType, int sampleCount, bool /*deepColor*/,
+                        AttachmentInfo* info) {
     return [(SkNSView*)fHWND attach:attachType withMSAASampleCount:sampleCount andGetInfo:info];
 }
 
-void SkOSWindow::detach() {
+void SkOSWindow::release() {
     [(SkNSView*)fHWND detach];
 }
 
@@ -86,9 +85,10 @@ void SkOSWindow::setVsync(bool enable) {
 }
 
 bool SkOSWindow::makeFullscreen() {
-    [(SkNSView*)fHWND enterFullScreenMode:[NSScreen mainScreen] withOptions:nil];
+    NSScreen* _Nullable screen = [NSScreen mainScreen];
+    if (screen) {
+        [(SkNSView*)fHWND enterFullScreenMode:(NSScreen* _Nonnull)screen withOptions:nil];
+    }
     return true;
 }
 
-
-#endif

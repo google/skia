@@ -192,4 +192,3 @@ void SkColorMatrix::setYUV2RGB() {
     setrow(fMat + 10, 1, kU2B, 0);
     fMat[kA_Scale] = 1;
 }
-

@@ -11,6 +11,8 @@
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
 
+struct SkConic;
+
 union SkReduceOrder {
     enum Quadratics {
         kNo_Quadratics,
@@ -21,7 +23,7 @@ union SkReduceOrder {
     int reduce(const SkDLine& line);
     int reduce(const SkDQuad& quad);
 
-    static SkPath::Verb Conic(const SkPoint pts[3], SkScalar weight, SkPoint* reducePts);
+    static SkPath::Verb Conic(const SkConic& conic, SkPoint* reducePts);
     static SkPath::Verb Cubic(const SkPoint pts[4], SkPoint* reducePts);
     static SkPath::Verb Quad(const SkPoint pts[3], SkPoint* reducePts);
 

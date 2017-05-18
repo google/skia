@@ -6,19 +6,29 @@
     <title></title>
 <div style="height:0">
 
-<div id="sect1">
-{{{36.756134033203125, 47.42348098754882812}, {40.32709884643554688, 44.65576934814453125}, {43.57402420043945312, 41.4935760498046875}, {46.43517684936523438, 37.99703216552734375}}},
-{{{36.756134033203125, 47.42348098754882812}, {36.75614144085933788, 47.42347524616091903}}},
-{{{36.756134033203125, 47.42348098754882812}, {50.84598541259765625, 65.6024932861328125}}},
-</div>
+<div id="cubics">
+{{{403.28299,497.196991}, {403.424011,497.243988}, {391.110992,495.556}, {391.110992,495.556}}}
+{{{398.375,501.976013}, {403.28299,497.196991}}}
+{{{403.42401123046875, 497.243988037109375}, {378.7979736328125, 493.868011474609375}}}, id=0
+{{{415.5605946972181641, 498.8838844379989155}, {378.8318672594865006, 493.8897667505245295}}}, id=1
+{{{403.2954048004600622, 497.117149457477467}, {403.2729768294798873, 497.2781265045034615}}}, id=2
+{{{403.42401123046875, 497.243988037109375}, {378.7979736328125, 493.868011474609375}}}, id=3
 
 </div>
+
+<div id="c1">
+{{{403.28299f, 497.196991f}, {403.284241f, 497.197388f}, {403.28418f, 497.197632f}}}
+{{{403.28418f, 497.197632f}, {403.280487f, 497.224304f}, {391.110992f, 495.556f}, {391.110992f, 495.556f}}}    
+
+</div>
+    </div>
 
 <script type="text/javascript">
 
-var testDivs = [
-sect1,
-];
+    var testDivs = [
+    c1,
+    cubics,
+    ];
 
     var decimal_places = 3;
 
@@ -452,7 +462,7 @@ function dxy_at_t(curve, t) {
     function drawPointAtT(curve) {
         var x = x_at_t(curve, curveT);
         var y = y_at_t(curve, curveT);
-        drawPoint(x, y);
+        drawPoint(x, y, false);
     }
 
     function drawLine(x1, y1, x2, y2) {
@@ -464,7 +474,7 @@ function dxy_at_t(curve, t) {
         ctx.stroke();
     }
 
-    function drawPoint(px, py) {
+    function drawPoint(px, py, xend) {
         for (var pts = 0; pts < drawnPts.length; pts += 2) {
             var x = drawnPts[pts];
             var y = drawnPts[pts + 1];
@@ -477,8 +487,15 @@ function dxy_at_t(curve, t) {
         var _px = (px - srcLeft) * scale;
         var _py = (py - srcTop) * scale;
         ctx.beginPath();
-        ctx.arc(_px, _py, 3, 0, Math.PI * 2, true);
-        ctx.closePath();
+        if (xend) {
+            ctx.moveTo(_px - 3, _py - 3);
+            ctx.lineTo(_px + 3, _py + 3);
+            ctx.moveTo(_px - 3, _py + 3);
+            ctx.lineTo(_px + 3, _py - 3);
+        } else {
+            ctx.arc(_px, _py, 3, 0, Math.PI * 2, true);
+            ctx.closePath();
+        }
         ctx.stroke();
         if (draw_point_xy) {
             var label = px.toFixed(decimal_places) + ", " + py.toFixed(decimal_places);
@@ -490,7 +507,7 @@ function dxy_at_t(curve, t) {
     }
 
     function drawPointSolid(px, py) {
-        drawPoint(px, py);
+        drawPoint(px, py, false);
         ctx.fillStyle = "rgba(0,0,0, 0.4)";
         ctx.fill();
     }
@@ -767,15 +784,17 @@ function dxy_at_t(curve, t) {
             }
             ctx.stroke();
             if (draw_endpoints > 0) {
-                drawPoint(curve[0], curve[1]);
+                drawPoint(curve[0], curve[1], false);
                 if (draw_endpoints > 1 || curve.length == 4) {
-                    drawPoint(curve[2], curve[3]);
+                    drawPoint(curve[2], curve[3], curve.length == 4 && draw_endpoints == 3);
                 }
                 if (curve.length == 6 || curve.length == 7 ||
                         (draw_endpoints > 1 && curve.length == 8)) {
-                    drawPoint(curve[4], curve[5]);
+                    drawPoint(curve[4], curve[5], (curve.length == 6 || curve.length == 7) && draw_endpoints == 3);
                 }
-                if (curve.length == 8) drawPoint(curve[6], curve[7]);
+                if (curve.length == 8) {
+                    drawPoint(curve[6], curve[7], curve.length == 8 && draw_endpoints == 3);
+                }
             }
             if (draw_midpoint != 0) {
                 if ((curves == 0) == (midLeft == 0)) {
@@ -1121,7 +1140,7 @@ function dxy_at_t(curve, t) {
                 redraw();
                 break;
             case 'e':
-                draw_endpoints = (draw_endpoints + 1) % 3;
+                draw_endpoints = (draw_endpoints + 1) % 4;
                 redraw();
                 break;
             case 'f':

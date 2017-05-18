@@ -5,66 +5,109 @@
 * found in the LICENSE file.
 */
 #include "SkOpContour.h"
-#include "SkOpTAllocator.h"
 #include "SkPathWriter.h"
 #include "SkReduceOrder.h"
 #include "SkTSort.h"
 
-SkOpSegment* SkOpContour::addCurve(SkPath::Verb verb, const SkPoint pts[4],
-        SkChunkAlloc* allocator) {
-    switch (verb) {
-        case SkPath::kLine_Verb: {
-            SkPoint* ptStorage = SkOpTAllocator<SkPoint>::AllocateArray(allocator, 2);
-            memcpy(ptStorage, pts, sizeof(SkPoint) * 2);
-            return appendSegment(allocator).addLine(ptStorage, this);
-        } break;
-        case SkPath::kQuad_Verb: {
-            SkPoint* ptStorage = SkOpTAllocator<SkPoint>::AllocateArray(allocator, 3);
-            memcpy(ptStorage, pts, sizeof(SkPoint) * 3);
-            return appendSegment(allocator).addQuad(ptStorage, this);
-        } break;
-        case SkPath::kConic_Verb: {
-            SkASSERT(0);  // the original curve is a cubic, which will never reduce to a conic
-        } break;
-        case SkPath::kCubic_Verb: {
-            SkPoint* ptStorage = SkOpTAllocator<SkPoint>::AllocateArray(allocator, 4);
-            memcpy(ptStorage, pts, sizeof(SkPoint) * 4);
-            return appendSegment(allocator).addCubic(ptStorage, this);
-        } break;
-        default:
-            SkASSERT(0);
+void SkOpContour::toPath(SkPathWriter* path) const {
+    if (!this->count()) {
+        return;
+    }
+    const SkOpSegment* segment = &fHead;
+    do {
+        SkAssertResult(segment->addCurveTo(segment->head(), segment->tail(), path));
+    } while ((segment = segment->next()));
+    path->finishContour();
+    path->assemble();
+}
+
+void SkOpContour::toReversePath(SkPathWriter* path) const {
+    const SkOpSegment* segment = fTail;
+    do {
+        SkAssertResult(segment->addCurveTo(segment->tail(), segment->head(), path));
+    } while ((segment = segment->prev()));
+    path->finishContour();
+    path->assemble();
+}
+
+SkOpSpan* SkOpContour::undoneSpan() {
+    SkOpSegment* testSegment = &fHead;
+    bool allDone = true;
+    do {
+        if (testSegment->done()) {
+            continue;
+        }
+        allDone = false;
+        return testSegment->undoneSpan();
+    } while ((testSegment = testSegment->next()));
+    if (allDone) {
+      fDone = true;
     }
     return nullptr;
 }
 
-void SkOpContour::toPath(SkPathWriter* path) const {
-    const SkPoint& pt = fHead.pts()[0];
-    path->deferredMove(pt);
-    const SkOpSegment* segment = &fHead;
-    do {
-        segment->addCurveTo(segment->head(), segment->tail(), path, true);
-    } while ((segment = segment->next()));
-    path->close();
+void SkOpContourBuilder::addConic(SkPoint pts[3], SkScalar weight) {
+    this->flush();
+    fContour->addConic(pts, weight);
 }
 
-void SkOpContour::toReversePath(SkPathWriter* path) const {
-    const SkPoint& pt = fTail->pts()[0];
-    path->deferredMove(pt);
-    const SkOpSegment* segment = fTail;
-    do {
-        segment->addCurveTo(segment->tail(), segment->head(), path, true);
-    } while ((segment = segment->prev()));
-    path->close();
+void SkOpContourBuilder::addCubic(SkPoint pts[4]) {
+    this->flush();
+    fContour->addCubic(pts);
 }
 
-SkOpSegment* SkOpContour::undoneSegment(SkOpSpanBase** startPtr, SkOpSpanBase** endPtr) {
-    SkOpSegment* segment = &fHead;
-    do {
-        if (segment->done()) {
-            continue;
+void SkOpContourBuilder::addCurve(SkPath::Verb verb, const SkPoint pts[4], SkScalar weight) {
+    if (SkPath::kLine_Verb == verb) {
+        this->addLine(pts);
+        return;
+    }
+    SkArenaAlloc* allocator = fContour->globalState()->allocator();
+    switch (verb) {
+        case SkPath::kQuad_Verb: {
+            SkPoint* ptStorage = allocator->makeArrayDefault<SkPoint>(3);
+            memcpy(ptStorage, pts, sizeof(SkPoint) * 3);
+            this->addQuad(ptStorage);
+        } break;
+        case SkPath::kConic_Verb: {
+            SkPoint* ptStorage = allocator->makeArrayDefault<SkPoint>(3);
+            memcpy(ptStorage, pts, sizeof(SkPoint) * 3);
+            this->addConic(ptStorage, weight);
+        } break;
+        case SkPath::kCubic_Verb: {
+            SkPoint* ptStorage = allocator->makeArrayDefault<SkPoint>(4);
+            memcpy(ptStorage, pts, sizeof(SkPoint) * 4);
+            this->addCubic(ptStorage);
+        } break;
+        default:
+            SkASSERT(0);
+    }
+}
+
+void SkOpContourBuilder::addLine(const SkPoint pts[2]) {
+    // if the previous line added is the exact opposite, eliminate both
+    if (fLastIsLine) {
+        if (fLastLine[0] == pts[1] && fLastLine[1] == pts[0]) {
+            fLastIsLine = false;
+            return;
+        } else {
+            flush();
         }
-        segment->undoneSpan(startPtr, endPtr);
-        return segment;
-    } while ((segment = segment->next()));
-    return nullptr;
+    }
+    memcpy(fLastLine, pts, sizeof(fLastLine));
+    fLastIsLine = true;
+}
+
+void SkOpContourBuilder::addQuad(SkPoint pts[3]) {
+    this->flush();
+    fContour->addQuad(pts);
+}
+
+void SkOpContourBuilder::flush() {
+    if (!fLastIsLine)
+        return;
+    SkArenaAlloc* allocator = fContour->globalState()->allocator();
+    SkPoint* ptStorage = allocator->makeArrayDefault<SkPoint>(2);
+    memcpy(ptStorage, fLastLine, sizeof(fLastLine));
+    (void) fContour->addLine(ptStorage);
+    fLastIsLine = false;
 }

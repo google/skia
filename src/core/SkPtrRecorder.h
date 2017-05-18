@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -22,7 +21,7 @@
  */
 class SkPtrSet : public SkRefCnt {
 public:
-    
+
 
     /**
      *  Search for the specified ptr in the set. If it is found, return its
@@ -144,7 +143,7 @@ class SkFactorySet : public SkTPtrSet<SkFlattenable::Factory> {};
  */
 class SkNamedFactorySet : public SkRefCnt {
 public:
-    
+
 
     SkNamedFactorySet();
 

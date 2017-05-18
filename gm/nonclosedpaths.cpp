@@ -71,22 +71,22 @@ protected:
         // Stroke widths are:
         // 0(may use hairline rendering), 10(common case for stroke-style)
         // 40 and 50(>= geometry width/height, make the contour filled in fact)
-        static const int kStrokeWidth[] = {0, 10, 40, 50};
+        constexpr int kStrokeWidth[] = {0, 10, 40, 50};
         int numWidths = SK_ARRAY_COUNT(kStrokeWidth);
 
-        static const SkPaint::Style kStyle[] = {
+        constexpr SkPaint::Style kStyle[] = {
             SkPaint::kStroke_Style, SkPaint::kStrokeAndFill_Style
         };
 
-        static const SkPaint::Cap kCap[] = {
+        constexpr SkPaint::Cap kCap[] = {
             SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap
         };
 
-        static const SkPaint::Join kJoin[] = {
+        constexpr SkPaint::Join kJoin[] = {
             SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join
         };
 
-        static const ClosureType kType[] = {
+        constexpr ClosureType kType[] = {
             TotallyNonClosed, FakeCloseCorner, FakeCloseMiddle
         };
 

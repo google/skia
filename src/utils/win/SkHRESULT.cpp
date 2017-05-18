@@ -6,6 +6,7 @@
  */
 
 #include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
 
 #include "SkHRESULT.h"
 
@@ -35,3 +36,5 @@ void SkTraceHR(const char* file, unsigned long line, HRESULT hr, const char* msg
         errorText = nullptr;
     }
 }
+
+#endif//defined(SK_BUILD_FOR_WIN32)

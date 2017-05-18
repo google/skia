@@ -15,7 +15,6 @@
 #include <QtOpenGL/QGLWidget>
 #include "SkDebugCanvas.h"
 #include "SkDebugger.h"
-#include "SkDevice.h"
 #include "SkGpuDevice.h"
 #include "GrContext.h"
 #include "gl/GrGLInterface.h"
@@ -35,7 +34,7 @@ public:
     }
     void setSampleCount(int sampleCount);
 
-signals:
+Q_SIGNALS:
     void drawComplete();
 
 protected:
@@ -46,10 +45,12 @@ protected:
 
 private:
     void createRenderTarget();
-    SkAutoTUnref<const GrGLInterface> fCurIntf;
-    SkAutoTUnref<GrContext> fCurContext;
-    SkAutoTUnref<SkGpuDevice> fGpuDevice;
-    SkAutoTUnref<SkCanvas> fCanvas;
+    sk_sp<const GrGLInterface> fCurIntf;
+    sk_sp<GrContext> fCurContext;
+
+    sk_sp<SkSurface> fGpuSurface;
+    SkCanvas*        fCanvas;
+
     SkDebugger* fDebugger;
     GrBackendRenderTargetDesc getDesc(int w, int h);
 };

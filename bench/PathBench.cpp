@@ -112,6 +112,37 @@ private:
     typedef PathBench INHERITED;
 };
 
+class RotatedRectBench : public PathBench {
+public:
+    RotatedRectBench(Flags flags, bool aa, int degrees) : INHERITED(flags) {
+        fAA = aa;
+        fDegrees = degrees;
+    }
+
+    void appendName(SkString* name) override {
+        SkString suffix;
+        suffix.printf("rotated_rect_%s_%d", fAA ? "aa" : "noaa", fDegrees);
+        name->append(suffix);
+    }
+
+    void makePath(SkPath* path) override {
+        SkRect r = { 10, 10, 20, 20 };
+        path->addRect(r);
+        SkMatrix rotateMatrix;
+        rotateMatrix.setRotate((SkScalar)fDegrees);
+        path->transform(rotateMatrix);
+    }
+
+    virtual void setupPaint(SkPaint* paint) override {
+        PathBench::setupPaint(paint);
+        paint->setAntiAlias(fAA);
+    }
+private:
+    typedef PathBench INHERITED;
+    int fDegrees;
+    bool fAA;
+};
+
 class OvalPathBench : public PathBench {
 public:
     OvalPathBench(Flags flags) : INHERITED(flags) {}
@@ -138,6 +169,64 @@ public:
         path->addCircle(SkIntToScalar(20), SkIntToScalar(20),
                         SkIntToScalar(10));
     }
+private:
+    typedef PathBench INHERITED;
+};
+
+class NonAACirclePathBench: public CirclePathBench {
+public:
+    NonAACirclePathBench(Flags flags) : INHERITED(flags) {}
+
+    void appendName(SkString* name) override {
+        name->append("nonaacircle");
+    }
+
+    void setupPaint(SkPaint* paint) override {
+        CirclePathBench::setupPaint(paint);
+        paint->setAntiAlias(false);
+    }
+
+private:
+    typedef CirclePathBench INHERITED;
+};
+
+// Test max speedup of Analytic AA for concave paths
+class AAAConcavePathBench : public PathBench {
+public:
+    AAAConcavePathBench(Flags flags) : INHERITED(flags) {}
+
+    void appendName(SkString* name) override {
+        name->append("concave_aaa");
+    }
+
+    void makePath(SkPath* path) override {
+        path->moveTo(10, 10);
+        path->lineTo(15, 10);
+        path->lineTo(15, 5);
+        path->lineTo(40, 40);
+        path->close();
+    }
+
+private:
+    typedef PathBench INHERITED;
+};
+
+// Test max speedup of Analytic AA for convex paths
+class AAAConvexPathBench : public PathBench {
+public:
+    AAAConvexPathBench(Flags flags) : INHERITED(flags) {}
+
+    void appendName(SkString* name) override {
+        name->append("convex_aaa");
+    }
+
+    void makePath(SkPath* path) override {
+        path->moveTo(10, 10);
+        path->lineTo(15, 10);
+        path->lineTo(40, 50);
+        path->close();
+    }
+
 private:
     typedef PathBench INHERITED;
 };
@@ -183,10 +272,8 @@ public:
         SkRandom rand (12);
         int i;
         for (i = 0; i < 100; i++) {
-            path->quadTo(SkScalarMul(rand.nextUScalar1(), SkIntToScalar(640)),
-                         SkScalarMul(rand.nextUScalar1(), SkIntToScalar(480)),
-                         SkScalarMul(rand.nextUScalar1(), SkIntToScalar(640)),
-                         SkScalarMul(rand.nextUScalar1(), SkIntToScalar(480)));
+            path->quadTo(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480,
+                         rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
         }
         path->close();
     }
@@ -987,9 +1074,49 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class TightBoundsBench : public Benchmark {
+    SkPath      fPath;
+    SkString    fName;
+    SkRect      (*fProc)(const SkPath&);
+
+public:
+    TightBoundsBench(SkRect (*proc)(const SkPath&), const char suffix[]) : fProc(proc) {
+        fName.printf("tight_bounds_%s", suffix);
+        
+        const int N = 100;
+        SkRandom rand;
+        for (int i = 0; i < N; ++i) {
+            fPath.moveTo(rand.nextF()*100, rand.nextF()*100);
+            fPath.lineTo(rand.nextF()*100, rand.nextF()*100);
+            fPath.quadTo(rand.nextF()*100, rand.nextF()*100, rand.nextF()*100, rand.nextF()*100);
+            fPath.conicTo(rand.nextF()*100, rand.nextF()*100, rand.nextF()*100, rand.nextF()*100,
+                          rand.nextF()*10);
+            fPath.cubicTo(rand.nextF()*100, rand.nextF()*100, rand.nextF()*100, rand.nextF()*100,
+                          rand.nextF()*100, rand.nextF()*100);
+        }
+    }
+
+protected:
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+    const char* onGetName() override { return fName.c_str(); }
+    
+    void onDraw(int loops, SkCanvas* canvas) override {
+        for (int i = 0; i < loops*100; ++i) {
+            fProc(fPath);
+        }
+    }
+    
+private:
+    typedef Benchmark INHERITED;
+};
+
+
 const SkRect ConservativelyContainsBench::kBounds = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
-const SkSize ConservativelyContainsBench::kQueryMin = SkSize::Make(SkIntToScalar(1), SkIntToScalar(1));
-const SkSize ConservativelyContainsBench::kQueryMax = SkSize::Make(SkIntToScalar(40), SkIntToScalar(40));
+const SkSize ConservativelyContainsBench::kQueryMin = {SkIntToScalar(1), SkIntToScalar(1)};
+const SkSize ConservativelyContainsBench::kQueryMax = {SkIntToScalar(40), SkIntToScalar(40)};
 const SkRect ConservativelyContainsBench::kBaseRect = SkRect::MakeXYWH(SkIntToScalar(25), SkIntToScalar(25), SkIntToScalar(50), SkIntToScalar(50));
 const SkScalar ConservativelyContainsBench::kRRRadii[2] = {SkIntToScalar(5), SkIntToScalar(10)};
 
@@ -1003,6 +1130,11 @@ DEF_BENCH( return new RectPathBench(FLAGS01); )
 DEF_BENCH( return new RectPathBench(FLAGS10); )
 DEF_BENCH( return new RectPathBench(FLAGS11); )
 
+DEF_BENCH( return new RotatedRectBench(FLAGS00, false, 45));
+DEF_BENCH( return new RotatedRectBench(FLAGS10, false, 45));
+DEF_BENCH( return new RotatedRectBench(FLAGS00, true, 45));
+DEF_BENCH( return new RotatedRectBench(FLAGS10, true, 45));
+
 DEF_BENCH( return new OvalPathBench(FLAGS00); )
 DEF_BENCH( return new OvalPathBench(FLAGS01); )
 DEF_BENCH( return new OvalPathBench(FLAGS10); )
@@ -1012,6 +1144,14 @@ DEF_BENCH( return new CirclePathBench(FLAGS00); )
 DEF_BENCH( return new CirclePathBench(FLAGS01); )
 DEF_BENCH( return new CirclePathBench(FLAGS10); )
 DEF_BENCH( return new CirclePathBench(FLAGS11); )
+
+DEF_BENCH( return new NonAACirclePathBench(FLAGS00); )
+DEF_BENCH( return new NonAACirclePathBench(FLAGS10); )
+
+DEF_BENCH( return new AAAConcavePathBench(FLAGS00); )
+DEF_BENCH( return new AAAConcavePathBench(FLAGS10); )
+DEF_BENCH( return new AAAConvexPathBench(FLAGS00); )
+DEF_BENCH( return new AAAConvexPathBench(FLAGS10); )
 
 DEF_BENCH( return new SawToothPathBench(FLAGS00); )
 DEF_BENCH( return new SawToothPathBench(FLAGS01); )
@@ -1041,6 +1181,13 @@ DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::k
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kRoundRect_Type); )
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kOval_Type); )
 
+#include "SkPathOps.h"
+#include "SkPathPriv.h"
+DEF_BENCH( return new TightBoundsBench([](const SkPath& path){ return path.computeTightBounds();},
+                                       "priv"); )
+DEF_BENCH( return new TightBoundsBench([](const SkPath& path) {
+        SkRect bounds; TightBounds(path, &bounds); return bounds;
+    }, "pathops"); )
 
 // These seem to be optimized away, which is troublesome for timing.
 /*

@@ -10,7 +10,7 @@
 
 class TestRC : public SkRefCnt {
 public:
-    
+
 private:
     typedef SkRefCnt INHERITED;
 };

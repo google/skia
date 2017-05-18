@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,9 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "SkData.h"
 #include "SkDeflate.h"
+#include "SkMakeUnique.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
+#include "SkStream.h"
 #include "SkStreamPriv.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +30,8 @@ SkPDFUnion::~SkPDFUnion() {
             return;
         case Type::kObjRef:
         case Type::kObject:
-            SkSafeUnref(fObject);
+            SkASSERT(fObject);
+            fObject->unref();
             return;
         default:
             return;
@@ -38,7 +41,7 @@ SkPDFUnion::~SkPDFUnion() {
 SkPDFUnion& SkPDFUnion::operator=(SkPDFUnion&& other) {
     if (this != &other) {
         this->~SkPDFUnion();
-        new (this) SkPDFUnion(other.move());
+        new (this) SkPDFUnion(std::move(other));
     }
     return *this;
 }
@@ -56,14 +59,14 @@ SkPDFUnion SkPDFUnion::copy() const {
     switch (fType) {
         case Type::kNameSkS:
         case Type::kStringSkS:
-            new (pun(u.fSkString))  SkString                                   (*pun(fSkString));
-            return u.move();
+            new (pun(u.fSkString)) SkString(*pun(fSkString));
+            return u;
         case Type::kObjRef:
         case Type::kObject:
             SkRef(u.fObject);
-            return u.move();
+            return u;
         default:
-            return u.move();
+            return u;
     }
 }
 SkPDFUnion& SkPDFUnion::operator=(const SkPDFUnion& other) {
@@ -110,24 +113,14 @@ static void write_name_escaped(SkWStream* o, const char* name) {
     }
 }
 
-static void write_string(SkWStream* o, const SkString& s) {
-    o->write(s.c_str(), s.size());
-}
-
-static SkString format_string(const SkString& s) {
-    return SkPDFUtils::FormatString(s.c_str(), s.size());
-}
-
-static SkString format_string(const char* s) {
-    return SkPDFUtils::FormatString(s, strlen(s));
-}
-
 void SkPDFUnion::emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap,
-                            const SkPDFSubstituteMap& substitutes) const {
+                            const SkPDFObjNumMap& objNumMap) const {
     switch (fType) {
         case Type::kInt:
             stream->writeDecAsText(fIntValue);
+            return;
+        case Type::kColorComponent:
+            SkPDFUtils::AppendColorComponent(SkToU8(fIntValue), stream);
             return;
         case Type::kBool:
             stream->writeText(fBoolValue ? "true" : "false");
@@ -142,32 +135,33 @@ void SkPDFUnion::emitObject(SkWStream* stream,
             return;
         case Type::kString:
             SkASSERT(fStaticString);
-            write_string(stream, format_string(fStaticString));
+            SkPDFUtils::WriteString(stream, fStaticString,
+                                    strlen(fStaticString));
             return;
         case Type::kNameSkS:
             stream->writeText("/");
             write_name_escaped(stream, pun(fSkString)->c_str());
             return;
         case Type::kStringSkS:
-            write_string(stream, format_string(*pun(fSkString)));
+            SkPDFUtils::WriteString(stream, pun(fSkString)->c_str(),
+                                    pun(fSkString)->size());
             return;
         case Type::kObjRef:
-            stream->writeDecAsText(objNumMap.getObjectNumber(
-                    substitutes.getSubstitute(fObject)));
+            stream->writeDecAsText(objNumMap.getObjectNumber(fObject));
             stream->writeText(" 0 R");  // Generation number is always 0.
             return;
         case Type::kObject:
-            fObject->emitObject(stream, objNumMap, substitutes);
+            fObject->emitObject(stream, objNumMap);
             return;
         default:
             SkDEBUGFAIL("SkPDFUnion::emitObject with bad type");
     }
 }
 
-void SkPDFUnion::addResources(SkPDFObjNumMap* objNumMap,
-                              const SkPDFSubstituteMap& substituteMap) const {
+void SkPDFUnion::addResources(SkPDFObjNumMap* objNumMap) const {
     switch (fType) {
         case Type::kInt:
+        case Type::kColorComponent:
         case Type::kBool:
         case Type::kScalar:
         case Type::kName:
@@ -175,15 +169,11 @@ void SkPDFUnion::addResources(SkPDFObjNumMap* objNumMap,
         case Type::kNameSkS:
         case Type::kStringSkS:
             return;  // These have no resources.
-        case Type::kObjRef: {
-            SkPDFObject* obj = substituteMap.getSubstitute(fObject);
-            if (objNumMap->addObject(obj)) {
-                obj->addResources(objNumMap, substituteMap);
-            }
+        case Type::kObjRef:
+            objNumMap->addObjectRecursively(fObject);
             return;
-        }
         case Type::kObject:
-            fObject->addResources(objNumMap, substituteMap);
+            fObject->addResources(objNumMap);
             return;
         default:
             SkDEBUGFAIL("SkPDFUnion::addResources with bad type");
@@ -193,19 +183,25 @@ void SkPDFUnion::addResources(SkPDFObjNumMap* objNumMap,
 SkPDFUnion SkPDFUnion::Int(int32_t value) {
     SkPDFUnion u(Type::kInt);
     u.fIntValue = value;
-    return u.move();
+    return u;
+}
+
+SkPDFUnion SkPDFUnion::ColorComponent(uint8_t value) {
+    SkPDFUnion u(Type::kColorComponent);
+    u.fIntValue = value;
+    return u;
 }
 
 SkPDFUnion SkPDFUnion::Bool(bool value) {
     SkPDFUnion u(Type::kBool);
     u.fBoolValue = value;
-    return u.move();
+    return u;
 }
 
 SkPDFUnion SkPDFUnion::Scalar(SkScalar value) {
     SkPDFUnion u(Type::kScalar);
     u.fScalarValue = value;
-    return u.move();
+    return u;
 }
 
 SkPDFUnion SkPDFUnion::Name(const char* value) {
@@ -213,76 +209,78 @@ SkPDFUnion SkPDFUnion::Name(const char* value) {
     SkASSERT(value);
     SkASSERT(is_valid_name(value));
     u.fStaticString = value;
-    return u.move();
+    return u;
 }
 
 SkPDFUnion SkPDFUnion::String(const char* value) {
     SkPDFUnion u(Type::kString);
     SkASSERT(value);
     u.fStaticString = value;
-    return u.move();
+    return u;
 }
 
 SkPDFUnion SkPDFUnion::Name(const SkString& s) {
     SkPDFUnion u(Type::kNameSkS);
     new (pun(u.fSkString)) SkString(s);
-    return u.move();
+    return u;
 }
 
 SkPDFUnion SkPDFUnion::String(const SkString& s) {
     SkPDFUnion u(Type::kStringSkS);
     new (pun(u.fSkString)) SkString(s);
-    return u.move();
+    return u;
 }
 
-SkPDFUnion SkPDFUnion::ObjRef(SkPDFObject* ptr) {
+SkPDFUnion SkPDFUnion::ObjRef(sk_sp<SkPDFObject> objSp) {
     SkPDFUnion u(Type::kObjRef);
-    SkASSERT(ptr);
-    u.fObject = ptr;
-    return u.move();
+    SkASSERT(objSp.get());
+    u.fObject = objSp.release();  // take ownership into union{}
+    return u;
 }
 
-SkPDFUnion SkPDFUnion::Object(SkPDFObject* ptr) {
+SkPDFUnion SkPDFUnion::Object(sk_sp<SkPDFObject> objSp) {
     SkPDFUnion u(Type::kObject);
-    SkASSERT(ptr);
-    u.fObject = ptr;
-    return u.move();
+    SkASSERT(objSp.get());
+    u.fObject = objSp.release();  // take ownership into union{}
+    return u;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #if 0  // Enable if needed.
 void SkPDFAtom::emitObject(SkWStream* stream,
-                           const SkPDFObjNumMap& objNumMap,
-                           const SkPDFSubstituteMap& substitutes) const {
-    fValue.emitObject(stream, objNumMap, substitutes);
+                           const SkPDFObjNumMap& objNumMap) const {
+    fValue.emitObject(stream, objNumMap);
 }
-void SkPDFAtom::addResources(SkPDFObjNumMap* map,
-                             const SkPDFSubstituteMap& substitutes) const {
-    fValue.addResources(map, substitutes);
+void SkPDFAtom::addResources(SkPDFObjNumMap* map) const {
+    fValue.addResources(map);
 }
 #endif  // 0
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFArray::SkPDFArray() {}
-SkPDFArray::~SkPDFArray() {
-    for (SkPDFUnion& value : fValues) {
-        value.~SkPDFUnion();
-    }
+SkPDFArray::SkPDFArray() { SkDEBUGCODE(fDumped = false;) }
+
+SkPDFArray::~SkPDFArray() { this->drop(); }
+
+void SkPDFArray::drop() {
     fValues.reset();
+    SkDEBUGCODE(fDumped = true;)
 }
 
 int SkPDFArray::size() const { return fValues.count(); }
 
-void SkPDFArray::reserve(int length) { fValues.setReserve(length); }
+void SkPDFArray::reserve(int length) {
+    // TODO(halcanary): implement SkTArray<T>::reserve() or change the
+    // contstructor of SkPDFArray to take reserve size.
+}
 
 void SkPDFArray::emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap,
-                            const SkPDFSubstituteMap& substitutes) const {
+                            const SkPDFObjNumMap& objNumMap) const {
+    SkASSERT(!fDumped);
     stream->writeText("[");
     for (int i = 0; i < fValues.count(); i++) {
-        fValues[i].emitObject(stream, objNumMap, substitutes);
+        fValues[i].emitObject(stream, objNumMap);
         if (i + 1 < fValues.count()) {
             stream->writeText(" ");
         }
@@ -290,17 +288,23 @@ void SkPDFArray::emitObject(SkWStream* stream,
     stream->writeText("]");
 }
 
-void SkPDFArray::addResources(SkPDFObjNumMap* catalog,
-                              const SkPDFSubstituteMap& substitutes) const {
+void SkPDFArray::addResources(SkPDFObjNumMap* catalog) const {
+    SkASSERT(!fDumped);
     for (const SkPDFUnion& value : fValues) {
-        value.addResources(catalog, substitutes);
+        value.addResources(catalog);
     }
 }
 
-void SkPDFArray::append(SkPDFUnion&& value) { new (fValues.append()) SkPDFUnion(value.move()); }
+void SkPDFArray::append(SkPDFUnion&& value) {
+    fValues.emplace_back(std::move(value));
+}
 
 void SkPDFArray::appendInt(int32_t value) {
     this->append(SkPDFUnion::Int(value));
+}
+
+void SkPDFArray::appendColorComponent(uint8_t value) {
+    this->append(SkPDFUnion::ColorComponent(value));
 }
 
 void SkPDFArray::appendBool(bool value) {
@@ -327,80 +331,81 @@ void SkPDFArray::appendString(const char value[]) {
     this->append(SkPDFUnion::String(value));
 }
 
-void SkPDFArray::appendObject(SkPDFObject* value) {
-    this->append(SkPDFUnion::Object(value));
+void SkPDFArray::appendObject(sk_sp<SkPDFObject> objSp) {
+    this->append(SkPDFUnion::Object(std::move(objSp)));
 }
 
-void SkPDFArray::appendObjRef(SkPDFObject* value) {
-    this->append(SkPDFUnion::ObjRef(value));
+void SkPDFArray::appendObjRef(sk_sp<SkPDFObject> objSp) {
+    this->append(SkPDFUnion::ObjRef(std::move(objSp)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPDFDict::SkPDFDict() {}
+SkPDFDict::~SkPDFDict() { this->drop(); }
 
-SkPDFDict::~SkPDFDict() { this->clear(); }
+void SkPDFDict::drop() {
+    fRecords.reset();
+    SkDEBUGCODE(fDumped = true;)
+}
 
-SkPDFDict::SkPDFDict(const char type[]) { this->insertName("Type", type); }
+SkPDFDict::SkPDFDict(const char type[]) {
+    SkDEBUGCODE(fDumped = false;)
+    if (type) {
+        this->insertName("Type", type);
+    }
+}
 
 void SkPDFDict::emitObject(SkWStream* stream,
-                           const SkPDFObjNumMap& objNumMap,
-                           const SkPDFSubstituteMap& substitutes) const {
+                           const SkPDFObjNumMap& objNumMap) const {
     stream->writeText("<<");
-    this->emitAll(stream, objNumMap, substitutes);
+    this->emitAll(stream, objNumMap);
     stream->writeText(">>");
 }
 
 void SkPDFDict::emitAll(SkWStream* stream,
-                        const SkPDFObjNumMap& objNumMap,
-                        const SkPDFSubstituteMap& substitutes) const {
+                        const SkPDFObjNumMap& objNumMap) const {
+    SkASSERT(!fDumped);
     for (int i = 0; i < fRecords.count(); i++) {
-        fRecords[i].fKey.emitObject(stream, objNumMap, substitutes);
+        fRecords[i].fKey.emitObject(stream, objNumMap);
         stream->writeText(" ");
-        fRecords[i].fValue.emitObject(stream, objNumMap, substitutes);
+        fRecords[i].fValue.emitObject(stream, objNumMap);
         if (i + 1 < fRecords.count()) {
             stream->writeText("\n");
         }
     }
 }
 
-void SkPDFDict::addResources(SkPDFObjNumMap* catalog,
-                             const SkPDFSubstituteMap& substitutes) const {
+void SkPDFDict::addResources(SkPDFObjNumMap* catalog) const {
+    SkASSERT(!fDumped);
     for (int i = 0; i < fRecords.count(); i++) {
-        fRecords[i].fKey.addResources(catalog, substitutes);
-        fRecords[i].fValue.addResources(catalog, substitutes);
+        fRecords[i].fKey.addResources(catalog);
+        fRecords[i].fValue.addResources(catalog);
     }
-}
-
-void SkPDFDict::set(SkPDFUnion&& name, SkPDFUnion&& value) {
-    Record* rec = fRecords.append();
-    SkASSERT(name.isName());
-    new (&rec->fKey) SkPDFUnion(name.move());
-    new (&rec->fValue) SkPDFUnion(value.move());
 }
 
 int SkPDFDict::size() const { return fRecords.count(); }
 
-void SkPDFDict::insertObjRef(const char key[], SkPDFObject* value) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::ObjRef(value));
-}
-void SkPDFDict::insertObjRef(const SkString& key, SkPDFObject* value) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::ObjRef(value));
+void SkPDFDict::insertObjRef(const char key[], sk_sp<SkPDFObject> objSp) {
+    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::ObjRef(std::move(objSp))});
 }
 
-void SkPDFDict::insertObject(const char key[], SkPDFObject* value) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::Object(value));
+void SkPDFDict::insertObjRef(const SkString& key, sk_sp<SkPDFObject> objSp) {
+    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::ObjRef(std::move(objSp))});
 }
-void SkPDFDict::insertObject(const SkString& key, SkPDFObject* value) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::Object(value));
+
+void SkPDFDict::insertObject(const char key[], sk_sp<SkPDFObject> objSp) {
+    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Object(std::move(objSp))});
+}
+void SkPDFDict::insertObject(const SkString& key, sk_sp<SkPDFObject> objSp) {
+    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Object(std::move(objSp))});
 }
 
 void SkPDFDict::insertBool(const char key[], bool value) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::Bool(value));
+    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Bool(value)});
 }
 
 void SkPDFDict::insertInt(const char key[], int32_t value) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::Int(value));
+    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Int(value)});
 }
 
 void SkPDFDict::insertInt(const char key[], size_t value) {
@@ -408,85 +413,162 @@ void SkPDFDict::insertInt(const char key[], size_t value) {
 }
 
 void SkPDFDict::insertScalar(const char key[], SkScalar value) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::Scalar(value));
+    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Scalar(value)});
 }
 
 void SkPDFDict::insertName(const char key[], const char name[]) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::Name(name));
+    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Name(name)});
 }
 
 void SkPDFDict::insertName(const char key[], const SkString& name) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::Name(name));
+    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Name(name)});
 }
 
 void SkPDFDict::insertString(const char key[], const char value[]) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::String(value));
+    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::String(value)});
 }
 
 void SkPDFDict::insertString(const char key[], const SkString& value) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::String(value));
-}
-
-void SkPDFDict::clear() {
-    for (Record& rec : fRecords) {
-        rec.fKey.~SkPDFUnion();
-        rec.fValue.~SkPDFUnion();
-    }
-    fRecords.reset();
+    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::String(value)});
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
+SkPDFSharedStream::SkPDFSharedStream(std::unique_ptr<SkStreamAsset> data)
+    : fAsset(std::move(data)) {
+    SkASSERT(fAsset);
+}
+
+SkPDFSharedStream::~SkPDFSharedStream() { this->drop(); }
+
+void SkPDFSharedStream::drop() {
+    fAsset = nullptr;;
+    fDict.drop();
+}
+
+#ifdef SK_PDF_LESS_COMPRESSION
 void SkPDFSharedStream::emitObject(
         SkWStream* stream,
-        const SkPDFObjNumMap& objNumMap,
-        const SkPDFSubstituteMap& substitutes) const {
+        const SkPDFObjNumMap& objNumMap) const {
+    SkASSERT(fAsset);
+    std::unique_ptr<SkStreamAsset> dup(fAsset->duplicate());
+    SkASSERT(dup && dup->hasLength());
+    size_t length = dup->getLength();
+    stream->writeText("<<");
+    fDict.emitAll(stream, objNumMap);
+    stream->writeText("\n");
+    SkPDFUnion::Name("Length").emitObject(stream, objNumMap);
+    stream->writeText(" ");
+    SkPDFUnion::Int(length).emitObject(stream, objNumMap);
+    stream->writeText("\n>>stream\n");
+    SkStreamCopy(stream, dup.get());
+    stream->writeText("\nendstream");
+}
+#else
+void SkPDFSharedStream::emitObject(
+        SkWStream* stream,
+        const SkPDFObjNumMap& objNumMap) const {
+    SkASSERT(fAsset);
     SkDynamicMemoryWStream buffer;
     SkDeflateWStream deflateWStream(&buffer);
     // Since emitObject is const, this function doesn't change the dictionary.
-    SkAutoTDelete<SkStreamAsset> dup(fAsset->duplicate());  // Cheap copy
+    std::unique_ptr<SkStreamAsset> dup(fAsset->duplicate());  // Cheap copy
     SkASSERT(dup);
     SkStreamCopy(&deflateWStream, dup.get());
     deflateWStream.finalize();
     size_t length = buffer.bytesWritten();
     stream->writeText("<<");
-    fDict->emitAll(stream, objNumMap, substitutes);
+    fDict.emitAll(stream, objNumMap);
     stream->writeText("\n");
-    SkPDFUnion::Name("Length").emitObject(stream, objNumMap, substitutes);
+    SkPDFUnion::Name("Length").emitObject(stream, objNumMap);
     stream->writeText(" ");
-    SkPDFUnion::Int(length).emitObject(stream, objNumMap, substitutes);
+    SkPDFUnion::Int(length).emitObject(stream, objNumMap);
     stream->writeText("\n");
-    SkPDFUnion::Name("Filter").emitObject(stream, objNumMap, substitutes);
+    SkPDFUnion::Name("Filter").emitObject(stream, objNumMap);
     stream->writeText(" ");
-    SkPDFUnion::Name("FlateDecode").emitObject(stream, objNumMap, substitutes);
+    SkPDFUnion::Name("FlateDecode").emitObject(stream, objNumMap);
     stream->writeText(">>");
     stream->writeText(" stream\n");
     buffer.writeToStream(stream);
     stream->writeText("\nendstream");
 }
+#endif
 
 void SkPDFSharedStream::addResources(
-        SkPDFObjNumMap* catalog, const SkPDFSubstituteMap& substitutes) const {
-    fDict->addResources(catalog, substitutes);
+        SkPDFObjNumMap* catalog) const {
+    SkASSERT(fAsset);
+    fDict.addResources(catalog);
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFSubstituteMap::~SkPDFSubstituteMap() {
-    fSubstituteMap.foreach(
-            [](SkPDFObject*, SkPDFObject** v) { (*v)->unref(); });
+SkPDFStream:: SkPDFStream(sk_sp<SkData> data) {
+    this->setData(skstd::make_unique<SkMemoryStream>(std::move(data)));
 }
 
-void SkPDFSubstituteMap::setSubstitute(SkPDFObject* original,
-                                       SkPDFObject* substitute) {
-    SkASSERT(original != substitute);
-    SkASSERT(!fSubstituteMap.find(original));
-    fSubstituteMap.set(original, SkRef(substitute));
+SkPDFStream::SkPDFStream(std::unique_ptr<SkStreamAsset> stream) {
+    this->setData(std::move(stream));
 }
 
-SkPDFObject* SkPDFSubstituteMap::getSubstitute(SkPDFObject* object) const {
-    SkPDFObject** found = fSubstituteMap.find(object);
-    return found ? *found : object;
+SkPDFStream::SkPDFStream() {}
+
+SkPDFStream::~SkPDFStream() {}
+
+void SkPDFStream::addResources(SkPDFObjNumMap* catalog) const {
+    SkASSERT(fCompressedData);
+    fDict.addResources(catalog);
+}
+
+void SkPDFStream::drop() {
+    fCompressedData.reset(nullptr);
+    fDict.drop();
+}
+
+void SkPDFStream::emitObject(SkWStream* stream,
+                             const SkPDFObjNumMap& objNumMap) const {
+    SkASSERT(fCompressedData);
+    fDict.emitObject(stream, objNumMap);
+    // duplicate (a cheap operation) preserves const on fCompressedData.
+    std::unique_ptr<SkStreamAsset> dup(fCompressedData->duplicate());
+    SkASSERT(dup);
+    SkASSERT(dup->hasLength());
+    stream->writeText(" stream\n");
+    stream->writeStream(dup.get(), dup->getLength());
+    stream->writeText("\nendstream");
+}
+
+void SkPDFStream::setData(std::unique_ptr<SkStreamAsset> stream) {
+    SkASSERT(!fCompressedData);  // Only call this function once.
+    SkASSERT(stream);
+    // Code assumes that the stream starts at the beginning.
+
+    #ifdef SK_PDF_LESS_COMPRESSION
+    fCompressedData = std::move(stream);
+    SkASSERT(fCompressedData && fCompressedData->hasLength());
+    fDict.insertInt("Length", fCompressedData->getLength());
+    #else
+
+    SkASSERT(stream->hasLength());
+    SkDynamicMemoryWStream compressedData;
+    SkDeflateWStream deflateWStream(&compressedData);
+    if (stream->getLength() > 0) {
+        SkStreamCopy(&deflateWStream, stream.get());
+    }
+    deflateWStream.finalize();
+    size_t compressedLength = compressedData.bytesWritten();
+    size_t originalLength = stream->getLength();
+
+    if (originalLength <= compressedLength + strlen("/Filter_/FlateDecode_")) {
+        SkAssertResult(stream->rewind());
+        fCompressedData = std::move(stream);
+        fDict.insertInt("Length", originalLength);
+        return;
+    }
+    fCompressedData = compressedData.detachAsStream();
+    fDict.insertName("Filter", "FlateDecode");
+    fDict.insertInt("Length", compressedLength);
+    #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -496,8 +578,14 @@ bool SkPDFObjNumMap::addObject(SkPDFObject* obj) {
         return false;
     }
     fObjectNumbers.set(obj, fObjectNumbers.count() + 1);
-    fObjects.push(obj);
+    fObjects.emplace_back(sk_ref_sp(obj));
     return true;
+}
+
+void SkPDFObjNumMap::addObjectRecursively(SkPDFObject* obj) {
+    if (obj && this->addObject(obj)) {
+        obj->addResources(this);
+    }
 }
 
 int32_t SkPDFObjNumMap::getObjectNumber(SkPDFObject* obj) const {

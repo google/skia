@@ -13,52 +13,80 @@
 
 using namespace SkRecords;
 
-void SkRecordOptimize(SkRecord* record) {
-    // This might be useful  as a first pass in the future if we want to weed
-    // out junk for other optimization passes.  Right now, nothing needs it,
-    // and the bounding box hierarchy will do the work of skipping no-op
-    // Save-NoDraw-Restore sequences better than we can here.
-    //SkRecordNoopSaveRestores(record);
-
-    SkRecordNoopSaveLayerDrawRestores(record);
-    SkRecordMergeSvgOpacityAndFilterLayers(record);
-}
-
 // Most of the optimizations in this file are pattern-based.  These are all defined as structs with:
-//   - a Pattern typedef
-//   - a bool onMatch(SkRceord*, Pattern*, int begin, int end) method,
+//   - a Match typedef
+//   - a bool onMatch(SkRceord*, Match*, int begin, int end) method,
 //     which returns true if it made changes and false if not.
 
 // Run a pattern-based optimization once across the SkRecord, returning true if it made any changes.
-// It looks for spans which match Pass::Pattern, and when found calls onMatch() with the pattern,
+// It looks for spans which match Pass::Match, and when found calls onMatch() with that pattern,
 // record, and [begin,end) span of the commands that matched.
 template <typename Pass>
 static bool apply(Pass* pass, SkRecord* record) {
-    typename Pass::Pattern pattern;
+    typename Pass::Match match;
     bool changed = false;
     int begin, end = 0;
 
-    while (pattern.search(record, &begin, &end)) {
-        changed |= pass->onMatch(record, &pattern, begin, end);
+    while (match.search(record, &begin, &end)) {
+        changed |= pass->onMatch(record, &match, begin, end);
     }
     return changed;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void multiple_set_matrices(SkRecord* record) {
+    struct {
+        typedef Pattern<Is<SetMatrix>,
+                        Greedy<Is<NoOp>>,
+                        Is<SetMatrix> >
+            Match;
+
+        bool onMatch(SkRecord* record, Match* pattern, int begin, int end) {
+            record->replace<NoOp>(begin);  // first SetMatrix
+            return true;
+        }
+    } pass;
+    while (apply(&pass, record));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if 0   // experimental, but needs knowledge of previous matrix to operate correctly
+static void apply_matrix_to_draw_params(SkRecord* record) {
+    struct {
+        typedef Pattern<Is<SetMatrix>,
+                        Greedy<Is<NoOp>>,
+                        Is<SetMatrix> >
+            Pattern;
+
+        bool onMatch(SkRecord* record, Pattern* pattern, int begin, int end) {
+            record->replace<NoOp>(begin);  // first SetMatrix
+            return true;
+        }
+    } pass;
+    // No need to loop, as we never "open up" opportunities for more of this type of optimization.
+    apply(&pass, record);
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Turns the logical NoOp Save and Restore in Save-Draw*-Restore patterns into actual NoOps.
 struct SaveOnlyDrawsRestoreNooper {
-    typedef Pattern3<Is<Save>,
-                     Star<Or<Is<NoOp>, IsDraw> >,
-                     Is<Restore> >
-        Pattern;
+    typedef Pattern<Is<Save>,
+                    Greedy<Or<Is<NoOp>, IsDraw>>,
+                    Is<Restore>>
+        Match;
 
-    bool onMatch(SkRecord* record, Pattern* pattern, int begin, int end) {
+    bool onMatch(SkRecord* record, Match*, int begin, int end) {
         record->replace<NoOp>(begin);  // Save
         record->replace<NoOp>(end-1);  // Restore
         return true;
     }
 };
 
-static bool fold_opacity_layer_color_to_paint(const SkPaint& layerPaint,
+static bool fold_opacity_layer_color_to_paint(const SkPaint* layerPaint,
                                               bool isSaveLayer,
                                               SkPaint* paint) {
     // We assume layerPaint is always from a saveLayer.  If isSaveLayer is
@@ -69,7 +97,7 @@ static bool fold_opacity_layer_color_to_paint(const SkPaint& layerPaint,
     // looper drawing unmodulated filter layer twice and then modulating the result produces
     // different image to drawing modulated filter layer twice.
     // TODO: most likely the looper and only some xfer modes are the hard constraints
-    if (paint->getXfermode() || paint->getLooper()) {
+    if (!paint->isSrcOver() || paint->getLooper()) {
         return false;
     }
 
@@ -92,42 +120,43 @@ static bool fold_opacity_layer_color_to_paint(const SkPaint& layerPaint,
         return false;
     }
 
-    const uint32_t layerColor = layerPaint.getColor();
-    // The layer paint color must have only alpha component.
-    if (SK_ColorTRANSPARENT != SkColorSetA(layerColor, SK_AlphaTRANSPARENT)) {
-        return false;
-    }
+    if (layerPaint) {
+        const uint32_t layerColor = layerPaint->getColor();
+        // The layer paint color must have only alpha component.
+        if (SK_ColorTRANSPARENT != SkColorSetA(layerColor, SK_AlphaTRANSPARENT)) {
+            return false;
+        }
 
-    // The layer paint can not have any effects.
-    if (layerPaint.getPathEffect() ||
-        layerPaint.getShader()      ||
-        layerPaint.getXfermode()    ||
-        layerPaint.getMaskFilter()  ||
-        layerPaint.getColorFilter() ||
-        layerPaint.getRasterizer()  ||
-        layerPaint.getLooper()      ||
-        layerPaint.getImageFilter()) {
-        return false;
+        // The layer paint can not have any effects.
+        if (layerPaint->getPathEffect()  ||
+            layerPaint->getShader()      ||
+            !layerPaint->isSrcOver()     ||
+            layerPaint->getMaskFilter()  ||
+            layerPaint->getColorFilter() ||
+            layerPaint->getRasterizer()  ||
+            layerPaint->getLooper()      ||
+            layerPaint->getImageFilter()) {
+            return false;
+        }
+        paint->setAlpha(SkMulDiv255Round(paint->getAlpha(), SkColorGetA(layerColor)));
     }
-
-    paint->setAlpha(SkMulDiv255Round(paint->getAlpha(), SkColorGetA(layerColor)));
 
     return true;
 }
 
 // Turns logical no-op Save-[non-drawing command]*-Restore patterns into actual no-ops.
 struct SaveNoDrawsRestoreNooper {
-    // Star matches greedily, so we also have to exclude Save and Restore.
+    // Greedy matches greedily, so we also have to exclude Save and Restore.
     // Nested SaveLayers need to be excluded, or we'll match their Restore!
-    typedef Pattern3<Is<Save>,
-                     Star<Not<Or4<Is<Save>,
+    typedef Pattern<Is<Save>,
+                    Greedy<Not<Or<Is<Save>,
                                   Is<SaveLayer>,
                                   Is<Restore>,
-                                  IsDraw> > >,
-                     Is<Restore> >
-        Pattern;
+                                  IsDraw>>>,
+                    Is<Restore>>
+        Match;
 
-    bool onMatch(SkRecord* record, Pattern* pattern, int begin, int end) {
+    bool onMatch(SkRecord* record, Match*, int begin, int end) {
         // The entire span between Save and Restore (inclusively) does nothing.
         for (int i = begin; i < end; i++) {
             record->replace<NoOp>(i);
@@ -143,27 +172,48 @@ void SkRecordNoopSaveRestores(SkRecord* record) {
     while (apply(&onlyDraws, record) || apply(&noDraws, record));
 }
 
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+static bool effectively_srcover(const SkPaint* paint) {
+    if (!paint || paint->isSrcOver()) {
+        return true;
+    }
+    // src-mode with opaque and no effects (which might change opaqueness) is ok too.
+    return !paint->getShader() && !paint->getColorFilter() && !paint->getImageFilter() &&
+           0xFF == paint->getAlpha() && paint->getBlendMode() == SkBlendMode::kSrc;
+}
+
 // For some SaveLayer-[drawing command]-Restore patterns, merge the SaveLayer's alpha into the
 // draw, and no-op the SaveLayer and Restore.
 struct SaveLayerDrawRestoreNooper {
-    typedef Pattern3<Is<SaveLayer>, IsDraw, Is<Restore> > Pattern;
+    typedef Pattern<Is<SaveLayer>, IsDraw, Is<Restore>> Match;
 
-    bool onMatch(SkRecord* record, Pattern* pattern, int begin, int end) {
+    bool onMatch(SkRecord* record, Match* match, int begin, int end) {
+        if (match->first<SaveLayer>()->backdrop || match->first<SaveLayer>()->clipMask) {
+            // can't throw away the layer if we have a backdrop or clip mask
+            return false;
+        }
+
+        if (match->first<SaveLayer>()->saveLayerFlags & (1U << 31)) {
+            // can't throw away the layer if the kDontClipToLayer_PrivateSaveLayerFlag is set
+            return false;
+        }
+
         // A SaveLayer's bounds field is just a hint, so we should be free to ignore it.
-        SkPaint* layerPaint = pattern->first<SaveLayer>()->paint;
-        if (nullptr == layerPaint) {
+        SkPaint* layerPaint = match->first<SaveLayer>()->paint;
+        SkPaint* drawPaint = match->second<SkPaint>();
+
+        if (nullptr == layerPaint && effectively_srcover(drawPaint)) {
             // There wasn't really any point to this SaveLayer at all.
             return KillSaveLayerAndRestore(record, begin);
         }
 
-        SkPaint* drawPaint = pattern->second<SkPaint>();
         if (drawPaint == nullptr) {
             // We can just give the draw the SaveLayer's paint.
             // TODO(mtklein): figure out how to do this clearly
             return false;
         }
 
-        if (!fold_opacity_layer_color_to_paint(*layerPaint, false /*isSaveLayer*/, drawPaint)) {
+        if (!fold_opacity_layer_color_to_paint(layerPaint, false /*isSaveLayer*/, drawPaint)) {
             return false;
         }
 
@@ -180,7 +230,7 @@ void SkRecordNoopSaveLayerDrawRestores(SkRecord* record) {
     SaveLayerDrawRestoreNooper pass;
     apply(&pass, record);
 }
-
+#endif
 
 /* For SVG generated:
   SaveLayer (non-opaque, typically for CSS opacity)
@@ -192,11 +242,16 @@ void SkRecordNoopSaveLayerDrawRestores(SkRecord* record) {
   Restore
 */
 struct SvgOpacityAndFilterLayerMergePass {
-    typedef Pattern7<Is<SaveLayer>, Is<Save>, Is<ClipRect>, Is<SaveLayer>,
-                     Is<Restore>, Is<Restore>, Is<Restore> > Pattern;
+    typedef Pattern<Is<SaveLayer>, Is<Save>, Is<ClipRect>, Is<SaveLayer>,
+                    Is<Restore>, Is<Restore>, Is<Restore>> Match;
 
-    bool onMatch(SkRecord* record, Pattern* pattern, int begin, int end) {
-        SkPaint* opacityPaint = pattern->first<SaveLayer>()->paint;
+    bool onMatch(SkRecord* record, Match* match, int begin, int end) {
+        if (match->first<SaveLayer>()->backdrop) {
+            // can't throw away the layer if we have a backdrop
+            return false;
+        }
+
+        SkPaint* opacityPaint = match->first<SaveLayer>()->paint;
         if (nullptr == opacityPaint) {
             // There wasn't really any point to this SaveLayer at all.
             return KillSaveLayerAndRestore(record, begin);
@@ -204,14 +259,14 @@ struct SvgOpacityAndFilterLayerMergePass {
 
         // This layer typically contains a filter, but this should work for layers with for other
         // purposes too.
-        SkPaint* filterLayerPaint = pattern->fourth<SaveLayer>()->paint;
+        SkPaint* filterLayerPaint = match->fourth<SaveLayer>()->paint;
         if (filterLayerPaint == nullptr) {
             // We can just give the inner SaveLayer the paint of the outer SaveLayer.
             // TODO(mtklein): figure out how to do this clearly
             return false;
         }
 
-        if (!fold_opacity_layer_color_to_paint(*opacityPaint, true /*isSaveLayer*/,
+        if (!fold_opacity_layer_color_to_paint(opacityPaint, true /*isSaveLayer*/,
                                                filterLayerPaint)) {
             return false;
         }
@@ -229,4 +284,39 @@ struct SvgOpacityAndFilterLayerMergePass {
 void SkRecordMergeSvgOpacityAndFilterLayers(SkRecord* record) {
     SvgOpacityAndFilterLayerMergePass pass;
     apply(&pass, record);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void SkRecordOptimize(SkRecord* record) {
+    // This might be useful  as a first pass in the future if we want to weed
+    // out junk for other optimization passes.  Right now, nothing needs it,
+    // and the bounding box hierarchy will do the work of skipping no-op
+    // Save-NoDraw-Restore sequences better than we can here.
+    // As there is a known problem with this peephole and drawAnnotation, disable this.
+    // If we want to enable this we must first fix this bug:
+    //     https://bugs.chromium.org/p/skia/issues/detail?id=5548
+//    SkRecordNoopSaveRestores(record);
+
+    // Turn off this optimization completely for Android framework
+    // because it makes the following Android CTS test fail:
+    // android.uirendering.cts.testclasses.LayerTests#testSaveLayerClippedWithAlpha
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    SkRecordNoopSaveLayerDrawRestores(record);
+#endif
+    SkRecordMergeSvgOpacityAndFilterLayers(record);
+
+    record->defrag();
+}
+
+void SkRecordOptimize2(SkRecord* record) {
+    multiple_set_matrices(record);
+    SkRecordNoopSaveRestores(record);
+    // See why we turn this off in SkRecordOptimize above.
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    SkRecordNoopSaveLayerDrawRestores(record);
+#endif
+    SkRecordMergeSvgOpacityAndFilterLayers(record);
+
+    record->defrag();
 }

@@ -58,10 +58,18 @@ struct SkDVector {
     }
 
     // similar to cross, this bastardization considers nearly coincident to be zero
+    // uses ulps epsilon == 16
     double crossCheck(const SkDVector& a) const {
         double xy = fX * a.fY;
         double yx = fY * a.fX;
         return AlmostEqualUlps(xy, yx) ? 0 : xy - yx;
+    }
+
+    // allow tinier numbers
+    double crossNoNormalCheck(const SkDVector& a) const {
+        double xy = fX * a.fY;
+        double yx = fY * a.fX;
+        return AlmostEqualUlpsNoNormalCheck(xy, yx) ? 0 : xy - yx;
     }
 
     double dot(const SkDVector& a) const {
@@ -74,6 +82,12 @@ struct SkDVector {
 
     double lengthSquared() const {
         return fX * fX + fY * fY;
+    }
+
+    void normalize() {
+        double inverseLength = 1 / this->length();
+        fX *= inverseLength;
+        fY *= inverseLength;
     }
 };
 
@@ -130,6 +144,26 @@ struct SkDPoint {
     // note: this can not be implemented with
     // return approximately_equal(a.fY, fY) && approximately_equal(a.fX, fX);
     // because that will not take the magnitude of the values into account
+    bool approximatelyDEqual(const SkDPoint& a) const {
+        if (approximately_equal(fX, a.fX) && approximately_equal(fY, a.fY)) {
+            return true;
+        }
+        if (!RoughlyEqualUlps(fX, a.fX) || !RoughlyEqualUlps(fY, a.fY)) {
+            return false;
+        }
+        double dist = distance(a);  // OPTIMIZATION: can we compare against distSq instead ?
+        double tiniest = SkTMin(SkTMin(SkTMin(fX, a.fX), fY), a.fY);
+        double largest = SkTMax(SkTMax(SkTMax(fX, a.fX), fY), a.fY);
+        largest = SkTMax(largest, -tiniest);
+        return AlmostDequalUlps(largest, largest + dist); // is the dist within ULPS tolerance?
+    }
+
+    bool approximatelyDEqual(const SkPoint& a) const {
+        SkDPoint dA;
+        dA.set(a);
+        return approximatelyDEqual(dA);
+    }
+
     bool approximatelyEqual(const SkDPoint& a) const {
         if (approximately_equal(fX, a.fX) && approximately_equal(fY, a.fY)) {
             return true;
@@ -164,7 +198,7 @@ struct SkDPoint {
         float tiniest = SkTMin(SkTMin(SkTMin(a.fX, b.fX), a.fY), b.fY);
         float largest = SkTMax(SkTMax(SkTMax(a.fX, b.fX), a.fY), b.fY);
         largest = SkTMax(largest, -tiniest);
-        return AlmostPequalUlps((double) largest, largest + dist); // is dist within ULPS tolerance?
+        return AlmostDequalUlps((double) largest, largest + dist); // is dist within ULPS tolerance?
     }
 
     // only used by testing
@@ -217,6 +251,15 @@ struct SkDPoint {
         float largest = SkTMax(SkTMax(SkTMax(a.fX, b.fX), a.fY), b.fY);
         largest = SkTMax(largest, -tiniest);
         return RoughlyEqualUlps((double) largest, largest + dist); // is dist within ULPS tolerance?
+    }
+
+    // very light weight check, should only be used for inequality check
+    static bool WayRoughlyEqual(const SkPoint& a, const SkPoint& b) {
+        float largestNumber = SkTMax(SkTAbs(a.fX), SkTMax(SkTAbs(a.fY),
+                SkTMax(SkTAbs(b.fX), SkTAbs(b.fY))));
+        SkVector diffs = a - b;
+        float largestDiff = SkTMax(diffs.fX, diffs.fY);
+        return roughly_zero_when_compared_to(largestDiff, largestNumber);
     }
 
     // utilities callable by the user from the debugger when the implementation code is linked in

@@ -9,6 +9,7 @@
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLUtil.h"
 
+#include "SkMakeUnique.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
@@ -41,14 +42,36 @@ GrGLExtensions& GrGLExtensions::operator=(const GrGLExtensions& that) {
     return *this;
 }
 
+static void eat_space_sep_strings(SkTArray<SkString>* out, const char in[]) {
+    if (!in) {
+        return;
+    }
+    while (true) {
+        // skip over multiple spaces between extensions
+        while (' ' == *in) {
+            ++in;
+        }
+        // quit once we reach the end of the string.
+        if ('\0' == *in) {
+            break;
+        }
+        // we found an extension
+        size_t length = strcspn(in, " ");
+        out->push_back().set(in, length);
+        in += length;
+    }
+}
+
 bool GrGLExtensions::init(GrGLStandard standard,
-                          GrGLGetStringProc getString,
-                          GrGLGetStringiProc getStringi,
-                          GrGLGetIntegervProc getIntegerv) {
+                          GrGLFunction<GrGLGetStringProc> getString,
+                          GrGLFunction<GrGLGetStringiProc> getStringi,
+                          GrGLFunction<GrGLGetIntegervProc> getIntegerv,
+                          GrGLFunction<GrEGLQueryStringProc> queryString,
+                          GrEGLDisplay eglDisplay) {
     fInitialized = false;
     fStrings->reset();
 
-    if (nullptr == getString) {
+    if (!getString) {
         return false;
     }
 
@@ -62,7 +85,7 @@ bool GrGLExtensions::init(GrGLStandard standard,
     bool indexed = version >= GR_GL_VER(3, 0);
 
     if (indexed) {
-        if (nullptr == getStringi || nullptr == getIntegerv) {
+        if (!getStringi || !getIntegerv) {
             return false;
         }
         GrGLint extensionCnt = 0;
@@ -74,23 +97,15 @@ bool GrGLExtensions::init(GrGLStandard standard,
         }
     } else {
         const char* extensions = (const char*) getString(GR_GL_EXTENSIONS);
-        if (nullptr == extensions) {
+        if (!extensions) {
             return false;
         }
-        while (true) {
-            // skip over multiple spaces between extensions
-            while (' ' == *extensions) {
-                ++extensions;
-            }
-            // quit once we reach the end of the string.
-            if ('\0' == *extensions) {
-                break;
-            }
-            // we found an extension
-            size_t length = strcspn(extensions, " ");
-            fStrings->push_back().set(extensions, length);
-            extensions += length;
-        }
+        eat_space_sep_strings(fStrings.get(), extensions);
+    }
+    if (queryString) {
+        const char* extensions = queryString(eglDisplay, GR_EGL_EXTENSIONS);
+
+        eat_space_sep_strings(fStrings.get(), extensions);
     }
     if (!fStrings->empty()) {
         SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
@@ -108,27 +123,26 @@ bool GrGLExtensions::has(const char ext[]) const {
 bool GrGLExtensions::remove(const char ext[]) {
     SkASSERT(fInitialized);
     int idx = find_string(*fStrings, ext);
-    if (idx >= 0) {
-        // This is not terribly effecient but we really only expect this function to be called at
-        // most a handful of times when our test programs start.
-        SkAutoTDelete< SkTArray<SkString> > oldStrings(fStrings.detach());
-        fStrings.reset(new SkTArray<SkString>(oldStrings->count() - 1));
-        fStrings->push_back_n(idx, &oldStrings->front());
-        fStrings->push_back_n(oldStrings->count() - idx - 1, &(*oldStrings)[idx] + 1);
-        return true;
-    } else {
+    if (idx < 0) {
         return false;
     }
+
+    // This is not terribly effecient but we really only expect this function to be called at
+    // most a handful of times when our test programs start.
+    fStrings->removeShuffle(idx);
+    SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+    SkTInsertionSort(&(fStrings->operator[](idx)), &fStrings->back(), cmp);
+    return true;
 }
 
 void GrGLExtensions::add(const char ext[]) {
     int idx = find_string(*fStrings, ext);
     if (idx < 0) {
-        // This is not the most effecient approach since we end up doing a full sort of the
+        // This is not the most effecient approach since we end up looking at all of the
         // extensions after the add
-        fStrings->push_back().set(ext);
+        fStrings->emplace_back(ext);
         SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
-        SkTQSort(&fStrings->front(), &fStrings->back(), cmp);
+        SkTInsertionSort(&fStrings->front(), &fStrings->back(), cmp);
     }
 }
 

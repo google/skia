@@ -100,7 +100,7 @@ protected:
 
         long totArea = 0;
         for (int i = 0; i < fCurRandRect; ++i) {
-            r = SkRect::MakeXYWH(SkIntToScalar(fRectLocations[i].fX), 
+            r = SkRect::MakeXYWH(SkIntToScalar(fRectLocations[i].fX),
                                  SkIntToScalar(fRectLocations[i].fY),
                                  SkIntToScalar((*fCurRects)[i].fWidth),
                                  SkIntToScalar((*fCurRects)[i].fHeight));
@@ -119,13 +119,13 @@ protected:
                    100.0f * totArea / ((float)kWidth*kHeight),
                    fCurRandRect,
                    kNumRandRects);
-        canvas->drawText(str.c_str(), str.size(), 50, kHeight + 50, blackBigFont);
+        canvas->drawString(str, 50, kHeight + 50, blackBigFont);
 
         str.printf("Press \'j\' to toggle rectanizer");
-        canvas->drawText(str.c_str(), str.size(), 50, kHeight + 100, blackBigFont);
+        canvas->drawString(str, 50, kHeight + 100, blackBigFont);
 
         str.printf("Press \'h\' to toggle rects");
-        canvas->drawText(str.c_str(), str.size(), 50, kHeight + 150, blackBigFont);
+        canvas->drawString(str, 50, kHeight + 150, blackBigFont);
 
         this->inval(nullptr);
     }

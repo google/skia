@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 #include "PathOpsExtendedTest.h"
+#include "PathOpsTestCommon.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkIntersections.h"
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
 #include "SkReduceOrder.h"
+#include "SkString.h"
 
 static int doIntersect(SkIntersections& intersections, const SkDQuad& quad, const SkDLine& line,
                        bool& flipped) {
@@ -40,14 +42,12 @@ static int doIntersect(SkIntersections& intersections, const SkDQuad& quad, cons
 
 static void testLineIntersect(skiatest::Reporter* reporter, const SkDQuad& quad,
                               const SkDLine& line, const double x, const double y) {
-    char pathStr[1024];
-    sk_bzero(pathStr, sizeof(pathStr));
-    char* str = pathStr;
-    str += sprintf(str, "    path.moveTo(%1.9g, %1.9g);\n", quad[0].fX, quad[0].fY);
-    str += sprintf(str, "    path.quadTo(%1.9g, %1.9g, %1.9g, %1.9g);\n", quad[1].fX,
+    SkString pathStr;
+    pathStr.appendf("    path.moveTo(%1.9g, %1.9g);\n", quad[0].fX, quad[0].fY);
+    pathStr.appendf("    path.quadTo(%1.9g, %1.9g, %1.9g, %1.9g);\n", quad[1].fX,
             quad[1].fY, quad[2].fX, quad[2].fY);
-    str += sprintf(str, "    path.moveTo(%1.9g, %1.9g);\n", line[0].fX, line[0].fY);
-    str += sprintf(str, "    path.lineTo(%1.9g, %1.9g);\n", line[1].fX, line[1].fY);
+    pathStr.appendf("    path.moveTo(%1.9g, %1.9g);\n", line[0].fX, line[0].fY);
+    pathStr.appendf("    path.lineTo(%1.9g, %1.9g);\n", line[1].fX, line[1].fY);
 
     SkIntersections intersections;
     bool flipped = false;
@@ -80,8 +80,10 @@ static void testQuadLineIntersectMain(PathOpsThreadState* data)
     int by = state.fB >> 2;
     int cx = state.fC & 0x03;
     int cy = state.fC >> 2;
-    SkDQuad quad = {{{(double) ax, (double) ay}, {(double) bx, (double) by},
+    QuadPts q = {{{(double) ax, (double) ay}, {(double) bx, (double) by},
             {(double) cx, (double) cy}}};
+    SkDQuad quad;
+    quad.debugSet(q.fPts);
     SkReduceOrder reducer;
     int order = reducer.reduce(quad);
     if (order < 3) {

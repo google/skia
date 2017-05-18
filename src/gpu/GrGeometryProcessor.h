@@ -20,18 +20,23 @@
 class GrGeometryProcessor : public GrPrimitiveProcessor {
 public:
     GrGeometryProcessor()
-        : INHERITED(false)
-        , fWillUseGeoShader(false)
-        , fLocalCoordsType(kUnused_LocalCoordsType) {}
+        : fWillUseGeoShader(false)
+        , fLocalCoordsType(kUnused_LocalCoordsType)
+        , fSampleShading(0.0) {}
 
     bool willUseGeoShader() const override { return fWillUseGeoShader; }
 
-    bool hasTransformedLocalCoords() const override {
-        return kHasTransformed_LocalCoordsType == fLocalCoordsType;
-    }
-
     bool hasExplicitLocalCoords() const override {
         return kHasExplicit_LocalCoordsType == fLocalCoordsType;
+    }
+
+    /**
+     * Returns the minimum fraction of samples for which the fragment shader will be run. For
+     * instance, if sampleShading is 0.5 in MSAA16 mode, the fragment shader will run a minimum of
+     * 8 times per pixel. The default value is zero.
+     */
+    float getSampleShading() const override {
+        return fSampleShading;
     }
 
 protected:
@@ -44,11 +49,12 @@ protected:
      * The processor key should reflect the vertex attributes, or there lack thereof in the
      * GrGeometryProcessor.
      */
-    const Attribute& addVertexAttrib(const Attribute& attribute) {
-        SkASSERT(fNumAttribs < kMaxVertexAttribs);
-        fVertexStride += attribute.fOffset;
-        fAttribs[fNumAttribs] = attribute;
-        return fAttribs[fNumAttribs++];
+    const Attribute& addVertexAttrib(const char* name, GrVertexAttribType type,
+                                     GrSLPrecision precision = kDefault_GrSLPrecision) {
+        precision = (kDefault_GrSLPrecision == precision) ? kMedium_GrSLPrecision : precision;
+        fAttribs.emplace_back(name, type, precision);
+        fVertexStride += fAttribs.back().fOffset;
+        return fAttribs.back();
     }
 
     void setWillUseGeoShader() { fWillUseGeoShader = true; }
@@ -59,7 +65,6 @@ protected:
      * 1) LocalCoordTransform * Position - in Shader
      * 2) LocalCoordTransform * ExplicitLocalCoords- in Shader
      * 3) A transformation on the CPU uploaded via vertex attribute
-     * TODO make this GrBatches responsibility
      */
     enum LocalCoordsType {
         kUnused_LocalCoordsType,
@@ -76,9 +81,14 @@ protected:
         fLocalCoordsType = kHasTransformed_LocalCoordsType;
     }
 
+    void setSampleShading(float sampleShading) {
+        fSampleShading = sampleShading;
+    }
+
 private:
     bool fWillUseGeoShader;
     LocalCoordsType fLocalCoordsType;
+    float fSampleShading;
 
     typedef GrPrimitiveProcessor INHERITED;
 };

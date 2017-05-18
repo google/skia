@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import hashlib
+import os
+import shutil
+import stat
+import sys
+import urllib2
+
+os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
+
+gn_path = 'buildtools/linux64/gn' if 'linux'  in sys.platform else \
+          'buildtools/mac/gn'     if 'darwin' in sys.platform else \
+          'buildtools/win/gn.exe'
+
+sha1 = open(gn_path + '.sha1').read().strip()
+
+def sha1_of_file(path):
+  h = hashlib.sha1()
+  if os.path.isfile(path):
+    with open(path, 'rb') as f:
+      h.update(f.read())
+  return h.hexdigest()
+
+if sha1_of_file(gn_path) != sha1:
+  with open(gn_path, 'wb') as f:
+    f.write(urllib2.urlopen('https://chromium-gn.storage-download.googleapis.com/' + sha1).read())
+
+  os.chmod(gn_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+                    stat.S_IRGRP                | stat.S_IXGRP |
+                    stat.S_IROTH                | stat.S_IXOTH )
+
+gn_copy_path = os.path.join('bin', os.path.basename(gn_path))
+if sha1_of_file(gn_copy_path) != sha1:
+  shutil.copy(gn_path, gn_copy_path)
+

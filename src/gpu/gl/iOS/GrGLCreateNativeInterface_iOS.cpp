@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -39,7 +38,7 @@ public:
     GrGLFuncPtr getProc(const char name[]) const {
         return (GrGLFuncPtr) dlsym(fLoader.handle(), name);
     }
-    
+
 private:
     GLLoader fLoader;
 };

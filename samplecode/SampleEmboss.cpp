@@ -9,11 +9,9 @@
 #include "SkBlurMask.h"
 #include "SkView.h"
 #include "SkCanvas.h"
-#include "SkColorShader.h"
 #include "SkEmbossMaskFilter.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
@@ -23,7 +21,6 @@
 #include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
-#include "SkXfermode.h"
 
 class EmbossView : public SampleView {
     SkEmbossMaskFilter::Light   fLight;
@@ -52,9 +49,8 @@ protected:
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(10));
-        paint.setMaskFilter(SkEmbossMaskFilter::Create(
-            SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4)), fLight))->unref();
-        paint.setShader(new SkColorShader(SK_ColorBLUE))->unref();
+        paint.setMaskFilter(SkEmbossMaskFilter::Make(SkBlurMask::ConvertRadiusToSigma(4), fLight));
+        paint.setShader(SkShader::MakeColorShader(SK_ColorBLUE));
         paint.setDither(true);
 
         canvas->drawCircle(SkIntToScalar(50), SkIntToScalar(50),

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -7,8 +6,7 @@
  */
 #include "SkNWayCanvas.h"
 
-SkNWayCanvas::SkNWayCanvas(int width, int height)
-        : INHERITED(width, height) {}
+SkNWayCanvas::SkNWayCanvas(int width, int height) : INHERITED(width, height) {}
 
 SkNWayCanvas::~SkNWayCanvas() {
     this->removeAll();
@@ -16,7 +14,6 @@ SkNWayCanvas::~SkNWayCanvas() {
 
 void SkNWayCanvas::addCanvas(SkCanvas* canvas) {
     if (canvas) {
-        canvas->ref();
         *fList.append() = canvas;
     }
 }
@@ -24,13 +21,11 @@ void SkNWayCanvas::addCanvas(SkCanvas* canvas) {
 void SkNWayCanvas::removeCanvas(SkCanvas* canvas) {
     int index = fList.find(canvas);
     if (index >= 0) {
-        canvas->unref();
         fList.removeShuffle(index);
     }
 }
 
 void SkNWayCanvas::removeAll() {
-    fList.unrefAll();
     fList.reset();
 }
 
@@ -66,14 +61,13 @@ void SkNWayCanvas::willSave() {
     this->INHERITED::willSave();
 }
 
-SkCanvas::SaveLayerStrategy SkNWayCanvas::willSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                                        SaveFlags flags) {
+SkCanvas::SaveLayerStrategy SkNWayCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->saveLayer(bounds, paint, flags);
+        iter->saveLayer(rec);
     }
 
-    this->INHERITED::willSaveLayer(bounds, paint, flags);
+    this->INHERITED::getSaveLayerStrategy(rec);
     // No need for a layer.
     return kNoLayer_SaveLayerStrategy;
 }
@@ -102,7 +96,7 @@ void SkNWayCanvas::didSetMatrix(const SkMatrix& matrix) {
     this->INHERITED::didSetMatrix(matrix);
 }
 
-void SkNWayCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkNWayCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     Iter iter(fList);
     while (iter.next()) {
         iter->clipRect(rect, op, kSoft_ClipEdgeStyle == edgeStyle);
@@ -110,7 +104,7 @@ void SkNWayCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle
     this->INHERITED::onClipRect(rect, op, edgeStyle);
 }
 
-void SkNWayCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkNWayCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     Iter iter(fList);
     while (iter.next()) {
         iter->clipRRect(rrect, op, kSoft_ClipEdgeStyle == edgeStyle);
@@ -118,7 +112,7 @@ void SkNWayCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeSt
     this->INHERITED::onClipRRect(rrect, op, edgeStyle);
 }
 
-void SkNWayCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkNWayCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
     Iter iter(fList);
     while (iter.next()) {
         iter->clipPath(path, op, kSoft_ClipEdgeStyle == edgeStyle);
@@ -126,7 +120,7 @@ void SkNWayCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle
     this->INHERITED::onClipPath(path, op, edgeStyle);
 }
 
-void SkNWayCanvas::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
+void SkNWayCanvas::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {
     Iter iter(fList);
     while (iter.next()) {
         iter->clipRegion(deviceRgn, op);
@@ -160,6 +154,14 @@ void SkNWayCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
         iter->drawOval(rect, paint);
+    }
+}
+
+void SkNWayCanvas::onDrawArc(const SkRect& rect, SkScalar startAngle, SkScalar sweepAngle,
+                             bool useCenter, const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawArc(rect, startAngle, sweepAngle, useCenter, paint);
     }
 }
 
@@ -224,13 +226,6 @@ void SkNWayCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, cons
     }
 }
 
-void SkNWayCanvas::onDrawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint* paint) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->drawSprite(bitmap, x, y, paint);
-    }
-}
-
 void SkNWayCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
     Iter iter(fList);
@@ -263,6 +258,14 @@ void SkNWayCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const S
     }
 }
 
+void SkNWayCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
+                                     const SkRect* cull, const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawTextRSXform(text, byteLength, xform, cull, paint);
+    }
+}
+
 void SkNWayCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                   const SkPaint &paint) {
     Iter iter(fList);
@@ -279,27 +282,38 @@ void SkNWayCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matri
     }
 }
 
-void SkNWayCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
-                                  const SkPoint vertices[], const SkPoint texs[],
-                                  const SkColor colors[], SkXfermode* xmode,
-                                  const uint16_t indices[], int indexCount,
-                                  const SkPaint& paint) {
+void SkNWayCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
+                                        const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->drawVertices(vmode, vertexCount, vertices, texs, colors, xmode,
-                           indices, indexCount, paint);
+        iter->drawVertices(vertices, bmode, paint);
     }
 }
 
 void SkNWayCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                               const SkPoint texCoords[4], SkXfermode* xmode,
+                               const SkPoint texCoords[4], SkBlendMode bmode,
                                const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->drawPatch(cubics, colors, texCoords, xmode, paint);
+        iter->drawPatch(cubics, colors, texCoords, bmode, paint);
     }
 }
 
+void SkNWayCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->private_draw_shadow_rec(path, rec);
+    }
+}
+
+void SkNWayCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* data) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawAnnotation(rect, key, data);
+    }
+}
+
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
 SkDrawFilter* SkNWayCanvas::setDrawFilter(SkDrawFilter* filter) {
     Iter iter(fList);
     while (iter.next()) {
@@ -307,3 +321,4 @@ SkDrawFilter* SkNWayCanvas::setDrawFilter(SkDrawFilter* filter) {
     }
     return this->INHERITED::setDrawFilter(filter);
 }
+#endif

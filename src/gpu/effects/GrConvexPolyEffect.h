@@ -38,28 +38,26 @@ public:
      * have to modify the effect/shaderbuilder interface to make it possible (e.g. give access
      * to the view matrix or untransformed positions in the fragment shader).
      */
-    static GrFragmentProcessor* Create(GrPrimitiveEdgeType edgeType, int n,
-                                       const SkScalar edges[]) {
+    static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType edgeType, int n,
+                                           const SkScalar edges[]) {
         if (n <= 0 || n > kMaxEdges || kHairlineAA_GrProcessorEdgeType == edgeType) {
             return nullptr;
         }
-        return new GrConvexPolyEffect(edgeType, n, edges);
+        return sk_sp<GrFragmentProcessor>(new GrConvexPolyEffect(edgeType, n, edges));
     }
 
     /**
      * Creates an effect that clips against the path. If the path is not a convex polygon, is
-     * inverse filled, or has too many edges, this will return nullptr. If offset is non-nullptr, then
-     * the path is translated by the vector.
+     * inverse filled, or has too many edges, this will return nullptr.
      */
-    static GrFragmentProcessor* Create(GrPrimitiveEdgeType, const SkPath&,
-                                       const SkVector* offset = nullptr);
+    static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkPath&);
 
     /**
      * Creates an effect that fills inside the rect with AA edges..
      */
-    static GrFragmentProcessor* Create(GrPrimitiveEdgeType, const SkRect&);
+    static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkRect&);
 
-    virtual ~GrConvexPolyEffect();
+    ~GrConvexPolyEffect() override;
 
     const char* name() const override { return "ConvexPoly"; }
 
@@ -72,13 +70,11 @@ public:
 private:
     GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, const SkScalar edges[]);
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override;
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     GrPrimitiveEdgeType    fEdgeType;
     int                    fEdgeCount;

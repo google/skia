@@ -1,0 +1,20 @@
+{
+  'conditions': [
+    ['OS=="iOS-9.3.1"', {
+      'variables': {
+        'files': [
+          '../../platform_tools/ios/bin/',
+          '../../gn/package_ios.py',
+        ],
+      },
+    }],
+    ['OS=="iOS-10.3.1"', {
+      'variables': {
+        'files': [
+          '../../platform_tools/ios/bin/',
+          '../../gn/package_ios.py',
+        ],
+      },
+    }],
+  ],
+}

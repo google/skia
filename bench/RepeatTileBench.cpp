@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -63,14 +62,9 @@ static void convert_to_index666(const SkBitmap& src, SkBitmap* dst) {
             }
         }
     }
-    SkColorTable* ctable = new SkColorTable(storage, 216);
     dst->allocPixels(SkImageInfo::Make(src.width(), src.height(),
                                        kIndex_8_SkColorType, kOpaque_SkAlphaType),
-                     nullptr, ctable);
-    ctable->unref();
-
-    SkAutoLockPixels alps(src);
-    SkAutoLockPixels alpd(*dst);
+                     SkColorTable::Make(storage, 216));
 
     for (int y = 0; y < src.height(); y++) {
         const SkPMColor* srcP = src.getAddr32(0, y);
@@ -120,10 +114,9 @@ protected:
             fBitmap = tmp;
         }
 
-        SkShader* s = SkShader::CreateBitmapShader(fBitmap,
-                                                   SkShader::kRepeat_TileMode,
-                                                   SkShader::kRepeat_TileMode);
-        fPaint.setShader(s)->unref();
+        fPaint.setShader(SkShader::MakeBitmapShader(fBitmap,
+                                                    SkShader::kRepeat_TileMode,
+                                                    SkShader::kRepeat_TileMode));
     }
 
 

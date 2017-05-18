@@ -7,6 +7,8 @@
 
 #include "Benchmark.h"
 #include "SkColorPriv.h"
+#include "SkFixed.h"
+#include "SkMathPriv.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
@@ -124,23 +126,13 @@ private:
     typedef MathBench INHERITED;
 };
 
-static inline float SkFastInvSqrt(float x) {
-    float xhalf = 0.5f*x;
-    int i = *SkTCast<int*>(&x);
-    i = 0x5f3759df - (i>>1);
-    x = *SkTCast<float*>(&i);
-    x = x*(1.5f-xhalf*x*x);
-//    x = x*(1.5f-xhalf*x*x); // this line takes err from 10^-3 to 10^-6
-    return x;
-}
-
 class FastISqrtMathBench : public MathBench {
 public:
     FastISqrtMathBench() : INHERITED("fastIsqrt") {}
 protected:
     void performTest(float* SK_RESTRICT dst, const float* SK_RESTRICT src, int count) override {
         for (int i = 0; i < count; ++i) {
-            dst[i] = SkFastInvSqrt(src[i]);
+            dst[i] = sk_float_rsqrt(src[i]);
         }
     }
 private:
@@ -606,3 +598,29 @@ DEF_BENCH( return new CLZBench(true); )
 DEF_BENCH( return new NormalizeBench(); )
 
 DEF_BENCH( return new FixedMathBench(); )
+
+
+struct FloatToIntBench : public Benchmark {
+    enum { N = 1000000 };
+    float fFloats[N];
+    int   fInts  [N];
+
+    const char* onGetName() override { return "float_to_int"; }
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+
+    void onDelayedSetup() override  {
+        const auto f32 = 4294967296.0f;
+        for (int i = 0; i < N; ++i) {
+            fFloats[i] = -f32 + i*(2*f32/N);
+        }
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        while (loops --> 0) {
+            for (int i = 0; i < N; i++) {
+                fInts[i] = SkFloatToIntFloor(fFloats[i]);
+            }
+        }
+    }
+};
+DEF_BENCH( return new FloatToIntBench; )

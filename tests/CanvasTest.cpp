@@ -18,6 +18,7 @@
  *      function of the form:
  *
  *          static void MyTestStepFunction(SkCanvas* canvas,
+ *                                         const TestData& d,
  *                                         skiatest::Reporter* reporter,
  *                                         CanvasTestStep* testStep)
  *          {
@@ -43,10 +44,10 @@
  *      works the same way as SIMPLE_TEST_STEP, and additionally verifies
  *      that the invoked method returns a non-zero value.
  */
+
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
-#include "SkDevice.h"
 #include "SkDocument.h"
 #include "SkMatrix.h"
 #include "SkNWayCanvas.h"
@@ -56,13 +57,122 @@
 #include "SkPicture.h"
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
+#include "SkRasterClip.h"
 #include "SkRect.h"
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkStream.h"
 #include "SkSurface.h"
+#include "SkTemplates.h"
 #include "SkTDArray.h"
+#include "SkVertices.h"
 #include "Test.h"
+
+DEF_TEST(canvas_clipbounds, reporter) {
+    SkCanvas canvas(10, 10);
+    SkIRect irect, irect2;
+    SkRect rect, rect2;
+
+    irect = canvas.getDeviceClipBounds();
+    REPORTER_ASSERT(reporter, irect == SkIRect::MakeWH(10, 10));
+    REPORTER_ASSERT(reporter, canvas.getDeviceClipBounds(&irect2));
+    REPORTER_ASSERT(reporter, irect == irect2);
+
+    // local bounds are always too big today -- can we trim them?
+    rect = canvas.getLocalClipBounds();
+    REPORTER_ASSERT(reporter, rect.contains(SkRect::MakeWH(10, 10)));
+    REPORTER_ASSERT(reporter, canvas.getLocalClipBounds(&rect2));
+    REPORTER_ASSERT(reporter, rect == rect2);
+
+    canvas.clipRect(SkRect::MakeEmpty());
+
+    irect = canvas.getDeviceClipBounds();
+    REPORTER_ASSERT(reporter, irect == SkIRect::MakeEmpty());
+    REPORTER_ASSERT(reporter, !canvas.getDeviceClipBounds(&irect2));
+    REPORTER_ASSERT(reporter, irect == irect2);
+
+    rect = canvas.getLocalClipBounds();
+    REPORTER_ASSERT(reporter, rect == SkRect::MakeEmpty());
+    REPORTER_ASSERT(reporter, !canvas.getLocalClipBounds(&rect2));
+    REPORTER_ASSERT(reporter, rect == rect2);
+
+    // Test for wacky sizes that we (historically) have guarded against
+    {
+        SkCanvas c(-10, -20);
+        REPORTER_ASSERT(reporter, c.getBaseLayerSize() == SkISize::MakeEmpty());
+
+        SkPictureRecorder().beginRecording({ 5, 5, 4, 4 });
+    }
+}
+
+// Will call proc with multiple styles of canse (recording, raster, pdf)
+//
+template <typename F> static void multi_canvas_driver(int w, int h, F proc) {
+    proc(SkPictureRecorder().beginRecording(SkRect::MakeIWH(w, h)));
+
+    SkNullWStream stream;
+    proc(SkDocument::MakePDF(&stream)->beginPage(SkIntToScalar(w), SkIntToScalar(h)));
+
+    proc(SkSurface::MakeRasterN32Premul(w, h, nullptr)->getCanvas());
+}
+
+
+const SkIRect gBaseRestrictedR = { 0, 0, 10, 10 };
+
+static void test_restriction(skiatest::Reporter* reporter, SkCanvas* canvas) {
+    REPORTER_ASSERT(reporter, canvas->getDeviceClipBounds() == gBaseRestrictedR);
+
+    const SkIRect restrictionR = { 2, 2, 8, 8 };
+    canvas->androidFramework_setDeviceClipRestriction(restrictionR);
+    REPORTER_ASSERT(reporter, canvas->getDeviceClipBounds() == restrictionR);
+
+    const SkIRect clipR = { 4, 4, 6, 6 };
+    canvas->clipRect(SkRect::Make(clipR), SkClipOp::kIntersect);
+    REPORTER_ASSERT(reporter, canvas->getDeviceClipBounds() == clipR);
+
+#ifdef SK_SUPPORT_DEPRECATED_CLIPOPS
+    // now test that expanding clipops can't exceed the restriction
+    const SkClipOp expanders[] = {
+        SkClipOp::kUnion_deprecated,
+        SkClipOp::kXOR_deprecated,
+        SkClipOp::kReverseDifference_deprecated,
+        SkClipOp::kReplace_deprecated,
+    };
+
+    const SkRect expandR = { 0, 0, 5, 9 };
+    SkASSERT(!SkRect::Make(restrictionR).contains(expandR));
+
+    for (SkClipOp op : expanders) {
+        canvas->save();
+        canvas->clipRect(expandR, op);
+        REPORTER_ASSERT(reporter, gBaseRestrictedR.contains(canvas->getDeviceClipBounds()));
+        canvas->restore();
+    }
+#endif
+}
+
+/**
+ *  Clip restriction logic exists in the canvas itself, and in various kinds of devices.
+ *
+ *  This test explicitly tries to exercise that variety:
+ *  - picture : empty device but exercises canvas itself
+ *  - pdf : uses SkClipStack in its device (as does SVG and GPU)
+ *  - raster : uses SkRasterClip in its device
+ */
+DEF_TEST(canvas_clip_restriction, reporter) {
+    multi_canvas_driver(gBaseRestrictedR.width(), gBaseRestrictedR.height(),
+                        [reporter](SkCanvas* canvas) { test_restriction(reporter, canvas); });
+}
+
+DEF_TEST(canvas_empty_clip, reporter) {
+    multi_canvas_driver(50, 50, [reporter](SkCanvas* canvas) {
+        canvas->save();
+        canvas->clipRect({0, 0, 20, 40 });
+        REPORTER_ASSERT(reporter, !canvas->isClipEmpty());
+        canvas->clipRect({30, 0, 50, 40 });
+        REPORTER_ASSERT(reporter, canvas->isClipEmpty());
+    });
+}
 
 static const int kWidth = 2, kHeight = 2;
 
@@ -167,63 +277,6 @@ private:
     }
 };
 
-static bool equal_clips(const SkCanvas& a, const SkCanvas& b) {
-    if (a.isClipEmpty()) {
-        return b.isClipEmpty();
-    }
-    if (!a.isClipRect()) {
-        // this is liberally true, since we don't expose a way to know this exactly (for non-rects)
-        return !b.isClipRect();
-    }
-    SkIRect ar, br;
-    a.getClipDeviceBounds(&ar);
-    b.getClipDeviceBounds(&br);
-    return ar == br;
-}
-
-class Canvas2CanvasClipVisitor : public SkCanvas::ClipVisitor {
-public:
-    Canvas2CanvasClipVisitor(SkCanvas* target) : fTarget(target) {}
-
-    void clipRect(const SkRect& r, SkRegion::Op op, bool aa) override {
-        fTarget->clipRect(r, op, aa);
-    }
-    void clipRRect(const SkRRect& r, SkRegion::Op op, bool aa) override {
-        fTarget->clipRRect(r, op, aa);
-    }
-    void clipPath(const SkPath& p, SkRegion::Op op, bool aa) override {
-        fTarget->clipPath(p, op, aa);
-    }
-
-private:
-    SkCanvas* fTarget;
-};
-
-static void test_clipVisitor(skiatest::Reporter* reporter, SkCanvas* canvas) {
-    SkISize size = canvas->getDeviceSize();
-
-    SkBitmap bm;
-    bm.setInfo(SkImageInfo::MakeN32Premul(size.width(), size.height()));
-    SkCanvas c(bm);
-
-    Canvas2CanvasClipVisitor visitor(&c);
-    canvas->replayClips(&visitor);
-
-    REPORTER_ASSERT(reporter, equal_clips(c, *canvas));
-}
-
-static void test_clipstack(skiatest::Reporter* reporter) {
-    // The clipstack is refcounted, and needs to be able to out-live the canvas if a client has
-    // ref'd it.
-    const SkClipStack* cs = nullptr;
-    {
-        SkCanvas canvas(10, 10);
-        cs = SkRef(canvas.getClipStack());
-    }
-    REPORTER_ASSERT(reporter, cs->unique());
-    cs->unref();
-}
-
 // Format strings that describe the test context.  The %s token is where
 // the name of the test step is inserted.  The context is required for
 // disambiguating the error in the case of failures that are reported in
@@ -232,14 +285,6 @@ static void test_clipstack(skiatest::Reporter* reporter) {
 static const char* const kDefaultAssertMessageFormat = "%s";
 static const char* const kCanvasDrawAssertMessageFormat =
     "Drawing test step %s with SkCanvas";
-static const char* const kNWayDrawAssertMessageFormat =
-    "Drawing test step %s with SkNWayCanvas";
-static const char* const kNWayStateAssertMessageFormat =
-    "test step %s, SkNWayCanvas state consistency";
-static const char* const kNWayIndirect1StateAssertMessageFormat =
-    "test step %s, SkNWayCanvas indirect canvas 1 state consistency";
-static const char* const kNWayIndirect2StateAssertMessageFormat =
-    "test step %s, SkNWayCanvas indirect canvas 2 state consistency";
 static const char* const kPdfAssertMessageFormat =
     "PDF sanity check failed %s";
 
@@ -332,7 +377,7 @@ SIMPLE_TEST_STEP(Concat, concat(d.fMatrix));
 SIMPLE_TEST_STEP(SetMatrix, setMatrix(d.fMatrix));
 SIMPLE_TEST_STEP(ClipRect, clipRect(d.fRect));
 SIMPLE_TEST_STEP(ClipPath, clipPath(d.fPath));
-SIMPLE_TEST_STEP(ClipRegion, clipRegion(d.fRegion, SkRegion::kReplace_Op));
+SIMPLE_TEST_STEP(ClipRegion, clipRegion(d.fRegion, kReplace_SkClipOp));
 SIMPLE_TEST_STEP(Clear, clear(d.fColor));
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -414,11 +459,11 @@ static void DrawVerticesShaderTestStep(SkCanvas* canvas, const TestData& d,
     pts[2].set(SkIntToScalar(d.fWidth), SkIntToScalar(d.fHeight));
     pts[3].set(0, SkIntToScalar(d.fHeight));
     SkPaint paint;
-    SkShader* shader = SkShader::CreateBitmapShader(d.fBitmap,
-        SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
-    paint.setShader(shader)->unref();
-    canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, 4, pts, pts,
-                         nullptr, nullptr, nullptr, 0, paint);
+    paint.setShader(SkShader::MakeBitmapShader(d.fBitmap, SkShader::kClamp_TileMode,
+                                               SkShader::kClamp_TileMode));
+    canvas->drawVertices(SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, 4, pts, pts,
+                                              nullptr),
+                         SkBlendMode::kModulate, paint);
 }
 // NYI: issue 240.
 TEST_STEP_NO_PDF(DrawVerticesShader, DrawVerticesShaderTestStep);
@@ -431,9 +476,8 @@ static void DrawPictureTestStep(SkCanvas* canvas, const TestData& d,
     testCanvas->scale(SkIntToScalar(2), SkIntToScalar(1));
     testCanvas->clipRect(d.fRect);
     testCanvas->drawRect(d.fRect, d.fPaint);
-    SkAutoTUnref<SkPicture> testPicture(recorder.endRecording());
 
-    canvas->drawPicture(testPicture);
+    canvas->drawPicture(recorder.finishRecordingAsPicture());
 }
 TEST_STEP(DrawPicture, DrawPictureTestStep);
 
@@ -499,108 +543,18 @@ static void NestedSaveRestoreWithFlushTestStep(SkCanvas* canvas, const TestData&
 }
 TEST_STEP(NestedSaveRestoreWithFlush, NestedSaveRestoreWithFlushTestStep);
 
-static void AssertCanvasStatesEqual(skiatest::Reporter* reporter, const TestData& d,
-                                    const SkCanvas* canvas1, const SkCanvas* canvas2,
-                                    CanvasTestStep* testStep) {
-    REPORTER_ASSERT_MESSAGE(reporter, canvas1->getDeviceSize() ==
-        canvas2->getDeviceSize(), testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, canvas1->getSaveCount() ==
-        canvas2->getSaveCount(), testStep->assertMessage());
-
-    SkRect bounds1, bounds2;
-    REPORTER_ASSERT_MESSAGE(reporter,
-        canvas1->getClipBounds(&bounds1) == canvas2->getClipBounds(&bounds2),
-        testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, bounds1 == bounds2,
-                            testStep->assertMessage());
-
-    REPORTER_ASSERT_MESSAGE(reporter, canvas1->getDrawFilter() ==
-        canvas2->getDrawFilter(), testStep->assertMessage());
-    SkIRect deviceBounds1, deviceBounds2;
-    REPORTER_ASSERT_MESSAGE(reporter,
-        canvas1->getClipDeviceBounds(&deviceBounds1) ==
-        canvas2->getClipDeviceBounds(&deviceBounds2),
-        testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, deviceBounds1 == deviceBounds2, testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, canvas1->getTotalMatrix() ==
-        canvas2->getTotalMatrix(), testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, equal_clips(*canvas1, *canvas2), testStep->assertMessage());
-
-    SkCanvas::LayerIter layerIter1(const_cast<SkCanvas*>(canvas1), false);
-    SkCanvas::LayerIter layerIter2(const_cast<SkCanvas*>(canvas2), false);
-    while (!layerIter1.done() && !layerIter2.done()) {
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.matrix() ==
-            layerIter2.matrix(), testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.clip() ==
-            layerIter2.clip(), testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.paint() ==
-            layerIter2.paint(), testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.x() ==
-            layerIter2.x(), testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.y() ==
-            layerIter2.y(), testStep->assertMessage());
-        layerIter1.next();
-        layerIter2.next();
-    }
-    REPORTER_ASSERT_MESSAGE(reporter, layerIter1.done(),
-        testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, layerIter2.done(),
-        testStep->assertMessage());
-
-}
-
-static void TestPdfDevice(skiatest::Reporter* reporter,
-                          const TestData& d,
-                          CanvasTestStep* testStep) {
+static void TestPdfDevice(skiatest::Reporter* reporter, const TestData& d, CanvasTestStep* step) {
     SkDynamicMemoryWStream outStream;
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&outStream));
-#if SK_SUPPORT_PDF
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(&outStream));
     REPORTER_ASSERT(reporter, doc);
-#else
-    REPORTER_ASSERT(reporter, !doc);
-#endif  // SK_SUPPORT_PDF
     if (!doc) {
         return;
     }
     SkCanvas* canvas = doc->beginPage(SkIntToScalar(d.fWidth),
                                       SkIntToScalar(d.fHeight));
     REPORTER_ASSERT(reporter, canvas);
-    testStep->setAssertMessageFormat(kPdfAssertMessageFormat);
-    testStep->draw(canvas, d, reporter);
-
-    REPORTER_ASSERT(reporter, doc->close());
-}
-
-// unused
-static void TestNWayCanvasStateConsistency(
-    skiatest::Reporter* reporter,
-    const TestData& d,
-    CanvasTestStep* testStep,
-    const SkCanvas& referenceCanvas) {
-
-    SkBitmap indirectStore1;
-    createBitmap(&indirectStore1, 0xFFFFFFFF);
-    SkCanvas indirectCanvas1(indirectStore1);
-
-    SkBitmap indirectStore2;
-    createBitmap(&indirectStore2, 0xFFFFFFFF);
-    SkCanvas indirectCanvas2(indirectStore2);
-
-    SkISize canvasSize = referenceCanvas.getDeviceSize();
-    SkNWayCanvas nWayCanvas(canvasSize.width(), canvasSize.height());
-    nWayCanvas.addCanvas(&indirectCanvas1);
-    nWayCanvas.addCanvas(&indirectCanvas2);
-
-    testStep->setAssertMessageFormat(kNWayDrawAssertMessageFormat);
-    testStep->draw(&nWayCanvas, d, reporter);
-    // Verify that the SkNWayCanvas reports consitent state
-    testStep->setAssertMessageFormat(kNWayStateAssertMessageFormat);
-    AssertCanvasStatesEqual(reporter, d, &nWayCanvas, &referenceCanvas, testStep);
-    // Verify that the indirect canvases report consitent state
-    testStep->setAssertMessageFormat(kNWayIndirect1StateAssertMessageFormat);
-    AssertCanvasStatesEqual(reporter, d, &indirectCanvas1, &referenceCanvas, testStep);
-    testStep->setAssertMessageFormat(kNWayIndirect2StateAssertMessageFormat);
-    AssertCanvasStatesEqual(reporter, d, &indirectCanvas2, &referenceCanvas, testStep);
+    step->setAssertMessageFormat(kPdfAssertMessageFormat);
+    step->draw(canvas, d, reporter);
 }
 
 /*
@@ -616,63 +570,47 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter, const Tes
     SkCanvas referenceCanvas(referenceStore);
     testStep->setAssertMessageFormat(kCanvasDrawAssertMessageFormat);
     testStep->draw(&referenceCanvas, d, reporter);
-
-    // The following test code is disabled because SkNWayCanvas does not
-    // report correct clipping and device bounds information
-    // Issue: http://code.google.com/p/skia/issues/detail?id=501
-
-    if (false) { // avoid bit rot, suppress warning
-        TestNWayCanvasStateConsistency(reporter, d, testStep, referenceCanvas);
-    }
-
-    if (false) { // avoid bit rot, suppress warning
-        test_clipVisitor(reporter, &referenceCanvas);
-    }
-    test_clipstack(reporter);
 }
 
 static void test_newraster(skiatest::Reporter* reporter) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
     const size_t minRowBytes = info.minRowBytes();
     const size_t size = info.getSafeSize(minRowBytes);
-    SkAutoMalloc storage(size);
-    SkPMColor* baseAddr = static_cast<SkPMColor*>(storage.get());
+    SkAutoTMalloc<SkPMColor> storage(size);
+    SkPMColor* baseAddr = storage.get();
     sk_bzero(baseAddr, size);
 
-    SkCanvas* canvas = SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes);
+    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, baseAddr, minRowBytes);
     REPORTER_ASSERT(reporter, canvas);
 
-    SkImageInfo info2;
-    size_t rowBytes;
-    const SkPMColor* addr = (const SkPMColor*)canvas->peekPixels(&info2, &rowBytes);
+    SkPixmap pmap;
+    const SkPMColor* addr = canvas->peekPixels(&pmap) ? pmap.addr32() : nullptr;
     REPORTER_ASSERT(reporter, addr);
-    REPORTER_ASSERT(reporter, info == info2);
-    REPORTER_ASSERT(reporter, minRowBytes == rowBytes);
+    REPORTER_ASSERT(reporter, info == pmap.info());
+    REPORTER_ASSERT(reporter, minRowBytes == pmap.rowBytes());
     for (int y = 0; y < info.height(); ++y) {
         for (int x = 0; x < info.width(); ++x) {
             REPORTER_ASSERT(reporter, 0 == addr[x]);
         }
-        addr = (const SkPMColor*)((const char*)addr + rowBytes);
+        addr = (const SkPMColor*)((const char*)addr + pmap.rowBytes());
     }
-    delete canvas;
 
     // now try a deliberately bad info
     info = info.makeWH(-1, info.height());
-    REPORTER_ASSERT(reporter, nullptr == SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes));
+    REPORTER_ASSERT(reporter, nullptr == SkCanvas::MakeRasterDirect(info, baseAddr, minRowBytes));
 
     // too big
     info = info.makeWH(1 << 30, 1 << 30);
-    REPORTER_ASSERT(reporter, nullptr == SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes));
+    REPORTER_ASSERT(reporter, nullptr == SkCanvas::MakeRasterDirect(info, baseAddr, minRowBytes));
 
     // not a valid pixel type
     info = SkImageInfo::Make(10, 10, kUnknown_SkColorType, info.alphaType());
-    REPORTER_ASSERT(reporter, nullptr == SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes));
+    REPORTER_ASSERT(reporter, nullptr == SkCanvas::MakeRasterDirect(info, baseAddr, minRowBytes));
 
     // We should succeed with a zero-sized valid info
     info = SkImageInfo::MakeN32Premul(0, 0);
-    canvas = SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes);
+    canvas = SkCanvas::MakeRasterDirect(info, baseAddr, minRowBytes);
     REPORTER_ASSERT(reporter, canvas);
-    delete canvas;
 }
 
 DEF_TEST(Canvas, reporter) {
@@ -699,7 +637,7 @@ DEF_TEST(Canvas_SaveState, reporter) {
     n = canvas.saveLayer(nullptr, nullptr);
     REPORTER_ASSERT(reporter, 2 == n);
     REPORTER_ASSERT(reporter, 3 == canvas.getSaveCount());
-    
+
     canvas.restore();
     REPORTER_ASSERT(reporter, 2 == canvas.getSaveCount());
     canvas.restore();
@@ -729,7 +667,7 @@ public:
     MockFilterCanvas(SkCanvas* canvas) : INHERITED(canvas) { }
 
 protected:
-    void onFilterPaint(SkPaint *paint, Type type) const override { }
+    bool onFilter(SkTCopyOnFirstWrite<SkPaint>*, Type) const override { return true; }
 
 private:
     typedef SkPaintFilterCanvas INHERITED;
@@ -743,16 +681,136 @@ DEF_TEST(PaintFilterCanvas_ConsistentState, reporter) {
     canvas.clipRect(SkRect::MakeXYWH(12.7f, 12.7f, 75, 75));
     canvas.scale(0.5f, 0.75f);
 
-    SkRect clip1, clip2;
-
     MockFilterCanvas filterCanvas(&canvas);
     REPORTER_ASSERT(reporter, canvas.getTotalMatrix() == filterCanvas.getTotalMatrix());
-    REPORTER_ASSERT(reporter, canvas.getClipBounds(&clip1) == filterCanvas.getClipBounds(&clip2));
-    REPORTER_ASSERT(reporter, clip1 == clip2);
+    REPORTER_ASSERT(reporter, canvas.getLocalClipBounds() == filterCanvas.getLocalClipBounds());
 
     filterCanvas.clipRect(SkRect::MakeXYWH(30.5f, 30.7f, 100, 100));
     filterCanvas.scale(0.75f, 0.5f);
     REPORTER_ASSERT(reporter, canvas.getTotalMatrix() == filterCanvas.getTotalMatrix());
-    REPORTER_ASSERT(reporter, canvas.getClipBounds(&clip1) == filterCanvas.getClipBounds(&clip2));
-    REPORTER_ASSERT(reporter, clip1 == clip2);
+    REPORTER_ASSERT(reporter, filterCanvas.getLocalClipBounds().contains(canvas.getLocalClipBounds()));
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkCanvasStack.h"
+#include "SkNWayCanvas.h"
+
+// Subclass that takes a bool*, which it updates in its construct (true) and destructor (false)
+// to allow the caller to know how long the object is alive.
+class LifeLineCanvas : public SkCanvas {
+    bool*   fLifeLine;
+public:
+    LifeLineCanvas(int w, int h, bool* lifeline) : SkCanvas(w, h), fLifeLine(lifeline) {
+        *fLifeLine = true;
+    }
+    ~LifeLineCanvas() {
+        *fLifeLine = false;
+    }
+};
+
+// Check that NWayCanvas does NOT try to manage the lifetime of its sub-canvases
+DEF_TEST(NWayCanvas, r) {
+    const int w = 10;
+    const int h = 10;
+    bool life[2];
+    {
+        LifeLineCanvas c0(w, h, &life[0]);
+        REPORTER_ASSERT(r, life[0]);
+    }
+    REPORTER_ASSERT(r, !life[0]);
+
+
+    std::unique_ptr<SkCanvas> c0 = std::unique_ptr<SkCanvas>(new LifeLineCanvas(w, h, &life[0]));
+    std::unique_ptr<SkCanvas> c1 = std::unique_ptr<SkCanvas>(new LifeLineCanvas(w, h, &life[1]));
+    REPORTER_ASSERT(r, life[0]);
+    REPORTER_ASSERT(r, life[1]);
+
+    {
+        SkNWayCanvas nway(w, h);
+        nway.addCanvas(c0.get());
+        nway.addCanvas(c1.get());
+        REPORTER_ASSERT(r, life[0]);
+        REPORTER_ASSERT(r, life[1]);
+    }
+    // Now assert that the death of the nway has NOT also killed the sub-canvases
+    REPORTER_ASSERT(r, life[0]);
+    REPORTER_ASSERT(r, life[1]);
+}
+
+// Check that CanvasStack DOES manage the lifetime of its sub-canvases
+DEF_TEST(CanvasStack, r) {
+    const int w = 10;
+    const int h = 10;
+    bool life[2];
+    std::unique_ptr<SkCanvas> c0 = std::unique_ptr<SkCanvas>(new LifeLineCanvas(w, h, &life[0]));
+    std::unique_ptr<SkCanvas> c1 = std::unique_ptr<SkCanvas>(new LifeLineCanvas(w, h, &life[1]));
+    REPORTER_ASSERT(r, life[0]);
+    REPORTER_ASSERT(r, life[1]);
+
+    {
+        SkCanvasStack stack(w, h);
+        stack.pushCanvas(std::move(c0), {0,0});
+        stack.pushCanvas(std::move(c1), {0,0});
+        REPORTER_ASSERT(r, life[0]);
+        REPORTER_ASSERT(r, life[1]);
+    }
+    // Now assert that the death of the canvasstack has also killed the sub-canvases
+    REPORTER_ASSERT(r, !life[0]);
+    REPORTER_ASSERT(r, !life[1]);
+}
+
+static void test_cliptype(SkCanvas* canvas, skiatest::Reporter* r) {
+    REPORTER_ASSERT(r, !canvas->isClipEmpty());
+    REPORTER_ASSERT(r, canvas->isClipRect());
+
+    canvas->save();
+    canvas->clipRect({0, 0, 0, 0});
+    REPORTER_ASSERT(r, canvas->isClipEmpty());
+    REPORTER_ASSERT(r, !canvas->isClipRect());
+    canvas->restore();
+
+    canvas->save();
+    canvas->clipRect({2, 2, 6, 6});
+    REPORTER_ASSERT(r, !canvas->isClipEmpty());
+    REPORTER_ASSERT(r, canvas->isClipRect());
+    canvas->restore();
+
+    canvas->save();
+    canvas->clipRect({2, 2, 6, 6}, SkClipOp::kDifference);  // punch a hole in the clip
+    REPORTER_ASSERT(r, !canvas->isClipEmpty());
+    REPORTER_ASSERT(r, !canvas->isClipRect());
+    canvas->restore();
+
+    REPORTER_ASSERT(r, !canvas->isClipEmpty());
+    REPORTER_ASSERT(r, canvas->isClipRect());
+}
+
+DEF_TEST(CanvasClipType, r) {
+    // test rasterclip backend
+    test_cliptype(SkSurface::MakeRasterN32Premul(10, 10)->getCanvas(), r);
+
+    // test clipstack backend
+    SkDynamicMemoryWStream stream;
+    test_cliptype(SkDocument::MakePDF(&stream)->beginPage(100, 100), r);
+}
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+DEF_TEST(Canvas_LegacyColorBehavior, r) {
+    sk_sp<SkColorSpace> cs = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                   SkColorSpace::kAdobeRGB_Gamut);
+
+    // Make a Adobe RGB bitmap.
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32(1, 1, kOpaque_SkAlphaType, cs));
+    bitmap.eraseColor(0xFF000000);
+
+    // Wrap it in a legacy canvas.  Test that the canvas behaves like a legacy canvas.
+    SkCanvas canvas(bitmap, SkCanvas::ColorBehavior::kLegacy);
+    REPORTER_ASSERT(r, !canvas.imageInfo().colorSpace());
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    canvas.drawIRect(SkIRect::MakeWH(1, 1), p);
+    REPORTER_ASSERT(r, SK_ColorRED == SkSwizzle_BGRA_to_PMColor(*bitmap.getAddr32(0, 0)));
+}
+#endif

@@ -6,6 +6,7 @@
  */
 
 #include "SkPDFResourceDict.h"
+#include "SkPDFTypes.h"
 #include "SkPostConfig.h"
 
 // Sanity check that the values of enum SkPDFResourceType correspond to the
@@ -31,7 +32,7 @@ static const char* resource_type_names[] = {
         "Font"
 };
 
-static char get_resource_type_prefix(
+char SkPDFResourceDict::GetResourceTypePrefix(
         SkPDFResourceDict::SkPDFResourceType type) {
     SkASSERT(type >= 0);
     SkASSERT(type < SkPDFResourceDict::kResourceTypeCount);
@@ -49,9 +50,7 @@ static const char* get_resource_type_name(
 
 SkString SkPDFResourceDict::getResourceName(
         SkPDFResourceDict::SkPDFResourceType type, int key) {
-    SkString keyString;
-    keyString.printf("%c%d", get_resource_type_prefix(type), key);
-    return keyString;
+    return SkStringPrintf("%c%d", SkPDFResourceDict::GetResourceTypePrefix(type), key);
 }
 
 static void add_subdict(
@@ -61,41 +60,41 @@ static void add_subdict(
     if (0 == resourceList.count()) {
         return;
     }
-    SkAutoTUnref<SkPDFDict> resources(new SkPDFDict);
+    auto resources = sk_make_sp<SkPDFDict>();
     for (int i = 0; i < resourceList.count(); i++) {
         resources->insertObjRef(SkPDFResourceDict::getResourceName(type, i),
-                                SkRef(resourceList[i]));
+                                sk_ref_sp(resourceList[i]));
     }
-    dst->insertObject(get_resource_type_name(type), resources.detach());
+    dst->insertObject(get_resource_type_name(type), std::move(resources));
 }
 
-SkPDFDict* SkPDFResourceDict::Create(
+sk_sp<SkPDFDict> SkPDFResourceDict::Make(
         const SkTDArray<SkPDFObject*>* gStateResources,
         const SkTDArray<SkPDFObject*>* patternResources,
         const SkTDArray<SkPDFObject*>* xObjectResources,
         const SkTDArray<SkPDFObject*>* fontResources) {
-    SkAutoTUnref<SkPDFDict> dict(new SkPDFDict);
+    auto dict = sk_make_sp<SkPDFDict>();
     static const char kProcs[][7] = {
         "PDF", "Text", "ImageB", "ImageC", "ImageI"};
-    SkAutoTUnref<SkPDFArray> procSets(new SkPDFArray);
+    auto procSets = sk_make_sp<SkPDFArray>();
 
     procSets->reserve(SK_ARRAY_COUNT(kProcs));
     for (size_t i = 0; i < SK_ARRAY_COUNT(kProcs); i++) {
         procSets->appendName(kProcs[i]);
     }
-    dict->insertObject("ProcSets", procSets.detach());
+    dict->insertObject("ProcSets", std::move(procSets));
 
     if (gStateResources) {
-        add_subdict(*gStateResources, kExtGState_ResourceType, dict);
+        add_subdict(*gStateResources, kExtGState_ResourceType, dict.get());
     }
     if (patternResources) {
-        add_subdict(*patternResources, kPattern_ResourceType, dict);
+        add_subdict(*patternResources, kPattern_ResourceType, dict.get());
     }
     if (xObjectResources) {
-        add_subdict(*xObjectResources, kXObject_ResourceType, dict);
+        add_subdict(*xObjectResources, kXObject_ResourceType, dict.get());
     }
     if (fontResources) {
-        add_subdict(*fontResources, kFont_ResourceType, dict);
+        add_subdict(*fontResources, kFont_ResourceType, dict.get());
     }
-    return dict.detach();
+    return dict;
 }

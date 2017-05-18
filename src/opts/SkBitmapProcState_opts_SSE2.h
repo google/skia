@@ -24,8 +24,5 @@ void ClampX_ClampY_filter_affine_SSE2(const SkBitmapProcState& s,
                                       uint32_t xy[], int count, int x, int y);
 void ClampX_ClampY_nofilter_affine_SSE2(const SkBitmapProcState& s,
                                         uint32_t xy[], int count, int x, int y);
-void S32_D16_filter_DX_SSE2(const SkBitmapProcState& s,
-                            const uint32_t* xy,
-                            int count, uint16_t* colors);
 
 #endif

@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef SkPictureCommon_DEFINED
+#define SkPictureCommon_DEFINED
 
 // Some shared code used by both SkBigPicture and SkMiniPicture.
 //   SkTextHunter   -- SkRecord visitor that returns true when the op draws text.
@@ -12,19 +14,8 @@
 
 #include "SkPathEffect.h"
 #include "SkRecords.h"
+#include "SkShader.h"
 #include "SkTLogic.h"
-
-struct SkTextHunter {
-    // Most ops never have text.  Some always do.  Subpictures know themeselves.
-    bool operator()(const SkRecords::DrawPicture& op) { return op.picture->hasText(); }
-    bool operator()(const SkRecords::DrawDrawable&) { /*TODO*/ return false; }
-
-    template <typename T>
-    SK_WHEN(T::kTags & SkRecords::kHasText_Tag, bool) operator()(const T&) { return true; }
-    template <typename T>
-    SK_WHEN(!(T::kTags & SkRecords::kHasText_Tag), bool) operator()(const T&) { return false; }
-};
-
 
 // N.B. This name is slightly historical: hunting season is now open for SkImages too.
 struct SkBitmapHunter {
@@ -57,18 +48,12 @@ struct SkBitmapHunter {
 
     // Most draws-type ops have paints.
     template <typename T>
-    static SK_WHEN(T::kTags & SkRecords::kDraw_Tag, bool) CheckPaint(const T& op) {
+    static SK_WHEN(T::kTags & SkRecords::kHasPaint_Tag, bool) CheckPaint(const T& op) {
         return PaintHasBitmap(AsPtr(op.paint));
     }
 
-    // SaveLayers also have a paint to check.
-    static bool CheckPaint(const SkRecords::SaveLayer& op) {
-        return PaintHasBitmap(AsPtr(op.paint));
-    }
-
-    // Shouldn't be any non-Draw non-SaveLayer ops with paints.
     template <typename T>
-    static SK_WHEN(!(T::kTags & SkRecords::kDraw_Tag), bool) CheckPaint(const T&) {
+    static SK_WHEN(!(T::kTags & SkRecords::kHasPaint_Tag), bool) CheckPaint(const T&) {
         return false;
     }
 
@@ -76,7 +61,7 @@ private:
     static bool PaintHasBitmap(const SkPaint* paint) {
         if (paint) {
             const SkShader* shader = paint->getShader();
-            if (shader && shader->isABitmap()) {
+            if (shader && shader->isAImage()) {
                 return true;
             }
         }
@@ -96,7 +81,6 @@ struct SkPathCounter {
     void operator()(const SkRecords::DrawPicture& op) {
         fNumSlowPathsAndDashEffects += op.picture->numSlowPaths();
     }
-    void operator()(const SkRecords::DrawDrawable&) { /* TODO */ }
 
     void checkPaint(const SkPaint* paint) {
         if (paint && paint->getPathEffect()) {
@@ -135,17 +119,26 @@ struct SkPathCounter {
         }
     }
 
+    void operator()(const SkRecords::ClipPath& op) {
+        // TODO: does the SkRegion op matter?
+        if (op.opAA.aa() && !op.path.isConvex()) {
+            fNumSlowPathsAndDashEffects++;
+        }
+    }
+
     void operator()(const SkRecords::SaveLayer& op) {
         this->checkPaint(AsPtr(op.paint));
     }
 
     template <typename T>
-    SK_WHEN(T::kTags & SkRecords::kDraw_Tag, void) operator()(const T& op) {
+    SK_WHEN(T::kTags & SkRecords::kHasPaint_Tag, void) operator()(const T& op) {
         this->checkPaint(AsPtr(op.paint));
     }
 
     template <typename T>
-    SK_WHEN(!(T::kTags & SkRecords::kDraw_Tag), void) operator()(const T& op) { /* do nothing */ }
+    SK_WHEN(!(T::kTags & SkRecords::kHasPaint_Tag), void)
+      operator()(const T& op) { /* do nothing */ }
 
     int fNumSlowPathsAndDashEffects;
 };
+#endif  // SkPictureCommon_DEFINED

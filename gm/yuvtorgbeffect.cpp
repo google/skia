@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -13,11 +12,14 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrTest.h"
-#include "effects/GrYUVtoRGBEffect.h"
+#include "GrRenderTargetContextPriv.h"
+#include "GrTextureProxy.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
+#include "effects/GrYUVEffect.h"
+#include "ops/GrDrawOp.h"
+#include "ops/GrNonAAFillRectOp.h"
 
 #define YSIZE 8
 #define USIZE 4
@@ -67,39 +69,44 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (nullptr == rt) {
-            return;
-        }
-        GrContext* context = rt->getContext();
-        if (nullptr == context) {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
 
-        GrTestTarget tt;
-        context->getTestTarget(&tt);
-        if (nullptr == tt.target()) {
-            SkDEBUGFAIL("Couldn't get Gr test target.");
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
             return;
         }
 
-        SkAutoTUnref<GrTexture> texture[3];
-        texture[0].reset(GrRefCachedBitmapTexture(context, fBmp[0], nullptr));
-        texture[1].reset(GrRefCachedBitmapTexture(context, fBmp[1], nullptr));
-        texture[2].reset(GrRefCachedBitmapTexture(context, fBmp[2], nullptr));
+        sk_sp<GrTextureProxy> proxy[3];
 
-        if (!texture[0] || !texture[1] || !texture[2]) {
-            return;
+        {
+            GrSurfaceDesc desc;
+            desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+
+            for (int i = 0; i < 3; ++i) {
+                desc.fWidth = fBmp[i].width();
+                desc.fHeight = fBmp[i].height();
+                desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[i].info(), *context->caps());
+
+                proxy[i] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                        desc, SkBudgeted::kYes,
+                                                        fBmp[i].getPixels(), fBmp[i].rowBytes());
+                if (!proxy[i]) {
+                    return;
+                }
+            }
         }
 
-        static const SkScalar kDrawPad = 10.f;
-        static const SkScalar kTestPad = 10.f;
-        static const SkScalar kColorSpaceOffset = 36.f;
+        constexpr SkScalar kDrawPad = 10.f;
+        constexpr SkScalar kTestPad = 10.f;
+        constexpr SkScalar kColorSpaceOffset = 36.f;
         SkISize sizes[3] = {{YSIZE, YSIZE}, {USIZE, USIZE}, {VSIZE, VSIZE}};
 
-        for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace;
-             ++space) {
+        for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
             SkRect renderRect = SkRect::MakeWH(SkIntToScalar(fBmp[0].width()),
                                                SkIntToScalar(fBmp[0].height()));
             renderRect.outset(kDrawPad, kDrawPad);
@@ -111,22 +118,23 @@ protected:
                                        {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
 
             for (int i = 0; i < 6; ++i) {
-                GrPipelineBuilder pipelineBuilder;
-                SkAutoTUnref<GrFragmentProcessor> fp(
-                            GrYUVtoRGBEffect::Create(texture[indices[i][0]],
-                                                     texture[indices[i][1]],
-                                                     texture[indices[i][2]],
-                                                     sizes,
-                                                     static_cast<SkYUVColorSpace>(space)));
+                sk_sp<GrFragmentProcessor> fp(
+                        GrYUVEffect::MakeYUVToRGB(context->resourceProvider(),
+                                                  proxy[indices[i][0]],
+                                                  proxy[indices[i][1]],
+                                                  proxy[indices[i][2]],
+                                                  sizes,
+                                                  static_cast<SkYUVColorSpace>(space),
+                                                  false));
                 if (fp) {
+                    GrPaint grPaint;
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+                    grPaint.addColorFragmentProcessor(std::move(fp));
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
-                    pipelineBuilder.setRenderTarget(rt);
-                    pipelineBuilder.addColorFragmentProcessor(fp);
-                    tt.target()->drawNonAARect(pipelineBuilder,
-                                               GrColor_WHITE,
-                                               viewMatrix,
-                                               renderRect);
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            GrNonAAFillRectOp::Make(std::move(grPaint), viewMatrix, renderRect,
+                                                    nullptr, nullptr, GrAAType::kNone));
                 }
                 x += renderRect.width() + kTestPad;
             }
@@ -140,6 +148,128 @@ private:
 };
 
 DEF_GM(return new YUVtoRGBEffect;)
+
+//////////////////////////////////////////////////////////////////////////////
+
+class YUVNV12toRGBEffect : public GM {
+public:
+    YUVNV12toRGBEffect() {
+        this->setBGColor(0xFFFFFFFF);
+    }
+
+protected:
+    SkString onShortName() override {
+        return SkString("yuv_nv12_to_rgb_effect");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(48, 120);
+    }
+
+    void onOnceBeforeDraw() override {
+        SkImageInfo yinfo = SkImageInfo::MakeA8(YSIZE, YSIZE);
+        fBmp[0].allocPixels(yinfo);
+        SkImageInfo uvinfo = SkImageInfo::MakeN32Premul(USIZE, USIZE);
+        fBmp[1].allocPixels(uvinfo);
+        int color[] = {0, 85, 170};
+        const int limit[] = {255, 0, 255};
+        const int invl[] = {0, 255, 0};
+        const int inc[] = {1, -1, 1};
+
+        {
+            unsigned char* pixels = (unsigned char*)fBmp[0].getPixels();
+            const size_t nbBytes = fBmp[0].rowBytes() * fBmp[0].height();
+            for (size_t j = 0; j < nbBytes; ++j) {
+                pixels[j] = (unsigned char)color[0];
+                color[0] = (color[0] == limit[0]) ? invl[0] : color[0] + inc[0];
+            }
+        }
+
+        {
+            for (int y = 0; y < fBmp[1].height(); ++y) {
+                uint32_t* pixels = fBmp[1].getAddr32(0, y);
+                for (int j = 0; j < fBmp[1].width(); ++j) {
+                    pixels[j] = SkColorSetARGB(0, color[1], color[2], 0);
+                    color[1] = (color[1] == limit[1]) ? invl[1] : color[1] + inc[1];
+                    color[2] = (color[2] == limit[2]) ? invl[2] : color[2] + inc[2];
+                }
+            }
+        }
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
+            skiagm::GM::DrawGpuOnlyMessage(canvas);
+            return;
+        }
+
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
+            return;
+        }
+
+        sk_sp<GrTextureProxy> proxy[3];
+
+        {
+            GrSurfaceDesc desc;
+            desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+
+            for (int i = 0; i < 3; ++i) {
+                int index = (0 == i) ? 0 : 1;
+
+                desc.fWidth = fBmp[index].width();
+                desc.fHeight = fBmp[index].height();
+                desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[index].info(), *context->caps());
+
+                proxy[i] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                        desc, SkBudgeted::kYes,
+                                                        fBmp[index].getPixels(),
+                                                        fBmp[index].rowBytes());
+                if (!proxy[i]) {
+                    return;
+                }
+            }
+        }
+
+        constexpr SkScalar kDrawPad = 10.f;
+        constexpr SkScalar kTestPad = 10.f;
+        constexpr SkScalar kColorSpaceOffset = 36.f;
+        SkISize sizes[3] = {{YSIZE, YSIZE}, {USIZE, USIZE}, {VSIZE, VSIZE}};
+
+        for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
+            SkRect renderRect =
+                SkRect::MakeWH(SkIntToScalar(fBmp[0].width()), SkIntToScalar(fBmp[0].height()));
+            renderRect.outset(kDrawPad, kDrawPad);
+
+            SkScalar y = kDrawPad + kTestPad + space * kColorSpaceOffset;
+            SkScalar x = kDrawPad + kTestPad;
+
+            GrPaint grPaint;
+            grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+            sk_sp<GrFragmentProcessor> fp(
+                GrYUVEffect::MakeYUVToRGB(context->resourceProvider(),
+                                          proxy[0], proxy[1], proxy[2], sizes,
+                                          static_cast<SkYUVColorSpace>(space), true));
+            if (fp) {
+                SkMatrix viewMatrix;
+                viewMatrix.setTranslate(x, y);
+                grPaint.addColorFragmentProcessor(fp);
+                renderTargetContext->priv().testingOnly_addDrawOp(
+                        GrNonAAFillRectOp::Make(std::move(grPaint), viewMatrix, renderRect, nullptr,
+                                                nullptr, GrAAType::kNone));
+            }
+        }
+    }
+
+private:
+    SkBitmap fBmp[2];
+
+    typedef GM INHERITED;
+};
+
+DEF_GM(return new YUVNV12toRGBEffect;)
 }
 
 #endif

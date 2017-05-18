@@ -1,0 +1,83 @@
+#!/bin/sh
+# Copyright 2017 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+if [ -z "$1" ]; then
+	cat <<-EOM
+	Usage:
+	  $0 [afl-out-loc]
+
+	Run something like this:
+	  $0 ~/afl-out
+	where afl-out is the directory containing all the output of the afl-fuzzers.
+	You can typically ssh into skia-fuzzer-be-1 and skia-fuzzer-be-2 and run
+	tar -czf afl-out.tar.gz /mnt/ssd0/fuzzes/afl-out/*/fuzzer0/queue
+	and extract it locally to get the directories needed to assess coverage.
+
+	EOM
+	exit 1
+fi
+
+set -x
+set -e
+
+cd "$(dirname "$0")/.."
+
+EXECUTABLE="fuzz"
+
+DIR="$(mktemp -d "${TMPDIR:-/tmp}/skia_coverage_XXXXXXXXXX")"
+BUILD=out/coverage
+
+# Build $EXECUTABLE
+bin/sync
+bin/fetch-gn
+
+rm -rf $BUILD
+
+#TODO: make this work with Clang.
+ARGS='cc="gcc" cxx="g++" extra_cflags=["--coverage"] extra_ldflags=["--coverage"]'
+gn gen --args="$ARGS" "$BUILD"
+
+ninja -C "$BUILD" "$EXECUTABLE"
+
+GCOV="$(realpath tools/gcov_shim)"
+
+# Generate a zero-baseline so files not covered by $EXECUTABLE $@ will
+# still show up in the report.  This reads the .gcno files that are
+# created at compile time.
+lcov -q --gcov-tool="$GCOV" -c -b "$BUILD" -d "$BUILD" -o "$DIR"/baseline -i
+
+# Running the binary generates the real coverage information, the .gcda files.
+QUEUES=("$1/api_parse_path/fuzzer0/queue/*" "$1/color_deserialize/fuzzer0/queue/*" "$1/color_icc/fuzzer0/queue/*" "$1/skcodec_scale/fuzzer0/queue/*" "$1/skcodec_mode/fuzzer0/queue/*" "$1/api_draw_functions/fuzzer0/queue/*" "$1/api_gradient/fuzzer0/queue/*" "$1/api_image_filter/fuzzer0/queue/*" "$1/api_pathop/fuzzer0/queue/*" "$1/sksl2glsl/fuzzer0/queue/*" "$1/null_canvas/fuzzer0/queue/*" "$1/pdf_canvas/fuzzer0/queue/*" "$1/n32_canvas/fuzzer0/queue/*")
+
+ARGS=("-n ParsePath" "-t color_deserialize" "-t icc" "-t image_scale" "-t image_mode" "-n DrawFunctions" "-n Gradients" "-n SerializedImageFilter" "-n Pathop" "-t sksl2glsl" "-n NullCanvas" "-n PDFCanvas" "-n RasterN32Canvas")
+
+# We can't simply pass the directories to the fuzzers because some of the fuzzes will
+# crash or assert, which would kill the call to fuzz prematurely. Instead we run them
+# individually using the loops below.
+for i in `seq ${#QUEUES[@]}`
+do
+	FILES=${QUEUES[i]}
+	for f in $FILES
+	do
+		# Executing the fuzzes sequentially would take a very long time. So, we run them
+		# in the background, making sure we don't go crazy and execute them too fast or
+		# that they execute for a long time.
+		timeout 10 $BUILD/$EXECUTABLE ${ARGS[i]}  -b $f &
+		sleep .005s
+	done
+done
+
+sleep 10s
+
+echo "done running the fuzzes -- generating report"
+
+lcov -q --gcov-tool="$GCOV" -c -b "$BUILD" -d "$BUILD" -o "$DIR"/coverage
+
+lcov -q -a "$DIR"/baseline -a "$DIR"/coverage -o "$DIR"/merged
+
+genhtml -q "$DIR"/merged --legend -o "$DIR"/coverage_report --ignore-errors source
+
+xdg-open "$DIR"/coverage_report/index.html

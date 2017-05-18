@@ -10,7 +10,6 @@
 
 #include "SkEndian.h"
 #include "SkOTTableTypes.h"
-#include "SkTypedEnum.h"
 
 #pragma pack(push, 1)
 
@@ -38,10 +37,9 @@ struct SkOTTableHorizontalHeader {
     SK_OT_SHORT Reserved28;
     SK_OT_SHORT Reserved30;
     struct MetricDataFormat {
-        SK_TYPED_ENUM(Value, SK_OT_SHORT,
-            ((CurrentFormat, SkTEndian_SwapBE16(0)))
-            SK_SEQ_END,
-        (value)SK_SEQ_END)
+        enum Value : SK_OT_SHORT {
+            CurrentFormat = SkTEndian_SwapBE16(0),
+        } value;
     } metricDataFormat;
     SK_OT_USHORT numberOfHMetrics;
 };

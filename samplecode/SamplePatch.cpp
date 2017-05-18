@@ -5,44 +5,44 @@
  * found in the LICENSE file.
  */
 
+#include "DecodeFile.h"
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
+#include "SkVertices.h"
 
 #include "SkOSFile.h"
 #include "SkStream.h"
 
 #include "SkGeometry.h" // private include :(
 
-static SkShader* make_shader0(SkIPoint* size) {
+static sk_sp<SkShader> make_shader0(SkIPoint* size) {
     SkBitmap    bm;
 
-//    SkImageDecoder::DecodeFile("/skimages/progressivejpg.jpg", &bm);
-    SkImageDecoder::DecodeFile("/skimages/logo.png", &bm);
+//    decode_file("/skimages/progressivejpg.jpg", &bm);
+    decode_file("/skimages/logo.png", &bm);
     size->set(bm.width(), bm.height());
-    return SkShader::CreateBitmapShader(bm, SkShader::kClamp_TileMode,
-                                        SkShader::kClamp_TileMode);
+    return SkShader::MakeBitmapShader(bm, SkShader::kClamp_TileMode,
+                                       SkShader::kClamp_TileMode);
 }
 
-static SkShader* make_shader1(const SkIPoint& size) {
+static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
     SkPoint pts[] = { { 0, 0, },
                       { SkIntToScalar(size.fX), SkIntToScalar(size.fY) } };
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
-    return SkGradientShader::CreateLinear(pts, colors, nullptr,
+    return SkGradientShader::MakeLinear(pts, colors, nullptr,
                     SK_ARRAY_COUNT(colors), SkShader::kMirror_TileMode);
 }
 
@@ -88,41 +88,23 @@ static void eval_sheet(const SkPoint edge[], int nu, int nv, int iu, int iv,
     SkScalar u = SkIntToScalar(iu) / nu;
     SkScalar v = SkIntToScalar(iv) / nv;
 
-    SkScalar uv = SkScalarMul(u, v);
-    SkScalar Uv = SkScalarMul(SK_Scalar1 - u, v);
-    SkScalar uV = SkScalarMul(u, SK_Scalar1 - v);
-    SkScalar UV = SkScalarMul(SK_Scalar1 - u, SK_Scalar1 - v);
+    SkScalar uv = u * v;
+    SkScalar Uv = (1 - u) * v;
+    SkScalar uV = u * (1 - v);
+    SkScalar UV = (1 - u) * (1 - v);
 
-    SkScalar x0 = SkScalarMul(UV, edge[TL].fX) + SkScalarMul(uV, edge[TR].fX) +
-                  SkScalarMul(Uv, edge[BL].fX) + SkScalarMul(uv, edge[BR].fX);
-    SkScalar y0 = SkScalarMul(UV, edge[TL].fY) + SkScalarMul(uV, edge[TR].fY) +
-                  SkScalarMul(Uv, edge[BL].fY) + SkScalarMul(uv, edge[BR].fY);
+    SkScalar x0 = UV * edge[TL].fX + uV * edge[TR].fX + Uv * edge[BL].fX + uv * edge[BR].fX;
+    SkScalar y0 = UV * edge[TL].fY + uV * edge[TR].fY + Uv * edge[BL].fY + uv * edge[BR].fY;
 
-    SkScalar x =    SkScalarMul(SK_Scalar1 - v, edge[TL+iu].fX) +
-                    SkScalarMul(u, edge[TR+iv].fX) +
-                    SkScalarMul(v, edge[BR+nu-iu].fX) +
-                    SkScalarMul(SK_Scalar1 - u, edge[BL+nv-iv].fX) - x0;
-    SkScalar y =    SkScalarMul(SK_Scalar1 - v, edge[TL+iu].fY) +
-                    SkScalarMul(u, edge[TR+iv].fY) +
-                    SkScalarMul(v, edge[BR+nu-iu].fY) +
-                    SkScalarMul(SK_Scalar1 - u, edge[BL+nv-iv].fY) - y0;
+    SkScalar x = (1 - v) * edge[TL+iu].fX + u * edge[TR+iv].fX +
+                 v * edge[BR+nu-iu].fX + (1 - u) * edge[BL+nv-iv].fX - x0;
+    SkScalar y = (1 - v) * edge[TL+iu].fY + u * edge[TR+iv].fY +
+                 v * edge[BR+nu-iu].fY + (1 - u) * edge[BL+nv-iv].fY - y0;
     pt->set(x, y);
 }
 
-static int ScalarTo255(SkScalar v) {
-    int scale = SkScalarToFixed(v) >> 8;
-    if (scale < 0) {
-        scale = 0;
-    } else if (scale > 255) {
-        scale = 255;
-    }
-    return scale;
-}
-
 static SkColor make_color(SkScalar s, SkScalar t) {
-    int cs = ScalarTo255(s);
-    int ct = ScalarTo255(t);
-    return SkColorSetARGB(0xFF, cs, 0, 0) + SkColorSetARGB(0, 0, ct, 0);
+    return SkColorSetARGB(0xFF, SkUnitScalarClampToByte(s), SkUnitScalarClampToByte(t), 0);
 }
 
 void Patch::draw(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
@@ -198,10 +180,10 @@ void Patch::draw(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
             s += ds;
         }
         t += dt;
-        canvas->drawVertices(SkCanvas::kTriangleStrip_VertexMode, stripCount,
-                             strip, doTextures ? tex : nullptr,
-                             doColors ? colors : nullptr, nullptr,
-                             nullptr, 0, paint);
+        canvas->drawVertices(SkVertices::MakeCopy(SkVertices::kTriangleStrip_VertexMode, stripCount,
+                                                  strip, doTextures ? tex : nullptr,
+                                                  doColors ? colors : nullptr),
+                             SkBlendMode::kModulate, paint);
     }
 }
 
@@ -223,8 +205,8 @@ const SkScalar DY = 0;
 
 class PatchView : public SampleView {
     SkScalar    fAngle;
-    SkShader*   fShader0;
-    SkShader*   fShader1;
+    sk_sp<SkShader> fShader0;
+    sk_sp<SkShader> fShader1;
     SkIPoint    fSize0, fSize1;
     SkPoint     fPts[12];
 
@@ -253,11 +235,6 @@ public:
         fPts[11].set(S*0, T*2);
 
         this->setBGColor(SK_ColorGRAY);
-    }
-
-    virtual ~PatchView() {
-        SkSafeUnref(fShader0);
-        SkSafeUnref(fShader1);
     }
 
 protected:
@@ -306,14 +283,12 @@ protected:
         if (true) {
             SkMatrix m;
             m.setSkew(1, 0);
-            SkShader* s = SkShader::CreateLocalMatrixShader(paint.getShader(), m);
-            paint.setShader(s)->unref();
+            paint.setShader(paint.getShader()->makeWithLocalMatrix(m));
         }
         if (true) {
             SkMatrix m;
             m.setRotate(fAngle);
-            SkShader* s = SkShader::CreateLocalMatrixShader(paint.getShader(), m);
-            paint.setShader(s)->unref();
+            paint.setShader(paint.getShader()->makeWithLocalMatrix(m));
         }
         patch.setBounds(fSize1.fX, fSize1.fY);
         drawpatches(canvas, paint, nu, nv, &patch);

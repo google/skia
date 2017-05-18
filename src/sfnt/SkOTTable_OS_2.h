@@ -18,11 +18,11 @@
 #pragma pack(push, 1)
 
 struct SkOTTableOS2 {
-    static const SK_OT_CHAR TAG0 = 'O';
-    static const SK_OT_CHAR TAG1 = 'S';
-    static const SK_OT_CHAR TAG2 = '/';
-    static const SK_OT_CHAR TAG3 = '2';
-    static const SK_OT_ULONG TAG = SkOTTableTAG<SkOTTableOS2>::value;
+    static constexpr SK_OT_CHAR TAG0 = 'O';
+    static constexpr SK_OT_CHAR TAG1 = 'S';
+    static constexpr SK_OT_CHAR TAG2 = '/';
+    static constexpr SK_OT_CHAR TAG3 = '2';
+    static constexpr SK_OT_ULONG TAG = SkOTTableTAG<SkOTTableOS2>::value;
 
     union Version {
         SK_OT_USHORT version;

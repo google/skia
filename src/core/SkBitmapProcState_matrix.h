@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -36,14 +35,14 @@ void PERSP_FILTER_NAME(const SkBitmapProcState& s,
 static inline uint32_t PACK_FILTER_Y_NAME(SkFixed f, unsigned max,
                                           SkFixed one PREAMBLE_PARAM_Y) {
     unsigned i = TILEY_PROCF(f, max);
-    i = (i << 4) | TILEY_LOW_BITS(f, max);
+    i = (i << 4) | EXTRACT_LOW_BITS(f, max);
     return (i << 14) | (TILEY_PROCF((f + one), max));
 }
 
 static inline uint32_t PACK_FILTER_X_NAME(SkFixed f, unsigned max,
                                           SkFixed one PREAMBLE_PARAM_X) {
     unsigned i = TILEX_PROCF(f, max);
-    i = (i << 4) | TILEX_LOW_BITS(f, max);
+    i = (i << 4) | EXTRACT_LOW_BITS(f, max);
     return (i << 14) | (TILEX_PROCF((f + one), max));
 }
 
@@ -61,21 +60,20 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
     SkFractionalInt fx;
 
     {
-        SkPoint pt;
-        s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-                                  SkIntToScalar(y) + SK_ScalarHalf, &pt);
-        const SkFixed fy = SkScalarToFixed(pt.fY) - (s.fFilterOneY >> 1);
+        const SkBitmapProcStateAutoMapper mapper(s, x, y);
+        const SkFixed fy = mapper.fixedY();
         const unsigned maxY = s.fPixmap.height() - 1;
         // compute our two Y values up front
         *xy++ = PACK_FILTER_Y_NAME(fy, maxY, s.fFilterOneY PREAMBLE_ARG_Y);
         // now initialize fx
-        fx = SkScalarToFractionalInt(pt.fX) - (SkFixedToFractionalInt(one) >> 1);
+        fx = mapper.fractionalIntX();
     }
 
 #ifdef CHECK_FOR_DECAL
-    if (can_truncate_to_fixed_for_decal(fx, dx, count, maxX)) {
-        decal_filter_scale(xy, SkFractionalIntToFixed(fx),
-                           SkFractionalIntToFixed(dx), count);
+    const SkFixed fixedFx = SkFractionalIntToFixed(fx);
+    const SkFixed fixedDx = SkFractionalIntToFixed(dx);
+    if (can_truncate_to_fixed_for_decal(fixedFx, fixedDx, count, maxX)) {
+        decal_filter_scale(xy, fixedFx, fixedDx, count);
     } else
 #endif
     {
@@ -95,15 +93,12 @@ void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
                              SkMatrix::kAffine_Mask)) == 0);
 
     PREAMBLE(s);
-    SkPoint srcPt;
-    s.fInvProc(s.fInvMatrix,
-               SkIntToScalar(x) + SK_ScalarHalf,
-               SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
 
     SkFixed oneX = s.fFilterOneX;
     SkFixed oneY = s.fFilterOneY;
-    SkFixed fx = SkScalarToFixed(srcPt.fX) - (oneX >> 1);
-    SkFixed fy = SkScalarToFixed(srcPt.fY) - (oneY >> 1);
+    SkFixed fx = mapper.fixedX();
+    SkFixed fy = mapper.fixedY();
     SkFixed dx = s.fInvSx;
     SkFixed dy = s.fInvKy;
     unsigned maxX = s.fPixmap.width() - 1;
@@ -161,5 +156,4 @@ void PERSP_FILTER_NAME(const SkBitmapProcState& s,
 #undef PREAMBLE_ARG_X
 #undef PREAMBLE_ARG_Y
 
-#undef TILEX_LOW_BITS
-#undef TILEY_LOW_BITS
+#undef EXTRACT_LOW_BITS

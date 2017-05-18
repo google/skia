@@ -29,11 +29,7 @@ public:
                           they can pass in a different seedAssist to get a
                           different set of path segments.
     */
-    static SkDiscretePathEffect* Create(SkScalar segLength,
-                                        SkScalar deviation,
-                                        uint32_t seedAssist=0) {
-        return new SkDiscretePathEffect(segLength, deviation, seedAssist);
-    }
+    static sk_sp<SkPathEffect> Make(SkScalar segLength, SkScalar dev, uint32_t seedAssist = 0);
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec*, const SkRect*) const override;

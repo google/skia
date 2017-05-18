@@ -1,0 +1,149 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  skia_use_system_libwebp = is_official_build
+}
+
+import("../third_party.gni")
+
+if (skia_use_system_libwebp) {
+  system("libwebp") {
+    libs = [
+      "webp",
+      "webpdemux",
+    ]
+  }
+} else {
+  third_party("libwebp") {
+    public_include_dirs = [ "../externals/libwebp/src" ]
+
+    if (is_android) {
+      deps = [
+        "//third_party/cpu-features",
+      ]
+    }
+
+    defines = [
+      # WebP naturally decodes to RGB_565, and we work with BGR_565.
+      # This makes WebP decode to BGR_565 when we ask for RGB_565.
+      # (It also swaps the color order for 4444, but we don't care today.)
+      # TODO: swizzle ourself in SkWebpCodec instead of requiring this non-standard libwebp.
+      "WEBP_SWAP_16BIT_CSP",
+    ]
+
+    sources = [
+      "../externals/libwebp/src/dec/alpha_dec.c",
+      "../externals/libwebp/src/dec/buffer_dec.c",
+      "../externals/libwebp/src/dec/frame_dec.c",
+      "../externals/libwebp/src/dec/idec_dec.c",
+      "../externals/libwebp/src/dec/io_dec.c",
+      "../externals/libwebp/src/dec/quant_dec.c",
+      "../externals/libwebp/src/dec/tree_dec.c",
+      "../externals/libwebp/src/dec/vp8_dec.c",
+      "../externals/libwebp/src/dec/vp8l_dec.c",
+      "../externals/libwebp/src/dec/webp_dec.c",
+      "../externals/libwebp/src/demux/demux.c",
+      "../externals/libwebp/src/dsp/alpha_processing.c",
+      "../externals/libwebp/src/dsp/alpha_processing_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/alpha_processing_neon.c",
+      "../externals/libwebp/src/dsp/alpha_processing_sse2.c",
+      "../externals/libwebp/src/dsp/alpha_processing_sse41.c",
+      "../externals/libwebp/src/dsp/argb.c",
+      "../externals/libwebp/src/dsp/argb_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/argb_sse2.c",
+      "../externals/libwebp/src/dsp/cost.c",
+      "../externals/libwebp/src/dsp/cost_mips32.c",
+      "../externals/libwebp/src/dsp/cost_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/cost_sse2.c",
+      "../externals/libwebp/src/dsp/cpu.c",
+      "../externals/libwebp/src/dsp/dec.c",
+      "../externals/libwebp/src/dsp/dec_clip_tables.c",
+      "../externals/libwebp/src/dsp/dec_mips32.c",
+      "../externals/libwebp/src/dsp/dec_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/dec_neon.c",
+      "../externals/libwebp/src/dsp/dec_sse2.c",
+      "../externals/libwebp/src/dsp/dec_sse41.c",
+      "../externals/libwebp/src/dsp/enc.c",
+      "../externals/libwebp/src/dsp/enc_avx2.c",
+      "../externals/libwebp/src/dsp/enc_mips32.c",
+      "../externals/libwebp/src/dsp/enc_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/enc_msa.c",
+      "../externals/libwebp/src/dsp/enc_neon.c",
+      "../externals/libwebp/src/dsp/enc_sse2.c",
+      "../externals/libwebp/src/dsp/enc_sse41.c",
+      "../externals/libwebp/src/dsp/filters.c",
+      "../externals/libwebp/src/dsp/filters_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/filters_msa.c",
+      "../externals/libwebp/src/dsp/filters_neon.c",
+      "../externals/libwebp/src/dsp/filters_sse2.c",
+      "../externals/libwebp/src/dsp/lossless.c",
+      "../externals/libwebp/src/dsp/lossless_enc.c",
+      "../externals/libwebp/src/dsp/lossless_enc_mips32.c",
+      "../externals/libwebp/src/dsp/lossless_enc_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/lossless_enc_msa.c",
+      "../externals/libwebp/src/dsp/lossless_enc_neon.c",
+      "../externals/libwebp/src/dsp/lossless_enc_sse2.c",
+      "../externals/libwebp/src/dsp/lossless_enc_sse41.c",
+      "../externals/libwebp/src/dsp/lossless_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/lossless_msa.c",
+      "../externals/libwebp/src/dsp/lossless_neon.c",
+      "../externals/libwebp/src/dsp/lossless_sse2.c",
+      "../externals/libwebp/src/dsp/rescaler.c",
+      "../externals/libwebp/src/dsp/rescaler_mips32.c",
+      "../externals/libwebp/src/dsp/rescaler_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/rescaler_msa.c",
+      "../externals/libwebp/src/dsp/rescaler_neon.c",
+      "../externals/libwebp/src/dsp/rescaler_sse2.c",
+      "../externals/libwebp/src/dsp/upsampling.c",
+      "../externals/libwebp/src/dsp/upsampling_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/upsampling_msa.c",
+      "../externals/libwebp/src/dsp/upsampling_neon.c",
+      "../externals/libwebp/src/dsp/upsampling_sse2.c",
+      "../externals/libwebp/src/dsp/yuv.c",
+      "../externals/libwebp/src/dsp/yuv_mips32.c",
+      "../externals/libwebp/src/dsp/yuv_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/yuv_sse2.c",
+      "../externals/libwebp/src/enc/alpha_enc.c",
+      "../externals/libwebp/src/enc/analysis_enc.c",
+      "../externals/libwebp/src/enc/backward_references_enc.c",
+      "../externals/libwebp/src/enc/config_enc.c",
+      "../externals/libwebp/src/enc/cost_enc.c",
+      "../externals/libwebp/src/enc/filter_enc.c",
+      "../externals/libwebp/src/enc/frame_enc.c",
+      "../externals/libwebp/src/enc/histogram_enc.c",
+      "../externals/libwebp/src/enc/iterator_enc.c",
+      "../externals/libwebp/src/enc/near_lossless_enc.c",
+      "../externals/libwebp/src/enc/picture_csp_enc.c",
+      "../externals/libwebp/src/enc/picture_enc.c",
+      "../externals/libwebp/src/enc/picture_psnr_enc.c",
+      "../externals/libwebp/src/enc/picture_rescale_enc.c",
+      "../externals/libwebp/src/enc/picture_tools_enc.c",
+      "../externals/libwebp/src/enc/predictor_enc.c",
+      "../externals/libwebp/src/enc/quant_enc.c",
+      "../externals/libwebp/src/enc/syntax_enc.c",
+      "../externals/libwebp/src/enc/token_enc.c",
+      "../externals/libwebp/src/enc/tree_enc.c",
+      "../externals/libwebp/src/enc/vp8l_enc.c",
+      "../externals/libwebp/src/enc/webp_enc.c",
+      "../externals/libwebp/src/mux/anim_encode.c",
+      "../externals/libwebp/src/mux/muxedit.c",
+      "../externals/libwebp/src/mux/muxinternal.c",
+      "../externals/libwebp/src/mux/muxread.c",
+      "../externals/libwebp/src/utils/bit_reader_utils.c",
+      "../externals/libwebp/src/utils/bit_writer_utils.c",
+      "../externals/libwebp/src/utils/color_cache_utils.c",
+      "../externals/libwebp/src/utils/filters_utils.c",
+      "../externals/libwebp/src/utils/huffman_encode_utils.c",
+      "../externals/libwebp/src/utils/huffman_utils.c",
+      "../externals/libwebp/src/utils/quant_levels_dec_utils.c",
+      "../externals/libwebp/src/utils/quant_levels_utils.c",
+      "../externals/libwebp/src/utils/random_utils.c",
+      "../externals/libwebp/src/utils/rescaler_utils.c",
+      "../externals/libwebp/src/utils/thread_utils.c",
+      "../externals/libwebp/src/utils/utils.c",
+    ]
+  }
+}

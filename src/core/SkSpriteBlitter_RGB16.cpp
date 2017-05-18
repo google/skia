@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -8,6 +7,7 @@
 
 
 #include "SkSpriteBlitter.h"
+#include "SkArenaAlloc.h"
 #include "SkBlitRow.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
@@ -31,7 +31,7 @@ static inline void D16_S32A_Blend_Pixel_helper(uint16_t* dst, SkPMColor sc,
         dg = SkAlphaBlend(SkPacked32ToG16(sc), SkGetPackedG16(dc), src_scale);
         db = SkAlphaBlend(SkPacked32ToB16(sc), SkGetPackedB16(dc), src_scale);
     } else {
-        unsigned dst_scale = 255 - SkAlphaMul(sa, src_scale);
+        unsigned dst_scale = SkAlphaMulInv256(sa, src_scale);
         dr = (SkPacked32ToR16(sc) * src_scale + SkGetPackedR16(dc) * dst_scale) >> 8;
         dg = (SkPacked32ToG16(sc) * src_scale + SkGetPackedG16(dc) * dst_scale) >> 8;
         db = (SkPacked32ToB16(sc) * src_scale + SkGetPackedB16(dc) * dst_scale) >> 8;
@@ -297,14 +297,14 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkPixmap& source, const SkPaint& paint,
-                                            SkTBlitterAllocator* allocator) {
+                                            SkArenaAlloc* allocator) {
 
     SkASSERT(allocator != nullptr);
 
     if (paint.getMaskFilter() != nullptr) { // may add cases for this
         return nullptr;
     }
-    if (paint.getXfermode() != nullptr) { // may add cases for this
+    if (!paint.isSrcOver()) { // may add cases for this
         return nullptr;
     }
     if (paint.getColorFilter() != nullptr) { // may add cases for this
@@ -321,7 +321,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkPixmap& source, const SkPain
             if (kPremul_SkAlphaType != at && kOpaque_SkAlphaType != at) {
                 break;
             }
-            blitter = allocator->createT<Sprite_D16_S32_BlitRowProc>(source);
+            blitter = allocator->make<Sprite_D16_S32_BlitRowProc>(source);
             break;
         }
         case kARGB_4444_SkColorType:
@@ -329,16 +329,16 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkPixmap& source, const SkPain
                 break;
             }
             if (255 == alpha) {
-                blitter = allocator->createT<Sprite_D16_S4444_Opaque>(source);
+                blitter = allocator->make<Sprite_D16_S4444_Opaque>(source);
             } else {
-                blitter = allocator->createT<Sprite_D16_S4444_Blend>(source, alpha >> 4);
+                blitter = allocator->make<Sprite_D16_S4444_Blend>(source, alpha >> 4);
             }
             break;
         case kRGB_565_SkColorType:
             if (255 == alpha) {
-                blitter = allocator->createT<Sprite_D16_S16_Opaque>(source);
+                blitter = allocator->make<Sprite_D16_S16_Opaque>(source);
             } else {
-                blitter = allocator->createT<Sprite_D16_S16_Blend>(source, alpha);
+                blitter = allocator->make<Sprite_D16_S16_Blend>(source, alpha);
             }
             break;
         case kIndex_8_SkColorType:
@@ -351,15 +351,15 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkPixmap& source, const SkPain
             }
             if (source.isOpaque()) {
                 if (255 == alpha) {
-                    blitter = allocator->createT<Sprite_D16_SIndex8_Opaque>(source);
+                    blitter = allocator->make<Sprite_D16_SIndex8_Opaque>(source);
                 } else {
-                    blitter = allocator->createT<Sprite_D16_SIndex8_Blend>(source, alpha);
+                    blitter = allocator->make<Sprite_D16_SIndex8_Blend>(source, alpha);
                 }
             } else {
                 if (255 == alpha) {
-                    blitter = allocator->createT<Sprite_D16_SIndex8A_Opaque>(source);
+                    blitter = allocator->make<Sprite_D16_SIndex8A_Opaque>(source);
                 } else {
-                    blitter = allocator->createT<Sprite_D16_SIndex8A_Blend>(source, alpha);
+                    blitter = allocator->make<Sprite_D16_SIndex8A_Blend>(source, alpha);
                 }
             }
             break;

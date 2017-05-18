@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 
@@ -17,20 +18,20 @@ static void makebm(SkBitmap* bm, int w, int h) {
 
     SkCanvas    canvas(*bm);
     SkScalar    s = SkIntToScalar(SkMin32(w, h));
-    static const SkPoint     kPts0[] = { { 0, 0 }, { s, s } };
-    static const SkPoint     kPts1[] = { { s/2, 0 }, { s/2, s } };
-    static const SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
-    static const SkColor kColors0[] = {0x80F00080, 0xF0F08000, 0x800080F0 };
-    static const SkColor kColors1[] = {0xF08000F0, 0x8080F000, 0xF000F080 };
+    const SkPoint     kPts0[] = { { 0, 0 }, { s, s } };
+    const SkPoint     kPts1[] = { { s/2, 0 }, { s/2, s } };
+    const SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
+    const SkColor kColors0[] = {0x80F00080, 0xF0F08000, 0x800080F0 };
+    const SkColor kColors1[] = {0xF08000F0, 0x8080F000, 0xF000F080 };
 
 
     SkPaint     paint;
 
-    paint.setShader(SkGradientShader::CreateLinear(kPts0, kColors0, kPos,
-                    SK_ARRAY_COUNT(kColors0), SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(kPts0, kColors0, kPos,
+                    SK_ARRAY_COUNT(kColors0), SkShader::kClamp_TileMode));
     canvas.drawPaint(paint);
-    paint.setShader(SkGradientShader::CreateLinear(kPts1, kColors1, kPos,
-                    SK_ARRAY_COUNT(kColors1), SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(kPts1, kColors1, kPos,
+                    SK_ARRAY_COUNT(kColors1), SkShader::kClamp_TileMode));
     canvas.drawPaint(paint);
 }
 
@@ -41,9 +42,9 @@ struct LabeledMatrix {
     const char* fLabel;
 };
 
-static const char kText[] = "B";
-static const int kTextLen = SK_ARRAY_COUNT(kText) - 1;
-static const int kPointSize = 300;
+constexpr char kText[] = "B";
+constexpr int kTextLen = SK_ARRAY_COUNT(kText) - 1;
+constexpr int kPointSize = 300;
 
 class ShaderText3GM : public GM {
 public:
@@ -57,7 +58,7 @@ protected:
         return SkString("shadertext3");
     }
 
-    SkISize onISize() override{ return SkISize::Make(800, 1000); }
+    SkISize onISize() override{ return SkISize::Make(820, 930); }
 
     void onOnceBeforeDraw() override {
         makebm(&fBmp, kPointSize / 4, kPointSize / 4);
@@ -83,7 +84,7 @@ protected:
         // draw glyphs scaled up
         canvas->scale(2.f, 2.f);
 
-        static const SkShader::TileMode kTileModes[] = {
+        constexpr SkShader::TileMode kTileModes[] = {
             SkShader::kRepeat_TileMode,
             SkShader::kMirror_TileMode,
         };
@@ -100,17 +101,13 @@ protected:
                 localM.postRotate(20);
                 localM.postScale(1.15f, .85f);
 
-                SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(fBmp,
-                                                                           kTileModes[tm0],
-                                                                           kTileModes[tm1],
-                                                                           &localM));
-
                 SkPaint fillPaint;
                 fillPaint.setAntiAlias(true);
                 sk_tool_utils::set_portable_typeface(&fillPaint);
                 fillPaint.setTextSize(SkIntToScalar(kPointSize));
                 fillPaint.setFilterQuality(kLow_SkFilterQuality);
-                fillPaint.setShader(shader);
+                fillPaint.setShader(SkShader::MakeBitmapShader(fBmp, kTileModes[tm0],
+                                                               kTileModes[tm1], &localM));
 
                 canvas->drawText(kText, kTextLen, 0, 0, fillPaint);
                 canvas->drawText(kText, kTextLen, 0, 0, outlinePaint);

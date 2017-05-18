@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
 
@@ -30,7 +31,7 @@ static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint, SkScalar s
 
     if (strokeWidth > 0) {
         p.setStyle(SkPaint::kFill_Style);
-        canvas->drawText("P", 1, loc.fX, loc.fY - 225, p);
+        canvas->drawString("P", loc.fX, loc.fY - 225, p);
         canvas->drawPosText("P", 1, &loc, p);
     }
 
@@ -38,7 +39,7 @@ static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint, SkScalar s
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(strokeWidth);
 
-    canvas->drawText("P", 1, loc.fX, loc.fY - 225, p);
+    canvas->drawString("P", loc.fX, loc.fY - 225, p);
     canvas->drawPosText("P", 1, &loc, p);
 }
 
@@ -55,7 +56,7 @@ static void draw_text_set(SkCanvas* canvas, const SkPaint& paint) {
 
     canvas->translate(200, 0);
     SkPaint p(paint);
-    p.setPathEffect(SkDashPathEffect::Create(intervals, SK_ARRAY_COUNT(intervals), phase))->unref();
+    p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), phase));
     draw_text_stroked(canvas, p, 10);
 }
 

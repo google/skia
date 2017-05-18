@@ -14,14 +14,10 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
-#include "SkDevice.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
-#include "SkRTConf.h"
-#include "SkRunnable.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
@@ -108,7 +104,7 @@ struct TestResult {
     TestStep fTestStep;
     int fDirNo;
     int fPixelError;
-    int fTime;
+    SkMSec fTime;
     bool fScaleOversized;
 };
 
@@ -142,7 +138,7 @@ struct SkpSkGrThreadedTestRunner {
     skiatest::Reporter* fReporter;
 };
 
-class SkpSkGrThreadedRunnable : public SkRunnable {
+class SkpSkGrThreadedRunnable {
 public:
     SkpSkGrThreadedRunnable(void (*testFun)(SkpSkGrThreadState*), int dirNo, const char* str,
             SkpSkGrThreadedTestRunner* runner) {
@@ -153,7 +149,7 @@ public:
         fTestFun = testFun;
     }
 
-    void run() override {
+    void operator()() {
         SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
         (*fTestFun)(&fState);
     }
@@ -169,10 +165,8 @@ SkpSkGrThreadedTestRunner::~SkpSkGrThreadedTestRunner() {
 }
 
 void SkpSkGrThreadedTestRunner::render() {
-    // TODO: we don't really need to be using SkRunnables here anymore.
-    // We can just write the code we'd run right in the for loop.
-    sk_parallel_for(fRunnables.count(), [&](int i) {
-        fRunnables[i]->run();
+    SkTaskGroup().batch(fRunnables.count(), [&](int i) {
+        fRunnables[i]();
     });
 }
 
@@ -257,11 +251,11 @@ static SkString make_png_name(const char* filename) {
     return pngName;
 }
 
-typedef GrContextFactory::GLContextType GLContextType;
+typedef GrContextFactory::ContextType ContextType;
 #ifdef SK_BUILD_FOR_WIN
-static const GLContextType kAngle = GrContextFactory::kANGLE_GLContextType;
+static const ContextType kAngle = GrContextFactory::kANGLE_ContextType;
 #else
-static const GLContextType kNative = GrContextFactory::kNative_GLContextType;
+static const ContextType kNative = GrContextFactory::kNativeGL_ContextType;
 #endif
 
 static int similarBits(const SkBitmap& gr, const SkBitmap& sk) {
@@ -347,7 +341,7 @@ static SkMSec timePict(SkPicture* pic, SkCanvas* canvas) {
     SkRect rect = {0, 0, SkIntToScalar(SkTMin(maxDimension, pWidth)),
             SkIntToScalar(SkTMin(maxDimension, pHeight))};
     canvas->clipRect(rect);
-    SkMSec start = SkTime::GetMSecs();
+    skiatest::Timer timer;
     for (int x = 0; x < slices; ++x) {
         for (int y = 0; y < slices; ++y) {
             pic->draw(canvas);
@@ -355,9 +349,9 @@ static SkMSec timePict(SkPicture* pic, SkCanvas* canvas) {
         }
         canvas->translate(SkIntToScalar(xInterval), SkIntToScalar(-yInterval * slices));
     }
-    SkMSec end = SkTime::GetMSecs();
+    SkMSec elapsed = timer.elapsedMsInt();
     canvas->restore();
-    return end - start;
+    return elapsed;
 }
 
 static void drawPict(SkPicture* pic, SkCanvas* canvas, int scale) {
@@ -374,15 +368,15 @@ static void drawPict(SkPicture* pic, SkCanvas* canvas, int scale) {
 
 static void writePict(const SkBitmap& bitmap, const char* outDir, const char* pngName) {
     SkString outFile = make_filepath(0, outDir, pngName);
-    if (!SkImageEncoder::EncodeFile(outFile.c_str(), bitmap,
-            SkImageEncoder::kPNG_Type, 100)) {
+    if (!sk_tool_utils::EncodeImageToFile(outFile.c_str(), bitmap,
+            SkEncodedImageFormat::kPNG, 100)) {
         SkDebugf("unable to encode gr %s (width=%d height=%d)br \n", pngName,
                     bitmap.width(), bitmap.height());
     }
 }
 
 void TestResult::testOne() {
-    SkPicture* pic = nullptr;
+    sk_sp<SkPicture> pic;
     {
         SkString d;
         d.printf("    {%d, \"%s\"},", fDirNo, fFilename);
@@ -403,7 +397,7 @@ void TestResult::testOne() {
             wStream.write(&bytes[0], length);
             wStream.flush();
         }
-        pic = SkPicture::CreateFromStream(&stream, &SkImageDecoder::DecodeMemory);
+        pic = SkPicture::MakeFromStream(&stream);
         if (!pic) {
             SkDebugf("unable to decode %s\n", fFilename);
             goto finish;
@@ -440,25 +434,25 @@ void TestResult::testOne() {
         if (scale >= 256) {
             SkDebugf("unable to allocate bitmap for %s (w=%d h=%d) (sw=%d sh=%d)\n",
                     fFilename, pWidth, pHeight, dim.fX, dim.fY);
-            goto finish;
+            return;
         }
         SkCanvas skCanvas(bitmap);
         drawPict(pic, &skCanvas, fScaleOversized ? scale : 1);
         GrTextureDesc desc;
-        desc.fConfig = kSkia8888_GrPixelConfig;
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
         desc.fFlags = kRenderTarget_GrTextureFlagBit;
         desc.fWidth = dim.fX;
         desc.fHeight = dim.fY;
         desc.fSampleCnt = 0;
-        SkAutoTUnref<GrTexture> texture(context->createUncachedTexture(desc, nullptr, 0));
+        sk_sp<GrTexture> texture(context->createUncachedTexture(desc, nullptr, 0));
         if (!texture) {
             SkDebugf("unable to allocate texture for %s (w=%d h=%d)\n", fFilename,
                 dim.fX, dim.fY);
-            goto finish;
+            return;
         }
         SkGpuDevice grDevice(context, texture.get());
         SkCanvas grCanvas(&grDevice);
-        drawPict(pic, &grCanvas, fScaleOversized ? scale : 1);
+        drawPict(pic.get(), &grCanvas, fScaleOversized ? scale : 1);
 
         SkBitmap grBitmap;
         grBitmap.allocPixels(grCanvas.imageInfo());
@@ -466,8 +460,8 @@ void TestResult::testOne() {
 
         if (fTestStep == kCompareBits) {
             fPixelError = similarBits(grBitmap, bitmap);
-            int skTime = timePict(pic, &skCanvas);
-            int grTime = timePict(pic, &grCanvas);
+            SkMSec skTime = timePict(pic, &skCanvas);
+            SkMSec grTime = timePict(pic, &grCanvas);
             fTime = skTime - grTime;
         } else if (fTestStep == kEncodeFiles) {
             SkString pngStr = make_png_name(fFilename);
@@ -476,8 +470,6 @@ void TestResult::testOne() {
             writePict(bitmap, outSkDir, pngName);
         }
     }
-finish:
-    delete pic;
 }
 
 static SkString makeStatusString(int dirNo) {
@@ -574,10 +566,6 @@ private:
 };
 
 static bool initTest() {
-#if !defined SK_BUILD_FOR_WIN && !defined SK_BUILD_FOR_MAC
-    SK_CONF_SET("images.jpeg.suppressDecoderWarnings", true);
-    SK_CONF_SET("images.png.suppressDecoderWarnings", true);
-#endif
     return make_out_dirs();
 }
 

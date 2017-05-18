@@ -63,3 +63,68 @@ DEF_TEST(ParsePath, reporter) {
     p.addRoundRect(r, 4, 4.5f);
     test_to_from(reporter, p);
 }
+
+DEF_TEST(ParsePath_invalid, r) {
+    SkPath path;
+    // This is an invalid SVG string, but the test verifies that we do not
+    // crash.
+    bool success = SkParsePath::FromSVGString("M 5", &path);
+    REPORTER_ASSERT(r, !success);
+}
+
+#include "random_parse_path.h"
+#include "SkRandom.h"
+
+DEF_TEST(ParsePathRandom, r) {
+    SkRandom rand;
+    for (int index = 0; index < 1000; ++index) {
+        SkPath path, path2;
+        SkString spec;
+        uint32_t count = rand.nextRangeU(0, 10);
+        for (uint32_t i = 0; i < count; ++i) {
+            spec.append(MakeRandomParsePathPiece(&rand));
+        }
+        bool success = SkParsePath::FromSVGString(spec.c_str(), &path);
+        REPORTER_ASSERT(r, success);
+    }
+}
+
+DEF_TEST(ParsePathOptionalCommand, r) {
+    struct {
+        const char* fStr;
+        int         fVerbs;
+        int         fPoints;
+    } gTests[] = {
+        { "", 0, 0 },
+
+        { "H100 200 ", 3, 3 },
+        { "H-100-200", 3, 3 },
+        { "H+100+200", 3, 3 },
+        { "H.10.20"  , 3, 3 },
+        { "H-.10-.20", 3, 3 },
+        { "H+.10+.20", 3, 3 },
+
+        { "L100 100 200 200" , 3, 3 },
+        { "L-100-100-200-200", 3, 3 },
+        { "L+100+100+200+200", 3, 3 },
+        { "L.10.10.20.20"    , 3, 3 },
+        { "L-.10-.10-.20-.20", 3, 3 },
+        { "L+.10+.10+.20+.20", 3, 3 },
+
+        { "C100 100 200 200 300 300 400 400 500 500 600 600" , 3, 7 },
+        { "C100-100-200-200-300-300-400-400-500-500-600-600" , 3, 7 },
+        { "C100+100+200+200+300+300+400+400+500+500+600+600" , 3, 7 },
+        { "C.10.10.20.20.30.30.40.40.50.50.60.60"            , 3, 7 },
+        { "C-.10-.10-.20-.20-.30-.30-.40-.40-.50-.50-.60-.60", 3, 7 },
+        { "C+.10+.10+.20+.20+.30+.30+.40+.40+.50+.50+.60+.60", 3, 7 },
+
+        { "c-1.49.71-2.12 2.5-1.4 4 .71 1.49 2.5 2.12 4 1.4z", 4, 7 },
+    };
+
+    SkPath path;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gTests); ++i) {
+        REPORTER_ASSERT(r, SkParsePath::FromSVGString(gTests[i].fStr, &path));
+        REPORTER_ASSERT(r, path.countVerbs() == gTests[i].fVerbs);
+        REPORTER_ASSERT(r, path.countPoints() == gTests[i].fPoints);
+    }
+}

@@ -19,9 +19,9 @@ public:
         this->reset();
     }
 
-    virtual ~GrRectanizerSkyline() { }
+    ~GrRectanizerSkyline() override { }
 
-    void reset() override{
+    void reset() override {
         fAreaSoFar = 0;
         fSkyline.reset();
         SkylineSegment* seg = fSkyline.append(1);
@@ -49,7 +49,7 @@ private:
 
     // Can a width x height rectangle fit in the free space represented by
     // the skyline segments >= 'skylineIndex'? If so, return true and fill in
-    // 'y' with the y-location at which it fits (the x location is pulled from 
+    // 'y' with the y-location at which it fits (the x location is pulled from
     // 'skylineIndex's segment.
     bool rectangleFits(int skylineIndex, int width, int height, int* y) const;
     // Update the skyline structure to include a width x height rect located

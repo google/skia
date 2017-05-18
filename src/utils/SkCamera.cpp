@@ -83,11 +83,11 @@ void SkPatch3D::transform(const SkMatrix3D& m, SkPatch3D* dst) const {
 }
 
 SkScalar SkPatch3D::dotWith(SkScalar dx, SkScalar dy, SkScalar dz) const {
-    SkScalar cx = SkScalarMul(fU.fY, fV.fZ) - SkScalarMul(fU.fZ, fV.fY);
-    SkScalar cy = SkScalarMul(fU.fZ, fV.fX) - SkScalarMul(fU.fX, fV.fY);
-    SkScalar cz = SkScalarMul(fU.fX, fV.fY) - SkScalarMul(fU.fY, fV.fX);
+    SkScalar cx = fU.fY * fV.fZ - fU.fZ * fV.fY;
+    SkScalar cy = fU.fZ * fV.fX - fU.fX * fV.fY;
+    SkScalar cz = fU.fX * fV.fY - fU.fY * fV.fX;
 
-    return SkScalarMul(cx, dx) + SkScalarMul(cy, dy) + SkScalarMul(cz, dz);
+    return cx * dx + cy * dy + cz * dz;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -214,6 +214,7 @@ void SkCamera3D::update() {
 void SkCamera3D::doUpdate() const {
     SkUnit3D    axis, zenith, cross;
 
+    // construct a orthonormal basis of cross (x), zenith (y), and axis (z)
     fAxis.normalize(&axis);
 
     {
@@ -233,6 +234,20 @@ void SkCamera3D::doUpdate() const {
         SkScalar x = fObserver.fX;
         SkScalar y = fObserver.fY;
         SkScalar z = fObserver.fZ;
+
+        // Looking along the view axis we have:
+        //
+        //   /|\ zenith
+        //    |
+        //    |
+        //    |  * observer (projected on XY plane)
+        //    |
+        //    |____________\ cross
+        //                 /
+        //
+        // So this does a z-shear along the view axis based on the observer's x and y values,
+        // and scales in x and y relative to the negative of the observer's z value
+        // (the observer is in the negative z direction).
 
         orien->set(SkMatrix::kMScaleX, x * axis.fX - z * cross.fX);
         orien->set(SkMatrix::kMSkewX,  x * axis.fY - z * cross.fY);
@@ -264,6 +279,15 @@ void SkCamera3D::patchToMatrix(const SkPatch3D& quilt, SkMatrix* matrix) const {
     dot = SkUnit3D::Dot(*SkTCast<const SkUnit3D*>(&diff),
                         *SkTCast<const SkUnit3D*>(SkTCast<const SkScalar*>(&fOrientation) + 6));
 
+    // This multiplies fOrientation by the matrix [quilt.fU quilt.fV diff] -- U, V, and diff are
+    // column vectors in the matrix -- then divides by the length of the projection of diff onto
+    // the view axis (which is 'dot'). This transforms the patch (which transforms from local path
+    // space to world space) into view space (since fOrientation transforms from world space to
+    // view space).
+    //
+    // The divide by 'dot' isn't strictly necessary as the homogeneous divide would do much the
+    // same thing (it's just scaling the entire matrix by 1/dot). It looks like it's normalizing
+    // the matrix into some canonical space.
     patchPtr = (const SkScalar*)&quilt;
     matrix->set(SkMatrix::kMScaleX, SkScalarDotDiv(3, patchPtr, 1, mapPtr, 1, dot));
     matrix->set(SkMatrix::kMSkewY,  SkScalarDotDiv(3, patchPtr, 1, mapPtr+3, 1, dot));

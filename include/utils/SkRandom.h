@@ -8,6 +8,7 @@
 #ifndef SkRandom_DEFINED
 #define SkRandom_DEFINED
 
+#include "../private/SkFixed.h"
 #include "SkScalar.h"
 
 /** \class SkRandom
@@ -97,16 +98,6 @@ public:
         return this->nextRangeU(0, count - 1);
     }
 
-    /** Return the next pseudo random number expressed as an unsigned SkFixed
-     in the range [0..SK_Fixed1).
-     */
-    SkFixed nextUFixed1() { return this->nextU() >> 16; }
-
-    /** Return the next pseudo random number expressed as a signed SkFixed
-     in the range (-SK_Fixed1..SK_Fixed1).
-     */
-    SkFixed nextSFixed1() { return this->nextS() >> 15; }
-
     /** Return the next pseudo random number expressed as a SkScalar
      in the range [0..SK_Scalar1).
      */
@@ -120,7 +111,7 @@ public:
     }
 
     /** Return the next pseudo random number expressed as a SkScalar
-     in the range (-SK_Scalar1..SK_Scalar1).
+     in the range [-SK_Scalar1..SK_Scalar1).
      */
     SkScalar nextSScalar1() { return SkFixedToScalar(this->nextSFixed1()); }
 
@@ -163,6 +154,16 @@ private:
         SkASSERT(0 != fK && 0 != fJ);
     }
     static uint32_t NextLCG(uint32_t seed) { return kMul*seed + kAdd; }
+
+    /** Return the next pseudo random number expressed as an unsigned SkFixed
+     in the range [0..SK_Fixed1).
+     */
+    SkFixed nextUFixed1() { return this->nextU() >> 16; }
+
+    /** Return the next pseudo random number expressed as a signed SkFixed
+     in the range [-SK_Fixed1..SK_Fixed1).
+     */
+    SkFixed nextSFixed1() { return this->nextS() >> 15; }
 
     //  See "Numerical Recipes in C", 1992 page 284 for these constants
     //  For the LCG that sets the initial state from a seed

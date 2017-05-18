@@ -6,6 +6,7 @@
 */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
@@ -17,29 +18,13 @@
 #include "SkRect.h"
 #include "SkRRect.h"
 #include "SkString.h"
-#include "SkXfermode.h"
 
 // This GM mimics a blurred RR seen in the wild.
 class BlurRoundRectGM : public skiagm::GM {
 public:
-    BlurRoundRectGM(int width, int height, int radius)
-        : fName("blurroundrect")
-    {
-        SkRect r = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-        fRRect.setRectXY(r, SkIntToScalar(radius), SkIntToScalar(radius));
-        fName.appendf("-WH-%ix%i-corner-%i", width, height, radius);
-    }
-
     BlurRoundRectGM(int width, int height)
-        : fName("blurroundrect") {
+        : fName("blurroundrect"), fWidth(width), fHeight(height) {
         fName.appendf("-WH-%ix%i-unevenCorners", width,  height);
-        SkVector radii[4];
-        radii[0].set(SkIntToScalar(30), SkIntToScalar(30));
-        radii[1].set(SkIntToScalar(10), SkIntToScalar(10));
-        radii[2].set(SkIntToScalar(30), SkIntToScalar(30));
-        radii[3].set(SkIntToScalar(10), SkIntToScalar(10));
-        SkRect r = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-        fRRect.setRectRadii(r, radii);
     }
 
     SkString onShortName() override {
@@ -47,8 +32,17 @@ public:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(SkScalarCeilToInt(fRRect.rect().width()),
-                             SkScalarCeilToInt(fRRect.rect().height()));
+        return SkISize::Make(fWidth, fHeight);
+    }
+
+    void onOnceBeforeDraw() override {
+        SkVector radii[4];
+        radii[0].set(SkIntToScalar(30), SkIntToScalar(30));
+        radii[1].set(SkIntToScalar(10), SkIntToScalar(10));
+        radii[2].set(SkIntToScalar(30), SkIntToScalar(30));
+        radii[3].set(SkIntToScalar(10), SkIntToScalar(10));
+        SkRect r = SkRect::MakeWH(SkIntToScalar(fWidth), SkIntToScalar(fHeight));
+        fRRect.setRectRadii(r, radii);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -57,19 +51,17 @@ public:
             SkLayerDrawLooper::LayerInfo info;
             info.fPaintBits = SkLayerDrawLooper::kMaskFilter_Bit
                               | SkLayerDrawLooper::kColorFilter_Bit;
-            info.fColorMode = SkXfermode::kSrc_Mode;
+            info.fColorMode = SkBlendMode::kSrc;
             info.fOffset = SkPoint::Make(SkIntToScalar(-1), SkIntToScalar(0));
             info.fPostTranslate = false;
             SkPaint* paint = looperBuilder.addLayerOnTop(info);
-            SkMaskFilter* maskFilter = SkBlurMaskFilter::Create(
+            paint->setMaskFilter(SkBlurMaskFilter::Make(
                     kNormal_SkBlurStyle,
                     SkBlurMask::ConvertRadiusToSigma(SK_ScalarHalf),
-                    SkBlurMaskFilter::kHighQuality_BlurFlag);
-            paint->setMaskFilter(maskFilter)->unref();
-            SkColorFilter* colorFilter = SkColorFilter::CreateModeFilter(
+                    SkBlurMaskFilter::kHighQuality_BlurFlag));
+            paint->setColorFilter(SkColorFilter::MakeModeFilter(
                     sk_tool_utils::color_to_565(SK_ColorLTGRAY),
-                    SkXfermode::kSrcIn_Mode);
-            paint->setColorFilter(colorFilter)->unref();
+                    SkBlendMode::kSrcIn));
             paint->setColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
         }
         {
@@ -79,7 +71,7 @@ public:
         SkPaint paint;
         canvas->drawRect(fRRect.rect(), paint);
 
-        paint.setLooper(looperBuilder.detachLooper())->unref();
+        paint.setLooper(looperBuilder.detach());
         paint.setColor(SK_ColorCYAN);
         paint.setAntiAlias(true);
 
@@ -89,6 +81,7 @@ public:
 private:
     SkString        fName;
     SkRRect         fRRect;
+    int             fWidth, fHeight;
 
     typedef skiagm::GM INHERITED;
 };
@@ -97,7 +90,7 @@ private:
 /*
  * Spits out a dummy gradient to test blur with shader on paint
  */
-static SkShader* MakeRadial() {
+static sk_sp<SkShader> MakeRadial() {
     SkPoint pts[2] = {
         { 0, 0 },
         { SkIntToScalar(100), SkIntToScalar(100) }
@@ -113,10 +106,10 @@ static SkShader* MakeRadial() {
                 SkScalarAve(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
-    return SkGradientShader::CreateTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
-                                                   center0, (pts[1].fX - pts[0].fX) / 2,
-                                                   colors, pos, SK_ARRAY_COUNT(colors), tm,
-                                                   0, &scale);
+    return SkGradientShader::MakeTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
+                                                 center0, (pts[1].fX - pts[0].fX) / 2,
+                                                 colors, pos, SK_ARRAY_COUNT(colors), tm,
+                                                 0, &scale);
 }
 
 // Simpler blurred RR test cases where all the radii are the same.
@@ -148,17 +141,15 @@ protected:
             canvas->translate(0, (r.height() + SkIntToScalar(50)) * i);
             for (size_t j = 0; j < SK_ARRAY_COUNT(cornerRadii); ++j) {
                 for (int k = 0; k <= 1; k++) {
-                    SkMaskFilter* filter = SkBlurMaskFilter::Create(
-                        kNormal_SkBlurStyle,
-                        SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(blurRadii[i])),
-                        SkBlurMaskFilter::kHighQuality_BlurFlag);
                     SkPaint paint;
                     paint.setColor(SK_ColorBLACK);
-                    paint.setMaskFilter(filter)->unref();
+                    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                   SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(blurRadii[i])),
+                                   SkBlurMaskFilter::kHighQuality_BlurFlag));
 
                     bool useRadial = SkToBool(k);
                     if (useRadial) {
-                        paint.setShader(MakeRadial())->unref();
+                        paint.setShader(MakeRadial());
                     }
 
                     SkRRect rrect;

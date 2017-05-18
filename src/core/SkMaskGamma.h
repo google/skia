@@ -92,7 +92,7 @@ void SkTMaskGamma_build_correcting_lut(uint8_t table[256], U8CPU srcI, SkScalar 
  * @param B The number of luminance bits to use [1, 8] from the blue channel.
  */
 template <int R_LUM_BITS, int G_LUM_BITS, int B_LUM_BITS> class SkTMaskGamma : public SkRefCnt {
-    
+
 public:
 
     /** Creates a linear SkTMaskGamma. */
@@ -151,7 +151,7 @@ public:
     const uint8_t* getGammaTables() const {
         return (const uint8_t*) fGammaTables;
     }
-    
+
 private:
     static const int MAX_LUM_BITS =
           B_LUM_BITS > (R_LUM_BITS > G_LUM_BITS ? R_LUM_BITS : G_LUM_BITS)
@@ -174,11 +174,11 @@ private:
  */
 template <int R_LUM_BITS, int G_LUM_BITS, int B_LUM_BITS> class SkTMaskPreBlend {
 private:
-    SkTMaskPreBlend(const SkTMaskGamma<R_LUM_BITS, G_LUM_BITS, B_LUM_BITS>* parent,
+    SkTMaskPreBlend(sk_sp<const SkTMaskGamma<R_LUM_BITS, G_LUM_BITS, B_LUM_BITS>> parent,
                     const uint8_t* r, const uint8_t* g, const uint8_t* b)
-    : fParent(SkSafeRef(parent)), fR(r), fG(g), fB(b) { }
+    : fParent(std::move(parent)), fR(r), fG(g), fB(b) { }
 
-    SkAutoTUnref<const SkTMaskGamma<R_LUM_BITS, G_LUM_BITS, B_LUM_BITS> > fParent;
+    sk_sp<const SkTMaskGamma<R_LUM_BITS, G_LUM_BITS, B_LUM_BITS>> fParent;
     friend class SkTMaskGamma<R_LUM_BITS, G_LUM_BITS, B_LUM_BITS>;
 public:
     /** Creates a non applicable SkTMaskPreBlend. */
@@ -189,7 +189,7 @@ public:
      * when return value optimization is enabled.
      */
     SkTMaskPreBlend(const SkTMaskPreBlend<R_LUM_BITS, G_LUM_BITS, B_LUM_BITS>& that)
-    : fParent(SkSafeRef(that.fParent.get())), fR(that.fR), fG(that.fG), fB(that.fB) { }
+    : fParent(that.fParent), fR(that.fR), fG(that.fG), fB(that.fB) { }
 
     ~SkTMaskPreBlend() { }
 
@@ -205,7 +205,7 @@ template <int R_LUM_BITS, int G_LUM_BITS, int B_LUM_BITS>
 SkTMaskPreBlend<R_LUM_BITS, G_LUM_BITS, B_LUM_BITS>
 SkTMaskGamma<R_LUM_BITS, G_LUM_BITS, B_LUM_BITS>::preBlend(SkColor color) const {
     return fIsLinear ? SkTMaskPreBlend<R_LUM_BITS, G_LUM_BITS, B_LUM_BITS>()
-                     : SkTMaskPreBlend<R_LUM_BITS, G_LUM_BITS, B_LUM_BITS>(this,
+                     : SkTMaskPreBlend<R_LUM_BITS, G_LUM_BITS, B_LUM_BITS>(sk_ref_sp(this),
                          fGammaTables[SkColorGetR(color) >> (8 - MAX_LUM_BITS)],
                          fGammaTables[SkColorGetG(color) >> (8 - MAX_LUM_BITS)],
                          fGammaTables[SkColorGetB(color) >> (8 - MAX_LUM_BITS)]);

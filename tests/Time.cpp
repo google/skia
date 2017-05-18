@@ -49,8 +49,6 @@ DEF_TEST(Time_GetDateTime, r) {
     SkString timeStamp;
     dateTime.toISO8601(&timeStamp);
     REPORTER_ASSERT(r, timeStamp.size() > 0);
-    if (r->verbose()) {  // `dm --veryVerbose`
-        SkDebugf("\nCurrent Time (ISO-8601 format): \"%s\"\n",
-                 timeStamp.c_str());
-    }
+    INFOF(r, "\nCurrent Time (ISO-8601 format): \"%s\"\n",
+          timeStamp.c_str());
 }

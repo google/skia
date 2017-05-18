@@ -10,6 +10,7 @@
 
 #include "GrTypes.h"
 #include "GrTypesPriv.h"
+#include "SkRefCnt.h"
 
 class GrFragmentProcessor;
 class GrProcessor;
@@ -20,7 +21,7 @@ namespace GrRRectEffect {
      * Creates an effect that performs anti-aliased clipping against a SkRRect. It doesn't support
      * all varieties of SkRRect so the caller must check for a nullptr return.
      */
-    GrFragmentProcessor* Create(GrPrimitiveEdgeType, const SkRRect&);
+    sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkRRect&);
 };
 
 #endif

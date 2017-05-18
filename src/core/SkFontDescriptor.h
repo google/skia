@@ -8,15 +8,16 @@
 #ifndef SkFontDescriptor_DEFINED
 #define SkFontDescriptor_DEFINED
 
+#include "SkFixed.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTypeface.h"
 
 class SkFontData {
 public:
-    /** This takes ownership of 'stream'. Makes a copy of the data in 'axis'. */
-    SkFontData(SkStreamAsset* stream, int index, const SkFixed axis[], int axisCount)
-        : fStream(stream), fIndex(index), fAxisCount(axisCount), fAxis(axisCount)
+    /** Makes a copy of the data in 'axis'. */
+    SkFontData(std::unique_ptr<SkStreamAsset> stream, int index, const SkFixed axis[],int axisCount)
+        : fStream(std::move(stream)), fIndex(index), fAxisCount(axisCount), fAxis(axisCount)
     {
         for (int i = 0; i < axisCount; ++i) {
             fAxis[i] = axis[i];
@@ -33,15 +34,15 @@ public:
         }
     }
     bool hasStream() const { return fStream.get() != nullptr; }
-    SkStreamAsset* duplicateStream() const { return fStream->duplicate(); }
-    SkStreamAsset* detachStream() { return fStream.detach(); }
+    std::unique_ptr<SkStreamAsset> detachStream() { return std::move(fStream); }
     SkStreamAsset* getStream() { return fStream.get(); }
+    SkStreamAsset const* getStream() const { return fStream.get(); }
     int getIndex() const { return fIndex; }
     int getAxisCount() const { return fAxisCount; }
     const SkFixed* getAxis() const { return fAxis.get(); }
 
 private:
-    SkAutoTDelete<SkStreamAsset> fStream;
+    std::unique_ptr<SkStreamAsset> fStream;
     int fIndex;
     int fAxisCount;
     SkAutoSTMalloc<4, SkFixed> fAxis;
@@ -49,35 +50,34 @@ private:
 
 class SkFontDescriptor : SkNoncopyable {
 public:
-    SkFontDescriptor(SkTypeface::Style = SkTypeface::kNormal);
+    SkFontDescriptor();
     // Does not affect ownership of SkStream.
-    SkFontDescriptor(SkStream*);
+    static bool Deserialize(SkStream*, SkFontDescriptor* result);
 
     void serialize(SkWStream*);
 
-    SkTypeface::Style getStyle() { return fStyle; }
-    void setStyle(SkTypeface::Style style) { fStyle = style; }
+    SkFontStyle getStyle() { return fStyle; }
+    void setStyle(SkFontStyle style) { fStyle = style; }
 
     const char* getFamilyName() const { return fFamilyName.c_str(); }
     const char* getFullName() const { return fFullName.c_str(); }
     const char* getPostscriptName() const { return fPostscriptName.c_str(); }
     bool hasFontData() const { return fFontData.get() != nullptr; }
-    SkFontData* detachFontData() { return fFontData.detach(); }
+    std::unique_ptr<SkFontData> detachFontData() { return std::move(fFontData); }
 
     void setFamilyName(const char* name) { fFamilyName.set(name); }
     void setFullName(const char* name) { fFullName.set(name); }
     void setPostscriptName(const char* name) { fPostscriptName.set(name); }
-    /** Set the font data only if it is necessary for serialization.
-     *  This method takes ownership of the font data. */
-    void setFontData(SkFontData* data) { fFontData.reset(data); }
+    /** Set the font data only if it is necessary for serialization. */
+    void setFontData(std::unique_ptr<SkFontData> data) { fFontData = std::move(data); }
 
 private:
     SkString fFamilyName;
     SkString fFullName;
     SkString fPostscriptName;
-    SkAutoTDelete<SkFontData> fFontData;
+    std::unique_ptr<SkFontData> fFontData;
 
-    SkTypeface::Style fStyle;
+    SkFontStyle fStyle;
 };
 
 #endif // SkFontDescriptor_DEFINED

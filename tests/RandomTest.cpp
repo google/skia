@@ -119,7 +119,7 @@ static double test_single_gorilla(skiatest::Reporter* reporter, int shift) {
 
     // now make some strings and track them
     for (int i = 0; i < kN; ++i) {
-        value <<= 1;
+        value = SkLeftShift(value, 1);
         unsigned int rnd = rand.nextU();
         value |= ((rnd >> shift) & 0x1);
 

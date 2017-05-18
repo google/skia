@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -83,7 +82,7 @@ static SkScalar make_star(SkPath* path, int n) {
     for (int i = 1; i < n; i++) {
         rad += drad;
         SkScalar cosV, sinV = SkScalarSinCos(rad, &cosV);
-        path->lineTo(c + SkScalarMul(cosV, r), c + SkScalarMul(sinV, r));
+        path->lineTo(c + cosV * r, c + sinV * r);
     }
     path->close();
     return r * 2 * 6 / 5;

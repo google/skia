@@ -7,7 +7,7 @@
 
 #include "SkAtomics.h"
 #include "SkEventTracer.h"
-#include "SkOncePtr.h"
+#include "SkOnce.h"
 
 #include <stdlib.h>
 
@@ -39,20 +39,26 @@ class SkDefaultEventTracer : public SkEventTracer {
     }
 };
 
-// We prefer gUserTracer if it's been set, otherwise we fall back on gDefaultTracer.
+// We prefer gUserTracer if it's been set, otherwise we fall back on a default tracer;
 static SkEventTracer* gUserTracer = nullptr;
-SK_DECLARE_STATIC_ONCE_PTR(SkDefaultEventTracer, gDefaultTracer);
 
-void SkEventTracer::SetInstance(SkEventTracer* tracer) {
-    SkASSERT(nullptr == sk_atomic_load(&gUserTracer, sk_memory_order_acquire));
-    sk_atomic_store(&gUserTracer, tracer, sk_memory_order_release);
+bool SkEventTracer::SetInstance(SkEventTracer* tracer) {
+    SkEventTracer* expected = nullptr;
+    if (!sk_atomic_compare_exchange(&gUserTracer, &expected, tracer)) {
+        delete tracer;
+        return false;
+    }
     // An atomic load during process shutdown is probably overkill, but safe overkill.
-    atexit([]() { delete sk_atomic_load(&gUserTracer, sk_memory_order_acquire); });
+    atexit([]() { delete sk_atomic_load(&gUserTracer); });
+    return true;
 }
 
 SkEventTracer* SkEventTracer::GetInstance() {
     if (SkEventTracer* tracer = sk_atomic_load(&gUserTracer, sk_memory_order_acquire)) {
         return tracer;
     }
-    return gDefaultTracer.get([]{ return new SkDefaultEventTracer; });
+    static SkOnce once;
+    static SkDefaultEventTracer* defaultTracer;
+    once([] { defaultTracer = new SkDefaultEventTracer; });
+    return defaultTracer;
 }

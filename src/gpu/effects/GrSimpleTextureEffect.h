@@ -9,67 +9,93 @@
 #define GrSimpleTextureEffect_DEFINED
 
 #include "GrSingleTextureEffect.h"
+#include "GrTextureProxy.h"
 
 class GrInvariantOutput;
 
 /**
  * The output color of this effect is a modulation of the input color and a sample from a texture.
- * It allows explicit specification of the filtering and wrap modes (GrTextureParams). It can use
- * local coords or device space coords as input texture coords. The input coords may be transformed
- * by a matrix.
+ * It allows explicit specification of the filtering and wrap modes (GrSamplerParams) and accepts
+ * a matrix that is used to compute texture coordinates from local coordinates.
  */
 class GrSimpleTextureEffect : public GrSingleTextureEffect {
 public:
     /* unfiltered, clamp mode */
-    static const GrFragmentProcessor* Create(GrTexture* tex,
-                                             const SkMatrix& matrix,
-                                             GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return new GrSimpleTextureEffect(tex, matrix, GrTextureParams::kNone_FilterMode, coordSet);
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+                                           sk_sp<GrTextureProxy> proxy,
+                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                           const SkMatrix& matrix) {
+        // MDB TODO: remove this instantiation once instantiation is pushed past the
+        // TextureSamplers. Instantiation failure in the TextureSampler is difficult to
+        // recover from.
+        GrTexture* temp = proxy->instantiateTexture(resourceProvider);
+        if (!temp) {
+            return nullptr;
+        }
+
+        return sk_sp<GrFragmentProcessor>(
+            new GrSimpleTextureEffect(resourceProvider, std::move(proxy),
+                                      std::move(colorSpaceXform), matrix,
+                                      GrSamplerParams::kNone_FilterMode));
     }
 
     /* clamp mode */
-    static GrFragmentProcessor* Create(GrTexture* tex,
-                                       const SkMatrix& matrix,
-                                       GrTextureParams::FilterMode filterMode,
-                                       GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return new GrSimpleTextureEffect(tex, matrix, filterMode, coordSet);
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+                                           sk_sp<GrTextureProxy> proxy,
+                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                           const SkMatrix& matrix,
+                                           GrSamplerParams::FilterMode filterMode) {
+        // MDB TODO: remove this instantiation once instantiation is pushed past the
+        // TextureSamplers. Instantiation failure in the TextureSampler is difficult to
+        // recover from.
+        GrTexture* temp = proxy->instantiateTexture(resourceProvider);
+        if (!temp) {
+            return nullptr;
+        }
+
+        return sk_sp<GrFragmentProcessor>(
+            new GrSimpleTextureEffect(resourceProvider, std::move(proxy),
+                                      std::move(colorSpaceXform),
+                                      matrix, filterMode));
     }
 
-    static GrFragmentProcessor* Create(GrTexture* tex,
-                                       const SkMatrix& matrix,
-                                       const GrTextureParams& p,
-                                       GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return new GrSimpleTextureEffect(tex, matrix, p, coordSet);
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+                                           sk_sp<GrTextureProxy> proxy,
+                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                           const SkMatrix& matrix,
+                                           const GrSamplerParams& p) {
+        // MDB TODO: remove this instantiation once instantiation is pushed past the
+        // TextureSamplers. Instantiation failure in the TextureSampler is difficult to
+        // recover from.
+        GrTexture* temp = proxy->instantiateTexture(resourceProvider);
+        if (!temp) {
+            return nullptr;
+        }
+
+        return sk_sp<GrFragmentProcessor>(new GrSimpleTextureEffect(resourceProvider,
+                                                                    std::move(proxy),
+                                                                    std::move(colorSpaceXform),
+                                                                    matrix, p));
     }
 
-    virtual ~GrSimpleTextureEffect() {}
+    ~GrSimpleTextureEffect() override {}
 
     const char* name() const override { return "SimpleTexture"; }
 
 private:
-    GrSimpleTextureEffect(GrTexture* texture,
-                          const SkMatrix& matrix,
-                          GrTextureParams::FilterMode filterMode,
-                          GrCoordSet coordSet)
-        : GrSingleTextureEffect(texture, matrix, filterMode, coordSet) {
-        this->initClassID<GrSimpleTextureEffect>();
-    }
+    GrSimpleTextureEffect(GrResourceProvider*, sk_sp<GrTextureProxy>,
+                          sk_sp<GrColorSpaceXform>, const SkMatrix& matrix,
+                          GrSamplerParams::FilterMode);
 
-    GrSimpleTextureEffect(GrTexture* texture,
-                          const SkMatrix& matrix,
-                          const GrTextureParams& params,
-                          GrCoordSet coordSet)
-        : GrSingleTextureEffect(texture, matrix, params, coordSet) {
-        this->initClassID<GrSimpleTextureEffect>();
-    }
+    GrSimpleTextureEffect(GrResourceProvider*, sk_sp<GrTextureProxy>,
+                          sk_sp<GrColorSpaceXform>, const SkMatrix& matrix,
+                          const GrSamplerParams&);
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override { return true; }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 

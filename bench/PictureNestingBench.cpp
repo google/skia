@@ -74,8 +74,7 @@ protected:
         c->restore();
 
         if (recordPicture) {
-            SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-            canvas->drawPicture(picture);
+            canvas->drawPicture(recorder.finishRecordingAsPicture());
         }
 
         return pics;
@@ -125,7 +124,7 @@ protected:
             SkCanvas* c = recorder.beginRecording(SkIntToScalar(canvasSize.x()),
                                                   SkIntToScalar(canvasSize.y()));
             this->doDraw(c);
-            SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+            (void)recorder.finishRecordingAsPicture();
         }
     }
 
@@ -148,7 +147,7 @@ protected:
                                               SkIntToScalar(canvasSize.y()));
 
         this->doDraw(c);
-        fPicture.reset(recorder.endRecording());
+        fPicture = recorder.finishRecordingAsPicture();
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
@@ -158,7 +157,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkPicture> fPicture;
+    sk_sp<SkPicture> fPicture;
 
     typedef PictureNesting INHERITED;
 };

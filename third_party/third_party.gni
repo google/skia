@@ -1,0 +1,37 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+template("third_party") {
+  config(target_name + "_public") {
+    if (defined(invoker.public_defines)) {
+      defines = invoker.public_defines
+    }
+    include_dirs = invoker.public_include_dirs
+  }
+  source_set(target_name) {
+    forward_variables_from(invoker, "*", [ "public_include_dirs" ])
+    public_configs = [ ":" + target_name + "_public" ]
+
+    # Warnings are just noise if we're not maintaining the code.
+    if (is_win) {
+      cflags = [ "/w" ]
+    } else {
+      cflags = [ "-w" ]
+    }
+  }
+}
+
+set_defaults("third_party") {
+  configs = default_configs - [ "//gn:warnings" ]
+}
+
+template("system") {
+  config(target_name + "_public") {
+    forward_variables_from(invoker, "*", [])
+  }
+  group(target_name) {
+    public_configs = [ ":" + target_name + "_public" ]
+  }
+}

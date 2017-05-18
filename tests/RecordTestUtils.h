@@ -10,6 +10,7 @@
 
 #include "SkRecord.h"
 #include "SkRecords.h"
+#include "Test.h"
 
 // If the command we're reading is a U, set ptr to it, otherwise set it to nullptr.
 template <typename U>
@@ -29,7 +30,7 @@ struct ReadAs {
 template <typename T>
 static const T* assert_type(skiatest::Reporter* r, const SkRecord& record, int index) {
     ReadAs<T> reader;
-    record.visit<void>(index, reader);
+    record.visit(index, reader);
     REPORTER_ASSERT(r, T::kType == reader.type);
     REPORTER_ASSERT(r, SkToBool(reader.ptr));
     return reader.ptr;
@@ -44,7 +45,7 @@ template <typename DrawT> int count_instances_of_type(const SkRecord& record) {
     MatchType<DrawT> matcher;
     int counter = 0;
     for (int i = 0; i < record.count(); i++) {
-        counter += record.visit<int>(i, matcher);
+        counter += record.visit(i, matcher);
     }
     return counter;
 }
@@ -52,7 +53,7 @@ template <typename DrawT> int count_instances_of_type(const SkRecord& record) {
 template <typename DrawT> int find_first_instances_of_type(const SkRecord& record) {
     MatchType<DrawT> matcher;
     for (int i = 0; i < record.count(); i++) {
-        if (record.visit<int>(i, matcher)) {
+        if (record.visit(i, matcher)) {
             return i;
         }
     }

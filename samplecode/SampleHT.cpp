@@ -57,7 +57,7 @@ public:
         fInterp = nullptr;
         fTime = 0;
     }
-    
+
     void spawnAnimation(SkMSec now) {
         this->setTime(now);
 
@@ -95,9 +95,7 @@ public:
             fColor = floats_to_color(values);
 
             canvas->save();
-            canvas->translate(fR.centerX(), fR.centerY());
-            canvas->rotate(values[4]);
-            canvas->translate(-fR.centerX(), -fR.centerY());
+            canvas->rotate(values[4], fR.centerX(), fR.centerY());
 
             switch (res) {
                 case SkInterpolator::kFreezeEnd_Result:
@@ -122,14 +120,14 @@ public:
         W = 640,
         H = 480,
     };
-    
+
     struct Rec {
         HTDrawable* fDrawable;
     };
     Rec fArray[N];
-    SkAutoTUnref<SkDrawable> fRoot;
+    sk_sp<SkDrawable> fRoot;
     SkMSec fTime;
-    
+
     HTView() {
         SkRandom rand;
 
@@ -140,7 +138,7 @@ public:
             canvas->drawDrawable(fArray[i].fDrawable);
             fArray[i].fDrawable->unref();
         }
-        fRoot.reset(recorder.endRecordingAsDrawable());
+        fRoot = recorder.finishRecordingAsDrawable();
     }
 
 protected:
@@ -153,7 +151,7 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawDrawable(fRoot);
+        canvas->drawDrawable(fRoot.get());
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

@@ -22,16 +22,19 @@ class SkBitmap;
 class SkCanvas;
 
 struct Config {
-    const char* name;
+    SkString name;
     Benchmark::Backend backend;
     SkColorType color;
     SkAlphaType alpha;
+    sk_sp<SkColorSpace> colorSpace;
     int samples;
 #if SK_SUPPORT_GPU
-    GrContextFactory::GLContextType ctxType;
+    sk_gpu_test::GrContextFactory::ContextType ctxType;
+    sk_gpu_test::GrContextFactory::ContextOverrides ctxOverrides;
     bool useDFText;
 #else
     int bogusInt;
+    int bogusIntOption;
     bool bogusBool;
 #endif
 };
@@ -41,7 +44,7 @@ struct Target {
     virtual ~Target() { }
 
     const Config config;
-    SkAutoTDelete<SkSurface> surface;
+    sk_sp<SkSurface> surface;
 
     /** Called once per target, immediately before any timing or drawing. */
     virtual void setup() { }

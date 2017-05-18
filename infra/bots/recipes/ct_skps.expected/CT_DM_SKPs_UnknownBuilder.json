@@ -1,0 +1,7 @@
+[
+  {
+    "name": "$result",
+    "reason": "Uncaught Exception: Exception('Do not recognise the buildername Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_UnknownRepo_SKPs.',)",
+    "status_code": -1
+  }
+]

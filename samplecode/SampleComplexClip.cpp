@@ -1,14 +1,15 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
 #include "SkView.h"
+#include "SkClipOpPriv.h"
 
 class ComplexClipView : public SampleView {
 public:
@@ -80,14 +81,14 @@ protected:
         canvas->drawPath(clipB, paint);
 
         static const struct {
-            SkRegion::Op fOp;
-            const char*  fName;
+            SkClipOp    fOp;
+            const char* fName;
         } gOps[] = { //extra spaces in names for measureText
-            {SkRegion::kIntersect_Op,         "Isect "},
-            {SkRegion::kDifference_Op,        "Diff " },
-            {SkRegion::kUnion_Op,             "Union "},
-            {SkRegion::kXOR_Op,               "Xor "  },
-            {SkRegion::kReverseDifference_Op, "RDiff "}
+            {kIntersect_SkClipOp,         "Isect "},
+            {kDifference_SkClipOp,        "Diff " },
+            {kUnion_SkClipOp,             "Union "},
+            {kXOR_SkClipOp,               "Xor "  },
+            {kReverseDifference_SkClipOp, "RDiff "}
         };
 
         canvas->translate(0, SkIntToScalar(40));
@@ -128,14 +129,14 @@ protected:
                 SkScalar txtX = SkIntToScalar(55);
                 paint.setColor(colorA);
                 const char* aTxt = invA ? "InverseA " : "A ";
-                canvas->drawText(aTxt, strlen(aTxt), txtX, SkIntToScalar(220), paint);
+                canvas->drawString(aTxt, txtX, SkIntToScalar(220), paint);
                 txtX += paint.measureText(aTxt, strlen(aTxt));
                 paint.setColor(SK_ColorBLACK);
-                canvas->drawText(gOps[op].fName, strlen(gOps[op].fName),
+                canvas->drawString(gOps[op].fName,
                                     txtX, SkIntToScalar(220), paint);
                 txtX += paint.measureText(gOps[op].fName, strlen(gOps[op].fName));
                 paint.setColor(colorB);
-                canvas->drawText("B", 1, txtX, SkIntToScalar(220), paint);
+                canvas->drawString("B", txtX, SkIntToScalar(220), paint);
 
                 canvas->translate(SkIntToScalar(250),0);
             }

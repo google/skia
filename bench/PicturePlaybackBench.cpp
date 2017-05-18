@@ -42,7 +42,7 @@ protected:
         SkPictureRecorder recorder;
         SkCanvas* pCanvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT, nullptr, 0);
         this->recordCanvas(pCanvas);
-        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+        sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
         const SkPoint translateDelta = getTranslateDelta(loops);
 
@@ -163,14 +163,14 @@ public:
     SkIPoint onGetSize() override { return SkIPoint::Make(1024,1024); }
 
     void onDelayedSetup() override {
-        SkAutoTDelete<SkBBHFactory> factory;
+        std::unique_ptr<SkBBHFactory> factory;
         switch (fBBH) {
             case kNone:                                                 break;
             case kRTree:    factory.reset(new SkRTreeFactory);          break;
         }
 
         SkPictureRecorder recorder;
-        SkCanvas* canvas = recorder.beginRecording(1024, 1024, factory);
+        SkCanvas* canvas = recorder.beginRecording(1024, 1024, factory.get());
             SkRandom rand;
             for (int i = 0; i < 10000; i++) {
                 SkScalar x = rand.nextRangeScalar(0, 1024),
@@ -182,7 +182,7 @@ public:
                 paint.setAlpha(0xFF);
                 canvas->drawRect(SkRect::MakeXYWH(x,y,w,h), paint);
             }
-        fPic.reset(recorder.endRecording());
+        fPic = recorder.finishRecordingAsPicture();
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
@@ -207,10 +207,10 @@ public:
     }
 
 private:
-    BBH                     fBBH;
-    Mode                    fMode;
-    SkString                fName;
-    SkAutoTUnref<SkPicture> fPic;
+    BBH                 fBBH;
+    Mode                fMode;
+    SkString            fName;
+    sk_sp<SkPicture>    fPic;
 };
 
 DEF_BENCH( return new TiledPlaybackBench(kNone,     kRandom); )

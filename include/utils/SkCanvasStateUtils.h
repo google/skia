@@ -62,7 +62,7 @@ public:
      *         identical to the captured canvas. The caller is responsible for
      *         calling unref on the SkCanvas.
      */
-    static SkCanvas* CreateFromCanvasState(const SkCanvasState* state);
+    static std::unique_ptr<SkCanvas> MakeFromCanvasState(const SkCanvasState* state);
 
     /**
      * Free the memory associated with the captured canvas state.  The state

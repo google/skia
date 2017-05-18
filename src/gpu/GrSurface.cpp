@@ -6,15 +6,19 @@
  */
 
 #include "GrSurface.h"
+#include "GrContext.h"
+#include "GrOpList.h"
 #include "GrSurfacePriv.h"
+#include "GrTexture.h"
 
-#include "SkBitmap.h"
 #include "SkGr.h"
-#include "SkImageEncoder.h"
-#include <stdio.h>
+#include "SkMathPriv.h"
 
-size_t GrSurface::WorseCaseSize(const GrSurfaceDesc& desc) {
+size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
     size_t size;
+
+    int width = useNextPow2 ? GrNextPow2(desc.fWidth) : desc.fWidth;
+    int height = useNextPow2 ? GrNextPow2(desc.fHeight) : desc.fHeight;
 
     bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
     if (isRenderTarget) {
@@ -26,20 +30,54 @@ size_t GrSurface::WorseCaseSize(const GrSurfaceDesc& desc) {
         }
         SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
         SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
-        size_t colorBytes = GrBytesPerPixel(desc.fConfig);
-        SkASSERT(colorBytes > 0);
-        size = colorValuesPerPixel * desc.fWidth * desc.fHeight * colorBytes;
+        size_t colorBytes = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
+
+        // This would be a nice assert to have (i.e., we aren't creating 0 width/height surfaces).
+        // Unfortunately Chromium seems to want to do this.
+        //SkASSERT(colorBytes > 0);
+
+        size = colorValuesPerPixel * colorBytes;
+        size += colorBytes/3; // in case we have to mipmap
     } else {
         if (GrPixelConfigIsCompressed(desc.fConfig)) {
-            size = GrCompressedFormatDataSize(desc.fConfig, desc.fWidth, desc.fHeight);
+            size = GrCompressedFormatDataSize(desc.fConfig, width, height);
         } else {
-            size = (size_t) desc.fWidth * desc.fHeight * GrBytesPerPixel(desc.fConfig);
+            size = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
         }
 
         size += size/3;  // in case we have to mipmap
     }
 
     return size;
+}
+
+size_t GrSurface::ComputeSize(GrPixelConfig config,
+                              int width,
+                              int height,
+                              int colorSamplesPerPixel,
+                              bool hasMIPMaps,
+                              bool useNextPow2) {
+    size_t colorSize;
+
+    width = useNextPow2 ? GrNextPow2(width) : width;
+    height = useNextPow2 ? GrNextPow2(height) : height;
+
+    SkASSERT(kUnknown_GrPixelConfig != config);
+    if (GrPixelConfigIsCompressed(config)) {
+        colorSize = GrCompressedFormatDataSize(config, width, height);
+    } else {
+        colorSize = (size_t)width * height * GrBytesPerPixel(config);
+    }
+    SkASSERT(colorSize > 0);
+
+    size_t finalSize = colorSamplesPerPixel * colorSize;
+
+    if (hasMIPMaps) {
+        // We don't have to worry about the mipmaps being a different size than
+        // we'd expect because we never change fDesc.fWidth/fHeight.
+        finalSize += colorSize/3;
+    }
+    return finalSize;
 }
 
 template<typename T> static bool adjust_params(int surfaceWidth,
@@ -91,79 +129,6 @@ bool GrSurfacePriv::AdjustWritePixelParams(int surfaceWidth,
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool GrSurface::writePixels(int left, int top, int width, int height,
-                            GrPixelConfig config, const void* buffer, size_t rowBytes,
-                            uint32_t pixelOpsFlags) {
-    // go through context so that all necessary flushing occurs
-    GrContext* context = this->getContext();
-    if (nullptr == context) {
-        return false;
-    }
-    return context->writeSurfacePixels(this, left, top, width, height, config, buffer, rowBytes,
-                                       pixelOpsFlags);
-}
-
-bool GrSurface::readPixels(int left, int top, int width, int height,
-                           GrPixelConfig config, void* buffer, size_t rowBytes,
-                           uint32_t pixelOpsFlags) {
-    // go through context so that all necessary flushing occurs
-    GrContext* context = this->getContext();
-    if (nullptr == context) {
-        return false;
-    }
-    return context->readSurfacePixels(this, left, top, width, height, config, buffer,
-                                      rowBytes, pixelOpsFlags);
-}
-
-SkImageInfo GrSurface::info(SkAlphaType alphaType) const {
-    SkColorType colorType;
-    SkColorProfileType profileType;
-    if (!GrPixelConfig2ColorAndProfileType(this->config(), &colorType, &profileType)) {
-        sk_throw();
-    }
-    return SkImageInfo::Make(this->width(), this->height(), colorType, alphaType,
-                             profileType);
-}
-
-// TODO: This should probably be a non-member helper function. It might only be needed in
-// debug or developer builds.
-bool GrSurface::savePixels(const char* filename) {
-    SkBitmap bm;
-    if (!bm.tryAllocPixels(SkImageInfo::MakeN32Premul(this->width(), this->height()))) {
-        return false;
-    }
-
-    bool result = this->readPixels(0, 0, this->width(), this->height(), kSkia8888_GrPixelConfig,
-                                   bm.getPixels());
-    if (!result) {
-        SkDebugf("------ failed to read pixels for %s\n", filename);
-        return false;
-    }
-
-    // remove any previous version of this file
-    remove(filename);
-
-    if (!SkImageEncoder::EncodeFile(filename, bm, SkImageEncoder::kPNG_Type, 100)) {
-        SkDebugf("------ failed to encode %s\n", filename);
-        remove(filename);   // remove any partial file
-        return false;
-    }
-
-    return true;
-}
-
-void GrSurface::flushWrites() {
-    if (!this->wasDestroyed()) {
-        this->getContext()->flushSurfaceWrites(this);
-    }
-}
-
-void GrSurface::prepareForExternalIO() {
-    if (!this->wasDestroyed()) {
-        this->getContext()->prepareSurfaceForExternalIO(this);
-    }
-}
-
 bool GrSurface::hasPendingRead() const {
     const GrTexture* thisTex = this->asTexture();
     if (thisTex && thisTex->internalHasPendingRead()) {
@@ -201,11 +166,9 @@ bool GrSurface::hasPendingIO() const {
 }
 
 void GrSurface::onRelease() {
-    this->invokeReleaseProc();
     this->INHERITED::onRelease();
 }
 
 void GrSurface::onAbandon() {
-    this->invokeReleaseProc();
     this->INHERITED::onAbandon();
 }

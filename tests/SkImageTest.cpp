@@ -14,7 +14,7 @@ static const int gHeight = 20;
 
 // Tests that SkNewImageFromBitmap obeys pixelref origin.
 DEF_TEST(SkImageFromBitmap_extractSubset, reporter) {
-    SkAutoTUnref<SkImage> image;
+    sk_sp<SkImage> image;
     {
         SkBitmap srcBitmap;
         srcBitmap.allocN32Pixels(gWidth, gHeight);
@@ -26,7 +26,7 @@ DEF_TEST(SkImageFromBitmap_extractSubset, reporter) {
         canvas.drawIRect(r, p);
         SkBitmap dstBitmap;
         srcBitmap.extractSubset(&dstBitmap, r);
-        image.reset(SkImage::NewFromBitmap(dstBitmap));
+        image = SkImage::MakeFromBitmap(dstBitmap);
     }
 
     SkBitmap tgt;

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -8,7 +7,6 @@
 
 
 #include "SkAtomics.h"
-#include "SkFixed.h"
 #include "SkString.h"
 #include "SkUtils.h"
 #include <stdarg.h>
@@ -34,6 +32,58 @@ static const size_t kBufferSize = 1024;
         SkASSERT(written >= 0 && written < SkToInt(size)); \
         va_end(args);                                      \
     } while (0)
+
+#ifdef SK_BUILD_FOR_WIN
+#define V_SKSTRING_PRINTF(output, format)                               \
+    do {                                                                \
+        va_list args;                                                   \
+        va_start(args, format);                                         \
+        char buffer[kBufferSize];                                       \
+        int length = _vsnprintf_s(buffer, sizeof(buffer),               \
+                                  _TRUNCATE, format, args);             \
+        va_end(args);                                                   \
+        if (length >= 0 && length < (int)sizeof(buffer)) {              \
+            output.set(buffer, length);                                 \
+            break;                                                      \
+        }                                                               \
+        va_start(args, format);                                         \
+        length = _vscprintf(format, args);                              \
+        va_end(args);                                                   \
+        SkAutoTMalloc<char> autoTMalloc((size_t)length + 1);            \
+        va_start(args, format);                                         \
+        SkDEBUGCODE(int check = ) _vsnprintf_s(autoTMalloc.get(),       \
+                                               length + 1, _TRUNCATE,   \
+                                               format, args);           \
+        va_end(args);                                                   \
+        SkASSERT(check == length);                                      \
+        output.set(autoTMalloc.get(), length);                          \
+        SkASSERT(output[length] == '\0');                               \
+    } while (false)
+#else
+#define V_SKSTRING_PRINTF(output, format)                               \
+    do {                                                                \
+        va_list args;                                                   \
+        va_start(args, format);                                         \
+        char buffer[kBufferSize];                                       \
+        int length = vsnprintf(buffer, sizeof(buffer), format, args);   \
+        va_end(args);                                                   \
+        if (length < 0) {                                               \
+            break;                                                      \
+        }                                                               \
+        if (length < (int)sizeof(buffer)) {                             \
+            output.set(buffer, length);                                 \
+            break;                                                      \
+        }                                                               \
+        SkAutoTMalloc<char> autoTMalloc((size_t)length + 1);            \
+        va_start(args, format);                                         \
+        SkDEBUGCODE(int check = ) vsnprintf(autoTMalloc.get(),          \
+                                            length + 1, format, args);  \
+        va_end(args);                                                   \
+        SkASSERT(check == length);                                      \
+        output.set(autoTMalloc.get(), length);                          \
+        SkASSERT(output[length] == '\0');                               \
+    } while (false)
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -144,44 +194,6 @@ char* SkStrAppendFloat(char string[], float value) {
     return string + len;
 }
 
-char* SkStrAppendFixed(char string[], SkFixed x) {
-    SkDEBUGCODE(char* start = string;)
-    if (x < 0) {
-        *string++ = '-';
-        x = -x;
-    }
-
-    unsigned frac = x & 0xFFFF;
-    x >>= 16;
-    if (frac == 0xFFFF) {
-        // need to do this to "round up", since 65535/65536 is closer to 1 than to .9999
-        x += 1;
-        frac = 0;
-    }
-    string = SkStrAppendS32(string, x);
-
-    // now handle the fractional part (if any)
-    if (frac) {
-        static const uint16_t   gTens[] = { 1000, 100, 10, 1 };
-        const uint16_t*         tens = gTens;
-
-        x = SkFixedRoundToInt(frac * 10000);
-        SkASSERT(x <= 10000);
-        if (x == 10000) {
-            x -= 1;
-        }
-        *string++ = '.';
-        do {
-            unsigned powerOfTen = *tens++;
-            *string++ = SkToU8('0' + x / powerOfTen);
-            x %= powerOfTen;
-        } while (x != 0);
-    }
-
-    SkASSERT(string - start <= SkStrAppendScalar_MaxSize);
-    return string;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 // the 3 values are [length] [refcnt] [terminating zero data]
@@ -275,6 +287,13 @@ SkString::SkString(const SkString& src) {
     fRec = RefRec(src.fRec);
 }
 
+SkString::SkString(SkString&& src) {
+    src.validate();
+
+    fRec = src.fRec;
+    src.fRec = const_cast<Rec*>(&gEmptyRec);
+}
+
 SkString::~SkString() {
     this->validate();
 
@@ -306,6 +325,15 @@ SkString& SkString::operator=(const SkString& src) {
     if (fRec != src.fRec) {
         SkString    tmp(src);
         this->swap(tmp);
+    }
+    return *this;
+}
+
+SkString& SkString::operator=(SkString&& src) {
+    this->validate();
+
+    if (fRec != src.fRec) {
+        this->swap(src);
     }
     return *this;
 }
@@ -537,11 +565,7 @@ void SkString::insertScalar(size_t offset, SkScalar value) {
 }
 
 void SkString::printf(const char format[], ...) {
-    char    buffer[kBufferSize];
-    int length;
-    ARGS_TO_BUFFER(format, buffer, kBufferSize, length);
-
-    this->set(buffer, length);
+    V_SKSTRING_PRINTF((*this), format);
 }
 
 void SkString::appendf(const char format[], ...) {
@@ -617,22 +641,38 @@ void SkString::swap(SkString& other) {
 
 SkString SkStringPrintf(const char* format, ...) {
     SkString formattedOutput;
-    char buffer[kBufferSize];
-    SK_UNUSED int length;
-    ARGS_TO_BUFFER(format, buffer, kBufferSize, length);
-    formattedOutput.set(buffer);
+    V_SKSTRING_PRINTF(formattedOutput, format);
     return formattedOutput;
 }
 
-void SkStrSplit(const char* str, const char* delimiters, SkTArray<SkString>* out) {
-    const char* end = str + strlen(str);
-    while (str != end) {
-        // Find a token.
-        const size_t len = strcspn(str, delimiters);
-        out->push_back().set(str, len);
-        str += len;
+void SkStrSplit(const char* str, const char* delimiters, SkStrSplitMode splitMode,
+                SkTArray<SkString>* out) {
+    if (splitMode == kCoalesce_SkStrSplitMode) {
         // Skip any delimiters.
         str += strspn(str, delimiters);
+    }
+    if (!*str) {
+        return;
+    }
+
+    while (true) {
+        // Find a token.
+        const size_t len = strcspn(str, delimiters);
+        if (splitMode == kStrict_SkStrSplitMode || len > 0) {
+            out->push_back().set(str, len);
+            str += len;
+        }
+
+        if (!*str) {
+            return;
+        }
+        if (splitMode == kCoalesce_SkStrSplitMode) {
+            // Skip any delimiters.
+            str += strspn(str, delimiters);
+        } else {
+            // Skip one delimiter.
+            str += 1;
+        }
     }
 }
 

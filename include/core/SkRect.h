@@ -280,7 +280,7 @@ struct SK_API SkIRect {
         intersection, otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& r) {
+    bool intersect(const SkIRect& r) {
         return this->intersect(r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
 
@@ -327,8 +327,7 @@ struct SK_API SkIRect {
         otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool SK_WARN_UNUSED_RESULT intersect(int32_t left, int32_t top, 
-                                         int32_t right, int32_t bottom) {
+    bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
         if (left < right && top < bottom && !this->isEmpty() &&
                 fLeft < right && left < fRight && fTop < bottom && top < fBottom) {
             if (fLeft < left) fLeft = left;
@@ -377,7 +376,22 @@ struct SK_API SkIRect {
         and may have crossed over each other.
         When this returns, left <= right && top <= bottom
     */
-    void sort();
+    void sort() {
+        if (fLeft > fRight) {
+            SkTSwap<int32_t>(fLeft, fRight);
+        }
+        if (fTop > fBottom) {
+            SkTSwap<int32_t>(fTop, fBottom);
+        }
+    }
+
+    /**
+     *  Return a new Rect that is the sorted version of this rect (left <= right, top <= bottom).
+     */
+    SkIRect makeSorted() const {
+        return MakeLTRB(SkMin32(fLeft, fRight), SkMin32(fTop, fBottom),
+                        SkMax32(fLeft, fRight), SkMax32(fTop, fBottom));
+    }
 
     static const SkIRect& SK_WARN_UNUSED_RESULT EmptyIRect() {
         static const SkIRect gEmpty = { 0, 0, 0, 0 };
@@ -390,10 +404,8 @@ struct SK_API SkIRect {
 struct SK_API SkRect {
     SkScalar    fLeft, fTop, fRight, fBottom;
 
-    static SkRect SK_WARN_UNUSED_RESULT MakeEmpty() {
-        SkRect r;
-        r.setEmpty();
-        return r;
+    static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty() {
+        return SkRect{0, 0, 0, 0};
     }
 
     static SkRect SK_WARN_UNUSED_RESULT MakeLargest() {
@@ -420,10 +432,9 @@ struct SK_API SkRect {
         return r;
     }
 
-    static SkRect SK_WARN_UNUSED_RESULT MakeLTRB(SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
-        SkRect rect;
-        rect.set(l, t, r, b);
-        return rect;
+    static constexpr SkRect SK_WARN_UNUSED_RESULT MakeLTRB(SkScalar l, SkScalar t, SkScalar r,
+                                                           SkScalar b) {
+        return SkRect {l, t, r, b};
     }
 
     static SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h) {
@@ -442,6 +453,10 @@ struct SK_API SkRect {
         return r;
     }
 
+    static SkRect Make(const SkISize& size) {
+        return MakeIWH(size.width(), size.height());
+    }
+    
     static SkRect SK_WARN_UNUSED_RESULT Make(const SkIRect& irect) {
         SkRect r;
         r.set(SkIntToScalar(irect.fLeft),
@@ -456,6 +471,11 @@ struct SK_API SkRect {
      */
     bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
 
+    /**
+     *  Return true if the rectangle's width and height are >= 0
+     */
+    bool isSorted() const { return fLeft <= fRight && fTop <= fBottom; }
+
     bool isLargest() const { return SK_ScalarMin == fLeft &&
                                     SK_ScalarMin == fTop &&
                                     SK_ScalarMax == fRight &&
@@ -463,8 +483,7 @@ struct SK_API SkRect {
 
     /**
      *  Returns true iff all values in the rect are finite. If any are
-     *  infinite or NaN (or SK_FixedNaN when SkScalar is fixed) then this
-     *  returns false.
+     *  infinite or NaN then this returns false.
      */
     bool isFinite() const {
         float accum = 0;
@@ -507,7 +526,7 @@ struct SK_API SkRect {
 
     /** Set this rectangle to the empty rectangle (0,0,0,0)
     */
-    void setEmpty() { memset(this, 0, sizeof(*this)); }
+    void setEmpty() { *this = MakeEmpty(); }
 
     void set(const SkIRect& src) {
         fLeft   = SkIntToScalar(src.fLeft);
@@ -676,15 +695,14 @@ struct SK_API SkRect {
         intersection, otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool SK_WARN_UNUSED_RESULT intersect(const SkRect& r);
+    bool intersect(const SkRect& r);
 
     /** If this rectangle intersects the rectangle specified by left, top, right, bottom,
         return true and set this rectangle to that intersection, otherwise return false
         and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool SK_WARN_UNUSED_RESULT intersect(SkScalar left, SkScalar top, 
-                                         SkScalar right, SkScalar bottom);
+    bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
 
     /**
      *  If rectangles a and b intersect, return true and set this rectangle to
@@ -825,24 +843,6 @@ public:
     }
 
     /**
-     *  Variant of round() that explicitly performs the rounding step (i.e. floor(x + 0.5)) using
-     *  double instead of SkScalar (float). It does this by calling SkDScalarRoundToInt(), which
-     *  may be slower than calling SkScalarRountToInt(), but gives slightly more accurate results.
-     *
-     *  e.g.
-     *      SkScalar x = 0.49999997f;
-     *      int ix = SkScalarRoundToInt(x);
-     *      SkASSERT(0 == ix);  // <--- fails
-     *      ix = SkDScalarRoundToInt(x);
-     *      SkASSERT(0 == ix);  // <--- succeeds
-     */
-    void dround(SkIRect* dst) const {
-        SkASSERT(dst);
-        dst->set(SkDScalarRoundToInt(fLeft), SkDScalarRoundToInt(fTop),
-                 SkDScalarRoundToInt(fRight), SkDScalarRoundToInt(fBottom));
-    }
-
-    /**
      *  Set the dst rectangle by rounding "out" this rectangle, choosing the
      *  SkScalarFloor of top and left, and the SkScalarCeil of right and bottom.
      */
@@ -905,6 +905,14 @@ public:
         if (fTop > fBottom) {
             SkTSwap<SkScalar>(fTop, fBottom);
         }
+    }
+
+    /**
+     *  Return a new Rect that is the sorted version of this rect (left <= right, top <= bottom).
+     */
+    SkRect makeSorted() const {
+        return MakeLTRB(SkMinScalar(fLeft, fRight), SkMinScalar(fTop, fBottom),
+                        SkMaxScalar(fLeft, fRight), SkMaxScalar(fTop, fBottom));
     }
 
     /**

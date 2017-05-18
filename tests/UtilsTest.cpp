@@ -14,7 +14,7 @@
 
 class RefClass : public SkRefCnt {
 public:
-    
+
 
     RefClass(int n) : fN(n) {}
     int get() const { return fN; }
@@ -29,19 +29,19 @@ static void test_autounref(skiatest::Reporter* reporter) {
     RefClass obj(0);
     REPORTER_ASSERT(reporter, obj.unique());
 
-    SkAutoTUnref<RefClass> tmp(&obj);
+    sk_sp<RefClass> tmp(&obj);
     REPORTER_ASSERT(reporter, &obj == tmp.get());
     REPORTER_ASSERT(reporter, obj.unique());
 
-    REPORTER_ASSERT(reporter, &obj == tmp.detach());
+    REPORTER_ASSERT(reporter, &obj == tmp.release());
     REPORTER_ASSERT(reporter, obj.unique());
-    REPORTER_ASSERT(reporter, nullptr == tmp.detach());
+    REPORTER_ASSERT(reporter, nullptr == tmp.release());
     REPORTER_ASSERT(reporter, nullptr == tmp.get());
 
     obj.ref();
     REPORTER_ASSERT(reporter, !obj.unique());
     {
-        SkAutoTUnref<RefClass> tmp2(&obj);
+        sk_sp<RefClass> tmp2(&obj);
     }
     REPORTER_ASSERT(reporter, obj.unique());
 }
@@ -53,7 +53,7 @@ static void test_autostarray(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, obj1.unique());
 
     {
-        SkAutoSTArray<2, SkAutoTUnref<RefClass> > tmp;
+        SkAutoSTArray<2, sk_sp<RefClass> > tmp;
         REPORTER_ASSERT(reporter, 0 == tmp.count());
 
         tmp.reset(0);   // test out reset(0) when already at 0
@@ -82,7 +82,7 @@ static void test_autostarray(skiatest::Reporter* reporter) {
 
     {
         // test out allocating ctor (this should allocate new memory)
-        SkAutoSTArray<2, SkAutoTUnref<RefClass> > tmp(4);
+        SkAutoSTArray<2, sk_sp<RefClass> > tmp(4);
         REPORTER_ASSERT(reporter, 4 == tmp.count());
 
         tmp[0].reset(SkRef(&obj0));
@@ -218,4 +218,65 @@ DEF_TEST(Utils, reporter) {
     test_search(reporter);
     test_autounref(reporter);
     test_autostarray(reporter);
+}
+
+#define ASCII_BYTE         "X"
+#define CONTINUATION_BYTE  "\x80"
+#define LEADING_TWO_BYTE   "\xC4"
+#define LEADING_THREE_BYTE "\xE0"
+#define LEADING_FOUR_BYTE  "\xF0"
+#define INVALID_BYTE       "\xFC"
+static bool valid_utf8(const char* p, size_t l) {
+    return SkUTF8_CountUnicharsWithError(p, l) >= 0;
+}
+DEF_TEST(Utils_UTF8_ValidLength, r) {
+    const char* goodTestcases[] = {
+        "",
+        ASCII_BYTE,
+        ASCII_BYTE ASCII_BYTE,
+        LEADING_TWO_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE LEADING_TWO_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE ASCII_BYTE LEADING_TWO_BYTE CONTINUATION_BYTE,
+        LEADING_THREE_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE LEADING_THREE_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE ASCII_BYTE LEADING_THREE_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+        LEADING_FOUR_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE LEADING_FOUR_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE ASCII_BYTE LEADING_FOUR_BYTE CONTINUATION_BYTE CONTINUATION_BYTE
+            CONTINUATION_BYTE,
+    };
+    for (const char* testcase : goodTestcases) {
+        REPORTER_ASSERT(r, valid_utf8(testcase, strlen(testcase)));
+    }
+    const char* badTestcases[] = {
+        INVALID_BYTE,
+        INVALID_BYTE CONTINUATION_BYTE,
+        INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+        INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+        LEADING_TWO_BYTE,
+        CONTINUATION_BYTE,
+        CONTINUATION_BYTE CONTINUATION_BYTE,
+        LEADING_THREE_BYTE CONTINUATION_BYTE,
+        CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+        LEADING_FOUR_BYTE CONTINUATION_BYTE,
+        CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+
+        ASCII_BYTE INVALID_BYTE,
+        ASCII_BYTE INVALID_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE LEADING_TWO_BYTE,
+        ASCII_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE LEADING_THREE_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE LEADING_FOUR_BYTE CONTINUATION_BYTE,
+        ASCII_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
+
+        // LEADING_FOUR_BYTE LEADING_TWO_BYTE CONTINUATION_BYTE,
+    };
+    for (const char* testcase : badTestcases) {
+        REPORTER_ASSERT(r, !valid_utf8(testcase, strlen(testcase)));
+    }
+
 }

@@ -21,7 +21,11 @@
 #endif
 
 #if !defined(GR_GL_FUNCTION_TYPE)
-    #define GR_GL_FUNCTION_TYPE
+    #if defined(SK_BUILD_FOR_WIN32)
+        #define GR_GL_FUNCTION_TYPE __stdcall
+    #else
+        #define GR_GL_FUNCTION_TYPE
+    #endif
 #endif
 
 /**
@@ -55,15 +59,6 @@
  * However, this can be an unoptimization on some platforms, esp. Chrome.
  * Chrome's cmd buffer will create a new allocation and memset the whole thing
  * to zero (for security reasons). Defaults to 1 (enabled).
- *
- * GR_GL_PER_GL_FUNC_CALLBACK: When set to 1 the GrGLInterface object provides
- * a function pointer that is called just before every gl function. The ptr must
- * be valid (i.e. there is no NULL check). However, by default the callback will
- * be set to a function that does nothing. The signature of the function is:
- *    void function(const GrGLInterface*)
- * It is not extern "C".
- * The GrGLInterface field fCallback specifies the function ptr and there is an
- * additional field fCallbackData of type intptr_t for client data.
  *
  * GR_GL_CHECK_ALLOC_WITH_GET_ERROR: If set to 1 this will then glTexImage,
  * glBufferData, glRenderbufferStorage, etc will be checked for errors. This
@@ -115,10 +110,6 @@
     #define GR_GL_USE_BUFFER_DATA_NULL_HINT             1
 #endif
 
-#if !defined(GR_GL_PER_GL_FUNC_CALLBACK)
-    #define GR_GL_PER_GL_FUNC_CALLBACK                  0
-#endif
-
 #if !defined(GR_GL_CHECK_ALLOC_WITH_GET_ERROR)
     #define GR_GL_CHECK_ALLOC_WITH_GET_ERROR            1
 #endif
@@ -133,37 +124,6 @@
 
 #if !defined(GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE)
     #define GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE       0
-#endif
-
-/**
- * There is a strange bug that occurs on Macs with NVIDIA GPUs. We don't
- * fully understand it. When (element) array buffers are continually
- * respecified using glBufferData performance can fall off of a cliff. The
- * driver winds up performing many DMA mapping / unmappings and chews up ~50% of
- * the core. However, it has been observed that occaisonally respecifiying the
- * buffer using glBufferData and then writing data using glBufferSubData
- * prevents the bad behavior.
- *
- * There is a lot of uncertainty around this issue. In Chrome backgrounding
- * the tab somehow initiates this behavior and we don't know what the connection
- * is. Another observation is that Chrome's cmd buffer server will actually
- * create a buffer full of zeros when it sees a NULL data param (for security
- * reasons). If this is disabled and NULL is actually passed all the way to the
- * driver then the workaround doesn't help.
- *
- * The issue is tracked at:
- * http://code.google.com/p/chromium/issues/detail?id=114865
- *
- * When the workaround is enabled we will use the glBufferData / glBufferSubData
- * trick every 128 array buffer uploads.
- *
- * Hopefully we will understand this better and have a cleaner fix or get a
- * OS/driver level fix.
- */
-#if (defined(SK_BUILD_FOR_MAC) && !GR_GL_USE_BUFFER_DATA_NULL_HINT)
-#       define GR_GL_MAC_BUFFER_OBJECT_PERFOMANCE_WORKAROUND 1
-#else
-#       define GR_GL_MAC_BUFFER_OBJECT_PERFOMANCE_WORKAROUND 0
 #endif
 
 #endif

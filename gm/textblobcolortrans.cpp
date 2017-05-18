@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkCanvas.h"
@@ -48,7 +49,7 @@ protected:
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset - 8);
 
         // build
-        fBlob.reset(builder.build());
+        fBlob = builder.make();
     }
 
     SkString onShortName() override {
@@ -87,10 +88,10 @@ protected:
     }
 
 private:
-    SkAutoTUnref<const SkTextBlob> fBlob;
+    sk_sp<SkTextBlob> fBlob;
 
-    static const int kWidth = 675;
-    static const int kHeight = 1600;
+    static constexpr int kWidth = 675;
+    static constexpr int kHeight = 1600;
 
     typedef GM INHERITED;
 };

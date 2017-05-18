@@ -8,10 +8,12 @@
 #include "SkOSFile.h"
 #include "SkString.h"
 
+#include <stdio.h>
+
 static const int kBitmapSize = 24;
 
 static bool read_test_case(const char* filename, SkString* testdata) {
-  SkFILE* file = sk_fopen(filename, kRead_SkFILE_Flag);
+  FILE* file = sk_fopen(filename, kRead_SkFILE_Flag);
   if (!file) {
     SkDebugf("couldn't open file %s\n", filename);
     return false;
@@ -22,23 +24,23 @@ static bool read_test_case(const char* filename, SkString* testdata) {
     return false;
   }
   testdata->resize(len);
-  (void) sk_fread(testdata->writable_str(), len, file);
+  (void) fread(testdata->writable_str(), len, file);
   return true;
 }
 
 static void run_test_case(const SkString& testdata, const SkBitmap& bitmap,
-                 SkCanvas* canvas) {
+                          SkCanvas* canvas) {
   // This call shouldn't crash or cause ASAN to flag any memory issues
   // If nothing bad happens within this call, everything is fine
-  SkFlattenable* flattenable = SkValidatingDeserializeFlattenable(
-        testdata.c_str(), testdata.size(), SkImageFilter::GetFlattenableType());
+  sk_sp<SkImageFilter> flattenable = SkValidatingDeserializeImageFilter(testdata.c_str(),
+                                                                        testdata.size());
 
   // Adding some info, but the test passed if we got here without any trouble
   if (flattenable != nullptr) {
     SkDebugf("Valid stream detected.\n");
     // Let's see if using the filters can cause any trouble...
     SkPaint paint;
-    paint.setImageFilter(static_cast<SkImageFilter*>(flattenable))->unref();
+    paint.setImageFilter(flattenable);
     canvas->save();
     canvas->clipRect(SkRect::MakeXYWH(
         0, 0, SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)));
@@ -79,4 +81,3 @@ int main(int argc, char** argv) {
   SkDebugf("#EOF\n");
   return ret;
 }
-

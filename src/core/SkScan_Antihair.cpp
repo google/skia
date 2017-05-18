@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 The Android Open Source Project
  *
@@ -250,9 +249,9 @@ public:
 };
 
 static inline SkFixed fastfixdiv(SkFDot6 a, SkFDot6 b) {
-    SkASSERT((a << 16 >> 16) == a);
+    SkASSERT((SkLeftShift(a, 16) >> 16) == a);
     SkASSERT(b != 0);
-    return (a << 16) / b;
+    return SkLeftShift(a, 16) / b;
 }
 
 #define SkBITCOUNT(x)   (sizeof(x) << 3)
@@ -748,8 +747,6 @@ void SkScan::AntiFillXRect(const SkXRect& xr, const SkRasterClip& clip,
             AntiFillXRect(xr, nullptr, blitter);
         } else {
             SkAAClipBlitterWrapper wrapper(clip, blitter);
-            blitter = wrapper.getBlitter();
-
             AntiFillXRect(xr, &wrapper.getRgn(), wrapper.getBlitter());
         }
     }
@@ -847,7 +844,11 @@ static void inner_scanline(FDot8 L, int top, FDot8 R, U8CPU alpha,
     SkASSERT(L < R);
 
     if ((L >> 8) == ((R - 1) >> 8)) {  // 1x1 pixel
-        blitter->blitV(L >> 8, top, 1, InvAlphaMul(alpha, R - L));
+        FDot8 widClamp = R - L;
+        // border case clamp 256 to 255 instead of going through call_hline_blitter
+        // see skbug/4406
+        widClamp = widClamp - (widClamp >> 8);
+        blitter->blitV(L >> 8, top, 1, InvAlphaMul(alpha, widClamp));
         return;
     }
 

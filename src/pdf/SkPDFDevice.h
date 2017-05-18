@@ -11,40 +11,33 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
-#include "SkDevice.h"
+#include "SkClipStackDevice.h"
+#include "SkData.h"
 #include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPicture.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
+#include "SkSinglyLinkedList.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
-#include "SkTemplates.h"
+#include "SkTextBlob.h"
 
+class SkImageSubset;
+class SkPath;
 class SkPDFArray;
 class SkPDFCanon;
 class SkPDFDevice;
+class SkPDFDocument;
 class SkPDFDict;
 class SkPDFFont;
-class SkPDFFormXObject;
-class SkPDFGlyphSetMap;
-class SkPDFGraphicState;
 class SkPDFObject;
-class SkPDFShader;
 class SkPDFStream;
 class SkRRect;
-
-// Private classes.
-struct ContentEntry;
-struct GraphicStateEntry;
-struct NamedDestination;
-struct RectWithData;
 
 /** \class SkPDFDevice
 
     The drawing context for the PDF backend.
 */
-class SkPDFDevice : public SkBaseDevice {
+class SkPDFDevice final : public SkClipStackDevice {
 public:
     /** Create a PDF drawing context.  SkPDFDevice applies a
      *  scale-and-translate transform to move the origin from the
@@ -60,98 +53,72 @@ public:
      *         while rendering, and it would be slower to be processed
      *         or sent online or to printer.  A good choice is
      *         SK_ScalarDefaultRasterDPI(72.0f).
-     *  @param SkPDFCanon.  Should be non-null, and shared by all
-     *         devices in a document.
+     *  @param SkPDFDocument.  A non-null pointer back to the
+     *         document.  The document is repsonsible for
+     *         de-duplicating across pages (via the SkPDFCanon) and
+     *         for early serializing of large immutable objects, such
+     *         as images (via SkPDFDocument::serialize()).
      */
     static SkPDFDevice* Create(SkISize pageSize,
                                SkScalar rasterDpi,
-                               SkPDFCanon* canon) {
-        return new SkPDFDevice(pageSize, rasterDpi, canon, true);
+                               SkPDFDocument* doc) {
+        return new SkPDFDevice(pageSize, rasterDpi, doc, true);
     }
 
     /** Create a PDF drawing context without fipping the y-axis. */
     static SkPDFDevice* CreateUnflipped(SkISize pageSize,
                                         SkScalar rasterDpi,
-                                        SkPDFCanon* canon) {
-        return new SkPDFDevice(pageSize, rasterDpi, canon, false);
+                                        SkPDFDocument* doc) {
+        return new SkPDFDevice(pageSize, rasterDpi, doc, false);
     }
 
-    virtual ~SkPDFDevice();
+    ~SkPDFDevice() override;
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
      and are handling any looping from the paint, and any effects from the
      DrawFilter.
      */
-    void drawPaint(const SkDraw&, const SkPaint& paint) override;
-    void drawPoints(const SkDraw&, SkCanvas::PointMode mode,
+    void drawPaint(const SkPaint& paint) override;
+    void drawPoints(SkCanvas::PointMode mode,
                     size_t count, const SkPoint[],
                     const SkPaint& paint) override;
-    void drawRect(const SkDraw&, const SkRect& r, const SkPaint& paint) override;
-    void drawOval(const SkDraw&, const SkRect& oval, const SkPaint& paint) override;
-    void drawRRect(const SkDraw&, const SkRRect& rr, const SkPaint& paint) override;
-    void drawPath(const SkDraw&, const SkPath& origpath,
+    void drawRect(const SkRect& r, const SkPaint& paint) override;
+    void drawOval(const SkRect& oval, const SkPaint& paint) override;
+    void drawRRect(const SkRRect& rr, const SkPaint& paint) override;
+    void drawPath(const SkPath& origpath,
                   const SkPaint& paint, const SkMatrix* prePathMatrix,
                   bool pathIsMutable) override;
-    void drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap, const SkRect* src,
+    void drawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
                         const SkRect& dst, const SkPaint&, SkCanvas::SrcRectConstraint) override;
-    void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
+    void drawBitmap(const SkBitmap& bitmap,
                     const SkMatrix& matrix, const SkPaint&) override;
-    void drawSprite(const SkDraw&, const SkBitmap& bitmap, int x, int y,
+    void drawSprite(const SkBitmap& bitmap, int x, int y,
                     const SkPaint& paint) override;
-    void drawImage(const SkDraw&,
-                   const SkImage*,
+    void drawImage(const SkImage*,
                    SkScalar x,
                    SkScalar y,
                    const SkPaint&) override;
-    void drawImageRect(const SkDraw&,
-                       const SkImage*,
+    void drawImageRect(const SkImage*,
                        const SkRect* src,
                        const SkRect& dst,
                        const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
-    void drawText(const SkDraw&, const void* text, size_t len,
+    void drawText(const void* text, size_t len,
                   SkScalar x, SkScalar y, const SkPaint&) override;
-    void drawPosText(const SkDraw&, const void* text, size_t len,
+    void drawPosText(const void* text, size_t len,
                      const SkScalar pos[], int scalarsPerPos,
                      const SkPoint& offset, const SkPaint&) override;
-    void drawVertices(const SkDraw&, SkCanvas::VertexMode,
-                      int vertexCount, const SkPoint verts[],
-                      const SkPoint texs[], const SkColor colors[],
-                      SkXfermode* xmode, const uint16_t indices[],
-                      int indexCount, const SkPaint& paint) override;
-    void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
+    void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
+                      const SkPaint &, SkDrawFilter*) override;
+    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
+    void drawDevice(SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
-
-    void onAttachToCanvas(SkCanvas* canvas) override;
-    void onDetachFromCanvas() override;
-    SkImageInfo imageInfo() const override;
-
-    enum DrawingArea {
-        kContent_DrawingArea,  // Drawing area for the page content.
-        kMargin_DrawingArea,   // Drawing area for the margin content.
-    };
-
-    /** Sets the drawing area for the device. Subsequent draw calls are directed
-     *  to the specific drawing area (margin or content). The default drawing
-     *  area is the content drawing area.
-     *
-     *  Currently if margin content is drawn and then a complex (for PDF) xfer
-     *  mode is used, like SrcIn, Clear, etc, the margin content will get
-     *  clipped. A simple way to avoid the bug is to always draw the margin
-     *  content last.
-     */
-    void setDrawingArea(DrawingArea drawingArea);
 
     // PDF specific methods.
 
-    /** Create the resource dictionary for this device.
-     */
-    SkPDFDict* createResourceDict() const;
-
-    /** Get the fonts used on this device.
-     */
-    const SkTDArray<SkPDFFont*>& getFontResources() const;
+    /** Create the resource dictionary for this device. */
+    sk_sp<SkPDFDict> makeResourceDict() const;
 
     /** Add our annotations (link to urls and destinations) to the supplied
      *  array.
@@ -165,152 +132,153 @@ public:
      */
     void appendDestinations(SkPDFDict* dict, SkPDFObject* page) const;
 
-    /** Returns a copy of the media box for this device. The caller is required
-     *  to unref() this when it is finished.
+    /** Returns a copy of the media box for this device. */
+    sk_sp<SkPDFArray> copyMediaBox() const;
+
+    /** Returns a SkStream with the page contents.
      */
-    SkPDFArray* copyMediaBox() const;
+    std::unique_ptr<SkStreamAsset> content() const;
 
-    /** Returns a SkStream with the page contents.  The caller is responsible
-     *  for a deleting the returned value.
-     */
-    SkStreamAsset* content() const;
+    SkPDFCanon* getCanon() const;
 
-    /** Writes the page contents to the stream. */
-    void writeContent(SkWStream*) const;
+    // It is important to not confuse GraphicStateEntry with SkPDFGraphicState, the
+    // later being our representation of an object in the PDF file.
+    struct GraphicStateEntry {
+        GraphicStateEntry();
 
-    const SkMatrix& initialTransform() const {
-        return fInitialTransform;
-    }
+        // Compare the fields we care about when setting up a new content entry.
+        bool compareInitialState(const GraphicStateEntry& b);
 
-    /** Returns a SkPDFGlyphSetMap which represents glyph usage of every font
-     *  that shows on this device.
-     */
-    const SkPDFGlyphSetMap& getFontGlyphUsage() const {
-        return *(fFontGlyphUsage.get());
-    }
+        SkMatrix fMatrix;
+        // We can't do set operations on Paths, though PDF natively supports
+        // intersect.  If the clip stack does anything other than intersect,
+        // we have to fall back to the region.  Treat fClipStack as authoritative.
+        // See https://bugs.skia.org/221
+        SkClipStack fClipStack;
 
-#ifdef SK_DEBUG
-    SkPDFCanon* getCanon() const { return fCanon; }
-#endif  // SK_DEBUG
+        // When emitting the content entry, we will ensure the graphic state
+        // is set to these values first.
+        SkColor fColor;
+        SkScalar fTextScaleX;  // Zero means we don't care what the value is.
+        SkPaint::Style fTextFill;  // Only if TextScaleX is non-zero.
+        int fShaderIndex;
+        int fGraphicStateIndex;
+    };
 
 protected:
-    const SkBitmap& onAccessBitmap() override {
-        return fLegacyBitmap;
-    }
+    sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
-    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) override;
+    void drawAnnotation(const SkRect&, const char key[], SkData* value) override;
+
+    void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
+                     SkImage*, const SkMatrix&) override;
+    sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
+    sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
+    sk_sp<SkSpecialImage> snapSpecial() override;
+    SkImageFilterCache* getImageFilterCache() override;
 
 private:
+    struct RectWithData {
+        SkRect rect;
+        sk_sp<SkData> data;
+    };
+
+    struct NamedDestination {
+        sk_sp<SkData> nameData;
+        SkPoint point;
+    };
+
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in
     // order to get the right access levels without using friend.
     friend class ScopedContentEntry;
 
     SkISize fPageSize;
-    SkISize fContentSize;
     SkMatrix fInitialTransform;
     SkClipStack fExistingClipStack;
-    SkRegion fExistingClipRegion;
 
-    SkTDArray<RectWithData*> fLinkToURLs;
-    SkTDArray<RectWithData*> fLinkToDestinations;
-    SkTDArray<NamedDestination*> fNamedDestinations;
+    SkTArray<RectWithData> fLinkToURLs;
+    SkTArray<RectWithData> fLinkToDestinations;
+    SkTArray<NamedDestination> fNamedDestinations;
 
     SkTDArray<SkPDFObject*> fGraphicStateResources;
     SkTDArray<SkPDFObject*> fXObjectResources;
     SkTDArray<SkPDFFont*> fFontResources;
     SkTDArray<SkPDFObject*> fShaderResources;
 
-    SkAutoTDelete<ContentEntry> fContentEntries;
-    ContentEntry* fLastContentEntry;
-    SkAutoTDelete<ContentEntry> fMarginContentEntries;
-    ContentEntry* fLastMarginContentEntry;
-    DrawingArea fDrawingArea;
-
-    const SkClipStack* fClipStack;
-
-    // Accessor and setter functions based on the current DrawingArea.
-    SkAutoTDelete<ContentEntry>* getContentEntries();
-
-    // Glyph ids used for each font on this device.
-    SkAutoTDelete<SkPDFGlyphSetMap> fFontGlyphUsage;
+    struct ContentEntry {
+        GraphicStateEntry fState;
+        SkDynamicMemoryWStream fContent;
+    };
+    SkSinglyLinkedList<ContentEntry> fContentEntries;
 
     SkScalar fRasterDpi;
 
-    SkBitmap fLegacyBitmap;
-
-    SkPDFCanon* fCanon;  // Owned by SkDocument_PDF
+    SkPDFDocument* fDocument;
     ////////////////////////////////////////////////////////////////////////////
 
     SkPDFDevice(SkISize pageSize,
                 SkScalar rasterDpi,
-                SkPDFCanon* canon,
+                SkPDFDocument* doc,
                 bool flip);
-
-    ContentEntry* getLastContentEntry();
-    void setLastContentEntry(ContentEntry* contentEntry);
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     void init();
-    void cleanUp(bool clearFontUsage);
-    SkPDFFormXObject* createFormXObjectFromDevice();
+    void cleanUp();
+    sk_sp<SkPDFObject> makeFormXObjectFromDevice();
 
     void drawFormXObjectWithMask(int xObjectIndex,
-                                 SkPDFFormXObject* mask,
-                                 const SkClipStack* clipStack,
-                                 const SkRegion& clipRegion,
-                                 SkXfermode::Mode mode,
+                                 sk_sp<SkPDFObject> mask,
+                                 const SkClipStack& clipStack,
+                                 SkBlendMode,
                                  bool invertClip);
 
     // If the paint or clip is such that we shouldn't draw anything, this
     // returns nullptr and does not create a content entry.
     // setUpContentEntry and finishContentEntry can be used directly, but
     // the preferred method is to use the ScopedContentEntry helper class.
-    ContentEntry* setUpContentEntry(const SkClipStack* clipStack,
-                                    const SkRegion& clipRegion,
+    ContentEntry* setUpContentEntry(const SkClipStack& clipStack,
                                     const SkMatrix& matrix,
                                     const SkPaint& paint,
                                     bool hasText,
-                                    SkPDFFormXObject** dst);
-    void finishContentEntry(SkXfermode::Mode xfermode,
-                            SkPDFFormXObject* dst,
-                            SkPath* shape);
+                                    sk_sp<SkPDFObject>* dst);
+    void finishContentEntry(SkBlendMode, sk_sp<SkPDFObject> dst, SkPath* shape);
     bool isContentEmpty();
 
     void populateGraphicStateEntryFromPaint(const SkMatrix& matrix,
                                             const SkClipStack& clipStack,
-                                            const SkRegion& clipRegion,
                                             const SkPaint& paint,
                                             bool hasText,
                                             GraphicStateEntry* entry);
     int addGraphicStateResource(SkPDFObject* gs);
     int addXObjectResource(SkPDFObject* xObject);
 
-    void updateFont(const SkPaint& paint, uint16_t glyphID, ContentEntry* contentEntry);
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
 
+
+    void internalDrawText( const void*, size_t, const SkScalar pos[],
+                          SkTextBlob::GlyphPositioning, SkPoint, const SkPaint&,
+                          const uint32_t*, uint32_t, const char*);
+
     void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);
-    void internalDrawImage(const SkMatrix& matrix,
-                           const SkClipStack* clipStack,
-                           const SkRegion& clipRegion,
-                           const SkImage* image,
-                           const SkIRect* srcRect,
+
+    void internalDrawImage(const SkMatrix& origMatrix,
+                           const SkClipStack& clipStack,
+                           SkImageSubset imageSubset,
                            const SkPaint& paint);
 
-    /** Helper method for copyContentToData. It is responsible for copying the
-     *  list of content entries |entry| to |data|.
-     */
-    void copyContentEntriesToData(ContentEntry* entry, SkWStream* data) const;
+    void internalDrawPath(const SkClipStack&,
+                          const SkMatrix&,
+                          const SkPath&,
+                          const SkPaint&,
+                          const SkMatrix* prePathMatrix,
+                          bool pathIsMutable);
 
-    bool handleInversePath(const SkDraw& d, const SkPath& origPath,
+    bool handleInversePath(const SkPath& origPath,
                            const SkPaint& paint, bool pathIsMutable,
                            const SkMatrix* prePathMatrix = nullptr);
-    bool handlePointAnnotation(const SkPoint* points, size_t count,
-                               const SkMatrix& matrix, SkAnnotation* annot);
-    bool handlePathAnnotation(const SkPath& path, const SkDraw& d,
-                              SkAnnotation* annot);
 
-    typedef SkBaseDevice INHERITED;
+    typedef SkClipStackDevice INHERITED;
 
     // TODO(edisonn): Only SkDocument_PDF and SkPDFImageShader should be able to create
     // an SkPDFDevice

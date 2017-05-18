@@ -28,7 +28,7 @@ DEF_TEST(SkSharedMutexMultiThreaded, r) {
     for (int i = 0; i < kSharedSize; ++i) {
         shared[i] = 0;
     }
-    sk_parallel_for(8, [&](int threadIndex) {
+    SkTaskGroup().batch(8, [&](int threadIndex) {
         if (threadIndex % 4 != 0) {
             for (int c = 0; c < 100000; ++c) {
                 sm.acquireShared();

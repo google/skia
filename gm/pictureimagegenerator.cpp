@@ -6,20 +6,22 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkImageGenerator.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 
 static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
-    static const char kSkiaStr[] = "SKIA";
-    static const SkScalar kGradientPad = .1f;
-    static const SkScalar kVerticalSpacing = 0.25f;
-    static const SkScalar kAccentScale = 1.20f;
+    constexpr char kSkiaStr[] = "SKIA";
+    constexpr SkScalar kGradientPad = .1f;
+    constexpr SkScalar kVerticalSpacing = 0.25f;
+    constexpr SkScalar kAccentScale = 1.20f;
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -68,10 +70,8 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     const SkScalar pos1[] = { 0, 0.75f };
     const SkColor colors1[] = { SK_ColorTRANSPARENT, SK_ColorBLACK };
     SkASSERT(SK_ARRAY_COUNT(pos1) == SK_ARRAY_COUNT(colors1));
-    SkAutoTUnref<SkShader> gradient1(SkGradientShader::CreateLinear(pts1, colors1, pos1,
-                                                                    SK_ARRAY_COUNT(pos1),
-                                                                    SkShader::kClamp_TileMode));
-    paint.setShader(gradient1.get());
+    paint.setShader(SkGradientShader::MakeLinear(pts1, colors1, pos1, SK_ARRAY_COUNT(pos1),
+                                                 SkShader::kClamp_TileMode));
     canvas->drawRect(underlineRect, paint);
 
     const SkPoint pts2[] = { SkPoint::Make(iBox.x() - iBox.width() * kGradientPad, 0),
@@ -88,10 +88,8 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
         SK_ColorBLACK
     };
     SkASSERT(SK_ARRAY_COUNT(pos2) == SK_ARRAY_COUNT(colors2));
-    SkAutoTUnref<SkShader> gradient2(SkGradientShader::CreateLinear(pts2, colors2, pos2,
-                                                                    SK_ARRAY_COUNT(pos2),
-                                                                    SkShader::kClamp_TileMode));
-    paint.setShader(gradient2.get());
+    paint.setShader(SkGradientShader::MakeLinear(pts2, colors2, pos2, SK_ARRAY_COUNT(pos2),
+                                                 SkShader::kClamp_TileMode));
     canvas->drawText(kSkiaStr, textLen, 0, 0, paint);
 }
 
@@ -112,7 +110,7 @@ protected:
         SkPictureRecorder recorder;
         SkCanvas* canvas = recorder.beginRecording(rect);
         draw_vector_logo(canvas, rect);
-        fPicture.reset(recorder.endRecording());
+        fPicture = recorder.finishRecordingAsPicture();
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -142,6 +140,7 @@ protected:
             { SkISize::Make(200, 100), -1, -1, 0.5f },
         };
 
+        auto srgbColorSpace = SkColorSpace::MakeSRGB();
         const unsigned kDrawsPerRow = 4;
         const SkScalar kDrawSize = 250;
 
@@ -156,11 +155,16 @@ protected:
             if (configs[i].scaleY < 0) {
                 m.postTranslate(0, SkIntToScalar(configs[i].size.height()));
             }
-            SkAutoTDelete<SkImageGenerator> gen(
-                SkImageGenerator::NewFromPicture(configs[i].size, fPicture.get(), &m,
-                                                 p.getAlpha() != 255 ? &p : nullptr));
+            std::unique_ptr<SkImageGenerator> gen =
+                SkImageGenerator::MakeFromPicture(configs[i].size, fPicture, &m,
+                                                 p.getAlpha() != 255 ? &p : nullptr,
+                                                 SkImage::BitDepth::kU8, srgbColorSpace);
+
+            SkImageInfo bmInfo = gen->getInfo().makeColorSpace(canvas->imageInfo().refColorSpace());
+
             SkBitmap bm;
-            gen->generateBitmap(&bm);
+            bm.allocPixels(bmInfo);
+            SkAssertResult(gen->getPixels(bm.info(), bm.getPixels(), bm.rowBytes()));
 
             const SkScalar x = kDrawSize * (i % kDrawsPerRow);
             const SkScalar y = kDrawSize * (i / kDrawsPerRow);
@@ -175,7 +179,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkPicture> fPicture;
+    sk_sp<SkPicture> fPicture;
 
     const SkScalar kPictureWidth = 200;
     const SkScalar kPictureHeight = 100;

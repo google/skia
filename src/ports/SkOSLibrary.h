@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -13,4 +12,3 @@ void* DynamicLoadLibrary(const char* libraryName);
 void* GetProcedureAddress(void* library, const char* functionName);
 
 #endif
-

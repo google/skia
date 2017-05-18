@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -39,7 +38,7 @@ public:
      * create better proportioned tiles of rectangles.
      */
     explicit SkRTree(SkScalar aspectRatio = 1);
-    virtual ~SkRTree() {}
+    ~SkRTree() override {}
 
     void insert(const SkRect[], int N) override;
     void search(const SkRect& query, SkTDArray<int>* results) const override;

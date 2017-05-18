@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkBitmap.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
@@ -75,7 +76,7 @@ protected:
                 two.addRect(40, 40, 100, 100);
                 canvas->save();
                 canvas->translate(0, SkIntToScalar(yPos));
-                canvas->clipRect(SkRect::MakeWH(110, 110), SkRegion::kIntersect_Op, true);
+                canvas->clipRect(SkRect::MakeWH(110, 110), true);
                 canvas->drawPath(one, fOnePaint);
                 canvas->drawPath(one, fOutlinePaint);
                 canvas->drawPath(two, fTwoPaint);
@@ -87,7 +88,7 @@ protected:
                     Op(one, two, (SkPathOp) op, &result);
                     canvas->save();
                     canvas->translate(SkIntToScalar(xPos), SkIntToScalar(yPos));
-                    canvas->clipRect(SkRect::MakeWH(110, 110), SkRegion::kIntersect_Op, true);
+                    canvas->clipRect(SkRect::MakeWH(110, 110), true);
                     canvas->drawPath(result, fOpPaint[op]);
                     canvas->drawPath(result, fOutlinePaint);
                     canvas->restore();

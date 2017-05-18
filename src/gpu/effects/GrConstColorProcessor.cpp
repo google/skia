@@ -6,95 +6,81 @@
  */
 
 #include "effects/GrConstColorProcessor.h"
-#include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
-class GLConstColorProcessor : public GrGLFragmentProcessor {
+class GLConstColorProcessor : public GrGLSLFragmentProcessor {
 public:
-    GLConstColorProcessor() : fPrevColor(GrColor_ILLEGAL) {}
+    GLConstColorProcessor() : fPrevColor(GrColor4f::kIllegalConstructor) {}
 
     void emitCode(EmitArgs& args) override {
-        GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const char* colorUni;
-        fColorUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                            kVec4f_GrSLType, kMedium_GrSLPrecision, "constantColor",
-                                            &colorUni);
+        fColorUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                         kVec4f_GrSLType, kMedium_GrSLPrecision,
+                                                         "constantColor",
+                                                         &colorUni);
         GrConstColorProcessor::InputMode mode = args.fFp.cast<GrConstColorProcessor>().inputMode();
         if (!args.fInputColor) {
             mode = GrConstColorProcessor::kIgnore_InputMode;
         }
         switch (mode) {
             case GrConstColorProcessor::kIgnore_InputMode:
-                fsBuilder->codeAppendf("%s = %s;", args.fOutputColor, colorUni);
+                fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, colorUni);
                 break;
             case GrConstColorProcessor::kModulateRGBA_InputMode:
-                fsBuilder->codeAppendf("%s = %s * %s;", args.fOutputColor, args.fInputColor,
+                fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputColor, args.fInputColor,
                                        colorUni);
                 break;
             case GrConstColorProcessor::kModulateA_InputMode:
-                fsBuilder->codeAppendf("%s = %s.a * %s;", args.fOutputColor, args.fInputColor,
+                fragBuilder->codeAppendf("%s = %s.a * %s;", args.fOutputColor, args.fInputColor,
                                        colorUni);
                 break;
         }
     }
 
 protected:
-    void onSetData(const GrGLProgramDataManager& pdm, const GrProcessor& processor) override {
-        GrColor color = processor.cast<GrConstColorProcessor>().color();
-        // We use the "illegal" color value as an uninit sentinel. However, ut isn't inherently
-        // illegal to use this processor with unpremul colors. So we correctly handle the case
-        // when the "illegal" color is used but we will always upload it.
-        if (GrColor_ILLEGAL == color || fPrevColor != color) {
-            static const GrGLfloat scale = 1.f / 255.f;
-            GrGLfloat floatColor[4] = {
-                GrColorUnpackR(color) * scale,
-                GrColorUnpackG(color) * scale,
-                GrColorUnpackB(color) * scale,
-                GrColorUnpackA(color) * scale,
-            };
-            pdm.set4fv(fColorUniform, 1, floatColor);
+    void onSetData(const GrGLSLProgramDataManager& pdm,
+                   const GrFragmentProcessor& processor) override {
+        GrColor4f color = processor.cast<GrConstColorProcessor>().color();
+        // We use the "illegal" color value as an uninit sentinel. With GrColor4f, the "illegal"
+        // color is *really* illegal (not just unpremultiplied), so this check is simple.
+        if (fPrevColor != color) {
+            pdm.set4fv(fColorUniform, 1, color.fRGBA);
             fPrevColor = color;
         }
     }
 
 private:
-    GrGLProgramDataManager::UniformHandle fColorUniform;
-    GrColor                               fPrevColor;
+    GrGLSLProgramDataManager::UniformHandle fColorUniform;
+    GrColor4f                               fPrevColor;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrConstColorProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    if (kIgnore_InputMode == fMode) {
-        inout->setToOther(kRGBA_GrColorComponentFlags, fColor,
-                          GrInvariantOutput::kWillNot_ReadInput);
-    } else {
-        GrColor r = GrColorUnpackR(fColor);
-        bool colorIsSingleChannel = r == GrColorUnpackG(fColor) && r == GrColorUnpackB(fColor) &&
-                                    r == GrColorUnpackA(fColor);
-        if (kModulateRGBA_InputMode == fMode) {
-            if (colorIsSingleChannel) {
-                inout->mulByKnownSingleComponent(r);
-            } else {
-                inout->mulByKnownFourComponents(fColor);
-            }
-        } else {
-            if (colorIsSingleChannel) {
-                inout->mulAlphaByKnownSingleComponent(r);
-            } else {
-                inout->mulAlphaByKnownFourComponents(fColor);
-            }
-        }
+GrColor4f GrConstColorProcessor::constantOutputForConstantInput(GrColor4f input) const {
+    switch (fMode) {
+        case kIgnore_InputMode:
+            return fColor;
+        case kModulateA_InputMode:
+            return fColor.mulByScalar(input.fRGBA[3]);
+        case kModulateRGBA_InputMode:
+            return fColor.modulate(input);
     }
+    SkFAIL("Unexpected mode");
+    return GrColor4f::TransparentBlack();
 }
 
-void GrConstColorProcessor::onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder* b) const {
+void GrConstColorProcessor::onGetGLSLProcessorKey(const GrShaderCaps&,
+                                                  GrProcessorKeyBuilder* b) const {
     b->add32(fMode);
 }
 
-GrGLFragmentProcessor* GrConstColorProcessor::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrConstColorProcessor::onCreateGLSLInstance() const  {
     return new GLConstColorProcessor;
 }
 
@@ -107,8 +93,9 @@ bool GrConstColorProcessor::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConstColorProcessor);
 
-const GrFragmentProcessor* GrConstColorProcessor::TestCreate(GrProcessorTestData* d) {
-    GrColor color;
+#if GR_TEST_UTILS
+sk_sp<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcessorTestData* d) {
+    GrColor4f color;
     int colorPicker = d->fRandom->nextULessThan(3);
     switch (colorPicker) {
         case 0: {
@@ -116,17 +103,18 @@ const GrFragmentProcessor* GrConstColorProcessor::TestCreate(GrProcessorTestData
             uint32_t r = d->fRandom->nextULessThan(a+1);
             uint32_t g = d->fRandom->nextULessThan(a+1);
             uint32_t b = d->fRandom->nextULessThan(a+1);
-            color = GrColorPackRGBA(r, g, b, a);
+            color = GrColor4f::FromGrColor(GrColorPackRGBA(r, g, b, a));
             break;
         }
         case 1:
-            color = 0;
+            color = GrColor4f::TransparentBlack();
             break;
         case 2:
-            color = d->fRandom->nextULessThan(0x100);
-            color = color | (color << 8) | (color << 16) | (color << 24);
+            uint32_t c = d->fRandom->nextULessThan(0x100);
+            color = GrColor4f::FromGrColor(c | (c << 8) | (c << 16) | (c << 24));
             break;
     }
     InputMode mode = static_cast<InputMode>(d->fRandom->nextULessThan(kInputModeCnt));
-    return GrConstColorProcessor::Create(color, mode);
+    return GrConstColorProcessor::Make(color, mode);
 }
+#endif

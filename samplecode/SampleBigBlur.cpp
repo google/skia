@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -30,11 +29,10 @@ protected:
         SkPaint paint;
         canvas->save();
         paint.setColor(SK_ColorBLUE);
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(
+        paint.setMaskFilter(SkBlurMaskFilter::Make(
             kNormal_SkBlurStyle,
             SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(128)),
-            SkBlurMaskFilter::kHighQuality_BlurFlag);
-        paint.setMaskFilter(mf)->unref();
+            SkBlurMaskFilter::kHighQuality_BlurFlag));
         canvas->translate(200, 200);
         canvas->drawCircle(100, 100, 200, paint);
         canvas->restore();

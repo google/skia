@@ -55,32 +55,19 @@ public:
      *  the frequencies so that the noise will be tileable for the given tile size. If tileSize
      *  is NULL or an empty size, the frequencies will be used as is without modification.
      */
-    static SkShader* CreateFractalNoise(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                                        int numOctaves, SkScalar seed,
-                                        const SkISize* tileSize = NULL);
-    static SkShader* CreateTurbulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                                     int numOctaves, SkScalar seed,
-                                     const SkISize* tileSize = NULL);
-    /**
-     * Create alias for CreateTurbulunce until all Skia users changed
-     * its code to use the new naming
-     */
-    static SkShader* CreateTubulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                                     int numOctaves, SkScalar seed,
-                                     const SkISize* tileSize = NULL) {
-    return CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed, tileSize);
-    }
-
-
-    size_t contextSize() const override;
+    static sk_sp<SkShader> MakeFractalNoise(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
+                                            int numOctaves, SkScalar seed,
+                                            const SkISize* tileSize = nullptr);
+    static sk_sp<SkShader> MakeTurbulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
+                                          int numOctaves, SkScalar seed,
+                                          const SkISize* tileSize = nullptr);
 
     class PerlinNoiseShaderContext : public SkShader::Context {
     public:
         PerlinNoiseShaderContext(const SkPerlinNoiseShader& shader, const ContextRec&);
-        virtual ~PerlinNoiseShaderContext();
+        ~PerlinNoiseShaderContext() override;
 
         void shadeSpan(int x, int y, SkPMColor[], int count) override;
-        void shadeSpan16(int x, int y, uint16_t[], int count) override;
 
     private:
         SkPMColor shade(const SkPoint& point, StitchData& stitchData) const;
@@ -97,8 +84,7 @@ public:
     };
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext* context, const SkMatrix& viewM,
-                                                   const SkMatrix*, SkFilterQuality) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
@@ -106,13 +92,13 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    Context* onCreateContext(const ContextRec&, void* storage) const override;
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc* storage) const override;
 
 private:
     SkPerlinNoiseShader(SkPerlinNoiseShader::Type type, SkScalar baseFrequencyX,
                         SkScalar baseFrequencyY, int numOctaves, SkScalar seed,
                         const SkISize* tileSize);
-    virtual ~SkPerlinNoiseShader();
+    ~SkPerlinNoiseShader() override;
 
     const SkPerlinNoiseShader::Type fType;
     const SkScalar                  fBaseFrequencyX;

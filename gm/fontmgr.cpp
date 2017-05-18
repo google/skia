@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkFontMgr.h"
 #include "SkGraphics.h"
@@ -20,7 +21,7 @@
 
 static SkScalar drawString(SkCanvas* canvas, const SkString& text, SkScalar x,
                            SkScalar y, const SkPaint& paint) {
-    canvas->drawText(text.c_str(), text.size(), x, y, paint);
+    canvas->drawString(text, x, y, paint);
     return x + paint.measureText(text.c_str(), text.size());
 }
 
@@ -31,9 +32,9 @@ static SkScalar drawCharacter(SkCanvas* canvas, uint32_t character, SkScalar x,
     // find typeface containing the requested character and draw it
     SkString ch;
     ch.appendUnichar(character);
-    SkTypeface* typeface = fm->matchFamilyStyleCharacter(fontName, fontStyle,
-                                                         bcp47, bcp47Count, character);
-    SkSafeUnref(paint.setTypeface(typeface));
+    sk_sp<SkTypeface> typeface(fm->matchFamilyStyleCharacter(fontName, fontStyle,
+                                                             bcp47, bcp47Count, character));
+    paint.setTypeface(typeface);
     x = drawString(canvas, ch, x, y, paint) + 20;
 
     if (nullptr == typeface) {
@@ -45,8 +46,8 @@ static SkScalar drawCharacter(SkCanvas* canvas, uint32_t character, SkScalar x,
     // it expects to get the same glyph when following this pattern.
     SkString familyName;
     typeface->getFamilyName(&familyName);
-    SkTypeface* typefaceCopy = fm->legacyCreateTypeface(familyName.c_str(), typeface->style());
-    SkSafeUnref(paint.setTypeface(typefaceCopy));
+    paint.setTypeface(sk_sp<SkTypeface>(fm->legacyCreateTypeface(familyName.c_str(),
+                                                                 typeface->fontStyle())));
     return drawString(canvas, ch, x, y, paint) + 20;
 }
 
@@ -55,15 +56,15 @@ static const char* ja = "ja";
 
 class FontMgrGM : public skiagm::GM {
 public:
-    FontMgrGM(SkFontMgr* fontMgr = nullptr) {
+    FontMgrGM(sk_sp<SkFontMgr> fontMgr = nullptr) {
         SkGraphics::SetFontCacheLimit(16 * 1024 * 1024);
 
         fName.set("fontmgr_iter");
         if (fontMgr) {
             fName.append("_factory");
-            fFM.reset(fontMgr);
+            fFM = std::move(fontMgr);
         } else {
-            fFM.reset(SkFontMgr::RefDefault());
+            fFM = SkFontMgr::RefDefault();
         }
         fName.append(sk_tool_utils::platform_os_name());
         fName.append(sk_tool_utils::platform_extra_config("GDI"));
@@ -86,7 +87,7 @@ protected:
         paint.setSubpixelText(true);
         paint.setTextSize(17);
 
-        SkFontMgr* fm = fFM;
+        SkFontMgr* fm = fFM.get();
         int count = SkMin32(fm->countFamilies(), MAX_FAMILIES);
 
         for (int i = 0; i < count; ++i) {
@@ -97,14 +98,14 @@ protected:
 
             SkScalar x = 220;
 
-            SkAutoTUnref<SkFontStyleSet> set(fm->createStyleSet(i));
+            sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
             for (int j = 0; j < set->count(); ++j) {
                 SkString sname;
                 SkFontStyle fs;
                 set->getStyle(j, &fs, &sname);
-                sname.appendf(" [%d %d %d]", fs.weight(), fs.width(), fs.isItalic());
+                sname.appendf(" [%d %d %d]", fs.weight(), fs.width(), fs.slant());
 
-                SkSafeUnref(paint.setTypeface(set->createTypeface(j)));
+                paint.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
                 x = drawString(canvas, sname, x, y, paint) + 20;
 
                 // check to see that we get different glyphs in japanese and chinese
@@ -118,13 +119,13 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkFontMgr> fFM;
+    sk_sp<SkFontMgr> fFM;
     SkString fName;
     typedef GM INHERITED;
 };
 
 class FontMgrMatchGM : public skiagm::GM {
-    SkAutoTUnref<SkFontMgr> fFM;
+    sk_sp<SkFontMgr> fFM;
 
 public:
     FontMgrMatchGM() : fFM(SkFontMgr::RefDefault()) {
@@ -155,7 +156,7 @@ protected:
 
             sname.appendf(" [%d %d]", fs.weight(), fs.width());
 
-            SkSafeUnref(p.setTypeface(fset->createTypeface(j)));
+            p.setTypeface(sk_sp<SkTypeface>(fset->createTypeface(j)));
             (void)drawString(canvas, sname, 0, y, p);
             y += 24;
         }
@@ -169,11 +170,11 @@ protected:
         for (int weight = 100; weight <= 900; weight += 200) {
             for (int width = 1; width <= 9; width += 2) {
                 SkFontStyle fs(weight, width, SkFontStyle::kUpright_Slant);
-                SkTypeface* face = fset->matchStyle(fs);
+                sk_sp<SkTypeface> face(fset->matchStyle(fs));
                 if (face) {
                     SkString str;
                     str.printf("request [%d %d]", fs.weight(), fs.width());
-                    p.setTypeface(face)->unref();
+                    p.setTypeface(std::move(face));
                     (void)drawString(canvas, str, 0, y, p);
                     y += 24;
                 }
@@ -188,11 +189,11 @@ protected:
         paint.setSubpixelText(true);
         paint.setTextSize(17);
 
-        static const char* gNames[] = {
+        const char* gNames[] = {
             "Helvetica Neue", "Arial"
         };
 
-        SkAutoTUnref<SkFontStyleSet> fset;
+        sk_sp<SkFontStyleSet> fset;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); ++i) {
             fset.reset(fFM->matchFamily(gNames[i]));
             if (fset->count() > 0) {
@@ -204,9 +205,9 @@ protected:
         }
 
         canvas->translate(20, 40);
-        this->exploreFamily(canvas, paint, fset);
+        this->exploreFamily(canvas, paint, fset.get());
         canvas->translate(150, 0);
-        this->iterateFamily(canvas, paint, fset);
+        this->iterateFamily(canvas, paint, fset.get());
     }
 
 private:
@@ -225,7 +226,7 @@ public:
         }
         fName.append(sk_tool_utils::platform_os_name());
         fName.append(sk_tool_utils::platform_extra_config("GDI"));
-        fFM.reset(SkFontMgr::RefDefault());
+        fFM = SkFontMgr::RefDefault();
     }
 
     static void show_bounds(SkCanvas* canvas, const SkPaint& paint, SkScalar x, SkScalar y,
@@ -262,8 +263,8 @@ protected:
         paint.setTextSkewX(fSkewX);
 
         const SkColor boundsColors[2] = { SK_ColorRED, SK_ColorBLUE };
-        
-        SkFontMgr* fm = fFM;
+
+        SkFontMgr* fm = fFM.get();
         int count = SkMin32(fm->countFamilies(), 32);
 
         int index = 0;
@@ -272,9 +273,9 @@ protected:
         canvas->translate(80, 120);
 
         for (int i = 0; i < count; ++i) {
-            SkAutoTUnref<SkFontStyleSet> set(fm->createStyleSet(i));
+            sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
             for (int j = 0; j < set->count(); ++j) {
-                SkSafeUnref(paint.setTypeface(set->createTypeface(j)));
+                paint.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
                 if (paint.getTypeface()) {
                     show_bounds(canvas, paint, x, y, boundsColors[index & 1]);
                     index += 1;
@@ -292,7 +293,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkFontMgr> fFM;
+    sk_sp<SkFontMgr> fFM;
     SkString fName;
     SkScalar fScaleX, fSkewX;
     typedef GM INHERITED;

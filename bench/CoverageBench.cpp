@@ -6,6 +6,7 @@
  */
 
 #include "Benchmark.h"
+#include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -33,13 +34,17 @@ public:
         fPath.quadTo(250, 0, 0, 500);
 
         fPixmap.alloc(SkImageInfo::MakeA8(500, 500));
+        if (!drawCoverage) {
+            // drawPathCoverage() goes out of its way to work fine with an uninitialized
+            // dst buffer, even in "SrcOver" mode, but ordinary drawing sure doesn't.
+            fPixmap.erase(0);
+        }
 
         fIdentity.setIdentity();
         fRC.setRect(fPath.getBounds().round());
 
         fDraw.fDst      = fPixmap;
         fDraw.fMatrix   = &fIdentity;
-        fDraw.fClip     = &fRC.bwRgn();
         fDraw.fRC       = &fRC;
     }
 

@@ -38,8 +38,9 @@ void SkGLWidget::initializeGL() {
     if (fCurContext) {
         fCurContext->abandonContext();
     }
-    fGpuDevice.reset(nullptr);
-    fCanvas.reset(nullptr);
+
+    fGpuSurface = nullptr;
+    fCanvas = nullptr;
 
     fCurContext.reset(GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf.get()));
 }
@@ -55,17 +56,11 @@ void SkGLWidget::createRenderTarget() {
     glClear(GL_STENCIL_BUFFER_BIT);
     fCurContext->resetContext();
 
-    fGpuDevice.reset(nullptr);
-    fCanvas.reset(nullptr);
-
     GrBackendRenderTargetDesc desc = this->getDesc(this->width(), this->height());
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-    SkAutoTUnref<GrRenderTarget> curRenderTarget(
-            fCurContext->textureProvider()->wrapBackendRenderTarget(desc));
-    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    fGpuDevice.reset(SkGpuDevice::Create(curRenderTarget, &props,
-                                         SkGpuDevice::kUninit_InitContents));
-    fCanvas.reset(new SkCanvas(fGpuDevice));
+
+    fGpuSurface = SkSurface::MakeFromBackendRenderTarget(fCurContext.get(), desc, nullptr);
+    fCanvas = fGpuSurface->getCanvas();
 }
 
 void SkGLWidget::resizeGL(int w, int h) {
@@ -76,10 +71,10 @@ void SkGLWidget::resizeGL(int w, int h) {
 void SkGLWidget::paintGL() {
     if (!this->isHidden() && fCanvas) {
         fCurContext->resetContext();
-        fDebugger->draw(fCanvas.get());
+        fDebugger->draw(fCanvas);
         // TODO(chudy): Implement an optional flush button in Gui.
         fCanvas->flush();
-        emit drawComplete();
+        Q_EMIT drawComplete();
     }
 }
 
@@ -88,10 +83,10 @@ GrBackendRenderTargetDesc SkGLWidget::getDesc(int w, int h) {
     desc.fWidth = SkScalarRoundToInt(this->width());
     desc.fHeight = SkScalarRoundToInt(this->height());
     desc.fConfig = kSkia8888_GrPixelConfig;
-    GR_GL_GetIntegerv(fCurIntf, GR_GL_SAMPLES, &desc.fSampleCnt);
-    GR_GL_GetIntegerv(fCurIntf, GR_GL_STENCIL_BITS, &desc.fStencilBits);
+    GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_SAMPLES, &desc.fSampleCnt);
+    GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_STENCIL_BITS, &desc.fStencilBits);
     GrGLint buffer;
-    GR_GL_GetIntegerv(fCurIntf, GR_GL_FRAMEBUFFER_BINDING, &buffer);
+    GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_FRAMEBUFFER_BINDING, &buffer);
     desc.fRenderTargetHandle = buffer;
 
     return desc;

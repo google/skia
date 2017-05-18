@@ -5,13 +5,38 @@
  * found in the LICENSE file.
  */
 
-#include "SkOSFile.h"
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
 
+#include "SkLeanWindows.h"
+#include "SkMalloc.h"
+#include "SkOSFile.h"
 #include "SkTFitsIn.h"
 
 #include <io.h>
 #include <stdio.h>
 #include <sys/stat.h>
+
+size_t sk_fgetsize(FILE* f) {
+    int fileno = sk_fileno(f);
+    if (fileno < 0) {
+        return 0;
+    }
+
+    HANDLE file = (HANDLE)_get_osfhandle(fileno);
+    if (INVALID_HANDLE_VALUE == file) {
+        return 0;
+    }
+
+    LARGE_INTEGER fileSize;
+    if (0 == GetFileSizeEx(file, &fileSize)) {
+        return 0;
+    }
+    if (!SkTFitsIn<size_t>(fileSize.QuadPart)) {
+        return 0;
+    }
+    return static_cast<size_t>(fileSize.QuadPart);
+}
 
 bool sk_exists(const char *path, SkFILE_Flags flags) {
     int mode = 0; // existence
@@ -30,7 +55,7 @@ typedef struct {
     ULONGLONG fMsbSize;
 } SkFILEID;
 
-static bool sk_ino(SkFILE* f, SkFILEID* id) {
+static bool sk_ino(FILE* f, SkFILEID* id) {
     int fileno = _fileno((FILE*)f);
     if (fileno < 0) {
         return false;
@@ -53,7 +78,7 @@ static bool sk_ino(SkFILE* f, SkFILEID* id) {
     return true;
 }
 
-bool sk_fidentical(SkFILE* a, SkFILE* b) {
+bool sk_fidentical(FILE* a, FILE* b) {
     SkFILEID aID, bID;
     return sk_ino(a, &aID) && sk_ino(b, &bID)
            && aID.fLsbSize == bID.fLsbSize
@@ -108,17 +133,44 @@ void* sk_fdmmap(int fileno, size_t* length) {
     return addr;
 }
 
-int sk_fileno(SkFILE* f) {
+int sk_fileno(FILE* f) {
     return _fileno((FILE*)f);
 }
 
-void* sk_fmmap(SkFILE* f, size_t* length) {
+void* sk_fmmap(FILE* f, size_t* length) {
     int fileno = sk_fileno(f);
     if (fileno < 0) {
         return nullptr;
     }
 
     return sk_fdmmap(fileno, length);
+}
+
+size_t sk_qread(FILE* file, void* buffer, size_t count, size_t offset) {
+    int fileno = sk_fileno(file);
+    HANDLE fileHandle = (HANDLE)_get_osfhandle(fileno);
+    if (INVALID_HANDLE_VALUE == file) {
+        return SIZE_MAX;
+    }
+
+    OVERLAPPED overlapped = {0};
+    ULARGE_INTEGER winOffset;
+    winOffset.QuadPart = offset;
+    overlapped.Offset = winOffset.LowPart;
+    overlapped.OffsetHigh = winOffset.HighPart;
+
+    if (!SkTFitsIn<DWORD>(count)) {
+        count = std::numeric_limits<DWORD>::max();
+    }
+
+    DWORD bytesRead;
+    if (ReadFile(fileHandle, buffer, static_cast<DWORD>(count), &bytesRead, &overlapped)) {
+        return bytesRead;
+    }
+    if (GetLastError() == ERROR_HANDLE_EOF) {
+        return 0;
+    }
+    return SIZE_MAX;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -240,3 +292,5 @@ bool SkOSFile::Iter::next(SkString* name, bool getDir) {
     }
     return self.fHandle != (HANDLE)~0 && get_the_file(self.fHandle, name, dataPtr, getDir);
 }
+
+#endif//defined(SK_BUILD_FOR_WIN32)

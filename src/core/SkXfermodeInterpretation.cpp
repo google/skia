@@ -9,38 +9,31 @@
 #include "SkPaint.h"
 
 static bool just_solid_color(const SkPaint& p) {
-    return SK_AlphaOPAQUE == p.getAlpha()
-        && !p.getColorFilter() && !p.getShader();
+    return SK_AlphaOPAQUE == p.getAlpha() && !p.getColorFilter() && !p.getShader();
 }
 
-SkXfermodeInterpretation SkInterpretXfermode(const SkPaint& paint,
-                                             bool dstIsOpaque) {
-    const SkXfermode* xfer = paint.getXfermode();
-    SkXfermode::Mode mode;
-    if (!SkXfermode::AsMode(xfer, &mode)) {
-        return kNormal_SkXfermodeInterpretation;
-    }
-    switch (mode) {
-        case SkXfermode::kSrcOver_Mode:
+SkXfermodeInterpretation SkInterpretXfermode(const SkPaint& paint, bool dstIsOpaque) {
+    switch (paint.getBlendMode()) {
+        case SkBlendMode::kSrcOver:
             return kSrcOver_SkXfermodeInterpretation;
-        case SkXfermode::kSrc_Mode:
+        case SkBlendMode::kSrc:
             if (just_solid_color(paint)) {
                 return kSrcOver_SkXfermodeInterpretation;
             }
             return kNormal_SkXfermodeInterpretation;
-        case SkXfermode::kDst_Mode:
+        case SkBlendMode::kDst:
             return kSkipDrawing_SkXfermodeInterpretation;
-        case SkXfermode::kDstOver_Mode:
+        case SkBlendMode::kDstOver:
             if (dstIsOpaque) {
                 return kSkipDrawing_SkXfermodeInterpretation;
             }
             return kNormal_SkXfermodeInterpretation;
-        case SkXfermode::kSrcIn_Mode:
+        case SkBlendMode::kSrcIn:
             if (dstIsOpaque && just_solid_color(paint)) {
                 return kSrcOver_SkXfermodeInterpretation;
             }
             return kNormal_SkXfermodeInterpretation;
-        case SkXfermode::kDstIn_Mode:
+        case SkBlendMode::kDstIn:
             if (just_solid_color(paint)) {
                 return kSkipDrawing_SkXfermodeInterpretation;
             }

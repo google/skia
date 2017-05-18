@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkShader.h"
 using namespace skiagm;
 
@@ -58,7 +59,7 @@ bool GM::animate(const SkAnimTimer& timer) {
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void GM::onDrawBackground(SkCanvas* canvas) {
-    canvas->drawColor(fBGColor, SkXfermode::kSrc_Mode);
+    canvas->drawColor(fBGColor, SkBlendMode::kSrc);
 }
 
 void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
@@ -80,15 +81,14 @@ void GM::DrawGpuOnlyMessage(SkCanvas* canvas) {
     paint.setTextSize(20);
     paint.setColor(SK_ColorRED);
     sk_tool_utils::set_portable_typeface(&paint);
-    static const char kTxt[] = "GPU Only";
-    bmpCanvas.drawText(kTxt, strlen(kTxt), 20, 40, paint);
+    constexpr char kTxt[] = "GPU Only";
+    bmpCanvas.drawString(kTxt, 20, 40, paint);
     SkMatrix localM;
     localM.setRotate(35.f);
     localM.postTranslate(10.f, 0.f);
-    SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(bmp, SkShader::kMirror_TileMode,
-                                                               SkShader::kMirror_TileMode,
-                                                               &localM));
-    paint.setShader(shader);
+    paint.setShader(SkShader::MakeBitmapShader(bmp, SkShader::kMirror_TileMode,
+                                               SkShader::kMirror_TileMode,
+                                               &localM));
     paint.setFilterQuality(kMedium_SkFilterQuality);
     canvas->drawPaint(paint);
     return;
@@ -108,4 +108,3 @@ SkISize skiagm::SimpleGM::onISize() {
 SkString skiagm::SimpleGM::onShortName() {
     return fName;
 }
-

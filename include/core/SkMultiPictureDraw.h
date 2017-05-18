@@ -8,8 +8,8 @@
 #ifndef SkMultiPictureDraw_DEFINED
 #define SkMultiPictureDraw_DEFINED
 
+#include "../private/SkTDArray.h"
 #include "SkMatrix.h"
-#include "SkTDArray.h"
 
 class SkCanvas;
 class SkPaint;
@@ -57,7 +57,7 @@ public:
 
 private:
     struct DrawData {
-        SkCanvas*        fCanvas;  // reffed
+        SkCanvas*        fCanvas;
         const SkPicture* fPicture; // reffed
         SkMatrix         fMatrix;
         SkPaint*         fPaint;   // owned

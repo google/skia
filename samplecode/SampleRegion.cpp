@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
@@ -12,7 +13,6 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-#include "SkImageDecoder.h"
 
 #include <math.h>
 
@@ -78,11 +78,9 @@ static void drawFadingText(SkCanvas* canvas,
     // of our pts[] array.
     const SkScalar pos[] = { 0, 0.9f, SK_Scalar1 };
 
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, pos, 3,
-                                                 SkShader::kClamp_TileMode);
     SkPaint p;
-    p.setShader(s)->unref();
-    p.setXfermodeMode(SkXfermode::kDstIn_Mode);
+    p.setShader(SkGradientShader::MakeLinear(pts, colors, pos, 3, SkShader::kClamp_TileMode));
+    p.setBlendMode(SkBlendMode::kDstIn);
     canvas->drawRect(bounds, p);
 
     canvas->restore();
@@ -105,10 +103,9 @@ static void test_text(SkCanvas* canvas) {
     const SkPoint pts[] = { { x, y }, { x + paint.measureText(str, len), y } };
     const SkColor colors[] = { SK_ColorBLACK, SK_ColorBLACK, 0 };
     const SkScalar pos[] = { 0, 0.9f, 1 };
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, pos,
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos,
                                                  SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode);
-    paint.setShader(s)->unref();
+                                                 SkShader::kClamp_TileMode));
     canvas->drawText(str, len, x, y, paint);
 
     y += 20;
@@ -229,7 +226,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(20));
         paint.setColor(hilite ? SK_ColorRED : 0x40FF0000);
-        canvas->drawText(text, strlen(text), loc.fX, loc.fY, paint);
+        canvas->drawString(text, loc.fX, loc.fY, paint);
     }
 
     void drawPredicates(SkCanvas* canvas, const SkPoint pts[]) {
@@ -376,7 +373,7 @@ protected:
         canvas->translate(0, SkIntToScalar(200));
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
-            canvas->drawText(gOps[op].fName, strlen(gOps[op].fName), SkIntToScalar(75), SkIntToScalar(50), textPaint);
+            canvas->drawString(gOps[op].fName, SkIntToScalar(75), SkIntToScalar(50), textPaint);
 
             this->drawRgnOped(canvas, gOps[op].fOp, gOps[op].fColor);
 

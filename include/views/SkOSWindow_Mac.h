@@ -24,13 +24,14 @@ public:
 #if SK_SUPPORT_GPU
         kNativeGL_BackEndType,
 #endif
-#if SK_COMMAND_BUFFER
-        kCommandBuffer_BackEndType,
-#endif // SK_COMMAND_BUFFER
+#if SK_ANGLE
+        kANGLE_BackEndType,
+#endif // SK_ANGLE
     };
 
-    void    detach();
-    bool    attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*);
+    void    release();
+    bool    attach(SkBackEndTypes attachType, int msaaSampleCount, bool deepColor,
+                   AttachmentInfo*);
     void    present();
 
     bool    makeFullscreen();

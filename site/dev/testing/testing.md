@@ -4,11 +4,12 @@ Correctness Testing
 Skia correctness testing is primarily served by a tool named DM.
 This is a quickstart to building and running DM.
 
-~~~
-$ ./gyp_skia
-$ ninja -C out/Debug dm
-$ out/Debug/dm -v -w dm_output
-~~~
+<!--?prettify lang=sh?-->
+
+    python tools/git-sync-deps
+    bin/gn gen out/Debug
+    ninja -C out/Debug dm
+    out/Debug/dm -v -w dm_output
 
 When you run this, you may notice your CPU peg to 100% for a while, then taper
 off to 1 or 2 active cores as the run finishes.  This is intentional.  DM is
@@ -49,6 +50,10 @@ supports many test configurations, which are not all appropriate for all
 machines.  These lines are a sort of FYI, mostly in case DM can't run some
 configuration you might be expecting it to run.
 
+Don't worry about the "skps: Couldn't read skps." messages either, you won't
+have those by default and can do without them. If you wish to test with them
+too, you can download them separately.
+
 The next line is an overview of the work DM is about to do.
 ~~~
 492 srcs * 3 sinks + 382 tests == 1858 tasks
@@ -61,16 +66,15 @@ files (from `--skps`, which defaults to "skps").  You can control the types of
 sources DM will use with `--src` (default, "tests gm image skp").
 
 DM has found 3 usable ways to draw those 492 sources.  This is controlled by
-`--config`, which today defaults to "565 8888 gpu nonrendering angle nvprmsaa4".
-DM has skipped nonrendering, angle, and nvprmssa4, leaving three usable configs:
-565, 8888, and gpu.  These three name different ways to draw using Skia:
+`--config`. The defaults are operating system dependent. On Linux they are "8888 gl nonrendering".
+DM has skipped nonrendering leaving two usable configs:
+8888 and gl.  These two name different ways to draw using Skia:
 
-  -    565:  draw using the software backend into a 16-bit RGB bitmap
   -    8888: draw using the software backend into a 32-bit RGBA bitmap
-  -    gpu:  draw using the GPU backend (Ganesh) into a 32-bit RGBA bitmap
+  -    gl:  draw using the OpenGL backend (Ganesh) into a 32-bit RGBA bitmap
 
 Sometimes DM calls these configs, sometimes sinks.  Sorry.  There are many
-possible configs but generally we pay most attention to 8888 and gpu.
+possible configs but generally we pay most attention to 8888 and gl.
 
 DM always tries to draw all sources into all sinks, which is why we multiply
 492 by 3.  The unit tests don't really fit into this source-sink model, so they
@@ -105,19 +109,19 @@ When DM finishes running, you should find a directory with file named dm.json,
 and some nested directories filled with lots of images.
 ~~~
 $ ls dm_output
-565     8888    dm.json gpu
+8888    dm.json gl
 
 $ find dm_output -name '*.png'
-dm_output/565/gm/3x3bitmaprect.png
-dm_output/565/gm/aaclip.png
-dm_output/565/gm/aarectmodes.png
-dm_output/565/gm/alphagradients.png
-dm_output/565/gm/arcofzorro.png
-dm_output/565/gm/arithmode.png
-dm_output/565/gm/astcbitmap.png
-dm_output/565/gm/bezier_conic_effects.png
-dm_output/565/gm/bezier_cubic_effects.png
-dm_output/565/gm/bezier_quad_effects.png
+dm_output/8888/gm/3x3bitmaprect.png
+dm_output/8888/gm/aaclip.png
+dm_output/8888/gm/aarectmodes.png
+dm_output/8888/gm/alphagradients.png
+dm_output/8888/gm/arcofzorro.png
+dm_output/8888/gm/arithmode.png
+dm_output/8888/gm/astcbitmap.png
+dm_output/8888/gm/bezier_conic_effects.png
+dm_output/8888/gm/bezier_cubic_effects.png
+dm_output/8888/gm/bezier_quad_effects.png
                 ...
 ~~~
 
@@ -141,46 +145,47 @@ they happen and then again all together after everything is done running.
 These failures are also included in the dm.json file.
 
 DM has a simple facility to compare against the results of a previous run:
-~~~
-$ ./gyp_skia
-$ ninja -C out/Debug dm
-$ out/Debug/dm -w good
 
-   (do some work)
+<!--?prettify lang=sh?-->
 
-$ ./gyp_skia
-$ ninja -C out/Debug dm
-$ out/Debug/dm -r good -w bad
-~~~
+    ninja -C out/Debug dm
+    out/Debug/dm -w good
+
+    # do some work
+
+    ninja -C out/Debug dm
+    out/Debug/dm -r good -w bad
+
 When using `-r`, DM will display a failure for any test that didn't produce the
 same image as the `good` run.
 
 For anything fancier, I suggest using skdiff:
-~~~
-$ ./gyp_skia
-$ ninja -C out/Debug dm
-$ out/Debug/dm -w good
 
-   (do some work)
+<!--?prettify lang=sh?-->
 
-$ ./gyp_skia
-$ ninja -C out/Debug dm
-$ out/Debug/dm -w bad
+    ninja -C out/Debug dm
+    out/Debug/dm -w good
 
-$ ninja -C out/Debug skdiff
-$ mkdir diff
-$ out/Debug/skdiff good bad diff
+    # do some work
 
-  (open diff/index.html in your web browser)
-~~~
+    ninja -C out/Debug dm
+    out/Debug/dm -w bad
+
+    ninja -C out/Debug skdiff
+    mkdir diff
+    out/Debug/skdiff good bad diff
+
+    # open diff/index.html in your web browser
 
 That's the basics of DM.  DM supports many other modes and flags.  Here are a
 few examples you might find handy.
-~~~
-$ out/Debug/dm --help        # Print all flags, their defaults, and a brief explanation of each.
-$ out/Debug/dm --src tests   # Run only unit tests.
-$ out/Debug/dm --nocpu       # Test only GPU-backed work.
-$ out/Debug/dm --nogpu       # Test only CPU-backed work.
-$ out/Debug/dm --match blur  # Run only work with "blur" in its name.
-$ out/Debug/dm --dryRun      # Don't really do anything, just print out what we'd do.
-~~~
+
+<!--?prettify lang=sh?-->
+
+    out/Debug/dm --help        # Print all flags, their defaults, and a brief explanation of each.
+    out/Debug/dm --src tests   # Run only unit tests.
+    out/Debug/dm --nocpu       # Test only GPU-backed work.
+    out/Debug/dm --nogpu       # Test only CPU-backed work.
+    out/Debug/dm --match blur  # Run only work with "blur" in its name.
+    out/Debug/dm --dryRun      # Don't really do anything, just print out what we'd do.
+

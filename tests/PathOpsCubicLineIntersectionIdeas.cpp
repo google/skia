@@ -16,7 +16,7 @@
 static bool gPathOpsCubicLineIntersectionIdeasVerbose = false;
 
 static struct CubicLineFailures {
-    SkDCubic c;
+    CubicPts c;
     double t;
     SkDPoint p;
 } cubicLineFailures[] = {
@@ -145,13 +145,15 @@ DEF_TEST(PathOpsCubicLineRoots, reporter) {
     double largestR2 = 0;
     for (int index = 0; index < 1000000000; ++index) {
         SkDPoint origin = {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)};
-        SkDCubic cubic = {{origin,
+        CubicPts cuPts = {{origin,
                 {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)},
                 {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)},
                 {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)}
         }};
         // construct a line at a known intersection
         double t = ran.nextRangeF(0, 1);
+        SkDCubic cubic;
+        cubic.debugSet(cuPts.fPts);
         SkDPoint pt = cubic.ptAtT(t);
         // skip answers with no intersections (although note the bug!) or two, or more
         // see if the line / cubic has a fun range of roots
@@ -194,13 +196,13 @@ DEF_TEST(PathOpsCubicLineRoots, reporter) {
             if (realRoots == 3) {
                 smallest = SkTMin(smallest, allRoots[2]);
             }
-            SK_ALWAYSBREAK(smallest < 0);
-            SK_ALWAYSBREAK(smallest >= -1);
+            SkASSERT_RELEASE(smallest < 0);
+            SkASSERT_RELEASE(smallest >= -1);
             largeBits = 0;
         } else {
             frexp(largest, &largeBits);
-            SK_ALWAYSBREAK(largeBits >= 0);
-            SK_ALWAYSBREAK(largeBits < 256);
+            SkASSERT_RELEASE(largeBits >= 0);
+            SkASSERT_RELEASE(largeBits < 256);
         }
         double step = 1e-6;
         if (largeBits > 21) {
@@ -222,7 +224,7 @@ DEF_TEST(PathOpsCubicLineRoots, reporter) {
                 break;
             }
             step *= 1.5;
-            SK_ALWAYSBREAK(step < 1);
+            SkASSERT_RELEASE(step < 1);
         } while (true);
         worstStep[largeBits] = SkTMax(worstStep[largeBits], diff);
 #if 0
@@ -248,7 +250,9 @@ DEF_TEST(PathOpsCubicLineRoots, reporter) {
 }
 
 static double testOneFailure(const CubicLineFailures& failure) {
-    const SkDCubic& cubic = failure.c;
+    const CubicPts& c = failure.c;
+    SkDCubic cubic;
+    cubic.debugSet(c.fPts);
     const SkDPoint& pt = failure.p;
     double A, B, C, D;
     SkDCubic::Coefficients(&cubic[0].fY, &A, &B, &C, &D);
@@ -256,11 +260,11 @@ static double testOneFailure(const CubicLineFailures& failure) {
     double allRoots[3] = {0}, validRoots[3] = {0};
     int realRoots = SkDCubic::RootsReal(A, B, C, D, allRoots);
     int valid = SkDQuad::AddValidTs(allRoots, realRoots, validRoots);
-    SK_ALWAYSBREAK(valid == 1);
-    SK_ALWAYSBREAK(realRoots != 1);
+    SkASSERT_RELEASE(valid == 1);
+    SkASSERT_RELEASE(realRoots != 1);
     double t = validRoots[0];
     SkDPoint calcPt = cubic.ptAtT(t);
-    SK_ALWAYSBREAK(!calcPt.approximatelyEqual(pt));
+    SkASSERT_RELEASE(!calcPt.approximatelyEqual(pt));
     int iters = 0;
     double newT = binary_search(cubic, 0.1, pt, t, &iters);
     return newT;
@@ -271,7 +275,7 @@ DEF_TEST(PathOpsCubicLineFailures, reporter) {
     for (int index = 0; index < cubicLineFailuresCount; ++index) {
         const CubicLineFailures& failure = cubicLineFailures[index];
         double newT = testOneFailure(failure);
-        SK_ALWAYSBREAK(newT >= 0);
+        SkASSERT_RELEASE(newT >= 0);
     }
 }
 
@@ -279,5 +283,5 @@ DEF_TEST(PathOpsCubicLineOneFailure, reporter) {
     return;  // disable for now
     const CubicLineFailures& failure = cubicLineFailures[1];
     double newT = testOneFailure(failure);
-    SK_ALWAYSBREAK(newT >= 0);
+    SkASSERT_RELEASE(newT >= 0);
 }

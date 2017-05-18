@@ -10,7 +10,7 @@
 #include "SkTypes.h"
 
 // the max magnitude for the distance field
-// distance values are limited to the range [-SK_DistanceFieldMagnitude, SK_DistanceFieldMagnitude)
+// distance values are limited to the range (-SK_DistanceFieldMagnitude, SK_DistanceFieldMagnitude]
 #define SK_DistanceFieldMagnitude   4
 // we need to pad around the original glyph to allow our maximum distance of
 // SK_DistanceFieldMagnitude texels away from any edge
@@ -18,9 +18,10 @@
 // the rect we render with is inset from the distance field glyph size to allow for bilerp
 #define SK_DistanceFieldInset       2
 
-// for the fragment shader
-// The distance field is constructed as unsigned char values, so that the zero value is at 128,
-// and the range is [-4, 4 - 1/255). Hence our multiplier is 8 - 1/32 and zero threshold is 128/255.
+// For the fragment shader:
+//   The distance field is constructed as unsigned char values,
+//   so that the zero value is at 128, and the supported range of distances is [-4 * 127/128, 4].
+//   Hence our multiplier (width of the range) is 4 * 255/128 and zero threshold is 128/255.
 #define SK_DistanceFieldMultiplier   "7.96875"
 #define SK_DistanceFieldThreshold    "0.50196078431"
 

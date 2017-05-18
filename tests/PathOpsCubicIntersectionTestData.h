@@ -4,18 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkPathOpsCubic.h"
+#include "PathOpsTestCommon.h"
 
-extern const SkDCubic pointDegenerates[];
-extern const SkDCubic notPointDegenerates[];
-extern const SkDCubic tests[][2];
-extern SkDCubic hexTests[][2];
+extern const CubicPts pointDegenerates[];
+extern const CubicPts notPointDegenerates[];
+extern const CubicPts tests[][2];
+extern CubicPts hexTests[][2];
 
-extern const SkDCubic lines[];
-extern const SkDCubic notLines[];
-extern const SkDCubic modEpsilonLines[];
-extern const SkDCubic lessEpsilonLines[];
-extern const SkDCubic negEpsilonLines[];
+extern const CubicPts lines[];
+extern const CubicPts notLines[];
+extern const CubicPts modEpsilonLines[];
+extern const CubicPts lessEpsilonLines[];
+extern const CubicPts negEpsilonLines[];
 
 extern const size_t pointDegenerates_count;
 extern const size_t notPointDegenerates_count;

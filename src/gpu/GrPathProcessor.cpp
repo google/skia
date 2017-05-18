@@ -7,128 +7,127 @@
 
 #include "GrPathProcessor.h"
 
+#include "GrShaderCaps.h"
 #include "gl/GrGLGpu.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLUniformHandler.h"
+#include "glsl/GrGLSLVarying.h"
 
-#include "glsl/GrGLSLCaps.h"
-
-class GrGLPathProcessor : public GrGLPrimitiveProcessor {
+class GrGLPathProcessor : public GrGLSLPrimitiveProcessor {
 public:
     GrGLPathProcessor() : fColor(GrColor_ILLEGAL) {}
 
     static void GenKey(const GrPathProcessor& pathProc,
-                       const GrGLSLCaps&,
+                       const GrShaderCaps&,
                        GrProcessorKeyBuilder* b) {
-        b->add32(SkToInt(pathProc.opts().readsColor()) |
-                 SkToInt(pathProc.opts().readsCoverage()) << 16);
+        b->add32(SkToInt(pathProc.viewMatrix().hasPerspective()));
     }
 
     void emitCode(EmitArgs& args) override {
-        GrGLGPBuilder* pb = args.fPB;
-        GrGLFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
+        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrPathProcessor& pathProc = args.fGP.cast<GrPathProcessor>();
 
+        if (!pathProc.viewMatrix().hasPerspective()) {
+            args.fVaryingHandler->setNoPerspective();
+        }
+
         // emit transforms
-        this->emitTransforms(args.fPB, args.fTransformsIn, args.fTransformsOut);
+        this->emitTransforms(args.fVaryingHandler, args.fFPCoordTransformHandler);
 
         // Setup uniform color
-        if (pathProc.opts().readsColor()) {
-            const char* stagedLocalVarName;
-            fColorUniform = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                           kVec4f_GrSLType,
-                                           kDefault_GrSLPrecision,
-                                           "Color",
-                                           &stagedLocalVarName);
-            fs->codeAppendf("%s = %s;", args.fOutputColor, stagedLocalVarName);
-        }
+        const char* stagedLocalVarName;
+        fColorUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                         kVec4f_GrSLType,
+                                                         kDefault_GrSLPrecision,
+                                                         "Color",
+                                                         &stagedLocalVarName);
+        fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, stagedLocalVarName);
 
         // setup constant solid coverage
-        if (pathProc.opts().readsCoverage()) {
-            fs->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
+    }
+
+    void emitTransforms(GrGLSLVaryingHandler* varyingHandler,
+                        FPCoordTransformHandler* transformHandler) {
+        int i = 0;
+        while (const GrCoordTransform* coordTransform = transformHandler->nextCoordTransform()) {
+            GrSLType varyingType =
+                    coordTransform->getMatrix().hasPerspective() ? kVec3f_GrSLType
+                                                                 : kVec2f_GrSLType;
+
+            SkString strVaryingName;
+            strVaryingName.printf("TransformedCoord_%d", i);
+            GrGLSLVertToFrag v(varyingType);
+            GrGLVaryingHandler* glVaryingHandler = (GrGLVaryingHandler*) varyingHandler;
+            fInstalledTransforms.push_back().fHandle =
+                    glVaryingHandler->addPathProcessingVarying(strVaryingName.c_str(),
+                                                               &v).toIndex();
+            fInstalledTransforms.back().fType = varyingType;
+
+            transformHandler->specifyCoordsForCurrCoordTransform(SkString(v.fsIn()), varyingType);
+            ++i;
         }
     }
 
-    void emitTransforms(GrGLGPBuilder* pb, const TransformsIn& tin, TransformsOut* tout) {
-        tout->push_back_n(tin.count());
-        fInstalledTransforms.push_back_n(tin.count());
-        for (int i = 0; i < tin.count(); i++) {
-            const ProcCoords& coordTransforms = tin[i];
-            fInstalledTransforms[i].push_back_n(coordTransforms.count());
-            for (int t = 0; t < coordTransforms.count(); t++) {
-                GrSLType varyingType =
-                        coordTransforms[t]->getMatrix().hasPerspective() ? kVec3f_GrSLType :
-                                                                           kVec2f_GrSLType;
-
-                SkString strVaryingName("MatrixCoord");
-                strVaryingName.appendf("_%i_%i", i, t);
-                GrGLVertToFrag v(varyingType);
-                fInstalledTransforms[i][t].fHandle =
-                        pb->addSeparableVarying(strVaryingName.c_str(), &v).toIndex();
-                fInstalledTransforms[i][t].fType = varyingType;
-
-                SkNEW_APPEND_TO_TARRAY(&(*tout)[i], GrGLProcessor::TransformedCoords,
-                                       (SkString(v.fsIn()), varyingType));
-            }
-        }
-    }
-
-    void setData(const GrGLProgramDataManager& pd, const GrPrimitiveProcessor& primProc) override {
+    void setData(const GrGLSLProgramDataManager& pd,
+                 const GrPrimitiveProcessor& primProc,
+                 FPCoordTransformIter&& transformIter) override {
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
-        if (pathProc.opts().readsColor() && pathProc.color() != fColor) {
-            GrGLfloat c[4];
+        if (pathProc.color() != fColor) {
+            float c[4];
             GrColorToRGBAFloat(pathProc.color(), c);
             pd.set4fv(fColorUniform, 1, c);
             fColor = pathProc.color();
         }
-    }
 
-    void setTransformData(const GrPrimitiveProcessor& primProc,
-                          const GrGLProgramDataManager& pdman,
-                          int index,
-                          const SkTArray<const GrCoordTransform*, true>& coordTransforms) override {
-        const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
-        SkSTArray<2, Transform, true>& transforms = fInstalledTransforms[index];
-        int numTransforms = transforms.count();
-        for (int t = 0; t < numTransforms; ++t) {
-            SkASSERT(transforms[t].fHandle.isValid());
-            const SkMatrix& transform = GetTransformMatrix(pathProc.localMatrix(),
-                                                           *coordTransforms[t]);
-            if (transforms[t].fCurrentValue.cheapEqualTo(transform)) {
+        int t = 0;
+        while (const GrCoordTransform* coordTransform = transformIter.next()) {
+            SkASSERT(fInstalledTransforms[t].fHandle.isValid());
+            const SkMatrix& m = GetTransformMatrix(pathProc.localMatrix(), *coordTransform);
+            if (fInstalledTransforms[t].fCurrentValue.cheapEqualTo(m)) {
                 continue;
             }
-            transforms[t].fCurrentValue = transform;
+            fInstalledTransforms[t].fCurrentValue = m;
 
-            SkASSERT(transforms[t].fType == kVec2f_GrSLType ||
-                     transforms[t].fType == kVec3f_GrSLType);
-            unsigned components = transforms[t].fType == kVec2f_GrSLType ? 2 : 3;
-            pdman.setPathFragmentInputTransform(transforms[t].fHandle, components, transform);
+            SkASSERT(fInstalledTransforms[t].fType == kVec2f_GrSLType ||
+                     fInstalledTransforms[t].fType == kVec3f_GrSLType);
+            unsigned components = fInstalledTransforms[t].fType == kVec2f_GrSLType ? 2 : 3;
+            pd.setPathFragmentInputTransform(fInstalledTransforms[t].fHandle, components, m);
+            ++t;
         }
     }
 
 private:
+    typedef GrGLSLProgramDataManager::VaryingHandle VaryingHandle;
+    struct TransformVarying {
+        VaryingHandle  fHandle;
+        SkMatrix       fCurrentValue = SkMatrix::InvalidMatrix();
+        GrSLType       fType = kVoid_GrSLType;
+    };
+
+    SkTArray<TransformVarying, true> fInstalledTransforms;
+
     UniformHandle fColorUniform;
     GrColor fColor;
 
-    typedef GrGLPrimitiveProcessor INHERITED;
+    typedef GrGLSLPrimitiveProcessor INHERITED;
 };
 
 GrPathProcessor::GrPathProcessor(GrColor color,
-                                 const GrPipelineOptimizations& opts,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix)
-    : INHERITED(true)
-    , fColor(color)
-    , fViewMatrix(viewMatrix)
-    , fLocalMatrix(localMatrix)
-    , fOpts(opts) {
+        : fColor(color)
+        , fViewMatrix(viewMatrix)
+        , fLocalMatrix(localMatrix) {
     this->initClassID<GrPathProcessor>();
 }
 
-void GrPathProcessor::getGLProcessorKey(const GrGLSLCaps& caps,
-                                        GrProcessorKeyBuilder* b) const {
+void GrPathProcessor::getGLSLProcessorKey(const GrShaderCaps& caps,
+                                          GrProcessorKeyBuilder* b) const {
     GrGLPathProcessor::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* GrPathProcessor::createGLInstance(const GrGLSLCaps& caps) const {
+GrGLSLPrimitiveProcessor* GrPathProcessor::createGLSLInstance(const GrShaderCaps& caps) const {
     SkASSERT(caps.pathRenderingSupport());
     return new GrGLPathProcessor();
 }

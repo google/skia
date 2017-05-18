@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -13,6 +12,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
+#include "GrGpu.h"
 #include "GrTest.h"
 #include "SkBitmap.h"
 #include "SkGradientShader.h"
@@ -31,18 +31,18 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(50, 135);
+        return SkISize::Make(50, 175);
     }
 
     void onOnceBeforeDraw() override {
         // We create an RGB bitmap and then extract YUV bmps where the U and V bitmaps are
         // subsampled by 2 in both dimensions.
         SkPaint paint;
-        static const SkColor kColors[] =
+        constexpr SkColor kColors[] =
             { SK_ColorBLUE, SK_ColorYELLOW, SK_ColorGREEN, SK_ColorWHITE };
-        paint.setShader(SkGradientShader::CreateRadial(SkPoint::Make(0,0), kBmpSize / 2.f, kColors,
-                                                       nullptr, SK_ARRAY_COUNT(kColors),
-                                                       SkShader::kMirror_TileMode))->unref();
+        paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(0,0), kBmpSize / 2.f, kColors,
+                                                     nullptr, SK_ARRAY_COUNT(kColors),
+                                                     SkShader::kMirror_TileMode));
         SkBitmap rgbBmp;
         rgbBmp.allocN32Pixels(kBmpSize, kBmpSize, true);
         SkCanvas canvas(rgbBmp);
@@ -90,81 +90,78 @@ protected:
                     ((112 * rgb[0] -  94 * rgb[1] -  18 * rgb[2] + 128) >> 8) + 128);
             }
         }
-        fRGBImage.reset(SkImage::NewRasterCopy(rgbBmp.info(), rgbColors, rgbBmp.rowBytes()));
+        fRGBImage = SkImage::MakeRasterCopy(SkPixmap(rgbBmp.info(), rgbColors, rgbBmp.rowBytes()));
     }
 
-    void createYUVTextures(GrContext* context, GrBackendObject yuvIDs[3]) {
-        const GrGpu* gpu = context->getGpu();
+    void createYUVTextures(GrContext* context, GrBackendObject yuvHandles[3]) {
+        GrGpu* gpu = context->getGpu();
         if (!gpu) {
             return;
         }
 
         for (int i = 0; i < 3; ++i) {
             SkASSERT(fYUVBmps[i].width() == SkToInt(fYUVBmps[i].rowBytes()));
-            yuvIDs[i] = gpu->createTestingOnlyBackendTexture(fYUVBmps[i].getPixels(),
-                                                             fYUVBmps[i].width(), 
-                                                             fYUVBmps[i].height(),
-                                                             kAlpha_8_GrPixelConfig);
+            yuvHandles[i] = gpu->createTestingOnlyBackendTexture(fYUVBmps[i].getPixels(),
+                                                                 fYUVBmps[i].width(),
+                                                                 fYUVBmps[i].height(),
+                                                                 kAlpha_8_GrPixelConfig);
         }
         context->resetContext();
     }
 
-    void deleteYUVTextures(GrContext* context, const GrBackendObject yuvIDs[3]) {
+    void deleteYUVTextures(GrContext* context, const GrBackendObject yuvHandles[3]) {
 
-        const GrGpu* gpu = context->getGpu();
+        GrGpu* gpu = context->getGpu();
         if (!gpu) {
             return;
         }
 
         for (int i = 0; i < 3; ++i) {
-            gpu->deleteTestingOnlyBackendTexture(yuvIDs[i]);
+            gpu->deleteTestingOnlyBackendTexture(yuvHandles[i]);
         }
 
         context->resetContext();
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        GrContext* context;
-        if (!rt || !(context = rt->getContext())) {
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
 
-        GrBackendObject yuvIDs[3];
-        this->createYUVTextures(context, yuvIDs);
 
-        static const SkScalar kPad = 10.f;
+        constexpr SkScalar kPad = 10.f;
 
         SkISize sizes[] = {
             { fYUVBmps[0].width(), fYUVBmps[0].height()},
             { fYUVBmps[1].width(), fYUVBmps[1].height()},
             { fYUVBmps[2].width(), fYUVBmps[2].height()},
         };
-        SkTArray<SkImage*> images;
-        images.push_back(SkRef(fRGBImage.get()));
+        SkTArray<sk_sp<SkImage>> images;
+        images.push_back(fRGBImage);
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
-            images.push_back(SkImage::NewFromYUVTexturesCopy(context,
-                                                             static_cast<SkYUVColorSpace>(space),
-                                                             yuvIDs, sizes,
-                                                             kTopLeft_GrSurfaceOrigin));
+            GrBackendObject yuvHandles[3];
+            this->createYUVTextures(context, yuvHandles);
+            images.push_back(SkImage::MakeFromYUVTexturesCopy(context,
+                                                              static_cast<SkYUVColorSpace>(space),
+                                                              yuvHandles, sizes,
+                                                              kTopLeft_GrSurfaceOrigin));
+            this->deleteYUVTextures(context, yuvHandles);
         }
-        this->deleteYUVTextures(context, yuvIDs);
         for (int i = 0; i < images.count(); ++ i) {
             SkScalar y = (i + 1) * kPad + i * fYUVBmps[0].height();
             SkScalar x = kPad;
 
-            canvas->drawImage(images[i], x, y);
-            images[i]->unref();
-            images[i] = nullptr;
+            canvas->drawImage(images[i].get(), x, y);
         }
      }
 
 private:
-    SkAutoTUnref<SkImage>  fRGBImage;
-    SkBitmap               fYUVBmps[3];
+    sk_sp<SkImage>  fRGBImage;
+    SkBitmap        fYUVBmps[3];
 
-    static const int kBmpSize = 32;
+    static constexpr int kBmpSize = 32;
 
     typedef GM INHERITED;
 };

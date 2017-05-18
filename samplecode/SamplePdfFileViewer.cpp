@@ -15,7 +15,6 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkPath.h"
 #include "SkPicture.h"
@@ -27,8 +26,6 @@
 #include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
-#include "SkXfermode.h"
-
 #include "SkPdfRenderer.h"
 
 class PdfFileViewer : public SampleView {
@@ -37,7 +34,7 @@ private:
     SkPicture*  fPicture;  // TODO(edisonn): multiple pages, one page / picture, make it an array
 
     static SkPicture* LoadPdf(const char path[]) {
-        SkAutoTDelete<SkPdfRenderer> renderer(SkPdfRenderer::CreateFromFile(path));
+        std::unique_ptr<SkPdfRenderer> renderer(SkPdfRenderer::CreateFromFile(path));
         if (nullptr == renderer.get()) {
             return nullptr;
         }

@@ -10,7 +10,6 @@
 
 #include "SkMatrix.h"
 #include "SkPathRef.h"
-#include "SkTDArray.h"
 #include "SkRefCnt.h"
 
 class SkReader32;
@@ -24,9 +23,18 @@ class SkWStream;
 
     The SkPath class encapsulates compound (multiple contour) geometric paths
     consisting of straight line segments, quadratic curves, and cubic curves.
+
+    SkPath is not thread safe unless you've first called SkPath::updateBoundsCache().
 */
 class SK_API SkPath {
 public:
+    enum Direction {
+        /** clockwise direction for adding closed contours */
+        kCW_Direction,
+        /** counter-clockwise direction for adding closed contours */
+        kCCW_Direction,
+    };
+
     SkPath();
     SkPath(const SkPath&);
     ~SkPath();
@@ -36,6 +44,27 @@ public:
     friend bool operator!=(const SkPath& a, const SkPath& b) {
         return !(a == b);
     }
+
+    /** Return true if the paths contain an equal array of verbs and weights. Paths
+     *  with equal verb counts can be readily interpolated. If the paths contain one
+     *  or more conics, the conics' weights must also match.
+     *
+     *  @param compare  The path to compare.
+     *
+     *  @return true if the paths have the same verbs and weights.
+     */
+    bool isInterpolatable(const SkPath& compare) const;
+
+    /** Interpolate between two paths with same-sized point arrays.
+     *  The out path contains the verbs and weights of this path.
+     *  The out points are a weighted average of this path and the ending path. 
+     *
+     *  @param ending  The path to interpolate between.
+     *  @param weight  The weight, from 0 to 1. The output points are set to
+     *                 (this->points * weight) + ending->points * (1 - weight).
+     *  @return true if the paths could be interpolated.
+     */
+    bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     /** Returns true if the caller is the only owner of the underlying path data */
@@ -146,13 +175,45 @@ public:
      *
      * @param rect      returns the bounding rect of this oval. It's a circle
      *                  if the height and width are the same.
-     *
+     * @param dir       is the oval CCW (or CW if false).
+     * @param start     indicates where the contour starts on the oval (see
+     *                  SkPath::addOval for intepretation of the index).
      * @return true if this path is an oval.
      *              Tracking whether a path is an oval is considered an
      *              optimization for performance and so some paths that are in
      *              fact ovals can report false.
      */
-    bool isOval(SkRect* rect) const { return fPathRef->isOval(rect); }
+    bool isOval(SkRect* rect, Direction* dir = nullptr,
+                unsigned* start = nullptr) const {
+        bool isCCW = false;
+        bool result = fPathRef->isOval(rect, &isCCW, start);
+        if (dir && result) {
+            *dir = isCCW ? kCCW_Direction : kCW_Direction;
+        }
+        return result;
+    }
+
+    /** Returns true if the path is a round rect.
+     *
+     * @param rrect  Returns the bounding rect and radii of this round rect.
+     * @param dir    is the rrect CCW (or CW if false).
+     * @param start  indicates where the contour starts on the rrect (see
+     *               SkPath::addRRect for intepretation of the index).
+     *
+     * @return true if this path is a round rect.
+     *              Tracking whether a path is a round rect is considered an
+     *              optimization for performance and so some paths that are in
+     *              fact round rects can report false.
+     */
+    bool isRRect(SkRRect* rrect, Direction* dir = nullptr,
+                 unsigned* start = nullptr) const {
+        bool isCCW = false;
+        bool result = fPathRef->isRRect(rrect, &isCCW, start);
+        if (dir && result) {
+            *dir = isCCW ? kCCW_Direction : kCW_Direction;
+        }
+        return result;
+    }
 
     /** Clear any lines and curves from the path, making it empty. This frees up
         internal storage associated with those segments.
@@ -175,6 +236,10 @@ public:
         SkDEBUGCODE(this->validate();)
         return 0 == fPathRef->countVerbs();
     }
+
+    /** Return true if the last contour of this path ends with a close verb.
+     */
+    bool isLastContourClosed() const;
 
     /**
      *  Returns true if all of the points in this path are finite, meaning there
@@ -293,6 +358,19 @@ public:
         // for now, just calling getBounds() is sufficient
         this->getBounds();
     }
+
+    /**
+     *  Computes a bounds that is conservatively "snug" around the path. This assumes that the
+     *  path will be filled. It does not attempt to collapse away contours that are logically
+     *  empty (e.g. moveTo(x, y) + lineTo(x, y)) but will include them in the calculation.
+     *
+     *  It differs from getBounds() in that it will look at the snug bounds of curves, whereas
+     *  getBounds() just returns the bounds of the control-points. Thus computing this may be
+     *  slower than just calling getBounds().
+     *
+     *  If the path is empty (i.e. no points or verbs), it will return SkRect::MakeEmpty().
+     */
+    SkRect computeTightBounds() const;
 
     /**
      * Does a conservative test to see whether a rectangle is inside a path. Currently it only
@@ -484,17 +562,54 @@ public:
         this->arcTo(p1.fX, p1.fY, p2.fX, p2.fY, radius);
     }
 
+    enum ArcSize {
+        /** the smaller of the two possible SVG arcs. */
+        kSmall_ArcSize,
+        /** the larger of the two possible SVG arcs. */
+        kLarge_ArcSize,
+    };
+
+    /**
+     *  Append an elliptical arc from the current point in the format used by SVG.
+     *  The center of the ellipse is computed to satisfy the constraints below.
+     *
+     *  @param rx,ry The radii in the x and y directions respectively.
+     *  @param xAxisRotate The angle in degrees relative to the x-axis.
+     *  @param largeArc Determines whether the smallest or largest arc possible
+     *         is drawn.
+     *  @param sweep Determines if the arc should be swept in an anti-clockwise or
+     *         clockwise direction. Note that this enum value is opposite the SVG
+     *         arc sweep value.
+     *  @param x,y The destination coordinates.
+     */
+    void arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
+               Direction sweep, SkScalar x, SkScalar y);
+
+    void arcTo(const SkPoint r, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
+               const SkPoint xy) {
+        this->arcTo(r.fX, r.fY, xAxisRotate, largeArc, sweep, xy.fX, xy.fY);
+    }
+
+    /** Same as arcTo format used by SVG, but the destination coordinate is relative to the
+     *  last point on this contour. If there is no previous point, then a
+     *  moveTo(0,0) is inserted automatically.
+     *
+     *  @param rx,ry The radii in the x and y directions respectively.
+     *  @param xAxisRotate The angle in degrees relative to the x-axis.
+     *  @param largeArc Determines whether the smallest or largest arc possible
+     *         is drawn.
+     *  @param sweep Determines if the arc should be swept in an anti-clockwise or
+     *         clockwise direction. Note that this enum value is opposite the SVG
+     *         arc sweep value.
+     *  @param dx,dy The destination coordinates relative to the last point.
+     */
+    void rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
+                Direction sweep, SkScalar dx, SkScalar dy);
+
     /** Close the current contour. If the current point is not equal to the
         first point of the contour, a line segment is automatically added.
     */
     void close();
-
-    enum Direction {
-        /** clockwise direction for adding closed contours */
-        kCW_Direction,
-        /** counter-clockwise direction for adding closed contours */
-        kCCW_Direction,
-    };
 
     /**
      *  Returns whether or not a fill type is inverted
@@ -527,6 +642,13 @@ public:
         static_assert(3 == kInverseEvenOdd_FillType, "fill_type_mismatch");
         return (FillType)(fill & 1);
     }
+
+    /**
+     *  Chop a conic into N quads, stored continguously in pts[], where
+     *  N = 1 << pow2. The amount of storage needed is (1 + 2 * N)
+     */
+    static int ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
+                                   SkScalar w, SkPoint pts[], int pow2);
 
     /**
      *  Returns true if the path specifies a rectangle.
@@ -563,8 +685,25 @@ public:
      *  Add a closed rectangle contour to the path
      *  @param rect The rectangle to add as a closed contour to the path
      *  @param dir  The direction to wind the rectangle's contour.
+     *
+     *  Note: the contour initial point index is 0 (as defined below).
      */
     void addRect(const SkRect& rect, Direction dir = kCW_Direction);
+
+    /**
+     *  Add a closed rectangle contour to the path
+     *  @param rect  The rectangle to add as a closed contour to the path
+     *  @param dir   The direction to wind the rectangle's contour.
+     *  @param start Initial point of the contour (initial moveTo), expressed as
+     *               a corner index, starting in the upper-left position, clock-wise:
+     *
+     *  0         1
+     *   *-------*
+     *   |       |
+     *   *-------*
+     *  3         2
+     */
+    void addRect(const SkRect& rect, Direction dir, unsigned start);
 
     /**
      *  Add a closed rectangle contour to the path
@@ -578,6 +717,8 @@ public:
      *  @param bottom   The bottom of a rectangle to add as a closed contour to
      *                  the path
      *  @param dir  The direction to wind the rectangle's contour.
+     *
+     *  Note: the contour initial point index is 0 (as defined above).
      */
     void addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom,
                  Direction dir = kCW_Direction);
@@ -587,11 +728,33 @@ public:
      *
      *  @param oval The bounding oval to add as a closed contour to the path
      *  @param dir  The direction to wind the oval's contour.
+     *
+     *  Note: the contour initial point index is 1 (as defined below).
      */
     void addOval(const SkRect& oval, Direction dir = kCW_Direction);
 
     /**
-     *  Add a closed circle contour to the path
+     *  Add a closed oval contour to the path
+     *
+     *  @param oval  The bounding oval to add as a closed contour to the path
+     *  @param dir   The direction to wind the oval's contour.
+     *  @param start Initial point of the contour (initial moveTo), expressed
+     *               as an ellipse vertex index, starting at the top, clock-wise
+     *               (90/0/270/180deg order):
+     *
+     *        0
+     *       -*-
+     *     |     |
+     *   3 *     * 1
+     *     |     |
+     *       -*-
+     *        2
+     */
+    void addOval(const SkRect& oval, Direction dir, unsigned start);
+
+    /**
+     *  Add a closed circle contour to the path. The circle contour begins at
+     *  the right-most point (as though 1 were passed to addOval's 'start' param).
      *
      *  @param x        The x-coordinate of the center of a circle to add as a
      *                  closed contour to the path
@@ -640,8 +803,29 @@ public:
      *  Add an SkRRect contour to the path
      *  @param rrect The rounded rect to add as a closed contour
      *  @param dir   The winding direction for the new contour.
+     *
+     *  Note: the contour initial point index is either 6 (for dir == kCW_Direction)
+     *        or 7 (for dir == kCCW_Direction), as defined below.
+     *
      */
     void addRRect(const SkRRect& rrect, Direction dir = kCW_Direction);
+
+    /**
+     *  Add an SkRRect contour to the path
+     *  @param rrect The rounded rect to add as a closed contour
+     *  @param dir   The winding direction for the new contour.
+     *  @param start Initial point of the contour (initial moveTo), expressed as
+     *               an index of the radii minor/major points, ordered clock-wise:
+     *
+     *      0    1
+     *      *----*
+     *   7 *      * 2
+     *     |      |
+     *   6 *      * 3
+     *      *----*
+     *      5    4
+     */
+    void addRRect(const SkRRect& rrect, Direction dir, unsigned start);
 
     /**
      *  Add a new contour made of just lines. This is just a fast version of
@@ -775,7 +959,7 @@ public:
         kQuad_Verb,     //!< iter.next returns 3 points
         kConic_Verb,    //!< iter.next returns 3 points + iter.conicWeight()
         kCubic_Verb,    //!< iter.next returns 4 points
-        kClose_Verb,    //!< iter.next returns 1 point (contour's moveTo pt)
+        kClose_Verb,    //!< iter.next returns 0 points
         kDone_Verb,     //!< iter.next returns 0 points
     };
 
@@ -857,10 +1041,14 @@ public:
     */
     class SK_API RawIter {
     public:
-        RawIter();
-        RawIter(const SkPath&);
+        RawIter() {}
+        RawIter(const SkPath& path) {
+            setPath(path);
+        }
 
-        void setPath(const SkPath&);
+        void setPath(const SkPath& path) {
+            fRawIter.setPathRef(*path.fPathRef.get());
+        }
 
         /** Return the next verb in this iteration of the path. When all
             segments have been visited, return kDone_Verb.
@@ -869,15 +1057,25 @@ public:
                         This must not be NULL.
             @return The verb for the current segment
         */
-        Verb next(SkPoint pts[4]);
+        Verb next(SkPoint pts[4]) {
+            return (Verb) fRawIter.next(pts);
+        }
 
-        SkScalar conicWeight() const { return *fConicWeights; }
+        /** Return what the next verb will be, but do not visit the next segment.
+
+            @return The verb for the next segment
+        */
+        Verb peek() const {
+            return (Verb) fRawIter.peek();
+        }
+
+        SkScalar conicWeight() const {
+            return fRawIter.conicWeight();
+        }
 
     private:
-        const SkPoint*  fPts;
-        const uint8_t*  fVerbs;
-        const uint8_t*  fVerbStop;
-        const SkScalar* fConicWeights;
+        SkPathRef::Iter fRawIter;
+        friend class SkPath;
     };
 
     /**
@@ -934,17 +1132,16 @@ private:
 
     enum SerializationVersions {
         kPathPrivFirstDirection_Version = 1,
-
-        kCurrent_Version = 1
+        kPathPrivLastMoveToIndex_Version = 2,
+        kCurrent_Version = 2
     };
 
-    SkAutoTUnref<SkPathRef>   fPathRef;
-
-    int                       fLastMoveToIndex;
-    uint8_t                   fFillType;
-    mutable uint8_t           fConvexity;
-    mutable SkAtomic<uint8_t> fFirstDirection;    // SkPathPriv::FirstDirection
-    mutable SkBool8           fIsVolatile;
+    sk_sp<SkPathRef>                                   fPathRef;
+    int                                                fLastMoveToIndex;
+    uint8_t                                            fFillType;
+    mutable uint8_t                                    fConvexity;
+    mutable SkAtomic<uint8_t, sk_memory_order_relaxed> fFirstDirection;// SkPathPriv::FirstDirection
+    SkBool8                                            fIsVolatile;
 
     /** Resets all fields other than fPathRef to their initial 'empty' values.
      *  Assumes the caller has already emptied fPathRef.
@@ -983,6 +1180,10 @@ private:
     bool isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts,
                        bool* isClosed, Direction* direction) const;
 
+    // called by stroker to see if all points are equal and worthy of a cap
+    // equivalent to a short-circuit version of getBounds().isEmpty() 
+    bool isZeroLength() const;
+
     /** Returns if the path can return a bound at no cost (true) or will have to
         perform some computation (false).
      */
@@ -1004,8 +1205,11 @@ private:
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
     friend class SkAutoDisableDirectionCheck;
+    friend class SkPathWriter;
+    friend class SkOpBuilder;
     friend class SkBench_AddPathTest; // perf test reversePathTo
     friend class PathTest_Private; // unit test reversePathTo
+    friend class ForceIsRRect_Private; // unit test isRRect
 };
 
 #endif

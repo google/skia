@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -8,13 +7,12 @@
 
 
 #include "GrBufferAllocPool.h"
+#include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrGpu.h"
-#include "GrIndexBuffer.h"
 #include "GrResourceProvider.h"
 #include "GrTypes.h"
-#include "GrVertexBuffer.h"
 
 #include "SkTraceEvent.h"
 
@@ -41,7 +39,7 @@ do {                                                                            
 } while (false)
 
 GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
-                                     BufferType bufferType,
+                                     GrBufferType bufferType,
                                      size_t blockSize)
     : fBlocks(8) {
 
@@ -53,12 +51,12 @@ GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
 
     fBytesInUse = 0;
 
-    fGeometryBufferMapThreshold = gpu->caps()->geometryBufferMapThreshold();
+    fBufferMapThreshold = gpu->caps()->bufferMapThreshold();
 }
 
 void GrBufferAllocPool::deleteBlocks() {
     if (fBlocks.count()) {
-        GrGeometryBuffer* buffer = fBlocks.back().fBuffer;
+        GrBuffer* buffer = fBlocks.back().fBuffer;
         if (buffer->isMapped()) {
             UNMAP_BUFFER(fBlocks.back());
         }
@@ -80,10 +78,7 @@ void GrBufferAllocPool::reset() {
     VALIDATE();
     fBytesInUse = 0;
     this->deleteBlocks();
-
-    // we may have created a large cpu mirror of a large VB. Reset the size to match our minimum.
-    this->resetCpuData(fMinBlockSize);
-
+    this->resetCpuData(0);      // delete all the cpu-side memory
     VALIDATE();
 }
 
@@ -109,7 +104,7 @@ void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
     if (fBufferPtr) {
         SkASSERT(!fBlocks.empty());
         if (fBlocks.back().fBuffer->isMapped()) {
-            GrGeometryBuffer* buf = fBlocks.back().fBuffer;
+            GrBuffer* buf = fBlocks.back().fBuffer;
             SkASSERT(buf->mapPtr() == fBufferPtr);
         } else {
             SkASSERT(fCpuData == fBufferPtr);
@@ -145,7 +140,7 @@ void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
 
 void* GrBufferAllocPool::makeSpace(size_t size,
                                    size_t alignment,
-                                   const GrGeometryBuffer** buffer,
+                                   const GrBuffer** buffer,
                                    size_t* offset) {
     VALIDATE();
 
@@ -252,7 +247,7 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
     // threshold.
     bool attemptMap = block.fBuffer->isCPUBacked();
     if (!attemptMap && GrCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags()) {
-        attemptMap = size > fGeometryBufferMapThreshold;
+        attemptMap = size > fBufferMapThreshold;
     }
 
     if (attemptMap) {
@@ -283,7 +278,7 @@ void* GrBufferAllocPool::resetCpuData(size_t newSize) {
     sk_free(fCpuData);
     if (newSize) {
         if (fGpu->caps()->mustClearUploadedBufferData()) {
-            fCpuData = sk_calloc(newSize);
+            fCpuData = sk_calloc_throw(newSize);
         } else {
             fCpuData = sk_malloc_throw(newSize);
         }
@@ -295,7 +290,7 @@ void* GrBufferAllocPool::resetCpuData(size_t newSize) {
 
 
 void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize) {
-    GrGeometryBuffer* buffer = block.fBuffer;
+    GrBuffer* buffer = block.fBuffer;
     SkASSERT(buffer);
     SkASSERT(!buffer->isMapped());
     SkASSERT(fCpuData == fBufferPtr);
@@ -303,7 +298,7 @@ void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize)
     VALIDATE(true);
 
     if (GrCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags() &&
-        flushSize > fGeometryBufferMapThreshold) {
+        flushSize > fBufferMapThreshold) {
         void* data = buffer->map();
         if (data) {
             memcpy(data, fBufferPtr, flushSize);
@@ -315,44 +310,36 @@ void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize)
     VALIDATE(true);
 }
 
-GrGeometryBuffer* GrBufferAllocPool::getBuffer(size_t size) {
+GrBuffer* GrBufferAllocPool::getBuffer(size_t size) {
 
     GrResourceProvider* rp = fGpu->getContext()->resourceProvider();
 
-    static const GrResourceProvider::BufferUsage kUsage = GrResourceProvider::kDynamic_BufferUsage;
-    // Shouldn't have to use this flag (http://skbug.com/4156)
+    // Shouldn't have to use this flag (https://bug.skia.org/4156)
     static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    if (kIndex_BufferType == fBufferType) {
-        return rp->createIndexBuffer(size, kUsage, kFlags);
-    } else {
-        SkASSERT(kVertex_BufferType == fBufferType);
-        return rp->createVertexBuffer(size, kUsage, kFlags);
-    }
+    return rp->createBuffer(size, fBufferType, kDynamic_GrAccessPattern, kFlags);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVertexBufferAllocPool::GrVertexBufferAllocPool(GrGpu* gpu)
-    : GrBufferAllocPool(gpu, kVertex_BufferType, MIN_VERTEX_BUFFER_SIZE) {
+    : GrBufferAllocPool(gpu, kVertex_GrBufferType, MIN_VERTEX_BUFFER_SIZE) {
 }
 
 void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
                                          int vertexCount,
-                                         const GrVertexBuffer** buffer,
+                                         const GrBuffer** buffer,
                                          int* startVertex) {
 
     SkASSERT(vertexCount >= 0);
     SkASSERT(buffer);
     SkASSERT(startVertex);
 
-    size_t offset = 0; // assign to suppress warning
-    const GrGeometryBuffer* geomBuffer = nullptr; // assign to suppress warning
+    size_t offset SK_INIT_TO_AVOID_WARNING;
     void* ptr = INHERITED::makeSpace(vertexSize * vertexCount,
                                      vertexSize,
-                                     &geomBuffer,
+                                     buffer,
                                      &offset);
 
-    *buffer = (const GrVertexBuffer*) geomBuffer;
     SkASSERT(0 == offset % vertexSize);
     *startVertex = static_cast<int>(offset / vertexSize);
     return ptr;
@@ -361,25 +348,23 @@ void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
 ////////////////////////////////////////////////////////////////////////////////
 
 GrIndexBufferAllocPool::GrIndexBufferAllocPool(GrGpu* gpu)
-    : GrBufferAllocPool(gpu, kIndex_BufferType, MIN_INDEX_BUFFER_SIZE) {
+    : GrBufferAllocPool(gpu, kIndex_GrBufferType, MIN_INDEX_BUFFER_SIZE) {
 }
 
 void* GrIndexBufferAllocPool::makeSpace(int indexCount,
-                                        const GrIndexBuffer** buffer,
+                                        const GrBuffer** buffer,
                                         int* startIndex) {
 
     SkASSERT(indexCount >= 0);
     SkASSERT(buffer);
     SkASSERT(startIndex);
 
-    size_t offset = 0; // assign to suppress warning
-    const GrGeometryBuffer* geomBuffer = nullptr; // assign to suppress warning
+    size_t offset SK_INIT_TO_AVOID_WARNING;
     void* ptr = INHERITED::makeSpace(indexCount * sizeof(uint16_t),
                                      sizeof(uint16_t),
-                                     &geomBuffer,
+                                     buffer,
                                      &offset);
 
-    *buffer = (const GrIndexBuffer*) geomBuffer;
     SkASSERT(0 == offset % sizeof(uint16_t));
     *startIndex = static_cast<int>(offset / sizeof(uint16_t));
     return ptr;

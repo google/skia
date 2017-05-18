@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -35,15 +34,14 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     SkPaint     paint;
 
     paint.setDither(true);
-    paint.setShader(SkGradientShader::CreateLinear(pts, colors, pos,
-                SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos,
+                SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
     canvas.drawPaint(paint);
 }
 
 static void setup(SkPaint* paint, const SkBitmap& bm, bool filter,
                   SkShader::TileMode tmx, SkShader::TileMode tmy) {
-    SkShader* shader = SkShader::CreateBitmapShader(bm, tmx, tmy);
-    paint->setShader(shader)->unref();
+    paint->setShader(SkShader::MakeBitmapShader(bm, tmx, tmy));
     paint->setFilterQuality(filter ? kLow_SkFilterQuality : kNone_SkFilterQuality);
 }
 
@@ -55,13 +53,13 @@ static const int gWidth = 32;
 static const int gHeight = 32;
 
 class TilingView : public SampleView {
-    SkAutoTUnref<SkPicture>        fTextPicture;
-    SkAutoTUnref<SkBlurDrawLooper> fLooper;
+    sk_sp<SkPicture>     fTextPicture;
+    sk_sp<SkDrawLooper>  fLooper;
 public:
     TilingView()
-            : fLooper(SkBlurDrawLooper::Create(0x88000000,
-                                               SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
-                                               SkIntToScalar(2), SkIntToScalar(2))) {
+        : fLooper(SkBlurDrawLooper::Make(0x88000000,
+                                         SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
+                                         SkIntToScalar(2), SkIntToScalar(2))) {
         for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypes); i++) {
             makebm(&fTexture[i], gColorTypes[i], gWidth, gHeight);
         }
@@ -113,7 +111,7 @@ protected:
                     str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
                     p.setTextAlign(SkPaint::kCenter_Align);
-                    textCanvas->drawText(str.c_str(), str.size(), x + r.width()/2, y, p);
+                    textCanvas->drawString(str, x + r.width()/2, y, p);
 
                     x += r.width() * 4 / 3;
                 }
@@ -145,7 +143,7 @@ protected:
                     p.setAntiAlias(true);
                     p.setLooper(fLooper);
                     str.printf("%s, %s", gConfigNames[i], gFilterNames[j]);
-                    textCanvas->drawText(str.c_str(), str.size(), x, y + r.height() * 2 / 3, p);
+                    textCanvas->drawString(str, x, y + r.height() * 2 / 3, p);
                 }
 
                 y += r.height() * 4 / 3;
@@ -154,11 +152,11 @@ protected:
 
         if (textCanvas) {
             SkASSERT(nullptr == fTextPicture);
-            fTextPicture.reset(recorder.endRecording());
+            fTextPicture = recorder.finishRecordingAsPicture();
         }
 
         SkASSERT(fTextPicture);
-        canvas->drawPicture(fTextPicture);
+        canvas->drawPicture(fTextPicture.get());
     }
 
 private:

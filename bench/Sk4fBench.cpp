@@ -9,38 +9,52 @@
 #include "SkColor.h"
 #include "SkNx.h"
 
-// Used to prevent the compiler from optimizing away the whole loop.
-volatile uint32_t blackhole = 0;
+// Writing into this array prevents the loops from being compiled away.
+static volatile float blackhole[4];
 
-// Not a great random number generator, but it's very fast.
-// The code we're measuring is quite fast, so low overhead is essential.
-static uint32_t lcg_rand(uint32_t* seed) {
-    *seed *= 1664525;
-    *seed += 1013904223;
-    return *seed;
-}
+template <typename T>
+struct Sk4fRoundtripBench : public Benchmark {
+    Sk4fRoundtripBench() {}
 
-struct Sk4fBytesRoundtripBench : public Benchmark {
-    Sk4fBytesRoundtripBench() {}
+    const char* onGetName() override {
+        switch (sizeof(T)) {
+            case 1: return "Sk4f_roundtrip_u8";
+            case 2: return "Sk4f_roundtrip_u16";
+            case 4: return "Sk4f_roundtrip_int";
+        }
+        SkASSERT(false);
+        return "";
+    }
 
-    const char* onGetName() override { return "Sk4f_roundtrip"; }
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        // Unlike blackhole, junk can and probably will be a register.
-        uint32_t junk = 0;
-        uint32_t seed = 0;
-        for (int i = 0; i < loops; i++) {
-            uint32_t color = lcg_rand(&seed),
-                     back;
-            auto f = Sk4f::FromBytes((const uint8_t*)&color);
-            f.toBytes((uint8_t*)&back);
-            junk ^= back;
+        Sk4f fs(1,2,3,4);
+        while (loops --> 0) {
+            fs = SkNx_cast<float>(SkNx_cast<T>(fs));
         }
-        blackhole ^= junk;
+        fs.store((float*)blackhole);
     }
 };
-DEF_BENCH(return new Sk4fBytesRoundtripBench;)
+DEF_BENCH(return new Sk4fRoundtripBench<uint8_t>;)
+DEF_BENCH(return new Sk4fRoundtripBench<uint16_t>;)
+DEF_BENCH(return new Sk4fRoundtripBench<int>;)
+
+struct Sk4fFloorBench : public Benchmark {
+    Sk4fFloorBench() {}
+
+    const char* onGetName() override { return "Sk4f_floor"; }
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        Sk4f fs(1,2,3,4);
+        while (loops --> 0) {
+            fs = fs.floor();
+        }
+        fs.store((float*)blackhole);
+    }
+};
+DEF_BENCH(return new Sk4fFloorBench;)
 
 struct Sk4fGradientBench : public Benchmark {
     const char* onGetName() override { return "Sk4f_gradient"; }
@@ -62,10 +76,7 @@ struct Sk4fGradientBench : public Benchmark {
                  c = b + dcdx,
                  d = c + dcdx;
             for (size_t i = 0; i < SK_ARRAY_COUNT(fDevice); i += 4) {
-                a.toBytes((uint8_t*)(fDevice+i+0));
-                b.toBytes((uint8_t*)(fDevice+i+1));
-                c.toBytes((uint8_t*)(fDevice+i+2));
-                d.toBytes((uint8_t*)(fDevice+i+3));
+                Sk4f_ToBytes((uint8_t*)(fDevice+i), a, b, c, d);
                 a = a + dcdx4;
                 b = b + dcdx4;
                 c = c + dcdx4;

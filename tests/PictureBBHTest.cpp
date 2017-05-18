@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkBBoxHierarchy.h"
 #include "SkPaint.h"
@@ -45,7 +46,7 @@ private:
                                                          SkIntToScalar(fPictureHeight),
                                                          factory);
         this->doTest(playbackCanvas, *recordCanvas);
-        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+        sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
         playbackCanvas.drawPicture(picture);
         REPORTER_ASSERT(reporter, SK_ColorGREEN == fResultBitmap.getColor(0, 0));
     }
@@ -59,10 +60,10 @@ private:
 class DrawEmptyPictureBBHTest : public PictureBBHTestBase {
 public:
     DrawEmptyPictureBBHTest()
-        : PictureBBHTestBase(2, 2, 1, 1) { }
-    virtual ~DrawEmptyPictureBBHTest() { }
+        : PictureBBHTestBase(2, 2, 1, 1) {}
+    ~DrawEmptyPictureBBHTest() override {}
 
-    void doTest(SkCanvas&, SkCanvas&) override { }
+    void doTest(SkCanvas&, SkCanvas&) override {}
 };
 
 // Test to verify the playback of a picture into a canvas that has
@@ -71,18 +72,16 @@ public:
 class EmptyClipPictureBBHTest : public PictureBBHTestBase {
 public:
     EmptyClipPictureBBHTest()
-        : PictureBBHTestBase(2, 2, 3, 3) { }
+        : PictureBBHTestBase(2, 2, 3, 3) {}
 
     void doTest(SkCanvas& playbackCanvas, SkCanvas& recordingCanvas) override {
         // intersect with out of bounds rect -> empty clip.
-        playbackCanvas.clipRect(SkRect::MakeXYWH(SkIntToScalar(10), SkIntToScalar(10),
-            SkIntToScalar(1), SkIntToScalar(1)), SkRegion::kIntersect_Op);
+        playbackCanvas.clipRect(SkRect::MakeXYWH(10, 10, 1, 1));
         SkPaint paint;
-        recordingCanvas.drawRect(SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(0),
-            SkIntToScalar(3), SkIntToScalar(3)), paint);
+        recordingCanvas.drawRect(SkRect::MakeWH(3, 3), paint);
     }
 
-    virtual ~EmptyClipPictureBBHTest() { }
+    ~EmptyClipPictureBBHTest() override {}
 };
 
 DEF_TEST(PictureBBH, reporter) {
@@ -92,4 +91,16 @@ DEF_TEST(PictureBBH, reporter) {
 
     EmptyClipPictureBBHTest emptyClipPictureTest;
     emptyClipPictureTest.run(reporter);
+}
+
+DEF_TEST(RTreeMakeLargest, r) {
+    // A call to insert() with 2 or more rects and a bounds of SkRect::MakeLargest()
+    // used to fall into an infinite loop.
+
+    SkRTreeFactory factory;
+    std::unique_ptr<SkBBoxHierarchy> bbh{ factory(SkRect::MakeLargest()) };
+
+    SkRect rects[] = { {0,0, 10,10}, {5,5,15,15} };
+    bbh->insert(rects, SK_ARRAY_COUNT(rects));
+    REPORTER_ASSERT(r, bbh->getRootBound() == SkRect::MakeWH(15,15));
 }

@@ -1,18 +1,17 @@
 /*
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
+#ifndef PNGPREFIX_H
+#define PNGPREFIX_H
+
 /*
- * This file was created in part using the configuration script provided with
- * the libpng sources.  However it was missing some symbols which caused the
- * linker to fail so those were added manually by scanning the library looking
- * for exported symbols missing the skia_ prefix and adding them to the end of
- * this file.
- *
- * ./third_party/externals/libpng/configure --with-libpng-prefix=skia_
+ *  This allows linking to multiple versions of libpng. This way clients can use a
+ *  different version of libpng, if they desire, while SkCodec can use the version
+ *  we test with.
  */
 
 #define png_sRGB_table skia_png_sRGB_table
@@ -79,6 +78,12 @@
 #define png_read_filter_row_avg4_neon skia_png_read_filter_row_avg4_neon
 #define png_read_filter_row_paeth3_neon skia_png_read_filter_row_paeth3_neon
 #define png_read_filter_row_paeth4_neon skia_png_read_filter_row_paeth4_neon
+#define png_read_filter_row_sub3_sse2 skia_png_read_filter_row_sub3_sse2
+#define png_read_filter_row_sub4_sse2 skia_png_read_filter_row_sub4_sse2
+#define png_read_filter_row_avg3_sse2 skia_png_read_filter_row_avg3_sse2
+#define png_read_filter_row_avg4_sse2 skia_png_read_filter_row_avg4_sse2
+#define png_read_filter_row_paeth3_sse2 skia_png_read_filter_row_paeth3_sse2
+#define png_read_filter_row_paeth4_sse2 skia_png_read_filter_row_paeth4_sse2
 #define png_write_find_filter skia_png_write_find_filter
 #define png_read_IDAT_data skia_png_read_IDAT_data
 #define png_read_finish_IDAT skia_png_read_finish_IDAT
@@ -203,7 +208,6 @@
 #define png_safe_warning skia_png_safe_warning
 #define png_safe_execute skia_png_safe_execute
 #define png_image_error skia_png_image_error
-
 #define png_access_version_number skia_png_access_version_number
 #define png_build_grayscale_palette skia_png_build_grayscale_palette
 #define png_convert_to_rfc1123 skia_png_convert_to_rfc1123
@@ -445,3 +449,7 @@
 #define png_write_chunk_start skia_png_write_chunk_start
 #define png_write_chunk_end skia_png_write_chunk_end
 #define png_write_sig skia_png_write_sig
+#define png_init_filter_functions_neon skia_png_init_filter_functions_neon
+#define png_init_filter_functions_sse2 skia_png_init_filter_functions_sse2
+
+#endif  // PNGPREFIX_H

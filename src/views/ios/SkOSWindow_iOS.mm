@@ -1,3 +1,10 @@
+/*
+ * Copyright 2016 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #import <UIKit/UIKit.h>
 #include "SkCanvas.h"
 #include "SkGraphics.h"
@@ -46,19 +53,20 @@ void SkOSWindow::onAddMenu(const SkOSMenu* menu) {
     [(SkUIView*)fHWND onAddMenu:menu];
 }
 
-void SkOSWindow::onUpdateMenu(SkOSMenu* menu) {
+void SkOSWindow::onUpdateMenu(const SkOSMenu* menu) {
     [(SkUIView*)fHWND onUpdateMenu:menu];
 }
 
 bool SkOSWindow::attach(SkBackEndTypes /* attachType */,
                         int /* msaaSampleCount */,
+                        bool /* deepColor */,
                         AttachmentInfo* info) {
     [(SkUIView*)fHWND getAttachmentInfo:info];
     bool success = true;
     return success;
 }
 
-void SkOSWindow::detach() {}
+void SkOSWindow::release() {}
 
 void SkOSWindow::present() {
 }

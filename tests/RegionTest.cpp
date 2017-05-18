@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAutoMalloc.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
@@ -270,6 +271,11 @@ static void test_write(const SkRegion& region, skiatest::Reporter* r) {
     SkAutoMalloc storage(bytesNeeded);
     const size_t bytesWritten = region.writeToMemory(storage.get());
     REPORTER_ASSERT(r, bytesWritten == bytesNeeded);
+
+    // Also check that the bytes are meaningful.
+    SkRegion copy;
+    REPORTER_ASSERT(r, copy.readFromMemory(storage.get(), bytesNeeded));
+    REPORTER_ASSERT(r, region == copy);
 }
 
 DEF_TEST(Region_writeToMemory, r) {
@@ -289,4 +295,72 @@ DEF_TEST(Region_writeToMemory, r) {
     REPORTER_ASSERT(r, nonEmpty);
     REPORTER_ASSERT(r, region.isComplex());
     test_write(region, r);
+
+    SkRegion complexRegion;
+    Union(&complexRegion, SkIRect::MakeXYWH(0, 0, 1, 1));
+    Union(&complexRegion, SkIRect::MakeXYWH(0, 0, 3, 3));
+    Union(&complexRegion, SkIRect::MakeXYWH(10, 0, 3, 3));
+    Union(&complexRegion, SkIRect::MakeXYWH(0, 10, 13, 3));
+    test_write(complexRegion, r);
+
+    Union(&complexRegion, SkIRect::MakeXYWH(10, 20, 3, 3));
+    Union(&complexRegion, SkIRect::MakeXYWH(0,  20, 3, 3));
+    test_write(complexRegion, r);
+}
+
+DEF_TEST(Region_readFromMemory_bad, r) {
+    // These assume what our binary format is: conceivably we could change it
+    // and might need to remove or change some of these tests.
+    SkRegion region;
+
+    {
+        // invalid boundary rectangle
+        int32_t data[5] = {0, 4, 4, 8, 2};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    // Region Layout, Serialized Format:
+    //    COUNT LEFT TOP RIGHT BOTTOM Y_SPAN_COUNT TOTAL_INTERVAL_COUNT
+    //    Top ( Bottom Span_Interval_Count ( Left Right )* Sentinel )+ Sentinel
+    {
+        // Example of valid data
+        int32_t data[] = {9, 0, 0, 10, 10, 1, 2, 0, 10, 2, 0, 4, 6, 10,
+                          2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 != region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        // Short count
+        int32_t data[] = {8, 0, 0, 10, 10, 1, 2, 0, 10, 2, 0, 4, 6, 10,
+                          2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        // bounds don't match
+        int32_t data[] = {9, 0, 0, 10, 11, 1, 2, 0, 10, 2, 0, 4, 6, 10,
+                          2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        //  bad yspan count
+        int32_t data[] = {9, 0, 0, 10, 10, 2, 2, 0, 10, 2, 0, 4, 6, 10,
+                          2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        // bad int count
+        int32_t data[] = {9, 0, 0, 10, 10, 1, 3, 0, 10, 2, 0, 4, 6, 10,
+                          2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        // bad final sentinal
+        int32_t data[] = {9, 0, 0, 10, 10, 1, 2, 0, 10, 2, 0, 4, 6, 10,
+                          2147483647, -1};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        // bad row sentinal
+        int32_t data[] = {9, 0, 0, 10, 10, 1, 2, 0, 10, 2, 0, 4, 6, 10,
+                          -1, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
 }

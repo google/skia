@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -45,7 +45,7 @@ protected:
             SkPath::FillType fFill;
             const char*      fName;
         };
-        static const FillAndName gFills[] = {
+        constexpr FillAndName gFills[] = {
             {SkPath::kWinding_FillType, "Winding"},
             {SkPath::kEvenOdd_FillType, "Even / Odd"},
             {SkPath::kInverseWinding_FillType, "Inverse Winding"},
@@ -55,7 +55,7 @@ protected:
             SkPaint::Style fStyle;
             const char*    fName;
         };
-        static const StyleAndName gStyles[] = {
+        constexpr StyleAndName gStyles[] = {
             {SkPaint::kFill_Style, "Fill"},
             {SkPaint::kStroke_Style, "Stroke"},
             {SkPaint::kStrokeAndFill_Style, "Stroke And Fill"},
@@ -68,10 +68,10 @@ protected:
         titlePaint.setTextSize(15 * SK_Scalar1);
         const char title[] = "Empty Paths Drawn Into Rectangle Clips With "
                              "Indicated Style and Fill";
-        canvas->drawText(title, strlen(title),
-                            20 * SK_Scalar1,
-                            20 * SK_Scalar1,
-                            titlePaint);
+        canvas->drawString(title,
+                           20 * SK_Scalar1,
+                           20 * SK_Scalar1,
+                           titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
@@ -109,14 +109,12 @@ protected:
                 labelPaint.setAntiAlias(true);
                 sk_tool_utils::set_portable_typeface(&labelPaint);
                 labelPaint.setTextSize(12 * SK_Scalar1);
-                canvas->drawText(gStyles[style].fName,
-                                 strlen(gStyles[style].fName),
-                                 0, rect.height() + 15 * SK_Scalar1,
-                                 labelPaint);
-                canvas->drawText(gFills[fill].fName,
-                                 strlen(gFills[fill].fName),
-                                 0, rect.height() + 28 * SK_Scalar1,
-                                 labelPaint);
+                canvas->drawString(gStyles[style].fName,
+                                   0, rect.height() + 15 * SK_Scalar1,
+                                   labelPaint);
+                canvas->drawString(gFills[fill].fName,
+                                   0, rect.height() + 28 * SK_Scalar1,
+                                   labelPaint);
             }
         }
         canvas->restore();
@@ -201,7 +199,7 @@ protected:
             canvas->translate(0, 40);
         }
     }
-    
+
 private:
     typedef GM INHERITED;
 };

@@ -11,14 +11,15 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
 
 namespace skiagm {
 
-static const int kWidth = 750;
-static const int kHeight = 750;
+constexpr int kWidth = 750;
+constexpr int kHeight = 750;
 
 class LcdOverlapGM : public skiagm::GM {
 public:
@@ -44,13 +45,13 @@ protected:
         paint.setSubpixelText(true);
         paint.setLCDRenderText(true);
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
-        fBlob.reset(builder.build());
+        fBlob = builder.make();
     }
 
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
 
-    void drawTestCase(SkCanvas* canvas, SkScalar x, SkScalar y, SkXfermode::Mode mode,
-                      SkXfermode::Mode mode2) {
+    void drawTestCase(SkCanvas* canvas, SkScalar x, SkScalar y, SkBlendMode mode,
+                      SkBlendMode mode2) {
         const SkColor colors[] {
                 SK_ColorRED,
                 SK_ColorGREEN,
@@ -60,8 +61,6 @@ protected:
                 SK_ColorMAGENTA,
         };
 
-        SkAutoTUnref<SkXfermode> xfermode(SkXfermode::Create(mode));
-        SkAutoTUnref<SkXfermode> xfermode2(SkXfermode::Create(mode2));
         for (size_t i = 0; i < SK_ARRAY_COUNT(colors); i++) {
             canvas->save();
             canvas->translate(x, y);
@@ -70,7 +69,7 @@ protected:
 
             SkPaint textPaint;
             textPaint.setColor(colors[i]);
-            textPaint.setXfermode(i % 2 == 0 ? xfermode : xfermode2);
+            textPaint.setBlendMode(i % 2 == 0 ? mode : mode2);
             canvas->drawTextBlob(fBlob, 0, 0, textPaint);
             canvas->restore();
         }
@@ -79,18 +78,16 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkScalar offsetX = kWidth / 4.0f;
         SkScalar offsetY = kHeight / 4.0f;
-        drawTestCase(canvas, offsetX, offsetY,  SkXfermode::kSrc_Mode, SkXfermode::kSrc_Mode);
-        drawTestCase(canvas, 3 * offsetX, offsetY,  SkXfermode::kSrcOver_Mode,
-                     SkXfermode::kSrcOver_Mode);
-        drawTestCase(canvas, offsetX, 3 * offsetY,  SkXfermode::kHardLight_Mode,
-                     SkXfermode::kLuminosity_Mode);
-        drawTestCase(canvas, 3 * offsetX, 3 * offsetY,  SkXfermode::kSrcOver_Mode,
-                     SkXfermode::kSrc_Mode);
+        drawTestCase(canvas, offsetX, offsetY,  SkBlendMode::kSrc, SkBlendMode::kSrc);
+        drawTestCase(canvas, 3 * offsetX, offsetY,  SkBlendMode::kSrcOver, SkBlendMode::kSrcOver);
+        drawTestCase(canvas, offsetX, 3 * offsetY,  SkBlendMode::kHardLight,
+                     SkBlendMode::kLuminosity);
+        drawTestCase(canvas, 3 * offsetX, 3 * offsetY,  SkBlendMode::kSrcOver, SkBlendMode::kSrc);
     }
 
 private:
     SkScalar fTextHeight;
-    SkAutoTUnref<const SkTextBlob> fBlob;
+    sk_sp<SkTextBlob> fBlob;
     typedef skiagm::GM INHERITED;
 };
 

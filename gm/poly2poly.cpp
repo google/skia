@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "Resources.h"
 #include "SkPath.h"
 #include "SkTypeface.h"
@@ -72,8 +73,7 @@ void SkJSCanvas::stroke() {
 }
 
 void SkJSCanvas::fillText(const char text[], double x, double y) {
-    fTarget->drawText(text, strlen(text),
-                      SkDoubleToScalar(x), SkDoubleToScalar(y), fFillPaint);
+    fTarget->drawString(text, SkDoubleToScalar(x), SkDoubleToScalar(y), fFillPaint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -207,8 +207,8 @@ protected:
 
         paint->setColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
         paint->setStyle(SkPaint::kStroke_Style);
-        const SkScalar D = SkIntToScalar(64);
-        canvas->drawRectCoords(0, 0, D, D, *paint);
+        const SkScalar D = 64;
+        canvas->drawRect(SkRect::MakeWH(D, D), *paint);
         canvas->drawLine(0, 0, D, D, *paint);
         canvas->drawLine(0, D, D, 0, *paint);
 
@@ -224,7 +224,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fEmFace.reset(GetResourceAsTypeface("/fonts/Em.ttf"));
+        fEmFace = MakeResourceAsTypeface("/fonts/Em.ttf");
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -273,7 +273,7 @@ protected:
 
 private:
     typedef skiagm::GM INHERITED;
-    SkAutoTUnref<SkTypeface> fEmFace;
+    sk_sp<SkTypeface> fEmFace;
 };
 
 //////////////////////////////////////////////////////////////////////////////

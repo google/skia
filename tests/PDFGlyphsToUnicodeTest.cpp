@@ -5,35 +5,38 @@
  * found in the LICENSE file.
  */
 
-#include "SkData.h"
-#include "SkPDFFont.h"
-#include "SkPDFTypes.h"
-#include "SkStream.h"
 #include "Test.h"
+
+#ifdef SK_SUPPORT_PDF
+
+#include "SkBitSet.h"
+#include "SkData.h"
+#include "SkPDFMakeToUnicodeCmap.h"
+#include "SkStream.h"
+
+static const int kMaximumGlyphCount = SK_MaxU16 + 1;
 
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const char* buffer, size_t len) {
-    SkAutoDataUnref data(stream.copyToData());
-    if (offset + len > data->size()) {
-        return false;
-    }
     if (len != strlen(buffer)) {
         return false;
     }
-    return memcmp(data->bytes() + offset, buffer, len) == 0;
+
+    const size_t streamSize = stream.bytesWritten();
+
+    if (offset + len > streamSize) {
+        return false;
+    }
+
+    SkAutoTMalloc<char> data(streamSize);
+    stream.copyTo(data.get());
+    return memcmp(data.get() + offset, buffer, len) == 0;
 }
 
-void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
-                          const SkPDFGlyphSet* subset,
-                          SkDynamicMemoryWStream* cmap,
-                          bool multiByteGlyphs,
-                          uint16_t firstGlypthID,
-                          uint16_t lastGlypthID);
-
-DEF_TEST(ToUnicode, reporter) {
+DEF_TEST(SkPDF_ToUnicode, reporter) {
     SkTDArray<SkUnichar> glyphToUnicode;
     SkTDArray<uint16_t> glyphsInSubset;
-    SkPDFGlyphSet subset;
+    SkBitSet subset(kMaximumGlyphCount);
 
     glyphToUnicode.push(0);  // 0
     glyphToUnicode.push(0);  // 1
@@ -72,8 +75,8 @@ DEF_TEST(ToUnicode, reporter) {
     glyphToUnicode.push(0x1013);
 
     SkDynamicMemoryWStream buffer;
-    subset.set(glyphsInSubset.begin(), glyphsInSubset.count());
-    append_cmap_sections(glyphToUnicode, &subset, &buffer, true, 0, 0xFFFF);
+    subset.setAll(glyphsInSubset.begin(), glyphsInSubset.count());
+    SkPDFAppendCmapSections(glyphToUnicode, &subset, &buffer, true, 0, 0xFFFF);
 
     char expectedResult[] =
 "4 beginbfchar\n\
@@ -90,12 +93,12 @@ endbfchar\n\
 endbfrange\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResult,
-                                            buffer.getOffset()));
+                                            buffer.bytesWritten()));
 
     // Remove characters and ranges.
     buffer.reset();
 
-    append_cmap_sections(glyphToUnicode, &subset, &buffer, true, 8, 0x00FF);
+    SkPDFAppendCmapSections(glyphToUnicode, &subset, &buffer, true, 8, 0x00FF);
 
     char expectedResultChop1[] =
 "2 beginbfchar\n\
@@ -108,12 +111,12 @@ endbfchar\n\
 endbfrange\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResultChop1,
-                                            buffer.getOffset()));
+                                            buffer.bytesWritten()));
 
     // Remove characters from range to downdrade it to one char.
     buffer.reset();
 
-    append_cmap_sections(glyphToUnicode, &subset, &buffer, true, 0x00D, 0x00FE);
+    SkPDFAppendCmapSections(glyphToUnicode, &subset, &buffer, true, 0x00D, 0x00FE);
 
     char expectedResultChop2[] =
 "2 beginbfchar\n\
@@ -122,28 +125,28 @@ endbfrange\n";
 endbfchar\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResultChop2,
-                                            buffer.getOffset()));
+                                            buffer.bytesWritten()));
 
     buffer.reset();
 
-    append_cmap_sections(glyphToUnicode, nullptr, &buffer, false, 0xFC, 0x110);
+    SkPDFAppendCmapSections(glyphToUnicode, nullptr, &buffer, false, 0xFC, 0x110);
 
     char expectedResultSingleBytes[] =
 "2 beginbfchar\n\
-<0001> <0000>\n\
-<0002> <0000>\n\
+<01> <0000>\n\
+<02> <0000>\n\
 endbfchar\n\
 1 beginbfrange\n\
-<0003> <0006> <1010>\n\
+<03> <06> <1010>\n\
 endbfrange\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0,
                                             expectedResultSingleBytes,
-                                            buffer.getOffset()));
+                                            buffer.bytesWritten()));
 
     glyphToUnicode.reset();
     glyphsInSubset.reset();
-    SkPDFGlyphSet subset2;
+    SkBitSet subset2(kMaximumGlyphCount);
 
     // Test mapping:
     //           I  n  s  t  a  l
@@ -161,8 +164,8 @@ endbfrange\n";
     glyphsInSubset.push(0x57);
 
     SkDynamicMemoryWStream buffer2;
-    subset2.set(glyphsInSubset.begin(), glyphsInSubset.count());
-    append_cmap_sections(glyphToUnicode, &subset2, &buffer2, true, 0, 0xffff);
+    subset2.setAll(glyphsInSubset.begin(), glyphsInSubset.count());
+    SkPDFAppendCmapSections(glyphToUnicode, &subset2, &buffer2, true, 0, 0xffff);
 
     char expectedResult2[] =
 "4 beginbfchar\n\
@@ -176,5 +179,7 @@ endbfchar\n\
 endbfrange\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer2, 0, expectedResult2,
-                                            buffer2.getOffset()));
+                                            buffer2.bytesWritten()));
 }
+
+#endif

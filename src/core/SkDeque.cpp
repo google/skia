@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkDeque.h"
+#include "SkMalloc.h"
 
 struct SkDeque::Block {
     Block*  fNext;

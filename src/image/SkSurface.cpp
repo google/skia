@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAtomics.h"
 #include "SkSurface_Base.h"
 #include "SkImagePriv.h"
 #include "SkCanvas.h"
@@ -55,17 +56,11 @@ SkSurfaceProps::SkSurfaceProps(const SkSurfaceProps& other)
 ///////////////////////////////////////////////////////////////////////////////
 
 SkSurface_Base::SkSurface_Base(int width, int height, const SkSurfaceProps* props)
-    : INHERITED(width, height, props)
-{
-    fCachedCanvas = nullptr;
-    fCachedImage = nullptr;
+    : INHERITED(width, height, props) {
 }
 
 SkSurface_Base::SkSurface_Base(const SkImageInfo& info, const SkSurfaceProps* props)
-    : INHERITED(info, props)
-{
-    fCachedCanvas = nullptr;
-    fCachedImage = nullptr;
+    : INHERITED(info, props) {
 }
 
 SkSurface_Base::~SkSurface_Base() {
@@ -73,16 +68,12 @@ SkSurface_Base::~SkSurface_Base() {
     if (fCachedCanvas) {
         fCachedCanvas->setSurfaceBase(nullptr);
     }
-
-    SkSafeUnref(fCachedImage);
-    SkSafeUnref(fCachedCanvas);
 }
 
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
-    SkImage* image = this->newImageSnapshot(kYes_Budgeted);
+    auto image = this->makeImageSnapshot();
     if (image) {
         canvas->drawImage(image, x, y, paint);
-        image->unref();
     }
 }
 
@@ -106,8 +97,7 @@ void SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
 
         // regardless of copy-on-write, we must drop our cached image now, so
         // that the next request will get our new contents.
-        fCachedImage->unref();
-        fCachedImage = nullptr;
+        fCachedImage.reset();
 
         if (unique) {
             // Our content isn't held by any image now, so we can consider that content mutable.
@@ -163,13 +153,11 @@ SkCanvas* SkSurface::getCanvas() {
     return asSB(this)->getCachedCanvas();
 }
 
-SkImage* SkSurface::newImageSnapshot(Budgeted budgeted) {
-    SkImage* image = asSB(this)->getCachedImage(budgeted);
-    SkSafeRef(image);   // the caller will call unref() to balance this
-    return image;
+sk_sp<SkImage> SkSurface::makeImageSnapshot() {
+    return asSB(this)->refCachedImage();
 }
 
-SkSurface* SkSurface::newSurface(const SkImageInfo& info) {
+sk_sp<SkSurface> SkSurface::makeSurface(const SkImageInfo& info) {
     return asSB(this)->onNewSurface(info);
 }
 
@@ -178,8 +166,8 @@ void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
     return asSB(this)->onDraw(canvas, x, y, paint);
 }
 
-const void* SkSurface::peekPixels(SkImageInfo* info, size_t* rowBytes) {
-    return this->getCanvas()->peekPixels(info, rowBytes);
+bool SkSurface::peekPixels(SkPixmap* pmap) {
+    return this->getCanvas()->peekPixels(pmap);
 }
 
 bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
@@ -195,26 +183,58 @@ bool SkSurface::getRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess 
     return asSB(this)->onGetRenderTargetHandle(obj, access);
 }
 
+void SkSurface::prepareForExternalIO() {
+  asSB(this)->onPrepareForExternalIO();
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU
 
-SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget*, const SkSurfaceProps*) {
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&,
+                                             int, GrSurfaceOrigin, const SkSurfaceProps*) {
     return nullptr;
 }
 
-SkSurface* SkSurface::NewRenderTarget(GrContext*, Budgeted, const SkImageInfo&, int,
-                                      const SkSurfaceProps*) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext*, const GrBackendTextureDesc&,
+                                                   sk_sp<SkColorSpace>, const SkSurfaceProps*) {
     return nullptr;
 }
 
-SkSurface* SkSurface::NewFromBackendTexture(GrContext*, const GrBackendTextureDesc&,
-                                             const SkSurfaceProps*) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext*, const GrBackendTexture&,
+                                                   GrSurfaceOrigin origin, int sampleCnt,
+                                                   sk_sp<SkColorSpace>, const SkSurfaceProps*) {
     return nullptr;
 }
 
-SkSurface* SkSurface::NewFromBackendRenderTarget(GrContext*, const GrBackendRenderTargetDesc&,
-                                                 const SkSurfaceProps*) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
+                                                        const GrBackendRenderTargetDesc&,
+                                                        sk_sp<SkColorSpace>,
+                                                        const SkSurfaceProps*) {
+    return nullptr;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
+                                                        const GrBackendRenderTarget&,
+                                                        GrSurfaceOrigin origin,
+                                                        sk_sp<SkColorSpace>,
+                                                        const SkSurfaceProps*) {
+    return nullptr;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext*,
+                                                                 const GrBackendTextureDesc&,
+                                                                 sk_sp<SkColorSpace>,
+                                                                 const SkSurfaceProps*) {
+    return nullptr;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext*,
+                                                                 const GrBackendTexture&,
+                                                                 GrSurfaceOrigin origin,
+                                                                 int sampleCnt,
+                                                                 sk_sp<SkColorSpace>,
+                                                                 const SkSurfaceProps*) {
     return nullptr;
 }
 

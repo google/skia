@@ -18,20 +18,21 @@
 #include "SkString.h"
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
-static const SkColor gColors[] = {
+constexpr SkColor gColors[] = {
     SK_ColorRED, SK_ColorYELLOW
 };
 
 // These annoying defines are necessary, because the only other alternative
 // is to use SkIntToScalar(...) everywhere.
-static const SkScalar sZero = 0;
-static const SkScalar sHalf = SK_ScalarHalf;
-static const SkScalar sOne = SK_Scalar1;
+constexpr SkScalar sZero = 0;
+constexpr SkScalar sHalf = SK_ScalarHalf;
+constexpr SkScalar sOne = SK_Scalar1;
 
 // These arrays define the gradient stop points
 // as x1, y1, x2, y2 per gradient to draw.
-static const SkPoint linearPts[][2] = {
+constexpr SkPoint linearPts[][2] = {
     {{sZero, sZero}, {sOne,  sZero}},
     {{sZero, sZero}, {sZero, sOne}},
     {{sOne,  sZero}, {sZero, sZero}},
@@ -43,7 +44,7 @@ static const SkPoint linearPts[][2] = {
     {{sZero, sOne},  {sOne,  sZero}}
 };
 
-static const SkPoint radialPts[][2] = {
+constexpr SkPoint radialPts[][2] = {
     {{sZero, sHalf}, {sOne,  sHalf}},
     {{sHalf, sZero}, {sHalf, sOne}},
     {{sOne,  sHalf}, {sZero, sHalf}},
@@ -56,27 +57,27 @@ static const SkPoint radialPts[][2] = {
 };
 
 // These define the pixels allocated to each gradient image.
-static const SkScalar TESTGRID_X = SkIntToScalar(200);
-static const SkScalar TESTGRID_Y = SkIntToScalar(200);
+constexpr SkScalar TESTGRID_X = SkIntToScalar(200);
+constexpr SkScalar TESTGRID_Y = SkIntToScalar(200);
 
-static const int IMAGES_X = 4;             // number of images per row
+constexpr int IMAGES_X = 4;             // number of images per row
 
-static SkShader* make_linear_gradient(const SkPoint pts[2], const SkMatrix& localMatrix) {
-    return SkGradientShader::CreateLinear(pts, gColors, nullptr, SK_ARRAY_COUNT(gColors),
-                                          SkShader::kClamp_TileMode, 0, &localMatrix);
+static sk_sp<SkShader> make_linear_gradient(const SkPoint pts[2], const SkMatrix& localMatrix) {
+    return SkGradientShader::MakeLinear(pts, gColors, nullptr, SK_ARRAY_COUNT(gColors),
+                                        SkShader::kClamp_TileMode, 0, &localMatrix);
 }
 
-static SkShader* make_radial_gradient(const SkPoint pts[2], const SkMatrix& localMatrix) {
+static sk_sp<SkShader> make_radial_gradient(const SkPoint pts[2], const SkMatrix& localMatrix) {
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
     float radius = (center - pts[0]).length();
-    return SkGradientShader::CreateRadial(center, radius, gColors, nullptr, SK_ARRAY_COUNT(gColors),
-                                          SkShader::kClamp_TileMode, 0, &localMatrix);
+    return SkGradientShader::MakeRadial(center, radius, gColors, nullptr, SK_ARRAY_COUNT(gColors),
+                                        SkShader::kClamp_TileMode, 0, &localMatrix);
 }
 
 static void draw_gradients(SkCanvas* canvas,
-                           SkShader* (*makeShader)(const SkPoint[2], const SkMatrix&),
+                           sk_sp<SkShader> (*makeShader)(const SkPoint[2], const SkMatrix&),
                            const SkPoint ptsArray[][2], int numImages) {
     // Use some nice prime numbers for the rectangle and matrix with
     // different scaling along the x and y axes (which is the bug this
@@ -97,11 +98,8 @@ static void draw_gradients(SkCanvas* canvas,
             canvas->save();
         }
 
-        // Setup shader and draw.
-        SkAutoTUnref<SkShader> shader(makeShader(*ptsArray, shaderMat));
-
         SkPaint paint;
-        paint.setShader(shader);
+        paint.setShader(makeShader(*ptsArray, shaderMat));
         canvas->drawRect(rectGrad, paint);
 
         // Advance to next position.

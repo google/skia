@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<script src="utilities.js"></script>
+
+<script src="animationCommon.js"></script>
+<script src="backend.js"></script>
+<script src="canvasBackend.js"></script>
+<script src="exampleSlides.js"></script>
+<script src="interpolatorFunctions.js"></script>
+<script src="svgBackend.js"></script>
+
+<script>
+
+var frame = 1;
+
+function keypress() {
+    init('all', 'keyframe' + frame);
+    if (++frame > 7) {
+        frame = 1;
+    }
+}
+
+function onload() {
+    init('all', 'keyframe6');
+}
+
+</script>
+
+</head>
+
+<body onLoad="onload()" onKeypress="keypress()">
+
+<canvas id="canvas" width="770" height="500" ></canvas>
+
+<svg id="svg" width="770" height="500"
+    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" />
+
+</body>
+</html>

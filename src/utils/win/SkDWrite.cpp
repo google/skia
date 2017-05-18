@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
 
 #include "SkDWrite.h"
 #include "SkHRESULT.h"
@@ -41,9 +43,9 @@ static void create_dwrite_factory(IDWriteFactory** factory) {
 }
 
 
-SK_DECLARE_STATIC_ONCE(once);
 IDWriteFactory* sk_get_dwrite_factory() {
-    SkOnce(&once, create_dwrite_factory, &gDWriteFactory);
+    static SkOnce once;
+    once(create_dwrite_factory, &gDWriteFactory);
     return gDWriteFactory;
 }
 
@@ -122,3 +124,5 @@ HRESULT SkGetGetUserDefaultLocaleNameProc(SkGetUserDefaultLocaleNameProc* proc) 
     }
     return S_OK;
 }
+
+#endif//defined(SK_BUILD_FOR_WIN32)

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -11,8 +10,10 @@
 
 #include "SkBlitter.h"
 #include "SkCanvas.h"
+#include "SkCpu.h"
 #include "SkGeometry.h"
 #include "SkGlyphCache.h"
+#include "SkImageFilter.h"
 #include "SkMath.h"
 #include "SkMatrix.h"
 #include "SkOpts.h"
@@ -21,14 +22,12 @@
 #include "SkPixelRef.h"
 #include "SkRefCnt.h"
 #include "SkResourceCache.h"
-#include "SkRTConf.h"
 #include "SkScalerContext.h"
 #include "SkShader.h"
 #include "SkStream.h"
 #include "SkTSearch.h"
 #include "SkTime.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
 
 #include <stdlib.h>
 
@@ -46,16 +45,8 @@ void SkGraphics::GetVersion(int32_t* major, int32_t* minor, int32_t* patch) {
 
 void SkGraphics::Init() {
     // SkGraphics::Init() must be thread-safe and idempotent.
+    SkCpu::CacheRuntimeFeatures();
     SkOpts::Init();
-
-#ifdef SK_DEVELOPER
-    skRTConfRegistry().possiblyDumpFile();
-    skRTConfRegistry().validate();
-    if (skRTConfRegistry().hasNonDefault()) {
-        SkDebugf("Non-default runtime configuration options:\n");
-        skRTConfRegistry().printNonDefault();
-    }
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -63,6 +54,12 @@ void SkGraphics::Init() {
 void SkGraphics::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
   SkResourceCache::DumpMemoryStatistics(dump);
   SkGlyphCache::DumpMemoryStatistics(dump);
+}
+
+void SkGraphics::PurgeAllCaches() {
+    SkGraphics::PurgeFontCache();
+    SkGraphics::PurgeResourceCache();
+    SkImageFilter::PurgeCache();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

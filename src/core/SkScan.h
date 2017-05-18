@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 The Android Open Source Project
  *
@@ -10,7 +9,9 @@
 #ifndef SkScan_DEFINED
 #define SkScan_DEFINED
 
+#include "SkFixed.h"
 #include "SkRect.h"
+#include <atomic>
 
 class SkRasterClip;
 class SkRegion;
@@ -21,6 +22,11 @@ class SkPath;
     coordinates are treated as SkFixed rather than int32_t.
 */
 typedef SkIRect SkXRect;
+
+extern std::atomic<bool> gSkUseAnalyticAA;
+extern std::atomic<bool> gSkForceAnalyticAA;
+
+class AdditiveBlitter;
 
 class SkScan {
 public:
@@ -45,6 +51,7 @@ public:
     static void AntiFillXRect(const SkXRect&, const SkRasterClip&, SkBlitter*);
     static void FillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void AntiFillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void AAAFillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void FrameRect(const SkRect&, const SkPoint& strokeSize,
                           const SkRasterClip&, SkBlitter*);
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
@@ -56,6 +63,10 @@ public:
     static void AntiHairRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void HairPath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void AntiHairPath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void HairSquarePath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void AntiHairSquarePath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void HairRoundPath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void AntiHairRoundPath(const SkPath&, const SkRasterClip&, SkBlitter*);
 
 private:
     friend class SkAAClip;
@@ -75,6 +86,8 @@ private:
                               const SkRegion*, SkBlitter*);
     static void HairLineRgn(const SkPoint[], int count, const SkRegion*, SkBlitter*);
     static void AntiHairLineRgn(const SkPoint[], int count, const SkRegion*, SkBlitter*);
+    static void AAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter* blitter,
+                            bool forceRLE = false); // SkAAClip uses forceRLE
 };
 
 /** Assign an SkXRect from a SkIRect, by promoting the src rect's coordinates

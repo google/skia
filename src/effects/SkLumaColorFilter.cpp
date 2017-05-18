@@ -6,19 +6,18 @@
  */
 
 #include "SkLumaColorFilter.h"
-
+#include "SkPM4f.h"
 #include "SkColorPriv.h"
+#include "SkRasterPipeline.h"
 #include "SkString.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrInvariantOutput.h"
-#include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 #endif
 
-void SkLumaColorFilter::filterSpan(const SkPMColor src[], int count,
-                                   SkPMColor dst[]) const {
+void SkLumaColorFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
     for (int i = 0; i < count; ++i) {
         SkPMColor c = src[i];
 
@@ -37,11 +36,41 @@ void SkLumaColorFilter::filterSpan(const SkPMColor src[], int count,
     }
 }
 
-SkColorFilter* SkLumaColorFilter::Create() { return new SkLumaColorFilter; }
+void SkLumaColorFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {
+    for (int i = 0; i < count; ++i) {
+        /*
+         * While LuminanceToAlpha is defined to operate on un-premultiplied
+         * inputs, due to the final alpha scaling it can be computed based on
+         * premultipled components:
+         *
+         *   LumA = (k1 * r / a + k2 * g / a + k3 * b / a) * a
+         *   LumA = (k1 * r + k2 * g + k3 * b)
+         */
+        dst[i].fVec[SkPM4f::R] = 0;
+        dst[i].fVec[SkPM4f::G] = 0;
+        dst[i].fVec[SkPM4f::B] = 0;
+        dst[i].fVec[SkPM4f::A] = src[i].r() * SK_LUM_COEFF_R +
+                                 src[i].g() * SK_LUM_COEFF_G +
+                                 src[i].b() * SK_LUM_COEFF_B;
+    }
+}
+
+void SkLumaColorFilter::onAppendStages(SkRasterPipeline* p,
+                                       SkColorSpace* dst,
+                                       SkArenaAlloc* scratch,
+                                       bool shaderIsOpaque) const {
+    p->append(SkRasterPipeline::luminance_to_alpha);
+}
+
+sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
+    return sk_sp<SkColorFilter>(new SkLumaColorFilter);
+}
 
 SkLumaColorFilter::SkLumaColorFilter() : INHERITED() {}
 
-SkFlattenable* SkLumaColorFilter::CreateProc(SkReadBuffer&) { return new SkLumaColorFilter; }
+sk_sp<SkFlattenable> SkLumaColorFilter::CreateProc(SkReadBuffer&) {
+    return Make();
+}
 
 void SkLumaColorFilter::flatten(SkWriteBuffer&) const {}
 
@@ -54,62 +83,63 @@ void SkLumaColorFilter::toString(SkString* str) const {
 #if SK_SUPPORT_GPU
 class LumaColorFilterEffect : public GrFragmentProcessor {
 public:
-    static const GrFragmentProcessor* Create() {
-        static LumaColorFilterEffect gLumaEffect;
-        return SkRef(&gLumaEffect);
+    static sk_sp<GrFragmentProcessor> Make() {
+        return sk_sp<GrFragmentProcessor>(new LumaColorFilterEffect);
     }
 
     const char* name() const override { return "Luminance-to-Alpha"; }
 
-    class GLProcessor : public GrGLFragmentProcessor {
+    class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
-        GLProcessor(const GrProcessor&) {}
+        static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
 
-        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
-
-        virtual void emitCode(EmitArgs& args) override {
+        void emitCode(EmitArgs& args) override {
             if (nullptr == args.fInputColor) {
                 args.fInputColor = "vec4(1)";
             }
 
-            GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-            fsBuilder->codeAppendf("\tfloat luma = dot(vec3(%f, %f, %f), %s.rgb);\n",
-                                   SK_ITU_BT709_LUM_COEFF_R,
-                                   SK_ITU_BT709_LUM_COEFF_G,
-                                   SK_ITU_BT709_LUM_COEFF_B,
-                                   args.fInputColor);
-            fsBuilder->codeAppendf("\t%s = vec4(0, 0, 0, luma);\n",
-                                   args.fOutputColor);
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+            fragBuilder->codeAppendf("\tfloat luma = dot(vec3(%f, %f, %f), %s.rgb);\n",
+                                     SK_ITU_BT709_LUM_COEFF_R,
+                                     SK_ITU_BT709_LUM_COEFF_G,
+                                     SK_ITU_BT709_LUM_COEFF_B,
+                                     args.fInputColor);
+            fragBuilder->codeAppendf("\t%s = vec4(0, 0, 0, luma);\n",
+                                     args.fOutputColor);
 
         }
 
     private:
-        typedef GrGLFragmentProcessor INHERITED;
+        typedef GrGLSLFragmentProcessor INHERITED;
     };
 
 private:
-    LumaColorFilterEffect() {
+    LumaColorFilterEffect() : INHERITED(kConstantOutputForConstantInput_OptimizationFlag) {
         this->initClassID<LumaColorFilterEffect>();
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override { return new GLProcessor(*this); }
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+        return new GLSLProcessor;
+    }
 
-    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                     GrProcessorKeyBuilder* b) const override {
-        GLProcessor::GenKey(*this, caps, b);
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
+                                       GrProcessorKeyBuilder* b) const override {
+        GLSLProcessor::GenKey(*this, caps, b);
     }
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        // The output is always black. The alpha value for the color passed in is arbitrary.
-        inout->setToOther(kRGB_GrColorComponentFlags, GrColorPackRGBA(0, 0, 0, 0),
-                          GrInvariantOutput::kWill_ReadInput);
+    GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
+        float luma = SK_ITU_BT709_LUM_COEFF_R * input.fRGBA[0] +
+                     SK_ITU_BT709_LUM_COEFF_G * input.fRGBA[1] +
+                     SK_ITU_BT709_LUM_COEFF_B * input.fRGBA[2];
+        return GrColor4f(0, 0, 0, luma);
     }
+
+    typedef GrFragmentProcessor INHERITED;
 };
 
-const GrFragmentProcessor* SkLumaColorFilter::asFragmentProcessor(GrContext*) const {
-
-    return LumaColorFilterEffect::Create();
+sk_sp<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(GrContext*, SkColorSpace*) const {
+    return LumaColorFilterEffect::Make();
 }
 #endif

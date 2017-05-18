@@ -32,10 +32,10 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setAntiAlias(true);
 
-        static const SkRect rect = { 0, 0, 10, 10 };
-        static const SkRect rect2 = { 0, 0, 20, 20 };
+        constexpr SkRect rect = { 0, 0, 10, 10 };
+        constexpr SkRect rect2 = { 0, 0, 20, 20 };
 
-        static const SkScalar gStrokeWidths[] = {
+        constexpr SkScalar gStrokeWidths[] = {
             4, 2, 1, 0.5f, 0.25f, 0.125f, 0
         };
 

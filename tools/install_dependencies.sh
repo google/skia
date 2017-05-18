@@ -26,24 +26,26 @@ if command -v lsb_release > /dev/null ; then
         Ubuntu)
             PACKAGES=$(cat<<-EOF
 		build-essential
-		libfreetype6-dev
+		freeglut3-dev
 		libfontconfig-dev
-		libpng12-dev
+		libfreetype6-dev
 		libgif-dev
+		libglu1-mesa-dev
+		libosmesa6-dev
+		libpng12-dev
 		libqt4-dev
 		EOF
             )
            if [ $(lsb_release -r -s) = '14.04' ] ; then
                PACKAGES="${PACKAGES} ninja-build"
-            fi
-            if ! dpkg_all_installed $PACKAGES; then
-                sudo apt-get install $PACKAGES
-            fi
-            exit
-            ;;
+           fi
+           if ! dpkg_all_installed $PACKAGES; then
+               sudo apt-get install $PACKAGES
+           fi
+           exit
+           ;;
     esac
 fi
 
 echo 'unknown system'
 exit 1
-

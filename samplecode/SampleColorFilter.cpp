@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -10,7 +9,6 @@
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
-#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkShader.h"
 
@@ -102,7 +100,7 @@ static SkBitmap createBitmap(int n) {
     canvas.drawOval(r, paint);
 
     r.inset(SK_Scalar1*n/4, SK_Scalar1*n/4);
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     paint.setColor(0x800000FF);
     canvas.drawOval(r, paint);
 
@@ -111,7 +109,7 @@ static SkBitmap createBitmap(int n) {
 
 class ColorFilterView : public SampleView {
     SkBitmap fBitmap;
-    SkShader* fShader;
+    sk_sp<SkShader> fShader;
     enum {
         N = 64
     };
@@ -124,10 +122,6 @@ public:
         if (false) { // avoid bit rot, suppress warning
             test_5bits();
         }
-    }
-
-    virtual ~ColorFilterView() {
-        fShader->unref();
     }
 
 protected:
@@ -157,21 +151,21 @@ protected:
             return;
         }
 
-        static const SkXfermode::Mode gModes[] = {
-            SkXfermode::kClear_Mode,
-            SkXfermode::kSrc_Mode,
-            SkXfermode::kDst_Mode,
-            SkXfermode::kSrcOver_Mode,
-            SkXfermode::kDstOver_Mode,
-            SkXfermode::kSrcIn_Mode,
-            SkXfermode::kDstIn_Mode,
-            SkXfermode::kSrcOut_Mode,
-            SkXfermode::kDstOut_Mode,
-            SkXfermode::kSrcATop_Mode,
-            SkXfermode::kDstATop_Mode,
-            SkXfermode::kXor_Mode,
-            SkXfermode::kPlus_Mode,
-            SkXfermode::kModulate_Mode,
+        static const SkBlendMode gModes[] = {
+            SkBlendMode::kClear,
+            SkBlendMode::kSrc,
+            SkBlendMode::kDst,
+            SkBlendMode::kSrcOver,
+            SkBlendMode::kDstOver,
+            SkBlendMode::kSrcIn,
+            SkBlendMode::kDstIn,
+            SkBlendMode::kSrcOut,
+            SkBlendMode::kDstOut,
+            SkBlendMode::kSrcATop,
+            SkBlendMode::kDstATop,
+            SkBlendMode::kXor,
+            SkBlendMode::kPlus,
+            SkBlendMode::kModulate,
         };
 
         static const SkColor gColors[] = {
@@ -188,8 +182,7 @@ protected:
 
         for (size_t y = 0; y < SK_ARRAY_COUNT(gColors); y++) {
             for (size_t x = 0; x < SK_ARRAY_COUNT(gModes); x++) {
-                SkColorFilter* cf = SkColorFilter::CreateModeFilter(gColors[y], gModes[x]);
-                SkSafeUnref(paint.setColorFilter(cf));
+                paint.setColorFilter(SkColorFilter::MakeModeFilter(gColors[y], gModes[x]));
                 canvas->drawBitmap(fBitmap, x * N * 1.25f, y * N * scale, &paint);
             }
         }

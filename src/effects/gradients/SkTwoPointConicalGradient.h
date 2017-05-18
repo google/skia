@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -9,12 +8,14 @@
 #ifndef SkTwoPointConicalGradient_DEFINED
 #define SkTwoPointConicalGradient_DEFINED
 
+#include "SkColorSpaceXformer.h"
 #include "SkGradientShaderPriv.h"
 
 // TODO(dominikg): Worth making it truly immutable (i.e. set values in constructor)?
 // Should only be initialized once via init(). Immutable afterwards.
 struct TwoPtRadial {
     enum {
+        // This value is outside the range SK_FixedMin to SK_FixedMax.
         kDontDrawT  = 0x80000000
     };
 
@@ -44,13 +45,10 @@ public:
                               const SkPoint& end, SkScalar endRadius,
                               bool flippedGrad, const Descriptor&);
 
-
-    size_t contextSize() const override;
-
     class TwoPointConicalGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
         TwoPointConicalGradientContext(const SkTwoPointConicalGradient&, const ContextRec&);
-        ~TwoPointConicalGradientContext() {}
+        ~TwoPointConicalGradientContext() override {}
 
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
 
@@ -60,10 +58,7 @@ public:
 
     SkShader::GradientType asAGradient(GradientInfo* info) const  override;
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*,
-                                                   const SkMatrix&,
-                                                   const SkMatrix*,
-                                                   SkFilterQuality) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
     bool isOpaque() const override;
 
@@ -81,7 +76,8 @@ public:
 protected:
     SkTwoPointConicalGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
-    Context* onCreateContext(const ContextRec&, void* storage) const override;
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
 private:
     SkPoint fCenter1;

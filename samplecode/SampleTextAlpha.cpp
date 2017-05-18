@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -9,16 +8,13 @@
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkTime.h"
@@ -54,9 +50,8 @@ protected:
 
         paint.setARGB(fByte, 0xFF, 0xFF, 0xFF);
 
-        paint.setMaskFilter(SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                    SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3))));
-        paint.getMaskFilter()->unref();
+        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                                   SkBlurMask::ConvertRadiusToSigma(3)));
 
         SkRandom rand;
 
@@ -64,7 +59,7 @@ protected:
             paint.setColor(rand.nextU() | (0xFF << 24));
             paint.setTextSize(SkIntToScalar(ps));
             paint.setTextSize(SkIntToScalar(24));
-            canvas->drawText(str, strlen(str), x, y, paint);
+            canvas->drawString(str, x, y, paint);
             y += paint.getFontMetrics(nullptr);
         }
     }

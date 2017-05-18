@@ -64,14 +64,17 @@ struct SkDCurve {
         return fCubic[n];
     }
 
-    SkDPoint conicTop(const SkPoint curve[3], SkScalar curveWeight, 
+    SkDPoint conicTop(const SkPoint curve[3], SkScalar curveWeight,
                       double s, double e, double* topT);
     SkDPoint cubicTop(const SkPoint curve[4], SkScalar , double s, double e, double* topT);
+    void dump() const;
     void dumpID(int ) const;
     SkDPoint lineTop(const SkPoint[2], SkScalar , double , double , double* topT);
+    double nearPoint(SkPath::Verb verb, const SkDPoint& xy, const SkDPoint& opp) const;
+    void offset(SkPath::Verb verb, const SkDVector& );
     SkDPoint quadTop(const SkPoint curve[3], SkScalar , double s, double e, double* topT);
 
-    void setConicBounds(const SkPoint curve[3], SkScalar curveWeight, 
+    void setConicBounds(const SkPoint curve[3], SkScalar curveWeight,
                         double s, double e, SkPathOpsBounds* );
     void setCubicBounds(const SkPoint curve[4], SkScalar ,
                         double s, double e, SkPathOpsBounds* );
@@ -79,6 +82,19 @@ struct SkDCurve {
                        double s, double e, SkPathOpsBounds*);
 };
 
+class SkDCurveSweep {
+public:
+    bool isCurve() const { return fIsCurve; }
+    bool isOrdered() const { return fOrdered; }
+    void setCurveHullSweep(SkPath::Verb verb);
+
+    SkDCurve fCurve;
+    SkDVector fSweep[2];
+private:
+    bool fIsCurve;
+    bool fOrdered;  // cleared when a cubic's control point isn't between the sweep vectors
+
+};
 
 extern SkDPoint (SkDCurve::* const Top[])(const SkPoint curve[], SkScalar cWeight,
     double tStart, double tEnd, double* topT);
@@ -113,6 +129,30 @@ static SkDPoint (* const CurveDPointAtT[])(const SkPoint[], SkScalar , double ) 
     dquad_xy_at_t,
     dconic_xy_at_t,
     dcubic_xy_at_t
+};
+
+static SkDPoint ddline_xy_at_t(const SkDCurve& c, double t) {
+    return c.fLine.ptAtT(t);
+}
+
+static SkDPoint ddquad_xy_at_t(const SkDCurve& c, double t) {
+    return c.fQuad.ptAtT(t);
+}
+
+static SkDPoint ddconic_xy_at_t(const SkDCurve& c, double t) {
+    return c.fConic.ptAtT(t);
+}
+
+static SkDPoint ddcubic_xy_at_t(const SkDCurve& c, double t) {
+    return c.fCubic.ptAtT(t);
+}
+
+static SkDPoint (* const CurveDDPointAtT[])(const SkDCurve& , double ) = {
+    nullptr,
+    ddline_xy_at_t,
+    ddquad_xy_at_t,
+    ddconic_xy_at_t,
+    ddcubic_xy_at_t
 };
 
 static SkPoint fline_xy_at_t(const SkPoint a[2], SkScalar weight, double t) {
@@ -169,6 +209,30 @@ static SkDVector (* const CurveDSlopeAtT[])(const SkPoint[], SkScalar , double )
     dquad_dxdy_at_t,
     dconic_dxdy_at_t,
     dcubic_dxdy_at_t
+};
+
+static SkDVector ddline_dxdy_at_t(const SkDCurve& c, double ) {
+    return c.fLine.fPts[1] - c.fLine.fPts[0];
+}
+
+static SkDVector ddquad_dxdy_at_t(const SkDCurve& c, double t) {
+    return c.fQuad.dxdyAtT(t);
+}
+
+static SkDVector ddconic_dxdy_at_t(const SkDCurve& c, double t) {
+    return c.fConic.dxdyAtT(t);
+}
+
+static SkDVector ddcubic_dxdy_at_t(const SkDCurve& c, double t) {
+    return c.fCubic.dxdyAtT(t);
+}
+
+static SkDVector (* const CurveDDSlopeAtT[])(const SkDCurve& , double ) = {
+    nullptr,
+    ddline_dxdy_at_t,
+    ddquad_dxdy_at_t,
+    ddconic_dxdy_at_t,
+    ddcubic_dxdy_at_t
 };
 
 static SkVector fline_dxdy_at_t(const SkPoint a[2], SkScalar , double ) {
@@ -267,6 +331,30 @@ static void (* const CurveIntersectRay[])(const SkPoint[] , SkScalar , const SkD
     quad_intersect_ray,
     conic_intersect_ray,
     cubic_intersect_ray
+};
+
+static void dline_intersect_ray(const SkDCurve& c, const SkDLine& ray,  SkIntersections* i) {
+    i->intersectRay(c.fLine, ray);
+}
+
+static void dquad_intersect_ray(const SkDCurve& c, const SkDLine& ray, SkIntersections* i) {
+    i->intersectRay(c.fQuad, ray);
+}
+
+static void dconic_intersect_ray(const SkDCurve& c, const SkDLine& ray, SkIntersections* i) {
+    i->intersectRay(c.fConic, ray);
+}
+
+static void dcubic_intersect_ray(const SkDCurve& c, const SkDLine& ray, SkIntersections* i) {
+    i->intersectRay(c.fCubic, ray);
+}
+
+static void (* const CurveDIntersectRay[])(const SkDCurve& , const SkDLine& , SkIntersections* ) = {
+    nullptr,
+    dline_intersect_ray,
+    dquad_intersect_ray,
+    dconic_intersect_ray,
+    dcubic_intersect_ray
 };
 
 static int line_intercept_h(const SkPoint a[2], SkScalar , SkScalar y, double* roots) {

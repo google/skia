@@ -78,4 +78,130 @@ static inline unsigned SkDiv255Round(unsigned prod) {
     return (prod + (prod >> 8)) >> 8;
 }
 
+static inline float SkPinToUnitFloat(float x) {
+    return SkTMin(SkTMax(x, 0.0f), 1.0f);
+}
+
+/**
+ * Swap byte order of a 4-byte value, e.g. 0xaarrggbb -> 0xbbggrraa.
+ */
+#if defined(_MSC_VER)
+    #include <intrin.h>
+    static inline uint32_t SkBSwap32(uint32_t v) { return _byteswap_ulong(v); }
+#else
+    static inline uint32_t SkBSwap32(uint32_t v) { return __builtin_bswap32(v); }
+#endif
+
+//! Returns the number of leading zero bits (0...32)
+int SkCLZ_portable(uint32_t);
+
+#ifndef SkCLZ
+    #if defined(SK_BUILD_FOR_WIN32)
+        #include <intrin.h>
+
+        static inline int SkCLZ(uint32_t mask) {
+            if (mask) {
+                unsigned long index;
+                _BitScanReverse(&index, mask);
+                // Suppress this bogus /analyze warning. The check for non-zero
+                // guarantees that _BitScanReverse will succeed.
+#pragma warning(suppress : 6102) // Using 'index' from failed function call
+                return index ^ 0x1F;
+            } else {
+                return 32;
+            }
+        }
+    #elif defined(SK_CPU_ARM32) || defined(__GNUC__) || defined(__clang__)
+        static inline int SkCLZ(uint32_t mask) {
+            // __builtin_clz(0) is undefined, so we have to detect that case.
+            return mask ? __builtin_clz(mask) : 32;
+        }
+    #else
+        #define SkCLZ(x)    SkCLZ_portable(x)
+    #endif
+#endif
+
+/**
+ *  Returns the smallest power-of-2 that is >= the specified value. If value
+ *  is already a power of 2, then it is returned unchanged. It is undefined
+ *  if value is <= 0.
+ */
+static inline int SkNextPow2(int value) {
+    SkASSERT(value > 0);
+    return 1 << (32 - SkCLZ(value - 1));
+}
+
+/**
+*  Returns the largest power-of-2 that is <= the specified value. If value
+*  is already a power of 2, then it is returned unchanged. It is undefined
+*  if value is <= 0.
+*/
+static inline int SkPrevPow2(int value) {
+    SkASSERT(value > 0);
+    return 1 << (32 - SkCLZ(value >> 1));
+}
+
+/**
+ *  Returns the log2 of the specified value, were that value to be rounded up
+ *  to the next power of 2. It is undefined to pass 0. Examples:
+ *  SkNextLog2(1) -> 0
+ *  SkNextLog2(2) -> 1
+ *  SkNextLog2(3) -> 2
+ *  SkNextLog2(4) -> 2
+ *  SkNextLog2(5) -> 3
+ */
+static inline int SkNextLog2(uint32_t value) {
+    SkASSERT(value != 0);
+    return 32 - SkCLZ(value - 1);
+}
+
+/**
+*  Returns the log2 of the specified value, were that value to be rounded down
+*  to the previous power of 2. It is undefined to pass 0. Examples:
+*  SkPrevLog2(1) -> 0
+*  SkPrevLog2(2) -> 1
+*  SkPrevLog2(3) -> 1
+*  SkPrevLog2(4) -> 2
+*  SkPrevLog2(5) -> 2
+*/
+static inline int SkPrevLog2(uint32_t value) {
+    SkASSERT(value != 0);
+    return 32 - SkCLZ(value >> 1);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  Return the next power of 2 >= n.
+ */
+static inline uint32_t GrNextPow2(uint32_t n) {
+    return n ? (1 << (32 - SkCLZ(n - 1))) : 1;
+}
+
+/**
+ * Returns the next power of 2 >= n or n if the next power of 2 can't be represented by size_t.
+ */
+static inline size_t GrNextSizePow2(size_t n) {
+    constexpr int kNumSizeTBits = 8 * sizeof(size_t);
+    constexpr size_t kHighBitSet = size_t(1) << (kNumSizeTBits - 1);
+
+    if (!n) {
+        return 1;
+    } else if (n >= kHighBitSet) {
+        return n;
+    }
+
+    n--;
+    uint32_t shift = 1;
+    while (shift < kNumSizeTBits) {
+        n |= n >> shift;
+        shift <<= 1;
+    }
+    return n + 1;
+}
+
+static inline int GrNextPow2(int n) {
+    SkASSERT(n >= 0); // this impl only works for non-neg.
+    return n ? (1 << (32 - SkCLZ(n - 1))) : 1;
+}
 #endif

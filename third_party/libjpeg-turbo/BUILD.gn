@@ -1,0 +1,84 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  skia_use_system_libjpeg_turbo = is_official_build
+}
+
+import("../third_party.gni")
+
+if (skia_use_system_libjpeg_turbo) {
+  system("libjpeg") {
+    libs = [ "jpeg" ]
+  }
+} else {
+  third_party("libjpeg") {
+    public_include_dirs = [ "../externals/libjpeg-turbo" ]
+
+    defines = [ "TURBO_FOR_WINDOWS" ]
+
+    sources = [
+      "../externals/libjpeg-turbo/jaricom.c",
+      "../externals/libjpeg-turbo/jcapimin.c",
+      "../externals/libjpeg-turbo/jcapistd.c",
+      "../externals/libjpeg-turbo/jcarith.c",
+      "../externals/libjpeg-turbo/jccoefct.c",
+      "../externals/libjpeg-turbo/jccolor.c",
+      "../externals/libjpeg-turbo/jcdctmgr.c",
+      "../externals/libjpeg-turbo/jchuff.c",
+      "../externals/libjpeg-turbo/jcinit.c",
+      "../externals/libjpeg-turbo/jcmainct.c",
+      "../externals/libjpeg-turbo/jcmarker.c",
+      "../externals/libjpeg-turbo/jcmaster.c",
+      "../externals/libjpeg-turbo/jcomapi.c",
+      "../externals/libjpeg-turbo/jcparam.c",
+      "../externals/libjpeg-turbo/jcphuff.c",
+      "../externals/libjpeg-turbo/jcprepct.c",
+      "../externals/libjpeg-turbo/jcsample.c",
+      "../externals/libjpeg-turbo/jdapimin.c",
+      "../externals/libjpeg-turbo/jdapistd.c",
+      "../externals/libjpeg-turbo/jdarith.c",
+      "../externals/libjpeg-turbo/jdcoefct.c",
+      "../externals/libjpeg-turbo/jdcolor.c",
+      "../externals/libjpeg-turbo/jddctmgr.c",
+      "../externals/libjpeg-turbo/jdhuff.c",
+      "../externals/libjpeg-turbo/jdinput.c",
+      "../externals/libjpeg-turbo/jdmainct.c",
+      "../externals/libjpeg-turbo/jdmarker.c",
+      "../externals/libjpeg-turbo/jdmaster.c",
+      "../externals/libjpeg-turbo/jdmerge.c",
+      "../externals/libjpeg-turbo/jdphuff.c",
+      "../externals/libjpeg-turbo/jdpostct.c",
+      "../externals/libjpeg-turbo/jdsample.c",
+      "../externals/libjpeg-turbo/jerror.c",
+      "../externals/libjpeg-turbo/jfdctflt.c",
+      "../externals/libjpeg-turbo/jfdctfst.c",
+      "../externals/libjpeg-turbo/jfdctint.c",
+      "../externals/libjpeg-turbo/jidctflt.c",
+      "../externals/libjpeg-turbo/jidctfst.c",
+      "../externals/libjpeg-turbo/jidctint.c",
+      "../externals/libjpeg-turbo/jidctred.c",
+      "../externals/libjpeg-turbo/jmemmgr.c",
+      "../externals/libjpeg-turbo/jmemnobs.c",
+      "../externals/libjpeg-turbo/jquant1.c",
+      "../externals/libjpeg-turbo/jquant2.c",
+      "../externals/libjpeg-turbo/jutils.c",
+    ]
+
+    if (current_cpu == "arm" && !is_ios) {
+      sources += [
+        "../externals/libjpeg-turbo/simd/jsimd_arm.c",
+        "../externals/libjpeg-turbo/simd/jsimd_arm_neon.S",
+      ]
+    } else if (current_cpu == "arm64" && !is_ios) {
+      sources += [
+        "../externals/libjpeg-turbo/simd/jsimd_arm64.c",
+        "../externals/libjpeg-turbo/simd/jsimd_arm64_neon.S",
+      ]
+    } else {
+      sources += [ "../externals/libjpeg-turbo/jsimd_none.c" ]
+    }
+  }
+}

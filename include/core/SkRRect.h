@@ -16,7 +16,6 @@ class SkMatrix;
 
 // Path forward:
 //   core work
-//      add validate method (all radii positive, all radii sums < rect size, etc.)
 //      add contains(SkRect&)  - for clip stack
 //      add contains(SkRRect&) - for clip stack
 //      add heart rect computation (max rect inside RR)
@@ -47,6 +46,10 @@ class SkMatrix;
 */
 class SK_API SkRRect {
 public:
+    SkRRect() { /* unititialized */ }
+    SkRRect(const SkRRect&) = default;
+    SkRRect& operator=(const SkRRect&) = default;
+
     /**
      * Enum to capture the various possible subtypes of RR. Accessed
      * by type(). The subtypes become progressively less restrictive.
@@ -86,7 +89,7 @@ public:
      * Returns the RR's sub type.
      */
     Type getType() const {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
         return static_cast<Type>(fType);
     }
 
@@ -107,7 +110,7 @@ public:
     inline bool isNinePatch() const { return kNinePatch_Type == this->getType(); }
     inline bool isComplex() const { return kComplex_Type == this->getType(); }
 
-    bool allCornersCircular() const;
+    bool allCornersCircular(SkScalar tolerance = SK_ScalarNearlyZero) const;
 
     SkScalar width() const { return fRect.width(); }
     SkScalar height() const { return fRect.height(); }
@@ -120,7 +123,7 @@ public:
         memset(fRadii, 0, sizeof(fRadii));
         fType = kEmpty_Type;
 
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
     }
 
     /**
@@ -138,7 +141,13 @@ public:
         memset(fRadii, 0, sizeof(fRadii));
         fType = kRect_Type;
 
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
+    }
+
+    static SkRRect MakeEmpty() {
+        SkRRect rr;
+        rr.setEmpty();
+        return rr;
     }
 
     static SkRRect MakeRect(const SkRect& r) {
@@ -146,10 +155,16 @@ public:
         rr.setRect(r);
         return rr;
     }
-    
+
     static SkRRect MakeOval(const SkRect& oval) {
         SkRRect rr;
         rr.setOval(oval);
+        return rr;
+    }
+
+    static SkRRect MakeRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
+        SkRRect rr;
+        rr.setRectXY(rect, xRad, yRad);
         return rr;
     }
 
@@ -174,7 +189,7 @@ public:
         }
         fType = kOval_Type;
 
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
     }
 
     /**
@@ -262,13 +277,17 @@ public:
         fRect.offset(dx, dy);
     }
 
+    SkRRect SK_WARN_UNUSED_RESULT makeOffset(SkScalar dx, SkScalar dy) const {
+        return SkRRect(fRect.makeOffset(dx, dy), fRadii, fType);
+    }
+
     /**
      *  Returns true if 'rect' is wholy inside the RR, and both
      *  are not empty.
      */
     bool contains(const SkRect& rect) const;
 
-    SkDEBUGCODE(void validate() const;)
+    bool isValid() const;
 
     enum {
         kSizeInMemory = 12 * sizeof(SkScalar)
@@ -310,6 +329,11 @@ public:
     void dumpHex() const { this->dump(true); }
 
 private:
+    SkRRect(const SkRect& rect, const SkVector radii[4], int32_t type)
+        : fRect(rect)
+        , fRadii{radii[0], radii[1], radii[2], radii[3]}
+        , fType(type) {}
+
     SkRect fRect;
     // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]
     SkVector fRadii[4];
@@ -320,6 +344,7 @@ private:
 
     void computeType();
     bool checkCornerContainment(SkScalar x, SkScalar y) const;
+    void scaleRadii();
 
     // to access fRadii directly
     friend class SkPath;

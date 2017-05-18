@@ -11,11 +11,11 @@
 #define SkTemplates_DEFINED
 
 #include "SkMath.h"
+#include "SkMalloc.h"
 #include "SkTLogic.h"
 #include "SkTypes.h"
-#include "SkUniquePtr.h"
-#include "SkUtility.h"
 #include <limits.h>
+#include <memory>
 #include <new>
 
 /** \file SkTemplates.h
@@ -54,61 +54,32 @@ template <typename R, typename T, R (*P)(T*)> struct SkFunctionWrapper {
 
     Call a function when this goes out of scope. The template uses two
     parameters, the object, and a function that is to be called in the destructor.
-    If detach() is called, the object reference is set to null. If the object
+    If release() is called, the object reference is set to null. If the object
     reference is null when the destructor is called, we do not call the
     function.
 */
 template <typename T, void (*P)(T*)> class SkAutoTCallVProc
-    : public skstd::unique_ptr<T, SkFunctionWrapper<void, T, P>> {
+    : public std::unique_ptr<T, SkFunctionWrapper<void, T, P>> {
 public:
-    SkAutoTCallVProc(T* obj): skstd::unique_ptr<T, SkFunctionWrapper<void, T, P>>(obj) {}
+    SkAutoTCallVProc(T* obj): std::unique_ptr<T, SkFunctionWrapper<void, T, P>>(obj) {}
 
     operator T*() const { return this->get(); }
-    T* detach() { return this->release(); }
 };
 
 /** \class SkAutoTCallIProc
 
 Call a function when this goes out of scope. The template uses two
 parameters, the object, and a function that is to be called in the destructor.
-If detach() is called, the object reference is set to null. If the object
+If release() is called, the object reference is set to null. If the object
 reference is null when the destructor is called, we do not call the
 function.
 */
 template <typename T, int (*P)(T*)> class SkAutoTCallIProc
-    : public skstd::unique_ptr<T, SkFunctionWrapper<int, T, P>> {
+    : public std::unique_ptr<T, SkFunctionWrapper<int, T, P>> {
 public:
-    SkAutoTCallIProc(T* obj): skstd::unique_ptr<T, SkFunctionWrapper<int, T, P>>(obj) {}
+    SkAutoTCallIProc(T* obj): std::unique_ptr<T, SkFunctionWrapper<int, T, P>>(obj) {}
 
     operator T*() const { return this->get(); }
-    T* detach() { return this->release(); }
-};
-
-/** \class SkAutoTDelete
-  An SkAutoTDelete<T> is like a T*, except that the destructor of SkAutoTDelete<T>
-  automatically deletes the pointer it holds (if any).  That is, SkAutoTDelete<T>
-  owns the T object that it points to.  Like a T*, an SkAutoTDelete<T> may hold
-  either NULL or a pointer to a T object.  Also like T*, SkAutoTDelete<T> is
-  thread-compatible, and once you dereference it, you get the threadsafety
-  guarantees of T.
-
-  The size of a SkAutoTDelete is small: sizeof(SkAutoTDelete<T>) == sizeof(T*)
-*/
-template <typename T> class SkAutoTDelete : public skstd::unique_ptr<T> {
-public:
-    SkAutoTDelete(T* obj = NULL) : skstd::unique_ptr<T>(obj) {}
-
-    operator T*() const { return this->get(); }
-    void free() { this->reset(nullptr); }
-    T* detach() { return this->release(); }
-};
-
-template <typename T> class SkAutoTDeleteArray : public skstd::unique_ptr<T[]> {
-public:
-    SkAutoTDeleteArray(T array[]) : skstd::unique_ptr<T[]>(array) {}
-
-    void free() { this->reset(nullptr); }
-    T* detach() { return this->release(); }
 };
 
 /** Allocate an array of T elements, and free the array in the destructor
@@ -165,9 +136,9 @@ private:
     SkDEBUGCODE(int fCount;)
 };
 
-/** Wraps SkAutoTArray, with room for up to N elements preallocated
+/** Wraps SkAutoTArray, with room for kCountRequested elements preallocated.
  */
-template <int N, typename T> class SkAutoSTArray : SkNoncopyable {
+template <int kCountRequested, typename T> class SkAutoSTArray : SkNoncopyable {
 public:
     /** Initialize with no objects */
     SkAutoSTArray() {
@@ -195,14 +166,15 @@ public:
             (--iter)->~T();
         }
 
+        SkASSERT(count >= 0);
         if (fCount != count) {
-            if (fCount > N) {
+            if (fCount > kCount) {
                 // 'fArray' was allocated last time so free it now
                 SkASSERT((T*) fStorage != fArray);
                 sk_free(fArray);
             }
 
-            if (count > N) {
+            if (count > kCount) {
                 const uint64_t size64 = sk_64_mul(count, sizeof(T));
                 const size_t size = static_cast<size_t>(size64);
                 if (size != size64) {
@@ -233,6 +205,14 @@ public:
      */
     T* get() const { return fArray; }
 
+    T* begin() { return fArray; }
+
+    const T* begin() const { return fArray; }
+
+    T* end() { return fArray + fCount; }
+
+    const T* end() const { return fArray + fCount; }
+
     /** Return the nth element in the array
      */
     T&  operator[](int index) const {
@@ -241,10 +221,21 @@ public:
     }
 
 private:
+#if defined(GOOGLE3)
+    // Stack frame size is limited for GOOGLE3. 4k is less than the actual max, but some functions
+    // have multiple large stack allocations.
+    static const int kMaxBytes = 4 * 1024;
+    static const int kCount = kCountRequested * sizeof(T) > kMaxBytes
+        ? kMaxBytes / sizeof(T)
+        : kCountRequested;
+#else
+    static const int kCount = kCountRequested;
+#endif
+
     int     fCount;
     T*      fArray;
     // since we come right after fArray, fStorage should be properly aligned
-    char    fStorage[N * sizeof(T)];
+    char    fStorage[kCount * sizeof(T)];
 };
 
 /** Manages an array of T elements, freeing the array in the destructor.
@@ -259,8 +250,10 @@ public:
 
     /** Allocates space for 'count' Ts. */
     explicit SkAutoTMalloc(size_t count) {
-        fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW);
+        fPtr = count ? (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW) : nullptr;
     }
+
+    SkAutoTMalloc(SkAutoTMalloc<T>&& that) : fPtr(that.release()) {}
 
     ~SkAutoTMalloc() {
         sk_free(fPtr);
@@ -268,13 +261,18 @@ public:
 
     /** Resize the memory area pointed to by the current ptr preserving contents. */
     void realloc(size_t count) {
-        fPtr = reinterpret_cast<T*>(sk_realloc_throw(fPtr, count * sizeof(T)));
+        if (count) {
+            fPtr = reinterpret_cast<T*>(sk_realloc_throw(fPtr, count * sizeof(T)));
+        } else {
+            this->reset(0);
+        }
     }
 
     /** Resize the memory area pointed to by the current ptr without preserving contents. */
-    void reset(size_t count) {
+    T* reset(size_t count = 0) {
         sk_free(fPtr);
-        fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW);
+        fPtr = count ? (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW) : nullptr;
+        return fPtr;
     }
 
     T* get() const { return fPtr; }
@@ -295,12 +293,20 @@ public:
         return fPtr[index];
     }
 
+    SkAutoTMalloc& operator=(SkAutoTMalloc<T>&& that) {
+        if (this != &that) {
+            sk_free(fPtr);
+            fPtr = that.release();
+        }
+        return *this;
+    }
+
     /**
      *  Transfer ownership of the ptr to the caller, setting the internal
      *  pointer to NULL. Note that this differs from get(), which also returns
      *  the pointer, but it does not transfer ownership.
      */
-    T* detach() {
+    T* release() {
         T* ptr = fPtr;
         fPtr = NULL;
         return ptr;
@@ -310,15 +316,17 @@ private:
     T* fPtr;
 };
 
-template <size_t N, typename T> class SkAutoSTMalloc : SkNoncopyable {
+template <size_t kCountRequested, typename T> class SkAutoSTMalloc : SkNoncopyable {
 public:
     SkAutoSTMalloc() : fPtr(fTStorage) {}
 
     SkAutoSTMalloc(size_t count) {
-        if (count > N) {
+        if (count > kCount) {
             fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
-        } else {
+        } else if (count) {
             fPtr = fTStorage;
+        } else {
+            fPtr = nullptr;
         }
     }
 
@@ -333,10 +341,12 @@ public:
         if (fPtr != fTStorage) {
             sk_free(fPtr);
         }
-        if (count > N) {
+        if (count > kCount) {
             fPtr = (T*)sk_malloc_throw(count * sizeof(T));
-        } else {
+        } else if (count) {
             fPtr = fTStorage;
+        } else {
+            fPtr = nullptr;
         }
         return fPtr;
     }
@@ -361,22 +371,39 @@ public:
 
     // Reallocs the array, can be used to shrink the allocation.  Makes no attempt to be intelligent
     void realloc(size_t count) {
-        if (count > N) {
+        if (count > kCount) {
             if (fPtr == fTStorage) {
                 fPtr = (T*)sk_malloc_throw(count * sizeof(T));
-                memcpy(fPtr, fTStorage, N * sizeof(T));
+                memcpy(fPtr, fTStorage, kCount * sizeof(T));
             } else {
                 fPtr = (T*)sk_realloc_throw(fPtr, count * sizeof(T));
             }
-        } else if (fPtr != fTStorage) {
-            fPtr = (T*)sk_realloc_throw(fPtr, count * sizeof(T));
+        } else if (count) {
+            if (fPtr != fTStorage) {
+                fPtr = (T*)sk_realloc_throw(fPtr, count * sizeof(T));
+            }
+        } else {
+            this->reset(0);
         }
     }
 
 private:
+    // Since we use uint32_t storage, we might be able to get more elements for free.
+    static const size_t kCountWithPadding = SkAlign4(kCountRequested*sizeof(T)) / sizeof(T);
+#if defined(GOOGLE3)
+    // Stack frame size is limited for GOOGLE3. 4k is less than the actual max, but some functions
+    // have multiple large stack allocations.
+    static const size_t kMaxBytes = 4 * 1024;
+    static const size_t kCount = kCountRequested * sizeof(T) > kMaxBytes
+        ? kMaxBytes / sizeof(T)
+        : kCountWithPadding;
+#else
+    static const size_t kCount = kCountWithPadding;
+#endif
+
     T*          fPtr;
     union {
-        uint32_t    fStorage32[(N*sizeof(T) + 3) >> 2];
+        uint32_t    fStorage32[SkAlign4(kCount*sizeof(T)) >> 2];
         T           fTStorage[1];   // do NOT want to invoke T::T()
     };
 };
@@ -410,6 +437,12 @@ template <typename T> T* SkInPlaceNewCheck(void* storage, size_t size) {
 template <typename T, typename A1, typename A2, typename A3>
 T* SkInPlaceNewCheck(void* storage, size_t size, const A1& a1, const A2& a2, const A3& a3) {
     return (sizeof(T) <= size) ? new (storage) T(a1, a2, a3) : new T(a1, a2, a3);
+}
+
+template <typename T, typename A1, typename A2, typename A3, typename A4>
+T* SkInPlaceNewCheck(void* storage, size_t size,
+                     const A1& a1, const A2& a2, const A3& a3, const A4& a4) {
+    return (sizeof(T) <= size) ? new (storage) T(a1, a2, a3, a4) : new T(a1, a2, a3, a4);
 }
 
 /**
@@ -447,5 +480,7 @@ public:
 private:
     SkAlignedSStorage<sizeof(T)*N> fStorage;
 };
+
+using SkAutoFree = std::unique_ptr<void, SkFunctionWrapper<void, void, sk_free>>;
 
 #endif

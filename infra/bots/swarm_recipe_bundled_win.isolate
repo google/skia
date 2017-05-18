@@ -1,0 +1,7 @@
+{
+  'variables': {
+    'command': [
+      '../../../recipe_bundle/recipes.bat', 'run', '--timestamps',
+    ],
+  },
+}

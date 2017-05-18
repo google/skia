@@ -10,16 +10,12 @@
 #ifndef SkOSWindow_Win_DEFINED
 #define SkOSWindow_Win_DEFINED
 
-#include "../private/SkFunction.h"
 #include "../private/SkTHash.h"
 #include "SkWindow.h"
+#include <functional>
 
 #if SK_ANGLE
 #include "EGL/egl.h"
-#endif
-
-#if SK_COMMAND_BUFFER
-class SkCommandBufferGLContext;
 #endif
 
 class SkOSWindow : public SkWindow {
@@ -41,14 +37,11 @@ public:
 #if SK_ANGLE
         kANGLE_BackEndType,
 #endif // SK_ANGLE
-#if SK_COMMAND_BUFFER
-        kCommandBuffer_BackEndType,
-#endif // SK_COMMAND_BUFFER
 #endif // SK_SUPPORT_GPU
     };
 
-    bool attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*);
-    void detach();
+    bool attach(SkBackEndTypes attachType, int msaaSampleCount, bool deepColor, AttachmentInfo*);
+    void release();
     void present();
 
     bool wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -71,9 +64,9 @@ public:
         return *win;
     }
 
-    // Iterates SkFunction over all the SkOSWindows and their corresponding HWNDs.
-    // The void* argument to the SkFunction is a HWND.
-    static void ForAllWindows(const SkFunction<void(void*, SkOSWindow**)>& f) {
+    // Iterates f over all the SkOSWindows and their corresponding HWNDs.
+    // The void* argument to f is a HWND.
+    static void ForAllWindows(const std::function<void(void*, SkOSWindow**)>& f) {
         gHwndToOSWindowMap.foreach(f);
     }
 
@@ -98,14 +91,12 @@ private:
 #if SK_SUPPORT_GPU
     void*               fHGLRC;
 #if SK_ANGLE
-    EGLDisplay          fDisplay;
-    EGLContext          fContext;
-    EGLSurface          fSurface;
-    EGLConfig           fConfig;
+    EGLDisplay                 fDisplay;
+    EGLContext                 fContext;
+    EGLSurface                 fSurface;
+    EGLConfig                  fConfig;
+    sk_sp<const GrGLInterface> fANGLEInterface;
 #endif // SK_ANGLE
-#if SK_COMMAND_BUFFER
-    SkCommandBufferGLContext* fCommandBuffer;
-#endif // SK_COMMAND_BUFFER
 #endif // SK_SUPPORT_GPU
 
     bool                fFullscreen;
@@ -126,7 +117,7 @@ private:
 
     void updateSize();
 #if SK_SUPPORT_GPU
-    bool attachGL(int msaaSampleCount, AttachmentInfo* info);
+    bool attachGL(int msaaSampleCount, bool deepColor, AttachmentInfo* info);
     void detachGL();
     void presentGL();
 
@@ -136,11 +127,6 @@ private:
     void presentANGLE();
 #endif // SK_ANGLE
 
-#if SK_COMMAND_BUFFER
-    bool attachCommandBuffer(int msaaSampleCount, AttachmentInfo* info);
-    void detachCommandBuffer();
-    void presentCommandBuffer();
-#endif // SK_COMMAND_BUFFER
 #endif // SK_SUPPORT_GPU
 
     typedef SkWindow INHERITED;

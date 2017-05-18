@@ -5,297 +5,202 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include <functional>
+#include "SkBitmap.h"
+#include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
+#include "SkSurface.h"
 #include "SkTaskGroup.h"
-#include "SkXfermode.h"
+#include "SkUtils.h"
+#include "Test.h"
 
-#define ASSERT(x) REPORTER_ASSERT(r, x)
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrResourceProvider.h"
+#include "GrSurfaceContext.h"
+#include "GrSurfaceProxy.h"
+#include "GrTest.h"
+#include "GrTexture.h"
+#endif
 
-static uint8_t double_to_u8(double d) {
-    SkASSERT(d >= 0);
-    SkASSERT(d < 256);
-    return uint8_t(d);
+struct Results { int diffs, diffs_0x00, diffs_0xff, diffs_by_1; };
+
+static bool acceptable(const Results& r) {
+#if 0
+    SkDebugf("%d diffs, %d at 0x00, %d at 0xff, %d off by 1, all out of 65536\n",
+             r.diffs, r.diffs_0x00, r.diffs_0xff, r.diffs_by_1);
+#endif
+    return r.diffs_by_1 == r.diffs   // never off by more than 1
+        && r.diffs_0x00 == 0         // transparent must stay transparent
+        && r.diffs_0xff == 0;        // opaque must stay opaque
 }
 
-// All algorithms we're testing have this interface.
-// We want a single channel blend, src over dst, assuming src is premultiplied by srcAlpha.
-typedef uint8_t(*Blend)(uint8_t dst, uint8_t src, uint8_t srcAlpha);
-
-// This is our golden algorithm.
-static uint8_t blend_double_round(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    SkASSERT(src <= srcAlpha);
-    return double_to_u8(0.5 + src + dst * (255.0 - srcAlpha) / 255.0);
-}
-
-static uint8_t abs_diff(uint8_t a, uint8_t b) {
-    const int diff = a - b;
-    return diff > 0 ? diff : -diff;
-}
-
-static void test(skiatest::Reporter* r, int maxDiff, Blend algorithm,
-                 uint8_t dst, uint8_t src, uint8_t alpha) {
-    const uint8_t golden = blend_double_round(dst, src, alpha);
-    const uint8_t  blend =          algorithm(dst, src, alpha);
-    if (abs_diff(blend, golden) > maxDiff) {
-        SkDebugf("dst %02x, src %02x, alpha %02x, |%02x - %02x| > %d\n",
-                 dst, src, alpha, blend, golden, maxDiff);
-        ASSERT(abs_diff(blend, golden) <= maxDiff);
-    }
-}
-
-// Exhaustively compare an algorithm against our golden, for a given alpha.
-static void test_alpha(skiatest::Reporter* r, uint8_t alpha, int maxDiff, Blend algorithm) {
-    SkASSERT(maxDiff >= 0);
-
-    for (unsigned src = 0; src <= alpha; src++) {
-        for (unsigned dst = 0; dst < 256; dst++) {
-            test(r, maxDiff, algorithm, dst, src, alpha);
+template <typename Fn>
+static Results test(Fn&& multiply) {
+    Results r = { 0,0,0,0 };
+    for (int x = 0; x < 256; x++) {
+    for (int y = 0; y < 256; y++) {
+        int p = multiply(x, y),
+            ideal = (x*y+127)/255;
+        if (p != ideal) {
+            r.diffs++;
+            if (x == 0x00 || y == 0x00) { r.diffs_0x00++; }
+            if (x == 0xff || y == 0xff) { r.diffs_0xff++; }
+            if (SkTAbs(ideal - p) == 1) { r.diffs_by_1++; }
         }
-    }
+    }}
+    return r;
 }
 
-// Exhaustively compare an algorithm against our golden, for a given dst.
-static void test_dst(skiatest::Reporter* r, uint8_t dst, int maxDiff, Blend algorithm) {
-    SkASSERT(maxDiff >= 0);
+DEF_TEST(Blend_byte_multiply, r) {
+    // These are all temptingly close but fundamentally broken.
+    int (*broken[])(int, int) = {
+        [](int x, int y) { return (x*y)>>8; },
+        [](int x, int y) { return (x*y+128)>>8; },
+        [](int x, int y) { y += y>>7; return (x*y)>>8; },
+    };
+    for (auto multiply : broken) { REPORTER_ASSERT(r, !acceptable(test(multiply))); }
 
-    for (unsigned alpha = 0; alpha < 256; alpha++) {
-        for (unsigned src = 0; src <= alpha; src++) {
-            test(r, maxDiff, algorithm, dst, src, alpha);
-        }
-    }
+    // These are fine to use, but not perfect.
+    int (*fine[])(int, int) = {
+        [](int x, int y) { return (x*y+x)>>8; },
+        [](int x, int y) { return (x*y+y)>>8; },
+        [](int x, int y) { return (x*y+255)>>8; },
+        [](int x, int y) { y += y>>7; return (x*y+128)>>8; },
+    };
+    for (auto multiply : fine) { REPORTER_ASSERT(r, acceptable(test(multiply))); }
+
+    // These are pefect.
+    int (*perfect[])(int, int) = {
+        [](int x, int y) { return (x*y+127)/255; },  // Duh.
+        [](int x, int y) { int p = (x*y+128); return (p+(p>>8))>>8; },
+        [](int x, int y) { return ((x*y+128)*257)>>16; },
+    };
+    for (auto multiply : perfect) { REPORTER_ASSERT(r, test(multiply).diffs == 0); }
 }
 
-static uint8_t blend_double_trunc(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    return double_to_u8(src + dst * (255.0 - srcAlpha) / 255.0);
-}
+#if SK_SUPPORT_GPU
+namespace {
+static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
+        GrContext* context, int sampleCnt, int width, int height, GrPixelConfig config,
+        GrSurfaceOrigin origin,
+        sk_sp<GrTexture>* backingSurface) {
+    GrSurfaceDesc backingDesc;
+    backingDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    backingDesc.fOrigin = origin;
+    backingDesc.fWidth = width;
+    backingDesc.fHeight = height;
+    backingDesc.fConfig = config;
+    backingDesc.fSampleCnt = sampleCnt;
 
-static uint8_t blend_float_trunc(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    return double_to_u8(src + dst * (255.0f - srcAlpha) / 255.0f);
-}
-
-static uint8_t blend_float_round(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    return double_to_u8(0.5f + src + dst * (255.0f - srcAlpha) / 255.0f);
-}
-
-static uint8_t blend_255_trunc(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    const uint16_t invAlpha = 255 - srcAlpha;
-    const uint16_t product = dst * invAlpha;
-    return src + (product >> 8);
-}
-
-static uint8_t blend_255_round(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    const uint16_t invAlpha = 255 - srcAlpha;
-    const uint16_t product = dst * invAlpha + 128;
-    return src + (product >> 8);
-}
-
-static uint8_t blend_256_trunc(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    const uint16_t invAlpha = 256 - (srcAlpha + (srcAlpha >> 7));
-    const uint16_t product = dst * invAlpha;
-    return src + (product >> 8);
-}
-
-static uint8_t blend_256_round(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    const uint16_t invAlpha = 256 - (srcAlpha + (srcAlpha >> 7));
-    const uint16_t product = dst * invAlpha + 128;
-    return src + (product >> 8);
-}
-
-static uint8_t blend_256_round_alt(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    const uint8_t invAlpha8 = 255 - srcAlpha;
-    const uint16_t invAlpha = invAlpha8 + (invAlpha8 >> 7);
-    const uint16_t product = dst * invAlpha + 128;
-    return src + (product >> 8);
-}
-
-static uint8_t blend_256_plus1_trunc(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    const uint16_t invAlpha = 256 - (srcAlpha + 1);
-    const uint16_t product = dst * invAlpha;
-    return src + (product >> 8);
-}
-
-static uint8_t blend_256_plus1_round(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    const uint16_t invAlpha = 256 - (srcAlpha + 1);
-    const uint16_t product = dst * invAlpha + 128;
-    return src + (product >> 8);
-}
-
-static uint8_t blend_perfect(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    const uint8_t invAlpha = 255 - srcAlpha;
-    const uint16_t product = dst * invAlpha + 128;
-    return src + ((product + (product >> 8)) >> 8);
-}
-
-
-// We want 0 diff whenever src is fully transparent.
-DEF_TEST(Blend_alpha_0x00, r) {
-    const uint8_t alpha = 0x00;
-
-    // GOOD
-    test_alpha(r, alpha, 0, blend_256_round);
-    test_alpha(r, alpha, 0, blend_256_round_alt);
-    test_alpha(r, alpha, 0, blend_256_trunc);
-    test_alpha(r, alpha, 0, blend_double_trunc);
-    test_alpha(r, alpha, 0, blend_float_round);
-    test_alpha(r, alpha, 0, blend_float_trunc);
-    test_alpha(r, alpha, 0, blend_perfect);
-
-    // BAD
-    test_alpha(r, alpha, 1, blend_255_round);
-    test_alpha(r, alpha, 1, blend_255_trunc);
-    test_alpha(r, alpha, 1, blend_256_plus1_round);
-    test_alpha(r, alpha, 1, blend_256_plus1_trunc);
-}
-
-// We want 0 diff whenever dst is 0.
-DEF_TEST(Blend_dst_0x00, r) {
-    const uint8_t dst = 0x00;
-
-    // GOOD
-    test_dst(r, dst, 0, blend_255_round);
-    test_dst(r, dst, 0, blend_255_trunc);
-    test_dst(r, dst, 0, blend_256_plus1_round);
-    test_dst(r, dst, 0, blend_256_plus1_trunc);
-    test_dst(r, dst, 0, blend_256_round);
-    test_dst(r, dst, 0, blend_256_round_alt);
-    test_dst(r, dst, 0, blend_256_trunc);
-    test_dst(r, dst, 0, blend_double_trunc);
-    test_dst(r, dst, 0, blend_float_round);
-    test_dst(r, dst, 0, blend_float_trunc);
-    test_dst(r, dst, 0, blend_perfect);
-
-    // BAD
-}
-
-// We want 0 diff whenever src is fully opaque.
-DEF_TEST(Blend_alpha_0xFF, r) {
-    const uint8_t alpha = 0xFF;
-
-    // GOOD
-    test_alpha(r, alpha, 0, blend_255_round);
-    test_alpha(r, alpha, 0, blend_255_trunc);
-    test_alpha(r, alpha, 0, blend_256_plus1_round);
-    test_alpha(r, alpha, 0, blend_256_plus1_trunc);
-    test_alpha(r, alpha, 0, blend_256_round);
-    test_alpha(r, alpha, 0, blend_256_round_alt);
-    test_alpha(r, alpha, 0, blend_256_trunc);
-    test_alpha(r, alpha, 0, blend_double_trunc);
-    test_alpha(r, alpha, 0, blend_float_round);
-    test_alpha(r, alpha, 0, blend_float_trunc);
-    test_alpha(r, alpha, 0, blend_perfect);
-
-    // BAD
-}
-
-// We want 0 diff whenever dst is 0xFF.
-DEF_TEST(Blend_dst_0xFF, r) {
-    const uint8_t dst = 0xFF;
-
-    // GOOD
-    test_dst(r, dst, 0, blend_256_round);
-    test_dst(r, dst, 0, blend_256_round_alt);
-    test_dst(r, dst, 0, blend_double_trunc);
-    test_dst(r, dst, 0, blend_float_round);
-    test_dst(r, dst, 0, blend_float_trunc);
-    test_dst(r, dst, 0, blend_perfect);
-
-    // BAD
-    test_dst(r, dst, 1, blend_255_round);
-    test_dst(r, dst, 1, blend_255_trunc);
-    test_dst(r, dst, 1, blend_256_plus1_round);
-    test_dst(r, dst, 1, blend_256_plus1_trunc);
-    test_dst(r, dst, 1, blend_256_trunc);
-}
-
-// We'd like diff <= 1 everywhere.
-DEF_TEST(Blend_alpha_Exhaustive, r) {
-    for (unsigned alpha = 0; alpha < 256; alpha++) {
-        // PERFECT
-        test_alpha(r, alpha, 0, blend_float_round);
-        test_alpha(r, alpha, 0, blend_perfect);
-
-        // GOOD
-        test_alpha(r, alpha, 1, blend_255_round);
-        test_alpha(r, alpha, 1, blend_256_plus1_round);
-        test_alpha(r, alpha, 1, blend_256_round);
-        test_alpha(r, alpha, 1, blend_256_round_alt);
-        test_alpha(r, alpha, 1, blend_256_trunc);
-        test_alpha(r, alpha, 1, blend_double_trunc);
-        test_alpha(r, alpha, 1, blend_float_trunc);
-
-        // BAD
-        test_alpha(r, alpha, 2, blend_255_trunc);
-        test_alpha(r, alpha, 2, blend_256_plus1_trunc);
-    }
-}
-
-// We'd like diff <= 1 everywhere.
-DEF_TEST(Blend_dst_Exhaustive, r) {
-    for (unsigned dst = 0; dst < 256; dst++) {
-        // PERFECT
-        test_dst(r, dst, 0, blend_float_round);
-        test_dst(r, dst, 0, blend_perfect);
-
-        // GOOD
-        test_dst(r, dst, 1, blend_255_round);
-        test_dst(r, dst, 1, blend_256_plus1_round);
-        test_dst(r, dst, 1, blend_256_round);
-        test_dst(r, dst, 1, blend_256_round_alt);
-        test_dst(r, dst, 1, blend_256_trunc);
-        test_dst(r, dst, 1, blend_double_trunc);
-        test_dst(r, dst, 1, blend_float_trunc);
-
-        // BAD
-        test_dst(r, dst, 2, blend_255_trunc);
-        test_dst(r, dst, 2, blend_256_plus1_trunc);
-    }
-}
-// Overall summary:
-// PERFECT
-//  blend_double_round
-//  blend_float_round
-//  blend_perfect
-// GOOD ENOUGH
-//  blend_double_trunc
-//  blend_float_trunc
-//  blend_256_round
-//  blend_256_round_alt
-// NOT GOOD ENOUGH
-//  all others
-//
-//  Algorithms that make sense to use in Skia: blend_256_round, blend_256_round_alt, blend_perfect
-
-DEF_TEST(Blend_premul_begets_premul, r) {
-    // This test is quite slow, even if you have enough cores to run each mode in parallel.
-    if (!r->allowExtendedTest()) {
-        return;
+    *backingSurface = context->resourceProvider()->createTexture(backingDesc, SkBudgeted::kNo);
+    if (!(*backingSurface)) {
+        return nullptr;
     }
 
-    // No matter what xfermode we use, premul inputs should create premul outputs.
-    auto test_mode = [&](int m) {
-        SkXfermode::Mode mode = (SkXfermode::Mode)m;
-        if (mode == SkXfermode::kSrcOver_Mode) {
-            return;  // TODO: can't create a SrcOver xfermode.
-        }
-        SkAutoTUnref<SkXfermode> xfermode(SkXfermode::Create(mode));
-        SkASSERT(xfermode);
-        // We'll test all alphas and legal color values, assuming all colors work the same.
-        // This is not true for non-separable blend modes, but this test still can't hurt.
-        for (int sa = 0; sa <= 255; sa++) {
-        for (int da = 0; da <= 255; da++) {
-        for (int  s = 0;  s <= sa;   s++) {
-        for (int  d = 0;  d <= da;   d++) {
-            SkPMColor src = SkPackARGB32(sa, s, s, s),
-                      dst = SkPackARGB32(da, d, d, d);
-            xfermode->xfer32(&dst, &src, 1, nullptr);  // To keep it simple, no AA.
-            if (!SkPMColorValid(dst)) {
-                ERRORF(r, "%08x is not premul using %s", dst, SkXfermode::ModeName(mode));
-            }
-        }}}}
+    GrBackendTexture backendTex =
+            GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
+                                         width,
+                                         height,
+                                         config,
+                                         (*backingSurface)->getTextureHandle());
+    sk_sp<SkSurface> surface =
+            SkSurface::MakeFromBackendTextureAsRenderTarget(context, backendTex, origin,
+                                                            sampleCnt, nullptr, nullptr);
+
+    return surface;
+}
+}
+
+// Tests blending to a surface with no texture available.
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    const int kWidth = 10;
+    const int kHeight = 10;
+    const GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
+    const SkColorType kColorType = kRGBA_8888_SkColorType;
+
+    // Build our test cases:
+    struct RectAndSamplePoint {
+        SkRect rect;
+        SkIPoint outPoint;
+        SkIPoint inPoint;
+    } allRectsAndPoints[3] = {
+            {SkRect::MakeXYWH(0, 0, 5, 5), SkIPoint::Make(7, 7), SkIPoint::Make(2, 2)},
+            {SkRect::MakeXYWH(2, 2, 5, 5), SkIPoint::Make(1, 1), SkIPoint::Make(4, 4)},
+            {SkRect::MakeXYWH(5, 5, 5, 5), SkIPoint::Make(2, 2), SkIPoint::Make(7, 7)},
     };
 
-    // Parallelism helps speed things up on my desktop from ~725s to ~50s.
-    sk_parallel_for(SkXfermode::kLastMode, test_mode);
+    struct TestCase {
+        RectAndSamplePoint fRectAndPoints;
+        SkRect             fClip;
+        int                fSampleCnt;
+        GrSurfaceOrigin    fOrigin;
+    };
+    std::vector<TestCase> testCases;
+
+    for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
+        for (int sampleCnt : {0, 4}) {
+            for (auto rectAndPoints : allRectsAndPoints) {
+                for (auto clip : {SkRect::MakeXYWH(0, 0, 10, 10), SkRect::MakeXYWH(1, 1, 8, 8)}) {
+                    testCases.push_back({rectAndPoints, clip, sampleCnt, origin});
+                }
+            }
+        }
+    }
+
+    // Run each test case:
+    for (auto testCase : testCases) {
+        int sampleCnt = testCase.fSampleCnt;
+        SkRect paintRect = testCase.fRectAndPoints.rect;
+        SkIPoint outPoint = testCase.fRectAndPoints.outPoint;
+        SkIPoint inPoint = testCase.fRectAndPoints.inPoint;
+        GrSurfaceOrigin origin = testCase.fOrigin;
+
+        sk_sp<GrTexture> backingSurface;
+        // BGRA forces a framebuffer blit on ES2.
+        sk_sp<SkSurface> surface = create_gpu_surface_backend_texture_as_render_target(
+                context, sampleCnt, kWidth, kHeight, kConfig, origin, &backingSurface);
+
+        if (!surface && sampleCnt > 0) {
+            // Some platforms don't support MSAA.
+            continue;
+        }
+        REPORTER_ASSERT(reporter, !!surface);
+
+        // Fill our canvas with 0xFFFF80
+        SkCanvas* canvas = surface->getCanvas();
+        canvas->clipRect(testCase.fClip, false);
+        SkPaint black_paint;
+        black_paint.setColor(SkColorSetRGB(0xFF, 0xFF, 0x80));
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, kWidth, kHeight), black_paint);
+
+        // Blend 2x2 pixels at 5,5 with 0x80FFFF. Use multiply blend mode as this will trigger
+        // a copy of the destination.
+        SkPaint white_paint;
+        white_paint.setColor(SkColorSetRGB(0x80, 0xFF, 0xFF));
+        white_paint.setBlendMode(SkBlendMode::kMultiply);
+        canvas->drawRect(paintRect, white_paint);
+
+        // Read the result into a bitmap.
+        SkBitmap bitmap;
+        REPORTER_ASSERT(reporter, bitmap.tryAllocPixels(SkImageInfo::Make(
+                                          kWidth, kHeight, kColorType, kPremul_SkAlphaType)));
+        REPORTER_ASSERT(
+                reporter,
+                surface->readPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(), 0, 0));
+
+        // Check the in/out pixels.
+        REPORTER_ASSERT(reporter, bitmap.getColor(outPoint.x(), outPoint.y()) ==
+                                          SkColorSetRGB(0xFF, 0xFF, 0x80));
+        REPORTER_ASSERT(reporter, bitmap.getColor(inPoint.x(), inPoint.y()) ==
+                                          SkColorSetRGB(0x80, 0xFF, 0x80));
+
+        // Clean up - surface depends on backingSurface and must be released first.
+        surface.reset();
+        backingSurface.reset();
+    }
 }
+#endif

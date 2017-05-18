@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -7,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #include "SkBitmap.h"
 #include "SkGradientShader.h"
@@ -44,12 +44,12 @@ static SkBitmap make_bmp(int w, int h) {
     SkRect rect = SkRect::MakeWH(wScalar, hScalar);
     SkMatrix mat = SkMatrix::I();
     for (int i = 0; i < 4; ++i) {
-        paint.setShader(SkGradientShader::CreateRadial(
+        paint.setShader(SkGradientShader::MakeRadial(
                         pt, radius,
                         colors, pos,
                         SK_ARRAY_COUNT(colors),
                         SkShader::kRepeat_TileMode,
-                        0, &mat))->unref();
+                        0, &mat));
         canvas.drawRect(rect, paint);
         rect.inset(wScalar / 8, hScalar / 8);
         mat.preTranslate(6 * wScalar, 6 * hScalar);
@@ -61,7 +61,7 @@ static SkBitmap make_bmp(int w, int h) {
     paint.setTextSize(wScalar / 2.2f);
     paint.setShader(0);
     paint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
-    static const char kTxt[] = "Skia";
+    constexpr char kTxt[] = "Skia";
     SkPoint texPos = { wScalar / 17, hScalar / 2 + paint.getTextSize() / 2.5f };
     canvas.drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
     paint.setColor(SK_ColorBLACK);
@@ -104,7 +104,7 @@ protected:
         fClips.addToTail()->setPath(tri);
 
         SkPath hexagon;
-        static const SkScalar kRadius = 45.f;
+        constexpr SkScalar kRadius = 45.f;
         const SkPoint center = { kRadius, kRadius };
         for (int i = 0; i < 6; ++i) {
             SkScalar angle = 2 * SK_ScalarPI * i / 6;
@@ -140,14 +140,14 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar y = 0;
-        static const SkScalar kMargin = 10.f;
+        constexpr SkScalar kMargin = 10.f;
 
         SkPaint bgPaint;
         bgPaint.setAlpha(0x15);
-        SkISize size = canvas->getDeviceSize();
+        SkISize size = canvas->getBaseLayerSize();
         canvas->drawBitmapRect(fBmp, SkRect::MakeIWH(size.fWidth, size.fHeight), &bgPaint);
 
-        static const char kTxt[] = "Clip Me!";
+        constexpr char kTxt[] = "Clip Me!";
         SkPaint txtPaint;
         txtPaint.setTextSize(23.f);
         txtPaint.setAntiAlias(true);
@@ -158,7 +158,7 @@ protected:
         SkScalar startX = 0;
         int testLayers = kBench_Mode != this->getMode();
         for (int doLayer = 0; doLayer <= testLayers; ++doLayer) {
-            for (SkTLList<Clip>::Iter iter(fClips, SkTLList<Clip>::Iter::kHead_IterStart);
+            for (ClipList::Iter iter(fClips, ClipList::Iter::kHead_IterStart);
                  iter.get();
                  iter.next()) {
                 const Clip* clip = iter.get();
@@ -174,7 +174,7 @@ protected:
                         canvas->save();
                     }
                     canvas->translate(x, y);
-                    clip->setOnCanvas(canvas, SkRegion::kIntersect_Op, SkToBool(aa));
+                    clip->setOnCanvas(canvas, kIntersect_SkClipOp, SkToBool(aa));
                     canvas->drawBitmap(fBmp, 0, 0);
                     canvas->restore();
                     x += fBmp.width() + kMargin;
@@ -200,7 +200,7 @@ protected:
                     SkPath closedClipPath;
                     clip->asClosedPath(&closedClipPath);
                     canvas->drawPath(closedClipPath, clipOutlinePaint);
-                    clip->setOnCanvas(canvas, SkRegion::kIntersect_Op, SkToBool(aa));
+                    clip->setOnCanvas(canvas, kIntersect_SkClipOp, SkToBool(aa));
                     canvas->scale(1.f, 1.8f);
                     canvas->drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1,
                                      0, 1.5f * txtPaint.getTextSize(),
@@ -228,7 +228,7 @@ private:
 
         Clip () : fClipType(kNone_ClipType) {}
 
-        void setOnCanvas(SkCanvas* canvas, SkRegion::Op op, bool aa) const {
+        void setOnCanvas(SkCanvas* canvas, SkClipOp op, bool aa) const {
             switch (fClipType) {
                 case kPath_ClipType:
                     canvas->clipPath(fPath, op, aa);
@@ -291,7 +291,8 @@ private:
         SkRect fRect;
     };
 
-    SkTLList<Clip>   fClips;
+    typedef SkTLList<Clip, 1> ClipList;
+    ClipList         fClips;
     SkBitmap         fBmp;
 
     typedef GM INHERITED;

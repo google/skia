@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -6,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #include "SkBitmap.h"
 #include "SkPaint.h"
@@ -33,11 +33,6 @@ static void draw_mask(SkBitmap* bm) {
 
     SkCanvas canvas(*bm);
     canvas.drawCircle(10, 10, 10, circlePaint);
-}
-
-static void adopt_shader(SkPaint* paint, SkShader* shader) {
-    paint->setShader(shader);
-    SkSafeUnref(shader);
 }
 
 class BitmapShaderGM : public GM {
@@ -69,8 +64,8 @@ protected:
             }
 
             canvas->save();
-            adopt_shader(&paint, SkShader::CreateBitmapShader(fBitmap, SkShader::kClamp_TileMode,
-                                                              SkShader::kClamp_TileMode, &s));
+            paint.setShader(SkShader::MakeBitmapShader(fBitmap, SkShader::kClamp_TileMode,
+                                                       SkShader::kClamp_TileMode, &s));
 
             // draw the shader with a bitmap mask
             canvas->drawBitmap(fMask, 0, 0, &paint);
@@ -91,8 +86,8 @@ protected:
 
             canvas->translate(0, 25);
 
-            adopt_shader(&paint, SkShader::CreateBitmapShader(fMask, SkShader::kRepeat_TileMode,
-                                                              SkShader::kRepeat_TileMode, &s));
+            paint.setShader(SkShader::MakeBitmapShader(fMask, SkShader::kRepeat_TileMode,
+                                                       SkShader::kRepeat_TileMode, &s));
             paint.setColor(SK_ColorRED);
 
             // draw the mask using the shader and a color

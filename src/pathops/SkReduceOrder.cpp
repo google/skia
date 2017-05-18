@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkGeometry.h"
 #include "SkReduceOrder.h"
 
 int SkReduceOrder::reduce(const SkDLine& line) {
@@ -36,16 +37,7 @@ static int horizontal_line(const SkDQuad& quad, SkDQuad& reduction) {
 
 static int check_linear(const SkDQuad& quad,
         int minX, int maxX, int minY, int maxY, SkDQuad& reduction) {
-    int startIndex = 0;
-    int endIndex = 2;
-    while (quad[startIndex].approximatelyEqual(quad[endIndex])) {
-        --endIndex;
-        if (endIndex == 0) {
-            SkDebugf("%s shouldn't get here if all four points are about equal", __FUNCTION__);
-            SkASSERT(0);
-        }
-    }
-    if (!quad.isLinear(startIndex, endIndex)) {
+    if (!quad.isLinear(0, 2)) {
         return 0;
     }
     // four are colinear: return line formed by outside
@@ -87,10 +79,12 @@ int SkReduceOrder::reduce(const SkDQuad& quad) {
             minYSet |= 1 << index;
         }
     }
+    if ((minXSet & 0x05) == 0x5 && (minYSet & 0x05) == 0x5) { // test for degenerate
+        // this quad starts and ends at the same place, so never contributes
+        // to the fill
+        return coincident_line(quad, fQuad);
+    }
     if (minXSet == 0x7) {  // test for vertical line
-        if (minYSet == 0x7) {  // return 1 if all three are coincident
-            return coincident_line(quad, fQuad);
-        }
         return vertical_line(quad, fQuad);
     }
     if (minYSet == 0x7) {  // test for horizontal line
@@ -135,7 +129,7 @@ static int check_quadratic(const SkDCubic& cubic, SkDCubic& reduction) {
     double sideAx = midX - cubic[3].fX;
     double sideBx = dx23 * 3 / 2;
     if (approximately_zero(sideAx) ? !approximately_equal(sideAx, sideBx)
-            : !AlmostEqualUlps(sideAx, sideBx)) {
+            : !AlmostEqualUlps_Pin(sideAx, sideBx)) {
         return 0;
     }
     double dy10 = cubic[1].fY - cubic[0].fY;
@@ -144,7 +138,7 @@ static int check_quadratic(const SkDCubic& cubic, SkDCubic& reduction) {
     double sideAy = midY - cubic[3].fY;
     double sideBy = dy23 * 3 / 2;
     if (approximately_zero(sideAy) ? !approximately_equal(sideAy, sideBy)
-            : !AlmostEqualUlps(sideAy, sideBy)) {
+            : !AlmostEqualUlps_Pin(sideAy, sideBy)) {
         return 0;
     }
     reduction[0] = cubic[0];
@@ -156,16 +150,7 @@ static int check_quadratic(const SkDCubic& cubic, SkDCubic& reduction) {
 
 static int check_linear(const SkDCubic& cubic,
         int minX, int maxX, int minY, int maxY, SkDCubic& reduction) {
-    int startIndex = 0;
-    int endIndex = 3;
-    while (cubic[startIndex].approximatelyEqual(cubic[endIndex])) {
-        --endIndex;
-        if (endIndex == 0) {
-            endIndex = 3;
-            break;
-        }
-    }
-    if (!cubic.isLinear(startIndex, endIndex)) {
+    if (!cubic.isLinear(0, 3)) {
         return 0;
     }
     // four are colinear: return line formed by outside
@@ -271,9 +256,9 @@ SkPath::Verb SkReduceOrder::Quad(const SkPoint a[3], SkPoint* reducePts) {
     return SkPathOpsPointsToVerb(order - 1);
 }
 
-SkPath::Verb SkReduceOrder::Conic(const SkPoint a[3], SkScalar weight, SkPoint* reducePts) {
-    SkPath::Verb verb = SkReduceOrder::Quad(a, reducePts);
-    if (verb > SkPath::kLine_Verb && weight == 1) {
+SkPath::Verb SkReduceOrder::Conic(const SkConic& c, SkPoint* reducePts) {
+    SkPath::Verb verb = SkReduceOrder::Quad(c.fPts, reducePts);
+    if (verb > SkPath::kLine_Verb && c.fW == 1) {
         return SkPath::kQuad_Verb;
     }
     return verb == SkPath::kQuad_Verb ? SkPath::kConic_Verb : verb;

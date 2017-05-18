@@ -18,16 +18,15 @@ SkFontStyle::SkFontStyle() {
 
 SkFontStyle::SkFontStyle(int weight, int width, Slant slant) {
     fUnion.fU32 = 0;
-    fUnion.fR.fWeight = SkTPin<int>(weight, kThin_Weight, kBlack_Weight);
-    fUnion.fR.fWidth = SkTPin<int>(width, kUltraCondensed_Width, kUltaExpanded_Width);
-    fUnion.fR.fSlant = SkTPin<int>(slant, kUpright_Slant, kItalic_Slant);
+    fUnion.fR.fWeight = SkTPin<int>(weight, kInvisible_Weight, kExtraBlack_Weight);
+    fUnion.fR.fWidth = SkTPin<int>(width, kUltraCondensed_Width, kUltraExpanded_Width);
+    fUnion.fR.fSlant = SkTPin<int>(slant, kUpright_Slant, kOblique_Slant);
 }
 
-SkFontStyle::SkFontStyle(unsigned oldStyle) {
-    fUnion.fU32 = 0;
-    fUnion.fR.fWeight = (oldStyle & SkTypeface::kBold) ? SkFontStyle::kBold_Weight
-                                                       : SkFontStyle::kNormal_Weight;
-    fUnion.fR.fWidth = SkFontStyle::kNormal_Width;
-    fUnion.fR.fSlant = (oldStyle & SkTypeface::kItalic) ? SkFontStyle::kItalic_Slant
-                                                        : SkFontStyle::kUpright_Slant;
+/*static*/SkFontStyle SkFontStyle::FromOldStyle(unsigned oldStyle) {
+    return SkFontStyle((oldStyle & SkTypeface::kBold) ? SkFontStyle::kBold_Weight
+                                                      : SkFontStyle::kNormal_Weight,
+                       SkFontStyle::kNormal_Width,
+                       (oldStyle & SkTypeface::kItalic) ? SkFontStyle::kItalic_Slant
+                                                        : SkFontStyle::kUpright_Slant);
 }

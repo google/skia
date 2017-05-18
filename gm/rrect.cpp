@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkRRect.h"
 #include "SkPath.h"
@@ -136,7 +137,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        static const InsetProc insetProcs[] = {
+        constexpr InsetProc insetProcs[] = {
             inset0, inset1, inset2, inset3
         };
 

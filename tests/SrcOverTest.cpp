@@ -6,7 +6,6 @@
  */
 
 #include "SkColorPriv.h"
-#include "SkXfermode.h"
 #include "Test.h"
 
 // our std SkAlpha255To256
@@ -42,8 +41,8 @@ DEF_TEST(SrcOver, reporter) {
         opaqueCounter2 += (result2 == 0xFF);
     }
 #if 0
-    SkDebugf("---- opaque test: [%d %d %d]\n",
-             opaqueCounter0, opaqueCounter1, opaqueCounter2);
+    INFOF(reporter, "---- opaque test: [%d %d %d]\n",
+          opaqueCounter0, opaqueCounter1, opaqueCounter2);
 #endif
     // we acknowledge that technique0 does not always return opaque
     REPORTER_ASSERT(reporter, opaqueCounter0 == 256);
@@ -67,8 +66,8 @@ DEF_TEST(SrcOver, reporter) {
 #if 0
             // this shows where r1 (faster) differs from r2 (more exact)
             if (r1 != r2) {
-                SkDebugf("--- dst=%d i=%d r1=%d r2=%d exact=%g\n",
-                         dst, i, r1, r2, i + dst - dst*i/255.0f);
+                INFOF(reporter, "--- dst=%d i=%d r1=%d r2=%d exact=%g\n",
+                      dst, i, r1, r2, i + dst - dst*i/255.0f);
             }
 #endif
         }

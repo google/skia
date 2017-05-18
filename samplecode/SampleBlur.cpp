@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
@@ -21,14 +21,10 @@ static SkBitmap make_bitmap() {
     }
 
     SkBitmap bm;
-    SkColorTable* ctable = new SkColorTable(c, 256);
-
     bm.allocPixels(SkImageInfo::Make(256, 256, kIndex_8_SkColorType,
                                      kPremul_SkAlphaType),
-                   nullptr, ctable);
-    ctable->unref();
+                   SkColorTable::Make(c, 256));
 
-    bm.lockPixels();
     const float cx = bm.width() * 0.5f;
     const float cy = bm.height() * 0.5f;
     for (int y = 0; y < bm.height(); y++) {
@@ -46,7 +42,6 @@ static SkBitmap make_bitmap() {
             p[x] = id;
         }
     }
-    bm.unlockPixels();
     return bm;
 }
 
@@ -99,10 +94,9 @@ protected:
             paint.setColor(SK_ColorBLUE);
             for (size_t i = 0; i < SK_ARRAY_COUNT(gRecs); i++) {
                 if (gRecs[i].fStyle != NONE) {
-                    SkMaskFilter* mf = SkBlurMaskFilter::Create(gRecs[i].fStyle,
+                    paint.setMaskFilter(SkBlurMaskFilter::Make(gRecs[i].fStyle,
                                       SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(20)),
-                                      flags);
-                    paint.setMaskFilter(mf)->unref();
+                                      flags));
                 } else {
                     paint.setMaskFilter(nullptr);
                 }
@@ -111,20 +105,19 @@ protected:
             }
             // draw text
             {
-                SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4)),
-                                      flags);
-                paint.setMaskFilter(mf)->unref();
+                paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                                           SkBlurMask::ConvertRadiusToSigma(4),
+                                                           flags));
                 SkScalar x = SkIntToScalar(70);
                 SkScalar y = SkIntToScalar(400);
                 paint.setColor(SK_ColorBLACK);
-                canvas->drawText("Hamburgefons Style", 18, x, y, paint);
-                canvas->drawText("Hamburgefons Style", 18, x, y + SkIntToScalar(50), paint);
+                canvas->drawString("Hamburgefons Style", x, y, paint);
+                canvas->drawString("Hamburgefons Style", x, y + SkIntToScalar(50), paint);
                 paint.setMaskFilter(nullptr);
                 paint.setColor(SK_ColorWHITE);
                 x -= SkIntToScalar(2);
                 y -= SkIntToScalar(2);
-                canvas->drawText("Hamburgefons Style", 18, x, y, paint);
+                canvas->drawString("Hamburgefons Style", x, y, paint);
             }
             canvas->restore();
             flags = SkBlurMaskFilter::kHighQuality_BlurFlag;

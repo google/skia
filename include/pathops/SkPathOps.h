@@ -7,9 +7,9 @@
 #ifndef SkPathOps_DEFINED
 #define SkPathOps_DEFINED
 
+#include "../private/SkTArray.h"
+#include "../private/SkTDArray.h"
 #include "SkPreConfig.h"
-#include "SkTArray.h"
-#include "SkTDArray.h"
 
 class SkPath;
 struct SkRect;
@@ -91,6 +91,8 @@ private:
     SkTArray<SkPath> fPathRefs;
     SkTDArray<SkPathOp> fOps;
 
+    static bool FixWinding(SkPath* path);
+    static void ReversePath(SkPath* path);
     void reset();
 };
 

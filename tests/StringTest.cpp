@@ -148,6 +148,13 @@ DEF_TEST(String, reporter) {
     a.appendU64(0x0000000001000000ULL, 15);
     REPORTER_ASSERT(reporter, a.equals("000000016777216"));
 
+    a.printf("%i", 0);
+    REPORTER_ASSERT(reporter, a.equals("0"));
+    a.printf("%g", 3.14);
+    REPORTER_ASSERT(reporter, a.equals("3.14"));
+    a.printf("hello %s", "skia");
+    REPORTER_ASSERT(reporter, a.equals("hello skia"));
+
     static const struct {
         SkScalar    fValue;
         const char* fString;
@@ -185,6 +192,26 @@ DEF_TEST(String, reporter) {
     REPORTER_ASSERT(reporter, buffer[19] == 0);
     REPORTER_ASSERT(reporter, buffer[20] == 'a');
 
+    REPORTER_ASSERT(reporter, SkStringPrintf("%i", 0).equals("0"));
+
+    // 2000 is larger than the static buffer size inside SkString.cpp
+    a = SkStringPrintf("%2000s", " ");
+    REPORTER_ASSERT(reporter, a.size() == 2000);
+    for (size_t i = 0; i < a.size(); ++i) {
+        if (a[i] != ' ') {
+            ERRORF(reporter, "SkStringPrintf fail: a[%d] = '%c'", i, a[i]);
+            break;
+        }
+    }
+    a.reset();
+    a.printf("%2000s", " ");
+    REPORTER_ASSERT(reporter, a.size() == 2000);
+    for (size_t i = 0; i < a.size(); ++i) {
+        if (a[i] != ' ') {
+            ERRORF(reporter, "SkStringPrintf fail: a[%d] = '%c'", i, a[i]);
+            break;
+        }
+    }
 }
 
 DEF_TEST(String_SkStrSplit, r) {
@@ -201,9 +228,62 @@ DEF_TEST(String_SkStrSplit, r) {
 
     results.reset();
     SkStrSplit("\n", "\n", &results);
-    REPORTER_ASSERT(r, results.count() == 1);
+    REPORTER_ASSERT(r, results.count() == 0);
 
     results.reset();
     SkStrSplit("", "\n", &results);
     REPORTER_ASSERT(r, results.count() == 0);
+
+    results.reset();
+    SkStrSplit("a", "\n", &results);
+    REPORTER_ASSERT(r, results.count() == 1);
+    REPORTER_ASSERT(r, results[0].equals("a"));
+}
+DEF_TEST(String_SkStrSplit_All, r) {
+    SkTArray<SkString> results;
+    SkStrSplit("a-_b_c-dee--f-_-_-g-", "-_", kStrict_SkStrSplitMode, &results);
+    REPORTER_ASSERT(r, results.count() == 13);
+    REPORTER_ASSERT(r, results[0].equals("a"));
+    REPORTER_ASSERT(r, results[1].equals(""));
+    REPORTER_ASSERT(r, results[2].equals("b"));
+    REPORTER_ASSERT(r, results[3].equals("c"));
+    REPORTER_ASSERT(r, results[4].equals("dee"));
+    REPORTER_ASSERT(r, results[5].equals(""));
+    REPORTER_ASSERT(r, results[6].equals("f"));
+    REPORTER_ASSERT(r, results[7].equals(""));
+    REPORTER_ASSERT(r, results[8].equals(""));
+    REPORTER_ASSERT(r, results[9].equals(""));
+    REPORTER_ASSERT(r, results[10].equals(""));
+    REPORTER_ASSERT(r, results[11].equals("g"));
+    REPORTER_ASSERT(r, results[12].equals(""));
+
+    results.reset();
+    SkStrSplit("\n", "\n", kStrict_SkStrSplitMode, &results);
+    REPORTER_ASSERT(r, results.count() == 2);
+    REPORTER_ASSERT(r, results[0].equals(""));
+    REPORTER_ASSERT(r, results[1].equals(""));
+
+    results.reset();
+    SkStrSplit("", "\n", kStrict_SkStrSplitMode, &results);
+    REPORTER_ASSERT(r, results.count() == 0);
+
+    results.reset();
+    SkStrSplit("a", "\n", kStrict_SkStrSplitMode, &results);
+    REPORTER_ASSERT(r, results.count() == 1);
+    REPORTER_ASSERT(r, results[0].equals("a"));
+
+    results.reset();
+    SkStrSplit(",,", ",", kStrict_SkStrSplitMode, &results);
+    REPORTER_ASSERT(r, results.count() == 3);
+    REPORTER_ASSERT(r, results[0].equals(""));
+    REPORTER_ASSERT(r, results[1].equals(""));
+    REPORTER_ASSERT(r, results[2].equals(""));
+
+    results.reset();
+    SkStrSplit(",a,b,", ",", kStrict_SkStrSplitMode, &results);
+    REPORTER_ASSERT(r, results.count() == 4);
+    REPORTER_ASSERT(r, results[0].equals(""));
+    REPORTER_ASSERT(r, results[1].equals("a"));
+    REPORTER_ASSERT(r, results[2].equals("b"));
+    REPORTER_ASSERT(r, results[3].equals(""));
 }

@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
@@ -16,13 +17,12 @@
 #include "SkColorFilterImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkOffsetImageFilter.h"
-#include "SkTestImageFilters.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void draw_paint(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
+static void draw_paint(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
-    paint.setImageFilter(imf);
+    paint.setImageFilter(std::move(imf));
     paint.setColor(SK_ColorBLACK);
     canvas->save();
     canvas->clipRect(r);
@@ -30,26 +30,26 @@ static void draw_paint(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     canvas->restore();
 }
 
-static void draw_path(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
+static void draw_path(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
     paint.setColor(SK_ColorMAGENTA);
-    paint.setImageFilter(imf);
+    paint.setImageFilter(std::move(imf));
     paint.setAntiAlias(true);
     canvas->drawCircle(r.centerX(), r.centerY(), r.width()*2/5, paint);
 }
 
-static void draw_text(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
+static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
-    paint.setImageFilter(imf);
+    paint.setImageFilter(std::move(imf));
     paint.setColor(SK_ColorGREEN);
     paint.setAntiAlias(true);
     sk_tool_utils::set_portable_typeface(&paint);
     paint.setTextSize(r.height()/2);
     paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas->drawText("Text", 4, r.centerX(), r.centerY(), paint);
+    canvas->drawString("Text", r.centerX(), r.centerY(), paint);
 }
 
-static void draw_bitmap(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
+static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
 
     SkIRect bounds;
@@ -61,31 +61,8 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     SkCanvas c(bm);
     draw_path(&c, r, nullptr);
 
-    paint.setImageFilter(imf);
+    paint.setImageFilter(std::move(imf));
     canvas->drawBitmap(bm, 0, 0, &paint);
-}
-
-static void draw_sprite(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
-    SkPaint paint;
-
-    SkIRect bounds;
-    r.roundOut(&bounds);
-
-    SkBitmap bm;
-    bm.allocN32Pixels(bounds.width(), bounds.height());
-    bm.eraseColor(SK_ColorRED);
-    SkCanvas c(bm);
-
-    SkIRect cropRect = SkIRect::MakeXYWH(10, 10, 44, 44);
-    paint.setColor(SK_ColorGREEN);
-    c.drawRect(SkRect::Make(cropRect), paint);
-
-    paint.setImageFilter(imf);
-    SkPoint loc = { r.fLeft, r.fTop };
-    canvas->getTotalMatrix().mapPoints(&loc, 1);
-    canvas->drawSprite(bm,
-                       SkScalarRoundToInt(loc.fX), SkScalarRoundToInt(loc.fY),
-                       &paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,11 +72,11 @@ public:
     ImageFiltersCroppedGM () {}
 
 protected:
-    virtual SkString onShortName() override {
+    SkString onShortName() override {
         return SkString("imagefilterscropped");
     }
 
-    virtual SkISize onISize() override { return SkISize::Make(400, 880); }
+    SkISize onISize() override { return SkISize::Make(400, 960); }
 
     void make_checkerboard() {
         fCheckerboard.allocN32Pixels(80, 80);
@@ -129,42 +106,49 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    virtual void onOnceBeforeDraw() override{
+    void onOnceBeforeDraw() override{
         make_checkerboard();
     }
 
-    virtual void onDraw(SkCanvas* canvas) override {
-        void (*drawProc[])(SkCanvas*, const SkRect&, SkImageFilter*) = {
-            draw_sprite, draw_bitmap, draw_path, draw_paint, draw_text
+    void onDraw(SkCanvas* canvas) override {
+        void (*drawProc[])(SkCanvas*, const SkRect&, sk_sp<SkImageFilter>) = {
+            draw_bitmap, draw_path, draw_paint, draw_text
         };
 
-        SkAutoTUnref<SkColorFilter> cf(
-            SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
-        SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)), SkImageFilter::CropRect::kHasAll_CropEdge);
-        SkImageFilter::CropRect bogusRect(SkRect::Make(SkIRect::MakeXYWH(-100, -100, 10, 10)), SkImageFilter::CropRect::kHasAll_CropEdge);
+        sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorBLUE,
+                                                              SkBlendMode::kSrcIn));
+        SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
+                                         SkImageFilter::CropRect::kHasAll_CropEdge);
+        SkImageFilter::CropRect bogusRect(SkRect::Make(SkIRect::MakeXYWH(-100, -100, 10, 10)),
+                                          SkImageFilter::CropRect::kHasAll_CropEdge);
 
-        SkAutoTUnref<SkImageFilter> offset(SkOffsetImageFilter::Create(
-            SkIntToScalar(-10), SkIntToScalar(-10)));
+        sk_sp<SkImageFilter> offset(SkOffsetImageFilter::Make(SkIntToScalar(-10),
+                                                              SkIntToScalar(-10),
+                                                              nullptr));
 
-        SkAutoTUnref<SkImageFilter> cfOffset(SkColorFilterImageFilter::Create(cf.get(), offset.get()));
+        sk_sp<SkImageFilter> cfOffset(SkColorFilterImageFilter::Make(cf, std::move(offset)));
 
-        SkAutoTUnref<SkImageFilter> erodeX(SkErodeImageFilter::Create(8, 0, nullptr, &cropRect));
-        SkAutoTUnref<SkImageFilter> erodeY(SkErodeImageFilter::Create(0, 8, nullptr, &cropRect));
+        sk_sp<SkImageFilter> erodeX(SkErodeImageFilter::Make(8, 0, nullptr, &cropRect));
+        sk_sp<SkImageFilter> erodeY(SkErodeImageFilter::Make(0, 8, nullptr, &cropRect));
 
-        SkImageFilter* filters[] = {
+        sk_sp<SkImageFilter> filters[] = {
             nullptr,
-            SkColorFilterImageFilter::Create(cf.get(), nullptr, &cropRect),
-            SkBlurImageFilter::Create(1.0f, 1.0f, nullptr, &cropRect),
-            SkBlurImageFilter::Create(8.0f, 0.0f, nullptr, &cropRect),
-            SkBlurImageFilter::Create(0.0f, 8.0f, nullptr, &cropRect),
-            SkBlurImageFilter::Create(8.0f, 8.0f, nullptr, &cropRect),
-            SkErodeImageFilter::Create(1, 1, nullptr, &cropRect),
-            SkErodeImageFilter::Create(8, 0, erodeY, &cropRect),
-            SkErodeImageFilter::Create(0, 8, erodeX, &cropRect),
-            SkErodeImageFilter::Create(8, 8, nullptr, &cropRect),
-            SkMergeImageFilter::Create(nullptr, cfOffset.get(), SkXfermode::kSrcOver_Mode, &cropRect),
-            SkBlurImageFilter::Create(8.0f, 8.0f, nullptr, &bogusRect),
-            SkColorFilterImageFilter::Create(cf.get(), nullptr, &bogusRect),
+            SkColorFilterImageFilter::Make(cf, nullptr, &cropRect),
+            SkBlurImageFilter::Make(0.0f, 0.0f, nullptr, &cropRect),
+            SkBlurImageFilter::Make(1.0f, 1.0f, nullptr, &cropRect),
+            SkBlurImageFilter::Make(8.0f, 0.0f, nullptr, &cropRect),
+            SkBlurImageFilter::Make(0.0f, 8.0f, nullptr, &cropRect),
+            SkBlurImageFilter::Make(8.0f, 8.0f, nullptr, &cropRect),
+            SkErodeImageFilter::Make(1, 1, nullptr, &cropRect),
+            SkErodeImageFilter::Make(8, 0, std::move(erodeY), &cropRect),
+            SkErodeImageFilter::Make(0, 8, std::move(erodeX), &cropRect),
+            SkErodeImageFilter::Make(8, 8, nullptr, &cropRect),
+            SkMergeImageFilter::Make(nullptr,
+                                     std::move(cfOffset),
+                                     SkBlendMode::kSrcOver,
+                                     &cropRect),
+            SkBlurImageFilter::Make(8.0f, 8.0f, nullptr, &bogusRect),
+            SkColorFilterImageFilter::Make(cf, nullptr, &bogusRect),
         };
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
@@ -184,10 +168,6 @@ protected:
             canvas->restore();
             canvas->translate(DX, 0);
         }
-
-        for(size_t j = 0; j < SK_ARRAY_COUNT(filters); ++j) {
-            SkSafeUnref(filters[j]);
-        }
     }
 
 private:
@@ -197,5 +177,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory(void*) { return new ImageFiltersCroppedGM; }
-static skiagm::GMRegistry reg(MyFactory);
+DEF_GM( return new ImageFiltersCroppedGM; )

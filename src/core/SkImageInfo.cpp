@@ -9,10 +9,6 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
-static bool profile_type_is_valid(SkColorProfileType profileType) {
-    return (profileType >= 0) && (profileType <= kLastEnum_SkColorProfileType);
-}
-
 static bool alpha_type_is_valid(SkAlphaType alphaType) {
     return (alphaType >= 0) && (alphaType <= kLastEnum_SkAlphaType);
 }
@@ -21,29 +17,47 @@ static bool color_type_is_valid(SkColorType colorType) {
     return (colorType >= 0) && (colorType <= kLastEnum_SkColorType);
 }
 
+SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {
+    return SkImageInfo(width, height, kN32_SkColorType, at,
+                       SkColorSpace::MakeSRGB());
+}
+
+static const int kColorTypeMask = 0x0F;
+static const int kAlphaTypeMask = 0x03;
+
 void SkImageInfo::unflatten(SkReadBuffer& buffer) {
     fWidth = buffer.read32();
     fHeight = buffer.read32();
 
     uint32_t packed = buffer.read32();
-    SkASSERT(0 == (packed >> 24));
-    fProfileType = (SkColorProfileType)((packed >> 16) & 0xFF);
-    fAlphaType = (SkAlphaType)((packed >> 8) & 0xFF);
-    fColorType = (SkColorType)((packed >> 0) & 0xFF);
-    buffer.validate(profile_type_is_valid(fProfileType) &&
-                    alpha_type_is_valid(fAlphaType) &&
-                    color_type_is_valid(fColorType));
+    fColorType = (SkColorType)((packed >> 0) & kColorTypeMask);
+    fAlphaType = (SkAlphaType)((packed >> 8) & kAlphaTypeMask);
+    buffer.validate(alpha_type_is_valid(fAlphaType) && color_type_is_valid(fColorType));
+
+    sk_sp<SkData> data = buffer.readByteArrayAsData();
+    fColorSpace = SkColorSpace::Deserialize(data->data(), data->size());
 }
 
 void SkImageInfo::flatten(SkWriteBuffer& buffer) const {
     buffer.write32(fWidth);
     buffer.write32(fHeight);
 
-    SkASSERT(0 == (fProfileType & ~0xFF));
-    SkASSERT(0 == (fAlphaType & ~0xFF));
-    SkASSERT(0 == (fColorType & ~0xFF));
-    uint32_t packed = (fProfileType << 16) | (fAlphaType << 8) | fColorType;
+    SkASSERT(0 == (fAlphaType & ~kAlphaTypeMask));
+    SkASSERT(0 == (fColorType & ~kColorTypeMask));
+    uint32_t packed = (fAlphaType << 8) | fColorType;
     buffer.write32(packed);
+
+    if (fColorSpace) {
+        sk_sp<SkData> data = fColorSpace->serialize();
+        if (data) {
+            buffer.writeDataAsByteArray(data.get());
+        } else {
+            buffer.writeByteArray(nullptr, 0);
+        }
+    } else {
+        sk_sp<SkData> data = SkData::MakeEmpty();
+        buffer.writeDataAsByteArray(data.get());
+    }
 }
 
 bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
@@ -61,6 +75,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
         case kARGB_4444_SkColorType:
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
+        case kRGBA_F16_SkColorType:
             if (kUnknown_SkAlphaType == alphaType) {
                 return false;
             }
@@ -83,17 +98,10 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
 #include "SkReadPixelsRec.h"
 
 bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
-    switch (fInfo.colorType()) {
-        case kUnknown_SkColorType:
-        case kIndex_8_SkColorType:
-            return false;
-        default:
-            break;
-    }
     if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {
         return false;
     }
-    if (0 == fInfo.width() || 0 == fInfo.height()) {
+    if (0 >= fInfo.width() || 0 >= fInfo.height()) {
         return false;
     }
 
@@ -121,3 +129,38 @@ bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
     return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkWritePixelsRec.h"
+
+bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
+    if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {
+        return false;
+    }
+    if (0 >= fInfo.width() || 0 >= fInfo.height()) {
+        return false;
+    }
+
+    int x = fX;
+    int y = fY;
+    SkIRect dstR = SkIRect::MakeXYWH(x, y, fInfo.width(), fInfo.height());
+    if (!dstR.intersect(0, 0, dstWidth, dstHeight)) {
+        return false;
+    }
+
+    // if x or y are negative, then we have to adjust pixels
+    if (x > 0) {
+        x = 0;
+    }
+    if (y > 0) {
+        y = 0;
+    }
+    // here x,y are either 0 or negative
+    fPixels = ((const char*)fPixels - y * fRowBytes - x * fInfo.bytesPerPixel());
+    // the intersect may have shrunk info's logical size
+    fInfo = fInfo.makeWH(dstR.width(), dstR.height());
+    fX = dstR.x();
+    fY = dstR.y();
+
+    return true;
+}

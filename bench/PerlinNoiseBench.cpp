@@ -41,13 +41,13 @@ private:
     void test(int loops, SkCanvas* canvas, int x, int y, SkPerlinNoiseShader::Type type,
               float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed,
               bool stitchTiles) {
-        SkShader* shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
-            SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
-                                                    seed, stitchTiles ? &fSize : nullptr) :
-            SkPerlinNoiseShader::CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
-                                                 seed, stitchTiles ? &fSize : nullptr);
+        sk_sp<SkShader> shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
+            SkPerlinNoiseShader::MakeFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
+                                                  seed, stitchTiles ? &fSize : nullptr) :
+            SkPerlinNoiseShader::MakeTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
+                                                seed, stitchTiles ? &fSize : nullptr);
         SkPaint paint;
-        paint.setShader(shader)->unref();
+        paint.setShader(shader);
 
         for (int i = 0; i < loops; i++) {
             this->drawClippedRect(canvas, x, y, paint);

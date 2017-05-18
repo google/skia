@@ -1,0 +1,11 @@
+The resources directory includes some third party content used by Skia.
+Licenses for that code are included in this file.
+
+Openclipart
+
+Openclipart uses the Creative Commons Zero 1.0 Public Domain License every time
+an artist uploads a piece of clipart to Openclipart to make it clear the artist
+is releasing the creative work for anyone to use for any reason, even
+commercially. This act of "sharing" is the foundation Openclipart is based upon.
+More details on the license can be found at
+https://creativecommons.org/publicdomain/zero/1.0/.

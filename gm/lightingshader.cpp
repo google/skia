@@ -6,8 +6,9 @@
  */
 
 #include "gm.h"
-
+#include "sk_tool_utils.h"
 #include "SkLightingShader.h"
+#include "SkNormalSource.h"
 #include "SkPoint3.h"
 #include "SkShader.h"
 
@@ -46,13 +47,15 @@ public:
     LightingShaderGM() {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
 
-        SkLightingShader::Lights::Builder builder;
+        SkLights::Builder builder;
 
-        builder.add(SkLight(SkColor3f::Make(1.0f, 1.0f, 1.0f),
-                            SkVector3::Make(1.0f, 0.0f, 0.0f)));
-        builder.add(SkLight(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(1.0f, 1.0f, 1.0f),
+                                                     SkVector3::Make(SK_ScalarRoot2Over2,
+                                                                     0.0f,
+                                                                     SK_ScalarRoot2Over2)));
+        builder.setAmbientLightColor(SkColor3f::Make(0.2f, 0.2f, 0.2f));
 
-        fLights.reset(builder.finish());
+        fLights = builder.finish();
     }
 
 protected:
@@ -64,7 +67,7 @@ protected:
         kLast_NormalMap = kTetra_NormalMap
     };
 
-    static const int kNormalMapCount = kLast_NormalMap+1;
+    static constexpr int kNormalMapCount = kLast_NormalMap+1;
 
     SkString onShortName() override {
         return SkString("lightingshader");
@@ -92,20 +95,18 @@ protected:
 
         SkMatrix matrix;
         matrix.setRectToRect(bitmapBounds, r, SkMatrix::kFill_ScaleToFit);
-    
+
         const SkMatrix& ctm = canvas->getTotalMatrix();
 
-        // TODO: correctly pull out the pure rotation
-        SkVector invNormRotation = { ctm[SkMatrix::kMScaleX], ctm[SkMatrix::kMSkewY] };
-
-        SkAutoTUnref<SkShader> fShader(SkLightingShader::Create(
-                                                        fDiffuse,
-                                                        fNormalMaps[mapType],
-                                                        fLights,
-                                                        invNormRotation, &matrix, &matrix));
-
         SkPaint paint;
-        paint.setShader(fShader);
+        sk_sp<SkShader> diffuseShader = SkShader::MakeBitmapShader(fDiffuse,
+                SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &matrix);
+        sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(fNormalMaps[mapType],
+                SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &matrix);
+        sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap),
+                                                                               ctm);
+        paint.setShader(SkLightingShader::Make(std::move(diffuseShader), std::move(normalSource),
+                                               fLights));
 
         canvas->drawRect(r, paint);
     }
@@ -164,13 +165,13 @@ protected:
     }
 
 private:
-    static const int kTexSize = 128;
-    static const int kGMSize  = 512;
+    static constexpr int kTexSize = 128;
+    static constexpr int kGMSize  = 512;
 
-    SkBitmap                fDiffuse;
-    SkBitmap                fNormalMaps[kNormalMapCount];
+    SkBitmap        fDiffuse;
+    SkBitmap        fNormalMaps[kNormalMapCount];
 
-    SkAutoTUnref<const SkLightingShader::Lights>  fLights;
+    sk_sp<SkLights> fLights;
 
     typedef GM INHERITED;
 };

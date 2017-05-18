@@ -1,10 +1,12 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_ANDROID)
+
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/GrGLUtil.h"
@@ -220,6 +222,10 @@ static GrGLFuncPtr android_get_gl_proc(void* ctx, const char name[]) {
         return (GrGLFuncPtr) glGetRenderbufferParameteriv;
     } else if (0 == strcmp("glRenderbufferStorage", name)) {
         return (GrGLFuncPtr) glRenderbufferStorage;
+    } else if (0 == strcmp("eglQueryString", name)) {
+        return (GrGLFuncPtr) eglQueryString;
+    } else if (0 == strcmp("eglGetCurrentDisplay", name)) {
+        return (GrGLFuncPtr) eglGetCurrentDisplay;
     }
     return eglGetProcAddress(name);
 }
@@ -227,3 +233,5 @@ static GrGLFuncPtr android_get_gl_proc(void* ctx, const char name[]) {
 const GrGLInterface* GrGLCreateNativeInterface() {
     return GrGLAssembleInterface(nullptr, android_get_gl_proc);
 }
+
+#endif//defined(SK_BUILD_FOR_ANDROID)

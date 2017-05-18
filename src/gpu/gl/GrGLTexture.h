@@ -16,27 +16,39 @@
 class GrGLGpu;
 
 class GrGLTexture : public GrTexture {
-
 public:
     struct TexParams {
         GrGLenum fMinFilter;
         GrGLenum fMagFilter;
         GrGLenum fWrapS;
         GrGLenum fWrapT;
+        GrGLenum fMaxMipMapLevel;
         GrGLenum fSwizzleRGBA[4];
+        GrGLenum fSRGBDecode;
         void invalidate() { memset(this, 0xff, sizeof(TexParams)); }
     };
 
     struct IDDesc {
-        GrGLuint                    fTextureID;
-        GrGpuResource::LifeCycle    fLifeCycle;
+        GrGLTextureInfo             fInfo;
+        GrBackendObjectOwnership    fOwnership;
     };
+    GrGLTexture(GrGLGpu*, SkBudgeted, const GrSurfaceDesc&, const IDDesc&);
+    GrGLTexture(GrGLGpu*, SkBudgeted, const GrSurfaceDesc&, const IDDesc&,
+                bool wasMipMapDataProvided);
 
-    GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
+    ~GrGLTexture() override {
+        // check that invokeReleaseProc has been called (if needed)
+        SkASSERT(!fReleaseProc);
+    }
 
     GrBackendObject getTextureHandle() const override;
 
     void textureParamsModified() override { fTexParams.invalidate(); }
+
+    void setRelease(ReleaseProc proc, ReleaseCtx ctx) override {
+        fReleaseProc = proc;
+        fReleaseCtx = ctx;
+    }
 
     // These functions are used to track the texture parameters associated with the texture.
     const TexParams& getCachedTexParams(GrGpu::ResetTimestamp* timestamp) const {
@@ -50,14 +62,18 @@ public:
         fTexParamsTimestamp = timestamp;
     }
 
-    GrGLuint textureID() const { return fTextureID; }
+    GrGLuint textureID() const { return fInfo.fID; }
 
+    GrGLenum target() const { return fInfo.fTarget; }
+
+    static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
 protected:
-    // The public constructor registers this object with the cache. However, only the most derived
-    // class should register with the cache. This constructor does not do the registration and
-    // rather moves that burden onto the derived class.
-    enum Derived { kDerived };
-    GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, Derived);
+    // Constructor for subclasses.
+    GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, bool wasMipMapDataProvided);
+
+    enum Wrapped { kWrapped };
+    // Constructor for instances wrapping backend objects.
+    GrGLTexture(GrGLGpu*, Wrapped, const GrSurfaceDesc&, const IDDesc&);
 
     void init(const GrSurfaceDesc&, const IDDesc&);
 
@@ -67,13 +83,22 @@ protected:
                           const SkString& dumpName) const override;
 
 private:
+    void invokeReleaseProc() {
+        if (fReleaseProc) {
+            fReleaseProc(fReleaseCtx);
+            fReleaseProc = nullptr;
+        }
+    }
+
     TexParams                       fTexParams;
     GrGpu::ResetTimestamp           fTexParamsTimestamp;
-    GrGLuint                        fTextureID;
+    // Holds the texture target and ID. A pointer to this may be shared to external clients for
+    // direct interaction with the GL object.
+    GrGLTextureInfo                 fInfo;
+    GrBackendObjectOwnership        fTextureIDOwnership;
 
-    // We track this separately from GrGpuResource because this may be both a texture and a render
-    // target, and the texture may be wrapped while the render target is not.
-    LifeCycle                       fTextureIDLifecycle;
+    ReleaseProc                     fReleaseProc = nullptr;
+    ReleaseCtx                      fReleaseCtx = nullptr;
 
     typedef GrTexture INHERITED;
 };

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkSpriteBlitter.h"
+#include "SkArenaAlloc.h"
 #include "SkBlitRow.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -65,8 +64,7 @@ public:
         fColorFilter = paint.getColorFilter();
         SkSafeRef(fColorFilter);
 
-        fXfermode = paint.getXfermode();
-        SkSafeRef(fXfermode);
+        fXfermode = SkXfermode::Peek(paint.getBlendMode());
 
         fBufferSize = 0;
         fBuffer = nullptr;
@@ -83,9 +81,8 @@ public:
         fAlpha = paint.getAlpha();
     }
 
-    virtual ~Sprite_D32_XferFilter() {
+    ~Sprite_D32_XferFilter() override {
         delete[] fBuffer;
-        SkSafeUnref(fXfermode);
         SkSafeUnref(fColorFilter);
     }
 
@@ -256,8 +253,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSpriteBlitter* SkSpriteBlitter::ChooseD32(const SkPixmap& source, const SkPaint& paint,
-        SkTBlitterAllocator* allocator) {
+SkSpriteBlitter* SkSpriteBlitter::ChooseL32(const SkPixmap& source, const SkPaint& paint,
+                                            SkArenaAlloc* allocator) {
     SkASSERT(allocator != nullptr);
 
     if (paint.getMaskFilter() != nullptr) {
@@ -265,7 +262,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD32(const SkPixmap& source, const SkPain
     }
 
     U8CPU       alpha = paint.getAlpha();
-    SkXfermode* xfermode = paint.getXfermode();
+    bool isSrcOver = paint.isSrcOver();
     SkColorFilter* filter = paint.getColorFilter();
     SkSpriteBlitter* blitter = nullptr;
 
@@ -274,23 +271,23 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD32(const SkPixmap& source, const SkPain
             if (alpha != 0xFF) {
                 return nullptr;    // we only have opaque sprites
             }
-            if (xfermode || filter) {
-                blitter = allocator->createT<Sprite_D32_S4444_XferFilter>(source, paint);
+            if (!isSrcOver || filter) {
+                blitter = allocator->make<Sprite_D32_S4444_XferFilter>(source, paint);
             } else if (source.isOpaque()) {
-                blitter = allocator->createT<Sprite_D32_S4444_Opaque>(source);
+                blitter = allocator->make<Sprite_D32_S4444_Opaque>(source);
             } else {
-                blitter = allocator->createT<Sprite_D32_S4444>(source);
+                blitter = allocator->make<Sprite_D32_S4444>(source);
             }
             break;
         case kN32_SkColorType:
-            if (xfermode || filter) {
+            if (!isSrcOver || filter) {
                 if (255 == alpha) {
                     // this can handle xfermode or filter, but not alpha
-                    blitter = allocator->createT<Sprite_D32_S32A_XferFilter>(source, paint);
+                    blitter = allocator->make<Sprite_D32_S32A_XferFilter>(source, paint);
                 }
             } else {
                 // this can handle alpha, but not xfermode or filter
-                blitter = allocator->createT<Sprite_D32_S32>(source, alpha);
+                blitter = allocator->make<Sprite_D32_S32>(source, alpha);
             }
             break;
         default:

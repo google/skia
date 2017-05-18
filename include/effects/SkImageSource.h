@@ -8,19 +8,18 @@
 #ifndef SkImageSource_DEFINED
 #define SkImageSource_DEFINED
 
+#include "SkImage.h"
 #include "SkImageFilter.h"
-
-class SkImage;
 
 class SK_API SkImageSource : public SkImageFilter {
 public:
-    static SkImageFilter* Create(const SkImage*);
-    static SkImageFilter* Create(const SkImage*,
-                                 const SkRect& srcRect,
-                                 const SkRect& dstRect,
-                                 SkFilterQuality);
+    static sk_sp<SkImageFilter> Make(sk_sp<SkImage> image);
+    static sk_sp<SkImageFilter> Make(sk_sp<SkImage> image,
+                                     const SkRect& srcRect,
+                                     const SkRect& dstRect,
+                                     SkFilterQuality filterQuality);
 
-    void computeFastBounds(const SkRect& src, SkRect* dst) const override;
+    SkRect computeFastBounds(const SkRect& src) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageSource)
@@ -28,19 +27,20 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
 
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                       SkBitmap* result, SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
+    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
 private:
-    explicit SkImageSource(const SkImage*);
-    SkImageSource(const SkImage*,
+    explicit SkImageSource(sk_sp<SkImage>);
+    SkImageSource(sk_sp<SkImage>,
                   const SkRect& srcRect,
                   const SkRect& dstRect,
                   SkFilterQuality);
 
-    SkAutoTUnref<const SkImage> fImage;
-    SkRect                      fSrcRect, fDstRect;
-    SkFilterQuality             fFilterQuality;
+    sk_sp<SkImage>   fImage;
+    SkRect           fSrcRect, fDstRect;
+    SkFilterQuality  fFilterQuality;
 
     typedef SkImageFilter INHERITED;
 };

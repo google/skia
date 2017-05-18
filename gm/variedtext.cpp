@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
 #include "SkTypeface.h"
@@ -13,7 +14,7 @@
 
 /**
  * Draws text with random parameters. The text draws each get their own clip rect. It is also
- * used as a bench to measure how well the GPU backend batches text draws.
+ * used as a bench to measure how well the GPU backend combines draw ops for text draws.
  */
 
 class VariedTextGM : public skiagm::GM {
@@ -21,13 +22,6 @@ public:
     VariedTextGM(bool effectiveClip, bool lcd)
         : fEffectiveClip(effectiveClip)
         , fLCD(lcd) {
-        memset(fTypefacesToUnref, 0, sizeof(fTypefacesToUnref));
-    }
-
-    ~VariedTextGM() {
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fTypefacesToUnref); ++i) {
-            SkSafeUnref(fTypefacesToUnref[i]);
-        }
     }
 
 protected:
@@ -58,11 +52,13 @@ protected:
         SkScalar w = SkIntToScalar(size.fWidth);
         SkScalar h = SkIntToScalar(size.fHeight);
 
-        static_assert(4 == SK_ARRAY_COUNT(fTypefacesToUnref), "typeface_cnt");
-        fTypefacesToUnref[0] = sk_tool_utils::create_portable_typeface("sans-serif", SkTypeface::kNormal);
-        fTypefacesToUnref[1] = sk_tool_utils::create_portable_typeface("sans-serif", SkTypeface::kBold);
-        fTypefacesToUnref[2] = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kNormal);
-        fTypefacesToUnref[3] = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kBold);
+        static_assert(4 == SK_ARRAY_COUNT(fTypefaces), "typeface_cnt");
+        fTypefaces[0] = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle());
+        fTypefaces[1] = sk_tool_utils::create_portable_typeface("sans-serif",
+                            SkFontStyle::FromOldStyle(SkTypeface::kBold));
+        fTypefaces[2] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle());
+        fTypefaces[3] = sk_tool_utils::create_portable_typeface("serif",
+                            SkFontStyle::FromOldStyle(SkTypeface::kBold));
 
         SkRandom random;
         for (int i = 0; i < kCnt; ++i) {
@@ -77,17 +73,16 @@ protected:
             fColors[i] |= 0xFF000000;
             fColors[i] = sk_tool_utils::color_to_565(fColors[i]);
 
-            static const SkScalar kMinPtSize = 8.f;
-            static const SkScalar kMaxPtSize = 32.f;
+            constexpr SkScalar kMinPtSize = 8.f;
+            constexpr SkScalar kMaxPtSize = 32.f;
 
             fPtSizes[i] = random.nextRangeScalar(kMinPtSize, kMaxPtSize);
 
-            fTypefaces[i] = fTypefacesToUnref[
-                random.nextULessThan(SK_ARRAY_COUNT(fTypefacesToUnref))];
+            fTypefaceIndices[i] = random.nextULessThan(SK_ARRAY_COUNT(fTypefaces));
 
             SkRect r;
             fPaint.setColor(fColors[i]);
-            fPaint.setTypeface(fTypefaces[i]);
+            fPaint.setTypeface(fTypefaces[fTypefaceIndices[i]]);
             fPaint.setTextSize(fPtSizes[i]);
 
             fPaint.measureText(fStrings[i].c_str(), fStrings[i].size(), &r);
@@ -116,12 +111,12 @@ protected:
         for (int i = 0; i < kCnt; ++i) {
             fPaint.setColor(fColors[i]);
             fPaint.setTextSize(fPtSizes[i]);
-            fPaint.setTypeface(fTypefaces[i]);
+            fPaint.setTypeface(fTypefaces[fTypefaceIndices[i]]);
 
             canvas->save();
                 canvas->clipRect(fClipRects[i]);
                 canvas->translate(fPositions[i].fX, fPositions[i].fY);
-                canvas->drawText(fStrings[i].c_str(), fStrings[i].size(), 0, 0, fPaint);
+                canvas->drawString(fStrings[i], 0, 0, fPaint);
             canvas->restore();
         }
 
@@ -140,20 +135,20 @@ protected:
     bool runAsBench() const override { return true; }
 
 private:
-    static const int kCnt = 30;
-    static const int kMinLength = 15;
-    static const int kMaxLength = 40;
+    static constexpr int kCnt = 30;
+    static constexpr int kMinLength = 15;
+    static constexpr int kMaxLength = 40;
 
     bool        fEffectiveClip;
     bool        fLCD;
-    SkTypeface* fTypefacesToUnref[4];
+    sk_sp<SkTypeface> fTypefaces[4];
     SkPaint     fPaint;
 
     // precomputed for each text draw
     SkString        fStrings[kCnt];
     SkColor         fColors[kCnt];
     SkScalar        fPtSizes[kCnt];
-    SkTypeface*     fTypefaces[kCnt];
+    int             fTypefaceIndices[kCnt];
     SkPoint         fPositions[kCnt];
     SkRect          fClipRects[kCnt];
 

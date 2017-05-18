@@ -13,15 +13,17 @@
 class SK_API SkFontStyle {
 public:
     enum Weight {
-        kThin_Weight        = 100,
-        kExtraLight_Weight  = 200,
-        kLight_Weight       = 300,
-        kNormal_Weight      = 400,
-        kMedium_Weight      = 500,
-        kSemiBold_Weight    = 600,
-        kBold_Weight        = 700,
-        kExtraBold_Weight   = 800,
-        kBlack_Weight       = 900
+        kInvisible_Weight   =    0,
+        kThin_Weight        =  100,
+        kExtraLight_Weight  =  200,
+        kLight_Weight       =  300,
+        kNormal_Weight      =  400,
+        kMedium_Weight      =  500,
+        kSemiBold_Weight    =  600,
+        kBold_Weight        =  700,
+        kExtraBold_Weight   =  800,
+        kBlack_Weight       =  900,
+        kExtraBlack_Weight  = 1000,
     };
 
     enum Width {
@@ -33,18 +35,19 @@ public:
         kSemiExpanded_Width     = 6,
         kExpanded_Width         = 7,
         kExtraExpanded_Width    = 8,
-        kUltaExpanded_Width     = 9
+        kUltraExpanded_Width    = 9,
     };
 
     enum Slant {
         kUpright_Slant,
         kItalic_Slant,
+        kOblique_Slant,
     };
 
     SkFontStyle();
     SkFontStyle(int weight, int width, Slant);
-    /** oldStyle means the style-bits in SkTypeface::Style: bold=1, italic=2 */
-    explicit SkFontStyle(unsigned oldStyle);
+
+    static SkFontStyle FromOldStyle(unsigned oldStyle);
 
     bool operator==(const SkFontStyle& rhs) const {
         return fUnion.fU32 == rhs.fUnion.fU32;
@@ -53,10 +56,6 @@ public:
     int weight() const { return fUnion.fR.fWeight; }
     int width() const { return fUnion.fR.fWidth; }
     Slant slant() const { return (Slant)fUnion.fR.fSlant; }
-
-    bool isItalic() const {
-        return kItalic_Slant == fUnion.fR.fSlant;
-    }
 
 private:
     union {

@@ -48,7 +48,7 @@ Tips for troopers
   - Monitoring alerts, including prober, collectd, and others
   - Disconnected build slaves
 
-- These alerts generally do not auto-dismiss ([issue here](https://code.google.com/p/skia/issues/detail?id=4292)):
+- These alerts generally do not auto-dismiss ([issue here](https://bug.skia.org/4292)):
   - Build slaves that failed a step
   - Disconnected devices (these are detected as the "wait for device" step failing)
 
@@ -60,19 +60,20 @@ Tips for troopers
   failing.)
 
 - Where machines are located:
-  - Machine name like "skia-vm-NNN" -> GCE
+  - Machine name like "skia-vm-NNN", "ct-vm-NNN" -> GCE
   - Machine name ends with "a3", "a4", "m3" -> Chrome Golo
+  - Machine name ends with "m5" -> CT bare-metal bots in Chrome Golo
   - Machine name starts with "skiabot-" -> Chapel Hill lab
   - Machine name starts with "win8" -> Chapel Hill lab (Windows machine
     names can't be very long, so the "skiabot-shuttle-" prefix is dropped.)
   - slave11-c3 is a Chrome infra GCE machine (not to be confused with the Skia
     Buildbots GCE, which we refer to as simply "GCE")
 
-- The [chrome-infra IRC channel](https://comlink.googleplex.com/chrome-infra) is
-  useful for questions regarding bots managed by the Chrome Infra team and to
-  get visibility into upstream failures that cause problems for us.
+- The [chrome-infra hangout](https://goto.google.com/cit-hangout) is useful for
+  questions regarding bots managed by the Chrome Infra team and to get
+  visibility into upstream failures that cause problems for us.
 
-- To log in to a Linux buildbot in GCE, use `gcloud compute default@<machine
+- To log in to a Linux buildbot in GCE, use `gcloud compute ssh default@<machine
   name>`. Choose the zone listed for the
   [GCE VM](https://pantheon.corp.google.com/project/31977622648/compute/instances)
   (or specify it using the `--zone` command-line flag).
@@ -94,6 +95,8 @@ Tips for troopers
     - Machine name ends with "a3" or "a4" -> ssh command looks like `ssh
       build3-a3.chrome`
     - Machine name ends with "m3" -> ssh command looks like `ssh build5-m3.golo`
+    - Machine name ends with "m5" -> ssh command looks like `ssh build1-m5.golo`.
+      [Example bug](https://bugs.chromium.org/p/chromium/issues/detail?id=638193) to file to Infra Labs.
     - For MacOS and Windows bots, you will be prompted for a password, which is
       stored on [Valentine](https://valentine.corp.google.com/) as "Chrome Golo,
       Perf, GPU bots - chrome-bot".
@@ -112,3 +115,5 @@ Tips for troopers
   disconnected, you may need to start it manually. On Mac and Linux, check using
   `ps aux | grep python` that neither buildbot nor gclient are running, then run
   `~/skiabot-slave-start-on-boot.sh`.
+
+- Sometimes iOS builds fail with 'The service is invalid'. Try rebooting the iOS host to fix this.

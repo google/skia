@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
@@ -20,10 +21,6 @@ class DrawLooperGM : public skiagm::GM {
 public:
     DrawLooperGM() : fLooper(nullptr) {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
-    }
-
-    virtual ~DrawLooperGM() {
-        SkSafeUnref(fLooper);
     }
 
 protected:
@@ -44,23 +41,18 @@ protected:
         paint.setTextSize(SkIntToScalar(72));
         paint.setLooper(fLooper);
 
-        canvas->drawCircle(SkIntToScalar(50), SkIntToScalar(50),
-                           SkIntToScalar(30), paint);
-
-        canvas->drawRectCoords(SkIntToScalar(150), SkIntToScalar(50),
-                               SkIntToScalar(200), SkIntToScalar(100), paint);
-
-        canvas->drawText("Looper", 6, SkIntToScalar(230), SkIntToScalar(100),
-                         paint);
+        canvas->drawCircle(50, 50, 30, paint);
+        canvas->drawRect({ 150, 50, 200, 100 }, paint);
+        canvas->drawString("Looper", 230, 100, paint);
     }
 
 private:
-    SkLayerDrawLooper*   fLooper;
+    sk_sp<SkDrawLooper> fLooper;
 
     void init() {
         if (fLooper) return;
 
-        static const struct {
+        constexpr struct {
             SkColor         fColor;
             SkPaint::Style  fStyle;
             SkScalar        fWidth;
@@ -77,7 +69,7 @@ private:
 
         SkLayerDrawLooper::LayerInfo info;
         info.fPaintBits = SkLayerDrawLooper::kStyle_Bit | SkLayerDrawLooper::kMaskFilter_Bit;
-        info.fColorMode = SkXfermode::kSrc_Mode;
+        info.fColorMode = SkBlendMode::kSrc;
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gParams); i++) {
             info.fOffset.set(gParams[i].fOffset, gParams[i].fOffset);
@@ -86,12 +78,11 @@ private:
             paint->setStyle(gParams[i].fStyle);
             paint->setStrokeWidth(gParams[i].fWidth);
             if (gParams[i].fBlur > 0) {
-                SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                         SkBlurMask::ConvertRadiusToSigma(gParams[i].fBlur));
-                paint->setMaskFilter(mf)->unref();
+                paint->setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                         SkBlurMask::ConvertRadiusToSigma(gParams[i].fBlur)));
             }
         }
-        fLooper = looperBuilder.detachLooper();
+        fLooper = looperBuilder.detach();
     }
 
     typedef GM INHERITED;
@@ -99,5 +90,4 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory(void*) { return new DrawLooperGM; }
-static skiagm::GMRegistry reg(MyFactory);
+DEF_GM( return new DrawLooperGM; )

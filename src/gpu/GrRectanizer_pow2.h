@@ -9,6 +9,8 @@
 #define GrRectanizer_pow2_DEFINED
 
 #include "GrRectanizer.h"
+#include "SkMathPriv.h"
+#include "SkMalloc.h"
 #include "SkPoint.h"
 
 // This Rectanizer quantizes the incoming rects to powers of 2. Each power
@@ -22,7 +24,7 @@ public:
         this->reset();
     }
 
-    virtual ~GrRectanizerPow2() { }
+    ~GrRectanizerPow2() override {}
 
     void reset() override {
         fNextStripY = 0;

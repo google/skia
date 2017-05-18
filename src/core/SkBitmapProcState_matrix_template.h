@@ -22,13 +22,10 @@ void NoFilterProc_Scale(const SkBitmapProcState& s, uint32_t xy[],
     const unsigned maxX = s.fPixmap.width() - 1;
     SkFractionalInt fx;
     {
-        SkPoint pt;
-        s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-                                  SkIntToScalar(y) + SK_ScalarHalf, &pt);
-        fx = SkScalarToFractionalInt(pt.fY);
+        const SkBitmapProcStateAutoMapper mapper(s, x, y);
         const unsigned maxY = s.fPixmap.height() - 1;
-        *xy++ = TileProc::Y(s, SkFractionalIntToFixed(fx), maxY);
-        fx = SkScalarToFractionalInt(pt.fX);
+        *xy++ = TileProc::Y(s, mapper.fixedY(), maxY);
+        fx = mapper.fractionalIntX();
     }
 
     if (0 == maxX) {
@@ -39,32 +36,37 @@ void NoFilterProc_Scale(const SkBitmapProcState& s, uint32_t xy[],
 
     const SkFractionalInt dx = s.fInvSxFractionalInt;
 
-    if (tryDecal && can_truncate_to_fixed_for_decal(fx, dx, count, maxX)) {
-        decal_nofilter_scale(xy, SkFractionalIntToFixed(fx),
-                             SkFractionalIntToFixed(dx), count);
-    } else {
-        int i;
-        for (i = (count >> 2); i > 0; --i) {
-            unsigned a, b;
-            a = TileProc::X(s, SkFractionalIntToFixed(fx), maxX); fx += dx;
-            b = TileProc::X(s, SkFractionalIntToFixed(fx), maxX); fx += dx;
-#ifdef SK_CPU_BENDIAN
-            *xy++ = (a << 16) | b;
-#else
-            *xy++ = (b << 16) | a;
-#endif
-            a = TileProc::X(s, SkFractionalIntToFixed(fx), maxX); fx += dx;
-            b = TileProc::X(s, SkFractionalIntToFixed(fx), maxX); fx += dx;
-#ifdef SK_CPU_BENDIAN
-            *xy++ = (a << 16) | b;
-#else
-            *xy++ = (b << 16) | a;
-#endif
+    if (tryDecal) {
+        const SkFixed fixedFx = SkFractionalIntToFixed(fx);
+        const SkFixed fixedDx = SkFractionalIntToFixed(dx);
+
+        if (can_truncate_to_fixed_for_decal(fixedFx, fixedDx, count, maxX)) {
+            decal_nofilter_scale(xy, fixedFx, fixedDx, count);
+            return;
         }
-        uint16_t* xx = (uint16_t*)xy;
-        for (i = (count & 3); i > 0; --i) {
-            *xx++ = TileProc::X(s, SkFractionalIntToFixed(fx), maxX); fx += dx;
-        }
+    }
+
+    int i;
+    for (i = (count >> 2); i > 0; --i) {
+        unsigned a, b;
+        a = TileProc::X(s, SkFractionalIntToFixed(fx), maxX); fx += dx;
+        b = TileProc::X(s, SkFractionalIntToFixed(fx), maxX); fx += dx;
+#ifdef SK_CPU_BENDIAN
+        *xy++ = (a << 16) | b;
+#else
+        *xy++ = (b << 16) | a;
+#endif
+        a = TileProc::X(s, SkFractionalIntToFixed(fx), maxX); fx += dx;
+        b = TileProc::X(s, SkFractionalIntToFixed(fx), maxX); fx += dx;
+#ifdef SK_CPU_BENDIAN
+        *xy++ = (a << 16) | b;
+#else
+        *xy++ = (b << 16) | a;
+#endif
+    }
+    uint16_t* xx = (uint16_t*)xy;
+    for (i = (count & 3); i > 0; --i) {
+        *xx++ = TileProc::X(s, SkFractionalIntToFixed(fx), maxX); fx += dx;
     }
 }
 
@@ -80,13 +82,10 @@ void NoFilterProc_Affine(const SkBitmapProcState& s, uint32_t xy[],
                              SkMatrix::kScale_Mask |
                              SkMatrix::kAffine_Mask)) == 0);
 
-    SkPoint srcPt;
-    s.fInvProc(s.fInvMatrix,
-               SkIntToScalar(x) + SK_ScalarHalf,
-               SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
 
-    SkFractionalInt fx = SkScalarToFractionalInt(srcPt.fX);
-    SkFractionalInt fy = SkScalarToFractionalInt(srcPt.fY);
+    SkFractionalInt fx = mapper.fractionalIntX();
+    SkFractionalInt fy = mapper.fractionalIntY();
     SkFractionalInt dx = s.fInvSxFractionalInt;
     SkFractionalInt dy = s.fInvKyFractionalInt;
     int maxX = s.fPixmap.width() - 1;

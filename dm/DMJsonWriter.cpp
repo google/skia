@@ -13,6 +13,7 @@
 #include "SkJSONCPP.h"
 #include "SkMutex.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkStream.h"
 #include "SkTArray.h"
 
@@ -52,11 +53,12 @@ void JsonWriter::DumpJson() {
         SkAutoMutexAcquire lock(&gBitmapResultLock);
         for (int i = 0; i < gBitmapResults.count(); i++) {
             Json::Value result;
-            result["key"]["name"]        = gBitmapResults[i].name.c_str();
-            result["key"]["config"]      = gBitmapResults[i].config.c_str();
-            result["key"]["source_type"] = gBitmapResults[i].sourceType.c_str();
-            result["options"]["ext"]     = gBitmapResults[i].ext.c_str();
-            result["md5"]                = gBitmapResults[i].md5.c_str();
+            result["key"]["name"]              = gBitmapResults[i].name.c_str();
+            result["key"]["config"]            = gBitmapResults[i].config.c_str();
+            result["key"]["source_type"]       = gBitmapResults[i].sourceType.c_str();
+            result["options"]["ext"]           = gBitmapResults[i].ext.c_str();
+            result["options"]["gamma_correct"] = gBitmapResults[i].gammaCorrect ? "yes" : "no";
+            result["md5"]                      = gBitmapResults[i].md5.c_str();
 
             // Source options only need to be part of the key if they exist.
             // Source type by source type, we either always set options or never set options.
@@ -94,7 +96,7 @@ void JsonWriter::DumpJson() {
 }
 
 bool JsonWriter::ReadJson(const char* path, void(*callback)(BitmapResult)) {
-    SkAutoTUnref<SkData> json(SkData::NewFromFileName(path));
+    sk_sp<SkData> json(SkData::MakeFromFileName(path));
     if (!json) {
         return false;
     }
@@ -110,11 +112,12 @@ bool JsonWriter::ReadJson(const char* path, void(*callback)(BitmapResult)) {
     BitmapResult br;
     for (unsigned i = 0; i < results.size(); i++) {
         const Json::Value& r = results[i];
-        br.name       = r["key"]["name"].asCString();
-        br.config     = r["key"]["config"].asCString();
-        br.sourceType = r["key"]["source_type"].asCString();
-        br.ext        = r["options"]["ext"].asCString();
-        br.md5        = r["md5"].asCString();
+        br.name         = r["key"]["name"].asCString();
+        br.config       = r["key"]["config"].asCString();
+        br.sourceType   = r["key"]["source_type"].asCString();
+        br.ext          = r["options"]["ext"].asCString();
+        br.gammaCorrect = 0 == strcmp("yes", r["options"]["gamma_correct"].asCString());
+        br.md5          = r["md5"].asCString();
 
         if (!r["key"]["source_options"].isNull()) {
             br.sourceOptions = r["key"]["source_options"].asCString();

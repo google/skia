@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,15 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkXfermode.h"
 #include "SkXfermode_proccoeff.h"
 #include "SkColorPriv.h"
 #include "SkMathPriv.h"
-#include "SkOncePtr.h"
+#include "SkOnce.h"
 #include "SkOpts.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
 #include "SkWriteBuffer.h"
+#include "SkPM4f.h"
+
+#if SK_SUPPORT_GPU
+#include "GrFragmentProcessor.h"
+#include "effects/GrCustomXfermode.h"
+#include "effects/GrPorterDuffXferProcessor.h"
+#include "effects/GrXfermodeFragmentProcessor.h"
+#endif
 
 #define SkAlphaMulAlpha(a, b)   SkMulDiv255Round(a, b)
 
@@ -45,6 +52,308 @@ static inline int clamp_div255round(int prod) {
     } else {
         return SkDiv255Round(prod);
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+#include "SkNx.h"
+
+static Sk4f     alpha(const Sk4f& color) { return Sk4f(color[3]); }
+static Sk4f inv_alpha(const Sk4f& color) { return Sk4f(1 - color[3]); }
+static Sk4f     pin_1(const Sk4f& value) { return Sk4f::Min(value, Sk4f(1)); }
+
+static Sk4f color_alpha(const Sk4f& color, float newAlpha) {
+    return Sk4f(color[0], color[1], color[2], newAlpha);
+}
+static Sk4f color_alpha(const Sk4f& color, const Sk4f& newAlpha) {
+    return color_alpha(color, newAlpha[3]);
+}
+
+static Sk4f set_argb(float a, float r, float g, float b) {
+    if (0 == SkPM4f::R) {
+        return Sk4f(r, g, b, a);
+    } else {
+        return Sk4f(b, g, r, a);
+    }
+}
+
+static Sk4f    clear_4f(const Sk4f& s, const Sk4f& d) { return Sk4f(0); }
+static Sk4f      src_4f(const Sk4f& s, const Sk4f& d) { return s; }
+static Sk4f      dst_4f(const Sk4f& s, const Sk4f& d) { return d; }
+static Sk4f  srcover_4f(const Sk4f& s, const Sk4f& d) { return s + inv_alpha(s) * d; }
+static Sk4f  dstover_4f(const Sk4f& s, const Sk4f& d) { return d + inv_alpha(d) * s; }
+static Sk4f    srcin_4f(const Sk4f& s, const Sk4f& d) { return s * alpha(d); }
+static Sk4f    dstin_4f(const Sk4f& s, const Sk4f& d) { return d * alpha(s); }
+static Sk4f   srcout_4f(const Sk4f& s, const Sk4f& d) { return s * inv_alpha(d); }
+static Sk4f   dstout_4f(const Sk4f& s, const Sk4f& d) { return d * inv_alpha(s); }
+static Sk4f  srcatop_4f(const Sk4f& s, const Sk4f& d) { return s * alpha(d) + d * inv_alpha(s); }
+static Sk4f  dstatop_4f(const Sk4f& s, const Sk4f& d) { return d * alpha(s) + s * inv_alpha(d); }
+static Sk4f      xor_4f(const Sk4f& s, const Sk4f& d) { return s * inv_alpha(d) + d * inv_alpha(s);}
+static Sk4f     plus_4f(const Sk4f& s, const Sk4f& d) { return pin_1(s + d); }
+static Sk4f modulate_4f(const Sk4f& s, const Sk4f& d) { return s * d; }
+static Sk4f   screen_4f(const Sk4f& s, const Sk4f& d) { return s + d - s * d; }
+
+static Sk4f multiply_4f(const Sk4f& s, const Sk4f& d) {
+    return s * inv_alpha(d) + d * inv_alpha(s) + s * d;
+}
+
+static Sk4f overlay_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f sa = alpha(s);
+    Sk4f da = alpha(d);
+    Sk4f two = Sk4f(2);
+    Sk4f rc = (two * d <= da).thenElse(two * s * d,
+                                       sa * da - two * (da - d) * (sa - s));
+    return pin_1(s + d - s * da + color_alpha(rc - d * sa, 0));
+}
+
+static Sk4f hardlight_4f(const Sk4f& s, const Sk4f& d) {
+    return overlay_4f(d, s);
+}
+
+static Sk4f darken_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f sa = alpha(s);
+    Sk4f da = alpha(d);
+    return s + d - Sk4f::Max(s * da, d * sa);
+}
+
+static Sk4f lighten_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f sa = alpha(s);
+    Sk4f da = alpha(d);
+    return s + d - Sk4f::Min(s * da, d * sa);
+}
+
+static Sk4f colordodge_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f sa = alpha(s);
+    Sk4f da = alpha(d);
+    Sk4f isa = Sk4f(1) - sa;
+    Sk4f ida = Sk4f(1) - da;
+
+    Sk4f srcover = s + d * isa;
+    Sk4f dstover = d + s * ida;
+    Sk4f otherwise = sa * Sk4f::Min(da, (d * sa) / (sa - s)) + s * ida + d * isa;
+
+    // Order matters here, preferring d==0 over s==sa.
+    auto colors = (d == Sk4f(0)).thenElse(dstover,
+                                          (s == sa).thenElse(srcover,
+                                                             otherwise));
+    return color_alpha(colors, srcover);
+}
+
+static Sk4f colorburn_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f sa  = alpha(s);
+    Sk4f da  = alpha(d);
+    Sk4f isa = Sk4f(1) - sa;
+    Sk4f ida = Sk4f(1) - da;
+
+    Sk4f srcover = s + d * isa;
+    Sk4f dstover = d + s * ida;
+    Sk4f otherwise = sa * (da - Sk4f::Min(da, (da - d) * sa / s)) + s * ida + d * isa;
+
+    // Order matters here, preferring d==da over s==0.
+    auto colors = (d == da).thenElse(dstover,
+                                     (s == Sk4f(0)).thenElse(srcover,
+                                                             otherwise));
+    return color_alpha(colors, srcover);
+}
+
+static Sk4f softlight_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f sa  = alpha(s);
+    Sk4f da  = alpha(d);
+    Sk4f isa = Sk4f(1) - sa;
+    Sk4f ida = Sk4f(1) - da;
+
+    // Some common terms.
+    Sk4f m  = (da > Sk4f(0)).thenElse(d / da, Sk4f(0));
+    Sk4f s2 = Sk4f(2) * s;
+    Sk4f m4 = Sk4f(4) * m;
+
+    // The logic forks three ways:
+    //    1. dark src?
+    //    2. light src, dark dst?
+    //    3. light src, light dst?
+    Sk4f darkSrc = d * (sa + (s2 - sa) * (Sk4f(1) - m));            // Used in case 1.
+    Sk4f darkDst = (m4 * m4 + m4) * (m - Sk4f(1)) + Sk4f(7) * m;    // Used in case 2.
+    Sk4f liteDst = m.sqrt() - m;                                    // Used in case 3.
+    Sk4f liteSrc = d * sa + da * (s2 - sa) * (Sk4f(4) * d <= da).thenElse(darkDst,
+                                                                          liteDst); // Case 2 or 3?
+
+    return color_alpha(s * ida + d * isa + (s2 <= sa).thenElse(darkSrc, liteSrc), // Case 1 or 2/3?
+                       s + d * isa);
+}
+
+static Sk4f difference_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f min = Sk4f::Min(s * alpha(d), d * alpha(s));
+    return s + d - min - color_alpha(min, 0);
+}
+
+static Sk4f exclusion_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f product = s * d;
+    return s + d - product - color_alpha(product, 0);
+}
+
+////////////////////////////////////////////////////
+
+// The CSS compositing spec introduces the following formulas:
+// (See https://dvcs.w3.org/hg/FXTF/rawfile/tip/compositing/index.html#blendingnonseparable)
+// SkComputeLuminance is similar to this formula but it uses the new definition from Rec. 709
+// while PDF and CG uses the one from Rec. Rec. 601
+// See http://www.glennchan.info/articles/technical/hd-versus-sd-color-space/hd-versus-sd-color-space.htm
+static inline float Lum(float r, float g, float b) {
+    return r * 0.2126f + g * 0.7152f + b * 0.0722f;
+}
+
+static inline float max(float a, float b, float c) {
+    return SkTMax(a, SkTMax(b, c));
+}
+
+static inline float min(float a, float b, float c) {
+    return SkTMin(a, SkTMin(b, c));
+}
+
+static inline float Sat(float r, float g, float b) {
+    return max(r, g, b) - min(r, g, b);
+}
+
+static inline void setSaturationComponents(float* Cmin, float* Cmid, float* Cmax, float s) {
+    if(*Cmax > *Cmin) {
+        *Cmid = (*Cmid - *Cmin) * s / (*Cmax - *Cmin);
+        *Cmax = s;
+    } else {
+        *Cmax = 0;
+        *Cmid = 0;
+    }
+    *Cmin = 0;
+}
+
+static inline void SetSat(float* r, float* g, float* b, float s) {
+    if(*r <= *g) {
+        if(*g <= *b) {
+            setSaturationComponents(r, g, b, s);
+        } else if(*r <= *b) {
+            setSaturationComponents(r, b, g, s);
+        } else {
+            setSaturationComponents(b, r, g, s);
+        }
+    } else if(*r <= *b) {
+        setSaturationComponents(g, r, b, s);
+    } else if(*g <= *b) {
+        setSaturationComponents(g, b, r, s);
+    } else {
+        setSaturationComponents(b, g, r, s);
+    }
+}
+
+static inline void clipColor(float* r, float* g, float* b, float a) {
+    float L = Lum(*r, *g, *b);
+    float n = min(*r, *g, *b);
+    float x = max(*r, *g, *b);
+    float denom;
+    if ((n < 0) && (denom = L - n)) { // Compute denom and make sure it's non zero
+        float scale = L / denom;
+        *r = L + (*r - L) * scale;
+        *g = L + (*g - L) * scale;
+        *b = L + (*b - L) * scale;
+    }
+
+    if ((x > a) && (denom = x - L)) { // Compute denom and make sure it's non zero
+        float scale = (a - L) / denom;
+        *r = L + (*r - L) * scale;
+        *g = L + (*g - L) * scale;
+        *b = L + (*b - L) * scale;
+    }
+}
+
+static inline void SetLum(float* r, float* g, float* b, float a, float l) {
+    float d = l - Lum(*r, *g, *b);
+    *r += d;
+    *g += d;
+    *b += d;
+    clipColor(r, g, b, a);
+}
+
+static Sk4f hue_4f(const Sk4f& s, const Sk4f& d) {
+    float sa = s[SkPM4f::A];
+    float sr = s[SkPM4f::R];
+    float sg = s[SkPM4f::G];
+    float sb = s[SkPM4f::B];
+
+    float da = d[SkPM4f::A];
+    float dr = d[SkPM4f::R];
+    float dg = d[SkPM4f::G];
+    float db = d[SkPM4f::B];
+
+    float Sr = sr;
+    float Sg = sg;
+    float Sb = sb;
+    SetSat(&Sr, &Sg, &Sb, Sat(dr, dg, db) * sa);
+    SetLum(&Sr, &Sg, &Sb, sa * da, Lum(dr, dg, db) * sa);
+
+    return color_alpha(s * inv_alpha(d) + d * inv_alpha(s) + set_argb(0, Sr, Sg, Sb),
+                       sa + da - sa * da);
+}
+
+static Sk4f saturation_4f(const Sk4f& s, const Sk4f& d) {
+    float sa = s[SkPM4f::A];
+    float sr = s[SkPM4f::R];
+    float sg = s[SkPM4f::G];
+    float sb = s[SkPM4f::B];
+
+    float da = d[SkPM4f::A];
+    float dr = d[SkPM4f::R];
+    float dg = d[SkPM4f::G];
+    float db = d[SkPM4f::B];
+
+    float Dr = dr;
+    float Dg = dg;
+    float Db = db;
+    SetSat(&Dr, &Dg, &Db, Sat(sr, sg, sb) * da);
+    SetLum(&Dr, &Dg, &Db, sa * da, Lum(dr, dg, db) * sa);
+
+    return color_alpha(s * inv_alpha(d) + d * inv_alpha(s) + set_argb(0, Dr, Dg, Db),
+                       sa + da - sa * da);
+}
+
+static Sk4f color_4f(const Sk4f& s, const Sk4f& d) {
+    float sa = s[SkPM4f::A];
+    float sr = s[SkPM4f::R];
+    float sg = s[SkPM4f::G];
+    float sb = s[SkPM4f::B];
+
+    float da = d[SkPM4f::A];
+    float dr = d[SkPM4f::R];
+    float dg = d[SkPM4f::G];
+    float db = d[SkPM4f::B];
+
+    float Sr = sr;
+    float Sg = sg;
+    float Sb = sb;
+    SetLum(&Sr, &Sg, &Sb, sa * da, Lum(dr, dg, db) * sa);
+
+    Sk4f res = color_alpha(s * inv_alpha(d) + d * inv_alpha(s) + set_argb(0, Sr, Sg, Sb),
+                           sa + da - sa * da);
+    // Can return tiny negative values ...
+    return Sk4f::Max(res, Sk4f(0));
+}
+
+static Sk4f luminosity_4f(const Sk4f& s, const Sk4f& d) {
+    float sa = s[SkPM4f::A];
+    float sr = s[SkPM4f::R];
+    float sg = s[SkPM4f::G];
+    float sb = s[SkPM4f::B];
+
+    float da = d[SkPM4f::A];
+    float dr = d[SkPM4f::R];
+    float dg = d[SkPM4f::G];
+    float db = d[SkPM4f::B];
+
+    float Dr = dr;
+    float Dg = dg;
+    float Db = db;
+    SetLum(&Dr, &Dg, &Db, sa * da, Lum(sr, sg, sb) * da);
+
+    Sk4f res = color_alpha(s * inv_alpha(d) + d * inv_alpha(s) + set_argb(0, Dr, Dg, Db),
+                           sa + da - sa * da);
+    // Can return tiny negative values ...
+    return Sk4f::Max(res, Sk4f(0));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -612,37 +921,69 @@ static SkPMColor luminosity_modeproc(SkPMColor src, SkPMColor dst) {
     return SkPackARGB32(a, r, g, b);
 }
 
-const ProcCoeff gProcCoeffs[] = {
-    { clear_modeproc,   SkXfermode::kZero_Coeff,    SkXfermode::kZero_Coeff },
-    { src_modeproc,     SkXfermode::kOne_Coeff,     SkXfermode::kZero_Coeff },
-    { dst_modeproc,     SkXfermode::kZero_Coeff,    SkXfermode::kOne_Coeff },
-    { srcover_modeproc, SkXfermode::kOne_Coeff,     SkXfermode::kISA_Coeff },
-    { dstover_modeproc, SkXfermode::kIDA_Coeff,     SkXfermode::kOne_Coeff },
-    { srcin_modeproc,   SkXfermode::kDA_Coeff,      SkXfermode::kZero_Coeff },
-    { dstin_modeproc,   SkXfermode::kZero_Coeff,    SkXfermode::kSA_Coeff },
-    { srcout_modeproc,  SkXfermode::kIDA_Coeff,     SkXfermode::kZero_Coeff },
-    { dstout_modeproc,  SkXfermode::kZero_Coeff,    SkXfermode::kISA_Coeff },
-    { srcatop_modeproc, SkXfermode::kDA_Coeff,      SkXfermode::kISA_Coeff },
-    { dstatop_modeproc, SkXfermode::kIDA_Coeff,     SkXfermode::kSA_Coeff },
-    { xor_modeproc,     SkXfermode::kIDA_Coeff,     SkXfermode::kISA_Coeff },
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
-    { plus_modeproc,    SkXfermode::kOne_Coeff,     SkXfermode::kOne_Coeff },
-    { modulate_modeproc,SkXfermode::kZero_Coeff,    SkXfermode::kSC_Coeff },
-    { screen_modeproc,  SkXfermode::kOne_Coeff,     SkXfermode::kISC_Coeff },
-    { overlay_modeproc,     CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { darken_modeproc,      CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { lighten_modeproc,     CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { colordodge_modeproc,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { colorburn_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { hardlight_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { softlight_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { difference_modeproc,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { exclusion_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { multiply_modeproc,    CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { hue_modeproc,         CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { saturation_modeproc,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { color_modeproc,       CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { luminosity_modeproc,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+static SkPM4f as_pm4f(const Sk4f& x) {
+    SkPM4f pm4;
+    x.store(pm4.fVec);
+    return pm4;
+}
+
+static Sk4f as_4f(const SkPM4f& pm4) {
+    return Sk4f::Load(pm4.fVec);
+}
+
+static void assert_unit(const SkPM4f& r) {
+#ifdef SK_DEBUG
+    const float eps = 0.00001f;
+    const float min = 0 - eps;
+    const float max = 1 + eps;
+    for (int i = 0; i < 4; ++i) {
+        SkASSERT(r.fVec[i] >= min && r.fVec[i] <= max);
+    }
+#endif
+}
+
+template <Sk4f (blend)(const Sk4f&, const Sk4f&)> SkPM4f proc_4f(const SkPM4f& s, const SkPM4f& d) {
+    assert_unit(s);
+    assert_unit(d);
+    SkPM4f r = as_pm4f(blend(as_4f(s), as_4f(d)));
+    // Turn this assert off for now because srgb conversions may end up in rgb > a
+    // assert_unit(r);
+    return r;
+}
+
+const ProcCoeff gProcCoeffs[] = {
+    { clear_modeproc,       proc_4f<clear_4f>,      SkXfermode::kZero_Coeff,    SkXfermode::kZero_Coeff },
+    { src_modeproc,         proc_4f<src_4f>,        SkXfermode::kOne_Coeff,     SkXfermode::kZero_Coeff },
+    { dst_modeproc,         proc_4f<dst_4f>,        SkXfermode::kZero_Coeff,    SkXfermode::kOne_Coeff  },
+    { srcover_modeproc,     proc_4f<srcover_4f>,    SkXfermode::kOne_Coeff,     SkXfermode::kISA_Coeff  },
+    { dstover_modeproc,     proc_4f<dstover_4f>,    SkXfermode::kIDA_Coeff,     SkXfermode::kOne_Coeff  },
+    { srcin_modeproc,       proc_4f<srcin_4f>,      SkXfermode::kDA_Coeff,      SkXfermode::kZero_Coeff },
+    { dstin_modeproc,       proc_4f<dstin_4f>,      SkXfermode::kZero_Coeff,    SkXfermode::kSA_Coeff   },
+    { srcout_modeproc,      proc_4f<srcout_4f>,     SkXfermode::kIDA_Coeff,     SkXfermode::kZero_Coeff },
+    { dstout_modeproc,      proc_4f<dstout_4f>,     SkXfermode::kZero_Coeff,    SkXfermode::kISA_Coeff  },
+    { srcatop_modeproc,     proc_4f<srcatop_4f>,    SkXfermode::kDA_Coeff,      SkXfermode::kISA_Coeff  },
+    { dstatop_modeproc,     proc_4f<dstatop_4f>,    SkXfermode::kIDA_Coeff,     SkXfermode::kSA_Coeff   },
+    { xor_modeproc,         proc_4f<xor_4f>,        SkXfermode::kIDA_Coeff,     SkXfermode::kISA_Coeff  },
+
+    { plus_modeproc,        proc_4f<plus_4f>,       SkXfermode::kOne_Coeff,     SkXfermode::kOne_Coeff  },
+    { modulate_modeproc,    proc_4f<modulate_4f>,   SkXfermode::kZero_Coeff,    SkXfermode::kSC_Coeff   },
+    { screen_modeproc,      proc_4f<screen_4f>,     SkXfermode::kOne_Coeff,     SkXfermode::kISC_Coeff  },
+    { overlay_modeproc,     proc_4f<overlay_4f>,    CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { darken_modeproc,      proc_4f<darken_4f>,     CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { lighten_modeproc,     proc_4f<lighten_4f>,    CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { colordodge_modeproc,  proc_4f<colordodge_4f>, CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { colorburn_modeproc,   proc_4f<colorburn_4f>,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { hardlight_modeproc,   proc_4f<hardlight_4f>,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { softlight_modeproc,   proc_4f<softlight_4f>,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { difference_modeproc,  proc_4f<difference_4f>, CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { exclusion_modeproc,   proc_4f<exclusion_4f>,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { multiply_modeproc,    proc_4f<multiply_4f>,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { hue_modeproc,         proc_4f<hue_4f>,        CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { saturation_modeproc,  proc_4f<saturation_4f>, CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { color_modeproc,       proc_4f<color_4f>,      CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { luminosity_modeproc,  proc_4f<luminosity_4f>, CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -651,32 +992,20 @@ bool SkXfermode::asMode(Mode* mode) const {
     return false;
 }
 
-bool SkXfermode::asFragmentProcessor(const GrFragmentProcessor**,
-                                     const GrFragmentProcessor*) const {
-    return false;
-}
-
-bool SkXfermode::asXPFactory(GrXPFactory**) const {
-    return false;
-}
-
-
 #if SK_SUPPORT_GPU
-#include "effects/GrPorterDuffXferProcessor.h"
-
-bool SkXfermode::AsXPFactory(SkXfermode* xfermode, GrXPFactory** xpf) {
-    if (nullptr == xfermode) {
-        if (xpf) {
-            *xpf = GrPorterDuffXPFactory::Create(kSrcOver_Mode);
-        }
-        return true;
-    } else {
-        return xfermode->asXPFactory(xpf);
-    }
+sk_sp<GrFragmentProcessor> SkXfermode::makeFragmentProcessorForImageFilter(
+                                                                sk_sp<GrFragmentProcessor>) const {
+    // This should never be called.
+    // TODO: make pure virtual in SkXfermode once Android update lands
+    SkASSERT(0);
+    return nullptr;
 }
-#else
-bool SkXfermode::AsXPFactory(SkXfermode* xfermode, GrXPFactory** xpf) {
-    return false;
+
+const GrXPFactory* SkXfermode::asXPFactory() const {
+    // This should never be called.
+    // TODO: make pure virtual in SkXfermode once Android update lands
+    SkASSERT(0);
+    return nullptr;
 }
 #endif
 
@@ -771,21 +1100,21 @@ bool SkXfermode::isOpaque(SkXfermode::SrcColorOpacity opacityType) const {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-SkFlattenable* SkProcCoeffXfermode::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkProcCoeffXfermode::CreateProc(SkReadBuffer& buffer) {
     uint32_t mode32 = buffer.read32();
     if (!buffer.validate(mode32 < SK_ARRAY_COUNT(gProcCoeffs))) {
         return nullptr;
     }
-    return SkXfermode::Create((SkXfermode::Mode)mode32);
+    return SkXfermode::Make((SkXfermode::Mode)mode32);
 }
 
 void SkProcCoeffXfermode::flatten(SkWriteBuffer& buffer) const {
-    buffer.write32(fMode);
+    buffer.write32((int)fMode);
 }
 
 bool SkProcCoeffXfermode::asMode(Mode* mode) const {
     if (mode) {
-        *mode = fMode;
+        *mode = (Mode)fMode;
     }
     return true;
 }
@@ -919,36 +1248,21 @@ void SkProcCoeffXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 }
 
 #if SK_SUPPORT_GPU
-#include "effects/GrCustomXfermode.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
-
-bool SkProcCoeffXfermode::asFragmentProcessor(const GrFragmentProcessor** fp,
-                                              const GrFragmentProcessor* dst) const {
-    if (fp) {
-        SkASSERT(dst);
-        *fp = GrXfermodeFragmentProcessor::CreateFromDstProcessor(dst, fMode);
-        SkASSERT(*fp || kSrc_Mode == fMode);
-    }
-    return true;
+sk_sp<GrFragmentProcessor> SkProcCoeffXfermode::makeFragmentProcessorForImageFilter(
+                                                            sk_sp<GrFragmentProcessor> dst) const {
+    SkASSERT(dst);
+    return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(dst), fMode);
 }
 
-bool SkProcCoeffXfermode::asXPFactory(GrXPFactory** xp) const {
+const GrXPFactory* SkProcCoeffXfermode::asXPFactory() const {
     if (CANNOT_USE_COEFF != fSrcCoeff) {
-        if (xp) {
-            *xp = GrPorterDuffXPFactory::Create(fMode);
-            SkASSERT(*xp);
-        }
-        return true;
+        const GrXPFactory* result(GrPorterDuffXPFactory::Get(fMode));
+        SkASSERT(result);
+        return result;
     }
 
-    if (GrCustomXfermode::IsSupportedMode(fMode)) {
-        if (xp) {
-            *xp = GrCustomXfermode::CreateXPFactory(fMode);
-            SkASSERT(*xp);
-        }
-        return true;
-    }
-    return false;
+    SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
+    return GrCustomXfermode::Get(fMode);
 }
 #endif
 
@@ -963,6 +1277,10 @@ const char* SkXfermode::ModeName(Mode mode) {
     };
     return gModeStrings[mode];
     static_assert(SK_ARRAY_COUNT(gModeStrings) == kLastMode + 1, "mode_count");
+}
+
+const char* SkBlendMode_Name(SkBlendMode mode) {
+    return SkXfermode::ModeName((SkXfermode::Mode)mode);
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -993,35 +1311,47 @@ void SkProcCoeffXfermode::toString(SkString* str) const {
 #endif
 
 
-SK_DECLARE_STATIC_ONCE_PTR(SkXfermode, cached[SkXfermode::kLastMode + 1]);
-
-SkXfermode* SkXfermode::Create(Mode mode) {
-    SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
-
-    if ((unsigned)mode >= kModeCount) {
+sk_sp<SkXfermode> SkXfermode::Make(SkBlendMode mode) {
+    if ((unsigned)mode > (unsigned)SkBlendMode::kLastMode) {
         // report error
         return nullptr;
     }
 
     // Skia's "default" mode is srcover. nullptr in SkPaint is interpreted as srcover
     // so we can just return nullptr from the factory.
-    if (kSrcOver_Mode == mode) {
+    if (SkBlendMode::kSrcOver == mode) {
         return nullptr;
     }
 
-    return SkSafeRef(cached[mode].get([=]{
-        ProcCoeff rec = gProcCoeffs[mode];
+    const int COUNT_BLENDMODES = (int)SkBlendMode::kLastMode + 1;
+    SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == COUNT_BLENDMODES);
+
+    static SkOnce        once[COUNT_BLENDMODES];
+    static SkXfermode* cached[COUNT_BLENDMODES];
+
+    once[(int)mode]([mode] {
+        ProcCoeff rec = gProcCoeffs[(int)mode];
         if (auto xfermode = SkOpts::create_xfermode(rec, mode)) {
-            return xfermode;
+            cached[(int)mode] = xfermode;
+        } else {
+            cached[(int)mode] = new SkProcCoeffXfermode(rec, mode);
         }
-        return (SkXfermode*) new SkProcCoeffXfermode(rec, mode);
-    }));
+    });
+    return sk_ref_sp(cached[(int)mode]);
 }
 
-SkXfermodeProc SkXfermode::GetProc(Mode mode) {
+SkXfermodeProc SkXfermode::GetProc(SkBlendMode mode) {
     SkXfermodeProc  proc = nullptr;
     if ((unsigned)mode < kModeCount) {
-        proc = gProcCoeffs[mode].fProc;
+        proc = gProcCoeffs[(unsigned)mode].fProc;
+    }
+    return proc;
+}
+
+SkXfermodeProc4f SkXfermode::GetProc4f(SkBlendMode mode) {
+    SkXfermodeProc4f  proc = nullptr;
+    if ((unsigned)mode < kModeCount) {
+        proc = gProcCoeffs[(unsigned)mode].fProc4f;
     }
     return proc;
 }
@@ -1090,3 +1420,104 @@ bool SkXfermode::IsOpaque(const SkXfermode* xfer, SrcColorOpacity opacityType) {
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkProcCoeffXfermode)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode mode) {
+    switch (mode) {
+        case SkBlendMode::kDst:
+        case SkBlendMode::kSrcOver:
+        case SkBlendMode::kDstOver:
+        case SkBlendMode::kDstOut:
+        case SkBlendMode::kSrcATop:
+        case SkBlendMode::kXor:
+        case SkBlendMode::kPlus:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+bool SkXfermode::IsOpaque(SkBlendMode mode, SrcColorOpacity opacityType) {
+    const ProcCoeff rec = gProcCoeffs[(int)mode];
+
+    switch (rec.fSC) {
+        case kDA_Coeff:
+        case kDC_Coeff:
+        case kIDA_Coeff:
+        case kIDC_Coeff:
+            return false;
+        default:
+            break;
+    }
+
+    switch (rec.fDC) {
+        case kZero_Coeff:
+            return true;
+        case kISA_Coeff:
+            return kOpaque_SrcColorOpacity == opacityType;
+        case kSA_Coeff:
+            return kTransparentBlack_SrcColorOpacity == opacityType ||
+            kTransparentAlpha_SrcColorOpacity == opacityType;
+        case kSC_Coeff:
+            return kTransparentBlack_SrcColorOpacity == opacityType;
+        default:
+            return false;
+    }
+    return false;
+}
+
+#if SK_SUPPORT_GPU
+const GrXPFactory* SkBlendMode_AsXPFactory(SkBlendMode mode) {
+    const ProcCoeff rec = gProcCoeffs[(int)mode];
+    if (CANNOT_USE_COEFF != rec.fSC) {
+        const GrXPFactory* result = GrPorterDuffXPFactory::Get(mode);
+        SkASSERT(result);
+        return result;
+    }
+
+    SkASSERT(GrCustomXfermode::IsSupportedMode(mode));
+    return GrCustomXfermode::Get(mode);
+}
+#endif
+
+bool SkBlendMode_CanOverflow(SkBlendMode mode) { return mode == SkBlendMode::kPlus; }
+
+void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
+    auto stage = SkRasterPipeline::srcover;
+    switch (mode) {
+        case SkBlendMode::kClear:    stage = SkRasterPipeline::clear; break;
+        case SkBlendMode::kSrc:      return;  // This stage is a no-op.
+        case SkBlendMode::kDst:      stage = SkRasterPipeline::move_dst_src; break;
+        case SkBlendMode::kSrcOver:  stage = SkRasterPipeline::srcover; break;
+        case SkBlendMode::kDstOver:  stage = SkRasterPipeline::dstover; break;
+        case SkBlendMode::kSrcIn:    stage = SkRasterPipeline::srcin; break;
+        case SkBlendMode::kDstIn:    stage = SkRasterPipeline::dstin; break;
+        case SkBlendMode::kSrcOut:   stage = SkRasterPipeline::srcout; break;
+        case SkBlendMode::kDstOut:   stage = SkRasterPipeline::dstout; break;
+        case SkBlendMode::kSrcATop:  stage = SkRasterPipeline::srcatop; break;
+        case SkBlendMode::kDstATop:  stage = SkRasterPipeline::dstatop; break;
+        case SkBlendMode::kXor:      stage = SkRasterPipeline::xor_; break;
+        case SkBlendMode::kPlus:     stage = SkRasterPipeline::plus_; break;
+        case SkBlendMode::kModulate: stage = SkRasterPipeline::modulate; break;
+
+        case SkBlendMode::kScreen:     stage = SkRasterPipeline::screen; break;
+        case SkBlendMode::kOverlay:    stage = SkRasterPipeline::overlay; break;
+        case SkBlendMode::kDarken:     stage = SkRasterPipeline::darken; break;
+        case SkBlendMode::kLighten:    stage = SkRasterPipeline::lighten; break;
+        case SkBlendMode::kColorDodge: stage = SkRasterPipeline::colordodge; break;
+        case SkBlendMode::kColorBurn:  stage = SkRasterPipeline::colorburn; break;
+        case SkBlendMode::kHardLight:  stage = SkRasterPipeline::hardlight; break;
+        case SkBlendMode::kSoftLight:  stage = SkRasterPipeline::softlight; break;
+        case SkBlendMode::kDifference: stage = SkRasterPipeline::difference; break;
+        case SkBlendMode::kExclusion:  stage = SkRasterPipeline::exclusion; break;
+        case SkBlendMode::kMultiply:   stage = SkRasterPipeline::multiply; break;
+
+        case SkBlendMode::kHue:        stage = SkRasterPipeline::hue; break;
+        case SkBlendMode::kSaturation: stage = SkRasterPipeline::saturation; break;
+        case SkBlendMode::kColor:      stage = SkRasterPipeline::color; break;
+        case SkBlendMode::kLuminosity: stage = SkRasterPipeline::luminosity; break;
+    }
+    p->append(stage);
+}

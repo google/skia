@@ -9,13 +9,16 @@
 #define Sk4pxXfermode_DEFINED
 
 #include "Sk4px.h"
+#include "SkMSAN.h"
 #include "SkNx.h"
 #include "SkXfermode_proccoeff.h"
 
 namespace {
 
 // Most xfermodes can be done most efficiently 4 pixels at a time in 8 or 16-bit fixed point.
-#define XFERMODE(Name) static Sk4px SK_VECTORCALL Name(Sk4px s, Sk4px d)
+#define XFERMODE(Xfermode) \
+    struct Xfermode { Sk4px operator()(const Sk4px&, const Sk4px&) const; }; \
+    inline Sk4px Xfermode::operator()(const Sk4px& d, const Sk4px& s) const
 
 XFERMODE(Clear) { return Sk4px::DupPMColor(0); }
 XFERMODE(Src)   { return s; }
@@ -23,13 +26,13 @@ XFERMODE(Dst)   { return d; }
 XFERMODE(SrcIn)   { return     s.approxMulDiv255(d.alphas()      ); }
 XFERMODE(SrcOut)  { return     s.approxMulDiv255(d.alphas().inv()); }
 XFERMODE(SrcOver) { return s + d.approxMulDiv255(s.alphas().inv()); }
-XFERMODE(DstIn)   { return SrcIn  (d,s); }
-XFERMODE(DstOut)  { return SrcOut (d,s); }
-XFERMODE(DstOver) { return SrcOver(d,s); }
+XFERMODE(DstIn)   { return SrcIn  ()(s,d); }
+XFERMODE(DstOut)  { return SrcOut ()(s,d); }
+XFERMODE(DstOver) { return SrcOver()(s,d); }
 
 // [ S * Da + (1 - Sa) * D]
 XFERMODE(SrcATop) { return (s * d.alphas() + d * s.alphas().inv()).div255(); }
-XFERMODE(DstATop) { return SrcATop(d,s); }
+XFERMODE(DstATop) { return SrcATop()(s,d); }
 //[ S * (1 - Da) + (1 - Sa) * D ]
 XFERMODE(Xor) { return (s * d.alphas().inv() + d * s.alphas().inv()).div255(); }
 // [S + D ]
@@ -79,7 +82,7 @@ XFERMODE(HardLight) {
     auto colors = (both + isLite.thenElse(lite, dark)).div255();
     return alphas.zeroColors() + colors.zeroAlphas();
 }
-XFERMODE(Overlay) { return HardLight(d,s); }
+XFERMODE(Overlay) { return HardLight()(s,d); }
 
 XFERMODE(Darken) {
     auto sa = s.alphas(),
@@ -110,14 +113,16 @@ XFERMODE(Lighten) {
 #undef XFERMODE
 
 // Some xfermodes use math like divide or sqrt that's best done in floats 1 pixel at a time.
-#define XFERMODE(Name) static Sk4f SK_VECTORCALL Name(Sk4f d, Sk4f s)
+#define XFERMODE(Xfermode) \
+    struct Xfermode { Sk4f operator()(const Sk4f&, const Sk4f&) const; }; \
+    inline Sk4f Xfermode::operator()(const Sk4f& d, const Sk4f& s) const
 
 static inline Sk4f a_rgb(const Sk4f& a, const Sk4f& rgb) {
     static_assert(SK_A32_SHIFT == 24, "");
     return a * Sk4f(0,0,0,1) + rgb * Sk4f(1,1,1,0);
 }
 static inline Sk4f alphas(const Sk4f& f) {
-    return SkNx_dup<SK_A32_SHIFT/8>(f);
+    return f[SK_A32_SHIFT/8];
 }
 
 XFERMODE(ColorDodge) {
@@ -128,7 +133,7 @@ XFERMODE(ColorDodge) {
 
     auto srcover = s + d*isa,
          dstover = d + s*ida,
-         otherwise = sa * Sk4f::Min(da, (d*sa)*(sa-s).approxInvert()) + s*ida + d*isa;
+         otherwise = sa * Sk4f::Min(da, (d*sa)*(sa-s).invert()) + s*ida + d*isa;
 
     // Order matters here, preferring d==0 over s==sa.
     auto colors = (d == Sk4f(0)).thenElse(dstover,
@@ -144,7 +149,7 @@ XFERMODE(ColorBurn) {
 
     auto srcover = s + d*isa,
          dstover = d + s*ida,
-         otherwise = sa*(da-Sk4f::Min(da, (da-d)*sa*s.approxInvert())) + s*ida + d*isa;
+         otherwise = sa*(da-Sk4f::Min(da, (da-d)*sa*s.invert())) + s*ida + d*isa;
 
     // Order matters here, preferring d==da over s==0.
     auto colors = (d ==      da).thenElse(dstover,
@@ -181,15 +186,15 @@ XFERMODE(SoftLight) {
 
 // A reasonable fallback mode for doing AA is to simply apply the transfermode first,
 // then linearly interpolate the AA.
-template <Sk4px (SK_VECTORCALL *Mode)(Sk4px, Sk4px)>
-static Sk4px SK_VECTORCALL xfer_aa(Sk4px s, Sk4px d, Sk4px aa) {
-    Sk4px bw = Mode(s, d);
+template <typename Xfermode>
+static Sk4px xfer_aa(const Sk4px& d, const Sk4px& s, const Sk4px& aa) {
+    Sk4px bw = Xfermode()(d, s);
     return (bw * aa + d * aa.inv()).div255();
 }
 
 // For some transfermodes we specialize AA, either for correctness or performance.
-#define XFERMODE_AA(Name) \
-    template <> Sk4px SK_VECTORCALL xfer_aa<Name>(Sk4px s, Sk4px d, Sk4px aa)
+#define XFERMODE_AA(Xfermode) \
+    template <> Sk4px xfer_aa<Xfermode>(const Sk4px& d, const Sk4px& s, const Sk4px& aa)
 
 // Plus' clamp needs to happen after AA.  skia:3852
 XFERMODE_AA(Plus) {  // [ clamp( (1-AA)D + (AA)(S+D) ) == clamp(D + AA*S) ]
@@ -198,95 +203,111 @@ XFERMODE_AA(Plus) {  // [ clamp( (1-AA)D + (AA)(S+D) ) == clamp(D + AA*S) ]
 
 #undef XFERMODE_AA
 
+// Src and Clear modes are safe to use with unitialized dst buffers,
+// even if the implementation branches based on bytes from dst (e.g. asserts in Debug mode).
+// For those modes, just lie to MSAN that dst is always intialized.
+template <typename Xfermode> static void mark_dst_initialized_if_safe(void*, void*) {}
+template <> void mark_dst_initialized_if_safe<Src>(void* dst, void* end) {
+    sk_msan_mark_initialized(dst, end, "Src doesn't read dst.");
+}
+template <> void mark_dst_initialized_if_safe<Clear>(void* dst, void* end) {
+    sk_msan_mark_initialized(dst, end, "Clear doesn't read dst.");
+}
+
+template <typename Xfermode>
 class Sk4pxXfermode : public SkProcCoeffXfermode {
 public:
-    typedef Sk4px (SK_VECTORCALL *Proc4)(Sk4px, Sk4px);
-    typedef Sk4px (SK_VECTORCALL *AAProc4)(Sk4px, Sk4px, Sk4px);
-
-    Sk4pxXfermode(const ProcCoeff& rec, SkXfermode::Mode mode, Proc4 proc4, AAProc4 aaproc4)
-        : INHERITED(rec, mode)
-        , fProc4(proc4)
-        , fAAProc4(aaproc4) {}
+    Sk4pxXfermode(const ProcCoeff& rec, SkBlendMode mode)
+        : INHERITED(rec, mode) {}
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
+        mark_dst_initialized_if_safe<Xfermode>(dst, dst+n);
         if (nullptr == aa) {
-            Sk4px::MapDstSrc(n, dst, src, [&](const Sk4px& dst4, const Sk4px& src4) {
-                return fProc4(src4, dst4);
-            });
+            Sk4px::MapDstSrc(n, dst, src, Xfermode());
         } else {
-            Sk4px::MapDstSrcAlpha(n, dst, src, aa,
-                    [&](const Sk4px& dst4, const Sk4px& src4, const Sk4px& alpha) {
-                return fAAProc4(src4, dst4, alpha);
-            });
+            Sk4px::MapDstSrcAlpha(n, dst, src, aa, xfer_aa<Xfermode>);
         }
     }
 
     void xfer16(uint16_t dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
-        if (nullptr == aa) {
-            Sk4px::MapDstSrc(n, dst, src, [&](const Sk4px& dst4, const Sk4px& src4) {
-                return fProc4(src4, dst4);
-            });
-        } else {
-            Sk4px::MapDstSrcAlpha(n, dst, src, aa,
-                    [&](const Sk4px& dst4, const Sk4px& src4, const Sk4px& alpha) {
-                return fAAProc4(src4, dst4, alpha);
-            });
+        mark_dst_initialized_if_safe<Xfermode>(dst, dst+n);
+        SkPMColor dst32[4];
+        while (n >= 4) {
+            dst32[0] = SkPixel16ToPixel32(dst[0]);
+            dst32[1] = SkPixel16ToPixel32(dst[1]);
+            dst32[2] = SkPixel16ToPixel32(dst[2]);
+            dst32[3] = SkPixel16ToPixel32(dst[3]);
+
+            this->xfer32(dst32, src, 4, aa);
+
+            dst[0] = SkPixel32ToPixel16(dst32[0]);
+            dst[1] = SkPixel32ToPixel16(dst32[1]);
+            dst[2] = SkPixel32ToPixel16(dst32[2]);
+            dst[3] = SkPixel32ToPixel16(dst32[3]);
+
+            dst += 4;
+            src += 4;
+            aa  += aa ? 4 : 0;
+            n -= 4;
+        }
+        while (n) {
+            SkPMColor dst32 = SkPixel16ToPixel32(*dst);
+            this->xfer32(&dst32, src, 1, aa);
+            *dst = SkPixel32ToPixel16(dst32);
+
+            dst += 1;
+            src += 1;
+            aa  += aa ? 1 : 0;
+            n   -= 1;
         }
     }
 
 private:
-    Proc4 fProc4;
-    AAProc4 fAAProc4;
     typedef SkProcCoeffXfermode INHERITED;
 };
 
+template <typename Xfermode>
 class Sk4fXfermode : public SkProcCoeffXfermode {
 public:
-    typedef Sk4f (SK_VECTORCALL *ProcF)(Sk4f, Sk4f);
-    Sk4fXfermode(const ProcCoeff& rec, SkXfermode::Mode mode, ProcF procf)
-        : INHERITED(rec, mode)
-        , fProcF(procf) {}
+    Sk4fXfermode(const ProcCoeff& rec, SkBlendMode mode)
+        : INHERITED(rec, mode) {}
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
         for (int i = 0; i < n; i++) {
-            dst[i] = aa ? this->xfer32(dst[i], src[i], aa[i])
-                        : this->xfer32(dst[i], src[i]);
+            dst[i] = Xfer32_1(dst[i], src[i], aa ? aa+i : nullptr);
         }
     }
 
     void xfer16(uint16_t dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
         for (int i = 0; i < n; i++) {
             SkPMColor dst32 = SkPixel16ToPixel32(dst[i]);
-            dst32 = aa ? this->xfer32(dst32, src[i], aa[i])
-                       : this->xfer32(dst32, src[i]);
+            dst32 = Xfer32_1(dst32, src[i], aa ? aa+i : nullptr);
             dst[i] = SkPixel32ToPixel16(dst32);
         }
     }
 
 private:
-    static Sk4f Load(SkPMColor c) {
-        return Sk4f::FromBytes((uint8_t*)&c) * Sk4f(1.0f/255);
-    }
-    static SkPMColor Round(const Sk4f& f) {
-        SkPMColor c;
-        (f * Sk4f(255) + Sk4f(0.5f)).toBytes((uint8_t*)&c);
-        return c;
-    }
-    inline SkPMColor xfer32(SkPMColor dst, SkPMColor src) const {
-        return Round(fProcF(Load(dst), Load(src)));
-    }
-
-    inline SkPMColor xfer32(SkPMColor dst, SkPMColor src, SkAlpha aa) const {
-        Sk4f s(Load(src)),
-             d(Load(dst)),
-             b(fProcF(d,s));
-        // We do aa in full float precision before going back down to bytes, because we can!
-        Sk4f a = Sk4f(aa) * Sk4f(1.0f/255);
-        b = b*a + d*(Sk4f(1)-a);
+    static SkPMColor Xfer32_1(SkPMColor dst, const SkPMColor src, const SkAlpha* aa) {
+        Sk4f d = Load(dst),
+             s = Load(src),
+             b = Xfermode()(d, s);
+        if (aa) {
+            Sk4f a = Sk4f(*aa) * Sk4f(1.0f/255);
+            b = b*a + d*(Sk4f(1)-a);
+        }
         return Round(b);
     }
 
-    ProcF fProcF;
+    static Sk4f Load(SkPMColor c) {
+        return SkNx_cast<float>(Sk4b::Load(&c)) * Sk4f(1.0f/255);
+    }
+
+    static SkPMColor Round(const Sk4f& f) {
+        SkPMColor c;
+        SkNx_cast<uint8_t>(f * Sk4f(255) + Sk4f(0.5f)).store(&c);
+        return c;
+    }
+
     typedef SkProcCoeffXfermode INHERITED;
 };
 
@@ -294,10 +315,10 @@ private:
 
 namespace SK_OPTS_NS {
 
-static SkXfermode* create_xfermode(const ProcCoeff& rec, SkXfermode::Mode mode) {
+static SkXfermode* create_xfermode(const ProcCoeff& rec, SkBlendMode mode) {
     switch (mode) {
-#define CASE(Mode) \
-    case SkXfermode::k##Mode##_Mode: return new Sk4pxXfermode(rec, mode, &Mode, &xfer_aa<Mode>)
+#define CASE(Xfermode) \
+    case SkBlendMode::k##Xfermode: return new Sk4pxXfermode<Xfermode>(rec, mode)
         CASE(Clear);
         CASE(Src);
         CASE(Dst);
@@ -322,8 +343,8 @@ static SkXfermode* create_xfermode(const ProcCoeff& rec, SkXfermode::Mode mode) 
         CASE(Lighten);
     #undef CASE
 
-#define CASE(Mode) \
-    case SkXfermode::k##Mode##_Mode: return new Sk4fXfermode(rec, mode, &Mode)
+#define CASE(Xfermode) \
+    case SkBlendMode::k##Xfermode: return new Sk4fXfermode<Xfermode>(rec, mode)
         CASE(ColorDodge);
         CASE(ColorBurn);
         CASE(SoftLight);

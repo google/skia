@@ -12,6 +12,7 @@
 #include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 
@@ -27,32 +28,41 @@ void SetResourcePath(const char* resource) {
 
 bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
     SkString resourcePath = GetResourcePath(resource);
-    SkAutoTUnref<SkData> resourceData(SkData::NewFromFileName(resourcePath.c_str()));
-    SkAutoTDelete<SkImageGenerator> gen(SkImageGenerator::NewFromEncoded(resourceData));
-    return gen && gen->tryGenerateBitmap(dst);
+    sk_sp<SkData> resourceData(SkData::MakeFromFileName(resourcePath.c_str()));
+    std::unique_ptr<SkImageGenerator> gen(SkImageGenerator::MakeFromEncoded(resourceData));
+    if (!gen) {
+        return false;
+    }
+    return dst->tryAllocPixels(gen->getInfo()) &&
+        gen->getPixels(gen->getInfo().makeColorSpace(nullptr), dst->getPixels(), dst->rowBytes(),
+                       nullptr);
 }
 
-SkImage* GetResourceAsImage(const char* resource) {
+sk_sp<SkImage> GetResourceAsImage(const char* resource) {
     SkString path = GetResourcePath(resource);
-    SkAutoTUnref<SkData> resourceData(SkData::NewFromFileName(path.c_str()));
-    return SkImage::NewFromEncoded(resourceData);
+    sk_sp<SkData> resourceData(SkData::MakeFromFileName(path.c_str()));
+    return SkImage::MakeFromEncoded(resourceData);
 }
 
 SkStreamAsset* GetResourceAsStream(const char* resource) {
     SkString resourcePath = GetResourcePath(resource);
-    SkAutoTDelete<SkFILEStream> stream(new SkFILEStream(resourcePath.c_str()));
-    if (stream->isValid()) {
-        return stream.detach();
-    } else {
+    std::unique_ptr<SkFILEStream> stream(new SkFILEStream(resourcePath.c_str()));
+    if (!stream->isValid()) {
         SkDebugf("Resource %s not found.\n", resource);
         return nullptr;
     }
+    return stream.release();
 }
 
-SkTypeface* GetResourceAsTypeface(const char* resource) {
-    SkAutoTDelete<SkStreamAsset> stream(GetResourceAsStream(resource));
+sk_sp<SkData> GetResourceAsData(const char* resource) {
+    SkString resourcePath = GetResourcePath(resource);
+    return SkData::MakeFromFileName(resourcePath.c_str());
+}
+
+sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource) {
+    std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream(resource));
     if (!stream) {
         return nullptr;
     }
-    return SkTypeface::CreateFromStream(stream.detach());
+    return SkTypeface::MakeFromStream(stream.release());
 }

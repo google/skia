@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -10,6 +9,7 @@
 #ifndef SkFDot6_DEFINED
 #define SkFDot6_DEFINED
 
+#include "SkFixed.h"
 #include "SkScalar.h"
 #include "SkMath.h"
 
@@ -56,21 +56,57 @@ inline SkFDot6 SkScalarRoundToFDot6(SkScalar x, int shift = 0)
 #define SkFixedToFDot6(x)   ((x) >> 10)
 
 inline SkFixed SkFDot6ToFixed(SkFDot6 x) {
-    SkASSERT((x << 10 >> 10) == x);
+    SkASSERT((SkLeftShift(x, 10) >> 10) == x);
 
-    return x << 10;
+    return SkLeftShift(x, 10);
 }
 
 #define SkScalarToFDot6(x)  (SkFDot6)((x) * 64)
 #define SkFDot6ToScalar(x)  ((SkScalar)(x) * 0.015625f)
+#define SkFDot6ToFloat      SkFDot6ToScalar
 
 inline SkFixed SkFDot6Div(SkFDot6 a, SkFDot6 b) {
     SkASSERT(b != 0);
 
     if (a == (int16_t)a) {
-        return (a << 16) / b;
+        return SkLeftShift(a, 16) / b;
     } else {
         return SkFixedDiv(a, b);
+    }
+}
+
+#include "SkFDot6Constants.h"
+
+class QuickFDot6Inverse {
+public:
+    inline static SkFixed Lookup(SkFDot6 x) {
+        SkASSERT(SkAbs32(x) < kInverseTableSize);
+        return gFDot6INVERSE[kInverseTableSize + x];
+    }
+};
+
+static inline SkFixed QuickSkFDot6Div(SkFDot6 a, SkFDot6 b) {
+    const int kMinBits = 3;  // abs(b) should be at least (1 << kMinBits) for quick division
+    const int kMaxBits = 31; // Number of bits available in signed int
+    // Given abs(b) <= (1 << kMinBits), the inverse of abs(b) is at most 1 << (22 - kMinBits) in
+    // SkFixed format. Hence abs(a) should be less than kMaxAbsA
+    const int kMaxAbsA = 1 << (kMaxBits - (22 - kMinBits));
+    SkFDot6 abs_a = SkAbs32(a);
+    SkFDot6 abs_b = SkAbs32(b);
+    if (abs_b >= (1 << kMinBits) && abs_b < kInverseTableSize && abs_a < kMaxAbsA) {
+        SkASSERT((int64_t)a * QuickFDot6Inverse::Lookup(b) <= SK_MaxS32
+                && (int64_t)a * QuickFDot6Inverse::Lookup(b) >= SK_MinS32);
+        SkFixed ourAnswer = (a * QuickFDot6Inverse::Lookup(b)) >> 6;
+        #ifdef SK_DEBUG
+        SkFixed directAnswer = SkFDot6Div(a, b);
+        SkASSERT(
+            (directAnswer == 0 && ourAnswer == 0) ||
+            SkFixedDiv(SkAbs32(directAnswer - ourAnswer), SkAbs32(directAnswer)) <= 1 << 10
+        );
+        #endif
+        return ourAnswer;
+    } else {
+        return SkFDot6Div(a, b);
     }
 }
 

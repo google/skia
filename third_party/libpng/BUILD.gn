@@ -1,0 +1,57 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  skia_use_system_libpng = is_official_build
+}
+
+import("../third_party.gni")
+
+if (skia_use_system_libpng) {
+  system("libpng") {
+    libs = [ "png" ]
+  }
+} else {
+  third_party("libpng") {
+    public_include_dirs = [ "." ]
+
+    defines = []
+    deps = [
+      "//third_party/zlib",
+    ]
+    sources = [
+      "png.c",
+      "pngerror.c",
+      "pngget.c",
+      "pngmem.c",
+      "pngpread.c",
+      "pngread.c",
+      "pngrio.c",
+      "pngrtran.c",
+      "pngrutil.c",
+      "pngset.c",
+      "pngtrans.c",
+      "pngwio.c",
+      "pngwrite.c",
+      "pngwtran.c",
+      "pngwutil.c",
+    ]
+
+    if (current_cpu == "arm" || current_cpu == "arm64") {
+      sources += [
+        "arm/arm_init.c",
+        "arm/filter_neon_intrinsics.c",
+      ]
+    }
+
+    if (current_cpu == "x86" || current_cpu == "x64") {
+      defines += [ "PNG_INTEL_SSE" ]
+      sources += [
+        "contrib/intel/filter_sse2_intrinsics.c",
+        "contrib/intel/intel_init.c",
+      ]
+    }
+  }
+}

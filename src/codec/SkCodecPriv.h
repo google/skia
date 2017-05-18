@@ -8,33 +8,35 @@
 #ifndef SkCodecPriv_DEFINED
 #define SkCodecPriv_DEFINED
 
+#include "SkColorPriv.h"
+#include "SkColorSpaceXform.h"
+#include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
+#include "SkEncodedInfo.h"
 #include "SkImageInfo.h"
-#include "SkSwizzler.h"
 #include "SkTypes.h"
-#include "SkUtils.h"
 
-/*
- *
- * Helper routine for alpha result codes
- *
- */
-#define INIT_RESULT_ALPHA                       \
-    uint8_t zeroAlpha = 0;                      \
-    uint8_t maxAlpha = 0xFF;
+#ifdef SK_PRINT_CODEC_MESSAGES
+    #define SkCodecPrintf SkDebugf
+#else
+    #define SkCodecPrintf(...)
+#endif
 
-#define UPDATE_RESULT_ALPHA(alpha)              \
-    zeroAlpha |= (alpha);                       \
-    maxAlpha  &= (alpha);
+// FIXME: Consider sharing with dm, nanbench, and tools.
+static inline float get_scale_from_sample_size(int sampleSize) {
+    return 1.0f / ((float) sampleSize);
+}
 
-#define COMPUTE_RESULT_ALPHA                    \
-    SkSwizzler::GetResult(zeroAlpha, maxAlpha);
+static inline bool is_valid_subset(const SkIRect& subset, const SkISize& imageDims) {
+    return SkIRect::MakeSize(imageDims).contains(subset);
+}
 
 /*
  * returns a scaled dimension based on the original dimension and the sampleSize
  * NOTE: we round down here for scaled dimension to match the behavior of SkImageDecoder
+ * FIXME: I think we should call this get_sampled_dimension().
  */
-static int get_scaled_dimension(int srcDimension, int sampleSize) {
+static inline int get_scaled_dimension(int srcDimension, int sampleSize) {
     if (sampleSize > srcDimension) {
         return 1;
     }
@@ -47,7 +49,7 @@ static int get_scaled_dimension(int srcDimension, int sampleSize) {
  *
  * This does not need to be called and is not called when sampleFactor == 1.
  */
-static int get_start_coord(int sampleFactor) { return sampleFactor / 2; };
+static inline int get_start_coord(int sampleFactor) { return sampleFactor / 2; };
 
 /*
  * Given a coordinate in the original image, this returns the corresponding
@@ -57,7 +59,7 @@ static int get_start_coord(int sampleFactor) { return sampleFactor / 2; };
  *
  * This does not need to be called and is not called when sampleFactor == 1.
  */
-static int get_dst_coord(int srcCoord, int sampleFactor) { return srcCoord / sampleFactor; };
+static inline int get_dst_coord(int srcCoord, int sampleFactor) { return srcCoord / sampleFactor; };
 
 /*
  * When scaling, we will discard certain y-coordinates (rows) and
@@ -67,7 +69,7 @@ static int get_dst_coord(int srcCoord, int sampleFactor) { return srcCoord / sam
  *
  * This does not need to be called and is not called when sampleFactor == 1.
  */
-static bool is_coord_necessary(int srcCoord, int sampleFactor, int scaledDim) {
+static inline bool is_coord_necessary(int srcCoord, int sampleFactor, int scaledDim) {
     // Get the first coordinate that we want to keep
     int startCoord = get_start_coord(sampleFactor);
 
@@ -81,11 +83,16 @@ static bool is_coord_necessary(int srcCoord, int sampleFactor, int scaledDim) {
 }
 
 static inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
-    // Check for supported alpha types
+    if (kUnknown_SkAlphaType == dstAlpha) {
+        return false;
+    }
+
     if (srcAlpha != dstAlpha) {
         if (kOpaque_SkAlphaType == srcAlpha) {
-            // If the source is opaque, we must decode to opaque
-            return false;
+            // If the source is opaque, we can support any.
+            SkCodecPrintf("Warning: an opaque image should be decoded as opaque "
+                          "- it is being decoded as non-opaque, which will draw slower\n");
+            return true;
         }
 
         // The source is not opaque
@@ -103,39 +110,41 @@ static inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
 }
 
 /*
- * Most of our codecs support the same conversions:
- * - profileType must be the same
- * - opaque only to opaque (and 565 only if opaque)
- * - premul to unpremul and vice versa
- * - always support N32
- * - otherwise match the src color type
+ * If there is a color table, get a pointer to the colors, otherwise return nullptr
  */
-static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
-    if (dst.profileType() != src.profileType()) {
-        return false;
-    }
-
-    // Ensure the alpha type is valid
-    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
-        return false;
-    }
-
-    // Check for supported color types
-    switch (dst.colorType()) {
-        case kN32_SkColorType:
-            return true;
-        case kRGB_565_SkColorType:
-            return src.alphaType() == kOpaque_SkAlphaType;
-        default:
-            return dst.colorType() == src.colorType();
-    }
+static inline const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
+     return nullptr != colorTable ? colorTable->readColors() : nullptr;
 }
 
 /*
- * If there is a color table, get a pointer to the colors, otherwise return nullptr
+ * Given that the encoded image uses a color table, return the fill value
  */
-static const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
-     return nullptr != colorTable ? colorTable->readColors() : nullptr;
+static inline uint64_t get_color_table_fill_value(SkColorType dstColorType, SkAlphaType alphaType,
+        const SkPMColor* colorPtr, uint8_t fillIndex, SkColorSpaceXform* colorXform, bool isRGBA) {
+    SkASSERT(nullptr != colorPtr);
+    switch (dstColorType) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            return colorPtr[fillIndex];
+        case kRGB_565_SkColorType:
+            return SkPixel32ToPixel16(colorPtr[fillIndex]);
+        case kIndex_8_SkColorType:
+            return fillIndex;
+        case kRGBA_F16_SkColorType: {
+            SkASSERT(colorXform);
+            uint64_t dstColor;
+            uint32_t srcColor = colorPtr[fillIndex];
+            SkColorSpaceXform::ColorFormat srcFormat =
+                    isRGBA ? SkColorSpaceXform::kRGBA_8888_ColorFormat
+                           : SkColorSpaceXform::kBGRA_8888_ColorFormat;
+            SkAssertResult(colorXform->apply(select_xform_format(dstColorType), &dstColor,
+                                             srcFormat, &srcColor, 1, alphaType));
+            return dstColor;
+        }
+        default:
+            SkASSERT(false);
+            return 0;
+    }
 }
 
 /*
@@ -182,23 +191,6 @@ static inline size_t compute_row_bytes(int width, uint32_t bitsPerPixel) {
 }
 
 /*
- * On incomplete images, get the color to fill with
- */
-static inline SkPMColor get_fill_color_or_index(SkAlphaType alphaType) {
-    // This condition works properly for all supported output color types.
-    // kIndex8: The low 8-bits of both possible return values is 0, which is
-    //          our desired default index.
-    // kGray8:  The low 8-bits of both possible return values is 0, which is
-    //          black, our desired fill value.
-    // kRGB565: The low 16-bits of both possible return values is 0, which is
-    //          black, our desired fill value.
-    // kN32:    Return black for opaque images and transparent for non-opaque
-    //          images.
-    return kOpaque_SkAlphaType == alphaType ?
-            SK_ColorBLACK : SK_ColorTRANSPARENT;
-}
-
-/*
  * Get a byte from a buffer
  * This method is unsafe, the caller is responsible for performing a check
  */
@@ -234,10 +226,162 @@ static inline uint32_t get_int(uint8_t* buffer, uint32_t i) {
 #endif
 }
 
-#ifdef SK_PRINT_CODEC_MESSAGES
-    #define SkCodecPrintf SkDebugf
+/*
+ * @param data           Buffer to read bytes from
+ * @param isLittleEndian Output parameter
+ *                       Indicates if the data is little endian
+ *                       Is unaffected on false returns
+ */
+static inline bool is_valid_endian_marker(const uint8_t* data, bool* isLittleEndian) {
+    // II indicates Intel (little endian) and MM indicates motorola (big endian).
+    if (('I' != data[0] || 'I' != data[1]) && ('M' != data[0] || 'M' != data[1])) {
+        return false;
+    }
+
+    *isLittleEndian = ('I' == data[0]);
+    return true;
+}
+
+static inline uint16_t get_endian_short(const uint8_t* data, bool littleEndian) {
+    if (littleEndian) {
+        return (data[1] << 8) | (data[0]);
+    }
+
+    return (data[0] << 8) | (data[1]);
+}
+
+static inline SkPMColor premultiply_argb_as_rgba(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+    if (a != 255) {
+        r = SkMulDiv255Round(r, a);
+        g = SkMulDiv255Round(g, a);
+        b = SkMulDiv255Round(b, a);
+    }
+
+    return SkPackARGB_as_RGBA(a, r, g, b);
+}
+
+static inline SkPMColor premultiply_argb_as_bgra(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+    if (a != 255) {
+        r = SkMulDiv255Round(r, a);
+        g = SkMulDiv255Round(g, a);
+        b = SkMulDiv255Round(b, a);
+    }
+
+    return SkPackARGB_as_BGRA(a, r, g, b);
+}
+
+static inline bool is_rgba(SkColorType colorType) {
+#ifdef SK_PMCOLOR_IS_RGBA
+    return (kBGRA_8888_SkColorType != colorType);
 #else
-    #define SkCodecPrintf(...)
+    return (kRGBA_8888_SkColorType == colorType);
 #endif
+}
+
+// Method for coverting to a 32 bit pixel.
+typedef uint32_t (*PackColorProc)(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
+
+static inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType colorType) {
+    bool isRGBA = is_rgba(colorType);
+    if (isPremul) {
+        if (isRGBA) {
+            return &premultiply_argb_as_rgba;
+        } else {
+            return &premultiply_argb_as_bgra;
+        }
+    } else {
+        if (isRGBA) {
+            return &SkPackARGB_as_RGBA;
+        } else {
+            return &SkPackARGB_as_BGRA;
+        }
+    }
+}
+
+static inline bool needs_premul(const SkImageInfo& dstInfo, const SkEncodedInfo& encodedInfo) {
+    return kPremul_SkAlphaType == dstInfo.alphaType() &&
+           SkEncodedInfo::kUnpremul_Alpha == encodedInfo.alpha();
+}
+
+static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo,
+                                     bool needsColorCorrectPremul) {
+    // We never perform a color xform in legacy mode.
+    if (!dstInfo.colorSpace()) {
+        return false;
+    }
+
+    // F16 is by definition a linear space, so we always must perform a color xform.
+    bool isF16 = kRGBA_F16_SkColorType == dstInfo.colorType();
+
+    // Need a color xform when dst space does not match the src.
+    bool srcDstNotEqual = !SkColorSpace::Equals(srcInfo.colorSpace(), dstInfo.colorSpace());
+
+    return needsColorCorrectPremul || isF16 || srcDstNotEqual;
+}
+
+static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
+    return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
+}
+
+static inline bool apply_xform_on_decode(SkColorType dstColorType, SkEncodedInfo::Color srcColor) {
+    // We will apply the color xform when reading the color table unless F16 is requested.
+    return SkEncodedInfo::kPalette_Color != srcColor || kRGBA_F16_SkColorType == dstColorType;
+}
+
+/*
+ * Alpha Type Conversions
+ * - kOpaque to kOpaque, kUnpremul, kPremul is valid
+ * - kUnpremul to kUnpremul, kPremul is valid
+ *
+ * Color Type Conversions
+ * - Always support kRGBA_8888, kBGRA_8888
+ * - Support kRGBA_F16 when there is a linear dst color space
+ * - Support kIndex8 if it matches the src
+ * - Support k565 if kOpaque and color correction is not required
+ * - Support k565 if it matches the src, kOpaque, and color correction is not required
+ */
+static inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
+    // Ensure the alpha type is valid.
+    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
+        return false;
+    }
+
+    // Check for supported color types.
+    switch (dst.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            return true;
+        case kRGBA_F16_SkColorType:
+            return dst.colorSpace() && dst.colorSpace()->gammaIsLinear();
+        case kIndex_8_SkColorType:
+            return kIndex_8_SkColorType == src.colorType();
+        case kRGB_565_SkColorType:
+            return kOpaque_SkAlphaType == src.alphaType();
+        case kGray_8_SkColorType:
+            return kGray_8_SkColorType == src.colorType() &&
+                   kOpaque_SkAlphaType == src.alphaType() && !needs_color_xform(dst, src, false);
+        default:
+            return false;
+    }
+}
+
+static inline SkColorSpaceXform::ColorFormat select_xform_format_ct(SkColorType colorType) {
+    switch (colorType) {
+        case kRGBA_8888_SkColorType:
+            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+        case kBGRA_8888_SkColorType:
+            return SkColorSpaceXform::kBGRA_8888_ColorFormat;
+        case kRGB_565_SkColorType:
+        case kIndex_8_SkColorType:
+#ifdef SK_PMCOLOR_IS_RGBA
+            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+#else
+            return SkColorSpaceXform::kBGRA_8888_ColorFormat;
+#endif
+        default:
+            SkASSERT(false);
+            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+    }
+}
 
 #endif // SkCodecPriv_DEFINED

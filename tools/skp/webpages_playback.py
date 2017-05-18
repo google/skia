@@ -63,18 +63,15 @@ import tempfile
 import time
 import traceback
 
-sys.path.insert(0, os.getcwd())
-
-from common.py.utils import gs_utils
-from common.py.utils import shell_utils
 
 ROOT_PLAYBACK_DIR_NAME = 'playback'
 SKPICTURES_DIR_NAME = 'skps'
 
+GS_PREFIX = 'gs://'
+
+PARTNERS_GS_BUCKET = 'gs://chrome-partner-telemetry'
 
 # Local archive and SKP directories.
-LOCAL_PLAYBACK_ROOT_DIR = os.path.join(
-    tempfile.gettempdir(), ROOT_PLAYBACK_DIR_NAME)
 LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'page_sets', 'data')
 TMP_SKP_DIR = tempfile.mkdtemp()
@@ -105,15 +102,9 @@ RETRY_RECORD_WPR_COUNT = 5
 RETRY_RUN_MEASUREMENT_COUNT = 5
 
 # Location of the credentials.json file in Google Storage.
-CREDENTIALS_GS_PATH = '/playback/credentials/credentials.json'
+CREDENTIALS_GS_PATH = 'playback/credentials/credentials.json'
 
 X11_DISPLAY = os.getenv('DISPLAY', ':0')
-
-GS_PREDEFINED_ACL = gs_utils.GSUtils.PredefinedACL.PRIVATE
-GS_FINE_GRAINED_ACL_LIST = [
-  (gs_utils.GSUtils.IdType.GROUP_BY_DOMAIN, 'google.com',
-   gs_utils.GSUtils.Permission.READ),
-]
 
 # Path to Chromium's page sets.
 CHROMIUM_PAGE_SETS_PATH = os.path.join('tools', 'perf', 'page_sets')
@@ -154,13 +145,16 @@ class SkPicturePlayback(object):
     self._upload = parse_options.upload
     self._skp_prefix = parse_options.skp_prefix
     data_store_location = parse_options.data_store
-    if data_store_location.startswith(gs_utils.GS_PREFIX):
+    if data_store_location.startswith(GS_PREFIX):
       self.gs = GoogleStorageDataStore(data_store_location)
     else:
       self.gs = LocalFileSystemDataStore(data_store_location)
+    self._upload_to_partner_bucket = parse_options.upload_to_partner_bucket
     self._alternate_upload_dir = parse_options.alternate_upload_dir
     self._telemetry_binaries_dir = os.path.join(parse_options.chrome_src_path,
                                                 'tools', 'perf')
+    self._catapult_dir = os.path.join(parse_options.chrome_src_path,
+                                      'third_party', 'catapult')
 
     self._local_skp_dir = os.path.join(
         parse_options.output_dir, ROOT_PLAYBACK_DIR_NAME, SKPICTURES_DIR_NAME)
@@ -225,10 +219,6 @@ class SkPicturePlayback(object):
         os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, 'skia_*')):
       os.remove(archive_file)
 
-    # Delete the local root directory if it already exists.
-    if os.path.exists(LOCAL_PLAYBACK_ROOT_DIR):
-      shutil.rmtree(LOCAL_PLAYBACK_ROOT_DIR)
-
     # Create the required local storage directories.
     self._CreateLocalStorageDirs()
 
@@ -249,7 +239,7 @@ class SkPicturePlayback(object):
         # Create an archive of the specified webpages if '--record=True' is
         # specified.
         record_wpr_cmd = (
-          'PYTHONPATH=%s:$PYTHONPATH' % page_set_dir,
+          'PYTHONPATH=%s:%s:$PYTHONPATH' % (page_set_dir, self._catapult_dir),
           'DISPLAY=%s' % X11_DISPLAY,
           os.path.join(self._telemetry_binaries_dir, 'record_wpr'),
           '--extra-browser-args="%s"' % self._browser_args,
@@ -260,7 +250,7 @@ class SkPicturePlayback(object):
         )
         for _ in range(RETRY_RECORD_WPR_COUNT):
           try:
-            shell_utils.run(' '.join(record_wpr_cmd), shell=True)
+            subprocess.check_call(' '.join(record_wpr_cmd), shell=True)
 
             # Move over the created archive into the local webpages archive
             # directory.
@@ -287,9 +277,9 @@ class SkPicturePlayback(object):
         self._DownloadWebpagesArchive(wpr_data_file, page_set_json_name)
 
       run_benchmark_cmd = (
-          'PYTHONPATH=%s:$PYTHONPATH' % page_set_dir,
+          'PYTHONPATH=%s:%s:$PYTHONPATH' % (page_set_dir, self._catapult_dir),
           'DISPLAY=%s' % X11_DISPLAY,
-          'timeout', '300',
+          'timeout', '1800',
           os.path.join(self._telemetry_binaries_dir, 'run_benchmark'),
           '--extra-browser-args="%s"' % self._browser_args,
           '--browser=exact',
@@ -304,8 +294,8 @@ class SkPicturePlayback(object):
       for _ in range(RETRY_RUN_MEASUREMENT_COUNT):
         try:
           print '\n\n=======Capturing SKP of %s=======\n\n' % page_set
-          shell_utils.run(' '.join(run_benchmark_cmd), shell=True)
-        except shell_utils.CommandFailedException:
+          subprocess.check_call(' '.join(run_benchmark_cmd), shell=True)
+        except subprocess.CalledProcessError:
           # skpicture_printer sometimes fails with AssertionError but the
           # captured SKP is still valid. This is a known issue.
           pass
@@ -340,10 +330,7 @@ class SkPicturePlayback(object):
 
       for tools_cmd in (render_pictures_cmd, render_pdfs_cmd):
         print '\n\n=======Running %s=======' % ' '.join(tools_cmd)
-        proc = subprocess.Popen(tools_cmd)
-        (code, _) = shell_utils.log_process_after_completion(proc, echo=False)
-        if code != 0:
-          raise Exception('%s failed!' % ' '.join(tools_cmd))
+        subprocess.check_call(tools_cmd)
 
       if not self._non_interactive:
         print '\n\n=======Running debugger======='
@@ -360,18 +347,26 @@ class SkPicturePlayback(object):
         dest_dir_name = self._alternate_upload_dir
 
       self.gs.upload_dir_contents(
-          LOCAL_PLAYBACK_ROOT_DIR, dest_dir=dest_dir_name,
-          upload_if=gs_utils.GSUtils.UploadIf.IF_MODIFIED,
-          predefined_acl=GS_PREDEFINED_ACL,
-          fine_grained_acl_list=GS_FINE_GRAINED_ACL_LIST)
+          self._local_skp_dir, dest_dir=dest_dir_name)
 
       print '\n\n=======New SKPs have been uploaded to %s =======\n\n' % (
           posixpath.join(self.gs.target_name(), dest_dir_name,
                          SKPICTURES_DIR_NAME))
+
     else:
       print '\n\n=======Not Uploading to %s=======\n\n' % self.gs.target_type()
       print 'Generated resources are available in %s\n\n' % (
-          LOCAL_PLAYBACK_ROOT_DIR)
+          self._local_skp_dir)
+
+    if self._upload_to_partner_bucket:
+      print '\n\n=======Uploading to Partner bucket %s =======\n\n' % (
+          PARTNERS_GS_BUCKET)
+      partner_gs = GoogleStorageDataStore(PARTNERS_GS_BUCKET)
+      partner_gs.delete_path(SKPICTURES_DIR_NAME)
+      print 'Uploading %s to %s' % (self._local_skp_dir, SKPICTURES_DIR_NAME)
+      partner_gs.upload_dir_contents(self._local_skp_dir, SKPICTURES_DIR_NAME)
+      print '\n\n=======New SKPs have been uploaded to %s =======\n\n' % (
+          posixpath.join(partner_gs.target_name(), SKPICTURES_DIR_NAME))
 
     return 0
 
@@ -461,29 +456,45 @@ class DataStore:
     raise NotImplementedError()
   def target_type(self):
     raise NotImplementedError()
-  def does_storage_object_exist(self, *args):
+  def does_storage_object_exist(self, name):
     raise NotImplementedError()
-  def download_file(self, *args):
+  def download_file(self, name, local_path):
     raise NotImplementedError()
-  def upload_dir_contents(self, source_dir, **kwargs):
+  def upload_dir_contents(self, source_dir, dest_dir):
     raise NotImplementedError()
+
 
 class GoogleStorageDataStore(DataStore):
   def __init__(self, data_store_url):
-    self._data_store_url = data_store_url
-    self._bucket = remove_prefix(self._data_store_url.lstrip(),
-                                 gs_utils.GS_PREFIX)
-    self.gs = gs_utils.GSUtils()
+    self._url = data_store_url.rstrip('/')
+
   def target_name(self):
-    return self._data_store_url
+    return self._url
+
   def target_type(self):
     return 'Google Storage'
-  def does_storage_object_exist(self, *args):
-    return self.gs.does_storage_object_exist(self._bucket, *args)
-  def download_file(self, *args):
-    self.gs.download_file(self._bucket, *args)
-  def upload_dir_contents(self, source_dir, **kwargs):
-    self.gs.upload_dir_contents(source_dir, self._bucket, **kwargs)
+
+  def does_storage_object_exist(self, name):
+    try:
+      output = subprocess.check_output([
+          'gsutil', 'ls', '/'.join((self._url, name))])
+    except subprocess.CalledProcessError:
+      return False
+    if len(output.splitlines()) != 1:
+      return False
+    return True
+
+  def delete_path(self, path):
+    subprocess.check_call(['gsutil', 'rm', '-r', '/'.join((self._url, path))])
+
+  def download_file(self, name, local_path):
+    subprocess.check_call([
+        'gsutil', 'cp', '/'.join((self._url, name)), local_path])
+
+  def upload_dir_contents(self, source_dir, dest_dir):
+    subprocess.check_call([
+        'gsutil', 'cp', '-r', source_dir, '/'.join((self._url, dest_dir))])
+
 
 class LocalFileSystemDataStore(DataStore):
   def __init__(self, data_store_location):
@@ -492,11 +503,13 @@ class LocalFileSystemDataStore(DataStore):
     return self._base_dir
   def target_type(self):
     return self._base_dir
-  def does_storage_object_exist(self, name, *args):
+  def does_storage_object_exist(self, name):
     return os.path.isfile(os.path.join(self._base_dir, name))
-  def download_file(self, name, local_path, *args):
+  def delete_path(self, path):
+    shutil.rmtree(path)
+  def download_file(self, name, local_path):
     shutil.copyfile(os.path.join(self._base_dir, name), local_path)
-  def upload_dir_contents(self, source_dir, dest_dir, **kwargs):
+  def upload_dir_contents(self, source_dir, dest_dir):
     def copytree(source_dir, dest_dir):
       if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
@@ -534,11 +547,16 @@ if '__main__' == __name__:
             ' if this is True.'),
       default=False)
   option_parser.add_option(
+      '', '--upload_to_partner_bucket', action='store_true',
+      help=('Uploads SKPs to the chrome-partner-telemetry Google Storage '
+            'bucket if true.'),
+      default=False)
+  option_parser.add_option(
       '', '--data_store',
     help=('The location of the file storage to use to download and upload '
           'files. Can be \'gs://<bucket>\' for Google Storage, or '
           'a directory for local filesystem storage'),
-      default='gs://chromium-skia-gm')
+      default='gs://skia-skps')
   option_parser.add_option(
       '', '--alternate_upload_dir',
       help= ('Uploads to a different directory in Google Storage or local '

@@ -12,6 +12,8 @@
 #include "SkDrawFilter.h"
 #include "SkPaint.h"
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+
 /**
  * Initial test coverage for SkDrawFilter.
  * Draws two rectangles; if draw filters are broken, they will match.
@@ -31,7 +33,7 @@ public:
 }
 
 class DrawFilterGM : public skiagm::GM {
-    SkAutoTUnref<SkMaskFilter> fBlur;
+    sk_sp<SkMaskFilter> fBlur;
 
 protected:
     SkISize onISize() override {
@@ -43,24 +45,21 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fBlur.reset(SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                    SkBlurMask::ConvertRadiusToSigma(10.0f),
-                    kLow_SkBlurQuality));
+        fBlur = SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                       SkBlurMask::ConvertRadiusToSigma(10.0f),
+                                       kLow_SkBlurQuality);
     }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint p;
         p.setColor(SK_ColorBLUE);
-        p.setMaskFilter(fBlur.get());
+        p.setMaskFilter(fBlur);
         SkRect r = { 20, 20, 100, 100 };
         canvas->setDrawFilter(nullptr);
         canvas->drawRect(r, p);
-        TestFilter redNoBlur;
-        canvas->setDrawFilter(&redNoBlur);
+        canvas->setDrawFilter(new TestFilter)->unref();
         canvas->translate(120.0f, 40.0f);
         canvas->drawRect(r, p);
-
-        // Must unset if the DrawFilter is from the stack to avoid refcount errors!
         canvas->setDrawFilter(nullptr);
     }
 
@@ -68,6 +67,6 @@ private:
     typedef GM INHERITED;
 };
 
-static skiagm::GM* MyFactory(void*) { return new DrawFilterGM; }
-static skiagm::GMRegistry reg(MyFactory);
+DEF_GM( return new DrawFilterGM; )
 
+#endif

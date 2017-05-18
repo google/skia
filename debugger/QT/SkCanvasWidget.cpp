@@ -55,7 +55,7 @@ void SkCanvasWidget::drawTo(int index) {
 #if SK_SUPPORT_GPU
     fGLWidget.updateImage();
 #endif
-    emit commandChanged(fDebugger->index());
+    Q_EMIT commandChanged(fDebugger->index());
 }
 
 void SkCanvasWidget::mouseMoveEvent(QMouseEvent* event) {
@@ -69,7 +69,7 @@ void SkCanvasWidget::mouseMoveEvent(QMouseEvent* event) {
 
 void SkCanvasWidget::mousePressEvent(QMouseEvent* event) {
     fPreviousPoint.set(event->globalX(), event->globalY());
-    emit hitChanged(fDebugger->getCommandAtPoint(event->x(), event->y(),
+    Q_EMIT hitChanged(fDebugger->getCommandAtPoint(event->x(), event->y(),
             fDebugger->index()));
 }
 
@@ -117,7 +117,7 @@ void SkCanvasWidget::snapWidgetTransform() {
 void SkCanvasWidget::resetWidgetTransform() {
     fUserMatrix.reset();
     fDebugger->setUserMatrix(fUserMatrix);
-    emit scaleFactorChanged(fUserMatrix.getScaleX());
+    Q_EMIT scaleFactorChanged(fUserMatrix.getScaleX());
     drawTo(fDebugger->index());
 }
 
@@ -141,7 +141,7 @@ void SkCanvasWidget::setGLSampleCount(int sampleCount)
 
 void SkCanvasWidget::zoom(float scale, int px, int py) {
     fUserMatrix.postScale(scale, scale, px, py);
-    emit scaleFactorChanged(fUserMatrix.getScaleX());
+    Q_EMIT scaleFactorChanged(fUserMatrix.getScaleX());
     fDebugger->setUserMatrix(fUserMatrix);
     drawTo(fDebugger->index());
 }

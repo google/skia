@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -10,7 +9,7 @@
 #include "SkCoreBlitters.h"
 #include "SkColorPriv.h"
 #include "SkShader.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 
 SkA8_Blitter::SkA8_Blitter(const SkPixmap& device, const SkPaint& paint) : INHERITED(device) {
     fSrcA = paint.getAlpha();
@@ -231,10 +230,8 @@ SkA8_Shader_Blitter::SkA8_Shader_Blitter(const SkPixmap& device, const SkPaint& 
                                          SkShader::Context* shaderContext)
     : INHERITED(device, paint, shaderContext)
 {
-    if ((fXfermode = paint.getXfermode()) != nullptr) {
-        fXfermode->ref();
-        SkASSERT(fShaderContext);
-    }
+    fXfermode = SkXfermode::Peek(paint.getBlendMode());
+    SkASSERT(!fXfermode || fShaderContext);
 
     int width = device.width();
     fBuffer = (SkPMColor*)sk_malloc_throw(sizeof(SkPMColor) * (width + (SkAlign4(width) >> 2)));
@@ -242,7 +239,6 @@ SkA8_Shader_Blitter::SkA8_Shader_Blitter(const SkPixmap& device, const SkPaint& 
 }
 
 SkA8_Shader_Blitter::~SkA8_Shader_Blitter() {
-    if (fXfermode) SkSafeUnref(fXfermode);
     sk_free(fBuffer);
 }
 
@@ -277,7 +273,7 @@ static inline uint8_t aa_blend8(SkPMColor src, U8CPU da, int aa) {
 
     int src_scale = SkAlpha255To256(aa);
     int sa = SkGetPackedA32(src);
-    int dst_scale = 256 - SkAlphaMul(sa, src_scale);
+    int dst_scale = SkAlphaMulInv256(sa, src_scale);
 
     return SkToU8((sa * src_scale + da * dst_scale) >> 8);
 }
@@ -356,7 +352,7 @@ void SkA8_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 SkA8_Coverage_Blitter::SkA8_Coverage_Blitter(const SkPixmap& device,
                              const SkPaint& paint) : SkRasterBlitter(device) {
     SkASSERT(nullptr == paint.getShader());
-    SkASSERT(nullptr == paint.getXfermode());
+    SkASSERT(paint.isSrcOver());
     SkASSERT(nullptr == paint.getColorFilter());
 }
 

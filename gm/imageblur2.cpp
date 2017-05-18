@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkBlurImageFilter.h"
 #include "SkRandom.h"
 
@@ -14,7 +15,7 @@
 #define WIDTH 500
 #define HEIGHT 500
 
-static const float kBlurSigmas[] = {
+constexpr float kBlurSigmas[] = {
         0.0, 0.3f, 0.5f, 2.0f, 32.0f, 80.0f };
 
 const char* kTestStrings[] = {
@@ -58,7 +59,7 @@ protected:
                 SkScalar sigmaY = kBlurSigmas[y];
 
                 SkPaint paint;
-                paint.setImageFilter(SkBlurImageFilter::Create(sigmaX, sigmaY))->unref();
+                paint.setImageFilter(SkBlurImageFilter::Make(sigmaX, sigmaY, nullptr));
                 canvas->saveLayer(nullptr, &paint);
 
                 SkRandom rand;
@@ -69,11 +70,10 @@ protected:
                 textPaint.setTextSize(textSize);
 
                 for (int i = 0; i < testStringCount; i++) {
-                    canvas->drawText(kTestStrings[i],
-                                     strlen(kTestStrings[i]),
-                                     SkIntToScalar(x * dx),
-                                     SkIntToScalar(y * dy + textSize * i + textSize),
-                                     textPaint);
+                    canvas->drawString(kTestStrings[i],
+                                       SkIntToScalar(x * dx),
+                                       SkIntToScalar(y * dy + textSize * i + textSize),
+                                       textPaint);
                 }
                 canvas->restore();
             }
@@ -88,7 +88,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new BlurImageFilter; }
-static GMRegistry reg(MyFactory);
+DEF_GM(return new BlurImageFilter;)
 
 }

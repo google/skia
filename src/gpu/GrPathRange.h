@@ -23,7 +23,7 @@ class SkDescriptor;
 
 class GrPathRange : public GrGpuResource {
 public:
-    
+
 
     enum PathIndexType {
         kU8_PathIndexType,   //!< uint8_t
@@ -72,18 +72,17 @@ public:
 
     void loadPathsIfNeeded(const void* indices, PathIndexType, int count) const;
 
-    template<typename IndexType> void loadPathsIfNeeded(const void* indices, int count) const {
+    template<typename IndexType> void loadPathsIfNeeded(const IndexType* indices, int count) const {
         if (!fPathGenerator) {
             return;
         }
 
-        const IndexType* indexArray = reinterpret_cast<const IndexType*>(indices);
         bool didLoadPaths = false;
 
         for (int i = 0; i < count; ++i) {
-            SkASSERT(indexArray[i] < static_cast<uint32_t>(fNumPaths));
+            SkASSERT(indices[i] < static_cast<uint32_t>(fNumPaths));
 
-            const int groupIndex = indexArray[i] / kPathsPerGroup;
+            const int groupIndex = indices[i] / kPathsPerGroup;
             const int groupByte = groupIndex / 8;
             const uint8_t groupBit = 1 << (groupIndex % 8);
 
@@ -113,17 +112,15 @@ public:
 #ifdef SK_DEBUG
     void assertPathsLoaded(const void* indices, PathIndexType, int count) const;
 
-    template<typename IndexType> void assertPathsLoaded(const void* indices, int count) const {
+    template<typename IndexType> void assertPathsLoaded(const IndexType* indices, int count) const {
         if (!fPathGenerator) {
             return;
         }
 
-        const IndexType* indexArray = reinterpret_cast<const IndexType*>(indices);
-
         for (int i = 0; i < count; ++i) {
-            SkASSERT(indexArray[i] < static_cast<uint32_t>(fNumPaths));
+            SkASSERT(indices[i] < static_cast<uint32_t>(fNumPaths));
 
-            const int groupIndex = indexArray[i] / kPathsPerGroup;
+            const int groupIndex = indices[i] / kPathsPerGroup;
             const int groupByte = groupIndex / 8;
             const uint8_t groupBit = 1 << (groupIndex % 8);
 
@@ -146,7 +143,7 @@ private:
         kPathsPerGroup = 16 // Paths get tracked in groups of 16 for lazy loading.
     };
 
-    mutable SkAutoTUnref<PathGenerator> fPathGenerator;
+    mutable sk_sp<PathGenerator> fPathGenerator;
     mutable SkTArray<uint8_t, true /*MEM_COPY*/> fGeneratedPaths;
     const int fNumPaths;
 

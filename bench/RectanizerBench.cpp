@@ -41,7 +41,7 @@ public:
         kSmallPow2_RectType
     };
 
-    RectanizerBench(RectanizerType rectanizerType, RectType rectType) 
+    RectanizerBench(RectanizerType rectanizerType, RectType rectType)
         : fName("rectanizer_")
         , fRectanizerType(rectanizerType)
         , fRectType(rectType) {
@@ -115,7 +115,7 @@ private:
     SkString                    fName;
     RectanizerType              fRectanizerType;
     RectType                    fRectType;
-    SkAutoTDelete<GrRectanizer> fRectanizer;
+    std::unique_ptr<GrRectanizer> fRectanizer;
 
     typedef Benchmark INHERITED;
 };

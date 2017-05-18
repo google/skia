@@ -44,13 +44,8 @@ static void convertToIndex666(const SkBitmap& src, SkBitmap* dst, SkAlphaType aT
             }
         }
     }
-    SkColorTable* ctable = new SkColorTable(storage, 216);
     dst->allocPixels(SkImageInfo::Make(src.width(), src.height(), kIndex_8_SkColorType, aType),
-                     nullptr, ctable);
-    ctable->unref();
-
-    SkAutoLockPixels alps(src);
-    SkAutoLockPixels alpd(*dst);
+                     SkColorTable::Make(storage, 216));
 
     for (int y = 0; y < src.height(); y++) {
         const SkPMColor* srcP = src.getAddr32(0, y);
@@ -226,7 +221,7 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkISize dim = canvas->getDeviceSize();
+        SkISize dim = canvas->getBaseLayerSize();
         if (fFlags & kScale_Flag) {
             const SkScalar x = SkIntToScalar(dim.fWidth) / 2;
             const SkScalar y = SkIntToScalar(dim.fHeight) / 2;
@@ -239,10 +234,7 @@ protected:
         if (fFlags & kRotate_Flag) {
             const SkScalar x = SkIntToScalar(dim.fWidth) / 2;
             const SkScalar y = SkIntToScalar(dim.fHeight) / 2;
-
-            canvas->translate(x, y);
-            canvas->rotate(SkIntToScalar(35));
-            canvas->translate(-x, -y);
+            canvas->rotate(SkIntToScalar(35), x, y);
         }
         INHERITED::onDraw(loops, canvas);
     }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -16,59 +15,9 @@
 #include "SkTDArray.h"
 #include "SkTypeface.h"
 
-class SkPaint;
+class SkAutoGlyphCache;
 class SkPDFCanon;
-class SkPDFObjNumMap;
 class SkPDFFont;
-
-class SkPDFGlyphSet : SkNoncopyable {
-public:
-    SkPDFGlyphSet();
-
-    void set(const uint16_t* glyphIDs, int numGlyphs);
-    bool has(uint16_t glyphID) const;
-    void merge(const SkPDFGlyphSet& usage);
-    void exportTo(SkTDArray<uint32_t>* glyphIDs) const;
-
-private:
-    SkBitSet fBitSet;
-};
-
-class SkPDFGlyphSetMap : SkNoncopyable {
-public:
-    struct FontGlyphSetPair {
-        FontGlyphSetPair(SkPDFFont* font, SkPDFGlyphSet* glyphSet);
-
-        SkPDFFont* fFont;
-        SkPDFGlyphSet* fGlyphSet;
-    };
-
-    SkPDFGlyphSetMap();
-    ~SkPDFGlyphSetMap();
-
-    class F2BIter {
-    public:
-        explicit F2BIter(const SkPDFGlyphSetMap& map);
-        const FontGlyphSetPair* next() const;
-        void reset(const SkPDFGlyphSetMap& map);
-
-    private:
-        const SkTDArray<FontGlyphSetPair>* fMap;
-        mutable int fIndex;
-    };
-
-    void merge(const SkPDFGlyphSetMap& usage);
-    void reset();
-
-    void noteGlyphUsage(SkPDFFont* font, const uint16_t* glyphIDs,
-                        int numGlyphs);
-
-private:
-    SkPDFGlyphSet* getGlyphSetForFont(SkPDFFont* font);
-
-    SkTDArray<FontGlyphSetPair> fMap;
-};
-
 
 /** \class SkPDFFont
     A PDF Object class representing a font.  The font may have resources
@@ -78,126 +27,110 @@ private:
     reference to each instantiated class.
 */
 class SkPDFFont : public SkPDFDict {
-    
+
 public:
-    virtual ~SkPDFFont();
+    ~SkPDFFont() override;
 
     /** Returns the typeface represented by this class. Returns nullptr for the
      *  default typeface.
      */
-    SkTypeface* typeface();
+    SkTypeface* typeface() const { return fTypeface.get(); }
 
     /** Returns the font type represented in this font.  For Type0 fonts,
      *  returns the type of the decendant font.
      */
-    virtual SkAdvancedTypefaceMetrics::FontType getType();
+    SkAdvancedTypefaceMetrics::FontType getType() const { return fFontType; }
+
+    static SkAdvancedTypefaceMetrics::FontType FontType(const SkAdvancedTypefaceMetrics&);
+
+    static bool IsMultiByte(SkAdvancedTypefaceMetrics::FontType type) {
+        return type == SkAdvancedTypefaceMetrics::kType1CID_Font ||
+               type == SkAdvancedTypefaceMetrics::kTrueType_Font;
+    }
+
+    static SkAutoGlyphCache MakeVectorCache(SkTypeface*, int* sizeOut);
 
     /** Returns true if this font encoding supports glyph IDs above 255.
      */
-    virtual bool multiByteGlyphs() const = 0;
-
-    /** Returns true if the machine readable licensing bits allow embedding.
-     */
-    bool canEmbed() const;
-
-    /** Returns true if the machine readable licensing bits allow subsetting.
-     */
-    bool canSubset() const;
+    bool multiByteGlyphs() const { return SkPDFFont::IsMultiByte(this->getType()); }
 
     /** Return true if this font has an encoding for the passed glyph id.
      */
-    bool hasGlyph(uint16_t glyphID);
+    bool hasGlyph(SkGlyphID gid) {
+        return (gid >= fFirstGlyphID && gid <= fLastGlyphID) || gid == 0;
+    }
 
-    /** Convert (in place) the input glyph IDs into the font encoding.  If the
-     *  font has more glyphs than can be encoded (like a type 1 font with more
-     *  than 255 glyphs) this method only converts up to the first out of range
-     *  glyph ID.
-     *  @param glyphIDs       The input text as glyph IDs.
-     *  @param numGlyphs      The number of input glyphs.
-     *  @return               Returns the number of glyphs consumed.
-     */
-    int glyphsToPDFFontEncoding(uint16_t* glyphIDs, int numGlyphs);
+    /** Convert the input glyph ID into the font encoding.  */
+    SkGlyphID glyphToPDFFontEncoding(SkGlyphID gid) const {
+        if (this->multiByteGlyphs() || gid == 0) {
+            return gid;
+        }
+        SkASSERT(gid >= fFirstGlyphID && gid <= fLastGlyphID);
+        SkASSERT(fFirstGlyphID > 0);
+        return gid - fFirstGlyphID + 1;
+    }
+
+    void noteGlyphUsage(SkGlyphID glyph) {
+        SkASSERT(this->hasGlyph(glyph));
+        fGlyphUsage.set(glyph);
+    }
 
     /** Get the font resource for the passed typeface and glyphID. The
      *  reference count of the object is incremented and it is the caller's
      *  responsibility to unreference it when done.  This is needed to
      *  accommodate the weak reference pattern used when the returned object
      *  is new and has no other references.
-     *  @param typeface  The typeface to find.
+     *  @param typeface  The typeface to find, not nullptr.
      *  @param glyphID   Specify which section of a large font is of interest.
      */
-    static SkPDFFont* GetFontResource(SkPDFCanon* canon,
-                                      SkTypeface* typeface,
-                                      uint16_t glyphID);
+    static sk_sp<SkPDFFont> GetFontResource(SkPDFCanon* canon,
+                                            SkTypeface* typeface,
+                                            SkGlyphID glyphID);
 
-    /** Subset the font based on usage set. Returns a SkPDFFont instance with
-     *  subset.
-     *  @param usage  Glyph subset requested.
-     *  @return       nullptr if font does not support subsetting, a new instance
-     *                of SkPDFFont otherwise.
+    /** Gets SkAdvancedTypefaceMetrics, and caches the result.
+     *  @param typeface can not be nullptr.
+     *  @return nullptr only when typeface is bad.
      */
-    virtual SkPDFFont* getFontSubset(const SkPDFGlyphSet* usage);
+    static const SkAdvancedTypefaceMetrics* GetMetrics(SkTypeface* typeface,
+                                                       SkPDFCanon* canon);
 
-    enum Match {
-        kExact_Match,
-        kRelated_Match,
-        kNot_Match,
-    };
-    static Match IsMatch(SkPDFFont* existingFont,
-                         uint32_t existingFontID,
-                         uint16_t existingGlyphID,
-                         uint32_t searchFontID,
-                         uint16_t searchGlyphID);
+    /** Subset the font based on current usage.
+     *  Must be called before emitObject().
+     */
+    virtual void getFontSubset(SkPDFCanon*) = 0;
+
+    /**
+     *  Return false iff the typeface has its NotEmbeddable flag set.
+     *  typeface is not nullptr
+     */
+    static bool CanEmbedTypeface(SkTypeface*, SkPDFCanon*);
 
 protected:
     // Common constructor to handle common members.
-    SkPDFFont(const SkAdvancedTypefaceMetrics* fontInfo,
-              SkTypeface* typeface,
-              SkPDFDict* relatedFontDescriptor);
+    struct Info {
+        sk_sp<SkTypeface> fTypeface;
+        SkGlyphID fFirstGlyphID;
+        SkGlyphID fLastGlyphID;
+        SkAdvancedTypefaceMetrics::FontType fFontType;
+    };
+    SkPDFFont(Info);
 
-    // Accessors for subclass.
-    const SkAdvancedTypefaceMetrics* fontInfo();
-    void setFontInfo(const SkAdvancedTypefaceMetrics* info);
-    uint16_t firstGlyphID() const;
-    uint16_t lastGlyphID() const;
-    void setLastGlyphID(uint16_t glyphID);
+    SkGlyphID firstGlyphID() const { return fFirstGlyphID; }
+    SkGlyphID lastGlyphID() const { return fLastGlyphID; }
+    const SkBitSet& glyphUsage() const { return fGlyphUsage; }
+    sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
 
-    // Accessors for FontDescriptor associated with this object.
-    SkPDFDict* getFontDescriptor();
-    void setFontDescriptor(SkPDFDict* descriptor);
-
-    // Add common entries to FontDescriptor.
-    bool addCommonFontDescriptorEntries(int16_t defaultWidth);
-
-    /** Set fFirstGlyphID and fLastGlyphID to span at most 255 glyphs,
-     *  including the passed glyphID.
-     */
-    void adjustGlyphRangeForSingleByteEncoding(uint16_t glyphID);
-
-    // Generate ToUnicode table according to glyph usage subset.
-    // If subset is nullptr, all available glyph ids will be used.
-    void populateToUnicodeTable(const SkPDFGlyphSet* subset);
-
-    // Create instances of derived types based on fontInfo.
-    static SkPDFFont* Create(SkPDFCanon* canon,
-                             const SkAdvancedTypefaceMetrics* fontInfo,
-                             SkTypeface* typeface,
-                             uint16_t glyphID,
-                             SkPDFDict* relatedFontDescriptor);
-
-    static bool Find(uint32_t fontID, uint16_t glyphID, int* index);
+    void drop() override;
 
 private:
-    SkAutoTUnref<SkTypeface> fTypeface;
+    sk_sp<SkTypeface> fTypeface;
+    SkBitSet fGlyphUsage;
 
     // The glyph IDs accessible with this font.  For Type1 (non CID) fonts,
     // this will be a subset if the font has more than 255 glyphs.
-    uint16_t fFirstGlyphID;
-    uint16_t fLastGlyphID;
-    SkAutoTUnref<const SkAdvancedTypefaceMetrics> fFontInfo;
-    SkAutoTUnref<SkPDFDict> fDescriptor;
-
-    SkAdvancedTypefaceMetrics::FontType fFontType;
+    const SkGlyphID fFirstGlyphID;
+    const SkGlyphID fLastGlyphID;
+    const SkAdvancedTypefaceMetrics::FontType fFontType;
 
     typedef SkPDFDict INHERITED;
 };

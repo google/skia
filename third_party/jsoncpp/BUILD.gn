@@ -1,0 +1,28 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  skia_use_system_jsoncpp = is_official_build
+}
+
+import("../third_party.gni")
+
+if (skia_use_system_jsoncpp) {
+  system("jsoncpp") {
+    libs = [ "jsoncpp" ]
+  }
+} else {
+  third_party("jsoncpp") {
+    public_include_dirs = [ "../externals/jsoncpp/include" ]
+
+    defines = [ "JSON_USE_EXCEPTION=0" ]
+    sources = [
+      "../externals/jsoncpp/src/lib_json/json_reader.cpp",
+      "../externals/jsoncpp/src/lib_json/json_value.cpp",
+      "../externals/jsoncpp/src/lib_json/json_writer.cpp",
+    ]
+    testonly = true
+  }
+}

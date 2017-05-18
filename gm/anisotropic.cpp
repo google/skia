@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 namespace skiagm {
 
@@ -27,9 +28,9 @@ protected:
 
     // Create an image consisting of lines radiating from its center
     void onOnceBeforeDraw() override {
-        static const int kNumLines = 100;
-        static const SkScalar kAngleStep = 360.0f / kNumLines;
-        static const int kInnerOffset = 10;
+        constexpr int kNumLines = 100;
+        constexpr SkScalar kAngleStep = 360.0f / kNumLines;
+        constexpr int kInnerOffset = 10;
 
         fBM.allocN32Pixels(kImageSize, kImageSize, true);
 
@@ -60,7 +61,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar gScales[] = { 0.9f, 0.8f, 0.75f, 0.6f, 0.5f, 0.4f, 0.25f, 0.2f, 0.1f };
-        
+
         SkASSERT(kNumVertImages-1 == (int)SK_ARRAY_COUNT(gScales)/2);
 
         // Minimize vertically
@@ -97,9 +98,9 @@ protected:
     }
 
 private:
-    static const int kImageSize     = 256;
-    static const int kSpacer        = 10;
-    static const int kNumVertImages = 5;
+    static constexpr int kImageSize     = 256;
+    static constexpr int kSpacer        = 10;
+    static constexpr int kNumVertImages = 5;
 
     SkBitmap         fBM;
     SkFilterQuality  fFilterQuality;

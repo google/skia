@@ -41,13 +41,11 @@ static void make_skp(SkScalar width, SkScalar height, SkScalar border, SkColor c
     paint.setColor(color);
     r.inset(border, border);
     canvas->drawRect(r, paint);
-    SkAutoTUnref<SkPicture> pict(recorder.endRecording());
     SkFILEWStream stream(writePath);
-    pict->serialize(&stream);
+    recorder.finishRecordingAsPicture()->serialize(&stream);
 }
 
-int tool_main(int argc, char** argv);
-int tool_main(int argc, char** argv) {
+int main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("Creates a simple .skp file for testing.");
     SkCommandLineFlags::Parse(argc, argv);
 
@@ -78,15 +76,9 @@ int tool_main(int argc, char** argv) {
     }
 
     SkColor color = SkColorSetRGB(FLAGS_red, FLAGS_green, FLAGS_blue);
-    make_skp(SkIntToScalar(FLAGS_width), 
-             SkIntToScalar(FLAGS_height), 
-             SkIntToScalar(FLAGS_border), 
+    make_skp(SkIntToScalar(FLAGS_width),
+             SkIntToScalar(FLAGS_height),
+             SkIntToScalar(FLAGS_border),
              color, FLAGS_writePath[0]);
     return 0;
 }
-
-#if !defined SK_BUILD_FOR_IOS
-int main(int argc, char * const argv[]) {
-    return tool_main(argc, (char**) argv);
-}
-#endif

@@ -4,13 +4,23 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef PathOpsTSectDebug_DEFINED
+#define PathOpsTSectDebug_DEFINED
 
 #include "SkPathOpsTSect.h"
 
 template<typename TCurve, typename OppCurve>
+char SkTCoincident<TCurve, OppCurve>::dumpIsCoincidentStr() const {
+    if (!!fMatch != fMatch) {
+        return '?';
+    }
+    return fMatch ? '*' : 0;
+}
+
+template<typename TCurve, typename OppCurve>
 void SkTCoincident<TCurve, OppCurve>::dump() const {
     SkDebugf("t=%1.9g pt=(%1.9g,%1.9g)%s\n", fPerpT, fPerpPt.fX, fPerpPt.fY,
-            fCoincident ? " coincident" : "");
+            fMatch ? " match" : "");
 }
 
 template<typename TCurve, typename OppCurve>
@@ -83,8 +93,10 @@ void SkTSect<TCurve, OppCurve>::dumpBounded(int id) const {
     do {
         if (test->findOppSpan(bounded)) {
             test->dump();
+            SkDebugf(" ");
         }
     } while ((test = test->next()));
+    SkDebugf("\n");
 }
 
 template<typename TCurve, typename OppCurve>
@@ -141,6 +153,24 @@ const SkTSpan<TCurve, OppCurve>* SkTSpan<TCurve, OppCurve>::debugT(double t) con
 }
 
 template<typename TCurve, typename OppCurve>
+void SkTSpan<TCurve, OppCurve>::dumpAll() const {
+    dumpID();
+    SkDebugf("=(%g,%g) [", fStartT, fEndT);
+    const SkTSpanBounded<OppCurve, TCurve>* testBounded = fBounded;
+    while (testBounded) {
+        const SkTSpan<OppCurve, TCurve>* span = testBounded->fBounded;
+        const SkTSpanBounded<OppCurve, TCurve>* next = testBounded->fNext;
+        span->dumpID();
+        SkDebugf("=(%g,%g)", span->fStartT, span->fEndT);
+        if (next) {
+            SkDebugf(" ");
+        }
+        testBounded = next;
+    }
+    SkDebugf("]\n");
+}
+
+template<typename TCurve, typename OppCurve>
 void SkTSpan<TCurve, OppCurve>::dump() const {
     dumpID();
     SkDebugf("=(%g,%g) [", fStartT, fEndT);
@@ -167,7 +197,7 @@ void SkTSpan<TCurve, OppCurve>::dumpBounds() const {
     dumpID();
     SkDebugf(" bounds=(%1.9g,%1.9g, %1.9g,%1.9g) boundsMax=%1.9g%s\n",
             fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom, fBoundsMax,
-            fCollapsed ? " collapsed" : ""); 
+            fCollapsed ? " collapsed" : "");
 }
 
 template<typename TCurve, typename OppCurve>
@@ -181,11 +211,14 @@ void SkTSpan<TCurve, OppCurve>::dumpCoin() const {
 
 template<typename TCurve, typename OppCurve>
 void SkTSpan<TCurve, OppCurve>::dumpID() const {
-    if (fCoinStart.isCoincident()) {
-        SkDebugf("%c", '*');
+    char cS = fCoinStart.dumpIsCoincidentStr();
+    if (cS) {
+        SkDebugf("%c", cS);
     }
     SkDebugf("%d", debugID());
-    if (fCoinEnd.isCoincident()) {
-        SkDebugf("%c", '*');
+    char cE = fCoinEnd.dumpIsCoincidentStr();
+    if (cE) {
+        SkDebugf("%c", cE);
     }
 }
+#endif  // PathOpsTSectDebug_DEFINED

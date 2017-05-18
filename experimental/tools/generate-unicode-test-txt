@@ -1,0 +1,64 @@
+#!/usr/bin/python
+
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import array, zlib, base64, sys
+
+## Source: http://www.unicode.org/Public/9.0.0/ucd/UnicodeData.txt
+valid_codepoint_data = '''
+  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
+'''
+if sys.version_info[0] < 3:
+    def to_unicode(i):
+        return ('\U%08x' % i).decode('unicode-escape').encode('UTF-8')
+else:
+    def to_unicode(i):
+        return chr(i)
+o = sys.stdout
+o.write(to_unicode(0xFEFF))
+pack = array.array('I', zlib.decompress(
+    base64.b64decode(valid_codepoint_data)))
+i = 0
+last_row = -1
+plist = pack.tolist()
+for increment in plist:
+    i += increment + 1
+    row = i - (i & 63)
+    if last_row != row:
+        if row:
+            o.write('\n' if row % 1024 else '\n\n')
+        o.write('U+%06x ' % row)
+        last_row = row
+    o.write(' ' + to_unicode(i))
+o.write('\n')

@@ -237,7 +237,7 @@ void CubicPathToSimple(const SkPath& cubicPath, SkPath* simplePath) {
                     lo = hi;
                 }
                 break;
-            } 
+            }
             case SkPath::kClose_Verb:
                  simplePath->close();
                 break;

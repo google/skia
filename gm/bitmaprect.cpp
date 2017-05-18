@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
@@ -23,8 +24,8 @@ static void make_bitmap(SkBitmap* bitmap) {
     paint.setAntiAlias(true);
     const SkPoint pts[] = { { 0, 0 }, { 64, 64 } };
     const SkColor colors[] = { SK_ColorWHITE, SK_ColorBLUE };
-    paint.setShader(SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
-                                                   SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
+                                                 SkShader::kClamp_TileMode));
     canvas.drawCircle(32, 32, 32, paint);
 }
 
@@ -153,9 +154,9 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 static void make_big_bitmap(SkBitmap* bitmap) {
 
-    static const int gXSize = 4096;
-    static const int gYSize = 4096;
-    static const int gBorderWidth = 10;
+    constexpr int gXSize = 4096;
+    constexpr int gYSize = 4096;
+    constexpr int gBorderWidth = 10;
 
     bitmap->allocN32Pixels(gXSize, gYSize);
     for (int y = 0; y < gYSize; ++y) {
@@ -199,12 +200,9 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-
-        SkXfermode* mode = SkXfermode::Create(SkXfermode::kXor_Mode);
-
         SkPaint paint;
         paint.setAlpha(128);
-        paint.setXfermode(mode)->unref();
+        paint.setBlendMode(SkBlendMode::kXor);
 
         SkRect srcR1 = { 0.0f, 0.0f, 4096.0f, 2040.0f };
         SkRect dstR1 = { 10.1f, 10.1f, 629.9f, 400.9f };
@@ -273,23 +271,11 @@ DEF_GM( return new BitmapRectRounding; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory0(void*) { return new DrawBitmapRect2(false); }
-static skiagm::GM* MyFactory1(void*) { return new DrawBitmapRect2(true); }
-
-static skiagm::GM* MyFactory2(void*) { return new DrawBitmapRect3(); }
-
-#ifndef SK_BUILD_FOR_ANDROID
-static skiagm::GM* MyFactory3(void*) { return new DrawBitmapRect4(false); }
-static skiagm::GM* MyFactory4(void*) { return new DrawBitmapRect4(true); }
-#endif
-
-static skiagm::GMRegistry reg0(MyFactory0);
-static skiagm::GMRegistry reg1(MyFactory1);
-
-static skiagm::GMRegistry reg2(MyFactory2);
+DEF_GM( return new DrawBitmapRect2(false); )
+DEF_GM( return new DrawBitmapRect2(true); )
+DEF_GM( return new DrawBitmapRect3(); )
 
 #ifndef SK_BUILD_FOR_ANDROID
-static skiagm::GMRegistry reg3(MyFactory3);
-static skiagm::GMRegistry reg4(MyFactory4);
+DEF_GM( return new DrawBitmapRect4(false); )
+DEF_GM( return new DrawBitmapRect4(true); )
 #endif
-

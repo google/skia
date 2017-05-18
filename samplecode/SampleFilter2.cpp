@@ -5,17 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "DecodeFile.h"
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkTime.h"
@@ -35,12 +34,10 @@ public:
         fBitmaps = new SkBitmap[fBitmapCount];
 
         for (int i = 0; i < fBitmapCount/2; i++) {
-            SkImageDecoder::DecodeFile(gNames[i], &fBitmaps[i], kN32_SkColorType,
-                                       SkImageDecoder::kDecodePixels_Mode, nullptr);
+            decode_file(gNames[i], &fBitmaps[i]);
         }
         for (int i = fBitmapCount/2; i < fBitmapCount; i++) {
-            SkImageDecoder::DecodeFile(gNames[i-fBitmapCount/2], &fBitmaps[i], kRGB_565_SkColorType,
-                                       SkImageDecoder::kDecodePixels_Mode, nullptr);
+            decode_file(gNames[i-fBitmapCount/2], &fBitmaps[i], kRGB_565_SkColorType);
         }
         fCurrIndex = 0;
 
@@ -92,7 +89,7 @@ protected:
                         s.appendS32(paint.isDither());
                         s.append(" filter=");
                         s.appendS32(paint.getFilterQuality() != kNone_SkFilterQuality);
-                        canvas->drawText(s.c_str(), s.size(), x + W/2,
+                        canvas->drawString(s, x + W/2,
                                          y - p.getTextSize(), p);
                     }
                     if (k+j == 2) {
@@ -102,7 +99,7 @@ protected:
                         SkString s;
                         s.append(" depth=");
                         s.appendS32(fBitmaps[i].colorType() == kRGB_565_SkColorType ? 16 : 32);
-                        canvas->drawText(s.c_str(), s.size(), x + W + SkIntToScalar(4),
+                        canvas->drawString(s, x + W + SkIntToScalar(4),
                                          y + H/2, p);
                     }
                 }

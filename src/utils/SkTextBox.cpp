@@ -192,7 +192,7 @@ SkScalar SkTextBox::visit(Visitor& visitor, const char text[], size_t len,
     x += fBox.fLeft;
 
     fontHeight = paint.getFontMetrics(&metrics);
-    scaledSpacing = SkScalarMul(fontHeight, fSpacingMul) + fSpacingAdd;
+    scaledSpacing = fontHeight * fSpacingMul + fSpacingAdd;
     height = fBox.height();
 
     //  compute Y position for first line
@@ -271,7 +271,7 @@ int SkTextBox::countLines() const {
 }
 
 SkScalar SkTextBox::getTextHeight() const {
-    SkScalar spacing = SkScalarMul(fPaint->getTextSize(), fSpacingMul) + fSpacingAdd;
+    SkScalar spacing = fPaint->getTextSize() * fSpacingMul + fSpacingAdd;
     return this->countLines() * spacing;
 }
 
@@ -292,12 +292,11 @@ public:
     }
 };
 
-SkTextBlob* SkTextBox::snapshotTextBlob(SkScalar* computedBottom) const {
+sk_sp<SkTextBlob> SkTextBox::snapshotTextBlob(SkScalar* computedBottom) const {
     TextBlobVisitor visitor;
     SkScalar newB = this->visit(visitor, fText, fLen, *fPaint);
     if (computedBottom) {
         *computedBottom = newB;
     }
-    return (SkTextBlob*)visitor.fBuilder.build();
+    return visitor.fBuilder.make();
 }
-

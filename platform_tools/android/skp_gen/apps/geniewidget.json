@@ -1,0 +1,15 @@
+{
+  "name": "geniewidget",
+  "package": "com.google.android.apps.genie.geniewidget",
+  "activity": "com.google.android.apps.genie.geniewidget.activities.NewsActivity",
+  "app_launch_delay": 3,
+  "actions": [
+    {
+      "type": "drag",
+      "start": [600, 600],
+      "end": [10, 10],
+      "duration": 0.2,
+      "points": 10
+    }
+  ]
+}
