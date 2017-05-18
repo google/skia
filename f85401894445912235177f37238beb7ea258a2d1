@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df57fbe2_c8b9ac78",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-18T18:37:19Z",
+      "side": 1,
+      "message": "Would SkPM4f_from_SkColor(src[i], deviceCS) not do the right thing in that case?",
+      "range": {
+        "startLine": 406,
+        "startChar": 41,
+        "endLine": 406,
+        "endChar": 61
+      },
+      "revId": "f85401894445912235177f37238beb7ea258a2d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af5bad3a_7a15e54f",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-18T18:37:19Z",
+      "side": 1,
+      "message": "leftover, or keeping them around as a reminder?",
+      "revId": "f85401894445912235177f37238beb7ea258a2d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
