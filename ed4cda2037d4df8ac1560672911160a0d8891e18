@@ -45,6 +45,30 @@
       "revId": "ed4cda2037d4df8ac1560672911160a0d8891e18",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1aff141f_164bcc44",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1707,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-18T18:10:34Z",
+      "side": 1,
+      "message": "I thought about that, but the call in GrRenderTargetContext is specialized to rrects. I suppose I could make it take a path and return a bool on success, if that works.",
+      "parentUuid": "0054418a_5d15c9b2",
+      "range": {
+        "startLine": 1679,
+        "startChar": 3,
+        "endLine": 1707,
+        "endChar": 5
+      },
+      "revId": "ed4cda2037d4df8ac1560672911160a0d8891e18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
