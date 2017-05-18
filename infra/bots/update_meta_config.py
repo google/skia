@@ -103,6 +103,8 @@ def main(gitcookies, repo_name, tasks_json):
         print 'No changes to buildbucket.config'
         return
 
+      import time
+      time.sleep(600)
       subprocess.check_call(['git', 'push', skia_repo, 'cfg:refs/meta/config'])
 
 
