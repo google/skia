@@ -32,6 +32,7 @@ class GrStyle;
 class GrTextureProxy;
 struct GrUserStencilSettings;
 class SkDrawFilter;
+struct SkDrawShadowRec;
 struct SkIPoint;
 struct SkIRect;
 class SkLatticeIter;
@@ -159,18 +160,13 @@ public:
      * @param paint        describes how to color pixels.
      * @param viewMatrix   transformation matrix
      * @param rrect        the roundrect to draw
-     * @param blurWidth    amount of shadow blur to apply (in device space)
-     * @param insetWidth   minimum amount to inset from the rrect edge (in local space).
-     *                     We may inset more depending on the blur radius and geometry.
-     * @param blurClamp    Optional parameter used to indicate fraction of blur to actually apply
+     * @param rec          parameters for shadow rendering
      */
     void drawShadowRRect(const GrClip&,
                          GrPaint&&,
                          const SkMatrix& viewMatrix,
                          const SkRRect& rrect,
-                         SkScalar blurRadius,
-                         SkScalar insetWidth,
-                         SkScalar blurClamp = 1);
+                         const SkDrawShadowRec& rec);
 
     /**
      * Shortcut for filling a SkPath consisting of nested rrects using a paint. The result is
