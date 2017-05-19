@@ -155,9 +155,16 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
             return nullptr;
         }
 
+        // We don't support this flag for compressed textures.
+        if (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
+            return nullptr;
+        }
         this->handleDirtyContext();
         tex = this->onCreateCompressedTexture(desc, budgeted, texels);
     } else {
+        if (texels.count() && (desc.fFlags & kPerformInitialClear_GrSurfaceFlag)) {
+            return nullptr;
+        }
         this->handleDirtyContext();
         tex = this->onCreateTexture(desc, budgeted, texels);
     }
@@ -284,6 +291,12 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, int width, int height, size
     // required to have read back support on all devices and backends.
     if (kRGB_565_GrPixelConfig == readConfig || kRGBA_4444_GrPixelConfig == readConfig) {
         return false;
+    }
+
+    if (GrPixelConfigIsAlphaOnly(srcSurface->config())) {
+        if (GrPixelConfigIsOpaque(readConfig)) {
+            return false;
+        }
     }
 
     if (!this->onGetReadPixelsInfo(srcSurface, width, height, rowBytes, readConfig, drawPreference,

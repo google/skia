@@ -70,4 +70,96 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     context->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
 }
 
+#include "GrDrawingManager.h"
+#include "GrSurfaceProxy.h"
+#include "GrTextureContext.h"
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureInitialClear, reporter, context_info) {
+    static constexpr int kSize = 100;
+    GrSurfaceDesc desc;
+    desc.fWidth = desc.fHeight = kSize;
+    uint32_t data[kSize * kSize];
+    GrContext* context = context_info.grContext();
+    for (int c = 0; c <= kLast_GrPixelConfig; ++c) {
+        desc.fConfig = static_cast<GrPixelConfig>(c);
+        if (!context_info.grContext()->caps()->isConfigTexturable(desc.fConfig)) {
+            continue;
+        }
+        desc.fFlags = kPerformInitialClear_GrSurfaceFlag;
+        for (bool rt : {false, true}) {
+            if (rt && !context->caps()->isConfigRenderable(desc.fConfig, false)) {
+                continue;
+            }
+            desc.fFlags |= rt ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
+            for (bool mipped : {false, true}) {
+                desc.fIsMipMapped = mipped;
+                for (GrSurfaceOrigin origin :
+                     {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
+                    desc.fOrigin = origin;
+                    for (bool approx : {false, true}) {
+                        auto resourceProvider = context->resourceProvider();
+                        // Try directly creating the texture.
+                        // Do this twice in an attempt to hit the cache on the second time through.
+                        for (int i = 0; i < 2; ++i) {
+                            auto tex =
+                                    approx ? sk_sp<GrTexture>(
+                                                     resourceProvider->createApproxTexture(desc, 0))
+                                           : resourceProvider->createTexture(desc,
+                                                                             SkBudgeted::kYes);
+                            // We should fail to create the texture if it is compressed (since the
+                            // initial clear flag is not supported) and succeed otherwise.
+                            REPORTER_ASSERT(reporter, SkToBool(tex) == !GrPixelConfigIsCompressed(
+                                                                               desc.fConfig));
+                            if (!tex) {
+                                continue;
+                            }
+                            auto proxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
+                            auto tctx = context->contextPriv().makeWrappedSurfaceContext(
+                                    std::move(proxy), nullptr);
+                            SkImageInfo info = SkImageInfo::Make(
+                                    kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+                            memset(data, 0xAB, kSize * kSize * sizeof(uint32_t));
+                            if (tctx->readPixels(info, data, 0, 0, 0)) {
+                                uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
+                                for (int i = 0; i < kSize * kSize; ++i) {
+                                    if (cmp != data[i]) {
+                                        ERRORF(reporter, "Failed on conifg %d", desc.fConfig);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        context->purgeAllUnlockedResources();
+                        // Try creating the texture as a deferred proxy.
+                        for (int i = 0; i < 2; ++i) {
+                            auto surfCtx = context->contextPriv().makeDeferredSurfaceContext(
+                                    desc, approx ? SkBackingFit::kApprox : SkBackingFit::kExact,
+                                    SkBudgeted::kYes);
+                            // We should fail to create the texture if it is compressed (since the
+                            // initial clear flag is not supported) and succeed otherwise.
+                            REPORTER_ASSERT(
+                                    reporter,
+                                    SkToBool(surfCtx) == !GrPixelConfigIsCompressed(desc.fConfig));
+                            if (!surfCtx) {
+                                continue;
+                            }
+                            SkImageInfo info = SkImageInfo::Make(
+                                    kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+                            memset(data, 0xAB, kSize * kSize * sizeof(uint32_t));
+                            if (surfCtx->readPixels(info, data, 0, 0, 0)) {
+                                uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
+                                for (int i = 0; i < kSize * kSize; ++i) {
+                                    if (cmp != data[i]) {
+                                        ERRORF(reporter, "Failed on conifg %d", desc.fConfig);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 #endif
