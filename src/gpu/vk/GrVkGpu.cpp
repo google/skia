@@ -351,7 +351,8 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
 
     bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcConfig) == dstSurface->config();
 
-    if (!this->vkCaps().isConfigTexturable(srcConfig) && configsAreRBSwaps) {
+    if (!this->vkCaps().isConfigTexturable(srcConfig, kTopLeft_GrSurfaceOrigin) &&
+        configsAreRBSwaps) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
         tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
         tempDrawInfo->fWriteConfig = dstSurface->config();
@@ -579,7 +580,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     }
 
     const GrSurfaceDesc& desc = tex->desc();
-    SkASSERT(this->caps()->isConfigTexturable(desc.fConfig));
+    SkASSERT(this->caps()->isConfigTexturable(desc.fConfig, desc.fOrigin));
     size_t bpp = GrBytesPerPixel(dataConfig);
 
     // texels is const.
@@ -715,7 +716,7 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
         return nullptr;
     }
 
-    if (!fVkCaps->isConfigTexturable(desc.fConfig)) {
+    if (!fVkCaps->isConfigTexturable(desc.fConfig, desc.fOrigin)) {
         return nullptr;
     }
 
@@ -1111,7 +1112,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
     }
 
     bool linearTiling = false;
-    if (!fVkCaps->isConfigTexturable(config)) {
+    if (!fVkCaps->isConfigTexturable(config, kTopLeft_GrSurfaceOrigin)) {
         return 0;
     }
 

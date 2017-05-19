@@ -703,7 +703,7 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcConfig) == dstSurface->config();
 
     if (configsAreRBSwaps) {
-        if (!this->caps()->isConfigTexturable(srcConfig)) {
+        if (!this->caps()->isConfigTexturable(srcConfig, kTopLeft_GrSurfaceOrigin)) {
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
             tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
             tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
@@ -1071,7 +1071,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     // If we're uploading compressed data then we should be using uploadCompressedTexData
     SkASSERT(!GrPixelConfigIsCompressed(dataConfig));
 
-    SkASSERT(this->caps()->isConfigTexturable(desc.fConfig));
+    SkASSERT(this->caps()->isConfigTexturable(desc.fConfig, desc.fOrigin));
 
     // texels is const.
     // But we may need to flip the texture vertically to prepare it.
@@ -1268,7 +1268,7 @@ bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
                                       const SkTArray<GrMipLevel>& texels,
                                       UploadType uploadType,
                                       int left, int top, int width, int height) {
-    SkASSERT(this->caps()->isConfigTexturable(desc.fConfig));
+    SkASSERT(this->caps()->isConfigTexturable(desc.fConfig, desc.fOrigin));
 
     // No support for software flip y, yet...
     SkASSERT(kBottomLeft_GrSurfaceOrigin != desc.fOrigin);
@@ -4313,7 +4313,7 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 
 GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                          GrPixelConfig config, bool /*isRT*/) {
-    if (!this->caps()->isConfigTexturable(config)) {
+    if (!this->caps()->isConfigTexturable(config, kTopLeft_GrSurfaceOrigin)) {
         return false;
     }
     std::unique_ptr<GrGLTextureInfo> info = skstd::make_unique<GrGLTextureInfo>();
