@@ -22,6 +22,30 @@
       "revId": "c96da1e51e1ca72d54dda49f32891bd41530ad31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c88176e_c06f362b",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-19T01:29:50Z",
+      "side": 0,
+      "message": "should be restored now.",
+      "parentUuid": "1cfb0196_7ecd65fe",
+      "range": {
+        "startLine": 110,
+        "startChar": 23,
+        "endLine": 110,
+        "endChar": 55
+      },
+      "revId": "c96da1e51e1ca72d54dda49f32891bd41530ad31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

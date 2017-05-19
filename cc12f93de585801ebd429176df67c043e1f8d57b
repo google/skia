@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "114c9492_971721c9",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-19T01:29:50Z",
+      "side": 1,
+      "message": "Yes, my reorder was wrong.",
+      "parentUuid": "e098147d_73a47e3e",
+      "range": {
+        "startLine": 116,
+        "startChar": 12,
+        "endLine": 116,
+        "endChar": 30
+      },
+      "revId": "cc12f93de585801ebd429176df67c043e1f8d57b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c0b65843_976eac01",
         "filename": "src/core/SkRasterPipelineBlitter.cpp",
         "patchSetId": 9
@@ -142,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "eaf162c1_c49ea718",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-19T01:29:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4878272a_df6ebbb7",
+      "range": {
+        "startLine": 163,
+        "startChar": 10,
+        "endLine": 163,
+        "endChar": 11
+      },
+      "revId": "cc12f93de585801ebd429176df67c043e1f8d57b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "47c9bf55_f2f72575",
         "filename": "src/core/SkRasterPipelineBlitter.cpp",
         "patchSetId": 9
@@ -156,6 +204,24 @@
       "revId": "cc12f93de585801ebd429176df67c043e1f8d57b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40472477_9f67eb87",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-19T01:29:50Z",
+      "side": 1,
+      "message": "Good point. I\u0027ll set is_constant to false if we set the dither. I\u0027ll also assert that coming in, we have no dither.",
+      "parentUuid": "47c9bf55_f2f72575",
+      "revId": "cc12f93de585801ebd429176df67c043e1f8d57b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
