@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "074e1d64_03f85b27",
+        "filename": "src/core/SkConvertPixels.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-19T23:29:46Z",
+      "side": 1,
+      "message": "I\u0027m fine with making this uniform.  Any time we go from big to smaller, we dither?",
+      "range": {
+        "startLine": 372,
+        "startChar": 12,
+        "endLine": 372,
+        "endChar": 22
+      },
+      "revId": "e4d7deef9540f399319e6e764df631f63bb86dbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8afe0da8_8143d201",
+        "filename": "src/core/SkConvertPixels.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-19T23:29:46Z",
+      "side": 1,
+      "message": "Is it worth checking if the srcColorType is 8888 or F16 (or even 565) before adding a dither.",
+      "range": {
+        "startLine": 379,
+        "startChar": 12,
+        "endLine": 379,
+        "endChar": 34
+      },
+      "revId": "e4d7deef9540f399319e6e764df631f63bb86dbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
