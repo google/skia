@@ -659,6 +659,7 @@ DEFINES_ALL = [
     # Turn on a few Google3-specific build fixes.
     "GOOGLE3",
     # Staging flags for API changes
+    "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
     # Temporarily Disable analytic AA for Google3
     "SK_NO_ANALYTIC_AA",
 ]
