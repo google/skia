@@ -9,11 +9,16 @@
 #include "GrPipeline.h"
 #include "gl/GrGLCaps.h"
 
-GrXferProcessor::GrXferProcessor() : fWillReadDstColor(false), fDstReadUsesMixedSamples(false) {}
+GrXferProcessor::GrXferProcessor()
+        : fWillReadDstColor(false)
+        , fDstReadUsesMixedSamples(false)
+        , fIsLCD(false) {}
 
-GrXferProcessor::GrXferProcessor(bool willReadDstColor, bool hasMixedSamples)
+GrXferProcessor::GrXferProcessor(bool willReadDstColor, bool hasMixedSamples,
+                                 GrProcessorAnalysisCoverage coverage)
         : fWillReadDstColor(willReadDstColor)
-        , fDstReadUsesMixedSamples(willReadDstColor && hasMixedSamples) {}
+        , fDstReadUsesMixedSamples(willReadDstColor && hasMixedSamples)
+        , fIsLCD(GrProcessorAnalysisCoverage::kLCD == coverage) {}
 
 bool GrXferProcessor::hasSecondaryOutput() const {
     if (!this->willReadDstColor()) {
@@ -44,6 +49,9 @@ void GrXferProcessor::getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorK
         if (this->dstReadUsesMixedSamples()) {
             key |= 0x8;
         }
+    }
+    if (fIsLCD) {
+        key |= 0x10;
     }
     b->add32(key);
     this->onGetGLSLProcessorKey(caps, b);
