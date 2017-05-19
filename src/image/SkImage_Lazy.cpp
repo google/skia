@@ -247,13 +247,14 @@ struct CacheCaps {
 #if SK_SUPPORT_GPU
     bool supportsHalfFloat() const {
         return !fCaps ||
-            (fCaps->isConfigTexturable(kRGBA_half_GrPixelConfig) &&
+            (fCaps->isConfigTexturable(kRGBA_half_GrPixelConfig, kTopLeft_GrSurfaceOrigin) &&
              fCaps->isConfigRenderable(kRGBA_half_GrPixelConfig, false));
     }
 
     bool supportsSRGB() const {
         return !fCaps ||
-            (fCaps->srgbSupport() && fCaps->isConfigTexturable(kSRGBA_8888_GrPixelConfig));
+            (fCaps->srgbSupport() &&
+             fCaps->isConfigTexturable(kSRGBA_8888_GrPixelConfig, kTopLeft_GrSurfaceOrigin));
     }
 
     bool supportsSBGR() const {

@@ -35,13 +35,15 @@ check_pixels(skiatest::Reporter* reporter, int w, int h, const I exepctedData[],
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    if (!context->caps()->isConfigTexturable(kRGBA_8888_sint_GrPixelConfig)) {
+    if (!context->caps()->isConfigTexturable(kRGBA_8888_sint_GrPixelConfig,
+                                             kTopLeft_GrSurfaceOrigin)) {
         return;
     }
     static const int kS = UINT8_MAX + 1;
     static const size_t kRowBytes = kS * sizeof(int32_t);
 
     GrSurfaceDesc desc;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fConfig = kRGBA_8888_sint_GrPixelConfig;
     desc.fWidth = kS;
     desc.fHeight = kS;
@@ -161,7 +163,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     }
 
     // Test that copying to a non-integer (RGBA_half) texture fails.
-    if (context->caps()->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
+    if (context->caps()->isConfigTexturable(kRGBA_half_GrPixelConfig, kTopLeft_GrSurfaceOrigin)) {
         GrSurfaceDesc nonIntDesc = desc;
         nonIntDesc.fConfig = kRGBA_half_GrPixelConfig;
 

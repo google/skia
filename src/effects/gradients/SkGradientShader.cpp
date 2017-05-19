@@ -1848,9 +1848,11 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
                 SkGradientShaderBase::GradientBitmapType::kLegacy;
             if (args.fGammaCorrect) {
                 // Try to use F16 if we can
-                if (args.fContext->caps()->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
+                if (args.fContext->caps()->isConfigTexturable(kRGBA_half_GrPixelConfig,
+                                                              kTopLeft_GrSurfaceOrigin)) {
                     bitmapType = SkGradientShaderBase::GradientBitmapType::kHalfFloat;
-                } else if (args.fContext->caps()->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
+                } else if (args.fContext->caps()->isConfigTexturable(kSRGBA_8888_GrPixelConfig,
+                                                                     kTopLeft_GrSurfaceOrigin)) {
                     bitmapType = SkGradientShaderBase::GradientBitmapType::kSRGB;
                 } else {
                     // This can happen, but only if someone explicitly creates an unsupported
