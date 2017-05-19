@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8f2c939f_9cdc7b7b",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1652,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-19T19:08:50Z",
+      "side": 1,
+      "message": "sBGRA. There is a comment higher up in the file that talks about how sBGRA is almost unsupportable in ES2.",
+      "parentUuid": "276ebece_db2b918f",
+      "revId": "b1b420578ed421ac8d2380b999e539b71b8a8786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bfb9ef0c_26b9a9af",
         "filename": "src/gpu/gl/GrGLCaps.h",
         "patchSetId": 15
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-19T18:50:30Z",
       "side": 1,
       "message": "Have we determined we need ETC1? This seems like some unfortunate complexity if we don\u0027t",
+      "revId": "b1b420578ed421ac8d2380b999e539b71b8a8786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "430f96c0_592850d3",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-19T19:08:50Z",
+      "side": 1,
+      "message": "Off-line we\u0027ve concluded that we will remove ETC1 support in a follow up CL. (and then remove the new parameter on isConfigTexturable).",
+      "parentUuid": "bfb9ef0c_26b9a9af",
       "revId": "b1b420578ed421ac8d2380b999e539b71b8a8786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
