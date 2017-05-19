@@ -34,6 +34,7 @@ public:
     {}
 
     void blitH    (int x, int y, int w)                            override;
+    void blitRuns (int y, const int L[], const int R[], int h)     override;
     void blitAntiH(int x, int y, const SkAlpha[], const int16_t[]) override;
     void blitMask (const SkMask&, const SkIRect& clip)             override;
 
@@ -291,6 +292,30 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
         this->append_store(&p);
     }
     p.run(x,w);
+}
+
+void SkRasterPipelineBlitter::blitRuns(int y, const int L[], const int R[], int height) {
+    auto& p = fBlitH;
+    if (p.empty()) {
+        p.extend(fShader);
+        if (fBlend != SkBlendMode::kSrc) {
+            this->append_load_d(&p);
+            this->append_blend(&p);
+            this->maybe_clamp(&p);
+        }
+        this->append_store(&p);
+    }
+
+    const int endY = y + height;
+    for (; y < endY; ++y) {
+        int x = *L++;
+        int w = *R++ - x;
+        if (w > 0) {
+            fDstPtr = fDst.writable_addr(0,y);
+            fCurrentY = y;
+            p.run(x,w);
+        }
+    }
 }
 
 void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const int16_t runs[]) {
