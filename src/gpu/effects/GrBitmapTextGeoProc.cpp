@@ -79,6 +79,7 @@ public:
                                          args.fOutputCoverage, args.fOutputCoverage);
             }
         }
+        SkDebugf("Doing bitmap\n");
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp,

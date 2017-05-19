@@ -20,6 +20,7 @@ static void adjust_for_lcd_coverage(GrGLSLXPFragmentBuilder* fragBuilder,
                                     const char* srcCoverage,
                                     const GrXferProcessor& proc) {
     if (srcCoverage && proc.isLCD()) {
+        SkDebugf("IN MY FIXED FUNC LCD IF STATEMENT\n");
         fragBuilder->codeAppendf("%s.a = max(max(%s.r, %s.g), %s.b);",
                                  srcCoverage, srcCoverage, srcCoverage, srcCoverage);
     }
@@ -133,6 +134,7 @@ void GrGLSLXferProcessor::DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fra
         }
     } else if (srcCoverage) {
         if (proc.isLCD()) {
+            SkDebugf("Doing in shader default coverage modulation stuff\n");
             fragBuilder->codeAppendf("float lerpRed = mix(%s.a, %s.a, %s.r);",
                                      dstColor, outColor, srcCoverage);
             fragBuilder->codeAppendf("float lerpBlue = mix(%s.a, %s.a, %s.g);",
