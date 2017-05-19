@@ -184,6 +184,10 @@ bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Opti
     pic.height = pixmap.height();
     pic.writer = stream_writer;
 
+    // Select between BGRA and YUV compression.  libwebp recommends using BGRA for lossless
+    // and YUV for lossy.
+    pic.use_argb = (Compression::kLossless == opts.fCompression) ? 1 : 0;
+
     // If there is no need to embed an ICC profile, we write directly to the input stream.
     // Otherwise, we will first encode to |tmp| and use a mux to add the ICC chunk.  libwebp
     // forces us to have an encoded image before we can add a profile.
