@@ -71,6 +71,29 @@
     },
     {
       "key": {
+        "uuid": "d8d512bd_9942cbca",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-19T23:02:14Z",
+      "side": 1,
+      "message": "This needs to also check for kRespect.",
+      "range": {
+        "startLine": 567,
+        "startChar": 8,
+        "endLine": 567,
+        "endChar": 41
+      },
+      "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3ac0bff5_a0799292",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 3
@@ -87,6 +110,29 @@
         "startChar": 12,
         "endLine": 578,
         "endChar": 33
+      },
+      "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0d5fef0_3849faaf",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-19T23:02:14Z",
+      "side": 1,
+      "message": "Aha!  This is the srgb-premul bug.  We always need to  have the \"to_srgb\" stage at the end (for kRespect with gammaCloseToSRGB), even if we don\u0027t need an unpremultiply.",
+      "range": {
+        "startLine": 581,
+        "startChar": 16,
+        "endLine": 581,
+        "endChar": 72
       },
       "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
