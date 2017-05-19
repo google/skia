@@ -46,6 +46,30 @@
       "revId": "f49af88b2967e25ecb971f0b95ba73e5920733d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fce8caf_ec103f15",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-19T19:42:49Z",
+      "side": 1,
+      "message": "sgtm.  Might be we\u0027re wrong to not let people turn off dither on gradients.",
+      "parentUuid": "e02a4a23_14a6b489",
+      "range": {
+        "startLine": 484,
+        "startChar": 28,
+        "endLine": 484,
+        "endChar": 44
+      },
+      "revId": "f49af88b2967e25ecb971f0b95ba73e5920733d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
