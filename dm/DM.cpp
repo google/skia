@@ -1320,6 +1320,9 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle s
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
 
 int main(int argc, char** argv) {
+    argc = 3;
+    const char* fakeargs[] = {"dm", "--match", "TextureInitialClear"};
+    argv = const_cast<char**>(fakeargs);
     SkCommandLineFlags::Parse(argc, argv);
 #if defined(SK_BUILD_FOR_IOS)
     cd_Documents();
