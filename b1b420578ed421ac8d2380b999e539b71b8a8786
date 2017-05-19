@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "276ebece_db2b918f",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1652,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-19T18:50:30Z",
+      "side": 1,
+      "message": "Does this disable srgb across all of ES?",
+      "revId": "b1b420578ed421ac8d2380b999e539b71b8a8786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfb9ef0c_26b9a9af",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-19T18:50:30Z",
+      "side": 1,
+      "message": "Have we determined we need ETC1? This seems like some unfortunate complexity if we don\u0027t",
+      "revId": "b1b420578ed421ac8d2380b999e539b71b8a8786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
