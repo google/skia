@@ -42,6 +42,15 @@ void SkBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
 }
  */
 
+void SkBlitter::blitRuns(int start_y, const int left[], const int rite[], int count) {
+    for (int i = 0; i < count; ++i) {
+        int width = rite[i] - left[i];
+        if (width > 0) {
+            this->blitH(left[i], start_y + i, width);
+        }
+    }
+}
+
 void SkBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
     if (alpha == 255) {
         this->blitRect(x, y, 1, height);
