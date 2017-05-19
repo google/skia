@@ -17,18 +17,6 @@
     implemented privately in GrTexture with a inline public method here). */
 class GrTexturePriv {
 public:
-    void setFlag(GrSurfaceFlags flags) {
-        fTexture->fDesc.fFlags = fTexture->fDesc.fFlags | flags;
-    }
-
-    void resetFlag(GrSurfaceFlags flags) {
-        fTexture->fDesc.fFlags = fTexture->fDesc.fFlags & ~flags;
-    }
-
-    bool isSetFlag(GrSurfaceFlags flags) const {
-        return 0 != (fTexture->fDesc.fFlags & flags);
-    }
-
     void dirtyMipMaps(bool mipMapsDirty) {
         fTexture->dirtyMipMaps(mipMapsDirty);
     }
@@ -70,6 +58,10 @@ public:
     static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
 
 private:
+    static void ComputeScratchKey(GrPixelConfig config, int width, int height,
+                                  GrSurfaceOrigin origin, bool isRenderTarget, int sampleCnt,
+                                  bool isMipMapped, GrScratchKey* key);
+
     GrTexturePriv(GrTexture* texture) : fTexture(texture) { }
     GrTexturePriv(const GrTexturePriv& that) : fTexture(that.fTexture) { }
     GrTexturePriv& operator=(const GrTexturePriv&); // unimpl
