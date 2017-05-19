@@ -257,9 +257,9 @@ void SkTriColorShader::TriColorShaderContext::shadeSpan4f(int x, int y, SkPM4f d
 #ifndef SK_IGNORE_TO_STRING
 void SkTriColorShader::toString(SkString* str) const {
     str->append("SkTriColorShader: (");
-    
+
     this->INHERITED::toString(str);
-    
+
     str->append(")");
 }
 #endif
@@ -471,6 +471,12 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
         // - apply per-color alpha before interpolation (matches old version of vertices)
         //
         SkPM4f* dstColors = convert_colors(colors, count, fDst.colorSpace(), &alloc);
+        if (paint.getAlpha() != 0xff) {
+            Sk4f alpha = paint.getAlpha() * (1/255.0f);
+            for (int i = 0; i < count; i++) {
+                (dstColors[i].to4f() * alpha).store(dstColors + i);
+            }
+        }
 
         shaderPipeline.append(SkRasterPipeline::matrix_4x3, &matrix43);
         // In theory we should never need to clamp. However, either due to imprecision in our
@@ -482,7 +488,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
 
         bool is_opaque = compute_is_opaque(colors, count),
              wants_dither = paint.isDither();
-        auto blitter = SkCreateRasterPipelineBlitter(fDst, paint, *fMatrix, shaderPipeline,
+        auto blitter = SkCreateRasterPipelineBlitter(fDst, paint, shaderPipeline,
                                                      is_opaque, wants_dither, &alloc);
         SkASSERT(!blitter->isNullBlitter());
 
