@@ -167,24 +167,28 @@ bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Opti
         return false;
     }
 
-    // The choice of |webp_config.method| currently just match Chrome's defaults.  We
-    // could potentially expose this to the client.
-    if (Compression::kLossy == opts.fCompression) {
-        webp_config.lossless = 0;
-#ifndef SK_WEBP_ENCODER_USE_DEFAULT_METHOD
-        webp_config.method = 3;
-#endif
-    } else {
-        webp_config.lossless = 1;
-        webp_config.method = 0;
-    }
-
     WebPPicture pic;
     WebPPictureInit(&pic);
     SkAutoTCallVProc<WebPPicture, WebPPictureFree> autoPic(&pic);
     pic.width = pixmap.width();
     pic.height = pixmap.height();
     pic.writer = stream_writer;
+
+    // Set compression, method, and pixel format.
+    // libwebp recommends using BGRA for lossless and YUV for lossy.
+    // The choices of |webp_config.method| currently just match Chrome's defaults.  We
+    // could potentially expose this decision to the client.
+    if (Compression::kLossy == opts.fCompression) {
+        webp_config.lossless = 0;
+#ifndef SK_WEBP_ENCODER_USE_DEFAULT_METHOD
+        webp_config.method = 3;
+#endif
+        pic.use_argb = 0;
+    } else {
+        webp_config.lossless = 1;
+        webp_config.method = 0;
+        pic.use_argb = 1;
+    }
 
     // If there is no need to embed an ICC profile, we write directly to the input stream.
     // Otherwise, we will first encode to |tmp| and use a mux to add the ICC chunk.  libwebp
