@@ -202,12 +202,15 @@ SkBlitter* SkBlitter_ChooseD565(const SkPixmap& device, const SkPaint& paint,
                                 SkArenaAlloc* allocator);
 
 
-// Returns nullptr if no SkRasterPipeline blitter can be constructed for this paint.
+// Neither of these ever returns nullptr, but this first factory may return a SkNullBlitter.
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&, const SkMatrix& ctm,
                                          SkArenaAlloc*);
-SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&, const SkMatrix& ctm,
+// Use this if you've pre-baked a shader pipeline, including modulating with paint alpha.
+// This factory never returns an SkNullBlitter.
+SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&,
                                          const SkRasterPipeline& shaderPipeline,
-                                         bool shader_is_opaque, bool shader_wants_dither,
+                                         bool shader_is_opaque,
+                                         bool shader_wants_dither,
                                          SkArenaAlloc*);
 
 #endif
