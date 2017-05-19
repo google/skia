@@ -92,7 +92,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 		ec := []string{}
 		if val := parts["extra_config"]; val != "" {
 			ec = strings.Split(val, "_")
-			ignore := []string{"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "ReleaseAndAbandonGpuContext", "RaspberryPi"}
+			ignore := []string{"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "ReleaseAndAbandonGpuContext"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !util.In(part, ignore) {
@@ -158,7 +158,7 @@ func swarmDimensions(parts map[string]string) []string {
 			"Win2k8":     "Windows-2008ServerR2-SP1",
 			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
-			"iOS":        "iOS-9.3.1",
+			"iOS":        "iOS-10.3.1",
 		}[os]
 		// Chrome Golo has a different Windows image.
 		if parts["model"] == "Golo" && os == "Win10" {
@@ -184,14 +184,6 @@ func swarmDimensions(parts map[string]string) []string {
 				"iPhone7":   "iPhone9,1",
 				"iPadPro":   "iPad6,3",
 			}[parts["model"]]
-
-			// TODO(stephana): Remove once we are fully switched to RaspberryPi.
-
-			// Use the RPi host.
-			if parts["extra_config"] == "RaspberryPi" {
-				d["os"] = "iOS-10.3.1"
-				d["machine_type"] = "RaspberryPi"
-			}
 		} else if parts["cpu_or_gpu"] == "CPU" {
 			d["gpu"] = "none"
 			d["cpu"] = map[string]string{
@@ -423,14 +415,13 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	return name
 }
 
-
 // updateMetaConfig generates a UpdateMetaConfig task. Returns the name of the
 // last task in the generated chain of tasks, which the Job should add as a
 // dependency.
 func updateMetaConfig(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages:     []*specs.CipdPackage{},
-		Dimensions:       linuxGceDimensions(),
+		CipdPackages: []*specs.CipdPackage{},
+		Dimensions:   linuxGceDimensions(),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "update_meta_config",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -442,12 +433,11 @@ func updateMetaConfig(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:   "meta_config.isolate",
-		Priority:  0.8,
+		Isolate:  "meta_config.isolate",
+		Priority: 0.8,
 	})
 	return name
 }
-
 
 // ctSKPs generates a CT SKPs task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
