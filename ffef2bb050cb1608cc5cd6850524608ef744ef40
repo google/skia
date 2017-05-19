@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68be9ce7_892baa7f",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-19T21:28:45Z",
+      "side": 1,
+      "message": "I notice we\u0027re not doing the fCanMemsetInBlitH check here.\n\nIs this better than looping over blitH?  If so, what if we make blitH or the whole class final?  It seems like this is the sort of transformation the compiler can handle as long as we get virtuals out of its way.",
+      "revId": "ffef2bb050cb1608cc5cd6850524608ef744ef40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
