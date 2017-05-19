@@ -451,13 +451,6 @@
       ],
       "trigger": "nightly"
     },
-    "Housekeeper-Nightly-UpdateMetaConfig": {
-      "priority": 0.8,
-      "tasks": [
-        "Housekeeper-Nightly-UpdateMetaConfig"
-      ],
-      "trigger": "nightly"
-    },
     "Housekeeper-PerCommit": {
       "priority": 0.8,
       "tasks": [
@@ -669,10 +662,22 @@
         "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android"
       ]
     },
+    "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan"
+      ]
+    },
     "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android"
+      ]
+    },
+    "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan"
       ]
     },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android": {
@@ -4386,29 +4391,6 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Housekeeper-Nightly-UpdateMetaConfig": {
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "update_meta_config",
-        "repository=<(REPO)",
-        "buildername=Housekeeper-Nightly-UpdateMetaConfig",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "meta_config.isolate",
-      "priority": 0.8
-    },
     "Housekeeper-PerCommit": {
       "cipd_packages": [
         {
@@ -5465,7 +5447,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:OPP1.170223.012",
+        "device_os:OPP2.170420.017",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -5499,7 +5481,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:OPP1.170223.012",
+        "device_os:OPP2.170420.017",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -5524,6 +5506,40 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan": {
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPP2.170420.017",
+        "device_type:fugu",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
       "dependencies": [
         "Build-Ubuntu-Clang-x86-Release-Android",
@@ -5533,7 +5549,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:OPP1.170223.012",
+        "device_os:OPP2.170420.017",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -5546,6 +5562,40 @@
         "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPP2.170420.017",
+        "device_type:fugu",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -11474,7 +11524,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:OPP1.170223.012",
+        "device_os:OPP2.170420.017",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -11508,7 +11558,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:OPP1.170223.012",
+        "device_os:OPP2.170420.017",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -11542,7 +11592,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:OPP1.170223.012",
+        "device_os:OPP2.170420.017",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -11576,7 +11626,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:OPP1.170223.012",
+        "device_os:OPP2.170420.017",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -11610,7 +11660,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:OPP1.170223.012",
+        "device_os:OPP2.170420.017",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -11644,7 +11694,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:OPP1.170223.012",
+        "device_os:OPP2.170420.017",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -17516,6 +17566,33 @@
         "upload_nano_results",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
+      "dependencies": [
+        "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
