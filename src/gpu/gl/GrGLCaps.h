@@ -360,6 +360,10 @@ public:
     }
 
     bool clearToOpaqueBlackIsBroken() const { return fClearToOpaqueBlackIsBroken; }
+
+    /** glClearTex(Sub)Image */
+    bool clearUncompressedTextureSupport() const { return fClearUncompressedTextureSupport; }
+
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
@@ -432,6 +436,7 @@ private:
     bool fSRGBDecodeDisableSupport : 1;
     bool fSRGBDecodeDisableAffectsMipmaps : 1;
     bool fClearToOpaqueBlackIsBroken : 1;
+    bool fClearUncompressedTextureSupport : 1;
 
     uint32_t fBlitFramebufferFlags;
 
