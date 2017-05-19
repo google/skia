@@ -36,7 +36,7 @@ class ShadowUtilsView : public SampleView {
 public:
     ShadowUtilsView()
         : fZDelta(0)
-        , fShowAmbient(true)
+        , fShowAmbient(false)
         , fShowSpot(true)
         , fUseAlt(false)
         , fShowObject(false)
@@ -44,14 +44,14 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fPaths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
+        //fPaths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
         SkRRect oddRRect;
         oddRRect.setNinePatch(SkRect::MakeWH(50, 50), 9, 13, 6, 16);
         fPaths.push_back().addRRect(oddRRect);
-        fPaths.push_back().addRect(SkRect::MakeWH(50, 50));
-        fPaths.push_back().addCircle(25, 25, 25);
-        fPaths.push_back().cubicTo(100, 50, 20, 100, 0, 0);
-        fPaths.push_back().addOval(SkRect::MakeWH(20, 60));
+        //fPaths.push_back().addRect(SkRect::MakeWH(50, 50));
+        //fPaths.push_back().addCircle(25, 25, 25);
+        //fPaths.push_back().cubicTo(100, 50, 20, 100, 0, 0);
+        //fPaths.push_back().addOval(SkRect::MakeWH(20, 60));
     }
 
     // overrides from SkEventSink
@@ -155,9 +155,7 @@ protected:
         static constexpr SkScalar kAmbientAlpha = 0.5f;
         static constexpr SkScalar kSpotAlpha = 0.5f;
 
-        // transform light position relative to canvas to handle tiling
-        SkPoint lightXY = canvas->getTotalMatrix().mapXY(250, 400);
-        SkPoint3 lightPos = { lightXY.fX, lightXY.fY, 500 };
+        SkPoint3 lightPos = { 250, 400, 500 };
 
         canvas->translate(3 * kPad, 3 * kPad);
         canvas->save();
@@ -165,9 +163,9 @@ protected:
         SkScalar dy = 0;
         SkTDArray<SkMatrix> matrices;
         matrices.push()->reset();
-        SkMatrix* m = matrices.push();
-        m->setRotate(33.f, 25.f, 25.f);
-        m->postScale(1.2f, 0.8f, 25.f, 25.f);
+        //SkMatrix* m = matrices.push();
+        //m->setRotate(33.f, 25.f, 25.f);
+        //m->postScale(1.2f, 0.8f, 25.f, 25.f);
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
         paint.setAntiAlias(true);
