@@ -53,7 +53,7 @@ void String::vappendf(const char* fmt, va_list args) {
 
 
 bool String::startsWith(const char* s) const {
-    return strncmp(c_str(), s, strlen(s));
+    return !strncmp(c_str(), s, strlen(s));
 }
 
 bool String::endsWith(const char* s) const {
@@ -61,7 +61,7 @@ bool String::endsWith(const char* s) const {
     if (size() < len) {
         return false;
     }
-    return strncmp(c_str() + size() - len, s, len);
+    return !strncmp(c_str() + size() - len, s, len);
 }
 
 String String::operator+(const char* s) const {
