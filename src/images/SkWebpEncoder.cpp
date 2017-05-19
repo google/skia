@@ -171,7 +171,9 @@ bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Opti
     // could potentially expose this to the client.
     if (Compression::kLossy == opts.fCompression) {
         webp_config.lossless = 0;
+#ifndef SK_WEBP_ENCODER_USE_DEFAULT_METHOD
         webp_config.method = 3;
+#endif
     } else {
         webp_config.lossless = 1;
         webp_config.method = 0;
