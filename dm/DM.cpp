@@ -1506,6 +1506,11 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
                 continue;
             }
         }
+
+        if (contextType != GrContextFactory::kANGLE_D3D9_ES2_ContextType) {
+            continue;
+        }
+
         ContextInfo ctxInfo = factory->getContextInfo(contextType,
                                                   GrContextFactory::ContextOverrides::kDisableNVPR);
         if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {

@@ -160,6 +160,9 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
     } else {
         this->handleDirtyContext();
         tex = this->onCreateTexture(desc, budgeted, texels);
+        if (!tex) {
+            return nullptr;
+        }
     }
     if (tex) {
         if (!caps->reuseScratchTextures() && !isRT) {
@@ -171,6 +174,9 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
                 fStats.incTextureUploads();
             }
         }
+    }
+    if (!tex) {
+        return nullptr;
     }
     return tex;
 }

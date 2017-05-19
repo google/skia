@@ -1484,6 +1484,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
+    int foo = GR_GL_VER(3,0);
     bool texStorageSupported = false;
     if (kGL_GrGLStandard == standard) {
         // The EXT version can apply to either GL or GLES.
@@ -1754,7 +1755,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kAlpha_8_GrPixelConfig].fSwizzle = GrSwizzle::AAAA();
     }
     if (this->textureRedSupport() ||
-        (kStandard_MSFBOType == this->msFBOType() && ctxInfo.renderer() != kOSMesa_GrGLRenderer)) {
+        (kStandard_MSFBOType == this->msFBOType() &&
+            ctxInfo.renderer() != kOSMesa_GrGLRenderer && ctxInfo.driver() != kANGLE_GrGLDriver)) {
         // OpenGL 3.0+ (and GL_ARB_framebuffer_object) supports ALPHA8 as renderable.
         // However, osmesa fails if it used even when GL_ARB_framebuffer_object is present.
         // Core profile removes ALPHA8 support, but we should have chosen R8 in that case.

@@ -399,7 +399,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
     }
 }
 #endif
-
 #if SK_SUPPORT_GPU
 static void test_readpixels_texture(skiatest::Reporter* reporter,
                                     sk_sp<GrSurfaceContext> sContext) {

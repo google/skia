@@ -179,6 +179,9 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
     }
 
     sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted));
+    if (!tex) {
+        return nullptr;
+    }
     return tex;
 }
 

@@ -1558,6 +1558,9 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     SkDebugf("--- new texture [%d] size=(%d %d) config=%d\n",
              idDesc.fInfo.fID, desc.fWidth, desc.fHeight, desc.fConfig);
 #endif
+    if (!tex) {
+        return nullptr;
+    }
     return tex;
 }
 

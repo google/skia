@@ -207,10 +207,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 
     static const int kWidthHeight = 100;
 
-    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
-        for (auto config : { kAlpha_8_GrPixelConfig, kRGBA_8888_GrPixelConfig }) {
-            for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
-                for (auto numSamples: { 0, 4}) {
+    for (auto origin : { kBottomLeft_GrSurfaceOrigin }) {//, kTopLeft_GrSurfaceOrigin }) {
+        for (auto config : { kAlpha_8_GrPixelConfig }) { //, kRGBA_8888_GrPixelConfig }) {
+            for (auto budgeted : { SkBudgeted::kYes }) {//, SkBudgeted::kNo }) {
+                for (auto numSamples: { 0 }) { //, 4}) {
                     if (caps.maxSampleCount() < numSamples) {
                         continue;
                     }
