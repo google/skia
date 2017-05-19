@@ -47,7 +47,7 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
   def step(self, name, cmd, env=None, **kwargs):
     bundle_id = 'com.google.%s' % cmd[0]
     self.m.run(self.m.step, name,
-               cmd=['idevice-app-runner', '-d', '-s', bundle_id, '--args'] +
+               cmd=['idevice-app-runner', '-s', bundle_id, '--args'] +
                     map(str, cmd[1:]))
 
   def _run_ios_script(self, script, first, *rest):
