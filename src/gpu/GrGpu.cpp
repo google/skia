@@ -88,7 +88,7 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget)
  */
 static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDesc& desc,
                                           bool* isRT, const SkTArray<GrMipLevel>& texels) {
-    if (!caps.isConfigTexturable(desc.fConfig)) {
+    if (!caps.isConfigTexturable(desc.fConfig, desc.fOrigin)) {
         return false;
     }
 
@@ -181,7 +181,7 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
                                            int sampleCnt,
                                            GrWrapOwnership ownership) {
     this->handleDirtyContext();
-    if (!this->caps()->isConfigTexturable(backendTex.config())) {
+    if (!this->caps()->isConfigTexturable(backendTex.config(), origin)) {
         return nullptr;
     }
     if ((flags & kRenderTarget_GrBackendTextureFlag) &&
@@ -311,6 +311,8 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     SkASSERT(dstSurface);
     SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
 
+    // We don't support writing to compressed textures and, by extension, don't support
+    // writing compressed data to uncompressed textures
     if (GrPixelConfigIsCompressed(dstSurface->config()) && dstSurface->config() != srcConfig) {
         return false;
     }
@@ -331,10 +333,11 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height,
 
     // Check to see if we're going to request that the caller draw when drawing is not possible.
     if (!dstSurface->asRenderTarget() ||
-        !this->caps()->isConfigTexturable(tempDrawInfo->fTempSurfaceDesc.fConfig)) {
+        !this->caps()->isConfigTexturable(tempDrawInfo->fTempSurfaceDesc.fConfig,
+                                          tempDrawInfo->fTempSurfaceDesc.fOrigin)) {
         // If we don't have a fallback to a straight upload then fail.
         if (kRequireDraw_DrawPreference == *drawPreference ||
-            !this->caps()->isConfigTexturable(srcConfig)) {
+            !this->caps()->isConfigTexturable(srcConfig, kTopLeft_GrSurfaceOrigin)) {
             return false;
         }
         *drawPreference = kNoDraw_DrawPreference;
@@ -378,6 +381,8 @@ bool GrGpu::writePixels(GrSurface* surface,
                         int left, int top, int width, int height,
                         GrPixelConfig config, const SkTArray<GrMipLevel>& texels) {
     SkASSERT(surface);
+    SkASSERT(!GrPixelConfigIsCompressed(config));
+
     for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
         if (!texels[currentMipLevel].fPixels ) {
             return false;
