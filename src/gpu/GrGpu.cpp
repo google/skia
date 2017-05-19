@@ -461,9 +461,15 @@ void GrGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_
     }
 }
 
+// TODO: is this always after the flush?
 const GrGpu::MultisampleSpecs& GrGpu::queryMultisampleSpecs(const GrPipeline& pipeline) {
-    GrRenderTarget* rt = pipeline.getRenderTarget();
-    SkASSERT(rt->numStencilSamples() > 1);
+    GrRenderTargetProxy* rtp = pipeline.getRenderTargetProxy();
+    SkASSERT(rtp->numStencilSamples() > 1);
+
+    GrRenderTarget* rt = rtp->instantiateRenderTarget(nullptr);
+    if (!rt) {
+
+    }
 
     GrStencilSettings stencil;
     if (pipeline.isStencilEnabled()) {

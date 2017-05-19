@@ -36,6 +36,7 @@ void GrGpuCommandBuffer::clearStencilClip(GrRenderTarget* rt, const GrFixedClip&
 }
 
 bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
+                              GrRenderTarget* rt,
                               const GrPrimitiveProcessor& primProc,
                               const GrMesh meshes[],
                               int meshCount,
@@ -55,7 +56,7 @@ bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
         this->gpu()->stats()->incNumFailedDraws();
         return false;
     }
-    this->onDraw(pipeline, primProc, meshes, meshCount, bounds);
+    this->onDraw(pipeline, rt, primProc, meshes, meshCount, bounds);
     return true;
 }
 

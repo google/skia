@@ -354,11 +354,13 @@ public:
 
     bool wasAbandoned() const;
 
-    GrRenderTarget* accessRenderTarget() {
+#if 1
+    GrRenderTarget* accessRenderTarget2() {
         // TODO: usage of this entry point needs to be reduced and potentially eliminated
         // since it ends the deferral of the GrRenderTarget's allocation
         return fRenderTargetProxy->instantiateRenderTarget(fContext->resourceProvider());
     }
+#endif
 
     GrSurfaceProxy* asSurfaceProxy() override { return fRenderTargetProxy.get(); }
     const GrSurfaceProxy* asSurfaceProxy() const override { return fRenderTargetProxy.get(); }

@@ -339,7 +339,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         }
     }
 
-    GrRenderTarget* rt = renderTargetContext->accessRenderTarget();
+    // TODO: remove?
+    GrRenderTarget* rt = renderTargetContext->accessRenderTarget2();
     if (!rt) {
         return true;
     }

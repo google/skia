@@ -34,7 +34,7 @@ public:
      * the surface origin.
      * @return true if generation was successful.
      */
-    static GrGLProgram* CreateProgram(const GrPipeline&,
+    static GrGLProgram* CreateProgram(const GrPipeline&, GrRenderTarget*,
                                       const GrPrimitiveProcessor&,
                                       GrProgramDesc*,
                                       GrGLGpu*);
@@ -53,7 +53,7 @@ private:
                                  SkTDArray<GrGLuint>* shaderIds,
                                  const SkSL::Program::Settings& settings,
                                  SkSL::Program::Inputs* outInputs);
-    GrGLProgram* finalize();
+    GrGLProgram* finalize(GrRenderTarget*);
     void bindProgramResourceLocations(GrGLuint programID);
     bool checkLinkStatus(GrGLuint programID);
     void resolveProgramResourceLocations(GrGLuint programID);

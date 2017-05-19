@@ -70,7 +70,7 @@ void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (fRecordedOps[i].fOp) {
             GrOpFlushState::DrawOpArgs opArgs = {
-                fTarget.get()->priv().peekRenderTarget(),
+                fTarget.get()->asRenderTargetProxy(), //priv().peekRenderTarget(),
                 fRecordedOps[i].fAppliedClip,
                 fRecordedOps[i].fDstTexture
             };
@@ -115,7 +115,6 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
     if (0 == fRecordedOps.count()) {
         return false;
     }
-
     SkASSERT(fTarget.get()->priv().peekRenderTarget());
 
     std::unique_ptr<GrGpuCommandBuffer> commandBuffer = create_command_buffer(flushState->gpu());
@@ -131,7 +130,6 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
             // This op is a special snowflake and must occur between command buffers
             // TODO: make this go through the command buffer
             finish_command_buffer(commandBuffer.get());
-
             commandBuffer.reset();
             flushState->setCommandBuffer(commandBuffer.get());
         } else if (!commandBuffer) {
@@ -140,7 +138,7 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
         }
 
         GrOpFlushState::DrawOpArgs opArgs {
-            fTarget.get()->priv().peekRenderTarget(),
+            fTarget.get()->asRenderTargetProxy(), //->priv().peekRenderTarget(),
             fRecordedOps[i].fAppliedClip,
             fRecordedOps[i].fDstTexture
         };
@@ -158,7 +156,6 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
 
 void GrRenderTargetOpList::reset() {
     fLastFullClearOp = nullptr;
-    fLastFullClearResourceID.makeInvalid();
     fLastFullClearProxyID.makeInvalid();
     fLastClipStackGenID = SK_InvalidUniqueID;
     fRecordedOps.reset();
@@ -183,13 +180,7 @@ void GrRenderTargetOpList::freeGpuResources() {
 }
 
 void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext, GrColor color) {
-    // MDB TODO: remove this. Right now we need the renderTargetContext for the
-    // accessRenderTarget call. This method should just take the renderTargetProxy.
-    GrRenderTarget* renderTarget = renderTargetContext->accessRenderTarget();
-    if (!renderTarget) {
-        return;
-    }
-
+    GrRenderTargetProxy* renderTargetProxy = renderTargetContext->asRenderTargetProxy();
     // Currently this just inserts or updates the last clear op. However, once in MDB this can
     // remove all the previously recorded ops and change the load op to clear with supplied
     // color.
@@ -199,7 +190,7 @@ void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext,
     // fused in that case.
     //SkASSERT((fLastFullClearResourceID == renderTarget->uniqueID()) ==
     //         (fLastFullClearProxyID == renderTargetContext->asRenderTargetProxy()->uniqueID()));
-    if (fLastFullClearResourceID == renderTarget->uniqueID()) {
+    if (fLastFullClearProxyID == renderTargetProxy->uniqueID()) {
         // As currently implemented, fLastFullClearOp should be the last op because we would
         // have cleared it when another op was recorded.
         SkASSERT(fRecordedOps.back().fOp.get() == fLastFullClearOp);
@@ -218,7 +209,6 @@ void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext,
     if (GrOp* clearOp = this->recordOp(std::move(op), renderTargetContext)) {
         // This is either the clear op we just created or another one that it combined with.
         fLastFullClearOp = static_cast<GrClearOp*>(clearOp);
-        fLastFullClearResourceID = renderTarget->uniqueID();
         fLastFullClearProxyID = renderTargetContext->asRenderTargetProxy()->uniqueID();
     }
 }
@@ -333,7 +323,6 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     fRecordedOps.emplace_back(std::move(op), clip, dstTexture);
     fRecordedOps.back().fOp->wasRecorded(this);
     fLastFullClearOp = nullptr;
-    fLastFullClearResourceID.makeInvalid();
     fLastFullClearProxyID.makeInvalid();
     return fRecordedOps.back().fOp.get();
 }
@@ -343,7 +332,6 @@ void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
 
     for (int i = 0; i < fRecordedOps.count() - 1; ++i) {
         GrOp* op = fRecordedOps[i].fOp.get();
-
         int maxCandidateIdx = SkTMin(i + kMaxOpLookahead, fRecordedOps.count() - 1);
         int j = i + 1;
         while (true) {

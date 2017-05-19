@@ -217,7 +217,7 @@ static void setup_multisample_state(const GrPipeline& pipeline,
     multisampleInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleInfo->pNext = nullptr;
     multisampleInfo->flags = 0;
-    int numSamples = pipeline.getRenderTarget()->numColorSamples();
+    int numSamples = pipeline.getRenderTargetProxy()->numColorSamples();
     SkAssertResult(GrSampleCountToVkSampleCount(numSamples,
                    &multisampleInfo->rasterizationSamples));
     float sampleShading = primProc.getSampleShading();
@@ -528,7 +528,7 @@ static void set_dynamic_blend_constant_state(GrVkGpu* gpu,
     if (blend_coeff_refs_constant(srcCoeff) || blend_coeff_refs_constant(dstCoeff)) {
         // Swizzle the blend to match what the shader will output.
         const GrSwizzle& swizzle = gpu->caps()->shaderCaps()->configOutputSwizzle(
-                pipeline.getRenderTarget()->config());
+                pipeline.getRenderTargetProxy()->config());
         GrColor blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
         GrColorToRGBAFloat(blendConst, floatColors);
     } else {
@@ -539,8 +539,8 @@ static void set_dynamic_blend_constant_state(GrVkGpu* gpu,
 
 void GrVkPipeline::SetDynamicState(GrVkGpu* gpu,
                                    GrVkCommandBuffer* cmdBuffer,
-                                   const GrPipeline& pipeline) {
-    const GrRenderTarget& target = *pipeline.getRenderTarget();
+                                   const GrPipeline& pipeline, GrRenderTarget* rt) {
+    const GrRenderTarget& target = *rt; // pipeline.getRenderTarget();
     set_dynamic_scissor_state(gpu, cmdBuffer, pipeline, target);
     set_dynamic_viewport_state(gpu, cmdBuffer, target);
     set_dynamic_blend_constant_state(gpu, cmdBuffer, pipeline);

@@ -137,7 +137,6 @@ private:
                            const DstTexture* bDstTexture, const GrCaps&);
 
     GrClearOp* fLastFullClearOp = nullptr;
-    GrGpuResource::UniqueID fLastFullClearResourceID = GrGpuResource::UniqueID::InvalidID();
     GrSurfaceProxy::UniqueID fLastFullClearProxyID = GrSurfaceProxy::UniqueID::InvalidID();
 
     std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
