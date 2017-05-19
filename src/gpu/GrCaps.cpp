@@ -201,13 +201,13 @@ SkString GrCaps::dump() const {
                   gNY[this->isConfigRenderable(config, true)]);
     }
 
-    SkASSERT(!this->isConfigTexturable(kUnknown_GrPixelConfig));
+    SkASSERT(!this->isConfigTexturable(kUnknown_GrPixelConfig, kTopLeft_GrSurfaceOrigin));
 
     for (size_t i = 1; i < kGrPixelConfigCnt; ++i)  {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
         r.appendf("%s is uploadable to a texture: %s\n",
                   pixel_config_name(config),
-                  gNY[this->isConfigTexturable(config)]);
+                  gNY[this->isConfigTexturable(config, kTopLeft_GrSurfaceOrigin)]);
     }
 
     return r;
