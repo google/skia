@@ -1047,6 +1047,16 @@ STAGE(matrix_4x5) {
     b = B;
     a = A;
 }
+STAGE(matrix_4x3) {
+    auto m = (const float*)ctx;
+    auto X = r,
+         Y = g;
+
+    r = mad(X, m[0], mad(Y, m[4], m[ 8]));
+    g = mad(X, m[1], mad(Y, m[5], m[ 9]));
+    b = mad(X, m[2], mad(Y, m[6], m[10]));
+    a = mad(X, m[3], mad(Y, m[7], m[11]));
+}
 STAGE(matrix_perspective) {
     // N.B. Unlike the other matrix_ stages, this matrix is row-major.
     auto m = (const float*)ctx;
