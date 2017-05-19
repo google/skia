@@ -78,11 +78,13 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkScalar offsetX = kWidth / 4.0f;
         SkScalar offsetY = kHeight / 4.0f;
+#if 0
         drawTestCase(canvas, offsetX, offsetY,  SkBlendMode::kSrc, SkBlendMode::kSrc);
         drawTestCase(canvas, 3 * offsetX, offsetY,  SkBlendMode::kSrcOver, SkBlendMode::kSrcOver);
+#endif
         drawTestCase(canvas, offsetX, 3 * offsetY,  SkBlendMode::kHardLight,
                      SkBlendMode::kLuminosity);
-        drawTestCase(canvas, 3 * offsetX, 3 * offsetY,  SkBlendMode::kSrcOver, SkBlendMode::kSrc);
+     //   drawTestCase(canvas, 3 * offsetX, 3 * offsetY,  SkBlendMode::kSrcOver, SkBlendMode::kSrc);
     }
 
 private:
