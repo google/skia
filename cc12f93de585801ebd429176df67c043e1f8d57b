@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8baa407a_8b049daf",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-19T01:10:41Z",
+      "side": 1,
+      "message": "I can go back, but the older way looked odd: if (form_a) then access form_b",
+      "parentUuid": "8ded69e4_9303aa89",
+      "range": {
+        "startLine": 114,
+        "startChar": 12,
+        "endLine": 114,
+        "endChar": 39
+      },
+      "revId": "cc12f93de585801ebd429176df67c043e1f8d57b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e098147d_73a47e3e",
         "filename": "src/core/SkRasterPipelineBlitter.cpp",
         "patchSetId": 9
@@ -59,6 +83,30 @@
       "writtenOn": "2017-05-18T21:08:05Z",
       "side": 1,
       "message": "(What would be the point?)",
+      "range": {
+        "startLine": 147,
+        "startChar": 48,
+        "endLine": 147,
+        "endChar": 97
+      },
+      "revId": "cc12f93de585801ebd429176df67c043e1f8d57b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "653884e2_976ea9a9",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-19T01:10:41Z",
+      "side": 1,
+      "message": "exactly.",
+      "parentUuid": "c0b65843_976eac01",
       "range": {
         "startLine": 147,
         "startChar": 48,
