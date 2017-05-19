@@ -807,10 +807,11 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
         if (GrProcessorAnalysisCoverage::kLCD == coverage) {
             // Check for special case of srcover with a known color which can be done using the
             // blend constant.
-            if (SkBlendMode::kSrcOver == mode && color.isConstant() && color.isOpaque()) {
+            if (SkBlendMode::kSrcOver == mode && color.isConstant() && color.isOpaque() &&
+                !caps.shaderCaps()->dstReadInShaderSupport()) {
                 props |= AnalysisProperties::kIgnoresInputColor;
             } else {
-                if (get_lcd_blend_formula(mode).hasSecondaryOutput()) {
+                if (get_lcd_blend_formula(mode).hasSecondaryOutput() || !color.isOpaque()) {
                     props |= AnalysisProperties::kReadsDstInShader;
                 }
             }
