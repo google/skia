@@ -260,12 +260,7 @@
       "gm",
       "image",
       "colorImage",
-      "svg",
-      "--blacklist",
-      "8888",
-      "image",
-      "_",
-      "_"
+      "svg"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

@@ -123,6 +123,14 @@ static inline void alpha8_to_gray8(SkBitmap* bitmap) {
 }
 
 Error BRDSrc::draw(SkCanvas* canvas) const {
+    if (canvas->imageInfo().colorSpace() &&
+            kRGBA_F16_SkColorType != canvas->imageInfo().colorType()) {
+        // SkAndroidCodec uses legacy premultiplication and blending.  Therefore, we only
+        // run these tests on legacy canvases.
+        // We allow an exception for F16, since Android uses F16.
+        return Error::Nonfatal("Skip testing to color correct canvas.");
+    }
+
     SkColorType colorType = canvas->imageInfo().colorType();
     if (kRGB_565_SkColorType == colorType &&
             CodecSrc::kGetFromCanvas_DstColorType != fDstColorType) {
@@ -439,6 +447,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     int colorCount = 256;
 
     SkCodec::Options options;
+    options.fPremulBehavior = canvas->imageInfo().colorSpace() ?
+            SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
     if (kCodecZeroInit_Mode == fMode) {
         memset(pixels.get(), 0, size.height() * rowBytes);
         options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
@@ -558,7 +568,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             bool useOldScanlineMethod = !useIncremental && !ico;
             if (useIncremental || ico) {
                 if (SkCodec::kSuccess == codec->startIncrementalDecode(decodeInfo, dst,
-                        rowBytes, nullptr, colorPtr, &colorCount)) {
+                        rowBytes, &options, colorPtr, &colorCount)) {
                     int rowsDecoded;
                     if (SkCodec::kIncompleteInput == codec->incrementalDecode(&rowsDecoded)) {
                         codec->fillIncompleteImage(decodeInfo, dst, rowBytes,
@@ -604,7 +614,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             void* dst = pixels.get();
 
             // Decode odd stripes
-            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, nullptr, colorPtr,
+            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &options, colorPtr,
                                                                 &colorCount)) {
                 return "Could not start scanline decoder";
             }
@@ -659,13 +669,11 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             // align with the jpeg block sizes and it will sometimes not.  This allows us
             // to test interestingly different code paths in the implementation.
             const int tileSize = 36;
-
-            SkCodec::Options opts;
             SkIRect subset;
             for (int x = 0; x < width; x += tileSize) {
                 subset = SkIRect::MakeXYWH(x, 0, SkTMin(tileSize, width - x), height);
-                opts.fSubset = &subset;
-                if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &opts,
+                options.fSubset = &subset;
+                if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &options,
                         colorPtr, &colorCount)) {
                     return "Could not start scanline decoder.";
                 }
@@ -693,8 +701,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             const int w = SkAlign2(W / divisor);
             const int h = SkAlign2(H / divisor);
             SkIRect subset;
-            SkCodec::Options opts;
-            opts.fSubset = &subset;
+            options.fSubset = &subset;
             SkBitmap subsetBm;
             // We will reuse pixel memory from bitmap.
             void* dst = pixels.get();
@@ -718,7 +725,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     SkImageInfo subsetBitmapInfo = bitmapInfo.makeWH(scaledW, scaledH);
                     size_t subsetRowBytes = subsetBitmapInfo.minRowBytes();
                     const SkCodec::Result result = codec->getPixels(decodeInfo, dst, subsetRowBytes,
-                            &opts, colorPtr, &colorCount);
+                            &options, colorPtr, &colorCount);
                     switch (result) {
                         case SkCodec::kSuccess:
                         case SkCodec::kIncompleteInput:
@@ -799,6 +806,14 @@ bool AndroidCodecSrc::veto(SinkFlags flags) const {
 }
 
 Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
+    if (canvas->imageInfo().colorSpace() &&
+            kRGBA_F16_SkColorType != canvas->imageInfo().colorType()) {
+        // SkAndroidCodec uses legacy premultiplication and blending.  Therefore, we only
+        // run these tests on legacy canvases.
+        // We allow an exception for F16, since Android uses F16.
+        return Error::Nonfatal("Skip testing to color correct canvas.");
+    }
+
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
@@ -948,10 +963,14 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     // Test various color and alpha types on CPU
     SkImageInfo decodeInfo = gen->getInfo().makeAlphaType(fDstAlphaType);
 
+    SkImageGenerator::Options options;
+    options.fBehavior = canvas->imageInfo().colorSpace() ?
+            SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
+
     int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
     size_t rowBytes = decodeInfo.width() * bpp;
     SkAutoMalloc pixels(decodeInfo.height() * rowBytes);
-    if (!gen->getPixels(decodeInfo, pixels.get(), rowBytes)) {
+    if (!gen->getPixels(decodeInfo, pixels.get(), rowBytes, &options)) {
         SkString err =
                 SkStringPrintf("Image generator could not getPixels() for %s\n", fPath.c_str());
 
