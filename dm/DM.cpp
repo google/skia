@@ -603,8 +603,12 @@ static void push_codec_srcs(Path path) {
     {
         std::vector<SkCodec::FrameInfo> frameInfos = codec->getFrameInfo();
         if (frameInfos.size() > 1) {
-            push_codec_src(path, CodecSrc::kAnimated_Mode, CodecSrc::kGetFromCanvas_DstColorType,
-                           kPremul_SkAlphaType, 1.0f);
+            for (auto dstCT : { CodecSrc::kNonNative8888_Always_DstColorType,
+                    CodecSrc::kGetFromCanvas_DstColorType }) {
+                for (auto at : { kUnpremul_SkAlphaType, kPremul_SkAlphaType }) {
+                    push_codec_src(path, CodecSrc::kAnimated_Mode, dstCT, at, 1.0f);
+                }
+            }
         }
 
     }

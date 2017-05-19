@@ -356,7 +356,8 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             *decodeInfo = decodeInfo->makeColorType(kGray_8_SkColorType);
             break;
         case CodecSrc::kNonNative8888_Always_DstColorType:
-            if (kRGB_565_SkColorType == canvasColorType) {
+            if (kRGB_565_SkColorType == canvasColorType
+                    || kRGBA_F16_SkColorType == canvasColorType) {
                 return false;
             }
 #ifdef SK_PMCOLOR_IS_RGBA
@@ -372,11 +373,6 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             }
 
             if (kRGBA_F16_SkColorType == canvasColorType) {
-                if (kUnpremul_SkAlphaType == dstAlphaType) {
-                    // Testing kPremul is enough for adequate coverage of F16 decoding.
-                    return false;
-                }
-
                 sk_sp<SkColorSpace> linearSpace =
                         as_CSB(decodeInfo->colorSpace())->makeLinearGamma();
                 *decodeInfo = decodeInfo->makeColorSpace(std::move(linearSpace));
