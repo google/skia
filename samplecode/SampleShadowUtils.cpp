@@ -154,10 +154,7 @@ protected:
         static constexpr SkScalar kHeight = 50.f;
         static constexpr SkScalar kAmbientAlpha = 0.5f;
         static constexpr SkScalar kSpotAlpha = 0.5f;
-
-        // transform light position relative to canvas to handle tiling
-        SkPoint lightXY = canvas->getTotalMatrix().mapXY(250, 400);
-        SkPoint3 lightPos = { lightXY.fX, lightXY.fY, 500 };
+        static constexpr SkPoint3 lightPos = { 250, 400, 500 };
 
         canvas->translate(3 * kPad, 3 * kPad);
         canvas->save();
