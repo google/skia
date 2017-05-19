@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "676979fe_4ecd1284",
+        "filename": "src/gpu/GrXferProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-19T11:59:57Z",
+      "side": 1,
+      "message": "It seems like we\u0027re turning GrProcessorAnalysisCoverage into bool isLCD in several subclass factories. Could we just pass that straight through to here and turn it into a bool once if at all? We also might consider giving that type a more concise name (separately).",
+      "revId": "892065a4c730df3548222df5077cf09efe7b4b1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ee2c78f_7085a321",
+        "filename": "src/gpu/glsl/GrGLSLXferProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-19T11:59:57Z",
+      "side": 1,
+      "message": "would it be cleaner to put the first block added in this function here instead to keep the definition of lerp* close to where they\u0027re used?\n\n    if (proc.isLCD()) {\n        fragBuilder-\u003ecodeAppendf(\"float lerpRed \u003d mix(%s.a, %s.a, %s.r);\",\n                                 dstColor, outColor, srcCoverage);\n        fragBuilder-\u003ecodeAppendf(\"float lerpBlue \u003d mix(%s.a, %s.a, %s.g);\",\n                                 dstColor, outColor, srcCoverage);\n        fragBuilder-\u003ecodeAppendf(\"float lerpGreen \u003d mix(%s.a, %s.a, %s.b);\",\n                                 dstColor, outColor, srcCoverage);\n    }\n    fragBuilder-\u003ecodeAppendf(\"%s \u003d %s * %s + (vec4(1.0) - %s) * %s;\",\n                                 outColor, srcCoverage, outColor, srcCoverage, dstColor);\n    if (proc.isLCD()) {\n        fragBuilder-\u003ecodeAppendf(\"%s.a \u003d max(max(lerpRed, lerpBlue), lerpGreen);\", outColor);\n    }",
+      "revId": "892065a4c730df3548222df5077cf09efe7b4b1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "705dd1a5_856ba978",
+        "filename": "tests/GrPorterDuffTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-19T11:59:57Z",
+      "side": 1,
+      "message": "REPORTER_ASSERT?",
+      "revId": "892065a4c730df3548222df5077cf09efe7b4b1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
