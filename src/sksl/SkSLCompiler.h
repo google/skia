@@ -109,6 +109,8 @@ private:
     Context fContext;
     int fErrorCount;
     String fErrorText;
+
+    bool BUG_MATCH = false;
 };
 
 } // namespace

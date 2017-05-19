@@ -337,7 +337,7 @@ private:
         const GrBuffer* lineVertexBuffer;
         int firstLineVertex;
         MSAALineVertices lines;
-        size_t lineVertexStride = sizeof(MSAALineVertices::Vertex);
+        int lineVertexStride = sizeof(MSAALineVertices::Vertex);
         lines.vertices = (MSAALineVertices::Vertex*) target->makeVertexSpace(lineVertexStride,
                                                                              fMaxLineVertices,
                                                                              &lineVertexBuffer,
@@ -350,7 +350,7 @@ private:
         SkDEBUGCODE(lines.verticesEnd = lines.vertices + fMaxLineVertices;)
 
         MSAAQuadVertices quads;
-        size_t quadVertexStride = sizeof(MSAAQuadVertices::Vertex);
+        int quadVertexStride = sizeof(MSAAQuadVertices::Vertex);
         SkAutoMalloc quadVertexPtr(fMaxQuadVertices * quadVertexStride);
         quads.vertices = (MSAAQuadVertices::Vertex*) quadVertexPtr.get();
         quads.nextVertex = quads.vertices;
