@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f07e8bff_015d90d6",
+        "filename": "src/codec/SkCodecAnimation.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce9be98d_559e65c4",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 16
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d1307ec8_07a6a689",
         "filename": "src/codec/SkCodecAnimation.h",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "6ff5ca24_e79ece64",
+        "filename": "src/codec/SkCodecAnimation.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1307ec8_07a6a689",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 18
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f06aef66_6bcd1362",
         "filename": "src/codec/SkFrameHolder.h",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2017-05-15T19:59:38Z",
       "side": 1,
       "message": "This confused me for a second.  I think you mean \"finished frame\" not \"last frame\".",
+      "range": {
+        "startLine": 58,
+        "startChar": 26,
+        "endLine": 58,
+        "endChar": 31
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ba3083d_9ac1e407",
+        "filename": "src/codec/SkFrameHolder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "Yes, \"finished frame\" sounds better. Done.",
+      "parentUuid": "f06aef66_6bcd1362",
       "range": {
         "startLine": 58,
         "startChar": 26,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "4759a29c_021797d2",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "We already see this case when we decode the first frame of an animated image. We might see more of them now that we support it, though. Happy to delete.",
+      "parentUuid": "a7daf6cf_aaec0a71",
+      "range": {
+        "startLine": 119,
+        "startChar": 12,
+        "endLine": 119,
+        "endChar": 50
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ba0a2f80_42272aff",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 1
@@ -105,6 +201,30 @@
       "writtenOn": "2017-05-15T19:59:38Z",
       "side": 1,
       "message": "IIUC the lossless format is already BGRA which means it always might \"have alpha\".  But I actually like this change - seems reasonable to trust the hint.",
+      "range": {
+        "startLine": 127,
+        "startChar": 16,
+        "endLine": 127,
+        "endChar": 24
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ac23bf6_4dc9f493",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "I think so. I posted to https://groups.google.com/a/webmproject.org/forum/#!msg/webp-discuss/2rFPKOzxuSM/uabYhmSNJAAJ where they told you it was just a hint to try to get some clarity. Sometimes WEBPImageDecoder uses WebPIterator.has_alpha, and sometimes it checks the FORMAT_FLAGS, which checks whether there is alpha in any frame. This corresponds to whether the iterator (i.e. a specific frame) has alpha. (On that note, I\u0027ve changed it to use the iterator, which I use elsewhere.)\n\nAlthough they\u0027re just hints, they should be correct coming from libwebp, and actually treating them as correct may convince encoders to use the properly.",
+      "parentUuid": "ba0a2f80_42272aff",
       "range": {
         "startLine": 127,
         "startChar": 16,
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "f38947d0_52c87e67",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "Agreed. Done.",
+      "parentUuid": "1a6cf995_cf6f5995",
+      "range": {
+        "startLine": 229,
+        "startChar": 19,
+        "endLine": 229,
+        "endChar": 23
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "881a9ec8_f85228fa",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 1
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "f2375c85_6ade8e22",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "881a9ec8_f85228fa",
+      "range": {
+        "startLine": 243,
+        "startChar": 15,
+        "endLine": 243,
+        "endChar": 20
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "119b64ab_b8aa0402",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 1
@@ -174,6 +342,30 @@
       "writtenOn": "2017-05-15T19:59:38Z",
       "side": 1,
       "message": "Put this on previous line?",
+      "range": {
+        "startLine": 256,
+        "startChar": 16,
+        "endLine": 256,
+        "endChar": 18
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd51bf5b_168489cf",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "Hmm, I haven\u0027t found a recommendation in any of our style guides (i.e. Skia, Blink, Chromium, Google, Android). I don\u0027t have a strong preference, but moving the : to the end of the second line matches where I put the ?. Done.",
+      "parentUuid": "119b64ab_b8aa0402",
       "range": {
         "startLine": 256,
         "startChar": 16,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "eb28f850_06c92f8b",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "This can be called from getFrameInfo, which is a public API, so we\u0027ll need to do the check somewhere, but you\u0027re right, I can assert here.",
+      "parentUuid": "8c12855d_6e50a1c1",
+      "range": {
+        "startLine": 273,
+        "startChar": 7,
+        "endLine": 273,
+        "endChar": 35
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5ed8d190_a128c2ea",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 1
@@ -220,6 +436,30 @@
       "writtenOn": "2017-05-15T19:59:38Z",
       "side": 1,
       "message": "Do we need this special case?  Will frame0-\u003egetRequiredFrame() return kNone?",
+      "range": {
+        "startLine": 364,
+        "startChar": 30,
+        "endLine": 364,
+        "endChar": 50
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bfdc065_3b8c8edc",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "In the case of only one frame, we don\u0027t put any information in fFrameHolder. We *could*, but we\u0027d have to make up values for e.g. duration, disposal method. (Maybe that\u0027s okay, and we\u0027d just use the default.)",
+      "parentUuid": "5ed8d190_a128c2ea",
       "range": {
         "startLine": 364,
         "startChar": 30,
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "73616f45_d1528c0b",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "If the prior frame is RestoreBGColor, and this frame is contained within that frame, then yes. I don\u0027t know whether that case happens enough to make it worth the extra complexity. (In that case, this frame should probably not be WEBP_MUX_BLEND, but we know encoders can use dumb combinations.)\n\nIf the prior frame was RestoreBGColor and fills the image, this frame is marked independent, so we will skip blending.\n\nI did realize that we can skip blending if the frame is opaque, though.",
+      "parentUuid": "c8317e93_e201007a",
+      "range": {
+        "startLine": 403,
+        "startChar": 15,
+        "endLine": 403,
+        "endChar": 33
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f7de6b3c_09f5f160",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 1
@@ -266,6 +530,30 @@
       "writtenOn": "2017-05-15T19:59:38Z",
       "side": 1,
       "message": "If the color space is non-null and fPremulBehavior is kRespect, I think we need to decode to unpremul here.  I believe that libwebp has implemented a kIgnore style premultiply.\n\nI know we typically can\u0027t draw unpremul, but for some reason I think the SW color correct drawing impl does support unpremul.  mtklein@ would know for sure.",
+      "range": {
+        "startLine": 517,
+        "startChar": 8,
+        "endLine": 517,
+        "endChar": 60
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0bab18e_632305bf",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "\u003e If the color space is non-null and fPremulBehavior is kRespect, I think we need to decode to unpremul here.  I believe that libwebp has implemented a kIgnore style premultiply.\n\nThis case got absorbed into the above, since we\u0027re using SkRasterPipeline now. The above case properly tells libwebp to use unpremul.\n\n\u003e \n\u003e I know we typically can\u0027t draw unpremul, but for some reason I think the SW color correct drawing impl does support unpremul.  mtklein@ would know for sure.\n\nAs discussed in person, an SkCanvas won\u0027t let you do this, but SkRasterPipeline does!",
+      "parentUuid": "f7de6b3c_09f5f160",
       "range": {
         "startLine": 517,
         "startChar": 8,
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "55a73243_c8a33bce",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "Thanks :)",
+      "parentUuid": "db6c56a1_657f8ddc",
+      "range": {
+        "startLine": 539,
+        "startChar": 0,
+        "endLine": 541,
+        "endChar": 54
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1e0eeb73_1829a842",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 1
@@ -312,6 +624,30 @@
       "writtenOn": "2017-05-15T19:59:38Z",
       "side": 1,
       "message": "Other than the incomplete case, when will frameRect be a subset of what we decode?",
+      "range": {
+        "startLine": 572,
+        "startChar": 8,
+        "endLine": 572,
+        "endChar": 70
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a678228_eb9c93bb",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "If frameRectIsSubset, libwebp will decode the smaller rectangle, and then we draw it on the full sized image. But we allocated the full size image, and I think we could\u0027ve just allocated frameRect.\n\nI think it\u0027s all a little confusing because we have to deal both with frameRects that are subset and the client asking for a subset. I haven\u0027t changed this behavior (see the old code\u0027s pixels.reset(dstInfo.width() * dstInfo.height())).",
+      "parentUuid": "1e0eeb73_1829a842",
       "range": {
         "startLine": 572,
         "startChar": 8,
@@ -347,6 +683,30 @@
     },
     {
       "key": {
+        "uuid": "8435e173_ddd5927e",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "As discussed in person, we\u0027re using SkRasterPipeline instead, so this code is removed.",
+      "parentUuid": "15dabea2_8f63cdd0",
+      "range": {
+        "startLine": 577,
+        "startChar": 8,
+        "endLine": 577,
+        "endChar": 73
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a29fe658_5ee2b14a",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 1
@@ -370,6 +730,30 @@
     },
     {
       "key": {
+        "uuid": "80628c81_1be8e3af",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "Sort of done. I\u0027ve added the code I think is necessary, but I need to rebase in order to actually compile with it.",
+      "parentUuid": "a29fe658_5ee2b14a",
+      "range": {
+        "startLine": 579,
+        "startChar": 8,
+        "endLine": 579,
+        "endChar": 71
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fac7035c_16fd9604",
         "filename": "third_party/gif/SkGifImageReader.cpp",
         "patchSetId": 1
@@ -381,6 +765,30 @@
       "writtenOn": "2017-05-15T19:59:38Z",
       "side": 1,
       "message": "I\u0027m having a hard time understanding this file.  Are there any behavior changes or is this just part of the refactor?",
+      "range": {
+        "startLine": 759,
+        "startChar": 16,
+        "endLine": 759,
+        "endChar": 80
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef9e1089_595f0e25",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 759,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "A little of both. Mostly this is a refactor, and the behavior of GIF should not change. But setAlphaAndRequiredFrame now checks the blend mode, which is important for WebP, which now uses the same method.\n\nIn addition, we treat no color map the same for the first frame and for later frames. It was an accident that they were different. (I\u0027ve also updated the commit message to reflect this change.)",
+      "parentUuid": "fac7035c_16fd9604",
       "range": {
         "startLine": 759,
         "startChar": 16,

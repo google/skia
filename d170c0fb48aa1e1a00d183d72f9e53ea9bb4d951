@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfa21e08_c298d65d",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 0,
+      "message": "There is a slight difference in behavior here. This case got merged into the first return statement. Previously, if there was no transparent pixel, we behaved differently depending on whether it was the first frame or not. For the first frame, we returned true if there was no valid color map, but we returned false (at the second return statement) for other frames. Now we return true in both cases. (And the name better reflects the fact that it returns true for frames that are transparent by virtue of not having a color map.)",
+      "range": {
+        "startLine": 883,
+        "startChar": 8,
+        "endLine": 883,
+        "endChar": 19
+      },
+      "revId": "d170c0fb48aa1e1a00d183d72f9e53ea9bb4d951",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dd13a15_2490bdb0",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 921,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 0,
+      "message": "Since this is a method on SkFrameHolder now, it no longer references m_firstFrameHasAlpha. It will call hasTransparency again and return the same value.",
+      "range": {
+        "startLine": 921,
+        "startChar": 27,
+        "endLine": 921,
+        "endChar": 47
+      },
+      "revId": "d170c0fb48aa1e1a00d183d72f9e53ea9bb4d951",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

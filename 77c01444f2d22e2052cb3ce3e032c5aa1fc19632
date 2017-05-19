@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a21f1c7b_8a23a297",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "No point in running non-native to f16, I think...",
+      "range": {
+        "startLine": 360,
+        "startChar": 23,
+        "endLine": 360,
+        "endChar": 44
+      },
+      "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d8ea1db_5be210d4",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "Will remove...",
+      "range": {
+        "startLine": 489,
+        "startChar": 11,
+        "endLine": 489,
+        "endChar": 87
+      },
+      "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d21968fe_eaea51ea",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "This just got moved, so xformAlphaType can be used to determine our pipeline helpers (even when there is no xform).",
+      "range": {
+        "startLine": 557,
+        "startChar": 7,
+        "endLine": 557,
+        "endChar": 87
+      },
+      "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ac0bff5_a0799292",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-19T20:44:38Z",
+      "side": 1,
+      "message": "This also converts back to srgb (if necessary). Maybe it should have a different name? I almost wrote convert_from_linear_premul, but I find the two too confusing to look at right next to each other.\n\n(Maybe I should change it and drop \"convert_\" from both?)",
+      "range": {
+        "startLine": 578,
+        "startChar": 12,
+        "endLine": 578,
+        "endChar": 33
+      },
+      "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
