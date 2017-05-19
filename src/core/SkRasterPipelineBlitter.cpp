@@ -18,7 +18,7 @@
 #include "SkUtils.h"
 #include "../jumper/SkJumper.h"
 
-class SkRasterPipelineBlitter : public SkBlitter {
+class SkRasterPipelineBlitter final : public SkBlitter {
 public:
     static SkBlitter* Create(const SkPixmap&, const SkPaint&, const SkMatrix& ctm,
                              SkArenaAlloc*);
