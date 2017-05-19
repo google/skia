@@ -186,7 +186,7 @@ bool GrVkTexture::reallocForMipmap(GrVkGpu* gpu, uint32_t mipLevels) {
         return false;
     }
 
-    bool renderTarget = SkToBool(fDesc.fFlags & kRenderTarget_GrSurfaceFlag);
+    bool renderTarget = SkToBool(this->asRenderTarget());
 
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
     if (renderTarget) {
@@ -197,8 +197,8 @@ bool GrVkTexture::reallocForMipmap(GrVkGpu* gpu, uint32_t mipLevels) {
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = fInfo.fFormat;
-    imageDesc.fWidth = fDesc.fWidth;
-    imageDesc.fHeight = fDesc.fHeight;
+    imageDesc.fWidth = this->width();
+    imageDesc.fHeight = this->height();
     imageDesc.fLevels = mipLevels;
     imageDesc.fSamples = 1;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;

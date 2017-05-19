@@ -49,6 +49,28 @@ bool GrResourceProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
     return proxy->priv().isExact() || (SkIsPow2(proxy->width()) && SkIsPow2(proxy->height()));
 }
 
+bool validate_desc(const GrSurfaceDesc& desc, const GrCaps& caps, int levelCount = 0) {
+    if (desc.fWidth <= 0 || desc.fHeight <= 0) {
+        return false;
+    }
+    if (!caps.isConfigTexturable(desc.fConfig)) {
+        return false;
+    }
+    if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
+        if (!caps.isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+            return false;
+        }
+    } else {
+        if (desc.fSampleCnt) {
+            return false;
+        }
+    }
+    if (levelCount > 1 && GrPixelConfigIsSint(desc.fConfig)) {
+        return false;
+    }
+    return true;
+}
+
 // MDB TODO: this should probably be a factory on GrSurfaceProxy
 sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
                                                       const GrSurfaceDesc& desc,
@@ -74,11 +96,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
         return nullptr;
     }
 
-    if (mipLevelCount > 1 && GrPixelConfigIsSint(desc.fConfig)) {
-        return nullptr;
-    }
-    if ((desc.fFlags & kRenderTarget_GrSurfaceFlag) &&
-        !fGpu->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+    if (!validate_desc(desc, *fCaps, mipLevelCount)) {
         return nullptr;
     }
 
@@ -133,6 +151,10 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
         return nullptr;
     }
 
+    if (!validate_desc(desc, *fCaps)) {
+        return nullptr;
+    }
+
     GrContext* context = fGpu->getContext();
 
     if (!GrPixelConfigIsCompressed(desc.fConfig)) {
@@ -166,8 +188,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return nullptr;
     }
 
-    if ((desc.fFlags & kRenderTarget_GrSurfaceFlag) &&
-        !fGpu->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+    if (!validate_desc(desc, *fCaps)) {
         return nullptr;
     }
 
@@ -195,15 +216,18 @@ GrTexture* GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc, ui
         return nullptr;
     }
 
+    if (!validate_desc(desc, *fCaps)) {
+        return nullptr;
+    }
+
     return this->refScratchTexture(desc, flags);
 }
 
-GrTexture* GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
-                                                 uint32_t flags) {
+GrTexture* GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc, uint32_t flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(!GrPixelConfigIsCompressed(inDesc.fConfig));
-    SkASSERT(inDesc.fWidth > 0 && inDesc.fHeight > 0);
+    SkASSERT(validate_desc(inDesc, *fCaps));
 
     SkTCopyOnFirstWrite<GrSurfaceDesc> desc(inDesc);
 
