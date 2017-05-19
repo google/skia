@@ -53,7 +53,8 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
                                const GrBuffer* vertexBuffer,
                                GrVertexAttribType type,
                                GrGLsizei stride,
-                               size_t offsetInBytes) {
+                               size_t offsetInBytes,
+                               int divisor) {
     SkASSERT(index >= 0 && index < fAttribArrayStates.count());
     AttribArrayState* array = &fAttribArrayStates[index];
     if (array->fVertexBufferUniqueID != vertexBuffer->uniqueID() ||
@@ -84,10 +85,19 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
         array->fStride = stride;
         array->fOffset = offsetInBytes;
     }
+    if (array->fDivisor != divisor) {
+        SkASSERT(gpu->caps()->instanceAttribSupport());
+        SkASSERT(0 == divisor || 1 == divisor); // not necessarily a requirement but what we expect.
+        GR_GL_CALL(gpu->glInterface(), VertexAttribDivisor(index, divisor));
+        array->fDivisor = divisor;
+    }
 }
 
 void GrGLAttribArrayState::enableVertexArrays(const GrGLGpu* gpu, int enabledCount) {
     SkASSERT(enabledCount <= fAttribArrayStates.count());
+    if (fEnabledCountIsValid && enabledCount == fNumEnabledArrays) {
+        return;
+    }
 
     int firstIdxToEnable = fEnabledCountIsValid ? fNumEnabledArrays : 0;
     for (int i = firstIdxToEnable; i < enabledCount; ++i) {
