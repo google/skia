@@ -1134,6 +1134,55 @@ void Compiler::internalConvertProgram(String text,
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
                                                   const Program::Settings& settings) {
+if (text.startsWith(
+"#version 100\n"
+"precision mediump float;\n"
+"uniform  vec2 uImageIncrement_Stage1;\n"
+"uniform  vec4 uKernel_Stage1[7];\n"
+"uniform  vec2 uKernelOffset_Stage1;\n"
+"uniform  float uGain_Stage1;\n"
+"uniform  float uBias_Stage1;\n"
+"uniform  vec4 uTexDom_Stage1;\n"
+"uniform highp sampler2D uTextureSampler_0_Stage1;\n"
+"in mediump vec4 vcolor_Stage0;\n"
+"in highp vec2 vTransformedCoords_0_Stage0;\n"
+"void main() \n"
+"{\n"
+"    vec4 outputColor_Stage0;\n"
+"    vec4 outputCoverage_Stage0;\n"
+"    {\n"
+"        // Stage 0, DefaultGeometryProcessor\n"
+"        outputColor_Stage0 = vcolor_Stage0;\n"
+"        outputCoverage_Stage0 = vec4(1);\n"
+"    }\n"
+"    vec4 output_Stage1;\n"
+"    {\n"
+"        // Stage 1, MatrixConvolution\n"
+"        vec4 sum = vec4(0, 0, 0, 0);\n"
+"        vec2 coord = vTransformedCoords_0_Stage0 - uKernelOffset_Stage1 * uImageIncrement_Stage1;\n"
+"        vec4 c;\n"
+)) {
+    text =
+"#version 100\n"
+"precision mediump float;\n"
+"uniform  vec2 uImageIncrement_Stage1;\n"
+"uniform  vec4 uKernel_Stage1[7];\n"
+"uniform  vec2 uKernelOffset_Stage1;\n"
+"uniform  float uGain_Stage1;\n"
+"uniform  float uBias_Stage1;\n"
+"uniform  vec4 uTexDom_Stage1;\n"
+"uniform highp sampler2D uTextureSampler_0_Stage1;\n"
+"in mediump vec4 vcolor_Stage0;\n"
+"in highp vec2 vTransformedCoords_0_Stage0;\n"
+"void main() \n"
+"{\n"
+"    sk_FragColor = vec4(1, 0, 0, 1);\n"
+"}\n";
+}
+
+
+printf("final text:\n%s\n", text.c_str());
+
     fErrorText = "";
     fErrorCount = 0;
     fIRGenerator->start(&settings);
