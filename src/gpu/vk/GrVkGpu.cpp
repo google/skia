@@ -701,7 +701,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
 
 ////////////////////////////////////////////////////////////////////////////////
 GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                    const SkTArray<GrMipLevel>& texels) {
+                                    const SkTArray<GrMipLevel>& origTexels) {
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     VkFormat pixelFormat;
@@ -716,11 +716,22 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
     if (renderTarget && !fVkCaps->isConfigRenderable(desc.fConfig, false)) {
         return nullptr;
     }
+    SkTArray<GrMipLevel> zeroLevels;
+    std::unique_ptr<uint8_t[]> zeros;
+    const SkTArray<GrMipLevel>* texels = &origTexels;
+    if (false && desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
+        size_t rowSize = GrBytesPerPixel(desc.fConfig) * desc.fWidth;
+        size_t size = rowSize * desc.fHeight;
+        zeros.reset(new uint8_t[size]);
+        memset(zeros.get(), 0xAB, size);
+        zeroLevels.push_back(GrMipLevel{zeros.get(), 0});
+        texels = &zeroLevels;
+    }
 
     bool linearTiling = false;
     if (SkToBool(desc.fFlags & kZeroCopy_GrSurfaceFlag)) {
         // we can't have a linear texture with a mipmap
-        if (texels.count() > 1) {
+        if (texels->count() > 1) {
             SkDebugf("Trying to create linear tiled texture with mipmap");
             return nullptr;
         }
@@ -745,13 +756,13 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
     // texture.
     usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
-    VkFlags memProps = (!texels.empty() && linearTiling) ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT :
+    VkFlags memProps = (!texels->empty() && linearTiling) ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT :
                                                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
     // This ImageDesc refers to the texture that will be read by the client. Thus even if msaa is
     // requested, this ImageDesc describes the resolved texture. Therefore we always have samples set
     // to 1.
-    int mipLevels = texels.empty() ? 1 : texels.count();
+    int mipLevels = texels->empty() ? 1 : texels->count();
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = pixelFormat;
@@ -775,15 +786,15 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
         return nullptr;
     }
 
-    if (!texels.empty()) {
-        SkASSERT(texels.begin()->fPixels);
+    if (!texels->empty()) {
+        SkASSERT(texels->begin()->fPixels);
         bool success;
         if (linearTiling) {
             success = this->uploadTexDataLinear(tex, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                                texels.begin()->fPixels, texels.begin()->fRowBytes);
+                                                texels->begin()->fPixels, texels->begin()->fRowBytes);
         } else {
             success = this->uploadTexDataOptimal(tex, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                                 texels);
+                                                 *texels);
         }
         if (!success) {
             tex->unref();
@@ -791,6 +802,20 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
         }
     }
 
+    if (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
+        VkClearColorValue zeroClearColor;
+        memset(&zeroClearColor, 0, sizeof(zeroClearColor));
+        VkImageSubresourceRange range;
+        range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        range.baseArrayLayer = 0;
+        range.baseMipLevel = 0;
+        range.layerCount = 1;
+        range.levelCount = 1;
+        tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                            VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                            false);
+        this->currentCommandBuffer()->clearColorImage(this, tex, &zeroClearColor, 1, &range);
+    }
     return tex;
 }
 

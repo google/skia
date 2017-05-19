@@ -504,6 +504,7 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
         case kETC1_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
             return true;
         case kAlpha_8_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
@@ -515,7 +516,6 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
         case kRGBA_8888_sint_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
-        case kRG_float_GrPixelConfig:
         case kUnknown_GrPixelConfig:
             return false;
     }
@@ -589,6 +589,12 @@ enum GrSurfaceFlags {
      * Placeholder for managing zero-copy textures
      */
     kZeroCopy_GrSurfaceFlag         = 0x2,
+    /**
+     * Clears to zero on creation. This is not allowed with compressed configs. It will cause
+     * creation failure if initial data is supplied to the texture. This only affects the base level
+     * if the texture is created with MIP levels.
+     */
+    kPerformInitialClear_GrSurfaceFlag = 0x4
 };
 
 GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
