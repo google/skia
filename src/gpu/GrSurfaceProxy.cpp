@@ -168,7 +168,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
         }
     }
 
-    if (!caps->isConfigTexturable(desc.fConfig)) {
+    if (!caps->isConfigTexturable(desc.fConfig, desc.fOrigin)) {
         return nullptr;
     }
 
