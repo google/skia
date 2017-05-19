@@ -16,6 +16,7 @@
 #include "SkRasterPipeline.h"
 #include "SkUnPreMultiply.h"
 #include "SkUnPreMultiplyPriv.h"
+#include "../jumper/SkJumper.h"
 
 // Fast Path 1: The memcpy() case.
 static inline bool can_memcpy(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
@@ -357,6 +358,8 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
     // opaque to another alpha type, there's no need to worry about multiplication.
     SkASSERT(premulState == dat || kOpaque_SkAlphaType == srcInfo.alphaType());
 
+    int y;
+    SkJumper_DitherCtx dither = {&y, 0.0f};
     switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
             pipeline.append(SkRasterPipeline::store_8888, &dstRow);
@@ -366,12 +369,15 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
             pipeline.append(SkRasterPipeline::store_8888, &dstRow);
             break;
         case kRGB_565_SkColorType:
+            // Dither?
             pipeline.append(SkRasterPipeline::store_565, &dstRow);
             break;
         case kRGBA_F16_SkColorType:
             pipeline.append(SkRasterPipeline::store_f16, &dstRow);
             break;
         case kARGB_4444_SkColorType:
+            dither.rate = 1/15.0f;
+            pipeline.append(SkRasterPipeline::dither,     &dither);
             pipeline.append(SkRasterPipeline::store_4444, &dstRow);
             break;
         default:
@@ -379,7 +385,7 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
             break;
     }
 
-    for (int y = 0; y < srcInfo.height(); ++y) {
+    for (y = 0; y < srcInfo.height(); ++y) {
         pipeline.run(0,srcInfo.width());
         // The pipeline has pointers to srcRow and dstRow, so we just need to update them in the
         // loop to move between rows of src/dst.
