@@ -99,6 +99,26 @@ struct LazyCtx {
         return limit;
     }
 
+    MAYBE_MSABI
+    extern "C" void WRAP(start_pipeline_bulk)(void** program, K* k,
+        int* y, int* L, int* R, size_t height,
+        void** dstPtr, void* base, int xshift, size_t rowbytes) {
+
+        for (int h = 0; h < height; h++) {
+            F v{};
+            auto start = (Stage*)load_and_inc(program);
+            *dstPtr = (L[h] << xshift) + *y *rowbytes;
+            while (x + kStride <= limit) {
+                start(x,program,k,0,    v,v,v,v, v,v,v,v);
+                x += kStride;
+            }
+            if (size_t tail = limit - x) {
+                start(x,program,k,tail, v,v,v,v, v,v,v,v);
+            }
+            *y++
+        }
+    }
+
     #define STAGE(name)                                                           \
         SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);     \

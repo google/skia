@@ -42,6 +42,9 @@ extern "C" {
 
 #elif defined(__aarch64__)
     size_t ASM(start_pipeline,aarch64)(size_t, void**, K*, size_t);
+    size_t ASM(start_pipeline_bulk,aarch64)(
+        void** program, K* k,
+        int* y, int* L, int* R, size_t height, void** dstPtr, int xshift, size_t rowbytes);
     StageFn ASM(just_return,aarch64);
     #define M(st) StageFn ASM(st,aarch64);
         SK_RASTER_PIPELINE_STAGES(M)
@@ -49,6 +52,9 @@ extern "C" {
 
 #elif defined(__arm__)
     size_t ASM(start_pipeline,vfp4)(size_t, void**, K*, size_t);
+    size_t ASM(start_pipeline_bulk,vfp4)(
+        void** program, K* k,
+        int* y, int* L, int* R, size_t height, void** dstPtr, int xshift, size_t rowbytes);
     StageFn ASM(just_return,vfp4);
     #define M(st) StageFn ASM(st,vfp4);
         SK_RASTER_PIPELINE_STAGES(M)
@@ -59,6 +65,19 @@ extern "C" {
     size_t ASM(start_pipeline,avx  )(size_t, void**, K*, size_t);
     size_t ASM(start_pipeline,sse41)(size_t, void**, K*, size_t);
     size_t ASM(start_pipeline,sse2 )(size_t, void**, K*, size_t);
+
+    size_t ASM(start_pipeline_bulk,hsw  )(
+        void** program, K* k,
+        int* y, int* L, int* R, size_t height, void** dstPtr, int xshift, size_t rowbytes);
+    size_t ASM(start_pipeline_bulk,avx  )(
+        void** program, K* k,
+        int* y, int* L, int* R, size_t height, void** dstPtr, int xshift, size_t rowbytes);
+    size_t ASM(start_pipeline_bulk,sse41)(
+        void** program, K* k,
+        int* y, int* L, int* R, size_t height, void** dstPtr, int xshift, size_t rowbytes);
+    size_t ASM(start_pipeline_bulk,sse2 )(
+        void** program, K* k,
+        int* y, int* L, int* R, size_t height, void** dstPtr, int xshift, size_t rowbytes);
 
     StageFn ASM(just_return,hsw),
             ASM(just_return,avx),
@@ -204,6 +223,63 @@ void SkRasterPipeline::run(size_t x, size_t n) const {
     }
     if (1 && SkCpu::Supports(SkCpu::SSE2)) {
         build_and_run(4, lookup_sse2, ASM(just_return,sse2), ASM(start_pipeline,sse2));
+    }
+#endif
+
+    // Finish up any leftover with portable code one pixel at a time.
+    build_and_run(1, lookup_portable, sk_just_return, sk_start_pipeline);
+}
+
+void SkRasterPipeline::runBulk(
+    int* y, int* L, int* R, size_t height, void** dstPtr, int xshift, size_t rowbytes) const {
+    SkAutoSTMalloc<64, void*> program(2*fStages.size() + 1);
+
+    auto build_and_run = [&](size_t   min_stride,
+                             StageFn* (*lookup)(SkRasterPipeline::StockStage),
+                             StageFn* just_return,
+                             size_t   (*start_pipeline)(size_t, void**, K*, size_t)) {
+        void** ip = program.get();
+        for (auto&& st : fStages) {
+            auto fn = lookup(st.stage);
+            SkASSERT(fn);
+            *ip++ = (void*)fn;
+            if (st.ctx) {
+                *ip++ = st.ctx;
+            }
+        }
+        *ip = (void*)just_return;
+
+        start_pipeline_bulk(program.get(), &kConstants, y, L, R, height, dstPtr, xshift, rowbytes);
+    };
+
+    // While possible, build and run at full vector stride.
+#if __has_feature(memory_sanitizer)
+    // We'll just run portable code.
+
+#elif defined(__aarch64__)
+    build_and_run(4, lookup_aarch64, ASM(just_return,aarch64), ASM(start_pipeline,aarch64));
+
+#elif defined(__arm__)
+    if (1 && SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
+        build_and_run(2, lookup_vfp4, ASM(just_return,vfp4), ASM(start_pipeline,vfp4));
+    }
+
+#elif defined(__x86_64__) || defined(_M_X64)
+    if (1 && SkCpu::Supports(SkCpu::HSW)) {
+        build_and_run(1, lookup_hsw, ASM(just_return,hsw), ASM(start_pipeline,hsw));
+        return;
+    }
+    if (1 && SkCpu::Supports(SkCpu::AVX)) {
+        build_and_run(1, lookup_avx, ASM(just_return,avx), ASM(start_pipeline,avx));
+        return;
+    }
+    if (1 && SkCpu::Supports(SkCpu::SSE41)) {
+        build_and_run(4, lookup_sse41, ASM(just_return,sse41), ASM(start_pipeline,sse41));
+        return;
+    }
+    if (1 && SkCpu::Supports(SkCpu::SSE2)) {
+        build_and_run(4, lookup_sse2, ASM(just_return,sse2), ASM(start_pipeline,sse2));
+        return;
     }
 #endif
 
