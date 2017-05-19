@@ -173,12 +173,6 @@ def dm_flags(bot):
   blacklist('glsrgb image _ _')
   blacklist('glessrgb image _ _')
 
-  # Decoder tests are now performing gamma correct decodes.  This means
-  # that, when viewing the results, we need to perform a gamma correct
-  # encode to PNG.  Therefore, we run the image tests in srgb mode instead
-  # of 8888.
-  blacklist('8888 image _ _')
-
   # Not any point to running these.
   blacklist('gbr-8888 image _ _')
   blacklist('gbr-8888 colorImage _ _')
