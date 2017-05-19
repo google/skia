@@ -1972,33 +1972,46 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
 void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
                             const GrBuffer* indexBuffer,
                             const GrBuffer* vertexBuffer,
-                            int baseVertex) {
+                            int baseVertex,
+                            const GrBuffer* instanceBuffer,
+                            int baseInstance) {
     GrGLAttribArrayState* attribState;
     if (indexBuffer) {
-        SkASSERT(indexBuffer);
-        SkASSERT(!indexBuffer->isMapped());
+        SkASSERT(indexBuffer && !indexBuffer->isMapped());
         attribState = fHWVertexArrayState.bindInternalVertexArray(this, indexBuffer);
     } else {
         attribState = fHWVertexArrayState.bindInternalVertexArray(this);
     }
 
-    int vaCount = primProc.numAttribs();
-    attribState->enableVertexArrays(this, vaCount);
+    struct {
+        const GrBuffer*   fBuffer;
+        int               fStride;
+        size_t            fBufferOffset;
+    } bindings[2];
 
-    if (vaCount > 0) {
-        SkASSERT(vertexBuffer);
-        SkASSERT(!vertexBuffer->isMapped());
+    if (int vertexStride = primProc.getVertexStride()) {
+        SkASSERT(vertexBuffer && !vertexBuffer->isMapped());
+        bindings[0].fBuffer = vertexBuffer;
+        bindings[0].fStride = vertexStride;
+        bindings[0].fBufferOffset = vertexBuffer->baseOffset() + baseVertex * vertexStride;
+    }
+    if (int instanceStride = primProc.getInstanceStride()) {
+        SkASSERT(instanceBuffer && !instanceBuffer->isMapped());
+        bindings[1].fBuffer = instanceBuffer;
+        bindings[1].fStride = instanceStride;
+        bindings[1].fBufferOffset = instanceBuffer->baseOffset() + baseInstance * instanceStride;
+    }
 
-        GrGLsizei stride = static_cast<GrGLsizei>(primProc.getVertexStride());
-        size_t vertexBufferOffsetInBytes = stride * baseVertex + vertexBuffer->baseOffset();
-        size_t attribOffset = 0;
+    int numAttribs = primProc.numAttribs();
+    attribState->enableVertexArrays(this, numAttribs);
 
-        for (int attribIndex = 0; attribIndex < vaCount; attribIndex++) {
-            const GrGeometryProcessor::Attribute& attrib = primProc.getAttrib(attribIndex);
-            attribState->set(this, attribIndex, vertexBuffer, attrib.fType, stride,
-                             vertexBufferOffsetInBytes + attribOffset);
-            attribOffset += attrib.fOffset;
-        }
+    for (int i = 0; i < numAttribs; ++i) {
+        using InputRate = GrPrimitiveProcessor::Attribute::InputRate;
+        const GrGeometryProcessor::Attribute& attrib = primProc.getAttrib(i);
+        const int divisor = InputRate::kPerInstance == attrib.fInputRate ? 1 : 0;
+        const auto& binding = bindings[divisor];
+        attribState->set(this, i, binding.fBuffer, attrib.fType, binding.fStride,
+                         binding.fBufferOffset + attrib.fOffsetInRecord, divisor);
     }
 }
 
@@ -2640,41 +2653,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
             this->xferBarrier(pipeline.getRenderTarget(), barrierType);
         }
 
-        const GrMesh& mesh = meshes[i];
-        const GrGLenum primType = gPrimitiveType2GLMode[mesh.primitiveType()];
-
-        if (mesh.isIndexed()) {
-            GrGLvoid* indices = reinterpret_cast<void*>(mesh.indexBuffer()->baseOffset() +
-                                                        sizeof(uint16_t) * mesh.baseIndex());
-            for (const GrMesh::PatternBatch batch : mesh) {
-                this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(),
-                                    batch.fBaseVertex);
-                // batch.fBaseVertex was accounted for by setupGeometry.
-                if (this->glCaps().drawRangeElementsSupport()) {
-                    // We assume here that the GrMeshDrawOps that generated the mesh used the full
-                    // 0..vertexCount()-1 range.
-                    int start = 0;
-                    int end = mesh.vertexCount() * batch.fRepeatCount - 1;
-                    GL_CALL(DrawRangeElements(primType, start, end,
-                                              mesh.indexCount() * batch.fRepeatCount,
-                                              GR_GL_UNSIGNED_SHORT, indices));
-                } else {
-                    GL_CALL(DrawElements(primType, mesh.indexCount() * batch.fRepeatCount,
-                                         GR_GL_UNSIGNED_SHORT, indices));
-                }
-                fStats.incNumDraws();
-            }
-        } else {
-            if (this->glCaps().drawArraysBaseVertexIsBroken()) {
-                this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(),
-                                    mesh.baseVertex());
-                GL_CALL(DrawArrays(primType, 0, mesh.vertexCount()));
-            } else {
-                this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(), 0);
-                GL_CALL(DrawArrays(primType, mesh.baseVertex(), mesh.vertexCount()));
-            }
-            fStats.incNumDraws();
-        }
+        this->drawMesh(primProc, meshes[i]);
     }
 
 #if SWAP_PER_DRAW
@@ -2689,6 +2668,64 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
         SwapBuf();
     #endif
 #endif
+}
+
+void GrGLGpu::drawMesh(const GrPrimitiveProcessor& primProc, const GrMesh& mesh) {
+    const GrGLenum primType = gPrimitiveType2GLMode[mesh.primitiveType()];
+
+    if (mesh.isInstanced()) {
+        SkASSERT(this->caps()->instanceAttribSupport());
+        if (mesh.isIndexed()) {
+            GrGLvoid* indices = reinterpret_cast<void*>(mesh.indexBuffer()->baseOffset() +
+                                                        sizeof(uint16_t) * mesh.baseIndex());
+            this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(),
+                                mesh.baseVertex(), mesh.instanceBuffer(), mesh.baseInstance());
+            GL_CALL(DrawElementsInstanced(primType, mesh.indexCount(), GR_GL_UNSIGNED_SHORT,
+                                          indices, mesh.instanceCount()));
+        } else {
+            this->setupGeometry(primProc, nullptr, mesh.vertexBuffer(), 0,
+                                mesh.instanceBuffer(), mesh.baseInstance());
+            GL_CALL(DrawArraysInstanced(primType, mesh.baseVertex(), mesh.vertexCount(),
+                                        mesh.instanceCount()));
+        }
+        fStats.incNumDraws();
+        return;
+    }
+
+    if (mesh.isIndexed()) {
+        GrGLvoid* indices = reinterpret_cast<void*>(mesh.indexBuffer()->baseOffset() +
+                                                    sizeof(uint16_t) * mesh.baseIndex());
+        for (const GrMesh::PatternBatch batch : mesh) {
+            this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(),
+                                batch.fBaseVertex, nullptr, 0);
+            // batch.fBaseVertex was accounted for by setupGeometry.
+            if (this->glCaps().drawRangeElementsSupport()) {
+                // We assume here that the GrMeshDrawOps that generated the mesh used the full
+                // 0..vertexCount()-1 range.
+                int start = 0;
+                int end = mesh.vertexCount() * batch.fRepeatCount - 1;
+                GL_CALL(DrawRangeElements(primType, start, end,
+                                          mesh.indexCount() * batch.fRepeatCount,
+                                          GR_GL_UNSIGNED_SHORT, indices));
+            } else {
+                GL_CALL(DrawElements(primType, mesh.indexCount() * batch.fRepeatCount,
+                                     GR_GL_UNSIGNED_SHORT, indices));
+            }
+            fStats.incNumDraws();
+        }
+        return;
+    }
+
+    if (this->glCaps().drawArraysBaseVertexIsBroken()) {
+        this->setupGeometry(primProc, nullptr, mesh.vertexBuffer(), mesh.baseVertex(), nullptr, 0);
+        GL_CALL(DrawArrays(primType, 0, mesh.vertexCount()));
+        fStats.incNumDraws();
+        return;
+    }
+
+    this->setupGeometry(primProc, nullptr, mesh.vertexBuffer(), 0, nullptr, 0);
+    GL_CALL(DrawArrays(primType, mesh.baseVertex(), mesh.vertexCount()));
+    fStats.incNumDraws();
 }
 
 void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
