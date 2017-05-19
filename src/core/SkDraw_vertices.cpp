@@ -10,12 +10,18 @@
 #include "SkColorShader.h"
 #include "SkDraw.h"
 #include "SkNx.h"
-#include "SkPM4f.h"
+#include "SkPM4fPriv.h"
 #include "SkRasterClip.h"
 #include "SkScan.h"
 #include "SkShader.h"
 #include "SkString.h"
 #include "SkVertState.h"
+
+#include "SkRasterPipeline.h"
+#include "SkArenaAlloc.h"
+#include "SkCoreBlitters.h"
+#include "SkColorSpaceXform.h"
+#include "SkColorSpace_Base.h"
 
 struct Matrix43 {
     float fMat[12];    // column major
@@ -356,8 +362,66 @@ namespace {
 
         return alloc->makeSkSp<SkColorShader>(SkUnPreMultiply::PMColorToColor(pmColor));
     }
-
 } // anonymous ns
+
+static bool update_tricolor_matrix(const SkMatrix& ctmInv,
+                                   const SkPoint pts[], const SkPM4f colors[],
+                                   int index0, int index1, int index2, Matrix43* result) {
+    SkMatrix m, im;
+    m.reset();
+    m.set(0, pts[index1].fX - pts[index0].fX);
+    m.set(1, pts[index2].fX - pts[index0].fX);
+    m.set(2, pts[index0].fX);
+    m.set(3, pts[index1].fY - pts[index0].fY);
+    m.set(4, pts[index2].fY - pts[index0].fY);
+    m.set(5, pts[index0].fY);
+    if (!m.invert(&im)) {
+        return false;
+    }
+
+    SkMatrix dstToUnit;
+    dstToUnit.setConcat(im, ctmInv);
+
+    Sk4f c0 = colors[index0].to4f(),
+         c1 = colors[index1].to4f(),
+         c2 = colors[index2].to4f();
+
+    Matrix43 colorm;
+    (c1 - c0).store(&colorm.fMat[0]);
+    (c2 - c0).store(&colorm.fMat[4]);
+    c0.store(&colorm.fMat[8]);
+    result->setConcat(colorm, dstToUnit);
+    return true;
+}
+
+static SkPM4f* convert_colors(const SkColor src[], int count, SkColorSpace* deviceCS,
+                              SkArenaAlloc* alloc) {
+    SkPM4f* dst = alloc->makeArray<SkPM4f>(count);
+    if (!deviceCS) {
+        for (int i = 0; i < count; ++i) {
+            dst[i] = SkPM4f_from_SkColor(src[i], nullptr);
+        }
+    } else {
+        // For now, we want premul to happen on the colors before interplation. If we later want
+        // to apply it after the interp, pass kUnpremul here.
+        SkAlphaType alphaVerb = kPremul_SkAlphaType;
+        auto srcCS = SkColorSpace::MakeSRGB();
+        auto dstCS = as_CSB(deviceCS)->makeLinearGamma();
+        SkColorSpaceXform::New(srcCS.get(),
+                               dstCS.get())->apply(SkColorSpaceXform::kRGBA_F32_ColorFormat, dst,
+                                                   SkColorSpaceXform::kBGRA_8888_ColorFormat, src,
+                                                   count, alphaVerb);
+    }
+    return dst;
+}
+
+static bool compute_is_opaque(const SkColor colors[], int count) {
+    uint32_t c = ~0;
+    for (int i = 0; i < count; ++i) {
+        c &= colors[i];
+    }
+    return SkColorGetA(c) == 0xFF;
+}
 
 void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
                           const SkPoint vertices[], const SkPoint textures[],
@@ -368,6 +432,10 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
 
     // abort early if there is nothing to draw
     if (count < 3 || (indices && indexCount < 3) || fRC->isEmpty()) {
+        return;
+    }
+    SkMatrix ctmInv;
+    if (!fMatrix->invert(&ctmInv)) {
         return;
     }
 
@@ -386,6 +454,53 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
 
      Thus for texture drawing, we need both texture[] and a shader.
      */
+
+    if (colors && !textures) {
+        char             arenaStorage[4096];
+        SkArenaAlloc     alloc(arenaStorage, sizeof(storage));
+        Matrix43         matrix43;
+        SkRasterPipeline shaderPipeline;
+
+        // Convert the SkColors into float colors. The conversion depends on some conditions:
+        // - If the pixmap has a dst colorspace, we have to be "color-correct".
+        //   Do we map into dst-colorspace before or after we interpolate?
+        // - We have to decide when to apply per-color alpha (before or after we interpolate)
+        //
+        // For now, we will take a simple approach, but recognize this is just a start:
+        // - convert colors into dst colorspace before interpolation (matches gradients)
+        // - apply per-color alpha before interpolation (matches old version of vertices)
+        //
+        SkPM4f* dstColors = convert_colors(colors, count, fDst.colorSpace(), &alloc);
+
+        shaderPipeline.append(SkRasterPipeline::matrix_4x3, &matrix43);
+        // In theory we should never need to clamp. However, either due to imprecision in our
+        // matrix43, or the scan converter passing us pixel centers that in fact are not within
+        // the triangle, we do see occasional (slightly) out-of-range values, so we add these
+        // clamp stages. It would be nice to find a way to detect when these are not needed.
+        shaderPipeline.append(SkRasterPipeline::clamp_0);
+        shaderPipeline.append(SkRasterPipeline::clamp_a);
+
+        bool is_opaque = compute_is_opaque(colors, count),
+             wants_dither = paint.isDither();
+        auto blitter = SkCreateRasterPipelineBlitter(fDst, paint, *fMatrix, shaderPipeline,
+                                                     is_opaque, wants_dither, &alloc);
+        SkASSERT(!blitter->isNullBlitter());
+
+        // setup our state and function pointer for iterating triangles
+        VertState       state(count, indices, indexCount);
+        VertState::Proc vertProc = state.chooseProc(vmode);
+
+        while (vertProc(&state)) {
+            SkPoint tmp[] = {
+                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
+            };
+            if (update_tricolor_matrix(ctmInv, vertices, dstColors, state.f0, state.f1, state.f2,
+                                       &matrix43)) {
+                SkScan::FillTriangle(tmp, *fRC, blitter);
+            }
+        }
+        return;
+    }
 
     auto triShader = sk_make_sp<SkTriColorShader>();
     SkPaint p(paint);
