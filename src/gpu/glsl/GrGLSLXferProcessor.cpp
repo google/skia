@@ -13,8 +13,22 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
+// This is only called for cases where we are doing LCD coverage and not using in shader blending.
+// For these cases we assume the the src alpha is 1, thus we can just use the max for the alpha
+// coverage since src alpha will always be greater than or equal to dst alpha.
+static void adjust_for_lcd_coverage(GrGLSLXPFragmentBuilder* fragBuilder,
+                                    const char* srcCoverage,
+                                    const GrXferProcessor& proc) {
+    if (srcCoverage && proc.isLCD()) {
+        fragBuilder->codeAppendf("%s.a = max(max(%s.r, %s.g), %s.b);",
+                                 srcCoverage, srcCoverage, srcCoverage, srcCoverage);
+    }
+}
+
+
 void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
     if (!args.fXP.willReadDstColor()) {
+        adjust_for_lcd_coverage(args.fXPFragBuilder, args.fInputCoverage, args.fXP);
         this->emitOutputsForBlendState(args);
         return;
     }
@@ -111,13 +125,26 @@ void GrGLSLXferProcessor::DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fra
                                                     const GrXferProcessor& proc) {
     if (proc.dstReadUsesMixedSamples()) {
         if (srcCoverage) {
+            SkASSERT(!proc.isLCD());
             fragBuilder->codeAppendf("%s *= %s;", outColor, srcCoverage);
             fragBuilder->codeAppendf("%s = %s;", outColorSecondary, srcCoverage);
         } else {
             fragBuilder->codeAppendf("%s = vec4(1.0);", outColorSecondary);
         }
     } else if (srcCoverage) {
+        if (proc.isLCD()) {
+            fragBuilder->codeAppendf("float lerpRed = mix(%s.a, %s.a, %s.r);",
+                                     dstColor, outColor, srcCoverage);
+            fragBuilder->codeAppendf("float lerpBlue = mix(%s.a, %s.a, %s.g);",
+                                     dstColor, outColor, srcCoverage);
+            fragBuilder->codeAppendf("float lerpGreen = mix(%s.a, %s.a, %s.b);",
+                                     dstColor, outColor, srcCoverage);
+        }
         fragBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
                                  outColor, srcCoverage, outColor, srcCoverage, dstColor);
+        if (proc.isLCD()) {
+            fragBuilder->codeAppendf("%s.a = max(max(lerpRed, lerpBlue), lerpGreen);", outColor);
+        }
     }
 }
+

@@ -104,7 +104,7 @@ public:
 };
 
 static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrProcessorAnalysisColor inputColor = GrProcessorAnalysisColor::Opaque::kNo;
+    GrProcessorAnalysisColor inputColor = GrProcessorAnalysisColor::Opaque::kYes;
     GrProcessorAnalysisCoverage inputCoverage = GrProcessorAnalysisCoverage::kLCD;
 
     for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
@@ -1004,10 +1004,26 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps) {
     const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(SkBlendMode::kSrcOver);
-    GrProcessorAnalysisColor color = GrColorPackRGBA(123, 45, 67, 221);
+    GrProcessorAnalysisColor color = GrColorPackRGBA(123, 45, 67, 255);
     GrProcessorAnalysisCoverage coverage = GrProcessorAnalysisCoverage::kLCD;
-    SkASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, caps) &
-               GrXPFactory::AnalysisProperties::kRequiresDstTexture));
+    TEST_ASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, caps) &
+                  GrXPFactory::AnalysisProperties::kRequiresDstTexture));
+    sk_sp<const GrXferProcessor> xp_opaque(
+            GrXPFactory::MakeXferProcessor(xpf, color, coverage, false, caps));
+    if (!xp_opaque) {
+        ERRORF(reporter, "Failed to create an XP with LCD coverage.");
+        return;
+    }
+
+    GrXferProcessor::BlendInfo blendInfo;
+    xp_opaque->getBlendInfo(&blendInfo);
+    TEST_ASSERT(blendInfo.fWriteColor);
+
+    // Test with non-opaque alpha
+    color = GrColorPackRGBA(123, 45, 67, 221);
+    coverage = GrProcessorAnalysisCoverage::kLCD;
+    TEST_ASSERT(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, caps) &
+                GrXPFactory::AnalysisProperties::kRequiresDstTexture);
     sk_sp<const GrXferProcessor> xp(
             GrXPFactory::MakeXferProcessor(xpf, color, coverage, false, caps));
     if (!xp) {
@@ -1015,7 +1031,6 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
         return;
     }
 
-    GrXferProcessor::BlendInfo blendInfo;
     xp->getBlendInfo(&blendInfo);
     TEST_ASSERT(blendInfo.fWriteColor);
 }
