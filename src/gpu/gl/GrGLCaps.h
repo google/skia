@@ -362,6 +362,9 @@ public:
     // Certain Intel GPUs on Mac fail to clear if the glClearColor is made up of only 1s and 0s.
     bool clearToBoundaryValuesIsBroken() const { return fClearToBoundaryValuesIsBroken; }
 
+    /// glClearTex(Sub)Image support
+    bool clearUncompressedTextureSupport() const { return fClearUncompressedTextureSupport; }
+
     // Adreno/MSAA drops a draw on the imagefiltersbase GM if the base vertex param to
     // glDrawArrays is nonzero.
     // https://bugs.chromium.org/p/skia/issues/detail?id=6650
@@ -439,6 +442,7 @@ private:
     bool fSRGBDecodeDisableSupport : 1;
     bool fSRGBDecodeDisableAffectsMipmaps : 1;
     bool fClearToBoundaryValuesIsBroken : 1;
+    bool fClearUncompressedTextureSupport : 1;
     bool fDrawArraysBaseVertexIsBroken : 1;
 
     uint32_t fBlitFramebufferFlags;

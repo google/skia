@@ -1517,29 +1517,47 @@ static void set_initial_texture_params(const GrGLInterface* interface,
 
 GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
                                     SkBudgeted budgeted,
-                                    const SkTArray<GrMipLevel>& texels) {
+                                    const SkTArray<GrMipLevel>& origTexels) {
     // We fail if the MSAA was requested and is not available.
     if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() && desc.fSampleCnt) {
         //SkDebugf("MSAA RT requested but not supported on this platform.");
         return return_null_texture();
     }
 
-    bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
+    bool performClear = (desc.fFlags & kPerformInitialClear_GrSurfaceFlag);
+    const SkTArray<GrMipLevel>* texels = &origTexels;
+
+    SkTArray<GrMipLevel> zeroLevels;
+    std::unique_ptr<uint8_t[]> zeros;
+    // TODO: remove the GrPixelConfigIsSint test. This is here because we have yet to add support for
+    // glClearBuffer* which must be used instead of glClearColor/glClear for integer formats.
+    if (performClear && !this->glCaps().clearUncompressedTextureSupport() &&
+        (!this->glCaps().canConfigBeFBOColorAttachment(desc.fConfig) || GrPixelConfigIsSint(desc.fConfig))) {
+        size_t rowSize = GrBytesPerPixel(desc.fConfig) * desc.fWidth;
+        size_t size = rowSize * desc.fHeight;
+        zeros.reset(new uint8_t[size]);
+        memset(zeros.get(), 0, size);
+        zeroLevels.push_back(GrMipLevel{zeros.get(), 0});
+        texels = &zeroLevels;
+        performClear = false;
+    }
+
+    bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     GrGLTexture::IDDesc idDesc;
     idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     GrGLTexture::TexParams initialTexParams;
-    if (!this->createTextureImpl(desc, &idDesc.fInfo, renderTarget, &initialTexParams, texels)) {
+    if (!this->createTextureImpl(desc, &idDesc.fInfo, isRenderTarget, &initialTexParams, *texels)) {
         return return_null_texture();
     }
 
     bool wasMipMapDataProvided = false;
-    if (texels.count() > 1) {
+    if (texels->count() > 1) {
         wasMipMapDataProvided = true;
     }
 
     GrGLTexture* tex;
-    if (renderTarget) {
+    if (isRenderTarget) {
         // unbind the texture from the texture unit before binding it to the frame buffer
         GL_CALL(BindTexture(idDesc.fInfo.fTarget, 0));
         GrGLRenderTarget::IDDesc rtIDDesc;
@@ -1558,6 +1576,24 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     SkDebugf("--- new texture [%d] size=(%d %d) config=%d\n",
              idDesc.fInfo.fID, desc.fWidth, desc.fHeight, desc.fConfig);
 #endif
+    if (tex && performClear) {
+        if (this->glCaps().clearUncompressedTextureSupport()) {
+            GrGLenum format = GrPixelConfigIsSint(tex->config()) ? GR_GL_RGBA_INTEGER : GR_GL_RGBA;
+            static constexpr uint32_t kZero = 0;
+            GL_CALL(ClearTexImage(tex->textureID(), 0, format, GR_GL_UNSIGNED_BYTE, &kZero));
+        } else {
+            GrGLIRect viewport;
+            this->bindSurfaceFBOForPixelOps(tex, GR_GL_FRAMEBUFFER, &viewport, kDst_TempFBOTarget);
+            this->disableScissor();
+            this->disableWindowRectangles();
+            GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
+            fHWWriteToColor = kYes_TriState;
+            GL_CALL(ClearColor(0, 0, 0, 0));
+            GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
+            this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, tex);
+            fHWBoundRenderTargetUniqueID.makeInvalid();
+        }
+    }
     return tex;
 }
 
