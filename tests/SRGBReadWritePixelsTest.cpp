@@ -174,7 +174,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     desc.fHeight = kH;
     desc.fConfig = kSRGBA_8888_GrPixelConfig;
     if (context->caps()->isConfigRenderable(desc.fConfig, false) &&
-        context->caps()->isConfigTexturable(desc.fConfig)) {
+        context->caps()->isConfigTexturable(desc.fConfig, desc.fOrigin)) {
 
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeDeferredSurfaceContext(
                                                                     desc, SkBackingFit::kExact,
