@@ -279,7 +279,7 @@ public:
      * @param config        the pixel config of the source buffer
      * @param texels        array of mipmap levels containing texture data
      */
-    bool writePixels(GrSurface* surface,
+    bool writePixels1(GrSurface* surface,
                      int left, int top, int width, int height,
                      GrPixelConfig config,
                      const SkTArray<GrMipLevel>& texels);
@@ -292,7 +292,7 @@ public:
      * @param rowBytes number of bytes between consecutive rows. Zero
      *                 means rows are tightly packed.
      */
-    bool writePixels(GrSurface* surface,
+    bool writePixels2(GrSurface* surface,
                      int left, int top, int width, int height,
                      GrPixelConfig config, const void* buffer,
                      size_t rowBytes);

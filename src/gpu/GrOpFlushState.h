@@ -77,7 +77,7 @@ public:
                 int left, int top, int width, int height,
                 GrPixelConfig config, const void* buffer,
                 size_t rowBytes) -> bool {
-            return this->fGpu->writePixels(surface, left, top, width, height, config, buffer,
+            return this->fGpu->writePixels2(surface, left, top, width, height, config, buffer,
                                            rowBytes);
         };
         upload(wp);

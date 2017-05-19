@@ -384,7 +384,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
         if (!texture) {
             return false;
         }
-        if (!fContext->fGpu->writePixels(texture, 0, 0, width, height, tempDrawInfo.fWriteConfig,
+        if (!fContext->fGpu->writePixels2(texture, 0, 0, width, height, tempDrawInfo.fWriteConfig,
                                          buffer, rowBytes)) {
             return false;
         }
@@ -407,7 +407,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
             this->flushSurfaceWrites(renderTargetContext->asRenderTargetProxy());
         }
     } else {
-        return fContext->fGpu->writePixels(dstSurface, left, top, width, height, srcConfig,
+        return fContext->fGpu->writePixels2(dstSurface, left, top, width, height, srcConfig,
                                            buffer, rowBytes);
     }
     return true;
