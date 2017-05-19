@@ -242,15 +242,19 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
     SkPoint* texs = builder.texCoords();
     SkColor* colors = builder.colors();
     uint16_t* indices = builder.indices();
+    bool is_opaque = false;
 
     // if colors is not null then create array for colors
     SkPMColor colorsPM[kNumCorners];
     if (srcColors) {
+        SkColor c = ~0;
         // premultiply colors to avoid color bleeding.
         for (int i = 0; i < kNumCorners; i++) {
             colorsPM[i] = SkPreMultiplyColor(srcColors[i]);
+            c &= srcColors[i];
         }
         srcColors = colorsPM;
+        is_opaque = (SkColorGetA(c) == 0xFF);
     }
 
     SkPoint pts[kNumPtsCubic];
@@ -294,11 +298,16 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
             pos[dataIndex] = s0 + s1 - s2;
 
             if (colors) {
-                uint8_t a = uint8_t(bilerp(u, v,
-                                           SkScalar(SkColorGetA(colorsPM[kTopLeft_Corner])),
-                                           SkScalar(SkColorGetA(colorsPM[kTopRight_Corner])),
-                                           SkScalar(SkColorGetA(colorsPM[kBottomLeft_Corner])),
-                                           SkScalar(SkColorGetA(colorsPM[kBottomRight_Corner]))));
+                uint8_t a = 0xFF;
+                // We do the opaque check for speed, and to ensure that opaque stays opaque,
+                // in case we lose precision in the bilerp.
+                if (!is_opaque) {
+                    a = uint8_t(bilerp(u, v,
+                                       SkScalar(SkColorGetA(colorsPM[kTopLeft_Corner])),
+                                       SkScalar(SkColorGetA(colorsPM[kTopRight_Corner])),
+                                       SkScalar(SkColorGetA(colorsPM[kBottomLeft_Corner])),
+                                       SkScalar(SkColorGetA(colorsPM[kBottomRight_Corner]))));
+                }
                 uint8_t r = uint8_t(bilerp(u, v,
                                            SkScalar(SkColorGetR(colorsPM[kTopLeft_Corner])),
                                            SkScalar(SkColorGetR(colorsPM[kTopRight_Corner])),
