@@ -210,3 +210,58 @@ void SkRasterPipeline::run(size_t x, size_t n) const {
     // Finish up any leftover with portable code one pixel at a time.
     build_and_run(1, lookup_portable, sk_just_return, sk_start_pipeline);
 }
+
+void SkRasterPipeline::runMulti(size_t y, int* L, int*r, size_t height) const {
+    SkAutoSTMalloc<64, void*> program(2*fStages.size() + 1);
+    const size_t limit = x+n;
+
+    auto build_and_run = [&](size_t   min_stride,
+                             StageFn* (*lookup)(SkRasterPipeline::StockStage),
+                             StageFn* just_return,
+                             size_t   (*start_pipeline)(size_t, void**, K*, size_t)) {
+        if (x + min_stride <= limit) {
+            void** ip = program.get();
+            for (auto&& st : fStages) {
+                auto fn = lookup(st.stage);
+                SkASSERT(fn);
+                *ip++ = (void*)fn;
+                if (st.ctx) {
+                    *ip++ = st.ctx;
+                }
+            }
+            *ip = (void*)just_return;
+
+            x = start_pipeline(x, program.get(), &kConstants, limit);
+        }
+    };
+
+    // While possible, build and run at full vector stride.
+#if __has_feature(memory_sanitizer)
+    // We'll just run portable code.
+
+#elif defined(__aarch64__)
+    build_and_run(4, lookup_aarch64, ASM(just_return,aarch64), ASM(start_pipeline,aarch64));
+
+#elif defined(__arm__)
+    if (1 && SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
+        build_and_run(2, lookup_vfp4, ASM(just_return,vfp4), ASM(start_pipeline,vfp4));
+    }
+
+#elif defined(__x86_64__) || defined(_M_X64)
+    if (1 && SkCpu::Supports(SkCpu::HSW)) {
+        build_and_run(1, lookup_hsw, ASM(just_return,hsw), ASM(start_pipeline,hsw));
+    }
+    if (1 && SkCpu::Supports(SkCpu::AVX)) {
+        build_and_run(1, lookup_avx, ASM(just_return,avx), ASM(start_pipeline,avx));
+    }
+    if (1 && SkCpu::Supports(SkCpu::SSE41)) {
+        build_and_run(4, lookup_sse41, ASM(just_return,sse41), ASM(start_pipeline,sse41));
+    }
+    if (1 && SkCpu::Supports(SkCpu::SSE2)) {
+        build_and_run(4, lookup_sse2, ASM(just_return,sse2), ASM(start_pipeline,sse2));
+    }
+#endif
+
+    // Finish up any leftover with portable code one pixel at a time.
+    build_and_run(1, lookup_portable, sk_just_return, sk_start_pipeline);
+}
