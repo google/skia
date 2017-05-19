@@ -243,7 +243,8 @@ public:
      * height, and rowBytes, must be non-zero and already reflect clipping to the dst bounds.
      */
     bool getWritePixelsInfo(GrSurface* dstSurface, int width, int height,
-                            GrPixelConfig srcConfig, DrawPreference*, WritePixelTempDrawInfo*);
+                            GrPixelConfig srcConfig, GrSurfaceOrigin srcOrigin,
+                            DrawPreference*, WritePixelTempDrawInfo*);
 
     /**
      * Reads a rectangle of pixels from a render target.
@@ -582,8 +583,8 @@ private:
                                      size_t rowBytes, GrPixelConfig readConfig, DrawPreference*,
                                      ReadPixelTempDrawInfo*) = 0;
     virtual bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
-                                      GrPixelConfig srcConfig, DrawPreference*,
-                                      WritePixelTempDrawInfo*) = 0;
+                                      GrPixelConfig srcConfig, GrSurfaceOrigin srcOrigin,
+                                      DrawPreference*, WritePixelTempDrawInfo*) = 0;
 
     // overridden by backend-specific derived class to perform the surface read
     virtual bool onReadPixels(GrSurface*,

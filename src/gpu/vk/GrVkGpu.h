@@ -69,7 +69,7 @@ public:
                              ReadPixelTempDrawInfo*) override;
 
     bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
+                              GrPixelConfig srcConfig, GrSurfaceOrigin srcOrigin, DrawPreference*,
                               WritePixelTempDrawInfo*) override;
 
     bool onCopySurface(GrSurface* dst,

@@ -114,7 +114,10 @@ public:
     GrGLCaps(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
              const GrGLInterface* glInterface);
 
-    bool isConfigTexturable(GrPixelConfig config) const override {
+    bool isConfigTexturable(GrPixelConfig config, GrSurfaceOrigin origin) const override {
+        if (kBottomLeft_GrSurfaceOrigin == origin && kETC1_GrPixelConfig == config) {
+            return false;
+        }
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kTextureable_Flag);
     }
 

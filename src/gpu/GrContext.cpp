@@ -288,7 +288,8 @@ static bool pm_upm_must_round_trip(GrPixelConfig config, SkColorSpace* colorSpac
 
 bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
                                        int left, int top, int width, int height,
-                                       GrPixelConfig srcConfig, SkColorSpace* srcColorSpace,
+                                       GrPixelConfig srcConfig, GrSurfaceOrigin srcOrigin,
+                                       SkColorSpace* srcColorSpace,
                                        const void* buffer, size_t rowBytes,
                                        uint32_t pixelOpsFlags) {
     // TODO: Color space conversion
@@ -333,7 +334,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     GrGpu::DrawPreference drawPreference = premulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                        : GrGpu::kNoDraw_DrawPreference;
     GrGpu::WritePixelTempDrawInfo tempDrawInfo;
-    if (!fContext->fGpu->getWritePixelsInfo(dstSurface, width, height, srcConfig,
+    if (!fContext->fGpu->getWritePixelsInfo(dstSurface, width, height, srcConfig, srcOrigin,
                                             &drawPreference, &tempDrawInfo)) {
         return false;
     }

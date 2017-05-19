@@ -659,7 +659,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
-                                   GrPixelConfig srcConfig,
+                                   GrPixelConfig srcConfig, GrSurfaceOrigin srcOrigin,
                                    DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
     if (GrPixelConfigIsCompressed(dstSurface->config())) {
@@ -703,7 +703,7 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcConfig) == dstSurface->config();
 
     if (configsAreRBSwaps) {
-        if (!this->caps()->isConfigTexturable(srcConfig)) {
+        if (!this->caps()->isConfigTexturable(srcConfig, srcOrigin)) {
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
             tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
             tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
@@ -1068,7 +1068,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     // If we're uploading compressed data then we should be using uploadCompressedTexData
     SkASSERT(!GrPixelConfigIsCompressed(dataConfig));
 
-    SkASSERT(this->caps()->isConfigTexturable(texConfig));
+    SkASSERT(this->caps()->isConfigTexturable(texConfig, texOrigin));
 
     // texels is const.
     // But we may need to flip the texture vertically to prepare it.
@@ -1263,7 +1263,7 @@ bool GrGLGpu::uploadCompressedTexData(GrPixelConfig config, int texWidth, int te
                                       GrSurfaceOrigin texOrigin, GrGLenum target,
                                       const SkTArray<GrMipLevel>& texels, UploadType uploadType,
                                       int left, int top, int width, int height) {
-    SkASSERT(this->caps()->isConfigTexturable(config));
+    SkASSERT(this->caps()->isConfigTexturable(config, texOrigin));
 
     // No support for software flip y, yet...
     SkASSERT(kBottomLeft_GrSurfaceOrigin != texOrigin);
@@ -4313,7 +4313,7 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 
 GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                          GrPixelConfig config, bool /*isRT*/) {
-    if (!this->caps()->isConfigTexturable(config)) {
+    if (!this->caps()->isConfigTexturable(config, kTopLeft_GrSurfaceOrigin)) {
         return false;
     }
     std::unique_ptr<GrGLTextureInfo> info = skstd::make_unique<GrGLTextureInfo>();

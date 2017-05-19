@@ -71,7 +71,7 @@ public:
                              ReadPixelTempDrawInfo*) override;
 
     bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
+                              GrPixelConfig srcConfig, GrSurfaceOrigin srcOrigin, DrawPreference*,
                               WritePixelTempDrawInfo*) override;
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant

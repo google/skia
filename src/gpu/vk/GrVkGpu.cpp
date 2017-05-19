@@ -313,7 +313,8 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
-                                   GrPixelConfig srcConfig, DrawPreference* drawPreference,
+                                   GrPixelConfig srcConfig, GrSurfaceOrigin srcOrigin,
+                                   DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
     if (GrPixelConfigIsCompressed(dstSurface->config())) {
         return false;
@@ -351,7 +352,7 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
 
     bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcConfig) == dstSurface->config();
 
-    if (!this->vkCaps().isConfigTexturable(srcConfig) && configsAreRBSwaps) {
+    if (!this->vkCaps().isConfigTexturable(srcConfig, srcOrigin) && configsAreRBSwaps) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
         tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
         tempDrawInfo->fWriteConfig = dstSurface->config();
@@ -576,7 +577,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
         return false;
     }
 
-    SkASSERT(this->caps()->isConfigTexturable(tex->config()));
+    SkASSERT(this->caps()->isConfigTexturable(tex->config(), tex->origin()));
     size_t bpp = GrBytesPerPixel(dataConfig);
 
     // texels is const.
@@ -709,7 +710,7 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
         return nullptr;
     }
 
-    if (!fVkCaps->isConfigTexturable(desc.fConfig)) {
+    if (!fVkCaps->isConfigTexturable(desc.fConfig, desc.fOrigin)) {
         return nullptr;
     }
 
@@ -1105,7 +1106,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
     }
 
     bool linearTiling = false;
-    if (!fVkCaps->isConfigTexturable(config)) {
+    if (!fVkCaps->isConfigTexturable(config, kTopLeft_GrSurfaceOrigin)) {
         return 0;
     }
 

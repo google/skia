@@ -154,6 +154,7 @@ public:
      * @param width         width of rectangle to write in pixels.
      * @param height        height of rectangle to write in pixels.
      * @param srcConfig     the pixel config of the source buffer
+     * @param srcOrigin     the origin of the source buffer
      * @param srcColorSpace color space of the source buffer
      * @param buffer        memory to read pixels from
      * @param rowBytes      number of bytes between consecutive rows. Zero
@@ -164,7 +165,8 @@ public:
      */
     bool writeSurfacePixels(GrSurfaceContext* dst,
                             int left, int top, int width, int height,
-                            GrPixelConfig srcConfig, SkColorSpace* srcColorSpace, const void* buffer,
+                            GrPixelConfig srcConfig, GrSurfaceOrigin srcOrigin,
+                            SkColorSpace* srcColorSpace, const void* buffer,
                             size_t rowBytes,
                             uint32_t pixelOpsFlags = 0);
 

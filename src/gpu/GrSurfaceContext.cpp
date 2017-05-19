@@ -65,6 +65,7 @@ bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBu
 
     return fContext->contextPriv().writeSurfacePixels(this, x, y,
                                                       srcInfo.width(), srcInfo.height(),
-                                                      config, srcInfo.colorSpace(),
+                                                      config, kTopLeft_GrSurfaceOrigin,
+                                                      srcInfo.colorSpace(),
                                                       srcBuffer, srcRowBytes, flags);
 }
