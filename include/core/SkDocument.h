@@ -39,14 +39,17 @@ struct IXpsOMObjectFactory;
  */
 class SK_API SkDocument : public SkRefCnt {
 public:
+    /*
+     * An optional DateTime time stamp, used in Document metadata.  If fEnabled is false
+     * (the default value), the DateTime is considered unknown or unset.
+     */
     struct OptionalTimestamp {
         SkTime::DateTime fDateTime;
-        bool fEnabled;
-        OptionalTimestamp() : fEnabled(false) {}
+        bool fEnabled = false;
     };
 
     /**
-     *  Optional metadata to be passed into the PDF factory function.
+     *  Optional Metadata to be passed into the PDF factory function.
      */
     struct PDFMetadata {
         /**
@@ -89,43 +92,46 @@ public:
     };
 
     /**
-     *  Create a PDF-backed document, writing the results into a
-     *  SkWStream.
+     *  Create a PDF -backed document, writing the results into an
+     *  output stream.
      *
      *  PDF pages are sized in point units. 1 pt == 1/72 inch ==
      *  127/360 mm.
      *
+     *  Example: https://fiddle.skia.org/c/@SkDocument_MakePDF
+     *
      *  @param stream A PDF document will be written to this
      *         stream.  The document may write to the stream at
-     *         anytime during its lifetime, until either close() is
+     *         anytime during its lifetime, until either close is
      *         called or the document is deleted.
-     *  @param dpi The DPI (pixels-per-inch) at which features without
-     *         native PDF support will be rasterized (e.g. draw image
-     *         with perspective, draw text with perspective, ...)  A
-     *         larger DPI would create a PDF that reflects the
+     *  @param dpi The dots-per-inch (pixels-per-inch) at which features
+     *         without native PDF support will be rasterized (e.g. draw
+     *         image with perspective, draw text with perspective, ...)
+     *         A larger value would create a PDF that reflects the
      *         original intent with better fidelity, but it can make
      *         for larger PDF files too, which would use more memory
      *         while rendering, and it would be slower to be processed
      *         or sent online or to printer.
-     *  @param metadata a PDFmetadata object.  Any fields may be left
+     *  @param metadata a PDFMetadata object.  Any fields may be left
      *         empty.
      *  @param jpegEncoder For PDF documents, if a jpegEncoder is set,
-     *         use it to encode SkImages and SkBitmaps as [JFIF]JPEGs.
+     *         use it to encode Image and Bitmap as [JFIF]JPEG.
      *         This feature is deprecated and is only supplied for
-     *         backwards compatability.
-     *         The prefered method to create PDFs with JPEG images is
-     *         to use SkImage::NewFromEncoded() and not jpegEncoder.
-     *         Chromium uses NewFromEncoded.
-     *         If the encoder is unset, or if jpegEncoder->onEncode()
-     *         returns NULL, fall back on encoding images losslessly
-     *         with Deflate.
-     *  @param pdfa Iff true, include XMP metadata, a document UUID,
+     *         backwards compatibility.
+     *         The preferred method to create a PDF with JPEG images is
+     *         to use SkImage::MakeFromEncoded and not jpegEncoder.
+     *         Chromium uses MakeFromEncoded.
+     *         If the encoder is unset, or if jpegEncoder->onEncode
+     *         returns nullptr, fall back on encoding images without
+     *         loss with Deflate.
+     *  @param pdfa If set, include XMP metadata, a document UUID,
      *         and sRGB output intent information.  This adds length
-     *         to the document and makes it non-reproducable, but are
-     *         necessary features for PDF/A-2b conformance
+     *         to the document and makes it non-reproducible, but are
+     *         necessary features for PDF/A-2b conformance.
      *
-     *  @returns NULL if there is an error, otherwise a newly created
-     *           PDF-backed SkDocument.
+     *  @return nullptr if there is an error, otherwise a newly created
+     *          PDF -backed SkDocument.
+     *
      */
     static sk_sp<SkDocument> MakePDF(SkWStream* stream,
                                      SkScalar dpi,
@@ -133,6 +139,25 @@ public:
                                      sk_sp<SkPixelSerializer> jpegEncoder,
                                      bool pdfa);
 
+    /**
+     *  Shorthand for the other MakePDF function.
+     *
+     *  @param stream A PDF document will be written to this
+     *         stream.  The document may write to the stream at
+     *         anytime during its lifetime, until either close is
+     *         called or the document is deleted.
+     *  @param dpi The dots-per-inch (pixels-per-inch) at which features
+     *         without native PDF support will be rasterized (e.g. draw
+     *         image with perspective, draw text with perspective, ...)
+     *         A larger value would create a PDF that reflects the
+     *         original intent with better fidelity, but it can make
+     *         for larger PDF files too, which would use more memory
+     *         while rendering, and it would be slower to be processed
+     *         or sent online or to printer.
+     *
+     *  @return nullptr if there is an error, otherwise a newly created
+     *          PDF -backed SkDocument.
+     */
     static sk_sp<SkDocument> MakePDF(SkWStream* stream,
                                      SkScalar dpi = SK_ScalarDefaultRasterDPI) {
         return SkDocument::MakePDF(stream, dpi, SkDocument::PDFMetadata(),
@@ -140,18 +165,31 @@ public:
     }
 
     /**
-     *  Create a PDF-backed document, writing the results into a file.
+     *  Create a PDF -backed document, writing the results into a file.
+     *
+     *  @param outputFilePath Where to write the PDF output.
+     *  @param dpi The dots-per-inch (pixels-per-inch) at which features
+     *         without native PDF support will be rasterized (e.g. draw
+     *         image with perspective, draw text with perspective, ...)
+     *         A larger value would create a PDF that reflects the
+     *         original intent with better fidelity, but it can make
+     *         for larger PDF files too, which would use more memory
+     *         while rendering, and it would be slower to be processed
+     *         or sent online or to printer.
+     *
+     *  @return nullptr if there is an error, otherwise a newly created
+     *          PDF -backed SkDocument.
      */
     static sk_sp<SkDocument> MakePDF(const char outputFilePath[],
                                      SkScalar dpi = SK_ScalarDefaultRasterDPI);
 
 #ifdef SK_BUILD_FOR_WIN
     /**
-     *  Create a XPS-backed document, writing the results into the stream.
+     *  Create a XPS -backed document, writing the results into the stream.
      *
      *  @param stream A XPS document will be written to this stream.  The
      *                document may write to the stream at anytime during its
-     *                lifetime, until either close() or abort() are called or
+     *                lifetime, until either close or abort are called or
      *                the document is deleted.
      *  @param xpsFactory A pointer to a COM XPS factory.  Must be non-null.
      *                    The document will take a ref to the factory. See
@@ -165,7 +203,8 @@ public:
      *             while rendering, and it would be slower to be processed
      *             or sent online or to printer.
      *
-     *  @returns nullptr if XPS is not supported.
+     *  @returns nullptr if XPS is not supported, otherwise a newly created
+     *           XPS -backed SkDocument.
      */
     static sk_sp<SkDocument> MakeXPS(SkWStream* stream,
                                      IXpsOMObjectFactory* xpsFactory,
@@ -174,29 +213,40 @@ public:
 
     /**
      *  Begin a new page for the document, returning the canvas that will draw
-     *  into the page. The document owns this canvas, and it will go out of
-     *  scope when endPage() or close() is called, or the document is deleted.
+     *  into the page.
+     *
+     *  @param width Page width in units specific to the Document type.
+     *  @param height Page height in units specific to the Document type.
+     *  @param content If set, the Canvas will be clipped to this Rect and
+     *         then translated so that the origin is the top-left corner of
+     *         the content.
+     *
+     *  @return A pointer to a Canvas for this page.  The Document owns this
+     *          Canvas, and it will go out of scope when endPage or close
+     *          is called, or the Document is deleted.  Can return nullptr
+     *          if width or height is non-positive, if the content Rect does
+     *          not intersect the page, or if the Document is closed.
      */
     SkCanvas* beginPage(SkScalar width, SkScalar height,
-                        const SkRect* content = NULL);
+                        const SkRect* content = nullptr);
 
     /**
-     *  Call endPage() when the content for the current page has been drawn
-     *  (into the canvas returned by beginPage()). After this call the canvas
-     *  returned by beginPage() will be out-of-scope.
+     *  Call endPage when the content for the current page has been drawn
+     *  (into the canvas returned by beginPage). After this call the canvas
+     *  returned by beginPage will be out-of-scope.
      */
     void endPage();
 
     /**
-     *  Call close() when all pages have been drawn. This will close the file
-     *  or stream holding the document's contents. After close() the document
+     *  Call close when all pages have been drawn. This will close the file
+     *  or stream holding the document's contents. After close the document
      *  can no longer add new pages. Deleting the document will automatically
-     *  call close() if need be.
+     *  call close if need be.
      */
     void close();
 
     /**
-     *  Call abort() to stop producing the document immediately.
+     *  Call abort to stop producing the document immediately.
      *  The stream output must be ignored, and should not be trusted.
      */
     void abort();
@@ -204,7 +254,7 @@ public:
 protected:
     SkDocument(SkWStream*, void (*)(SkWStream*, bool aborted));
 
-    // note: subclasses must call close() in their destructor, as the base class
+    // note: subclasses must call close in their destructor, as the base class
     // cannot do this for them.
     virtual ~SkDocument();
 
