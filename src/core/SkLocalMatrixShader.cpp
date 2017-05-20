@@ -67,7 +67,8 @@ bool SkLocalMatrixShader::onAppendStages(SkRasterPipeline* p,
                                          SkArenaAlloc* scratch,
                                          const SkMatrix& ctm,
                                          const SkPaint& paint,
-                                         const SkMatrix* localM) const {
+                                         const SkMatrix* localM,
+                                         StageHandle*) const {
     SkMatrix tmp;
     if (localM) {
         tmp.setConcat(*localM, this->getLocalMatrix());
