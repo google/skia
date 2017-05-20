@@ -286,7 +286,7 @@ STAGE(seed_shader) {
     // It's important for speed to explicitly cast(x) and cast(y),
     // which has the effect of splatting them to vectors before converting to floats.
     // On Intel this breaks a data dependency on previous loop iterations' registers.
-    r = cast(x) + 0.5f + unaligned_load<F>(k->iota);
+    r = cast(x) + 0.5f + unaligned_load<F>(k->iota_F);
     g = cast(y) + 0.5f;
     b = 1.0f;
     a = 0;
@@ -297,7 +297,7 @@ STAGE(dither) {
     auto c = (const SkJumper_DitherCtx*)ctx;
 
     // Get [(x,y), (x+1,y), (x+2,y), ...] loaded up in integer vectors.
-    U32 X = trunc_((int)x + unaligned_load<F>(k->iota)),  // Going through float is kind of lazy..
+    U32 X = x + unaligned_load<U32>(k->iota_U32),
         Y = (uint32_t)*c->y;
 
     // We're doing 8x8 ordered dithering, see https://en.wikipedia.org/wiki/Ordered_dithering.
