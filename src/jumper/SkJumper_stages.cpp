@@ -99,6 +99,29 @@ struct LazyCtx {
         return limit;
     }
 
+    MAYBE_MSABI
+    extern "C" void WRAP(start_pipeline_bulk)(void** program, K* k,
+        int* y, const int* L, const int* R, size_t height,
+        void** dstPtr, void* base, int xshift, size_t rowbytes) {
+        auto start = (Stage*)load_and_inc(program);
+        auto startp = program;
+
+        for (int h = 0; h < height; h++) {
+            //if (L[h]>=R[h]) continue;
+            F v{};
+            *dstPtr = ((char*)base) + (*y) * rowbytes;
+            size_t x = L[h];
+            while (x + kStride <= R[h] + 1) {
+                start(x,startp,k,0,    v,v,v,v, v,v,v,v);
+                x += kStride;
+            }
+            if (size_t tail = R[h] - x + 1) {
+                start(x,startp,k,tail, v,v,v,v, v,v,v,v);
+            }
+            (*y)++;
+        }
+    }
+
     #define STAGE(name)                                                           \
         SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);     \
@@ -130,6 +153,13 @@ struct LazyCtx {
             x += kStride;
         }
         return x;
+    }
+
+    MAYBE_MSABI
+    extern "C" void WRAP(start_pipeline_bulk)(
+        void** program, K* k,
+        int* y, const int* L, const int* R, size_t height, void** dstPtr, void* base, int xshift, size_t rowbytes) {
+
     }
 
     // This STAGE macro makes it easier to write stages, handling all the Stage chaining for you.

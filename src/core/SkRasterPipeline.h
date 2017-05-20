@@ -123,6 +123,9 @@ public:
     // Runs the pipeline walking x through [x,x+n).
     void run(size_t x, size_t n) const;
 
+    void runBulk(
+        int* y, const int* L, const int* R, size_t height, void** dstPtr, void* base, int xshift, size_t rowbytes) const;
+
     void dump() const;
 
     struct Stage {

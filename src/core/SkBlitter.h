@@ -34,6 +34,8 @@ public:
     /// Blit a horizontal run of one or more pixels.
     virtual void blitH(int x, int y, int width) = 0;
 
+    virtual void blitRuns(int start_y, const int left[], const int rite[], int count);
+
     /// Blit a horizontal run of antialiased pixels; runs[] is a *sparse*
     /// zero-terminated run-length encoding of spans of constant alpha values.
     /// The runs[] and antialias[] work together to represent long runs of pixels with the same
@@ -248,6 +250,7 @@ public:
     }
 
     void blitH(int x, int y, int width) override;
+    void blitRuns(int start_y, const int left[], const int rite[], int count) override;
     void blitAntiH(int x, int y, const SkAlpha[], const int16_t runs[]) override;
     void blitV(int x, int y, int height, SkAlpha alpha) override;
     void blitRect(int x, int y, int width, int height) override;
