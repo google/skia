@@ -34,6 +34,24 @@
       "revId": "ffef2bb050cb1608cc5cd6850524608ef744ef40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cc92ac5_b4805247",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-20T02:48:04Z",
+      "side": 1,
+      "message": "Our hope is we can push this further down than I have here, and save yet more overhead getting into the actual stages. Herb is working on this.",
+      "parentUuid": "c945adde_62be9b38",
+      "revId": "ffef2bb050cb1608cc5cd6850524608ef744ef40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
