@@ -51,7 +51,8 @@
 static const int SkJumper_kMaxStride = 8;
 
 struct SkJumper_constants {
-    float iota[SkJumper_kMaxStride];   //  0,1,2,3,4,...
+    float    iota_F  [SkJumper_kMaxStride];   //  0,1,2,3,4,...
+    uint32_t iota_U32[SkJumper_kMaxStride];   //  0,1,2,3,4,...
 };
 
 struct SkJumper_GatherCtx {

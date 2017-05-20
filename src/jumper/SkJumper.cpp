@@ -22,7 +22,8 @@
 // It's fine to rearrange and add new ones if you update SkJumper_constants.
 using K = const SkJumper_constants;
 static K kConstants = {
-    {0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f},
+    {0,1,2,3,4,5,6,7},
+    {0,1,2,3,4,5,6,7},
 };
 
 // We can't express the real types of most stage functions portably, so we use a stand-in.
