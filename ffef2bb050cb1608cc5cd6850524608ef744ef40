@@ -16,6 +16,24 @@
       "revId": "ffef2bb050cb1608cc5cd6850524608ef744ef40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c945adde_62be9b38",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-20T02:40:41Z",
+      "side": 1,
+      "message": "In this case, it was just expediency to try out the new virtual. I think the memset check still makes sense.",
+      "parentUuid": "68be9ce7_892baa7f",
+      "revId": "ffef2bb050cb1608cc5cd6850524608ef744ef40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
