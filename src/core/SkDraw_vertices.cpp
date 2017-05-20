@@ -299,7 +299,7 @@ namespace {
 
         bool onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
                             const SkMatrix& ctm, const SkPaint& paint,
-                            const SkMatrix* localM) const override {
+                            const SkMatrix* localM, StageHandle*) const override {
             // We control the shader graph ancestors, so we know there's no local matrix being
             // injected before this.
             SkASSERT(!localM);
@@ -394,6 +394,15 @@ static bool update_tricolor_matrix(const SkMatrix& ctmInv,
     return true;
 }
 
+// Convert the SkColors into float colors. The conversion depends on some conditions:
+// - If the pixmap has a dst colorspace, we have to be "color-correct".
+//   Do we map into dst-colorspace before or after we interpolate?
+// - We have to decide when to apply per-color alpha (before or after we interpolate)
+//
+// For now, we will take a simple approach, but recognize this is just a start:
+// - convert colors into dst colorspace before interpolation (matches gradients)
+// - apply per-color alpha before interpolation (matches old version of vertices)
+//
 static SkPM4f* convert_colors(const SkColor src[], int count, SkColorSpace* deviceCS,
                               SkArenaAlloc* alloc) {
     SkPM4f* dst = alloc->makeArray<SkPM4f>(count);
@@ -439,6 +448,11 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
         return;
     }
 
+    SkShader* shader = paint.getShader();
+    if (!shader) {
+        textures = nullptr;
+    }
+
     // transform out vertices into device coordinates
     SkAutoSTMalloc<16, SkPoint> storage(count);
     SkPoint* devVerts = storage.get();
@@ -461,15 +475,6 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
         Matrix43         matrix43;
         SkRasterPipeline shaderPipeline;
 
-        // Convert the SkColors into float colors. The conversion depends on some conditions:
-        // - If the pixmap has a dst colorspace, we have to be "color-correct".
-        //   Do we map into dst-colorspace before or after we interpolate?
-        // - We have to decide when to apply per-color alpha (before or after we interpolate)
-        //
-        // For now, we will take a simple approach, but recognize this is just a start:
-        // - convert colors into dst colorspace before interpolation (matches gradients)
-        // - apply per-color alpha before interpolation (matches old version of vertices)
-        //
         SkPM4f* dstColors = convert_colors(colors, count, fDst.colorSpace(), &alloc);
 
         shaderPipeline.append(SkRasterPipeline::matrix_4x3, &matrix43);
@@ -502,10 +507,43 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
         return;
     }
 
+    if (!colors && textures && false) {
+        char             arenaStorage[4096];
+        SkArenaAlloc     alloc(arenaStorage, sizeof(storage));
+        SkRasterPipeline shaderPipeline;
+        SkShader::StageHandle hdl = 0;
+
+        if (!shader->appendStages(&shaderPipeline, fDst.colorSpace(), &alloc, *fMatrix,
+                                 paint, nullptr, &hdl)) {
+            return;
+        }
+
+        bool is_opaque = shader->isOpaque(),
+        wants_dither = paint.isDither();
+        auto blitter = SkCreateRasterPipelineBlitter(fDst, paint, *fMatrix, shaderPipeline,
+                                                     is_opaque, wants_dither, &alloc);
+        SkASSERT(!blitter->isNullBlitter());
+
+        // setup our state and function pointer for iterating triangles
+        VertState       state(count, indices, indexCount);
+        VertState::Proc vertProc = state.chooseProc(vmode);
+
+        while (vertProc(&state)) {
+            SkPoint tmp[] = {
+                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
+            };
+            SkMatrix localM;
+            texture_to_matrix(state, vertices, textures, &localM);
+            if (shader->updateStage(hdl, SkMatrix::Concat(*fMatrix, localM))) {
+                SkScan::FillTriangle(tmp, *fRC, blitter);
+            }
+        }
+        return;
+    }
+
     auto triShader = sk_make_sp<SkTriColorShader>();
     SkPaint p(paint);
 
-    SkShader* shader = p.getShader();
     if (nullptr == shader) {
         // if we have no shader, we ignore the texture coordinates
         textures = nullptr;

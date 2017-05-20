@@ -233,7 +233,8 @@ protected:
 
     bool onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS, SkArenaAlloc* alloc,
                         const SkMatrix& ctm, const SkPaint& paint,
-                        const SkMatrix* localM) const override;
+                        const SkMatrix* localM, StageHandle*) const override;
+    bool onUpdateStage(StageHandle hdl, const SkMatrix& invCTM) const override;
 
     virtual bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                              SkMatrix* matrix,
