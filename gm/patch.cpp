@@ -112,7 +112,7 @@ DEF_SIMPLE_GM(patch_primitive, canvas, 1500, 1100) {
                         break;
                     case 3:
                         paint.setShader(shader);
-                        canvas->drawPatch(cubics, colors, texCoords, modes[y], paint);
+                     //   canvas->drawPatch(cubics, colors, texCoords, modes[y], paint);
                         paint.setShader(nullptr);
                         break;
                     default:

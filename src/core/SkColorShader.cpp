@@ -319,7 +319,8 @@ bool SkColorShader::onAppendStages(SkRasterPipeline* p,
                                    SkArenaAlloc* scratch,
                                    const SkMatrix&,
                                    const SkPaint&,
-                                   const SkMatrix*) const {
+                                   const SkMatrix*,
+                                   StageHandle*) const {
     auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
     p->append(SkRasterPipeline::constant_color, color);
     return true;
@@ -330,7 +331,8 @@ bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
                                     SkArenaAlloc* scratch,
                                     const SkMatrix&,
                                     const SkPaint&,
-                                    const SkMatrix*) const {
+                                    const SkMatrix*,
+                                    StageHandle*) const {
     auto color = scratch->make<SkPM4f>(to_colorspace(fColor4, fColorSpace.get(), dst).premul());
     p->append(SkRasterPipeline::constant_color, color);
     return true;

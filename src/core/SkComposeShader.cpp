@@ -126,19 +126,26 @@ bool SkComposeShader::isRasterPipelineOnly() const {
 
 bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
                                      SkArenaAlloc* alloc, const SkMatrix& ctm,
-                                     const SkPaint& paint, const SkMatrix* localM) const {
+                                     const SkPaint& paint, const SkMatrix* localM,
+                                     StageHandle* hdlPtr) const {
     struct Storage {
+        StageHandle fHandleA, fHandleB;
         float   fXY[4 * SkJumper_kMaxStride];
         float   fRGBA[4 * SkJumper_kMaxStride];
         float   fAlpha;
     };
     auto storage = alloc->make<Storage>();
 
+    if (hdlPtr) {
+        *hdlPtr = storage;
+    }
+
     // We need to save off device x,y (inputs to shader), since after calling fShaderA they
     // will be smashed, and I'll need them again for fShaderB. store_rgba saves off 4 registers
     // even though we only need to save r,g.
     pipeline->append(SkRasterPipeline::store_rgba, storage->fXY);
-    if (!fShaderB->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) { // SRC
+    if (!fShaderB->appendStages(pipeline, dstCS, alloc, ctm, paint, localM,
+                                &storage->fHandleB)) { // SRC
         return false;
     }
     // This outputs r,g,b,a, which we'll need later when we apply the mode, but we save it off now
@@ -146,7 +153,8 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
     pipeline->append(SkRasterPipeline::store_rgba, storage->fRGBA);
     // Now we restore the device x,y for the next shader
     pipeline->append(SkRasterPipeline::load_rgba, storage->fXY);
-    if (!fShaderA->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {  // DST
+    if (!fShaderA->appendStages(pipeline, dstCS, alloc, ctm, paint, localM,
+                                &storage->fHandleA)) {  // DST
         return false;
     }
     // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode
