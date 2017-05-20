@@ -273,7 +273,8 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
 
 bool SkPictureShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
                                      const SkMatrix& ctm, const SkPaint& paint,
-                                     const SkMatrix* localMatrix) const {
+                                     const SkMatrix* localMatrix,
+                                     StageHandle*) const {
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *alloc->make<sk_sp<SkShader>>();
     bitmapShader = this->refBitmapShader(ctm, localMatrix, cs);
