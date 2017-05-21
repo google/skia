@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b167374e_8386c957",
+        "filename": "src/core/SkComposeShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-21T15:21:38Z",
+      "side": 1,
+      "message": "It will (it definitely needs to). This was just enough to make it all link, and test gradients.",
+      "parentUuid": "0db5d89b_53b8c2c0",
+      "revId": "0b721b0019a32884e351f03d66ccdfa97e24ea2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "280aaa3f_f077b6a6",
         "filename": "src/core/SkDraw_vertices.cpp",
         "patchSetId": 4
@@ -47,6 +65,30 @@
       "writtenOn": "2017-05-21T00:19:45Z",
       "side": 1,
       "message": "This breaks if you go back and forth between perspective and affine, no?  You may change the matrix type, but we\u0027ll still be running whichever original matrix_2x3 or matrix_perspective stage code we first picked.",
+      "range": {
+        "startLine": 557,
+        "startChar": 0,
+        "endLine": 559,
+        "endChar": 5
+      },
+      "revId": "0b721b0019a32884e351f03d66ccdfa97e24ea2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b075873_83f3d1a6",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 559,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-21T15:21:38Z",
+      "side": 1,
+      "message": "Understood. the updater\u0027s contract has to be that it will never go from one to the other (in the triangle case, this is easy, as all it ever does is concat an affine. Discussed this with florin already. I will robusterize the code to assert this, and the gradient code will just store which one it was at the beginning (when it appended the matrix stage).",
+      "parentUuid": "ec321774_a7cb46bc",
       "range": {
         "startLine": 557,
         "startChar": 0,
