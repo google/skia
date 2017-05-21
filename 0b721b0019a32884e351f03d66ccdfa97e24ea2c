@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0db5d89b_53b8c2c0",
+        "filename": "src/core/SkComposeShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-05-21T00:19:45Z",
+      "side": 1,
+      "message": "Why do we track handles here if this class doesn\u0027t override onUpdateStage?",
+      "revId": "0b721b0019a32884e351f03d66ccdfa97e24ea2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "280aaa3f_f077b6a6",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-05-21T00:19:45Z",
+      "side": 1,
+      "message": "Did you happen to time simply re-building the blitter from scratch per triangle?  That\u0027d be an interesting point of reference.",
+      "revId": "0b721b0019a32884e351f03d66ccdfa97e24ea2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec321774_a7cb46bc",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 559,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-05-21T00:19:45Z",
+      "side": 1,
+      "message": "This breaks if you go back and forth between perspective and affine, no?  You may change the matrix type, but we\u0027ll still be running whichever original matrix_2x3 or matrix_perspective stage code we first picked.",
+      "range": {
+        "startLine": 557,
+        "startChar": 0,
+        "endLine": 559,
+        "endChar": 5
+      },
+      "revId": "0b721b0019a32884e351f03d66ccdfa97e24ea2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
