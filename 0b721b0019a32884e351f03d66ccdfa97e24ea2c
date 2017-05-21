@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "16eb288a_83821f13",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-21T15:23:52Z",
+      "side": 1,
+      "message": "Have not timed that yet.\n\nThis is still a WIP, and once it handles all cases (e.g. composeshader for colors \u0026\u0026 textures) we can sit back and see if we can make it simpler (or faster).",
+      "parentUuid": "280aaa3f_f077b6a6",
+      "revId": "0b721b0019a32884e351f03d66ccdfa97e24ea2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ec321774_a7cb46bc",
         "filename": "src/effects/gradients/SkGradientShader.cpp",
         "patchSetId": 4
