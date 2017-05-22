@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "668d95d7_cff611ff",
+        "filename": "samplecode/SampleShadowUtils.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-22T20:05:38Z",
+      "side": 1,
+      "message": "It\u0027s useful for the sample to have a global light so you can translate the paths around and test how the shadows change relative to the fixed light.",
+      "range": {
+        "startLine": 157,
+        "startChar": 47,
+        "endLine": 157,
+        "endChar": 50
+      },
+      "revId": "aa517e661a8596f60ff30919a48c8a6996a5f15a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
