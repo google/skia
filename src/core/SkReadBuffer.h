@@ -130,6 +130,7 @@ public:
     virtual void readColor4f(SkColor4f* color);
     virtual void readPoint(SkPoint* point);
     SkPoint readPoint() { SkPoint p; this->readPoint(&p); return p; }
+    virtual void readPoint3(SkPoint3* point);
     virtual void readMatrix(SkMatrix* matrix);
     virtual void readIRect(SkIRect* rect);
     virtual void readRect(SkRect* rect);
