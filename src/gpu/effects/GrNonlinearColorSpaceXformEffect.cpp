@@ -44,27 +44,30 @@ public:
                                                         &gamutXformName);
         }
 
-        // Helper function to apply a transfer function to a single value
-        SkString tfFuncNameString;
-        static const GrShaderVar gTransferFnFuncArgs[] = {
-            GrShaderVar("x", kFloat_GrSLType),
-            GrShaderVar("coeffs", kFloat_GrSLType,
-                        GrNonlinearColorSpaceXformEffect::kNumTransferFnCoeffs),
-        };
-        SkString transferFnBody;
-        // Temporaries to make evaluation line readable
-        transferFnBody.printf("float A = coeffs[0];");
-        transferFnBody.append("float B = coeffs[1];");
-        transferFnBody.append("float C = coeffs[2];");
-        transferFnBody.append("float D = coeffs[3];");
-        transferFnBody.append("float E = coeffs[4];");
-        transferFnBody.append("float F = coeffs[5];");
-        transferFnBody.append("float G = coeffs[6];");
-        transferFnBody.appendf("return (x < D) ? (C * x) + F : pow(A * x + B, G) + E;");
-        fragBuilder->emitFunction(kFloat_GrSLType, "transfer_fn",
-                                  SK_ARRAY_COUNT(gTransferFnFuncArgs), gTransferFnFuncArgs,
-                                  transferFnBody.c_str(), &tfFuncNameString);
-        const char* tfFuncName = tfFuncNameString.c_str();
+        // Helper function to apply the src or dst transfer function to a single value
+        SkString tfFuncNames[2];
+        for (size_t i = 0; i < 2; ++i) {
+            const char* coeffsName = i ? dstCoeffsName : srcCoeffsName;
+            if (!coeffsName) {
+                continue;
+            }
+            const char* fnName = i ? "dst_transfer_fn" : "src_transfer_fn";
+            static const GrShaderVar gTransferFnFuncArgs[] = {
+                    GrShaderVar("x", kFloat_GrSLType),
+            };
+            SkString transferFnBody;
+            // Temporaries to make evaluation line readable
+            transferFnBody.printf("float A = %s[0];", coeffsName);
+            transferFnBody.appendf("float B = %s[1];", coeffsName);
+            transferFnBody.appendf("float C = %s[2];", coeffsName);
+            transferFnBody.appendf("float D = %s[3];", coeffsName);
+            transferFnBody.appendf("float E = %s[4];", coeffsName);
+            transferFnBody.appendf("float F = %s[5];", coeffsName);
+            transferFnBody.appendf("float G = %s[6];", coeffsName);
+            transferFnBody.appendf("return (x < D) ? (C * x) + F : pow(A * x + B, G) + E;");
+            fragBuilder->emitFunction(kFloat_GrSLType, fnName, SK_ARRAY_COUNT(gTransferFnFuncArgs),
+                                      gTransferFnFuncArgs, transferFnBody.c_str(), &tfFuncNames[i]);
+        }
 
         if (nullptr == args.fInputColor) {
             args.fInputColor = "vec4(1)";
@@ -77,9 +80,9 @@ public:
 
         // 2: Apply src transfer function (to get to linear RGB)
         if (srcCoeffsName) {
-            fragBuilder->codeAppendf("color.r = %s(color.r, %s);", tfFuncName, srcCoeffsName);
-            fragBuilder->codeAppendf("color.g = %s(color.g, %s);", tfFuncName, srcCoeffsName);
-            fragBuilder->codeAppendf("color.b = %s(color.b, %s);", tfFuncName, srcCoeffsName);
+            fragBuilder->codeAppendf("color.r = %s(color.r);", tfFuncNames[0].c_str());
+            fragBuilder->codeAppendf("color.g = %s(color.g);", tfFuncNames[0].c_str());
+            fragBuilder->codeAppendf("color.b = %s(color.b);", tfFuncNames[0].c_str());
         }
 
         // 3: Apply gamut matrix
@@ -91,9 +94,9 @@ public:
 
         // 4: Apply dst transfer fn
         if (dstCoeffsName) {
-            fragBuilder->codeAppendf("color.r = %s(color.r, %s);", tfFuncName, dstCoeffsName);
-            fragBuilder->codeAppendf("color.g = %s(color.g, %s);", tfFuncName, dstCoeffsName);
-            fragBuilder->codeAppendf("color.b = %s(color.b, %s);", tfFuncName, dstCoeffsName);
+            fragBuilder->codeAppendf("color.r = %s(color.r);", tfFuncNames[1].c_str());
+            fragBuilder->codeAppendf("color.g = %s(color.g);", tfFuncNames[1].c_str());
+            fragBuilder->codeAppendf("color.b = %s(color.b);", tfFuncNames[1].c_str());
         }
 
         // 5: Premultiply again
