@@ -402,15 +402,11 @@ static SkPM4f* convert_colors(const SkColor src[], int count, SkColorSpace* devi
             dst[i] = SkPM4f_from_SkColor(src[i], nullptr);
         }
     } else {
-        // For now, we want premul to happen on the colors before interplation. If we later want
-        // to apply it after the interp, pass kUnpremul here.
-        SkAlphaType alphaVerb = kPremul_SkAlphaType;
         auto srcCS = SkColorSpace::MakeSRGB();
         auto dstCS = as_CSB(deviceCS)->makeLinearGamma();
-        SkColorSpaceXform::New(srcCS.get(),
-                               dstCS.get())->apply(SkColorSpaceXform::kRGBA_F32_ColorFormat, dst,
-                                                   SkColorSpaceXform::kBGRA_8888_ColorFormat, src,
-                                                   count, alphaVerb);
+        SkColorSpaceXform::Apply(dstCS.get(), SkColorSpaceXform::kRGBA_F32_ColorFormat, dst,
+                                 srcCS.get(), SkColorSpaceXform::kBGRA_8888_ColorFormat, src,
+                                 count, SkColorSpaceXform::kPremul_AlphaOp);
     }
     return dst;
 }

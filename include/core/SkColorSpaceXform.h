@@ -60,6 +60,15 @@ public:
 
     virtual ~SkColorSpaceXform() {}
 
+    enum AlphaOp {
+        kPreserve_AlphaOp,      // just transfer src-alpha to dst-alpha
+        kPremul_AlphaOp,        // like kPreserve, but multiplies RGB by it
+        kSrcIsOpaque_AlphaOp,   // src alphas are all 1, this is a perf hint
+    };
+    static bool Apply(SkColorSpace* dstCS, ColorFormat dstFormat, void* dst,
+                      SkColorSpace* srcCS, ColorFormat srcFormat, const void* src,
+                      int count, AlphaOp);
+
 protected:
     SkColorSpaceXform() {}
 };
