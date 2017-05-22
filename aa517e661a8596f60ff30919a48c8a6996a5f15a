@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c7f06601_1936f7bb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-22T20:14:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a34338b9_ad4415ad",
+      "range": {
+        "startLine": 7,
+        "startChar": 6,
+        "endLine": 7,
+        "endChar": 10
+      },
+      "revId": "aa517e661a8596f60ff30919a48c8a6996a5f15a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "668d95d7_cff611ff",
         "filename": "samplecode/SampleShadowUtils.cpp",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "aa517e661a8596f60ff30919a48c8a6996a5f15a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b2b3208_86eeda59",
+        "filename": "samplecode/SampleShadowUtils.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-22T20:14:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "668d95d7_cff611ff",
+      "range": {
+        "startLine": 157,
+        "startChar": 47,
+        "endLine": 157,
+        "endChar": 50
+      },
+      "revId": "aa517e661a8596f60ff30919a48c8a6996a5f15a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
