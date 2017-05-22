@@ -42,6 +42,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     static const size_t kRowBytes = kS * sizeof(int32_t);
 
     GrSurfaceDesc desc;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fConfig = kRGBA_8888_sint_GrPixelConfig;
     desc.fWidth = kS;
     desc.fHeight = kS;
