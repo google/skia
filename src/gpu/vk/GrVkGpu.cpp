@@ -745,6 +745,19 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
         }
     }
 
+    if (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
+        VkClearColorValue zeroClearColor;
+        memset(&zeroClearColor, 0, sizeof(zeroClearColor));
+        VkImageSubresourceRange range;
+        range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        range.baseArrayLayer = 0;
+        range.baseMipLevel = 0;
+        range.layerCount = 1;
+        range.levelCount = 1;
+        tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                            VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
+        this->currentCommandBuffer()->clearColorImage(this, tex, &zeroClearColor, 1, &range);
+    }
     return tex;
 }
 
