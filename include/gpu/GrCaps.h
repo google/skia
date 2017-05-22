@@ -159,7 +159,7 @@ public:
 
     int maxWindowRectangles() const { return fMaxWindowRectangles; }
 
-    virtual bool isConfigTexturable(GrPixelConfig config) const = 0;
+    virtual bool isConfigTexturable(GrPixelConfig) const = 0;
     virtual bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const = 0;
     virtual bool canConfigBeImageStorage(GrPixelConfig config) const = 0;
 

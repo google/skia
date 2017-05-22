@@ -986,9 +986,10 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
         } else if (fUsesMixedSamples) {
             fMSFBOType = kMixedSamples_MSFBOType;
         } else if (ctxInfo.version() >= GR_GL_VER(3,0) ||
-                   ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample") ||
-                   ctxInfo.hasExtension("GL_ANGLE_framebuffer_multisample")) {
+                   ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
             fMSFBOType = kStandard_MSFBOType;
+        } else if (ctxInfo.hasExtension("GL_ANGLE_framebuffer_multisample")) {
+            fMSFBOType = kEXT_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_APPLE_framebuffer_multisample")) {
             fMSFBOType = kES_Apple_MSFBOType;
         }
@@ -1637,7 +1638,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kSRGBA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
-
     // sBGRA is not a "real" thing in OpenGL, but GPUs support it, and on platforms where
     // kN32 == BGRA, we need some way to work with it. (The default framebuffer on Windows
     // is in this format, for example).
@@ -1649,10 +1649,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         GR_GL_BGRA;
     fConfigTable[kSBGRA_8888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     fConfigTable[kSBGRA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    if (fSRGBSupport) {
+    if (fSRGBSupport && kGL_GrGLStandard == standard) {
         fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
             allRenderFlags;
     }
+
     if (texStorageSupported) {
         fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
@@ -1803,6 +1804,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     // [half] floating point textures became part of the standard in ES3.1 / OGL 3.0.
     bool hasFPTextures = false;
     bool hasHalfFPTextures = false;
+    bool rgIsTexturable = false;
     // for now we don't support floating point MSAA on ES
     uint32_t fpRenderFlags = (kGL_GrGLStandard == standard) ? allRenderFlags : nonMSAARenderFlags;
 
@@ -1810,11 +1812,13 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_texture_float")) {
             hasFPTextures = true;
             hasHalfFPTextures = true;
+            rgIsTexturable = true;
         }
     } else {
         if (version >= GR_GL_VER(3, 1)) {
             hasFPTextures = true;
             hasHalfFPTextures = true;
+            rgIsTexturable = true;
         } else {
             if (ctxInfo.hasExtension("GL_OES_texture_float_linear") &&
                 ctxInfo.hasExtension("GL_OES_texture_float")) {
@@ -1836,7 +1840,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[fpconfig].fFormats.fExternalType = GR_GL_FLOAT;
         fConfigTable[fpconfig].fFormatType = kFloat_FormatType;
         if (hasFPTextures) {
-            fConfigTable[fpconfig].fFlags = ConfigInfo::kTextureable_Flag;
+            fConfigTable[fpconfig].fFlags = rgIsTexturable ? ConfigInfo::kTextureable_Flag : 0;
             // For now we only enable rendering to float on desktop, because on ES we'd have to
             // solve many precision issues and no clients actually want this yet.
             if (kGL_GrGLStandard == standard /* || version >= GR_GL_VER(3,2) ||

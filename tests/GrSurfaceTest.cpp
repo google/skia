@@ -70,4 +70,57 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     context->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
 }
 
+#if 0
+// This test checks that the isConfigTexturable and isConfigRenderable are
+// consistent with createTexture's result.
+DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    const GrCaps* caps = context->caps();
+
+    GrPixelConfig configs[] = {
+        kUnknown_GrPixelConfig,
+        kAlpha_8_GrPixelConfig,
+        kGray_8_GrPixelConfig,
+        kRGB_565_GrPixelConfig,
+        kRGBA_4444_GrPixelConfig,
+        kRGBA_8888_GrPixelConfig,
+        kBGRA_8888_GrPixelConfig,
+        kSRGBA_8888_GrPixelConfig,
+        kSBGRA_8888_GrPixelConfig,
+        kRGBA_8888_sint_GrPixelConfig,
+        kETC1_GrPixelConfig,
+        kRGBA_float_GrPixelConfig,
+        kRG_float_GrPixelConfig,
+        kAlpha_half_GrPixelConfig,
+        kRGBA_half_GrPixelConfig,
+    };
+    SkASSERT(kGrPixelConfigCnt == SK_ARRAY_COUNT(configs));
+
+    GrSurfaceDesc desc;
+    desc.fWidth = 64;
+    desc.fHeight = 64;
+
+    for (GrPixelConfig config : configs) {
+        for (GrSurfaceOrigin origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
+            desc.fFlags = kNone_GrSurfaceFlags;
+            desc.fOrigin = origin;
+            desc.fSampleCnt = 0;
+            desc.fConfig = config;
+
+            sk_sp<GrSurface> tex = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
+            REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigTexturable(desc.fConfig,
+                                                                                      desc.fOrigin));
+
+            desc.fFlags = kRenderTarget_GrSurfaceFlag;
+            tex = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
+            REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigRenderable(config, false));
+
+            desc.fSampleCnt = 4;
+            tex = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
+            REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigRenderable(config, true));
+        }
+    }
+}
+#endif
+
 #endif
