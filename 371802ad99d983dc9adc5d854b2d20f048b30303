@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7972aa69_bb685a9a",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-05-22T19:29:04Z",
+      "side": 1,
+      "message": "Oops, this should be srcCT.\n\nFixed.",
+      "range": {
+        "startLine": 361,
+        "startChar": 23,
+        "endLine": 361,
+        "endChar": 28
+      },
+      "revId": "371802ad99d983dc9adc5d854b2d20f048b30303",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
