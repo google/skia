@@ -194,11 +194,11 @@ void SkRasterPipeline::run(size_t x, size_t n) const {
     const size_t limit = x+n;
 
     if (x + gPlatform.min_stride <= limit) {
-        build_pipeline(fStages.data(), SkToInt(fStages.size()), gPlatform, program.get());
+        build_pipeline(&fStages[0], SkToInt(fStages.size()), gPlatform, program.get());
         x = gPlatform.start_pipeline(x, program.get(), &kConstants, limit);
     }
     if (x < limit) {
-        build_pipeline(fStages.data(), SkToInt(fStages.size()), kPortable, program.get());
+        build_pipeline(&fStages[0], SkToInt(fStages.size()), kPortable, program.get());
         kPortable.start_pipeline(x, program.get(), &kConstants, limit);
     }
 }
@@ -207,7 +207,7 @@ std::function<void(size_t, size_t)> SkRasterPipeline::compile(SkArenaAlloc* allo
     gChooseEngineOnce([]{ gPlatform = choose_engine(); });
 
     void** platform = alloc->makeArray<void*>(2*fStages.size() + 1);
-    build_pipeline(fStages.data(), SkToInt(fStages.size()), gPlatform, platform);
+    build_pipeline(&fStages[0], SkToInt(fStages.size()), gPlatform, platform);
 
     if (gPlatform.min_stride == 1) {
         return [=](size_t x, size_t n) {
@@ -217,7 +217,7 @@ std::function<void(size_t, size_t)> SkRasterPipeline::compile(SkArenaAlloc* allo
     }
 
     void** portable = alloc->makeArray<void*>(2*fStages.size() + 1);
-    build_pipeline(fStages.data(), SkToInt(fStages.size()), kPortable, portable);
+    build_pipeline(&fStages[0], SkToInt(fStages.size()), kPortable, portable);
 
     return [=](size_t x, size_t n) {
         const size_t limit = x+n;
