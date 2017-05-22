@@ -338,12 +338,16 @@ def dm_flags(bot):
   # skbug.com/4888
   # Blacklist RAW images (and a few large PNGs) on GPU bots
   # until we can resolve failures.
-  # Also blacklisted on 32-bit Win2k8 for F16 OOM errors.
-  # Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug is running out of memory on the
-  # interlaced images, so blacklist those. For simplicity, blacklist the
-  # RAW images which also use lots of memory.
-  if ('GPU' in bot or ('Win2k8' in bot and 'x86-' in bot)
-      or 'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug' in bot):
+  if 'GPU' in bot:
+    blacklist('_ image _ interlaced1.png')
+    blacklist('_ image _ interlaced2.png')
+    blacklist('_ image _ interlaced3.png')
+    for raw_ext in r:
+      blacklist('_ image _ .%s' % raw_ext)
+
+  # Blacklist memory intensive tests on 32-bit bots.
+  if ('Win2k8' in bot or 'Win8' in bot) and 'x86-' in bot:
+    blacklist('_ image f16 _')
     blacklist('_ image _ interlaced1.png')
     blacklist('_ image _ interlaced2.png')
     blacklist('_ image _ interlaced3.png')
