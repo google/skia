@@ -89,7 +89,7 @@ enum DrawType {
 
     TRANSLATE_Z, // deprecated (M60)
 
-    DRAW_SHADOWED_PICTURE_LIGHTS,  // deprecated (M60)
+    DRAW_SHADOW_REC,
     DRAW_IMAGE_LATTICE,
     DRAW_ARC,
     DRAW_REGION,
@@ -124,6 +124,11 @@ enum SaveLayerRecFlatFlags {
     SAVELAYERREC_HAS_FLAGS      = 1 << 3,
     SAVELAYERREC_HAS_CLIPMASK   = 1 << 4,
     SAVELAYERREC_HAS_CLIPMATRIX = 1 << 5,
+};
+
+enum DrawShadowRecFlags {
+    DRAWSHADOWREC_TRANSPARENT = 1 << 0,
+    DRAWSHADOWREC_FORCE_GEOM = 1 << 1,
 };
 
 ///////////////////////////////////////////////////////////////////////////////
