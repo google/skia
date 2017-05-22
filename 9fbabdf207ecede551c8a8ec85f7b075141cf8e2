@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9b8853fb_841f783a",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-22T21:03:59Z",
+      "side": 1,
+      "message": "This is unrelated to this change. Will remove. It addressed something in an earlier version of the unit test that used different read configs.",
+      "parentUuid": "6d8785e4_27c06742",
+      "range": {
+        "startLine": 269,
+        "startChar": 4,
+        "endLine": 274,
+        "endChar": 0
+      },
+      "revId": "9fbabdf207ecede551c8a8ec85f7b075141cf8e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "78e8f63f_70eee186",
         "filename": "src/gpu/GrSurfaceProxy.cpp",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-22T20:52:19Z",
       "side": 1,
       "message": "Its kind of funny that most of this information was taken off a different GrSufaceDesc, and then we just go and recreated a new one here. Does any of this information change between the ctor and now? Should Proxy just store a GrSurfaceDesc on itself?",
+      "range": {
+        "startLine": 49,
+        "startChar": 3,
+        "endLine": 59,
+        "endChar": 5
+      },
+      "revId": "9fbabdf207ecede551c8a8ec85f7b075141cf8e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19bd1ffb_df5542be",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-22T21:03:59Z",
+      "side": 1,
+      "message": "It did until recently. However, it contains fields and flags that don\u0027t make sense for all GrSurfaces (e.g. a GrRenderTarget cannot be mip mapped, a GrTexture cannot have a sample count but GrTextureRenderTarget can have either). I want to get rid of GrSurfaceDesc entirely and have more specific creation methods that only take the relevant params. This should also make it easier to do the eventual GrFramebuffer refactor. It\u0027s in an intermediate state now where we are still using it in some places but I\u0027ve been whittling it down.",
+      "parentUuid": "78e8f63f_70eee186",
       "range": {
         "startLine": 49,
         "startChar": 3,
