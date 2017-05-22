@@ -44,8 +44,14 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
 
         if (args.fInputCoverage) {
             // We don't think any shaders actually output negative coverage, but just as a safety
-            // check for floating point precision errors we compare with <= here
-            fragBuilder->codeAppendf("if (all(lessThanEqual(%s, vec4(0)))) {"
+            // check for floating point precision errors we compare with <= here. We just check the
+            // rgb values of the coverage since the alpha may not have been set when using lcd. If
+            // we are using single channel coverage alpha will equal to rgb anyways.
+            //
+            // The discard here also helps for batching text draws together which need to read from
+            // a dst copy for blends. Though this only helps the case where the outer bounding boxes
+            // of each letter overlap and not two actually parts of the text.
+            fragBuilder->codeAppendf("if (all(lessThanEqual(%s.rgb, vec3(0)))) {"
                                      "    discard;"
                                      "}", args.fInputCoverage);
         }

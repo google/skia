@@ -72,12 +72,6 @@ public:
             fragBuilder->codeAppendf("%s = ", args.fOutputCoverage);
             fragBuilder->appendTextureLookup(args.fTexSamplers[0], v.fsIn(), kVec2f_GrSLType);
             fragBuilder->codeAppend(";");
-            if (cte.maskFormat() == kA565_GrMaskFormat) {
-                // set alpha to be max of rgb coverage
-                fragBuilder->codeAppendf("%s.a = max(max(%s.r, %s.g), %s.b);",
-                                         args.fOutputCoverage, args.fOutputCoverage,
-                                         args.fOutputCoverage, args.fOutputCoverage);
-            }
         }
     }
 
