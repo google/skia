@@ -143,3 +143,60 @@ public:
     }
 };
 DEF_BENCH( return (new SkRasterPipelineToSRGB); )
+
+class SkRasterPipelineReuseBench : public Benchmark {
+public:
+    enum Mode { None, Some, Full };
+
+    explicit SkRasterPipelineReuseBench(Mode mode) : fMode(mode), fName("SkRasterPipelineReuse") {
+        switch(mode) {
+            case None: fName.append("_none"); break;
+            case Some: fName.append("_some"); break;
+            case Full: fName.append("_full"); break;
+        }
+    }
+    const char* onGetName() override { return fName.c_str(); }
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+
+    void onDraw(int loops, SkCanvas*) override {
+        const int kStages = 20;
+        const auto stage  = SkRasterPipeline::to_srgb;  // Any stage will do.  We won't call it.
+
+        switch(fMode) {
+            case None:
+                while (loops --> 0) {
+                    SkRasterPipeline p;
+                    for (int i = 0; i < kStages; i++) {
+                        p.append(stage);
+                    }
+                }
+                break;
+
+            case Some:
+                while (loops --> 0) {
+                    SkRasterPipeline p(kStages);
+                    for (int i = 0; i < kStages; i++) {
+                        p.append(stage);
+                    }
+                }
+                break;
+
+            case Full:
+                SkRasterPipeline p(kStages);
+                while (loops --> 0) {
+                    p.rewind();
+                    for (int i = 0; i < kStages; i++) {
+                        p.append(stage);
+                    }
+                }
+                break;
+        }
+    }
+
+private:
+    Mode     fMode;
+    SkString fName;
+};
+DEF_BENCH( return (new SkRasterPipelineReuseBench(SkRasterPipelineReuseBench::None)); )
+DEF_BENCH( return (new SkRasterPipelineReuseBench(SkRasterPipelineReuseBench::Some)); )
+DEF_BENCH( return (new SkRasterPipelineReuseBench(SkRasterPipelineReuseBench::Full)); )

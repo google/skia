@@ -7,7 +7,13 @@
 
 #include "SkRasterPipeline.h"
 
-SkRasterPipeline::SkRasterPipeline() {}
+SkRasterPipeline::SkRasterPipeline(int size_hint) {
+    fStages.reserve(size_hint);
+}
+
+void SkRasterPipeline::rewind() {
+    fStages.clear();
+}
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
     SkASSERT(stage != from_srgb);
