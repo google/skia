@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1d9f093_c17f2cc2",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-05-22T13:34:33Z",
+      "side": 1,
+      "message": "I\u0027d prefer not to have single-line (and brace-less) conditionals, but otherwise, ltgm.",
+      "revId": "7666df0dfe103ddc14af6e043de471dcb689ffa4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
