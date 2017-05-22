@@ -315,10 +315,6 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
 bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
                                    GrPixelConfig srcConfig, DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
-    if (GrPixelConfigIsCompressed(dstSurface->config())) {
-        return false;
-    }
-
     GrRenderTarget* renderTarget = dstSurface->asRenderTarget();
 
     // Start off assuming no swizzling
@@ -379,43 +375,32 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
     }
 
     bool success = false;
-    if (GrPixelConfigIsCompressed(vkTex->config())) {
-        // We check that config == desc.fConfig in GrGpu::getWritePixelsInfo()
-        SkASSERT(config == vkTex->config());
-        // TODO: add compressed texture support
-        // delete the following two lines and uncomment the two after that when ready
-        vkTex->unref();
-        return false;
-        //success = this->uploadCompressedTexData(vkTex->desc(), buffer, false, left, top, width,
-        //                                       height);
+    bool linearTiling = vkTex->isLinearTiled();
+    if (linearTiling) {
+        if (texels.count() > 1) {
+            SkDebugf("Can't upload mipmap data to linear tiled texture");
+            return false;
+        }
+        if (VK_IMAGE_LAYOUT_PREINITIALIZED != vkTex->currentLayout()) {
+            // Need to change the layout to general in order to perform a host write
+            vkTex->setImageLayout(this,
+                                  VK_IMAGE_LAYOUT_GENERAL,
+                                  VK_ACCESS_HOST_WRITE_BIT,
+                                  VK_PIPELINE_STAGE_HOST_BIT,
+                                  false);
+            this->submitCommandBuffer(kForce_SyncQueue);
+        }
+        success = this->uploadTexDataLinear(vkTex, left, top, width, height, config,
+                                            texels.begin()->fPixels, texels.begin()->fRowBytes);
     } else {
-        bool linearTiling = vkTex->isLinearTiled();
-        if (linearTiling) {
-            if (texels.count() > 1) {
-                SkDebugf("Can't upload mipmap data to linear tiled texture");
+        int newMipLevels = texels.count();
+        int currentMipLevels = vkTex->texturePriv().maxMipMapLevel() + 1;
+        if (newMipLevels > currentMipLevels) {
+            if (!vkTex->reallocForMipmap(this, newMipLevels)) {
                 return false;
             }
-            if (VK_IMAGE_LAYOUT_PREINITIALIZED != vkTex->currentLayout()) {
-                // Need to change the layout to general in order to perform a host write
-                vkTex->setImageLayout(this,
-                                      VK_IMAGE_LAYOUT_GENERAL,
-                                      VK_ACCESS_HOST_WRITE_BIT,
-                                      VK_PIPELINE_STAGE_HOST_BIT,
-                                      false);
-                this->submitCommandBuffer(kForce_SyncQueue);
-            }
-            success = this->uploadTexDataLinear(vkTex, left, top, width, height, config,
-                                                texels.begin()->fPixels, texels.begin()->fRowBytes);
-        } else {
-            int newMipLevels = texels.count();
-            int currentMipLevels = vkTex->texturePriv().maxMipMapLevel() + 1;
-            if (newMipLevels > currentMipLevels) {
-                if (!vkTex->reallocForMipmap(this, newMipLevels)) {
-                    return false;
-                }
-            }
-            success = this->uploadTexDataOptimal(vkTex, left, top, width, height, config, texels);
         }
+        success = this->uploadTexDataOptimal(vkTex, left, top, width, height, config, texels);
     }
 
     return success;
@@ -498,9 +483,6 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
     SkASSERT(data);
     SkASSERT(tex->isLinearTiled());
 
-    // If we're uploading compressed data then we should be using uploadCompressedTexData
-    SkASSERT(!GrPixelConfigIsCompressed(dataConfig));
-
     size_t bpp = GrBytesPerPixel(dataConfig);
 
     if (!GrSurfacePriv::AdjustWritePixelParams(tex->width(), tex->height(), bpp, &left, &top,
@@ -568,9 +550,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     // We assume that if the texture has mip levels, we either upload to all the levels or just the
     // first.
     SkASSERT(1 == texels.count() || texels.count() == (tex->texturePriv().maxMipMapLevel() + 1));
-
-    // If we're uploading compressed data then we should be using uploadCompressedTexData
-    SkASSERT(!GrPixelConfigIsCompressed(dataConfig));
 
     if (width == 0 || height == 0) {
         return false;
