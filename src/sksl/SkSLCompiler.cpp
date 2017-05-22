@@ -1134,6 +1134,54 @@ void Compiler::internalConvertProgram(String text,
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
                                                   const Program::Settings& settings) {
+if (strstr(text.c_str(), "outside.z = (uTexDom_Stage1).x < 0.0;")) {
+    printf("REPLACING TEXT, was %s\n", text.c_str());
+    text =
+"#version 100\n"
+"\n"
+"precision mediump float;\n"
+"uniform vec2 uImageIncrement_Stage1;\n"
+"uniform vec4 uKernel_Stage1[7];\n"
+"uniform vec2 uKernelOffset_Stage1;\n"
+"uniform float uGain_Stage1;\n"
+"uniform float uBias_Stage1;\n"
+"uniform vec4 uTexDom_Stage1;\n"
+"uniform highp sampler2D uTextureSampler_0_Stage1;\n"
+"varying mediump vec4 vcolor_Stage0;\n"
+"varying highp vec2 vTransformedCoords_0_Stage0;\n"
+"void main() {\n"
+"    vec4 outputColor_Stage0;\n"
+"    {\n"
+"        outputColor_Stage0 = vcolor_Stage0;\n"
+"    }\n"
+"    vec4 output_Stage1;\n"
+"    {\n"
+"        vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);\n"
+"        vec2 coord = vTransformedCoords_0_Stage0 - uKernelOffset_Stage1 * uImageIncrement_Stage1;\n"
+"        vec4 c;\n"
+"        {\n"
+"            float k = uKernel_Stage1[0].x;\n"
+"            {\n"
+"                bvec4 outside = bvec4(true);\n"
+"                outside.z = uTexDom_Stage1.x < 0.0;\n"
+"                c = any(outside) ? vec4(0.0, 0.0, 0.0, 0.0) : texture2D(uTextureSampler_0_Stage1, coord);\n"
+"            }\n"
+"            sum += c * k;\n"
+"        }\n"
+"        output_Stage1 = sum * uGain_Stage1 + uBias_Stage1;\n"
+"        output_Stage1.w = clamp(output_Stage1.w, 0.0, 1.0);\n"
+"        output_Stage1.xyz = clamp(output_Stage1.xyz, 0.0, output_Stage1.w);\n"
+"        output_Stage1 *= outputColor_Stage0;\n"
+"    }\n"
+"    {\n"
+"        gl_FragColor = output_Stage1;\n"
+"    }\n"
+"}\n";
+}
+
+
+printf("final text:\n%s\n", text.c_str());
+
     fErrorText = "";
     fErrorCount = 0;
     fIRGenerator->start(&settings);
