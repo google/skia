@@ -717,21 +717,6 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
         return nullptr;
     }
 
-    bool linearTiling = false;
-    if (SkToBool(desc.fFlags & kZeroCopy_GrSurfaceFlag)) {
-        // we can't have a linear texture with a mipmap
-        if (texels.count() > 1) {
-            SkDebugf("Trying to create linear tiled texture with mipmap");
-            return nullptr;
-        }
-        if (fVkCaps->isConfigTexturableLinearly(desc.fConfig) &&
-            (!renderTarget || fVkCaps->isConfigRenderableLinearly(desc.fConfig, false))) {
-            linearTiling = true;
-        } else {
-            return nullptr;
-        }
-    }
-
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
     if (renderTarget) {
         usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -745,9 +730,6 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
     // texture.
     usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
-    VkFlags memProps = (!texels.empty() && linearTiling) ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT :
-                                                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
     // This ImageDesc refers to the texture that will be read by the client. Thus even if msaa is
     // requested, this ImageDesc describes the resolved texture. Therefore we always have samples set
     // to 1.
@@ -757,11 +739,11 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
     imageDesc.fFormat = pixelFormat;
     imageDesc.fWidth = desc.fWidth;
     imageDesc.fHeight = desc.fHeight;
-    imageDesc.fLevels = linearTiling ? 1 : mipLevels;
+    imageDesc.fLevels = mipLevels;
     imageDesc.fSamples = 1;
-    imageDesc.fImageTiling = linearTiling ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
+    imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     imageDesc.fUsageFlags = usageFlags;
-    imageDesc.fMemProps = memProps;
+    imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
     GrVkTexture* tex;
     if (renderTarget) {
@@ -777,15 +759,8 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
 
     if (!texels.empty()) {
         SkASSERT(texels.begin()->fPixels);
-        bool success;
-        if (linearTiling) {
-            success = this->uploadTexDataLinear(tex, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                                texels.begin()->fPixels, texels.begin()->fRowBytes);
-        } else {
-            success = this->uploadTexDataOptimal(tex, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                                 texels);
-        }
-        if (!success) {
+        if (!this->uploadTexDataOptimal(tex, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                                        texels)) {
             tex->unref();
             return nullptr;
         }

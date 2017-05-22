@@ -585,10 +585,6 @@ enum GrSurfaceFlags {
      * GrTexture::asRenderTarget() to access.
      */
     kRenderTarget_GrSurfaceFlag     = 0x1,
-    /**
-     * Placeholder for managing zero-copy textures
-     */
-    kZeroCopy_GrSurfaceFlag         = 0x2,
 };
 
 GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
