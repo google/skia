@@ -46,6 +46,7 @@ public:
     SkFlattenable* readFlattenable(SkFlattenable::Type type) override;
     void readColor4f(SkColor4f* color) override;
     void readPoint(SkPoint* point) override;
+    void readPoint3(SkPoint3* point) override;
     void readMatrix(SkMatrix* matrix) override;
     void readIRect(SkIRect* rect) override;
     void readRect(SkRect* rect) override;

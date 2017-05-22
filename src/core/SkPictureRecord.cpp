@@ -6,6 +6,7 @@
  */
 
 #include "SkPictureRecord.h"
+#include "SkDrawShadowRec.h"
 #include "SkImage_Base.h"
 #include "SkPatchUtils.h"
 #include "SkPixelRef.h"
@@ -783,6 +784,24 @@ void SkPictureRecord::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[],
     if (cull) {
         fWriter.write(cull, sizeof(SkRect));
     }
+    this->validate(initialOffset, size);
+}
+
+void SkPictureRecord::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
+    // op + path index + zParams + lightPos + lightRadius + spot/ambient alphas + color + flags
+    size_t size = 2 * kUInt32Size + 2 * sizeof(SkPoint3) + 3 * sizeof(SkScalar) + 2 * kUInt32Size;
+    size_t initialOffset = this->addDraw(DRAW_SHADOW_REC, &size);
+
+    this->addPath(path);
+
+    fWriter.writePoint3(rec.fZPlaneParams);
+    fWriter.writePoint3(rec.fLightPos);
+    fWriter.writeScalar(rec.fLightRadius);
+    fWriter.writeScalar(rec.fAmbientAlpha);
+    fWriter.writeScalar(rec.fSpotAlpha);
+    fWriter.write32(rec.fColor);
+    fWriter.write32(rec.fFlags);
+
     this->validate(initialOffset, size);
 }
 

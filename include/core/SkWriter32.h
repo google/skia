@@ -15,6 +15,7 @@
 #include "SkMatrix.h"
 #include "SkPath.h"
 #include "SkPoint.h"
+#include "SkPoint3.h"
 #include "SkRRect.h"
 #include "SkRect.h"
 #include "SkRegion.h"
@@ -116,6 +117,10 @@ public:
 
     void writePoint(const SkPoint& pt) {
         *(SkPoint*)this->reserve(sizeof(pt)) = pt;
+    }
+
+    void writePoint3(const SkPoint3& pt) {
+        *(SkPoint3*)this->reserve(sizeof(pt)) = pt;
     }
 
     void writeRect(const SkRect& rect) {
