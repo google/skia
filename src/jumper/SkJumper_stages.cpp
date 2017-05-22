@@ -1012,6 +1012,13 @@ STAGE(repeat_y) { g = repeat(g, *(const float*)ctx); }
 STAGE(mirror_x) { r = mirror(r, *(const float*)ctx); }
 STAGE(mirror_y) { g = mirror(g, *(const float*)ctx); }
 
+STAGE( clamp_x_1) { r = clamp (r, 1.0f); }  // clamp_x_1 and repeat_x_1 fold 1 through just fine.
+STAGE(repeat_x_1) { r = repeat(r, 1.0f); }
+STAGE(mirror_x_1) {
+    // We can do this one better than the compiler.
+    r = min(abs_( (r-1.0f) - two(floor_((r-1.0f)*0.5f)) - 1.0f ), 1.0f);
+}
+
 STAGE(luminance_to_alpha) {
     a = r*0.2126f + g*0.7152f + b*0.0722f;
     r = g = b = 0;
