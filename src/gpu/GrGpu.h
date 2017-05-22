@@ -100,7 +100,8 @@ public:
      * @param budgeted    does this texture count against the resource cache budget?
      * @param texels      array of mipmap levels containing texel data to load.
      *                    Each level begins with full-size palette data for paletted textures.
-     *                    It contains width*height texels. If there is only one
+     *                    For compressed formats the level contains the compressed pixel data.
+     *                    Otherwise, it contains width*height texels. If there is only one
      *                    element and it contains nullptr fPixels, texture data is
      *                    uninitialized.
      * @return    The texture object if successful, otherwise nullptr.
@@ -545,10 +546,13 @@ private:
 
     // overridden by backend-specific derived class to create objects.
     // Texture size and sample size will have already been validated in base class before
-    // onCreateTexture is called.
+    // onCreateTexture/CompressedTexture are called.
     virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
                                        SkBudgeted budgeted,
                                        const SkTArray<GrMipLevel>& texels) = 0;
+    virtual GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
+                                                 SkBudgeted budgeted,
+                                                 const SkTArray<GrMipLevel>& texels) = 0;
 
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
                                                   GrSurfaceOrigin,

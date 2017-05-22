@@ -360,6 +360,11 @@ private:
         return nullptr;
     }
 
+    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                         const SkTArray<GrMipLevel>& texels) override {
+        return nullptr;
+    }
+
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
                                           GrSurfaceOrigin,
                                           GrBackendTextureFlags,

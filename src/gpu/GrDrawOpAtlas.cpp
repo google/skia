@@ -172,6 +172,9 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, sk_sp<GrTextureProxy> proxy,
 
     SkDEBUGCODE(fNumPlots = numPlotsX * numPlotsY;)
 
+    // We currently do not support compressed atlases...
+    SkASSERT(!GrPixelConfigIsCompressed(fProxy->config()));
+
     // set up allocated plots
     fPlotArray.reset(new sk_sp<Plot>[ numPlotsX * numPlotsY ]);
 
