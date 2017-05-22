@@ -125,9 +125,11 @@ void SkBaseDevice::drawDRRect(const SkRRect& outer,
 }
 
 void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                             const SkPoint texCoords[4], SkBlendMode bmode, const SkPaint& paint) {
+                             const SkPoint texCoords[4], SkBlendMode bmode,
+                             bool interpColorsLinearly, const SkPaint& paint) {
     SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, &this->ctm());
-    auto vertices = SkPatchUtils::MakeVertices(cubics, colors, texCoords, lod.width(), lod.height());
+    auto vertices = SkPatchUtils::MakeVertices(cubics, colors, texCoords, lod.width(), lod.height(),
+                                               interpColorsLinearly);
     if (vertices) {
         this->drawVertices(vertices.get(), bmode, paint);
     }

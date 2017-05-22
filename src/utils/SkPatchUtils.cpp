@@ -8,7 +8,9 @@
 #include "SkPatchUtils.h"
 
 #include "SkColorPriv.h"
+#include "SkColorSpace_Base.h"
 #include "SkGeometry.h"
+#include "SkPM4f.h"
 
 namespace {
     enum CubicCtrlPts {
@@ -140,9 +142,15 @@ static SkScalar approx_arc_length(SkPoint* points, int count) {
 }
 
 static SkScalar bilerp(SkScalar tx, SkScalar ty, SkScalar c00, SkScalar c10, SkScalar c01,
-                      SkScalar c11) {
+                       SkScalar c11) {
     SkScalar a = c00 * (1.f - tx) + c10 * tx;
     SkScalar b = c01 * (1.f - tx) + c11 * tx;
+    return a * (1.f - ty) + b * ty;
+}
+
+static Sk4f bilerp(SkScalar tx, SkScalar ty, Sk4f c00, Sk4f c10, Sk4f c01, Sk4f c11) {
+    Sk4f a = c00 * (1.f - tx) + c10 * tx;
+    Sk4f b = c01 * (1.f - tx) + c11 * tx;
     return a * (1.f - ty) + b * ty;
 }
 
@@ -201,8 +209,65 @@ void SkPatchUtils::GetRightCubic(const SkPoint cubics[12], SkPoint points[4]) {
     points[3] = cubics[kRightP3_CubicCtrlPts];
 }
 
+#include "SkPM4fPriv.h"
+#include "SkColorSpace_Base.h"
+#include "SkColorSpaceXform.h"
+
+struct SkRGBAf {
+    float fVec[4];
+
+    static SkRGBAf From4f(Sk4f x) {
+        SkRGBAf c;
+        x.store(c.fVec);
+        return c;
+    }
+
+    static SkRGBAf FromBGRA32(SkColor c) {
+        return From4f(swizzle_rb(SkNx_cast<float>(Sk4b::Load(&c)) * (1/255.0f)));
+    }
+
+    Sk4f to4f() const {
+        return Sk4f::Load(fVec);
+    }
+
+    SkColor toBGRA32() const {
+        SkColor color;
+        SkNx_cast<uint8_t>(swizzle_rb(this->to4f()) * Sk4f(255) + Sk4f(0.5f)).store(&color);
+        return color;
+    }
+};
+
+static void skcolor_to_linear(SkRGBAf dst[], const SkColor src[], int count, SkColorSpace* cs) {
+    if (cs) {
+        auto srcCS = SkColorSpace::MakeSRGB();
+        auto dstCS = as_CSB(cs)->makeLinearGamma();
+        SkColorSpaceXform::Apply(dstCS.get(), SkColorSpaceXform::kRGBA_F32_ColorFormat,  dst,
+                                 srcCS.get(), SkColorSpaceXform::kBGRA_8888_ColorFormat, src,
+                                 count, SkColorSpaceXform::kPremul_AlphaOp);
+    } else {
+        for (int i = 0; i < count; ++i) {
+            dst[i] = SkRGBAf::FromBGRA32(src[i]);
+        }
+    }
+}
+
+static void linear_to_skcolor(SkColor dst[], const SkRGBAf src[], int count, SkColorSpace* cs) {
+    if (cs) {
+        auto srcCS = as_CSB(cs)->makeLinearGamma();
+        auto dstCS = SkColorSpace::MakeSRGB();
+        SkColorSpaceXform::Apply(dstCS.get(), SkColorSpaceXform::kBGRA_8888_ColorFormat, dst,
+                                 srcCS.get(), SkColorSpaceXform::kRGBA_F32_ColorFormat,  src,
+                                 count, SkColorSpaceXform::kPremul_AlphaOp);
+    } else {
+        for (int i = 0; i < count; ++i) {
+            dst[i] = src[i].toBGRA32();
+        }
+    }
+}
+
 sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkColor srcColors[4],
-                                            const SkPoint srcTexCoords[4], int lodX, int lodY) {
+                                             const SkPoint srcTexCoords[4], int lodX, int lodY,
+                                             bool interpColorsLinearly) {
     if (lodX < 1 || lodY < 1 || nullptr == cubics) {
         return nullptr;
     }
@@ -237,23 +302,32 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
         flags |= SkVertices::kHasColors_BuilderFlag;
     }
 
+    char allocStorage[2048];
+    SkArenaAlloc alloc(allocStorage, sizeof(allocStorage));
+    SkRGBAf* cornerColors = srcColors ? alloc.makeArray<SkRGBAf>(4) : nullptr;
+    SkRGBAf* tmpColors = srcColors ? alloc.makeArray<SkRGBAf>(vertexCount) : nullptr;
+    auto convertCS = interpColorsLinearly ? SkColorSpace::MakeSRGB() : nullptr;
+
     SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vertexCount, indexCount, flags);
     SkPoint* pos = builder.positions();
     SkPoint* texs = builder.texCoords();
-    SkColor* colors = builder.colors();
     uint16_t* indices = builder.indices();
     bool is_opaque = false;
 
-    // if colors is not null then create array for colors
-    SkPMColor colorsPM[kNumCorners];
-    if (srcColors) {
+    /*
+     *  Currently we convert to linear floats, interpolate, and then convert back to (srgb) bytes.
+     *  Not clear if we shoudl be interpolating in premul space or not. Gradients have a flag that
+     *  controls this option. For the moment, we don't (because its easier), and just keep the
+     *  colors in unpremul.
+     */
+    if (cornerColors) {
+        skcolor_to_linear(cornerColors, srcColors, kNumCorners, convertCS.get());
+
         SkColor c = ~0;
         // premultiply colors to avoid color bleeding.
         for (int i = 0; i < kNumCorners; i++) {
-            colorsPM[i] = SkPreMultiplyColor(srcColors[i]);
             c &= srcColors[i];
         }
-        srcColors = colorsPM;
         is_opaque = (SkColorGetA(c) == 0xFF);
     }
 
@@ -297,33 +371,14 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
                                               + u * fBottom.getCtrlPoints()[3].y()));
             pos[dataIndex] = s0 + s1 - s2;
 
-            if (colors) {
-                uint8_t a = 0xFF;
-                // We do the opaque check for speed, and to ensure that opaque stays opaque,
-                // in case we lose precision in the bilerp.
-                if (!is_opaque) {
-                    a = uint8_t(bilerp(u, v,
-                                       SkScalar(SkColorGetA(colorsPM[kTopLeft_Corner])),
-                                       SkScalar(SkColorGetA(colorsPM[kTopRight_Corner])),
-                                       SkScalar(SkColorGetA(colorsPM[kBottomLeft_Corner])),
-                                       SkScalar(SkColorGetA(colorsPM[kBottomRight_Corner]))));
+            if (cornerColors) {
+                bilerp(u, v, cornerColors[kTopLeft_Corner].to4f(),
+                             cornerColors[kTopRight_Corner].to4f(),
+                             cornerColors[kBottomLeft_Corner].to4f(),
+                             cornerColors[kBottomRight_Corner].to4f()).store(tmpColors[dataIndex].fVec);
+                if (is_opaque) {
+                    tmpColors[dataIndex].fVec[3] = 1;
                 }
-                uint8_t r = uint8_t(bilerp(u, v,
-                                           SkScalar(SkColorGetR(colorsPM[kTopLeft_Corner])),
-                                           SkScalar(SkColorGetR(colorsPM[kTopRight_Corner])),
-                                           SkScalar(SkColorGetR(colorsPM[kBottomLeft_Corner])),
-                                           SkScalar(SkColorGetR(colorsPM[kBottomRight_Corner]))));
-                uint8_t g = uint8_t(bilerp(u, v,
-                                           SkScalar(SkColorGetG(colorsPM[kTopLeft_Corner])),
-                                           SkScalar(SkColorGetG(colorsPM[kTopRight_Corner])),
-                                           SkScalar(SkColorGetG(colorsPM[kBottomLeft_Corner])),
-                                           SkScalar(SkColorGetG(colorsPM[kBottomRight_Corner]))));
-                uint8_t b = uint8_t(bilerp(u, v,
-                                           SkScalar(SkColorGetB(colorsPM[kTopLeft_Corner])),
-                                           SkScalar(SkColorGetB(colorsPM[kTopRight_Corner])),
-                                           SkScalar(SkColorGetB(colorsPM[kBottomLeft_Corner])),
-                                           SkScalar(SkColorGetB(colorsPM[kBottomRight_Corner]))));
-                colors[dataIndex] = SkPackARGB32(a,r,g,b);
             }
 
             if (texs) {
@@ -350,6 +405,10 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
             v = SkScalarClampMax(v + 1.f / lodY, 1);
         }
         u = SkScalarClampMax(u + 1.f / lodX, 1);
+    }
+
+    if (tmpColors) {
+        linear_to_skcolor(builder.colors(), tmpColors, vertexCount, convertCS.get());
     }
     return builder.detach();
 }
