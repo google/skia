@@ -775,7 +775,7 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
     }
 
     if ((blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) ||
-        (isLCD && !color.isOpaque())) {
+        (isLCD && (SkBlendMode::kSrcOver != fBlendMode || !color.isOpaque()))) {
         return sk_sp<const GrXferProcessor>(new ShaderPDXferProcessor(hasMixedSamples, fBlendMode,
                                                                       coverage));
     }
@@ -795,36 +795,41 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
     } else {
         formula = gBlendTable[color.isOpaque()][hasCoverage][(int)mode];
     }
-    if (formula.canTweakAlphaForCoverage()) {
+
+    if (formula.canTweakAlphaForCoverage() && !isLCD) {
         props |= AnalysisProperties::kCompatibleWithAlphaAsCoverage;
     }
-    // With dual-source blending we never need the destination color in the shader.
-    if (!caps.shaderCaps()->dualSourceBlendingSupport()) {
-        // Mixed samples implicity computes a fractional coverage from sample coverage. This could
-        // affect the formula used. However, we don't expect to have mixed samples without dual
-        // source blending.
-        SkASSERT(!caps.usesMixedSamples());
-        if (GrProcessorAnalysisCoverage::kLCD == coverage) {
-            // Check for special case of srcover with a known color which can be done using the
-            // blend constant.
-            if (SkBlendMode::kSrcOver == mode && color.isConstant() && color.isOpaque() &&
-                !caps.shaderCaps()->dstReadInShaderSupport()) {
-                props |= AnalysisProperties::kIgnoresInputColor;
-            } else {
-                if (get_lcd_blend_formula(mode).hasSecondaryOutput() || !color.isOpaque()) {
-                    props |= AnalysisProperties::kReadsDstInShader;
-                }
+
+    if (isLCD) {
+        if (SkBlendMode::kSrcOver == mode && color.isConstant() && color.isOpaque() &&
+            !caps.shaderCaps()->dualSourceBlendingSupport() &&
+            !caps.shaderCaps()->dstReadInShaderSupport()) {
+            props |= AnalysisProperties::kIgnoresInputColor;
+        } else {
+            // For LCD blending, if the color is not opaque we must read the dst in shader even if
+            // we have dual source blending. The opaqueness check must be done after blending so for
+            // simplicity we only allow src-over to not take the dst read path (though src, src-in,
+            // and DstATop would also work). We also fall into the dst read case for src-over if we
+            // do not have dual source blending.
+            if (SkBlendMode::kSrcOver != mode ||
+                !color.isOpaque() ||
+                !caps.shaderCaps()->dualSourceBlendingSupport()) {
+                props |= AnalysisProperties::kReadsDstInShader;
             }
-        } else if (formula.hasSecondaryOutput()) {
-            props |= AnalysisProperties::kReadsDstInShader;
         }
     } else {
-        // For LCD blending, if the color is not opaque we must read the dst in shader even if we
-        // have dual source blending.
-        if (isLCD && !color.isOpaque()) {
-            props |= AnalysisProperties::kReadsDstInShader;
+        // With dual-source blending we never need the destination color in the shader.
+        if (!caps.shaderCaps()->dualSourceBlendingSupport()) {
+            // Mixed samples implicity computes a fractional coverage from sample coverage. This
+            // could affect the formula used. However, we don't expect to have mixed samples without
+            // dual source blending.
+            SkASSERT(!caps.usesMixedSamples());
+            if (formula.hasSecondaryOutput()) {
+                props |= AnalysisProperties::kReadsDstInShader;
+            }
         }
     }
+
     if (!formula.modifiesDst() || !formula.usesInputColor()) {
         props |= AnalysisProperties::kIgnoresInputColor;
     }
