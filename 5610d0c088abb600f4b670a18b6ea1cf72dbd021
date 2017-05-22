@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1eb6d4e7_001f1943",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-05-22T08:21:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12f48ba6_9cd17976",
+      "range": {
+        "startLine": 9,
+        "startChar": 17,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8601bb51_a612609c",
         "filename": "/COMMIT_MSG",
         "patchSetId": 3
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "40d34f1d_980891c9",
+        "filename": "src/codec/SkJpegDecoderMgr.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-05-22T08:21:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74cb710e_aa077f89",
+      "range": {
+        "startLine": 69,
+        "startChar": 37,
+        "endLine": 69,
+        "endChar": 44
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "19fdc1ce_3c2c2ca9",
         "filename": "src/codec/SkJpegUtility.cpp",
         "patchSetId": 3
@@ -91,6 +139,30 @@
       "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "514120f3_93ca4a75",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-05-22T08:21:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19fdc1ce_3c2c2ca9",
+      "range": {
+        "startLine": 101,
+        "startChar": 12,
+        "endLine": 101,
+        "endChar": 30
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "92ed1171_e7599528",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-05-22T08:21:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59ea2deb_ddd5e753",
+      "range": {
+        "startLine": 105,
+        "startChar": 4,
+        "endLine": 105,
+        "endChar": 81
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6422930b_031dccd0",
         "filename": "src/codec/SkJpegUtility.cpp",
         "patchSetId": 3
@@ -140,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "f8008b65_7711a60f",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-05-22T08:21:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6422930b_031dccd0",
+      "range": {
+        "startLine": 124,
+        "startChar": 45,
+        "endLine": 124,
+        "endChar": 61
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0ed41fed_f5672824",
         "filename": "src/codec/SkJpegUtility.cpp",
         "patchSetId": 3
@@ -160,6 +280,30 @@
       "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65b2d9c1_3c77c004",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-05-22T08:21:40Z",
+      "side": 1,
+      "message": "libjpeg-turbo does not check for null function pointers.\nMoving bytes_in_buffer and next_input_byte to sk_init_mem_source should not make any difference, just as you mentioned, accessing SkStream is a bit trouble.",
+      "parentUuid": "0ed41fed_f5672824",
+      "range": {
+        "startLine": 134,
+        "startChar": 4,
+        "endLine": 134,
+        "endChar": 19
+      },
+      "revId": "5610d0c088abb600f4b670a18b6ea1cf72dbd021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
