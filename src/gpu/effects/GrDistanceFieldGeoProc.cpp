@@ -712,17 +712,14 @@ public:
         // doing gamma-correct rendering (to an sRGB or F16 buffer), then we actually want distance
         // mapped linearly to coverage, so use a linear step:
         if (isGammaCorrect) {
-            fragBuilder->codeAppend("vec4 val = "
-                "vec4(clamp((distance + vec3(afwidth)) / vec3(2.0 * afwidth), 0.0, 1.0), 1.0);");
+            fragBuilder->codeAppendf("%s = "
+                "vec4(clamp((distance + vec3(afwidth)) / vec3(2.0 * afwidth), 0.0, 1.0), 1.0);",
+                args.fOutputCoverage);
         } else {
-            fragBuilder->codeAppend(
-                "vec4 val = vec4(smoothstep(vec3(-afwidth), vec3(afwidth), distance), 1.0);");
+            fragBuilder->codeAppendf(
+                "%s = vec4(smoothstep(vec3(-afwidth), vec3(afwidth), distance), 1.0);",
+                args.fOutputCoverage);
         }
-
-        // set alpha to be max of rgb coverage
-        fragBuilder->codeAppend("val.a = max(max(val.r, val.g), val.b);");
-
-        fragBuilder->codeAppendf("%s = val;", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& processor,
