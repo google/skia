@@ -76,14 +76,16 @@ GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType
 }
 
 void GrTexture::computeScratchKey(GrScratchKey* key) const {
-    const GrRenderTarget* rt = this->asRenderTarget();
-    int sampleCount = 0;
-    if (rt) {
-        sampleCount = rt->numStencilSamples();
+    if (!GrPixelConfigIsCompressed(this->config())) {
+        const GrRenderTarget* rt = this->asRenderTarget();
+        int sampleCount = 0;
+        if (rt) {
+            sampleCount = rt->numStencilSamples();
+        }
+        GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
+                                         this->origin(), SkToBool(rt), sampleCount,
+                                         this->texturePriv().hasMipMaps(), key);
     }
-    GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
-                                     this->origin(), SkToBool(rt), sampleCount,
-                                     this->texturePriv().hasMipMaps(), key);
 }
 
 void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int height,

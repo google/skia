@@ -31,6 +31,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fDiscardRenderTargetSupport = true;
     fReuseScratchTextures = true; //TODO: figure this out
     fGpuTracingSupport = false; //TODO: figure this out
+    fCompressedTexSubImageSupport = false; //TODO: figure this out
     fOversizedStencilSupport = false; //TODO: figure this out
 
     fUseDrawInsteadOfClear = false;
@@ -306,6 +307,11 @@ void GrVkCaps::initConfigTable(const GrVkInterface* interface, VkPhysicalDevice 
             fConfigTable[i].init(interface, physDev, format);
         }
     }
+
+    // We currently do not support compressed textures in Vulkan
+    const uint16_t kFlagsToRemove = ConfigInfo::kTextureable_Flag|ConfigInfo::kRenderable_Flag;
+    fConfigTable[kETC1_GrPixelConfig].fOptimalFlags &= ~kFlagsToRemove;
+    fConfigTable[kETC1_GrPixelConfig].fLinearFlags &= ~kFlagsToRemove;
 }
 
 void GrVkCaps::ConfigInfo::InitConfigFlags(VkFormatFeatureFlags vkFlags, uint16_t* flags) {
