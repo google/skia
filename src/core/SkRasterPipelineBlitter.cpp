@@ -18,7 +18,7 @@
 #include "SkUtils.h"
 #include "../jumper/SkJumper.h"
 
-class SkRasterPipelineBlitter final : public SkBlitter {
+class SkRasterPipelineBlitter : public SkBlitter {
 public:
     // Create using paint.getShader() or paint.getColor() if there is no shader.
     // If there's a shader, we will modulate the shader color by the paint alpha.
