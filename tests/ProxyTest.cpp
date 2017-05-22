@@ -118,7 +118,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         for (auto widthHeight : { 100, 128, 1048576 }) {
             for (auto config : { kAlpha_8_GrPixelConfig, kRGB_565_GrPixelConfig,
-                                 kETC1_GrPixelConfig, kRGBA_8888_GrPixelConfig }) {
+                                 kRGBA_8888_GrPixelConfig }) {
                 for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
                     for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                         for (auto numSamples : { 0, 4, 16, 128 }) {

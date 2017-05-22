@@ -48,10 +48,6 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
         case kGray_8_GrPixelConfig:
             *format = VK_FORMAT_R8_UNORM;
             return true;
-        case kETC1_GrPixelConfig:
-            // converting to ETC2 which is a superset of ETC1
-            *format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
-            return true;
         case kRGBA_float_GrPixelConfig:
             *format = VK_FORMAT_R32G32B32A32_SFLOAT;
             return true;
@@ -90,8 +86,6 @@ GrPixelConfig GrVkFormatToPixelConfig(VkFormat format) {
             return kRGBA_4444_GrPixelConfig;
         case VK_FORMAT_R8_UNORM:
             return kAlpha_8_GrPixelConfig;
-        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
-            return kETC1_GrPixelConfig;      // this conversion seems a bit sketchy
         case VK_FORMAT_R32G32B32A32_SFLOAT:
             return kRGBA_float_GrPixelConfig;
         case VK_FORMAT_R32G32_SFLOAT:
