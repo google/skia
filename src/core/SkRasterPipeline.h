@@ -107,7 +107,7 @@
 
 class SkRasterPipeline {
 public:
-    SkRasterPipeline();
+    SkRasterPipeline(int size_hint=0);
 
     enum StockStage {
     #define M(stage) stage,
@@ -135,6 +135,9 @@ public:
     void append_from_srgb(SkAlphaType);
 
     bool empty() const { return fStages.empty(); }
+
+    // Cheaply reset all state so that empty() returns true.
+    void rewind();
 
 private:
     std::vector<Stage> fStages;
