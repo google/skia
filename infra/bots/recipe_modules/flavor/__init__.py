@@ -3,10 +3,9 @@
 # found in the LICENSE file.
 
 DEPS = [
-  'build/adb',
-  'build/file',
   'builder_name_schema',
   'depot_tools/bot_update',
+  'file',
   'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/platform',
