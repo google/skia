@@ -89,7 +89,7 @@ enum DrawType {
 
     TRANSLATE_Z, // deprecated (M60)
 
-    DRAW_SHADOWED_PICTURE_LIGHTS,  // deprecated (M60)
+    DRAW_SHADOW_REC,
     DRAW_IMAGE_LATTICE,
     DRAW_ARC,
     DRAW_REGION,

@@ -124,6 +124,12 @@ void SkValidatingReadBuffer::readPoint(SkPoint* point) {
     point->fY = this->readScalar();
 }
 
+void SkValidatingReadBuffer::readPoint3(SkPoint3* point) {
+    point->fX = this->readScalar();
+    point->fY = this->readScalar();
+    point->fZ = this->readScalar();
+}
+
 void SkValidatingReadBuffer::readMatrix(SkMatrix* matrix) {
     size_t size = 0;
     if (!fError) {
