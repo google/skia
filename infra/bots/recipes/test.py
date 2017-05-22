@@ -7,9 +7,9 @@
 
 
 DEPS = [
-  'build/file',
   'core',
   'env',
+  'file',
   'flavor',
   'recipe_engine/context',
   'recipe_engine/json',
