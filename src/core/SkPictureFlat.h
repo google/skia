@@ -126,6 +126,11 @@ enum SaveLayerRecFlatFlags {
     SAVELAYERREC_HAS_CLIPMATRIX = 1 << 5,
 };
 
+enum DrawShadowRecFlags {
+    DRAWSHADOWREC_TRANSPARENT = 1 << 0,
+    DRAWSHADOWREC_FORCE_GEOM = 1 << 1,
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 // clipparams are packed in 5 bits
 //  doAA:1 | clipOp:4
