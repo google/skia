@@ -26,6 +26,8 @@ enum GPFlag {
     kColorAttributeIsSkColor_GPFlag = 0x2,
     kLocalCoordAttribute_GPFlag     = 0x4,
     kCoverageAttribute_GPFlag       = 0x8,
+
+    kLinearizeColorAttribute_GPFlag = 0x10,
 };
 
 class DefaultGeoProc : public GrGeometryProcessor {
@@ -73,13 +75,34 @@ public:
             if (gp.hasVertexColor()) {
                 GrGLSLVertToFrag varying(kVec4f_GrSLType);
                 varyingHandler->addVarying("color", &varying);
+                // Get original (sRGB) or linearized color into local 'color'
+                if (gp.fFlags & kLinearizeColorAttribute_GPFlag) {
+                    SkString srgbFuncName;
+                    static const GrShaderVar gSrgbArgs[] = {
+                        GrShaderVar("x", kFloat_GrSLType),
+                    };
+                    vertBuilder->emitFunction(kFloat_GrSLType,
+                                              "srgb_to_linear",
+                                              SK_ARRAY_COUNT(gSrgbArgs),
+                                              gSrgbArgs,
+                                              "return (x <= 0.04045) ? (x / 12.92) "
+                                              ": pow((x + 0.055) / 1.055, 2.4);",
+                                              &srgbFuncName);
+                    vertBuilder->codeAppendf(
+                            "vec4 color = vec4(%s(%s.r), %s(%s.g), %s(%s.b), %s.a);",
+                            srgbFuncName.c_str(), gp.inColor()->fName,
+                            srgbFuncName.c_str(), gp.inColor()->fName,
+                            srgbFuncName.c_str(), gp.inColor()->fName,
+                            gp.inColor()->fName);
+                } else {
+                    vertBuilder->codeAppendf("vec4 color = %s;", gp.inColor()->fName);
+                }
                 if (gp.fFlags & kColorAttributeIsSkColor_GPFlag) {
                     // Do a red/blue swap and premul the color.
-                    vertBuilder->codeAppendf("%s = vec4(%s.a*%s.bgr, %s.a);", varying.vsOut(),
-                                             gp.inColor()->fName, gp.inColor()->fName,
-                                             gp.inColor()->fName);
+                    vertBuilder->codeAppendf("%s = vec4(color.a * color.bgr, color.a);",
+                                             varying.vsOut());
                 } else {
-                    vertBuilder->codeAppendf("%s = %s;\n", varying.vsOut(), gp.inColor()->fName);
+                    vertBuilder->codeAppendf("%s = color;\n", varying.vsOut());
                 }
                 fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, varying.fsIn());
             } else {
@@ -272,6 +295,7 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const Color& color,
     } else if (Color::kUnpremulSkColorAttribute_Type == color.fType) {
         flags |= kColorAttribute_GPFlag | kColorAttributeIsSkColor_GPFlag;
     }
+    flags |= color.fLinearize ? kLinearizeColorAttribute_GPFlag : 0;
     flags |= coverage.fType == Coverage::kAttribute_Type ? kCoverageAttribute_GPFlag : 0;
     flags |= localCoords.fType == LocalCoords::kHasExplicit_Type ? kLocalCoordAttribute_GPFlag : 0;
 
