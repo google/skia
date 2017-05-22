@@ -860,7 +860,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
 
     std::unique_ptr<GrLegacyMeshDrawOp> op = GrDrawVerticesOp::Make(
             paint.getColor(), primitiveType, viewMatrix, positions, vertexCount, indices,
-            indexCount, colors, texCoords, bounds, colorArrayType);
+            indexCount, colors, texCoords, bounds, colorArrayType, this->isGammaCorrect());
     if (!op) {
         return;
     }
@@ -880,8 +880,8 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     SkASSERT(vertices);
-    std::unique_ptr<GrLegacyMeshDrawOp> op =
-            GrDrawVerticesOp::Make(paint.getColor(), std::move(vertices), viewMatrix);
+    std::unique_ptr<GrLegacyMeshDrawOp> op = GrDrawVerticesOp::Make(
+            paint.getColor(), std::move(vertices), viewMatrix, this->isGammaCorrect());
     if (!op) {
         return;
     }
