@@ -485,6 +485,8 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo,
         if (!fColorXform) {
             return false;
         }
+    } else {
+        fColorXform.reset();
     }
 
     return true;
