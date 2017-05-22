@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d8785e4_27c06742",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-22T20:52:19Z",
+      "side": 1,
+      "message": "what is this checking for? Seems like this can never happen given our configs.",
+      "range": {
+        "startLine": 269,
+        "startChar": 4,
+        "endLine": 274,
+        "endChar": 0
+      },
+      "revId": "9fbabdf207ecede551c8a8ec85f7b075141cf8e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78e8f63f_70eee186",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-22T20:52:19Z",
+      "side": 1,
+      "message": "Its kind of funny that most of this information was taken off a different GrSufaceDesc, and then we just go and recreated a new one here. Does any of this information change between the ctor and now? Should Proxy just store a GrSurfaceDesc on itself?",
+      "range": {
+        "startLine": 49,
+        "startChar": 3,
+        "endLine": 59,
+        "endChar": 5
+      },
+      "revId": "9fbabdf207ecede551c8a8ec85f7b075141cf8e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
