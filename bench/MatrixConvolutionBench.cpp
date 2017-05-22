@@ -3,7 +3,6 @@
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
- */
 #include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkMatrixConvolutionImageFilter.h"
@@ -68,3 +67,4 @@ DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kCl
 DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kRepeat_TileMode, true); )
 DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, true); )
 DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, false); )
+ */
