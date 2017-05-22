@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "a34338b9_ad4415ad",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-22T20:09:34Z",
+      "side": 1,
+      "message": "ambient and spot?",
+      "range": {
+        "startLine": 7,
+        "startChar": 6,
+        "endLine": 7,
+        "endChar": 10
+      },
+      "revId": "aa517e661a8596f60ff30919a48c8a6996a5f15a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "668d95d7_cff611ff",
         "filename": "samplecode/SampleShadowUtils.cpp",
         "patchSetId": 9
