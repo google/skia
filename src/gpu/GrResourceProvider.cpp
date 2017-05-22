@@ -53,7 +53,7 @@ bool validate_desc(const GrSurfaceDesc& desc, const GrCaps& caps, int levelCount
     if (desc.fWidth <= 0 || desc.fHeight <= 0) {
         return false;
     }
-    if (!caps.isConfigTexturable(desc.fConfig)) {
+    if (!caps.isConfigTexturable(desc.fConfig, desc.fOrigin)) {
         return false;
     }
     if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {

@@ -29,7 +29,7 @@ public:
     GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
              VkPhysicalDevice device, uint32_t featureFlags, uint32_t extensionFlags);
 
-    bool isConfigTexturable(GrPixelConfig config) const override {
+    bool isConfigTexturable(GrPixelConfig config, GrSurfaceOrigin) const override {
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fOptimalFlags);
     }
 
