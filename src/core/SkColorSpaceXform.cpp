@@ -1137,6 +1137,12 @@ bool SkColorSpaceXform::apply(ColorFormat dstColorFormat, void* dst, ColorFormat
                                                      alphaType);
 }
 
+bool SkColorSpaceXform::Apply(SkColorSpace* dstCS, ColorFormat dstFormat, void* dst,
+                              SkColorSpace* srcCS, ColorFormat srcFormat, const void* src,
+                              int count, AlphaOp op) {
+    return New(srcCS, dstCS)->apply(dstFormat, dst, srcFormat, src, count, (SkAlphaType)op);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <ColorSpaceMatch kCSM>
