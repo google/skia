@@ -1,0 +1,314 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "441a65e9_989178a5",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "As documentation, this may get stale since it is pseudo-code. If this was rewritten as:\n\nFor each page of content: call SkDocument::beginPage to optain the page\u0027s SkCanvas, use the SkCanvas to draw the content, etc.\n\nand so on then the documentation will be kept real -- and an example of real code would be great too, but I bet you\u0027ve already written that elsewhere.\n\nAlso \"page\" (quoted) is almost idiomatic and suggests to the reader that it isn\u0027t really a page. if it isn\u0027t (and that\u0027s fine) maybe it should be Page or Document_Page and defined elsewhere.",
+      "range": {
+        "startLine": 33,
+        "startChar": 16,
+        "endLine": 33,
+        "endChar": 24
+      },
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed30c48b_b8450849",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "It\u0027s really hard! (notice the apology up front) and I\"m terrible at this, but there\u0027s no real value in self-referential documentation that says nothing, e.g. \"close the document with doc-\u003eclose()\". Rather, \"Call SkDocument::close to release resources used while creating the page\" or anything that adds meaning to why one would want to call close, while leaving the beefy description to close() below.",
+      "range": {
+        "startLine": 38,
+        "startChar": 17,
+        "endLine": 38,
+        "endChar": 26
+      },
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2c59b12_ea876fe3",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "metadata lower case here, Metadata upper on line 52.  \u0027metadata\u0027 is a dictionary word, so lower is OK, but I would choose Metadata if your usage is something other than the dictionary definition.\n\nIf there\u0027s a way to describe when OptionalTimestamp might be used for, that would be good. Also, \u0027timestamp\u0027 is not a dictionary word as far as I know -- time-stamp or just \u0027time stamp\u0027 is the usual usage so this could be OptionalTimeStamp -- but I wouldn\u0027t change it if it causes a lot of churn.\n\ndo you think this is more clear? \n\u0027...  DateTime is unread\u0027 or \u0027... fDateTime is unread.\u0027 I prefer the latter, without the article.",
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f18494a8_d7b554f4",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "Did you want to separate put a line of info about fDateTime here? It could be something along the lines of \u0027the time in xxx format\u0027 or whatever it is.",
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cabfd79a_ef89c182",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "I would move the \u0027false by default\u0027 part here.",
+      "range": {
+        "startLine": 48,
+        "startChar": 13,
+        "endLine": 48,
+        "endChar": 22
+      },
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0ec28fc_3326db0d",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "Any thing more that could be said? Is the title UTF-8? Is it unlimited in length? Etc.",
+      "range": {
+        "startLine": 56,
+        "startChar": 23,
+        "endLine": 56,
+        "endChar": 24
+      },
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65572d2b_ba640dd8",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 62,
+        "startChar": 8,
+        "endLine": 62,
+        "endChar": 17
+      },
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19423290_8eb4ffd6",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "Is the space here to workaround something?  If you want PDF to go the PDF reference link, then let\u0027s figure out some alternate wording. I assume that \u0027PDF document\u0027 (or probably PDF_Document in bookmaker) is one thing, and this is something else. How about \u0027PDF SkDocument or PDF_SkDocument to distinguish that this is a not a PDF?",
+      "range": {
+        "startLine": 95,
+        "startChar": 21,
+        "endLine": 95,
+        "endChar": 22
+      },
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee061adb_71d23483",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "If it writes to a Skia stream, then it would be better to refer to SkWStream if that\u0027s stilll a thing.",
+      "range": {
+        "startLine": 96,
+        "startChar": 15,
+        "endLine": 96,
+        "endChar": 21
+      },
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f716ca1e_09f7647e",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "\u0027typographic point\u0027\nIn css \u0027pt\u0027 is a thing -- is it really a thing in Skia? It\u0027s not a word -- spelling it as an abbreviation looks weird\n\u00271 pt. equals 1/72 of an inch\u0027...\n\nFurther, most style guides would use \u0027One\u0027 in place of \u00271\u0027 here. I would probably write this as\n\nPDF_Page uses Typographic_Point to describe text and geometry size. One point equals 1/72 of an inch, which is approximately 127/360 millimeters. \n\nI can\u0027t find any online reference to a point defined in terms of mm though. Is this an Adobe-ism?",
+      "range": {
+        "startLine": 98,
+        "startChar": 31,
+        "endLine": 98,
+        "endChar": 37
+      },
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2966c856_7cc3ae4f",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "I\u0027m conflicted by this. Should every method below point to a fiddle? Should the description instead mention what the example demonstrates -- maybe the example is more closely paired with the description at the top of the file.\n\nI\u0027m leaning towards a more sparse style of documentation in the include file that doesn\u0027t include links, but I could be persuaded otherwise.",
+      "range": {
+        "startLine": 101,
+        "startChar": 37,
+        "endLine": 101,
+        "endChar": 40
+      },
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c62618a9_bb10ac5a",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "I find this difficult to parse. Some of the information here looks like a discussion of the call, not the parameter.",
+      "range": {
+        "startLine": 103,
+        "startChar": 24,
+        "endLine": 103,
+        "endChar": 28
+      },
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e52c3a31_1fd615a2",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "close() is fine -- use \u0027()\u0027 on all lowercase method names to distinguish them from the regular word.",
+      "range": {
+        "startLine": 241,
+        "startChar": 13,
+        "endLine": 241,
+        "endChar": 19
+      },
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3571e130_5a6295d9",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-05-22T12:16:37Z",
+      "side": 1,
+      "message": "abort() is fine",
+      "range": {
+        "startLine": 249,
+        "startChar": 13,
+        "endLine": 249,
+        "endChar": 19
+      },
+      "revId": "73b0ff0991a76653c29dcd8074d5e20b2eea2930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
