@@ -161,28 +161,34 @@ uint64_t resource_cache_shared_id() {
 struct AmbientVerticesFactory {
     SkScalar fOccluderHeight = SK_ScalarNaN;  // NaN so that isCompatible will fail until init'ed.
     bool fTransparent;
+    SkVector fCacheOffset;
 
     bool isCompatible(const AmbientVerticesFactory& that, SkVector* translate) const {
         if (fOccluderHeight != that.fOccluderHeight || fTransparent != that.fTransparent) {
             return false;
         }
-        translate->set(0, 0);
+        *translate = fCacheOffset;
         return true;
     }
 
-    sk_sp<SkVertices> makeVertices(const SkPath& path, const SkMatrix& ctm) const {
+    sk_sp<SkVertices> makeVertices(const SkPath& path, const SkMatrix& ctm,
+                                   SkVector* translate) const {
         SkPoint3 zParams = SkPoint3::Make(0, 0, fOccluderHeight);
-        return SkShadowTessellator::MakeAmbient(path, ctm, zParams, fTransparent);
+        // pick a canonical place to generate shadow
+        SkMatrix noTrans(ctm);
+        noTrans[SkMatrix::kMTransX] -= fCacheOffset.fX;
+        noTrans[SkMatrix::kMTransY] -= fCacheOffset.fY;
+        *translate = fCacheOffset;
+        return SkShadowTessellator::MakeAmbient(path, noTrans, zParams, fTransparent);
     }
 };
 
 /** Factory for an spot shadow mesh with particular shadow properties. */
 struct SpotVerticesFactory {
     enum class OccluderType {
-        // The umbra cannot be dropped out because the occluder is not opaque.
+        // The umbra cannot be dropped out because either the occluder is not opaque,
+        // or the center of the umbra is visible.
         kTransparent,
-        // The occluder is opaque and the umbra is fully visible
-        kOpaqueFullUmbra,
         // The umbra can be dropped where it is occluded.
         kOpaquePartialUmbra,
         // It is known that the entire umbra is occluded.
@@ -190,6 +196,8 @@ struct SpotVerticesFactory {
     };
 
     SkVector fOffset;
+    SkVector fCacheOffset;
+    SkPoint  fLocalCenter;
     SkScalar fOccluderHeight = SK_ScalarNaN; // NaN so that isCompatible will fail until init'ed.
     SkPoint3 fDevLightPos;
     SkScalar fLightRadius;
@@ -202,11 +210,10 @@ struct SpotVerticesFactory {
         }
         switch (fOccluderType) {
             case OccluderType::kTransparent:
-            case OccluderType::kOpaqueFullUmbra:
             case OccluderType::kOpaqueNoUmbra:
                 // 'this' and 'that' will either both have no umbra removed or both have all the
                 // umbra removed.
-                *translate = that.fOffset - fOffset;
+                *translate = fCacheOffset + that.fOffset;
                 return true;
             case OccluderType::kOpaquePartialUmbra:
                 // In this case we partially remove the umbra differently for 'this' and 'that'
@@ -221,11 +228,26 @@ struct SpotVerticesFactory {
         return false;
     }
 
-    sk_sp<SkVertices> makeVertices(const SkPath& path, const SkMatrix& ctm) const {
+    sk_sp<SkVertices> makeVertices(const SkPath& path, const SkMatrix& ctm,
+                                   SkVector* translate) const {
         bool transparent = OccluderType::kTransparent == fOccluderType;
         SkPoint3 zParams = SkPoint3::Make(0, 0, fOccluderHeight);
-        return SkShadowTessellator::MakeSpot(path, ctm, zParams,
-                                             fDevLightPos, fLightRadius, transparent);
+        if (ctm.hasPerspective() || OccluderType::kOpaquePartialUmbra == fOccluderType) {
+            translate->set(0, 0);
+            return SkShadowTessellator::MakeSpot(path, ctm, zParams,
+                                                 fDevLightPos, fLightRadius, transparent);
+        } else {
+            // pick a canonical place to generate shadow, with light centered over path
+            SkMatrix noTrans(ctm);
+            noTrans[SkMatrix::kMTransX] = 0;
+            noTrans[SkMatrix::kMTransY] = 0;
+            SkPoint devCenter(fLocalCenter);
+            noTrans.mapPoints(&devCenter, 1);
+            SkPoint3 centerLightPos = SkPoint3::Make(devCenter.fX, devCenter.fY, fDevLightPos.fZ);
+            *translate = fCacheOffset + fOffset;
+            return SkShadowTessellator::MakeSpot(path, noTrans, zParams,
+                                                 centerLightPos, fLightRadius, transparent);
+        }
     }
 };
 
@@ -245,8 +267,8 @@ public:
     }
 
     sk_sp<SkVertices> add(const SkPath& devPath, const AmbientVerticesFactory& ambient,
-                          const SkMatrix& matrix) {
-        return fAmbientSet.add(devPath, ambient, matrix);
+                          const SkMatrix& matrix, SkVector* translate) {
+        return fAmbientSet.add(devPath, ambient, matrix, translate);
     }
 
     sk_sp<SkVertices> find(const SpotVerticesFactory& spot, const SkMatrix& matrix,
@@ -255,8 +277,8 @@ public:
     }
 
     sk_sp<SkVertices> add(const SkPath& devPath, const SpotVerticesFactory& spot,
-                          const SkMatrix& matrix) {
-        return fSpotSet.add(devPath, spot, matrix);
+                          const SkMatrix& matrix, SkVector* translate) {
+        return fSpotSet.add(devPath, spot, matrix, translate);
     }
 
 private:
@@ -288,8 +310,9 @@ private:
             return nullptr;
         }
 
-        sk_sp<SkVertices> add(const SkPath& path, const FACTORY& factory, const SkMatrix& matrix) {
-            sk_sp<SkVertices> vertices = factory.makeVertices(path, matrix);
+        sk_sp<SkVertices> add(const SkPath& path, const FACTORY& factory, const SkMatrix& matrix,
+                              SkVector* translate) {
+            sk_sp<SkVertices> vertices = factory.makeVertices(path, matrix, translate);
             if (!vertices) {
                 return nullptr;
             }
@@ -477,19 +500,21 @@ template <typename FACTORY>
             } else {
                 tessellations.reset(new CachedTessellations());
             }
-            vertices = tessellations->add(path.path(), factory, path.viewMatrix());
+            vertices = tessellations->add(path.path(), factory, path.viewMatrix(),
+                                          &context.fTranslate);
             if (!vertices) {
                 return;
             }
             auto rec = new CachedTessellationsRec(*key, std::move(tessellations));
             SkResourceCache::Add(rec);
         } else {
-            vertices = factory.makeVertices(path.path(), path.viewMatrix());
+            vertices = factory.makeVertices(path.path(), path.viewMatrix(),
+                                            &context.fTranslate);
             if (!vertices) {
                 return;
             }
         }
-        translate = &kZeroTranslate;
+        translate = &context.fTranslate;
     }
 
     SkPaint paint;
@@ -583,6 +608,12 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
             AmbientVerticesFactory factory;
             factory.fOccluderHeight = zPlaneParams.fZ;
             factory.fTransparent = transparent;
+            if (viewMatrix.hasPerspective()) {
+                factory.fCacheOffset.set(0, 0);
+            } else {
+                factory.fCacheOffset.fX = viewMatrix.getTranslateX();
+                factory.fCacheOffset.fY = viewMatrix.getTranslateY();
+            }
 
             SkColor renderColor = compute_render_color(color, ambientAlpha);
             draw_shadow(factory, drawVertsProc, shadowedPath, renderColor);
@@ -614,6 +645,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
             // Compute the scale and translation for the spot shadow.
             SkScalar scale = devLightPos.fZ / (devLightPos.fZ - occluderHeight);
             SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
+            factory.fLocalCenter = center;
             viewMatrix.mapPoints(&center, 1);
             factory.fOffset = SkVector::Make(zRatio * (center.fX - devLightPos.fX),
                                              zRatio * (center.fY - devLightPos.fY));
@@ -622,20 +654,20 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
             factory.fLightRadius = lightRadius;
             SkRect devBounds;
             viewMatrix.mapRect(&devBounds, path.getBounds());
-            if (transparent) {
-                factory.fOccluderType = SpotVerticesFactory::OccluderType::kTransparent;
-            } else if (SkTAbs(factory.fOffset.fX) > 0.5f*devBounds.width() ||
-                       SkTAbs(factory.fOffset.fY) > 0.5f*devBounds.height()) {
+            factory.fCacheOffset.fX = viewMatrix.getTranslateX();
+            factory.fCacheOffset.fY = viewMatrix.getTranslateY();
+            if (transparent ||
+                SkTAbs(factory.fOffset.fX) > 0.5f*devBounds.width() ||
+                SkTAbs(factory.fOffset.fY) > 0.5f*devBounds.height()) {
                 // if the translation of the shadow is big enough we're going to end up
                 // filling the entire umbra, so we can treat these as all the same
-                factory.fOccluderType = SpotVerticesFactory::OccluderType::kOpaqueFullUmbra;
+                factory.fOccluderType = SpotVerticesFactory::OccluderType::kTransparent;
             } else if (factory.fOffset.length()*scale + scale < radius) {
                 // if we don't translate more than the blur distance, can assume umbra is covered
                 factory.fOccluderType = SpotVerticesFactory::OccluderType::kOpaqueNoUmbra;
             } else {
                 factory.fOccluderType = SpotVerticesFactory::OccluderType::kOpaquePartialUmbra;
             }
-
 #ifdef DEBUG_SHADOW_CHECKS
             switch (factory.fOccluderType) {
                 case SpotVerticesFactory::OccluderType::kTransparent:

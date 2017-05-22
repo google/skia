@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkDrawShadowRec.h"
 #include "SkPatchUtils.h"
 #include "SkPictureData.h"
 #include "SkPicturePlayback.h"
@@ -569,6 +570,20 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             if (paint) {
                 canvas->drawRRect(rrect, *paint);
             }
+        } break;
+        case DRAW_SHADOW_REC: {
+            const auto& path = fPictureData->getPath(reader);
+            SkDrawShadowRec rec;
+            reader->readPoint3(&rec.fZPlaneParams);
+            reader->readPoint3(&rec.fLightPos);
+            rec.fLightRadius = reader->readScalar();
+            rec.fAmbientAlpha = reader->readScalar();
+            rec.fSpotAlpha = reader->readScalar();
+            rec.fColor = reader->read32();
+            rec.fFlags = reader->read32();
+            BREAK_ON_READ_ERROR(reader);
+
+            canvas->private_draw_shadow_rec(path, rec);
         } break;
         case DRAW_SPRITE: {
             /* const SkPaint* paint = */ fPictureData->getPaint(reader);

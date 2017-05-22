@@ -14,8 +14,8 @@ struct SkDrawShadowRec {
     SkPoint3    fZPlaneParams;
     SkPoint3    fLightPos;
     SkScalar    fLightRadius;
-    float       fAmbientAlpha;
-    float       fSpotAlpha;
+    SkScalar    fAmbientAlpha;
+    SkScalar    fSpotAlpha;
     SkColor     fColor;
     uint32_t    fFlags;
 };
