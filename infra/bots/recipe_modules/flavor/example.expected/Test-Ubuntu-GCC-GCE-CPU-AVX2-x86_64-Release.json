@@ -50,7 +50,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
       "rmtree",
       "results_dir"
     ],
@@ -87,7 +87,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
       "rmtree",
       "device_results_dir"
     ],

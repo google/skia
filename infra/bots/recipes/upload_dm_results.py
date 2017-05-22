@@ -10,7 +10,7 @@ import calendar
 
 
 DEPS = [
-  'build/file',
+  'file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',

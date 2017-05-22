@@ -1,0 +1,301 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport json, os, sys\nif os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):\n  with open(sys.argv[2], 'w') as f:\n    json.dump(os.listdir(sys.argv[1]), f)\n",
+      "/fake/dir",
+      "/path/to/tmp/json"
+    ],
+    "name": "listdir fake dir",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"file 1\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"file 2\"@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import json, os, sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  with open(sys.argv[2], 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    json.dump(os.listdir(sys.argv[1]), f)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "some",
+      "command"
+    ],
+    "name": "manipulate file 1"
+  },
+  {
+    "cmd": [
+      "some",
+      "command"
+    ],
+    "name": "manipulate file 2"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport json, os, sys\nif os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):\n  with open(sys.argv[2], 'w') as f:\n    json.dump(os.listdir(sys.argv[1]), f)\n",
+      "/faker/dir",
+      "/path/to/tmp/json"
+    ],
+    "name": "listdir other",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"aaa\"@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import json, os, sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  with open(sys.argv[2], 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    json.dump(os.listdir(sys.argv[1]), f)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "some",
+      "command"
+    ],
+    "name": "manipulate aaa"
+  },
+  {
+    "cmd": [
+      "echo",
+      "[TMP_BASE]/prefix_a_tmp_1"
+    ],
+    "name": "print prefix_a"
+  },
+  {
+    "cmd": [
+      "echo",
+      "[TMP_BASE]/prefix_b_tmp_2"
+    ],
+    "name": "print prefix_b"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.move(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]/source",
+      "[START_DIR]/destination"
+    ],
+    "name": "move"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
+      "[START_DIR]/some_file"
+    ],
+    "name": "remove",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@os.remove(sys.argv[1])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "rmcontents",
+      "[START_DIR]/some_dir"
+    ],
+    "infra_step": true,
+    "name": "rmcontents rmcontents"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "rmwildcard",
+      "[START_DIR]",
+      "*.o"
+    ],
+    "infra_step": true,
+    "name": "rmwildcard *.o in [START_DIR]"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "abcde",
+      "tmp_file.txt"
+    ],
+    "name": "write_simple"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "tmp_file.txt",
+      "/path/to/tmp/"
+    ],
+    "name": "read_simple"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "! ~&&",
+      "tmp_file.txt"
+    ],
+    "name": "write_symbols"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "tmp_file.txt",
+      "/path/to/tmp/"
+    ],
+    "name": "read_symbols"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "abcde fgh",
+      "tmp_file.txt"
+    ],
+    "name": "write_spaces"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "tmp_file.txt",
+      "/path/to/tmp/"
+    ],
+    "name": "read_spaces"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "ab\ncd\nefg\n",
+      "tmp_file.txt"
+    ],
+    "name": "write_multiline"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "tmp_file.txt",
+      "/path/to/tmp/"
+    ],
+    "name": "read_multiline"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[START_DIR]/copytree_example_tmp",
+      "511"
+    ],
+    "name": "makedirs makedirs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "some file content",
+      "[START_DIR]/copytree_example_tmp/dummy_file"
+    ],
+    "name": "write [START_DIR]/copytree_example_tmp/dummy_file"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copytree(sys.argv[1], sys.argv[2], symlinks=bool(sys.argv[3]))\n",
+      "[START_DIR]/copytree_example_tmp",
+      "[START_DIR]/copytree_example_tmp2",
+      "0"
+    ],
+    "name": "copytree"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]/copytree_example_tmp2/dummy_file",
+      "/path/to/tmp/"
+    ],
+    "name": "read [START_DIR]/copytree_example_tmp2/dummy_file"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport glob\nimport sys\nwith open(sys.argv[1], 'w') as f:\n  f.write('\\n'.join(glob.glob(sys.argv[2])))\n",
+      "/path/to/tmp/",
+      "[START_DIR]/copytree_example_tmp/*"
+    ],
+    "name": "glob"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "rmtree",
+      "[START_DIR]/copytree_example_tmp"
+    ],
+    "infra_step": true,
+    "name": "rmtree cleanup"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "rmtree",
+      "[START_DIR]/copytree_example_tmp2"
+    ],
+    "infra_step": true,
+    "name": "rmtree cleanup2"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

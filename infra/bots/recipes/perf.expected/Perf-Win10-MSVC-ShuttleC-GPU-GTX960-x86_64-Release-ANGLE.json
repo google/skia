@@ -69,7 +69,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::file]\\resources\\fileutil.py",
+      "RECIPE_MODULE[skia::file]\\resources\\fileutil.py",
       "rmtree",
       "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE\\data"
     ],

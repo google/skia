@@ -17,7 +17,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
       "rmtree",
       "[CUSTOM_/_B_WORK]/flutter/src/out/android_release"
     ],
