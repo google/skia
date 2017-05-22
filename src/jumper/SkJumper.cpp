@@ -112,6 +112,7 @@ static const SkJumper_Engine kPortable = {
 };
 // ...and a platform-specific engine chosen on first use based on CPU features.
 static SkJumper_Engine gPlatform = kPortable;
+static SkOnce gChooseEngineOnce;
 
 static SkJumper_Engine choose_engine() {
 #if __has_feature(memory_sanitizer)
@@ -172,29 +173,59 @@ static SkJumper_Engine choose_engine() {
     return kPortable;
 }
 
+static void build_pipeline(const SkRasterPipeline::Stage* stages, int nstages,
+                           const SkJumper_Engine& engine, void** ip) {
+    for (int i = 0; i < nstages; i++) {
+        const auto& st = stages[i];
+        StageFn* fn = engine.stages[st.stage];
+
+        *ip++ = (void*)fn;
+        if (st.ctx) {
+            *ip++ = st.ctx;
+        }
+    }
+    *ip = (void*)engine.just_return;
+}
+
 void SkRasterPipeline::run(size_t x, size_t n) const {
-    static SkOnce once;
-    once([]{ gPlatform = choose_engine(); });
+    gChooseEngineOnce([]{ gPlatform = choose_engine(); });
 
     SkAutoSTMalloc<64, void*> program(2*fStages.size() + 1);
     const size_t limit = x+n;
 
-    auto build_and_run = [&](const SkJumper_Engine& engine) {
-        if (x + engine.min_stride <= limit) {
-            void** ip = program.get();
-            for (auto&& st : fStages) {
-                StageFn* fn = engine.stages[st.stage];
-                *ip++ = (void*)fn;
-                if (st.ctx) {
-                    *ip++ = st.ctx;
-                }
-            }
-            *ip = (void*)engine.just_return;
+    if (x + gPlatform.min_stride <= limit) {
+        build_pipeline(fStages.data(), SkToInt(fStages.size()), gPlatform, program.get());
+        x = gPlatform.start_pipeline(x, program.get(), &kConstants, limit);
+    }
+    if (x < limit) {
+        build_pipeline(fStages.data(), SkToInt(fStages.size()), kPortable, program.get());
+        kPortable.start_pipeline(x, program.get(), &kConstants, limit);
+    }
+}
 
-            x = engine.start_pipeline(x, program.get(), &kConstants, limit);
+std::function<void(size_t, size_t)> SkRasterPipeline::compile(SkArenaAlloc* alloc) const {
+    gChooseEngineOnce([]{ gPlatform = choose_engine(); });
+
+    void** platform = alloc->makeArray<void*>(2*fStages.size() + 1);
+    build_pipeline(fStages.data(), SkToInt(fStages.size()), gPlatform, platform);
+
+    if (gPlatform.min_stride == 1) {
+        return [=](size_t x, size_t n) {
+            const size_t limit = x+n;
+            gPlatform.start_pipeline(x, platform, &kConstants, limit);
+        };
+    }
+
+    void** portable = alloc->makeArray<void*>(2*fStages.size() + 1);
+    build_pipeline(fStages.data(), SkToInt(fStages.size()), kPortable, portable);
+
+    return [=](size_t x, size_t n) {
+        const size_t limit = x+n;
+        if (x + gPlatform.min_stride <= limit) {
+            x = gPlatform.start_pipeline(x, platform, &kConstants, limit);
+        }
+        if (x < limit) {
+            kPortable.start_pipeline(x, portable, &kConstants, limit);
         }
     };
-
-    build_and_run(gPlatform);
-    build_and_run(kPortable);
 }
