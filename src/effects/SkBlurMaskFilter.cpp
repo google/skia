@@ -14,6 +14,7 @@
 #include "SkRRect.h"
 #include "SkStringUtils.h"
 #include "SkStrokeRec.h"
+#include "SkVertices.h"
 
 #if SK_SUPPORT_GPU
 #include "GrCircleBlurFragmentProcessor.h"
@@ -1401,38 +1402,32 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
         SkRect srcProxyRect = srcRRect.rect();
         srcProxyRect.outset(3.0f*fSigma, 3.0f*fSigma);
 
-        SkPoint points[8];
-        uint16_t indices[24];
-        int numPoints, numIndices;
-
+        sk_sp<SkVertices> vertices = nullptr;
         SkRect temp = fOccluder;
 
         if (!temp.isEmpty() && (srcProxyRect.contains(temp) || temp.intersect(srcProxyRect))) {
-            srcProxyRect.toQuad(points);
-            temp.toQuad(&points[4]);
-            numPoints = 8;
+            SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, 8, 24, 0);
+            srcProxyRect.toQuad(builder.positions());
+            temp.toQuad(builder.positions() + 4);
 
             static const uint16_t ringI[24] = { 0, 1, 5, 5, 4, 0,
                                                 1, 2, 6, 6, 5, 1,
                                                 2, 3, 7, 7, 6, 2,
                                                 3, 0, 4, 4, 7, 3 };
-            memcpy(indices, ringI, sizeof(ringI));
-            numIndices = 24;
+            memcpy(builder.indices(), ringI, sizeof(ringI));
+            vertices = builder.detach();
         } else {
             // full rect case
-            srcProxyRect.toQuad(points);
-            numPoints = 4;
+            SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, 4, 6, 0);
+            srcProxyRect.toQuad(builder.positions());
 
             static const uint16_t fullI[6] = { 0, 1, 2, 0, 2, 3 };
-            memcpy(indices, fullI, sizeof(fullI));
-            numIndices = 6;
+            memcpy(builder.indices(), fullI, sizeof(fullI));
+            vertices = builder.detach();
         }
 
         paint.addCoverageFragmentProcessor(std::move(fp));
-        renderTargetContext->drawVertices(clip, std::move(paint), viewMatrix,
-                                          kTriangles_GrPrimitiveType, numPoints, points, nullptr,
-                                          nullptr, indices, numIndices);
-
+        renderTargetContext->drawVertices(clip, std::move(paint), viewMatrix, std::move(vertices));
     } else {
         SkMatrix inverse;
         if (!viewMatrix.invert(&inverse)) {
