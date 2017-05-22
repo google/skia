@@ -48,6 +48,75 @@
     },
     {
       "key": {
+        "uuid": "78213fe8_58cbfffe",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-22T13:53:13Z",
+      "side": 1,
+      "message": "Maybe something that indicates these are memory stages.  pick_io_stages() (probably confusing).  pick_memory_stages?  It is fine as is though.",
+      "range": {
+        "startLine": 309,
+        "startChar": 12,
+        "endLine": 309,
+        "endChar": 23
+      },
+      "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ab9792d_73e11f06",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-22T13:53:13Z",
+      "side": 1,
+      "message": "I think this function was possibly a bad suggestion, given that it does so much more than what you need (which I think is).\n\nif (blendWithPrevFrame \u0026\u0026 kRespect \u003d\u003d fUnpremul Behavior \u0026\u0026 (!colorSpace || !colorSpace-\u003egammaCloseToSRGB() || !colorSpace-\u003egammaIsLinear())\n  return kInvalid",
+      "range": {
+        "startLine": 490,
+        "startChar": 31,
+        "endLine": 490,
+        "endChar": 69
+      },
+      "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96bb0dd6_5488c4e0",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-22T13:53:13Z",
+      "side": 1,
+      "message": "I think this is not always what we want.  We do want this in the colorXform case (since the xform will do the premultiply), but probably not when we are blendWithPrevFrame without a colorXform.",
+      "range": {
+        "startLine": 505,
+        "startChar": 8,
+        "endLine": 507,
+        "endChar": 9
+      },
+      "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d21968fe_eaea51ea",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 3
@@ -64,6 +133,29 @@
         "startChar": 7,
         "endLine": 557,
         "endChar": 87
+      },
+      "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ee2a361_61a4668d",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-22T13:53:13Z",
+      "side": 1,
+      "message": "Maybe call this convert_to_dst? (since we\u0027ll apply dst alpha type if necsesary and dst transfer function if necessary)",
+      "range": {
+        "startLine": 564,
+        "startChar": 21,
+        "endLine": 564,
+        "endChar": 42
       },
       "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
@@ -133,6 +225,52 @@
         "startChar": 16,
         "endLine": 581,
         "endChar": 72
+      },
+      "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e63fae1e_b42aca33",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 612,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-22T13:53:13Z",
+      "side": 1,
+      "message": "Does this pipeline needs swap_rb?",
+      "range": {
+        "startLine": 612,
+        "startChar": 16,
+        "endLine": 612,
+        "endChar": 35
+      },
+      "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92b92d45_a82e4401",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-22T13:53:13Z",
+      "side": 1,
+      "message": "Do these pipelines have interesting differences?  Could they be a single pipeline?",
+      "range": {
+        "startLine": 639,
+        "startChar": 12,
+        "endLine": 639,
+        "endChar": 31
       },
       "revId": "77c01444f2d22e2052cb3ce3e032c5aa1fc19632",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",

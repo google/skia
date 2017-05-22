@@ -237,6 +237,30 @@
     },
     {
       "key": {
+        "uuid": "08e1bf74_531c49f2",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-22T13:53:13Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "1ac23bf6_4dc9f493",
+      "range": {
+        "startLine": 127,
+        "startChar": 16,
+        "endLine": 127,
+        "endChar": 24
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1a6cf995_cf6f5995",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 1
@@ -460,6 +484,30 @@
       "side": 1,
       "message": "In the case of only one frame, we don\u0027t put any information in fFrameHolder. We *could*, but we\u0027d have to make up values for e.g. duration, disposal method. (Maybe that\u0027s okay, and we\u0027d just use the default.)",
       "parentUuid": "5ed8d190_a128c2ea",
+      "range": {
+        "startLine": 364,
+        "startChar": 30,
+        "endLine": 364,
+        "endChar": 50
+      },
+      "revId": "6e76d53e5eec6445e64e7498edf48c138971c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30654b7b_3d7ec81d",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-22T13:53:13Z",
+      "side": 1,
+      "message": "Seems fine as is.",
+      "parentUuid": "5bfdc065_3b8c8edc",
       "range": {
         "startLine": 364,
         "startChar": 30,
