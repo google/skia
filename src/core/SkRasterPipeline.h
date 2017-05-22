@@ -8,10 +8,12 @@
 #ifndef SkRasterPipeline_DEFINED
 #define SkRasterPipeline_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkImageInfo.h"
 #include "SkNx.h"
 #include "SkTArray.h"
 #include "SkTypes.h"
+#include <functional>
 #include <vector>
 
 /**
@@ -122,6 +124,9 @@ public:
 
     // Runs the pipeline walking x through [x,x+n).
     void run(size_t x, size_t n) const;
+
+    // Allocates a thunk which amortizes run() setup cost in alloc.
+    std::function<void(size_t, size_t)> compile(SkArenaAlloc*) const;
 
     void dump() const;
 

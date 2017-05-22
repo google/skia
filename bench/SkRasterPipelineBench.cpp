@@ -66,11 +66,13 @@ public:
 DEF_BENCH( return (new SkRasterPipelineBench< true>); )
 DEF_BENCH( return (new SkRasterPipelineBench<false>); )
 
-class SkRasterPipelineLegacyBench : public Benchmark {
+class SkRasterPipelineCompileVsRunBench : public Benchmark {
 public:
+    explicit SkRasterPipelineCompileVsRunBench(bool compile) : fCompile(compile) {}
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
     const char* onGetName() override {
-        return "SkRasterPipeline_legacy";
+        return fCompile ? "SkRasterPipeline_compile"
+                        : "SkRasterPipeline_run";
     }
 
     void onDraw(int loops, SkCanvas*) override {
@@ -84,12 +86,24 @@ public:
         p.append(SkRasterPipeline::srcover);
         p.append(SkRasterPipeline::store_8888, &dst_ctx);
 
-        while (loops --> 0) {
-            p.run(0,N);
+        if (fCompile) {
+            char buffer[1024];
+            SkArenaAlloc alloc(buffer);
+            auto fn = p.compile(&alloc);
+            while (loops --> 0) {
+                fn(0,N);
+            }
+        } else {
+            while (loops --> 0) {
+                p.run(0,N);
+            }
         }
     }
+private:
+    bool fCompile;
 };
-DEF_BENCH( return (new SkRasterPipelineLegacyBench); )
+DEF_BENCH( return (new SkRasterPipelineCompileVsRunBench(true )); )
+DEF_BENCH( return (new SkRasterPipelineCompileVsRunBench(false)); )
 
 static SkColorSpaceTransferFn gamma(float g) {
     SkColorSpaceTransferFn fn = {0,0,0,0,0,0,0};
