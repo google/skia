@@ -52,7 +52,7 @@ bool does_full_buffer_contain_correct_color(GrColor* srcBuffer,
 }
 
 void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixelConfig config,
-                        bool renderTarget, bool linearTiling) {
+                        bool renderTarget) {
     const int kWidth = 16;
     const int kHeight = 16;
     SkAutoTMalloc<GrColor> srcBuffer(kWidth*kHeight);
@@ -60,23 +60,8 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
 
     fill_pixel_data(kWidth, kHeight, srcBuffer.get());
 
-    const GrVkCaps* caps = reinterpret_cast<const GrVkCaps*>(context->caps());
-
-    bool canCreate = true;
-    // the expectation is that the given config is texturable/renderable with optimal tiling
-    // but may not be with linear tiling
-    if (linearTiling) {
-        if (!caps->isConfigTexturableLinearly(config) ||
-            (renderTarget && !caps->isConfigRenderableLinearly(config, false))) {
-            canCreate = false;
-        }
-    }
-
     GrSurfaceDesc surfDesc;
     surfDesc.fFlags = renderTarget ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-    if (linearTiling) {
-        surfDesc.fFlags |= kZeroCopy_GrSurfaceFlag;
-    }
     surfDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
     surfDesc.fWidth = kWidth;
     surfDesc.fHeight = kHeight;
@@ -89,10 +74,8 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                                surfDesc, SkBudgeted::kNo,
                                                                srcBuffer, 0);
-
+    REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
-        REPORTER_ASSERT(reporter, canCreate);
-
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
                                                                                 proxy, nullptr);
 
@@ -118,8 +101,6 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
                                                                          dstBuffer,
                                                                          10,
                                                                          2));
-    } else {
-        REPORTER_ASSERT(reporter, !canCreate);
     }
 
     surfDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
@@ -127,9 +108,8 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                          surfDesc, SkBudgeted::kNo,
                                          srcBuffer, 0);
+    REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
-        REPORTER_ASSERT(reporter, canCreate);
-
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
                                                                                 proxy, nullptr);
 
@@ -156,23 +136,17 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
                                                                          4,
                                                                          5));
 
-    } else {
-        REPORTER_ASSERT(reporter, !canCreate);
     }
 }
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkUploadPixelsTests, reporter, ctxInfo) {
     // RGBA
-    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig, false, false);
-    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig, true, false);
-    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig, false, true);
-    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig, true, true);
+    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig, false);
+    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig, true);
 
     // BGRA
-    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, false, false);
-    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, true, false);
-    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, false, true);
-    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, true, true);
+    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, false);
+    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, true);
 }
 
 #endif
