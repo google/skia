@@ -24096,8 +24096,8 @@ _sk_store_f16_sse41:
   .byte  102,69,15,97,233                    // punpcklwd     %xmm9,%xmm13
   .byte  102,69,15,111,200                   // movdqa        %xmm8,%xmm9
   .byte  102,69,15,98,205                    // punpckldq     %xmm13,%xmm9
-  .byte  243,68,15,127,12,248                // movdqu        %xmm9,(%rax,%rdi,8)
   .byte  102,69,15,106,197                   // punpckhdq     %xmm13,%xmm8
+  .byte  243,68,15,127,12,248                // movdqu        %xmm9,(%rax,%rdi,8)
   .byte  243,68,15,127,68,248,16             // movdqu        %xmm8,0x10(%rax,%rdi,8)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -24237,8 +24237,8 @@ _sk_store_u16_be_sse41:
   .byte  102,69,15,97,217                    // punpcklwd     %xmm9,%xmm11
   .byte  102,69,15,111,200                   // movdqa        %xmm8,%xmm9
   .byte  102,69,15,98,203                    // punpckldq     %xmm11,%xmm9
-  .byte  243,68,15,127,12,248                // movdqu        %xmm9,(%rax,%rdi,8)
   .byte  102,69,15,106,195                   // punpckhdq     %xmm11,%xmm8
+  .byte  243,68,15,127,12,248                // movdqu        %xmm9,(%rax,%rdi,8)
   .byte  243,68,15,127,68,248,16             // movdqu        %xmm8,0x10(%rax,%rdi,8)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -31068,8 +31068,8 @@ _sk_store_f16_sse2:
   .byte  102,69,15,97,233                    // punpcklwd     %xmm9,%xmm13
   .byte  102,69,15,111,200                   // movdqa        %xmm8,%xmm9
   .byte  102,69,15,98,205                    // punpckldq     %xmm13,%xmm9
-  .byte  243,68,15,127,12,248                // movdqu        %xmm9,(%rax,%rdi,8)
   .byte  102,69,15,106,197                   // punpckhdq     %xmm13,%xmm8
+  .byte  243,68,15,127,12,248                // movdqu        %xmm9,(%rax,%rdi,8)
   .byte  243,68,15,127,68,248,16             // movdqu        %xmm8,0x10(%rax,%rdi,8)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -31219,8 +31219,8 @@ _sk_store_u16_be_sse2:
   .byte  102,69,15,97,217                    // punpcklwd     %xmm9,%xmm11
   .byte  102,69,15,111,200                   // movdqa        %xmm8,%xmm9
   .byte  102,69,15,98,203                    // punpckldq     %xmm11,%xmm9
-  .byte  243,68,15,127,12,248                // movdqu        %xmm9,(%rax,%rdi,8)
   .byte  102,69,15,106,195                   // punpckhdq     %xmm11,%xmm8
+  .byte  243,68,15,127,12,248                // movdqu        %xmm9,(%rax,%rdi,8)
   .byte  243,68,15,127,68,248,16             // movdqu        %xmm8,0x10(%rax,%rdi,8)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
