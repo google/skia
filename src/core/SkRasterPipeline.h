@@ -90,8 +90,9 @@
     M(parametric_a)                                              \
     M(table_r) M(table_g) M(table_b) M(table_a)                  \
     M(lab_to_xyz)                                                \
-    M(clamp_x) M(mirror_x) M(repeat_x)                           \
-    M(clamp_y) M(mirror_y) M(repeat_y)                           \
+    M(clamp_x)   M(mirror_x)   M(repeat_x)                       \
+    M(clamp_y)   M(mirror_y)   M(repeat_y)                       \
+    M(clamp_x_1) M(mirror_x_1) M(repeat_x_1)                     \
     M(gather_a8) M(gather_g8) M(gather_i8)                       \
     M(gather_565) M(gather_4444) M(gather_8888) M(gather_f16)    \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)  \
