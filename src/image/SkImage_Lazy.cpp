@@ -256,7 +256,8 @@ struct CacheCaps {
 
     bool supportsSRGB() const {
         return !fCaps ||
-            (fCaps->srgbSupport() && fCaps->isConfigTexturable(kSRGBA_8888_GrPixelConfig));
+            (fCaps->srgbSupport() &&
+             fCaps->isConfigTexturable(kSRGBA_8888_GrPixelConfig));
     }
 
     bool supportsSBGR() const {

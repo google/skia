@@ -311,6 +311,8 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     SkASSERT(dstSurface);
     SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
 
+    // We don't support writing to compressed textures and, by extension, don't support
+    // writing compressed data to uncompressed textures
     if (GrPixelConfigIsCompressed(dstSurface->config()) && dstSurface->config() != srcConfig) {
         return false;
     }
@@ -378,6 +380,7 @@ bool GrGpu::writePixels(GrSurface* surface,
                         int left, int top, int width, int height,
                         GrPixelConfig config, const SkTArray<GrMipLevel>& texels) {
     SkASSERT(surface);
+
     for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
         if (!texels[currentMipLevel].fPixels ) {
             return false;
