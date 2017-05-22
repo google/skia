@@ -188,9 +188,6 @@ static void build_pipeline(const SkRasterPipeline::Stage* stages, int nstages,
 }
 
 void SkRasterPipeline::run(size_t x, size_t n) const {
-    if (fStages.empty()) {
-        return;
-    }
     gChooseEngineOnce([]{ gPlatform = choose_engine(); });
 
     SkAutoSTMalloc<64, void*> program(2*fStages.size() + 1);
@@ -207,9 +204,6 @@ void SkRasterPipeline::run(size_t x, size_t n) const {
 }
 
 std::function<void(size_t, size_t)> SkRasterPipeline::compile(SkArenaAlloc* alloc) const {
-    if (fStages.empty()) {
-        return [](size_t, size_t) {};
-    }
     gChooseEngineOnce([]{ gPlatform = choose_engine(); });
 
     void** platform = alloc->makeArray<void*>(2*fStages.size() + 1);
