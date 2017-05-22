@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9780ba1_aa7e383d",
+        "filename": "src/core/SkPictureFlat.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-05-22T16:04:52Z",
+      "side": 1,
+      "message": "This was only used if EXPERIMENTAL_SHADOWING was enabled, so it should be safe to reuse.",
+      "range": {
+        "startLine": 92,
+        "startChar": 4,
+        "endLine": 92,
+        "endChar": 19
+      },
+      "revId": "4aa6df1e1606cdbee31554b8b444d8e3a9a90131",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
