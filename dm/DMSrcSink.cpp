@@ -326,6 +326,16 @@ static void premultiply_if_necessary(SkBitmap& bitmap) {
     }
 
     switch (bitmap.colorType()) {
+        case kRGBA_F16_SkColorType:
+            for (int y = 0; y < bitmap.height(); y++) {
+                void* row = bitmap.getAddr(0, y);
+                SkRasterPipeline p;
+                p.append(SkRasterPipeline::load_f16, &row);
+                p.append(SkRasterPipeline::premul);
+                p.append(SkRasterPipeline::store_f16, &row);
+                p.run(0, bitmap.width());
+            }
+            break;
         case kN32_SkColorType:
             for (int y = 0; y < bitmap.height(); y++) {
                 uint32_t* row = (uint32_t*) bitmap.getAddr(0, y);
