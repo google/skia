@@ -14,10 +14,10 @@ To do a dry run through the CQ please use Gerrit's [CQ Dry Run](https://groups.g
 The CQ will run through its list of verifiers (reviewer check, trybots, tree check,
 presubmit check), and will close the issue instead of committing it.
 
-NO_DEPENDENCY_CHECKS
+No-Dependency-Checks
 --------------------
 
-    NO_DEPENDENCY_CHECKS=true
+    No-Dependency-Checks: true
 
 The CQ rejects patchsets with open dependencies. An open dependency exists when a CL
 depends on another CL that is not yet closed. You can skip this check with this keyword.
@@ -38,40 +38,31 @@ Here are some real world examples:
 
     CQ_INCLUDE_TRYBOTS=skia.primary:Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE
 
-TBR
----
 
-If you are a Skia committer and cannot wait for a review,
-then you can include the TBR keyword in your CL's description.
-
-Example:
-
-    TBR=rmistry@google.com
-
-NOTREECHECKS
-------------
+No-Tree-Checks
+--------------
 
 If you want to skip the tree status checks, to make the CQ commit a CL even if the tree is closed,
 you can add the following line to the CL description:
 
-    NOTREECHECKS=true
+    No-Tree-Checks: true
 
 This is discouraged, since the tree is closed for a reason. However, in rare cases this is acceptable,
 primarily to fix build breakages (i.e., your CL will help in reopening the tree).
 
-NOPRESUBMIT
------------
+No-Presubmit
+------------
 
 If you want to skip the presubmit checks, add the following line to the CL description:
 
-    NOPRESUBMIT=true
+    No-Presubmit: true
 
-NOTRY
------
+No-Try
+------
 
 If you cannot wait for the try job results, you can add the following line to the CL description:
 
-    NOTRY=true
+    No-Try: true
 
 The CQ will then not run any try jobs for your change and will commit the CL as soon as the tree is open, assuming the presubmit check passes.
 
