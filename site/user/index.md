@@ -17,4 +17,3 @@ Device backends for Skia currently include:
   * PDF
   * XPS
   * Picture (for recording and then playing back into another Canvas)
-
