@@ -489,7 +489,7 @@ void SkPDFSharedStream::emitObject(
     SkPDFUnion::Name("FlateDecode").emitObject(stream, objNumMap);
     stream->writeText(">>");
     stream->writeText(" stream\n");
-    buffer.writeToStream(stream);
+    buffer.writeToAndReset(stream);
     stream->writeText("\nendstream");
 }
 #endif
