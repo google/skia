@@ -56,7 +56,7 @@ public:
         typedef SkGradientShaderBase::GradientShaderBaseContext INHERITED;
     };
 
-    SkShader::GradientType asAGradient(GradientInfo* info) const  override;
+    GradientType asAGradient(GradientInfo* info) const  override;
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif

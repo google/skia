@@ -118,8 +118,8 @@ private:
 };
 
 sk_sp<GrFragmentProcessor> SkNormalMapSourceImpl::asFragmentProcessor(
-        const SkShader::AsFPArgs& args) const {
-    sk_sp<GrFragmentProcessor> mapFP = fMapShader->asFragmentProcessor(args);
+        const SkShaderBase::AsFPArgs& args) const {
+    sk_sp<GrFragmentProcessor> mapFP = as_SB(fMapShader)->asFragmentProcessor(args);
     if (!mapFP) {
         return nullptr;
     }
@@ -132,11 +132,11 @@ sk_sp<GrFragmentProcessor> SkNormalMapSourceImpl::asFragmentProcessor(
 ////////////////////////////////////////////////////////////////////////////
 
 SkNormalMapSourceImpl::Provider::Provider(const SkNormalMapSourceImpl& source,
-                                          SkShader::Context* mapContext)
+                                          SkShaderBase::Context* mapContext)
     : fSource(source)
     , fMapContext(mapContext) {}
 
-SkNormalSource::Provider* SkNormalMapSourceImpl::asProvider(const SkShader::ContextRec &rec,
+SkNormalSource::Provider* SkNormalMapSourceImpl::asProvider(const SkShaderBase::ContextRec &rec,
                                                             SkArenaAlloc* alloc) const {
     SkMatrix normTotalInv;
     if (!this->computeNormTotalInverse(rec, &normTotalInv)) {
@@ -146,10 +146,10 @@ SkNormalSource::Provider* SkNormalMapSourceImpl::asProvider(const SkShader::Cont
     // Overriding paint's alpha because we need the normal map's RGB channels to be unpremul'd
     SkPaint overridePaint {*(rec.fPaint)};
     overridePaint.setAlpha(0xFF);
-    SkShader::ContextRec overrideRec(overridePaint, *(rec.fMatrix), rec.fLocalMatrix,
-                                     rec.fPreferredDstType, rec.fDstColorSpace);
+    SkShaderBase::ContextRec overrideRec(overridePaint, *(rec.fMatrix), rec.fLocalMatrix,
+                                         rec.fPreferredDstType, rec.fDstColorSpace);
 
-    SkShader::Context* context = fMapShader->makeContext(overrideRec, alloc);
+    auto* context = as_SB(fMapShader)->makeContext(overrideRec, alloc);
     if (!context) {
         return nullptr;
     }
@@ -157,7 +157,7 @@ SkNormalSource::Provider* SkNormalMapSourceImpl::asProvider(const SkShader::Cont
     return alloc->make<Provider>(*this, context);
 }
 
-bool SkNormalMapSourceImpl::computeNormTotalInverse(const SkShader::ContextRec& rec,
+bool SkNormalMapSourceImpl::computeNormTotalInverse(const SkShaderBase::ContextRec& rec,
                                                     SkMatrix* normTotalInverse) const {
     SkMatrix total = SkMatrix::Concat(*rec.fMatrix, fMapShader->getLocalMatrix());
     if (rec.fLocalMatrix) {
@@ -221,7 +221,7 @@ void SkNormalMapSourceImpl::Provider::fillScanLine(int x, int y, SkPoint3 output
 
 sk_sp<SkFlattenable> SkNormalMapSourceImpl::CreateProc(SkReadBuffer& buf) {
 
-    sk_sp<SkShader> mapShader = buf.readFlattenable<SkShader>();
+    sk_sp<SkShader> mapShader = buf.readFlattenable<SkShaderBase>();
 
     SkMatrix invCTM;
     buf.readMatrix(&invCTM);

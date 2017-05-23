@@ -210,7 +210,7 @@ bool SkTwoPointConicalGradient::isOpaque() const {
     return false;
 }
 
-SkShader::Context* SkTwoPointConicalGradient::onMakeContext(
+SkShaderBase::Context* SkTwoPointConicalGradient::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const {
     return CheckedMakeContext<TwoPointConicalGradientContext>(alloc, *this, rec);
 }
@@ -284,7 +284,7 @@ void SkTwoPointConicalGradient::TwoPointConicalGradientContext::shadeSpan(
 }
 
 // Returns the original non-sorted version of the gradient
-SkShader::GradientType SkTwoPointConicalGradient::asAGradient(
+SkShaderBase::GradientType SkTwoPointConicalGradient::asAGradient(
     GradientInfo* info) const {
     if (info) {
         commonAsAGradient(info, fFlippedGrad);

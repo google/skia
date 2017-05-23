@@ -125,7 +125,7 @@ static void interpolateColorCode(SkScalar range, const ColorTuple& curColor,
            }
        }
  */
-static void gradientFunctionCode(const SkShader::GradientInfo& info,
+static void gradientFunctionCode(const SkShaderBase::GradientInfo& info,
                                  SkDynamicMemoryWStream* result) {
     /* We want to linearly interpolate from the previous color to the next.
        Scale the colors from 0..255 to 0..1 and determine the multipliers
@@ -211,7 +211,7 @@ static sk_sp<SkPDFDict> createInterpolationFunction(const ColorTuple& color1,
     return retval;
 }
 
-static sk_sp<SkPDFDict> gradientStitchCode(const SkShader::GradientInfo& info) {
+static sk_sp<SkPDFDict> gradientStitchCode(const SkShaderBase::GradientInfo& info) {
     auto retval = sk_make_sp<SkPDFDict>();
 
     // normalize color stops
@@ -359,7 +359,7 @@ static void apply_perspective_to_coordinates(
                     "exch\n");            // x/(y*p1+x*p0+p2) y/(y*p1+x*p0+p2)
 }
 
-static void linearCode(const SkShader::GradientInfo& info,
+static void linearCode(const SkShaderBase::GradientInfo& info,
                        const SkMatrix& perspectiveRemover,
                        SkDynamicMemoryWStream* function) {
     function->writeText("{");
@@ -372,7 +372,7 @@ static void linearCode(const SkShader::GradientInfo& info,
     function->writeText("}");
 }
 
-static void radialCode(const SkShader::GradientInfo& info,
+static void radialCode(const SkShaderBase::GradientInfo& info,
                        const SkMatrix& perspectiveRemover,
                        SkDynamicMemoryWStream* function) {
     function->writeText("{");
@@ -396,7 +396,7 @@ static void radialCode(const SkShader::GradientInfo& info,
 /* Conical gradient shader, based on the Canvas spec for radial gradients
    See: http://www.w3.org/TR/2dcontext/#dom-context-2d-createradialgradient
  */
-static void twoPointConicalCode(const SkShader::GradientInfo& info,
+static void twoPointConicalCode(const SkShaderBase::GradientInfo& info,
                                 const SkMatrix& perspectiveRemover,
                                 SkDynamicMemoryWStream* function) {
     SkScalar dx = info.fPoint[1].fX - info.fPoint[0].fX;
@@ -507,7 +507,7 @@ static void twoPointConicalCode(const SkShader::GradientInfo& info,
     function->writeText("} {0 0 0} ifelse }");
 }
 
-static void sweepCode(const SkShader::GradientInfo& info,
+static void sweepCode(const SkShaderBase::GradientInfo& info,
                           const SkMatrix& perspectiveRemover,
                           SkDynamicMemoryWStream* function) {
     function->writeText("{exch atan 360 div\n");
@@ -541,13 +541,13 @@ static sk_sp<SkPDFObject> get_pdf_shader_by_state(
         SkPDFShader::State state,
         SkBitmap image) {
     SkPDFCanon* canon = doc->canon();
-    if (state.fType == SkShader::kNone_GradientType && image.isNull()) {
+    if (state.fType == SkShaderBase::kNone_GradientType && image.isNull()) {
         // TODO(vandebo) This drops SKComposeShader on the floor.  We could
         // handle compose shader by pulling things up to a layer, drawing with
         // the first shader, applying the xfer mode and drawing again with the
         // second shader, then applying the layer to the original drawing.
         return nullptr;
-    } else if (state.fType == SkShader::kNone_GradientType) {
+    } else if (state.fType == SkShaderBase::kNone_GradientType) {
         sk_sp<SkPDFObject> shader = canon->findImageShader(state);
         if (!shader) {
             shader = make_image_shader(doc, dpi, state, std::move(image));
@@ -777,17 +777,17 @@ static void FixUpRadius(const SkPoint& p1, SkScalar& r1, const SkPoint& p2, SkSc
 
 static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
                                              const SkPDFShader::State& state) {
-    void (*codeFunction)(const SkShader::GradientInfo& info,
+    void (*codeFunction)(const SkShaderBase::GradientInfo& info,
                          const SkMatrix& perspectiveRemover,
                          SkDynamicMemoryWStream* function) = nullptr;
     SkPoint transformPoints[2];
-    const SkShader::GradientInfo* info = &state.fInfo;
+    const SkShaderBase::GradientInfo* info = &state.fInfo;
     SkMatrix finalMatrix = state.fCanvasTransform;
     finalMatrix.preConcat(state.fShaderTransform);
 
-    bool doStitchFunctions = (state.fType == SkShader::kLinear_GradientType ||
-                              state.fType == SkShader::kRadial_GradientType ||
-                              state.fType == SkShader::kConical_GradientType) &&
+    bool doStitchFunctions = (state.fType == SkShaderBase::kLinear_GradientType ||
+                              state.fType == SkShaderBase::kRadial_GradientType ||
+                              state.fType == SkShaderBase::kConical_GradientType) &&
                              info->fTileMode == SkShader::kClamp_TileMode &&
                              !finalMatrix.hasPerspective();
 
@@ -801,7 +801,7 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
     // to transform the points and radii according to the calculated matrix.
     if (doStitchFunctions) {
         pdfShader->insertObject("Function", gradientStitchCode(*info));
-        shadingType = (state.fType == SkShader::kLinear_GradientType) ? 2 : 3;
+        shadingType = (state.fType == SkShaderBase::kLinear_GradientType) ? 2 : 3;
 
         auto extend = sk_make_sp<SkPDFArray>();
         extend->reserve(2);
@@ -810,7 +810,7 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
         pdfShader->insertObject("Extend", std::move(extend));
 
         auto coords = sk_make_sp<SkPDFArray>();
-        if (state.fType == SkShader::kConical_GradientType) {
+        if (state.fType == SkShaderBase::kConical_GradientType) {
             coords->reserve(6);
             SkScalar r1 = info->fRadius[0];
             SkScalar r2 = info->fRadius[1];
@@ -825,7 +825,7 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
             coords->appendScalar(pt2.fX);
             coords->appendScalar(pt2.fY);
             coords->appendScalar(r2);
-        } else if (state.fType == SkShader::kRadial_GradientType) {
+        } else if (state.fType == SkShaderBase::kRadial_GradientType) {
             coords->reserve(6);
             const SkPoint& pt1 = info->fPoint[0];
 
@@ -855,27 +855,27 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
         transformPoints[0] = info->fPoint[0];
         transformPoints[1] = info->fPoint[1];
         switch (state.fType) {
-            case SkShader::kLinear_GradientType:
+            case SkShaderBase::kLinear_GradientType:
                 codeFunction = &linearCode;
                 break;
-            case SkShader::kRadial_GradientType:
+            case SkShaderBase::kRadial_GradientType:
                 transformPoints[1] = transformPoints[0];
                 transformPoints[1].fX += info->fRadius[0];
                 codeFunction = &radialCode;
                 break;
-            case SkShader::kConical_GradientType: {
+            case SkShaderBase::kConical_GradientType: {
                 transformPoints[1] = transformPoints[0];
                 transformPoints[1].fX += SK_Scalar1;
                 codeFunction = &twoPointConicalCode;
                 break;
             }
-            case SkShader::kSweep_GradientType:
+            case SkShaderBase::kSweep_GradientType:
                 transformPoints[1] = transformPoints[0];
                 transformPoints[1].fX += SK_Scalar1;
                 codeFunction = &sweepCode;
                 break;
-            case SkShader::kColor_GradientType:
-            case SkShader::kNone_GradientType:
+            case SkShaderBase::kColor_GradientType:
+            case SkShaderBase::kNone_GradientType:
             default:
                 return nullptr;
         }
@@ -915,8 +915,8 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
         
         SkDynamicMemoryWStream functionCode;
         
-        if (state.fType == SkShader::kConical_GradientType) {
-            SkShader::GradientInfo twoPointRadialInfo = *info;
+        if (state.fType == SkShaderBase::kConical_GradientType) {
+            SkShaderBase::GradientInfo twoPointRadialInfo = *info;
             SkMatrix inverseMapperMatrix;
             if (!mapperMatrix.invert(&inverseMapperMatrix)) {
                 return nullptr;
@@ -1164,7 +1164,7 @@ bool SkPDFShader::State::operator==(const SkPDFShader::State& b) const {
         return false;
     }
 
-    if (fType == SkShader::kNone_GradientType) {
+    if (fType == SkShaderBase::kNone_GradientType) {
         if (fBitmapKey != b.fBitmapKey ||
                 fBitmapKey.fID == 0 ||
                 fImageTileModes[0] != b.fImageTileModes[0] ||
@@ -1183,26 +1183,26 @@ bool SkPDFShader::State::operator==(const SkPDFShader::State& b) const {
         }
 
         switch (fType) {
-            case SkShader::kLinear_GradientType:
+            case SkShaderBase::kLinear_GradientType:
                 if (fInfo.fPoint[1] != b.fInfo.fPoint[1]) {
                     return false;
                 }
                 break;
-            case SkShader::kRadial_GradientType:
+            case SkShaderBase::kRadial_GradientType:
                 if (fInfo.fRadius[0] != b.fInfo.fRadius[0]) {
                     return false;
                 }
                 break;
-            case SkShader::kConical_GradientType:
+            case SkShaderBase::kConical_GradientType:
                 if (fInfo.fPoint[1] != b.fInfo.fPoint[1] ||
                         fInfo.fRadius[0] != b.fInfo.fRadius[0] ||
                         fInfo.fRadius[1] != b.fInfo.fRadius[1]) {
                     return false;
                 }
                 break;
-            case SkShader::kSweep_GradientType:
-            case SkShader::kNone_GradientType:
-            case SkShader::kColor_GradientType:
+            case SkShaderBase::kSweep_GradientType:
+            case SkShaderBase::kNone_GradientType:
+            case SkShaderBase::kColor_GradientType:
                 break;
         }
     }
@@ -1212,7 +1212,7 @@ bool SkPDFShader::State::operator==(const SkPDFShader::State& b) const {
 SkPDFShader::State::State(SkShader* shader, const SkMatrix& canvasTransform,
                           const SkIRect& bbox, SkScalar rasterScale,
                           SkBitmap* imageDst)
-        : fType(SkShader::kNone_GradientType)
+        : fType(SkShaderBase::kNone_GradientType)
         , fInfo{0, nullptr, nullptr, {{0.0f, 0.0f}, {0.0f, 0.0f}},
                 {0.0f, 0.0f}, SkShader::kClamp_TileMode, 0}
         , fCanvasTransform(canvasTransform)
@@ -1226,13 +1226,13 @@ SkPDFShader::State::State(SkShader* shader, const SkMatrix& canvasTransform,
     fInfo.fColors = nullptr;
     fInfo.fColorOffsets = nullptr;
     fImageTileModes[0] = fImageTileModes[1] = SkShader::kClamp_TileMode;
-    fType = shader->asAGradient(&fInfo);
+    fType = as_SB(shader)->asAGradient(&fInfo);
 
-    if (fType != SkShader::kNone_GradientType) {
+    if (fType != SkShaderBase::kNone_GradientType) {
         fBitmapKey = SkBitmapKey{{0, 0, 0, 0}, 0};
         fShaderTransform = shader->getLocalMatrix();
         this->allocateGradientInfoStorage();
-        shader->asAGradient(&fInfo);
+        as_SB(shader)->asAGradient(&fInfo);
         return;
     }
     if (SkImage* skimg = shader->isAImage(&fShaderTransform, fImageTileModes)) {
@@ -1294,9 +1294,9 @@ SkPDFShader::State::State(const SkPDFShader::State& other)
 {
     // Only gradients supported for now, since that is all that is used.
     // If needed, image state copy constructor can be added here later.
-    SkASSERT(fType != SkShader::kNone_GradientType);
+    SkASSERT(fType != SkShaderBase::kNone_GradientType);
 
-    if (fType != SkShader::kNone_GradientType) {
+    if (fType != SkShaderBase::kNone_GradientType) {
         fInfo = other.fInfo;
 
         this->allocateGradientInfoStorage();
@@ -1313,7 +1313,7 @@ SkPDFShader::State::State(const SkPDFShader::State& other)
  */
 SkPDFShader::State SkPDFShader::State::MakeAlphaToLuminosityState() const {
     SkASSERT(fBitmapKey == (SkBitmapKey{{0, 0, 0, 0}, 0}));
-    SkASSERT(fType != SkShader::kNone_GradientType);
+    SkASSERT(fType != SkShaderBase::kNone_GradientType);
 
     SkPDFShader::State newState(*this);
 
@@ -1331,7 +1331,7 @@ SkPDFShader::State SkPDFShader::State::MakeAlphaToLuminosityState() const {
  */
 SkPDFShader::State SkPDFShader::State::MakeOpaqueState() const {
     SkASSERT(fBitmapKey == (SkBitmapKey{{0, 0, 0, 0}, 0}));
-    SkASSERT(fType != SkShader::kNone_GradientType);
+    SkASSERT(fType != SkShaderBase::kNone_GradientType);
 
     SkPDFShader::State newState(*this);
     for (int i = 0; i < fInfo.fColorCount; i++) {
@@ -1346,7 +1346,7 @@ SkPDFShader::State SkPDFShader::State::MakeOpaqueState() const {
  * Returns true if state is a gradient and the gradient has alpha.
  */
 bool SkPDFShader::State::GradientHasAlpha() const {
-    if (fType == SkShader::kNone_GradientType) {
+    if (fType == SkShaderBase::kNone_GradientType) {
         return false;
     }
 

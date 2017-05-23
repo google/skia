@@ -16,7 +16,7 @@
 #include "SkImageEncoder.h"
 #include "SkPaint.h"
 #include "SkParsePath.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkStream.h"
 #include "SkTHash.h"
 #include "SkTypeface.h"
@@ -347,7 +347,7 @@ private:
 
     void addPaint(const SkPaint& paint, const Resources& resources);
 
-    SkString addLinearGradientDef(const SkShader::GradientInfo& info, const SkShader* shader);
+    SkString addLinearGradientDef(const SkShaderBase::GradientInfo& info, const SkShader* shader);
 
     SkXMLWriter*               fWriter;
     ResourceBucket*            fResourceBucket;
@@ -425,9 +425,9 @@ void SkSVGDevice::AutoElement::addShaderResources(const SkPaint& paint, Resource
     const SkShader* shader = paint.getShader();
     SkASSERT(SkToBool(shader));
 
-    SkShader::GradientInfo grInfo;
+    SkShaderBase::GradientInfo grInfo;
     grInfo.fColorCount = 0;
-    if (SkShader::kLinear_GradientType != shader->asAGradient(&grInfo)) {
+    if (SkShaderBase::kLinear_GradientType != as_SB(shader)->asAGradient(&grInfo)) {
         // TODO: non-linear gradient support
         SkDebugf("unsupported shader type\n");
         return;
@@ -439,7 +439,7 @@ void SkSVGDevice::AutoElement::addShaderResources(const SkPaint& paint, Resource
     grInfo.fColorOffsets = grOffsets.get();
 
     // One more call to get the actual colors/offsets.
-    shader->asAGradient(&grInfo);
+    as_SB(shader)->asAGradient(&grInfo);
     SkASSERT(grInfo.fColorCount <= grColors.count());
     SkASSERT(grInfo.fColorCount <= grOffsets.count());
 
@@ -476,7 +476,7 @@ void SkSVGDevice::AutoElement::addClipResources(const MxCp& mc, Resources* resou
     resources->fClip.printf("url(#%s)", clipID.c_str());
 }
 
-SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkShader::GradientInfo& info,
+SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkShaderBase::GradientInfo& info,
                                                         const SkShader* shader) {
     SkASSERT(fResourceBucket);
     SkString id = fResourceBucket->addLinearGradient();

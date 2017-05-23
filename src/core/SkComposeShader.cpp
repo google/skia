@@ -72,7 +72,7 @@ void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
     buffer.write32((int)fMode);
 }
 
-SkShader::Context* SkComposeShader::onMakeContext(
+SkShaderBase::Context* SkComposeShader::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
     // we preconcat our localMatrix (if any) with the device matrix
@@ -90,8 +90,8 @@ SkShader::Context* SkComposeShader::onMakeContext(
     newRec.fMatrix = &tmpM;
     newRec.fPaint = &opaquePaint;
 
-    SkShader::Context* contextA = fShaderA->makeContext(newRec, alloc);
-    SkShader::Context* contextB = fShaderB->makeContext(newRec, alloc);
+    SkShaderBase::Context* contextA = as_SB(fShaderA)->makeContext(newRec, alloc);
+    SkShaderBase::Context* contextB = as_SB(fShaderB)->makeContext(newRec, alloc);
     if (!contextA || !contextB) {
         return nullptr;
     }
@@ -106,7 +106,7 @@ sk_sp<SkShader> SkComposeShader::onMakeColorSpace(SkColorSpaceXformer* xformer) 
 
 SkComposeShader::ComposeShaderContext::ComposeShaderContext(
         const SkComposeShader& shader, const ContextRec& rec,
-        SkShader::Context* contextA, SkShader::Context* contextB)
+        SkShaderBase::Context* contextA, SkShaderBase::Context* contextB)
     : INHERITED(shader, rec)
     , fShaderContextA(contextA)
     , fShaderContextB(contextB) {}
@@ -121,7 +121,7 @@ bool SkComposeShader::asACompose(ComposeRec* rec) const {
 }
 
 bool SkComposeShader::isRasterPipelineOnly() const {
-    return fShaderA->isRasterPipelineOnly() || fShaderB->isRasterPipelineOnly();
+    return as_SB(fShaderA)->isRasterPipelineOnly() || as_SB(fShaderB)->isRasterPipelineOnly();
 }
 
 bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
@@ -138,7 +138,7 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
     // will be smashed, and I'll need them again for fShaderB. store_rgba saves off 4 registers
     // even though we only need to save r,g.
     pipeline->append(SkRasterPipeline::store_rgba, storage->fXY);
-    if (!fShaderB->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) { // SRC
+    if (!as_SB(fShaderB)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) { // SRC
         return false;
     }
     // This outputs r,g,b,a, which we'll need later when we apply the mode, but we save it off now
@@ -146,7 +146,7 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
     pipeline->append(SkRasterPipeline::store_rgba, storage->fRGBA);
     // Now we restore the device x,y for the next shader
     pipeline->append(SkRasterPipeline::load_rgba, storage->fXY);
-    if (!fShaderA->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {  // DST
+    if (!as_SB(fShaderA)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {  // DST
         return false;
     }
     // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode
@@ -169,8 +169,8 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
 #define TMP_COLOR_COUNT     64
 
 void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor result[], int count) {
-    SkShader::Context* shaderContextA = fShaderContextA;
-    SkShader::Context* shaderContextB = fShaderContextB;
+    auto* shaderContextA = fShaderContextA;
+    auto* shaderContextB = fShaderContextB;
     SkBlendMode        mode = static_cast<const SkComposeShader&>(fShader).fMode;
     unsigned           scale = SkAlpha255To256(this->getPaintAlpha());
 
@@ -229,8 +229,8 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
 }
 
 void SkComposeShader::ComposeShaderContext::shadeSpan4f(int x, int y, SkPM4f result[], int count) {
-    SkShader::Context* shaderContextA = fShaderContextA;
-    SkShader::Context* shaderContextB = fShaderContextB;
+    auto* shaderContextA = fShaderContextA;
+    auto* shaderContextB = fShaderContextB;
     SkBlendMode        mode = static_cast<const SkComposeShader&>(fShader).fMode;
     unsigned           alpha = this->getPaintAlpha();
     Sk4f               scale(alpha * (1.0f / 255));
@@ -272,17 +272,17 @@ sk_sp<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(const AsFPArgs& 
                                                GrConstColorProcessor::kIgnore_InputMode);
             break;
         case SkBlendMode::kSrc:
-            return fShaderB->asFragmentProcessor(args);
+            return as_SB(fShaderB)->asFragmentProcessor(args);
             break;
         case SkBlendMode::kDst:
-            return fShaderA->asFragmentProcessor(args);
+            return as_SB(fShaderA)->asFragmentProcessor(args);
             break;
         default:
-            sk_sp<GrFragmentProcessor> fpA(fShaderA->asFragmentProcessor(args));
+            sk_sp<GrFragmentProcessor> fpA(as_SB(fShaderA)->asFragmentProcessor(args));
             if (!fpA) {
                 return nullptr;
             }
-            sk_sp<GrFragmentProcessor> fpB(fShaderB->asFragmentProcessor(args));
+            sk_sp<GrFragmentProcessor> fpB(as_SB(fShaderB)->asFragmentProcessor(args));
             if (!fpB) {
                 return nullptr;
             }
@@ -297,9 +297,9 @@ void SkComposeShader::toString(SkString* str) const {
     str->append("SkComposeShader: (");
 
     str->append("ShaderA: ");
-    fShaderA->toString(str);
+    as_SB(fShaderA)->toString(str);
     str->append(" ShaderB: ");
-    fShaderB->toString(str);
+    as_SB(fShaderB)->toString(str);
     if (SkBlendMode::kSrcOver != fMode) {
         str->appendf(" Xfermode: %s", SkXfermode::ModeName(fMode));
     }

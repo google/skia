@@ -1934,17 +1934,17 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
 
     // PDF treats a shader as a color, so we only set one or the other.
     sk_sp<SkPDFObject> pdfShader;
-    SkShader* shader = paint.getShader();
+    auto* shader = as_SB(paint.getShader());
     SkColor color = paint.getColor();
     if (shader) {
-        if (SkShader::kColor_GradientType == shader->asAGradient(nullptr)) {
+        if (SkShaderBase::kColor_GradientType == shader->asAGradient(nullptr)) {
             // We don't have to set a shader just for a color.
-            SkShader::GradientInfo gradientInfo;
+            SkShaderBase::GradientInfo gradientInfo;
             SkColor gradientColor = SK_ColorBLACK;
             gradientInfo.fColors = &gradientColor;
             gradientInfo.fColorOffsets = nullptr;
             gradientInfo.fColorCount = 1;
-            SkAssertResult(shader->asAGradient(&gradientInfo) == SkShader::kColor_GradientType);
+            SkAssertResult(shader->asAGradient(&gradientInfo) == SkShaderBase::kColor_GradientType);
             entry->fColor = SkColorSetA(gradientColor, 0xFF);
             color = gradientColor;
         } else {

@@ -11,7 +11,7 @@
 
 #include "SkBitmapKey.h"
 #include "SkPDFTypes.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 
 class SkPDFCanon;
 class SkPDFDocument;
@@ -51,8 +51,8 @@ public:
 
     class State {
     public:
-        SkShader::GradientType fType;
-        SkShader::GradientInfo fInfo;
+        SkShaderBase::GradientType fType;
+        SkShaderBase::GradientInfo fInfo;
         std::unique_ptr<SkColor[]> fColors;
         std::unique_ptr<SkScalar[]> fStops;
         SkMatrix fCanvasTransform;

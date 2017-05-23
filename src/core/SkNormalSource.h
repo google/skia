@@ -9,7 +9,7 @@
 #define SkNormalSource_DEFINED
 
 #include "SkFlattenable.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 
 class SkMatrix;
 struct SkPoint3;
@@ -28,7 +28,7 @@ public:
     /** Returns a fragment processor that takes no input and outputs a normal (already rotated)
         as its output color. To be used as a child fragment processor.
     */
-    virtual sk_sp<GrFragmentProcessor> asFragmentProcessor(const SkShader::AsFPArgs&) const = 0;
+    virtual sk_sp<GrFragmentProcessor> asFragmentProcessor(const SkShaderBase::AsFPArgs&) const = 0;
 #endif
 
     class Provider {
@@ -44,7 +44,7 @@ public:
     /** Returns an instance of 'Provider' that provides normals for the CPU pipeline. The
         necessary data will be initialized in place at 'storage'.
     */
-    virtual Provider* asProvider(const SkShader::ContextRec&, SkArenaAlloc*) const = 0;
+    virtual Provider* asProvider(const SkShaderBase::ContextRec&, SkArenaAlloc*) const = 0;
 
     /** Returns a normal source that provides normals sourced from the the normal map argument.
 

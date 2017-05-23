@@ -15,6 +15,7 @@
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkUtils.h"
 #include "../jumper/SkJumper.h"
 
@@ -100,7 +101,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkMatrix& ctm) {
     auto paintColor = alloc->make<SkPM4f>(SkPM4f_from_SkColor(paint.getColor(),
                                                               dst.colorSpace()));
-    if (auto shader = paint.getShader()) {
+    if (const auto* shader = as_SB(paint.getShader())) {
         SkRasterPipeline shaderPipeline;
         if (!shader->appendStages(&shaderPipeline, dst.colorSpace(), alloc, ctm, paint)) {
             // When a shader fails to append stages, it means it has vetoed drawing entirely.
@@ -114,7 +115,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         }
 
         bool is_constant  = shader->isConstant();
-        bool wants_dither = shader->asAGradient(nullptr) >= SkShader::kLinear_GradientType;
+        bool wants_dither = shader->asAGradient(nullptr) >= SkShaderBase::kLinear_GradientType;
         return Create(dst, paint, alloc, shaderPipeline, is_opaque, is_constant, wants_dither);
     }
 
