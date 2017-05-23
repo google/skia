@@ -56,6 +56,7 @@ enum GrGLRenderer {
     kOSMesa_GrGLRenderer,
     /** Either HD 6xxx or Iris 6xxx */
     kIntel6xxx_GrGLRenderer,
+    kIntelMesa_GrGLRenderer,
     kOther_GrGLRenderer
 };
 

@@ -265,6 +265,8 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
 
 GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
     if (rendererString) {
+        SkDebugf("rendererString: %s\n", rendererString);
+
         if (0 == strcmp(rendererString, "NVIDIA Tegra 3")) {
             return kTegra3_GrGLRenderer;
         } else if (0 == strcmp(rendererString, "NVIDIA Tegra")) {
@@ -322,6 +324,11 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
             if (intelNumber >= 6000 && intelNumber < 7000) {
                 return kIntel6xxx_GrGLRenderer;
             }
+        }
+
+        static const char kIntelMesaStr[] = "Mesa DRI Intel(R)";
+        if (0 == strncmp(rendererString, kIntelMesaStr, SK_ARRAY_COUNT(kIntelMesaStr)-1)) {
+            return kIntelMesa_GrGLRenderer;
         }
         if (0 == strcmp("Mesa Offscreen", rendererString)) {
             return kOSMesa_GrGLRenderer;
