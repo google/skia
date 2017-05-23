@@ -114,7 +114,7 @@ Look at all existing [BreakingTheBuildbots bugs](https://bug.skia.org/?q=label:B
 ### How to submit when the tree is closed
 
 * Submit manually using the "git cl land" with the --bypass-hooks flag.
-* Add "NOTREECHECKS=true" to your CL description and use the CQ as usual.
+* Add "No-Tree-Checks: true" to your CL description and use the CQ as usual.
 
 
 <a name="tree_closers"></a>
