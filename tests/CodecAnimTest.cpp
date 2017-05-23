@@ -34,10 +34,36 @@ static void write_bm(const char* name, const SkBitmap& bm) {
 
 DEF_TEST(Codec_trunc, r) {
     sk_sp<SkData> data(GetResourceAsData("box.gif"));
+    if (!data) {
+        return;
+    }
     data = SkData::MakeSubset(data.get(), 0, 23);
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
     codec->getFrameInfo();
 }
+
+// 565 does not support alpha, but there is no reason for it not to support an
+// animated image with a frame that has alpha but then blends onto an opaque
+// frame making the result opaque. Test that we can decode such a frame.
+DEF_TEST(Codec_565, r) {
+    sk_sp<SkData> data(GetResourceAsData("blendBG.webp"));
+    if (!data) {
+        return;
+    }
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(std::move(data)));
+    auto info = codec->getInfo().makeColorType(kRGB_565_SkColorType);
+    SkBitmap bm;
+    bm.allocPixels(info);
+
+    SkCodec::Options options;
+    options.fFrameIndex = 1;
+    options.fHasPriorFrame = false;
+
+    const auto result = codec->getPixels(info, bm.getPixels(), bm.rowBytes(),
+                                         &options, nullptr, nullptr);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+}
+
 
 DEF_TEST(Codec_frames, r) {
     #define kOpaque     kOpaque_SkAlphaType
@@ -97,6 +123,12 @@ DEF_TEST(Codec_frames, r) {
         { "mandrill.wbmp", 1, {}, {}, {}, 0 },
         { "randPixels.bmp", 1, {}, {}, {}, 0 },
         { "yellow_rose.webp", 1, {}, {}, {}, 0 },
+        { "webp-animated.webp", 3, { 0, 1 }, { kOpaque, kOpaque, kOpaque },
+            { 1000, 500, 1000 }, SkCodec::kRepetitionCountInfinite },
+        { "blendBG.webp", 7, { 0, SkCodec::kNone, SkCodec::kNone, SkCodec::kNone,
+                               3, 3 },
+            { kOpaque, kOpaque, kUnpremul, kOpaque, kUnpremul, kUnpremul },
+            { 525, 500, 525, 437, 609, 729, 444 }, 7 },
     };
     #undef kOpaque
     #undef kUnpremul
@@ -190,17 +222,6 @@ DEF_TEST(Codec_frames, r) {
                            rec.fName, i, rec.fDurations[i], frameInfo.fDuration);
                 }
 
-                if (0 == i) {
-                    REPORTER_ASSERT(r, frameInfo.fRequiredFrame == SkCodec::kNone);
-                    REPORTER_ASSERT(r, frameInfo.fAlphaType == codec->getInfo().alphaType());
-                    continue;
-                }
-
-                if (rec.fRequiredFrames[i-1] != frameInfo.fRequiredFrame) {
-                    ERRORF(r, "%s's frame %i has wrong dependency! expected: %i\tactual: %i",
-                           rec.fName, i, rec.fRequiredFrames[i-1], frameInfo.fRequiredFrame);
-                }
-
                 auto to_string = [](SkAlphaType type) {
                     switch (type) {
                         case kUnpremul_SkAlphaType:
@@ -212,11 +233,18 @@ DEF_TEST(Codec_frames, r) {
                     }
                 };
 
-                auto expectedAlpha = rec.fAlphaTypes[i-1];
+                auto expectedAlpha = 0 == i ? codec->getInfo().alphaType() : rec.fAlphaTypes[i-1];
                 auto alpha = frameInfo.fAlphaType;
                 if (expectedAlpha != alpha) {
                     ERRORF(r, "%s's frame %i has wrong alpha type! expected: %s\tactual: %s",
                            rec.fName, i, to_string(expectedAlpha), to_string(alpha));
+                }
+
+                if (0 == i) {
+                    REPORTER_ASSERT(r, frameInfo.fRequiredFrame == SkCodec::kNone);
+                } else if (rec.fRequiredFrames[i-1] != frameInfo.fRequiredFrame) {
+                    ERRORF(r, "%s's frame %i has wrong dependency! expected: %i\tactual: %i",
+                           rec.fName, i, rec.fRequiredFrames[i-1], frameInfo.fRequiredFrame);
                 }
             }
 
