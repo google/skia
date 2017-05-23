@@ -1473,7 +1473,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     uint32_t nonMSAARenderFlags = ConfigInfo::kRenderable_Flag |
                                   ConfigInfo::kFBOColorAttachment_Flag;
     uint32_t allRenderFlags = nonMSAARenderFlags;
-    if (kNone_MSFBOType != fMSFBOType) {
+    // We disable MSAA across the board for Intel GPUs
+    if (kNone_MSFBOType != fMSFBOType && kIntel_GrGLVendor != ctxInfo.vendor()) {
         allRenderFlags |= ConfigInfo::kRenderableWithMSAA_Flag;
     }
     GrGLStandard standard = ctxInfo.standard();
@@ -1645,7 +1646,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kSBGRA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     if (fSRGBSupport && kGL_GrGLStandard == standard) {
         fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
-            allRenderFlags;
+                                                         allRenderFlags;
     }
 
     if (texStorageSupported) {
