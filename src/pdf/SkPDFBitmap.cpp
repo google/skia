@@ -356,8 +356,7 @@ static void emit_image_xobject(SkWStream* stream,
     } else {
         bitmap_to_pdf_pixels(bitmap, &deflateWStream);
     }
-    deflateWStream.finalize();  // call before detachAsStream().
-    std::unique_ptr<SkStreamAsset> asset(buffer.detachAsStream());
+    deflateWStream.finalize();  // call before buffer.bytesWritten().
 
     SkPDFDict pdfDict("XObject");
     pdfDict.insertName("Subtype", "Image");
@@ -380,11 +379,11 @@ static void emit_image_xobject(SkWStream* stream,
     }
     pdfDict.insertInt("BitsPerComponent", 8);
     pdfDict.insertName("Filter", "FlateDecode");
-    pdfDict.insertInt("Length", asset->getLength());
+    pdfDict.insertInt("Length", buffer.bytesWritten());
     pdfDict.emitObject(stream, objNumMap);
 
     pdf_stream_begin(stream);
-    stream->writeStream(asset.get(), asset->getLength());
+    buffer.writeToAndReset(stream);
     pdf_stream_end(stream);
 }
 
