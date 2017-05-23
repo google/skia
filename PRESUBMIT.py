@@ -444,17 +444,24 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
   return results
 
 
+def _FooterExists(footers, key, value):
+  for k, v in footers:
+    if k == key and v == value:
+      return True
+  return False
+
+
 def PostUploadHook(cl, change, output_api):
   """git cl upload will call this hook after the issue is created/modified.
 
   This hook does the following:
   * Adds a link to preview docs changes if there are any docs changes in the CL.
-  * Adds 'NOTRY=true' if the CL contains only docs changes.
-  * Adds 'NOTREECHECKS=true' for non master branch changes since they do not
+  * Adds 'No-Try: true' if the CL contains only docs changes.
+  * Adds 'No-Tree-Checks: true' for non master branch changes since they do not
     need to be gated on the master branch's tree.
-  * Adds 'NOTRY=true' for non master branch changes since trybots do not yet
+  * Adds 'No-Try: true' for non master branch changes since trybots do not yet
     work on them.
-  * Adds 'NOPRESUBMIT=true' for non master branch changes since those don't
+  * Adds 'No-Presubmit: true' for non master branch changes since those don't
     run the presubmit checks.
   * Adds extra trybots for the paths defined in PATH_TO_EXTRA_TRYBOTS.
   """
@@ -477,20 +484,21 @@ def PostUploadHook(cl, change, output_api):
     original_description_lines, footers = cl.GetDescriptionFooters()
     new_description_lines = list(original_description_lines)
 
-    # If the change includes only doc changes then add NOTRY=true in the
+    # If the change includes only doc changes then add No-Try: true in the
     # CL's description if it does not exist yet.
-    if all_docs_changes and 'NOTRY=true' not in new_description_lines:
-      new_description_lines.append('NOTRY=true')
+    if all_docs_changes and not _FooterExists(footers, 'No-Try', 'true'):
+      new_description_lines.append('No-Try: true')
       results.append(
           output_api.PresubmitNotifyResult(
               'This change has only doc changes. Automatically added '
-              '\'NOTRY=true\' to the CL\'s description'))
+              '\'No-Try: true\' to the CL\'s description'))
 
     # If there is atleast one docs change then add preview link in the CL's
     # description if it does not already exist there.
-    docs_preview_line = 'DOCS_PREVIEW= %s%s' % (DOCS_PREVIEW_URL, issue)
+    docs_preview_link = '%s%s' % (DOCS_PREVIEW_URL, issue)
+    docs_preview_line = 'Docs-Preview: %s' % docs_preview_link
     if (atleast_one_docs_change and
-        docs_preview_line not in new_description_lines):
+        not _FooterExists(footers, 'Docs-Preview', docs_preview_link)):
       # Automatically add a link to where the docs can be previewed.
       new_description_lines.append(docs_preview_line)
       results.append(
@@ -498,25 +506,26 @@ def PostUploadHook(cl, change, output_api):
               'Automatically added a link to preview the docs changes to the '
               'CL\'s description'))
 
-    # If the target ref is not master then add NOTREECHECKS=true and NOTRY=true
-    # to the CL's description if it does not already exist there.
+    # If the target ref is not master then add 'No-Tree-Checks: true' and
+    # 'No-Try: true' to the CL's description if it does not already exist there.
     target_ref = cl.GetRemoteBranch()[1]
     if target_ref != 'refs/remotes/origin/master':
-      if 'NOTREECHECKS=true' not in new_description_lines:
-        new_description_lines.append('NOTREECHECKS=true')
+      if not _FooterExists(footers, 'No-Tree-Checks', 'true'):
+        new_description_lines.append('No-Tree-Checks: true')
         results.append(
             output_api.PresubmitNotifyResult(
                 'Branch changes do not need to rely on the master branch\'s '
-                'tree status. Automatically added \'NOTREECHECKS=true\' to the '
-                'CL\'s description'))
-      if 'NOTRY=true' not in new_description_lines:
-        new_description_lines.append('NOTRY=true')
+                'tree status. Automatically added \'No-Tree-Checks: true\' to '
+                'the CL\'s description'))
+      if not _FooterExists(footers, 'No-Try', 'true'):
+        new_description_lines.append('No-Try: true')
         results.append(
             output_api.PresubmitNotifyResult(
                 'Trybots do not yet work for non-master branches. '
-                'Automatically added \'NOTRY=true\' to the CL\'s description'))
-      if 'NOPRESUBMIT=true' not in new_description_lines:
-        new_description_lines.append('NOPRESUBMIT=true')
+                'Automatically added \'No-Try: true\' to the CL\'s '
+                'description'))
+      if not _FooterExists(footers, 'No-Presubmit', 'true'):
+        new_description_lines.append('No-Presubmit: true')
         results.append(
             output_api.PresubmitNotifyResult(
                 'Branch changes do not run the presubmit checks.'))
