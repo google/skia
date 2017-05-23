@@ -364,7 +364,8 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             *decodeInfo = decodeInfo->makeColorType(kGray_8_SkColorType);
             break;
         case CodecSrc::kNonNative8888_Always_DstColorType:
-            if (kRGB_565_SkColorType == canvasColorType) {
+            if (kRGB_565_SkColorType == canvasColorType
+                    || kRGBA_F16_SkColorType == canvasColorType) {
                 return false;
             }
 #ifdef SK_PMCOLOR_IS_RGBA
@@ -380,11 +381,6 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             }
 
             if (kRGBA_F16_SkColorType == canvasColorType) {
-                if (kUnpremul_SkAlphaType == dstAlphaType) {
-                    // Testing kPremul is enough for adequate coverage of F16 decoding.
-                    return false;
-                }
-
                 sk_sp<SkColorSpace> linearSpace =
                         as_CSB(decodeInfo->colorSpace())->makeLinearGamma();
                 *decodeInfo = decodeInfo->makeColorSpace(std::move(linearSpace));
@@ -499,6 +495,18 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 switch (result) {
                     case SkCodec::kSuccess:
                     case SkCodec::kIncompleteInput: {
+                        // If the next frame depends on this one, store it in priorFrame.
+                        // It is possible that we may discard a frame that future frames depend on,
+                        // but the codec will simply redecode the discarded frame.
+                        // Do this before calling draw_to_canvas, which premultiplies in place. If
+                        // we're decoding to unpremul, we want to pass the unmodified frame to the
+                        // codec for decoding the next frame.
+                        if (static_cast<size_t>(i+1) < frameInfos.size()
+                                && frameInfos[i+1].fRequiredFrame == i) {
+                            memcpy(priorFramePixels.reset(safeSize), pixels.get(), safeSize);
+                            cachedFrame = i;
+                        }
+
                         SkAutoCanvasRestore acr(canvas, true);
                         const int xTranslate = (i % factor) * decodeInfo.width();
                         const int yTranslate = (i / factor) * decodeInfo.height();
@@ -520,14 +528,6 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     default:
                         return SkStringPrintf("Couldn't getPixels for frame %i in %s.",
                                               i, fPath.c_str());
-                }
-
-                // If a future frame depends on this one, store it in priorFrame.
-                // (Note that if i+1 does *not* depend on i, then no future frame can.)
-                if (static_cast<size_t>(i+1) < frameInfos.size()
-                        && frameInfos[i+1].fRequiredFrame == i) {
-                    memcpy(priorFramePixels.reset(safeSize), pixels.get(), safeSize);
-                    cachedFrame = i;
                 }
             }
             break;

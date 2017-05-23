@@ -644,6 +644,9 @@ public:
      *  have not already been parsed.
      */
     bool getFrameInfo(int index, FrameInfo* info) const {
+        if (index < 0) {
+            return false;
+        }
         return this->onGetFrameInfo(index, info);
     }
 
