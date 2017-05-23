@@ -17,6 +17,10 @@
 #include "SkTDArray.h"
 #include "SkVertices.h"
 
+#if GR_TEST_UTILS
+#include "GrDrawOpTest.h"
+#endif
+
 class GrOpFlushState;
 class SkVertices;
 struct GrInitInvariantOutput;
@@ -36,8 +40,7 @@ public:
     static std::unique_ptr<GrLegacyMeshDrawOp> Make(
             GrColor color, GrPrimitiveType primitiveType, const SkMatrix& viewMatrix,
             const SkPoint* positions, int vertexCount, const uint16_t* indices, int indexCount,
-            const uint32_t* colors, const SkPoint* localCoords, const SkRect& bounds,
-            GrRenderTargetContext::ColorArrayType colorArrayType);
+            const SkRect& bounds);
 
     /**
      * Draw a SkVertices. The GrColor param is used if the vertices lack per-vertex color or 'flags'
@@ -134,6 +137,10 @@ private:
     SkSTArray<1, Mesh, true> fMeshes;
 
     typedef GrLegacyMeshDrawOp INHERITED;
+
+#if GR_TEST_UTILS
+    GR_LEGACY_MESH_DRAW_OP_TEST_FRIEND(VerticesOp);
+#endif
 };
 
 #endif

@@ -13,17 +13,14 @@
 std::unique_ptr<GrLegacyMeshDrawOp> GrDrawVerticesOp::Make(
         GrColor color, GrPrimitiveType primitiveType, const SkMatrix& viewMatrix,
         const SkPoint* positions, int vertexCount, const uint16_t* indices, int indexCount,
-        const uint32_t* colors, const SkPoint* localCoords, const SkRect& bounds,
-        GrRenderTargetContext::ColorArrayType colorArrayType) {
+        const SkRect& bounds) {
     static constexpr SkVertices::VertexMode kIgnoredMode = SkVertices::kTriangles_VertexMode;
+    // When we tessellate we will fill a color array with the GrColor value passed above as 'color'.
+    static constexpr GrRenderTargetContext::ColorArrayType colorArrayType =
+            GrRenderTargetContext::ColorArrayType::kPremulGrColor;
     SkASSERT(positions);
-    if (!colors) {
-        // When we tessellate we will fill a color array with the GrColor value passed above as
-        // 'color'.
-        colorArrayType = GrRenderTargetContext::ColorArrayType::kPremulGrColor;
-    }
     sk_sp<SkVertices> vertices = SkVertices::MakeCopy(kIgnoredMode, vertexCount, positions,
-                                                      localCoords, colors, indexCount, indices);
+                                                      nullptr, nullptr, indexCount, indices);
     if (!vertices) {
         return nullptr;
     }
@@ -386,14 +383,16 @@ GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(VerticesOp) {
             random->nextBool() ? GrRenderTargetContext::ColorArrayType::kPremulGrColor
                                : GrRenderTargetContext::ColorArrayType::kSkColor;
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
-    SkRect bounds;
-    SkDEBUGCODE(bool result =) bounds.setBoundsCheck(positions.begin(), vertexCount);
-    SkASSERT(result);
 
     GrColor color = GrRandomColor(random);
-    return GrDrawVerticesOp::Make(color, type, viewMatrix, positions.begin(), vertexCount,
-                                  indices.begin(), hasIndices ? indices.count() : 0, colors.begin(),
-                                  texCoords.begin(), bounds, colorArrayType);
+
+    static constexpr SkVertices::VertexMode kIgnoredMode = SkVertices::kTriangles_VertexMode;
+    sk_sp<SkVertices> vertices = SkVertices::MakeCopy(kIgnoredMode, vertexCount, positions.begin(),
+                                                      texCoords.begin(), colors.begin(),
+                                                      hasIndices ? indices.count() : 0,
+                                                      indices.begin());
+    return std::unique_ptr<GrLegacyMeshDrawOp>(
+            new GrDrawVerticesOp(std::move(vertices), type, color, colorArrayType, viewMatrix));
 }
 
 #endif
