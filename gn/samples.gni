@@ -82,6 +82,7 @@ samples_sources = [
   "$_samplecode/SampleRepeatTile.cpp",
   "$_samplecode/SampleShaders.cpp",
   "$_samplecode/SampleShaderText.cpp",
+  "$_samplecode/SampleShadowReference.cpp",
   "$_samplecode/SampleShadowUtils.cpp",
   "$_samplecode/SampleShip.cpp",
   "$_samplecode/SampleSlides.cpp",
