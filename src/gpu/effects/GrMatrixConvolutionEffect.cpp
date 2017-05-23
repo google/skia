@@ -74,6 +74,7 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppend("vec4 c;");
 
     const char* kVecSuffix[4] = { ".x", ".y", ".z", ".w" };
+    printf("BLUR DIMENSIONS: %d x %d\n", kWidth, kHeight);
     for (int y = 0; y < kHeight; y++) {
         for (int x = 0; x < kWidth; x++) {
             GrGLSLShaderBuilder::ShaderBlock block(fragBuilder);
