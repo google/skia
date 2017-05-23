@@ -46,15 +46,8 @@ bool image_compute_is_opaque(const SkImage* image) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void pdf_stream_begin(SkWStream* stream) {
-    static const char streamBegin[] = " stream\n";
-    stream->write(streamBegin, strlen(streamBegin));
-}
-
-static void pdf_stream_end(SkWStream* stream) {
-    static const char streamEnd[] = "\nendstream";
-    stream->write(streamEnd, strlen(streamEnd));
-}
+static const char kPdfStreamBegin[] = " stream\n";
+static const char kPdfStreamEnd[] = "\nendstream";
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -350,14 +343,16 @@ static void emit_image_xobject(SkWStream* stream,
 
     // Write to a temporary buffer to get the compressed length.
     SkDynamicMemoryWStream buffer;
-    SkDeflateWStream deflateWStream(&buffer);
-    if (alpha) {
-        bitmap_alpha_to_a8(bitmap, &deflateWStream);
-    } else {
-        bitmap_to_pdf_pixels(bitmap, &deflateWStream);
+    {
+        SkDeflateWStream deflateWStream(&buffer);
+        if (alpha) {
+            bitmap_alpha_to_a8(bitmap, &deflateWStream);
+        } else {
+            bitmap_to_pdf_pixels(bitmap, &deflateWStream);
+        }
+        deflateWStream.finalize();  // call before buffer.bytesWritten();
     }
-    deflateWStream.finalize();  // call before detachAsStream().
-    std::unique_ptr<SkStreamAsset> asset(buffer.detachAsStream());
+    size_t length = buffer.bytesWritten();
 
     SkPDFDict pdfDict("XObject");
     pdfDict.insertName("Subtype", "Image");
@@ -380,12 +375,12 @@ static void emit_image_xobject(SkWStream* stream,
     }
     pdfDict.insertInt("BitsPerComponent", 8);
     pdfDict.insertName("Filter", "FlateDecode");
-    pdfDict.insertInt("Length", asset->getLength());
+    pdfDict.insertInt("Length", length);
     pdfDict.emitObject(stream, objNumMap);
 
-    pdf_stream_begin(stream);
-    stream->writeStream(asset.get(), asset->getLength());
-    pdf_stream_end(stream);
+    stream->writeText(kPdfStreamBegin);
+    buffer.writeToAndReset(stream);
+    stream->writeText(kPdfStreamEnd);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -463,13 +458,13 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
         pdfDict.insertName("ColorSpace", "DeviceGray");
     }
     pdfDict.insertInt("BitsPerComponent", 8);
-    pdfDict.insertName("Filter", "DCTDecode");
+    pdfDict.insertName("Filter", "DCTDdecode");
     pdfDict.insertInt("ColorTransform", 0);
     pdfDict.insertInt("Length", SkToInt(fData->size()));
     pdfDict.emitObject(stream, objNumMap);
-    pdf_stream_begin(stream);
+    stream->writeText(kPdfStreamBegin);
     stream->write(fData->data(), fData->size());
-    pdf_stream_end(stream);
+    stream->writeText(kPdfStreamEnd);
 }
 }  // namespace
 
