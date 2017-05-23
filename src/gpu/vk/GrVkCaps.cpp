@@ -117,6 +117,12 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     }
 #endif
 
+#if defined(SK_CPU_X86)
+    if (kImagination_VkVendor == properties.vendorID) {
+        fSRGBSupport = false;
+    }
+#endif
+
     this->applyOptionsOverrides(contextOptions);
     fShaderCaps->applyOptionsOverrides(contextOptions);
 }
