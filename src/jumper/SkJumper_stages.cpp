@@ -1012,6 +1012,10 @@ STAGE(repeat_y) { g = repeat(g, *(const float*)ctx); }
 STAGE(mirror_x) { r = mirror(r, *(const float*)ctx); }
 STAGE(mirror_y) { g = mirror(g, *(const float*)ctx); }
 
+STAGE( clamp_x_1) { r = min(max(0, r), 1); }
+STAGE(repeat_x_1) { r = r - floor_(r); }
+STAGE(mirror_x_1) { r = abs_( (r-1.0f) - two(floor_((r-1.0f)*0.5f)) - 1.0f ); }
+
 STAGE(luminance_to_alpha) {
     a = r*0.2126f + g*0.7152f + b*0.0722f;
     r = g = b = 0;
