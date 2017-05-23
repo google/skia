@@ -1607,6 +1607,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fSRGBSupport = false;
     }
 
+    uint32_t srgbRenderFlags = allRenderFlags;
+    if (ctxInfo.renderer() == kIntelPro_GrGLRenderer) {
+       srgbRenderFlags &= ~ConfigInfo::kRenderableWithMSAA_Flag;
+    }
+
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_SRGB_ALPHA;
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_SRGB8_ALPHA8;
     // GL does not do srgb<->rgb conversions when transferring between cpu and gpu. Thus, the
@@ -1617,7 +1622,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     if (fSRGBSupport) {
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
-                                                         allRenderFlags;
+                                                         srgbRenderFlags;
     }
     if (texStorageSupported) {
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
@@ -1636,7 +1641,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kSBGRA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     if (fSRGBSupport && kGL_GrGLStandard == standard) {
         fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
-            allRenderFlags;
+                                                         srgbRenderFlags;
     }
 
     if (texStorageSupported) {
