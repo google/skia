@@ -476,6 +476,8 @@ def PostUploadHook(cl, change, output_api):
   if issue:
     original_description_lines, footers = cl.GetDescriptionFooters()
     new_description_lines = list(original_description_lines)
+    print 'PRESUBMIT'
+    print footers
 
     # If the change includes only doc changes then add NOTRY=true in the
     # CL's description if it does not exist yet.
