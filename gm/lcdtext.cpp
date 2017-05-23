@@ -146,8 +146,13 @@ DEF_SIMPLE_GM(savelayer_lcdtext, canvas, 620, 260) {
     for (auto preserve : gPreserveLCDText) {
         preserve ? canvas->saveLayerPreserveLCDTextRequests(nullptr, nullptr)
                  : canvas->saveLayer(nullptr, nullptr);
-
-        canvas->drawString("Hamburgefons", 30, 60, paint);
+        if (preserve && !canvas->imageInfo().colorSpace()) {
+            SkPaint noLCD = paint;
+            noLCD.setLCDRenderText(false);
+            canvas->drawString("LCD not supported", 30, 60, noLCD);
+        } else {
+            canvas->drawString("Hamburgefons", 30, 60, paint);
+        }
 
         SkPaint p;
         p.setColor(0xFFCCCCCC);
