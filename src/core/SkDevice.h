@@ -242,7 +242,8 @@ protected:
                               const SkPaint& paint, SkDrawFilter* drawFilter);
     // default implementation calls drawVertices
     virtual void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                           const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);
+                           const SkPoint texCoords[4], SkBlendMode, bool interpColorsLinearly,
+                           const SkPaint& paint);
 
     // default implementation calls drawPath
     virtual void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
