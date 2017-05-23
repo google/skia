@@ -155,6 +155,50 @@ static SkAnimTimer gAnimTimer;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "SkSurface_Base.h"
+
+// This will eventually live in its own cpp file once we added the MakehreadedDirect to SkSurface.h
+class SkSurface_Threaded : public SkSurface_Base {
+public:
+    SkSurface_Threaded(const SkBitmap& bitmap, const SkSurfaceProps* props, int tiles, int threads)
+            : SkSurface_Base(bitmap.info(), props)
+            , fBitmap(bitmap)
+            , fTiles(tiles)
+            , fThreads(threads) {}
+
+    SkCanvas* onNewCanvas() override {
+        fDev.reset(new SkThreadedBMPDevice(fBitmap, fTiles, fThreads));
+        return new SkCanvas(fDev.get());
+    }
+
+    sk_sp<SkSurface> onNewSurface(const SkImageInfo& info) override {
+        return nullptr;
+    }
+
+    sk_sp<SkImage> onNewImageSnapshot() override {
+        return SkMakeImageFromRasterBitmap(fBitmap, kAlways_SkCopyPixelsMode);
+    }
+
+    void onCopyOnWrite(ContentChangeMode) override {
+        // TODO
+    }
+
+private:
+    sk_sp<SkThreadedBMPDevice> fDev;
+    const SkBitmap& fBitmap;
+    const int fTiles;
+    const int fThreads;
+};
+
+sk_sp<SkSurface> MakeThreadedDirect(const SkBitmap& bitmap,
+                                    const SkSurfaceProps* props,
+                                    int tiles,
+                                    int threads) {
+    return sk_make_sp<SkSurface_Threaded>(bitmap, props, tiles, threads);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 static const char* skip_until(const char* str, const char* skip) {
     if (!str) {
         return nullptr;
@@ -232,6 +276,9 @@ public:
 #if SK_SUPPORT_GPU
         switch (win->getDeviceType()) {
             case kRaster_DeviceType:    // fallthrough
+            case kThreaded_DeviceType:
+                fBackend = kThreaded_BackEndType;
+                break;
             case kGPU_DeviceType:
                 // all these guys use the native backend
                 fBackend = kNativeGL_BackEndType;
@@ -261,6 +308,7 @@ public:
         SkASSERT(nullptr == fCurIntf);
         switch (win->getDeviceType()) {
             case kRaster_DeviceType:    // fallthrough
+            case kThreaded_DeviceType:  // fallthrough
             case kGPU_DeviceType:
                 // all these guys use the native interface
                 fCurIntf = GrGLCreateNativeInterface();
@@ -329,6 +377,9 @@ public:
             }
         }
 #endif
+        if (dType == kThreaded_DeviceType) {
+            return fThreadedSurface;
+        }
         return nullptr;
     }
 
@@ -391,6 +442,13 @@ public:
             fGpuSurface = win->makeGpuBackedSurface(attachmentInfo, fCurIntf, fCurContext);
         }
 #endif
+        if (win->getTiles() > 0) {
+            SkSurfaceProps props = win->getSurfaceProps();
+            fThreadedSurface = MakeThreadedDirect(win->getBitmap(), &props,
+                    win->getTiles(), win->getThreads());
+        } else {
+            fThreadedSurface = nullptr; // no tiles, no threads
+        }
     }
 
     GrContext* getGrContext() override {
@@ -427,6 +485,8 @@ private:
     bool fDeepColor;
     int fActualColorBits;
 #endif
+
+    sk_sp<SkSurface>        fThreadedSurface;
 
     SkOSWindow::SkBackEndTypes fBackend;
 
@@ -694,6 +754,7 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
         , SampleWindow::kANGLE_DeviceType
 #endif // SK_ANGLE
 #endif // SK_SUPPORT_GPU
+        , SampleWindow::kThreaded_DeviceType
     };
     static_assert(SK_ARRAY_COUNT(gCT) == SampleWindow::kDeviceTypeCnt, "array_size_mismatch");
     return gCT[ct];
@@ -945,6 +1006,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 #if SK_ANGLE
                                   "ANGLE",
 #endif
+                                  "Threaded",
                                   nullptr);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'd');
     itemID = fAppMenu->appendTriState("AA", "AA", sinkID, fAAState);
@@ -1091,14 +1153,6 @@ static void drawText(SkCanvas* canvas, SkString str, SkScalar left, SkScalar top
 #include "SkDumpCanvas.h"
 
 void SampleWindow::draw(SkCanvas* canvas) {
-    std::unique_ptr<SkThreadedBMPDevice> tDev;
-    std::unique_ptr<SkCanvas> tCanvas;
-    if (fThreads > 0) {
-        tDev.reset(new SkThreadedBMPDevice(this->getBitmap(), fThreads));
-        tCanvas.reset(new SkCanvas(tDev.get()));
-        canvas = tCanvas.get();
-    }
-
     gAnimTimer.updateTime();
 
     if (fGesture.isActive()) {
@@ -1480,6 +1534,8 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         orig->flush();
         fTimer.end();
         fMeasureFPS_Time += fTimer.fWall;
+        fCumulativeFPS_Time += fTimer.fWall;
+        fCumulativeFPS_Count += FPS_REPEAT_COUNT;
     }
 }
 
@@ -1854,20 +1910,38 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             }
             break;
         case '+':
+            gSampleWindow->setTiles(gSampleWindow->getTiles() + 1);
+            this->inval(nullptr);
+            this->updateTitle();
+            fDevManager->windowSizeChanged(this); // update the threaded device
+            break;
+        case '-':
+            gSampleWindow->setTiles(SkTMax(0, gSampleWindow->getTiles() - 1));
+            this->inval(nullptr);
+            this->updateTitle();
+            fDevManager->windowSizeChanged(this); // update the threaded device
+            break;
+        case '>':
             gSampleWindow->setThreads(gSampleWindow->getThreads() + 1);
             this->inval(nullptr);
             this->updateTitle();
+            fDevManager->windowSizeChanged(this); // update the threaded device
             break;
-        case '-':
+        case '<':
             gSampleWindow->setThreads(SkTMax(0, gSampleWindow->getThreads() - 1));
             this->inval(nullptr);
             this->updateTitle();
+            fDevManager->windowSizeChanged(this); // update the threaded device
             break;
         case ' ':
             gAnimTimer.togglePauseResume();
             if (this->sendAnimatePulse()) {
                 this->inval(nullptr);
             }
+            break;
+        case '0':
+            fCumulativeFPS_Time = 0;
+            fCumulativeFPS_Count = 0;
             break;
         case 'A':
             if (gSkUseAnalyticAA.load() && !gSkForceAnalyticAA.load()) {
@@ -2201,7 +2275,8 @@ static const char* gDeviceTypePrefix[] = {
 #if SK_ANGLE
     "angle: ",
 #endif // SK_ANGLE
-#endif // SK_SUPPORT_GPU
+#endif // SK_SUPPORT_GPU,
+    "threaded: "
 };
 static_assert(SK_ARRAY_COUNT(gDeviceTypePrefix) == SampleWindow::kDeviceTypeCnt,
               "array_size_mismatch");
@@ -2228,8 +2303,8 @@ void SampleWindow::updateTitle() {
 
     title.prepend(gDeviceTypePrefix[fDeviceType]);
 
-    if (gSampleWindow->getThreads()) {
-        title.prependf("[T%d] ", gSampleWindow->getThreads());
+    if (gSampleWindow->getTiles()) {
+        title.prependf("[T%d/%d] ", gSampleWindow->getTiles(), gSampleWindow->getThreads());
     }
 
     if (gSkUseAnalyticAA) {
@@ -2279,6 +2354,7 @@ void SampleWindow::updateTitle() {
 
     if (fMeasureFPS) {
         title.appendf(" %8.4f ms", fMeasureFPS_Time / (float)FPS_REPEAT_COUNT);
+        title.appendf("-> %4.4f ms", fCumulativeFPS_Time / (float)fCumulativeFPS_Count);
     }
 
 #if SK_SUPPORT_GPU

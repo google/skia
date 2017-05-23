@@ -11,10 +11,56 @@
 #include "SkDraw.h"
 #include "SkBitmapDevice.h"
 
+#include <future>
+#include <condition_variable>
+#include <mutex>
+
+class TiledDrawScheduler {
+public:
+    TiledDrawScheduler(int tiles) : fTileCnt(tiles), fIsFinishing(false), fDrawCnt(0) {
+        for(int i = 0; i < tiles; ++i) {
+            fDrawIndexes.push_back(0);
+        }
+    }
+
+    void reset() {
+        fIsFinishing = false;
+        fDrawCnt = 0;
+        for(int i = 0; i < fTileCnt; ++i) {
+            fDrawIndexes[i] = 0;
+        }
+    }
+
+    virtual ~TiledDrawScheduler() {}
+
+    virtual void signal() = 0; // signal that one more draw is available for all tiles
+
+    // Wait until a draw is available at some tile.
+    // Some scheduler may be able to pick the tile while others see tileIndex as given and fixed.
+    // We ensure that for each tile, the drawIndex returned is increasing over time
+    // (so our draw order is correct for each tile).
+    // When returned false, we have no more draw and the threads are finishing.
+    virtual bool waitForNext(int& tileIndex, int& drawIndex) = 0;
+
+    // A single draw command finished on a tile. This is used to release the lock
+    // in some scheduler.
+    virtual void onSingleDrawFinished(int tileIndex) {}
+
+    virtual void finish() = 0;
+
+protected:
+    const int fTileCnt;
+    std::atomic<bool> fIsFinishing;
+    std::atomic<int> fDrawCnt;
+    SkTArray<int> fDrawIndexes; // next draw index for each tile
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 class SkThreadedBMPDevice : public SkBitmapDevice {
 public:
-    SkThreadedBMPDevice(const SkBitmap& bitmap, int threads);
+    // When threads = 0, we make fThreadCnt = fTileCnt
+    SkThreadedBMPDevice(const SkBitmap& bitmap, int tiles, int threads = 0);
+    ~SkThreadedBMPDevice() { finishThreads(); }
 
 protected:
     void drawPaint(const SkPaint& paint) override;
@@ -47,9 +93,18 @@ private:
 
     SkIRect transformDrawBounds(const SkRect& drawBounds) const;
 
+    void startThreads();
+    void finishThreads();
+
+    static constexpr int MAX_QUEUE_SIZE = 100000;
+
+    const int fTileCnt;
     const int fThreadCnt;
-    SkTArray<SkIRect> fThreadBounds;
-    SkTArray<DrawElement> fQueue;
+    std::unique_ptr<TiledDrawScheduler> fScheduler;
+    SkTArray<SkIRect> fTileBounds;
+    SkTArray<std::future<void>> fThreadFutures;
+    DrawElement fQueue[MAX_QUEUE_SIZE];
+    int fQueueSize;
 
     typedef SkBitmapDevice INHERITED;
 };

@@ -47,6 +47,7 @@ public:
         kANGLE_DeviceType,
 #endif // SK_ANGLE
 #endif // SK_SUPPORT_GPU
+        kThreaded_DeviceType,
         kDeviceTypeCnt
     };
 
@@ -156,6 +157,8 @@ public:
     DeviceType getDeviceType() const { return fDeviceType; }
     int getColorConfigIndex() const { return fColorConfigIndex; }
 
+    int getTiles() const { return fTiles; }
+    void setTiles(int tiles) { fTiles = tiles; }
     int getThreads() const { return fThreads; }
     void setThreads(int threads) { fThreads = threads; }
 
@@ -213,6 +216,8 @@ private:
     bool fUseDeferredCanvas;
     WallTimer fTimer;
     double fMeasureFPS_Time;
+    double fCumulativeFPS_Time;
+    int    fCumulativeFPS_Count;
     bool fMagnify;
     int fTilingMode;
 
@@ -243,6 +248,7 @@ private:
     //Stores slide specific settings
     SkOSMenu* fSlideMenu; // We pass ownership to SkWindow, when we call addMenu
 
+    int fTiles = 0;
     int fThreads = 0;
 
     void loadView(SkView*);

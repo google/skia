@@ -39,6 +39,7 @@ public:
 #if SK_ANGLE
         kANGLE_BackEndType,
 #endif // SK_ANGLE
+        kThreaded_BackEndType,
     };
 
     bool attach(SkBackEndTypes attachType, int msaaSampleCount, bool deepColor, AttachmentInfo*);

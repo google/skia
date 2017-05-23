@@ -38,6 +38,7 @@ public:
         kANGLE_BackEndType,
 #endif // SK_ANGLE
 #endif // SK_SUPPORT_GPU
+        kThreaded_BackEndType,
     };
 
     bool attach(SkBackEndTypes attachType, int msaaSampleCount, bool deepColor, AttachmentInfo*);

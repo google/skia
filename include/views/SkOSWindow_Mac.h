@@ -27,6 +27,7 @@ public:
 #if SK_ANGLE
         kANGLE_BackEndType,
 #endif // SK_ANGLE
+        kThreaded_BackEndType,
     };
 
     void    release();
