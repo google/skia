@@ -544,38 +544,34 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     }
 
     SkBitmap webpDst;
-    if ((this->colorXform() && !is_8888(dstInfo.colorType())) || blendWithPrevFrame) {
+    auto webpInfo = dstInfo;
+    if (!frame.has_alpha) {
+        webpInfo = webpInfo.makeAlphaType(kOpaque_SkAlphaType);
+    }
+    if (this->colorXform()) {
         // Swizzling between RGBA and BGRA is zero cost in a color transform.  So when we have a
         // color transform, we should decode to whatever is easiest for libwebp, and then let the
         // color transform swizzle if necessary.
         // Lossy webp is encoded as YUV (so RGBA and BGRA are the same cost).  Lossless webp is
         // encoded as BGRA. This means decoding to BGRA is either faster or the same cost as RGBA.
-        auto info = dstInfo.makeColorType(kBGRA_8888_SkColorType);
-        if (info.alphaType() == kPremul_SkAlphaType && this->colorXform()) {
-            info = info.makeAlphaType(kUnpremul_SkAlphaType);
-        }
+        webpInfo = webpInfo.makeColorType(kBGRA_8888_SkColorType);
 
+        if (webpInfo.alphaType() == kPremul_SkAlphaType) {
+            webpInfo = webpInfo.makeAlphaType(kUnpremul_SkAlphaType);
+        }
+    }
+
+    if ((this->colorXform() && !is_8888(dstInfo.colorType())) || blendWithPrevFrame) {
         // We will decode the entire image and then perform the color transform.  libwebp
         // does not provide a row-by-row API.  This is a shame particularly when we do not want
         // 8888, since we will need to create another image sized buffer.
-        webpDst.allocPixels(info);
+        webpDst.allocPixels(webpInfo);
     } else {
         // libwebp can decode directly into the output memory.
-        auto info = dstInfo;
-        if (this->colorXform()) {
-            SkASSERT(is_8888(dstInfo.colorType()));
-            // As above, BGRA is faster or the same cost as RGBA for libwebp,
-            // and we're going to transform, so tell libwebp to use BGRA.
-            info = info.makeColorType(kBGRA_8888_SkColorType);
-        }
-        webpDst.installPixels(info, dst, rowBytes);
+        webpDst.installPixels(webpInfo, dst, rowBytes);
     }
 
-    if (!frame.has_alpha) {
-        webpDst.setAlphaType(kOpaque_SkAlphaType);
-    }
-
-    config.output.colorspace = webp_decode_mode(webpDst.info());
+    config.output.colorspace = webp_decode_mode(webpInfo);
     config.output.is_external_memory = 1;
 
     config.output.u.RGBA.rgba = reinterpret_cast<uint8_t*>(webpDst.getAddr(dstX, dstY));
