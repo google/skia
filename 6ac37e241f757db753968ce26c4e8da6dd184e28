@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "309e5eb2_30c13e4a",
+        "filename": "samplecode/SampleShadowReference.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-23T17:28:30Z",
+      "side": 1,
+      "message": "Should this be \u0027fRRectPath\u0027 ?",
+      "revId": "6ac37e241f757db753968ce26c4e8da6dd184e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4480e5cc_2989205d",
+        "filename": "samplecode/SampleShadowReference.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-23T17:28:30Z",
+      "side": 1,
+      "message": "kDP ?",
+      "revId": "6ac37e241f757db753968ce26c4e8da6dd184e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
