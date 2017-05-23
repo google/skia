@@ -1093,8 +1093,8 @@ static void drawText(SkCanvas* canvas, SkString str, SkScalar left, SkScalar top
 void SampleWindow::draw(SkCanvas* canvas) {
     std::unique_ptr<SkThreadedBMPDevice> tDev;
     std::unique_ptr<SkCanvas> tCanvas;
-    if (fThreads > 0) {
-        tDev.reset(new SkThreadedBMPDevice(this->getBitmap(), fThreads));
+    if (fTiles > 0) {
+        tDev.reset(new SkThreadedBMPDevice(this->getBitmap(), fTiles, fThreads));
         tCanvas.reset(new SkCanvas(tDev.get()));
         canvas = tCanvas.get();
     }
@@ -1480,6 +1480,8 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         orig->flush();
         fTimer.end();
         fMeasureFPS_Time += fTimer.fWall;
+        fCumulativeFPS_Time += fTimer.fWall;
+        fCumulativeFPS_Count += FPS_REPEAT_COUNT;
     }
 }
 
@@ -1854,11 +1856,21 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             }
             break;
         case '+':
-            gSampleWindow->setThreads(gSampleWindow->getThreads() + 1);
+            gSampleWindow->setTiles(gSampleWindow->getTiles() + 1);
             this->inval(nullptr);
             this->updateTitle();
             break;
         case '-':
+            gSampleWindow->setTiles(SkTMax(0, gSampleWindow->getTiles() - 1));
+            this->inval(nullptr);
+            this->updateTitle();
+            break;
+        case '>':
+            gSampleWindow->setThreads(gSampleWindow->getThreads() + 1);
+            this->inval(nullptr);
+            this->updateTitle();
+            break;
+        case '<':
             gSampleWindow->setThreads(SkTMax(0, gSampleWindow->getThreads() - 1));
             this->inval(nullptr);
             this->updateTitle();
@@ -1868,6 +1880,10 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             if (this->sendAnimatePulse()) {
                 this->inval(nullptr);
             }
+            break;
+        case '0':
+            fCumulativeFPS_Time = 0;
+            fCumulativeFPS_Count = 0;
             break;
         case 'A':
             if (gSkUseAnalyticAA.load() && !gSkForceAnalyticAA.load()) {
@@ -2228,8 +2244,8 @@ void SampleWindow::updateTitle() {
 
     title.prepend(gDeviceTypePrefix[fDeviceType]);
 
-    if (gSampleWindow->getThreads()) {
-        title.prependf("[T%d] ", gSampleWindow->getThreads());
+    if (gSampleWindow->getTiles()) {
+        title.prependf("[T%d/%d] ", gSampleWindow->getTiles(), gSampleWindow->getThreads());
     }
 
     if (gSkUseAnalyticAA) {
@@ -2279,6 +2295,7 @@ void SampleWindow::updateTitle() {
 
     if (fMeasureFPS) {
         title.appendf(" %8.4f ms", fMeasureFPS_Time / (float)FPS_REPEAT_COUNT);
+        title.appendf("-> %4.4f ms", fCumulativeFPS_Time / (float)fCumulativeFPS_Count);
     }
 
 #if SK_SUPPORT_GPU
