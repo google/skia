@@ -2909,18 +2909,9 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSw
         return;
     }
 
-<<<<<<< HEAD
-    if (fHWBlendState.fSrcCoeff != srcCoeff ||
-        fHWBlendState.fDstCoeff != dstCoeff) {
-        
-
-      /*  GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
-                          gXfermodeCoeff2Blend[dstCoeff])); */
-=======
     if (fHWBlendState.fSrcCoeff != srcCoeff || fHWBlendState.fDstCoeff != dstCoeff) {
-        GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
-                          gXfermodeCoeff2Blend[dstCoeff]));
->>>>>>> upstream/master
+ //       GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
+ //                         gXfermodeCoeff2Blend[dstCoeff]));
         fHWBlendState.fSrcCoeff = srcCoeff;
         fHWBlendState.fDstCoeff = dstCoeff;
     }
@@ -3114,12 +3105,6 @@ void GrGLGpu::bindTexelBuffer(int unitIdx, GrPixelConfig texelConfig, GrGLBuffer
                 return;
             }
         }
-<<<<<<< HEAD
-    } else {
-        if (kYes_TriState != fHWWriteToColor) {
- //           GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
-            fHWWriteToColor = kYes_TriState;
-=======
 
         this->setTextureUnit(unitIdx);
         GL_CALL(BindTexture(GR_GL_TEXTURE_BUFFER, buffTex.fTextureID));
@@ -3144,7 +3129,6 @@ void GrGLGpu::bindTexelBuffer(int unitIdx, GrPixelConfig texelConfig, GrGLBuffer
             get_tex_param_swizzle(texelConfig, this->glCaps(), glSwizzle);
             this->setTextureSwizzle(unitIdx, GR_GL_TEXTURE_BUFFER, glSwizzle);
             buffTex.fSwizzle = this->glCaps().configSwizzle(texelConfig);
->>>>>>> upstream/master
         }
 
         buffer->setHasAttachedToTexture();
@@ -3270,7 +3254,7 @@ void GrGLGpu::flushColorWrite(bool writeColor) {
         }
     } else {
         if (kYes_TriState != fHWWriteToColor) {
-            GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
+ //           GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
             fHWWriteToColor = kYes_TriState;
         }
     }

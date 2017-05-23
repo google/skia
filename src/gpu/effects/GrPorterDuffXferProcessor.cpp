@@ -369,7 +369,6 @@ static MAYBE_CONSTEXPR BlendFormula gLCDBlendTable[(int)SkBlendMode::kLastCoeffM
     /* plus */       MakeCoeffFormula(kOne_GrBlendCoeff, kOne_GrBlendCoeff),
     /* modulate */   MakeCoverageSrcCoeffZeroFormula(BlendFormula::kISCModulate_OutputType),
     /* screen */     MakeCoeffFormula(kOne_GrBlendCoeff, kISC_GrBlendCoeff),
->>>>>>> upstream/master
 };
 
 #undef MAYBE_CONSTEXPR

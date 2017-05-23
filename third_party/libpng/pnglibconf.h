@@ -216,7 +216,7 @@
 /* custom settings */
 #define PNG_ARM_NEON_API_SUPPORTED
 //#define PNG_ARM_NEON_CHECK_SUPPORTED
-#define PNG_PREFIX skia_
+//#define PNG_PREFIX skia_
 /* end of custom settings */
 
 #endif /* PNGLCONF_H */

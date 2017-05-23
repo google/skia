@@ -37,7 +37,7 @@ static const DecoderProc gDecoderProcs[] = {
 #endif
     { SkGifCodec::IsGif, SkGifCodec::NewFromStream },
 #ifdef SK_HAS_PNG_LIBRARY
-    { SkPngCodec::IsPng, SkPngCodec::NewFromStream },
+    { SkIcoCodec::IsIco, SkIcoCodec::NewFromStream },
 #endif
     { SkIcoCodec::IsIco, SkIcoCodec::NewFromStream },
     { SkBmpCodec::IsBmp, SkBmpCodec::NewFromStream },
