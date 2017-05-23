@@ -1570,10 +1570,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
 
         if (context->caps()->maxSampleCount() >= 4) {
             tex = make_normal_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 4);
-            size = tex->gpuMemorySize();
-            REPORTER_ASSERT(reporter, kSize*kSize*4 == size ||    // msaa4 failed
-                                      kSize*kSize*4*4 == size ||  // auto-resolving
-                                      kSize*kSize*4*5 == size);   // explicit resolve buffer
+            if (tex) {
+                size = tex->gpuMemorySize();
+                REPORTER_ASSERT(reporter, kSize*kSize*4 == size ||    // msaa4 failed
+                                          kSize*kSize*4*4 == size ||  // auto-resolving
+                                          kSize*kSize*4*5 == size);   // explicit resolve buffer
+            }
         }
 
         tex = make_normal_texture(provider, kNone_GrSurfaceFlags, kSize, kSize, 0);
@@ -1592,11 +1594,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
 
         if (context->caps()->maxSampleCount() >= 4) {
             proxy = make_mipmap_proxy(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 4);
-            size = proxy->gpuMemorySize();
-            REPORTER_ASSERT(reporter,
-                            kSize*kSize*4+(kSize*kSize*4)/3 == size ||   // msaa4 failed
-                            kSize*kSize*4*4+(kSize*kSize*4)/3 == size || // auto-resolving
-                            kSize*kSize*4*5+(kSize*kSize*4)/3 == size);  // explicit resolve buffer
+            if (proxy) {
+                size = proxy->gpuMemorySize();
+                REPORTER_ASSERT(
+                    reporter,
+                    kSize*kSize*4+(kSize*kSize*4)/3 == size ||   // msaa4 failed
+                    kSize*kSize*4*4+(kSize*kSize*4)/3 == size || // auto-resolving
+                    kSize*kSize*4*5+(kSize*kSize*4)/3 == size);  // explicit resolve buffer
+            }
         }
 
         proxy = make_mipmap_proxy(provider, kNone_GrSurfaceFlags, kSize, kSize, 0);
