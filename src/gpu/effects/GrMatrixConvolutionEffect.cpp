@@ -71,32 +71,29 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     fragBuilder->codeAppend("vec4 sum = vec4(0, 0, 0, 0);");
     fragBuilder->codeAppendf("vec2 coord = %s - %s * %s;", coords2D.c_str(), kernelOffset, imgInc);
+
     fragBuilder->codeAppend("vec4 c;");
-
-    const char* kVecSuffix[4] = { ".x", ".y", ".z", ".w" };
-    for (int y = 0; y < kHeight; y++) {
-        for (int x = 0; x < kWidth; x++) {
-            GrGLSLShaderBuilder::ShaderBlock block(fragBuilder);
-            int offset = y*kWidth + x;
-
-            fragBuilder->codeAppendf("float k = %s[%d]%s;", kernel, offset / 4,
-                                     kVecSuffix[offset & 0x3]);
-            SkString coord;
-            coord.printf("coord + vec2(%d, %d) * %s", x, y, imgInc);
-            fDomain.sampleTexture(fragBuilder,
-                                  uniformHandler,
-                                  args.fShaderCaps,
-                                  domain,
-                                  "c",
-                                  coord,
-                                  args.fTexSamplers[0]);
-            if (!mce.convolveAlpha()) {
-                fragBuilder->codeAppend("c.rgb /= c.a;");
-                fragBuilder->codeAppend("c.rgb = clamp(c.rgb, 0.0, 1.0);");
-            }
-            fragBuilder->codeAppend("sum += c * k;");
-        }
+    fragBuilder->codeAppendf("for (int y = 0; y < %d; y++) {", kHeight / 2);
+    fragBuilder->codeAppendf("for (int x = 0; x < %d; x++) {", kWidth / 2);
+    fragBuilder->codeAppendf("int offset = y * %d + x;", kWidth / 2);
+    fragBuilder->codeAppendf("float k = %s[offset / 4][int(mod(offset, 4))];", kernel);
+    SkString coord;
+    coord.printf("coord + vec2(x, y) * %s", imgInc);
+    fDomain.sampleTexture(fragBuilder,
+                          uniformHandler,
+                          args.fShaderCaps,
+                          domain,
+                          "c",
+                          coord,
+                          args.fTexSamplers[0]);
+    if (!mce.convolveAlpha()) {
+        fragBuilder->codeAppend("c.rgb /= c.a;");
+        fragBuilder->codeAppend("c.rgb = clamp(c.rgb, 0.0, 1.0);");
     }
+    fragBuilder->codeAppend("sum += c * k;");
+    fragBuilder->codeAppend("sum += 0.1;");
+    fragBuilder->codeAppend("}");
+    fragBuilder->codeAppend("}");
     if (mce.convolveAlpha()) {
         fragBuilder->codeAppendf("%s = sum * %s + %s;", args.fOutputColor, gain, bias);
         fragBuilder->codeAppendf("%s.a = clamp(%s.a, 0, 1);", args.fOutputColor, args.fOutputColor);
