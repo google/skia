@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bddcbe25_9347e41b",
+        "filename": "src/utils/SkPatchUtils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-23T18:22:54Z",
+      "side": 1,
+      "message": "Knowing kOpaque rather than just kPreserve is potentially an interesting optimization hint for SkColorSpaceXform.  We can just fill the alpha vector with 1s rather than building it by loading the input alpha values.\n\nFWIW, we currently fall back to raster pipeline for F32 (so we don\u0027t take advantage of this here, but we would for F16).  It still may make sense to accurately pass kOpaque to the color xform in case the implementation changes.",
+      "range": {
+        "startLine": 353,
+        "startChar": 0,
+        "endLine": 355,
+        "endChar": 9
+      },
+      "revId": "435071e8ab865e395bec34ef128a412ceb50f063",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
