@@ -255,7 +255,7 @@ struct SpotVerticesFactory {
 /**
  * This manages a set of tessellations for a given shape in the cache. Because SkResourceCache
  * records are immutable this is not itself a Rec. When we need to update it we return this on
- * the FindVisitor and let the cache destory the Rec. We'll update the tessellations and then add
+ * the FindVisitor and let the cache destroy the Rec. We'll update the tessellations and then add
  * a new Rec with an adjusted size for any deletions/additions.
  */
 class CachedTessellations : public SkRefCnt {
@@ -319,7 +319,7 @@ private:
             if (fCount < MAX_ENTRIES) {
                 i = fCount++;
             } else {
-                i = gRandom.nextULessThan(MAX_ENTRIES);
+                i = fRandom.nextULessThan(MAX_ENTRIES);
                 fSize -= fEntries[i].fVertices->approximateSize();
             }
             fEntries[i].fFactory = factory;
@@ -338,15 +338,12 @@ private:
         Entry fEntries[MAX_ENTRIES];
         int fCount = 0;
         size_t fSize = 0;
+        SkRandom fRandom;
     };
 
     Set<AmbientVerticesFactory, 4> fAmbientSet;
     Set<SpotVerticesFactory, 4> fSpotSet;
-
-    static SkRandom gRandom;
 };
-
-SkRandom CachedTessellations::gRandom;
 
 /**
  * A record of shadow vertices stored in SkResourceCache of CachedTessellations for a particular
