@@ -323,6 +323,7 @@ protected:
             , fFit(fit)
             , fBudgeted(budgeted)
             , fFlags(flags)
+            , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
             , fGpuMemorySize(kInvalidGpuMemorySize)
             , fLastOpList(nullptr) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
@@ -359,7 +360,6 @@ protected:
                                     // mutable bc of SkSurface/SkImage wishy-washiness
     const uint32_t       fFlags;
 
-
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
@@ -367,6 +367,8 @@ protected:
 
 private:
     virtual size_t onUninstantiatedGpuMemorySize() const = 0;
+
+    bool                 fNeedsClear;
 
     // This entry is lazily evaluated so, when the proxy wraps a resource, the resource
     // will be called but, when the proxy is deferred, it will compute the answer itself.
