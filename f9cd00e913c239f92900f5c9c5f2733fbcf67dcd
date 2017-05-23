@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2b8ccec_2eceb29f",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-05-23T19:05:35Z",
+      "side": 1,
+      "message": "It\u0027s no longer possible to specify these at construction time. Of course, no one ever did.",
+      "revId": "f9cd00e913c239f92900f5c9c5f2733fbcf67dcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
