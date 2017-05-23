@@ -443,6 +443,7 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
     switch (config) {
         case kRGB_565_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
             return true;
         case kAlpha_8_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
@@ -454,7 +455,6 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
         case kRGBA_8888_sint_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
-        case kRG_float_GrPixelConfig:
         case kUnknown_GrPixelConfig:
             return false;
     }
@@ -516,12 +516,17 @@ static inline bool GrPixelConfigIsSint(GrPixelConfig config) {
  * Optional bitfield flags that can be set on GrSurfaceDesc (below).
  */
 enum GrSurfaceFlags {
-    kNone_GrSurfaceFlags            = 0x0,
+    kNone_GrSurfaceFlags = 0x0,
     /**
      * Creates a texture that can be rendered to as a GrRenderTarget. Use
      * GrTexture::asRenderTarget() to access.
      */
-    kRenderTarget_GrSurfaceFlag     = 0x1,
+    kRenderTarget_GrSurfaceFlag = 0x1,
+    /**
+     * Clears to zero on creation. It will cause creation failure if initial data is supplied to the
+     * texture. This only affects the base level if the texture is created with MIP levels.
+     */
+    kPerformInitialClear_GrSurfaceFlag = 0x2
 };
 
 GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
