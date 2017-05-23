@@ -264,42 +264,7 @@ bool SkShader::appendStages(SkRasterPipeline* p,
                             const SkMatrix& ctm,
                             const SkPaint& paint,
                             const SkMatrix* localM) const {
-    SkRasterPipeline subclass;
-    if (this->onAppendStages(&subclass, dstCS, alloc, ctm, paint, localM)) {
-        p->extend(subclass);
-        return true;
-    }
-
-    // SkShader::Context::shadeSpan4f() handles the paint opacity internally,
-    // but SkRasterPipelineBlitter applies it as a separate stage.
-    // We skip the internal shadeSpan4f() step by forcing the paint opaque.
-    SkTCopyOnFirstWrite<SkPaint> opaquePaint(paint);
-    if (paint.getAlpha() != SK_AlphaOPAQUE) {
-        opaquePaint.writable()->setAlpha(SK_AlphaOPAQUE);
-    }
-
-    ContextRec rec(*opaquePaint, ctm, localM, ContextRec::kPM4f_DstType, dstCS);
-
-    struct CallbackCtx : SkJumper_CallbackCtx {
-        sk_sp<SkShader> shader;
-        Context*        ctx;
-    };
-    auto cb = alloc->make<CallbackCtx>();
-    cb->shader = dstCS ? SkColorSpaceXformer::Make(sk_ref_sp(dstCS))->apply(this)
-                       : sk_ref_sp(const_cast<SkShader*>(this));
-    cb->ctx = cb->shader->makeContext(rec, alloc);
-    cb->fn  = [](SkJumper_CallbackCtx* self, int active_pixels) {
-        auto c = (CallbackCtx*)self;
-        int x = (int)c->rgba[0],
-            y = (int)c->rgba[1];
-        c->ctx->shadeSpan4f(x,y, (SkPM4f*)c->rgba, active_pixels);
-    };
-
-    if (cb->ctx) {
-        p->append(SkRasterPipeline::callback, cb);
-        return true;
-    }
-    return false;
+    return this->onAppendStages(p, dstCS, alloc, ctm, paint, localM);
 }
 
 bool SkShader::onAppendStages(SkRasterPipeline* p,
