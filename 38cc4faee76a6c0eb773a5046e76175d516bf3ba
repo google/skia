@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43ecc2c9_d9138fdf",
+        "filename": "src/gpu/gl/GrGLUtil.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-23T18:08:43Z",
+      "side": 1,
+      "message": "Curious what GPUs these are. These seem like pretty generic strings compared to the ones above used on the mac.",
+      "range": {
+        "startLine": 326,
+        "startChar": 0,
+        "endLine": 334,
+        "endChar": 9
+      },
+      "revId": "38cc4faee76a6c0eb773a5046e76175d516bf3ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
