@@ -114,8 +114,6 @@ static const SkJumper_Engine kPortable = {
 static SkJumper_Engine gPlatform = kPortable;
 static SkOnce gChooseEngineOnce;
 
-bool gSkJumperEnableFancyFeatures = true;
-
 static SkJumper_Engine choose_engine() {
 #if __has_feature(memory_sanitizer)
     // We'll just run portable code.
@@ -139,7 +137,7 @@ static SkJumper_Engine choose_engine() {
     }
 
 #elif defined(__x86_64__) || defined(_M_X64)
-    if (gSkJumperEnableFancyFeatures && SkCpu::Supports(SkCpu::HSW)) {
+    if (1 && SkCpu::Supports(SkCpu::HSW)) {
         return {
         #define M(stage) ASM(stage, hsw),
             { SK_RASTER_PIPELINE_STAGES(M) },
@@ -147,7 +145,7 @@ static SkJumper_Engine choose_engine() {
         #undef M
         };
     }
-    if (gSkJumperEnableFancyFeatures && SkCpu::Supports(SkCpu::AVX)) {
+    if (1 && SkCpu::Supports(SkCpu::AVX)) {
         return {
         #define M(stage) ASM(stage, avx),
             { SK_RASTER_PIPELINE_STAGES(M) },
@@ -155,7 +153,7 @@ static SkJumper_Engine choose_engine() {
         #undef M
         };
     }
-    if (gSkJumperEnableFancyFeatures && SkCpu::Supports(SkCpu::SSE41)) {
+    if (1 && SkCpu::Supports(SkCpu::SSE41)) {
         return {
         #define M(stage) ASM(stage, sse41),
             { SK_RASTER_PIPELINE_STAGES(M) },

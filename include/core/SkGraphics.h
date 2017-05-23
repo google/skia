@@ -26,10 +26,6 @@ public:
     // We're in the middle of cleaning this up.
     static void Term() {}
 
-    // If called immediately after Init(), SkJumper will use only a per-CPU baseline
-    // feature set, ignoring any more advanced instructions that may be available.
-    static void DisableFancySkJumperFeatures();
-
     /**
      *  Return the version numbers for the library. If the parameter is not
      *  null, it is set to the version number.

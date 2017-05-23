@@ -28,7 +28,6 @@
 #include "SkTSearch.h"
 #include "SkTime.h"
 #include "SkUtils.h"
-#include "../jumper/SkJumper.h"
 
 #include <stdlib.h>
 
@@ -109,8 +108,4 @@ void SkGraphics::SetFlags(const char* flags) {
         }
         flags = nextSemi + 1;
     } while (nextSemi);
-}
-
-void SkGraphics::DisableFancySkJumperFeatures() {
-    gSkJumperEnableFancyFeatures = false;
 }
