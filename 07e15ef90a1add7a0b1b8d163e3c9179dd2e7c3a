@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5d362c8_f15f1ab2",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-23T14:36:56Z",
+      "side": 1,
+      "message": "nit: \"updateStages\", for consistency?",
+      "range": {
+        "startLine": 473,
+        "startChar": 9,
+        "endLine": 473,
+        "endChar": 20
+      },
+      "revId": "07e15ef90a1add7a0b1b8d163e3c9179dd2e7c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5294523_dc70a1fb",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-23T14:36:56Z",
+      "side": 1,
+      "message": "Instead of a ctor out-param, how about a Matrix43\u0026 getter on SkTriColorShader?  I believe we do have access to the full type below.",
+      "range": {
+        "startLine": 75,
+        "startChar": 21,
+        "endLine": 75,
+        "endChar": 43
+      },
+      "revId": "07e15ef90a1add7a0b1b8d163e3c9179dd2e7c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6a92adb_523016c1",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-23T14:36:56Z",
+      "side": 1,
+      "message": "Kind of strange that we don\u0027t use the actual handle here (but mutate it externally instead).  Do we need the StageHandle machinery at all?",
+      "range": {
+        "startLine": 100,
+        "startChar": 23,
+        "endLine": 100,
+        "endChar": 34
+      },
+      "revId": "07e15ef90a1add7a0b1b8d163e3c9179dd2e7c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f6bb3fe_3af1a4b5",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-23T14:36:56Z",
+      "side": 1,
+      "message": "I think we\u0027ll need to update the adjustMatrixAndAppendStages() overrides to handle null pipelines.  Prolly cleaner to have a separate adjustMatrix().",
+      "range": {
+        "startLine": 553,
+        "startChar": 58,
+        "endLine": 553,
+        "endChar": 65
+      },
+      "revId": "07e15ef90a1add7a0b1b8d163e3c9179dd2e7c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
