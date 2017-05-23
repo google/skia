@@ -87,6 +87,24 @@ FILE* sk_fopen(const char path[], SkFILE_Flags flags) {
     return file;
 }
 
+size_t sk_fgetsize(FILE* f) {
+    SkASSERT(f);
+
+    long curr = ftell(f); // remember where we are
+    if (curr < 0) {
+        return 0;
+    }
+
+    fseek(f, 0, SEEK_END); // go to the end
+    long size = ftell(f); // record the size
+    if (size < 0) {
+        size = 0;
+    }
+
+    fseek(f, curr, SEEK_SET); // go back to our prev location
+    return size;
+}
+
 size_t sk_fwrite(const void* buffer, size_t byteCount, FILE* f) {
     SkASSERT(f);
     return fwrite(buffer, 1, byteCount, f);

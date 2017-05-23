@@ -19,25 +19,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-size_t sk_fgetsize(FILE* f) {
-    int fd = fileno(f);
-    if (fd < 0) {
-        return 0;
-    }
-
-    struct stat status;
-    if (0 != fstat(fd, &status)) {
-        return 0;
-    }
-    if (!S_ISREG(status.st_mode)) {
-        return 0;
-    }
-    if (!SkTFitsIn<size_t>(status.st_size)) {
-        return 0;
-    }
-    return static_cast<size_t>(status.st_size);
-}
-
 bool sk_exists(const char *path, SkFILE_Flags flags) {
     int mode = F_OK;
     if (flags & kRead_SkFILE_Flag) {
