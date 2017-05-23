@@ -433,15 +433,15 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
     p->extend(subclass);
 
     switch(fTileMode) {
-        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, alloc->make<float>(1)); break;
-        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, alloc->make<float>(1)); break;
+        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x_1); break;
+        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x_1); break;
         case kClamp_TileMode:
             if (!fOrigPos) {
                 // We clamp only when the stops are evenly spaced.
                 // If not, there may be hard stops, and clamping ruins hard stops at 0 and/or 1.
                 // In that case, we must make sure we're using the general "gradient" stage,
                 // which is the only stage that will correctly handle unclamped t.
-                p->append(SkRasterPipeline::clamp_x,  alloc->make<float>(1));
+                p->append(SkRasterPipeline::clamp_x_1);
             }
     }
 
