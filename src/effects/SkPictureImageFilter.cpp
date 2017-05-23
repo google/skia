@@ -193,7 +193,14 @@ void SkPictureImageFilter::drawPictureAtLocalResolution(SkSpecialImage* source,
 
         SkCanvas* localCanvas = localSurface->getCanvas();
         SkASSERT(localCanvas);
-        
+        std::unique_ptr<SkCanvas> xformCanvas = nullptr;
+        if (fColorSpace) {
+            // Only non-null in the case where onMakeColorSpace() was called.  This instructs
+            // us to do the color space xform on playback.
+            xformCanvas = SkCreateColorSpaceXformCanvas(localCanvas, fColorSpace);
+            localCanvas = xformCanvas.get();
+        }
+
         localCanvas->clear(0x0);
 
         localCanvas->translate(-SkIntToScalar(localIBounds.fLeft),
