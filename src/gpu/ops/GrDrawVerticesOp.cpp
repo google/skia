@@ -44,7 +44,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> GrDrawVerticesOp::Make(GrColor color,
 GrDrawVerticesOp::GrDrawVerticesOp(sk_sp<SkVertices> vertices, GrPrimitiveType primitiveType,
                                    GrColor color,
                                    GrRenderTargetContext::ColorArrayType colorArrayType,
-                                   const SkMatrix& viewMatrix, uint32_t flags)
+                                   const SkMatrix& viewMatrix)
         : INHERITED(ClassID()), fColorArrayType(colorArrayType) {
     SkASSERT(vertices);
 
@@ -56,7 +56,8 @@ GrDrawVerticesOp::GrDrawVerticesOp(sk_sp<SkVertices> vertices, GrPrimitiveType p
     mesh.fColor = color;
     mesh.fViewMatrix = viewMatrix;
     mesh.fVertices = std::move(vertices);
-    mesh.fFlags = flags;
+    mesh.fIgnoreTexCoords = false;
+    mesh.fIgnoreColors = false;
 
     fFlags = 0;
     if (mesh.hasPerVertexColors()) {
@@ -90,14 +91,14 @@ void GrDrawVerticesOp::applyPipelineOptimizations(const PipelineOptimizations& o
     GrColor overrideColor;
     if (optimizations.getOverrideColorIfSet(&overrideColor)) {
         fMeshes[0].fColor = overrideColor;
-        fMeshes[0].fFlags |= kIgnoreColors_VerticesFlag;
+        fMeshes[0].fIgnoreColors = true;
         fFlags &= ~kRequiresPerVertexColors_Flag;
         fColorArrayType = GrRenderTargetContext::ColorArrayType::kPremulGrColor;
     }
     if (optimizations.readsLocalCoords()) {
         fFlags |= kPipelineRequiresLocalCoords_Flag;
     } else {
-        fFlags |= kIgnoreTexCoords_VerticesFlag;
+        fMeshes[0].fIgnoreTexCoords = true;
         fFlags &= ~kAnyMeshHasExplicitLocalCoords;
     }
 }
