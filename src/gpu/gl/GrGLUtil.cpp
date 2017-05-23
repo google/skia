@@ -323,6 +323,10 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
                 return kIntel6xxx_GrGLRenderer;
             }
         }
+	n = sscanf(rendererString, "Mesa DRI Intel(R) Iris Pro Graphics %d", &intelNumber);
+	if (1 == n) {
+  	    return kIntelPro_GrGLRenderer;
+	}
         if (0 == strcmp("Mesa Offscreen", rendererString)) {
             return kOSMesa_GrGLRenderer;
         }
