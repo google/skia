@@ -22,6 +22,30 @@
       "revId": "1c9701c7d3de300422ff480bef4b9e7d872bb318",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "297fcc98_dd383be9",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-23T15:07:53Z",
+      "side": 1,
+      "message": "Yeah.  At least it changes it to something we\u0027re already using.  ARMv7 adds half and truncates too (though it does it with an FMA...)",
+      "parentUuid": "3a6d3b13_a5e4b91e",
+      "range": {
+        "startLine": 38,
+        "startChar": 41,
+        "endLine": 38,
+        "endChar": 67
+      },
+      "revId": "1c9701c7d3de300422ff480bef4b9e7d872bb318",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
