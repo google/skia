@@ -153,8 +153,6 @@ public:
                             GrGLenum* internalFormat, GrGLenum* externalFormat,
                             GrGLenum* externalType) const;
 
-    bool getCompressedTexImageFormats(GrPixelConfig surfaceConfig, GrGLenum* internalFormat) const;
-
     bool getReadPixelsFormat(GrPixelConfig surfaceConfig, GrPixelConfig externalConfig,
                              GrGLenum* externalFormat, GrGLenum* externalType) const;
 

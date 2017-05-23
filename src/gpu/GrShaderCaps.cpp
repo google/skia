@@ -213,13 +213,12 @@ void GrShaderCaps::initSamplerPrecisionTable() {
         table[kSRGBA_8888_GrPixelConfig]     = lowp;
         table[kSBGRA_8888_GrPixelConfig]     = lowp;
         table[kRGBA_8888_sint_GrPixelConfig] = lowp;
-        table[kETC1_GrPixelConfig]           = lowp;
         table[kRGBA_float_GrPixelConfig]     = kHigh_GrSLPrecision;
         table[kRG_float_GrPixelConfig]       = kHigh_GrSLPrecision;
         table[kAlpha_half_GrPixelConfig]     = mediump;
         table[kRGBA_half_GrPixelConfig]      = mediump;
 
-        GR_STATIC_ASSERT(15 == kGrPixelConfigCnt);
+        GR_STATIC_ASSERT(14 == kGrPixelConfigCnt);
     }
 }
 

@@ -67,9 +67,6 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrResourceProvider* resourceProvider
     if (GrPixelConfigIsSint(dstProxy->config()) != GrPixelConfigIsSint(srcProxy->config())) {
         return nullptr;
     }
-    if (GrPixelConfigIsCompressed(dstProxy->config())) {
-        return nullptr;
-    }
     SkIRect clippedSrcRect;
     SkIPoint clippedDstPoint;
     // If the rect is outside the srcProxy or dstProxy then we've already succeeded.
