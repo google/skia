@@ -74,10 +74,10 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppend("vec4 c;");
 
     const char* kVecSuffix[4] = { ".x", ".y", ".z", ".w" };
-    for (int y = 0; y < kHeight; y++) {
-        for (int x = 0; x < kWidth; x++) {
+    for (int y = 0; y < kHeight / 2; y++) {
+        for (int x = 0; x < kWidth / 2; x++) {
             GrGLSLShaderBuilder::ShaderBlock block(fragBuilder);
-            int offset = y*kWidth + x;
+            int offset = y*kWidth / 2+ x;
 
             fragBuilder->codeAppendf("float k = %s[%d]%s;", kernel, offset / 4,
                                      kVecSuffix[offset & 0x3]);
