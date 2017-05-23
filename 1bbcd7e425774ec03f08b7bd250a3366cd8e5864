@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab070cb6_992a52ca",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 49
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-05-23T18:36:53Z",
+      "side": 1,
+      "message": "So, IIUC, if \"No-Try: false\" is already in the footers, we\u0027ll add another footer which says \"No-Try: true\"?  In that case, which one wins?  Would it be better to just determine if the key is already defined?",
+      "range": {
+        "startLine": 446,
+        "startChar": 0,
+        "endLine": 451,
+        "endChar": 14
+      },
+      "revId": "1bbcd7e425774ec03f08b7bd250a3366cd8e5864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
