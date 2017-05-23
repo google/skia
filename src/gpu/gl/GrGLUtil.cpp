@@ -323,6 +323,16 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
                 return kIntel6xxx_GrGLRenderer;
             }
         }
+
+        static const char kIntelMesaStr[] = "Mesa DRI Intel(R)";
+        if (0 == strncmp(rendererString, kIntelMesaStr, SK_ARRAY_COUNT(kIntelMesaStr)-1)) {
+            return kIntelMesa_GrGLRenderer;
+        }
+        static const char kIntelIris[]= "Intel Iris OpenGL Engine";
+        if (0 == strncmp(rendererString, kIntelIris, SK_ARRAY_COUNT(kIntelIris)-1)) {
+            return kIntelIris_GrGLRenderer;
+        }
+
         if (0 == strcmp("Mesa Offscreen", rendererString)) {
             return kOSMesa_GrGLRenderer;
         }
