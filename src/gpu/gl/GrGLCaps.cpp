@@ -54,6 +54,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fSRGBDecodeDisableSupport = false;
     fSRGBDecodeDisableAffectsMipmaps = false;
     fClearToBoundaryValuesIsBroken = false;
+    fClearTextureSupport = false;
     fDrawArraysBaseVertexIsBroken = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
@@ -251,6 +252,22 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // Both mesa and mac have reduced performance if reading back an RGBA framebuffer as BGRA or
     // vis-versa.
     fRGBAToBGRAReadbackConversionsAreSlow = isMESA || isMAC;
+
+    if (kGL_GrGLStandard == standard) {
+        if (version >= GR_GL_VER(4,4) || ctxInfo.hasExtension("GL_ARB_clear_texture")) {
+            // glClearTexImage seems to have a bug in NVIDIA drivers that was fixed sometime between
+            // 340.96 and 367.57.
+            if (ctxInfo.driver() != kNVIDIA_GrGLDriver ||
+                ctxInfo.driverVersion() >= GR_GL_DRIVER_VER(367, 57)) {
+                fClearTextureSupport = true;
+            }
+        }
+    } else if (ctxInfo.hasExtension("GL_EXT_clear_texture")) {
+        // Calling glClearTexImage crashes on the NexusPlayer.
+        if (kPowerVRRogue_GrGLRenderer != ctxInfo.renderer()) {
+            fClearTextureSupport = true;
+        }
+    }
 
     /**************************************************************************
     * GrShaderCaps fields
