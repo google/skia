@@ -6,7 +6,6 @@
  */
 
 #include "GrAAFillRectOp.h"
-
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
@@ -16,6 +15,7 @@
 #include "GrTypes.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
+#include "ops/GrSimpleMeshDrawOpHelper.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
 
@@ -153,16 +153,29 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
     }
 }
 
-class AAFillRectOp final : public GrLegacyMeshDrawOp {
+class AAFillRectOp final : public GrMeshDrawOp {
+private:
+    using Helper = GrSimpleMeshDrawOpHelper;
+
 public:
     DEFINE_OP_CLASS_ID
 
-    AAFillRectOp(GrColor color,
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
+                                          const SkMatrix& viewMatrix,
+                                          const SkRect& rect,
+                                          const SkRect& devRect,
+                                          const SkMatrix* localMatrix) {
+        return Helper::FactoryHelper<AAFillRectOp>(std::move(paint), viewMatrix, rect, devRect,
+                                                   localMatrix);
+    }
+
+    AAFillRectOp(const Helper::MakeArgs& helperArgs,
+                 GrColor color,
                  const SkMatrix& viewMatrix,
                  const SkRect& rect,
                  const SkRect& devRect,
                  const SkMatrix* localMatrix)
-            : INHERITED(ClassID()) {
+            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
         if (localMatrix) {
             void* mem = fRectData.push_back_n(sizeof(RectWithLocalMatrixInfo));
             new (mem) RectWithLocalMatrixInfo(color, viewMatrix, rect, devRect, *localMatrix);
@@ -189,26 +202,20 @@ public:
                         info->color(), rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
             info = this->next(info);
         }
-        str.append(DumpPipelineInfo(*this->pipeline()));
         return str;
     }
 
-    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
-        GrColor color;
-        if (optimizations.getOverrideColorIfSet(&color)) {
-            this->first()->setColor(color);
-        }
-        fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
-        fNeedsLocalCoords = optimizations.readsLocalCoords();
+    FixedFunctionFlags fixedFunctionFlags() const override {
+        return fHelper.fixedFunctionFlags();
+    }
+
+    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
+        GrColor color = this->first()->color();
+        bool result = fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel, &color);
+        this->first()->setColor(color);
     }
 
 private:
-    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
-                                    GrProcessorAnalysisCoverage* coverage) const override {
-        color->setToConstant(this->first()->color());
-        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
-    }
-
     void onPrepareDraws(Target* target) const override {
         using namespace GrDefaultGeoProcFactory;
 
@@ -257,13 +264,12 @@ private:
                                            localMatrix);
             info = this->next(info);
         }
-        helper.recordDraw(target, gp.get(), this->pipeline());
+        helper.recordDraw(target, gp.get(), fHelper.makePipeline(target));
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AAFillRectOp* that = t->cast<AAFillRectOp>();
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
             return false;
         }
 
@@ -333,10 +339,11 @@ private:
         return reinterpret_cast<const RectInfo*>(next);
     }
 
+    SkSTArray<4 * sizeof(RectWithLocalMatrixInfo), uint8_t, true> fRectData;
+    Helper fHelper;
+    int fRectCnt;
     bool fNeedsLocalCoords;
     bool fCanTweakAlphaForCoverage;
-    SkSTArray<4 * sizeof(RectWithLocalMatrixInfo), uint8_t, true> fRectData;
-    int fRectCnt;
 
     typedef GrLegacyMeshDrawOp INHERITED;
 };
