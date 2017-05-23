@@ -157,17 +157,15 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
 
     GrContext* context = fGpu->getContext();
 
-    if (!GrPixelConfigIsCompressed(desc.fConfig)) {
-        SkImageInfo srcInfo;
+    SkImageInfo srcInfo;
 
-        if (make_info(desc.fWidth, desc.fHeight, desc.fConfig, &srcInfo)) {
-            sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, 0);
-            sk_sp<GrSurfaceContext> sContext =
-                                context->contextPriv().makeWrappedSurfaceContext(std::move(tex));
-            if (sContext) {
-                if (sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, 0, 0)) {
-                    return sContext->asTextureProxyRef();
-                }
+    if (make_info(desc.fWidth, desc.fHeight, desc.fConfig, &srcInfo)) {
+        sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, 0);
+        sk_sp<GrSurfaceContext> sContext =
+                            context->contextPriv().makeWrappedSurfaceContext(std::move(tex));
+        if (sContext) {
+            if (sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, 0, 0)) {
+                return sContext->asTextureProxyRef();
             }
         }
     }
@@ -192,14 +190,12 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return nullptr;
     }
 
-    if (!GrPixelConfigIsCompressed(desc.fConfig)) {
-        sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, flags);
-        if (tex) {
-            return tex;
-        }
+    sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, flags);
+    if (tex) {
+        return tex;
     }
 
-    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted));
+    tex.reset(fGpu->createTexture(desc, budgeted));
     return tex;
 }
 
@@ -208,11 +204,6 @@ GrTexture* GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc, ui
     SkASSERT(0 == flags || kNoPendingIO_Flag == flags);
 
     if (this->isAbandoned()) {
-        return nullptr;
-    }
-
-    // Currently we don't recycle compressed textures as scratch.
-    if (GrPixelConfigIsCompressed(desc.fConfig)) {
         return nullptr;
     }
 
@@ -226,7 +217,6 @@ GrTexture* GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc, ui
 GrTexture* GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc, uint32_t flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
-    SkASSERT(!GrPixelConfigIsCompressed(inDesc.fConfig));
     SkASSERT(validate_desc(inDesc, *fCaps));
 
     SkTCopyOnFirstWrite<GrSurfaceDesc> desc(inDesc);

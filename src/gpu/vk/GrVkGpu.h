@@ -176,9 +176,6 @@ private:
     GrTexture* onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                const SkTArray<GrMipLevel>&) override;
 
-    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, SkBudgeted,
-                                         const SkTArray<GrMipLevel>&) override { return NULL; }
-
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
                                           GrSurfaceOrigin,
                                           GrBackendTextureFlags,
