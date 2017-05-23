@@ -105,10 +105,6 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(Clear);
     GET_PROC(ClearColor);
     GET_PROC(ClearStencil);
-    if (glVer >= GR_GL_VER(4,4) || extensions.has("GL_ARB_clear_texture")) {
-        GET_PROC(ClearTexImage);
-        GET_PROC(ClearTexSubImage);
-    }
     GET_PROC(ColorMask);
     GET_PROC(CompileShader);
     GET_PROC(CompressedTexImage2D);
@@ -588,10 +584,6 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(Clear);
     GET_PROC(ClearColor);
     GET_PROC(ClearStencil);
-    if (extensions.has("GL_EXT_clear_texture")) {
-        GET_PROC_SUFFIX(ClearTexImage, EXT);
-        GET_PROC_SUFFIX(ClearTexSubImage, EXT);
-    }
     GET_PROC(ColorMask);
     GET_PROC(CompileShader);
     GET_PROC(CompressedTexImage2D);

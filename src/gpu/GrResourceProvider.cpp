@@ -221,10 +221,7 @@ GrTexture* GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc, ui
 
     SkTCopyOnFirstWrite<GrSurfaceDesc> desc(inDesc);
 
-    // We could make initial clears work with scratch textures but it is a rare case so we just opt
-    // to fall back to making a new texture.
-    if (!SkToBool(inDesc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
-        (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag))) {
+    if (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
         if (!(kExact_Flag & flags)) {
             // bin by pow2 with a reasonable min
             GrSurfaceDesc* wdesc = desc.writable();
