@@ -117,12 +117,6 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     }
 #endif
 
-#if defined(SK_CPU_X86)
-    if (kImagination_VkVendor == properties.vendorID) {
-        fSRGBSupport = false;
-    }
-#endif
-
     this->applyOptionsOverrides(contextOptions);
     fShaderCaps->applyOptionsOverrides(contextOptions);
 }
@@ -196,6 +190,12 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     if (kAMD_VkVendor == properties.vendorID) {
         fNewCBOnPipelineChange = true;
     }
+
+#if defined(SK_CPU_X86)
+    if (kImagination_VkVendor == properties.vendorID) {
+        fSRGBSupport = false;
+    }
+#endif
 }
 
 void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint32_t featureFlags) {
@@ -309,7 +309,9 @@ void GrVkCaps::initConfigTable(const GrVkInterface* interface, VkPhysicalDevice 
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
         VkFormat format;
         if (GrPixelConfigToVkFormat(static_cast<GrPixelConfig>(i), &format)) {
-            fConfigTable[i].init(interface, physDev, format);
+            if (!GrPixelConfigIsSRGB(static_cast<GrPixelConfig>(i)) || fSRGBSupport) {
+                fConfigTable[i].init(interface, physDev, format);
+            }
         }
     }
 }
