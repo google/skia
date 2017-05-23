@@ -54,7 +54,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fSRGBDecodeDisableSupport = false;
     fSRGBDecodeDisableAffectsMipmaps = false;
     fClearToBoundaryValuesIsBroken = false;
-    fClearTextureSupport = false;
     fDrawArraysBaseVertexIsBroken = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
@@ -252,14 +251,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // Both mesa and mac have reduced performance if reading back an RGBA framebuffer as BGRA or
     // vis-versa.
     fRGBAToBGRAReadbackConversionsAreSlow = isMESA || isMAC;
-
-    if (kGL_GrGLStandard == standard) {
-        if (version >= GR_GL_VER(4,4) || ctxInfo.hasExtension("GL_ARB_clear_texture")) {
-            fClearTextureSupport = true;
-        }
-    } else if (ctxInfo.hasExtension("GL_EXT_clear_texture")) {
-        fClearTextureSupport = true;
-    }
 
     /**************************************************************************
     * GrShaderCaps fields

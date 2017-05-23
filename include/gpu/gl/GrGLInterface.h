@@ -125,8 +125,6 @@ public:
         GrGLFunction<GrGLClearProc> fClear;
         GrGLFunction<GrGLClearColorProc> fClearColor;
         GrGLFunction<GrGLClearStencilProc> fClearStencil;
-        GrGLFunction<GrGLClearTexImageProc> fClearTexImage;
-        GrGLFunction<GrGLClearTexSubImageProc> fClearTexSubImage;
         GrGLFunction<GrGLColorMaskProc> fColorMask;
         GrGLFunction<GrGLCompileShaderProc> fCompileShader;
         GrGLFunction<GrGLCompressedTexImage2DProc> fCompressedTexImage2D;

@@ -138,14 +138,10 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
     }
 
     desc.fSampleCnt = SkTMin(desc.fSampleCnt, caps->maxSampleCount());
-    // Attempt to catch un- or wrongly initialized sample counts.
+    // Attempt to catch un- or wrongly intialized sample counts;
     SkASSERT(desc.fSampleCnt >= 0 && desc.fSampleCnt <= 64);
 
     desc.fOrigin = resolve_origin(desc.fOrigin, isRT);
-
-    if (texels.count() && (desc.fFlags & kPerformInitialClear_GrSurfaceFlag)) {
-        return nullptr;
-    }
 
     this->handleDirtyContext();
     GrTexture* tex = this->onCreateTexture(desc, budgeted, texels);
@@ -266,7 +262,7 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, int width, int height, size
         return false;
     }
 
-   if (!this->onGetReadPixelsInfo(srcSurface, width, height, rowBytes, readConfig, drawPreference,
+    if (!this->onGetReadPixelsInfo(srcSurface, width, height, rowBytes, readConfig, drawPreference,
                                    tempDrawInfo)) {
         return false;
     }
