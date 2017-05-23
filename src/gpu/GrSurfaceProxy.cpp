@@ -29,6 +29,7 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
         , fFit(fit)
         , fBudgeted(fTarget->resourcePriv().isBudgeted())
         , fFlags(0)
+        , fNeedsClear(false)
         , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {}
@@ -53,6 +54,9 @@ GrSurface* GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider,
     desc.fSampleCnt = sampleCnt;
     desc.fIsMipMapped = isMipMapped;
     desc.fFlags = flags;
+    if (fNeedsClear) {
+        desc.fFlags |= kPerformInitialClear_GrSurfaceFlag;
+    }
 
     if (SkBackingFit::kApprox == fFit) {
         fTarget = resourceProvider->createApproxTexture(desc, fFlags);
