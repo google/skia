@@ -8,6 +8,8 @@
 #ifndef SkJumper_DEFINED
 #define SkJumper_DEFINED
 
+extern bool gSkJumperEnableFancyFeatures;
+
 // This file contains definitions shared by SkJumper.cpp (compiled normally as part of Skia)
 // and SkJumper_stages.cpp (compiled into Skia _and_ offline into SkJumper_generated.h).
 // Keep it simple!
