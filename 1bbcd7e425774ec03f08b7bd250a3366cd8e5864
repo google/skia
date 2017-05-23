@@ -22,6 +22,30 @@
       "revId": "1bbcd7e425774ec03f08b7bd250a3366cd8e5864",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf489174_f228a2bf",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 49
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-05-23T18:39:58Z",
+      "side": 1,
+      "message": "\u0027false\u0027 values have no affect because the CQ only checks for \u0027true\u0027. Due to this we check explicitly for \u0027true\u0027 here because any other value will have no affect.",
+      "parentUuid": "ab070cb6_992a52ca",
+      "range": {
+        "startLine": 446,
+        "startChar": 0,
+        "endLine": 451,
+        "endChar": 14
+      },
+      "revId": "1bbcd7e425774ec03f08b7bd250a3366cd8e5864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
