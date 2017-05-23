@@ -994,16 +994,13 @@ STAGE(store_f32) {
 }
 
 SI F clamp(F v, float limit) {
-    v = max(0, v);
-    return min(v, limit);
+    return min(max(0, v), limit);
 }
 SI F repeat(F v, float limit) {
-    v = v - floor_(v/limit)*limit;
-    return min(v, limit);
+    return v - floor_(v/limit)*limit;
 }
 SI F mirror(F v, float limit) {
-    v = abs_( (v-limit) - (limit+limit)*floor_((v-limit)/(limit+limit)) - limit );
-    return min(v, limit);
+    return abs_( (v-limit) - (limit+limit)*floor_((v-limit)/(limit+limit)) - limit );
 }
 STAGE(clamp_x)  { r = clamp (r, *(const float*)ctx); }
 STAGE(clamp_y)  { g = clamp (g, *(const float*)ctx); }
@@ -1012,8 +1009,8 @@ STAGE(repeat_y) { g = repeat(g, *(const float*)ctx); }
 STAGE(mirror_x) { r = mirror(r, *(const float*)ctx); }
 STAGE(mirror_y) { g = mirror(g, *(const float*)ctx); }
 
-STAGE( clamp_x_1) { r = min(max(0, r), 1); }
-STAGE(repeat_x_1) { r = r - floor_(r); }
+STAGE( clamp_x_1) { r = clamp (r, 1.0f); }
+STAGE(repeat_x_1) { r = repeat(r, 1.0f); }
 STAGE(mirror_x_1) { r = abs_( (r-1.0f) - two(floor_((r-1.0f)*0.5f)) - 1.0f ); }
 
 STAGE(luminance_to_alpha) {
