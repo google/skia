@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a6d3b13_a5e4b91e",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-23T14:58:06Z",
+      "side": 1,
+      "message": "This changes the bias of the rounding, but it probably doesn\u0027t matter.",
+      "range": {
+        "startLine": 38,
+        "startChar": 41,
+        "endLine": 38,
+        "endChar": 67
+      },
+      "revId": "1c9701c7d3de300422ff480bef4b9e7d872bb318",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
