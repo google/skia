@@ -136,7 +136,6 @@ config("skia_private") {
     "src/utils",
     "src/utils/win",
     "src/xml",
-    "third_party/etc1",
     "third_party/gif",
   ]
 
@@ -632,7 +631,6 @@ component("skia") {
     "src/sfnt/SkOTTable_name.cpp",
     "src/sfnt/SkOTUtils.cpp",
     "src/utils/mac/SkStream_mac.cpp",
-    "third_party/etc1/etc1.cpp",
     "third_party/gif/SkGifImageReader.cpp",
   ]
 
