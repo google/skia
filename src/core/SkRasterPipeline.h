@@ -16,6 +16,8 @@
 #include <functional>
 #include <vector>
 
+struct SkJumper_Engine;
+
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
  *
@@ -110,7 +112,7 @@
 
 class SkRasterPipeline {
 public:
-    SkRasterPipeline(int size_hint=0);
+    explicit SkRasterPipeline(SkArenaAlloc*);
 
     enum StockStage {
     #define M(stage) stage,
@@ -127,26 +129,30 @@ public:
     void run(size_t x, size_t n) const;
 
     // Allocates a thunk which amortizes run() setup cost in alloc.
-    std::function<void(size_t, size_t)> compile(SkArenaAlloc*) const;
+    std::function<void(size_t, size_t)> compile() const;
 
     void dump() const;
-
-    struct Stage {
-        StockStage stage;
-        void*        ctx;
-    };
 
     // Conversion from sRGB can be subtly tricky when premultiplication is involved.
     // Use these helpers to keep things sane.
     void append_from_srgb(SkAlphaType);
 
-    bool empty() const { return fStages.empty(); }
-
-    // Cheaply reset all state so that empty() returns true.
-    void rewind();
+    bool empty() const { return fStages == nullptr; }
 
 private:
-    std::vector<Stage> fStages;
+    struct StageList {
+        StageList* prev = nullptr;
+        StockStage stage;
+        void*      ctx;
+    };
+
+    static void BuildPipeline(const StageList*, const SkJumper_Engine&, void**);
+    void unchecked_append(StockStage, void*);
+    void extend(const StageList*);
+
+    SkArenaAlloc* fAlloc;
+    StageList*    fStages;
+    int           fSlotsNeeded;
 };
 
 #endif//SkRasterPipeline_DEFINED
