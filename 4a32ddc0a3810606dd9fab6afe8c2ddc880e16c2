@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7677d192_07e4747b",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1319,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-24T15:18:15Z",
+      "side": 1,
+      "message": "we could extend this to do 90 degrees increments if we want to support that behavior.",
+      "range": {
+        "startLine": 1319,
+        "startChar": 19,
+        "endLine": 1319,
+        "endChar": 34
+      },
+      "revId": "4a32ddc0a3810606dd9fab6afe8c2ddc880e16c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
