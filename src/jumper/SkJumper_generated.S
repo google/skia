@@ -13601,8 +13601,9 @@ BALIGN4
   .byte  61,82,184,78,65                     // cmp           $0x414eb852,%eax
   .byte  186,159,98,60,57                    // mov           $0x393c629f,%edx
   .byte  215                                 // xlat          %ds:(%rbx)
-  .byte  32,187,13,20,145,63                 // and           %bh,0x3f91140d(%rbx)
-  .byte  141,158,20,62,168,177               // lea           -0x4e57c1ec(%rsi),%ebx
+  .byte  32,187,109,165,144,63               // and           %bh,0x3f90a56d(%rbx)
+  .byte  252                                 // cld
+  .byte  191,16,62,168,177                   // mov           $0xb1a83e10,%edi
   .byte  152                                 // cwtl
   .byte  59,0                                // cmp           (%rax),%eax
   .byte  0,128,63,0,0,192                    // add           %al,-0x3fffffc1(%rax)
@@ -20335,10 +20336,12 @@ BALIGN4
   .byte  61,82,184,78,65                     // cmp           $0x414eb852,%eax
   .byte  57,215                              // cmp           %edx,%edi
   .byte  32,187,186,159,98,60                // and           %bh,0x3c629fba(%rbx)
-  .byte  13,20,145,63,141                    // or            $0x8d3f9114,%eax
-  .byte  158                                 // sahf
-  .byte  20,62                               // adc           $0x3e,%al
-  .byte  168,177                             // test          $0xb1,%al
+  .byte  109                                 // insl          (%dx),%es:(%rdi)
+  .byte  165                                 // movsl         %ds:(%rsi),%es:(%rdi)
+  .byte  144                                 // nop
+  .byte  63                                  // (bad)
+  .byte  252                                 // cld
+  .byte  191,16,62,168,177                   // mov           $0xb1a83e10,%edi
   .byte  152                                 // cwtl
   .byte  59,0                                // cmp           (%rax),%eax
   .byte  0,128,63,0,0,192                    // add           %al,-0x3fffffc1(%rax)
@@ -25952,18 +25955,29 @@ BALIGN16
   .byte  60,186                              // cmp           $0xba,%al
   .byte  159                                 // lahf
   .byte  98                                  // (bad)
-  .byte  60,13                               // cmp           $0xd,%al
-  .byte  20,145                              // adc           $0x91,%al
+  .byte  60,109                              // cmp           $0x6d,%al
+  .byte  165                                 // movsl         %ds:(%rsi),%es:(%rdi)
+  .byte  144                                 // nop
   .byte  63                                  // (bad)
-  .byte  13,20,145,63,13                     // or            $0xd3f9114,%eax
-  .byte  20,145                              // adc           $0x91,%al
+  .byte  109                                 // insl          (%dx),%es:(%rdi)
+  .byte  165                                 // movsl         %ds:(%rsi),%es:(%rdi)
+  .byte  144                                 // nop
   .byte  63                                  // (bad)
-  .byte  13,20,145,63,141                    // or            $0x8d3f9114,%eax
-  .byte  158                                 // sahf
-  .byte  20,62                               // adc           $0x3e,%al
-  .byte  141,158,20,62,141,158               // lea           -0x6172c1ec(%rsi),%ebx
-  .byte  20,62                               // adc           $0x3e,%al
-  .byte  141,158,20,62,168,177               // lea           -0x4e57c1ec(%rsi),%ebx
+  .byte  109                                 // insl          (%dx),%es:(%rdi)
+  .byte  165                                 // movsl         %ds:(%rsi),%es:(%rdi)
+  .byte  144                                 // nop
+  .byte  63                                  // (bad)
+  .byte  109                                 // insl          (%dx),%es:(%rdi)
+  .byte  165                                 // movsl         %ds:(%rsi),%es:(%rdi)
+  .byte  144                                 // nop
+  .byte  63                                  // (bad)
+  .byte  252                                 // cld
+  .byte  191,16,62,252,191                   // mov           $0xbffc3e10,%edi
+  .byte  16,62                               // adc           %bh,(%rsi)
+  .byte  252                                 // cld
+  .byte  191,16,62,252,191                   // mov           $0xbffc3e10,%edi
+  .byte  16,62                               // adc           %bh,(%rsi)
+  .byte  168,177                             // test          $0xb1,%al
   .byte  152                                 // cwtl
   .byte  59,168,177,152,59,168               // cmp           -0x57c4674f(%rax),%ebp
   .byte  177,152                             // mov           $0x98,%cl
@@ -33082,18 +33096,29 @@ BALIGN16
   .byte  60,186                              // cmp           $0xba,%al
   .byte  159                                 // lahf
   .byte  98                                  // (bad)
-  .byte  60,13                               // cmp           $0xd,%al
-  .byte  20,145                              // adc           $0x91,%al
+  .byte  60,109                              // cmp           $0x6d,%al
+  .byte  165                                 // movsl         %ds:(%rsi),%es:(%rdi)
+  .byte  144                                 // nop
   .byte  63                                  // (bad)
-  .byte  13,20,145,63,13                     // or            $0xd3f9114,%eax
-  .byte  20,145                              // adc           $0x91,%al
+  .byte  109                                 // insl          (%dx),%es:(%rdi)
+  .byte  165                                 // movsl         %ds:(%rsi),%es:(%rdi)
+  .byte  144                                 // nop
   .byte  63                                  // (bad)
-  .byte  13,20,145,63,141                    // or            $0x8d3f9114,%eax
-  .byte  158                                 // sahf
-  .byte  20,62                               // adc           $0x3e,%al
-  .byte  141,158,20,62,141,158               // lea           -0x6172c1ec(%rsi),%ebx
-  .byte  20,62                               // adc           $0x3e,%al
-  .byte  141,158,20,62,168,177               // lea           -0x4e57c1ec(%rsi),%ebx
+  .byte  109                                 // insl          (%dx),%es:(%rdi)
+  .byte  165                                 // movsl         %ds:(%rsi),%es:(%rdi)
+  .byte  144                                 // nop
+  .byte  63                                  // (bad)
+  .byte  109                                 // insl          (%dx),%es:(%rdi)
+  .byte  165                                 // movsl         %ds:(%rsi),%es:(%rdi)
+  .byte  144                                 // nop
+  .byte  63                                  // (bad)
+  .byte  252                                 // cld
+  .byte  191,16,62,252,191                   // mov           $0xbffc3e10,%edi
+  .byte  16,62                               // adc           %bh,(%rsi)
+  .byte  252                                 // cld
+  .byte  191,16,62,252,191                   // mov           $0xbffc3e10,%edi
+  .byte  16,62                               // adc           %bh,(%rsi)
+  .byte  168,177                             // test          $0xb1,%al
   .byte  152                                 // cwtl
   .byte  59,168,177,152,59,168               // cmp           -0x57c4674f(%rax),%ebp
   .byte  177,152                             // mov           $0x98,%cl
