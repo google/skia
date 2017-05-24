@@ -75,6 +75,7 @@ GrResourceCache::GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID)
     , fBytes(0)
     , fBudgetedCount(0)
     , fBudgetedBytes(0)
+    , fPurgeableBytes(0)
     , fRequestFlush(false)
     , fExternalFlushCnt(0)
     , fContextUniqueID(contextUniqueID)
@@ -136,13 +137,14 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
     this->validate();
     SkASSERT(this->isInCache(resource));
 
+    size_t size = resource->gpuMemorySize();
     if (resource->isPurgeable()) {
         fPurgeableQueue.remove(resource);
+        fPurgeableBytes -= size;
     } else {
         this->removeFromNonpurgeableArray(resource);
     }
 
-    size_t size = resource->gpuMemorySize();
     SkDEBUGCODE(--fCount;)
     fBytes -= size;
     if (SkBudgeted::kYes == resource->resourcePriv().isBudgeted()) {
@@ -184,6 +186,7 @@ void GrResourceCache::abandonAll() {
     SkASSERT(!fBytes);
     SkASSERT(!fBudgetedCount);
     SkASSERT(!fBudgetedBytes);
+    SkASSERT(!fPurgeableBytes);
 }
 
 void GrResourceCache::releaseAll() {
@@ -210,6 +213,7 @@ void GrResourceCache::releaseAll() {
     SkASSERT(!fBytes);
     SkASSERT(!fBudgetedCount);
     SkASSERT(!fBudgetedBytes);
+    SkASSERT(!fPurgeableBytes);
 }
 
 class GrResourceCache::AvailableForScratchUse {
@@ -330,6 +334,7 @@ void GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
 
     if (resource->isPurgeable()) {
         // It's about to become unpurgeable.
+        fPurgeableBytes -= resource->gpuMemorySize();
         fPurgeableQueue.remove(resource);
         this->addToNonpurgeableArray(resource);
     }
@@ -371,6 +376,7 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
     fPurgeableQueue.insert(resource);
     resource->cacheAccess().setFlushCntWhenResourceBecamePurgeable(fExternalFlushCnt);
     resource->cacheAccess().setTimeWhenResourceBecomePurgeable();
+    fPurgeableBytes += resource->gpuMemorySize();
 
     if (SkBudgeted::kNo == resource->resourcePriv().isBudgeted()) {
         // Check whether this resource could still be used as a scratch resource.
@@ -747,6 +753,7 @@ void GrResourceCache::validate() const {
     }
 
     Stats stats(this);
+    size_t purgeableBytes = 0;
 
     for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
         SkASSERT(!fNonpurgeableResources[i]->isPurgeable() ||
@@ -760,6 +767,7 @@ void GrResourceCache::validate() const {
         SkASSERT(*fPurgeableQueue.at(i)->cacheAccess().accessCacheIndex() == i);
         SkASSERT(!fPurgeableQueue.at(i)->wasDestroyed());
         stats.update(fPurgeableQueue.at(i));
+        purgeableBytes += fPurgeableQueue.at(i)->gpuMemorySize();
     }
 
     SkASSERT(fCount == this->getResourceCount());
@@ -768,6 +776,7 @@ void GrResourceCache::validate() const {
     SkASSERT(stats.fBytes == fBytes);
     SkASSERT(stats.fBudgetedBytes == fBudgetedBytes);
     SkASSERT(stats.fBudgetedCount == fBudgetedCount);
+    SkASSERT(purgeableBytes == fPurgeableBytes);
 #if GR_CACHE_STATS
     SkASSERT(fBudgetedHighWaterCount <= fHighWaterCount);
     SkASSERT(fBudgetedHighWaterBytes <= fHighWaterBytes);
