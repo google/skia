@@ -207,7 +207,7 @@ sk_sp<GrFragmentProcessor> Edge2PtConicalEffect::TestCreate(GrProcessorTestData*
                                               params.fColors, params.fStops,
                                               params.fColorCount, params.fTileMode);
     GrTest::TestAsFPArgs asFPArgs(d);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(asFPArgs.args());
+    sk_sp<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -486,7 +486,7 @@ sk_sp<GrFragmentProcessor> FocalOutside2PtConicalEffect::TestCreate(GrProcessorT
                                               params.fColors, params.fStops,
                                               params.fColorCount, params.fTileMode);
     GrTest::TestAsFPArgs asFPArgs(d);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(asFPArgs.args());
+    sk_sp<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -690,7 +690,7 @@ sk_sp<GrFragmentProcessor> FocalInside2PtConicalEffect::TestCreate(GrProcessorTe
                                               params.fColors, params.fStops,
                                               params.fColorCount, params.fTileMode);
     GrTest::TestAsFPArgs asFPArgs(d);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(asFPArgs.args());
+    sk_sp<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -936,7 +936,7 @@ sk_sp<GrFragmentProcessor> CircleInside2PtConicalEffect::TestCreate(GrProcessorT
                                               params.fColors, params.fStops,
                                               params.fColorCount, params.fTileMode);
     GrTest::TestAsFPArgs asFPArgs(d);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(asFPArgs.args());
+    sk_sp<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -1170,7 +1170,7 @@ sk_sp<GrFragmentProcessor> CircleOutside2PtConicalEffect::TestCreate(GrProcessor
                                               params.fColors, params.fStops,
                                               params.fColorCount, params.fTileMode);
     GrTest::TestAsFPArgs asFPArgs(d);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(asFPArgs.args());
+    sk_sp<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
     GrAlwaysAssert(fp);
     return fp;
 }

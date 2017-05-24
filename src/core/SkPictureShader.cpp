@@ -277,11 +277,11 @@ bool SkPictureShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkAr
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *alloc->make<sk_sp<SkShader>>();
     bitmapShader = this->refBitmapShader(ctm, localMatrix, cs);
-    return bitmapShader && bitmapShader->appendStages(p, cs, alloc, ctm, paint);
+    return bitmapShader && as_SB(bitmapShader)->appendStages(p, cs, alloc, ctm, paint);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-SkShader::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
+SkShaderBase::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
 const {
     sk_sp<SkShader> bitmapShader(this->refBitmapShader(*rec.fMatrix, rec.fLocalMatrix,
                                                        rec.fDstColorSpace));
@@ -310,7 +310,7 @@ SkPictureShader::PictureShaderContext::PictureShaderContext(
     : INHERITED(shader, rec)
     , fBitmapShader(std::move(bitmapShader))
 {
-    fBitmapShaderContext = fBitmapShader->makeContext(rec, alloc);
+    fBitmapShaderContext = as_SB(fBitmapShader)->makeContext(rec, alloc);
     //if fBitmapShaderContext is null, we are invalid
 }
 
@@ -319,7 +319,7 @@ uint32_t SkPictureShader::PictureShaderContext::getFlags() const {
     return fBitmapShaderContext->getFlags();
 }
 
-SkShader::Context::ShadeProc SkPictureShader::PictureShaderContext::asAShadeProc(void** ctx) {
+SkShaderBase::Context::ShadeProc SkPictureShader::PictureShaderContext::asAShadeProc(void** ctx) {
     SkASSERT(fBitmapShaderContext);
     return fBitmapShaderContext->asAShadeProc(ctx);
 }
@@ -358,7 +358,7 @@ sk_sp<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(const AsFPArgs& 
     if (!bitmapShader) {
         return nullptr;
     }
-    return bitmapShader->asFragmentProcessor(SkShader::AsFPArgs(
+    return as_SB(bitmapShader)->asFragmentProcessor(SkShaderBase::AsFPArgs(
         args.fContext, args.fViewMatrix, nullptr, args.fFilterQuality, args.fDstColorSpace));
 }
 #endif

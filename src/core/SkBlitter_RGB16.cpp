@@ -110,7 +110,7 @@ private:
 class SkRGB16_Shader_Blitter : public SkShaderBlitter {
 public:
     SkRGB16_Shader_Blitter(const SkPixmap& device, const SkPaint& paint,
-                           SkShader::Context* shaderContext);
+                           SkShaderBase::Context* shaderContext);
     ~SkRGB16_Shader_Blitter() override;
     void blitH(int x, int y, int width) override;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
@@ -132,7 +132,7 @@ private:
 class SkRGB16_Shader_Xfermode_Blitter : public SkShaderBlitter {
 public:
     SkRGB16_Shader_Xfermode_Blitter(const SkPixmap& device, const SkPaint& paint,
-                                    SkShader::Context* shaderContext);
+                                    SkShaderBase::Context* shaderContext);
     ~SkRGB16_Shader_Xfermode_Blitter() override;
     void blitH(int x, int y, int width) override;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
@@ -671,7 +671,7 @@ void SkRGB16_Blitter::blitRect(int x, int y, int width, int height) {
 
 SkRGB16_Shader_Blitter::SkRGB16_Shader_Blitter(const SkPixmap& device,
                                                const SkPaint& paint,
-                                               SkShader::Context* shaderContext)
+                                               SkShaderBase::Context* shaderContext)
     : INHERITED(device, paint, shaderContext)
 {
     SkASSERT(paint.isSrcOver());
@@ -683,7 +683,7 @@ SkRGB16_Shader_Blitter::SkRGB16_Shader_Blitter(const SkPixmap& device,
 
     uint32_t shaderFlags = fShaderFlags;
     // shaders take care of global alpha, so we never set it in SkBlitRow
-    if (!(shaderFlags & SkShader::kOpaqueAlpha_Flag)) {
+    if (!(shaderFlags & SkShaderBase::kOpaqueAlpha_Flag)) {
         flags |= SkBlitRow::kSrcPixelAlpha_Flag;
     }
     if (paint.isDither()) {
@@ -708,13 +708,13 @@ void SkRGB16_Shader_Blitter::blitH(int x, int y, int width) {
 }
 
 void SkRGB16_Shader_Blitter::blitRect(int x, int y, int width, int height) {
-    SkShader::Context* shaderContext = fShaderContext;
+    auto* shaderContext = fShaderContext;
     SkBlitRow::Proc16  proc = fOpaqueProc;
     SkPMColor*         buffer = fBuffer;
     uint16_t*          dst = fDevice.writable_addr16(x, y);
     size_t             dstRB = fDevice.rowBytes();
 
-    if (fShaderFlags & SkShader::kConstInY32_Flag) {
+    if (fShaderFlags & SkShaderBase::kConstInY32_Flag) {
         shaderContext->shadeSpan(x, y, buffer, width);
         do {
             proc(dst, buffer, width, 0xFF, x, y);
@@ -748,7 +748,7 @@ static inline int count_nonzero_span(const int16_t runs[], const SkAlpha aa[]) {
 void SkRGB16_Shader_Blitter::blitAntiH(int x, int y,
                                        const SkAlpha* SK_RESTRICT antialias,
                                        const int16_t* SK_RESTRICT runs) {
-    SkShader::Context*     shaderContext = fShaderContext;
+    auto*     shaderContext = fShaderContext;
     SkPMColor* SK_RESTRICT span = fBuffer;
     uint16_t* SK_RESTRICT  device = fDevice.writable_addr16(x, y);
 
@@ -797,7 +797,7 @@ void SkRGB16_Shader_Blitter::blitAntiH(int x, int y,
 
 SkRGB16_Shader_Xfermode_Blitter::SkRGB16_Shader_Xfermode_Blitter(
                                 const SkPixmap& device, const SkPaint& paint,
-                                SkShader::Context* shaderContext)
+                                SkShaderBase::Context* shaderContext)
     : INHERITED(device, paint, shaderContext)
 {
     fXfermode = SkXfermode::Peek(paint.getBlendMode());
@@ -825,7 +825,7 @@ void SkRGB16_Shader_Xfermode_Blitter::blitH(int x, int y, int width) {
 void SkRGB16_Shader_Xfermode_Blitter::blitAntiH(int x, int y,
                                 const SkAlpha* SK_RESTRICT antialias,
                                 const int16_t* SK_RESTRICT runs) {
-    SkShader::Context*     shaderContext = fShaderContext;
+    auto*     shaderContext = fShaderContext;
     SkXfermode*            mode = fXfermode;
     SkPMColor* SK_RESTRICT span = fBuffer;
     uint8_t* SK_RESTRICT   aaExpand = fAAExpand;
@@ -880,7 +880,7 @@ void SkRGB16_Shader_Xfermode_Blitter::blitAntiH(int x, int y,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkBlitter* SkBlitter_ChooseD565(const SkPixmap& device, const SkPaint& paint,
-        SkShader::Context* shaderContext,
+        SkShaderBase::Context* shaderContext,
         SkArenaAlloc* alloc) {
     SkASSERT(alloc != nullptr);
 

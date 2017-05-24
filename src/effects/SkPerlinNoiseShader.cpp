@@ -10,7 +10,7 @@
 #include "SkArenaAlloc.h"
 #include "SkColorFilter.h"
 #include "SkReadBuffer.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkString.h"
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
@@ -50,7 +50,7 @@ inline SkScalar smoothCurve(SkScalar t) {
     return t * t * (3 - 2 * t);
 }
 
-class SkPerlinNoiseShaderImpl final : public SkShader {
+class SkPerlinNoiseShaderImpl final : public SkShaderBase {
 public:
     /**
      *  About the noise types : the difference between the 2 is just minor tweaks to the algorithm,
@@ -87,7 +87,7 @@ protected:
     Context* onMakeContext(const ContextRec&, SkArenaAlloc* storage) const override;
 
 private:
-    class PerlinNoiseShaderContext final : public SkShader::Context {
+    class PerlinNoiseShaderContext final : public Context {
     public:
         PerlinNoiseShaderContext(const SkPerlinNoiseShaderImpl& shader, const ContextRec&);
         ~PerlinNoiseShaderContext() override;
@@ -105,7 +105,7 @@ private:
         SkMatrix fMatrix;
         PaintingData* fPaintingData;
 
-        typedef SkShader::Context INHERITED;
+        typedef Context INHERITED;
     };
 
     const Type     fType;
@@ -118,7 +118,7 @@ private:
 
     friend class ::SkPerlinNoiseShader;
 
-    typedef SkShader INHERITED;
+    typedef SkShaderBase INHERITED;
 };
 
 } // end namespace
@@ -503,7 +503,7 @@ SkPMColor SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::shade(
     return SkPreMultiplyARGB(rgba[3], rgba[0], rgba[1], rgba[2]);
 }
 
-SkShader::Context* SkPerlinNoiseShaderImpl::onMakeContext(
+SkShaderBase::Context* SkPerlinNoiseShaderImpl::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const {
     return alloc->make<PerlinNoiseShaderContext>(*this, rec);
 }
@@ -658,7 +658,7 @@ sk_sp<GrFragmentProcessor> GrPerlinNoiseEffect::TestCreate(GrProcessorTestData* 
                                             stitchTiles ? &tileSize : nullptr));
 
     GrTest::TestAsFPArgs asFPArgs(d);
-    return shader->asFragmentProcessor(asFPArgs.args());
+    return as_SB(shader)->asFragmentProcessor(asFPArgs.args());
 }
 #endif
 

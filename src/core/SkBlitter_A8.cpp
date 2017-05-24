@@ -227,7 +227,7 @@ void SkA8_Blitter::blitRect(int x, int y, int width, int height) {
 ///////////////////////////////////////////////////////////////////////
 
 SkA8_Shader_Blitter::SkA8_Shader_Blitter(const SkPixmap& device, const SkPaint& paint,
-                                         SkShader::Context* shaderContext)
+                                         SkShaderBase::Context* shaderContext)
     : INHERITED(device, paint, shaderContext)
 {
     fXfermode = SkXfermode::Peek(paint.getBlendMode());
@@ -247,9 +247,9 @@ void SkA8_Shader_Blitter::blitH(int x, int y, int width) {
              (unsigned)(x + width) <= (unsigned)fDevice.width());
 
     uint8_t* device = fDevice.writable_addr8(x, y);
-    SkShader::Context* shaderContext = fShaderContext;
+    auto* shaderContext = fShaderContext;
 
-    if ((shaderContext->getFlags() & SkShader::kOpaqueAlpha_Flag) && !fXfermode) {
+    if ((shaderContext->getFlags() & SkShaderBase::kOpaqueAlpha_Flag) && !fXfermode) {
         memset(device, 0xFF, width);
     } else {
         SkPMColor*  span = fBuffer;
@@ -280,12 +280,12 @@ static inline uint8_t aa_blend8(SkPMColor src, U8CPU da, int aa) {
 
 void SkA8_Shader_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
                                     const int16_t runs[]) {
-    SkShader::Context* shaderContext = fShaderContext;
+    auto* shaderContext = fShaderContext;
     SkXfermode*        mode = fXfermode;
     uint8_t*           aaExpand = fAAExpand;
     SkPMColor*         span = fBuffer;
     uint8_t*           device = fDevice.writable_addr8(x, y);
-    int                opaque = shaderContext->getFlags() & SkShader::kOpaqueAlpha_Flag;
+    int                opaque = shaderContext->getFlags() & SkShaderBase::kOpaqueAlpha_Flag;
 
     for (;;) {
         int count = *runs;
@@ -327,7 +327,7 @@ void SkA8_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     int height = clip.height();
     uint8_t* device = fDevice.writable_addr8(x, y);
     const uint8_t* alpha = mask.getAddr8(x, y);
-    SkShader::Context* shaderContext = fShaderContext;
+    auto* shaderContext = fShaderContext;
 
     SkPMColor*  span = fBuffer;
 

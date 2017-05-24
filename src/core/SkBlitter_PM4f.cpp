@@ -139,7 +139,7 @@ public:
 template <typename State> class SkState_Shader_Blitter : public SkShaderBlitter {
 public:
     SkState_Shader_Blitter(const SkPixmap& device, const SkPaint& paint,
-                           const SkShader::Context::BlitState& bstate)
+                           const SkShaderBase::Context::BlitState& bstate)
         : INHERITED(device, paint, bstate.fCtx)
         , fState(device.info(), paint, bstate.fCtx)
         , fBState(bstate)
@@ -309,10 +309,10 @@ public:
     }
 
 protected:
-    State                        fState;
-    SkShader::Context::BlitState fBState;
-    SkShader::Context::BlitBW    fBlitBW;
-    SkShader::Context::BlitAA    fBlitAA;
+    State                            fState;
+    SkShaderBase::Context::BlitState fBState;
+    SkShaderBase::Context::BlitBW    fBlitBW;
+    SkShaderBase::Context::BlitAA    fBlitAA;
 
     typedef SkShaderBlitter INHERITED;
 };
@@ -320,13 +320,14 @@ protected:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static bool is_opaque(const SkPaint& paint, const SkShader::Context* shaderContext) {
-    return shaderContext ? SkToBool(shaderContext->getFlags() & SkShader::kOpaqueAlpha_Flag)
+static bool is_opaque(const SkPaint& paint, const SkShaderBase::Context* shaderContext) {
+    return shaderContext ? SkToBool(shaderContext->getFlags() & SkShaderBase::kOpaqueAlpha_Flag)
     : 0xFF == paint.getAlpha();
 }
 
 struct State4f {
-    State4f(const SkImageInfo& info, const SkPaint& paint, const SkShader::Context* shaderContext) {
+    State4f(const SkImageInfo& info, const SkPaint& paint,
+            const SkShaderBase::Context* shaderContext) {
         fMode = paint.getBlendMode();
         if (shaderContext) {
             fBuffer.reset(info.width());
@@ -336,12 +337,11 @@ struct State4f {
         fFlags = 0;
     }
 
-    SkPM4f                  fPM4f;
-    SkAutoTMalloc<SkPM4f>   fBuffer;
-    uint32_t                fFlags;
-    SkBlendMode             fMode;
-
-    SkShader::Context::BlitState fBState;
+    SkPM4f                           fPM4f;
+    SkAutoTMalloc<SkPM4f>            fBuffer;
+    uint32_t                         fFlags;
+    SkBlendMode                      fMode;
+    SkShaderBase::Context::BlitState fBState;
 };
 
 struct State32 : State4f {
@@ -350,7 +350,8 @@ struct State32 : State4f {
     SkXfermode::D32Proc fProc1;
     SkXfermode::D32Proc fProcN;
 
-    State32(const SkImageInfo& info, const SkPaint& paint, const SkShader::Context* shaderContext)
+    State32(const SkImageInfo& info, const SkPaint& paint,
+            const SkShaderBase::Context* shaderContext)
         : State4f(info, paint, shaderContext)
     {
         if (is_opaque(paint, shaderContext)) {
@@ -382,7 +383,8 @@ struct StateF16 : State4f {
     SkXfermode::F16Proc fProc1;
     SkXfermode::F16Proc fProcN;
 
-    StateF16(const SkImageInfo& info, const SkPaint& paint, const SkShader::Context* shaderContext)
+    StateF16(const SkImageInfo& info, const SkPaint& paint,
+             const SkShaderBase::Context* shaderContext)
         : State4f(info, paint, shaderContext)
     {
         if (is_opaque(paint, shaderContext)) {
@@ -404,12 +406,12 @@ struct StateF16 : State4f {
 };
 
 template <typename State> SkBlitter* create(const SkPixmap& device, const SkPaint& paint,
-                                            SkShader::Context* shaderContext,
+                                            SkShaderBase::Context* shaderContext,
                                             SkArenaAlloc* alloc) {
     SkASSERT(alloc != nullptr);
 
     if (shaderContext) {
-        SkShader::Context::BlitState bstate;
+        SkShaderBase::Context::BlitState bstate;
         sk_bzero(&bstate, sizeof(bstate));
         bstate.fCtx = shaderContext;
         bstate.fMode = paint.getBlendMode();
@@ -426,13 +428,13 @@ template <typename State> SkBlitter* create(const SkPixmap& device, const SkPain
 }
 
 SkBlitter* SkBlitter_ARGB32_Create(const SkPixmap& device, const SkPaint& paint,
-                                   SkShader::Context* shaderContext,
+                                   SkShaderBase::Context* shaderContext,
                                    SkArenaAlloc* alloc) {
     return create<State32>(device, paint, shaderContext, alloc);
 }
 
 SkBlitter* SkBlitter_F16_Create(const SkPixmap& device, const SkPaint& paint,
-                                SkShader::Context* shaderContext,
+                                SkShaderBase::Context* shaderContext,
                                 SkArenaAlloc* alloc) {
     return create<StateF16>(device, paint, shaderContext, alloc);
 }

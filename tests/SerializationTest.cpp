@@ -18,6 +18,7 @@
 #include "SkNormalSource.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
+#include "SkShaderBase.h"
 #include "SkTableColorFilter.h"
 #include "SkTemplates.h"
 #include "SkTypeface.h"
@@ -610,22 +611,22 @@ DEF_TEST(Serialization, reporter) {
         sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuseShader,
                                                                 normalSource,
                                                                 fLights);
-        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+        sk_sp<SkShader>(TestFlattenableSerialization(as_SB(lightingShader.get()), true, reporter));
 
         lightingShader = SkLightingShader::Make(std::move(diffuseShader),
                                                 nullptr,
                                                 fLights);
-        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+        sk_sp<SkShader>(TestFlattenableSerialization(as_SB(lightingShader.get()), true, reporter));
 
         lightingShader = SkLightingShader::Make(nullptr,
                                                 std::move(normalSource),
                                                 fLights);
-        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+        sk_sp<SkShader>(TestFlattenableSerialization(as_SB(lightingShader.get()), true, reporter));
 
         lightingShader = SkLightingShader::Make(nullptr,
                                                 nullptr,
                                                 fLights);
-        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+        sk_sp<SkShader>(TestFlattenableSerialization(as_SB(lightingShader.get()), true, reporter));
     }
 
     // Test NormalBevelSource serialization

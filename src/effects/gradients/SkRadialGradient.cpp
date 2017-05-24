@@ -40,7 +40,7 @@ SkRadialGradient::SkRadialGradient(const SkPoint& center, SkScalar radius, const
     , fRadius(radius) {
 }
 
-SkShader::Context* SkRadialGradient::onMakeContext(
+SkShaderBase::Context* SkRadialGradient::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
     return CheckedMakeContext<RadialGradientContext>(alloc, *this, rec);
@@ -318,7 +318,7 @@ sk_sp<GrFragmentProcessor> GrRadialGradient::TestCreate(GrProcessorTestData* d) 
                                                         params.fTileMode);
     } while (!shader);
     GrTest::TestAsFPArgs asFPArgs(d);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(asFPArgs.args());
+    sk_sp<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
     GrAlwaysAssert(fp);
     return fp;
 }

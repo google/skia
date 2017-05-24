@@ -14,7 +14,7 @@
 #include "SkMatrix.h"
 #include "SkNx.h"
 #include "SkPM4f.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkTArray.h"
 
 struct Sk4fGradientInterval {
@@ -53,7 +53,7 @@ private:
 };
 
 class SkGradientShaderBase::
-GradientShaderBase4fContext : public SkShader::Context {
+GradientShaderBase4fContext : public Context {
 public:
     GradientShaderBase4fContext(const SkGradientShaderBase&,
                                 const ContextRec&);
@@ -77,7 +77,7 @@ protected:
     bool                       fColorsArePremul;
 
 private:
-    using INHERITED = SkShader::Context;
+    using INHERITED = Context;
 
     void addMirrorIntervals(const SkGradientShaderBase&,
                             const Sk4f& componentScale, bool reverse);
