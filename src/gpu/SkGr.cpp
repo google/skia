@@ -30,7 +30,6 @@
 #include "SkPM4fPriv.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
-#include "SkShaderBase.h"
 #include "SkTemplates.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrConstColorProcessor.h"
@@ -425,10 +424,10 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     if (!primColorMode || blend_requires_shader(*primColorMode)) {
         if (shaderProcessor) {
             shaderFP = *shaderProcessor;
-        } else if (const auto* shader = as_SB(skPaint.getShader())) {
-            shaderFP = shader->asFragmentProcessor(
-                SkShaderBase::AsFPArgs(context, &viewM, nullptr, skPaint.getFilterQuality(),
-                                       rtc->getColorSpace()));
+        } else if (const SkShader* shader = skPaint.getShader()) {
+            shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context, &viewM, nullptr,
+                                                                      skPaint.getFilterQuality(),
+                                                                      rtc->getColorSpace()));
             if (!shaderFP) {
                 return false;
             }
@@ -600,10 +599,12 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
                                  GrPaint* grPaint) {
     sk_sp<GrFragmentProcessor> shaderFP;
     if (textureIsAlphaOnly) {
-        if (const auto* shader = as_SB(paint.getShader())) {
-            shaderFP = shader->asFragmentProcessor(
-                SkShaderBase::AsFPArgs(context, &viewM, nullptr, paint.getFilterQuality(),
-                                       rtc->getColorSpace()));
+        if (const SkShader* shader = paint.getShader()) {
+            shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context,
+                                                                      &viewM,
+                                                                      nullptr,
+                                                                      paint.getFilterQuality(),
+                                                                      rtc->getColorSpace()));
             if (!shaderFP) {
                 return false;
             }

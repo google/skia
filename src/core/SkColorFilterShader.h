@@ -9,11 +9,11 @@
 #define SkColorFilterShader_DEFINED
 
 #include "SkColorFilter.h"
-#include "SkShaderBase.h"
+#include "SkShader.h"
 
 class SkArenaAlloc;
 
-class SkColorFilterShader : public SkShaderBase {
+class SkColorFilterShader : public SkShader {
 public:
     SkColorFilterShader(sk_sp<SkShader> shader, sk_sp<SkColorFilter> filter);
 
@@ -21,10 +21,10 @@ public:
     sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
-    class FilterShaderContext : public Context {
+    class FilterShaderContext : public SkShader::Context {
     public:
         // Takes ownership of shaderContext and calls its destructor.
-        FilterShaderContext(const SkColorFilterShader&, SkShaderBase::Context*, const ContextRec&);
+        FilterShaderContext(const SkColorFilterShader&, SkShader::Context*, const ContextRec&);
 
         uint32_t getFlags() const override;
 
@@ -37,9 +37,9 @@ public:
         }
 
     private:
-        SkShaderBase::Context* fShaderContext;
+        SkShader::Context* fShaderContext;
 
-        typedef Context INHERITED;
+        typedef SkShader::Context INHERITED;
     };
 
     SK_TO_STRING_OVERRIDE()
@@ -54,7 +54,7 @@ private:
     sk_sp<SkShader>      fShader;
     sk_sp<SkColorFilter> fFilter;
 
-    typedef SkShaderBase INHERITED;
+    typedef SkShader INHERITED;
 };
 
 #endif

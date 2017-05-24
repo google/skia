@@ -18,7 +18,7 @@
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkScalar.h"
-#include "SkShaderBase.h"
+#include "SkShader.h"
 #include "SkTLazy.h"
 #include "SkWriteBuffer.h"
 #include "../jumper/SkJumper.h"
@@ -46,18 +46,22 @@ static inline void dec_shader_counter() {
 #endif
 }
 
-SkShaderBase::SkShaderBase(const SkMatrix* localMatrix)
-    : fLocalMatrix(localMatrix ? *localMatrix : SkMatrix::I()) {
+SkShader::SkShader(const SkMatrix* localMatrix) {
     inc_shader_counter();
+    if (localMatrix) {
+        fLocalMatrix = *localMatrix;
+    } else {
+        fLocalMatrix.reset();
+    }
     // Pre-cache so future calls to fLocalMatrix.getType() are threadsafe.
     (void)fLocalMatrix.getType();
 }
 
-SkShaderBase::~SkShaderBase() {
+SkShader::~SkShader() {
     dec_shader_counter();
 }
 
-void SkShaderBase::flatten(SkWriteBuffer& buffer) const {
+void SkShader::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     bool hasLocalM = !fLocalMatrix.isIdentity();
     buffer.writeBool(hasLocalM);
@@ -66,9 +70,9 @@ void SkShaderBase::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-bool SkShaderBase::computeTotalInverse(const SkMatrix& ctm,
-                                       const SkMatrix* outerLocalMatrix,
-                                       SkMatrix* totalInverse) const {
+bool SkShader::computeTotalInverse(const SkMatrix& ctm,
+                                   const SkMatrix* outerLocalMatrix,
+                                   SkMatrix* totalInverse) const {
     SkMatrix total = SkMatrix::Concat(ctm, fLocalMatrix);
     if (outerLocalMatrix) {
         total.preConcat(*outerLocalMatrix);
@@ -77,7 +81,7 @@ bool SkShaderBase::computeTotalInverse(const SkMatrix& ctm,
     return total.invert(totalInverse);
 }
 
-bool SkShaderBase::asLuminanceColor(SkColor* colorPtr) const {
+bool SkShader::asLuminanceColor(SkColor* colorPtr) const {
     SkColor storage;
     if (nullptr == colorPtr) {
         colorPtr = &storage;
@@ -89,14 +93,14 @@ bool SkShaderBase::asLuminanceColor(SkColor* colorPtr) const {
     return false;
 }
 
-SkShaderBase::Context* SkShaderBase::makeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
+SkShader::Context* SkShader::makeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
     if (!this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)) {
         return nullptr;
     }
     return this->onMakeContext(rec, alloc);
 }
 
-SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec)
+SkShader::Context::Context(const SkShader& shader, const ContextRec& rec)
     : fShader(shader), fCTM(*rec.fMatrix)
 {
     // We should never use a context for RP-only shaders.
@@ -110,13 +114,13 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
     fPaintAlpha = rec.fPaint->getAlpha();
 }
 
-SkShaderBase::Context::~Context() {}
+SkShader::Context::~Context() {}
 
-SkShaderBase::Context::ShadeProc SkShaderBase::Context::asAShadeProc(void** ctx) {
+SkShader::Context::ShadeProc SkShader::Context::asAShadeProc(void** ctx) {
     return nullptr;
 }
 
-void SkShaderBase::Context::shadeSpan4f(int x, int y, SkPM4f dst[], int count) {
+void SkShader::Context::shadeSpan4f(int x, int y, SkPM4f dst[], int count) {
     const int N = 128;
     SkPMColor tmp[N];
     while (count > 0) {
@@ -142,7 +146,7 @@ void SkShaderBase::Context::shadeSpan4f(int x, int y, SkPM4f dst[], int count) {
     #define SkU32BitShiftToByteOffset(shift)    ((shift) >> 3)
 #endif
 
-void SkShaderBase::Context::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
+void SkShader::Context::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
     SkASSERT(count > 0);
 
     SkPMColor   colors[kTempColorCount];
@@ -196,7 +200,7 @@ void SkShaderBase::Context::shadeSpanAlpha(int x, int y, uint8_t alpha[], int co
 #endif
 }
 
-SkShaderBase::Context::MatrixClass SkShaderBase::Context::ComputeMatrixClass(const SkMatrix& mat) {
+SkShader::Context::MatrixClass SkShader::Context::ComputeMatrixClass(const SkMatrix& mat) {
     MatrixClass mc = kLinear_MatrixClass;
 
     if (mat.hasPerspective()) {
@@ -211,31 +215,17 @@ SkShaderBase::Context::MatrixClass SkShaderBase::Context::ComputeMatrixClass(con
 
 //////////////////////////////////////////////////////////////////////////////
 
-const SkMatrix& SkShader::getLocalMatrix() const {
-    return as_SB(this)->getLocalMatrix();
-}
-
-#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
-bool SkShader::isABitmap(SkBitmap* outTexture, SkMatrix* outMatrix, TileMode xy[2]) const {
-    return  as_SB(this)->onIsABitmap(outTexture, outMatrix, xy);
-}
-#endif
-
-SkImage* SkShader::isAImage(SkMatrix* localMatrix, TileMode xy[2]) const {
-    return as_SB(this)->onIsAImage(localMatrix, xy);
-}
-
 SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
     return kNone_GradientType;
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrFragmentProcessor> SkShaderBase::asFragmentProcessor(const AsFPArgs&) const {
+sk_sp<GrFragmentProcessor> SkShader::asFragmentProcessor(const AsFPArgs&) const {
     return nullptr;
 }
 #endif
 
-sk_sp<SkShader> SkShaderBase::makeAsALocalMatrixShader(SkMatrix*) const {
+sk_sp<SkShader> SkShader::makeAsALocalMatrixShader(SkMatrix*) const {
     return nullptr;
 }
 
@@ -260,7 +250,7 @@ sk_sp<SkShader> SkShader::MakePictureShader(sk_sp<SkPicture> src, TileMode tmx, 
 }
 
 #ifndef SK_IGNORE_TO_STRING
-void SkShaderBase::toString(SkString* str) const {
+void SkShader::toString(SkString* str) const {
     if (!fLocalMatrix.isIdentity()) {
         str->append(" ");
         fLocalMatrix.toString(str);
@@ -268,21 +258,21 @@ void SkShaderBase::toString(SkString* str) const {
 }
 #endif
 
-bool SkShaderBase::appendStages(SkRasterPipeline* p,
-                                SkColorSpace* dstCS,
-                                SkArenaAlloc* alloc,
-                                const SkMatrix& ctm,
-                                const SkPaint& paint,
-                                const SkMatrix* localM) const {
+bool SkShader::appendStages(SkRasterPipeline* p,
+                            SkColorSpace* dstCS,
+                            SkArenaAlloc* alloc,
+                            const SkMatrix& ctm,
+                            const SkPaint& paint,
+                            const SkMatrix* localM) const {
     return this->onAppendStages(p, dstCS, alloc, ctm, paint, localM);
 }
 
-bool SkShaderBase::onAppendStages(SkRasterPipeline* p,
-                                  SkColorSpace* dstCS,
-                                  SkArenaAlloc* alloc,
-                                  const SkMatrix& ctm,
-                                  const SkPaint& paint,
-                                  const SkMatrix* localM) const {
+bool SkShader::onAppendStages(SkRasterPipeline* p,
+                              SkColorSpace* dstCS,
+                              SkArenaAlloc* alloc,
+                              const SkMatrix& ctm,
+                              const SkPaint& paint,
+                              const SkMatrix* localM) const {
     return false;
 }
 

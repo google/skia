@@ -17,10 +17,10 @@ public:
             , fInvCTM(invCTM) {}
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(const SkShaderBase::AsFPArgs&) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const SkShader::AsFPArgs&) const override;
 #endif
 
-    SkNormalSource::Provider* asProvider(const SkShaderBase::ContextRec& rec,
+    SkNormalSource::Provider* asProvider(const SkShader::ContextRec& rec,
                                          SkArenaAlloc* alloc) const override;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkNormalMapSourceImpl)
@@ -28,19 +28,18 @@ public:
 protected:
     void flatten(SkWriteBuffer& buf) const override;
 
-    bool computeNormTotalInverse(const SkShaderBase::ContextRec& rec,
-                                 SkMatrix* normTotalInverse) const;
+    bool computeNormTotalInverse(const SkShader::ContextRec& rec, SkMatrix* normTotalInverse) const;
 
 private:
     class Provider : public SkNormalSource::Provider {
     public:
-        Provider(const SkNormalMapSourceImpl& source, SkShaderBase::Context* mapContext);
+        Provider(const SkNormalMapSourceImpl& source, SkShader::Context* mapContext);
 
         void fillScanLine(int x, int y, SkPoint3 output[], int count) const override;
 
     private:
         const SkNormalMapSourceImpl& fSource;
-        SkShaderBase::Context*       fMapContext;
+        SkShader::Context* fMapContext;
 
         typedef SkNormalSource::Provider INHERITED;
     };

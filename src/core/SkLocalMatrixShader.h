@@ -8,7 +8,7 @@
 #ifndef SkLocalMatrixShader_DEFINED
 #define SkLocalMatrixShader_DEFINED
 
-#include "SkShaderBase.h"
+#include "SkShader.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
@@ -16,7 +16,7 @@ class GrFragmentProcessor;
 class SkArenaAlloc;
 class SkColorSpaceXformer;
 
-class SkLocalMatrixShader : public SkShaderBase {
+class SkLocalMatrixShader : public SkShader {
 public:
     SkLocalMatrixShader(sk_sp<SkShader> proxy, const SkMatrix& localMatrix)
     : INHERITED(&localMatrix)
@@ -52,8 +52,7 @@ protected:
                         const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
 
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
-        return as_SB(fProxyShader)->makeColorSpace(xformer)->makeWithLocalMatrix(
-            this->getLocalMatrix());
+        return fProxyShader->makeColorSpace(xformer)->makeWithLocalMatrix(this->getLocalMatrix());
     }
 
 #ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
@@ -63,13 +62,13 @@ protected:
 #endif
 
     bool isRasterPipelineOnly() const final {
-        return as_SB(fProxyShader)->isRasterPipelineOnly();
+        return fProxyShader->isRasterPipelineOnly();
     }
 
 private:
     sk_sp<SkShader> fProxyShader;
 
-    typedef SkShaderBase INHERITED;
+    typedef SkShader INHERITED;
 };
 
 #endif

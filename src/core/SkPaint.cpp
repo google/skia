@@ -26,7 +26,6 @@
 #include "SkScalar.h"
 #include "SkScalerContext.h"
 #include "SkShader.h"
-#include "SkShaderBase.h"
 #include "SkStringUtils.h"
 #include "SkStroke.h"
 #include "SkStrokeRec.h"
@@ -1251,7 +1250,7 @@ static SkPaint::Hinting computeHinting(const SkPaint& paint) {
 static bool justAColor(const SkPaint& paint, SkColor* color) {
     SkColor c = paint.getColor();
 
-    const auto* shader = as_SB(paint.getShader());
+    SkShader* shader = paint.getShader();
     if (shader && !shader->asLuminanceColor(&c)) {
         return false;
     }
@@ -2072,7 +2071,8 @@ void SkPaint::toString(SkString* str) const {
         str->append("</dd>");
     }
 
-    if (const auto* shader = as_SB(this->getShader())) {
+    SkShader* shader = this->getShader();
+    if (shader) {
         str->append("<dt>Shader:</dt><dd>");
         shader->toString(str);
         str->append("</dd>");

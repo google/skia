@@ -16,7 +16,6 @@
 #include "SkNormalSource.h"
 #include "SkPoint3.h"
 #include "SkReadBuffer.h"
-#include "SkShaderBase.h"
 #include "SkWriteBuffer.h"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -37,7 +36,7 @@
 /** \class SkLightingShaderImpl
     This subclass of shader applies lighting.
 */
-class SkLightingShaderImpl : public SkShaderBase {
+class SkLightingShaderImpl : public SkShader {
 public:
     /** Create a new lighting shader that uses the provided normal map and
         lights to light the diffuse bitmap.
@@ -58,12 +57,12 @@ public:
     sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
-    class LightingShaderContext : public Context {
+    class LightingShaderContext : public SkShader::Context {
     public:
         // The context takes ownership of the context and provider. It will call their destructors
         // and then indirectly free their memory by calling free() on heapAllocated
         LightingShaderContext(const SkLightingShaderImpl&, const ContextRec&,
-                              SkShaderBase::Context* diffuseContext, SkNormalSource::Provider*,
+                              SkShader::Context* diffuseContext, SkNormalSource::Provider*,
                               void* heapAllocated);
 
         void shadeSpan(int x, int y, SkPMColor[], int count) override;
@@ -71,12 +70,12 @@ public:
         uint32_t getFlags() const override { return fFlags; }
 
     private:
-        SkShaderBase::Context*    fDiffuseContext;
+        SkShader::Context*        fDiffuseContext;
         SkNormalSource::Provider* fNormalProvider;
         SkColor                   fPaintColor;
         uint32_t                  fFlags;
 
-        typedef Context INHERITED;
+        typedef SkShader::Context INHERITED;
     };
 
     SK_TO_STRING_OVERRIDE()
@@ -94,7 +93,7 @@ private:
 
     friend class SkLightingShader;
 
-    typedef SkShaderBase INHERITED;
+    typedef SkShader INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -271,7 +270,7 @@ sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(const AsFPA
 
     if (fDiffuseShader) {
         sk_sp<GrFragmentProcessor> fpPipeline[] = {
-            as_SB(fDiffuseShader)->asFragmentProcessor(args),
+            fDiffuseShader->asFragmentProcessor(args),
             sk_make_sp<LightingFP>(std::move(normalFP), fLights)
         };
         if(!fpPipeline[0]) {
@@ -299,7 +298,7 @@ bool SkLightingShaderImpl::isOpaque() const {
 
 SkLightingShaderImpl::LightingShaderContext::LightingShaderContext(
         const SkLightingShaderImpl& shader, const ContextRec& rec,
-        SkShaderBase::Context* diffuseContext, SkNormalSource::Provider* normalProvider,
+        SkShader::Context* diffuseContext, SkNormalSource::Provider* normalProvider,
         void* heapAllocated)
     : INHERITED(shader, rec)
     , fDiffuseContext(diffuseContext)
@@ -420,7 +419,7 @@ sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
     bool hasDiffuse = buf.readBool();
     sk_sp<SkShader> diffuseShader = nullptr;
     if (hasDiffuse) {
-        diffuseShader = buf.readFlattenable<SkShaderBase>();
+        diffuseShader = buf.readFlattenable<SkShader>();
     }
 
     return sk_make_sp<SkLightingShaderImpl>(std::move(diffuseShader), std::move(normalSource),
@@ -439,12 +438,12 @@ void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
     }
 }
 
-SkShaderBase::Context* SkLightingShaderImpl::onMakeContext(
+SkShader::Context* SkLightingShaderImpl::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
-    SkShaderBase::Context *diffuseContext = nullptr;
+    SkShader::Context *diffuseContext = nullptr;
     if (fDiffuseShader) {
-        diffuseContext = as_SB(fDiffuseShader)->makeContext(rec, alloc);
+        diffuseContext = fDiffuseShader->makeContext(rec, alloc);
         if (!diffuseContext) {
             return nullptr;
         }
