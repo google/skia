@@ -801,7 +801,8 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
     }
 
     if (isLCD) {
-        if (SkBlendMode::kSrcOver == mode && color.isConstant() && color.isOpaque() &&
+        // See comment in MakeSrcOverXferProcessor about color.isOpaque here
+        if (SkBlendMode::kSrcOver == mode && color.isConstant() && /*color.isOpaque() &&*/
             !caps.shaderCaps()->dualSourceBlendingSupport() &&
             !caps.shaderCaps()->dstReadInShaderSupport()) {
             props |= AnalysisProperties::kIgnoresInputColor;
@@ -896,7 +897,15 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::MakeSrcOverXferProcessor(
         return nullptr;
     }
 
-    if (color.isConstant() && color.isOpaque() && !caps.shaderCaps()->dualSourceBlendingSupport() &&
+    // Currently up the stack Skia is requiring that the dst is opaque or that the client has said
+    // the opaqueness doesn't matter. Thus for src-over we don't need to worry about the src color
+    // being opaque or not. For now we disable the check for opaqueness, but in the future we should
+    // pass down the knowledge about dst opaqueness and make the correct decision here.
+    //
+    // This also fixes a chrome bug on macs where we are getting random fuzziness when doing
+    // blending in the shader for non opaque sources.
+    if (color.isConstant() && /*color.isOpaque() &&*/
+        !caps.shaderCaps()->dualSourceBlendingSupport() &&
         !caps.shaderCaps()->dstReadInShaderSupport()) {
         // If we don't have dual source blending or in shader dst reads, we fall
         // back to this trick for rendering SrcOver LCD text instead of doing a
