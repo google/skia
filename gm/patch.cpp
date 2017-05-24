@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkGradientShader.h"
+#include "SkImage.h"
 #include "SkPatchUtils.h"
 #include "SkPath.h"
 
@@ -81,7 +82,7 @@ const SkPoint gTexCoords[SkPatchUtils::kNumCorners] = {
 };
 
 
-static void dopatch(SkCanvas* canvas, const SkColor colors[]) {
+static void dopatch(SkCanvas* canvas, const SkColor colors[], sk_sp<SkImage> img = nullptr) {
     SkPaint paint;
 
     const SkBlendMode modes[] = {
@@ -90,7 +91,22 @@ static void dopatch(SkCanvas* canvas, const SkColor colors[]) {
         SkBlendMode::kModulate,
     };
 
-    sk_sp<SkShader> shader(make_shader());
+    SkPoint texStorage[4];
+    const SkPoint* tex = gTexCoords;
+
+    sk_sp<SkShader> shader;
+    if (img) {
+        SkScalar w = img->width();
+        SkScalar h = img->height();
+        shader = img->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+        texStorage[0].set(0, 0);
+        texStorage[1].set(w, 0);
+        texStorage[2].set(w, h);
+        texStorage[3].set(0, h);
+        tex = texStorage;
+    } else {
+        shader = make_shader();
+    }
 
     canvas->save();
     for (int y = 0; y < 3; y++) {
@@ -106,12 +122,12 @@ static void dopatch(SkCanvas* canvas, const SkColor colors[]) {
                     break;
                 case 2:
                     paint.setShader(shader);
-                    canvas->drawPatch(gCubics, nullptr, gTexCoords, modes[y], paint);
+                    canvas->drawPatch(gCubics, nullptr, tex, modes[y], paint);
                     paint.setShader(nullptr);
                     break;
                 case 3:
                     paint.setShader(shader);
-                    canvas->drawPatch(gCubics, colors, gTexCoords, modes[y], paint);
+                    canvas->drawPatch(gCubics, colors, tex, modes[y], paint);
                     paint.setShader(nullptr);
                     break;
                 default:
@@ -130,6 +146,13 @@ DEF_SIMPLE_GM(patch_primitive, canvas, 1500, 1100) {
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorCYAN
     };
     dopatch(canvas, colors);
+}
+#include "Resources.h"
+DEF_SIMPLE_GM(patch_image, canvas, 1500, 1100) {
+    const SkColor colors[SkPatchUtils::kNumCorners] = {
+        SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorCYAN
+    };
+    dopatch(canvas, colors, GetResourceAsImage("mandrill_128.png"));
 }
 DEF_SIMPLE_GM(patch_alpha, canvas, 1500, 1100) {
     const SkColor colors[SkPatchUtils::kNumCorners] = {
