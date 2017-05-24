@@ -1155,7 +1155,7 @@ template <ColorSpaceMatch kCSM>
 bool SkColorSpaceXform_XYZ<kCSM>
 ::applyPipeline(ColorFormat dstColorFormat, void* dst, ColorFormat srcColorFormat,
                 const void* src, int len, SkAlphaType alphaType) const {
-    SkRasterPipeline pipeline;
+    SkRasterPipeline_<256> pipeline;
 
     LoadTablesContext loadTables;
     switch (srcColorFormat) {

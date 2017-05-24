@@ -20,7 +20,7 @@
 
 bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat,
                                     const void* src, int count, SkAlphaType alphaType) const {
-    SkRasterPipeline pipeline;
+    SkRasterPipeline_<256> pipeline;
     switch (srcFormat) {
         case kBGRA_8888_ColorFormat:
             pipeline.append(SkRasterPipeline::load_8888, &src);
@@ -98,7 +98,8 @@ static inline bool gamma_to_parametric(SkColorSpaceTransferFn* coeffs, const SkG
 
 SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                                              SkColorSpace_XYZ* dstSpace)
-    : fLinearDstGamma(kLinear_SkGammaNamed == dstSpace->gammaNamed()) {
+    : fElementsPipeline(&fAlloc)
+    , fLinearDstGamma(kLinear_SkGammaNamed == dstSpace->gammaNamed()) {
 #if (SkCSXformPrintfDefined)
     static const char* debugGammaNamed[4] = {
         "Linear", "SRGB", "2.2", "NonStandard"
