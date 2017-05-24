@@ -12,7 +12,11 @@
 #include "GrShaderVar.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
+#include "SkSLSettingValue.h"
 
+namespace SkSL {
+    class String;
+}
 class GrProcessor;
 class GrProcessorKeyBuilder;
 class GrGLSLFPBuilder;

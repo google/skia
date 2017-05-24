@@ -17,7 +17,7 @@
 #include "SkVertices.h"
 
 #if SK_SUPPORT_GPU
-#include "GrCircleBlurFragmentProcessor.h"
+#include "effects/GrCircleBlurFragmentProcessor.h"
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrFragmentProcessor.h"

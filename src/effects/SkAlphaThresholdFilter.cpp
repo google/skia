@@ -14,7 +14,7 @@
 #include "SkRegion.h"
 
 #if SK_SUPPORT_GPU
-#include "GrAlphaThresholdFragmentProcessor.h"
+#include "effects/GrAlphaThresholdFragmentProcessor.h"
 #include "GrContext.h"
 #include "GrFixedClip.h"
 #include "GrRenderTargetContext.h"

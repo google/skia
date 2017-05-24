@@ -9,7 +9,7 @@
 
 #include "GrResourceProvider.h"
 #include "GrShaderCaps.h"
-#include "GrSimpleTextureEffect.h"
+#include "effects/GrSimpleTextureEffect.h"
 #include "GrSurfaceProxyPriv.h"
 #include "SkFloatingPoint.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"

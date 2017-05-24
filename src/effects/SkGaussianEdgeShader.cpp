@@ -54,7 +54,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrFragmentProcessor> SkGaussianEdgeShaderImpl::asFragmentProcessor(const AsFPArgs&) const {
-    return GrBlurredEdgeFP::Make(GrBlurredEdgeFP::kGaussian_Mode);
+    return GrBlurredEdgeFragmentProcessor::Make(GrBlurredEdgeFragmentProcessor::kGaussian_Mode);
 }
 
 #endif

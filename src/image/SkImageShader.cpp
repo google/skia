@@ -124,7 +124,6 @@ void SkImageShader::toString(SkString* str) const {
 
 #include "SkGr.h"
 #include "GrContext.h"
-#include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 
