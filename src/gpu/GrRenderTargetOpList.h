@@ -65,19 +65,18 @@ public:
     void prepareOps(GrOpFlushState* flushState) override;
     bool executeOps(GrOpFlushState* flushState) override;
 
-    uint32_t addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
-        this->recordOp(std::move(op), renderTargetContext, nullptr, nullptr);
+    uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
+        this->recordOp(std::move(op), caps, nullptr, nullptr);
         return this->uniqueID();
     }
-    uint32_t addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext,
+    uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps,
                    GrAppliedClip&& clip, const DstTexture& dstTexture) {
-        this->recordOp(std::move(op), renderTargetContext, clip.doesClip() ? &clip : nullptr,
-                       &dstTexture);
+        this->recordOp(std::move(op), caps, clip.doesClip() ? &clip : nullptr, &dstTexture);
         return this->uniqueID();
     }
 
     /** Clears the entire render target */
-    void fullClear(GrRenderTargetContext*, GrColor color);
+    void fullClear(const GrCaps& caps, GrColor color);
 
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
@@ -127,8 +126,8 @@ private:
 
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
     // returns the input op.
-    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, GrAppliedClip* = nullptr,
-                   const DstTexture* = nullptr);
+    GrOp* recordOp(std::unique_ptr<GrOp>, const GrCaps& caps,
+                   GrAppliedClip* = nullptr, const DstTexture* = nullptr);
 
     void forwardCombine(const GrCaps&);
 
@@ -136,22 +135,20 @@ private:
     bool combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
                            const DstTexture* bDstTexture, const GrCaps&);
 
-    GrClearOp* fLastFullClearOp = nullptr;
-    GrGpuResource::UniqueID fLastFullClearResourceID = GrGpuResource::UniqueID::InvalidID();
-    GrSurfaceProxy::UniqueID fLastFullClearProxyID = GrSurfaceProxy::UniqueID::InvalidID();
+    GrClearOp*                     fLastFullClearOp = nullptr;
 
     std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
 
-    int32_t fLastClipStackGenID;
-    SkIRect fLastDevClipBounds;
+    int32_t                        fLastClipStackGenID;
+    SkIRect                        fLastDevClipBounds;
 
     // For ops/opList we have mean: 5 stdDev: 28
     SkSTArray<5, RecordedOp, true> fRecordedOps;
 
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.
-    SkArenaAlloc fClipAllocator{4096};
-    SkDEBUGCODE(int          fNumClips;)
+    SkArenaAlloc                   fClipAllocator{4096};
+    SkDEBUGCODE(int                fNumClips;)
 
     typedef GrOpList INHERITED;
 };
