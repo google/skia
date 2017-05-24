@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a554b4b_2d2cac2a",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-24T16:47:50Z",
+      "side": 1,
+      "message": "nit: ctor out-param reads kinda odd to me - why not a getter instead?",
+      "range": {
+        "startLine": 74,
+        "startChar": 21,
+        "endLine": 74,
+        "endChar": 43
+      },
+      "revId": "8edfa8a3a335a8300e0ab1e5b341ffd8775b1243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc91bf6b_5518b44d",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-24T16:47:50Z",
+      "side": 1,
+      "message": "auto*?\n\nChromium style requires qualifying auto pointers/refs, and I tend to agree: reading this snippet, I have no idea what triShader is;  \"make\" suggests an sk_sp\u003c\u003e, but it turns out to be a raw pointer.",
+      "range": {
+        "startLine": 225,
+        "startChar": 12,
+        "endLine": 225,
+        "endChar": 16
+      },
+      "revId": "8edfa8a3a335a8300e0ab1e5b341ffd8775b1243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
