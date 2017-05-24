@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "268db1d7_2b199f63",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-24T20:29:59Z",
+      "side": 1,
+      "message": "Since this is somewhat uncommon (non-opaque color stops), how about applying the alpha clamp/min explicitly?\n\nWe\u0027re in the process of shuffling/consolidating the gradient implementations, and this happens to be the legacy code which doesn\u0027t receive much love these days.  So if the perf impact is not substantial, we\u0027re inclined to prioritize clarity here.",
+      "revId": "cae769b4d616b4f48264acbf61f4001679758a9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
