@@ -13,8 +13,7 @@
 #include "SkPathOpsCommon.h"
 
 static bool one_contour(const SkPath& path) {
-    char storage[256];
-    SkArenaAlloc allocator(storage);
+    SkSTArenaAlloc<256> allocator;
     int verbCount = path.countVerbs();
     uint8_t* verbs = (uint8_t*) allocator.makeArrayDefault<uint8_t>(verbCount);
     (void) path.getVerbs(verbs, verbCount);
@@ -51,8 +50,7 @@ bool SkOpBuilder::FixWinding(SkPath* path) {
         path->setFillType(fillType);
         return true;
     }
-    char storage[4096];
-    SkArenaAlloc allocator(storage);
+    SkSTArenaAlloc<4096> allocator;
     SkOpContourHead contourHead;
     SkOpGlobalState globalState(&contourHead, &allocator  SkDEBUGPARAMS(false)
             SkDEBUGPARAMS(nullptr));
