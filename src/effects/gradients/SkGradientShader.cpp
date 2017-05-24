@@ -417,7 +417,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
         return false;
     }
 
-    SkRasterPipeline subclass;
+    SkRasterPipeline subclass(alloc);
     if (!this->adjustMatrixAndAppendStages(alloc, &matrix, &subclass)) {
         return false;
     }
