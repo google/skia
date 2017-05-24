@@ -226,3 +226,13 @@ DEF_SIMPLE_GM(bug583299, canvas, 300, 300) {
   p.setPathEffect(SkDashPathEffect::Make(intervals, intervalCount, 0));
   canvas->drawPath(path, p);
 }
+
+DEF_SIMPLE_GM(arcto360, canvas, 250, 250) {
+  SkPaint p;
+  SkPath path;
+  path.arcTo({0, 0, 100, 100}, 0, 360, false);
+  if (path.isOval(nullptr)) {
+    p.setColor(SK_ColorRED);
+  }
+  canvas->drawPath(path, p);
+}
