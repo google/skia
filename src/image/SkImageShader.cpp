@@ -212,7 +212,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkArenaAlloc* alloc,
                                    const SkMatrix& ctm, const SkPaint& paint,
-                                   const SkMatrix* localM) const {
+                                   const SkMatrix* localM, StageHandle*) const {
     auto matrix = SkMatrix::Concat(ctm, this->getLocalMatrix());
     if (localM) {
         matrix.preConcat(*localM);

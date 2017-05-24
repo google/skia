@@ -12,7 +12,7 @@ SkRasterPipeline::SkRasterPipeline(int size_hint) {
 }
 
 void SkRasterPipeline::rewind() {
-    fStages.clear();
+    fStages.reset();
 }
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
@@ -21,12 +21,15 @@ void SkRasterPipeline::append(StockStage stage, void* ctx) {
 }
 
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {
+    fStages.push_back_n(src.fStages.end() - src.fStages.begin(), src.fStages.begin());
+#if 0
     fStages.insert(fStages.end(),
                    src.fStages.begin(), src.fStages.end());
+#endif
 }
 
 void SkRasterPipeline::dump() const {
-    SkDebugf("SkRasterPipeline, %d stages\n", SkToInt(fStages.size()));
+    SkDebugf("SkRasterPipeline, %d stages\n", SkToInt(fStages.count()));
     for (auto&& st : fStages) {
         const char* name = "";
         switch (st.stage) {

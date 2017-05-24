@@ -146,7 +146,7 @@ public:
     void rewind();
 
 private:
-    std::vector<Stage> fStages;
+    SkSTArray<32, Stage> fStages;
 };
 
 #endif//SkRasterPipeline_DEFINED

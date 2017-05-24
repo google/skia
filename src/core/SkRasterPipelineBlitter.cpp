@@ -114,7 +114,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         }
 
         bool is_constant  = shader->isConstant();
-        bool wants_dither = shader->asAGradient(nullptr) >= SkShader::kLinear_GradientType;
+        bool wants_dither = false && shader->asAGradient(nullptr) >= SkShader::kLinear_GradientType;
         return Create(dst, paint, alloc, shaderPipeline, is_opaque, is_constant, wants_dither);
     }
 

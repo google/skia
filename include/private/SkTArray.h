@@ -153,6 +153,7 @@ public:
      * Number of elements in the array.
      */
     int count() const { return fCount; }
+    int size() const { return fCount; }
 
     /**
      * Is the array empty.
@@ -308,6 +309,14 @@ public:
     const T* begin() const {
         return fItemArray;
     }
+
+    T* data() {
+        return fItemArray;
+    }
+    const T* data() const {
+        return fItemArray;
+    }
+
     T* end() {
         return fItemArray ? fItemArray + fCount : NULL;
     }
