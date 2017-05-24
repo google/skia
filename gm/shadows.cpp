@@ -129,4 +129,173 @@ private:
 static GM* MyFactory(void*) { return new ShadowsGM; }
 static GMRegistry reg(MyFactory);
 
+///////////////////////////////////////////////////////////////////////////////
+
+class DistShadowGM : public GM {
+public:
+    static constexpr int W = 512;
+    static constexpr int H = 512;
+
+    DistShadowGM() {
+        this->genPoints();
+    }
+
+    SkString onShortName() override {
+        return SkString("DistShadow");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(W, H);
+    }
+
+    bool onHandleKey(SkUnichar uni) override {
+        switch (uni) {
+            case '+':
+                fBlurRadius += 1.0f;
+                return true;
+            case '-':
+                fBlurRadius = SkTMax(1.0f, fBlurRadius - 1.0f);
+                return true;
+            case '>':
+                if (fMode == 1) {
+                    fN++;
+                    this->genPoints();
+                    return true;
+                }
+                return false;
+            case '<':
+                if (fMode == 1) {
+                    fN = SkTMax(3, fN - 1);
+                    this->genPoints();
+                    return true;
+                }
+                return false;
+            case 'M':
+                fMode = (fMode + 1) % MAX_MODE;
+                this->genPoints();
+                return true;
+        }
+        return false;
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkBitmap bitmap;
+        SkImageInfo info = SkImageInfo::MakeA8(W, H);
+        SkASSERT(bitmap.tryAllocPixels(info));
+        uint8_t* addr = bitmap.getAddr8(0, 0);
+
+        int n = fN;
+        SkPoint* points = fPoints.begin();
+
+        // Draw outline
+        SkPath outline;
+        outline.moveTo(points[0]);
+        for(int i = 0; i < n; ++i) {
+            outline.lineTo(points[i]);
+        }
+        outline.close();
+
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAntiAlias(true);
+        paint.setAlpha(0); // hide outline
+        canvas->drawPath(outline, paint);
+
+        // Draw shadow
+        SkTArray<Line> lines;
+        for(int i = 0; i < n; ++i) {
+            lines.push_back(Line(points[i], points[i + 1]));
+        }
+
+        SkScalar r = fBlurRadius;
+        for(int x = 0; x < W; ++x) {
+            for(int y = 0; y < H; ++y) {
+                SkPoint point;
+                point.fX = x;
+                point.fY = y;
+
+                SkScalar dist = 0;
+                for(int i = 0; i < n; ++i) {
+                    dist += sqr(SkTMax(.0f, lines[i].dist(point) + r));
+                }
+                dist = (-r + sqrt(dist)) / r;
+
+                SkScalar alpha = SkTMax(.0f, (1.0f - dist) * 0.5f);
+                SkASSERT(alpha >= 0 && alpha <= 1);
+                SkScalar factor = 1.0f - alpha; // somehow it's inverted...
+                factor = exp(-factor * factor * 4.0f) - 0.018f; // gaussian
+
+                addr[y * W + x] = (int)(factor * 255 + 0.5);
+            }
+        }
+
+        canvas->drawBitmap(bitmap, 0, 0);
+    }
+
+private:
+    SkScalar fBlurRadius = 10.0f;
+    SkTArray<SkPoint> fPoints;
+    int fN;
+    int fMode = 0;
+
+    static constexpr int MAX_MODE = 2;
+
+    static constexpr double PI = 3.141592653589793;
+
+    void genPoints() {
+        switch (fMode) {
+            case 0:
+                // Some polygon
+                fN = 4;
+                fPoints.reset();
+                fPoints.push_back({20, 100});
+                fPoints.push_back({200, 20});
+                fPoints.push_back({240, 100});
+                fPoints.push_back({200, 200});
+                fPoints.push_back({20, 100});
+                // SkPoint points[] = {{20, 100}, {200, 20}, {240, 100}, {200, 200}, {20, 100}};
+                break;
+            case 1:
+                // Points along a circle
+                fN = SkTMax(3, fN);
+                constexpr SkScalar R = 50;
+                constexpr SkScalar CX = 100;
+                constexpr SkScalar CY = 100;
+                fPoints.reset();
+                SkScalar angle = .0f;
+                for(int i = 0; i <= fN; ++i) {
+                    fPoints.push_back(SkPoint::Make(CX + R * cos(angle), CY + R * sin(angle)));
+                    angle += 2 * PI / fN;
+                }
+        }
+
+    }
+
+    struct Line {
+        SkScalar a, b, c; // a x + b y + c = 0
+
+        Line(const SkPoint& p0 = {0, 0}, const SkPoint& p1 = {0, 1}) {
+            b = p0.fX - p1.fX;
+            a = p1.fY - p0.fY;
+            c = p1.fX * p0.fY - p0.fX * p1.fY;
+
+            // Normalize for dist
+            SkScalar norm = sqrt(a * a + b * b);
+            a /= norm;
+            b /= norm;
+            c /= norm;
+        }
+
+        SkScalar dist(const SkPoint& p) {
+            return a * p.fX + b * p.fY + c;
+        }
+    };
+
+    inline SkScalar sqr(SkScalar a) {
+        return a * a;
+    }
+};
+
+DEF_GM(return new DistShadowGM;)
+
 }
