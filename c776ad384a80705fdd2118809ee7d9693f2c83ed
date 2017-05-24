@@ -82,6 +82,24 @@
     },
     {
       "key": {
+        "uuid": "94442ac0_d699ca3b",
+        "filename": "tools/imgdiff.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-05-24T16:33:06Z",
+      "side": 1,
+      "message": "\u003e \"Or, write this without using Skia?  I think you\u0027re going to go through an unnecessary premul -\u003e unpremul no matter what you do using Skia, and that can certainly lose information.\"\n\nDone: https://github.com/HalCanary/imagediff",
+      "parentUuid": "e4b4de82_d1cf1b66",
+      "revId": "c776ad384a80705fdd2118809ee7d9693f2c83ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "76762c2b_21ee7ab1",
         "filename": "tools/imgdiff.cpp",
         "patchSetId": 2
