@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50d148d9_37729c20",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-24T17:53:38Z",
+      "side": 1,
+      "message": "Can you add a comment that this is only for defining variables and fields and should not be used to declare parameters.",
+      "revId": "b1dd70cc2a14ac4399c43889e887c66c899f7cfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
