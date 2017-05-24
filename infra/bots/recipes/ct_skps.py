@@ -38,7 +38,7 @@ TOOL_TO_DEFAULT_SKPS_PER_SLAVE = {
 }
 
 # The SKP repository to use.
-DEFAULT_SKPS_CHROMIUM_BUILD = 'fad657e-276e633'
+DEFAULT_SKPS_CHROMIUM_BUILD = 'c37e844a6f8708-eee762104c75bd'
 
 
 def RunSteps(api):
