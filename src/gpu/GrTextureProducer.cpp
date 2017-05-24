@@ -13,7 +13,7 @@
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "effects/GrBicubicEffect.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
 
 sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,

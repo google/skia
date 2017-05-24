@@ -22,7 +22,7 @@
 
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrTextureDomain.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "GrSimpleTextureEffect.h"
 #include "SkGr.h"
 #endif
 #include "SkClipOpPriv.h"
