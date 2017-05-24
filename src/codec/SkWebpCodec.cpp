@@ -338,7 +338,7 @@ static void blend_line(SkColorType dstCT, void* dst,
                        bool needsSrgbToLinear, SkAlphaType at,
                        int width) {
     // Setup conversion from the source and dest, which will be the same.
-    SkRasterPipeline convert_to_linear_premul;
+    SkRasterPipeline_<256> convert_to_linear_premul;
     if (needsSrgbToLinear) {
         convert_to_linear_premul.append_from_srgb(at);
     }
@@ -347,7 +347,7 @@ static void blend_line(SkColorType dstCT, void* dst,
         convert_to_linear_premul.append(SkRasterPipeline::premul);
     }
 
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     SkRasterPipeline::StockStage load_dst, store_dst;
     pick_memory_stages(dstCT, &load_dst, &store_dst);
 

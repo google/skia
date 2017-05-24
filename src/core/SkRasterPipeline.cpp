@@ -7,29 +7,39 @@
 
 #include "SkRasterPipeline.h"
 
-SkRasterPipeline::SkRasterPipeline(int size_hint) {
-    fStages.reserve(size_hint);
+SkRasterPipeline::SkRasterPipeline(SkArenaAlloc* alloc) : fAlloc(alloc) {
+    this->reset();
 }
-
-void SkRasterPipeline::rewind() {
-    fStages.clear();
+void SkRasterPipeline::reset() {
+    fStages      = nullptr;
+    fSlotsNeeded = 1;  // We always need one extra slot for just_return().
 }
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
     SkASSERT(stage != from_srgb);
-    fStages.push_back({stage, ctx});
+    this->unchecked_append(stage, ctx);
+}
+void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
+    fStages = fAlloc->make<StageList>( StageList{fStages, stage, ctx} );
+    fSlotsNeeded += ctx ? 2 : 1;
 }
 
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {
-    fStages.insert(fStages.end(),
-                   src.fStages.begin(), src.fStages.end());
+    this->extend(src.fStages);
+}
+void SkRasterPipeline::extend(const StageList* stages) {
+    if (!stages) {
+        return;
+    }
+    this->extend(stages->prev);
+    this->unchecked_append(stages->stage, stages->ctx);
 }
 
 void SkRasterPipeline::dump() const {
-    SkDebugf("SkRasterPipeline, %d stages\n", SkToInt(fStages.size()));
-    for (auto&& st : fStages) {
+    SkDebugf("SkRasterPipeline, (in reverse)\n");
+    for (auto st = fStages; st; st = st->prev) {
         const char* name = "";
-        switch (st.stage) {
+        switch (st->stage) {
         #define M(x) case x: name = #x; break;
             SK_RASTER_PIPELINE_STAGES(M)
         #undef M
@@ -48,9 +58,7 @@ void SkRasterPipeline::dump() const {
 // This is an annoying problem with no known good solution.  So apply the clamp hammer.
 
 void SkRasterPipeline::append_from_srgb(SkAlphaType at) {
-    //this->append(from_srgb);
-    fStages.push_back({from_srgb, nullptr});
-
+    this->unchecked_append(from_srgb, nullptr);
     if (at == kPremul_SkAlphaType) {
         this->append(SkRasterPipeline::clamp_a);
     }

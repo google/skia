@@ -329,7 +329,7 @@ static void premultiply_if_necessary(SkBitmap& bitmap) {
         case kRGBA_F16_SkColorType:
             for (int y = 0; y < bitmap.height(); y++) {
                 void* row = bitmap.getAddr(0, y);
-                SkRasterPipeline p;
+                SkRasterPipeline_<256> p;
                 p.append(SkRasterPipeline::load_f16, &row);
                 p.append(SkRasterPipeline::premul);
                 p.append(SkRasterPipeline::store_f16, &row);

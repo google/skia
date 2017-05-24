@@ -455,7 +455,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
         char             arenaStorage[4096];
         SkArenaAlloc     alloc(arenaStorage, sizeof(storage));
         Matrix43         matrix43;
-        SkRasterPipeline shaderPipeline;
+        SkRasterPipeline shaderPipeline(&alloc);
 
         // Convert the SkColors into float colors. The conversion depends on some conditions:
         // - If the pixmap has a dst colorspace, we have to be "color-correct".

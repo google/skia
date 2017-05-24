@@ -277,7 +277,7 @@ static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& src
 static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size_t dstRB,
                                   const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB,
                                   bool isColorAware, SkTransferFunctionBehavior behavior) {
-    SkRasterPipeline pipeline;
+    SkRasterPipeline_<256> pipeline;
     switch (srcInfo.colorType()) {
         case kRGBA_8888_SkColorType:
             pipeline.append(SkRasterPipeline::load_8888, &srcRow);

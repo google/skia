@@ -19,7 +19,7 @@ static void check_error(skiatest::Reporter* r, float limit, SkColorSpaceTransfer
     const float* ip = in;
     float*       op = out;
 
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f32, &ip);
     p.append(SkRasterPipeline::parametric_r, &fn);
     p.append(SkRasterPipeline::parametric_g, &fn);

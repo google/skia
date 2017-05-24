@@ -47,7 +47,7 @@ DEF_TEST(sk_pipeline_srgb_roundtrip, r) {
 
     auto ptr = (void*)reds;
 
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_8888,  &ptr);
     p.append_from_srgb(kUnpremul_SkAlphaType);
     p.append(SkRasterPipeline::to_srgb);

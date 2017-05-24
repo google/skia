@@ -20,7 +20,7 @@ DEF_TEST(SkRasterPipeline, r) {
     void* load_d_ctx = &red;
     void* store_ctx  = &result;
 
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &load_s_ctx);
     p.append(SkRasterPipeline::move_src_dst);
     p.append(SkRasterPipeline::load_f16, &load_d_ctx);
@@ -38,14 +38,14 @@ DEF_TEST(SkRasterPipeline, r) {
 
 DEF_TEST(SkRasterPipeline_empty, r) {
     // No asserts... just a test that this is safe to run.
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     p.run(0,20);
 }
 
 DEF_TEST(SkRasterPipeline_nonsense, r) {
     // No asserts... just a test that this is safe to run and terminates.
     // srcover() calls st->next(); this makes sure we've always got something there to call.
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::srcover);
     p.run(0,20);
 }
@@ -66,7 +66,7 @@ DEF_TEST(SkRasterPipeline_JIT, r) {
     uint32_t*       dst = buf + 36;
 
     // Copy buf[x] to buf[x+36] for x in [15,35).
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline:: load_8888, &src);
     p.append(SkRasterPipeline::store_8888, &dst);
     p.run(15, 20);

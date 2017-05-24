@@ -39,7 +39,7 @@ public:
         void*  src_ctx = src;
         void*  dst_ctx = dst;
 
-        SkRasterPipeline p;
+        SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline::load_8888, &src_ctx);
         p.append_from_srgb(kUnpremul_SkAlphaType);
         p.append(SkRasterPipeline::scale_u8, &mask_ctx);
@@ -79,7 +79,7 @@ public:
         void*  src_ctx = src;
         void*  dst_ctx = dst;
 
-        SkRasterPipeline p;
+        SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline::load_8888, &dst_ctx);
         p.append(SkRasterPipeline::move_src_dst);
         p.append(SkRasterPipeline::load_8888, &src_ctx);
@@ -87,9 +87,7 @@ public:
         p.append(SkRasterPipeline::store_8888, &dst_ctx);
 
         if (fCompile) {
-            char buffer[1024];
-            SkArenaAlloc alloc(buffer);
-            auto fn = p.compile(&alloc);
+            auto fn = p.compile();
             while (loops --> 0) {
                 fn(0,N);
             }
@@ -124,7 +122,7 @@ public:
 
         SkColorSpaceTransferFn from_2dot2 = gamma(  2.2f),
                                  to_2dot2 = gamma(1/2.2f);
-        SkRasterPipeline p;
+        SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline::constant_color, &c);
         p.append(SkRasterPipeline::parametric_r, &from_2dot2);
         p.append(SkRasterPipeline::parametric_g, &from_2dot2);
@@ -148,7 +146,7 @@ public:
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        SkRasterPipeline p;
+        SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline::to_srgb);
 
         while (loops --> 0) {
@@ -157,60 +155,3 @@ public:
     }
 };
 DEF_BENCH( return (new SkRasterPipelineToSRGB); )
-
-class SkRasterPipelineReuseBench : public Benchmark {
-public:
-    enum Mode { None, Some, Full };
-
-    explicit SkRasterPipelineReuseBench(Mode mode) : fMode(mode), fName("SkRasterPipelineReuse") {
-        switch(mode) {
-            case None: fName.append("_none"); break;
-            case Some: fName.append("_some"); break;
-            case Full: fName.append("_full"); break;
-        }
-    }
-    const char* onGetName() override { return fName.c_str(); }
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
-
-    void onDraw(int loops, SkCanvas*) override {
-        const int kStages = 20;
-        const auto stage  = SkRasterPipeline::to_srgb;  // Any stage will do.  We won't call it.
-
-        switch(fMode) {
-            case None:
-                while (loops --> 0) {
-                    SkRasterPipeline p;
-                    for (int i = 0; i < kStages; i++) {
-                        p.append(stage);
-                    }
-                }
-                break;
-
-            case Some:
-                while (loops --> 0) {
-                    SkRasterPipeline p(kStages);
-                    for (int i = 0; i < kStages; i++) {
-                        p.append(stage);
-                    }
-                }
-                break;
-
-            case Full:
-                SkRasterPipeline p(kStages);
-                while (loops --> 0) {
-                    p.rewind();
-                    for (int i = 0; i < kStages; i++) {
-                        p.append(stage);
-                    }
-                }
-                break;
-        }
-    }
-
-private:
-    Mode     fMode;
-    SkString fName;
-};
-DEF_BENCH( return (new SkRasterPipelineReuseBench(SkRasterPipelineReuseBench::None)); )
-DEF_BENCH( return (new SkRasterPipelineReuseBench(SkRasterPipelineReuseBench::Some)); )
-DEF_BENCH( return (new SkRasterPipelineReuseBench(SkRasterPipelineReuseBench::Full)); )
