@@ -285,6 +285,12 @@ public:
 
     bool operator== (const SkPathRef& ref) const;
 
+    void setIsOval(bool isOval, bool isCCW, unsigned start) {
+        fIsOval = isOval;
+        fRRectOrOvalIsCCW = isCCW;
+        fRRectOrOvalStartIdx = start;
+    }
+
     /**
      * Writes the path points and verbs to a buffer.
      */
@@ -481,12 +487,6 @@ private:
      * Called the first time someone calls CreateEmpty to actually create the singleton.
      */
     friend SkPathRef* sk_create_empty_pathref();
-
-    void setIsOval(bool isOval, bool isCCW, unsigned start) {
-        fIsOval = isOval;
-        fRRectOrOvalIsCCW = isCCW;
-        fRRectOrOvalStartIdx = start;
-    }
 
     void setIsRRect(bool isRRect, bool isCCW, unsigned start) {
         fIsRRect = isRRect;
