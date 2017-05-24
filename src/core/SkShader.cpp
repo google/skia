@@ -263,9 +263,10 @@ bool SkShader::appendStages(SkRasterPipeline* p,
                             SkArenaAlloc* alloc,
                             const SkMatrix& ctm,
                             const SkPaint& paint,
-                            const SkMatrix* localM) const {
+                            const SkMatrix* localM,
+                            StageHandle* hdlPtr) const {
     SkRasterPipeline_<256> subclass;
-    if (this->onAppendStages(&subclass, dstCS, alloc, ctm, paint, localM)) {
+    if (this->onAppendStages(&subclass, dstCS, alloc, ctm, paint, localM, hdlPtr)) {
         p->extend(subclass);
         return true;
     }
@@ -307,7 +308,8 @@ bool SkShader::onAppendStages(SkRasterPipeline* p,
                               SkArenaAlloc* alloc,
                               const SkMatrix& ctm,
                               const SkPaint& paint,
-                              const SkMatrix* localM) const {
+                              const SkMatrix* localM,
+                              StageHandle*) const {
     return false;
 }
 

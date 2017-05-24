@@ -411,7 +411,8 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
                                           SkArenaAlloc* alloc,
                                           const SkMatrix& ctm,
                                           const SkPaint& paint,
-                                          const SkMatrix* localM) const {
+                                          const SkMatrix* localM,
+                                          StageHandle* hdlPtr) const {
     SkMatrix matrix;
     if (!this->computeTotalInverse(ctm, localM, &matrix)) {
         return false;
@@ -428,6 +429,10 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
     } else {
         matrix.get9(m);
         p->append(SkRasterPipeline::matrix_perspective, m);
+    }
+
+    if (hdlPtr) {
+        *hdlPtr = m;
     }
 
     p->extend(subclass);
@@ -540,6 +545,20 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
     return true;
 }
 
+bool SkGradientShaderBase::onUpdateStage(StageHandle hdl, const SkMatrix& ctm) const {
+    SkMatrix inv;
+    if (!this->computeTotalInverse(ctm, nullptr, &inv)) {
+        return false;
+    }
+    if (!this->adjustMatrixAndAppendStages(nullptr, &inv, nullptr)) {
+        return false;
+    }
+    auto m = (float*)hdl;
+    if (!inv.asAffine(m)) {
+        inv.get9(m);
+    }
+    return true;
+}
 
 bool SkGradientShaderBase::isOpaque() const {
     return fColorsAreOpaque;

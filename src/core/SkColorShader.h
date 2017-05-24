@@ -68,7 +68,8 @@ protected:
     }
 
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                        const SkMatrix& ctm, const SkPaint&, const SkMatrix*) const override;
+                        const SkMatrix& ctm, const SkPaint&, const SkMatrix*,
+                        StageHandle*) const override;
 
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
         return SkShader::MakeColorShader(xformer->apply(fColor));
@@ -127,7 +128,8 @@ protected:
         return true;
     }
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                        const SkMatrix& ctm, const SkPaint&, const SkMatrix*) const override;
+                        const SkMatrix& ctm, const SkPaint&, const SkMatrix*,
+                        StageHandle*) const override;
 
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
