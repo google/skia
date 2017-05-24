@@ -13,11 +13,14 @@ template("spirv_core_tables") {
     ]
     args = [
       "--spirv-core-grammar=" + rebase_path(
-              "../externals/spirv-headers/include/spirv/$version/spirv.core.grammar.json"),
+              "../externals/spirv-headers/include/spirv/$version/spirv.core.grammar.json",
+              root_build_dir),
       "--core-insts-output=" +
-          rebase_path("$root_out_dir/spirv-tools/core.insts-$version.inc"),
+          rebase_path("$root_out_dir/spirv-tools/core.insts-$version.inc",
+                      root_build_dir),
       "--operand-kinds-output=" +
-          rebase_path("$root_out_dir/spirv-tools/operand.kinds-$version.inc"),
+          rebase_path("$root_out_dir/spirv-tools/operand.kinds-$version.inc",
+                      root_build_dir),
     ]
   }
 }
@@ -40,12 +43,15 @@ action("spirv_glsl_tables") {
   ]
   args = [
     "--spirv-core-grammar=" + rebase_path(
-            "../externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json"),
+            "../externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json",
+            root_build_dir),
     "--extinst-glsl-grammar=" +
         rebase_path("../externals/spirv-headers/include/spirv/1.0/" +
-                    "extinst.glsl.std.450.grammar.json"),
+                        "extinst.glsl.std.450.grammar.json",
+                    root_build_dir),
     "--glsl-insts-output=" +
-        rebase_path("$root_out_dir/spirv-tools/glsl.std.450.insts-1.0.inc"),
+        rebase_path("$root_out_dir/spirv-tools/glsl.std.450.insts-1.0.inc",
+                    root_build_dir),
   ]
 }
 
@@ -60,12 +66,15 @@ action("spirv_opencl_tables") {
   ]
   args = [
     "--spirv-core-grammar=" + rebase_path(
-            "../externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json"),
+            "../externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json",
+            root_build_dir),
     "--extinst-opencl-grammar=" +
         rebase_path("../externals/spirv-headers/include/spirv/1.0/" +
-                    "extinst.glsl.std.450.grammar.json"),
+                        "extinst.glsl.std.450.grammar.json",
+                    root_build_dir),
     "--opencl-insts-output=" +
-        rebase_path("$root_out_dir/spirv-tools/opencl.std.insts-1.0.inc"),
+        rebase_path("$root_out_dir/spirv-tools/opencl.std.insts-1.0.inc",
+                    root_build_dir),
   ]
 }
 
@@ -78,8 +87,8 @@ action("spirv_build_version") {
     "$root_out_dir/spirv-tools/build.inc",
   ]
   args = [
-    rebase_path("../externals/spirv-tools"),
-    rebase_path("$root_out_dir/spirv-tools/build-version.inc"),
+    rebase_path("../externals/spirv-tools", root_build_dir),
+    rebase_path("$root_out_dir/spirv-tools/build-version.inc", root_build_dir),
   ]
 }
 
@@ -93,9 +102,12 @@ action("spirv_generators") {
   ]
   args = [
     "--xml=" +
-        rebase_path("../externals/spirv-headers/include/spirv/spir-v.xml"),
+        rebase_path("../externals/spirv-headers/include/spirv/spir-v.xml",
+                    root_build_dir),
     "--generator-output=" +
-        rebase_path("$root_out_dir/spirv-tools/generators.inc"),
+        rebase_path("$root_out_dir/spirv-tools/generators.inc",
+                    root_build_dir,
+                    root_build_dir),
   ]
 }
 
