@@ -22,7 +22,7 @@ DEF_TEST(F16Stages, r) {
     uint16_t* f16 = halfs;
 
     {
-        SkRasterPipeline p;
+        SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline:: load_f32, &f32);
         p.append(SkRasterPipeline::store_f16, &f16);
         p.run(0,16/4);
@@ -37,7 +37,7 @@ DEF_TEST(F16Stages, r) {
     REPORTER_ASSERT(r, f16[7] == 0x4000);
 
     {
-        SkRasterPipeline p;
+        SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline:: load_f16, &f16);
         p.append(SkRasterPipeline::store_f32, &f32);
         p.run(0,16/4);
