@@ -137,6 +137,9 @@ void test_sampleLocations(skiatest::Reporter* reporter, TestSampleLocationsInter
         for (int i = 0; i < numTestPatterns; ++i) {
             testInterface->overrideSamplePattern(kTestPatterns[i]);
             for (GrRenderTargetContext* dc : {bottomUps[i].get(), topDowns[i].get()}) {
+                if (!dc) {
+                    continue;
+                }
                 sk_sp<GrPipeline> dummyPipeline = construct_dummy_pipeline(dc);
                 GrRenderTarget* rt = dc->accessRenderTarget();
                 assert_equal(reporter, kTestPatterns[i],
