@@ -156,10 +156,10 @@ private:
 
     static void BuildPipeline(const StageList*, const SkJumper_Engine&, void**);
     void unchecked_append(StockStage, void*);
-    void extend(const StageList*);
 
     SkArenaAlloc* fAlloc;
     StageList*    fStages;
+    int           fNumStages;
     int           fSlotsNeeded;
 };
 
