@@ -233,8 +233,7 @@ static double get_t_guess(int tTry, int* dirOffset) {
 }
 
 bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
-    char storage[1024];
-    SkArenaAlloc allocator(storage);
+    SkSTArenaAlloc<1024> allocator;
     int dirOffset;
     double t = get_t_guess(fTopTTry++, &dirOffset);
     SkOpRayHit hitBase;

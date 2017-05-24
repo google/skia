@@ -452,10 +452,9 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
      */
 
     if (colors && !textures) {
-        char             arenaStorage[4096];
-        SkArenaAlloc     alloc(arenaStorage, sizeof(storage));
-        Matrix43         matrix43;
-        SkRasterPipeline shaderPipeline(&alloc);
+        SkSTArenaAlloc<4096> alloc;
+        Matrix43             matrix43;
+        SkRasterPipeline     shaderPipeline(&alloc);
 
         // Convert the SkColors into float colors. The conversion depends on some conditions:
         // - If the pixmap has a dst colorspace, we have to be "color-correct".
@@ -558,8 +557,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
             static constexpr size_t kAllocSize =
             sizeof(SkAutoBlitterChoose) + sizeof(SkComposeShader) +
             SkTMax(sizeof(SkLocalInnerMatrixShader), sizeof(SkColorShader));
-            char allocBuffer[kAllocSize];
-            SkArenaAlloc alloc(allocBuffer);
+            SkSTArenaAlloc<kAllocSize> alloc;
 
             if (textures) {
                 sk_sp<SkShader> texShader = MakeTextureShader(state, vertices, textures, paint,

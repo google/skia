@@ -558,8 +558,7 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
 }
 
 DEF_TEST(PathOpsAngleOverlapHullsOne, reporter) {
-    char storage[4096];
-    SkArenaAlloc allocator(storage);
+    SkSTArenaAlloc<4096> allocator;
 //    gPathOpsAngleIdeasVerbose = true;
     const QuadPts quads[] = {
 {{{939.4808349609375, 914.355224609375}, {-357.7921142578125, 590.842529296875}, {736.8936767578125, -350.717529296875}}},
@@ -574,8 +573,7 @@ DEF_TEST(PathOpsAngleOverlapHullsOne, reporter) {
 }
 
 DEF_TEST(PathOpsAngleOverlapHulls, reporter) {
-    char storage[4096];
-    SkArenaAlloc allocator(storage);
+    SkSTArenaAlloc<4096> allocator;
     if (!gPathOpsAngleIdeasVerbose) {  // takes a while to run -- so exclude it by default
         return;
     }
