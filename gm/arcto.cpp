@@ -226,3 +226,84 @@ DEF_SIMPLE_GM(bug583299, canvas, 300, 300) {
   p.setPathEffect(SkDashPathEffect::Make(intervals, intervalCount, 0));
   canvas->drawPath(path, p);
 }
+
+#include "SkBlurMaskFilter.h"
+#include "SkColorFilter.h"
+#include "SkLayerDrawLooper.h"
+
+enum ShadowTransformMode {
+    kShadowRespectsAlpha,
+    kShadowIgnoresAlpha
+};
+
+enum ShadowAlphaMode {
+    kShadowIgnoresTransforms,
+};
+
+SkScalar SkBlurRadiusToSigma(SkScalar radius) {
+    if (!radius) {
+        return 0;
+    }
+    return 0.288675f * radius + 0.5f;
+}
+
+static void AddShadow(const SkVector& offset,
+                     float blur,
+                     SkColor color,
+                     ShadowTransformMode shadow_transform_mode,
+                     ShadowAlphaMode shadow_alpha_mode,
+                     SkPaint* clientPaint) {
+
+  // Detect when there's no effective shadow.
+  if (!SkColorGetA(color))
+    return;
+
+  SkColor sk_color = SkColorSetA(color, 0xFF);
+
+  SkLayerDrawLooper::LayerInfo info;
+
+  switch (shadow_alpha_mode) {
+    case kShadowRespectsAlpha:
+      info.fColorMode = SkBlendMode::kDst;
+      break;
+    case kShadowIgnoresAlpha:
+      info.fColorMode = SkBlendMode::kSrc;
+      break;
+    default:
+      SkASSERT(0);
+  }
+
+  if (blur)
+    info.fPaintBits |= SkLayerDrawLooper::kMaskFilter_Bit;  // our blur
+  info.fPaintBits |= SkLayerDrawLooper::kColorFilter_Bit;
+  info.fOffset.set(offset.fX, offset.fY);
+  info.fPostTranslate = (shadow_transform_mode == kShadowIgnoresTransforms);
+  SkLayerDrawLooper::Builder sk_draw_looper_builder_;
+  SkPaint* paint = sk_draw_looper_builder_.addLayerOnTop(info);
+
+  if (blur) {
+    const SkScalar sigma = SkBlurRadiusToSigma(blur);
+    uint32_t mf_flags = SkBlurMaskFilter::kHighQuality_BlurFlag;
+    if (shadow_transform_mode == kShadowIgnoresTransforms)
+      mf_flags |= SkBlurMaskFilter::kIgnoreTransform_BlurFlag;
+    paint->setMaskFilter(
+        SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma, mf_flags));
+  }
+
+  paint->setColorFilter(
+      SkColorFilter::MakeModeFilter(sk_color, SkBlendMode::kSrcIn));
+  SkLayerDrawLooper::LayerInfo unmodified;
+  sk_draw_looper_builder_.addLayerOnTop(unmodified);
+  clientPaint->setDrawLooper(sk_draw_looper_builder_.detach());
+}
+
+DEF_SIMPLE_GM(arcto360, canvas, 250, 250) {
+  SkPaint p;
+  SkPath path;
+  path.arcTo({0, 0, 100, 100}, 0, 360, false);
+  if (path.isOval(nullptr)) {
+    p.setColor(SK_ColorRED);
+  }
+  AddShadow({0, 0}, 100, SK_ColorRED, kShadowRespectsAlpha, kShadowIgnoresTransforms, &p);
+  canvas->drawPath(path, p);
+}

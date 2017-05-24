@@ -1068,7 +1068,7 @@ static void angles_to_unit_vectors(SkScalar startAngle, SkScalar sweepAngle,
      */
     if (*startV == *stopV) {
         SkScalar sw = SkScalarAbs(sweepAngle);
-        if (sw < SkIntToScalar(360) && sw > SkIntToScalar(359)) {
+        if (sw <= SkIntToScalar(360) && sw > SkIntToScalar(359)) {
             SkScalar stopRad = SkDegreesToRadians(startAngle + sweepAngle);
             // make a guess at a tiny angle (in radians) to tweak by
             SkScalar deltaRad = SkScalarCopySign(SK_Scalar1/512, sweepAngle);
@@ -1315,11 +1315,18 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
     SkConic conics[SkConic::kMaxConicsForArc];
     int count = build_arc_conics(oval, startV, stopV, dir, conics, &singlePt);
     if (count) {
+        // this could relax the startAngle requirement and permit angles close to multiplies of
+        // 90 degrees using the code in addArc.
+        bool setIsOval = this->isEmpty() && forceMoveTo && (sweepAngle == 360 || sweepAngle == -360)
+                && startAngle == 0;
         this->incReserve(count * 2 + 1);
         const SkPoint& pt = conics[0].fPts[0];
         forceMoveTo ? this->moveTo(pt) : this->lineTo(pt);
         for (int i = 0; i < count; ++i) {
             this->conicTo(conics[i].fPts[1], conics[i].fPts[2], conics[i].fW);
+        }
+        if (setIsOval) {
+            fPathRef->setIsOval(true, sweepAngle == 360, 1);
         }
     } else {
         forceMoveTo ? this->moveTo(singlePt) : this->lineTo(singlePt);
