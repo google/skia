@@ -14,6 +14,7 @@
 #include "SkPath.h"
 #include "SkPM4f.h"
 #include "SkRandom.h"
+#include "SkRasterPipeline.h"
 #include "SkResourceCache.h"
 #include "SkShadowTessellator.h"
 #include "SkString.h"
@@ -48,7 +49,10 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override {}
-
+    void onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS, SkArenaAlloc* alloc,
+                        bool shaderIsOpaque) const override {
+        pipeline->append(SkRasterPipeline::gauss_a_to_rgba);
+    }
 private:
     SkGaussianColorFilter() : INHERITED() {}
 

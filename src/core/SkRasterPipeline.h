@@ -102,7 +102,7 @@ struct SkJumper_Engine;
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)  \
     M(save_xy) M(accumulate)                                     \
     M(evenly_spaced_gradient)                                    \
-    M(gradient)                                                  \
+    M(gauss_a_to_rgba) M(gradient)                               \
     M(evenly_spaced_2_stop_gradient)                             \
     M(xy_to_unit_angle)                                          \
     M(xy_to_radius)                                              \
