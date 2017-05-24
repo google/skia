@@ -152,7 +152,7 @@ static inline void transform_scanline_bgrA(char* SK_RESTRICT dst, const char* SK
 
 template <bool kIsRGBA>
 static inline void transform_scanline_unpremultiply_sRGB(void* dst, const void* src, int width) {
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_8888, &src);
     if (!kIsRGBA) {
         p.append(SkRasterPipeline::swap_rb);
@@ -180,7 +180,7 @@ static inline void transform_scanline_to_premul_legacy(char* SK_RESTRICT dst,
 static inline void transform_scanline_to_premul_linear(char* SK_RESTRICT dst,
                                                        const char* SK_RESTRICT src,
                                                        int width, int, const SkPMColor*) {
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_8888, (const void**) &src);
     p.append_from_srgb(kUnpremul_SkAlphaType);
     p.append(SkRasterPipeline::premul);
@@ -254,7 +254,7 @@ static inline void transform_scanline_4444(char* SK_RESTRICT dst, const char* SK
  */
 static inline void transform_scanline_F16(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
                                           int width, int, const SkPMColor*) {
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, (const void**) &src);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_u16_be, (void**) &dst);
@@ -266,7 +266,7 @@ static inline void transform_scanline_F16(char* SK_RESTRICT dst, const char* SK_
  */
 static inline void transform_scanline_F16_premul(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
                                                  int width, int, const SkPMColor*) {
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, (const void**) &src);
     p.append(SkRasterPipeline::unpremul);
     p.append(SkRasterPipeline::to_srgb);
@@ -280,7 +280,7 @@ static inline void transform_scanline_F16_premul(char* SK_RESTRICT dst, const ch
 static inline void transform_scanline_F16_to_8888(char* SK_RESTRICT dst,
                                                   const char* SK_RESTRICT src, int width, int,
                                                   const SkPMColor*) {
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, (const void**) &src);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_8888, (void**) &dst);
@@ -293,7 +293,7 @@ static inline void transform_scanline_F16_to_8888(char* SK_RESTRICT dst,
 static inline void transform_scanline_F16_premul_to_8888(char* SK_RESTRICT dst,
                                                          const char* SK_RESTRICT src, int width,
                                                          int, const SkPMColor*) {
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, (const void**) &src);
     p.append(SkRasterPipeline::unpremul);
     p.append(SkRasterPipeline::to_srgb);
@@ -306,7 +306,7 @@ static inline void transform_scanline_F16_premul_to_8888(char* SK_RESTRICT dst,
  */
 static inline void transform_scanline_F16_to_premul_8888(char* SK_RESTRICT dst,
         const char* SK_RESTRICT src, int width, int, const SkPMColor*) {
-    SkRasterPipeline p;
+    SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, (const void**) &src);
     p.append(SkRasterPipeline::premul);
     p.append(SkRasterPipeline::to_srgb);
