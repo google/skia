@@ -4529,8 +4529,9 @@ ALIGN 4
   DB  61,82,184,78,65                     ; cmp           $0x414eb852,%eax
   DB  186,159,98,60,57                    ; mov           $0x393c629f,%edx
   DB  215                                 ; xlat          %ds:(%rbx)
-  DB  32,187,13,20,145,63                 ; and           %bh,0x3f91140d(%rbx)
-  DB  141,158,20,62,168,177               ; lea           -0x4e57c1ec(%rsi),%ebx
+  DB  32,187,109,165,144,63               ; and           %bh,0x3f90a56d(%rbx)
+  DB  252                                 ; cld
+  DB  191,16,62,168,177                   ; mov           $0xb1a83e10,%edi
   DB  152                                 ; cwtl
   DB  59,0                                ; cmp           (%rax),%eax
   DB  0,128,63,0,0,192                    ; add           %al,-0x3fffffc1(%rax)
@@ -11042,10 +11043,12 @@ ALIGN 4
   DB  61,82,184,78,65                     ; cmp           $0x414eb852,%eax
   DB  57,215                              ; cmp           %edx,%edi
   DB  32,187,186,159,98,60                ; and           %bh,0x3c629fba(%rbx)
-  DB  13,20,145,63,141                    ; or            $0x8d3f9114,%eax
-  DB  158                                 ; sahf
-  DB  20,62                               ; adc           $0x3e,%al
-  DB  168,177                             ; test          $0xb1,%al
+  DB  109                                 ; insl          (%dx),%es:(%rdi)
+  DB  165                                 ; movsl         %ds:(%rsi),%es:(%rdi)
+  DB  144                                 ; nop
+  DB  63                                  ; (bad)
+  DB  252                                 ; cld
+  DB  191,16,62,168,177                   ; mov           $0xb1a83e10,%edi
   DB  152                                 ; cwtl
   DB  59,0                                ; cmp           (%rax),%eax
   DB  0,128,63,0,0,192                    ; add           %al,-0x3fffffc1(%rax)
@@ -16438,18 +16441,29 @@ ALIGN 16
   DB  60,186                              ; cmp           $0xba,%al
   DB  159                                 ; lahf
   DB  98                                  ; (bad)
-  DB  60,13                               ; cmp           $0xd,%al
-  DB  20,145                              ; adc           $0x91,%al
+  DB  60,109                              ; cmp           $0x6d,%al
+  DB  165                                 ; movsl         %ds:(%rsi),%es:(%rdi)
+  DB  144                                 ; nop
   DB  63                                  ; (bad)
-  DB  13,20,145,63,13                     ; or            $0xd3f9114,%eax
-  DB  20,145                              ; adc           $0x91,%al
+  DB  109                                 ; insl          (%dx),%es:(%rdi)
+  DB  165                                 ; movsl         %ds:(%rsi),%es:(%rdi)
+  DB  144                                 ; nop
   DB  63                                  ; (bad)
-  DB  13,20,145,63,141                    ; or            $0x8d3f9114,%eax
-  DB  158                                 ; sahf
-  DB  20,62                               ; adc           $0x3e,%al
-  DB  141,158,20,62,141,158               ; lea           -0x6172c1ec(%rsi),%ebx
-  DB  20,62                               ; adc           $0x3e,%al
-  DB  141,158,20,62,168,177               ; lea           -0x4e57c1ec(%rsi),%ebx
+  DB  109                                 ; insl          (%dx),%es:(%rdi)
+  DB  165                                 ; movsl         %ds:(%rsi),%es:(%rdi)
+  DB  144                                 ; nop
+  DB  63                                  ; (bad)
+  DB  109                                 ; insl          (%dx),%es:(%rdi)
+  DB  165                                 ; movsl         %ds:(%rsi),%es:(%rdi)
+  DB  144                                 ; nop
+  DB  63                                  ; (bad)
+  DB  252                                 ; cld
+  DB  191,16,62,252,191                   ; mov           $0xbffc3e10,%edi
+  DB  16,62                               ; adc           %bh,(%rsi)
+  DB  252                                 ; cld
+  DB  191,16,62,252,191                   ; mov           $0xbffc3e10,%edi
+  DB  16,62                               ; adc           %bh,(%rsi)
+  DB  168,177                             ; test          $0xb1,%al
   DB  152                                 ; cwtl
   DB  59,168,177,152,59,168               ; cmp           -0x57c4674f(%rax),%ebp
   DB  177,152                             ; mov           $0x98,%cl
@@ -23345,18 +23359,29 @@ ALIGN 16
   DB  60,186                              ; cmp           $0xba,%al
   DB  159                                 ; lahf
   DB  98                                  ; (bad)
-  DB  60,13                               ; cmp           $0xd,%al
-  DB  20,145                              ; adc           $0x91,%al
+  DB  60,109                              ; cmp           $0x6d,%al
+  DB  165                                 ; movsl         %ds:(%rsi),%es:(%rdi)
+  DB  144                                 ; nop
   DB  63                                  ; (bad)
-  DB  13,20,145,63,13                     ; or            $0xd3f9114,%eax
-  DB  20,145                              ; adc           $0x91,%al
+  DB  109                                 ; insl          (%dx),%es:(%rdi)
+  DB  165                                 ; movsl         %ds:(%rsi),%es:(%rdi)
+  DB  144                                 ; nop
   DB  63                                  ; (bad)
-  DB  13,20,145,63,141                    ; or            $0x8d3f9114,%eax
-  DB  158                                 ; sahf
-  DB  20,62                               ; adc           $0x3e,%al
-  DB  141,158,20,62,141,158               ; lea           -0x6172c1ec(%rsi),%ebx
-  DB  20,62                               ; adc           $0x3e,%al
-  DB  141,158,20,62,168,177               ; lea           -0x4e57c1ec(%rsi),%ebx
+  DB  109                                 ; insl          (%dx),%es:(%rdi)
+  DB  165                                 ; movsl         %ds:(%rsi),%es:(%rdi)
+  DB  144                                 ; nop
+  DB  63                                  ; (bad)
+  DB  109                                 ; insl          (%dx),%es:(%rdi)
+  DB  165                                 ; movsl         %ds:(%rsi),%es:(%rdi)
+  DB  144                                 ; nop
+  DB  63                                  ; (bad)
+  DB  252                                 ; cld
+  DB  191,16,62,252,191                   ; mov           $0xbffc3e10,%edi
+  DB  16,62                               ; adc           %bh,(%rsi)
+  DB  252                                 ; cld
+  DB  191,16,62,252,191                   ; mov           $0xbffc3e10,%edi
+  DB  16,62                               ; adc           %bh,(%rsi)
+  DB  168,177                             ; test          $0xb1,%al
   DB  152                                 ; cwtl
   DB  59,168,177,152,59,168               ; cmp           -0x57c4674f(%rax),%ebp
   DB  177,152                             ; mov           $0x98,%cl
