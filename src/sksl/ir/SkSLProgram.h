@@ -11,7 +11,6 @@
 #include <vector>
 #include <memory>
 
-#include "SkSLContext.h"
 #include "SkSLModifiers.h"
 #include "SkSLProgramElement.h"
 #include "SkSLSymbolTable.h"
@@ -20,6 +19,8 @@
 #define SKSL_RTHEIGHT_NAME "u_skRTHeight"
 
 namespace SkSL {
+
+class Context;
 
 /**
  * Represents a fully-digested program, ready for code generation.
@@ -34,6 +35,12 @@ struct Program {
         // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
         // must be flipped.
         bool fFlipY = false;
+        // if true, Setting objects (e.g. sk_Caps.fbFetchSupport) should be replaced with their
+        // constant equivalents during compilation
+        bool fReplaceSettings = true;
+        // probably going to become a union eventually, but for right now the only arg we support
+        // is a bool (gpImplementsDistanceVector)
+        std::unordered_map<String, bool> fArgs;
     };
 
     struct Inputs {
@@ -44,20 +51,25 @@ struct Program {
         // program will compile to the same code regardless of the flipY setting.
         bool fFlipY;
 
+        // if true, this program will read the distance vector field
+        bool fDistanceVector;
+
         void reset() {
             fRTHeight = false;
             fFlipY = false;
+            fDistanceVector = false;
         }
 
         bool isEmpty() {
-            return !fRTHeight && !fFlipY;
+            return !fRTHeight && !fFlipY && !fDistanceVector;
         }
     };
 
     enum Kind {
         kFragment_Kind,
         kVertex_Kind,
-        kGeometry_Kind
+        kGeometry_Kind,
+        kFragmentProcessor_Kind
     };
 
     Program(Kind kind,

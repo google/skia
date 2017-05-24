@@ -40,15 +40,16 @@ void String::vappendf(const char* fmt, va_list args) {
 #endif
     #define BUFFER_SIZE 256
     char buffer[BUFFER_SIZE];
+    va_list reuse;
+    va_copy(reuse, args);
     size_t size = VSNPRINTF(buffer, BUFFER_SIZE, fmt, args);
     if (BUFFER_SIZE >= size) {
         this->append(buffer, size);
     } else {
-        auto newBuffer = std::unique_ptr<char[]>(new char[size]);
-        VSNPRINTF(newBuffer.get(), size, fmt, args);
+        auto newBuffer = std::unique_ptr<char[]>(new char[size + 1]);
+        VSNPRINTF(newBuffer.get(), size + 1, fmt, reuse);
         this->append(newBuffer.get(), size);
     }
-    va_end(args);
 }
 
 
