@@ -1108,6 +1108,22 @@ STAGE(evenly_spaced_gradient) {
     gradient_lookup(c, idx, t, &r, &g, &b, &a);
 }
 
+STAGE(gauss_a_to_rgba) {
+    // x = 1 - x;
+    // exp(-x * x * 4) - 0.018f;
+    // ... now approximate with quartic
+    //
+    const float c4 = -2.26661229133605957031f;
+    const float c3 = 2.89795351028442382812f;
+    const float c2 = 0.21345567703247070312f;
+    const float c1 = 0.15489584207534790039f;
+    const float c0 = 0.00030726194381713867f;
+    a = mad(a, mad(a, mad(a, mad(a, c4, c3), c2), c1), c0);
+    r = a;
+    g = a;
+    b = a;
+}
+
 STAGE(gradient) {
     auto c = (const SkJumper_GradientCtx*)ctx;
     auto t = r;
