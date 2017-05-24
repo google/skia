@@ -138,6 +138,11 @@ public:
     void getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const;
 
     /**
+     *  Gets the number of bytes in the cache consumed by purgeable (e.g. unlocked) resources.
+     */
+    size_t getResourceCachePurgeableBytes() const;
+
+    /**
      *  Specify the GPU resource cache limits. If the current cache exceeds either
      *  of these, it will be purged (LRU) to keep the cache within these limits.
      *
