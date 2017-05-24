@@ -359,6 +359,9 @@ public:
         return fRGBAToBGRAReadbackConversionsAreSlow;
     }
 
+    // Certain Intel GPUs on Mac fail to clear if the glClearColor is made up of only 1s and 0s.
+    bool clearToBoundaryValuesIsBroken() const { return fClearToBoundaryValuesIsBroken; }
+
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
@@ -430,6 +433,7 @@ private:
     bool fDoManualMipmapping : 1;
     bool fSRGBDecodeDisableSupport : 1;
     bool fSRGBDecodeDisableAffectsMipmaps : 1;
+    bool fClearToBoundaryValuesIsBroken : 1;
 
     uint32_t fBlitFramebufferFlags;
 
