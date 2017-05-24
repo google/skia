@@ -131,7 +131,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
     static constexpr int kSize = 100;
     GrSurfaceDesc desc;
     desc.fWidth = desc.fHeight = kSize;
-    uint32_t data[kSize * kSize];
+    std::unique_ptr<uint32_t[]> data(new uint32_t[kSize * kSize]);
     GrContext* context = context_info.grContext();
     for (int c = 0; c <= kLast_GrPixelConfig; ++c) {
         desc.fConfig = static_cast<GrPixelConfig>(c);
@@ -169,24 +169,25 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                                     std::move(proxy), nullptr);
                             SkImageInfo info = SkImageInfo::Make(
                                     kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-                            memset(data, 0xAB, kSize * kSize * sizeof(uint32_t));
-                            if (texCtx->readPixels(info, data, 0, 0, 0)) {
+                            memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
+                            if (texCtx->readPixels(info, data.get(), 0, 0, 0)) {
                                 uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
                                 for (int i = 0; i < kSize * kSize; ++i) {
-                                    if (cmp != data[i]) {
+                                    if (cmp != data.get()[i]) {
                                         ERRORF(reporter, "Failed on config %d", desc.fConfig);
                                         break;
                                     }
                                 }
                             }
-                            memset(data, 0xBC, kSize * kSize * sizeof(uint32_t));
+                            memset(data.get(), 0xBC, kSize * kSize * sizeof(uint32_t));
                             // Here we overwrite the texture so that the second time through we
                             // test against recycling without reclearing.
                             if (0 == i) {
-                                texCtx->writePixels(info, data, 0, 0, 0);
+                                texCtx->writePixels(info, data.get(), 0, 0, 0);
                             }
                         }
                         context->purgeAllUnlockedResources();
+
                         // Try creating the texture as a deferred proxy.
                         for (int i = 0; i < 2; ++i) {
                             auto surfCtx = context->contextPriv().makeDeferredSurfaceContext(
@@ -197,11 +198,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                             }
                             SkImageInfo info = SkImageInfo::Make(
                                     kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-                            memset(data, 0xAB, kSize * kSize * sizeof(uint32_t));
-                            if (surfCtx->readPixels(info, data, 0, 0, 0)) {
+                            memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
+                            if (surfCtx->readPixels(info, data.get(), 0, 0, 0)) {
                                 uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
                                 for (int i = 0; i < kSize * kSize; ++i) {
-                                    if (cmp != data[i]) {
+                                    if (cmp != data.get()[i]) {
                                         ERRORF(reporter, "Failed on config %d", desc.fConfig);
                                         break;
                                     }
@@ -210,7 +211,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                             // Here we overwrite the texture so that the second time through we
                             // test against recycling without reclearing.
                             if (0 == i) {
-                                surfCtx->writePixels(info, data, 0, 0, 0);
+                                surfCtx->writePixels(info, data.get(), 0, 0, 0);
                             }
                         }
                         context->purgeAllUnlockedResources();

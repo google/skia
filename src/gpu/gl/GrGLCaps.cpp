@@ -255,10 +255,18 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(4,4) || ctxInfo.hasExtension("GL_ARB_clear_texture")) {
-            fClearTextureSupport = true;
+            // glClearTexImage seems to have a bug in NVIDIA drivers that was fixed sometime between
+            // 340.96 and 367.57.
+            if (ctxInfo.driver() != kNVIDIA_GrGLDriver ||
+                ctxInfo.driverVersion() >= GR_GL_DRIVER_VER(367, 57)) {
+                fClearTextureSupport = true;
+            }
         }
     } else if (ctxInfo.hasExtension("GL_EXT_clear_texture")) {
-        fClearTextureSupport = true;
+        // Calling glClearTexImage crashes on the NexusPlayer.
+        if (kPowerVRRogue_GrGLRenderer != ctxInfo.renderer()) {
+            fClearTextureSupport = true;
+        }
     }
 
     /**************************************************************************
