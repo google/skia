@@ -3496,7 +3496,12 @@
         {
           "name": "skia/bots/cast_toolchain",
           "path": "cast_toolchain",
-          "version": "version:2"
+          "version": "version:4"
+        },
+        {
+          "name": "skia/bots/chromebook_arm_gles",
+          "path": "chromebook_arm_gles",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -3526,7 +3531,12 @@
         {
           "name": "skia/bots/cast_toolchain",
           "path": "cast_toolchain",
-          "version": "version:2"
+          "version": "version:4"
+        },
+        {
+          "name": "skia/bots/chromebook_arm_gles",
+          "path": "chromebook_arm_gles",
+          "version": "version:0"
         }
       ],
       "dimensions": [
