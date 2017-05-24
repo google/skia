@@ -189,6 +189,11 @@ def dm_flags(bot):
   if 'iOS' in bot:
     blacklist(gl_prefix + ' skp _ _')
 
+  # skbug.com/6682
+  if 'mips' in bot:
+    blacklist('_ image brd_android_codec_divisor_0.031 ' +
+              'webp-animated-semitransparent5.webp')
+
   if 'Mac' in bot or 'iOS' in bot:
     # CG fails on questionable bmps
     blacklist('_ image gen_platf rgba32abf.bmp')
