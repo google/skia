@@ -1224,14 +1224,14 @@ int main(int argc, char** argv) {
             SkCanvas* canvas = target->getCanvas();
             const char* config = target->config.name.c_str();
 
-            if (FLAGS_pre_log || FLAGS_dryRun) {
+//            if (FLAGS_pre_log || FLAGS_dryRun) {
                 SkDebugf("Running %s\t%s\n"
                          , bench->getUniqueName()
                          , config);
                 if (FLAGS_dryRun) {
                     continue;
                 }
-            }
+//            }
 
             target->setup();
             bench->perCanvasPreDraw(canvas);
