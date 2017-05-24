@@ -621,10 +621,21 @@ STAGE(from_srgb) {
 }
 STAGE(to_srgb) {
     auto fn = [&](F l) {
+        // We tweak c and d for each instruction set to make sure fn(1) is exactly 1.
+    #if defined(JUMPER) && defined(__SSE2__)
+        const float c = 1.130048394203f,
+                    d = 0.141357362270f;
+    #elif defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
+        const float c = 1.129999995232f,
+                    d = 0.141381442547f;
+    #else
+        const float c = 1.129999995232f,
+                    d = 0.141377761960f;
+    #endif
         F t = rsqrt(l);
         auto lo = l * 12.92f;
-        auto hi = mad(t, mad(t, -0.0024542345f, 0.013832027f), 1.1334244f)
-                * rcp(0.14513608f + t);
+        auto hi = mad(t, mad(t, -0.0024542345f, 0.013832027f), c)
+                * rcp(d + t);
         return if_then_else(l < 0.00465985f, lo, hi);
     };
     r = fn(r);
