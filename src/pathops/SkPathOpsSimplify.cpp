@@ -146,8 +146,7 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
         return true;
     }
     // turn path into list of segments
-    char storage[4096];
-    SkArenaAlloc allocator(storage);  // FIXME: constant-ize, tune
+    SkSTArenaAlloc<4096> allocator;  // FIXME: constant-ize, tune
     SkOpContour contour;
     SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
     SkOpGlobalState globalState(contourList, &allocator

@@ -167,12 +167,10 @@ template <size_t bytes>
 class SkRasterPipeline_ : public SkRasterPipeline {
 public:
     SkRasterPipeline_()
-        : SkRasterPipeline(&fBuiltinAlloc)
-        , fBuiltinAlloc(fBuffer) {}
+        : SkRasterPipeline(&fBuiltinAlloc) {}
 
 private:
-    char         fBuffer[bytes];
-    SkArenaAlloc fBuiltinAlloc;
+    SkSTArenaAlloc<bytes> fBuiltinAlloc;
 };
 
 
