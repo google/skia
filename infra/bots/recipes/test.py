@@ -147,7 +147,7 @@ def dm_flags(bot):
 
   # This bot only differs from vanilla CPU bots in 8888 config.
   if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
-    configs = ['8888']
+    configs = ['8888', 'srgb']
 
   args.append('--config')
   args.extend(configs)
