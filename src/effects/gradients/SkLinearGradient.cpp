@@ -561,7 +561,13 @@ template <bool apply_alpha> SkPMColor trunc_from_255(const Sk4f& x, const Sk4f& 
     Sk4f c4f255 = x;
     if (apply_alpha) {
         const float scale = x[SkPM4f::A] * (1 / 255.f);
-        c4f255 *= Sk4f(scale, scale, scale, 1);
+        // Multiply alpha by a number slightly greater than 1 to compensate for error
+        // in scaling from the 1/255 approximation. This error is less than 1e-6 for
+        // all alpha values. Non-integer alpha values very close to their ceiling can
+        // push the color values above the alpha value, which will become an invalid
+        // premultiplied color. So nudge alpha up slightly by this compensating scale
+        // to keep it above the color values.
+        c4f255 *= Sk4f(scale, scale, scale, 1.000001f);
     }
     SkNx_cast<uint8_t>(post_bias<apply_alpha>(c4f255, bias)).store(&c);
 
