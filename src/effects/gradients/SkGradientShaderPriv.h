@@ -20,7 +20,7 @@
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkUtils.h"
 #include "SkWriteBuffer.h"
 
@@ -79,7 +79,7 @@ static const TileProc gTileProcs[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkGradientShaderBase : public SkShader {
+class SkGradientShaderBase : public SkShaderBase {
 public:
     struct Descriptor {
         Descriptor() {
@@ -156,7 +156,7 @@ public:
                                     U8CPU alpha, uint32_t gradFlags, bool dither);
     };
 
-    class GradientShaderBaseContext : public SkShader::Context {
+    class GradientShaderBaseContext : public Context {
     public:
         GradientShaderBaseContext(const SkGradientShaderBase& shader, const ContextRec&);
 
@@ -174,7 +174,7 @@ public:
         sk_sp<GradientShaderCache> fCache;
 
     private:
-        typedef SkShader::Context INHERITED;
+        typedef Context INHERITED;
     };
 
     bool isOpaque() const override;
@@ -283,7 +283,7 @@ private:
 
     void initCommon();
 
-    typedef SkShader INHERITED;
+    typedef SkShaderBase INHERITED;
 };
 
 
