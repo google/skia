@@ -160,6 +160,7 @@ private:
 
     SkArenaAlloc* fAlloc;
     StageList*    fStages;
+    int           fNumStages;
     int           fSlotsNeeded;
 };
 
