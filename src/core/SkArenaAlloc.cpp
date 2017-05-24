@@ -139,16 +139,6 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     this->installPtrFooter(NextBlock, previousDtor, 0);
 }
 
-char* SkArenaAlloc::allocObject(uint32_t size, uint32_t alignment) {
-    uintptr_t mask = alignment - 1;
-    char* objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
-    if ((ptrdiff_t)size > fEnd - objStart) {
-        this->ensureSpace(size, alignment);
-        objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
-    }
-    return objStart;
-}
-
 char* SkArenaAlloc::allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment) {
     uintptr_t mask = alignment - 1;
 
