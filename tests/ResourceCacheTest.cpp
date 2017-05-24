@@ -471,6 +471,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() ==
                               cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     // Our refs mean that the resources are non purgeable.
     cache->purgeAllUnlocked();
@@ -481,43 +482,51 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() ==
                               cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     // Unreffing the wrapped resource should free it right away.
     wrapped->unref();
     REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() +
                               unbudgeted->gpuMemorySize() == cache->getResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     // Now try freeing the budgeted resources first
     wrapped = TestResource::CreateWrapped(context->getGpu());
     scratch->setSize(12);
     unique->unref();
+    REPORTER_ASSERT(reporter, 11 == cache->getPurgeableBytes());
     cache->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + wrapped->gpuMemorySize() +
                               unbudgeted->gpuMemorySize() == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 1 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     scratch->unref();
+    REPORTER_ASSERT(reporter, 12 == cache->getPurgeableBytes());
     cache->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, unbudgeted->gpuMemorySize() + wrapped->gpuMemorySize() ==
                               cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     wrapped->unref();
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, unbudgeted->gpuMemorySize() == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     unbudgeted->unref();
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 }
 
 static void test_unbudgeted(skiatest::Reporter* reporter) {
@@ -543,6 +552,7 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 10 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 1 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 10 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 10 == cache->getPurgeableBytes());
 
     unique = new TestResource(context->getGpu());
     unique->setSize(11);
@@ -552,6 +562,7 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 21 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 21 == cache->getPurgeableBytes());
 
     size_t large = 2 * cache->getResourceBytes();
     unbudgeted = new TestResource(context->getGpu(), SkBudgeted::kNo, large);
@@ -559,30 +570,35 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 21 + large == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 21 == cache->getPurgeableBytes());
 
     unbudgeted->unref();
     REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 21 == cache->getPurgeableBytes());
 
     wrapped = TestResource::CreateWrapped(context->getGpu(), large);
     REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 21 + large == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 21 == cache->getPurgeableBytes());
 
     wrapped->unref();
     REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 21 == cache->getPurgeableBytes());
 
     cache->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 }
 
 // This method can't be static because it needs to friended in GrGpuResource::CacheAccess.
@@ -609,6 +625,7 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
         REPORTER_ASSERT(reporter, size == cache->getResourceBytes());
         REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
         REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+        REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
         // Once it is unrefed, it should become available as scratch.
         resource->unref();
@@ -616,6 +633,7 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
         REPORTER_ASSERT(reporter, size == cache->getResourceBytes());
         REPORTER_ASSERT(reporter, 1 == cache->getBudgetedResourceCount());
         REPORTER_ASSERT(reporter, size == cache->getBudgetedResourceBytes());
+        REPORTER_ASSERT(reporter, size == cache->getPurgeableBytes());
         resource = static_cast<TestResource*>(cache->findAndRefScratchResource(key, TestResource::kDefaultSize, 0));
         REPORTER_ASSERT(reporter, resource);
         REPORTER_ASSERT(reporter, resource->resourcePriv().getScratchKey() == key);
@@ -633,6 +651,7 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
             REPORTER_ASSERT(reporter, size == cache->getResourceBytes());
             REPORTER_ASSERT(reporter, 1 == cache->getBudgetedResourceCount());
             REPORTER_ASSERT(reporter, size == cache->getBudgetedResourceBytes());
+            REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
             REPORTER_ASSERT(reporter, !resource->resourcePriv().getScratchKey().isValid());
             REPORTER_ASSERT(reporter, !resource->cacheAccess().isScratch());
             REPORTER_ASSERT(reporter, SkBudgeted::kYes == resource->resourcePriv().isBudgeted());
@@ -643,6 +662,7 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
             REPORTER_ASSERT(reporter, 0 == cache->getResourceBytes());
             REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
             REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+            REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
         }
     }
 }
@@ -1369,6 +1389,7 @@ static void test_large_resource_count(skiatest::Reporter* reporter) {
     }
 
     REPORTER_ASSERT(reporter, TestResource::NumAlive() == 2 * kResourceCnt);
+    REPORTER_ASSERT(reporter, cache->getPurgeableBytes() == 2 * kResourceCnt);
     REPORTER_ASSERT(reporter, cache->getBudgetedResourceBytes() == 2 * kResourceCnt);
     REPORTER_ASSERT(reporter, cache->getBudgetedResourceCount() == 2 * kResourceCnt);
     REPORTER_ASSERT(reporter, cache->getResourceBytes() == 2 * kResourceCnt);
@@ -1384,6 +1405,7 @@ static void test_large_resource_count(skiatest::Reporter* reporter) {
 
     cache->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, TestResource::NumAlive() == 0);
+    REPORTER_ASSERT(reporter, cache->getPurgeableBytes() == 0);
     REPORTER_ASSERT(reporter, cache->getBudgetedResourceBytes() == 0);
     REPORTER_ASSERT(reporter, cache->getBudgetedResourceCount() == 0);
     REPORTER_ASSERT(reporter, cache->getResourceBytes() == 0);

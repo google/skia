@@ -215,6 +215,11 @@ void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes)
     }
 }
 
+size_t GrContext::getResourceCachePurgeableBytes() const {
+    ASSERT_SINGLE_OWNER
+    return fResourceCache->getPurgeableBytes();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrContext::TextBlobCacheOverBudgetCB(void* data) {

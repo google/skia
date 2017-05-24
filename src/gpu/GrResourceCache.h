@@ -93,6 +93,11 @@ public:
     size_t getResourceBytes() const { return fBytes; }
 
     /**
+     * Returns the number of bytes held by unlocked reosources which are available for purging.
+     */
+    size_t getPurgeableBytes() const { return fPurgeableBytes; }
+
+    /**
      * Returns the number of bytes consumed by budgeted resources.
      */
     size_t getBudgetedResourceBytes() const { return fBudgetedBytes; }
@@ -331,6 +336,7 @@ private:
     // our current stats for resources that count against the budget
     int                                 fBudgetedCount;
     size_t                              fBudgetedBytes;
+    size_t                              fPurgeableBytes;
 
     bool                                fRequestFlush;
     uint32_t                            fExternalFlushCnt;
