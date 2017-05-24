@@ -985,7 +985,7 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
         this->shaderCaps()->pathRenderingSupport() &&
         (contextOptions.fGpuPathRenderers & GrContextOptions::GpuPathRenderers::kStencilAndCover)) {
         fUsesMixedSamples = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
-                ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
+                            ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
         // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
         if (fUsesMixedSamples && (kNVIDIA_GrGLDriver == ctxInfo.driver() ||
                                   kChromium_GrGLDriver == ctxInfo.driver())) {
@@ -1041,6 +1041,11 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
             fMSFBOType = kEXT_MSFBOType;
             fBlitFramebufferFlags = 0;
         }
+    }
+
+    // We disable MSAA across the board for Intel GPUs
+    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
+        fMSFBOType = kNone_MSFBOType;
     }
 
     if (GrGLCaps::kES_IMG_MsToTexture_MSFBOType == fMSFBOType) {
@@ -1654,7 +1659,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kSBGRA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     if (fSRGBSupport && kGL_GrGLStandard == standard) {
         fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
-            allRenderFlags;
+                                                         allRenderFlags;
     }
 
     if (texStorageSupported) {
