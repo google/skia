@@ -1068,7 +1068,7 @@ static void angles_to_unit_vectors(SkScalar startAngle, SkScalar sweepAngle,
      */
     if (*startV == *stopV) {
         SkScalar sw = SkScalarAbs(sweepAngle);
-        if (sw < SkIntToScalar(360) && sw > SkIntToScalar(359)) {
+        if (sw <= SkIntToScalar(360) && sw > SkIntToScalar(359)) {
             SkScalar stopRad = SkDegreesToRadians(startAngle + sweepAngle);
             // make a guess at a tiny angle (in radians) to tweak by
             SkScalar deltaRad = SkScalarCopySign(SK_Scalar1/512, sweepAngle);
