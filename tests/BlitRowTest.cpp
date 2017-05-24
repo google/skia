@@ -185,6 +185,35 @@ static void save_bm(const SkBitmap& bm, const char name[]) {
     sk_tool_utils::EncodeImageToFile(name, bm, SkEncodedImageFormat::kPNG, 100);
 }
 
+static int max_diff(uint32_t u, uint32_t v) {
+    int d0 = SkAbs32(int((u >> 24) & 0xFF) - int((v >> 24) & 0xFF));
+    int d1 = SkAbs32(int((u >> 16) & 0xFF) - int((v >> 16) & 0xFF));
+    int d2 = SkAbs32(int((u >>  8) & 0xFF) - int((v >>  8) & 0xFF));
+    int d3 = SkAbs32(int((u >>  0) & 0xFF) - int((v >>  0) & 0xFF));
+    return SkMax32(d0, SkMax32(d1, SkMax32(d2, d3)));
+}
+
+static bool nearly_eq(const SkBitmap& a, const SkBitmap& b) {
+    switch (a.colorType()) {
+        case kN32_SkColorType: {
+            for (int y = 0; y < a.width(); ++y) {
+                const SkPMColor* ap = a.getAddr32(0, y);
+                const SkPMColor* bp = b.getAddr32(0, y);
+                for (int x = 0; x < a.width(); ++x) {
+                    int diff = max_diff(ap[x], bp[x]);
+                    if (diff > 1) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        } break;
+        default:
+            break;
+    }
+    return !memcmp(a.getPixels(), b.getPixels(), a.getSize());
+}
+
 static bool gOnce;
 
 // Make sure our blits are invariant with the width of the blit (i.e. that
@@ -243,7 +272,7 @@ static void test_diagonal(skiatest::Reporter* reporter) {
                         gOnce = true;
                     }
 
-                    if (memcmp(dstBM0.getPixels(), dstBM1.getPixels(), dstBM0.getSize())) {
+                    if (!nearly_eq(dstBM0, dstBM1)) {
                         ERRORF(reporter, "Diagonal colortype=%s bg=0x%x dither=%d"
                                " alpha=0x%x src=0x%x",
                                gColorTypeName[gDstColorType[i]], bgColor, dither,
