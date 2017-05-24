@@ -156,7 +156,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-arm-Release-Chromecast/Release",
-      "--args=ar=\"[START_DIR]/cast_toolchain/bin/armv7a-cros-linux-gnueabi-ar\" cc=\"[START_DIR]/cast_toolchain/bin/armv7a-cros-linux-gnueabi-gcc\" cxx=\"[START_DIR]/cast_toolchain/bin/armv7a-cros-linux-gnueabi-g++\" extra_cflags=[\"-g0\"] extra_ldflags=[\"-static-libstdc++\", \"-static-libgcc\"] is_debug=false skia_enable_gpu=false skia_use_fontconfig=false skia_use_icu=false skia_use_system_freetype2=false target_cpu=\"arm\""
+      "--args=ar=\"[START_DIR]/cast_toolchain/armv7a/bin/armv7a-cros-linux-gnueabi-ar\" cc=\"[START_DIR]/cast_toolchain/armv7a/bin/armv7a-cros-linux-gnueabi-gcc\" cxx=\"[START_DIR]/cast_toolchain/armv7a/bin/armv7a-cros-linux-gnueabi-g++\" extra_cflags=[\"-I[START_DIR]/chromebook_arm_gles/include\", \"-DMESA_EGL_NO_X11_HEADERS\", \"-DEGL_NO_IMAGE_EXTERNAL\", \"-DSK_NO_COMMAND_BUFFER\", \"-Wno-error=unused-function\", \"-g0\"] extra_ldflags=[\"-static-libstdc++\", \"-static-libgcc\", \"-L[START_DIR]/cast_toolchain/armv7a/lib\"] is_debug=false skia_enable_gpu=true skia_use_egl=true skia_use_fontconfig=false skia_use_icu=false skia_use_system_freetype2=false target_cpu=\"arm\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

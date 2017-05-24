@@ -162,9 +162,11 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                                                  glShareContext).release();
                     break;
 #endif
+#ifndef SK_NO_COMMAND_BUFFER
                 case kCommandBuffer_ContextType:
                     glCtx = CommandBufferGLTestContext::Create(glShareContext);
                     break;
+#endif
 #if SK_MESA
                 case kMESA_ContextType:
                     glCtx = CreateMesaGLTestContext(glShareContext);

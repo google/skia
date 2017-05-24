@@ -237,6 +237,7 @@ GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
     if (!this->gl()->hasExtension("GL_OES_EGL_image_external")) {
         return 0;
     }
+#ifndef EGL_NO_IMAGE_EXTERNAL
     typedef GrGLvoid (*EGLImageTargetTexture2DProc)(GrGLenum, GrGLeglImage);
 
     EGLImageTargetTexture2DProc glEGLImageTargetTexture2D =
@@ -260,6 +261,9 @@ GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
         return 0;
     }
     return texID;
+#else
+    return 0;
+#endif //EGL_NO_IMAGE_EXTERNAL
 }
 
 std::unique_ptr<sk_gpu_test::GLTestContext> EGLGLTestContext::makeNew() const {

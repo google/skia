@@ -6,6 +6,8 @@
  * found in the LICENSE file.
  */
 
+#ifndef SK_NO_COMMAND_BUFFER
+
 #include "SkMutex.h"
 #include "SkOnce.h"
 #include "gl/GrGLInterface.h"
@@ -302,3 +304,4 @@ int CommandBufferGLTestContext::getSampleCount() {
 }
 
 }  // namespace sk_gpu_test
+#endif // SK_NO_COMMAND_BUFFER

@@ -20,13 +20,26 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     os            = self.m.vars.builder_cfg.get('os')
     target_arch   = self.m.vars.builder_cfg.get('target_arch')
 
-    # Makes the binary small enough to fit on the small disk.
-    extra_cflags = ['-g0']
-    # Chromecast does not package libstdc++
-    extra_ldflags = ['-static-libstdc++', '-static-libgcc']
-
     # TODO(kjlubick): can this toolchain be replaced/shared with chromebook?
-    toolchain_dir = self.m.vars.slave_dir.join('cast_toolchain')
+    toolchain_dir = self.m.vars.slave_dir.join('cast_toolchain', 'armv7a')
+    gles_dir = self.m.vars.slave_dir.join('chromebook_arm_gles')
+
+    extra_cflags = [
+      '-I%s' % gles_dir.join('include'),
+      '-DMESA_EGL_NO_X11_HEADERS',
+      '-DEGL_NO_IMAGE_EXTERNAL',
+      "-DSK_NO_COMMAND_BUFFER",
+      # Avoid unused warning with yyunput
+      '-Wno-error=unused-function',
+      # Makes the binary small enough to fit on the small disk.
+      '-g0',
+    ]
+
+    extra_ldflags = [
+      # Chromecast does not package libstdc++
+      '-static-libstdc++', '-static-libgcc',
+      '-L%s' % toolchain_dir.join('lib'),
+    ]
 
     quote = lambda x: '"%s"' % x
     args = {
@@ -35,12 +48,13 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
       'ar': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-ar')),
       'target_cpu': quote(target_arch),
       'skia_use_fontconfig': 'false',
-      'skia_enable_gpu': 'false',
+      'skia_enable_gpu': 'true',
       # The toolchain won't allow system libraries to be used
       # when cross-compiling
       'skia_use_system_freetype2': 'false',
       # Makes the binary smaller
       'skia_use_icu': 'false',
+      'skia_use_egl': 'true',
     }
 
     if configuration != 'Debug':

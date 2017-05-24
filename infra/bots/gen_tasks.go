@@ -332,6 +332,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		}
 	} else if strings.Contains(name, "Chromecast") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("cast_toolchain"))
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
 	} else if strings.Contains(name, "Chromebook") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("armhf_sysroot"))
