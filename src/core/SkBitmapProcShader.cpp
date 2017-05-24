@@ -17,21 +17,21 @@ static bool only_scale_and_translate(const SkMatrix& matrix) {
     return (matrix.getType() & ~mask) == 0;
 }
 
-class BitmapProcInfoContext : public SkShader::Context {
+class BitmapProcInfoContext : public SkShaderBase::Context {
 public:
     // The info has been allocated elsewhere, but we are responsible for calling its destructor.
-    BitmapProcInfoContext(const SkShader& shader, const SkShader::ContextRec& rec,
+    BitmapProcInfoContext(const SkShaderBase& shader, const SkShaderBase::ContextRec& rec,
                             SkBitmapProcInfo* info)
         : INHERITED(shader, rec)
         , fInfo(info)
     {
         fFlags = 0;
         if (fInfo->fPixmap.isOpaque() && (255 == this->getPaintAlpha())) {
-            fFlags |= SkShader::kOpaqueAlpha_Flag;
+            fFlags |= SkShaderBase::kOpaqueAlpha_Flag;
         }
 
         if (1 == fInfo->fPixmap.height() && only_scale_and_translate(this->getTotalInverse())) {
-            fFlags |= SkShader::kConstInY32_Flag;
+            fFlags |= SkShaderBase::kConstInY32_Flag;
         }
     }
 
@@ -41,14 +41,14 @@ private:
     SkBitmapProcInfo*   fInfo;
     uint32_t            fFlags;
 
-    typedef SkShader::Context INHERITED;
+    typedef SkShaderBase::Context INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 class BitmapProcShaderContext : public BitmapProcInfoContext {
 public:
-    BitmapProcShaderContext(const SkShader& shader, const SkShader::ContextRec& rec,
+    BitmapProcShaderContext(const SkShaderBase& shader, const SkShaderBase::ContextRec& rec,
                             SkBitmapProcState* state)
         : INHERITED(shader, rec, state)
         , fState(state)
@@ -104,7 +104,7 @@ private:
 
 class LinearPipelineContext : public BitmapProcInfoContext {
 public:
-    LinearPipelineContext(const SkShader& shader, const SkShader::ContextRec& rec,
+    LinearPipelineContext(const SkShaderBase& shader, const SkShaderBase::ContextRec& rec,
                           SkBitmapProcInfo* info, SkArenaAlloc* alloc)
         : INHERITED(shader, rec, info), fAllocator{alloc}
     {
@@ -183,12 +183,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static bool choose_linear_pipeline(const SkShader::ContextRec& rec, const SkImageInfo& srcInfo) {
+static bool choose_linear_pipeline(const SkShaderBase::ContextRec& rec, const SkImageInfo& srcInfo) {
     // If we get here, we can reasonably use either context, respect the caller's preference
     //
     bool needsPremul = srcInfo.alphaType() == kUnpremul_SkAlphaType;
     bool needsSwizzle = srcInfo.bytesPerPixel() == 4 && srcInfo.colorType() != kN32_SkColorType;
-    return SkShader::ContextRec::kPM4f_DstType == rec.fPreferredDstType
+    return SkShaderBase::ContextRec::kPM4f_DstType == rec.fPreferredDstType
            || needsPremul || needsSwizzle;
 }
 
@@ -199,8 +199,8 @@ size_t SkBitmapProcLegacyShader::ContextSize(const ContextRec& rec, const SkImag
     return s;
 }
 
-SkShader::Context* SkBitmapProcLegacyShader::MakeContext(
-    const SkShader& shader, TileMode tmx, TileMode tmy,
+SkShaderBase::Context* SkBitmapProcLegacyShader::MakeContext(
+    const SkShaderBase& shader, TileMode tmx, TileMode tmy,
     const SkBitmapProvider& provider, const ContextRec& rec, SkArenaAlloc* alloc)
 {
     SkMatrix totalInverse;
