@@ -206,8 +206,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
     constexpr size_t outerSize = sizeof(SkTriColorShader) +
                                  sizeof(SkComposeShader) +
                                  (sizeof(SkPoint) + sizeof(SkPM4f)) * defCount;
-    char            outerStorage[outerSize];
-    SkArenaAlloc    outerAlloc(outerStorage, sizeof(outerStorage));
+    SkSTArenaAlloc<outerSize> outerAlloc;
 
     SkPoint* devVerts = outerAlloc.makeArray<SkPoint>(count);
     fMatrix->mapPoints(devVerts, vertices, count);
@@ -237,8 +236,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
         p.setShader(sk_ref_sp(shader));
 
         while (vertProc(&state)) {
-            char            innerStorage[2048];
-            SkArenaAlloc    innerAlloc(innerStorage, sizeof(innerStorage));
+            SkSTArenaAlloc<2048> innerAlloc;
 
             const SkMatrix* ctm = fMatrix;
             SkMatrix tmpCtm;

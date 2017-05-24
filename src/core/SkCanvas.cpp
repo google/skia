@@ -526,8 +526,7 @@ private:
     bool            fDone;
     bool            fIsSimple;
     SkDrawLooper::Context* fLooperContext;
-    char            fStorage[48];
-    SkArenaAlloc    fAlloc {fStorage};
+    SkSTArenaAlloc<48>     fAlloc;
 
     bool doNext(SkDrawFilter::Type drawType);
 };

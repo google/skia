@@ -14,8 +14,7 @@
 
 bool SkDrawLooper::canComputeFastBounds(const SkPaint& paint) const {
     SkCanvas canvas;
-    char storage[48];
-    SkArenaAlloc alloc {storage};
+    SkSTArenaAlloc<48> alloc;
 
     SkDrawLooper::Context* context = this->makeContext(&canvas, &alloc);
     for (;;) {
@@ -38,8 +37,7 @@ void SkDrawLooper::computeFastBounds(const SkPaint& paint, const SkRect& s,
     const SkRect src = s;
 
     SkCanvas canvas;
-    char storage[48];
-    SkArenaAlloc alloc {storage};
+    SkSTArenaAlloc<48> alloc;
 
     *dst = src;   // catch case where there are no loops
     SkDrawLooper::Context* context = this->makeContext(&canvas, &alloc);

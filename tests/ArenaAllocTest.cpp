@@ -93,8 +93,7 @@ DEF_TEST(ArenaAlloc, r) {
     {
         created = 0;
         destroyed = 0;
-        char block[64];
-        SkArenaAlloc arena{block};
+        SkSTArenaAlloc<64> arena;
 
         REPORTER_ASSERT(r, *arena.make<int>(3) == 3);
         Foo* foo = arena.make<Foo>(3, 4.0f);
@@ -145,8 +144,7 @@ DEF_TEST(ArenaAlloc, r) {
     REPORTER_ASSERT(r, destroyed == 11);
 
     {
-        char storage[64];
-        SkArenaAlloc arena{storage};
+        SkSTArenaAlloc<64> arena;
         arena.makeArrayDefault<char>(256);
         arena.reset();
         arena.reset();
@@ -155,8 +153,7 @@ DEF_TEST(ArenaAlloc, r) {
     {
         created = 0;
         destroyed = 0;
-        char storage[64];
-        SkArenaAlloc arena{storage};
+        SkSTArenaAlloc<64> arena;
 
         Start start;
         Node* current = nullptr;
@@ -173,8 +170,7 @@ DEF_TEST(ArenaAlloc, r) {
     {
         created = 0;
         destroyed = 0;
-        char storage[64];
-        SkArenaAlloc arena{storage};
+        SkSTArenaAlloc<64> arena;
 
         sk_sp<FooRefCnt> f = arena.makeSkSp<FooRefCnt>(4, 5.0f);
         REPORTER_ASSERT(r, f->x == 4);

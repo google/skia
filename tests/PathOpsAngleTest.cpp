@@ -239,8 +239,7 @@ static CircleData circleDataSet[] = {
 static const int circleDataSetSize = (int) SK_ARRAY_COUNT(circleDataSet);
 
 DEF_TEST(PathOpsAngleCircle, reporter) {
-    char storage[4096];
-    SkArenaAlloc allocator(storage);
+    SkSTArenaAlloc<4096> allocator;
     SkOpContourHead contour;
     SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
     contour.init(&state, false, false);
@@ -432,8 +431,7 @@ struct FourPoints {
 };
 
 DEF_TEST(PathOpsAngleAfter, reporter) {
-    char storage[4096];
-    SkArenaAlloc allocator(storage);
+    SkSTArenaAlloc<4096> allocator;
     SkOpContourHead contour;
     SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
     contour.init(&state, false, false);
@@ -505,8 +503,7 @@ void SkOpSegment::debugAddAngle(double startT, double endT) {
 }
 
 DEF_TEST(PathOpsAngleAllOnOneSide, reporter) {
-    char storage[4096];
-    SkArenaAlloc allocator(storage);
+    SkSTArenaAlloc<4096> allocator;
     SkOpContourHead contour;
     SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
     contour.init(&state, false, false);

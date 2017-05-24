@@ -70,11 +70,6 @@ public:
     enum Tracking {kDontTrack, kTrack};
     SkArenaAlloc(char* block, size_t size, size_t, Tracking tracking = kDontTrack);
 
-    template <size_t kSize>
-    SkArenaAlloc(char (&block)[kSize], size_t extraSize = kSize, Tracking tracking = kDontTrack)
-        : SkArenaAlloc(block, kSize, extraSize, tracking)
-    {}
-
     SkArenaAlloc(size_t extraSize, Tracking tracking = kDontTrack)
         : SkArenaAlloc(nullptr, 0, extraSize, tracking)
     {}
@@ -222,6 +217,20 @@ private:
     // Use the Fibonacci sequence as the growth factor for block size. The size of the block
     // allocated is fFib0 * fExtraSize. Using 2 ^ n * fExtraSize had too much slop for Android.
     uint32_t       fFib0 {1}, fFib1 {1};
+};
+
+// Helper for defining allocators with inline/reserved storage.
+// For argument declarations, stick to the base type (SkArenaAlloc).
+template <size_t InlineStorageSize>
+class SkSTArenaAlloc : public SkArenaAlloc {
+public:
+    explicit SkSTArenaAlloc(size_t extraSize = InlineStorageSize, Tracking tracking = kDontTrack)
+        : INHERITED(fInlineStorage, InlineStorageSize, extraSize, tracking) {}
+
+private:
+    char fInlineStorage[InlineStorageSize];
+
+    using INHERITED = SkArenaAlloc;
 };
 
 #endif//SkFixedAlloc_DEFINED

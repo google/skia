@@ -326,8 +326,7 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
         flags |= SkVertices::kHasColors_BuilderFlag;
     }
 
-    char allocStorage[2048];
-    SkArenaAlloc alloc(allocStorage, sizeof(allocStorage));
+    SkSTArenaAlloc<2048> alloc;
     SkRGBAf* cornerColors = srcColors ? alloc.makeArray<SkRGBAf>(4) : nullptr;
     SkRGBAf* tmpColors = srcColors ? alloc.makeArray<SkRGBAf>(vertexCount) : nullptr;
     auto convertCS = interpColorsLinearly ? SkColorSpace::MakeSRGB() : nullptr;
