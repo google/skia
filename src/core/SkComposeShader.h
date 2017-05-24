@@ -8,7 +8,7 @@
 #ifndef SkComposeShader_DEFINED
 #define SkComposeShader_DEFINED
 
-#include "SkShaderBase.h"
+#include "SkShader.h"
 #include "SkBlendMode.h"
 
 class SkColorSpacXformer;
@@ -19,7 +19,7 @@ class SkColorSpacXformer;
     This subclass of shader returns the composition of two other shaders, combined by
     a xfermode.
 */
-class SK_API SkComposeShader : public SkShaderBase {
+class SK_API SkComposeShader : public SkShader {
 public:
     /** Create a new compose shader, given shaders A, B, and a combining xfermode mode.
         When the xfermode is called, it will be given the result from shader A as its
@@ -40,21 +40,21 @@ public:
     sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
-    class ComposeShaderContext : public Context {
+    class ComposeShaderContext : public SkShader::Context {
     public:
         // When this object gets destroyed, it will call contextA and contextB's destructor
         // but it will NOT free the memory.
         ComposeShaderContext(const SkComposeShader&, const ContextRec&,
-                             SkShaderBase::Context* contextA, SkShaderBase::Context* contextB);
+                             SkShader::Context* contextA, SkShader::Context* contextB);
 
         void shadeSpan(int x, int y, SkPMColor[], int count) override;
         void shadeSpan4f(int x, int y, SkPM4f[], int count) override;
 
     private:
-        SkShaderBase::Context* fShaderContextA;
-        SkShaderBase::Context* fShaderContextB;
+        SkShader::Context* fShaderContextA;
+        SkShader::Context* fShaderContextB;
 
-        typedef Context INHERITED;
+        typedef SkShader::Context INHERITED;
     };
 
 #ifdef SK_DEBUG
@@ -82,7 +82,7 @@ private:
     sk_sp<SkShader>     fShaderB;
     SkBlendMode         fMode;
 
-    typedef SkShaderBase INHERITED;
+    typedef SkShader INHERITED;
 };
 
 #endif

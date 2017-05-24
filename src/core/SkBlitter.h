@@ -13,7 +13,7 @@
 #include "SkColor.h"
 #include "SkRect.h"
 #include "SkRegion.h"
-#include "SkShaderBase.h"
+#include "SkShader.h"
 
 class SkArenaAlloc;
 class SkMatrix;
@@ -148,7 +148,7 @@ public:
                                    SkArenaAlloc*);
     ///@}
 
-    static SkShaderBase::ContextRec::DstType PreferredShaderDest(const SkImageInfo&);
+    static SkShader::ContextRec::DstType PreferredShaderDest(const SkImageInfo&);
 
     static bool UseRasterPipelineBlitter(const SkPixmap&, const SkPaint&);
 

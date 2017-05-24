@@ -8,7 +8,7 @@
 #ifndef SkGaussianEdgeShader_DEFINED
 #define SkGaussianEdgeShader_DEFINED
 
-#include "SkShaderBase.h"
+#include "SkShader.h"
 
 class SK_API SkGaussianEdgeShader {
 public:

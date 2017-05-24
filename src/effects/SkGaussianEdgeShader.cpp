@@ -21,7 +21,7 @@ class SkArenaAlloc;
  When not using implicit distance, then b in the input color represents the input to the
  blur function.
  */
-class SkGaussianEdgeShaderImpl : public SkShaderBase {
+class SkGaussianEdgeShaderImpl : public SkShader {
 public:
     SkGaussianEdgeShaderImpl() {}
 
@@ -42,7 +42,7 @@ protected:
 private:
     friend class SkGaussianEdgeShader;
 
-    typedef SkShaderBase INHERITED;
+    typedef SkShader INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////

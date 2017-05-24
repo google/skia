@@ -13,7 +13,6 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "SkGradientShader.h"
-#include "SkShaderBase.h"
 #include "ops/GrTessellatingPathRenderer.h"
 
 /*
@@ -280,9 +279,9 @@ static sk_sp<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ct
     SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
     sk_sp<SkShader> shader = SkGradientShader::MakeLinear(
         pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
-    SkShaderBase::AsFPArgs args(
+    SkShader::AsFPArgs args(
         ctx, &SkMatrix::I(), &SkMatrix::I(), SkFilterQuality::kLow_SkFilterQuality, nullptr);
-    return as_SB(shader)->asFragmentProcessor(args);
+    return shader->asFragmentProcessor(args);
 }
 
 static void test_path(GrContext* ctx,

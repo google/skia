@@ -14,7 +14,6 @@
 #include "SkImageFilter.h"
 #include "SkImagePriv.h"
 #include "SkMakeUnique.h"
-#include "SkShaderBase.h"
 
 std::unique_ptr<SkColorSpaceXformer> SkColorSpaceXformer::Make(sk_sp<SkColorSpace> dst) {
     std::unique_ptr<SkColorSpaceXform> fromSRGB = SkColorSpaceXform_Base::New(
@@ -54,7 +53,7 @@ sk_sp<SkImageFilter> SkColorSpaceXformer::apply(const SkImageFilter* imageFilter
 }
 
 sk_sp<SkShader> SkColorSpaceXformer::apply(const SkShader* shader) {
-    return as_SB(shader)->makeColorSpace(this);
+    return shader->makeColorSpace(this);
 }
 
 void SkColorSpaceXformer::apply(SkColor* xformed, const SkColor* srgb, int n) {

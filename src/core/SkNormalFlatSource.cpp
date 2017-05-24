@@ -60,7 +60,7 @@ private:
 };
 
 sk_sp<GrFragmentProcessor> SkNormalFlatSourceImpl::asFragmentProcessor(
-        const SkShaderBase::AsFPArgs&) const {
+        const SkShader::AsFPArgs&) const {
 
     return sk_make_sp<NormalFlatFP>();
 }
@@ -73,7 +73,7 @@ SkNormalFlatSourceImpl::Provider::Provider() {}
 
 SkNormalFlatSourceImpl::Provider::~Provider() {}
 
-SkNormalSource::Provider* SkNormalFlatSourceImpl::asProvider(const SkShaderBase::ContextRec &rec,
+SkNormalSource::Provider* SkNormalFlatSourceImpl::asProvider(const SkShader::ContextRec &rec,
                                                              SkArenaAlloc *alloc) const {
     return alloc->make<Provider>();
 }
