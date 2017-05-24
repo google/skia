@@ -212,7 +212,7 @@ public:
     {
     }
 
-    ~SkGIFFrameContext()
+    ~SkGIFFrameContext() override
     {
     }
 
@@ -293,7 +293,7 @@ public:
     {
     }
 
-    ~SkGifImageReader()
+    ~SkGifImageReader() override
     {
     }
 
