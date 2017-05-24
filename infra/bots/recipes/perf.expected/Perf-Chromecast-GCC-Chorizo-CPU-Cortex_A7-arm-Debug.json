@@ -293,7 +293,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "set -x; /cache/skia/nanobench -i /cache/skia/resources --images /cache/skia/resources/color_wheel.jpg --svgs /cache/skia/svgs; echo $? >/cache/skia/rc",
+      "set -x; /cache/skia/nanobench --config gles -i /cache/skia/resources --images /cache/skia/resources/color_wheel.jpg --svgs /cache/skia/svgs --pre_log --match ~matrixconvolution ~blur_image_filter ~blur_0.01 ~GM_animated-image-blurs; echo $? >/cache/skia/rc",
       "[START_DIR]/tmp/nanobench.sh"
     ],
     "env": {
