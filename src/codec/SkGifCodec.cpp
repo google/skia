@@ -153,6 +153,7 @@ bool SkGifCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
         frameInfo->fFullyReceived = frameContext->isComplete();
         frameInfo->fAlphaType = frameContext->hasAlpha() ? kUnpremul_SkAlphaType
                                                          : kOpaque_SkAlphaType;
+        frameInfo->fDisposalMethod = frameContext->getDisposalMethod();
     }
     return true;
 }

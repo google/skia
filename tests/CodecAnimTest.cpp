@@ -66,8 +66,11 @@ DEF_TEST(Codec_565, r) {
 
 
 DEF_TEST(Codec_frames, r) {
-    #define kOpaque     kOpaque_SkAlphaType
-    #define kUnpremul   kUnpremul_SkAlphaType
+    #define kOpaque         kOpaque_SkAlphaType
+    #define kUnpremul       kUnpremul_SkAlphaType
+    #define kKeep           SkCodecAnimation::Keep_DisposalMethod
+    #define kRestoreBG      SkCodecAnimation::RestoreBGColor_DisposalMethod
+    #define kRestorePrev    SkCodecAnimation::RestorePrevious_DisposalMethod
     static const struct {
         const char*              fName;
         int                      fFrameCount;
@@ -80,6 +83,7 @@ DEF_TEST(Codec_frames, r) {
         // otherwise.
         std::vector<int>         fDurations;
         int                      fRepetitionCount;
+        std::vector<SkCodecAnimation::DisposalMethod> fDisposalMethods;
     } gRecs[] = {
         { "alphabetAnim.gif", 13,
             { SkCodec::kNone, 0, 0, 0, 0, 5, 6, SkCodec::kNone,
@@ -87,7 +91,10 @@ DEF_TEST(Codec_frames, r) {
             { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul,
               kUnpremul, kUnpremul, kUnpremul, kOpaque, kOpaque, kUnpremul },
             { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 },
-            0 },
+            0,
+            { kKeep, kRestorePrev, kRestorePrev, kRestorePrev, kRestorePrev,
+              kRestoreBG, kKeep, kRestoreBG, kRestoreBG, kKeep, kKeep,
+              kRestoreBG, kKeep } },
         { "randPixelsAnim2.gif", 4,
             // required frames
             { 0, 0, 1 },
@@ -96,7 +103,8 @@ DEF_TEST(Codec_frames, r) {
             // durations
             { 0, 1000, 170, 40 },
             // repetition count
-            0 },
+            0,
+            { kKeep, kKeep, kRestorePrev, kKeep } },
         { "randPixelsAnim.gif", 13,
             // required frames
             { SkCodec::kNone, 1, 2, 3, 4, 3, 6, 7, 7, 7, 9, 9 },
@@ -105,33 +113,43 @@ DEF_TEST(Codec_frames, r) {
             // durations
             { 0, 1000, 170, 40, 220, 7770, 90, 90, 90, 90, 90, 90, 90 },
             // repetition count
-            0 },
-        { "box.gif", 1, {}, {}, {}, 0 },
-        { "color_wheel.gif", 1, {}, {}, {}, 0 },
+            0,
+            { kKeep, kKeep, kKeep, kKeep, kRestoreBG, kRestoreBG, kRestoreBG,
+              kRestoreBG, kRestorePrev, kRestoreBG, kRestorePrev, kRestorePrev,
+              kRestorePrev,  } },
+        { "box.gif", 1, {}, {}, {}, 0, { kKeep } },
+        { "color_wheel.gif", 1, {}, {}, {}, 0, { kKeep } },
         { "test640x479.gif", 4, { 0, 1, 2 },
                 { kOpaque, kOpaque, kOpaque },
                 { 200, 200, 200, 200 },
-                SkCodec::kRepetitionCountInfinite },
-        { "colorTables.gif", 2, { 0 }, { kOpaque }, { 1000, 1000 }, 5 },
+                SkCodec::kRepetitionCountInfinite,
+                { kKeep, kKeep, kKeep, kKeep } },
+        { "colorTables.gif", 2, { 0 }, { kOpaque }, { 1000, 1000 }, 5,
+                { kKeep, kKeep } },
 
-        { "arrow.png",  1, {}, {}, {}, 0 },
-        { "google_chrome.ico", 1, {}, {}, {}, 0 },
-        { "brickwork-texture.jpg", 1, {}, {}, {}, 0 },
+        { "arrow.png",  1, {}, {}, {}, 0, {} },
+        { "google_chrome.ico", 1, {}, {}, {}, 0, {} },
+        { "brickwork-texture.jpg", 1, {}, {}, {}, 0, {} },
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
-        { "dng_with_preview.dng", 1, {}, {}, {}, 0 },
+        { "dng_with_preview.dng", 1, {}, {}, {}, 0, {} },
 #endif
-        { "mandrill.wbmp", 1, {}, {}, {}, 0 },
-        { "randPixels.bmp", 1, {}, {}, {}, 0 },
-        { "yellow_rose.webp", 1, {}, {}, {}, 0 },
+        { "mandrill.wbmp", 1, {}, {}, {}, 0, {} },
+        { "randPixels.bmp", 1, {}, {}, {}, 0, {} },
+        { "yellow_rose.webp", 1, {}, {}, {}, 0, {} },
         { "webp-animated.webp", 3, { 0, 1 }, { kOpaque, kOpaque, kOpaque },
-            { 1000, 500, 1000 }, SkCodec::kRepetitionCountInfinite },
+            { 1000, 500, 1000 }, SkCodec::kRepetitionCountInfinite,
+            { kKeep, kKeep, kKeep } },
         { "blendBG.webp", 7, { 0, SkCodec::kNone, SkCodec::kNone, SkCodec::kNone,
                                3, 3 },
             { kOpaque, kOpaque, kUnpremul, kOpaque, kUnpremul, kUnpremul },
-            { 525, 500, 525, 437, 609, 729, 444 }, 7 },
+            { 525, 500, 525, 437, 609, 729, 444 }, 7,
+            { kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep } },
     };
     #undef kOpaque
     #undef kUnpremul
+    #undef kKeep
+    #undef kRestorePrev
+    #undef kRestoreBG
 
     for (const auto& rec : gRecs) {
         sk_sp<SkData> data(GetResourceAsData(rec.fName));

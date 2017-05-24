@@ -10,6 +10,7 @@
 
 #include "../private/SkTemplates.h"
 #include "SkColor.h"
+#include "SkCodecAnimation.h"
 #include "SkEncodedImageFormat.h"
 #include "SkEncodedInfo.h"
 #include "SkImageInfo.h"
@@ -634,6 +635,11 @@ public:
          *  color index-based frame has a color with alpha but does not use it.
          */
         SkAlphaType fAlphaType;
+
+        /**
+         *  How this frame should be modified before decoding the next one.
+         */
+        SkCodecAnimation::DisposalMethod fDisposalMethod;
     };
 
     /**
