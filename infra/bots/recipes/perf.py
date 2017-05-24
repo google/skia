@@ -113,11 +113,6 @@ def nanobench_flags(bot):
     match.append('~blurroundrect')
     match.append('~patch_grid')  # skia:2847
     match.append('~desk_carsvg')
-  if 'Chromecast' in bot:
-    match.append('~matrixconvolution') # skia:6581
-    match.append('~blur_image_filter')
-    match.append('~blur_0.01')
-    match.append('GM_animated-image-blurs')
   if 'NexusPlayer' in bot:
     match.append('~desk_unicodetable')
   if 'Nexus5' in bot:
@@ -242,10 +237,18 @@ def perf_steps(api):
     # Due to limited disk space, run a watered down perf run on Chromecast.
     args = [
       target,
-       '-i', api.flavor.device_dirs.resource_dir,
-       '--images', api.flavor.device_path_join(
-            api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
-       '--svgs',  api.flavor.device_dirs.svg_dir,
+      '--config',
+      'gles',
+      '-i', api.flavor.device_dirs.resource_dir,
+      '--images', api.flavor.device_path_join(
+          api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
+      '--svgs',  api.flavor.device_dirs.svg_dir,
+      '--pre_log',
+      '--match', # skia:6581
+      '~matrixconvolution',
+      '~blur_image_filter',
+      '~blur_0.01',
+      '~GM_animated-image-blurs',
     ]
 
   if api.vars.upload_perf_results:
