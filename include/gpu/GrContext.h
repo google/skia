@@ -127,15 +127,12 @@ public:
      */
     void getResourceCacheLimits(int* maxResources, size_t* maxResourceBytes) const;
 
-    /**
-     *  Gets the current GPU resource cache usage.
-     *
-     *  @param resourceCount If non-null, returns the number of resources that are held in the
-     *                       cache.
-     *  @param maxResourceBytes If non-null, returns the total number of bytes of video memory held
-     *                          in the cache.
-     */
     void getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const;
+
+    /**
+     *  Gets the number of bytes in the cache consumed by purgeable (e.g. unlocked) resources.
+     */
+    size_t getResourceCachePurgeableBytes() const;
 
     /**
      *  Specify the GPU resource cache limits. If the current cache exceeds either
