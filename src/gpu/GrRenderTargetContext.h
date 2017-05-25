@@ -201,52 +201,19 @@ public:
                   const SkPath&,
                   const GrStyle& style);
 
-    enum class ColorArrayType {
-        kPremulGrColor,
-        kSkColor,
-    };
     /**
      * Draws vertices with a paint.
      *
-     * @param   paint           describes how to color pixels.
-     * @param   viewMatrix      transformation matrix
-     * @param   primitiveType   primitives type to draw.
-     * @param   vertexCount     number of vertices.
-     * @param   positions       array of vertex positions, required.
-     * @param   texCoords       optional array of texture coordinates used
-     *                          to access the paint.
-     * @param   colors          optional array of per-vertex colors, supercedes
-     *                          the paint's color field.
-     * @param   indices         optional array of indices. If NULL vertices
-     *                          are drawn non-indexed.
-     * @param   indexCount      if indices is non-null then this is the
-     *                          number of indices.
-     * @param   ColorArrayType  Determines how the color array should be interpreted.
+     * @param   paint            describes how to color pixels.
+     * @param   viewMatrix       transformation matrix
+     * @param   vertices         specifies the mesh to draw.
+     * @param   overridePrimType primitive type to draw. If NULL, derive prim type from vertices.
      */
     void drawVertices(const GrClip&,
                       GrPaint&& paint,
                       const SkMatrix& viewMatrix,
-                      GrPrimitiveType primitiveType,
-                      int vertexCount,
-                      const SkPoint positions[],
-                      const SkPoint texs[],
-                      const uint32_t colors[],
-                      const uint16_t indices[],
-                      int indexCount,
-                      ColorArrayType = ColorArrayType::kPremulGrColor);
-
-    /**
-     * Draws vertices with a paint.
-     *
-     * @param   paint           describes how to color pixels.
-     * @param   viewMatrix      transformation matrix
-     * @param   veritces        specifies the mesh to draw.
-     * @param   flags           A bitfield of options specified by SkCanvas::VerticesFlags.
-     */
-    void drawVertices(const GrClip&,
-                      GrPaint&& paint,
-                      const SkMatrix& viewMatrix,
-                      sk_sp<SkVertices> vertices);
+                      sk_sp<SkVertices> vertices,
+                      GrPrimitiveType* overridePrimType = nullptr);
 
     /**
      * Draws textured sprites from an atlas with a paint. This currently does not support AA for the

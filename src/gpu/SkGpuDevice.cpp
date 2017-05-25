@@ -389,16 +389,12 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
         return;
     }
 
-    fRenderTargetContext->drawVertices(this->clip(),
-                                       std::move(grPaint),
-                                       *viewMatrix,
-                                       primitiveType,
-                                       SkToS32(count),
-                                       (SkPoint*)pts,
-                                       nullptr,
-                                       nullptr,
-                                       nullptr,
-                                       0);
+    static constexpr SkVertices::VertexMode kIgnoredMode = SkVertices::kTriangles_VertexMode;
+    sk_sp<SkVertices> vertices = SkVertices::MakeCopy(kIgnoredMode, SkToS32(count), pts, nullptr,
+                                                      nullptr);
+
+    fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), *viewMatrix,
+                                       std::move(vertices), &primitiveType);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1614,7 +1610,11 @@ void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCoun
     //number of indices for lines per triangle with kLines
     indexCount = triangleCount * 6;
 
-    std::unique_ptr<uint16_t[]> lineIndices(new uint16_t[indexCount]);
+    static constexpr SkVertices::VertexMode kIgnoredMode = SkVertices::kTriangles_VertexMode;
+    SkVertices::Builder builder(kIgnoredMode, vertexCount, indexCount, 0);
+    memcpy(builder.positions(), vertices, vertexCount * sizeof(SkPoint));
+
+    uint16_t* lineIndices = builder.indices();
     int i = 0;
     while (vertProc(&state)) {
         lineIndices[i]     = state.f0;
@@ -1625,16 +1625,13 @@ void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCoun
         lineIndices[i + 5] = state.f0;
         i += 6;
     }
+
+    GrPrimitiveType primitiveType = kLines_GrPrimitiveType;
     fRenderTargetContext->drawVertices(this->clip(),
                                        std::move(grPaint),
                                        this->ctm(),
-                                       kLines_GrPrimitiveType,
-                                       vertexCount,
-                                       vertices,
-                                       nullptr,
-                                       nullptr,
-                                       lineIndices.get(),
-                                       indexCount);
+                                       builder.detach(),
+                                       &primitiveType);
 }
 
 void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode,
