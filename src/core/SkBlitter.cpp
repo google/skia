@@ -784,12 +784,16 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     if (device.colorSpace()) {
         return true;
     }
-
     // ... unless the shader is raster pipeline-only.
     if (paint.getShader() && as_SB(paint.getShader())->isRasterPipelineOnly()) {
         return true;
     }
-
+    #ifndef SK_SUPPORT_LEGACY_RASTERPIPELINE
+    // ... or unless the blend mode is complicated enough.
+    if (paint.getBlendMode() > SkBlendMode::kLastSeparableMode) {
+        return true;
+    }
+    #endif
     return device.colorType() != kN32_SkColorType;
 #endif
 }
