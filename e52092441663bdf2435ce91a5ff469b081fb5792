@@ -22,6 +22,30 @@
       "revId": "e52092441663bdf2435ce91a5ff469b081fb5792",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b47ddec_4c94ab16",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 925,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-25T20:44:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d12c83fc_ed56bb05",
+      "range": {
+        "startLine": 925,
+        "startChar": 12,
+        "endLine": 925,
+        "endChar": 55
+      },
+      "revId": "e52092441663bdf2435ce91a5ff469b081fb5792",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
