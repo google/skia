@@ -8,7 +8,7 @@
 #ifndef SkEmptyShader_DEFINED
 #define SkEmptyShader_DEFINED
 
-#include "SkShader.h"
+#include "SkShaderBase.h"
 
 // TODO: move this to private, as there is a public factory on SkShader
 
@@ -16,7 +16,7 @@
  *  \class SkEmptyShader
  *  A Shader that always draws nothing. Its createContext always returns nullptr.
  */
-class SK_API SkEmptyShader : public SkShader {
+class SK_API SkEmptyShader : public SkShaderBase {
 public:
     SkEmptyShader() {}
 
@@ -24,7 +24,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkEmptyShader)
 
 protected:
-    SkShader::Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override {
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override {
         return nullptr;
     }
 
@@ -35,7 +35,7 @@ protected:
     }
 
 private:
-    typedef SkShader INHERITED;
+    typedef SkShaderBase INHERITED;
 };
 
 #endif
