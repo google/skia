@@ -294,7 +294,7 @@ void GrGLMorphologyEffect::GenKey(const GrProcessor& proc,
 void GrGLMorphologyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                      const GrFragmentProcessor& proc) {
     const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
-    GrTexture& texture = *m.textureSampler(0).texture();
+    GrTexture& texture = *m.textureSampler(0).peekTexture();
 
     float pixelSize = 0.0f;
     switch (m.direction()) {

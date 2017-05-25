@@ -139,6 +139,7 @@ protected:
         args.fAppliedClip = target->clip();
         args.fDstTexture = target->dstTexture();
         args.fCaps = &target->caps();
+        args.fResourceProvider = target->resourceProvider();
         return args;
     }
 

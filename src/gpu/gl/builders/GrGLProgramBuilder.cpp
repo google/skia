@@ -8,6 +8,7 @@
 #include "GrGLProgramBuilder.h"
 
 #include "GrAutoLocaleSetter.h"
+#include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrGLProgramBuilder.h"
 #include "GrProgramDesc.h"
@@ -32,7 +33,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
                                                const GrPrimitiveProcessor& primProc,
                                                GrProgramDesc* desc,
                                                GrGLGpu* gpu) {
-    SkASSERT(!pipeline.isBad() && !primProc.isBad());
+    SkASSERT(!pipeline.isBad() && primProc.instantiate(gpu->getContext()->resourceProvider()));
 
     ATRACE_ANDROID_FRAMEWORK("Shader Compile");
     GrAutoLocaleSetter als("C");
