@@ -76,10 +76,8 @@ struct LazyCtx {
 // We're finally going to get to what a Stage function looks like!
 // It's best to jump down to the #else case first, then to come back up here for AVX.
 
-#if defined(JUMPER) && defined(__AVX__)
-    // There's a big cost to switch between SSE and AVX, so we do a little
-    // extra work to handle even the jagged <kStride tail in AVX mode.
-    // Compared to normal stages, we maintain an extra tail register:
+#if defined(JUMPER) && defined(__SSE2__)
+    // Process the tail on all x86 processors with SSE2 or better instructions.
     //    tail == 0 ~~> work on a full kStride pixels
     //    tail != 0 ~~> work on only the first tail pixels
     // tail is always < kStride.
@@ -113,8 +111,7 @@ struct LazyCtx {
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 
 #else
-    // Other instruction sets (SSE, NEON, portable) can fall back on narrower
-    // pipelines cheaply, which frees us to always assume tail==0.
+    // Other instruction sets (NEON, portable) currently always assume tail == 0.
 
     // Stages tail call between each other by following program as described above.
     // x is our induction variable, stepping forward kStride at a time.
