@@ -17,6 +17,10 @@
 #include "SkTDArray.h"
 #include "SkVertices.h"
 
+#if GR_TEST_UTILS
+#include "GrDrawOpTest.h"
+#endif
+
 class GrOpFlushState;
 class SkVertices;
 struct GrInitInvariantOutput;
@@ -26,27 +30,13 @@ public:
     DEFINE_OP_CLASS_ID
 
     /**
-     * The 'color' param is used if the 'colors' array is null. 'bounds' is the bounds of the
-     * 'positions' array (in local space prior to application of 'viewMatrix'). If 'indices' is null
-     * then 'indexCnt' must be zero and vice versa. In this case the vertices are indexed as 0, 1,
-     * ..., 'vertexCount' - 1. 'localCoords' are optional and if null the vertex positions are used
-     * as local coords. 'colorArrayType' specifies whether the colors are premul GrColors or
-     * unpremul SkColors.
-     */
-    static std::unique_ptr<GrLegacyMeshDrawOp> Make(
-            GrColor color, GrPrimitiveType primitiveType, const SkMatrix& viewMatrix,
-            const SkPoint* positions, int vertexCount, const uint16_t* indices, int indexCount,
-            const uint32_t* colors, const SkPoint* localCoords, const SkRect& bounds,
-            GrRenderTargetContext::ColorArrayType colorArrayType);
-
-    /**
-     * Draw a SkVertices. The GrColor param is used if the vertices lack per-vertex color or 'flags'
-     * indicates that the per-vertex color should be ignored.  The 'flags' options are those
-     * specified by SkCanvas::VerticesFlags. If the vertices lack local coords or 'flags' indicates
-     * that they should be ignored then the vertex positions are used as local coords.
+     * Draw a SkVertices. The GrColor param is used if the vertices lack per-vertex color. If the
+     * vertices lack local coords then the vertex positions are used as local coords. The primitive
+     * type drawn is derived from the SkVertices object, unless overridePrimType is specified.
      */
     static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, sk_sp<SkVertices>,
-                                                    const SkMatrix& viewMatrix);
+                                                    const SkMatrix& viewMatrix,
+                                                    GrPrimitiveType* overridePrimType = nullptr);
 
     const char* name() const override { return "DrawVerticesOp"; }
 
@@ -60,8 +50,12 @@ public:
     }
 
 private:
-    GrDrawVerticesOp(sk_sp<SkVertices>, GrPrimitiveType, GrColor,
-                     GrRenderTargetContext::ColorArrayType, const SkMatrix& viewMatrix);
+    enum class ColorArrayType {
+        kPremulGrColor,
+        kSkColor,
+    };
+
+    GrDrawVerticesOp(sk_sp<SkVertices>, GrPrimitiveType, GrColor, const SkMatrix& viewMatrix);
 
     void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
                                     GrProcessorAnalysisCoverage* coverage) const override;
@@ -130,10 +124,14 @@ private:
     uint32_t fFlags;
     int fVertexCount;
     int fIndexCount;
-    GrRenderTargetContext::ColorArrayType fColorArrayType;
+    ColorArrayType fColorArrayType;
     SkSTArray<1, Mesh, true> fMeshes;
 
     typedef GrLegacyMeshDrawOp INHERITED;
+
+#if GR_TEST_UTILS
+    GR_LEGACY_MESH_DRAW_OP_TEST_FRIEND(VerticesOp);
+#endif
 };
 
 #endif
