@@ -100,9 +100,9 @@ public:
 
     /** Additional data required on a per-op basis when executing GrDrawOps. */
     struct DrawOpArgs {
-        GrRenderTarget* fRenderTarget;
-        const GrAppliedClip* fAppliedClip;
-        GrXferProcessor::DstTexture fDstTexture;
+        GrRenderTarget*           fRenderTarget;
+        const GrAppliedClip*      fAppliedClip;
+        GrXferProcessor::DstProxy fDstProxy;
     };
 
     void setDrawOpArgs(DrawOpArgs* opArgs) { fOpArgs = opArgs; }
@@ -224,8 +224,8 @@ public:
 
     const GrAppliedClip* clip() const { return this->state()->drawOpArgs().fAppliedClip; }
 
-    const GrXferProcessor::DstTexture& dstTexture() const {
-        return this->state()->drawOpArgs().fDstTexture;
+    const GrXferProcessor::DstProxy& dstProxy() const {
+        return this->state()->drawOpArgs().fDstProxy;
     }
 
     template <typename... Args>
