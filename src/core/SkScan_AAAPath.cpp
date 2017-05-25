@@ -1602,6 +1602,9 @@ static SK_ALWAYS_INLINE void aaa_fill_path(const SkPath& path, const SkIRect& cl
     int count = builder.build(path, builderClip, 0, canCullToTheRight, true);
     SkASSERT(count >= 0);
 
+    // path.isConvex() should imply count >= 2 as canCullToRight is false
+    SkASSERT(!path.isConvex() || count >= 2);
+
     SkAnalyticEdge** list = (SkAnalyticEdge**)builder.analyticEdgeList();
 
     SkIRect rect = clipRect;
@@ -1671,8 +1674,7 @@ static SK_ALWAYS_INLINE void aaa_fill_path(const SkPath& path, const SkIRect& cl
         rightBound = SkTMin(rightBound, SkIntToFixed(ir.fRight));
     }
 
-    if (!path.isInverseFillType() && path.isConvex()) {
-        SkASSERT(count >= 2);   // convex walker does not handle missing right edges
+    if (!path.isInverseFillType() && path.isConvex() && count >= 2) {
         aaa_walk_convex_edges(&headEdge, blitter, start_y, stop_y,
                               leftBound, rightBound, isUsingMask);
     } else {
