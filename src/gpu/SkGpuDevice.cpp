@@ -1573,7 +1573,7 @@ static bool init_vertices_paint(GrContext* context, GrRenderTargetContext* rtc,
             return SkPaintToGrPaintWithPrimitiveColor(context, rtc, skPaint, grPaint);
         } else {
             // No colors and no shaders. Just draw with the paint color.
-            return (!SkPaintToGrPaintNoShader(context, rtc, skPaint, grPaint));
+            return SkPaintToGrPaintNoShader(context, rtc, skPaint, grPaint);
         }
     }
 }
