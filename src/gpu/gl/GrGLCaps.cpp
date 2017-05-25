@@ -38,7 +38,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDirectStateAccessSupport = false;
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
-    fDrawInstancedSupport = false;
     fDrawIndirectSupport = false;
     fMultiDrawIndirectSupport = false;
     fBaseInstanceSupport = false;
@@ -182,6 +181,20 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fMultisampleDisableSupport = true;
     } else {
         fMultisampleDisableSupport = ctxInfo.hasExtension("GL_EXT_multisample_compatibility");
+    }
+
+    if (kGL_GrGLStandard == standard) {
+        // 3.1 has draw_instanced but not instanced_arrays, for the time being we only care about
+        // instanced arrays, but we could make this more granular if we wanted
+        fInstanceAttribSupport =
+                version >= GR_GL_VER(3, 2) ||
+                (ctxInfo.hasExtension("GL_ARB_draw_instanced") &&
+                 ctxInfo.hasExtension("GL_ARB_instanced_arrays"));
+    } else {
+        fInstanceAttribSupport =
+                version >= GR_GL_VER(3, 0) ||
+                (ctxInfo.hasExtension("GL_EXT_draw_instanced") &&
+                 ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
     }
 
     if (kGL_GrGLStandard == standard) {
@@ -526,20 +539,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else {
         // ES 3.0 supports mixed size FBO attachments, 2.0 does not.
         fOversizedStencilSupport = ctxInfo.version() >= GR_GL_VER(3, 0);
-    }
-
-    if (kGL_GrGLStandard == standard) {
-        // 3.1 has draw_instanced but not instanced_arrays, for the time being we only care about
-        // instanced arrays, but we could make this more granular if we wanted
-        fDrawInstancedSupport =
-                version >= GR_GL_VER(3, 2) ||
-                (ctxInfo.hasExtension("GL_ARB_draw_instanced") &&
-                 ctxInfo.hasExtension("GL_ARB_instanced_arrays"));
-    } else {
-        fDrawInstancedSupport =
-                version >= GR_GL_VER(3, 0) ||
-                (ctxInfo.hasExtension("GL_EXT_draw_instanced") &&
-                 ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
     }
 
     if (kGL_GrGLStandard == standard) {
@@ -1242,7 +1241,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
     r.appendf("Direct state access support: %s\n", (fDirectStateAccessSupport ? "YES": "NO"));
     r.appendf("Debug support: %s\n", (fDebugSupport ? "YES": "NO"));
-    r.appendf("Draw instanced support: %s\n", (fDrawInstancedSupport ? "YES" : "NO"));
     r.appendf("Draw indirect support: %s\n", (fDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Multi draw indirect support: %s\n", (fMultiDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Base instance support: %s\n", (fBaseInstanceSupport ? "YES" : "NO"));
