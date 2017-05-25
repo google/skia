@@ -66,8 +66,7 @@ public:
     , fSamplerExternalOES_Type(new Type(String("samplerExternalOES"), SpvDim2D, false, false,
                                         false, true))
     , fSamplerCube_Type(new Type(String("samplerCube"), SpvDimCube, false, false, false, true))
-    , fSampler2DRect_Type(new Type(String("sampler2DRect"), SpvDimRect, false, false, false,
-                                   true))
+    , fSampler2DRect_Type(new Type(String("sampler2DRect"), SpvDimRect, false, false, false, true))
     , fSampler1DArray_Type(new Type(String("sampler1DArray")))
     , fSampler2DArray_Type(new Type(String("sampler2DArray")))
     , fSamplerCubeArray_Type(new Type(String("samplerCubeArray")))
@@ -151,6 +150,8 @@ public:
     , fBVec_Type(new Type(String("$bvec"), { fInvalid_Type.get(), fBVec2_Type.get(),
                                                fBVec3_Type.get(), fBVec4_Type.get() }))
     , fSkCaps_Type(new Type(String("$sk_Caps")))
+    , fSkArgs_Type(new Type(String("$sk_Args")))
+    , fColorSpaceXform_Type(new Type(String("colorSpaceXform"), *fFloat_Type, 4, 4))
     , fDefined_Expression(new Defined(*fInvalid_Type)) {}
 
     static std::vector<const Type*> static_type(const Type& t) {
@@ -225,7 +226,6 @@ public:
     const std::unique_ptr<Type> fSampler2DArrayShadow_Type;
     const std::unique_ptr<Type> fSamplerCubeArrayShadow_Type;
 
-
     const std::unique_ptr<Type> fISampler2D_Type;
 
     const std::unique_ptr<Type> fImage2D_Type;
@@ -269,6 +269,8 @@ public:
     const std::unique_ptr<Type> fBVec_Type;
 
     const std::unique_ptr<Type> fSkCaps_Type;
+    const std::unique_ptr<Type> fSkArgs_Type;
+    const std::unique_ptr<Type> fColorSpaceXform_Type;
 
     // dummy expression used to mark that a variable has a value during dataflow analysis (when it
     // could have several different values, or the analyzer is otherwise unable to assign it a
@@ -281,12 +283,12 @@ private:
         Defined(const Type& type)
         : INHERITED(Position(), kDefined_Kind, type) {}
 
-        virtual String description() const override {
-            return String("<defined>");
-        }
-        
         bool hasSideEffects() const override {
             return false;
+        }
+
+        String description() const override {
+            return String("<defined>");
         }
 
         typedef Expression INHERITED;
