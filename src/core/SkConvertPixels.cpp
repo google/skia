@@ -9,6 +9,7 @@
 #include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
 #include "SkConvertPixels.h"
+#include "SkDither.h"
 #include "SkHalf.h"
 #include "SkImageInfoPriv.h"
 #include "SkOpts.h"
@@ -413,6 +414,25 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
     // Fast Path 5: Alpha 8 dsts.
     if (kAlpha_8_SkColorType == dstInfo.colorType()) {
         convert_to_alpha8((uint8_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable);
+        return;
+    }
+
+    // Chrome M59 Bug Fix: Convert to 4444 with dithering.
+    // This code is unnecessary in Skia for M60, since the raster pipeline implementation
+    // will dither.
+    if (kARGB_4444_SkColorType == dstInfo.colorType() && kN32_SkColorType == srcInfo.colorType() &&
+            kUnpremul_SkAlphaType != srcInfo.alphaType()) {
+        for (int y = 0; y < srcInfo.height(); y++) {
+            DITHER_4444_SCAN(y);
+            SkPMColor16* SK_RESTRICT dstRow = (SkPMColor16*)dstPixels;
+            const SkPMColor* SK_RESTRICT srcRow = (const SkPMColor*)srcPixels;
+            for (int x = 0; x < srcInfo.width(); ++x) {
+                dstRow[x] = SkDitherARGB32To4444(srcRow[x], DITHER_VALUE(x));
+            }
+            dstPixels = (char*)dstPixels + dstRB;
+            srcPixels = (const char*)srcPixels + srcRB;
+        }
+
         return;
     }
 
