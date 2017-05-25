@@ -9,6 +9,7 @@
 #define SkTDPQueue_DEFINED
 
 #include "SkTDArray.h"
+#include "SkTSort.h"
 
 /**
  * This class implements a priority queue. T is the type of the elements in the queue. LESS is a
@@ -101,6 +102,19 @@ public:
     /** Gets the item at index i in the priority queue (for i < this->count()). at(0) is equivalent
         to peek(). Otherwise, there is no guarantee about ordering of elements in the queue. */
     T at(int i) const { return fArray[i]; }
+
+    /** Sorts the queue into priority order.  The queue is only guarenteed to remain in sorted order
+     *  until any other operation, other than at(), is performed.
+     */
+    void sort() {
+        if (fArray.count() > 1) {
+            SkTQSort<T>(fArray.begin(), fArray.end() - 1, LESS);
+            for (int i = 0; i < fArray.count(); i++) {
+                this->setIndex(i);
+            }
+            this->validate();
+        }
+    }
 
 private:
     static int LeftOf(int x) { SkASSERT(x >= 0); return 2 * x + 1; }

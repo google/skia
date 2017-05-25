@@ -536,6 +536,47 @@ void GrResourceCache::purgeResourcesNotUsedSince(GrStdSteadyClock::time_point pu
     }
 }
 
+void GrResourceCache::purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources) {
+
+    const size_t tmpByteBudget = SkTMax((size_t)0, fBytes - bytesToPurge);
+    bool stillOverbudget = tmpByteBudget < fBytes;
+
+    if (preferScratchResources && bytesToPurge < fPurgeableBytes) {
+        // Sort the queue
+        fPurgeableQueue.sort();
+
+        // Make a list of the scratch resources to delete
+        SkTDArray<GrGpuResource*> scratchResources;
+        size_t scratchByteCount = 0;
+        for (int i = 0; i < fPurgeableQueue.count() && stillOverbudget; i++) {
+            GrGpuResource* resource = fPurgeableQueue.at(i);
+            SkASSERT(resource->isPurgeable());
+            if (!resource->getUniqueKey().isValid()) {
+                *scratchResources.append() = resource;
+                scratchByteCount += resource->gpuMemorySize();
+                stillOverbudget = tmpByteBudget < fBytes - scratchByteCount;
+            }
+        }
+
+        // Delete the scratch resources. This must be done as a separate pass
+        // to avoid messing up the sorted order of the queue
+        for (int i = 0; i < scratchResources.count(); i++) {
+            scratchResources.getAt(i)->cacheAccess().release();
+        }
+        stillOverbudget = tmpByteBudget < fBytes;
+
+        this->validate();
+    }
+
+    // Purge any remaining resources in LRU order
+    if (stillOverbudget) {
+        const size_t cachedByteCount = fMaxBytes;
+        fMaxBytes = tmpByteBudget;
+        this->purgeAsNeeded();
+        fMaxBytes = cachedByteCount;
+    }
+}
+
 void GrResourceCache::processInvalidUniqueKeys(
     const SkTArray<GrUniqueKeyInvalidatedMessage>& msgs) {
     for (int i = 0; i < msgs.count(); ++i) {

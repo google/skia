@@ -204,6 +204,11 @@ void GrContext::purgeResourcesNotUsedInMs(std::chrono::milliseconds ms) {
     fResourceCache->purgeResourcesNotUsedSince(GrStdSteadyClock::now() - ms);
 }
 
+void GrContext::purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources) {
+    ASSERT_SINGLE_OWNER
+    fResourceCache->purgeUnlockedResources(bytesToPurge, preferScratchResources);
+}
+
 void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const {
     ASSERT_SINGLE_OWNER
 
