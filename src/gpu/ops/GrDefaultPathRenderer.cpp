@@ -249,7 +249,7 @@ private:
 
         GrMesh mesh(primitiveType);
         if (!isIndexed) {
-            mesh.setNonIndexed(vertexOffset);
+            mesh.setNonIndexedNonInstanced(vertexOffset);
         } else {
             mesh.setIndexed(indexBuffer, indexOffset, firstIndex, 0, vertexOffset - 1);
         }
