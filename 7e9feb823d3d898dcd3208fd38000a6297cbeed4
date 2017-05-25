@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb2e2ece_c619453a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 868,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-25T15:25:04Z",
+      "side": 1,
+      "message": "It seems like we\u0027re seeing this on 6xx, 7xx, and 8xx, but not 4xx. Given how slow Mali 400 already is, maybe we should use GrGLRenderer (which would require some new enum values).",
+      "revId": "7e9feb823d3d898dcd3208fd38000a6297cbeed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
