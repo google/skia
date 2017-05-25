@@ -70,10 +70,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
-    /**************************************************************************
-     * Caps specific to GrGLCaps
-     **************************************************************************/
-
     if (kGLES_GrGLStandard == standard) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS,
                           &fMaxFragmentUniformVectors);
@@ -359,10 +355,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                                                         shaderCaps->fMaxFragmentImageStorages);
     }
 
-    /**************************************************************************
-     * GrCaps fields
-     **************************************************************************/
-
     // SGX and Mali GPUs that are based on a tiled-deferred architecture that have trouble with
     // frequently changing VBOs. We've measured a performance increase using non-VBO vertex
     // data for dynamic content on these GPUs. Perhaps we should read the renderer string and
@@ -380,6 +372,32 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         this->initFSAASupport(contextOptions, ctxInfo, gli);
         this->initStencilSupport(ctxInfo);
     }
+
+    // Setup blit framebuffer
+    if (kGL_GrGLStandard != ctxInfo.standard()) {
+        if (ctxInfo.version() >= GR_GL_VER(3, 0)) {
+            fBlitFramebufferFlags = kNoFormatConversionForMSAASrc_BlitFramebufferFlag |
+                                    kNoMSAADst_BlitFramebufferFlag |
+                                    kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
+        } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample") ||
+                   ctxInfo.hasExtension("GL_ANGLE_framebuffer_blit")) {
+            // The CHROMIUM extension uses the ANGLE version of glBlitFramebuffer and includes its
+            // limitations.
+            fBlitFramebufferFlags = kNoScalingOrMirroring_BlitFramebufferFlag |
+                                    kResolveMustBeFull_BlitFrambufferFlag |
+                                    kNoMSAADst_BlitFramebufferFlag |
+                                    kNoFormatConversion_BlitFramebufferFlag |
+                                    kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
+        }
+    } else {
+        if (fUsesMixedSamples ||
+            ctxInfo.version() >= GR_GL_VER(3,0) ||
+            ctxInfo.hasExtension("GL_ARB_framebuffer_object") ||
+            ctxInfo.hasExtension("GL_EXT_framebuffer_blit")) {
+            fBlitFramebufferFlags = 0;
+        }
+    }
+
     this->initBlendEqationSupport(ctxInfo);
 
     if (kGL_GrGLStandard == standard) {
@@ -1011,35 +1029,15 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
         } else if (ctxInfo.hasExtension("GL_APPLE_framebuffer_multisample")) {
             fMSFBOType = kES_Apple_MSFBOType;
         }
-
-        // Above determined the preferred MSAA approach, now decide whether glBlitFramebuffer
-        // is available.
-        if (ctxInfo.version() >= GR_GL_VER(3, 0)) {
-            fBlitFramebufferFlags = kNoFormatConversionForMSAASrc_BlitFramebufferFlag |
-                                    kNoMSAADst_BlitFramebufferFlag |
-                                    kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
-        } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample") ||
-                   ctxInfo.hasExtension("GL_ANGLE_framebuffer_blit")) {
-            // The CHROMIUM extension uses the ANGLE version of glBlitFramebuffer and includes its
-            // limitations.
-            fBlitFramebufferFlags = kNoScalingOrMirroring_BlitFramebufferFlag |
-                                    kResolveMustBeFull_BlitFrambufferFlag |
-                                    kNoMSAADst_BlitFramebufferFlag |
-                                    kNoFormatConversion_BlitFramebufferFlag |
-                                    kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
-        }
     } else {
         if (fUsesMixedSamples) {
             fMSFBOType = kMixedSamples_MSFBOType;
-            fBlitFramebufferFlags = 0;
         } else if (ctxInfo.version() >= GR_GL_VER(3,0) ||
                    ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
             fMSFBOType = kStandard_MSFBOType;
-            fBlitFramebufferFlags = 0;
         } else if (ctxInfo.hasExtension("GL_EXT_framebuffer_multisample") &&
                    ctxInfo.hasExtension("GL_EXT_framebuffer_blit")) {
             fMSFBOType = kEXT_MSFBOType;
-            fBlitFramebufferFlags = 0;
         }
     }
 
