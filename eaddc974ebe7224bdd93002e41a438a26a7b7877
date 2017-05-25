@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3100b7cc_ce492039",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-25T20:40:41Z",
+      "side": 1,
+      "message": "What is the invariant for relating fDrawIndexes and fDrawCnt? Who unlocks this mutex when the work is done? Can you make this be a scoped execution by passing in a function?\n\nThis design ping-pongs cachelines between all the processors.",
+      "range": {
+        "startLine": 36,
+        "startChar": 9,
+        "endLine": 36,
+        "endChar": 20
+      },
+      "revId": "eaddc974ebe7224bdd93002e41a438a26a7b7877",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d12812cd_3fea2e7e",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-25T20:40:41Z",
+      "side": 1,
+      "message": "Can\u0027t this be SkTArray\u003cstd::mutex\u003e?",
+      "range": {
+        "startLine": 65,
+        "startChar": 13,
+        "endLine": 65,
+        "endChar": 17
+      },
+      "revId": "eaddc974ebe7224bdd93002e41a438a26a7b7877",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08f65374_d1b6d362",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-25T20:40:41Z",
+      "side": 1,
+      "message": "Consider making a small class that encapsulates the done idea. This can use relaxed memory semantics because of the spinning. Move fIsFinishing to this class.",
+      "range": {
+        "startLine": 85,
+        "startChar": 16,
+        "endLine": 85,
+        "endChar": 28
+      },
+      "revId": "eaddc974ebe7224bdd93002e41a438a26a7b7877",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a62589e_43a6db5c",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-05-25T20:40:41Z",
+      "side": 1,
+      "message": "Can you make the class an interface with no state or shared implementation.",
+      "range": {
+        "startLine": 18,
+        "startChar": 6,
+        "endLine": 18,
+        "endChar": 24
+      },
+      "revId": "eaddc974ebe7224bdd93002e41a438a26a7b7877",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
