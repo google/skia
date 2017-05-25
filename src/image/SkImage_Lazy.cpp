@@ -262,10 +262,16 @@ struct CacheCaps {
     bool supportsSBGR() const {
         return !fCaps || fCaps->srgbSupport();
     }
+
+    bool supportsSGray() const {
+        return !fCaps ||
+            (fCaps->srgbSupport() && fCaps->isConfigTexturable(kSGray_8_GrPixelConfig));
+    }
 #else
     bool supportsHalfFloat() const { return true; }
     bool supportsSRGB() const { return true; }
     bool supportsSBGR() const { return true; }
+    bool supportsSGray() const { return true; }
 #endif
 
     const GrCaps* fCaps;
@@ -294,11 +300,17 @@ SkImageCacherator::CachedFormat SkImage_Lazy::chooseCacheFormat(SkColorSpace* ds
 
         case kGray_8_SkColorType:
             // TODO: What do we do with grayscale sources that have strange color spaces attached?
-            // The codecs and color space xform don't handle this correctly (yet), so drop it on
-            // the floor. (Also, inflating by a factor of 8 is going to be unfortunate).
-            // As it is, we don't directly support sRGB grayscale, so ask the codec to convert
-            // it for us. This bypasses some really sketchy code GrUploadPixmapToTexture.
-            if (cs->gammaCloseToSRGB() && caps.supportsSRGB()) {
+            // The codecs and color space xform don't handle this (yet). Specifically, we can only
+            // ask for the original color space (exactly), or to decode to 4-channel.
+            //
+            // For complex transfer functions, I don't want to inflate by a factor of 8 (to get
+            // F16x4), and we don't (yet) have a single-channel F16 format (which would be ideal).
+            // Therefore, we always prefer single-channel sRGB encoded gray, then sRGB 8888. If we
+            // ever expand our set of supported color types and texture formats, we could make
+            // better decisions for sRGB vs. other transfer functions.
+            if (cs->gammaCloseToSRGB() && caps.supportsSGray()) {
+                return kSGray_CachedFormat;
+            } else if (!cs->gammaIsLinear() && caps.supportsSRGB()) {
                 return kSRGB8888_CachedFormat;
             } else {
                 return kLegacy_CachedFormat;
@@ -373,9 +385,18 @@ SkImageInfo SkImage_Lazy::buildCacheInfo(CachedFormat format) const {
     switch (format) {
         case kLegacy_CachedFormat:
             return fInfo.makeColorSpace(nullptr);
+        // This also means kSGray_CachedFormat. See the definition of the enum.
         case kLinearF16_CachedFormat:
-            return fInfo.makeColorType(kRGBA_F16_SkColorType)
-                        .makeColorSpace(as_CSB(fInfo.colorSpace())->makeLinearGamma());
+            if (kGray_8_SkColorType == fInfo.colorType()) {
+                // Similar to note below about sRGB transfer functions, except that in this case,
+                // the codec *requires* that we pass in the original color space. So just verify
+                // that we're doing things correctly.
+                SkASSERT(fInfo.colorSpace()->gammaCloseToSRGB());
+                return fInfo;
+            } else {
+                return fInfo.makeColorType(kRGBA_F16_SkColorType)
+                            .makeColorSpace(as_CSB(fInfo.colorSpace())->makeLinearGamma());
+            }
         case kSRGB8888_CachedFormat:
             // If the transfer function is nearly (but not exactly) sRGB, we don't want the codec
             // to bother trans-coding. It would be slow, and do more harm than good visually,
