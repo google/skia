@@ -20,9 +20,6 @@
 #include "SkUtils.h"
 #include "SkXfermodeInterpretation.h"
 
-// define this for testing srgb blits
-//#define SK_FORCE_PM4f_FOR_L32_BLITS
-
 SkBlitter::~SkBlitter() {}
 
 bool SkBlitter::isNullBlitter() const { return false; }
@@ -774,13 +771,9 @@ private:
 #include "SkCoreBlitters.h"
 
 SkShaderBase::ContextRec::DstType SkBlitter::PreferredShaderDest(const SkImageInfo& dstInfo) {
-#ifdef SK_FORCE_PM4f_FOR_L32_BLITS
-    return SkShader::ContextRec::kPM4f_DstType;
-#else
     return (dstInfo.gammaCloseToSRGB() || dstInfo.colorType() == kRGBA_F16_SkColorType)
             ? SkShaderBase::ContextRec::kPM4f_DstType
             : SkShaderBase::ContextRec::kPMColor_DstType;
-#endif
 }
 
 bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& paint) {
@@ -928,29 +921,23 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
             break;
 
         case kN32_SkColorType:
-#ifdef SK_FORCE_PM4f_FOR_L32_BLITS
-            if (true)
-#else
-            if (device.info().gammaCloseToSRGB())
-#endif
-            {
-                blitter = SkBlitter_ARGB32_Create(device, *paint, shaderContext, alloc);
+            // sRGB and general color spaces are handled via raster pipeline.
+            SkASSERT(!device.colorSpace());
+
+            if (shader) {
+                blitter = alloc->make<SkARGB32_Shader_Blitter>(device, *paint, shaderContext);
+            } else if (paint->getColor() == SK_ColorBLACK) {
+                blitter = alloc->make<SkARGB32_Black_Blitter>(device, *paint);
+            } else if (paint->getAlpha() == 0xFF) {
+                blitter = alloc->make<SkARGB32_Opaque_Blitter>(device, *paint);
             } else {
-                if (shader) {
-                        blitter = alloc->make<SkARGB32_Shader_Blitter>(
-                                device, *paint, shaderContext);
-                } else if (paint->getColor() == SK_ColorBLACK) {
-                    blitter = alloc->make<SkARGB32_Black_Blitter>(device, *paint);
-                } else if (paint->getAlpha() == 0xFF) {
-                    blitter = alloc->make<SkARGB32_Opaque_Blitter>(device, *paint);
-                } else {
-                    blitter = alloc->make<SkARGB32_Blitter>(device, *paint);
-                }
+                blitter = alloc->make<SkARGB32_Blitter>(device, *paint);
             }
             break;
 
         case kRGBA_F16_SkColorType:
-            blitter = SkBlitter_F16_Create(device, *paint, shaderContext, alloc);
+            // F16 is handled via raster pipeline.
+            SkASSERT(false);
             break;
 
         default:
