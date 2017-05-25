@@ -411,10 +411,13 @@ private:
             SkASSERT(lineVertexStride == lineGP->getVertexStride());
 
             GrMesh lineMeshes(primitiveType);
-            if (fIsIndexed) {
-                lineMeshes.setIndexed(lineIndexBuffer, lineIndexOffset, firstLineIndex);
+            if (!fIsIndexed) {
+                lineMeshes.setNonIndexed(lineVertexOffset);
+            } else {
+                lineMeshes.setIndexed(lineIndexBuffer, lineIndexOffset, firstLineIndex,
+                                      0, lineVertexOffset - 1);
             }
-            lineMeshes.setVertices(lineVertexBuffer, lineVertexOffset, firstLineVertex);
+            lineMeshes.setVertexData(lineVertexBuffer, firstLineVertex);
 
             // We can get line vertices from path moveTos with no actual segments and thus no index
             // count. We assert that indexed draws contain a positive index count, so bail here in
@@ -435,16 +438,19 @@ private:
                                             &firstQuadVertex);
             memcpy(quadVertices, quads.vertices, quadVertexStride * quadVertexOffset);
             GrMesh quadMeshes(kTriangles_GrPrimitiveType);
-            if (fIsIndexed) {
+            if (!fIsIndexed) {
+                quadMeshes.setNonIndexed(quadVertexOffset);
+            } else {
                 const GrBuffer* quadIndexBuffer;
                 int firstQuadIndex;
                 uint16_t* quadIndices = (uint16_t*) target->makeIndexSpace(quadIndexOffset,
                                                                            &quadIndexBuffer,
                                                                            &firstQuadIndex);
                 memcpy(quadIndices, quads.indices, sizeof(uint16_t) * quadIndexOffset);
-                quadMeshes.setIndexed(quadIndexBuffer, quadIndexOffset, firstQuadIndex);
+                quadMeshes.setIndexed(quadIndexBuffer, quadIndexOffset, firstQuadIndex,
+                                      0, quadVertexOffset - 1);
             }
-            quadMeshes.setVertices(quadVertexBuffer, quadVertexOffset, firstQuadVertex);
+            quadMeshes.setVertexData(quadVertexBuffer, firstQuadVertex);
             target->draw(quadGP.get(), this->pipeline(), quadMeshes);
         }
     }

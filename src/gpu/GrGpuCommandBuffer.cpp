@@ -42,7 +42,7 @@ bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
                               const SkRect& bounds) {
 #ifdef SK_DEBUG
     for (int i = 0; i < meshCount; ++i) {
-        SkASSERT(SkToBool(primProc.numAttribs()) == SkToBool(meshes[i].vertexBuffer()));
+        SkASSERT(SkToBool(primProc.numAttribs()) == meshes[i].hasVertexData());
     }
 #endif
 
