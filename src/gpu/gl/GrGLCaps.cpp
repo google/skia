@@ -513,7 +513,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (kChromium_GrGLDriver == ctxInfo.driver()) {
         fMustClearUploadedBufferData = true;
-        fMustClearAtlases = true;
     }
 
     if (kGL_GrGLStandard == standard) {
