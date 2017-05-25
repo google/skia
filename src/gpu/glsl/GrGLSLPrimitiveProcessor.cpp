@@ -9,6 +9,7 @@
 
 #include "GrCoordTransform.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
 
@@ -46,6 +47,9 @@ void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLPPFragmentBuilder* fragBu
                                                "Color",
                                                &stagedLocalVarName);
     fragBuilder->codeAppendf("%s = %s;", outputName, stagedLocalVarName);
+    if (fragBuilder->getProgramBuilder()->shaderCaps()->mustObfuscateUniformColor()) {
+        fragBuilder->codeAppendf("%s = max(%s, vec4(0, 0, 0, 0));", outputName, outputName);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -876,6 +876,16 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
     // term plan for this WAR is for it to eventually be baked into SkSL.
     shaderCaps->fMustImplementGSInvocationsWithLoop = true;
 #endif
+
+    // Newer Mali GPUs do incorrect static analysis in specific situations: If there is uniform
+    // color, and that uniform contains an opaque color, and the output of the shader is only based
+    // on that uniform plus soemthing un-trackable (like a texture read), the compiler will deduce
+    // that the shader always outputs opaque values. In that case, it appears to remove the shader
+    // based blending code it normally injects, turning SrcOver into Src. To fix this, we always
+    // insert an extra bit of math on the uniform that confuses the compiler just enough...
+    if (kMaliT_GrGLRenderer == ctxInfo.renderer()) {
+        shaderCaps->fMustObfuscateUniformColor = true;
+    }
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
