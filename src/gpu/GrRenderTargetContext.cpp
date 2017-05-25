@@ -839,11 +839,8 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
                                          GrPrimitiveType primitiveType,
                                          int vertexCount,
                                          const SkPoint positions[],
-                                         const SkPoint texCoords[],
-                                         const uint32_t colors[],
                                          const uint16_t indices[],
-                                         int indexCount,
-                                         ColorArrayType colorArrayType) {
+                                         int indexCount) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -860,7 +857,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
 
     std::unique_ptr<GrLegacyMeshDrawOp> op = GrDrawVerticesOp::Make(
             paint.getColor(), primitiveType, viewMatrix, positions, vertexCount, indices,
-            indexCount, colors, texCoords, bounds, colorArrayType);
+            indexCount, bounds);
     if (!op) {
         return;
     }

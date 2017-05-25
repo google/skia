@@ -201,10 +201,6 @@ public:
                   const SkPath&,
                   const GrStyle& style);
 
-    enum class ColorArrayType {
-        kPremulGrColor,
-        kSkColor,
-    };
     /**
      * Draws vertices with a paint.
      *
@@ -213,10 +209,6 @@ public:
      * @param   primitiveType   primitives type to draw.
      * @param   vertexCount     number of vertices.
      * @param   positions       array of vertex positions, required.
-     * @param   texCoords       optional array of texture coordinates used
-     *                          to access the paint.
-     * @param   colors          optional array of per-vertex colors, supercedes
-     *                          the paint's color field.
      * @param   indices         optional array of indices. If NULL vertices
      *                          are drawn non-indexed.
      * @param   indexCount      if indices is non-null then this is the
@@ -229,11 +221,8 @@ public:
                       GrPrimitiveType primitiveType,
                       int vertexCount,
                       const SkPoint positions[],
-                      const SkPoint texs[],
-                      const uint32_t colors[],
                       const uint16_t indices[],
-                      int indexCount,
-                      ColorArrayType = ColorArrayType::kPremulGrColor);
+                      int indexCount);
 
     /**
      * Draws vertices with a paint.
