@@ -488,13 +488,27 @@
     }
 
     SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
-        // Load slightly weirdly to make sure we don't load past the end of 4x48 bits.
-        auto _01 =                _mm_loadu_si128((const __m128i*)(ptr + 0))    ,
-             _23 = _mm_srli_si128(_mm_loadu_si128((const __m128i*)(ptr + 4)), 4);
+        __m128i _0, _1, _2, _3;
+        if (__builtin_expect(tail,0)) {
+            _1 = _2 = _3 = _mm_setzero_si128();
+            auto load_rgb = [](const uint16_t* src) {
+                auto v = _mm_cvtsi32_si128(*(const uint32_t*)src);
+                return _mm_insert_epi16(v, src[2], 2);
+            };
+            if (  true  ) { _0 = load_rgb(ptr + 0); }
+            if (tail > 1) { _1 = load_rgb(ptr + 3); }
+            if (tail > 2) { _2 = load_rgb(ptr + 6); }
+        } else {
+            // Load slightly weirdly to make sure we don't load past the end of 4x48 bits.
+            auto _01 =                _mm_loadu_si128((const __m128i*)(ptr + 0))    ,
+                 _23 = _mm_srli_si128(_mm_loadu_si128((const __m128i*)(ptr + 4)), 4);
 
-        // Each _N holds R,G,B for pixel N in its lower 3 lanes (upper 5 are ignored).
-        auto _0 = _01, _1 = _mm_srli_si128(_01, 6),
-             _2 = _23, _3 = _mm_srli_si128(_23, 6);
+            // Each _N holds R,G,B for pixel N in its lower 3 lanes (upper 5 are ignored).
+            _0 = _01;
+            _1 = _mm_srli_si128(_01, 6);
+            _2 = _23;
+            _3 = _mm_srli_si128(_23, 6);
+        }
 
         // De-interlace to R,G,B.
         auto _02 = _mm_unpacklo_epi16(_0, _2),  // r0 r2 g0 g2 b0 b2 xx xx
@@ -508,9 +522,19 @@
         *g = unaligned_load<U16>(&G);
         *b = unaligned_load<U16>(&B);
     }
+
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
-        auto _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
-             _23 = _mm_loadu_si128(((__m128i*)ptr) + 1);
+        __m128i _01, _23;
+        if (__builtin_expect(tail,0)) {
+            _01 = _23 = _mm_setzero_si128();
+            auto src = (const double*)ptr;
+            if (  true  ) { _01 = _mm_loadl_pd(_01, src + 0); } // r0 g0 b0 a0 00 00 00 00
+            if (tail > 1) { _01 = _mm_loadh_pd(_01, src + 1); } // r0 g0 b0 a0 r1 g1 b1 a1
+            if (tail > 2) { _23 = _mm_loadl_pd(_23, src + 2); } // r2 g2 b2 a2 00 00 00 00
+        } else {
+            _01 = _mm_loadu_si128(((__m128i*)ptr) + 0); // r0 g0 b0 a0 r1 g1 b1 a1
+            _23 = _mm_loadu_si128(((__m128i*)ptr) + 1); // r2 g2 b2 a2 r3 g3 b3 a3
+        }
 
         auto _02 = _mm_unpacklo_epi16(_01, _23),  // r0 r2 g0 g2 b0 b2 a0 a2
              _13 = _mm_unpackhi_epi16(_01, _23);  // r1 r3 g1 g3 b1 b3 a1 a3
@@ -523,30 +547,54 @@
         *b = unaligned_load<U16>((uint16_t*)&ba + 0);
         *a = unaligned_load<U16>((uint16_t*)&ba + 4);
     }
+
     SI void store4(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
         auto rg = _mm_unpacklo_epi16(widen_cast<__m128i>(r), widen_cast<__m128i>(g)),
              ba = _mm_unpacklo_epi16(widen_cast<__m128i>(b), widen_cast<__m128i>(a));
-        _mm_storeu_si128((__m128i*)ptr + 0, _mm_unpacklo_epi32(rg, ba));
-        _mm_storeu_si128((__m128i*)ptr + 1, _mm_unpackhi_epi32(rg, ba));
+
+        if (__builtin_expect(tail, 0)) {
+            auto dst = (double*)ptr;
+            if (  true  ) { _mm_storel_pd(dst + 0, _mm_unpacklo_epi32(rg, ba)); }
+            if (tail > 1) { _mm_storeh_pd(dst + 1, _mm_unpacklo_epi32(rg, ba)); }
+            if (tail > 2) { _mm_storel_pd(dst + 2, _mm_unpackhi_epi32(rg, ba)); }
+        } else {
+            _mm_storeu_si128((__m128i*)ptr + 0, _mm_unpacklo_epi32(rg, ba));
+            _mm_storeu_si128((__m128i*)ptr + 1, _mm_unpackhi_epi32(rg, ba));
+        }
     }
 
     SI void load4(const float* ptr, size_t tail, F* r, F* g, F* b, F* a) {
-        auto _0 = _mm_loadu_ps(ptr+ 0),
-             _1 = _mm_loadu_ps(ptr+ 4),
-             _2 = _mm_loadu_ps(ptr+ 8),
-             _3 = _mm_loadu_ps(ptr+12);
+        F _0, _1, _2, _3;
+        if (__builtin_expect(tail, 0)) {
+            _1 = _2 = _3 = _mm_setzero_si128();
+            if (  true  ) { _0 = _mm_loadu_ps(ptr + 0); }
+            if (tail > 1) { _1 = _mm_loadu_ps(ptr + 4); }
+            if (tail > 2) { _2 = _mm_loadu_ps(ptr + 8); }
+        } else {
+            _0 = _mm_loadu_ps(ptr + 0);
+            _1 = _mm_loadu_ps(ptr + 4);
+            _2 = _mm_loadu_ps(ptr + 8);
+            _3 = _mm_loadu_ps(ptr +12);
+        }
         _MM_TRANSPOSE4_PS(_0,_1,_2,_3);
         *r = _0;
         *g = _1;
         *b = _2;
         *a = _3;
     }
+
     SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
         _MM_TRANSPOSE4_PS(r,g,b,a);
-        _mm_storeu_ps(ptr+ 0, r);
-        _mm_storeu_ps(ptr+ 4, g);
-        _mm_storeu_ps(ptr+ 8, b);
-        _mm_storeu_ps(ptr+12, a);
+        if (__builtin_expect(tail, 0)) {
+            if (  true  ) { _mm_storeu_ps(ptr + 0, r); }
+            if (tail > 1) { _mm_storeu_ps(ptr + 4, g); }
+            if (tail > 2) { _mm_storeu_ps(ptr + 8, b); }
+        } else {
+            _mm_storeu_ps(ptr + 0, r);
+            _mm_storeu_ps(ptr + 4, g);
+            _mm_storeu_ps(ptr + 8, b);
+            _mm_storeu_ps(ptr +12, a);
+        }
     }
 #endif
 

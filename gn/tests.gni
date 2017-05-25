@@ -19,7 +19,6 @@ tests_sources = [
   "$_tests/BitSetTest.cpp",
   "$_tests/BlendTest.cpp",
   "$_tests/BlitMaskClip.cpp",
-  "$_tests/BlitRowTest.cpp",
   "$_tests/BlurTest.cpp",
   "$_tests/CachedDataTest.cpp",
   "$_tests/CachedDecodingPixelRefTest.cpp",
