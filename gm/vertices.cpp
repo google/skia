@@ -246,7 +246,20 @@ static void draw_batching(SkCanvas* canvas) {
 
 // This test exists to exercise batching in the gpu backend.
 DEF_SIMPLE_GM(vertices_batching, canvas, 100, 500) {
-    draw_batching(canvas);
-    canvas->translate(50, 0);
-    draw_batching(canvas);
+    SkPoint pts[] = { { 0, 0 }, { 50, 0 }, { 25, 40 } };
+    auto v1 = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, 3, pts, pts, nullptr);
+    auto v2 = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, 3, pts, pts, nullptr);
+
+    SkPaint paint;
+
+    canvas->translate(20, 20);
+    paint.setColor(SK_ColorRED);
+    canvas->drawVertices(std::move(v1), SkBlendMode::kModulate, paint);
+
+    static bool drawGreenVerts = true;
+    canvas->translate(70, 0);
+    paint.setColor(SK_ColorGREEN);
+    if (drawGreenVerts) {
+        canvas->drawVertices(std::move(v2), SkBlendMode::kModulate, paint);
+    }
 }
