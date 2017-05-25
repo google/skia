@@ -150,7 +150,56 @@ void random_test(skiatest::Reporter* reporter) {
    }
 }
 
+void sort_test(skiatest::Reporter* reporter) {
+    SkRandom random;
+
+    SkTDPQueue<Dummy *, Dummy::LessP, Dummy::PQIndex> pqTest;
+    SkTDPQueue<Dummy *, Dummy::LessP, Dummy::PQIndex> pqControl;
+
+    // Create a random set of Dummy objects and populate the test queue.
+    int count = random.nextULessThan(100);
+    SkTDArray<Dummy> testArray;
+    testArray.setReserve(count);
+    for (int i = 0; i < count; i++) {
+        Dummy *dummy = testArray.append();
+        dummy->fPriority = random.nextS();
+        dummy->fValue = random.nextS();
+        dummy->fIndex = -1;
+        pqTest.insert(&testArray[i]);
+    }
+
+    // Stick equivalent dummy objects into the control queue.
+    SkTDArray<Dummy> controlArray;
+    controlArray.setReserve(count);
+    for (int i = 0; i < count; i++) {
+        Dummy *dummy = controlArray.append();
+        dummy->fPriority = testArray[i].fPriority;
+        dummy->fValue = testArray[i].fValue;
+        dummy->fIndex = -1;
+        pqControl.insert(&controlArray[i]);
+    }
+
+    // Sort the queue
+    pqTest.sort();
+
+    // Compare elements in the queue to ensure they are in sorted order
+    int prevPriority = pqTest.peek()->fPriority;
+    for (int i = 0; i < count; i++) {
+        REPORTER_ASSERT(reporter, i <= pqTest.at(i)->fIndex);
+        REPORTER_ASSERT(reporter, prevPriority <= pqTest.at(i)->fPriority);
+        prevPriority = pqTest.at(i)->fPriority;
+    }
+
+    // Verify that after sorting the queue still produces the same result as the control queue
+    for (int i = 0; i < count; i++) {
+        REPORTER_ASSERT(reporter, *pqControl.peek() == *pqTest.peek());
+        pqControl.pop();
+        pqTest.pop();
+    }
+}
+
 DEF_TEST(TDPQueueTest, reporter) {
     simple_test(reporter);
     random_test(reporter);
+    sort_test(reporter);
 }
