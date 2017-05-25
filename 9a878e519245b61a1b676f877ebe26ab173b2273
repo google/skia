@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47b463b5_aa9b7e56",
+        "filename": "src/core/SkTDPQueue.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-25T20:16:39Z",
+      "side": 1,
+      "message": "I think you need to walk the array afterwards and call setIndex() on each element.",
+      "revId": "9a878e519245b61a1b676f877ebe26ab173b2273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f991760_08321e61",
+        "filename": "src/core/SkTDPQueue.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-25T20:16:39Z",
+      "side": 1,
+      "message": "call validate here?",
+      "revId": "9a878e519245b61a1b676f877ebe26ab173b2273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fb95a6b_f6eafdd9",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1369,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-25T20:16:39Z",
+      "side": 1,
+      "message": "nit, we usually use either:\n\nenum Type {\n   kValue1_Type,\n   kValue2_Type,\n   ...\n}\n\nor in more recent code:\n\nenum class Type {\n   kValue1,\n   kValue2,\n   ...\n}\n\nthough you\u0027d probably find \"enum class\" annoying for a loop.",
+      "revId": "9a878e519245b61a1b676f877ebe26ab173b2273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ca2e9cf_abda95ee",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1375,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-25T20:16:39Z",
+      "side": 1,
+      "message": "This either needs to be NONE+1 or your loop needs to use \u003c\u003d rather than \u003c",
+      "revId": "9a878e519245b61a1b676f877ebe26ab173b2273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "101028f5_55ef5c04",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1452,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-25T20:16:39Z",
+      "side": 1,
+      "message": "If at first you don\u0027t succeed break break again.",
+      "range": {
+        "startLine": 1452,
+        "startChar": 16,
+        "endLine": 1452,
+        "endChar": 21
+      },
+      "revId": "9a878e519245b61a1b676f877ebe26ab173b2273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4390c94f_ccbcd887",
+        "filename": "tests/TDPQueueTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-25T20:16:39Z",
+      "side": 1,
+      "message": "Is it worth adding a second queue that doesn\u0027t get sorted and assert that when iterated and popped we get the same sequence?",
+      "revId": "9a878e519245b61a1b676f877ebe26ab173b2273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
