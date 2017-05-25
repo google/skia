@@ -836,42 +836,8 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
 void GrRenderTargetContext::drawVertices(const GrClip& clip,
                                          GrPaint&& paint,
                                          const SkMatrix& viewMatrix,
-                                         GrPrimitiveType primitiveType,
-                                         int vertexCount,
-                                         const SkPoint positions[],
-                                         const SkPoint texCoords[],
-                                         const uint32_t colors[],
-                                         const uint16_t indices[],
-                                         int indexCount,
-                                         ColorArrayType colorArrayType) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawVertices");
-
-    AutoCheckFlush acf(this->drawingManager());
-
-    // TODO clients should give us bounds
-    SkRect bounds;
-    if (!bounds.setBoundsCheck(positions, vertexCount)) {
-        SkDebugf("drawVertices call empty bounds\n");
-        return;
-    }
-
-    std::unique_ptr<GrLegacyMeshDrawOp> op = GrDrawVerticesOp::Make(
-            paint.getColor(), primitiveType, viewMatrix, positions, vertexCount, indices,
-            indexCount, colors, texCoords, bounds, colorArrayType);
-    if (!op) {
-        return;
-    }
-    GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
-}
-
-void GrRenderTargetContext::drawVertices(const GrClip& clip,
-                                         GrPaint&& paint,
-                                         const SkMatrix& viewMatrix,
-                                         sk_sp<SkVertices> vertices) {
+                                         sk_sp<SkVertices> vertices,
+                                         GrPrimitiveType* overridePrimType) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -880,8 +846,9 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     SkASSERT(vertices);
-    std::unique_ptr<GrLegacyMeshDrawOp> op =
-            GrDrawVerticesOp::Make(paint.getColor(), std::move(vertices), viewMatrix);
+    std::unique_ptr<GrLegacyMeshDrawOp> op = GrDrawVerticesOp::Make(paint.getColor(),
+                                                                    std::move(vertices), viewMatrix,
+                                                                    overridePrimType);
     if (!op) {
         return;
     }
