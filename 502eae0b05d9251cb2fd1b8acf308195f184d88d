@@ -22,6 +22,30 @@
       "revId": "502eae0b05d9251cb2fd1b8acf308195f184d88d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6016beca_acca1a25",
+        "filename": "src/core/SkValidatingReadBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-25T19:36:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c2609e0_2f1d6057",
+      "range": {
+        "startLine": 150,
+        "startChar": 8,
+        "endLine": 150,
+        "endChar": 14
+      },
+      "revId": "502eae0b05d9251cb2fd1b8acf308195f184d88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
