@@ -82,7 +82,8 @@ static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrResourc
     int j = 0;
     for (int i = 0; i < numTextureSamplers; ++i, ++j) {
         const GrResourceIOProcessor::TextureSampler& sampler = proc.textureSampler(i);
-        const GrTexture* tex = sampler.texture();
+        const GrTexture* tex = sampler.peekTexture();
+
         k16[j] = sampler_key(tex->texturePriv().samplerType(), tex->config(), sampler.visibility(),
                              caps);
     }

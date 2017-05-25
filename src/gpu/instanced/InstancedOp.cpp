@@ -229,6 +229,7 @@ void InstancedOp::onExecute(GrOpFlushState* state) {
     GrPipeline::InitArgs args;
     args.fAppliedClip = state->drawOpArgs().fAppliedClip;
     args.fCaps = &state->caps();
+    args.fResourceProvider = state->resourceProvider();
     args.fProcessors = &fProcessors;
     args.fFlags = GrAATypeIsHW(fInfo.aaType()) ? GrPipeline::kHWAntialias_Flag : 0;
     if (fAllowsSRGBInputs) {
