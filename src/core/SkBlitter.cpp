@@ -797,6 +797,8 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
         return true;
     }
 
+    return true;
+
     return device.colorType() != kN32_SkColorType;
 #endif
 }
