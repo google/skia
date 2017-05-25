@@ -861,9 +861,9 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
         }
 
         GrMesh mesh(kTriangles_GrPrimitiveType);
-        mesh.setIndexedPatterned(linesIndexBuffer.get(), kIdxsPerLineSeg,
+        mesh.setIndexedPatterned(linesIndexBuffer.get(), kIdxsPerLineSeg, kLineSegNumVertices,
                                  lineCount, kLineSegsNumInIdxBuffer);
-        mesh.setVertices(vertexBuffer, kLineSegNumVertices, firstVertex);
+        mesh.setVertexData(vertexBuffer, firstVertex);
         target->draw(lineGP.get(), this->pipeline(), mesh);
     }
 
@@ -918,18 +918,18 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
 
         if (quadCount > 0) {
             GrMesh mesh(kTriangles_GrPrimitiveType);
-            mesh.setIndexedPatterned(quadsIndexBuffer.get(), kIdxsPerQuad, quadCount,
-                                     kQuadsNumInIdxBuffer);
-            mesh.setVertices(vertexBuffer, kQuadNumVertices, firstVertex);
+            mesh.setIndexedPatterned(quadsIndexBuffer.get(), kIdxsPerQuad, kQuadNumVertices,
+                                     quadCount, kQuadsNumInIdxBuffer);
+            mesh.setVertexData(vertexBuffer, firstVertex);
             target->draw(quadGP.get(), this->pipeline(), mesh);
             firstVertex += quadCount * kQuadNumVertices;
         }
 
         if (conicCount > 0) {
             GrMesh mesh(kTriangles_GrPrimitiveType);
-            mesh.setIndexedPatterned(quadsIndexBuffer.get(), kIdxsPerQuad, conicCount,
-                                     kQuadsNumInIdxBuffer);
-            mesh.setVertices(vertexBuffer, kQuadNumVertices, firstVertex);
+            mesh.setIndexedPatterned(quadsIndexBuffer.get(), kIdxsPerQuad, kQuadNumVertices,
+                                     conicCount, kQuadsNumInIdxBuffer);
+            mesh.setVertexData(vertexBuffer, firstVertex);
             target->draw(conicGP.get(), this->pipeline(), mesh);
         }
     }
