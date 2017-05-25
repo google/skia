@@ -150,7 +150,39 @@ void random_test(skiatest::Reporter* reporter) {
    }
 }
 
+void sort_test(skiatest::Reporter* reporter) {
+    SkRandom random;
+
+    // Create a random set of Dummy objects.
+    int count = random.nextULessThan(100);
+    SkTDArray<Dummy> array;
+    array.setReserve(count);
+    for (int i = 0; i < count; i++) {
+        Dummy *dummy = array.append();
+        dummy->fPriority = random.nextS();
+        dummy->fValue = random.nextS();
+        dummy->fIndex = -1;
+    }
+
+    // Stick the dummy objects in the pqueue.
+    SkTDPQueue<Dummy *, Dummy::LessP, Dummy::PQIndex> pq;
+    for (int i = 0; i < count; i++) {
+        pq.insert(&array[i]);
+    }
+
+    // Sort the queue
+    pq.sort();
+
+    // Compare elements in the queue to ensure they are in sorted order
+    int prevPriority = pq.peek()->fPriority;
+    for (int i = 0; i < count; i++) {
+        REPORTER_ASSERT(reporter, prevPriority <= pq.at(i)->fPriority);
+        prevPriority = pq.at(i)->fPriority;
+    }
+}
+
 DEF_TEST(TDPQueueTest, reporter) {
     simple_test(reporter);
     random_test(reporter);
+    sort_test(reporter);
 }
