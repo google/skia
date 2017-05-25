@@ -396,8 +396,6 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
                                        SkToS32(count),
                                        (SkPoint*)pts,
                                        nullptr,
-                                       nullptr,
-                                       nullptr,
                                        0);
 }
 
@@ -1631,8 +1629,6 @@ void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCoun
                                        kLines_GrPrimitiveType,
                                        vertexCount,
                                        vertices,
-                                       nullptr,
-                                       nullptr,
                                        lineIndices.get(),
                                        indexCount);
 }
