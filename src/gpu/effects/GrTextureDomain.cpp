@@ -309,7 +309,7 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
                        const GrFragmentProcessor& fp) override {
             const GrTextureDomainEffect& tde = fp.cast<GrTextureDomainEffect>();
             const GrTextureDomain& domain = tde.fTextureDomain;
-            fGLDomain.setData(pdman, domain, tde.textureSampler(0).texture());
+            fGLDomain.setData(pdman, domain, tde.textureSampler(0).texture2());
             if (SkToBool(tde.colorSpaceXform())) {
                 fColorSpaceHelper.setData(pdman, tde.colorSpaceXform());
             }
@@ -412,7 +412,7 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
                        const GrFragmentProcessor& fp) override {
             const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
                     fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
-            GrTexture* texture = dstdfp.textureSampler(0).texture();
+            GrTexture* texture = dstdfp.textureSampler(0).texture2();
             fGLDomain.setData(pdman, dstdfp.fTextureDomain, texture);
             float iw = 1.f / texture->width();
             float ih = 1.f / texture->height();
@@ -438,7 +438,7 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
 bool GrDeviceSpaceTextureDecalFragmentProcessor::onIsEqual(const GrFragmentProcessor& fp) const {
     const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
             fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
-    return dstdfp.fTextureSampler.texture() == fTextureSampler.texture() &&
+    return //dstdfp.fTextureSampler.texture() == fTextureSampler.texture() &&
            dstdfp.fDeviceSpaceOffset == fDeviceSpaceOffset &&
            dstdfp.fTextureDomain == fTextureDomain;
 }

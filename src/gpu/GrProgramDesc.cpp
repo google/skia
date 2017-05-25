@@ -82,9 +82,9 @@ static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrResourc
     int j = 0;
     for (int i = 0; i < numTextureSamplers; ++i, ++j) {
         const GrResourceIOProcessor::TextureSampler& sampler = proc.textureSampler(i);
-        const GrTexture* tex = sampler.texture();
-        k16[j] = sampler_key(tex->texturePriv().samplerType(), tex->config(), sampler.visibility(),
-                             caps);
+        const GrTextureProxy* proxy = sampler.proxy();
+//        k16[j] = sampler_key(proxy->texturePriv().samplerType(), proxy->config(), sampler.visibility(),
+//                             caps);
     }
     for (int i = 0; i < numBuffers; ++i, ++j) {
         const GrResourceIOProcessor::BufferAccess& access = proc.bufferAccess(i);
@@ -197,11 +197,13 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
 
     const GrXferProcessor& xp = pipeline.getXferProcessor();
     const GrSurfaceOrigin* originIfDstTexture = nullptr;
+#if 0
     GrSurfaceOrigin origin;
     if (pipeline.dstTexture()) {
         origin = pipeline.dstTexture()->origin();
         originIfDstTexture = &origin;
     }
+#endif
     xp.getGLSLProcessorKey(shaderCaps, &b, originIfDstTexture);
     if (!gen_meta_key(xp, shaderCaps, &b)) {
         desc->key().reset();
