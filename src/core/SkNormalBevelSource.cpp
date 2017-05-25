@@ -241,7 +241,7 @@ private:
 };
 
 sk_sp<GrFragmentProcessor> SkNormalBevelSourceImpl::asFragmentProcessor(
-        const SkShader::AsFPArgs& args) const {
+        const SkShaderBase::AsFPArgs& args) const {
 
     // This assumes a uniform scale. Anisotropic scaling might not be handled gracefully.
     SkScalar maxScale = args.fViewMatrix->getMaxScale();
@@ -258,7 +258,7 @@ SkNormalBevelSourceImpl::Provider::Provider() {}
 
 SkNormalBevelSourceImpl::Provider::~Provider() {}
 
-SkNormalSource::Provider* SkNormalBevelSourceImpl::asProvider(const SkShader::ContextRec &rec,
+SkNormalSource::Provider* SkNormalBevelSourceImpl::asProvider(const SkShaderBase::ContextRec &rec,
                                                               SkArenaAlloc* alloc) const {
     return alloc->make<Provider>();
 }

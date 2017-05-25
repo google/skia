@@ -8,7 +8,7 @@
 #ifndef SkPictureShader_DEFINED
 #define SkPictureShader_DEFINED
 
-#include "SkShader.h"
+#include "SkShaderBase.h"
 
 class SkArenaAlloc;
 class SkBitmap;
@@ -20,7 +20,7 @@ class SkPicture;
  * The SkPicture is first rendered into a tile, which is then used to shade the area according
  * to specified tiling rules.
  */
-class SkPictureShader : public SkShader {
+class SkPictureShader : public SkShaderBase {
 public:
     static sk_sp<SkShader> Make(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*,
                                 const SkRect*);
@@ -52,7 +52,7 @@ private:
     SkRect              fTile;
     TileMode            fTmx, fTmy;
 
-    class PictureShaderContext : public SkShader::Context {
+    class PictureShaderContext : public Context {
     public:
         PictureShaderContext(
             const SkPictureShader&, const ContextRec&, sk_sp<SkShader> bitmapShader, SkArenaAlloc*);
@@ -62,18 +62,18 @@ private:
         ShadeProc asAShadeProc(void** ctx) override;
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
 
-        sk_sp<SkShader>     fBitmapShader;
-        SkShader::Context*  fBitmapShaderContext;
-        void*               fBitmapShaderContextStorage;
+        sk_sp<SkShader>         fBitmapShader;
+        SkShaderBase::Context*  fBitmapShaderContext;
+        void*                   fBitmapShaderContextStorage;
 
-        typedef SkShader::Context INHERITED;
+        typedef Context INHERITED;
     };
 
     // Should never be set by a public constructor.  This is only used when onMakeColorSpace()
     // forces a deferred color space xform.
     sk_sp<SkColorSpace>   fColorSpace;
 
-    typedef SkShader INHERITED;
+    typedef SkShaderBase INHERITED;
 };
 
 #endif // SkPictureShader_DEFINED

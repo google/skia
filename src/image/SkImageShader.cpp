@@ -48,7 +48,8 @@ bool SkImageShader::isOpaque() const {
     return fImage->isOpaque();
 }
 
-SkShader::Context* SkImageShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
+SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
+                                                    SkArenaAlloc* alloc) const {
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
                                                  SkBitmapProvider(fImage.get(), rec.fDstColorSpace),
                                                  rec, alloc);
@@ -204,9 +205,9 @@ static sk_sp<SkFlattenable> SkBitmapProcShader_CreateProc(SkReadBuffer& buffer) 
     return image ? image->makeShader(mx, my, &lm) : nullptr;
 }
 
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkShader)
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkShaderBase)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageShader)
-SkFlattenable::Register("SkBitmapProcShader", SkBitmapProcShader_CreateProc, kSkShader_Type);
+SkFlattenable::Register("SkBitmapProcShader", SkBitmapProcShader_CreateProc, kSkShaderBase_Type);
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 

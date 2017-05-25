@@ -8,19 +8,19 @@
 #define SkBitmapProcShader_DEFINED
 
 #include "SkImagePriv.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 
 class SkBitmapProvider;
 
-class SkBitmapProcLegacyShader : public SkShader {
+class SkBitmapProcLegacyShader : public SkShaderBase {
 private:
     friend class SkImageShader;
 
     static size_t ContextSize(const ContextRec&, const SkImageInfo& srcInfo);
-    static Context* MakeContext(const SkShader&, TileMode tmx, TileMode tmy,
+    static Context* MakeContext(const SkShaderBase&, TileMode tmx, TileMode tmy,
                                 const SkBitmapProvider&, const ContextRec&, SkArenaAlloc* alloc);
 
-    typedef SkShader INHERITED;
+    typedef SkShaderBase INHERITED;
 };
 
 #endif

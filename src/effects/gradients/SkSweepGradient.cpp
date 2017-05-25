@@ -52,7 +52,7 @@ void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fCenter);
 }
 
-SkShader::Context* SkSweepGradient::onMakeContext(
+SkShaderBase::Context* SkSweepGradient::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
     return CheckedMakeContext<SweepGradientContext>(alloc, *this, rec);
@@ -210,7 +210,7 @@ sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
         SkGradientShader::MakeSweep(center.fX, center.fY,  params.fColors,
                                     params.fStops, params.fColorCount);
     GrTest::TestAsFPArgs asFPArgs(d);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(asFPArgs.args());
+    sk_sp<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
     GrAlwaysAssert(fp);
     return fp;
 }

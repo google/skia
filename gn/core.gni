@@ -302,6 +302,7 @@ skia_core_sources = [
   "$_src/core/SkScan_Path.cpp",
   "$_src/core/SkSemaphore.cpp",
   "$_src/core/SkShader.cpp",
+  "$_src/core/SkShaderBase.h",
   "$_src/core/SkSharedMutex.cpp",
   "$_src/core/SkSharedMutex.h",
   "$_src/core/SkSinglyLinkedList.h",

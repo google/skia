@@ -11,9 +11,9 @@
 #include "SkBitmapProcShader.h"
 #include "SkColorSpaceXformer.h"
 #include "SkImage.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 
-class SkImageShader : public SkShader {
+class SkImageShader : public SkShaderBase {
 public:
     static sk_sp<SkShader> Make(sk_sp<SkImage>, TileMode tx, TileMode ty,
                                 const SkMatrix* localMatrix);
@@ -50,9 +50,9 @@ protected:
     const TileMode  fTileModeY;
 
 private:
-    friend class SkShader;
+    friend class SkShaderBase;
 
-    typedef SkShader INHERITED;
+    typedef SkShaderBase INHERITED;
 };
 
 #endif

@@ -12,7 +12,7 @@
 #include "SkPixmap.h"
 #include "SkScalar.h"
 #include "SkSize.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 
 class SkBitmap;
 class SkDiscardableMemory;
@@ -33,8 +33,8 @@ public:
     static SkMipMap* Build(const SkBitmap& src, SkDestinationSurfaceColorMode,
                            SkDiscardableFactoryProc);
 
-    static SkDestinationSurfaceColorMode DeduceColorMode(const SkShader::ContextRec& rec) {
-        return (SkShader::ContextRec::kPMColor_DstType == rec.fPreferredDstType)
+    static SkDestinationSurfaceColorMode DeduceColorMode(const SkShaderBase::ContextRec& rec) {
+        return (SkShaderBase::ContextRec::kPMColor_DstType == rec.fPreferredDstType)
             ? SkDestinationSurfaceColorMode::kLegacy
             : SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware;
     }

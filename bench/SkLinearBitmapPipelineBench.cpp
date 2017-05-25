@@ -15,7 +15,7 @@
 #include "SkImage.h"
 #include "SkLinearBitmapPipeline.h"
 #include "SkPM4f.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 
 struct CommonBitmapFPBenchmark : public Benchmark {
     CommonBitmapFPBenchmark(
@@ -201,10 +201,10 @@ struct SkBitmapFPOrigShader : public CommonBitmapFPBenchmark {
         SkAutoTMalloc<SkPMColor> buffer4b(width*height);
 
         SkArenaAlloc alloc{0};
-        const SkShader::ContextRec rec(fPaint, fM, nullptr,
-                                       SkShader::ContextRec::kPMColor_DstType,
-                                       nullptr);
-        SkShader::Context* ctx = fPaint.getShader()->makeContext(rec, &alloc);
+        const SkShaderBase::ContextRec rec(fPaint, fM, nullptr,
+                                           SkShaderBase::ContextRec::kPMColor_DstType,
+                                           nullptr);
+        SkShaderBase::Context* ctx = as_SB(fPaint.getShader())->makeContext(rec, &alloc);
 
         int count = 100;
 

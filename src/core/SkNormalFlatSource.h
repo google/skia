@@ -15,10 +15,10 @@ public:
     SkNormalFlatSourceImpl(){}
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(const SkShader::AsFPArgs&) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const SkShaderBase::AsFPArgs&) const override;
 #endif
 
-    SkNormalSource::Provider* asProvider(const SkShader::ContextRec& rec,
+    SkNormalSource::Provider* asProvider(const SkShaderBase::ContextRec& rec,
                                          SkArenaAlloc* alloc) const override;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkNormalFlatSourceImpl)

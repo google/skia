@@ -49,14 +49,14 @@ uint32_t SkColorFilterShader::FilterShaderContext::getFlags() const {
     // in the shader flags.
     //
     if (!(filterF & SkColorFilter::kAlphaUnchanged_Flag)) {
-        shaderF &= ~SkShader::kOpaqueAlpha_Flag;
+        shaderF &= ~kOpaqueAlpha_Flag;
     }
     return shaderF;
 }
 
-SkShader::Context* SkColorFilterShader::onMakeContext(const ContextRec& rec,
-                                                      SkArenaAlloc* alloc) const {
-    SkShader::Context* shaderContext = fShader->makeContext(rec, alloc);
+SkShaderBase::Context* SkColorFilterShader::onMakeContext(const ContextRec& rec,
+                                                          SkArenaAlloc* alloc) const {
+    auto* shaderContext = as_SB(fShader)->makeContext(rec, alloc);
     if (nullptr == shaderContext) {
         return nullptr;
     }
@@ -69,7 +69,7 @@ sk_sp<SkShader> SkColorFilterShader::onMakeColorSpace(SkColorSpaceXformer* xform
 
 SkColorFilterShader::FilterShaderContext::FilterShaderContext(
                                                          const SkColorFilterShader& filterShader,
-                                                         SkShader::Context* shaderContext,
+                                                         SkShaderBase::Context* shaderContext,
                                                          const ContextRec& rec)
     : INHERITED(filterShader, rec)
     , fShaderContext(shaderContext)
@@ -96,7 +96,7 @@ void SkColorFilterShader::FilterShaderContext::shadeSpan4f(int x, int y, SkPM4f 
 
 sk_sp<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(const AsFPArgs& args) const {
 
-    sk_sp<GrFragmentProcessor> fp1(fShader->asFragmentProcessor(args));
+    sk_sp<GrFragmentProcessor> fp1(as_SB(fShader)->asFragmentProcessor(args));
     if (!fp1) {
         return nullptr;
     }
@@ -117,7 +117,7 @@ void SkColorFilterShader::toString(SkString* str) const {
     str->append("SkColorFilterShader: (");
 
     str->append("Shader: ");
-    fShader->toString(str);
+    as_SB(fShader)->toString(str);
     str->append(" Filter: ");
     // TODO: add "fFilter->toString(str);" once SkColorFilter::toString is added
 

@@ -17,7 +17,7 @@ sk_sp<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(const AsFPAr
     if (args.fLocalMatrix) {
         tmp.preConcat(*args.fLocalMatrix);
     }
-    return fProxyShader->asFragmentProcessor(AsFPArgs(
+    return as_SB(fProxyShader)->asFragmentProcessor(AsFPArgs(
         args.fContext, args.fViewMatrix, &tmp, args.fFilterQuality, args.fDstColorSpace));
 }
 #endif
@@ -37,7 +37,7 @@ void SkLocalMatrixShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fProxyShader.get());
 }
 
-SkShader::Context* SkLocalMatrixShader::onMakeContext(
+SkShaderBase::Context* SkLocalMatrixShader::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
     ContextRec newRec(rec);
@@ -48,7 +48,7 @@ SkShader::Context* SkLocalMatrixShader::onMakeContext(
     } else {
         newRec.fLocalMatrix = &this->getLocalMatrix();
     }
-    return fProxyShader->makeContext(newRec, alloc);
+    return as_SB(fProxyShader)->makeContext(newRec, alloc);
 }
 
 SkImage* SkLocalMatrixShader::onIsAImage(SkMatrix* outMatrix, enum TileMode* mode) const {
@@ -72,15 +72,15 @@ bool SkLocalMatrixShader::onAppendStages(SkRasterPipeline* p,
     if (localM) {
         tmp.setConcat(*localM, this->getLocalMatrix());
     }
-    return fProxyShader->appendStages(p, dst, scratch, ctm, paint,
-                                      localM ? &tmp : &this->getLocalMatrix());
+    return as_SB(fProxyShader)->appendStages(p, dst, scratch, ctm, paint,
+                                             localM ? &tmp : &this->getLocalMatrix());
 }
 
 #ifndef SK_IGNORE_TO_STRING
 void SkLocalMatrixShader::toString(SkString* str) const {
     str->append("SkLocalMatrixShader: (");
 
-    fProxyShader->toString(str);
+    as_SB(fProxyShader)->toString(str);
 
     this->INHERITED::toString(str);
 
@@ -97,7 +97,7 @@ sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const
 
     sk_sp<SkShader> baseShader;
     SkMatrix otherLocalMatrix;
-    sk_sp<SkShader> proxy(this->makeAsALocalMatrixShader(&otherLocalMatrix));
+    sk_sp<SkShader> proxy(as_SB(this)->makeAsALocalMatrixShader(&otherLocalMatrix));
     if (proxy) {
         otherLocalMatrix.preConcat(localMatrix);
         lm = &otherLocalMatrix;
