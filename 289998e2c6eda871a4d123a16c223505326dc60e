@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22fe79c5_fbda792f",
+        "filename": "src/core/SkBlitter_Sprite.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-25T14:12:25Z",
+      "side": 1,
+      "message": "No big change in PS3.  I just realized that PS1 + PS2\u0027s use of SkOnce is kind of obsolete now.  Get with the times Mike...",
+      "revId": "289998e2c6eda871a4d123a16c223505326dc60e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
