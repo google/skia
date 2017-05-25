@@ -93,14 +93,14 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     SkColorSpace* dstCS = dst.colorSpace();
     auto paintColor = alloc->make<SkPM4f>(SkPM4f_from_SkColor(paint.getColor(), dstCS));
     auto shader = as_SB(paint.getShader());
+    bool wants_dither = paint.isDither();
 
     SkRasterPipeline_<256> shaderPipeline;
     if (!shader) {
         // Having no shader makes things nice and easy... just use the paint color.
         shaderPipeline.append(SkRasterPipeline::constant_color, paintColor);
         bool is_opaque    = paintColor->a() == 1.0f,
-             is_constant  = true,
-             wants_dither = false;
+             is_constant  = true;
         return SkRasterPipelineBlitter::Create(dst, paint, alloc,
                                                shaderPipeline, nullptr,
                                                is_opaque, is_constant, wants_dither);
@@ -108,7 +108,6 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
 
     bool is_opaque    = shader->isOpaque() && paintColor->a() == 1.0f;
     bool is_constant  = shader->isConstant();
-    bool wants_dither = shader->asAGradient(nullptr) >= SkShader::kLinear_GradientType;
 
     // See if the shader can express itself by appending pipeline stages.
     if (shader->appendStages(&shaderPipeline, dstCS, alloc, ctm, paint)) {
@@ -317,12 +316,19 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
     if (!fBlitH) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
-        if (fBlend != SkBlendMode::kSrc) {
-            this->append_load_d(&p);
-            this->append_blend(&p);
-            this->maybe_clamp(&p);
+        if (fBlend == SkBlendMode::kSrcOver
+                && fDst.info().colorType() == kRGBA_8888_SkColorType
+                && !fDst.colorSpace()
+                && fDitherCtx.rate == 0.0f) {
+            p.append(SkRasterPipeline::srcover_rgba_8888, &fDstPtr);
+        } else {
+            if (fBlend != SkBlendMode::kSrc) {
+                this->append_load_d(&p);
+                this->append_blend(&p);
+                this->maybe_clamp(&p);
+            }
+            this->append_store(&p);
         }
-        this->append_store(&p);
         fBlitH = p.compile();
     }
     this->maybe_shade(x,y,w);
