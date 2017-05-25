@@ -98,7 +98,7 @@ static BitmapXferProc ChooseBitmapXferProc(const SkPixmap& dst, const SkPaint& p
                                            uint32_t* data) {
     // todo: we can apply colorfilter up front if no shader, so we wouldn't
     // need to abort this fastpath
-    if (paint.getShader() || paint.getColorFilter()) {
+    if (paint.getShader() || paint.getColorFilter() || dst.colorSpace()) {
         return nullptr;
     }
 
