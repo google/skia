@@ -74,7 +74,8 @@ public:
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTarget* fRenderTarget = nullptr;
-        const GrCaps* fCaps = nullptr;
+        const GrCaps* fCaps1 = nullptr;
+        GrResourceProvider* fResourceProvider = nullptr;
         GrXferProcessor::DstTexture fDstTexture;
     };
 

@@ -47,7 +47,8 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
     args.fUserStencil = &kCoverPass;
     args.fAppliedClip = state.drawOpArgs().fAppliedClip;
     args.fRenderTarget = state.drawOpArgs().fRenderTarget;
-    args.fCaps = &state.caps();
+    args.fCaps1 = &state.caps();
+    args.fResourceProvider = state.resourceProvider();
     args.fDstTexture = state.drawOpArgs().fDstTexture;
 
     return pipeline->init(args);

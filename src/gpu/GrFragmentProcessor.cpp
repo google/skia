@@ -61,11 +61,21 @@ void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     SkDEBUGCODE(transform->setInProcessor();)
 }
 
-int GrFragmentProcessor::registerChildProcessor(sk_sp<GrFragmentProcessor> child) {
-    if (child->isBad()) {
-        this->markAsBad();
+bool GrFragmentProcessor::instantiate(GrResourceProvider* resourceProvider) const {
+    if (!INHERITED::instantiate(resourceProvider)) {
+        return false;
     }
 
+    for (int i = 0; i < this->numChildProcessors(); ++i) {
+        if (!this->childProcessor(i).instantiate(resourceProvider)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+int GrFragmentProcessor::registerChildProcessor(sk_sp<GrFragmentProcessor> child) {
     this->combineRequiredFeatures(*child);
 
     if (child->usesLocalCoords()) {

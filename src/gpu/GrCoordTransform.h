@@ -105,6 +105,11 @@ public:
     bool normalize() const { return fNormalize; }
     bool reverseY() const { return fReverseY; }
 
+    bool instantiate(GrResourceProvider* resourceProvider) const {
+        // MDB TODO: return fProxy->instantiate(resourceProvider);
+        return SkToBool(fTexture);
+    }
+
 private:
     // The textures' effect is to optionally normalize the final matrix, so a blind
     // equality check could be misleading
