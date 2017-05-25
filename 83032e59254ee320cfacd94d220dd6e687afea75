@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6d91ac1_8d5f4460",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-25T20:27:10Z",
+      "side": 1,
+      "message": "Remove this too, or maybe just check paint.isDither() here instead of any of the wants_dither tracking?",
+      "range": {
+        "startLine": 194,
+        "startChar": 12,
+        "endLine": 194,
+        "endChar": 80
+      },
+      "revId": "83032e59254ee320cfacd94d220dd6e687afea75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
