@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "182ce7b8_7279d440",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-25T14:46:46Z",
+      "side": 1,
+      "message": "And this one.",
+      "revId": "18cbb9bf380eb66a1bc26bb27b9d46841b23aaf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edf91cba_5e3e2f88",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-25T14:46:46Z",
+      "side": 1,
+      "message": "Maybe we should kill this comment. I don\u0027t think was true before your change either.",
+      "revId": "18cbb9bf380eb66a1bc26bb27b9d46841b23aaf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
