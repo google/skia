@@ -93,14 +93,18 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     SkColorSpace* dstCS = dst.colorSpace();
     auto paintColor = alloc->make<SkPM4f>(SkPM4f_from_SkColor(paint.getColor(), dstCS));
     auto shader = as_SB(paint.getShader());
+    bool wants_dither = paint.isDither();
+
+#ifdef SK_SUPPORT_LEGACY_RASTERPIPELINE
+    wants_dither = shader && shader->asAGradient(nullptr) >= SkShader::kLinear_GradientType;
+#endif
 
     SkRasterPipeline_<256> shaderPipeline;
     if (!shader) {
         // Having no shader makes things nice and easy... just use the paint color.
         shaderPipeline.append(SkRasterPipeline::constant_color, paintColor);
         bool is_opaque    = paintColor->a() == 1.0f,
-             is_constant  = true,
-             wants_dither = false;
+             is_constant  = true;
         return SkRasterPipelineBlitter::Create(dst, paint, alloc,
                                                shaderPipeline, nullptr,
                                                is_opaque, is_constant, wants_dither);
@@ -108,7 +112,6 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
 
     bool is_opaque    = shader->isOpaque() && paintColor->a() == 1.0f;
     bool is_constant  = shader->isConstant();
-    bool wants_dither = shader->asAGradient(nullptr) >= SkShader::kLinear_GradientType;
 
     // See if the shader can express itself by appending pipeline stages.
     if (shader->appendStages(&shaderPipeline, dstCS, alloc, ctm, paint)) {
