@@ -115,6 +115,17 @@ public:
                               uint16_t minIndexValue, uint16_t maxIndexValue,
                               const GrBuffer* vertexBuffer, int baseVertex) final;
 
+    void sendInstancedMeshToGpu(const GrPrimitiveProcessor&, GrPrimitiveType,
+                                const GrBuffer* vertexBuffer, int vertexCount, int baseVertex,
+                                const GrBuffer* instanceBuffer, int instanceCount,
+                                int baseInstance) final;
+
+    void sendIndexedInstancedMeshToGpu(const GrPrimitiveProcessor&, GrPrimitiveType,
+                                       const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                                       const GrBuffer* vertexBuffer, int baseVertex,
+                                       const GrBuffer* instanceBuffer, int instanceCount,
+                                       int baseInstance) final;
+
     // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
     // on GrGLGpuCommandBuffer.
@@ -264,7 +275,9 @@ private:
     void setupGeometry(const GrPrimitiveProcessor&,
                        const GrBuffer* indexBuffer,
                        const GrBuffer* vertexBuffer,
-                       int baseVertex);
+                       int baseVertex,
+                       const GrBuffer* instanceBuffer,
+                       int baseInstance);
 
     void flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 
