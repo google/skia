@@ -177,10 +177,10 @@ public:
         return *fImageStorageAccesses[index];
     }
 
-    bool isBad() const { return fIsBad; }
+    bool instantiate(GrResourceProvider* resourceProvider) const;
 
 protected:
-    GrResourceIOProcessor() : fIsBad(false) {}
+    GrResourceIOProcessor() {}
 
     /**
      * Subclasses call these from their constructor to register sampler/image sources. The processor
@@ -199,13 +199,11 @@ protected:
     void removeRefs() const;
     void pendingIOComplete() const;
 
-    void markAsBad() { fIsBad = true; }
-
 private:
     SkSTArray<4, const TextureSampler*, true> fTextureSamplers;
     SkSTArray<1, const BufferAccess*, true> fBufferAccesses;
     SkSTArray<1, const ImageStorageAccess*, true> fImageStorageAccesses;
-    bool fIsBad;
+    mutable bool fInstantiated = false;
 
     typedef GrProcessor INHERITED;
 };
@@ -249,7 +247,17 @@ public:
 
     bool operator!=(const TextureSampler& other) const { return !(*this == other); }
 
+    // MDB TODO: remove the remaining callers of this accessor
     GrTexture* texture() const { return fTexture.get(); }
+
+    bool instantiate(GrResourceProvider* resourceProvider) const {
+        // MDB TODO: return fProxy->instantiate(resourceProvider);
+        fInstantiated = true;
+        return SkToBool(fTexture.get());
+    }
+
+    GrTexture* peekTexture() const { SkASSERT(fInstantiated); SkASSERT(fTexture.get()); return fTexture.get(); }
+
     GrShaderFlags visibility() const { return fVisibility; }
     const GrSamplerParams& params() const { return fParams; }
 
@@ -258,15 +266,13 @@ public:
      */
     const GrGpuResourceRef* programTexture() const { return &fTexture; }
 
-    bool isBad() const { return !fTexture.get(); }
-
 private:
-
     typedef GrTGpuResourceRef<GrTexture> ProgramTexture;
 
     ProgramTexture                  fTexture;
     GrSamplerParams                 fParams;
     GrShaderFlags                   fVisibility;
+    mutable bool fInstantiated = false;
 
     typedef SkNoncopyable INHERITED;
 };
@@ -342,8 +348,7 @@ public:
     GrSLMemoryModel memoryModel() const { return fMemoryModel; }
     GrSLRestrict restrict() const { return fRestrict; }
 
-    // MDB: In the future this should be renamed instantiate
-    bool isBad(GrResourceProvider* resourceProvider) const {
+    bool instantiate(GrResourceProvider* resourceProvider) const {
         return SkToBool(!fProxyRef.getProxy()->instantiate(resourceProvider));
     }
 
