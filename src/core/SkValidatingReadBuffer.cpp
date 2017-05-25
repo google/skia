@@ -146,12 +146,20 @@ void SkValidatingReadBuffer::readIRect(SkIRect* rect) {
     if (!fError) {
         memcpy(rect, ptr, sizeof(SkIRect));
     }
+
+    if (fError) {
+        rect->setEmpty();
+    }
 }
 
 void SkValidatingReadBuffer::readRect(SkRect* rect) {
     const void* ptr = this->skip(sizeof(SkRect));
     if (!fError) {
         memcpy(rect, ptr, sizeof(SkRect));
+    }
+
+    if (fError) {
+        rect->setEmpty();
     }
 }
 
