@@ -22,6 +22,30 @@
       "revId": "83032e59254ee320cfacd94d220dd6e687afea75",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b32c61db_30d20413",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-25T20:45:46Z",
+      "side": 1,
+      "message": "after the guard I think",
+      "parentUuid": "b6d91ac1_8d5f4460",
+      "range": {
+        "startLine": 194,
+        "startChar": 12,
+        "endLine": 194,
+        "endChar": 80
+      },
+      "revId": "83032e59254ee320cfacd94d220dd6e687afea75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
