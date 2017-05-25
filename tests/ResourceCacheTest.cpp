@@ -1360,6 +1360,115 @@ static void test_time_purge(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_partial_purge(skiatest::Reporter* reporter) {
+    Mock mock(6, 100);
+    GrContext* context = mock.context();
+    GrResourceCache* cache = mock.cache();
+
+    enum TestsCases {
+        ONLY_SCRATCH = 0,
+        PARTIAL_SCRATCH = 1,
+        ALL_SCRATCH = 2,
+        PARTIAL = 3,
+        ALL = 4,
+        NONE = 5,
+        END_TEST = NONE
+    };
+
+    for (int testCase = 0; testCase < END_TEST; testCase++) {
+
+        GrUniqueKey key1, key2, key3;
+        make_unique_key<0>(&key1, 1);
+        make_unique_key<0>(&key2, 2);
+        make_unique_key<0>(&key3, 3);
+
+        // Add three unique resources to the cache.
+        TestResource *unique1 = new TestResource(context->getGpu());
+        TestResource *unique2 = new TestResource(context->getGpu());
+        TestResource *unique3 = new TestResource(context->getGpu());
+
+        unique1->resourcePriv().setUniqueKey(key1);
+        unique2->resourcePriv().setUniqueKey(key2);
+        unique3->resourcePriv().setUniqueKey(key3);
+
+        unique1->setSize(10);
+        unique2->setSize(11);
+        unique3->setSize(12);
+
+        // Add two scratch resources to the cache.
+        TestResource *scratch1 = TestResource::CreateScratch(context->getGpu(), SkBudgeted::kYes,
+                                                             TestResource::kA_SimulatedProperty);
+        TestResource *scratch2 = TestResource::CreateScratch(context->getGpu(), SkBudgeted::kYes,
+                                                             TestResource::kB_SimulatedProperty);
+        scratch1->setSize(13);
+        scratch2->setSize(14);
+
+
+        REPORTER_ASSERT(reporter, 5 == cache->getBudgetedResourceCount());
+        REPORTER_ASSERT(reporter, 60 == cache->getBudgetedResourceBytes());
+        REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
+
+        // Add resources to the purgeable queue
+        unique1->unref();
+        scratch1->unref();
+        unique2->unref();
+        scratch2->unref();
+        unique3->unref();
+
+        REPORTER_ASSERT(reporter, 5 == cache->getBudgetedResourceCount());
+        REPORTER_ASSERT(reporter, 60 == cache->getBudgetedResourceBytes());
+        REPORTER_ASSERT(reporter, 60 == cache->getPurgeableBytes());
+
+        switch(testCase) {
+            case ONLY_SCRATCH: {
+                context->purgeUnlockedResources(14, true);
+                REPORTER_ASSERT(reporter, 3 == cache->getBudgetedResourceCount());
+                REPORTER_ASSERT(reporter, 33 == cache->getBudgetedResourceBytes());
+                break;
+            }
+            case PARTIAL_SCRATCH: {
+                context->purgeUnlockedResources(3, true);
+                REPORTER_ASSERT(reporter, 4 == cache->getBudgetedResourceCount());
+                REPORTER_ASSERT(reporter, 47 == cache->getBudgetedResourceBytes());
+                break;
+            }
+            case ALL_SCRATCH: {
+                context->purgeUnlockedResources(50, true);
+                REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
+                REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+                break;
+            }
+            case PARTIAL: {
+                context->purgeUnlockedResources(13, false);
+                REPORTER_ASSERT(reporter, 3 == cache->getBudgetedResourceCount());
+                REPORTER_ASSERT(reporter, 37 == cache->getBudgetedResourceBytes());
+                break;
+            }
+            case ALL: {
+                context->purgeUnlockedResources(50, false);
+                REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
+                REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+                break;
+                break;
+            }
+            case NONE: {
+                context->purgeUnlockedResources(0, true);
+                context->purgeUnlockedResources(0, false);
+                REPORTER_ASSERT(reporter, 5 == cache->getBudgetedResourceCount());
+                REPORTER_ASSERT(reporter, 60 == cache->getBudgetedResourceBytes());
+                REPORTER_ASSERT(reporter, 60 == cache->getPurgeableBytes());
+                break;
+            }
+        };
+
+        // ensure all are purged before the next
+        context->purgeAllUnlockedResources();
+        REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
+        REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
+
+    }
+}
+
 static void test_large_resource_count(skiatest::Reporter* reporter) {
     // Set the cache size to double the resource count because we're going to create 2x that number
     // resources, using two different key domains. Add a little slop to the bytes because we resize
@@ -1515,6 +1624,7 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, factory) {
     test_timestamp_wrap(reporter);
     test_flush(reporter);
     test_time_purge(reporter);
+    test_partial_purge(reporter);
     test_large_resource_count(reporter);
     test_custom_data(reporter);
     test_abandoned(reporter);
