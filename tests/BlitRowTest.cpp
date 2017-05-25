@@ -185,12 +185,19 @@ static void save_bm(const SkBitmap& bm, const char name[]) {
     sk_tool_utils::EncodeImageToFile(name, bm, SkEncodedImageFormat::kPNG, 100);
 }
 
-static int max_diff(uint32_t u, uint32_t v) {
+static int max_diff_8888(uint32_t u, uint32_t v) {
     int d0 = SkAbs32(int((u >> 24) & 0xFF) - int((v >> 24) & 0xFF));
     int d1 = SkAbs32(int((u >> 16) & 0xFF) - int((v >> 16) & 0xFF));
     int d2 = SkAbs32(int((u >>  8) & 0xFF) - int((v >>  8) & 0xFF));
     int d3 = SkAbs32(int((u >>  0) & 0xFF) - int((v >>  0) & 0xFF));
     return SkMax32(d0, SkMax32(d1, SkMax32(d2, d3)));
+}
+
+static int max_diff_565(uint16_t u, uint16_t v) {
+    int b = SkAbs32(int(u & 0x1f) - int(v & 0x1f));
+    int g = SkAbs32(int((u >> 5) & 0x3f) - int((v >> 5) & 0x3f));
+    int r = SkAbs32(int((u >> 11) & 0x1f) - int((v >> 11) & 0x1f));
+    return SkMax32(r, SkMax32(g, b));
 }
 
 static bool nearly_eq(const SkBitmap& a, const SkBitmap& b) {
@@ -200,7 +207,20 @@ static bool nearly_eq(const SkBitmap& a, const SkBitmap& b) {
                 const SkPMColor* ap = a.getAddr32(0, y);
                 const SkPMColor* bp = b.getAddr32(0, y);
                 for (int x = 0; x < a.width(); ++x) {
-                    int diff = max_diff(ap[x], bp[x]);
+                    int diff = max_diff_8888(ap[x], bp[x]);
+                    if (diff > 1) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        } break;
+        case kRGB_565_SkColorType: {
+            for (int y = 0; y < a.width(); ++y) {
+                const uint16_t* ap = a.getAddr16(0, y);
+                const uint16_t* bp = b.getAddr16(0, y);
+                for (int x = 0; x < a.width(); ++x) {
+                    int diff = max_diff_565(ap[x], bp[x]);
                     if (diff > 1) {
                         return false;
                     }
