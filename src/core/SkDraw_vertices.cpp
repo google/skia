@@ -13,7 +13,7 @@
 #include "SkPM4fPriv.h"
 #include "SkRasterClip.h"
 #include "SkScan.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkString.h"
 #include "SkVertState.h"
 
@@ -69,7 +69,7 @@ static bool texture_to_matrix(const VertState& state, const SkPoint verts[],
     return matrix->setPolyToPoly(src, dst, 3);
 }
 
-class SkTriColorShader : public SkShader {
+class SkTriColorShader : public SkShaderBase {
 public:
     SkTriColorShader(bool isOpaque) : fIsOpaque(isOpaque) {}
 
@@ -102,7 +102,7 @@ private:
     Matrix43 fM43;
     const bool fIsOpaque;
 
-    typedef SkShader INHERITED;
+    typedef SkShaderBase INHERITED;
 };
 
 #ifndef SK_IGNORE_TO_STRING

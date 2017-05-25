@@ -16,7 +16,7 @@
 #include "SkLinearBitmapPipeline.h"
 #include "SkXfermodePriv.h"
 #include "SkPM4fPriv.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 
 static void fill_in_bits(SkBitmap& bm, SkIRect ir, SkColor c, bool premul) {
     bm.allocN32Pixels(ir.width(), ir.height());
@@ -72,11 +72,11 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
         paint.setFilterQuality(SkFilterQuality::kNone_SkFilterQuality);
     }
     paint.setShader(std::move(shader));
-    const SkShader::ContextRec rec(paint, *mat, nullptr,
-                                   SkBlitter::PreferredShaderDest(pmsrc.info()),
-                                   canvas->imageInfo().colorSpace());
+    const SkShaderBase::ContextRec rec(paint, *mat, nullptr,
+                                       SkBlitter::PreferredShaderDest(pmsrc.info()),
+                                       canvas->imageInfo().colorSpace());
 
-    SkShader::Context* ctx = paint.getShader()->makeContext(rec, &alloc);
+    SkShaderBase::Context* ctx = as_SB(paint.getShader())->makeContext(rec, &alloc);
 
     for (int y = 0; y < ir.height(); y++) {
         ctx->shadeSpan(0, y, pmdst.writable_addr32(0, y), ir.width());
