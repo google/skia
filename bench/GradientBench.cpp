@@ -22,7 +22,7 @@ struct GradData {
 };
 
 static const SkColor gColors[] = {
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
+    0x80FF0000, 0x8000FF00, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
     SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
     SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
     SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
@@ -34,7 +34,7 @@ static const SkColor gColors[] = {
     SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK, // 10 lines, 50 colors
 };
 
-static const SkColor gShallowColors[] = { 0xFF555555, 0xFF444444 };
+static const SkColor gShallowColors[] = { 0x80555555, 0x80444444 };
 static const SkScalar gPos[] = {0.25f, 0.75f};
 
 // We have several special-cases depending on the number (and spacing) of colors, so
