@@ -47,7 +47,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fPreferClientSideDynamicBuffers = false;
     fFullClearIsFree = false;
     fMustClearUploadedBufferData = false;
-    fMustClearAtlases = false;
     fSampleShadingSupport = false;
     fFenceSyncSupport = false;
     fCrossContextTextureSupport = false;
