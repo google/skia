@@ -151,14 +151,18 @@ def nanobench_flags(bot):
     match.append('~Xfermode') # skia:6691
   if 'ANGLE' in bot and any('msaa' in x for x in configs):
     match.append('~native_image_to_raster_surface')  # skia:6457
-  if 'ANGLE' in bot and 'Radeon' in bot:
+  if 'ANGLE' in bot and 'Radeon' in bot and 'Release' in bot:
     # skia:6534
     match.append('~shapes_mixed_10000_32x33')
-    match.append('~shapes_rrect_10000_32x32')
+    match.append('~shapes_oval_10000_32x32')
     match.append('~shapes_oval_10000_32x33')
+    match.append('~shapes_rect_100_500x500')
+    match.append('~shapes_rrect_10000_32x32')
   if 'ANGLE' in bot and 'GTX960' in bot and 'Release' in bot:
     # skia:6534
     match.append('~shapes_mixed_10000_32x33')
+    match.append('~shapes_rect_100_500x500')
+    match.append('~shapes_rrect_10000_32x32')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
