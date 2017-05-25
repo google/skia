@@ -93,6 +93,7 @@ static U8CPU SkGetB32Component(uint32_t value, SkColorType ct) {
 
 // unpremultiply and extract R, G, B components.
 static void pmcolor_to_rgb24(uint32_t color, uint8_t* rgb, SkColorType ct) {
+    SkPMColorAssert(color);
     uint32_t s = SkUnPreMultiply::GetScale(SkGetA32Component(color, ct));
     rgb[0] = SkUnPreMultiply::ApplyScale(s, SkGetR32Component(color, ct));
     rgb[1] = SkUnPreMultiply::ApplyScale(s, SkGetG32Component(color, ct));
@@ -123,6 +124,7 @@ static void get_neighbor_avg_color(const SkBitmap& bm,
         uint32_t* scanline = bm.getAddr32(0, y);
         for (int x = xmin; x <= xmax; ++x) {
             uint32_t color = scanline[x];
+            SkPMColorAssert(color);
             a += SkGetA32Component(color, ct);
             r += SkGetR32Component(color, ct);
             g += SkGetG32Component(color, ct);
