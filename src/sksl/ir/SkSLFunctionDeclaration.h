@@ -71,7 +71,7 @@ struct FunctionDeclaration : public Symbol {
     bool determineFinalTypes(const std::vector<std::unique_ptr<Expression>>& arguments,
                              std::vector<const Type*>* outParameterTypes,
                              const Type** outReturnType) const {
-        assert(arguments.size() == fParameters.size());
+        ASSERT(arguments.size() == fParameters.size());
         int genericIndex = -1;
         for (size_t i = 0; i < arguments.size(); i++) {
             if (fParameters[i]->fType.kind() == Type::kGeneric_Kind) {
@@ -93,7 +93,7 @@ struct FunctionDeclaration : public Symbol {
             }
         }
         if (fReturnType.kind() == Type::kGeneric_Kind) {
-            assert(genericIndex != -1);
+            ASSERT(genericIndex != -1);
             *outReturnType = fReturnType.coercibleTypes()[genericIndex];
         } else {
             *outReturnType = &fReturnType;
