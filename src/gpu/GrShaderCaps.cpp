@@ -60,6 +60,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fAtan2ImplementedAsAtanYOverX = false;
     fRequiresLocalOutputColorForFBFetch = false;
     fMustImplementGSInvocationsWithLoop = false;
+    fMustObfuscateUniformColor = false;
     fFlatInterpolationSupport = false;
     fNoPerspectiveInterpolationSupport = false;
     fMultisampleInterpolationSupport = false;
@@ -146,6 +147,7 @@ SkString GrShaderCaps::dump() const {
                                                              "YES" : "NO"));
     r.appendf("Must implement geo shader invocations with loop : %s\n",
               (fMustImplementGSInvocationsWithLoop ? "YES" : "NO"));
+    r.appendf("Must obfuscate uniform color: %s\n", (fMustObfuscateUniformColor ? "YES" : "NO"));
     r.appendf("Flat interpolation support: %s\n", (fFlatInterpolationSupport ?  "YES" : "NO"));
     r.appendf("No perspective interpolation support: %s\n", (fNoPerspectiveInterpolationSupport ?
                                                              "YES" : "NO"));
