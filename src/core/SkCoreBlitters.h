@@ -176,12 +176,6 @@ private:
     typedef SkShaderBlitter INHERITED;
 };
 
-SkBlitter* SkBlitter_ARGB32_Create(const SkPixmap& device, const SkPaint&, SkShaderBase::Context*,
-                                   SkArenaAlloc*);
-
-SkBlitter* SkBlitter_F16_Create(const SkPixmap& device, const SkPaint&, SkShaderBase::Context*,
-                                SkArenaAlloc*);
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /*  These return the correct subclass of blitter for their device config.
