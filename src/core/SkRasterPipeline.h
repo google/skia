@@ -85,6 +85,7 @@ struct SkJumper_Engine;
     M(colorburn) M(colordodge) M(darken) M(difference)           \
     M(exclusion) M(hardlight) M(lighten) M(overlay) M(softlight) \
     M(hue) M(saturation) M(color) M(luminosity)                  \
+    M(srcover_rgba_8888)                                         \
     M(luminance_to_alpha)                                        \
     M(matrix_2x3) M(matrix_3x4) M(matrix_4x5) M(matrix_4x3)      \
     M(matrix_perspective)                                        \

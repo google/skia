@@ -272,6 +272,13 @@ SI void from_8888(U32 _8888, F* r, F* g, F* b, F* a) {
     *a = cast((_8888 >> 24)       ) * (1/255.0f);
 }
 
+SI U32 to_8888(F r, F g, F b, F a) {
+    return round(r, 255.0f)
+         | round(g, 255.0f) <<  8
+         | round(b, 255.0f) << 16
+         | round(a, 255.0f) << 24;
+}
+
 template <typename T>
 SI U32 ix_and_ptr(T** ptr, const SkJumper_GatherCtx* ctx, F x, F y) {
     *ptr = (const T*)ctx->pixels;
@@ -538,6 +545,17 @@ STAGE(luminosity) {
     g = g*inv(da) + dg*inv(a) + G;
     b = b*inv(da) + db*inv(a) + B;
     a = a + da - a*da;
+}
+
+STAGE(srcover_rgba_8888) {
+    auto ptr = *(uint32_t**)ctx + x;
+
+    from_8888(load<U32>(ptr, tail), &dr,&dg,&db,&da);
+    r = mad(dr, inv(a), r);
+    g = mad(dg, inv(a), g);
+    b = mad(db, inv(a), b);
+    a = mad(da, inv(a), a);
+    store(ptr, to_8888(r,g,b,a), tail);
 }
 
 STAGE(clamp_0) {
@@ -924,12 +942,7 @@ STAGE(gather_8888) {
 }
 STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
-
-    U32 px = round(r, 255.0f)
-           | round(g, 255.0f) <<  8
-           | round(b, 255.0f) << 16
-           | round(a, 255.0f) << 24;
-    store(ptr, px, tail);
+    store(ptr, to_8888(r,g,b,a), tail);
 }
 
 STAGE(load_f16) {
