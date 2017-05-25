@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1a5b3fe_11e3a066",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-25T19:16:55Z",
+      "side": 1,
+      "message": "Unused!",
+      "range": {
+        "startLine": 440,
+        "startChar": 4,
+        "endLine": 440,
+        "endChar": 28
+      },
+      "revId": "946c0d748a81ed8fd475fad85a35a0fc92980157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34780688_b1016229",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-25T19:16:55Z",
+      "side": 1,
+      "message": "Probably healthy to put {} around these.",
+      "range": {
+        "startLine": 501,
+        "startChar": 26,
+        "endLine": 501,
+        "endChar": 49
+      },
+      "revId": "946c0d748a81ed8fd475fad85a35a0fc92980157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af7f9126_3cd99f92",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-25T19:16:55Z",
+      "side": 1,
+      "message": "Probably better to write __m128i.",
+      "range": {
+        "startLine": 530,
+        "startChar": 8,
+        "endLine": 530,
+        "endChar": 14
+      },
+      "revId": "946c0d748a81ed8fd475fad85a35a0fc92980157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77bdecfe_1f4e85d3",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-25T19:16:55Z",
+      "side": 1,
+      "message": "Usually we do \"double* src\".  Or here I\u0027d just \"auto src\".  It\u0027s kind of clear it\u0027s a const double*...",
+      "range": {
+        "startLine": 533,
+        "startChar": 18,
+        "endLine": 533,
+        "endChar": 26
+      },
+      "revId": "946c0d748a81ed8fd475fad85a35a0fc92980157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25537948_e67d2275",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-25T19:16:55Z",
+      "side": 1,
+      "message": "These aren\u0027t \"xx\" so much as \"00\".  The \"xx\" in the others is meant to represent \"junk you can\u0027t trust\".",
+      "range": {
+        "startLine": 534,
+        "startChar": 79,
+        "endLine": 534,
+        "endChar": 90
+      },
+      "revId": "946c0d748a81ed8fd475fad85a35a0fc92980157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01cf9202_b62e46cd",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-25T19:16:55Z",
+      "side": 1,
+      "message": "Might wanna consider _mm_load_sd() here and for _23?",
+      "range": {
+        "startLine": 534,
+        "startChar": 18,
+        "endLine": 534,
+        "endChar": 30
+      },
+      "revId": "946c0d748a81ed8fd475fad85a35a0fc92980157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a19cb31_95fe7a43",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-25T19:16:55Z",
+      "side": 1,
+      "message": "Ditto here.",
+      "range": {
+        "startLine": 560,
+        "startChar": 12,
+        "endLine": 560,
+        "endChar": 23
+      },
+      "revId": "946c0d748a81ed8fd475fad85a35a0fc92980157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "181cb8f1_27e9d29c",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-25T19:16:55Z",
+      "side": 1,
+      "message": "Might help readability to line these all up vertically so you can see the common subexpressions, something like\n\n  if (  true  ) { _mm_storel_pd(dst + 0, _mm_unpacklo_epi32(rg, ba)); }\n  if (tail \u003e 1) { _mm_storeh_pd(dst + 1, _mm_unpacklo_epi32(rg, ba)); }\n  ..",
+      "revId": "946c0d748a81ed8fd475fad85a35a0fc92980157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
