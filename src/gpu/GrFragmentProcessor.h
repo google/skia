@@ -109,6 +109,8 @@ public:
 
     const GrFragmentProcessor& childProcessor(int index) const { return *fChildProcessors[index]; }
 
+    bool instantiate(GrResourceProvider*) const;
+
     /** Do any of the coordtransforms for this processor require local coords? */
     bool usesLocalCoords() const { return SkToBool(fFlags & kUsesLocalCoords_Flag); }
 
@@ -345,7 +347,7 @@ private:
      */
     SkSTArray<1, GrFragmentProcessor*, true> fChildProcessors;
 
-    typedef GrProcessor INHERITED;
+    typedef GrResourceIOProcessor INHERITED;
 };
 
 GR_MAKE_BITFIELD_OPS(GrFragmentProcessor::OptimizationFlags)
