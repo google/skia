@@ -176,8 +176,6 @@ public:
     /** True in environments that will issue errors if memory uploaded to buffers
         is not initialized (even if not read by draw calls). */
     bool mustClearUploadedBufferData() const { return fMustClearUploadedBufferData; }
-    /** True when there is a performance cost to using an atlas that has not been cleared. */
-    bool mustClearAtlases() const { return fMustClearAtlases; }
 
     bool wireframeMode() const { return fWireframeMode; }
 
@@ -221,7 +219,6 @@ protected:
     bool fPreferClientSideDynamicBuffers             : 1;
     bool fFullClearIsFree                            : 1;
     bool fMustClearUploadedBufferData                : 1;
-    bool fMustClearAtlases                           : 1;
 
     // Driver workaround
     bool fUseDrawInsteadOfClear                      : 1;
