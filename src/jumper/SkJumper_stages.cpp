@@ -540,6 +540,30 @@ STAGE(luminosity) {
     a = a + da - a*da;
 }
 
+STAGE(srcover_rgba_8888) {
+    auto ptr = *(uint32_t**)ctx + x;
+
+    U32 dst = load<U32>(ptr, tail);
+    dr = cast((dst      ) & 0xff);
+    dg = cast((dst >>  8) & 0xff);
+    db = cast((dst >> 16) & 0xff);
+    da = cast((dst >> 24)       );
+    // {dr,dg,db,da} are in [0,255]
+    // { r, g, b, a} are in [0,  1]
+
+    r = mad(dr, inv(a), r*255.0f);
+    g = mad(dg, inv(a), g*255.0f);
+    b = mad(db, inv(a), b*255.0f);
+    a = mad(da, inv(a), a*255.0f);
+    // { r, g, b, a} are now in [0,255]
+
+    dst = round(r, 1.0f)
+        | round(g, 1.0f) <<  8
+        | round(b, 1.0f) << 16
+        | round(a, 1.0f) << 24;
+    store(ptr, dst, tail);
+}
+
 STAGE(clamp_0) {
     r = max(r, 0);
     g = max(g, 0);

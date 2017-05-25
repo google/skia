@@ -317,12 +317,19 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
     if (!fBlitH) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
-        if (fBlend != SkBlendMode::kSrc) {
-            this->append_load_d(&p);
-            this->append_blend(&p);
-            this->maybe_clamp(&p);
+        if (fBlend == SkBlendMode::kSrcOver
+                && fDst.info().colorType() == kRGBA_8888_SkColorType
+                && !fDst.colorSpace()
+                && fDitherCtx.rate == 0.0f) {
+            p.append(SkRasterPipeline::srcover_rgba_8888, &fDstPtr);
+        } else {
+            if (fBlend != SkBlendMode::kSrc) {
+                this->append_load_d(&p);
+                this->append_blend(&p);
+                this->maybe_clamp(&p);
+            }
+            this->append_store(&p);
         }
-        this->append_store(&p);
         fBlitH = p.compile();
     }
     this->maybe_shade(x,y,w);
