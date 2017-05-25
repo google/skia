@@ -111,6 +111,8 @@
   "Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android",
   "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android",
   "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
+  "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan",
+  "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
   "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android",
   "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android_Vulkan",
   "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android",
