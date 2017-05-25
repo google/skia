@@ -16,6 +16,24 @@
       "revId": "84f8a7ca6ed3d9b844f36bc9760bd197ca7061b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6523e1a_5dd53d0a",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-25T18:38:33Z",
+      "side": 1,
+      "message": "the number is kinda close, it is 6691",
+      "parentUuid": "2550f64f_b596efa5",
+      "revId": "84f8a7ca6ed3d9b844f36bc9760bd197ca7061b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
