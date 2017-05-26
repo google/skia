@@ -24,8 +24,6 @@ class SkRasterPipeline;
 
 class SkShaderBase : public SkShader {
 public:
-    SkShaderBase(const SkMatrix* localMatrix = nullptr);
-
     ~SkShaderBase() override;
 
     /**
@@ -229,6 +227,8 @@ public:
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 protected:
+    SkShaderBase(const SkMatrix* localMatrix = nullptr);
+
     void flatten(SkWriteBuffer&) const override;
 
     /**

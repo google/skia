@@ -28,7 +28,6 @@ enum {
 
 class SkImage_Base : public SkImage {
 public:
-    SkImage_Base(int width, int height, uint32_t uniqueID);
     virtual ~SkImage_Base();
 
     // User: returns image info for this SkImage.
@@ -93,6 +92,8 @@ public:
 
     virtual sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
                                             SkTransferFunctionBehavior) const = 0;
+protected:
+    SkImage_Base(int width, int height, uint32_t uniqueID);
 
 private:
     // Set true by caches when they cache content that's derived from the current pixels.

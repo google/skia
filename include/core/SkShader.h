@@ -255,10 +255,10 @@ public:
     // TODO: clean up clients, move to SkShaderBase.
     virtual sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
 
-protected:
-    SkShader() = default;
-
 private:
+    SkShader() = default;
+    friend class SkShaderBase;
+
     typedef SkFlattenable INHERITED;
 };
 

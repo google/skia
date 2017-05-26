@@ -164,8 +164,11 @@ public:
      */
     static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
-protected:
-    SkColorSpace() {}
+private:
+    SkColorSpace() = default;
+    friend class SkColorSpace_Base;
+
+    using INHERITED = SkRefCnt;
 };
 
 enum class SkTransferFunctionBehavior {

@@ -517,10 +517,10 @@ public:
     sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target,
                                   SkTransferFunctionBehavior premulBehavior) const;
 
-protected:
-    SkImage(int width, int height, uint32_t uniqueID);
-
 private:
+    SkImage(int width, int height, uint32_t uniqueID);
+    friend class SkImage_Base;
+
     static sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&,
                                                 const GrMipLevel* texels, int mipLevelCount,
                                                 SkBudgeted, SkDestinationSurfaceColorMode);
