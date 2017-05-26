@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "589567cd_d5d8a444",
+        "filename": "src/core/SkColorMatrixFilterRowMajor255.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-26T12:25:08Z",
+      "side": 1,
+      "message": "Just return \"this\" here?",
+      "range": {
+        "startLine": 241,
+        "startChar": 8,
+        "endLine": 241,
+        "endChar": 56
+      },
+      "revId": "b7b88ba05f940f7183a50fe50cd290384cadda35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f9e8dc5_63813b54",
+        "filename": "src/core/SkColorMatrixFilterRowMajor255.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-26T12:25:08Z",
+      "side": 1,
+      "message": "It was an intentional decision not to override onMakeColorSpace() for this class.  This just does \"math\" on pixels, and it\u0027s not clear that the math means anything wrt to color spaces.\n\nI think what you are suggesting is interesting.  Ex: to the best of our ability, what would  be the matrix that has the same effect in the dst color space?\n\nI understand that this fixes a test, but do you think that it is a relevant test to fix?  If the web developer says \"to grayscale\", then I agree we are totally wrong (though maybe it could be fixed at a higher level).  But if the web developer says \"apply this matrix\", I\u0027m not convinced that we need to worry about color spaces.",
+      "range": {
+        "startLine": 244,
+        "startChar": 0,
+        "endLine": 248,
+        "endChar": 17
+      },
+      "revId": "b7b88ba05f940f7183a50fe50cd290384cadda35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3da6187_8e0c8da2",
+        "filename": "src/core/SkColorMatrixFilterRowMajor255.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-26T12:25:08Z",
+      "side": 1,
+      "message": "The use of the fColorSpace field was a somewhat unique implementation to avoid early raster of pictures.  Typically, we choose not to remember to the color space.  Ex: we can do what you\u0027ve done here, but not pass the color space to the new SkColorFilter.  Obviously this means that calling onMakeColorSpace() twice is a bad idea since the src is always sRGB...",
+      "range": {
+        "startLine": 276,
+        "startChar": 4,
+        "endLine": 276,
+        "endChar": 91
+      },
+      "revId": "b7b88ba05f940f7183a50fe50cd290384cadda35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
