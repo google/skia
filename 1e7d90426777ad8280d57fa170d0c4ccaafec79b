@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "21d55526_9eff0c0e",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 6920
+      },
+      "writtenOn": "2017-05-26T15:31:25Z",
+      "side": 1,
+      "message": "Ops... I will change this and the ones below.",
+      "parentUuid": "1bdc9632_c45b80bc",
+      "range": {
+        "startLine": 192,
+        "startChar": 55,
+        "endLine": 192,
+        "endChar": 69
+      },
+      "revId": "1e7d90426777ad8280d57fa170d0c4ccaafec79b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1bd84785_3d48dd2b",
         "filename": "src/opts/SkBlitRow_opts.h",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "daff86a2_e564b27a",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 6920
+      },
+      "writtenOn": "2017-05-26T15:31:25Z",
+      "side": 1,
+      "message": "Well spotted! Also thanks for the vcreate_u8 suggestion. I just tested this one by commenting the code above and transforming the if into a for loop. It seems your suggestion is actually faster. AFAICS, the compiler seems to be better at reasoning with regular loads rather than NEON ones.",
+      "parentUuid": "1bd84785_3d48dd2b",
+      "range": {
+        "startLine": 226,
+        "startChar": 25,
+        "endLine": 226,
+        "endChar": 44
+      },
+      "revId": "1e7d90426777ad8280d57fa170d0c4ccaafec79b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "437f4939_942cbcb9",
         "filename": "src/opts/SkBlitRow_opts.h",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2017-05-26T12:42:08Z",
       "side": 1,
       "message": "Probably clearer to just pass \"dst\" here, given that vst1_lane_u32 takes a uint32_t*.",
+      "range": {
+        "startLine": 229,
+        "startChar": 22,
+        "endLine": 229,
+        "endChar": 53
+      },
+      "revId": "1e7d90426777ad8280d57fa170d0c4ccaafec79b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "981cf052_f8b77efc",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 6920
+      },
+      "writtenOn": "2017-05-26T15:31:25Z",
+      "side": 1,
+      "message": "Interestingly, removing the reinterpret_cast leads to different binary code when compiling for A32 (32-bit ARM):\n\n  3b4:\tf4c0080f \tvst1.32\t{d16[0]}, [r0]\n  3b4:\tf4c0083f \tvst1.32\t{d16[0]}, [r0 :32]  // \u003c-- without reinterpret_cast\u003cuint8_t*\u003e\n\nSo this code will generate an alignment exception if dst is not 4 bytes aligned. Normally, I would expect that src and dst are always correctly aligned. But this may introduce a risk of regression if some code in the wild is incorrectly using this function. Should we take this risk?",
+      "parentUuid": "437f4939_942cbcb9",
       "range": {
         "startLine": 229,
         "startChar": 22,
