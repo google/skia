@@ -104,6 +104,24 @@
       "revId": "a82c2ac8b049c0e039ab4b797c6e6ba4c1f6978f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10433a07_b9ec9b61",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-05-26T17:40:39Z",
+      "side": 1,
+      "message": "I see. So it\u0027s more like kRespectAlpha and kIgnoreAlpha?",
+      "parentUuid": "060fd24c_b0f8bd96",
+      "revId": "a82c2ac8b049c0e039ab4b797c6e6ba4c1f6978f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
