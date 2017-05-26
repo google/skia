@@ -42,6 +42,7 @@ gm_sources = [
   "$_gm/blend.cpp",
   "$_gm/blurcircles.cpp",
   "$_gm/blurcircles2.cpp",
+  "$_gm/blurignorexform.cpp",
   "$_gm/blurquickreject.cpp",
   "$_gm/blurrect.cpp",
   "$_gm/blurredclippedcircle.cpp",
