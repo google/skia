@@ -44,43 +44,6 @@ void ramp(const Sk4f& c, const Sk4f& dc, typename DstTraits<dstType, premul>::Ty
     }
 }
 
-// Planar version of ramp (S32 no-premul only).
-template<>
-void ramp<DstType::S32, ApplyPremul::False>(const Sk4f& c, const Sk4f& dc, SkPMColor dst[], int n) {
-    SkASSERT(n > 0);
-
-    const Sk4f    dc4 = dc * 4;
-    const Sk4x4f dc4x = { Sk4f(dc4[0]), Sk4f(dc4[1]), Sk4f(dc4[2]), Sk4f(dc4[3]) };
-    Sk4x4f        c4x = Sk4x4f::Transpose(c, c + dc, c + dc * 2, c + dc * 3);
-
-    while (n >= 4) {
-        ( sk_linear_to_srgb(c4x.r) <<  0
-        | sk_linear_to_srgb(c4x.g) <<  8
-        | sk_linear_to_srgb(c4x.b) << 16
-        | Sk4f_round(255.0f*c4x.a) << 24).store(dst);
-
-        c4x.r += dc4x.r;
-        c4x.g += dc4x.g;
-        c4x.b += dc4x.b;
-        c4x.a += dc4x.a;
-
-        dst += 4;
-        n   -= 4;
-    }
-
-    if (n & 2) {
-        DstTraits<DstType::S32, ApplyPremul::False>
-            ::store(Sk4f(c4x.r[0], c4x.g[0], c4x.b[0], c4x.a[0]), dst++);
-        DstTraits<DstType::S32, ApplyPremul::False>
-            ::store(Sk4f(c4x.r[1], c4x.g[1], c4x.b[1], c4x.a[1]), dst++);
-    }
-
-    if (n & 1) {
-        DstTraits<DstType::S32, ApplyPremul::False>
-            ::store(Sk4f(c4x.r[n & 2], c4x.g[n & 2], c4x.b[n & 2], c4x.a[n & 2]), dst);
-    }
-}
-
 template<SkShader::TileMode>
 SkScalar pinFx(SkScalar);
 
@@ -463,66 +426,5 @@ LinearGradient4fContext::mapTs(int x, int y, SkScalar ts[], int count) const {
             ts[i] = SkScalarIsNaN(pt.x()) ? 0 : pt.x();
             sx += SK_Scalar1;
         }
-    }
-}
-
-bool SkLinearGradient::LinearGradient4fContext::onChooseBlitProcs(const SkImageInfo& info,
-                                                                  BlitState* state) {
-    if (state->fMode != SkBlendMode::kSrc &&
-        !(state->fMode == SkBlendMode::kSrcOver && (fFlags & kOpaqueAlpha_Flag))) {
-        return false;
-    }
-
-    switch (info.colorType()) {
-        case kN32_SkColorType:
-            state->fBlitBW = D32_BlitBW;
-            return true;
-        case kRGBA_F16_SkColorType:
-            state->fBlitBW = D64_BlitBW;
-            return true;
-        default:
-            return false;
-    }
-}
-
-void SkLinearGradient::
-LinearGradient4fContext::D32_BlitBW(BlitState* state, int x, int y, const SkPixmap& dst,
-                                    int count) {
-    // FIXME: ignoring coverage for now
-    const LinearGradient4fContext* ctx =
-        static_cast<const LinearGradient4fContext*>(state->fCtx);
-
-    if (!dst.info().gammaCloseToSRGB()) {
-        if (ctx->fColorsArePremul) {
-            ctx->shadePremulSpan<DstType::L32, ApplyPremul::False>(
-                x, y, dst.writable_addr32(x, y), count);
-        } else {
-            ctx->shadePremulSpan<DstType::L32, ApplyPremul::True>(
-                x, y, dst.writable_addr32(x, y), count);
-        }
-    } else {
-        if (ctx->fColorsArePremul) {
-            ctx->shadePremulSpan<DstType::S32, ApplyPremul::False>(
-                x, y, dst.writable_addr32(x, y), count);
-        } else {
-            ctx->shadePremulSpan<DstType::S32, ApplyPremul::True>(
-                x, y, dst.writable_addr32(x, y), count);
-        }
-    }
-}
-
-void SkLinearGradient::
-LinearGradient4fContext::D64_BlitBW(BlitState* state, int x, int y, const SkPixmap& dst,
-                                    int count) {
-    // FIXME: ignoring coverage for now
-    const LinearGradient4fContext* ctx =
-        static_cast<const LinearGradient4fContext*>(state->fCtx);
-
-    if (ctx->fColorsArePremul) {
-        ctx->shadePremulSpan<DstType::F16, ApplyPremul::False>(
-            x, y, dst.writable_addr64(x, y), count);
-    } else {
-        ctx->shadePremulSpan<DstType::F16, ApplyPremul::True>(
-            x, y, dst.writable_addr64(x, y), count);
     }
 }

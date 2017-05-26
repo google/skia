@@ -43,16 +43,6 @@ public:
         const SkImageInfo& dstInfo,
         SkArenaAlloc* allocator);
 
-    static SkLinearBitmapPipeline* ClonePipelineForBlitting(
-        const SkLinearBitmapPipeline& pipeline,
-        SkMatrix::TypeMask matrixMask,
-        SkFilterQuality filterQuality,
-        const SkPixmap& srcPixmap,
-        float finalAlpha,
-        SkBlendMode,
-        const SkImageInfo& dstInfo,
-        SkArenaAlloc* allocator);
-
     ~SkLinearBitmapPipeline();
 
     void shadeSpan4f(int x, int y, SkPM4f* dst, int count);

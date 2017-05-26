@@ -145,33 +145,10 @@ public:
         }
     }
 
-    bool onChooseBlitProcs(const SkImageInfo& dstInfo, BlitState* state) override {
-        if ((fBlitterPipeline = SkLinearBitmapPipeline::ClonePipelineForBlitting(
-            *fShaderPipeline,
-            fMatrixTypeMask,
-            fFilterQuality, fSrcPixmap,
-            fAlpha, state->fMode, dstInfo, fAllocator)))
-        {
-            state->fStorage[0] = fBlitterPipeline;
-            state->fBlitBW = &LinearPipelineContext::ForwardToPipeline;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    static void ForwardToPipeline(BlitState* state, int x, int y, const SkPixmap& dst, int count) {
-        SkLinearBitmapPipeline* pipeline = static_cast<SkLinearBitmapPipeline*>(state->fStorage[0]);
-        void* addr = dst.writable_addr32(x, y);
-        pipeline->blitSpan(x, y, addr, count);
-    }
-
 private:
     // Store the allocator from the context creation incase we are asked to build a blitter.
     SkArenaAlloc*           fAllocator;
     SkLinearBitmapPipeline* fShaderPipeline;
-    SkLinearBitmapPipeline* fBlitterPipeline;
     SkXfermode::D32Proc     fSrcModeProc;
     SkPixmap                fSrcPixmap;
     float                   fAlpha;

@@ -23,10 +23,8 @@ namespace {
 enum class ApplyPremul { True, False };
 
 enum class DstType {
-    L32,  // Linear 32bit.  Used for both shader/blitter paths.
-    S32,  // SRGB 32bit.  Used for the blitter path only.
-    F16,  // Linear half-float.  Used for blitters only.
-    F32,  // Linear float.  Used for shaders only.
+    L32,  // Linear 32bit.
+    F32,  // Linear float.
 };
 
 template <ApplyPremul>
@@ -99,63 +97,6 @@ struct DstTraits<DstType::L32, premul> {
             store(c2, dst + 2);
             store(c3, dst + 3);
         }
-    }
-};
-
-template <ApplyPremul premul>
-struct DstTraits<DstType::S32, premul> {
-    using PM   = PremulTraits<premul>;
-    using Type = SkPMColor;
-
-    static Sk4f load(const SkPM4f& c) {
-        return c.to4f_pmorder();
-    }
-
-    static void store(const Sk4f& c, Type* dst) {
-        // FIXME: this assumes opaque colors.  Handle unpremultiplication.
-        *dst = Sk4f_toS32(PM::apply(c));
-    }
-
-    static void store(const Sk4f& c, Type* dst, int n) {
-        sk_memset32(dst, Sk4f_toS32(PM::apply(c)), n);
-    }
-
-    static void store4x(const Sk4f& c0, const Sk4f& c1,
-                        const Sk4f& c2, const Sk4f& c3,
-                        Type* dst) {
-        store(c0, dst + 0);
-        store(c1, dst + 1);
-        store(c2, dst + 2);
-        store(c3, dst + 3);
-    }
-};
-
-template <ApplyPremul premul>
-struct DstTraits<DstType::F16, premul> {
-    using PM   = PremulTraits<premul>;
-    using Type = uint64_t;
-
-    static Sk4f load(const SkPM4f& c) {
-        return c.to4f();
-    }
-
-    static void store(const Sk4f& c, Type* dst) {
-        SkFloatToHalf_finite_ftz(PM::apply(c)).store(dst);
-    }
-
-    static void store(const Sk4f& c, Type* dst, int n) {
-        uint64_t color;
-        SkFloatToHalf_finite_ftz(PM::apply(c)).store(&color);
-        sk_memset64(dst, color, n);
-    }
-
-    static void store4x(const Sk4f& c0, const Sk4f& c1,
-                        const Sk4f& c2, const Sk4f& c3,
-                        Type* dst) {
-        store(c0, dst + 0);
-        store(c1, dst + 1);
-        store(c2, dst + 2);
-        store(c3, dst + 3);
     }
 };
 
