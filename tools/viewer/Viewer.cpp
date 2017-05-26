@@ -146,8 +146,8 @@ DEFINE_bool(list, false, "List samples?");
 #endif
 
 #ifdef SK_BUILD_FOR_ANDROID
-static DEFINE_string(skps, "/data/local/tmp/skia", "Directory to read skps from.");
-static DEFINE_string(jpgs, "/data/local/tmp/skia", "Directory to read jpgs from.");
+static DEFINE_string(skps, "/data/local/tmp/skps", "Directory to read skps from.");
+static DEFINE_string(jpgs, "/data/local/tmp/resources", "Directory to read jpgs from.");
 #else
 static DEFINE_string(skps, "skps", "Directory to read skps from.");
 static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
@@ -281,7 +281,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     SkCommandLineFlags::Parse(argc, argv);
 #ifdef SK_BUILD_FOR_ANDROID
-    SetResourcePath("/data/local/tmp/skia");
+    SetResourcePath("/data/local/tmp/resources");
 #endif
 
     if (FLAGS_atrace) {
