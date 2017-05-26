@@ -813,8 +813,8 @@ private:
             extract_verts(tess, verts, vertexStride, fColor, idxs, canTweakAlphaForCoverage);
 
             GrMesh mesh(kTriangles_GrPrimitiveType);
-            mesh.setIndexed(indexBuffer, tess.numIndices(), firstIndex);
-            mesh.setVertices(vertexBuffer, tess.numPts(), firstVertex);
+            mesh.setIndexed(indexBuffer, tess.numIndices(), firstIndex, 0, tess.numPts() - 1);
+            mesh.setVertexData(vertexBuffer, firstVertex);
             target->draw(gp.get(), this->pipeline(), mesh);
         }
     }
@@ -901,8 +901,8 @@ private:
 
             for (int j = 0; j < draws.count(); ++j) {
                 const Draw& draw = draws[j];
-                mesh.setIndexed(indexBuffer, draw.fIndexCnt, firstIndex);
-                mesh.setVertices(vertexBuffer, draw.fVertexCnt, firstVertex);
+                mesh.setIndexed(indexBuffer, draw.fIndexCnt, firstIndex, 0, draw.fVertexCnt - 1);
+                mesh.setVertexData(vertexBuffer, firstVertex);
                 target->draw(quadProcessor.get(), this->pipeline(), mesh);
                 firstIndex += draw.fIndexCnt;
                 firstVertex += draw.fVertexCnt;

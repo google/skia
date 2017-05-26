@@ -37,8 +37,9 @@ void* GrMeshDrawOp::PatternHelper::init(Target* target, size_t vertexStride,
     size_t ibSize = indexBuffer->gpuMemorySize();
     int maxRepetitions = static_cast<int>(ibSize / (sizeof(uint16_t) * indicesPerRepetition));
 
-    fMesh.setIndexedPatterned(indexBuffer, indicesPerRepetition, repeatCount, maxRepetitions);
-    fMesh.setVertices(vertexBuffer, verticesPerRepetition, firstVertex);
+    fMesh.setIndexedPatterned(indexBuffer, indicesPerRepetition, verticesPerRepetition,
+                              repeatCount, maxRepetitions);
+    fMesh.setVertexData(vertexBuffer, firstVertex);
     return vertices;
 }
 
