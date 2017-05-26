@@ -1,0 +1,310 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "221f9fdc_2c4adfbe",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "Maybe add kRespect vs. kIgnore ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd82658f_aa66b012",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "Make static \u0026 alter name ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7e75d66_76d6024a",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "What\u0027s up with the line break \u0026 space over one \u0027 \u0027 ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20646036_70940322",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "Camel case ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1ccc9ff_35ac8cc3",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "extra \u0027\\n\u0027 ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8480088_c2130257",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "opaqueColor , shadowColor ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56b0896c_2b8deec0",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "This mapping seems odd",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb9b53a0_a0ede552",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "{} s ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "542ead0a_d7c5f497",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "camel case ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ef32ca1_1fc49076",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "camel case ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42d30c0a_57fe64aa",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "{} s",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9712ac00_02281012",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3fbba4e_0a752426",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3827c3ad_82374045",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "Maybe hsl2rgb to match ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aaa98c65_d5f3f519",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "re-indent 2 spaces to 4 ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d18e8f61_5b717533",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "We don\u0027t have a helper for this ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5672b51f_23985f03",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "Just \"j / 100.0f\" ?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f50d45e_2afc4efa",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-26T12:28:01Z",
+      "side": 1,
+      "message": "What?",
+      "revId": "74155f3561cc4aa3a6c775477996800215428237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
