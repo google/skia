@@ -11,6 +11,7 @@
 
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkShader.h"
 #include "SkStream.h"
 #include "SkUtils.h"
 
@@ -110,6 +111,14 @@ static sk_sp<T> GetCachedT(sk_sp<T>* cachedT, sk_sp<T> (*makeNewT)()) {
     }
     *cachedT = (*makeNewT)();
     return *cachedT;
+}
+
+inline SkMatrix GetShaderLocalMatrix(const SkShader* shader) {
+    SkMatrix localMatrix;
+    if (sk_sp<SkShader> s = shader->makeAsALocalMatrixShader(&localMatrix)) {
+        return SkMatrix::Concat(s->getLocalMatrix(), localMatrix);
+    }
+    return shader->getLocalMatrix();
 }
 }  // namespace SkPDFUtils
 
