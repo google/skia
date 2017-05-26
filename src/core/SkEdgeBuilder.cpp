@@ -441,3 +441,18 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, int shiftUp,
     fEdgeList = fList.begin();
     return fList.count();
 }
+
+int SkEdgeBuilder::build_edges(const SkPath& path, const SkIRect* shiftedClip,
+        int shiftEdgesUp, bool pathContainedInClip, bool analyticAA) {
+    // If we're convex, then we need both edges, even the right edge is past the clip
+    const bool canCullToTheRight = !path.isConvex();
+
+    const SkIRect* builderClip = pathContainedInClip ? nullptr : shiftedClip;
+    int count = this->build(path, builderClip, shiftEdgesUp, canCullToTheRight, analyticAA);
+    SkASSERT(count >= 0);
+
+    // canCullToRight == false should imply count != 1
+    SkASSERT(canCullToTheRight || count != 1);
+
+    return count;
+}
