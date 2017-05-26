@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cfb6c896_4e9c0932",
+        "filename": "src/core/SkImagePriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-26T17:37:30Z",
+      "side": 1,
+      "message": "These are intended to be APIs for Android to use.  I think extern is actually the default?  But I\u0027m matching the above signature.",
+      "parentUuid": "b5deb34c_523114c9",
+      "revId": "a82c2ac8b049c0e039ab4b797c6e6ba4c1f6978f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7a31c375_671dbc48",
         "filename": "src/core/SkImagePriv.h",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ea5b49fd_e4d86d57",
+        "filename": "src/core/SkImagePriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-26T17:37:30Z",
+      "side": 1,
+      "message": "I plan to drop it from this CL.  We will need to implement it in order to support color space conversions on SkImages that wrap gralloc buffers.",
+      "parentUuid": "7a31c375_671dbc48",
+      "revId": "a82c2ac8b049c0e039ab4b797c6e6ba4c1f6978f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b3532b34_295759e6",
         "filename": "src/image/SkImage_Raster.cpp",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2017-05-11T17:05:38Z",
       "side": 1,
       "message": "At a first glance, kIgnore seems to completely turn off the colorspace transformation (treat it as linear). Is this going to be changed as we should do some transformation based on dst and src colorspace?",
+      "revId": "a82c2ac8b049c0e039ab4b797c6e6ba4c1f6978f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "060fd24c_b0f8bd96",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-26T17:37:30Z",
+      "side": 1,
+      "message": "kIgnore vs kRespect specifies the alpha behavior (blend, premul, unpremul) with respect to color spaces.  Being fully color correct means doing those operations linearly (kRespect) - but we have legacy clients who want color space supports with legacy blending (kIgnore).",
+      "parentUuid": "b3532b34_295759e6",
       "revId": "a82c2ac8b049c0e039ab4b797c6e6ba4c1f6978f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
