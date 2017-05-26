@@ -7,6 +7,7 @@
 
 #include "SkColorMatrixFilterRowMajor255.h"
 #include "SkColorPriv.h"
+#include "SkColorSpaceXformer.h"
 #include "SkNx.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
@@ -230,6 +231,39 @@ static void set_concat(SkScalar result[20], const SkScalar outer[20], const SkSc
 ///////////////////////////////////////////////////////////////////////////////
 //  End duplication
 //////
+
+sk_sp<SkColorFilter> SkColorMatrixFilterRowMajor255::onMakeColorSpace(
+        SkColorSpaceXformer* xformer) const {
+    if (xformer->dst()->isSRGB()) {
+      return SkColorFilter::onMakeColorSpace(xformer);
+    }
+    SkMatrix44 dstToXYZD50;
+    SkMatrix44 srgbToXYZD50;
+    xformer->dst()->toXYZD50(&dstToXYZD50);
+    SkColorSpace::MakeSRGB()->toXYZD50(&srgbToXYZD50);
+
+    SkMatrix44 XYZD50ToDst;
+    dstToXYZD50.invert(&XYZD50ToDst);
+    SkMatrix44 XYZD50ToSrgb;
+    srgbToXYZD50.invert(&XYZD50ToSrgb);
+
+    SkMatrix44 matrixInSRGB;
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            matrixInSRGB.set(i, j, fMatrix[5 * i + j]);
+        }
+    }
+    SkMatrix44 matrixInDst =
+            (XYZD50ToDst * srgbToXYZD50) * matrixInSRGB * (XYZD50ToSrgb * dstToXYZD50);
+    SkScalar array[20];
+    memcpy(array, fMatrix, sizeof(fMatrix));
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            array[5 * i + j] = matrixInDst.get(i, j);
+        }
+    }
+    return sk_sp<SkColorFilter>(new SkColorMatrixFilterRowMajor255(array));
+}
 
 void SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
                                                     SkColorSpace* dst,
