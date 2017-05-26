@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13666a53_039ff3be",
+        "filename": "src/core/SkEdgeBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-05-26T14:59:47Z",
+      "side": 1,
+      "message": "nit: might be simpler to say\n\nSkASSERT(canCullToTheRight || count !\u003d 1);",
+      "range": {
+        "startLine": 455,
+        "startChar": 19,
+        "endLine": 455,
+        "endChar": 27
+      },
+      "revId": "a729a662871744049268afdefe431ed737429abe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
