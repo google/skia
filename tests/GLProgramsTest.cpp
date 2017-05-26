@@ -218,7 +218,11 @@ static void set_random_color_coverage_stages(GrPaint* paint,
     if (d->fRandom->nextF() < procTreeProbability) {
         // A full tree with 5 levels (31 nodes) may cause a program that exceeds shader limits
         // (e.g. uniform or varying limits); maxTreeLevels should be a number from 1 to 4 inclusive.
-        const int maxTreeLevels = 4;
+        int maxTreeLevels = 4;
+        // On iOS we can exceed the maximum number of varyings. http://skbug.com/6627.
+#ifdef SK_BUILD_FOR_IOS
+        maxTreeLevels = 2;
+#endif
         sk_sp<GrFragmentProcessor> fp(create_random_proc_tree(d, 2, maxTreeLevels));
         paint->addColorFragmentProcessor(std::move(fp));
     } else {
