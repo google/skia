@@ -9,30 +9,49 @@
 #define GrClearOp_DEFINED
 
 #include "GrFixedClip.h"
+#include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrOp.h"
 #include "GrOpFlushState.h"
+#include "GrRenderTarget.h"
+#include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
 
 class GrClearOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    // MDB TODO: replace the renderTargetContext with just the renderTargetProxy.
+    // For now, we need the renderTargetContext for its accessRenderTarget powers.
     static std::unique_ptr<GrClearOp> Make(const GrFixedClip& clip, GrColor color,
-                                           GrSurfaceProxy* dstProxy) {
-        const SkIRect rect = SkIRect::MakeWH(dstProxy->width(), dstProxy->height());
-        if (clip.scissorEnabled() && !SkIRect::Intersects(clip.scissorRect(), rect)) {
+                                           GrRenderTargetContext* rtc) {
+        const SkIRect rtRect = SkIRect::MakeWH(rtc->width(), rtc->height());
+        if (clip.scissorEnabled() && !SkIRect::Intersects(clip.scissorRect(), rtRect)) {
             return nullptr;
         }
 
-        return std::unique_ptr<GrClearOp>(new GrClearOp(clip, color, dstProxy));
+        // MDB TODO: remove this. In this hybrid state we need to be sure the RT is instantiable
+        // so it can carry the IO refs. In the future we will just get the proxy and
+        // it carry the IO refs.
+        if (!rtc->accessRenderTarget()) {
+            return nullptr;
+        }
+
+        return std::unique_ptr<GrClearOp>(new GrClearOp(clip, color, rtc));
     }
 
+    // MDB TODO: replace the renderTargetContext with just the renderTargetProxy.
     static std::unique_ptr<GrClearOp> Make(const SkIRect& rect, GrColor color,
+                                           GrRenderTargetContext* rtc,
                                            bool fullScreen) {
         SkASSERT(fullScreen || !rect.isEmpty());
 
-        return std::unique_ptr<GrClearOp>(new GrClearOp(rect, color, fullScreen));
+        // MDB TODO: remove this. See above comment.
+        if (!rtc->accessRenderTarget()) {
+            return nullptr;
+        }
+
+        return std::unique_ptr<GrClearOp>(new GrClearOp(rect, color, rtc, fullScreen));
     }
 
     const char* name() const override { return "Clear"; }
@@ -40,7 +59,9 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         string.append(INHERITED::dumpInfo());
-        string.appendf("Scissor [ ");
+        string.appendf("rtID: %d proxyID: %d Scissor [",
+                       fRenderTarget.get()->uniqueID().asUInt(),
+                       fProxyUniqueID.asUInt());
         if (fClip.scissorEnabled()) {
             const SkIRect& r = fClip.scissorRect();
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
@@ -55,11 +76,13 @@ public:
     void setColor(GrColor color) { fColor = color; }
 
 private:
-    GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* proxy)
+    GrClearOp(const GrFixedClip& clip, GrColor color, GrRenderTargetContext* rtc)
         : INHERITED(ClassID())
         , fClip(clip)
-        , fColor(color) {
+        , fColor(color)
+        , fProxyUniqueID(rtc->asSurfaceProxy()->uniqueID()) {
 
+        GrSurfaceProxy* proxy = rtc->asSurfaceProxy();
         const SkIRect rtRect = SkIRect::MakeWH(proxy->width(), proxy->height());
         if (fClip.scissorEnabled()) {
             // Don't let scissors extend outside the RT. This may improve op combining.
@@ -74,17 +97,20 @@ private:
         }
         this->setBounds(SkRect::Make(fClip.scissorEnabled() ? fClip.scissorRect() : rtRect),
                         HasAABloat::kNo, IsZeroArea::kNo);
+        fRenderTarget.reset(rtc->accessRenderTarget());
     }
 
-    GrClearOp(const SkIRect& rect, GrColor color, bool fullScreen)
+    GrClearOp(const SkIRect& rect, GrColor color, GrRenderTargetContext* rtc, bool fullScreen)
         : INHERITED(ClassID())
         , fClip(GrFixedClip(rect))
-        , fColor(color) {
+        , fColor(color)
+        , fProxyUniqueID(rtc->asSurfaceProxy()->uniqueID()) {
 
         if (fullScreen) {
             fClip.disableScissor();
         }
         this->setBounds(SkRect::Make(rect), HasAABloat::kNo, IsZeroArea::kNo);
+        fRenderTarget.reset(rtc->accessRenderTarget());
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -92,6 +118,8 @@ private:
         // contains the old clear, or when the new clear is a subset of the old clear and is the
         // same color.
         GrClearOp* cb = t->cast<GrClearOp>();
+        SkASSERT(cb->fRenderTarget == fRenderTarget);
+        SkASSERT(cb->fProxyUniqueID == fProxyUniqueID);
         if (fClip.windowRectsState() != cb->fClip.windowRectsState()) {
             return false;
         }
@@ -116,13 +144,16 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override {
-        SkASSERT(state->drawOpArgs().fRenderTarget);
-
-        state->commandBuffer()->clear(state->drawOpArgs().fRenderTarget, fClip, fColor);
+        // MDB TODO: instantiate the renderTarget from the proxy in here
+        state->commandBuffer()->clear(fRenderTarget.get(), fClip, fColor);
     }
 
-    GrFixedClip fClip;
-    GrColor     fColor;
+    GrFixedClip                                             fClip;
+    GrColor                                                 fColor;
+
+    // MDB TODO: remove this. When the renderTargetProxy carries the refs this will be redundant.
+    GrSurfaceProxy::UniqueID                                fProxyUniqueID;
+    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
 
     typedef GrOp INHERITED;
 };
