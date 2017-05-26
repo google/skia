@@ -1230,7 +1230,7 @@ SkPDFShader::State::State(SkShader* shader, const SkMatrix& canvasTransform,
 
     if (fType != SkShader::kNone_GradientType) {
         fBitmapKey = SkBitmapKey{{0, 0, 0, 0}, 0};
-        fShaderTransform = shader->getLocalMatrix();
+        fShaderTransform = SkPDFUtils::GetShaderLocalMatrix(shader);
         this->allocateGradientInfoStorage();
         shader->asAGradient(&fInfo);
         return;

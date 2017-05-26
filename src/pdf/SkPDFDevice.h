@@ -274,6 +274,12 @@ private:
                           const SkMatrix* prePathMatrix,
                           bool pathIsMutable);
 
+    void internalDrawPathWithFilter(const SkClipStack& clipStack,
+                                    const SkMatrix& ctm,
+                                    const SkPath& origPath,
+                                    const SkPaint& paint,
+                                    const SkMatrix* prePathMatrix);
+
     bool handleInversePath(const SkPath& origPath,
                            const SkPaint& paint, bool pathIsMutable,
                            const SkMatrix* prePathMatrix = nullptr);
