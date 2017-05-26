@@ -54,27 +54,23 @@ std::unique_ptr<SkSL::Program> translate_to_glsl(const GrGLContext& context, GrG
         sksl.append(skslStrings[i], lengths[i]);
     }
 #endif
-    if (type == GR_GL_VERTEX_SHADER || type == GR_GL_FRAGMENT_SHADER) {
-        SkSL::Compiler* compiler = context.compiler();
-        std::unique_ptr<SkSL::Program> program;
-        program = compiler->convertProgram(type == GR_GL_VERTEX_SHADER
-                                                   ? SkSL::Program::kVertex_Kind
-                                                   : SkSL::Program::kFragment_Kind,
-                                           sksl,
-                                           settings);
-        if (!program || !compiler->toGLSL(*program, glsl)) {
-            SkDebugf("SKSL compilation error\n----------------------\n");
-            SkDebugf(list_shaders(skslStrings, lengths, count, *glsl).c_str());
-            SkDebugf("\nErrors:\n%s\n", compiler->errorText().c_str());
-            SkDEBUGFAIL("SKSL compilation failed!\n");
-            return nullptr;
-        }
-        return program;
-    } else {
-        // TODO: geometry shader support in sksl.
-        SkASSERT(type == GR_GL_GEOMETRY_SHADER);
+    SkSL::Compiler* compiler = context.compiler();
+    std::unique_ptr<SkSL::Program> program;
+    SkSL::Program::Kind programKind;
+    switch (type) {
+        case GR_GL_VERTEX_SHADER:   programKind = SkSL::Program::kVertex_Kind;   break;
+        case GR_GL_FRAGMENT_SHADER: programKind = SkSL::Program::kFragment_Kind; break;
+        case GR_GL_GEOMETRY_SHADER: programKind = SkSL::Program::kGeometry_Kind; break;
+    }
+    program = compiler->convertProgram(programKind, sksl, settings);
+    if (!program || !compiler->toGLSL(*program, glsl)) {
+        SkDebugf("SKSL compilation error\n----------------------\n");
+        SkDebugf(list_shaders(skslStrings, lengths, count, *glsl).c_str());
+        SkDebugf("\nErrors:\n%s\n", compiler->errorText().c_str());
+        SkDEBUGFAIL("SKSL compilation failed!\n");
         return nullptr;
     }
+    return program;
 }
 
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
