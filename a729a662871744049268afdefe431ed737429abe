@@ -22,6 +22,30 @@
       "revId": "a729a662871744049268afdefe431ed737429abe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "650b2b4f_fe78e88c",
+        "filename": "src/core/SkEdgeBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-05-26T15:02:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13666a53_039ff3be",
+      "range": {
+        "startLine": 455,
+        "startChar": 19,
+        "endLine": 455,
+        "endChar": 27
+      },
+      "revId": "a729a662871744049268afdefe431ed737429abe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
