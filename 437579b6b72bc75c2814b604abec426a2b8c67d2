@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08e67402_dca861d4",
+        "filename": "src/gpu/GrMesh.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-26T14:42:08Z",
+      "side": 1,
+      "message": "Some naming stuff:\n\nHelper seems a little vague here for a pretty narrow interface. Consumer? Target? Renderer?\n\nsend*ToGpu() -\u003e draw*()?\n\nAlso, wondering about alternatives to the interface inheritance model. If there was only one method I\u0027d probably prefer a model where sendToGpu() takes a std::function\u003c\u003e and have GrGLGpu... pass a lambda. If it there were six functions then that wouldn\u0027t scale well and maybe an inheritance or function-local class in GrGLGpu::draw() would make more sense. Two functions feels like gray-zone. No recommendation or anything. I just want to put that out there and see if Chris or Greg have a reaction. This may be me just getting a weird feeling because we don\u0027t typically use interface inheritance. Another possibility would be making GrMesh::sendToGpu() templated.",
+      "range": {
+        "startLine": 42,
+        "startChar": 10,
+        "endLine": 42,
+        "endChar": 25
+      },
+      "revId": "437579b6b72bc75c2814b604abec426a2b8c67d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0ffba7f_bcbe35a1",
+        "filename": "src/gpu/GrMesh.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-26T14:42:08Z",
+      "side": 1,
+      "message": "draw?",
+      "range": {
+        "startLine": 57,
+        "startChar": 9,
+        "endLine": 57,
+        "endChar": 18
+      },
+      "revId": "437579b6b72bc75c2814b604abec426a2b8c67d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
