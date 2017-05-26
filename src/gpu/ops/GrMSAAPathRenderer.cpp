@@ -337,7 +337,7 @@ private:
         const GrBuffer* lineVertexBuffer;
         int firstLineVertex;
         MSAALineVertices lines;
-        size_t lineVertexStride = sizeof(MSAALineVertices::Vertex);
+        int lineVertexStride = sizeof(MSAALineVertices::Vertex);
         lines.vertices = (MSAALineVertices::Vertex*) target->makeVertexSpace(lineVertexStride,
                                                                              fMaxLineVertices,
                                                                              &lineVertexBuffer,
@@ -350,7 +350,7 @@ private:
         SkDEBUGCODE(lines.verticesEnd = lines.vertices + fMaxLineVertices;)
 
         MSAAQuadVertices quads;
-        size_t quadVertexStride = sizeof(MSAAQuadVertices::Vertex);
+        int quadVertexStride = sizeof(MSAAQuadVertices::Vertex);
         SkAutoMalloc quadVertexPtr(fMaxQuadVertices * quadVertexStride);
         quads.vertices = (MSAAQuadVertices::Vertex*) quadVertexPtr.get();
         quads.nextVertex = quads.vertices;
@@ -412,7 +412,7 @@ private:
 
             GrMesh lineMeshes(primitiveType);
             if (!fIsIndexed) {
-                lineMeshes.setNonIndexed(lineVertexOffset);
+                lineMeshes.setNonIndexedNonInstanced(lineVertexOffset);
             } else {
                 lineMeshes.setIndexed(lineIndexBuffer, lineIndexOffset, firstLineIndex,
                                       0, lineVertexOffset - 1);
@@ -439,7 +439,7 @@ private:
             memcpy(quadVertices, quads.vertices, quadVertexStride * quadVertexOffset);
             GrMesh quadMeshes(kTriangles_GrPrimitiveType);
             if (!fIsIndexed) {
-                quadMeshes.setNonIndexed(quadVertexOffset);
+                quadMeshes.setNonIndexedNonInstanced(quadVertexOffset);
             } else {
                 const GrBuffer* quadIndexBuffer;
                 int firstQuadIndex;

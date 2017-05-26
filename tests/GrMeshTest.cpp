@@ -23,6 +23,7 @@
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
 #include <array>
+#include <vector>
 
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
@@ -47,6 +48,9 @@ public:
 
     template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const SkTArray<T>& data) {
         return this->makeVertexBuffer(data.begin(), data.count());
+    }
+    template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const std::vector<T>& data) {
+        return this->makeVertexBuffer(data.data(), data.size());
     }
     template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const T* data, int count);
 
@@ -144,7 +148,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
         VALIDATE(vbuff);
         for (int y = 0; y < kBoxCountY; ++y) {
             GrMesh mesh(kTriangles_GrPrimitiveType);
-            mesh.setNonIndexed(kBoxCountX * 6);
+            mesh.setNonIndexedNonInstanced(kBoxCountX * 6);
             mesh.setVertexData(vbuff.get(), y * kBoxCountX * 6);
             helper->drawMesh(mesh);
         }
@@ -189,6 +193,55 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
             helper->drawMesh(mesh);
         }
     });
+
+    for (bool indexed : {false, true}) {
+        if (!context->caps()->instanceAttribSupport()) {
+            break;
+        }
+
+        run_test(indexed ? "setIndexedInstanced" : "setInstanced",
+                 reporter, rtc, gold, [&](DrawMeshHelper* helper) {
+            auto idxbuff = indexed ? helper->getIndexBuffer() : nullptr;
+            auto instbuff = helper->makeVertexBuffer(boxes);
+            VALIDATE(instbuff);
+            auto vbuff = helper->makeVertexBuffer(std::vector<float>{0,0, 0,1, 1,0, 1,1});
+            VALIDATE(vbuff);
+            auto vbuff2 = helper->makeVertexBuffer( // for testing base vertex.
+                              std::vector<float>{-1,-1, -1,-1, 0,0, 0,1, 1,0, 1,1});
+            VALIDATE(vbuff2);
+
+            // Draw boxes one line at a time to exercise base instance, base vertex, and null vertex
+            // buffer. setIndexedInstanced intentionally does not support a base index.
+            for (int y = 0; y < kBoxCountY; ++y) {
+                GrMesh mesh(indexed ? kTriangles_GrPrimitiveType : kTriangleStrip_GrPrimitiveType);
+                if (indexed) {
+                    VALIDATE(idxbuff);
+                    mesh.setIndexedInstanced(idxbuff.get(), 6,
+                                             instbuff.get(), kBoxCountX, y * kBoxCountX);
+                } else {
+                    mesh.setInstanced(instbuff.get(), kBoxCountX, y * kBoxCountX, 4);
+                }
+                switch (y % 3) {
+                    case 0:
+                        if (context->caps()->shaderCaps()->vertexIDSupport()) {
+                            if (y % 2) {
+                                // We don't need this call because it's the initial state of GrMesh.
+                                mesh.setVertexData(nullptr);
+                            }
+                            break;
+                        }
+                        // Fallthru.
+                    case 1:
+                        mesh.setVertexData(vbuff.get());
+                        break;
+                    case 2:
+                        mesh.setVertexData(vbuff2.get(), 2);
+                        break;
+                }
+                helper->drawMesh(mesh);
+            }
+        });
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,21 +275,36 @@ private:
 
 class GrMeshTestProcessor : public GrGeometryProcessor {
 public:
-    GrMeshTestProcessor()
-        : fVertex(this->addVertexAttrib("vertex", kVec2f_GrVertexAttribType))
-        , fColor(this->addVertexAttrib("color", kVec4ub_GrVertexAttribType)) {
+    GrMeshTestProcessor(bool instanced, bool hasVertexBuffer)
+        : fInstanceLocation(nullptr)
+        , fVertex(nullptr)
+        , fColor(nullptr) {
+        if (instanced) {
+            fInstanceLocation = &this->addInstanceAttrib("location", kVec2f_GrVertexAttribType);
+            if (hasVertexBuffer) {
+                fVertex = &this->addVertexAttrib("vertex", kVec2f_GrVertexAttribType);
+            }
+            fColor = &this->addInstanceAttrib("color", kVec4ub_GrVertexAttribType);
+        } else {
+            fVertex = &this->addVertexAttrib("vertex", kVec2f_GrVertexAttribType);
+            fColor = &this->addVertexAttrib("color", kVec4ub_GrVertexAttribType);
+        }
         this->initClassID<GrMeshTestProcessor>();
     }
 
     const char* name() const override { return "GrMeshTest Processor"; }
 
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
+        b->add32(SkToBool(fInstanceLocation));
+        b->add32(SkToBool(fVertex));
+    }
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 protected:
-    const Attribute& fVertex;
-    const Attribute& fColor;
+    const Attribute* fInstanceLocation;
+    const Attribute* fVertex;
+    const Attribute* fColor;
 
     friend class GLSLMeshTestProcessor;
     typedef GrGeometryProcessor INHERITED;
@@ -251,10 +319,20 @@ class GLSLMeshTestProcessor : public GrGLSLGeometryProcessor {
 
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
         varyingHandler->emitAttributes(mp);
-        varyingHandler->addPassThroughAttribute(&mp.fColor, args.fOutputColor);
+        varyingHandler->addPassThroughAttribute(mp.fColor, args.fOutputColor);
 
         GrGLSLVertexBuilder* v = args.fVertBuilder;
-        v->codeAppendf("vec2 vertex = %s;", mp.fVertex.fName);
+        if (!mp.fInstanceLocation) {
+            v->codeAppendf("vec2 vertex = %s;", mp.fVertex->fName);
+        } else {
+            if (mp.fVertex) {
+                v->codeAppendf("vec2 offset = %s;", mp.fVertex->fName);
+            } else {
+                v->codeAppend ("vec2 offset = vec2(sk_VertexID / 2, sk_VertexID % 2);");
+            }
+            v->codeAppendf("vec2 vertex = %s + offset * %i;",
+                           mp.fInstanceLocation->fName, kBoxSize);
+        }
         gpArgs->fPositionVar.set(kVec2f_GrSLType, "vertex");
 
         GrGLSLPPFragmentBuilder* f = args.fFragBuilder;
@@ -287,7 +365,8 @@ sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
 void DrawMeshHelper::drawMesh(const GrMesh& mesh) {
     GrRenderTarget* rt = fState->drawOpArgs().fRenderTarget;
     GrPipeline pipeline(rt, SkBlendMode::kSrc);
-    fState->commandBuffer()->draw(pipeline, GrMeshTestProcessor(), &mesh, 1,
+    GrMeshTestProcessor mtp(mesh.isInstanced(), mesh.hasVertexData());
+    fState->commandBuffer()->draw(pipeline, mtp, &mesh, 1,
                                   SkRect::MakeIWH(kImageWidth, kImageHeight));
 }
 

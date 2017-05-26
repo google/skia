@@ -157,7 +157,7 @@ private:
         }
 
         GrMesh mesh(primType);
-        mesh.setNonIndexed(vertexCount);
+        mesh.setNonIndexedNonInstanced(vertexCount);
         mesh.setVertexData(vertexBuffer, firstVertex);
         target->draw(gp.get(), this->pipeline(), mesh);
     }
