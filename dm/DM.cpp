@@ -1294,9 +1294,11 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
 
 DEFINE_int32(status_sec, 15, "Print status this often (and if we crash).");
 
+static std::atomic<bool> gStopStatusThread{false};
+
 SkThread* start_status_thread() {
     auto thread = new SkThread([] (void*) {
-        for (;;) {
+        while (!gStopStatusThread.load()) {
             print_status();
         #if defined(SK_BUILD_FOR_WIN)
             Sleep(FLAGS_status_sec * 1000);
@@ -1429,6 +1431,13 @@ int main(int argc, char** argv) {
 #ifdef SK_PDF_IMAGE_STATS
     SkPDFImageDumpStats();
 #endif  // SK_PDF_IMAGE_STATS
+
+    // An experiment to work around problems with libmobiledevice driving DM.
+    // Make sure the status thread has stopped completely before we exit.
+#if defined(SK_BUILD_FOR_IOS)
+    gStopStatusThread.store(true);
+    statusThread->join();
+#endif
 
     print_status();
     SkGraphics::PurgeAllCaches();
