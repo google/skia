@@ -1634,8 +1634,7 @@ void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCoun
                                        &primitiveType);
 }
 
-void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode,
-                                     const SkPaint& paint) {
+void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     CHECK_SHOULD_DRAW();
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawVertices", fContext.get());
@@ -1644,10 +1643,11 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode,
     GrPaint grPaint;
     bool hasColors = vertices->hasColors();
     bool hasTexs = vertices->hasTexCoords();
-    if (!hasTexs && !hasColors) {
+    if ((!hasTexs || !paint.getShader()) && !hasColors) {
         // The dreaded wireframe mode. Fallback to drawVertices and go so slooooooow.
         this->wireframeVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
                                 mode, vertices->indices(), vertices->indexCount(), paint);
+        return;
     }
     if (!init_vertices_paint(fContext.get(), fRenderTargetContext.get(), paint, this->ctm(),
                              mode, hasTexs, hasColors, &grPaint)) {
