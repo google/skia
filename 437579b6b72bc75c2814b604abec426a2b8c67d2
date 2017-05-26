@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6d1937ca_cf6c2f4e",
+        "filename": "src/gpu/GrMesh.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-26T16:27:37Z",
+      "side": 1,
+      "message": "I\u0027m not excited about the name \"Helper\" either. I will try and brainstorm other options as well.\n\nThe idea is that once instanced support lands, this interface will have four functions, so that will probably be stepping out of the gray zone.\n\nIf I were to implement GrGLGpu::draw  without the call through GrMesh, with instancing the function would be getting big enough that I would add new methods to GrGLGpu anyway,  so I don\u0027t feel a pressing need to keep everything local to the function with lambdas and/or function-local classes.\n\nIn my opinion the interface model is fine and well suited to the task... I feel like templates would be inferior from a design standpoint, but possibly necessary from a performance standpoint. Although GrMesh::draw is inline and the interface implementations are marked \"final\", so I hope that\u0027s enough hints to the compiler for it to not use virtual dispatch anyway.",
+      "parentUuid": "08e67402_dca861d4",
+      "range": {
+        "startLine": 42,
+        "startChar": 10,
+        "endLine": 42,
+        "endChar": 25
+      },
+      "revId": "437579b6b72bc75c2814b604abec426a2b8c67d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a0ffba7f_bcbe35a1",
         "filename": "src/gpu/GrMesh.h",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-26T14:42:08Z",
       "side": 1,
       "message": "draw?",
+      "range": {
+        "startLine": 57,
+        "startChar": 9,
+        "endLine": 57,
+        "endChar": 18
+      },
+      "revId": "437579b6b72bc75c2814b604abec426a2b8c67d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75b0927e_44cd2f25",
+        "filename": "src/gpu/GrMesh.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-26T16:27:37Z",
+      "side": 1,
+      "message": "I\u0027m happy to change it to draw. I thought about naming it draw as well, but felt that name was too overloaded (i.e.  at this point we are several levels deep in the pipeline from various functions also named \"drawWhatever\"). But that\u0027s a weak opinion.",
+      "parentUuid": "a0ffba7f_bcbe35a1",
       "range": {
         "startLine": 57,
         "startChar": 9,
