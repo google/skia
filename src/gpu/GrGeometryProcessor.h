@@ -40,23 +40,6 @@ public:
     }
 
 protected:
-    /**
-     * Subclasses call this from their constructor to register vertex attributes.  Attributes
-     * will be padded to the nearest 4 bytes for performance reasons.
-     * TODO After deferred geometry, we should do all of this inline in GenerateGeometry alongside
-     * the struct used to actually populate the attributes.  This is all extremely fragile, vertex
-     * attributes have to be added in the order they will appear in the struct which maps memory.
-     * The processor key should reflect the vertex attributes, or there lack thereof in the
-     * GrGeometryProcessor.
-     */
-    const Attribute& addVertexAttrib(const char* name, GrVertexAttribType type,
-                                     GrSLPrecision precision = kDefault_GrSLPrecision) {
-        precision = (kDefault_GrSLPrecision == precision) ? kMedium_GrSLPrecision : precision;
-        fAttribs.emplace_back(name, type, precision);
-        fVertexStride += fAttribs.back().fOffset;
-        return fAttribs.back();
-    }
-
     void setWillUseGeoShader() { fWillUseGeoShader = true; }
 
     /**
