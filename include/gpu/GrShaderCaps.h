@@ -130,6 +130,8 @@ public:
 
     bool texelFetchSupport() const { return fTexelFetchSupport; }
 
+    bool vertexIDSupport() const { return fVertexIDSupport; }
+
     AdvBlendEqInteraction advBlendEqInteraction() const { return fAdvBlendEqInteraction; }
 
     bool mustEnableAdvBlendEqs() const {
@@ -284,6 +286,7 @@ private:
     bool fSampleMaskOverrideCoverageSupport : 1;
     bool fExternalTextureSupport : 1;
     bool fTexelFetchSupport : 1;
+    bool fVertexIDSupport : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
