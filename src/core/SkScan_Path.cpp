@@ -396,16 +396,9 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     shiftedClip.fTop <<= shiftEdgesUp;
     shiftedClip.fBottom <<= shiftEdgesUp;
 
-    SkEdgeBuilder   builder;
-
-    // If we're convex, then we need both edges, even the right edge is past the clip
-    const bool canCullToTheRight = !path.isConvex();
-
-    SkIRect* builderClip = pathContainedInClip ? nullptr : &shiftedClip;
-    int count = builder.build(path, builderClip, shiftEdgesUp, canCullToTheRight);
-    SkASSERT(count >= 0);
-
-    SkEdge**    list = builder.edgeList();
+    SkEdgeBuilder builder;
+    int count = builder.build_edges(path, &shiftedClip, shiftEdgesUp, pathContainedInClip);
+    SkEdge** list = builder.edgeList();
 
     if (0 == count) {
         if (path.isInverseFillType()) {
