@@ -334,8 +334,8 @@ public:
 
     bool operator!=(const ImageStorageAccess& that) const { return !(*this == that); }
 
-    GrTexture* texture() const { return fProxyRef.getProxy()->priv().peekTexture(); }
-    GrTextureProxy* proxy() const { return fProxyRef.getProxy()->asTextureProxy(); }
+    GrTexture* texture() const { return fProxyRef.get()->priv().peekTexture(); }
+    GrTextureProxy* proxy() const { return fProxyRef.get()->asTextureProxy(); }
     GrShaderFlags visibility() const { return fVisibility; }
     GrIOType ioType() const { return fProxyRef.ioType(); }
     GrImageStorageFormat format() const { return fFormat; }
@@ -344,7 +344,7 @@ public:
 
     // MDB: In the future this should be renamed instantiate
     bool isBad(GrResourceProvider* resourceProvider) const {
-        return SkToBool(!fProxyRef.getProxy()->instantiate(resourceProvider));
+        return SkToBool(!fProxyRef.get()->instantiate(resourceProvider));
     }
 
     /**
