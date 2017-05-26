@@ -352,7 +352,7 @@ static int get_glprograms_max_stages(GrContext* context) {
         }
 #endif
     // On iOS we can exceed the maximum number of varyings. http://skbug.com/6627.
-#ifdef SK_BUILDF_FOR_IOS
+#ifdef SK_BUILD_FOR_IOS
         maxStages = 3;
 #endif
     }
