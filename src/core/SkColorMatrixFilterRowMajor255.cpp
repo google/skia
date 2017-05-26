@@ -7,6 +7,7 @@
 
 #include "SkColorMatrixFilterRowMajor255.h"
 #include "SkColorPriv.h"
+#include "SkColorSpaceXformer.h"
 #include "SkNx.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
@@ -53,7 +54,9 @@ void SkColorMatrixFilterRowMajor255::initState() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkColorMatrixFilterRowMajor255::SkColorMatrixFilterRowMajor255(const SkScalar array[20]) {
+SkColorMatrixFilterRowMajor255::SkColorMatrixFilterRowMajor255(const SkScalar array[20],
+                                                               sk_sp<SkColorSpace> colorSpace)
+        : fOperatingColorSpace(std::move(colorSpace)) {
     memcpy(fMatrix, array, 20 * sizeof(SkScalar));
     this->initState();
 }
@@ -165,7 +168,7 @@ void SkColorMatrixFilterRowMajor255::flatten(SkWriteBuffer& buffer) const {
 sk_sp<SkFlattenable> SkColorMatrixFilterRowMajor255::CreateProc(SkReadBuffer& buffer) {
     SkScalar matrix[20];
     if (buffer.readScalarArray(matrix, 20)) {
-        return sk_make_sp<SkColorMatrixFilterRowMajor255>(matrix);
+        return sk_make_sp<SkColorMatrixFilterRowMajor255>(matrix, nullptr);
     }
     return nullptr;
 }
@@ -231,6 +234,49 @@ static void set_concat(SkScalar result[20], const SkScalar outer[20], const SkSc
 //  End duplication
 //////
 
+sk_sp<SkColorFilter> SkColorMatrixFilterRowMajor255::onMakeColorSpace(
+        SkColorSpaceXformer* xformer) const {
+    sk_sp<SkColorSpace> src =
+            fOperatingColorSpace ? fOperatingColorSpace : SkColorSpace::MakeSRGB();
+    if (SkColorSpace::Equals(xformer->dst().get(), src.get())) {
+        sk_ref_sp(const_cast<SkColorFilter*>(reinterpret_cast<const SkColorFilter*>(this)));
+    }
+
+    // Note that, in general, there exists no matrix such that, when it is
+    // applied to colors in the dst color space, the effect is the same as
+    // having applied fMatrix in src color space. Use the matrix that would
+    // accomplish this, were src and dst color spaces to have linear transfer
+    // functions.
+
+    // Compute the matrix to convert primaries.
+    SkMatrix44 srcToXYZD50;
+    src->toXYZD50(&srcToXYZD50);
+    SkMatrix44 XYZD50ToDst;
+    SkMatrix44 dstToXYZD50;
+    xformer->dst()->toXYZD50(&dstToXYZD50);
+    dstToXYZD50.invert(&XYZD50ToDst);
+    SkMatrix44 srcToDst = XYZD50ToDst * srcToXYZD50;
+    SkMatrix44 dstToSrc;
+    srcToDst.invert(&dstToSrc);
+
+    // Apply that matrix on either side of fMatrix.
+    SkMatrix44 matrixInSrc;
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            matrixInSrc.set(i, j, fMatrix[5 * i + j]);
+        }
+    }
+    SkMatrix44 matrixInDst = srcToDst * matrixInSrc * dstToSrc;
+    SkScalar array[20];
+    memcpy(array, fMatrix, sizeof(fMatrix));
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            array[5 * i + j] = matrixInDst.get(i, j);
+        }
+    }
+    return sk_sp<SkColorFilter>(new SkColorMatrixFilterRowMajor255(array, xformer->dst()));
+}
+
 void SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
                                                     SkColorSpace* dst,
                                                     SkArenaAlloc* scratch,
@@ -262,7 +308,7 @@ SkColorMatrixFilterRowMajor255::makeComposed(sk_sp<SkColorFilter> innerFilter) c
     if (innerFilter->asColorMatrix(innerMatrix) && !needs_clamping(innerMatrix)) {
         SkScalar concat[20];
         set_concat(concat, fMatrix, innerMatrix);
-        return sk_make_sp<SkColorMatrixFilterRowMajor255>(concat);
+        return sk_make_sp<SkColorMatrixFilterRowMajor255>(concat, nullptr);
     }
     return nullptr;
 }
@@ -407,7 +453,7 @@ void SkColorMatrixFilterRowMajor255::toString(SkString* str) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkColorFilter> SkColorFilter::MakeMatrixFilterRowMajor255(const SkScalar array[20]) {
-    return sk_sp<SkColorFilter>(new SkColorMatrixFilterRowMajor255(array));
+    return sk_sp<SkColorFilter>(new SkColorMatrixFilterRowMajor255(array, nullptr));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -13,7 +13,7 @@
 class SK_API SkColorMatrixFilterRowMajor255 : public SkColorFilter {
 public:
     SkColorMatrixFilterRowMajor255() {}
-    explicit SkColorMatrixFilterRowMajor255(const SkScalar array[20]);
+    SkColorMatrixFilterRowMajor255(const SkScalar array[20], sk_sp<SkColorSpace> colorSpace);
 
     /** Creates a color matrix filter that returns the same value in all four channels. */
     static sk_sp<SkColorFilter> MakeSingleChannelOutput(const SkScalar row[5]);
@@ -38,10 +38,15 @@ protected:
 private:
     void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         bool shaderIsOpaque) const override;
+    sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
-    SkScalar        fMatrix[20];
-    float           fTranspose[20]; // for Sk4s
-    uint32_t        fFlags;
+    SkScalar fMatrix[20];
+    float fTranspose[20];  // for Sk4s
+    uint32_t fFlags;
+
+    // The operating color space in which fMatrix is to be applied. A nullptr
+    // value implies sRGB. Only changed in onMakeColorSpace.
+    sk_sp<SkColorSpace> fOperatingColorSpace;
 
     void initState();
 
