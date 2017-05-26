@@ -11,6 +11,7 @@
 #include "GrGpuCommandBuffer.h"
 
 #include "GrColor.h"
+#include "GrMesh.h"
 #include "GrTypes.h"
 #include "GrVkPipelineState.h"
 
@@ -20,7 +21,7 @@ class GrVkRenderPass;
 class GrVkRenderTarget;
 class GrVkSecondaryCommandBuffer;
 
-class GrVkGpuCommandBuffer : public GrGpuCommandBuffer {
+class GrVkGpuCommandBuffer : public GrGpuCommandBuffer, private GrMesh::SendToGpuImpl {
 public:
     GrVkGpuCommandBuffer(GrVkGpu* gpu,
                          const LoadAndStoreInfo& colorInfo,
@@ -58,6 +59,16 @@ private:
                 const GrMesh* mesh,
                 int meshCount,
                 const SkRect& bounds) override;
+
+    // GrMesh::SendToGpuImpl methods. These issue the actual Vulkan draw commands.
+    // Marked final as a hint to the compiler to not use virtual dispatch.
+    void sendMeshToGpu(const GrPrimitiveProcessor&, GrPrimitiveType,
+                       const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) final;
+
+    void sendIndexedMeshToGpu(const GrPrimitiveProcessor&, GrPrimitiveType,
+                              const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                              uint16_t minIndexValue, uint16_t maxIndexValue,
+                              const GrBuffer* vertexBuffer, int baseVertex) final;
 
     void onClear(GrRenderTarget*, const GrFixedClip&, GrColor color) override;
 

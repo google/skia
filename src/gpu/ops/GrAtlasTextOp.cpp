@@ -151,9 +151,9 @@ void GrAtlasTextOp::flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushIn
     GrMesh mesh(kTriangles_GrPrimitiveType);
     int maxGlyphsPerDraw =
             static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
-    mesh.setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerGlyph,
+    mesh.setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerGlyph, kVerticesPerGlyph,
                              flushInfo->fGlyphsToFlush, maxGlyphsPerDraw);
-    mesh.setVertices(flushInfo->fVertexBuffer.get(), kVerticesPerGlyph, flushInfo->fVertexOffset);
+    mesh.setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
     target->draw(flushInfo->fGeometryProcessor.get(), this->pipeline(), mesh);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;
