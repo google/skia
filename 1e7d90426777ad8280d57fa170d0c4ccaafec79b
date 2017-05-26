@@ -140,6 +140,30 @@
       "revId": "1e7d90426777ad8280d57fa170d0c4ccaafec79b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a94428f_d3839ebb",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-26T16:16:01Z",
+      "side": 1,
+      "message": "Yes, this is safe.  SkPMColor buffers are always 4 byte aligned.",
+      "parentUuid": "981cf052_f8b77efc",
+      "range": {
+        "startLine": 229,
+        "startChar": 22,
+        "endLine": 229,
+        "endChar": 53
+      },
+      "revId": "1e7d90426777ad8280d57fa170d0c4ccaafec79b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
