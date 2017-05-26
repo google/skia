@@ -11,18 +11,19 @@
 #include "SkAnnotationKeys.h"
 #include "SkBitmapDevice.h"
 #include "SkBitmapKey.h"
+#include "SkClipOpPriv.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkGlyphCache.h"
 #include "SkImageFilterCache.h"
+#include "SkJpegEncoder.h"
 #include "SkMakeUnique.h"
-#include "SkPath.h"
-#include "SkPathEffect.h"
-#include "SkPathOps.h"
+#include "SkMaskFilter.h"
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
+#include "SkPDFCanvas.h"
 #include "SkPDFDocument.h"
 #include "SkPDFFont.h"
 #include "SkPDFFormXObject.h"
@@ -31,9 +32,12 @@
 #include "SkPDFShader.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
+#include "SkPath.h"
+#include "SkPathEffect.h"
+#include "SkPathOps.h"
 #include "SkPixelRef.h"
-#include "SkRasterClip.h"
 #include "SkRRect.h"
+#include "SkRasterClip.h"
 #include "SkScopeExit.h"
 #include "SkString.h"
 #include "SkSurface.h"
@@ -42,7 +46,12 @@
 #include "SkTextFormatParams.h"
 #include "SkUtils.h"
 #include "SkXfermodeInterpretation.h"
-#include "SkClipOpPriv.h"
+
+#ifndef SK_PDF_MASK_QUALITY
+    // If MASK_QUALITY is in [0,100], will be used for JpegEncoder.
+    // Otherwise, just encode masks losslessly.
+    #define SK_PDF_MASK_QUALITY 50
+#endif
 
 #define DPI_FOR_RASTER_SCALE_ONE 72
 
@@ -707,7 +716,7 @@ void SkPDFDevice::drawRect(const SkRect& rect,
     SkRect r = rect;
     r.sort();
 
-    if (paint.getPathEffect()) {
+    if (paint.getPathEffect() || paint.getMaskFilter()) {
         if (this->cs().isEmpty(size(*this))) {
             return;
         }
@@ -752,6 +761,87 @@ void SkPDFDevice::drawPath(const SkPath& origPath,
             this->cs(), this->ctm(), origPath, srcPaint, prePathMatrix, pathIsMutable);
 }
 
+void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
+                                             const SkMatrix& ctm,
+                                             const SkPath& origPath,
+                                             const SkPaint& origPaint,
+                                             const SkMatrix* prePathMatrix) {
+    SkPath path(origPath);
+    SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
+    if (prePathMatrix) {
+        path.transform(*prePathMatrix, &path);
+    }
+    SkStrokeRec::InitStyle initStyle = paint->getFillPath(path, &path)
+                                     ? SkStrokeRec::kFill_InitStyle
+                                     : SkStrokeRec::kHairline_InitStyle;
+    path.transform(ctm, &path);
+
+    // TODO(halcanary): respect fRasterDpi.
+    //        SkScalar rasterScale = (float)fRasterDpi / DPI_FOR_RASTER_SCALE_ONE;
+    SkIRect bounds = clipStack.bounds(size(*this)).roundOut();
+    SkMask sourceMask;
+    if (!SkDraw::DrawToMask(path, &bounds, paint->getMaskFilter(), &SkMatrix::I(),
+                            &sourceMask, SkMask::kComputeBoundsAndRenderImage_CreateMode,
+                            initStyle)) {
+        return;
+    }
+    SkAutoMaskFreeImage srcAutoMaskFreeImage(sourceMask.fImage);
+    SkMask dstMask;
+    SkIPoint margin;
+    if (!paint->getMaskFilter()->filterMask(&dstMask, sourceMask, ctm, &margin)) {
+        return;
+    }
+    SkPixmap pm(SkImageInfo::Make(dstMask.fBounds.width(), dstMask.fBounds.height(),
+                                  kGray_8_SkColorType, kOpaque_SkAlphaType),
+                 dstMask.fImage, dstMask.fRowBytes);
+    sk_sp<SkImage> mask;
+    const int maskQuality = SK_PDF_MASK_QUALITY;
+    if (maskQuality <= 100 && maskQuality >= 0) {
+        SkDynamicMemoryWStream buffer;
+        SkJpegEncoder::Options jpegOptions;
+        jpegOptions.fQuality = maskQuality;
+        if (SkJpegEncoder::Encode(&buffer, pm, jpegOptions)) {
+            mask = SkImage::MakeFromEncoded(buffer.detachAsData());
+        }
+    }
+    if (!mask) {
+        mask = SkImage::MakeFromRaster(
+                pm, [](const void* p, void*) { SkMask::FreeImage((void*)p); }, nullptr);
+    }
+    sk_sp<SkPDFDevice> tmpDevice(SkPDFDevice::CreateUnflipped(fPageSize, fRasterDpi, fDocument));
+    {
+        SkPDFCanvas canvas(tmpDevice);
+        canvas.drawImage(mask, dstMask.fBounds.x(), dstMask.fBounds.y());
+    }
+    sk_sp<SkPDFObject> formXObject = tmpDevice->makeFormXObjectFromDevice();
+    sk_sp<SkPDFDict> sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
+                                 std::move(formXObject), false,
+                                 SkPDFGraphicState::kLuminosity_SMaskMode, fDocument->canon());
+    if (!ctm.isIdentity() && paint->getShader()) {
+        SkMatrix lm = SkPDFUtils::GetShaderLocalMatrix(paint->getShader());
+        SkMatrix lmInv;
+        if (lm.invert(&lmInv)) {
+            SkMatrix m = SkMatrix::Concat(SkMatrix::Concat(lmInv, ctm), lm);
+            paint.writable()->setShader(paint->getShader()->makeWithLocalMatrix(m));
+        }
+    }
+    ScopedContentEntry content(this, clipStack, SkMatrix::I(), *paint);
+    if (!content.entry()) {
+        return;
+    }
+    SkPDFUtils::ApplyGraphicState(this->addGraphicStateResource(sMaskGS.get()),
+                                  &content.entry()->fContent);
+
+    SkRect dstBounds = SkRect::Make(dstMask.fBounds);
+    SkPDFUtils::AppendRectangle(dstBounds, &content.entry()->fContent);
+    SkPDFUtils::PaintPath(SkPaint::kFill_Style, path.getFillType(), &content.entry()->fContent);
+
+    auto noSMaskGS = SkPDFUtils::GetCachedT(&fDocument->canon()->fNoSmaskGraphicState,
+                                            &SkPDFGraphicState::MakeNoSmaskGraphicState);
+    SkPDFUtils::ApplyGraphicState(this->addGraphicStateResource(noSMaskGS.get()),
+                                                 &content.entry()->fContent);
+}
+
 void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
                                    const SkMatrix& ctm,
                                    const SkPath& origPath,
@@ -762,6 +852,11 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
     replace_srcmode_on_opaque_paint(&paint);
     SkPath modifiedPath;
     SkPath* pathPtr = const_cast<SkPath*>(&origPath);
+
+    if (paint.getMaskFilter()) {
+        this->internalDrawPathWithFilter(clipStack, ctm, origPath, paint, prePathMatrix);
+        return;
+    }
 
     SkMatrix matrix = ctm;
     if (prePathMatrix) {
@@ -1242,10 +1337,30 @@ void SkPDFDevice::internalDrawText(
         const SkScalar pos[], SkTextBlob::GlyphPositioning positioning,
         SkPoint offset, const SkPaint& srcPaint, const uint32_t* clusters,
         uint32_t textByteLength, const char* utf8Text) {
-    NOT_IMPLEMENTED(srcPaint.getMaskFilter() != nullptr, false);
-    if (srcPaint.getMaskFilter() != nullptr) {
-        // Don't pretend we support drawing MaskFilters, it makes for artifacts
-        // making text unreadable (e.g. same text twice when using CSS shadows).
+    if (srcPaint.getPathEffect() || srcPaint.getMaskFilter()) {
+        if (this->cs().isEmpty(size(*this))) {
+            return;
+        }
+        SkPath path;
+        switch (positioning) {
+            case SkTextBlob::kDefault_Positioning:
+                srcPaint.getTextPath(sourceText, sourceByteCount, offset.x(), offset.y(), &path);
+                break;
+            case SkTextBlob::kHorizontal_Positioning: {
+                int glyphCount = srcPaint.countText(sourceText, sourceByteCount);
+                SkAutoTMalloc<SkPoint> tmpPoints(glyphCount);
+                for (int i = 0; i < glyphCount; ++i) {
+                    tmpPoints[i] = {pos[i] + offset.x(), offset.y()};
+                }
+                srcPaint.getPosTextPath(sourceText, sourceByteCount, tmpPoints.get(), &path);
+                break;
+            }
+            case SkTextBlob::kFull_Positioning:
+                srcPaint.getPosTextPath(sourceText, sourceByteCount, (const SkPoint*)pos, &path);
+                path.offset(offset.x(), offset.y());
+                break;
+        }
+        this->drawPath(path, srcPaint, nullptr, true);
         return;
     }
     NOT_IMPLEMENTED(srcPaint.isVerticalText(), false);
