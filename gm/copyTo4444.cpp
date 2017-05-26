@@ -27,17 +27,19 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return SkISize::Make(1024, 512);
+        return SkISize::Make(360, 180);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap bm, bm4444;
-        if (!GetResourceAsBitmap("mandrill_512.png", &bm)) {
+        if (!GetResourceAsBitmap("dog.jpg", &bm)) {
             SkDebugf("Could not decode the file. Did you forget to set the "
                      "resourcePath?\n");
             return;
         }
         canvas->drawBitmap(bm, 0, 0);
+
+        // This should dither or we will see artifacts in the background of the image.
         SkAssertResult(sk_tool_utils::copy_to(&bm4444, kARGB_4444_SkColorType, bm));
         canvas->drawBitmap(bm4444, SkIntToScalar(bm.width()), 0);
     }
