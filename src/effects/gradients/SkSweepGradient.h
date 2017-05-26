@@ -10,9 +10,19 @@
 
 #include "SkGradientShaderPriv.h"
 
-class SkSweepGradient final : public SkGradientShaderBase {
+class SkSweepGradient : public SkGradientShaderBase {
 public:
     SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor&);
+
+    class SweepGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
+    public:
+        SweepGradientContext(const SkSweepGradient& shader, const ContextRec&);
+
+        void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
+
+    private:
+        typedef SkGradientShaderBase::GradientShaderBaseContext INHERITED;
+    };
 
     GradientType asAGradient(GradientInfo* info) const override;
 
@@ -25,13 +35,14 @@ public:
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
     bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                      SkMatrix* matrix,
-                                     SkRasterPipeline* p) const override;
+                                     SkRasterPipeline* p) const final;
 
-    bool isRasterPipelineOnly() const override { return true; }
+    bool isRasterPipelineOnly() const final;
 
 private:
     const SkPoint fCenter;
