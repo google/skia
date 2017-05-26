@@ -417,38 +417,6 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     fFirstStage = matrixStage;
 }
 
-SkLinearBitmapPipeline* SkLinearBitmapPipeline::ClonePipelineForBlitting(
-    const SkLinearBitmapPipeline& pipeline,
-    SkMatrix::TypeMask matrixMask,
-    SkFilterQuality filterQuality,
-    const SkPixmap& srcPixmap,
-    float finalAlpha,
-    SkBlendMode blendMode,
-    const SkImageInfo& dstInfo,
-    SkArenaAlloc* allocator)
-{
-    if (blendMode == SkBlendMode::kSrcOver && srcPixmap.info().alphaType() == kOpaque_SkAlphaType) {
-        blendMode = SkBlendMode::kSrc;
-    }
-
-    if (matrixMask & ~SkMatrix::kTranslate_Mask ) { return nullptr; }
-    if (filterQuality != SkFilterQuality::kNone_SkFilterQuality) { return nullptr; }
-    if (finalAlpha != 1.0f) { return nullptr; }
-    if (srcPixmap.info().colorType() != kRGBA_8888_SkColorType
-        || dstInfo.colorType() != kRGBA_8888_SkColorType) { return nullptr; }
-
-    if (!srcPixmap.info().gammaCloseToSRGB() || !dstInfo.gammaCloseToSRGB()) {
-        return nullptr;
-    }
-
-    if (blendMode != SkBlendMode::kSrc && blendMode != SkBlendMode::kSrcOver) {
-        return nullptr;
-    }
-
-    return allocator->make<SkLinearBitmapPipeline>(
-        pipeline, srcPixmap, blendMode, dstInfo, allocator);
-}
-
 void SkLinearBitmapPipeline::shadeSpan4f(int x, int y, SkPM4f* dst, int count) {
     SkASSERT(count > 0);
     this->blitSpan(x, y, dst, count);
