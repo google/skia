@@ -30,6 +30,8 @@ The Viewer APK must be built by gradle which can be invoked on the command line 
 
 Upon completion of the script the APK can be found at <out_dir>/viewer.apk
 
+To load SKPs in the Android viewer place them in /data/local/tmp/skps.
+
 iOS
 ---
 The viewer is currently not supported on iOS.

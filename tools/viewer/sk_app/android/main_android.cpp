@@ -27,7 +27,7 @@ void android_main(struct android_app* state) {
     static const char* gCmdLine[] = {
         "viewer",
         "--skps",
-        "/data/local/tmp/skp",
+        "/data/local/tmp/skps",
         // TODO: figure out how to use am start with extra params to pass in additional arguments at
         // runtime
         // "--atrace",
