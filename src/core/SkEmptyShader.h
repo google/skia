@@ -16,7 +16,7 @@
  *  \class SkEmptyShader
  *  A Shader that always draws nothing. Its createContext always returns nullptr.
  */
-class SK_API SkEmptyShader : public SkShaderBase {
+class SkEmptyShader : public SkShaderBase {
 public:
     SkEmptyShader() {}
 

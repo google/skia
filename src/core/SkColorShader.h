@@ -17,7 +17,7 @@
     accomplished by just using the color field on the paint, but if an
     actual shader object is needed, this provides that feature.
 */
-class SK_API SkColorShader : public SkShaderBase {
+class SkColorShader : public SkShaderBase {
 public:
     /** Create a ColorShader that ignores the color in the paint, and uses the
         specified color. Note: like all shaders, at draw time the paint's alpha

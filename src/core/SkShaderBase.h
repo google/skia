@@ -22,7 +22,7 @@ struct SkImageInfo;
 class SkPaint;
 class SkRasterPipeline;
 
-class SK_API SkShaderBase : public SkShader {
+class SkShaderBase : public SkShader {
 public:
     SkShaderBase(const SkMatrix* localMatrix = nullptr);
 
