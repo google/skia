@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "7b409bd7_b7a76547",
+        "filename": "src/gpu/GrMesh.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-26T21:22:25Z",
+      "side": 1,
+      "message": "Done. Renamed Helper -\u003e Impl",
+      "parentUuid": "6d1937ca_cf6c2f4e",
+      "range": {
+        "startLine": 42,
+        "startChar": 10,
+        "endLine": 42,
+        "endChar": 25
+      },
+      "revId": "437579b6b72bc75c2814b604abec426a2b8c67d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0ffba7f_bcbe35a1",
         "filename": "src/gpu/GrMesh.h",
         "patchSetId": 2
@@ -93,6 +117,30 @@
       "revId": "437579b6b72bc75c2814b604abec426a2b8c67d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b28f2469_35fd279f",
+        "filename": "src/gpu/GrMesh.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-26T21:22:25Z",
+      "side": 1,
+      "message": "Done per offline discussion.",
+      "parentUuid": "75b0927e_44cd2f25",
+      "range": {
+        "startLine": 57,
+        "startChar": 9,
+        "endLine": 57,
+        "endChar": 18
+      },
+      "revId": "437579b6b72bc75c2814b604abec426a2b8c67d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
