@@ -707,7 +707,7 @@ void SkPDFDevice::drawRect(const SkRect& rect,
     SkRect r = rect;
     r.sort();
 
-    if (paint.getPathEffect()) {
+    if (paint.getPathEffect() || paint.getMaskFilter()) {
         if (this->cs().isEmpty(size(*this))) {
             return;
         }
@@ -752,6 +752,86 @@ void SkPDFDevice::drawPath(const SkPath& origPath,
             this->cs(), this->ctm(), origPath, srcPaint, prePathMatrix, pathIsMutable);
 }
 
+#include "SkMaskFilter.h"
+#include "SkJpegEncoder.h"
+#include "SkJpegInfo.h"
+#include "SkPDFCanvas.h"
+void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
+                                             const SkMatrix& ctm,
+                                             const SkPath& origPath,
+                                             const SkPaint& paint,
+                                             const SkMatrix* prePathMatrix) {
+    SkPath path(origPath);
+    if (prePathMatrix) {
+        path.transform(*prePathMatrix, &path);
+    }
+    SkStrokeRec::InitStyle initStyle = paint.getFillPath(path, &path)
+                                     ? SkStrokeRec::kFill_InitStyle
+                                     : SkStrokeRec::kHairline_InitStyle;
+    path.transform(ctm, &path);
+    SkIRect bounds = clipStack.bounds(size(*this)).roundOut();
+    SkMask sourceMask;
+    if (!SkDraw::DrawToMask(path, &bounds, paint.getMaskFilter(), &SkMatrix::I(),
+                            &sourceMask, SkMask::kComputeBoundsAndRenderImage_CreateMode,
+                            initStyle)) {
+        return;
+    }
+    SkAutoMaskFreeImage srcAutoMaskFreeImage(sourceMask.fImage);
+    SkMask dstMask;
+    SkIPoint margin;
+    if (!paint.getMaskFilter()->filterMask(&dstMask, sourceMask, SkMatrix::I(), &margin)) {
+        return;
+    }
+    SkAutoMaskFreeImage dstAutoMaskFreeImage(dstMask.fImage);
+    SkImageInfo info = SkImageInfo::Make(dstMask.fBounds.width(), dstMask.fBounds.height(),
+                                         kGray_8_SkColorType, kOpaque_SkAlphaType);
+    SkPixmap pm(info, dstMask.fImage, dstMask.fRowBytes);
+
+    SkDynamicMemoryWStream buffer;  // SkFILEWStream buffer("/tmp/x.jpeg");
+    SkJpegEncoder::Options jpegOptions;
+    jpegOptions.fQuality = 25;
+    if (!SkJpegEncoder::Encode(&buffer, pm, jpegOptions)) {
+        return;
+    };
+    sk_sp<SkData> encoded = buffer.detachAsData();
+    #ifdef SK_DEBUG
+    {
+        SkJFIFInfo jfifInfo;
+        // Sanity check that encoded made a readable grayscale JPEG.
+        if (!SkIsJFIF(encoded.get(), &jfifInfo)
+               || SkJFIFInfo::kGrayscale != jfifInfo.fType
+               || pm.info().dimensions() != jfifInfo.fSize) {
+           SkASSERT(false);
+           return;
+        }
+    }
+    #endif
+    sk_sp<SkImage> mask = SkImage::MakeFromEncoded(std::move(encoded));
+    sk_sp<SkPDFDevice> tmpDevice(SkPDFDevice::Create(fPageSize, fRasterDpi, fDocument));
+    {
+        SkPDFCanvas canvas(tmpDevice);
+        canvas.drawImage(mask, dstMask.fBounds.x(), dstMask.fBounds.y());
+    }
+    sk_sp<SkPDFObject> formXObject = tmpDevice->makeFormXObjectFromDevice();
+    ScopedContentEntry content(this, clipStack, ctm, paint);
+    if (!content.entry()) {
+        return;
+    }
+    sk_sp<SkPDFDict> sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
+                                 std::move(formXObject), false,
+                                 SkPDFGraphicState::kLuminosity_SMaskMode, fDocument->canon());
+    SkPDFUtils::ApplyGraphicState(this->addGraphicStateResource(sMaskGS.get()),
+                                  &content.entry()->fContent);
+
+    SkPDFUtils::AppendRectangle(SkRect::Make(dstMask.fBounds), &content.entry()->fContent);
+    SkPDFUtils::PaintPath(SkPaint::kFill_Style, path.getFillType(), &content.entry()->fContent);
+
+    auto noSMaskGS = SkPDFUtils::GetCachedT(&fDocument->canon()->fNoSmaskGraphicState,
+                                            &SkPDFGraphicState::MakeNoSmaskGraphicState);
+    SkPDFUtils::ApplyGraphicState(this->addGraphicStateResource(noSMaskGS.get()),
+                                                 &content.entry()->fContent);
+}
+
 void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
                                    const SkMatrix& ctm,
                                    const SkPath& origPath,
@@ -762,6 +842,11 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
     replace_srcmode_on_opaque_paint(&paint);
     SkPath modifiedPath;
     SkPath* pathPtr = const_cast<SkPath*>(&origPath);
+
+    if (paint.getMaskFilter()) {
+        this->internalDrawPathWithFilter(clipStack, ctm, origPath, paint, prePathMatrix);
+        return;
+    }
 
     SkMatrix matrix = ctm;
     if (prePathMatrix) {
