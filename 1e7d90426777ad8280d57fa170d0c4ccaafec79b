@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1bdc9632_c45b80bc",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-26T12:42:08Z",
+      "side": 1,
+      "message": "We\u0027d typically write \"const uint8_t*\" for this type.",
+      "range": {
+        "startLine": 192,
+        "startChar": 55,
+        "endLine": 192,
+        "endChar": 69
+      },
+      "revId": "1e7d90426777ad8280d57fa170d0c4ccaafec79b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bd84785_3d48dd2b",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-26T12:42:08Z",
+      "side": 1,
+      "message": "Don\u0027t you want vreinterpret_u8_u32 here?\n\nAlternatively, maybe just \n\n  uint8x8_t result \u003d SkPMSrcOver_neon2(vcreate_u8(*dst), vcreate_u8(*src));\n\n?",
+      "range": {
+        "startLine": 226,
+        "startChar": 25,
+        "endLine": 226,
+        "endChar": 44
+      },
+      "revId": "1e7d90426777ad8280d57fa170d0c4ccaafec79b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "437f4939_942cbcb9",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-26T12:42:08Z",
+      "side": 1,
+      "message": "Probably clearer to just pass \"dst\" here, given that vst1_lane_u32 takes a uint32_t*.",
+      "range": {
+        "startLine": 229,
+        "startChar": 22,
+        "endLine": 229,
+        "endChar": 53
+      },
+      "revId": "1e7d90426777ad8280d57fa170d0c4ccaafec79b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
