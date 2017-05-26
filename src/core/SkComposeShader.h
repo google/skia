@@ -19,7 +19,7 @@ class SkColorSpacXformer;
     This subclass of shader returns the composition of two other shaders, combined by
     a xfermode.
 */
-class SK_API SkComposeShader : public SkShaderBase {
+class SkComposeShader : public SkShaderBase {
 public:
     /** Create a new compose shader, given shaders A, B, and a combining xfermode mode.
         When the xfermode is called, it will be given the result from shader A as its
