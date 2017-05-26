@@ -1592,17 +1592,9 @@ static SK_ALWAYS_INLINE void aaa_fill_path(const SkPath& path, const SkIRect& cl
         bool isUsingMask, bool forceRLE) { // forceRLE implies that SkAAClip is calling us
     SkASSERT(blitter);
 
-    SkEdgeBuilder   builder;
-
-    // If we're convex, then we need both edges, even the right edge is past the clip
-    const bool canCullToTheRight = !path.isConvex();
-
-    SkASSERT(gSkUseAnalyticAA.load());
-    const SkIRect* builderClip = pathContainedInClip ? nullptr : &clipRect;
-    int count = builder.build(path, builderClip, 0, canCullToTheRight, true);
-    SkASSERT(count >= 0);
-
-    SkAnalyticEdge** list = (SkAnalyticEdge**)builder.analyticEdgeList();
+    SkEdgeBuilder builder;
+    int count = builder.build_edges(path, &clipRect, 0, pathContainedInClip, true);
+    SkAnalyticEdge** list = builder.analyticEdgeList();
 
     SkIRect rect = clipRect;
     if (0 == count) {
@@ -1671,8 +1663,7 @@ static SK_ALWAYS_INLINE void aaa_fill_path(const SkPath& path, const SkIRect& cl
         rightBound = SkTMin(rightBound, SkIntToFixed(ir.fRight));
     }
 
-    if (!path.isInverseFillType() && path.isConvex()) {
-        SkASSERT(count >= 2);   // convex walker does not handle missing right edges
+    if (!path.isInverseFillType() && path.isConvex() && count >= 2) {
         aaa_walk_convex_edges(&headEdge, blitter, start_y, stop_y,
                               leftBound, rightBound, isUsingMask);
     } else {
