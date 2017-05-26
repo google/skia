@@ -683,9 +683,9 @@ private:
             int maxInstancesPerDraw =
                 static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
             mesh.setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerQuad,
-                                     flushInfo->fInstancesToFlush, maxInstancesPerDraw);
-            mesh.setVertices(flushInfo->fVertexBuffer.get(), kVerticesPerQuad,
-                             flushInfo->fVertexOffset);
+                                     kVerticesPerQuad, flushInfo->fInstancesToFlush,
+                                     maxInstancesPerDraw);
+            mesh.setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
             target->draw(flushInfo->fGeometryProcessor.get(), this->pipeline(), mesh);
             flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
             flushInfo->fInstancesToFlush = 0;

@@ -491,6 +491,7 @@ def dm_flags(bot):
     match.append('~ApplyGamma')
     match.append('~ComposedImageFilterBounds_Gpu')
     match.append('~DeferredTextureImage')
+    match.append('~GrMeshTest')
     match.append('~ImageFilterFailAffectsTransparentBlack_Gpu')
     match.append('~ImageFilterZeroBlurSigma_Gpu')
     match.append('~ImageNewShader_GPU')

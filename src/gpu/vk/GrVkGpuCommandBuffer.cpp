@@ -544,8 +544,6 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
         return;
     }
 
-    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
-
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
         if (mesh.primitiveType() != primitiveType) {
@@ -564,36 +562,42 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
         }
 
         SkASSERT(pipelineState);
-        this->bindGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer());
-
-        if (mesh.isIndexed()) {
-            for (const GrMesh::PatternBatch batch : mesh) {
-                cbInfo.currentCmdBuf()->drawIndexed(fGpu,
-                                                    mesh.indexCount() * batch.fRepeatCount,
-                                                    1,
-                                                    mesh.baseIndex(),
-                                                    batch.fBaseVertex,
-                                                    0);
-                cbInfo.fIsEmpty = false;
-                fGpu->stats()->incNumDraws();
-            }
-        } else {
-            cbInfo.currentCmdBuf()->draw(fGpu,
-                                         mesh.vertexCount(),
-                                         1,
-                                         mesh.baseVertex(),
-                                         0);
-            cbInfo.fIsEmpty = false;
-            fGpu->stats()->incNumDraws();
-        }
+        mesh.sendToGpu(primProc, this);
     }
 
-    // Update command buffer bounds
+    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
     cbInfo.fBounds.join(bounds);
+    cbInfo.fIsEmpty = false;
 
     // Technically we don't have to call this here (since there is a safety check in
     // pipelineState:setData but this will allow for quicker freeing of resources if the
     // pipelineState sits in a cache for a while.
     pipelineState->freeTempResources(fGpu);
+}
+
+void GrVkGpuCommandBuffer::sendMeshToGpu(const GrPrimitiveProcessor& primProc,
+                                         GrPrimitiveType,
+                                         const GrBuffer* vertexBuffer,
+                                         int vertexCount,
+                                         int baseVertex) {
+    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
+    this->bindGeometry(primProc, nullptr, vertexBuffer);
+    cbInfo.currentCmdBuf()->draw(fGpu, vertexCount, 1, baseVertex, 0);
+    fGpu->stats()->incNumDraws();
+}
+
+void GrVkGpuCommandBuffer::sendIndexedMeshToGpu(const GrPrimitiveProcessor& primProc,
+                                                GrPrimitiveType,
+                                                const GrBuffer* indexBuffer,
+                                                int indexCount,
+                                                int baseIndex,
+                                                uint16_t /*minIndexValue*/,
+                                                uint16_t /*maxIndexValue*/,
+                                                const GrBuffer* vertexBuffer,
+                                                int baseVertex) {
+    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
+    this->bindGeometry(primProc, indexBuffer, vertexBuffer);
+    cbInfo.currentCmdBuf()->drawIndexed(fGpu, indexCount, 1, baseIndex, baseVertex, 0);
+    fGpu->stats()->incNumDraws();
 }
 

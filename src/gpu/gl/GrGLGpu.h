@@ -17,6 +17,7 @@
 #include "GrGLTexture.h"
 #include "GrGLVertexArray.h"
 #include "GrGpu.h"
+#include "GrMesh.h"
 #include "GrTexturePriv.h"
 #include "GrWindowRectsState.h"
 #include "GrXferProcessor.h"
@@ -34,7 +35,7 @@ namespace gr_instanced { class GLInstancedRendering; }
 #define PROGRAM_CACHE_STATS
 #endif
 
-class GrGLGpu final : public GrGpu {
+class GrGLGpu final : public GrGpu, private GrMesh::SendToGpuImpl {
 public:
     static GrGpu* Create(GrBackendContext backendContext, const GrContextOptions& options,
                          GrContext* context);
@@ -102,6 +103,17 @@ public:
               const GrPrimitiveProcessor&,
               const GrMesh*,
               int meshCount);
+
+
+    // GrMesh::SendToGpuImpl methods. These issue the actual GL draw calls.
+    // Marked final as a hint to the compiler to not use virtual dispatch.
+    void sendMeshToGpu(const GrPrimitiveProcessor&, GrPrimitiveType,
+                       const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) final;
+
+    void sendIndexedMeshToGpu(const GrPrimitiveProcessor&, GrPrimitiveType,
+                              const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                              uint16_t minIndexValue, uint16_t maxIndexValue,
+                              const GrBuffer* vertexBuffer, int baseVertex) final;
 
     // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
@@ -248,9 +260,7 @@ private:
     // willDrawPoints must be true if point primitives will be rendered after setting the GL state.
     bool flushGLState(const GrPipeline&, const GrPrimitiveProcessor&, bool willDrawPoints);
 
-    // Sets up vertex attribute pointers and strides. On return indexOffsetInBytes gives the offset
-    // an into the index buffer. It does not account for vertices.startIndex() but rather the start
-    // index is relative to the returned offset.
+    // Sets up vertex/instance attribute pointers and strides.
     void setupGeometry(const GrPrimitiveProcessor&,
                        const GrBuffer* indexBuffer,
                        const GrBuffer* vertexBuffer,

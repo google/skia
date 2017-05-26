@@ -629,8 +629,8 @@ private:
         }
 
         GrMesh mesh(kTriangles_GrPrimitiveType);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex);
-        mesh.setVertices(vertexBuffer, fVertCount, firstVertex);
+        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1);
+        mesh.setVertexData(vertexBuffer, firstVertex);
         target->draw(gp.get(), this->pipeline(), mesh);
     }
 

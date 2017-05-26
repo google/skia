@@ -2450,41 +2450,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
             this->xferBarrier(pipeline.getRenderTarget(), barrierType);
         }
 
-        const GrMesh& mesh = meshes[i];
-        const GrGLenum primType = gPrimitiveType2GLMode[mesh.primitiveType()];
-
-        if (mesh.isIndexed()) {
-            GrGLvoid* indices = reinterpret_cast<void*>(mesh.indexBuffer()->baseOffset() +
-                                                        sizeof(uint16_t) * mesh.baseIndex());
-            for (const GrMesh::PatternBatch batch : mesh) {
-                this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(),
-                                    batch.fBaseVertex);
-                // batch.fBaseVertex was accounted for by setupGeometry.
-                if (this->glCaps().drawRangeElementsSupport()) {
-                    // We assume here that the GrMeshDrawOps that generated the mesh used the full
-                    // 0..vertexCount()-1 range.
-                    int start = 0;
-                    int end = mesh.vertexCount() * batch.fRepeatCount - 1;
-                    GL_CALL(DrawRangeElements(primType, start, end,
-                                              mesh.indexCount() * batch.fRepeatCount,
-                                              GR_GL_UNSIGNED_SHORT, indices));
-                } else {
-                    GL_CALL(DrawElements(primType, mesh.indexCount() * batch.fRepeatCount,
-                                         GR_GL_UNSIGNED_SHORT, indices));
-                }
-                fStats.incNumDraws();
-            }
-        } else {
-            if (this->glCaps().drawArraysBaseVertexIsBroken()) {
-                this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(),
-                                    mesh.baseVertex());
-                GL_CALL(DrawArrays(primType, 0, mesh.vertexCount()));
-            } else {
-                this->setupGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer(), 0);
-                GL_CALL(DrawArrays(primType, mesh.baseVertex(), mesh.vertexCount()));
-            }
-            fStats.incNumDraws();
-        }
+        meshes[i].sendToGpu(primProc, this);
     }
 
 #if SWAP_PER_DRAW
@@ -2499,6 +2465,40 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
         SwapBuf();
     #endif
 #endif
+}
+
+void GrGLGpu::sendMeshToGpu(const GrPrimitiveProcessor& primProc, GrPrimitiveType primitiveType,
+                            const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) {
+    const GrGLenum glPrimType = gPrimitiveType2GLMode[primitiveType];
+
+    if (this->glCaps().drawArraysBaseVertexIsBroken()) {
+        this->setupGeometry(primProc, nullptr, vertexBuffer, baseVertex);
+        GL_CALL(DrawArrays(glPrimType, 0, vertexCount));
+    } else {
+        this->setupGeometry(primProc, nullptr, vertexBuffer, 0);
+        GL_CALL(DrawArrays(glPrimType, baseVertex, vertexCount));
+    }
+    fStats.incNumDraws();
+}
+
+void GrGLGpu::sendIndexedMeshToGpu(const GrPrimitiveProcessor& primProc,
+                                   GrPrimitiveType primitiveType, const GrBuffer* indexBuffer,
+                                   int indexCount, int baseIndex, uint16_t minIndexValue,
+                                   uint16_t maxIndexValue, const GrBuffer* vertexBuffer,
+                                   int baseVertex) {
+    const GrGLenum glPrimType = gPrimitiveType2GLMode[primitiveType];
+    GrGLvoid* const indices = reinterpret_cast<void*>(indexBuffer->baseOffset() +
+                                                      sizeof(uint16_t) * baseIndex);
+
+    this->setupGeometry(primProc, indexBuffer, vertexBuffer, baseVertex);
+
+    if (this->glCaps().drawRangeElementsSupport()) {
+        GL_CALL(DrawRangeElements(glPrimType, minIndexValue, maxIndexValue, indexCount,
+                                  GR_GL_UNSIGNED_SHORT, indices));
+    } else {
+        GL_CALL(DrawElements(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT, indices));
+    }
+    fStats.incNumDraws();
 }
 
 void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {

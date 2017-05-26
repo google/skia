@@ -248,10 +248,12 @@ private:
         }
 
         GrMesh mesh(primitiveType);
-        if (isIndexed) {
-            mesh.setIndexed(indexBuffer, indexOffset, firstIndex);
+        if (!isIndexed) {
+            mesh.setNonIndexed(vertexOffset);
+        } else {
+            mesh.setIndexed(indexBuffer, indexOffset, firstIndex, 0, vertexOffset - 1);
         }
-        mesh.setVertices(vertexBuffer, vertexOffset, firstVertex);
+        mesh.setVertexData(vertexBuffer, firstVertex);
         target->draw(gp.get(), this->pipeline(), mesh);
 
         // put back reserves
