@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f4d3f410_971a73d8",
+        "filename": "src/core/SkColorMatrixFilterRowMajor255.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2017-05-26T17:24:17Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s what the superclass does ... but ... I should change it to explicitly do that.\n\nDone.",
+      "parentUuid": "589567cd_d5d8a444",
+      "range": {
+        "startLine": 241,
+        "startChar": 8,
+        "endLine": 241,
+        "endChar": 56
+      },
+      "revId": "b7b88ba05f940f7183a50fe50cd290384cadda35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7f9e8dc5_63813b54",
         "filename": "src/core/SkColorMatrixFilterRowMajor255.cpp",
         "patchSetId": 2
@@ -59,6 +83,30 @@
       "writtenOn": "2017-05-26T12:25:08Z",
       "side": 1,
       "message": "The use of the fColorSpace field was a somewhat unique implementation to avoid early raster of pictures.  Typically, we choose not to remember to the color space.  Ex: we can do what you\u0027ve done here, but not pass the color space to the new SkColorFilter.  Obviously this means that calling onMakeColorSpace() twice is a bad idea since the src is always sRGB...",
+      "range": {
+        "startLine": 276,
+        "startChar": 4,
+        "endLine": 276,
+        "endChar": 91
+      },
+      "revId": "b7b88ba05f940f7183a50fe50cd290384cadda35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77828a16_53392df8",
+        "filename": "src/core/SkColorMatrixFilterRowMajor255.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2017-05-26T17:24:17Z",
+      "side": 1,
+      "message": "I can see this motivation.\n\nMaybe I should call it the fOperatingColorSpace, since it is the space in which the filter is being applied (which lines up with the wording of the spec).",
+      "parentUuid": "e3da6187_8e0c8da2",
       "range": {
         "startLine": 276,
         "startChar": 4,
