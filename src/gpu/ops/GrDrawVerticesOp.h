@@ -33,9 +33,11 @@ public:
      * Draw a SkVertices. The GrColor param is used if the vertices lack per-vertex color. If the
      * vertices lack local coords then the vertex positions are used as local coords. The primitive
      * type drawn is derived from the SkVertices object, unless overridePrimType is specified.
+     * If gammaCorrect is true, the vertex colors will be linearized in the shader to get correct
+     * rendering.
      */
     static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, sk_sp<SkVertices>,
-                                                    const SkMatrix& viewMatrix,
+                                                    const SkMatrix& viewMatrix, bool gammaCorrect,
                                                     GrPrimitiveType* overridePrimType = nullptr);
 
     const char* name() const override { return "DrawVerticesOp"; }
@@ -55,7 +57,8 @@ private:
         kSkColor,
     };
 
-    GrDrawVerticesOp(sk_sp<SkVertices>, GrPrimitiveType, GrColor, const SkMatrix& viewMatrix);
+    GrDrawVerticesOp(sk_sp<SkVertices>, GrPrimitiveType, GrColor, bool gammaCorrect,
+                     const SkMatrix& viewMatrix);
 
     void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
                                     GrProcessorAnalysisCoverage* coverage) const override;
@@ -125,6 +128,7 @@ private:
     int fVertexCount;
     int fIndexCount;
     ColorArrayType fColorArrayType;
+    bool fLinearizeColors;
     SkSTArray<1, Mesh, true> fMeshes;
 
     typedef GrLegacyMeshDrawOp INHERITED;

@@ -66,12 +66,19 @@ namespace GrDefaultGeoProcFactory {
             kPremulGrColorAttribute_Type,
             kUnpremulSkColorAttribute_Type,
         };
-        explicit Color(GrColor color) : fType(kPremulGrColorUniform_Type), fColor(color) {}
-        Color(Type type) : fType(type), fColor(GrColor_ILLEGAL) {
+        explicit Color(GrColor color)
+                : fType(kPremulGrColorUniform_Type)
+                , fLinearize(false)
+                , fColor(color) {}
+        Color(Type type)
+                : fType(type)
+                , fLinearize(false)
+                , fColor(GrColor_ILLEGAL) {
             SkASSERT(type != kPremulGrColorUniform_Type);
         }
 
         Type fType;
+        bool fLinearize;
         GrColor fColor;
     };
 

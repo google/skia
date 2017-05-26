@@ -12,6 +12,7 @@
 #include "SkBlendModePriv.h"
 #include "SkGradientShader.h"
 #include "SkPM4fPriv.h"
+#include "SkVertices.h"
 
 DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     SkPaint p;
@@ -222,5 +223,28 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     // 0xDB = 255 * linear_to_srgb(sqrt(0.5))
     nextXferRect(0xffdbdbdb, SkBlendMode::kModulate, 0xffdbdbdb);
 
+    // Carriage return
     canvas->restore();
+    canvas->translate(0, 2 * sz);
+
+    for (bool hasColors : { false, true }) {
+        uint32_t flags = hasColors ? SkVertices::kHasColors_BuilderFlag : 0;
+        SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, 3, 0, flags);
+        const SkPoint pos[3] = {
+            { 0, 0 }, { 50, 0 }, { 25, 50 }
+        };
+        memcpy(builder.positions(), pos, sizeof(pos));
+        if (hasColors) {
+            for (int i = 0; i < 3; ++i) {
+                builder.colors()[i] = 0xffbcbcbc;
+            }
+        }
+
+        auto vertices = builder.detach();
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor(hasColors ? SK_ColorWHITE : 0xffbcbcbc);
+        canvas->drawVertices(std::move(vertices), SkBlendMode::kSrcOver, paint);
+        canvas->translate(65, 0);
+    }
 }
