@@ -217,10 +217,12 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) const {
     }
 
     GrMesh mesh(this->primitiveType());
-    if (indices) {
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex);
+    if (!indices) {
+        mesh.setNonIndexed(fVertexCount);
+    } else {
+        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertexCount - 1);
     }
-    mesh.setVertices(vertexBuffer, fVertexCount, firstVertex);
+    mesh.setVertexData(vertexBuffer, firstVertex);
     target->draw(gp.get(), this->pipeline(), mesh);
 }
 
