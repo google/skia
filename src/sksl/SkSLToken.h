@@ -24,6 +24,7 @@ namespace SkSL {
 struct Token {
     enum Kind {
         END_OF_FILE,
+        WHITESPACE,
         IDENTIFIER,
         INT_LITERAL,
         FLOAT_LITERAL,
@@ -77,6 +78,8 @@ struct Token {
         LOGICALXOREQ,
         LOGICALANDEQ,
         SEMICOLON,
+        ARROW,
+        COLONCOLON,
         IF,
         STATIC_IF,
         ELSE,
@@ -111,6 +114,7 @@ struct Token {
         STRUCT,
         LAYOUT,
         DIRECTIVE,
+        SECTION,
         PRECISION,
         LOCATION,
         OFFSET,
@@ -132,6 +136,8 @@ struct Token {
         TRIANGLES_ADJACENCY,
         MAX_VERTICES,
         INVOCATIONS,
+        WHEN,
+        KEY,
         INVALID_TOKEN
     };
 
