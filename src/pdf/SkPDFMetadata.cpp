@@ -76,7 +76,7 @@ SkPDFMetadata::UUID SkPDFMetadata::CreateUUID(
     // format of the data that will be hashed is not important.
     SkMD5 md5;
     const char uuidNamespace[] = "org.skia.pdf\n";
-    md5.write(uuidNamespace, strlen(uuidNamespace));
+    md5.writeText(uuidNamespace);
     double msec = SkTime::GetMSecs();
     md5.write(&msec, sizeof(msec));
     SkTime::DateTime dateTime;
@@ -92,7 +92,7 @@ SkPDFMetadata::UUID SkPDFMetadata::CreateUUID(
     }
 
     for (const auto keyValuePtr : gMetadataKeys) {
-        md5.write(keyValuePtr.key, strlen(keyValuePtr.key));
+        md5.writeText(keyValuePtr.key);
         md5.write("\037", 1);
         const SkString& value = metadata.*(keyValuePtr.valuePtr);
         md5.write(value.c_str(), value.size());
@@ -164,13 +164,13 @@ public:
         dict.insertInt("Length", fXML.size());
         dict.emitObject(stream, omap);
         static const char streamBegin[] = " stream\n";
-        stream->write(streamBegin, strlen(streamBegin));
+        stream->writeText(streamBegin);
         // Do not compress this.  The standard requires that a
         // program that does not understand PDF can grep for
         // "<?xpacket" and extract the entire XML.
         stream->write(fXML.c_str(), fXML.size());
         static const char streamEnd[] = "\nendstream";
-        stream->write(streamEnd, strlen(streamEnd));
+        stream->writeText(streamEnd);
     }
 
 private:
