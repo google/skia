@@ -39,7 +39,7 @@ void SkPDFObjectSerializer::serializeHeader(SkWStream* wStream,
                                             const SkDocument::PDFMetadata& md) {
     fBaseOffset = wStream->bytesWritten();
     static const char kHeader[] = "%PDF-1.4\n%" SKPDF_MAGIC "\n";
-    wStream->write(kHeader, strlen(kHeader));
+    wStream->writeText(kHeader);
     // The PDF spec recommends including a comment with four
     // bytes, all with their high bits set.  "\xD3\xEB\xE9\xE1" is
     // "Skia" with the high bits set.

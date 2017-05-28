@@ -30,15 +30,9 @@ bool image_compute_is_opaque(const SkImage* image) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void pdf_stream_begin(SkWStream* stream) {
-    static const char streamBegin[] = " stream\n";
-    stream->write(streamBegin, strlen(streamBegin));
-}
+static const char kStreamBegin[] = " stream\n";
 
-static void pdf_stream_end(SkWStream* stream) {
-    static const char streamEnd[] = "\nendstream";
-    stream->write(streamEnd, strlen(streamEnd));
-}
+static const char kStreamEnd[] = "\nendstream";
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -321,9 +315,9 @@ static void emit_image_xobject(SkWStream* stream,
     pdfDict.insertInt("Length", buffer.bytesWritten());
     pdfDict.emitObject(stream, objNumMap);
 
-    pdf_stream_begin(stream);
+    stream->writeText(kStreamBegin);
     buffer.writeToAndReset(stream);
-    pdf_stream_end(stream);
+    stream->writeText(kStreamEnd);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -405,9 +399,9 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
     pdfDict.insertInt("ColorTransform", 0);
     pdfDict.insertInt("Length", SkToInt(fData->size()));
     pdfDict.emitObject(stream, objNumMap);
-    pdf_stream_begin(stream);
+    stream->writeText(kStreamBegin);
     stream->write(fData->data(), fData->size());
-    pdf_stream_end(stream);
+    stream->writeText(kStreamEnd);
 }
 }  // namespace
 
