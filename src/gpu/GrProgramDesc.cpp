@@ -199,8 +199,8 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     const GrXferProcessor& xp = pipeline.getXferProcessor();
     const GrSurfaceOrigin* originIfDstTexture = nullptr;
     GrSurfaceOrigin origin;
-    if (pipeline.dstTexture()) {
-        origin = pipeline.dstTexture()->origin();
+    if (pipeline.dstTextureProxy()) {
+        origin = pipeline.dstTextureProxy()->origin();
         originIfDstTexture = &origin;
     }
     xp.getGLSLProcessorKey(shaderCaps, &b, originIfDstTexture);

@@ -258,13 +258,16 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     }
     SkASSERT(!fp && !glslFP);
 
-    SkIPoint offset;
-    GrTexture* dstTexture = pipeline.dstTexture(&offset);
-    fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
+    {
+        SkIPoint offset;
+        GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
+
+        fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
+    }
+
     GrResourceIOProcessor::TextureSampler dstTextureSampler;
-    if (dstTexture) {
-        // MDB TODO: this is the last usage of a GrTexture-based TextureSampler reset method
-        dstTextureSampler.reset(dstTexture);
+    if (GrTextureProxy* dstTextureProxy = pipeline.dstTextureProxy()) {
+        dstTextureSampler.reset(gpu->getContext()->resourceProvider(), sk_ref_sp(dstTextureProxy));
         SkAssertResult(dstTextureSampler.instantiate(gpu->getContext()->resourceProvider()));
         textureBindings.push_back(&dstTextureSampler);
     }
