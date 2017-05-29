@@ -31,7 +31,7 @@ public:
 
         // compute numbers to be hardcoded to convert texture coordinates from int to float
         SkASSERT(cte.numTextureSamplers() == 1);
-        SkDEBUGCODE(GrTexture* atlas = cte.textureSampler(0).texture());
+        SkDEBUGCODE(GrTexture* atlas = cte.textureSampler(0).peekTexture());
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
         GrGLSLVertToFrag v(kVec2f_GrSLType);

@@ -129,12 +129,6 @@ void GrProcessor::operator delete(void* target) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrResourceIOProcessor::addTextureSampler(const TextureSampler* access) {
-    // MDB TODO: this 'isBad' call checks to ensure the underlying texture exists. It needs to
-    // be moved later.
-    if (access->isBad()) {
-        this->markAsBad();
-    }
-
     fTextureSamplers.push_back(access);
 }
 
@@ -144,11 +138,6 @@ void GrResourceIOProcessor::addBufferAccess(const BufferAccess* access) {
 
 void GrResourceIOProcessor::addImageStorageAccess(GrResourceProvider* resourceProvider,
                                                   const ImageStorageAccess* access) {
-    // MDB TODO: this 'isBad' call attempts to instantiate 'access'. It needs to be moved later.
-    if (access->isBad(resourceProvider)) {
-        this->markAsBad();
-    }
-
     fImageStorageAccesses.push_back(access);
 }
 
@@ -186,6 +175,22 @@ void GrResourceIOProcessor::pendingIOComplete() const {
     for (const auto& imageStorage : fImageStorageAccesses) {
         imageStorage->programProxy()->pendingIOComplete();
     }
+}
+
+bool GrResourceIOProcessor::instantiate(GrResourceProvider* resourceProvider) const {
+    for (const auto& sampler : fTextureSamplers) {
+        if (!sampler->instantiate(resourceProvider)) {
+            return false;
+        }
+    }
+
+    for (const auto& imageStorage : fImageStorageAccesses) {
+        if (!imageStorage->instantiate(resourceProvider)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool GrResourceIOProcessor::hasSameSamplersAndAccesses(const GrResourceIOProcessor& that) const {

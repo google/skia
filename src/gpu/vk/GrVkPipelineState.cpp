@@ -7,6 +7,7 @@
 
 #include "GrVkPipelineState.h"
 
+#include "GrContext.h"
 #include "GrPipeline.h"
 #include "GrTexturePriv.h"
 #include "GrVkBufferView.h"
@@ -264,6 +265,7 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     if (dstTexture) {
         // MDB TODO: this is the last usage of a GrTexture-based TextureSampler reset method
         dstTextureSampler.reset(dstTexture);
+        SkAssertResult(dstTextureSampler.instantiate(gpu->getContext()->resourceProvider()));
         textureBindings.push_back(&dstTextureSampler);
     }
 
@@ -373,7 +375,7 @@ void GrVkPipelineState::writeSamplers(
     for (int i = 0; i < textureBindings.count(); ++i) {
         const GrSamplerParams& params = textureBindings[i]->params();
 
-        GrVkTexture* texture = static_cast<GrVkTexture*>(textureBindings[i]->texture());
+        GrVkTexture* texture = static_cast<GrVkTexture*>(textureBindings[i]->peekTexture());
 
         fSamplers.push(gpu->resourceProvider().findOrCreateCompatibleSampler(params,
                                                           texture->texturePriv().maxMipMapLevel()));

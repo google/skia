@@ -493,8 +493,7 @@ static void set_texture_layout(GrVkTexture* vkTexture, GrVkGpu* gpu) {
 static void prepare_sampled_images(const GrResourceIOProcessor& processor, GrVkGpu* gpu) {
     for (int i = 0; i < processor.numTextureSamplers(); ++i) {
         const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(i);
-        GrVkTexture* vkTexture = static_cast<GrVkTexture*>(sampler.texture());
-        SkASSERT(vkTexture);
+        GrVkTexture* vkTexture = static_cast<GrVkTexture*>(sampler.peekTexture());
 
         // We may need to resolve the texture first if it is also a render target
         GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(vkTexture->asRenderTarget());

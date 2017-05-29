@@ -309,7 +309,9 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
                        const GrFragmentProcessor& fp) override {
             const GrTextureDomainEffect& tde = fp.cast<GrTextureDomainEffect>();
             const GrTextureDomain& domain = tde.fTextureDomain;
-            fGLDomain.setData(pdman, domain, tde.textureSampler(0).texture());
+            GrTexture* texture =  tde.textureSampler(0).peekTexture();
+
+            fGLDomain.setData(pdman, domain, texture);
             if (SkToBool(tde.colorSpaceXform())) {
                 fColorSpaceHelper.setData(pdman, tde.colorSpaceXform());
             }
@@ -412,7 +414,8 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
                        const GrFragmentProcessor& fp) override {
             const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
                     fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
-            GrTexture* texture = dstdfp.textureSampler(0).texture();
+            GrTexture* texture = dstdfp.textureSampler(0).peekTexture();
+
             fGLDomain.setData(pdman, dstdfp.fTextureDomain, texture);
             float iw = 1.f / texture->width();
             float ih = 1.f / texture->height();

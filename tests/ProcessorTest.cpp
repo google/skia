@@ -353,7 +353,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
         }
         for (int j = 0; j < timesToInvokeFactory; ++j) {
             fp = FPFactory::MakeIdx(i, &testData);
-            if (fp->isBad()) {
+            if (!fp->instantiate(context->resourceProvider())) {
                 continue;
             }
 

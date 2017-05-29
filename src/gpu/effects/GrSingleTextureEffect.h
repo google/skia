@@ -24,7 +24,10 @@ class GrSingleTextureEffect : public GrFragmentProcessor {
 public:
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("Texture: %d", fTextureSampler.texture()->uniqueID().asUInt());
+        // MDB TODO: this should just print out the uniqueID of the proxy
+        str.appendf("Texture: %d", fTextureSampler.peekTexture()
+                                            ? fTextureSampler.peekTexture()->uniqueID().asUInt()
+                                            : -1);
         return str;
     }
 

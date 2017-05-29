@@ -98,7 +98,7 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                       const GrFragmentProcessor& processor) {
     const GrGaussianConvolutionFragmentProcessor& conv =
             processor.cast<GrGaussianConvolutionFragmentProcessor>();
-    GrTexture& texture = *conv.textureSampler(0).texture();
+    GrTexture& texture = *conv.textureSampler(0).peekTexture();
 
     float imageIncrement[2] = {0};
     float ySign = texture.origin() != kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;

@@ -75,6 +75,7 @@ public:
         const GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTarget* fRenderTarget = nullptr;
         const GrCaps* fCaps = nullptr;
+        GrResourceProvider* fResourceProvider = nullptr;
         GrXferProcessor::DstTexture fDstTexture;
     };
 

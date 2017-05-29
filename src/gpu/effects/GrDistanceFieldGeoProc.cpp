@@ -82,7 +82,7 @@ public:
 
         // compute numbers to be hardcoded to convert texture coordinates from float to int
         SkASSERT(dfTexEffect.numTextureSamplers() == 1);
-        GrTexture* atlas = dfTexEffect.textureSampler(0).texture();
+        GrTexture* atlas = dfTexEffect.textureSampler(0).peekTexture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
         GrGLSLVertToFrag st(kVec2f_GrSLType);
@@ -431,7 +431,8 @@ public:
                  FPCoordTransformIter&& transformIter) override {
         SkASSERT(fTextureSizeUni.isValid());
 
-        GrTexture* texture = proc.textureSampler(0).texture();
+        GrTexture* texture = proc.textureSampler(0).peekTexture();
+
         if (texture->width() != fTextureSize.width() ||
             texture->height() != fTextureSize.height()) {
             fTextureSize = SkISize::Make(texture->width(), texture->height());
@@ -596,7 +597,7 @@ public:
 
         // compute numbers to be hardcoded to convert texture coordinates from float to int
         SkASSERT(dfTexEffect.numTextureSamplers() == 1);
-        GrTexture* atlas = dfTexEffect.textureSampler(0).texture();
+        GrTexture* atlas = dfTexEffect.textureSampler(0).peekTexture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
         GrGLSLVertToFrag st(kVec2f_GrSLType);
