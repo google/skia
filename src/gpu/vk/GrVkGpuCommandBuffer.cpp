@@ -532,8 +532,8 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     while (const GrFragmentProcessor* fp = iter.next()) {
         prepare_sampled_images(*fp, fGpu);
     }
-    if (GrVkTexture* dstTexture = static_cast<GrVkTexture*>(pipeline.dstTexture())) {
-        set_texture_layout(dstTexture, fGpu);
+    if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
+        set_texture_layout(static_cast<GrVkTexture*>(dstTexture), fGpu);
     }
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();

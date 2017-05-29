@@ -53,6 +53,7 @@ struct GrProcessorTestData {
             : fRandom(random)
             , fRenderTargetContext(renderTargetContext)
             , fContext(context) {
+        SkASSERT(proxies[0] && proxies[1]);
         fProxies[0] = proxies[0];
         fProxies[1] = proxies[1];
     }

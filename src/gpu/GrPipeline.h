@@ -76,7 +76,7 @@ public:
         GrRenderTarget* fRenderTarget = nullptr;
         const GrCaps* fCaps = nullptr;
         GrResourceProvider* fResourceProvider = nullptr;
-        GrXferProcessor::DstTexture fDstTexture;
+        GrXferProcessor::DstProxy fDstProxy;
     };
 
     /**
@@ -158,11 +158,19 @@ public:
      * If the GrXferProcessor uses a texture to access the dst color, then this returns that
      * texture and the offset to the dst contents within that texture.
      */
-    GrTexture* dstTexture(SkIPoint* offset = nullptr) const {
+    GrTextureProxy* dstTextureProxy(SkIPoint* offset = nullptr) const {
         if (offset) {
             *offset = fDstTextureOffset;
         }
-        return fDstTexture.get();
+        return fDstTextureProxy.get();
+    }
+
+    GrTexture* peekDstTexture(SkIPoint* offset = nullptr) const {
+        if (GrTextureProxy* dstProxy = this->dstTextureProxy(offset)) {
+            return dstProxy->priv().peekTexture();
+        }
+
+        return nullptr;
     }
 
     const GrFragmentProcessor& getColorFragmentProcessor(int idx) const {
@@ -216,7 +224,8 @@ public:
     bool isBad() const { return SkToBool(fFlags & kIsBad_Flag); }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
-        if (fDstTexture.get() && fDstTexture.get() == fRenderTarget.get()->asTexture()) {
+        if (fDstTextureProxy.get() &&
+            fDstTextureProxy.get()->priv().peekTexture() == fRenderTarget.get()->asTexture()) {
             return kTexture_GrXferBarrierType;
         }
         return this->getXferProcessor().xferBarrierType(caps);
@@ -234,11 +243,11 @@ private:
     };
 
     using RenderTarget = GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>;
-    using DstTexture = GrPendingIOResource<GrTexture, kRead_GrIOType>;
+    using DstTextureProxy = GrPendingIOResource<GrTextureProxy, kRead_GrIOType>;
     using PendingFragmentProcessor = GrPendingProgramElement<const GrFragmentProcessor>;
     using FragmentProcessorArray = SkAutoSTArray<8, PendingFragmentProcessor>;
 
-    DstTexture fDstTexture;
+    DstTextureProxy fDstTextureProxy;
     SkIPoint fDstTextureOffset;
     RenderTarget fRenderTarget;
     GrScissorState fScissorState;
