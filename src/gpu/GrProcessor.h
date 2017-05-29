@@ -219,12 +219,6 @@ public:
      */
     TextureSampler();
 
-    // MDB TODO: this is the last GrTexture-based reset call!
-    void reset(GrTexture*,
-               GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
-               SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
-               GrShaderFlags visibility = kFragment_GrShaderFlag);
-
     // MDB TODO: ultimately we shouldn't need the resource provider parameter
     TextureSampler(GrResourceProvider*, sk_sp<GrTextureProxy>, const GrSamplerParams&);
     explicit TextureSampler(GrResourceProvider*, sk_sp<GrTextureProxy>,
@@ -239,7 +233,7 @@ public:
                GrShaderFlags visibility = kFragment_GrShaderFlag);
 
     bool operator==(const TextureSampler& that) const {
-        return this->texture() == that.texture() &&
+        return //this->texture() == that.texture() &&
                fParams == that.fParams &&
                fVisibility == that.fVisibility;
     }
@@ -268,18 +262,17 @@ public:
         return fTexture.get();
     }
 
+    GrTextureProxy* proxy() const { return fProxyRef.getProxy()->asTextureProxy(); }
     GrShaderFlags visibility() const { return fVisibility; }
     const GrSamplerParams& params() const { return fParams; }
 
     /**
      * For internal use by GrProcessor.
      */
-    const GrGpuResourceRef* programTexture() const { return &fTexture; }
+    const GrSurfaceProxyRef* programProxy() const { return &fProxyRef; }
 
 private:
-    typedef GrTGpuResourceRef<GrTexture> ProgramTexture;
-
-    ProgramTexture                  fTexture;
+    GrSurfaceProxyRef               fProxyRef;
     GrSamplerParams                 fParams;
     GrShaderFlags                   fVisibility;
     SkDEBUGCODE(mutable bool fInstantiated = false;)   // MDB TODO: remove this line

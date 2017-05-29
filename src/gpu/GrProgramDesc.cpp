@@ -198,11 +198,13 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
 
     const GrXferProcessor& xp = pipeline.getXferProcessor();
     const GrSurfaceOrigin* originIfDstTexture = nullptr;
+#if 0
     GrSurfaceOrigin origin;
     if (pipeline.dstTexture()) {
         origin = pipeline.dstTexture()->origin();
         originIfDstTexture = &origin;
     }
+#endif
     xp.getGLSLProcessorKey(shaderCaps, &b, originIfDstTexture);
     if (!gen_meta_key(xp, shaderCaps, &b)) {
         desc->key().reset();

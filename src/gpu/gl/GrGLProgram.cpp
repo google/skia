@@ -91,6 +91,7 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
                           &nextImageStorageIdx);
 
     const GrXferProcessor& xp = pipeline.getXferProcessor();
+#if 0
     SkIPoint offset;
     GrTexture* dstTexture = pipeline.dstTexture(&offset);
     fXferProcessor->setData(fProgramDataManager, xp, dstTexture, offset);
@@ -100,6 +101,7 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
     }
     SkASSERT(nextTexSamplerIdx == fNumTextureSamplers);
     SkASSERT(nextTexelBufferIdx == fNumTextureSamplers + fNumTexelBuffers);
+#endif
 }
 
 void GrGLProgram::generateMipmaps(const GrPrimitiveProcessor& primProc,
