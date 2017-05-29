@@ -152,8 +152,13 @@ GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
                                                 GrSurfaceOrigin* origin) const {
     SkASSERT(fProxy);
 
-    GrSurface* surface = fProxy->instantiate(fContext->resourceProvider());
-    if (surface && surface->asTexture()) {
+    if (!fProxy->instantiate(fContext->resourceProvider())) {
+        return 0;
+    }
+
+    GrSurface* surface = nullptr; //fProxy->peekSurface();
+
+    if (surface->asTexture()) {
         if (flushPendingGrContextIO) {
             fContext->contextPriv().prepareSurfaceForExternalIO(fProxy.get());
         }

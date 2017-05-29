@@ -45,20 +45,19 @@ int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
                    : 0;
 }
 
-GrSurface* GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
+bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
-    GrSurface* surf = this->instantiateImpl(resourceProvider, fSampleCnt, kFlags,
-                                            /* isMipped = */ false,
-                                            SkDestinationSurfaceColorMode::kLegacy);
-    if (!surf) {
-        return nullptr;
+    if (!this->instantiateImpl(resourceProvider, fSampleCnt, kFlags,
+                               /* isMipped = */ false,
+                               SkDestinationSurfaceColorMode::kLegacy)) {
+        return false;
     }
-    SkASSERT(surf->asRenderTarget());
+    SkASSERT(fTarget->asRenderTarget());
     // Check that our a priori computation matched the ultimate reality
-    SkASSERT(fRenderTargetFlags == surf->asRenderTarget()->renderTargetPriv().flags());
+    SkASSERT(fRenderTargetFlags == fTarget->asRenderTarget()->renderTargetPriv().flags());
 
-    return surf;
+    return true;
 }
 
 int GrRenderTargetProxy::worstCaseWidth() const {
