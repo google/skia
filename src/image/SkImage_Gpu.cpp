@@ -152,8 +152,13 @@ GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
                                                 GrSurfaceOrigin* origin) const {
     SkASSERT(fProxy);
 
-    GrSurface* surface = fProxy->instantiate(fContext->resourceProvider());
-    if (surface && surface->asTexture()) {
+    if (!fProxy->instantiate(fContext->resourceProvider())) {
+        return 0;
+    }
+
+    GrSurface* surface = nullptr; //fProxy->peekSurface();
+
+    if (surface->asTexture()) {
         if (flushPendingGrContextIO) {
             fContext->contextPriv().prepareSurfaceForExternalIO(fProxy.get());
         }
@@ -171,7 +176,11 @@ GrTexture* SkImage_Gpu::onGetTexture() const {
         return nullptr;
     }
 
-    return proxy->instantiateTexture(fContext->resourceProvider());
+    if (!proxy->instantiate(fContext->resourceProvider())) {
+        return nullptr;
+    }
+
+    return proxy->priv().peekTexture();
 }
 
 bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
@@ -486,10 +495,10 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
         return codecImage;
     }
 
-    sk_sp<GrTexture> texture(sk_ref_sp(proxy->instantiateTexture(context->resourceProvider())));
-    if (!texture) {
+    if (!proxy->instantiate(context->resourceProvider())) {
         return codecImage;
     }
+    sk_sp<GrTexture> texture = sk_ref_sp(proxy->priv().peekTexture());
 
     // Flush any writes or uploads
     context->contextPriv().prepareSurfaceForExternalIO(proxy.get());

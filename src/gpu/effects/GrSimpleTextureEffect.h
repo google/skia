@@ -28,10 +28,11 @@ public:
         // MDB TODO: remove this instantiation once instantiation is pushed past the
         // TextureSamplers. Instantiation failure in the TextureSampler is difficult to
         // recover from.
-        GrTexture* temp = proxy->instantiateTexture(resourceProvider);
-        if (!temp) {
+
+        if (!proxy->instantiate(resourceProvider)) {
             return nullptr;
         }
+        GrTexture* temp = proxy->priv().peekTexture();
 
         return sk_sp<GrFragmentProcessor>(
             new GrSimpleTextureEffect(resourceProvider, std::move(proxy),
@@ -48,10 +49,10 @@ public:
         // MDB TODO: remove this instantiation once instantiation is pushed past the
         // TextureSamplers. Instantiation failure in the TextureSampler is difficult to
         // recover from.
-        GrTexture* temp = proxy->instantiateTexture(resourceProvider);
-        if (!temp) {
+        if (!proxy->instantiate(resourceProvider)) {
             return nullptr;
         }
+        GrTexture* temp = proxy->priv().peekTexture();
 
         return sk_sp<GrFragmentProcessor>(
             new GrSimpleTextureEffect(resourceProvider, std::move(proxy),
@@ -67,10 +68,10 @@ public:
         // MDB TODO: remove this instantiation once instantiation is pushed past the
         // TextureSamplers. Instantiation failure in the TextureSampler is difficult to
         // recover from.
-        GrTexture* temp = proxy->instantiateTexture(resourceProvider);
-        if (!temp) {
+        if (!proxy->instantiate(resourceProvider)) {
             return nullptr;
         }
+        GrTexture* temp = proxy->priv().peekTexture();
 
         return sk_sp<GrFragmentProcessor>(new GrSimpleTextureEffect(resourceProvider,
                                                                     std::move(proxy),

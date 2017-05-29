@@ -43,11 +43,10 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override {
-        GrRenderTarget* rt = fRenderTargetProxy.get()->instantiateRenderTarget(
-                                                                    state->resourceProvider());
-        if (!rt) {
+        if (!fRenderTargetProxy.get()->instantiate(state->resourceProvider())) {
             return;
         }
+        GrRenderTarget* rt = fRenderTargetProxy.get()->priv().peekRenderTarget();
 
         state->commandBuffer()->discard(rt);
     }
