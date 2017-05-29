@@ -54,7 +54,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                     fb->codeAppend("highp vec2 coord = sk_FragCoord.xy;");
                     fb->appendImageStorageLoad(&imageLoadStr, args.fImageStorages[0],
                                                "ivec2(coord)");
-                    if (GrPixelConfigIsSint(tfp.fImageStorageAccess.texture()->config())) {
+                    if (GrPixelConfigIsSint(tfp.fImageStorageAccess.peekTexture()->config())) {
                         // Map the signed bytes so that when then get read back as unorm values they
                         // will have their original bit pattern.
                         fb->codeAppendf("highp ivec4 ivals = %s;", imageLoadStr.c_str());
