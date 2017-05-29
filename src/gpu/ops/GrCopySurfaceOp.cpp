@@ -76,16 +76,17 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrResourceProvider* resourceProvider
     }
 
     // MDB TODO: remove this instantiation
-    GrSurface* dstTex = dstProxy->instantiate(resourceProvider);
-    if (!dstTex) {
+    if (!dstProxy->instantiate(resourceProvider)) {
         return nullptr;
     }
-    GrSurface* srcTex = srcProxy->instantiate(resourceProvider);
-    if (!srcTex) {
+    if (!srcProxy->instantiate(resourceProvider)) {
         return nullptr;
     }
 
-    return std::unique_ptr<GrOp>(new GrCopySurfaceOp(dstTex, srcTex,
+    GrSurface* dstSurface = nullptr; // dstProxy->peekSurface();
+    GrSurface* srcSurface = nullptr; // srcProxy->peekSurface();
+
+    return std::unique_ptr<GrOp>(new GrCopySurfaceOp(dstSurface, srcSurface,
                                                      dstProxy->uniqueID(), srcProxy->uniqueID(),
                                                      clippedSrcRect, clippedDstPoint));
 }

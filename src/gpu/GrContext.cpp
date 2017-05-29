@@ -304,10 +304,11 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     ASSERT_OWNED_PROXY_PRIV(dst->asSurfaceProxy());
     GR_AUDIT_TRAIL_AUTO_FRAME(&fContext->fAuditTrail, "GrContextPriv::writeSurfacePixels");
 
-    GrSurface* dstSurface = dst->asSurfaceProxy()->instantiate(fContext->resourceProvider());
-    if (!dstSurface) {
+    if (!dst->asSurfaceProxy()->instantiate(fContext->resourceProvider())) {
         return false;
     }
+
+    GrSurface* dstSurface = nullptr; //dst->peekSurface();
 
     // The src is unpremul but the dst is premul -> premul the src before or as part of the write
     const bool premul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
@@ -431,10 +432,11 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     GR_AUDIT_TRAIL_AUTO_FRAME(&fContext->fAuditTrail, "GrContextPriv::readSurfacePixels");
 
     // MDB TODO: delay this instantiation until later in the method
-    GrSurface* srcSurface = src->asSurfaceProxy()->instantiate(fContext->resourceProvider());
-    if (!srcSurface) {
+    if (!src->asSurfaceProxy()->instantiate(fContext->resourceProvider())) {
         return false;
     }
+
+    GrSurface* srcSurface = nullptr; //src->asSurfaceProxy->peekSurface();
 
     // The src is premul but the dst is unpremul -> unpremul the src after or as part of the read
     bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
@@ -526,10 +528,11 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         return false;
     }
 
-    GrSurface* surfaceToRead = proxyToRead->instantiate(fContext->resourceProvider());
-    if (!surfaceToRead) {
+    if (!proxyToRead->instantiate(fContext->resourceProvider())) {
         return false;
     }
+
+    GrSurface* surfaceToRead = nullptr; //proxyToRead->peekSurface();
 
     if (GrGpu::kRequireDraw_DrawPreference == drawPreference && !didTempDraw) {
         return false;

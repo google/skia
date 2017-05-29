@@ -242,7 +242,7 @@ public:
      */
     UniqueID uniqueID() const { return fUniqueID; }
 
-    virtual GrSurface* instantiate(GrResourceProvider* resourceProvider) = 0;
+    virtual bool instantiate(GrResourceProvider* resourceProvider) = 0;
 
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.

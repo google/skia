@@ -22,10 +22,10 @@ public:
     const GrTextureProxy* asTextureProxy() const override { return this; }
 
     // Actually instantiate the backing texture, if necessary
-    GrSurface* instantiate(GrResourceProvider*) override;
+    bool instantiate(GrResourceProvider*) override;
     GrTexture* instantiateTexture(GrResourceProvider* resourceProvider) {
-        if (auto surf = this->instantiate(resourceProvider)) {
-            return surf->asTexture();
+        if (this->instantiate(resourceProvider)) {
+            return fTarget->asTexture();
         }
         return nullptr;
     }
