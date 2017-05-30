@@ -15,27 +15,17 @@
 
 class BlurIgnoreXformGM : public skiagm::GM {
 public:
-    enum class DrawType {
-        kCircle,
-        kRect,
-        kRRect,
-    };
-
-    BlurIgnoreXformGM(DrawType drawType) : fDrawType(drawType) { }
+    BlurIgnoreXformGM() { }
 
 protected:
     bool runAsBench() const override { return true; }
 
     SkString onShortName() override {
-        SkString name;
-        name.printf("blur_ignore_xform_%s",
-                    DrawType::kCircle == fDrawType ? "circle"
-                        : DrawType::kRect == fDrawType ? "rect" : "rrect");
-        return name;
+        return SkString("blur_ignore_xform");
     }
 
     SkISize onISize() override {
-        return SkISize::Make(375, 475);
+        return SkISize::Make(975, 475);
     }
 
     void onOnceBeforeDraw() override {
@@ -51,37 +41,37 @@ protected:
         canvas->translate(10, 25);
         canvas->save();
         canvas->translate(80, 0);
-        for (size_t i = 0; i < kNumBlurs; ++i) {
-            SkAutoCanvasRestore autoRestore(canvas, true);
-            canvas->translate(SkIntToScalar(i * 150), 0);
-            for (auto scale : kMatrixScales) {
-                canvas->save();
-                canvas->scale(scale.fScale, scale.fScale);
-                SkPaint paint;
-                paint.setMaskFilter(fBlurFilters[i]);
-                paint.setColor(SK_ColorBLACK);
-                paint.setAntiAlias(true);
-                static const SkScalar kRadius = 20.0f;
-                SkScalar coord = 50.0f * 1.0f / scale.fScale;
-                SkRect rect = SkRect::MakeXYWH(coord - kRadius , coord - kRadius,
-                                               2 * kRadius, 2 * kRadius);
-                SkRRect rrect = SkRRect::MakeRectXY(rect, kRadius/2.0f, kRadius/2.0f);
-                for (int j = 0; j < 2; ++j) {
+        for (int drawType = 0; drawType < 3; ++drawType) {
+            for (size_t i = 0; i < kNumBlurs; ++i) {
+                SkAutoCanvasRestore autoRestore(canvas, true);
+                canvas->translate(SkIntToScalar(i * 150), 0);
+                for (auto scale : kMatrixScales) {
                     canvas->save();
-                    canvas->translate(10 * (1 - j), 10 * (1 - j));
-                    if (DrawType::kCircle == fDrawType) {
-                        canvas->drawCircle(coord, coord, kRadius, paint);
-                    } else if (DrawType::kRect == fDrawType) {
-                        canvas->drawRect(rect, paint);
-                    } else {
-                        canvas->drawRRect(rrect, paint);
+                    canvas->scale(scale.fScale, scale.fScale);
+                    SkPaint paint;
+                    paint.setColor(SK_ColorBLACK);
+                    paint.setAntiAlias(true);
+                    static const SkScalar kRadius = 20.0f;
+                    SkScalar coord = 50.0f * 1.0f / scale.fScale;
+                    SkRect rect = SkRect::MakeXYWH(coord - kRadius , coord - kRadius,
+                                                   2 * kRadius, 2 * kRadius);
+                    SkRRect rrect = SkRRect::MakeRectXY(rect, kRadius/2.0f, kRadius/2.0f);
+                    for (int k = 0; k < 2; ++k) {
+                        if (0 == drawType) {
+                            canvas->drawCircle(coord, coord, kRadius, paint);
+                        } else if (1 == drawType) {
+                            canvas->drawRect(rect, paint);
+                        } else {
+                            canvas->drawRRect(rrect, paint);
+                        }
+                        canvas->translate(10,10);
+                        paint.setMaskFilter(fBlurFilters[i]);
                     }
-                    paint.setMaskFilter(nullptr);
                     canvas->restore();
+                    canvas->translate(0, SkIntToScalar(150));
                 }
-                canvas->restore();
-                canvas->translate(0, SkIntToScalar(150));
             }
+            canvas->translate(SkIntToScalar(300), 0);
         }
         canvas->restore();
         if (kBench_Mode != this->getMode()) {
@@ -95,9 +85,12 @@ protected:
         sk_tool_utils::set_portable_typeface(&textPaint);
         textPaint.setAntiAlias(true);
         canvas->save();
-        for (int i = 0; i < kNumBlurs; ++i) {
-            canvas->drawString(kBlurFlags[i].fName, 100, 0, textPaint);
-            canvas->translate(SkIntToScalar(130), 0);
+        for (int j = 0; j < 3; ++j) {
+            for (int i = 0; i < kNumBlurs; ++i) {
+                canvas->drawString(kBlurFlags[i].fName, 100, 0, textPaint);
+                canvas->translate(SkIntToScalar(130), 0);
+            }
+            canvas->translate(SkIntToScalar(40), 0);
         }
         canvas->restore();
         for (auto scale : kMatrixScales) {
@@ -119,7 +112,6 @@ private:
         const char* fName;
     } kMatrixScales[3];
 
-    DrawType fDrawType;
     sk_sp<SkMaskFilter> fBlurFilters[kNumBlurs];
 
     typedef         skiagm::GM INHERITED;
@@ -136,9 +128,4 @@ const BlurIgnoreXformGM::MatrixScale BlurIgnoreXformGM::kMatrixScales[] = {
     {2.0f, "Scale = 2.0"}
 };
 
-DEF_GM(return new BlurIgnoreXformGM(BlurIgnoreXformGM::DrawType::kCircle);)
-DEF_GM(return new BlurIgnoreXformGM(BlurIgnoreXformGM::DrawType::kRect);)
-DEF_GM(return new BlurIgnoreXformGM(BlurIgnoreXformGM::DrawType::kRRect);)
-
-
-
+DEF_GM(return new BlurIgnoreXformGM();)
