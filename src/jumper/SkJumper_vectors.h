@@ -208,14 +208,27 @@
     }
 
     SI void load4(const float* ptr, size_t tail, F* r, F* g, F* b, F* a) {
-        float32x2x4_t rgba = vld4_f32(ptr);
+        float32x2x4_t rgba;
+        if (__builtin_expect(tail, 0)) {
+            rgba.val[0] = vcreate_f32(0);
+            rgba.val[1] = vcreate_f32(0);
+            rgba.val[2] = vcreate_f32(0);
+            rgba.val[3] = vcreate_f32(0);
+            rgba = vld4_lane_f32(ptr, rgba, 0);
+        } else {
+            rgba = vld4_f32(ptr);
+        }
         *r = rgba.val[0];
         *g = rgba.val[1];
         *b = rgba.val[2];
         *a = rgba.val[3];
     }
     SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
-        vst4_f32(ptr, (float32x2x4_t{{r,g,b,a}}));
+        if (__builtin_expect(tail, 0)) {
+            vst4_lane_f32(ptr, (float32x2x4_t{{r,g,b,a}}), 0);
+        } else {
+            vst4_f32(ptr, (float32x2x4_t{{r,g,b,a}}));
+        }
     }
 
 
