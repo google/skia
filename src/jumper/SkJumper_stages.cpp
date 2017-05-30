@@ -76,7 +76,7 @@ struct LazyCtx {
 // We're finally going to get to what a Stage function looks like!
 // It's best to jump down to the #else case first, then to come back up here for AVX.
 
-#if defined(JUMPER) && (defined(__SSE2__) || defined(__arm__))
+#if defined(JUMPER) && (defined(__SSE2__) || defined(__arm__) || defined(__aarch64__))
     // Process the tail on all x86 processors with SSE2 or better instructions.
     //    tail == 0 ~~> work on a full kStride pixels
     //    tail != 0 ~~> work on only the first tail pixels

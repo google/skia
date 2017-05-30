@@ -33,14 +33,14 @@ _sk_start_pipeline_aarch64:
   .long  0xa9027bf3                          // stp           x19, x30, [sp, #32]
   .long  0xaa0103f4                          // mov           x20, x1
   .long  0xf8408697                          // ldr           x23, [x20], #8
-  .long  0xaa0003f5                          // mov           x21, x0
+  .long  0xaa0003f6                          // mov           x22, x0
   .long  0xaa0303f3                          // mov           x19, x3
-  .long  0x910012a8                          // add           x8, x21, #0x4
+  .long  0x910012c8                          // add           x8, x22, #0x4
   .long  0xeb13011f                          // cmp           x8, x19
-  .long  0xaa0203f6                          // mov           x22, x2
+  .long  0xaa0203f5                          // mov           x21, x2
   .long  0x54000069                          // b.ls          34 <sk_start_pipeline_aarch64+0x34>  // b.plast
-  .long  0xaa1503e0                          // mov           x0, x21
-  .long  0x14000012                          // b             78 <sk_start_pipeline_aarch64+0x78>
+  .long  0xaa1603e0                          // mov           x0, x22
+  .long  0x14000013                          // b             7c <sk_start_pipeline_aarch64+0x7c>
   .long  0x6f00e400                          // movi          v0.2d, #0x0
   .long  0x6f00e401                          // movi          v1.2d, #0x0
   .long  0x6f00e402                          // movi          v2.2d, #0x0
@@ -49,15 +49,30 @@ _sk_start_pipeline_aarch64:
   .long  0x6f00e405                          // movi          v5.2d, #0x0
   .long  0x6f00e406                          // movi          v6.2d, #0x0
   .long  0x6f00e407                          // movi          v7.2d, #0x0
-  .long  0xaa1503e0                          // mov           x0, x21
+  .long  0xaa1603e0                          // mov           x0, x22
   .long  0xaa1403e1                          // mov           x1, x20
-  .long  0xaa1603e2                          // mov           x2, x22
+  .long  0xaa1503e2                          // mov           x2, x21
+  .long  0xaa1f03e3                          // mov           x3, xzr
   .long  0xd63f02e0                          // blr           x23
-  .long  0x910012a0                          // add           x0, x21, #0x4
-  .long  0x910022a8                          // add           x8, x21, #0x8
+  .long  0x910012c0                          // add           x0, x22, #0x4
+  .long  0x910022c8                          // add           x8, x22, #0x8
   .long  0xeb13011f                          // cmp           x8, x19
-  .long  0xaa0003f5                          // mov           x21, x0
-  .long  0x54fffe09                          // b.ls          34 <sk_start_pipeline_aarch64+0x34>  // b.plast
+  .long  0xaa0003f6                          // mov           x22, x0
+  .long  0x54fffde9                          // b.ls          34 <sk_start_pipeline_aarch64+0x34>  // b.plast
+  .long  0xcb000263                          // sub           x3, x19, x0
+  .long  0xb4000183                          // cbz           x3, b0 <sk_start_pipeline_aarch64+0xb0>
+  .long  0x6f00e400                          // movi          v0.2d, #0x0
+  .long  0x6f00e401                          // movi          v1.2d, #0x0
+  .long  0x6f00e402                          // movi          v2.2d, #0x0
+  .long  0x6f00e403                          // movi          v3.2d, #0x0
+  .long  0x6f00e404                          // movi          v4.2d, #0x0
+  .long  0x6f00e405                          // movi          v5.2d, #0x0
+  .long  0x6f00e406                          // movi          v6.2d, #0x0
+  .long  0x6f00e407                          // movi          v7.2d, #0x0
+  .long  0xaa1403e1                          // mov           x1, x20
+  .long  0xaa1503e2                          // mov           x2, x21
+  .long  0xd63f02e0                          // blr           x23
+  .long  0xaa1303e0                          // mov           x0, x19
   .long  0xa9427bf3                          // ldp           x19, x30, [sp, #32]
   .long  0xa94153f5                          // ldp           x21, x20, [sp, #16]
   .long  0xa8c35bf7                          // ldp           x23, x22, [sp], #48
@@ -73,7 +88,7 @@ HIDDEN _sk_seed_shader_aarch64
 .globl _sk_seed_shader_aarch64
 FUNCTION(_sk_seed_shader_aarch64)
 _sk_seed_shader_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0x3dc00046                          // ldr           q6, [x2]
   .long  0x4e040c00                          // dup           v0.4s, w0
   .long  0x4f0167e7                          // movi          v7.4s, #0x3f, lsl #24
@@ -89,13 +104,13 @@ _sk_seed_shader_aarch64:
   .long  0x6f00e406                          // movi          v6.2d, #0x0
   .long  0x4e27d421                          // fadd          v1.4s, v1.4s, v7.4s
   .long  0x6f00e407                          // movi          v7.2d, #0x0
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_dither_aarch64
 .globl _sk_dither_aarch64
 FUNCTION(_sk_dither_aarch64)
 _sk_dither_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0x3dc00851                          // ldr           q17, [x2, #32]
   .long  0x4e040c10                          // dup           v16.4s, w0
   .long  0x4f000432                          // movi          v18.4s, #0x1
@@ -140,13 +155,13 @@ _sk_dither_aarch64:
   .long  0x4e20f660                          // fmax          v0.4s, v19.4s, v0.4s
   .long  0x4e21f661                          // fmax          v1.4s, v19.4s, v1.4s
   .long  0x4e22f662                          // fmax          v2.4s, v19.4s, v2.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_constant_color_aarch64
 .globl _sk_constant_color_aarch64
 FUNCTION(_sk_constant_color_aarch64)
 _sk_constant_color_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xaa0803ea                          // mov           x10, x8
   .long  0x4ddfc940                          // ld1r          {v0.4s}, [x10], #4
   .long  0x91002109                          // add           x9, x8, #0x8
@@ -154,16 +169,16 @@ _sk_constant_color_aarch64:
   .long  0x4d40c922                          // ld1r          {v2.4s}, [x9]
   .long  0x4d40c903                          // ld1r          {v3.4s}, [x8]
   .long  0x4d40c941                          // ld1r          {v1.4s}, [x10]
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_load_rgba_aarch64
 .globl _sk_load_rgba_aarch64
 FUNCTION(_sk_load_rgba_aarch64)
 _sk_load_rgba_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xad400500                          // ldp           q0, q1, [x8]
   .long  0xad410d02                          // ldp           q2, q3, [x8, #32]
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_store_rgba_aarch64
 .globl _sk_store_rgba_aarch64
@@ -172,20 +187,20 @@ _sk_store_rgba_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xad000500                          // stp           q0, q1, [x8]
   .long  0xad010d02                          // stp           q2, q3, [x8, #32]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_clear_aarch64
 .globl _sk_clear_aarch64
 FUNCTION(_sk_clear_aarch64)
 _sk_clear_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6f00e400                          // movi          v0.2d, #0x0
   .long  0x6f00e401                          // movi          v1.2d, #0x0
   .long  0x6f00e402                          // movi          v2.2d, #0x0
   .long  0x6f00e403                          // movi          v3.2d, #0x0
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_srcatop_aarch64
 .globl _sk_srcatop_aarch64
@@ -196,14 +211,14 @@ _sk_srcatop_aarch64:
   .long  0x6e27dc21                          // fmul          v1.4s, v1.4s, v7.4s
   .long  0x6e27dc42                          // fmul          v2.4s, v2.4s, v7.4s
   .long  0x4ea3d610                          // fsub          v16.4s, v16.4s, v3.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4e30cc80                          // fmla          v0.4s, v4.4s, v16.4s
   .long  0x4e30cca1                          // fmla          v1.4s, v5.4s, v16.4s
   .long  0x4e30ccc2                          // fmla          v2.4s, v6.4s, v16.4s
   .long  0x6e27de10                          // fmul          v16.4s, v16.4s, v7.4s
   .long  0x4e23ccf0                          // fmla          v16.4s, v7.4s, v3.4s
   .long  0x4eb01e03                          // mov           v3.16b, v16.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_dstatop_aarch64
 .globl _sk_dstatop_aarch64
@@ -211,7 +226,7 @@ FUNCTION(_sk_dstatop_aarch64)
 _sk_dstatop_aarch64:
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
   .long  0x4ea7d610                          // fsub          v16.4s, v16.4s, v7.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6e20de00                          // fmul          v0.4s, v16.4s, v0.4s
   .long  0x6e21de01                          // fmul          v1.4s, v16.4s, v1.4s
   .long  0x6e22de02                          // fmul          v2.4s, v16.4s, v2.4s
@@ -221,75 +236,75 @@ _sk_dstatop_aarch64:
   .long  0x4e23cca1                          // fmla          v1.4s, v5.4s, v3.4s
   .long  0x4e23ccc2                          // fmla          v2.4s, v6.4s, v3.4s
   .long  0x4eb01e03                          // mov           v3.16b, v16.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_srcin_aarch64
 .globl _sk_srcin_aarch64
 FUNCTION(_sk_srcin_aarch64)
 _sk_srcin_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6e27dc00                          // fmul          v0.4s, v0.4s, v7.4s
   .long  0x6e27dc21                          // fmul          v1.4s, v1.4s, v7.4s
   .long  0x6e27dc42                          // fmul          v2.4s, v2.4s, v7.4s
   .long  0x6e27dc63                          // fmul          v3.4s, v3.4s, v7.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_dstin_aarch64
 .globl _sk_dstin_aarch64
 FUNCTION(_sk_dstin_aarch64)
 _sk_dstin_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6e24dc60                          // fmul          v0.4s, v3.4s, v4.4s
   .long  0x6e25dc61                          // fmul          v1.4s, v3.4s, v5.4s
   .long  0x6e26dc62                          // fmul          v2.4s, v3.4s, v6.4s
   .long  0x6e27dc63                          // fmul          v3.4s, v3.4s, v7.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_srcout_aarch64
 .globl _sk_srcout_aarch64
 FUNCTION(_sk_srcout_aarch64)
 _sk_srcout_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
   .long  0x4ea7d610                          // fsub          v16.4s, v16.4s, v7.4s
   .long  0x6e20de00                          // fmul          v0.4s, v16.4s, v0.4s
   .long  0x6e21de01                          // fmul          v1.4s, v16.4s, v1.4s
   .long  0x6e22de02                          // fmul          v2.4s, v16.4s, v2.4s
   .long  0x6e23de03                          // fmul          v3.4s, v16.4s, v3.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_dstout_aarch64
 .globl _sk_dstout_aarch64
 FUNCTION(_sk_dstout_aarch64)
 _sk_dstout_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4f03f600                          // fmov          v0.4s, #1.000000000000000000e+00
   .long  0x4ea3d403                          // fsub          v3.4s, v0.4s, v3.4s
   .long  0x6e24dc60                          // fmul          v0.4s, v3.4s, v4.4s
   .long  0x6e25dc61                          // fmul          v1.4s, v3.4s, v5.4s
   .long  0x6e26dc62                          // fmul          v2.4s, v3.4s, v6.4s
   .long  0x6e27dc63                          // fmul          v3.4s, v3.4s, v7.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_srcover_aarch64
 .globl _sk_srcover_aarch64
 FUNCTION(_sk_srcover_aarch64)
 _sk_srcover_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
   .long  0x4ea3d610                          // fsub          v16.4s, v16.4s, v3.4s
   .long  0x4e24ce00                          // fmla          v0.4s, v16.4s, v4.4s
   .long  0x4e25ce01                          // fmla          v1.4s, v16.4s, v5.4s
   .long  0x4e26ce02                          // fmla          v2.4s, v16.4s, v6.4s
   .long  0x4e27ce03                          // fmla          v3.4s, v16.4s, v7.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_dstover_aarch64
 .globl _sk_dstover_aarch64
 FUNCTION(_sk_dstover_aarch64)
 _sk_dstover_aarch64:
   .long  0x4f03f611                          // fmov          v17.4s, #1.000000000000000000e+00
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4ea41c90                          // mov           v16.16b, v4.16b
   .long  0x4ea7d634                          // fsub          v20.4s, v17.4s, v7.4s
   .long  0x4ea51cb1                          // mov           v17.16b, v5.16b
@@ -303,18 +318,18 @@ _sk_dstover_aarch64:
   .long  0x4eb11e21                          // mov           v1.16b, v17.16b
   .long  0x4eb21e42                          // mov           v2.16b, v18.16b
   .long  0x4eb31e63                          // mov           v3.16b, v19.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_modulate_aarch64
 .globl _sk_modulate_aarch64
 FUNCTION(_sk_modulate_aarch64)
 _sk_modulate_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6e24dc00                          // fmul          v0.4s, v0.4s, v4.4s
   .long  0x6e25dc21                          // fmul          v1.4s, v1.4s, v5.4s
   .long  0x6e26dc42                          // fmul          v2.4s, v2.4s, v6.4s
   .long  0x6e27dc63                          // fmul          v3.4s, v3.4s, v7.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_multiply_aarch64
 .globl _sk_multiply_aarch64
@@ -327,7 +342,7 @@ _sk_multiply_aarch64:
   .long  0x6e21de71                          // fmul          v17.4s, v19.4s, v1.4s
   .long  0x6e22de72                          // fmul          v18.4s, v19.4s, v2.4s
   .long  0x6e23de73                          // fmul          v19.4s, v19.4s, v3.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4e34cc90                          // fmla          v16.4s, v4.4s, v20.4s
   .long  0x4e34ccb1                          // fmla          v17.4s, v5.4s, v20.4s
   .long  0x4e34ccd2                          // fmla          v18.4s, v6.4s, v20.4s
@@ -340,24 +355,24 @@ _sk_multiply_aarch64:
   .long  0x4eb11e21                          // mov           v1.16b, v17.16b
   .long  0x4eb21e42                          // mov           v2.16b, v18.16b
   .long  0x4eb31e63                          // mov           v3.16b, v19.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_plus__aarch64
 .globl _sk_plus__aarch64
 FUNCTION(_sk_plus__aarch64)
 _sk_plus__aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4e24d400                          // fadd          v0.4s, v0.4s, v4.4s
   .long  0x4e25d421                          // fadd          v1.4s, v1.4s, v5.4s
   .long  0x4e26d442                          // fadd          v2.4s, v2.4s, v6.4s
   .long  0x4e27d463                          // fadd          v3.4s, v3.4s, v7.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_screen_aarch64
 .globl _sk_screen_aarch64
 FUNCTION(_sk_screen_aarch64)
 _sk_screen_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4e24d410                          // fadd          v16.4s, v0.4s, v4.4s
   .long  0x4e25d431                          // fadd          v17.4s, v1.4s, v5.4s
   .long  0x4e26d452                          // fadd          v18.4s, v2.4s, v6.4s
@@ -370,14 +385,14 @@ _sk_screen_aarch64:
   .long  0x4eb11e21                          // mov           v1.16b, v17.16b
   .long  0x4eb21e42                          // mov           v2.16b, v18.16b
   .long  0x4eb31e63                          // mov           v3.16b, v19.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_xor__aarch64
 .globl _sk_xor__aarch64
 FUNCTION(_sk_xor__aarch64)
 _sk_xor__aarch64:
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4ea7d611                          // fsub          v17.4s, v16.4s, v7.4s
   .long  0x4ea3d610                          // fsub          v16.4s, v16.4s, v3.4s
   .long  0x6e20de20                          // fmul          v0.4s, v17.4s, v0.4s
@@ -388,7 +403,7 @@ _sk_xor__aarch64:
   .long  0x4e30cca1                          // fmla          v1.4s, v5.4s, v16.4s
   .long  0x4e30ccc2                          // fmla          v2.4s, v6.4s, v16.4s
   .long  0x4e30cce3                          // fmla          v3.4s, v7.4s, v16.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_darken_aarch64
 .globl _sk_darken_aarch64
@@ -400,7 +415,7 @@ _sk_darken_aarch64:
   .long  0x6e25dc73                          // fmul          v19.4s, v3.4s, v5.4s
   .long  0x4e31f610                          // fmax          v16.4s, v16.4s, v17.4s
   .long  0x4e24d400                          // fadd          v0.4s, v0.4s, v4.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6e27dc51                          // fmul          v17.4s, v2.4s, v7.4s
   .long  0x4e33f652                          // fmax          v18.4s, v18.4s, v19.4s
   .long  0x6e26dc73                          // fmul          v19.4s, v3.4s, v6.4s
@@ -413,7 +428,7 @@ _sk_darken_aarch64:
   .long  0x4eb2d421                          // fsub          v1.4s, v1.4s, v18.4s
   .long  0x4eb1d442                          // fsub          v2.4s, v2.4s, v17.4s
   .long  0x4e27ce03                          // fmla          v3.4s, v16.4s, v7.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_lighten_aarch64
 .globl _sk_lighten_aarch64
@@ -425,7 +440,7 @@ _sk_lighten_aarch64:
   .long  0x6e25dc73                          // fmul          v19.4s, v3.4s, v5.4s
   .long  0x4eb1f610                          // fmin          v16.4s, v16.4s, v17.4s
   .long  0x4e24d400                          // fadd          v0.4s, v0.4s, v4.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6e27dc51                          // fmul          v17.4s, v2.4s, v7.4s
   .long  0x4eb3f652                          // fmin          v18.4s, v18.4s, v19.4s
   .long  0x6e26dc73                          // fmul          v19.4s, v3.4s, v6.4s
@@ -438,7 +453,7 @@ _sk_lighten_aarch64:
   .long  0x4eb2d421                          // fsub          v1.4s, v1.4s, v18.4s
   .long  0x4eb1d442                          // fsub          v2.4s, v2.4s, v17.4s
   .long  0x4e27ce03                          // fmla          v3.4s, v16.4s, v7.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_difference_aarch64
 .globl _sk_difference_aarch64
@@ -457,7 +472,7 @@ _sk_difference_aarch64:
   .long  0x4eb0d400                          // fsub          v0.4s, v0.4s, v16.4s
   .long  0x4e25d421                          // fadd          v1.4s, v1.4s, v5.4s
   .long  0x4e32d650                          // fadd          v16.4s, v18.4s, v18.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4eb3f631                          // fmin          v17.4s, v17.4s, v19.4s
   .long  0x4eb0d421                          // fsub          v1.4s, v1.4s, v16.4s
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
@@ -466,7 +481,7 @@ _sk_difference_aarch64:
   .long  0x4ea3d610                          // fsub          v16.4s, v16.4s, v3.4s
   .long  0x4eb1d442                          // fsub          v2.4s, v2.4s, v17.4s
   .long  0x4e27ce03                          // fmla          v3.4s, v16.4s, v7.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_exclusion_aarch64
 .globl _sk_exclusion_aarch64
@@ -483,12 +498,12 @@ _sk_exclusion_aarch64:
   .long  0x4e26d450                          // fadd          v16.4s, v2.4s, v6.4s
   .long  0x6e26dc42                          // fmul          v2.4s, v2.4s, v6.4s
   .long  0x4e22d442                          // fadd          v2.4s, v2.4s, v2.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4ea2d602                          // fsub          v2.4s, v16.4s, v2.4s
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
   .long  0x4ea3d610                          // fsub          v16.4s, v16.4s, v3.4s
   .long  0x4e27ce03                          // fmla          v3.4s, v16.4s, v7.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_colorburn_aarch64
 .globl _sk_colorburn_aarch64
@@ -526,7 +541,7 @@ _sk_colorburn_aarch64:
   .long  0x4e20cc61                          // fmla          v1.4s, v3.4s, v0.4s
   .long  0x4ea0d840                          // fcmeq         v0.4s, v2.4s, #0.0
   .long  0x4ea3d631                          // fsub          v17.4s, v17.4s, v3.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4e27e490                          // fcmeq         v16.4s, v4.4s, v7.4s
   .long  0x6e611c40                          // bsl           v0.16b, v2.16b, v1.16b
   .long  0x4e31cc92                          // fmla          v18.4s, v4.4s, v17.4s
@@ -539,7 +554,7 @@ _sk_colorburn_aarch64:
   .long  0x6e601e82                          // bsl           v2.16b, v20.16b, v0.16b
   .long  0x4e27ce23                          // fmla          v3.4s, v17.4s, v7.4s
   .long  0x4eb01e00                          // mov           v0.16b, v16.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_colordodge_aarch64
 .globl _sk_colordodge_aarch64
@@ -575,7 +590,7 @@ _sk_colordodge_aarch64:
   .long  0x4e23e440                          // fcmeq         v0.4s, v2.4s, v3.4s
   .long  0x6e611c40                          // bsl           v0.16b, v2.16b, v1.16b
   .long  0x4ea3d641                          // fsub          v1.4s, v18.4s, v3.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4ea0d890                          // fcmeq         v16.4s, v4.4s, #0.0
   .long  0x4ea0d8b1                          // fcmeq         v17.4s, v5.4s, #0.0
   .long  0x4e21cc93                          // fmla          v19.4s, v4.4s, v1.4s
@@ -588,7 +603,7 @@ _sk_colordodge_aarch64:
   .long  0x4e27cc23                          // fmla          v3.4s, v1.4s, v7.4s
   .long  0x4eb01e00                          // mov           v0.16b, v16.16b
   .long  0x4eb11e21                          // mov           v1.16b, v17.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_hardlight_aarch64
 .globl _sk_hardlight_aarch64
@@ -625,7 +640,7 @@ _sk_hardlight_aarch64:
   .long  0x6e21dea1                          // fmul          v1.4s, v21.4s, v1.4s
   .long  0x6e22deb5                          // fmul          v21.4s, v21.4s, v2.4s
   .long  0x6e26dc42                          // fmul          v2.4s, v2.4s, v6.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4e32d652                          // fadd          v18.4s, v18.4s, v18.4s
   .long  0x4ea3d610                          // fsub          v16.4s, v16.4s, v3.4s
   .long  0x6e34e474                          // fcmge         v20.4s, v3.4s, v20.4s
@@ -639,7 +654,7 @@ _sk_hardlight_aarch64:
   .long  0x4e36d421                          // fadd          v1.4s, v1.4s, v22.4s
   .long  0x4e34d6a2                          // fadd          v2.4s, v21.4s, v20.4s
   .long  0x4e27ce03                          // fmla          v3.4s, v16.4s, v7.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_overlay_aarch64
 .globl _sk_overlay_aarch64
@@ -676,7 +691,7 @@ _sk_overlay_aarch64:
   .long  0x6e21dea1                          // fmul          v1.4s, v21.4s, v1.4s
   .long  0x6e22deb5                          // fmul          v21.4s, v21.4s, v2.4s
   .long  0x6e26dc42                          // fmul          v2.4s, v2.4s, v6.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4e32d652                          // fadd          v18.4s, v18.4s, v18.4s
   .long  0x4ea3d610                          // fsub          v16.4s, v16.4s, v3.4s
   .long  0x6e34e4f4                          // fcmge         v20.4s, v7.4s, v20.4s
@@ -690,7 +705,7 @@ _sk_overlay_aarch64:
   .long  0x4e36d421                          // fadd          v1.4s, v1.4s, v22.4s
   .long  0x4e34d6a2                          // fadd          v2.4s, v21.4s, v20.4s
   .long  0x4e27ce03                          // fmla          v3.4s, v16.4s, v7.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_softlight_aarch64
 .globl _sk_softlight_aarch64
@@ -782,7 +797,7 @@ _sk_softlight_aarch64:
   .long  0x6e27df7b                          // fmul          v27.4s, v27.4s, v7.4s
   .long  0x6e27ded6                          // fmul          v22.4s, v22.4s, v7.4s
   .long  0x6e27df18                          // fmul          v24.4s, v24.4s, v7.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6e37df77                          // fmul          v23.4s, v27.4s, v23.4s
   .long  0x6e3aded6                          // fmul          v22.4s, v22.4s, v26.4s
   .long  0x6e34df14                          // fmul          v20.4s, v24.4s, v20.4s
@@ -806,7 +821,7 @@ _sk_softlight_aarch64:
   .long  0x4e35d421                          // fadd          v1.4s, v1.4s, v21.4s
   .long  0x4e3cd442                          // fadd          v2.4s, v2.4s, v28.4s
   .long  0x4e27ce43                          // fmla          v3.4s, v18.4s, v7.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_hue_aarch64
 .globl _sk_hue_aarch64
@@ -908,7 +923,7 @@ _sk_hue_aarch64:
   .long  0x6e35fe31                          // fdiv          v17.4s, v17.4s, v21.4s
   .long  0x6e35fe52                          // fdiv          v18.4s, v18.4s, v21.4s
   .long  0x6e35fe73                          // fdiv          v19.4s, v19.4s, v21.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4eb71ee3                          // mov           v3.16b, v23.16b
   .long  0x4eb71efc                          // mov           v28.16b, v23.16b
   .long  0x4e31d711                          // fadd          v17.4s, v24.4s, v17.4s
@@ -925,7 +940,7 @@ _sk_hue_aarch64:
   .long  0x4e31d421                          // fadd          v1.4s, v1.4s, v17.4s
   .long  0x4e30d442                          // fadd          v2.4s, v2.4s, v16.4s
   .long  0x4eb4d743                          // fsub          v3.4s, v26.4s, v20.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_saturation_aarch64
 .globl _sk_saturation_aarch64
@@ -1027,7 +1042,7 @@ _sk_saturation_aarch64:
   .long  0x6e35fe31                          // fdiv          v17.4s, v17.4s, v21.4s
   .long  0x6e35fe52                          // fdiv          v18.4s, v18.4s, v21.4s
   .long  0x6e35fe73                          // fdiv          v19.4s, v19.4s, v21.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4eb71ee3                          // mov           v3.16b, v23.16b
   .long  0x4eb71efc                          // mov           v28.16b, v23.16b
   .long  0x4e31d711                          // fadd          v17.4s, v24.4s, v17.4s
@@ -1044,7 +1059,7 @@ _sk_saturation_aarch64:
   .long  0x4e31d421                          // fadd          v1.4s, v1.4s, v17.4s
   .long  0x4e30d442                          // fadd          v2.4s, v2.4s, v16.4s
   .long  0x4eb4d743                          // fsub          v3.4s, v26.4s, v20.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_color_aarch64
 .globl _sk_color_aarch64
@@ -1122,7 +1137,7 @@ _sk_color_aarch64:
   .long  0x6e37fe31                          // fdiv          v17.4s, v17.4s, v23.4s
   .long  0x6e37fe73                          // fdiv          v19.4s, v19.4s, v23.4s
   .long  0x6e37fe94                          // fdiv          v20.4s, v20.4s, v23.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4eb91f23                          // mov           v3.16b, v25.16b
   .long  0x4eb91f3c                          // mov           v28.16b, v25.16b
   .long  0x4e31d6b1                          // fadd          v17.4s, v21.4s, v17.4s
@@ -1139,7 +1154,7 @@ _sk_color_aarch64:
   .long  0x4e31d421                          // fadd          v1.4s, v1.4s, v17.4s
   .long  0x4e32d442                          // fadd          v2.4s, v2.4s, v18.4s
   .long  0x4eb0d703                          // fsub          v3.4s, v24.4s, v16.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_luminosity_aarch64
 .globl _sk_luminosity_aarch64
@@ -1217,7 +1232,7 @@ _sk_luminosity_aarch64:
   .long  0x6e33fc00                          // fdiv          v0.4s, v0.4s, v19.4s
   .long  0x6e33fc63                          // fdiv          v3.4s, v3.4s, v19.4s
   .long  0x6e33fe31                          // fdiv          v17.4s, v17.4s, v19.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4eb51ea2                          // mov           v2.16b, v21.16b
   .long  0x4eb51ebb                          // mov           v27.16b, v21.16b
   .long  0x4e20d680                          // fadd          v0.4s, v20.4s, v0.4s
@@ -1234,40 +1249,41 @@ _sk_luminosity_aarch64:
   .long  0x4e22d421                          // fadd          v1.4s, v1.4s, v2.4s
   .long  0x4e23d742                          // fadd          v2.4s, v26.4s, v3.4s
   .long  0x4eb0d703                          // fsub          v3.4s, v24.4s, v16.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_srcover_rgba_8888_aarch64
 .globl _sk_srcover_rgba_8888_aarch64
 FUNCTION(_sk_srcover_rgba_8888_aarch64)
 _sk_srcover_rgba_8888_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
-  .long  0xd37ef409                          // lsl           x9, x0, #2
-  .long  0x6f00e625                          // movi          v5.2d, #0xff000000ff
-  .long  0x4f03f604                          // fmov          v4.4s, #1.000000000000000000e+00
   .long  0xf9400108                          // ldr           x8, [x8]
-  .long  0x52a86fea                          // mov           w10, #0x437f0000
-  .long  0x4ea3d490                          // fsub          v16.4s, v4.4s, v3.4s
-  .long  0x4e040d44                          // dup           v4.4s, w10
-  .long  0x3ce96906                          // ldr           q6, [x8, x9]
-  .long  0x6e24dc00                          // fmul          v0.4s, v0.4s, v4.4s
-  .long  0x6e24dc21                          // fmul          v1.4s, v1.4s, v4.4s
-  .long  0x6e24dc42                          // fmul          v2.4s, v2.4s, v4.4s
-  .long  0x6f3804c7                          // ushr          v7.4s, v6.4s, #8
-  .long  0x6f3004d1                          // ushr          v17.4s, v6.4s, #16
+  .long  0x8b000908                          // add           x8, x8, x0, lsl #2
+  .long  0xb5000503                          // cbnz          x3, 1130 <sk_srcover_rgba_8888_aarch64+0xac>
+  .long  0x3dc00104                          // ldr           q4, [x8]
+  .long  0x6f00e625                          // movi          v5.2d, #0xff000000ff
+  .long  0x6f380486                          // ushr          v6.4s, v4.4s, #8
+  .long  0x6f300487                          // ushr          v7.4s, v4.4s, #16
+  .long  0x6f280490                          // ushr          v16.4s, v4.4s, #24
+  .long  0x4f03f611                          // fmov          v17.4s, #1.000000000000000000e+00
+  .long  0x52a86fe9                          // mov           w9, #0x437f0000
+  .long  0x4e251cc6                          // and           v6.16b, v6.16b, v5.16b
   .long  0x4e251cf2                          // and           v18.16b, v7.16b, v5.16b
-  .long  0x6e24dc63                          // fmul          v3.4s, v3.4s, v4.4s
-  .long  0x4e251cc4                          // and           v4.16b, v6.16b, v5.16b
-  .long  0x4e251e31                          // and           v17.16b, v17.16b, v5.16b
-  .long  0x4e21da45                          // scvtf         v5.4s, v18.4s
-  .long  0x6f2804c6                          // ushr          v6.4s, v6.4s, #24
+  .long  0x4e21da07                          // scvtf         v7.4s, v16.4s
+  .long  0x4ea3d630                          // fsub          v16.4s, v17.4s, v3.4s
+  .long  0x4e040d31                          // dup           v17.4s, w9
+  .long  0x4e251c84                          // and           v4.16b, v4.16b, v5.16b
+  .long  0x4e21d8c5                          // scvtf         v5.4s, v6.4s
+  .long  0x6e31dc21                          // fmul          v1.4s, v1.4s, v17.4s
   .long  0x4e21d884                          // scvtf         v4.4s, v4.4s
+  .long  0x6e31dc00                          // fmul          v0.4s, v0.4s, v17.4s
   .long  0x4e25ce01                          // fmla          v1.4s, v16.4s, v5.4s
-  .long  0x4e21d8c7                          // scvtf         v7.4s, v6.4s
-  .long  0x4e21da26                          // scvtf         v6.4s, v17.4s
+  .long  0x4e21da46                          // scvtf         v6.4s, v18.4s
+  .long  0x6e31dc42                          // fmul          v2.4s, v2.4s, v17.4s
+  .long  0x6e31dc63                          // fmul          v3.4s, v3.4s, v17.4s
   .long  0x4e24ce00                          // fmla          v0.4s, v16.4s, v4.4s
   .long  0x6e21a831                          // fcvtnu        v17.4s, v1.4s
-  .long  0x4e27ce03                          // fmla          v3.4s, v16.4s, v7.4s
   .long  0x4e26ce02                          // fmla          v2.4s, v16.4s, v6.4s
+  .long  0x4e27ce03                          // fmla          v3.4s, v16.4s, v7.4s
   .long  0x6e21a810                          // fcvtnu        v16.4s, v0.4s
   .long  0x4f285631                          // shl           v17.4s, v17.4s, #8
   .long  0x4eb01e30                          // orr           v16.16b, v17.16b, v16.16b
@@ -1277,74 +1293,103 @@ _sk_srcover_rgba_8888_aarch64:
   .long  0x6e21a871                          // fcvtnu        v17.4s, v3.4s
   .long  0x4f385631                          // shl           v17.4s, v17.4s, #24
   .long  0x4eb11e10                          // orr           v16.16b, v16.16b, v17.16b
-  .long  0x3ca96910                          // str           q16, [x8, x9]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xb5000283                          // cbnz          x3, 116c <sk_srcover_rgba_8888_aarch64+0xe8>
+  .long  0x3d800110                          // str           q16, [x8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x6f00e404                          // movi          v4.2d, #0x0
+  .long  0x54000140                          // b.eq          1164 <sk_srcover_rgba_8888_aarch64+0xe0>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000c0                          // b.eq          115c <sk_srcover_rgba_8888_aarch64+0xd8>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fffa61                          // b.ne          1098 <sk_srcover_rgba_8888_aarch64+0x14>  // b.any
+  .long  0x91002109                          // add           x9, x8, #0x8
+  .long  0x4e040fe4                          // dup           v4.4s, wzr
+  .long  0x4d408124                          // ld1           {v4.s}[2], [x9]
+  .long  0x91001109                          // add           x9, x8, #0x4
+  .long  0x0d409124                          // ld1           {v4.s}[1], [x9]
+  .long  0x0d408104                          // ld1           {v4.s}[0], [x8]
+  .long  0x17ffffcc                          // b             1098 <sk_srcover_rgba_8888_aarch64+0x14>
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x54000120                          // b.eq          1198 <sk_srcover_rgba_8888_aarch64+0x114>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000a0                          // b.eq          1190 <sk_srcover_rgba_8888_aarch64+0x10c>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fffd01                          // b.ne          1124 <sk_srcover_rgba_8888_aarch64+0xa0>  // b.any
+  .long  0x91002109                          // add           x9, x8, #0x8
+  .long  0x4d008130                          // st1           {v16.s}[2], [x9]
+  .long  0x91001109                          // add           x9, x8, #0x4
+  .long  0x0d009130                          // st1           {v16.s}[1], [x9]
+  .long  0x0d008110                          // st1           {v16.s}[0], [x8]
+  .long  0x17ffffe2                          // b             1124 <sk_srcover_rgba_8888_aarch64+0xa0>
 
 HIDDEN _sk_clamp_0_aarch64
 .globl _sk_clamp_0_aarch64
 FUNCTION(_sk_clamp_0_aarch64)
 _sk_clamp_0_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6f00e410                          // movi          v16.2d, #0x0
   .long  0x4e30f400                          // fmax          v0.4s, v0.4s, v16.4s
   .long  0x4e30f421                          // fmax          v1.4s, v1.4s, v16.4s
   .long  0x4e30f442                          // fmax          v2.4s, v2.4s, v16.4s
   .long  0x4e30f463                          // fmax          v3.4s, v3.4s, v16.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_clamp_1_aarch64
 .globl _sk_clamp_1_aarch64
 FUNCTION(_sk_clamp_1_aarch64)
 _sk_clamp_1_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
   .long  0x4eb0f400                          // fmin          v0.4s, v0.4s, v16.4s
   .long  0x4eb0f421                          // fmin          v1.4s, v1.4s, v16.4s
   .long  0x4eb0f442                          // fmin          v2.4s, v2.4s, v16.4s
   .long  0x4eb0f463                          // fmin          v3.4s, v3.4s, v16.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_clamp_a_aarch64
 .globl _sk_clamp_a_aarch64
 FUNCTION(_sk_clamp_a_aarch64)
 _sk_clamp_a_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
   .long  0x4eb0f463                          // fmin          v3.4s, v3.4s, v16.4s
   .long  0x4ea3f400                          // fmin          v0.4s, v0.4s, v3.4s
   .long  0x4ea3f421                          // fmin          v1.4s, v1.4s, v3.4s
   .long  0x4ea3f442                          // fmin          v2.4s, v2.4s, v3.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_set_rgb_aarch64
 .globl _sk_set_rgb_aarch64
 FUNCTION(_sk_set_rgb_aarch64)
 _sk_set_rgb_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xaa0803e9                          // mov           x9, x8
   .long  0x4ddfc920                          // ld1r          {v0.4s}, [x9], #4
   .long  0x91002108                          // add           x8, x8, #0x8
   .long  0x4d40c902                          // ld1r          {v2.4s}, [x8]
   .long  0x4d40c921                          // ld1r          {v1.4s}, [x9]
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_swap_rb_aarch64
 .globl _sk_swap_rb_aarch64
 FUNCTION(_sk_swap_rb_aarch64)
 _sk_swap_rb_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4ea01c10                          // mov           v16.16b, v0.16b
   .long  0x4ea21c40                          // mov           v0.16b, v2.16b
   .long  0x4eb01e02                          // mov           v2.16b, v16.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_swap_aarch64
 .globl _sk_swap_aarch64
 FUNCTION(_sk_swap_aarch64)
 _sk_swap_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4ea31c70                          // mov           v16.16b, v3.16b
   .long  0x4ea21c51                          // mov           v17.16b, v2.16b
   .long  0x4ea11c32                          // mov           v18.16b, v1.16b
@@ -1357,53 +1402,53 @@ _sk_swap_aarch64:
   .long  0x4eb21e45                          // mov           v5.16b, v18.16b
   .long  0x4eb11e26                          // mov           v6.16b, v17.16b
   .long  0x4eb01e07                          // mov           v7.16b, v16.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_move_src_dst_aarch64
 .globl _sk_move_src_dst_aarch64
 FUNCTION(_sk_move_src_dst_aarch64)
 _sk_move_src_dst_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4ea01c04                          // mov           v4.16b, v0.16b
   .long  0x4ea11c25                          // mov           v5.16b, v1.16b
   .long  0x4ea21c46                          // mov           v6.16b, v2.16b
   .long  0x4ea31c67                          // mov           v7.16b, v3.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_move_dst_src_aarch64
 .globl _sk_move_dst_src_aarch64
 FUNCTION(_sk_move_dst_src_aarch64)
 _sk_move_dst_src_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4ea41c80                          // mov           v0.16b, v4.16b
   .long  0x4ea51ca1                          // mov           v1.16b, v5.16b
   .long  0x4ea61cc2                          // mov           v2.16b, v6.16b
   .long  0x4ea71ce3                          // mov           v3.16b, v7.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_premul_aarch64
 .globl _sk_premul_aarch64
 FUNCTION(_sk_premul_aarch64)
 _sk_premul_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6e23dc00                          // fmul          v0.4s, v0.4s, v3.4s
   .long  0x6e23dc21                          // fmul          v1.4s, v1.4s, v3.4s
   .long  0x6e23dc42                          // fmul          v2.4s, v2.4s, v3.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_unpremul_aarch64
 .globl _sk_unpremul_aarch64
 FUNCTION(_sk_unpremul_aarch64)
 _sk_unpremul_aarch64:
   .long  0x4f03f611                          // fmov          v17.4s, #1.000000000000000000e+00
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4ea0d870                          // fcmeq         v16.4s, v3.4s, #0.0
   .long  0x6e23fe31                          // fdiv          v17.4s, v17.4s, v3.4s
   .long  0x4e701e30                          // bic           v16.16b, v17.16b, v16.16b
   .long  0x6e20de00                          // fmul          v0.4s, v16.4s, v0.4s
   .long  0x6e21de01                          // fmul          v1.4s, v16.4s, v1.4s
   .long  0x6e22de02                          // fmul          v2.4s, v16.4s, v2.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_from_srgb_aarch64
 .globl _sk_from_srgb_aarch64
@@ -1432,7 +1477,7 @@ _sk_from_srgb_aarch64:
   .long  0x6e20dc13                          // fmul          v19.4s, v0.4s, v0.4s
   .long  0x7288f5c8                          // movk          w8, #0x47ae
   .long  0x4e20ce15                          // fmla          v21.4s, v16.4s, v0.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6e21dc34                          // fmul          v20.4s, v1.4s, v1.4s
   .long  0x4e33ceb6                          // fmla          v22.4s, v21.4s, v19.4s
   .long  0x4e040d13                          // dup           v19.4s, w8
@@ -1447,7 +1492,7 @@ _sk_from_srgb_aarch64:
   .long  0x6e761ea0                          // bsl           v0.16b, v21.16b, v22.16b
   .long  0x6e781e01                          // bsl           v1.16b, v16.16b, v24.16b
   .long  0x6e721e22                          // bsl           v2.16b, v17.16b, v18.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_to_srgb_aarch64
 .globl _sk_to_srgb_aarch64
@@ -1509,7 +1554,7 @@ _sk_to_srgb_aarch64:
   .long  0x4e35fe94                          // frecps        v20.4s, v20.4s, v21.4s
   .long  0x6e34deb4                          // fmul          v20.4s, v21.4s, v20.4s
   .long  0x4ea1da75                          // frecpe        v21.4s, v19.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4e35fe73                          // frecps        v19.4s, v19.4s, v21.4s
   .long  0x6e33deb3                          // fmul          v19.4s, v21.4s, v19.4s
   .long  0x6e30de50                          // fmul          v16.4s, v18.4s, v16.4s
@@ -1518,7 +1563,7 @@ _sk_to_srgb_aarch64:
   .long  0x6e701f20                          // bsl           v0.16b, v25.16b, v16.16b
   .long  0x6e721f41                          // bsl           v1.16b, v26.16b, v18.16b
   .long  0x6e731e22                          // bsl           v2.16b, v17.16b, v19.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_rgb_to_hsl_aarch64
 .globl _sk_rgb_to_hsl_aarch64
@@ -1551,7 +1596,7 @@ _sk_rgb_to_hsl_aarch64:
   .long  0x4e38cc59                          // fmla          v25.4s, v2.4s, v24.4s
   .long  0x6e3ade02                          // fmul          v2.4s, v16.4s, v26.4s
   .long  0x72955568                          // movk          w8, #0xaaab
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4eb1d651                          // fsub          v17.4s, v18.4s, v17.4s
   .long  0x6ebae452                          // fcmgt         v18.4s, v2.4s, v26.4s
   .long  0x6e791ee1                          // bsl           v1.16b, v23.16b, v25.16b
@@ -1562,7 +1607,7 @@ _sk_rgb_to_hsl_aarch64:
   .long  0x6e33dc00                          // fmul          v0.4s, v0.4s, v19.4s
   .long  0x4e761c00                          // bic           v0.16b, v0.16b, v22.16b
   .long  0x4e761c21                          // bic           v1.16b, v1.16b, v22.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_hsl_to_rgb_aarch64
 .globl _sk_hsl_to_rgb_aarch64
@@ -1628,7 +1673,7 @@ _sk_hsl_to_rgb_aarch64:
   .long  0x6e31e435                          // fcmge         v21.4s, v1.4s, v17.4s
   .long  0x6e31e711                          // fcmge         v17.4s, v24.4s, v17.4s
   .long  0x6e3ee718                          // fcmge         v24.4s, v24.4s, v30.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6e741ef1                          // bsl           v17.16b, v23.16b, v20.16b
   .long  0x6e3ee733                          // fcmge         v19.4s, v25.4s, v30.4s
   .long  0x6e3ee439                          // fcmge         v25.4s, v1.4s, v30.4s
@@ -1643,52 +1688,72 @@ _sk_hsl_to_rgb_aarch64:
   .long  0x6e791c40                          // bsl           v0.16b, v2.16b, v25.16b
   .long  0x6e731c41                          // bsl           v1.16b, v2.16b, v19.16b
   .long  0x4eb01e02                          // mov           v2.16b, v16.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_scale_1_float_aarch64
 .globl _sk_scale_1_float_aarch64
 FUNCTION(_sk_scale_1_float_aarch64)
 _sk_scale_1_float_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xbd400110                          // ldr           s16, [x8]
   .long  0x4f909000                          // fmul          v0.4s, v0.4s, v16.s[0]
   .long  0x4f909021                          // fmul          v1.4s, v1.4s, v16.s[0]
   .long  0x4f909042                          // fmul          v2.4s, v2.4s, v16.s[0]
   .long  0x4f909063                          // fmul          v3.4s, v3.4s, v16.s[0]
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_scale_u8_aarch64
 .globl _sk_scale_u8_aarch64
 FUNCTION(_sk_scale_u8_aarch64)
 _sk_scale_u8_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
-  .long  0x52a77009                          // mov           w9, #0x3b800000
-  .long  0x72901029                          // movk          w9, #0x8081
-  .long  0x4e040d30                          // dup           v16.4s, w9
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x8b000108                          // add           x8, x8, x0
+  .long  0xb50002e3                          // cbnz          x3, 16b8 <sk_scale_u8_aarch64+0x68>
   .long  0x39400109                          // ldrb          w9, [x8]
   .long  0x3940050a                          // ldrb          w10, [x8, #1]
   .long  0x3940090b                          // ldrb          w11, [x8, #2]
   .long  0x39400d08                          // ldrb          w8, [x8, #3]
-  .long  0x4e021d31                          // mov           v17.h[0], w9
-  .long  0x4e061d51                          // mov           v17.h[1], w10
-  .long  0x4e0a1d71                          // mov           v17.h[2], w11
-  .long  0x4e0e1d11                          // mov           v17.h[3], w8
-  .long  0x2f10a631                          // uxtl          v17.4s, v17.4h
-  .long  0x6e21da31                          // ucvtf         v17.4s, v17.4s
-  .long  0x6e30de30                          // fmul          v16.4s, v17.4s, v16.4s
+  .long  0x4e021d30                          // mov           v16.h[0], w9
+  .long  0x4e061d50                          // mov           v16.h[1], w10
+  .long  0x4e0a1d70                          // mov           v16.h[2], w11
+  .long  0x4e0e1d10                          // mov           v16.h[3], w8
+  .long  0x2f07b7f0                          // bic           v16.4h, #0xff, lsl #8
+  .long  0x52a77008                          // mov           w8, #0x3b800000
+  .long  0x72901028                          // movk          w8, #0x8081
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
+  .long  0x2f10a610                          // uxtl          v16.4s, v16.4h
+  .long  0x4e040d11                          // dup           v17.4s, w8
+  .long  0x6e21da10                          // ucvtf         v16.4s, v16.4s
+  .long  0x6e31de10                          // fmul          v16.4s, v16.4s, v17.4s
   .long  0x6e20de00                          // fmul          v0.4s, v16.4s, v0.4s
   .long  0x6e21de01                          // fmul          v1.4s, v16.4s, v1.4s
   .long  0x6e22de02                          // fmul          v2.4s, v16.4s, v2.4s
   .long  0x6e23de03                          // fmul          v3.4s, v16.4s, v3.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0x91004021                          // add           x1, x1, #0x10
+  .long  0xd61f0080                          // br            x4
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x2f00e410                          // movi          d16, #0x0
+  .long  0x54000140                          // b.eq          16ec <sk_scale_u8_aarch64+0x9c>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000c0                          // b.eq          16e4 <sk_scale_u8_aarch64+0x94>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fffd61                          // b.ne          1680 <sk_scale_u8_aarch64+0x30>  // b.any
+  .long  0x39400909                          // ldrb          w9, [x8, #2]
+  .long  0x0e020ff0                          // dup           v16.4h, wzr
+  .long  0x4e0a1d30                          // mov           v16.h[2], w9
+  .long  0x39400509                          // ldrb          w9, [x8, #1]
+  .long  0x4e061d30                          // mov           v16.h[1], w9
+  .long  0x39400108                          // ldrb          w8, [x8]
+  .long  0x4e021d10                          // mov           v16.h[0], w8
+  .long  0x17ffffe3                          // b             1680 <sk_scale_u8_aarch64+0x30>
 
 HIDDEN _sk_lerp_1_float_aarch64
 .globl _sk_lerp_1_float_aarch64
 FUNCTION(_sk_lerp_1_float_aarch64)
 _sk_lerp_1_float_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0x4ea4d411                          // fsub          v17.4s, v0.4s, v4.4s
   .long  0x4ea41c80                          // mov           v0.16b, v4.16b
   .long  0x4ea5d432                          // fsub          v18.4s, v1.4s, v5.4s
@@ -1702,275 +1767,361 @@ _sk_lerp_1_float_aarch64:
   .long  0x4ea71ce3                          // mov           v3.16b, v7.16b
   .long  0x4f901222                          // fmla          v2.4s, v17.4s, v16.s[0]
   .long  0x4f901243                          // fmla          v3.4s, v18.4s, v16.s[0]
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_lerp_u8_aarch64
 .globl _sk_lerp_u8_aarch64
 FUNCTION(_sk_lerp_u8_aarch64)
 _sk_lerp_u8_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
-  .long  0x52a77009                          // mov           w9, #0x3b800000
-  .long  0x72901029                          // movk          w9, #0x8081
-  .long  0x4e040d30                          // dup           v16.4s, w9
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xf9400108                          // ldr           x8, [x8]
-  .long  0x4ea4d412                          // fsub          v18.4s, v0.4s, v4.4s
   .long  0x8b000108                          // add           x8, x8, x0
-  .long  0x3940010a                          // ldrb          w10, [x8]
-  .long  0x39400509                          // ldrb          w9, [x8, #1]
+  .long  0xb50003e3                          // cbnz          x3, 17bc <sk_lerp_u8_aarch64+0x88>
+  .long  0x39400109                          // ldrb          w9, [x8]
+  .long  0x3940050a                          // ldrb          w10, [x8, #1]
   .long  0x3940090b                          // ldrb          w11, [x8, #2]
   .long  0x39400d08                          // ldrb          w8, [x8, #3]
-  .long  0x4e021d51                          // mov           v17.h[0], w10
-  .long  0x4e061d31                          // mov           v17.h[1], w9
-  .long  0x4e0a1d71                          // mov           v17.h[2], w11
-  .long  0x4e0e1d11                          // mov           v17.h[3], w8
-  .long  0x2f10a620                          // uxtl          v0.4s, v17.4h
+  .long  0x4e021d30                          // mov           v16.h[0], w9
+  .long  0x4e061d50                          // mov           v16.h[1], w10
+  .long  0x4e0a1d70                          // mov           v16.h[2], w11
+  .long  0x4e0e1d10                          // mov           v16.h[3], w8
+  .long  0x2f07b7f0                          // bic           v16.4h, #0xff, lsl #8
+  .long  0x52a77008                          // mov           w8, #0x3b800000
+  .long  0x72901028                          // movk          w8, #0x8081
+  .long  0x4ea4d411                          // fsub          v17.4s, v0.4s, v4.4s
+  .long  0x2f10a600                          // uxtl          v0.4s, v16.4h
+  .long  0x4e040d10                          // dup           v16.4s, w8
   .long  0x6e21d800                          // ucvtf         v0.4s, v0.4s
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x6e30dc10                          // fmul          v16.4s, v0.4s, v16.4s
   .long  0x4ea41c80                          // mov           v0.16b, v4.16b
-  .long  0x4ea5d431                          // fsub          v17.4s, v1.4s, v5.4s
+  .long  0x4ea5d432                          // fsub          v18.4s, v1.4s, v5.4s
   .long  0x4ea51ca1                          // mov           v1.16b, v5.16b
-  .long  0x4e32ce00                          // fmla          v0.4s, v16.4s, v18.4s
-  .long  0x4ea6d452                          // fsub          v18.4s, v2.4s, v6.4s
-  .long  0x4e31ce01                          // fmla          v1.4s, v16.4s, v17.4s
+  .long  0x4e31ce00                          // fmla          v0.4s, v16.4s, v17.4s
+  .long  0x4ea6d451                          // fsub          v17.4s, v2.4s, v6.4s
+  .long  0x4e32ce01                          // fmla          v1.4s, v16.4s, v18.4s
   .long  0x4ea61cc2                          // mov           v2.16b, v6.16b
-  .long  0x4ea7d471                          // fsub          v17.4s, v3.4s, v7.4s
+  .long  0x4ea7d472                          // fsub          v18.4s, v3.4s, v7.4s
   .long  0x4ea71ce3                          // mov           v3.16b, v7.16b
-  .long  0x4e32ce02                          // fmla          v2.4s, v16.4s, v18.4s
-  .long  0x4e31ce03                          // fmla          v3.4s, v16.4s, v17.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0x4e31ce02                          // fmla          v2.4s, v16.4s, v17.4s
+  .long  0x4e32ce03                          // fmla          v3.4s, v16.4s, v18.4s
+  .long  0x91004021                          // add           x1, x1, #0x10
+  .long  0xd61f0080                          // br            x4
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x2f00e410                          // movi          d16, #0x0
+  .long  0x54000140                          // b.eq          17f0 <sk_lerp_u8_aarch64+0xbc>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000c0                          // b.eq          17e8 <sk_lerp_u8_aarch64+0xb4>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fffc61                          // b.ne          1764 <sk_lerp_u8_aarch64+0x30>  // b.any
+  .long  0x39400909                          // ldrb          w9, [x8, #2]
+  .long  0x0e020ff0                          // dup           v16.4h, wzr
+  .long  0x4e0a1d30                          // mov           v16.h[2], w9
+  .long  0x39400509                          // ldrb          w9, [x8, #1]
+  .long  0x4e061d30                          // mov           v16.h[1], w9
+  .long  0x39400108                          // ldrb          w8, [x8]
+  .long  0x4e021d10                          // mov           v16.h[0], w8
+  .long  0x17ffffdb                          // b             1764 <sk_lerp_u8_aarch64+0x30>
 
 HIDDEN _sk_lerp_565_aarch64
 .globl _sk_lerp_565_aarch64
 FUNCTION(_sk_lerp_565_aarch64)
 _sk_lerp_565_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
-  .long  0xd37ff809                          // lsl           x9, x0, #1
-  .long  0x4f072711                          // movi          v17.4s, #0xf8, lsl #8
-  .long  0x4ea4d416                          // fsub          v22.4s, v0.4s, v4.4s
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xf9400108                          // ldr           x8, [x8]
-  .long  0x4f0007f4                          // movi          v20.4s, #0x1f
-  .long  0x4ea7d463                          // fsub          v3.4s, v3.4s, v7.4s
-  .long  0xfc696910                          // ldr           d16, [x8, x9]
-  .long  0x52a6f088                          // mov           w8, #0x37840000
-  .long  0x72842108                          // movk          w8, #0x2108
-  .long  0x4e040d12                          // dup           v18.4s, w8
+  .long  0x8b000508                          // add           x8, x8, x0, lsl #1
+  .long  0xb50005c3                          // cbnz          x3, 18c0 <sk_lerp_565_aarch64+0xc4>
+  .long  0xfd400110                          // ldr           d16, [x8]
   .long  0x321b17e8                          // orr           w8, wzr, #0x7e0
-  .long  0x4e040d13                          // dup           v19.4s, w8
-  .long  0x52a74048                          // mov           w8, #0x3a020000
-  .long  0x2f10a600                          // uxtl          v0.4s, v16.4h
-  .long  0x72810428                          // movk          w8, #0x821
-  .long  0x4e311c10                          // and           v16.16b, v0.16b, v17.16b
-  .long  0x4e040d15                          // dup           v21.4s, w8
-  .long  0x52a7a088                          // mov           w8, #0x3d040000
-  .long  0x4e331c11                          // and           v17.16b, v0.16b, v19.16b
-  .long  0x4e341c13                          // and           v19.16b, v0.16b, v20.16b
-  .long  0x4ea5d434                          // fsub          v20.4s, v1.4s, v5.4s
-  .long  0x4e21da01                          // scvtf         v1.4s, v16.4s
+  .long  0x4e040d12                          // dup           v18.4s, w8
+  .long  0x52a6f088                          // mov           w8, #0x37840000
+  .long  0x2f10a610                          // uxtl          v16.4s, v16.4h
+  .long  0x4f072711                          // movi          v17.4s, #0xf8, lsl #8
   .long  0x72842108                          // movk          w8, #0x2108
-  .long  0x6e32dc30                          // fmul          v16.4s, v1.4s, v18.4s
-  .long  0x4ea6d452                          // fsub          v18.4s, v2.4s, v6.4s
-  .long  0x4e21da22                          // scvtf         v2.4s, v17.4s
-  .long  0x4ea51ca1                          // mov           v1.16b, v5.16b
-  .long  0x6e35dc51                          // fmul          v17.4s, v2.4s, v21.4s
-  .long  0x4e040d02                          // dup           v2.4s, w8
-  .long  0x4e21da73                          // scvtf         v19.4s, v19.4s
-  .long  0x6e22de73                          // fmul          v19.4s, v19.4s, v2.4s
-  .long  0x4ea61cc2                          // mov           v2.16b, v6.16b
-  .long  0x4ea71cf5                          // mov           v21.16b, v7.16b
-  .long  0x4e34ce21                          // fmla          v1.4s, v17.4s, v20.4s
-  .long  0x4ea71cf4                          // mov           v20.16b, v7.16b
-  .long  0x4e32ce62                          // fmla          v2.4s, v19.4s, v18.4s
-  .long  0x4ea71cf2                          // mov           v18.16b, v7.16b
-  .long  0x4e23ce35                          // fmla          v21.4s, v17.4s, v3.4s
-  .long  0x4e23ce74                          // fmla          v20.4s, v19.4s, v3.4s
+  .long  0x4f0007f3                          // movi          v19.4s, #0x1f
+  .long  0x4e311e11                          // and           v17.16b, v16.16b, v17.16b
+  .long  0x4e331e13                          // and           v19.16b, v16.16b, v19.16b
+  .long  0x4e321e10                          // and           v16.16b, v16.16b, v18.16b
+  .long  0x4e040d12                          // dup           v18.4s, w8
+  .long  0x52a7a088                          // mov           w8, #0x3d040000
+  .long  0x72842108                          // movk          w8, #0x2108
+  .long  0x4e21da31                          // scvtf         v17.4s, v17.4s
+  .long  0x6e32de31                          // fmul          v17.4s, v17.4s, v18.4s
+  .long  0x4e040d12                          // dup           v18.4s, w8
+  .long  0x52a74048                          // mov           w8, #0x3a020000
+  .long  0x72810428                          // movk          w8, #0x821
+  .long  0x4ea4d414                          // fsub          v20.4s, v0.4s, v4.4s
+  .long  0x4e21da60                          // scvtf         v0.4s, v19.4s
+  .long  0x6e32dc12                          // fmul          v18.4s, v0.4s, v18.4s
+  .long  0x4e040d00                          // dup           v0.4s, w8
+  .long  0x4e21da10                          // scvtf         v16.4s, v16.4s
+  .long  0x6e20de10                          // fmul          v16.4s, v16.4s, v0.4s
   .long  0x4ea41c80                          // mov           v0.16b, v4.16b
+  .long  0x4e34ce20                          // fmla          v0.4s, v17.4s, v20.4s
+  .long  0x4ea7d463                          // fsub          v3.4s, v3.4s, v7.4s
+  .long  0x4ea71cf4                          // mov           v20.16b, v7.16b
+  .long  0x4ea5d433                          // fsub          v19.4s, v1.4s, v5.4s
+  .long  0x4ea6d441                          // fsub          v1.4s, v2.4s, v6.4s
+  .long  0x4ea61cc2                          // mov           v2.16b, v6.16b
+  .long  0x4e23ce34                          // fmla          v20.4s, v17.4s, v3.4s
+  .long  0x4ea71cf1                          // mov           v17.16b, v7.16b
+  .long  0x4e21ce42                          // fmla          v2.4s, v18.4s, v1.4s
+  .long  0x4e23ce51                          // fmla          v17.4s, v18.4s, v3.4s
+  .long  0x4ea71cf2                          // mov           v18.16b, v7.16b
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4e23ce12                          // fmla          v18.4s, v16.4s, v3.4s
-  .long  0x4e34f6a3                          // fmax          v3.4s, v21.4s, v20.4s
-  .long  0x4e36ce00                          // fmla          v0.4s, v16.4s, v22.4s
-  .long  0x4e23f643                          // fmax          v3.4s, v18.4s, v3.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0x4ea51ca1                          // mov           v1.16b, v5.16b
+  .long  0x4e31f643                          // fmax          v3.4s, v18.4s, v17.4s
+  .long  0x4e33ce01                          // fmla          v1.4s, v16.4s, v19.4s
+  .long  0x4e23f683                          // fmax          v3.4s, v20.4s, v3.4s
+  .long  0x91004021                          // add           x1, x1, #0x10
+  .long  0xd61f0080                          // br            x4
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x2f00e410                          // movi          d16, #0x0
+  .long  0x54000140                          // b.eq          18f4 <sk_lerp_565_aarch64+0xf8>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000c0                          // b.eq          18ec <sk_lerp_565_aarch64+0xf0>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fff9a1                          // b.ne          1810 <sk_lerp_565_aarch64+0x14>  // b.any
+  .long  0x91001109                          // add           x9, x8, #0x4
+  .long  0x0e020ff0                          // dup           v16.4h, wzr
+  .long  0x0d405130                          // ld1           {v16.h}[2], [x9]
+  .long  0x91000909                          // add           x9, x8, #0x2
+  .long  0x0d404930                          // ld1           {v16.h}[1], [x9]
+  .long  0x0d404110                          // ld1           {v16.h}[0], [x8]
+  .long  0x17ffffc6                          // b             1810 <sk_lerp_565_aarch64+0x14>
 
 HIDDEN _sk_load_tables_aarch64
 .globl _sk_load_tables_aarch64
 FUNCTION(_sk_load_tables_aarch64)
 _sk_load_tables_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
-  .long  0xd37ef409                          // lsl           x9, x0, #2
+  .long  0xf9400028                          // ldr           x8, [x1]
+  .long  0xf9400109                          // ldr           x9, [x8]
+  .long  0x8b000929                          // add           x9, x9, x0, lsl #2
+  .long  0xb50006e3                          // cbnz          x3, 19e4 <sk_load_tables_aarch64+0xe8>
+  .long  0x3dc00122                          // ldr           q2, [x9]
+  .long  0xa940a909                          // ldp           x9, x10, [x8, #8]
   .long  0x6f00e620                          // movi          v0.2d, #0xff000000ff
-  .long  0x52a7700b                          // mov           w11, #0x3b800000
-  .long  0xa940310a                          // ldp           x10, x12, [x8]
-  .long  0x7290102b                          // movk          w11, #0x8081
-  .long  0x4e040d63                          // dup           v3.4s, w11
-  .long  0x3ce96942                          // ldr           q2, [x10, x9]
-  .long  0xa9412109                          // ldp           x9, x8, [x8, #16]
-  .long  0x4e201c41                          // and           v1.16b, v2.16b, v0.16b
-  .long  0x1e26002e                          // fmov          w14, s1
-  .long  0x6f380450                          // ushr          v16.4s, v2.4s, #8
-  .long  0x6f300451                          // ushr          v17.4s, v2.4s, #16
-  .long  0x8b2e498e                          // add           x14, x12, w14, uxtw #2
-  .long  0x0e0c3c2a                          // mov           w10, v1.s[1]
-  .long  0x0e143c2b                          // mov           w11, v1.s[2]
-  .long  0x0e1c3c2d                          // mov           w13, v1.s[3]
-  .long  0x4e201e01                          // and           v1.16b, v16.16b, v0.16b
-  .long  0x4e201e30                          // and           v16.16b, v17.16b, v0.16b
-  .long  0x0d4081c0                          // ld1           {v0.s}[0], [x14]
-  .long  0x8b2a498a                          // add           x10, x12, w10, uxtw #2
-  .long  0xbc6b5991                          // ldr           s17, [x12, w11, uxtw #2]
-  .long  0xbc6d5992                          // ldr           s18, [x12, w13, uxtw #2]
-  .long  0x0e0c3c2b                          // mov           w11, v1.s[1]
-  .long  0x0e143c2c                          // mov           w12, v1.s[2]
-  .long  0x0e1c3c2d                          // mov           w13, v1.s[3]
-  .long  0x1e26002e                          // fmov          w14, s1
+  .long  0x6f380441                          // ushr          v1.4s, v2.4s, #8
+  .long  0x4e201c50                          // and           v16.16b, v2.16b, v0.16b
+  .long  0x4e201c21                          // and           v1.16b, v1.16b, v0.16b
+  .long  0x1e26020e                          // fmov          w14, s16
+  .long  0xf9400d08                          // ldr           x8, [x8, #24]
+  .long  0x6f300443                          // ushr          v3.4s, v2.4s, #16
+  .long  0x1e260032                          // fmov          w18, s1
   .long  0x8b2e492e                          // add           x14, x9, w14, uxtw #2
-  .long  0xbc6c5933                          // ldr           s19, [x9, w12, uxtw #2]
-  .long  0xbc6d5934                          // ldr           s20, [x9, w13, uxtw #2]
-  .long  0x8b2b4929                          // add           x9, x9, w11, uxtw #2
-  .long  0x1e26020b                          // fmov          w11, s16
+  .long  0x52a7700b                          // mov           w11, #0x3b800000
+  .long  0x4e201c63                          // and           v3.16b, v3.16b, v0.16b
+  .long  0x0d4081c0                          // ld1           {v0.s}[0], [x14]
+  .long  0x8b324952                          // add           x18, x10, w18, uxtw #2
+  .long  0x7290102b                          // movk          w11, #0x8081
+  .long  0x0e0c3c2f                          // mov           w15, v1.s[1]
+  .long  0x0e143c30                          // mov           w16, v1.s[2]
+  .long  0x0e1c3c31                          // mov           w17, v1.s[3]
+  .long  0x0d408241                          // ld1           {v1.s}[0], [x18]
+  .long  0x4e040d71                          // dup           v17.4s, w11
+  .long  0x0e0c3e0b                          // mov           w11, v16.s[1]
+  .long  0x1e26006e                          // fmov          w14, s3
   .long  0x6f280442                          // ushr          v2.4s, v2.4s, #24
-  .long  0x0d409140                          // ld1           {v0.s}[1], [x10]
-  .long  0x4e21d842                          // scvtf         v2.4s, v2.4s
-  .long  0x8b2b490a                          // add           x10, x8, w11, uxtw #2
-  .long  0x0d4081c1                          // ld1           {v1.s}[0], [x14]
-  .long  0x6e23dc43                          // fmul          v3.4s, v2.4s, v3.4s
-  .long  0x0d408142                          // ld1           {v2.s}[0], [x10]
-  .long  0x0e0c3e0f                          // mov           w15, v16.s[1]
   .long  0x0e143e0c                          // mov           w12, v16.s[2]
-  .long  0x8b2f490a                          // add           x10, x8, w15, uxtw #2
+  .long  0xbc705952                          // ldr           s18, [x10, w16, uxtw #2]
+  .long  0x0e143c70                          // mov           w16, v3.s[2]
+  .long  0x4e21d842                          // scvtf         v2.4s, v2.4s
+  .long  0x8b2e490e                          // add           x14, x8, w14, uxtw #2
+  .long  0x8b2b492b                          // add           x11, x9, w11, uxtw #2
   .long  0x0e1c3e0d                          // mov           w13, v16.s[3]
-  .long  0xbc6c5910                          // ldr           s16, [x8, w12, uxtw #2]
-  .long  0x0d409121                          // ld1           {v1.s}[1], [x9]
+  .long  0xbc6c5930                          // ldr           s16, [x9, w12, uxtw #2]
+  .long  0x0e0c3c6c                          // mov           w12, v3.s[1]
+  .long  0xbc705913                          // ldr           s19, [x8, w16, uxtw #2]
+  .long  0x0e1c3c70                          // mov           w16, v3.s[3]
+  .long  0x6e31dc43                          // fmul          v3.4s, v2.4s, v17.4s
+  .long  0x0d4081c2                          // ld1           {v2.s}[0], [x14]
+  .long  0x0d409160                          // ld1           {v0.s}[1], [x11]
+  .long  0x8b2f494b                          // add           x11, x10, w15, uxtw #2
+  .long  0x0d409161                          // ld1           {v1.s}[1], [x11]
+  .long  0x8b2c490b                          // add           x11, x8, w12, uxtw #2
+  .long  0x0d409162                          // ld1           {v2.s}[1], [x11]
+  .long  0x6e140600                          // mov           v0.s[2], v16.s[0]
+  .long  0xbc6d5930                          // ldr           s16, [x9, w13, uxtw #2]
+  .long  0x6e140641                          // mov           v1.s[2], v18.s[0]
+  .long  0xbc715951                          // ldr           s17, [x10, w17, uxtw #2]
+  .long  0xbc705912                          // ldr           s18, [x8, w16, uxtw #2]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
+  .long  0x6e140662                          // mov           v2.s[2], v19.s[0]
+  .long  0x6e1c0600                          // mov           v0.s[3], v16.s[0]
+  .long  0x6e1c0621                          // mov           v1.s[3], v17.s[0]
+  .long  0x6e1c0642                          // mov           v2.s[3], v18.s[0]
+  .long  0x91004021                          // add           x1, x1, #0x10
+  .long  0xd61f0080                          // br            x4
+  .long  0x1200046a                          // and           w10, w3, #0x3
+  .long  0x7100055f                          // cmp           w10, #0x1
+  .long  0x6f00e402                          // movi          v2.2d, #0x0
+  .long  0x54000140                          // b.eq          1a18 <sk_load_tables_aarch64+0x11c>  // b.none
+  .long  0x7100095f                          // cmp           w10, #0x2
+  .long  0x540000c0                          // b.eq          1a10 <sk_load_tables_aarch64+0x114>  // b.none
+  .long  0x71000d5f                          // cmp           w10, #0x3
+  .long  0x54fff881                          // b.ne          1910 <sk_load_tables_aarch64+0x14>  // b.any
+  .long  0x9100212a                          // add           x10, x9, #0x8
+  .long  0x4e040fe2                          // dup           v2.4s, wzr
+  .long  0x4d408142                          // ld1           {v2.s}[2], [x10]
+  .long  0x9100112a                          // add           x10, x9, #0x4
   .long  0x0d409142                          // ld1           {v2.s}[1], [x10]
-  .long  0x6e140620                          // mov           v0.s[2], v17.s[0]
-  .long  0xbc6d5911                          // ldr           s17, [x8, w13, uxtw #2]
-  .long  0x6e140661                          // mov           v1.s[2], v19.s[0]
-  .long  0x6e140602                          // mov           v2.s[2], v16.s[0]
-  .long  0x6e1c0640                          // mov           v0.s[3], v18.s[0]
-  .long  0x6e1c0681                          // mov           v1.s[3], v20.s[0]
-  .long  0x6e1c0622                          // mov           v2.s[3], v17.s[0]
-  .long  0xd61f0060                          // br            x3
+  .long  0x0d408122                          // ld1           {v2.s}[0], [x9]
+  .long  0x17ffffbd                          // b             1910 <sk_load_tables_aarch64+0x14>
 
 HIDDEN _sk_load_tables_u16_be_aarch64
 .globl _sk_load_tables_u16_be_aarch64
 FUNCTION(_sk_load_tables_u16_be_aarch64)
 _sk_load_tables_u16_be_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
-  .long  0x52a6f00a                          // mov           w10, #0x37800000
-  .long  0x7280100a                          // movk          w10, #0x80
-  .long  0x4e040d50                          // dup           v16.4s, w10
-  .long  0xa9402d09                          // ldp           x9, x11, [x8]
+  .long  0xf9400028                          // ldr           x8, [x1]
+  .long  0xf9400109                          // ldr           x9, [x8]
   .long  0x8b000d29                          // add           x9, x9, x0, lsl #3
+  .long  0xb5000743                          // cbnz          x3, 1b14 <sk_load_tables_u16_be_aarch64+0xf4>
   .long  0x0c400520                          // ld4           {v0.4h-v3.4h}, [x9]
-  .long  0xa9412109                          // ldp           x9, x8, [x8, #16]
+  .long  0xa940a909                          // ldp           x9, x10, [x8, #8]
   .long  0x2f07b7e0                          // bic           v0.4h, #0xff, lsl #8
-  .long  0x2f10a411                          // uxtl          v17.4s, v0.4h
+  .long  0x52a6f00b                          // mov           w11, #0x37800000
+  .long  0x7280100b                          // movk          w11, #0x80
+  .long  0x2f10a410                          // uxtl          v16.4s, v0.4h
   .long  0x2f07b7e1                          // bic           v1.4h, #0xff, lsl #8
-  .long  0x1e26022e                          // fmov          w14, s17
-  .long  0x0e0c3e2a                          // mov           w10, v17.s[1]
-  .long  0x0e143e2c                          // mov           w12, v17.s[2]
-  .long  0x0e1c3e2d                          // mov           w13, v17.s[3]
-  .long  0x8b2e496e                          // add           x14, x11, w14, uxtw #2
-  .long  0x2f10a431                          // uxtl          v17.4s, v1.4h
+  .long  0xf9400d08                          // ldr           x8, [x8, #24]
+  .long  0x4e040d71                          // dup           v17.4s, w11
+  .long  0x0e0c3e0b                          // mov           w11, v16.s[1]
+  .long  0x0e143e0c                          // mov           w12, v16.s[2]
+  .long  0x0e1c3e0d                          // mov           w13, v16.s[3]
+  .long  0x1e26020e                          // fmov          w14, s16
+  .long  0x2f10a430                          // uxtl          v16.4s, v1.4h
   .long  0x2f07b7e2                          // bic           v2.4h, #0xff, lsl #8
-  .long  0x2f10a453                          // uxtl          v19.4s, v2.4h
-  .long  0x2f180462                          // ushr          v2.4h, v3.4h, #8
-  .long  0x0d4081c0                          // ld1           {v0.s}[0], [x14]
-  .long  0x0f185474                          // shl           v20.4h, v3.4h, #8
-  .long  0x0ea21e82                          // orr           v2.8b, v20.8b, v2.8b
-  .long  0x8b2a496a                          // add           x10, x11, w10, uxtw #2
-  .long  0x1e26022e                          // fmov          w14, s17
-  .long  0x1e26026f                          // fmov          w15, s19
-  .long  0x2f10a442                          // uxtl          v2.4s, v2.4h
+  .long  0x0e0c3e0f                          // mov           w15, v16.s[1]
+  .long  0xbc6c5932                          // ldr           s18, [x9, w12, uxtw #2]
+  .long  0x0e143e0c                          // mov           w12, v16.s[2]
+  .long  0xbc6d5933                          // ldr           s19, [x9, w13, uxtw #2]
+  .long  0x0e1c3e0d                          // mov           w13, v16.s[3]
   .long  0x8b2e492e                          // add           x14, x9, w14, uxtw #2
-  .long  0x0d409140                          // ld1           {v0.s}[1], [x10]
-  .long  0x8b2f490a                          // add           x10, x8, w15, uxtw #2
+  .long  0x8b2b4929                          // add           x9, x9, w11, uxtw #2
+  .long  0x1e26020b                          // fmov          w11, s16
+  .long  0x2f10a450                          // uxtl          v16.4s, v2.4h
+  .long  0x0f185474                          // shl           v20.4h, v3.4h, #8
+  .long  0x2f180462                          // ushr          v2.4h, v3.4h, #8
+  .long  0x0ea21e82                          // orr           v2.8b, v20.8b, v2.8b
+  .long  0x8b2b494b                          // add           x11, x10, w11, uxtw #2
+  .long  0x0d4081c0                          // ld1           {v0.s}[0], [x14]
+  .long  0x1e26020e                          // fmov          w14, s16
+  .long  0x2f10a442                          // uxtl          v2.4s, v2.4h
+  .long  0x0d408161                          // ld1           {v1.s}[0], [x11]
+  .long  0x8b2e490b                          // add           x11, x8, w14, uxtw #2
   .long  0x6e21d842                          // ucvtf         v2.4s, v2.4s
-  .long  0x0d4081c1                          // ld1           {v1.s}[0], [x14]
-  .long  0x6e30dc43                          // fmul          v3.4s, v2.4s, v16.4s
-  .long  0x0d408142                          // ld1           {v2.s}[0], [x10]
-  .long  0xbc6c5972                          // ldr           s18, [x11, w12, uxtw #2]
-  .long  0xbc6d5975                          // ldr           s21, [x11, w13, uxtw #2]
-  .long  0x0e0c3e2b                          // mov           w11, v17.s[1]
-  .long  0x0e143e2c                          // mov           w12, v17.s[2]
-  .long  0x0e1c3e2d                          // mov           w13, v17.s[3]
-  .long  0x8b2b492b                          // add           x11, x9, w11, uxtw #2
-  .long  0xbc6c5931                          // ldr           s17, [x9, w12, uxtw #2]
-  .long  0xbc6d5936                          // ldr           s22, [x9, w13, uxtw #2]
-  .long  0x0e0c3e69                          // mov           w9, v19.s[1]
-  .long  0x0e143e6c                          // mov           w12, v19.s[2]
-  .long  0x8b294909                          // add           x9, x8, w9, uxtw #2
-  .long  0x0e1c3e6d                          // mov           w13, v19.s[3]
-  .long  0xbc6c5913                          // ldr           s19, [x8, w12, uxtw #2]
-  .long  0x0d409161                          // ld1           {v1.s}[1], [x11]
+  .long  0x6e31dc43                          // fmul          v3.4s, v2.4s, v17.4s
+  .long  0x0d408162                          // ld1           {v2.s}[0], [x11]
+  .long  0x8b2f494f                          // add           x15, x10, w15, uxtw #2
+  .long  0xbc6c5955                          // ldr           s21, [x10, w12, uxtw #2]
+  .long  0xbc6d5956                          // ldr           s22, [x10, w13, uxtw #2]
+  .long  0x0e0c3e0a                          // mov           w10, v16.s[1]
+  .long  0x0e143e0c                          // mov           w12, v16.s[2]
+  .long  0x0d409120                          // ld1           {v0.s}[1], [x9]
+  .long  0x8b2a4909                          // add           x9, x8, w10, uxtw #2
+  .long  0x0e1c3e0d                          // mov           w13, v16.s[3]
+  .long  0xbc6c5910                          // ldr           s16, [x8, w12, uxtw #2]
+  .long  0x0d4091e1                          // ld1           {v1.s}[1], [x15]
   .long  0x0d409122                          // ld1           {v2.s}[1], [x9]
-  .long  0xbc6d5910                          // ldr           s16, [x8, w13, uxtw #2]
+  .long  0xbc6d5911                          // ldr           s17, [x8, w13, uxtw #2]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x6e140640                          // mov           v0.s[2], v18.s[0]
-  .long  0x6e140621                          // mov           v1.s[2], v17.s[0]
-  .long  0x6e140662                          // mov           v2.s[2], v19.s[0]
-  .long  0x6e1c06a0                          // mov           v0.s[3], v21.s[0]
+  .long  0x6e1406a1                          // mov           v1.s[2], v21.s[0]
+  .long  0x6e140602                          // mov           v2.s[2], v16.s[0]
+  .long  0x6e1c0660                          // mov           v0.s[3], v19.s[0]
   .long  0x6e1c06c1                          // mov           v1.s[3], v22.s[0]
-  .long  0x6e1c0602                          // mov           v2.s[3], v16.s[0]
-  .long  0xd61f0060                          // br            x3
+  .long  0x6e1c0622                          // mov           v2.s[3], v17.s[0]
+  .long  0x91004021                          // add           x1, x1, #0x10
+  .long  0xd61f0080                          // br            x4
+  .long  0x0d606120                          // ld4           {v0.h-v3.h}[0], [x9]
+  .long  0xf100047f                          // cmp           x3, #0x1
+  .long  0x54fff8c0                          // b.eq          1a34 <sk_load_tables_u16_be_aarch64+0x14>  // b.none
+  .long  0x9100212a                          // add           x10, x9, #0x8
+  .long  0x0d606940                          // ld4           {v0.h-v3.h}[1], [x10]
+  .long  0xf1000c7f                          // cmp           x3, #0x3
+  .long  0x54fff843                          // b.cc          1a34 <sk_load_tables_u16_be_aarch64+0x14>  // b.lo, b.ul, b.last
+  .long  0x91004129                          // add           x9, x9, #0x10
+  .long  0x0d607120                          // ld4           {v0.h-v3.h}[2], [x9]
+  .long  0x17ffffbf                          // b             1a34 <sk_load_tables_u16_be_aarch64+0x14>
 
 HIDDEN _sk_load_tables_rgb_u16_be_aarch64
 .globl _sk_load_tables_rgb_u16_be_aarch64
 FUNCTION(_sk_load_tables_rgb_u16_be_aarch64)
 _sk_load_tables_rgb_u16_be_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x321f07ea                          // orr           w10, wzr, #0x6
-  .long  0xa9402d09                          // ldp           x9, x11, [x8]
+  .long  0xf9400109                          // ldr           x9, [x8]
   .long  0x9b0a2409                          // madd          x9, x0, x10, x9
-  .long  0x0c404521                          // ld3           {v1.4h-v3.4h}, [x9]
-  .long  0xa9412109                          // ldp           x9, x8, [x8, #16]
+  .long  0xb5000663                          // cbnz          x3, 1c18 <sk_load_tables_rgb_u16_be_aarch64+0xdc>
+  .long  0x0c404520                          // ld3           {v0.4h-v2.4h}, [x9]
+  .long  0xa940a909                          // ldp           x9, x10, [x8, #8]
+  .long  0x2f07b7e0                          // bic           v0.4h, #0xff, lsl #8
+  .long  0x2f10a403                          // uxtl          v3.4s, v0.4h
   .long  0x2f07b7e1                          // bic           v1.4h, #0xff, lsl #8
-  .long  0x2f10a420                          // uxtl          v0.4s, v1.4h
+  .long  0xf9400d0b                          // ldr           x11, [x8, #24]
+  .long  0x0e0c3c68                          // mov           w8, v3.s[1]
+  .long  0x0e143c6c                          // mov           w12, v3.s[2]
+  .long  0x0e1c3c6d                          // mov           w13, v3.s[3]
+  .long  0x1e26006e                          // fmov          w14, s3
+  .long  0x2f10a423                          // uxtl          v3.4s, v1.4h
   .long  0x2f07b7e2                          // bic           v2.4h, #0xff, lsl #8
-  .long  0x1e26000e                          // fmov          w14, s0
-  .long  0x0e143c0c                          // mov           w12, v0.s[2]
-  .long  0x8b2e496e                          // add           x14, x11, w14, uxtw #2
-  .long  0x2f10a450                          // uxtl          v16.4s, v2.4h
-  .long  0x0e0c3c0a                          // mov           w10, v0.s[1]
-  .long  0x0e1c3c0d                          // mov           w13, v0.s[3]
-  .long  0xbc6c5971                          // ldr           s17, [x11, w12, uxtw #2]
-  .long  0x0d4081c0                          // ld1           {v0.s}[0], [x14]
-  .long  0x0e143e0c                          // mov           w12, v16.s[2]
-  .long  0x1e26020e                          // fmov          w14, s16
-  .long  0x2f07b7e3                          // bic           v3.4h, #0xff, lsl #8
-  .long  0x8b2a496a                          // add           x10, x11, w10, uxtw #2
-  .long  0xbc6d5972                          // ldr           s18, [x11, w13, uxtw #2]
-  .long  0x0e0c3e0b                          // mov           w11, v16.s[1]
-  .long  0x0e1c3e0d                          // mov           w13, v16.s[3]
   .long  0xbc6c5930                          // ldr           s16, [x9, w12, uxtw #2]
-  .long  0x8b2e492c                          // add           x12, x9, w14, uxtw #2
-  .long  0x2f10a462                          // uxtl          v2.4s, v3.4h
-  .long  0xbc6d5923                          // ldr           s3, [x9, w13, uxtw #2]
-  .long  0x0d408181                          // ld1           {v1.s}[0], [x12]
-  .long  0x0e143c4c                          // mov           w12, v2.s[2]
-  .long  0x1e26004d                          // fmov          w13, s2
-  .long  0xbc6c5913                          // ldr           s19, [x8, w12, uxtw #2]
-  .long  0x8b2d490c                          // add           x12, x8, w13, uxtw #2
-  .long  0x8b2b492b                          // add           x11, x9, w11, uxtw #2
-  .long  0x0e0c3c49                          // mov           w9, v2.s[1]
-  .long  0x0d409140                          // ld1           {v0.s}[1], [x10]
-  .long  0x0e1c3c4a                          // mov           w10, v2.s[3]
-  .long  0x0d408182                          // ld1           {v2.s}[0], [x12]
-  .long  0x8b294909                          // add           x9, x8, w9, uxtw #2
-  .long  0x0d409161                          // ld1           {v1.s}[1], [x11]
-  .long  0x6e140620                          // mov           v0.s[2], v17.s[0]
-  .long  0x0d409122                          // ld1           {v2.s}[1], [x9]
-  .long  0xbc6a5911                          // ldr           s17, [x8, w10, uxtw #2]
-  .long  0x6e140601                          // mov           v1.s[2], v16.s[0]
-  .long  0x6e1c0640                          // mov           v0.s[3], v18.s[0]
-  .long  0x6e140662                          // mov           v2.s[2], v19.s[0]
-  .long  0x6e1c0461                          // mov           v1.s[3], v3.s[0]
-  .long  0x6e1c0622                          // mov           v2.s[3], v17.s[0]
+  .long  0xbc6d5931                          // ldr           s17, [x9, w13, uxtw #2]
+  .long  0x8b2e492e                          // add           x14, x9, w14, uxtw #2
+  .long  0x8b284928                          // add           x8, x9, w8, uxtw #2
+  .long  0x1e260069                          // fmov          w9, s3
+  .long  0x2f10a442                          // uxtl          v2.4s, v2.4h
+  .long  0x8b294949                          // add           x9, x10, w9, uxtw #2
+  .long  0x0d4081c0                          // ld1           {v0.s}[0], [x14]
+  .long  0x0e143c4e                          // mov           w14, v2.s[2]
+  .long  0x0d408121                          // ld1           {v1.s}[0], [x9]
+  .long  0xbc6e5972                          // ldr           s18, [x11, w14, uxtw #2]
+  .long  0x1e26004e                          // fmov          w14, s2
+  .long  0x0e0c3c6f                          // mov           w15, v3.s[1]
+  .long  0x0e143c6c                          // mov           w12, v3.s[2]
+  .long  0x8b2e496e                          // add           x14, x11, w14, uxtw #2
+  .long  0x0e1c3c6d                          // mov           w13, v3.s[3]
+  .long  0xbc6c5943                          // ldr           s3, [x10, w12, uxtw #2]
+  .long  0x0e0c3c4c                          // mov           w12, v2.s[1]
+  .long  0x0e1c3c49                          // mov           w9, v2.s[3]
+  .long  0x0d4081c2                          // ld1           {v2.s}[0], [x14]
+  .long  0x0d409100                          // ld1           {v0.s}[1], [x8]
+  .long  0x8b2f4948                          // add           x8, x10, w15, uxtw #2
+  .long  0x0d409101                          // ld1           {v1.s}[1], [x8]
+  .long  0x8b2c4968                          // add           x8, x11, w12, uxtw #2
+  .long  0x0d409102                          // ld1           {v2.s}[1], [x8]
+  .long  0x6e140600                          // mov           v0.s[2], v16.s[0]
+  .long  0xbc6d5950                          // ldr           s16, [x10, w13, uxtw #2]
+  .long  0x6e140461                          // mov           v1.s[2], v3.s[0]
+  .long  0xbc695963                          // ldr           s3, [x11, w9, uxtw #2]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
+  .long  0x91004028                          // add           x8, x1, #0x10
+  .long  0x6e140642                          // mov           v2.s[2], v18.s[0]
+  .long  0x6e1c0620                          // mov           v0.s[3], v17.s[0]
+  .long  0x6e1c0601                          // mov           v1.s[3], v16.s[0]
+  .long  0x6e1c0462                          // mov           v2.s[3], v3.s[0]
   .long  0x4f03f603                          // fmov          v3.4s, #1.000000000000000000e+00
-  .long  0xd61f0060                          // br            x3
+  .long  0xaa0803e1                          // mov           x1, x8
+  .long  0xd61f0080                          // br            x4
+  .long  0x0d406120                          // ld3           {v0.h-v2.h}[0], [x9]
+  .long  0xf100047f                          // cmp           x3, #0x1
+  .long  0x54fff9a0                          // b.eq          1b54 <sk_load_tables_rgb_u16_be_aarch64+0x18>  // b.none
+  .long  0x9100192a                          // add           x10, x9, #0x6
+  .long  0x0d406940                          // ld3           {v0.h-v2.h}[1], [x10]
+  .long  0xf1000c7f                          // cmp           x3, #0x3
+  .long  0x54fff923                          // b.cc          1b54 <sk_load_tables_rgb_u16_be_aarch64+0x18>  // b.lo, b.ul, b.last
+  .long  0x91003129                          // add           x9, x9, #0xc
+  .long  0x0d407120                          // ld3           {v0.h-v2.h}[2], [x9]
+  .long  0x17ffffc6                          // b             1b54 <sk_load_tables_rgb_u16_be_aarch64+0x18>
 
 HIDDEN _sk_byte_tables_aarch64
 .globl _sk_byte_tables_aarch64
 FUNCTION(_sk_byte_tables_aarch64)
 _sk_byte_tables_aarch64:
-  .long  0xd10083ff                          // sub           sp, sp, #0x20
+  .long  0xf81e0ff5                          // str           x21, [sp, #-32]!
   .long  0xaa0103e8                          // mov           x8, x1
   .long  0x91002109                          // add           x9, x8, #0x8
   .long  0xa9014ff4                          // stp           x20, x19, [sp, #16]
@@ -1979,7 +2130,7 @@ _sk_byte_tables_aarch64:
   .long  0x52a86fea                          // mov           w10, #0x437f0000
   .long  0x4e040d51                          // dup           v17.4s, w10
   .long  0x52a7700b                          // mov           w11, #0x3b800000
-  .long  0xa9405126                          // ldp           x6, x20, [x9]
+  .long  0xa9405527                          // ldp           x7, x21, [x9]
   .long  0x6e31dc00                          // fmul          v0.4s, v0.4s, v17.4s
   .long  0x7290102b                          // movk          w11, #0x8081
   .long  0x6e21a800                          // fcvtnu        v0.4s, v0.4s
@@ -1988,11 +2139,11 @@ _sk_byte_tables_aarch64:
   .long  0x0e143c0b                          // mov           w11, v0.s[2]
   .long  0x0e1c3c0c                          // mov           w12, v0.s[3]
   .long  0x1e26000d                          // fmov          w13, s0
-  .long  0x386d48cd                          // ldrb          w13, [x6, w13, uxtw]
-  .long  0x386a48ca                          // ldrb          w10, [x6, w10, uxtw]
-  .long  0x386b48cb                          // ldrb          w11, [x6, w11, uxtw]
-  .long  0x386c48cc                          // ldrb          w12, [x6, w12, uxtw]
-  .long  0xa9412526                          // ldp           x6, x9, [x9, #16]
+  .long  0x386d48ed                          // ldrb          w13, [x7, w13, uxtw]
+  .long  0x386a48ea                          // ldrb          w10, [x7, w10, uxtw]
+  .long  0x386b48eb                          // ldrb          w11, [x7, w11, uxtw]
+  .long  0x386c48ec                          // ldrb          w12, [x7, w12, uxtw]
+  .long  0xa9412527                          // ldp           x7, x9, [x9, #16]
   .long  0x6e31dc42                          // fmul          v2.4s, v2.4s, v17.4s
   .long  0x6e31dc21                          // fmul          v1.4s, v1.4s, v17.4s
   .long  0x6e31dc63                          // fmul          v3.4s, v3.4s, v17.4s
@@ -2000,46 +2151,46 @@ _sk_byte_tables_aarch64:
   .long  0x6e21a821                          // fcvtnu        v1.4s, v1.4s
   .long  0x6e21a863                          // fcvtnu        v3.4s, v3.4s
   .long  0x0e0c3c52                          // mov           w18, v2.s[1]
-  .long  0x0e143c43                          // mov           w3, v2.s[2]
-  .long  0x0e1c3c44                          // mov           w4, v2.s[3]
-  .long  0x1e260045                          // fmov          w5, s2
+  .long  0x0e143c44                          // mov           w4, v2.s[2]
+  .long  0x0e1c3c45                          // mov           w5, v2.s[3]
+  .long  0x1e260046                          // fmov          w6, s2
   .long  0x1e260031                          // fmov          w17, s1
-  .long  0x386548c5                          // ldrb          w5, [x6, w5, uxtw]
-  .long  0x387248d2                          // ldrb          w18, [x6, w18, uxtw]
-  .long  0x386348c3                          // ldrb          w3, [x6, w3, uxtw]
-  .long  0x386448c4                          // ldrb          w4, [x6, w4, uxtw]
-  .long  0x1e260066                          // fmov          w6, s3
+  .long  0x386648e6                          // ldrb          w6, [x7, w6, uxtw]
+  .long  0x387248f2                          // ldrb          w18, [x7, w18, uxtw]
+  .long  0x386448e4                          // ldrb          w4, [x7, w4, uxtw]
+  .long  0x386548e5                          // ldrb          w5, [x7, w5, uxtw]
+  .long  0x1e260067                          // fmov          w7, s3
   .long  0x0e0c3c2e                          // mov           w14, v1.s[1]
-  .long  0x0e0c3c67                          // mov           w7, v3.s[1]
-  .long  0x38714a91                          // ldrb          w17, [x20, w17, uxtw]
-  .long  0x38664926                          // ldrb          w6, [x9, w6, uxtw]
+  .long  0x0e0c3c73                          // mov           w19, v3.s[1]
+  .long  0x38714ab1                          // ldrb          w17, [x21, w17, uxtw]
+  .long  0x38674927                          // ldrb          w7, [x9, w7, uxtw]
   .long  0x0e143c2f                          // mov           w15, v1.s[2]
   .long  0x0e1c3c30                          // mov           w16, v1.s[3]
-  .long  0x0e143c73                          // mov           w19, v3.s[2]
-  .long  0x386e4a8e                          // ldrb          w14, [x20, w14, uxtw]
-  .long  0x38674927                          // ldrb          w7, [x9, w7, uxtw]
-  .long  0x386f4a8f                          // ldrb          w15, [x20, w15, uxtw]
-  .long  0x38704a90                          // ldrb          w16, [x20, w16, uxtw]
-  .long  0x0e1c3c74                          // mov           w20, v3.s[3]
+  .long  0x0e143c74                          // mov           w20, v3.s[2]
+  .long  0x386e4aae                          // ldrb          w14, [x21, w14, uxtw]
   .long  0x38734933                          // ldrb          w19, [x9, w19, uxtw]
-  .long  0x38744929                          // ldrb          w9, [x9, w20, uxtw]
+  .long  0x386f4aaf                          // ldrb          w15, [x21, w15, uxtw]
+  .long  0x38704ab0                          // ldrb          w16, [x21, w16, uxtw]
+  .long  0x0e1c3c75                          // mov           w21, v3.s[3]
+  .long  0x38744934                          // ldrb          w20, [x9, w20, uxtw]
+  .long  0x38754929                          // ldrb          w9, [x9, w21, uxtw]
   .long  0x4e021da0                          // mov           v0.h[0], w13
   .long  0x4e021e21                          // mov           v1.h[0], w17
-  .long  0x4e021ca2                          // mov           v2.h[0], w5
-  .long  0x4e021cc3                          // mov           v3.h[0], w6
+  .long  0x4e021cc2                          // mov           v2.h[0], w6
+  .long  0x4e021ce3                          // mov           v3.h[0], w7
   .long  0x4e061d40                          // mov           v0.h[1], w10
   .long  0x4e061dc1                          // mov           v1.h[1], w14
   .long  0x4e061e42                          // mov           v2.h[1], w18
-  .long  0x4e061ce3                          // mov           v3.h[1], w7
+  .long  0x4e061e63                          // mov           v3.h[1], w19
   .long  0x4e0a1d60                          // mov           v0.h[2], w11
   .long  0x4e0a1de1                          // mov           v1.h[2], w15
-  .long  0x4e0a1c62                          // mov           v2.h[2], w3
-  .long  0x4e0a1e63                          // mov           v3.h[2], w19
+  .long  0x4e0a1c82                          // mov           v2.h[2], w4
+  .long  0x4e0a1e83                          // mov           v3.h[2], w20
   .long  0x4e0e1d80                          // mov           v0.h[3], w12
   .long  0x4e0e1e01                          // mov           v1.h[3], w16
-  .long  0x4e0e1c82                          // mov           v2.h[3], w4
+  .long  0x4e0e1ca2                          // mov           v2.h[3], w5
   .long  0x4e0e1d23                          // mov           v3.h[3], w9
-  .long  0xf9400505                          // ldr           x5, [x8, #8]
+  .long  0xf9400506                          // ldr           x6, [x8, #8]
   .long  0x2f07b7e0                          // bic           v0.4h, #0xff, lsl #8
   .long  0x2f07b7e1                          // bic           v1.4h, #0xff, lsl #8
   .long  0x2f07b7e2                          // bic           v2.4h, #0xff, lsl #8
@@ -2057,14 +2208,14 @@ _sk_byte_tables_aarch64:
   .long  0x6e30dc21                          // fmul          v1.4s, v1.4s, v16.4s
   .long  0x6e30dc42                          // fmul          v2.4s, v2.4s, v16.4s
   .long  0x6e30dc63                          // fmul          v3.4s, v3.4s, v16.4s
-  .long  0x910083ff                          // add           sp, sp, #0x20
-  .long  0xd61f00a0                          // br            x5
+  .long  0xf84207f5                          // ldr           x21, [sp], #32
+  .long  0xd61f00c0                          // br            x6
 
 HIDDEN _sk_byte_tables_rgb_aarch64
 .globl _sk_byte_tables_rgb_aarch64
 FUNCTION(_sk_byte_tables_rgb_aarch64)
 _sk_byte_tables_rgb_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0x52a77009                          // mov           w9, #0x3b800000
   .long  0x72901029                          // movk          w9, #0x8081
   .long  0x4e040d30                          // dup           v16.4s, w9
@@ -2092,27 +2243,27 @@ _sk_byte_tables_rgb_aarch64:
   .long  0x1e260051                          // fmov          w17, s2
   .long  0x0e0c3c09                          // mov           w9, v0.s[1]
   .long  0x386e494e                          // ldrb          w14, [x10, w14, uxtw]
-  .long  0x0e0c3c44                          // mov           w4, v2.s[1]
+  .long  0x0e0c3c45                          // mov           w5, v2.s[1]
   .long  0x38714911                          // ldrb          w17, [x8, w17, uxtw]
   .long  0x0e143c0c                          // mov           w12, v0.s[2]
   .long  0x0e1c3c0d                          // mov           w13, v0.s[3]
-  .long  0x0e143c45                          // mov           w5, v2.s[2]
+  .long  0x0e143c46                          // mov           w6, v2.s[2]
   .long  0x38694949                          // ldrb          w9, [x10, w9, uxtw]
-  .long  0x38644904                          // ldrb          w4, [x8, w4, uxtw]
+  .long  0x38654905                          // ldrb          w5, [x8, w5, uxtw]
   .long  0x386c494c                          // ldrb          w12, [x10, w12, uxtw]
   .long  0x386d494a                          // ldrb          w10, [x10, w13, uxtw]
   .long  0x0e1c3c4d                          // mov           w13, v2.s[3]
-  .long  0x38654905                          // ldrb          w5, [x8, w5, uxtw]
+  .long  0x38664906                          // ldrb          w6, [x8, w6, uxtw]
   .long  0x386d4908                          // ldrb          w8, [x8, w13, uxtw]
   .long  0x4e021dc0                          // mov           v0.h[0], w14
   .long  0x4e021e41                          // mov           v1.h[0], w18
   .long  0x4e021e22                          // mov           v2.h[0], w17
   .long  0x4e061d20                          // mov           v0.h[1], w9
   .long  0x4e061de1                          // mov           v1.h[1], w15
-  .long  0x4e061c82                          // mov           v2.h[1], w4
+  .long  0x4e061ca2                          // mov           v2.h[1], w5
   .long  0x4e0a1d80                          // mov           v0.h[2], w12
   .long  0x4e0a1e01                          // mov           v1.h[2], w16
-  .long  0x4e0a1ca2                          // mov           v2.h[2], w5
+  .long  0x4e0a1cc2                          // mov           v2.h[2], w6
   .long  0x4e0e1d40                          // mov           v0.h[3], w10
   .long  0x4e0e1d61                          // mov           v1.h[3], w11
   .long  0x4e0e1d02                          // mov           v2.h[3], w8
@@ -2128,13 +2279,13 @@ _sk_byte_tables_rgb_aarch64:
   .long  0x6e30dc00                          // fmul          v0.4s, v0.4s, v16.4s
   .long  0x6e30dc21                          // fmul          v1.4s, v1.4s, v16.4s
   .long  0x6e30dc42                          // fmul          v2.4s, v2.4s, v16.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_table_r_aarch64
 .globl _sk_table_r_aarch64
 FUNCTION(_sk_table_r_aarch64)
 _sk_table_r_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xb9400909                          // ldr           w9, [x8, #8]
   .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x51000529                          // sub           w9, w9, #0x1
@@ -2154,13 +2305,13 @@ _sk_table_r_aarch64:
   .long  0xbc6b5911                          // ldr           s17, [x8, w11, uxtw #2]
   .long  0x6e140600                          // mov           v0.s[2], v16.s[0]
   .long  0x6e1c0620                          // mov           v0.s[3], v17.s[0]
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_table_g_aarch64
 .globl _sk_table_g_aarch64
 FUNCTION(_sk_table_g_aarch64)
 _sk_table_g_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xb9400909                          // ldr           w9, [x8, #8]
   .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x51000529                          // sub           w9, w9, #0x1
@@ -2180,13 +2331,13 @@ _sk_table_g_aarch64:
   .long  0xbc6b5911                          // ldr           s17, [x8, w11, uxtw #2]
   .long  0x6e140601                          // mov           v1.s[2], v16.s[0]
   .long  0x6e1c0621                          // mov           v1.s[3], v17.s[0]
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_table_b_aarch64
 .globl _sk_table_b_aarch64
 FUNCTION(_sk_table_b_aarch64)
 _sk_table_b_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xb9400909                          // ldr           w9, [x8, #8]
   .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x51000529                          // sub           w9, w9, #0x1
@@ -2206,13 +2357,13 @@ _sk_table_b_aarch64:
   .long  0xbc6b5911                          // ldr           s17, [x8, w11, uxtw #2]
   .long  0x6e140602                          // mov           v2.s[2], v16.s[0]
   .long  0x6e1c0622                          // mov           v2.s[3], v17.s[0]
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_table_a_aarch64
 .globl _sk_table_a_aarch64
 FUNCTION(_sk_table_a_aarch64)
 _sk_table_a_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xb9400909                          // ldr           w9, [x8, #8]
   .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x51000529                          // sub           w9, w9, #0x1
@@ -2232,7 +2383,7 @@ _sk_table_a_aarch64:
   .long  0xbc6b5911                          // ldr           s17, [x8, w11, uxtw #2]
   .long  0x6e140603                          // mov           v3.s[2], v16.s[0]
   .long  0x6e1c0623                          // mov           v3.s[3], v17.s[0]
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_parametric_r_aarch64
 .globl _sk_parametric_r_aarch64
@@ -2299,7 +2450,7 @@ _sk_parametric_r_aarch64:
   .long  0x4f026573                          // movi          v19.4s, #0x4b, lsl #24
   .long  0x6e33de31                          // fmul          v17.4s, v17.4s, v19.4s
   .long  0x6e21aa31                          // fcvtnu        v17.4s, v17.4s
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4e34d631                          // fadd          v17.4s, v17.4s, v20.4s
   .long  0x6f00e412                          // movi          v18.2d, #0x0
   .long  0x6e711e00                          // bsl           v0.16b, v16.16b, v17.16b
@@ -2307,7 +2458,7 @@ _sk_parametric_r_aarch64:
   .long  0x4e32f400                          // fmax          v0.4s, v0.4s, v18.4s
   .long  0x4eb5f400                          // fmin          v0.4s, v0.4s, v21.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_parametric_g_aarch64
 .globl _sk_parametric_g_aarch64
@@ -2374,7 +2525,7 @@ _sk_parametric_g_aarch64:
   .long  0x4f026573                          // movi          v19.4s, #0x4b, lsl #24
   .long  0x6e33de31                          // fmul          v17.4s, v17.4s, v19.4s
   .long  0x6e21aa31                          // fcvtnu        v17.4s, v17.4s
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4e34d631                          // fadd          v17.4s, v17.4s, v20.4s
   .long  0x6f00e412                          // movi          v18.2d, #0x0
   .long  0x6e711e01                          // bsl           v1.16b, v16.16b, v17.16b
@@ -2382,7 +2533,7 @@ _sk_parametric_g_aarch64:
   .long  0x4e32f421                          // fmax          v1.4s, v1.4s, v18.4s
   .long  0x4eb5f421                          // fmin          v1.4s, v1.4s, v21.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_parametric_b_aarch64
 .globl _sk_parametric_b_aarch64
@@ -2449,7 +2600,7 @@ _sk_parametric_b_aarch64:
   .long  0x4f026573                          // movi          v19.4s, #0x4b, lsl #24
   .long  0x6e33de31                          // fmul          v17.4s, v17.4s, v19.4s
   .long  0x6e21aa31                          // fcvtnu        v17.4s, v17.4s
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4e34d631                          // fadd          v17.4s, v17.4s, v20.4s
   .long  0x6f00e412                          // movi          v18.2d, #0x0
   .long  0x6e711e02                          // bsl           v2.16b, v16.16b, v17.16b
@@ -2457,7 +2608,7 @@ _sk_parametric_b_aarch64:
   .long  0x4e32f442                          // fmax          v2.4s, v2.4s, v18.4s
   .long  0x4eb5f442                          // fmin          v2.4s, v2.4s, v21.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_parametric_a_aarch64
 .globl _sk_parametric_a_aarch64
@@ -2524,7 +2675,7 @@ _sk_parametric_a_aarch64:
   .long  0x4f026573                          // movi          v19.4s, #0x4b, lsl #24
   .long  0x6e33de31                          // fmul          v17.4s, v17.4s, v19.4s
   .long  0x6e21aa31                          // fcvtnu        v17.4s, v17.4s
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4e34d631                          // fadd          v17.4s, v17.4s, v20.4s
   .long  0x6f00e412                          // movi          v18.2d, #0x0
   .long  0x6e711e03                          // bsl           v3.16b, v16.16b, v17.16b
@@ -2532,7 +2683,7 @@ _sk_parametric_a_aarch64:
   .long  0x4e32f463                          // fmax          v3.4s, v3.4s, v18.4s
   .long  0x4eb5f463                          // fmin          v3.4s, v3.4s, v21.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_lab_to_xyz_aarch64
 .globl _sk_lab_to_xyz_aarch64
@@ -2590,7 +2741,7 @@ _sk_lab_to_xyz_aarch64:
   .long  0x52a7ea68                          // mov           w8, #0x3f530000
   .long  0x4e30d6b0                          // fadd          v16.4s, v21.4s, v16.4s
   .long  0x6e32deb2                          // fmul          v18.4s, v21.4s, v18.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x72881ec8                          // movk          w8, #0x40f6
   .long  0x6e22de02                          // fmul          v2.4s, v16.4s, v2.4s
   .long  0x6ea0e640                          // fcmgt         v0.4s, v18.4s, v0.4s
@@ -2598,39 +2749,60 @@ _sk_lab_to_xyz_aarch64:
   .long  0x6e621e40                          // bsl           v0.16b, v18.16b, v2.16b
   .long  0x6e31dc00                          // fmul          v0.4s, v0.4s, v17.4s
   .long  0x6e34de62                          // fmul          v2.4s, v19.4s, v20.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_load_a8_aarch64
 .globl _sk_load_a8_aarch64
 FUNCTION(_sk_load_a8_aarch64)
 _sk_load_a8_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
-  .long  0x52a77009                          // mov           w9, #0x3b800000
-  .long  0x72901029                          // movk          w9, #0x8081
-  .long  0x4e040d22                          // dup           v2.4s, w9
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xf9400108                          // ldr           x8, [x8]
+  .long  0x8b000108                          // add           x8, x8, x0
+  .long  0xb50002e3                          // cbnz          x3, 25b4 <sk_load_a8_aarch64+0x68>
+  .long  0x39400109                          // ldrb          w9, [x8]
+  .long  0x3940050a                          // ldrb          w10, [x8, #1]
+  .long  0x3940090b                          // ldrb          w11, [x8, #2]
+  .long  0x39400d08                          // ldrb          w8, [x8, #3]
+  .long  0x4e021d22                          // mov           v2.h[0], w9
+  .long  0x4e061d42                          // mov           v2.h[1], w10
+  .long  0x4e0a1d62                          // mov           v2.h[2], w11
+  .long  0x4e0e1d02                          // mov           v2.h[3], w8
+  .long  0x2f07b7e2                          // bic           v2.4h, #0xff, lsl #8
+  .long  0x52a77008                          // mov           w8, #0x3b800000
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
+  .long  0x72901028                          // movk          w8, #0x8081
+  .long  0x2f10a442                          // uxtl          v2.4s, v2.4h
+  .long  0x4e040d03                          // dup           v3.4s, w8
+  .long  0x91004028                          // add           x8, x1, #0x10
+  .long  0x6e21d842                          // ucvtf         v2.4s, v2.4s
   .long  0x6f00e400                          // movi          v0.2d, #0x0
   .long  0x6f00e401                          // movi          v1.2d, #0x0
-  .long  0x8b000108                          // add           x8, x8, x0
-  .long  0x3940010a                          // ldrb          w10, [x8]
-  .long  0x3940050b                          // ldrb          w11, [x8, #1]
-  .long  0x3940090c                          // ldrb          w12, [x8, #2]
-  .long  0x39400d08                          // ldrb          w8, [x8, #3]
-  .long  0x4e021d43                          // mov           v3.h[0], w10
-  .long  0x4e061d63                          // mov           v3.h[1], w11
-  .long  0x4e0a1d83                          // mov           v3.h[2], w12
-  .long  0x4e0e1d03                          // mov           v3.h[3], w8
-  .long  0x2f10a463                          // uxtl          v3.4s, v3.4h
-  .long  0x6e21d863                          // ucvtf         v3.4s, v3.4s
-  .long  0x6e22dc63                          // fmul          v3.4s, v3.4s, v2.4s
+  .long  0x6e23dc43                          // fmul          v3.4s, v2.4s, v3.4s
   .long  0x6f00e402                          // movi          v2.2d, #0x0
-  .long  0xd61f0060                          // br            x3
+  .long  0xaa0803e1                          // mov           x1, x8
+  .long  0xd61f0080                          // br            x4
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x2f00e402                          // movi          d2, #0x0
+  .long  0x54000140                          // b.eq          25e8 <sk_load_a8_aarch64+0x9c>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000c0                          // b.eq          25e0 <sk_load_a8_aarch64+0x94>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fffd61                          // b.ne          257c <sk_load_a8_aarch64+0x30>  // b.any
+  .long  0x39400909                          // ldrb          w9, [x8, #2]
+  .long  0x0e020fe2                          // dup           v2.4h, wzr
+  .long  0x4e0a1d22                          // mov           v2.h[2], w9
+  .long  0x39400509                          // ldrb          w9, [x8, #1]
+  .long  0x4e061d22                          // mov           v2.h[1], w9
+  .long  0x39400108                          // ldrb          w8, [x8]
+  .long  0x4e021d02                          // mov           v2.h[0], w8
+  .long  0x17ffffe3                          // b             257c <sk_load_a8_aarch64+0x30>
 
 HIDDEN _sk_gather_a8_aarch64
 .globl _sk_gather_a8_aarch64
 FUNCTION(_sk_gather_a8_aarch64)
 _sk_gather_a8_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0x4ea1b821                          // fcvtzs        v1.4s, v1.4s
   .long  0x4ea1b800                          // fcvtzs        v0.4s, v0.4s
   .long  0x91004109                          // add           x9, x8, #0x10
@@ -2659,7 +2831,7 @@ _sk_gather_a8_aarch64:
   .long  0x6f00e401                          // movi          v1.2d, #0x0
   .long  0x6e23dc43                          // fmul          v3.4s, v2.4s, v3.4s
   .long  0x6f00e402                          // movi          v2.2d, #0x0
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_store_a8_aarch64
 .globl _sk_store_a8_aarch64
@@ -2672,50 +2844,86 @@ _sk_store_a8_aarch64:
   .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x6e21aa10                          // fcvtnu        v16.4s, v16.4s
   .long  0x0e612a10                          // xtn           v16.4h, v16.4s
-  .long  0x0e0e3e09                          // umov          w9, v16.h[3]
   .long  0x8b000108                          // add           x8, x8, x0
+  .long  0xb5000183                          // cbnz          x3, 26bc <sk_store_a8_aarch64+0x50>
+  .long  0x0e0e3e09                          // umov          w9, v16.h[3]
+  .long  0x0e0a3e0a                          // umov          w10, v16.h[2]
+  .long  0x0e063e0b                          // umov          w11, v16.h[1]
+  .long  0x0e023e0c                          // umov          w12, v16.h[0]
   .long  0x39000d09                          // strb          w9, [x8, #3]
+  .long  0x3900090a                          // strb          w10, [x8, #2]
+  .long  0x3900050b                          // strb          w11, [x8, #1]
+  .long  0x3900010c                          // strb          w12, [x8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
+  .long  0x91004021                          // add           x1, x1, #0x10
+  .long  0xd61f0080                          // br            x4
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x54000120                          // b.eq          26e8 <sk_store_a8_aarch64+0x7c>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000a0                          // b.eq          26e0 <sk_store_a8_aarch64+0x74>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fffee1                          // b.ne          26b0 <sk_store_a8_aarch64+0x44>  // b.any
   .long  0x0e0a3e09                          // umov          w9, v16.h[2]
   .long  0x39000909                          // strb          w9, [x8, #2]
   .long  0x0e063e09                          // umov          w9, v16.h[1]
   .long  0x39000509                          // strb          w9, [x8, #1]
   .long  0x0e023e09                          // umov          w9, v16.h[0]
   .long  0x39000109                          // strb          w9, [x8]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
-  .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0x17fffff0                          // b             26b0 <sk_store_a8_aarch64+0x44>
 
 HIDDEN _sk_load_g8_aarch64
 .globl _sk_load_g8_aarch64
 FUNCTION(_sk_load_g8_aarch64)
 _sk_load_g8_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
-  .long  0x52a77009                          // mov           w9, #0x3b800000
-  .long  0x72901029                          // movk          w9, #0x8081
-  .long  0x4e040d20                          // dup           v0.4s, w9
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xf9400108                          // ldr           x8, [x8]
-  .long  0x4f03f603                          // fmov          v3.4s, #1.000000000000000000e+00
   .long  0x8b000108                          // add           x8, x8, x0
-  .long  0x3940010a                          // ldrb          w10, [x8]
-  .long  0x39400509                          // ldrb          w9, [x8, #1]
+  .long  0xb50002e3                          // cbnz          x3, 275c <sk_load_g8_aarch64+0x68>
+  .long  0x39400109                          // ldrb          w9, [x8]
+  .long  0x3940050a                          // ldrb          w10, [x8, #1]
   .long  0x3940090b                          // ldrb          w11, [x8, #2]
   .long  0x39400d08                          // ldrb          w8, [x8, #3]
-  .long  0x4e021d41                          // mov           v1.h[0], w10
-  .long  0x4e061d21                          // mov           v1.h[1], w9
-  .long  0x4e0a1d61                          // mov           v1.h[2], w11
-  .long  0x4e0e1d01                          // mov           v1.h[3], w8
-  .long  0x2f10a421                          // uxtl          v1.4s, v1.4h
-  .long  0x6e21d821                          // ucvtf         v1.4s, v1.4s
-  .long  0x6e20dc20                          // fmul          v0.4s, v1.4s, v0.4s
+  .long  0x4e021d20                          // mov           v0.h[0], w9
+  .long  0x4e061d40                          // mov           v0.h[1], w10
+  .long  0x4e0a1d60                          // mov           v0.h[2], w11
+  .long  0x4e0e1d00                          // mov           v0.h[3], w8
+  .long  0x2f07b7e0                          // bic           v0.4h, #0xff, lsl #8
+  .long  0x52a77008                          // mov           w8, #0x3b800000
+  .long  0x72901028                          // movk          w8, #0x8081
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
+  .long  0x2f10a400                          // uxtl          v0.4s, v0.4h
+  .long  0x4e040d01                          // dup           v1.4s, w8
+  .long  0x6e21d800                          // ucvtf         v0.4s, v0.4s
+  .long  0x91004028                          // add           x8, x1, #0x10
+  .long  0x6e21dc00                          // fmul          v0.4s, v0.4s, v1.4s
+  .long  0x4f03f603                          // fmov          v3.4s, #1.000000000000000000e+00
+  .long  0xaa0803e1                          // mov           x1, x8
   .long  0x4ea01c01                          // mov           v1.16b, v0.16b
   .long  0x4ea01c02                          // mov           v2.16b, v0.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x2f00e400                          // movi          d0, #0x0
+  .long  0x54000140                          // b.eq          2790 <sk_load_g8_aarch64+0x9c>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000c0                          // b.eq          2788 <sk_load_g8_aarch64+0x94>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fffd61                          // b.ne          2724 <sk_load_g8_aarch64+0x30>  // b.any
+  .long  0x39400909                          // ldrb          w9, [x8, #2]
+  .long  0x0e020fe0                          // dup           v0.4h, wzr
+  .long  0x4e0a1d20                          // mov           v0.h[2], w9
+  .long  0x39400509                          // ldrb          w9, [x8, #1]
+  .long  0x4e061d20                          // mov           v0.h[1], w9
+  .long  0x39400108                          // ldrb          w8, [x8]
+  .long  0x4e021d00                          // mov           v0.h[0], w8
+  .long  0x17ffffe3                          // b             2724 <sk_load_g8_aarch64+0x30>
 
 HIDDEN _sk_gather_g8_aarch64
 .globl _sk_gather_g8_aarch64
 FUNCTION(_sk_gather_g8_aarch64)
 _sk_gather_g8_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0x4ea1b821                          // fcvtzs        v1.4s, v1.4s
   .long  0x4ea1b800                          // fcvtzs        v0.4s, v0.4s
   .long  0x91004109                          // add           x9, x8, #0x10
@@ -2744,7 +2952,7 @@ _sk_gather_g8_aarch64:
   .long  0x4f03f603                          // fmov          v3.4s, #1.000000000000000000e+00
   .long  0x4ea01c01                          // mov           v1.16b, v0.16b
   .long  0x4ea01c02                          // mov           v2.16b, v0.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_gather_i8_aarch64
 .globl _sk_gather_i8_aarch64
@@ -2752,9 +2960,9 @@ FUNCTION(_sk_gather_i8_aarch64)
 _sk_gather_i8_aarch64:
   .long  0xaa0103e8                          // mov           x8, x1
   .long  0xf8408429                          // ldr           x9, [x1], #8
-  .long  0xb4000069                          // cbz           x9, 24e8 <sk_gather_i8_aarch64+0x14>
+  .long  0xb4000069                          // cbz           x9, 2828 <sk_gather_i8_aarch64+0x14>
   .long  0xaa0903ea                          // mov           x10, x9
-  .long  0x14000003                          // b             24f0 <sk_gather_i8_aarch64+0x1c>
+  .long  0x14000003                          // b             2830 <sk_gather_i8_aarch64+0x1c>
   .long  0xf940050a                          // ldr           x10, [x8, #8]
   .long  0x91004101                          // add           x1, x8, #0x10
   .long  0xf8410548                          // ldr           x8, [x10], #16
@@ -2790,7 +2998,7 @@ _sk_gather_i8_aarch64:
   .long  0x0d409100                          // ld1           {v0.s}[1], [x8]
   .long  0xb86b5928                          // ldr           w8, [x9, w11, uxtw #2]
   .long  0x7290102c                          // movk          w12, #0x8081
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4e141d40                          // mov           v0.s[2], w10
   .long  0x4e1c1d00                          // mov           v0.s[3], w8
   .long  0x4e231c01                          // and           v1.16b, v0.16b, v3.16b
@@ -2808,47 +3016,66 @@ _sk_gather_i8_aarch64:
   .long  0x6e30dc21                          // fmul          v1.4s, v1.4s, v16.4s
   .long  0x6e30dc42                          // fmul          v2.4s, v2.4s, v16.4s
   .long  0x6e30de23                          // fmul          v3.4s, v17.4s, v16.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_load_565_aarch64
 .globl _sk_load_565_aarch64
 FUNCTION(_sk_load_565_aarch64)
 _sk_load_565_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
-  .long  0xd37ff809                          // lsl           x9, x0, #1
-  .long  0x4f072701                          // movi          v1.4s, #0xf8, lsl #8
-  .long  0x4f0007e3                          // movi          v3.4s, #0x1f
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xf9400108                          // ldr           x8, [x8]
-  .long  0xfc696900                          // ldr           d0, [x8, x9]
+  .long  0x8b000508                          // add           x8, x8, x0, lsl #1
+  .long  0xb50003c3                          // cbnz          x3, 2984 <sk_load_565_aarch64+0x84>
+  .long  0xfd400100                          // ldr           d0, [x8]
   .long  0x321b17e8                          // orr           w8, wzr, #0x7e0
   .long  0x4e040d02                          // dup           v2.4s, w8
   .long  0x52a6f088                          // mov           w8, #0x37840000
-  .long  0x72842108                          // movk          w8, #0x2108
   .long  0x2f10a400                          // uxtl          v0.4s, v0.4h
+  .long  0x4f072701                          // movi          v1.4s, #0xf8, lsl #8
+  .long  0x72842108                          // movk          w8, #0x2108
+  .long  0x4f0007e3                          // movi          v3.4s, #0x1f
   .long  0x4e211c01                          // and           v1.16b, v0.16b, v1.16b
-  .long  0x4e221c02                          // and           v2.16b, v0.16b, v2.16b
   .long  0x4e231c03                          // and           v3.16b, v0.16b, v3.16b
+  .long  0x4e221c10                          // and           v16.16b, v0.16b, v2.16b
   .long  0x4e040d00                          // dup           v0.4s, w8
-  .long  0x52a74048                          // mov           w8, #0x3a020000
-  .long  0x72810428                          // movk          w8, #0x821
+  .long  0x52a7a088                          // mov           w8, #0x3d040000
+  .long  0x72842108                          // movk          w8, #0x2108
   .long  0x4e21d821                          // scvtf         v1.4s, v1.4s
   .long  0x6e20dc20                          // fmul          v0.4s, v1.4s, v0.4s
   .long  0x4e040d01                          // dup           v1.4s, w8
-  .long  0x52a7a088                          // mov           w8, #0x3d040000
-  .long  0x72842108                          // movk          w8, #0x2108
-  .long  0x4e21d842                          // scvtf         v2.4s, v2.4s
-  .long  0x6e21dc41                          // fmul          v1.4s, v2.4s, v1.4s
-  .long  0x4e040d02                          // dup           v2.4s, w8
-  .long  0x4e21d863                          // scvtf         v3.4s, v3.4s
-  .long  0x6e22dc62                          // fmul          v2.4s, v3.4s, v2.4s
+  .long  0x52a74048                          // mov           w8, #0x3a020000
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
+  .long  0x72810428                          // movk          w8, #0x821
+  .long  0x4e21d862                          // scvtf         v2.4s, v3.4s
+  .long  0x6e21dc42                          // fmul          v2.4s, v2.4s, v1.4s
+  .long  0x4e040d01                          // dup           v1.4s, w8
+  .long  0x91004028                          // add           x8, x1, #0x10
+  .long  0x4e21da03                          // scvtf         v3.4s, v16.4s
+  .long  0x6e21dc61                          // fmul          v1.4s, v3.4s, v1.4s
   .long  0x4f03f603                          // fmov          v3.4s, #1.000000000000000000e+00
-  .long  0xd61f0060                          // br            x3
+  .long  0xaa0803e1                          // mov           x1, x8
+  .long  0xd61f0080                          // br            x4
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x2f00e400                          // movi          d0, #0x0
+  .long  0x54000140                          // b.eq          29b8 <sk_load_565_aarch64+0xb8>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000c0                          // b.eq          29b0 <sk_load_565_aarch64+0xb0>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fffba1                          // b.ne          2914 <sk_load_565_aarch64+0x14>  // b.any
+  .long  0x91001109                          // add           x9, x8, #0x4
+  .long  0x0e020fe0                          // dup           v0.4h, wzr
+  .long  0x0d405120                          // ld1           {v0.h}[2], [x9]
+  .long  0x91000909                          // add           x9, x8, #0x2
+  .long  0x0d404920                          // ld1           {v0.h}[1], [x9]
+  .long  0x0d404100                          // ld1           {v0.h}[0], [x8]
+  .long  0x17ffffd6                          // b             2914 <sk_load_565_aarch64+0x14>
 
 HIDDEN _sk_gather_565_aarch64
 .globl _sk_gather_565_aarch64
 FUNCTION(_sk_gather_565_aarch64)
 _sk_gather_565_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0x4ea1b821                          // fcvtzs        v1.4s, v1.4s
   .long  0x4ea1b800                          // fcvtzs        v0.4s, v0.4s
   .long  0x91004109                          // add           x9, x8, #0x10
@@ -2891,49 +3118,64 @@ _sk_gather_565_aarch64:
   .long  0x4e21d842                          // scvtf         v2.4s, v2.4s
   .long  0x6e23dc42                          // fmul          v2.4s, v2.4s, v3.4s
   .long  0x4f03f603                          // fmov          v3.4s, #1.000000000000000000e+00
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_store_565_aarch64
 .globl _sk_store_565_aarch64
 FUNCTION(_sk_store_565_aarch64)
 _sk_store_565_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
-  .long  0x52a84f8a                          // mov           w10, #0x427c0000
+  .long  0x52a84f89                          // mov           w9, #0x427c0000
   .long  0x4f01f7f0                          // fmov          v16.4s, #3.100000000000000000e+01
-  .long  0x4e040d52                          // dup           v18.4s, w10
+  .long  0x4e040d32                          // dup           v18.4s, w9
   .long  0x6e30dc11                          // fmul          v17.4s, v0.4s, v16.4s
   .long  0x6e32dc32                          // fmul          v18.4s, v1.4s, v18.4s
   .long  0x6e21aa31                          // fcvtnu        v17.4s, v17.4s
   .long  0x6e21aa52                          // fcvtnu        v18.4s, v18.4s
+  .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x6e30dc50                          // fmul          v16.4s, v2.4s, v16.4s
   .long  0x4f2b5631                          // shl           v17.4s, v17.4s, #11
-  .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x4f255652                          // shl           v18.4s, v18.4s, #5
-  .long  0x4eb11e51                          // orr           v17.16b, v18.16b, v17.16b
   .long  0x6e21aa10                          // fcvtnu        v16.4s, v16.4s
+  .long  0x4eb11e51                          // orr           v17.16b, v18.16b, v17.16b
   .long  0x4eb01e30                          // orr           v16.16b, v17.16b, v16.16b
-  .long  0xd37ff809                          // lsl           x9, x0, #1
+  .long  0x8b000508                          // add           x8, x8, x0, lsl #1
   .long  0x0e612a10                          // xtn           v16.4h, v16.4s
-  .long  0xfc296910                          // str           d16, [x8, x9]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xb50000a3                          // cbnz          x3, 2ac8 <sk_store_565_aarch64+0x58>
+  .long  0xfd000110                          // str           d16, [x8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x54000120                          // b.eq          2af4 <sk_store_565_aarch64+0x84>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000a0                          // b.eq          2aec <sk_store_565_aarch64+0x7c>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fffee1                          // b.ne          2abc <sk_store_565_aarch64+0x4c>  // b.any
+  .long  0x91001109                          // add           x9, x8, #0x4
+  .long  0x0d005130                          // st1           {v16.h}[2], [x9]
+  .long  0x91000909                          // add           x9, x8, #0x2
+  .long  0x0d004930                          // st1           {v16.h}[1], [x9]
+  .long  0x0d004110                          // st1           {v16.h}[0], [x8]
+  .long  0x17fffff1                          // b             2abc <sk_store_565_aarch64+0x4c>
 
 HIDDEN _sk_load_4444_aarch64
 .globl _sk_load_4444_aarch64
 FUNCTION(_sk_load_4444_aarch64)
 _sk_load_4444_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
-  .long  0xd37ff809                          // lsl           x9, x0, #1
-  .long  0x4f072601                          // movi          v1.4s, #0xf0, lsl #8
-  .long  0x4f0025e2                          // movi          v2.4s, #0xf, lsl #8
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xf9400108                          // ldr           x8, [x8]
+  .long  0x8b000508                          // add           x8, x8, x0, lsl #1
+  .long  0xb5000443                          // cbnz          x3, 2b90 <sk_load_4444_aarch64+0x94>
+  .long  0xfd400100                          // ldr           d0, [x8]
+  .long  0x52a6f108                          // mov           w8, #0x37880000
+  .long  0x2f10a400                          // uxtl          v0.4s, v0.4h
+  .long  0x4f072601                          // movi          v1.4s, #0xf0, lsl #8
+  .long  0x72911128                          // movk          w8, #0x8889
+  .long  0x4f0025e2                          // movi          v2.4s, #0xf, lsl #8
   .long  0x4f070603                          // movi          v3.4s, #0xf0
   .long  0x4f0005f0                          // movi          v16.4s, #0xf
-  .long  0xfc696900                          // ldr           d0, [x8, x9]
-  .long  0x52a6f108                          // mov           w8, #0x37880000
-  .long  0x72911128                          // movk          w8, #0x8889
-  .long  0x2f10a400                          // uxtl          v0.4s, v0.4h
   .long  0x4e211c01                          // and           v1.16b, v0.16b, v1.16b
   .long  0x4e221c02                          // and           v2.16b, v0.16b, v2.16b
   .long  0x4e231c03                          // and           v3.16b, v0.16b, v3.16b
@@ -2950,19 +3192,36 @@ _sk_load_4444_aarch64:
   .long  0x6e21dc41                          // fmul          v1.4s, v2.4s, v1.4s
   .long  0x4e040d02                          // dup           v2.4s, w8
   .long  0x52a7b108                          // mov           w8, #0x3d880000
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x72911128                          // movk          w8, #0x8889
   .long  0x4e21d863                          // scvtf         v3.4s, v3.4s
   .long  0x6e22dc62                          // fmul          v2.4s, v3.4s, v2.4s
   .long  0x4e040d03                          // dup           v3.4s, w8
   .long  0x4e21da10                          // scvtf         v16.4s, v16.4s
   .long  0x6e23de03                          // fmul          v3.4s, v16.4s, v3.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0x91004021                          // add           x1, x1, #0x10
+  .long  0xd61f0080                          // br            x4
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x2f00e400                          // movi          d0, #0x0
+  .long  0x54000140                          // b.eq          2bc4 <sk_load_4444_aarch64+0xc8>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000c0                          // b.eq          2bbc <sk_load_4444_aarch64+0xc0>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fffb21                          // b.ne          2b10 <sk_load_4444_aarch64+0x14>  // b.any
+  .long  0x91001109                          // add           x9, x8, #0x4
+  .long  0x0e020fe0                          // dup           v0.4h, wzr
+  .long  0x0d405120                          // ld1           {v0.h}[2], [x9]
+  .long  0x91000909                          // add           x9, x8, #0x2
+  .long  0x0d404920                          // ld1           {v0.h}[1], [x9]
+  .long  0x0d404100                          // ld1           {v0.h}[0], [x8]
+  .long  0x17ffffd2                          // b             2b10 <sk_load_4444_aarch64+0x14>
 
 HIDDEN _sk_gather_4444_aarch64
 .globl _sk_gather_4444_aarch64
 FUNCTION(_sk_gather_4444_aarch64)
 _sk_gather_4444_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0x4ea1b821                          // fcvtzs        v1.4s, v1.4s
   .long  0x4ea1b800                          // fcvtzs        v0.4s, v0.4s
   .long  0x4f070603                          // movi          v3.4s, #0xf0
@@ -3010,16 +3269,16 @@ _sk_gather_4444_aarch64:
   .long  0x4e040d03                          // dup           v3.4s, w8
   .long  0x4e21da10                          // scvtf         v16.4s, v16.4s
   .long  0x6e23de03                          // fmul          v3.4s, v16.4s, v3.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_store_4444_aarch64
 .globl _sk_store_4444_aarch64
 FUNCTION(_sk_store_4444_aarch64)
 _sk_store_4444_aarch64:
   .long  0x4f01f5d0                          // fmov          v16.4s, #1.500000000000000000e+01
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x6e30dc11                          // fmul          v17.4s, v0.4s, v16.4s
   .long  0x6e30dc32                          // fmul          v18.4s, v1.4s, v16.4s
-  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x6e21aa31                          // fcvtnu        v17.4s, v17.4s
   .long  0x6e21aa52                          // fcvtnu        v18.4s, v18.4s
   .long  0x4f2c5631                          // shl           v17.4s, v17.4s, #12
@@ -3027,52 +3286,84 @@ _sk_store_4444_aarch64:
   .long  0x4eb11e51                          // orr           v17.16b, v18.16b, v17.16b
   .long  0x6e30dc52                          // fmul          v18.4s, v2.4s, v16.4s
   .long  0x6e21aa52                          // fcvtnu        v18.4s, v18.4s
+  .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x6e30dc70                          // fmul          v16.4s, v3.4s, v16.4s
   .long  0x4f245652                          // shl           v18.4s, v18.4s, #4
-  .long  0xf9400108                          // ldr           x8, [x8]
-  .long  0x4eb21e31                          // orr           v17.16b, v17.16b, v18.16b
   .long  0x6e21aa10                          // fcvtnu        v16.4s, v16.4s
+  .long  0x4eb21e31                          // orr           v17.16b, v17.16b, v18.16b
   .long  0x4eb01e30                          // orr           v16.16b, v17.16b, v16.16b
-  .long  0xd37ff809                          // lsl           x9, x0, #1
+  .long  0x8b000508                          // add           x8, x8, x0, lsl #1
   .long  0x0e612a10                          // xtn           v16.4h, v16.4s
-  .long  0xfc296910                          // str           d16, [x8, x9]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xb50000a3                          // cbnz          x3, 2cf0 <sk_store_4444_aarch64+0x60>
+  .long  0xfd000110                          // str           d16, [x8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x54000120                          // b.eq          2d1c <sk_store_4444_aarch64+0x8c>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000a0                          // b.eq          2d14 <sk_store_4444_aarch64+0x84>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fffee1                          // b.ne          2ce4 <sk_store_4444_aarch64+0x54>  // b.any
+  .long  0x91001109                          // add           x9, x8, #0x4
+  .long  0x0d005130                          // st1           {v16.h}[2], [x9]
+  .long  0x91000909                          // add           x9, x8, #0x2
+  .long  0x0d004930                          // st1           {v16.h}[1], [x9]
+  .long  0x0d004110                          // st1           {v16.h}[0], [x8]
+  .long  0x17fffff1                          // b             2ce4 <sk_store_4444_aarch64+0x54>
 
 HIDDEN _sk_load_8888_aarch64
 .globl _sk_load_8888_aarch64
 FUNCTION(_sk_load_8888_aarch64)
 _sk_load_8888_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
-  .long  0xd37ef409                          // lsl           x9, x0, #2
-  .long  0x6f00e621                          // movi          v1.2d, #0xff000000ff
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xf9400108                          // ldr           x8, [x8]
-  .long  0x3ce96900                          // ldr           q0, [x8, x9]
+  .long  0x8b000908                          // add           x8, x8, x0, lsl #2
+  .long  0xb50002e3                          // cbnz          x3, 2d8c <sk_load_8888_aarch64+0x68>
+  .long  0x3dc00100                          // ldr           q0, [x8]
+  .long  0x6f00e621                          // movi          v1.2d, #0xff000000ff
   .long  0x52a77008                          // mov           w8, #0x3b800000
+  .long  0x6f380402                          // ushr          v2.4s, v0.4s, #8
+  .long  0x6f300403                          // ushr          v3.4s, v0.4s, #16
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x72901028                          // movk          w8, #0x8081
-  .long  0x4e040d02                          // dup           v2.4s, w8
-  .long  0x6f380410                          // ushr          v16.4s, v0.4s, #8
-  .long  0x6f300411                          // ushr          v17.4s, v0.4s, #16
-  .long  0x4e211c03                          // and           v3.16b, v0.16b, v1.16b
-  .long  0x6f280400                          // ushr          v0.4s, v0.4s, #24
-  .long  0x4e211e10                          // and           v16.16b, v16.16b, v1.16b
-  .long  0x4e211e21                          // and           v1.16b, v17.16b, v1.16b
-  .long  0x4e21d863                          // scvtf         v3.4s, v3.4s
-  .long  0x4e21d811                          // scvtf         v17.4s, v0.4s
-  .long  0x4e21da10                          // scvtf         v16.4s, v16.4s
-  .long  0x4e21d832                          // scvtf         v18.4s, v1.4s
-  .long  0x6e22dc60                          // fmul          v0.4s, v3.4s, v2.4s
-  .long  0x6e22de23                          // fmul          v3.4s, v17.4s, v2.4s
-  .long  0x6e22de01                          // fmul          v1.4s, v16.4s, v2.4s
-  .long  0x6e22de42                          // fmul          v2.4s, v18.4s, v2.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0x6f280410                          // ushr          v16.4s, v0.4s, #24
+  .long  0x4e211c00                          // and           v0.16b, v0.16b, v1.16b
+  .long  0x4e211c42                          // and           v2.16b, v2.16b, v1.16b
+  .long  0x4e211c61                          // and           v1.16b, v3.16b, v1.16b
+  .long  0x4e040d11                          // dup           v17.4s, w8
+  .long  0x4e21da03                          // scvtf         v3.4s, v16.4s
+  .long  0x4e21d800                          // scvtf         v0.4s, v0.4s
+  .long  0x4e21d842                          // scvtf         v2.4s, v2.4s
+  .long  0x4e21d830                          // scvtf         v16.4s, v1.4s
+  .long  0x6e31dc63                          // fmul          v3.4s, v3.4s, v17.4s
+  .long  0x6e31dc00                          // fmul          v0.4s, v0.4s, v17.4s
+  .long  0x6e31dc41                          // fmul          v1.4s, v2.4s, v17.4s
+  .long  0x6e31de02                          // fmul          v2.4s, v16.4s, v17.4s
+  .long  0x91004021                          // add           x1, x1, #0x10
+  .long  0xd61f0080                          // br            x4
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x6f00e400                          // movi          v0.2d, #0x0
+  .long  0x54000140                          // b.eq          2dc0 <sk_load_8888_aarch64+0x9c>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000c0                          // b.eq          2db8 <sk_load_8888_aarch64+0x94>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fffc81                          // b.ne          2d38 <sk_load_8888_aarch64+0x14>  // b.any
+  .long  0x91002109                          // add           x9, x8, #0x8
+  .long  0x4e040fe0                          // dup           v0.4s, wzr
+  .long  0x4d408120                          // ld1           {v0.s}[2], [x9]
+  .long  0x91001109                          // add           x9, x8, #0x4
+  .long  0x0d409120                          // ld1           {v0.s}[1], [x9]
+  .long  0x0d408100                          // ld1           {v0.s}[0], [x8]
+  .long  0x17ffffdd                          // b             2d38 <sk_load_8888_aarch64+0x14>
 
 HIDDEN _sk_gather_8888_aarch64
 .globl _sk_gather_8888_aarch64
 FUNCTION(_sk_gather_8888_aarch64)
 _sk_gather_8888_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0x4ea1b821                          // fcvtzs        v1.4s, v1.4s
   .long  0x4ea1b800                          // fcvtzs        v0.4s, v0.4s
   .long  0x91004109                          // add           x9, x8, #0x10
@@ -3109,15 +3400,15 @@ _sk_gather_8888_aarch64:
   .long  0x6e22de23                          // fmul          v3.4s, v17.4s, v2.4s
   .long  0x6e22de01                          // fmul          v1.4s, v16.4s, v2.4s
   .long  0x6e22de42                          // fmul          v2.4s, v18.4s, v2.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_store_8888_aarch64
 .globl _sk_store_8888_aarch64
 FUNCTION(_sk_store_8888_aarch64)
 _sk_store_8888_aarch64:
-  .long  0x52a86fea                          // mov           w10, #0x437f0000
-  .long  0x4e040d50                          // dup           v16.4s, w10
+  .long  0x52a86fe9                          // mov           w9, #0x437f0000
   .long  0xf9400028                          // ldr           x8, [x1]
+  .long  0x4e040d30                          // dup           v16.4s, w9
   .long  0x6e30dc32                          // fmul          v18.4s, v1.4s, v16.4s
   .long  0x6e30dc11                          // fmul          v17.4s, v0.4s, v16.4s
   .long  0x6e21aa52                          // fcvtnu        v18.4s, v18.4s
@@ -3125,33 +3416,60 @@ _sk_store_8888_aarch64:
   .long  0x4f285652                          // shl           v18.4s, v18.4s, #8
   .long  0x4eb11e51                          // orr           v17.16b, v18.16b, v17.16b
   .long  0x6e30dc52                          // fmul          v18.4s, v2.4s, v16.4s
+  .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x6e30dc70                          // fmul          v16.4s, v3.4s, v16.4s
   .long  0x6e21aa52                          // fcvtnu        v18.4s, v18.4s
-  .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x6e21aa10                          // fcvtnu        v16.4s, v16.4s
   .long  0x4f305652                          // shl           v18.4s, v18.4s, #16
-  .long  0x4eb21e31                          // orr           v17.16b, v17.16b, v18.16b
   .long  0x4f385610                          // shl           v16.4s, v16.4s, #24
-  .long  0xd37ef409                          // lsl           x9, x0, #2
+  .long  0x4eb21e31                          // orr           v17.16b, v17.16b, v18.16b
+  .long  0x8b000908                          // add           x8, x8, x0, lsl #2
   .long  0x4eb01e30                          // orr           v16.16b, v17.16b, v16.16b
-  .long  0x3ca96910                          // str           q16, [x8, x9]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xb50000a3                          // cbnz          x3, 2ec0 <sk_store_8888_aarch64+0x60>
+  .long  0x3d800110                          // str           q16, [x8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
+  .long  0x12000469                          // and           w9, w3, #0x3
+  .long  0x7100053f                          // cmp           w9, #0x1
+  .long  0x54000120                          // b.eq          2eec <sk_store_8888_aarch64+0x8c>  // b.none
+  .long  0x7100093f                          // cmp           w9, #0x2
+  .long  0x540000a0                          // b.eq          2ee4 <sk_store_8888_aarch64+0x84>  // b.none
+  .long  0x71000d3f                          // cmp           w9, #0x3
+  .long  0x54fffee1                          // b.ne          2eb4 <sk_store_8888_aarch64+0x54>  // b.any
+  .long  0x91002109                          // add           x9, x8, #0x8
+  .long  0x4d008130                          // st1           {v16.s}[2], [x9]
+  .long  0x91001109                          // add           x9, x8, #0x4
+  .long  0x0d009130                          // st1           {v16.s}[1], [x9]
+  .long  0x0d008110                          // st1           {v16.s}[0], [x8]
+  .long  0x17fffff1                          // b             2eb4 <sk_store_8888_aarch64+0x54>
 
 HIDDEN _sk_load_f16_aarch64
 .globl _sk_load_f16_aarch64
 FUNCTION(_sk_load_f16_aarch64)
 _sk_load_f16_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x8b000d08                          // add           x8, x8, x0, lsl #3
+  .long  0xb5000123                          // cbnz          x3, 2f24 <sk_load_f16_aarch64+0x30>
   .long  0x0c400510                          // ld4           {v16.4h-v19.4h}, [x8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x0e217a00                          // fcvtl         v0.4s, v16.4h
   .long  0x0e217a21                          // fcvtl         v1.4s, v17.4h
   .long  0x0e217a42                          // fcvtl         v2.4s, v18.4h
   .long  0x0e217a63                          // fcvtl         v3.4s, v19.4h
-  .long  0xd61f0060                          // br            x3
+  .long  0x91004021                          // add           x1, x1, #0x10
+  .long  0xd61f0080                          // br            x4
+  .long  0x0d606110                          // ld4           {v16.h-v19.h}[0], [x8]
+  .long  0xf100047f                          // cmp           x3, #0x1
+  .long  0x54fffee0                          // b.eq          2f08 <sk_load_f16_aarch64+0x14>  // b.none
+  .long  0x91002109                          // add           x9, x8, #0x8
+  .long  0x0d606930                          // ld4           {v16.h-v19.h}[1], [x9]
+  .long  0xf1000c7f                          // cmp           x3, #0x3
+  .long  0x54fffe63                          // b.cc          2f08 <sk_load_f16_aarch64+0x14>  // b.lo, b.ul, b.last
+  .long  0x91004108                          // add           x8, x8, #0x10
+  .long  0x0d607110                          // ld4           {v16.h-v19.h}[2], [x8]
+  .long  0x17fffff0                          // b             2f08 <sk_load_f16_aarch64+0x14>
 
 HIDDEN _sk_gather_f16_aarch64
 .globl _sk_gather_f16_aarch64
@@ -3205,21 +3523,31 @@ _sk_store_f16_aarch64:
   .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x0e216873                          // fcvtn         v19.4h, v3.4s
   .long  0x8b000d08                          // add           x8, x8, x0, lsl #3
+  .long  0xb50000a3                          // cbnz          x3, 300c <sk_store_f16_aarch64+0x30>
   .long  0x0c000510                          // st4           {v16.4h-v19.4h}, [x8]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
+  .long  0xf100047f                          // cmp           x3, #0x1
+  .long  0x0d206110                          // st4           {v16.h-v19.h}[0], [x8]
+  .long  0x54ffff60                          // b.eq          3000 <sk_store_f16_aarch64+0x24>  // b.none
+  .long  0x91002109                          // add           x9, x8, #0x8
+  .long  0xf1000c7f                          // cmp           x3, #0x3
+  .long  0x0d206930                          // st4           {v16.h-v19.h}[1], [x9]
+  .long  0x54fffee3                          // b.cc          3000 <sk_store_f16_aarch64+0x24>  // b.lo, b.ul, b.last
+  .long  0x91004108                          // add           x8, x8, #0x10
+  .long  0x0d207110                          // st4           {v16.h-v19.h}[2], [x8]
+  .long  0x17fffff4                          // b             3000 <sk_store_f16_aarch64+0x24>
 
 HIDDEN _sk_load_u16_be_aarch64
 .globl _sk_load_u16_be_aarch64
 FUNCTION(_sk_load_u16_be_aarch64)
 _sk_load_u16_be_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x8b000d08                          // add           x8, x8, x0, lsl #3
+  .long  0xb5000403                          // cbnz          x3, 30c0 <sk_load_u16_be_aarch64+0x8c>
   .long  0x0c400500                          // ld4           {v0.4h-v3.4h}, [x8]
-  .long  0x52a6f008                          // mov           w8, #0x37800000
-  .long  0x72801008                          // movk          w8, #0x80
   .long  0x0f185410                          // shl           v16.4h, v0.4h, #8
   .long  0x2f180411                          // ushr          v17.4h, v0.4h, #8
   .long  0x0f185432                          // shl           v18.4h, v1.4h, #8
@@ -3228,10 +3556,13 @@ _sk_load_u16_be_aarch64:
   .long  0x2f180455                          // ushr          v21.4h, v2.4h, #8
   .long  0x0f185476                          // shl           v22.4h, v3.4h, #8
   .long  0x2f180460                          // ushr          v0.4h, v3.4h, #8
+  .long  0x52a6f008                          // mov           w8, #0x37800000
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x0eb11e01                          // orr           v1.8b, v16.8b, v17.8b
   .long  0x0eb31e42                          // orr           v2.8b, v18.8b, v19.8b
   .long  0x0eb51e90                          // orr           v16.8b, v20.8b, v21.8b
   .long  0x0ea01ec0                          // orr           v0.8b, v22.8b, v0.8b
+  .long  0x72801008                          // movk          w8, #0x80
   .long  0x2f10a421                          // uxtl          v1.4s, v1.4h
   .long  0x2f10a442                          // uxtl          v2.4s, v2.4h
   .long  0x2f10a610                          // uxtl          v16.4s, v16.4h
@@ -3245,32 +3576,46 @@ _sk_load_u16_be_aarch64:
   .long  0x6e23dc41                          // fmul          v1.4s, v2.4s, v3.4s
   .long  0x6e23de02                          // fmul          v2.4s, v16.4s, v3.4s
   .long  0x6e23de23                          // fmul          v3.4s, v17.4s, v3.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0x91004021                          // add           x1, x1, #0x10
+  .long  0xd61f0080                          // br            x4
+  .long  0x0d606100                          // ld4           {v0.h-v3.h}[0], [x8]
+  .long  0xf100047f                          // cmp           x3, #0x1
+  .long  0x54fffc00                          // b.eq          3048 <sk_load_u16_be_aarch64+0x14>  // b.none
+  .long  0x91002109                          // add           x9, x8, #0x8
+  .long  0x0d606920                          // ld4           {v0.h-v3.h}[1], [x9]
+  .long  0xf1000c7f                          // cmp           x3, #0x3
+  .long  0x54fffb83                          // b.cc          3048 <sk_load_u16_be_aarch64+0x14>  // b.lo, b.ul, b.last
+  .long  0x91004108                          // add           x8, x8, #0x10
+  .long  0x0d607100                          // ld4           {v0.h-v3.h}[2], [x8]
+  .long  0x17ffffd9                          // b             3048 <sk_load_u16_be_aarch64+0x14>
 
 HIDDEN _sk_load_rgb_u16_be_aarch64
 .globl _sk_load_rgb_u16_be_aarch64
 FUNCTION(_sk_load_rgb_u16_be_aarch64)
 _sk_load_rgb_u16_be_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x321f07e9                          // orr           w9, wzr, #0x6
   .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x9b092008                          // madd          x8, x0, x9, x8
+  .long  0xb5000383                          // cbnz          x3, 3168 <sk_load_rgb_u16_be_aarch64+0x80>
   .long  0x0c404500                          // ld3           {v0.4h-v2.4h}, [x8]
-  .long  0x52a6f008                          // mov           w8, #0x37800000
-  .long  0x72801008                          // movk          w8, #0x80
   .long  0x0f185403                          // shl           v3.4h, v0.4h, #8
   .long  0x2f180410                          // ushr          v16.4h, v0.4h, #8
   .long  0x0f185431                          // shl           v17.4h, v1.4h, #8
   .long  0x2f180432                          // ushr          v18.4h, v1.4h, #8
   .long  0x0f185453                          // shl           v19.4h, v2.4h, #8
   .long  0x2f180440                          // ushr          v0.4h, v2.4h, #8
+  .long  0x52a6f008                          // mov           w8, #0x37800000
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x0eb01c61                          // orr           v1.8b, v3.8b, v16.8b
   .long  0x0eb21e23                          // orr           v3.8b, v17.8b, v18.8b
   .long  0x0ea01e60                          // orr           v0.8b, v19.8b, v0.8b
+  .long  0x72801008                          // movk          w8, #0x80
   .long  0x2f10a421                          // uxtl          v1.4s, v1.4h
   .long  0x2f10a463                          // uxtl          v3.4s, v3.4h
   .long  0x2f10a400                          // uxtl          v0.4s, v0.4h
   .long  0x4e040d02                          // dup           v2.4s, w8
+  .long  0x91004028                          // add           x8, x1, #0x10
   .long  0x6e21d821                          // ucvtf         v1.4s, v1.4s
   .long  0x6e21d863                          // ucvtf         v3.4s, v3.4s
   .long  0x6e21d810                          // ucvtf         v16.4s, v0.4s
@@ -3278,7 +3623,18 @@ _sk_load_rgb_u16_be_aarch64:
   .long  0x6e22dc61                          // fmul          v1.4s, v3.4s, v2.4s
   .long  0x6e22de02                          // fmul          v2.4s, v16.4s, v2.4s
   .long  0x4f03f603                          // fmov          v3.4s, #1.000000000000000000e+00
-  .long  0xd61f0060                          // br            x3
+  .long  0xaa0803e1                          // mov           x1, x8
+  .long  0xd61f0080                          // br            x4
+  .long  0x0d406100                          // ld3           {v0.h-v2.h}[0], [x8]
+  .long  0xf100047f                          // cmp           x3, #0x1
+  .long  0x54fffc80                          // b.eq          3100 <sk_load_rgb_u16_be_aarch64+0x18>  // b.none
+  .long  0x91001909                          // add           x9, x8, #0x6
+  .long  0x0d406920                          // ld3           {v0.h-v2.h}[1], [x9]
+  .long  0xf1000c7f                          // cmp           x3, #0x3
+  .long  0x54fffc03                          // b.cc          3100 <sk_load_rgb_u16_be_aarch64+0x18>  // b.lo, b.ul, b.last
+  .long  0x91003108                          // add           x8, x8, #0xc
+  .long  0x0d407100                          // ld3           {v0.h-v2.h}[2], [x8]
+  .long  0x17ffffdd                          // b             3100 <sk_load_rgb_u16_be_aarch64+0x18>
 
 HIDDEN _sk_store_u16_be_aarch64
 .globl _sk_store_u16_be_aarch64
@@ -3286,48 +3642,72 @@ FUNCTION(_sk_store_u16_be_aarch64)
 _sk_store_u16_be_aarch64:
   .long  0x52a8efe9                          // mov           w9, #0x477f0000
   .long  0x729fe009                          // movk          w9, #0xff00
-  .long  0x4e040d30                          // dup           v16.4s, w9
-  .long  0x6e30dc11                          // fmul          v17.4s, v0.4s, v16.4s
+  .long  0x4e040d34                          // dup           v20.4s, w9
+  .long  0x6e34dc10                          // fmul          v16.4s, v0.4s, v20.4s
+  .long  0x6e34dc31                          // fmul          v17.4s, v1.4s, v20.4s
+  .long  0x6e21aa10                          // fcvtnu        v16.4s, v16.4s
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0x6e21aa31                          // fcvtnu        v17.4s, v17.4s
-  .long  0x0e612a31                          // xtn           v17.4h, v17.4s
-  .long  0x6e30dc32                          // fmul          v18.4s, v1.4s, v16.4s
-  .long  0x0f185633                          // shl           v19.4h, v17.4h, #8
-  .long  0x2f180631                          // ushr          v17.4h, v17.4h, #8
-  .long  0x6e21aa52                          // fcvtnu        v18.4s, v18.4s
-  .long  0x0eb11e75                          // orr           v21.8b, v19.8b, v17.8b
-  .long  0x6e30dc51                          // fmul          v17.4s, v2.4s, v16.4s
-  .long  0x0e612a52                          // xtn           v18.4h, v18.4s
-  .long  0x6e30dc70                          // fmul          v16.4s, v3.4s, v16.4s
-  .long  0x6e21aa31                          // fcvtnu        v17.4s, v17.4s
-  .long  0xf9400108                          // ldr           x8, [x8]
-  .long  0x0f185654                          // shl           v20.4h, v18.4h, #8
-  .long  0x2f180652                          // ushr          v18.4h, v18.4h, #8
-  .long  0x6e21aa10                          // fcvtnu        v16.4s, v16.4s
-  .long  0x0e612a31                          // xtn           v17.4h, v17.4s
-  .long  0x0eb21e96                          // orr           v22.8b, v20.8b, v18.8b
   .long  0x0e612a10                          // xtn           v16.4h, v16.4s
-  .long  0x0f185632                          // shl           v18.4h, v17.4h, #8
-  .long  0x2f180631                          // ushr          v17.4h, v17.4h, #8
-  .long  0x0eb11e57                          // orr           v23.8b, v18.8b, v17.8b
-  .long  0x0f185611                          // shl           v17.4h, v16.4h, #8
+  .long  0x0e612a31                          // xtn           v17.4h, v17.4s
+  .long  0x0f185612                          // shl           v18.4h, v16.4h, #8
   .long  0x2f180610                          // ushr          v16.4h, v16.4h, #8
+  .long  0x0f185635                          // shl           v21.4h, v17.4h, #8
+  .long  0x2f180636                          // ushr          v22.4h, v17.4h, #8
+  .long  0x0eb01e50                          // orr           v16.8b, v18.8b, v16.8b
+  .long  0x0eb61eb1                          // orr           v17.8b, v21.8b, v22.8b
+  .long  0x6e34dc55                          // fmul          v21.4s, v2.4s, v20.4s
+  .long  0x6e34dc74                          // fmul          v20.4s, v3.4s, v20.4s
+  .long  0x6e21aab5                          // fcvtnu        v21.4s, v21.4s
+  .long  0xf9400108                          // ldr           x8, [x8]
+  .long  0x6e21aa94                          // fcvtnu        v20.4s, v20.4s
+  .long  0x0e612ab5                          // xtn           v21.4h, v21.4s
+  .long  0x0e612a94                          // xtn           v20.4h, v20.4s
+  .long  0x0f1856b6                          // shl           v22.4h, v21.4h, #8
+  .long  0x2f1806b5                          // ushr          v21.4h, v21.4h, #8
+  .long  0x0eb51ed2                          // orr           v18.8b, v22.8b, v21.8b
+  .long  0x0f185695                          // shl           v21.4h, v20.4h, #8
+  .long  0x2f180694                          // ushr          v20.4h, v20.4h, #8
   .long  0x8b000d08                          // add           x8, x8, x0, lsl #3
-  .long  0x0eb01e38                          // orr           v24.8b, v17.8b, v16.8b
-  .long  0x0c000515                          // st4           {v21.4h-v24.4h}, [x8]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0x0eb41eb3                          // orr           v19.8b, v21.8b, v20.8b
+  .long  0xb50000a3                          // cbnz          x3, 321c <sk_store_u16_be_aarch64+0x8c>
+  .long  0x0c000510                          // st4           {v16.4h-v19.4h}, [x8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
+  .long  0xf100047f                          // cmp           x3, #0x1
+  .long  0x0d206110                          // st4           {v16.h-v19.h}[0], [x8]
+  .long  0x54ffff60                          // b.eq          3210 <sk_store_u16_be_aarch64+0x80>  // b.none
+  .long  0x91002109                          // add           x9, x8, #0x8
+  .long  0xf1000c7f                          // cmp           x3, #0x3
+  .long  0x0d206930                          // st4           {v16.h-v19.h}[1], [x9]
+  .long  0x54fffee3                          // b.cc          3210 <sk_store_u16_be_aarch64+0x80>  // b.lo, b.ul, b.last
+  .long  0x91004108                          // add           x8, x8, #0x10
+  .long  0x0d207110                          // st4           {v16.h-v19.h}[2], [x8]
+  .long  0x17fffff4                          // b             3210 <sk_store_u16_be_aarch64+0x80>
 
 HIDDEN _sk_load_f32_aarch64
 .globl _sk_load_f32_aarch64
 FUNCTION(_sk_load_f32_aarch64)
 _sk_load_f32_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x8b001108                          // add           x8, x8, x0, lsl #4
+  .long  0xb50000a3                          // cbnz          x3, 3264 <sk_load_f32_aarch64+0x20>
   .long  0x4c400900                          // ld4           {v0.4s-v3.4s}, [x8]
-  .long  0xd61f0060                          // br            x3
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
+  .long  0x91004021                          // add           x1, x1, #0x10
+  .long  0xd61f0080                          // br            x4
+  .long  0x0d60a100                          // ld4           {v0.s-v3.s}[0], [x8]
+  .long  0xf100047f                          // cmp           x3, #0x1
+  .long  0x54ffff60                          // b.eq          3258 <sk_load_f32_aarch64+0x14>  // b.none
+  .long  0x91004109                          // add           x9, x8, #0x10
+  .long  0x0d60b120                          // ld4           {v0.s-v3.s}[1], [x9]
+  .long  0xf1000c7f                          // cmp           x3, #0x3
+  .long  0x54fffee3                          // b.cc          3258 <sk_load_f32_aarch64+0x14>  // b.lo, b.ul, b.last
+  .long  0x91008108                          // add           x8, x8, #0x20
+  .long  0x4d60a100                          // ld4           {v0.s-v3.s}[2], [x8]
+  .long  0x17fffff4                          // b             3258 <sk_load_f32_aarch64+0x14>
 
 HIDDEN _sk_store_f32_aarch64
 .globl _sk_store_f32_aarch64
@@ -3336,62 +3716,73 @@ _sk_store_f32_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
   .long  0xf9400108                          // ldr           x8, [x8]
   .long  0x8b001108                          // add           x8, x8, x0, lsl #4
+  .long  0xb50000a3                          // cbnz          x3, 32ac <sk_store_f32_aarch64+0x20>
   .long  0x4c000900                          // st4           {v0.4s-v3.4s}, [x8]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
+  .long  0xf100047f                          // cmp           x3, #0x1
+  .long  0x0d20a100                          // st4           {v0.s-v3.s}[0], [x8]
+  .long  0x54ffff60                          // b.eq          32a0 <sk_store_f32_aarch64+0x14>  // b.none
+  .long  0x91004109                          // add           x9, x8, #0x10
+  .long  0xf1000c7f                          // cmp           x3, #0x3
+  .long  0x0d20b120                          // st4           {v0.s-v3.s}[1], [x9]
+  .long  0x54fffee3                          // b.cc          32a0 <sk_store_f32_aarch64+0x14>  // b.lo, b.ul, b.last
+  .long  0x91008108                          // add           x8, x8, #0x20
+  .long  0x4d20a100                          // st4           {v0.s-v3.s}[2], [x8]
+  .long  0x17fffff4                          // b             32a0 <sk_store_f32_aarch64+0x14>
 
 HIDDEN _sk_clamp_x_aarch64
 .globl _sk_clamp_x_aarch64
 FUNCTION(_sk_clamp_x_aarch64)
 _sk_clamp_x_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0x6f00e411                          // movi          v17.2d, #0x0
   .long  0x4e20f620                          // fmax          v0.4s, v17.4s, v0.4s
   .long  0x4d40c910                          // ld1r          {v16.4s}, [x8]
   .long  0x4eb0f400                          // fmin          v0.4s, v0.4s, v16.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_clamp_y_aarch64
 .globl _sk_clamp_y_aarch64
 FUNCTION(_sk_clamp_y_aarch64)
 _sk_clamp_y_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0x6f00e411                          // movi          v17.2d, #0x0
   .long  0x4e21f621                          // fmax          v1.4s, v17.4s, v1.4s
   .long  0x4d40c910                          // ld1r          {v16.4s}, [x8]
   .long  0x4eb0f421                          // fmin          v1.4s, v1.4s, v16.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_repeat_x_aarch64
 .globl _sk_repeat_x_aarch64
 FUNCTION(_sk_repeat_x_aarch64)
 _sk_repeat_x_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xbd400110                          // ldr           s16, [x8]
   .long  0x4e040611                          // dup           v17.4s, v16.s[0]
   .long  0x6e31fc11                          // fdiv          v17.4s, v0.4s, v17.4s
   .long  0x4e219a31                          // frintm        v17.4s, v17.4s
   .long  0x4f905220                          // fmls          v0.4s, v17.4s, v16.s[0]
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_repeat_y_aarch64
 .globl _sk_repeat_y_aarch64
 FUNCTION(_sk_repeat_y_aarch64)
 _sk_repeat_y_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xbd400110                          // ldr           s16, [x8]
   .long  0x4e040611                          // dup           v17.4s, v16.s[0]
   .long  0x6e31fc31                          // fdiv          v17.4s, v1.4s, v17.4s
   .long  0x4e219a31                          // frintm        v17.4s, v17.4s
   .long  0x4f905221                          // fmls          v1.4s, v17.4s, v16.s[0]
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_mirror_x_aarch64
 .globl _sk_mirror_x_aarch64
 FUNCTION(_sk_mirror_x_aarch64)
 _sk_mirror_x_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xbd400110                          // ldr           s16, [x8]
   .long  0x4e040611                          // dup           v17.4s, v16.s[0]
   .long  0x1e302a10                          // fadd          s16, s16, s16
@@ -3402,13 +3793,13 @@ _sk_mirror_x_aarch64:
   .long  0x4f905240                          // fmls          v0.4s, v18.4s, v16.s[0]
   .long  0x4eb1d400                          // fsub          v0.4s, v0.4s, v17.4s
   .long  0x4ea0f800                          // fabs          v0.4s, v0.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_mirror_y_aarch64
 .globl _sk_mirror_y_aarch64
 FUNCTION(_sk_mirror_y_aarch64)
 _sk_mirror_y_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xbd400110                          // ldr           s16, [x8]
   .long  0x4e040611                          // dup           v17.4s, v16.s[0]
   .long  0x1e302a10                          // fadd          s16, s16, s16
@@ -3419,27 +3810,27 @@ _sk_mirror_y_aarch64:
   .long  0x4f905241                          // fmls          v1.4s, v18.4s, v16.s[0]
   .long  0x4eb1d421                          // fsub          v1.4s, v1.4s, v17.4s
   .long  0x4ea0f821                          // fabs          v1.4s, v1.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_clamp_x_1_aarch64
 .globl _sk_clamp_x_1_aarch64
 FUNCTION(_sk_clamp_x_1_aarch64)
 _sk_clamp_x_1_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6f00e410                          // movi          v16.2d, #0x0
   .long  0x4e20f600                          // fmax          v0.4s, v16.4s, v0.4s
   .long  0x4f03f610                          // fmov          v16.4s, #1.000000000000000000e+00
   .long  0x4eb0f400                          // fmin          v0.4s, v0.4s, v16.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_repeat_x_1_aarch64
 .globl _sk_repeat_x_1_aarch64
 FUNCTION(_sk_repeat_x_1_aarch64)
 _sk_repeat_x_1_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4e219810                          // frintm        v16.4s, v0.4s
   .long  0x4eb0d400                          // fsub          v0.4s, v0.4s, v16.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_mirror_x_1_aarch64
 .globl _sk_mirror_x_1_aarch64
@@ -3451,11 +3842,11 @@ _sk_mirror_x_1_aarch64:
   .long  0x6e31dc11                          // fmul          v17.4s, v0.4s, v17.4s
   .long  0x4e219a31                          // frintm        v17.4s, v17.4s
   .long  0x4e31d631                          // fadd          v17.4s, v17.4s, v17.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4eb1d400                          // fsub          v0.4s, v0.4s, v17.4s
   .long  0x4e30d400                          // fadd          v0.4s, v0.4s, v16.4s
   .long  0x4ea0f800                          // fabs          v0.4s, v0.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_luminance_to_alpha_aarch64
 .globl _sk_luminance_to_alpha_aarch64
@@ -3469,7 +3860,7 @@ _sk_luminance_to_alpha_aarch64:
   .long  0x4ea01c10                          // mov           v16.16b, v0.16b
   .long  0x4e040d00                          // dup           v0.4s, w8
   .long  0x52a7b268                          // mov           w8, #0x3d930000
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x729bb308                          // movk          w8, #0xdd98
   .long  0x6e20dc23                          // fmul          v3.4s, v1.4s, v0.4s
   .long  0x4e30ce23                          // fmla          v3.4s, v17.4s, v16.4s
@@ -3478,13 +3869,13 @@ _sk_luminance_to_alpha_aarch64:
   .long  0x6f00e401                          // movi          v1.2d, #0x0
   .long  0x4e22ce03                          // fmla          v3.4s, v16.4s, v2.4s
   .long  0x6f00e402                          // movi          v2.2d, #0x0
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_matrix_2x3_aarch64
 .globl _sk_matrix_2x3_aarch64
 FUNCTION(_sk_matrix_2x3_aarch64)
 _sk_matrix_2x3_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xaa0803e9                          // mov           x9, x8
   .long  0x9100410a                          // add           x10, x8, #0x10
   .long  0x4ddfc932                          // ld1r          {v18.4s}, [x9], #4
@@ -3499,13 +3890,13 @@ _sk_matrix_2x3_aarch64:
   .long  0x4f931011                          // fmla          v17.4s, v0.4s, v19.s[0]
   .long  0x4eb01e00                          // mov           v0.16b, v16.16b
   .long  0x4eb11e21                          // mov           v1.16b, v17.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_matrix_3x4_aarch64
 .globl _sk_matrix_3x4_aarch64
 FUNCTION(_sk_matrix_3x4_aarch64)
 _sk_matrix_3x4_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xaa0803e9                          // mov           x9, x8
   .long  0x9100910a                          // add           x10, x8, #0x24
   .long  0x4ddfc933                          // ld1r          {v19.4s}, [x9], #4
@@ -3531,7 +3922,7 @@ _sk_matrix_3x4_aarch64:
   .long  0x4eb01e00                          // mov           v0.16b, v16.16b
   .long  0x4eb11e21                          // mov           v1.16b, v17.16b
   .long  0x4eb21e42                          // mov           v2.16b, v18.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_matrix_4x5_aarch64
 .globl _sk_matrix_4x5_aarch64
@@ -3549,7 +3940,7 @@ _sk_matrix_4x5_aarch64:
   .long  0x2d465533                          // ldp           s19, s21, [x9, #48]
   .long  0x2d475d36                          // ldp           s22, s23, [x9, #56]
   .long  0x9101312a                          // add           x10, x9, #0x4c
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4f931070                          // fmla          v16.4s, v3.4s, v19.s[0]
   .long  0x4d40c953                          // ld1r          {v19.4s}, [x10]
   .long  0x4f951071                          // fmla          v17.4s, v3.4s, v21.s[0]
@@ -3578,7 +3969,7 @@ _sk_matrix_4x5_aarch64:
   .long  0x4eb11e21                          // mov           v1.16b, v17.16b
   .long  0x4eb21e42                          // mov           v2.16b, v18.16b
   .long  0x4eb31e63                          // mov           v3.16b, v19.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_matrix_4x3_aarch64
 .globl _sk_matrix_4x3_aarch64
@@ -3604,20 +3995,20 @@ _sk_matrix_4x3_aarch64:
   .long  0x4f951022                          // fmla          v2.4s, v1.4s, v21.s[0]
   .long  0x4f961023                          // fmla          v3.4s, v1.4s, v22.s[0]
   .long  0x2d414d01                          // ldp           s1, s19, [x8, #8]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4f921011                          // fmla          v17.4s, v0.4s, v18.s[0]
   .long  0x91004021                          // add           x1, x1, #0x10
   .long  0x4f811002                          // fmla          v2.4s, v0.4s, v1.s[0]
   .long  0x4f931003                          // fmla          v3.4s, v0.4s, v19.s[0]
   .long  0x4eb01e00                          // mov           v0.16b, v16.16b
   .long  0x4eb11e21                          // mov           v1.16b, v17.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_matrix_perspective_aarch64
 .globl _sk_matrix_perspective_aarch64
 FUNCTION(_sk_matrix_perspective_aarch64)
 _sk_matrix_perspective_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xaa0803e9                          // mov           x9, x8
   .long  0x9100510a                          // add           x10, x8, #0x14
   .long  0x4ddfc930                          // ld1r          {v16.4s}, [x9], #4
@@ -3640,7 +4031,7 @@ _sk_matrix_perspective_aarch64:
   .long  0x4e20ce14                          // fmla          v20.4s, v16.4s, v0.4s
   .long  0x6e32de21                          // fmul          v1.4s, v17.4s, v18.4s
   .long  0x6e32de80                          // fmul          v0.4s, v20.4s, v18.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_evenly_spaced_gradient_aarch64
 .globl _sk_evenly_spaced_gradient_aarch64
@@ -3663,70 +4054,70 @@ _sk_evenly_spaced_gradient_aarch64:
   .long  0x6f20a422                          // uxtl2         v2.2d, v1.4s
   .long  0x2f20a421                          // uxtl          v1.2d, v1.2s
   .long  0x9e660032                          // fmov          x18, d1
-  .long  0x9e660044                          // fmov          x4, d2
+  .long  0x9e660045                          // fmov          x5, d2
   .long  0x4e183c2b                          // mov           x11, v1.d[1]
-  .long  0x4e183c43                          // mov           x3, v2.d[1]
-  .long  0xbc647921                          // ldr           s1, [x9, x4, lsl #2]
-  .long  0xbc6479a2                          // ldr           s2, [x13, x4, lsl #2]
-  .long  0xbc6479c3                          // ldr           s3, [x14, x4, lsl #2]
-  .long  0xbc647a11                          // ldr           s17, [x16, x4, lsl #2]
-  .long  0xbc6479f2                          // ldr           s18, [x15, x4, lsl #2]
-  .long  0xbc647a33                          // ldr           s19, [x17, x4, lsl #2]
-  .long  0xbc647994                          // ldr           s20, [x12, x4, lsl #2]
-  .long  0xbc647955                          // ldr           s21, [x10, x4, lsl #2]
-  .long  0x8b120924                          // add           x4, x9, x18, lsl #2
-  .long  0x0d408096                          // ld1           {v22.s}[0], [x4]
-  .long  0x8b1209a4                          // add           x4, x13, x18, lsl #2
-  .long  0x0d408090                          // ld1           {v16.s}[0], [x4]
-  .long  0x8b0b0924                          // add           x4, x9, x11, lsl #2
-  .long  0x0d409096                          // ld1           {v22.s}[1], [x4]
-  .long  0x8b1209c4                          // add           x4, x14, x18, lsl #2
-  .long  0x0d408097                          // ld1           {v23.s}[0], [x4]
-  .long  0x8b120a04                          // add           x4, x16, x18, lsl #2
+  .long  0x4e183c44                          // mov           x4, v2.d[1]
+  .long  0xbc657921                          // ldr           s1, [x9, x5, lsl #2]
+  .long  0xbc6579a2                          // ldr           s2, [x13, x5, lsl #2]
+  .long  0xbc6579c3                          // ldr           s3, [x14, x5, lsl #2]
+  .long  0xbc657a11                          // ldr           s17, [x16, x5, lsl #2]
+  .long  0xbc6579f2                          // ldr           s18, [x15, x5, lsl #2]
+  .long  0xbc657a33                          // ldr           s19, [x17, x5, lsl #2]
+  .long  0xbc657994                          // ldr           s20, [x12, x5, lsl #2]
+  .long  0xbc657955                          // ldr           s21, [x10, x5, lsl #2]
+  .long  0x8b120925                          // add           x5, x9, x18, lsl #2
+  .long  0x0d4080b6                          // ld1           {v22.s}[0], [x5]
+  .long  0x8b1209a5                          // add           x5, x13, x18, lsl #2
+  .long  0x0d4080b0                          // ld1           {v16.s}[0], [x5]
+  .long  0x8b0b0925                          // add           x5, x9, x11, lsl #2
+  .long  0x0d4090b6                          // ld1           {v22.s}[1], [x5]
+  .long  0x8b1209c5                          // add           x5, x14, x18, lsl #2
+  .long  0x0d4080b7                          // ld1           {v23.s}[0], [x5]
+  .long  0x8b120a05                          // add           x5, x16, x18, lsl #2
   .long  0x6e140436                          // mov           v22.s[2], v1.s[0]
-  .long  0x0d408081                          // ld1           {v1.s}[0], [x4]
-  .long  0x8b0b09a4                          // add           x4, x13, x11, lsl #2
-  .long  0x0d409090                          // ld1           {v16.s}[1], [x4]
-  .long  0x8b0b09c4                          // add           x4, x14, x11, lsl #2
-  .long  0x0d409097                          // ld1           {v23.s}[1], [x4]
-  .long  0x8b1209e4                          // add           x4, x15, x18, lsl #2
-  .long  0x0d408098                          // ld1           {v24.s}[0], [x4]
-  .long  0x8b120a24                          // add           x4, x17, x18, lsl #2
+  .long  0x0d4080a1                          // ld1           {v1.s}[0], [x5]
+  .long  0x8b0b09a5                          // add           x5, x13, x11, lsl #2
+  .long  0x0d4090b0                          // ld1           {v16.s}[1], [x5]
+  .long  0x8b0b09c5                          // add           x5, x14, x11, lsl #2
+  .long  0x0d4090b7                          // ld1           {v23.s}[1], [x5]
+  .long  0x8b1209e5                          // add           x5, x15, x18, lsl #2
+  .long  0x0d4080b8                          // ld1           {v24.s}[0], [x5]
+  .long  0x8b120a25                          // add           x5, x17, x18, lsl #2
   .long  0x6e140450                          // mov           v16.s[2], v2.s[0]
-  .long  0x0d408082                          // ld1           {v2.s}[0], [x4]
-  .long  0x8b0b0a04                          // add           x4, x16, x11, lsl #2
-  .long  0x0d409081                          // ld1           {v1.s}[1], [x4]
-  .long  0x8b0b09e4                          // add           x4, x15, x11, lsl #2
-  .long  0x0d409098                          // ld1           {v24.s}[1], [x4]
-  .long  0x8b120984                          // add           x4, x12, x18, lsl #2
+  .long  0x0d4080a2                          // ld1           {v2.s}[0], [x5]
+  .long  0x8b0b0a05                          // add           x5, x16, x11, lsl #2
+  .long  0x0d4090a1                          // ld1           {v1.s}[1], [x5]
+  .long  0x8b0b09e5                          // add           x5, x15, x11, lsl #2
+  .long  0x0d4090b8                          // ld1           {v24.s}[1], [x5]
+  .long  0x8b120985                          // add           x5, x12, x18, lsl #2
   .long  0x8b120952                          // add           x18, x10, x18, lsl #2
   .long  0x6e140477                          // mov           v23.s[2], v3.s[0]
   .long  0x0d408243                          // ld1           {v3.s}[0], [x18]
   .long  0x8b0b0a32                          // add           x18, x17, x11, lsl #2
   .long  0x6e140621                          // mov           v1.s[2], v17.s[0]
-  .long  0x0d408091                          // ld1           {v17.s}[0], [x4]
+  .long  0x0d4080b1                          // ld1           {v17.s}[0], [x5]
   .long  0x0d409242                          // ld1           {v2.s}[1], [x18]
   .long  0x8b0b0992                          // add           x18, x12, x11, lsl #2
   .long  0x6e140658                          // mov           v24.s[2], v18.s[0]
   .long  0x0d409251                          // ld1           {v17.s}[1], [x18]
   .long  0x6e140662                          // mov           v2.s[2], v19.s[0]
-  .long  0xbc637932                          // ldr           s18, [x9, x3, lsl #2]
-  .long  0xbc6379b3                          // ldr           s19, [x13, x3, lsl #2]
+  .long  0xbc647932                          // ldr           s18, [x9, x4, lsl #2]
+  .long  0xbc6479b3                          // ldr           s19, [x13, x4, lsl #2]
   .long  0x6e140691                          // mov           v17.s[2], v20.s[0]
-  .long  0xbc6379d4                          // ldr           s20, [x14, x3, lsl #2]
+  .long  0xbc6479d4                          // ldr           s20, [x14, x4, lsl #2]
   .long  0x6e1c0656                          // mov           v22.s[3], v18.s[0]
-  .long  0xbc637a12                          // ldr           s18, [x16, x3, lsl #2]
+  .long  0xbc647a12                          // ldr           s18, [x16, x4, lsl #2]
   .long  0x6e1c0670                          // mov           v16.s[3], v19.s[0]
-  .long  0xbc6379f3                          // ldr           s19, [x15, x3, lsl #2]
+  .long  0xbc6479f3                          // ldr           s19, [x15, x4, lsl #2]
   .long  0x8b0b094b                          // add           x11, x10, x11, lsl #2
   .long  0x0d409163                          // ld1           {v3.s}[1], [x11]
   .long  0x6e1c0697                          // mov           v23.s[3], v20.s[0]
-  .long  0xbc637a34                          // ldr           s20, [x17, x3, lsl #2]
+  .long  0xbc647a34                          // ldr           s20, [x17, x4, lsl #2]
   .long  0x6e1c0641                          // mov           v1.s[3], v18.s[0]
-  .long  0xbc637992                          // ldr           s18, [x12, x3, lsl #2]
+  .long  0xbc647992                          // ldr           s18, [x12, x4, lsl #2]
   .long  0x6e1c0678                          // mov           v24.s[3], v19.s[0]
-  .long  0xbc637953                          // ldr           s19, [x10, x3, lsl #2]
-  .long  0xf9400503                          // ldr           x3, [x8, #8]
+  .long  0xbc647953                          // ldr           s19, [x10, x4, lsl #2]
+  .long  0xf9400504                          // ldr           x4, [x8, #8]
   .long  0x6e1406a3                          // mov           v3.s[2], v21.s[0]
   .long  0x6e1c0682                          // mov           v2.s[3], v20.s[0]
   .long  0x6e1c0651                          // mov           v17.s[3], v18.s[0]
@@ -3737,7 +4128,7 @@ _sk_evenly_spaced_gradient_aarch64:
   .long  0x4e20ce23                          // fmla          v3.4s, v17.4s, v0.4s
   .long  0x4eb01e00                          // mov           v0.16b, v16.16b
   .long  0x910043ff                          // add           sp, sp, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_gauss_a_to_rgba_aarch64
 .globl _sk_gauss_a_to_rgba_aarch64
@@ -3758,7 +4149,7 @@ _sk_gauss_a_to_rgba_aarch64:
   .long  0x4e23cc01                          // fmla          v1.4s, v0.4s, v3.4s
   .long  0x72830008                          // movk          w8, #0x1800
   .long  0x4e040d30                          // dup           v16.4s, w9
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x4e23cc22                          // fmla          v2.4s, v1.4s, v3.4s
   .long  0x4e040d00                          // dup           v0.4s, w8
   .long  0x4e23cc50                          // fmla          v16.4s, v2.4s, v3.4s
@@ -3766,7 +4157,7 @@ _sk_gauss_a_to_rgba_aarch64:
   .long  0x4ea01c01                          // mov           v1.16b, v0.16b
   .long  0x4ea01c02                          // mov           v2.16b, v0.16b
   .long  0x4ea01c03                          // mov           v3.16b, v0.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_gradient_aarch64
 .globl _sk_gradient_aarch64
@@ -3780,7 +4171,7 @@ _sk_gradient_aarch64:
   .long  0x6f00e411                          // movi          v17.2d, #0x0
   .long  0xf9400109                          // ldr           x9, [x8]
   .long  0xf100093f                          // cmp           x9, #0x2
-  .long  0x540001c3                          // b.cc          3268 <sk_gradient_aarch64+0x58>  // b.lo, b.ul, b.last
+  .long  0x540001c3                          // b.cc          3884 <sk_gradient_aarch64+0x58>  // b.lo, b.ul, b.last
   .long  0xf940250a                          // ldr           x10, [x8, #72]
   .long  0xd1000529                          // sub           x9, x9, #0x1
   .long  0x6f00e401                          // movi          v1.2d, #0x0
@@ -3791,7 +4182,7 @@ _sk_gradient_aarch64:
   .long  0x6e23e403                          // fcmge         v3.4s, v0.4s, v3.4s
   .long  0x4e221c63                          // and           v3.16b, v3.16b, v2.16b
   .long  0x4ea18461                          // add           v1.4s, v3.4s, v1.4s
-  .long  0xb5ffff69                          // cbnz          x9, 3248 <sk_gradient_aarch64+0x38>
+  .long  0xb5ffff69                          // cbnz          x9, 3864 <sk_gradient_aarch64+0x38>
   .long  0x6f20a431                          // uxtl2         v17.2d, v1.4s
   .long  0x2f20a421                          // uxtl          v1.2d, v1.2s
   .long  0xa940b10a                          // ldp           x10, x12, [x8, #8]
@@ -3864,7 +4255,7 @@ _sk_gradient_aarch64:
   .long  0x6e1c06d4                          // mov           v20.s[3], v22.s[0]
   .long  0xbc6b7916                          // ldr           s22, [x8, x11, lsl #2]
   .long  0x4d4081e3                          // ld1           {v3.s}[2], [x15]
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6e1c06e2                          // mov           v2.s[3], v23.s[0]
   .long  0x6e1c0635                          // mov           v21.s[3], v17.s[0]
   .long  0x6e1c06c3                          // mov           v3.s[3], v22.s[0]
@@ -3874,13 +4265,13 @@ _sk_gradient_aarch64:
   .long  0x4e20cea3                          // fmla          v3.4s, v21.4s, v0.4s
   .long  0x4eb01e00                          // mov           v0.16b, v16.16b
   .long  0x910043ff                          // add           sp, sp, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_evenly_spaced_2_stop_gradient_aarch64
 .globl _sk_evenly_spaced_2_stop_gradient_aarch64
 FUNCTION(_sk_evenly_spaced_2_stop_gradient_aarch64)
 _sk_evenly_spaced_2_stop_gradient_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0xaa0803e9                          // mov           x9, x8
   .long  0x9100410a                          // add           x10, x8, #0x10
   .long  0x4ddfc931                          // ld1r          {v17.4s}, [x9], #4
@@ -3898,7 +4289,7 @@ _sk_evenly_spaced_2_stop_gradient_aarch64:
   .long  0x4f931003                          // fmla          v3.4s, v0.4s, v19.s[0]
   .long  0x4f911001                          // fmla          v1.4s, v0.4s, v17.s[0]
   .long  0x4eb01e00                          // mov           v0.16b, v16.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_xy_to_unit_angle_aarch64
 .globl _sk_xy_to_unit_angle_aarch64
@@ -3937,23 +4328,23 @@ _sk_xy_to_unit_angle_aarch64:
   .long  0x6e701e40                          // bsl           v0.16b, v18.16b, v16.16b
   .long  0x4ea0e831                          // fcmlt         v17.4s, v1.4s, #0.0
   .long  0x4ea0d690                          // fsub          v16.4s, v20.4s, v0.4s
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6e601e11                          // bsl           v17.16b, v16.16b, v0.16b
   .long  0x6ea0ca20                          // fcmge         v0.4s, v17.4s, #0.0
   .long  0x4ea0ea30                          // fcmlt         v16.4s, v17.4s, #0.0
   .long  0x4ea01e00                          // orr           v0.16b, v16.16b, v0.16b
   .long  0x4e201e20                          // and           v0.16b, v17.16b, v0.16b
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_xy_to_radius_aarch64
 .globl _sk_xy_to_radius_aarch64
 FUNCTION(_sk_xy_to_radius_aarch64)
 _sk_xy_to_radius_aarch64:
-  .long  0xf8408423                          // ldr           x3, [x1], #8
+  .long  0xf8408424                          // ldr           x4, [x1], #8
   .long  0x6e21dc30                          // fmul          v16.4s, v1.4s, v1.4s
   .long  0x4e20cc10                          // fmla          v16.4s, v0.4s, v0.4s
   .long  0x6ea1fa00                          // fsqrt         v0.4s, v16.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_save_xy_aarch64
 .globl _sk_save_xy_aarch64
@@ -3971,15 +4362,15 @@ _sk_save_xy_aarch64:
   .long  0x3d800901                          // str           q1, [x8, #32]
   .long  0x3d801111                          // str           q17, [x8, #64]
   .long  0x3d801910                          // str           q16, [x8, #96]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_accumulate_aarch64
 .globl _sk_accumulate_aarch64
 FUNCTION(_sk_accumulate_aarch64)
 _sk_accumulate_aarch64:
-  .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
+  .long  0xa8c11028                          // ldp           x8, x4, [x1], #16
   .long  0x3dc02110                          // ldr           q16, [x8, #128]
   .long  0x3dc02911                          // ldr           q17, [x8, #160]
   .long  0x6e31de10                          // fmul          v16.4s, v16.4s, v17.4s
@@ -3987,7 +4378,7 @@ _sk_accumulate_aarch64:
   .long  0x4e30cc25                          // fmla          v5.4s, v1.4s, v16.4s
   .long  0x4e30cc46                          // fmla          v6.4s, v2.4s, v16.4s
   .long  0x4e30cc67                          // fmla          v7.4s, v3.4s, v16.4s
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_bilinear_nx_aarch64
 .globl _sk_bilinear_nx_aarch64
@@ -3999,11 +4390,11 @@ _sk_bilinear_nx_aarch64:
   .long  0x3dc00110                          // ldr           q16, [x8]
   .long  0x4ea0d620                          // fsub          v0.4s, v17.4s, v0.4s
   .long  0x3d802100                          // str           q0, [x8, #128]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4f0567e0                          // movi          v0.4s, #0xbf, lsl #24
   .long  0x4e20d600                          // fadd          v0.4s, v16.4s, v0.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_bilinear_px_aarch64
 .globl _sk_bilinear_px_aarch64
@@ -4013,11 +4404,11 @@ _sk_bilinear_px_aarch64:
   .long  0x3dc01100                          // ldr           q0, [x8, #64]
   .long  0x3dc00110                          // ldr           q16, [x8]
   .long  0x3d802100                          // str           q0, [x8, #128]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4f0167e0                          // movi          v0.4s, #0x3f, lsl #24
   .long  0x4e20d600                          // fadd          v0.4s, v16.4s, v0.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_bilinear_ny_aarch64
 .globl _sk_bilinear_ny_aarch64
@@ -4029,11 +4420,11 @@ _sk_bilinear_ny_aarch64:
   .long  0x3dc00910                          // ldr           q16, [x8, #32]
   .long  0x4ea1d621                          // fsub          v1.4s, v17.4s, v1.4s
   .long  0x3d802901                          // str           q1, [x8, #160]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4f0567e1                          // movi          v1.4s, #0xbf, lsl #24
   .long  0x4e21d601                          // fadd          v1.4s, v16.4s, v1.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_bilinear_py_aarch64
 .globl _sk_bilinear_py_aarch64
@@ -4043,11 +4434,11 @@ _sk_bilinear_py_aarch64:
   .long  0x3dc01901                          // ldr           q1, [x8, #96]
   .long  0x3dc00910                          // ldr           q16, [x8, #32]
   .long  0x3d802901                          // str           q1, [x8, #160]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4f0167e1                          // movi          v1.4s, #0x3f, lsl #24
   .long  0x4e21d601                          // fadd          v1.4s, v16.4s, v1.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_bicubic_n3x_aarch64
 .globl _sk_bicubic_n3x_aarch64
@@ -4068,11 +4459,11 @@ _sk_bicubic_n3x_aarch64:
   .long  0x6e32de20                          // fmul          v0.4s, v17.4s, v18.4s
   .long  0x3dc00113                          // ldr           q19, [x8]
   .long  0x3d802100                          // str           q0, [x8, #128]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4f07f700                          // fmov          v0.4s, #-1.500000000000000000e+00
   .long  0x4e20d660                          // fadd          v0.4s, v19.4s, v0.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_bicubic_n1x_aarch64
 .globl _sk_bicubic_n1x_aarch64
@@ -4095,11 +4486,11 @@ _sk_bicubic_n1x_aarch64:
   .long  0x4e20ce51                          // fmla          v17.4s, v18.4s, v0.4s
   .long  0x3dc00110                          // ldr           q16, [x8]
   .long  0x3d802111                          // str           q17, [x8, #128]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4f0567e0                          // movi          v0.4s, #0xbf, lsl #24
   .long  0x4e20d600                          // fadd          v0.4s, v16.4s, v0.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_bicubic_p1x_aarch64
 .globl _sk_bicubic_p1x_aarch64
@@ -4121,9 +4512,9 @@ _sk_bicubic_p1x_aarch64:
   .long  0x4e040d31                          // dup           v17.4s, w9
   .long  0x4e32ce11                          // fmla          v17.4s, v16.4s, v18.4s
   .long  0x3d802111                          // str           q17, [x8, #128]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_bicubic_p3x_aarch64
 .globl _sk_bicubic_p3x_aarch64
@@ -4142,11 +4533,11 @@ _sk_bicubic_p3x_aarch64:
   .long  0x6e31de60                          // fmul          v0.4s, v19.4s, v17.4s
   .long  0x3dc00112                          // ldr           q18, [x8]
   .long  0x3d802100                          // str           q0, [x8, #128]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4f03f700                          // fmov          v0.4s, #1.500000000000000000e+00
   .long  0x4e20d640                          // fadd          v0.4s, v18.4s, v0.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_bicubic_n3y_aarch64
 .globl _sk_bicubic_n3y_aarch64
@@ -4167,11 +4558,11 @@ _sk_bicubic_n3y_aarch64:
   .long  0x6e32de21                          // fmul          v1.4s, v17.4s, v18.4s
   .long  0x3dc00913                          // ldr           q19, [x8, #32]
   .long  0x3d802901                          // str           q1, [x8, #160]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4f07f701                          // fmov          v1.4s, #-1.500000000000000000e+00
   .long  0x4e21d661                          // fadd          v1.4s, v19.4s, v1.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_bicubic_n1y_aarch64
 .globl _sk_bicubic_n1y_aarch64
@@ -4194,11 +4585,11 @@ _sk_bicubic_n1y_aarch64:
   .long  0x4e21ce51                          // fmla          v17.4s, v18.4s, v1.4s
   .long  0x3dc00910                          // ldr           q16, [x8, #32]
   .long  0x3d802911                          // str           q17, [x8, #160]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4f0567e1                          // movi          v1.4s, #0xbf, lsl #24
   .long  0x4e21d601                          // fadd          v1.4s, v16.4s, v1.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_bicubic_p1y_aarch64
 .globl _sk_bicubic_p1y_aarch64
@@ -4220,9 +4611,9 @@ _sk_bicubic_p1y_aarch64:
   .long  0x4e040d31                          // dup           v17.4s, w9
   .long  0x4e32ce11                          // fmla          v17.4s, v16.4s, v18.4s
   .long  0x3d802911                          // str           q17, [x8, #160]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_bicubic_p3y_aarch64
 .globl _sk_bicubic_p3y_aarch64
@@ -4241,45 +4632,49 @@ _sk_bicubic_p3y_aarch64:
   .long  0x6e31de61                          // fmul          v1.4s, v19.4s, v17.4s
   .long  0x3dc00912                          // ldr           q18, [x8, #32]
   .long  0x3d802901                          // str           q1, [x8, #160]
-  .long  0xf9400423                          // ldr           x3, [x1, #8]
+  .long  0xf9400424                          // ldr           x4, [x1, #8]
   .long  0x4f03f701                          // fmov          v1.4s, #1.500000000000000000e+00
   .long  0x4e21d641                          // fadd          v1.4s, v18.4s, v1.4s
   .long  0x91004021                          // add           x1, x1, #0x10
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 
 HIDDEN _sk_callback_aarch64
 .globl _sk_callback_aarch64
 FUNCTION(_sk_callback_aarch64)
 _sk_callback_aarch64:
   .long  0xd101c3ff                          // sub           sp, sp, #0x70
-  .long  0xf90023f6                          // str           x22, [sp, #64]
+  .long  0xa9045bf7                          // stp           x23, x22, [sp, #64]
   .long  0xa90553f5                          // stp           x21, x20, [sp, #80]
   .long  0xa9067bf3                          // stp           x19, x30, [sp, #96]
   .long  0xad011fe6                          // stp           q6, q7, [sp, #32]
   .long  0xad0017e4                          // stp           q4, q5, [sp]
-  .long  0xaa0103f4                          // mov           x20, x1
-  .long  0xf9400295                          // ldr           x21, [x20]
-  .long  0xaa0003f6                          // mov           x22, x0
-  .long  0x321e03e1                          // orr           w1, wzr, #0x4
-  .long  0xaa0203f3                          // mov           x19, x2
-  .long  0x910022a8                          // add           x8, x21, #0x8
+  .long  0xaa0103f5                          // mov           x21, x1
+  .long  0xf94002b7                          // ldr           x23, [x21]
+  .long  0xaa0303f3                          // mov           x19, x3
+  .long  0xf100027f                          // cmp           x19, #0x0
+  .long  0x321e03e9                          // orr           w9, wzr, #0x4
+  .long  0x910022e8                          // add           x8, x23, #0x8
   .long  0x4c000900                          // st4           {v0.4s-v3.4s}, [x8]
-  .long  0xf94002a8                          // ldr           x8, [x21]
-  .long  0xaa1503e0                          // mov           x0, x21
+  .long  0xf94002e8                          // ldr           x8, [x23]
+  .long  0xaa0003f6                          // mov           x22, x0
+  .long  0x1a891261                          // csel          w1, w19, w9, ne  // ne = any
+  .long  0xaa1703e0                          // mov           x0, x23
+  .long  0xaa0203f4                          // mov           x20, x2
   .long  0xd63f0100                          // blr           x8
-  .long  0xf94046a8                          // ldr           x8, [x21, #136]
-  .long  0xf9400683                          // ldr           x3, [x20, #8]
-  .long  0x91004281                          // add           x1, x20, #0x10
+  .long  0xf94046e8                          // ldr           x8, [x23, #136]
+  .long  0xf94006a4                          // ldr           x4, [x21, #8]
+  .long  0x910042a1                          // add           x1, x21, #0x10
   .long  0xaa1603e0                          // mov           x0, x22
   .long  0x4c400900                          // ld4           {v0.4s-v3.4s}, [x8]
-  .long  0xaa1303e2                          // mov           x2, x19
+  .long  0xaa1403e2                          // mov           x2, x20
+  .long  0xaa1303e3                          // mov           x3, x19
   .long  0xad4017e4                          // ldp           q4, q5, [sp]
   .long  0xad411fe6                          // ldp           q6, q7, [sp, #32]
   .long  0xa9467bf3                          // ldp           x19, x30, [sp, #96]
   .long  0xa94553f5                          // ldp           x21, x20, [sp, #80]
-  .long  0xf94023f6                          // ldr           x22, [sp, #64]
+  .long  0xa9445bf7                          // ldp           x23, x22, [sp, #64]
   .long  0x9101c3ff                          // add           sp, sp, #0x70
-  .long  0xd61f0060                          // br            x3
+  .long  0xd61f0080                          // br            x4
 #elif defined(__arm__)
 BALIGN4
 
