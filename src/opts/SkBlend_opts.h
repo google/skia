@@ -56,33 +56,18 @@ static inline void srcover_srgb_srgb_4(uint32_t* dst, const uint32_t* src) {
             ndst -= count;
             const uint32_t* src = srcStart;
             const uint32_t* end = dst + (count & ~3);
-            ptrdiff_t delta = src - dst;
 
             while (dst < end) {
                 __m128i pixels = load(src);
+
                 if (_mm_testc_si128(pixels, alphaMask)) {
-                    uint32_t* start = dst;
-                    do {
-                        store(dst, pixels);
-                        dst += 4;
-                    } while (dst < end
-                            && _mm_testc_si128(pixels = load(dst + delta), alphaMask));
-                    src += dst - start;
-                } else if (_mm_testz_si128(pixels, alphaMask)) {
-                    do {
-                        dst += 4;
-                        src += 4;
-                    } while (dst < end
-                            && _mm_testz_si128(pixels = load(src), alphaMask));
-                } else {
-                    uint32_t* start = dst;
-                    do {
-                        srcover_srgb_srgb_4(dst, dst + delta);
-                        dst += 4;
-                    } while (dst < end
-                            && _mm_testnzc_si128(pixels = load(dst + delta), alphaMask));
-                    src += dst - start;
+                    store(dst, pixels);
+                } else if (!_mm_testz_si128(pixels, alphaMask)) {
+                    srcover_srgb_srgb_4(dst, src);
                 }
+
+                dst += 4;
+                src += 4;
             }
 
             count = count & 3;
