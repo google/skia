@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "249c5dd8_fcd1126e",
+        "filename": "tools/fiddle/fiddle_main.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-30T20:55:36Z",
+      "side": 0,
+      "message": "Here is where the OSMesa context gets created in the existing code.",
+      "range": {
+        "startLine": 97,
+        "startChar": 12,
+        "endLine": 97,
+        "endChar": 95
+      },
+      "revId": "f2ae2b2dbcbdcc31b72fa86ed79f1cc02220528d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

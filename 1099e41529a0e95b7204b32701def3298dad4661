@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a9d3a4d_66d0fc34",
+        "filename": "src/gpu/gl/egl/GrGLCreateNativeInterface_egl.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-30T20:55:36Z",
+      "side": 1,
+      "message": "This is also true for wgl, etc. However, this function is supposed to be called after the client code (fiddle in this case) has created its OpenGL context and bound it to the current thread. Skia doesn\u0027t create the client\u0027s OpenGL context it just helps extract the function pointers to an already created context.",
+      "range": {
+        "startLine": 48,
+        "startChar": 4,
+        "endLine": 52,
+        "endChar": 0
+      },
+      "revId": "1099e41529a0e95b7204b32701def3298dad4661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
