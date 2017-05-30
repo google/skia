@@ -22,7 +22,7 @@ struct VarDeclarationsStatement : public Statement {
     , fDeclaration(std::move(decl)) {}
 
     String description() const override {
-        return fDeclaration->description();
+        return fDeclaration->description() + ";";
     }
 
     std::shared_ptr<VarDeclarations> fDeclaration;

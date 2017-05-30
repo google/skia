@@ -57,17 +57,4 @@ void GrGLSLGeometryBuilder::configure(InputType inputType, OutputType outputType
 void GrGLSLGeometryBuilder::onFinalize() {
     SkASSERT(this->isConfigured());
     fProgramBuilder->varyingHandler()->getGeomDecls(&this->inputs(), &this->outputs());
-    GrShaderVar sk_InvocationID("sk_InvocationID", kInt_GrSLType);
-    this->declareGlobal(sk_InvocationID);
-    SkASSERT(sk_InvocationID.getName() == SkString("sk_InvocationID"));
-    if (this->getProgramBuilder()->shaderCaps()->mustImplementGSInvocationsWithLoop()) {
-        SkString invokeFn;
-        this->emitFunction(kVoid_GrSLType, "invoke", 0, nullptr, this->code().c_str(), &invokeFn);
-        this->code().printf("for (sk_InvocationID = 0; sk_InvocationID < %i; ++sk_InvocationID) {"
-                                "%s();"
-                                "EndPrimitive();"
-                            "}", fNumInvocations, invokeFn.c_str());
-    } else {
-        this->codePrependf("sk_InvocationID = gl_InvocationID;");
-    }
 }
