@@ -24,49 +24,6 @@
   },
   {
     "cmd": [
-      "git",
-      "remote",
-      "set-url",
-      "origin",
-      "https://skia.googlesource.com/skia.git"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "infra_step": true,
-    "name": "git remote set-url"
-  },
-  {
-    "cmd": [
-      "git",
-      "fetch"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "infra_step": true,
-    "name": "git fetch"
-  },
-  {
-    "cmd": [
-      "git",
-      "reset",
-      "--hard",
-      "origin/master"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "infra_step": true,
-    "name": "git reset"
-  },
-  {
-    "cmd": [
-      "git",
-      "clean",
-      "-d",
-      "-f"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "infra_step": true,
-    "name": "git clean"
-  },
-  {
-    "cmd": [
       "python",
       "-u",
       "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
