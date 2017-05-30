@@ -39,6 +39,24 @@
       "revId": "89b6202eea2cc58c607a333ea7c11031b3ff4b7d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe4cf628_f13d11a7",
+        "filename": "src/gpu/GrProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-30T14:02:16Z",
+      "side": 1,
+      "message": "We will but right now we have no mechanism for deferring buffers. I will add a TODO.",
+      "parentUuid": "98fa9c54_0124e91e",
+      "revId": "89b6202eea2cc58c607a333ea7c11031b3ff4b7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
