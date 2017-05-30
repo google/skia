@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32043721_d2b6eab4",
+        "filename": "include/effects/SkPerlinNoiseShader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-30T18:36:11Z",
+      "side": 1,
+      "message": "ShaderBase is private, this header is public.\n\nCan we keep this as a factory-class only, and leave the impl separate?",
+      "range": {
+        "startLine": 25,
+        "startChar": 42,
+        "endLine": 25,
+        "endChar": 54
+      },
+      "revId": "1658c48fb08c47db1280f7a820dab0012fcd08ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fffd213_daf58f28",
+        "filename": "include/effects/SkPerlinNoiseShader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-30T18:36:11Z",
+      "side": 1,
+      "message": "do we still need this?",
+      "range": {
+        "startLine": 80,
+        "startChar": 27,
+        "endLine": 80,
+        "endChar": 40
+      },
+      "revId": "1658c48fb08c47db1280f7a820dab0012fcd08ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
